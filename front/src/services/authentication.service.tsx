@@ -2,14 +2,12 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { Navigate, Outlet } from 'react-router'
 import ROUTES from '@/ROUTES'
 
-import { AuthToken, Whoami } from '@/MODELS/types'
+import { AuthToken, IPermissions, Whoami } from '@/MODELS/types'
 import { IUser } from '@/MODELS/user.model'
 
 import { api } from '@/services/api.service'
 
 import Loading from '@/components/Loading'
-
-import { IPermissions } from '../../../back/src/services/authentication.service'
 
 export interface IAuthContext {
     user: IUser | null

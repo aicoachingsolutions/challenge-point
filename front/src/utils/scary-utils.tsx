@@ -1,5 +1,4 @@
 import React from 'react'
-import { ObjectId } from 'mongoose'
 
 export function JSONView({ obj }: { obj: any }) {
     if (!obj) {
@@ -165,7 +164,7 @@ type RecursiveKeyOfNested<T> = {
     [K in keyof T & (string | number)]: RecursiveKeyOfProperty<T[K], `.${K}`>
 }[keyof T & (string | number)]
 
-type RecursiveKeyOfProperty<V, S extends string> = V extends any[] | Date | ObjectId
+type RecursiveKeyOfProperty<V, S extends string> = V extends any[] | Date
     ? S
     : V extends object
       ? S | `${S}${RecursiveKeyOfNested<V>}`
