@@ -13,3 +13,4 @@ node_modules/
 !.env.vault
 *.env.*
 !front/.env.production
+!front/.env.example

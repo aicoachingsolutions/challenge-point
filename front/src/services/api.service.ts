@@ -2,6 +2,8 @@ import ROUTES from '@/ROUTES'
 
 import { AuthToken } from '@/MODELS/types'
 
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+
 export type ApiResponse<DataType> = {
     status?: number
     message?: string
@@ -48,7 +50,7 @@ export async function wrappedFetch(
                     }
                 }
 
-                const refreshBody = await fetch(`${import.meta.env.VITE_API_URL}/${ROUTES.auth.refresh}`, {
+                const refreshBody = await fetch(`${API_BASE_URL}/${ROUTES.auth.refresh}`, {
                     ...init,
                     method: 'GET',
                     body: undefined,
@@ -138,7 +140,7 @@ export async function api<ResponseBodyType>(
     const token: AuthToken = getTokens()
     const method = body ? 'POST' : 'GET'
     const requestBody = body ? JSON.stringify(body) : null
-    return await wrappedFetch(`${import.meta.env.VITE_API_URL}/${endpoint}`, {
+    return await wrappedFetch(`${API_BASE_URL}/${endpoint}`, {
         method: method,
         headers: {
             Authorization: `${token.tokenType} ${token.accessToken}`,
@@ -179,7 +181,7 @@ export async function api_no_auth<ResponseBodyType>(
     const method = body ? 'POST' : 'GET'
     const requestBody = body ? JSON.stringify(body) : null
 
-    return await wrappedFetch(`${import.meta.env.VITE_API_URL}/${endpoint}`, {
+    return await wrappedFetch(`${API_BASE_URL}/${endpoint}`, {
         method: method,
         headers: {
             'Content-Type': 'application/json',
@@ -208,7 +210,7 @@ export async function api_no_auth<ResponseBodyType>(
 export async function api_delete(endpoint: string, logging?: boolean): Promise<ApiResponse<null>> {
     const token: AuthToken = getTokens()
 
-    return await wrappedFetch(`${import.meta.env.VITE_API_URL}/${endpoint}`, {
+    return await wrappedFetch(`${API_BASE_URL}/${endpoint}`, {
         method: 'DELETE',
         headers: {
             Authorization: `${token.tokenType} ${token.accessToken}`,

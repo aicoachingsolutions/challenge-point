@@ -4,7 +4,7 @@ import { differenceInHours } from 'date-fns'
 
 import { AuthToken } from '@/MODELS/types'
 
-import { api, ApiResponse } from './api.service'
+import { api, ApiResponse, API_BASE_URL } from './api.service'
 
 const S3Service = {
     uploadFileToS3,
@@ -87,9 +87,7 @@ async function getFileUrlFromS3(fileKey: string): Promise<FileUrlResponse> {
     }
 
     // no cached urls available, fetch fresh
-    const response: ApiResponse<FileUrlResponse | null> = await s3api(
-        `${import.meta.env.VITE_API_URL}/s3/get-signed-url/${encodeURIComponent(fileKey)}`
-    )
+    const response: ApiResponse<FileUrlResponse | null> = await s3api(`${API_BASE_URL}/s3/get-signed-url/${encodeURIComponent(fileKey)}`)
 
     if (response?.error) {
         throw new Error('get-signed-url returned an error:' + response.error)
@@ -159,7 +157,7 @@ async function s3WrappedFetch(input: RequestInfo | URL, numRetries?: number): Pr
                     throw { status: 401, error: 'Maximum retries exceeded' }
                 }
 
-                const refreshResponse = await fetch(`${import.meta.env.VITE_API_URL}/${ROUTES.auth.refresh}`, {
+                const refreshResponse = await fetch(`${API_BASE_URL}/${ROUTES.auth.refresh}`, {
                     method: 'GET',
                 }).then((res) => res.json())
 
