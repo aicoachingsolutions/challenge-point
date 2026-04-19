@@ -1,0 +1,14 @@
+# Local MongoDB only. Docker is optional — see README for alternatives.
+# From repo root: docker compose up -d
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: challenge-point-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - challenge-point-mongo-data:/data/db
+
+volumes:
+  challenge-point-mongo-data:

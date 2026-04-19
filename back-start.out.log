@@ -1,0 +1,9 @@
+
+> challenge-point@1.0.0 start:back
+> npm --prefix ./back/ run start
+
+
+> challenge-point-back@1.0.0 start
+> node dist/index.js
+
+[2026-04-15T22:59:58.983Z] ERROR: Failed to start server: MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
