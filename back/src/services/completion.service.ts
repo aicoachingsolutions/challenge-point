@@ -346,6 +346,7 @@ Assembly requirements:
 - Copy the selected affordance IDs into affordancesUsed. Do not add different affordance IDs.
 - Copy the selected constraint IDs into constraintsUsed. Do not add different constraint IDs.
 - Use the consequence through the rules / scoring / winning condition when one is supplied.
+- If a consequence constraint is supplied, operationalize its actual reward / penalty / restart logic from the selected consequence description instead of falling back to generic scoring language.
 - Keep scoring and winning condition subordinate to the selected constraint package.
 - Keep activities distinct from any previous activities provided in the payload while preserving the same system spine.`
 }

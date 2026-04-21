@@ -1,11 +1,40 @@
 import { IActivity } from '../models/activity.model'
 import { SystemAssemblyInput, SystemPipelineError } from './types'
-import { countPatternHits, includesNormalizedPhrase, scoreKeywordMatches } from './text'
+import { countPatternHits, includesNormalizedPhrase, overlapScore, scoreKeywordMatches, uniqueTokens } from './text'
 
 const REQUIRED_STRING_FIELDS = ['title', 'constraint', 'intent', 'scoringSystem', 'winCondition'] as const
 const REQUIRED_ARRAY_FIELDS = ['rules', 'scaffolding', 'extensions', 'equipmentNeeded'] as const
 const PRESCRIPTIVE_PATTERNS = ['every player must', 'only way', 'exactly', 'must always', 'required to']
 const OPEN_DECISION_PATTERNS = ['choose', 'option', 'space', 'support', 'timing', 'when to', 'whether', 'find']
+const CONSEQUENCE_PATTERNS = ['score', 'point', 'reward', 'penalty', 'bonus', 'restart', 'win', 'lose', 'double']
+const GENERIC_CONSEQUENCE_TOKENS = new Set([
+    'team',
+    'teams',
+    'player',
+    'players',
+    'game',
+    'games',
+    'activity',
+    'activities',
+    'ball',
+    'live',
+    'action',
+    'actions',
+    'score',
+    'scored',
+    'scoring',
+    'point',
+    'points',
+    'reward',
+    'penalty',
+    'penalties',
+    'bonus',
+    'restart',
+    'win',
+    'wins',
+    'lose',
+    'loss',
+])
 
 function ensureStringField(candidate: Record<string, any>, field: (typeof REQUIRED_STRING_FIELDS)[number], index: number): string {
     if (typeof candidate[field] !== 'string' || candidate[field].trim().length === 0) {
@@ -34,6 +63,45 @@ function buildConstraintSummary(input: SystemAssemblyInput): string {
     }
 
     return segments.join(' | ')
+}
+
+function buildSelectedConsequenceTokens(input: SystemAssemblyInput): string[] {
+    const selectedConsequence = input.constraintPackage.consequence?.constraint
+    if (!selectedConsequence) {
+        return []
+    }
+
+    return uniqueTokens([
+        selectedConsequence.title,
+        selectedConsequence.description,
+        selectedConsequence.designIntent,
+        selectedConsequence.notes,
+        selectedConsequence.suggestedConstraintPrompt,
+        selectedConsequence.gameTemplateAnchor,
+    ]).filter((token) => !GENERIC_CONSEQUENCE_TOKENS.has(token))
+}
+
+function consequenceIsEmbedded(consequenceNarrative: string, input: SystemAssemblyInput): boolean {
+    const selectedConsequence = input.constraintPackage.consequence?.constraint
+    if (!selectedConsequence) {
+        return true
+    }
+
+    const explicitCueMatch = scoreKeywordMatches(consequenceNarrative, input.archetype.consequenceCues, 1) > 0
+    if (explicitCueMatch) {
+        return true
+    }
+
+    const narrativeHasConsequenceMechanic = countPatternHits(consequenceNarrative, CONSEQUENCE_PATTERNS) > 0
+    if (!narrativeHasConsequenceMechanic) {
+        return false
+    }
+
+    const selectedConsequenceTokens = buildSelectedConsequenceTokens(input)
+    const narrativeTokens = uniqueTokens([consequenceNarrative])
+    const sharedConsequenceTokens = overlapScore(selectedConsequenceTokens, narrativeTokens, 1)
+
+    return sharedConsequenceTokens >= 3
 }
 
 export function validateGeneratedActivities(rawResponse: unknown, input: SystemAssemblyInput): IActivity[] {
@@ -120,7 +188,7 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
 
         if (input.constraintPackage.consequence) {
             const consequenceNarrative = [scoringSystem, winCondition, rules.join(' ')].join(' ')
-            if (scoreKeywordMatches(consequenceNarrative, input.archetype.consequenceCues, 1) === 0) {
+            if (!consequenceIsEmbedded(consequenceNarrative, input)) {
                 throw new SystemPipelineError(
                     'output-validation',
                     `Generated activity ${index + 1} does not embed the selected consequence in the live game consequences.`

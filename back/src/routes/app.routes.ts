@@ -6,6 +6,7 @@ import { assembleActivities } from 'src/services/completion.service'
 
 import Activity, { ActivityStatus } from '../models/activity.model'
 import User from '../models/user.model'
+import LoggingService from '../services/logging.service'
 import { ENDPOINTS } from './_endpoints'
 import BaseRoutes from './helper'
 import { buildConstraintPackage } from '../system/build-constraint-package'
@@ -60,7 +61,63 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         }
 
         const assembledActivities = await assembleActivities(assemblyInput)
-        const validatedActivities = validateGeneratedActivities(assembledActivities, assemblyInput)
+        let validatedActivities
+
+        try {
+            validatedActivities = validateGeneratedActivities(assembledActivities, assemblyInput)
+        } catch (error) {
+            if (error instanceof SystemPipelineError && error.stage === 'output-validation') {
+                await LoggingService.log(
+                    {
+                        level: 'warn',
+                        service: 'Activity Generation',
+                        message: 'Generated activities failed output validation.',
+                        data: {
+                            sessionId: req.params.id,
+                            coachInput: assemblyInput.coachInput,
+                            archetype: {
+                                id: assemblyInput.archetype.id,
+                                name: assemblyInput.archetype.name,
+                                consequenceCues: assemblyInput.archetype.consequenceCues,
+                            },
+                            selectedConstraints: {
+                                foundation: {
+                                    id: assemblyInput.constraintPackage.foundation.constraint._id,
+                                    title: assemblyInput.constraintPackage.foundation.constraint.title,
+                                },
+                                shaping: {
+                                    id: assemblyInput.constraintPackage.shaping.constraint._id,
+                                    title: assemblyInput.constraintPackage.shaping.constraint.title,
+                                },
+                                consequence: assemblyInput.constraintPackage.consequence
+                                    ? {
+                                          id: assemblyInput.constraintPackage.consequence.constraint._id,
+                                          title: assemblyInput.constraintPackage.consequence.constraint.title,
+                                          description: assemblyInput.constraintPackage.consequence.constraint.description,
+                                          designIntent: assemblyInput.constraintPackage.consequence.constraint.designIntent,
+                                          notes: assemblyInput.constraintPackage.consequence.constraint.notes,
+                                          suggestedConstraintPrompt:
+                                              assemblyInput.constraintPackage.consequence.constraint.suggestedConstraintPrompt,
+                                          gameTemplateAnchor: assemblyInput.constraintPackage.consequence.constraint.gameTemplateAnchor,
+                                      }
+                                    : null,
+                            },
+                            assembledActivities,
+                            error: {
+                                stage: error.stage,
+                                message: error.message,
+                                details: error.details,
+                            },
+                        },
+                    },
+                    {
+                        writeLogFile: true,
+                    }
+                )
+            }
+
+            throw error
+        }
 
         return res.status(200).json(validatedActivities)
     } catch (error) {
