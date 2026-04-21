@@ -289,6 +289,10 @@ function buildAssemblyPayload(input: SystemAssemblyInput) {
                       _id: input.constraintPackage.consequence.constraint._id,
                       title: input.constraintPackage.consequence.constraint.title,
                       description: input.constraintPackage.consequence.constraint.description,
+                      designIntent: input.constraintPackage.consequence.constraint.designIntent,
+                      notes: input.constraintPackage.consequence.constraint.notes,
+                      suggestedConstraintPrompt: input.constraintPackage.consequence.constraint.suggestedConstraintPrompt,
+                      gameTemplateAnchor: input.constraintPackage.consequence.constraint.gameTemplateAnchor,
                       role: input.constraintPackage.consequence.role,
                   }
                 : null,
@@ -350,7 +354,9 @@ Assembly requirements:
 - Copy the selected constraint IDs into constraintsUsed. Do not add different constraint IDs.
 - Keep the primary affordance central. Supporting affordances may appear as adjacent behaviors, but do not replace the selected primary affordance.
 - Use the consequence through the rules / scoring / winning condition when one is supplied.
+- Treat the consequence payload as the canonical brief for live game consequences. Use its title, description, design intent, notes, suggested constraint prompt, and game template anchor when present.
 - If a consequence constraint is supplied, operationalize its actual reward / penalty / restart logic from the selected consequence description instead of falling back to generic scoring language.
+- If the consequence metadata implies both a reward and a penalty, restart, turnover, or loss-of-possession mechanic, make both sides concrete in the rules / scoring / winning condition.
 - Keep scoring and winning condition subordinate to the selected constraint package.
 - Keep activities distinct from any previous activities provided in the payload while preserving the same system spine.`
 }
