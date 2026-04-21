@@ -9,6 +9,7 @@ import User from '../models/user.model'
 import { ENDPOINTS } from './_endpoints'
 import BaseRoutes from './helper'
 import { buildConstraintPackage } from '../system/build-constraint-package'
+import { getAffordanceRegistryObjectIds } from '../system/affordances'
 import { selectAffordances } from '../system/select-affordance'
 import { selectArchetype } from '../system/select-archetype'
 import { ActivityAssemblyRequest, SystemPipelineError } from '../system/types'
@@ -35,7 +36,7 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
             return res.status(404).json({ error: 'Session not found' })
         }
 
-        const affordances = await Affordance.find().populate('category')
+        const affordances = await Affordance.find({ _id: { $in: getAffordanceRegistryObjectIds() } }).populate('category')
         const constraints = await Constraint.find().populate('category')
         const previousActivities = await Activity.find({ session: req.params.id })
 

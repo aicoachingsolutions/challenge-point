@@ -3,6 +3,7 @@ import mongoose from 'mongoose'
 
 import server from './server'
 import Logger from './logger'
+import { syncAffordanceRegistryToMongo } from './system/sync-affordances'
 mongoose.set('strictQuery', true)
 
 const port = process.env.PORT || 8000
@@ -44,6 +45,15 @@ const start = async () => {
             'The API will not start without a database. ' +
                 'If nothing is listening on the host/port in DB_CONNECTION_STRING, that is the problem. ' +
                 MONGO_HINT
+        )
+        process.exit(1)
+    }
+
+    try {
+        await syncAffordanceRegistryToMongo()
+    } catch (error) {
+        Logger.error(
+            `Affordance registry sync failed: ${error instanceof Error ? error.message : String(error)}`
         )
         process.exit(1)
     }

@@ -64,6 +64,7 @@ Use this for day-to-day work: hot reload on both sides.
 2. Ensure MongoDB is running (Option A or B above).
 
 3. Ensure **`back/src/.env.development`** includes a valid `DB_CONNECTION_STRING` and secrets (`JWT_SECRET`, `REFRESH_SECRET`, etc.).
+   The backend now syncs the canonical affordance registry into Mongo on startup before serving requests.
 
 4. Start app:
 
@@ -178,3 +179,7 @@ Deploy to any Node.js host with MongoDB access; run `node dist/index.js`.
 - Frontend uses Vite HMR
 - Shared TypeScript types across the stack
 - ESLint and Prettier configured for code quality
+- Canonical affordances live in **`back/src/system/affordances.ts`**
+- Startup runs an idempotent sync into Mongo via **`back/src/system/sync-affordances.ts`**
+- Manual repair/reseed is available with `cd back && npm run sync:affordances`
+- Admin affordance edits are secondary now; the checked-in registry is the source of truth and startup sync will overwrite canonical fields
