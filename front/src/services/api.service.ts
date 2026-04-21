@@ -13,6 +13,31 @@ export type ApiResponse<DataType> = {
     details?: string[]
 }
 
+function normalizeApiError(error: unknown): ApiResponse<null> {
+    if (typeof error === 'object' && error !== null) {
+        const candidate = error as Record<string, unknown>
+        const details = Array.isArray(candidate.details) ? candidate.details.filter((detail): detail is string => typeof detail === 'string') : undefined
+
+        return {
+            status: typeof candidate.status === 'number' ? candidate.status : undefined,
+            error: typeof candidate.error === 'string' ? candidate.error : undefined,
+            message: typeof candidate.message === 'string' ? candidate.message : undefined,
+            stage: typeof candidate.stage === 'string' ? candidate.stage : undefined,
+            details,
+        }
+    }
+
+    if (typeof error === 'string') {
+        return {
+            error: error,
+        }
+    }
+
+    return {
+        error: 'Unable to reach the server right now. Please try again.',
+    }
+}
+
 /* Middleware
  */
 export async function wrappedFetch(
@@ -168,6 +193,7 @@ export async function api<ResponseBodyType>(
         })
         .catch((errorResponse: ApiResponse<null>) => {
             // response is formed by the middleware
+            const normalizedError = normalizeApiError(errorResponse)
             if (errorResponse?.status === 401) {
                 // has attempted and failed to refresh
                 localStorage.removeItem('token')
@@ -175,7 +201,7 @@ export async function api<ResponseBodyType>(
             }
             return {
                 data: null,
-                ...errorResponse,
+                ...normalizedError,
             }
         })
 }
@@ -210,9 +236,10 @@ export async function api_no_auth<ResponseBodyType>(
         })
         .catch((errorResponse: ApiResponse<null>) => {
             // response is formed by the middleware
+            const normalizedError = normalizeApiError(errorResponse)
             return {
                 data: null,
-                ...errorResponse,
+                ...normalizedError,
             }
         })
 }
@@ -236,6 +263,7 @@ export async function api_delete(endpoint: string, logging?: boolean): Promise<A
         })
         .catch((errorResponse: ApiResponse<null>) => {
             // response is formed by the middleware
+            const normalizedError = normalizeApiError(errorResponse)
             if (errorResponse?.status === 401) {
                 // has attempted and failed to refresh
                 localStorage.removeItem('token')
@@ -243,7 +271,7 @@ export async function api_delete(endpoint: string, logging?: boolean): Promise<A
             }
             return {
                 data: null,
-                ...errorResponse,
+                ...normalizedError,
             }
         })
 }

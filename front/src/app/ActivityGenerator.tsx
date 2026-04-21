@@ -36,6 +36,23 @@ export default function ActivityGenerator() {
     const [currentActivityIndex, setCurrentActivityIndex] = useState(0)
     const navigate = useNavigate()
 
+    const buildGenerationErrorMessage = (errorResponse?: { error?: string; message?: string; stage?: string; details?: string[] }) => {
+        if (!errorResponse) {
+            return 'Unable to generate activities right now. Please review your inputs and try again.'
+        }
+
+        const messageParts = [errorResponse.error ?? errorResponse.message]
+        if (errorResponse.stage && errorResponse.error && !errorResponse.error.startsWith(`${errorResponse.stage}:`)) {
+            messageParts[0] = `${errorResponse.stage}: ${errorResponse.error}`
+        }
+
+        if (Array.isArray(errorResponse.details) && errorResponse.details.length > 0) {
+            messageParts.push(errorResponse.details[0])
+        }
+
+        return messageParts.filter(Boolean).join(' ') || 'Unable to generate activities right now. Please review your inputs and try again.'
+    }
+
     const resetGenerationState = (message?: string) => {
         setGeneratedActivities([])
         setCurrentActivityIndex(0)
@@ -59,7 +76,7 @@ export default function ActivityGenerator() {
             })
 
             if (res.error || !Array.isArray(res.data)) {
-                resetGenerationState(res.error)
+                resetGenerationState(buildGenerationErrorMessage(res))
                 return
             }
 
