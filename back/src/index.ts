@@ -4,6 +4,7 @@ import mongoose from 'mongoose'
 import server from './server'
 import Logger from './logger'
 import { syncAffordanceRegistryToMongo } from './system/sync-affordances'
+import { syncConstraintRegistryToMongo } from './system/sync-constraints'
 mongoose.set('strictQuery', true)
 
 const port = process.env.PORT || 8000
@@ -51,9 +52,10 @@ const start = async () => {
 
     try {
         await syncAffordanceRegistryToMongo()
+        await syncConstraintRegistryToMongo()
     } catch (error) {
         Logger.error(
-            `Affordance registry sync failed: ${error instanceof Error ? error.message : String(error)}`
+            `System library sync failed: ${error instanceof Error ? error.message : String(error)}`
         )
         process.exit(1)
     }

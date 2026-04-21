@@ -183,3 +183,7 @@ Deploy to any Node.js host with MongoDB access; run `node dist/index.js`.
 - Startup runs an idempotent sync into Mongo via **`back/src/system/sync-affordances.ts`**
 - Manual repair/reseed is available with `cd back && npm run sync:affordances`
 - Admin affordance edits are secondary now; the checked-in registry is the source of truth and startup sync will overwrite canonical fields
+- Canonical constraints live in **`back/src/system/constraints.ts`**
+- Startup runs an idempotent sync into Mongo via **`back/src/system/sync-constraints.ts`**
+- Manual repair/reseed is available with `cd back && npm run sync:constraints`
+- Admin constraint edits are secondary now; the checked-in registry is the source of truth and startup sync will overwrite canonical fields

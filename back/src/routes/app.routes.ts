@@ -10,6 +10,7 @@ import { ENDPOINTS } from './_endpoints'
 import BaseRoutes from './helper'
 import { buildConstraintPackage } from '../system/build-constraint-package'
 import { getAffordanceRegistryObjectIds } from '../system/affordances'
+import { getConstraintRegistryObjectIds } from '../system/constraints'
 import { selectAffordances } from '../system/select-affordance'
 import { selectArchetype } from '../system/select-archetype'
 import { ActivityAssemblyRequest, SystemPipelineError } from '../system/types'
@@ -37,7 +38,7 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         }
 
         const affordances = await Affordance.find({ _id: { $in: getAffordanceRegistryObjectIds() } }).populate('category')
-        const constraints = await Constraint.find().populate('category')
+        const constraints = await Constraint.find({ _id: { $in: getConstraintRegistryObjectIds() } }).populate('category')
         const previousActivities = await Activity.find({ session: req.params.id })
 
         const selectedAffordances = selectAffordances(learningGoals, session, affordances)
