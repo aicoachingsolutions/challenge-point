@@ -119,6 +119,57 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
             throw error
         }
 
+        if (
+            assembledActivities?.generatedActivities &&
+            Array.isArray(assembledActivities.generatedActivities) &&
+            validatedActivities.length < assembledActivities.generatedActivities.length
+        ) {
+            await LoggingService.log(
+                {
+                    level: 'warn',
+                    service: 'Activity Generation',
+                    message: 'Filtered invalid generated activities after output validation.',
+                    data: {
+                        sessionId: req.params.id,
+                        totalGeneratedActivities: assembledActivities.generatedActivities.length,
+                        returnedActivities: validatedActivities.length,
+                        droppedActivities: assembledActivities.generatedActivities.length - validatedActivities.length,
+                        coachInput: assemblyInput.coachInput,
+                        archetype: {
+                            id: assemblyInput.archetype.id,
+                            name: assemblyInput.archetype.name,
+                        },
+                        selectedConstraints: {
+                            foundation: {
+                                id: assemblyInput.constraintPackage.foundation.constraint._id,
+                                title: assemblyInput.constraintPackage.foundation.constraint.title,
+                            },
+                            shaping: {
+                                id: assemblyInput.constraintPackage.shaping.constraint._id,
+                                title: assemblyInput.constraintPackage.shaping.constraint.title,
+                            },
+                            consequence: assemblyInput.constraintPackage.consequence
+                                ? {
+                                      id: assemblyInput.constraintPackage.consequence.constraint._id,
+                                      title: assemblyInput.constraintPackage.consequence.constraint.title,
+                                      description: assemblyInput.constraintPackage.consequence.constraint.description,
+                                      designIntent: assemblyInput.constraintPackage.consequence.constraint.designIntent,
+                                      notes: assemblyInput.constraintPackage.consequence.constraint.notes,
+                                      suggestedConstraintPrompt:
+                                          assemblyInput.constraintPackage.consequence.constraint.suggestedConstraintPrompt,
+                                      gameTemplateAnchor: assemblyInput.constraintPackage.consequence.constraint.gameTemplateAnchor,
+                                  }
+                                : null,
+                        },
+                        assembledActivities,
+                    },
+                },
+                {
+                    writeLogFile: true,
+                }
+            )
+        }
+
         return res.status(200).json(validatedActivities)
     } catch (error) {
         if (error instanceof SystemPipelineError) {

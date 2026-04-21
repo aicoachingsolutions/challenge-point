@@ -117,8 +117,11 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
         input.constraintPackage.consequence?.constraint._id,
     ].filter(Boolean) as string[]
     const packageSummary = buildConstraintSummary(input)
+    const validActivities: IActivity[] = []
+    const validationErrors: SystemPipelineError[] = []
 
-    return payload.generatedActivities.map((candidate, index) => {
+    for (const [index, candidate] of payload.generatedActivities.entries()) {
+        try {
         const title = ensureStringField(candidate, 'title', index)
         const constraint = ensureStringField(candidate, 'constraint', index)
         const intent = ensureStringField(candidate, 'intent', index)
@@ -196,7 +199,7 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
             }
         }
 
-        return {
+            validActivities.push({
             title,
             constraint: `${packageSummary}. ${constraint}`,
             intent,
@@ -218,6 +221,20 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
                 shapingConstraintId: input.constraintPackage.shaping.constraint._id,
                 consequenceConstraintId: input.constraintPackage.consequence?.constraint._id,
             },
-        } as IActivity
-    })
+            } as IActivity)
+        } catch (error) {
+            if (error instanceof SystemPipelineError) {
+                validationErrors.push(error)
+                continue
+            }
+
+            throw error
+        }
+    }
+
+    if (validActivities.length === 0) {
+        throw validationErrors[0] ?? new SystemPipelineError('output-validation', 'No generated activities passed validation.')
+    }
+
+    return validActivities
 }
