@@ -9,6 +9,8 @@ export type ApiResponse<DataType> = {
     message?: string
     data?: DataType
     error?: string
+    stage?: string
+    details?: string[]
 }
 
 /* Middleware
@@ -97,12 +99,14 @@ export async function wrappedFetch(
         }
 
         // All other errors
+        const errorBody = await response.json().catch(() => null)
+
         throw {
             status: response.status,
-            error: await response
-                .json()
-                .then((body) => body?.error ?? response.statusText)
-                .catch(() => response.statusText),
+            error: errorBody?.error ?? response.statusText,
+            message: errorBody?.message,
+            stage: errorBody?.stage,
+            details: Array.isArray(errorBody?.details) ? errorBody.details : undefined,
         }
     }
 
@@ -169,7 +173,10 @@ export async function api<ResponseBodyType>(
                 localStorage.removeItem('token')
                 window.location.replace('/login')
             }
-            return errorResponse
+            return {
+                data: null,
+                ...errorResponse,
+            }
         })
 }
 
@@ -203,7 +210,10 @@ export async function api_no_auth<ResponseBodyType>(
         })
         .catch((errorResponse: ApiResponse<null>) => {
             // response is formed by the middleware
-            return errorResponse
+            return {
+                data: null,
+                ...errorResponse,
+            }
         })
 }
 
@@ -231,6 +241,9 @@ export async function api_delete(endpoint: string, logging?: boolean): Promise<A
                 localStorage.removeItem('token')
                 window.location.replace('/login')
             }
-            return errorResponse
+            return {
+                data: null,
+                ...errorResponse,
+            }
         })
 }

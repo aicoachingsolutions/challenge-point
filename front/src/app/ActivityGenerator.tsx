@@ -28,32 +28,53 @@ export default function ActivityGenerator() {
     const { id } = useParams()
     type GenerationStatus = 'creation' | 'generation' | 'selection'
     const [generationStatus, setGenerationStatus] = useState<GenerationStatus>('creation')
+    const [generationError, setGenerationError] = useState<string | null>(null)
     const [selectedChallengeLevel, setSelectedChallengeLevel] = useState<ChallengeLevels>()
     const [selectedDuration, setSelectedDuration] = useState<number>()
     const [selectedLearningGoals, setSelectedLearningGoals] = useState<string[]>([])
     const [generatedActivities, setGeneratedActivities] = useState<IActivity[]>([])
     const [currentActivityIndex, setCurrentActivityIndex] = useState(0)
     const navigate = useNavigate()
+
+    const resetGenerationState = (message?: string) => {
+        setGeneratedActivities([])
+        setCurrentActivityIndex(0)
+        setGenerationStatus('creation')
+        setGenerationError(message ?? 'Unable to generate activities right now. Please review your inputs and try again.')
+    }
+
     const generateActivities = async () => {
         if (!selectedChallengeLevel || !selectedDuration) {
             return
         }
 
+        setGenerationError(null)
         setGenerationStatus('generation')
 
-        api<IActivity[]>(`${ROUTES.app.generateActivities}/${id}`, {
-            challengeLevel: selectedChallengeLevel,
-            duration: selectedDuration,
-            learningGoals: selectedLearningGoals,
-        })
-            .then((res) => {
-                setGenerationStatus('selection')
+        try {
+            const res = await api<IActivity[]>(`${ROUTES.app.generateActivities}/${id}`, {
+                challengeLevel: selectedChallengeLevel,
+                duration: selectedDuration,
+                learningGoals: selectedLearningGoals,
+            })
 
-                setGeneratedActivities(res.data)
-            })
-            .catch(() => {
-                setGenerationStatus('creation')
-            })
+            if (res.error || !Array.isArray(res.data)) {
+                resetGenerationState(res.error)
+                return
+            }
+
+            setCurrentActivityIndex(0)
+            setGeneratedActivities(res.data)
+            setGenerationStatus('selection')
+        } catch (error) {
+            const status = typeof error === 'object' && error !== null && 'status' in error ? error.status : undefined
+
+            if (status === 401) {
+                return
+            }
+
+            resetGenerationState()
+        }
     }
 
     const selectActivity = async (
@@ -149,6 +170,12 @@ export default function ActivityGenerator() {
 
                     {/* Form Fields */}
                     <div className='space-y-6 sm:space-y-8'>
+                        {generationError && (
+                            <div className='px-4 py-3 text-sm border rounded-xl border-amber-200 bg-amber-50 text-amber-800'>
+                                {generationError}
+                            </div>
+                        )}
+
                         {/* Challenge Level */}
                         <div>
                             <SelectField
