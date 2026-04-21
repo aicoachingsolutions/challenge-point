@@ -110,7 +110,9 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
         throw new SystemPipelineError('output-validation', 'The AI assembly response did not include a generatedActivities array.')
     }
 
-    const affordanceIds = [input.affordances.primary._id, input.affordances.secondary?._id].filter(Boolean) as string[]
+    const affordanceIds = Array.from(
+        new Set([input.affordances.primary._id, ...input.affordances.supporting.map((affordance) => affordance._id)].filter(Boolean))
+    ) as string[]
     const constraintIds = [
         input.constraintPackage.foundation.constraint._id,
         input.constraintPackage.shaping.constraint._id,
@@ -214,7 +216,7 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
             winCondition,
             systemTrace: {
                 primaryAffordanceId: input.affordances.primary._id,
-                secondaryAffordanceId: input.affordances.secondary?._id,
+                supportingAffordanceIds: input.affordances.supporting.map((affordance) => affordance._id),
                 archetypeId: input.archetype.id,
                 archetypeName: input.archetype.name,
                 foundationConstraintId: input.constraintPackage.foundation.constraint._id,

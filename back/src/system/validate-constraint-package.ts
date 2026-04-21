@@ -1,5 +1,5 @@
 import { countPatternHits, includesNormalizedPhrase } from './text'
-import { SelectedAffordances, SelectedConstraintPackage, ArchetypeDefinition, SystemPipelineError } from './types'
+import { AffordanceField, SelectedConstraintPackage, ArchetypeDefinition, SystemPipelineError } from './types'
 import { resolveArchetypeByHint } from './archetypes'
 
 const PRESCRIPTIVE_PATTERNS = [
@@ -26,7 +26,7 @@ function constraintNarrative(packageMember?: { constraint: { title?: string; des
 }
 
 export function validateConstraintPackage(
-    affordances: SelectedAffordances,
+    affordances: AffordanceField,
     archetype: ArchetypeDefinition,
     constraintPackage: SelectedConstraintPackage
 ) {
@@ -42,6 +42,7 @@ export function validateConstraintPackage(
         throw new SystemPipelineError('constraint-package-validation', 'A valid package requires both a foundation and shaping constraint.')
     }
 
+    const supportingTagGroups = affordances.supporting.map((affordance) => affordance.affordanceTagGroup).filter(Boolean)
     const selectedMembers = [constraintPackage.foundation, constraintPackage.shaping, constraintPackage.consequence].filter(Boolean)
 
     for (const member of selectedMembers) {
@@ -56,7 +57,7 @@ export function validateConstraintPackage(
             member!.constraint.affordanceTagGroup &&
             affordances.primary.affordanceTagGroup &&
             member!.constraint.affordanceTagGroup !== affordances.primary.affordanceTagGroup &&
-            member!.constraint.affordanceTagGroup !== affordances.secondary?.affordanceTagGroup
+            !supportingTagGroups.includes(member!.constraint.affordanceTagGroup)
         ) {
             throw new SystemPipelineError(
                 'constraint-package-validation',

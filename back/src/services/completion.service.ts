@@ -251,15 +251,18 @@ function buildAssemblyPayload(input: SystemAssemblyInput) {
                 affordanceTagGroup: input.affordances.primary.affordanceTagGroup,
                 designIntent: input.affordances.primary.designIntent,
             },
-            secondary: input.affordances.secondary
-                ? {
-                      _id: input.affordances.secondary._id,
-                      title: input.affordances.secondary.title,
-                      description: input.affordances.secondary.description,
-                      affordanceTagGroup: input.affordances.secondary.affordanceTagGroup,
-                      designIntent: input.affordances.secondary.designIntent,
-                  }
-                : null,
+            supporting: input.affordances.supporting.map((affordance) => ({
+                _id: affordance._id,
+                title: affordance.title,
+                description: affordance.description,
+                affordanceTagGroup: affordance.affordanceTagGroup,
+                designIntent: affordance.designIntent,
+            })),
+            viableCandidates: input.affordances.viableCandidates.map((affordance) => ({
+                _id: affordance._id,
+                title: affordance.title,
+                affordanceTagGroup: affordance.affordanceTagGroup,
+            })),
         },
         archetype: {
             id: input.archetype.id,
@@ -307,7 +310,7 @@ Do not choose archetypes.
 Do not choose constraints.
 Do not invent a new system structure.
 
-Your job is to assemble three concrete activity options that all use the supplied affordance(s), archetype, and constraint package.
+Your job is to assemble three concrete activity options that all use the supplied primary affordance, supporting affordance field, archetype, and constraint package.
 
 System principles:
 - Never prescribe exact player behaviour when the game can present multiple solutions.
@@ -343,8 +346,9 @@ Assembly requirements:
 - Produce exactly 3 activities.
 - The "constraint" field must explicitly include the selected foundation constraint title and shaping constraint title.
 - If a consequence constraint is supplied, the "constraint" field must explicitly include that title as well.
-- Copy the selected affordance IDs into affordancesUsed. Do not add different affordance IDs.
+- Copy the primary affordance ID and any supporting affordance IDs into affordancesUsed. Do not add viable candidate IDs unless they also appear in the supporting affordance field.
 - Copy the selected constraint IDs into constraintsUsed. Do not add different constraint IDs.
+- Keep the primary affordance central. Supporting affordances may appear as adjacent behaviors, but do not replace the selected primary affordance.
 - Use the consequence through the rules / scoring / winning condition when one is supplied.
 - If a consequence constraint is supplied, operationalize its actual reward / penalty / restart logic from the selected consequence description instead of falling back to generic scoring language.
 - Keep scoring and winning condition subordinate to the selected constraint package.

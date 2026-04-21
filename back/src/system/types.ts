@@ -22,10 +22,35 @@ export type ArchetypeDefinition = {
     consequenceCues: string[]
 }
 
-export type SelectedAffordances = {
+export type AffordanceFieldBand = 'primary' | 'supporting' | 'viable'
+
+export type AffordanceFieldCandidate = {
+    affordance: IAffordance
+    score: number
+    band: AffordanceFieldBand
+}
+
+export type AffordanceField = {
     primary: IAffordance
-    secondary?: IAffordance
-    scores: Array<{ affordanceId: string; score: number }>
+    supporting: IAffordance[]
+    viableCandidates: IAffordance[]
+    ranked: AffordanceFieldCandidate[]
+}
+
+export type ArchetypeSelectionBand = 'top' | 'candidate'
+
+export type ArchetypeSelectionCandidate = {
+    archetype: ArchetypeDefinition
+    score: number
+    reasons: string[]
+    band: ArchetypeSelectionBand
+}
+
+export type ArchetypeSelection = {
+    selected: ArchetypeDefinition
+    candidates: ArchetypeSelectionCandidate[]
+    selectionKey: string
+    selectedReason: string
 }
 
 export type ConstraintSelectionCandidate = {
@@ -45,8 +70,9 @@ export type SystemAssemblyInput = {
     session: ISession
     previousActivities: IActivity[]
     coachInput: ActivityAssemblyRequest
-    affordances: SelectedAffordances
+    affordances: AffordanceField
     archetype: ArchetypeDefinition
+    archetypeSelection: ArchetypeSelection
     constraintPackage: SelectedConstraintPackage
 }
 

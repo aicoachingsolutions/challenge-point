@@ -1,5 +1,5 @@
 import { IConstraint, ConstraintRoles } from '../models/constraint.model'
-import { ArchetypeDefinition, ConstraintRole, ConstraintSelectionCandidate, SelectedAffordances, SelectedConstraintPackage, SystemPipelineError } from './types'
+import { AffordanceField, ArchetypeDefinition, ConstraintRole, ConstraintSelectionCandidate, SelectedConstraintPackage, SystemPipelineError } from './types'
 import { resolveArchetypeByHint } from './archetypes'
 import { overlapScore, scoreKeywordMatches, tokenize, uniqueTokens, includesNormalizedPhrase } from './text'
 
@@ -50,7 +50,7 @@ export function inferConstraintRole(constraint: IConstraint): ConstraintRole | n
 function scoreConstraintForRole(
     constraint: IConstraint,
     role: ConstraintRole,
-    affordances: SelectedAffordances,
+    affordances: AffordanceField,
     archetype: ArchetypeDefinition
 ): ConstraintSelectionCandidate | null {
     const inferredRole = inferConstraintRole(constraint)
@@ -66,17 +66,24 @@ function scoreConstraintForRole(
         affordances.primary.description,
         affordances.primary.affordanceTagGroup,
         affordances.primary.designIntent,
-        affordances.secondary?.title,
-        affordances.secondary?.description,
-        affordances.secondary?.affordanceTagGroup,
+        ...affordances.supporting.flatMap((affordance) => [
+            affordance.title,
+            affordance.description,
+            affordance.affordanceTagGroup,
+            affordance.designIntent,
+        ]),
     ])
     const archetypeTokens = uniqueTokens([archetype.name, ...archetype.aliases, ...archetype.assemblyCues])
 
     let score = 10
+    const supportingTagGroups = affordances.supporting.map((affordance) => affordance.affordanceTagGroup).filter(Boolean)
 
     if (constraint.affordanceTagGroup && affordances.primary.affordanceTagGroup && constraint.affordanceTagGroup === affordances.primary.affordanceTagGroup) {
         score += 10
         reasons.push('Shared affordance tag group with primary affordance')
+    } else if (constraint.affordanceTagGroup && supportingTagGroups.includes(constraint.affordanceTagGroup)) {
+        score += 6
+        reasons.push('Shared affordance tag group with a supporting affordance')
     }
 
     score += overlapScore(constraintTokens, affordanceTokens, 2)
@@ -117,7 +124,7 @@ function scoreConstraintForRole(
 function pickBestConstraint(
     constraints: IConstraint[],
     role: ConstraintRole,
-    affordances: SelectedAffordances,
+    affordances: AffordanceField,
     archetype: ArchetypeDefinition,
     excludeIds: string[] = []
 ): ConstraintSelectionCandidate | undefined {
@@ -134,7 +141,7 @@ function pickBestConstraint(
 
 export function buildConstraintPackage(
     constraints: IConstraint[],
-    affordances: SelectedAffordances,
+    affordances: AffordanceField,
     archetype: ArchetypeDefinition
 ): SelectedConstraintPackage {
     if (!constraints.length) {

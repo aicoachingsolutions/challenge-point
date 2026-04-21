@@ -1,6 +1,6 @@
 import { IAffordance } from '../models/affordance.model'
 import { ISession } from '../models/session.model'
-import { SelectedAffordances, SystemPipelineError } from './types'
+import { AffordanceField, AffordanceFieldBand, SystemPipelineError } from './types'
 import { overlapScore, scoreKeywordMatches, tokenize, uniqueTokens } from './text'
 
 const LEARNING_GOAL_SIGNALS = [
@@ -39,7 +39,7 @@ export function selectAffordances(
     learningGoals: string[],
     session: ISession,
     affordances: IAffordance[]
-): SelectedAffordances {
+): AffordanceField {
     if (!affordances.length) {
         throw new SystemPipelineError('affordance-selection', 'No affordances are available in the library.')
     }
@@ -82,21 +82,47 @@ export function selectAffordances(
     }
 
     const primary = ranked[0].affordance
-    const secondary = ranked.find((entry) => {
-        if (entry.affordance._id === primary._id) {
-            return false
-        }
+    const primaryScore = ranked[0].score
+    const supportingFloor = Math.max(4, primaryScore - 5)
+    const viableFloor = Math.max(2, primaryScore - 10)
 
-        if (entry.score < Math.max(3, ranked[0].score - 4)) {
-            return false
-        }
+    const viableEntries = ranked
+        .filter((entry) => entry.affordance._id !== primary._id && entry.score >= viableFloor)
+        .slice(0, 4)
 
-        return entry.affordance.affordanceTagGroup !== primary.affordanceTagGroup
-    })?.affordance
+    const supporting = viableEntries
+        .filter((entry) => entry.score >= supportingFloor && entry.affordance.affordanceTagGroup !== primary.affordanceTagGroup)
+        .slice(0, 2)
+        .map((entry) => entry.affordance)
+
+    const supportingIds = new Set(supporting.map((affordance) => affordance._id))
+    const fieldEntries = [ranked[0], ...viableEntries]
+    const bandedRankings = fieldEntries.map((entry) => ({
+        affordance: entry.affordance,
+        score: entry.score,
+        band: resolveAffordanceBand(entry.affordance, primary._id, supportingIds),
+    }))
 
     return {
         primary,
-        secondary,
-        scores: ranked.slice(0, 5).map((entry) => ({ affordanceId: entry.affordance._id, score: entry.score })),
+        supporting,
+        viableCandidates: viableEntries.map((entry) => entry.affordance),
+        ranked: bandedRankings,
     }
+}
+
+function resolveAffordanceBand(
+    affordance: IAffordance,
+    primaryId: string,
+    supportingIds: Set<string>
+): AffordanceFieldBand {
+    if (affordance._id === primaryId) {
+        return 'primary'
+    }
+
+    if (supportingIds.has(affordance._id)) {
+        return 'supporting'
+    }
+
+    return 'viable'
 }

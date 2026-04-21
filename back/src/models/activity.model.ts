@@ -43,7 +43,7 @@ export interface IPointsScored {
 
 export interface ISystemTrace {
     primaryAffordanceId: string
-    secondaryAffordanceId?: string
+    supportingAffordanceIds?: string[]
     archetypeId: string
     archetypeName: string
     foundationConstraintId: string

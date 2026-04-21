@@ -43,7 +43,14 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         const previousActivities = await Activity.find({ session: req.params.id })
 
         const selectedAffordances = selectAffordances(learningGoals, session, affordances)
-        const selectedArchetype = selectArchetype(selectedAffordances)
+        const archetypeSelectionKey = [
+            req.params.id,
+            previousActivities.length,
+            new Date().toISOString().slice(0, 10),
+            ...learningGoals.map((goal) => goal.trim().toLowerCase()),
+        ].join('|')
+        const archetypeSelection = selectArchetype(selectedAffordances, archetypeSelectionKey)
+        const selectedArchetype = archetypeSelection.selected
         const constraintPackage = buildConstraintPackage(constraints, selectedAffordances, selectedArchetype)
         validateConstraintPackage(selectedAffordances, selectedArchetype, constraintPackage)
 
@@ -57,6 +64,7 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
             },
             affordances: selectedAffordances,
             archetype: selectedArchetype,
+            archetypeSelection,
             constraintPackage,
         }
 
@@ -79,6 +87,17 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                                 id: assemblyInput.archetype.id,
                                 name: assemblyInput.archetype.name,
                                 consequenceCues: assemblyInput.archetype.consequenceCues,
+                            },
+                            archetypeSelection: {
+                                selectionKey: assemblyInput.archetypeSelection.selectionKey,
+                                selectedReason: assemblyInput.archetypeSelection.selectedReason,
+                                candidates: assemblyInput.archetypeSelection.candidates.map((candidate) => ({
+                                    id: candidate.archetype.id,
+                                    name: candidate.archetype.name,
+                                    score: candidate.score,
+                                    band: candidate.band,
+                                    reasons: candidate.reasons,
+                                })),
                             },
                             selectedConstraints: {
                                 foundation: {
@@ -138,6 +157,16 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                         archetype: {
                             id: assemblyInput.archetype.id,
                             name: assemblyInput.archetype.name,
+                        },
+                        archetypeSelection: {
+                            selectionKey: assemblyInput.archetypeSelection.selectionKey,
+                            selectedReason: assemblyInput.archetypeSelection.selectedReason,
+                            candidates: assemblyInput.archetypeSelection.candidates.map((candidate) => ({
+                                id: candidate.archetype.id,
+                                name: candidate.archetype.name,
+                                score: candidate.score,
+                                band: candidate.band,
+                            })),
                         },
                         selectedConstraints: {
                             foundation: {
