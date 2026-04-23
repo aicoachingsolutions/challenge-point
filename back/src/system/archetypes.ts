@@ -30,7 +30,7 @@ export const ARCHETYPES: ArchetypeDefinition[] = [
         supportedPrimaryAffordanceKeywords: ['finish', 'score', 'chance', 'goal', 'final third'],
         supportedSecondaryAffordanceKeywords: ['penetrate', 'create space', 'arrive'],
         assemblyCues: ['different finishing routes', 'pressure on final action', 'timing of runs', 'second actions'],
-        consequenceCues: ['reward efficient finishing', 'punish rushed final action', 'bonus for quality chances'],
+        consequenceCues: ['reward efficient finishing', 'punish rushed final action', 'bonus for prepared finishes'],
     },
     {
         id: 'transition-chaos',

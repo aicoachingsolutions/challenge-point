@@ -250,6 +250,9 @@ function buildAssemblyPayload(input: SystemAssemblyInput) {
                 description: input.affordances.primary.description,
                 affordanceTagGroup: input.affordances.primary.affordanceTagGroup,
                 designIntent: input.affordances.primary.designIntent,
+                notes: input.affordances.primary.notes,
+                suggestedConstraintPrompt: input.affordances.primary.suggestedConstraintPrompt,
+                gameTemplateAnchor: input.affordances.primary.gameTemplateAnchor,
             },
             supporting: input.affordances.supporting.map((affordance) => ({
                 _id: affordance._id,
@@ -257,6 +260,9 @@ function buildAssemblyPayload(input: SystemAssemblyInput) {
                 description: affordance.description,
                 affordanceTagGroup: affordance.affordanceTagGroup,
                 designIntent: affordance.designIntent,
+                notes: affordance.notes,
+                suggestedConstraintPrompt: affordance.suggestedConstraintPrompt,
+                gameTemplateAnchor: affordance.gameTemplateAnchor,
             })),
             viableCandidates: input.affordances.viableCandidates.map((affordance) => ({
                 _id: affordance._id,
@@ -276,12 +282,22 @@ function buildAssemblyPayload(input: SystemAssemblyInput) {
                 _id: input.constraintPackage.foundation.constraint._id,
                 title: input.constraintPackage.foundation.constraint.title,
                 description: input.constraintPackage.foundation.constraint.description,
+                type: input.constraintPackage.foundation.constraint.type,
+                designIntent: input.constraintPackage.foundation.constraint.designIntent,
+                notes: input.constraintPackage.foundation.constraint.notes,
+                suggestedConstraintPrompt: input.constraintPackage.foundation.constraint.suggestedConstraintPrompt,
+                gameTemplateAnchor: input.constraintPackage.foundation.constraint.gameTemplateAnchor,
                 role: input.constraintPackage.foundation.role,
             },
             shaping: {
                 _id: input.constraintPackage.shaping.constraint._id,
                 title: input.constraintPackage.shaping.constraint.title,
                 description: input.constraintPackage.shaping.constraint.description,
+                type: input.constraintPackage.shaping.constraint.type,
+                designIntent: input.constraintPackage.shaping.constraint.designIntent,
+                notes: input.constraintPackage.shaping.constraint.notes,
+                suggestedConstraintPrompt: input.constraintPackage.shaping.constraint.suggestedConstraintPrompt,
+                gameTemplateAnchor: input.constraintPackage.shaping.constraint.gameTemplateAnchor,
                 role: input.constraintPackage.shaping.role,
             },
             consequence: input.constraintPackage.consequence
@@ -296,6 +312,7 @@ function buildAssemblyPayload(input: SystemAssemblyInput) {
                       role: input.constraintPackage.consequence.role,
                   }
                 : null,
+            validationWarnings: input.constraintPackage.validationWarnings ?? [],
         },
         previousActivities: input.previousActivities.map((activity) => ({
             title: activity.title,
@@ -317,12 +334,21 @@ Do not invent a new system structure.
 Your job is to assemble three concrete activity options that all use the supplied primary affordance, supporting affordance field, archetype, and constraint package.
 
 System principles:
+- Assemble perception-based game environments, not compliance-based drills.
+- Every constraint must answer what the game makes players notice, care about, and adapt to.
+- Start by shaping the environment through space, time, player numbers, scoring, pressure, and field references.
+- Highlight the problem through incentives before adding any temporary behavior limit.
+- If a temporary behavior constraint is used at all, keep it brief, subordinate to open play, and never make it the main task.
 - Never prescribe exact player behaviour when the game can present multiple solutions.
-- Preserve decision-making.
-- Let learning emerge from interaction.
+- Preserve decision-making across who, what, where, when, why, and how whenever possible.
+- Let learning emerge from interaction under meaningful consequences.
+- Affordances must emerge through active opponent interaction, not isolated compliance.
+- One team's opportunity must create risk for the other team.
+- Preserve continuous play, directional realism, active opposition, and multiple solutions.
+- Activities should feel like the real game and fit the requested challenge level.
+- Avoid vague language such as "quality chance", "good decision", or "proper technique". Use observable game events instead.
 - Constraints include structure and consequence.
 - Consequence is part of the constraint package, not a separate logic system.
-- Activities should feel like the real game and fit the requested challenge level.
 
 Output requirements:
 - Return valid JSON only.
@@ -357,6 +383,16 @@ Assembly requirements:
 - Treat the consequence payload as the canonical brief for live game consequences. Use its title, description, design intent, notes, suggested constraint prompt, and game template anchor when present.
 - If a consequence constraint is supplied, operationalize its actual reward / penalty / restart logic from the selected consequence description instead of falling back to generic scoring language.
 - If the consequence metadata implies both a reward and a penalty, restart, turnover, or loss-of-possession mechanic, make both sides concrete in the rules / scoring / winning condition.
+- Use the foundation and shaping metadata to define the environment first, then the incentive emphasis.
+- Write the "constraint" field as an environment summary, not as a checklist of instructions.
+- Write "intent" as the game problem being exposed to players, not as a coach command.
+- Keep rules short and game-like. Describe live conditions, restarts, scoring consequences, and opponent responses instead of technical instructions.
+- Make the activity fail if one team is removed; the design must depend on live opposition.
+- Make continuous play explicit through turnovers, restarts, recovery, or immediate next actions.
+- Make directional realism explicit through goals, target spaces, progression routes, or defended exits.
+- Ensure players can solve the problem in multiple ways. Do not collapse the activity into one pattern, one route, or one action.
+- Use observable outcomes in scoring and win conditions: goals, entries, exits, regains, delays, recoveries, switches, or other visible game events.
+- Resolve any validation warnings in the payload by shifting from behavior control to environment and incentive design.
 - Keep scoring and winning condition subordinate to the selected constraint package.
 - Keep activities distinct from any previous activities provided in the payload while preserving the same system spine.`
 }

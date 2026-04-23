@@ -10,6 +10,20 @@ type SyncResult = {
     updated: number
 }
 
+const CANONICAL_COMPARISON_FIELDS: Array<keyof ConstraintRegistryEntry> = [
+    'title',
+    'description',
+    'type',
+    'affordanceTagGroup',
+    'notes',
+    'contextualAudit',
+    'suggestedConstraintPrompt',
+    'gameTemplateAnchor',
+    'designIntent',
+    'constraintArchetype',
+    'constraintRole',
+]
+
 function validateRegistry(entries: ConstraintRegistryEntry[]) {
     const ids = new Set<string>()
     const titles = new Set<string>()
@@ -29,6 +43,48 @@ function validateRegistry(entries: ConstraintRegistryEntry[]) {
             throw new Error(`Constraint registry contains a duplicate title: ${entry.title}`)
         }
         titles.add(normalizedTitle)
+    }
+}
+
+function canonicalValue(value: unknown): string {
+    return String(value ?? '').trim()
+}
+
+export async function assertCanonicalConstraintRegistryReady(): Promise<void> {
+    validateRegistry(CONSTRAINT_REGISTRY)
+
+    const canonicalObjectIds = CONSTRAINT_REGISTRY.map((entry) => new Types.ObjectId(entry.id))
+    const documents = await Constraint.find({ _id: { $in: canonicalObjectIds } }).lean()
+    const documentsById = new Map(documents.map((document) => [String(document._id), document]))
+    const missingEntries = CONSTRAINT_REGISTRY.filter((entry) => !documentsById.has(entry.id))
+
+    if (missingEntries.length > 0) {
+        throw new Error(
+            `[constraint-sync] canonical constraints missing from Mongo: ${missingEntries.map((entry) => entry.title).join(', ')}.`
+        )
+    }
+
+    const mismatches: string[] = []
+
+    for (const entry of CONSTRAINT_REGISTRY) {
+        const document = documentsById.get(entry.id)
+        if (!document) {
+            continue
+        }
+
+        const differingFields = CANONICAL_COMPARISON_FIELDS.filter((field) => {
+            return canonicalValue(document[field as keyof typeof document]) !== canonicalValue(entry[field])
+        })
+
+        if (differingFields.length > 0) {
+            mismatches.push(`${entry.title}: ${differingFields.join(', ')}`)
+        }
+    }
+
+    if (mismatches.length > 0) {
+        throw new Error(
+            `[constraint-sync] canonical constraint verification failed. Mongo data is stale or partial: ${mismatches.join(' | ')}`
+        )
     }
 }
 
@@ -112,3 +168,8 @@ export async function syncConstraintRegistryToMongo(): Promise<SyncResult> {
     return { created, updated }
 }
 
+export async function syncAndAssertConstraintRegistryToMongo(): Promise<SyncResult> {
+    const result = await syncConstraintRegistryToMongo()
+    await assertCanonicalConstraintRegistryReady()
+    return result
+}

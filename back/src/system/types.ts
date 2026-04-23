@@ -64,6 +64,7 @@ export type SelectedConstraintPackage = {
     foundation: ConstraintSelectionCandidate
     shaping: ConstraintSelectionCandidate
     consequence?: ConstraintSelectionCandidate
+    validationWarnings?: string[]
 }
 
 export type SystemAssemblyInput = {

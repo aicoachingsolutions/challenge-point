@@ -145,25 +145,25 @@ export const CONSTRAINT_REGISTRY: ConstraintRegistryEntry[] = [
         constraintRole: ConstraintRoles.Shaping,
         constraintArchetype: 'finishing-pressure',
         notes: 'Keeps the game from collapsing into rushed first-shot behaviour.',
-        contextualAudit: 'Useful when the session should value quality chance creation and second actions.',
-        suggestedConstraintPrompt: 'Reward quality final actions and supporting movements rather than rushed shooting.',
+        contextualAudit: 'Useful when the session should value creating a clearer finishing picture and second actions.',
+        suggestedConstraintPrompt: 'Reward prepared finishes, rebounds, and supporting movements rather than rushed shooting.',
         gameTemplateAnchor: 'Finishing phase where rebounds, cut-backs, and support timing all matter.',
     },
     {
         id: '6620f2200000000000000009',
-        title: 'Quality Chance Bonus',
+        title: 'Prepared Finish Bonus',
         description:
-            'Teams receive a bonus point for goals scored from a clearly prepared quality chance, while rushed low-quality shots transfer possession to the opponent.',
+            'Teams receive a bonus point for goals scored from a clearly prepared finish with support or pressure manipulated, while rushed shots transfer possession to the opponent.',
         type: 'finishing consequence',
         affordanceTagGroup: 'finish',
         designIntent:
-            'Make consequence reflect the quality of the finishing moment and not only the existence of a shot.',
+            'Make consequence reflect the quality of the finishing picture and not only the existence of a shot.',
         constraintRole: ConstraintRoles.Consequence,
         constraintArchetype: 'finishing-pressure',
-        notes: 'Rewards efficient finishing and punishes poor final decisions in the live game.',
-        contextualAudit: 'Useful when efficient finishing and chance quality should shape behaviour.',
-        suggestedConstraintPrompt: 'Use scoring consequences that value quality chances and efficient finishing.',
-        gameTemplateAnchor: 'Bonus point for prepared finish, restart or loss of turn after rushed shots.',
+        notes: 'Rewards efficient finishing when the picture has been improved and punishes rushed final actions in the live game.',
+        contextualAudit: 'Useful when efficient finishing and the preparation of the finish should shape behaviour.',
+        suggestedConstraintPrompt: 'Use scoring consequences that value prepared finishes and punish rushed shots.',
+        gameTemplateAnchor: 'Bonus point for a prepared finish, restart or loss of turn after rushed shots.',
     },
     {
         id: '6620f2200000000000000010',
@@ -314,4 +314,3 @@ export const CONSTRAINT_REGISTRY: ConstraintRegistryEntry[] = [
 export function getConstraintRegistryObjectIds(): Types.ObjectId[] {
     return CONSTRAINT_REGISTRY.map((entry) => new Types.ObjectId(entry.id))
 }
-

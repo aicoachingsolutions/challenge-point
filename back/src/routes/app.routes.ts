@@ -14,6 +14,7 @@ import { getAffordanceRegistryObjectIds } from '../system/affordances'
 import { getConstraintRegistryObjectIds } from '../system/constraints'
 import { selectAffordances } from '../system/select-affordance'
 import { selectArchetype } from '../system/select-archetype'
+import { syncAndAssertConstraintRegistryToMongo } from '../system/sync-constraints'
 import { ActivityAssemblyRequest, SystemPipelineError } from '../system/types'
 import { validateConstraintPackage } from '../system/validate-constraint-package'
 import { validateGeneratedActivities } from '../system/validate-generated-activity'
@@ -37,6 +38,8 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         if (!session) {
             return res.status(404).json({ error: 'Session not found' })
         }
+
+        await syncAndAssertConstraintRegistryToMongo()
 
         const affordances = await Affordance.find({ _id: { $in: getAffordanceRegistryObjectIds() } }).populate('category')
         const constraints = await Constraint.find({ _id: { $in: getConstraintRegistryObjectIds() } }).populate('category')
