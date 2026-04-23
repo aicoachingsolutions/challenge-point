@@ -201,17 +201,17 @@ export const CONSTRAINT_REGISTRY: ConstraintRegistryEntry[] = [
         id: '6620f2200000000000000012',
         title: 'Transition Reward or Penalty',
         description:
-            'Teams earn a bonus point for immediate exploitation after a regain, while slow reactions or careless losses trigger a restart or penalty against them.',
+            'Teams earn a bonus point when they exploit a regain before the opponent recovers behind the ball and keep the next action live, while regains that run into recovered pressure restart with the opponent attacking immediately from the turnover spot while the defense is still disorganized.',
         type: 'transition consequence',
         affordanceTagGroup: 'transition',
         designIntent:
-            'Tie consequence directly to how well players react during unstable transition moments.',
+            'Tie consequence to how well players recognize the live transition window, weigh the opponent recovery picture, and choose when to attack fast or secure the ball.',
         constraintRole: ConstraintRoles.Consequence,
         constraintArchetype: 'transition-chaos',
-        notes: 'Rewards quick exploitation and penalizes slow or careless transition responses.',
-        contextualAudit: 'Useful when transition reactions should drive the main game consequence.',
-        suggestedConstraintPrompt: 'Reward fast exploitation and penalize delayed or poor transition decisions.',
-        gameTemplateAnchor: 'Bonus for fast regain exploitation, restart or penalty for slow response.',
+        notes: 'Creates a visible moment where players must read whether the opponent is exposed or has recovered pressure before choosing the next action.',
+        contextualAudit: 'Useful when transition learning should come from recognizing the recovery picture, opponent pressure, and the risk of forcing the first action.',
+        suggestedConstraintPrompt: 'Reward exploiting the transition window before recovery pressure arrives, and hand the advantage to the opponent when the regain runs into recovered pressure.',
+        gameTemplateAnchor: 'Bonus for exploiting the live regain window before recovery, restart with the opponent attacking when pressure has already recovered.',
     },
     {
         id: '6620f2200000000000000013',
