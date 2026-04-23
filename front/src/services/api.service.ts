@@ -2,7 +2,8 @@ import ROUTES from '@/ROUTES'
 
 import { AuthToken } from '@/MODELS/types'
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+const rawApiBaseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || ''
+export const API_BASE_URL = String(rawApiBaseUrl).replace(/\/+$/, '')
 
 export type ApiResponse<DataType> = {
     status?: number
