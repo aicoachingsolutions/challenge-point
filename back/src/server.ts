@@ -45,7 +45,7 @@ const corsOptions: cors.CorsOptions = {
         callback(null, allowed)
     },
     methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Refresh-Token', 'X-Requested-With'],
     optionsSuccessStatus: 204,
 }
 
