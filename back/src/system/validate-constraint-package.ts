@@ -1,5 +1,5 @@
 import { countPatternHits, includesNormalizedPhrase, normalizeText } from './text'
-import { AffordanceField, SelectedConstraintPackage, ArchetypeDefinition, SystemPipelineError } from './types'
+import { ActivityAssemblyGuardrails, AffordanceField, ArchetypeDefinition, InteractionExchange, SelectedConstraintPackage, SystemPipelineError } from './types'
 import { resolveArchetypeByHint } from './archetypes'
 
 const PRESCRIPTIVE_PATTERNS = [
@@ -114,6 +114,7 @@ const COMPLIANCE_PATTERNS = [
 const VAGUE_LANGUAGE_PATTERNS = ['quality chance', 'good decision', 'proper technique', 'correct technique']
 const OPPORTUNITY_PATTERNS = ['score', 'bonus', 'reward', 'progress', 'break', 'finish', 'exploit', 'escape', 'switch']
 const RISK_PATTERNS = ['penalty', 'restart', 'turnover', 'opponent', 'regain', 'pressure', 'concession', 'lose possession']
+const CONTINUATION_PATTERNS = ['live', 'continues', 'restart', 'immediately', 'next action', 'turnover', 'counter']
 
 type ConstraintNarrativeSource = {
     constraint: {
@@ -200,6 +201,67 @@ function hasOppositionCoupling(haystack: string): boolean {
     )
 }
 
+function interactionExchangeNarrative(exchange: InteractionExchange): string {
+    return [
+        exchange.visibleOpportunityCue,
+        exchange.decisionProblem,
+        exchange.rewardAdvantage,
+        exchange.misreadOrForceRisk,
+        exchange.opponentAdvantage,
+        exchange.liveContinuation,
+        exchange.canonicalRule,
+    ].join(' ')
+}
+
+function hasCompleteInteractionExchange(exchange?: InteractionExchange | null): exchange is InteractionExchange {
+    if (!exchange) {
+        return false
+    }
+
+    return [
+        exchange.visibleOpportunityCue,
+        exchange.decisionProblem,
+        exchange.rewardAdvantage,
+        exchange.misreadOrForceRisk,
+        exchange.opponentAdvantage,
+        exchange.liveContinuation,
+        exchange.canonicalRule,
+    ].every((segment) => typeof segment === 'string' && segment.trim().length > 0)
+}
+
+function hasExchangeValidationSignals(exchange: InteractionExchange): boolean {
+    return Object.values(exchange.validationSignals).every((signals) => Array.isArray(signals) && signals.length > 0)
+}
+
+function guardrailNarrative(guardrails: ActivityAssemblyGuardrails): string {
+    return [
+        guardrails.visibleCue.summary,
+        guardrails.decisionProblem.summary,
+        guardrails.opponentConsequence.summary,
+        guardrails.interactionExchange.canonicalRule,
+        ...guardrails.nonNegotiableAvoids,
+    ].join(' ')
+}
+
+function hasCompleteGuardrails(guardrails?: ActivityAssemblyGuardrails | null): guardrails is ActivityAssemblyGuardrails {
+    if (!guardrails) {
+        return false
+    }
+
+    return (
+        guardrails.visibleCue.summary.trim().length > 0 &&
+        guardrails.visibleCue.signals.length > 0 &&
+        guardrails.decisionProblem.summary.trim().length > 0 &&
+        guardrails.decisionProblem.signals.length > 0 &&
+        guardrails.decisionProblem.preservedDecisions.length > 0 &&
+        guardrails.opponentConsequence.summary.trim().length > 0 &&
+        guardrails.opponentConsequence.signals.length > 0 &&
+        guardrails.nonNegotiableAvoids.length > 0 &&
+        guardrails.avoidSignals.length > 0 &&
+        hasCompleteInteractionExchange(guardrails.interactionExchange)
+    )
+}
+
 export function validateConstraintPackage(
     affordances: AffordanceField,
     archetype: ArchetypeDefinition,
@@ -215,6 +277,20 @@ export function validateConstraintPackage(
 
     if (!constraintPackage.foundation || !constraintPackage.shaping) {
         throw new SystemPipelineError('constraint-package-validation', 'A valid package requires both a foundation and shaping constraint.')
+    }
+
+    if (!hasCompleteGuardrails(constraintPackage.assemblyGuardrails)) {
+        throw new SystemPipelineError(
+            'constraint-package-validation',
+            'The selected constraint package is missing complete structured assembly guardrails.'
+        )
+    }
+
+    if (!hasExchangeValidationSignals(constraintPackage.assemblyGuardrails.interactionExchange)) {
+        throw new SystemPipelineError(
+            'constraint-package-validation',
+            'The selected constraint package does not provide validation signals for the system-built interaction exchange.'
+        )
     }
 
     const supportingTagGroups = affordances.supporting.map((affordance) => affordance.affordanceTagGroup).filter(Boolean)
@@ -338,6 +414,8 @@ export function validateConstraintPackage(
     }
 
     const packageNarrative = selectedMembers.map((member) => constraintNarrative(member)).join(' ')
+    const exchangeNarrative = interactionExchangeNarrative(constraintPackage.assemblyGuardrails.interactionExchange)
+    const guardrailsNarrative = guardrailNarrative(constraintPackage.assemblyGuardrails)
     const prescriptiveHits = countPatternHits(packageNarrative, PRESCRIPTIVE_PATTERNS)
     const openDecisionHits = countPatternHits(packageNarrative, OPEN_DECISION_PATTERNS)
     const incentiveHits = countPackageHits(packageNarrative, INCENTIVE_PATTERNS)
@@ -391,6 +469,37 @@ export function validateConstraintPackage(
                 `Consequence constraint "${constraintPackage.consequence.constraint.title ?? constraintPackage.consequence.constraint._id}" does not express a meaningful consequence.`
             )
         }
+    }
+
+    if (
+        countPackageHits(exchangeNarrative, PERCEPTION_PATTERNS) === 0 ||
+        countPackageHits(exchangeNarrative, INCENTIVE_PATTERNS) === 0 ||
+        countPackageHits(exchangeNarrative, RISK_PATTERNS) === 0 ||
+        countPackageHits(exchangeNarrative, OPPOSITION_PATTERNS) === 0 ||
+        countPackageHits(exchangeNarrative, CONTINUATION_PATTERNS) === 0
+    ) {
+        throw new SystemPipelineError(
+            'constraint-package-validation',
+            'The system-built interaction exchange does not fully describe the visible cue, consequence, opponent response, and live continuation.'
+        )
+    }
+
+    if (!hasOppositionCoupling(exchangeNarrative)) {
+        throw new SystemPipelineError(
+            'constraint-package-validation',
+            "The system-built interaction exchange does not connect one team's opportunity to risk for the other team."
+        )
+    }
+
+    if (
+        countPackageHits(guardrailsNarrative, PERCEPTION_PATTERNS) === 0 ||
+        countPackageHits(guardrailsNarrative, OPPOSITION_PATTERNS) === 0 ||
+        countPackageHits(guardrailsNarrative, CONTINUATION_PATTERNS) === 0
+    ) {
+        throw new SystemPipelineError(
+            'constraint-package-validation',
+            'The structured assembly guardrails do not fully express the visible cue, decision problem, opponent consequence, and live continuation.'
+        )
     }
 
     constraintPackage.validationWarnings = Array.from(validationWarnings)

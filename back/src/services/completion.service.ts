@@ -312,6 +312,7 @@ function buildAssemblyPayload(input: SystemAssemblyInput) {
                       role: input.constraintPackage.consequence.role,
                   }
                 : null,
+            assemblyGuardrails: input.constraintPackage.assemblyGuardrails,
             validationWarnings: input.constraintPackage.validationWarnings ?? [],
         },
         previousActivities: input.previousActivities.map((activity) => ({
@@ -349,6 +350,7 @@ System principles:
 - Avoid vague language such as "quality chance", "good decision", or "proper technique". Use observable game events instead.
 - Constraints include structure and consequence.
 - Consequence is part of the constraint package, not a separate logic system.
+- The system provides locked guardrails and required design ingredients. You remain responsible for designing and assembling the activity inside those guardrails.
 
 Output requirements:
 - Return valid JSON only.
@@ -380,9 +382,26 @@ Assembly requirements:
 - Copy the selected constraint IDs into constraintsUsed. Do not add different constraint IDs.
 - Keep the primary affordance central. Supporting affordances may appear as adjacent behaviors, but do not replace the selected primary affordance.
 - Use the consequence through the rules / scoring / winning condition when one is supplied.
-- Treat the consequence payload as the canonical brief for live game consequences. Use its title, description, design intent, notes, suggested constraint prompt, and game template anchor when present.
-- If a consequence constraint is supplied, operationalize its actual reward / penalty / restart logic from the selected consequence description instead of falling back to generic scoring language.
-- If the consequence metadata implies both a reward and a penalty, restart, turnover, or loss-of-possession mechanic, make both sides concrete in the rules / scoring / winning condition.
+- Treat constraintPackage.assemblyGuardrails as the locked design brief.
+- Preserve all of these system-owned ingredients in every activity:
+  1. visibleCue
+  2. decisionProblem
+  3. interactionExchange
+  4. opponentConsequence
+  5. nonNegotiableAvoids
+- You may choose the presentation, wording, sequence of rules, field layout details, and coaching framing, but you may not remove, contradict, or replace those guardrails.
+- Every activity must include at least one self-contained rule that expresses the two-sided exchange explicitly.
+- That rule must make clear:
+  1. the visible cue Team A sees,
+  2. the decision problem Team A is solving,
+  3. the reward or live advantage for exploiting it,
+  4. the risk if it is forced or misread,
+  5. the opponent advantage that follows,
+  6. how play continues live.
+- The scoringSystem and winCondition must reinforce the same guardrails instead of introducing a different reward or reset mechanic.
+- Prefer making the first rule in the "rules" array this explicit exchange rule so it can stand on its own if read in isolation.
+- Do not write one-sided reward rules such as "team gets a bonus point for X" without the connected opponent consequence in the same rule.
+- Do not use compliance instructions such as "players must pass", "players must shoot", or "players must take a second action".
 - Use the foundation and shaping metadata to define the environment first, then the incentive emphasis.
 - Write the "constraint" field as an environment summary, not as a checklist of instructions.
 - Write "intent" as the game problem being exposed to players, not as a coach command.

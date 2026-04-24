@@ -1,5 +1,5 @@
 import { IActivity } from '../models/activity.model'
-import { SystemAssemblyInput, SystemPipelineError } from './types'
+import { ActivityAssemblyGuardrails, InteractionExchange, SystemAssemblyInput, SystemPipelineError } from './types'
 import { countPatternHits, includesNormalizedPhrase, normalizeText, overlapScore, scoreKeywordMatches, uniqueTokens } from './text'
 
 const REQUIRED_STRING_FIELDS = ['title', 'constraint', 'intent', 'scoringSystem', 'winCondition'] as const
@@ -137,6 +137,7 @@ const RISK_PATTERNS = [
     'against them',
 ]
 const EXCHANGE_PATTERNS = ['if', 'when', 'after', 'on turnover', 'after a turnover', 'fails', 'failed', 'failure', 'while']
+const EXPLICIT_EXCHANGE_PATTERNS = ['if', 'then', 'but if']
 const CONTESTED_WIN_PATTERNS = ['first team to', 'team with most', 'more points than', 'before the opponent', 'than the opponent', 'wins']
 const GENERIC_CONSEQUENCE_TOKENS = new Set([
     'team',
@@ -304,6 +305,18 @@ function hasRuleInteractionExchange(rules: string[]): boolean {
     )
 }
 
+function hasExplicitTwoSidedExchangeRule(rules: string[]): boolean {
+    return rules.some((rule) => {
+        return (
+            countPatternHits(rule, EXPLICIT_EXCHANGE_PATTERNS) >= 3 &&
+            countPatternHits(rule, TEAM_SIDE_PATTERNS) > 1 &&
+            countPatternHits(rule, ACTIVE_OPPOSITION_PATTERNS) > 0 &&
+            countPatternHits(rule, CONTINUOUS_PLAY_PATTERNS) > 0 &&
+            hasOpportunityRiskExchange(rule)
+        )
+    })
+}
+
 function hasTwoSidedScoringConsequences(scoringSystem: string, winCondition: string): boolean {
     const scoringNarrative = [scoringSystem, winCondition].join(' ')
     return hasOpportunityRiskExchange(scoringNarrative)
@@ -320,6 +333,82 @@ function hasInteractionLoop(rules: string[], scoringSystem: string, winCondition
         countPatternHits(narrative, ACTIVE_OPPOSITION_PATTERNS) > 0 &&
         countPatternHits(narrative, RISK_PATTERNS) > 0
     )
+}
+
+function exchangeSectionPreserved(haystack: string, exact: string, signals: string[]): boolean {
+    if (includesNormalizedPhrase(haystack, exact)) {
+        return true
+    }
+
+    if (countPatternHits(haystack, signals) > 0) {
+        return true
+    }
+
+    const sectionTokens = uniqueTokens([exact])
+    const haystackTokens = uniqueTokens([haystack])
+    const overlappingTokens = overlapScore(sectionTokens, haystackTokens, 1)
+    const minimumOverlap = Math.min(3, Math.max(1, Math.floor(sectionTokens.length / 2)))
+
+    return overlappingTokens >= minimumOverlap
+}
+
+function rulePreservesInteractionExchange(rule: string, exchange: InteractionExchange): boolean {
+    return (
+        countPatternHits(rule, EXPLICIT_EXCHANGE_PATTERNS) >= 3 &&
+        exchangeSectionPreserved(rule, exchange.visibleOpportunityCue, exchange.validationSignals.cue) &&
+        exchangeSectionPreserved(rule, exchange.rewardAdvantage, exchange.validationSignals.reward) &&
+        exchangeSectionPreserved(rule, exchange.misreadOrForceRisk, exchange.validationSignals.risk) &&
+        exchangeSectionPreserved(rule, exchange.opponentAdvantage, exchange.validationSignals.opponent) &&
+        exchangeSectionPreserved(rule, exchange.liveContinuation, exchange.validationSignals.continuation)
+    )
+}
+
+function rulesPreserveInteractionExchange(rules: string[], exchange: InteractionExchange): boolean {
+    return rules.some((rule) => rulePreservesInteractionExchange(rule, exchange))
+}
+
+function scoringPreservesInteractionExchange(scoringSystem: string, winCondition: string, exchange: InteractionExchange): boolean {
+    const scoringNarrative = [scoringSystem, winCondition].join(' ')
+    return (
+        exchangeSectionPreserved(scoringNarrative, exchange.rewardAdvantage, exchange.validationSignals.reward) &&
+        exchangeSectionPreserved(scoringNarrative, exchange.misreadOrForceRisk, exchange.validationSignals.risk) &&
+        exchangeSectionPreserved(scoringNarrative, exchange.opponentAdvantage, exchange.validationSignals.opponent)
+    )
+}
+
+function interactionLoopPreservesExchange(
+    rules: string[],
+    scoringSystem: string,
+    winCondition: string,
+    exchange: InteractionExchange
+): boolean {
+    const narrative = [rules.join(' '), scoringSystem, winCondition].join(' ')
+    return (
+        exchangeSectionPreserved(narrative, exchange.visibleOpportunityCue, exchange.validationSignals.cue) &&
+        exchangeSectionPreserved(narrative, exchange.rewardAdvantage, exchange.validationSignals.reward) &&
+        exchangeSectionPreserved(narrative, exchange.misreadOrForceRisk, exchange.validationSignals.risk) &&
+        exchangeSectionPreserved(narrative, exchange.opponentAdvantage, exchange.validationSignals.opponent) &&
+        exchangeSectionPreserved(narrative, exchange.liveContinuation, exchange.validationSignals.continuation)
+    )
+}
+
+function visibleCuePreserved(narrative: string, guardrails: ActivityAssemblyGuardrails): boolean {
+    return exchangeSectionPreserved(narrative, guardrails.visibleCue.summary, guardrails.visibleCue.signals)
+}
+
+function decisionProblemPreserved(narrative: string, guardrails: ActivityAssemblyGuardrails): boolean {
+    return (
+        exchangeSectionPreserved(narrative, guardrails.decisionProblem.summary, guardrails.decisionProblem.signals) &&
+        countPatternHits(narrative, OPEN_DECISION_PATTERNS) > 0
+    )
+}
+
+function opponentConsequencePreserved(narrative: string, guardrails: ActivityAssemblyGuardrails): boolean {
+    return exchangeSectionPreserved(narrative, guardrails.opponentConsequence.summary, guardrails.opponentConsequence.signals)
+}
+
+function violatesNonNegotiableAvoids(narrative: string, guardrails: ActivityAssemblyGuardrails): boolean {
+    return countPatternHits(narrative, guardrails.avoidSignals) > 0
 }
 
 export function validateGeneratedActivities(rawResponse: unknown, input: SystemAssemblyInput): IActivity[] {
@@ -477,6 +566,20 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
             )
         }
 
+        if (!visibleCuePreserved(narrative, input.constraintPackage.assemblyGuardrails)) {
+            throw new SystemPipelineError(
+                'output-validation',
+                `Generated activity ${index + 1} does not preserve the system-defined visible cue.`
+            )
+        }
+
+        if (!decisionProblemPreserved(narrative, input.constraintPackage.assemblyGuardrails)) {
+            throw new SystemPipelineError(
+                'output-validation',
+                `Generated activity ${index + 1} does not preserve the system-defined decision problem.`
+            )
+        }
+
         if (!hasRuleInteractionExchange(rules)) {
             throw new SystemPipelineError(
                 'output-validation',
@@ -484,10 +587,38 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
             )
         }
 
+        if (!hasExplicitTwoSidedExchangeRule(rules)) {
+            throw new SystemPipelineError(
+                'output-validation',
+                `Generated activity ${index + 1} does not include a single self-contained rule that states the two-sided exchange explicitly.`
+            )
+        }
+
+        if (!rulesPreserveInteractionExchange(rules, input.constraintPackage.assemblyGuardrails.interactionExchange)) {
+            throw new SystemPipelineError(
+                'output-validation',
+                `Generated activity ${index + 1} does not preserve the system-built interaction exchange in its rules.`
+            )
+        }
+
         if (!hasTwoSidedScoringConsequences(scoringSystem, winCondition)) {
             throw new SystemPipelineError(
                 'output-validation',
                 `Generated activity ${index + 1} does not define scoring consequences for both teams.`
+            )
+        }
+
+        if (!scoringPreservesInteractionExchange(scoringSystem, winCondition, input.constraintPackage.assemblyGuardrails.interactionExchange)) {
+            throw new SystemPipelineError(
+                'output-validation',
+                `Generated activity ${index + 1} does not preserve the system-built interaction exchange in scoring or win logic.`
+            )
+        }
+
+        if (!opponentConsequencePreserved(outcomeNarrative, input.constraintPackage.assemblyGuardrails)) {
+            throw new SystemPipelineError(
+                'output-validation',
+                `Generated activity ${index + 1} does not preserve the system-defined opponent consequence.`
             )
         }
 
@@ -502,6 +633,20 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
             throw new SystemPipelineError(
                 'output-validation',
                 `Generated activity ${index + 1} does not sustain a continuous interaction loop between teams.`
+            )
+        }
+
+        if (!interactionLoopPreservesExchange(rules, scoringSystem, winCondition, input.constraintPackage.assemblyGuardrails.interactionExchange)) {
+            throw new SystemPipelineError(
+                'output-validation',
+                `Generated activity ${index + 1} does not carry the system-built interaction exchange through the live game loop.`
+            )
+        }
+
+        if (violatesNonNegotiableAvoids(narrative, input.constraintPackage.assemblyGuardrails)) {
+            throw new SystemPipelineError(
+                'output-validation',
+                `Generated activity ${index + 1} violates one or more non-negotiable guardrail avoids.`
             )
         }
 

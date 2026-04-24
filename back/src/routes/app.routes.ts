@@ -15,7 +15,7 @@ import { getConstraintRegistryObjectIds } from '../system/constraints'
 import { selectAffordances } from '../system/select-affordance'
 import { selectArchetype } from '../system/select-archetype'
 import { syncAndAssertConstraintRegistryToMongo } from '../system/sync-constraints'
-import { ActivityAssemblyRequest, SystemPipelineError } from '../system/types'
+import { ActivityAssemblyRequest, SystemAssemblyInput, SystemPipelineError } from '../system/types'
 import { validateConstraintPackage } from '../system/validate-constraint-package'
 import { validateGeneratedActivities } from '../system/validate-generated-activity'
 
@@ -57,7 +57,7 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         const constraintPackage = buildConstraintPackage(constraints, selectedAffordances, selectedArchetype)
         validateConstraintPackage(selectedAffordances, selectedArchetype, constraintPackage)
 
-        const assemblyInput = {
+        const assemblyInput: SystemAssemblyInput = {
             session,
             previousActivities,
             coachInput: {
@@ -124,6 +124,7 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                                       }
                                     : null,
                             },
+                            assemblyGuardrails: assemblyInput.constraintPackage.assemblyGuardrails,
                             assembledActivities,
                             error: {
                                 stage: error.stage,
@@ -193,6 +194,7 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                                   }
                                 : null,
                         },
+                        assemblyGuardrails: assemblyInput.constraintPackage.assemblyGuardrails,
                         assembledActivities,
                     },
                 },

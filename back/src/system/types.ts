@@ -4,6 +4,7 @@ import { IConstraint } from '../models/constraint.model'
 import { ISession } from '../models/session.model'
 
 export type ConstraintRole = 'foundation' | 'shaping' | 'consequence'
+export type DecisionFreedomDimension = 'who' | 'what' | 'where' | 'when' | 'why' | 'how'
 
 export type ActivityAssemblyRequest = {
     challengeLevel: string
@@ -60,10 +61,50 @@ export type ConstraintSelectionCandidate = {
     reasons: string[]
 }
 
+export type InteractionExchangeValidationSignals = {
+    cue: string[]
+    reward: string[]
+    risk: string[]
+    opponent: string[]
+    continuation: string[]
+}
+
+export type InteractionExchange = {
+    sourceRole: ConstraintRole | 'package'
+    sourceConstraintId?: string
+    visibleOpportunityCue: string
+    decisionProblem: string
+    rewardAdvantage: string
+    misreadOrForceRisk: string
+    opponentAdvantage: string
+    liveContinuation: string
+    canonicalRule: string
+    validationSignals: InteractionExchangeValidationSignals
+}
+
+export type AssemblyGuardrail = {
+    summary: string
+    signals: string[]
+}
+
+export type DecisionProblemGuardrail = AssemblyGuardrail & {
+    preservedDecisions: DecisionFreedomDimension[]
+}
+
+export type ActivityAssemblyGuardrails = {
+    visibleCue: AssemblyGuardrail
+    decisionProblem: DecisionProblemGuardrail
+    interactionExchange: InteractionExchange
+    opponentConsequence: AssemblyGuardrail
+    nonNegotiableAvoids: string[]
+    avoidSignals: string[]
+}
+
 export type SelectedConstraintPackage = {
     foundation: ConstraintSelectionCandidate
     shaping: ConstraintSelectionCandidate
     consequence?: ConstraintSelectionCandidate
+    assemblyGuardrails: ActivityAssemblyGuardrails
     validationWarnings?: string[]
 }
 
