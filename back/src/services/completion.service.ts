@@ -362,6 +362,7 @@ Output requirements:
       "constraint": string,
       "intent": string,
       "twoSidedExchangeRule": string,
+      "twoSidedScoringConsequence": string,
       "playerGroupSizes": number,
       "scaffolding": string[],
       "extensions": string[],
@@ -394,6 +395,9 @@ Assembly requirements:
 - Every activity must include a required string field named "twoSidedExchangeRule".
 - "twoSidedExchangeRule" must be one single self-contained rule that expresses the full two-sided exchange explicitly.
 - Put that exact same sentence in rules[0]. Do not paraphrase it a second way in rules[0].
+- Every activity must include a required string field named "twoSidedScoringConsequence".
+- "twoSidedScoringConsequence" must define scoring or live advantage consequences for both teams in one self-contained sentence.
+- Put that exact same sentence verbatim at the start of scoringSystem. Do not paraphrase it in scoringSystem.
 - That rule must make clear:
   1. the visible cue Team A sees,
   2. the decision problem Team A is solving,
@@ -403,6 +407,8 @@ Assembly requirements:
   6. how play continues live.
 - Use this shape for "twoSidedExchangeRule" and rules[0]:
   "If [visible opportunity or cue], [team advantage or reward]; if or but if [misread, forced action, opponent recovery, or turnover], [opponent advantage, consequence, or live continuation]."
+- Use this shape for "twoSidedScoringConsequence" and the opening sentence of scoringSystem:
+  "The team that exploits [the visible opportunity] earns [points or live advantage]; if they misread it, force the action, or lose possession into pressure, the opponent gains [points, counter value, or immediate scoring chance]."
 - The scoringSystem and winCondition must reinforce the same guardrails instead of introducing a different reward or reset mechanic.
 - rules[0] is mandatory and must be the explicit exchange rule.
 - Do not write one-sided reward rules such as "team gets a bonus point for X" without the connected opponent consequence in the same rule.

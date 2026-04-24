@@ -2,7 +2,7 @@ import { IActivity } from '../models/activity.model'
 import { ActivityAssemblyGuardrails, InteractionExchange, SystemAssemblyInput, SystemPipelineError } from './types'
 import { countPatternHits, includesNormalizedPhrase, normalizeText, overlapScore, scoreKeywordMatches, uniqueTokens } from './text'
 
-const REQUIRED_STRING_FIELDS = ['title', 'constraint', 'intent', 'twoSidedExchangeRule', 'scoringSystem', 'winCondition'] as const
+const REQUIRED_STRING_FIELDS = ['title', 'constraint', 'intent', 'twoSidedExchangeRule', 'twoSidedScoringConsequence', 'scoringSystem', 'winCondition'] as const
 const REQUIRED_ARRAY_FIELDS = ['rules', 'scaffolding', 'extensions', 'equipmentNeeded'] as const
 const PRESCRIPTIVE_PATTERNS = ['every player must', 'only way', 'exactly', 'must always', 'required to', 'must pass', 'must dribble', 'must shoot']
 const OPEN_DECISION_PATTERNS = ['choose', 'option', 'space', 'support', 'timing', 'when to', 'whether', 'find', 'adapt', 'route']
@@ -321,6 +321,11 @@ function exchangeRuleMatchesRulesSlot(twoSidedExchangeRule: string, rules: strin
     return rules.length > 0 && normalizeText(rules[0]) === normalizeText(twoSidedExchangeRule)
 }
 
+function scoringConsequenceMatchesScoringSystem(twoSidedScoringConsequence: string, scoringSystem: string): boolean {
+    const normalizedScoringConsequence = normalizeText(twoSidedScoringConsequence)
+    return normalizedScoringConsequence.length > 0 && normalizeText(scoringSystem).startsWith(normalizedScoringConsequence)
+}
+
 function hasTwoSidedScoringConsequences(scoringSystem: string, winCondition: string): boolean {
     const scoringNarrative = [scoringSystem, winCondition].join(' ')
     return hasOpportunityRiskExchange(scoringNarrative)
@@ -439,6 +444,7 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
         const constraint = ensureStringField(candidate, 'constraint', index)
         const intent = ensureStringField(candidate, 'intent', index)
         const twoSidedExchangeRule = ensureStringField(candidate, 'twoSidedExchangeRule', index)
+        const twoSidedScoringConsequence = ensureStringField(candidate, 'twoSidedScoringConsequence', index)
         const scoringSystem = ensureStringField(candidate, 'scoringSystem', index)
         const winCondition = ensureStringField(candidate, 'winCondition', index)
         const rules = ensureArrayField(candidate, 'rules', index)
@@ -458,9 +464,16 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
             )
         }
 
-        const narrative = [constraint, intent, twoSidedExchangeRule, rules.join(' '), scoringSystem, winCondition].join(' ')
+        if (!scoringConsequenceMatchesScoringSystem(twoSidedScoringConsequence, scoringSystem)) {
+            throw new SystemPipelineError(
+                'output-validation',
+                `Generated activity ${index + 1} must place twoSidedScoringConsequence verbatim at the start of scoringSystem.`
+            )
+        }
+
+        const narrative = [constraint, intent, twoSidedExchangeRule, twoSidedScoringConsequence, rules.join(' '), scoringSystem, winCondition].join(' ')
         const environmentNarrative = [constraint, rules.join(' '), scoringSystem, winCondition].join(' ')
-        const outcomeNarrative = [scoringSystem, winCondition, rules.join(' ')].join(' ')
+        const outcomeNarrative = [twoSidedScoringConsequence, scoringSystem, winCondition, rules.join(' ')].join(' ')
         const affordanceReflected =
             scoreKeywordMatches(narrative, [input.affordances.primary.title ?? '', input.affordances.primary.affordanceTagGroup ?? ''], 3) > 0
         if (!affordanceReflected) {
@@ -631,6 +644,20 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
             throw new SystemPipelineError(
                 'output-validation',
                 `Generated activity ${index + 1} does not define scoring consequences for both teams.`
+            )
+        }
+
+        if (!hasTwoSidedScoringConsequences(twoSidedScoringConsequence, winCondition)) {
+            throw new SystemPipelineError(
+                'output-validation',
+                `Generated activity ${index + 1} does not define a valid twoSidedScoringConsequence.`
+            )
+        }
+
+        if (!scoringPreservesInteractionExchange(twoSidedScoringConsequence, winCondition, input.constraintPackage.assemblyGuardrails.interactionExchange)) {
+            throw new SystemPipelineError(
+                'output-validation',
+                `Generated activity ${index + 1} does not preserve the system-built interaction exchange in twoSidedScoringConsequence.`
             )
         }
 
