@@ -361,6 +361,7 @@ Output requirements:
       "title": string,
       "constraint": string,
       "intent": string,
+      "twoSidedExchangeRule": string,
       "playerGroupSizes": number,
       "scaffolding": string[],
       "extensions": string[],
@@ -390,7 +391,9 @@ Assembly requirements:
   4. opponentConsequence
   5. nonNegotiableAvoids
 - You may choose the presentation, wording, sequence of rules, field layout details, and coaching framing, but you may not remove, contradict, or replace those guardrails.
-- Every activity must include at least one self-contained rule that expresses the two-sided exchange explicitly.
+- Every activity must include a required string field named "twoSidedExchangeRule".
+- "twoSidedExchangeRule" must be one single self-contained rule that expresses the full two-sided exchange explicitly.
+- Put that exact same sentence in rules[0]. Do not paraphrase it a second way in rules[0].
 - That rule must make clear:
   1. the visible cue Team A sees,
   2. the decision problem Team A is solving,
@@ -398,8 +401,10 @@ Assembly requirements:
   4. the risk if it is forced or misread,
   5. the opponent advantage that follows,
   6. how play continues live.
+- Use this shape for "twoSidedExchangeRule" and rules[0]:
+  "If [visible opportunity or cue], [team advantage or reward]; if or but if [misread, forced action, opponent recovery, or turnover], [opponent advantage, consequence, or live continuation]."
 - The scoringSystem and winCondition must reinforce the same guardrails instead of introducing a different reward or reset mechanic.
-- Prefer making the first rule in the "rules" array this explicit exchange rule so it can stand on its own if read in isolation.
+- rules[0] is mandatory and must be the explicit exchange rule.
 - Do not write one-sided reward rules such as "team gets a bonus point for X" without the connected opponent consequence in the same rule.
 - Do not use compliance instructions such as "players must pass", "players must shoot", or "players must take a second action".
 - Use the foundation and shaping metadata to define the environment first, then the incentive emphasis.

@@ -2,7 +2,7 @@ import { IActivity } from '../models/activity.model'
 import { ActivityAssemblyGuardrails, InteractionExchange, SystemAssemblyInput, SystemPipelineError } from './types'
 import { countPatternHits, includesNormalizedPhrase, normalizeText, overlapScore, scoreKeywordMatches, uniqueTokens } from './text'
 
-const REQUIRED_STRING_FIELDS = ['title', 'constraint', 'intent', 'scoringSystem', 'winCondition'] as const
+const REQUIRED_STRING_FIELDS = ['title', 'constraint', 'intent', 'twoSidedExchangeRule', 'scoringSystem', 'winCondition'] as const
 const REQUIRED_ARRAY_FIELDS = ['rules', 'scaffolding', 'extensions', 'equipmentNeeded'] as const
 const PRESCRIPTIVE_PATTERNS = ['every player must', 'only way', 'exactly', 'must always', 'required to', 'must pass', 'must dribble', 'must shoot']
 const OPEN_DECISION_PATTERNS = ['choose', 'option', 'space', 'support', 'timing', 'when to', 'whether', 'find', 'adapt', 'route']
@@ -317,6 +317,10 @@ function hasExplicitTwoSidedExchangeRule(rules: string[]): boolean {
     })
 }
 
+function exchangeRuleMatchesRulesSlot(twoSidedExchangeRule: string, rules: string[]): boolean {
+    return rules.length > 0 && normalizeText(rules[0]) === normalizeText(twoSidedExchangeRule)
+}
+
 function hasTwoSidedScoringConsequences(scoringSystem: string, winCondition: string): boolean {
     const scoringNarrative = [scoringSystem, winCondition].join(' ')
     return hasOpportunityRiskExchange(scoringNarrative)
@@ -434,6 +438,7 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
         const title = ensureStringField(candidate, 'title', index)
         const constraint = ensureStringField(candidate, 'constraint', index)
         const intent = ensureStringField(candidate, 'intent', index)
+        const twoSidedExchangeRule = ensureStringField(candidate, 'twoSidedExchangeRule', index)
         const scoringSystem = ensureStringField(candidate, 'scoringSystem', index)
         const winCondition = ensureStringField(candidate, 'winCondition', index)
         const rules = ensureArrayField(candidate, 'rules', index)
@@ -446,7 +451,14 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
             throw new SystemPipelineError('output-validation', `Generated activity ${index + 1} has an invalid playerGroupSizes value.`)
         }
 
-        const narrative = [constraint, intent, rules.join(' '), scoringSystem, winCondition].join(' ')
+        if (!exchangeRuleMatchesRulesSlot(twoSidedExchangeRule, rules)) {
+            throw new SystemPipelineError(
+                'output-validation',
+                `Generated activity ${index + 1} must place twoSidedExchangeRule verbatim in rules[0].`
+            )
+        }
+
+        const narrative = [constraint, intent, twoSidedExchangeRule, rules.join(' '), scoringSystem, winCondition].join(' ')
         const environmentNarrative = [constraint, rules.join(' '), scoringSystem, winCondition].join(' ')
         const outcomeNarrative = [scoringSystem, winCondition, rules.join(' ')].join(' ')
         const affordanceReflected =
@@ -591,6 +603,20 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
             throw new SystemPipelineError(
                 'output-validation',
                 `Generated activity ${index + 1} does not include a single self-contained rule that states the two-sided exchange explicitly.`
+            )
+        }
+
+        if (!hasExplicitTwoSidedExchangeRule([twoSidedExchangeRule])) {
+            throw new SystemPipelineError(
+                'output-validation',
+                `Generated activity ${index + 1} does not define a valid twoSidedExchangeRule.`
+            )
+        }
+
+        if (!rulesPreserveInteractionExchange([twoSidedExchangeRule], input.constraintPackage.assemblyGuardrails.interactionExchange)) {
+            throw new SystemPipelineError(
+                'output-validation',
+                `Generated activity ${index + 1} does not preserve the system-built interaction exchange in twoSidedExchangeRule.`
             )
         }
 
