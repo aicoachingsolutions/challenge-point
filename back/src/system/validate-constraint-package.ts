@@ -1,6 +1,5 @@
 import { countPatternHits, includesNormalizedPhrase, normalizeText } from './text'
 import { ActivityAssemblyGuardrails, AffordanceField, ArchetypeDefinition, InteractionExchange, SelectedConstraintPackage, SystemPipelineError } from './types'
-import { resolveArchetypeByHint } from './archetypes'
 
 const PRESCRIPTIVE_PATTERNS = [
     'every player must',
@@ -243,6 +242,33 @@ function guardrailNarrative(guardrails: ActivityAssemblyGuardrails): string {
     ].join(' ')
 }
 
+function normalizeIdList(value: unknown): string[] {
+    if (Array.isArray(value)) {
+        return value
+            .map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
+            .filter((entry) => entry.length > 0)
+    }
+    if (typeof value === 'string' && value.trim().length > 0) {
+        return [value.trim()]
+    }
+    return []
+}
+
+function getExplicitConstraintArchetypeIds(constraint: unknown): string[] {
+    const row = (constraint ?? {}) as {
+        archetypeId?: unknown
+        gameFormId?: unknown
+        allowedArchetypeIds?: unknown
+        allowedGameFormIds?: unknown
+    }
+    return [
+        ...normalizeIdList(row.archetypeId),
+        ...normalizeIdList(row.gameFormId),
+        ...normalizeIdList(row.allowedArchetypeIds),
+        ...normalizeIdList(row.allowedGameFormIds),
+    ]
+}
+
 function hasCompleteGuardrails(guardrails?: ActivityAssemblyGuardrails | null): guardrails is ActivityAssemblyGuardrails {
     if (!guardrails) {
         return false
@@ -319,8 +345,8 @@ export function validateConstraintPackage(
             )
         }
 
-        const hintedArchetype = resolveArchetypeByHint(member!.constraint.constraintArchetype)
-        if (hintedArchetype && hintedArchetype.id !== archetype.id) {
+        const explicitArchetypeIds = getExplicitConstraintArchetypeIds(member!.constraint)
+        if (explicitArchetypeIds.length > 0 && !explicitArchetypeIds.includes(archetype.id)) {
             throw new SystemPipelineError(
                 'constraint-package-validation',
                 `Constraint "${member!.constraint.title ?? member!.constraint._id}" conflicts with the selected archetype "${archetype.name}".`
