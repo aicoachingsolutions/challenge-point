@@ -402,6 +402,16 @@ function mapStructuredActivityToLegacy(activity: Activity, input: SystemAssembly
 }
 
 function buildAssemblyPayload(input: SystemAssemblyInput) {
+    const selectedAffordanceIds = [
+        input.affordances.primary._id,
+        ...input.affordances.supporting.map((affordance) => affordance._id),
+    ].filter(Boolean)
+    const selectedConstraintIds = [
+        input.constraintPackage.foundation.constraint._id,
+        input.constraintPackage.shaping.constraint._id,
+        input.constraintPackage.consequence?.constraint._id,
+    ].filter(Boolean)
+
     return {
         session: {
             playerCount: input.session.playerCount,
@@ -412,6 +422,8 @@ function buildAssemblyPayload(input: SystemAssemblyInput) {
             fieldType: input.session.fieldType,
         },
         coachInput: input.coachInput,
+        selectedAffordanceIds,
+        selectedConstraintIds,
         selectedAffordances: {
             primary: {
                 _id: input.affordances.primary._id,
@@ -493,31 +505,35 @@ function buildAssemblyPayload(input: SystemAssemblyInput) {
 }
 
 function generateAssemblyPrompt(input: SystemAssemblyInput) {
-    const selectedAffordanceLines = [
+    const selectedAffordanceIds = [
         input.affordances.primary._id,
         ...input.affordances.supporting.map((a) => a._id),
-    ]
+    ].filter(Boolean)
+    const selectedAffordanceLines = selectedAffordanceIds
         .filter(Boolean)
         .map((id) => `- ${String(id)}`)
         .join('\n')
 
-    const selectedConstraintLines = [
+    const selectedConstraintIds = [
         input.constraintPackage.foundation.constraint._id,
         input.constraintPackage.shaping.constraint._id,
         input.constraintPackage.consequence?.constraint._id,
-    ]
+    ].filter(Boolean)
+    const selectedConstraintLines = selectedConstraintIds
         .filter(Boolean)
         .map((id) => `- ${String(id)}`)
         .join('\n')
 
     return `You assemble football activities from system inputs that have already been selected in code.
 
+Use "selectedAffordanceIds" from the payload as the source of truth for affordance IDs.
+Do not derive "affordancesUsed" from "primary" versus "supporting" labels.
 You MUST return affordancesUsed as an array containing ALL of the following IDs exactly as provided.
 
 SelectedAffordances (REQUIRED):
 ${selectedAffordanceLines}
 
-Your affordancesUsed array must contain EXACTLY these IDs.
+Your affordancesUsed array must contain EXACTLY these IDs from "selectedAffordanceIds".
 Do not omit any.
 Do not add any.
 Do not change order.
@@ -525,12 +541,13 @@ Do not infer or rename.
 
 If your affordancesUsed array does not exactly match this list, your response will be rejected.
 
+Use "selectedConstraintIds" from the payload as the source of truth for constraint IDs.
 You MUST return constraintsUsed as an array containing ALL of the following IDs exactly as provided.
 
 SelectedConstraints (REQUIRED):
 ${selectedConstraintLines}
 
-constraintsUsed must EXACTLY match the selected constraint IDs.
+constraintsUsed must EXACTLY match the "selectedConstraintIds" list.
 Your constraintsUsed array must contain EXACTLY these IDs.
 Do not omit any.
 Do not add any.
@@ -545,7 +562,7 @@ Do not choose archetypes.
 Do not choose constraints.
 Do not invent a new system structure.
 
-Your job is to assemble three concrete activity options that all use the supplied primary affordance, supporting affordance field, archetype, and constraint package.
+Your job is to assemble three concrete activity options that all use the supplied selected affordance set, archetype, and constraint package.
 
 System principles:
 - Assemble perception-based game environments, not compliance-based drills.
