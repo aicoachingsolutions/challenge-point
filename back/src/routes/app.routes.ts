@@ -8,15 +8,9 @@ import Activity, { ActivityStatus } from '../models/activity.model'
 import User from '../models/user.model'
 import Logger from '../logger'
 import LoggingService from '../services/logging.service'
-import { generateSelection, getTestLibraryV0LoadDebug } from '../system/test-library'
+import { generateSelection, getTestLibraryV0LoadDebug, systemAssemblyInputFromTestLibrarySelection } from '../system/test-library'
 import { ENDPOINTS } from './_endpoints'
 import BaseRoutes from './helper'
-import { buildConstraintPackage } from '../system/build-constraint-package'
-import { getAffordanceRegistryObjectIds } from '../system/affordances'
-import { getConstraintRegistryObjectIds } from '../system/constraints'
-import { selectAffordances } from '../system/select-affordance'
-import { selectArchetype } from '../system/select-archetype'
-import { syncAndAssertConstraintRegistryToMongo } from '../system/sync-constraints'
 import { ActivityAssemblyRequest, SystemAssemblyInput, SystemPipelineError } from '../system/types'
 import { validateConstraintPackage } from '../system/validate-constraint-package'
 import { validateGeneratedActivities } from '../system/validate-generated-activity'
@@ -102,25 +96,22 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
             return res.status(404).json({ error: 'Session not found' })
         }
 
-        await syncAndAssertConstraintRegistryToMongo()
-
-        const affordances = await Affordance.find({ _id: { $in: getAffordanceRegistryObjectIds() } }).populate('category')
-        const constraints = await Constraint.find({ _id: { $in: getConstraintRegistryObjectIds() } }).populate('category')
         const previousActivities = await Activity.find({ session: req.params.id })
 
-        const selectedAffordances = selectAffordances(learningGoals, session, affordances)
-        const archetypeSelectionKey = [
-            req.params.id,
-            previousActivities.length,
-            new Date().toISOString().slice(0, 10),
-            ...learningGoals.map((goal) => goal.trim().toLowerCase()),
-        ].join('|')
-        const archetypeSelection = selectArchetype(selectedAffordances, archetypeSelectionKey)
-        const selectedArchetype = archetypeSelection.selected
-        const constraintPackage = buildConstraintPackage(constraints, selectedAffordances, selectedArchetype)
-        validateConstraintPackage(selectedAffordances, selectedArchetype, constraintPackage)
+        let selection
+        try {
+            selection = generateSelection({
+                learningGoals,
+                challengeLevel,
+            })
+        } catch (selErr) {
+            const message = selErr instanceof Error ? selErr.message : String(selErr)
+            Logger.warn(`[Activity Generation] Test Library selection failed: ${message}`)
+            return res.status(400).json({ error: message })
+        }
 
-        const assemblyInput: SystemAssemblyInput = {
+        const assemblyInput: SystemAssemblyInput = systemAssemblyInputFromTestLibrarySelection({
+            selection,
             session,
             previousActivities,
             coachInput: {
@@ -128,11 +119,9 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                 duration,
                 learningGoals,
             },
-            affordances: selectedAffordances,
-            archetype: selectedArchetype,
-            archetypeSelection,
-            constraintPackage,
-        }
+        })
+
+        validateConstraintPackage(assemblyInput.affordances, assemblyInput.archetype, assemblyInput.constraintPackage)
 
         const assembledActivities = await assembleActivities(assemblyInput)
         let validatedActivities
