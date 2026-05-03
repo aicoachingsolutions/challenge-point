@@ -336,14 +336,36 @@ Each activity needs explicit decision language such as choose, read, react, base
 Do not echo exact prohibited phrases if avoidable.`
 }
 
+/** Ensures registry / Mongo ids are plain strings for legacy projection and output validation. */
+function registryIdString(value: unknown): string {
+    if (value == null) {
+        return ''
+    }
+    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'bigint') {
+        return String(value).trim()
+    }
+    if (typeof value === 'object') {
+        const o = value as { _id?: unknown; id?: unknown }
+        return String(o._id ?? o.id ?? '').trim()
+    }
+    return String(value).trim()
+}
+
 function mapStructuredActivityToLegacy(activity: Activity, input: SystemAssemblyInput): IActivity {
-    const primaryId = input.affordances.primary._id
-    const supportingIds = input.affordances.supporting.map((a) => a._id).filter(Boolean) as string[]
+    const primaryId = registryIdString(
+        (input.affordances.primary as { _id?: unknown; id?: unknown })._id ??
+            (input.affordances.primary as { id?: unknown }).id
+    )
+    const supportingIds = input.affordances.supporting
+        .map((a) => registryIdString((a as { _id?: unknown; id?: unknown })._id ?? (a as { id?: unknown }).id))
+        .filter((s) => s.length > 0)
     const constraintIds = [
         input.constraintPackage.foundation.constraint._id,
         input.constraintPackage.shaping.constraint._id,
         input.constraintPackage.consequence?.constraint._id,
-    ].filter(Boolean) as string[]
+    ]
+        .map((id) => registryIdString(id))
+        .filter((s) => s.length > 0)
 
     const twoSidedExchangeRule = activity.rules[0]
     const rules = [...activity.rules]
