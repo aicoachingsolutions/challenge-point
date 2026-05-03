@@ -6,7 +6,9 @@ import { assembleActivities } from 'src/services/completion.service'
 
 import Activity, { ActivityStatus } from '../models/activity.model'
 import User from '../models/user.model'
+import Logger from '../logger'
 import LoggingService from '../services/logging.service'
+import { generateSelection, getTestLibraryV0LoadDebug } from '../system/test-library'
 import { ENDPOINTS } from './_endpoints'
 import BaseRoutes from './helper'
 import { buildConstraintPackage } from '../system/build-constraint-package'
@@ -21,6 +23,67 @@ import { validateGeneratedActivities } from '../system/validate-generated-activi
 
 const router = Router()
 const ROUTES = ENDPOINTS.app
+
+router.post(ROUTES.testSelection, async (req: Request, res: Response) => {
+    try {
+        const { learningGoals, sport, sessionDescription, challengeLevel } = req.body as Record<string, unknown>
+        const result = generateSelection({
+            learningGoals: learningGoals as string[],
+            sport: typeof sport === 'string' ? sport : undefined,
+            sessionDescription: typeof sessionDescription === 'string' ? sessionDescription : undefined,
+            challengeLevel: typeof challengeLevel === 'string' ? challengeLevel : undefined,
+        })
+
+        Logger.info(
+            `[Test Library Selection] selected archetype: ${result.archetype.game_form_name} (${result.archetype.id})`
+        )
+        Logger.info(
+            `[Test Library Selection] selected lenses: ${result.affordanceLenses.map((l) => l.title).join(' | ')}`
+        )
+        Logger.info(
+            `[Test Library Selection] selected constraints: ${result.constraints.map((c) => c.title).join(' | ')}`
+        )
+
+        const libraryLoad = getTestLibraryV0LoadDebug()
+        Logger.info(
+            `[Test Library V0] total archetypes loaded: ${libraryLoad.counts.totalArchetypesLoaded} ` +
+                `(runtime arrays: ${libraryLoad.runtimeArrayLengths.archetypes})`
+        )
+        Logger.info(
+            `[Test Library V0] total affordance lenses loaded: ${libraryLoad.counts.totalAffordanceLensesLoaded} ` +
+                `(runtime arrays: ${libraryLoad.runtimeArrayLengths.affordanceLenses})`
+        )
+        Logger.info(
+            `[Test Library V0] total constraints loaded: ${libraryLoad.counts.totalConstraintsLoaded} ` +
+                `(runtime arrays: ${libraryLoad.runtimeArrayLengths.constraints})`
+        )
+        if (libraryLoad.skippedRows.length > 0) {
+            Logger.warn(`[Test Library V0] CSV conversion skipped rows: ${JSON.stringify(libraryLoad.skippedRows)}`)
+        }
+        if (libraryLoad.validationErrors.length > 0) {
+            Logger.warn(`[Test Library V0] CSV conversion validation errors: ${JSON.stringify(libraryLoad.validationErrors)}`)
+        }
+        if (libraryLoad.runtimeCountsMismatch) {
+            Logger.warn(
+                `[Test Library V0] counts in libraryConversionReport.ts do not match runtime array lengths (regenerate CSV output).`
+            )
+        }
+
+        return res.status(200).json({
+            selection: {
+                archetype: result.archetype,
+                affordanceLenses: result.affordanceLenses,
+                constraints: result.constraints,
+            },
+            selectionTrace: result.selectionTrace,
+            libraryLoad,
+        })
+    } catch (error) {
+        const message = error instanceof Error ? error.message : String(error)
+        Logger.warn(`[Test Library Selection] POST /test-selection failed: ${message}`)
+        return res.status(400).json({ error: message })
+    }
+})
 
 router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Response) => {
     try {

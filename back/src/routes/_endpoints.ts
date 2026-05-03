@@ -19,6 +19,7 @@ const endpoints = {
         activity: '/activity',
         session: '/session',
         generateActivities: '/generate-activities',
+        testSelection: '/test-selection',
         user: '/user',
     },
     admin: {
