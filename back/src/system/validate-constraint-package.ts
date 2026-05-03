@@ -127,6 +127,7 @@ type ConstraintNarrativeSource = {
         gameTemplateAnchor?: string
     }
     role?: string
+    guardrails?: ActivityAssemblyGuardrails
 }
 
 type DecisionFreedomDimension = 'who' | 'what' | 'where' | 'when' | 'why' | 'how'
@@ -163,6 +164,7 @@ function constraintNarrative(packageMember?: ConstraintNarrativeSource): string 
         return ''
     }
 
+    const guardrails = packageMember.guardrails
     return [
         packageMember.constraint.title,
         packageMember.constraint.description,
@@ -172,6 +174,14 @@ function constraintNarrative(packageMember?: ConstraintNarrativeSource): string 
         packageMember.constraint.contextualAudit,
         packageMember.constraint.suggestedConstraintPrompt,
         packageMember.constraint.gameTemplateAnchor,
+        guardrails?.visibleCue.summary,
+        ...(guardrails?.visibleCue.signals ?? []),
+        guardrails?.decisionProblem.summary,
+        ...(guardrails?.decisionProblem.signals ?? []),
+        guardrails?.interactionExchange.visibleOpportunityCue,
+        guardrails?.interactionExchange.decisionProblem,
+        guardrails?.opponentConsequence.summary,
+        ...(guardrails?.opponentConsequence.signals ?? []),
     ]
         .filter(Boolean)
         .join(' ')
@@ -353,7 +363,10 @@ export function validateConstraintPackage(
             )
         }
 
-        const narrative = constraintNarrative(member as ConstraintNarrativeSource)
+        const narrative = constraintNarrative({
+            ...(member as ConstraintNarrativeSource),
+            guardrails: constraintPackage.assemblyGuardrails,
+        })
         const perceptionHits = countPackageHits(narrative, PERCEPTION_PATTERNS)
         const adaptationHits = countPackageHits(narrative, ADAPTATION_PATTERNS)
         const environmentHits = countPackageHits(narrative, ENVIRONMENT_PATTERNS)
