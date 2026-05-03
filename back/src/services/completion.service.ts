@@ -493,6 +493,23 @@ function buildAssemblyPayload(input: SystemAssemblyInput) {
 }
 
 function generateAssemblyPrompt(input: SystemAssemblyInput) {
+    const selectedAffordanceIdLines = [
+        input.affordances.primary._id,
+        ...input.affordances.supporting.map((a) => a._id),
+    ]
+        .filter(Boolean)
+        .map((id) => `- ${String(id)}`)
+        .join('\n')
+
+    const selectedConstraintIdLines = [
+        input.constraintPackage.foundation.constraint._id,
+        input.constraintPackage.shaping.constraint._id,
+        input.constraintPackage.consequence?.constraint._id,
+    ]
+        .filter(Boolean)
+        .map((id) => `- ${String(id)}`)
+        .join('\n')
+
     return `You assemble football activities from system inputs that have already been selected in code.
 
 Do not choose categories.
@@ -502,6 +519,18 @@ Do not choose constraints.
 Do not invent a new system structure.
 
 Your job is to assemble three concrete activity options that all use the supplied primary affordance, supporting affordance field, archetype, and constraint package.
+
+Selected affordance IDs (exact strings — use only these for the selected package):
+${selectedAffordanceIdLines}
+
+Selected constraint IDs (exact strings — use only these for the selected package):
+${selectedConstraintIdLines}
+
+Package identifier rules (non-negotiable):
+- You MUST use only the exact affordance IDs listed under Selected affordance IDs above. Do NOT create, modify, rename, or infer affordances. Whenever any field or downstream step expects affordancesUsed, that array must contain only those exact id strings, drawn from the selected package (no titles, slugs, or alternate codes substituted for ids).
+- You MUST use only the exact constraint IDs listed under Selected constraint IDs above. Whenever any field or downstream step expects constraintsUsed, that array must contain only those exact id strings from the selected package.
+- If any id you emit does not match exactly, the response will be rejected.
+- The JSON activities schema in Output requirements below is fixed: do not add affordancesUsed, constraintsUsed, or other extra keys to activity objects—the server derives those arrays from the same selected ids. Never introduce competing or faux id strings (for example invented lens codes or renamed ids) anywhere in the JSON.
 
 System principles:
 - Assemble perception-based game environments, not compliance-based drills.
