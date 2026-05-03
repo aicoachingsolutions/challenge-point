@@ -493,24 +493,51 @@ function buildAssemblyPayload(input: SystemAssemblyInput) {
 }
 
 function generateAssemblyPrompt(input: SystemAssemblyInput) {
-    const selectedAffordanceBlock = [
+    const selectedAffordanceLines = [
         input.affordances.primary._id,
         ...input.affordances.supporting.map((a) => a._id),
     ]
         .filter(Boolean)
-        .map((id) => `- id: ${String(id)}`)
+        .map((id) => `- ${String(id)}`)
         .join('\n')
 
-    const selectedConstraintBlock = [
+    const selectedConstraintLines = [
         input.constraintPackage.foundation.constraint._id,
         input.constraintPackage.shaping.constraint._id,
         input.constraintPackage.consequence?.constraint._id,
     ]
         .filter(Boolean)
-        .map((id) => `- id: ${String(id)}`)
+        .map((id) => `- ${String(id)}`)
         .join('\n')
 
     return `You assemble football activities from system inputs that have already been selected in code.
+
+You MUST return affordancesUsed as an array containing ALL of the following IDs exactly as provided.
+
+SelectedAffordances (REQUIRED):
+${selectedAffordanceLines}
+
+Your affordancesUsed array must contain EXACTLY these IDs.
+Do not omit any.
+Do not add any.
+Do not change order.
+Do not infer or rename.
+
+If your affordancesUsed array does not exactly match this list, your response will be rejected.
+
+You MUST return constraintsUsed as an array containing ALL of the following IDs exactly as provided.
+
+SelectedConstraints (REQUIRED):
+${selectedConstraintLines}
+
+constraintsUsed must EXACTLY match the selected constraint IDs.
+Your constraintsUsed array must contain EXACTLY these IDs.
+Do not omit any.
+Do not add any.
+Do not change order.
+Do not infer or rename.
+
+If your constraintsUsed array does not exactly match this list, your response will be rejected.
 
 Do not choose categories.
 Do not choose affordances.
@@ -519,19 +546,6 @@ Do not choose constraints.
 Do not invent a new system structure.
 
 Your job is to assemble three concrete activity options that all use the supplied primary affordance, supporting affordance field, archetype, and constraint package.
-
-SelectedAffordances:
-${selectedAffordanceBlock}
-
-SelectedConstraints:
-${selectedConstraintBlock}
-
-AffordancesUsed and constraintsUsed (non-negotiable for every activity the pipeline materializes):
-- You MUST include ALL selected affordance IDs in affordancesUsed for every activity. Do not omit any. Do not reduce to a single primary affordance.
-- affordancesUsed must include exactly these IDs (no more, no less): the same set as SelectedAffordances above (each listed id exactly once, string-equal, no titles or alternate codes).
-- You MUST include all selected constraint IDs in constraintsUsed for every activity. constraintsUsed must include exactly these IDs (no more, no less): the same set as SelectedConstraints above (each listed id exactly once).
-- If any affordance is missing or any extra is added, the response will be rejected. The same applies to constraints.
-- Do NOT create, modify, rename, or infer affordances or constraints beyond those ids. Never introduce competing or faux id strings (for example invented lens codes or renamed ids).
 
 System principles:
 - Assemble perception-based game environments, not compliance-based drills.
