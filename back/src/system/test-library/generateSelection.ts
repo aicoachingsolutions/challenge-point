@@ -11,6 +11,34 @@ import type {
     TestLibraryV0Constraint,
 } from './types'
 
+/** Exact normalized coach phrases that must fail before any scoring (no AI classification). */
+const BLOCKED_SINGLE_GOAL_PHRASES = [
+    'create a warm-up.',
+    'improve fitness.',
+    'make a fun activity.',
+    'teach better technique.',
+] as const
+
+function normalizeGoalPhrase(g: string): string {
+    return g.trim().toLowerCase().replace(/\s+/g, ' ')
+}
+
+/**
+ * Rejects out-of-scope session intents so assembly / AI is never reached for these inputs.
+ */
+function assertCoachGoalsAllowedForTestLibrary(input: TestLibrarySelectionInput): void {
+    for (const g of input.learningGoals || []) {
+        const n = normalizeGoalPhrase(g)
+        for (const blocked of BLOCKED_SINGLE_GOAL_PHRASES) {
+            if (n === blocked) {
+                throw new Error(
+                    'Selection blocked: coach intent is out of scope for Test Library V0 tactical selection (warm-up, fitness-only, generic fun, or technique-only requests are not supported).'
+                )
+            }
+        }
+    }
+}
+
 function buildQueryCorpus(input: TestLibrarySelectionInput): string {
     const parts = [
         ...(input.learningGoals || []),
@@ -303,6 +331,8 @@ export function generateSelection(input: TestLibrarySelectionInput): TestLibrary
     if (!input.learningGoals || !Array.isArray(input.learningGoals) || input.learningGoals.length === 0) {
         throw new Error('Test Library selection requires at least one learning goal.')
     }
+
+    assertCoachGoalsAllowedForTestLibrary(input)
 
     if (TEST_LIBRARY_V0_ARCHETYPES.length === 0) {
         throw new Error('Test Library V0 has no archetypes loaded.')

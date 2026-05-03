@@ -1,10 +1,10 @@
 import { IActivity } from '../models/activity.model'
+import { findPrescriptivePhraseViolations } from './activity/validate-activity-structure'
 import { ActivityAssemblyGuardrails, InteractionExchange, SystemAssemblyInput, SystemPipelineError } from './types'
 import { countPatternHits, includesNormalizedPhrase, normalizeText, overlapScore, scoreKeywordMatches, uniqueTokens } from './text'
 
 const REQUIRED_STRING_FIELDS = ['title', 'constraint', 'intent', 'twoSidedExchangeRule', 'twoSidedScoringConsequence', 'scoringSystem', 'winCondition'] as const
 const REQUIRED_ARRAY_FIELDS = ['rules', 'scaffolding', 'extensions', 'equipmentNeeded'] as const
-const PRESCRIPTIVE_PATTERNS = ['every player must', 'only way', 'exactly', 'must always', 'required to', 'must pass', 'must dribble', 'must shoot']
 const OPEN_DECISION_PATTERNS = ['choose', 'option', 'space', 'support', 'timing', 'when to', 'whether', 'find', 'adapt', 'route']
 const CONSEQUENCE_PATTERNS = ['score', 'point', 'reward', 'penalty', 'bonus', 'restart', 'win', 'lose', 'double']
 const ACTIVE_OPPOSITION_PATTERNS = [
@@ -420,6 +420,112 @@ function violatesNonNegotiableAvoids(narrative: string, guardrails: ActivityAsse
     return countPatternHits(narrative, guardrails.avoidSignals) > 0
 }
 
+function validateAiReturnedAffordanceAndConstraintIds(
+    candidate: Record<string, any>,
+    input: SystemAssemblyInput,
+    index: number
+): void {
+    const aff = candidate.affordancesUsed
+    const con = candidate.constraintsUsed
+    if (!Array.isArray(aff) || !Array.isArray(con)) {
+        throw new SystemPipelineError(
+            'output-validation',
+            `Generated activity ${index + 1} must include affordancesUsed and constraintsUsed as string arrays.`
+        )
+    }
+
+    const allowedAffordanceIds = new Set(
+        [input.affordances.primary._id, ...input.affordances.supporting.map((a) => a._id)].filter(Boolean) as string[]
+    )
+    const allowedConstraintIds = new Set(
+        [
+            input.constraintPackage.foundation.constraint._id,
+            input.constraintPackage.shaping.constraint._id,
+            input.constraintPackage.consequence?.constraint._id,
+        ].filter(Boolean) as string[]
+    )
+
+    const affordanceByTitle = new Map<string, string>()
+    for (const a of [input.affordances.primary, ...input.affordances.supporting]) {
+        if (a.title) affordanceByTitle.set(String(a.title).trim().toLowerCase(), a._id)
+    }
+    const constraintByTitle = new Map<string, string>()
+    for (const wrap of [input.constraintPackage.foundation, input.constraintPackage.shaping, input.constraintPackage.consequence]) {
+        if (wrap?.constraint.title) constraintByTitle.set(String(wrap.constraint.title).trim().toLowerCase(), wrap.constraint._id)
+    }
+
+    for (const rawId of aff) {
+        if (typeof rawId !== 'string' || !rawId.trim()) {
+            throw new SystemPipelineError('output-validation', `Generated activity ${index + 1} has an invalid affordancesUsed entry.`)
+        }
+        const id = rawId.trim()
+        if (!allowedAffordanceIds.has(id)) {
+            if (affordanceByTitle.has(id.toLowerCase())) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `AI invented affordance name or returned title instead of id: ${rawId}`
+                )
+            }
+            if (id.startsWith('tl-v0-lens-')) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `AI returned affordance not selected: ${rawId}`
+                )
+            }
+            throw new SystemPipelineError(
+                'output-validation',
+                `AI returned unknown affordance: ${rawId}`
+            )
+        }
+    }
+
+    for (const rawId of con) {
+        if (typeof rawId !== 'string' || !rawId.trim()) {
+            throw new SystemPipelineError('output-validation', `Generated activity ${index + 1} has an invalid constraintsUsed entry.`)
+        }
+        const id = rawId.trim()
+        if (!allowedConstraintIds.has(id)) {
+            if (constraintByTitle.has(id.toLowerCase())) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `AI invented constraint name or returned title instead of id: ${rawId}`
+                )
+            }
+            if (id.startsWith('tl-v0-constraint-')) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `AI returned constraint not selected: ${rawId}`
+                )
+            }
+            throw new SystemPipelineError(
+                'output-validation',
+                `AI returned unknown constraint: ${rawId}`
+            )
+        }
+    }
+
+    if (!aff.includes(input.affordances.primary._id)) {
+        throw new SystemPipelineError(
+            'output-validation',
+            `AI returned affordance not selected: primary affordance id ${input.affordances.primary._id} is missing from affordancesUsed.`
+        )
+    }
+
+    const requiredConstraints = [
+        input.constraintPackage.foundation.constraint._id,
+        input.constraintPackage.shaping.constraint._id,
+        ...(input.constraintPackage.consequence ? [input.constraintPackage.consequence.constraint._id] : []),
+    ]
+    for (const reqId of requiredConstraints) {
+        if (!con.includes(reqId)) {
+            throw new SystemPipelineError(
+                'output-validation',
+                `AI returned constraint not selected: package constraint id ${reqId} is missing from constraintsUsed.`
+            )
+        }
+    }
+}
+
 export function validateGeneratedActivities(rawResponse: unknown, input: SystemAssemblyInput): IActivity[] {
     const payload = rawResponse as { generatedActivities?: Array<Record<string, any>> }
     if (!payload?.generatedActivities || !Array.isArray(payload.generatedActivities) || payload.generatedActivities.length === 0) {
@@ -457,6 +563,8 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
             throw new SystemPipelineError('output-validation', `Generated activity ${index + 1} has an invalid playerGroupSizes value.`)
         }
 
+        validateAiReturnedAffordanceAndConstraintIds(candidate, input, index + 1)
+
         if (!exchangeRuleMatchesRulesSlot(twoSidedExchangeRule, rules)) {
             throw new SystemPipelineError(
                 'output-validation',
@@ -472,6 +580,13 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
         }
 
         const narrative = [constraint, intent, twoSidedExchangeRule, twoSidedScoringConsequence, rules.join(' '), scoringSystem, winCondition].join(' ')
+        const prescriptiveViolations = findPrescriptivePhraseViolations(narrative)
+        if (prescriptiveViolations.length > 0) {
+            throw new SystemPipelineError(
+                'output-validation',
+                `Generated activity ${index + 1}: Prescriptive language detected: ${prescriptiveViolations.join(', ')}`
+            )
+        }
         const environmentNarrative = [constraint, rules.join(' '), scoringSystem, winCondition].join(' ')
         const outcomeNarrative = [twoSidedScoringConsequence, scoringSystem, winCondition, rules.join(' ')].join(' ')
         const affordanceReflected =
@@ -516,7 +631,6 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
             )
         }
 
-        const prescriptiveHits = countPatternHits(narrative, PRESCRIPTIVE_PATTERNS)
         const openDecisionHits = countPatternHits(narrative, OPEN_DECISION_PATTERNS)
         const restrictedDecisionDimensions = getRestrictedDecisionDimensions(narrative)
         const stopStartHits = countPatternHits(narrative, STOP_START_PATTERNS)
@@ -700,13 +814,6 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
             throw new SystemPipelineError(
                 'output-validation',
                 `Generated activity ${index + 1} violates one or more non-negotiable guardrail avoids.`
-            )
-        }
-
-        if (prescriptiveHits > 3 && openDecisionHits === 0) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} is too prescriptive and does not leave room for multiple solutions.`
             )
         }
 
