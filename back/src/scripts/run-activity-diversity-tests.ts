@@ -11,7 +11,7 @@ import type { IAffordance } from '../models/affordance.model'
 import type { IConstraint } from '../models/constraint.model'
 import type { ISession } from '../models/session.model'
 import { SessionStatus } from '../models/session.model'
-import { assembleActivities } from '../services/completion.service'
+import { ActivityAssemblyValidationError, assembleActivities } from '../services/completion.service'
 import type { Activity } from '../system/activity/activity-schema'
 import { evaluateActivityDiversity } from '../system/activity/evaluate-activity-diversity'
 import { testLibraryArchetypeToSystemDefinition } from '../system/activity/resolve-test-library-archetype'
@@ -38,12 +38,19 @@ const DIVERSITY_INPUTS: string[] = [
     'Create more attacking opportunities without forcing specific passes.',
 ]
 
+type AssemblyRunMeta = {
+    assemblyAttempts: number
+    retriedAfterValidationFailure: boolean
+    validationFailureReasons?: string[]
+}
+
 type DiversityRow = {
     input: string
     selectedArchetype: string
     selectedAffordanceLenses: string[]
     selectedConstraints: string[]
     generatedActivity: Activity | null
+    assembly?: AssemblyRunMeta
 }
 
 function lensToIAffordance(lens: TestLibraryV0AffordanceLens): IAffordance {
@@ -187,14 +194,28 @@ async function runDiversityCase(input: string): Promise<DiversityRow> {
             selectedAffordanceLenses,
             selectedConstraints,
             generatedActivity: assembled.structuredActivities[0],
+            assembly: {
+                assemblyAttempts: assembled.assemblyAttempts,
+                retriedAfterValidationFailure: assembled.retriedAfterValidationFailure,
+                validationFailureReasons: assembled.validationFailureReasons,
+            },
         }
-    } catch {
+    } catch (err) {
+        const assemblyMeta: AssemblyRunMeta | undefined =
+            err instanceof ActivityAssemblyValidationError
+                ? {
+                      assemblyAttempts: err.assemblyAttempts,
+                      retriedAfterValidationFailure: err.retriedAfterValidationFailure,
+                      validationFailureReasons: err.validationFailureReasons,
+                  }
+                : undefined
         return {
             input,
             selectedArchetype,
             selectedAffordanceLenses,
             selectedConstraints,
             generatedActivity: null,
+            assembly: assemblyMeta,
         }
     }
 }
@@ -228,9 +249,14 @@ async function main() {
     const packet = {
         results,
         diversityEvaluation,
+        summary: {
+            assemblyRetryCases: results.filter((r) => r.assembly?.retriedAfterValidationFailure === true).length,
+            totalAssemblyAttempts: results.reduce((acc, r) => acc + (r.assembly?.assemblyAttempts ?? 0), 0),
+        },
         notes: [
             'Measures repetition across the first generated Activity per input (same five learning goals as quality runner).',
             'Does not change prompts, validators, or selection.',
+            'assemblyRetryCases: inputs where assembleActivities retried after strict Activity validation failure.',
         ],
     }
 

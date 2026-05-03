@@ -12,7 +12,7 @@ import type { IAffordance } from '../models/affordance.model'
 import type { IConstraint } from '../models/constraint.model'
 import type { ISession } from '../models/session.model'
 import { SessionStatus } from '../models/session.model'
-import { assembleActivities } from '../services/completion.service'
+import { ActivityAssemblyValidationError, assembleActivities } from '../services/completion.service'
 import type { Activity } from '../system/activity/activity-schema'
 import { evaluateActivityQuality } from '../system/activity/evaluate-activity-quality'
 import { testLibraryArchetypeToSystemDefinition } from '../system/activity/resolve-test-library-archetype'
@@ -39,6 +39,12 @@ const QUALITY_INPUTS: string[] = [
     'Create more attacking opportunities without forcing specific passes.',
 ]
 
+type AssemblyRunMeta = {
+    assemblyAttempts: number
+    retriedAfterValidationFailure: boolean
+    validationFailureReasons?: string[]
+}
+
 type QualityTestRow = {
     input: string
     selectedArchetype: string
@@ -46,6 +52,7 @@ type QualityTestRow = {
     selectedConstraints: string[]
     generatedActivity: Activity | null
     qualityEvaluation: ReturnType<typeof evaluateActivityQuality>
+    assembly?: AssemblyRunMeta
 }
 
 function lensToIAffordance(lens: TestLibraryV0AffordanceLens): IAffordance {
@@ -208,9 +215,22 @@ async function runQualityCase(input: string): Promise<QualityTestRow> {
             selectedConstraints,
             generatedActivity,
             qualityEvaluation,
+            assembly: {
+                assemblyAttempts: assembled.assemblyAttempts,
+                retriedAfterValidationFailure: assembled.retriedAfterValidationFailure,
+                validationFailureReasons: assembled.validationFailureReasons,
+            },
         }
     } catch (err) {
         const msg = err instanceof Error ? err.message : String(err)
+        const assemblyMeta: AssemblyRunMeta | undefined =
+            err instanceof ActivityAssemblyValidationError
+                ? {
+                      assemblyAttempts: err.assemblyAttempts,
+                      retriedAfterValidationFailure: err.retriedAfterValidationFailure,
+                      validationFailureReasons: err.validationFailureReasons,
+                  }
+                : undefined
         return {
             input,
             selectedArchetype,
@@ -218,6 +238,7 @@ async function runQualityCase(input: string): Promise<QualityTestRow> {
             selectedConstraints,
             generatedActivity: null,
             qualityEvaluation: failedEvaluation([`Assembly failed: ${msg}`]),
+            assembly: assemblyMeta,
         }
     }
 }
@@ -235,11 +256,14 @@ async function main() {
             qualityPass: results.filter((r) => r.qualityEvaluation.status === 'PASS').length,
             qualityFail: results.filter((r) => r.qualityEvaluation.status === 'FAIL').length,
             noGeneratedActivity: results.filter((r) => r.generatedActivity === null).length,
+            assemblyRetryCases: results.filter((r) => r.assembly?.retriedAfterValidationFailure === true).length,
+            totalAssemblyAttempts: results.reduce((acc, r) => acc + (r.assembly?.assemblyAttempts ?? 0), 0),
         },
         notes: [
             'Quality rubric: evaluateActivityQuality (heuristic, deterministic).',
             'PASS: total >= 8, no category 0, no prescriptive red flags.',
             'Schema validation occurs inside assembleActivities; this runner adds quality scoring only.',
+            'assemblyRetryCases: rows where strict Activity validation failed once and assembleActivities retried.',
         ],
     }
 

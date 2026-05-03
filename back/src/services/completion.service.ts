@@ -16,6 +16,37 @@ declare type CompletionMessage = {
     content: string
 }
 
+/** Thrown when strict Activity validation fails on both initial assembly and the single retry. */
+export class ActivityAssemblyValidationError extends Error {
+    override readonly name = 'ActivityAssemblyValidationError'
+
+    readonly assemblyAttempts: number
+
+    readonly retriedAfterValidationFailure: boolean
+
+    readonly validationFailureReasons: string[]
+
+    constructor(params: { message: string; assemblyAttempts: number; validationFailureReasons: string[] }) {
+        super(params.message)
+        this.assemblyAttempts = params.assemblyAttempts
+        this.retriedAfterValidationFailure = params.assemblyAttempts > 1
+        this.validationFailureReasons = params.validationFailureReasons
+    }
+}
+
+export type AssembleActivitiesResult = {
+    generatedActivities: IActivity[]
+
+    structuredActivities: Activity[]
+
+    assemblyAttempts: number
+
+    retriedAfterValidationFailure: boolean
+
+    /** Reasons from the first attempt when a retry was triggered after strict Activity validation failed. */
+    validationFailureReasons?: string[]
+}
+
 declare type CompletionResponseFormat =
     | { type: 'text' }
     | { type: 'json_object' }
@@ -217,41 +248,92 @@ export async function generateConstraintCategory(constraint: IConstraint, catego
  *
  * Proof contract: AI conforms iff `structuredActivities` parses and passes `validateActivitiesAssemblyPayload`.
  * `generatedActivities` is a derived legacy projection for downstream compatibility — not evidence of schema conformance.
+ *
+ * On strict Activity validation failure after valid JSON, performs exactly one retry with validator-derived reasons
+ * in the user message. Invalid JSON does not trigger a validation retry.
  */
-export async function assembleActivities(
-    input: SystemAssemblyInput
-): Promise<{ generatedActivities: IActivity[]; structuredActivities: Activity[] }> {
-    try {
-        const response = await getCompletion([
-            {
-                role: 'system',
-                content: generateAssemblyPrompt(input),
-            },
-            {
-                role: 'system',
-                content: JSON.stringify(buildAssemblyPayload(input)),
-            },
-        ])
-        const parsedResponse = parseCompletionAsJSON<Record<string, unknown>>(response)
-        if (!parsedResponse) {
-            throw new SystemPipelineError('ai-assembly', 'AI assembly returned invalid JSON.')
-        }
+export async function assembleActivities(input: SystemAssemblyInput): Promise<AssembleActivitiesResult> {
+    const initialMessages: CompletionMessage[] = [
+        {
+            role: 'system',
+            content: generateAssemblyPrompt(input),
+        },
+        {
+            role: 'system',
+            content: JSON.stringify(buildAssemblyPayload(input)),
+        },
+    ]
 
-        let structuredActivities: Activity[]
-        try {
-            structuredActivities = validateActivitiesAssemblyPayload(parsedResponse)
-        } catch (err) {
-            const detail = err instanceof Error ? err.message : String(err)
-            throw new Error(`Invalid activity structure from AI: ${detail}`)
-        }
-
-        /** Derived-only — mapped after Activity validation; do not use as proof of the Activity JSON contract. */
-        const generatedActivities = structuredActivities.map((activity) => mapStructuredActivityToLegacy(activity, input))
-
-        return { generatedActivities, structuredActivities }
-    } catch (error) {
-        throw error
+    const response1 = await getCompletion(initialMessages)
+    const parsed1 = parseCompletionAsJSON<Record<string, unknown>>(response1)
+    if (!parsed1) {
+        throw new SystemPipelineError('ai-assembly', 'AI assembly returned invalid JSON.')
     }
+
+    try {
+        const structuredActivities = validateActivitiesAssemblyPayload(parsed1)
+        const generatedActivities = structuredActivities.map((activity) => mapStructuredActivityToLegacy(activity, input))
+        return {
+            generatedActivities,
+            structuredActivities,
+            assemblyAttempts: 1,
+            retriedAfterValidationFailure: false,
+        }
+    } catch (firstErr) {
+        const firstReason = firstErr instanceof Error ? firstErr.message : String(firstErr)
+
+        const retryMessages: CompletionMessage[] = [
+            ...initialMessages,
+            { role: 'assistant', content: response1 },
+            { role: 'user', content: buildAssemblyRetryUserMessage([firstReason]) },
+        ]
+
+        const response2 = await getCompletion(retryMessages)
+        const parsed2 = parseCompletionAsJSON<Record<string, unknown>>(response2)
+        if (!parsed2) {
+            throw new ActivityAssemblyValidationError({
+                message: `Invalid activity structure from AI after retry: first failure ${firstReason}; retry response was not valid JSON.`,
+                assemblyAttempts: 2,
+                validationFailureReasons: [firstReason, 'Retry response was not valid JSON.'],
+            })
+        }
+
+        try {
+            const structuredActivities = validateActivitiesAssemblyPayload(parsed2)
+            const generatedActivities = structuredActivities.map((activity) => mapStructuredActivityToLegacy(activity, input))
+            return {
+                generatedActivities,
+                structuredActivities,
+                assemblyAttempts: 2,
+                retriedAfterValidationFailure: true,
+                validationFailureReasons: [firstReason],
+            }
+        } catch (secondErr) {
+            const secondReason = secondErr instanceof Error ? secondErr.message : String(secondErr)
+            throw new ActivityAssemblyValidationError({
+                message: `Invalid activity structure from AI after retry. First: ${firstReason}. Second: ${secondReason}`,
+                assemblyAttempts: 2,
+                validationFailureReasons: [firstReason, secondReason],
+            })
+        }
+    }
+}
+
+function buildAssemblyRetryUserMessage(validatorReasons: string[]): string {
+    const bullets = validatorReasons.map((r) => `- ${r}`).join('\n')
+    return `The previous output failed validation for:
+${bullets}
+
+Regenerate the full JSON payload.
+Do not explain.
+Return valid JSON only.
+Preserve the selected archetype, affordance lenses, and constraints.
+Do not add new affordances or constraints.
+
+Avoid player-directed imperative obligation language.
+Each activity needs explicit decision language such as choose, read, react, based on, decision, adapt, or option.
+
+Do not echo exact prohibited phrases if avoidable.`
 }
 
 function mapStructuredActivityToLegacy(activity: Activity, input: SystemAssemblyInput): IActivity {
@@ -423,15 +505,15 @@ Your job is to assemble three concrete activity options that all use the supplie
 
 System principles:
 - Assemble perception-based game environments, not compliance-based drills.
-- Every constraint must answer what the game makes players notice, care about, and adapt to.
+- Every constraint needs to answer what the game makes players notice, care about, and adapt to.
 - Start by shaping the environment through space, time, player numbers, scoring, pressure, and field references.
 - Highlight the problem through incentives before adding any temporary behavior limit.
 - If a temporary behavior constraint is used at all, keep it brief, subordinate to open play, and never make it the main task.
 - Never prescribe exact player behaviour when the game can present multiple solutions.
 - Preserve decision-making across who, what, where, when, why, and how whenever possible.
 - Let learning emerge from interaction under meaningful consequences.
-- Affordances must emerge through active opponent interaction, not isolated compliance.
-- One team's opportunity must create risk for the other team.
+- Affordances need to emerge through active opponent interaction, not isolated compliance.
+- One team's opportunity needs to create risk for the other team.
 - Preserve continuous play, directional realism, active opposition, and multiple solutions.
 - Activities should feel like the real game and fit the requested challenge level.
 - Avoid vague language such as "quality chance", "good decision", or "proper technique". Use observable game events instead.
@@ -458,7 +540,7 @@ Output requirements (system-owned schema — do not add, remove, or rename keys)
 }
 - Do NOT include a "validation" field; the server computes it.
 - Produce exactly 3 objects inside "activities".
-- Every string field must be non-empty. Every array must have at least one non-empty string.
+- Ensure every string field is non-empty. Ensure every array has at least one non-empty string.
 - "rules": include at least one full two-sided exchange rule as rules[0] (opportunity + opponent consequence + live continuation).
 - "scoring": start with one sentence that states scoring or live advantage for both teams; you may add further lines after it.
 - "setup": space, numbers, zones, equipment, and environment only (no compliance drills).
@@ -467,20 +549,29 @@ Output requirements (system-owned schema — do not add, remove, or rename keys)
 - "constraints": reference the supplied foundation, shaping, and (if present) consequence constraint themes in environment language.
 - "coachingFocus": short reminders about what to observe (not prescriptive technique commands).
 
-Decision-making language (mandatory for every one of the 3 activities):
-- Each activity MUST include explicit decision-making wording in at least one of: "objective", any string in "rules", or any string in "coachingFocus" (not setup/teams/scoring/constraints alone).
-- Use clear, varied phrasing in the spirit of (do not rely only on setup): players choose …; players read …; players react …; based on defender pressure …; based on space …; based on teammate support …
-- The game must not force a single action. Prefer multiple live options tied to what they see.
-- Good: "Players choose whether to play forward, support, switch, or secure possession based on pressure and space."
-- Bad: a design where only one channel is legal or the picture collapses to a single scripted next action with no read of pressure or space.
-- Never echo or quote compliance-style negatives from these instructions inside JSON; never use forbidden prescriptive patterns listed under Assembly requirements.
+Decision-making language (required for every one of the 3 activities):
+- The automated check joins setup, teams, objective, scoring, rules, constraints, and coachingFocus and requires open-decision vocabulary somewhere in that bundle. Reliable stems include whole-word use of: choose, read, react, adapt, option (singular phrasing such as "an option" passes; plural-only wording can miss), based on, if … then …, decision (including decision-making), when … decide ….
+- Activity 3 (consequence-led) still needs that vocabulary: lead with scoring and trade-offs, and weave at least one cue into objective, rules[0], or coachingFocus so the block never reads as points-only boilerplate.
+- Prefer objective, rules, and coachingFocus for those cues when possible; setup may include them only while staying spatial and environmental (not drill orders).
+- Preserve multiple live options tied to what players see; avoid collapsing the picture to one scripted channel.
+- Good pattern: choosing whether to play forward, support, switch, or secure possession based on pressure and space.
+- Bad pattern: a design where only one channel is legal or the picture collapses to a single scripted next action with no read of pressure or space.
+- Never echo compliance-style negatives from these instructions inside JSON; avoid prescriptive command patterns the server rejects (see Assembly requirements).
 
 Assembly requirements:
 - Echo the selected foundation and shaping constraint titles or themes inside constraints/scoring as appropriate; include consequence language when supplied.
 - Treat constraintPackage.assemblyGuardrails as the locked design brief.
 - Preserve continuous play, directional realism, active opposition, and multiple solutions.
-- Never output: players must pass/shoot/dribble, only use, required sequence, repeat this pattern, perform this technique.
-- Keep activities distinct while preserving the same system spine from the payload.`
+- Avoid prescriptive command chains the server rejects: ordered skill drills, "only use" locks, fixed repetition scripts, technique scripts — phrase as environment, trade-offs, and incentives instead.
+- Obligation-to-action lines directed at whoever has the ball (compulsion wording plus a named technical move) are substring-rejected; write invitations, live risks, reads, and consequences instead of drill orders.
+- Keep activities distinct while preserving the same system spine from the payload.
+
+Diversity across the three activities (required):
+- Unique titles: ensure each of the three activities has a clearly different title; do not reuse the same title string twice. Avoid stock duplicate names such as two slots both using the same wide-zone exploitation template unless the selected constraint package and affordances overwhelmingly center on that single framing (prefer distinct titles even then).
+- Vary constraint expression: the same selected constraints apply to all three activities, but express each constraint package through different environment mechanics and wording across activities 1–3. Re-theme the same supplied constraints without adding or renaming constraints — e.g. Interception Reward may read as bonus for clean regain, immediate counter window after a turnover, or possession switch with a score multiplier — while still clearly mapping to that constraint. Do not invent new constraint types or IDs.
+- Wide-zone balance: when Wide Zone Advantage (or similar wide-area shaping) is in the package, include it, but do not let wide channels be the only story. Blend width with other selected themes and affordances: line-breaking, support angles, transition attack, regain, space behind, possession stability, finishing — as relevant to the supplied primary/supporting affordances and constraint titles.
+- Preserve all hard rules above: opposition, open-decision vocabulary in the activity text bundle, consequence/scoring, no prescriptive phrases, only selected constraints and guardrails — diversity shall not replace any of these.
+- Do not use imperative drill phrasing that the server rejects; describe environment and choices, not ordered techniques.`
 }
 
 export { testLibraryArchetypeToSystemDefinition } from '../system/activity/resolve-test-library-archetype'

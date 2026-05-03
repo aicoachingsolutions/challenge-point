@@ -4,6 +4,8 @@
  *
  * cd back && npx ts-node --files -r tsconfig-paths/register ./src/scripts/run-selection-pipeline-tests.ts
  */
+import 'dotenv/config'
+
 import '../loadEnv'
 
 import { ConstraintRoles } from '../models/constraint.model'
@@ -11,7 +13,7 @@ import type { IAffordance } from '../models/affordance.model'
 import type { IConstraint } from '../models/constraint.model'
 import type { ISession } from '../models/session.model'
 import { SessionStatus } from '../models/session.model'
-import { assembleActivities } from '../services/completion.service'
+import { ActivityAssemblyValidationError, assembleActivities } from '../services/completion.service'
 import type { Activity } from '../system/activity/activity-schema'
 import { testLibraryArchetypeToSystemDefinition } from '../system/activity/resolve-test-library-archetype'
 import { buildConstraintPackage } from '../system/build-constraint-package'
@@ -52,6 +54,12 @@ type SelectionOnlyRow = {
     aiCalled: false
 }
 
+type AssemblyRunMeta = {
+    assemblyAttempts: number
+    retriedAfterValidationFailure: boolean
+    validationFailureReasons?: string[]
+}
+
 /** Activity Assembly V1 proof row: `generatedActivity` is the validated system `Activity` only (never legacy `IActivity`). */
 type FullPipelineRow = {
     input: string
@@ -66,6 +74,7 @@ type FullPipelineRow = {
         status: 'PASS' | 'FAIL'
         reasons: string[]
     }
+    assembly?: AssemblyRunMeta
 }
 
 type BreakItRow = {
@@ -196,18 +205,6 @@ async function runFullPipeline(input: string): Promise<FullPipelineRow> {
     let aiCalled = false
     let aiCalledAfterSelection = false
 
-    const baseFail = (reasons: string[]): FullPipelineRow => ({
-        input,
-        selectedArchetype: '',
-        selectedAffordanceLenses: [],
-        selectedConstraints: [],
-        aiCalled,
-        aiCalledAfterSelection,
-        selectionComplete,
-        generatedActivity: null,
-        validationResult: { status: 'FAIL', reasons },
-    })
-
     try {
         const sel = generateSelection({ learningGoals: [input] })
         selectionComplete = true
@@ -250,10 +247,23 @@ async function runFullPipeline(input: string): Promise<FullPipelineRow> {
             selectionComplete: true,
             generatedActivity,
             validationResult: { status: 'PASS', reasons: [] },
+            assembly: {
+                assemblyAttempts: assembled.assemblyAttempts,
+                retriedAfterValidationFailure: assembled.retriedAfterValidationFailure,
+                validationFailureReasons: assembled.validationFailureReasons,
+            },
         }
     } catch (err) {
         const msg = err instanceof Error ? err.message : String(err)
         const isSel = selectionComplete
+        const assemblyMeta: AssemblyRunMeta | undefined =
+            err instanceof ActivityAssemblyValidationError
+                ? {
+                      assemblyAttempts: err.assemblyAttempts,
+                      retriedAfterValidationFailure: err.retriedAfterValidationFailure,
+                      validationFailureReasons: err.validationFailureReasons,
+                  }
+                : undefined
         return {
             input,
             selectedArchetype: '',
@@ -264,6 +274,7 @@ async function runFullPipeline(input: string): Promise<FullPipelineRow> {
             selectionComplete: isSel,
             generatedActivity: null,
             validationResult: { status: 'FAIL', reasons: [msg] },
+            assembly: assemblyMeta,
         }
     }
 }
@@ -305,6 +316,11 @@ async function main() {
     const packet = {
         selectionOnlyResults,
         fullPipelineResults,
+        fullPipelineSummary: {
+            assemblyRetryCases: fullPipelineResults.filter((r) => r.assembly?.retriedAfterValidationFailure === true)
+                .length,
+            totalAssemblyAttempts: fullPipelineResults.reduce((acc, r) => acc + (r.assembly?.assemblyAttempts ?? 0), 0),
+        },
         breakItResults,
         aiCalledTooEarly,
         notes: [
@@ -312,6 +328,7 @@ async function main() {
             'Full pipeline proof: generateSelection → assembleActivities; PASS iff structured Activity JSON validates (no legacy projection in packet). Legacy `generatedActivities` exists only inside completion.service for routes — not used here as proof.',
             'AI is invoked only after selection succeeds and OPENAI_API_KEY is set.',
             'Break-it phrases fail inside generateSelection before any assembly.',
+            'fullPipelineSummary: assembly metadata from assembleActivities (matches quality/diversity runners).',
         ],
     }
 

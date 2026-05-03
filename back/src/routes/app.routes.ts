@@ -269,6 +269,14 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
 
         return res.status(200).json(validatedActivities)
     } catch (error) {
+        console.error('=== CREATE ACTIVITY ERROR ===')
+        console.error(error)
+
+        if (error instanceof Error) {
+            console.error('MESSAGE:', error.message)
+            console.error('STACK:', error.stack)
+        }
+
         if (error instanceof SystemPipelineError) {
             return res.status(422).json({
                 error: `${error.stage}: ${error.message}`,
@@ -278,8 +286,8 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         }
 
         return res.status(500).json({
-            error: 'Internal server error',
-            message: process.env.NODE_ENV === 'production' ? 'An unexpected error occurred' : (error as Error).message,
+            error: 'Activity generation failed',
+            details: error instanceof Error ? error.message : 'Unknown error',
         })
     }
 })
