@@ -305,7 +305,9 @@ export function validateConstraintPackage(
             )
         }
 
+        // Test Library V0: "Both" means compatible with any selected affordance tag group (wildcard).
         if (
+            member!.constraint.affordanceTagGroup !== 'Both' &&
             member!.constraint.affordanceTagGroup &&
             affordances.primary.affordanceTagGroup &&
             member!.constraint.affordanceTagGroup !== affordances.primary.affordanceTagGroup &&
