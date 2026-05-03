@@ -1,4 +1,5 @@
 import { IActivity } from '../models/activity.model'
+import { getAssemblySelectedAffordanceIds, getAssemblySelectedConstraintIds, registryIdString } from './activity/assembly-package-ids'
 import { findPrescriptivePhraseViolations } from './activity/validate-activity-structure'
 import { ActivityAssemblyGuardrails, InteractionExchange, SystemAssemblyInput, SystemPipelineError } from './types'
 import { countPatternHits, includesNormalizedPhrase, normalizeText, overlapScore, scoreKeywordMatches, uniqueTokens } from './text'
@@ -434,24 +435,22 @@ function validateAiReturnedAffordanceAndConstraintIds(
         )
     }
 
-    const allowedAffordanceIds = new Set(
-        [input.affordances.primary._id, ...input.affordances.supporting.map((a) => a._id)].filter(Boolean) as string[]
-    )
-    const allowedConstraintIds = new Set(
-        [
-            input.constraintPackage.foundation.constraint._id,
-            input.constraintPackage.shaping.constraint._id,
-            input.constraintPackage.consequence?.constraint._id,
-        ].filter(Boolean) as string[]
-    )
+    const selectedAffordanceIds = getAssemblySelectedAffordanceIds(input)
+    const selectedConstraintIds = getAssemblySelectedConstraintIds(input)
+    const allowedAffordanceIds = new Set(selectedAffordanceIds)
+    const allowedConstraintIds = new Set(selectedConstraintIds)
 
     const affordanceByTitle = new Map<string, string>()
     for (const a of [input.affordances.primary, ...input.affordances.supporting]) {
-        if (a.title) affordanceByTitle.set(String(a.title).trim().toLowerCase(), a._id)
+        if (a.title) affordanceByTitle.set(String(a.title).trim().toLowerCase(), registryIdString((a as { _id?: unknown; id?: unknown })._id ?? (a as { id?: unknown }).id))
     }
     const constraintByTitle = new Map<string, string>()
     for (const wrap of [input.constraintPackage.foundation, input.constraintPackage.shaping, input.constraintPackage.consequence]) {
-        if (wrap?.constraint.title) constraintByTitle.set(String(wrap.constraint.title).trim().toLowerCase(), wrap.constraint._id)
+        if (wrap?.constraint.title)
+            constraintByTitle.set(
+                String(wrap.constraint.title).trim().toLowerCase(),
+                registryIdString((wrap.constraint as { _id?: unknown; id?: unknown })._id ?? (wrap.constraint as { id?: unknown }).id)
+            )
     }
 
     for (const rawId of aff) {
@@ -504,19 +503,15 @@ function validateAiReturnedAffordanceAndConstraintIds(
         }
     }
 
-    if (!aff.includes(input.affordances.primary._id)) {
+    const primaryCanonicalId = selectedAffordanceIds[0]
+    if (primaryCanonicalId !== undefined && primaryCanonicalId !== '' && !aff.includes(primaryCanonicalId)) {
         throw new SystemPipelineError(
             'output-validation',
-            `AI returned affordance not selected: primary affordance id ${input.affordances.primary._id} is missing from affordancesUsed.`
+            `AI returned affordance not selected: primary affordance id ${primaryCanonicalId} is missing from affordancesUsed.`
         )
     }
 
-    const requiredConstraints = [
-        input.constraintPackage.foundation.constraint._id,
-        input.constraintPackage.shaping.constraint._id,
-        ...(input.constraintPackage.consequence ? [input.constraintPackage.consequence.constraint._id] : []),
-    ]
-    for (const reqId of requiredConstraints) {
+    for (const reqId of selectedConstraintIds) {
         if (!con.includes(reqId)) {
             throw new SystemPipelineError(
                 'output-validation',
@@ -532,14 +527,8 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
         throw new SystemPipelineError('output-validation', 'The AI assembly response did not include a generatedActivities array.')
     }
 
-    const affordanceIds = Array.from(
-        new Set([input.affordances.primary._id, ...input.affordances.supporting.map((affordance) => affordance._id)].filter(Boolean))
-    ) as string[]
-    const constraintIds = [
-        input.constraintPackage.foundation.constraint._id,
-        input.constraintPackage.shaping.constraint._id,
-        input.constraintPackage.consequence?.constraint._id,
-    ].filter(Boolean) as string[]
+    const affordanceIds = getAssemblySelectedAffordanceIds(input)
+    const constraintIds = getAssemblySelectedConstraintIds(input)
     const packageSummary = buildConstraintSummary(input)
     const validActivities: IActivity[] = []
     const validationErrors: SystemPipelineError[] = []

@@ -6,6 +6,7 @@ import { ICategory } from 'src/models/category.model'
 
 import LoggingService, { LoggingOptions } from '../services/logging.service'
 import type { Activity } from '../system/activity/activity-schema'
+import { getAssemblySelectedAffordanceIds, getAssemblySelectedConstraintIds } from '../system/activity/assembly-package-ids'
 import { validateActivitiesAssemblyPayload } from '../system/activity/validate-activity-structure'
 import { inferCategoryIdFromText } from '../system/infer-category'
 import { SystemAssemblyInput, SystemPipelineError } from '../system/types'
@@ -336,36 +337,11 @@ Each activity needs explicit decision language such as choose, read, react, base
 Do not echo exact prohibited phrases if avoidable.`
 }
 
-/** Ensures registry / Mongo ids are plain strings for legacy projection and output validation. */
-function registryIdString(value: unknown): string {
-    if (value == null) {
-        return ''
-    }
-    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'bigint') {
-        return String(value).trim()
-    }
-    if (typeof value === 'object') {
-        const o = value as { _id?: unknown; id?: unknown }
-        return String(o._id ?? o.id ?? '').trim()
-    }
-    return String(value).trim()
-}
-
 function mapStructuredActivityToLegacy(activity: Activity, input: SystemAssemblyInput): IActivity {
-    const primaryId = registryIdString(
-        (input.affordances.primary as { _id?: unknown; id?: unknown })._id ??
-            (input.affordances.primary as { id?: unknown }).id
-    )
-    const supportingIds = input.affordances.supporting
-        .map((a) => registryIdString((a as { _id?: unknown; id?: unknown })._id ?? (a as { id?: unknown }).id))
-        .filter((s) => s.length > 0)
-    const constraintIds = [
-        input.constraintPackage.foundation.constraint._id,
-        input.constraintPackage.shaping.constraint._id,
-        input.constraintPackage.consequence?.constraint._id,
-    ]
-        .map((id) => registryIdString(id))
-        .filter((s) => s.length > 0)
+    const selectedAffordanceIds = getAssemblySelectedAffordanceIds(input)
+    const primaryId = selectedAffordanceIds[0] ?? ''
+    const supportingIds = selectedAffordanceIds.slice(1)
+    const constraintIds = getAssemblySelectedConstraintIds(input)
 
     const twoSidedExchangeRule = activity.rules[0]
     const rules = [...activity.rules]
@@ -424,15 +400,8 @@ function mapStructuredActivityToLegacy(activity: Activity, input: SystemAssembly
 }
 
 function buildAssemblyPayload(input: SystemAssemblyInput) {
-    const selectedAffordanceIds = [
-        input.affordances.primary._id,
-        ...input.affordances.supporting.map((affordance) => affordance._id),
-    ].filter(Boolean)
-    const selectedConstraintIds = [
-        input.constraintPackage.foundation.constraint._id,
-        input.constraintPackage.shaping.constraint._id,
-        input.constraintPackage.consequence?.constraint._id,
-    ].filter(Boolean)
+    const selectedAffordanceIds = getAssemblySelectedAffordanceIds(input)
+    const selectedConstraintIds = getAssemblySelectedConstraintIds(input)
 
     return {
         session: {
@@ -527,24 +496,11 @@ function buildAssemblyPayload(input: SystemAssemblyInput) {
 }
 
 function generateAssemblyPrompt(input: SystemAssemblyInput) {
-    const selectedAffordanceIds = [
-        input.affordances.primary._id,
-        ...input.affordances.supporting.map((a) => a._id),
-    ].filter(Boolean)
-    const selectedAffordanceLines = selectedAffordanceIds
-        .filter(Boolean)
-        .map((id) => `- ${String(id)}`)
-        .join('\n')
+    const selectedAffordanceIds = getAssemblySelectedAffordanceIds(input)
+    const selectedAffordanceLines = selectedAffordanceIds.map((id) => `- ${id}`).join('\n')
 
-    const selectedConstraintIds = [
-        input.constraintPackage.foundation.constraint._id,
-        input.constraintPackage.shaping.constraint._id,
-        input.constraintPackage.consequence?.constraint._id,
-    ].filter(Boolean)
-    const selectedConstraintLines = selectedConstraintIds
-        .filter(Boolean)
-        .map((id) => `- ${String(id)}`)
-        .join('\n')
+    const selectedConstraintIds = getAssemblySelectedConstraintIds(input)
+    const selectedConstraintLines = selectedConstraintIds.map((id) => `- ${id}`).join('\n')
 
     return `You assemble football activities from system inputs that have already been selected in code.
 
