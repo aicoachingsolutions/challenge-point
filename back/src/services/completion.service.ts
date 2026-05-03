@@ -9,7 +9,7 @@ import type { Activity } from '../system/activity/activity-schema'
 import { getAssemblySelectedAffordanceIds, getAssemblySelectedConstraintIds } from '../system/activity/assembly-package-ids'
 import { validateActivitiesAssemblyPayload } from '../system/activity/validate-activity-structure'
 import { inferCategoryIdFromText } from '../system/infer-category'
-import { SystemAssemblyInput, SystemPipelineError } from '../system/types'
+import { ArchetypeDefinition, SystemAssemblyInput, SystemPipelineError } from '../system/types'
 
 declare type CompletionMessage = {
     role: 'system' | 'user' | 'assistant'
@@ -495,6 +495,38 @@ function buildAssemblyPayload(input: SystemAssemblyInput) {
     }
 }
 
+function archetypeIdentityPromptSection(archetype: ArchetypeDefinition): string {
+    const lines: string[] = [
+        'Archetype identity (mandatory — applies to every one of the three activities):',
+        'The generated activity MUST clearly reflect the selected archetype.',
+        'If the activity does not clearly reflect the archetype identity, it will be rejected.',
+        '',
+        `Selected archetype: "${archetype.name}".`,
+        '',
+    ]
+
+    if (archetype.name === 'Pressing & Regain Games') {
+        lines.push(
+            'For Pressing & Regain Games:',
+            '- The primary game condition must involve regaining possession under pressure.',
+            '- The activity must create immediate transition moments after regain.',
+            '- Opponents must create pressure and regain opportunities.',
+            '- The game should not resemble positional possession or width-only play.',
+            '',
+            'Do NOT default to generic wide play, spacing, or overload patterns unless they are directly tied to regain and transition moments.',
+            ''
+        )
+    } else if (archetype.assemblyCues.length > 0) {
+        lines.push('Ground the dominant game story in cues aligned with this archetype:')
+        for (const cue of archetype.assemblyCues) {
+            lines.push(`- ${cue}`)
+        }
+        lines.push('')
+    }
+
+    return lines.join('\n')
+}
+
 function generateAssemblyPrompt(input: SystemAssemblyInput) {
     const selectedAffordanceIds = getAssemblySelectedAffordanceIds(input)
     const selectedAffordanceLines = selectedAffordanceIds.map((id) => `- ${id}`).join('\n')
@@ -560,6 +592,7 @@ System principles:
 - Consequence is part of the constraint package, not a separate logic system.
 - The system provides locked guardrails and required design ingredients. You remain responsible for designing and assembling the activity inside those guardrails.
 
+${archetypeIdentityPromptSection(input.archetype)}
 Output requirements (system-owned schema — do not add, remove, or rename keys):
 - Return valid JSON only.
 - Top-level shape exactly:
