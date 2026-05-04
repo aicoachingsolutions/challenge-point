@@ -6,7 +6,11 @@ import { ICategory } from 'src/models/category.model'
 
 import LoggingService, { LoggingOptions } from '../services/logging.service'
 import type { Activity } from '../system/activity/activity-schema'
-import { getAssemblySelectedAffordanceIds, getAssemblySelectedConstraintIds } from '../system/activity/assembly-package-ids'
+import {
+    getAssemblySelectedAffordanceIds,
+    getAssemblySelectedConstraintIds,
+    registryIdString,
+} from '../system/activity/assembly-package-ids'
 import { validateActivitiesAssemblyPayload } from '../system/activity/validate-activity-structure'
 import { inferCategoryIdFromText } from '../system/infer-category'
 import { ArchetypeDefinition, SystemAssemblyInput, SystemPipelineError } from '../system/types'
@@ -565,6 +569,57 @@ function buildAssemblyPayload(input: SystemAssemblyInput) {
     }
 }
 
+const POSSESSION_STABILITY_LENS_TITLE = 'Possession Stability Opportunity'
+
+function titleForAssemblyAffordanceId(input: SystemAssemblyInput, id: string): string {
+    const primaryId = registryIdString(
+        (input.affordances.primary as { _id?: unknown; id?: unknown })._id ??
+            (input.affordances.primary as { id?: unknown }).id
+    )
+    if (primaryId === id) {
+        return input.affordances.primary.title
+    }
+    const supporting = input.affordances.supporting.find((a) =>
+        registryIdString((a as { _id?: unknown; id?: unknown })._id ?? (a as { id?: unknown }).id) === id
+    )
+    return supporting?.title ?? id
+}
+
+function selectedAffordanceCoveragePromptSection(input: SystemAssemblyInput): string {
+    const ids = getAssemblySelectedAffordanceIds(input)
+    const lines: string[] = [
+        'Selected affordance lens coverage (mandatory — activities 1, 2, and 3):',
+        'The activity must reflect every selected affordance lens, not only the primary or most obvious one.',
+        '',
+        'For each selected affordance lens below, every generated activity must clearly express that affordance in at least one of: objective, rules, constraints, or coachingFocus.',
+        '',
+        'Selected affordances (titles in selectedAffordanceIds order):',
+    ]
+
+    let includesPossessionStability = false
+    for (const id of ids) {
+        const title = titleForAssemblyAffordanceId(input, id)
+        lines.push(`- "${title}" (${id})`)
+        if (title === POSSESSION_STABILITY_LENS_TITLE) {
+            includesPossessionStability = true
+        }
+    }
+
+    lines.push('')
+    lines.push(
+        'Each lens must read as part of the game story in those fields (not only implied by setup or teams, and not only by echoing affordancesUsed IDs).'
+    )
+
+    if (includesPossessionStability) {
+        lines.push(
+            '',
+            `When "${POSSESSION_STABILITY_LENS_TITLE}" is selected, include unmistakable possession-stability language in objective, rules, constraints, and/or coachingFocus — for example ideas in the spirit of: secure possession, keep the ball under pressure, maintain possession, support the ball-carrier, retain possession, keep the next action live (phrase as live game problems; avoid empty labels).`
+        )
+    }
+
+    return lines.join('\n')
+}
+
 function archetypeIdentityPromptSection(archetype: ArchetypeDefinition): string {
     const lines: string[] = [
         'Archetype identity (mandatory — applies to every one of the three activities):',
@@ -662,6 +717,7 @@ System principles:
 - Consequence is part of the constraint package, not a separate logic system.
 - The system provides locked guardrails and required design ingredients. You remain responsible for designing and assembling the activity inside those guardrails.
 
+${selectedAffordanceCoveragePromptSection(input)}
 ${archetypeIdentityPromptSection(input.archetype)}
 Output requirements (system-owned schema — do not add, remove, or rename keys):
 - Return valid JSON only.
