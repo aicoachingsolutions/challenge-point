@@ -253,7 +253,38 @@ export async function generateConstraintCategory(constraint: IConstraint, catego
  * On strict Activity validation failure after valid JSON, performs exactly one retry with validator-derived reasons
  * in the user message. Invalid JSON does not trigger a validation retry.
  */
+function snapshotAssemblyDesign(input: SystemAssemblyInput): {
+    archetypeId: string
+    affordanceKey: string
+    constraintKey: string
+} {
+    return {
+        archetypeId: input.archetype.id,
+        affordanceKey: getAssemblySelectedAffordanceIds(input).join(','),
+        constraintKey: getAssemblySelectedConstraintIds(input).join(','),
+    }
+}
+
+function assertAssemblyDesignUnchanged(
+    lock: ReturnType<typeof snapshotAssemblyDesign>,
+    input: SystemAssemblyInput
+): void {
+    const next = snapshotAssemblyDesign(input)
+    if (
+        next.archetypeId !== lock.archetypeId ||
+        next.affordanceKey !== lock.affordanceKey ||
+        next.constraintKey !== lock.constraintKey
+    ) {
+        throw new SystemPipelineError(
+            'ai-assembly',
+            'Assembly invariant violated: archetype, affordance IDs, or constraint IDs changed during assembly or retry.'
+        )
+    }
+}
+
 export async function assembleActivities(input: SystemAssemblyInput): Promise<AssembleActivitiesResult> {
+    const assemblyDesignLock = snapshotAssemblyDesign(input)
+
     const initialMessages: CompletionMessage[] = [
         {
             role: 'system',
@@ -274,6 +305,7 @@ export async function assembleActivities(input: SystemAssemblyInput): Promise<As
     try {
         const structuredActivities = validateActivitiesAssemblyPayload(parsed1)
         const generatedActivities = structuredActivities.map((activity) => mapStructuredActivityToLegacy(activity, input))
+        assertAssemblyDesignUnchanged(assemblyDesignLock, input)
         return {
             generatedActivities,
             structuredActivities,
@@ -302,6 +334,7 @@ export async function assembleActivities(input: SystemAssemblyInput): Promise<As
         try {
             const structuredActivities = validateActivitiesAssemblyPayload(parsed2)
             const generatedActivities = structuredActivities.map((activity) => mapStructuredActivityToLegacy(activity, input))
+            assertAssemblyDesignUnchanged(assemblyDesignLock, input)
             return {
                 generatedActivities,
                 structuredActivities,

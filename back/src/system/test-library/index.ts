@@ -4,6 +4,7 @@ export { TEST_LIBRARY_V0_ARCHETYPES } from './archetypes'
 export { TEST_LIBRARY_V0_LOAD_REPORT } from './libraryConversionReport'
 export { getTestLibraryV0LoadDebug } from './libraryLoadDebug'
 export { generateSelection, constraintBalanceBucket } from './generateSelection'
+export { normalizeCoachingInput } from './normalizeCoachingInput'
 export { systemAssemblyInputFromTestLibrarySelection } from './systemAssemblyInputFromSelection'
 export type {
     TestLibraryV0AffordanceLens,

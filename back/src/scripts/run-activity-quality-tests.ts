@@ -24,6 +24,7 @@ import type {
     ArchetypeSelection,
     SystemAssemblyInput,
 } from '../system/types'
+import { deriveInputConstraints } from '../system/input-constraints/deriveInputConstraints'
 import { generateSelection } from '../system/test-library/generateSelection'
 import type {
     TestLibrarySelectionResult,
@@ -175,7 +176,7 @@ function failedEvaluation(reasons: string[]): ReturnType<typeof evaluateActivity
 async function runQualityCase(input: string): Promise<QualityTestRow> {
     let sel: TestLibrarySelectionResult
     try {
-        sel = generateSelection({ learningGoals: [input] })
+        sel = generateSelection({ learningGoals: [input] }, deriveInputConstraints(input))
     } catch (err) {
         const msg = err instanceof Error ? err.message : String(err)
         return {

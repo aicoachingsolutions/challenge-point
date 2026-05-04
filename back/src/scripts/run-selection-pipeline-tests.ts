@@ -24,6 +24,7 @@ import type {
     ArchetypeSelection,
     SystemAssemblyInput,
 } from '../system/types'
+import { deriveInputConstraints } from '../system/input-constraints/deriveInputConstraints'
 import { generateSelection } from '../system/test-library/generateSelection'
 import type {
     TestLibrarySelectionResult,
@@ -44,6 +45,12 @@ const BREAK_IT_INPUTS: string[] = [
     'Improve fitness.',
     'Make a fun activity.',
     'Teach better technique.',
+]
+
+/** Input constraint layer + selection (no AI before selection). */
+const INPUT_CONSTRAINT_CASES: string[] = [
+    'work on touches with pressure and spacing',
+    'improve first touch under pressure',
 ]
 
 type SelectionOnlyRow = {
@@ -190,7 +197,7 @@ function buildSystemAssemblyInput(sel: TestLibrarySelectionResult, learningGoal:
 }
 
 function runSelectionOnly(input: string): SelectionOnlyRow {
-    const sel = generateSelection({ learningGoals: [input] })
+    const sel = generateSelection({ learningGoals: [input] }, deriveInputConstraints(input))
     return {
         input,
         selectedArchetype: sel.archetype.game_form_name,
@@ -206,7 +213,7 @@ async function runFullPipeline(input: string): Promise<FullPipelineRow> {
     let aiCalledAfterSelection = false
 
     try {
-        const sel = generateSelection({ learningGoals: [input] })
+        const sel = generateSelection({ learningGoals: [input] }, deriveInputConstraints(input))
         selectionComplete = true
 
         const selectedArchetype = sel.archetype.game_form_name
@@ -311,6 +318,18 @@ async function main() {
 
     const breakItResults: BreakItRow[] = BREAK_IT_INPUTS.map(runBreakIt)
 
+    const inputConstraintLayerResults = INPUT_CONSTRAINT_CASES.map((input) => {
+        const hints = deriveInputConstraints(input)
+        const sel = generateSelection({ learningGoals: [input] }, hints)
+        return {
+            input,
+            inputConstraints: hints,
+            selectedArchetype: sel.archetype.game_form_name,
+            affordanceLensTitles: sel.affordanceLenses.map((l) => l.title),
+            constraintTitles: sel.constraints.map((c) => c.title),
+        }
+    })
+
     const aiCalledTooEarly = fullPipelineResults.some((r) => r.aiCalled && !r.selectionComplete)
 
     const packet = {
@@ -322,6 +341,7 @@ async function main() {
             totalAssemblyAttempts: fullPipelineResults.reduce((acc, r) => acc + (r.assembly?.assemblyAttempts ?? 0), 0),
         },
         breakItResults,
+        inputConstraintLayerResults,
         aiCalledTooEarly,
         notes: [
             'Selection path: generateSelection (back/src/system/test-library) only; selection-only rows never call assembleActivities.',
@@ -329,6 +349,8 @@ async function main() {
             'AI is invoked only after selection succeeds and OPENAI_API_KEY is set.',
             'Break-it phrases fail inside generateSelection before any assembly.',
             'fullPipelineSummary: assembly metadata from assembleActivities (matches quality/diversity runners).',
+            'inputConstraintLayerResults: deriveInputConstraints (keyword rules only) narrows pools passed into generateSelection; final archetype/lenses/constraints are still scoring-selected.',
+            'assembleActivities: retry path asserts archetype + affordance IDs + constraint IDs unchanged vs assembly start.',
         ],
     }
 

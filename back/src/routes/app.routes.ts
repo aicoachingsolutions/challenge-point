@@ -2,12 +2,13 @@ import { Request, Response, Router } from 'express'
 import Affordance from 'src/models/affordance.model'
 import Constraint from 'src/models/constraint.model'
 import Session, { SessionStatus } from 'src/models/session.model'
-import { assembleActivities } from 'src/services/completion.service'
+import { ActivityAssemblyValidationError, assembleActivities } from 'src/services/completion.service'
 
 import Activity, { ActivityStatus } from '../models/activity.model'
 import User from '../models/user.model'
 import Logger from '../logger'
 import LoggingService from '../services/logging.service'
+import { deriveInputConstraints } from '../system/input-constraints/deriveInputConstraints'
 import { generateSelection, getTestLibraryV0LoadDebug, systemAssemblyInputFromTestLibrarySelection } from '../system/test-library'
 import { ENDPOINTS } from './_endpoints'
 import BaseRoutes from './helper'
@@ -21,12 +22,25 @@ const ROUTES = ENDPOINTS.app
 router.post(ROUTES.testSelection, async (req: Request, res: Response) => {
     try {
         const { learningGoals, sport, sessionDescription, challengeLevel } = req.body as Record<string, unknown>
-        const result = generateSelection({
-            learningGoals: learningGoals as string[],
-            sport: typeof sport === 'string' ? sport : undefined,
-            sessionDescription: typeof sessionDescription === 'string' ? sessionDescription : undefined,
-            challengeLevel: typeof challengeLevel === 'string' ? challengeLevel : undefined,
-        })
+        Logger.info(
+            `[Test Library Selection] coach input (original): ${JSON.stringify({
+                learningGoals,
+                sport,
+                sessionDescription,
+                challengeLevel,
+            })}`
+        )
+        const goalsList = learningGoals as string[]
+        const inputConstraints = deriveInputConstraints(goalsList.join(' '))
+        const result = generateSelection(
+            {
+                learningGoals: goalsList,
+                sport: typeof sport === 'string' ? sport : undefined,
+                sessionDescription: typeof sessionDescription === 'string' ? sessionDescription : undefined,
+                challengeLevel: typeof challengeLevel === 'string' ? challengeLevel : undefined,
+            },
+            inputConstraints
+        )
 
         Logger.info(
             `[Test Library Selection] selected archetype: ${result.archetype.game_form_name} (${result.archetype.id})`
@@ -100,10 +114,15 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
 
         let selection
         try {
-            selection = generateSelection({
-                learningGoals,
-                challengeLevel,
-            })
+            Logger.info(`[Activity Generation] coach learning goals (original): ${JSON.stringify(learningGoals)}`)
+            const inputConstraints = deriveInputConstraints(learningGoals.join(' '))
+            selection = generateSelection(
+                {
+                    learningGoals,
+                    challengeLevel,
+                },
+                inputConstraints
+            )
         } catch (selErr) {
             const message = selErr instanceof Error ? selErr.message : String(selErr)
             Logger.warn(`[Activity Generation] Test Library selection failed: ${message}`)
@@ -264,6 +283,16 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         if (error instanceof Error) {
             console.error('MESSAGE:', error.message)
             console.error('STACK:', error.stack)
+        }
+
+        if (error instanceof ActivityAssemblyValidationError) {
+            return res.status(422).json({
+                success: false,
+                error: 'Activity could not be generated cleanly. Please try again.',
+                details: error.validationFailureReasons ?? [error.message],
+                assemblyAttempts: error.assemblyAttempts,
+                retriedAfterValidationFailure: error.retriedAfterValidationFailure,
+            })
         }
 
         if (error instanceof SystemPipelineError) {

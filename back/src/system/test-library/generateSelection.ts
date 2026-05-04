@@ -1,6 +1,8 @@
 import { TEST_LIBRARY_V0_ARCHETYPES } from './archetypes'
 import { TEST_LIBRARY_V0_AFFORDANCE_LENSES } from './affordanceLenses'
 import { TEST_LIBRARY_V0_CONSTRAINTS } from './constraints'
+import type { InputConstraintHints } from '../input-constraints/deriveInputConstraints'
+import { normalizeCoachingInput } from './normalizeCoachingInput'
 import type {
     ConstraintBalanceBucket,
     SelectionReasonEntry,
@@ -10,6 +12,39 @@ import type {
     TestLibraryV0Archetype,
     TestLibraryV0Constraint,
 } from './types'
+
+function applyArchetypePoolFilter(hints?: InputConstraintHints | null): TestLibraryV0Archetype[] {
+    const full = TEST_LIBRARY_V0_ARCHETYPES
+    const ids = hints?.candidateArchetypeIds
+    if (!ids?.length) return full
+    const filtered = full.filter((a) => ids.includes(a.game_form_id))
+    return filtered.length > 0 ? filtered : full
+}
+
+function applyLensPoolFilter(hints?: InputConstraintHints | null): TestLibraryV0AffordanceLens[] {
+    const full = TEST_LIBRARY_V0_AFFORDANCE_LENSES
+    const ids = hints?.candidateAffordanceLensIds
+    if (!ids?.length) return full
+    const filtered = full.filter((l) => ids.includes(l.id))
+    return filtered.length >= 2 ? filtered : full
+}
+
+function constraintPoolSupportsFoundationAndShaping(rows: TestLibraryV0Constraint[]): boolean {
+    const buckets = new Set(rows.map((c) => constraintBalanceBucket(c)))
+    return buckets.has('foundation') && buckets.has('shaping')
+}
+
+function applyConstraintPoolFilter(hints?: InputConstraintHints | null): TestLibraryV0Constraint[] {
+    const full = TEST_LIBRARY_V0_CONSTRAINTS
+    const ids = hints?.candidateConstraintIds
+    if (!ids?.length) return full
+    const filtered = full.filter((c) => ids.includes(c.id))
+    if (filtered.length < 2) return full
+    // Role-mix rules require foundation + shaping candidates in the pool; hint-only pools (e.g. regain-only)
+    // may omit shaping — fall back rather than making selection impossible.
+    if (!constraintPoolSupportsFoundationAndShaping(filtered)) return full
+    return filtered
+}
 
 /** Exact normalized coach phrases that must fail before any scoring (no AI classification). */
 const BLOCKED_SINGLE_GOAL_PHRASES = [
@@ -327,12 +362,21 @@ function assertSelectionContract(
  * Picks the highest-scoring valid joint combination of 2–3 lenses and 2–4 constraints
  * (no truncation, auto-fill, or silent caps).
  */
-export function generateSelection(input: TestLibrarySelectionInput): TestLibrarySelectionResult {
+export function generateSelection(
+    input: TestLibrarySelectionInput,
+    inputConstraints?: InputConstraintHints | null
+): TestLibrarySelectionResult {
     if (!input.learningGoals || !Array.isArray(input.learningGoals) || input.learningGoals.length === 0) {
         throw new Error('Test Library selection requires at least one learning goal.')
     }
 
     assertCoachGoalsAllowedForTestLibrary(input)
+
+    const selectionCorpusInput: TestLibrarySelectionInput = {
+        ...input,
+        learningGoals: input.learningGoals.map((g) => normalizeCoachingInput(g)),
+        sessionDescription: input.sessionDescription ? normalizeCoachingInput(input.sessionDescription) : undefined,
+    }
 
     if (TEST_LIBRARY_V0_ARCHETYPES.length === 0) {
         throw new Error('Test Library V0 has no archetypes loaded.')
@@ -344,7 +388,7 @@ export function generateSelection(input: TestLibrarySelectionInput): TestLibrary
         throw new Error('Test Library V0 needs at least two constraints.')
     }
 
-    const queryCorpus = buildQueryCorpus(input)
+    const queryCorpus = buildQueryCorpus(selectionCorpusInput)
     const rawTokens = uniqueTokens(tokenize(queryCorpus))
     const tokens = rawTokens.filter((t) => !STOPWORDS.has(t))
     if (tokens.length === 0) {
@@ -353,8 +397,12 @@ export function generateSelection(input: TestLibrarySelectionInput): TestLibrary
         )
     }
 
+    const archetypePool = applyArchetypePoolFilter(inputConstraints)
+    const allLenses = applyLensPoolFilter(inputConstraints)
+    const allConstraints = applyConstraintPoolFilter(inputConstraints)
+
     let bestArc: { a: TestLibraryV0Archetype; score: number; reasons: string[] } | null = null
-    for (const a of TEST_LIBRARY_V0_ARCHETYPES) {
+    for (const a of archetypePool) {
         const fields = [
             a.game_form_name,
             a.objective,
@@ -377,9 +425,6 @@ export function generateSelection(input: TestLibrarySelectionInput): TestLibrary
 
     const lensScored = scoreAllLenses(tokens, archetype, archeAffordances)
     const lensScoreById = new Map(lensScored.map((r) => [r.lens.id, r] as const))
-
-    const allLenses = TEST_LIBRARY_V0_AFFORDANCE_LENSES
-    const allConstraints = TEST_LIBRARY_V0_CONSTRAINTS
 
     let bestTotal = -Infinity
     let bestLensCombo: TestLibraryV0AffordanceLens[] | null = null

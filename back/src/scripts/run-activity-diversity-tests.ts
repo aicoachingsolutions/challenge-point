@@ -23,6 +23,7 @@ import type {
     ArchetypeSelection,
     SystemAssemblyInput,
 } from '../system/types'
+import { deriveInputConstraints } from '../system/input-constraints/deriveInputConstraints'
 import { generateSelection } from '../system/test-library/generateSelection'
 import type {
     TestLibrarySelectionResult,
@@ -160,7 +161,7 @@ function buildSystemAssemblyInput(sel: TestLibrarySelectionResult, learningGoal:
 async function runDiversityCase(input: string): Promise<DiversityRow> {
     let sel: TestLibrarySelectionResult
     try {
-        sel = generateSelection({ learningGoals: [input] })
+        sel = generateSelection({ learningGoals: [input] }, deriveInputConstraints(input))
     } catch {
         return {
             input,
