@@ -353,8 +353,45 @@ export async function assembleActivities(input: SystemAssemblyInput): Promise<As
     }
 }
 
+function buildDecisionLanguageRetryAddendum(validatorReasons: string[]): string {
+    const joined = validatorReasons.join('\n')
+    if (!joined.includes('No clear decision-making language')) {
+        return ''
+    }
+
+    const activityNums: number[] = []
+    for (const r of validatorReasons) {
+        if (!r.includes('No clear decision-making language')) continue
+        const m = r.match(/Activity\s+(\d+)\s*:/i)
+        if (m) {
+            const n = Number.parseInt(m[1], 10)
+            if (Number.isFinite(n) && n >= 1) activityNums.push(n)
+        }
+    }
+    const unique = [...new Set(activityNums)].sort((a, b) => a - b)
+
+    const lines: string[] = ['\n\nDecision-making language (required fix):']
+    if (unique.length === 0) {
+        lines.push(
+            'The failed activity must include clear decision-making language in objective, rules, or coachingFocus using at least one of: choose, read, react, based on, decision, adapt, option.'
+        )
+    } else {
+        for (const n of unique) {
+            lines.push(
+                `For Activity ${n}, include clear decision-making language in objective, rules, or coachingFocus using at least one of: choose, read, react, based on, decision, adapt, option.`
+            )
+        }
+        if (unique.includes(3)) {
+            lines.push('Activity 3 must include explicit decision language.')
+        }
+    }
+
+    return lines.join('\n')
+}
+
 function buildAssemblyRetryUserMessage(validatorReasons: string[]): string {
     const bullets = validatorReasons.map((r) => `- ${r}`).join('\n')
+    const decisionAddendum = buildDecisionLanguageRetryAddendum(validatorReasons)
     return `The previous output failed validation for:
 ${bullets}
 
@@ -367,7 +404,7 @@ Do not add new affordances or constraints.
 Avoid player-directed imperative obligation language.
 Each activity needs explicit decision language such as choose, read, react, based on, decision, adapt, or option.
 
-Do not echo exact prohibited phrases if avoidable.`
+Do not echo exact prohibited phrases if avoidable.${decisionAddendum}`
 }
 
 function mapStructuredActivityToLegacy(activity: Activity, input: SystemAssemblyInput): IActivity {
