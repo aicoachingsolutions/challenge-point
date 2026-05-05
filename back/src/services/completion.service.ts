@@ -775,6 +775,18 @@ Output requirements (system-owned schema — do not add, remove, or rename keys)
 - "constraints": reference the supplied foundation, shaping, and (if present) consequence constraint themes in environment language.
 - "coachingFocus": short reminders about what to observe (not prescriptive technique commands).
 
+Affordance expression in structure (required for every selected affordance lens):
+- Each selected affordance lens must be expressed in the GAME STRUCTURE, not only in coachingFocus.
+- For each selected affordance, make it show up in at least one structural location: rules, scoring, constraints, or task conditions described in setup/objective.
+- Do not rely on coachingFocus alone to carry an affordance. coachingFocus may reinforce the affordance, but it cannot be the only place it appears.
+- If an affordance appears only in coachingFocus but not in rules, scoring, constraints, or task conditions, the activity will be rejected.
+- Affordances must shape the environment players interact with, not just the coach language around it.
+
+Specific affordance requirement: Space Exploitation Opportunity
+- For Space Exploitation Opportunity, the rules or scoring must create situations where players must recognize and use open space to gain advantage.
+- Valid structural expressions include scoring rewards for using open space, rules that create space to attack, or constraints that open or close space dynamically.
+- Do not leave Space Exploitation Opportunity as a coaching reminder only; it must change the live game structure.
+
 Decision-making language (required for every one of the 3 activities):
 - The automated check joins setup, teams, objective, scoring, rules, constraints, and coachingFocus and requires open-decision vocabulary somewhere in that bundle. Reliable stems include whole-word use of: choose, read, react, adapt, option (singular phrasing such as "an option" passes; plural-only wording can miss), based on, if … then …, decision (including decision-making), when … decide ….
 - Activity 3 (consequence-led) still needs that vocabulary: lead with scoring and trade-offs, and weave at least one cue into objective, rules[0], or coachingFocus so the block never reads as points-only boilerplate.
