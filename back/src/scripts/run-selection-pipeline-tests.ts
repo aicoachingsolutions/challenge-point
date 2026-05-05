@@ -26,6 +26,7 @@ import type {
 } from '../system/types'
 import { deriveInputConstraints } from '../system/input-constraints/deriveInputConstraints'
 import { generateSelection } from '../system/test-library/generateSelection'
+import { isSelectionPackageCompatible } from '../system/test-library/selection-compatibility'
 import type {
     TestLibrarySelectionResult,
     TestLibraryV0AffordanceLens,
@@ -321,12 +322,18 @@ async function main() {
     const inputConstraintLayerResults = INPUT_CONSTRAINT_CASES.map((input) => {
         const hints = deriveInputConstraints(input)
         const sel = generateSelection({ learningGoals: [input] }, hints)
+        const packageCompatibility = isSelectionPackageCompatible({
+            archetype: sel.archetype,
+            affordanceLenses: sel.affordanceLenses,
+            constraints: sel.constraints,
+        })
         return {
             input,
             inputConstraints: hints,
             selectedArchetype: sel.archetype.game_form_name,
             affordanceLensTitles: sel.affordanceLenses.map((l) => l.title),
             constraintTitles: sel.constraints.map((c) => c.title),
+            packageCompatibility,
         }
     })
 
@@ -349,7 +356,7 @@ async function main() {
             'AI is invoked only after selection succeeds and OPENAI_API_KEY is set.',
             'Break-it phrases fail inside generateSelection before any assembly.',
             'fullPipelineSummary: assembly metadata from assembleActivities (matches quality/diversity runners).',
-            'inputConstraintLayerResults: deriveInputConstraints (keyword rules only) narrows pools passed into generateSelection; final archetype/lenses/constraints are still scoring-selected.',
+            'inputConstraintLayerResults: deriveInputConstraints narrows pools; generateSelection picks highest-scoring combo that passes isSelectionPackageCompatible (buildConstraintPackage + validateConstraintPackage).',
             'assembleActivities: retry path asserts archetype + affordance IDs + constraint IDs unchanged vs assembly start.',
         ],
     }

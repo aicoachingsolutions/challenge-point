@@ -3,6 +3,7 @@ import { TEST_LIBRARY_V0_AFFORDANCE_LENSES } from './affordanceLenses'
 import { TEST_LIBRARY_V0_CONSTRAINTS } from './constraints'
 import type { InputConstraintHints } from '../input-constraints/deriveInputConstraints'
 import { normalizeCoachingInput } from './normalizeCoachingInput'
+import { isSelectionPackageCompatible } from './selection-compatibility'
 import type {
     ConstraintBalanceBucket,
     SelectionReasonEntry,
@@ -450,6 +451,13 @@ export function generateSelection(
                 for (const conCombo of combinations(allConstraints, conSize)) {
                     if (!constraintComboPassesRoleMix(conCombo, conScored)) continue
 
+                    const compat = isSelectionPackageCompatible({
+                        archetype,
+                        affordanceLenses: lensCombo,
+                        constraints: conCombo,
+                    })
+                    if (!compat.compatible) continue
+
                     const conSum = conCombo.reduce((s, c) => s + (conMap.get(c.id)?.score ?? 0), 0)
                     const balance = constraintBalanceBonus(conCombo)
                     const total = lensSum + conSum + balance
@@ -473,7 +481,7 @@ export function generateSelection(
 
     if (!bestLensCombo || !bestConCombo || bestTotal === -Infinity) {
         throw new Error(
-            'Test Library selection could not find a valid lens and constraint combination that satisfies size (2–3 lenses, 2–4 constraints) and role-mix rules for this input.'
+            'Test Library selection could not find a compatible lens and constraint combination that satisfies size (2–3 lenses, 2–4 constraints), role-mix rules, and pre-assembly package validation for this input.'
         )
     }
 
