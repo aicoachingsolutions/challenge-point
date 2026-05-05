@@ -570,6 +570,9 @@ function buildAssemblyPayload(input: SystemAssemblyInput) {
 }
 
 const POSSESSION_STABILITY_LENS_TITLE = 'Possession Stability Opportunity'
+const SPACE_EXPLOITATION_LENS_TITLE = 'Space Exploitation Opportunity'
+const SPACE_CREATION_LENS_TITLE = 'Space Creation Opportunity'
+const LINE_BREAKING_LENS_TITLE = 'Line-Breaking Opportunity'
 
 function titleForAssemblyAffordanceId(input: SystemAssemblyInput, id: string): string {
     const primaryId = registryIdString(
@@ -597,12 +600,16 @@ function selectedAffordanceCoveragePromptSection(input: SystemAssemblyInput): st
     ]
 
     let includesPossessionStability = false
+    let includesSpaceExploitation = false
+    let includesSpaceCreation = false
+    let includesLineBreaking = false
     for (const id of ids) {
         const title = titleForAssemblyAffordanceId(input, id)
         lines.push(`- "${title}" (${id})`)
-        if (title === POSSESSION_STABILITY_LENS_TITLE) {
-            includesPossessionStability = true
-        }
+        if (title === POSSESSION_STABILITY_LENS_TITLE) includesPossessionStability = true
+        if (title === SPACE_EXPLOITATION_LENS_TITLE) includesSpaceExploitation = true
+        if (title === SPACE_CREATION_LENS_TITLE) includesSpaceCreation = true
+        if (title === LINE_BREAKING_LENS_TITLE) includesLineBreaking = true
     }
 
     lines.push('')
@@ -614,6 +621,27 @@ function selectedAffordanceCoveragePromptSection(input: SystemAssemblyInput): st
         lines.push(
             '',
             `When "${POSSESSION_STABILITY_LENS_TITLE}" is selected, include unmistakable possession-stability language in objective, rules, constraints, and/or coachingFocus — for example ideas in the spirit of: secure possession, keep the ball under pressure, maintain possession, support the ball-carrier, retain possession, keep the next action live (phrase as live game problems; avoid empty labels).`
+        )
+    }
+
+    if (includesSpaceExploitation) {
+        lines.push(
+            '',
+            `When "${SPACE_EXPLOITATION_LENS_TITLE}" is selected, include unmistakable space-exploitation language in objective, rules, constraints, and/or coachingFocus — ideas in the spirit of: exploit open space, attack available space, recognize space behind or between defenders, use space before pressure recovers, take advantage of opened space (phrase as live reads and consequences; avoid empty labels).`
+        )
+    }
+
+    if (includesSpaceCreation) {
+        lines.push(
+            '',
+            `When "${SPACE_CREATION_LENS_TITLE}" is selected, include unmistakable space-creation language in objective, rules, constraints, and/or coachingFocus — ideas in the spirit of: create space, move to open passing lanes, stretch or separate defenders, open space for teammates, change the defensive picture (phrase as how the game invites displacement; avoid empty labels).`
+        )
+    }
+
+    if (includesLineBreaking) {
+        lines.push(
+            '',
+            `When "${LINE_BREAKING_LENS_TITLE}" is selected, include unmistakable line-breaking language in objective, rules, constraints, and/or coachingFocus — ideas in the spirit of: break a defensive line, play through or around pressure, penetrate into space beyond defenders, recognize when a line can be broken (phrase as penetration reads; avoid empty labels).`
         )
     }
 
