@@ -47,17 +47,21 @@ class LoggingService {
             )
         }
 
-        try {
-            new LogEntryModel({
-                level,
-                service,
-                message,
-                error: this.serializeError(error),
-                data,
-            }).save()
-        } catch (error) {
-            console.error('[ Logging Service ] Failed to save log entry:', error)
+        if (String(process.env.DISABLE_DB_LOGGING ?? '').toLowerCase() === 'true') {
+            return
         }
+
+        void new LogEntryModel({
+            level,
+            service,
+            message,
+            error: this.serializeError(error),
+            data,
+        })
+            .save()
+            .catch((error) => {
+                console.error('[ Logging Service ] Failed to save log entry:', error)
+            })
     }
 
     static async crashReport(message: string, error: any, data?: any): Promise<string | null> {
