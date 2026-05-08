@@ -11,6 +11,7 @@
 import 'dotenv/config'
 import '../loadEnv'
 
+import fs from 'fs'
 import { Types } from 'mongoose'
 import type { IActivity } from '../models/activity.model'
 import type { ISession } from '../models/session.model'
@@ -20,6 +21,7 @@ import type { Activity } from '../system/activity/activity-schema'
 import { getAssemblySelectedAffordanceIds, getAssemblySelectedConstraintIds } from '../system/activity/assembly-package-ids'
 import { buildActivityMechanicsFromSkeleton } from '../system/activity/build-activity-mechanics'
 import { buildActivitySkeleton, type ActivitySkeletonBundle } from '../system/activity/build-activity-skeleton'
+import { mapActivityToCoachView, type CoachActivityView } from '../system/activity/map-activity-to-coach-view'
 import { validateActivityMechanics } from '../system/activity/validate-activity-mechanics'
 import { validateActivitiesAgainstSkeleton } from '../system/activity/validate-activity-skeleton'
 import { validateActivitiesAssemblyPayload } from '../system/activity/validate-activity-structure'
@@ -65,6 +67,19 @@ type LocalCreateActivityRow = {
     outputValidationStatus: 'PASS' | 'FAIL' | 'NOT_RUN'
     generatedActivitiesCount: number
     error: string | null
+    reviewGeneratedActivities?: Array<{
+        title: string
+        constraint: string
+        intent: string
+        rules: string[]
+        scoringSystem: string
+        winCondition: string
+        scaffolding: string[]
+        extensions: string[]
+        equipmentNeeded: string[]
+        systemTrace?: unknown
+    }>
+    coachViewActivities?: CoachActivityView[]
 }
 
 type EmptyPolishActivity = {
@@ -245,6 +260,124 @@ function buildLocalSession(): ISession {
     }
 }
 
+function shouldSaveFullOutput(): boolean {
+    return String(process.env.SAVE_FULL_OUTPUT ?? '').toLowerCase() === 'true'
+}
+
+function reviewActivitiesForOutput(activities: IActivity[]) {
+    return activities.map((activity) => ({
+        title: activity.title,
+        constraint: activity.constraint,
+        intent: activity.intent,
+        rules: activity.rules,
+        scoringSystem: activity.scoringSystem,
+        winCondition: activity.winCondition,
+        scaffolding: activity.scaffolding,
+        extensions: activity.extensions,
+        equipmentNeeded: activity.equipmentNeeded,
+        systemTrace: (activity as IActivity & { systemTrace?: unknown }).systemTrace,
+    }))
+}
+
+function writeFullReviewOutput(results: LocalCreateActivityRow[]): void {
+    if (!shouldSaveFullOutput()) {
+        return
+    }
+
+    const lines: string[] = []
+    lines.push('Local Create Activity Full Review')
+    lines.push('')
+
+    for (const [index, row] of results.entries()) {
+        lines.push(`Case ${index + 1}`)
+        lines.push(`Input: ${row.input}`)
+        lines.push(`packageValidationStatus: ${row.packageValidationStatus}`)
+        lines.push(`aiCalled: ${row.aiCalled}`)
+        lines.push(`outputValidationStatus: ${row.outputValidationStatus}`)
+        lines.push(`generatedActivitiesCount: ${row.generatedActivitiesCount}`)
+        if (row.error) {
+            lines.push(`error: ${row.error}`)
+        }
+        lines.push('')
+
+        if (row.reviewGeneratedActivities?.length) {
+            row.reviewGeneratedActivities.forEach((activity, activityIndex) => {
+                lines.push(`Activity ${activityIndex + 1}`)
+                lines.push(`title: ${activity.title}`)
+                lines.push(`constraint: ${activity.constraint}`)
+                lines.push(`intent: ${activity.intent}`)
+                lines.push('rules:')
+                for (const rule of activity.rules) lines.push(`- ${rule}`)
+                lines.push(`scoringSystem: ${activity.scoringSystem}`)
+                lines.push(`winCondition: ${activity.winCondition}`)
+                lines.push('scaffolding:')
+                for (const item of activity.scaffolding) lines.push(`- ${item}`)
+                lines.push('extensions:')
+                for (const item of activity.extensions) lines.push(`- ${item}`)
+                lines.push('equipmentNeeded:')
+                for (const item of activity.equipmentNeeded) lines.push(`- ${item}`)
+                if (activity.systemTrace) {
+                    lines.push('systemTrace:')
+                    lines.push(JSON.stringify(activity.systemTrace, null, 2))
+                }
+                lines.push('')
+            })
+        } else {
+            lines.push('No generated activities saved for review.')
+            lines.push('')
+        }
+
+        lines.push('---')
+        lines.push('')
+    }
+
+    fs.writeFileSync('./_activity-quality-review-full.txt', lines.join('\n'), 'utf8')
+}
+
+function writeCoachViewOutput(results: LocalCreateActivityRow[]): void {
+    const lines: string[] = []
+    lines.push('Local Create Activity Coach View')
+    lines.push('')
+
+    for (const [index, row] of results.entries()) {
+        lines.push(`Case ${index + 1}`)
+        lines.push(`Input: ${row.input}`)
+        lines.push(`packageValidationStatus: ${row.packageValidationStatus}`)
+        lines.push(`aiCalled: ${row.aiCalled}`)
+        lines.push(`outputValidationStatus: ${row.outputValidationStatus}`)
+        lines.push(`generatedActivitiesCount: ${row.generatedActivitiesCount}`)
+        if (row.error) {
+            lines.push(`error: ${row.error}`)
+        }
+        lines.push('')
+
+        if (row.coachViewActivities?.length) {
+            row.coachViewActivities.forEach((activity, activityIndex) => {
+                lines.push(`Activity ${activityIndex + 1}`)
+                lines.push(`title: ${activity.title}`)
+                lines.push(`setup: ${activity.setup}`)
+                lines.push(`objective: ${activity.objective}`)
+                lines.push(`teams: ${activity.teams}`)
+                lines.push('rules:')
+                for (const rule of activity.rules) lines.push(`- ${rule}`)
+                lines.push(`scoring: ${activity.scoring}`)
+                lines.push(`constraints: ${activity.constraints}`)
+                lines.push('coachingPoints:')
+                for (const point of activity.coachingPoints) lines.push(`- ${point}`)
+                lines.push('')
+            })
+        } else {
+            lines.push('No coach-facing activities available.')
+            lines.push('')
+        }
+
+        lines.push('---')
+        lines.push('')
+    }
+
+    fs.writeFileSync('./_activity-coach-view.txt', lines.join('\n'), 'utf8')
+}
+
 function toErrorMessage(err: unknown): string {
     if (err instanceof ActivityAssemblyValidationError) {
         return err.validationFailureReasons?.join(' | ') || err.message
@@ -336,6 +469,8 @@ async function runCase(input: string): Promise<LocalCreateActivityRow> {
                 outputValidationStatus,
                 generatedActivitiesCount,
                 error: null,
+                reviewGeneratedActivities: reviewActivitiesForOutput(validatedActivities),
+                coachViewActivities: structuredActivities.map(mapActivityToCoachView),
             }
         }
 
@@ -378,6 +513,8 @@ async function runCase(input: string): Promise<LocalCreateActivityRow> {
             outputValidationStatus,
             generatedActivitiesCount,
             error: null,
+            reviewGeneratedActivities: reviewActivitiesForOutput(validatedActivities),
+            coachViewActivities: assembled.structuredActivities.map(mapActivityToCoachView),
         }
     } catch (err) {
         const message = toErrorMessage(err)
@@ -422,6 +559,8 @@ async function main() {
         results.push(await runCase(input))
     }
 
+    writeFullReviewOutput(results)
+    writeCoachViewOutput(results)
     console.log(JSON.stringify({ results }, null, 2))
 }
 
