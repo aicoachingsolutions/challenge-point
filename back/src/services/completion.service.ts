@@ -11,6 +11,15 @@ import {
     getAssemblySelectedConstraintIds,
     registryIdString,
 } from '../system/activity/assembly-package-ids'
+import { buildActivityMechanicsFromSkeleton, type ActivityMechanicsBundle } from '../system/activity/build-activity-mechanics'
+import { validateActivityMechanics } from '../system/activity/validate-activity-mechanics'
+import {
+    buildActivitySkeleton,
+    formatActivitySkeletonForPrompt,
+    type ActivitySkeletonBundle,
+} from '../system/activity/build-activity-skeleton'
+import { type ActivityPolish, validateActivityPolishPayload } from '../system/activity/validate-activity-polish'
+import { validateActivitiesAgainstSkeleton } from '../system/activity/validate-activity-skeleton'
 import { validateActivitiesAssemblyPayload } from '../system/activity/validate-activity-structure'
 import { inferCategoryIdFromText } from '../system/infer-category'
 import { ArchetypeDefinition, SystemAssemblyInput, SystemPipelineError } from '../system/types'
@@ -143,6 +152,10 @@ async function getCompletion(messages: CompletionMessage[], options: Partial<Com
     } catch (completionError) {
         logger('Completion Error', 'error', completionError)
 
+        if (completionError instanceof Error && /connection error/i.test(completionError.message)) {
+            throw new Error('OpenAI connection error')
+        }
+
         throw new Error('Completion Error')
     }
 
@@ -251,7 +264,9 @@ export async function generateConstraintCategory(constraint: IConstraint, catego
  * Real AI assembly entrypoint used by the app route after in-code selection.
  * Call only after `SystemAssemblyInput` is fully built (selection complete).
  *
- * Proof contract: AI conforms iff `structuredActivities` parses and passes `validateActivitiesAssemblyPayload`.
+ * Proof contract: AI conforms iff its polish payload parses, the system merges that wording with deterministic
+ * mechanics built from the selected package, and the merged `structuredActivities` pass both
+ * `validateActivitiesAssemblyPayload` and `validateActivitiesAgainstSkeleton` for the same `buildActivitySkeleton(input)` bundle.
  * `generatedActivities` is a derived legacy projection for downstream compatibility — not evidence of schema conformance.
  *
  * On strict Activity validation failure after valid JSON, performs exactly one retry with validator-derived reasons
@@ -286,13 +301,114 @@ function assertAssemblyDesignUnchanged(
     }
 }
 
+function uniqueNonEmpty(lines: string[]): string[] {
+    const seen = new Set<string>()
+    const out: string[] = []
+    for (const line of lines.map((x) => x.trim()).filter(Boolean)) {
+        const key = line.toLowerCase()
+        if (seen.has(key)) continue
+        seen.add(key)
+        out.push(line)
+    }
+    return out
+}
+
+function mergeObjective(objective: string, decisionCues: string[]): string {
+    return uniqueNonEmpty([objective, decisionCues[0] ?? '']).join(' ')
+}
+
+function nonEmptyOrDefault(value: string, fallback: string): string {
+    const next = value.trim()
+    return next.length > 0 ? next : fallback
+}
+
+function defaultTitle(index: number): string {
+    return `Activity ${index + 1}`
+}
+
+function defaultSetup(): string {
+    return 'Use the listed teams, rules, scoring, and constraints for this activity.'
+}
+
+function defaultObjective(): string {
+    return 'Complete the activity objective while following the listed rules and constraints.'
+}
+
+function defaultCoachingFocus(slot?: ActivitySkeletonBundle['activities'][number]): string[] {
+    const fromSkeleton = uniqueNonEmpty([
+        slot?.requiredDecisionLanguage?.length
+            ? `Coach the players to ${slot.requiredDecisionLanguage.join(', ')} in response to the game picture.`
+            : '',
+        slot?.requiredAffordanceMechanics?.[0] ?? '',
+    ])
+    if (fromSkeleton.length > 0) {
+        return fromSkeleton
+    }
+    return ['Coach the players to read the situation, make decisions, and adapt to the constraints.']
+}
+
+function mergePolishedActivitiesWithMechanics(
+    polishActivities: ActivityPolish[],
+    mechanicsBundle: ActivityMechanicsBundle,
+    skeletonBundle: ActivitySkeletonBundle
+): Array<Omit<Activity, 'validation'>> {
+    return polishActivities.map((polish, index) => {
+        const mechanics = mechanicsBundle.activities[index]
+        const slot = skeletonBundle.activities[index]
+        const coachingFocus = uniqueNonEmpty([
+            ...polish.coachingFocus,
+            ...defaultCoachingFocus(slot),
+            ...mechanics.decisionCues,
+            ...mechanics.opponentConsequences,
+        ])
+        const constraints = uniqueNonEmpty([...mechanics.constraints, ...mechanics.opponentConsequences])
+        const scoring = uniqueNonEmpty(mechanics.scoring).join('\n')
+
+        return {
+            title: nonEmptyOrDefault(polish.title, defaultTitle(index)),
+            setup: nonEmptyOrDefault(polish.setup, defaultSetup()),
+            teams: mechanics.teams,
+            objective: mergeObjective(nonEmptyOrDefault(polish.objective, defaultObjective()), mechanics.decisionCues),
+            rules: uniqueNonEmpty(mechanics.rules),
+            scoring,
+            constraints,
+            coachingFocus,
+        }
+    })
+}
+
+function validateMergedActivitiesFromPolish(
+    parsed: unknown,
+    mechanicsBundle: ActivityMechanicsBundle,
+    skeletonBundle: ActivitySkeletonBundle
+): Activity[] {
+    const polishActivities = validateActivityPolishPayload(parsed)
+    const mergedActivities = mergePolishedActivitiesWithMechanics(polishActivities, mechanicsBundle, skeletonBundle)
+
+    mergedActivities.forEach((activity, index) => {
+        const mechanicsValidation = validateActivityMechanics({
+            activity,
+            mechanics: mechanicsBundle.activities[index],
+        })
+        if (!mechanicsValidation.valid) {
+            throw new Error(
+                `Activity ${index + 1} failed deterministic mechanics validation: ${mechanicsValidation.errors.join(', ')}`
+            )
+        }
+    })
+
+    return validateActivitiesAssemblyPayload({ activities: mergedActivities })
+}
+
 export async function assembleActivities(input: SystemAssemblyInput): Promise<AssembleActivitiesResult> {
     const assemblyDesignLock = snapshotAssemblyDesign(input)
+    const activitySkeleton = buildActivitySkeleton(input)
+    const activityMechanics = buildActivityMechanicsFromSkeleton(activitySkeleton)
 
     const initialMessages: CompletionMessage[] = [
         {
             role: 'system',
-            content: generateAssemblyPrompt(input),
+            content: generateAssemblyPolishPrompt(input),
         },
         {
             role: 'system',
@@ -307,7 +423,8 @@ export async function assembleActivities(input: SystemAssemblyInput): Promise<As
     }
 
     try {
-        const structuredActivities = validateActivitiesAssemblyPayload(parsed1)
+        const structuredActivities = validateMergedActivitiesFromPolish(parsed1, activityMechanics, activitySkeleton)
+        validateActivitiesAgainstSkeleton(structuredActivities, activitySkeleton)
         const generatedActivities = structuredActivities.map((activity) => mapStructuredActivityToLegacy(activity, input))
         assertAssemblyDesignUnchanged(assemblyDesignLock, input)
         return {
@@ -336,7 +453,8 @@ export async function assembleActivities(input: SystemAssemblyInput): Promise<As
         }
 
         try {
-            const structuredActivities = validateActivitiesAssemblyPayload(parsed2)
+            const structuredActivities = validateMergedActivitiesFromPolish(parsed2, activityMechanics, activitySkeleton)
+            validateActivitiesAgainstSkeleton(structuredActivities, activitySkeleton)
             const generatedActivities = structuredActivities.map((activity) => mapStructuredActivityToLegacy(activity, input))
             assertAssemblyDesignUnchanged(assemblyDesignLock, input)
             return {
@@ -393,22 +511,31 @@ function buildDecisionLanguageRetryAddendum(validatorReasons: string[]): string 
     return lines.join('\n')
 }
 
+function buildSkeletonRetryAddendum(validatorReasons: string[]): string {
+    const joined = validatorReasons.join('\n')
+    if (!joined.includes('missing skeleton mechanic')) {
+        return ''
+    }
+    return '\n\nSkeleton compliance: Fix each listed Activity without changing archetype, affordance IDs, or constraint IDs. Satisfy every skeleton mechanic from payload activitySkeleton in objective, rules, scoring, constraints, and coachingFocus — not setup alone. Do not invent a different skeleton.'
+}
+
 function buildAssemblyRetryUserMessage(validatorReasons: string[]): string {
     const bullets = validatorReasons.map((r) => `- ${r}`).join('\n')
     const decisionAddendum = buildDecisionLanguageRetryAddendum(validatorReasons)
+    const skeletonAddendum = buildSkeletonRetryAddendum(validatorReasons)
     return `The previous output failed validation for:
 ${bullets}
 
-Regenerate the full JSON payload.
+Regenerate the JSON polish payload.
 Do not explain.
 Return valid JSON only.
 Preserve the selected archetype, affordance lenses, and constraints.
-Do not add new affordances or constraints.
+Do not change the system-owned rules, scoring, or constraints.
 
 Avoid player-directed imperative obligation language.
 Each activity needs explicit decision language such as choose, read, react, based on, decision, adapt, or option.
 
-Do not echo exact prohibited phrases if avoidable.${decisionAddendum}`
+Do not echo exact prohibited phrases if avoidable.${decisionAddendum}${skeletonAddendum}`
 }
 
 function mapStructuredActivityToLegacy(activity: Activity, input: SystemAssemblyInput): IActivity {
@@ -474,6 +601,8 @@ function mapStructuredActivityToLegacy(activity: Activity, input: SystemAssembly
 }
 
 function buildAssemblyPayload(input: SystemAssemblyInput) {
+    const activitySkeleton = buildActivitySkeleton(input)
+    const activityMechanics = buildActivityMechanicsFromSkeleton(activitySkeleton)
     const selectedAffordanceIds = getAssemblySelectedAffordanceIds(input)
     const selectedConstraintIds = getAssemblySelectedConstraintIds(input)
 
@@ -566,6 +695,8 @@ function buildAssemblyPayload(input: SystemAssemblyInput) {
             constraint: activity.constraint,
             intent: activity.intent,
         })),
+        activitySkeleton,
+        activityMechanics,
     }
 }
 
@@ -686,8 +817,68 @@ function generateAssemblyPrompt(input: SystemAssemblyInput) {
 
     const selectedConstraintIds = getAssemblySelectedConstraintIds(input)
     const selectedConstraintLines = selectedConstraintIds.map((id) => `- ${id}`).join('\n')
+    const skeletonBlock = formatActivitySkeletonForPrompt(buildActivitySkeleton(input))
+    const selectedAffordanceTitles = selectedAffordanceIds.map((id) => titleForAssemblyAffordanceId(input, id))
+    const archetypeIdentityLock =
+        input.archetype.name === 'Directional Possession Games'
+            ? [
+                  'Directional Possession Games:',
+                  '- ball must move toward a target or direction',
+                  '- players must decide to secure, progress, or switch',
+              ].join('\n')
+            : input.archetype.name === 'Overload Games'
+              ? [
+                    'Overload Games:',
+                    '- teams must use numerical advantage',
+                    '- decision: use overload or reset',
+                ].join('\n')
+              : input.archetype.name === 'Pressing & Regain Games'
+                ? [
+                      'Pressing & Regain Games:',
+                      '- pressure + regain + immediate transition must exist',
+                  ].join('\n')
+                : input.archetype.name === 'End Zone Games'
+                  ? [
+                        'End Zone Games:',
+                        '- scoring tied to reaching a zone',
+                    ].join('\n')
+                  : `Selected archetype "${input.archetype.name}" must stay visible in rules or scoring.`
+    const affordanceRuleLockLines = [
+        'For each affordance:',
+        '- It must affect rules or scoring, not just coachingFocus.',
+    ]
+    if (selectedAffordanceTitles.includes(SPACE_EXPLOITATION_LENS_TITLE)) {
+        affordanceRuleLockLines.push('- If Space Exploitation: scoring or rules must reward using open space')
+    }
+    if (selectedAffordanceTitles.includes(POSSESSION_STABILITY_LENS_TITLE)) {
+        affordanceRuleLockLines.push(
+            '- If Possession Stability: scoring or rules must require maintaining possession under pressure'
+        )
+    }
+    const affordanceRuleLock = affordanceRuleLockLines.join('\n')
 
-    return `You assemble football activities from system inputs that have already been selected in code.
+    return `You are filling a system-owned skeleton. Do not invent a different activity structure. Do not omit required mechanics. Return valid JSON only.
+
+You assemble football activities from system inputs that have already been selected in code.
+
+HARD COMPLETION RULES
+Every activity must include:
+- at least one explicit decision phrase: choose, read, react, decide, based on
+- at least one scoring rule that reflects the game purpose
+- rules that force player behavior, not optional actions
+
+STRUCTURE LOCK
+You are filling a system-owned structure.
+
+Do NOT:
+- invent a new game
+- omit required mechanics
+- replace rules with coaching suggestions
+
+All mechanics must appear in:
+objective, rules, scoring, or constraints
+
+${skeletonBlock}
 
 Use "selectedAffordanceIds" from the payload as the source of truth for affordance IDs.
 Do not derive "affordancesUsed" from "primary" versus "supporting" labels.
@@ -725,7 +916,7 @@ Do not choose archetypes.
 Do not choose constraints.
 Do not invent a new system structure.
 
-Your job is to assemble three concrete activity options that all use the supplied selected affordance set, archetype, and constraint package.
+Your job is to write coach-facing language for three activities that implement the system-owned skeleton and payload; you do not design a new game format.
 
 System principles:
 - Assemble perception-based game environments, not compliance-based drills.
@@ -747,6 +938,27 @@ System principles:
 
 ${selectedAffordanceCoveragePromptSection(input)}
 ${archetypeIdentityPromptSection(input.archetype)}
+ARCHETYPE IDENTITY ENFORCEMENT
+${archetypeIdentityLock}
+
+DECISION LANGUAGE REQUIREMENT (stronger)
+For each activity:
+Include a clear decision moment such as:
+- players must choose when to...
+- players read pressure and decide whether to...
+- based on defender position, players react by...
+
+AFFORDANCE / RULE LINK
+${affordanceRuleLock}
+
+CONSTRAINT VISIBILITY
+Each selected constraint must be visible in the rules or scoring.
+
+Do not hide constraints in description text only.
+
+FAILURE WARNING
+If any selected affordance or archetype is not clearly expressed in rules or scoring, the activity will be rejected.
+
 Output requirements (system-owned schema — do not add, remove, or rename keys):
 - Return valid JSON only.
 - Top-level shape exactly:
@@ -810,6 +1022,92 @@ Diversity across the three activities (required):
 - Wide-zone balance: when Wide Zone Advantage (or similar wide-area shaping) is in the package, include it, but do not let wide channels be the only story. Blend width with other selected themes and affordances: line-breaking, support angles, transition attack, regain, space behind, possession stability, finishing — as relevant to the supplied primary/supporting affordances and constraint titles.
 - Preserve all hard rules above: opposition, open-decision vocabulary in the activity text bundle, consequence/scoring, no prescriptive phrases, only selected constraints and guardrails — diversity shall not replace any of these.
 - Do not use imperative drill phrasing that the server rejects; describe environment and choices, not ordered techniques.`
+}
+
+function generateAssemblyPolishPrompt(input: SystemAssemblyInput) {
+    const skeletonBlock = formatActivitySkeletonForPrompt(buildActivitySkeleton(input))
+
+    return `You are polishing a system-owned activity structure. Return valid JSON only.
+
+The system has already selected the archetype, affordances, constraints, skeleton, and mechanics in code before AI runs.
+You are NOT designing a new game.
+You are polishing wording for three already-defined activities.
+
+HARD COMPLETION RULES
+- Every activity needs at least one explicit decision phrase in objective or coachingFocus: choose, read, react, decide, based on, adapt, option.
+- Keep the game purpose visible in title, setup, objective, or coachingFocus.
+- Use live, coach-facing language that stays aligned with the supplied system mechanics.
+
+STRUCTURE LOCK
+You are filling a system-owned structure.
+
+Do NOT:
+- invent a new game
+- omit required mechanics
+- change rules, scoring, constraints, teams, decision cues, or opponent consequences
+- replace mechanics with coaching suggestions
+
+The server owns the mechanics.
+Your job is wording only.
+
+Use these payload sections as locked inputs:
+- activitySkeleton
+- activityMechanics
+- archetype
+- selectedAffordances
+- constraintPackage
+
+${skeletonBlock}
+
+SYSTEM-OWNED MECHANICS
+- For each activity slot in activityMechanics, treat rules, scoring, constraints, decisionCues, opponentConsequences, and teams as fixed.
+- Do not rewrite them.
+- Do not soften or remove opponent consequences.
+- Do not move affordance expression out of structure and into coachingFocus only.
+
+AFFORDANCE / RULE LINK
+- Each selected affordance already has structural mechanics in activityMechanics.
+- Keep those affordances visible by writing objective and coachingFocus that clearly align with those fixed mechanics.
+- If an affordance is Space Exploitation Opportunity, the wording should make clear that advantage comes from recognizing and using open space created by the fixed rules or scoring.
+- If an affordance is Possession Stability Opportunity, the wording should make clear that success depends on securing or maintaining possession under pressure in the fixed rules or scoring.
+
+ARCHETYPE IDENTITY ENFORCEMENT
+- Directional Possession Games: wording should make clear the ball progresses toward a target or direction and players decide whether to secure, progress, or switch.
+- Overload Games: wording should make clear the game uses numerical or positional overloads and players decide whether to use the overload or reset.
+- Pressing & Regain Games: wording should make clear pressure, regain, and immediate transition are central.
+- End Zone Games: wording should make clear scoring is tied to reaching or using a target zone.
+
+CONSTRAINT VISIBILITY
+- The selected constraints are already fixed in activityMechanics.constraints and activityMechanics.scoring.
+- Your wording must keep those constraints legible in objective and coachingFocus.
+- Do not hide the game problem in vague description text.
+
+FAILURE WARNING
+- If your wording contradicts the selected archetype, affordances, constraints, skeleton, or mechanics, the activity will be rejected.
+- If decision language is missing from objective or coachingFocus, the activity will be rejected.
+
+Output requirements:
+- Return valid JSON only.
+- Top-level shape exactly:
+{
+  "activities": [
+    {
+      "title": string,
+      "setup": string,
+      "objective": string,
+      "coachingFocus": string[]
+    }
+  ]
+}
+- Produce exactly 3 activities.
+- Do not add teams, rules, scoring, constraints, affordancesUsed, constraintsUsed, validation, or any other keys.
+- Keep every string non-empty.
+- Keep coachingFocus as an array of non-empty coach-facing observation cues.
+- setup should describe space, numbers, zones, equipment, and restarts in a way that matches the fixed mechanics.
+- objective should describe the decision problem players read, not a drill command.
+- coachingFocus should describe what to observe, what players read, and how the fixed mechanics create trade-offs.
+
+Avoid prohibited drill language and avoid the phrase "players must".`
 }
 
 export { testLibraryArchetypeToSystemDefinition } from '../system/activity/resolve-test-library-archetype'

@@ -169,6 +169,12 @@ const GENERIC_CONSEQUENCE_TOKENS = new Set([
     'loss',
 ])
 
+/**
+ * Narrative validation is disabled because deterministic mechanics validation is now authoritative.
+ * This validator should not reject a mechanically valid activity because of wording quality.
+ */
+const ENABLE_LEGACY_NARRATIVE_VALIDATION = false
+
 type DecisionFreedomDimension = 'who' | 'what' | 'where' | 'when' | 'why' | 'how'
 
 const DECISION_RESTRICTION_PATTERNS: Record<DecisionFreedomDimension, { phrases: string[]; regexes: RegExp[] }> = {
@@ -521,10 +527,38 @@ function validateAiReturnedAffordanceAndConstraintIds(
     }
 }
 
+function validateSystemTraceConsistency(candidate: Record<string, any>, input: SystemAssemblyInput, index: number): void {
+    const systemTrace = candidate.systemTrace
+    if (!systemTrace || typeof systemTrace !== 'object') {
+        return
+    }
+
+    const trace = systemTrace as Record<string, unknown>
+    const archetypeId = typeof trace.archetypeId === 'string' ? trace.archetypeId.trim() : ''
+    const archetypeName = typeof trace.archetypeName === 'string' ? trace.archetypeName.trim() : ''
+
+    if (archetypeId && archetypeId !== input.archetype.id) {
+        throw new SystemPipelineError(
+            'output-validation',
+            `Generated activity ${index + 1} has a systemTrace archetypeId that does not match the selected archetype.`
+        )
+    }
+
+    if (archetypeName && archetypeName !== input.archetype.name) {
+        throw new SystemPipelineError(
+            'output-validation',
+            `Generated activity ${index + 1} has a systemTrace archetypeName that does not match the selected archetype.`
+        )
+    }
+}
+
 export function validateGeneratedActivities(rawResponse: unknown, input: SystemAssemblyInput): IActivity[] {
     const payload = rawResponse as { generatedActivities?: Array<Record<string, any>> }
     if (!payload?.generatedActivities || !Array.isArray(payload.generatedActivities) || payload.generatedActivities.length === 0) {
         throw new SystemPipelineError('output-validation', 'The AI assembly response did not include a generatedActivities array.')
+    }
+    if (payload.generatedActivities.length !== 3) {
+        throw new SystemPipelineError('output-validation', 'The AI assembly response must include exactly 3 generated activities.')
     }
 
     const affordanceIds = getAssemblySelectedAffordanceIds(input)
@@ -553,6 +587,7 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
         }
 
         validateAiReturnedAffordanceAndConstraintIds(candidate, input, index + 1)
+        validateSystemTraceConsistency(candidate, input, index + 1)
 
         if (!exchangeRuleMatchesRulesSlot(twoSidedExchangeRule, rules)) {
             throw new SystemPipelineError(
@@ -569,32 +604,8 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
         }
 
         const narrative = [constraint, intent, twoSidedExchangeRule, twoSidedScoringConsequence, rules.join(' '), scoringSystem, winCondition].join(' ')
-        const prescriptiveViolations = findPrescriptivePhraseViolations(narrative)
-        if (prescriptiveViolations.length > 0) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1}: Prescriptive language detected: ${prescriptiveViolations.join(', ')}`
-            )
-        }
         const environmentNarrative = [constraint, rules.join(' '), scoringSystem, winCondition].join(' ')
         const outcomeNarrative = [twoSidedScoringConsequence, scoringSystem, winCondition, rules.join(' ')].join(' ')
-        const affordanceReflected =
-            scoreKeywordMatches(narrative, [input.affordances.primary.title ?? '', input.affordances.primary.affordanceTagGroup ?? ''], 3) > 0
-        if (!affordanceReflected) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} does not clearly reflect the selected affordance "${input.affordances.primary.title}".`
-            )
-        }
-
-        const archetypeReflected =
-            scoreKeywordMatches(narrative, [input.archetype.name, ...input.archetype.assemblyCues, ...input.archetype.aliases], 1) > 0
-        if (!archetypeReflected) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} does not clearly represent the selected archetype "${input.archetype.name}".`
-            )
-        }
 
         if (!includesNormalizedPhrase(constraint, input.constraintPackage.foundation.constraint.title ?? '')) {
             throw new SystemPipelineError(
@@ -620,199 +631,227 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
             )
         }
 
-        const openDecisionHits = countPatternHits(narrative, OPEN_DECISION_PATTERNS)
-        const restrictedDecisionDimensions = getRestrictedDecisionDimensions(narrative)
-        const stopStartHits = countPatternHits(narrative, STOP_START_PATTERNS)
-        const instructionalHits = countPatternHits(narrative, INSTRUCTIONAL_PATTERNS)
-        const activeOppositionHits = countPatternHits(environmentNarrative, ACTIVE_OPPOSITION_PATTERNS)
-        const continuousPlayHits = countPatternHits(environmentNarrative, CONTINUOUS_PLAY_PATTERNS)
-        const directionalHits = countPatternHits(environmentNarrative, DIRECTIONAL_PATTERNS)
-        const observableOutcomeHits = countPatternHits(outcomeNarrative, OBSERVABLE_OUTCOME_PATTERNS)
-        const environmentHits = countPatternHits(environmentNarrative, ENVIRONMENT_PATTERNS)
-        const vagueLanguageHits = countPatternHits(narrative, VAGUE_LANGUAGE_PATTERNS)
-
-        if (vagueLanguageHits > 0) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} uses vague language instead of observable game events.`
-            )
-        }
-
-        if (instructionalHits > 0) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} reads like coach instructions or a drill instead of a game environment.`
-            )
-        }
-
-        if (stopStartHits > 0) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} breaks continuous play with stop-start drill mechanics.`
-            )
-        }
-
-        if (activeOppositionHits === 0 || !hasActiveOpposition(environmentNarrative)) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} does not preserve active opposition.`
-            )
-        }
-
-        if (continuousPlayHits === 0 || !hasContinuousPlay(environmentNarrative)) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} does not make continuous play and live transitions clear enough.`
-            )
-        }
-
-        if (directionalHits < 2) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} does not preserve directional realism.`
-            )
-        }
-
-        if (environmentHits < 2) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} does not describe the environment strongly enough through space, pressure, numbers, or targets.`
-            )
-        }
-
-        if (observableOutcomeHits < 2) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} does not define observable outcomes clearly enough.`
-            )
-        }
-
-        if (restrictedDecisionDimensions.length >= 2 && openDecisionHits < 2) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} removes too many player decisions: ${restrictedDecisionDimensions.join(', ')}.`
-            )
-        }
-
-        if (!visibleCuePreserved(narrative, input.constraintPackage.assemblyGuardrails)) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} does not preserve the system-defined visible cue.`
-            )
-        }
-
-        if (!decisionProblemPreserved(narrative, input.constraintPackage.assemblyGuardrails)) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} does not preserve the system-defined decision problem.`
-            )
-        }
-
-        if (!hasRuleInteractionExchange(rules)) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} does not create an explicit two-sided risk/opportunity exchange in the rules.`
-            )
-        }
-
-        if (!hasExplicitTwoSidedExchangeRule(rules)) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} does not include a single self-contained rule that states the two-sided exchange explicitly.`
-            )
-        }
-
-        if (!hasExplicitTwoSidedExchangeRule([twoSidedExchangeRule])) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} does not define a valid twoSidedExchangeRule.`
-            )
-        }
-
-        if (!rulesPreserveInteractionExchange([twoSidedExchangeRule], input.constraintPackage.assemblyGuardrails.interactionExchange)) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} does not preserve the system-built interaction exchange in twoSidedExchangeRule.`
-            )
-        }
-
-        if (!rulesPreserveInteractionExchange(rules, input.constraintPackage.assemblyGuardrails.interactionExchange)) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} does not preserve the system-built interaction exchange in its rules.`
-            )
-        }
-
-        if (!hasTwoSidedScoringConsequences(scoringSystem, winCondition)) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} does not define scoring consequences for both teams.`
-            )
-        }
-
-        if (!hasTwoSidedScoringConsequences(twoSidedScoringConsequence, winCondition)) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} does not define a valid twoSidedScoringConsequence.`
-            )
-        }
-
-        if (!scoringPreservesInteractionExchange(twoSidedScoringConsequence, winCondition, input.constraintPackage.assemblyGuardrails.interactionExchange)) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} does not preserve the system-built interaction exchange in twoSidedScoringConsequence.`
-            )
-        }
-
-        if (!scoringPreservesInteractionExchange(scoringSystem, winCondition, input.constraintPackage.assemblyGuardrails.interactionExchange)) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} does not preserve the system-built interaction exchange in scoring or win logic.`
-            )
-        }
-
-        if (!opponentConsequencePreserved(outcomeNarrative, input.constraintPackage.assemblyGuardrails)) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} does not preserve the system-defined opponent consequence.`
-            )
-        }
-
-        if (!hasContestedWinCondition(winCondition)) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} does not frame the win condition as a live contest between teams.`
-            )
-        }
-
-        if (!hasInteractionLoop(rules, scoringSystem, winCondition)) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} does not sustain a continuous interaction loop between teams.`
-            )
-        }
-
-        if (!interactionLoopPreservesExchange(rules, scoringSystem, winCondition, input.constraintPackage.assemblyGuardrails.interactionExchange)) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} does not carry the system-built interaction exchange through the live game loop.`
-            )
-        }
-
-        if (violatesNonNegotiableAvoids(narrative, input.constraintPackage.assemblyGuardrails)) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} violates one or more non-negotiable guardrail avoids.`
-            )
-        }
-
-        if (input.constraintPackage.consequence) {
-            const consequenceNarrative = [scoringSystem, winCondition, rules.join(' ')].join(' ')
-            if (!consequenceIsEmbedded(consequenceNarrative, input)) {
+        if (ENABLE_LEGACY_NARRATIVE_VALIDATION) {
+            const prescriptiveViolations = findPrescriptivePhraseViolations(narrative)
+            if (prescriptiveViolations.length > 0) {
                 throw new SystemPipelineError(
                     'output-validation',
-                    `Generated activity ${index + 1} does not embed the selected consequence in the live game consequences.`
+                    `Generated activity ${index + 1}: Prescriptive language detected: ${prescriptiveViolations.join(', ')}`
                 )
+            }
+
+            const affordanceReflected =
+                scoreKeywordMatches(narrative, [input.affordances.primary.title ?? '', input.affordances.primary.affordanceTagGroup ?? ''], 3) > 0
+            if (!affordanceReflected) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `Generated activity ${index + 1} does not clearly reflect the selected affordance "${input.affordances.primary.title}".`
+                )
+            }
+
+            const archetypeReflected =
+                scoreKeywordMatches(narrative, [input.archetype.name, ...input.archetype.assemblyCues, ...input.archetype.aliases], 1) > 0
+            if (!archetypeReflected) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `Generated activity ${index + 1} does not clearly represent the selected archetype "${input.archetype.name}".`
+                )
+            }
+
+            const openDecisionHits = countPatternHits(narrative, OPEN_DECISION_PATTERNS)
+            const restrictedDecisionDimensions = getRestrictedDecisionDimensions(narrative)
+            const stopStartHits = countPatternHits(narrative, STOP_START_PATTERNS)
+            const instructionalHits = countPatternHits(narrative, INSTRUCTIONAL_PATTERNS)
+            const activeOppositionHits = countPatternHits(environmentNarrative, ACTIVE_OPPOSITION_PATTERNS)
+            const continuousPlayHits = countPatternHits(environmentNarrative, CONTINUOUS_PLAY_PATTERNS)
+            const directionalHits = countPatternHits(environmentNarrative, DIRECTIONAL_PATTERNS)
+            const observableOutcomeHits = countPatternHits(outcomeNarrative, OBSERVABLE_OUTCOME_PATTERNS)
+            const environmentHits = countPatternHits(environmentNarrative, ENVIRONMENT_PATTERNS)
+            const vagueLanguageHits = countPatternHits(narrative, VAGUE_LANGUAGE_PATTERNS)
+
+            if (vagueLanguageHits > 0) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `Generated activity ${index + 1} uses vague language instead of observable game events.`
+                )
+            }
+
+            if (instructionalHits > 0) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `Generated activity ${index + 1} reads like coach instructions or a drill instead of a game environment.`
+                )
+            }
+
+            if (stopStartHits > 0) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `Generated activity ${index + 1} breaks continuous play with stop-start drill mechanics.`
+                )
+            }
+
+            if (activeOppositionHits === 0 || !hasActiveOpposition(environmentNarrative)) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `Generated activity ${index + 1} does not preserve active opposition.`
+                )
+            }
+
+            if (continuousPlayHits === 0 || !hasContinuousPlay(environmentNarrative)) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `Generated activity ${index + 1} does not make continuous play and live transitions clear enough.`
+                )
+            }
+
+            if (directionalHits < 2) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `Generated activity ${index + 1} does not preserve directional realism.`
+                )
+            }
+
+            if (environmentHits < 2) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `Generated activity ${index + 1} does not describe the environment strongly enough through space, pressure, numbers, or targets.`
+                )
+            }
+
+            if (observableOutcomeHits < 2) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `Generated activity ${index + 1} does not define observable outcomes clearly enough.`
+                )
+            }
+
+            if (restrictedDecisionDimensions.length >= 2 && openDecisionHits < 2) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `Generated activity ${index + 1} removes too many player decisions: ${restrictedDecisionDimensions.join(', ')}.`
+                )
+            }
+
+            if (!visibleCuePreserved(narrative, input.constraintPackage.assemblyGuardrails)) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `Generated activity ${index + 1} does not preserve the system-defined visible cue.`
+                )
+            }
+
+            if (!decisionProblemPreserved(narrative, input.constraintPackage.assemblyGuardrails)) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `Generated activity ${index + 1} does not preserve the system-defined decision problem.`
+                )
+            }
+
+            if (!hasRuleInteractionExchange(rules)) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `Generated activity ${index + 1} does not create an explicit two-sided risk/opportunity exchange in the rules.`
+                )
+            }
+
+            if (!hasExplicitTwoSidedExchangeRule(rules)) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `Generated activity ${index + 1} does not include a single self-contained rule that states the two-sided exchange explicitly.`
+                )
+            }
+
+            if (!hasExplicitTwoSidedExchangeRule([twoSidedExchangeRule])) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `Generated activity ${index + 1} does not define a valid twoSidedExchangeRule.`
+                )
+            }
+
+            if (!rulesPreserveInteractionExchange([twoSidedExchangeRule], input.constraintPackage.assemblyGuardrails.interactionExchange)) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `Generated activity ${index + 1} does not preserve the system-built interaction exchange in twoSidedExchangeRule.`
+                )
+            }
+
+            if (!rulesPreserveInteractionExchange(rules, input.constraintPackage.assemblyGuardrails.interactionExchange)) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `Generated activity ${index + 1} does not preserve the system-built interaction exchange in its rules.`
+                )
+            }
+
+            if (!hasTwoSidedScoringConsequences(scoringSystem, winCondition)) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `Generated activity ${index + 1} does not define scoring consequences for both teams.`
+                )
+            }
+
+            if (!hasTwoSidedScoringConsequences(twoSidedScoringConsequence, winCondition)) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `Generated activity ${index + 1} does not define a valid twoSidedScoringConsequence.`
+                )
+            }
+
+            if (!scoringPreservesInteractionExchange(twoSidedScoringConsequence, winCondition, input.constraintPackage.assemblyGuardrails.interactionExchange)) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `Generated activity ${index + 1} does not preserve the system-built interaction exchange in twoSidedScoringConsequence.`
+                )
+            }
+
+            if (!scoringPreservesInteractionExchange(scoringSystem, winCondition, input.constraintPackage.assemblyGuardrails.interactionExchange)) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `Generated activity ${index + 1} does not preserve the system-built interaction exchange in scoring or win logic.`
+                )
+            }
+
+            if (!opponentConsequencePreserved(outcomeNarrative, input.constraintPackage.assemblyGuardrails)) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `Generated activity ${index + 1} does not preserve the system-defined opponent consequence.`
+                )
+            }
+
+            if (!hasContestedWinCondition(winCondition)) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `Generated activity ${index + 1} does not frame the win condition as a live contest between teams.`
+                )
+            }
+
+            if (!hasInteractionLoop(rules, scoringSystem, winCondition)) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `Generated activity ${index + 1} does not sustain a continuous interaction loop between teams.`
+                )
+            }
+
+            if (!interactionLoopPreservesExchange(rules, scoringSystem, winCondition, input.constraintPackage.assemblyGuardrails.interactionExchange)) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `Generated activity ${index + 1} does not carry the system-built interaction exchange through the live game loop.`
+                )
+            }
+
+            if (violatesNonNegotiableAvoids(narrative, input.constraintPackage.assemblyGuardrails)) {
+                throw new SystemPipelineError(
+                    'output-validation',
+                    `Generated activity ${index + 1} violates one or more non-negotiable guardrail avoids.`
+                )
+            }
+
+            if (input.constraintPackage.consequence) {
+                const consequenceNarrative = [scoringSystem, winCondition, rules.join(' ')].join(' ')
+                if (!consequenceIsEmbedded(consequenceNarrative, input)) {
+                    throw new SystemPipelineError(
+                        'output-validation',
+                        `Generated activity ${index + 1} does not embed the selected consequence in the live game consequences.`
+                    )
+                }
             }
         }
 
