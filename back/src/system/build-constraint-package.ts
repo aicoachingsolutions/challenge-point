@@ -40,6 +40,13 @@ type GuardrailDraft = {
     opponentConsequenceSignals: string[]
 }
 
+type ExtendedConstraintMetadata = IConstraint & {
+    incentiveMechanism?: string
+    visibilityEffect?: string
+    targetAffordancePrimary?: string
+    primaryConstraintType?: string
+}
+
 function constraintText(constraint: IConstraint): string {
     const categoryText =
         typeof constraint.category === 'object' && constraint.category
@@ -227,6 +234,113 @@ function createAssemblyGuardrails(
     }
 }
 
+function formatConstraintTarget(value: string | undefined): string {
+    const next = String(value ?? '')
+        .trim()
+        .replace(/_/g, ' ')
+    return next.length > 0 ? next : 'the selected game problem'
+}
+
+function collectConstraintMetadataOverlay(
+    candidates: Array<ConstraintSelectionCandidate | undefined>
+): {
+    scoring: string[]
+    visibility: string[]
+    decision: string[]
+    type: string[]
+} {
+    const scoring = new Set<string>()
+    const visibility = new Set<string>()
+    const decision = new Set<string>()
+    const type = new Set<string>()
+
+    for (const candidate of candidates) {
+        const constraint = candidate?.constraint as ExtendedConstraintMetadata | undefined
+        if (!constraint) continue
+
+        if (constraint.incentiveMechanism === 'scoring_bonus') {
+            scoring.add('Additional point awarded when condition is met.')
+        }
+
+        if (constraint.visibilityEffect === 'increase') {
+            visibility.add('Players act based on visible cues created by the constraint.')
+        } else if (constraint.visibilityEffect === 'decrease') {
+            visibility.add('Players act with reduced information or delayed visibility.')
+        }
+
+        if (constraint.targetAffordancePrimary) {
+            decision.add(`Players prioritize ${formatConstraintTarget(constraint.targetAffordancePrimary)} in decisions.`)
+        }
+
+        switch (constraint.primaryConstraintType) {
+            case 'spatial':
+                type.add('Space usage, spacing, or lane access must shape the next action.')
+                break
+            case 'temporal':
+                type.add('Time pressure or a live timing window changes the consequence of the next action.')
+                break
+            case 'numerical':
+                type.add('Overload or underload numbers must shape the next decision.')
+                break
+            default:
+                break
+        }
+    }
+
+    return {
+        scoring: [...scoring],
+        visibility: [...visibility],
+        decision: [...decision],
+        type: [...type],
+    }
+}
+
+function applyConstraintMetadataOverlay(
+    guardrails: ActivityAssemblyGuardrails,
+    candidates: Array<ConstraintSelectionCandidate | undefined>
+): ActivityAssemblyGuardrails {
+    const overlay = collectConstraintMetadataOverlay(candidates)
+    const visibleCueSummary = [guardrails.visibleCue.summary, ...overlay.visibility].filter(Boolean).join(' ')
+    const decisionProblemSummary = [guardrails.decisionProblem.summary, ...overlay.decision, ...overlay.type]
+        .filter(Boolean)
+        .join(' ')
+    const rewardAdvantage = [guardrails.interactionExchange.rewardAdvantage, ...overlay.scoring].filter(Boolean).join(' ')
+    const opponentConsequenceSummary = [guardrails.opponentConsequence.summary, ...overlay.type].filter(Boolean).join(' ')
+
+    return {
+        ...guardrails,
+        visibleCue: {
+            ...guardrails.visibleCue,
+            summary: visibleCueSummary,
+            signals: [...new Set([...guardrails.visibleCue.signals, ...overlay.visibility])],
+        },
+        decisionProblem: {
+            ...guardrails.decisionProblem,
+            summary: decisionProblemSummary,
+            signals: [...new Set([...guardrails.decisionProblem.signals, ...overlay.decision, ...overlay.type])],
+        },
+        interactionExchange: createInteractionExchange(
+            {
+                ...guardrails.interactionExchange,
+                rewardAdvantage,
+                validationSignals: {
+                    ...guardrails.interactionExchange.validationSignals,
+                    reward: [...new Set([...guardrails.interactionExchange.validationSignals.reward, ...overlay.scoring])],
+                    cue: [...new Set([...guardrails.interactionExchange.validationSignals.cue, ...overlay.visibility])],
+                    risk: [...new Set([...guardrails.interactionExchange.validationSignals.risk, ...overlay.type])],
+                },
+            },
+            guardrails.interactionExchange.sourceRole,
+            guardrails.interactionExchange.sourceConstraintId
+        ),
+        opponentConsequence: {
+            ...guardrails.opponentConsequence,
+            summary: opponentConsequenceSummary,
+            signals: [...new Set([...guardrails.opponentConsequence.signals, ...overlay.type])],
+        },
+    }
+}
+
 function buildPackageInteractionExchange(
     affordances: AffordanceField,
     archetype: ArchetypeDefinition,
@@ -237,9 +351,11 @@ function buildPackageInteractionExchange(
     const sourceRole: ConstraintRole | 'package' = consequence ? 'consequence' : 'package'
     const sourceConstraintId = consequence?.constraint._id
     const affordanceTag = consequence?.constraint.affordanceTagGroup ?? shaping.constraint.affordanceTagGroup ?? affordances.primary.affordanceTagGroup
+    const selectedCandidates = [foundation, shaping, consequence]
 
     if (affordanceTag === 'progress') {
-        return createAssemblyGuardrails(
+        return applyConstraintMetadataOverlay(
+            createAssemblyGuardrails(
             {
                 visibleCue: 'The cue is a line or target lane opening with support connected behind the ball.',
                 visibleCueSignals: ['line open', 'target lane', 'break a line', 'support connected'],
@@ -266,11 +382,14 @@ function buildPackageInteractionExchange(
             },
             sourceRole,
             sourceConstraintId
+            ),
+            selectedCandidates
         )
     }
 
     if (affordanceTag === 'space') {
-        return createAssemblyGuardrails(
+        return applyConstraintMetadataOverlay(
+            createAssemblyGuardrails(
             {
                 visibleCue: 'The cue is a free side or open lane appearing when the field stretches or an overload releases.',
                 visibleCueSignals: ['free side', 'open lane', 'space opens', 'overload release', 'switch'],
@@ -297,11 +416,14 @@ function buildPackageInteractionExchange(
             },
             sourceRole,
             sourceConstraintId
+            ),
+            selectedCandidates
         )
     }
 
     if (affordanceTag === 'finish') {
-        return createAssemblyGuardrails(
+        return applyConstraintMetadataOverlay(
+            createAssemblyGuardrails(
             {
                 visibleCue: 'The cue is a prepared finishing picture with support, rebound access, cut-back access, or pressure moved away from goal.',
                 visibleCueSignals: ['prepared finish', 'rebound', 'cut-back', 'support', 'pressure moved'],
@@ -328,11 +450,14 @@ function buildPackageInteractionExchange(
             },
             sourceRole,
             sourceConstraintId
+            ),
+            selectedCandidates
         )
     }
 
     if (affordanceTag === 'transition') {
-        return createAssemblyGuardrails(
+        return applyConstraintMetadataOverlay(
+            createAssemblyGuardrails(
             {
                 visibleCue: 'The cue is the live transition picture before the opponent recovers behind the ball.',
                 visibleCueSignals: ['regain', 'before recovery', 'behind the ball', 'transition window'],
@@ -359,11 +484,14 @@ function buildPackageInteractionExchange(
             },
             sourceRole,
             sourceConstraintId
+            ),
+            selectedCandidates
         )
     }
 
     if (affordanceTag === 'retain') {
-        return createAssemblyGuardrails(
+        return applyConstraintMetadataOverlay(
+            createAssemblyGuardrails(
             {
                 visibleCue: 'The cue is a connected support picture and an exit lane appearing under pressure.',
                 visibleCueSignals: ['support picture', 'exit lane', 'under pressure', 'escape'],
@@ -390,11 +518,14 @@ function buildPackageInteractionExchange(
             },
             sourceRole,
             sourceConstraintId
+            ),
+            selectedCandidates
         )
     }
 
     if (affordanceTag === 'protect') {
-        return createAssemblyGuardrails(
+        return applyConstraintMetadataOverlay(
+            createAssemblyGuardrails(
             {
                 visibleCue: 'The cue is the central route being threatened before cover arrives or the regain window opens.',
                 visibleCueSignals: ['delay the attack', 'protect the central lane', 'cover arrives', 'regain window'],
@@ -421,10 +552,13 @@ function buildPackageInteractionExchange(
             },
             sourceRole,
             sourceConstraintId
+            ),
+            selectedCandidates
         )
     }
 
-    return createAssemblyGuardrails(
+    return applyConstraintMetadataOverlay(
+        createAssemblyGuardrails(
         {
             visibleCue: `The cue is the live opportunity created by ${shaping.constraint.title ?? archetype.name} inside ${foundation.constraint.title ?? 'the environment'}.`,
             visibleCueSignals: ['live opportunity', 'under pressure', 'picture opens'],
@@ -451,6 +585,8 @@ function buildPackageInteractionExchange(
         },
         sourceRole,
         sourceConstraintId
+        ),
+        selectedCandidates
     )
 }
 

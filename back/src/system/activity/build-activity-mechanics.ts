@@ -46,24 +46,44 @@ function extractAfterPrefix(lines: string[], prefix: string): string | null {
 }
 
 function buildTeamsFromSlot(slot: ActivitySkeletonSlot): string {
+    const playerStructure = extractAfterPrefix(slot.requiredArchetypeMechanics, 'Archetype player structure logic: ')
     switch (slot.archetypeName) {
         case 'Directional Possession Games':
-            return 'Two teams compete in the same direction, with one team trying to keep and progress possession toward the target while the other applies pressure and tries to regain to attack back.'
+            return uniqueLines([
+                'Two teams compete in the same direction, with one team trying to keep and progress possession toward the target while the other applies pressure and tries to regain to attack back.',
+                playerStructure ? `Player structure logic: ${playerStructure}` : '',
+            ]).join(' ')
         case 'Overload Games':
-            return 'Two teams compete with one side using a numerical or positional overload against live defenders, and roles switch immediately when possession changes.'
+            return uniqueLines([
+                'Two teams compete with one side using a numerical or positional overload against live defenders, and roles switch immediately when possession changes.',
+                playerStructure ? `Player structure logic: ${playerStructure}` : '',
+            ]).join(' ')
         case 'Pressing & Regain Games':
-            return 'Two teams compete with live pressure, one side trying to regain and the other trying to secure or escape, with immediate transition when the ball changes hands.'
+            return uniqueLines([
+                'Two teams compete with live pressure, one side trying to regain and the other trying to secure or escape, with immediate transition when the ball changes hands.',
+                playerStructure ? `Player structure logic: ${playerStructure}` : '',
+            ]).join(' ')
         case 'End Zone Games':
-            return 'Two teams compete to progress into a target zone while the opponent blocks, delays, and counters on regains.'
+            return uniqueLines([
+                'Two teams compete to progress into a target zone while the opponent blocks, delays, and counters on regains.',
+                playerStructure ? `Player structure logic: ${playerStructure}` : '',
+            ]).join(' ')
         default:
-            return `Two teams compete in a live, opposed game that clearly reflects ${slot.archetypeName}.`
+            return uniqueLines([
+                `Two teams compete in a live, opposed game that clearly reflects ${slot.archetypeName}.`,
+                playerStructure ? `Player structure logic: ${playerStructure}` : '',
+            ]).join(' ')
     }
 }
 
 function buildDecisionCues(slot: ActivitySkeletonSlot): string[] {
+    const archetypeObjective = extractAfterPrefix(slot.requiredArchetypeMechanics, 'Archetype objective emphasis: ')
+    const coachingEmphasis = extractAfterPrefix(slot.requiredArchetypeMechanics, 'Coaching emphasis: ')
     const cues = [
+        archetypeObjective ? `Players solve this activity by pursuing: ${archetypeObjective}` : '',
         'Players read pressure and decide whether to secure, progress, or switch based on the live picture.',
         'Players react to space, support, and opponent recovery before the next action.',
+        coachingEmphasis ? `Coaching emphasis: ${coachingEmphasis}` : '',
     ]
     if (slot.archetypeName === 'Overload Games') {
         cues.push('Players decide whether to use the overload immediately or reset the picture and attack again.')
@@ -71,6 +91,14 @@ function buildDecisionCues(slot: ActivitySkeletonSlot): string[] {
     if (slot.archetypeName === 'Pressing & Regain Games') {
         cues.push('Players decide whether the regain window is live enough to attack quickly or whether pressure requires a safer next action.')
     }
+    const constraintDecisionFocus = slot.requiredConstraintMechanics.filter((line) =>
+        /players prioritize .* in decisions\./i.test(line)
+    )
+    cues.push(...constraintDecisionFocus.map(sanitizeMechanicLine))
+    const affordanceDecisionFocus = slot.requiredAffordanceMechanics.filter((line) =>
+        /players should recognize .* before choosing the next action\./i.test(line)
+    )
+    cues.push(...affordanceDecisionFocus.map(sanitizeMechanicLine))
     return uniqueLines(cues)
 }
 
@@ -100,9 +128,12 @@ function buildOpponentConsequenceLines(slot: ActivitySkeletonSlot): string[] {
             line.startsWith('Opponent consequence emphasis') ||
             line.startsWith('Interaction exchange — outcomes:')
     )
+    const affordanceConsequenceLines = slot.requiredAffordanceMechanics.filter((line) =>
+        line.startsWith('Affordance consequence pattern')
+    )
 
-    if (lines.length > 0) {
-        return uniqueLines(lines.map(sanitizeMechanicLine))
+    if (lines.length > 0 || affordanceConsequenceLines.length > 0) {
+        return uniqueLines([...lines, ...affordanceConsequenceLines].map(sanitizeMechanicLine))
     }
 
     return [
@@ -112,6 +143,9 @@ function buildOpponentConsequenceLines(slot: ActivitySkeletonSlot): string[] {
 
 function buildScoringLines(slot: ActivitySkeletonSlot, opponentConsequences: string[]): string[] {
     const scoringBase = slot.requiredScoringMechanics.map(sanitizeMechanicLine)
+    const scoringSupport = slot.requiredArchetypeMechanics
+        .filter((line) => line.startsWith('Archetype incentive pattern support:'))
+        .map(sanitizeMechanicLine)
     const firstLine =
         slot.archetypeName === 'Directional Possession Games'
             ? 'A point or live advantage counts only when possession is maintained under pressure and the ball is progressed toward the target before the picture closes.'
@@ -123,7 +157,7 @@ function buildScoringLines(slot: ActivitySkeletonSlot, opponentConsequences: str
                   ? 'A point counts only when the team progresses into the target zone under live opposition and keeps the next action alive.'
                   : 'A point or live advantage counts only when the selected game problem is solved under pressure and opposition.'
 
-    return uniqueLines([firstLine, ...scoringBase, ...opponentConsequences])
+    return uniqueLines([firstLine, ...scoringBase, ...scoringSupport, ...opponentConsequences])
 }
 
 function buildConstraintLines(slot: ActivitySkeletonSlot): string[] {
@@ -132,8 +166,15 @@ function buildConstraintLines(slot: ActivitySkeletonSlot): string[] {
 
 function buildRuleLines(slot: ActivitySkeletonSlot, explicitExchangeRule: string): string[] {
     const ruleBase = slot.requiredRuleMechanics.map(sanitizeMechanicLine)
+    const archetypeRuleSupport = slot.requiredArchetypeMechanics
+        .filter(
+            (line) =>
+                line.startsWith('Archetype interaction structure:') ||
+                line.startsWith('Archetype constraint pattern support:')
+        )
+        .map(sanitizeMechanicLine)
     const archetypeAnchor = `Archetype identity: ${slot.archetypeName}.`
-    return uniqueLines([explicitExchangeRule, archetypeAnchor, ...ruleBase])
+    return uniqueLines([explicitExchangeRule, archetypeAnchor, ...archetypeRuleSupport, ...ruleBase])
 }
 
 function buildMechanicsForSlot(slot: ActivitySkeletonSlot): ActivityMechanics {

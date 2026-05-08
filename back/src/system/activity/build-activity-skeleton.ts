@@ -1,5 +1,7 @@
 import type { IAffordance } from '../../models/affordance.model'
 import type { ConstraintSelectionCandidate, SystemAssemblyInput } from '../types'
+import { TEST_LIBRARY_V0_ARCHETYPES } from '../test-library/archetypes'
+import type { TestLibraryV0Archetype } from '../test-library/types'
 import { registryIdString } from './assembly-package-ids'
 
 /** One of three system-owned activity slots; AI fills wording but must not remove these mechanics. */
@@ -27,6 +29,14 @@ export type ActivitySkeletonBundle = {
 }
 
 const DECISION_STEMS = ['choose', 'read', 'react', 'based on', 'decision', 'adapt', 'option'] as const
+
+type ExtendedAffordance = IAffordance & {
+    visibilityTriggers?: string[]
+    exampleConsequencePatterns?: string[]
+    constraintSupport?: string[]
+    gameTemplateAnchor?: string[] | string
+    category?: { name?: string; description?: string } | string
+}
 
 /** Wording for prompts/validation that must not nudge the model toward prohibited "players must" phrasing. */
 function coachSafeGuardrailText(s: string): string {
@@ -65,7 +75,109 @@ function affordanceMechanics(title: string): string[] {
     }
 }
 
+function normalizeStringArray(value: unknown): string[] {
+    if (Array.isArray(value)) {
+        return value.map((entry) => String(entry).trim()).filter(Boolean)
+    }
+    const next = String(value ?? '').trim()
+    return next ? [next] : []
+}
+
+function affordanceFamilyHints(aff: ExtendedAffordance): string[] {
+    const searchSpace = [
+        aff.title,
+        aff.designIntent,
+        typeof aff.category === 'string' ? aff.category : aff.category?.name,
+        ...normalizeStringArray(aff.gameTemplateAnchor),
+    ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+
+    if (/space|width|depth/.test(searchSpace)) {
+        return ['Spacing, width, and depth must shape how the next action is chosen and executed.']
+    }
+    if (/transition|regain|recover|attack quickly|fast/.test(searchSpace)) {
+        return ['The game must make the next action immediate after regain or loss while the picture is still changing.']
+    }
+    if (/retain|possession|stable|support/.test(searchSpace)) {
+        return ['Possession security, support distance, and safe exits under pressure must shape the next action.']
+    }
+    if (/protect|delay|deny|recover shape|defensive/.test(searchSpace)) {
+        return ['Shielding, protection of space, or defensive body position must shape the response to pressure.']
+    }
+    if (/finish|goal|shot|target/.test(searchSpace)) {
+        return ['Shot, target access, or final completion pressure must shape whether the attack is ready now.']
+    }
+    if (/break|line|progress|penetrate/.test(searchSpace)) {
+        return ['Forward penetration or line breaking must shape whether the team attacks through, around, or away from pressure.']
+    }
+    return []
+}
+
+function lookupArchetypeRow(archetypeName: string): TestLibraryV0Archetype | undefined {
+    return TEST_LIBRARY_V0_ARCHETYPES.find((row) => row.game_form_name === archetypeName || row.id === archetypeName)
+}
+
+function archetypeLibraryOverlay(archetypeName: string): {
+    mechanics: string[]
+    ruleSupport: string[]
+    scoringSupport: string[]
+    coachingSupport: string[]
+    setupSupport: string[]
+} {
+    const row = lookupArchetypeRow(archetypeName)
+    if (!row) {
+        return {
+            mechanics: [],
+            ruleSupport: [],
+            scoringSupport: [],
+            coachingSupport: [],
+            setupSupport: [],
+        }
+    }
+
+    const mechanics: string[] = []
+    const ruleSupport: string[] = []
+    const scoringSupport: string[] = []
+    const coachingSupport: string[] = []
+    const setupSupport: string[] = []
+
+    if (row.objective) {
+        mechanics.push(`Archetype objective emphasis: ${row.objective}.`)
+    }
+    if (row.interaction_structure) {
+        mechanics.push(`Archetype interaction structure: The activity interaction should follow: ${row.interaction_structure}.`)
+        ruleSupport.push(`The activity interaction should follow: ${row.interaction_structure}.`)
+    }
+    if (row.player_structure_logic) {
+        mechanics.push(`Archetype player structure logic: ${row.player_structure_logic}.`)
+        setupSupport.push(`Use player relationships consistent with: ${row.player_structure_logic}.`)
+    }
+    if (row.representative_design_notes) {
+        mechanics.push(`Coaching emphasis: ${row.representative_design_notes}.`)
+        coachingSupport.push(`Coaching emphasis: ${row.representative_design_notes}.`)
+    }
+    for (const pattern of row.exampleConstraintPatterns ?? []) {
+        mechanics.push(`Archetype constraint pattern support: ${pattern}.`)
+        ruleSupport.push(`Constraint-support pattern: ${pattern}.`)
+    }
+    for (const pattern of row.exampleIncentivePatterns ?? []) {
+        mechanics.push(`Archetype incentive pattern support: ${pattern}.`)
+        scoringSupport.push(`Scoring-support pattern: ${pattern}.`)
+    }
+
+    return {
+        mechanics,
+        ruleSupport,
+        scoringSupport,
+        coachingSupport,
+        setupSupport,
+    }
+}
+
 function archetypeMechanics(archetypeName: string): string[] {
+    const overlay = archetypeLibraryOverlay(archetypeName)
     switch (archetypeName) {
         case 'Directional Possession Games':
             return [
@@ -73,6 +185,7 @@ function archetypeMechanics(archetypeName: string): string[] {
                 'Maintain possession under pressure as a live game condition.',
                 'Support options and spacing must shape available passes and outlets.',
                 'Players must face a decision to secure possession, progress forward, or switch play.',
+                ...overlay.mechanics,
             ]
         case 'Overload Games':
             return [
@@ -80,6 +193,7 @@ function archetypeMechanics(archetypeName: string): string[] {
                 'Opponent pressure must remain live — not passive shadow defence.',
                 'Players must decide whether to use the overload, reset circulation, or switch the attack.',
                 'Success must depend on actually exploiting the overload to gain advantage.',
+                ...overlay.mechanics,
             ]
         case 'Pressing & Regain Games':
             return [
@@ -87,6 +201,7 @@ function archetypeMechanics(archetypeName: string): string[] {
                 'Clear regain opportunity — winning possession or forcing a turnover.',
                 'Immediate transition after regain (attack or defend the counter).',
                 'Opponent consequence on turnover — the other side gains a live advantage or restart.',
+                ...overlay.mechanics,
             ]
         case 'End Zone Games':
             return [
@@ -94,10 +209,12 @@ function archetypeMechanics(archetypeName: string): string[] {
                 'Active opposition contesting progression.',
                 'Decision to penetrate, support behind the ball, or recycle when the lane is closed.',
                 'Scoring tied to reaching or using the end zone / target area.',
+                ...overlay.mechanics,
             ]
         default:
             return [
                 `Game structure must clearly embody "${archetypeName}" — field relations, opposition, and incentives match this game form.`,
+                ...overlay.mechanics,
             ]
     }
 }
@@ -105,6 +222,7 @@ function archetypeMechanics(archetypeName: string): string[] {
 /** Split archetype bullets into rule-leaning vs scoring-leaning heuristically for the skeleton arrays. */
 function ruleAndScoringFromArchetype(archetypeName: string): { rules: string[]; scoring: string[] } {
     const core = archetypeMechanics(archetypeName)
+    const overlay = archetypeLibraryOverlay(archetypeName)
     switch (archetypeName) {
         case 'Directional Possession Games':
             return {
@@ -113,11 +231,13 @@ function ruleAndScoringFromArchetype(archetypeName: string): { rules: string[]; 
                     core[1],
                     core[2],
                     'Two-sided exchange rule must describe opportunity, opponent response, and live continuation.',
+                    ...overlay.ruleSupport,
                 ],
                 scoring: [
                     'Scoring or live advantage must reward progression toward the directional target.',
                     'Scoring must reflect maintaining possession under pressure when that is the contest.',
                     core[3],
+                    ...overlay.scoringSupport,
                 ],
             }
         case 'Overload Games':
@@ -127,23 +247,24 @@ function ruleAndScoringFromArchetype(archetypeName: string): { rules: string[]; 
                     core[1],
                     core[2],
                     'Two-sided exchange rule must describe overload opportunity and opponent counter-threat.',
+                    ...overlay.ruleSupport,
                 ],
-                scoring: [core[3], 'Points or advantages tied to successful overload entry or exploitation.'],
+                scoring: [core[3], 'Points or advantages tied to successful overload entry or exploitation.', ...overlay.scoringSupport],
             }
         case 'Pressing & Regain Games':
             return {
-                rules: [core[0], core[1], core[2], 'Rules must chain regain to immediate next-phase play.'],
-                scoring: [core[3], 'Scoring or advantage shifts on turnover or regain.'],
+                rules: [core[0], core[1], core[2], 'Rules must chain regain to immediate next-phase play.', ...overlay.ruleSupport],
+                scoring: [core[3], 'Scoring or advantage shifts on turnover or regain.', ...overlay.scoringSupport],
             }
         case 'End Zone Games':
             return {
-                rules: [core[0], core[1], core[2], 'Rules define how teams contest entry into the target zone.'],
-                scoring: [core[3], 'Goals or bonuses tied to end-zone entry or use.'],
+                rules: [core[0], core[1], core[2], 'Rules define how teams contest entry into the target zone.', ...overlay.ruleSupport],
+                scoring: [core[3], 'Goals or bonuses tied to end-zone entry or use.', ...overlay.scoringSupport],
             }
         default:
             return {
-                rules: ['Rules encode opposition, environment, and live continuation.', core[0]],
-                scoring: ['Scoring states advantage for both teams and ties to the archetype contest.'],
+                rules: ['Rules encode opposition, environment, and live continuation.', core[0], ...overlay.ruleSupport],
+                scoring: ['Scoring states advantage for both teams and ties to the archetype contest.', ...overlay.scoringSupport],
             }
     }
 }
@@ -162,13 +283,31 @@ function uniqueSelectedAffordances(input: SystemAssemblyInput): IAffordance[] {
 }
 
 function affordanceMechanicsForLens(aff: IAffordance): string[] {
-    const title = aff.title ?? ''
+    const lens = aff as ExtendedAffordance
+    const title = lens.title ?? ''
     const titleMechanics = affordanceMechanics(title)
     const lines: string[] = []
     for (const line of titleMechanics) {
         lines.push(`Affordance lens "${title}": ${line}`)
     }
-    const extras = [aff.designIntent, aff.description, aff.notes, aff.suggestedConstraintPrompt, aff.gameTemplateAnchor]
+    for (const line of affordanceFamilyHints(lens)) {
+        lines.push(`Affordance tag emphasis for "${title}" (${lens.affordanceTagGroup ?? 'unclassified'}): ${line}`)
+    }
+
+    for (const trigger of normalizeStringArray(lens.visibilityTriggers)) {
+        lines.push(`Affordance decision cue for "${title}": Players should recognize ${trigger} before choosing the next action.`)
+    }
+
+    for (const pattern of normalizeStringArray(lens.exampleConsequencePatterns)) {
+        lines.push(`Affordance consequence pattern for "${title}": The activity consequence should reward or punish: ${pattern}.`)
+    }
+
+    const supports = normalizeStringArray(lens.constraintSupport)
+    if (supports.length > 0) {
+        lines.push(`Affordance constraint support for "${title}": The constraint should support ${supports.join(', ')}.`)
+    }
+
+    const extras = [lens.designIntent, lens.description, lens.notes, lens.suggestedConstraintPrompt, lens.gameTemplateAnchor]
         .filter(Boolean)
         .join(' ')
         .trim()
@@ -235,8 +374,10 @@ function titleFrameForSlot(archetypeName: string, index: 1 | 2 | 3): string {
 }
 
 function setupFrameForSlot(input: SystemAssemblyInput, index: 1 | 2 | 3): string {
+    const overlay = archetypeLibraryOverlay(input.archetype.name)
     const base = `Setup (${index}/3): describe space, numbers, zones, equipment using session field (${input.session.fieldLength ?? '?'}x${input.session.fieldWidth ?? '?'} ${input.session.fieldType ?? 'surface'}). Include opposed teams and restart logic consistent with the skeleton.`
-    return base
+    const extras = overlay.setupSupport.length > 0 ? ` ${overlay.setupSupport.join(' ')}` : ''
+    return `${base}${extras}`
 }
 
 /**

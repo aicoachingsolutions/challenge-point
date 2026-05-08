@@ -404,15 +404,21 @@ export async function assembleActivities(input: SystemAssemblyInput): Promise<As
     const assemblyDesignLock = snapshotAssemblyDesign(input)
     const activitySkeleton = buildActivitySkeleton(input)
     const activityMechanics = buildActivityMechanicsFromSkeleton(activitySkeleton)
+    const polishPrompt = generateAssemblyPolishPrompt(input)
+    const polishPayload = JSON.stringify(buildAssemblyPayload(input, activitySkeleton, activityMechanics))
+
+    console.log(
+        `[assembly-polish-size] promptChars=${polishPrompt.length} payloadChars=${polishPayload.length} totalChars=${polishPrompt.length + polishPayload.length}`
+    )
 
     const initialMessages: CompletionMessage[] = [
         {
             role: 'system',
-            content: generateAssemblyPolishPrompt(input),
+            content: polishPrompt,
         },
         {
             role: 'system',
-            content: JSON.stringify(buildAssemblyPayload(input)),
+            content: polishPayload,
         },
     ]
 
@@ -600,103 +606,75 @@ function mapStructuredActivityToLegacy(activity: Activity, input: SystemAssembly
     return legacy as IActivity
 }
 
-function buildAssemblyPayload(input: SystemAssemblyInput) {
-    const activitySkeleton = buildActivitySkeleton(input)
-    const activityMechanics = buildActivityMechanicsFromSkeleton(activitySkeleton)
-    const selectedAffordanceIds = getAssemblySelectedAffordanceIds(input)
-    const selectedConstraintIds = getAssemblySelectedConstraintIds(input)
+function shortLine(value: string | undefined, max = 140): string | null {
+    const next = String(value ?? '')
+        .replace(/\s+/g, ' ')
+        .trim()
+    if (!next) return null
+    return next.length > max ? `${next.slice(0, max - 1).trimEnd()}…` : next
+}
+
+function takeShortLines(lines: string[], maxCount: number, maxLen = 140): string[] {
+    const out: string[] = []
+    const seen = new Set<string>()
+    for (const line of lines) {
+        const next = shortLine(line, maxLen)
+        if (!next) continue
+        const key = next.toLowerCase()
+        if (seen.has(key)) continue
+        seen.add(key)
+        out.push(next)
+        if (out.length >= maxCount) break
+    }
+    return out
+}
+
+function buildAssemblyPayload(
+    input: SystemAssemblyInput,
+    activitySkeleton: ActivitySkeletonBundle,
+    activityMechanics: ActivityMechanicsBundle
+) {
+    const constraintTitles = [
+        input.constraintPackage.foundation.constraint.title,
+        input.constraintPackage.shaping.constraint.title,
+        input.constraintPackage.consequence?.constraint.title,
+    ]
+        .filter(Boolean)
+        .map((title) => String(title))
+
+    const coachingEmphasis = shortLine(
+        input.archetype.description ||
+            input.constraintPackage.assemblyGuardrails.decisionProblem.summary ||
+            input.constraintPackage.assemblyGuardrails.visibleCue.summary,
+        180
+    )
 
     return {
-        session: {
-            playerCount: input.session.playerCount,
-            ageGroup: input.session.ageGroup,
-            skillLevel: input.session.skillLevel,
-            fieldLength: input.session.fieldLength,
-            fieldWidth: input.session.fieldWidth,
-            fieldType: input.session.fieldType,
-        },
-        coachInput: input.coachInput,
-        selectedAffordanceIds,
-        selectedConstraintIds,
-        selectedAffordances: {
-            primary: {
-                _id: input.affordances.primary._id,
-                title: input.affordances.primary.title,
-                description: input.affordances.primary.description,
-                affordanceTagGroup: input.affordances.primary.affordanceTagGroup,
-                designIntent: input.affordances.primary.designIntent,
-                notes: input.affordances.primary.notes,
-                suggestedConstraintPrompt: input.affordances.primary.suggestedConstraintPrompt,
-                gameTemplateAnchor: input.affordances.primary.gameTemplateAnchor,
-            },
-            supporting: input.affordances.supporting.map((affordance) => ({
-                _id: affordance._id,
-                title: affordance.title,
-                description: affordance.description,
-                affordanceTagGroup: affordance.affordanceTagGroup,
-                designIntent: affordance.designIntent,
-                notes: affordance.notes,
-                suggestedConstraintPrompt: affordance.suggestedConstraintPrompt,
-                gameTemplateAnchor: affordance.gameTemplateAnchor,
-            })),
-            viableCandidates: input.affordances.viableCandidates.map((affordance) => ({
-                _id: affordance._id,
-                title: affordance.title,
-                affordanceTagGroup: affordance.affordanceTagGroup,
-            })),
-        },
-        archetype: {
-            id: input.archetype.id,
-            name: input.archetype.name,
-            description: input.archetype.description,
-            assemblyCues: input.archetype.assemblyCues,
-            consequenceCues: input.archetype.consequenceCues,
-        },
-        constraintPackage: {
-            foundation: {
-                _id: input.constraintPackage.foundation.constraint._id,
-                title: input.constraintPackage.foundation.constraint.title,
-                description: input.constraintPackage.foundation.constraint.description,
-                type: input.constraintPackage.foundation.constraint.type,
-                designIntent: input.constraintPackage.foundation.constraint.designIntent,
-                notes: input.constraintPackage.foundation.constraint.notes,
-                suggestedConstraintPrompt: input.constraintPackage.foundation.constraint.suggestedConstraintPrompt,
-                gameTemplateAnchor: input.constraintPackage.foundation.constraint.gameTemplateAnchor,
-                role: input.constraintPackage.foundation.role,
-            },
-            shaping: {
-                _id: input.constraintPackage.shaping.constraint._id,
-                title: input.constraintPackage.shaping.constraint.title,
-                description: input.constraintPackage.shaping.constraint.description,
-                type: input.constraintPackage.shaping.constraint.type,
-                designIntent: input.constraintPackage.shaping.constraint.designIntent,
-                notes: input.constraintPackage.shaping.constraint.notes,
-                suggestedConstraintPrompt: input.constraintPackage.shaping.constraint.suggestedConstraintPrompt,
-                gameTemplateAnchor: input.constraintPackage.shaping.constraint.gameTemplateAnchor,
-                role: input.constraintPackage.shaping.role,
-            },
-            consequence: input.constraintPackage.consequence
-                ? {
-                      _id: input.constraintPackage.consequence.constraint._id,
-                      title: input.constraintPackage.consequence.constraint.title,
-                      description: input.constraintPackage.consequence.constraint.description,
-                      designIntent: input.constraintPackage.consequence.constraint.designIntent,
-                      notes: input.constraintPackage.consequence.constraint.notes,
-                      suggestedConstraintPrompt: input.constraintPackage.consequence.constraint.suggestedConstraintPrompt,
-                      gameTemplateAnchor: input.constraintPackage.consequence.constraint.gameTemplateAnchor,
-                      role: input.constraintPackage.consequence.role,
-                  }
-                : null,
-            assemblyGuardrails: input.constraintPackage.assemblyGuardrails,
-            validationWarnings: input.constraintPackage.validationWarnings ?? [],
-        },
-        previousActivities: input.previousActivities.map((activity) => ({
-            title: activity.title,
-            constraint: activity.constraint,
-            intent: activity.intent,
-        })),
-        activitySkeleton,
-        activityMechanics,
+        archetypeName: input.archetype.name,
+        activityBriefs: activitySkeleton.activities.map((slot, index) => {
+            const mechanics = activityMechanics.activities[index]
+            const objectiveHint =
+                shortLine(
+                    [
+                        slot.requiredArchetypeMechanics[0],
+                        slot.requiredAffordanceMechanics[0],
+                        slot.requiredConstraintMechanics[0],
+                    ]
+                        .filter(Boolean)
+                        .join(' '),
+                    180
+                ) ?? `Activity ${index + 1} should reflect ${input.archetype.name}.`
+
+            return {
+                activityIndex: slot.activityIndex,
+                archetypeName: input.archetype.name,
+                objectiveHint,
+                ruleSummaries: takeShortLines(mechanics.rules, 4, 120),
+                constraintTitles: constraintTitles.slice(0, 2),
+                decisionCues: takeShortLines(mechanics.decisionCues, 2, 120),
+                coachingEmphasis: coachingEmphasis ? [coachingEmphasis] : [],
+            }
+        }),
     }
 }
 
@@ -1025,13 +1003,11 @@ Diversity across the three activities (required):
 }
 
 function generateAssemblyPolishPrompt(input: SystemAssemblyInput) {
-    const skeletonBlock = formatActivitySkeletonForPrompt(buildActivitySkeleton(input))
-
     return `You are polishing a system-owned activity structure. Return valid JSON only.
 
 The system has already selected the archetype, affordances, constraints, skeleton, and mechanics in code before AI runs.
 You are NOT designing a new game.
-You are polishing wording for three already-defined activities.
+You are polishing wording for three already-defined activities using a compact activity brief.
 
 HARD COMPLETION RULES
 - Every activity needs at least one explicit decision phrase in objective or coachingFocus: choose, read, react, decide, based on, adapt, option.
@@ -1050,24 +1026,22 @@ Do NOT:
 The server owns the mechanics.
 Your job is wording only.
 
-Use these payload sections as locked inputs:
-- activitySkeleton
-- activityMechanics
-- archetype
-- selectedAffordances
-- constraintPackage
-
-${skeletonBlock}
+Use only these payload sections as locked inputs:
+- archetypeName
+- activityBriefs[].activityIndex
+- activityBriefs[].objectiveHint
+- activityBriefs[].ruleSummaries
+- activityBriefs[].constraintTitles
+- activityBriefs[].decisionCues
+- activityBriefs[].coachingEmphasis
 
 SYSTEM-OWNED MECHANICS
-- For each activity slot in activityMechanics, treat rules, scoring, constraints, decisionCues, opponentConsequences, and teams as fixed.
-- Do not rewrite them.
-- Do not soften or remove opponent consequences.
-- Do not move affordance expression out of structure and into coachingFocus only.
+- Treat each activity brief as a compressed description of fixed system-owned mechanics.
+- Do not invent extra mechanics beyond what the brief supports.
+- Do not turn the activity into a different game from the brief.
 
 AFFORDANCE / RULE LINK
-- Each selected affordance already has structural mechanics in activityMechanics.
-- Keep those affordances visible by writing objective and coachingFocus that clearly align with those fixed mechanics.
+- Keep the selected affordances visible by writing objective and coachingFocus that clearly align with the fixed brief.
 - If an affordance is Space Exploitation Opportunity, the wording should make clear that advantage comes from recognizing and using open space created by the fixed rules or scoring.
 - If an affordance is Possession Stability Opportunity, the wording should make clear that success depends on securing or maintaining possession under pressure in the fixed rules or scoring.
 
@@ -1078,7 +1052,7 @@ ARCHETYPE IDENTITY ENFORCEMENT
 - End Zone Games: wording should make clear scoring is tied to reaching or using a target zone.
 
 CONSTRAINT VISIBILITY
-- The selected constraints are already fixed in activityMechanics.constraints and activityMechanics.scoring.
+- The selected constraints are already fixed in the system-owned mechanics.
 - Your wording must keep those constraints legible in objective and coachingFocus.
 - Do not hide the game problem in vague description text.
 
