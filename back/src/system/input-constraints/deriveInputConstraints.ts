@@ -113,7 +113,9 @@ function matchesSpacingSupport(text: string): boolean {
 function matchesBreakLines(text: string): boolean {
     const t = text.toLowerCase()
     if (t.includes('break lines')) return true
+    if (t.includes('break defensive lines')) return true
     if (t.includes('line breaking')) return true
+    if (t.includes('defensive lines')) return true
     if (t.includes('split defense')) return true
     if (t.includes('through ball')) return true
     if (/\bsplit\b/.test(t)) return true
@@ -139,7 +141,8 @@ function matchesFinishing(text: string): boolean {
 function matchesRegainPressing(text: string): boolean {
     const t = text.toLowerCase()
     if (/\bregain\b/.test(t)) return true
-    if (/\bdefend\b|\bdefending\b|\bdefensive\b/.test(t)) return true
+    if (/\bdefend\b|\bdefending\b/.test(t)) return true
+    if (/\bdefensive\b/.test(t) && !/\bdefensive lines?\b/.test(t)) return true
     if (t.includes('win the ball')) return true
     if (t.includes('winning the ball')) return true
     if (t.includes('win it back')) return true
@@ -207,7 +210,7 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
     }
 
     const pickFinishingArchetypes = () => {
-        for (const title of ['Target Games', 'End Zone Games', 'Channel Games', 'Directional Possession Games']) {
+        for (const title of ['Target Games', 'Channel Games']) {
             const id = resolveArchetypeTitle(title, matchedSignals)
             if (id) archetypeIds.push(id)
         }
@@ -287,12 +290,12 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
             'Finishing Opportunity',
         ])
         pickConstraints([
-            'Interception Reward',
-            'Turnover Reward',
-            'Transition Trigger',
+            'Progression Bonus',
+            'Switch of Play Bonus',
             'Wide Zone Advantage',
+            'Central Density Condition',
         ])
-        pickArchetypes(['End Zone Games', 'Overload Games', 'Pressing & Regain Games'])
+        pickArchetypes(['End Zone Games', 'Directional Possession Games', 'Target Games', 'Channel Games'])
     }
 
     if (matchesFinishing(text)) {
