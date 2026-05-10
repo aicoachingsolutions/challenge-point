@@ -505,43 +505,60 @@ function GeneratedActivityCard({
                         <h3 className='text-xl font-bold leading-tight text-gray-800'>{activity.title}</h3>
                     </div>
 
-                    <div className='mb-6'>
-                        <p className='text-sm leading-relaxed text-gray-700 sm:text-base max-h-[40vh] overflow-scroll'>
-                            Constraint: {activity.constraint}
-                        </p>
-                        <p className='text-sm leading-relaxed text-gray-700 sm:text-base max-h-[40vh] overflow-scroll'>
-                            Intent: {activity.intent}
-                        </p>
-                    </div>
-
-                    <div className='grid gap-4 mb-6 sm:grid-cols-2'>
-                        <div className='px-4 py-2 border border-blue-200 rounded-lg sm:py-4 bg-blue-50'>
-                            <div className='flex items-center mb-2'>
-                                <svg className='w-4 h-4 mr-2 text-blue-600' fill='currentColor' viewBox='0 0 20 20'>
+                    {/* Meta row */}
+                    <div className='flex flex-wrap gap-2 mb-4'>
+                        {activity.playerGroupSizes && (
+                            <span className='inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-blue-700 rounded-full bg-blue-50 border border-blue-200'>
+                                <svg className='w-3 h-3' fill='currentColor' viewBox='0 0 20 20'>
                                     <path d='M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z' />
                                 </svg>
-                                <h4 className='text-sm font-semibold text-blue-800'>Group Sizes</h4>
-                            </div>
-                            <p className='text-sm font-medium text-blue-700 sm:text-base'>{activity.playerGroupSizes}</p>
+                                {activity.playerGroupSizes} players
+                            </span>
+                        )}
+                        {activity.equipmentNeeded?.length > 0 && (
+                            <span className='inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-brand-700 rounded-full bg-brand-50 border border-brand-200'>
+                                {activity.equipmentNeeded.join(', ')}
+                            </span>
+                        )}
+                    </div>
+
+                    <div className='space-y-4 mb-4'>
+                        {/* Objective */}
+                        <div>
+                            <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Objective</p>
+                            <p className='text-sm leading-relaxed text-gray-700'>{activity.intent}</p>
                         </div>
 
-                        <div className='px-4 py-2 border rounded-lg border-brand-200 sm:py-2 bg-brand-50'>
-                            <div className='flex items-center mb-2'>
-                                <svg className='w-4 h-4 mr-2 text-brand-600' fill='currentColor' viewBox='0 0 20 20'>
-                                    <path
-                                        fillRule='evenodd'
-                                        d='M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm1 2a1 1 0 000 2h6a1 1 0 100-2H7zm6 7a1 1 0 011 1v3a1 1 0 11-2 0v-3a1 1 0 011-1zm-3 3a1 1 0 100 2h.01a1 1 0 100-2H10zm-4 1a1 1 0 011-1h.01a1 1 0 110 2H7a1 1 0 01-1-1zm1-4a1 1 0 100 2h.01a1 1 0 100-2H7zm2 0a1 1 0 100 2h.01a1 1 0 100-2H9zm2 0a1 1 0 100 2h.01a1 1 0 100-2H11z'
-                                        clipRule='evenodd'
-                                    />
-                                </svg>
-                                <h4 className='text-sm font-semibold text-brand-800'>Equipment</h4>
+                        {/* Teams */}
+                        {activity.extensions?.[0] && (
+                            <div>
+                                <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Teams</p>
+                                <p className='text-sm leading-relaxed text-gray-700'>{activity.extensions[0]}</p>
                             </div>
-                            <p className='text-sm font-medium text-brand-700 line-clamp-2 sm:text-base'>
-                                {activity.equipmentNeeded?.length > 0
-                                    ? activity.equipmentNeeded.join(', ')
-                                    : 'None required'}
-                            </p>
-                        </div>
+                        )}
+
+                        {/* Rules */}
+                        {activity.rules?.length > 0 && (
+                            <div>
+                                <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Rules</p>
+                                <ol className='space-y-1'>
+                                    {activity.rules.slice(0, 4).map((rule, i) => (
+                                        <li key={i} className='flex gap-2 text-sm text-gray-700'>
+                                            <span className='flex-shrink-0 w-4 h-4 mt-0.5 flex items-center justify-center rounded-full bg-brand-100 text-brand-700 text-xs font-bold'>{i + 1}</span>
+                                            <span className='leading-relaxed'>{rule}</span>
+                                        </li>
+                                    ))}
+                                </ol>
+                            </div>
+                        )}
+
+                        {/* Scoring */}
+                        {activity.scoringSystem && (
+                            <div className='px-3 py-2 rounded-lg bg-amber-50 border border-amber-200'>
+                                <p className='text-xs font-semibold uppercase tracking-wide text-amber-600 mb-1'>Scoring</p>
+                                <p className='text-sm leading-relaxed text-amber-800'>{activity.scoringSystem}</p>
+                            </div>
+                        )}
                     </div>
                 </div>
 

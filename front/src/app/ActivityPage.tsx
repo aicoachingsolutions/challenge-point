@@ -386,51 +386,89 @@ function ActivityScreen({
             {/* Activity Details Card */}
             <div className='bg-white border rounded-lg shadow-sm'>
                 <div className='p-6'>
-                    <h3 className='mb-4 text-lg font-semibold text-gray-800'>Activity Details</h3>
-                    <div className='space-y-4'>
+                    <h3 className='mb-5 text-lg font-semibold text-gray-800'>Activity Details</h3>
+                    <div className='space-y-5'>
+
+                        {/* Objective */}
                         <div>
-                            <h4 className='mb-1 font-medium text-gray-700'>Constraint</h4>
-                            <p className='leading-relaxed text-gray-600'>{activity?.constraint}</p>
-                        </div>
-                        <div>
-                            <h4 className='mb-1 font-medium text-gray-700'>Intent</h4>
-                            <p className='leading-relaxed text-gray-600'>{activity?.intent}</p>
-                        </div>
-                        <div>
-                            <h4 className='mb-1 font-medium text-gray-700'>Rules</h4>
-                            <ul className='list-disc'>
-                                {activity?.rules?.map((r) => (
-                                    <li className='ml-5 leading-relaxed text-gray-600'>{r}</li>
-                                ))}
-                            </ul>
+                            <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Objective</p>
+                            <p className='leading-relaxed text-gray-700'>{activity?.intent}</p>
                         </div>
 
-                        <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-                            <div className='p-4 rounded-lg bg-gray-50'>
-                                <h4 className='mb-1 font-medium text-gray-700'>Group Sizes</h4>
-                                <p className='text-gray-600'>{activity?.playerGroupSizes}</p>
+                        {/* Teams */}
+                        {activity?.extensions?.[0] && (
+                            <div>
+                                <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Teams</p>
+                                <p className='leading-relaxed text-gray-700'>{activity.extensions[0]}</p>
                             </div>
-                            <div className='p-4 rounded-lg bg-gray-50'>
-                                <h4 className='mb-1 font-medium text-gray-700'>Equipment Needed</h4>
-                                <p className='text-gray-600'>{activity?.equipmentNeeded?.join(', ') || 'None'}</p>
+                        )}
+
+                        {/* Rules */}
+                        {activity?.rules?.length > 0 && (
+                            <div>
+                                <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2'>Rules</p>
+                                <ol className='space-y-2'>
+                                    {activity.rules.map((r, i) => (
+                                        <li key={i} className='flex gap-3 text-sm text-gray-700'>
+                                            <span className='flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full bg-brand-100 text-brand-700 text-xs font-bold mt-0.5'>{i + 1}</span>
+                                            <span className='leading-relaxed'>{r}</span>
+                                        </li>
+                                    ))}
+                                </ol>
                             </div>
-                            <div className='p-4 rounded-lg bg-gray-50'>
-                                <h4 className='mb-1 font-medium text-gray-700'>Scoring system</h4>
-                                <p className='text-gray-600'>{activity?.scoringSystem}</p>
+                        )}
+
+                        {/* Scoring */}
+                        {activity?.scoringSystem && (
+                            <div className='p-4 rounded-lg bg-amber-50 border border-amber-200'>
+                                <p className='text-xs font-semibold uppercase tracking-wide text-amber-600 mb-1'>Scoring</p>
+                                <p className='text-sm leading-relaxed text-amber-800'>{activity.scoringSystem}</p>
                             </div>
-                            <div className='p-4 rounded-lg bg-gray-50'>
-                                <h4 className='mb-1 font-medium text-gray-700'>Win Condition</h4>
-                                <p className='text-gray-600'>{activity?.winCondition || 'None'}</p>
+                        )}
+
+                        {/* Win Condition */}
+                        {activity?.winCondition && (
+                            <div>
+                                <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Win Condition</p>
+                                <p className='text-sm leading-relaxed text-gray-700'>{activity.winCondition}</p>
+                            </div>
+                        )}
+
+                        {/* Setup info */}
+                        <div className='grid grid-cols-2 gap-3'>
+                            <div className='p-3 rounded-lg bg-gray-50'>
+                                <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Group Size</p>
+                                <p className='text-sm text-gray-700'>{activity?.playerGroupSizes} players</p>
+                            </div>
+                            <div className='p-3 rounded-lg bg-gray-50'>
+                                <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Equipment</p>
+                                <p className='text-sm text-gray-700'>{activity?.equipmentNeeded?.join(', ') || 'None'}</p>
                             </div>
                         </div>
 
+                        {/* Coaching Focus */}
+                        {activity?.scaffolding?.length > 0 && (
+                            <div className='p-4 rounded-lg bg-green-50 border border-green-200'>
+                                <p className='text-xs font-semibold uppercase tracking-wide text-green-600 mb-2'>Coaching Focus</p>
+                                <ul className='space-y-1'>
+                                    {activity.scaffolding.map((cue, i) => (
+                                        <li key={i} className='flex items-start gap-2 text-sm text-green-800'>
+                                            <span className='flex-shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full bg-green-500'></span>
+                                            {cue}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+
+                        {/* Learning Goals */}
                         {activity?.learningPriorities && activity.learningPriorities.length > 0 && (
-                            <div className='p-4 rounded-lg bg-blue-50'>
-                                <h4 className='mb-2 font-medium text-gray-700'>Learning Goals</h4>
+                            <div className='p-4 rounded-lg bg-blue-50 border border-blue-200'>
+                                <p className='text-xs font-semibold uppercase tracking-wide text-blue-600 mb-2'>Learning Goals</p>
                                 <ul className='space-y-1'>
                                     {activity.learningPriorities.map((goal, index) => (
-                                        <li key={index} className='flex items-start text-sm text-gray-600'>
-                                            <span className='flex-shrink-0 w-2 h-2 mt-2 mr-3 bg-blue-500 rounded-full'></span>
+                                        <li key={index} className='flex items-start gap-2 text-sm text-blue-800'>
+                                            <span className='flex-shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-500'></span>
                                             {goal.description}
                                         </li>
                                     ))}
