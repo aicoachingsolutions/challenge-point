@@ -114,15 +114,40 @@ export default function ActivityGenerator() {
             return
         }
 
-        const activityPayload = {
-            ...selectedActivity,
+        const activityPayload: Omit<Partial<IActivity>, 'session'> & { _id: 'new'; session: string } = {
             _id: 'new',
             activityStatus: ActivityStatus['In Progress'],
             session: id,
+            title: selectedActivity.title,
+            constraint: selectedActivity.constraint,
+            intent: selectedActivity.intent,
+            extensions: selectedActivity.extensions ?? [],
+            scaffolding: selectedActivity.scaffolding ?? [],
+            playerGroupSizes: selectedActivity.playerGroupSizes,
+            equipmentNeeded: selectedActivity.equipmentNeeded ?? [],
+            rules: selectedActivity.rules ?? [],
+            scoringSystem: selectedActivity.scoringSystem,
+            winCondition: selectedActivity.winCondition,
+            systemTrace: selectedActivity.systemTrace,
             challengeLevel,
             duration,
             learningPriorities: learningGoals.map((lg) => ({ description: lg, achieved: false })),
         }
+        console.log('Start Activity create payload', {
+            _id: activityPayload._id,
+            activityStatus: activityPayload.activityStatus,
+            session: activityPayload.session,
+            title: activityPayload.title,
+            hasConstraint: Boolean(activityPayload.constraint),
+            hasIntent: Boolean(activityPayload.intent),
+            playerGroupSizes: activityPayload.playerGroupSizes,
+            equipmentNeededCount: activityPayload.equipmentNeeded?.length ?? 0,
+            scaffoldingCount: activityPayload.scaffolding?.length ?? 0,
+            extensionsCount: activityPayload.extensions?.length ?? 0,
+            rulesCount: activityPayload.rules?.length ?? 0,
+            challengeLevel: activityPayload.challengeLevel,
+            duration: activityPayload.duration,
+        })
 
         const res = await api<{ data: IActivity }>(`${ROUTES.app.activity}`, activityPayload)
         console.log('Start Activity create response', {

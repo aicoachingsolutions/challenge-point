@@ -1,4 +1,5 @@
 import { Request, Response, Router } from 'express'
+import { Types } from 'mongoose'
 import Affordance from 'src/models/affordance.model'
 import Constraint from 'src/models/constraint.model'
 import Session, { SessionStatus } from 'src/models/session.model'
@@ -28,6 +29,25 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string)
             .catch(reject)
             .finally(() => clearTimeout(timeout))
     })
+}
+
+const REQUIRED_ACTIVITY_CREATE_FIELDS = ['session', 'title', 'constraint', 'intent'] as const
+
+function missingActivityCreateFields(body: Record<string, unknown>): string[] {
+    return REQUIRED_ACTIVITY_CREATE_FIELDS.filter((field) => {
+        const value = body[field]
+        return typeof value !== 'string' || value.trim().length === 0
+    })
+}
+
+function validObjectIdRefs(value: unknown): string[] {
+    if (!Array.isArray(value)) return []
+    return value.filter((entry): entry is string => typeof entry === 'string' && Types.ObjectId.isValid(entry))
+}
+
+function arrayOfStrings(value: unknown): string[] {
+    if (!Array.isArray(value)) return []
+    return value.map((entry) => String(entry ?? '').trim()).filter(Boolean)
 }
 
 router.post(ROUTES.testSelection, async (req: Request, res: Response) => {
@@ -435,10 +455,67 @@ BaseRoutes(router, {
 })
 
 // Activity routes
+router.post(ROUTES.activity, async (req: Request, res: Response) => {
+    try {
+        const body = req.body as Record<string, unknown>
+
+        if (!body._id || body._id === 'new') {
+            const missing = missingActivityCreateFields(body)
+            if (missing.length > 0) {
+                return res.status(400).json({
+                    error: 'Missing required activity fields',
+                    missing,
+                })
+            }
+
+            if (!Types.ObjectId.isValid(String(body.session))) {
+                return res.status(400).json({
+                    error: 'Missing required activity fields',
+                    missing: ['session'],
+                })
+            }
+
+            const created = await new Activity({
+                activityStatus: body.activityStatus,
+                session: body.session,
+                title: body.title,
+                constraint: body.constraint,
+                intent: body.intent,
+                extensions: arrayOfStrings(body.extensions),
+                scaffolding: arrayOfStrings(body.scaffolding),
+                playerGroupSizes: Number(body.playerGroupSizes) || undefined,
+                equipmentNeeded: arrayOfStrings(body.equipmentNeeded),
+                affordancesUsed: validObjectIdRefs(body.affordancesUsed),
+                constraintsUsed: validObjectIdRefs(body.constraintsUsed),
+                challengeLevel: body.challengeLevel,
+                duration: Number(body.duration) || undefined,
+                learningPriorities: Array.isArray(body.learningPriorities) ? body.learningPriorities : [],
+                difficultyLevel: body.difficultyLevel,
+                engagementLevel: body.engagementLevel,
+                breakthroughMoments: body.breakthroughMoments,
+                coachComments: body.coachComments,
+                rules: arrayOfStrings(body.rules),
+                scoringSystem: body.scoringSystem,
+                winCondition: body.winCondition,
+                pointsTracking: Array.isArray(body.pointsTracking) ? body.pointsTracking : [],
+                systemTrace: body.systemTrace,
+            }).save()
+
+            return res.status(201).json({ message: 'successfully created', data: created })
+        }
+
+        await Activity.findByIdAndUpdate(body._id, body)
+        return res.status(200).json({ message: 'successfully updated' })
+    } catch (error) {
+        const message = error instanceof Error ? error.message : String(error)
+        return res.status(500).json({ error: message })
+    }
+})
+
 BaseRoutes(router, {
     model: Activity,
     route: ROUTES.activity,
-    excludedRoutes: ['delete'],
+    excludedRoutes: ['delete', 'post'],
     populate: ['session'],
 })
 
