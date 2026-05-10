@@ -35,7 +35,16 @@ export default function ActivityPage() {
     const navigate = useNavigate()
 
     const updateActivityStatus = async (updatedStatus: ActivityStatus) => {
-        api(ROUTES.app.activity, { _id: id, activityStatus: updatedStatus }).then((res) => activityResource.get())
+        if (!id) {
+            console.error('Missing activity id/session id for Start Activity')
+            throw new Error('Missing activity id/session id for Start Activity')
+        }
+
+        const res = await api(ROUTES.app.activity, { _id: id, activityStatus: updatedStatus })
+        if (res.error) {
+            throw new Error(res.error)
+        }
+        await activityResource.get()
     }
 
     return (
@@ -237,6 +246,25 @@ function ActivityScreen({
 
     const [showScaffolding, setShowScaffolding] = useState(false)
     const [showExtensions, setShowExtensions] = useState(false)
+    const navigate = useNavigate()
+
+    const startActivity = async () => {
+        const activityId = activity._id
+        const sessionId = typeof activity.session === 'string' ? activity.session : activity.session?._id
+
+        if (!activityId || !sessionId) {
+            console.error('Missing activity id/session id for Start Activity')
+            return
+        }
+
+        try {
+            await updateActivityStatus(ActivityStatus['In Progress'])
+            navigate(`/activity/${activityId}`)
+            window.scrollTo(0, 0)
+        } catch (error) {
+            console.error('Failed to start activity', error)
+        }
+    }
 
     const updateLevels = async () => {
         setIsUpdating(true)
@@ -328,7 +356,7 @@ function ActivityScreen({
                 ) : (
                     <div
                         className='absolute top-0 left-0 w-full h-full cursor-pointer'
-                        onClick={() => updateActivityStatus(ActivityStatus['In Progress'])}
+                        onClick={startActivity}
                     >
                         <div className='absolute w-12 h-12 bg-white rounded-full top-1/4 right-1/4 opacity-10'></div>
                         <div className='absolute w-8 h-8 bg-white rounded-full bottom-1/3 left-1/3 opacity-10'></div>
@@ -398,7 +426,7 @@ function ActivityScreen({
                 <div className='flex flex-col gap-2 py-5'>
                     <Button
                         className='w-full max-w-sm rounded-full sm:self-center'
-                        onClick={() => updateActivityStatus(ActivityStatus['In Progress'])}
+                        onClickAsync={startActivity}
                     >
                         Start Activity
                     </Button>
