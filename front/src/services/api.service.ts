@@ -4,6 +4,8 @@ import { AuthToken } from '@/MODELS/types'
 
 const rawApiBaseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || ''
 export const API_BASE_URL = String(rawApiBaseUrl).replace(/\/+$/, '')
+const DEFAULT_REQUEST_TIMEOUT_MS = 90000
+const REQUEST_TIMEOUT_MS = Number.parseInt(String(import.meta.env.VITE_API_TIMEOUT_MS ?? ''), 10) || DEFAULT_REQUEST_TIMEOUT_MS
 
 export type ApiResponse<DataType> = {
     status?: number
@@ -18,6 +20,12 @@ function normalizeApiError(error: unknown): ApiResponse<null> {
     if (typeof error === 'object' && error !== null) {
         const candidate = error as Record<string, unknown>
         const details = Array.isArray(candidate.details) ? candidate.details.filter((detail): detail is string => typeof detail === 'string') : undefined
+        if (candidate.name === 'AbortError') {
+            return {
+                status: 408,
+                error: 'Request timed out. Please try again.',
+            }
+        }
 
         return {
             status: typeof candidate.status === 'number' ? candidate.status : undefined,
@@ -39,6 +47,20 @@ function normalizeApiError(error: unknown): ApiResponse<null> {
     }
 }
 
+async function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+    const controller = new AbortController()
+    const timeout = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+
+    try {
+        return await fetch(input, {
+            ...init,
+            signal: controller.signal,
+        })
+    } finally {
+        window.clearTimeout(timeout)
+    }
+}
+
 /* Middleware
  */
 export async function wrappedFetch(
@@ -46,7 +68,7 @@ export async function wrappedFetch(
     init?: RequestInit | undefined,
     numRetries?: number
 ): Promise<Response> {
-    const response = await fetch(input, init)
+    const response = await fetchWithTimeout(input, init)
 
     if (response.ok === false) {
         // Not Authorized
@@ -78,7 +100,7 @@ export async function wrappedFetch(
                     }
                 }
 
-                const refreshBody = await fetch(`${API_BASE_URL}/${ROUTES.auth.refresh}`, {
+                const refreshBody = await fetchWithTimeout(`${API_BASE_URL}/${ROUTES.auth.refresh}`, {
                     ...init,
                     method: 'GET',
                     body: undefined,

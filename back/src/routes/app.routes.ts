@@ -18,6 +18,17 @@ import { validateGeneratedActivities } from '../system/validate-generated-activi
 
 const router = Router()
 const ROUTES = ENDPOINTS.app
+const ACTIVITY_ASSEMBLY_TIMEOUT_MS = Number.parseInt(process.env.ACTIVITY_ASSEMBLY_TIMEOUT_MS ?? '', 10) || 90000
+
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+        const timeout = setTimeout(() => reject(new Error(message)), timeoutMs)
+        promise
+            .then(resolve)
+            .catch(reject)
+            .finally(() => clearTimeout(timeout))
+    })
+}
 
 router.post(ROUTES.testSelection, async (req: Request, res: Response) => {
     try {
@@ -112,10 +123,19 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
 
         const previousActivities = await Activity.find({ session: req.params.id })
 
+        const inputConstraints = deriveInputConstraints(learningGoals.join(' '))
+        if (inputConstraints.matchedSignals.length === 0) {
+            return res.status(400).json({
+                error:
+                    'Unsupported activity input. Please enter a soccer-specific tactical goal such as first touch under pressure, keeping possession, support angles, breaking lines, or regaining the ball.',
+                stage: 'input-selection',
+                details: ['No supported soccer training signals were found in the learning goals.'],
+            })
+        }
+
         let selection
         try {
             Logger.info(`[Activity Generation] coach learning goals (original): ${JSON.stringify(learningGoals)}`)
-            const inputConstraints = deriveInputConstraints(learningGoals.join(' '))
             selection = generateSelection(
                 {
                     learningGoals,
@@ -142,7 +162,11 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
 
         validateConstraintPackage(assemblyInput.affordances, assemblyInput.archetype, assemblyInput.constraintPackage)
 
-        const assembledActivities = await assembleActivities(assemblyInput)
+        const assembledActivities = await withTimeout(
+            assembleActivities(assemblyInput),
+            ACTIVITY_ASSEMBLY_TIMEOUT_MS,
+            'Activity generation timed out. Please try again with a more specific soccer training goal.'
+        )
         let validatedActivities
 
         try {
@@ -300,6 +324,14 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                 error: `${error.stage}: ${error.message}`,
                 stage: error.stage,
                 details: error.details,
+            })
+        }
+
+        if (error instanceof Error && error.message.includes('timed out')) {
+            return res.status(504).json({
+                error: error.message,
+                stage: 'ai-assembly',
+                details: ['The activity generation request took too long to complete.'],
             })
         }
 
