@@ -127,7 +127,7 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         if (inputConstraints.matchedSignals.length === 0) {
             return res.status(400).json({
                 error:
-                    'Unsupported activity input. Please enter a soccer-specific tactical goal such as first touch under pressure, keeping possession, support angles, breaking lines, or regaining the ball.',
+                    'I need a soccer training goal to build an activity. Try something like: create better shots, keep possession, break lines, defend in transition, or improve first touch.',
                 stage: 'input-selection',
                 details: ['No supported soccer training signals were found in the learning goals.'],
             })
