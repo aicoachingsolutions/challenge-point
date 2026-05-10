@@ -100,18 +100,67 @@ export default function ActivityGenerator() {
         duration: number,
         learningGoals: string[]
     ) => {
-        api<{ data: IActivity }>(`${ROUTES.app.activity}`, {
+        const destinationRoute = selectedActivity._id ? `/activity/${selectedActivity._id}` : '/activity/{new}'
+        console.log('Start Activity clicked', {
+            activityId: selectedActivity._id,
+            sessionId: id,
+            currentStatus: selectedActivity.activityStatus,
+            destinationRoute,
+        })
+
+        if (!id) {
+            console.error('Missing activity id/session id for Start Activity')
+            setGenerationError('Missing activity id/session id for Start Activity')
+            return
+        }
+
+        const activityPayload = {
             ...selectedActivity,
             _id: 'new',
-            activityStatus: ActivityStatus['Ready to Start'],
+            activityStatus: ActivityStatus['In Progress'],
             session: id,
             challengeLevel,
             duration,
-            learningPriorities: learningGoals.map((lg) => ({description: lg, achieved: false})),
-        }).then((res) => {
-            navigate(`/activity/${res.data.data._id}`)
-            api(ROUTES.app.session, { _id: id, sessionStatus: SessionStatus['In Progress'] })
+            learningPriorities: learningGoals.map((lg) => ({ description: lg, achieved: false })),
+        }
+
+        const res = await api<{ data: IActivity }>(`${ROUTES.app.activity}`, activityPayload)
+        console.log('Start Activity create response', {
+            endpoint: ROUTES.app.activity,
+            payload: {
+                _id: activityPayload._id,
+                activityStatus: activityPayload.activityStatus,
+                session: activityPayload.session,
+            },
+            status: res.status,
+            body: res.data,
+            error: res.error,
         })
+
+        const createdActivity = res.data?.data
+        if (res.error || !createdActivity?._id) {
+            const message = res.error ?? 'Unable to start activity. Please try again.'
+            console.error('Failed to start activity', { status: res.status, error: message, body: res.data })
+            setGenerationError(message)
+            return
+        }
+
+        const route = `/activity/${createdActivity._id}`
+        console.log('Start Activity navigating', {
+            activityId: createdActivity._id,
+            sessionId: id,
+            currentStatus: createdActivity.activityStatus,
+            destinationRoute: route,
+        })
+        navigate(route)
+
+        const sessionRes = await api(ROUTES.app.session, { _id: id, sessionStatus: SessionStatus['In Progress'] })
+        if (sessionRes.error) {
+            console.error('Failed to update session status after starting activity', {
+                status: sessionRes.status,
+                error: sessionRes.error,
+            })
+        }
     }
 
     const nextActivity = useCallback(() => {
@@ -296,6 +345,11 @@ export default function ActivityGenerator() {
                             {generatedActivities.length} activities generated</p><p className='hidden sm:block'>•</p><p className='text-xs text-gray-400 sm:text-gray-600 sm:text-base'>Select the best fit for your session
                         </p>
                         </div>
+                        {generationError && (
+                            <div className='px-4 py-3 mt-4 text-sm border rounded-xl border-amber-200 bg-amber-50 text-amber-800'>
+                                {generationError}
+                            </div>
+                        )}
                     </div>
 
                     {generatedActivities.length > 0 && (

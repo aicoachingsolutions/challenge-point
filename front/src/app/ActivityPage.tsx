@@ -41,9 +41,17 @@ export default function ActivityPage() {
         }
 
         const res = await api(ROUTES.app.activity, { _id: id, activityStatus: updatedStatus })
+        console.log('Start Activity status update response', {
+            endpoint: ROUTES.app.activity,
+            payload: { _id: id, activityStatus: updatedStatus },
+            status: res.status,
+            body: res.data,
+            error: res.error,
+        })
         if (res.error) {
             throw new Error(res.error)
         }
+        setActivity((current) => (current ? { ...current, activityStatus: updatedStatus } : current))
         await activityResource.get()
     }
 
@@ -243,6 +251,7 @@ function ActivityScreen({
     const [engagementLevel, setEngagementLevel] = useState<EngagementLevels>(EngagementLevels['Medium'])
     const [pointsTracking, setPointsTracking] = useState<IPointsScored[]>([])
     const [isUpdating, setIsUpdating] = useState(false)
+    const [startError, setStartError] = useState<string | null>(null)
 
     const [showScaffolding, setShowScaffolding] = useState(false)
     const [showExtensions, setShowExtensions] = useState(false)
@@ -251,18 +260,28 @@ function ActivityScreen({
     const startActivity = async () => {
         const activityId = activity._id
         const sessionId = typeof activity.session === 'string' ? activity.session : activity.session?._id
+        const destinationRoute = activityId ? `/activity/${activityId}` : '/activity/{missing}'
+        console.log('Start Activity clicked', {
+            activityId,
+            sessionId,
+            currentStatus: activity.activityStatus,
+            destinationRoute,
+        })
 
         if (!activityId || !sessionId) {
             console.error('Missing activity id/session id for Start Activity')
+            setStartError('Missing activity id/session id for Start Activity')
             return
         }
 
         try {
+            setStartError(null)
             await updateActivityStatus(ActivityStatus['In Progress'])
             navigate(`/activity/${activityId}`)
             window.scrollTo(0, 0)
         } catch (error) {
             console.error('Failed to start activity', error)
+            setStartError(error instanceof Error ? error.message : 'Failed to start activity')
         }
     }
 
@@ -434,6 +453,7 @@ function ActivityScreen({
                         Ready to start? Tap to get started and enable real-time adjustments and points
                         tracking.
                     </p>
+                    {startError && <p className='text-sm text-center text-amber-600'>{startError}</p>}
                 </div>
             )}
 
