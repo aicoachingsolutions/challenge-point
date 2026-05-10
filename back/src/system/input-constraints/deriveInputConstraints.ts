@@ -162,6 +162,16 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
         }
     }
 
+    /**
+     * "Possession Games" is not a V0 title; map the concept to possession-like game forms that exist in the library.
+     */
+    const pickPossessionLikeArchetypes = () => {
+        for (const title of ['Directional Possession Games', 'Overload Games', 'End Zone Games']) {
+            const id = resolveArchetypeTitle(title, matchedSignals)
+            if (id) archetypeIds.push(id)
+        }
+    }
+
     if (matchesTouchReceiving(text)) {
         matchedSignals.push('signalGroup:A_touch_receiving')
         pickLenses([
@@ -172,7 +182,7 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
             'Pressure Escape Opportunity',
         ])
         pickConstraints(['Pressure Condition', 'Central Density Condition', 'Wide Zone Advantage', 'Turnover Reward'])
-        pickArchetypes(['Possession Games', 'Overload Games', 'End Zone Games'])
+        pickPossessionLikeArchetypes()
     }
 
     if (matchesPressure(text)) {
@@ -189,7 +199,8 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
             'Interception Reward',
             'Central Density Condition',
         ])
-        pickArchetypes(['Possession Games', 'Pressing & Regain Games', 'Overload Games'])
+        // Pressure alone is not regain/pressing intent — do not suggest Pressing & Regain here (GF8 comes only from explicit regain/press signals).
+        pickPossessionLikeArchetypes()
     }
 
     if (matchesSpacingSupport(text)) {
@@ -206,7 +217,7 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
             'Switch of Play Bonus',
             'Wide Utilization Bonus',
         ])
-        pickArchetypes(['End Zone Games', 'Overload Games', 'Possession Games'])
+        pickPossessionLikeArchetypes()
     }
 
     if (matchesBreakLines(text)) {
@@ -235,7 +246,8 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
             'Possession Stability Opportunity',
         ])
         pickConstraints(['Interception Reward', 'Turnover Reward', 'Transition Trigger', 'Delay Reward'])
-        pickArchetypes(['Pressing & Regain Games', 'Transition Games', 'Possession Games'])
+        pickArchetypes(['Pressing & Regain Games', 'Transition Games'])
+        pickPossessionLikeArchetypes()
     }
 
     return {

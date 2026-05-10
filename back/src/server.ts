@@ -8,7 +8,11 @@ import { s3Router } from './services/s3.service'
 
 const app = express()
 const DEFAULT_DEV_ORIGINS = ['http://localhost:5173', 'http://localhost:4173', 'http://localhost:3000']
-const DEFAULT_PRODUCTION_ORIGINS = ['https://challenge-point-*.vercel.app']
+// Preview deployments match challenge-point-*.vercel.app; production alias is challenge-point.vercel.app (no extra hyphen).
+const DEFAULT_PRODUCTION_ORIGINS = [
+    'https://challenge-point.vercel.app',
+    'https://challenge-point-*.vercel.app',
+]
 
 function parseAllowedOrigins(value?: string): string[] {
     const configuredOrigins = String(value ?? '')
