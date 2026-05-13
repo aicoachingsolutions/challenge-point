@@ -12,6 +12,8 @@ export type ActivitySkeletonSlot = {
     archetypeName: string
     titleFrame: string
     setupFrame: string
+    /** Session progression role for this slot: 1=establish, 2=apply pressure, 3=full contest. Tells AI how this activity differs from the other two. */
+    slotProgressionEmphasis: string
     requiredRuleMechanics: string[]
     requiredScoringMechanics: string[]
     /** Per selected affordance lens — structural obligations (titles + lens copy from package) */
@@ -545,18 +547,36 @@ function buildCoachFacingConstraints(input: SystemAssemblyInput): string[] {
 
 function titleFrameForSlot(archetypeName: string, index: 1 | 2 | 3): string {
     const themes = [
-        `Environmental emphasis — establish the core ${archetypeName} game picture with clear zones and roles.`,
-        `Channel / variation emphasis — same constraint package, different spatial or incentive emphasis.`,
-        `Consequence-led emphasis — scoring trade-offs and opponent advantage surface strongly in the challenge.`,
+        `Establishing variant of the ${archetypeName} game form — Activity 1 introduces the central problem. Title should signal this is the entry-level expression of the session goal.`,
+        `Pressure variant of the ${archetypeName} game form — Activity 2 dials up the shaping pressure with the same constraint package. Title should signal sharper behavioral demand, not a different game.`,
+        `Full-contest variant of the ${archetypeName} game form — Activity 3 is the most complex. Title should signal the maximum challenge and the full constraint contest.`,
     ]
-    return `${themes[index - 1]} Title must stay distinct from the other two activities.`
+    return `${themes[index - 1]} Title must stay distinct from the other two activities and reflect this slot's session role.`
 }
 
 function setupFrameForSlot(input: SystemAssemblyInput, index: 1 | 2 | 3): string {
     const overlay = archetypeLibraryOverlay(input.archetype.name)
-    const base = `Setup (${index}/3): describe space, numbers, zones, equipment using session field (${input.session.fieldLength ?? '?'}x${input.session.fieldWidth ?? '?'} ${input.session.fieldType ?? 'surface'}). Include opposed teams and restart logic consistent with the skeleton.`
+    const fieldSpec = `${input.session.fieldLength ?? '?'}x${input.session.fieldWidth ?? '?'} ${input.session.fieldType ?? 'surface'}`
+    const slotSpecific =
+        index === 1
+            ? 'Setup describes the entry-level picture: standard space and numbers for the archetype with the foundation constraint clearly visible in the environment. This is the least complex of the three setups.'
+            : index === 2
+              ? 'Setup tightens the picture relative to Activity 1: slightly reduced space, tighter numbers, or a sharper shaping element to dial up the behavioral pressure. Same constraint package, sharper expression.'
+              : 'Setup describes the full contest: the most demanding space and numbers configuration of the three activities, with all constraints (foundation, shaping, and consequence if present) clearly visible in the environment.'
+    const base = `Setup (${index}/3): describe space, numbers, zones, equipment using session field (${fieldSpec}). ${slotSpecific} Include opposed teams and restart logic consistent with the skeleton.`
     const extras = overlay.setupSupport.length > 0 ? ` ${overlay.setupSupport.join(' ')}` : ''
     return `${base}${extras}`
+}
+
+function slotProgressionEmphasisFor(index: 1 | 2 | 3): string {
+    switch (index) {
+        case 1:
+            return 'Activity 1 of 3 — establish: this is the entry-level expression of the session goal. Players read the archetype and primary affordance lens for the first time. Keep the picture clean enough that the central decision problem is unmistakable.'
+        case 2:
+            return 'Activity 2 of 3 — apply pressure: same archetype and constraint package as Activity 1, but the shaping constraint behavioral demand dominates the decision picture. Add intensity through spacing, support timing, or numbers — not by changing the game.'
+        case 3:
+            return 'Activity 3 of 3 — full contest: the most demanding and complete activity of the session. All selected affordance lenses must be visibly active in objective, rules, scoring, and coachingFocus. Constraint package operates at full strength.'
+    }
 }
 
 /**
@@ -589,6 +609,7 @@ export function buildActivitySkeleton(input: SystemAssemblyInput): ActivitySkele
         archetypeName,
         titleFrame: titleFrameForSlot(archetypeName, idx),
         setupFrame: setupFrameForSlot(input, idx),
+        slotProgressionEmphasis: slotProgressionEmphasisFor(idx),
         requiredRuleMechanics: [...combinedRules],
         requiredScoringMechanics: [...combinedScoring],
         requiredAffordanceMechanics: [...flatAffMechanics],
@@ -631,6 +652,7 @@ export function formatActivitySkeletonForPrompt(bundle: ActivitySkeletonBundle):
 
     for (const slot of bundle.activities) {
         lines.push(`--- Activity ${slot.activityIndex} (per-slot framing only) ---`)
+        lines.push(`slotProgressionEmphasis: ${slot.slotProgressionEmphasis}`)
         lines.push(`titleFrame: ${slot.titleFrame}`)
         lines.push(`setupFrame: ${slot.setupFrame}`)
         lines.push('')

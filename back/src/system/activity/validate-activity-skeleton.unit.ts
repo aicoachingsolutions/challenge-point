@@ -27,6 +27,7 @@ function testSkeletonSlot(): ActivitySkeletonSlot {
         archetypeName: 'End Zone Games',
         titleFrame: 'Environmental emphasis for unit test.',
         setupFrame: 'Setup frame for unit test.',
+        slotProgressionEmphasis: 'Activity 1 of 3 — establish (unit test fixture).',
         requiredArchetypeMechanics: [
             'Target or end-zone progression as core structure.',
             'Active opposition contesting progression.',
