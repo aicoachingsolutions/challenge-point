@@ -106,21 +106,73 @@ function buildTeamsFromSlot(slot: ActivitySkeletonSlot): string {
     }
 }
 
+/**
+ * Archetype-specific "read / react" decision-cue pairs. Each archetype names the live picture players
+ * actually read in that game form. Replaces two hardcoded possession-leaning cues that previously
+ * appeared in every activity regardless of archetype.
+ */
+const ARCHETYPE_DECISION_CUE_PAIRS: Record<string, readonly [string, string]> = {
+    'End Zone Games': [
+        'Players read defensive coverage between the ball and the target zone, deciding whether to penetrate directly, support behind the ball, or recycle to find a better angle.',
+        'Players react to the moment the target zone becomes contested — choose to attack now, draw defenders, or switch the entry route.',
+    ],
+    'Directional Possession Games': [
+        'Players read pressure and decide whether to secure possession, progress forward, or switch play based on the live picture.',
+        'Players react to space, support, and opponent recovery before the next action.',
+    ],
+    'Positional Play Games': [
+        'Players read the positional structure — numerical advantage, free player, or open lane — and decide whether to play forward or maintain structure to build a better advantage.',
+        'Players react to defensive coverage shifts, choosing the moment when a positional advantage is genuinely exploitable before the structure recovers.',
+    ],
+    'Transition Games': [
+        'Players read the moment of possession change and decide whether to attack the transition space immediately or hold while the picture clarifies.',
+        'Players react to opponent recovery speed — choose to commit forward, support the attack, or recover defensive shape based on whether shape has been restored.',
+    ],
+    'Overload Games': [
+        'Players read whether the overload is live and decide whether to exploit it now, hold to draw defenders, or reset to rebuild the advantage.',
+        'Players react to defensive adjustments and choose when the numerical or positional edge is genuinely actionable.',
+    ],
+    'Target Games': [
+        'Players read whether the target is genuinely available — accounting for defensive cover, support angles, and pressure — and decide when to play the target ball.',
+        'Players react to the target connection: continue forward, lay back to support, or rebuild the picture if the connection is contested.',
+    ],
+    'Channel Games': [
+        'Players read which channel is genuinely open based on defensive coverage and decide when to commit to attacking through it.',
+        'Players react to coverage shifts — when the defense closes one channel, recognize and attack the channel that has opened.',
+    ],
+    'Pressing & Regain Games': [
+        'Players read the press triggers — opponent body shape, support cover, distance to ball — and decide when to commit to pressure.',
+        'Players react to the regain moment: attack the disorganized opponent immediately or recover shape if the press window has closed.',
+    ],
+    'Finishing Games': [
+        'Players read goalkeeper position, defensive cover, and angle of approach before deciding to shoot, cut inside, or hold for a better chance.',
+        'Players react to defensive recovery on each attempt — finish under pressure, lay off to a supporting finisher, or rebuild the chance.',
+    ],
+    'Constraint-Driven Free Play': [
+        'Players read the live picture shaped by the selected constraints and decide which constraint outcome is genuinely available right now.',
+        'Players react to the opponent response to the constraint — adapt timing and route to the constraint problem on each possession.',
+    ],
+}
+
+function archetypeDecisionCues(archetypeName: string): readonly [string, string] {
+    return (
+        ARCHETYPE_DECISION_CUE_PAIRS[archetypeName] ?? [
+            'Players read the live game picture — pressure, space, support — and decide the next action based on what is genuinely available.',
+            'Players react to the opponent response and adapt their next decision based on the changing picture.',
+        ]
+    )
+}
+
 function buildDecisionCues(slot: ActivitySkeletonSlot): string[] {
     const archetypeObjective = extractAfterPrefix(slot.requiredArchetypeMechanics, 'Archetype objective emphasis: ')
     const coachingEmphasis = extractAfterPrefix(slot.requiredArchetypeMechanics, 'Coaching emphasis: ')
+    const [primaryCue, secondaryCue] = archetypeDecisionCues(slot.archetypeName)
     const cues = [
         archetypeObjective ? `Players solve this activity by pursuing: ${archetypeObjective}` : '',
-        'Players read pressure and decide whether to secure, progress, or switch based on the live picture.',
-        'Players react to space, support, and opponent recovery before the next action.',
+        primaryCue,
+        secondaryCue,
         coachingEmphasis ? `Coaching emphasis: ${coachingEmphasis}` : '',
     ]
-    if (slot.archetypeName === 'Overload Games') {
-        cues.push('Players decide whether to use the overload immediately or reset the picture and attack again.')
-    }
-    if (slot.archetypeName === 'Pressing & Regain Games') {
-        cues.push('Players decide whether the regain window is live enough to attack quickly or whether pressure requires a safer next action.')
-    }
     const constraintDecisionFocus = slot.requiredConstraintMechanics.filter((line) =>
         /players prioritize .* in decisions\./i.test(line)
     )
