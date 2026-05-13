@@ -161,7 +161,7 @@ function buildScoringLines(slot: ActivitySkeletonSlot, opponentConsequences: str
 }
 
 function buildConstraintLines(slot: ActivitySkeletonSlot): string[] {
-    return uniqueLines(slot.requiredConstraintMechanics.map(sanitizeMechanicLine))
+    return uniqueLines(slot.coachFacingConstraints)
 }
 
 function buildRuleLines(slot: ActivitySkeletonSlot, explicitExchangeRule: string): string[] {

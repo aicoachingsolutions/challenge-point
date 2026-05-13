@@ -38,6 +38,9 @@ function testSkeletonSlot(): ActivitySkeletonSlot {
         requiredConstraintMechanics: [
             `Selected foundation constraint "Wide Zone Channel" — required behaviors: ${CONSTRAINT_MARKER} attack the wide channels when the defense stays narrow; reward width that fixes defenders.`,
         ],
+        coachFacingConstraints: [
+            `Wide Zone Channel: ${CONSTRAINT_MARKER} attack the wide channels when the defense stays narrow; reward width that fixes defenders.`,
+        ],
         requiredRuleMechanics: [
             'Rules encode opposition and end-zone contest.',
             '[Affordance] Affordance lens "Space Exploitation Opportunity": open space before pressure recovers.',

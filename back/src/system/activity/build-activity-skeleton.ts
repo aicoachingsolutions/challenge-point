@@ -16,8 +16,10 @@ export type ActivitySkeletonSlot = {
     requiredScoringMechanics: string[]
     /** Per selected affordance lens — structural obligations (titles + lens copy from package) */
     requiredAffordanceMechanics: string[]
-    /** Selected foundation/shaping/consequence + assemblyGuardrails obligations */
+    /** Selected foundation/shaping/consequence + assemblyGuardrails obligations (AI scaffolding only — not coach-facing) */
     requiredConstraintMechanics: string[]
+    /** Clean coach-facing constraint display: one line per selected constraint (title + brief intent) */
+    coachFacingConstraints: string[]
     /** From selected archetype game form */
     requiredArchetypeMechanics: string[]
     /** Decision stems that must appear somewhere in the activity text bundle */
@@ -364,6 +366,30 @@ function constraintAndGuardrailMechanics(input: SystemAssemblyInput): string[] {
     return lines
 }
 
+function buildCoachFacingConstraintLine(candidate: ConstraintSelectionCandidate): string {
+    const c = candidate.constraint
+    const title = c.title ?? 'Constraint'
+    const body = (c.designIntent || c.description || '').trim()
+    if (!body) {
+        return `${title}.`
+    }
+    const firstSentence = body.split(/\.\s/)[0] ?? body
+    const clipped = firstSentence.length > 160 ? `${firstSentence.slice(0, 157)}…` : firstSentence
+    return `${title}: ${clipped}.`
+}
+
+function buildCoachFacingConstraints(input: SystemAssemblyInput): string[] {
+    const pkg = input.constraintPackage
+    const lines: string[] = [
+        buildCoachFacingConstraintLine(pkg.foundation),
+        buildCoachFacingConstraintLine(pkg.shaping),
+    ]
+    if (pkg.consequence) {
+        lines.push(buildCoachFacingConstraintLine(pkg.consequence))
+    }
+    return lines.filter(Boolean)
+}
+
 function titleFrameForSlot(archetypeName: string, index: 1 | 2 | 3): string {
     const themes = [
         `Environmental emphasis — establish the core ${archetypeName} game picture with clear zones and roles.`,
@@ -414,6 +440,7 @@ export function buildActivitySkeleton(input: SystemAssemblyInput): ActivitySkele
         requiredScoringMechanics: [...combinedScoring],
         requiredAffordanceMechanics: [...flatAffMechanics],
         requiredConstraintMechanics: [...constraintMechanics],
+        coachFacingConstraints: buildCoachFacingConstraints(input),
         requiredArchetypeMechanics,
         requiredDecisionLanguage: [...DECISION_STEMS],
     }))
