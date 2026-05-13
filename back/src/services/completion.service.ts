@@ -668,6 +668,7 @@ function buildAssemblyPayload(
             return {
                 activityIndex: slot.activityIndex,
                 archetypeName: input.archetype.name,
+                slotProgressionEmphasis: slot.slotProgressionEmphasis,
                 objectiveHint,
                 ruleSummaries: takeShortLines(mechanics.rules, 4, 120),
                 constraintTitles: constraintTitles.slice(0, 2),
@@ -1029,11 +1030,19 @@ Your job is wording only.
 Use only these payload sections as locked inputs:
 - archetypeName
 - activityBriefs[].activityIndex
+- activityBriefs[].slotProgressionEmphasis
 - activityBriefs[].objectiveHint
 - activityBriefs[].ruleSummaries
 - activityBriefs[].constraintTitles
 - activityBriefs[].decisionCues
 - activityBriefs[].coachingEmphasis
+
+PER-SLOT SESSION PROGRESSION
+- Each brief has a slotProgressionEmphasis describing this activity's role in the 3-activity session arc.
+- Activity 1 must read as the establishing / entry-level version of the session goal — clearest, least loaded picture.
+- Activity 2 must read as the dialed-up pressure version — same archetype, sharper shaping demand, more intense decision picture.
+- Activity 3 must read as the full contested challenge — all selected affordance lenses visibly active, full constraint package at strength.
+- Use slotProgressionEmphasis to differentiate the title, setup, objective, and coachingFocus across the three activities. They should read as a progression — not three near-identical activities with different titles.
 
 SYSTEM-OWNED MECHANICS
 - Treat each activity brief as a compressed description of fixed system-owned mechanics.

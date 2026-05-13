@@ -27,6 +27,7 @@ function testSkeletonSlot(): ActivitySkeletonSlot {
         archetypeName: 'End Zone Games',
         titleFrame: 'Environmental emphasis for unit test.',
         setupFrame: 'Setup frame for unit test.',
+        slotProgressionEmphasis: 'Activity 1 of 3 — establish (unit test fixture).',
         requiredArchetypeMechanics: [
             'Target or end-zone progression as core structure.',
             'Active opposition contesting progression.',
@@ -37,6 +38,9 @@ function testSkeletonSlot(): ActivitySkeletonSlot {
         ],
         requiredConstraintMechanics: [
             `Selected foundation constraint "Wide Zone Channel" — required behaviors: ${CONSTRAINT_MARKER} attack the wide channels when the defense stays narrow; reward width that fixes defenders.`,
+        ],
+        coachFacingConstraints: [
+            `Wide Zone Channel: ${CONSTRAINT_MARKER} attack the wide channels when the defense stays narrow; reward width that fixes defenders.`,
         ],
         requiredRuleMechanics: [
             'Rules encode opposition and end-zone contest.',

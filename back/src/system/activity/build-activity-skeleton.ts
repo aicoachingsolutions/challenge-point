@@ -12,12 +12,16 @@ export type ActivitySkeletonSlot = {
     archetypeName: string
     titleFrame: string
     setupFrame: string
+    /** Session progression role for this slot: 1=establish, 2=apply pressure, 3=full contest. Tells AI how this activity differs from the other two. */
+    slotProgressionEmphasis: string
     requiredRuleMechanics: string[]
     requiredScoringMechanics: string[]
     /** Per selected affordance lens — structural obligations (titles + lens copy from package) */
     requiredAffordanceMechanics: string[]
-    /** Selected foundation/shaping/consequence + assemblyGuardrails obligations */
+    /** Selected foundation/shaping/consequence + assemblyGuardrails obligations (AI scaffolding only — not coach-facing) */
     requiredConstraintMechanics: string[]
+    /** Clean coach-facing constraint display: one line per selected constraint (title + brief intent) */
+    coachFacingConstraints: string[]
     /** From selected archetype game form */
     requiredArchetypeMechanics: string[]
     /** Decision stems that must appear somewhere in the activity text bundle */
@@ -67,6 +71,26 @@ function affordanceMechanics(title: string): string[] {
         case 'Regain Opportunity':
             return [
                 'Rules and scoring must reward winning the ball back or forcing a turnover; regain moments must change who attacks and who defends.',
+            ]
+        case 'Transition Attack Opportunity':
+            return [
+                'Rules and scoring must structurally reward quick attacking action immediately after winning possession; the transition window must be live and the advantage must dissipate when defensive shape recovers.',
+            ]
+        case 'Finishing Opportunity':
+            return [
+                'Rules and scoring must create live finishing situations under defensive contest; success must reward genuine chance creation and conversion — chances that survive live defender pressure and goalkeeper presence — not raw shot counts.',
+            ]
+        case 'Delay or Deny Opportunity':
+            return [
+                'Rules and scoring must reward defensive actions that slow attacking progression or deny forward options; success must include outcomes where attacks are forced backward, wide, or into recovered pressure — not just turnovers.',
+            ]
+        case 'Space Protection Opportunity':
+            return [
+                'Rules and scoring must require defending teams to protect critical space; success must include outcomes where attacks are forced away from protected areas, with defensive shape and compactness shaping what the attack can access.',
+            ]
+        case 'Recovery Opportunity':
+            return [
+                'Rules and scoring must reward defensive recovery after disruption — tracking runs back, restoring shape, and reorganizing under transition pressure; success must depend on whether the defense restores shape before the attack converts.',
             ]
         default:
             return [
@@ -211,6 +235,54 @@ function archetypeMechanics(archetypeName: string): string[] {
                 'Scoring tied to reaching or using the end zone / target area.',
                 ...overlay.mechanics,
             ]
+        case 'Positional Play Games':
+            return [
+                'Positional structure — teams maintain spatial relationships and distances to create advantages in defined areas.',
+                'Positional advantage (numerical superiority or a free player in a zone) shapes when and how the team plays forward.',
+                'Live opposition contests the positional structure — defenders fill spaces and close lines of progression.',
+                'Players must face a decision to circulate to create a positional advantage or to exploit a free area that already exists.',
+                ...overlay.mechanics,
+            ]
+        case 'Transition Games':
+            return [
+                'Transition moment is the core game event — the immediate action after possession changes defines the contest.',
+                'Attacking team exploits unorganized space before the defensive shape is restored after the turnover.',
+                'Defending team decides whether to press immediately, track recovery runs, or delay to reorganize.',
+                'Players must face a decision — attack the transition space now or hold possession while the picture clarifies.',
+                ...overlay.mechanics,
+            ]
+        case 'Target Games':
+            return [
+                'A target player or designated area is the live focal point for forward progression throughout the game.',
+                'Connecting to the target under live defensive pressure is the core demand — not a scripted or required pass.',
+                'Defensive opposition actively contests target connections and attacks immediately from regains.',
+                'Players must face a decision — when the target is available, whether to connect now or recirculate to create a better angle.',
+                ...overlay.mechanics,
+            ]
+        case 'Channel Games':
+            return [
+                'Defined spatial channels (wide, half-space, central) structure how both teams progress and defend.',
+                'Channel balance — overloading one channel opens another — is the live read both teams must make.',
+                'Players decide which channel is genuinely open based on defensive positioning before committing to the attack.',
+                'Scoring and advantage must be tied to genuine channel exploitation — reading the imbalance before coverage recovers.',
+                ...overlay.mechanics,
+            ]
+        case 'Finishing Games':
+            return [
+                'Final third context — all game actions take place in or around the scoring area under live defensive pressure.',
+                'Creating a clear scoring chance requires reading timing, movement options, and entry angles under live opposition.',
+                'Live defenders contest every finishing attempt; clearances and saves create immediate counter-attack opportunities.',
+                'Players must face a decision — shoot, cut inside, or hold for a better angle based on goalkeeper position and defensive cover.',
+                ...overlay.mechanics,
+            ]
+        case 'Constraint-Driven Free Play':
+            return [
+                'Live two-sided game where the selected constraints define the structure — no fixed positional scheme beyond constraint outcomes.',
+                'Both teams solve the constraint problems through open decision-making in a genuinely contested live game.',
+                'Defensive and attacking phases must both be live — the constraint shapes what players notice, not how they play.',
+                'Players must face a decision on every action — the constraint creates the visible problem; open play decides the solution.',
+                ...overlay.mechanics,
+            ]
         default:
             return [
                 `Game structure must clearly embody "${archetypeName}" — field relations, opposition, and incentives match this game form.`,
@@ -260,6 +332,91 @@ function ruleAndScoringFromArchetype(archetypeName: string): { rules: string[]; 
             return {
                 rules: [core[0], core[1], core[2], 'Rules define how teams contest entry into the target zone.', ...overlay.ruleSupport],
                 scoring: [core[3], 'Goals or bonuses tied to end-zone entry or use.', ...overlay.scoringSupport],
+            }
+        case 'Positional Play Games':
+            return {
+                rules: [
+                    core[0],
+                    core[2],
+                    'Two-sided exchange rule must describe positional advantage gained and opponent ability to recover or disrupt the structure.',
+                    ...overlay.ruleSupport,
+                ],
+                scoring: [
+                    'Scoring or live advantage must reward positional advantage — numerical superiority or a free player in a zone — exploited before defensive coverage recovers.',
+                    core[1],
+                    core[3],
+                    ...overlay.scoringSupport,
+                ],
+            }
+        case 'Transition Games':
+            return {
+                rules: [
+                    core[0],
+                    core[1],
+                    'Rules must chain the transition moment to immediate attacking action — the advantage exists only before defensive shape is restored.',
+                    ...overlay.ruleSupport,
+                ],
+                scoring: [
+                    'Scoring or live advantage must reward exploitation of transition space — attacking before the defensive shape recovers.',
+                    core[3],
+                    ...overlay.scoringSupport,
+                ],
+            }
+        case 'Target Games':
+            return {
+                rules: [
+                    core[0],
+                    core[1],
+                    'Two-sided exchange rule must describe target connection earned under pressure and opponent contest of that connection.',
+                    ...overlay.ruleSupport,
+                ],
+                scoring: [
+                    'Scoring or live advantage must reward successful target connection under live pressure and continuation from that connection.',
+                    core[3],
+                    ...overlay.scoringSupport,
+                ],
+            }
+        case 'Channel Games':
+            return {
+                rules: [
+                    core[0],
+                    core[1],
+                    'Two-sided exchange rule must describe channel entry earned and opponent coverage shift to close or switch the open lane.',
+                    ...overlay.ruleSupport,
+                ],
+                scoring: [
+                    'Scoring or live advantage must reward channel exploitation — attacking the defensive imbalance through the open lane before coverage recovers.',
+                    core[3],
+                    ...overlay.scoringSupport,
+                ],
+            }
+        case 'Finishing Games':
+            return {
+                rules: [
+                    core[0],
+                    core[2],
+                    'Rules must establish live finishing situations — defenders contest every attempt and counter-attack from clearances is immediate.',
+                    ...overlay.ruleSupport,
+                ],
+                scoring: [
+                    'Scoring must be tied to genuine finishing chances created and converted under live defensive pressure.',
+                    core[3],
+                    ...overlay.scoringSupport,
+                ],
+            }
+        case 'Constraint-Driven Free Play':
+            return {
+                rules: [
+                    core[0],
+                    core[1],
+                    'Rules are defined by the selected constraints — all other play is free within the genuinely contested live game.',
+                    ...overlay.ruleSupport,
+                ],
+                scoring: [
+                    'Scoring reflects the selected constraint outcomes — both teams earn advantages and face live risks from the constraint game.',
+                    core[3],
+                    ...overlay.scoringSupport,
+                ],
             }
         default:
             return {
@@ -364,20 +521,62 @@ function constraintAndGuardrailMechanics(input: SystemAssemblyInput): string[] {
     return lines
 }
 
+function buildCoachFacingConstraintLine(candidate: ConstraintSelectionCandidate): string {
+    const c = candidate.constraint
+    const title = c.title ?? 'Constraint'
+    const body = (c.designIntent || c.description || '').trim()
+    if (!body) {
+        return `${title}.`
+    }
+    const firstSentence = body.split(/\.\s/)[0] ?? body
+    const clipped = firstSentence.length > 160 ? `${firstSentence.slice(0, 157)}…` : firstSentence
+    return `${title}: ${clipped}.`
+}
+
+function buildCoachFacingConstraints(input: SystemAssemblyInput): string[] {
+    const pkg = input.constraintPackage
+    const lines: string[] = [
+        buildCoachFacingConstraintLine(pkg.foundation),
+        buildCoachFacingConstraintLine(pkg.shaping),
+    ]
+    if (pkg.consequence) {
+        lines.push(buildCoachFacingConstraintLine(pkg.consequence))
+    }
+    return lines.filter(Boolean)
+}
+
 function titleFrameForSlot(archetypeName: string, index: 1 | 2 | 3): string {
     const themes = [
-        `Environmental emphasis — establish the core ${archetypeName} game picture with clear zones and roles.`,
-        `Channel / variation emphasis — same constraint package, different spatial or incentive emphasis.`,
-        `Consequence-led emphasis — scoring trade-offs and opponent advantage surface strongly in the challenge.`,
+        `Establishing variant of the ${archetypeName} game form — Activity 1 introduces the central problem. Title should signal this is the entry-level expression of the session goal.`,
+        `Pressure variant of the ${archetypeName} game form — Activity 2 dials up the shaping pressure with the same constraint package. Title should signal sharper behavioral demand, not a different game.`,
+        `Full-contest variant of the ${archetypeName} game form — Activity 3 is the most complex. Title should signal the maximum challenge and the full constraint contest.`,
     ]
-    return `${themes[index - 1]} Title must stay distinct from the other two activities.`
+    return `${themes[index - 1]} Title must stay distinct from the other two activities and reflect this slot's session role.`
 }
 
 function setupFrameForSlot(input: SystemAssemblyInput, index: 1 | 2 | 3): string {
     const overlay = archetypeLibraryOverlay(input.archetype.name)
-    const base = `Setup (${index}/3): describe space, numbers, zones, equipment using session field (${input.session.fieldLength ?? '?'}x${input.session.fieldWidth ?? '?'} ${input.session.fieldType ?? 'surface'}). Include opposed teams and restart logic consistent with the skeleton.`
+    const fieldSpec = `${input.session.fieldLength ?? '?'}x${input.session.fieldWidth ?? '?'} ${input.session.fieldType ?? 'surface'}`
+    const slotSpecific =
+        index === 1
+            ? 'Setup describes the entry-level picture: standard space and numbers for the archetype with the foundation constraint clearly visible in the environment. This is the least complex of the three setups.'
+            : index === 2
+              ? 'Setup tightens the picture relative to Activity 1: slightly reduced space, tighter numbers, or a sharper shaping element to dial up the behavioral pressure. Same constraint package, sharper expression.'
+              : 'Setup describes the full contest: the most demanding space and numbers configuration of the three activities, with all constraints (foundation, shaping, and consequence if present) clearly visible in the environment.'
+    const base = `Setup (${index}/3): describe space, numbers, zones, equipment using session field (${fieldSpec}). ${slotSpecific} Include opposed teams and restart logic consistent with the skeleton.`
     const extras = overlay.setupSupport.length > 0 ? ` ${overlay.setupSupport.join(' ')}` : ''
     return `${base}${extras}`
+}
+
+function slotProgressionEmphasisFor(index: 1 | 2 | 3): string {
+    switch (index) {
+        case 1:
+            return 'Activity 1 of 3 — establish: this is the entry-level expression of the session goal. Players read the archetype and primary affordance lens for the first time. Keep the picture clean enough that the central decision problem is unmistakable.'
+        case 2:
+            return 'Activity 2 of 3 — apply pressure: same archetype and constraint package as Activity 1, but the shaping constraint behavioral demand dominates the decision picture. Add intensity through spacing, support timing, or numbers — not by changing the game.'
+        case 3:
+            return 'Activity 3 of 3 — full contest: the most demanding and complete activity of the session. All selected affordance lenses must be visibly active in objective, rules, scoring, and coachingFocus. Constraint package operates at full strength.'
+    }
 }
 
 /**
@@ -410,10 +609,12 @@ export function buildActivitySkeleton(input: SystemAssemblyInput): ActivitySkele
         archetypeName,
         titleFrame: titleFrameForSlot(archetypeName, idx),
         setupFrame: setupFrameForSlot(input, idx),
+        slotProgressionEmphasis: slotProgressionEmphasisFor(idx),
         requiredRuleMechanics: [...combinedRules],
         requiredScoringMechanics: [...combinedScoring],
         requiredAffordanceMechanics: [...flatAffMechanics],
         requiredConstraintMechanics: [...constraintMechanics],
+        coachFacingConstraints: buildCoachFacingConstraints(input),
         requiredArchetypeMechanics,
         requiredDecisionLanguage: [...DECISION_STEMS],
     }))
@@ -451,6 +652,7 @@ export function formatActivitySkeletonForPrompt(bundle: ActivitySkeletonBundle):
 
     for (const slot of bundle.activities) {
         lines.push(`--- Activity ${slot.activityIndex} (per-slot framing only) ---`)
+        lines.push(`slotProgressionEmphasis: ${slot.slotProgressionEmphasis}`)
         lines.push(`titleFrame: ${slot.titleFrame}`)
         lines.push(`setupFrame: ${slot.setupFrame}`)
         lines.push('')
