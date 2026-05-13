@@ -213,6 +213,54 @@ function archetypeMechanics(archetypeName: string): string[] {
                 'Scoring tied to reaching or using the end zone / target area.',
                 ...overlay.mechanics,
             ]
+        case 'Positional Play Games':
+            return [
+                'Positional structure — teams maintain spatial relationships and distances to create advantages in defined areas.',
+                'Positional advantage (numerical superiority or a free player in a zone) shapes when and how the team plays forward.',
+                'Live opposition contests the positional structure — defenders fill spaces and close lines of progression.',
+                'Players must face a decision to circulate to create a positional advantage or to exploit a free area that already exists.',
+                ...overlay.mechanics,
+            ]
+        case 'Transition Games':
+            return [
+                'Transition moment is the core game event — the immediate action after possession changes defines the contest.',
+                'Attacking team exploits unorganized space before the defensive shape is restored after the turnover.',
+                'Defending team decides whether to press immediately, track recovery runs, or delay to reorganize.',
+                'Players must face a decision — attack the transition space now or hold possession while the picture clarifies.',
+                ...overlay.mechanics,
+            ]
+        case 'Target Games':
+            return [
+                'A target player or designated area is the live focal point for forward progression throughout the game.',
+                'Connecting to the target under live defensive pressure is the core demand — not a scripted or required pass.',
+                'Defensive opposition actively contests target connections and attacks immediately from regains.',
+                'Players must face a decision — when the target is available, whether to connect now or recirculate to create a better angle.',
+                ...overlay.mechanics,
+            ]
+        case 'Channel Games':
+            return [
+                'Defined spatial channels (wide, half-space, central) structure how both teams progress and defend.',
+                'Channel balance — overloading one channel opens another — is the live read both teams must make.',
+                'Players decide which channel is genuinely open based on defensive positioning before committing to the attack.',
+                'Scoring and advantage must be tied to genuine channel exploitation — reading the imbalance before coverage recovers.',
+                ...overlay.mechanics,
+            ]
+        case 'Finishing Games':
+            return [
+                'Final third context — all game actions take place in or around the scoring area under live defensive pressure.',
+                'Creating a clear scoring chance requires reading timing, movement options, and entry angles under live opposition.',
+                'Live defenders contest every finishing attempt; clearances and saves create immediate counter-attack opportunities.',
+                'Players must face a decision — shoot, cut inside, or hold for a better angle based on goalkeeper position and defensive cover.',
+                ...overlay.mechanics,
+            ]
+        case 'Constraint-Driven Free Play':
+            return [
+                'Live two-sided game where the selected constraints define the structure — no fixed positional scheme beyond constraint outcomes.',
+                'Both teams solve the constraint problems through open decision-making in a genuinely contested live game.',
+                'Defensive and attacking phases must both be live — the constraint shapes what players notice, not how they play.',
+                'Players must face a decision on every action — the constraint creates the visible problem; open play decides the solution.',
+                ...overlay.mechanics,
+            ]
         default:
             return [
                 `Game structure must clearly embody "${archetypeName}" — field relations, opposition, and incentives match this game form.`,
@@ -262,6 +310,91 @@ function ruleAndScoringFromArchetype(archetypeName: string): { rules: string[]; 
             return {
                 rules: [core[0], core[1], core[2], 'Rules define how teams contest entry into the target zone.', ...overlay.ruleSupport],
                 scoring: [core[3], 'Goals or bonuses tied to end-zone entry or use.', ...overlay.scoringSupport],
+            }
+        case 'Positional Play Games':
+            return {
+                rules: [
+                    core[0],
+                    core[2],
+                    'Two-sided exchange rule must describe positional advantage gained and opponent ability to recover or disrupt the structure.',
+                    ...overlay.ruleSupport,
+                ],
+                scoring: [
+                    'Scoring or live advantage must reward positional advantage — numerical superiority or a free player in a zone — exploited before defensive coverage recovers.',
+                    core[1],
+                    core[3],
+                    ...overlay.scoringSupport,
+                ],
+            }
+        case 'Transition Games':
+            return {
+                rules: [
+                    core[0],
+                    core[1],
+                    'Rules must chain the transition moment to immediate attacking action — the advantage exists only before defensive shape is restored.',
+                    ...overlay.ruleSupport,
+                ],
+                scoring: [
+                    'Scoring or live advantage must reward exploitation of transition space — attacking before the defensive shape recovers.',
+                    core[3],
+                    ...overlay.scoringSupport,
+                ],
+            }
+        case 'Target Games':
+            return {
+                rules: [
+                    core[0],
+                    core[1],
+                    'Two-sided exchange rule must describe target connection earned under pressure and opponent contest of that connection.',
+                    ...overlay.ruleSupport,
+                ],
+                scoring: [
+                    'Scoring or live advantage must reward successful target connection under live pressure and continuation from that connection.',
+                    core[3],
+                    ...overlay.scoringSupport,
+                ],
+            }
+        case 'Channel Games':
+            return {
+                rules: [
+                    core[0],
+                    core[1],
+                    'Two-sided exchange rule must describe channel entry earned and opponent coverage shift to close or switch the open lane.',
+                    ...overlay.ruleSupport,
+                ],
+                scoring: [
+                    'Scoring or live advantage must reward channel exploitation — attacking the defensive imbalance through the open lane before coverage recovers.',
+                    core[3],
+                    ...overlay.scoringSupport,
+                ],
+            }
+        case 'Finishing Games':
+            return {
+                rules: [
+                    core[0],
+                    core[2],
+                    'Rules must establish live finishing situations — defenders contest every attempt and counter-attack from clearances is immediate.',
+                    ...overlay.ruleSupport,
+                ],
+                scoring: [
+                    'Scoring must be tied to genuine finishing chances created and converted under live defensive pressure.',
+                    core[3],
+                    ...overlay.scoringSupport,
+                ],
+            }
+        case 'Constraint-Driven Free Play':
+            return {
+                rules: [
+                    core[0],
+                    core[1],
+                    'Rules are defined by the selected constraints — all other play is free within the genuinely contested live game.',
+                    ...overlay.ruleSupport,
+                ],
+                scoring: [
+                    'Scoring reflects the selected constraint outcomes — both teams earn advantages and face live risks from the constraint game.',
+                    core[3],
+                    ...overlay.scoringSupport,
+                ],
             }
         default:
             return {
