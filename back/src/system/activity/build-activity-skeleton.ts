@@ -70,6 +70,26 @@ function affordanceMechanics(title: string): string[] {
             return [
                 'Rules and scoring must reward winning the ball back or forcing a turnover; regain moments must change who attacks and who defends.',
             ]
+        case 'Transition Attack Opportunity':
+            return [
+                'Rules and scoring must structurally reward quick attacking action immediately after winning possession; the transition window must be live and the advantage must dissipate when defensive shape recovers.',
+            ]
+        case 'Finishing Opportunity':
+            return [
+                'Rules and scoring must create live finishing situations under defensive contest; success must reward genuine chance creation and conversion — chances that survive live defender pressure and goalkeeper presence — not raw shot counts.',
+            ]
+        case 'Delay or Deny Opportunity':
+            return [
+                'Rules and scoring must reward defensive actions that slow attacking progression or deny forward options; success must include outcomes where attacks are forced backward, wide, or into recovered pressure — not just turnovers.',
+            ]
+        case 'Space Protection Opportunity':
+            return [
+                'Rules and scoring must require defending teams to protect critical space; success must include outcomes where attacks are forced away from protected areas, with defensive shape and compactness shaping what the attack can access.',
+            ]
+        case 'Recovery Opportunity':
+            return [
+                'Rules and scoring must reward defensive recovery after disruption — tracking runs back, restoring shape, and reorganizing under transition pressure; success must depend on whether the defense restores shape before the attack converts.',
+            ]
         default:
             return [
                 `Rules and scoring must structurally require players to engage with "${title}" — not as a coaching label only.`,
