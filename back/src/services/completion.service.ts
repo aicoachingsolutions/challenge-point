@@ -361,7 +361,12 @@ function mergePolishedActivitiesWithMechanics(
             ...mechanics.decisionCues,
             ...mechanics.opponentConsequences,
         ])
-        const constraints = uniqueNonEmpty([...mechanics.constraints, ...mechanics.opponentConsequences])
+        // mechanics.constraints is the coach-facing constraint list from buildConstraintLines()
+        // (clean title + intent per selected constraint). It must match exactly when validated
+        // against mechanics.constraints. Opponent-consequence content is already present in
+        // coachingFocus (below) and in scoring (via buildScoringLines) — do not also append it
+        // here or validateActivityMechanics will fail with constraints_mismatch.
+        const constraints = uniqueNonEmpty(mechanics.constraints)
         const scoring = uniqueNonEmpty(mechanics.scoring).join('\n')
 
         return {
