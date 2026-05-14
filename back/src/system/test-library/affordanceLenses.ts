@@ -18,6 +18,15 @@ export const TEST_LIBRARY_V0_AFFORDANCE_LENSES: TestLibraryV0AffordanceLens[] = 
     exampleConsequencePatterns: ["reward successful penetration leading to advantage or shot","reward regain in target area or disruption leading to attack"],
     visibilityTriggers: ["pressure level and defender positioning","compact shape with passing lanes appearing"],
     logicUsageNote: "Use this affordance as a design anchor. Match to archetype first, then choose constraints that shape visibility and, only when useful, add a consequence layer.",
+    coachVocabulary: [
+      "penetrating pass", "penetration", "penetrate", "split defenders",
+      "line-breaking", "line breaking", "break the line", "break defensive line",
+      "between the lines", "through pass", "through ball",
+      "forward pass", "play forward", "play through",
+      "find the seam", "find the gap", "exploit gap",
+      "dribble through", "dribble past line",
+      "third-man run", "third man", "wall pass forward",
+    ],
   },
   {
     id: "tl-v0-lens-space-exploitation-opportunity",
@@ -35,6 +44,13 @@ export const TEST_LIBRARY_V0_AFFORDANCE_LENSES: TestLibraryV0AffordanceLens[] = 
     exampleConsequencePatterns: ["reward effective use of space that leads to progression or finish","reward quick transition after regain or turnover"],
     visibilityTriggers: ["space opening or closing","time pressure or transition moment"],
     logicUsageNote: "Use this affordance as a design anchor. Match to archetype first, then choose constraints that shape visibility and, only when useful, add a consequence layer.",
+    coachVocabulary: [
+      "exploit space", "exploit open space", "use space", "use open space",
+      "attack space", "attack open space", "find space",
+      "use width", "use depth", "stretch the field",
+      "switch to open side", "switch the play to open",
+      "play into space", "run into space",
+    ],
   },
   {
     id: "tl-v0-lens-space-creation-opportunity",
@@ -52,6 +68,14 @@ export const TEST_LIBRARY_V0_AFFORDANCE_LENSES: TestLibraryV0AffordanceLens[] = 
     exampleConsequencePatterns: ["reward effective use of space that leads to progression or finish","reward regain in target area or disruption leading to attack"],
     visibilityTriggers: ["space opening or closing","pressure level and defender positioning"],
     logicUsageNote: "Use this affordance as a design anchor. Match to archetype first, then choose constraints that shape visibility and, only when useful, add a consequence layer.",
+    coachVocabulary: [
+      "create space", "open space", "make space", "drag defenders",
+      "drawing defenders out", "draw defenders", "pull defenders out",
+      "disorganize defense", "disrupt defensive shape", "unbalance defenders",
+      "movement off ball", "off-ball movement", "make runs",
+      "decoy run", "support run", "dummy run",
+      "manipulate defenders", "stretch defense",
+    ],
   },
   {
     id: "tl-v0-lens-possession-stability-opportunity",
@@ -69,6 +93,14 @@ export const TEST_LIBRARY_V0_AFFORDANCE_LENSES: TestLibraryV0AffordanceLens[] = 
     exampleConsequencePatterns: ["reward regain in target area or disruption leading to attack"],
     visibilityTriggers: ["pressure level and defender positioning","numerical advantage or support angle"],
     logicUsageNote: "Use this affordance as a design anchor. Match to archetype first, then choose constraints that shape visibility and, only when useful, add a consequence layer.",
+    coachVocabulary: [
+      "retain possession", "keep possession", "ball retention", "secure possession",
+      "possession under pressure", "composure under pressure",
+      "play through pressure", "escape pressure", "play out of pressure",
+      "support angles", "support distances", "supporting players",
+      "build out", "build up", "play out from back",
+      "circulate ball", "circulate possession", "ball circulation",
+    ],
   },
   {
     id: "tl-v0-lens-transition-attack-opportunity",
@@ -86,6 +118,13 @@ export const TEST_LIBRARY_V0_AFFORDANCE_LENSES: TestLibraryV0AffordanceLens[] = 
     exampleConsequencePatterns: ["reward quick transition after regain or turnover"],
     visibilityTriggers: ["time pressure or transition moment"],
     logicUsageNote: "Use this affordance as a design anchor. Match to archetype first, then choose constraints that shape visibility and, only when useful, add a consequence layer.",
+    coachVocabulary: [
+      "transition attack", "attack in transition", "fast attack",
+      "counter attack", "counter-attack", "quick counter",
+      "after winning ball", "after regain", "after turnover",
+      "exploit disorganized defense", "attack before defense recovers",
+      "attack quickly", "play forward fast", "break forward",
+    ],
   },
   {
     id: "tl-v0-lens-finishing-opportunity",
@@ -103,6 +142,14 @@ export const TEST_LIBRARY_V0_AFFORDANCE_LENSES: TestLibraryV0AffordanceLens[] = 
     exampleConsequencePatterns: ["reward chances or goals created from the target action","reward regain in target area or disruption leading to attack"],
     visibilityTriggers: ["pressure level and defender positioning"],
     logicUsageNote: "Use this affordance as a design anchor. Match to archetype first, then choose constraints that shape visibility and, only when useful, add a consequence layer.",
+    coachVocabulary: [
+      "finishing", "finish", "convert chances", "convert chance",
+      "scoring chance", "scoring opportunity", "shot on goal",
+      "good shot", "get off a shot", "first time finish",
+      "in front of goal", "near goal area", "near opponent goal",
+      "in the box", "in penalty box", "around penalty box",
+      "shoot", "shooting", "shot",
+    ],
   },
   {
     id: "tl-v0-lens-delay-or-deny-opportunity",
@@ -120,6 +167,13 @@ export const TEST_LIBRARY_V0_AFFORDANCE_LENSES: TestLibraryV0AffordanceLens[] = 
     exampleConsequencePatterns: ["use consequence only if it clarifies value without forcing behavior"],
     visibilityTriggers: ["opponent movement and changing space"],
     logicUsageNote: "Use this affordance as a design anchor. Match to archetype first, then choose constraints that shape visibility and, only when useful, add a consequence layer.",
+    coachVocabulary: [
+      "delay attacker", "delay opponent", "delay the attack",
+      "deny forward pass", "deny progress", "deny the option",
+      "force play backward", "force play wide", "force opponent backward",
+      "channel opponent", "shepherd attacker",
+      "defensive denial", "defensive delay",
+    ],
   },
   {
     id: "tl-v0-lens-regain-opportunity",
@@ -137,6 +191,14 @@ export const TEST_LIBRARY_V0_AFFORDANCE_LENSES: TestLibraryV0AffordanceLens[] = 
     exampleConsequencePatterns: ["reward quick transition after regain or turnover","reward regain in target area or disruption leading to attack"],
     visibilityTriggers: ["pressure level and defender positioning","time pressure or transition moment"],
     logicUsageNote: "Use this affordance as a design anchor. Match to archetype first, then choose constraints that shape visibility and, only when useful, add a consequence layer.",
+    coachVocabulary: [
+      "regain", "regain possession", "win ball back", "win the ball back",
+      "force turnover", "cause turnover", "force a turnover",
+      "press", "press to regain", "pressing", "pressing to regain",
+      "intercept", "interception", "anticipate the pass",
+      "team defensive pressure", "applied pressure", "win ball",
+      "press triggers", "when to press",
+    ],
   },
   {
     id: "tl-v0-lens-space-protection-opportunity",
@@ -154,6 +216,13 @@ export const TEST_LIBRARY_V0_AFFORDANCE_LENSES: TestLibraryV0AffordanceLens[] = 
     exampleConsequencePatterns: ["use consequence only if it clarifies value without forcing behavior"],
     visibilityTriggers: ["space opening or closing"],
     logicUsageNote: "Use this affordance as a design anchor. Match to archetype first, then choose constraints that shape visibility and, only when useful, add a consequence layer.",
+    coachVocabulary: [
+      "protect space", "defensive shape", "stay compact", "compact shape",
+      "deny space", "deny dangerous space",
+      "withdrawn defense", "low block", "defensive block",
+      "cover space", "cover behind", "cover for teammate",
+      "defending box", "defending goal area",
+    ],
   },
   {
     id: "tl-v0-lens-recovery-opportunity",
@@ -171,5 +240,12 @@ export const TEST_LIBRARY_V0_AFFORDANCE_LENSES: TestLibraryV0AffordanceLens[] = 
     exampleConsequencePatterns: ["reward quick transition after regain or turnover"],
     visibilityTriggers: ["time pressure or transition moment"],
     logicUsageNote: "Use this affordance as a design anchor. Match to archetype first, then choose constraints that shape visibility and, only when useful, add a consequence layer.",
+    coachVocabulary: [
+      "recover shape", "recovery", "recover defensive shape",
+      "tracking runs", "track back", "tracking back", "track the runner",
+      "reorganize defense", "reorganize defensively", "regain shape",
+      "defensive transition", "transition to defense",
+      "delay counter", "defending counterattack", "defending counter attack",
+    ],
   },
 ]

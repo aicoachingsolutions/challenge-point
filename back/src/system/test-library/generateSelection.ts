@@ -123,11 +123,103 @@ const STOPWORDS = new Set([
     'without',
 ])
 
+/**
+ * Soccer-specific token equivalences. The selection engine's literal substring matcher was failing
+ * for natural coach vocabulary that doesn't appear verbatim in library text — "pressure" did not
+ * match "pressing", "penetrating" did not match "penetration", "passes" did not match "passing",
+ * etc. This caused queries like "midfielders breaking through pressure" or "penetrating passes"
+ * to score zero hits against the actually-relevant archetypes, falling back to GF1 (End Zone)
+ * by alphabetic tie-break. Each row below maps a coach-language form to a canonical root that
+ * both the query token and any library word will normalize to.
+ */
+const SOCCER_TOKEN_EQUIVALENCES: Record<string, string> = {
+    pressing: 'press',
+    pressure: 'press',
+    pressed: 'press',
+    presses: 'press',
+    penetrating: 'penetrate',
+    penetration: 'penetrate',
+    penetrated: 'penetrate',
+    penetrates: 'penetrate',
+    passing: 'pass',
+    passes: 'pass',
+    passed: 'pass',
+    breaking: 'break',
+    breaks: 'break',
+    broken: 'break',
+    dribbling: 'dribble',
+    dribbles: 'dribble',
+    dribbled: 'dribble',
+    midfielder: 'midfield',
+    midfielders: 'midfield',
+    defender: 'defense',
+    defenders: 'defense',
+    defending: 'defense',
+    defensive: 'defense',
+    attacker: 'attack',
+    attackers: 'attack',
+    attacking: 'attack',
+    finishing: 'finish',
+    finishes: 'finish',
+    finished: 'finish',
+    transitioning: 'transition',
+    transitions: 'transition',
+    regaining: 'regain',
+    regains: 'regain',
+    regained: 'regain',
+    scoring: 'score',
+    scored: 'score',
+    scores: 'score',
+    receiving: 'receive',
+    received: 'receive',
+    receives: 'receive',
+    creating: 'create',
+    creates: 'create',
+    created: 'create',
+    exploiting: 'exploit',
+    exploits: 'exploit',
+    exploited: 'exploit',
+}
+
+/**
+ * Normalize a single token for matching. Applies soccer equivalences first (longest-match wins),
+ * then falls back to light suffix stripping for words of length >= 5. Returns lowercase root.
+ */
+function normalizeMatchToken(token: string): string {
+    const t = token.toLowerCase()
+    if (SOCCER_TOKEN_EQUIVALENCES[t]) return SOCCER_TOKEN_EQUIVALENCES[t]
+    if (t.length >= 5) {
+        if (t.endsWith('ing')) return t.slice(0, -3)
+        if (t.endsWith('ies')) return `${t.slice(0, -3)}y`
+        if (t.endsWith('ed')) return t.slice(0, -2)
+        if (t.endsWith('s') && !t.endsWith('ss')) return t.slice(0, -1)
+    }
+    return t
+}
+
+function textWordSet(text: string): Set<string> {
+    return new Set(
+        text
+            .toLowerCase()
+            .split(/[^a-z0-9_]+/)
+            .filter((w) => w.length >= 2)
+            .map(normalizeMatchToken)
+    )
+}
+
+/**
+ * Word-level matching with normalization. Each query token is normalized via SOCCER_TOKEN_EQUIVALENCES
+ * + light suffix stripping; the text is tokenized into words and normalized the same way; a token
+ * matches if its normalized form is in the text's normalized word set. This is symmetric — both
+ * the query and the searched text go through the same normalization — so "pressing" in the query
+ * matches "press" or "pressure" in text, and vice versa.
+ */
 function matchReasons(tokens: string[], text: string): string[] {
-    const t = text.toLowerCase()
+    const textWords = textWordSet(text)
     const reasons: string[] = []
     for (const tok of tokens) {
-        if (tok.length >= 2 && t.includes(tok)) {
+        if (tok.length < 2) continue
+        if (textWords.has(normalizeMatchToken(tok))) {
             reasons.push(`token:${tok}`)
         }
     }
@@ -209,7 +301,14 @@ function scoreAllLenses(
 ): LensScored[] {
     const lensScored: LensScored[] = []
     for (const lens of TEST_LIBRARY_V0_AFFORDANCE_LENSES) {
-        const fields = [lens.title, lens.description, lens.category, lens.designIntent, lens.notes]
+        const fields = [
+            lens.title,
+            lens.description,
+            lens.category,
+            lens.designIntent,
+            lens.notes,
+            ...(lens.coachVocabulary ?? []),
+        ]
         const base = scoreAgainstFields(tokens, fields)
         let score = base.score
         const reasons = [...base.reasons]
@@ -246,6 +345,7 @@ function scoreConstraintsForLensSlugs(
             c.targetAffordancePrimary,
             c.constraintRole,
             c.primaryConstraintType,
+            ...(c.coachVocabulary ?? []),
         ]
         const base = scoreAgainstFields(tokens, fields)
         let score = base.score
@@ -481,6 +581,10 @@ export function generateSelection(
             a.phase_of_play,
             a.representative_design_notes,
             a.logicUsageNote,
+            // Coach-language synonyms / phrases curated per archetype. Extends the searchable
+            // text so natural inputs like "midfielders building out" match Directional Possession,
+            // "penetrating passes" matches Line-Breaking-leaning archetypes, etc.
+            ...(a.coachVocabulary ?? []),
         ]
         const { score, reasons } = scoreAgainstFields(tokens, fields)
         if (!bestArc || score > bestArc.score || (score === bestArc.score && a.game_form_id < bestArc.a.game_form_id)) {
