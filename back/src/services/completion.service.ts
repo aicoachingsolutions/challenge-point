@@ -76,7 +76,60 @@ declare type CompletionOptions = {
     max_tokens?: number
 }
 
-const openai = new OpenAI()
+/**
+ * OpenAI client configured for predictable production behavior.
+ * - timeout: 45s caps a single API call so a hung upstream does not hold the request handler
+ *   indefinitely. Stacks on top of assembleActivities' 2-attempt retry → worst-case AI time
+ *   per request is bounded at ~90s.
+ * - maxRetries: 1 caps the SDK's internal retry behavior. Default is 2, which combined with
+ *   our own retry in assembleActivities could trigger up to 6 actual API calls per user request
+ *   on a misbehaving upstream. Limit to 1 SDK retry — assembleActivities provides the second
+ *   logical retry where it's needed (validation failure), not on every transient blip.
+ */
+const openai = new OpenAI({
+    timeout: 45_000,
+    maxRetries: 1,
+})
+
+/**
+ * Circuit breaker for OpenAI calls. After CIRCUIT_FAILURE_THRESHOLD consecutive failures the
+ * circuit opens and getCompletion fails fast for CIRCUIT_COOLDOWN_MS before allowing one trial
+ * call (half-open). Prevents cascading retries from a stuck or rate-limited upstream from
+ * saturating server resources — exactly the failure mode observed during the stress test where
+ * repeated failing requests held the event loop and degraded auth.
+ */
+const CIRCUIT_FAILURE_THRESHOLD = 5
+const CIRCUIT_COOLDOWN_MS = 30_000
+
+let circuitConsecutiveFailures = 0
+let circuitOpenedAt = 0
+
+function circuitBreakerCheck(): void {
+    if (circuitConsecutiveFailures < CIRCUIT_FAILURE_THRESHOLD) return
+    const elapsed = Date.now() - circuitOpenedAt
+    if (elapsed < CIRCUIT_COOLDOWN_MS) {
+        const remaining = Math.ceil((CIRCUIT_COOLDOWN_MS - elapsed) / 1000)
+        throw new Error(`OpenAI circuit breaker open — cooling down for ${remaining}s`)
+    }
+    // Cooldown elapsed: half-open. Allow this call as the trial; success resets, failure re-opens.
+    circuitConsecutiveFailures = CIRCUIT_FAILURE_THRESHOLD - 1
+}
+
+function circuitBreakerRecordSuccess(): void {
+    if (circuitConsecutiveFailures > 0) {
+        circuitConsecutiveFailures = 0
+    }
+}
+
+function circuitBreakerRecordFailure(): void {
+    circuitConsecutiveFailures++
+    if (circuitConsecutiveFailures === CIRCUIT_FAILURE_THRESHOLD) {
+        circuitOpenedAt = Date.now()
+        console.warn(
+            `[circuit-breaker] OpenAI circuit OPENED after ${CIRCUIT_FAILURE_THRESHOLD} consecutive failures; cooling down ${CIRCUIT_COOLDOWN_MS}ms`
+        )
+    }
+}
 
 const DEFAULT_MODEL = 'gpt-4o'
 
@@ -115,6 +168,8 @@ export default CompletionService
 /* SERVICE FUNCTIONS */
 
 async function getCompletion(messages: CompletionMessage[], options: Partial<CompletionOptions> = {}): Promise<string> {
+    circuitBreakerCheck()
+
     const mergedOptions: CompletionOptions | undefined = {
         ...DEFAULT_COMPLETION_OPTIONS,
 
@@ -150,6 +205,7 @@ async function getCompletion(messages: CompletionMessage[], options: Partial<Com
             throw new Error('No message response')
         }
     } catch (completionError) {
+        circuitBreakerRecordFailure()
         logger('Completion Error', 'error', completionError)
 
         if (completionError instanceof Error && /connection error/i.test(completionError.message)) {
@@ -159,6 +215,7 @@ async function getCompletion(messages: CompletionMessage[], options: Partial<Com
         throw new Error('Completion Error')
     }
 
+    circuitBreakerRecordSuccess()
     logger('Received Completion')
 
     return response
