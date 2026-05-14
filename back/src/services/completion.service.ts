@@ -391,17 +391,23 @@ function defaultObjective(): string {
     return 'Complete the activity objective while following the listed rules and constraints.'
 }
 
-function defaultCoachingFocus(slot?: ActivitySkeletonBundle['activities'][number]): string[] {
-    const fromSkeleton = uniqueNonEmpty([
-        slot?.requiredDecisionLanguage?.length
-            ? `Coach the players to ${slot.requiredDecisionLanguage.join(', ')} in response to the game picture.`
-            : '',
-        slot?.requiredAffordanceMechanics?.[0] ?? '',
-    ])
-    if (fromSkeleton.length > 0) {
-        return fromSkeleton
-    }
-    return ['Coach the players to read the situation, make decisions, and adapt to the constraints.']
+/**
+ * Generic coach-facing observation cue appended to coachingFocus when the AI polish step
+ * doesn't produce enough content of its own.
+ *
+ * Previously this function (a) joined the requiredDecisionLanguage validation tokens into a
+ * single nonsense sentence ("Coach the players to choose, read, react, based on, decision,
+ * adapt, option in response to the game picture.") and (b) dumped slot.requiredAffordanceMechanics[0]
+ * (a verbose AI-instruction line like 'Affordance lens "X": Rules and scoring must require...')
+ * directly into coachingFocus. Both produced scaffolding leakage in the coach-facing output.
+ *
+ * Now returns a single coach-readable observation cue. Slot parameter retained for signature
+ * compatibility and possible future per-archetype defaults but is otherwise unused.
+ */
+function defaultCoachingFocus(_slot?: ActivitySkeletonBundle['activities'][number]): string[] {
+    return [
+        'Coach observation: focus on the live decisions — how players read pressure, space, and support, and how they adapt when the picture changes.',
+    ]
 }
 
 function mergePolishedActivitiesWithMechanics(
@@ -412,11 +418,14 @@ function mergePolishedActivitiesWithMechanics(
     return polishActivities.map((polish, index) => {
         const mechanics = mechanicsBundle.activities[index]
         const slot = skeletonBundle.activities[index]
+        // coachingFocus is coach observation cues. opponent-consequence content is intentionally
+        // NOT spread here — it's already folded into scoring via buildScoringLines() and duplicating
+        // it in coachingFocus produced "Opponent consequence:" / "Interaction exchange — outcomes:"
+        // scaffolding lines visible to coaches.
         const coachingFocus = uniqueNonEmpty([
             ...polish.coachingFocus,
             ...defaultCoachingFocus(slot),
             ...mechanics.decisionCues,
-            ...mechanics.opponentConsequences,
         ])
         // mechanics.constraints is the coach-facing constraint list from buildConstraintLines()
         // (clean title + intent per selected constraint). It must match exactly when validated

@@ -21,10 +21,79 @@ function sanitizeMechanicLine(line: string): string {
     return stripPrefix(line)
         .replace(/\bPlayers must decide whether\b/gi, 'Players decide whether')
         .replace(/\bPlayers must face a decision to\b/gi, 'Players decide whether to')
+        // Specific case before the general "Players must" rule: "Players must face a decision" → "Players face a decision"
+        // (Without this, the general rule turns it into the broken "Players decide to face a decision".)
+        .replace(/\bPlayers must face a decision\b/gi, 'Players face a decision')
+        .replace(/\bplayers must face a decision\b/gi, 'players face a decision')
         .replace(/\bPlayers must\b/gi, 'Players decide to')
         .replace(/\bplayers must decide whether\b/gi, 'players decide whether')
         .replace(/\bplayers must\b/gi, 'players decide to')
         .trim()
+}
+
+/**
+ * Scaffolding-line prefixes that identify AI-instruction text not intended for coach-facing fields.
+ * These lines are built into the requiredX mechanic arrays so the AI receives them as obligations,
+ * but they should not flow through to activity.rules / activity.scoring / activity.coachingFocus
+ * because coaches see those fields directly.
+ *
+ * Priority 1 originally addressed this for activity.constraints[] by introducing coachFacingConstraints.
+ * The same cleanup pattern is now applied to rules and scoring by filtering on this denylist.
+ */
+const SCAFFOLDING_LINE_PREFIXES = [
+    'Archetype identity:',
+    'Archetype interaction structure:',
+    'Archetype constraint pattern support:',
+    'Archetype objective emphasis:',
+    'Archetype player structure logic:',
+    'Archetype incentive pattern support:',
+    'Coaching emphasis:',
+    'Constraint-support pattern:',
+    'Scoring-support pattern:',
+    'Affordance lens "',
+    'Affordance tag emphasis for "',
+    'Affordance decision cue for "',
+    'Affordance consequence pattern for "',
+    'Affordance constraint support for "',
+    'Selected foundation constraint "',
+    'Selected shaping constraint "',
+    'Selected consequence constraint "',
+    'Assembly guardrail —',
+    'Interaction exchange —',
+    'Opponent consequence:',
+    'Opponent consequence emphasis',
+    'Two-sided exchange rule',
+    'Rules must',
+    'Rules and scoring must',
+    'Scoring or live advantage must',
+    'Scoring must',
+    '[Affordance]',
+    '[Constraint]',
+] as const
+
+function isCoachFacingMechanicLine(line: string): boolean {
+    const trimmed = line.trim()
+    if (!trimmed) return false
+    return !SCAFFOLDING_LINE_PREFIXES.some((p) => trimmed.startsWith(p))
+}
+
+/**
+ * Strip the internal "Opponent consequence:" / "Opponent consequence emphasis (reflect in scoring or rules):"
+ * / "Interaction exchange — outcomes:" prefixes from opponent-consequence lines so the residual text reads
+ * as coach-facing. If the residual is empty or still looks like scaffolding, returns ''.
+ */
+function cleanOpponentConsequenceLine(line: string): string {
+    const trimmed = line.trim()
+    const cleaned = trimmed
+        .replace(/^Opponent consequence emphasis \(reflect in scoring or rules\):\s*/i, '')
+        .replace(/^Opponent consequence emphasis:\s*/i, '')
+        .replace(/^Opponent consequence:\s*/i, '')
+        .replace(/^Interaction exchange — outcomes:\s*/i, '')
+        .trim()
+    if (!cleaned) return ''
+    // If the stripped content still begins with a scaffolding marker, drop it entirely.
+    if (cleaned.startsWith('reward or advantage when ') || cleaned.startsWith('Affordance')) return ''
+    return cleaned
 }
 
 function uniqueLines(lines: string[]): string[] {
@@ -167,21 +236,33 @@ function buildDecisionCues(slot: ActivitySkeletonSlot): string[] {
     const archetypeObjective = extractAfterPrefix(slot.requiredArchetypeMechanics, 'Archetype objective emphasis: ')
     const coachingEmphasis = extractAfterPrefix(slot.requiredArchetypeMechanics, 'Coaching emphasis: ')
     const [primaryCue, secondaryCue] = archetypeDecisionCues(slot.archetypeName)
+    // Drop the "Coaching emphasis:" prefix when surfacing in coach-facing fields — the raw
+    // archetype overlay text reads naturally without the meta-label.
+    const cleanCoachingEmphasis = coachingEmphasis ? coachingEmphasis.trim() : ''
     const cues = [
-        archetypeObjective ? `Players solve this activity by pursuing: ${archetypeObjective}` : '',
+        archetypeObjective ? `Session focus: ${archetypeObjective}` : '',
         primaryCue,
         secondaryCue,
-        coachingEmphasis ? `Coaching emphasis: ${coachingEmphasis}` : '',
+        cleanCoachingEmphasis,
     ]
+    // Pull constraint/affordance decision-focus lines that have specific coach-readable patterns.
+    // These are the curated "players prioritize..." and "players should recognize..." lines —
+    // not the verbose lens/constraint dumps. Pass through sanitization then filter scaffolding.
     const constraintDecisionFocus = slot.requiredConstraintMechanics.filter((line) =>
         /players prioritize .* in decisions\./i.test(line)
     )
-    cues.push(...constraintDecisionFocus.map(sanitizeMechanicLine))
+    cues.push(...constraintDecisionFocus.map(sanitizeMechanicLine).filter(isCoachFacingMechanicLine))
     const affordanceDecisionFocus = slot.requiredAffordanceMechanics.filter((line) =>
         /players should recognize .* before choosing the next action\./i.test(line)
     )
-    cues.push(...affordanceDecisionFocus.map(sanitizeMechanicLine))
-    return uniqueLines(cues)
+    // These start with "Affordance decision cue for "X":" — strip that prefix to keep just the cue.
+    cues.push(
+        ...affordanceDecisionFocus
+            .map(sanitizeMechanicLine)
+            .map((line) => line.replace(/^Affordance decision cue for "[^"]+":\s*/i, ''))
+            .filter(Boolean)
+    )
+    return uniqueLines(cues.filter(Boolean))
 }
 
 function buildExplicitExchangeRule(slot: ActivitySkeletonSlot): string {
@@ -222,9 +303,10 @@ function buildOpponentConsequenceLines(slot: ActivitySkeletonSlot): string[] {
             line.startsWith('Opponent consequence emphasis') ||
             line.startsWith('Interaction exchange — outcomes:')
     )
-    const affordanceConsequenceLines = slot.requiredAffordanceMechanics.filter((line) =>
-        line.startsWith('Affordance consequence pattern')
-    )
+    const affordanceConsequenceLines = slot.requiredAffordanceMechanics
+        .filter((line) => line.startsWith('Affordance consequence pattern'))
+        // strip the scaffolding prefix so the residual text reads as coach-facing
+        .map((line) => line.replace(/^Affordance consequence pattern for "[^"]+":\s*/i, ''))
 
     if (lines.length > 0 || affordanceConsequenceLines.length > 0) {
         return uniqueLines([...lines, ...affordanceConsequenceLines].map(sanitizeMechanicLine))
@@ -236,10 +318,17 @@ function buildOpponentConsequenceLines(slot: ActivitySkeletonSlot): string[] {
 }
 
 function buildScoringLines(slot: ActivitySkeletonSlot, opponentConsequences: string[]): string[] {
-    const scoringBase = slot.requiredScoringMechanics.map(sanitizeMechanicLine)
+    // Coach-facing scoring: drop AI-instruction lines (affordance lens descriptions, selected
+    // constraint dumps, assembly guardrails, interaction exchange metadata, etc.) and only keep
+    // natural-language scoring rules. The full requiredScoringMechanics is still used for the
+    // AI prompt; this filter only affects what flows into activity.scoring.
+    const scoringBase = slot.requiredScoringMechanics
+        .map(sanitizeMechanicLine)
+        .filter(isCoachFacingMechanicLine)
     const scoringSupport = slot.requiredArchetypeMechanics
         .filter((line) => line.startsWith('Archetype incentive pattern support:'))
-        .map(sanitizeMechanicLine)
+        .map((line) => sanitizeMechanicLine(line).replace(/^Archetype incentive pattern support:\s*/i, ''))
+        .filter(Boolean)
     const firstLineMap: Record<string, string> = {
         'Directional Possession Games':
             'A point or live advantage counts only when possession is maintained under pressure and the ball is progressed toward the target before the picture closes.',
@@ -266,7 +355,8 @@ function buildScoringLines(slot: ActivitySkeletonSlot, opponentConsequences: str
         firstLineMap[slot.archetypeName] ??
         'A point or live advantage counts only when the selected game problem is solved under pressure and opposition.'
 
-    return uniqueLines([firstLine, ...scoringBase, ...scoringSupport, ...opponentConsequences])
+    const cleanConsequences = opponentConsequences.map(cleanOpponentConsequenceLine).filter(Boolean)
+    return uniqueLines([firstLine, ...scoringBase, ...scoringSupport, ...cleanConsequences])
 }
 
 function buildConstraintLines(slot: ActivitySkeletonSlot): string[] {
@@ -274,16 +364,16 @@ function buildConstraintLines(slot: ActivitySkeletonSlot): string[] {
 }
 
 function buildRuleLines(slot: ActivitySkeletonSlot, explicitExchangeRule: string): string[] {
-    const ruleBase = slot.requiredRuleMechanics.map(sanitizeMechanicLine)
-    const archetypeRuleSupport = slot.requiredArchetypeMechanics
-        .filter(
-            (line) =>
-                line.startsWith('Archetype interaction structure:') ||
-                line.startsWith('Archetype constraint pattern support:')
-        )
+    // Coach-facing rules: drop AI-instruction lines. The full requiredRuleMechanics array is still
+    // used in the AI prompt brief (ruleSummaries) but coaches see only natural-language rules.
+    // Previously this returned all of requiredRuleMechanics plus the scaffolding-prefixed
+    // archetypeAnchor and archetypeRuleSupport lines, producing 30+ rules per activity (most
+    // unreadable scaffolding text). Now: exchange rule + game-form anchor + filtered base only.
+    const ruleBase = slot.requiredRuleMechanics
         .map(sanitizeMechanicLine)
-    const archetypeAnchor = `Archetype identity: ${slot.archetypeName}.`
-    return uniqueLines([explicitExchangeRule, archetypeAnchor, ...archetypeRuleSupport, ...ruleBase])
+        .filter(isCoachFacingMechanicLine)
+    const gameFormAnchor = `Game form: ${slot.archetypeName}.`
+    return uniqueLines([explicitExchangeRule, gameFormAnchor, ...ruleBase])
 }
 
 function buildMechanicsForSlot(slot: ActivitySkeletonSlot): ActivityMechanics {
