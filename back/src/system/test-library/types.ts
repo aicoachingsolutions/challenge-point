@@ -17,6 +17,14 @@ export interface TestLibraryV0AffordanceLens {
     exampleConsequencePatterns: string[]
     visibilityTriggers: string[]
     logicUsageNote: string
+    /**
+     * Optional list of coach-language synonyms / common phrases that should match this lens during
+     * selection scoring. Bridges the gap between formal library text and natural coach vocabulary.
+     * Example: Line-Breaking Opportunity might include ["penetrating pass", "split defenders",
+     * "between the lines", "third-man run", "line-breaking"]. Selection adds these to the searchable
+     * text for the entry.
+     */
+    coachVocabulary?: string[]
 }
 
 export interface TestLibraryV0Constraint {
@@ -40,6 +48,8 @@ export interface TestLibraryV0Constraint {
     visibilityEffect: string
     targetAffordancePrimary: string
     logicUsageNote: string
+    /** See TestLibraryV0AffordanceLens.coachVocabulary. */
+    coachVocabulary?: string[]
 }
 
 export interface TestLibraryV0Archetype {
@@ -64,6 +74,8 @@ export interface TestLibraryV0Archetype {
     exampleConstraintPatterns: string[]
     exampleIncentivePatterns: string[]
     logicUsageNote: string
+    /** See TestLibraryV0AffordanceLens.coachVocabulary. */
+    coachVocabulary?: string[]
 }
 
 export interface TestLibrarySelectionInput {

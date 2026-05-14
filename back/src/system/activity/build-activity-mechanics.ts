@@ -84,9 +84,13 @@ function isCoachFacingMechanicLine(line: string): boolean {
  */
 function cleanOpponentConsequenceLine(line: string): string {
     const trimmed = line.trim()
+    // "Opponent consequence emphasis" lines are validator signal-token lists (e.g., "opponent gains;
+    // restart; regain; counter"). These are AI/validator metadata, not coach-facing scoring text.
+    // Drop them entirely instead of trying to surface the keyword list.
+    if (/^Opponent consequence emphasis/i.test(trimmed)) {
+        return ''
+    }
     const cleaned = trimmed
-        .replace(/^Opponent consequence emphasis \(reflect in scoring or rules\):\s*/i, '')
-        .replace(/^Opponent consequence emphasis:\s*/i, '')
         .replace(/^Opponent consequence:\s*/i, '')
         .replace(/^Interaction exchange — outcomes:\s*/i, '')
         .trim()
@@ -325,10 +329,11 @@ function buildScoringLines(slot: ActivitySkeletonSlot, opponentConsequences: str
     const scoringBase = slot.requiredScoringMechanics
         .map(sanitizeMechanicLine)
         .filter(isCoachFacingMechanicLine)
-    const scoringSupport = slot.requiredArchetypeMechanics
-        .filter((line) => line.startsWith('Archetype incentive pattern support:'))
-        .map((line) => sanitizeMechanicLine(line).replace(/^Archetype incentive pattern support:\s*/i, ''))
-        .filter(Boolean)
+    // scoringSupport (from "Archetype incentive pattern support:" lines) intentionally dropped —
+    // these are example-pattern hints meant for the AI prompt brief, not coach-facing scoring
+    // rules. Surfacing them produced lowercase-start fragments like "bonus for achieving target
+    // outcome linked to affordance." which reference internal terminology. The AI prompt still
+    // receives these patterns via requiredArchetypeMechanics; only coach output is cleaned.
     const firstLineMap: Record<string, string> = {
         'Directional Possession Games':
             'A point or live advantage counts only when possession is maintained under pressure and the ball is progressed toward the target before the picture closes.',
@@ -356,7 +361,7 @@ function buildScoringLines(slot: ActivitySkeletonSlot, opponentConsequences: str
         'A point or live advantage counts only when the selected game problem is solved under pressure and opposition.'
 
     const cleanConsequences = opponentConsequences.map(cleanOpponentConsequenceLine).filter(Boolean)
-    return uniqueLines([firstLine, ...scoringBase, ...scoringSupport, ...cleanConsequences])
+    return uniqueLines([firstLine, ...scoringBase, ...cleanConsequences])
 }
 
 function buildConstraintLines(slot: ActivitySkeletonSlot): string[] {
