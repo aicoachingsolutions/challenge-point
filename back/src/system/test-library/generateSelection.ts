@@ -342,6 +342,76 @@ function conScoredMap(conScored: ConScored[]): Map<string, ConScored> {
     return m
 }
 
+/**
+ * Bounded-search caps. Phase 1 expanded the constraint library from 12 → 19 entries, which made the
+ * naive exhaustive search (all lens combos × all constraint combos × isSelectionPackageCompatible
+ * per combo) cost ~6× more compatibility checks. Each compat check runs buildConstraintPackage +
+ * validateConstraintPackage (~10-20ms synchronous, blocks the event loop). Without bounding, a single
+ * request can spend 30+ seconds in selection alone before the AI is even called, causing HTTP
+ * timeouts and event-loop starvation under repeated load.
+ *
+ * These caps reduce worst-case compat checks from ~800k to ~200 while keeping the algorithm
+ * mathematically identical inside the bounded space — we still find the global max within
+ * the top-K candidate pool. K is set conservatively so the top-scoring candidates per dimension
+ * are always represented.
+ */
+const BOUNDED_SEARCH_TOP_LENSES = 3
+const BOUNDED_SEARCH_TOP_CONSTRAINTS_PER_BUCKET = 2
+
+/**
+ * Reduce the lens search pool to the top BOUNDED_SEARCH_TOP_LENSES by score, restricted to the
+ * input-filtered pool. Tie-break by lens id (stable, deterministic).
+ */
+function boundedLensCandidates(
+    lensScored: LensScored[],
+    allowedPool: TestLibraryV0AffordanceLens[]
+): TestLibraryV0AffordanceLens[] {
+    const allowedIds = new Set(allowedPool.map((l) => l.id))
+    return lensScored
+        .filter((r) => allowedIds.has(r.lens.id))
+        .sort((a, b) => b.score - a.score || a.lens.id.localeCompare(b.lens.id))
+        .slice(0, BOUNDED_SEARCH_TOP_LENSES)
+        .map((r) => r.lens)
+}
+
+/**
+ * Reduce the constraint search pool to the top BOUNDED_SEARCH_TOP_CONSTRAINTS_PER_BUCKET per role
+ * (foundation / shaping / consequence), restricted to the input-filtered pool. Per-bucket capping
+ * guarantees the role-mix rule (need ≥1 foundation + ≥1 shaping) can still be satisfied by the
+ * pool — taking only "top N overall" would risk dropping all foundation or shaping options when
+ * consequence constraints score higher on a particular input.
+ */
+function boundedConstraintCandidates(
+    conScored: ConScored[],
+    allowedPool: TestLibraryV0Constraint[]
+): TestLibraryV0Constraint[] {
+    const allowedIds = new Set(allowedPool.map((c) => c.id))
+    const filtered = conScored
+        .filter((r) => allowedIds.has(r.c.id))
+        .sort((a, b) => b.score - a.score || a.c.id.localeCompare(b.c.id))
+
+    const byBucket: Record<ConstraintBalanceBucket, ConScored[]> = {
+        foundation: [],
+        shaping: [],
+        consequence: [],
+    }
+    for (const row of filtered) {
+        byBucket[row.bucket].push(row)
+    }
+
+    const out: TestLibraryV0Constraint[] = []
+    const seen = new Set<string>()
+    for (const bucket of ['foundation', 'shaping', 'consequence'] as const) {
+        for (const r of byBucket[bucket].slice(0, BOUNDED_SEARCH_TOP_CONSTRAINTS_PER_BUCKET)) {
+            if (!seen.has(r.c.id)) {
+                seen.add(r.c.id)
+                out.push(r.c)
+            }
+        }
+    }
+    return out
+}
+
 function assertSelectionContract(
     affordanceLenses: TestLibraryV0AffordanceLens[],
     constraints: TestLibraryV0Constraint[]
@@ -427,6 +497,9 @@ export function generateSelection(
     const lensScored = scoreAllLenses(tokens, archetype, archeAffordances)
     const lensScoreById = new Map(lensScored.map((r) => [r.lens.id, r] as const))
 
+    // Bound the lens search pool. See BOUNDED_SEARCH_TOP_LENSES doc above for the cost analysis.
+    const lensCandidatePool = boundedLensCandidates(lensScored, allLenses)
+
     let bestTotal = -Infinity
     let bestLensCombo: TestLibraryV0AffordanceLens[] | null = null
     let bestConCombo: TestLibraryV0Constraint[] | null = null
@@ -435,20 +508,26 @@ export function generateSelection(
         return sortedIdsJoin([...lenses.map((l) => l.id), ...cons.map((c) => c.id)])
     }
 
-    for (const lensSize of [2, 3]) {
-        if (allLenses.length < lensSize) continue
+    const selectionSearchStart = Date.now()
 
-        for (const lensCombo of combinations(allLenses, lensSize)) {
+    for (const lensSize of [2, 3]) {
+        if (lensCandidatePool.length < lensSize) continue
+
+        for (const lensCombo of combinations(lensCandidatePool, lensSize)) {
             const selectedLensSlugs = new Set(lensCombo.map(lensSlug))
             const conScored = scoreConstraintsForLensSlugs(tokens, archetype, archeAffordances, selectedLensSlugs)
             const conMap = conScoredMap(conScored)
 
+            // Bound the constraint search pool for this lens combo. Per-lens-combo because constraint
+            // scoring depends on the selected lens slugs (targetMatchesSelectedLens bonus).
+            const constraintCandidatePool = boundedConstraintCandidates(conScored, allConstraints)
+
             const lensSum = lensCombo.reduce((s, l) => s + (lensScoreById.get(l.id)?.score ?? 0), 0)
 
             for (const conSize of [2, 3, 4]) {
-                if (allConstraints.length < conSize) continue
+                if (constraintCandidatePool.length < conSize) continue
 
-                for (const conCombo of combinations(allConstraints, conSize)) {
+                for (const conCombo of combinations(constraintCandidatePool, conSize)) {
                     if (!constraintComboPassesRoleMix(conCombo, conScored)) continue
 
                     const compat = isSelectionPackageCompatible({
@@ -478,6 +557,11 @@ export function generateSelection(
             }
         }
     }
+
+    const selectionSearchMs = Date.now() - selectionSearchStart
+    console.log(
+        `[selection-search] lensCandidates=${lensCandidatePool.length} elapsedMs=${selectionSearchMs} bestScore=${bestTotal === -Infinity ? 'none' : bestTotal}`
+    )
 
     if (!bestLensCombo || !bestConCombo || bestTotal === -Infinity) {
         throw new Error(
