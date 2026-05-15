@@ -94,8 +94,15 @@ function isCoachFacingMechanicLine(line: string): boolean {
  */
 function unwrapAffordanceWrappers(line: string): string {
     const s = line.trim()
+    // 'Affordance lens "X" — reflect lens behaviors in objective, rules, scoring, constraints, or
+    // coachingFocus: <content>' is dropped from coach-facing output. The content is designIntent +
+    // description + notes + suggestedConstraintPrompt + gameTemplateAnchor joined without sentence
+    // punctuation, producing run-on text that ends with internal template-anchor tags like
+    // "build_up" or "build_up|final_third". The lens content is already represented by the lens
+    // core mechanic and tag emphasis (also in scoring), so dropping this line removes the awkward
+    // run-on without losing coach-facing or validator-required content.
     const reflectMatch = s.match(/^Affordance lens "[^"]+"\s*—\s*reflect lens behaviors in [^:]+:\s*(.*)$/i)
-    if (reflectMatch) return reflectMatch[1]!.trim()
+    if (reflectMatch) return ''
     const coreMatch = s.match(/^Affordance lens "[^"]+":\s*(.*)$/i)
     if (coreMatch) return coreMatch[1]!.trim()
     const tagMatch = s.match(/^Affordance tag emphasis for "[^"]+"\s*\([^)]*\):\s*(.*)$/i)
