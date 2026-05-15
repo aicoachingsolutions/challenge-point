@@ -148,6 +148,11 @@ export const TEST_LIBRARY_V0_CONSTRAINTS: TestLibraryV0Constraint[] = [
     visibilityEffect: "indirect_increase",
     targetAffordancePrimary: "protect_space",
     logicUsageNote: "Use as a structural/spatial constraint to shape pressure in central areas and indirectly invite width.",
+    setupGuidance: [
+      "Mark a central zone (roughly the middle third lengthwise, half the field width) with cones or discs.",
+      "Restrict defenders allowed inside the central zone (typical cap: 2-3 defenders).",
+      "Outside players can enter the central zone freely; the restriction shapes defensive density without removing free movement.",
+    ],
   },
   {
     id: "tl-v0-constraint-wide-zone-advantage",
@@ -169,6 +174,11 @@ export const TEST_LIBRARY_V0_CONSTRAINTS: TestLibraryV0Constraint[] = [
     visibilityEffect: "increase",
     targetAffordancePrimary: "exploit_space",
     logicUsageNote: "Use as a hybrid spatial + consequence constraint when wide areas should become more available and more valuable.",
+    setupGuidance: [
+      "Mark wide channels along both touchlines (~6-10m wide depending on field size).",
+      "Actions starting in or moving through the wide channel earn an advantage (bonus point, free restart, or scoring multiplier).",
+      "Channels are reference markers — players can choose to use them or not.",
+    ],
   },
   {
     id: "tl-v0-constraint-final-third-value",
@@ -253,6 +263,11 @@ export const TEST_LIBRARY_V0_CONSTRAINTS: TestLibraryV0Constraint[] = [
     visibilityEffect: "neutral",
     targetAffordancePrimary: "attack_quickly",
     logicUsageNote: "Use as a structural transition condition that connects phases; pair with other constraints if more consequence is needed.",
+    setupGuidance: [
+      "On every possession change, play continues immediately without stoppage — no restart, no whistle.",
+      "Coach calls out 'transition' or uses a visual cue at possession-change moments to focus the contest on this event.",
+      "No marked zones required for the trigger itself; whatever zones exist for other constraints stay live through the transition.",
+    ],
   },
   // ─── Foundation constraints (role: structure) ────────────────────────────────
   {
@@ -275,6 +290,11 @@ export const TEST_LIBRARY_V0_CONSTRAINTS: TestLibraryV0Constraint[] = [
     visibilityEffect: "indirect_increase",
     targetAffordancePrimary: "exploit_space",
     logicUsageNote: "Use as a structural foundation constraint when spatial awareness, zone transitions, and directional progression are central to the session goal.",
+    setupGuidance: [
+      "Divide the field into 3-4 defined zones (e.g., build-up / mid / attacking; or left / center / right channels).",
+      "Mark zone boundaries clearly with cones or discs.",
+      "Players move freely between zones; the structure exists to make zone transitions visible, not to limit movement.",
+    ],
   },
   {
     id: "tl-v0-constraint-neutral-player-condition",
@@ -296,6 +316,11 @@ export const TEST_LIBRARY_V0_CONSTRAINTS: TestLibraryV0Constraint[] = [
     visibilityEffect: "indirect_increase",
     targetAffordancePrimary: "exploit_space",
     logicUsageNote: "Use as a structural foundation constraint when overload exploitation, support angles, and numerical advantage in possession are central to the session goal.",
+    setupGuidance: [
+      "Designate one or two neutral players (wear contrasting bibs).",
+      "Neutrals always play with the team in possession, creating a permanent numerical advantage for whichever side has the ball.",
+      "Adjust team numbers accordingly (e.g., for 15 players: 6v6 + 3 neutrals, or 7v7 + 1 neutral).",
+    ],
   },
   {
     id: "tl-v0-constraint-goalkeeper-included-condition",
@@ -317,6 +342,11 @@ export const TEST_LIBRARY_V0_CONSTRAINTS: TestLibraryV0Constraint[] = [
     visibilityEffect: "increase",
     targetAffordancePrimary: "break_lines",
     logicUsageNote: "Use as a structural foundation constraint when finishing under pressure, build-up from back, and live goalkeeper pressure are central to the session goal.",
+    setupGuidance: [
+      "Goalkeepers in their normal goal positions at each end of the field.",
+      "GKs are live during all phases — they distribute, save, and count as outfield support when team is building from the back.",
+      "Use full-size or scaled goals depending on field dimensions.",
+    ],
   },
   {
     id: "tl-v0-constraint-small-area-condition",
@@ -338,6 +368,11 @@ export const TEST_LIBRARY_V0_CONSTRAINTS: TestLibraryV0Constraint[] = [
     visibilityEffect: "indirect_increase",
     targetAffordancePrimary: "protect_space",
     logicUsageNote: "Use as a structural foundation constraint when spatial compactness, pressure under reduced time, and tight decision-making are central to the session goal.",
+    setupGuidance: [
+      "Reduce the field to a compact area (typical: 30-40m x 25-35m for 8-12 players).",
+      "Tight boundaries increase pressure cycles without changing the basic game form.",
+      "Adjust dimensions based on player age and ability — smaller for tighter pressure, larger to ease cognitive load.",
+    ],
   },
   // ─── Shaping constraints (role: hybrid) ──────────────────────────────────────
   {
@@ -360,6 +395,11 @@ export const TEST_LIBRARY_V0_CONSTRAINTS: TestLibraryV0Constraint[] = [
     visibilityEffect: "increase",
     targetAffordancePrimary: "regain_possession",
     logicUsageNote: "Use as a shaping constraint when counter-pressing intensity, transition urgency, and organized regain are central session goals.",
+    setupGuidance: [
+      "Coach calls out 'press' (or starts a timer) the moment possession changes.",
+      "Typical counter-press window: 5 seconds. Pressing team must regain within that window for the press to count as successful.",
+      "If the window expires without regain, the team in possession earns a restart bonus or free continuation.",
+    ],
   },
   {
     id: "tl-v0-constraint-pass-combination-gate",
@@ -381,6 +421,11 @@ export const TEST_LIBRARY_V0_CONSTRAINTS: TestLibraryV0Constraint[] = [
     visibilityEffect: "increase",
     targetAffordancePrimary: "create_space",
     logicUsageNote: "Use as a shaping constraint when possession circulation, support structure, and building through pressure are central session goals.",
+    setupGuidance: [
+      "Goal/score attempts only count when the attacking team has completed a minimum of 4-6 connected passes in their half (adjust by age/ability).",
+      "Pass count resets when possession is lost or the ball leaves play.",
+      "Coach tracks the count visibly (count out loud or use a counter).",
+    ],
   },
   {
     id: "tl-v0-constraint-support-lane-requirement",
@@ -402,5 +447,10 @@ export const TEST_LIBRARY_V0_CONSTRAINTS: TestLibraryV0Constraint[] = [
     visibilityEffect: "increase",
     targetAffordancePrimary: "break_lines",
     logicUsageNote: "Use as a shaping constraint when support runs, lane occupation, and penetrating forward passes are central to the session goal.",
+    setupGuidance: [
+      "Mark a support lane (typically a half-space corridor between center and wide channels) with cones.",
+      "Forward passes or penetrating runs into the scoring area only count when a supporting player has entered the marked lane before the pass.",
+      "The lane is a reference area — players choose when to enter and when not to, based on the live picture.",
+    ],
   },
 ]

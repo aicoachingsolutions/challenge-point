@@ -50,6 +50,13 @@ export interface TestLibraryV0Constraint {
     logicUsageNote: string
     /** See TestLibraryV0AffordanceLens.coachVocabulary. */
     coachVocabulary?: string[]
+    /**
+     * Optional setup-specific parameters this entry implies (field zones, time windows, numerical
+     * structures, equipment specifics, etc.). Surfaces in the AI prompt's setupFrame so the
+     * generated activity setup includes concrete coaching parameters rather than generic
+     * "marking cones if needed" placeholder text. One string per parameter; brief, imperative.
+     */
+    setupGuidance?: string[]
 }
 
 export interface TestLibraryV0Archetype {
@@ -76,6 +83,13 @@ export interface TestLibraryV0Archetype {
     logicUsageNote: string
     /** See TestLibraryV0AffordanceLens.coachVocabulary. */
     coachVocabulary?: string[]
+    /**
+     * Optional setup-specific parameters this entry implies (field zones, time windows, numerical
+     * structures, equipment specifics, etc.). Surfaces in the AI prompt's setupFrame so the
+     * generated activity setup includes concrete coaching parameters rather than generic
+     * "marking cones if needed" placeholder text. One string per parameter; brief, imperative.
+     */
+    setupGuidance?: string[]
 }
 
 export interface TestLibrarySelectionInput {

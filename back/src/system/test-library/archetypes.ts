@@ -29,6 +29,11 @@ export const TEST_LIBRARY_V0_ARCHETYPES: TestLibraryV0Archetype[] = [
       "deep block", "break compact defense", "create scoring chance",
       "near opponent goal", "attacking third entry", "opponent goal area",
     ],
+    setupGuidance: [
+      "Mark target zones at both ends of the field (typical: a band 5-10m deep across the full width).",
+      "Field divided into build-up area, mid area, and the two target end zones.",
+      "Field dimensions scale with player count (typical: 40x30m for 8 players, up to 60x40m for 14+).",
+    ],
   },
   {
     id: "GF2",
@@ -64,6 +69,11 @@ export const TEST_LIBRARY_V0_ARCHETYPES: TestLibraryV0Archetype[] = [
       "passing combinations", "combination play", "using one another",
       "dribble out of pressure", "carry the ball forward",
     ],
+    setupGuidance: [
+      "Rectangular field with a directional target line or zone at one end (typical: 40-60m long, 25-40m wide).",
+      "Teams attack in the same direction, building from their own end toward the target.",
+      "Restart conditions: ball out of play restarts from the team that didn't touch it last.",
+    ],
   },
   {
     id: "GF3",
@@ -94,6 +104,11 @@ export const TEST_LIBRARY_V0_ARCHETYPES: TestLibraryV0Archetype[] = [
       "find the free player", "create overload", "numerical advantage",
       "build through structure", "play between lines", "between the lines",
       "midfielders", "central midfielders", "build out",
+    ],
+    setupGuidance: [
+      "Field divided into a positional grid (typical: 3 horizontal zones x 3 vertical channels = 9 cells).",
+      "Players reference the grid for positional shape but move freely; the grid is a visual scaffold.",
+      "Field dimensions scale to player count (typical: 50x35m for 8-10 outfield players).",
     ],
   },
   {
@@ -127,6 +142,11 @@ export const TEST_LIBRARY_V0_ARCHETYPES: TestLibraryV0Archetype[] = [
       "win possession and attack", "attack before defense organizes",
       "transitioning from defense", "going from defense to attack",
     ],
+    setupGuidance: [
+      "Two-goal or two-target field with a midline marker; transition moment defined as possession change at any point.",
+      "Numerical asymmetry can be introduced (e.g., 4v6 in defending half) when the goal is defending under overload.",
+      "Restart conditions chain into immediate live play — no stoppage on turnover unless ball is out of play.",
+    ],
   },
   {
     id: "GF5",
@@ -155,6 +175,11 @@ export const TEST_LIBRARY_V0_ARCHETYPES: TestLibraryV0Archetype[] = [
       "2v1", "3v2", "4v3", "small-sided overload",
       "use the overload", "find the free man",
       "switch play to overload", "play through overload",
+    ],
+    setupGuidance: [
+      "Build numerical asymmetry into the team structure (e.g., 6v4, 5v3, or a side with one neutral that always plays with the team in possession).",
+      "Mark the contest area; field size sets the difficulty (tighter = harder for the overloaded side, wider = easier).",
+      "Coach can vary the asymmetry between rounds to shift the challenge between attackers and defenders.",
     ],
   },
   {
@@ -185,6 +210,11 @@ export const TEST_LIBRARY_V0_ARCHETYPES: TestLibraryV0Archetype[] = [
       "hold-up play", "hold up the ball", "lay off to target",
       "wall pass", "give and go through target",
     ],
+    setupGuidance: [
+      "Designate target player(s) positioned at one or both ends of the field (typically wearing contrasting bibs).",
+      "Target players have a restricted movement area (e.g., a 10x10m box) or can roam — coach's choice.",
+      "Connecting to the target and continuing the play from there is the central contest.",
+    ],
   },
   {
     id: "GF7",
@@ -213,6 +243,11 @@ export const TEST_LIBRARY_V0_ARCHETYPES: TestLibraryV0Archetype[] = [
       "exploit wide areas", "switch to wide", "spread the play",
       "lane", "lanes", "open channel", "open lane",
       "wing attack", "stretch the field",
+    ],
+    setupGuidance: [
+      "Field divided lengthwise into 3 or 5 channels (left wide, left half-space, central, right half-space, right wide).",
+      "Channel boundaries marked with cones along the field's length.",
+      "Channels guide perception but don't restrict movement; players choose which channel to attack through.",
     ],
   },
   {
@@ -245,6 +280,11 @@ export const TEST_LIBRARY_V0_ARCHETYPES: TestLibraryV0Archetype[] = [
       "defensive shape", "defensive recovery", "recover shape",
       "press as a team", "coordinated press",
     ],
+    setupGuidance: [
+      "Field divided into pressing third and defending third with a marked midline.",
+      "Game starts with one team in possession in their own half; the pressing team's task is to win the ball within the pressing area.",
+      "Restart conditions chain: regain → immediate attack; failed press → defending team continues attack.",
+    ],
   },
   {
     id: "GF9",
@@ -276,6 +316,11 @@ export const TEST_LIBRARY_V0_ARCHETYPES: TestLibraryV0Archetype[] = [
       "good shot", "get off a shot", "first time finish",
       "withdrawn opponent", "low block scoring",
     ],
+    setupGuidance: [
+      "Final-third field setup with full-size or scaled goals at both ends, goalkeepers active.",
+      "Attacking team starts in build-up area; field length keeps action concentrated in the final third (typical: 30-40m from box to halfway).",
+      "Restart conditions chain quickly to maintain finishing-context tempo.",
+    ],
   },
   {
     id: "GF10",
@@ -298,5 +343,10 @@ export const TEST_LIBRARY_V0_ARCHETYPES: TestLibraryV0Archetype[] = [
     exampleConstraintPatterns: ["zones or channels","restart conditions","time pressure","support rules"],
     exampleIncentivePatterns: ["bonus for achieving target outcome linked to affordance"],
     logicUsageNote: "Select this archetype when its structure naturally produces the target affordance; then choose constraints by role (foundation, shaping, consequence).",
+    setupGuidance: [
+      "Open field — no fixed positional structure beyond what the selected constraints impose.",
+      "Field dimensions and team numbers chosen to match the constraint package's intent.",
+      "Restart conditions stay live; coach lets the constraints shape the contest rather than adding fixed rules.",
+    ],
   },
 ]
