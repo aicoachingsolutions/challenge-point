@@ -650,6 +650,11 @@ function mapStructuredActivityToLegacy(activity: Activity, input: SystemAssembly
         title: activity.title,
         constraint: constraintSummary,
         intent: activity.objective,
+        // Surface the AI-written setup description so coaches see field dimensions, zone definitions,
+        // numbers, and equipment specifics rather than just generic placeholder text. Previously the
+        // AI-written setup was folded into the constraint blob and lost when the blob was removed
+        // from the UI; it's now a first-class field.
+        setup: activity.setup,
         twoSidedExchangeRule,
         twoSidedScoringConsequence,
         playerGroupSizes,

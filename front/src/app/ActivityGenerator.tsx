@@ -450,6 +450,16 @@ function GeneratedActivityCard({
                             <p className='text-sm leading-relaxed text-gray-700'>{activity.intent}</p>
                         </div>
 
+                        {/* Setup — field dimensions, zones, numbers, equipment, restart logic.
+                            The AI-written setup description so coaches can physically set up the
+                            activity without inventing parameters. */}
+                        {(activity as any).setup && (
+                            <div className='p-3 rounded-lg bg-blue-50 border border-blue-200'>
+                                <p className='text-xs font-semibold uppercase tracking-wide text-blue-700 mb-1'>Setup</p>
+                                <p className='text-sm leading-relaxed text-blue-900 whitespace-pre-line'>{(activity as any).setup}</p>
+                            </div>
+                        )}
+
                         {/* Teams */}
                         {activity.extensions?.[0] && (
                             <div>

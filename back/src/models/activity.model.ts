@@ -58,6 +58,8 @@ export interface IActivity {
     title: string
     constraint: string
     intent: string
+    /** Coach-facing setup description: field dimensions, zones, numbers, equipment, restart logic. */
+    setup?: string
     extensions: string[]
     scaffolding: string[]
     playerGroupSizes: number
@@ -87,6 +89,7 @@ const activitySchema = new Schema<IActivity>(
         title: { type: String },
         constraint: {type: String},
         intent: {type: String},
+        setup: { type: String },
         extensions: [{type: String}],
          scaffolding: [{type: String}],
         playerGroupSizes: { type: Number },

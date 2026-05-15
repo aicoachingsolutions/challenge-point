@@ -1,6 +1,7 @@
 import type { IAffordance } from '../../models/affordance.model'
 import type { ConstraintSelectionCandidate, SystemAssemblyInput } from '../types'
 import { TEST_LIBRARY_V0_ARCHETYPES } from '../test-library/archetypes'
+import { TEST_LIBRARY_V0_CONSTRAINTS } from '../test-library/constraints'
 import type { TestLibraryV0Archetype } from '../test-library/types'
 import { registryIdString } from './assembly-package-ids'
 
@@ -554,18 +555,93 @@ function titleFrameForSlot(archetypeName: string, index: 1 | 2 | 3): string {
     return `${themes[index - 1]} Title must stay distinct from the other two activities and reflect this slot's session role.`
 }
 
+/**
+ * Look up setupGuidance for the selected archetype and constraints. Returns a flat array of
+ * coach-facing setup parameter lines (zone definitions, time windows, numerical structures,
+ * equipment specifics). This is the data the AI uses to write a concrete setup description
+ * rather than a generic "mark cones if needed" placeholder.
+ */
+function collectSetupGuidance(input: SystemAssemblyInput): {
+    archetypeGuidance: string[]
+    foundationGuidance: string[]
+    shapingGuidance: string[]
+    consequenceGuidance: string[]
+} {
+    const archetypeRow = lookupArchetypeRow(input.archetype.name)
+    const findConstraintSetup = (id: unknown): string[] => {
+        const cId = String(id ?? '').trim()
+        if (!cId) return []
+        const row = TEST_LIBRARY_V0_CONSTRAINTS.find((c) => c.id === cId)
+        return row?.setupGuidance ?? []
+    }
+    return {
+        archetypeGuidance: archetypeRow?.setupGuidance ?? [],
+        foundationGuidance: findConstraintSetup(
+            (input.constraintPackage.foundation.constraint as { _id?: unknown; id?: unknown })._id ??
+                (input.constraintPackage.foundation.constraint as { id?: unknown }).id
+        ),
+        shapingGuidance: findConstraintSetup(
+            (input.constraintPackage.shaping.constraint as { _id?: unknown; id?: unknown })._id ??
+                (input.constraintPackage.shaping.constraint as { id?: unknown }).id
+        ),
+        consequenceGuidance: input.constraintPackage.consequence
+            ? findConstraintSetup(
+                  (input.constraintPackage.consequence.constraint as { _id?: unknown; id?: unknown })._id ??
+                      (input.constraintPackage.consequence.constraint as { id?: unknown }).id
+              )
+            : [],
+    }
+}
+
 function setupFrameForSlot(input: SystemAssemblyInput, index: 1 | 2 | 3): string {
     const overlay = archetypeLibraryOverlay(input.archetype.name)
-    const fieldSpec = `${input.session.fieldLength ?? '?'}x${input.session.fieldWidth ?? '?'} ${input.session.fieldType ?? 'surface'}`
+    const guidance = collectSetupGuidance(input)
+    const fieldLength = input.session.fieldLength
+    const fieldWidth = input.session.fieldWidth
+    const fieldType = input.session.fieldType ?? 'surface'
+    const fieldSpec = fieldLength && fieldWidth ? `${fieldLength}x${fieldWidth} ${fieldType}` : `${fieldType} (dimensions not specified — choose appropriate size for player count)`
+    const playerCount = input.session.playerCount ? Number(input.session.playerCount) : null
+    const playerSpec = playerCount && playerCount > 0 ? `${playerCount} players total` : 'team count appropriate to the constraint package'
+
     const slotSpecific =
         index === 1
             ? 'Setup describes the entry-level picture: standard space and numbers for the archetype with the foundation constraint clearly visible in the environment. This is the least complex of the three setups.'
             : index === 2
               ? 'Setup tightens the picture relative to Activity 1: slightly reduced space, tighter numbers, or a sharper shaping element to dial up the behavioral pressure. Same constraint package, sharper expression.'
               : 'Setup describes the full contest: the most demanding space and numbers configuration of the three activities, with all constraints (foundation, shaping, and consequence if present) clearly visible in the environment.'
-    const base = `Setup (${index}/3): describe space, numbers, zones, equipment using session field (${fieldSpec}). ${slotSpecific} Include opposed teams and restart logic consistent with the skeleton.`
-    const extras = overlay.setupSupport.length > 0 ? ` ${overlay.setupSupport.join(' ')}` : ''
-    return `${base}${extras}`
+
+    const lines: string[] = [
+        `Setup (${index}/3) for ${input.archetype.name}: write a concrete coach-facing setup paragraph.`,
+        `Field: ${fieldSpec}. Players: ${playerSpec}.`,
+        slotSpecific,
+        '',
+        'Include the following parameters from the selected game form and constraints (rewrite into a coherent setup paragraph — do not just list them):',
+    ]
+    if (guidance.archetypeGuidance.length > 0) {
+        lines.push(`- Game form (${input.archetype.name}):`)
+        for (const g of guidance.archetypeGuidance) lines.push(`  • ${g}`)
+    }
+    if (guidance.foundationGuidance.length > 0) {
+        lines.push(`- Foundation constraint (${input.constraintPackage.foundation.constraint.title ?? 'foundation'}):`)
+        for (const g of guidance.foundationGuidance) lines.push(`  • ${g}`)
+    }
+    if (guidance.shapingGuidance.length > 0) {
+        lines.push(`- Shaping constraint (${input.constraintPackage.shaping.constraint.title ?? 'shaping'}):`)
+        for (const g of guidance.shapingGuidance) lines.push(`  • ${g}`)
+    }
+    if (guidance.consequenceGuidance.length > 0 && input.constraintPackage.consequence) {
+        lines.push(`- Consequence constraint (${input.constraintPackage.consequence.constraint.title ?? 'consequence'}):`)
+        for (const g of guidance.consequenceGuidance) lines.push(`  • ${g}`)
+    }
+    lines.push('')
+    lines.push('Coach should be able to walk onto the field, read this setup, and physically set it up without inventing parameters. Include opposed teams, restart logic consistent with the skeleton, and the specific zones/numbers/timers the constraints require.')
+
+    if (overlay.setupSupport.length > 0) {
+        lines.push('')
+        lines.push(`Additional archetype setup hints: ${overlay.setupSupport.join(' ')}`)
+    }
+
+    return lines.join('\n')
 }
 
 function slotProgressionEmphasisFor(index: 1 | 2 | 3): string {
