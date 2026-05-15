@@ -1,4 +1,5 @@
 import { Request, Response, Router } from 'express'
+import { Types } from 'mongoose'
 import Affordance from 'src/models/affordance.model'
 import Constraint from 'src/models/constraint.model'
 import Session, { SessionStatus } from 'src/models/session.model'
@@ -18,6 +19,36 @@ import { validateGeneratedActivities } from '../system/validate-generated-activi
 
 const router = Router()
 const ROUTES = ENDPOINTS.app
+const ACTIVITY_ASSEMBLY_TIMEOUT_MS = Number.parseInt(process.env.ACTIVITY_ASSEMBLY_TIMEOUT_MS ?? '', 10) || 90000
+
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+        const timeout = setTimeout(() => reject(new Error(message)), timeoutMs)
+        promise
+            .then(resolve)
+            .catch(reject)
+            .finally(() => clearTimeout(timeout))
+    })
+}
+
+const REQUIRED_ACTIVITY_CREATE_FIELDS = ['session', 'title', 'constraint', 'intent'] as const
+
+function missingActivityCreateFields(body: Record<string, unknown>): string[] {
+    return REQUIRED_ACTIVITY_CREATE_FIELDS.filter((field) => {
+        const value = body[field]
+        return typeof value !== 'string' || value.trim().length === 0
+    })
+}
+
+function validObjectIdRefs(value: unknown): string[] {
+    if (!Array.isArray(value)) return []
+    return value.filter((entry): entry is string => typeof entry === 'string' && Types.ObjectId.isValid(entry))
+}
+
+function arrayOfStrings(value: unknown): string[] {
+    if (!Array.isArray(value)) return []
+    return value.map((entry) => String(entry ?? '').trim()).filter(Boolean)
+}
 
 router.post(ROUTES.testSelection, async (req: Request, res: Response) => {
     try {
@@ -112,10 +143,19 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
 
         const previousActivities = await Activity.find({ session: req.params.id })
 
+        const inputConstraints = deriveInputConstraints(learningGoals.join(' '))
+        if (inputConstraints.matchedSignals.length === 0) {
+            return res.status(400).json({
+                error:
+                    'I need a soccer training goal to build an activity. Try something like: create better shots, keep possession, break lines, defend in transition, or improve first touch.',
+                stage: 'input-selection',
+                details: ['No supported soccer training signals were found in the learning goals.'],
+            })
+        }
+
         let selection
         try {
             Logger.info(`[Activity Generation] coach learning goals (original): ${JSON.stringify(learningGoals)}`)
-            const inputConstraints = deriveInputConstraints(learningGoals.join(' '))
             selection = generateSelection(
                 {
                     learningGoals,
@@ -142,7 +182,11 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
 
         validateConstraintPackage(assemblyInput.affordances, assemblyInput.archetype, assemblyInput.constraintPackage)
 
-        const assembledActivities = await assembleActivities(assemblyInput)
+        const assembledActivities = await withTimeout(
+            assembleActivities(assemblyInput),
+            ACTIVITY_ASSEMBLY_TIMEOUT_MS,
+            'Activity generation timed out. Please try again with a more specific soccer training goal.'
+        )
         let validatedActivities
 
         try {
@@ -303,6 +347,14 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
             })
         }
 
+        if (error instanceof Error && error.message.includes('timed out')) {
+            return res.status(504).json({
+                error: error.message,
+                stage: 'ai-assembly',
+                details: ['The activity generation request took too long to complete.'],
+            })
+        }
+
         return res.status(500).json({
             error: 'Activity generation failed',
             details: error instanceof Error ? error.message : 'Unknown error',
@@ -403,10 +455,67 @@ BaseRoutes(router, {
 })
 
 // Activity routes
+router.post(ROUTES.activity, async (req: Request, res: Response) => {
+    try {
+        const body = req.body as Record<string, unknown>
+
+        if (!body._id || body._id === 'new') {
+            const missing = missingActivityCreateFields(body)
+            if (missing.length > 0) {
+                return res.status(400).json({
+                    error: 'Missing required activity fields',
+                    missing,
+                })
+            }
+
+            if (!Types.ObjectId.isValid(String(body.session))) {
+                return res.status(400).json({
+                    error: 'Missing required activity fields',
+                    missing: ['session'],
+                })
+            }
+
+            const created = await new Activity({
+                activityStatus: body.activityStatus,
+                session: body.session,
+                title: body.title,
+                constraint: body.constraint,
+                intent: body.intent,
+                extensions: arrayOfStrings(body.extensions),
+                scaffolding: arrayOfStrings(body.scaffolding),
+                playerGroupSizes: Number(body.playerGroupSizes) || undefined,
+                equipmentNeeded: arrayOfStrings(body.equipmentNeeded),
+                affordancesUsed: validObjectIdRefs(body.affordancesUsed),
+                constraintsUsed: validObjectIdRefs(body.constraintsUsed),
+                challengeLevel: body.challengeLevel,
+                duration: Number(body.duration) || undefined,
+                learningPriorities: Array.isArray(body.learningPriorities) ? body.learningPriorities : [],
+                difficultyLevel: body.difficultyLevel,
+                engagementLevel: body.engagementLevel,
+                breakthroughMoments: body.breakthroughMoments,
+                coachComments: body.coachComments,
+                rules: arrayOfStrings(body.rules),
+                scoringSystem: body.scoringSystem,
+                winCondition: body.winCondition,
+                pointsTracking: Array.isArray(body.pointsTracking) ? body.pointsTracking : [],
+                systemTrace: body.systemTrace,
+            }).save()
+
+            return res.status(201).json({ message: 'successfully created', data: created })
+        }
+
+        await Activity.findByIdAndUpdate(body._id, body)
+        return res.status(200).json({ message: 'successfully updated' })
+    } catch (error) {
+        const message = error instanceof Error ? error.message : String(error)
+        return res.status(500).json({ error: message })
+    }
+})
+
 BaseRoutes(router, {
     model: Activity,
     route: ROUTES.activity,
-    excludedRoutes: ['delete'],
+    excludedRoutes: ['delete', 'post'],
     populate: ['session'],
 })
 
