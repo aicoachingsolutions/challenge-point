@@ -160,6 +160,26 @@ function matchesSoccerRelatedDefault(text: string): boolean {
 }
 
 /**
+ * Group F — Finishing / scoring chance / shooting.
+ * Previously absent: inputs explicitly about finishing (shot, scoring chance, penalty box, near
+ * opponent goal) didn't trigger any group, OR triggered Group A (touch/receiving) which
+ * pickPossessionLikeArchetypes-only — excluding Finishing Games from the candidate pool entirely.
+ * Result: finishing-focused inputs defaulted to End Zone or Directional Possession because the
+ * right archetype was filtered out before scoring.
+ */
+function matchesFinishing(text: string): boolean {
+    const t = text.toLowerCase()
+    if (/\bshots?\b|\bshoot\b|\bshooting\b/.test(t)) return true
+    if (/\bfinish\b|\bfinishing\b/.test(t)) return true
+    if (/\bscoring\s+chance(?:s)?\b|\bscore\s+a?\s*chance(?:s)?\b/.test(t)) return true
+    if (/\bpenalty\s+box\b|\bin\s+the\s+box\b|\baround\s+the\s+(?:opponent'?s?\s+)?(?:penalty\s+)?box\b/.test(t)) return true
+    if (/\bnear\s+(?:the\s+)?(?:opponent'?s?\s+)?goal\b|\bin\s+front\s+of\s+(?:the\s+)?goal\b/.test(t)) return true
+    if (/\bconvert\b.*\bchance(?:s)?\b/.test(t)) return true
+    if (/\bget\s+(?:off\s+)?a\s+(?:good\s+)?shot\b/.test(t)) return true
+    return false
+}
+
+/**
  * Rule-based (keyword/signal) hints only. No AI, no scoring, no final selection.
  * Titles are resolved against Test Library V0; missing titles are skipped and noted in `matchedSignals`.
  */
@@ -328,15 +348,25 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
         pickPossessionLikeArchetypes()
     }
 
-    if (matchedSignals.length === 0 && matchesSoccerRelatedDefault(text)) {
-        matchedSignals.push('signalGroup:H_safe_soccer_default')
+    if (matchesFinishing(text)) {
+        matchedSignals.push('signalGroup:F_finishing')
         pickLenses([
-            'Possession Stability Opportunity',
+            'Finishing Opportunity',
             'Space Creation Opportunity',
+            'Space Exploitation Opportunity',
             'Line-Breaking Opportunity',
         ])
-        pickConstraints(['Central Density Condition', 'Wide Zone Advantage', 'Progression Bonus'])
-        pickPossessionLikeArchetypes()
+        pickConstraints([
+            'Goalkeeper Included Condition',
+            'Final Third Value',
+            'Progression Bonus',
+            'Central Density Condition',
+            'Wide Zone Advantage',
+            'Small Area Condition',
+        ])
+        // Finishing-specific archetypes: Finishing Games is the primary fit, with End Zone and
+        // Target as adjacent forms when the input emphasizes target areas or final-third entry.
+        pickArchetypes(['Finishing Games', 'End Zone Games', 'Target Games'])
     }
 
     return {
