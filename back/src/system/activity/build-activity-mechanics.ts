@@ -39,6 +39,12 @@ function sanitizeMechanicLine(line: string): string {
  *
  * Priority 1 originally addressed this for activity.constraints[] by introducing coachFacingConstraints.
  * The same cleanup pattern is now applied to rules and scoring by filtering on this denylist.
+ *
+ * Note: Affordance lens / tag emphasis / consequence pattern wrappers were initially in this list
+ * but caused validateActivitiesAgainstSkeleton to fail (the validator checks that each lens mechanic
+ * line is reflected in the bundle; removing those lines stripped the required tokens). They are
+ * now handled by unwrapAffordanceWrappers() instead — the wrapper prefix is stripped but the
+ * underlying lens content is preserved, satisfying both coach-readability and validation.
  */
 const SCAFFOLDING_LINE_PREFIXES = [
     'Archetype identity:',
@@ -50,10 +56,7 @@ const SCAFFOLDING_LINE_PREFIXES = [
     'Coaching emphasis:',
     'Constraint-support pattern:',
     'Scoring-support pattern:',
-    'Affordance lens "',
-    'Affordance tag emphasis for "',
     'Affordance decision cue for "',
-    'Affordance consequence pattern for "',
     'Affordance constraint support for "',
     'Selected foundation constraint "',
     'Selected shaping constraint "',
@@ -63,10 +66,6 @@ const SCAFFOLDING_LINE_PREFIXES = [
     'Opponent consequence:',
     'Opponent consequence emphasis',
     'Two-sided exchange rule',
-    'Rules must',
-    'Rules and scoring must',
-    'Scoring or live advantage must',
-    'Scoring must',
     '[Affordance]',
     '[Constraint]',
 ] as const
@@ -75,6 +74,35 @@ function isCoachFacingMechanicLine(line: string): boolean {
     const trimmed = line.trim()
     if (!trimmed) return false
     return !SCAFFOLDING_LINE_PREFIXES.some((p) => trimmed.startsWith(p))
+}
+
+/**
+ * Strip affordance-lens wrapper prefixes so the underlying lens content (which is coach-readable
+ * design language like "Rules and scoring must require breaking or bypassing a defensive line...")
+ * surfaces in rules and scoring. The wrapper itself is internal scaffolding meant for AI brief
+ * formatting; the content inside is the actual lens design instruction.
+ *
+ * Three wrapper shapes handled:
+ *   1. 'Affordance lens "X" — reflect lens behaviors in objective, rules, scoring, constraints,
+ *       or coachingFocus: <content>'  (the long lens-description form)
+ *   2. 'Affordance lens "X": <content>'  (the core lens mechanic form)
+ *   3. 'Affordance tag emphasis for "X" (Group): <content>'  (the family-hint form)
+ *   4. 'Affordance consequence pattern for "X": <content>'  (the example-consequence form)
+ *
+ * Affordance decision cue and Affordance constraint support lines are NOT unwrapped here — those
+ * belong in decisionCues (not rules/scoring) and are filtered out by isCoachFacingMechanicLine.
+ */
+function unwrapAffordanceWrappers(line: string): string {
+    const s = line.trim()
+    const reflectMatch = s.match(/^Affordance lens "[^"]+"\s*—\s*reflect lens behaviors in [^:]+:\s*(.*)$/i)
+    if (reflectMatch) return reflectMatch[1]!.trim()
+    const coreMatch = s.match(/^Affordance lens "[^"]+":\s*(.*)$/i)
+    if (coreMatch) return coreMatch[1]!.trim()
+    const tagMatch = s.match(/^Affordance tag emphasis for "[^"]+"\s*\([^)]*\):\s*(.*)$/i)
+    if (tagMatch) return tagMatch[1]!.trim()
+    const consMatch = s.match(/^Affordance consequence pattern for "[^"]+":\s*(.*)$/i)
+    if (consMatch) return consMatch[1]!.trim()
+    return s
 }
 
 /**
@@ -326,8 +354,13 @@ function buildScoringLines(slot: ActivitySkeletonSlot, opponentConsequences: str
     // constraint dumps, assembly guardrails, interaction exchange metadata, etc.) and only keep
     // natural-language scoring rules. The full requiredScoringMechanics is still used for the
     // AI prompt; this filter only affects what flows into activity.scoring.
+    // Pipeline per line: sanitize → unwrap affordance wrappers → filter scaffolding prefixes.
+    // unwrapAffordanceWrappers surfaces lens content (e.g. "Rules and scoring must require
+    // breaking or bypassing a defensive line...") which is needed for skeleton validation
+    // AND is coach-readable in its own right.
     const scoringBase = slot.requiredScoringMechanics
         .map(sanitizeMechanicLine)
+        .map(unwrapAffordanceWrappers)
         .filter(isCoachFacingMechanicLine)
     // scoringSupport (from "Archetype incentive pattern support:" lines) intentionally dropped —
     // these are example-pattern hints meant for the AI prompt brief, not coach-facing scoring
@@ -369,13 +402,13 @@ function buildConstraintLines(slot: ActivitySkeletonSlot): string[] {
 }
 
 function buildRuleLines(slot: ActivitySkeletonSlot, explicitExchangeRule: string): string[] {
-    // Coach-facing rules: drop AI-instruction lines. The full requiredRuleMechanics array is still
-    // used in the AI prompt brief (ruleSummaries) but coaches see only natural-language rules.
-    // Previously this returned all of requiredRuleMechanics plus the scaffolding-prefixed
-    // archetypeAnchor and archetypeRuleSupport lines, producing 30+ rules per activity (most
-    // unreadable scaffolding text). Now: exchange rule + game-form anchor + filtered base only.
+    // Coach-facing rules: sanitize → unwrap affordance wrappers → filter scaffolding prefixes.
+    // Affordance wrappers are unwrapped (not filtered) so the underlying lens design language
+    // surfaces — this is required for skeleton validation (validateActivitiesAgainstSkeleton
+    // checks that each lens mechanic line is reflected in the bundle).
     const ruleBase = slot.requiredRuleMechanics
         .map(sanitizeMechanicLine)
+        .map(unwrapAffordanceWrappers)
         .filter(isCoachFacingMechanicLine)
     const gameFormAnchor = `Game form: ${slot.archetypeName}.`
     return uniqueLines([explicitExchangeRule, gameFormAnchor, ...ruleBase])
