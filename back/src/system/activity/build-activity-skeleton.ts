@@ -580,44 +580,67 @@ function slotProgressionEmphasisFor(index: 1 | 2 | 3): string {
 }
 
 /**
- * Deterministic activity skeleton: three slots with shared mechanics; AI only supplies readable wording.
+ * Per-slot affordance subset count. Implements structural slot differentiation (item H from the
+ * Phase 1 review): each activity slot now has a genuinely different set of affordance lens
+ * obligations rather than every slot being byte-identical with only title/objective varying.
+ *
+ * - Slot 1 (Establish): primary lens only. The coach sees the core decision problem cleanly,
+ *   without secondary lenses muddying the picture.
+ * - Slot 2 (Apply Pressure): primary + first supporting lens. A second decision layer is added.
+ * - Slot 3 (Full Contest): all selected lenses. Full complexity, all decisions active.
+ *
+ * The constraint package and archetype mechanics stay the same across slots (those define the
+ * game form, which is constant). Only the affordance lens content varies progressively.
+ */
+function slotAffordanceCountFor(idx: 1 | 2 | 3, total: number): number {
+    if (idx === 1) return Math.min(1, total)
+    if (idx === 2) return Math.min(2, total)
+    return total
+}
+
+/**
+ * Deterministic activity skeleton: three slots, structurally differentiated by affordance subset.
+ * AI supplies readable wording for each slot; mechanic obligations progress 1→2→all lenses.
  */
 export function buildActivitySkeleton(input: SystemAssemblyInput): ActivitySkeletonBundle {
     const archetypeName = input.archetype.name
     const affordances = uniqueSelectedAffordances(input)
-
-    const flatAffMechanics = affordances.flatMap((a) => affordanceMechanicsForLens(a))
     const constraintMechanics = constraintAndGuardrailMechanics(input)
-
     const archRulesScoring = ruleAndScoringFromArchetype(archetypeName)
-
-    const combinedRules: string[] = [
-        ...archRulesScoring.rules,
-        ...flatAffMechanics.map((m) => `[Affordance] ${m}`),
-        ...constraintMechanics.map((m) => `[Constraint] ${m}`),
-    ]
-    const combinedScoring: string[] = [
-        ...archRulesScoring.scoring,
-        ...flatAffMechanics.map((m) => `[Affordance] ${m}`),
-        ...constraintMechanics.map((m) => `[Constraint] ${m}`),
-    ]
-
     const requiredArchetypeMechanics = archetypeMechanics(archetypeName)
+    const coachFacingConstraints = buildCoachFacingConstraints(input)
 
-    const slots: ActivitySkeletonSlot[] = ([1, 2, 3] as const).map((idx) => ({
-        activityIndex: idx,
-        archetypeName,
-        titleFrame: titleFrameForSlot(archetypeName, idx),
-        setupFrame: setupFrameForSlot(input, idx),
-        slotProgressionEmphasis: slotProgressionEmphasisFor(idx),
-        requiredRuleMechanics: [...combinedRules],
-        requiredScoringMechanics: [...combinedScoring],
-        requiredAffordanceMechanics: [...flatAffMechanics],
-        requiredConstraintMechanics: [...constraintMechanics],
-        coachFacingConstraints: buildCoachFacingConstraints(input),
-        requiredArchetypeMechanics,
-        requiredDecisionLanguage: [...DECISION_STEMS],
-    }))
+    const slots: ActivitySkeletonSlot[] = ([1, 2, 3] as const).map((idx) => {
+        const slotAffordanceCount = slotAffordanceCountFor(idx, affordances.length)
+        const slotAffordances = affordances.slice(0, slotAffordanceCount)
+        const slotAffMechanics = slotAffordances.flatMap((a) => affordanceMechanicsForLens(a))
+
+        const combinedRulesForSlot: string[] = [
+            ...archRulesScoring.rules,
+            ...slotAffMechanics.map((m) => `[Affordance] ${m}`),
+            ...constraintMechanics.map((m) => `[Constraint] ${m}`),
+        ]
+        const combinedScoringForSlot: string[] = [
+            ...archRulesScoring.scoring,
+            ...slotAffMechanics.map((m) => `[Affordance] ${m}`),
+            ...constraintMechanics.map((m) => `[Constraint] ${m}`),
+        ]
+
+        return {
+            activityIndex: idx,
+            archetypeName,
+            titleFrame: titleFrameForSlot(archetypeName, idx),
+            setupFrame: setupFrameForSlot(input, idx),
+            slotProgressionEmphasis: slotProgressionEmphasisFor(idx),
+            requiredRuleMechanics: combinedRulesForSlot,
+            requiredScoringMechanics: combinedScoringForSlot,
+            requiredAffordanceMechanics: [...slotAffMechanics],
+            requiredConstraintMechanics: [...constraintMechanics],
+            coachFacingConstraints,
+            requiredArchetypeMechanics,
+            requiredDecisionLanguage: [...DECISION_STEMS],
+        }
+    })
 
     return { activities: slots }
 }
@@ -634,27 +657,29 @@ export function formatActivitySkeletonForPrompt(bundle: ActivitySkeletonBundle):
 
     const ref = bundle.activities[0]
     if (ref) {
+        // Genuinely shared across all slots: archetype identity, constraint package, decision language.
+        // (Affordance/rule/scoring mechanics now progress per slot — see per-slot blocks below.)
         lines.push('Shared mechanics (apply to activities 1, 2, and 3 — each activity must satisfy all of these):')
         lines.push('requiredArchetypeMechanics:')
         for (const r of ref.requiredArchetypeMechanics) lines.push(`  - ${r}`)
-        lines.push('requiredAffordanceMechanics:')
-        for (const r of ref.requiredAffordanceMechanics) lines.push(`  - ${r}`)
         lines.push('requiredConstraintMechanics (foundation, shaping, consequence, assembly guardrails):')
         for (const r of ref.requiredConstraintMechanics) lines.push(`  - ${r}`)
-        lines.push('requiredRuleMechanics:')
-        for (const r of ref.requiredRuleMechanics) lines.push(`  - ${r}`)
-        lines.push('requiredScoringMechanics:')
-        for (const r of ref.requiredScoringMechanics) lines.push(`  - ${r}`)
         lines.push('requiredDecisionLanguage (use whole-word stems somewhere in each activity bundle):')
         lines.push(`  - ${ref.requiredDecisionLanguage.join(', ')}`)
         lines.push('')
     }
 
     for (const slot of bundle.activities) {
-        lines.push(`--- Activity ${slot.activityIndex} (per-slot framing only) ---`)
+        lines.push(`--- Activity ${slot.activityIndex} ---`)
         lines.push(`slotProgressionEmphasis: ${slot.slotProgressionEmphasis}`)
         lines.push(`titleFrame: ${slot.titleFrame}`)
         lines.push(`setupFrame: ${slot.setupFrame}`)
+        lines.push('requiredAffordanceMechanics (this slot — fewer lenses for slot 1, all lenses for slot 3):')
+        for (const r of slot.requiredAffordanceMechanics) lines.push(`  - ${r}`)
+        lines.push('requiredRuleMechanics (this slot):')
+        for (const r of slot.requiredRuleMechanics) lines.push(`  - ${r}`)
+        lines.push('requiredScoringMechanics (this slot):')
+        for (const r of slot.requiredScoringMechanics) lines.push(`  - ${r}`)
         lines.push('')
     }
 
