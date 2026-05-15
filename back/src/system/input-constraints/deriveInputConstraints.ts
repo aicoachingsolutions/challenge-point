@@ -127,17 +127,6 @@ function matchesBreakLines(text: string): boolean {
 }
 
 /** Group E — Regain / pressing */
-function matchesFinishing(text: string): boolean {
-    const t = text.toLowerCase()
-    if (/\bshots?\b|\bshooting\b|\bshoot\b/.test(t)) return true
-    if (/\bfinish(?:ing)?\b|\bscore\b|\bscoring\b/.test(t)) return true
-    if (/\bgoals?\b|\bgoal scoring\b/.test(t)) return true
-    if (/\bchances?\b|\bchance creation\b/.test(t)) return true
-    if (/\bfinal third\b|\battacking third\b/.test(t)) return true
-    if (/\bcreate better shots?\b|\bcreating better shots?\b|\bcreate shots?\b/.test(t)) return true
-    return false
-}
-
 function matchesRegainPressing(text: string): boolean {
     const t = text.toLowerCase()
     if (/\bregain\b/.test(t)) return true
@@ -229,13 +218,6 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
         }
     }
 
-    const pickFinishingArchetypes = () => {
-        for (const title of ['Target Games', 'Channel Games']) {
-            const id = resolveArchetypeTitle(title, matchedSignals)
-            if (id) archetypeIds.push(id)
-        }
-    }
-
     if (matchesTouchReceiving(text)) {
         matchedSignals.push('signalGroup:A_touch_receiving')
         pickLenses([
@@ -316,23 +298,6 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
             'Central Density Condition',
         ])
         pickArchetypes(['End Zone Games', 'Directional Possession Games', 'Target Games', 'Channel Games'])
-    }
-
-    if (matchesFinishing(text)) {
-        matchedSignals.push('signalGroup:G_finishing_chance_creation')
-        pickLenses([
-            'Finishing Opportunity',
-            'Line-Breaking Opportunity',
-            'Space Creation Opportunity',
-            'Space Exploitation Opportunity',
-        ])
-        pickConstraints([
-            'Final Third Value',
-            'Progression Bonus',
-            'Wide Zone Advantage',
-            'Central Density Condition',
-        ])
-        pickFinishingArchetypes()
     }
 
     if (matchesRegainPressing(text)) {
