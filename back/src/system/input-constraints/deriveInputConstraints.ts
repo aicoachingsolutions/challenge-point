@@ -126,6 +126,29 @@ function matchesBreakLines(text: string): boolean {
     return false
 }
 
+/**
+ * Group F — Finishing / scoring chance / shooting.
+ * Previously absent: finishing-flavored inputs (shot, scoring chance, penalty box, near opponent
+ * goal) didn't trigger any group, OR triggered Group A (touch/receiving) which restricted the
+ * archetype pool to possession-like archetypes only — excluding Finishing Games entirely. The
+ * matcher catches both broad finishing vocabulary (shot/finish/score/chance/final third) and
+ * specific finishing-context phrases (penalty box / around the box / near the goal / get off a shot).
+ */
+function matchesFinishing(text: string): boolean {
+    const t = text.toLowerCase()
+    if (/\bshots?\b|\bshooting\b|\bshoot\b/.test(t)) return true
+    if (/\bfinish(?:ing)?\b|\bscore\b|\bscoring\b/.test(t)) return true
+    if (/\bgoals?\b|\bgoal scoring\b/.test(t)) return true
+    if (/\bchances?\b|\bchance creation\b/.test(t)) return true
+    if (/\bfinal third\b|\battacking third\b/.test(t)) return true
+    if (/\bcreate better shots?\b|\bcreating better shots?\b|\bcreate shots?\b/.test(t)) return true
+    if (/\bpenalty\s+box\b|\bin\s+the\s+box\b|\baround\s+the\s+(?:opponent'?s?\s+)?(?:penalty\s+)?box\b/.test(t)) return true
+    if (/\bnear\s+(?:the\s+)?(?:opponent'?s?\s+)?goal\b|\bin\s+front\s+of\s+(?:the\s+)?goal\b/.test(t)) return true
+    if (/\bconvert\b.*\bchance(?:s)?\b/.test(t)) return true
+    if (/\bget\s+(?:off\s+)?a\s+(?:good\s+)?shot\b/.test(t)) return true
+    return false
+}
+
 /** Group E — Regain / pressing */
 function matchesRegainPressing(text: string): boolean {
     const t = text.toLowerCase()
@@ -146,26 +169,6 @@ function matchesSoccerRelatedDefault(text: string): boolean {
     return /\bsoccer\b|\bfootball\b|\bplayers?\b|\bteams?\b|\bball\b|\battack(?:ing)?\b|\bdefen[cs]e\b|\bmidfield\b/.test(
         t
     )
-}
-
-/**
- * Group F — Finishing / scoring chance / shooting.
- * Previously absent: inputs explicitly about finishing (shot, scoring chance, penalty box, near
- * opponent goal) didn't trigger any group, OR triggered Group A (touch/receiving) which
- * pickPossessionLikeArchetypes-only — excluding Finishing Games from the candidate pool entirely.
- * Result: finishing-focused inputs defaulted to End Zone or Directional Possession because the
- * right archetype was filtered out before scoring.
- */
-function matchesFinishing(text: string): boolean {
-    const t = text.toLowerCase()
-    if (/\bshots?\b|\bshoot\b|\bshooting\b/.test(t)) return true
-    if (/\bfinish\b|\bfinishing\b/.test(t)) return true
-    if (/\bscoring\s+chance(?:s)?\b|\bscore\s+a?\s*chance(?:s)?\b/.test(t)) return true
-    if (/\bpenalty\s+box\b|\bin\s+the\s+box\b|\baround\s+the\s+(?:opponent'?s?\s+)?(?:penalty\s+)?box\b/.test(t)) return true
-    if (/\bnear\s+(?:the\s+)?(?:opponent'?s?\s+)?goal\b|\bin\s+front\s+of\s+(?:the\s+)?goal\b/.test(t)) return true
-    if (/\bconvert\b.*\bchance(?:s)?\b/.test(t)) return true
-    if (/\bget\s+(?:off\s+)?a\s+(?:good\s+)?shot\b/.test(t)) return true
-    return false
 }
 
 /**
@@ -300,6 +303,29 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
         pickArchetypes(['End Zone Games', 'Directional Possession Games', 'Target Games', 'Channel Games'])
     }
 
+    if (matchesFinishing(text)) {
+        matchedSignals.push('signalGroup:F_finishing')
+        pickLenses([
+            'Finishing Opportunity',
+            'Line-Breaking Opportunity',
+            'Space Creation Opportunity',
+            'Space Exploitation Opportunity',
+        ])
+        pickConstraints([
+            'Goalkeeper Included Condition',
+            'Final Third Value',
+            'Progression Bonus',
+            'Wide Zone Advantage',
+            'Central Density Condition',
+            'Small Area Condition',
+        ])
+        // Finishing Games is the primary fit. End Zone Games (target-zone entry), Target Games
+        // (target-player connect), and Channel Games (wide-area access to box) are adjacent
+        // forms the engine can choose between based on which scores highest under the
+        // vocabulary bridge.
+        pickArchetypes(['Finishing Games', 'End Zone Games', 'Target Games', 'Channel Games'])
+    }
+
     if (matchesRegainPressing(text)) {
         matchedSignals.push('signalGroup:E_regain_pressing')
         pickLenses([
@@ -311,27 +337,6 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
         pickConstraints(['Interception Reward', 'Turnover Reward', 'Transition Trigger', 'Delay Reward'])
         pickArchetypes(['Pressing & Regain Games', 'Transition Games'])
         pickPossessionLikeArchetypes()
-    }
-
-    if (matchesFinishing(text)) {
-        matchedSignals.push('signalGroup:F_finishing')
-        pickLenses([
-            'Finishing Opportunity',
-            'Space Creation Opportunity',
-            'Space Exploitation Opportunity',
-            'Line-Breaking Opportunity',
-        ])
-        pickConstraints([
-            'Goalkeeper Included Condition',
-            'Final Third Value',
-            'Progression Bonus',
-            'Central Density Condition',
-            'Wide Zone Advantage',
-            'Small Area Condition',
-        ])
-        // Finishing-specific archetypes: Finishing Games is the primary fit, with End Zone and
-        // Target as adjacent forms when the input emphasizes target areas or final-third entry.
-        pickArchetypes(['Finishing Games', 'End Zone Games', 'Target Games'])
     }
 
     return {

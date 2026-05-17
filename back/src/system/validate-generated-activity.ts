@@ -855,10 +855,19 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
             }
         }
 
+            // setup is optional (added in item G); pass through from candidate if present.
+            // Without this explicit pass-through, the validator's allowlist-style activity
+            // reconstruction would drop the AI-written setup description and coaches would
+            // never see field dimensions / zone definitions / constraint parameters in the UI.
+            const setup = typeof candidate.setup === 'string' && candidate.setup.trim().length > 0
+                ? candidate.setup
+                : undefined
+
             validActivities.push({
             title,
             constraint: `${packageSummary}. ${constraint}`,
             intent,
+            setup,
             playerGroupSizes,
             scaffolding,
             extensions,
