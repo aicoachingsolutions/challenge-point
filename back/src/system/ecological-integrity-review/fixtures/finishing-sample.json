@@ -1,0 +1,40 @@
+{
+  "activity": {
+    "title": "Initial Finishing Challenge",
+    "setup": "Set up a small-sided game in the final third with goals and live defenders. Use cones to mark wide zones. Restarts occur from the goalkeeper.",
+    "teams": "Two teams compete in final third attacking and defending; the attacking team creates and converts scoring chances under live defensive pressure while the defending team contests finishing opportunities and counter-attacks immediately from clearances. Player structure logic: Even or attacking overload.",
+    "objective": "Players choose when to exploit wide zones and decide the best moment to shoot or pass under pressure from defenders. Session focus: Create and convert scoring chances.",
+    "rules": [
+      "If a team recognizes the live opportunity created by Wide Zone Advantage, then they exploit it under pressure, keep the next action live, and gain the selected advantage; but if they force the action into pressure or lose the ball while the picture is closed, then the opponent gains the connected restart, regain, or counter-attacking advantage, and play continues live inside the Small Area Condition.",
+      "Game form: Finishing Games.",
+      "Final third context — all game actions take place in or around the scoring area under live defensive pressure.",
+      "Live defenders contest every finishing attempt; clearances and saves create immediate counter-attack opportunities."
+    ],
+    "scoring": "A goal or live advantage counts only when the team creates a genuine scoring chance under live defensive pressure and converts it. Scoring must be tied to genuine finishing chances created and converted under live defensive pressure. Players face a decision — shoot, cut inside, or hold for a better angle based on goalkeeper position and defensive cover. Rules and scoring must create live finishing situations under defensive contest; success must reward genuine chance creation and conversion. If the live opportunity is forced after it closes, the opponent inherits the connected advantage immediately.",
+    "constraints": [
+      "Small Area Condition: Compact pitch proportions place teams in tight space with reduced time.",
+      "Wide Zone Advantage: Provide scoring or positional advantage in wide areas.",
+      "Progression Bonus: Reward advancement into attacking areas through successful progression."
+    ],
+    "coachingFocus": [
+      "Watch how players read goalkeeper position and defensive cover before deciding.",
+      "Focus on the live decisions — how players read pressure, space, and support, and how they adapt when the picture changes.",
+      "Players read goalkeeper position, defensive cover, and angle of approach before deciding to shoot, cut inside, or hold for a better chance."
+    ]
+  },
+  "context": {
+    "archetypeName": "Finishing Games",
+    "selectedAffordanceTitles": [
+      "Finishing Opportunity",
+      "Space Creation Opportunity",
+      "Space Exploitation Opportunity"
+    ],
+    "selectedConstraintTitles": [
+      "Small Area Condition",
+      "Wide Zone Advantage",
+      "Progression Bonus"
+    ],
+    "slotIndex": 1,
+    "playerCount": 15
+  }
+}
