@@ -481,6 +481,7 @@ router.post(ROUTES.activity, async (req: Request, res: Response) => {
                 title: body.title,
                 constraint: body.constraint,
                 intent: body.intent,
+                setup: typeof body.setup === 'string' ? body.setup : undefined,
                 extensions: arrayOfStrings(body.extensions),
                 scaffolding: arrayOfStrings(body.scaffolding),
                 playerGroupSizes: Number(body.playerGroupSizes) || undefined,

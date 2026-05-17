@@ -121,6 +121,10 @@ export default function ActivityGenerator() {
             title: selectedActivity.title,
             constraint: selectedActivity.constraint,
             intent: selectedActivity.intent,
+            // Pass through the AI-written setup description so the saved activity (which the
+            // coach navigates to in the detail view) retains it. Without this, the generator
+            // view shows Setup but the saved activity in ActivityPage doesn't.
+            setup: selectedActivity.setup,
             extensions: selectedActivity.extensions ?? [],
             scaffolding: selectedActivity.scaffolding ?? [],
             playerGroupSizes: selectedActivity.playerGroupSizes,
@@ -532,10 +536,10 @@ function GeneratedActivityCard({
                         {/* Setup — field dimensions, zones, numbers, equipment, restart logic.
                             The AI-written setup description so coaches can physically set up the
                             activity without inventing parameters. */}
-                        {(activity as any).setup && (
+                        {activity.setup && (
                             <div className='p-3 rounded-lg bg-blue-50 border border-blue-200'>
                                 <p className='text-xs font-semibold uppercase tracking-wide text-blue-700 mb-1'>Setup</p>
-                                <p className='text-sm leading-relaxed text-blue-900 whitespace-pre-line'>{(activity as any).setup}</p>
+                                <p className='text-sm leading-relaxed text-blue-900 whitespace-pre-line'>{activity.setup}</p>
                             </div>
                         )}
 

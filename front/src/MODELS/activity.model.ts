@@ -55,6 +55,8 @@ export interface IActivity {
     title: string
     constraint: string
     intent: string
+    /** Coach-facing setup description: field dimensions, zones, numbers, equipment, restart logic. */
+    setup?: string
     extensions: string[]
     scaffolding: string[]
     playerGroupSizes: number
