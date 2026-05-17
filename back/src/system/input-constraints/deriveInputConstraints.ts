@@ -149,6 +149,7 @@ function matchesFinishing(text: string): boolean {
     return false
 }
 
+/** Group E — Regain / pressing */
 function matchesRegainPressing(text: string): boolean {
     const t = text.toLowerCase()
     if (/\bregain\b/.test(t)) return true
@@ -215,13 +216,6 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
      */
     const pickPossessionLikeArchetypes = () => {
         for (const title of ['Directional Possession Games', 'Overload Games', 'End Zone Games']) {
-            const id = resolveArchetypeTitle(title, matchedSignals)
-            if (id) archetypeIds.push(id)
-        }
-    }
-
-    const pickFinishingArchetypes = () => {
-        for (const title of ['Target Games', 'Channel Games']) {
             const id = resolveArchetypeTitle(title, matchedSignals)
             if (id) archetypeIds.push(id)
         }
