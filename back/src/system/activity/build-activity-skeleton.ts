@@ -51,51 +51,63 @@ function coachSafeGuardrailText(s: string): string {
         .replace(/\bmust decide\b/gi, 'decide')
 }
 
+/**
+ * Lens core mechanic, written in coach voice.
+ *
+ * Christian's translation-layer feedback: the engine "still SPEAKS in validator architecture" —
+ * every lens core mechanic was previously phrased as a system-to-system instruction ("Rules and
+ * scoring must require X"). When surfaced in coach-facing scoring, that read as the system
+ * talking to itself, not as a coaching rule.
+ *
+ * The rewrites below preserve the ecological tokens the skeleton validator scans for (regain,
+ * line-breaking, possession, pressure, space, etc.) but voice-shift from "the system must require"
+ * to "score awarded for / coaches watch for" — i.e., what a coach would actually write.
+ */
 function affordanceMechanics(title: string): string[] {
     switch (title) {
         case 'Possession Stability Opportunity':
             return [
-                'Rules and scoring must require maintaining or securing possession under pressure; success cannot ignore retention under opponent pressure.',
+                'Score awarded only when possession is maintained or secured under live opponent pressure; losing the ball when the picture closes hands the connected advantage to the opponent.',
             ]
         case 'Space Creation Opportunity':
             return [
-                'Rules and scoring must require creating or opening space for a teammate; the game must reward or hinge on stretching or unbalancing defenders.',
+                'Score awarded for plays that visibly create or open space for a teammate — stretching, unbalancing, or pulling defenders out of position so a teammate has a free option.',
             ]
         case 'Space Exploitation Opportunity':
             return [
-                'Rules and scoring must require using open space to gain advantage; success must connect to attacking or progressing into available space before pressure recovers.',
+                'Score awarded for attacks that use available space to gain advantage — players must progress into the open space before defensive pressure recovers, or the chance is lost.',
             ]
         case 'Line-Breaking Opportunity':
             return [
-                'Rules and scoring must require breaking or bypassing a defensive line; the game must reward or punish outcomes tied to line-breaking attempts.',
+                'Score awarded for passes or runs that break or bypass a defensive line; line-breaking attempts that are read and intercepted hand the advantage to the opponent on the regain.',
             ]
         case 'Regain Opportunity':
             return [
-                'Rules and scoring must reward winning the ball back or forcing a turnover; regain moments must change who attacks and who defends.',
+                'Score awarded for winning the ball back or forcing a turnover; the regain moment immediately switches roles between attackers and defenders, and the new attackers play live.',
             ]
         case 'Transition Attack Opportunity':
             return [
-                'Rules and scoring must structurally reward quick attacking action immediately after winning possession; the transition window must be live and the advantage must dissipate when defensive shape recovers.',
+                'Score awarded for quick attacking action immediately after winning possession; the transition window stays live only until the defensive shape recovers, after which the advantage dissipates.',
             ]
         case 'Finishing Opportunity':
             return [
-                'Rules and scoring must create live finishing situations under defensive contest; success must reward genuine chance creation and conversion — chances that survive live defender pressure and goalkeeper presence — not raw shot counts.',
+                'Score awarded only for genuine chances created and converted under live defensive contest — chances that survive live defender pressure and goalkeeper presence count, raw shot counts do not.',
             ]
         case 'Delay or Deny Opportunity':
             return [
-                'Rules and scoring must reward defensive actions that slow attacking progression or deny forward options; success must include outcomes where attacks are forced backward, wide, or into recovered pressure — not just turnovers.',
+                'Defenders score when they slow attacking progression or deny forward options — attacks forced backward, wide, or into recovered pressure count as defensive success, not only turnovers.',
             ]
         case 'Space Protection Opportunity':
             return [
-                'Rules and scoring must require defending teams to protect critical space; success must include outcomes where attacks are forced away from protected areas, with defensive shape and compactness shaping what the attack can access.',
+                'Defenders score when attacks are forced away from protected space — defensive shape and compactness shape what the attack can access, and successful protection counts as advantage.',
             ]
         case 'Recovery Opportunity':
             return [
-                'Rules and scoring must reward defensive recovery after disruption — tracking runs back, restoring shape, and reorganizing under transition pressure; success must depend on whether the defense restores shape before the attack converts.',
+                'Defenders score when they recover shape after disruption — tracking back, restoring structure, and reorganizing before the attack converts counts as defensive success.',
             ]
         default:
             return [
-                `Rules and scoring must structurally require players to engage with "${title}" — not as a coaching label only.`,
+                `Score awarded when players visibly engage with the "${title}" problem in live play — not when they recite or label the affordance.`,
             ]
     }
 }
@@ -120,22 +132,22 @@ function affordanceFamilyHints(aff: ExtendedAffordance): string[] {
         .toLowerCase()
 
     if (/space|width|depth/.test(searchSpace)) {
-        return ['Spacing, width, and depth must shape how the next action is chosen and executed.']
+        return ['Players read spacing, width, and depth before choosing the next action — the available space defines what is on.']
     }
     if (/transition|regain|recover|attack quickly|fast/.test(searchSpace)) {
-        return ['The game must make the next action immediate after regain or loss while the picture is still changing.']
+        return ['The next action plays immediately after the ball changes hands while the picture is still changing — no reset, no stoppage.']
     }
     if (/retain|possession|stable|support/.test(searchSpace)) {
-        return ['Possession security, support distance, and safe exits under pressure must shape the next action.']
+        return ['Players read possession security, support distance, and safe exits under pressure before choosing the next action.']
     }
     if (/protect|delay|deny|recover shape|defensive/.test(searchSpace)) {
-        return ['Shielding, protection of space, or defensive body position must shape the response to pressure.']
+        return ['Defenders use shielding, protection of space, or defensive body position to shape how attackers respond to pressure.']
     }
     if (/finish|goal|shot|target/.test(searchSpace)) {
-        return ['Shot, target access, or final completion pressure must shape whether the attack is ready now.']
+        return ['Players read shot access, target availability, and final completion pressure to choose whether the attack is ready now.']
     }
     if (/break|line|progress|penetrate/.test(searchSpace)) {
-        return ['Forward penetration or line breaking must shape whether the team attacks through, around, or away from pressure.']
+        return ['Players choose whether to attack through, around, or away from pressure based on whether forward penetration is on or the line is closed.']
     }
     return []
 }
@@ -303,12 +315,12 @@ function ruleAndScoringFromArchetype(archetypeName: string): { rules: string[]; 
                     core[0],
                     core[1],
                     core[2],
-                    'Two-sided exchange rule must describe opportunity, opponent response, and live continuation.',
+                    'Two-sided contest: when the team in possession progresses toward the target, play continues live; when the ball is forced or lost, the opponent regains and attacks back.',
                     ...overlay.ruleSupport,
                 ],
                 scoring: [
-                    'Scoring or live advantage must reward progression toward the directional target.',
-                    'Scoring must reflect maintaining possession under pressure when that is the contest.',
+                    'A point or live advantage counts when the team progresses possession toward the directional target.',
+                    'Possession kept under live pressure is scored when retention itself is the contest.',
                     core[3],
                     ...overlay.scoringSupport,
                 ],
@@ -319,31 +331,31 @@ function ruleAndScoringFromArchetype(archetypeName: string): { rules: string[]; 
                     core[0],
                     core[1],
                     core[2],
-                    'Two-sided exchange rule must describe overload opportunity and opponent counter-threat.',
+                    'Two-sided contest: the overload side exploits the numerical advantage to create a clear opportunity; the under-numbered side counter-threatens on every regain.',
                     ...overlay.ruleSupport,
                 ],
-                scoring: [core[3], 'Points or advantages tied to successful overload entry or exploitation.', ...overlay.scoringSupport],
+                scoring: [core[3], 'A point or live advantage counts when the team enters or exploits the overload to create a clear opportunity.', ...overlay.scoringSupport],
             }
         case 'Pressing & Regain Games':
             return {
-                rules: [core[0], core[1], core[2], 'Rules must chain regain to immediate next-phase play.', ...overlay.ruleSupport],
-                scoring: [core[3], 'Scoring or advantage shifts on turnover or regain.', ...overlay.scoringSupport],
+                rules: [core[0], core[1], core[2], 'Every regain immediately chains into the next phase — no whistle, no reset, the regaining team plays on with the live advantage.', ...overlay.ruleSupport],
+                scoring: [core[3], 'A point or live advantage shifts on each turnover or regain — the side that wins the ball plays live with the advantage.', ...overlay.scoringSupport],
             }
         case 'End Zone Games':
             return {
-                rules: [core[0], core[1], core[2], 'Rules define how teams contest entry into the target zone.', ...overlay.ruleSupport],
-                scoring: [core[3], 'Goals or bonuses tied to end-zone entry or use.', ...overlay.scoringSupport],
+                rules: [core[0], core[1], core[2], 'Teams contest entry into the target zone — attackers progress toward it under live pressure, defenders block and counter on any regain.', ...overlay.ruleSupport],
+                scoring: [core[3], 'A goal or bonus counts only when the team enters or uses the target end zone under live opposition.', ...overlay.scoringSupport],
             }
         case 'Positional Play Games':
             return {
                 rules: [
                     core[0],
                     core[2],
-                    'Two-sided exchange rule must describe positional advantage gained and opponent ability to recover or disrupt the structure.',
+                    'Two-sided contest: the team in possession finds a positional advantage — numerical superiority or a free player in a zone — and exploits it before the defensive shape recovers or disrupts the structure.',
                     ...overlay.ruleSupport,
                 ],
                 scoring: [
-                    'Scoring or live advantage must reward positional advantage — numerical superiority or a free player in a zone — exploited before defensive coverage recovers.',
+                    'A point or live advantage counts when a positional advantage — numerical superiority, a free player in a zone, or a clear line of progression — is used before the defensive structure recovers.',
                     core[1],
                     core[3],
                     ...overlay.scoringSupport,
@@ -354,11 +366,11 @@ function ruleAndScoringFromArchetype(archetypeName: string): { rules: string[]; 
                 rules: [
                     core[0],
                     core[1],
-                    'Rules must chain the transition moment to immediate attacking action — the advantage exists only before defensive shape is restored.',
+                    'The transition moment chains directly into the next attacking action — the advantage is live only before the defensive shape is restored.',
                     ...overlay.ruleSupport,
                 ],
                 scoring: [
-                    'Scoring or live advantage must reward exploitation of transition space — attacking before the defensive shape recovers.',
+                    'A point or live advantage counts when the team attacks the transition space immediately after winning possession — before the defensive shape is restored.',
                     core[3],
                     ...overlay.scoringSupport,
                 ],
@@ -368,11 +380,11 @@ function ruleAndScoringFromArchetype(archetypeName: string): { rules: string[]; 
                 rules: [
                     core[0],
                     core[1],
-                    'Two-sided exchange rule must describe target connection earned under pressure and opponent contest of that connection.',
+                    'Two-sided contest: attackers earn the target connection under live pressure; defenders contest the connection and counter on any failed delivery.',
                     ...overlay.ruleSupport,
                 ],
                 scoring: [
-                    'Scoring or live advantage must reward successful target connection under live pressure and continuation from that connection.',
+                    'A point or live advantage counts when the team connects to the target under live defensive pressure and continues the attack from that connection.',
                     core[3],
                     ...overlay.scoringSupport,
                 ],
@@ -382,11 +394,11 @@ function ruleAndScoringFromArchetype(archetypeName: string): { rules: string[]; 
                 rules: [
                     core[0],
                     core[1],
-                    'Two-sided exchange rule must describe channel entry earned and opponent coverage shift to close or switch the open lane.',
+                    'Two-sided contest: attackers earn entry into an open channel; defenders shift coverage to close the lane or force a switch to the next channel.',
                     ...overlay.ruleSupport,
                 ],
                 scoring: [
-                    'Scoring or live advantage must reward channel exploitation — attacking the defensive imbalance through the open lane before coverage recovers.',
+                    'A point or live advantage counts when the team exploits an open channel — attacking the defensive imbalance through the lane before coverage shifts to close it.',
                     core[3],
                     ...overlay.scoringSupport,
                 ],
@@ -396,11 +408,11 @@ function ruleAndScoringFromArchetype(archetypeName: string): { rules: string[]; 
                 rules: [
                     core[0],
                     core[2],
-                    'Rules must establish live finishing situations — defenders contest every attempt and counter-attack from clearances is immediate.',
+                    'Defenders contest every finishing attempt; clearances and saves immediately become counter-attack opportunities for the defending team.',
                     ...overlay.ruleSupport,
                 ],
                 scoring: [
-                    'Scoring must be tied to genuine finishing chances created and converted under live defensive pressure.',
+                    'A goal or live advantage counts only for genuine finishing chances created and converted under live defensive pressure — not for raw shot counts.',
                     core[3],
                     ...overlay.scoringSupport,
                 ],
@@ -410,19 +422,19 @@ function ruleAndScoringFromArchetype(archetypeName: string): { rules: string[]; 
                 rules: [
                     core[0],
                     core[1],
-                    'Rules are defined by the selected constraints — all other play is free within the genuinely contested live game.',
+                    'The selected constraints define the structure; all other play is free within a genuinely contested live game.',
                     ...overlay.ruleSupport,
                 ],
                 scoring: [
-                    'Scoring reflects the selected constraint outcomes — both teams earn advantages and face live risks from the constraint game.',
+                    'Scoring reflects the selected constraint outcomes — both teams earn advantages and face live risks shaped by the constraint package.',
                     core[3],
                     ...overlay.scoringSupport,
                 ],
             }
         default:
             return {
-                rules: ['Rules encode opposition, environment, and live continuation.', core[0], ...overlay.ruleSupport],
-                scoring: ['Scoring states advantage for both teams and ties to the archetype contest.', ...overlay.scoringSupport],
+                rules: ['Rules describe opposition, the live environment, and continuation of play after each outcome.', core[0], ...overlay.ruleSupport],
+                scoring: ['Scoring describes how each side earns advantage in the archetype contest.', ...overlay.scoringSupport],
             }
     }
 }
