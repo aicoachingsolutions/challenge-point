@@ -66,6 +66,8 @@ const SCAFFOLDING_LINE_PREFIXES = [
     'Opponent consequence:',
     'Opponent consequence emphasis',
     'Two-sided exchange rule',
+    'The activity interaction should follow:',
+    'Game structure must clearly embody',
     '[Affordance]',
     '[Constraint]',
 ] as const
@@ -417,8 +419,10 @@ function buildRuleLines(slot: ActivitySkeletonSlot, explicitExchangeRule: string
         .map(sanitizeMechanicLine)
         .map(unwrapAffordanceWrappers)
         .filter(isCoachFacingMechanicLine)
-    const gameFormAnchor = `Game form: ${slot.archetypeName}.`
-    return uniqueLines([explicitExchangeRule, gameFormAnchor, ...ruleBase])
+    // Note: previously this prepended `Game form: ${slot.archetypeName}.` as a meta-anchor. That
+    // duplicates the activity title (which already names the game form) and reads as system
+    // metadata rather than a rule. Dropped per Christian's translation-layer feedback.
+    return uniqueLines([explicitExchangeRule, ...ruleBase])
 }
 
 function buildMechanicsForSlot(slot: ActivitySkeletonSlot): ActivityMechanics {

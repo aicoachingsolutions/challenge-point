@@ -640,7 +640,14 @@ function mapStructuredActivityToLegacy(activity: Activity, input: SystemAssembly
         .filter(Boolean)
         .join(' ')
 
-    const winCondition = `Teams compete live; ${activity.scoring} Opponent gains advantage immediately on turnovers or forced misreads against pressure.`
+    // winCondition is a short framing statement, not a duplicate of scoring. Previously this
+    // interpolated the entire scoring text plus a trailing sentence, producing a ~500-character
+    // duplicate of the scoring section that Christian's translation-layer feedback called out
+    // as overwhelming. The first sentence of scoring is the archetype-specific scoring rule;
+    // surfacing only that gives the coach a one-line "what counts as winning" without repeating
+    // the whole scoring block.
+    const scoringFirstSentence = (activity.scoring.split(/(?<=[.!?])\s+/, 1)[0] ?? activity.scoring).trim()
+    const winCondition = `Teams compete live under two-sided opposition. ${scoringFirstSentence} The opponent inherits the connected advantage on every misread or forced action under pressure.`
 
     const now = new Date()
     const playerGroupSizes =
