@@ -558,13 +558,20 @@ function buildCoachFacingConstraints(input: SystemAssemblyInput): string[] {
     return lines.filter(Boolean)
 }
 
+/**
+ * Per Christian's Session Emphasis & Environmental Intention Framework, the three activities are
+ * PARALLEL ENVIRONMENTAL REALIZATIONS of the same session emphasis — not progressive stages.
+ * Title frames signal "alternative realization N" rather than "stage N of a difficulty ramp."
+ * The system must avoid implying Activity 3 is more advanced or that Activity 2 builds toward
+ * Activity 3.
+ */
 function titleFrameForSlot(archetypeName: string, index: 1 | 2 | 3): string {
     const themes = [
-        `Establishing variant of the ${archetypeName} game form — Activity 1 introduces the central problem. Title should signal this is the entry-level expression of the session goal.`,
-        `Pressure variant of the ${archetypeName} game form — Activity 2 dials up the shaping pressure with the same constraint package. Title should signal sharper behavioral demand, not a different game.`,
-        `Full-contest variant of the ${archetypeName} game form — Activity 3 is the most complex. Title should signal the maximum challenge and the full constraint contest.`,
+        `Alternative realization of the ${archetypeName} game form — this activity offers one configuration of the session's environmental intention. Title should distinguish this activity from the other two without implying it is easier, earlier, or less advanced.`,
+        `Alternative realization of the ${archetypeName} game form — this activity offers a different configuration of the same environmental intention (different spatial organization, transition condition, scoring nuance, or numerical relationship). Title should signal a parallel design, not a progression.`,
+        `Alternative realization of the ${archetypeName} game form — this activity offers a third configuration of the same environmental intention. Title should signal a parallel design, not the "hardest" or "final" version.`,
     ]
-    return `${themes[index - 1]} Title must stay distinct from the other two activities and reflect this slot's session role.`
+    return `${themes[index - 1]} Titles across the three activities should read as alternatives a coach might choose between, not as a ladder.`
 }
 
 /**
@@ -615,12 +622,17 @@ function setupFrameForSlot(input: SystemAssemblyInput, index: 1 | 2 | 3): string
     const playerCount = input.session.playerCount ? Number(input.session.playerCount) : null
     const playerSpec = playerCount && playerCount > 0 ? `${playerCount} players total` : 'team count appropriate to the constraint package'
 
+    // Per the Session Emphasis & Environmental Intention Framework, the three activities are
+    // parallel realizations of one session emphasis — not a difficulty ramp. Setup framing
+    // emphasizes alternative environmental configurations (spatial organization, transition
+    // conditions, scoring nuance, numerical relationships) — NOT increasing pressure or
+    // complexity from one activity to the next.
     const slotSpecific =
         index === 1
-            ? 'Setup describes the entry-level picture: standard space and numbers for the archetype with the foundation constraint clearly visible in the environment. This is the least complex of the three setups.'
+            ? 'This activity offers one environmental configuration of the session emphasis. Choose spatial organization (zone count / size / shape), transition condition (restart logic / continuation), and numerical relationship that suits this configuration. The activity should not be "easier" or "less advanced" than the other two — only differently organized.'
             : index === 2
-              ? 'Setup tightens the picture relative to Activity 1: slightly reduced space, tighter numbers, or a sharper shaping element to dial up the behavioral pressure. Same constraint package, sharper expression.'
-              : 'Setup describes the full contest: the most demanding space and numbers configuration of the three activities, with all constraints (foundation, shaping, and consequence if present) clearly visible in the environment.'
+              ? 'This activity offers a different environmental configuration of the same session emphasis. Vary spatial organization, transition condition, scoring nuance, or overload relationship from the first activity — without implying the second is harder or builds on the first.'
+              : 'This activity offers a third environmental configuration of the same session emphasis. Vary the configuration from the other two without implying it is the "hardest" or the "final" version. The three activities are alternatives, not stages.'
 
     const lines: string[] = [
         `Setup (${index}/3) for ${input.archetype.name}: write a concrete coach-facing setup paragraph.`,
@@ -656,33 +668,42 @@ function setupFrameForSlot(input: SystemAssemblyInput, index: 1 | 2 | 3): string
     return lines.join('\n')
 }
 
+/**
+ * Per Christian's Session Emphasis & Environmental Intention Framework, the three activities are
+ * NOT a progression. They are alternative realizations of the same session emphasis. This frame
+ * tells the AI to vary the environmental configuration (space, transition, overload, scoring
+ * nuance) across the three activities while keeping the emphasis identity constant.
+ *
+ * The system must avoid implying "Activity 3 is more advanced", "Activity 2 builds toward
+ * Activity 3", or "this is the correct progression pathway." Activities should feel like
+ * design alternatives, not ladder rungs.
+ */
 function slotProgressionEmphasisFor(index: 1 | 2 | 3): string {
+    // Note the function is retained as slotProgressionEmphasisFor for backward compatibility
+    // with the slot field name; the framework it now describes is parallel realization, not
+    // progression. Renaming the field is a separate sweep.
     switch (index) {
         case 1:
-            return 'Activity 1 of 3 — establish: this is the entry-level expression of the session goal. Players read the archetype and primary affordance lens for the first time. Keep the picture clean enough that the central decision problem is unmistakable.'
+            return 'Activity 1 of 3 — alternative realization A of the session emphasis. The three activities are PARALLEL designs the coach can choose between, not stages of a difficulty ramp. Configure spatial organization, transition condition, scoring nuance, and numerical relationships to suit this realization. Do NOT make this activity the "easiest" or "introductory" version.'
         case 2:
-            return 'Activity 2 of 3 — apply pressure: same archetype and constraint package as Activity 1, but the shaping constraint behavioral demand dominates the decision picture. Add intensity through spacing, support timing, or numbers — not by changing the game.'
+            return 'Activity 2 of 3 — alternative realization B of the same session emphasis. Vary the environmental configuration from Activity 1 (different zones, different overload relationship, different transition trigger, different scoring nuance) WITHOUT increasing difficulty or "building toward" Activity 3. The two activities are siblings, not steps.'
         case 3:
-            return 'Activity 3 of 3 — full contest: the most demanding and complete activity of the session. All selected affordance lenses must be visibly active in objective, rules, scoring, and coachingFocus. Constraint package operates at full strength.'
+            return 'Activity 3 of 3 — alternative realization C of the same session emphasis. Vary the environmental configuration from Activities 1 and 2 WITHOUT presenting this as the "hardest" or "final" version. All three should read as design alternatives within one emphasis; the coach picks based on what fits their session, not on which step is next.'
     }
 }
 
 /**
- * Per-slot affordance subset count. Implements structural slot differentiation (item H from the
- * Phase 1 review): each activity slot now has a genuinely different set of affordance lens
- * obligations rather than every slot being byte-identical with only title/objective varying.
+ * Per Christian's Session Emphasis & Environmental Intention Framework, the three activities are
+ * parallel realizations of the same session emphasis — not progressive stages. Therefore each
+ * slot receives the FULL selected affordance lens set, not a progressive subset.
  *
- * - Slot 1 (Establish): primary lens only. The coach sees the core decision problem cleanly,
- *   without secondary lenses muddying the picture.
- * - Slot 2 (Apply Pressure): primary + first supporting lens. A second decision layer is added.
- * - Slot 3 (Full Contest): all selected lenses. Full complexity, all decisions active.
- *
- * The constraint package and archetype mechanics stay the same across slots (those define the
- * game form, which is constant). Only the affordance lens content varies progressively.
+ * The previous slot 1 = primary only / slot 2 = primary + first supporting / slot 3 = all lenses
+ * pattern implied a difficulty ramp (slot 1 simpler, slot 3 more demanding). That contradicts the
+ * parallel-realization principle. All three activities now operate at the same affordance density;
+ * differentiation between activities lives in the environmental configuration (space, transition,
+ * overload, scoring nuance) — not in how many lenses are active.
  */
-function slotAffordanceCountFor(idx: 1 | 2 | 3, total: number): number {
-    if (idx === 1) return Math.min(1, total)
-    if (idx === 2) return Math.min(2, total)
+function slotAffordanceCountFor(_idx: 1 | 2 | 3, total: number): number {
     return total
 }
 
@@ -757,16 +778,20 @@ export function formatActivitySkeletonForPrompt(bundle: ActivitySkeletonBundle):
         lines.push('')
     }
 
+    lines.push('PARALLEL REALIZATION FRAMEWORK:')
+    lines.push('The three activities below are PARALLEL environmental realizations of the same session emphasis. They are NOT a progression. Do not treat Activity 3 as more advanced than Activity 1. Vary the environmental configuration (spatial organization, transition condition, scoring nuance, numerical relationship, overload structure) across the three activities while keeping the session emphasis identity constant. Coaches choose between alternatives; they do not progress through stages.')
+    lines.push('')
+
     for (const slot of bundle.activities) {
-        lines.push(`--- Activity ${slot.activityIndex} ---`)
-        lines.push(`slotProgressionEmphasis: ${slot.slotProgressionEmphasis}`)
+        lines.push(`--- Activity ${slot.activityIndex} (parallel realization, not stage ${slot.activityIndex}) ---`)
+        lines.push(`environmentalConfiguration: ${slot.slotProgressionEmphasis}`)
         lines.push(`titleFrame: ${slot.titleFrame}`)
         lines.push(`setupFrame: ${slot.setupFrame}`)
-        lines.push('requiredAffordanceMechanics (this slot — fewer lenses for slot 1, all lenses for slot 3):')
+        lines.push('requiredAffordanceMechanics (this activity — same lens set as the other two; all three activities operate at the same affordance density):')
         for (const r of slot.requiredAffordanceMechanics) lines.push(`  - ${r}`)
-        lines.push('requiredRuleMechanics (this slot):')
+        lines.push('requiredRuleMechanics (this activity):')
         for (const r of slot.requiredRuleMechanics) lines.push(`  - ${r}`)
-        lines.push('requiredScoringMechanics (this slot):')
+        lines.push('requiredScoringMechanics (this activity):')
         for (const r of slot.requiredScoringMechanics) lines.push(`  - ${r}`)
         lines.push('')
     }
