@@ -1120,12 +1120,16 @@ Use only these payload sections as locked inputs:
 - activityBriefs[].decisionCues
 - activityBriefs[].coachingEmphasis
 
-PER-SLOT SESSION PROGRESSION
-- Each brief has a slotProgressionEmphasis describing this activity's role in the 3-activity session arc.
-- Activity 1 must read as the establishing / entry-level version of the session goal — clearest, least loaded picture.
-- Activity 2 must read as the dialed-up pressure version — same archetype, sharper shaping demand, more intense decision picture.
-- Activity 3 must read as the full contested challenge — all selected affordance lenses visibly active, full constraint package at strength.
-- Use slotProgressionEmphasis to differentiate the title, setup, objective, and coachingFocus across the three activities. They should read as a progression — not three near-identical activities with different titles.
+PARALLEL ENVIRONMENTAL REALIZATIONS — NOT A PROGRESSION
+- The three activities are PARALLEL realizations of the same session emphasis. They are NOT stages of a difficulty ramp.
+- Do NOT write Activity 1 as the "establish" or "entry-level" version.
+- Do NOT write Activity 2 as "dialed-up pressure" or "intermediate."
+- Do NOT write Activity 3 as the "full contest", "most demanding", or "final" version.
+- Do NOT use language like "build up to", "harder version", "introductory", "advanced", "next stage", "progression", or "next step" in coach-facing fields (title, setup, objective, coachingFocus).
+- Each brief has a slotProgressionEmphasis field that describes the parallel-realization role of this activity. The field name is retained for code-compatibility reasons; treat its CONTENT, which describes alternative environmental configurations.
+- Vary the three activities through environmental configuration — different spatial organization (zone count, dimensions, channels), different transition conditions, different overload relationships, different scoring nuances, different timing pressure — while preserving the same session emphasis identity.
+- A coach reading the three activities should be able to CHOOSE between them based on what fits their session, not work through them as ladder rungs.
+- All three activities operate at the same affordance density. Every selected lens is active in every activity. Differentiation lives in the environmental setup, not in how many lenses are surfaced.
 
 SYSTEM-OWNED MECHANICS
 - Treat each activity brief as a compressed description of fixed system-owned mechanics.
