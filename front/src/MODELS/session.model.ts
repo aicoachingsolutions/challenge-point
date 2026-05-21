@@ -23,6 +23,39 @@ export enum SessionStatus {
     Completed = 'completed',
 }
 
+/**
+ * Session Emphasis — environmental intention for the session (Christian's MVP2 framework).
+ *
+ * NOT a skill level or difficulty setting. A beginner group may use 'applying'; an elite
+ * group may use 'discovering'. The system should never imply beginner → advanced progression
+ * from this field.
+ *
+ * Phase 2: field is collected, stored, and threaded. Activity generation does not yet vary
+ * based on emphasis. Phase 3 wires emphasis-aware environmental variation.
+ */
+export enum SessionEmphasis {
+    'Discovering Solutions' = 'discovering',
+    'Applying Solutions Under Pressure' = 'applying',
+}
+
+/**
+ * Coach-facing descriptions for each emphasis option (Christian's verbatim wording from MVP2
+ * Session Emphasis & Environmental Intention Framework). Use these in any UI surface that
+ * presents the emphasis choice to coaches.
+ */
+export const SESSION_EMPHASIS_LABELS: Record<SessionEmphasis, { label: string; description: string }> = {
+    [SessionEmphasis['Discovering Solutions']]: {
+        label: 'Discovering solutions',
+        description:
+            'Players experience broader interaction possibilities, adaptive decisions, and changing game situations.',
+    },
+    [SessionEmphasis['Applying Solutions Under Pressure']]: {
+        label: 'Applying solutions under pressure',
+        description:
+            'Players repeatedly apply solutions within more stable but still game-like pressure conditions.',
+    },
+}
+
 export interface ISession {
     _id: string
     createdBy: IUser
@@ -31,6 +64,12 @@ export interface ISession {
     playerCount?: number
     ageGroup?: AgeGroups
     skillLevel?: SkillLevels
+    /**
+     * Environmental intention for the session. Defaults to 'applying' for existing sessions
+     * without the field. Changing emphasis on an existing session should trigger full activity
+     * regeneration per Christian's MVP2 decision.
+     */
+    sessionEmphasis?: SessionEmphasis
     fieldLength?: string
     fieldWidth?: string
     fieldType?: string
