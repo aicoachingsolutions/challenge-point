@@ -3,6 +3,7 @@ import { IActivity } from 'src/models/activity.model'
 import { IAffordance } from 'src/models/affordance.model'
 import { IConstraint } from 'src/models/constraint.model'
 import { ICategory } from 'src/models/category.model'
+import { SESSION_EMPHASIS_LABELS, SessionEmphasis } from 'src/models/session.model'
 
 import LoggingService, { LoggingOptions } from '../services/logging.service'
 import type { Activity } from '../system/activity/activity-schema'
@@ -1087,6 +1088,19 @@ Diversity across the three activities (required):
 }
 
 function generateAssemblyPolishPrompt(input: SystemAssemblyInput) {
+    // Phase 2 emphasis threading: surface the chosen session emphasis to the AI as labeled
+    // context. Activity generation does NOT yet vary based on emphasis (Phase 3 wires the
+    // emphasis-aware environmental variation logic). Existing sessions without the field
+    // default to 'applying' per Christian's MVP2 decision.
+    const emphasisValue = input.session?.sessionEmphasis ?? SessionEmphasis['Applying Solutions Under Pressure']
+    const emphasisMeta = SESSION_EMPHASIS_LABELS[emphasisValue]
+    const sessionEmphasisBlock = `SESSION EMPHASIS CONTEXT (informational — Phase 2 threading)
+- Coach selected emphasis: ${emphasisMeta.label}.
+- Meaning: ${emphasisMeta.description}
+- This is environmental intention, not a skill level or difficulty setting. Do NOT use this label to imply beginner-to-advanced progression in any coach-facing field.
+- The PARALLEL ENVIRONMENTAL REALIZATIONS rules below still apply unchanged. Emphasis-aware variation in output bandwidth is a future-phase concern; for now treat this as session-level intent only.
+`
+
     return `You are polishing a system-owned activity structure. Return valid JSON only.
 
 The system has already selected the archetype, affordances, constraints, skeleton, and mechanics in code before AI runs.
@@ -1120,6 +1134,7 @@ Use only these payload sections as locked inputs:
 - activityBriefs[].decisionCues
 - activityBriefs[].coachingEmphasis
 
+${sessionEmphasisBlock}
 PARALLEL ENVIRONMENTAL REALIZATIONS — NOT A PROGRESSION
 - The three activities are PARALLEL realizations of the same session emphasis. They are NOT stages of a difficulty ramp.
 - Do NOT write Activity 1 as the "establish" or "entry-level" version.

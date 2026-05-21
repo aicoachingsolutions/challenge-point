@@ -49,6 +49,24 @@ export enum SessionEmphasis {
     'Applying Solutions Under Pressure' = 'applying',
 }
 
+/**
+ * Coach-facing label + description for each emphasis option (Christian's verbatim wording from
+ * MVP2 Session Emphasis & Environmental Intention Framework). Kept in parity with the frontend
+ * model so prompt-threading and UI surfaces draw from a single source of intent.
+ */
+export const SESSION_EMPHASIS_LABELS: Record<SessionEmphasis, { label: string; description: string }> = {
+    [SessionEmphasis['Discovering Solutions']]: {
+        label: 'Discovering solutions',
+        description:
+            'Players experience broader interaction possibilities, adaptive decisions, and changing game situations.',
+    },
+    [SessionEmphasis['Applying Solutions Under Pressure']]: {
+        label: 'Applying solutions under pressure',
+        description:
+            'Players repeatedly apply solutions within more stable but still game-like pressure conditions.',
+    },
+}
+
 
 export interface ISession {
     _id: string

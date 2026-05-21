@@ -2,7 +2,7 @@ import { Request, Response, Router } from 'express'
 import { Types } from 'mongoose'
 import Affordance from 'src/models/affordance.model'
 import Constraint from 'src/models/constraint.model'
-import Session, { SessionStatus } from 'src/models/session.model'
+import Session, { SessionEmphasis, SessionStatus } from 'src/models/session.model'
 import { ActivityAssemblyValidationError, assembleActivities } from 'src/services/completion.service'
 
 import Activity, { ActivityStatus } from '../models/activity.model'
@@ -48,6 +48,10 @@ function validObjectIdRefs(value: unknown): string[] {
 function arrayOfStrings(value: unknown): string[] {
     if (!Array.isArray(value)) return []
     return value.map((entry) => String(entry ?? '').trim()).filter(Boolean)
+}
+
+function isSessionEmphasis(value: unknown): value is SessionEmphasis {
+    return typeof value === 'string' && Object.values(SessionEmphasis).includes(value as SessionEmphasis)
 }
 
 router.post(ROUTES.testSelection, async (req: Request, res: Response) => {
@@ -447,6 +451,17 @@ router.get(`${ROUTES.session}/:id/duplicate`, async (req: Request, res: Response
     }
 });
 
+router.post(ROUTES.session, (req: Request, res: Response, next) => {
+    const sessionEmphasis = req.body?.sessionEmphasis
+    if (sessionEmphasis !== undefined && !isSessionEmphasis(sessionEmphasis)) {
+        return res.status(400).json({
+            error: 'Invalid sessionEmphasis',
+            validValues: Object.values(SessionEmphasis),
+        })
+    }
+
+    return next()
+})
 
 BaseRoutes(router, {
     model: Session,
