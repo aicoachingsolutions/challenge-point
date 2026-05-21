@@ -1,9 +1,11 @@
 import type { IAffordance } from '../../models/affordance.model'
+import { SessionEmphasis } from '../../models/session.model'
 import type { ConstraintSelectionCandidate, SystemAssemblyInput } from '../types'
 import { TEST_LIBRARY_V0_ARCHETYPES } from '../test-library/archetypes'
 import { TEST_LIBRARY_V0_CONSTRAINTS } from '../test-library/constraints'
 import type { TestLibraryV0Archetype } from '../test-library/types'
 import { registryIdString } from './assembly-package-ids'
+import { getEmphasisVariationProfile, getSlotVariationSpec } from './emphasis-variation-profile'
 
 /** One of three system-owned activity slots; AI fills wording but must not remove these mechanics. */
 export type ActivitySkeletonSlot = {
@@ -13,7 +15,13 @@ export type ActivitySkeletonSlot = {
     archetypeName: string
     titleFrame: string
     setupFrame: string
-    /** Session progression role for this slot: 1=establish, 2=apply pressure, 3=full contest. Tells AI how this activity differs from the other two. */
+    /**
+     * Environmental configuration directive for this slot under the chosen session emphasis.
+     * Tells the AI how this activity's environmental configuration differs from the other two
+     * parallel realizations. The field name is retained for code-compatibility with earlier
+     * shape; semantics are now parallel realization (Phase 1) + emphasis-aware variation
+     * bandwidth (Phase 3), not progression.
+     */
     slotProgressionEmphasis: string
     requiredRuleMechanics: string[]
     requiredScoringMechanics: string[]
@@ -31,6 +39,13 @@ export type ActivitySkeletonSlot = {
 
 export type ActivitySkeletonBundle = {
     activities: ActivitySkeletonSlot[]
+    /**
+     * The session emphasis the skeleton was built under (Phase 3). Surfaces into the prompt
+     * so the AI receives emphasis-specific variation-bandwidth guidance alongside the slot
+     * directives. Undefined when the session has no stored emphasis; downstream consumers
+     * default to 'applying' per Christian's MVP2 decision.
+     */
+    sessionEmphasis: SessionEmphasis | undefined
 }
 
 const DECISION_STEMS = ['choose', 'read', 'react', 'based on', 'decision', 'adapt', 'option'] as const
@@ -612,7 +627,11 @@ function collectSetupGuidance(input: SystemAssemblyInput): {
     }
 }
 
-function setupFrameForSlot(input: SystemAssemblyInput, index: 1 | 2 | 3): string {
+function setupFrameForSlot(
+    input: SystemAssemblyInput,
+    index: 1 | 2 | 3,
+    emphasis: SessionEmphasis | undefined
+): string {
     const overlay = archetypeLibraryOverlay(input.archetype.name)
     const guidance = collectSetupGuidance(input)
     const fieldLength = input.session.fieldLength
@@ -622,17 +641,15 @@ function setupFrameForSlot(input: SystemAssemblyInput, index: 1 | 2 | 3): string
     const playerCount = input.session.playerCount ? Number(input.session.playerCount) : null
     const playerSpec = playerCount && playerCount > 0 ? `${playerCount} players total` : 'team count appropriate to the constraint package'
 
-    // Per the Session Emphasis & Environmental Intention Framework, the three activities are
-    // parallel realizations of one session emphasis — not a difficulty ramp. Setup framing
-    // emphasizes alternative environmental configurations (spatial organization, transition
-    // conditions, scoring nuance, numerical relationships) — NOT increasing pressure or
-    // complexity from one activity to the next.
-    const slotSpecific =
-        index === 1
-            ? 'This activity offers one environmental configuration of the session emphasis. Choose spatial organization (zone count / size / shape), transition condition (restart logic / continuation), and numerical relationship that suits this configuration. The activity should not be "easier" or "less advanced" than the other two — only differently organized.'
-            : index === 2
-              ? 'This activity offers a different environmental configuration of the same session emphasis. Vary spatial organization, transition condition, scoring nuance, or overload relationship from the first activity — without implying the second is harder or builds on the first.'
-              : 'This activity offers a third environmental configuration of the same session emphasis. Vary the configuration from the other two without implying it is the "hardest" or the "final" version. The three activities are alternatives, not stages.'
+    // Phase 3: emphasis-aware variation. Setup framing is shaped by the variation profile
+    // (see emphasis-variation-profile.ts). For 'discovering', each slot foregrounds a
+    // distinct primary axis (spatial / transition / overload + scoring). For 'applying',
+    // all slots share the core configuration and vary modestly along one micro-parameter.
+    // The no-progression guardrails still apply: no slot is the "easier", "introductory",
+    // or "final" version regardless of emphasis.
+    const profile = getEmphasisVariationProfile(emphasis)
+    const spec = profile.slots[index - 1]
+    const slotSpecific = spec.directive
 
     const lines: string[] = [
         `Setup (${index}/3) for ${input.archetype.name}: write a concrete coach-facing setup paragraph.`,
@@ -670,26 +687,42 @@ function setupFrameForSlot(input: SystemAssemblyInput, index: 1 | 2 | 3): string
 
 /**
  * Per Christian's Session Emphasis & Environmental Intention Framework, the three activities are
- * NOT a progression. They are alternative realizations of the same session emphasis. This frame
- * tells the AI to vary the environmental configuration (space, transition, overload, scoring
- * nuance) across the three activities while keeping the emphasis identity constant.
+ * NOT a progression. They are alternative realizations of the same session emphasis.
  *
- * The system must avoid implying "Activity 3 is more advanced", "Activity 2 builds toward
- * Activity 3", or "this is the correct progression pathway." Activities should feel like
- * design alternatives, not ladder rungs.
+ * Phase 3: the slot directive is now ALSO emphasis-aware. The variation profile (see
+ * emphasis-variation-profile.ts) prescribes which environmental axes vary across the three
+ * slots and with what bandwidth:
+ *
+ *   - 'discovering' → wide bandwidth, each slot foregrounds a different primary axis
+ *     (spatial, transition, overload + scoring).
+ *   - 'applying' → narrow bandwidth, all slots share core configuration, each slot varies
+ *     modestly along one micro-parameter (baseline, spatial micro-vary, timing/scoring
+ *     micro-vary).
+ *
+ * The system must still avoid implying "Activity 3 is more advanced", "Activity 2 builds
+ * toward Activity 3", or "this is the correct progression pathway." Emphasis shapes WHICH
+ * parallel-realization pattern is used; it does NOT loosen the no-progression guardrails.
  */
-function slotProgressionEmphasisFor(index: 1 | 2 | 3): string {
+function slotProgressionEmphasisFor(
+    index: 1 | 2 | 3,
+    emphasis: SessionEmphasis | undefined
+): string {
     // Note the function is retained as slotProgressionEmphasisFor for backward compatibility
-    // with the slot field name; the framework it now describes is parallel realization, not
-    // progression. Renaming the field is a separate sweep.
-    switch (index) {
-        case 1:
-            return 'Activity 1 of 3 — alternative realization A of the session emphasis. The three activities are PARALLEL designs the coach can choose between, not stages of a difficulty ramp. Configure spatial organization, transition condition, scoring nuance, and numerical relationships to suit this realization. Do NOT make this activity the "easiest" or "introductory" version.'
-        case 2:
-            return 'Activity 2 of 3 — alternative realization B of the same session emphasis. Vary the environmental configuration from Activity 1 (different zones, different overload relationship, different transition trigger, different scoring nuance) WITHOUT increasing difficulty or "building toward" Activity 3. The two activities are siblings, not steps.'
-        case 3:
-            return 'Activity 3 of 3 — alternative realization C of the same session emphasis. Vary the environmental configuration from Activities 1 and 2 WITHOUT presenting this as the "hardest" or "final" version. All three should read as design alternatives within one emphasis; the coach picks based on what fits their session, not on which step is next.'
-    }
+    // with the slot field name; the framework it now describes is emphasis-aware parallel
+    // realization, not progression. Renaming the field is a separate sweep.
+    const spec = getSlotVariationSpec(emphasis, index)
+    const realizationLetter = index === 1 ? 'A' : index === 2 ? 'B' : 'C'
+    const variationLabel = spec.label
+    const holdSummary = spec.holdAxes.length > 0
+        ? `Hold these axes stable across the three activities: ${spec.holdAxes.join(', ')}.`
+        : 'Variation across all primary environmental axes is permitted under this emphasis.'
+
+    return [
+        `Activity ${index} of 3 — alternative realization ${realizationLetter} of the session emphasis (variation role: ${variationLabel}).`,
+        'The three activities are PARALLEL designs the coach can choose between, not stages of a difficulty ramp.',
+        spec.directive,
+        holdSummary,
+    ].join(' ')
 }
 
 /**
@@ -719,6 +752,11 @@ export function buildActivitySkeleton(input: SystemAssemblyInput): ActivitySkele
     const requiredArchetypeMechanics = archetypeMechanics(archetypeName)
     const coachFacingConstraints = buildCoachFacingConstraints(input)
 
+    // Phase 3: read session emphasis once. Undefined / missing values default to 'applying'
+    // inside getEmphasisVariationProfile (Christian's MVP2 decision for existing sessions
+    // without the stored field).
+    const sessionEmphasis = input.session?.sessionEmphasis
+
     const slots: ActivitySkeletonSlot[] = ([1, 2, 3] as const).map((idx) => {
         const slotAffordanceCount = slotAffordanceCountFor(idx, affordances.length)
         const slotAffordances = affordances.slice(0, slotAffordanceCount)
@@ -739,8 +777,8 @@ export function buildActivitySkeleton(input: SystemAssemblyInput): ActivitySkele
             activityIndex: idx,
             archetypeName,
             titleFrame: titleFrameForSlot(archetypeName, idx),
-            setupFrame: setupFrameForSlot(input, idx),
-            slotProgressionEmphasis: slotProgressionEmphasisFor(idx),
+            setupFrame: setupFrameForSlot(input, idx, sessionEmphasis),
+            slotProgressionEmphasis: slotProgressionEmphasisFor(idx, sessionEmphasis),
             requiredRuleMechanics: combinedRulesForSlot,
             requiredScoringMechanics: combinedScoringForSlot,
             requiredAffordanceMechanics: [...slotAffMechanics],
@@ -751,7 +789,7 @@ export function buildActivitySkeleton(input: SystemAssemblyInput): ActivitySkele
         }
     })
 
-    return { activities: slots }
+    return { activities: slots, sessionEmphasis }
 }
 
 export function formatActivitySkeletonForPrompt(bundle: ActivitySkeletonBundle): string {
@@ -780,6 +818,17 @@ export function formatActivitySkeletonForPrompt(bundle: ActivitySkeletonBundle):
 
     lines.push('PARALLEL REALIZATION FRAMEWORK:')
     lines.push('The three activities below are PARALLEL environmental realizations of the same session emphasis. They are NOT a progression. Do not treat Activity 3 as more advanced than Activity 1. Vary the environmental configuration (spatial organization, transition condition, scoring nuance, numerical relationship, overload structure) across the three activities while keeping the session emphasis identity constant. Coaches choose between alternatives; they do not progress through stages.')
+    lines.push('')
+
+    // Phase 3: emphasis-aware variation bandwidth. Surfaces the prescribed bandwidth so the
+    // AI knows HOW MUCH the three activities should differ from one another under the chosen
+    // session emphasis. This shapes WHICH parallel-realization pattern to use; it does NOT
+    // loosen the no-progression guardrails above.
+    const variationProfile = getEmphasisVariationProfile(bundle.sessionEmphasis)
+    lines.push('EMPHASIS-AWARE VARIATION BANDWIDTH:')
+    lines.push(`- Session emphasis: ${variationProfile.emphasis}`)
+    lines.push(`- Bandwidth: ${variationProfile.bandwidthSummary}`)
+    lines.push(`- Rule: ${variationProfile.bandwidthRule}`)
     lines.push('')
 
     for (const slot of bundle.activities) {

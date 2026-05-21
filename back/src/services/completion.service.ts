@@ -4,6 +4,7 @@ import { IAffordance } from 'src/models/affordance.model'
 import { IConstraint } from 'src/models/constraint.model'
 import { ICategory } from 'src/models/category.model'
 import { SESSION_EMPHASIS_LABELS, SessionEmphasis } from 'src/models/session.model'
+import { getEmphasisVariationProfile } from '../system/activity/emphasis-variation-profile'
 
 import LoggingService, { LoggingOptions } from '../services/logging.service'
 import type { Activity } from '../system/activity/activity-schema'
@@ -1088,17 +1089,20 @@ Diversity across the three activities (required):
 }
 
 function generateAssemblyPolishPrompt(input: SystemAssemblyInput) {
-    // Phase 2 emphasis threading: surface the chosen session emphasis to the AI as labeled
-    // context. Activity generation does NOT yet vary based on emphasis (Phase 3 wires the
-    // emphasis-aware environmental variation logic). Existing sessions without the field
-    // default to 'applying' per Christian's MVP2 decision.
+    // Phase 3 emphasis-aware threading: surface the chosen session emphasis AND the
+    // bandwidth rule that prescribes how much the three activities should differ from one
+    // another under that emphasis. The skeleton block (built upstream from the same emphasis)
+    // already carries per-slot directives; this block establishes the session-level frame.
+    // Existing sessions without the field default to 'applying' per Christian's MVP2 decision.
     const emphasisValue = input.session?.sessionEmphasis ?? SessionEmphasis['Applying Solutions Under Pressure']
     const emphasisMeta = SESSION_EMPHASIS_LABELS[emphasisValue]
-    const sessionEmphasisBlock = `SESSION EMPHASIS CONTEXT (informational — Phase 2 threading)
+    const emphasisProfile = getEmphasisVariationProfile(emphasisValue)
+    const sessionEmphasisBlock = `SESSION EMPHASIS CONTEXT
 - Coach selected emphasis: ${emphasisMeta.label}.
 - Meaning: ${emphasisMeta.description}
 - This is environmental intention, not a skill level or difficulty setting. Do NOT use this label to imply beginner-to-advanced progression in any coach-facing field.
-- The PARALLEL ENVIRONMENTAL REALIZATIONS rules below still apply unchanged. Emphasis-aware variation in output bandwidth is a future-phase concern; for now treat this as session-level intent only.
+- Variation bandwidth for this emphasis: ${emphasisProfile.bandwidthSummary}
+- Bandwidth rule: ${emphasisProfile.bandwidthRule}
 `
 
     return `You are polishing a system-owned activity structure. Return valid JSON only.
