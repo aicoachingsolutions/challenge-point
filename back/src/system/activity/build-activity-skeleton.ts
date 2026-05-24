@@ -6,6 +6,7 @@ import { TEST_LIBRARY_V0_CONSTRAINTS } from '../test-library/constraints'
 import type { TestLibraryV0Archetype } from '../test-library/types'
 import { registryIdString } from './assembly-package-ids'
 import { getEmphasisVariationProfile, getSlotVariationSpec } from './emphasis-variation-profile'
+import { getSlotMechanicalVariations, type ValueLandscapeModifier } from './slot-mechanics-variations'
 
 /** One of three system-owned activity slots; AI fills wording but must not remove these mechanics. */
 export type ActivitySkeletonSlot = {
@@ -35,6 +36,13 @@ export type ActivitySkeletonSlot = {
     requiredArchetypeMechanics: string[]
     /** Decision stems that must appear somewhere in the activity text bundle */
     requiredDecisionLanguage: string[]
+    /**
+     * Phase 3.5 — Per-slot value-landscape modifiers. These are appended to the slot's
+     * required rules / scoring mechanics so the validator enforces their presence in
+     * this slot specifically (and not in the other two). Modifiers re-weight value within
+     * the shared constraint package; they do not change WHAT the game is.
+     */
+    slotMechanicalVariations: ValueLandscapeModifier[]
 }
 
 export type ActivitySkeletonBundle = {
@@ -762,15 +770,27 @@ export function buildActivitySkeleton(input: SystemAssemblyInput): ActivitySkele
         const slotAffordances = affordances.slice(0, slotAffordanceCount)
         const slotAffMechanics = slotAffordances.flatMap((a) => affordanceMechanicsForLens(a))
 
+        // Phase 3.5: value-landscape modifiers for this slot. Wide for discovering,
+        // narrow for applying; applying slot 1 returns an empty array (shared baseline).
+        const slotModifiers = getSlotMechanicalVariations(sessionEmphasis, idx)
+        const ruleModifierLines = slotModifiers
+            .filter((m) => m.placement === 'rule')
+            .map((m) => `[Slot Mechanics — ${m.label}] ${m.mechanicLine}`)
+        const scoringModifierLines = slotModifiers
+            .filter((m) => m.placement === 'scoring')
+            .map((m) => `[Slot Mechanics — ${m.label}] ${m.mechanicLine}`)
+
         const combinedRulesForSlot: string[] = [
             ...archRulesScoring.rules,
             ...slotAffMechanics.map((m) => `[Affordance] ${m}`),
             ...constraintMechanics.map((m) => `[Constraint] ${m}`),
+            ...ruleModifierLines,
         ]
         const combinedScoringForSlot: string[] = [
             ...archRulesScoring.scoring,
             ...slotAffMechanics.map((m) => `[Affordance] ${m}`),
             ...constraintMechanics.map((m) => `[Constraint] ${m}`),
+            ...scoringModifierLines,
         ]
 
         return {
@@ -786,6 +806,7 @@ export function buildActivitySkeleton(input: SystemAssemblyInput): ActivitySkele
             coachFacingConstraints,
             requiredArchetypeMechanics,
             requiredDecisionLanguage: [...DECISION_STEMS],
+            slotMechanicalVariations: slotModifiers,
         }
     })
 
@@ -838,6 +859,18 @@ export function formatActivitySkeletonForPrompt(bundle: ActivitySkeletonBundle):
         lines.push(`setupFrame: ${slot.setupFrame}`)
         lines.push('requiredAffordanceMechanics (this activity — same lens set as the other two; all three activities operate at the same affordance density):')
         for (const r of slot.requiredAffordanceMechanics) lines.push(`  - ${r}`)
+        // Phase 3.5: surface this slot's value-landscape modifiers as a distinct block so
+        // the AI clearly understands these mechanics belong to THIS activity only and the
+        // re-weighting they describe is what differentiates this activity from its siblings
+        // within the shared session emphasis.
+        if (slot.slotMechanicalVariations.length > 0) {
+            lines.push('slotMechanicalVariations (this activity — value-landscape modifiers that re-weight value within the shared constraint package; these mechanics must appear in this activity\'s rules or scoring and must NOT be re-stated in the other two activities):')
+            for (const m of slot.slotMechanicalVariations) {
+                lines.push(`  - [${m.placement}] (${m.label}) ${m.mechanicLine}`)
+            }
+        } else {
+            lines.push('slotMechanicalVariations (this activity): none — this activity carries the shared baseline value structure that the other two slots will re-weight from.')
+        }
         lines.push('requiredRuleMechanics (this activity):')
         for (const r of slot.requiredRuleMechanics) lines.push(`  - ${r}`)
         lines.push('requiredScoringMechanics (this activity):')
