@@ -1174,6 +1174,14 @@ CONSTRAINT VISIBILITY
 FAILURE WARNING
 - If your wording contradicts the selected archetype, affordances, constraints, skeleton, or mechanics, the activity will be rejected.
 - If decision language is missing from objective or coachingFocus, the activity will be rejected.
+- The words "baseline", "twist", and "variation" are INTERNAL profile terminology. Do NOT use them in title, setup, objective, or coachingFocus. They are not coach-facing language and their appearance in those fields will be rejected. If you need to describe an activity's role within the session, do it through concrete environmental description (zones, transitions, scoring weighting, timing) — not through the internal label.
+
+SLOT MECHANICAL VARIATIONS — VALUE LANDSCAPE
+- The skeleton block below carries a "slotMechanicalVariations" entry per activity. Each entry is a value-landscape modifier (rule or scoring line) that re-weights value within the shared constraint package for THAT activity only.
+- A modifier marked [rule] must be reflected in the activity's rules; a modifier marked [scoring] must be reflected in the activity's scoring. The validator will check this per slot.
+- These modifiers are what differentiate the three activities' MECHANICS (in addition to setup/objective/title differentiating their environmental DESCRIPTION). Treat them as required mechanics, not as suggestions.
+- A modifier for one activity must NOT be re-stated in the other two activities. Each value-landscape modifier belongs to its slot only.
+- When an activity has no slotMechanicalVariations, it carries the shared baseline value structure — write its rules and scoring against the shared mechanics without inventing a modifier of your own.
 
 Output requirements:
 - Return valid JSON only.

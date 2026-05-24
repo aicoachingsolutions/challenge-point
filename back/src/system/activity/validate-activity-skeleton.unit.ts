@@ -53,6 +53,7 @@ function testSkeletonSlot(): ActivitySkeletonSlot {
             `[Constraint] ${CONSTRAINT_MARKER} wide channel bonus when defense is narrow.`,
         ],
         requiredDecisionLanguage: ['choose', 'read', 'react', 'decision', 'adapt', 'option'],
+        slotMechanicalVariations: [],
     }
 }
 
