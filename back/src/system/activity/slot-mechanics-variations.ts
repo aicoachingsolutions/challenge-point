@@ -72,7 +72,7 @@ const SCORING_INCENTIVES_WIDE: ValueLandscapeModifier = {
     placement: 'scoring',
     label: 'wide scoring-incentive value structure',
     mechanicLine:
-        'Score is weighted by where possession changes hands — regains in a forward zone count higher than regains in a defensive zone, and the value structure stays the same in every contest within this activity.',
+        'Score is weighted by where possession changes hands: regains in a forward zone count higher than regains in a defensive zone, and the same weighting applies in every live contest.',
 }
 
 const SCORING_INCENTIVES_NARROW: ValueLandscapeModifier = {
@@ -81,7 +81,7 @@ const SCORING_INCENTIVES_NARROW: ValueLandscapeModifier = {
     placement: 'scoring',
     label: 'narrow scoring-incentive shift',
     mechanicLine:
-        'Score completes when a regain is followed by one connected forward action under opposition — same scoring shape as the other activities in this session, with the completion bar set at one connected action.',
+        'Score completes when a regain is followed by one connected forward action under opposition; without a connected forward action the regain stays live but the score does not complete.',
 }
 
 const TRANSITION_CONSEQUENCES_WIDE: ValueLandscapeModifier = {
@@ -90,7 +90,7 @@ const TRANSITION_CONSEQUENCES_WIDE: ValueLandscapeModifier = {
     placement: 'rule',
     label: 'wide transition-consequence rule',
     mechanicLine:
-        'On possession change, both teams stay live in the same space with no reset — defenders re-press immediately from wherever they were standing when the ball changed hands, and the live picture continues until the next decision resolves.',
+        'On possession change, both teams stay live in the same space with no reset: defenders re-press immediately from wherever they were standing when the ball changed hands, and the live picture continues until the next decision resolves.',
 }
 
 const TRANSITION_CONSEQUENCES_NARROW: ValueLandscapeModifier = {
@@ -99,7 +99,7 @@ const TRANSITION_CONSEQUENCES_NARROW: ValueLandscapeModifier = {
     placement: 'rule',
     label: 'narrow transition-consequence shift',
     mechanicLine:
-        'Transition stays live until the defensive shape recovers, then play resets to the shared restart point — same shape as the other activities in this session, anchored to the same restart logic.',
+        'Transition stays live until the defensive shape recovers; once shape recovers, play resets to the live restart point and the next possession sequence begins.',
 }
 
 const PRESSURE_REWARDS_WIDE: ValueLandscapeModifier = {
@@ -108,7 +108,7 @@ const PRESSURE_REWARDS_WIDE: ValueLandscapeModifier = {
     placement: 'scoring',
     label: 'wide pressure-reward structure',
     mechanicLine:
-        'Sustained team pressure that forces the opposing team to play backward earns the same value as a turnover — opponents driven backward counts as a defensive success even without winning the ball, and pressure that closes a passing lane the attackers were reading counts as a defensive read.',
+        'Sustained team pressure that forces the opposing team to play backward earns the same value as a turnover: opponents driven backward count as a defensive success even without winning the ball, and pressure that closes the passing lane the attackers were reading counts as a defensive read.',
 }
 
 const PRESSURE_REWARDS_NARROW: ValueLandscapeModifier = {
@@ -117,7 +117,7 @@ const PRESSURE_REWARDS_NARROW: ValueLandscapeModifier = {
     placement: 'scoring',
     label: 'narrow pressure-reward shift',
     mechanicLine:
-        'Pressure that forces a possession change earns the regain value for this activity — pressure short of a possession change is observed by the coach but not scored.',
+        'Pressure that forces a possession change earns the regain value; pressure short of a possession change is observed by the coach but does not score on its own.',
 }
 
 const REGAIN_CONDITIONS_WIDE: ValueLandscapeModifier = {
@@ -126,7 +126,7 @@ const REGAIN_CONDITIONS_WIDE: ValueLandscapeModifier = {
     placement: 'rule',
     label: 'wide regain-condition value structure',
     mechanicLine:
-        'A regain completes only when followed by a connected forward action under opposition within the live transition window — possession won and immediately surrendered does not complete the regain, and the live advantage shifts back to the team that recovered the ball.',
+        'A regain completes only when followed by a connected forward action under opposition within the live transition window: possession won and immediately surrendered does not complete the regain, and the live advantage shifts back to the team that recovered the ball.',
 }
 
 const REGAIN_CONDITIONS_NARROW: ValueLandscapeModifier = {
@@ -135,7 +135,7 @@ const REGAIN_CONDITIONS_NARROW: ValueLandscapeModifier = {
     placement: 'rule',
     label: 'narrow regain-condition shift',
     mechanicLine:
-        'A regain completes on possession change with an immediate live restart from the regain point — same regain shape as the other activities in this session, anchored to the same live-restart logic.',
+        'A regain completes on possession change with an immediate live restart from the regain point: once possession transfers the next action plays live without reset.',
 }
 
 const OVERLOAD_INCENTIVES_WIDE: ValueLandscapeModifier = {
@@ -144,7 +144,7 @@ const OVERLOAD_INCENTIVES_WIDE: ValueLandscapeModifier = {
     placement: 'scoring',
     label: 'wide overload-incentive value structure',
     mechanicLine:
-        'When a numerical advantage is held in the zone where pressure is applied, regains in that zone carry higher value — the scoring weight scales with the overload that produced the regain, and balanced-number regains keep the base value.',
+        'When a numerical advantage is held in the zone where pressure is applied, regains in that zone carry higher value: the scoring weight scales with the overload that produced the regain, and balanced-number regains keep the base value.',
 }
 
 const OVERLOAD_INCENTIVES_NARROW: ValueLandscapeModifier = {
@@ -153,7 +153,7 @@ const OVERLOAD_INCENTIVES_NARROW: ValueLandscapeModifier = {
     placement: 'scoring',
     label: 'narrow overload-incentive shift',
     mechanicLine:
-        'Numerical relationship across the field stays balanced for this activity — regain values are uniform across zones and the decision problem is the same as the other activities in this session.',
+        'Numerical relationship across the field stays balanced: regain values are uniform across zones and the open decision facing players is the same on every possession.',
 }
 
 const SPATIAL_VALUE_STRUCTURES_WIDE: ValueLandscapeModifier = {
@@ -162,7 +162,7 @@ const SPATIAL_VALUE_STRUCTURES_WIDE: ValueLandscapeModifier = {
     placement: 'scoring',
     label: 'wide spatial-value structure',
     mechanicLine:
-        'The field is treated as three value zones — regains in the central zone carry one value weight, regains in the wide zones carry a different value weight, and regains in the deep zone carry a third value weight, with the structure staying the same in every contest within this activity.',
+        'The field is treated as three value zones: regains in the central zone count higher than regains in the wide zones, and regains in the wide zones count higher than regains deep. The zone weighting stays the same in every live contest.',
 }
 
 const SPATIAL_VALUE_STRUCTURES_NARROW: ValueLandscapeModifier = {
@@ -171,7 +171,7 @@ const SPATIAL_VALUE_STRUCTURES_NARROW: ValueLandscapeModifier = {
     placement: 'scoring',
     label: 'narrow spatial-value shift',
     mechanicLine:
-        'Working area shifts in shape for this activity — same zone count and same value structure as the other activities in this session, set into a slightly different working footprint.',
+        'The working area is set into a slightly different footprint without changing the zone count or value weighting: the decision problem facing players is the same, only the playing shape is different.',
 }
 
 const TIMING_INCENTIVES_WIDE: ValueLandscapeModifier = {
@@ -180,7 +180,7 @@ const TIMING_INCENTIVES_WIDE: ValueLandscapeModifier = {
     placement: 'rule',
     label: 'wide timing-incentive value structure',
     mechanicLine:
-        'Pressure must convert to a regain within a short opportunity window — if the window closes without a regain, the value resets and the opposing team gains the live advantage from the same point on the field.',
+        'Pressure converts to a regain within a short opportunity window: if the window closes without a regain, the value resets and the opposing team gains the live advantage from the same point on the field.',
 }
 
 const TIMING_INCENTIVES_NARROW: ValueLandscapeModifier = {
@@ -189,7 +189,7 @@ const TIMING_INCENTIVES_NARROW: ValueLandscapeModifier = {
     placement: 'rule',
     label: 'narrow timing-incentive shift',
     mechanicLine:
-        'The decision window after a possession change stays open for the duration of one live action sequence — same window shape as the other activities in this session, anchored to the same trigger.',
+        'The decision window after a possession change stays open for the duration of one live action sequence: the next decision plays under that window, and once the action sequence resolves the window closes.',
 }
 
 /**

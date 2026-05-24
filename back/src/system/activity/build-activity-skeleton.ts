@@ -772,13 +772,18 @@ export function buildActivitySkeleton(input: SystemAssemblyInput): ActivitySkele
 
         // Phase 3.5: value-landscape modifiers for this slot. Wide for discovering,
         // narrow for applying; applying slot 1 returns an empty array (shared baseline).
+        //
+        // Modifier lines are appended to requiredRuleMechanics / requiredScoringMechanics
+        // WITHOUT a bracketed prefix — the modifier text itself is coach-facing language
+        // and flows through buildActivityMechanicsFromSkeleton into activity.rules /
+        // activity.scoring directly. The polish prompt's explicit slotMechanicalVariations
+        // block (see formatActivitySkeletonForPrompt below) is what tells the AI which
+        // lines are modifiers; no internal scaffolding tag is needed in the data.
         const slotModifiers = getSlotMechanicalVariations(sessionEmphasis, idx)
-        const ruleModifierLines = slotModifiers
-            .filter((m) => m.placement === 'rule')
-            .map((m) => `[Slot Mechanics — ${m.label}] ${m.mechanicLine}`)
+        const ruleModifierLines = slotModifiers.filter((m) => m.placement === 'rule').map((m) => m.mechanicLine)
         const scoringModifierLines = slotModifiers
             .filter((m) => m.placement === 'scoring')
-            .map((m) => `[Slot Mechanics — ${m.label}] ${m.mechanicLine}`)
+            .map((m) => m.mechanicLine)
 
         const combinedRulesForSlot: string[] = [
             ...archRulesScoring.rules,
