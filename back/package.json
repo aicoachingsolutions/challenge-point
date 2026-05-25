@@ -9,7 +9,7 @@
         "sync:affordances": "ts-node --files -r tsconfig-paths/register ./src/run-sync-affordances.ts",
         "sync:constraints": "ts-node --files -r tsconfig-paths/register ./src/run-sync-constraints.ts",
         "integrity-review": "ts-node src/scripts/run-integrity-review.ts",
-        "test": "ts-node --files -r tsconfig-paths/register ./src/system/activity/validate-activity-skeleton.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/slot-mechanics-variations.unit.ts",
+        "test": "ts-node --files -r tsconfig-paths/register ./src/system/activity/validate-activity-skeleton.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/slot-mechanics-variations.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/compress-activity-output.unit.ts",
         "test:selection-pipeline": "ts-node --files -r tsconfig-paths/register ./src/scripts/run-selection-pipeline-tests.ts",
         "test:create-activity-local": "node .\\run-local-create-activity-test.js"
     },

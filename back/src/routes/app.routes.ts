@@ -6,6 +6,8 @@ import Session, { SessionEmphasis, SessionStatus } from 'src/models/session.mode
 import { ActivityAssemblyValidationError, assembleActivities } from 'src/services/completion.service'
 
 import Activity, { ActivityStatus } from '../models/activity.model'
+import { compressActivitiesForCoach } from '../system/activity/compress-activity-output'
+import { getSlotMechanicalVariations } from '../system/activity/slot-mechanics-variations'
 import User from '../models/user.model'
 import Logger from '../logger'
 import LoggingService from '../services/logging.service'
@@ -323,7 +325,18 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
             )
         }
 
-        return res.status(200).json(validatedActivities)
+        // Phase 4A: compress coach-facing output. The skeleton mechanics have already been
+        // validated; this pass deduplicates across fields, strips Players-read narration
+        // from scoring and rules (kept implicit there, surfaced once in coachingFocus),
+        // removes the guardrail closing line where it would otherwise echo winCondition,
+        // and caps section lengths. Phase 3.5 slot-modifier text is must-keep through the
+        // cap so the per-slot environmental differentiation survives compression.
+        const perSlotModifierLines = ([1, 2, 3] as const).map((idx) =>
+            getSlotMechanicalVariations(assemblyInput.session.sessionEmphasis, idx).map((m) => m.mechanicLine)
+        )
+        const compressedActivities = compressActivitiesForCoach(validatedActivities, perSlotModifierLines)
+
+        return res.status(200).json(compressedActivities)
     } catch (error) {
         console.error('=== CREATE ACTIVITY ERROR ===')
         console.error(error)
