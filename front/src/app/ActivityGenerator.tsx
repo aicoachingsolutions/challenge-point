@@ -556,7 +556,7 @@ function GeneratedActivityCard({
                             <div>
                                 <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Rules</p>
                                 <ol className='space-y-1'>
-                                    {activity.rules.slice(0, 4).map((rule, i) => (
+                                    {activity.rules.map((rule, i) => (
                                         <li key={i} className='flex gap-2 text-sm text-gray-700'>
                                             <span className='flex-shrink-0 w-4 h-4 mt-0.5 flex items-center justify-center rounded-full bg-brand-100 text-brand-700 text-xs font-bold'>{i + 1}</span>
                                             <span className='leading-relaxed'>{rule}</span>

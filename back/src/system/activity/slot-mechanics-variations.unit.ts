@@ -15,6 +15,8 @@
 import assert from 'node:assert/strict'
 
 import { SessionEmphasis } from '../../models/session.model'
+import { slotProgressionEmphasisFor } from './build-activity-skeleton'
+import { getEmphasisVariationProfile } from './emphasis-variation-profile'
 import {
     getSlotMechanicalVariations,
     VALUE_LANDSCAPE_LIBRARY,
@@ -151,6 +153,77 @@ function testEveryModifierHasPlacement(): void {
     }
 }
 
+/**
+ * Phase 4A regression test: every string the AI sees in its prompt brief must be free of
+ * the leaked-vocab tokens (baseline / twist / variation). If any of these words appear in
+ * slot labels, slot directives, the bandwidth summary, or the bandwidth rule, the AI is
+ * likely to echo them back into a coach-facing title — which then triggers the polish
+ * validator and aborts the whole assembly request. This test catches that class of leak
+ * at build time so users don't hit the "Activity 1: title contains internal profile
+ * terminology" failure mode in production.
+ */
+/**
+ * Composed-string leak scan: slotProgressionEmphasisFor concatenates the profile's slot
+ * directive with helper text ("Activity X of 3 — alternative realization Y...", "Hold
+ * these axes stable across the three activities..."). The composition itself can introduce
+ * leaked vocab even when the underlying profile is clean. This test exercises the actual
+ * function the AI's brief is built from.
+ */
+function testSlotDirectiveCompositionHasNoLeakedVocab(): void {
+    const cases: Array<{ emphasis: SessionEmphasis; idx: 1 | 2 | 3 }> = [
+        { emphasis: SessionEmphasis['Discovering Solutions'], idx: 1 },
+        { emphasis: SessionEmphasis['Discovering Solutions'], idx: 2 },
+        { emphasis: SessionEmphasis['Discovering Solutions'], idx: 3 },
+        { emphasis: SessionEmphasis['Applying Solutions Under Pressure'], idx: 1 },
+        { emphasis: SessionEmphasis['Applying Solutions Under Pressure'], idx: 2 },
+        { emphasis: SessionEmphasis['Applying Solutions Under Pressure'], idx: 3 },
+    ]
+    for (const { emphasis, idx } of cases) {
+        const composed = slotProgressionEmphasisFor(idx, emphasis)
+        for (const re of LEAKED_VOCAB_TOKENS) {
+            assert.ok(
+                !re.test(composed),
+                `slotProgressionEmphasisFor(${idx}, "${emphasis}") composition contains leaked-vocab token ${re}: "${composed}"`
+            )
+        }
+    }
+}
+
+function testEmphasisProfileAiFacingContentHasNoLeakedVocab(): void {
+    const emphases = [
+        SessionEmphasis['Discovering Solutions'],
+        SessionEmphasis['Applying Solutions Under Pressure'],
+    ]
+    for (const e of emphases) {
+        const profile = getEmphasisVariationProfile(e)
+        // Profile-level AI-facing strings
+        for (const re of LEAKED_VOCAB_TOKENS) {
+            assert.ok(
+                !re.test(profile.bandwidthSummary),
+                `Emphasis "${e}" bandwidthSummary contains leaked-vocab token ${re}: "${profile.bandwidthSummary}"`
+            )
+            assert.ok(
+                !re.test(profile.bandwidthRule),
+                `Emphasis "${e}" bandwidthRule contains leaked-vocab token ${re}: "${profile.bandwidthRule}"`
+            )
+        }
+        // Per-slot AI-facing strings: label (surfaced as `(${m.label})` in polish prompt)
+        // and directive (surfaced verbatim as the slot's environmentalConfiguration line).
+        for (const slot of profile.slots) {
+            for (const re of LEAKED_VOCAB_TOKENS) {
+                assert.ok(
+                    !re.test(slot.label),
+                    `Emphasis "${e}" slot label "${slot.label}" contains leaked-vocab token ${re}.`
+                )
+                assert.ok(
+                    !re.test(slot.directive),
+                    `Emphasis "${e}" slot "${slot.label}" directive contains leaked-vocab token ${re}: "${slot.directive}"`
+                )
+            }
+        }
+    }
+}
+
 function runAll(): void {
     testLibraryHasNoProgressionLanguage()
     testEverySlotUnderEveryEmphasisIsCovered()
@@ -158,6 +231,8 @@ function runAll(): void {
     testDiscoveringAllSlotsHaveAtLeastOneWideModifier()
     testApplyingNonBaselineSlotsCarryNarrowModifierOnly()
     testEveryModifierHasPlacement()
+    testEmphasisProfileAiFacingContentHasNoLeakedVocab()
+    testSlotDirectiveCompositionHasNoLeakedVocab()
     console.log('slot-mechanics-variations unit tests: all cases passed.')
 }
 

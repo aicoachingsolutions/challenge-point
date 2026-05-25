@@ -1181,7 +1181,7 @@ SLOT MECHANICAL VARIATIONS — VALUE LANDSCAPE
 - A modifier marked [rule] must be reflected in the activity's rules; a modifier marked [scoring] must be reflected in the activity's scoring. The validator will check this per slot.
 - These modifiers are what differentiate the three activities' MECHANICS (in addition to setup/objective/title differentiating their environmental DESCRIPTION). Treat them as required mechanics, not as suggestions.
 - A modifier for one activity must NOT be re-stated in the other two activities. Each value-landscape modifier belongs to its slot only.
-- When an activity has no slotMechanicalVariations, it carries the shared baseline value structure — write its rules and scoring against the shared mechanics without inventing a modifier of your own.
+- When an activity has no slotMechanicalVariations, it carries the shared value structure — write its rules and scoring against the shared mechanics without inventing a modifier of your own.
 
 Output requirements:
 - Return valid JSON only.
