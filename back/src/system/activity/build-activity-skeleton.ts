@@ -711,7 +711,7 @@ function setupFrameForSlot(
  * toward Activity 3", or "this is the correct progression pathway." Emphasis shapes WHICH
  * parallel-realization pattern is used; it does NOT loosen the no-progression guardrails.
  */
-function slotProgressionEmphasisFor(
+export function slotProgressionEmphasisFor(
     index: 1 | 2 | 3,
     emphasis: SessionEmphasis | undefined
 ): string {
@@ -723,10 +723,10 @@ function slotProgressionEmphasisFor(
     const variationLabel = spec.label
     const holdSummary = spec.holdAxes.length > 0
         ? `Hold these axes stable across the three activities: ${spec.holdAxes.join(', ')}.`
-        : 'Variation across all primary environmental axes is permitted under this emphasis.'
+        : 'Differentiation across all primary environmental axes is permitted under this emphasis.'
 
     return [
-        `Activity ${index} of 3 — alternative realization ${realizationLetter} of the session emphasis (variation role: ${variationLabel}).`,
+        `Activity ${index} of 3 — alternative realization ${realizationLetter} of the session emphasis (role: ${variationLabel}).`,
         'The three activities are PARALLEL designs the coach can choose between, not stages of a difficulty ramp.',
         spec.directive,
         holdSummary,
@@ -851,7 +851,7 @@ export function formatActivitySkeletonForPrompt(bundle: ActivitySkeletonBundle):
     // session emphasis. This shapes WHICH parallel-realization pattern to use; it does NOT
     // loosen the no-progression guardrails above.
     const variationProfile = getEmphasisVariationProfile(bundle.sessionEmphasis)
-    lines.push('EMPHASIS-AWARE VARIATION BANDWIDTH:')
+    lines.push('EMPHASIS-AWARE BANDWIDTH:')
     lines.push(`- Session emphasis: ${variationProfile.emphasis}`)
     lines.push(`- Bandwidth: ${variationProfile.bandwidthSummary}`)
     lines.push(`- Rule: ${variationProfile.bandwidthRule}`)
@@ -874,7 +874,7 @@ export function formatActivitySkeletonForPrompt(bundle: ActivitySkeletonBundle):
                 lines.push(`  - [${m.placement}] (${m.label}) ${m.mechanicLine}`)
             }
         } else {
-            lines.push('slotMechanicalVariations (this activity): none — this activity carries the shared baseline value structure that the other two slots will re-weight from.')
+            lines.push('slotMechanicalVariations (this activity): none — this activity carries the shared value structure that the other two slots will re-weight from.')
         }
         lines.push('requiredRuleMechanics (this activity):')
         for (const r of slot.requiredRuleMechanics) lines.push(`  - ${r}`)
