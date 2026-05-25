@@ -191,6 +191,22 @@ function testPlayerReadNarrationStripped(): void {
     assert.ok(!/\bPlayers decide\b/i.test(rulesOutText), `"Players decide" must be stripped from rules; got: ${rulesOutText}`)
 }
 
+function testEmDashRecoveryAfterStrip(): void {
+    // Simulate the production case: two scoring clauses originally separated by a
+    // "Players decide" sentence which gets stripped, leaving a dangling em-dash.
+    const sentences = [
+        'A point counts only when the team progresses into the target zone.',
+        'Score awarded for attacks that use available space to gain advantage — Players decide to progress into the open space before defensive pressure recovers, or the chance is lost. Score awarded for passes or runs that break or bypass a defensive line.',
+    ]
+    const activity = baseActivity({ scoringSystem: sentences.join(' ') })
+    const out = compressActivityForCoach(activity, [])
+    const scoringOut = out.scoringSystem ?? ''
+    assert.ok(
+        !/ — Score awarded/i.test(scoringOut),
+        `Em-dash followed by "Score awarded" should have been promoted to a sentence break; got: ${scoringOut}`
+    )
+}
+
 function testIdempotent(): void {
     const activity = baseActivity({
         rules: [
@@ -224,6 +240,7 @@ function runAll(): void {
     testExchangeRuleSurvivesAsRule0()
     testGuardrailClosingLineStrippedFromScoring()
     testPlayerReadNarrationStripped()
+    testEmDashRecoveryAfterStrip()
     testIdempotent()
     console.log('compress-activity-output unit tests: all cases passed.')
 }

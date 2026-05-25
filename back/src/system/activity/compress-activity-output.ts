@@ -201,6 +201,13 @@ function containsModifierText(line: string, modifierMechanicLines: string[]): bo
  * Strip the guardrail closing line and player-narration patterns from a freeform text
  * field. Returns the cleaned text. Repeated whitespace from removed segments is
  * collapsed.
+ *
+ * Post-strip cleanup: when a stripped clause sat between two clauses joined by an
+ * em-dash (e.g. "advantage — Players decide to X. Y starts here"), removing the middle
+ * leaves a dangling " — " connecting two independent clauses ("advantage — Y"). That
+ * reads bizarrely. We promote those dangling em-dash boundaries back to proper sentence
+ * breaks when the following clause clearly starts an independent scoring/rule sentence
+ * (whitelist of safe sentence-start patterns).
  */
 function stripScaffoldingNarration(text: string): string {
     if (!text) return ''
@@ -210,6 +217,26 @@ function stripScaffoldingNarration(text: string): string {
         next = next.replace(pat, ' ')
     }
     next = next.replace(/\s+/g, ' ').trim()
+    // Promote dangling em-dash connectors left behind by stripping a middle clause.
+    // Safe-to-promote patterns: clauses that virtually always start an independent
+    // scoring or rule sentence after a strip.
+    const DANGLING_EM_DASH_PROMOTERS = [
+        /\s+—\s+(?=Score awarded\b)/gi,
+        /\s+—\s+(?=A point counts\b)/gi,
+        /\s+—\s+(?=A point or live advantage counts\b)/gi,
+        /\s+—\s+(?=A goal\b)/gi,
+        /\s+—\s+(?=A bonus\b)/gi,
+        /\s+—\s+(?=Possession kept\b)/gi,
+        /\s+—\s+(?=Scoring (tied|awarded|completes)\b)/gi,
+        /\s+—\s+(?=Defenders score\b)/gi,
+        /\s+—\s+(?=The field is treated\b)/gi,
+        /\s+—\s+(?=The working area\b)/gi,
+        /\s+—\s+(?=The decision window\b)/gi,
+        /\s+—\s+(?=On possession change\b)/gi,
+    ]
+    for (const re of DANGLING_EM_DASH_PROMOTERS) {
+        next = next.replace(re, '. ')
+    }
     return next
 }
 
