@@ -720,13 +720,17 @@ export function slotProgressionEmphasisFor(
     // realization, not progression. Renaming the field is a separate sweep.
     const spec = getSlotVariationSpec(emphasis, index)
     const realizationLetter = index === 1 ? 'A' : index === 2 ? 'B' : 'C'
-    const variationLabel = spec.label
     const holdSummary = spec.holdAxes.length > 0
         ? `Hold these axes stable across the three activities: ${spec.holdAxes.join(', ')}.`
         : 'Differentiation across all primary environmental axes is permitted under this emphasis.'
 
+    // NOTE: the slot's internal `spec.label` is intentionally NOT included in this AI-facing
+    // text. Earlier iterations exposed labels like "shared-configuration" / "micro-vary-
+    // working-area" to the AI, which then used them as title seeds ("Core Configuration",
+    // "Spatial Shift"). Labels are internal index strings; the directive carries the actual
+    // instruction.
     return [
-        `Activity ${index} of 3 — alternative realization ${realizationLetter} of the session emphasis (role: ${variationLabel}).`,
+        `Activity ${index} of 3 — alternative realization ${realizationLetter} of the session emphasis.`,
         'The three activities are PARALLEL designs the coach can choose between, not stages of a difficulty ramp.',
         spec.directive,
         holdSummary,
@@ -871,7 +875,10 @@ export function formatActivitySkeletonForPrompt(bundle: ActivitySkeletonBundle):
         if (slot.slotMechanicalVariations.length > 0) {
             lines.push('slotMechanicalVariations (this activity — value-landscape modifiers that re-weight value within the shared constraint package; these mechanics must appear in this activity\'s rules or scoring and must NOT be re-stated in the other two activities):')
             for (const m of slot.slotMechanicalVariations) {
-                lines.push(`  - [${m.placement}] (${m.label}) ${m.mechanicLine}`)
+                // Modifier label deliberately omitted from the AI brief — earlier iterations
+                // saw labels like "narrow spatial-value shift" used as title seeds. The
+                // placement and mechanicLine carry everything the AI needs.
+                lines.push(`  - [${m.placement}] ${m.mechanicLine}`)
             }
         } else {
             lines.push('slotMechanicalVariations (this activity): none — this activity carries the shared value structure that the other two slots will re-weight from.')
