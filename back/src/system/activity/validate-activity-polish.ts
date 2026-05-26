@@ -34,12 +34,38 @@ function isNonEmptyStringArray(v: unknown): v is string[] {
  */
 const LEAKED_PROFILE_VOCAB: RegExp[] = [/\bbaseline\b/i, /\btwist\b/i, /\bvariation\b/i, /\bvariations\b/i]
 
+/**
+ * Title-only scaffolding words. These can legitimately appear in setup / objective /
+ * coachingFocus when describing the environment (e.g. "the zone configuration is..." in
+ * setup is fine), but when they appear in TITLES they signal that the AI is naming the
+ * activity by its session role instead of by its game form. Only enforced on title.
+ */
+const LEAKED_TITLE_SCAFFOLDING: RegExp[] = [
+    /\bconfiguration\b/i,
+    /\bshift\b/i,
+    /\bstructure\b/i,
+    /\bshared\b/i,
+    /\brealization\b/i,
+    /\bdifferentiator\b/i,
+]
+
 function assertNoLeakedProfileVocab(activityIndexOneBased: number, field: string, value: string): void {
     for (const re of LEAKED_PROFILE_VOCAB) {
         if (re.test(value)) {
             const match = value.match(re)?.[0]
             throw new Error(
                 `Activity ${activityIndexOneBased}: ${field} contains internal profile terminology ("${match}"). The words "baseline", "twist", and "variation" are not coach-facing; rewrite using concrete environmental description.`
+            )
+        }
+    }
+}
+
+function assertNoLeakedTitleScaffolding(activityIndexOneBased: number, title: string): void {
+    for (const re of LEAKED_TITLE_SCAFFOLDING) {
+        if (re.test(title)) {
+            const match = title.match(re)?.[0]
+            throw new Error(
+                `Activity ${activityIndexOneBased}: title contains session-role scaffolding ("${match}"). Titles must describe the game (e.g. "Wide Channel End Zone Game") not the slot's role within the session. Avoid: configuration, shift, structure, shared, realization, differentiator.`
             )
         }
     }
@@ -86,6 +112,12 @@ export function validateActivityPolishPayload(parsed: unknown): ActivityPolish[]
         coachingFocus.forEach((line, focusIndex) =>
             assertNoLeakedProfileVocab(index + 1, `coachingFocus[${focusIndex}]`, line)
         )
+
+        // Title-only scaffolding guardrail — words that suggest session-role naming
+        // ("Core Configuration", "Spatial Shift", "Timing Structure") rather than
+        // describing what the game IS. Only enforced on title to avoid blocking legitimate
+        // use of "structure" / "configuration" inside setup descriptions.
+        assertNoLeakedTitleScaffolding(index + 1, title)
 
         return { title, setup, objective, coachingFocus }
     })

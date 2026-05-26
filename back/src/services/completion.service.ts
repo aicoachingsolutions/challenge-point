@@ -1175,6 +1175,7 @@ FAILURE WARNING
 - If your wording contradicts the selected archetype, affordances, constraints, skeleton, or mechanics, the activity will be rejected.
 - If decision language is missing from objective or coachingFocus, the activity will be rejected.
 - The words "baseline", "twist", and "variation" are INTERNAL profile terminology. Do NOT use them in title, setup, objective, or coachingFocus. They are not coach-facing language and their appearance in those fields will be rejected. If you need to describe an activity's role within the session, do it through concrete environmental description (zones, transitions, scoring weighting, timing) — not through the internal label.
+- TITLES must describe what the activity IS in concrete environmental and game-form terms (e.g. "Wide Channel End Zone Game", "Numerical Overload Press", "Tight-Window Regain Game"). Titles must NOT describe what role this activity plays within the session structure. Specifically, do NOT use these scaffolding words in titles: "Configuration", "Shift", "Structure", "Core", "Shared", "Role", "Realization", "Differentiator". A coach should be able to read the title and understand what game they're about to play, not what slot it occupies in a session.
 
 SLOT MECHANICAL VARIATIONS — VALUE LANDSCAPE
 - The skeleton block below carries a "slotMechanicalVariations" entry per activity. Each entry is a value-landscape modifier (rule or scoring line) that re-weights value within the shared constraint package for THAT activity only.
