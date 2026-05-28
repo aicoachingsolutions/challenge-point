@@ -320,59 +320,21 @@ function sentenceCase(text: string): string {
     return `${trimmed[0]!.toUpperCase()}${trimmed.slice(1)}`
 }
 
-function cleanExchangeClause(text: string): string {
-    return text
-        .replace(/\ba team recognizes the live opportunity created by\b/i, 'the live opportunity created by')
-        .replace(/\ba team sees\b/i, '')
-        .replace(/\ba team creates\b/i, '')
-        .replace(/\ba team regains\b/i, 'a regain occurs')
-        .replace(/\ba team secures\b/i, '')
-        .replace(/\ba team delays\b/i, 'the attack is delayed and')
-        .replace(/\ba line open\b/i, 'a line is open')
-        .replace(/\bthey force the action into pressure or lose the ball while the picture is closed\b/i, 'a forced action into pressure or turnover after the advantage closes')
-        .replace(/\bthey force the entry into pressure or lose the ball on the breakthrough action\b/i, 'a forced entry into pressure or turnover on the breakthrough action')
-        .replace(/\bthey drive into crowded pressure or force the entry after the space has closed\b/i, 'a crowded entry or forced action after the space has closed')
-        .replace(/\bthey rush the shot into pressure or lose the ball before the finish is prepared\b/i, 'a rushed shot into pressure or turnover before the finish is prepared')
-        .replace(/\bthey force the first action into recovered pressure or lose the ball while the window is gone\b/i, 'a forced first action into recovered pressure or turnover after the window is gone')
-        .replace(/\bthey panic, clear aimlessly, or force the first outlet into pressure\b/i, 'a rushed clearance or forced first outlet into pressure')
-        .replace(/\bthey exploit it\b/i, 'it is used')
-        .replace(/\bthey\b/gi, 'the team in possession can')
-        .replace(/\bthe team in possession force\b/i, 'a forced')
-        .replace(/\bthe team in possession drive\b/i, 'a drive')
-        .replace(/\bthe team in possession rush\b/i, 'a rushed')
-        .replace(/\bthe team in possession panic\b/i, 'a rushed clearance')
-        .replace(/\s+/g, ' ')
-        .replace(/\s+,/g, ',')
-        .trim()
-}
-
-function environmentalExchangeFromLiveRule(liveRule: string): string | null {
-    const match = liveRule
-        .trim()
-        .match(/^If\s+([\s\S]+?),\s+then\s+([\s\S]+?);\s+but if\s+([\s\S]+?),\s+then\s+([\s\S]+?),\s+and\s+([\s\S]+?)\.?$/i)
-    if (!match) return null
-
-    const cue = cleanExchangeClause(match[1]!)
-    const reward = cleanExchangeClause(match[2]!)
-    const risk = cleanExchangeClause(match[3]!)
-    const opponent = cleanExchangeClause(match[4]!)
-    const continuation = cleanExchangeClause(match[5]!)
-
-    return [
-        `${sentenceCase(cue)} remains active for both teams during live play.`,
-        `${sentenceCase(reward)} while the advantage is open.`,
-        `${sentenceCase(risk)} gives ${opponent}, and ${continuation}.`,
-    ].join(' ')
-}
 
 export function buildExplicitExchangeRule(slot: ActivitySkeletonSlot): string {
-    const liveRule = extractAfterPrefix(slot.requiredConstraintMechanics, 'Interaction exchange — live rule and cues: ')
-    if (liveRule) {
-        const trimmed = liveRule.split(' Visible opportunity cue:')[0]?.trim()
-        const environmental = trimmed ? environmentalExchangeFromLiveRule(sanitizeMechanicLine(trimmed)) : null
-        if (environmental) return environmental
-    }
-
+    // Phase 4B note: the per-constraint "Interaction exchange — live rule and cues:" text is
+    // an internal "If a team recognizes the live opportunity created by X, then they exploit
+    // it..." sequence. An earlier attempt parsed and reassembled that structure into
+    // environmental language, but the reassembly produced grammatically broken output
+    // ("It is used under pressure, keep the next action live..."; "gives the opponent gains
+    // ...") and still leaked the flagged phrase "the live opportunity created by X" plus
+    // internal constraint-condition names ("Goalkeeper Included Condition").
+    //
+    // The per-archetype environmental statements below are clean, grammatical, and express
+    // the same two-sided live-exchange truth as a STANDING ENVIRONMENTAL CONDITION rather
+    // than a cognitive "if team recognizes X then Y" sequence. We use them directly. The
+    // constraint-specific detail still surfaces in setup, scoring, and the affordance lines;
+    // the exchange rule does not need to carry it.
     switch (slot.archetypeName) {
         case 'Pressing & Regain Games':
             return 'The press and regain window stays live for both teams. A regain opens an immediate attack, a turnover flips the same advantage to the opponent, and play continues live with no reset.'

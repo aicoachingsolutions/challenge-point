@@ -16,6 +16,15 @@ const BANNED_OPERATIONAL_LEAKS = [
     /\bplayers? (read|decide|recognize|react)\b/i,
     /\bif a team recognizes\b/i,
     /\brecognizes? the live opportunity\b/i,
+    // The phrase "the live opportunity created by <Constraint>" is the internal-logic
+    // framing Christian flagged. Removing only the verb "recognizes" left this phrase
+    // behind in an earlier pass; catch the whole phrase.
+    /\bthe live opportunity created by\b/i,
+    // Internal constraint-condition names leak as "... inside the Goalkeeper Included
+    // Condition." A coach-facing rule must not name an internal constraint condition.
+    /\binside the [a-z ]{1,40} condition\b/i,
+    // Double-verb grammar artifact from the old reassembly ("gives the opponent gains").
+    /\bgives the opponent gains\b/i,
 ]
 
 function assertOperational(label: string, text: string): void {
