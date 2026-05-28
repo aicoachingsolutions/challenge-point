@@ -42,7 +42,7 @@ function baseActivity(overrides: Partial<IActivity> = {}): IActivity {
 }
 
 const EXCHANGE_RULE =
-    'If a team recognizes the live opportunity created by Wide Zone Advantage, then they exploit it under pressure, keep the next action live, and gain the selected advantage; but if they force the action into pressure or lose the ball while the picture is closed, then the opponent gains the connected restart, regain, or counter-attacking advantage, and play continues live inside the Goalkeeper Included Condition.'
+    'Wide and central channels remain active throughout play and may be used to progress forward. A channel entry keeps play live, and a forced entry or turnover opens the opposite channel for the opponent with no reset.'
 
 function testRulesCapAt5(): void {
     const rules = [
@@ -143,9 +143,39 @@ function testExchangeRuleSurvivesAsRule0(): void {
     const activity = baseActivity({ rules })
     const out = compressActivityForCoach(activity, [])
     assert.ok(
-        (out.rules ?? [])[0]?.startsWith('If a team recognizes the live opportunity created by'),
+        (out.rules ?? [])[0]?.startsWith('Wide and central channels remain active throughout play'),
         `Exchange rule must remain in rules[0] after compression; got: ${out.rules?.[0]}`
     )
+}
+
+function testCrossSectionEnvironmentalDedup(): void {
+    const repeatedRule =
+        'Wide channels remain active and may be used to progress into the target zone after every possession change.'
+    const repeatedScoring =
+        'Wide channels remain active and may be used to progress into the target zone after every possession change.'
+    const modifierLine =
+        'Score is weighted by where possession changes hands: regains in a forward zone count higher than regains in a defensive zone, and the same weighting applies in every live contest.'
+    const activity = baseActivity({
+        rules: [EXCHANGE_RULE, repeatedRule, modifierLine],
+        scoringSystem: [
+            'A point counts only when possession is maintained under pressure.',
+            repeatedScoring,
+            modifierLine,
+        ].join(' '),
+        winCondition:
+            'Wide channels remain active and may be used to progress into the target zone after every possession change. Team with most points wins.',
+    })
+    const out = compressActivityForCoach(activity, [modifierLine])
+    assert.ok(
+        !(out.rules ?? []).includes(repeatedRule),
+        `Repeated environmental rule should defer to winCondition; got: ${JSON.stringify(out.rules)}`
+    )
+    assert.ok(
+        !(out.scoringSystem ?? '').includes(repeatedScoring),
+        `Repeated environmental scoring should defer to winCondition/rules; got: ${out.scoringSystem}`
+    )
+    assert.ok((out.rules ?? []).includes(modifierLine), 'Modifier rule must survive cross-section dedup')
+    assert.ok((out.scoringSystem ?? '').includes('weighted by where possession changes hands'), 'Modifier scoring must survive cross-section dedup')
 }
 
 function testGuardrailClosingLineStrippedFromScoring(): void {
@@ -238,6 +268,7 @@ function runAll(): void {
     testCoachingFocusCapAt3()
     testSlotModifierPreserved()
     testExchangeRuleSurvivesAsRule0()
+    testCrossSectionEnvironmentalDedup()
     testGuardrailClosingLineStrippedFromScoring()
     testPlayerReadNarrationStripped()
     testEmDashRecoveryAfterStrip()

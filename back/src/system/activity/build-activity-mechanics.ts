@@ -185,7 +185,7 @@ function buildTeamsFromSlot(slot: ActivitySkeletonSlot): string {
             ]).join(' ')
         case 'Transition Games':
             return uniqueLines([
-                'Two teams compete with the transition moment as the live contest; when possession changes, the team gaining the ball immediately becomes the attacker exploiting disorganized space, while the other team decides whether to press immediately or recover defensive shape.',
+                'Two teams compete with the transition moment as the live contest; when possession changes, the team gaining the ball immediately becomes the attacker into disorganized space while immediate pressure and recovery shape are both available to the other team.',
                 playerStructure ? `Player structure logic: ${playerStructure}` : '',
             ]).join(' ')
         case 'Target Games':
@@ -195,7 +195,7 @@ function buildTeamsFromSlot(slot: ActivitySkeletonSlot): string {
             ]).join(' ')
         case 'Channel Games':
             return uniqueLines([
-                'Two teams compete across defined spatial channels; the attacking team reads which channel is open based on defensive coverage and attacks through it, while the defending team organizes channel coverage and counter-attacks from regains.',
+                'Two teams compete across defined spatial channels; open channels remain available for forward attacks while the defending team organizes channel coverage and counter-attacks from regains.',
                 playerStructure ? `Player structure logic: ${playerStructure}` : '',
             ]).join(' ')
         case 'Finishing Games':
@@ -205,7 +205,7 @@ function buildTeamsFromSlot(slot: ActivitySkeletonSlot): string {
             ]).join(' ')
         case 'Constraint-Driven Free Play':
             return uniqueLines([
-                'Two teams compete in a free live game shaped by the selected constraints; both teams make open decisions within the constraint structure while maintaining a genuine two-sided contest of possession, pressure, and counter-attack.',
+                'Two teams compete in a free live game shaped by the selected constraints; possession, pressure, and counter-attack options remain live inside the constraint structure for both teams.',
                 playerStructure ? `Player structure logic: ${playerStructure}` : '',
             ]).join(' ')
         default:
@@ -221,56 +221,69 @@ function buildTeamsFromSlot(slot: ActivitySkeletonSlot): string {
  * actually read in that game form. Replaces two hardcoded possession-leaning cues that previously
  * appeared in every activity regardless of archetype.
  */
-const ARCHETYPE_DECISION_CUE_PAIRS: Record<string, readonly [string, string]> = {
+export const ARCHETYPE_DECISION_CUE_PAIRS: Record<string, readonly [string, string]> = {
     'End Zone Games': [
-        'Players read defensive coverage between the ball and the target zone, deciding whether to penetrate directly, support behind the ball, or recycle to find a better angle.',
-        'Players react to the moment the target zone becomes contested — choose to attack now, draw defenders, or switch the entry route.',
+        'Direct penetration, support behind the ball, and recycling to a new entry angle are all live options; which is available depends on the coverage between the ball and the target zone.',
+        'The target zone remains available until it is contested; entry, drawing defenders, and switching the route are live options while the contest is open.',
     ],
     'Directional Possession Games': [
-        'Players read pressure and decide whether to secure possession, progress forward, or switch play based on the live picture.',
-        'Players react to space, support, and opponent recovery before the next action.',
+        'Securing possession, progressing forward, and switching play are all live options; which is on depends on where space opens and how pressure is applied.',
+        'Space, support, and opponent recovery shape which next action remains available.',
     ],
     'Positional Play Games': [
-        'Players read the positional structure — numerical advantage, free player, or open lane — and decide whether to play forward or maintain structure to build a better advantage.',
-        'Players react to defensive coverage shifts, choosing the moment when a positional advantage is genuinely exploitable before the structure recovers.',
+        'A numerical advantage, free player, or open lane makes forward play available; maintaining structure remains live when the better advantage is still building.',
+        'Coverage shifts open and close the forward lane, free player, or overload before the defensive structure recovers.',
     ],
     'Transition Games': [
-        'Players read the moment of possession change and decide whether to attack the transition space immediately or hold while the picture clarifies.',
-        'Players react to opponent recovery speed — choose to commit forward, support the attack, or recover defensive shape based on whether shape has been restored.',
+        'On each possession change, immediate attack into transition space and secure possession are both available while the new picture forms.',
+        'Opponent recovery speed governs whether forward commitment, support around the ball, or defensive recovery remains open.',
     ],
     'Overload Games': [
-        'Players read whether the overload is live and decide whether to exploit it now, hold to draw defenders, or reset to rebuild the advantage.',
-        'Players react to defensive adjustments and choose when the numerical or positional edge is genuinely actionable.',
+        'Using the overload, holding to draw defenders, and resetting to rebuild the advantage are all live options while the edge remains active.',
+        'Defensive adjustments open and close the numerical or positional edge as an actionable route.',
     ],
     'Target Games': [
-        'Players read whether the target is genuinely available — accounting for defensive cover, support angles, and pressure — and decide when to play the target ball.',
-        'Players react to the target connection: continue forward, lay back to support, or rebuild the picture if the connection is contested.',
+        'The target is available only when defensive cover, support angles, and pressure leave the connection open.',
+        'After a target connection, forward continuation, layoff support, and rebuilding possession are all live options according to how contested the connection is.',
     ],
     'Channel Games': [
-        'Players read which channel is genuinely open based on defensive coverage and decide when to commit to attacking through it.',
-        'Players react to coverage shifts — when the defense closes one channel, recognize and attack the channel that has opened.',
+        'A channel is available when defensive coverage leaves it open for forward entry.',
+        'Coverage shifts close one channel and open another; either channel can become the active route.',
     ],
     'Pressing & Regain Games': [
-        'Players read the press triggers — opponent body shape, support cover, distance to ball — and decide when to commit to pressure.',
-        'Players react to the regain moment: attack the disorganized opponent immediately or recover shape if the press window has closed.',
+        'Opponent body shape, support cover, and distance to the ball define when the press window is active.',
+        'At the regain moment, immediate attack against disorganization and recovery into shape are both available according to whether the press window remains open.',
     ],
     'Finishing Games': [
-        'Players read goalkeeper position, defensive cover, and angle of approach before deciding to shoot, cut inside, or hold for a better chance.',
-        'Players react to defensive recovery on each attempt — finish under pressure, lay off to a supporting finisher, or rebuild the chance.',
+        'Shooting, cutting inside, and holding for a better chance are all live options according to goalkeeper position, defensive cover, and angle of approach.',
+        'Defensive recovery sets the available finish, layoff to a supporting finisher, or rebuild of the chance on each attempt.',
     ],
     'Constraint-Driven Free Play': [
-        'Players read the live picture shaped by the selected constraints and decide which constraint outcome is genuinely available right now.',
-        'Players react to the opponent response to the constraint — adapt timing and route to the constraint problem on each possession.',
+        'The selected constraints define which outcome is available in the live game at each moment.',
+        'Timing and route options stay tied to the opponent response inside the constraint problem on each possession.',
     ],
 }
 
-function archetypeDecisionCues(archetypeName: string): readonly [string, string] {
+export function archetypeDecisionCues(archetypeName: string): readonly [string, string] {
     return (
         ARCHETYPE_DECISION_CUE_PAIRS[archetypeName] ?? [
-            'Players read the live game picture — pressure, space, support — and decide the next action based on what is genuinely available.',
-            'Players react to the opponent response and adapt their next decision based on the changing picture.',
+            'Pressure, space, and support define which next actions are genuinely available in the live game.',
+            'Opponent responses open and close timing, route, and support options as the picture changes.',
         ]
     )
+}
+
+function operationalizeDecisionFocusLine(line: string): string {
+    const withoutAffordancePrefix = sanitizeMechanicLine(line).replace(/^Affordance decision cue for "[^"]+":\s*/i, '')
+    const priorityMatch = withoutAffordancePrefix.match(/^Players prioritize (.*) in decisions\.$/i)
+    if (priorityMatch) {
+        return `${sentenceCase(priorityMatch[1]!.trim())} remains active in the available option set.`
+    }
+    const recognizeMatch = withoutAffordancePrefix.match(/^Players should recognize (.*) before choosing the next action\.$/i)
+    if (recognizeMatch) {
+        return `${sentenceCase(recognizeMatch[1]!.trim())} defines which next actions are available.`
+    }
+    return withoutAffordancePrefix
 }
 
 function buildDecisionCues(slot: ActivitySkeletonSlot): string[] {
@@ -292,48 +305,95 @@ function buildDecisionCues(slot: ActivitySkeletonSlot): string[] {
     const constraintDecisionFocus = slot.requiredConstraintMechanics.filter((line) =>
         /players prioritize .* in decisions\./i.test(line)
     )
-    cues.push(...constraintDecisionFocus.map(sanitizeMechanicLine).filter(isCoachFacingMechanicLine))
+    cues.push(...constraintDecisionFocus.map(operationalizeDecisionFocusLine).filter(isCoachFacingMechanicLine))
     const affordanceDecisionFocus = slot.requiredAffordanceMechanics.filter((line) =>
         /players should recognize .* before choosing the next action\./i.test(line)
     )
     // These start with "Affordance decision cue for "X":" — strip that prefix to keep just the cue.
-    cues.push(
-        ...affordanceDecisionFocus
-            .map(sanitizeMechanicLine)
-            .map((line) => line.replace(/^Affordance decision cue for "[^"]+":\s*/i, ''))
-            .filter(Boolean)
-    )
+    cues.push(...affordanceDecisionFocus.map(operationalizeDecisionFocusLine).filter(Boolean))
     return uniqueLines(cues.filter(Boolean))
 }
 
-function buildExplicitExchangeRule(slot: ActivitySkeletonSlot): string {
+function sentenceCase(text: string): string {
+    const trimmed = text.trim()
+    if (!trimmed) return ''
+    return `${trimmed[0]!.toUpperCase()}${trimmed.slice(1)}`
+}
+
+function cleanExchangeClause(text: string): string {
+    return text
+        .replace(/\ba team recognizes the live opportunity created by\b/i, 'the live opportunity created by')
+        .replace(/\ba team sees\b/i, '')
+        .replace(/\ba team creates\b/i, '')
+        .replace(/\ba team regains\b/i, 'a regain occurs')
+        .replace(/\ba team secures\b/i, '')
+        .replace(/\ba team delays\b/i, 'the attack is delayed and')
+        .replace(/\ba line open\b/i, 'a line is open')
+        .replace(/\bthey force the action into pressure or lose the ball while the picture is closed\b/i, 'a forced action into pressure or turnover after the advantage closes')
+        .replace(/\bthey force the entry into pressure or lose the ball on the breakthrough action\b/i, 'a forced entry into pressure or turnover on the breakthrough action')
+        .replace(/\bthey drive into crowded pressure or force the entry after the space has closed\b/i, 'a crowded entry or forced action after the space has closed')
+        .replace(/\bthey rush the shot into pressure or lose the ball before the finish is prepared\b/i, 'a rushed shot into pressure or turnover before the finish is prepared')
+        .replace(/\bthey force the first action into recovered pressure or lose the ball while the window is gone\b/i, 'a forced first action into recovered pressure or turnover after the window is gone')
+        .replace(/\bthey panic, clear aimlessly, or force the first outlet into pressure\b/i, 'a rushed clearance or forced first outlet into pressure')
+        .replace(/\bthey exploit it\b/i, 'it is used')
+        .replace(/\bthey\b/gi, 'the team in possession can')
+        .replace(/\bthe team in possession force\b/i, 'a forced')
+        .replace(/\bthe team in possession drive\b/i, 'a drive')
+        .replace(/\bthe team in possession rush\b/i, 'a rushed')
+        .replace(/\bthe team in possession panic\b/i, 'a rushed clearance')
+        .replace(/\s+/g, ' ')
+        .replace(/\s+,/g, ',')
+        .trim()
+}
+
+function environmentalExchangeFromLiveRule(liveRule: string): string | null {
+    const match = liveRule
+        .trim()
+        .match(/^If\s+([\s\S]+?),\s+then\s+([\s\S]+?);\s+but if\s+([\s\S]+?),\s+then\s+([\s\S]+?),\s+and\s+([\s\S]+?)\.?$/i)
+    if (!match) return null
+
+    const cue = cleanExchangeClause(match[1]!)
+    const reward = cleanExchangeClause(match[2]!)
+    const risk = cleanExchangeClause(match[3]!)
+    const opponent = cleanExchangeClause(match[4]!)
+    const continuation = cleanExchangeClause(match[5]!)
+
+    return [
+        `${sentenceCase(cue)} remains active for both teams during live play.`,
+        `${sentenceCase(reward)} while the advantage is open.`,
+        `${sentenceCase(risk)} gives ${opponent}, and ${continuation}.`,
+    ].join(' ')
+}
+
+export function buildExplicitExchangeRule(slot: ActivitySkeletonSlot): string {
     const liveRule = extractAfterPrefix(slot.requiredConstraintMechanics, 'Interaction exchange — live rule and cues: ')
     if (liveRule) {
         const trimmed = liveRule.split(' Visible opportunity cue:')[0]?.trim()
-        if (trimmed) return sanitizeMechanicLine(trimmed)
+        const environmental = trimmed ? environmentalExchangeFromLiveRule(sanitizeMechanicLine(trimmed)) : null
+        if (environmental) return environmental
     }
 
     switch (slot.archetypeName) {
         case 'Pressing & Regain Games':
-            return 'If a team regains under pressure, then they attack immediately while the counter window is live; but if they force the next action into recovered pressure, then the opponent attacks immediately from the regain or turnover.'
+            return 'The press and regain window stays live for both teams. A regain opens an immediate attack, a turnover flips the same advantage to the opponent, and play continues live with no reset.'
         case 'Overload Games':
-            return 'If the attacking team uses the overload to move the defense, then play continues toward advantage; but if the overload is forced or read too slowly, then the opponent regains and attacks into the exposed space.'
+            return 'The overload remains active during live play and may be used to move the defense toward advantage. A forced action or turnover flips the exposed space to the opponent, and play continues live with no reset.'
         case 'End Zone Games':
-            return 'If a team reaches the target zone under pressure, then play continues with advantage; but if the entry is forced or lost, then the opponent attacks immediately the other way.'
+            return 'The target zone remains active for both teams throughout play. Entry under pressure keeps the next action live, and any turnover gives the opponent immediate access to attack the other way with no reset.'
         case 'Positional Play Games':
-            return 'If a team creates a positional advantage and plays forward before the structure is recovered, then play continues with forward momentum; but if the ball is played into a covered zone or forced without positional advantage, then the opponent regains and exploits the disorganized shape immediately.'
+            return 'Positional advantages remain live while the defensive structure is stretched. Forward play can continue through the open lane, and any ball forced into a covered zone gives the opponent immediate access to the disorganized shape with play continuing live.'
         case 'Transition Games':
-            return 'If a team wins possession and attacks the transition space before the opponent recovers defensive shape, then the advantage is live and play continues forward; but if the attack stalls or the opponent recovers shape, then the game resets and the next transition moment defines who attacks.'
+            return 'Play continues immediately after every possession change with no reset. The team gaining the ball has first access to transition space, and a stalled attack or turnover flips the same transition advantage to the opponent.'
         case 'Target Games':
-            return 'If a team connects to the target under live defensive pressure, then play continues forward from the target with advantage; but if the connection is blocked or turned over, then the opponent attacks immediately from the regain.'
+            return 'The target remains an active forward connection for both teams under live defensive pressure. A completed connection keeps play moving forward, and a blocked connection or turnover gives the opponent the immediate regain attack.'
         case 'Channel Games':
-            return 'If a team identifies and attacks an open channel before defensive coverage shifts to close it, then the forward advantage is live and play continues through the channel; but if the channel entry is forced into coverage or lost, then the opponent attacks through the opposite open channel.'
+            return 'Wide and central channels remain active throughout play and may be used to progress forward. A channel entry keeps play live, and a forced entry or turnover opens the opposite channel for the opponent with no reset.'
         case 'Finishing Games':
-            return 'If a team creates a genuine scoring chance under live defensive pressure, then the finishing attempt is live and play continues from the result; but if the chance is forced or rushed without advantage, then the defending team regains and counter-attacks immediately from the clearance.'
+            return 'Finishing chances remain live under defensive pressure, with rebounds, clearances, and counter-attacks continuing from the result. A forced chance or turnover gives the defending team immediate access to counter-attack with no reset.'
         case 'Constraint-Driven Free Play':
-            return 'If a team solves the selected constraint problem in the live game, then play continues with the earned advantage from that constraint outcome; but if the constraint condition is missed or forced, then the opponent earns possession or the restart advantage immediately.'
+            return 'The selected constraint problem remains active for both teams during live play. The earned advantage belongs to whichever team satisfies the condition, and a missed condition or turnover flips possession or restart advantage to the opponent immediately.'
         default:
-            return 'If a team keeps possession and progresses toward the target under pressure, then the next action stays live; but if the ball is forced into pressure and lost, then the opponent attacks immediately from the regain.'
+            return 'Play stays live as possession is secured and progressed toward the target under pressure. A forced ball or turnover flips the immediate attacking advantage to the opponent with no reset.'
     }
 }
 

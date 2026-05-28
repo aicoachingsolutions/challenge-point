@@ -111,13 +111,32 @@ const noDecisionLanguage: Activity = {
         'Teams attack toward the end zone target with opposed teams and live contest toward the target area.',
     rules: [
         'Two-sided exchange with defenders contesting end-zone entry.',
-        'Reward stretching with width when central density packs tight; exploit open space before pressure recovers.',
-        'Using open space to gain advantage before pressure recovers is required for the restart advantage.',
+        'Reward stretching with width when central density packs tight; use space before pressure recovers.',
+        'Using space to gain advantage before pressure recovers is required for the restart advantage.',
     ],
+    scoring:
+        'Points for reaching the end zone target area; bonus scoring for using space under pressure before pressure recovers; wide channel bonus when defense is narrow.',
     coachingFocus: ['Stay compact without the ball.'],
 }
 const case3 = validateActivityAgainstSkeleton(noDecisionLanguage, testSkeletonSlot(), 1)
 assert.ok(case3.some((r) => r.includes('decision language')), 'case 3 should fail decision language')
+
+const environmentalDecisionLanguage: Activity = {
+    ...passActivity(),
+    objective:
+        'Teams attack toward the end zone target with opposed teams and live contest toward the target area.',
+    rules: [
+        'Wide channels remain active and may be used to progress into the target zone; play continues live after every turnover with no reset.',
+        'Reward stretching defenders with width when central density packs tight; open space before pressure recovers stays connected to the restart advantage.',
+        'Using the wide channel to gain advantage before pressure recovers is required for the restart advantage.',
+    ],
+    coachingFocus: ['Support, width, and target-zone entries stay available while pressure shifts.'],
+}
+assert.deepEqual(
+    validateActivityAgainstSkeleton(environmentalDecisionLanguage, testSkeletonSlot(), 1),
+    [],
+    'case 3b environmental option language should pass decision validation'
+)
 
 const missingConstraint: Activity = {
     ...passActivity(),
