@@ -20,8 +20,9 @@
  *      decide / adapt / option) survive in their original rule and scoring positions
  *      naturally; only the meta-narration "Players read X before Y" gets dropped.
  *
- *   3. Cross-field semantic dedup. Sentences in scoring that overlap heavily with
- *      sentences in winCondition or rules are removed from scoring (the longer field).
+ *   3. Cross-field semantic dedup. Nonessential rules that overlap heavily with
+ *      winCondition are removed, and scoring sentences that overlap heavily with
+ *      winCondition or rules are removed from scoring (the longer field).
  *      Token-Jaccard threshold > 0.6 counts as overlap.
  *
  *   4. Cap section length:
@@ -252,19 +253,47 @@ function stripScaffoldingNarrationFromArray(lines: string[]): string[] {
 }
 
 /**
- * Remove sentences from `text` whose Jaccard token-overlap with `other` exceeds
- * SEMANTIC_OVERLAP_THRESHOLD. Used to dedupe scoring against winCondition.
+ * Does `text` share enough distinctive tokens with any candidate line/sentence to
+ * count as repeated environmental truth?
  */
-function removeSentencesOverlappingWith(text: string, other: string, modifierMechanicLines: string[]): string {
-    const otherTokens = tokenize(other)
-    if (otherTokens.size === 0 || !text) return text
+function overlapsAnyCandidate(text: string, candidates: string[]): boolean {
+    const textTokens = tokenize(text)
+    if (textTokens.size === 0) return false
+    return candidates.some((candidate) => {
+        const candidateTokens = tokenize(candidate)
+        return candidateTokens.size > 0 && jaccardOverlap(textTokens, candidateTokens) >= SEMANTIC_OVERLAP_THRESHOLD
+    })
+}
+
+/**
+ * Remove sentences from `text` whose Jaccard token-overlap with any candidate exceeds
+ * SEMANTIC_OVERLAP_THRESHOLD. Used to dedupe scoring against winCondition and rules.
+ */
+function removeSentencesOverlappingWithCandidates(
+    text: string,
+    candidates: string[],
+    modifierMechanicLines: string[]
+): string {
+    if (!text || candidates.length === 0) return text
     const sentences = splitSentences(text)
     const kept = sentences.filter((s) => {
         if (containsModifierText(s, modifierMechanicLines)) return true
-        const sTokens = tokenize(s)
-        return jaccardOverlap(sTokens, otherTokens) < SEMANTIC_OVERLAP_THRESHOLD
+        return !overlapsAnyCandidate(s, candidates)
     })
     return kept.join(' ').trim()
+}
+
+function removeLinesOverlappingWithCandidates(
+    lines: string[],
+    candidates: string[],
+    modifierMechanicLines: string[],
+    isMustKeep: (line: string) => boolean
+): string[] {
+    if (candidates.length === 0) return lines
+    return lines.filter((line) => {
+        if (isMustKeep(line) || containsModifierText(line, modifierMechanicLines)) return true
+        return !overlapsAnyCandidate(line, candidates)
+    })
 }
 
 /**
@@ -286,20 +315,33 @@ export function compressActivityForCoach(activity: IActivity, modifierMechanicLi
     const strippedScoring = stripScaffoldingNarration(activity.scoringSystem ?? '')
     const strippedRules = stripScaffoldingNarrationFromArray(activity.rules ?? [])
 
-    // Step 2: cross-field dedup. Sentences in scoring that overlap heavily with
-    // winCondition get removed from scoring. Modifier text is protected.
-    const dedupedScoringAgainstWin = removeSentencesOverlappingWith(
+    // Step 2: cross-field dedup. Win condition is the terminal statement, so repeated
+    // nonessential rules defer to it; scoring then defers to win condition and rules.
+    // Modifier text is protected throughout.
+    const winConditionSentences = splitSentences(activity.winCondition ?? '')
+    const exchangeRule = strippedRules[0]
+    const dedupedRules = removeLinesOverlappingWithCandidates(
+        strippedRules,
+        winConditionSentences,
+        modifierMechanicLines,
+        (line) => line === exchangeRule
+    )
+    const dedupedScoringAgainstWin = removeSentencesOverlappingWithCandidates(
         strippedScoring,
-        activity.winCondition ?? '',
+        winConditionSentences,
+        modifierMechanicLines
+    )
+    const dedupedScoring = removeSentencesOverlappingWithCandidates(
+        dedupedScoringAgainstWin,
+        dedupedRules,
         modifierMechanicLines
     )
 
     // Step 3: cap rules. rules[0] is the explicit exchange rule (validator requires it
     // there) — must-keep. Any rule that carries Phase 3.5 modifier text — must-keep.
     // capByDistinctiveness preserves input order, so rules[0] stays at index 0.
-    const exchangeRule = strippedRules[0]
     const cappedRules = capByDistinctiveness(
-        strippedRules,
+        dedupedRules,
         (line) => line === exchangeRule || containsModifierText(line, modifierMechanicLines),
         RULES_CAP,
         (line) => line
@@ -307,7 +349,7 @@ export function compressActivityForCoach(activity: IActivity, modifierMechanicLi
 
     // Step 4: cap scoring sentences. First sentence (consequence rule) must-keep. Any
     // sentence carrying modifier text — must-keep. Input sentence order preserved.
-    const scoringSentences = splitSentences(dedupedScoringAgainstWin)
+    const scoringSentences = splitSentences(dedupedScoring)
     const firstScoringSentence = scoringSentences[0]
     const cappedScoringSentences = capByDistinctiveness(
         scoringSentences,

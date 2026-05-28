@@ -17,7 +17,7 @@ function joinScoringAndRules(activity: Activity): string {
 }
 
 const DECISION_INDICATORS =
-    /\bchoose\b|\bread\b|\breact\b|\bbased on\b|\bif\b.*\bthen\b|\bwhen\b.*\bdecide\b|\bdecision\b|\badapt\b|\boption\b/i
+    /\bchoose\b|\bread\b|\breact\b|\bbased on\b|\bif\b.*\bthen\b|\bwhen\b.*\bdecide\b|\bdecision\b|\badapt\b|\boption\b|\bmay (be )?use(d)?\b|\boptions?\b|\bavailable\b|\bactive\b|\bopen\b|\bremains? (live|active|open)\b|\bcontinues? live\b|\bwhichever\b|\beither\b/i
 
 const CONSEQUENCE_INDICATORS =
     /\bscor(e|ing)\b|\bpoints?\b|\bwin condition\b|\bwin\b|\blose\b|\boutcome\b|\bsuccess\b|\bfailure\b|\bpenalty\b|\bbonus\b|\bgoal\b|\brestart\b/i
