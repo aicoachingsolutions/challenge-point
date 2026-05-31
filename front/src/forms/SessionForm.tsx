@@ -142,7 +142,7 @@ const SessionForm: React.FC<{}> = () => {
                                         <div>
                                             <SelectField
                                                 {...f('skillLevel')}
-                                                label='Skill Level'
+                                                label='Game Skill Level'
                                                 options={skillLevelOptions}
                                                 labelClass='text-gray-700 font-medium mb-2 block'
                                                 inputClass='text-base'
