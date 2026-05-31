@@ -312,7 +312,8 @@ export default function ActivityGenerator() {
                         <div>
                             <label className='block mb-2 font-medium text-gray-700'>Learning Goals</label>
                             <p className='mb-2 text-sm text-gray-500'>
-                                Add specific objectives you want players to achieve during this activity
+                                Which game moments do your players need help with? (e.g. breaking lines, keeping
+                                possession under pressure, defending transitions, creating space)
                             </p>
 
                             <div className='space-y-3'>
