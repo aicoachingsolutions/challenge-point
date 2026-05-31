@@ -456,19 +456,39 @@ function ActivityScreen({
                             </div>
                         </div>
 
-                        {/* Coaching Focus */}
-                        {activity?.scaffolding?.length > 0 && (
-                            <div className='p-4 rounded-lg bg-green-50 border border-green-200'>
-                                <p className='text-xs font-semibold uppercase tracking-wide text-green-600 mb-2'>Coaching Focus</p>
-                                <ul className='space-y-1'>
-                                    {activity.scaffolding.map((cue, i) => (
-                                        <li key={i} className='flex items-start gap-2 text-sm text-green-800'>
-                                            <span className='flex-shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full bg-green-500'></span>
-                                            {cue}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
+                        {/* Live Session surface — observation guidance lives here, shown ONLY once
+                            the activity is live (In Progress). On the Selection view (Ready to Start)
+                            the screen stays "just the environment" per Christian's MVP2 information-
+                            architecture decision: Coaching Focus is observation guidance, not setup
+                            guidance, so it belongs to the Live Session phase, not Activity Selection. */}
+                        {activity?.activityStatus === ActivityStatus['In Progress'] && (
+                            <>
+                                {/* Coaching Focus */}
+                                {activity?.scaffolding?.length > 0 && (
+                                    <div className='p-4 rounded-lg bg-green-50 border border-green-200'>
+                                        <p className='text-xs font-semibold uppercase tracking-wide text-green-600 mb-2'>Coaching Focus</p>
+                                        <ul className='space-y-1'>
+                                            {activity.scaffolding.map((cue, i) => (
+                                                <li key={i} className='flex items-start gap-2 text-sm text-green-800'>
+                                                    <span className='flex-shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full bg-green-500'></span>
+                                                    {cue}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+
+                                {/* What to Watch — placeholder for the future observation layer.
+                                    Non-functional by design (Christian's MVP2 request): establishes the
+                                    information-architecture home now so observation support has a natural
+                                    place to land when we build it. No generation logic, no data binding yet. */}
+                                <div className='p-4 rounded-lg bg-gray-50 border border-dashed border-gray-300'>
+                                    <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2'>What to Watch</p>
+                                    <p className='text-sm italic leading-relaxed text-gray-400'>
+                                        Interaction signals and observation guidance will appear here in a future update.
+                                    </p>
+                                </div>
+                            </>
                         )}
 
                         {/* Learning Goals */}
