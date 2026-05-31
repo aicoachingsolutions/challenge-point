@@ -1,4 +1,11 @@
-import { ArrowLeftCircleIcon, CheckIcon, ClipboardDocumentIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import {
+    ArrowLeftCircleIcon,
+    CheckIcon,
+    ChevronDownIcon,
+    ChevronUpIcon,
+    ClipboardDocumentIcon,
+    XMarkIcon,
+} from '@heroicons/react/24/outline'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { ArrayFieldWrapper } from '@/form-control'
@@ -252,10 +259,13 @@ function ActivityScreen({
     const [pointsTracking, setPointsTracking] = useState<IPointsScored[]>([])
     const [isUpdating, setIsUpdating] = useState(false)
     const [startError, setStartError] = useState<string | null>(null)
+    const [showLiveActivityDetails, setShowLiveActivityDetails] = useState(false)
 
     const [showScaffolding, setShowScaffolding] = useState(false)
     const [showExtensions, setShowExtensions] = useState(false)
     const navigate = useNavigate()
+    const isInProgress = activity.activityStatus === ActivityStatus['In Progress']
+    const activityDetailsExpanded = !isInProgress || showLiveActivityDetails
 
     const startActivity = async () => {
         const activityId = activity._id
@@ -299,10 +309,10 @@ function ActivityScreen({
     }
 
     return (
-        <div className='space-y-6'>
+        <div className='flex flex-col gap-6'>
             {/* Activity Status Banner */}
             <div
-                className={`relative overflow-hidden rounded-lg ${
+                className={`relative order-1 overflow-hidden rounded-lg ${
                     activity.activityStatus === ActivityStatus['In Progress']
                         ? 'bg-gradient-to-r from-green-500 to-blue-600'
                         : 'bg-gradient-to-r from-indigo-500 to-purple-600'
@@ -384,10 +394,32 @@ function ActivityScreen({
             </div>
 
             {/* Activity Details Card */}
-            <div className='bg-white border rounded-lg shadow-sm'>
+            <div className={`bg-white border rounded-lg shadow-sm ${isInProgress ? 'order-5' : 'order-2'}`}>
                 <div className='p-6'>
-                    <h3 className='mb-5 text-lg font-semibold text-gray-800'>Activity Details</h3>
-                    <div className='space-y-5'>
+                    <div className='flex items-center justify-between gap-4 mb-5'>
+                        <h3 className='text-lg font-semibold text-gray-800'>Activity Details</h3>
+                        {isInProgress && (
+                            <button
+                                type='button'
+                                onClick={() => setShowLiveActivityDetails((current) => !current)}
+                                className='inline-flex items-center gap-1 text-sm font-semibold text-brand-700 hover:text-brand-900'
+                            >
+                                {activityDetailsExpanded ? (
+                                    <>
+                                        <ChevronUpIcon className='w-4 h-4' />
+                                        Hide details
+                                    </>
+                                ) : (
+                                    <>
+                                        <ChevronDownIcon className='w-4 h-4' />
+                                        Show full details
+                                    </>
+                                )}
+                            </button>
+                        )}
+                    </div>
+                    {activityDetailsExpanded && (
+                        <div className='space-y-5'>
 
                         {/* Objective */}
                         <div>
@@ -505,12 +537,13 @@ function ActivityScreen({
                                 </ul>
                             </div>
                         )}
-                    </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
             {activity.activityStatus === ActivityStatus['Ready to Start'] && (
-                <div className='flex flex-col gap-2 py-5'>
+                <div className='flex flex-col order-3 gap-2 py-5'>
                     <Button
                         className='w-full max-w-sm rounded-full sm:self-center'
                         onClickAsync={startActivity}
@@ -525,7 +558,14 @@ function ActivityScreen({
                 </div>
             )}
 
-            <div className='relative space-y-6'>
+            {isInProgress && (
+                <>
+                    {/* Start Session control: no in-progress start control exists; the Ready to Start button disappears after starting. */}
+                    {/* Timer / Stopwatch placeholder: no timer/stopwatch component or import exists in this file. */}
+                </>
+            )}
+
+            <div className='relative flex flex-col order-4 gap-6'>
                 {/* Frosted overlay - only shown when activity is not in progress */}
                 {activity.activityStatus === ActivityStatus['Ready to Start'] && (
                     <div className='absolute inset-0 z-20 flex flex-col items-center justify-center bg-white rounded-lg bg-opacity-70 backdrop-blur-sm'>
@@ -538,7 +578,7 @@ function ActivityScreen({
                     </div>
                 )}
                 {/* Real-time Adjustment Controls */}
-                <div className='bg-white border rounded-lg shadow-sm'>
+                <div className={`bg-white border rounded-lg shadow-sm ${isInProgress ? 'order-2' : 'order-1'}`}>
                     <div className='p-6'>
                         <h3 className='mb-4 text-lg font-semibold text-gray-800'>Real-time Adjustments</h3>
                         <p className='mb-6 text-sm text-gray-600'>
@@ -650,7 +690,7 @@ function ActivityScreen({
                     </div>
                 </div>
 
-                <div className='bg-white border rounded-lg shadow-sm'>
+                <div className={`bg-white border rounded-lg shadow-sm ${isInProgress ? 'order-1' : 'order-2'}`}>
                     <div className='p-6'>
                         <h3 className='mb-4 text-lg font-semibold text-gray-800'>Points Tracking (Optional)</h3>
                         <p className='mb-6 text-sm text-gray-600'>
@@ -704,7 +744,7 @@ function ActivityScreen({
                 </div>
 
                 {/* End Activity Button */}
-                <div className='flex flex-col items-center space-y-4'>
+                <div className='flex flex-col items-center order-3 space-y-4'>
                     <Button onClick={endActivity} disabled={isUpdating}>
                         {isUpdating ? (
                             <div className='flex items-center justify-center'>
