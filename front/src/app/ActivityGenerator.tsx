@@ -20,11 +20,29 @@ import { api } from '@/services/api.service'
 
 import Button from '@/components/Button'
 
-// Create options array from ChallengeLevels enum
-const challengeLevelOptions = Object.entries(ChallengeLevels).map(([text, value]) => ({
-    value,
-    text,
-}))
+// "Environmental Fit" (coach-facing rename of Challenge Level — Christian's MVP2 wording).
+// The enum values (low/medium/high) are unchanged so nothing downstream breaks; only the
+// coach-facing display label + description change. Per Christian's label/description guardrail:
+// labels are simple and familiar (Comfortable / Stretch / Demanding); the description carries
+// the teaching and communicates ENVIRONMENTAL DEMAND rather than expected failure.
+const ENVIRONMENTAL_FIT_OPTIONS: { value: ChallengeLevels; label: string; description: string }[] = [
+    {
+        value: ChallengeLevels['Low-Pressure Learning'],
+        label: 'Comfortable',
+        description: 'Players succeed often with more time, space, and support available.',
+    },
+    {
+        value: ChallengeLevels['Growth Zone'],
+        label: 'Stretch',
+        description: 'Players are challenged while still finding success regularly.',
+    },
+    {
+        value: ChallengeLevels['High Pressure Challenge'],
+        label: 'Demanding',
+        description: 'Players face tighter pressure, less time, and fewer stable solutions.',
+    },
+]
+const challengeLevelOptions = ENVIRONMENTAL_FIT_OPTIONS.map((o) => ({ value: o.value, text: o.label }))
 
 export default function ActivityGenerator() {
     const { id } = useParams()
@@ -273,20 +291,21 @@ export default function ActivityGenerator() {
                             </div>
                         )}
 
-                        {/* Challenge Level */}
+                        {/* Environmental Fit (formerly Challenge Level) */}
                         <div>
                             <SelectField
-                                label='Challenge Level'
+                                label='Environmental Fit'
                                 value={selectedChallengeLevel || ''}
                                 onChange={(value) => setSelectedChallengeLevel(value as ChallengeLevels)}
                                 options={challengeLevelOptions}
-                                placeholder='Select challenge level for this activity'
+                                placeholder='Select the environmental fit for this activity'
                                 labelClass='text-gray-700 font-medium mb-2 block'
                                 inputClass='text-base'
                                 className='w-full transition-colors border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500'
                             />
                             <p className='mt-2 text-sm text-gray-500'>
-                                Choose based on your players' current skill level and development goals
+                                {ENVIRONMENTAL_FIT_OPTIONS.find((o) => o.value === selectedChallengeLevel)?.description ??
+                                    'How much demand the activity places on players — more support and time, or tighter pressure and fewer easy solutions.'}
                             </p>
                         </div>
 
