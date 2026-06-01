@@ -1,4 +1,11 @@
-import { ArrowLeftCircleIcon, CheckIcon, ClipboardDocumentIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import {
+    ArrowLeftCircleIcon,
+    CheckIcon,
+    ChevronDownIcon,
+    ChevronUpIcon,
+    ClipboardDocumentIcon,
+    XMarkIcon,
+} from '@heroicons/react/24/outline'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { ArrayFieldWrapper } from '@/form-control'
@@ -252,10 +259,11 @@ function ActivityScreen({
     const [pointsTracking, setPointsTracking] = useState<IPointsScored[]>([])
     const [isUpdating, setIsUpdating] = useState(false)
     const [startError, setStartError] = useState<string | null>(null)
+    const [showLiveActivityDetails, setShowLiveActivityDetails] = useState(false)
 
-    const [showScaffolding, setShowScaffolding] = useState(false)
-    const [showExtensions, setShowExtensions] = useState(false)
     const navigate = useNavigate()
+    const isInProgress = activity.activityStatus === ActivityStatus['In Progress']
+    const activityDetailsExpanded = !isInProgress || showLiveActivityDetails
 
     const startActivity = async () => {
         const activityId = activity._id
@@ -299,10 +307,10 @@ function ActivityScreen({
     }
 
     return (
-        <div className='space-y-6'>
+        <div className='flex flex-col gap-6'>
             {/* Activity Status Banner */}
             <div
-                className={`relative overflow-hidden rounded-lg ${
+                className={`relative order-1 overflow-hidden rounded-lg ${
                     activity.activityStatus === ActivityStatus['In Progress']
                         ? 'bg-gradient-to-r from-green-500 to-blue-600'
                         : 'bg-gradient-to-r from-indigo-500 to-purple-600'
@@ -384,10 +392,32 @@ function ActivityScreen({
             </div>
 
             {/* Activity Details Card */}
-            <div className='bg-white border rounded-lg shadow-sm'>
+            <div className={`bg-white border rounded-lg shadow-sm ${isInProgress ? 'order-5' : 'order-2'}`}>
                 <div className='p-6'>
-                    <h3 className='mb-5 text-lg font-semibold text-gray-800'>Activity Details</h3>
-                    <div className='space-y-5'>
+                    <div className='flex items-center justify-between gap-4 mb-5'>
+                        <h3 className='text-lg font-semibold text-gray-800'>Activity Details</h3>
+                        {isInProgress && (
+                            <button
+                                type='button'
+                                onClick={() => setShowLiveActivityDetails((current) => !current)}
+                                className='inline-flex items-center gap-1 text-sm font-semibold text-brand-700 hover:text-brand-900'
+                            >
+                                {activityDetailsExpanded ? (
+                                    <>
+                                        <ChevronUpIcon className='w-4 h-4' />
+                                        Hide details
+                                    </>
+                                ) : (
+                                    <>
+                                        <ChevronDownIcon className='w-4 h-4' />
+                                        Show full details
+                                    </>
+                                )}
+                            </button>
+                        )}
+                    </div>
+                    {activityDetailsExpanded && (
+                        <div className='space-y-5'>
 
                         {/* Objective */}
                         <div>
@@ -456,41 +486,6 @@ function ActivityScreen({
                             </div>
                         </div>
 
-                        {/* Live Session surface — observation guidance lives here, shown ONLY once
-                            the activity is live (In Progress). On the Selection view (Ready to Start)
-                            the screen stays "just the environment" per Christian's MVP2 information-
-                            architecture decision: Coaching Focus is observation guidance, not setup
-                            guidance, so it belongs to the Live Session phase, not Activity Selection. */}
-                        {activity?.activityStatus === ActivityStatus['In Progress'] && (
-                            <>
-                                {/* Coaching Focus */}
-                                {activity?.scaffolding?.length > 0 && (
-                                    <div className='p-4 rounded-lg bg-green-50 border border-green-200'>
-                                        <p className='text-xs font-semibold uppercase tracking-wide text-green-600 mb-2'>Coaching Focus</p>
-                                        <ul className='space-y-1'>
-                                            {activity.scaffolding.map((cue, i) => (
-                                                <li key={i} className='flex items-start gap-2 text-sm text-green-800'>
-                                                    <span className='flex-shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full bg-green-500'></span>
-                                                    {cue}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )}
-
-                                {/* What to Watch — placeholder for the future observation layer.
-                                    Non-functional by design (Christian's MVP2 request): establishes the
-                                    information-architecture home now so observation support has a natural
-                                    place to land when we build it. No generation logic, no data binding yet. */}
-                                <div className='p-4 rounded-lg bg-gray-50 border border-dashed border-gray-300'>
-                                    <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2'>What to Watch</p>
-                                    <p className='text-sm italic leading-relaxed text-gray-400'>
-                                        Interaction signals and observation guidance will appear here in a future update.
-                                    </p>
-                                </div>
-                            </>
-                        )}
-
                         {/* Learning Goals */}
                         {activity?.learningPriorities && activity.learningPriorities.length > 0 && (
                             <div className='p-4 rounded-lg bg-blue-50 border border-blue-200'>
@@ -505,12 +500,48 @@ function ActivityScreen({
                                 </ul>
                             </div>
                         )}
-                    </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
+            {/* Live Session — observation surface. Deliberately OUTSIDE the collapsible
+                Activity Details card: "what to pay attention to" must always be visible while
+                the activity is live, regardless of whether the reference details are expanded.
+                order-2 places it directly under the status banner, above the live tools (Points
+                / Adjustments) and the collapsed-by-default Activity Details reference card.
+                Shown only In Progress per Christian's three-surface information architecture. */}
+            {isInProgress && (
+                <div className='flex flex-col order-2 gap-6'>
+                    {/* Coaching Focus */}
+                    {activity?.scaffolding?.length > 0 && (
+                        <div className='p-4 rounded-lg bg-green-50 border border-green-200'>
+                            <p className='text-xs font-semibold uppercase tracking-wide text-green-600 mb-2'>Coaching Focus</p>
+                            <ul className='space-y-1'>
+                                {activity.scaffolding.map((cue, i) => (
+                                    <li key={i} className='flex items-start gap-2 text-sm text-green-800'>
+                                        <span className='flex-shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full bg-green-500'></span>
+                                        {cue}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    {/* What to Watch — placeholder for the future observation layer.
+                        Non-functional by design (Christian's MVP2 request): reserves the
+                        information-architecture home for observation support. No data binding. */}
+                    <div className='p-4 rounded-lg bg-gray-50 border border-dashed border-gray-300'>
+                        <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2'>What to Watch</p>
+                        <p className='text-sm italic leading-relaxed text-gray-400'>
+                            Interaction signals and observation guidance will appear here in a future update.
+                        </p>
+                    </div>
+                </div>
+            )}
+
             {activity.activityStatus === ActivityStatus['Ready to Start'] && (
-                <div className='flex flex-col gap-2 py-5'>
+                <div className='flex flex-col order-3 gap-2 py-5'>
                     <Button
                         className='w-full max-w-sm rounded-full sm:self-center'
                         onClickAsync={startActivity}
@@ -525,7 +556,14 @@ function ActivityScreen({
                 </div>
             )}
 
-            <div className='relative space-y-6'>
+            {isInProgress && (
+                <>
+                    {/* Start Session control: no in-progress start control exists; the Ready to Start button disappears after starting. */}
+                    {/* Timer / Stopwatch placeholder: no timer/stopwatch component or import exists in this file. */}
+                </>
+            )}
+
+            <div className='relative flex flex-col order-4 gap-6'>
                 {/* Frosted overlay - only shown when activity is not in progress */}
                 {activity.activityStatus === ActivityStatus['Ready to Start'] && (
                     <div className='absolute inset-0 z-20 flex flex-col items-center justify-center bg-white rounded-lg bg-opacity-70 backdrop-blur-sm'>
@@ -538,7 +576,7 @@ function ActivityScreen({
                     </div>
                 )}
                 {/* Real-time Adjustment Controls */}
-                <div className='bg-white border rounded-lg shadow-sm'>
+                <div className={`bg-white border rounded-lg shadow-sm ${isInProgress ? 'order-2' : 'order-1'}`}>
                     <div className='p-6'>
                         <h3 className='mb-4 text-lg font-semibold text-gray-800'>Real-time Adjustments</h3>
                         <p className='mb-6 text-sm text-gray-600'>
@@ -556,24 +594,17 @@ function ActivityScreen({
                                 />
                                 {difficultyLevel === DifficultyLevels['High'] && (
                                     <div className='p-4 mt-4 border border-red-200 rounded-lg bg-red-50'>
-                                        <div className='flex items-center justify-between gap-5 sm:justify-normal'>
-                                            <p className='text-sm font-medium text-red-700'>Too difficult?</p>
-                                            <Button.Outline
-                                                onClick={() => setShowScaffolding(true)}
-                                                className='text-sm text-red-700 bg-transparent rounded-full hover:text-white hover:bg-red-700'
-                                            >
-                                                Show Scaffolding
-                                            </Button.Outline>
-                                        </div>
-
-                                        {showScaffolding && (
-                                            <div className='p-3 mt-3 text-sm bg-white border rounded-lg'>
-                                                <h3 className='mb-3 font-semibold text-red-700'>Scaffolding Options</h3>
-                                                <ul className='pl-5 space-y-2 text-red-700 list-disc'>
-                                                    {activity.scaffolding?.map((s, index) => <li key={index}>{s}</li>)}
-                                                </ul>
-                                            </div>
-                                        )}
+                                        {/* Bug-stream fix (#4): previously revealed activity.scaffolding,
+                                            which is the coaching-focus content now shown permanently in
+                                            the Coaching Focus block above — duplicated content. Replaced
+                                            with a non-duplicative adjustment cue that points to the
+                                            already-visible Coaching Focus. Activity-specific scaffolding
+                                            recommendations are deferred to the parked difficulty/engagement
+                                            interpretation work. */}
+                                        <p className='text-sm font-medium leading-relaxed text-red-700'>
+                                            Players are finding this too difficult. Ease the demand — more time, space, or
+                                            support — and use the Coaching Focus cues above to guide your read.
+                                        </p>
                                     </div>
                                 )}
 
@@ -589,24 +620,16 @@ function ActivityScreen({
 
                                 {difficultyLevel === DifficultyLevels['Low'] && (
                                     <div className='p-4 mt-4 border border-gray-200 rounded-lg bg-gray-50'>
-                                        <div className='flex items-center justify-between gap-5 sm:justify-normal'>
-                                            <p className='text-sm font-medium text-gray-700'>Finding this too easy?</p>
-                                            <Button.Outline
-                                                onClick={() => setShowExtensions(true)}
-                                                className='text-sm text-gray-700 bg-transparent rounded-full hover:text-white hover:bg-gray-700'
-                                            >
-                                                Show Extensions
-                                            </Button.Outline>
-                                        </div>
-
-                                        {showExtensions && (
-                                            <div className='p-3 mt-3 text-sm bg-white border rounded-lg'>
-                                                <h3 className='mb-2 font-semibold text-gray-700'>Extension Options</h3>
-                                                <ul className='pl-5 space-y-2 text-gray-700 list-disc'>
-                                                    {activity.extensions?.map((s, index) => <li key={index}>{s}</li>)}
-                                                </ul>
-                                            </div>
-                                        )}
+                                        {/* Bug-stream fix (#4): previously revealed activity.extensions,
+                                            which the generator populates with [activity.teams] — i.e. the
+                                            teams description, not extension ideas. Pure placeholder/wrong
+                                            content. Replaced with a non-placeholder adjustment cue.
+                                            Activity-specific extension recommendations are deferred to the
+                                            parked difficulty/engagement interpretation work. */}
+                                        <p className='text-sm font-medium leading-relaxed text-gray-700'>
+                                            Players are finding this too easy. Increase the demand — tighter space, less
+                                            time, or an added defender — to bring exploration back.
+                                        </p>
                                     </div>
                                 )}
                             </div>
@@ -650,7 +673,7 @@ function ActivityScreen({
                     </div>
                 </div>
 
-                <div className='bg-white border rounded-lg shadow-sm'>
+                <div className={`bg-white border rounded-lg shadow-sm ${isInProgress ? 'order-1' : 'order-2'}`}>
                     <div className='p-6'>
                         <h3 className='mb-4 text-lg font-semibold text-gray-800'>Points Tracking (Optional)</h3>
                         <p className='mb-6 text-sm text-gray-600'>
@@ -704,7 +727,7 @@ function ActivityScreen({
                 </div>
 
                 {/* End Activity Button */}
-                <div className='flex flex-col items-center space-y-4'>
+                <div className='flex flex-col items-center order-3 space-y-4'>
                     <Button onClick={endActivity} disabled={isUpdating}>
                         {isUpdating ? (
                             <div className='flex items-center justify-center'>

@@ -44,15 +44,20 @@ export enum SessionEmphasis {
  * presents the emphasis choice to coaches.
  */
 export const SESSION_EMPHASIS_LABELS: Record<SessionEmphasis, { label: string; description: string }> = {
+    // Coach-facing descriptions (Christian's approved MVP2 wording). Per his label/description
+    // guardrail: the label stays simple and familiar; the description carries the educational
+    // load. NOTE: deliberately divergent from the backend SESSION_EMPHASIS_LABELS — the backend
+    // copy feeds the AI assembly prompt and keeps the more precise ecological phrasing, which is
+    // system-facing, not coach-facing.
     [SessionEmphasis['Discovering Solutions']]: {
         label: 'Discovering solutions',
         description:
-            'Players experience broader interaction possibilities, adaptive decisions, and changing game situations.',
+            'Players explore lots of different situations and figure out their own solutions. Best when you want variety and problem-solving.',
     },
     [SessionEmphasis['Applying Solutions Under Pressure']]: {
         label: 'Applying solutions under pressure',
         description:
-            'Players repeatedly apply solutions within more stable but still game-like pressure conditions.',
+            'Players repeatedly work through similar game challenges under pressure. Best when you want focus and consistency.',
     },
 }
 

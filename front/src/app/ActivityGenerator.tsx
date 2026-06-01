@@ -1,8 +1,10 @@
 import {
     ArrowLeftCircleIcon,
     CheckIcon,
+    ChevronDownIcon,
     ChevronLeftIcon,
     ChevronRightIcon,
+    ChevronUpIcon,
     ClipboardDocumentIcon,
     XMarkIcon,
 } from '@heroicons/react/24/outline'
@@ -18,11 +20,29 @@ import { api } from '@/services/api.service'
 
 import Button from '@/components/Button'
 
-// Create options array from ChallengeLevels enum
-const challengeLevelOptions = Object.entries(ChallengeLevels).map(([text, value]) => ({
-    value,
-    text,
-}))
+// "Environmental Fit" (coach-facing rename of Challenge Level — Christian's MVP2 wording).
+// The enum values (low/medium/high) are unchanged so nothing downstream breaks; only the
+// coach-facing display label + description change. Per Christian's label/description guardrail:
+// labels are simple and familiar (Comfortable / Stretch / Demanding); the description carries
+// the teaching and communicates ENVIRONMENTAL DEMAND rather than expected failure.
+const ENVIRONMENTAL_FIT_OPTIONS: { value: ChallengeLevels; label: string; description: string }[] = [
+    {
+        value: ChallengeLevels['Low-Pressure Learning'],
+        label: 'Comfortable',
+        description: 'Players succeed often with more time, space, and support available.',
+    },
+    {
+        value: ChallengeLevels['Growth Zone'],
+        label: 'Stretch',
+        description: 'Players are challenged while still finding success regularly.',
+    },
+    {
+        value: ChallengeLevels['High Pressure Challenge'],
+        label: 'Demanding',
+        description: 'Players face tighter pressure, less time, and fewer stable solutions.',
+    },
+]
+const challengeLevelOptions = ENVIRONMENTAL_FIT_OPTIONS.map((o) => ({ value: o.value, text: o.label }))
 
 export default function ActivityGenerator() {
     const { id } = useParams()
@@ -271,20 +291,21 @@ export default function ActivityGenerator() {
                             </div>
                         )}
 
-                        {/* Challenge Level */}
+                        {/* Environmental Fit (formerly Challenge Level) */}
                         <div>
                             <SelectField
-                                label='Challenge Level'
+                                label='Environmental Fit'
                                 value={selectedChallengeLevel || ''}
                                 onChange={(value) => setSelectedChallengeLevel(value as ChallengeLevels)}
                                 options={challengeLevelOptions}
-                                placeholder='Select challenge level for this activity'
+                                placeholder='Select the environmental fit for this activity'
                                 labelClass='text-gray-700 font-medium mb-2 block'
                                 inputClass='text-base'
                                 className='w-full transition-colors border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500'
                             />
                             <p className='mt-2 text-sm text-gray-500'>
-                                Choose based on your players' current skill level and development goals
+                                {ENVIRONMENTAL_FIT_OPTIONS.find((o) => o.value === selectedChallengeLevel)?.description ??
+                                    'How much demand the activity places on players — more support and time, or tighter pressure and fewer easy solutions.'}
                             </p>
                         </div>
 
@@ -437,6 +458,34 @@ export default function ActivityGenerator() {
     )
 }
 
+function splitSentences(text?: string): string[] {
+    return (
+        text
+            ?.split(/(?<=[.!?])\s+|\n+/)
+            .map((sentence) => sentence.trim())
+            .filter(Boolean) ?? []
+    )
+}
+
+function summarizeText(text?: string, maxLength = 170): string {
+    const firstSentence = splitSentences(text)[0] ?? text?.trim() ?? ''
+
+    if (firstSentence.length <= maxLength) {
+        return firstSentence
+    }
+
+    return `${firstSentence.slice(0, maxLength).trim()}...`
+}
+
+function getKeyScoringLines(scoringSystem?: string): string[] {
+    const sentences = splitSentences(scoringSystem)
+    const specificLine =
+        sentences.find((sentence) => /modifier|bonus|extra|weighted|if|when|turnover|misread|pressure/i.test(sentence)) ??
+        sentences[0]
+
+    return specificLine ? [specificLine] : []
+}
+
 function GeneratedActivityCard({
     activity,
     onClick,
@@ -450,6 +499,12 @@ function GeneratedActivityCard({
     nextActivity: () => void
     prevActivity: () => void
 }) {
+    const [showFullDetails, setShowFullDetails] = useState(false)
+    const learningGoals = activity.learningPriorities?.map((goal) => goal.description).filter(Boolean) ?? []
+    const setupSummary = summarizeText(activity.setup)
+    const keyRules = activity.rules?.slice(0, 2) ?? []
+    const keyScoringLines = getKeyScoringLines(activity.scoringSystem)
+
     return (
         <div className='relative grid grid-cols-10 px-1 sm:px-0'>
             {/* Left Arrow - Hidden on small screens */}
@@ -510,54 +565,38 @@ function GeneratedActivityCard({
                         <h3 className='text-xl font-bold leading-tight text-gray-800'>{activity.title}</h3>
                     </div>
 
-                    {/* Meta row */}
-                    <div className='flex flex-wrap gap-2 mb-4'>
-                        {activity.playerGroupSizes && (
-                            <span className='inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-blue-700 rounded-full bg-blue-50 border border-blue-200'>
-                                <svg className='w-3 h-3' fill='currentColor' viewBox='0 0 20 20'>
-                                    <path d='M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z' />
-                                </svg>
-                                {activity.playerGroupSizes} players
-                            </span>
-                        )}
-                        {activity.equipmentNeeded?.length > 0 && (
-                            <span className='inline-flex items-center gap-1 px-3 py-1 text-xs font-medium text-brand-700 rounded-full bg-brand-50 border border-brand-200'>
-                                {activity.equipmentNeeded.join(', ')}
-                            </span>
-                        )}
-                    </div>
-
                     <div className='space-y-4 mb-4'>
-                        {/* Objective */}
+                        {/* Decision set */}
                         <div>
-                            <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Objective</p>
+                            <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Learning Goal / Objective</p>
+                            {learningGoals.length > 0 && (
+                                <ul className='mb-2 space-y-1'>
+                                    {learningGoals.map((goal, i) => (
+                                        <li key={i} className='flex items-start gap-2 text-sm text-gray-700'>
+                                            <span className='flex-shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500'></span>
+                                            {goal}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
                             <p className='text-sm leading-relaxed text-gray-700'>{activity.intent}</p>
                         </div>
 
                         {/* Setup — field dimensions, zones, numbers, equipment, restart logic.
                             The AI-written setup description so coaches can physically set up the
                             activity without inventing parameters. */}
-                        {activity.setup && (
+                        {setupSummary && (
                             <div className='p-3 rounded-lg bg-blue-50 border border-blue-200'>
-                                <p className='text-xs font-semibold uppercase tracking-wide text-blue-700 mb-1'>Setup</p>
-                                <p className='text-sm leading-relaxed text-blue-900 whitespace-pre-line'>{activity.setup}</p>
+                                <p className='text-xs font-semibold uppercase tracking-wide text-blue-700 mb-1'>Setup Summary</p>
+                                <p className='text-sm leading-relaxed text-blue-900'>{setupSummary}</p>
                             </div>
                         )}
 
-                        {/* Teams */}
-                        {activity.extensions?.[0] && (
+                        {keyRules.length > 0 && (
                             <div>
-                                <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Teams</p>
-                                <p className='text-sm leading-relaxed text-gray-700'>{activity.extensions[0]}</p>
-                            </div>
-                        )}
-
-                        {/* Rules */}
-                        {activity.rules?.length > 0 && (
-                            <div>
-                                <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Rules</p>
+                                <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Key Rule Differences</p>
                                 <ol className='space-y-1'>
-                                    {activity.rules.map((rule, i) => (
+                                    {keyRules.map((rule, i) => (
                                         <li key={i} className='flex gap-2 text-sm text-gray-700'>
                                             <span className='flex-shrink-0 w-4 h-4 mt-0.5 flex items-center justify-center rounded-full bg-brand-100 text-brand-700 text-xs font-bold'>{i + 1}</span>
                                             <span className='leading-relaxed'>{rule}</span>
@@ -567,11 +606,94 @@ function GeneratedActivityCard({
                             </div>
                         )}
 
-                        {/* Scoring */}
-                        {activity.scoringSystem && (
+                        {keyScoringLines.length > 0 && (
                             <div className='px-3 py-2 rounded-lg bg-amber-50 border border-amber-200'>
-                                <p className='text-xs font-semibold uppercase tracking-wide text-amber-600 mb-1'>Scoring</p>
-                                <p className='text-sm leading-relaxed text-amber-800'>{activity.scoringSystem}</p>
+                                <p className='text-xs font-semibold uppercase tracking-wide text-amber-600 mb-1'>Key Scoring Differences</p>
+                                {keyScoringLines.map((line, i) => (
+                                    <p key={i} className='text-sm leading-relaxed text-amber-800'>
+                                        {line}
+                                    </p>
+                                ))}
+                            </div>
+                        )}
+
+                        <button
+                            type='button'
+                            onClick={() => setShowFullDetails((current) => !current)}
+                            className='inline-flex items-center gap-1 text-sm font-semibold text-brand-700 hover:text-brand-900'
+                        >
+                            {showFullDetails ? (
+                                <>
+                                    <ChevronUpIcon className='w-4 h-4' />
+                                    Hide details
+                                </>
+                            ) : (
+                                <>
+                                    <ChevronDownIcon className='w-4 h-4' />
+                                    Show full details
+                                </>
+                            )}
+                        </button>
+
+                        {showFullDetails && (
+                            <div className='pt-4 mt-4 space-y-4 border-t border-gray-100'>
+                                <div>
+                                    <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Objective</p>
+                                    <p className='text-sm leading-relaxed text-gray-700'>{activity.intent}</p>
+                                </div>
+
+                                {activity.setup && (
+                                    <div className='p-3 rounded-lg bg-blue-50 border border-blue-200'>
+                                        <p className='text-xs font-semibold uppercase tracking-wide text-blue-700 mb-1'>Setup</p>
+                                        <p className='text-sm leading-relaxed text-blue-900 whitespace-pre-line'>{activity.setup}</p>
+                                    </div>
+                                )}
+
+                                {activity.extensions?.[0] && (
+                                    <div>
+                                        <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Teams</p>
+                                        <p className='text-sm leading-relaxed text-gray-700'>{activity.extensions[0]}</p>
+                                    </div>
+                                )}
+
+                                {activity.rules?.length > 0 && (
+                                    <div>
+                                        <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Rules</p>
+                                        <ol className='space-y-1'>
+                                            {activity.rules.map((rule, i) => (
+                                                <li key={i} className='flex gap-2 text-sm text-gray-700'>
+                                                    <span className='flex-shrink-0 w-4 h-4 mt-0.5 flex items-center justify-center rounded-full bg-brand-100 text-brand-700 text-xs font-bold'>{i + 1}</span>
+                                                    <span className='leading-relaxed'>{rule}</span>
+                                                </li>
+                                            ))}
+                                        </ol>
+                                    </div>
+                                )}
+
+                                {activity.scoringSystem && (
+                                    <div className='px-3 py-2 rounded-lg bg-amber-50 border border-amber-200'>
+                                        <p className='text-xs font-semibold uppercase tracking-wide text-amber-600 mb-1'>Scoring</p>
+                                        <p className='text-sm leading-relaxed text-amber-800'>{activity.scoringSystem}</p>
+                                    </div>
+                                )}
+
+                                {activity.winCondition && (
+                                    <div>
+                                        <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Win Condition</p>
+                                        <p className='text-sm leading-relaxed text-gray-700'>{activity.winCondition}</p>
+                                    </div>
+                                )}
+
+                                <div className='grid grid-cols-2 gap-3'>
+                                    <div className='p-3 rounded-lg bg-gray-50'>
+                                        <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Group Size</p>
+                                        <p className='text-sm text-gray-700'>{activity.playerGroupSizes} players</p>
+                                    </div>
+                                    <div className='p-3 rounded-lg bg-gray-50'>
+                                        <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Equipment</p>
+                                        <p className='text-sm text-gray-700'>{activity.equipmentNeeded?.join(', ') || 'None'}</p>
+                                    </div>
+                                </div>
                             </div>
                         )}
                     </div>
