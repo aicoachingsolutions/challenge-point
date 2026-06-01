@@ -261,8 +261,6 @@ function ActivityScreen({
     const [startError, setStartError] = useState<string | null>(null)
     const [showLiveActivityDetails, setShowLiveActivityDetails] = useState(false)
 
-    const [showScaffolding, setShowScaffolding] = useState(false)
-    const [showExtensions, setShowExtensions] = useState(false)
     const navigate = useNavigate()
     const isInProgress = activity.activityStatus === ActivityStatus['In Progress']
     const activityDetailsExpanded = !isInProgress || showLiveActivityDetails
@@ -596,24 +594,17 @@ function ActivityScreen({
                                 />
                                 {difficultyLevel === DifficultyLevels['High'] && (
                                     <div className='p-4 mt-4 border border-red-200 rounded-lg bg-red-50'>
-                                        <div className='flex items-center justify-between gap-5 sm:justify-normal'>
-                                            <p className='text-sm font-medium text-red-700'>Too difficult?</p>
-                                            <Button.Outline
-                                                onClick={() => setShowScaffolding(true)}
-                                                className='text-sm text-red-700 bg-transparent rounded-full hover:text-white hover:bg-red-700'
-                                            >
-                                                Show Scaffolding
-                                            </Button.Outline>
-                                        </div>
-
-                                        {showScaffolding && (
-                                            <div className='p-3 mt-3 text-sm bg-white border rounded-lg'>
-                                                <h3 className='mb-3 font-semibold text-red-700'>Scaffolding Options</h3>
-                                                <ul className='pl-5 space-y-2 text-red-700 list-disc'>
-                                                    {activity.scaffolding?.map((s, index) => <li key={index}>{s}</li>)}
-                                                </ul>
-                                            </div>
-                                        )}
+                                        {/* Bug-stream fix (#4): previously revealed activity.scaffolding,
+                                            which is the coaching-focus content now shown permanently in
+                                            the Coaching Focus block above — duplicated content. Replaced
+                                            with a non-duplicative adjustment cue that points to the
+                                            already-visible Coaching Focus. Activity-specific scaffolding
+                                            recommendations are deferred to the parked difficulty/engagement
+                                            interpretation work. */}
+                                        <p className='text-sm font-medium leading-relaxed text-red-700'>
+                                            Players are finding this too difficult. Ease the demand — more time, space, or
+                                            support — and use the Coaching Focus cues above to guide your read.
+                                        </p>
                                     </div>
                                 )}
 
@@ -629,24 +620,16 @@ function ActivityScreen({
 
                                 {difficultyLevel === DifficultyLevels['Low'] && (
                                     <div className='p-4 mt-4 border border-gray-200 rounded-lg bg-gray-50'>
-                                        <div className='flex items-center justify-between gap-5 sm:justify-normal'>
-                                            <p className='text-sm font-medium text-gray-700'>Finding this too easy?</p>
-                                            <Button.Outline
-                                                onClick={() => setShowExtensions(true)}
-                                                className='text-sm text-gray-700 bg-transparent rounded-full hover:text-white hover:bg-gray-700'
-                                            >
-                                                Show Extensions
-                                            </Button.Outline>
-                                        </div>
-
-                                        {showExtensions && (
-                                            <div className='p-3 mt-3 text-sm bg-white border rounded-lg'>
-                                                <h3 className='mb-2 font-semibold text-gray-700'>Extension Options</h3>
-                                                <ul className='pl-5 space-y-2 text-gray-700 list-disc'>
-                                                    {activity.extensions?.map((s, index) => <li key={index}>{s}</li>)}
-                                                </ul>
-                                            </div>
-                                        )}
+                                        {/* Bug-stream fix (#4): previously revealed activity.extensions,
+                                            which the generator populates with [activity.teams] — i.e. the
+                                            teams description, not extension ideas. Pure placeholder/wrong
+                                            content. Replaced with a non-placeholder adjustment cue.
+                                            Activity-specific extension recommendations are deferred to the
+                                            parked difficulty/engagement interpretation work. */}
+                                        <p className='text-sm font-medium leading-relaxed text-gray-700'>
+                                            Players are finding this too easy. Increase the demand — tighter space, less
+                                            time, or an added defender — to bring exploration back.
+                                        </p>
                                     </div>
                                 )}
                             </div>
