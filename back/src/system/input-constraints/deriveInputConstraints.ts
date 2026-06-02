@@ -164,9 +164,37 @@ function matchesRegainPressing(text: string): boolean {
     return false
 }
 
+/** Group G — Overload / numerical advantage. Core attacking concept that previously matched
+ * nothing (the word "overload" had no matcher despite Overload Games existing as an archetype). */
+function matchesOverload(text: string): boolean {
+    const t = text.toLowerCase()
+    if (/\boverloads?\b/.test(t)) return true
+    if (/\bnumerical\b|\bnumbers?\s+up\b/.test(t)) return true
+    if (/\bextra\s+(?:man|player|attacker)\b/.test(t)) return true
+    if (/\bman\s+(?:up|advantage)\b|\bup\s+a\s+(?:man|player)\b/.test(t)) return true
+    if (/\b\d+\s*v\s*\d+\b/.test(t)) return true
+    if (/\b\d+\s*(?:v|vs|versus)\s*\d+\b/.test(t)) return true
+    return false
+}
+
+/** Group H — Transition / counter-attack. Previously the word "transition" matched nothing
+ * despite Transition Games existing as an archetype. */
+function matchesTransition(text: string): boolean {
+    const t = text.toLowerCase()
+    if (/\btransition(?:s|ing)?\b/.test(t)) return true
+    if (/\bcounter[-\s]?attack(?:s|ing)?\b/.test(t)) return true
+    if (/\bquick\s+break\b|\bfast\s+break\b/.test(t)) return true
+    if (/\bbreak(?:ing)?\b.*\b(?:on|off|from)\b.*\b(?:turnover|regain|win)\b/.test(t)) return true
+    return false
+}
+
+/** Broad soccer-vocabulary test used for the general fallback below. Includes core attacking
+ * vocabulary (attack, advantage, offense, overload, transition, numerical, counter) so natural
+ * coaching language that doesn't hit a specific group still maps to a sensible default rather
+ * than getting hard-rejected with "No supported soccer training signals". */
 function matchesSoccerRelatedDefault(text: string): boolean {
     const t = text.toLowerCase()
-    return /\bsoccer\b|\bfootball\b|\bplayers?\b|\bteams?\b|\bball\b|\battack(?:ing)?\b|\bdefen[cs]e\b|\bmidfield\b/.test(
+    return /\bsoccer\b|\bfootball\b|\bplayers?\b|\bteams?\b|\bball\b|\battack(?:ing|ers?)?\b|\bdefen[cs]e\b|\bdefend(?:ing|ers?)?\b|\bmidfield\b|\boffen[cs]e\b|\badvantage\b|\boverloads?\b|\btransition(?:s|ing)?\b|\bnumerical\b|\bcounter\b|\bforward\b|\bscore\b|\bgoal\b|\bbuild[-\s]?up\b|\bplay(?:ing)?\s+out\b|\b(?:out|up)\s+of\s+the\s+back\b|\bfrom\s+the\s+back\b/.test(
         t
     )
 }
@@ -336,6 +364,47 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
         ])
         pickConstraints(['Interception Reward', 'Turnover Reward', 'Transition Trigger', 'Delay Reward'])
         pickArchetypes(['Pressing & Regain Games', 'Transition Games'])
+        pickPossessionLikeArchetypes()
+    }
+
+    if (matchesOverload(text)) {
+        matchedSignals.push('signalGroup:G_overload')
+        pickLenses([
+            'Space Exploitation Opportunity',
+            'Space Creation Opportunity',
+            'Line-Breaking Opportunity',
+            'Possession Stability Opportunity',
+        ])
+        pickConstraints(['Central Density Condition', 'Wide Zone Advantage', 'Progression Bonus', 'Switch of Play Bonus'])
+        pickArchetypes(['Overload Games', 'Directional Possession Games', 'Positional Play Games'])
+    }
+
+    if (matchesTransition(text)) {
+        matchedSignals.push('signalGroup:H_transition')
+        pickLenses([
+            'Transition Attack Opportunity',
+            'Space Exploitation Opportunity',
+            'Regain Opportunity',
+            'Line-Breaking Opportunity',
+        ])
+        pickConstraints(['Transition Trigger', 'Transition Bonus', 'Turnover Reward', 'Progression Bonus'])
+        pickArchetypes(['Transition Games', 'Pressing & Regain Games', 'Overload Games'])
+    }
+
+    // General soccer fallback: if no specific group matched any archetype but the text is clearly
+    // soccer/attacking vocabulary, map to a sensible general possession-attacking package so natural
+    // coaching language is not hard-rejected with "No supported soccer training signals". This widens
+    // field-test coverage; genuinely off-topic input (no soccer vocabulary) still falls through to the
+    // empty result and is rejected upstream.
+    if (archetypeIds.length === 0 && matchesSoccerRelatedDefault(text)) {
+        matchedSignals.push('signalGroup:Z_soccer_general')
+        pickLenses([
+            'Possession Stability Opportunity',
+            'Space Creation Opportunity',
+            'Space Exploitation Opportunity',
+            'Line-Breaking Opportunity',
+        ])
+        pickConstraints(['Central Density Condition', 'Wide Zone Advantage', 'Progression Bonus', 'Turnover Reward'])
         pickPossessionLikeArchetypes()
     }
 
