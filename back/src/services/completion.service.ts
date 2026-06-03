@@ -210,6 +210,21 @@ async function getCompletion(messages: CompletionMessage[], options: Partial<Com
         circuitBreakerRecordFailure()
         logger('Completion Error', 'error', completionError)
 
+        // Surface OpenAI quota/billing exhaustion (HTTP 429) as a distinguishable error so the
+        // route can return a clear "service temporarily unavailable" message instead of the
+        // generic "Activity generation failed". This is the difference between a field-test coach
+        // thinking the app is broken vs. understanding the activity service is rate/usage limited.
+        const errorStatus = (completionError as { status?: number; code?: string })?.status
+        const errorCode = (completionError as { status?: number; code?: string })?.code
+        const errorMessage = completionError instanceof Error ? completionError.message : String(completionError)
+        if (
+            errorStatus === 429 ||
+            errorCode === 'insufficient_quota' ||
+            /\bquota\b|insufficient_quota|exceeded your current quota|rate limit/i.test(errorMessage)
+        ) {
+            throw new Error('OpenAI quota exceeded')
+        }
+
         if (completionError instanceof Error && /connection error/i.test(completionError.message)) {
             throw new Error('OpenAI connection error')
         }

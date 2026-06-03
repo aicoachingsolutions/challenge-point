@@ -372,6 +372,18 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
             })
         }
 
+        // OpenAI quota/billing exhaustion (HTTP 429). Distinct from a code failure: the request
+        // parsed and assembled fine, but the AI provider rejected the call for usage limits.
+        // Return a clear coach-facing message + an operator-facing detail so a field tester can
+        // tell "the app is broken" apart from "the OpenAI plan needs more credits".
+        if (error instanceof Error && /quota exceeded/i.test(error.message)) {
+            return res.status(503).json({
+                error: 'The activity service is temporarily unavailable. Please try again shortly.',
+                stage: 'ai-assembly',
+                details: ['OpenAI usage quota exceeded — check the OpenAI plan/billing for this deployment.'],
+            })
+        }
+
         return res.status(500).json({
             error: 'Activity generation failed',
             details: error instanceof Error ? error.message : 'Unknown error',
