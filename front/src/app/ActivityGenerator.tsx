@@ -487,9 +487,10 @@ function normalizeLine(line: string): string {
  * sibling activities. This is what makes "Key Rule/Scoring Differences" actually show
  * differences: the shared exchange rule, archetype mechanics, and base scoring (which appear
  * in all three activities) are filtered out, leaving the per-slot value-landscape modifier
- * and any other content unique to this activity. Falls back to the first line when an
- * activity has no distinctive content (e.g. the shared-baseline slot), so the section is
- * never empty and never mislabels shared content across the whole set.
+ * and any other content unique to this activity. Returns EMPTY when an activity has no
+ * distinctive content in this field (e.g. its modifier lives in the other field, or it's a
+ * shared-baseline slot) — the caller hides the section rather than label shared boilerplate
+ * as a "difference".
  */
 function distinctiveLines(thisLines: string[], siblingLineSets: string[][], max: number): string[] {
     if (siblingLineSets.length <= 1) return thisLines.slice(0, max)
@@ -499,8 +500,7 @@ function distinctiveLines(thisLines: string[], siblingLineSets: string[][], max:
         // distinctive = not present in EVERY sibling activity
         return !siblingSets.every((set) => set.has(n))
     })
-    const chosen = distinctive.length > 0 ? distinctive : thisLines.slice(0, 1)
-    return chosen.slice(0, max)
+    return distinctive.slice(0, max)
 }
 
 function GeneratedActivityCard({
