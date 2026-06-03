@@ -410,6 +410,7 @@ export default function ActivityGenerator() {
                                 {/* Activity Card */}
                                 <GeneratedActivityCard
                                     activity={generatedActivities[currentActivityIndex]}
+                                    allActivities={generatedActivities}
                                     onClick={() =>
                                         selectActivity(
                                             generatedActivities[currentActivityIndex],
@@ -477,23 +478,41 @@ function summarizeText(text?: string, maxLength = 170): string {
     return `${firstSentence.slice(0, maxLength).trim()}...`
 }
 
-function getKeyScoringLines(scoringSystem?: string): string[] {
-    const sentences = splitSentences(scoringSystem)
-    const specificLine =
-        sentences.find((sentence) => /modifier|bonus|extra|weighted|if|when|turnover|misread|pressure/i.test(sentence)) ??
-        sentences[0]
+function normalizeLine(line: string): string {
+    return line.trim().toLowerCase().replace(/\s+/g, ' ')
+}
 
-    return specificLine ? [specificLine] : []
+/**
+ * Lines that are genuinely DISTINCTIVE to `thisLines` — i.e. NOT present in every one of the
+ * sibling activities. This is what makes "Key Rule/Scoring Differences" actually show
+ * differences: the shared exchange rule, archetype mechanics, and base scoring (which appear
+ * in all three activities) are filtered out, leaving the per-slot value-landscape modifier
+ * and any other content unique to this activity. Falls back to the first line when an
+ * activity has no distinctive content (e.g. the shared-baseline slot), so the section is
+ * never empty and never mislabels shared content across the whole set.
+ */
+function distinctiveLines(thisLines: string[], siblingLineSets: string[][], max: number): string[] {
+    if (siblingLineSets.length <= 1) return thisLines.slice(0, max)
+    const siblingSets = siblingLineSets.map((lines) => new Set(lines.map(normalizeLine)))
+    const distinctive = thisLines.filter((line) => {
+        const n = normalizeLine(line)
+        // distinctive = not present in EVERY sibling activity
+        return !siblingSets.every((set) => set.has(n))
+    })
+    const chosen = distinctive.length > 0 ? distinctive : thisLines.slice(0, 1)
+    return chosen.slice(0, max)
 }
 
 function GeneratedActivityCard({
     activity,
+    allActivities,
     onClick,
     isSelectable,
     nextActivity,
     prevActivity,
 }: {
     activity: IActivity
+    allActivities: IActivity[]
     onClick: () => void
     isSelectable: boolean
     nextActivity: () => void
@@ -502,8 +521,20 @@ function GeneratedActivityCard({
     const [showFullDetails, setShowFullDetails] = useState(false)
     const learningGoals = activity.learningPriorities?.map((goal) => goal.description).filter(Boolean) ?? []
     const setupSummary = summarizeText(activity.setup)
-    const keyRules = activity.rules?.slice(0, 2) ?? []
-    const keyScoringLines = getKeyScoringLines(activity.scoringSystem)
+
+    // "Key differences" = content unique to this activity vs the other generated options, so the
+    // coach can actually tell the three apart from the collapsed card. The shared exchange rule /
+    // archetype mechanics / base scoring are filtered out as not-a-difference.
+    const keyRules = distinctiveLines(
+        activity.rules ?? [],
+        allActivities.map((a) => a.rules ?? []),
+        2
+    )
+    const keyScoringLines = distinctiveLines(
+        splitSentences(activity.scoringSystem),
+        allActivities.map((a) => splitSentences(a.scoringSystem)),
+        2
+    )
 
     return (
         <div className='relative grid grid-cols-10 px-1 sm:px-0'>
