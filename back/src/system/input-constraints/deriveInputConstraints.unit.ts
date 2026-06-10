@@ -47,6 +47,62 @@ function testMustReject(): void {
     }
 }
 
+// Workstream 1 — defensive goals must fire the defensive group and route to defensive lenses,
+// NOT be reinterpreted as attacking.
+const DEFENSIVE_GOALS = [
+    'Protecting central space in front of goal',
+    'Maintaining defensive compactness near goal',
+    'Helping defenders recover shape after being stretched',
+    'Preventing opponents from counterattacking after losing possession',
+    'Stopping attacks before they reach dangerous areas',
+    'Delaying opponent counterattacks after losing possession',
+    'Recovering defensive organization when outnumbered',
+]
+const DEFENSIVE_LENSES = new Set([
+    'Space Protection Opportunity',
+    'Recovery Opportunity',
+    'Delay or Deny Opportunity',
+    'Regain Opportunity',
+])
+// Attacking goals must NOT trip the defensive group (no polarity misfire the other way).
+const ATTACKING_GOALS = [
+    'create attacking overloads',
+    'break defensive lines',
+    'create better shots near goal',
+    'keep possession under pressure',
+    'create space for attackers',
+]
+
+function testDefensiveGoalsFireDefensiveGroupAndLenses(): void {
+    // Local import avoids a top-level dependency cycle concern; generateSelection is heavy.
+    const { generateSelection } = require('./../test-library') as typeof import('../test-library')
+    for (const g of DEFENSIVE_GOALS) {
+        const ic = deriveInputConstraints(g)
+        assert.ok(
+            ic.matchedSignals.includes('signalGroup:I_defensive'),
+            `Defensive goal should fire I_defensive: ${JSON.stringify(g)}`
+        )
+        const sel = generateSelection({ learningGoals: [g], challengeLevel: 'medium' }, ic)
+        const defLensCount = sel.affordanceLenses.filter((l) => DEFENSIVE_LENSES.has(l.title)).length
+        assert.ok(
+            defLensCount > 0,
+            `Defensive goal must select at least one defensive lens; got [${sel.affordanceLenses
+                .map((l) => l.title)
+                .join(', ')}] for ${JSON.stringify(g)}`
+        )
+    }
+}
+
+function testAttackingGoalsDoNotFireDefensiveGroup(): void {
+    for (const g of ATTACKING_GOALS) {
+        const ic = deriveInputConstraints(g)
+        assert.ok(
+            !ic.matchedSignals.includes('signalGroup:I_defensive'),
+            `Attacking goal must NOT fire I_defensive: ${JSON.stringify(g)}`
+        )
+    }
+}
+
 function testOverloadAndTransitionSignalsFire(): void {
     assert.ok(
         deriveInputConstraints('create an overload').matchedSignals.includes('signalGroup:G_overload'),
@@ -62,6 +118,8 @@ function runAll(): void {
     testMustAccept()
     testMustReject()
     testOverloadAndTransitionSignalsFire()
+    testDefensiveGoalsFireDefensiveGroupAndLenses()
+    testAttackingGoalsDoNotFireDefensiveGroup()
     console.log('deriveInputConstraints unit tests: all cases passed.')
 }
 

@@ -188,6 +188,40 @@ function matchesTransition(text: string): boolean {
     return false
 }
 
+/**
+ * Group I — Defensive / preventive intent (polarity-aware). WORKSTREAM 1.
+ *
+ * Defensive goals were being silently reinterpreted as attacking because defensive verbs
+ * (protect, prevent, deny, delay, contain, screen, shield, recover shape, compact) matched
+ * NOTHING, so the parser only read the attacking-flavored object nouns ("space", "goal",
+ * "central", "counterattack") and fired attacking lenses. This detector catches defensive
+ * INTENT so the caller can route to the defensive affordance lenses (Space Protection,
+ * Recovery, Delay or Deny, Regain) that already exist in the library but were never reached.
+ *
+ * It deliberately does NOT fire on attacking goals: it keys on defensive verbs/phrases, not
+ * on nouns that also appear in attacking goals.
+ */
+function matchesDefensive(text: string): boolean {
+    const t = text.toLowerCase()
+    if (/\bprotect(?:ing|s)?\b/.test(t)) return true
+    if (/\bprevent(?:ing|s)?\b/.test(t)) return true
+    if (/\bdeny(?:ing)?\b|\bdenies\b/.test(t)) return true
+    if (/\bdelay(?:ing|s)?\b/.test(t)) return true
+    if (/\bcontain(?:ing|s)?\b/.test(t)) return true
+    if (/\bscreen(?:ing|s)?\b|\bshield(?:ing|s)?\b/.test(t)) return true
+    if (/\bcompact(?:ness)?\b/.test(t)) return true
+    if (/\blow block\b|\bdeep block\b|\bdefensive block\b/.test(t)) return true
+    if (/\bdefensive\s+(?:shape|organi[sz]ation|compactness|line|structure|block)\b/.test(t)) return true
+    if (/\brecover(?:ing)?\s+(?:defensive\s+)?(?:shape|organi[sz]ation|compactness|position)\b/.test(t)) return true
+    if (/\bdefend(?:ing)?\s+(?:deep|the\s+box|central|space|the\s+goal|narrow|compact)\b/.test(t)) return true
+    if (/\bslow(?:ing)?\s+(?:down\s+)?(?:the\s+)?(?:attack|progression|opponent|build)/.test(t)) return true
+    if (/\bstop(?:ping)?\b.*\b(?:attack|progression|opponent|counter|chance|shot|cross)/.test(t)) return true
+    if (/\bblock(?:ing)?\s+(?:passing\s+)?(?:lanes?|the\s+pass|forward|central|progression)/.test(t)) return true
+    if (/\bcut(?:ting)?\s+(?:off|out)\b/.test(t)) return true
+    if (/\bforce\s+(?:play\s+)?(?:wide|backward|back|sideways)/.test(t)) return true
+    return false
+}
+
 /** Broad soccer-vocabulary test used for the general fallback below. Includes core attacking
  * vocabulary (attack, advantage, offense, overload, transition, numerical, counter) so natural
  * coaching language that doesn't hit a specific group still maps to a sensible default rather
@@ -246,6 +280,43 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
         for (const title of ['Directional Possession Games', 'Overload Games', 'End Zone Games']) {
             const id = resolveArchetypeTitle(title, matchedSignals)
             if (id) archetypeIds.push(id)
+        }
+    }
+
+    // WORKSTREAM 1 — Defensive resolution / polarity. Checked FIRST and EXCLUSIVE: when the goal
+    // carries defensive intent, route to the defensive affordance lenses and defensive archetypes,
+    // then return immediately so the attacking-noun groups below (finishing, break-lines, spacing,
+    // transition-attack, overload) cannot flip the polarity. The defensive lenses (Space Protection,
+    // Recovery, Delay or Deny, Regain) drive a defensive OBJECTIVE regardless of which archetype is
+    // chosen — confirmed by the one defensive goal that resolved correctly pre-fix
+    // ("recovering defensive organization when outnumbered"), which produced recovery-shape /
+    // slow-progression / deny-forward-options language via exactly these lenses.
+    if (matchesDefensive(text)) {
+        matchedSignals.push('signalGroup:I_defensive')
+        pickLenses([
+            'Space Protection Opportunity',
+            'Recovery Opportunity',
+            'Delay or Deny Opportunity',
+            'Regain Opportunity',
+        ])
+        pickConstraints([
+            'Recovery Window',
+            'Delay Reward',
+            'Interception Reward',
+            'Central Density Condition',
+            'Zone Structure Condition',
+        ])
+        // Defensive-appropriate archetypes. Pressing & Regain (active defending / win-back),
+        // Transition (defensive transition / recover after losing possession), Positional Play
+        // (compactness / shape / protecting central areas). Polarity is carried by the defensive
+        // lens set above, not by the archetype identity.
+        pickArchetypes(['Pressing & Regain Games', 'Transition Games', 'Positional Play Games'])
+
+        return {
+            candidateArchetypeIds: dedupe(archetypeIds),
+            candidateAffordanceLensIds: dedupe(lensIds),
+            candidateConstraintIds: dedupe(constraintIds),
+            matchedSignals: dedupeSignals(matchedSignals),
         }
     }
 
