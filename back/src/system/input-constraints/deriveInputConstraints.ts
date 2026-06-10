@@ -382,6 +382,11 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
             'Switch of Play Bonus',
             'Wide Utilization Bonus',
         ])
+        // WS2: spacing/width/support goals are the natural home of Channel Games (defined wide /
+        // half-space channels) and Positional Play (structure, support, spacing). Lead with those
+        // specific forms so width/support goals stop collapsing into the generic possession default;
+        // keep possession-like forms as secondary candidates.
+        pickArchetypes(['Channel Games', 'Positional Play Games', 'Directional Possession Games'])
         pickPossessionLikeArchetypes()
     }
 
@@ -399,7 +404,9 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
             'Wide Zone Advantage',
             'Central Density Condition',
         ])
-        pickArchetypes(['End Zone Games', 'Directional Possession Games', 'Target Games', 'Channel Games'])
+        // WS2: lead with the line-breaking-specific forms (penetration through/between lines)
+        // rather than End Zone, which previously won the tie-break and absorbed break-lines goals.
+        pickArchetypes(['Directional Possession Games', 'Channel Games', 'Target Games', 'End Zone Games'])
     }
 
     if (matchesFinishing(text)) {

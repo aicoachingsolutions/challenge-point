@@ -572,6 +572,18 @@ export function generateSelection(
     const allLenses = applyLensPoolFilter(inputConstraints)
     const allConstraints = applyConstraintPoolFilter(inputConstraints)
 
+    // WORKSTREAM 2 — archetype-selection diversity. The tie-break below previously used the
+    // lowest game_form_id (STRING compare: "GF1" < "GF10" < "GF2" ...), which funneled EVERY tie
+    // to End Zone (GF1) and then Directional Possession (GF2). Combined with how often distinct
+    // goals score-tie, this is the category-collapse mechanism — Target / Channel / Positional Play
+    // almost never won a tie. On a tie we now honor the parser's candidate ORDER (the parser lists
+    // the most category-specific archetype first per signal group), so distinct categories reach
+    // distinct archetypes. game_form_id remains the final deterministic fallback.
+    const candidateOrder = inputConstraints?.candidateArchetypeIds ?? []
+    const orderRank = (id: string): number => {
+        const i = candidateOrder.indexOf(id)
+        return i === -1 ? Number.MAX_SAFE_INTEGER : i
+    }
     let bestArc: { a: TestLibraryV0Archetype; score: number; reasons: string[] } | null = null
     for (const a of archetypePool) {
         const fields = [
@@ -587,8 +599,20 @@ export function generateSelection(
             ...(a.coachVocabulary ?? []),
         ]
         const { score, reasons } = scoreAgainstFields(tokens, fields)
-        if (!bestArc || score > bestArc.score || (score === bestArc.score && a.game_form_id < bestArc.a.game_form_id)) {
+        if (!bestArc) {
             bestArc = { a, score, reasons }
+            continue
+        }
+        if (score > bestArc.score) {
+            bestArc = { a, score, reasons }
+            continue
+        }
+        if (score === bestArc.score) {
+            const aRank = orderRank(a.game_form_id)
+            const bRank = orderRank(bestArc.a.game_form_id)
+            if (aRank < bRank || (aRank === bRank && a.game_form_id < bestArc.a.game_form_id)) {
+                bestArc = { a, score, reasons }
+            }
         }
     }
     if (!bestArc) {
