@@ -71,6 +71,29 @@ function assertNoLeakedTitleScaffolding(activityIndexOneBased: number, title: st
     }
 }
 
+/**
+ * Soften prescriptive "players must …" phrasing in AI-written polish fields, mirroring the
+ * sanitizer the deterministic mechanics already apply. The structure validator hard-throws on
+ * "players must" anywhere in the activity ("Prescriptive language detected: players must"), and
+ * the AI intermittently writes it in setup/objective/coachingFocus — a recurring generation
+ * failure (worse since WS1/WS2 widened the content the model has to phrase). Cleaning it here, in
+ * the only place these fields originate, removes the hard failure while preserving meaning. Other
+ * prescriptive phrases (must pass/dribble/shoot) are left to the validator — those signal the AI
+ * genuinely produced drill language and should still be rejected.
+ */
+function softenPrescriptivePhrasing(text: string): string {
+    return text
+        .replace(/\bPlayers must decide whether\b/gi, 'Players decide whether')
+        .replace(/\bPlayers must face a decision to\b/gi, 'Players decide whether to')
+        .replace(/\bPlayers must face a decision\b/gi, 'Players face a decision')
+        .replace(/\bPlayers must\b/g, 'Players decide to')
+        .replace(/\bplayers must face a decision\b/gi, 'players face a decision')
+        .replace(/\bplayers must decide whether\b/gi, 'players decide whether')
+        .replace(/\bplayers must\b/g, 'players decide to')
+        .replace(/\s+/g, ' ')
+        .trim()
+}
+
 export function validateActivityPolishPayload(parsed: unknown): ActivityPolish[] {
     if (parsed === null || typeof parsed !== 'object') {
         throw new Error('Assembly polish payload must be an object.')
@@ -99,10 +122,10 @@ export function validateActivityPolishPayload(parsed: unknown): ActivityPolish[]
             throw new Error(`Activity ${index + 1}: coachingFocus must be a non-empty array of non-empty strings`)
         }
 
-        const title = String(o.title).trim()
-        const setup = String(o.setup).trim()
-        const objective = String(o.objective).trim()
-        const coachingFocus = (o.coachingFocus as string[]).map((s) => s.trim())
+        const title = softenPrescriptivePhrasing(String(o.title).trim())
+        const setup = softenPrescriptivePhrasing(String(o.setup).trim())
+        const objective = softenPrescriptivePhrasing(String(o.objective).trim())
+        const coachingFocus = (o.coachingFocus as string[]).map((s) => softenPrescriptivePhrasing(s.trim()))
 
         // Phase 3.5 vocabulary guardrail — internal profile terminology must not leak into
         // coach-facing fields. See the LEAKED_PROFILE_VOCAB list above.

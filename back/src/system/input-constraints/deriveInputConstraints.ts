@@ -219,7 +219,47 @@ function matchesDefensive(text: string): boolean {
     if (/\bblock(?:ing)?\s+(?:passing\s+)?(?:lanes?|the\s+pass|forward|central|progression)/.test(t)) return true
     if (/\bcut(?:ting)?\s+(?:off|out)\b/.test(t)) return true
     if (/\bforce\s+(?:play\s+)?(?:wide|backward|back|sideways)/.test(t)) return true
+    // "keeping attackers away from central areas", "keep the ball out of the box" — defensive
+    // exclusion phrasing that previously slipped through and produced attacking finishing.
+    if (/\bkeep(?:ing)?\b[^.]*\b(?:out|away)\b/.test(t)) return true
+    if (/\baway from\b[^.]*\b(?:central|centre|center|goal|box|danger)/.test(t)) return true
     return false
+}
+
+/**
+ * Defensive sub-problem. Christian's Round-1 follow-up: after polarity was fixed, distinct
+ * defensive problems (protect / recover shape / delay / press) were all collapsing into
+ * pressing-regain because WS1 routed every defensive goal through one shared pool led by
+ * Pressing & Regain. This sub-classifier routes each defensive intent to its own lead lens +
+ * lead archetype so the WS2 order-based tie-break surfaces the SPECIFIC defensive problem.
+ *
+ * Honest ceiling: the archetype library has no dedicated defensive game forms — all 10 are
+ * attacking forms. Positional Play (structure) is the least-bad home for protect/compact/
+ * recover-shape; Transition for defensive-transition (delay the counter); Pressing & Regain
+ * for active ball-winning. This sub-routing maximizes specificity within that ceiling.
+ */
+type DefensiveSubtype = 'press' | 'recover' | 'delay' | 'protect'
+function defensiveSubtype(text: string): DefensiveSubtype {
+    const t = text.toLowerCase()
+    // Active ball-winning — explicit press / regain / win-back.
+    if (/\bpress(?:ing|es)?\b|\bwin (?:the |it )?ball\b|\bwin it back\b|\bregain\b|\bcounter[-\s]?press\b/.test(t))
+        return 'press'
+    // Reorganizing the block after being opened up.
+    if (
+        /\brecover(?:ing)?\s+(?:defensive\s+)?(?:shape|organi[sz]ation|position)\b|\breorgani[sz]e\b|\bget(?:ting)?\s+back\s+(?:into\s+)?shape\b|\bafter being stretched\b/.test(
+            t
+        )
+    )
+        return 'recover'
+    // Slowing / containing / denying progression — including preventing the counter.
+    if (
+        /\bdelay(?:ing|s)?\b|\bcontain(?:ing|s)?\b|\bslow(?:ing)?\b|\bforce\s+(?:play\s+)?(?:wide|back|sideways)\b|\b(?:prevent|stop|deny)(?:ing)?\b[^.]*\b(?:counter|progression|forward|through)/.test(
+            t
+        )
+    )
+        return 'delay'
+    // Default: protecting space / compactness / shape maintenance.
+    return 'protect'
 }
 
 /** Broad soccer-vocabulary test used for the general fallback below. Includes core attacking
@@ -292,25 +332,57 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
     // ("recovering defensive organization when outnumbered"), which produced recovery-shape /
     // slow-progression / deny-forward-options language via exactly these lenses.
     if (matchesDefensive(text)) {
-        matchedSignals.push('signalGroup:I_defensive')
-        pickLenses([
-            'Space Protection Opportunity',
-            'Recovery Opportunity',
-            'Delay or Deny Opportunity',
-            'Regain Opportunity',
-        ])
-        pickConstraints([
-            'Recovery Window',
-            'Delay Reward',
-            'Interception Reward',
-            'Central Density Condition',
-            'Zone Structure Condition',
-        ])
-        // Defensive-appropriate archetypes. Pressing & Regain (active defending / win-back),
-        // Transition (defensive transition / recover after losing possession), Positional Play
-        // (compactness / shape / protecting central areas). Polarity is carried by the defensive
-        // lens set above, not by the archetype identity.
-        pickArchetypes(['Pressing & Regain Games', 'Transition Games', 'Positional Play Games'])
+        // Sub-classify so distinct defensive problems route to distinct lead lens + lead archetype
+        // (the WS2 order-based tie-break then surfaces the specific one) instead of all collapsing
+        // into pressing/regain. Each branch lists its SPECIFIC lens + archetype first; the other
+        // defensive lenses remain available as secondary candidates.
+        const sub = defensiveSubtype(text)
+        matchedSignals.push(`signalGroup:I_defensive_${sub}`)
+        if (sub === 'press') {
+            pickLenses([
+                'Regain Opportunity',
+                'Delay or Deny Opportunity',
+                'Recovery Opportunity',
+                'Space Protection Opportunity',
+            ])
+            pickConstraints(['Interception Reward', 'Counter-Press Window', 'Turnover Reward', 'Recovery Window'])
+            pickArchetypes(['Pressing & Regain Games', 'Transition Games', 'Positional Play Games'])
+        } else if (sub === 'recover') {
+            pickLenses([
+                'Recovery Opportunity',
+                'Space Protection Opportunity',
+                'Delay or Deny Opportunity',
+                'Regain Opportunity',
+            ])
+            pickConstraints(['Recovery Window', 'Zone Structure Condition', 'Transition Trigger', 'Central Density Condition'])
+            // Recover SHAPE = reorganize the block (structure), not win the ball. Pressing & Regain is
+            // EXCLUDED here — its win-the-ball vocabulary otherwise out-scores Positional Play and
+            // pulls recover-shape back into ball-winning (Christian's exact complaint).
+            pickArchetypes(['Positional Play Games', 'Transition Games'])
+        } else if (sub === 'delay') {
+            pickLenses([
+                'Delay or Deny Opportunity',
+                'Space Protection Opportunity',
+                'Recovery Opportunity',
+                'Regain Opportunity',
+            ])
+            pickConstraints(['Delay Reward', 'Recovery Window', 'Zone Structure Condition', 'Central Density Condition'])
+            // Delay / contain / prevent-the-counter = defensive transition (slow + deny), not ball-
+            // winning — lead Transition, exclude Pressing & Regain.
+            pickArchetypes(['Transition Games', 'Positional Play Games'])
+        } else {
+            // protect / compact / shape maintenance — lead Space Protection + Positional Play.
+            pickLenses([
+                'Space Protection Opportunity',
+                'Delay or Deny Opportunity',
+                'Recovery Opportunity',
+                'Regain Opportunity',
+            ])
+            pickConstraints(['Zone Structure Condition', 'Central Density Condition', 'Small Area Condition', 'Delay Reward'])
+            // Protect space / compactness = defensive structure — lead Positional Play, exclude
+            // Pressing & Regain so it stays a space-protection problem, not a ball-winning one.
+            pickArchetypes(['Positional Play Games', 'Transition Games'])
+        }
 
         return {
             candidateArchetypeIds: dedupe(archetypeIds),

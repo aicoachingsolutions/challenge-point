@@ -1120,6 +1120,32 @@ function generateAssemblyPolishPrompt(input: SystemAssemblyInput) {
 - Bandwidth rule: ${emphasisProfile.bandwidthRule}
 `
 
+    // WORKSTREAM 1 follow-up — defensive polish emphasis. When the selected affordances are
+    // defensive (Space Protection / Recovery / Delay or Deny / Regain), the polish layer was
+    // defaulting to attacking phrasing — which both (a) made defensive activities feel
+    // attacker-centric to the coach and (b) caused validation failures (the AI output didn't
+    // reflect the defensive mechanics the validator checks for). This block tells the model to
+    // write the activity as a DEFENDING problem so the wording matches the defensive mechanics.
+    const lensTitles = [
+        input.affordances?.primary?.title,
+        ...(input.affordances?.supporting?.map((a) => a.title) ?? []),
+    ].filter((t): t is string => typeof t === 'string')
+    const DEFENSIVE_LENS_TITLES = new Set([
+        'Space Protection Opportunity',
+        'Recovery Opportunity',
+        'Delay or Deny Opportunity',
+        'Regain Opportunity',
+    ])
+    const isDefensiveActivity = lensTitles.filter((t) => DEFENSIVE_LENS_TITLES.has(t)).length >= 2
+    const defensiveEmphasisBlock = isDefensiveActivity
+        ? `DEFENSIVE PROBLEM EMPHASIS (this activity's selected affordances are defensive)
+- The PROBLEM being trained is a DEFENDING problem. Write title, setup, objective, and coachingFocus from the DEFENDING team's perspective — protecting space, denying forward options, delaying progression, recovering shape, forcing play wide/backward, regaining the ball.
+- Defensive SUCCESS does NOT require winning the ball. Slowing the attack, denying a forward pass, forcing a backward/sideways play, or staying compact and protecting a dangerous zone all count as defensive success — surface these as scoring/advantage conditions, not just turnovers.
+- Do NOT re-center the activity on the attacking team's exploitation of space. The attacking side exists as live opposition (a genuine two-sided contest), but the objective the coach reads should describe what the DEFENDERS are solving.
+- Keep the specific defensive problem visible: "protecting central space" stays about protecting the central zone; "recovering shape" stays about re-organizing the block, not just winning it back; "preventing the counter" stays about delay/deny/compactness, not attacking transition.
+`
+        : ''
+
     return `You are polishing a system-owned activity structure. Return valid JSON only.
 
 The system has already selected the archetype, affordances, constraints, skeleton, and mechanics in code before AI runs.
@@ -1154,6 +1180,7 @@ Use only these payload sections as locked inputs:
 - activityBriefs[].coachingEmphasis
 
 ${sessionEmphasisBlock}
+${defensiveEmphasisBlock}
 PARALLEL ENVIRONMENTAL REALIZATIONS — NOT A PROGRESSION
 - The three activities are PARALLEL realizations of the same session emphasis. They are NOT stages of a difficulty ramp.
 - Do NOT write Activity 1 as the "establish" or "entry-level" version.
