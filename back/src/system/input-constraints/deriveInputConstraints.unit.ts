@@ -79,7 +79,7 @@ function testDefensiveGoalsFireDefensiveGroupAndLenses(): void {
     for (const g of DEFENSIVE_GOALS) {
         const ic = deriveInputConstraints(g)
         assert.ok(
-            ic.matchedSignals.includes('signalGroup:I_defensive'),
+            ic.matchedSignals.some((s) => s.startsWith('signalGroup:I_defensive')),
             `Defensive goal should fire I_defensive: ${JSON.stringify(g)}`
         )
         const sel = generateSelection({ learningGoals: [g], challengeLevel: 'medium' }, ic)
@@ -97,8 +97,28 @@ function testAttackingGoalsDoNotFireDefensiveGroup(): void {
     for (const g of ATTACKING_GOALS) {
         const ic = deriveInputConstraints(g)
         assert.ok(
-            !ic.matchedSignals.includes('signalGroup:I_defensive'),
+            !ic.matchedSignals.some((s) => s.startsWith('signalGroup:I_defensive')),
             `Attacking goal must NOT fire I_defensive: ${JSON.stringify(g)}`
+        )
+    }
+}
+
+// Defensive sub-specificity: protect/compact problems must reorganize as STRUCTURE
+// (Positional Play), not collapse into ball-winning (Pressing & Regain). Locks Christian's
+// Round-1 follow-up complaint.
+function testProtectSubtypeRoutesToStructureNotPressing(): void {
+    const { generateSelection } = require('./../test-library') as typeof import('../test-library')
+    for (const g of ['Protecting central space in front of goal', 'Maintaining defensive compactness near goal']) {
+        const ic = deriveInputConstraints(g)
+        assert.ok(
+            ic.matchedSignals.includes('signalGroup:I_defensive_protect'),
+            `Should classify as protect subtype: ${JSON.stringify(g)}`
+        )
+        const sel = generateSelection({ learningGoals: [g], challengeLevel: 'medium' }, ic)
+        assert.notEqual(
+            sel.archetype.game_form_name,
+            'Pressing & Regain Games',
+            `Protect-space goal must NOT route to Pressing & Regain; got ${sel.archetype.game_form_name} for ${JSON.stringify(g)}`
         )
     }
 }
@@ -120,6 +140,7 @@ function runAll(): void {
     testOverloadAndTransitionSignalsFire()
     testDefensiveGoalsFireDefensiveGroupAndLenses()
     testAttackingGoalsDoNotFireDefensiveGroup()
+    testProtectSubtypeRoutesToStructureNotPressing()
     console.log('deriveInputConstraints unit tests: all cases passed.')
 }
 
