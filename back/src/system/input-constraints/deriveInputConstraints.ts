@@ -216,6 +216,16 @@ function matchesDefensive(text: string): boolean {
     )
         return false
     if (/\b(?:attack|attacking|exploit(?:ing)?|counter[-\s]?attack\w*)\b[^.]*\bbefore\b[^.]*\brecover/.test(t)) return false
+    // "creating chances against a compact defence", "score against a low block" — attacking the
+    // opponent's structure via a preposition (against/vs/past) rather than a break-down verb. Only
+    // fire when attacking INTENT is present, so genuine defending ("defend against ...") is unaffected.
+    if (
+        /\b(?:creat(?:e|ing)|chances?|scor(?:e|ing)|finish\w*|shot\w*|exploit\w*|overload\w*)\b/.test(t) &&
+        /\b(?:against|versus|vs\.?|past)\b[^.]*\b(?:compact|low[-\s]?block|deep[-\s]?block|defensive\s+block|organi[sz]ed\s+defen[cs]e|deep\s+defen[cs]e|compact\s+defen[cs]e|compact\s+block)\b/.test(
+            t
+        )
+    )
+        return false
 
     if (/\bprotect(?:ing|s)?\b/.test(t)) return true
     if (/\bprevent(?:ing|s)?\b/.test(t)) return true
