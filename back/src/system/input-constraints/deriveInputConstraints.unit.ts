@@ -71,6 +71,11 @@ const ATTACKING_GOALS = [
     'create better shots near goal',
     'keep possession under pressure',
     'create space for attackers',
+    // Polarity edge: attacking the opponent's structure ("against a compact defence") must NOT
+    // route defensive even though "compact"/"block" appear. Locks Learning-Emphasis Finding 3.
+    'Creating chances against a compact defense',
+    'score against a low block',
+    'break down a compact defense',
 ]
 
 function testDefensiveGoalsFireDefensiveGroupAndLenses(): void {

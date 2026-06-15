@@ -203,15 +203,46 @@ function matchesTransition(text: string): boolean {
  */
 function matchesDefensive(text: string): boolean {
     const t = text.toLowerCase()
+
+    // ATTACKING-AGAINST-A-DEFENCE OVERRIDE (Round-2 polarity disambiguation). Several words are
+    // polarity-ambiguous: "compact" / "organized" / "recover shape" read defensive in isolation
+    // but are ATTACKING when the goal is to beat the opponent's structure or exploit a transition
+    // ("break down a compact defence", "play through a low block", "attack before opponents
+    // recover shape"). Fire false for those so they route to the attacking groups, not here.
+    if (
+        /\b(?:break(?:ing)?\s+down|play(?:ing)?\s+through|beat(?:ing)?|unlock(?:ing)?|open(?:ing)?\s+up|breach(?:ing)?|get(?:ting)?\s+through|penetrat\w*)\b[^.]*\b(?:compact|low[-\s]?block|deep[-\s]?block|defensive\s+block|organi[sz]ed|deep\s+defen[cs]e|compact\s+defen[cs]e)\b/.test(
+            t
+        )
+    )
+        return false
+    if (/\b(?:attack|attacking|exploit(?:ing)?|counter[-\s]?attack\w*)\b[^.]*\bbefore\b[^.]*\brecover/.test(t)) return false
+    // "creating chances against a compact defence", "score against a low block" — attacking the
+    // opponent's structure via a preposition (against/vs/past) rather than a break-down verb. Only
+    // fire when attacking INTENT is present, so genuine defending ("defend against ...") is unaffected.
+    if (
+        /\b(?:creat(?:e|ing)|chances?|scor(?:e|ing)|finish\w*|shot\w*|exploit\w*|overload\w*)\b/.test(t) &&
+        /\b(?:against|versus|vs\.?|past)\b[^.]*\b(?:compact|low[-\s]?block|deep[-\s]?block|defensive\s+block|organi[sz]ed\s+defen[cs]e|deep\s+defen[cs]e|compact\s+defen[cs]e|compact\s+block)\b/.test(
+            t
+        )
+    )
+        return false
+
     if (/\bprotect(?:ing|s)?\b/.test(t)) return true
     if (/\bprevent(?:ing|s)?\b/.test(t)) return true
     if (/\bdeny(?:ing)?\b|\bdenies\b/.test(t)) return true
     if (/\bdelay(?:ing|s)?\b/.test(t)) return true
     if (/\bcontain(?:ing|s)?\b/.test(t)) return true
     if (/\bscreen(?:ing|s)?\b|\bshield(?:ing|s)?\b/.test(t)) return true
-    if (/\bcompact(?:ness)?\b/.test(t)) return true
+    // "compact" only in defensive framing — NOT "break down a compact defence" (handled above).
+    if (/\b(?:stay(?:ing)?|remain(?:ing)?|maintain(?:ing)?|keep(?:ing)?|be(?:ing)?|get(?:ting)?|more)\s+compact\b/.test(t))
+        return true
+    if (/\bcompactness\b/.test(t)) return true
+    if (/\bcompact\s+(?:shape|block|defensive|defen[cs]e|structure|unit)\b/.test(t)) return true
     if (/\blow block\b|\bdeep block\b|\bdefensive block\b/.test(t)) return true
     if (/\bdefensive\s+(?:shape|organi[sz]ation|compactness|line|structure|block)\b/.test(t)) return true
+    // Finding 1 shorthand: "staying organized defensively", "stay organized".
+    if (/\b(?:stay(?:ing)?|remain(?:ing)?|get(?:ting)?|be(?:ing)?)\s+organi[sz]ed\b|\borgani[sz]ed\s+defensively\b|\bdefensively\s+organi[sz]ed\b/.test(t))
+        return true
     if (/\brecover(?:ing)?\s+(?:defensive\s+)?(?:shape|organi[sz]ation|compactness|position)\b/.test(t)) return true
     if (/\bdefend(?:ing)?\s+(?:deep|the\s+box|central|space|the\s+goal|narrow|compact)\b/.test(t)) return true
     if (/\bslow(?:ing)?\s+(?:down\s+)?(?:the\s+)?(?:attack|progression|opponent|build)/.test(t)) return true
@@ -219,10 +250,17 @@ function matchesDefensive(text: string): boolean {
     if (/\bblock(?:ing)?\s+(?:passing\s+)?(?:lanes?|the\s+pass|forward|central|progression)/.test(t)) return true
     if (/\bcut(?:ting)?\s+(?:off|out)\b/.test(t)) return true
     if (/\bforce\s+(?:play\s+)?(?:wide|backward|back|sideways)/.test(t)) return true
-    // "keeping attackers away from central areas", "keep the ball out of the box" — defensive
-    // exclusion phrasing that previously slipped through and produced attacking finishing.
     if (/\bkeep(?:ing)?\b[^.]*\b(?:out|away)\b/.test(t)) return true
     if (/\baway from\b[^.]*\b(?:central|centre|center|goal|box|danger)/.test(t)) return true
+    // Finding 1 shorthand: "being harder to break down" (passive = defensive; distinct from the
+    // active "break down a defence" caught by the override above).
+    if (/\b(?:harder?|difficult|tough)\s+to\s+break\s+down\b/.test(t)) return true
+    // Finding 2 implicit defensive intent: "making the middle difficult for the attack to play
+    // through", "hard to play through centrally" — making it hard for the OPPONENT is defending.
+    if (/\b(?:difficult|hard|tough)\b[^.]*\b(?:for\s+(?:the\s+)?(?:attack|attackers?|opponents?)|to\s+(?:play\s+through|penetrate|break\s+through|progress\s+through))/.test(t))
+        return true
+    if (/\bmak(?:e|ing)\b[^.]*\b(?:difficult|hard|tough)\b[^.]*\b(?:attack|play\s+through|penetrat|progress|central|middle)/.test(t))
+        return true
     return false
 }
 
@@ -268,7 +306,7 @@ function defensiveSubtype(text: string): DefensiveSubtype {
  * than getting hard-rejected with "No supported soccer training signals". */
 function matchesSoccerRelatedDefault(text: string): boolean {
     const t = text.toLowerCase()
-    return /\bsoccer\b|\bfootball\b|\bplayers?\b|\bteams?\b|\bball\b|\battack(?:ing|ers?)?\b|\bdefen[cs]e\b|\bdefend(?:ing|ers?)?\b|\bmidfield\b|\boffen[cs]e\b|\badvantage\b|\boverloads?\b|\btransition(?:s|ing)?\b|\bnumerical\b|\bcounter\b|\bforward\b|\bscore\b|\bgoal\b|\bbuild[-\s]?up\b|\bplay(?:ing)?\s+out\b|\b(?:out|up)\s+of\s+the\s+back\b|\bfrom\s+the\s+back\b/.test(
+    return /\bsoccer\b|\bfootball\b|\bplayers?\b|\bteams?\b|\bball\b|\battack(?:ing|ers?)?\b|\bdefen[cs]e\b|\bdefend(?:ing|ers?)?\b|\bmidfield\b|\boffen[cs]e\b|\badvantage\b|\boverloads?\b|\btransition(?:s|ing)?\b|\bnumerical\b|\bcounter\b|\bforward\b|\bscore\b|\bgoal\b|\bbuild[-\s]?up\b|\bplay(?:ing)?\s+(?:out|through)\b|\b(?:out|up)\s+of\s+the\s+back\b|\bfrom\s+the\s+back\b|\bbreak\s+down\b|\bblock\b|\bpenetrat\w*\b/.test(
         t
     )
 }
