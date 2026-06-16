@@ -263,6 +263,12 @@ router.get('/debug-selection', async (req: Request, res: Response) => {
 })
 
 router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Response) => {
+    // Developer/testing flag (Christian's debug system). When true, the response carries a
+    // debugTrace alongside the real generated activities — the SAME resolution/selection chain
+    // the /debug page shows, PLUS the AI-stage validation result for this actual run (which the
+    // no-AI /debug page cannot show). Non-debug requests are completely unchanged (array response).
+    const debug = req.body?.debug === true
+    let debugTrace: Record<string, unknown> | null = null
     try {
         const { challengeLevel, duration, learningGoals } = req.body as ActivityAssemblyRequest
 
@@ -305,6 +311,34 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
             const message = selErr instanceof Error ? selErr.message : String(selErr)
             Logger.warn(`[Activity Generation] Test Library selection failed: ${message}`)
             return res.status(400).json({ error: message })
+        }
+
+        if (debug) {
+            const sg = inputConstraints.matchedSignals
+                .filter((s) => s.startsWith('signalGroup:'))
+                .map((s) => s.replace('signalGroup:', ''))
+            const dsig = sg.find((s) => s.startsWith('I_defensive'))
+            debugTrace = {
+                resolution: {
+                    resolvedGameProblem: sg,
+                    roleContextDetected: dsig
+                        ? `defensive (${dsig.replace('I_defensive_', '') || 'unspecified'})`
+                        : sg.length > 0
+                          ? 'attacking / neutral'
+                          : 'unresolved',
+                    candidateArchetypeIds: inputConstraints.candidateArchetypeIds,
+                    candidateAffordanceLensIds: inputConstraints.candidateAffordanceLensIds,
+                    candidateConstraintIds: inputConstraints.candidateConstraintIds,
+                },
+                selection: {
+                    selectedArchetype: {
+                        id: selection.archetype.game_form_id,
+                        name: selection.archetype.game_form_name,
+                    },
+                    selectedAffordances: selection.affordanceLenses.map((l) => l.title),
+                    selectedConstraints: selection.constraints.map((c) => c.title),
+                },
+            }
         }
 
         const assemblyInput: SystemAssemblyInput = systemAssemblyInputFromTestLibrarySelection({
@@ -468,6 +502,10 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         )
         const compressedActivities = compressActivitiesForCoach(validatedActivities, perSlotModifierLines)
 
+        if (debug && debugTrace) {
+            debugTrace.validation = { aiStagePass: true, failureStage: null, failureReason: null }
+            return res.status(200).json({ activities: compressedActivities, debugTrace })
+        }
         return res.status(200).json(compressedActivities)
     } catch (error) {
         console.error('=== CREATE ACTIVITY ERROR ===')
@@ -478,6 +516,17 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
             console.error('STACK:', error.stack)
         }
 
+        // Attach the AI-stage validation failure to the debug trace (debug requests only). This is
+        // the piece the no-AI /debug page can't show: WHY a real generation failed after the AI ran.
+        if (debug && debugTrace) {
+            debugTrace.validation = {
+                aiStagePass: false,
+                failureStage: error instanceof SystemPipelineError ? error.stage : 'ai-assembly',
+                failureReason: error instanceof Error ? error.message : String(error),
+            }
+        }
+        const debugEnvelope = debug && debugTrace ? { debugTrace } : {}
+
         if (error instanceof ActivityAssemblyValidationError) {
             return res.status(422).json({
                 success: false,
@@ -485,6 +534,7 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                 details: error.validationFailureReasons ?? [error.message],
                 assemblyAttempts: error.assemblyAttempts,
                 retriedAfterValidationFailure: error.retriedAfterValidationFailure,
+                ...debugEnvelope,
             })
         }
 
@@ -493,6 +543,7 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                 error: `${error.stage}: ${error.message}`,
                 stage: error.stage,
                 details: error.details,
+                ...debugEnvelope,
             })
         }
 
@@ -519,6 +570,7 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         return res.status(500).json({
             error: 'Activity generation failed',
             details: error instanceof Error ? error.message : 'Unknown error',
+            ...debugEnvelope,
         })
     }
 })

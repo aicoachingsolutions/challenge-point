@@ -54,6 +54,11 @@ export default function ActivityGenerator() {
     const [selectedLearningGoals, setSelectedLearningGoals] = useState<string[]>([])
     const [generatedActivities, setGeneratedActivities] = useState<IActivity[]>([])
     const [currentActivityIndex, setCurrentActivityIndex] = useState(0)
+    // Developer debug mode — append ?debug=1 to the generator URL. Sends debug:true to the
+    // generate endpoint and renders the resolution/selection trace + AI-stage validation next to
+    // the real generated activities. Not coach-facing; off unless the flag is present.
+    const debugMode = new URLSearchParams(window.location.search).get('debug') === '1'
+    const [debugTrace, setDebugTrace] = useState<Record<string, any> | null>(null)
     const navigate = useNavigate()
 
     const buildGenerationErrorMessage = (errorResponse?: { error?: string; message?: string; stage?: string; details?: string[] }) => {
@@ -86,14 +91,34 @@ export default function ActivityGenerator() {
         }
 
         setGenerationError(null)
+        setDebugTrace(null)
         setGenerationStatus('generation')
 
         try {
-            const res = await api<IActivity[]>(`${ROUTES.app.generateActivities}/${id}`, {
+            const res = await api<any>(`${ROUTES.app.generateActivities}/${id}`, {
                 challengeLevel: selectedChallengeLevel,
                 duration: selectedDuration,
                 learningGoals: selectedLearningGoals,
+                ...(debugMode ? { debug: true } : {}),
             })
+
+            // Debug mode: the endpoint wraps the response as { activities, debugTrace } on success,
+            // and includes debugTrace on failure too. Capture the trace either way; non-debug path
+            // below is completely unchanged.
+            if (debugMode) {
+                const payload: any = res.data
+                const wrapped = payload && typeof payload === 'object' && !Array.isArray(payload)
+                const activities = wrapped ? payload.activities : payload
+                setDebugTrace(wrapped && payload.debugTrace ? payload.debugTrace : null)
+                if (res.error || !Array.isArray(activities)) {
+                    resetGenerationState(buildGenerationErrorMessage(wrapped ? payload : res))
+                    return
+                }
+                setCurrentActivityIndex(0)
+                setGeneratedActivities(activities)
+                setGenerationStatus('selection')
+                return
+            }
 
             if (res.error || !Array.isArray(res.data)) {
                 resetGenerationState(buildGenerationErrorMessage(res))
@@ -224,7 +249,58 @@ export default function ActivityGenerator() {
 
     return (
         <div className='flex flex-col justify-center pt-2'>
-            
+
+            {/* Developer debug trace (only with ?debug=1). Shows the resolution/selection chain that
+                produced THIS generation + the AI-stage validation result, next to the real output. */}
+            {debugMode && debugTrace && (
+                <div className='max-w-3xl p-4 mx-auto mb-4 text-xs border border-dashed rounded-xl border-slate-300 bg-slate-50'>
+                    <p className='mb-2 text-sm font-bold text-slate-700'>Debug trace (developer view)</p>
+                    {debugTrace.validation && (
+                        <div
+                            className={`px-3 py-2 mb-3 rounded ${
+                                debugTrace.validation.aiStagePass ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                            }`}
+                        >
+                            AI-stage validation: {debugTrace.validation.aiStagePass ? 'PASS' : 'FAIL'}
+                            {!debugTrace.validation.aiStagePass && debugTrace.validation.failureReason && (
+                                <div className='mt-1'>
+                                    <span className='font-semibold'>{debugTrace.validation.failureStage}</span> —{' '}
+                                    {debugTrace.validation.failureReason}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                    {debugTrace.resolution && (
+                        <div className='mb-2 text-slate-700'>
+                            <div>
+                                <span className='font-semibold'>Resolved problem:</span>{' '}
+                                {(debugTrace.resolution.resolvedGameProblem ?? []).join(', ')}
+                            </div>
+                            <div>
+                                <span className='font-semibold'>Role context:</span>{' '}
+                                {debugTrace.resolution.roleContextDetected}
+                            </div>
+                        </div>
+                    )}
+                    {debugTrace.selection && (
+                        <div className='text-slate-700'>
+                            <div>
+                                <span className='font-semibold'>Archetype:</span>{' '}
+                                {debugTrace.selection.selectedArchetype?.name} ({debugTrace.selection.selectedArchetype?.id})
+                            </div>
+                            <div>
+                                <span className='font-semibold'>Affordances:</span>{' '}
+                                {(debugTrace.selection.selectedAffordances ?? []).join(', ')}
+                            </div>
+                            <div>
+                                <span className='font-semibold'>Constraints:</span>{' '}
+                                {(debugTrace.selection.selectedConstraints ?? []).join(', ')}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
             {generationStatus === 'generation' && (
                 <div className='w-full max-w-sm p-4 mx-auto text-center sm:max-w-md sm:p-6'>
                     <div className='mb-6 sm:mb-8'>
