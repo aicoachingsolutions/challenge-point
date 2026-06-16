@@ -11,6 +11,15 @@ import { api } from '@/services/api.service'
  * Not a coach-facing feature — route it out before any production polish pass.
  */
 
+type RankingEntry = {
+    id: string
+    name: string
+    score: number
+    reasons: string[]
+    selected: boolean
+    eligible: boolean
+}
+
 type DebugResult = {
     learningGoal?: string
     resolution?: {
@@ -25,6 +34,12 @@ type DebugResult = {
         selectedArchetype?: { id?: string; name?: string }
         selectedAffordances?: string[]
         selectedConstraints?: string[]
+        ranking?: {
+            archetypes?: RankingEntry[]
+            affordanceLenses?: RankingEntry[]
+            constraints?: RankingEntry[]
+            archetypeMargin?: number | null
+        }
         selectionTrace?: unknown
     } | null
     validation?: {
@@ -43,6 +58,75 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
         <div>
             <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>{label}</p>
             <div className='text-sm text-gray-800'>{children}</div>
+        </div>
+    )
+}
+
+function RankingList({ title, margin, entries }: { title: string; margin?: number | null; entries?: RankingEntry[] }) {
+    if (!entries || entries.length === 0) return null
+    const top = entries[0]?.score ?? 0
+    return (
+        <div>
+            <div className='flex items-center justify-between mb-2'>
+                <p className='text-xs font-semibold tracking-wide text-gray-500 uppercase'>{title}</p>
+                {typeof margin === 'number' && (
+                    <span
+                        className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+                            margin === 0
+                                ? 'bg-red-100 text-red-700'
+                                : margin <= 4
+                                  ? 'bg-amber-100 text-amber-700'
+                                  : 'bg-green-100 text-green-700'
+                        }`}
+                    >
+                        {margin === 0 ? 'tie — broken by routing order' : `won by ${margin}`}
+                    </span>
+                )}
+            </div>
+            <ol className='space-y-1'>
+                {entries.map((e) => {
+                    const pct = top > 0 && e.score > 0 ? Math.max(4, Math.round((e.score / top) * 100)) : 0
+                    return (
+                        <li
+                            key={e.id}
+                            className={`px-3 py-2 rounded-lg border ${
+                                e.selected ? 'border-emerald-300 bg-emerald-50' : 'border-gray-100 bg-gray-50'
+                            }`}
+                        >
+                            <div className='flex items-center gap-2'>
+                                <span
+                                    className={`text-sm ${
+                                        e.selected ? 'font-bold text-emerald-800' : 'font-medium text-gray-700'
+                                    } ${e.eligible ? '' : 'opacity-60'}`}
+                                >
+                                    {e.name}
+                                </span>
+                                {e.selected && (
+                                    <span className='text-[10px] font-bold uppercase text-emerald-600'>selected</span>
+                                )}
+                                {!e.eligible && (
+                                    <span
+                                        title='Scored, but routing left it out of the candidate pool — a routing gap, not coverage.'
+                                        className='text-[10px] font-bold uppercase text-amber-600'
+                                    >
+                                        routed out
+                                    </span>
+                                )}
+                                <span className='ml-auto text-sm font-semibold text-gray-900'>{e.score}</span>
+                            </div>
+                            <div className='h-1 mt-1 overflow-hidden bg-gray-200 rounded'>
+                                <div
+                                    className={`h-full ${e.selected ? 'bg-emerald-500' : 'bg-gray-400'}`}
+                                    style={{ width: `${pct}%` }}
+                                />
+                            </div>
+                            {e.reasons && e.reasons.length > 0 && (
+                                <p className='mt-1 text-[11px] leading-snug text-gray-500'>{e.reasons.join(' · ')}</p>
+                            )}
+                        </li>
+                    )
+                })}
+            </ol>
         </div>
     )
 }
@@ -187,6 +271,33 @@ export default function DebugSelection() {
                             <Field label='Selected constraints / incentives'>
                                 {(result.selection.selectedConstraints ?? []).join(', ') || '—'}
                             </Field>
+                        </div>
+                    )}
+
+                    {/* Why it won — candidate rankings (developer instrumentation) */}
+                    {result.selection?.ranking && (
+                        <div className='p-4 space-y-5 bg-white border rounded-xl shadow-sm'>
+                            <div>
+                                <h2 className='text-sm font-bold text-gray-900'>Why it won — candidate rankings</h2>
+                                <p className='mt-0.5 text-xs text-gray-500'>
+                                    Score = token-overlap with the candidate's library text + bonuses (archetype-affordance
+                                    match, target-lens match, phase anchor); reasons show what contributed. A thin margin =
+                                    fragile interpretation; a high score marked “routed out” = routing gap, not coverage.
+                                </p>
+                            </div>
+                            <RankingList
+                                title='Archetypes (routed candidates)'
+                                margin={result.selection.ranking.archetypeMargin}
+                                entries={result.selection.ranking.archetypes}
+                            />
+                            <RankingList
+                                title='Affordance lenses (full library)'
+                                entries={result.selection.ranking.affordanceLenses}
+                            />
+                            <RankingList
+                                title='Constraints (full library)'
+                                entries={result.selection.ranking.constraints}
+                            />
                         </div>
                     )}
 

@@ -212,6 +212,8 @@ router.get('/debug-selection', async (req: Request, res: Response) => {
             selectedArchetype: { id: selection.archetype.game_form_id, name: selection.archetype.game_form_name },
             selectedAffordances: selection.affordanceLenses.map((l) => l.title),
             selectedConstraints: selection.constraints.map((c) => c.title),
+            // Developer instrumentation — full candidate "why it won" rankings (see selectionTrace.ranking).
+            ranking: selection.selectionTrace.ranking,
             selectionTrace: selection.selectionTrace,
         }
 

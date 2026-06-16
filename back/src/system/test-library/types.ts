@@ -107,6 +107,25 @@ export interface SelectionReasonEntry {
     reasons: string[]
 }
 
+/**
+ * One candidate in a "why it won" ranking. The engine already scores every candidate during
+ * selection and keeps only the winner; this surfaces the discarded scores for the debug view.
+ * `selected` marks whether the candidate ended up in the final activity.
+ */
+export interface SelectionRankingEntry {
+    id: string
+    name: string
+    score: number
+    reasons: string[]
+    /** True when this candidate was chosen for the final activity. */
+    selected: boolean
+    /**
+     * True when routing left this candidate in the eligible pool. A high score with `eligible: false`
+     * means the parser routed a relevant candidate OUT — i.e. a routing gap, not a coverage gap.
+     */
+    eligible: boolean
+}
+
 export interface TestLibrarySelectionResult {
     archetype: TestLibraryV0Archetype
     affordanceLenses: TestLibraryV0AffordanceLens[]
@@ -118,6 +137,17 @@ export interface TestLibrarySelectionResult {
         constraints: SelectionReasonEntry[]
         /** Combined objective for the winning lens+constraint combination */
         objectiveScore: number
+        /**
+         * Developer/testing instrumentation — full candidate rankings ("why it won"), not just the
+         * selected items. Each list is sorted best-first using the same ordering the selector uses.
+         */
+        ranking: {
+            archetypes: SelectionRankingEntry[]
+            affordanceLenses: SelectionRankingEntry[]
+            constraints: SelectionRankingEntry[]
+            /** Winning archetype score minus the runner-up's; 0 = tie-broken, null = single candidate. */
+            archetypeMargin: number | null
+        }
     }
 }
 
