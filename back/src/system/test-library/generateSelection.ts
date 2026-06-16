@@ -6,6 +6,7 @@ import { normalizeCoachingInput } from './normalizeCoachingInput'
 import { isSelectionPackageCompatible } from './selection-compatibility'
 import type {
     ConstraintBalanceBucket,
+    SelectionRankingEntry,
     SelectionReasonEntry,
     TestLibrarySelectionInput,
     TestLibrarySelectionResult,
@@ -584,6 +585,7 @@ export function generateSelection(
         const i = candidateOrder.indexOf(id)
         return i === -1 ? Number.MAX_SAFE_INTEGER : i
     }
+    const archetypeScored: { a: TestLibraryV0Archetype; score: number; reasons: string[] }[] = []
     let bestArc: { a: TestLibraryV0Archetype; score: number; reasons: string[] } | null = null
     for (const a of archetypePool) {
         const fields = [
@@ -599,6 +601,7 @@ export function generateSelection(
             ...(a.coachVocabulary ?? []),
         ]
         const { score, reasons } = scoreAgainstFields(tokens, fields)
+        archetypeScored.push({ a, score, reasons })
         if (!bestArc) {
             bestArc = { a, score, reasons }
             continue
@@ -721,6 +724,58 @@ export function generateSelection(
         }
     })
 
+    // Developer/testing instrumentation: surface the full candidate rankings the selector already
+    // computed and otherwise discards ("why it won"). Each list is sorted best-first using the same
+    // ordering the selector uses, so the displayed order matches the actual selection logic.
+    const selectedLensIds = new Set(selectedLenses.map((l) => l.id))
+    const selectedConIds = new Set(picked.map((c) => c.id))
+    // `allLenses` / `allConstraints` are the post-routing eligible pools; lenses and constraints are
+    // scored across the FULL library, so a high score outside these sets = a routing gap, not coverage.
+    const eligibleLensIds = new Set(allLenses.map((l) => l.id))
+    const eligibleConIds = new Set(allConstraints.map((c) => c.id))
+
+    const archetypeRankingSorted = [...archetypeScored].sort(
+        (x, y) =>
+            y.score - x.score ||
+            orderRank(x.a.game_form_id) - orderRank(y.a.game_form_id) ||
+            x.a.game_form_id.localeCompare(y.a.game_form_id)
+    )
+    const archetypeRanking: SelectionRankingEntry[] = archetypeRankingSorted.map((r) => ({
+        id: r.a.game_form_id,
+        name: r.a.game_form_name,
+        score: r.score,
+        reasons: r.reasons,
+        selected: r.a.game_form_id === archetype.game_form_id,
+        // Archetype scoring runs over the routed candidate pool only, so every entry here was eligible.
+        eligible: true,
+    }))
+    const archetypeMargin =
+        archetypeRankingSorted.length >= 2
+            ? archetypeRankingSorted[0].score - archetypeRankingSorted[1].score
+            : null
+
+    const affordanceRanking: SelectionRankingEntry[] = [...lensScored]
+        .sort((a, b) => b.score - a.score || a.lens.id.localeCompare(b.lens.id))
+        .map((r) => ({
+            id: r.lens.id,
+            name: r.lens.title,
+            score: r.score,
+            reasons: r.reasons,
+            selected: selectedLensIds.has(r.lens.id),
+            eligible: eligibleLensIds.has(r.lens.id),
+        }))
+
+    const constraintRanking: SelectionRankingEntry[] = [...finalConScored]
+        .sort((a, b) => b.score - a.score || a.c.id.localeCompare(b.c.id))
+        .map((r) => ({
+            id: r.c.id,
+            name: r.c.title,
+            score: r.score,
+            reasons: [...r.reasons, `balanceBucket:${r.bucket}`],
+            selected: selectedConIds.has(r.c.id),
+            eligible: eligibleConIds.has(r.c.id),
+        }))
+
     return {
         archetype,
         affordanceLenses: selectedLenses,
@@ -731,6 +786,12 @@ export function generateSelection(
             affordanceLenses: affordanceTrace,
             constraints: constraintsTrace,
             objectiveScore: bestTotal,
+            ranking: {
+                archetypes: archetypeRanking,
+                affordanceLenses: affordanceRanking,
+                constraints: constraintRanking,
+                archetypeMargin,
+            },
         },
     }
 }
