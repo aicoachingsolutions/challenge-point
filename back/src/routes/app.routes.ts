@@ -6,6 +6,8 @@ import Session, { SessionEmphasis, SessionStatus } from 'src/models/session.mode
 import { ActivityAssemblyValidationError, assembleActivities } from 'src/services/completion.service'
 
 import Activity, { ActivityStatus } from '../models/activity.model'
+import { buildActivityMechanicsFromSkeleton } from '../system/activity/build-activity-mechanics'
+import { buildActivitySkeleton } from '../system/activity/build-activity-skeleton'
 import { compressActivitiesForCoach } from '../system/activity/compress-activity-output'
 import { getSlotMechanicalVariations } from '../system/activity/slot-mechanics-variations'
 import User from '../models/user.model'
@@ -127,6 +129,136 @@ router.post(ROUTES.testSelection, async (req: Request, res: Response) => {
         const message = error instanceof Error ? error.message : String(error)
         Logger.warn(`[Test Library Selection] POST /test-selection failed: ${message}`)
         return res.status(400).json({ error: message })
+    }
+})
+
+/**
+ * Developer / testing debug view (Christian's request). Exposes the internal generation
+ * decisions for a single learning goal so findings can be diagnosed at the stage they
+ * originate — resolution vs game-problem vs affordance vs archetype vs constraint vs
+ * validation — instead of reverse-engineering from the final activity.
+ *
+ * Runs the FULL DETERMINISTIC pipeline only (resolution -> selection -> constraint-package
+ * validation -> skeleton -> mechanics). It does NOT call OpenAI, so it is free, instant, and
+ * safe to hammer during testing. The AI-output validators (prescriptive language, missing
+ * mechanic, opponent consequence) run only on live generation and are noted as out of scope here.
+ *
+ * Usage (GET, browser-friendly while logged in):
+ *   /api/app/debug-selection?goal=protecting+central+space&challengeLevel=medium&players=14
+ */
+router.get('/debug-selection', async (req: Request, res: Response) => {
+    try {
+        const goal = String(req.query.goal ?? '').trim()
+        const challengeLevel = String(req.query.challengeLevel ?? 'medium')
+        const players = Number.parseInt(String(req.query.players ?? ''), 10) || 14
+        if (!goal) {
+            return res.status(400).json({ error: 'Provide a learning goal: ?goal=...' })
+        }
+
+        // Stage 1 — Learning-goal resolution.
+        const inputConstraints = deriveInputConstraints(goal)
+        const signalGroups = inputConstraints.matchedSignals
+            .filter((s) => s.startsWith('signalGroup:'))
+            .map((s) => s.replace('signalGroup:', ''))
+        const defensiveSignal = signalGroups.find((s) => s.startsWith('I_defensive'))
+        const roleContext = defensiveSignal
+            ? `defensive (${defensiveSignal.replace('I_defensive_', '') || 'unspecified'})`
+            : signalGroups.length > 0
+              ? 'attacking / neutral'
+              : 'unresolved'
+
+        const resolution = {
+            resolvedGameProblem: signalGroups.length > 0 ? signalGroups : ['(none — would be REJECTED)'],
+            roleContextDetected: roleContext,
+            allMatchedSignals: inputConstraints.matchedSignals,
+            candidateArchetypeIds: inputConstraints.candidateArchetypeIds,
+            candidateAffordanceLensIds: inputConstraints.candidateAffordanceLensIds,
+            candidateConstraintIds: inputConstraints.candidateConstraintIds,
+        }
+
+        if (inputConstraints.candidateArchetypeIds.length === 0) {
+            return res.status(200).json({
+                learningGoal: goal,
+                resolution,
+                selection: null,
+                validation: {
+                    deterministicPass: false,
+                    failureStage: 'resolution',
+                    failureReason: 'No supported soccer training signals were found in the learning goal.',
+                },
+                note: 'Deterministic pipeline only (no AI).',
+            })
+        }
+
+        // Stage 2 — Selection (archetype / affordances / constraints).
+        let selection
+        try {
+            selection = generateSelection({ learningGoals: [goal], challengeLevel }, inputConstraints)
+        } catch (selErr) {
+            return res.status(200).json({
+                learningGoal: goal,
+                resolution,
+                selection: null,
+                validation: {
+                    deterministicPass: false,
+                    failureStage: 'selection',
+                    failureReason: selErr instanceof Error ? selErr.message : String(selErr),
+                },
+                note: 'Deterministic pipeline only (no AI).',
+            })
+        }
+
+        const selectionSummary = {
+            selectedArchetype: { id: selection.archetype.game_form_id, name: selection.archetype.game_form_name },
+            selectedAffordances: selection.affordanceLenses.map((l) => l.title),
+            selectedConstraints: selection.constraints.map((c) => c.title),
+            selectionTrace: selection.selectionTrace,
+        }
+
+        // Stage 3 — Deterministic validation (constraint package -> skeleton -> mechanics).
+        let validation: { deterministicPass: boolean; failureStage: string | null; failureReason: string | null } = {
+            deterministicPass: true,
+            failureStage: null,
+            failureReason: null,
+        }
+        try {
+            const debugSession = {
+                _id: 'debug',
+                name: 'debug',
+                sessionStatus: SessionStatus['In Progress'],
+                playerCount: players,
+                fieldType: 'grass',
+                createdBy: 'debug',
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            } as unknown as Parameters<typeof systemAssemblyInputFromTestLibrarySelection>[0]['session']
+            const assemblyInput = systemAssemblyInputFromTestLibrarySelection({
+                selection,
+                session: debugSession,
+                previousActivities: [],
+                coachInput: { challengeLevel, duration: 60, learningGoals: [goal] },
+            })
+            validateConstraintPackage(assemblyInput.affordances, assemblyInput.archetype, assemblyInput.constraintPackage)
+            const skeleton = buildActivitySkeleton(assemblyInput)
+            buildActivityMechanicsFromSkeleton(skeleton)
+        } catch (valErr) {
+            validation = {
+                deterministicPass: false,
+                failureStage: 'deterministic-validation (constraint-package / skeleton / mechanics)',
+                failureReason: valErr instanceof Error ? valErr.message : String(valErr),
+            }
+        }
+
+        return res.status(200).json({
+            learningGoal: goal,
+            resolution,
+            selection: selectionSummary,
+            validation,
+            note: 'Deterministic pipeline only — no AI call. AI-output validation (prescriptive language, missing mechanic, opponent consequence) runs only during live generation and is not reflected here.',
+        })
+    } catch (error) {
+        const message = error instanceof Error ? error.message : String(error)
+        return res.status(500).json({ error: message })
     }
 })
 
