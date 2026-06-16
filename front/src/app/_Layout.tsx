@@ -1,4 +1,4 @@
-import { HomeIcon, Square3Stack3DIcon, WrenchScrewdriverIcon, UserIcon } from '@heroicons/react/24/outline'
+import { BugAntIcon, HomeIcon, Square3Stack3DIcon, WrenchScrewdriverIcon, UserIcon } from '@heroicons/react/24/outline'
 import { Outlet } from 'react-router-dom'
 
 import { useAuth } from '@/services/authentication.service'
@@ -16,7 +16,12 @@ const APPLICATION_LINKS: INavLink[] = [
     { text: 'Profile', href: '/profile', icon: UserIcon }
 ]
 const ACCOUNT_LINKS: INavLink[] = [] 
-const ADMIN_LINKS: INavLink[] = [{ text: 'Admin', href: '/admin', icon: WrenchScrewdriverIcon }]
+// Admin-only links. The Selection Debug tool is a temporary developer/testing view (Christian's
+// debug system) — gated to admins so it's one click for him but never appears for coaches.
+const ADMIN_LINKS: INavLink[] = [
+    { text: 'Admin', href: '/admin', icon: WrenchScrewdriverIcon },
+    { text: 'Selection Debug', href: '/debug', icon: BugAntIcon },
+]
 const FOOTER_LINKS = [
     { text: 'Home', href: '/' },
     { text: 'Logout', href: '/logout' },
