@@ -13,14 +13,15 @@ const PUBLIC_LINKS: INavLink[] = []
 const APPLICATION_LINKS: INavLink[] = [
     { text: 'Home', href: '/', icon: HomeIcon },
     { text: 'Session Library', href: '/session-library', icon: Square3Stack3DIcon },
-    { text: 'Profile', href: '/profile', icon: UserIcon },
-    // TEMPORARY developer/testing tool (Christian's debug system). Shown to all signed-in users
-    // because the primary tester's account is not flagged admin and there's no in-app way to
-    // promote it. Pre-field-test only — re-gate behind isAdmin (or remove) before broader release.
+    { text: 'Profile', href: '/profile', icon: UserIcon }
+]
+const ACCOUNT_LINKS: INavLink[] = [] 
+// Admin-only links. The Selection Debug tool is a temporary developer/testing view (Christian's
+// debug system) — gated to admins so it's one click for him but never appears for coaches.
+const ADMIN_LINKS: INavLink[] = [
+    { text: 'Admin', href: '/admin', icon: WrenchScrewdriverIcon },
     { text: 'Selection Debug', href: '/debug', icon: BugAntIcon },
 ]
-const ACCOUNT_LINKS: INavLink[] = []
-const ADMIN_LINKS: INavLink[] = [{ text: 'Admin', href: '/admin', icon: WrenchScrewdriverIcon }]
 const FOOTER_LINKS = [
     { text: 'Home', href: '/' },
     { text: 'Logout', href: '/logout' },
