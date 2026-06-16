@@ -54,10 +54,12 @@ export default function ActivityGenerator() {
     const [selectedLearningGoals, setSelectedLearningGoals] = useState<string[]>([])
     const [generatedActivities, setGeneratedActivities] = useState<IActivity[]>([])
     const [currentActivityIndex, setCurrentActivityIndex] = useState(0)
-    // Developer debug mode — append ?debug=1 to the generator URL. Sends debug:true to the
-    // generate endpoint and renders the resolution/selection trace + AI-stage validation next to
-    // the real generated activities. Not coach-facing; off unless the flag is present.
-    const debugMode = new URLSearchParams(window.location.search).get('debug') === '1'
+    // Developer debug mode (Christian's debug system) — a checkbox on the creation screen renders
+    // the resolution/selection trace + AI-stage validation next to the real generated activities;
+    // ?debug=1 in the URL also forces it on. TEMPORARY, pre-field-test: shown to all signed-in
+    // users because the primary tester's account isn't flagged admin. Re-gate before broader release.
+    const [debugToggle, setDebugToggle] = useState(false)
+    const debugMode = debugToggle || new URLSearchParams(window.location.search).get('debug') === '1'
     const [debugTrace, setDebugTrace] = useState<Record<string, any> | null>(null)
     const navigate = useNavigate()
 
@@ -451,6 +453,17 @@ export default function ActivityGenerator() {
                             </div>
                         </div>
                     </div>
+                    {/* Developer toggle (temporary) — shows the resolution/selection trace + AI-stage
+                        validation next to the generated activities. */}
+                    <label className='flex items-center gap-2 pt-4 mt-5 text-sm border-t border-gray-200 text-slate-600'>
+                        <input
+                            type='checkbox'
+                            checked={debugToggle}
+                            onChange={(e) => setDebugToggle(e.target.checked)}
+                            className='w-4 h-4'
+                        />
+                        Show debug trace (developer — exposes routing/selection + validation)
+                    </label>
                     {/* Action Buttons */}
                     <div className='flex flex-col gap-3 pt-4 mt-5 border-t border-gray-200 sm:flex-row sm:gap-4 sm:mt-10 sm:pt-6'>
                         <Button

@@ -1,4 +1,4 @@
-import { HomeIcon, Square3Stack3DIcon, WrenchScrewdriverIcon, UserIcon } from '@heroicons/react/24/outline'
+import { BugAntIcon, HomeIcon, Square3Stack3DIcon, WrenchScrewdriverIcon, UserIcon } from '@heroicons/react/24/outline'
 import { Outlet } from 'react-router-dom'
 
 import { useAuth } from '@/services/authentication.service'
@@ -13,9 +13,13 @@ const PUBLIC_LINKS: INavLink[] = []
 const APPLICATION_LINKS: INavLink[] = [
     { text: 'Home', href: '/', icon: HomeIcon },
     { text: 'Session Library', href: '/session-library', icon: Square3Stack3DIcon },
-    { text: 'Profile', href: '/profile', icon: UserIcon }
+    { text: 'Profile', href: '/profile', icon: UserIcon },
+    // TEMPORARY developer/testing tool (Christian's debug system). Shown to all signed-in users
+    // because the primary tester's account is not flagged admin and there's no in-app way to
+    // promote it. Pre-field-test only — re-gate behind isAdmin (or remove) before broader release.
+    { text: 'Selection Debug', href: '/debug', icon: BugAntIcon },
 ]
-const ACCOUNT_LINKS: INavLink[] = [] 
+const ACCOUNT_LINKS: INavLink[] = []
 const ADMIN_LINKS: INavLink[] = [{ text: 'Admin', href: '/admin', icon: WrenchScrewdriverIcon }]
 const FOOTER_LINKS = [
     { text: 'Home', href: '/' },
