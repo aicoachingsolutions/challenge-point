@@ -57,6 +57,10 @@ const DEFENSIVE_GOALS = [
     'Stopping attacks before they reach dangerous areas',
     'Delaying opponent counterattacks after losing possession',
     'Recovering defensive organization when outnumbered',
+    // Round-7 #4 — fragile recover-after-loss phrasings that previously slipped to attacking routing.
+    'reorganize after losing shape',
+    'get the team organized after losing the ball',
+    'lost our shape and need to recover',
 ]
 const DEFENSIVE_LENSES = new Set([
     'Space Protection Opportunity',
@@ -76,6 +80,10 @@ const ATTACKING_GOALS = [
     'Creating chances against a compact defense',
     'score against a low block',
     'break down a compact defense',
+    // Polarity edge: attacking a disorganized opponent ("before they reorganize/recover") must NOT
+    // route defensive even though "reorganize"/"recover" appear. Locks the Round-7 #4 guard.
+    'attack quickly before the defense reorganizes',
+    'exploit space before they recover shape',
 ]
 
 function testDefensiveGoalsFireDefensiveGroupAndLenses(): void {
@@ -128,6 +136,23 @@ function testProtectSubtypeRoutesToStructureNotPressing(): void {
     }
 }
 
+// Round-7 #3 — Protect Space and Recover Organization are distinct game problems, so a protect
+// goal must NOT drag in the Recovery lens (its presence injected "reorganize defensively after
+// transition" validation requirements the activity couldn't satisfy).
+function testProtectSubtypeExcludesRecoveryLens(): void {
+    const { generateSelection } = require('./../test-library') as typeof import('../test-library')
+    for (const g of ['Protecting central space in front of goal', 'Maintaining defensive compactness near goal']) {
+        const ic = deriveInputConstraints(g)
+        const sel = generateSelection({ learningGoals: [g], challengeLevel: 'medium' }, ic)
+        assert.ok(
+            !sel.affordanceLenses.some((l) => l.title === 'Recovery Opportunity'),
+            `Protect-space goal must NOT select the Recovery lens; got [${sel.affordanceLenses
+                .map((l) => l.title)
+                .join(', ')}] for ${JSON.stringify(g)}`
+        )
+    }
+}
+
 function testOverloadAndTransitionSignalsFire(): void {
     assert.ok(
         deriveInputConstraints('create an overload').matchedSignals.includes('signalGroup:G_overload'),
@@ -146,6 +171,7 @@ function runAll(): void {
     testDefensiveGoalsFireDefensiveGroupAndLenses()
     testAttackingGoalsDoNotFireDefensiveGroup()
     testProtectSubtypeRoutesToStructureNotPressing()
+    testProtectSubtypeExcludesRecoveryLens()
     console.log('deriveInputConstraints unit tests: all cases passed.')
 }
 
