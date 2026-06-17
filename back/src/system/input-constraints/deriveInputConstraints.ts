@@ -215,7 +215,12 @@ function matchesDefensive(text: string): boolean {
         )
     )
         return false
-    if (/\b(?:attack|attacking|exploit(?:ing)?|counter[-\s]?attack\w*)\b[^.]*\bbefore\b[^.]*\brecover/.test(t)) return false
+    if (
+        /\b(?:attack|attacking|exploit(?:ing)?|counter[-\s]?attack\w*)\b[^.]*\bbefore\b[^.]*\b(?:recover|reorgani[sz]e|reset|get(?:ting)?\s+(?:back|set|organi[sz]ed|compact))/.test(
+            t
+        )
+    )
+        return false
     // "creating chances against a compact defence", "score against a low block" — attacking the
     // opponent's structure via a preposition (against/vs/past) rather than a break-down verb. Only
     // fire when attacking INTENT is present, so genuine defending ("defend against ...") is unaffected.
@@ -261,6 +266,15 @@ function matchesDefensive(text: string): boolean {
         return true
     if (/\bmak(?:e|ing)\b[^.]*\b(?:difficult|hard|tough)\b[^.]*\b(?:attack|play\s+through|penetrat|progress|central|middle)/.test(t))
         return true
+    // Recover-after-loss family (Round-7 #4). The shape is already broken, so these read defensive,
+    // but they previously slipped into the attacking spacing group via the bare word "shape".
+    if (/\breorgani[sz]e\b/.test(t)) return true
+    if (/\b(?:lose|losing|lost)\s+(?:our\s+|the\s+|defensive\s+|team\s+)?(?:shape|compactness|structure|organi[sz]ation)\b/.test(t))
+        return true
+    if (/\bget(?:ting)?\s+(?:back\s+)?(?:into\s+)?(?:our\s+)?(?:shape|compact|organi[sz]ed)\b/.test(t)) return true
+    // "after losing the ball/possession" is a defensive/transition-to-defense moment (attacking
+    // transitions key off WINNING the ball). Catches "get the team organized after losing the ball".
+    if (/\bafter\s+(?:we\s+|the\s+team\s+|you\s+)?los(?:e|ing|t)\s+(?:the\s+)?(?:ball|possession)\b/.test(t)) return true
     return false
 }
 
@@ -282,9 +296,10 @@ function defensiveSubtype(text: string): DefensiveSubtype {
     // Active ball-winning — explicit press / regain / win-back.
     if (/\bpress(?:ing|es)?\b|\bwin (?:the |it )?ball\b|\bwin it back\b|\bregain\b|\bcounter[-\s]?press\b/.test(t))
         return 'press'
-    // Reorganizing the block after being opened up.
+    // Reorganizing the block after being opened up — including "lost our shape" / "after losing the
+    // ball, get compact" (Round-7 #4). Press is checked above, so ball-winning phrasings won't reach here.
     if (
-        /\brecover(?:ing)?\s+(?:defensive\s+)?(?:shape|organi[sz]ation|position)\b|\breorgani[sz]e\b|\bget(?:ting)?\s+back\s+(?:into\s+)?shape\b|\bafter being stretched\b/.test(
+        /\brecover(?:ing)?\s+(?:defensive\s+)?(?:shape|organi[sz]ation|position)\b|\breorgani[sz]e\b|\bget(?:ting)?\s+(?:back\s+)?(?:into\s+)?(?:our\s+)?(?:shape|compact|organi[sz]ed)\b|\bafter being stretched\b|\b(?:lose|losing|lost)\s+(?:our\s+|the\s+|defensive\s+|team\s+)?(?:shape|compactness|structure|organi[sz]ation)\b|\bafter\s+(?:we\s+|the\s+team\s+|you\s+)?los(?:e|ing|t)\s+(?:the\s+)?(?:ball|possession)\b/.test(
             t
         )
     )
@@ -410,10 +425,14 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
             pickArchetypes(['Transition Games', 'Positional Play Games'])
         } else {
             // protect / compact / shape maintenance — lead Space Protection + Positional Play.
+            // Recovery Opportunity is deliberately EXCLUDED here: Protect Space and Recover
+            // Organization are distinct game problems (Christian's Round-7 conclusion), so a
+            // protect goal must not drag in the Recovery lens — that tagalong injected
+            // "reorganize defensively after transition" validation requirements the activity
+            // couldn't satisfy (Finding #3). Recovery belongs to the `recover` subtype only.
             pickLenses([
                 'Space Protection Opportunity',
                 'Delay or Deny Opportunity',
-                'Recovery Opportunity',
                 'Regain Opportunity',
             ])
             pickConstraints(['Zone Structure Condition', 'Central Density Condition', 'Small Area Condition', 'Delay Reward'])
