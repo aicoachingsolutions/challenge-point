@@ -408,10 +408,12 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
                 'Regain Opportunity',
             ])
             pickConstraints(['Recovery Window', 'Zone Structure Condition', 'Transition Trigger', 'Central Density Condition'])
-            // Recover SHAPE = reorganize the block (structure), not win the ball. Pressing & Regain is
-            // EXCLUDED here — its win-the-ball vocabulary otherwise out-scores Positional Play and
-            // pulls recover-shape back into ball-winning (Christian's exact complaint).
-            pickArchetypes(['Positional Play Games', 'Transition Games'])
+            // Recover Organization now has a dedicated environmental home: Recover & Reorganize Games
+            // (GF11) leads, with Transition / Positional Play as fallback homes. Pressing & Regain stays
+            // EXCLUDED — its win-the-ball vocabulary otherwise pulls recover-shape back into ball-winning
+            // (Christian's complaint). GF11's multi-affordance design keeps "functional organization"
+            // solvable by reorganizing, protecting space, OR delaying — compactness emergent, not forced.
+            pickArchetypes(['Recover & Reorganize Games', 'Transition Games', 'Positional Play Games'])
         } else if (sub === 'delay') {
             pickLenses([
                 'Delay or Deny Opportunity',

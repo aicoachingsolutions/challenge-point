@@ -153,6 +153,30 @@ function testProtectSubtypeExcludesRecoveryLens(): void {
     }
 }
 
+// Round-7 C — Recover Organization now has a dedicated environmental home (GF11 Recover &
+// Reorganize Games) instead of borrowing Transition / Positional Play.
+function testRecoverSubtypeRoutesToRecoverArchetype(): void {
+    const { generateSelection } = require('./../test-library') as typeof import('../test-library')
+    for (const g of [
+        'recover defensive shape after being stretched',
+        'reorganize after losing shape',
+        'get the team organized after losing the ball',
+        'recovering defensive organization when outnumbered',
+    ]) {
+        const ic = deriveInputConstraints(g)
+        assert.ok(
+            ic.matchedSignals.includes('signalGroup:I_defensive_recover'),
+            `Should classify as recover subtype: ${JSON.stringify(g)}`
+        )
+        const sel = generateSelection({ learningGoals: [g], challengeLevel: 'medium' }, ic)
+        assert.equal(
+            sel.archetype.game_form_name,
+            'Recover & Reorganize Games',
+            `Recover goal must route to Recover & Reorganize Games; got ${sel.archetype.game_form_name} for ${JSON.stringify(g)}`
+        )
+    }
+}
+
 function testOverloadAndTransitionSignalsFire(): void {
     assert.ok(
         deriveInputConstraints('create an overload').matchedSignals.includes('signalGroup:G_overload'),
@@ -172,6 +196,7 @@ function runAll(): void {
     testAttackingGoalsDoNotFireDefensiveGroup()
     testProtectSubtypeRoutesToStructureNotPressing()
     testProtectSubtypeExcludesRecoveryLens()
+    testRecoverSubtypeRoutesToRecoverArchetype()
     console.log('deriveInputConstraints unit tests: all cases passed.')
 }
 

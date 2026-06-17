@@ -349,4 +349,48 @@ export const TEST_LIBRARY_V0_ARCHETYPES: TestLibraryV0Archetype[] = [
       "Restart conditions stay live; coach lets the constraints shape the contest rather than adding fixed rules.",
     ],
   },
+  {
+    id: "GF11",
+    game_form_id: "GF11",
+    game_form_name: "Recover & Reorganize Games",
+    objective: "Restore functional defensive organization before the attack exploits the disruption",
+    interaction_structure: "Recovery from a deliberately disrupted defensive state into a live attack",
+    directionality_type: "Reactive directional",
+    phase_of_play: "Transition / defensive",
+    player_structure_logic: "Temporary defensive disadvantage that decays as defenders recover",
+    typical_affordances: ["A7","A8","A10"],
+    recommended_constraint_types: ["Defensive Reward","Transition Trigger"],
+    representative_design_notes: "Begin each repetition from a broken or stretched shape; the defense succeeds by denying penetration, protecting dangerous space, or delaying until organization is restored — by any functional means, with compactness only one possible solution rather than the target. Reward the attack for exploiting the disorder before recovery completes.",
+    // Multi-solution defensive family (Christian's Round-7 refinement): boosting recover_shape +
+    // protect_space + delay_or_deny makes the Recovery / Space Protection / Delay-or-Deny lenses all
+    // viable, so "functional organization" can be solved by reorganizing, protecting space, OR
+    // delaying — compactness emerges as one option, never the prescribed objective. regain_possession
+    // is intentionally omitted so recovery does not collapse back into ball-winning.
+    primaryAffordances: ["recover_shape","protect_space","delay_or_deny"],
+    secondaryAffordances: [],
+    constraintFit_structural: "high",
+    constraintFit_shaping: "high",
+    constraintFit_consequence: "high",
+    recommendedConstraintTypes: ["structural","shaping","consequence"],
+    exampleConstraintPatterns: ["recovery window timer","start from a disorganized shape","protected central zone","numerical disadvantage that resets each rep"],
+    exampleIncentivePatterns: ["reward the defense for denying penetration or delaying until reorganized","reward the attack for scoring before the defense recovers"],
+    logicUsageNote: "Select this archetype when its structure naturally produces the target affordance; then choose constraints by role (foundation, shaping, consequence).",
+    coachVocabulary: [
+      "recover shape", "recover defensive shape", "recover organization", "recover defensive organization",
+      "reorganize", "reorganize defensively", "restore organization", "restore defensive organization",
+      "get organized", "get back into shape", "regain shape", "reset the block",
+      "after losing the ball", "after losing possession", "after being stretched",
+      "track back", "recovery runs", "recover behind the ball", "get behind the ball",
+      "deny penetration", "protect dangerous space", "delay the attack", "buy time", "slow it down",
+      "restore numbers", "restore numerical balance", "recover defensive balance",
+      "defensive disorganization", "out of shape", "broken shape", "scramble to recover",
+      "exploit the disorder", "attack before they recover",
+    ],
+    setupGuidance: [
+      "Start each repetition from a deliberately disrupted defensive state — a transition trigger, a temporary attacking overload (e.g. 4v2 / 5v3), or defenders pulled out of position.",
+      "Define a recovery window (e.g. 6-10 seconds, or until a marked recovery line is reached) during which the attack can exploit the disorder.",
+      "Mark the dangerous space the defense must protect (typically central, in front of goal); defensive success = deny penetration / protect that space / delay until organized — not a fixed shape.",
+      "Keep the attack pointed at a real goal or target so recovery carries genuine consequence; field size scales to player count.",
+    ],
+  },
 ]
