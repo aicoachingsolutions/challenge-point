@@ -297,9 +297,13 @@ function defensiveSubtype(text: string): DefensiveSubtype {
     if (/\bpress(?:ing|es)?\b|\bwin (?:the |it )?ball\b|\bwin it back\b|\bregain\b|\bcounter[-\s]?press\b/.test(t))
         return 'press'
     // Reorganizing the block after being opened up — including "lost our shape" / "after losing the
-    // ball, get compact" (Round-7 #4). Press is checked above, so ball-winning phrasings won't reach here.
+    // ball, get compact" (Round-7 #4), and "restore/re-establish defensive organization|structure|shape"
+    // (Christian's post-GF11 finding: these unambiguous recover phrasings were defaulting to `protect`).
+    // Scope is intentionally tight to "defensive X" — "team shape" / "defensive balance" are left out
+    // because Christian flagged them as genuinely ambiguous, not clear synonyms for recover. Press is
+    // checked above, so ball-winning phrasings won't reach here.
     if (
-        /\brecover(?:ing)?\s+(?:defensive\s+)?(?:shape|organi[sz]ation|position)\b|\breorgani[sz]e\b|\bget(?:ting)?\s+(?:back\s+)?(?:into\s+)?(?:our\s+)?(?:shape|compact|organi[sz]ed)\b|\bafter being stretched\b|\b(?:lose|losing|lost)\s+(?:our\s+|the\s+|defensive\s+|team\s+)?(?:shape|compactness|structure|organi[sz]ation)\b|\bafter\s+(?:we\s+|the\s+team\s+|you\s+)?los(?:e|ing|t)\s+(?:the\s+)?(?:ball|possession)\b/.test(
+        /\brecover(?:ing)?\s+(?:defensive\s+)?(?:shape|organi[sz]ation|position)\b|\breorgani[sz]e\b|\b(?:restore|re-?establish)\s+defensive\s+(?:shape|organi[sz]ation|structure|position)\b|\bget(?:ting)?\s+(?:back\s+)?(?:into\s+)?(?:our\s+)?(?:shape|compact|organi[sz]ed)\b|\bafter being stretched\b|\b(?:lose|losing|lost)\s+(?:our\s+|the\s+|defensive\s+|team\s+)?(?:shape|compactness|structure|organi[sz]ation)\b|\bafter\s+(?:we\s+|the\s+team\s+|you\s+)?los(?:e|ing|t)\s+(?:the\s+)?(?:ball|possession)\b/.test(
             t
         )
     )

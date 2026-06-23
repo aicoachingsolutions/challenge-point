@@ -162,6 +162,9 @@ function testRecoverSubtypeRoutesToRecoverArchetype(): void {
         'reorganize after losing shape',
         'get the team organized after losing the ball',
         'recovering defensive organization when outnumbered',
+        // Post-GF11 finding (Christian): unambiguous restore/re-establish phrasings must also reach recover.
+        'restore defensive organization',
+        're-establish defensive structure',
     ]) {
         const ic = deriveInputConstraints(g)
         assert.ok(
