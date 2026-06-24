@@ -25,6 +25,7 @@ import { validateActivitiesAgainstSkeleton } from '../system/activity/validate-a
 import { validateActivitiesAssemblyPayload } from '../system/activity/validate-activity-structure'
 import { inferCategoryIdFromText } from '../system/infer-category'
 import { ArchetypeDefinition, SystemAssemblyInput, SystemPipelineError } from '../system/types'
+import { renderChallengeCalibrationPromptSection } from '../system/activity/challenge-calibration'
 
 declare type CompletionMessage = {
     role: 'system' | 'user' | 'assistant'
@@ -1009,11 +1010,13 @@ System principles:
 - Affordances need to emerge through active opponent interaction, not isolated compliance.
 - One team's opportunity needs to create risk for the other team.
 - Preserve continuous play, directional realism, active opposition, and multiple solutions.
-- Activities should feel like the real game and fit the requested challenge level.
+- Activities should feel like the real game and match the requested challenge level (see CHALLENGE CALIBRATION below).
 - Avoid vague language such as "quality chance", "good decision", or "proper technique". Use observable game events instead.
 - Constraints include structure and consequence.
 - Consequence is part of the constraint package, not a separate logic system.
 - The system provides locked guardrails and required design ingredients. You remain responsible for designing and assembling the activity inside those guardrails.
+
+${renderChallengeCalibrationPromptSection(input.coachInput?.challengeLevel)}
 
 ${selectedAffordanceCoveragePromptSection(input)}
 ${archetypeIdentityPromptSection(input.archetype)}
