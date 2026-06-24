@@ -185,6 +185,12 @@ function matchesTransition(text: string): boolean {
     if (/\bcounter[-\s]?attack(?:s|ing)?\b/.test(t)) return true
     if (/\bquick\s+break\b|\bfast\s+break\b/.test(t)) return true
     if (/\bbreak(?:ing)?\b.*\b(?:on|off|from)\b.*\b(?:turnover|regain|win)\b/.test(t)) return true
+    // Round 8C: exploiting a disorganized defence IS a transition-attack problem. "attack/exploit
+    // before they recover/reorganize/reset" previously fell through to the Z general fallback (→
+    // directional possession). Mirrors the attacking-before override in matchesDefensive so the same
+    // phrases that are correctly NOT defensive route here to Transition instead of the fallback.
+    if (/\b(?:attack|attacking|exploit(?:ing)?|counter[-\s]?attack\w*|hit|punish)\b[^.]*\bbefore\b[^.]*\b(?:recover|reorgani[sz]e|reset|get(?:ting)?\s+(?:back|set|organi[sz]ed|compact))/.test(t)) return true
+    if (/\bexploit(?:ing)?\b[^.]*\b(?:disorgani[sz]ation|disorder|disorgani[sz]ed\s+defen[cs]e|broken\s+(?:shape|defen[cs]e))\b/.test(t)) return true
     return false
 }
 

@@ -154,6 +154,11 @@ Remove residual Recovery-lens activation when not supported by selection logic. 
 
 ## Next Architectural Review
 
+> **Status (2026-06-17):** a first framework for both reviews below is drafted in
+> [CONSTRAINT_INCENTIVE_FRAMEWORK.md](CONSTRAINT_INCENTIVE_FRAMEWORK.md) — it organizes the existing
+> 19-constraint inventory onto the shaping dimensions (no expansion) and logs the GF11
+> attacking-exploitation-visibility item as the first test case.
+
 ### Constraint Architecture Review
 **Purpose:** clarify the role of constraints in shaping affordance landscapes. **Questions:** which constraints alter challenge? information? opportunity availability? decision priorities? **Deliverable:** a constraint *framework* — not necessarily constraint expansion.
 
