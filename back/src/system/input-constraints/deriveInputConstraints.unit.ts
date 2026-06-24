@@ -189,6 +189,16 @@ function testOverloadAndTransitionSignalsFire(): void {
         deriveInputConstraints('counter attack').matchedSignals.includes('signalGroup:H_transition'),
         'counter-attack input should fire H_transition'
     )
+    // Round 8C: exploiting a disorganized defence is a transition-attack problem, not the Z fallback.
+    const exploitDisorder = deriveInputConstraints('attack before the defense recovers')
+    assert.ok(
+        exploitDisorder.matchedSignals.includes('signalGroup:H_transition'),
+        'exploit-before-recovery phrasing should fire H_transition'
+    )
+    assert.ok(
+        !exploitDisorder.matchedSignals.some((s) => s.startsWith('signalGroup:I_defensive')),
+        'attacking-before-recovery must NOT route defensive'
+    )
 }
 
 function runAll(): void {
