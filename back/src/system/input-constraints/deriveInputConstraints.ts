@@ -505,6 +505,8 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
             'Wide Zone Advantage',
             'Switch of Play Bonus',
             'Turnover Reward',
+            // Round 8C information mechanism — reading and organizing to an unrehearsed picture under possession.
+            'Disguised Restart',
         ])
         pickPossessionLikeArchetypes()
     }
@@ -522,6 +524,10 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
             'Central Density Condition',
             'Switch of Play Bonus',
             'Wide Utilization Bonus',
+            // Round 8C information mechanisms — make the Information dimension expressible for
+            // create/exploit-space goals (the switch-play case where 8C found Information flat).
+            'Variable Target Condition',
+            'Multi-Goal Read',
         ])
         // WS2: spacing/width/support goals are the natural home of Channel Games (defined wide /
         // half-space channels) and Positional Play (structure, support, spacing). Lead with those
@@ -544,6 +550,8 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
             'Switch of Play Bonus',
             'Wide Zone Advantage',
             'Central Density Condition',
+            // Round 8C information mechanism — perceiving and exploiting unseen space when penetrating.
+            'Blind-Side Entry',
         ])
         // WS2: lead with the line-breaking-specific forms (penetration through/between lines)
         // rather than End Zone, which previously won the tie-break and absorbed break-lines goals.

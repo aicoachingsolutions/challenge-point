@@ -157,7 +157,12 @@ Remove residual Recovery-lens activation when not supported by selection logic. 
 > **Status (2026-06-17):** a first framework for both reviews below is drafted in
 > [CONSTRAINT_INCENTIVE_FRAMEWORK.md](CONSTRAINT_INCENTIVE_FRAMEWORK.md) — it organizes the existing
 > 19-constraint inventory onto the shaping dimensions (no expansion) and logs the GF11
-> attacking-exploitation-visibility item as the first test case.
+> attacking-exploitation-visibility item as the first test case. Round 8C then identified
+> **Information** as the weakest expression dimension; see
+> [INFORMATION_EXPRESSION_REVIEW.md](INFORMATION_EXPRESSION_REVIEW.md), which scopes the gap and
+> proposes targeted information mechanisms (sign-off gated). The emerging priority for the next phase
+> is **expression-mechanism depth over Game-Problem breadth** (Information → incentive/value
+> structures → transition environments).
 
 ### Constraint Architecture Review
 **Purpose:** clarify the role of constraints in shaping affordance landscapes. **Questions:** which constraints alter challenge? information? opportunity availability? decision priorities? **Deliverable:** a constraint *framework* — not necessarily constraint expansion.

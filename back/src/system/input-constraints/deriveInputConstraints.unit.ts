@@ -180,6 +180,30 @@ function testRecoverSubtypeRoutesToRecoverArchetype(): void {
     }
 }
 
+// Round 8C — information mechanisms surface for information-flavored goals and stay out of the
+// defensive groups. They shape the information landscape; scanning is expected to emerge, not be rewarded.
+function testInformationMechanismsSurface(): void {
+    const { generateSelection } = require('./../test-library') as typeof import('../test-library')
+    const INFO = new Set([
+        'tl-v0-constraint-variable-target-condition',
+        'tl-v0-constraint-multi-goal-read',
+        'tl-v0-constraint-blind-side-entry',
+        'tl-v0-constraint-disguised-restart',
+    ])
+    const infoGoal = 'switch play and read the picture to attack the open space'
+    const sel = generateSelection({ learningGoals: [infoGoal], challengeLevel: 'medium' }, deriveInputConstraints(infoGoal))
+    assert.ok(
+        sel.constraints.some((c) => INFO.has(c.id)),
+        `information goal should surface an information constraint; got [${sel.constraints.map((c) => c.title).join(', ')}]`
+    )
+    const defGoal = 'recover defensive shape after being stretched'
+    const dsel = generateSelection({ learningGoals: [defGoal], challengeLevel: 'medium' }, deriveInputConstraints(defGoal))
+    assert.ok(
+        !dsel.constraints.some((c) => INFO.has(c.id)),
+        `recover goal should not surface information mechanisms; got [${dsel.constraints.map((c) => c.title).join(', ')}]`
+    )
+}
+
 function testOverloadAndTransitionSignalsFire(): void {
     assert.ok(
         deriveInputConstraints('create an overload').matchedSignals.includes('signalGroup:G_overload'),
@@ -210,6 +234,7 @@ function runAll(): void {
     testProtectSubtypeRoutesToStructureNotPressing()
     testProtectSubtypeExcludesRecoveryLens()
     testRecoverSubtypeRoutesToRecoverArchetype()
+    testInformationMechanismsSurface()
     console.log('deriveInputConstraints unit tests: all cases passed.')
 }
 
