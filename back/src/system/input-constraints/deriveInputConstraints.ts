@@ -195,6 +195,34 @@ function matchesTransition(text: string): boolean {
 }
 
 /**
+ * Group K — Information / perception intent (Round 8C). Fires when the GOAL expresses an
+ * information-management demand (reading, deciding, disguise, uncertainty, blind-side, late/variable
+ * pictures), which makes the information-shaping constraints eligible and (in selection) boosted.
+ *
+ * This is the lens-coupling fix: information constraints used to ride lens-alignment scoring, so they
+ * surfaced for any space/possession goal. Now they are gated on genuine information intent — they do
+ * NOT fire on pure space/possession goals. Note: scanning/awareness/recognition are Observation-layer
+ * outcomes; here they signal the COACH'S intent, and the response is to shape the information landscape
+ * so those behaviors can emerge — never to reward the behavior itself.
+ */
+function matchesInformationIntent(text: string): boolean {
+    const t = text.toLowerCase()
+    if (/\bread\s+(?:the\s+)?(?:picture|game|play|cues?|space|defen[cs]e|press)\b/.test(t)) return true
+    if (/\bplay\s+what\s+(?:you|they)\s+see\b|\bhead[s]?\s+up\b/.test(t)) return true
+    if (/\bscan(?:ning)?\b/.test(t)) return true
+    if (/\bperceiv\w*\b|\bperception\b/.test(t)) return true
+    if (/\brecogni[sz]\w*\b/.test(t)) return true
+    if (/\banticipat\w*\b/.test(t)) return true
+    if (/\bawareness\b|\bvision\b/.test(t)) return true
+    if (/\bdecision[-\s]?making\b|\bmake\s+(?:better\s+)?decisions?\b|\bdecide\s+(?:when|where|which|what)\b/.test(t)) return true
+    if (/\bwhich\s+(?:option|goal|target|pass|side|run)\s+is\s+(?:on|open|available|best)\b/.test(t)) return true
+    if (/\b(?:disguis\w*|deception|deceiv\w*|unpredictable)\b/.test(t)) return true
+    if (/\b(?:variable|late|changing|hidden|delayed)\s+(?:target|picture|option|cue|cues|information|start|entry)\b/.test(t)) return true
+    if (/\bblind[-\s]?side\b/.test(t)) return true
+    return false
+}
+
+/**
  * Group I — Defensive / preventive intent (polarity-aware). WORKSTREAM 1.
  *
  * Defensive goals were being silently reinterpreted as attacking because defensive verbs
@@ -505,8 +533,6 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
             'Wide Zone Advantage',
             'Switch of Play Bonus',
             'Turnover Reward',
-            // Round 8C information mechanism — reading and organizing to an unrehearsed picture under possession.
-            'Disguised Restart',
         ])
         pickPossessionLikeArchetypes()
     }
@@ -524,10 +550,6 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
             'Central Density Condition',
             'Switch of Play Bonus',
             'Wide Utilization Bonus',
-            // Round 8C information mechanisms — make the Information dimension expressible for
-            // create/exploit-space goals (the switch-play case where 8C found Information flat).
-            'Variable Target Condition',
-            'Multi-Goal Read',
         ])
         // WS2: spacing/width/support goals are the natural home of Channel Games (defined wide /
         // half-space channels) and Positional Play (structure, support, spacing). Lead with those
@@ -550,8 +572,6 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
             'Switch of Play Bonus',
             'Wide Zone Advantage',
             'Central Density Condition',
-            // Round 8C information mechanism — perceiving and exploiting unseen space when penetrating.
-            'Blind-Side Entry',
         ])
         // WS2: lead with the line-breaking-specific forms (penetration through/between lines)
         // rather than End Zone, which previously won the tie-break and absorbed break-lines goals.
@@ -616,6 +636,16 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
         ])
         pickConstraints(['Transition Trigger', 'Transition Bonus', 'Turnover Reward', 'Progression Bonus'])
         pickArchetypes(['Transition Games', 'Pressing & Regain Games', 'Overload Games'])
+    }
+
+    if (matchesInformationIntent(text)) {
+        matchedSignals.push('signalGroup:K_information')
+        // Lens-coupling fix (Round 8C): information-shaping constraints are eligible ONLY on information
+        // intent — selection then boosts primaryConstraintType === 'information'. They are intentionally
+        // NOT in the space/possession/break-lines groups anymore, so they no longer ride lens-alignment.
+        // No lenses/archetypes are forced here — a co-firing problem group (or the Z fallback) sets the
+        // environment; these constraints add the perceptual demand on top.
+        pickConstraints(['Variable Target Condition', 'Multi-Goal Read', 'Blind-Side Entry', 'Disguised Restart'])
     }
 
     // General soccer fallback: if no specific group matched any archetype but the text is clearly
