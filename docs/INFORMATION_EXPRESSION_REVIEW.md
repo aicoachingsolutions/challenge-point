@@ -65,26 +65,47 @@ disguise, scan under uncertainty, or read a blind-side cue.* Information current
 
 ---
 
-## Candidate mechanisms (targeted — for sign-off, not yet built)
+## Decision & implemented subset
 
-Each is a constraint that *actively* shapes a missing lever, written to invite perception, never to
-script behavior (the framework guardrail holds: it must keep the problem open and multi-solution).
+Reviewed against the Information-vs-Observation distinction (below). Four mechanisms were approved and
+**built** (commit `cde6bf9`); Pre-Scan Requirement was **rejected**. Each approved mechanism shapes what
+is *perceivable* — scanning is expected to emerge as an adaptation, never rewarded directly.
 
-1. **Pre-Scan Requirement** *(scanning demand)* — an action (e.g. a forward pass or a turn) only
-   counts when preceded by a genuine scan / shoulder-check; rewards gathering information before acting.
-2. **Variable / Late Target** *(uncertainty + information delay)* — which goal/target/zone is live is
-   revealed *after* play starts or changes during play, so players must perceive the live picture
-   rather than pre-plan a route.
-3. **Disguised Restart** *(disguise)* — possession restarts from a variable or coach-cued location
-   instead of a fixed one, removing the pre-set picture and forcing a fresh read each repetition.
-4. **Blind-Side Entry** *(visual access)* — a run or pass from outside the receiver's field of view is
-   rewarded; trains perception of cues that aren't directly in front of the player.
-5. **Multi-Goal Read** *(scanning + uncertainty)* — multiple goals/targets are simultaneously live so
-   the attack must perceive which is open rather than attack a single known target.
+1. **Variable / Late Target** *(uncertainty + information delay)* — which target/gate is live is revealed
+   only after play crosses a trigger line, or changes on a cue, so teams read the live picture instead of
+   pre-planning a route. *In an activity:* three gates across the far line; which one scores isn't known
+   until the attack reaches the middle third.
+2. **Multi-Goal Read** *(scanning + uncertainty)* — two or three goals live at once, defended
+   differently; the attack perceives which is open now. *In an activity:* small goals spread across the
+   end line, all live; defenders can't cover all, so the open one keeps moving.
+3. **Blind-Side Entry** *(visual access)* — advantage created from outside a defender's view is worth
+   more; rewards the *relationship*, not a set run. *In an activity:* a finish from a run that arrived
+   behind the last line counts double.
+4. **Disguised Restart** *(disguise)* — scoped narrowly to variable-entry pictures: the ball enters from
+   one of several last-moment locations, so neither team can rehearse and both read live. *Not* a
+   reaction-time or signal-guessing task. *In an activity:* each repetition is served from a different
+   gate chosen at the last moment.
 
-These map one-to-one onto the missing rows in the gap table. They are **candidates**: the next step is
-your sign-off on which are genuinely representative (vs. drifting into contrived perception drills),
-then we build the validated subset and you test it.
+**Rejected — Pre-Scan Requirement.** Framed honestly ("a forward pass counts only after a shoulder-
+check"), it rewards the scan itself — an observable *behavior*, not a change to the information
+landscape. If the environment genuinely hides information, scanning should emerge as one adaptation; if
+it doesn't, that is information for the coach, not something the activity should force.
+
+### Information layer vs. Observation layer
+- **Information layer** (this review): what is available, hidden, delayed, uncertain, or changing in the
+  environment — shaped by design.
+- **Observation layer**: what coaches notice performers *doing* while interacting with that information
+  (scanning, anticipation, recognition) — observed, not forced.
+
+The four approved mechanisms sit in the Information layer; Pre-Scan crossed into the Observation layer.
+
+### Implementation note
+Three of the four use `visibilityEffect: decrease` (which emits a "reduced information or delayed
+visibility" guardrail) and `primaryConstraintType: information`. They are routed into the
+spacing/possession/break-lines groups. One known limit: selection scoring is coupled to selected-lens
+alignment, so these lean toward appearing for build-up/space goals broadly rather than precisely on
+information intent — the same expression-layer limitation flagged in the Constraint & Incentive
+framework, and the natural next architectural item.
 
 ---
 
@@ -102,12 +123,12 @@ candidate mechanisms are what would let calibration actually move the Informatio
 
 Round 8C's strategic read is correct: shift development from adding Game Problems to **deepening
 expression mechanisms, starting with Information** (weakest, and the most central to ecological design).
-Concretely:
+Progress:
 
-1. Sign off which of the five candidate mechanisms are genuinely representative.
-2. Build the validated subset as new constraints (the targeted expansion this review justifies).
-3. Re-test against the 8C / switch-play cases to confirm Information now produces observable
-   perceptual demands, not just spatial ones.
+1. ~~Sign off which candidate mechanisms are genuinely representative.~~ **Done** — four approved, Pre-Scan rejected.
+2. ~~Build the validated subset as new constraints.~~ **Done** (commit `cde6bf9`).
+3. **Next — Christian:** re-test against the 8C / switch-play cases to confirm Information now produces
+   observable perceptual demands, not just spatial ones.
 
 Then the same lens applies to the next two expression gaps in priority order: **incentive / value
 structures** (the two-sided-contest problem from the GF11 finding) and **transition-specific
