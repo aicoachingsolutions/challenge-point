@@ -190,11 +190,22 @@ function testInformationMechanismsSurface(): void {
         'tl-v0-constraint-blind-side-entry',
         'tl-v0-constraint-disguised-restart',
     ])
-    const infoGoal = 'switch play and read the picture to attack the open space'
+    const infoGoal = 'help players read the picture and decide which option is open'
+    assert.ok(
+        deriveInputConstraints(infoGoal).matchedSignals.includes('signalGroup:K_information'),
+        'information-intent goal should fire K_information'
+    )
     const sel = generateSelection({ learningGoals: [infoGoal], challengeLevel: 'medium' }, deriveInputConstraints(infoGoal))
     assert.ok(
         sel.constraints.some((c) => INFO.has(c.id)),
         `information goal should surface an information constraint; got [${sel.constraints.map((c) => c.title).join(', ')}]`
+    )
+    // Lens-coupling fix: a pure space/possession goal (no information intent) must NOT surface them.
+    const spaceGoal = 'create space and exploit gaps between the lines'
+    const ssel = generateSelection({ learningGoals: [spaceGoal], challengeLevel: 'medium' }, deriveInputConstraints(spaceGoal))
+    assert.ok(
+        !ssel.constraints.some((c) => INFO.has(c.id)),
+        `pure space goal must not surface information constraints; got [${ssel.constraints.map((c) => c.title).join(', ')}]`
     )
     const defGoal = 'recover defensive shape after being stretched'
     const dsel = generateSelection({ learningGoals: [defGoal], challengeLevel: 'medium' }, deriveInputConstraints(defGoal))

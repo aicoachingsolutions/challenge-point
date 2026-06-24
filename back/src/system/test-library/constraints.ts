@@ -477,7 +477,7 @@ export const TEST_LIBRARY_V0_CONSTRAINTS: TestLibraryV0Constraint[] = [
     includesIncentiveLayer: false,
     incentiveMechanism: "none",
     visibilityEffect: "decrease",
-    targetAffordancePrimary: "exploit_space",
+    targetAffordancePrimary: "perception",
     logicUsageNote: "Use as a shaping information constraint when reading the live picture and adapting the target of progression are central to the session goal.",
     coachVocabulary: [
       "read the picture", "which option is on", "late target", "variable target",
@@ -508,7 +508,7 @@ export const TEST_LIBRARY_V0_CONSTRAINTS: TestLibraryV0Constraint[] = [
     includesIncentiveLayer: false,
     incentiveMechanism: "none",
     visibilityEffect: "increase",
-    targetAffordancePrimary: "exploit_space",
+    targetAffordancePrimary: "perception",
     logicUsageNote: "Use as a structural information constraint when perceiving and attacking the open option among several is central to the session goal.",
     coachVocabulary: [
       "two goals", "multiple goals", "multiple targets", "which goal is open",
@@ -539,7 +539,7 @@ export const TEST_LIBRARY_V0_CONSTRAINTS: TestLibraryV0Constraint[] = [
     includesIncentiveLayer: true,
     incentiveMechanism: "scoring_bonus",
     visibilityEffect: "decrease",
-    targetAffordancePrimary: "break_lines",
+    targetAffordancePrimary: "perception",
     logicUsageNote: "Use as a consequence information constraint when perceiving and exploiting a defender's blind side is central to the session goal; keep the reward tied to the relationship, not a set run.",
     coachVocabulary: [
       "blind side", "blind-side run", "behind the defender", "where they aren't looking",
@@ -570,7 +570,7 @@ export const TEST_LIBRARY_V0_CONSTRAINTS: TestLibraryV0Constraint[] = [
     includesIncentiveLayer: false,
     incentiveMechanism: "none",
     visibilityEffect: "decrease",
-    targetAffordancePrimary: "create_space",
+    targetAffordancePrimary: "perception",
     logicUsageNote: "Use as a structural information constraint when reading and organizing to an unrehearsed starting picture is central to the session goal; keep it to variable entries, not reaction tasks.",
     coachVocabulary: [
       "variable restart", "different starting picture", "can't rehearse", "read the restart",

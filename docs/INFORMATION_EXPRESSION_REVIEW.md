@@ -101,11 +101,21 @@ The four approved mechanisms sit in the Information layer; Pre-Scan crossed into
 
 ### Implementation note
 Three of the four use `visibilityEffect: decrease` (which emits a "reduced information or delayed
-visibility" guardrail) and `primaryConstraintType: information`. They are routed into the
-spacing/possession/break-lines groups. One known limit: selection scoring is coupled to selected-lens
-alignment, so these lean toward appearing for build-up/space goals broadly rather than precisely on
-information intent — the same expression-layer limitation flagged in the Constraint & Incentive
-framework, and the natural next architectural item.
+visibility" guardrail) and all four use `primaryConstraintType: information`.
+
+**Intent gating (lens-coupling fix, commit `fbdc247`).** The first cut routed these through the
+space/possession groups, so they rode lens-alignment scoring and surfaced for *any* build-up/space goal
+— over-eager and the wrong trigger. They are now **decoupled and gated on information intent**:
+- their `targetAffordancePrimary` is `perception` (no lens/affordance bonus);
+- a new parser group (**Group K — information intent**) fires on information-management vocabulary
+  (read the picture, decide which option is open, play what you see, scan, perceive, recognize,
+  anticipate, awareness/vision, disguise, variable/late/hidden target, blind-side) and makes the four
+  eligible only then;
+- selection adds a bonus to `information`-type constraints when Group K fired.
+
+Result: information-intent goals surface them; pure space, possession, and defensive goals do not.
+Follow-on: couple the Demanding challenge level to the same bonus so calibration can invoke them
+without information vocabulary in the goal (needs constraint-pool injection from the challenge level).
 
 ---
 

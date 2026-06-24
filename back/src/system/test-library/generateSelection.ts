@@ -329,11 +329,21 @@ function scoreAllLenses(
     return lensScored
 }
 
+/**
+ * Round 8C lens-coupling fix: when the goal expresses information intent (parser Group K), the
+ * information-shaping constraints get this bonus so they surface on INTENT rather than via
+ * lens-alignment — they no longer use lens-aligned targets (their targetAffordancePrimary is
+ * "perception"), so without this they would never appear, and with the old affordance targets they
+ * over-appeared for any space/possession goal.
+ */
+const INFORMATION_INTENT_BONUS = 12
+
 function scoreConstraintsForLensSlugs(
     tokens: string[],
     archetype: TestLibraryV0Archetype,
     archeAffordances: Set<string>,
-    selectedLensSlugs: Set<string>
+    selectedLensSlugs: Set<string>,
+    informationIntent = false
 ): ConScored[] {
     const conScored: ConScored[] = []
     for (const c of TEST_LIBRARY_V0_CONSTRAINTS) {
@@ -366,6 +376,10 @@ function scoreConstraintsForLensSlugs(
                 reasons.push(`archetypeRecommendedConstraintType:${rct}`)
                 break
             }
+        }
+        if (informationIntent && (c.primaryConstraintType || '').toLowerCase() === 'information') {
+            score += INFORMATION_INTENT_BONUS
+            reasons.push('informationIntentMatch')
         }
         conScored.push({ c, score, reasons, bucket: constraintBalanceBucket(c) })
     }
@@ -569,6 +583,9 @@ export function generateSelection(
         )
     }
 
+    // Round 8C: the goal expressed information intent (parser Group K) -> boost information constraints.
+    const informationIntent = inputConstraints?.matchedSignals?.includes('signalGroup:K_information') ?? false
+
     const archetypePool = applyArchetypePoolFilter(inputConstraints)
     const allLenses = applyLensPoolFilter(inputConstraints)
     const allConstraints = applyConstraintPoolFilter(inputConstraints)
@@ -646,7 +663,7 @@ export function generateSelection(
 
         for (const lensCombo of combinations(lensCandidatePool, lensSize)) {
             const selectedLensSlugs = new Set(lensCombo.map(lensSlug))
-            const conScored = scoreConstraintsForLensSlugs(tokens, archetype, archeAffordances, selectedLensSlugs)
+            const conScored = scoreConstraintsForLensSlugs(tokens, archetype, archeAffordances, selectedLensSlugs, informationIntent)
             const conMap = conScoredMap(conScored)
 
             // Bound the constraint search pool for this lens combo. Per-lens-combo because constraint
@@ -711,7 +728,7 @@ export function generateSelection(
     })
 
     const finalLensSlugs = new Set(selectedLenses.map(lensSlug))
-    const finalConScored = scoreConstraintsForLensSlugs(tokens, archetype, archeAffordances, finalLensSlugs)
+    const finalConScored = scoreConstraintsForLensSlugs(tokens, archetype, archeAffordances, finalLensSlugs, informationIntent)
     const finalConMap = conScoredMap(finalConScored)
 
     const constraintsTrace: SelectionReasonEntry[] = picked.map((c) => {
