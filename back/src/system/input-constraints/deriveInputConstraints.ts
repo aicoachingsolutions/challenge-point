@@ -207,7 +207,11 @@ function matchesTransition(text: string): boolean {
  */
 function matchesInformationIntent(text: string): boolean {
     const t = text.toLowerCase()
-    if (/\bread\s+(?:the\s+)?(?:picture|game|play|cues?|space|defen[cs]e|press)\b/.test(t)) return true
+    // "read" in a coaching goal is the perception verb (read the picture / game / press / far side /
+    // the run / early). Round-8D Bonus B ("switch play by reading the far side early") missed because
+    // the earlier pattern only allowed a fixed object list.
+    if (/\bread(?:s|ing)?\b/.test(t)) return true
+    if (/\b(?:far|weak|open|blind|back)[-\s]?side\b/.test(t)) return true
     if (/\bplay\s+what\s+(?:you|they)\s+see\b|\bhead[s]?\s+up\b/.test(t)) return true
     if (/\bscan(?:ning)?\b/.test(t)) return true
     if (/\bperceiv\w*\b|\bperception\b/.test(t)) return true
