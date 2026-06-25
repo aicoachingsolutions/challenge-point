@@ -184,6 +184,9 @@ Proceed with a **provisional** Game Problem Library. Do not wait for ontology ce
 - Observation Layer Architecture
 - Reflection Layer Architecture
 - Representative Design Review
+- Coach Communication Standard — the coach-facing output layer (translation of engine conclusions into
+  practical coaching language); design spec in [COACH_COMMUNICATION_STANDARD.md](COACH_COMMUNICATION_STANDARD.md),
+  adopted gradually as Activity Assembly is refined.
 
 ## Long-Term Development
 
