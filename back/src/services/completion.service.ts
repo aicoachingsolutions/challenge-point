@@ -18,6 +18,7 @@ import { validateActivityMechanics } from '../system/activity/validate-activity-
 import {
     buildActivitySkeleton,
     formatActivitySkeletonForPrompt,
+    informationExpressionDirective,
     type ActivitySkeletonBundle,
 } from '../system/activity/build-activity-skeleton'
 import { type ActivityPolish, validateActivityPolishPayload } from '../system/activity/validate-activity-polish'
@@ -1037,6 +1038,8 @@ CONSTRAINT VISIBILITY
 Each selected constraint must be visible in the rules or scoring.
 
 Do not hide constraints in description text only.
+
+${informationExpressionDirective(input)}
 
 FAILURE WARNING
 If any selected affordance or archetype is not clearly expressed in rules or scoring, the activity will be rejected.
