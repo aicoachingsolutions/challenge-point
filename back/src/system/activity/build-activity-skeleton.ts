@@ -3,7 +3,7 @@ import { SessionEmphasis } from '../../models/session.model'
 import type { ConstraintSelectionCandidate, SystemAssemblyInput } from '../types'
 import { TEST_LIBRARY_V0_ARCHETYPES } from '../test-library/archetypes'
 import { TEST_LIBRARY_V0_CONSTRAINTS } from '../test-library/constraints'
-import type { TestLibraryV0Archetype } from '../test-library/types'
+import type { TestLibraryV0Archetype, TestLibraryV0Constraint } from '../test-library/types'
 import { registryIdString } from './assembly-package-ids'
 import { getEmphasisVariationProfile, getSlotVariationSpec } from './emphasis-variation-profile'
 import { getSlotMechanicalVariations, type ValueLandscapeModifier } from './slot-mechanics-variations'
@@ -633,6 +633,58 @@ function collectSetupGuidance(input: SystemAssemblyInput): {
               )
             : [],
     }
+}
+
+/**
+ * Information-expression directive (Round 8D.2). When a selected constraint is an information mechanism
+ * (`primaryConstraintType === 'information'`), the AI assembly tends to render a familiar possession /
+ * overload game that merely *contains* the mechanic rather than making the PERCEPTUAL problem the
+ * visible point — selection is correct but expression defaults to the familiar. This returns a strong
+ * prompt directive that elevates the information mechanic to the activity's core problem and injects its
+ * concrete instantiation, so the activity reads as an information problem to the coach. Returns '' when
+ * no information constraint is selected.
+ */
+export function informationExpressionDirective(input: SystemAssemblyInput): string {
+    const pkg = input.constraintPackage
+    const members: Array<ConstraintSelectionCandidate | undefined> = [pkg.foundation, pkg.shaping, pkg.consequence]
+    const infoRows: TestLibraryV0Constraint[] = []
+    for (const m of members) {
+        const c = m?.constraint as { _id?: unknown; id?: unknown } | undefined
+        const id = String(c?._id ?? c?.id ?? '').trim()
+        if (!id) continue
+        const row = TEST_LIBRARY_V0_CONSTRAINTS.find((r) => r.id === id)
+        if (row && (row.primaryConstraintType || '').toLowerCase() === 'information') infoRows.push(row)
+    }
+    if (infoRows.length === 0) return ''
+
+    const lines: string[] = [
+        'INFORMATION MECHANICS — THIS IS A PERCEPTION PROBLEM (do not default to a generic game)',
+        'This activity includes information-shaping constraint(s). The CORE problem players solve is',
+        'PERCEPTUAL: they succeed by reading, anticipating, or handling information under uncertainty — NOT',
+        'merely by keeping possession, using an overload, or progressing to a target. Those may be the medium,',
+        'but the point of the activity is the information demand below.',
+        '',
+        'Each information mechanic must be concrete and unmistakable in setup, rules, AND scoring:',
+    ]
+    for (const r of infoRows) {
+        lines.push(`- ${r.title}: ${r.description}`)
+        for (const g of r.setupGuidance ?? []) lines.push(`    • ${g}`)
+    }
+    lines.push('')
+    lines.push(
+        'Write the objective and coachingFocus around the perceptual problem (e.g. "read which option is live'
+    )
+    lines.push(
+        'before committing", "exploit the blind side", "react to the late-changing target"). A coach reading the'
+    )
+    lines.push(
+        'activity must immediately see it is about perception/decision-making — not a standard possession or'
+    )
+    lines.push(
+        'overload game. If the information mechanic is not visible in the rules and scoring, the activity has not'
+    )
+    lines.push('expressed the selected problem and is wrong.')
+    return lines.join('\n')
 }
 
 function setupFrameForSlot(
