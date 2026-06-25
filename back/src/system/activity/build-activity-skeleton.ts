@@ -664,26 +664,32 @@ export function informationExpressionDirective(input: SystemAssemblyInput): stri
         'merely by keeping possession, using an overload, or progressing to a target. Those may be the medium,',
         'but the point of the activity is the information demand below.',
         '',
-        'Each information mechanic must be concrete and unmistakable in setup, rules, AND scoring:',
+        'Do not just SAY the activity is about reading — build an environment where reading is UNAVOIDABLE',
+        'because of how the rules and scoring function. For each mechanic, INSTANTIATE it by choosing one of',
+        'the concrete environmental realizations below and building the activity around it (these are',
+        'environment/scoring rules, not prescribed player behaviors):',
     ]
     for (const r of infoRows) {
         lines.push(`- ${r.title}: ${r.description}`)
-        for (const g of r.setupGuidance ?? []) lines.push(`    • ${g}`)
+        const realizations = r.environmentalRealizations ?? []
+        if (realizations.length > 0) {
+            lines.push('  Pick ONE of these realizations and make it the spine of the activity:')
+            for (const g of realizations) lines.push(`    • ${g}`)
+        } else {
+            for (const g of r.setupGuidance ?? []) lines.push(`    • ${g}`)
+        }
     }
     lines.push('')
     lines.push(
-        'Write the objective and coachingFocus around the perceptual problem (e.g. "read which option is live'
+        'TEST before finishing: if you deleted every descriptive phrase about "reading" or "deciding" from the'
     )
     lines.push(
-        'before committing", "exploit the blind side", "react to the late-changing target"). A coach reading the'
+        'activity, the chosen realization above must STILL force the information problem through the rules and'
     )
     lines.push(
-        'activity must immediately see it is about perception/decision-making — not a standard possession or'
+        'scoring alone. If stripping those phrases leaves an ordinary possession or overload game, the activity'
     )
-    lines.push(
-        'overload game. If the information mechanic is not visible in the rules and scoring, the activity has not'
-    )
-    lines.push('expressed the selected problem and is wrong.')
+    lines.push('has NOT expressed the information problem — rebuild it around the realization.')
     return lines.join('\n')
 }
 

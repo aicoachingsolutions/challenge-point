@@ -57,6 +57,14 @@ export interface TestLibraryV0Constraint {
      * "marking cones if needed" placeholder text. One string per parameter; brief, imperative.
      */
     setupGuidance?: string[]
+    /**
+     * Concrete environmental REALIZATIONS of an information mechanic (Round 8D.3) — distinct ways the
+     * mechanic can actually be built into the environment (e.g. "the live target switches after the
+     * first penetrating pass"), NOT prescribed player behaviors. The assembly directive presents these
+     * as a "pick one and build the activity around it" menu so the AI instantiates the information
+     * problem instead of merely describing it. Used by information constraints.
+     */
+    environmentalRealizations?: string[]
 }
 
 export interface TestLibraryV0Archetype {
