@@ -489,6 +489,12 @@ export const TEST_LIBRARY_V0_CONSTRAINTS: TestLibraryV0Constraint[] = [
       "Which target is live is revealed only after play crosses a trigger line, or switches on a coach cue during play.",
       "All targets stay physically available so the choice remains open; only the LIVE one scores.",
     ],
+    environmentalRealizations: [
+      "The live scoring target switches the moment the attack completes its first penetrating/forward pass — players must re-read which goal is now on.",
+      "The active goal is revealed only after the ball enters the final third (flip a cone / call it), so the route cannot be pre-planned.",
+      "Which target is live is tied to a defender's commitment — when the defense shifts to cover one gate, the other becomes the live one.",
+      "The first receiver in the attacking half sets which goal is live for that possession.",
+    ],
   },
   {
     id: "tl-v0-constraint-multi-goal-read",
@@ -519,6 +525,11 @@ export const TEST_LIBRARY_V0_CONSTRAINTS: TestLibraryV0Constraint[] = [
       "Set 2-3 small goals/targets spread across the end line (or at multiple edges of the field).",
       "All targets are live to score at the same time; defenders cannot cover all equally.",
       "Field width keeps the targets far enough apart that the attack must perceive and exploit which is open.",
+    ],
+    environmentalRealizations: [
+      "Two or three goals are live, but a goal 'closes' (stops scoring) for a few seconds once a defender steps in front of it — so the open goal keeps moving.",
+      "The goals carry different, periodically-changing point values; the attack reads which is worth most right now.",
+      "Only the least-defended goal counts — finishing into a covered goal scores nothing, forcing a read of coverage before committing.",
     ],
   },
   {
@@ -551,6 +562,11 @@ export const TEST_LIBRARY_V0_CONSTRAINTS: TestLibraryV0Constraint[] = [
       "Advantage or a goal created from a blind-side relationship (a run or pass arriving from outside the defender's view) is worth more (e.g. counts double).",
       "Do not specify the run — any action that exploits a defender's blind side qualifies.",
     ],
+    environmentalRealizations: [
+      "A goal counts double when the final pass or run arrives from behind the defenders' line of sight (e.g. a far-post or back-of-the-line arrival).",
+      "A narrow scoring zone sits behind the last line of defenders; a ball received and finished there scores extra, rewarding arrivals defenders cannot see.",
+      "Receiving on the back shoulder of the nearest defender (out of their view) earns a bonus on the next action.",
+    ],
   },
   {
     id: "tl-v0-constraint-disguised-restart",
@@ -581,6 +597,11 @@ export const TEST_LIBRARY_V0_CONSTRAINTS: TestLibraryV0Constraint[] = [
       "Prepare several possible entry points/gates around the field (e.g. 3-4 served-in locations).",
       "Which entry is used is chosen at the last moment, so neither team knows the starting picture in advance.",
       "Keep play continuous once the ball enters; the variability is only in WHERE/HOW it starts, never a behavior the coach calls.",
+    ],
+    environmentalRealizations: [
+      "Each restart is served from one of several gates chosen at the last moment, so the starting picture differs every repetition and cannot be rehearsed.",
+      "At restart, possession is decided by a live cue (whichever team reacts to the served ball first), so attack/defend roles are not pre-known.",
+      "The ball is served to a randomly chosen player each repetition, so the team must organize from an unplanned shape.",
     ],
   },
 ]
