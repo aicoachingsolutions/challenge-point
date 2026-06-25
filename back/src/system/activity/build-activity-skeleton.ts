@@ -681,6 +681,17 @@ export function informationExpressionDirective(input: SystemAssemblyInput): stri
     }
     lines.push('')
     lines.push(
+        'Coach-facing wording: describe the chosen realization in plain language a coach uses on the field (e.g.'
+    )
+    lines.push(
+        '"the active goal changes after the first forward pass"). Keep internal terms OUT of the activity text —'
+    )
+    lines.push(
+        'no "information mechanic", "perception problem", "affordance", or "decision window"; the activity should'
+    )
+    lines.push('simply BE a perception problem through its conditions, not announce that it is one.')
+    lines.push('')
+    lines.push(
         'TEST before finishing: if you deleted every descriptive phrase about "reading" or "deciding" from the'
     )
     lines.push(
