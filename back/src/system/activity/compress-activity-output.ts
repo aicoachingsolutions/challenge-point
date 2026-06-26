@@ -297,6 +297,29 @@ function removeLinesOverlappingWithCandidates(
 }
 
 /**
+ * CCS Sec.5 (Round 8D.3 follow-up): translate engine/internal jargon that leaks into coach-facing text
+ * into plain coaching language. Christian flagged "decision window", "connected advantage", and "player
+ * structure logic" surfacing in outputs. Applied as the FINAL coach-facing pass so the compression /
+ * dedup logic above still matches on the original phrasing.
+ */
+const COACH_LANGUAGE_TRANSLATIONS: Array<[RegExp, string]> = [
+    [/\bplayer structure logic:\s*/gi, ''],
+    [/\bconnected advantage\b/gi, 'advantage'],
+    [/\bdecision window\b/gi, 'window'],
+    [/\bremains live\b/gi, 'stays live'],
+    [/\bremain live\b/gi, 'stay live'],
+    [/\bdisrupts structure\b/gi, 'disrupts the shape'],
+]
+function translateCoachLanguage(value: string): string {
+    let out = String(value ?? '')
+    for (const [re, rep] of COACH_LANGUAGE_TRANSLATIONS) out = out.replace(re, rep)
+    return out
+        .replace(/\s{2,}/g, ' ')
+        .replace(/\s+([.,;])/g, '$1')
+        .trim()
+}
+
+/**
  * Compress the activity for coach-facing output. The mechanics that validate the
  * activity must already have been confirmed present (call validateGeneratedActivities
  * BEFORE this). Compression does not re-validate; it presents.
@@ -363,11 +386,15 @@ export function compressActivityForCoach(activity: IActivity, modifierMechanicLi
     // need here — coachingFocus doesn't carry modifier text; that lives in rules/scoring.
     const cappedScaffolding = (activity.scaffolding ?? []).slice(0, COACHING_FOCUS_CAP)
 
+    // Step 6 (CCS Sec.5): final coach-language translation — strip engine jargon from coach-facing text.
     return {
         ...activity,
-        rules: cappedRules,
-        scoringSystem: finalScoring,
-        scaffolding: cappedScaffolding,
+        title: translateCoachLanguage(activity.title),
+        setup: typeof activity.setup === 'string' ? translateCoachLanguage(activity.setup) : activity.setup,
+        rules: cappedRules.map(translateCoachLanguage),
+        scoringSystem: translateCoachLanguage(finalScoring),
+        winCondition: typeof activity.winCondition === 'string' ? translateCoachLanguage(activity.winCondition) : activity.winCondition,
+        scaffolding: cappedScaffolding.map((s) => (typeof s === 'string' ? translateCoachLanguage(s) : s)),
     }
 }
 
