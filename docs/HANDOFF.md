@@ -110,6 +110,19 @@ incentives are the PRIMARY shapers of the affordance landscape (not archetypes).
   logic, connected advantage, decision window, remain live, opportunity window / slot-mechanic phrasing.
   All now translated out (`af18b35` + `6cb92d3`). "Two-sided Contest" still appears — deliberately left
   for the architecture pass (not the deploy check), per Christian's "no growing substitution list."
+- **NEXT round (2026-06-17): engine stable AGAIN; new finding = realization DIVERSITY.** 6 generations
+  read as ~3 underlying positional ideas (central density / wide-zone / timed) with parameter+wording
+  variation, not 6 distinct representative environments. Christian's hypothesis: Activity Assembly
+  converges too fast on one familiar structure instead of exploring the richer routed-out candidate
+  constraints the Selection Debug shows. → new workstream "Representative Realization Diversity".
+  Residual jargon still leaks ("Player structure logic", "Two-sided contest", "the picture closes", "the
+  window after a possession change" — last one is an artifact of my own `decision window→window` sub).
+  ROOT CAUSE: `winCondition` is HARDCODED at `completion.service.ts:669` ("Teams compete live under
+  two-sided opposition... the opponent inherits the connected advantage...") — jargon baked in at the
+  SOURCE, so the output-stage substitution layer is the wrong place for it. Setups also still describe
+  DESIGN INTENT not a concrete picture. All of this reinforces the deferred Communication Architecture
+  pass + source-level cleanup; per Christian, do NOT keep growing output substitutions. No code changed
+  this round (honoring "don't change anything yet during validation").
 
 ## Open / offered next steps (none started)
 
@@ -126,6 +139,14 @@ incentives are the PRIMARY shapers of the affordance landscape (not archetypes).
    (currently only translated at output). Touches `completion.service` winCondition, `build-constraint-
    package`, `slot-mechanics-variations`, `build-activity-mechanics` "Player structure logic:" label
    (careful: that label is parsed back in build-activity-mechanics — translate, don't blindly delete).
+1b. **Representative Realization Diversity (Activity Assembly).** Christian: 6 generations collapse to ~3
+   familiar positional structures with parameter/wording variation. Selection is deterministic (same goal
+   → same package) and the 3 parallel slots vary along limited axes (see `emphasis-variation-profile.ts`
+   + `slot-mechanics-variations.ts`); the richer routed-out candidate constraints (visible in Selection
+   Debug ranking) aren't drawn on. Direction: have the parallel slots intentionally realize DIFFERENT
+   representative constraints/structures (use the routed-out alternatives) rather than re-parameterizing
+   one structure. Ties to the long-standing Output-Diversity ceiling. Likely a post-validation assembly
+   pass (don't build mid-validation).
 2. **Couple Demanding challenge level → info mechanisms** (needs constraint-pool injection from
    challengeLevel; `deriveInputConstraints` only sees goal text today).
 3. **Title-gen validation edge case** Christian saw ("title contains session-role scaffolding"),
