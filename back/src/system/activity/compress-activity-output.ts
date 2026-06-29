@@ -306,6 +306,7 @@ const COACH_LANGUAGE_TRANSLATIONS: Array<[RegExp, string]> = [
     [/\bplayer structure logic:\s*/gi, ''],
     [/\bconnected advantage\b/gi, 'advantage'],
     [/\bdecision window\b/gi, 'window'],
+    [/\bopportunity window\b/gi, 'window'],
     [/\bremains live\b/gi, 'stays live'],
     [/\bremain live\b/gi, 'stay live'],
     [/\bdisrupts structure\b/gi, 'disrupts the shape'],
