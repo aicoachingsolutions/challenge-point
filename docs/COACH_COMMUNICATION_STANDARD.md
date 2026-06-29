@@ -64,6 +64,27 @@ the clarity belongs in the coach-facing output.
 
 ---
 
+## The five-question test (per sentence)
+
+Every coach-facing sentence should help answer **one** of these:
+
+1. What is the objective?
+2. How do I set it up?
+3. How do players play?
+4. How do we score or win?
+5. What should I observe?
+
+If a sentence mainly exposes internal reasoning, scaffolding, or mechanic labels, it must either be
+**translated into plain coaching language** or **kept out of the coach-facing output entirely.**
+
+## Translation is a stopgap, not the strategy
+
+The deterministic phrase translation in the coach-output post-processor (`compress-activity-output.ts`,
+commit `af18b35` + follow-ups) is an MVP fix. **Coach-facing language must not become a growing list of
+one-off phrase substitutions** (Christian, 2026-06-17). The permanent solution is structural — sections
+with single responsibility that exclude internal language *by design* (see Coach Communication
+Architecture below) — so we stop playing whack-a-mole with individual phrases.
+
 ## Preferred vocabulary
 
 Favor plain coaching language coaches use on the training ground: *open passing lane, free player,
@@ -79,6 +100,35 @@ explain it to players; begin coaching without interpreting engine logic; and sca
 ~20–30 seconds before practice.
 
 ---
+
+## Coach Communication Architecture (the next major pass — deferred)
+
+Round-8D.3 retest takeaway (Christian): the reasoning engine now feels stable and is no longer the
+friction; the friction is **how that reasoning is organized and presented to the coach.** Recurring
+symptoms in current output:
+
+- sections carry multiple kinds of information rather than one responsibility;
+- the same concept repeats across Objective, Setup, Rules, Scoring, and Win Condition;
+- internal reasoning language still surfaces (e.g. *Player Structure Logic, Two-sided Contest*);
+- you must read the whole activity before you can picture the game you're meant to run.
+
+These are not wording problems — they are **architecture**. The proposed fix is to redesign the
+information hierarchy the way board games and video games communicate, in this order:
+
+1. What is the objective of the game?
+2. What are players trying to accomplish?
+3. How is the game organized?
+4. What are the rules?
+5. How do you score?
+6. How do you win?
+
+Current output tends to explain mechanics *before* the coach has a picture of the game; reordering the
+hierarchy is expected to improve readability far more than further per-sentence tweaks.
+
+**Status: DEFERRED — do not build yet.** Christian's explicit guidance: finish validating the reasoning
+engine first so communication changes aren't mixed with architectural validation. Once the engine is
+confirmed stable, a dedicated Coach Communication Architecture pass (single-responsibility sections +
+this hierarchy) is the next high-impact step — bigger than incremental wording changes.
 
 ## Long-term vision
 
