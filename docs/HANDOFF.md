@@ -155,6 +155,19 @@ incentives are the PRIMARY shapers of the affordance landscape (not archetypes).
    GF11 (Christian's hypothesis — info mechanics aren't game forms). Try the realizations first.
 5. **CCS** (`docs/COACH_COMMUNICATION_STANDARD.md`) is a STABLE future spec — adopt gradually whenever
    already refining Activity Assembly; NOT a milestone. Christian was explicit about not derailing.
+6. **Knowledge Core code-alignment (FUTURE, not now).** Christian shipped the foundational architecture
+   (the "Knowledge Core" — Batch 1 of 4 finalized 2026-06-29; see memory `knowledge-core-architecture.md`).
+   It's implementation-agnostic by design (data structures/APIs are ours), so NO immediate code change.
+   But it predicts a real seam: under its now-crisp boundary, our single `constraints.ts` is actually two
+   libraries wearing one coat — **Environmental Manipulation Objects** (modify environmental *properties*:
+   Small Area, Central Density, Zone Structure, Neutral Player, Wide Zone, Transition Trigger, AND the
+   information mechanisms Variable Target / Multi-Goal Read / Disguised Restart / Blind-Side = information
+   availability / starting positions / goal structure) vs **Constraint Objects** (regulate *interaction*:
+   scoring, time, restart, consequence, participation — the Bonus/Reward/Window items). When we align
+   code to the Knowledge Core, `constraints.ts` splits along that line. Also coming (Batch 2 "System
+   Reasoning"): Reasoning Models → Design Weighting Methodology → Deterministic Design Logic — maps onto
+   what we call selection (deriveInputConstraints + generateSelection). The architecture also now names a
+   **Coach Communication Architecture** document, which is the formal home for the deferred comms pass (#0).
 
 ## Reference
 
@@ -163,4 +176,7 @@ incentives are the PRIMARY shapers of the affordance landscape (not archetypes).
 - Email-attachment PDFs (current): `C:\challenge-point\email-attachments\`
   (Information_Expression_Review.pdf, Constraint_and_Incentive_Framework.pdf).
 - Memory: `MEMORY.md` (index) → `architecture-roadmap.md` (most current, the full arc),
+  `knowledge-core-architecture.md` (Christian's foundational architecture, Batch 1 + review),
   `round7-game-problem-findings.md`, `round2-closure-ontology.md`, `project_architecture.md`.
+- Christian's Knowledge Core docs (Batch 1, finalized RC1) are in `~/Downloads/` (`.docx`); they define
+  the stable architecture the software builds toward — NOT current coding tasks.
