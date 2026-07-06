@@ -124,6 +124,36 @@ incentives are the PRIMARY shapers of the affordance landscape (not archetypes).
   pass + source-level cleanup; per Christian, do NOT keep growing output substitutions. No code changed
   this round (honoring "don't change anything yet during validation").
 
+## IMMEDIATE NEXT TASK — Batch 2 review (the reasoning trilogy)
+
+Christian delivered Batch 2 (2026-06-30). Deliverable = **Joe's implementation-perspective review**
+(same as the Batch 1 review), then a reply **signed "Joe."** Do it in THIS project (deep context), not cold.
+
+- **Files** (loose in Downloads): `C:\Users\Administrator\Downloads\Reasoning Models.docx`,
+  `Design Weighting Methodology.docx`, `Deterministic Design Logic.docx`.
+- **How to read .docx** (pandoc is NOT installed; the Read tool can't open .docx): extract via python
+  zip/XML — `python` → `zipfile.ZipFile(f).read("word/document.xml")`, regex out `<w:t ...>(.*?)</w:t>`
+  joined per `</w:p>`, write UTF-8 to scratchpad `.txt` (console cp1252 chokes on unicode arrows — write
+  files, don't print), then Read those. (Or use the docx skill's `extract-text` if available.)
+- **Review lens** (Christian's five questions): responsibilities/boundaries clear? ambiguities that make
+  implementation hard? does it over-constrain implementation? simplifications preserving responsibilities?
+  places that make future expansion unnecessarily hard? Ground every point in how selection ACTUALLY
+  behaves — that's the value.
+- **Trilogy ↔ engine mapping** (the spine of the review):
+  - **Reasoning Models** ≈ candidate generation → `deriveInputConstraints` (signal groups A–K produce
+    candidate archetype/lens/constraint POOLS; "supported Design Possibilities" = the routed-out
+    alternatives visible in Selection Debug).
+  - **Design Weighting Methodology** ≈ the scoring/suitability layer → `generateSelection`: token-overlap
+    + bonuses (`+10` targetMatchesSelectedLens, `+6` archetypeAffordance, `+3` recommendedConstraintType,
+    `+12` INFORMATION_INTENT_BONUS), `BOUNDED_SEARCH_TOP_*` (top-2/3 per bucket), role-mix. **Watch here:**
+    the representative-diversity ceiling and the lens-coupling limitation both live in this layer.
+  - **Deterministic Design Logic** ≈ the single repeatable commitment → the bounded search choosing ONE
+    package + deterministic tie-breaks (`orderRank` candidate order, then game_form_id). Determinism is
+    already real in code — check the doc's commitment model matches what the engine guarantees.
+  - (Coach Communication ≈ compress-activity-output / CCS — Batch 2 may reference it.)
+- Batch 1 review + how Christian responded (froze Batch 1, resolved 2 findings) is in memory
+  `knowledge-core-architecture.md` — mirror that review style. NO code changes (architecture docs).
+
 ## Open / offered next steps (none started)
 
 0. **Coach Communication Architecture — the named next MAJOR pass (DEFERRED until engine validation
