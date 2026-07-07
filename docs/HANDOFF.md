@@ -110,6 +110,49 @@ incentives are the PRIMARY shapers of the affordance landscape (not archetypes).
   logic, connected advantage, decision window, remain live, opportunity window / slot-mechanic phrasing.
   All now translated out (`af18b35` + `6cb92d3`). "Two-sided Contest" still appears — deliberately left
   for the architecture pass (not the deploy check), per Christian's "no growing substitution list."
+- **NEXT round (2026-06-17): engine stable AGAIN; new finding = realization DIVERSITY.** 6 generations
+  read as ~3 underlying positional ideas (central density / wide-zone / timed) with parameter+wording
+  variation, not 6 distinct representative environments. Christian's hypothesis: Activity Assembly
+  converges too fast on one familiar structure instead of exploring the richer routed-out candidate
+  constraints the Selection Debug shows. → new workstream "Representative Realization Diversity".
+  Residual jargon still leaks ("Player structure logic", "Two-sided contest", "the picture closes", "the
+  window after a possession change" — last one is an artifact of my own `decision window→window` sub).
+  ROOT CAUSE: `winCondition` is HARDCODED at `completion.service.ts:669` ("Teams compete live under
+  two-sided opposition... the opponent inherits the connected advantage...") — jargon baked in at the
+  SOURCE, so the output-stage substitution layer is the wrong place for it. Setups also still describe
+  DESIGN INTENT not a concrete picture. All of this reinforces the deferred Communication Architecture
+  pass + source-level cleanup; per Christian, do NOT keep growing output substitutions. No code changed
+  this round (honoring "don't change anything yet during validation").
+
+## IMMEDIATE NEXT TASK — Batch 2 review (the reasoning trilogy)
+
+Christian delivered Batch 2 (2026-06-30). Deliverable = **Joe's implementation-perspective review**
+(same as the Batch 1 review), then a reply **signed "Joe."** Do it in THIS project (deep context), not cold.
+
+- **Files** (loose in Downloads): `C:\Users\Administrator\Downloads\Reasoning Models.docx`,
+  `Design Weighting Methodology.docx`, `Deterministic Design Logic.docx`.
+- **How to read .docx** (pandoc is NOT installed; the Read tool can't open .docx): extract via python
+  zip/XML — `python` → `zipfile.ZipFile(f).read("word/document.xml")`, regex out `<w:t ...>(.*?)</w:t>`
+  joined per `</w:p>`, write UTF-8 to scratchpad `.txt` (console cp1252 chokes on unicode arrows — write
+  files, don't print), then Read those. (Or use the docx skill's `extract-text` if available.)
+- **Review lens** (Christian's five questions): responsibilities/boundaries clear? ambiguities that make
+  implementation hard? does it over-constrain implementation? simplifications preserving responsibilities?
+  places that make future expansion unnecessarily hard? Ground every point in how selection ACTUALLY
+  behaves — that's the value.
+- **Trilogy ↔ engine mapping** (the spine of the review):
+  - **Reasoning Models** ≈ candidate generation → `deriveInputConstraints` (signal groups A–K produce
+    candidate archetype/lens/constraint POOLS; "supported Design Possibilities" = the routed-out
+    alternatives visible in Selection Debug).
+  - **Design Weighting Methodology** ≈ the scoring/suitability layer → `generateSelection`: token-overlap
+    + bonuses (`+10` targetMatchesSelectedLens, `+6` archetypeAffordance, `+3` recommendedConstraintType,
+    `+12` INFORMATION_INTENT_BONUS), `BOUNDED_SEARCH_TOP_*` (top-2/3 per bucket), role-mix. **Watch here:**
+    the representative-diversity ceiling and the lens-coupling limitation both live in this layer.
+  - **Deterministic Design Logic** ≈ the single repeatable commitment → the bounded search choosing ONE
+    package + deterministic tie-breaks (`orderRank` candidate order, then game_form_id). Determinism is
+    already real in code — check the doc's commitment model matches what the engine guarantees.
+  - (Coach Communication ≈ compress-activity-output / CCS — Batch 2 may reference it.)
+- Batch 1 review + how Christian responded (froze Batch 1, resolved 2 findings) is in memory
+  `knowledge-core-architecture.md` — mirror that review style. NO code changes (architecture docs).
 
 ## Open / offered next steps (none started)
 
@@ -126,6 +169,14 @@ incentives are the PRIMARY shapers of the affordance landscape (not archetypes).
    (currently only translated at output). Touches `completion.service` winCondition, `build-constraint-
    package`, `slot-mechanics-variations`, `build-activity-mechanics` "Player structure logic:" label
    (careful: that label is parsed back in build-activity-mechanics — translate, don't blindly delete).
+1b. **Representative Realization Diversity (Activity Assembly).** Christian: 6 generations collapse to ~3
+   familiar positional structures with parameter/wording variation. Selection is deterministic (same goal
+   → same package) and the 3 parallel slots vary along limited axes (see `emphasis-variation-profile.ts`
+   + `slot-mechanics-variations.ts`); the richer routed-out candidate constraints (visible in Selection
+   Debug ranking) aren't drawn on. Direction: have the parallel slots intentionally realize DIFFERENT
+   representative constraints/structures (use the routed-out alternatives) rather than re-parameterizing
+   one structure. Ties to the long-standing Output-Diversity ceiling. Likely a post-validation assembly
+   pass (don't build mid-validation).
 2. **Couple Demanding challenge level → info mechanisms** (needs constraint-pool injection from
    challengeLevel; `deriveInputConstraints` only sees goal text today).
 3. **Title-gen validation edge case** Christian saw ("title contains session-role scaffolding"),
@@ -134,6 +185,19 @@ incentives are the PRIMARY shapers of the affordance landscape (not archetypes).
    GF11 (Christian's hypothesis — info mechanics aren't game forms). Try the realizations first.
 5. **CCS** (`docs/COACH_COMMUNICATION_STANDARD.md`) is a STABLE future spec — adopt gradually whenever
    already refining Activity Assembly; NOT a milestone. Christian was explicit about not derailing.
+6. **Knowledge Core code-alignment (FUTURE, not now).** Christian shipped the foundational architecture
+   (the "Knowledge Core" — Batch 1 of 4 finalized 2026-06-29; see memory `knowledge-core-architecture.md`).
+   It's implementation-agnostic by design (data structures/APIs are ours), so NO immediate code change.
+   But it predicts a real seam: under its now-crisp boundary, our single `constraints.ts` is actually two
+   libraries wearing one coat — **Environmental Manipulation Objects** (modify environmental *properties*:
+   Small Area, Central Density, Zone Structure, Neutral Player, Wide Zone, Transition Trigger, AND the
+   information mechanisms Variable Target / Multi-Goal Read / Disguised Restart / Blind-Side = information
+   availability / starting positions / goal structure) vs **Constraint Objects** (regulate *interaction*:
+   scoring, time, restart, consequence, participation — the Bonus/Reward/Window items). When we align
+   code to the Knowledge Core, `constraints.ts` splits along that line. Also coming (Batch 2 "System
+   Reasoning"): Reasoning Models → Design Weighting Methodology → Deterministic Design Logic — maps onto
+   what we call selection (deriveInputConstraints + generateSelection). The architecture also now names a
+   **Coach Communication Architecture** document, which is the formal home for the deferred comms pass (#0).
 
 ## Reference
 
@@ -142,4 +206,7 @@ incentives are the PRIMARY shapers of the affordance landscape (not archetypes).
 - Email-attachment PDFs (current): `C:\challenge-point\email-attachments\`
   (Information_Expression_Review.pdf, Constraint_and_Incentive_Framework.pdf).
 - Memory: `MEMORY.md` (index) → `architecture-roadmap.md` (most current, the full arc),
+  `knowledge-core-architecture.md` (Christian's foundational architecture, Batch 1 + review),
   `round7-game-problem-findings.md`, `round2-closure-ontology.md`, `project_architecture.md`.
+- Christian's Knowledge Core docs (Batch 1, finalized RC1) are in `~/Downloads/` (`.docx`); they define
+  the stable architecture the software builds toward — NOT current coding tasks.

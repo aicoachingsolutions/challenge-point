@@ -4,6 +4,7 @@ import { TEST_LIBRARY_V0_CONSTRAINTS } from './constraints'
 import type { InputConstraintHints } from '../input-constraints/deriveInputConstraints'
 import { normalizeCoachingInput } from './normalizeCoachingInput'
 import { isSelectionPackageCompatible } from './selection-compatibility'
+import { SELECTION_SUITABILITY_WEIGHTS as W } from './selection-weights'
 import type {
     ConstraintBalanceBucket,
     SelectionRankingEntry,
@@ -315,12 +316,12 @@ function scoreAllLenses(
         const reasons = [...base.reasons]
         const slug = lensSlug(lens)
         if (archeAffordances.has(slug)) {
-            score += 8
+            score += W.lensArchetypeAffordanceMatch
             reasons.push(`archetypeAffordanceMatch:${slug}`)
         }
         for (const anchor of lens.gameTemplateAnchor) {
             if (phaseMatchesAnchor(archetype.phase_of_play, anchor)) {
-                score += 2
+                score += W.lensPhaseGameTemplateAnchor
                 reasons.push(`phaseGameTemplateAnchor:${anchor}`)
             }
         }
@@ -336,7 +337,7 @@ function scoreAllLenses(
  * "perception"), so without this they would never appear, and with the old affordance targets they
  * over-appeared for any space/possession goal.
  */
-const INFORMATION_INTENT_BONUS = 12
+const INFORMATION_INTENT_BONUS = W.constraintInformationIntentMatch
 
 function scoreConstraintsForLensSlugs(
     tokens: string[],
@@ -363,16 +364,16 @@ function scoreConstraintsForLensSlugs(
         const reasons = [...base.reasons]
         const tgt = c.targetAffordancePrimary
         if (selectedLensSlugs.has(tgt)) {
-            score += 10
+            score += W.constraintTargetMatchesSelectedLens
             reasons.push(`targetMatchesSelectedLens:${tgt}`)
         }
         if (archeAffordances.has(tgt)) {
-            score += 6
+            score += W.constraintTargetMatchesArchetypeAffordance
             reasons.push(`targetMatchesArchetypeAffordance:${tgt}`)
         }
         for (const rct of archetype.recommended_constraint_types) {
             if (c.constraintArchetype && rct.toLowerCase() === c.constraintArchetype.toLowerCase()) {
-                score += 3
+                score += W.constraintArchetypeRecommendedType
                 reasons.push(`archetypeRecommendedConstraintType:${rct}`)
                 break
             }
@@ -397,9 +398,9 @@ function libraryHasBucket(bucket: ConstraintBalanceBucket): boolean {
 function constraintBalanceBonus(combo: TestLibraryV0Constraint[]): number {
     const buckets = new Set(combo.map((c) => constraintBalanceBucket(c)))
     let bonus = 0
-    if (libraryHasBucket('foundation') && buckets.has('foundation')) bonus += 6
-    if (libraryHasBucket('shaping') && buckets.has('shaping')) bonus += 6
-    if (libraryHasBucket('consequence') && buckets.has('consequence')) bonus += 4
+    if (libraryHasBucket('foundation') && buckets.has('foundation')) bonus += W.balanceFoundation
+    if (libraryHasBucket('shaping') && buckets.has('shaping')) bonus += W.balanceShaping
+    if (libraryHasBucket('consequence') && buckets.has('consequence')) bonus += W.balanceConsequence
     return bonus
 }
 
