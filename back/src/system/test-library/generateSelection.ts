@@ -9,6 +9,7 @@ import type {
     ConstraintBalanceBucket,
     SelectionRankingEntry,
     SelectionReasonEntry,
+    SelectionResolution,
     TestLibrarySelectionInput,
     TestLibrarySelectionResult,
     TestLibraryV0AffordanceLens,
@@ -545,6 +546,38 @@ function assertSelectionContract(
 }
 
 /**
+ * Classify how well the coach input resolved to an intent-aligned candidate pool, so a commitment
+ * made from a generic/unnarrowed pool is explicit and traceable rather than silent (Batch 2 —
+ * Deterministic Design Logic: traceability + defined failure state). Behavior-preserving: this
+ * only labels the result; it does not change which package is selected.
+ */
+function computeResolution(inputConstraints?: InputConstraintHints | null): SelectionResolution {
+    const signalGroups = (inputConstraints?.matchedSignals ?? []).filter((s) => s.startsWith('signalGroup:'))
+    const specific = signalGroups.filter((s) => s !== 'signalGroup:Z_soccer_general')
+    if (specific.length > 0) {
+        return {
+            status: 'matched',
+            reason: `Coach intent resolved via signal group(s): ${specific.map((s) => s.replace('signalGroup:', '')).join(', ')}.`,
+            matchedSignalGroups: signalGroups,
+        }
+    }
+    if (signalGroups.includes('signalGroup:Z_soccer_general')) {
+        return {
+            status: 'fallback',
+            reason: 'No specific signal group matched; committed the general soccer default package (Z_soccer_general). Coach intent was not specifically resolved — treat as reduced confidence.',
+            matchedSignalGroups: signalGroups,
+        }
+    }
+    return {
+        status: 'unresolved',
+        reason: inputConstraints
+            ? 'No signal group matched the input; selection scored against the full unfiltered library. The Design Commitment is not traceable to resolved coach intent — treat as low confidence.'
+            : 'Selection ran without input-constraint hints; no intent resolution was performed and the full library was searched. The Design Commitment is not traceable to resolved coach intent.',
+        matchedSignalGroups: signalGroups,
+    }
+}
+
+/**
  * Deterministic Test Library V0 selection (no AI, no Mongo).
  * Picks the highest-scoring valid joint combination of 2–3 lenses and 2–4 constraints
  * (no truncation, auto-fill, or silent caps).
@@ -707,9 +740,10 @@ export function generateSelection(
         }
     }
 
+    const resolution = computeResolution(inputConstraints)
     const selectionSearchMs = Date.now() - selectionSearchStart
     console.log(
-        `[selection-search] lensCandidates=${lensCandidatePool.length} elapsedMs=${selectionSearchMs} bestScore=${bestTotal === -Infinity ? 'none' : bestTotal}`
+        `[selection-search] lensCandidates=${lensCandidatePool.length} elapsedMs=${selectionSearchMs} bestScore=${bestTotal === -Infinity ? 'none' : bestTotal} resolution=${resolution.status}`
     )
 
     if (!bestLensCombo || !bestConCombo || bestTotal === -Infinity) {
@@ -798,6 +832,7 @@ export function generateSelection(
         archetype,
         affordanceLenses: selectedLenses,
         constraints: picked,
+        resolution,
         selectionTrace: {
             queryCorpus,
             archetype: { id: archetype.id, score: bestArc.score, reasons: bestArc.reasons },

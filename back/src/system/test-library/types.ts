@@ -134,10 +134,33 @@ export interface SelectionRankingEntry {
     eligible: boolean
 }
 
+/**
+ * How well the coach's input resolved to an intent-aligned candidate pool before selection.
+ * Realizes the Deterministic Design Logic traceability requirement (Batch 2): a commitment made
+ * from a generic/unnarrowed pool must be distinguishable from an intent-matched one, not silent.
+ * - matched    — at least one specific signal group fired; intent resolved.
+ * - fallback   — only the generic soccer default (Z_soccer_general) fired; a sensible package was
+ *                committed, but coach intent was NOT specifically resolved.
+ * - unresolved — no signal group fired; selection scored against the full unfiltered library. The
+ *                deterministic "defined failure state": a commitment is still produced, but it is
+ *                not traceable to resolved intent — treat as low confidence.
+ */
+export type SelectionResolutionStatus = 'matched' | 'fallback' | 'unresolved'
+
+export interface SelectionResolution {
+    status: SelectionResolutionStatus
+    /** Human-readable explanation naming what did or did not resolve (traceability). */
+    reason: string
+    /** The signalGroup:* signals that drove resolution (empty when unresolved). */
+    matchedSignalGroups: string[]
+}
+
 export interface TestLibrarySelectionResult {
     archetype: TestLibraryV0Archetype
     affordanceLenses: TestLibraryV0AffordanceLens[]
     constraints: TestLibraryV0Constraint[]
+    /** Explicit, inspectable resolution status — see SelectionResolution. */
+    resolution: SelectionResolution
     selectionTrace: {
         queryCorpus: string
         archetype: SelectionReasonEntry
