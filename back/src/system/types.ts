@@ -116,6 +116,15 @@ export type SystemAssemblyInput = {
     archetype: ArchetypeDefinition
     archetypeSelection: ArchetypeSelection
     constraintPackage: SelectedConstraintPackage
+    /**
+     * Deterministic variation seed for representative-realization diversity (Batch 2). Part of the
+     * Decision Context: equivalent contexts (same goal AND same index) still produce equivalent
+     * commitments — Repeatability holds — while advancing the index (e.g. the coach asking for
+     * another activity in the same session) deterministically rotates to a different valid
+     * realization from a mechanic's bank rather than repeating the same spine. Defaults to 0.
+     * No randomness — see DDL "no unmanaged randomness". Naturally sourced from previousActivities.length.
+     */
+    variationIndex?: number
 }
 
 export class SystemPipelineError extends Error {
