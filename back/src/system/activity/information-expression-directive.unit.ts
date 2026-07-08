@@ -17,7 +17,7 @@ import type { TestLibraryV0Constraint } from '../test-library/types'
 import type { SystemAssemblyInput } from '../types'
 
 function infoConstraintsWithBank(minBank: number): TestLibraryV0Constraint[] {
-    return testLibraryRegistry.constraints().filter(
+    return testLibraryRegistry.selectableConstraints().filter(
         (c) => (c.primaryConstraintType || '').toLowerCase() === 'information' && (c.environmentalRealizations?.length ?? 0) >= minBank
     )
 }

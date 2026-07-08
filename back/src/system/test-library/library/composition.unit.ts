@@ -7,6 +7,7 @@ function currentInput() {
     return {
         affordanceLenses: testLibraryRegistry.affordanceLenses(),
         constraints: testLibraryRegistry.constraints(),
+        environmentalManipulations: testLibraryRegistry.environmentalManipulations(),
         archetypes: testLibraryRegistry.archetypes(),
     }
 }
@@ -42,14 +43,16 @@ function testUnknownArchetypeRecommendedConstraintTypeFails(): void {
 
 function testInformationConstraintsRequireEnvironmentalRealizations(): void {
     const input = currentInput()
-    const infoIndex = input.constraints.findIndex((constraint) => (constraint.primaryConstraintType || '').toLowerCase() === 'information')
-    assert.ok(infoIndex >= 0, 'Need at least one information constraint to exercise composition validation.')
-    const constraints = input.constraints.map((constraint, index) =>
+    const infoIndex = input.environmentalManipulations.findIndex(
+        (constraint) => (constraint.primaryConstraintType || '').toLowerCase() === 'information'
+    )
+    assert.ok(infoIndex >= 0, 'Need at least one information environmental manipulation to exercise composition validation.')
+    const environmentalManipulations = input.environmentalManipulations.map((constraint, index) =>
         index === infoIndex ? { ...constraint, environmentalRealizations: [] } : constraint
     )
-    assert.deepEqual(validateLibraryComposition({ ...input, constraints }).errors, [
+    assert.deepEqual(validateLibraryComposition({ ...input, environmentalManipulations }).errors, [
         {
-            field: `constraints[${infoIndex}].environmentalRealizations`,
+            field: `environmentalManipulations[${infoIndex}].environmentalRealizations`,
             message: 'information constraints must define environmentalRealizations',
         },
     ])

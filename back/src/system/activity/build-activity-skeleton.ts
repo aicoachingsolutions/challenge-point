@@ -612,7 +612,7 @@ function collectSetupGuidance(input: SystemAssemblyInput): {
     const findConstraintSetup = (id: unknown): string[] => {
         const cId = String(id ?? '').trim()
         if (!cId) return []
-        const row = testLibraryRegistry.constraints().find((c) => c.id === cId)
+        const row = testLibraryRegistry.selectableConstraints().find((c) => c.id === cId)
         return row?.setupGuidance ?? []
     }
     return {
@@ -651,7 +651,7 @@ export function informationExpressionDirective(input: SystemAssemblyInput): stri
         const c = m?.constraint as { _id?: unknown; id?: unknown } | undefined
         const id = String(c?._id ?? c?.id ?? '').trim()
         if (!id) continue
-        const row = testLibraryRegistry.constraints().find((r) => r.id === id)
+        const row = testLibraryRegistry.selectableConstraints().find((r) => r.id === id)
         if (row && (row.primaryConstraintType || '').toLowerCase() === 'information') infoRows.push(row)
     }
     if (infoRows.length === 0) return ''

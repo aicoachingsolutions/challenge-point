@@ -37,7 +37,7 @@ function constraintPoolSupportsFoundationAndShaping(rows: TestLibraryV0Constrain
 }
 
 function applyConstraintPoolFilter(hints?: InputConstraintHints | null): TestLibraryV0Constraint[] {
-    const full = testLibraryRegistry.constraints()
+    const full = testLibraryRegistry.selectableConstraints()
     const ids = hints?.candidateConstraintIds
     if (!ids?.length) return full
     const filtered = full.filter((c) => ids.includes(c.id))
@@ -346,7 +346,7 @@ function scoreConstraintsForLensSlugs(
     informationIntent = false
 ): ConScored[] {
     const conScored: ConScored[] = []
-    for (const c of testLibraryRegistry.constraints()) {
+    for (const c of testLibraryRegistry.selectableConstraints()) {
         const fields = [
             c.title,
             c.description,
@@ -387,7 +387,7 @@ function scoreConstraintsForLensSlugs(
 }
 
 function libraryHasBucket(bucket: ConstraintBalanceBucket): boolean {
-    return testLibraryRegistry.constraints().some((c) => constraintBalanceBucket(c) === bucket)
+    return testLibraryRegistry.selectableConstraints().some((c) => constraintBalanceBucket(c) === bucket)
 }
 
 /**
@@ -602,7 +602,7 @@ export function generateSelection(
     if (testLibraryRegistry.affordanceLenses().length < 2) {
         throw new Error('Test Library V0 needs at least two affordance lenses.')
     }
-    if (testLibraryRegistry.constraints().length < 2) {
+    if (testLibraryRegistry.selectableConstraints().length < 2) {
         throw new Error('Test Library V0 needs at least two constraints.')
     }
 
