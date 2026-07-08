@@ -1,6 +1,7 @@
 import { TEST_LIBRARY_V0_ARCHETYPES } from '../archetypes'
 import { TEST_LIBRARY_V0_AFFORDANCE_LENSES } from '../affordanceLenses'
 import { TEST_LIBRARY_V0_CONSTRAINTS } from '../constraints'
+import { validateLibraryComposition } from './composition'
 import { validateAffordanceLensSchema, validateArchetypeSchema, validateConstraintSchema } from './schema'
 import type { TestLibraryV0AffordanceLens, TestLibraryV0Archetype, TestLibraryV0Constraint } from '../types'
 import type { TestLibrarySchemaValidationError } from './schema'
@@ -33,6 +34,12 @@ export interface RegisteredTestLibrarySchemaValidationSummary {
     errors: TestLibrarySchemaValidationError[]
 }
 
+export interface RegisteredTestLibraryCompositionValidationSummary {
+    version: string
+    valid: boolean
+    errors: TestLibrarySchemaValidationError[]
+}
+
 type RegisteredLibraries = {
     [K in TestLibraryRegistryType]: Map<string, TestLibraryRegistryItems[K]>
 }
@@ -48,6 +55,8 @@ const schemaValidationResults: { [K in TestLibraryRegistryType]: Map<string, Reg
     constraints: new Map(),
     archetypes: new Map(),
 }
+
+const compositionValidationResults = new Map<string, RegisteredTestLibraryCompositionValidationSummary>()
 
 const activeVersions: Record<TestLibraryRegistryType, string> = {
     affordanceLenses: 'v0',
@@ -71,10 +80,21 @@ function validateRegisteredItems<T extends TestLibraryRegistryType>(registration
     return { type: registration.type, version: registration.version, valid: errors.length === 0, errors }
 }
 
+function refreshCompositionValidation(version: string): void {
+    const affordanceLenses = registeredLibraries.affordanceLenses.get(version)
+    const constraints = registeredLibraries.constraints.get(version)
+    const archetypes = registeredLibraries.archetypes.get(version)
+    if (!affordanceLenses || !constraints || !archetypes) return
+
+    const validation = validateLibraryComposition({ affordanceLenses, constraints, archetypes })
+    compositionValidationResults.set(version, { version, valid: validation.valid, errors: validation.errors })
+}
+
 export function registerLibrary<T extends TestLibraryRegistryType>(registration: TestLibraryRegistration<T>): void {
     registeredLibraries[registration.type].set(registration.version, registration.items)
     schemaValidationResults[registration.type].set(registration.version, validateRegisteredItems(registration))
     activeVersions[registration.type] = registration.version
+    refreshCompositionValidation(registration.version)
 }
 
 function activeItems<T extends TestLibraryRegistryType>(type: T): TestLibraryRegistryItems[T] {
@@ -108,6 +128,10 @@ export function registeredLibrarySchemaValidationResults(): RegisteredTestLibrar
     )
 }
 
+export function registeredLibraryCompositionValidationResults(): RegisteredTestLibraryCompositionValidationSummary[] {
+    return Array.from(compositionValidationResults.values())
+}
+
 export const testLibraryRegistry = {
     affordanceLenses: () => activeItems('affordanceLenses'),
     constraints: () => activeItems('constraints'),
@@ -115,6 +139,7 @@ export const testLibraryRegistry = {
     activeVersion: activeLibraryVersion,
     registeredLibraries: registeredLibrarySummaries,
     schemaValidationResults: registeredLibrarySchemaValidationResults,
+    compositionValidationResults: registeredLibraryCompositionValidationResults,
 }
 
 registerLibrary({ type: 'affordanceLenses', version: 'v0', items: TEST_LIBRARY_V0_AFFORDANCE_LENSES })
