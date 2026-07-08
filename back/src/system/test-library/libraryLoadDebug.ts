@@ -2,6 +2,7 @@ import {
     testLibraryRegistry,
     type RegisteredTestLibraryCompositionValidationSummary,
     type RegisteredTestLibrarySchemaValidationSummary,
+    type RegisteredTestLibrarySummary,
 } from './library/registry'
 import { TEST_LIBRARY_V0_LOAD_REPORT } from './libraryConversionReport'
 import type { TestLibraryV0LoadReport } from './types'
@@ -15,6 +16,8 @@ export interface TestLibraryV0LoadDebug extends TestLibraryV0LoadReport {
     }
     /** True when generated counts disagree with current TS array lengths. */
     runtimeCountsMismatch: boolean
+    /** Registered library versions and active version per library type. */
+    registeredLibraries: RegisteredTestLibrarySummary[]
     /** Schema validation results captured when each library was registered. */
     schemaValidation: RegisteredTestLibrarySchemaValidationSummary[]
     /** Cross-object composition validation results for fully registered library versions. */
@@ -38,6 +41,7 @@ export function getTestLibraryV0LoadDebug(): TestLibraryV0LoadDebug {
         ...r,
         runtimeArrayLengths,
         runtimeCountsMismatch,
+        registeredLibraries: testLibraryRegistry.registeredLibraries(),
         schemaValidation: testLibraryRegistry.schemaValidationResults(),
         compositionValidation: testLibraryRegistry.compositionValidationResults(),
     }
