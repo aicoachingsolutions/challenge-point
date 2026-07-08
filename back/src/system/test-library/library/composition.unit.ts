@@ -6,7 +6,7 @@ import { validateLibraryComposition } from './composition'
 function currentInput() {
     return {
         affordanceLenses: testLibraryRegistry.affordanceLenses(),
-        constraints: testLibraryRegistry.constraints(),
+        constraints: testLibraryRegistry.selectableConstraints(),
         archetypes: testLibraryRegistry.archetypes(),
     }
 }

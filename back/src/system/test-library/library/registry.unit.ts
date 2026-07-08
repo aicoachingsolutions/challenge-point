@@ -15,10 +15,16 @@ function testLoadDebugReportsRegisteredVersionsAndValidation(): void {
         [
             { type: 'affordanceLenses', versions: ['v0'], activeVersion: 'v0', itemCount: testLibraryRegistry.affordanceLenses().length },
             { type: 'constraints', versions: ['v0'], activeVersion: 'v0', itemCount: testLibraryRegistry.constraints().length },
+            {
+                type: 'environmentalManipulations',
+                versions: ['v0'],
+                activeVersion: 'v0',
+                itemCount: testLibraryRegistry.environmentalManipulations().length,
+            },
             { type: 'archetypes', versions: ['v0'], activeVersion: 'v0', itemCount: testLibraryRegistry.archetypes().length },
         ]
     )
-    assert.equal(debug.schemaValidation.length, 3)
+    assert.equal(debug.schemaValidation.length, 4)
     assert.ok(debug.schemaValidation.every((entry) => entry.version === 'v0' && entry.valid))
     assert.deepEqual(debug.compositionValidation, [{ version: 'v0', valid: true, errors: [] }])
 }

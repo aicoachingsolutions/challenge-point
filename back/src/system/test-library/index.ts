@@ -1,5 +1,6 @@
 export { TEST_LIBRARY_V0_AFFORDANCE_LENSES } from './affordanceLenses'
 export { TEST_LIBRARY_V0_CONSTRAINTS } from './constraints'
+export { TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS } from './environmental-manipulations'
 export { TEST_LIBRARY_V0_ARCHETYPES } from './archetypes'
 export { TEST_LIBRARY_V0_LOAD_REPORT } from './libraryConversionReport'
 export { getTestLibraryV0LoadDebug } from './libraryLoadDebug'

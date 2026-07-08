@@ -1,7 +1,6 @@
-import { TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS } from './environmental-manipulations'
 import type { TestLibraryV0Constraint } from './types'
 
-const TEST_LIBRARY_V0_CONSTRAINT_POOL_ORDER = [
+export const TEST_LIBRARY_V0_CONSTRAINT_POOL_ORDER = [
   "tl-v0-constraint-progression-bonus",
   "tl-v0-constraint-wide-utilization-bonus",
   "tl-v0-constraint-switch-of-play-bonus",
@@ -27,8 +26,8 @@ const TEST_LIBRARY_V0_CONSTRAINT_POOL_ORDER = [
   "tl-v0-constraint-disguised-restart"
 ] as const
 
-/** Test Library V0 ? constraints only (from csv/constraints.csv) */
-export const TEST_LIBRARY_V0_CONSTRAINT_ONLY: TestLibraryV0Constraint[] = [
+/** Test Library V0 ? constraints (from csv/constraints.csv) */
+export const TEST_LIBRARY_V0_CONSTRAINTS: TestLibraryV0Constraint[] = [
 {
     id: "tl-v0-constraint-progression-bonus",
     title: "Progression Bonus",
@@ -299,15 +298,3 @@ export const TEST_LIBRARY_V0_CONSTRAINT_ONLY: TestLibraryV0Constraint[] = [
   },
 ]
 
-const constraintPoolById = new Map(
-  [...TEST_LIBRARY_V0_CONSTRAINT_ONLY, ...TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS].map((constraint) => [constraint.id, constraint])
-)
-
-/** Test Library V0 ? temporary full selectable pool, preserving original constraint order for Phase 2a. */
-export const TEST_LIBRARY_V0_CONSTRAINTS: TestLibraryV0Constraint[] = TEST_LIBRARY_V0_CONSTRAINT_POOL_ORDER.map((id) => {
-  const constraint = constraintPoolById.get(id)
-  if (!constraint) {
-    throw new Error(`Missing Test Library V0 constraint during pool assembly: ${id}`)
-  }
-  return constraint
-})

@@ -23,7 +23,7 @@ function buildTitleMaps() {
     }
 
     const constraintsByTitle = new Map<string, string>()
-    for (const c of testLibraryRegistry.constraints()) {
+    for (const c of testLibraryRegistry.selectableConstraints()) {
         constraintsByTitle.set(normalizeTitle(c.title), c.id)
     }
 

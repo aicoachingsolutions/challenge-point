@@ -10,6 +10,13 @@ function testCurrentLibrariesPassSchemaValidation(): void {
     for (const constraint of testLibraryRegistry.constraints()) {
         assert.deepEqual(validateConstraintSchema(constraint).errors, [], `Constraint should validate: ${constraint.id}`)
     }
+    for (const environmentalManipulation of testLibraryRegistry.environmentalManipulations()) {
+        assert.deepEqual(
+            validateConstraintSchema(environmentalManipulation).errors,
+            [],
+            `Environmental manipulation should validate: ${environmentalManipulation.id}`
+        )
+    }
     for (const archetype of testLibraryRegistry.archetypes()) {
         assert.deepEqual(validateArchetypeSchema(archetype).errors, [], `Archetype should validate: ${archetype.id}`)
     }
@@ -32,10 +39,15 @@ function testInvalidRowsReportFieldErrors(): void {
 
 function testRegistryStoresSchemaValidationResults(): void {
     const summaries = testLibraryRegistry.schemaValidationResults()
-    assert.equal(summaries.length, 3)
+    assert.equal(summaries.length, 4)
     assert.deepEqual(
         summaries.map((s) => `${s.type}@${s.version}:${s.valid}:${s.errors.length}`).sort(),
-        ['affordanceLenses@v0:true:0', 'archetypes@v0:true:0', 'constraints@v0:true:0']
+        [
+            'affordanceLenses@v0:true:0',
+            'archetypes@v0:true:0',
+            'constraints@v0:true:0',
+            'environmentalManipulations@v0:true:0',
+        ]
     )
 }
 
