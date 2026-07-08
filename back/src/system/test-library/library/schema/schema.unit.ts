@@ -1,7 +1,12 @@
 import assert from 'node:assert/strict'
 
 import { testLibraryRegistry } from '../registry'
-import { validateAffordanceLensSchema, validateArchetypeSchema, validateConstraintSchema } from './index'
+import {
+    validateAffordanceLensSchema,
+    validateArchetypeSchema,
+    validateConstraintSchema,
+    validateEnvironmentalManipulationSchema,
+} from './index'
 
 function testCurrentLibrariesPassSchemaValidation(): void {
     for (const lens of testLibraryRegistry.affordanceLenses()) {
@@ -12,7 +17,7 @@ function testCurrentLibrariesPassSchemaValidation(): void {
     }
     for (const environmentalManipulation of testLibraryRegistry.environmentalManipulations()) {
         assert.deepEqual(
-            validateConstraintSchema(environmentalManipulation).errors,
+            validateEnvironmentalManipulationSchema(environmentalManipulation).errors,
             [],
             `Environmental manipulation should validate: ${environmentalManipulation.id}`
         )

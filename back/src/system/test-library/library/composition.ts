@@ -4,6 +4,7 @@ import type { TestLibrarySchemaValidationError, TestLibrarySchemaValidationResul
 export interface TestLibraryCompositionInput {
     affordanceLenses: TestLibraryV0AffordanceLens[]
     constraints: TestLibraryV0Constraint[]
+    environmentalManipulations?: TestLibraryV0Constraint[]
     archetypes: TestLibraryV0Archetype[]
 }
 
@@ -35,13 +36,14 @@ function affordanceRefs(input: TestLibraryCompositionInput): Set<string> {
 export function validateLibraryComposition(input: TestLibraryCompositionInput): TestLibrarySchemaValidationResult {
     const errors: TestLibrarySchemaValidationError[] = []
     const knownAffordances = affordanceRefs(input)
-    const knownConstraintArchetypes = new Set(input.constraints.map((constraint) => constraint.constraintArchetype).filter(Boolean))
+    const allConstraints = [...input.constraints, ...(input.environmentalManipulations ?? [])]
+    const knownConstraintArchetypes = new Set(allConstraints.map((constraint) => constraint.constraintArchetype).filter(Boolean))
 
-    input.constraints.forEach((constraint, index) => {
+    function validateConstraintRefs(constraint: TestLibraryV0Constraint, fieldPrefix: string): void {
         const target = constraint.targetAffordancePrimary
         if (target && !knownAffordances.has(target) && !KNOWN_TARGET_AFFORDANCE_PRIMITIVES.has(target)) {
             errors.push({
-                field: `constraints[${index}].targetAffordancePrimary`,
+                field: `${fieldPrefix}.targetAffordancePrimary`,
                 message: `unknown target affordance reference: ${target}`,
             })
         }
@@ -50,11 +52,16 @@ export function validateLibraryComposition(input: TestLibraryCompositionInput): 
             (constraint.environmentalRealizations?.length ?? 0) === 0
         ) {
             errors.push({
-                field: `constraints[${index}].environmentalRealizations`,
+                field: `${fieldPrefix}.environmentalRealizations`,
                 message: 'information constraints must define environmentalRealizations',
             })
         }
-    })
+    }
+
+    input.constraints.forEach((constraint, index) => validateConstraintRefs(constraint, `constraints[${index}]`))
+    ;(input.environmentalManipulations ?? []).forEach((constraint, index) =>
+        validateConstraintRefs(constraint, `environmentalManipulations[${index}]`)
+    )
 
     input.archetypes.forEach((archetype, index) => {
         for (const recommendedType of archetype.recommended_constraint_types) {

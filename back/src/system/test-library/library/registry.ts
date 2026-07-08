@@ -3,7 +3,12 @@ import { TEST_LIBRARY_V0_AFFORDANCE_LENSES } from '../affordanceLenses'
 import { TEST_LIBRARY_V0_CONSTRAINT_POOL_ORDER, TEST_LIBRARY_V0_CONSTRAINTS } from '../constraints'
 import { TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS } from '../environmental-manipulations'
 import { validateLibraryComposition } from './composition'
-import { validateAffordanceLensSchema, validateArchetypeSchema, validateConstraintSchema } from './schema'
+import {
+    validateAffordanceLensSchema,
+    validateArchetypeSchema,
+    validateConstraintSchema,
+    validateEnvironmentalManipulationSchema,
+} from './schema'
 import type { TestLibraryV0AffordanceLens, TestLibraryV0Archetype, TestLibraryV0Constraint } from '../types'
 import type { TestLibrarySchemaValidationError } from './schema'
 
@@ -75,9 +80,11 @@ function validateRegisteredItems<T extends TestLibraryRegistryType>(registration
         const validation =
             registration.type === 'affordanceLenses'
                 ? validateAffordanceLensSchema(item as TestLibraryV0AffordanceLens)
-                : registration.type === 'constraints' || registration.type === 'environmentalManipulations'
+                : registration.type === 'constraints'
                   ? validateConstraintSchema(item as TestLibraryV0Constraint)
-                  : validateArchetypeSchema(item as TestLibraryV0Archetype)
+                  : registration.type === 'environmentalManipulations'
+                    ? validateEnvironmentalManipulationSchema(item as TestLibraryV0Constraint)
+                    : validateArchetypeSchema(item as TestLibraryV0Archetype)
         for (const error of validation.errors) {
             errors.push({ field: 'items[' + index + '].' + error.field, message: error.message })
         }
@@ -94,7 +101,8 @@ function refreshCompositionValidation(version: string): void {
 
     const validation = validateLibraryComposition({
         affordanceLenses,
-        constraints: selectableConstraintPool(constraints, environmentalManipulations),
+        constraints,
+        environmentalManipulations,
         archetypes,
     })
     compositionValidationResults.set(version, { version, valid: validation.valid, errors: validation.errors })

@@ -13,6 +13,8 @@ export interface TestLibraryV0LoadDebug extends TestLibraryV0LoadReport {
         archetypes: number
         affordanceLenses: number
         constraints: number
+        environmentalManipulations: number
+        selectableConstraints: number
     }
     /** True when generated counts disagree with current TS array lengths. */
     runtimeCountsMismatch: boolean
@@ -31,6 +33,8 @@ export function getTestLibraryV0LoadDebug(): TestLibraryV0LoadDebug {
         archetypes: testLibraryRegistry.archetypes().length,
         affordanceLenses: testLibraryRegistry.affordanceLenses().length,
         constraints: testLibraryRegistry.constraints().length,
+        environmentalManipulations: testLibraryRegistry.environmentalManipulations().length,
+        selectableConstraints: testLibraryRegistry.selectableConstraints().length,
     }
     const runtimeCountsMismatch =
         r.counts.totalArchetypesLoaded !== runtimeArrayLengths.archetypes ||

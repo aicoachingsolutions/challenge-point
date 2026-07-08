@@ -1,4 +1,5 @@
 export { validateAffordanceLensSchema } from './affordanceLens'
 export { validateArchetypeSchema } from './archetype'
 export { validateConstraintSchema } from './constraint'
+export { validateEnvironmentalManipulationSchema } from './environmentalManipulation'
 export type { TestLibrarySchemaValidationError, TestLibrarySchemaValidationResult } from './types'
