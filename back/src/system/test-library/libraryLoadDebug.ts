@@ -1,4 +1,4 @@
-import { testLibraryRegistry } from './library/registry'
+import { testLibraryRegistry, type RegisteredTestLibrarySchemaValidationSummary } from './library/registry'
 import { TEST_LIBRARY_V0_LOAD_REPORT } from './libraryConversionReport'
 import type { TestLibraryV0LoadReport } from './types'
 
@@ -11,6 +11,8 @@ export interface TestLibraryV0LoadDebug extends TestLibraryV0LoadReport {
     }
     /** True when generated counts disagree with current TS array lengths. */
     runtimeCountsMismatch: boolean
+    /** Schema validation results captured when each library was registered. */
+    schemaValidation: RegisteredTestLibrarySchemaValidationSummary[]
 }
 
 /** Snapshot for logs/API: CSV conversion report plus live array lengths. */
@@ -30,5 +32,6 @@ export function getTestLibraryV0LoadDebug(): TestLibraryV0LoadDebug {
         ...r,
         runtimeArrayLengths,
         runtimeCountsMismatch,
+        schemaValidation: testLibraryRegistry.schemaValidationResults(),
     }
 }
