@@ -1,8 +1,7 @@
 import type { IAffordance } from '../../models/affordance.model'
 import { SessionEmphasis } from '../../models/session.model'
 import type { ConstraintSelectionCandidate, SystemAssemblyInput } from '../types'
-import { TEST_LIBRARY_V0_ARCHETYPES } from '../test-library/archetypes'
-import { TEST_LIBRARY_V0_CONSTRAINTS } from '../test-library/constraints'
+import { testLibraryRegistry } from '../test-library/library/registry'
 import type { TestLibraryV0Archetype, TestLibraryV0Constraint } from '../test-library/types'
 import { registryIdString } from './assembly-package-ids'
 import { getEmphasisVariationProfile, getSlotVariationSpec } from './emphasis-variation-profile'
@@ -176,7 +175,7 @@ function affordanceFamilyHints(aff: ExtendedAffordance): string[] {
 }
 
 function lookupArchetypeRow(archetypeName: string): TestLibraryV0Archetype | undefined {
-    return TEST_LIBRARY_V0_ARCHETYPES.find((row) => row.game_form_name === archetypeName || row.id === archetypeName)
+    return testLibraryRegistry.archetypes().find((row) => row.game_form_name === archetypeName || row.id === archetypeName)
 }
 
 function archetypeLibraryOverlay(archetypeName: string): {
@@ -613,7 +612,7 @@ function collectSetupGuidance(input: SystemAssemblyInput): {
     const findConstraintSetup = (id: unknown): string[] => {
         const cId = String(id ?? '').trim()
         if (!cId) return []
-        const row = TEST_LIBRARY_V0_CONSTRAINTS.find((c) => c.id === cId)
+        const row = testLibraryRegistry.constraints().find((c) => c.id === cId)
         return row?.setupGuidance ?? []
     }
     return {
@@ -652,7 +651,7 @@ export function informationExpressionDirective(input: SystemAssemblyInput): stri
         const c = m?.constraint as { _id?: unknown; id?: unknown } | undefined
         const id = String(c?._id ?? c?.id ?? '').trim()
         if (!id) continue
-        const row = TEST_LIBRARY_V0_CONSTRAINTS.find((r) => r.id === id)
+        const row = testLibraryRegistry.constraints().find((r) => r.id === id)
         if (row && (row.primaryConstraintType || '').toLowerCase() === 'information') infoRows.push(row)
     }
     if (infoRows.length === 0) return ''

@@ -124,7 +124,54 @@ incentives are the PRIMARY shapers of the affordance landscape (not archetypes).
   pass + source-level cleanup; per Christian, do NOT keep growing output substitutions. No code changed
   this round (honoring "don't change anything yet during validation").
 
-## IMMEDIATE NEXT TASK — Batch 2 review (the reasoning trilogy)
+## CURRENT DIRECTION (2026-07-08) — WORKFLOW PIVOT + revised game plan
+
+Christian moved to an **independent-tracks** model: he ships **complete versioned RC1 Knowledge
+Core library packages** (library + docs) that we IMPLEMENT (not review as WIP); comms become
+infrequent + actionable; first implementation-ready library package is inbound (no ETA). **Our
+assigned lane while he builds:** (a) tech debt / refactor / maintainability; (b) **generic Knowledge
+Core INFRASTRUCTURE so finished libraries plug in cleanly — loading, schema validation, modular
+registration, composition interfaces, version handling** (NEW #1); (c) diagnostics / traceability /
+dev tooling; (d) deterministic refinement within the frozen architecture — **NO new coaching
+knowledge, no expansion beyond validated reasoning.** PAUSED (needs his feedback): usability /
+coach-experience, and anything adding coaching content.
+
+"Finish" now = engine ingests versioned RC1 library packages cleanly + deterministic core refactored
+to the frozen architecture, with zero dependency on coaching feedback. Phased plan:
+
+- **Phase 1 — Library ingestion infrastructure [#1].** Today all three libs are hardcoded TS arrays
+  exported from `test-library/index.ts` (`TEST_LIBRARY_V0_AFFORDANCE_LENSES` / `_CONSTRAINTS` /
+  `_ARCHETYPES`), consumed by direct import in `generateSelection`/`deriveInputConstraints`. Build a
+  load→validate→register→version pipeline: per-object-type **schema validation** (against the Knowledge
+  Object Framework 7-part standard), a **registry** consumers query instead of importing arrays,
+  **composition-interface** checks (constraint.targetAffordancePrimary→lens, archetype.recommended
+  constraint types, environmentalRealizations), and **version handling** (packages carry RC version;
+  registry holds ≥1). Extend the existing `libraryConversionReport`/`libraryLoadDebug` rather than
+  replace. The six KO types (Game Problem, Affordance, Constraint, Environmental Manipulation,
+  Environmental Realization, Incentive) are the target schema set.
+- **Phase 2 — `constraints.ts` → Environmental-Manipulation / Constraint split [elevated].** Frozen
+  Batch 1 RC1 boundary (EM owns environmental PROPERTIES; Constraint owns interaction CONDITIONS). Pure
+  refactor, no new knowledge — and it's the first real library-modularization exercise / a rehearsal
+  for Phase 1's registration model. See [[knowledge-core-architecture]] for the exact mapping.
+- **Phase 3 — `generateSelection` reasoning/commitment split.** Un-fuse candidate enumeration (Reasoning
+  Models) from the single commitment (DDL). Refactor/tech-debt; unlocks surfacing runner-up packages.
+- **Phase 4 — Diagnostics/traceability.** Wire `evaluate-activity-diversity` in as a regression gate;
+  surface the new `resolution` status + package-load diagnostics in the debug view.
+- **Anytime:** weights → runtime Governance-overridable config (infra).
+- **PAUSED / out of lane:** diversity L2 slot-modifier bank expand+de-bias (adds coaching content — the
+  seed-select *plumbing* is fine), Coach Communication Architecture (coach-experience), `unresolved`
+  policy (needs Christian's decision).
+
+Shipped this session (all on branch, behavior-preserving where noted): `selection-weights.ts` (weights
+as data); `SelectionResolution` matched/fallback/unresolved status; realization-rotation via
+`variationIndex` (Decision Context) + `information-expression-directive.unit.ts`. See
+[[knowledge-core-architecture]] for full detail.
+
+Recommended start: **Phase 1**, with Phase 2 as the first library run through it.
+
+---
+
+## ✅ DONE — Batch 2 review (the reasoning trilogy)  _(historical; completed 2026-07-06)_
 
 Christian delivered Batch 2 (2026-06-30). Deliverable = **Joe's implementation-perspective review**
 (same as the Batch 1 review), then a reply **signed "Joe."** Do it in THIS project (deep context), not cold.

@@ -12,12 +12,12 @@
 import assert from 'node:assert/strict'
 
 import { informationExpressionDirective } from './build-activity-skeleton'
-import { TEST_LIBRARY_V0_CONSTRAINTS } from '../test-library/constraints'
+import { testLibraryRegistry } from '../test-library/library/registry'
 import type { TestLibraryV0Constraint } from '../test-library/types'
 import type { SystemAssemblyInput } from '../types'
 
 function infoConstraintsWithBank(minBank: number): TestLibraryV0Constraint[] {
-    return TEST_LIBRARY_V0_CONSTRAINTS.filter(
+    return testLibraryRegistry.constraints().filter(
         (c) => (c.primaryConstraintType || '').toLowerCase() === 'information' && (c.environmentalRealizations?.length ?? 0) >= minBank
     )
 }
