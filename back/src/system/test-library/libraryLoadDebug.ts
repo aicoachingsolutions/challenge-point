@@ -1,6 +1,4 @@
-import { TEST_LIBRARY_V0_ARCHETYPES } from './archetypes'
-import { TEST_LIBRARY_V0_AFFORDANCE_LENSES } from './affordanceLenses'
-import { TEST_LIBRARY_V0_CONSTRAINTS } from './constraints'
+import { testLibraryRegistry } from './library/registry'
 import { TEST_LIBRARY_V0_LOAD_REPORT } from './libraryConversionReport'
 import type { TestLibraryV0LoadReport } from './types'
 
@@ -19,9 +17,9 @@ export interface TestLibraryV0LoadDebug extends TestLibraryV0LoadReport {
 export function getTestLibraryV0LoadDebug(): TestLibraryV0LoadDebug {
     const r = TEST_LIBRARY_V0_LOAD_REPORT
     const runtimeArrayLengths = {
-        archetypes: TEST_LIBRARY_V0_ARCHETYPES.length,
-        affordanceLenses: TEST_LIBRARY_V0_AFFORDANCE_LENSES.length,
-        constraints: TEST_LIBRARY_V0_CONSTRAINTS.length,
+        archetypes: testLibraryRegistry.archetypes().length,
+        affordanceLenses: testLibraryRegistry.affordanceLenses().length,
+        constraints: testLibraryRegistry.constraints().length,
     }
     const runtimeCountsMismatch =
         r.counts.totalArchetypesLoaded !== runtimeArrayLengths.archetypes ||

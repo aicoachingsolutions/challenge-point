@@ -1,5 +1,5 @@
 import { resolveArchetypeByHint } from '../archetypes'
-import { TEST_LIBRARY_V0_ARCHETYPES } from '../test-library/archetypes'
+import { testLibraryRegistry } from '../test-library/library/registry'
 import type { TestLibraryV0Archetype } from '../test-library/types'
 import type { ArchetypeDefinition } from '../types'
 import { normalizeText } from '../text'
@@ -29,14 +29,14 @@ function fromCatalogGameForm(a: TestLibraryV0Archetype): ArchetypeDefinition {
 export function testLibraryArchetypeToSystemDefinition(a: TestLibraryV0Archetype): ArchetypeDefinition {
     const gid = (a.game_form_id || a.id || '').trim()
     if (gid) {
-        const row = TEST_LIBRARY_V0_ARCHETYPES.find((x) => x.game_form_id === gid || x.id === gid)
+        const row = testLibraryRegistry.archetypes().find((x) => x.game_form_id === gid || x.id === gid)
         if (row) {
             return fromCatalogGameForm(row)
         }
     }
 
     const norm = normalizeText(a.game_form_name)
-    const byName = TEST_LIBRARY_V0_ARCHETYPES.find((x) => normalizeText(x.game_form_name) === norm)
+    const byName = testLibraryRegistry.archetypes().find((x) => normalizeText(x.game_form_name) === norm)
     if (byName) {
         return fromCatalogGameForm(byName)
     }

@@ -1,6 +1,4 @@
-import { TEST_LIBRARY_V0_ARCHETYPES } from '../test-library/archetypes'
-import { TEST_LIBRARY_V0_AFFORDANCE_LENSES } from '../test-library/affordanceLenses'
-import { TEST_LIBRARY_V0_CONSTRAINTS } from '../test-library/constraints'
+import { testLibraryRegistry } from '../test-library/library/registry'
 
 export interface InputConstraintHints {
     candidateArchetypeIds: string[]
@@ -15,17 +13,17 @@ function normalizeTitle(title: string): string {
 
 function buildTitleMaps() {
     const archetypesByTitle = new Map<string, string>()
-    for (const a of TEST_LIBRARY_V0_ARCHETYPES) {
+    for (const a of testLibraryRegistry.archetypes()) {
         archetypesByTitle.set(normalizeTitle(a.game_form_name), a.game_form_id)
     }
 
     const lensesByTitle = new Map<string, string>()
-    for (const l of TEST_LIBRARY_V0_AFFORDANCE_LENSES) {
+    for (const l of testLibraryRegistry.affordanceLenses()) {
         lensesByTitle.set(normalizeTitle(l.title), l.id)
     }
 
     const constraintsByTitle = new Map<string, string>()
-    for (const c of TEST_LIBRARY_V0_CONSTRAINTS) {
+    for (const c of testLibraryRegistry.constraints()) {
         constraintsByTitle.set(normalizeTitle(c.title), c.id)
     }
 

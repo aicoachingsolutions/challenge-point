@@ -1,7 +1,5 @@
-import { TEST_LIBRARY_V0_ARCHETYPES } from './archetypes'
-import { TEST_LIBRARY_V0_AFFORDANCE_LENSES } from './affordanceLenses'
-import { TEST_LIBRARY_V0_CONSTRAINTS } from './constraints'
 import type { InputConstraintHints } from '../input-constraints/deriveInputConstraints'
+import { testLibraryRegistry } from './library/registry'
 import { normalizeCoachingInput } from './normalizeCoachingInput'
 import { isSelectionPackageCompatible } from './selection-compatibility'
 import { SELECTION_SUITABILITY_WEIGHTS as W } from './selection-weights'
@@ -18,7 +16,7 @@ import type {
 } from './types'
 
 function applyArchetypePoolFilter(hints?: InputConstraintHints | null): TestLibraryV0Archetype[] {
-    const full = TEST_LIBRARY_V0_ARCHETYPES
+    const full = testLibraryRegistry.archetypes()
     const ids = hints?.candidateArchetypeIds
     if (!ids?.length) return full
     const filtered = full.filter((a) => ids.includes(a.game_form_id))
@@ -26,7 +24,7 @@ function applyArchetypePoolFilter(hints?: InputConstraintHints | null): TestLibr
 }
 
 function applyLensPoolFilter(hints?: InputConstraintHints | null): TestLibraryV0AffordanceLens[] {
-    const full = TEST_LIBRARY_V0_AFFORDANCE_LENSES
+    const full = testLibraryRegistry.affordanceLenses()
     const ids = hints?.candidateAffordanceLensIds
     if (!ids?.length) return full
     const filtered = full.filter((l) => ids.includes(l.id))
@@ -39,7 +37,7 @@ function constraintPoolSupportsFoundationAndShaping(rows: TestLibraryV0Constrain
 }
 
 function applyConstraintPoolFilter(hints?: InputConstraintHints | null): TestLibraryV0Constraint[] {
-    const full = TEST_LIBRARY_V0_CONSTRAINTS
+    const full = testLibraryRegistry.constraints()
     const ids = hints?.candidateConstraintIds
     if (!ids?.length) return full
     const filtered = full.filter((c) => ids.includes(c.id))
@@ -303,7 +301,7 @@ function scoreAllLenses(
     archeAffordances: Set<string>
 ): LensScored[] {
     const lensScored: LensScored[] = []
-    for (const lens of TEST_LIBRARY_V0_AFFORDANCE_LENSES) {
+    for (const lens of testLibraryRegistry.affordanceLenses()) {
         const fields = [
             lens.title,
             lens.description,
@@ -348,7 +346,7 @@ function scoreConstraintsForLensSlugs(
     informationIntent = false
 ): ConScored[] {
     const conScored: ConScored[] = []
-    for (const c of TEST_LIBRARY_V0_CONSTRAINTS) {
+    for (const c of testLibraryRegistry.constraints()) {
         const fields = [
             c.title,
             c.description,
@@ -389,7 +387,7 @@ function scoreConstraintsForLensSlugs(
 }
 
 function libraryHasBucket(bucket: ConstraintBalanceBucket): boolean {
-    return TEST_LIBRARY_V0_CONSTRAINTS.some((c) => constraintBalanceBucket(c) === bucket)
+    return testLibraryRegistry.constraints().some((c) => constraintBalanceBucket(c) === bucket)
 }
 
 /**
@@ -598,13 +596,13 @@ export function generateSelection(
         sessionDescription: input.sessionDescription ? normalizeCoachingInput(input.sessionDescription) : undefined,
     }
 
-    if (TEST_LIBRARY_V0_ARCHETYPES.length === 0) {
+    if (testLibraryRegistry.archetypes().length === 0) {
         throw new Error('Test Library V0 has no archetypes loaded.')
     }
-    if (TEST_LIBRARY_V0_AFFORDANCE_LENSES.length < 2) {
+    if (testLibraryRegistry.affordanceLenses().length < 2) {
         throw new Error('Test Library V0 needs at least two affordance lenses.')
     }
-    if (TEST_LIBRARY_V0_CONSTRAINTS.length < 2) {
+    if (testLibraryRegistry.constraints().length < 2) {
         throw new Error('Test Library V0 needs at least two constraints.')
     }
 
