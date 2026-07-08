@@ -576,6 +576,96 @@ function computeResolution(inputConstraints?: InputConstraintHints | null): Sele
 }
 
 /**
+ * A supported Design Possibility (Batch 2 — Reasoning Models): one valid, scored configuration of
+ * lenses + constraints that passes role-mix and pre-assembly compatibility. Reasoning determines the
+ * SET of these; Deterministic Design Logic commits to exactly one.
+ */
+export interface DesignPossibility {
+    lenses: TestLibraryV0AffordanceLens[]
+    constraints: TestLibraryV0Constraint[]
+    total: number
+    /** Deterministic identity for tie-breaking: sorted lens + constraint ids. */
+    key: string
+}
+
+interface DesignEnumerationContext {
+    tokens: string[]
+    archetype: TestLibraryV0Archetype
+    archeAffordances: Set<string>
+    informationIntent: boolean
+    lensCandidatePool: TestLibraryV0AffordanceLens[]
+    lensScoreById: Map<string, LensScored>
+    allConstraints: TestLibraryV0Constraint[]
+}
+
+function comboKey(lenses: TestLibraryV0AffordanceLens[], cons: TestLibraryV0Constraint[]): string {
+    return sortedIdsJoin([...lenses.map((l) => l.id), ...cons.map((c) => c.id)])
+}
+
+/**
+ * REASONING MODELS — determine the set of supported Design Possibilities for this Decision Context.
+ * Enumerates every valid (2–3 lenses × 2–4 constraints) combination that passes role-mix and
+ * pre-assembly compatibility, scoring each. It does NOT choose; that is commitDesignChoice's job.
+ */
+function enumerateDesignPossibilities(ctx: DesignEnumerationContext): DesignPossibility[] {
+    const { tokens, archetype, archeAffordances, informationIntent, lensCandidatePool, lensScoreById, allConstraints } = ctx
+    const possibilities: DesignPossibility[] = []
+    for (const lensSize of [2, 3]) {
+        if (lensCandidatePool.length < lensSize) continue
+
+        for (const lensCombo of combinations(lensCandidatePool, lensSize)) {
+            const selectedLensSlugs = new Set(lensCombo.map(lensSlug))
+            const conScored = scoreConstraintsForLensSlugs(tokens, archetype, archeAffordances, selectedLensSlugs, informationIntent)
+            const conMap = conScoredMap(conScored)
+
+            // Bound the constraint search pool for this lens combo. Per-lens-combo because constraint
+            // scoring depends on the selected lens slugs (targetMatchesSelectedLens bonus).
+            const constraintCandidatePool = boundedConstraintCandidates(conScored, allConstraints)
+
+            const lensSum = lensCombo.reduce((s, l) => s + (lensScoreById.get(l.id)?.score ?? 0), 0)
+
+            for (const conSize of [2, 3, 4]) {
+                if (constraintCandidatePool.length < conSize) continue
+
+                for (const conCombo of combinations(constraintCandidatePool, conSize)) {
+                    if (!constraintComboPassesRoleMix(conCombo, conScored)) continue
+
+                    const compat = isSelectionPackageCompatible({
+                        archetype,
+                        affordanceLenses: lensCombo,
+                        constraints: conCombo,
+                    })
+                    if (!compat.compatible) continue
+
+                    const conSum = conCombo.reduce((s, c) => s + (conMap.get(c.id)?.score ?? 0), 0)
+                    const balance = constraintBalanceBonus(conCombo)
+                    const total = lensSum + conSum + balance
+
+                    possibilities.push({ lenses: [...lensCombo], constraints: [...conCombo], total, key: comboKey(lensCombo, conCombo) })
+                }
+            }
+        }
+    }
+    return possibilities
+}
+
+/**
+ * DETERMINISTIC DESIGN LOGIC — commit to exactly one Design Possibility. Selects the maximum total
+ * score; ties are broken by the smallest deterministic combo key (stable, inspectable, repeatable).
+ * Returns null only when no possibility is supported (caller raises the defined failure state).
+ * Order-independent, so it reproduces the previous inline argmax exactly.
+ */
+export function commitDesignChoice(possibilities: DesignPossibility[]): DesignPossibility | null {
+    let best: DesignPossibility | null = null
+    for (const p of possibilities) {
+        if (!best || p.total > best.total || (p.total === best.total && p.key < best.key)) {
+            best = p
+        }
+    }
+    return best
+}
+
+/**
  * Deterministic Test Library V0 selection (no AI, no Mongo).
  * Picks the highest-scoring valid joint combination of 2–3 lenses and 2–4 constraints
  * (no truncation, auto-fill, or silent caps).
@@ -680,68 +770,29 @@ export function generateSelection(
     // Bound the lens search pool. See BOUNDED_SEARCH_TOP_LENSES doc above for the cost analysis.
     const lensCandidatePool = boundedLensCandidates(lensScored, allLenses)
 
-    let bestTotal = -Infinity
-    let bestLensCombo: TestLibraryV0AffordanceLens[] | null = null
-    let bestConCombo: TestLibraryV0Constraint[] | null = null
-
-    function comboKey(lenses: TestLibraryV0AffordanceLens[], cons: TestLibraryV0Constraint[]): string {
-        return sortedIdsJoin([...lenses.map((l) => l.id), ...cons.map((c) => c.id)])
-    }
-
     const selectionSearchStart = Date.now()
 
-    for (const lensSize of [2, 3]) {
-        if (lensCandidatePool.length < lensSize) continue
-
-        for (const lensCombo of combinations(lensCandidatePool, lensSize)) {
-            const selectedLensSlugs = new Set(lensCombo.map(lensSlug))
-            const conScored = scoreConstraintsForLensSlugs(tokens, archetype, archeAffordances, selectedLensSlugs, informationIntent)
-            const conMap = conScoredMap(conScored)
-
-            // Bound the constraint search pool for this lens combo. Per-lens-combo because constraint
-            // scoring depends on the selected lens slugs (targetMatchesSelectedLens bonus).
-            const constraintCandidatePool = boundedConstraintCandidates(conScored, allConstraints)
-
-            const lensSum = lensCombo.reduce((s, l) => s + (lensScoreById.get(l.id)?.score ?? 0), 0)
-
-            for (const conSize of [2, 3, 4]) {
-                if (constraintCandidatePool.length < conSize) continue
-
-                for (const conCombo of combinations(constraintCandidatePool, conSize)) {
-                    if (!constraintComboPassesRoleMix(conCombo, conScored)) continue
-
-                    const compat = isSelectionPackageCompatible({
-                        archetype,
-                        affordanceLenses: lensCombo,
-                        constraints: conCombo,
-                    })
-                    if (!compat.compatible) continue
-
-                    const conSum = conCombo.reduce((s, c) => s + (conMap.get(c.id)?.score ?? 0), 0)
-                    const balance = constraintBalanceBonus(conCombo)
-                    const total = lensSum + conSum + balance
-
-                    if (total > bestTotal) {
-                        bestTotal = total
-                        bestLensCombo = [...lensCombo]
-                        bestConCombo = [...conCombo]
-                    } else if (total === bestTotal && bestLensCombo && bestConCombo) {
-                        const key = comboKey(lensCombo, conCombo)
-                        const prevKey = comboKey(bestLensCombo, bestConCombo)
-                        if (key < prevKey) {
-                            bestLensCombo = [...lensCombo]
-                            bestConCombo = [...conCombo]
-                        }
-                    }
-                }
-            }
-        }
-    }
+    // REASONING → COMMITMENT (Batch 2 seam). Enumerate the supported Design Possibilities, then
+    // deterministically commit to one. Kept as two steps so the full possibility set is available
+    // (e.g. to surface runner-up designs later) without changing which one is committed.
+    const designPossibilities = enumerateDesignPossibilities({
+        tokens,
+        archetype,
+        archeAffordances,
+        informationIntent,
+        lensCandidatePool,
+        lensScoreById,
+        allConstraints,
+    })
+    const committed = commitDesignChoice(designPossibilities)
+    const bestLensCombo = committed?.lenses ?? null
+    const bestConCombo = committed?.constraints ?? null
+    const bestTotal = committed ? committed.total : -Infinity
 
     const resolution = computeResolution(inputConstraints)
     const selectionSearchMs = Date.now() - selectionSearchStart
     console.log(
-        `[selection-search] lensCandidates=${lensCandidatePool.length} elapsedMs=${selectionSearchMs} bestScore=${bestTotal === -Infinity ? 'none' : bestTotal} resolution=${resolution.status}`
+        `[selection-search] lensCandidates=${lensCandidatePool.length} possibilities=${designPossibilities.length} elapsedMs=${selectionSearchMs} bestScore=${bestTotal === -Infinity ? 'none' : bestTotal} resolution=${resolution.status}`
     )
 
     if (!bestLensCombo || !bestConCombo || bestTotal === -Infinity) {
