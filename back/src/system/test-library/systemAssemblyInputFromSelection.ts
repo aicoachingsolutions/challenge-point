@@ -103,5 +103,8 @@ export function systemAssemblyInputFromTestLibrarySelection(params: {
         archetype: archetypeDef,
         archetypeSelection: buildArchetypeSelection(archetypeDef),
         constraintPackage,
+        // Natural deterministic seed: how many activities already exist in this session. The first
+        // activity uses realization[0]; each subsequent "give me another" advances the rotation.
+        variationIndex: previousActivities.length,
     }
 }

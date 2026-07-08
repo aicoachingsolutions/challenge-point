@@ -665,20 +665,30 @@ export function informationExpressionDirective(input: SystemAssemblyInput): stri
         'but the point of the activity is the information demand below.',
         '',
         'Do not just SAY the activity is about reading — build an environment where reading is UNAVOIDABLE',
-        'because of how the rules and scoring function. For each mechanic, INSTANTIATE it by choosing one of',
-        'the concrete environmental realizations below and building the activity around it (these are',
-        'environment/scoring rules, not prescribed player behaviors):',
+        'because of how the rules and scoring function. Each mechanic below names ONE designated environmental',
+        'realization to build the activity around (environment/scoring rules, not prescribed player behaviors):',
     ]
-    for (const r of infoRows) {
+    // Representative-realization diversity (Batch 2): rotate deterministically through each mechanic's
+    // realization bank by the Decision Context's variationIndex, so repeated designs for the same goal
+    // land on DIFFERENT valid spines instead of the AI defaulting to the same one every time. `+ ri`
+    // decorrelates multiple info constraints so they don't all pick the same bank position.
+    const seed = input.variationIndex ?? 0
+    infoRows.forEach((r, ri) => {
         lines.push(`- ${r.title}: ${r.description}`)
         const realizations = r.environmentalRealizations ?? []
         if (realizations.length > 0) {
-            lines.push('  Pick ONE of these realizations and make it the spine of the activity:')
-            for (const g of realizations) lines.push(`    • ${g}`)
+            const chosen = realizations[(seed + ri) % realizations.length]
+            lines.push('  Build the activity around THIS designated realization — make it the spine, do not blend the others:')
+            lines.push(`    • ${chosen}`)
+            if (realizations.length > 1) {
+                lines.push(
+                    '    (Other valid realizations exist for this mechanic; use only the designated one above so repeated designs stay distinct.)'
+                )
+            }
         } else {
             for (const g of r.setupGuidance ?? []) lines.push(`    • ${g}`)
         }
-    }
+    })
     lines.push('')
     lines.push(
         'Coach-facing wording: describe the chosen realization in plain language a coach uses on the field (e.g.'
