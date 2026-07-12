@@ -152,10 +152,12 @@ export function reasonEnvironmentalManipulations(
     targetAffordances: AffordanceSlug[] = []
 ): EmReachabilityCandidate[] {
     const text = ` ${goalText.toLowerCase().replace(/\s+/g, ' ').trim()} `
+    // Dedupe: multiple selected lenses can share a category; an affordance counts once.
+    const targets = [...new Set(targetAffordances)]
     const out: EmReachabilityCandidate[] = []
     for (const meta of EM_SELECTION_METADATA) {
         const matchedTerms = meta.matchingVocabulary.filter((v) => text.includes(v.toLowerCase()))
-        const affinityHits = targetAffordances
+        const affinityHits = targets
             .filter((a) => (meta.affordanceAffinities[a] ?? 0) > 0)
             .map((a) => ({ affordance: a, weight: meta.affordanceAffinities[a]! }))
         const score = matchedTerms.length * 4 + affinityHits.reduce((s, h) => s + h.weight, 0)

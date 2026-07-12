@@ -14,6 +14,8 @@ import User from '../models/user.model'
 import Logger from '../logger'
 import LoggingService from '../services/logging.service'
 import { deriveInputConstraints } from '../system/input-constraints/deriveInputConstraints'
+import { emCanonical } from '../system/knowledge-core/em-canonical'
+import { reasonEnvironmentalManipulations } from '../system/knowledge-core/em-selection-metadata'
 import { generateSelection, getTestLibraryV0LoadDebug, systemAssemblyInputFromTestLibrarySelection } from '../system/test-library'
 import { ENDPOINTS } from './_endpoints'
 import BaseRoutes from './helper'
@@ -258,6 +260,109 @@ router.get('/debug-selection', async (req: Request, res: Response) => {
             validation,
             note: 'Deterministic pipeline only — no AI call. AI-output validation (prescriptive language, missing mechanic, opponent consequence) runs only during live generation and is not reflected here.',
         })
+    } catch (error) {
+        const message = error instanceof Error ? error.message : String(error)
+        return res.status(500).json({ error: message })
+    }
+})
+
+/**
+ * Knowledge Core debug — canonical Environmental Manipulation reasoning (Package 1.1 experiment).
+ *
+ * Shows the three-layer suitability model working against the canonical schema, END TO END from a
+ * coach goal: (1) the existing deterministic selection resolves the goal and selects lenses; (2) the
+ * selected lens categories (+ perception when the information signal fires) become the target
+ * affordances; (3) reasonEnvironmentalManipulations reaches canonical Knowledge Objects and returns
+ * traceable candidates with their canonical Engineering Dimensions, Parameters, and Ecological
+ * Guidance attached. No AI. Nothing here changes live generation — read-only reasoning view.
+ *
+ * Usage: GET /api/debug-em-reasoning?goal=...            (JSON)
+ *        GET /api/debug-em-reasoning?goal=...&format=html (readable view)
+ */
+router.get('/debug-em-reasoning', async (req: Request, res: Response) => {
+    try {
+        const goal = String(req.query.goal ?? '').trim()
+        const format = String(req.query.format ?? 'json').toLowerCase()
+        if (!goal) {
+            return res.status(400).json({ error: 'Provide a learning goal: ?goal=...' })
+        }
+
+        // Stage 1 — existing deterministic resolution + selection (unchanged engine path).
+        const inputConstraints = deriveInputConstraints(goal)
+        let targetAffordances: string[] = []
+        let selectedLenses: string[] = []
+        let selectionNote = ''
+        if (inputConstraints.candidateArchetypeIds.length > 0) {
+            try {
+                const selection = generateSelection({ learningGoals: [goal], challengeLevel: 'medium' }, inputConstraints)
+                selectedLenses = selection.affordanceLenses.map((l) => l.title)
+                targetAffordances = selection.affordanceLenses.map((l) =>
+                    l.category.toLowerCase().trim().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '')
+                )
+            } catch (e) {
+                selectionNote = `Selection unavailable (${e instanceof Error ? e.message : String(e)}); reasoning ran on vocabulary only.`
+            }
+        } else {
+            selectionNote = 'Goal did not resolve to a game problem; EM reasoning ran on vocabulary only.'
+        }
+        if (inputConstraints.matchedSignals.includes('signalGroup:K_information') && !targetAffordances.includes('perception')) {
+            targetAffordances.push('perception')
+        }
+
+        // Stage 2 — canonical reachability + guidance + preference (the Package 1.1 experiment).
+        const candidates = reasonEnvironmentalManipulations(goal, targetAffordances as never).map((c) => ({
+            ...c,
+            // Attach canonical parameters per dimension so the full design-lever chain is visible.
+            dimensions: c.dimensions.map((d) => ({
+                ...d,
+                parameters: emCanonical.parametersForDimension(d.dimId).map((p) => `${p.Category}: ${p.Value_Type}`),
+            })),
+        }))
+
+        const payload = {
+            learningGoal: goal,
+            knowledgeCore: {
+                schema: String(emCanonical.schema.metadata['Schema_Name'] ?? ''),
+                version: emCanonical.version,
+            },
+            derivedTargetAffordances: targetAffordances,
+            selectedLenses,
+            ...(selectionNote ? { selectionNote } : {}),
+            canonicalCandidates: candidates,
+            note: 'Read-only canonical reasoning view (Knowledge Core Package 1.1). Deterministic, no AI; does not affect live generation.',
+        }
+
+        if (format !== 'html') return res.status(200).json(payload)
+
+        const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        const rows = candidates
+            .map(
+                (c, i) => `
+    <div style="border:1px solid #ccc;border-radius:8px;padding:12px 16px;margin:12px 0;background:${i === 0 ? '#f2f9f2' : '#fafafa'}">
+      <h3 style="margin:0 0 4px">${i + 1}. ${esc(c.koName)} <span style="color:#777;font-weight:normal">(${c.koId} — ${esc(c.familyName)}, score ${c.score})</span></h3>
+      <p style="margin:4px 0"><b>Reached via:</b> ${c.matchedTerms.length ? c.matchedTerms.map(esc).join(', ') : '—'}${
+          c.affinityHits.length ? ` &nbsp;|&nbsp; <b>affordance affinity:</b> ${c.affinityHits.map((h) => `${esc(h.affordance)} (+${h.weight})`).join(', ')}` : ''
+      }</p>
+      <p style="margin:4px 0"><b>Design levers (canonical):</b></p>
+      <ul style="margin:2px 0 8px">${c.dimensions.map((d) => `<li><b>${esc(d.name)}</b> <span style="color:#777">(${d.dimId})</span> — ${d.parameters.map(esc).join('; ')}</li>`).join('')}</ul>
+      <p style="margin:4px 0"><b>Ecological guidance:</b></p>
+      <ul style="margin:2px 0">${c.guidance.map((g) => `<li>${esc(g)}</li>`).join('') || '<li>—</li>'}</ul>
+    </div>`
+            )
+            .join('')
+        const html = `<!doctype html><html><head><meta charset="utf-8"><title>EM Reasoning — ${esc(goal)}</title></head>
+<body style="font-family:Arial,sans-serif;max-width:860px;margin:24px auto;padding:0 16px;color:#222">
+  <h2 style="margin-bottom:2px">Canonical Environmental Manipulation Reasoning</h2>
+  <p style="color:#666;margin-top:0">${esc(String(emCanonical.schema.metadata['Schema_Name'] ?? ''))} ${esc(emCanonical.version)} — read-only, deterministic, no AI.</p>
+  <p><b>Coach goal:</b> ${esc(goal)}</p>
+  <p><b>Selected lenses (engine):</b> ${selectedLenses.map(esc).join(', ') || '—'}<br>
+     <b>Derived target affordances:</b> ${targetAffordances.map(esc).join(', ') || '—'}</p>
+  ${selectionNote ? `<p style="color:#a60">${esc(selectionNote)}</p>` : ''}
+  <h3 style="margin-bottom:0">Canonical Knowledge Objects reached (${candidates.length})</h3>
+  ${rows || '<p>No canonical Knowledge Objects reached for this goal.</p>'}
+</body></html>`
+        res.setHeader('Content-Type', 'text/html; charset=utf-8')
+        return res.status(200).send(html)
     } catch (error) {
         const message = error instanceof Error ? error.message : String(error)
         return res.status(500).json({ error: message })
