@@ -1,0 +1,1605 @@
+{
+ "metadata": {
+  "Schema_Name": "Environmental Manipulation Knowledge Schema",
+  "Schema_Version": "2.0-RC1-Candidate",
+  "Generated_Date": "2026-07-12",
+  "Canonicality": "Canonical implementation representation",
+  "Library_Status": "Six-family RC1 architecture stable; population continuing",
+  "Family_Count": "6",
+  "Knowledge_Object_Count": "11",
+  "Engineering_Variable_Domain_Count": "5",
+  "Engineering_Dimension_Count": "24",
+  "ID_Policy": "Permanent sequential library-specific identifiers with no embedded semantics",
+  "Cross_Reference_Policy": "IDs only",
+  "Narrative_Policy": "Only concise semantic definitions are retained; methodology and rationale live outside this workbook",
+  "Supersedes": "Environmental_Manipulation_Implementation_Workbook_Package_1.1_RC1_Candidate.xlsx"
+ },
+ "families": [
+  {
+   "Family_ID": "EMF-01",
+   "Family_Name": "Playing Area Geometry",
+   "Sort_Order": 1,
+   "Ownership_Definition": "Owns the physical extent and geometric characteristics of the playing environment.",
+   "Status": "RC1 Stable"
+  },
+  {
+   "Family_ID": "EMF-02",
+   "Family_Name": "Spatial Organization",
+   "Sort_Order": 2,
+   "Ownership_Definition": "Owns the spatial pose of performers, objectives, and environmental objects.",
+   "Status": "RC1 Stable"
+  },
+  {
+   "Family_ID": "EMF-03",
+   "Family_Name": "Performer Availability",
+   "Sort_Order": 3,
+   "Ownership_Definition": "Owns participant composition and current participation state.",
+   "Status": "RC1 Stable"
+  },
+  {
+   "Family_ID": "EMF-04",
+   "Family_Name": "Objective Structure",
+   "Sort_Order": 4,
+   "Ownership_Definition": "Owns objective composition and current functional state.",
+   "Status": "RC1 Stable"
+  },
+  {
+   "Family_ID": "EMF-05",
+   "Family_Name": "Environmental Objects",
+   "Sort_Order": 5,
+   "Ownership_Definition": "Owns physical entities intentionally introduced into the performance environment.",
+   "Status": "RC1 Stable"
+  },
+  {
+   "Family_ID": "EMF-06",
+   "Family_Name": "Playing Surface",
+   "Sort_Order": 6,
+   "Ownership_Definition": "Owns the physical interaction characteristics of the supporting surface.",
+   "Status": "RC1 Stable"
+  }
+ ],
+ "knowledgeObjects": [
+  {
+   "KO_ID": "EM-0001",
+   "Family_ID": "EMF-01",
+   "EVD_ID": "EVD-01",
+   "KO_Name": "Playing Area Configuration",
+   "Primitive": true,
+   "Definition": "Owns the intrinsic geometric configuration of the playable area.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate",
+   "Version": "0.1"
+  },
+  {
+   "KO_ID": "EM-0002",
+   "Family_ID": "EMF-02",
+   "EVD_ID": "EVD-02",
+   "KO_Name": "Performer Configuration",
+   "Primitive": true,
+   "Definition": "Owns the spatial pose of performers within the performance environment.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate",
+   "Version": "0.2"
+  },
+  {
+   "KO_ID": "EM-0003",
+   "Family_ID": "EMF-02",
+   "EVD_ID": "EVD-02",
+   "KO_Name": "Objective Configuration",
+   "Primitive": true,
+   "Definition": "Owns the spatial pose of objectives within the performance environment.",
+   "Sort_Order": 2,
+   "Status": "RC1 Candidate",
+   "Version": "0.2"
+  },
+  {
+   "KO_ID": "EM-0004",
+   "Family_ID": "EMF-02",
+   "EVD_ID": "EVD-02",
+   "KO_Name": "Environmental Object Configuration",
+   "Primitive": true,
+   "Definition": "Owns the spatial pose of introduced environmental objects.",
+   "Sort_Order": 3,
+   "Status": "RC1 Candidate",
+   "Version": "0.2"
+  },
+  {
+   "KO_ID": "EM-0005",
+   "Family_ID": "EMF-06",
+   "EVD_ID": "EVD-03",
+   "KO_Name": "Surface Properties",
+   "Primitive": true,
+   "Definition": "Owns the intrinsic physical interaction characteristics of the supporting surface.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate",
+   "Version": "0.1"
+  },
+  {
+   "KO_ID": "EM-0006",
+   "Family_ID": "EMF-03",
+   "EVD_ID": "EVD-04",
+   "KO_Name": "Participant Composition",
+   "Primitive": true,
+   "Definition": "Owns the number of participating performers within one or more groups.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate",
+   "Version": "0.1"
+  },
+  {
+   "KO_ID": "EM-0007",
+   "Family_ID": "EMF-03",
+   "EVD_ID": "EVD-05",
+   "KO_Name": "Participant State",
+   "Primitive": true,
+   "Definition": "Owns the current participation status of performers.",
+   "Sort_Order": 2,
+   "Status": "RC1 Candidate",
+   "Version": "0.1"
+  },
+  {
+   "KO_ID": "EM-0008",
+   "Family_ID": "EMF-05",
+   "EVD_ID": "EVD-03",
+   "KO_Name": "Environmental Object Properties",
+   "Primitive": true,
+   "Definition": "Owns intrinsic physical characteristics of introduced environmental objects that affect interaction.",
+   "Sort_Order": 3,
+   "Status": "RC1 Candidate",
+   "Version": "0.1"
+  },
+  {
+   "KO_ID": "EM-0009",
+   "Family_ID": "EMF-04",
+   "EVD_ID": "EVD-04",
+   "KO_Name": "Objective Composition",
+   "Primitive": true,
+   "Definition": "Owns the number of objectives instantiated within the performance environment.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate",
+   "Version": "0.1"
+  },
+  {
+   "KO_ID": "EM-0010",
+   "Family_ID": "EMF-04",
+   "EVD_ID": "EVD-05",
+   "KO_Name": "Objective State",
+   "Primitive": true,
+   "Definition": "Owns the current functional activation state of objectives.",
+   "Sort_Order": 2,
+   "Status": "RC1 Candidate",
+   "Version": "0.1"
+  },
+  {
+   "KO_ID": "EM-0011",
+   "Family_ID": "EMF-05",
+   "EVD_ID": "EVD-04",
+   "KO_Name": "Environmental Object Composition",
+   "Primitive": true,
+   "Definition": "Owns the number of introduced environmental objects.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate",
+   "Version": "0.1"
+  }
+ ],
+ "variableDomains": [
+  {
+   "EVD_ID": "EVD-01",
+   "Domain_Name": "Geometry",
+   "Definition": "Manipulable geometric characteristics of the playing area.",
+   "Status": "RC1 Stable"
+  },
+  {
+   "EVD_ID": "EVD-02",
+   "Domain_Name": "Spatial Pose",
+   "Definition": "Manipulable position and, when functionally meaningful, orientation of a discrete entity.",
+   "Status": "RC1 Stable"
+  },
+  {
+   "EVD_ID": "EVD-03",
+   "Domain_Name": "Physical Properties",
+   "Definition": "Intrinsic characteristics of a physical entity that directly influence performer-environment interaction.",
+   "Status": "RC1 Stable"
+  },
+  {
+   "EVD_ID": "EVD-04",
+   "Domain_Name": "Composition",
+   "Definition": "Manipulable quantity of owned entities instantiated within the environment.",
+   "Status": "RC1 Stable"
+  },
+  {
+   "EVD_ID": "EVD-05",
+   "Domain_Name": "State",
+   "Definition": "Manipulable current functional or participation status of an owned entity.",
+   "Status": "RC1 Stable"
+  }
+ ],
+ "engineeringDimensions": [
+  {
+   "DIM_ID": "EMD-0001",
+   "KO_ID": "EM-0001",
+   "Dimension_Name": "Length",
+   "Definition": "Manipulates the longitudinal extent of the playable area.",
+   "Applicability": "Always applicable",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate",
+   "Version": "0.1"
+  },
+  {
+   "DIM_ID": "EMD-0002",
+   "KO_ID": "EM-0001",
+   "Dimension_Name": "Width",
+   "Definition": "Manipulates the lateral extent of the playable area.",
+   "Applicability": "Always applicable",
+   "Sort_Order": 2,
+   "Status": "RC1 Candidate",
+   "Version": "0.1"
+  },
+  {
+   "DIM_ID": "EMD-0003",
+   "KO_ID": "EM-0001",
+   "Dimension_Name": "Shape",
+   "Definition": "Manipulates the geometric form of the playable area.",
+   "Applicability": "Always applicable",
+   "Sort_Order": 3,
+   "Status": "RC1 Candidate",
+   "Version": "0.1"
+  },
+  {
+   "DIM_ID": "EMD-0004",
+   "KO_ID": "EM-0002",
+   "Dimension_Name": "Position",
+   "Definition": "Manipulates the spatial location of one or more performers.",
+   "Applicability": "Always applicable",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate",
+   "Version": "0.2"
+  },
+  {
+   "DIM_ID": "EMD-0005",
+   "KO_ID": "EM-0002",
+   "Dimension_Name": "Orientation",
+   "Definition": "Manipulates the directional pose of one or more performers.",
+   "Applicability": "Apply when facing or body direction is functionally meaningful",
+   "Sort_Order": 2,
+   "Status": "RC1 Candidate",
+   "Version": "0.2"
+  },
+  {
+   "DIM_ID": "EMD-0006",
+   "KO_ID": "EM-0003",
+   "Dimension_Name": "Position",
+   "Definition": "Manipulates the spatial location of one or more objectives.",
+   "Applicability": "Always applicable",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate",
+   "Version": "0.2"
+  },
+  {
+   "DIM_ID": "EMD-0007",
+   "KO_ID": "EM-0003",
+   "Dimension_Name": "Orientation",
+   "Definition": "Manipulates the directional pose of an objective.",
+   "Applicability": "Apply when the objective has directional geometry",
+   "Sort_Order": 2,
+   "Status": "RC1 Candidate",
+   "Version": "0.2"
+  },
+  {
+   "DIM_ID": "EMD-0008",
+   "KO_ID": "EM-0004",
+   "Dimension_Name": "Position",
+   "Definition": "Manipulates the spatial location of one or more environmental objects.",
+   "Applicability": "Always applicable",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate",
+   "Version": "0.2"
+  },
+  {
+   "DIM_ID": "EMD-0009",
+   "KO_ID": "EM-0004",
+   "Dimension_Name": "Orientation",
+   "Definition": "Manipulates the directional pose of an environmental object.",
+   "Applicability": "Apply when the object has directional geometry",
+   "Sort_Order": 2,
+   "Status": "RC1 Candidate",
+   "Version": "0.2"
+  },
+  {
+   "DIM_ID": "EMD-0010",
+   "KO_ID": "EM-0005",
+   "Dimension_Name": "Friction",
+   "Definition": "Manipulates resistance between the supporting surface and performers or objects.",
+   "Applicability": "Always applicable",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate",
+   "Version": "0.1"
+  },
+  {
+   "DIM_ID": "EMD-0011",
+   "KO_ID": "EM-0005",
+   "Dimension_Name": "Compliance",
+   "Definition": "Manipulates the degree to which the supporting surface deforms under force.",
+   "Applicability": "Always applicable",
+   "Sort_Order": 2,
+   "Status": "RC1 Candidate",
+   "Version": "0.1"
+  },
+  {
+   "DIM_ID": "EMD-0012",
+   "KO_ID": "EM-0005",
+   "Dimension_Name": "Energy Return",
+   "Definition": "Manipulates how energy is returned by the supporting surface during interaction.",
+   "Applicability": "Always applicable",
+   "Sort_Order": 3,
+   "Status": "RC1 Candidate",
+   "Version": "0.1"
+  },
+  {
+   "DIM_ID": "EMD-0013",
+   "KO_ID": "EM-0006",
+   "Dimension_Name": "Quantity",
+   "Definition": "Manipulates the number of participating performers assigned to one or more groups.",
+   "Applicability": "Always applicable",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate",
+   "Version": "0.1"
+  },
+  {
+   "DIM_ID": "EMD-0014",
+   "KO_ID": "EM-0007",
+   "Dimension_Name": "Participation State",
+   "Definition": "Manipulates the current participation status of one or more performers.",
+   "Applicability": "Always applicable",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate",
+   "Version": "0.1"
+  },
+  {
+   "DIM_ID": "EMD-0015",
+   "KO_ID": "EM-0008",
+   "Dimension_Name": "Size",
+   "Definition": "Manipulates the physical extent of an introduced environmental object.",
+   "Applicability": "Always applicable",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate",
+   "Version": "0.1"
+  },
+  {
+   "DIM_ID": "EMD-0016",
+   "KO_ID": "EM-0008",
+   "Dimension_Name": "Shape",
+   "Definition": "Manipulates the geometric form of an introduced environmental object.",
+   "Applicability": "Always applicable",
+   "Sort_Order": 2,
+   "Status": "RC1 Candidate",
+   "Version": "0.1"
+  },
+  {
+   "DIM_ID": "EMD-0017",
+   "KO_ID": "EM-0008",
+   "Dimension_Name": "Mass",
+   "Definition": "Manipulates the object's resistance to acceleration and momentum behavior.",
+   "Applicability": "Apply when mass affects interaction",
+   "Sort_Order": 3,
+   "Status": "RC1 Candidate",
+   "Version": "0.1"
+  },
+  {
+   "DIM_ID": "EMD-0018",
+   "KO_ID": "EM-0008",
+   "Dimension_Name": "Mechanical Mobility",
+   "Definition": "Manipulates the object's physical capacity to translate or rotate when acted upon.",
+   "Applicability": "Apply when physical mobility is meaningful",
+   "Sort_Order": 4,
+   "Status": "RC1 Candidate",
+   "Version": "0.1"
+  },
+  {
+   "DIM_ID": "EMD-0019",
+   "KO_ID": "EM-0008",
+   "Dimension_Name": "Structural Openness",
+   "Definition": "Manipulates whether and to what extent the object's structure permits passage through it.",
+   "Applicability": "Apply to framed, hollow, or permeable objects",
+   "Sort_Order": 5,
+   "Status": "RC1 Candidate",
+   "Version": "0.1"
+  },
+  {
+   "DIM_ID": "EMD-0020",
+   "KO_ID": "EM-0008",
+   "Dimension_Name": "Compliance",
+   "Definition": "Manipulates the degree to which the object deforms under applied force.",
+   "Applicability": "Apply when deformation affects interaction",
+   "Sort_Order": 6,
+   "Status": "RC1 Candidate",
+   "Version": "0.1"
+  },
+  {
+   "DIM_ID": "EMD-0021",
+   "KO_ID": "EM-0008",
+   "Dimension_Name": "Surface Friction",
+   "Definition": "Manipulates resistance at the object's contact surface.",
+   "Applicability": "Apply when contact friction affects interaction",
+   "Sort_Order": 7,
+   "Status": "RC1 Candidate",
+   "Version": "0.1"
+  },
+  {
+   "DIM_ID": "EMD-0022",
+   "KO_ID": "EM-0009",
+   "Dimension_Name": "Quantity",
+   "Definition": "Manipulates the number of objectives instantiated within the environment.",
+   "Applicability": "Always applicable",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate",
+   "Version": "0.1"
+  },
+  {
+   "DIM_ID": "EMD-0023",
+   "KO_ID": "EM-0010",
+   "Dimension_Name": "Activation State",
+   "Definition": "Manipulates whether an objective currently functions as active.",
+   "Applicability": "Always applicable",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate",
+   "Version": "0.1"
+  },
+  {
+   "DIM_ID": "EMD-0024",
+   "KO_ID": "EM-0011",
+   "Dimension_Name": "Quantity",
+   "Definition": "Manipulates the number of introduced environmental objects.",
+   "Applicability": "Always applicable",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate",
+   "Version": "0.1"
+  }
+ ],
+ "parameters": [
+  {
+   "PARAM_ID": "EMP-0001",
+   "DIM_ID": "EMD-0001",
+   "Category": "Direction",
+   "Value_Type": "Increase / Decrease / Maintain",
+   "Definition": "Relative change from baseline length.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0002",
+   "DIM_ID": "EMD-0001",
+   "Category": "Value",
+   "Value_Type": "Absolute measurement",
+   "Definition": "Specified longitudinal measurement.",
+   "Sort_Order": 2,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0003",
+   "DIM_ID": "EMD-0001",
+   "Category": "Value",
+   "Value_Type": "Relative scaling",
+   "Definition": "Proportional longitudinal change.",
+   "Sort_Order": 3,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0004",
+   "DIM_ID": "EMD-0002",
+   "Category": "Direction",
+   "Value_Type": "Increase / Decrease / Maintain",
+   "Definition": "Relative change from baseline width.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0005",
+   "DIM_ID": "EMD-0002",
+   "Category": "Value",
+   "Value_Type": "Absolute measurement",
+   "Definition": "Specified lateral measurement.",
+   "Sort_Order": 2,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0006",
+   "DIM_ID": "EMD-0002",
+   "Category": "Value",
+   "Value_Type": "Relative scaling",
+   "Definition": "Proportional lateral change.",
+   "Sort_Order": 3,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0007",
+   "DIM_ID": "EMD-0003",
+   "Category": "Form",
+   "Value_Type": "Rectangular / Square / Circular / Triangular / Polygonal / Irregular",
+   "Definition": "Selected geometric form of the playing area.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0008",
+   "DIM_ID": "EMD-0004",
+   "Category": "Reference Basis",
+   "Value_Type": "Absolute / Relative",
+   "Definition": "Whether location is specified independently or relative to another entity.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0009",
+   "DIM_ID": "EMD-0004",
+   "Category": "Reference Target",
+   "Value_Type": "Playing area / Boundary / Performer / Objective / Environmental object",
+   "Definition": "Reference used to define location.",
+   "Sort_Order": 2,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0010",
+   "DIM_ID": "EMD-0004",
+   "Category": "Direction",
+   "Value_Type": "Higher / Lower / Wider / Narrower / Inside / Outside / Ahead / Behind / Nearer / Farther",
+   "Definition": "Qualitative directional relation.",
+   "Sort_Order": 3,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0011",
+   "DIM_ID": "EMD-0004",
+   "Category": "Magnitude",
+   "Value_Type": "Coordinate / Distance / Proportional location / Qualitative relation",
+   "Definition": "How location or displacement is expressed.",
+   "Sort_Order": 4,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0012",
+   "DIM_ID": "EMD-0004",
+   "Category": "Scope",
+   "Value_Type": "Individual / Subgroup / Team / Object group / Objective group",
+   "Definition": "Entities affected.",
+   "Sort_Order": 5,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0013",
+   "DIM_ID": "EMD-0004",
+   "Category": "Timing",
+   "Value_Type": "Initial / Restart / Conditional reset",
+   "Definition": "When the parameter is instantiated.",
+   "Sort_Order": 6,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0014",
+   "DIM_ID": "EMD-0006",
+   "Category": "Reference Basis",
+   "Value_Type": "Absolute / Relative",
+   "Definition": "Whether location is specified independently or relative to another entity.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0015",
+   "DIM_ID": "EMD-0006",
+   "Category": "Reference Target",
+   "Value_Type": "Playing area / Boundary / Performer / Objective / Environmental object",
+   "Definition": "Reference used to define location.",
+   "Sort_Order": 2,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0016",
+   "DIM_ID": "EMD-0006",
+   "Category": "Direction",
+   "Value_Type": "Higher / Lower / Wider / Narrower / Inside / Outside / Ahead / Behind / Nearer / Farther",
+   "Definition": "Qualitative directional relation.",
+   "Sort_Order": 3,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0017",
+   "DIM_ID": "EMD-0006",
+   "Category": "Magnitude",
+   "Value_Type": "Coordinate / Distance / Proportional location / Qualitative relation",
+   "Definition": "How location or displacement is expressed.",
+   "Sort_Order": 4,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0018",
+   "DIM_ID": "EMD-0006",
+   "Category": "Scope",
+   "Value_Type": "Individual / Subgroup / Team / Object group / Objective group",
+   "Definition": "Entities affected.",
+   "Sort_Order": 5,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0019",
+   "DIM_ID": "EMD-0006",
+   "Category": "Timing",
+   "Value_Type": "Initial / Restart / Conditional reset",
+   "Definition": "When the parameter is instantiated.",
+   "Sort_Order": 6,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0020",
+   "DIM_ID": "EMD-0008",
+   "Category": "Reference Basis",
+   "Value_Type": "Absolute / Relative",
+   "Definition": "Whether location is specified independently or relative to another entity.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0021",
+   "DIM_ID": "EMD-0008",
+   "Category": "Reference Target",
+   "Value_Type": "Playing area / Boundary / Performer / Objective / Environmental object",
+   "Definition": "Reference used to define location.",
+   "Sort_Order": 2,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0022",
+   "DIM_ID": "EMD-0008",
+   "Category": "Direction",
+   "Value_Type": "Higher / Lower / Wider / Narrower / Inside / Outside / Ahead / Behind / Nearer / Farther",
+   "Definition": "Qualitative directional relation.",
+   "Sort_Order": 3,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0023",
+   "DIM_ID": "EMD-0008",
+   "Category": "Magnitude",
+   "Value_Type": "Coordinate / Distance / Proportional location / Qualitative relation",
+   "Definition": "How location or displacement is expressed.",
+   "Sort_Order": 4,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0024",
+   "DIM_ID": "EMD-0008",
+   "Category": "Scope",
+   "Value_Type": "Individual / Subgroup / Team / Object group / Objective group",
+   "Definition": "Entities affected.",
+   "Sort_Order": 5,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0025",
+   "DIM_ID": "EMD-0008",
+   "Category": "Timing",
+   "Value_Type": "Initial / Restart / Conditional reset",
+   "Definition": "When the parameter is instantiated.",
+   "Sort_Order": 6,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0026",
+   "DIM_ID": "EMD-0005",
+   "Category": "Heading",
+   "Value_Type": "Absolute heading / Relative heading / Angular displacement",
+   "Definition": "Directional orientation of the entity.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0027",
+   "DIM_ID": "EMD-0005",
+   "Category": "Facing Reference",
+   "Value_Type": "Performer / Objective / Environmental object / Playing direction",
+   "Definition": "Reference target the entity faces.",
+   "Sort_Order": 2,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0028",
+   "DIM_ID": "EMD-0007",
+   "Category": "Heading",
+   "Value_Type": "Absolute heading / Relative heading / Angular displacement",
+   "Definition": "Directional orientation of the entity.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0029",
+   "DIM_ID": "EMD-0007",
+   "Category": "Facing Reference",
+   "Value_Type": "Performer / Objective / Environmental object / Playing direction",
+   "Definition": "Reference target the entity faces.",
+   "Sort_Order": 2,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0030",
+   "DIM_ID": "EMD-0009",
+   "Category": "Heading",
+   "Value_Type": "Absolute heading / Relative heading / Angular displacement",
+   "Definition": "Directional orientation of the entity.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0031",
+   "DIM_ID": "EMD-0009",
+   "Category": "Facing Reference",
+   "Value_Type": "Performer / Objective / Environmental object / Playing direction",
+   "Definition": "Reference target the entity faces.",
+   "Sort_Order": 2,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0032",
+   "DIM_ID": "EMD-0010",
+   "Category": "Level",
+   "Value_Type": "Low / Moderate / High",
+   "Definition": "Qualitative supporting-surface friction.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0033",
+   "DIM_ID": "EMD-0010",
+   "Category": "Direction",
+   "Value_Type": "Increase / Decrease / Maintain",
+   "Definition": "Relative change from baseline friction.",
+   "Sort_Order": 2,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0034",
+   "DIM_ID": "EMD-0011",
+   "Category": "Level",
+   "Value_Type": "Firm / Moderate / Soft",
+   "Definition": "Qualitative deformation response under force.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0035",
+   "DIM_ID": "EMD-0012",
+   "Category": "Level",
+   "Value_Type": "Low / Moderate / High",
+   "Definition": "Qualitative return of stored mechanical energy.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0036",
+   "DIM_ID": "EMD-0013",
+   "Category": "Direction",
+   "Value_Type": "Increase / Decrease / Maintain",
+   "Definition": "Relative change in participant quantity.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0037",
+   "DIM_ID": "EMD-0013",
+   "Category": "Value",
+   "Value_Type": "Absolute count",
+   "Definition": "Specified participant count.",
+   "Sort_Order": 2,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0038",
+   "DIM_ID": "EMD-0013",
+   "Category": "Constraint",
+   "Value_Type": "Minimum / Maximum",
+   "Definition": "Permitted quantity bound.",
+   "Sort_Order": 3,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0039",
+   "DIM_ID": "EMD-0013",
+   "Category": "Scope",
+   "Value_Type": "Environment / Team / Subgroup",
+   "Definition": "Set to which quantity applies.",
+   "Sort_Order": 4,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0040",
+   "DIM_ID": "EMD-0014",
+   "Category": "State Value",
+   "Value_Type": "Active / Inactive / Waiting / Resting / Observing",
+   "Definition": "Current participation status.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0041",
+   "DIM_ID": "EMD-0014",
+   "Category": "Scope",
+   "Value_Type": "Individual / Subgroup / Team",
+   "Definition": "Performers affected.",
+   "Sort_Order": 2,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0042",
+   "DIM_ID": "EMD-0014",
+   "Category": "Persistence",
+   "Value_Type": "Temporary / Persistent",
+   "Definition": "Expected persistence of the state.",
+   "Sort_Order": 3,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0043",
+   "DIM_ID": "EMD-0015",
+   "Category": "Value",
+   "Value_Type": "Absolute dimensions / Relative scale",
+   "Definition": "Physical extent of the object.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0044",
+   "DIM_ID": "EMD-0015",
+   "Category": "Direction",
+   "Value_Type": "Increase / Decrease / Maintain",
+   "Definition": "Relative change from baseline size.",
+   "Sort_Order": 2,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0045",
+   "DIM_ID": "EMD-0016",
+   "Category": "Form",
+   "Value_Type": "Spherical / Cylindrical / Planar / Framed / Solid / Irregular",
+   "Definition": "Geometric form of the object.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0046",
+   "DIM_ID": "EMD-0017",
+   "Category": "Value",
+   "Value_Type": "Absolute mass / Relative mass",
+   "Definition": "Specified or relative mass.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0047",
+   "DIM_ID": "EMD-0017",
+   "Category": "Direction",
+   "Value_Type": "Lighter / Heavier / Maintain",
+   "Definition": "Relative change from baseline mass.",
+   "Sort_Order": 2,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0048",
+   "DIM_ID": "EMD-0018",
+   "Category": "Mode",
+   "Value_Type": "Fixed / Freely movable / Directionally constrained / Rotational / Translational",
+   "Definition": "Physical mode of object motion.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0049",
+   "DIM_ID": "EMD-0019",
+   "Category": "State",
+   "Value_Type": "Solid / Partially open / Fully open",
+   "Definition": "Degree of structural passage.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0050",
+   "DIM_ID": "EMD-0019",
+   "Category": "Opening",
+   "Value_Type": "Opening size / Opening location",
+   "Definition": "Characteristics of available passage.",
+   "Sort_Order": 2,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0051",
+   "DIM_ID": "EMD-0020",
+   "Category": "Level",
+   "Value_Type": "Rigid / Semi-compliant / Compliant",
+   "Definition": "Degree of deformation under applied force.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0052",
+   "DIM_ID": "EMD-0021",
+   "Category": "Level",
+   "Value_Type": "Low / Moderate / High",
+   "Definition": "Qualitative contact friction.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0053",
+   "DIM_ID": "EMD-0021",
+   "Category": "Direction",
+   "Value_Type": "Increase / Decrease / Maintain",
+   "Definition": "Relative change from baseline contact friction.",
+   "Sort_Order": 2,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0054",
+   "DIM_ID": "EMD-0022",
+   "Category": "Direction",
+   "Value_Type": "Increase / Decrease / Maintain",
+   "Definition": "Relative change in objective quantity.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0055",
+   "DIM_ID": "EMD-0022",
+   "Category": "Value",
+   "Value_Type": "Absolute count",
+   "Definition": "Specified number of objectives.",
+   "Sort_Order": 2,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0056",
+   "DIM_ID": "EMD-0022",
+   "Category": "Constraint",
+   "Value_Type": "Minimum / Maximum",
+   "Definition": "Permitted quantity bound.",
+   "Sort_Order": 3,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0057",
+   "DIM_ID": "EMD-0022",
+   "Category": "Scope",
+   "Value_Type": "Environment / Team / Objective set",
+   "Definition": "Set to which quantity applies.",
+   "Sort_Order": 4,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0058",
+   "DIM_ID": "EMD-0023",
+   "Category": "State Value",
+   "Value_Type": "Active / Inactive",
+   "Definition": "Current objective activation state.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0059",
+   "DIM_ID": "EMD-0023",
+   "Category": "Scope",
+   "Value_Type": "Individual objective / Objective group / Team-specific set / Environment-wide",
+   "Definition": "Objectives affected.",
+   "Sort_Order": 2,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0060",
+   "DIM_ID": "EMD-0023",
+   "Category": "Persistence",
+   "Value_Type": "Temporary / Persistent",
+   "Definition": "Expected persistence of the state.",
+   "Sort_Order": 3,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0061",
+   "DIM_ID": "EMD-0024",
+   "Category": "Direction",
+   "Value_Type": "Increase / Decrease / Maintain",
+   "Definition": "Relative change in object quantity.",
+   "Sort_Order": 1,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0062",
+   "DIM_ID": "EMD-0024",
+   "Category": "Value",
+   "Value_Type": "Absolute count",
+   "Definition": "Specified number of objects.",
+   "Sort_Order": 2,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0063",
+   "DIM_ID": "EMD-0024",
+   "Category": "Constraint",
+   "Value_Type": "Minimum / Maximum",
+   "Definition": "Permitted quantity bound.",
+   "Sort_Order": 3,
+   "Status": "RC1 Candidate"
+  },
+  {
+   "PARAM_ID": "EMP-0064",
+   "DIM_ID": "EMD-0024",
+   "Category": "Scope",
+   "Value_Type": "Environment / Object class / Object subgroup",
+   "Definition": "Set to which quantity applies.",
+   "Sort_Order": 4,
+   "Status": "RC1 Candidate"
+  }
+ ],
+ "relationships": [
+  {
+   "REL_ID": "EMR-0001",
+   "Source_ID": "EM-0001",
+   "Relationship_Type": "belongs_to",
+   "Target_ID": "EMF-01",
+   "Definition": "Knowledge Object belongs to Family.",
+   "Status": "RC1 Candidate"
+  },
+  {
+   "REL_ID": "EMR-0002",
+   "Source_ID": "EM-0001",
+   "Relationship_Type": "uses_domain",
+   "Target_ID": "EVD-01",
+   "Definition": "Knowledge Object uses Engineering Variable Domain.",
+   "Status": "RC1 Candidate"
+  },
+  {
+   "REL_ID": "EMR-0003",
+   "Source_ID": "EM-0002",
+   "Relationship_Type": "belongs_to",
+   "Target_ID": "EMF-02",
+   "Definition": "Knowledge Object belongs to Family.",
+   "Status": "RC1 Candidate"
+  },
+  {
+   "REL_ID": "EMR-0004",
+   "Source_ID": "EM-0002",
+   "Relationship_Type": "uses_domain",
+   "Target_ID": "EVD-02",
+   "Definition": "Knowledge Object uses Engineering Variable Domain.",
+   "Status": "RC1 Candidate"
+  },
+  {
+   "REL_ID": "EMR-0005",
+   "Source_ID": "EM-0003",
+   "Relationship_Type": "belongs_to",
+   "Target_ID": "EMF-02",
+   "Definition": "Knowledge Object belongs to Family.",
+   "Status": "RC1 Candidate"
+  },
+  {
+   "REL_ID": "EMR-0006",
+   "Source_ID": "EM-0003",
+   "Relationship_Type": "uses_domain",
+   "Target_ID": "EVD-02",
+   "Definition": "Knowledge Object uses Engineering Variable Domain.",
+   "Status": "RC1 Candidate"
+  },
+  {
+   "REL_ID": "EMR-0007",
+   "Source_ID": "EM-0004",
+   "Relationship_Type": "belongs_to",
+   "Target_ID": "EMF-02",
+   "Definition": "Knowledge Object belongs to Family.",
+   "Status": "RC1 Candidate"
+  },
+  {
+   "REL_ID": "EMR-0008",
+   "Source_ID": "EM-0004",
+   "Relationship_Type": "uses_domain",
+   "Target_ID": "EVD-02",
+   "Definition": "Knowledge Object uses Engineering Variable Domain.",
+   "Status": "RC1 Candidate"
+  },
+  {
+   "REL_ID": "EMR-0009",
+   "Source_ID": "EM-0005",
+   "Relationship_Type": "belongs_to",
+   "Target_ID": "EMF-06",
+   "Definition": "Knowledge Object belongs to Family.",
+   "Status": "RC1 Candidate"
+  },
+  {
+   "REL_ID": "EMR-0010",
+   "Source_ID": "EM-0005",
+   "Relationship_Type": "uses_domain",
+   "Target_ID": "EVD-03",
+   "Definition": "Knowledge Object uses Engineering Variable Domain.",
+   "Status": "RC1 Candidate"
+  },
+  {
+   "REL_ID": "EMR-0011",
+   "Source_ID": "EM-0006",
+   "Relationship_Type": "belongs_to",
+   "Target_ID": "EMF-03",
+   "Definition": "Knowledge Object belongs to Family.",
+   "Status": "RC1 Candidate"
+  },
+  {
+   "REL_ID": "EMR-0012",
+   "Source_ID": "EM-0006",
+   "Relationship_Type": "uses_domain",
+   "Target_ID": "EVD-04",
+   "Definition": "Knowledge Object uses Engineering Variable Domain.",
+   "Status": "RC1 Candidate"
+  },
+  {
+   "REL_ID": "EMR-0013",
+   "Source_ID": "EM-0007",
+   "Relationship_Type": "belongs_to",
+   "Target_ID": "EMF-03",
+   "Definition": "Knowledge Object belongs to Family.",
+   "Status": "RC1 Candidate"
+  },
+  {
+   "REL_ID": "EMR-0014",
+   "Source_ID": "EM-0007",
+   "Relationship_Type": "uses_domain",
+   "Target_ID": "EVD-05",
+   "Definition": "Knowledge Object uses Engineering Variable Domain.",
+   "Status": "RC1 Candidate"
+  },
+  {
+   "REL_ID": "EMR-0015",
+   "Source_ID": "EM-0008",
+   "Relationship_Type": "belongs_to",
+   "Target_ID": "EMF-05",
+   "Definition": "Knowledge Object belongs to Family.",
+   "Status": "RC1 Candidate"
+  },
+  {
+   "REL_ID": "EMR-0016",
+   "Source_ID": "EM-0008",
+   "Relationship_Type": "uses_domain",
+   "Target_ID": "EVD-03",
+   "Definition": "Knowledge Object uses Engineering Variable Domain.",
+   "Status": "RC1 Candidate"
+  },
+  {
+   "REL_ID": "EMR-0017",
+   "Source_ID": "EM-0009",
+   "Relationship_Type": "belongs_to",
+   "Target_ID": "EMF-04",
+   "Definition": "Knowledge Object belongs to Family.",
+   "Status": "RC1 Candidate"
+  },
+  {
+   "REL_ID": "EMR-0018",
+   "Source_ID": "EM-0009",
+   "Relationship_Type": "uses_domain",
+   "Target_ID": "EVD-04",
+   "Definition": "Knowledge Object uses Engineering Variable Domain.",
+   "Status": "RC1 Candidate"
+  },
+  {
+   "REL_ID": "EMR-0019",
+   "Source_ID": "EM-0010",
+   "Relationship_Type": "belongs_to",
+   "Target_ID": "EMF-04",
+   "Definition": "Knowledge Object belongs to Family.",
+   "Status": "RC1 Candidate"
+  },
+  {
+   "REL_ID": "EMR-0020",
+   "Source_ID": "EM-0010",
+   "Relationship_Type": "uses_domain",
+   "Target_ID": "EVD-05",
+   "Definition": "Knowledge Object uses Engineering Variable Domain.",
+   "Status": "RC1 Candidate"
+  },
+  {
+   "REL_ID": "EMR-0021",
+   "Source_ID": "EM-0011",
+   "Relationship_Type": "belongs_to",
+   "Target_ID": "EMF-05",
+   "Definition": "Knowledge Object belongs to Family.",
+   "Status": "RC1 Candidate"
+  },
+  {
+   "REL_ID": "EMR-0022",
+   "Source_ID": "EM-0011",
+   "Relationship_Type": "uses_domain",
+   "Target_ID": "EVD-04",
+   "Definition": "Knowledge Object uses Engineering Variable Domain.",
+   "Status": "RC1 Candidate"
+  },
+  {
+   "REL_ID": "EMR-0023",
+   "Source_ID": "EM-0002",
+   "Relationship_Type": "shares_domain_with",
+   "Target_ID": "EM-0003",
+   "Definition": "Knowledge Objects use the same Engineering Variable Domain.",
+   "Status": "RC1 Candidate"
+  },
+  {
+   "REL_ID": "EMR-0024",
+   "Source_ID": "EM-0002",
+   "Relationship_Type": "shares_domain_with",
+   "Target_ID": "EM-0004",
+   "Definition": "Knowledge Objects use the same Engineering Variable Domain.",
+   "Status": "RC1 Candidate"
+  },
+  {
+   "REL_ID": "EMR-0025",
+   "Source_ID": "EM-0006",
+   "Relationship_Type": "shares_domain_with",
+   "Target_ID": "EM-0009",
+   "Definition": "Knowledge Objects use the same Engineering Variable Domain.",
+   "Status": "RC1 Candidate"
+  },
+  {
+   "REL_ID": "EMR-0026",
+   "Source_ID": "EM-0006",
+   "Relationship_Type": "shares_domain_with",
+   "Target_ID": "EM-0011",
+   "Definition": "Knowledge Objects use the same Engineering Variable Domain.",
+   "Status": "RC1 Candidate"
+  },
+  {
+   "REL_ID": "EMR-0027",
+   "Source_ID": "EM-0007",
+   "Relationship_Type": "shares_domain_with",
+   "Target_ID": "EM-0010",
+   "Definition": "Knowledge Objects use the same Engineering Variable Domain.",
+   "Status": "RC1 Candidate"
+  },
+  {
+   "REL_ID": "EMR-0028",
+   "Source_ID": "EM-0005",
+   "Relationship_Type": "shares_domain_with",
+   "Target_ID": "EM-0008",
+   "Definition": "Knowledge Objects use the same Engineering Variable Domain.",
+   "Status": "RC1 Candidate"
+  }
+ ],
+ "examples": [
+  {
+   "EX_ID": "EMX-0001",
+   "KO_ID": "EM-0001",
+   "Example": "Increase field length while maintaining width.",
+   "Context": "Soccer",
+   "Illustrates": "Length"
+  },
+  {
+   "EX_ID": "EMX-0002",
+   "KO_ID": "EM-0001",
+   "Example": "Convert a rectangular area into a circular area.",
+   "Context": "Movement game",
+   "Illustrates": "Shape"
+  },
+  {
+   "EX_ID": "EMX-0003",
+   "KO_ID": "EM-0002",
+   "Example": "Start defenders five metres deeper.",
+   "Context": "Soccer",
+   "Illustrates": "Position"
+  },
+  {
+   "EX_ID": "EMX-0004",
+   "KO_ID": "EM-0002",
+   "Example": "Begin receivers side-on to the direction of play.",
+   "Context": "Soccer",
+   "Illustrates": "Orientation"
+  },
+  {
+   "EX_ID": "EMX-0005",
+   "KO_ID": "EM-0003",
+   "Example": "Move two objectives toward opposite sidelines.",
+   "Context": "Invasion game",
+   "Illustrates": "Position"
+  },
+  {
+   "EX_ID": "EMX-0006",
+   "KO_ID": "EM-0003",
+   "Example": "Angle a rebound target toward the central area.",
+   "Context": "Ball game",
+   "Illustrates": "Orientation"
+  },
+  {
+   "EX_ID": "EMX-0007",
+   "KO_ID": "EM-0004",
+   "Example": "Place two cones centrally and two near the boundaries.",
+   "Context": "Practice design",
+   "Illustrates": "Position"
+  },
+  {
+   "EX_ID": "EMX-0008",
+   "KO_ID": "EM-0004",
+   "Example": "Rotate a rebound board toward midfield without moving it.",
+   "Context": "Soccer",
+   "Illustrates": "Orientation"
+  },
+  {
+   "EX_ID": "EMX-0009",
+   "KO_ID": "EM-0005",
+   "Example": "Use a lower-friction supporting surface.",
+   "Context": "Movement task",
+   "Illustrates": "Friction"
+  },
+  {
+   "EX_ID": "EMX-0010",
+   "KO_ID": "EM-0005",
+   "Example": "Move from a firm surface to a compliant mat.",
+   "Context": "Gymnastics / PE",
+   "Illustrates": "Compliance"
+  },
+  {
+   "EX_ID": "EMX-0011",
+   "KO_ID": "EM-0006",
+   "Example": "Change from 4v4 to 5v4 while preserving other design features.",
+   "Context": "Soccer",
+   "Illustrates": "Quantity"
+  },
+  {
+   "EX_ID": "EMX-0012",
+   "KO_ID": "EM-0007",
+   "Example": "Begin one performer inactive while remaining part of the group.",
+   "Context": "Practice design",
+   "Illustrates": "Participation State"
+  },
+  {
+   "EX_ID": "EMX-0013",
+   "KO_ID": "EM-0008",
+   "Example": "Use a heavier ball of approximately the same size.",
+   "Context": "Ball sport",
+   "Illustrates": "Mass"
+  },
+  {
+   "EX_ID": "EMX-0014",
+   "KO_ID": "EM-0008",
+   "Example": "Replace rigid cones with compliant foam barriers.",
+   "Context": "PE / rehab",
+   "Illustrates": "Compliance"
+  },
+  {
+   "EX_ID": "EMX-0015",
+   "KO_ID": "EM-0008",
+   "Example": "Use an open gate rather than a solid target.",
+   "Context": "Practice design",
+   "Illustrates": "Structural Openness"
+  },
+  {
+   "EX_ID": "EMX-0016",
+   "KO_ID": "EM-0009",
+   "Example": "Increase from one objective to three objectives.",
+   "Context": "Game design",
+   "Illustrates": "Quantity"
+  },
+  {
+   "EX_ID": "EMX-0017",
+   "KO_ID": "EM-0010",
+   "Example": "Only the left objective begins active.",
+   "Context": "Invasion game",
+   "Illustrates": "Activation State"
+  },
+  {
+   "EX_ID": "EMX-0018",
+   "KO_ID": "EM-0011",
+   "Example": "Increase from four cones to eight cones.",
+   "Context": "Practice design",
+   "Illustrates": "Quantity"
+  }
+ ],
+ "ecologicalGuidance": [
+  {
+   "GUIDE_ID": "EMG-0001",
+   "KO_ID": "EM-0001",
+   "Guidance_Type": "Potential Value",
+   "Guidance": "Alters spacing, movement opportunities, and available action spaces."
+  },
+  {
+   "GUIDE_ID": "EMG-0002",
+   "KO_ID": "EM-0001",
+   "Guidance_Type": "Common Risk",
+   "Guidance": "Extreme geometry may remove important representative affordances."
+  },
+  {
+   "GUIDE_ID": "EMG-0003",
+   "KO_ID": "EM-0002",
+   "Guidance_Type": "Potential Value",
+   "Guidance": "Changes interpersonal relations and initial information without prescribing later movement."
+  },
+  {
+   "GUIDE_ID": "EMG-0004",
+   "KO_ID": "EM-0002",
+   "Guidance_Type": "Common Risk",
+   "Guidance": "Rigid positional templates can suppress self-organization."
+  },
+  {
+   "GUIDE_ID": "EMG-0005",
+   "KO_ID": "EM-0003",
+   "Guidance_Type": "Potential Value",
+   "Guidance": "Changes where success opportunities can emerge."
+  },
+  {
+   "GUIDE_ID": "EMG-0006",
+   "KO_ID": "EM-0003",
+   "Guidance_Type": "Common Risk",
+   "Guidance": "Objective placement can unintentionally over-direct solutions."
+  },
+  {
+   "GUIDE_ID": "EMG-0007",
+   "KO_ID": "EM-0004",
+   "Guidance_Type": "Potential Value",
+   "Guidance": "Changes local information, pathways, and contact opportunities."
+  },
+  {
+   "GUIDE_ID": "EMG-0008",
+   "KO_ID": "EM-0004",
+   "Guidance_Type": "Common Risk",
+   "Guidance": "Object clutter can create artificial or irrelevant complexity."
+  },
+  {
+   "GUIDE_ID": "EMG-0009",
+   "KO_ID": "EM-0005",
+   "Guidance_Type": "Potential Value",
+   "Guidance": "Changes force, timing, trajectory, and locomotor demands."
+  },
+  {
+   "GUIDE_ID": "EMG-0010",
+   "KO_ID": "EM-0005",
+   "Guidance_Type": "Common Risk",
+   "Guidance": "Surface novelty may dominate the task without supporting the learning goal."
+  },
+  {
+   "GUIDE_ID": "EMG-0011",
+   "KO_ID": "EM-0006",
+   "Guidance_Type": "Potential Value",
+   "Guidance": "Changes numerical interaction opportunities and local challenge."
+  },
+  {
+   "GUIDE_ID": "EMG-0012",
+   "KO_ID": "EM-0006",
+   "Guidance_Type": "Common Risk",
+   "Guidance": "Numerical changes can overwhelm or trivialize the task."
+  },
+  {
+   "GUIDE_ID": "EMG-0013",
+   "KO_ID": "EM-0007",
+   "Guidance_Type": "Potential Value",
+   "Guidance": "Controls active load and enables temporary numerical transitions."
+  },
+  {
+   "GUIDE_ID": "EMG-0014",
+   "KO_ID": "EM-0007",
+   "Guidance_Type": "Common Risk",
+   "Guidance": "Excessive inactive time reduces learning opportunities."
+  },
+  {
+   "GUIDE_ID": "EMG-0015",
+   "KO_ID": "EM-0008",
+   "Guidance_Type": "Potential Value",
+   "Guidance": "Scales force, contact, passage, and manipulation opportunities."
+  },
+  {
+   "GUIDE_ID": "EMG-0016",
+   "KO_ID": "EM-0008",
+   "Guidance_Type": "Common Risk",
+   "Guidance": "Changing many object properties simultaneously makes effects difficult to interpret."
+  },
+  {
+   "GUIDE_ID": "EMG-0017",
+   "KO_ID": "EM-0009",
+   "Guidance_Type": "Potential Value",
+   "Guidance": "Changes the number of success opportunities and may broaden choice."
+  },
+  {
+   "GUIDE_ID": "EMG-0018",
+   "KO_ID": "EM-0009",
+   "Guidance_Type": "Common Risk",
+   "Guidance": "Too many objectives can obscure the intended problem."
+  },
+  {
+   "GUIDE_ID": "EMG-0019",
+   "KO_ID": "EM-0010",
+   "Guidance_Type": "Potential Value",
+   "Guidance": "Creates changing affordance landscapes without altering physical structure."
+  },
+  {
+   "GUIDE_ID": "EMG-0020",
+   "KO_ID": "EM-0010",
+   "Guidance_Type": "Common Risk",
+   "Guidance": "Frequent state changes can turn the task into game logic."
+  },
+  {
+   "GUIDE_ID": "EMG-0021",
+   "KO_ID": "EM-0011",
+   "Guidance_Type": "Potential Value",
+   "Guidance": "Changes information density and available object interactions."
+  },
+  {
+   "GUIDE_ID": "EMG-0022",
+   "KO_ID": "EM-0011",
+   "Guidance_Type": "Common Risk",
+   "Guidance": "Increasing quantity can create clutter without improving learning."
+  }
+ ],
+ "deferredResearch": [
+  {
+   "DEF_ID": "DEF-0001",
+   "Candidate": "Information Structure",
+   "Status": "Deferred Pending Independent Validation",
+   "Reason": "Informational manipulations are real, but ownership remains unresolved.",
+   "Resolution_Criterion": "Determine whether information is independently manipulated, emergent from existing families, or belongs in a separate Experience Library.",
+   "Implementation_Action": "Do not implement."
+  },
+  {
+   "DEF_ID": "DEF-0002",
+   "Candidate": "Surface Inclination",
+   "Status": "Population Candidate",
+   "Affected_ID": "EM-0005",
+   "Reason": "Inclination may vary independently of current surface dimensions.",
+   "Resolution_Criterion": "Run focused ownership and independence audit across domains.",
+   "Implementation_Action": "Keep schema extensible; do not add dimension yet."
+  },
+  {
+   "DEF_ID": "DEF-0003",
+   "Candidate": "Surface Medium / Immersion",
+   "Status": "Population Candidate",
+   "Affected_ID": "EM-0005",
+   "Reason": "Water, snow, sand, and similar media may introduce direct interaction properties not captured by current dimensions.",
+   "Resolution_Criterion": "Separate direct levers from mechanisms and composites.",
+   "Implementation_Action": "Do not add dimension yet."
+  },
+  {
+   "DEF_ID": "DEF-0004",
+   "Candidate": "Object Color",
+   "Status": "Deferred Informational Boundary",
+   "Affected_ID": "EM-0008",
+   "Reason": "Color is intrinsic but its coaching function is usually informational.",
+   "Resolution_Criterion": "Resolve Information Structure ownership.",
+   "Implementation_Action": "Do not implement as Physical Property."
+  }
+ ],
+ "changeLog": [
+  {
+   "CHANGE_ID": "CHG-0001",
+   "Schema_Version": "0.1",
+   "Date": "2026-07-12",
+   "Change_Type": "Initial Build",
+   "Description": "Created provisional workbook structure and partial population."
+  },
+  {
+   "CHANGE_ID": "CHG-0002",
+   "Schema_Version": "1.1-RC1-Candidate",
+   "Date": "2026-07-12",
+   "Change_Type": "Canonical Population",
+   "Description": "Established permanent IDs and populated eleven Knowledge Objects and twenty-four Engineering Dimensions."
+  },
+  {
+   "CHANGE_ID": "CHG-0003",
+   "Schema_Version": "2.0-RC1-Candidate",
+   "Date": "2026-07-12",
+   "Change_Type": "Normalization",
+   "Description": "Converted workbook into an AI-first relational knowledge schema."
+  },
+  {
+   "CHANGE_ID": "CHG-0004",
+   "Schema_Version": "2.0-RC1-Candidate",
+   "Date": "2026-07-12",
+   "Change_Type": "Registry Addition",
+   "Description": "Added Engineering Variable Domain registry and explicit schema map."
+  },
+  {
+   "CHANGE_ID": "CHG-0005",
+   "Schema_Version": "2.0-RC1-Candidate",
+   "Date": "2026-07-12",
+   "Change_Type": "Reference Normalization",
+   "Description": "Removed repeated names from child tables and replaced cross-sheet references with canonical IDs only."
+  },
+  {
+   "CHANGE_ID": "CHG-0006",
+   "Schema_Version": "2.0-RC1-Candidate",
+   "Date": "2026-07-12",
+   "Change_Type": "Scope Cleanup",
+   "Description": "Removed developer-owned Selection Metadata and long administrative rationale from the canonical workbook."
+  }
+ ]
+}
