@@ -46,6 +46,7 @@ import AdminCategoriesTable from './admin/AdminCategoriesTable'
 import AdminconstraintManagementTable from './admin/AdminConstraintManagementTable'
 import ActivityGenerator from './app/ActivityGenerator'
 import ActivityPage from './app/ActivityPage'
+import DebugEmReasoning from './app/DebugEmReasoning'
 import DebugSelection from './app/DebugSelection'
 import SessionLibrary from './app/SessionLibrary'
 import SessionPage from './app/SessionPage'
@@ -84,6 +85,8 @@ root.render(
                                     <Route path='session-library' element={<SessionLibrary />} />
                                     {/* TEMPORARY developer/testing view — selection debug. Route out before production polish. */}
                                     <Route path='debug' element={<DebugSelection />} />
+                                    {/* TEMPORARY developer/testing view — canonical EM reasoning (Knowledge Core Package 1.1). */}
+                                    <Route path='debug-em' element={<DebugEmReasoning />} />
                                 </Route>
                             </Route>
                             <Route element={<PermissionsWrapper required={{ isAdmin: true }} />}>
