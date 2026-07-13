@@ -101,6 +101,12 @@ function matchesSpacingSupport(text: string): boolean {
     if (/\bshape\b/.test(t)) return true
     if (/\bwidth\b|\bdepth\b/.test(t)) return true
     if (/\bwide\b|\bflank\b|\bchannel\b/.test(t)) return true
+    // Round-9 vocabulary gap: "switch play" was hard-rejected. Switching = moving the point of
+    // attack to exploit width/space — the natural home of this spacing/width group (Channel Games,
+    // Switch of Play Bonus is already in this group's constraint pick).
+    if (/\bswitch(?:ing|es)?\s+(?:the\s+)?(?:play|point\s+of\s+attack|sides?|field|attack)\b/.test(t)) return true
+    if (/\bchang(?:e|ing)\s+the\s+point\s+of\s+attack\b/.test(t)) return true
+    if (/\bplay\s+(?:to|through)\s+the\s+(?:other|far|opposite)\s+side\b/.test(t)) return true
     if (/\bgaps?\b|\bpockets?\b/.test(t)) return true
     if (/\bsupport\b|\bangles\b/.test(t)) return true
     if (/\bspace\b/.test(t)) return true
@@ -168,6 +174,9 @@ function matchesOverload(text: string): boolean {
     const t = text.toLowerCase()
     if (/\boverloads?\b/.test(t)) return true
     if (/\bnumerical\b|\bnumbers?\s+up\b/.test(t)) return true
+    // Round-9 vocabulary gap: "create number advantages" was hard-rejected — coaches say
+    // "number advantage(s)" as often as "numerical advantage".
+    if (/\bnumbers?\s+advantages?\b/.test(t)) return true
     if (/\bextra\s+(?:man|player|attacker)\b/.test(t)) return true
     if (/\bman\s+(?:up|advantage)\b|\bup\s+a\s+(?:man|player)\b/.test(t)) return true
     if (/\b\d+\s*v\s*\d+\b/.test(t)) return true
@@ -535,6 +544,9 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
             'Wide Zone Advantage',
             'Switch of Play Bonus',
             'Turnover Reward',
+            // Round-9 routing-coverage fix: scored consistently high for possession/passing goals but
+            // was in NO group's candidate pool, so it always ranked "routed out" and could never win.
+            'Pass Combination Gate',
         ])
         pickPossessionLikeArchetypes()
     }
@@ -552,6 +564,9 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
             'Central Density Condition',
             'Switch of Play Bonus',
             'Wide Utilization Bonus',
+            // Round-9 routing-coverage fix: support-lane vocabulary scores high for spacing/support
+            // goals but the constraint was in NO group's candidate pool (permanently "routed out").
+            'Support Lane Requirement',
         ])
         // WS2: spacing/width/support goals are the natural home of Channel Games (defined wide /
         // half-space channels) and Positional Play (structure, support, spacing). Lead with those

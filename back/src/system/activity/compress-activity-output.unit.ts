@@ -237,6 +237,23 @@ function testEmDashRecoveryAfterStrip(): void {
     )
 }
 
+function testDecisionStutterCollapsed(): void {
+    // Round 9 (Christian): "Players decide to decide..." / "Players decide to choose..." artifacts —
+    // upstream must-decide rewrites composing with AI phrasing. Category rule: chained decision verbs
+    // collapse to the second, more specific verb.
+    const activity = baseActivity({
+        setup: 'Attackers decide to choose the moment to release the ball into the wide zone.',
+        rules: [EXCHANGE_RULE, 'On the regain, the winning team decides to decide when to break forward.'],
+        scoringSystem:
+            'A goal counts double when the scorer chooses to select the far post option under live pressure.',
+    })
+    const out = compressActivityForCoach(activity, [])
+    const all = [out.setup ?? '', (out.rules ?? []).join(' '), out.scoringSystem ?? ''].join(' ')
+    assert.ok(!/decide[s]?\s+to\s+decide/i.test(all), `"decide to decide" must collapse; got: ${all}`)
+    assert.ok(!/decide[s]?\s+to\s+choose/i.test(all), `"decide to choose" must collapse; got: ${all}`)
+    assert.ok(!/choose[s]?\s+to\s+select/i.test(all), `"chooses to select" must collapse; got: ${all}`)
+}
+
 function testIdempotent(): void {
     const activity = baseActivity({
         rules: [
@@ -272,6 +289,7 @@ function runAll(): void {
     testGuardrailClosingLineStrippedFromScoring()
     testPlayerReadNarrationStripped()
     testEmDashRecoveryAfterStrip()
+    testDecisionStutterCollapsed()
     testIdempotent()
     console.log('compress-activity-output unit tests: all cases passed.')
 }

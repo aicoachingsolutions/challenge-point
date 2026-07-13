@@ -236,9 +236,28 @@ function testOverloadAndTransitionSignalsFire(): void {
     )
 }
 
+function testRound9VocabularyGaps(): void {
+    // Christian Round 9: both phrases were hard-rejected ("no supported soccer signals").
+    assert.ok(
+        deriveInputConstraints('create number advantages').matchedSignals.includes('signalGroup:G_overload'),
+        '"create number advantages" should fire G_overload'
+    )
+    const switchPlay = deriveInputConstraints('switch play')
+    assert.ok(
+        switchPlay.matchedSignals.includes('signalGroup:C_spacing_support'),
+        '"switch play" should fire C_spacing_support'
+    )
+    assert.ok(switchPlay.candidateArchetypeIds.length > 0, '"switch play" must resolve to archetypes, not reject')
+    assert.ok(
+        deriveInputConstraints('switch the point of attack').matchedSignals.includes('signalGroup:C_spacing_support'),
+        '"switch the point of attack" should fire C_spacing_support'
+    )
+}
+
 function runAll(): void {
     testMustAccept()
     testMustReject()
+    testRound9VocabularyGaps()
     testOverloadAndTransitionSignalsFire()
     testDefensiveGoalsFireDefensiveGroupAndLenses()
     testAttackingGoalsDoNotFireDefensiveGroup()
