@@ -254,6 +254,18 @@ function testDecisionStutterCollapsed(): void {
     assert.ok(!/choose[s]?\s+to\s+select/i.test(all), `"chooses to select" must collapse; got: ${all}`)
 }
 
+function testStutterCollapsedInIntentConstraintExtensions(): void {
+    // Round-9 verification: the stutter survived in fields the spread passed through untranslated.
+    const activity = baseActivity({
+        intent: 'Players decide to decide when to release the ball forward.',
+        constraint: 'Attackers deciding to choose the wide option keep the advantage.',
+        extensions: ['Progress only after players decide to select the open gate.'],
+    })
+    const out = compressActivityForCoach(activity, [])
+    const all = [out.intent ?? '', out.constraint ?? '', (out.extensions ?? []).join(' ')].join(' ')
+    assert.ok(!/decid(?:e|es|ing)\s+to\s+(?:decide|choose|select)/i.test(all), `stutter must collapse in intent/constraint/extensions; got: ${all}`)
+}
+
 function testIdempotent(): void {
     const activity = baseActivity({
         rules: [
@@ -290,6 +302,7 @@ function runAll(): void {
     testPlayerReadNarrationStripped()
     testEmDashRecoveryAfterStrip()
     testDecisionStutterCollapsed()
+    testStutterCollapsedInIntentConstraintExtensions()
     testIdempotent()
     console.log('compress-activity-output unit tests: all cases passed.')
 }
