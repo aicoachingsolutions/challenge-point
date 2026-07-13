@@ -311,9 +311,24 @@ const COACH_LANGUAGE_TRANSLATIONS: Array<[RegExp, string]> = [
     [/\bremain live\b/gi, 'stay live'],
     [/\bdisrupts structure\b/gi, 'disrupts the shape'],
 ]
+/**
+ * Decision-verb stutter collapse (Round 9). Upstream rewrites ("players must decide" → "players
+ * decide") composed with AI phrasing ("must decide to choose…") produce stutters like "players
+ * decide to decide" / "players decide to choose". This is a CATEGORY rule — any chained pair of
+ * decision verbs collapses to the second, more specific verb — not a phrase-by-phrase list.
+ */
+const DECISION_VERBS = '(?:decide|decides|choose|chooses|select|selects)'
+const DECISION_STUTTER = new RegExp(`\\b(${DECISION_VERBS})\\s+to\\s+(${DECISION_VERBS})\\b`, 'gi')
+
+function collapseDecisionStutter(value: string): string {
+    // "decide to decide when…" → "decide when…"; "decide to choose when…" → "choose when…".
+    return value.replace(DECISION_STUTTER, (_m, _a: string, b: string) => b)
+}
+
 function translateCoachLanguage(value: string): string {
     let out = String(value ?? '')
     for (const [re, rep] of COACH_LANGUAGE_TRANSLATIONS) out = out.replace(re, rep)
+    out = collapseDecisionStutter(out)
     return out
         .replace(/\s{2,}/g, ' ')
         .replace(/\s+([.,;])/g, '$1')
