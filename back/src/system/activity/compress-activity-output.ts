@@ -317,7 +317,7 @@ const COACH_LANGUAGE_TRANSLATIONS: Array<[RegExp, string]> = [
  * decide to decide" / "players decide to choose". This is a CATEGORY rule — any chained pair of
  * decision verbs collapses to the second, more specific verb — not a phrase-by-phrase list.
  */
-const DECISION_VERBS = '(?:decide|decides|choose|chooses|select|selects)'
+const DECISION_VERBS = '(?:decide|decides|deciding|choose|chooses|choosing|select|selects|selecting)'
 const DECISION_STUTTER = new RegExp(`\\b(${DECISION_VERBS})\\s+to\\s+(${DECISION_VERBS})\\b`, 'gi')
 
 function collapseDecisionStutter(value: string): string {
@@ -411,6 +411,14 @@ export function compressActivityForCoach(activity: IActivity, modifierMechanicLi
         scoringSystem: translateCoachLanguage(finalScoring),
         winCondition: typeof activity.winCondition === 'string' ? translateCoachLanguage(activity.winCondition) : activity.winCondition,
         scaffolding: cappedScaffolding.map((s) => (typeof s === 'string' ? translateCoachLanguage(s) : s)),
+        // Round-9 verification gap: these coach-facing fields previously passed through the spread
+        // UNtranslated, so stutters/jargon fixed elsewhere still surfaced here ("players decide to
+        // decide…" sighted after the rules/scoring fix shipped).
+        intent: typeof activity.intent === 'string' ? translateCoachLanguage(activity.intent) : activity.intent,
+        constraint: typeof activity.constraint === 'string' ? translateCoachLanguage(activity.constraint) : activity.constraint,
+        extensions: Array.isArray(activity.extensions)
+            ? activity.extensions.map((e) => (typeof e === 'string' ? translateCoachLanguage(e) : e))
+            : activity.extensions,
     }
 }
 
