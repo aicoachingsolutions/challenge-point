@@ -1,4 +1,6 @@
 import type { InputConstraintHints } from '../input-constraints/deriveInputConstraints'
+import { resolveAffordanceTargetProfile } from '../knowledge-core/affordance-target-matrix'
+import { emCanonical } from '../knowledge-core/em-canonical'
 import { testLibraryRegistry } from './library/registry'
 import { normalizeCoachingInput } from './normalizeCoachingInput'
 import { isSelectionPackageCompatible } from './selection-compatibility'
@@ -884,6 +886,9 @@ export function generateSelection(
         resolution,
         selectionTrace: {
             queryCorpus,
+            // RAS RC1 Stage 3, SHADOW MODE: resolved for inspection only — no selection influence.
+            affordanceTargetProfile: resolveAffordanceTargetProfile(inputConstraints?.matchedSignals ?? []),
+            versions: { knowledgeCore: emCanonical.version, reasoningEngine: 'test-library-v0+ras-rc1-shadow' },
             archetype: { id: archetype.id, score: bestArc.score, reasons: bestArc.reasons },
             affordanceLenses: affordanceTrace,
             constraints: constraintsTrace,

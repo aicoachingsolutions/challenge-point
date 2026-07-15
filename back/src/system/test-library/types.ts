@@ -163,6 +163,15 @@ export interface TestLibrarySelectionResult {
     resolution: SelectionResolution
     selectionTrace: {
         queryCorpus: string
+        /**
+         * RAS RC1 Stage-3 SHADOW artifact: the Resolved Affordance Target Profile for this decision
+         * (canonical Game Problems + merged affordance-target ratings from the versioned Affordance
+         * Target Matrix). Inspectable in traces/debug; does NOT influence selection in RC1 shadow mode.
+         * Typed loosely here to keep the test-library layer decoupled from knowledge-core types.
+         */
+        affordanceTargetProfile?: unknown
+        /** RAS traceability contract: version stamps pinning the reasoning context. */
+        versions?: { knowledgeCore: string; reasoningEngine: string }
         archetype: SelectionReasonEntry
         affordanceLenses: SelectionReasonEntry[]
         constraints: SelectionReasonEntry[]
