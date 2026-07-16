@@ -28,40 +28,73 @@ export type CanonicalAffordance = (typeof CANONICAL_AFFORDANCES)[number]
 
 export type AffordanceTargetRow = Record<CanonicalAffordance, AffordanceTargetRating>
 
+/**
+ * Canonical ingestion source (workbook release RC1.1): the machine-readable workbook committed
+ * verbatim at back/data/knowledge-core/Affordance_Target_Matrix_RC1_1_Machine_Readable.xlsx,
+ * projected completely into atm-workbook.rc1.1.json (generated — never hand-edit). Semantic matrix
+ * version remains RC1; the workbook replaces prose-derived transcription for all future updates.
+ */
+import atmWorkbook from './atm-workbook.rc1.1.json'
+
+interface AtmRatingRow {
+    game_problem_id: string
+    canonical_name: string
+    FOI: string
+    OP: string
+    SA: string
+    CIO: string
+    row_status: string
+    matrix_version: string
+}
+
+const ATM_METADATA = (atmWorkbook as { metadata: Record<string, string | number | boolean> }).metadata
+const ATM_RATINGS = (atmWorkbook as { ratings: AtmRatingRow[] }).ratings
+
+const RATING_CODE: Record<string, AffordanceTargetRating> = {
+    E: 'Essential',
+    S: 'Supportive',
+    C: 'Contextual',
+    NR: 'Not Required',
+}
+
 export const AFFORDANCE_TARGET_MATRIX_VERSION = {
-    matrixVersion: 'RC1-canonical (ATM package 2026-07-15)',
-    resourceStatus: 'Provisionally Stable — approved for RC1 Shadow-Mode implementation',
-    supersedes: 'RC1-initial (RAS package illustration)',
+    resourceId: String(ATM_METADATA['resource_id'] ?? 'ATM-RR-RC1'),
+    matrixVersion: `${String(ATM_METADATA['matrix_semantic_version'] ?? 'RC1')} (workbook ${String(ATM_METADATA['workbook_release_version'] ?? 'RC1.1')})`,
+    resourceStatus: String(ATM_METADATA['resource_status'] ?? ''),
+    supersedes: 'RC1-initial (RAS package illustration); prose-derived RC1-canonical transcription',
 } as const
 
-/** §8/§9 — canonical Game Problem → opportunity-commitment profile (verbatim; FOI/OP/SA/CIO order). */
-export const AFFORDANCE_TARGET_MATRIX: Record<string, AffordanceTargetRow> = {
-    'Progress the Object': row('Essential', 'Essential', 'Supportive', 'Essential'),
-    'Maintain Possession': row('Essential', 'Essential', 'Essential', 'Essential'),
-    'Finish Attack': row('Essential', 'Essential', 'Supportive', 'Essential'),
-    'Regain Possession': row('Essential', 'Essential', 'Supportive', 'Essential'),
-    'Delay Progression': row('Supportive', 'Essential', 'Supportive', 'Essential'),
-    'Protect Space': row('Not Required', 'Essential', 'Supportive', 'Essential'),
-    'Recover Organization': row('Not Required', 'Essential', 'Essential', 'Supportive'),
-    'Create Space': row('Supportive', 'Essential', 'Supportive', 'Essential'),
-    'Create Numerical Advantage': row('Supportive', 'Essential', 'Essential', 'Essential'),
-    'Transition Attack': row('Essential', 'Essential', 'Supportive', 'Essential'),
-    'Transition Defense': row('Not Required', 'Essential', 'Essential', 'Essential'),
+function buildMatrixFromWorkbook(): Record<string, AffordanceTargetRow> {
+    // Load-time integrity gate against the workbook's OWN declared expectations (defined failure,
+    // never silent): row/cell counts, allowed codes, and the RC1 contextual_cells_used=0 invariant.
+    const expectedRows = Number(ATM_METADATA['expected_matrix_rows'] ?? 11)
+    if (ATM_RATINGS.length !== expectedRows) {
+        throw new Error(`ATM workbook: expected ${expectedRows} rating rows, loaded ${ATM_RATINGS.length}.`)
+    }
+    const matrix: Record<string, AffordanceTargetRow> = {}
+    let contextualCells = 0
+    for (const r of ATM_RATINGS) {
+        const codes = [r.FOI, r.OP, r.SA, r.CIO]
+        for (const c of codes) {
+            if (!RATING_CODE[c]) throw new Error(`ATM workbook: unknown rating code "${c}" on ${r.game_problem_id}.`)
+            if (c === 'C') contextualCells++
+        }
+        matrix[r.canonical_name] = {
+            'Functional Object Interaction': RATING_CODE[r.FOI],
+            'Open Pathway': RATING_CODE[r.OP],
+            'Support Availability': RATING_CODE[r.SA],
+            'Competitive Interaction Opportunity': RATING_CODE[r.CIO],
+        }
+    }
+    const expectedContextual = Number(ATM_METADATA['contextual_cells_used'] ?? 0)
+    if (contextualCells !== expectedContextual) {
+        throw new Error(`ATM workbook: contextual_cells_used must be ${expectedContextual}, found ${contextualCells}.`)
+    }
+    return matrix
 }
 
-function row(
-    foi: AffordanceTargetRating,
-    op: AffordanceTargetRating,
-    sa: AffordanceTargetRating,
-    cio: AffordanceTargetRating
-): AffordanceTargetRow {
-    return {
-        'Functional Object Interaction': foi,
-        'Open Pathway': op,
-        'Support Availability': sa,
-        'Competitive Interaction Opportunity': cio,
-    }
-}
+/** Canonical Game Problem → opportunity-commitment profile, loaded from the RC1.1 workbook. */
+export const AFFORDANCE_TARGET_MATRIX: Record<string, AffordanceTargetRow> = buildMatrixFromWorkbook()
 
 /**
  * Engine-side mapping from the parser's resolved signal groups to canonical Game Problems.
