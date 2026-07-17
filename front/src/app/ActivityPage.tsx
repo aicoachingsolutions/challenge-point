@@ -18,6 +18,7 @@ import { api } from '@/services/api.service'
 import { useResource } from '@/services/resource.service'
 import { determineZpdZone, getZoneInfo } from '@/utils/analysis'
 
+import ActivityFeedback from '@/components/ActivityFeedback'
 import Button from '@/components/Button'
 import Loading from '@/components/Loading'
 import Modal from '@/components/Modal'
@@ -308,6 +309,8 @@ function ActivityScreen({
 
     return (
         <div className='flex flex-col gap-6'>
+            {/* MVP field evidence: one-tap coach feedback (renders last via order-6). */}
+            <ActivityFeedback activityId={activity._id} sessionId={String((activity.session as unknown as { _id?: string })?._id ?? activity.session ?? '')} />
             {/* Activity Status Banner */}
             <div
                 className={`relative order-1 overflow-hidden rounded-lg ${

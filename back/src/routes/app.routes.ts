@@ -16,6 +16,7 @@ import LoggingService from '../services/logging.service'
 import { deriveInputConstraints } from '../system/input-constraints/deriveInputConstraints'
 import { emCanonical } from '../system/knowledge-core/em-canonical'
 import { reasonEnvironmentalManipulations } from '../system/knowledge-core/em-selection-metadata'
+import { recordUsageEvent, summarizeUsage } from '../services/usage-telemetry.service'
 import { generateSelection, getTestLibraryV0LoadDebug, systemAssemblyInputFromTestLibrarySelection } from '../system/test-library'
 import { ENDPOINTS } from './_endpoints'
 import BaseRoutes from './helper'
@@ -369,6 +370,42 @@ router.get('/debug-em-reasoning', async (req: Request, res: Response) => {
     }
 })
 
+/**
+ * MVP field evidence — in-app coach feedback on a generated activity (thumbs + optional comment).
+ * Fire-and-forget storage in usage_events; never blocks the coach's flow.
+ */
+router.post('/activity-feedback', async (req: Request, res: Response) => {
+    const { activityId, sessionId, rating, comment } = req.body as Record<string, unknown>
+    if (rating !== 'up' && rating !== 'down') {
+        return res.status(400).json({ error: 'rating must be "up" or "down"' })
+    }
+    recordUsageEvent({
+        eventType: 'coach_feedback',
+        activityId: typeof activityId === 'string' ? activityId : undefined,
+        sessionId: typeof sessionId === 'string' ? sessionId : undefined,
+        payload: {
+            rating,
+            comment: typeof comment === 'string' ? comment.slice(0, 2000) : undefined,
+        },
+    })
+    return res.status(200).json({ ok: true })
+})
+
+/**
+ * MVP field evidence — aggregated usage view for Joe/Christian: what coaches ask for, how goals
+ * resolve, what gets selected, what was rejected verbatim (the vocabulary-gap list), success rate,
+ * and feedback tallies. GET /api/app/debug-usage?days=30
+ */
+router.get('/debug-usage', async (req: Request, res: Response) => {
+    try {
+        const days = Math.min(365, Math.max(1, Number.parseInt(String(req.query.days ?? '30'), 10) || 30))
+        const summary = await summarizeUsage(days)
+        return res.status(200).json(summary)
+    } catch (error) {
+        return res.status(500).json({ error: error instanceof Error ? error.message : String(error) })
+    }
+})
+
 router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Response) => {
     // Developer/testing flag (Christian's debug system). When true, the response carries a
     // debugTrace alongside the real generated activities — the SAME resolution/selection chain
@@ -394,8 +431,15 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
 
         const previousActivities = await Activity.find({ session: req.params.id })
 
+        const generationStart = Date.now()
         const inputConstraints = deriveInputConstraints(learningGoals.join(' '))
         if (inputConstraints.matchedSignals.length === 0) {
+            // MVP field evidence: rejected goals ARE the vocabulary-gap dataset.
+            recordUsageEvent({
+                eventType: 'goal_rejected',
+                sessionId: req.params.id,
+                goalText: learningGoals.join(' | '),
+            })
             return res.status(400).json({
                 error:
                     'I need a soccer training goal to build an activity. Try something like: create better shots, keep possession, break lines, defend in transition, or improve first touch.',
@@ -403,6 +447,21 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                 details: ['No supported soccer training signals were found in the learning goals.'],
             })
         }
+
+        const usageSignalGroups = inputConstraints.matchedSignals
+            .filter((s) => s.startsWith('signalGroup:'))
+            .map((s) => s.replace('signalGroup:', ''))
+        recordUsageEvent({
+            eventType: 'goal_submitted',
+            sessionId: req.params.id,
+            goalText: learningGoals.join(' | '),
+            payload: {
+                resolutionStatus: usageSignalGroups.some((s) => s !== 'Z_soccer_general') ? 'matched' : 'fallback',
+                signalGroups: usageSignalGroups,
+                challengeLevel,
+                duration,
+            },
+        })
 
         let selection
         try {
@@ -417,7 +476,29 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         } catch (selErr) {
             const message = selErr instanceof Error ? selErr.message : String(selErr)
             Logger.warn(`[Activity Generation] Test Library selection failed: ${message}`)
+            recordUsageEvent({
+                eventType: 'generation_failed',
+                sessionId: req.params.id,
+                payload: { stage: 'selection', reason: message.slice(0, 300) },
+            })
             return res.status(400).json({ error: message })
+        }
+
+        {
+            const atp = selection.selectionTrace.affordanceTargetProfile as
+                | { primaryGameProblem?: string | null; matrixVersion?: string }
+                | undefined
+            recordUsageEvent({
+                eventType: 'selection_resolved',
+                sessionId: req.params.id,
+                payload: {
+                    archetype: selection.archetype.game_form_name,
+                    affordanceLenses: selection.affordanceLenses.map((l) => l.title),
+                    constraints: selection.constraints.map((c) => c.title),
+                    shadowAtpPrimary: atp?.primaryGameProblem ?? null,
+                    versions: selection.selectionTrace.versions ?? null,
+                },
+            })
         }
 
         if (debug) {
@@ -609,12 +690,29 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         )
         const compressedActivities = compressActivitiesForCoach(validatedActivities, perSlotModifierLines)
 
+        recordUsageEvent({
+            eventType: 'generation_succeeded',
+            sessionId: req.params.id,
+            payload: {
+                activityCount: compressedActivities.length,
+                durationMs: Date.now() - generationStart,
+            },
+        })
+
         if (debug && debugTrace) {
             debugTrace.validation = { aiStagePass: true, failureStage: null, failureReason: null }
             return res.status(200).json({ activities: compressedActivities, debugTrace })
         }
         return res.status(200).json(compressedActivities)
     } catch (error) {
+        recordUsageEvent({
+            eventType: 'generation_failed',
+            sessionId: req.params.id,
+            payload: {
+                stage: error instanceof SystemPipelineError ? error.stage : 'ai-assembly',
+                reason: (error instanceof Error ? error.message : String(error)).slice(0, 300),
+            },
+        })
         console.error('=== CREATE ACTIVITY ERROR ===')
         console.error(error)
 
