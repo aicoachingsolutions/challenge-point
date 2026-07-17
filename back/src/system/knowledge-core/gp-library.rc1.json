@@ -1,0 +1,240 @@
+{
+ "metadata": {
+  "Library": "Game Problem Library",
+  "Release": "RC1 Knowledge & Implementation Release",
+  "Workbook Version": "1.0",
+  "Status": "Implementation Stable",
+  "Relationship Domains": "6",
+  "Canonical Game Problems": "17",
+  "Composite Runtime": "Supported",
+  "Primary Semantic Target": "Game Problems",
+  "Ontology Expansion Policy": "Evidence-driven only",
+  "Canonical Register Version": "1.0"
+ },
+ "relationshipDomains": [
+  {
+   "Type": "RelationshipDomain",
+   "ID": "RD-001",
+   "Name": "Space",
+   "Status": "Canonical"
+  },
+  {
+   "Type": "RelationshipDomain",
+   "ID": "RD-002",
+   "Name": "Position",
+   "Status": "Canonical"
+  },
+  {
+   "Type": "RelationshipDomain",
+   "ID": "RD-003",
+   "Name": "Access",
+   "Status": "Canonical"
+  },
+  {
+   "Type": "RelationshipDomain",
+   "ID": "RD-004",
+   "Name": "Functional Object Control",
+   "Status": "Canonical"
+  },
+  {
+   "Type": "RelationshipDomain",
+   "ID": "RD-005",
+   "Name": "Performer Control",
+   "Status": "Canonical"
+  },
+  {
+   "Type": "RelationshipDomain",
+   "ID": "RD-006",
+   "Name": "Possession",
+   "Status": "Implementation Stable (RC1)"
+  }
+ ],
+ "gameProblems": [
+  {
+   "Type": "GameProblem",
+   "ID": "GP-001",
+   "Name": "Create Space",
+   "Relationship Domain": "Space",
+   "Operation": "Create",
+   "Status": "Canonical"
+  },
+  {
+   "Type": "GameProblem",
+   "ID": "GP-002",
+   "Name": "Exploit Space",
+   "Relationship Domain": "Space",
+   "Operation": "Exploit",
+   "Status": "Canonical"
+  },
+  {
+   "Type": "GameProblem",
+   "ID": "GP-003",
+   "Name": "Improve Position",
+   "Relationship Domain": "Position",
+   "Operation": "Improve",
+   "Status": "Canonical"
+  },
+  {
+   "Type": "GameProblem",
+   "ID": "GP-004",
+   "Name": "Recover Position",
+   "Relationship Domain": "Position",
+   "Operation": "Recover",
+   "Status": "Canonical"
+  },
+  {
+   "Type": "GameProblem",
+   "ID": "GP-005",
+   "Name": "Gain Access",
+   "Relationship Domain": "Access",
+   "Operation": "Gain",
+   "Status": "Canonical"
+  },
+  {
+   "Type": "GameProblem",
+   "ID": "GP-006",
+   "Name": "Establish Functional Object Control",
+   "Relationship Domain": "Functional Object Control",
+   "Operation": "Establish",
+   "Status": "Canonical"
+  },
+  {
+   "Type": "GameProblem",
+   "ID": "GP-007",
+   "Name": "Recover Functional Object Control",
+   "Relationship Domain": "Functional Object Control",
+   "Operation": "Recover",
+   "Status": "Canonical"
+  },
+  {
+   "Type": "GameProblem",
+   "ID": "GP-008",
+   "Name": "Gain Performer Control",
+   "Relationship Domain": "Performer Control",
+   "Operation": "Gain",
+   "Status": "Canonical"
+  },
+  {
+   "Type": "GameProblem",
+   "ID": "GP-009",
+   "Name": "Escape Performer Control",
+   "Relationship Domain": "Performer Control",
+   "Operation": "Escape",
+   "Status": "Canonical"
+  },
+  {
+   "Type": "GameProblem",
+   "ID": "GP-010",
+   "Name": "Regain Access",
+   "Relationship Domain": "Access",
+   "Operation": "Regain",
+   "Status": "Canonical"
+  },
+  {
+   "Type": "GameProblem",
+   "ID": "GP-011",
+   "Name": "Deny Access",
+   "Relationship Domain": "Access",
+   "Operation": "Deny",
+   "Status": "Canonical"
+  },
+  {
+   "Type": "GameProblem",
+   "ID": "GP-012",
+   "Name": "Protect Space",
+   "Relationship Domain": "Space",
+   "Operation": "Protect",
+   "Status": "Canonical"
+  },
+  {
+   "Type": "GameProblem",
+   "ID": "GP-013",
+   "Name": "Deny Space",
+   "Relationship Domain": "Space",
+   "Operation": "Deny",
+   "Status": "Canonical"
+  },
+  {
+   "Type": "GameProblem",
+   "ID": "GP-014",
+   "Name": "Control Space",
+   "Relationship Domain": "Space",
+   "Operation": "Control",
+   "Status": "Canonical"
+  },
+  {
+   "Type": "GameProblem",
+   "ID": "GP-015",
+   "Name": "Maintain Possession",
+   "Relationship Domain": "Possession",
+   "Operation": "Maintain",
+   "Status": "Canonical"
+  },
+  {
+   "Type": "GameProblem",
+   "ID": "GP-016",
+   "Name": "Regain Possession",
+   "Relationship Domain": "Possession",
+   "Operation": "Regain",
+   "Status": "Canonical"
+  },
+  {
+   "Type": "GameProblem",
+   "ID": "GP-017",
+   "Name": "Force Turnover",
+   "Relationship Domain": "Possession",
+   "Operation": "Force",
+   "Status": "Canonical"
+  }
+ ],
+ "relationships": [
+  {
+   "Source_ID": "GP-001",
+   "Relationship": "same_domain",
+   "Target_ID": "GP-002",
+   "Notes": "Space"
+  },
+  {
+   "Source_ID": "GP-012",
+   "Relationship": "same_domain",
+   "Target_ID": "GP-013",
+   "Notes": "Space"
+  },
+  {
+   "Source_ID": "GP-005",
+   "Relationship": "same_domain",
+   "Target_ID": "GP-010",
+   "Notes": "Access"
+  },
+  {
+   "Source_ID": "GP-005",
+   "Relationship": "same_domain",
+   "Target_ID": "GP-011",
+   "Notes": "Access"
+  },
+  {
+   "Source_ID": "GP-008",
+   "Relationship": "inverse_of",
+   "Target_ID": "GP-009",
+   "Notes": "Performer Control"
+  },
+  {
+   "Source_ID": "GP-006",
+   "Relationship": "paired_with",
+   "Target_ID": "GP-007",
+   "Notes": "Functional Object Control"
+  },
+  {
+   "Source_ID": "GP-015",
+   "Relationship": "paired_with",
+   "Target_ID": "GP-016",
+   "Notes": "Possession"
+  },
+  {
+   "Source_ID": "GP-016",
+   "Relationship": "paired_with",
+   "Target_ID": "GP-017",
+   "Notes": "Possession"
+  }
+ ]
+}
