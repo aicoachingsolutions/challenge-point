@@ -8,7 +8,7 @@
 import assert from 'node:assert/strict'
 
 import { gpLibrary, validateGpLibraryIntegrity } from './gp-library'
-import { AFFORDANCE_TARGET_MATRIX } from './affordance-target-matrix'
+import { AFFORDANCE_TARGET_MATRIX_BY_ID } from './affordance-target-matrix'
 
 function testIntegrity(): void {
     const res = validateGpLibraryIntegrity()
@@ -38,25 +38,22 @@ function testRelationshipsResolve(): void {
 }
 
 /**
- * Documents the KNOWN version skew flagged to Christian: the ATM RC1.1 is keyed to an earlier
- * 11-name registry; exactly these 5 names overlap the canonical register. If this changes (ATM
- * re-keyed or register revised), this pin fails and the integration should be revisited.
+ * RC1.2 reconciliation: the CAR Matrix is now keyed to the canonical register. Every canonical
+ * Game Problem ID must have exactly one CAR row, and vice versa — the skew is resolved.
  */
-function testKnownAtmOverlap(): void {
-    const gpNames = new Set(gpLibrary.gameProblems().map((g) => g.Name))
-    const overlap = Object.keys(AFFORDANCE_TARGET_MATRIX).filter((name) => gpNames.has(name))
-    assert.deepEqual(
-        overlap.sort(),
-        ['Create Space', 'Maintain Possession', 'Protect Space', 'Regain Possession'].sort(),
-        'ATM↔GP-register name overlap changed — revisit the ATM re-keying integration.'
-    )
+function testCarMatrixFullyAlignedToRegister(): void {
+    const gpIds = new Set(gpLibrary.gameProblems().map((g) => g.ID))
+    const carIds = new Set(Object.keys(AFFORDANCE_TARGET_MATRIX_BY_ID))
+    assert.equal(carIds.size, gpIds.size, `CAR rows (${carIds.size}) must match Game Problems (${gpIds.size}).`)
+    for (const id of gpIds) assert.ok(carIds.has(id), `Game Problem ${id} has no CAR row.`)
+    for (const id of carIds) assert.ok(gpIds.has(id), `CAR row ${id} is not a canonical Game Problem.`)
 }
 
 function runAll(): void {
     testIntegrity()
     testCanonicalCounts()
     testRelationshipsResolve()
-    testKnownAtmOverlap()
+    testCarMatrixFullyAlignedToRegister()
     console.log('gp-library unit tests: all cases passed.')
 }
 
