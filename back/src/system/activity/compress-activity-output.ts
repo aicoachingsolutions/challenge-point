@@ -46,6 +46,7 @@
  */
 
 import type { IActivity } from '../../models/activity.model'
+import { translateCoachLanguage } from './coach-language'
 
 const RULES_CAP = 5
 const SCORING_SENTENCE_CAP = 4
@@ -297,45 +298,6 @@ function removeLinesOverlappingWithCandidates(
 }
 
 /**
- * CCS Sec.5 (Round 8D.3 follow-up): translate engine/internal jargon that leaks into coach-facing text
- * into plain coaching language. Christian flagged "decision window", "connected advantage", and "player
- * structure logic" surfacing in outputs. Applied as the FINAL coach-facing pass so the compression /
- * dedup logic above still matches on the original phrasing.
- */
-const COACH_LANGUAGE_TRANSLATIONS: Array<[RegExp, string]> = [
-    [/\bplayer structure logic:\s*/gi, ''],
-    [/\bconnected advantage\b/gi, 'advantage'],
-    [/\bdecision window\b/gi, 'window'],
-    [/\bopportunity window\b/gi, 'window'],
-    [/\bremains live\b/gi, 'stays live'],
-    [/\bremain live\b/gi, 'stay live'],
-    [/\bdisrupts structure\b/gi, 'disrupts the shape'],
-]
-/**
- * Decision-verb stutter collapse (Round 9). Upstream rewrites ("players must decide" → "players
- * decide") composed with AI phrasing ("must decide to choose…") produce stutters like "players
- * decide to decide" / "players decide to choose". This is a CATEGORY rule — any chained pair of
- * decision verbs collapses to the second, more specific verb — not a phrase-by-phrase list.
- */
-const DECISION_VERBS = '(?:decide|decides|deciding|choose|chooses|choosing|select|selects|selecting)'
-const DECISION_STUTTER = new RegExp(`\\b(${DECISION_VERBS})\\s+to\\s+(${DECISION_VERBS})\\b`, 'gi')
-
-function collapseDecisionStutter(value: string): string {
-    // "decide to decide when…" → "decide when…"; "decide to choose when…" → "choose when…".
-    return value.replace(DECISION_STUTTER, (_m, _a: string, b: string) => b)
-}
-
-function translateCoachLanguage(value: string): string {
-    let out = String(value ?? '')
-    for (const [re, rep] of COACH_LANGUAGE_TRANSLATIONS) out = out.replace(re, rep)
-    out = collapseDecisionStutter(out)
-    return out
-        .replace(/\s{2,}/g, ' ')
-        .replace(/\s+([.,;])/g, '$1')
-        .trim()
-}
-
-/**
  * Compress the activity for coach-facing output. The mechanics that validate the
  * activity must already have been confirmed present (call validateGeneratedActivities
  * BEFORE this). Compression does not re-validate; it presents.
@@ -402,7 +364,10 @@ export function compressActivityForCoach(activity: IActivity, modifierMechanicLi
     // need here — coachingFocus doesn't carry modifier text; that lives in rules/scoring.
     const cappedScaffolding = (activity.scaffolding ?? []).slice(0, COACHING_FOCUS_CAP)
 
-    // Step 6 (CCS Sec.5): final coach-language translation — strip engine jargon from coach-facing text.
+    // Step 6: final coach-language pass — the Coach Vocabulary & Translation Dictionary applied to
+    // every coach-facing field. Lives in ./coach-language so vocabulary can be revised without
+    // touching compression, and vice versa. Runs LAST so the dedup/cap logic above still matches on
+    // the original engine phrasing.
     return {
         ...activity,
         title: translateCoachLanguage(activity.title),
