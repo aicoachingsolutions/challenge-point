@@ -92,8 +92,9 @@ Joe proposed an MVP gate + freeze line (2026-07-17). Christian declined **with r
 feedback on an incomplete engine would report *missing architecture* rather than *coaching experience*.
 **He named a finite remaining list**, then coaches:
 1. ~~Information Expression Library~~ ✅ delivered + ingested (2026-07-23)
-2. **Representative Validation Architecture** — pending
-3. **Experience Intelligence (engagement layer)** — pending
+2. ~~Representative Validation Architecture~~ ✅ delivered (2026-07-25) — see below
+3. **Experience Intelligence (engagement layer)** — pending; Christian will send the **architecture
+   first**, before generating the full package, so we can align implementation before it solidifies.
 
 "Once those are in place… the first version of the complete representative reasoning engine," and then
 the initial coach cohort evaluates it using the feedback loop we built. **Do not re-litigate this** —
@@ -126,6 +127,50 @@ strongest necessity). It rides `selectionTrace.affordanceTargetProfile` with ver
 visible in Selection Debug. **`mode: 'shadow'` — zero selection influence.** Christian's note: the CAR
 Matrix is a *compatibility resource, not a selector*; semantic routing + GP identity + Composite Runtime
 remain the drivers.
+
+### Representative Validation RC1 (2026-07-25) — the first ENGINE package
+5 docs in `~/Downloads/drive-download-20260725T014945Z-1-001/` (Manifest, Architecture, Domain Reference,
+Runtime Validation & Correction Spec, Validation Record Spec). **There is nothing to ingest.** Unlike the
+six knowledge libraries, this is an *engine package* by Christian's own decision — runtime reasoning, not
+externally-maintained canonical knowledge — so it ships **no workbook, no canonical IDs, no loader**. The
+deliverable is code.
+
+- **Two subsystems:** *Validation Engine* (does it pass?) and *Diagnostic Engine* (why, who owns it, and
+  what is the **lowest sufficient correction**?). Kept separate so judgment is never conflated with repair.
+- **Six domains:** RVD-01 Ecological Organization Integrity · RVD-02 Learning Target Fidelity ·
+  RVD-03 Interaction Integrity · RVD-04 Information–Action Integrity · RVD-05 Representative Exposure ·
+  RVD-06 Degenerate Solution & Drift Detection (the adversarial one: *what is the easiest way to win
+  without engaging the intended problem?*).
+- **Five outcomes:** Pass / Pass with Warning / Revise / Reject / **Insufficient Evidence** (which must
+  never be silently converted to Pass).
+- **Five checkpoints:** 1 after Game Form selection · 2 after EM+IR+IE configuration · 3 after assembly
+  (all six domains) · 4 after Experience Intelligence (always reruns RVD-06) · 5 after coach-language
+  translation.
+- **Explicit non-requirements:** no composite score (a high average must never conceal a hard-gate
+  failure), no numeric thresholds, no prescribed classes or schema. Roll out shadow → warning →
+  blocking (hard gates only) → corrective.
+
+**What the engine actually validates today** (verified, don't trust older notes): the live path in
+`back/src/services/completion.service.ts` runs exactly **three** validators —
+`validateActivitiesAgainstSkeleton` (archetype mechanics expressed, plus decision and consequence
+indicators), `validateActivityMechanics` (assembly fidelity to the spec), and
+`validateActivityPolishPayload` (freezes `SYSTEM_OWNED_POLISH_FIELDS` so the LLM polish pass cannot touch
+rules/scoring/constraints). **`evaluateActivityQuality` and `evaluateActivityDiversity` are dev-harness
+only** (`scripts/run-activity-quality-tests.ts`) and never run in production. So we partially cover
+Checkpoints 3 and 5; **Checkpoints 1, 2 and 4 do not exist.**
+
+**Implementation notes worth keeping** (sent to Christian):
+- Because our selector is a **deterministic bounded search**, Checkpoints 1–2 collapse into candidate
+  *filtering* inside `enumerateDesignPossibilities` — no retry loop is needed upstream of
+  `commitDesignChoice`. Correction/retry machinery is only needed downstream (assembly, polish).
+- `validate-activity-polish.ts` field-freezing already enforces his Coach Communication Contract
+  *structurally*, which is stronger than post-hoc Checkpoint-5 validation. Keep structural immutability
+  for machine-owned fields; validate only the free-text fields where leakage can actually live.
+- RVD-06 is not generally decidable. Implement it as a finite, growing **catalog of named degenerate
+  patterns** as testable predicates, seeded from his own examples.
+- Any correction loop must be a pure function of `(state, diagnostic)`, or it breaks DDL Repeatability —
+  our variation seed is `previousActivities.length`.
+- `SelectionResolution.unresolved` is already *Insufficient Evidence* at the selection layer.
 
 ### Field-evidence collector — BUILT and ready (`5a9e760`)
 `usage_events` collection + fire-and-forget `recordUsageEvent` (never blocks/fails a request), hooked
