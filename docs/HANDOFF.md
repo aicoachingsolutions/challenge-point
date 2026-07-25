@@ -1,7 +1,8 @@
 # Handoff — Challenge Point information-expression work
 
-_Written 2026-06-17 for a fresh chat to continue. Read this, then the memory files (auto-loaded:
-`MEMORY.md` → `architecture-roadmap.md` is the most current), then `docs/`._
+_Originally written 2026-06-17; **CURRENT DIRECTION section updated 2026-07-23** — read that section
+first (it supersedes the historical sections below). Then the memory files (auto-loaded: `MEMORY.md` →
+`knowledge-core-architecture.md` is the most current), then `docs/`._
 
 ---
 
@@ -25,15 +26,19 @@ _Written 2026-06-17 for a fresh chat to continue. Read this, then the memory fil
    in the worktree path.
 2. **Christian tests the Vercel Preview of this branch**, not main. Pushing the branch auto-deploys the
    preview. **Deploy lag is a recurring trap** — several of his findings turned out to be stale builds.
-   You cannot see Vercel from here; verify by the deployment's source commit hash (current tip:
-   **`af18b35`**). Tip: the just-shipped jargon translation means the *absence* of "connected advantage"
-   / "player structure logic" / "decision window" in outputs is now a clean "are you on latest?" signal.
+   You cannot see Vercel from here; verify by the deployment's source commit hash (branch tip as of
+   2026-07-23: **`b040b19`**). Note the API is a **separate Render deployment** (`challenge-point.onrender.com`,
+   set via the front-end's `VITE_API_URL`) — routes are mounted at **`/api/app/...`**, so a bare
+   `/api/debug-selection` 404s. Joe handles all merges/deploys; **never mention merges, PRs, or deploys
+   in emails to Christian.**
 3. **You CANNOT run AI generation here (no `OPENAI_API_KEY`).** So: the deterministic layers
    (parser/selection/post-processing) ARE verifiable by you; anything about the *generated activity text*
    (does the AI express X?) needs **Christian's field validation** — be explicit about that boundary in
    replies.
-4. **Verify changes with:** from `back/`: `npx tsc --noEmit -p tsconfig.json` and `npm test` (5 unit
-   files; `deriveInputConstraints.unit.ts` is the main routing test — extend it when you change routing).
+4. **Verify changes with:** from `back/`: `npx tsc --noEmit -p tsconfig.json` and `npm test` (**17 unit
+   suites** as of 2026-07-23; `deriveInputConstraints.unit.ts` is the main routing test — extend it when you
+   change routing). Behaviour-preservation gate for engine changes: the selection-pipeline `bestScore`
+   sequence must stay **`68,64,94,115,91,68,64,94,115,91,97,84`**.
    For behavior checks write a throwaway `src/scripts/_tmp-*.ts` run via
    `npx ts-node --files -r tsconfig-paths/register ./src/scripts/_tmp-x.ts` then delete it. The full
    `npm run test:selection-pipeline` needs `OPENAI_API_KEY=sk-dummy` and spews Mongo logging errors
@@ -45,6 +50,17 @@ _Written 2026-06-17 for a fresh chat to continue. Read this, then the memory fil
 6. **Commits:** end messages with `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`. Pushing =
    outward-facing (deploys to Christian's env) — Joe has consistently wanted it, but it's reasonable to
    confirm before pushing.
+7. **Ingesting a Christian workbook (the standard pattern, 6 done):** copy the `.xlsx` verbatim into
+   `back/data/knowledge-core/`, generate a complete JSON projection into
+   `back/src/system/knowledge-core/` with python+`openpyxl` (install if missing), write a typed loader
+   whose **integrity gate validates against the workbook's own declared expected counts**, add a unit
+   suite, wire it into `package.json`'s `test` chain. Gotchas: header row is usually row 0 but the ATM
+   workbooks use title/blank/**header row 2**; the ATM Ratings Grid has **two side-by-side tables**
+   sharing a `canonical_name` header (extract by column range). Newer workbooks declare `header_row` and
+   `one_table_per_sheet` in metadata — trust those. `resolveJsonModule` is enabled in `tsconfig.json`.
+8. **Reading Christian's `.docx`:** pandoc is NOT installed and Read can't open `.docx`. Extract via
+   python `zipfile` → `word/document.xml` → regex `<w:t...>(.*?)</w:t>` joined per `</w:p>`, written
+   **UTF-8 to the scratchpad** (console is cp1252 and dies on arrows/em-dashes), then Read those files.
 
 ## Architecture in one breath
 
@@ -60,7 +76,88 @@ coach-output path — `map-activity-to-coach-view.ts` is NOT used in prod, only 
 **Key architectural belief:** Game Problems organize; archetypes are structural templates; constraints +
 incentives are the PRIMARY shapers of the affordance landscape (not archetypes).
 
-## What shipped this arc (all on the branch, newest first)
+## CURRENT DIRECTION (updated 2026-07-23) — Knowledge Core ingestion + MVP gate
+
+### Where the project is
+The deterministic engine is **validated and stable**. Christian's testing rounds concluded: game-problem
+routing, defensive boundaries, Recover & Reorganize, and representative design all need **no action**.
+Remaining engine-side items are presentation (coach language, activity variation), not architecture.
+
+Christian ships **canonical Knowledge Core packages**; we ingest them same-day. He has formalized a
+platform-level **Knowledge Package Standard** (Manifest / Standard / Workbook / Canonical Reference /
+Admission & Change Review / Discovery Register), partly from our loader feedback.
+
+### MVP gate — Christian's decision (2026-07-23): NOT YET, but bounded
+Joe proposed an MVP gate + freeze line (2026-07-17). Christian declined **with reasoning**: coach
+feedback on an incomplete engine would report *missing architecture* rather than *coaching experience*.
+**He named a finite remaining list**, then coaches:
+1. ~~Information Expression Library~~ ✅ delivered + ingested (2026-07-23)
+2. **Representative Validation Architecture** — pending
+3. **Experience Intelligence (engagement layer)** — pending
+
+"Once those are in place… the first version of the complete representative reasoning engine," and then
+the initial coach cohort evaluates it using the feedback loop we built. **Do not re-litigate this** —
+it is his call and it is now bounded, not open-ended.
+
+### Knowledge Core libraries INGESTED (all shadow/reference — no production coupling)
+Workbooks committed verbatim under `back/data/knowledge-core/`; complete generated JSON projections
+next to their loaders in `back/src/system/knowledge-core/` (**never hand-edit the JSON** — regenerate
+from the workbook). Every loader has a **load-time integrity gate** validating against the workbook's
+own declared metadata counts (defined failure, never silent).
+
+| Library | Loader | Canonical content |
+|---|---|---|
+| Environmental Manipulation v2.0 RC1 | `em-canonical.ts` | 6 families / 11 KOs / 5 EVDs / 24 dimensions / 64 params |
+| Game Problem Library RC1 | `gp-library.ts` | 6 Relationship Domains / **17 canonical Game Problems (GP-001..017)** |
+| CAR (Affordance Target) Matrix RC1.2 | `affordance-target-matrix.ts` | 17 GPs × 4 CARs (FOI/OP/SA/CIO) = 68 cells |
+| Game Archetype Library RC1.1 | `game-archetype-library.ts` | 6 ecological archetypes / 216 knowledge rows |
+| Information Expression RC1.1 | `information-expression-library.ts` | 4 families / 4 domains / 26 dimensions / 139 values |
+
+**Canonical vocabulary now in force:** Game Problems are `GP-###` (Domain × Operation), NOT the old
+tactical names. Complex coach intents resolve via the **Composite Game Problem Runtime**: exactly one
+**Primary** + **zero-or-one Secondary**, Primary wins conflicts, merged profile keeps provenance.
+Coaching expressions ("Counterattack", "High Press", "Late Reveal") are **composites, never ontology
+objects** — several libraries encode that as a hard invariant, pinned in tests.
+
+### Shadow-mode ATP (RAS RC1 Stage 3) — built, not coupled
+`resolveAffordanceTargetProfile()` resolves a **Resolved Affordance Target Profile** from the parser's
+signal groups (provisional engine-owned `SIGNAL_GROUP_TO_GAME_PROBLEM` → GP-IDs → CAR rows, merged by
+strongest necessity). It rides `selectionTrace.affordanceTargetProfile` with version stamps and is
+visible in Selection Debug. **`mode: 'shadow'` — zero selection influence.** Christian's note: the CAR
+Matrix is a *compatibility resource, not a selector*; semantic routing + GP identity + Composite Runtime
+remain the drivers.
+
+### Field-evidence collector — BUILT and ready (`5a9e760`)
+`usage_events` collection + fire-and-forget `recordUsageEvent` (never blocks/fails a request), hooked
+into generation: `goal_submitted` (goal + resolution status + signal groups), **`goal_rejected` (verbatim
+text = the vocabulary-gap dataset)**, `selection_resolved`, `generation_succeeded/failed` (stage+reason),
+`coach_feedback`. Read it at **`GET /api/app/debug-usage?days=N`**. Front-end `ActivityFeedback` widget
+(👍/👎 + comment) is on the activity page. This is the machine that turns the coach cohort into evidence.
+
+### Debug views (how Christian inspects the engine, in-app)
+- **Selection Debug** → `/debug` (page) / `GET /api/app/debug-selection?goal=…` — full deterministic
+  pipeline incl. rankings + shadow ATP.
+- **Knowledge Core** → `/debug-em` (page) / `GET /api/app/debug-em-reasoning?goal=…` — canonical EM
+  reasoning: KOs reached, matched vocabulary, affordance affinities, dimensions + parameters, guidance.
+- **Usage** → `GET /api/app/debug-usage?days=N`.
+
+### What to work on next (our lane, unblocked by Christian's two pending packages)
+1. **Coach-facing language pass** — his standing high-priority item. Substrate is in hand: his **Coach
+   Communication Standard** (governance: sound like an experienced assistant coach; observe before
+   intervening; change the environment before the player) + **Coach Vocabulary & Translation Dictionary**
+   (keyed by GP-ID, with Preferred / Avoid / youth–secondary–adult tiers). Both extracted to the session
+   scratchpad; originals in `~/Downloads/drive-download-20260717T165427Z-1-001/`. Profile the repeated
+   boilerplate across generated activities first, then fix structurally (not phrase-by-phrase).
+2. **Graceful unsupported-goal UX** — the engine already returns matched/fallback/unresolved; surface it
+   kindly in the front-end instead of a bare rejection.
+3. **Deferred / paused:** activity-variation richness (L2 slot-modifier bank — adds coaching content),
+   ATP production coupling (awaits field evidence), semantic routing to canonical GP-IDs, mapping live
+   info mechanics onto canonical Information Expression dimensions, bridging the engine's internal
+   game-form archetypes (GF1..GF11) to the 6 canonical ecological Game Archetypes.
+
+## HISTORICAL — what shipped in the information-expression arc (June 2026; newest first)
+
+_Superseded by CURRENT DIRECTION above. Kept for provenance._
 
 - `6cb92d3` "opportunity window"→"window" translation + captured the CCS five-question test, the
   "translation is a stopgap" principle, and the **Coach Communication Architecture** (deferred) in
@@ -88,7 +185,9 @@ incentives are the PRIMARY shapers of the affordance landscape (not archetypes).
 - Design docs: `0954e18` ARCHITECTURE_ROADMAP, `17928be` CONSTRAINT_INCENTIVE_FRAMEWORK,
   `10d61d2` INFORMATION_EXPRESSION_REVIEW.
 
-## State of play (the long-running thread)
+## HISTORICAL — state of play during the information-expression arc (June 2026)
+
+_Superseded by CURRENT DIRECTION above._
 
 - **Game Problem resolution / selection: solved & stable** across Christian's rounds (incl. challenge
   levels). Recover & Reorganize validated end-to-end (8D).
@@ -124,53 +223,6 @@ incentives are the PRIMARY shapers of the affordance landscape (not archetypes).
   pass + source-level cleanup; per Christian, do NOT keep growing output substitutions. No code changed
   this round (honoring "don't change anything yet during validation").
 
-## CURRENT DIRECTION (2026-07-08) — WORKFLOW PIVOT + revised game plan
-
-Christian moved to an **independent-tracks** model: he ships **complete versioned RC1 Knowledge
-Core library packages** (library + docs) that we IMPLEMENT (not review as WIP); comms become
-infrequent + actionable; first implementation-ready library package is inbound (no ETA). **Our
-assigned lane while he builds:** (a) tech debt / refactor / maintainability; (b) **generic Knowledge
-Core INFRASTRUCTURE so finished libraries plug in cleanly — loading, schema validation, modular
-registration, composition interfaces, version handling** (NEW #1); (c) diagnostics / traceability /
-dev tooling; (d) deterministic refinement within the frozen architecture — **NO new coaching
-knowledge, no expansion beyond validated reasoning.** PAUSED (needs his feedback): usability /
-coach-experience, and anything adding coaching content.
-
-"Finish" now = engine ingests versioned RC1 library packages cleanly + deterministic core refactored
-to the frozen architecture, with zero dependency on coaching feedback. Phased plan:
-
-- **Phase 1 — Library ingestion infrastructure [#1].** Today all three libs are hardcoded TS arrays
-  exported from `test-library/index.ts` (`TEST_LIBRARY_V0_AFFORDANCE_LENSES` / `_CONSTRAINTS` /
-  `_ARCHETYPES`), consumed by direct import in `generateSelection`/`deriveInputConstraints`. Build a
-  load→validate→register→version pipeline: per-object-type **schema validation** (against the Knowledge
-  Object Framework 7-part standard), a **registry** consumers query instead of importing arrays,
-  **composition-interface** checks (constraint.targetAffordancePrimary→lens, archetype.recommended
-  constraint types, environmentalRealizations), and **version handling** (packages carry RC version;
-  registry holds ≥1). Extend the existing `libraryConversionReport`/`libraryLoadDebug` rather than
-  replace. The six KO types (Game Problem, Affordance, Constraint, Environmental Manipulation,
-  Environmental Realization, Incentive) are the target schema set.
-- **Phase 2 — `constraints.ts` → Environmental-Manipulation / Constraint split [elevated].** Frozen
-  Batch 1 RC1 boundary (EM owns environmental PROPERTIES; Constraint owns interaction CONDITIONS). Pure
-  refactor, no new knowledge — and it's the first real library-modularization exercise / a rehearsal
-  for Phase 1's registration model. See [[knowledge-core-architecture]] for the exact mapping.
-- **Phase 3 — `generateSelection` reasoning/commitment split.** Un-fuse candidate enumeration (Reasoning
-  Models) from the single commitment (DDL). Refactor/tech-debt; unlocks surfacing runner-up packages.
-- **Phase 4 — Diagnostics/traceability.** Wire `evaluate-activity-diversity` in as a regression gate;
-  surface the new `resolution` status + package-load diagnostics in the debug view.
-- **Anytime:** weights → runtime Governance-overridable config (infra).
-- **PAUSED / out of lane:** diversity L2 slot-modifier bank expand+de-bias (adds coaching content — the
-  seed-select *plumbing* is fine), Coach Communication Architecture (coach-experience), `unresolved`
-  policy (needs Christian's decision).
-
-Shipped this session (all on branch, behavior-preserving where noted): `selection-weights.ts` (weights
-as data); `SelectionResolution` matched/fallback/unresolved status; realization-rotation via
-`variationIndex` (Decision Context) + `information-expression-directive.unit.ts`. See
-[[knowledge-core-architecture]] for full detail.
-
-Recommended start: **Phase 1**, with Phase 2 as the first library run through it.
-
----
-
 ## ✅ DONE — Batch 2 review (the reasoning trilogy)  _(historical; completed 2026-07-06)_
 
 Christian delivered Batch 2 (2026-06-30). Deliverable = **Joe's implementation-perspective review**
@@ -201,7 +253,9 @@ Christian delivered Batch 2 (2026-06-30). Deliverable = **Joe's implementation-p
 - Batch 1 review + how Christian responded (froze Batch 1, resolved 2 findings) is in memory
   `knowledge-core-architecture.md` — mirror that review style. NO code changes (architecture docs).
 
-## Open / offered next steps (none started)
+## HISTORICAL — open/offered next steps as of early July 2026
+
+_Superseded by 'What to work on next' in CURRENT DIRECTION above._
 
 0. **Coach Communication Architecture — the named next MAJOR pass (DEFERRED until engine validation
    finishes).** Christian's 8D.3 conclusion: the engine is stable; the remaining friction is how output
