@@ -93,8 +93,9 @@ feedback on an incomplete engine would report *missing architecture* rather than
 **He named a finite remaining list**, then coaches:
 1. ~~Information Expression Library~~ ✅ delivered + ingested (2026-07-23)
 2. ~~Representative Validation Architecture~~ ✅ delivered (2026-07-25) — see below
-3. **Experience Intelligence (engagement layer)** — pending; Christian will send the **architecture
-   first**, before generating the full package, so we can align implementation before it solidifies.
+3. ~~Experience Intelligence~~ — **architecture** delivered 2026-07-25 (see below); full package still
+   pending. Christian's next work: **Representative Engine Integration** architecture, then the
+   remaining Experience Intelligence package documents.
 
 "Once those are in place… the first version of the complete representative reasoning engine," and then
 the initial coach cohort evaluates it using the feedback loop we built. **Do not re-litigate this** —
@@ -171,6 +172,52 @@ Checkpoints 3 and 5; **Checkpoints 1, 2 and 4 do not exist.**
 - Any correction loop must be a pure function of `(state, diagnostic)`, or it breaks DDL Repeatability —
   our variation seed is `previousActivities.length`.
 - `SelectionResolution.unresolved` is already *Insufficient Evidence* at the selection layer.
+
+### Experience Intelligence Architecture RC1.0 (2026-07-25) — architecture only
+Single loose docx in `~/Downloads/` (`Challenge Point™ Experience Intelligence Architecture RC1.docx`).
+Sent architecture-first, deliberately, so implementation can shape it before the full package solidifies.
+
+**EI is now purely an *interpretation* subsystem.** After Christian's reduction passes it no longer owns
+coach interaction, activity modification, recommendation presentation, or the coaching loop — those all
+belong to **Coach Intelligence, which is planned and does not exist**. EI answers one question: *is
+productive participation currently being unnecessarily constrained?* **"No intervention recommended" is
+an expected, successful outcome** — the subsystem is deliberately conservative, because representative
+learning needs time for players to self-organize.
+
+Five outputs, and nothing else: Participation Assessment (healthy / may be constrained / likely
+constrained) · **exactly one** Most Probable Experiential Friction · Confidence (Strong / Moderate / Weak /
+Insufficient Evidence) · Preferred Intervention Intent (an implementation-neutral *class*, never a
+coaching action) · Representative Risk (Low / Moderate / High). New cross-platform principle: **lowest
+sufficient intervention**, mirroring RV's lowest sufficient correction.
+
+**Implementation notes (sent to Christian):**
+- **The input channel is the gap, and we already own most of it.** EI reasons from "structured coach
+  observations" supplied by Coach Intelligence. §9 lists what is effectively a **closed vocabulary of
+  eight observations** (challenge too low / too high, players waiting, activity becoming predictable,
+  players finding varied solutions, one team dominating, players confused, participation declining).
+  Our field-evidence collector already has the intake — `usage_events`, `recordUsageEvent`, `sessionId`,
+  the `ActivityFeedback` widget, and an extensible `feature_used` event. Turning those eight into
+  structured chips (instead of a freeform comment) starts the calibration dataset **before** the
+  interpreter exists. **The observation vocabulary is the real MVP deliverable here, not the interpreter.**
+- **The interpreter is a table, not code.** 8 observations → 7 frictions → 6 intents is a lookup plus a
+  precedence rule. That raises a genuine question for Christian: is the friction catalogue and its
+  ordering *coaching knowledge* (his, in a workbook) or *engine logic* (ours)? By his own three-layer
+  model it reads as coaching knowledge — so unlike Representative Validation, EI may warrant a workbook.
+- **"One primary interpretation" needs a stated precedence order**, or two faithful implementations of
+  the architecture return different frictions for the same evidence. Same class of bug as the Round-7
+  archetype tie-break, and the same principle: explicit resolution, no hidden preference.
+- **Representative Risk should be a lookup, not a judgement.** RV's Output Contract to EI already emits
+  protected invariants, prohibited modifications and a revalidation-trigger list (scoring, objectives,
+  roles, state transitions, uncertainty, information, challenge, incentive structure, success conditions,
+  pacing). Risk = does the intent touch a trigger? Deterministic, and it makes the two packages compose
+  instead of duplicating reasoning.
+- **The one real engineering assumption: SESSION STATE.** §9 wants elapsed activity time, duration, stage
+  and previous adjustments. **We have none of it** — the app generates activities, it does not run
+  sessions. "Preserve emergence" is inherently time-dependent, so EI's core conservatism cannot function
+  without it. Live-session tracking is real product work; the cheap MVP path is to let the coach report
+  stage as one of the structured observations ("just started / settled in / been a while").
+- Minor: *Insufficient Evidence* is a **confidence level** in EI but a **halting outcome** in RV.
+  Disambiguate before both subsystems write to Evidence Intelligence.
 
 ### Field-evidence collector — BUILT and ready (`5a9e760`)
 `usage_events` collection + fire-and-forget `recordUsageEvent` (never blocks/fails a request), hooked
