@@ -219,6 +219,62 @@ sufficient intervention**, mirroring RV's lowest sufficient correction.
 - Minor: *Insufficient Evidence* is a **confidence level** in EI but a **halting outcome** in RV.
   Disambiguate before both subsystems write to Evidence Intelligence.
 
+### Representative Engine Integration Spec RC1.0 (2026-07-25) — THE CAPSTONE / ARCHITECTURE FREEZE
+Single loose docx in `~/Downloads/`. Christian ran a final freeze audit: this is "the governing runtime
+specification for the MVP rather than another evolving design document." **Read this before planning any
+runtime work** — it defines execution order, ownership, interface contracts and revalidation triggers.
+
+**Coach Intelligence is the runtime orchestrator.** Representative Intelligence, Representative
+Validation, Experience Intelligence and Evidence Intelligence are **passive reasoning services** that
+never self-initiate. Three runtime phases:
+
+| Phase | Flow | Our status |
+|---|---|---|
+| **Planning** | CI gathers context → RI generates → RV validates → CI presents | ✅ working end-to-end |
+| **Live Coaching** | CI holds session state, captures + routes observations to EI or RV, translates intent → one recommendation, records the decision, resubmits structural changes to RV | ❌ does not exist |
+| **Reflection** | CI reviews captured evidence, targeted (not fixed-survey) reflection, hands the session record to Evidence Intelligence | ❌ does not exist |
+
+Governing principles worth knowing: **Quiet Assistance** ("invisible intelligence preferred over visible
+complexity" — intervene only when it improves the coach's *next* decision), Lowest Sufficient Change,
+Preserve Emergence, Coach Autonomy, Transparent Failure, Provenance Preservation. §22 splits pre-session
+**Potential Experience Risks** (prediction, owned by CI) from EI's runtime *interpretation*. §37 adds
+bounded recommendation termination — which answers the retry concern raised on Representative Validation.
+
+**The strategic read (this is the important part):**
+1. **Coach Intelligence is now load-bearing for everything and is the only subsystem with no architecture
+   document.** It owns context gathering, orchestration, session state, observation capture and routing,
+   intent→mechanism translation, presentation, decision recording, reflection, *and* coach-facing
+   language. Every other subsystem has a governing doc. The architecture froze with its orchestrator
+   unspecified.
+2. **The architecture is complete; the build is not.** The remaining gap is one unnamed subsystem plus
+   two entire runtime phases — new product surfaces, not integration work. **MVP scope is now the
+   question that dominates the timeline:** engine-only (what we have + the coach-language pass), or all
+   three phases?
+3. **Constructive reframe: Coach Intelligence is largely the application layer we already built but never
+   named.** Coach context = the request form + `normalizeCoachingInput`; orchestration =
+   `completion.service.ts` / `app.routes.ts`; translation = `compressActivitiesForCoach` + polish;
+   decision recording = `usage_events` + `ActivityFeedback`; provenance = `selectionTrace` + versions.
+   What's genuinely missing is a **live-session runtime**.
+4. **Session state — more precise than the note in the EI section above.** `back/src/models/session.model.ts`
+   *does* define a session with `SessionStatus` (Draft / In Progress / Completed), used in `SessionLibrary`
+   and `SessionPage`. But it is a **plan-authoring lifecycle, not a live runtime**: there is no `startedAt`
+   and no elapsed-time tracking. So an entity exists to hang runtime state on — **the gap is timing, not
+   identity.**
+5. **Interface gap:** §30 routes the runtime observation *"intended problem not emerging"* to
+   Representative Validation — but RV's own input contract accepts only canonical selections, activity
+   config, invariants and context. **No observational input.** RV validates structure and already passed
+   this activity; it cannot observe emergence.
+6. **Ownership leak (same shape as the EI representative-risk finding):** §42 says "minor presentation
+   changes do not require revalidation", which makes *Coach Intelligence* decide what counts as
+   structural — a judgement §15 gives to RV. Unifying fix worth stating platform-wide: **the orchestrator
+   should route on data the services emit, never on its own inference about their domains.** RV already
+   emits "prohibited modifications" and "adjustable parameters"; it should ship the classification.
+7. **We have Reject but no Revise.** A validator failure is terminal and the coach sees an error. That now
+   has an architectural home as the Reject / Insufficient-Evidence path through CI, and merges with the
+   existing open "graceful unsupported-goal UX" item below.
+8. Evidence Intelligence also lacks a document but is **genuinely deferrable** (it needs accumulated
+   evidence). Coach Intelligence is **not**.
+
 ### Field-evidence collector — BUILT and ready (`5a9e760`)
 `usage_events` collection + fire-and-forget `recordUsageEvent` (never blocks/fails a request), hooked
 into generation: `goal_submitted` (goal + resolution status + signal groups), **`goal_rejected` (verbatim
