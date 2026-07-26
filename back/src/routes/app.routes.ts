@@ -8,6 +8,7 @@ import { ActivityAssemblyValidationError, assembleActivities } from 'src/service
 import Activity, { ActivityStatus } from '../models/activity.model'
 import { buildActivityMechanicsFromSkeleton } from '../system/activity/build-activity-mechanics'
 import { buildActivitySkeleton } from '../system/activity/build-activity-skeleton'
+import { auditCoachLanguage } from '../system/activity/coach-language'
 import { compressActivitiesForCoach } from '../system/activity/compress-activity-output'
 import { getSlotMechanicalVariations } from '../system/activity/slot-mechanics-variations'
 import User from '../models/user.model'
@@ -689,6 +690,27 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
             getSlotMechanicalVariations(assemblyInput.session.sessionEmphasis, idx).map((m) => m.mechanicLine)
         )
         const compressedActivities = compressActivitiesForCoach(validatedActivities, perSlotModifierLines)
+
+        // Coach-language audit (Coach Vocabulary & Translation Dictionary sec.9). Anything still
+        // carrying an internal ontology term AFTER translation is a genuine gap in dictionary
+        // coverage. We record it rather than throwing: Representative Validation classifies
+        // coach-language problems as correctable, not constitutive, and its correction hierarchy
+        // puts output-language at the lowest layer — a coach should never lose an activity because
+        // a word leaked. The leak becomes evidence for the next vocabulary revision instead.
+        compressedActivities.forEach((activity, slotIndex) => {
+            const violations = auditCoachLanguage(activity as unknown as Record<string, unknown>)
+            if (violations.length === 0) return
+            recordUsageEvent({
+                eventType: 'coach_language_leak',
+                sessionId: req.params.id,
+                payload: {
+                    slotIndex,
+                    // Terms and field names only — never the surrounding coach-facing prose.
+                    terms: [...new Set(violations.flatMap((v) => v.terms))],
+                    fields: violations.map((v) => v.field),
+                },
+            })
+        })
 
         recordUsageEvent({
             eventType: 'generation_succeeded',

@@ -171,6 +171,50 @@ export function findNeverDisplayViolations(text: string): string[] {
     return [...found]
 }
 
+/** One field's worth of never-display leakage, for the evidence record. */
+export interface CoachLanguageViolation {
+    /** Coach-facing field name, e.g. 'scoringSystem' or 'rules[2]'. */
+    field: string
+    /** Never-display terms found in that field (lowercase). */
+    terms: string[]
+}
+
+/**
+ * The coach-facing surface, in one place. These are exactly the fields `compressActivityForCoach`
+ * translates and the front end renders — if a new coach-facing field is added, it belongs in both
+ * lists or it will be translated without ever being audited.
+ */
+const AUDITED_STRING_FIELDS = ['title', 'setup', 'scoringSystem', 'winCondition', 'intent', 'constraint'] as const
+const AUDITED_ARRAY_FIELDS = ['rules', 'scaffolding', 'extensions'] as const
+
+/**
+ * Audit an already-translated activity for never-display leakage. PURE — it reports, it does not
+ * throw and it does not record. The caller decides what to do, which keeps this usable from tests,
+ * scripts and the request path alike, and keeps `compressActivityForCoach` side-effect free.
+ *
+ * Run this AFTER translation: anything still present here is a genuine gap in the dictionary
+ * coverage rather than a term we already know how to rewrite.
+ */
+export function auditCoachLanguage(activity: Record<string, unknown>): CoachLanguageViolation[] {
+    const out: CoachLanguageViolation[] = []
+    for (const field of AUDITED_STRING_FIELDS) {
+        const value = activity[field]
+        if (typeof value !== 'string') continue
+        const terms = findNeverDisplayViolations(value)
+        if (terms.length > 0) out.push({ field, terms })
+    }
+    for (const field of AUDITED_ARRAY_FIELDS) {
+        const value = activity[field]
+        if (!Array.isArray(value)) continue
+        value.forEach((entry, i) => {
+            if (typeof entry !== 'string') return
+            const terms = findNeverDisplayViolations(entry)
+            if (terms.length > 0) out.push({ field: `${field}[${i}]`, terms })
+        })
+    }
+    return out
+}
+
 /**
  * Apply the coach-language contract to one string.
  *

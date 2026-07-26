@@ -16,6 +16,7 @@ export type UsageEventType =
     | 'generation_succeeded' // activity count + duration
     | 'generation_failed' // stage + reason (incl. output-validation rejections)
     | 'coach_feedback' // in-app rating/comment on an activity
+    | 'coach_language_leak' // internal ontology term survived translation into coach-facing text
     | 'feature_used' // generic UI feature event (extensible from the front-end)
 
 export interface IUsageEvent {
