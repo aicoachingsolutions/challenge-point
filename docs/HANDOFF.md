@@ -290,12 +290,37 @@ text = the vocabulary-gap dataset)**, `selection_resolved`, `generation_succeede
 - **Usage** → `GET /api/app/debug-usage?days=N`.
 
 ### What to work on next (our lane, unblocked by Christian's two pending packages)
-1. **Coach-facing language pass** — his standing high-priority item. Substrate is in hand: his **Coach
-   Communication Standard** (governance: sound like an experienced assistant coach; observe before
-   intervening; change the environment before the player) + **Coach Vocabulary & Translation Dictionary**
-   (keyed by GP-ID, with Preferred / Avoid / youth–secondary–adult tiers). Both extracted to the session
-   scratchpad; originals in `~/Downloads/drive-download-20260717T165427Z-1-001/`. Profile the repeated
-   boilerplate across generated activities first, then fix structurally (not phrase-by-phrase).
+1. **Coach-facing language pass** — his standing high-priority item. **STARTED 2026-07-25** (`707e84d`,
+   `f1c9d1a`). Substrate: his **Coach Communication Standard** + **Coach Vocabulary & Translation
+   Dictionary** (originals in `~/Downloads/drive-download-20260717T165427Z-1-001/`, extracted to the
+   session scratchpad under `coach/`).
+
+   **Done:** `back/src/system/activity/coach-language.ts` holds the dictionary as a data layer — the
+   **Rule Realization** layer of the three-layer model, so vocabulary can be revised without touching
+   selection and vice versa. It implements §9 Never Display (whole-word detection, mirroring
+   `findPrescriptivePhraseViolations`), §6 cross-library translation, and §7 prompt vocabulary
+   (judging openers → observation openers). `auditCoachLanguage` is pure and runs *after* translation,
+   so anything it reports is a genuine dictionary gap; `app.routes.ts` records those as
+   `coach_language_leak` usage events, ranked by frequency in `GET /api/app/debug-usage`. **It does not
+   throw** — Representative Validation treats coach-language problems as correctable and puts
+   output-language at the lowest correction layer, so a leak becomes evidence rather than a lost
+   activity.
+
+   **Careful:** `map-activity-to-coach-view.ts` is **test-harness only** (`run-local-create-activity-test`),
+   NOT production. `_activity-coach-view.txt` is its output. It emits hardcoded constants — including a
+   possession-flavoured "Main scoring rule" for *every* activity — so ten lines repeat verbatim across
+   three activities there. Do not diagnose production boilerplate from that file. The real coach surface
+   is the `IActivity` fields rendered by `front/src/app/ActivityPage.tsx`, all of which pass through
+   `compressActivityForCoach` → the coach-language layer.
+
+   **Remaining:** age-tier vocabulary (Youth / Secondary / Adult-Elite) and the §5 GP-keyed entries are
+   **blocked on the same thing** — the dictionary's tier wording exists only *inside* the per-GP entries,
+   so applying it requires knowing the Game Problem. `SIGNAL_GROUP_TO_GAME_PROBLEM` does resolve 13 of 15
+   signal groups to GP-IDs, but it is explicitly **provisional and shadow-only**; driving coach vocabulary
+   from it would put confident, age-tuned wording for the *wrong* problem in front of a coach whenever the
+   mapping is off. That trades a generic phrase for a misleading one, which Dictionary Rule 3 forbids.
+   **Needs Christian's call before wiring.** Also outstanding: verification against a fresh generation run
+   (needs an API key — the samples on disk are from May).
 2. **Graceful unsupported-goal UX** — the engine already returns matched/fallback/unresolved; surface it
    kindly in the front-end instead of a bare rejection.
 3. **Deferred / paused:** activity-variation richness (L2 slot-modifier bank — adds coaching content),
