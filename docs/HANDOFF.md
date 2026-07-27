@@ -27,7 +27,7 @@ first (it supersedes the historical sections below). Then the memory files (auto
 2. **Christian tests the Vercel Preview of this branch**, not main. Pushing the branch auto-deploys the
    preview. **Deploy lag is a recurring trap** — several of his findings turned out to be stale builds.
    You cannot see Vercel from here; verify by the deployment's source commit hash (branch tip as of
-   2026-07-23: **`b040b19`**). Note the API is a **separate Render deployment** (`challenge-point.onrender.com`,
+   2026-07-25: **`756fd70`**). Note the API is a **separate Render deployment** (`challenge-point.onrender.com`,
    set via the front-end's `VITE_API_URL`) — routes are mounted at **`/api/app/...`**, so a bare
    `/api/debug-selection` 404s. Joe handles all merges/deploys; **never mention merges, PRs, or deploys
    in emails to Christian.**
@@ -35,9 +35,9 @@ first (it supersedes the historical sections below). Then the memory files (auto
    (parser/selection/post-processing) ARE verifiable by you; anything about the *generated activity text*
    (does the AI express X?) needs **Christian's field validation** — be explicit about that boundary in
    replies.
-4. **Verify changes with:** from `back/`: `npx tsc --noEmit -p tsconfig.json` and `npm test` (**17 unit
-   suites** as of 2026-07-23; `deriveInputConstraints.unit.ts` is the main routing test — extend it when you
-   change routing). Behaviour-preservation gate for engine changes: the selection-pipeline `bestScore`
+4. **Verify changes with:** from `back/`: `npx tsc --noEmit -p tsconfig.json` and `npm test` (**19 unit
+   suites** as of 2026-07-25; `deriveInputConstraints.unit.ts` is the main routing test — extend it when you
+   change routing). Front-end changes: `npx tsc --noEmit` from `front/`. Behaviour-preservation gate for engine changes: the selection-pipeline `bestScore`
    sequence must stay **`68,64,94,115,91,68,64,94,115,91,97,84`**.
    For behavior checks write a throwaway `src/scripts/_tmp-*.ts` run via
    `npx ts-node --files -r tsconfig-paths/register ./src/scripts/_tmp-x.ts` then delete it. The full
