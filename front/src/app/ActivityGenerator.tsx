@@ -49,6 +49,10 @@ export default function ActivityGenerator() {
     type GenerationStatus = 'creation' | 'generation' | 'selection'
     const [generationStatus, setGenerationStatus] = useState<GenerationStatus>('creation')
     const [generationError, setGenerationError] = useState<string | null>(null)
+    /** Concrete goals offered alongside a rejection, so the coach has a next step rather than a wall. */
+    const [generationSuggestions, setGenerationSuggestions] = useState<string[]>([])
+    /** Set when the engine read the goal broadly rather than precisely. Null on a confident match. */
+    const [resolutionNotice, setResolutionNotice] = useState<{ message: string; suggestions: string[] } | null>(null)
     const [selectedChallengeLevel, setSelectedChallengeLevel] = useState<ChallengeLevels>()
     const [selectedDuration, setSelectedDuration] = useState<number>()
     const [selectedLearningGoals, setSelectedLearningGoals] = useState<string[]>([])
@@ -63,28 +67,49 @@ export default function ActivityGenerator() {
     const [debugTrace, setDebugTrace] = useState<Record<string, any> | null>(null)
     const navigate = useNavigate()
 
-    const buildGenerationErrorMessage = (errorResponse?: { error?: string; message?: string; stage?: string; details?: string[] }) => {
-        if (!errorResponse) {
-            return 'Unable to generate activities right now. Please review your inputs and try again.'
-        }
+    /**
+     * The coach sees ONE message in one voice. The server's `stage` and `details` are internal —
+     * they used to be concatenated onto the friendly text, producing "input-selection: I couldn't
+     * match that… No supported soccer training signals were found." Three registers, one bubble.
+     * They are now debug-only and stay out of the coach's way.
+     */
+    const buildGenerationErrorMessage = (errorResponse?: { error?: string; message?: string }) =>
+        errorResponse?.error ??
+        errorResponse?.message ??
+        'Unable to generate activities right now. Please review your inputs and try again.'
 
-        const messageParts = [errorResponse.error ?? errorResponse.message]
-        if (errorResponse.stage && errorResponse.error && !errorResponse.error.startsWith(`${errorResponse.stage}:`)) {
-            messageParts[0] = `${errorResponse.stage}: ${errorResponse.error}`
-        }
-
-        if (Array.isArray(errorResponse.details) && errorResponse.details.length > 0) {
-            messageParts.push(errorResponse.details[0])
-        }
-
-        return messageParts.filter(Boolean).join(' ') || 'Unable to generate activities right now. Please review your inputs and try again.'
-    }
-
-    const resetGenerationState = (message?: string) => {
+    const resetGenerationState = (message?: string, nextSuggestions: string[] = []) => {
         setGeneratedActivities([])
         setCurrentActivityIndex(0)
         setGenerationStatus('creation')
         setGenerationError(message ?? 'Unable to generate activities right now. Please review your inputs and try again.')
+        setGenerationSuggestions(nextSuggestions)
+    }
+
+    /**
+     * Put a suggested goal where the coach can generate from it immediately. Fills the first blank
+     * goal row if there is one, otherwise adds a row — a rejection should leave them one click from
+     * trying again, not retyping.
+     */
+    const applySuggestedGoal = (goal: string) => {
+        setSelectedLearningGoals((current) => {
+            const blankIndex = current.findIndex((g) => !g.trim())
+            if (blankIndex >= 0) {
+                const next = [...current]
+                next[blankIndex] = goal
+                return next
+            }
+            return [...current, goal]
+        })
+        setGenerationError(null)
+        setGenerationSuggestions([])
+    }
+
+    /** Suggestions travel with the error payload, so pull them from whichever shape came back. */
+    const suggestionsFrom = (payload: unknown): string[] => {
+        if (!payload || typeof payload !== 'object') return []
+        const raw = (payload as { suggestions?: unknown }).suggestions
+        return Array.isArray(raw) ? raw.filter((s): s is string => typeof s === 'string') : []
     }
 
     const generateActivities = async () => {
@@ -93,6 +118,8 @@ export default function ActivityGenerator() {
         }
 
         setGenerationError(null)
+        setGenerationSuggestions([])
+        setResolutionNotice(null)
         setDebugTrace(null)
         setGenerationStatus('generation')
 
@@ -104,31 +131,28 @@ export default function ActivityGenerator() {
                 ...(debugMode ? { debug: true } : {}),
             })
 
-            // Debug mode: the endpoint wraps the response as { activities, debugTrace } on success,
-            // and includes debugTrace on failure too. Capture the trace either way; non-debug path
-            // below is completely unchanged.
+            // The endpoint returns { activities, resolutionStatus, notice?, debugTrace? }. It used
+            // to return a bare array in non-debug mode, so we still accept that shape — a client
+            // running against an older deployment keeps working.
+            const payload: any = res.data
+            const wrapped = payload && typeof payload === 'object' && !Array.isArray(payload)
+            const activities = wrapped ? payload.activities : payload
+
             if (debugMode) {
-                const payload: any = res.data
-                const wrapped = payload && typeof payload === 'object' && !Array.isArray(payload)
-                const activities = wrapped ? payload.activities : payload
                 setDebugTrace(wrapped && payload.debugTrace ? payload.debugTrace : null)
-                if (res.error || !Array.isArray(activities)) {
-                    resetGenerationState(buildGenerationErrorMessage(wrapped ? payload : res))
-                    return
-                }
-                setCurrentActivityIndex(0)
-                setGeneratedActivities(activities)
-                setGenerationStatus('selection')
+            }
+
+            if (res.error || !Array.isArray(activities)) {
+                const errorPayload = wrapped ? payload : res
+                resetGenerationState(buildGenerationErrorMessage(errorPayload), suggestionsFrom(errorPayload))
                 return
             }
 
-            if (res.error || !Array.isArray(res.data)) {
-                resetGenerationState(buildGenerationErrorMessage(res))
-                return
-            }
-
+            // Only present when the engine read the goal broadly rather than precisely — a
+            // confident match sends nothing, and the coach sees no banner at all.
+            setResolutionNotice(wrapped && payload.notice ? payload.notice : null)
             setCurrentActivityIndex(0)
-            setGeneratedActivities(res.data)
+            setGeneratedActivities(activities)
             setGenerationStatus('selection')
         } catch (error) {
             const status = typeof error === 'object' && error !== null && 'status' in error ? error.status : undefined
@@ -365,7 +389,24 @@ export default function ActivityGenerator() {
                     <div className='space-y-6 sm:space-y-8'>
                         {generationError && (
                             <div className='px-4 py-3 text-sm border rounded-xl border-amber-200 bg-amber-50 text-amber-800'>
-                                {generationError}
+                                <p>{generationError}</p>
+                                {generationSuggestions.length > 0 && (
+                                    <>
+                                        <p className='mt-3 font-medium'>Try one of these:</p>
+                                        <div className='flex flex-wrap gap-2 mt-2'>
+                                            {generationSuggestions.map((goal) => (
+                                                <button
+                                                    key={goal}
+                                                    type='button'
+                                                    onClick={() => applySuggestedGoal(goal)}
+                                                    className='px-3 py-1.5 text-sm text-left transition-colors bg-white border rounded-lg border-amber-300 text-amber-900 hover:bg-amber-100'
+                                                >
+                                                    {goal}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         )}
 
@@ -488,6 +529,22 @@ export default function ActivityGenerator() {
                         {generationError && (
                             <div className='px-4 py-3 mt-4 text-sm border rounded-xl border-amber-200 bg-amber-50 text-amber-800'>
                                 {generationError}
+                            </div>
+                        )}
+
+                        {/*
+                          Shown only when the engine read the goal broadly rather than precisely.
+                          A confident match renders nothing here — the activities speak for
+                          themselves, and a banner on every success would be noise.
+                        */}
+                        {resolutionNotice && (
+                            <div className='px-4 py-3 mt-4 text-sm text-left border rounded-xl border-slate-200 bg-slate-50 text-slate-700'>
+                                <p>{resolutionNotice.message}</p>
+                                {resolutionNotice.suggestions?.length > 0 && (
+                                    <p className='mt-2 text-slate-500'>
+                                        For example: {resolutionNotice.suggestions.join(' · ')}
+                                    </p>
+                                )}
                             </div>
                         )}
                     </div>
