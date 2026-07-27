@@ -26,8 +26,9 @@ first (it supersedes the historical sections below). Then the memory files (auto
    in the worktree path.
 2. **Christian tests the Vercel Preview of this branch**, not main. Pushing the branch auto-deploys the
    preview. **Deploy lag is a recurring trap** — several of his findings turned out to be stale builds.
-   You cannot see Vercel from here; verify by the deployment's source commit hash (branch tip as of
-   2026-07-25: **`756fd70`**). Note the API is a **separate Render deployment** (`challenge-point.onrender.com`,
+   You cannot see Vercel from here; verify by the deployment's source commit hash against the current
+   branch tip — **`git log --oneline -1`**, not a hash written here, since any commit that updates this
+   line immediately becomes the new tip. Note the API is a **separate Render deployment** (`challenge-point.onrender.com`,
    set via the front-end's `VITE_API_URL`) — routes are mounted at **`/api/app/...`**, so a bare
    `/api/debug-selection` 404s. Joe handles all merges/deploys; **never mention merges, PRs, or deploys
    in emails to Christian.**
