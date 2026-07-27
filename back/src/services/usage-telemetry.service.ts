@@ -20,6 +20,12 @@ export interface UsageSummary {
     topArchetypes: Array<{ archetype: string; count: number }>
     rejectedGoals: Array<{ goalText: string; count: number }>
     feedback: { up: number; down: number; comments: number }
+    /**
+     * Internal ontology terms that survived coach-language translation, most frequent first.
+     * This is the worklist for the next Coach Vocabulary & Translation Dictionary revision — each
+     * entry is a term coaches actually saw, ranked by how often.
+     */
+    coachLanguageLeaks: Array<{ term: string; count: number }>
 }
 
 /** Aggregate usage since a cutoff (default 30 days) for the debug-usage view. */
@@ -35,6 +41,7 @@ export async function summarizeUsage(sinceDays = 30): Promise<UsageSummary> {
     const signalCounts = new Map<string, number>()
     const archetypeCounts = new Map<string, number>()
     const rejectedCounts = new Map<string, number>()
+    const leakCounts = new Map<string, number>()
     const feedback = { up: 0, down: 0, comments: 0 }
 
     for (const e of events) {
@@ -55,6 +62,11 @@ export async function summarizeUsage(sinceDays = 30): Promise<UsageSummary> {
             const key = e.goalText.toLowerCase().trim()
             rejectedCounts.set(key, (rejectedCounts.get(key) ?? 0) + 1)
         }
+        if (e.eventType === 'coach_language_leak') {
+            for (const term of (p['terms'] as string[]) ?? []) {
+                leakCounts.set(term, (leakCounts.get(term) ?? 0) + 1)
+            }
+        }
         if (e.eventType === 'coach_feedback') {
             if (p['rating'] === 'up') feedback.up++
             if (p['rating'] === 'down') feedback.down++
@@ -73,5 +85,6 @@ export async function summarizeUsage(sinceDays = 30): Promise<UsageSummary> {
         topArchetypes: topN(archetypeCounts, 15).map(([archetype, count]) => ({ archetype, count })),
         rejectedGoals: topN(rejectedCounts, 25).map(([goalText, count]) => ({ goalText, count })),
         feedback,
+        coachLanguageLeaks: topN(leakCounts, 25).map(([term, count]) => ({ term, count })),
     }
 }

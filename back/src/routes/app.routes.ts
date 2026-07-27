@@ -8,6 +8,8 @@ import { ActivityAssemblyValidationError, assembleActivities } from 'src/service
 import Activity, { ActivityStatus } from '../models/activity.model'
 import { buildActivityMechanicsFromSkeleton } from '../system/activity/build-activity-mechanics'
 import { buildActivitySkeleton } from '../system/activity/build-activity-skeleton'
+import { buildResolutionNotice, buildUnsupportedGoalGuidance } from '../system/activity/coach-guidance'
+import { auditCoachLanguage } from '../system/activity/coach-language'
 import { compressActivitiesForCoach } from '../system/activity/compress-activity-output'
 import { getSlotMechanicalVariations } from '../system/activity/slot-mechanics-variations'
 import User from '../models/user.model'
@@ -440,11 +442,21 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                 sessionId: req.params.id,
                 goalText: learningGoals.join(' | '),
             })
+            // Graceful unsupported-goal response. The coach gets one message in one register plus
+            // concrete goals they can use as-is (each pinned by unit test to actually resolve).
+            // The internal stage name and validator string are debug-only — previously they were
+            // concatenated onto the friendly text, which read as three voices in one error.
+            const guidance = buildUnsupportedGoalGuidance()
             return res.status(400).json({
-                error:
-                    'I need a soccer training goal to build an activity. Try something like: create better shots, keep possession, break lines, defend in transition, or improve first touch.',
-                stage: 'input-selection',
-                details: ['No supported soccer training signals were found in the learning goals.'],
+                error: guidance.message,
+                suggestions: guidance.suggestions,
+                resolutionStatus: 'unresolved',
+                ...(debug
+                    ? {
+                          stage: 'input-selection',
+                          details: ['No supported soccer training signals were found in the learning goals.'],
+                      }
+                    : {}),
             })
         }
 
@@ -690,6 +702,27 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         )
         const compressedActivities = compressActivitiesForCoach(validatedActivities, perSlotModifierLines)
 
+        // Coach-language audit (Coach Vocabulary & Translation Dictionary sec.9). Anything still
+        // carrying an internal ontology term AFTER translation is a genuine gap in dictionary
+        // coverage. We record it rather than throwing: Representative Validation classifies
+        // coach-language problems as correctable, not constitutive, and its correction hierarchy
+        // puts output-language at the lowest layer — a coach should never lose an activity because
+        // a word leaked. The leak becomes evidence for the next vocabulary revision instead.
+        compressedActivities.forEach((activity, slotIndex) => {
+            const violations = auditCoachLanguage(activity as unknown as Record<string, unknown>)
+            if (violations.length === 0) return
+            recordUsageEvent({
+                eventType: 'coach_language_leak',
+                sessionId: req.params.id,
+                payload: {
+                    slotIndex,
+                    // Terms and field names only — never the surrounding coach-facing prose.
+                    terms: [...new Set(violations.flatMap((v) => v.terms))],
+                    fields: violations.map((v) => v.field),
+                },
+            })
+        })
+
         recordUsageEvent({
             eventType: 'generation_succeeded',
             sessionId: req.params.id,
@@ -699,11 +732,28 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
             },
         })
 
+        // Transparent Failure: when the engine read the goal broadly rather than precisely, say so
+        // once. `buildResolutionNotice` returns null for a confident match, so a good generation
+        // stays silent — Quiet Assistance means a notice must be able to change the coach's next
+        // decision, and "I understood you exactly" cannot.
+        const resolutionNotice = buildResolutionNotice(selection.resolution.status)
+
         if (debug && debugTrace) {
             debugTrace.validation = { aiStagePass: true, failureStage: null, failureReason: null }
-            return res.status(200).json({ activities: compressedActivities, debugTrace })
+            return res.status(200).json({
+                activities: compressedActivities,
+                debugTrace,
+                resolutionStatus: selection.resolution.status,
+                ...(resolutionNotice ? { notice: resolutionNotice } : {}),
+            })
         }
-        return res.status(200).json(compressedActivities)
+        // Wrapped object rather than a bare array so the notice has somewhere to live. The client
+        // accepts both shapes, so an older client keeps working against this endpoint.
+        return res.status(200).json({
+            activities: compressedActivities,
+            resolutionStatus: selection.resolution.status,
+            ...(resolutionNotice ? { notice: resolutionNotice } : {}),
+        })
     } catch (error) {
         recordUsageEvent({
             eventType: 'generation_failed',
