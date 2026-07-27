@@ -35,8 +35,8 @@ first (it supersedes the historical sections below). Then the memory files (auto
    (parser/selection/post-processing) ARE verifiable by you; anything about the *generated activity text*
    (does the AI express X?) needs **Christian's field validation** — be explicit about that boundary in
    replies.
-4. **Verify changes with:** from `back/`: `npx tsc --noEmit -p tsconfig.json` and `npm test` (**19 unit
-   suites** as of 2026-07-25; `deriveInputConstraints.unit.ts` is the main routing test — extend it when you
+4. **Verify changes with:** from `back/`: `npx tsc --noEmit -p tsconfig.json` and `npm test` (**20 unit
+   suites** as of 2026-07-26; `deriveInputConstraints.unit.ts` is the main routing test — extend it when you
    change routing). Front-end changes: `npx tsc --noEmit` from `front/`. Behaviour-preservation gate for engine changes: the selection-pipeline `bestScore`
    sequence must stay **`68,64,94,115,91,68,64,94,115,91,97,84`**.
    For behavior checks write a throwaway `src/scripts/_tmp-*.ts` run via
@@ -305,7 +305,7 @@ planning "is already substantially represented in the current implementation" �
 | Coach-facing communication | ✅ coach-language layer (`707e84d`) |
 | Structured post-use feedback | ✅ `ActivityFeedback` widget |
 | **Approved observation vocabulary collected after use** | ❌ widget takes thumbs + *freeform* comment; replacing that with the 8 codes is the small, high-value next build |
-| **Activity editing** | ❌ `ActivityPage` edits only points-tracking + difficulty/engagement sliders, never activity content |
+| ~~Activity editing~~ | ✅ **DONE 2026-07-26** (`bad7357`) — `ActivityContentEditor` + `activity-edit-evidence.ts`. Editing is **unrestricted** (§38 records, does not judge); every edit is diffed, classified presentation vs revalidation-trigger, recorded as `activity_edited`, aggregated by field in `debug-usage`. The field classification is **provisional** pending RV emitting it — same pattern as `SIGNAL_GROUP_TO_GAME_PROBLEM`, each mapping cites its source. |
 | Representative Validation (6-domain RVD engine) | ⚠️ partial — we run 3 ad-hoc validators |
 
 **Open findings sent to Christian:** (1) **intervention intent → concrete mechanism has no owner** — EI
