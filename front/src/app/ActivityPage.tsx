@@ -9,6 +9,7 @@ import {
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { ArrayFieldWrapper } from '@/form-control'
+import ActivityContentEditor, { type ActivityContentDraft } from '@/components/ActivityContentEditor'
 import { NumberField, SliderField, TextField } from '@/form-control/fields'
 import ROUTES from '@/ROUTES'
 
@@ -69,7 +70,11 @@ export default function ActivityPage() {
 
             {(activity?.activityStatus === ActivityStatus['In Progress'] ||
                 activity?.activityStatus === ActivityStatus['Ready to Start']) && (
-                <ActivityScreen activity={activity} updateActivityStatus={updateActivityStatus} />
+                <ActivityScreen
+                    activity={activity}
+                    updateActivityStatus={updateActivityStatus}
+                    refetchActivity={() => activityResource.get()}
+                />
             )}
 
             {activity?.activityStatus === ActivityStatus['Review'] && (
@@ -251,9 +256,12 @@ export default function ActivityPage() {
 function ActivityScreen({
     activity,
     updateActivityStatus,
+    refetchActivity,
 }: {
     activity: IActivity
     updateActivityStatus: (updatedStatus: ActivityStatus) => Promise<void>
+    /** Re-read the activity after a coach edit so the page shows what was actually stored. */
+    refetchActivity: () => Promise<unknown>
 }) {
     const [difficultyLevel, setDifficultyLevel] = useState<DifficultyLevels>(DifficultyLevels['Medium'])
     const [engagementLevel, setEngagementLevel] = useState<EngagementLevels>(EngagementLevels['Medium'])
@@ -261,6 +269,8 @@ function ActivityScreen({
     const [isUpdating, setIsUpdating] = useState(false)
     const [startError, setStartError] = useState<string | null>(null)
     const [showLiveActivityDetails, setShowLiveActivityDetails] = useState(false)
+    /** Coach editing of the activity content (Coach Intelligence §18). */
+    const [isEditingContent, setIsEditingContent] = useState(false)
 
     const navigate = useNavigate()
     const isInProgress = activity.activityStatus === ActivityStatus['In Progress']
@@ -292,6 +302,35 @@ function ActivityScreen({
             console.error('Failed to start activity', error)
             setStartError(error instanceof Error ? error.message : 'Failed to start activity')
         }
+    }
+
+    /**
+     * Persist a coach's content edit. The backend diffs this against the stored activity and records
+     * which fields changed (and whether any were structural) as evidence — it never rejects an edit.
+     * `teams` maps onto extensions[0], which is where the assembly pipeline puts the team structure.
+     */
+    const saveActivityContent = async (draft: ActivityContentDraft) => {
+        const nextExtensions = [...(activity.extensions ?? [])]
+        nextExtensions[0] = draft.teams
+
+        const res = await api(ROUTES.app.activity, {
+            _id: activity._id,
+            session: typeof activity.session === 'string' ? activity.session : activity.session?._id,
+            title: draft.title,
+            intent: draft.intent,
+            setup: draft.setup,
+            extensions: nextExtensions,
+            rules: draft.rules,
+            scoringSystem: draft.scoringSystem,
+            winCondition: draft.winCondition,
+            scaffolding: draft.scaffolding,
+        })
+        if (res.error) {
+            throw new Error(typeof res.error === 'string' ? res.error : 'Could not save your changes.')
+        }
+        setIsEditingContent(false)
+        // Re-read so the page shows exactly what was stored rather than our local guess.
+        await refetchActivity()
     }
 
     const updateLevels = async () => {
@@ -418,8 +457,30 @@ function ActivityScreen({
                                 )}
                             </button>
                         )}
+                        {/*
+                          Coach editing (Coach Intelligence §18). Available whenever the details are
+                          visible — a coach adapting an activity to their group is normal practice,
+                          not an exception, and making them hunt for it would say otherwise.
+                        */}
+                        {activityDetailsExpanded && !isEditingContent && (
+                            <button
+                                type='button'
+                                onClick={() => setIsEditingContent(true)}
+                                className='inline-flex items-center gap-1 text-sm font-semibold text-brand-700 hover:text-brand-900'
+                            >
+                                Edit activity
+                            </button>
+                        )}
                     </div>
-                    {activityDetailsExpanded && (
+                    {activityDetailsExpanded && isEditingContent && (
+                        <ActivityContentEditor
+                            activity={activity}
+                            onSave={saveActivityContent}
+                            onCancel={() => setIsEditingContent(false)}
+                        />
+                    )}
+
+                    {activityDetailsExpanded && !isEditingContent && (
                         <div className='space-y-5'>
 
                         {/* Objective */}
