@@ -8,6 +8,7 @@ import { ActivityAssemblyValidationError, assembleActivities } from 'src/service
 import Activity, { ActivityStatus } from '../models/activity.model'
 import { buildActivityMechanicsFromSkeleton } from '../system/activity/build-activity-mechanics'
 import { buildActivitySkeleton } from '../system/activity/build-activity-skeleton'
+import { diffActivityEdit } from '../system/activity/activity-edit-evidence'
 import { buildResolutionNotice, buildUnsupportedGoalGuidance } from '../system/activity/coach-guidance'
 import { auditCoachLanguage } from '../system/activity/coach-language'
 import { compressActivitiesForCoach } from '../system/activity/compress-activity-output'
@@ -982,6 +983,29 @@ router.post(ROUTES.activity, async (req: Request, res: Response) => {
             }).save()
 
             return res.status(201).json({ message: 'successfully created', data: created })
+        }
+
+        // Coach edit evidence. Editing is unrestricted — Coach Intelligence §38 records the coach's
+        // decision and does not judge it — but we classify what changed. Structural edits are the
+        // ones Integration Spec §36 would submit for revalidation; we cannot do that yet, so
+        // recording them keeps the seam visible and gives Representative Validation real calibration
+        // data for when the six-domain engine lands.
+        const existing = await Activity.findById(body._id).lean()
+        if (existing) {
+            const evidence = diffActivityEdit(existing as unknown as Record<string, unknown>, body)
+            if (evidence.changedFields.length > 0) {
+                recordUsageEvent({
+                    eventType: 'activity_edited',
+                    activityId: String(body._id),
+                    sessionId: typeof body.session === 'string' ? body.session : undefined,
+                    payload: {
+                        // Field names only — never the coach's edited prose.
+                        changedFields: evidence.changedFields,
+                        revalidationTriggerFields: evidence.revalidationTriggerFields,
+                        touchesRepresentativeStructure: evidence.touchesRepresentativeStructure,
+                    },
+                })
+            }
         }
 
         await Activity.findByIdAndUpdate(body._id, body)

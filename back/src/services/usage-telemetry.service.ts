@@ -26,6 +26,16 @@ export interface UsageSummary {
      * entry is a term coaches actually saw, ranked by how often.
      */
     coachLanguageLeaks: Array<{ term: string; count: number }>
+    /**
+     * What coaches change about generated activities, most-edited field first, plus how often an
+     * edit touched representative structure. This is the calibration data for Representative
+     * Validation: a field coaches rewrite constantly is a field the engine is getting wrong.
+     */
+    activityEdits: {
+        total: number
+        structural: number
+        topFields: Array<{ field: string; count: number }>
+    }
 }
 
 /** Aggregate usage since a cutoff (default 30 days) for the debug-usage view. */
@@ -42,6 +52,8 @@ export async function summarizeUsage(sinceDays = 30): Promise<UsageSummary> {
     const archetypeCounts = new Map<string, number>()
     const rejectedCounts = new Map<string, number>()
     const leakCounts = new Map<string, number>()
+    const editFieldCounts = new Map<string, number>()
+    const edits = { total: 0, structural: 0 }
     const feedback = { up: 0, down: 0, comments: 0 }
 
     for (const e of events) {
@@ -67,6 +79,13 @@ export async function summarizeUsage(sinceDays = 30): Promise<UsageSummary> {
                 leakCounts.set(term, (leakCounts.get(term) ?? 0) + 1)
             }
         }
+        if (e.eventType === 'activity_edited') {
+            edits.total++
+            if (p['touchesRepresentativeStructure'] === true) edits.structural++
+            for (const field of (p['changedFields'] as string[]) ?? []) {
+                editFieldCounts.set(field, (editFieldCounts.get(field) ?? 0) + 1)
+            }
+        }
         if (e.eventType === 'coach_feedback') {
             if (p['rating'] === 'up') feedback.up++
             if (p['rating'] === 'down') feedback.down++
@@ -86,5 +105,9 @@ export async function summarizeUsage(sinceDays = 30): Promise<UsageSummary> {
         rejectedGoals: topN(rejectedCounts, 25).map(([goalText, count]) => ({ goalText, count })),
         feedback,
         coachLanguageLeaks: topN(leakCounts, 25).map(([term, count]) => ({ term, count })),
+        activityEdits: {
+            ...edits,
+            topFields: topN(editFieldCounts, 15).map(([field, count]) => ({ field, count })),
+        },
     }
 }
