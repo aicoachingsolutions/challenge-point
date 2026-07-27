@@ -321,8 +321,15 @@ text = the vocabulary-gap dataset)**, `selection_resolved`, `generation_succeede
    mapping is off. That trades a generic phrase for a misleading one, which Dictionary Rule 3 forbids.
    **Needs Christian's call before wiring.** Also outstanding: verification against a fresh generation run
    (needs an API key — the samples on disk are from May).
-2. **Graceful unsupported-goal UX** — the engine already returns matched/fallback/unresolved; surface it
-   kindly in the front-end instead of a bare rejection.
+2. ~~**Graceful unsupported-goal UX**~~ — ✅ **DONE 2026-07-25** (`07a1631`). `coach-guidance.ts` owns
+   what a coach is told when the engine could not read their goal, or read it only broadly.
+   Rejection → one message in one register plus concrete goals rendered as buttons that fill the
+   goal field (`stage`/`details` are now debug-only; they used to be concatenated onto the friendly
+   text). Broad read (`fallback`/`unresolved`) → one quiet notice; **a confident match says nothing**,
+   per Quiet Assistance. `EXAMPLE_GOALS` is pinned by unit test to resolve *specifically* through
+   `deriveInputConstraints` — a coach who follows our suggestion must never be rejected twice, so a
+   vocabulary change breaks the build instead. Generation response is now
+   `{ activities, resolutionStatus, notice? }`; the client still accepts the old bare array.
 3. **Deferred / paused:** activity-variation richness (L2 slot-modifier bank — adds coaching content),
    ATP production coupling (awaits field evidence), semantic routing to canonical GP-IDs, mapping live
    info mechanics onto canonical Information Expression dimensions, bridging the engine's internal
