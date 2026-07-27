@@ -275,6 +275,53 @@ bounded recommendation termination — which answers the retry concern raised on
 8. Evidence Intelligence also lacks a document but is **genuinely deferrable** (it needs accumulated
    evidence). Coach Intelligence is **not**.
 
+### Coach Intelligence Architecture RC1 + revised Runtime Validation (2026-07-26)
+Both loose docx in `~/Downloads/`; extracted to scratchpad `ci/`.
+
+**Revised Runtime Validation & Correction Spec — all three of our recommendations adopted:**
+pre-commitment validation may be realized as deterministic candidate filtering; Checkpoint 5 prefers
+structural immutability for machine-owned fields and concentrates on free-text; corrections must be a
+deterministic function of `(activity state, diagnostic)` with no dependence on retry counts, generation
+history, or mutable randomness. Christian's next RV work is the **Degenerate Solution Pattern
+Catalogue** (the RVD-06 approach we proposed).
+
+**Coach Intelligence Architecture** was written to close the gap we flagged. Adopted directly:
+§9 **Routing by Emitted Classification** (CI routes on classifications the *owning* subsystem emits,
+never its own inference — "prevents the runtime orchestrator from quietly becoming a second validator");
+§22 the bounded **8-observation vocabulary**; §23 **Session Stage** = Just Started / Settling In /
+Established *instead of* elapsed-time tracking — which unblocks Experience Intelligence without building
+a session runtime; §29 **Runtime Representative Reassessment**, closing the interface gap where an
+observation was routed to a subsystem that accepts no observational input.
+
+**THE STRATEGIC SHIFT — staged MVP (Part IV).** **Pilot 1 = planning engine only**, evaluated by real
+coaches *before* the live runtime is designed. **Pilot 2 = the live "quiet assistant" runtime.** §14 notes
+planning "is already substantially represented in the current implementation" — which it is.
+
+**Pilot 1 gap list, verified against code:**
+| §18 requirement | Status |
+|---|---|
+| Coach-context gathering | ✅ `ActivityGenerator` form + `normalizeCoachingInput` |
+| Representative activity generation | ✅ |
+| Coach-facing communication | ✅ coach-language layer (`707e84d`) |
+| Structured post-use feedback | ✅ `ActivityFeedback` widget |
+| **Approved observation vocabulary collected after use** | ❌ widget takes thumbs + *freeform* comment; replacing that with the 8 codes is the small, high-value next build |
+| **Activity editing** | ❌ `ActivityPage` edits only points-tracking + difficulty/engagement sliders, never activity content |
+| Representative Validation (6-domain RVD engine) | ⚠️ partial — we run 3 ad-hoc validators |
+
+**Open findings sent to Christian:** (1) **intervention intent → concrete mechanism has no owner** — EI
+emits an implementation-neutral intent, §34 has CI turn it into a practical adjustment, but §8 says CI
+doesn't own EM/IR/IE knowledge; choosing "rotate roles" vs "shrink the area" *is* representative design
+knowledge. Fix per his own §9: RV's published adjustable-parameter list should carry enough structure to
+answer "which of these serves this intent". (2) **No threshold owner** for §33/§30 ("repeated
+observations" — how many?); elegant fix is that EI already has *Insufficient Evidence* as a confidence
+level, so CI forwards and stays silent when EI says so — no threshold in the orchestrator at all.
+(3) "Deterministic orchestration" needs pinning as determinism over `(session state, emitted
+classifications)` where session state includes **ordered** history. (4) The emitted-classification
+enumerations, observation vocabulary, session-stage enum and five validation outcomes should live in a
+**shared runtime interface spec** — they're defined by example inside CI's document but owned elsewhere,
+so they will drift. (5) Enum inconsistency that will become a DB field: §7 lists five coach decisions,
+§39 lists four (drops "replaced by a coach-selected action").
+
 ### Field-evidence collector — BUILT and ready (`5a9e760`)
 `usage_events` collection + fire-and-forget `recordUsageEvent` (never blocks/fails a request), hooked
 into generation: `goal_submitted` (goal + resolution status + signal groups), **`goal_rejected` (verbatim
