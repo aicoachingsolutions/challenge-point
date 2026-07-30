@@ -323,6 +323,33 @@ enumerations, observation vocabulary, session-stage enum and five validation out
 so they will drift. (5) Enum inconsistency that will become a DB field: §7 lists five coach decisions,
 §39 lists four (drops "replaced by a coach-selected action").
 
+### Runtime Interface Specification RC1.1 (2026-07-30) — the executable contract
+Christian built the shared runtime interface spec we recommended. **This is now the canonical source
+for shared enumerations and exchanged-object shapes** — subsystem docs stay authoritative for
+ownership and reasoning, but where they describe a shared enumeration *by example*, this governs.
+Read it before implementing anything that crosses a subsystem boundary.
+
+Everything we raised last round is resolved: observation codes now have **stable
+`SCREAMING_SNAKE` IDs** with display labels explicitly allowed to change while stored values may not
+(§12 + §50); §40 **Published Adjustment Option** turns intent→mechanism into a bounded lookup so the
+orchestrator never does representative design; §38 states outright that Experience Intelligence
+decides evidence sufficiency and **Coach Intelligence must not implement observation-count
+thresholds**; §9 + §47 define determinism over *ordered* session state; the coach-decision enum now
+carries all five values. §55 splits the **Pilot 1 vs Pilot 2 minimum object sets** — useful, because
+Pilot 1 needs only Shared Envelope, Coach Context, Representative Activity, Validation Result,
+Observation Event, Coach Decision, Session Record.
+
+**Open gaps we flagged — all the same shape, and by his own §56 criterion ("every shared enumeration
+has one canonical definition") they block the freeze:**
+1. **Intervention Intent is not enumerated** — and it is load-bearing, because §40 works by matching
+   Experience Intelligence's `preferredInterventionIntent` against an adjustment resource's
+   `supportedInterventionIntents`. Two vocabularies, no canonical set, silent lookup failure.
+2. **Experiential Friction** — §27 calls it a "bounded friction classification"; no bounded set exists.
+3. **Reassessment Request Trigger** — §31 calls it "canonical"; no enumeration exists.
+4. **Still no observation code for "intended problem not emerging."** All eight codes are
+   experiential, so representative reassessment can only be reached by Experience Intelligence
+   inferring a representative concern from experiential signals.
+
 ### Field-evidence collector — BUILT and ready (`5a9e760`)
 `usage_events` collection + fire-and-forget `recordUsageEvent` (never blocks/fails a request), hooked
 into generation: `goal_submitted` (goal + resolution status + signal groups), **`goal_rejected` (verbatim
