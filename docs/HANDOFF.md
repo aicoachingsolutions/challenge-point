@@ -36,7 +36,7 @@ first (it supersedes the historical sections below). Then the memory files (auto
    (parser/selection/post-processing) ARE verifiable by you; anything about the *generated activity text*
    (does the AI express X?) needs **Christian's field validation** — be explicit about that boundary in
    replies.
-4. **Verify changes with:** from `back/`: `npx tsc --noEmit -p tsconfig.json` and `npm test` (**20 unit
+4. **Verify changes with:** from `back/`: `npx tsc --noEmit -p tsconfig.json` and `npm test` (**21 unit
    suites** as of 2026-07-26; `deriveInputConstraints.unit.ts` is the main routing test — extend it when you
    change routing). Front-end changes: `npx tsc --noEmit` from `front/`. Behaviour-preservation gate for engine changes: the selection-pipeline `bestScore`
    sequence must stay **`68,64,94,115,91,68,64,94,115,91,97,84`**.
@@ -305,7 +305,7 @@ planning "is already substantially represented in the current implementation" �
 | Representative activity generation | ✅ |
 | Coach-facing communication | ✅ coach-language layer (`707e84d`) |
 | Structured post-use feedback | ✅ `ActivityFeedback` widget |
-| **Approved observation vocabulary collected after use** | ❌ widget takes thumbs + *freeform* comment; replacing that with the 8 codes is the small, high-value next build |
+| ~~Approved observation vocabulary collected after use~~ | ✅ **DONE 2026-07-31** (`974a0a4`) — see below |
 | ~~Activity editing~~ | ✅ **DONE 2026-07-26** (`bad7357`) — `ActivityContentEditor` + `activity-edit-evidence.ts`. Editing is **unrestricted** (§38 records, does not judge); every edit is diffed, classified presentation vs revalidation-trigger, recorded as `activity_edited`, aggregated by field in `debug-usage`. The field classification is **provisional** pending RV emitting it — same pattern as `SIGNAL_GROUP_TO_GAME_PROBLEM`, each mapping cites its source. |
 | Representative Validation (6-domain RVD engine) | ⚠️ partial — we run 3 ad-hoc validators |
 
@@ -363,6 +363,33 @@ in **both** §12 and §19C — keep them as distinct namespaced types, never a s
 Experience Intelligence RC1.0 was not revised, so it still says confidence is "Strong / Moderate /
 Weak" against §16's `HIGH / MODERATE / LOW`; §4 Authority & Precedence governs, so the Runtime
 Interface values win — but don't build the enum from the EI document.
+
+### Observation capture — the first Runtime Interface object in code (`974a0a4`)
+`back/src/system/runtime-interface/observation-vocabulary.ts` implements RC1.2 §12/§13: nine
+observation codes, three session stages. **It lives in its own module, NOT under `knowledge-core/`** —
+that folder holds Christian's canonical *knowledge* workbooks; this is a platform *runtime contract*,
+a different kind of thing. Expect the rest of the Runtime Interface objects to land beside it.
+
+Three spec clauses drove the design, and each is worth preserving:
+- **§50 Semantic Stability** — every entry is an immutable stored `code` plus a freely-rewordable
+  coach-facing `label`. **The vocabulary is SERVED** (`GET /api/app/observation-vocabulary`) rather
+  than duplicated in the client, so a reworded label ships without a client release and the client
+  can never offer a code the server would reject. Do not copy the codes into the front end.
+- **§52 Failure Behavior** — `parseObservationCode` / `parseSessionStage` return null and the route
+  400s naming the field. Never coerce a near-miss; a silently-corrected observation corrupts the
+  evidence.
+- **§9 Ordered Session State** — observations are their own append-only `observation_events`
+  collection with `sequenceNumber`, **not** `usage_events`. Telemetry is fire-and-forget and may drop
+  writes; an Observation Event is an immutable historical fact the Session Record carries in order.
+
+**Scope is Pilot 1 (§42) only:** no Experience Intelligence call, no recommendation, and
+`INTENDED_PROBLEM_NOT_EMERGING` is *stored, not routed* — routing it to Representative Validation is
+Pilot 2 (§28/§55). Aggregates land in `GET /api/app/debug-usage` under `observations`.
+
+Two things deliberately left provisional: `captureMethod` only ever stores `POST_USE` (its canonical
+set is one of the four Pilot 1 value gaps raised with Christian), and `sequenceNumber` is count-based,
+which is fine for a single coach submitting one form but needs an atomic counter if live capture
+arrives in Pilot 2.
 
 ### Field-evidence collector — BUILT and ready (`5a9e760`)
 `usage_events` collection + fire-and-forget `recordUsageEvent` (never blocks/fails a request), hooked
