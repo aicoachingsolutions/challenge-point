@@ -339,16 +339,30 @@ carries all five values. §55 splits the **Pilot 1 vs Pilot 2 minimum object set
 Pilot 1 needs only Shared Envelope, Coach Context, Representative Activity, Validation Result,
 Observation Event, Coach Decision, Session Record.
 
-**Open gaps we flagged — all the same shape, and by his own §56 criterion ("every shared enumeration
-has one canonical definition") they block the freeze:**
-1. **Intervention Intent is not enumerated** — and it is load-bearing, because §40 works by matching
-   Experience Intelligence's `preferredInterventionIntent` against an adjustment resource's
-   `supportedInterventionIntents`. Two vocabularies, no canonical set, silent lookup failure.
-2. **Experiential Friction** — §27 calls it a "bounded friction classification"; no bounded set exists.
-3. **Reassessment Request Trigger** — §31 calls it "canonical"; no enumeration exists.
-4. **Still no observation code for "intended problem not emerging."** All eight codes are
-   experiential, so representative reassessment can only be reached by Experience Intelligence
-   inferring a representative concern from experiential signals.
+**RC1.2 (2026-07-31) closed all four gaps we raised — §56 confirmed.** Added **§19A Intervention
+Intent** (8 values, explicitly required to be *the same vocabulary* on both sides of the
+intent→mechanism lookup, which was the whole point), **§19B Experiential Friction** (8 values),
+**§19C Reassessment Request Trigger** (5 values), and **`INTENDED_PROBLEM_NOT_EMERGING`** as an
+observation code. Coach Intelligence §28 routes that last one **directly to Representative
+Validation** — "because it reports a representative-expression concern rather than an experiential
+friction" — reaching it through a Reassessment Request carrying a §19C trigger, so the old interface
+gap stays closed. The 8 frictions map cleanly onto the 8 intents. §55's Pilot 1 object set is
+unchanged.
+
+**One residue we flagged, scoped to Pilot 1 and explicitly non-blocking:** four Pilot-1 *stored*
+fields still have no canonical value set — `captureMethod`, `learningEmphasis`, `challengeLevel`,
+`completionStatus`. **We already have local values for two of them** (`ChallengeLevels = low|medium|high`
+in `activity.model.ts`; `SessionEmphasis = discovering|applying` in `session.model.ts`), so ours
+become the de facto canon by default — the exact drift §50 exists to prevent, on the first flow we
+build. Pilot-2-only inline enums (`presentationPriority`, `coachOptions`, `recommendedDisposition`,
+`requestReason`, `applicationStatus`, `candidateDisposition`, `requiredAction`) are flagged for
+"before Pilot 2", not now.
+
+Two notes for whoever implements: `INTENDED_PROBLEM_NOT_EMERGING` is deliberately the same identifier
+in **both** §12 and §19C — keep them as distinct namespaced types, never a shared `code` column. And
+Experience Intelligence RC1.0 was not revised, so it still says confidence is "Strong / Moderate /
+Weak" against §16's `HIGH / MODERATE / LOW`; §4 Authority & Precedence governs, so the Runtime
+Interface values win — but don't build the enum from the EI document.
 
 ### Field-evidence collector — BUILT and ready (`5a9e760`)
 `usage_events` collection + fire-and-forget `recordUsageEvent` (never blocks/fails a request), hooked
