@@ -8,7 +8,19 @@ import { ActivityAssemblyValidationError, assembleActivities } from 'src/service
 import Activity, { ActivityStatus } from '../models/activity.model'
 import { buildActivityMechanicsFromSkeleton } from '../system/activity/build-activity-mechanics'
 import { buildActivitySkeleton } from '../system/activity/build-activity-skeleton'
+import ObservationEvent from '../models/observation-event.model'
 import { diffActivityEdit } from '../system/activity/activity-edit-evidence'
+import {
+    COACH_NOTE_MAX_LENGTH,
+    OBSERVATION_GROUPS,
+    OBSERVATION_LABELS,
+    type ObservationCode,
+    RUNTIME_INTERFACE_VERSION,
+    SESSION_STAGES,
+    SESSION_STAGE_LABELS,
+    parseObservationCode,
+    parseSessionStage,
+} from '../system/runtime-interface/observation-vocabulary'
 import { buildResolutionNotice, buildUnsupportedGoalGuidance } from '../system/activity/coach-guidance'
 import { auditCoachLanguage } from '../system/activity/coach-language'
 import { compressActivitiesForCoach } from '../system/activity/compress-activity-output'
@@ -399,6 +411,90 @@ router.post('/activity-feedback', async (req: Request, res: Response) => {
  * resolve, what gets selected, what was rejected verbatim (the vocabulary-gap list), success rate,
  * and feedback tallies. GET /api/app/debug-usage?days=30
  */
+/**
+ * The observation vocabulary, served rather than duplicated in the client.
+ *
+ * §50 Semantic Stability separates stored values (immutable) from display labels (freely
+ * changeable). If the front end carried its own copy of both, a label reworded on one side would
+ * drift from the other, and a code added on one side would silently never be offered — which is the
+ * precise failure this specification exists to prevent. Serving it keeps one source of truth and
+ * lets coach-facing wording change without a client release.
+ */
+router.get('/observation-vocabulary', (_req: Request, res: Response) => {
+    return res.status(200).json({
+        interfaceVersion: RUNTIME_INTERFACE_VERSION,
+        groups: OBSERVATION_GROUPS.map((g) => ({
+            heading: g.heading,
+            options: g.codes.map((code) => ({ code, label: OBSERVATION_LABELS[code] })),
+        })),
+        sessionStages: SESSION_STAGES.map((stage) => ({ stage, label: SESSION_STAGE_LABELS[stage] })),
+    })
+})
+
+/**
+ * Post-use observation capture — Runtime Interface RC1.2 §42 (Pilot 1 flow).
+ *
+ * The coach records one or more canonical observations after using an activity. Stored as ordered
+ * Observation Events (§25) against the session. NO interpretation happens here: Experience
+ * Intelligence is not invoked, no recommendation is produced, and INTENDED_PROBLEM_NOT_EMERGING is
+ * stored rather than routed — Pilot 1 explicitly requires no live recommendation, and routing it to
+ * Representative Validation is Pilot 2 work (§28 / §55).
+ *
+ * §52 Failure Behavior: invalid codes are rejected with the failed field named. We never coerce a
+ * near-miss into a canonical value — §12 forbids local synonyms becoming stored values, and a
+ * silently-corrected observation would corrupt the very evidence this exists to collect.
+ */
+router.post('/observations', async (req: Request, res: Response) => {
+    try {
+        const { observationCodes, sessionStage, activityId, sessionId, coachNote } = req.body as Record<string, unknown>
+
+        if (!Array.isArray(observationCodes) || observationCodes.length === 0) {
+            return res.status(400).json({ error: 'observationCodes must be a non-empty array.', field: 'observationCodes' })
+        }
+
+        const parsedCodes: ObservationCode[] = []
+        for (const raw of observationCodes) {
+            const code = parseObservationCode(raw)
+            if (!code) {
+                return res.status(400).json({
+                    error: `Unrecognised observation code: ${String(raw)}`,
+                    field: 'observationCodes',
+                })
+            }
+            if (!parsedCodes.includes(code)) parsedCodes.push(code)
+        }
+
+        const stage = parseSessionStage(sessionStage)
+        if (!stage) {
+            return res.status(400).json({ error: `Unrecognised session stage: ${String(sessionStage)}`, field: 'sessionStage' })
+        }
+
+        const sessionKey = typeof sessionId === 'string' ? sessionId : undefined
+        // Ordered session state (§9). Count-based sequencing is sufficient for Pilot 1's
+        // single-coach form submission; observedAt remains the authoritative tiebreak.
+        const existing = sessionKey ? await ObservationEvent.countDocuments({ sessionId: sessionKey }) : 0
+        const observedAt = new Date()
+        const note = typeof coachNote === 'string' ? coachNote.trim().slice(0, COACH_NOTE_MAX_LENGTH) : undefined
+
+        const events = parsedCodes.map((observationCode, i) => ({
+            observationCode,
+            sessionStage: stage,
+            captureMethod: 'POST_USE',
+            sequenceNumber: existing + i,
+            observedAt,
+            activityId: typeof activityId === 'string' ? activityId : undefined,
+            sessionId: sessionKey,
+            coachNote: note || undefined,
+            interfaceVersion: RUNTIME_INTERFACE_VERSION,
+        }))
+
+        await ObservationEvent.insertMany(events)
+        return res.status(201).json({ recorded: events.length })
+    } catch (error) {
+        return res.status(500).json({ error: error instanceof Error ? error.message : String(error) })
+    }
+})
+
 router.get('/debug-usage', async (req: Request, res: Response) => {
     try {
         const days = Math.min(365, Math.max(1, Number.parseInt(String(req.query.days ?? '30'), 10) || 30))

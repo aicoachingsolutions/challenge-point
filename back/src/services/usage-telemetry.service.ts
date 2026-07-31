@@ -1,4 +1,5 @@
 import Logger from '../logger'
+import ObservationEvent from '../models/observation-event.model'
 import UsageEvent, { IUsageEvent } from '../models/usage-event.model'
 
 /**
@@ -35,6 +36,17 @@ export interface UsageSummary {
         total: number
         structural: number
         topFields: Array<{ field: string; count: number }>
+    }
+    /**
+     * Post-use coach observations (Runtime Interface §42, Pilot 1). This is the calibration dataset
+     * for Experience Intelligence — which observations coaches actually reach for, and at which
+     * session stage. Built before the interpreter exists, on purpose: calibrating against real
+     * reports beats calibrating against our assumptions.
+     */
+    observations: {
+        total: number
+        byCode: Array<{ code: string; count: number }>
+        byStage: Array<{ stage: string; count: number }>
     }
 }
 
@@ -93,6 +105,18 @@ export async function summarizeUsage(sinceDays = 30): Promise<UsageSummary> {
         }
     }
 
+    // Observation Events live in their own append-only collection, not the telemetry stream — see
+    // observation-event.model.ts for why. Read separately and summarized alongside.
+    const observationEvents = await ObservationEvent.find({ createdAt: { $gte: since } })
+        .limit(20000)
+        .lean()
+    const observationCodeCounts = new Map<string, number>()
+    const observationStageCounts = new Map<string, number>()
+    for (const o of observationEvents) {
+        observationCodeCounts.set(o.observationCode, (observationCodeCounts.get(o.observationCode) ?? 0) + 1)
+        observationStageCounts.set(o.sessionStage, (observationStageCounts.get(o.sessionStage) ?? 0) + 1)
+    }
+
     const topN = (m: Map<string, number>, n: number) =>
         [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, n)
 
@@ -108,6 +132,11 @@ export async function summarizeUsage(sinceDays = 30): Promise<UsageSummary> {
         activityEdits: {
             ...edits,
             topFields: topN(editFieldCounts, 15).map(([field, count]) => ({ field, count })),
+        },
+        observations: {
+            total: observationEvents.length,
+            byCode: topN(observationCodeCounts, 20).map(([code, count]) => ({ code, count })),
+            byStage: topN(observationStageCounts, 5).map(([stage, count]) => ({ stage, count })),
         },
     }
 }
