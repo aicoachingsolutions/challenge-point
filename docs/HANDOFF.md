@@ -391,6 +391,39 @@ set is one of the four Pilot 1 value gaps raised with Christian), and `sequenceN
 which is fine for a single coach submitting one form but needs an atomic counter if live capture
 arrives in Pilot 2.
 
+### Knowledge Presentation Standard RC1.0 (2026-07-31) — governs coach-facing output
+Short constitutional standard: the presentation-layer counterpart to the Runtime Interface Spec.
+Prompted by Christian's own observation while generating test activities — *repetition across
+sections, metadata appearing as coach instructions, multiple reasoning stages saying the same thing
+differently.* §6 pipeline: **Knowledge → Reasoning → Communication Contributions → Composition →
+Translation → Coach Presentation.**
+
+**The finding that matters for our code: "Communication Contributions" does not exist in our
+system, and its absence causes all three symptoms he reported.** Our pipeline is *subtractive* —
+assembly writes prose, the LLM writes more prose, and `compressActivityForCoach` then tries to
+*remove* redundancy using **token-Jaccard at `SEMANTIC_OVERLAP_THRESHOLD = 0.6`**. That can never
+satisfy §7 Principle 2, because two sentences can express one idea with almost no shared tokens
+("Score by reaching the far zone" / "A point is awarded for progressing past the line").
+
+**The fix is structural, not a threshold tweak:** have each reasoning stage emit a *claim with an
+identity* (which idea it expresses) instead of a sentence, so Composition deduplicates by identity —
+exactly and deterministically — rather than guessing by word overlap. Corollary: with structured
+contributions **the LLM becomes a translator rather than an author**, which is what the Integration
+Spec's "Deterministic Before Generative" already asks for, and removes the redundancy class where
+the LLM restates what the deterministic layer already said.
+
+**Three smaller findings raised with Christian:**
+1. **§9's quality checklist is half-implemented already** — "no architectural terminology" is
+   `findNeverDisplayViolations` (running, recording leaks as evidence) and "no implementation
+   language" is the translation table. The rest needs contribution structure to be checkable.
+2. **§9 overlaps Representative Validation Checkpoint 5**, which already evaluates coach-facing
+   language. Proposed split: **RV owns meaning-preservation, Presentation owns quality**, and a
+   presentation failure is never a representative Reject. Needs his ruling.
+3. **Two diverging never-display lists.** Presentation §7 P7 and Translation Dictionary §9 share
+   only three terms. **Ours follows the Dictionary, so `game problem`, `representative validation`,
+   `runtime assessment` and `published adjustment option` are NOT currently blocked** and could
+   reach a coach. Needs one canonical list with one owner before we add them.
+
 ### Field-evidence collector — BUILT and ready (`5a9e760`)
 `usage_events` collection + fire-and-forget `recordUsageEvent` (never blocks/fails a request), hooked
 into generation: `goal_submitted` (goal + resolution status + signal groups), **`goal_rejected` (verbatim
