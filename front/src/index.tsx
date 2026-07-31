@@ -48,6 +48,7 @@ import ActivityGenerator from './app/ActivityGenerator'
 import ActivityPage from './app/ActivityPage'
 import DebugEmReasoning from './app/DebugEmReasoning'
 import DebugSelection from './app/DebugSelection'
+import DebugUsage from './app/DebugUsage'
 import SessionLibrary from './app/SessionLibrary'
 import SessionPage from './app/SessionPage'
 import AdminCategoryForm from './forms/admin/AdminCategoryForm'
@@ -87,6 +88,8 @@ root.render(
                                     <Route path='debug' element={<DebugSelection />} />
                                     {/* TEMPORARY developer/testing view — canonical EM reasoning (Knowledge Core Package 1.1). */}
                                     <Route path='debug-em' element={<DebugEmReasoning />} />
+                                    {/* TEMPORARY developer/testing view - field evidence for the coach pilot. */}
+                                    <Route path='debug-usage' element={<DebugUsage />} />
                                 </Route>
                             </Route>
                             <Route element={<PermissionsWrapper required={{ isAdmin: true }} />}>
