@@ -391,6 +391,111 @@ set is one of the four Pilot 1 value gaps raised with Christian), and `sequenceN
 which is fine for a single coach submitting one form but needs an atomic counter if live capture
 arrives in Pilot 2.
 
+### Knowledge Presentation Standard RC1.0 (2026-07-31) — governs coach-facing output
+Short constitutional standard: the presentation-layer counterpart to the Runtime Interface Spec.
+Prompted by Christian's own observation while generating test activities — *repetition across
+sections, metadata appearing as coach instructions, multiple reasoning stages saying the same thing
+differently.* §6 pipeline: **Knowledge → Reasoning → Communication Contributions → Composition →
+Translation → Coach Presentation.**
+
+**The finding that matters for our code: "Communication Contributions" does not exist in our
+system, and its absence causes all three symptoms he reported.** Our pipeline is *subtractive* —
+assembly writes prose, the LLM writes more prose, and `compressActivityForCoach` then tries to
+*remove* redundancy using **token-Jaccard at `SEMANTIC_OVERLAP_THRESHOLD = 0.6`**. That can never
+satisfy §7 Principle 2, because two sentences can express one idea with almost no shared tokens
+("Score by reaching the far zone" / "A point is awarded for progressing past the line").
+
+**The fix is structural, not a threshold tweak:** have each reasoning stage emit a *claim with an
+identity* (which idea it expresses) instead of a sentence, so Composition deduplicates by identity —
+exactly and deterministically — rather than guessing by word overlap. Corollary: with structured
+contributions **the LLM becomes a translator rather than an author**, which is what the Integration
+Spec's "Deterministic Before Generative" already asks for, and removes the redundancy class where
+the LLM restates what the deterministic layer already said.
+
+**Three smaller findings raised with Christian:**
+1. **§9's quality checklist is half-implemented already** — "no architectural terminology" is
+   `findNeverDisplayViolations` (running, recording leaks as evidence) and "no implementation
+   language" is the translation table. The rest needs contribution structure to be checkable.
+2. **§9 overlaps Representative Validation Checkpoint 5**, which already evaluates coach-facing
+   language. Proposed split: **RV owns meaning-preservation, Presentation owns quality**, and a
+   presentation failure is never a representative Reject. Needs his ruling.
+3. **Two diverging never-display lists.** Presentation §7 P7 and Translation Dictionary §9 share
+   only three terms. **Ours follows the Dictionary, so `game problem`, `representative validation`,
+   `runtime assessment` and `published adjustment option` are NOT currently blocked** and could
+   reach a coach. Needs one canonical list with one owner before we add them.
+
+### Runtime Communication Contribution Spec RC1 (2026-08-01) — replaces our dedup approach
+Christian built the contributions layer, and **§24 is a direct instruction to delete our
+token-Jaccard dedup**: "Communication Resolution shall never determine semantic equivalence through
+textual similarity, wording overlap, or generated language." Equivalence is decided **exclusively by
+Semantic Key** (§18) — an identity carried on each claim. §26 **Complementary Contributions** is his
+addition and it is what makes the model safe: contributions sharing a concept but carrying different
+information are preserved rather than collapsed. §21 **Audience** fixes metadata-as-coach-instruction.
+§28 precedence: Authoritative Ownership → Presentation Priority → Presentation Ordering.
+
+**Two resolutions we were waiting on:**
+- **§36 names the never-display owner: the Knowledge Presentation Standard.** Knowledge Expression
+  must *reference* that list, not keep its own. So `coach-language.ts` should adopt the Presentation
+  §7 P7 terms — **`game problem`, `representative validation`, `runtime assessment` and
+  `published adjustment option` are still unblocked in our code.**
+- **§45 settles the RV/Presentation overlap:** communication-quality failures require revision of
+  communication and **shall not invalidate representative reasoning**.
+
+**Open finding — the Semantic Key vocabulary is ungoverned.** §24 makes equivalence depend
+*exclusively* on the Semantic Key and §42 validates "a defined Semantic Key", but nothing enumerates
+the keys or names an owner. Two subsystems coining `SCORING_RULE` and `SCORING_CONDITION` for one
+claim would never match, both would survive, and the coach reads the rule twice — the exact symptom
+the document exists to remove. Same shape for `Target Section` ("Examples include") and
+`Translation Key`. **This blocks the soccer layer too**, since the sport module will emit contributions.
+
+**Pilot 1 value sets are defined (§19D–G) — and one collides with data we already store:**
+| Field | Canonical | Ours today |
+|---|---|---|
+| Learning Emphasis | `DISCOVERING` / `APPLYING` | `discovering` / `applying` (case only) |
+| Challenge Level | `COMFORTABLE` / `STRETCH` / `DEMANDING` | **`low` / `medium` / `high`** in `activity.model.ts` |
+
+Semantic mapping is a clean 1:1 (`low`→COMFORTABLE, `medium`→STRETCH, `high`→DEMANDING), so this is a
+rename plus a migration rather than a redesign — but there **is** stored data, and §51 covers object
+versions, not migration of pre-contract records. Do not adopt the canonical values without a migration.
+
+### Soccer/universal separability audit (2026-08-01)
+Done for Christian's "can soccer actually dock?" question. Evidence, not opinion.
+
+**The soccer layer today: 44 objects + a 691-line parser, and only one resource cites universal IDs.**
+
+| Resource | Size | Canonical ID refs |
+|---|---|---|
+| `archetypes.ts` (game forms GF1–GF11) | 11 | **0** |
+| `constraints.ts` | 12 | **0** |
+| `environmental-manipulations.ts` | 11 | **0** |
+| `affordanceLenses.ts` | 10 | **0** |
+| `knowledge-core/em-selection-metadata.ts` | — | **12** ✅ |
+| `deriveInputConstraints.ts` (vocabulary parser) | 691 lines | n/a — **vocabulary lives in code, not data** |
+
+So four of five working libraries run a **complete parallel vocabulary** to the canonical libraries,
+bridged only in shadow. `em-selection-metadata.ts` is the single resource built the right way.
+
+**Soccer assumptions embedded in layers that should be universal:**
+- `build-activity-skeleton.ts` — **hard-coded soccer prose** ("goalkeeper presence", "shoot, cut
+  inside, or hold for a better angle", "Final third context"). Worst offender: universal-layer code
+  emitting sport-specific coach-facing content.
+- `normalizeCoachingInput.ts` — soccer rewrite templates.
+- `generateSelection.ts` — `SOCCER_TOKEN_EQUIVALENCES` stemming table + `Z_soccer_general` fallback.
+- `validate-generated-activity.ts` / `validate-activity-structure.ts` — soccer technical actions
+  (`must dribble`, `must shoot`, `shot`, `pitch`).
+- `coach-guidance.ts` — **"I read this as general soccer work" in coach-facing copy. Added by us on
+  2026-07-31 without noticing.**
+
+**Verified sport-neutral:** `coach-language.ts`, `observation-vocabulary.ts`,
+`compress-activity-output.ts` (all "pass" hits are false positives), and the six canonical libraries.
+
+**The finding that matters most:** we added sport coupling to a clean layer within a week, while
+actively thinking about separability. **Separability cannot be maintained by discipline — it needs a
+build guard.** Recommended sequence is therefore *guard first, extract second*: a test that fails when
+sport vocabulary appears in a universal layer turns this from an audit snapshot into an invariant.
+The docking socket already exists (`testLibraryRegistry` from Phases 1–2, with versioned registration
+and schema/composition validation) — what's missing is that the plug isn't shaped right yet.
+
 ### Field-evidence collector — BUILT and ready (`5a9e760`)
 `usage_events` collection + fire-and-forget `recordUsageEvent` (never blocks/fails a request), hooked
 into generation: `goal_submitted` (goal + resolution status + signal groups), **`goal_rejected` (verbatim

@@ -1,0 +1,117 @@
+[
+  {
+    "file": "services/completion.service.ts",
+    "term": "football",
+    "count": 1
+  },
+  {
+    "file": "system/activity/build-activity-mechanics.ts",
+    "term": "final third",
+    "count": 1
+  },
+  {
+    "file": "system/activity/build-activity-mechanics.ts",
+    "term": "goalkeeper",
+    "count": 2
+  },
+  {
+    "file": "system/activity/build-activity-skeleton.ts",
+    "term": "final third",
+    "count": 1
+  },
+  {
+    "file": "system/activity/build-activity-skeleton.ts",
+    "term": "goalkeeper",
+    "count": 2
+  },
+  {
+    "file": "system/activity/coach-guidance.ts",
+    "term": "soccer",
+    "count": 2
+  },
+  {
+    "file": "system/activity/evaluate-activity-quality.ts",
+    "term": "dribbling",
+    "count": 1
+  },
+  {
+    "file": "system/activity/validate-activity-polish.ts",
+    "term": "dribble",
+    "count": 1
+  },
+  {
+    "file": "system/activity/validate-activity-structure.ts",
+    "term": "dribble",
+    "count": 1
+  },
+  {
+    "file": "system/affordances.ts",
+    "term": "final third",
+    "count": 1
+  },
+  {
+    "file": "system/archetypes.ts",
+    "term": "final third",
+    "count": 2
+  },
+  {
+    "file": "system/build-constraint-package.ts",
+    "term": "dribble",
+    "count": 1
+  },
+  {
+    "file": "system/ecological-integrity-review/text-scanning.ts",
+    "term": "dribble",
+    "count": 2
+  },
+  {
+    "file": "system/select-affordance.ts",
+    "term": "final third",
+    "count": 1
+  },
+  {
+    "file": "system/test-library/generateSelection.ts",
+    "term": "dribble",
+    "count": 3
+  },
+  {
+    "file": "system/test-library/generateSelection.ts",
+    "term": "dribbles",
+    "count": 1
+  },
+  {
+    "file": "system/test-library/generateSelection.ts",
+    "term": "dribbling",
+    "count": 1
+  },
+  {
+    "file": "system/test-library/generateSelection.ts",
+    "term": "midfield",
+    "count": 2
+  },
+  {
+    "file": "system/test-library/generateSelection.ts",
+    "term": "midfielder",
+    "count": 1
+  },
+  {
+    "file": "system/test-library/generateSelection.ts",
+    "term": "soccer",
+    "count": 3
+  },
+  {
+    "file": "system/test-library/types.ts",
+    "term": "soccer",
+    "count": 1
+  },
+  {
+    "file": "system/validate-constraint-package.ts",
+    "term": "dribble",
+    "count": 2
+  },
+  {
+    "file": "system/validate-generated-activity.ts",
+    "term": "dribble",
+    "count": 1
+  }
+]
