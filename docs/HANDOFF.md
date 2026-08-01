@@ -458,6 +458,44 @@ Semantic mapping is a clean 1:1 (`low`→COMFORTABLE, `medium`→STRETCH, `high`
 rename plus a migration rather than a redesign — but there **is** stored data, and §51 covers object
 versions, not migration of pre-contract records. Do not adopt the canonical values without a migration.
 
+### Soccer/universal separability audit (2026-08-01)
+Done for Christian's "can soccer actually dock?" question. Evidence, not opinion.
+
+**The soccer layer today: 44 objects + a 691-line parser, and only one resource cites universal IDs.**
+
+| Resource | Size | Canonical ID refs |
+|---|---|---|
+| `archetypes.ts` (game forms GF1–GF11) | 11 | **0** |
+| `constraints.ts` | 12 | **0** |
+| `environmental-manipulations.ts` | 11 | **0** |
+| `affordanceLenses.ts` | 10 | **0** |
+| `knowledge-core/em-selection-metadata.ts` | — | **12** ✅ |
+| `deriveInputConstraints.ts` (vocabulary parser) | 691 lines | n/a — **vocabulary lives in code, not data** |
+
+So four of five working libraries run a **complete parallel vocabulary** to the canonical libraries,
+bridged only in shadow. `em-selection-metadata.ts` is the single resource built the right way.
+
+**Soccer assumptions embedded in layers that should be universal:**
+- `build-activity-skeleton.ts` — **hard-coded soccer prose** ("goalkeeper presence", "shoot, cut
+  inside, or hold for a better angle", "Final third context"). Worst offender: universal-layer code
+  emitting sport-specific coach-facing content.
+- `normalizeCoachingInput.ts` — soccer rewrite templates.
+- `generateSelection.ts` — `SOCCER_TOKEN_EQUIVALENCES` stemming table + `Z_soccer_general` fallback.
+- `validate-generated-activity.ts` / `validate-activity-structure.ts` — soccer technical actions
+  (`must dribble`, `must shoot`, `shot`, `pitch`).
+- `coach-guidance.ts` — **"I read this as general soccer work" in coach-facing copy. Added by us on
+  2026-07-31 without noticing.**
+
+**Verified sport-neutral:** `coach-language.ts`, `observation-vocabulary.ts`,
+`compress-activity-output.ts` (all "pass" hits are false positives), and the six canonical libraries.
+
+**The finding that matters most:** we added sport coupling to a clean layer within a week, while
+actively thinking about separability. **Separability cannot be maintained by discipline — it needs a
+build guard.** Recommended sequence is therefore *guard first, extract second*: a test that fails when
+sport vocabulary appears in a universal layer turns this from an audit snapshot into an invariant.
+The docking socket already exists (`testLibraryRegistry` from Phases 1–2, with versioned registration
+and schema/composition validation) — what's missing is that the plug isn't shaped right yet.
+
 ### Field-evidence collector — BUILT and ready (`5a9e760`)
 `usage_events` collection + fire-and-forget `recordUsageEvent` (never blocks/fails a request), hooked
 into generation: `goal_submitted` (goal + resolution status + signal groups), **`goal_rejected` (verbatim
