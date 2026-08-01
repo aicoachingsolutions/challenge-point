@@ -424,6 +424,40 @@ the LLM restates what the deterministic layer already said.
    `runtime assessment` and `published adjustment option` are NOT currently blocked** and could
    reach a coach. Needs one canonical list with one owner before we add them.
 
+### Runtime Communication Contribution Spec RC1 (2026-08-01) — replaces our dedup approach
+Christian built the contributions layer, and **§24 is a direct instruction to delete our
+token-Jaccard dedup**: "Communication Resolution shall never determine semantic equivalence through
+textual similarity, wording overlap, or generated language." Equivalence is decided **exclusively by
+Semantic Key** (§18) — an identity carried on each claim. §26 **Complementary Contributions** is his
+addition and it is what makes the model safe: contributions sharing a concept but carrying different
+information are preserved rather than collapsed. §21 **Audience** fixes metadata-as-coach-instruction.
+§28 precedence: Authoritative Ownership → Presentation Priority → Presentation Ordering.
+
+**Two resolutions we were waiting on:**
+- **§36 names the never-display owner: the Knowledge Presentation Standard.** Knowledge Expression
+  must *reference* that list, not keep its own. So `coach-language.ts` should adopt the Presentation
+  §7 P7 terms — **`game problem`, `representative validation`, `runtime assessment` and
+  `published adjustment option` are still unblocked in our code.**
+- **§45 settles the RV/Presentation overlap:** communication-quality failures require revision of
+  communication and **shall not invalidate representative reasoning**.
+
+**Open finding — the Semantic Key vocabulary is ungoverned.** §24 makes equivalence depend
+*exclusively* on the Semantic Key and §42 validates "a defined Semantic Key", but nothing enumerates
+the keys or names an owner. Two subsystems coining `SCORING_RULE` and `SCORING_CONDITION` for one
+claim would never match, both would survive, and the coach reads the rule twice — the exact symptom
+the document exists to remove. Same shape for `Target Section` ("Examples include") and
+`Translation Key`. **This blocks the soccer layer too**, since the sport module will emit contributions.
+
+**Pilot 1 value sets are defined (§19D–G) — and one collides with data we already store:**
+| Field | Canonical | Ours today |
+|---|---|---|
+| Learning Emphasis | `DISCOVERING` / `APPLYING` | `discovering` / `applying` (case only) |
+| Challenge Level | `COMFORTABLE` / `STRETCH` / `DEMANDING` | **`low` / `medium` / `high`** in `activity.model.ts` |
+
+Semantic mapping is a clean 1:1 (`low`→COMFORTABLE, `medium`→STRETCH, `high`→DEMANDING), so this is a
+rename plus a migration rather than a redesign — but there **is** stored data, and §51 covers object
+versions, not migration of pre-contract records. Do not adopt the canonical values without a migration.
+
 ### Field-evidence collector — BUILT and ready (`5a9e760`)
 `usage_events` collection + fire-and-forget `recordUsageEvent` (never blocks/fails a request), hooked
 into generation: `goal_submitted` (goal + resolution status + signal groups), **`goal_rejected` (verbatim
