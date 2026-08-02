@@ -534,6 +534,39 @@ Extracting as specified **cannot preserve current functionality** — the pipeli
   not 1:1 with GP-IDs (`K_information` and `Z_soccer_general` are deliberately unmapped), so the
   Vocabulary sheet as specified cannot represent the parser's current routing.
 
+### Sport Module workbook v2 (2026-08-02) — six sheets; second completeness audit
+Revision addressed all three earlier findings: **Lenses** is now its own sheet; Vocabulary keeps the
+**signal-group layer** (`signal_group_id`, `signal_group_role`, `modifier_target_signal_group_ids`,
+`routing_polarity`, `fallback_priority`) so `K_information` and `Z_soccer_general` are representable;
+Game Forms gained `primary/secondary_affordance_ids`, `recommended_constraint_types`,
+`phase_of_play_ids` and `constraint_fit_1..3`; Realizations gained `constraint_role`,
+`primary_constraint_type`, `design_intent`, `game_template_anchor`, `realization_bank_id`. The
+standard now separates **selection logic (universal) from selection knowledge (Sport Module)** —
+our recommendation, adopted.
+
+**Answer to "does every runtime object have a home?" — not yet. ~14 fields with live consumers have
+no column.** Verified by reading the actual matching corpora in `generateSelection.ts` (lens fields
+~L307, constraint ~L352, archetype ~L732) and assembly usage.
+
+**Tier 1 — breaks selection:**
+| Field | Where read | Missing from |
+|---|---|---|
+| **`coachVocabulary`** | base-score corpus on **lens, constraint AND archetype** | all three sheets |
+| **`category`** | base-score on lens + constraint; **also `categoryToSlug()` produces the lens slug that `targetAffordancePrimary` matches for the +10 bonus** | Lenses, Realizations |
+| `constraintArchetype` | matched vs archetype `recommendedConstraintTypes` → **+3 bonus** | Realizations (Game Forms has the other half) |
+| `designIntent` (lens) / `objective` (game form) / `description` (constraint) | base-score corpus | Lenses / Game Forms / Realizations |
+
+**Tier 2 — breaks assembly:** `affordanceTagGroup` (7 uses), `suggestedConstraintPrompt` (6),
+`setupGuidance` (3), `exampleConstraintPatterns` (3), `exampleIncentivePatterns` (3),
+`visibilityTriggers`, `exampleConsequencePatterns`, `constraintSupport`. Several are structured
+arrays, so `notes` is not a home for them.
+
+**Tier 3 — semantic risk, not a missing column.** Several matcher inputs are **prose scored as text**
+but modelled in the schema as **ID lists** (`phase_of_play` → `phase_of_play_ids`,
+`typical_affordances` → `primary_affordance_ids`). Converting them is architecturally right but
+**removes that text from the matching corpus and will move the behaviour gate**. Needs a deliberate
+decision, not a mapping.
+
 ### Field-evidence collector — BUILT and ready (`5a9e760`)
 `usage_events` collection + fire-and-forget `recordUsageEvent` (never blocks/fails a request), hooked
 into generation: `goal_submitted` (goal + resolution status + signal groups), **`goal_rejected` (verbatim
