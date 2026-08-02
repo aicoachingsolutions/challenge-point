@@ -496,6 +496,44 @@ sport vocabulary appears in a universal layer turns this from an audit snapshot 
 The docking socket already exists (`testLibraryRegistry` from Phases 1–2, with versioned registration
 and schema/composition validation) — what's missing is that the plug isn't shaped right yet.
 
+### Sport Module RC1 package (2026-08-02) — Stage 1 schema review, extraction NOT started
+Five documents + a workbook template (`Challenge_Point_Soccer_Module_Workbook_RC1_Candidate.xlsx`).
+Christian staged this: **Stage 1 = schema review, Stage 2 = extraction "assuming the schema looks
+sound."** It does not yet, so Stage 2 is correctly on hold.
+
+**What's right:** the five sheets are exactly as recommended (Vocabulary / Game Forms / Realizations /
+Coverage / Metadata), and the **Metadata sheet is a proper loader contract** — per-sheet
+`*_header_row`, `one_table_per_sheet=TRUE`, `*_expected_rows` for the integrity gate, and version
+pins for every universal library. Zero bespoke parsing needed. `semantic_key_registry_version` is
+present as TBD, so that finding landed too.
+
+**BLOCKING FINDING — the Game Forms sheet drops the inputs to four scoring bonuses.** Our
+`archetypes.ts` objects carry fields the selector reads that have no column:
+| Our field | Drives | In schema? |
+|---|---|---|
+| `constraintFit_structural` / `_shaping` / `_consequence` | balance buckets (+6/+6/+4) | ❌ |
+| `recommendedConstraintTypes` | recommended-type bonus (+3) | ❌ |
+| `primaryAffordances` vs `secondaryAffordances` | archetype-affordance bonus (+6) | ⚠️ collapsed into one `affordance_ids` |
+| `phase_of_play` | phase anchor (+2) | ❌ |
+| `coachVocabulary`, `objective`, `exampleConstraintPatterns` | matching + assembly | ❌ |
+
+Extracting as specified **cannot preserve current functionality** — the pipeline gate
+`68,64,94,115,91,…` would move. That is Christian's own Stage 2 requirement, so it must be resolved first.
+
+**Two more:**
+- **Affordance lenses (10 objects, 16 fields each) have no sheet at all**, yet they are the primary
+  goal-matching surface. Constraint/EM selection metadata (`constraintRole`,
+  `targetAffordancePrimary`, `primaryConstraintType`, `designIntent`, `gameTemplateAnchor`,
+  `environmentalRealizations`) likewise has no home. The schema is *inconsistent* here: `routing_weight`
+  in Vocabulary **is** selection metadata and is inside the module, while everything equivalent is out.
+  **Recommendation: put sport selection metadata IN the module** — it is sport knowledge, and a module
+  that needs an engine-side companion file is not detachable, which defeats the stated purpose. The
+  three-layer rule keeps selection intelligence out of the *Knowledge Core*; a Sport Module is not the
+  Knowledge Core.
+- **Signal groups → `target_concept_id` is a semantic re-key, not a rename.** Our 15 signal groups are
+  not 1:1 with GP-IDs (`K_information` and `Z_soccer_general` are deliberately unmapped), so the
+  Vocabulary sheet as specified cannot represent the parser's current routing.
+
 ### Field-evidence collector — BUILT and ready (`5a9e760`)
 `usage_events` collection + fire-and-forget `recordUsageEvent` (never blocks/fails a request), hooked
 into generation: `goal_submitted` (goal + resolution status + signal groups), **`goal_rejected` (verbatim
