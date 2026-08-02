@@ -567,6 +567,34 @@ but modelled in the schema as **ID lists** (`phase_of_play` → `phase_of_play_i
 **removes that text from the matching corpus and will move the behaviour gate**. Needs a deliberate
 decision, not a mapping.
 
+### Workbook Schema RC1 final (2026-08-02) — schema is extraction-ready
+Third audit. **Every runtime-read field now has a home except one.** Verified against the actual
+matching corpora in `generateSelection.ts`, not the type definitions.
+
+Added since v2: `coach_vocabulary` on **all three** object sheets (the biggest gap),
+`selection_category_key` on Lenses + Realizations — backed by a *Governed Selection Category
+Registry*, which properly homes the key behind the +10 bonus — plus `constraint_archetype`,
+`design_intent` (Lenses), `objective` (Game Forms), `description` (Realizations), and the whole
+assembly set (`affordance_tag_group`, `suggested_constraint_prompt`, `setup_guidance`,
+`constraint_support`, `visibility_triggers`, `example_patterns`, `incentive_patterns`,
+`consequence_patterns`, `realization_bank_id`).
+
+**The prose-vs-IDs question is solved well:** `*_matching_text` companion columns
+(`primary_game_problem_matching_text`, `primary_affordance_matching_text`,
+`phase_of_play_matching_text`, `recommended_constraint_matching_text`) carry the scored text
+alongside the canonical IDs, explicitly labelled *transitional*. Christian's decision: **extraction
+preserves the existing behaviour gate unless a Selection Behavior Revision says otherwise.**
+
+**One remaining field:** `interaction_structure` (short prose — "Directional progression with scoring
+zones") is in the archetype base-score corpus and has no dedicated column; `opposition_structure` is
+its structured counterpart, not its text. Needs a prose column or a stated home in `notes`.
+
+**⚠ BLOCKER FOR EXTRACTION — the `.xlsx` template is stale.** The newest workbook on disk is
+`..._Template_RC1_Candidate_v2.xlsx` (3:41pm), which **predates these schema additions** and has none
+of the new columns (no `coach_vocabulary`, no `selection_category_key`, no `*_matching_text`). The
+schema `.docx` is RC1 final (6:50pm). **Do not begin populating against the v2 template** — request
+the regenerated workbook first.
+
 ### Field-evidence collector — BUILT and ready (`5a9e760`)
 `usage_events` collection + fire-and-forget `recordUsageEvent` (never blocks/fails a request), hooked
 into generation: `goal_submitted` (goal + resolution status + signal groups), **`goal_rejected` (verbatim
