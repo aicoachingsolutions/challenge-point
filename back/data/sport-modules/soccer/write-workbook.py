@@ -28,6 +28,7 @@ HEADER_ROW = 2  # declared by the workbook's own Metadata sheet
 # sheet name -> extracted JSON file
 SOURCES = {
     "Game Forms": HERE / "game-forms.extracted.json",
+    "Realizations": HERE / "realizations.extracted.json",
 }
 
 

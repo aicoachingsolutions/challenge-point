@@ -10,10 +10,11 @@
  * of thing: it is the detachable layer that maps soccer onto those universal concepts. Keeping them
  * apart is the point of the whole exercise, so the directory boundary reflects it.
  *
- * EXTRACTION STATUS. Game Forms are populated (11 rows, extracted from `TEST_LIBRARY_V0_ARCHETYPES`).
- * Vocabulary, Lenses, Realizations and Coverage are empty pending later slices. The integrity gate
- * checks each sheet against the workbook's own declared expected-row count, so a partially populated
- * module is a legitimate, verifiable state rather than an ambiguous one.
+ * EXTRACTION STATUS. Game Forms are populated (11 rows, extracted from `TEST_LIBRARY_V0_ARCHETYPES`)
+ * and Realizations are populated (23 rows, extracted from Test Library V0 constraints and
+ * environmental manipulations). Vocabulary, Lenses and Coverage are empty pending later slices. The
+ * integrity gate checks each sheet against the workbook's own declared expected-row count, so a
+ * partially populated module is a legitimate, verifiable state rather than an ambiguous one.
  *
  * NOT WIRED TO SELECTION. Nothing reads this at runtime yet — `generateSelection` still uses the
  * in-code libraries. That is deliberate: this slice proves the module loads and validates, and
@@ -128,4 +129,5 @@ export const soccerModule = {
     realizations: () => WB.realizations,
     coverage: () => WB.coverage,
     gameForm: (id: string) => WB.game_forms.find((r) => String(r['game_form_id']) === id),
+    realization: (id: string) => WB.realizations.find((r) => String(r['realization_id']) === id),
 }

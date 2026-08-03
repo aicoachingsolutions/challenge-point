@@ -12,7 +12,18 @@
 import assert from 'node:assert/strict'
 
 import { TEST_LIBRARY_V0_ARCHETYPES } from '../test-library/archetypes'
+import { TEST_LIBRARY_V0_CONSTRAINTS } from '../test-library/constraints'
+import { TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS } from '../test-library/environmental-manipulations'
+import type { TestLibraryV0Constraint } from '../test-library/types'
 import { reportUnmappedUniversalIds, soccerModule, validateSoccerModuleIntegrity } from './soccer-module'
+
+const ALL_REALIZATION_SOURCES: Array<{ source: TestLibraryV0Constraint; universalConceptType: string }> = [
+    ...TEST_LIBRARY_V0_CONSTRAINTS.map((source) => ({ source, universalConceptType: 'INTERACTION_REGULATION' })),
+    ...TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS.map((source) => ({
+        source,
+        universalConceptType: 'ENVIRONMENTAL_MANIPULATION',
+    })),
+]
 
 function testIntegrityGate(): void {
     const result = validateSoccerModuleIntegrity()
@@ -47,6 +58,33 @@ function testAllGameFormsExtracted(): void {
  * structural prose, so natural coach phrasing reaches it far less readily than the other ten.
  */
 const GAME_FORMS_WITHOUT_COACH_VOCABULARY = ['GF10'] as const
+
+/**
+ * These 19 realization source objects currently have no `coachVocabulary`. The extraction must
+ * preserve that known source gap exactly: these rows may be empty, and no additional realization may
+ * lose vocabulary without failing the test.
+ */
+const REALIZATIONS_WITHOUT_COACH_VOCABULARY = [
+    'tl-v0-constraint-progression-bonus',
+    'tl-v0-constraint-wide-utilization-bonus',
+    'tl-v0-constraint-switch-of-play-bonus',
+    'tl-v0-constraint-interception-reward',
+    'tl-v0-constraint-turnover-reward',
+    'tl-v0-constraint-delay-reward',
+    'tl-v0-constraint-final-third-value',
+    'tl-v0-constraint-transition-bonus',
+    'tl-v0-constraint-recovery-window',
+    'tl-v0-constraint-counter-press-window',
+    'tl-v0-constraint-pass-combination-gate',
+    'tl-v0-constraint-support-lane-requirement',
+    'tl-v0-constraint-central-density-condition',
+    'tl-v0-constraint-wide-zone-advantage',
+    'tl-v0-constraint-transition-trigger',
+    'tl-v0-constraint-zone-structure-condition',
+    'tl-v0-constraint-neutral-player-condition',
+    'tl-v0-constraint-goalkeeper-included-condition',
+    'tl-v0-constraint-small-area-condition',
+] as const
 
 /**
  * The selector scores game forms against a text corpus. If these columns are empty the module loads
@@ -111,6 +149,101 @@ function testCoachVocabularyRoundTrips(): void {
     }
 }
 
+/** Every realization in the live libraries must have survived extraction, by id. */
+function testAllRealizationsExtracted(): void {
+    const extracted = soccerModule.realizations()
+    assert.equal(extracted.length, ALL_REALIZATION_SOURCES.length, 'Realization count differs from the live libraries.')
+
+    for (const { source, universalConceptType } of ALL_REALIZATION_SOURCES) {
+        const row = soccerModule.realization(source.id)
+        assert.ok(row, `Realization ${source.id} is missing from the module.`)
+        assert.equal(row['realization_name'], source.title, `${source.id} name differs.`)
+        assert.equal(row['legacy_source_id'], source.id, `${source.id} lost its legacy identifier.`)
+        assert.equal(row['universal_concept_type'], universalConceptType, `${source.id} lost its source-library type.`)
+    }
+}
+
+/**
+ * The selector's realization matching corpus must be non-empty. `coach_vocabulary` has pinned known
+ * source gaps, while description and category are required for every row.
+ */
+function testRealizationMatchingCorpusPopulated(): void {
+    for (const row of soccerModule.realizations()) {
+        const id = String(row['realization_id'])
+        for (const column of ['description', 'selection_category_key']) {
+            const value = row[column]
+            assert.ok(
+                value !== null && value !== undefined && String(value).trim() !== '',
+                `${id}.${column} is empty - the realization matching corpus would be degraded.`
+            )
+        }
+
+        const hasVocabulary = String(row['coach_vocabulary'] ?? '').trim() !== ''
+        const knownEmpty = (REALIZATIONS_WITHOUT_COACH_VOCABULARY as readonly string[]).includes(id)
+        assert.equal(
+            hasVocabulary,
+            !knownEmpty,
+            knownEmpty
+                ? `${id} now HAS coach vocabulary - remove it from REALIZATIONS_WITHOUT_COACH_VOCABULARY.`
+                : `${id}.coach_vocabulary is empty - the realization matching corpus would be degraded.`
+        )
+    }
+}
+
+/** The realization scoring inputs must carry data, not just exist as columns. */
+function testRealizationScoringInputsPopulated(): void {
+    for (const row of soccerModule.realizations()) {
+        const id = row['realization_id']
+        for (const column of [
+            'constraint_role',
+            'primary_constraint_type',
+            'constraint_archetype',
+            'primary_target_affordance_ids',
+        ]) {
+            assert.ok(
+                String(row[column] ?? '').trim(),
+                `${id}.${column} is empty - realization scoring inputs would be degraded.`
+            )
+        }
+    }
+}
+
+/** Realization coach vocabulary must survive as a list, including known empty lists. */
+function testRealizationCoachVocabularyRoundTrips(): void {
+    for (const { source } of ALL_REALIZATION_SOURCES) {
+        const row = soccerModule.realization(source.id)
+        const extracted = String(row?.['coach_vocabulary'] ?? '')
+            .split(';')
+            .map((s) => s.trim())
+            .filter(Boolean)
+        assert.deepEqual(extracted, [...(source.coachVocabulary ?? [])], `${source.id} coach vocabulary did not round-trip intact.`)
+    }
+}
+
+/**
+ * `environmentalRealizations` is an array of alternative text spines, while `realization_bank_id` is
+ * a single ID. This pins the deliberate empty representation so the unplaced data stays visible.
+ */
+function testEnvironmentalRealizationsAreNotForcedIntoBankId(): void {
+    const withEnvironmentalRealizations = ALL_REALIZATION_SOURCES.filter(
+        ({ source }) => (source.environmentalRealizations ?? []).length > 0
+    )
+    assert.deepEqual(
+        withEnvironmentalRealizations.map(({ source }) => source.id),
+        [
+            'tl-v0-constraint-variable-target-condition',
+            'tl-v0-constraint-multi-goal-read',
+            'tl-v0-constraint-blind-side-entry',
+            'tl-v0-constraint-disguised-restart',
+        ]
+    )
+
+    for (const { source } of withEnvironmentalRealizations) {
+        const row = soccerModule.realization(source.id)
+        assert.equal(row?.['realization_bank_id'] ?? null, null, `${source.id}.realization_bank_id should remain empty.`)
+    }
+}
+
 /**
  * The two unmapped universal identifiers are a KNOWN, REPORTED state — not a silent hole. This test
  * documents them so that when the mapping is supplied, the count changing forces the test to be
@@ -138,6 +271,11 @@ function runAll(): void {
     testMatchingCorpusPopulated()
     testScoringBonusInputsPopulated()
     testCoachVocabularyRoundTrips()
+    testAllRealizationsExtracted()
+    testRealizationMatchingCorpusPopulated()
+    testRealizationScoringInputsPopulated()
+    testRealizationCoachVocabularyRoundTrips()
+    testEnvironmentalRealizationsAreNotForcedIntoBankId()
     testUnmappedUniversalIdsAreReported()
     console.log('soccer-module unit tests: all cases passed.')
 }
