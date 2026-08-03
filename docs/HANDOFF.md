@@ -589,11 +589,23 @@ preserves the existing behaviour gate unless a Selection Behavior Revision says 
 zones") is in the archetype base-score corpus and has no dedicated column; `opposition_structure` is
 its structured counterpart, not its text. Needs a prose column or a stated home in `notes`.
 
-**⚠ BLOCKER FOR EXTRACTION — the `.xlsx` template is stale.** The newest workbook on disk is
-`..._Template_RC1_Candidate_v2.xlsx` (3:41pm), which **predates these schema additions** and has none
-of the new columns (no `coach_vocabulary`, no `selection_category_key`, no `*_matching_text`). The
-schema `.docx` is RC1 final (6:50pm). **Do not begin populating against the v2 template** — request
-the regenerated workbook first.
+**✅ BLOCKER CLEARED (2026-08-02 22:24).** `..._Template_RC1_Candidate_v3.xlsx` +
+`Workbook Schema RC1 (1).docx`. **Use v3 — v2 is stale and lacks the new columns.**
+Independently verified three ways:
+1. **Every runtime-read field is present** — checked against the real matching corpora, not the type
+   defs. Lenses 32 cols, Game Forms 40, Realizations 63, Vocabulary 26; zero missing.
+   `interaction_structure` is now included.
+2. **Every workbook column is defined in the schema doc** — zero undefined headers.
+3. **Loader contract complete for all six sheets** — `*_sheet_name`, `*_header_row=2`,
+   `*_expected_rows` present for all; `one_table_per_sheet=TRUE`;
+   `workbook_schema_version=RC1-CANDIDATE-V3`, `runtime_interface_version=RC1.2`.
+   (`metadata_expected_rows` absent — harmless, it's a key/value sheet not a counted table.)
+
+**Extraction is unblocked.** Planned slice order: (1) loader + integrity gate + Game Forms — mine,
+defines the shape everything conforms to and carries four scoring bonuses; (2) Realizations field
+mapping — Codex, mechanical; (3) Vocabulary parser — mine, largest and most routing-sensitive.
+Behaviour gate `68,64,94,115,91,68,64,94,115,91,97,84` must hold throughout; the sport-coupling
+ratchet (34 today) is the progress measure.
 
 ### Field-evidence collector — BUILT and ready (`5a9e760`)
 `usage_events` collection + fire-and-forget `recordUsageEvent` (never blocks/fails a request), hooked
