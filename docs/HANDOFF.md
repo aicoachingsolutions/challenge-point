@@ -601,11 +601,27 @@ Independently verified three ways:
    `workbook_schema_version=RC1-CANDIDATE-V3`, `runtime_interface_version=RC1.2`.
    (`metadata_expected_rows` absent — harmless, it's a key/value sheet not a counted table.)
 
-**Extraction is unblocked.** Planned slice order: (1) loader + integrity gate + Game Forms — mine,
-defines the shape everything conforms to and carries four scoring bonuses; (2) Realizations field
-mapping — Codex, mechanical; (3) Vocabulary parser — mine, largest and most routing-sensitive.
-Behaviour gate `68,64,94,115,91,68,64,94,115,91,97,84` must hold throughout; the sport-coupling
-ratchet (34 today) is the progress measure.
+**Extraction slice order (corrected 2026-08-02 — Lenses was missing from the original plan):**
+1. ✅ **Loader + integrity gate + Game Forms** (`63b7aad`, mine) — 11 rows.
+2. ✅ **Realizations** (`c741808`, Codex + audit) — 23 rows (12 IR + 11 EM).
+3. ⬜ **Lenses** — 10 affordance lenses, 16 fields each. **Was omitted from the first plan.** Matters
+   because lenses are the primary goal-matching surface and `categoryToSlug(lens.category)` produces
+   the key behind the +10 bonus.
+4. ⬜ **Vocabulary parser** — 691 lines, largest and most routing-sensitive. **Gated on Christian's
+   signal-group → GP-ID decision.**
+5. ⬜ **Coverage** — largely derivable from 1–4.
+6. ⬜ **Rewire selection to read the module**, then delete the in-code originals. **This is where the
+   behaviour gate is actually at risk** and where the ratchet finally moves.
+
+**Nothing has left the codebase yet.** The ratchet still reads **34 across 16 files**, unchanged since
+before extraction — knowledge has been *copied* into the module while the originals still drive
+selection. That number falling is the only real progress signal.
+
+Behaviour gate `68,64,94,115,91,68,64,94,115,91,97,84` must hold throughout.
+
+**Workbook status when sent to Christian (2026-08-02):** Game Forms 11, Realizations 23, and
+**Vocabulary / Lenses / Coverage empty** — 34 of 44 objects, none of the routing. Say this explicitly
+when sending, or empty sheets read as breakage rather than as work not yet done.
 
 ### Field-evidence collector — BUILT and ready (`5a9e760`)
 `usage_events` collection + fire-and-forget `recordUsageEvent` (never blocks/fails a request), hooked
