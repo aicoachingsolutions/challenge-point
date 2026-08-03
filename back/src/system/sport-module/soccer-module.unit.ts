@@ -11,11 +11,17 @@
  */
 import assert from 'node:assert/strict'
 
+import { TEST_LIBRARY_V0_AFFORDANCE_LENSES } from '../test-library/affordanceLenses'
 import { TEST_LIBRARY_V0_ARCHETYPES } from '../test-library/archetypes'
 import { TEST_LIBRARY_V0_CONSTRAINTS } from '../test-library/constraints'
 import { TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS } from '../test-library/environmental-manipulations'
 import type { TestLibraryV0Constraint } from '../test-library/types'
-import { reportUnmappedUniversalIds, soccerModule, validateSoccerModuleIntegrity } from './soccer-module'
+import {
+    reportUnmappedUniversalIds,
+    soccerModule,
+    validateModuleMetadataShape,
+    validateSoccerModuleIntegrity,
+} from './soccer-module'
 
 const ALL_REALIZATION_SOURCES: Array<{ source: TestLibraryV0Constraint; universalConceptType: string }> = [
     ...TEST_LIBRARY_V0_CONSTRAINTS.map((source) => ({ source, universalConceptType: 'INTERACTION_REGULATION' })),
@@ -28,6 +34,141 @@ const ALL_REALIZATION_SOURCES: Array<{ source: TestLibraryV0Constraint; universa
 function testIntegrityGate(): void {
     const result = validateSoccerModuleIntegrity()
     assert.ok(result.valid, `Soccer module failed integrity: ${result.errors.slice(0, 6).join(' | ')}`)
+}
+
+/**
+ * Round-trip guard. The workbook is edited on shared Drive, so it can come back converted — and the
+ * damaging conversions do NOT error, they make sheets read empty, which looks identical to "not yet
+ * populated". These cases prove the guard catches each one and says so, rather than only proving it
+ * passes on a healthy file.
+ */
+function testMetadataShapeCatchesRoundTripDamage(): void {
+    const healthy = JSON.parse(JSON.stringify({ metadata: soccerModule.metadata })) as {
+        metadata: Record<string, unknown>
+    }
+    const withMetadata = (overrides: Record<string, unknown>) =>
+        ({
+            metadata: { ...healthy.metadata, ...overrides },
+            vocabulary: [],
+            lenses: [],
+            game_forms: [],
+            realizations: [],
+            coverage: [],
+        }) as never
+
+    assert.deepEqual(validateModuleMetadataShape(withMetadata({})), [], 'A healthy workbook must produce no shape errors.')
+
+    // A renamed sheet — the projection would read nothing and the module would look merely unpopulated.
+    const renamed = validateModuleMetadataShape(withMetadata({ game_forms_sheet_name: 'GameForms' }))
+    assert.ok(
+        renamed.some((e) => e.includes('game_forms_sheet_name') && e.toLowerCase().includes('convert')),
+        `A renamed sheet must be reported as probable conversion damage. Got: ${renamed.join(' | ')}`
+    )
+
+    // A lost header-row key — the projection silently defaults to row 2.
+    const lostHeader = validateModuleMetadataShape(withMetadata({ realizations_header_row: null }))
+    assert.ok(
+        lostHeader.some((e) => e.includes('realizations_header_row')),
+        `A missing header row must be named. Got: ${lostHeader.join(' | ')}`
+    )
+
+    // A header row that came back as text rather than a number.
+    const textHeader = validateModuleMetadataShape(withMetadata({ lenses_header_row: 'two' }))
+    assert.ok(
+        textHeader.some((e) => e.includes('lenses_header_row')),
+        `A non-numeric header row must be named. Got: ${textHeader.join(' | ')}`
+    )
+
+    // Lost version pins — the module would load with no way to establish provenance.
+    const noVersion = validateModuleMetadataShape(withMetadata({ runtime_interface_version: '' }))
+    assert.ok(
+        noVersion.some((e) => e.includes('runtime_interface_version')),
+        `A missing version pin must be reported. Got: ${noVersion.join(' | ')}`
+    )
+}
+
+/** Every lens in the live library must have survived extraction, by id. */
+function testAllLensesExtracted(): void {
+    const extracted = soccerModule.lenses()
+    assert.equal(
+        extracted.length,
+        TEST_LIBRARY_V0_AFFORDANCE_LENSES.length,
+        'Lens count differs from the live library.'
+    )
+    for (const lens of TEST_LIBRARY_V0_AFFORDANCE_LENSES) {
+        const row = extracted.find((r) => String(r['lens_id']) === lens.id)
+        assert.ok(row, `Lens ${lens.id} is missing from the module.`)
+        assert.equal(row['lens_name'], lens.title, `${lens.id} name differs.`)
+        assert.equal(row['legacy_source_id'], lens.id, `${lens.id} lost its legacy identifier.`)
+    }
+}
+
+/**
+ * Lenses are the primary surface a coach's goal is matched against, and `selection_category_key` is
+ * the join key behind the largest scoring bonus — a lens row that loads with either empty would
+ * degrade matching while passing a naive presence check.
+ */
+function testLensMatchingCorpusPopulated(): void {
+    for (const row of soccerModule.lenses()) {
+        const id = String(row['lens_id'])
+        for (const column of ['lens_name', 'lens_description', 'selection_category_key', 'design_intent', 'coach_vocabulary']) {
+            const value = row[column]
+            assert.ok(
+                value !== null && value !== undefined && String(value).trim() !== '',
+                `${id}.${column} is empty — the lens matching corpus would be degraded.`
+            )
+        }
+    }
+}
+
+function testLensCoachVocabularyRoundTrips(): void {
+    for (const lens of TEST_LIBRARY_V0_AFFORDANCE_LENSES) {
+        const row = soccerModule.lenses().find((r) => String(r['lens_id']) === lens.id)
+        const extracted = String(row?.['coach_vocabulary'] ?? '')
+            .split(';')
+            .map((s) => s.trim())
+            .filter(Boolean)
+        assert.deepEqual(extracted, [...(lens.coachVocabulary ?? [])], `${lens.id} coach vocabulary did not round-trip.`)
+    }
+}
+
+/**
+ * Three lens properties have no column on the Lenses sheet — their columns sit on Realizations,
+ * where they are empty because constraint objects do not carry them. This pins that as a KNOWN,
+ * REPORTED schema gap rather than letting the data quietly vanish: if columns are added later, this
+ * test fails and forces the extractor to be updated rather than the gap being forgotten.
+ */
+const LENS_FIELDS_WITHOUT_A_COLUMN = [
+    'visibilityTriggers',
+    'exampleConsequencePatterns',
+    // Read SIX times during assembly — the costliest of the four to lose, and the reason the
+    // registry cannot yet be seeded from the module for lenses.
+    'suggestedConstraintPrompt',
+    'logicUsageNote',
+] as const
+
+function testLensFieldsWithoutColumnsAreStillPresentInSource(): void {
+    for (const field of LENS_FIELDS_WITHOUT_A_COLUMN) {
+        const present = TEST_LIBRARY_V0_AFFORDANCE_LENSES.filter((lens) => {
+            const value = (lens as unknown as Record<string, unknown>)[field]
+            return Array.isArray(value) ? value.length > 0 : Boolean(value)
+        }).length
+        assert.equal(
+            present,
+            TEST_LIBRARY_V0_AFFORDANCE_LENSES.length,
+            `${field} is no longer present on every lens — the schema gap report is stale.`
+        )
+    }
+
+    // And confirm the Lenses sheet genuinely lacks a home for them, so this test retires itself
+    // once the schema is corrected.
+    const sample = soccerModule.lenses()[0] ?? {}
+    for (const column of ['visibility_triggers', 'consequence_patterns', 'suggested_constraint_prompt']) {
+        assert.ok(
+            !(column in sample),
+            `Lenses now has a "${column}" column — extract the corresponding field and remove it from LENS_FIELDS_WITHOUT_A_COLUMN.`
+        )
+    }
 }
 
 function testModuleIdentity(): void {
@@ -266,6 +407,7 @@ function testUnmappedUniversalIdsAreReported(): void {
 
 function runAll(): void {
     testIntegrityGate()
+    testMetadataShapeCatchesRoundTripDamage()
     testModuleIdentity()
     testAllGameFormsExtracted()
     testMatchingCorpusPopulated()
@@ -277,6 +419,10 @@ function runAll(): void {
     testRealizationCoachVocabularyRoundTrips()
     testEnvironmentalRealizationsAreNotForcedIntoBankId()
     testUnmappedUniversalIdsAreReported()
+    testAllLensesExtracted()
+    testLensMatchingCorpusPopulated()
+    testLensCoachVocabularyRoundTrips()
+    testLensFieldsWithoutColumnsAreStillPresentInSource()
     console.log('soccer-module unit tests: all cases passed.')
 }
 

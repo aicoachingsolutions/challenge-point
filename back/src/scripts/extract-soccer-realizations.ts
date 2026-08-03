@@ -110,7 +110,11 @@ function buildRow(source: TestLibraryV0Constraint, universalConceptType: SourceG
         introduced_version: 'RC1-CANDIDATE-V3',
         last_verified_version: 'RC1-CANDIDATE-V3',
         provenance: 'Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts',
-        notes: source.logicUsageNote,
+        // `notes`, NOT `logicUsageNote`. The source carries both, the sheet has one column, and the
+        // selector reads `notes` as part of its matching corpus while `logicUsageNote` is never read
+        // for realizations. An earlier cut mapped the wrong one, which would have dropped matching
+        // text and kept an unread field — caught by the adapter equivalence test.
+        notes: source.notes,
     }
 }
 

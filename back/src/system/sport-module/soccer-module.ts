@@ -50,13 +50,77 @@ export interface SoccerModuleIntegrityResult {
     errors: string[]
 }
 
+/** The five data sheets, with the exact sheet name the projection expects to find. */
+const DECLARED_SHEETS = [
+    ['vocabulary', 'Vocabulary'],
+    ['lenses', 'Lenses'],
+    ['game_forms', 'Game Forms'],
+    ['realizations', 'Realizations'],
+    ['coverage', 'Coverage'],
+] as const
+
+/**
+ * Metadata shape check — the guard against a round-tripped workbook.
+ *
+ * The workbook is edited on shared Drive. If it is converted to a Google Sheet and exported back,
+ * typed values and sheet names can change without anyone touching a cell. The dangerous part is that
+ * most of those changes do not error: a renamed sheet or a lost `*_header_row` key makes the
+ * projection read the wrong row and produce an EMPTY sheet, which then looks like "the knowledge
+ * hasn't been populated yet" rather than "the file arrived damaged".
+ *
+ * So this checks the declarations themselves rather than the data, and says *conversion* out loud in
+ * the message — because the person reading the failure will otherwise go looking in the wrong place.
+ */
+export function validateModuleMetadataShape(data: SoccerModuleWorkbook = WB): string[] {
+    const errors: string[] = []
+    const meta = data.metadata
+    const conversionHint = 'This usually means the workbook was converted to another format and exported back.'
+
+    for (const [key, expectedSheetName] of DECLARED_SHEETS) {
+        const nameKey = `${key}_sheet_name`
+        const headerKey = `${key}_header_row`
+
+        const declaredName = meta[nameKey]
+        if (declaredName === undefined || declaredName === null) {
+            errors.push(`Metadata is missing ${nameKey}. ${conversionHint}`)
+        } else if (String(declaredName) !== expectedSheetName) {
+            errors.push(
+                `${nameKey}="${String(declaredName)}" but the projection expects the sheet named "${expectedSheetName}". ` +
+                    `A renamed sheet makes every row read empty rather than failing. ${conversionHint}`
+            )
+        }
+
+        // The projection DEFAULTS this to 2 when absent, so a lost key silently misreads the sheet
+        // instead of erroring. Requiring it explicitly is what turns that into a named failure.
+        const headerRow = meta[headerKey]
+        if (headerRow === undefined || headerRow === null || !Number.isFinite(Number(headerRow))) {
+            errors.push(
+                `Metadata ${headerKey} is missing or non-numeric (got ${JSON.stringify(headerRow)}). ` +
+                    `The projection would fall back to row 2 and could read the wrong header. ${conversionHint}`
+            )
+        }
+    }
+
+    // Version pins. A workbook that lost these is not identifiable, and a module whose provenance
+    // cannot be established should not load quietly.
+    for (const key of ['module_id', 'workbook_schema_version', 'runtime_interface_version']) {
+        if (meta[key] === undefined || meta[key] === null || String(meta[key]).trim() === '') {
+            errors.push(`Metadata is missing ${key}; the module cannot be identified or version-checked.`)
+        }
+    }
+
+    return errors
+}
+
 /**
  * Load-time integrity gate, validated against the workbook's OWN declarations rather than against
  * numbers written here. The same principle as the six canonical libraries: if the workbook and the
  * projection disagree, that is a defined failure, never a silent one.
  */
 export function validateSoccerModuleIntegrity(data: SoccerModuleWorkbook = WB): SoccerModuleIntegrityResult {
-    const errors: string[] = []
+    // Shape first: if the declarations are damaged, the row counts below are meaningless — an empty
+    // sheet would agree with an expected count of zero and the module would load looking fine.
+    const errors: string[] = [...validateModuleMetadataShape(data)]
     const meta = data.metadata
 
     for (const [sheet, countKey] of COUNTED_SHEETS) {

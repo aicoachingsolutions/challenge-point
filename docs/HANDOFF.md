@@ -623,6 +623,41 @@ Behaviour gate `68,64,94,115,91,68,64,94,115,91,97,84` must hold throughout.
 **Vocabulary / Lenses / Coverage empty** — 34 of 44 objects, none of the routing. Say this explicitly
 when sending, or empty sheets read as breakage rather than as work not yet done.
 
+### Christian's workbook pass (2026-08-03) — NOT INGESTED, one blocking error
+His revision is in `~/Downloads/soccer-module.rc1-v3.xlsx`. **Do not ingest it as-is.**
+
+**Round-trip was clean** — the new metadata shape guard had nothing to report. Sheets, order,
+headers, column counts and row counts all identical. Metadata, Vocabulary, Lenses and Coverage
+untouched exactly as agreed. Vocabulary is correctly semicolon-delimited throughout.
+
+**What he changed:** Game Forms — `canonical_game_archetype_id` ×11, `primary_game_problem_ids` ×11,
+`secondary_game_problem_ids` ×10, `coach_vocabulary` ×1 (GF10). Realizations — `coach_vocabulary`
+filled on 19 **and rewritten on the 4 that already had it** (he calls this calibration; it means the
+four information mechanics' existing matching text changed, which is a behaviour change, not just
+gap-filling).
+
+**⛔ BLOCKING — all eleven game forms were mapped to `GA-002`, which is Net/Wall. Soccer is
+`GA-001`, Invasion.** Verified against `game-archetype-workbook.rc1.1.json`:
+- **GA-001 Invasion** — "Reciprocal progression toward meaningful external objectives"; "Shared,
+  adaptive, generally simultaneous access with reciprocal influence."
+- **GA-002 Net/Wall** — "Partitioned, mediated, reciprocal, and sequential influence through an
+  exchanged object"; "Each return creates the next state until rally breakdown and reset."
+
+Our game forms are directional, shared-space, simultaneous-contest structures (End Zone Games,
+Directional Possession, Finishing Games). That is Invasion. Almost certainly an off-by-one on the
+identifier. **This is the module's single link to the universal archetype library — ingesting it
+wrong would assert that soccer is a net/wall sport at the exact point the docking model is meant to
+be proven.** Flagged to Christian; awaiting confirmation rather than self-correcting, since the
+mapping is his to own.
+
+**Minor:** GF1's `primary_game_problem_ids` contains an embedded newline (`GP-001;\nGP-002`) where
+every other row uses `; `. Survives a trim-based split but will trip a naive consumer.
+
+**Test lifecycle change now due.** `testCoachVocabularyRoundTrips` asserts the workbook *equals*
+`archetypes.ts` / `constraints.ts`. His additions and rewrites make that fail by design — the
+workbook is now the authority, not a copy. Flip those assertions from "must equal source" to "must
+contain source" when ingesting, so extraction loss is still caught without forbidding his additions.
+
 ### Field-evidence collector — BUILT and ready (`5a9e760`)
 `usage_events` collection + fire-and-forget `recordUsageEvent` (never blocks/fails a request), hooked
 into generation: `goal_submitted` (goal + resolution status + signal groups), **`goal_rejected` (verbatim

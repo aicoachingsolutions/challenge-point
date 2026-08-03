@@ -53,6 +53,9 @@ const SPORT_LAYER_FILES = [
     // Declared explicitly because the guard is default-deny: it caught this file on creation, which
     // is the behaviour we want.
     'system/sport-module/soccer-module.ts',
+    // Reconstructs engine objects from the Soccer Module workbook. Sport-specific by design, for the
+    // same reason as the loader above.
+    'system/sport-module/soccer-module-adapter.ts',
 ]
 
 const SPORT_TERMS = [

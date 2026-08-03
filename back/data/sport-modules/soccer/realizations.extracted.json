@@ -62,7 +62,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-    "notes": "Use as an optional consequence constraint layered onto a representative base game."
+    "notes": "Encourages penetration"
   },
   {
     "realization_id": "tl-v0-constraint-wide-utilization-bonus",
@@ -127,7 +127,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-    "notes": "Use as an optional consequence constraint when you want width to matter more without forcing wide play."
+    "notes": "Encourages width"
   },
   {
     "realization_id": "tl-v0-constraint-switch-of-play-bonus",
@@ -192,7 +192,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-    "notes": "Use as an optional consequence constraint to increase the value of switching, not to require a sequence."
+    "notes": "Encourages scanning"
   },
   {
     "realization_id": "tl-v0-constraint-interception-reward",
@@ -257,7 +257,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-    "notes": "Use as an optional defensive consequence constraint that sharpens anticipation and regain opportunities."
+    "notes": "Encourages anticipation"
   },
   {
     "realization_id": "tl-v0-constraint-turnover-reward",
@@ -322,7 +322,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-    "notes": "Use as an optional defensive consequence constraint that increases the value of pressure and regain moments."
+    "notes": "Encourages pressure"
   },
   {
     "realization_id": "tl-v0-constraint-delay-reward",
@@ -387,7 +387,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-    "notes": "Use as an optional defensive consequence constraint when slowing progression is a desired defensive outcome."
+    "notes": "Encourages delay"
   },
   {
     "realization_id": "tl-v0-constraint-final-third-value",
@@ -452,7 +452,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-    "notes": "Use as an optional consequence constraint that increases the value of penetrating into the final third."
+    "notes": "Encourages penetration"
   },
   {
     "realization_id": "tl-v0-constraint-transition-bonus",
@@ -517,7 +517,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-    "notes": "Use as an optional temporal consequence constraint that increases urgency immediately after regains."
+    "notes": "Encourages transition speed"
   },
   {
     "realization_id": "tl-v0-constraint-recovery-window",
@@ -582,7 +582,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-    "notes": "Use as an optional temporal consequence constraint that increases the value of fast defensive reorganization."
+    "notes": "Encourages recovery"
   },
   {
     "realization_id": "tl-v0-constraint-counter-press-window",
@@ -647,7 +647,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-    "notes": "Use as a shaping constraint when counter-pressing intensity, transition urgency, and organized regain are central session goals."
+    "notes": "Counter-press window creates a contested advantage moment; the team that loses possession decides whether to commit to the press immediately or protect the deeper zone; the team with the ball chooses whether to exploit the disorganized pressure or secure possession."
   },
   {
     "realization_id": "tl-v0-constraint-pass-combination-gate",
@@ -712,7 +712,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-    "notes": "Use as a shaping constraint when possession circulation, support structure, and building through pressure are central session goals."
+    "notes": "Combination gate creates a visible build-up problem; teams decide when the picture is ready to commit to goal versus when recirculating and finding a better lane is the right choice; defenders choose whether to press the combination early or delay and protect space."
   },
   {
     "realization_id": "tl-v0-constraint-support-lane-requirement",
@@ -777,7 +777,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-    "notes": "Use as a shaping constraint when support runs, lane occupation, and penetrating forward passes are central to the session goal."
+    "notes": "Support lane creates a visible opportunity cue; attackers decide when a teammate has arrived in the lane and whether the lane is genuinely open under defensive pressure; defenders choose whether to block the lane or press the ball carrier."
   },
   {
     "realization_id": "tl-v0-constraint-central-density-condition",
@@ -842,7 +842,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-    "notes": "Use as a structural/spatial constraint to shape pressure in central areas and indirectly invite width."
+    "notes": "Encourages wide play indirectly"
   },
   {
     "realization_id": "tl-v0-constraint-wide-zone-advantage",
@@ -907,7 +907,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-    "notes": "Use as a hybrid spatial + consequence constraint when wide areas should become more available and more valuable."
+    "notes": "Encourages width"
   },
   {
     "realization_id": "tl-v0-constraint-transition-trigger",
@@ -972,7 +972,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-    "notes": "Use as a structural transition condition that connects phases; pair with other constraints if more consequence is needed."
+    "notes": "Links phases"
   },
   {
     "realization_id": "tl-v0-constraint-zone-structure-condition",
@@ -1037,7 +1037,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-    "notes": "Use as a structural foundation constraint when spatial awareness, zone transitions, and directional progression are central to the session goal."
+    "notes": "Zone boundaries create visible reference points for pressure reads; players decide when the picture is open to progress into the next zone, support from depth, or switch the attack across zones."
   },
   {
     "realization_id": "tl-v0-constraint-neutral-player-condition",
@@ -1102,7 +1102,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-    "notes": "Use as a structural foundation constraint when overload exploitation, support angles, and numerical advantage in possession are central to the session goal."
+    "notes": "Neutral player changes the space, support angles, and passing options for both sides; attackers decide whether to use the overload immediately or recirculate to find a better lane."
   },
   {
     "realization_id": "tl-v0-constraint-goalkeeper-included-condition",
@@ -1167,7 +1167,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-    "notes": "Use as a structural foundation constraint when finishing under pressure, build-up from back, and live goalkeeper pressure are central to the session goal."
+    "notes": "GK inclusion adds a live pressure reference on both sides; attackers read the goalkeeper position and support angles to choose finishing windows; defenders use GK as a support option to escape pressure."
   },
   {
     "realization_id": "tl-v0-constraint-small-area-condition",
@@ -1232,7 +1232,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-    "notes": "Use as a structural foundation constraint when spatial compactness, pressure under reduced time, and tight decision-making are central to the session goal."
+    "notes": "Reduced space intensifies pressure cycles; teams read opponent pressure and support angles in a tighter window before choosing to secure possession, switch play, or escape into space."
   },
   {
     "realization_id": "tl-v0-constraint-variable-target-condition",
@@ -1297,7 +1297,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-    "notes": "Use as a shaping information constraint when reading the live picture and adapting the target of progression are central to the session goal."
+    "notes": "Players cannot lock onto a pre-chosen target; they keep options open and perceive which target has become live under pressure. Scanning emerges as one adaptation, it is not required."
   },
   {
     "realization_id": "tl-v0-constraint-multi-goal-read",
@@ -1362,7 +1362,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-    "notes": "Use as a structural information constraint when perceiving and attacking the open option among several is central to the session goal."
+    "notes": "Multiple simultaneous targets distribute the information across the field; players read which target the defense has left open and the defense shifts to cover, so the open option keeps moving."
   },
   {
     "realization_id": "tl-v0-constraint-blind-side-entry",
@@ -1427,7 +1427,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-    "notes": "Use as a consequence information constraint when perceiving and exploiting a defender's blind side is central to the session goal; keep the reward tied to the relationship, not a set run."
+    "notes": "Players read where defenders are not looking and exploit the blind side; defenders adapt their body orientation and scanning. The reward is for the perceptual relationship, not a prescribed run."
   },
   {
     "realization_id": "tl-v0-constraint-disguised-restart",
@@ -1492,6 +1492,6 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-    "notes": "Use as a structural information constraint when reading and organizing to an unrehearsed starting picture is central to the session goal; keep it to variable entries, not reaction tasks."
+    "notes": "The entry point/side is chosen at the last moment, so the starting picture differs each rep; teams perceive and organize to the live situation instead of running a rehearsed pattern."
   }
 ]

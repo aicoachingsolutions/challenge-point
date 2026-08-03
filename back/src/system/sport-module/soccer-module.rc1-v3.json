@@ -30,7 +30,7 @@
     "vocabulary_expected_rows": 0,
     "lenses_sheet_name": "Lenses",
     "lenses_header_row": 2,
-    "lenses_expected_rows": 0,
+    "lenses_expected_rows": 10,
     "game_forms_sheet_name": "Game Forms",
     "game_forms_header_row": 2,
     "game_forms_expected_rows": 11,
@@ -62,7 +62,348 @@
     "change_summary": "Workbook template regenerated from the current RC1 Candidate schema. Adds object-owned coach vocabulary, selection-category join keys, companion matching-text columns, interaction_structure, constraint_archetype, and complete assembly metadata. No soccer records populated."
   },
   "vocabulary": [],
-  "lenses": [],
+  "lenses": [
+    {
+      "lens_id": "tl-v0-lens-line-breaking-opportunity",
+      "lens_name": "Line-Breaking Opportunity",
+      "lens_description": "Opportunity for players to perceive and act on options that penetrate defensive lines",
+      "coach_vocabulary": "penetrating pass; penetration; penetrate; split defenders; line-breaking; line breaking; break the line; break defensive line; between the lines; through pass; through ball; forward pass; play forward; play through; find the seam; find the gap; exploit gap; dribble through; dribble past line; third-man run; third man; wall pass forward",
+      "selection_category_key": "Break Lines",
+      "design_intent": "Penetrate into final third",
+      "signal_group_ids": null,
+      "primary_game_problem_ids": null,
+      "primary_game_problem_matching_text": "Line-Breaking Opportunity Penetrate into final third",
+      "secondary_game_problem_ids": null,
+      "primary_affordance_ids": null,
+      "primary_affordance_matching_text": "Attacking",
+      "secondary_affordance_ids": null,
+      "game_form_affinity_ids": null,
+      "recommended_constraint_types": "shaping; consequence",
+      "information_expression_affinity_ids": null,
+      "phase_of_play_ids": null,
+      "phase_of_play_matching_text": "build up; final third",
+      "base_selection_weight": null,
+      "game_problem_bonus_weight": null,
+      "affordance_bonus_weight": null,
+      "game_form_bonus_weight": null,
+      "constraint_type_bonus_weight": null,
+      "information_expression_bonus_weight": null,
+      "suitability_conditions": null,
+      "known_limitations": "Avoid forcing forward passes or direction of play",
+      "status": "ACTIVE",
+      "legacy_source_id": "tl-v0-lens-line-breaking-opportunity",
+      "introduced_version": "RC1-CANDIDATE-V3",
+      "last_verified_version": "RC1-CANDIDATE-V3",
+      "provenance": "Extracted from TEST_LIBRARY_V0_AFFORDANCE_LENSES via extract-soccer-lenses.ts",
+      "notes": "Encourages penetration through perception of gaps"
+    },
+    {
+      "lens_id": "tl-v0-lens-space-exploitation-opportunity",
+      "lens_name": "Space Exploitation Opportunity",
+      "lens_description": "Opportunity for players to recognize and use available space to advance play",
+      "coach_vocabulary": "exploit space; exploit open space; use space; use open space; attack space; attack open space; find space; use width; use depth; stretch the field; switch to open side; switch the play to open; play into space; run into space",
+      "selection_category_key": "Create Space",
+      "design_intent": "Use width and depth effectively",
+      "signal_group_ids": null,
+      "primary_game_problem_ids": null,
+      "primary_game_problem_matching_text": "Space Exploitation Opportunity Use width and depth effectively",
+      "secondary_game_problem_ids": null,
+      "primary_affordance_ids": null,
+      "primary_affordance_matching_text": "Attacking",
+      "secondary_affordance_ids": null,
+      "game_form_affinity_ids": null,
+      "recommended_constraint_types": "structural; consequence",
+      "information_expression_affinity_ids": null,
+      "phase_of_play_ids": null,
+      "phase_of_play_matching_text": "build up; transition",
+      "base_selection_weight": null,
+      "game_problem_bonus_weight": null,
+      "affordance_bonus_weight": null,
+      "game_form_bonus_weight": null,
+      "constraint_type_bonus_weight": null,
+      "information_expression_bonus_weight": null,
+      "suitability_conditions": null,
+      "known_limitations": "Avoid rigid positioning or fixed zone occupation",
+      "status": "ACTIVE",
+      "legacy_source_id": "tl-v0-lens-space-exploitation-opportunity",
+      "introduced_version": "RC1-CANDIDATE-V3",
+      "last_verified_version": "RC1-CANDIDATE-V3",
+      "provenance": "Extracted from TEST_LIBRARY_V0_AFFORDANCE_LENSES via extract-soccer-lenses.ts",
+      "notes": "Encourages spatial awareness and adaptability"
+    },
+    {
+      "lens_id": "tl-v0-lens-space-creation-opportunity",
+      "lens_name": "Space Creation Opportunity",
+      "lens_description": "Opportunity for players to manipulate defenders to open new spaces",
+      "coach_vocabulary": "create space; open space; make space; drag defenders; drawing defenders out; draw defenders; pull defenders out; disorganize defense; disrupt defensive shape; unbalance defenders; movement off ball; off-ball movement; make runs; decoy run; support run; dummy run; manipulate defenders; stretch defense",
+      "selection_category_key": "Create Space",
+      "design_intent": "Disorganize defensive shape",
+      "signal_group_ids": null,
+      "primary_game_problem_ids": null,
+      "primary_game_problem_matching_text": "Space Creation Opportunity Disorganize defensive shape",
+      "secondary_game_problem_ids": null,
+      "primary_affordance_ids": null,
+      "primary_affordance_matching_text": "Attacking",
+      "secondary_affordance_ids": null,
+      "game_form_affinity_ids": null,
+      "recommended_constraint_types": "structural; shaping; consequence",
+      "information_expression_affinity_ids": null,
+      "phase_of_play_ids": null,
+      "phase_of_play_matching_text": "build up",
+      "base_selection_weight": null,
+      "game_problem_bonus_weight": null,
+      "affordance_bonus_weight": null,
+      "game_form_bonus_weight": null,
+      "constraint_type_bonus_weight": null,
+      "information_expression_bonus_weight": null,
+      "suitability_conditions": null,
+      "known_limitations": "Avoid choreographed or pre-planned movement patterns",
+      "status": "ACTIVE",
+      "legacy_source_id": "tl-v0-lens-space-creation-opportunity",
+      "introduced_version": "RC1-CANDIDATE-V3",
+      "last_verified_version": "RC1-CANDIDATE-V3",
+      "provenance": "Extracted from TEST_LIBRARY_V0_AFFORDANCE_LENSES via extract-soccer-lenses.ts",
+      "notes": "Encourages movement and displacement"
+    },
+    {
+      "lens_id": "tl-v0-lens-possession-stability-opportunity",
+      "lens_name": "Possession Stability Opportunity",
+      "lens_description": "Opportunity for players to retain control under pressure",
+      "coach_vocabulary": "retain possession; keep possession; ball retention; secure possession; possession under pressure; composure under pressure; play through pressure; escape pressure; play out of pressure; support angles; support distances; supporting players; build out; build up; play out from back; circulate ball; circulate possession; ball circulation",
+      "selection_category_key": "Maintain Possession",
+      "design_intent": "Retain possession under pressure",
+      "signal_group_ids": null,
+      "primary_game_problem_ids": null,
+      "primary_game_problem_matching_text": "Possession Stability Opportunity Retain possession under pressure",
+      "secondary_game_problem_ids": null,
+      "primary_affordance_ids": null,
+      "primary_affordance_matching_text": "Attacking",
+      "secondary_affordance_ids": null,
+      "game_form_affinity_ids": null,
+      "recommended_constraint_types": "shaping",
+      "information_expression_affinity_ids": null,
+      "phase_of_play_ids": null,
+      "phase_of_play_matching_text": "build up",
+      "base_selection_weight": null,
+      "game_problem_bonus_weight": null,
+      "affordance_bonus_weight": null,
+      "game_form_bonus_weight": null,
+      "constraint_type_bonus_weight": null,
+      "information_expression_bonus_weight": null,
+      "suitability_conditions": null,
+      "known_limitations": "Avoid pass limits or restrictive rules",
+      "status": "ACTIVE",
+      "legacy_source_id": "tl-v0-lens-possession-stability-opportunity",
+      "introduced_version": "RC1-CANDIDATE-V3",
+      "last_verified_version": "RC1-CANDIDATE-V3",
+      "provenance": "Extracted from TEST_LIBRARY_V0_AFFORDANCE_LENSES via extract-soccer-lenses.ts",
+      "notes": "Encourages composure and support play"
+    },
+    {
+      "lens_id": "tl-v0-lens-transition-attack-opportunity",
+      "lens_name": "Transition Attack Opportunity",
+      "lens_description": "Opportunity to act quickly before defense organizes",
+      "coach_vocabulary": "transition attack; attack in transition; fast attack; counter attack; counter-attack; quick counter; after winning ball; after regain; after turnover; exploit disorganized defense; attack before defense recovers; attack quickly; play forward fast; break forward",
+      "selection_category_key": "Attack Quickly",
+      "design_intent": "Exploit transition moments",
+      "signal_group_ids": null,
+      "primary_game_problem_ids": null,
+      "primary_game_problem_matching_text": "Transition Attack Opportunity Exploit transition moments",
+      "secondary_game_problem_ids": null,
+      "primary_affordance_ids": null,
+      "primary_affordance_matching_text": "Attacking",
+      "secondary_affordance_ids": null,
+      "game_form_affinity_ids": null,
+      "recommended_constraint_types": "shaping; consequence",
+      "information_expression_affinity_ids": null,
+      "phase_of_play_ids": null,
+      "phase_of_play_matching_text": "transition",
+      "base_selection_weight": null,
+      "game_problem_bonus_weight": null,
+      "affordance_bonus_weight": null,
+      "game_form_bonus_weight": null,
+      "constraint_type_bonus_weight": null,
+      "information_expression_bonus_weight": null,
+      "suitability_conditions": null,
+      "known_limitations": "Avoid forcing speed or rushed decisions",
+      "status": "ACTIVE",
+      "legacy_source_id": "tl-v0-lens-transition-attack-opportunity",
+      "introduced_version": "RC1-CANDIDATE-V3",
+      "last_verified_version": "RC1-CANDIDATE-V3",
+      "provenance": "Extracted from TEST_LIBRARY_V0_AFFORDANCE_LENSES via extract-soccer-lenses.ts",
+      "notes": "Encourages recognition of transition moments"
+    },
+    {
+      "lens_id": "tl-v0-lens-finishing-opportunity",
+      "lens_name": "Finishing Opportunity",
+      "lens_description": "Opportunity to recognize and act on goal-scoring chances",
+      "coach_vocabulary": "finishing; finish; convert chances; convert chance; scoring chance; scoring opportunity; shot on goal; good shot; get off a shot; first time finish; in front of goal; near goal area; near opponent goal; in the box; in penalty box; around penalty box; shoot; shooting; shot",
+      "selection_category_key": "Finish",
+      "design_intent": "Convert chances",
+      "signal_group_ids": null,
+      "primary_game_problem_ids": null,
+      "primary_game_problem_matching_text": "Finishing Opportunity Convert chances",
+      "secondary_game_problem_ids": null,
+      "primary_affordance_ids": null,
+      "primary_affordance_matching_text": "Attacking",
+      "secondary_affordance_ids": null,
+      "game_form_affinity_ids": null,
+      "recommended_constraint_types": "shaping; consequence",
+      "information_expression_affinity_ids": null,
+      "phase_of_play_ids": null,
+      "phase_of_play_matching_text": "final third",
+      "base_selection_weight": null,
+      "game_problem_bonus_weight": null,
+      "affordance_bonus_weight": null,
+      "game_form_bonus_weight": null,
+      "constraint_type_bonus_weight": null,
+      "information_expression_bonus_weight": null,
+      "suitability_conditions": null,
+      "known_limitations": "Avoid artificial shooting constraints",
+      "status": "ACTIVE",
+      "legacy_source_id": "tl-v0-lens-finishing-opportunity",
+      "introduced_version": "RC1-CANDIDATE-V3",
+      "last_verified_version": "RC1-CANDIDATE-V3",
+      "provenance": "Extracted from TEST_LIBRARY_V0_AFFORDANCE_LENSES via extract-soccer-lenses.ts",
+      "notes": "Encourages timing and decision-making in scoring"
+    },
+    {
+      "lens_id": "tl-v0-lens-delay-or-deny-opportunity",
+      "lens_name": "Delay or Deny Opportunity",
+      "lens_description": "Opportunity to slow or prevent attacking progression",
+      "coach_vocabulary": "delay attacker; delay opponent; delay the attack; deny forward pass; deny progress; deny the option; force play backward; force play wide; force opponent backward; channel opponent; shepherd attacker; defensive denial; defensive delay",
+      "selection_category_key": "Delay or Deny",
+      "design_intent": "Slow attacking progression",
+      "signal_group_ids": null,
+      "primary_game_problem_ids": null,
+      "primary_game_problem_matching_text": "Delay or Deny Opportunity Slow attacking progression",
+      "secondary_game_problem_ids": null,
+      "primary_affordance_ids": null,
+      "primary_affordance_matching_text": "Defensive",
+      "secondary_affordance_ids": null,
+      "game_form_affinity_ids": null,
+      "recommended_constraint_types": "shaping",
+      "information_expression_affinity_ids": null,
+      "phase_of_play_ids": null,
+      "phase_of_play_matching_text": "defensive",
+      "base_selection_weight": null,
+      "game_problem_bonus_weight": null,
+      "affordance_bonus_weight": null,
+      "game_form_bonus_weight": null,
+      "constraint_type_bonus_weight": null,
+      "information_expression_bonus_weight": null,
+      "suitability_conditions": null,
+      "known_limitations": "Avoid over-restricting attacking options",
+      "status": "ACTIVE",
+      "legacy_source_id": "tl-v0-lens-delay-or-deny-opportunity",
+      "introduced_version": "RC1-CANDIDATE-V3",
+      "last_verified_version": "RC1-CANDIDATE-V3",
+      "provenance": "Extracted from TEST_LIBRARY_V0_AFFORDANCE_LENSES via extract-soccer-lenses.ts",
+      "notes": "Encourages disruption and control"
+    },
+    {
+      "lens_id": "tl-v0-lens-regain-opportunity",
+      "lens_name": "Regain Opportunity",
+      "lens_description": "Opportunity to win possession from the opponent",
+      "coach_vocabulary": "regain; regain possession; win ball back; win the ball back; force turnover; cause turnover; force a turnover; press; press to regain; pressing; pressing to regain; intercept; interception; anticipate the pass; team defensive pressure; applied pressure; win ball; press triggers; when to press",
+      "selection_category_key": "Regain Possession",
+      "design_intent": "Win the ball back",
+      "signal_group_ids": null,
+      "primary_game_problem_ids": null,
+      "primary_game_problem_matching_text": "Regain Opportunity Win the ball back",
+      "secondary_game_problem_ids": null,
+      "primary_affordance_ids": null,
+      "primary_affordance_matching_text": "Defensive",
+      "secondary_affordance_ids": null,
+      "game_form_affinity_ids": null,
+      "recommended_constraint_types": "shaping; consequence",
+      "information_expression_affinity_ids": null,
+      "phase_of_play_ids": null,
+      "phase_of_play_matching_text": "transition",
+      "base_selection_weight": null,
+      "game_problem_bonus_weight": null,
+      "affordance_bonus_weight": null,
+      "game_form_bonus_weight": null,
+      "constraint_type_bonus_weight": null,
+      "information_expression_bonus_weight": null,
+      "suitability_conditions": null,
+      "known_limitations": "Avoid forced pressing triggers",
+      "status": "ACTIVE",
+      "legacy_source_id": "tl-v0-lens-regain-opportunity",
+      "introduced_version": "RC1-CANDIDATE-V3",
+      "last_verified_version": "RC1-CANDIDATE-V3",
+      "provenance": "Extracted from TEST_LIBRARY_V0_AFFORDANCE_LENSES via extract-soccer-lenses.ts",
+      "notes": "Encourages anticipation and pressure"
+    },
+    {
+      "lens_id": "tl-v0-lens-space-protection-opportunity",
+      "lens_name": "Space Protection Opportunity",
+      "lens_description": "Opportunity to maintain defensive shape and deny space",
+      "coach_vocabulary": "protect space; defensive shape; stay compact; compact shape; deny space; deny dangerous space; withdrawn defense; low block; defensive block; cover space; cover behind; cover for teammate; defending box; defending goal area",
+      "selection_category_key": "Protect Space",
+      "design_intent": "Maintain compact defensive shape",
+      "signal_group_ids": null,
+      "primary_game_problem_ids": null,
+      "primary_game_problem_matching_text": "Space Protection Opportunity Maintain compact defensive shape",
+      "secondary_game_problem_ids": null,
+      "primary_affordance_ids": null,
+      "primary_affordance_matching_text": "Defensive",
+      "secondary_affordance_ids": null,
+      "game_form_affinity_ids": null,
+      "recommended_constraint_types": "structural",
+      "information_expression_affinity_ids": null,
+      "phase_of_play_ids": null,
+      "phase_of_play_matching_text": "defensive",
+      "base_selection_weight": null,
+      "game_problem_bonus_weight": null,
+      "affordance_bonus_weight": null,
+      "game_form_bonus_weight": null,
+      "constraint_type_bonus_weight": null,
+      "information_expression_bonus_weight": null,
+      "suitability_conditions": null,
+      "known_limitations": "Avoid rigid positioning rules",
+      "status": "ACTIVE",
+      "legacy_source_id": "tl-v0-lens-space-protection-opportunity",
+      "introduced_version": "RC1-CANDIDATE-V3",
+      "last_verified_version": "RC1-CANDIDATE-V3",
+      "provenance": "Extracted from TEST_LIBRARY_V0_AFFORDANCE_LENSES via extract-soccer-lenses.ts",
+      "notes": "Encourages compactness and positioning"
+    },
+    {
+      "lens_id": "tl-v0-lens-recovery-opportunity",
+      "lens_name": "Recovery Opportunity",
+      "lens_description": "Opportunity to reorganize defensively after disruption",
+      "coach_vocabulary": "recover shape; recovery; recover defensive shape; tracking runs; track back; tracking back; track the runner; reorganize defense; reorganize defensively; regain shape; defensive transition; transition to defense; delay counter; defending counterattack; defending counter attack",
+      "selection_category_key": "Recover Shape",
+      "design_intent": "Reorganize defensively after transition",
+      "signal_group_ids": null,
+      "primary_game_problem_ids": null,
+      "primary_game_problem_matching_text": "Recovery Opportunity Reorganize defensively after transition",
+      "secondary_game_problem_ids": null,
+      "primary_affordance_ids": null,
+      "primary_affordance_matching_text": "Defensive",
+      "secondary_affordance_ids": null,
+      "game_form_affinity_ids": null,
+      "recommended_constraint_types": "structural; shaping; consequence",
+      "information_expression_affinity_ids": null,
+      "phase_of_play_ids": null,
+      "phase_of_play_matching_text": "transition",
+      "base_selection_weight": null,
+      "game_problem_bonus_weight": null,
+      "affordance_bonus_weight": null,
+      "game_form_bonus_weight": null,
+      "constraint_type_bonus_weight": null,
+      "information_expression_bonus_weight": null,
+      "suitability_conditions": null,
+      "known_limitations": "Avoid forced recovery patterns",
+      "status": "ACTIVE",
+      "legacy_source_id": "tl-v0-lens-recovery-opportunity",
+      "introduced_version": "RC1-CANDIDATE-V3",
+      "last_verified_version": "RC1-CANDIDATE-V3",
+      "provenance": "Extracted from TEST_LIBRARY_V0_AFFORDANCE_LENSES via extract-soccer-lenses.ts",
+      "notes": "Encourages recovery and reorganization"
+    }
+  ],
   "game_forms": [
     {
       "game_form_id": "GF1",
@@ -591,7 +932,7 @@
       "introduced_version": "RC1-CANDIDATE-V3",
       "last_verified_version": "RC1-CANDIDATE-V3",
       "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-      "notes": "Use as an optional consequence constraint layered onto a representative base game."
+      "notes": "Encourages penetration"
     },
     {
       "realization_id": "tl-v0-constraint-wide-utilization-bonus",
@@ -656,7 +997,7 @@
       "introduced_version": "RC1-CANDIDATE-V3",
       "last_verified_version": "RC1-CANDIDATE-V3",
       "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-      "notes": "Use as an optional consequence constraint when you want width to matter more without forcing wide play."
+      "notes": "Encourages width"
     },
     {
       "realization_id": "tl-v0-constraint-switch-of-play-bonus",
@@ -721,7 +1062,7 @@
       "introduced_version": "RC1-CANDIDATE-V3",
       "last_verified_version": "RC1-CANDIDATE-V3",
       "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-      "notes": "Use as an optional consequence constraint to increase the value of switching, not to require a sequence."
+      "notes": "Encourages scanning"
     },
     {
       "realization_id": "tl-v0-constraint-interception-reward",
@@ -786,7 +1127,7 @@
       "introduced_version": "RC1-CANDIDATE-V3",
       "last_verified_version": "RC1-CANDIDATE-V3",
       "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-      "notes": "Use as an optional defensive consequence constraint that sharpens anticipation and regain opportunities."
+      "notes": "Encourages anticipation"
     },
     {
       "realization_id": "tl-v0-constraint-turnover-reward",
@@ -851,7 +1192,7 @@
       "introduced_version": "RC1-CANDIDATE-V3",
       "last_verified_version": "RC1-CANDIDATE-V3",
       "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-      "notes": "Use as an optional defensive consequence constraint that increases the value of pressure and regain moments."
+      "notes": "Encourages pressure"
     },
     {
       "realization_id": "tl-v0-constraint-delay-reward",
@@ -916,7 +1257,7 @@
       "introduced_version": "RC1-CANDIDATE-V3",
       "last_verified_version": "RC1-CANDIDATE-V3",
       "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-      "notes": "Use as an optional defensive consequence constraint when slowing progression is a desired defensive outcome."
+      "notes": "Encourages delay"
     },
     {
       "realization_id": "tl-v0-constraint-final-third-value",
@@ -981,7 +1322,7 @@
       "introduced_version": "RC1-CANDIDATE-V3",
       "last_verified_version": "RC1-CANDIDATE-V3",
       "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-      "notes": "Use as an optional consequence constraint that increases the value of penetrating into the final third."
+      "notes": "Encourages penetration"
     },
     {
       "realization_id": "tl-v0-constraint-transition-bonus",
@@ -1046,7 +1387,7 @@
       "introduced_version": "RC1-CANDIDATE-V3",
       "last_verified_version": "RC1-CANDIDATE-V3",
       "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-      "notes": "Use as an optional temporal consequence constraint that increases urgency immediately after regains."
+      "notes": "Encourages transition speed"
     },
     {
       "realization_id": "tl-v0-constraint-recovery-window",
@@ -1111,7 +1452,7 @@
       "introduced_version": "RC1-CANDIDATE-V3",
       "last_verified_version": "RC1-CANDIDATE-V3",
       "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-      "notes": "Use as an optional temporal consequence constraint that increases the value of fast defensive reorganization."
+      "notes": "Encourages recovery"
     },
     {
       "realization_id": "tl-v0-constraint-counter-press-window",
@@ -1176,7 +1517,7 @@
       "introduced_version": "RC1-CANDIDATE-V3",
       "last_verified_version": "RC1-CANDIDATE-V3",
       "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-      "notes": "Use as a shaping constraint when counter-pressing intensity, transition urgency, and organized regain are central session goals."
+      "notes": "Counter-press window creates a contested advantage moment; the team that loses possession decides whether to commit to the press immediately or protect the deeper zone; the team with the ball chooses whether to exploit the disorganized pressure or secure possession."
     },
     {
       "realization_id": "tl-v0-constraint-pass-combination-gate",
@@ -1241,7 +1582,7 @@
       "introduced_version": "RC1-CANDIDATE-V3",
       "last_verified_version": "RC1-CANDIDATE-V3",
       "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-      "notes": "Use as a shaping constraint when possession circulation, support structure, and building through pressure are central session goals."
+      "notes": "Combination gate creates a visible build-up problem; teams decide when the picture is ready to commit to goal versus when recirculating and finding a better lane is the right choice; defenders choose whether to press the combination early or delay and protect space."
     },
     {
       "realization_id": "tl-v0-constraint-support-lane-requirement",
@@ -1306,7 +1647,7 @@
       "introduced_version": "RC1-CANDIDATE-V3",
       "last_verified_version": "RC1-CANDIDATE-V3",
       "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-      "notes": "Use as a shaping constraint when support runs, lane occupation, and penetrating forward passes are central to the session goal."
+      "notes": "Support lane creates a visible opportunity cue; attackers decide when a teammate has arrived in the lane and whether the lane is genuinely open under defensive pressure; defenders choose whether to block the lane or press the ball carrier."
     },
     {
       "realization_id": "tl-v0-constraint-central-density-condition",
@@ -1371,7 +1712,7 @@
       "introduced_version": "RC1-CANDIDATE-V3",
       "last_verified_version": "RC1-CANDIDATE-V3",
       "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-      "notes": "Use as a structural/spatial constraint to shape pressure in central areas and indirectly invite width."
+      "notes": "Encourages wide play indirectly"
     },
     {
       "realization_id": "tl-v0-constraint-wide-zone-advantage",
@@ -1436,7 +1777,7 @@
       "introduced_version": "RC1-CANDIDATE-V3",
       "last_verified_version": "RC1-CANDIDATE-V3",
       "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-      "notes": "Use as a hybrid spatial + consequence constraint when wide areas should become more available and more valuable."
+      "notes": "Encourages width"
     },
     {
       "realization_id": "tl-v0-constraint-transition-trigger",
@@ -1501,7 +1842,7 @@
       "introduced_version": "RC1-CANDIDATE-V3",
       "last_verified_version": "RC1-CANDIDATE-V3",
       "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-      "notes": "Use as a structural transition condition that connects phases; pair with other constraints if more consequence is needed."
+      "notes": "Links phases"
     },
     {
       "realization_id": "tl-v0-constraint-zone-structure-condition",
@@ -1566,7 +1907,7 @@
       "introduced_version": "RC1-CANDIDATE-V3",
       "last_verified_version": "RC1-CANDIDATE-V3",
       "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-      "notes": "Use as a structural foundation constraint when spatial awareness, zone transitions, and directional progression are central to the session goal."
+      "notes": "Zone boundaries create visible reference points for pressure reads; players decide when the picture is open to progress into the next zone, support from depth, or switch the attack across zones."
     },
     {
       "realization_id": "tl-v0-constraint-neutral-player-condition",
@@ -1631,7 +1972,7 @@
       "introduced_version": "RC1-CANDIDATE-V3",
       "last_verified_version": "RC1-CANDIDATE-V3",
       "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-      "notes": "Use as a structural foundation constraint when overload exploitation, support angles, and numerical advantage in possession are central to the session goal."
+      "notes": "Neutral player changes the space, support angles, and passing options for both sides; attackers decide whether to use the overload immediately or recirculate to find a better lane."
     },
     {
       "realization_id": "tl-v0-constraint-goalkeeper-included-condition",
@@ -1696,7 +2037,7 @@
       "introduced_version": "RC1-CANDIDATE-V3",
       "last_verified_version": "RC1-CANDIDATE-V3",
       "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-      "notes": "Use as a structural foundation constraint when finishing under pressure, build-up from back, and live goalkeeper pressure are central to the session goal."
+      "notes": "GK inclusion adds a live pressure reference on both sides; attackers read the goalkeeper position and support angles to choose finishing windows; defenders use GK as a support option to escape pressure."
     },
     {
       "realization_id": "tl-v0-constraint-small-area-condition",
@@ -1761,7 +2102,7 @@
       "introduced_version": "RC1-CANDIDATE-V3",
       "last_verified_version": "RC1-CANDIDATE-V3",
       "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-      "notes": "Use as a structural foundation constraint when spatial compactness, pressure under reduced time, and tight decision-making are central to the session goal."
+      "notes": "Reduced space intensifies pressure cycles; teams read opponent pressure and support angles in a tighter window before choosing to secure possession, switch play, or escape into space."
     },
     {
       "realization_id": "tl-v0-constraint-variable-target-condition",
@@ -1826,7 +2167,7 @@
       "introduced_version": "RC1-CANDIDATE-V3",
       "last_verified_version": "RC1-CANDIDATE-V3",
       "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-      "notes": "Use as a shaping information constraint when reading the live picture and adapting the target of progression are central to the session goal."
+      "notes": "Players cannot lock onto a pre-chosen target; they keep options open and perceive which target has become live under pressure. Scanning emerges as one adaptation, it is not required."
     },
     {
       "realization_id": "tl-v0-constraint-multi-goal-read",
@@ -1891,7 +2232,7 @@
       "introduced_version": "RC1-CANDIDATE-V3",
       "last_verified_version": "RC1-CANDIDATE-V3",
       "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-      "notes": "Use as a structural information constraint when perceiving and attacking the open option among several is central to the session goal."
+      "notes": "Multiple simultaneous targets distribute the information across the field; players read which target the defense has left open and the defense shifts to cover, so the open option keeps moving."
     },
     {
       "realization_id": "tl-v0-constraint-blind-side-entry",
@@ -1956,7 +2297,7 @@
       "introduced_version": "RC1-CANDIDATE-V3",
       "last_verified_version": "RC1-CANDIDATE-V3",
       "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-      "notes": "Use as a consequence information constraint when perceiving and exploiting a defender's blind side is central to the session goal; keep the reward tied to the relationship, not a set run."
+      "notes": "Players read where defenders are not looking and exploit the blind side; defenders adapt their body orientation and scanning. The reward is for the perceptual relationship, not a prescribed run."
     },
     {
       "realization_id": "tl-v0-constraint-disguised-restart",
@@ -2021,7 +2362,7 @@
       "introduced_version": "RC1-CANDIDATE-V3",
       "last_verified_version": "RC1-CANDIDATE-V3",
       "provenance": "Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts",
-      "notes": "Use as a structural information constraint when reading and organizing to an unrehearsed starting picture is central to the session goal; keep it to variable entries, not reaction tasks."
+      "notes": "The entry point/side is chosen at the last moment, so the starting picture differs each rep; teams perceive and organize to the live situation instead of running a rehearsed pattern."
     }
   ],
   "coverage": []
