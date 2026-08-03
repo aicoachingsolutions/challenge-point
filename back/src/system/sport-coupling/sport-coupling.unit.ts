@@ -48,6 +48,11 @@ const SPORT_LAYER_FILES = [
     'system/input-constraints/deriveInputConstraints.ts',
     'system/test-library/normalizeCoachingInput.ts',
     'system/knowledge-core/em-selection-metadata.ts',
+    // The Soccer Sport Module loader. Sport-specific BY DESIGN — this is the detachable layer the
+    // extraction is moving knowledge into, so soccer vocabulary here is the goal rather than a leak.
+    // Declared explicitly because the guard is default-deny: it caught this file on creation, which
+    // is the behaviour we want.
+    'system/sport-module/soccer-module.ts',
 ]
 
 const SPORT_TERMS = [
