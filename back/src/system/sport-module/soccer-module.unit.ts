@@ -15,7 +15,12 @@ import { TEST_LIBRARY_V0_ARCHETYPES } from '../test-library/archetypes'
 import { TEST_LIBRARY_V0_CONSTRAINTS } from '../test-library/constraints'
 import { TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS } from '../test-library/environmental-manipulations'
 import type { TestLibraryV0Constraint } from '../test-library/types'
-import { reportUnmappedUniversalIds, soccerModule, validateSoccerModuleIntegrity } from './soccer-module'
+import {
+    reportUnmappedUniversalIds,
+    soccerModule,
+    validateModuleMetadataShape,
+    validateSoccerModuleIntegrity,
+} from './soccer-module'
 
 const ALL_REALIZATION_SOURCES: Array<{ source: TestLibraryV0Constraint; universalConceptType: string }> = [
     ...TEST_LIBRARY_V0_CONSTRAINTS.map((source) => ({ source, universalConceptType: 'INTERACTION_REGULATION' })),
@@ -28,6 +33,57 @@ const ALL_REALIZATION_SOURCES: Array<{ source: TestLibraryV0Constraint; universa
 function testIntegrityGate(): void {
     const result = validateSoccerModuleIntegrity()
     assert.ok(result.valid, `Soccer module failed integrity: ${result.errors.slice(0, 6).join(' | ')}`)
+}
+
+/**
+ * Round-trip guard. The workbook is edited on shared Drive, so it can come back converted — and the
+ * damaging conversions do NOT error, they make sheets read empty, which looks identical to "not yet
+ * populated". These cases prove the guard catches each one and says so, rather than only proving it
+ * passes on a healthy file.
+ */
+function testMetadataShapeCatchesRoundTripDamage(): void {
+    const healthy = JSON.parse(JSON.stringify({ metadata: soccerModule.metadata })) as {
+        metadata: Record<string, unknown>
+    }
+    const withMetadata = (overrides: Record<string, unknown>) =>
+        ({
+            metadata: { ...healthy.metadata, ...overrides },
+            vocabulary: [],
+            lenses: [],
+            game_forms: [],
+            realizations: [],
+            coverage: [],
+        }) as never
+
+    assert.deepEqual(validateModuleMetadataShape(withMetadata({})), [], 'A healthy workbook must produce no shape errors.')
+
+    // A renamed sheet — the projection would read nothing and the module would look merely unpopulated.
+    const renamed = validateModuleMetadataShape(withMetadata({ game_forms_sheet_name: 'GameForms' }))
+    assert.ok(
+        renamed.some((e) => e.includes('game_forms_sheet_name') && e.toLowerCase().includes('convert')),
+        `A renamed sheet must be reported as probable conversion damage. Got: ${renamed.join(' | ')}`
+    )
+
+    // A lost header-row key — the projection silently defaults to row 2.
+    const lostHeader = validateModuleMetadataShape(withMetadata({ realizations_header_row: null }))
+    assert.ok(
+        lostHeader.some((e) => e.includes('realizations_header_row')),
+        `A missing header row must be named. Got: ${lostHeader.join(' | ')}`
+    )
+
+    // A header row that came back as text rather than a number.
+    const textHeader = validateModuleMetadataShape(withMetadata({ lenses_header_row: 'two' }))
+    assert.ok(
+        textHeader.some((e) => e.includes('lenses_header_row')),
+        `A non-numeric header row must be named. Got: ${textHeader.join(' | ')}`
+    )
+
+    // Lost version pins — the module would load with no way to establish provenance.
+    const noVersion = validateModuleMetadataShape(withMetadata({ runtime_interface_version: '' }))
+    assert.ok(
+        noVersion.some((e) => e.includes('runtime_interface_version')),
+        `A missing version pin must be reported. Got: ${noVersion.join(' | ')}`
+    )
 }
 
 function testModuleIdentity(): void {
@@ -266,6 +322,7 @@ function testUnmappedUniversalIdsAreReported(): void {
 
 function runAll(): void {
     testIntegrityGate()
+    testMetadataShapeCatchesRoundTripDamage()
     testModuleIdentity()
     testAllGameFormsExtracted()
     testMatchingCorpusPopulated()
