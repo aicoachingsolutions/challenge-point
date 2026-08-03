@@ -496,6 +496,133 @@ sport vocabulary appears in a universal layer turns this from an audit snapshot 
 The docking socket already exists (`testLibraryRegistry` from Phases 1–2, with versioned registration
 and schema/composition validation) — what's missing is that the plug isn't shaped right yet.
 
+### Sport Module RC1 package (2026-08-02) — Stage 1 schema review, extraction NOT started
+Five documents + a workbook template (`Challenge_Point_Soccer_Module_Workbook_RC1_Candidate.xlsx`).
+Christian staged this: **Stage 1 = schema review, Stage 2 = extraction "assuming the schema looks
+sound."** It does not yet, so Stage 2 is correctly on hold.
+
+**What's right:** the five sheets are exactly as recommended (Vocabulary / Game Forms / Realizations /
+Coverage / Metadata), and the **Metadata sheet is a proper loader contract** — per-sheet
+`*_header_row`, `one_table_per_sheet=TRUE`, `*_expected_rows` for the integrity gate, and version
+pins for every universal library. Zero bespoke parsing needed. `semantic_key_registry_version` is
+present as TBD, so that finding landed too.
+
+**BLOCKING FINDING — the Game Forms sheet drops the inputs to four scoring bonuses.** Our
+`archetypes.ts` objects carry fields the selector reads that have no column:
+| Our field | Drives | In schema? |
+|---|---|---|
+| `constraintFit_structural` / `_shaping` / `_consequence` | balance buckets (+6/+6/+4) | ❌ |
+| `recommendedConstraintTypes` | recommended-type bonus (+3) | ❌ |
+| `primaryAffordances` vs `secondaryAffordances` | archetype-affordance bonus (+6) | ⚠️ collapsed into one `affordance_ids` |
+| `phase_of_play` | phase anchor (+2) | ❌ |
+| `coachVocabulary`, `objective`, `exampleConstraintPatterns` | matching + assembly | ❌ |
+
+Extracting as specified **cannot preserve current functionality** — the pipeline gate
+`68,64,94,115,91,…` would move. That is Christian's own Stage 2 requirement, so it must be resolved first.
+
+**Two more:**
+- **Affordance lenses (10 objects, 16 fields each) have no sheet at all**, yet they are the primary
+  goal-matching surface. Constraint/EM selection metadata (`constraintRole`,
+  `targetAffordancePrimary`, `primaryConstraintType`, `designIntent`, `gameTemplateAnchor`,
+  `environmentalRealizations`) likewise has no home. The schema is *inconsistent* here: `routing_weight`
+  in Vocabulary **is** selection metadata and is inside the module, while everything equivalent is out.
+  **Recommendation: put sport selection metadata IN the module** — it is sport knowledge, and a module
+  that needs an engine-side companion file is not detachable, which defeats the stated purpose. The
+  three-layer rule keeps selection intelligence out of the *Knowledge Core*; a Sport Module is not the
+  Knowledge Core.
+- **Signal groups → `target_concept_id` is a semantic re-key, not a rename.** Our 15 signal groups are
+  not 1:1 with GP-IDs (`K_information` and `Z_soccer_general` are deliberately unmapped), so the
+  Vocabulary sheet as specified cannot represent the parser's current routing.
+
+### Sport Module workbook v2 (2026-08-02) — six sheets; second completeness audit
+Revision addressed all three earlier findings: **Lenses** is now its own sheet; Vocabulary keeps the
+**signal-group layer** (`signal_group_id`, `signal_group_role`, `modifier_target_signal_group_ids`,
+`routing_polarity`, `fallback_priority`) so `K_information` and `Z_soccer_general` are representable;
+Game Forms gained `primary/secondary_affordance_ids`, `recommended_constraint_types`,
+`phase_of_play_ids` and `constraint_fit_1..3`; Realizations gained `constraint_role`,
+`primary_constraint_type`, `design_intent`, `game_template_anchor`, `realization_bank_id`. The
+standard now separates **selection logic (universal) from selection knowledge (Sport Module)** —
+our recommendation, adopted.
+
+**Answer to "does every runtime object have a home?" — not yet. ~14 fields with live consumers have
+no column.** Verified by reading the actual matching corpora in `generateSelection.ts` (lens fields
+~L307, constraint ~L352, archetype ~L732) and assembly usage.
+
+**Tier 1 — breaks selection:**
+| Field | Where read | Missing from |
+|---|---|---|
+| **`coachVocabulary`** | base-score corpus on **lens, constraint AND archetype** | all three sheets |
+| **`category`** | base-score on lens + constraint; **also `categoryToSlug()` produces the lens slug that `targetAffordancePrimary` matches for the +10 bonus** | Lenses, Realizations |
+| `constraintArchetype` | matched vs archetype `recommendedConstraintTypes` → **+3 bonus** | Realizations (Game Forms has the other half) |
+| `designIntent` (lens) / `objective` (game form) / `description` (constraint) | base-score corpus | Lenses / Game Forms / Realizations |
+
+**Tier 2 — breaks assembly:** `affordanceTagGroup` (7 uses), `suggestedConstraintPrompt` (6),
+`setupGuidance` (3), `exampleConstraintPatterns` (3), `exampleIncentivePatterns` (3),
+`visibilityTriggers`, `exampleConsequencePatterns`, `constraintSupport`. Several are structured
+arrays, so `notes` is not a home for them.
+
+**Tier 3 — semantic risk, not a missing column.** Several matcher inputs are **prose scored as text**
+but modelled in the schema as **ID lists** (`phase_of_play` → `phase_of_play_ids`,
+`typical_affordances` → `primary_affordance_ids`). Converting them is architecturally right but
+**removes that text from the matching corpus and will move the behaviour gate**. Needs a deliberate
+decision, not a mapping.
+
+### Workbook Schema RC1 final (2026-08-02) — schema is extraction-ready
+Third audit. **Every runtime-read field now has a home except one.** Verified against the actual
+matching corpora in `generateSelection.ts`, not the type definitions.
+
+Added since v2: `coach_vocabulary` on **all three** object sheets (the biggest gap),
+`selection_category_key` on Lenses + Realizations — backed by a *Governed Selection Category
+Registry*, which properly homes the key behind the +10 bonus — plus `constraint_archetype`,
+`design_intent` (Lenses), `objective` (Game Forms), `description` (Realizations), and the whole
+assembly set (`affordance_tag_group`, `suggested_constraint_prompt`, `setup_guidance`,
+`constraint_support`, `visibility_triggers`, `example_patterns`, `incentive_patterns`,
+`consequence_patterns`, `realization_bank_id`).
+
+**The prose-vs-IDs question is solved well:** `*_matching_text` companion columns
+(`primary_game_problem_matching_text`, `primary_affordance_matching_text`,
+`phase_of_play_matching_text`, `recommended_constraint_matching_text`) carry the scored text
+alongside the canonical IDs, explicitly labelled *transitional*. Christian's decision: **extraction
+preserves the existing behaviour gate unless a Selection Behavior Revision says otherwise.**
+
+**One remaining field:** `interaction_structure` (short prose — "Directional progression with scoring
+zones") is in the archetype base-score corpus and has no dedicated column; `opposition_structure` is
+its structured counterpart, not its text. Needs a prose column or a stated home in `notes`.
+
+**✅ BLOCKER CLEARED (2026-08-02 22:24).** `..._Template_RC1_Candidate_v3.xlsx` +
+`Workbook Schema RC1 (1).docx`. **Use v3 — v2 is stale and lacks the new columns.**
+Independently verified three ways:
+1. **Every runtime-read field is present** — checked against the real matching corpora, not the type
+   defs. Lenses 32 cols, Game Forms 40, Realizations 63, Vocabulary 26; zero missing.
+   `interaction_structure` is now included.
+2. **Every workbook column is defined in the schema doc** — zero undefined headers.
+3. **Loader contract complete for all six sheets** — `*_sheet_name`, `*_header_row=2`,
+   `*_expected_rows` present for all; `one_table_per_sheet=TRUE`;
+   `workbook_schema_version=RC1-CANDIDATE-V3`, `runtime_interface_version=RC1.2`.
+   (`metadata_expected_rows` absent — harmless, it's a key/value sheet not a counted table.)
+
+**Extraction slice order (corrected 2026-08-02 — Lenses was missing from the original plan):**
+1. ✅ **Loader + integrity gate + Game Forms** (`63b7aad`, mine) — 11 rows.
+2. ✅ **Realizations** (`c741808`, Codex + audit) — 23 rows (12 IR + 11 EM).
+3. ⬜ **Lenses** — 10 affordance lenses, 16 fields each. **Was omitted from the first plan.** Matters
+   because lenses are the primary goal-matching surface and `categoryToSlug(lens.category)` produces
+   the key behind the +10 bonus.
+4. ⬜ **Vocabulary parser** — 691 lines, largest and most routing-sensitive. **Gated on Christian's
+   signal-group → GP-ID decision.**
+5. ⬜ **Coverage** — largely derivable from 1–4.
+6. ⬜ **Rewire selection to read the module**, then delete the in-code originals. **This is where the
+   behaviour gate is actually at risk** and where the ratchet finally moves.
+
+**Nothing has left the codebase yet.** The ratchet still reads **34 across 16 files**, unchanged since
+before extraction — knowledge has been *copied* into the module while the originals still drive
+selection. That number falling is the only real progress signal.
+
+Behaviour gate `68,64,94,115,91,68,64,94,115,91,97,84` must hold throughout.
+
+**Workbook status when sent to Christian (2026-08-02):** Game Forms 11, Realizations 23, and
+**Vocabulary / Lenses / Coverage empty** — 34 of 44 objects, none of the routing. Say this explicitly
+when sending, or empty sheets read as breakage rather than as work not yet done.
+
 ### Field-evidence collector — BUILT and ready (`5a9e760`)
 `usage_events` collection + fire-and-forget `recordUsageEvent` (never blocks/fails a request), hooked
 into generation: `goal_submitted` (goal + resolution status + signal groups), **`goal_rejected` (verbatim
