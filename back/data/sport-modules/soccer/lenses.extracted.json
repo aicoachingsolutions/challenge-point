@@ -31,7 +31,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_AFFORDANCE_LENSES via extract-soccer-lenses.ts",
-    "notes": "Encourages penetration through perception of gaps — Use this affordance as a design anchor. Match to archetype first, then choose constraints that shape visibility and, only when useful, add a consequence layer."
+    "notes": "Encourages penetration through perception of gaps"
   },
   {
     "lens_id": "tl-v0-lens-space-exploitation-opportunity",
@@ -65,7 +65,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_AFFORDANCE_LENSES via extract-soccer-lenses.ts",
-    "notes": "Encourages spatial awareness and adaptability — Use this affordance as a design anchor. Match to archetype first, then choose constraints that shape visibility and, only when useful, add a consequence layer."
+    "notes": "Encourages spatial awareness and adaptability"
   },
   {
     "lens_id": "tl-v0-lens-space-creation-opportunity",
@@ -99,7 +99,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_AFFORDANCE_LENSES via extract-soccer-lenses.ts",
-    "notes": "Encourages movement and displacement — Use this affordance as a design anchor. Match to archetype first, then choose constraints that shape visibility and, only when useful, add a consequence layer."
+    "notes": "Encourages movement and displacement"
   },
   {
     "lens_id": "tl-v0-lens-possession-stability-opportunity",
@@ -133,7 +133,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_AFFORDANCE_LENSES via extract-soccer-lenses.ts",
-    "notes": "Encourages composure and support play — Use this affordance as a design anchor. Match to archetype first, then choose constraints that shape visibility and, only when useful, add a consequence layer."
+    "notes": "Encourages composure and support play"
   },
   {
     "lens_id": "tl-v0-lens-transition-attack-opportunity",
@@ -167,7 +167,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_AFFORDANCE_LENSES via extract-soccer-lenses.ts",
-    "notes": "Encourages recognition of transition moments — Use this affordance as a design anchor. Match to archetype first, then choose constraints that shape visibility and, only when useful, add a consequence layer."
+    "notes": "Encourages recognition of transition moments"
   },
   {
     "lens_id": "tl-v0-lens-finishing-opportunity",
@@ -201,7 +201,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_AFFORDANCE_LENSES via extract-soccer-lenses.ts",
-    "notes": "Encourages timing and decision-making in scoring — Use this affordance as a design anchor. Match to archetype first, then choose constraints that shape visibility and, only when useful, add a consequence layer."
+    "notes": "Encourages timing and decision-making in scoring"
   },
   {
     "lens_id": "tl-v0-lens-delay-or-deny-opportunity",
@@ -235,7 +235,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_AFFORDANCE_LENSES via extract-soccer-lenses.ts",
-    "notes": "Encourages disruption and control — Use this affordance as a design anchor. Match to archetype first, then choose constraints that shape visibility and, only when useful, add a consequence layer."
+    "notes": "Encourages disruption and control"
   },
   {
     "lens_id": "tl-v0-lens-regain-opportunity",
@@ -269,7 +269,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_AFFORDANCE_LENSES via extract-soccer-lenses.ts",
-    "notes": "Encourages anticipation and pressure — Use this affordance as a design anchor. Match to archetype first, then choose constraints that shape visibility and, only when useful, add a consequence layer."
+    "notes": "Encourages anticipation and pressure"
   },
   {
     "lens_id": "tl-v0-lens-space-protection-opportunity",
@@ -303,7 +303,7 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_AFFORDANCE_LENSES via extract-soccer-lenses.ts",
-    "notes": "Encourages compactness and positioning — Use this affordance as a design anchor. Match to archetype first, then choose constraints that shape visibility and, only when useful, add a consequence layer."
+    "notes": "Encourages compactness and positioning"
   },
   {
     "lens_id": "tl-v0-lens-recovery-opportunity",
@@ -337,6 +337,6 @@
     "introduced_version": "RC1-CANDIDATE-V3",
     "last_verified_version": "RC1-CANDIDATE-V3",
     "provenance": "Extracted from TEST_LIBRARY_V0_AFFORDANCE_LENSES via extract-soccer-lenses.ts",
-    "notes": "Encourages recovery and reorganization — Use this affordance as a design anchor. Match to archetype first, then choose constraints that shape visibility and, only when useful, add a consequence layer."
+    "notes": "Encourages recovery and reorganization"
   }
 ]

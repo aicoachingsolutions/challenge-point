@@ -138,7 +138,14 @@ function testLensCoachVocabularyRoundTrips(): void {
  * REPORTED schema gap rather than letting the data quietly vanish: if columns are added later, this
  * test fails and forces the extractor to be updated rather than the gap being forgotten.
  */
-const LENS_FIELDS_WITHOUT_A_COLUMN = ['visibilityTriggers', 'exampleConsequencePatterns', 'suggestedConstraintPrompt'] as const
+const LENS_FIELDS_WITHOUT_A_COLUMN = [
+    'visibilityTriggers',
+    'exampleConsequencePatterns',
+    // Read SIX times during assembly — the costliest of the four to lose, and the reason the
+    // registry cannot yet be seeded from the module for lenses.
+    'suggestedConstraintPrompt',
+    'logicUsageNote',
+] as const
 
 function testLensFieldsWithoutColumnsAreStillPresentInSource(): void {
     for (const field of LENS_FIELDS_WITHOUT_A_COLUMN) {

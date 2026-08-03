@@ -81,7 +81,10 @@ function buildRows(): LensRow[] {
         introduced_version: 'RC1-CANDIDATE-V3',
         last_verified_version: 'RC1-CANDIDATE-V3',
         provenance: 'Extracted from TEST_LIBRARY_V0_AFFORDANCE_LENSES via extract-soccer-lenses.ts',
-        notes: [lens.notes, lens.logicUsageNote].filter(Boolean).join(' — '),
+        // `notes` ONLY. An earlier cut joined this with logicUsageNote, which made the cell
+        // unsplittable and silently corrupted both on the way back — caught by the adapter
+        // equivalence test. logicUsageNote is a fourth lens field with no column; see header note.
+        notes: lens.notes ?? '',
     }))
 }
 
@@ -92,7 +95,12 @@ function main(): void {
 
     console.log(`Extracted ${rows.length} lenses → ${outPath}`)
     console.log('Lens fields with NO column on the Lenses sheet (reported, not approximated):')
-    for (const field of ['visibilityTriggers', 'exampleConsequencePatterns', 'suggestedConstraintPrompt'] as const) {
+    for (const field of [
+        'visibilityTriggers',
+        'exampleConsequencePatterns',
+        'suggestedConstraintPrompt',
+        'logicUsageNote',
+    ] as const) {
         const present = TEST_LIBRARY_V0_AFFORDANCE_LENSES.filter((l) => {
             const value = (l as unknown as Record<string, unknown>)[field]
             return Array.isArray(value) ? value.length > 0 : Boolean(value)
