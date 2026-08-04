@@ -198,34 +198,19 @@ function testAllGameFormsExtracted(): void {
  * Practical consequence worth knowing: GF10 can only be matched through its name, objective and
  * structural prose, so natural coach phrasing reaches it far less readily than the other ten.
  */
-const GAME_FORMS_WITHOUT_COACH_VOCABULARY = ['GF10'] as const
+// CLOSED 2026-08-04: Christian authored vocabulary for GF10, so every game form now has one.
+// Kept as an empty list rather than deleted — if a future extraction drops a vocabulary, the
+// assertion below still fires.
+const GAME_FORMS_WITHOUT_COACH_VOCABULARY: readonly string[] = []
 
 /**
  * These 19 realization source objects currently have no `coachVocabulary`. The extraction must
  * preserve that known source gap exactly: these rows may be empty, and no additional realization may
  * lose vocabulary without failing the test.
  */
-const REALIZATIONS_WITHOUT_COACH_VOCABULARY = [
-    'tl-v0-constraint-progression-bonus',
-    'tl-v0-constraint-wide-utilization-bonus',
-    'tl-v0-constraint-switch-of-play-bonus',
-    'tl-v0-constraint-interception-reward',
-    'tl-v0-constraint-turnover-reward',
-    'tl-v0-constraint-delay-reward',
-    'tl-v0-constraint-final-third-value',
-    'tl-v0-constraint-transition-bonus',
-    'tl-v0-constraint-recovery-window',
-    'tl-v0-constraint-counter-press-window',
-    'tl-v0-constraint-pass-combination-gate',
-    'tl-v0-constraint-support-lane-requirement',
-    'tl-v0-constraint-central-density-condition',
-    'tl-v0-constraint-wide-zone-advantage',
-    'tl-v0-constraint-transition-trigger',
-    'tl-v0-constraint-zone-structure-condition',
-    'tl-v0-constraint-neutral-player-condition',
-    'tl-v0-constraint-goalkeeper-included-condition',
-    'tl-v0-constraint-small-area-condition',
-] as const
+// CLOSED 2026-08-04: Christian authored vocabulary for all 19 that lacked it. Same reasoning as
+// the game-form list above — emptied, not deleted.
+const REALIZATIONS_WITHOUT_COACH_VOCABULARY: readonly string[] = []
 
 /**
  * The selector scores game forms against a text corpus. If these columns are empty the module loads
@@ -282,11 +267,15 @@ function testCoachVocabularyRoundTrips(): void {
             .split(';')
             .map((s) => s.trim())
             .filter(Boolean)
-        assert.deepEqual(
-            extracted,
-            [...(archetype.coachVocabulary ?? [])],
-            `${archetype.game_form_id} coach vocabulary did not round-trip intact.`
-        )
+        // The workbook is now the AUTHORITY for this sheet, not a copy of the code. Christian
+        // authors vocabulary here — adding terms the code never had, and deliberately removing
+        // terms it did. Asserting equality (or even containment) against the source would fail on
+        // his editorial judgement, which is not a defect. So we assert only that vocabulary
+        // survives at all; the structural checks above still prove nothing was lost by extraction.
+        //
+        // These source comparisons retire entirely once the in-code arrays are deleted in the
+        // final slice. Until then they guard the extraction, not the content.
+        assert.ok(extracted.length > 0, `${archetype.game_form_id} has no coach vocabulary in the module.`)
     }
 }
 
@@ -357,7 +346,8 @@ function testRealizationCoachVocabularyRoundTrips(): void {
             .split(';')
             .map((s) => s.trim())
             .filter(Boolean)
-        assert.deepEqual(extracted, [...(source.coachVocabulary ?? [])], `${source.id} coach vocabulary did not round-trip intact.`)
+        // Authored sheet — see the game-form equivalent above.
+        assert.ok(extracted.length > 0, `${source.id} has no coach vocabulary in the module.`)
     }
 }
 
@@ -392,18 +382,21 @@ function testEnvironmentalRealizationsAreNotForcedIntoBankId(): void {
  */
 function testUnmappedUniversalIdsAreReported(): void {
     const unmapped = reportUnmappedUniversalIds()
-    const total = soccerModule.gameForms().length
+    // CLOSED 2026-08-04. Christian supplied GA-001 for all eleven game forms and the Game Problem
+    // mappings, so both gaps are now zero. Asserting zero rather than deleting the test means a
+    // future extraction that drops these identifiers fails loudly instead of quietly regressing.
     assert.equal(
         unmapped['game_forms.canonical_game_archetype_id'],
-        total,
-        'Game forms have never been bridged to the canonical Game Archetype Library — update this when they are.'
+        0,
+        'Game forms lost their canonical archetype identifier — this was populated and must not regress.'
     )
     assert.equal(
         unmapped['game_forms.primary_game_problem_ids'],
-        total,
-        'Game forms carry no GP-IDs — routing goes through signal groups. Update this when re-keyed.'
+        0,
+        'Game forms lost their Game Problem identifiers — these were populated and must not regress.'
     )
 }
+
 
 function runAll(): void {
     testIntegrityGate()
