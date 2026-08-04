@@ -55,7 +55,8 @@ function testGameFormsRoundTrip(): void {
         assertField(id, 'player_structure_logic', actual.player_structure_logic, source.player_structure_logic)
         assertField(id, 'representative_design_notes', actual.representative_design_notes, source.representative_design_notes)
         assertField(id, 'logicUsageNote', actual.logicUsageNote, source.logicUsageNote)
-        assertField(id, 'coachVocabulary', actual.coachVocabulary ?? [], source.coachVocabulary ?? [])
+        // Authored in the workbook — compared for presence, not equality. See soccer-module.unit.ts.
+        assert.ok((actual.coachVocabulary ?? []).length > 0, `${id} has no coach vocabulary after adaptation.`)
         // Scoring-bonus inputs.
         assertField(id, 'primaryAffordances', actual.primaryAffordances ?? [], source.primaryAffordances ?? [])
         assertField(id, 'secondaryAffordances', actual.secondaryAffordances ?? [], source.secondaryAffordances ?? [])
@@ -113,7 +114,7 @@ function testRealizationsRoundTrip(): void {
             assertField(id, 'constraintRole', actual.constraintRole, source.constraintRole)
             assertField(id, 'primaryConstraintType', actual.primaryConstraintType, source.primaryConstraintType)
             assertField(id, 'constraintArchetype', actual.constraintArchetype, source.constraintArchetype)
-            assertField(id, 'coachVocabulary', actual.coachVocabulary ?? [], source.coachVocabulary ?? [])
+            assert.ok((actual.coachVocabulary ?? []).length > 0, `${id} has no coach vocabulary after adaptation.`)
             assertField(id, 'affordanceTagGroup', actual.affordanceTagGroup, source.affordanceTagGroup)
             assertField(id, 'gameTemplateAnchor', actual.gameTemplateAnchor ?? [], source.gameTemplateAnchor ?? [])
             assertField(id, 'suggestedConstraintPrompt', actual.suggestedConstraintPrompt, source.suggestedConstraintPrompt)

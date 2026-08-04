@@ -26,9 +26,14 @@ WORKBOOK = HERE / "soccer-module.rc1-v3.xlsx"
 HEADER_ROW = 2  # declared by the workbook's own Metadata sheet
 
 # sheet name -> extracted JSON file
+# RETIRED SHEETS. Game Forms and Realizations are now AUTHORED IN THE WORKBOOK — Christian has
+# populated coach vocabulary, canonical archetype identifiers and Game Problem mappings that exist
+# nowhere in the code. Re-running their extractors would silently destroy that work, so they are
+# deliberately not listed here. The extraction scripts remain as the audit trail for how the rows
+# were first derived; they must not be used to rewrite these sheets again.
+#
+# Lenses is still generated, because Christian has not authored into it.
 SOURCES = {
-    "Game Forms": HERE / "game-forms.extracted.json",
-    "Realizations": HERE / "realizations.extracted.json",
     "Lenses": HERE / "lenses.extracted.json",
 }
 
