@@ -46,6 +46,18 @@ function list(row: SoccerModuleRow, column: string): string[] {
         .filter(Boolean)
 }
 
+/**
+ * PROSE lists use " || " rather than the semicolon convention, because their entries are sentences
+ * that contain ordinary semicolons — 8 of 11 game forms have one inside their setup guidance, so a
+ * semicolon split silently shredded them into extra entries. Short-token lists (vocabulary, IDs)
+ * keep "; " because that is the convention Christian authors by hand.
+ */
+function proseList(row: SoccerModuleRow, column: string): string[] {
+    const raw = text(row, column).trim()
+    if (!raw) return []
+    return raw.split('||').map((e) => e.trim()).filter(Boolean)
+}
+
 /** Optional single value — `undefined` when the cell is empty, matching the source shape. */
 function optional(row: SoccerModuleRow, column: string): string | undefined {
     const value = text(row, column).trim()
@@ -81,6 +93,13 @@ export function adaptGameForms(): TestLibraryV0Archetype[] {
             recommendedConstraintTypes: list(row, 'recommended_constraint_types'),
             logicUsageNote: text(row, 'notes'),
             coachVocabulary: list(row, 'coach_vocabulary'),
+            // Assembly inputs, homed 2026-08-05 after a full-field diff showed the adapter was
+            // dropping them. Not scoring inputs, so they never moved a score — they would have
+            // quietly degraded generated activities instead, which is worse.
+            typical_affordances: list(row, 'typical_affordances'),
+            setupGuidance: proseList(row, 'setup_guidance'),
+            exampleConstraintPatterns: proseList(row, 'example_constraint_patterns'),
+            exampleIncentivePatterns: proseList(row, 'example_incentive_patterns'),
         } as TestLibraryV0Archetype
     })
 }
@@ -104,8 +123,8 @@ export function adaptLenses(): TestLibraryV0AffordanceLens[] {
                 // Homed on the Lenses sheet 2026-08-05. Until then the adapter had to supply empty
                 // values for these, which is what blocked seeding the registry: suggestedConstraintPrompt
                 // alone is read six times during assembly.
-                visibilityTriggers: list(row, 'visibility_triggers'),
-                exampleConsequencePatterns: list(row, 'consequence_patterns'),
+                visibilityTriggers: proseList(row, 'visibility_triggers'),
+                exampleConsequencePatterns: proseList(row, 'consequence_patterns'),
                 suggestedConstraintPrompt: text(row, 'suggested_constraint_prompt'),
                 logicUsageNote: text(row, 'logic_usage_note'),
             }) as TestLibraryV0AffordanceLens
@@ -135,8 +154,16 @@ function adaptRealizations(conceptType: string): TestLibraryV0Constraint[] {
                     primaryConstraintType: text(row, 'primary_constraint_type'),
                     targetAffordancePrimary: text(row, 'primary_target_affordance_ids'),
                     gameTemplateAnchor: list(row, 'game_template_anchor'),
-                    setupGuidance: optional(row, 'setup_guidance') ? list(row, 'setup_guidance') : undefined,
+                    setupGuidance: optional(row, 'setup_guidance') ? proseList(row, 'setup_guidance') : undefined,
                     coachVocabulary: list(row, 'coach_vocabulary'),
+                    // THE TWELFTH-CASE FIX. build-constraint-package.ts reads incentiveMechanism and
+                    // visibilityEffect when composing the package overlay; with them undefined the
+                    // validator rejected every candidate combination for one input, giving
+                    // possibilities=0 rather than a different score.
+                    incentiveMechanism: optional(row, 'incentive_mechanism'),
+                    visibilityEffect: optional(row, 'visibility_effect'),
+                    includesIncentiveLayer: text(row, 'includes_incentive_layer').toLowerCase() === 'true',
+                    logicUsageNote: text(row, 'logic_usage_note'),
                 }) as TestLibraryV0Constraint
         )
 }

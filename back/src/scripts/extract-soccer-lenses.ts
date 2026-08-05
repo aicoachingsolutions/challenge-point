@@ -79,8 +79,8 @@ function buildRows(): LensRow[] {
         // Realizations sheet, where they were empty because constraint objects do not carry them.
         // suggested_constraint_prompt deliberately remains on Realizations TOO — constraints
         // genuinely have it and all 23 rows are populated, so it belongs on both sheets.
-        visibility_triggers: join(lens.visibilityTriggers),
-        consequence_patterns: join(lens.exampleConsequencePatterns),
+        visibility_triggers: (lens.visibilityTriggers ?? []).join(' || '),
+        consequence_patterns: (lens.exampleConsequencePatterns ?? []).join(' || '),
         suggested_constraint_prompt: lens.suggestedConstraintPrompt ?? '',
         logic_usage_note: lens.logicUsageNote ?? '',
         known_limitations: lens.contextualAudit ?? '',
