@@ -88,6 +88,12 @@ function testLensesRoundTrip(): void {
         assertField(id, 'contextualAudit', actual.contextualAudit, source.contextualAudit)
         assertField(id, 'gameTemplateAnchor', actual.gameTemplateAnchor ?? [], source.gameTemplateAnchor ?? [])
         assertField(id, 'constraintSupport', actual.constraintSupport ?? [], source.constraintSupport ?? [])
+        // The four that previously had no column. suggestedConstraintPrompt is read six times during
+        // assembly, so losing it was the concrete blocker to seeding the registry.
+        assertField(id, 'visibilityTriggers', actual.visibilityTriggers ?? [], source.visibilityTriggers ?? [])
+        assertField(id, 'exampleConsequencePatterns', actual.exampleConsequencePatterns ?? [], source.exampleConsequencePatterns ?? [])
+        assertField(id, 'suggestedConstraintPrompt', actual.suggestedConstraintPrompt, source.suggestedConstraintPrompt)
+        assertField(id, 'logicUsageNote', actual.logicUsageNote, source.logicUsageNote)
     }
 }
 
