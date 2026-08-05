@@ -658,6 +658,33 @@ every other row uses `; `. Survives a trim-based split but will trip a naive con
 workbook is now the authority, not a copy. Flip those assertions from "must equal source" to "must
 contain source" when ingesting, so extraction loss is still caught without forbidding his additions.
 
+### Twelfth-case defect DIAGNOSED (2026-08-05) — it is a schema gap, not adapter logic
+Seeding the registry from the module reproduces **11 of 12** pipeline decisions exactly (vocabulary
+held constant). The twelfth fails with `possibilities=0`. Cause found by diffing EVERY field rather
+than the selected ones:
+
+**`build-constraint-package.ts:261-267` reads `constraint.incentiveMechanism` and
+`constraint.visibilityEffect`.** Neither has a workbook column, so the adapter supplies `undefined`,
+the package overlay loses its incentive and visibility signals, and
+`validateConstraintPackage` then rejects every candidate combination for that input.
+
+**Columns still needed before seeding can be reinstated:**
+| Sheet | Missing field | Read by |
+|---|---|---|
+| Realizations | `incentive_mechanism` | build-constraint-package:261 — **causes the failure** |
+| Realizations | `visibility_effect` | build-constraint-package:265 — **causes the failure** |
+| Realizations | `includes_incentive_layer` | package composition |
+| Realizations | `logic_usage_note` | (not read; completeness) |
+| Game Forms | `typical_affordances`, `setup_guidance`, `example_constraint_patterns`, `example_incentive_patterns` | assembly |
+
+Also unhomed: `environmentalRealizations` on the 4 information mechanics (an array vs the single
+`realization_bank_id`), and `setup_guidance` on 6 EMs.
+
+**Christian's agreed sequence:** fix the twelfth case → confirm all 12 reproduce on the existing
+baseline → run his authored vocabulary → confirm the same activities are selected → then
+deliberately re-baseline, documenting it as expanded coach-language coverage rather than a change of
+selection intent.
+
 ### Field-evidence collector — BUILT and ready (`5a9e760`)
 `usage_events` collection + fire-and-forget `recordUsageEvent` (never blocks/fails a request), hooked
 into generation: `goal_submitted` (goal + resolution status + signal groups), **`goal_rejected` (verbatim
