@@ -75,6 +75,14 @@ function buildRows(): LensRow[] {
         constraint_type_bonus_weight: '',
         information_expression_bonus_weight: '',
         suitability_conditions: '',
+        // HOMED 2026-08-05. These four are lens properties whose columns previously sat on the
+        // Realizations sheet, where they were empty because constraint objects do not carry them.
+        // suggested_constraint_prompt deliberately remains on Realizations TOO — constraints
+        // genuinely have it and all 23 rows are populated, so it belongs on both sheets.
+        visibility_triggers: join(lens.visibilityTriggers),
+        consequence_patterns: join(lens.exampleConsequencePatterns),
+        suggested_constraint_prompt: lens.suggestedConstraintPrompt ?? '',
+        logic_usage_note: lens.logicUsageNote ?? '',
         known_limitations: lens.contextualAudit ?? '',
         status: 'ACTIVE',
         legacy_source_id: lens.id,
@@ -94,19 +102,7 @@ function main(): void {
     fs.writeFileSync(outPath, `${JSON.stringify(rows, null, 2)}\n`)
 
     console.log(`Extracted ${rows.length} lenses → ${outPath}`)
-    console.log('Lens fields with NO column on the Lenses sheet (reported, not approximated):')
-    for (const field of [
-        'visibilityTriggers',
-        'exampleConsequencePatterns',
-        'suggestedConstraintPrompt',
-        'logicUsageNote',
-    ] as const) {
-        const present = TEST_LIBRARY_V0_AFFORDANCE_LENSES.filter((l) => {
-            const value = (l as unknown as Record<string, unknown>)[field]
-            return Array.isArray(value) ? value.length > 0 : Boolean(value)
-        }).length
-        console.log(`  ${field}: present on ${present}/${rows.length} lenses, column exists on Realizations instead`)
-    }
+    console.log('All lens fields now have a column — the four previously homeless ones landed 2026-08-05.')
 }
 
 main()

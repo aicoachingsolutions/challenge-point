@@ -101,6 +101,13 @@ export function adaptLenses(): TestLibraryV0AffordanceLens[] {
                 designIntent: text(row, 'design_intent'),
                 constraintSupport: list(row, 'recommended_constraint_types'),
                 coachVocabulary: list(row, 'coach_vocabulary'),
+                // Homed on the Lenses sheet 2026-08-05. Until then the adapter had to supply empty
+                // values for these, which is what blocked seeding the registry: suggestedConstraintPrompt
+                // alone is read six times during assembly.
+                visibilityTriggers: list(row, 'visibility_triggers'),
+                exampleConsequencePatterns: list(row, 'consequence_patterns'),
+                suggestedConstraintPrompt: text(row, 'suggested_constraint_prompt'),
+                logicUsageNote: text(row, 'logic_usage_note'),
             }) as TestLibraryV0AffordanceLens
     )
 }

@@ -133,41 +133,20 @@ function testLensCoachVocabularyRoundTrips(): void {
 }
 
 /**
- * Three lens properties have no column on the Lenses sheet — their columns sit on Realizations,
- * where they are empty because constraint objects do not carry them. This pins that as a KNOWN,
- * REPORTED schema gap rather than letting the data quietly vanish: if columns are added later, this
- * test fails and forces the extractor to be updated rather than the gap being forgotten.
+ * CLOSED 2026-08-05. The four lens properties that had no column — visibilityTriggers,
+ * exampleConsequencePatterns, suggestedConstraintPrompt and logicUsageNote — now have one, and the
+ * adapter reconstructs all four. This asserts they stay populated: losing suggestedConstraintPrompt
+ * in particular would silently blank an input read six times during assembly.
  */
-const LENS_FIELDS_WITHOUT_A_COLUMN = [
-    'visibilityTriggers',
-    'exampleConsequencePatterns',
-    // Read SIX times during assembly — the costliest of the four to lose, and the reason the
-    // registry cannot yet be seeded from the module for lenses.
-    'suggestedConstraintPrompt',
-    'logicUsageNote',
-] as const
-
-function testLensFieldsWithoutColumnsAreStillPresentInSource(): void {
-    for (const field of LENS_FIELDS_WITHOUT_A_COLUMN) {
-        const present = TEST_LIBRARY_V0_AFFORDANCE_LENSES.filter((lens) => {
-            const value = (lens as unknown as Record<string, unknown>)[field]
-            return Array.isArray(value) ? value.length > 0 : Boolean(value)
-        }).length
-        assert.equal(
-            present,
-            TEST_LIBRARY_V0_AFFORDANCE_LENSES.length,
-            `${field} is no longer present on every lens — the schema gap report is stale.`
-        )
-    }
-
-    // And confirm the Lenses sheet genuinely lacks a home for them, so this test retires itself
-    // once the schema is corrected.
-    const sample = soccerModule.lenses()[0] ?? {}
-    for (const column of ['visibility_triggers', 'consequence_patterns', 'suggested_constraint_prompt']) {
-        assert.ok(
-            !(column in sample),
-            `Lenses now has a "${column}" column — extract the corresponding field and remove it from LENS_FIELDS_WITHOUT_A_COLUMN.`
-        )
+function testPreviouslyHomelessLensFieldsArePopulated(): void {
+    for (const row of soccerModule.lenses()) {
+        const id = String(row['lens_id'])
+        for (const column of ['visibility_triggers', 'consequence_patterns', 'suggested_constraint_prompt', 'logic_usage_note']) {
+            assert.ok(
+                String(row[column] ?? '').trim() !== '',
+                `${id}.${column} is empty — this field was homed on 2026-08-05 and must not regress.`
+            )
+        }
     }
 }
 
@@ -415,7 +394,7 @@ function runAll(): void {
     testAllLensesExtracted()
     testLensMatchingCorpusPopulated()
     testLensCoachVocabularyRoundTrips()
-    testLensFieldsWithoutColumnsAreStillPresentInSource()
+    testPreviouslyHomelessLensFieldsArePopulated()
     console.log('soccer-module unit tests: all cases passed.')
 }
 
