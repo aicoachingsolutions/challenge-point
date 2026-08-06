@@ -658,32 +658,38 @@ every other row uses `; `. Survives a trim-based split but will trip a naive con
 workbook is now the authority, not a copy. Flip those assertions from "must equal source" to "must
 contain source" when ingesting, so extraction loss is still caught without forbidding his additions.
 
-### Twelfth-case defect DIAGNOSED (2026-08-05) — it is a schema gap, not adapter logic
-Seeding the registry from the module reproduces **11 of 12** pipeline decisions exactly (vocabulary
-held constant). The twelfth fails with `possibilities=0`. Cause found by diffing EVERY field rather
-than the selected ones:
+### MIGRATION PROVEN (2026-08-05, `c05c223`) — all 12 decisions reproduce exactly
+With the registry seeded from the Soccer Module and vocabulary held constant, the pipeline produces
+**`68,64,94,115,91,68,64,94,115,91,97,84`** — byte-identical to the baseline, all twelve decisions,
+no gaps. Steps 1–2 of Christian's agreed sequence are complete.
 
-**`build-constraint-package.ts:261-267` reads `constraint.incentiveMechanism` and
-`constraint.visibilityEffect`.** Neither has a workbook column, so the adapter supplies `undefined`,
-the package overlay loses its incentive and visibility signals, and
-`validateConstraintPackage` then rejects every candidate combination for that input.
+**Two root causes, both schema gaps rather than adapter logic:**
+1. `build-constraint-package.ts:261-267` reads `incentiveMechanism` and `visibilityEffect`; neither
+   had a column, so the package overlay lost those signals and the validator rejected every
+   candidate for one input (`possibilities=0`). Added, with `includes_incentive_layer`,
+   `logic_usage_note`, and four assembly fields on Game Forms.
+2. **PROSE LISTS WERE BEING SHREDDED BY THE DELIMITER.** 8 of 11 game forms have an ordinary
+   semicolon inside a setup-guidance sentence, so splitting on `;` turned one instruction into
+   several. **Prose lists now use `" || "`; short-token lists (vocabulary, IDs) keep `"; "` because
+   that is what Christian authors by hand.** This never moved a score, so no behaviour gate would
+   have caught it — it would have surfaced as mangled setup text months later.
 
-**Columns still needed before seeding can be reinstated:**
-| Sheet | Missing field | Read by |
-|---|---|---|
-| Realizations | `incentive_mechanism` | build-constraint-package:261 — **causes the failure** |
-| Realizations | `visibility_effect` | build-constraint-package:265 — **causes the failure** |
-| Realizations | `includes_incentive_layer` | package composition |
-| Realizations | `logic_usage_note` | (not read; completeness) |
-| Game Forms | `typical_affordances`, `setup_guidance`, `example_constraint_patterns`, `example_incentive_patterns` | assembly |
+**How both were found:** a full-field diff of adapted objects against source, not the selected-field
+equivalence test. That test passed throughout, because the broken fields were never on its list.
+**Lesson worth keeping: selective comparison blesses whatever you didn't think to check.**
 
-Also unhomed: `environmentalRealizations` on the 4 information mechanics (an array vs the single
-`realization_bank_id`), and `setup_guidance` on 6 EMs.
+**⛔ SEEDING REVERTED — one field left, and the reason is new.** With the module live,
+`information-expression-directive.unit.ts` fails: *"Need at least one information constraint with a
+2+ realization bank."* The `environmentalRealizations` banks on the 4 information mechanics — which
+Christian and I agreed to defer as a future normalized one-to-many resource — are **not cosmetic**.
+They drive activity variation, and seeding makes that dependency immediate. That single unmapped
+field is now the only thing between here and load-bearing.
 
-**Christian's agreed sequence:** fix the twelfth case → confirm all 12 reproduce on the existing
-baseline → run his authored vocabulary → confirm the same activities are selected → then
-deliberately re-baseline, documenting it as expanded coach-language coverage rather than a change of
-selection intent.
+Full-field diff is down to **4 differences, all `environmentalRealizations`**.
+
+**Remaining sequence (Christian's, agreed):** home the realization banks → reinstate seeding →
+run authored vocabulary (raises scores to `70,68,98,119,94,…`) → confirm the same activities are
+still selected → re-baseline deliberately, documenting it as expanded coach-language coverage.
 
 ### Field-evidence collector — BUILT and ready (`5a9e760`)
 `usage_events` collection + fire-and-forget `recordUsageEvent` (never blocks/fails a request), hooked
