@@ -21,7 +21,7 @@ HERE = pathlib.Path(__file__).parent
 WORKBOOK = HERE / "soccer-module.rc1-v3.xlsx"
 OUT = pathlib.Path(__file__).parents[3] / "src/system/sport-module/soccer-module.rc1-v3.json"
 
-DATA_SHEETS = ["Vocabulary", "Lenses", "Game Forms", "Realizations", "Coverage"]
+DATA_SHEETS = ["Vocabulary", "Lenses", "Game Forms", "Realizations", "Realization Banks", "Coverage"]
 
 
 def read_metadata(worksheet):

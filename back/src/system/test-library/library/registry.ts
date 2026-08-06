@@ -2,6 +2,12 @@ import { TEST_LIBRARY_V0_ARCHETYPES } from '../archetypes'
 import { TEST_LIBRARY_V0_AFFORDANCE_LENSES } from '../affordanceLenses'
 import { TEST_LIBRARY_V0_CONSTRAINT_POOL_ORDER, TEST_LIBRARY_V0_CONSTRAINTS } from '../constraints'
 import { TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS } from '../environmental-manipulations'
+import {
+    adaptEnvironmentalManipulations,
+    adaptGameForms,
+    adaptInteractionRegulations,
+    adaptLenses,
+} from '../../sport-module/soccer-module-adapter'
 import { validateLibraryComposition } from './composition'
 import {
     validateAffordanceLensSchema,
@@ -176,7 +182,11 @@ export const testLibraryRegistry = {
     compositionValidationResults: registeredLibraryCompositionValidationResults,
 }
 
-registerLibrary({ type: 'affordanceLenses', version: 'v0', items: TEST_LIBRARY_V0_AFFORDANCE_LENSES })
-registerLibrary({ type: 'constraints', version: 'v0', items: TEST_LIBRARY_V0_CONSTRAINTS })
-registerLibrary({ type: 'environmentalManipulations', version: 'v0', items: TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS })
-registerLibrary({ type: 'archetypes', version: 'v0', items: TEST_LIBRARY_V0_ARCHETYPES })
+// THE DOCKING PORT. Soccer knowledge now reaches the selector through the Sport Module workbook
+// instead of through the in-code arrays above. The arrays remain as the equivalence reference the
+// adapter test compares against — deleting them is a separate, deliberate step, and until then a
+// divergence between workbook and code is a test failure rather than a surprise in production.
+registerLibrary({ type: 'affordanceLenses', version: 'v0', items: adaptLenses() })
+registerLibrary({ type: 'constraints', version: 'v0', items: adaptInteractionRegulations() })
+registerLibrary({ type: 'environmentalManipulations', version: 'v0', items: adaptEnvironmentalManipulations() })
+registerLibrary({ type: 'archetypes', version: 'v0', items: adaptGameForms() })

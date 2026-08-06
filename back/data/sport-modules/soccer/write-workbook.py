@@ -35,6 +35,9 @@ HEADER_ROW = 2  # declared by the workbook's own Metadata sheet
 # Lenses is still generated, because Christian has not authored into it.
 SOURCES = {
     "Lenses": HERE / "lenses.extracted.json",
+    # Realization Banks is generated for the same reason Lenses is: the entries were derived from
+    # code and Christian has not authored into the sheet yet. When he does, retire it as above.
+    "Realization Banks": HERE / "realization-banks.extracted.json",
 }
 
 

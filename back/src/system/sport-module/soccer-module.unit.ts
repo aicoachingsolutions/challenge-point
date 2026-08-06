@@ -20,6 +20,7 @@ import {
     reportUnmappedUniversalIds,
     soccerModule,
     validateModuleMetadataShape,
+    validateRealizationBanks,
     validateSoccerModuleIntegrity,
 } from './soccer-module'
 
@@ -53,6 +54,7 @@ function testMetadataShapeCatchesRoundTripDamage(): void {
             lenses: [],
             game_forms: [],
             realizations: [],
+            realization_banks: [],
             coverage: [],
         }) as never
 
@@ -331,15 +333,18 @@ function testRealizationCoachVocabularyRoundTrips(): void {
 }
 
 /**
- * `environmentalRealizations` is an array of alternative text spines, while `realization_bank_id` is
- * a single ID. This pins the deliberate empty representation so the unplaced data stays visible.
+ * The realization banks, homed 2026-08-05 as a normalized one-to-many resource.
+ *
+ * This was the last field with no place in the workbook, and it was the one blocking the module from
+ * becoming load-bearing: assembly reads the bank to designate a spine per variation, so an empty
+ * bank does not fail — it silently falls back to setup guidance and every repeat design converges on
+ * the same activity. The reason it needed a sheet rather than a column is the ORDER: entries are
+ * chosen by position, so position had to become data.
  */
-function testEnvironmentalRealizationsAreNotForcedIntoBankId(): void {
-    const withEnvironmentalRealizations = ALL_REALIZATION_SOURCES.filter(
-        ({ source }) => (source.environmentalRealizations ?? []).length > 0
-    )
+function testRealizationBanksResolveInOrder(): void {
+    const withBanks = ALL_REALIZATION_SOURCES.filter(({ source }) => (source.environmentalRealizations ?? []).length > 0)
     assert.deepEqual(
-        withEnvironmentalRealizations.map(({ source }) => source.id),
+        withBanks.map(({ source }) => source.id),
         [
             'tl-v0-constraint-variable-target-condition',
             'tl-v0-constraint-multi-goal-read',
@@ -348,10 +353,88 @@ function testEnvironmentalRealizationsAreNotForcedIntoBankId(): void {
         ]
     )
 
-    for (const { source } of withEnvironmentalRealizations) {
+    for (const { source } of withBanks) {
         const row = soccerModule.realization(source.id)
-        assert.equal(row?.['realization_bank_id'] ?? null, null, `${source.id}.realization_bank_id should remain empty.`)
+        const bankId = String(row?.['realization_bank_id'] ?? '')
+        assert.ok(bankId, `${source.id} must declare a realization_bank_id now that banks are modelled.`)
+        assert.deepEqual(
+            soccerModule.realizationBank(bankId),
+            source.environmentalRealizations,
+            `${source.id} bank did not resolve to the source alternatives in order.`
+        )
     }
+
+    // Nothing else claims a bank — an FK on a realization with no alternatives would be a dangling
+    // promise that assembly reads as "has variation" while producing none.
+    const declared = soccerModule.realizations().filter((r) => String(r['realization_bank_id'] ?? '').trim() !== '')
+    assert.equal(declared.length, withBanks.length, 'A realization declares a bank it has no alternatives for.')
+}
+
+/**
+ * Negative cases for the bank gate. Each of these loads fine and changes only the TEXT of generated
+ * activities — the same signature as the delimiter incident, which no behaviour gate caught. So the
+ * gate has to bite at load time, and these prove it does rather than only proving it passes.
+ */
+function testRealizationBankGateCatchesDamage(): void {
+    const healthy = {
+        metadata: soccerModule.metadata,
+        vocabulary: [],
+        lenses: [],
+        game_forms: [],
+        realizations: [{ realization_id: 'R-1', realization_bank_id: 'RB-1' }],
+        realization_banks: [
+            { realization_bank_entry_id: 'RB-1-01', realization_bank_id: 'RB-1', realization_id: 'R-1', bank_ordinal: 1, realization_text: 'first' },
+            { realization_bank_entry_id: 'RB-1-02', realization_bank_id: 'RB-1', realization_id: 'R-1', bank_ordinal: 2, realization_text: 'second' },
+        ],
+        coverage: [],
+    }
+    const damaged = (mutate: (data: typeof healthy) => void) => {
+        const copy = JSON.parse(JSON.stringify(healthy)) as typeof healthy
+        mutate(copy)
+        return validateRealizationBanks(copy as never)
+    }
+
+    assert.deepEqual(validateRealizationBanks(healthy as never), [], 'A healthy bank must produce no errors.')
+
+    const gap = damaged((d) => {
+        d.realization_banks[1].bank_ordinal = 3
+    })
+    assert.ok(
+        gap.some((e) => e.includes('contiguous')),
+        `A gap in the ordinals must be caught. Got: ${JSON.stringify(gap)}`
+    )
+
+    const duplicate = damaged((d) => {
+        d.realization_banks[1].bank_ordinal = 1
+    })
+    assert.ok(
+        duplicate.some((e) => e.includes('contiguous')),
+        `A duplicate ordinal must be caught. Got: ${JSON.stringify(duplicate)}`
+    )
+
+    const orphan = damaged((d) => {
+        d.realization_banks[0].realization_id = 'R-NOPE'
+    })
+    assert.ok(
+        orphan.some((e) => e.includes('not on the Realizations sheet')),
+        `An entry pointing at no realization must be caught. Got: ${JSON.stringify(orphan)}`
+    )
+
+    const emptyBank = damaged((d) => {
+        d.realization_banks = []
+    })
+    assert.ok(
+        emptyBank.some((e) => e.includes('has no entries')),
+        `A realization declaring an empty bank must be caught. Got: ${JSON.stringify(emptyBank)}`
+    )
+
+    const blankText = damaged((d) => {
+        d.realization_banks[0].realization_text = '   '
+    })
+    assert.ok(
+        blankText.some((e) => e.includes('no realization_text')),
+        `A blank spine must be caught. Got: ${JSON.stringify(blankText)}`
+    )
 }
 
 /**
@@ -389,7 +472,8 @@ function runAll(): void {
     testRealizationMatchingCorpusPopulated()
     testRealizationScoringInputsPopulated()
     testRealizationCoachVocabularyRoundTrips()
-    testEnvironmentalRealizationsAreNotForcedIntoBankId()
+    testRealizationBanksResolveInOrder()
+    testRealizationBankGateCatchesDamage()
     testUnmappedUniversalIdsAreReported()
     testAllLensesExtracted()
     testLensMatchingCorpusPopulated()

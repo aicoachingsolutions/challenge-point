@@ -678,18 +678,47 @@ no gaps. Steps 1–2 of Christian's agreed sequence are complete.
 equivalence test. That test passed throughout, because the broken fields were never on its list.
 **Lesson worth keeping: selective comparison blesses whatever you didn't think to check.**
 
-**⛔ SEEDING REVERTED — one field left, and the reason is new.** With the module live,
-`information-expression-directive.unit.ts` fails: *"Need at least one information constraint with a
-2+ realization bank."* The `environmentalRealizations` banks on the 4 information mechanics — which
-Christian and I agreed to defer as a future normalized one-to-many resource — are **not cosmetic**.
-They drive activity variation, and seeding makes that dependency immediate. That single unmapped
-field is now the only thing between here and load-bearing.
+### ✅ THE MODULE IS LOAD-BEARING (2026-08-05) — sequence complete
+Christian approved modelling the realization banks as a normalized resource rather than flattening
+them (email, 5 Aug). Done, and **the registry is now seeded from the module**: soccer knowledge
+reaches the selector through the workbook, not through the in-code arrays.
 
-Full-field diff is down to **4 differences, all `environmentalRealizations`**.
+**Realization Banks — a sheet, not a column.** 13 entries across 4 banks, completing the
+`realization_bank_id` FK the Realizations sheet *already declared* and had nothing to point at. Three
+reasons it could not be a delimited cell, in order of how much damage the alternative does:
+1. **Order is behaviour.** `build-activity-skeleton.ts` designates a spine with
+   `bank[(variationIndex + i) % bank.length]` — position decides which realization a repeat design is
+   built around. `bank_ordinal` makes that data; a delimited cell makes it an accident of typing.
+2. **Every entry is prose**, several with the ordinary semicolons that shredded setup guidance once.
+3. **The schema already said so** — see the FK above.
 
-**Remaining sequence (Christian's, agreed):** home the realization banks → reinstate seeding →
-run authored vocabulary (raises scores to `70,68,98,119,94,…`) → confirm the same activities are
-still selected → re-baseline deliberately, documenting it as expanded coach-language coverage.
+The loader gates what a flat column could not: ordinal contiguity (a gap silently shifts every later
+entry into a different variation slot), duplicate ordinals, dangling entries, empty banks, blank
+spines. All five have negative tests, because **none of them move a score** — same signature as the
+delimiter incident.
+
+**Behaviour gate v2 — `70,68,98,119,94,99,86`, recorded deliberately.** Ten of eleven decisions are
+identical to the in-code baseline. **One intentional change:** for *"Players keep winning the ball but
+turning away from field vision"*, **Turnover Reward** is now selected instead of **Interception
+Reward**. Cause: Christian's authored coach vocabulary (15 terms per constraint, present in the
+workbook and nowhere in the code) matches *"winning the ball"* more directly — `win it back`,
+`win possession back`, `force a turnover`. The uniform score lift has the same cause. This is the
+predicted vocabulary effect, not an adapter defect.
+
+**The banks are behaviourally inert at selection time** — verified by isolation run (module with
+banks and module without banks produce byte-identical decisions). They feed assembly, not scoring,
+which is exactly why the equivalence test could not have caught a defect in them and why the loader
+gates them structurally instead.
+
+Recorded in the workbook's own Metadata (`selector_behavior_gate_id=SEL-GATE-2026-08-05`, version 2,
+status `PASS_WITH_RECORDED_CHANGE`) with the reason in `change_summary`, so the re-baseline is
+governed rather than living only in prose.
+
+**Sport-coupling ratchet 34 → 36**, one declared entry: `registry.ts` names the soccer adapter at the
+docking port. Added by hand, *not* by regenerating — regeneration would have blanket-accepted
+anything else that drifted in. The registry is universal-platform code, so declaring the whole file
+sport-layer would have been wrong; a counted entry keeps it from growing. **Retiring that entry needs
+a module registry** so the platform mounts *a* module rather than naming this one.
 
 ### Field-evidence collector — BUILT and ready (`5a9e760`)
 `usage_events` collection + fire-and-forget `recordUsageEvent` (never blocks/fails a request), hooked

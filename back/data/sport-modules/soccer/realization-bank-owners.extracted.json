@@ -1,0 +1,18 @@
+[
+  {
+    "realization_id": "tl-v0-constraint-variable-target-condition",
+    "realization_bank_id": "RB-VARIABLE-TARGET-CONDITION"
+  },
+  {
+    "realization_id": "tl-v0-constraint-multi-goal-read",
+    "realization_bank_id": "RB-MULTI-GOAL-READ"
+  },
+  {
+    "realization_id": "tl-v0-constraint-blind-side-entry",
+    "realization_bank_id": "RB-BLIND-SIDE-ENTRY"
+  },
+  {
+    "realization_id": "tl-v0-constraint-disguised-restart",
+    "realization_bank_id": "RB-DISGUISED-RESTART"
+  }
+]
