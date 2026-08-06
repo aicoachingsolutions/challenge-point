@@ -125,6 +125,10 @@ function testRealizationsRoundTrip(): void {
             assertField(id, 'gameTemplateAnchor', actual.gameTemplateAnchor ?? [], source.gameTemplateAnchor ?? [])
             assertField(id, 'suggestedConstraintPrompt', actual.suggestedConstraintPrompt, source.suggestedConstraintPrompt)
             assertField(id, 'contextualAudit', actual.contextualAudit, source.contextualAudit)
+            // Resolved through the Realization Banks FK. Compared as an ORDERED list on purpose:
+            // assembly designates a spine by position, so a bank with the right entries in the wrong
+            // order is a different behaviour, not a cosmetic difference.
+            assertField(id, 'environmentalRealizations', actual.environmentalRealizations, source.environmentalRealizations)
         }
     }
 }

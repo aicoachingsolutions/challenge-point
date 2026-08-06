@@ -10,16 +10,19 @@
  * of thing: it is the detachable layer that maps soccer onto those universal concepts. Keeping them
  * apart is the point of the whole exercise, so the directory boundary reflects it.
  *
- * EXTRACTION STATUS. Game Forms are populated (11 rows, extracted from `TEST_LIBRARY_V0_ARCHETYPES`)
- * and Realizations are populated (23 rows, extracted from Test Library V0 constraints and
- * environmental manipulations). Vocabulary, Lenses and Coverage are empty pending later slices. The
- * integrity gate checks each sheet against the workbook's own declared expected-row count, so a
- * partially populated module is a legitimate, verifiable state rather than an ambiguous one.
+ * EXTRACTION STATUS. Game Forms (11), Realizations (23), Lenses (10) and Realization Banks (13) are
+ * populated. Vocabulary and Coverage remain empty pending later slices. The integrity gate checks
+ * each sheet against the workbook's own declared expected-row count, so a partially populated module
+ * is a legitimate, verifiable state rather than an ambiguous one.
  *
- * NOT WIRED TO SELECTION. Nothing reads this at runtime yet — `generateSelection` still uses the
- * in-code libraries. That is deliberate: this slice proves the module loads and validates, and
- * repointing selection at it is where the behaviour gate is actually at risk. Doing both at once
- * would make a gate failure ambiguous between "extraction lost data" and "wiring is wrong".
+ * WIRED TO SELECTION as of 2026-08-05. `registry.ts` is seeded from `soccer-module-adapter`, so the
+ * selector reads soccer knowledge from this workbook rather than from the in-code arrays. The arrays
+ * survive only as the equivalence reference the adapter test compares against; deleting them is a
+ * separate deliberate step.
+ *
+ * The wiring was held back until the last field had a home, for a reason worth keeping: while any
+ * field was unmapped, a behaviour change could not be attributed. It could be lost data or new
+ * knowledge, and untangling the two after the fact is far more expensive than waiting.
  */
 import workbook from './soccer-module.rc1-v3.json'
 
@@ -31,6 +34,7 @@ interface SoccerModuleWorkbook {
     lenses: SoccerModuleRow[]
     game_forms: SoccerModuleRow[]
     realizations: SoccerModuleRow[]
+    realization_banks: SoccerModuleRow[]
     coverage: SoccerModuleRow[]
 }
 
@@ -42,6 +46,7 @@ const COUNTED_SHEETS = [
     ['lenses', 'lenses_expected_rows'],
     ['game_forms', 'game_forms_expected_rows'],
     ['realizations', 'realizations_expected_rows'],
+    ['realization_banks', 'realization_banks_expected_rows'],
     ['coverage', 'coverage_expected_rows'],
 ] as const
 
@@ -56,6 +61,7 @@ const DECLARED_SHEETS = [
     ['lenses', 'Lenses'],
     ['game_forms', 'Game Forms'],
     ['realizations', 'Realizations'],
+    ['realization_banks', 'Realization Banks'],
     ['coverage', 'Coverage'],
 ] as const
 
@@ -145,6 +151,7 @@ export function validateSoccerModuleIntegrity(data: SoccerModuleWorkbook = WB): 
         ['vocabulary', 'vocabulary_id'],
         ['lenses', 'lens_id'],
         ['realizations', 'realization_id'],
+        ['realization_banks', 'realization_bank_entry_id'],
         ['coverage', 'coverage_id'],
     ]
     for (const [sheet, idColumn] of idColumns) {
@@ -161,7 +168,86 @@ export function validateSoccerModuleIntegrity(data: SoccerModuleWorkbook = WB): 
         }
     }
 
+    errors.push(...validateRealizationBanks(data))
+
     return { valid: errors.length === 0, errors }
+}
+
+/**
+ * Realization Banks integrity — the checks a normalized child resource needs and a flat column did not.
+ *
+ * ORDER IS BEHAVIOUR HERE. `build-activity-skeleton.ts` designates the spine for a given design with
+ * `bank[(variationIndex + i) % bank.length]`. So an entry's ordinal is not decoration: it decides
+ * which realization a repeat design gets built around. Three ways that breaks silently, all checked:
+ *
+ *   * a GAP (1, 2, 4) — the sheet still loads, but the author's third entry is now in slot three of
+ *     a three-long bank, so the rotation lands somewhere nobody chose;
+ *   * a DUPLICATE ordinal — two entries claim one slot and which wins depends on row order;
+ *   * a DANGLING bank — entries whose `realization_id` matches no realization are simply never read,
+ *     which looks identical to "we haven't authored that one yet".
+ *
+ * None of these move a score. They change the text of generated activities, which is exactly the
+ * class of failure the delimiter incident taught us to gate at load time rather than discover later.
+ */
+export function validateRealizationBanks(data: SoccerModuleWorkbook = WB): string[] {
+    const errors: string[] = []
+    const realizationIds = new Set(data.realizations.map((r) => String(r['realization_id'] ?? '').trim()))
+
+    const byBank = new Map<string, SoccerModuleRow[]>()
+    for (const row of data.realization_banks) {
+        const bankId = String(row['realization_bank_id'] ?? '').trim()
+        const entryId = String(row['realization_bank_entry_id'] ?? '').trim()
+        if (!bankId) {
+            errors.push(`Realization bank entry "${entryId}" has no realization_bank_id.`)
+            continue
+        }
+
+        const ownerId = String(row['realization_id'] ?? '').trim()
+        if (!realizationIds.has(ownerId)) {
+            errors.push(
+                `Realization bank entry "${entryId}" references realization "${ownerId}", which is not on the ` +
+                    `Realizations sheet. Its entries would never be read — an unreachable bank looks exactly ` +
+                    `like an unauthored one.`
+            )
+        }
+        if (String(row['realization_text'] ?? '').trim() === '') {
+            errors.push(`Realization bank entry "${entryId}" has no realization_text; an empty spine cannot be designated.`)
+        }
+
+        const entries = byBank.get(bankId) ?? []
+        entries.push(row)
+        byBank.set(bankId, entries)
+    }
+
+    for (const [bankId, entries] of byBank) {
+        const ordinals = entries.map((e) => Number(e['bank_ordinal']))
+        if (ordinals.some((o) => !Number.isInteger(o) || o < 1)) {
+            errors.push(`Bank "${bankId}" has a non-integer or non-positive bank_ordinal; ordinals must be 1-based.`)
+            continue
+        }
+        const sorted = [...ordinals].sort((a, b) => a - b)
+        const expected = sorted.map((_, i) => i + 1)
+        if (sorted.join(',') !== expected.join(',')) {
+            errors.push(
+                `Bank "${bankId}" ordinals are [${sorted.join(', ')}] but must be contiguous 1..${entries.length}. ` +
+                    `A gap or duplicate shifts which realization each variation designates.`
+            )
+        }
+    }
+
+    // The other direction: a realization pointing at a bank that holds nothing. The FK reads as
+    // "this has alternatives" while assembly silently falls back to setup guidance.
+    for (const realization of data.realizations) {
+        const bankId = String(realization['realization_bank_id'] ?? '').trim()
+        if (bankId && !byBank.has(bankId)) {
+            errors.push(
+                `Realization "${String(realization['realization_id'])}" declares realization_bank_id "${bankId}", ` +
+                    `but that bank has no entries.`
+            )
+        }
+    }
+
+    return errors
 }
 
 /**
@@ -191,7 +277,18 @@ export const soccerModule = {
     lenses: () => WB.lenses,
     gameForms: () => WB.game_forms,
     realizations: () => WB.realizations,
+    realizationBanks: () => WB.realization_banks,
     coverage: () => WB.coverage,
     gameForm: (id: string) => WB.game_forms.find((r) => String(r['game_form_id']) === id),
     realization: (id: string) => WB.realizations.find((r) => String(r['realization_id']) === id),
+    /**
+     * A bank's entries in ORDINAL order, not sheet order. Callers get the alternatives as text, since
+     * the ordinal's only job is to establish this sequence — once sorted it has nothing left to say.
+     * Returns `[]` for an absent or empty bank, matching "this realization has no alternatives".
+     */
+    realizationBank: (bankId: string): string[] =>
+        WB.realization_banks
+            .filter((r) => String(r['realization_bank_id'] ?? '').trim() === bankId)
+            .sort((a, b) => Number(a['bank_ordinal']) - Number(b['bank_ordinal']))
+            .map((r) => String(r['realization_text'] ?? '')),
 }

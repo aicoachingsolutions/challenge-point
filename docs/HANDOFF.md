@@ -658,32 +658,67 @@ every other row uses `; `. Survives a trim-based split but will trip a naive con
 workbook is now the authority, not a copy. Flip those assertions from "must equal source" to "must
 contain source" when ingesting, so extraction loss is still caught without forbidding his additions.
 
-### Twelfth-case defect DIAGNOSED (2026-08-05) — it is a schema gap, not adapter logic
-Seeding the registry from the module reproduces **11 of 12** pipeline decisions exactly (vocabulary
-held constant). The twelfth fails with `possibilities=0`. Cause found by diffing EVERY field rather
-than the selected ones:
+### MIGRATION PROVEN (2026-08-05, `c05c223`) — all 12 decisions reproduce exactly
+With the registry seeded from the Soccer Module and vocabulary held constant, the pipeline produces
+**`68,64,94,115,91,68,64,94,115,91,97,84`** — byte-identical to the baseline, all twelve decisions,
+no gaps. Steps 1–2 of Christian's agreed sequence are complete.
 
-**`build-constraint-package.ts:261-267` reads `constraint.incentiveMechanism` and
-`constraint.visibilityEffect`.** Neither has a workbook column, so the adapter supplies `undefined`,
-the package overlay loses its incentive and visibility signals, and
-`validateConstraintPackage` then rejects every candidate combination for that input.
+**Two root causes, both schema gaps rather than adapter logic:**
+1. `build-constraint-package.ts:261-267` reads `incentiveMechanism` and `visibilityEffect`; neither
+   had a column, so the package overlay lost those signals and the validator rejected every
+   candidate for one input (`possibilities=0`). Added, with `includes_incentive_layer`,
+   `logic_usage_note`, and four assembly fields on Game Forms.
+2. **PROSE LISTS WERE BEING SHREDDED BY THE DELIMITER.** 8 of 11 game forms have an ordinary
+   semicolon inside a setup-guidance sentence, so splitting on `;` turned one instruction into
+   several. **Prose lists now use `" || "`; short-token lists (vocabulary, IDs) keep `"; "` because
+   that is what Christian authors by hand.** This never moved a score, so no behaviour gate would
+   have caught it — it would have surfaced as mangled setup text months later.
 
-**Columns still needed before seeding can be reinstated:**
-| Sheet | Missing field | Read by |
-|---|---|---|
-| Realizations | `incentive_mechanism` | build-constraint-package:261 — **causes the failure** |
-| Realizations | `visibility_effect` | build-constraint-package:265 — **causes the failure** |
-| Realizations | `includes_incentive_layer` | package composition |
-| Realizations | `logic_usage_note` | (not read; completeness) |
-| Game Forms | `typical_affordances`, `setup_guidance`, `example_constraint_patterns`, `example_incentive_patterns` | assembly |
+**How both were found:** a full-field diff of adapted objects against source, not the selected-field
+equivalence test. That test passed throughout, because the broken fields were never on its list.
+**Lesson worth keeping: selective comparison blesses whatever you didn't think to check.**
 
-Also unhomed: `environmentalRealizations` on the 4 information mechanics (an array vs the single
-`realization_bank_id`), and `setup_guidance` on 6 EMs.
+### ✅ THE MODULE IS LOAD-BEARING (2026-08-05) — sequence complete
+Christian approved modelling the realization banks as a normalized resource rather than flattening
+them (email, 5 Aug). Done, and **the registry is now seeded from the module**: soccer knowledge
+reaches the selector through the workbook, not through the in-code arrays.
 
-**Christian's agreed sequence:** fix the twelfth case → confirm all 12 reproduce on the existing
-baseline → run his authored vocabulary → confirm the same activities are selected → then
-deliberately re-baseline, documenting it as expanded coach-language coverage rather than a change of
-selection intent.
+**Realization Banks — a sheet, not a column.** 13 entries across 4 banks, completing the
+`realization_bank_id` FK the Realizations sheet *already declared* and had nothing to point at. Three
+reasons it could not be a delimited cell, in order of how much damage the alternative does:
+1. **Order is behaviour.** `build-activity-skeleton.ts` designates a spine with
+   `bank[(variationIndex + i) % bank.length]` — position decides which realization a repeat design is
+   built around. `bank_ordinal` makes that data; a delimited cell makes it an accident of typing.
+2. **Every entry is prose**, several with the ordinary semicolons that shredded setup guidance once.
+3. **The schema already said so** — see the FK above.
+
+The loader gates what a flat column could not: ordinal contiguity (a gap silently shifts every later
+entry into a different variation slot), duplicate ordinals, dangling entries, empty banks, blank
+spines. All five have negative tests, because **none of them move a score** — same signature as the
+delimiter incident.
+
+**Behaviour gate v2 — `70,68,98,119,94,99,86`, recorded deliberately.** Ten of eleven decisions are
+identical to the in-code baseline. **One intentional change:** for *"Players keep winning the ball but
+turning away from field vision"*, **Turnover Reward** is now selected instead of **Interception
+Reward**. Cause: Christian's authored coach vocabulary (15 terms per constraint, present in the
+workbook and nowhere in the code) matches *"winning the ball"* more directly — `win it back`,
+`win possession back`, `force a turnover`. The uniform score lift has the same cause. This is the
+predicted vocabulary effect, not an adapter defect.
+
+**The banks are behaviourally inert at selection time** — verified by isolation run (module with
+banks and module without banks produce byte-identical decisions). They feed assembly, not scoring,
+which is exactly why the equivalence test could not have caught a defect in them and why the loader
+gates them structurally instead.
+
+Recorded in the workbook's own Metadata (`selector_behavior_gate_id=SEL-GATE-2026-08-05`, version 2,
+status `PASS_WITH_RECORDED_CHANGE`) with the reason in `change_summary`, so the re-baseline is
+governed rather than living only in prose.
+
+**Sport-coupling ratchet 34 → 36**, one declared entry: `registry.ts` names the soccer adapter at the
+docking port. Added by hand, *not* by regenerating — regeneration would have blanket-accepted
+anything else that drifted in. The registry is universal-platform code, so declaring the whole file
+sport-layer would have been wrong; a counted entry keeps it from growing. **Retiring that entry needs
+a module registry** so the platform mounts *a* module rather than naming this one.
 
 ### Field-evidence collector — BUILT and ready (`5a9e760`)
 `usage_events` collection + fire-and-forget `recordUsageEvent` (never blocks/fails a request), hooked

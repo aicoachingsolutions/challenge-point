@@ -58,6 +58,18 @@ function proseList(row: SoccerModuleRow, column: string): string[] {
     return raw.split('||').map((e) => e.trim()).filter(Boolean)
 }
 
+/**
+ * Realization alternatives, resolved through the `realization_bank_id` FK into the Realization Banks
+ * sheet and returned in ordinal order. `undefined` when the realization declares no bank — see the
+ * call site for why that is not `[]`.
+ */
+function bank(row: SoccerModuleRow): string[] | undefined {
+    const bankId = text(row, 'realization_bank_id').trim()
+    if (!bankId) return undefined
+    const entries = soccerModule.realizationBank(bankId)
+    return entries.length > 0 ? entries : undefined
+}
+
 /** Optional single value — `undefined` when the cell is empty, matching the source shape. */
 function optional(row: SoccerModuleRow, column: string): string | undefined {
     const value = text(row, column).trim()
@@ -164,6 +176,12 @@ function adaptRealizations(conceptType: string): TestLibraryV0Constraint[] {
                     visibilityEffect: optional(row, 'visibility_effect'),
                     includesIncentiveLayer: text(row, 'includes_incentive_layer').toLowerCase() === 'true',
                     logicUsageNote: text(row, 'logic_usage_note'),
+                    // The last unmapped field, homed 2026-08-05 as a normalized child resource on the
+                    // Realization Banks sheet rather than a delimited column — order selects the spine,
+                    // so it needed a real ordinal, not a typing accident. `undefined` rather than `[]`
+                    // for realizations without a bank: composition.ts treats an EMPTY array on an
+                    // information constraint as a validation error, and absent is what the source says.
+                    environmentalRealizations: bank(row),
                 }) as TestLibraryV0Constraint
         )
 }
