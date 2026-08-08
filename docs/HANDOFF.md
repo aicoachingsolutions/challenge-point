@@ -714,6 +714,36 @@ Recorded in the workbook's own Metadata (`selector_behavior_gate_id=SEL-GATE-202
 status `PASS_WITH_RECORDED_CHANGE`) with the reason in `change_summary`, so the re-baseline is
 governed rather than living only in prose.
 
+### ✅ ALL SIX SHEETS POPULATED (2026-08-08) — Vocabulary + Coverage
+**Vocabulary — 175 rows, and this is the slice that changes how the project runs.** Coach vocabulary
+lived in a 691-line regex parser, which is why every gap Christian has found needed a code change and
+a deploy. It is now data he can edit.
+
+Extraction is not a paraphrase: `fallback_priority` keeps evaluation order, `routing_polarity` keeps
+the EXCLUDE overrides (*"break down a compact defence"* must NOT route defensive even though
+"compact" does), and `legacy_pattern_reference` keeps the original regex. **166 literal phrases were
+each probed against the live `deriveInputConstraints`, and a unit test re-proves all of them every
+run** — so if someone edits the parser and a phrase stops routing where the sheet says, the build
+fails naming the phrase. The 9 structural patterns are marked `ACTIVE_UNVERIFIED` rather than
+asserted. Defensive subtype rows are probed with a carrier ("prevent"), because `defensiveSubtype`
+only runs once defensive intent exists — probing them bare tests the wrong thing.
+
+**Coverage — 17 rows, one per canonical Game Problem, DERIVED from the engine.** 10 SUPPORTED, 7
+NOT_SUPPORTED, each with a named gap. Hand-written coverage claims rot; deriving means the sheet
+cannot drift without the extraction changing. This is what lets an unsupported goal fail
+*specifically* rather than generically — the coach currently gets the same message whether we will
+never support their goal or simply haven't populated it yet.
+
+Two findings fell out of deriving it rather than asserting it:
+- **GP-012 Protect Space has no vocabulary of its own.** It is the DEFAULT bucket for defensive
+  intent matching none of press/recover/delay — reachable, but a coach cannot ask for it by name.
+- **7 canonical Game Problems are unreachable by any phrasing** (Improve Position, Recover Functional
+  Object Control, Gain/Escape Performer Control, Regain/Deny Access, Control Space). That is the
+  population backlog, now written down instead of implicit.
+
+**Routing is NOT repointed** — the parser is still the runtime authority and the behaviour gate is
+unchanged at `70,68,98,119,94,99,86`. Populating and flipping stay separate governed steps.
+
 **Sport-coupling ratchet 34 → 36**, one declared entry: `registry.ts` names the soccer adapter at the
 docking port. Added by hand, *not* by regenerating — regeneration would have blanket-accepted
 anything else that drifted in. The registry is universal-platform code, so declaring the whole file

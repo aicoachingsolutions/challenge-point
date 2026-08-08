@@ -10,10 +10,15 @@
  * of thing: it is the detachable layer that maps soccer onto those universal concepts. Keeping them
  * apart is the point of the whole exercise, so the directory boundary reflects it.
  *
- * EXTRACTION STATUS. Game Forms (11), Realizations (23), Lenses (10) and Realization Banks (13) are
- * populated. Vocabulary and Coverage remain empty pending later slices. The integrity gate checks
- * each sheet against the workbook's own declared expected-row count, so a partially populated module
- * is a legitimate, verifiable state rather than an ambiguous one.
+ * EXTRACTION STATUS — ALL SIX SHEETS POPULATED. Game Forms (11), Realizations (23), Lenses (10),
+ * Realization Banks (13), Vocabulary (175) and Coverage (17). The integrity gate checks each sheet
+ * against the workbook's own declared expected-row count, so a truncated sheet is a named failure.
+ *
+ * TWO SHEETS ARE POPULATED BUT NOT YET AUTHORITATIVE. Vocabulary mirrors the legacy regex parser,
+ * which remains the runtime router; Coverage is derived from the engine rather than driving it.
+ * Both are proven against the live engine on every test run, so they cannot drift silently — but
+ * repointing routing at Vocabulary is a separate governed step, for the same reason the registry
+ * seeding was: while data and wiring move together, a routing change cannot be attributed to either.
  *
  * WIRED TO SELECTION as of 2026-08-05. `registry.ts` is seeded from `soccer-module-adapter`, so the
  * selector reads soccer knowledge from this workbook rather than from the in-code arrays. The arrays
@@ -169,8 +174,49 @@ export function validateSoccerModuleIntegrity(data: SoccerModuleWorkbook = WB): 
     }
 
     errors.push(...validateRealizationBanks(data))
+    errors.push(...validateVocabulary(data))
 
     return { valid: errors.length === 0, errors }
+}
+
+/**
+ * Vocabulary integrity.
+ *
+ * Vocabulary is the sheet Christian will edit most — it is the reason the sheet exists — so the gate
+ * has to protect an EDITOR, not just an extraction. The failures that matter are the ones that look
+ * harmless in a spreadsheet: a phrase with no signal group routes nowhere, a blank phrase matches
+ * everything or nothing depending on the matcher, and an EXCLUDE row with no disambiguation rule is
+ * an override whose reason has been lost.
+ *
+ * Deliberately NOT checked: whether a phrase actually routes to its group at runtime. That is proven
+ * at extraction time against the live parser, and re-proving it here would mean the loader running
+ * the parser on every boot. The check belongs in the test, and it is there.
+ */
+export function validateVocabulary(data: SoccerModuleWorkbook = WB): string[] {
+    const errors: string[] = []
+
+    for (const row of data.vocabulary) {
+        const id = String(row['vocabulary_id'] ?? '(no id)')
+        if (String(row['phrase'] ?? '').trim() === '') {
+            errors.push(`Vocabulary row "${id}" has no phrase.`)
+        }
+        if (String(row['signal_group_id'] ?? '').trim() === '') {
+            errors.push(`Vocabulary row "${id}" has no signal_group_id, so it routes nowhere.`)
+        }
+
+        const polarity = String(row['routing_polarity'] ?? '').trim().toUpperCase()
+        if (polarity && !['INCLUDE', 'EXCLUDE'].includes(polarity)) {
+            errors.push(`Vocabulary row "${id}" has routing_polarity "${polarity}"; expected INCLUDE or EXCLUDE.`)
+        }
+        if (polarity === 'EXCLUDE' && String(row['disambiguation_rule'] ?? '').trim() === '') {
+            errors.push(
+                `Vocabulary row "${id}" is an EXCLUDE rule with no disambiguation_rule. An override whose ` +
+                    `reason is not written down is the kind nobody dares remove later.`
+            )
+        }
+    }
+
+    return errors
 }
 
 /**
@@ -274,6 +320,14 @@ export const soccerModule = {
     version: String(WB.metadata['workbook_schema_version'] ?? 'RC1-CANDIDATE-V3'),
     runtimeInterfaceVersion: String(WB.metadata['runtime_interface_version'] ?? ''),
     vocabulary: () => WB.vocabulary,
+    /** Vocabulary rows for one signal group, in the parser's own evaluation order. */
+    vocabularyForSignalGroup: (signalGroupId: string) =>
+        WB.vocabulary
+            .filter((r) => String(r['signal_group_id'] ?? '') === signalGroupId)
+            .sort((a, b) => Number(a['fallback_priority'] ?? 0) - Number(b['fallback_priority'] ?? 0)),
+    /** Coverage row for a canonical Game Problem — the basis for an honest unsupported-goal answer. */
+    coverageForGameProblem: (gameProblemId: string) =>
+        WB.coverage.find((r) => String(r['game_problem_id'] ?? '') === gameProblemId),
     lenses: () => WB.lenses,
     gameForms: () => WB.game_forms,
     realizations: () => WB.realizations,

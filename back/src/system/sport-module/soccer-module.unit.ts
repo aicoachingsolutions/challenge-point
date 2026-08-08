@@ -11,6 +11,8 @@
  */
 import assert from 'node:assert/strict'
 
+import { deriveInputConstraints } from '../input-constraints/deriveInputConstraints'
+
 import { TEST_LIBRARY_V0_AFFORDANCE_LENSES } from '../test-library/affordanceLenses'
 import { TEST_LIBRARY_V0_ARCHETYPES } from '../test-library/archetypes'
 import { TEST_LIBRARY_V0_CONSTRAINTS } from '../test-library/constraints'
@@ -21,6 +23,7 @@ import {
     soccerModule,
     validateModuleMetadataShape,
     validateRealizationBanks,
+    validateVocabulary,
     validateSoccerModuleIntegrity,
 } from './soccer-module'
 
@@ -460,8 +463,130 @@ function testUnmappedUniversalIdsAreReported(): void {
 }
 
 
+/**
+ * THE VOCABULARY EQUIVALENCE GUARD — the reason the Vocabulary sheet can be trusted.
+ *
+ * Every literal row claims "this phrase routes to this signal group". That claim was proven against
+ * the live parser at extraction time, but the parser keeps changing — it is the most-edited file we
+ * have. Without this test the sheet would quietly become a description of a parser that no longer
+ * exists, and the first symptom would be a coach's goal routing somewhere surprising.
+ *
+ * So: re-prove every row, every run. If someone edits the parser and a phrase stops routing where
+ * the workbook says, that is a build failure naming the phrase — not a mystery in production.
+ */
+function testVocabularyMatchesLiveParser(): void {
+    const rows = soccerModule
+        .vocabulary()
+        .filter(
+            (r) =>
+                String(r['match_mode']) === 'CONTAINS' &&
+                String(r['routing_polarity']) === 'INCLUDE' &&
+                String(r['status']) === 'ACTIVE'
+        )
+    assert.ok(rows.length > 100, `Expected the vocabulary sheet to be populated; found ${rows.length} literal rows.`)
+
+    for (const row of rows) {
+        const phrase = String(row['phrase'])
+        const group = String(row['signal_group_id'])
+        // Defensive subtypes are only classified once defensive intent exists — see the extractor.
+        const probe = String(row['signal_group_role']) === 'SUBTYPE' ? `prevent ${phrase}` : phrase
+        const signals = deriveInputConstraints(probe).matchedSignals
+        assert.ok(
+            signals.some((s) => s.startsWith(`signalGroup:${group}`)),
+            `Vocabulary row ${String(row['vocabulary_id'])} says "${phrase}" routes to ${group}, but the live ` +
+                `parser produced [${signals.filter((s) => s.startsWith('signalGroup:')).join(', ') || 'none'}]. ` +
+                `Either the parser changed or the sheet is stale — regenerate with extract-soccer-vocabulary.ts.`
+        )
+    }
+}
+
+/** Negative cases proving the vocabulary gate bites, not just that it passes on healthy data. */
+function testVocabularyGateCatchesDamage(): void {
+    const healthy = {
+        metadata: soccerModule.metadata,
+        vocabulary: [
+            {
+                vocabulary_id: 'SV-0001',
+                phrase: 'switch play',
+                signal_group_id: 'C_spacing_support',
+                routing_polarity: 'INCLUDE',
+                disambiguation_rule: '',
+            },
+        ],
+        lenses: [],
+        game_forms: [],
+        realizations: [],
+        realization_banks: [],
+        coverage: [],
+    }
+    const damaged = (mutate: (d: typeof healthy) => void) => {
+        const copy = JSON.parse(JSON.stringify(healthy)) as typeof healthy
+        mutate(copy)
+        return validateVocabulary(copy as never)
+    }
+
+    assert.deepEqual(validateVocabulary(healthy as never), [], 'A healthy vocabulary row must produce no errors.')
+
+    assert.ok(
+        damaged((d) => {
+            d.vocabulary[0].signal_group_id = ''
+        }).some((e) => e.includes('routes nowhere')),
+        'A phrase with no signal group must be caught.'
+    )
+    assert.ok(
+        damaged((d) => {
+            d.vocabulary[0].phrase = '  '
+        }).some((e) => e.includes('no phrase')),
+        'A blank phrase must be caught.'
+    )
+    assert.ok(
+        damaged((d) => {
+            d.vocabulary[0].routing_polarity = 'MAYBE'
+        }).some((e) => e.includes('expected INCLUDE or EXCLUDE')),
+        'An unknown polarity must be caught.'
+    )
+    assert.ok(
+        damaged((d) => {
+            d.vocabulary[0].routing_polarity = 'EXCLUDE'
+        }).some((e) => e.includes('disambiguation_rule')),
+        'An EXCLUDE rule with no stated reason must be caught.'
+    )
+}
+
+/**
+ * Coverage must describe the engine we actually have. It is DERIVED, so the only way it can be wrong
+ * is if the engine moved and the sheet was not regenerated — which is exactly what this catches.
+ */
+function testCoverageDescribesTheEngine(): void {
+    const coverage = soccerModule.coverage()
+    assert.equal(coverage.length, 17, 'Coverage must carry one row per canonical Game Problem.')
+
+    for (const row of coverage) {
+        const id = String(row['game_problem_id'])
+        const status = String(row['coverage_status'])
+        assert.ok(['SUPPORTED', 'NOT_SUPPORTED'].includes(status), `${id} has an unknown coverage_status "${status}".`)
+
+        if (status === 'SUPPORTED') {
+            assert.ok(
+                String(row['supported_game_form_ids']).trim() !== '',
+                `${id} is SUPPORTED but offers no game form — a coach reaching it would get nothing.`
+            )
+        } else {
+            // An unsupported Game Problem with no stated gap is indistinguishable from an oversight,
+            // and it is the gap text that makes the unsupported-goal answer specific.
+            assert.ok(
+                String(row['known_gaps']).trim() !== '',
+                `${id} is NOT_SUPPORTED but names no gap, so nothing can explain the refusal to a coach.`
+            )
+        }
+    }
+}
+
 function runAll(): void {
     testIntegrityGate()
+    testVocabularyMatchesLiveParser()
+    testVocabularyGateCatchesDamage()
+    testCoverageDescribesTheEngine()
     testMetadataShapeCatchesRoundTripDamage()
     testModuleIdentity()
     testAllGameFormsExtracted()

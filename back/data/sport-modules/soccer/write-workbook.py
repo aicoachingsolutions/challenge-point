@@ -35,9 +35,19 @@ HEADER_ROW = 2  # declared by the workbook's own Metadata sheet
 # Lenses is still generated, because Christian has not authored into it.
 SOURCES = {
     "Lenses": HERE / "lenses.extracted.json",
+    # Vocabulary: RETIRED 2026-08-08, immediately after its first and only generation.
+    #
+    # Retired BEFORE Christian authors into it rather than after, which is the whole point. The sheet
+    # exists so vocabulary becomes an edit instead of a deploy; the moment he adds a phrase, a rerun
+    # of this writer would silently destroy it. Game Forms and Realizations taught us that, and there
+    # is no reason to leave the window open a second time. `extract-soccer-vocabulary.ts` remains as
+    # the audit trail for how the 175 rows were derived — it must not rewrite this sheet again.
     # Realization Banks is generated for the same reason Lenses is: the entries were derived from
     # code and Christian has not authored into the sheet yet. When he does, retire it as above.
     "Realization Banks": HERE / "realization-banks.extracted.json",
+    # Coverage is DERIVED from the live engine, so it is regenerated rather than authored — a
+    # hand-edited coverage claim would silently stop matching what the engine actually does.
+    "Coverage": HERE / "coverage.extracted.json",
 }
 
 
