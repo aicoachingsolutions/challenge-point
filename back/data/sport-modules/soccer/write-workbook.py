@@ -35,9 +35,15 @@ HEADER_ROW = 2  # declared by the workbook's own Metadata sheet
 # Lenses is still generated, because Christian has not authored into it.
 SOURCES = {
     "Lenses": HERE / "lenses.extracted.json",
+    # Vocabulary is generated from the legacy parser (slice 4, extraction half). Retire it here the
+    # moment Christian authors into the sheet — that is the whole point of moving vocabulary to data.
+    "Vocabulary": HERE / "vocabulary.extracted.json",
     # Realization Banks is generated for the same reason Lenses is: the entries were derived from
     # code and Christian has not authored into the sheet yet. When he does, retire it as above.
     "Realization Banks": HERE / "realization-banks.extracted.json",
+    # Coverage is DERIVED from the live engine, so it is regenerated rather than authored — a
+    # hand-edited coverage claim would silently stop matching what the engine actually does.
+    "Coverage": HERE / "coverage.extracted.json",
 }
 
 
