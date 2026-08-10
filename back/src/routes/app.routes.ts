@@ -29,6 +29,11 @@ import User from '../models/user.model'
 import Logger from '../logger'
 import LoggingService from '../services/logging.service'
 import { deriveInputConstraints } from '../system/input-constraints/deriveInputConstraints'
+import {
+    sessionPlanningModel,
+    translationStatus,
+    validateSessionPlanningModel,
+} from '../system/session-planning/session-planning-model'
 import { emCanonical } from '../system/knowledge-core/em-canonical'
 import { reasonEnvironmentalManipulations } from '../system/knowledge-core/em-selection-metadata'
 import { recordUsageEvent, summarizeUsage } from '../services/usage-telemetry.service'
@@ -926,6 +931,69 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         })
     }
 })
+/**
+ * Session Planning Model registry — the conversation the front end renders.
+ *
+ * Serves the workbook's own registry data, shaped for display and nothing more. Deliberately thin:
+ * per Christian's Governance Standard the planning model owns coach decisions and the engine owns
+ * sport knowledge, so this endpoint must not resolve, rank, or map anything. If a decision is being
+ * made here, it is in the wrong place.
+ *
+ * Practice Situations are nested under their goal rather than served as a flat list, because the
+ * conditional step is driven by whether a goal HAS any — nesting makes "none, so continue
+ * automatically" (Implementation Guide Rule 3) a property of the data instead of a lookup the
+ * client has to remember to perform.
+ *
+ * Internal identifiers are included because the client sends them back on generate; the Guide's
+ * "never expose internal identifiers" is about what a COACH sees, which is a rendering concern.
+ */
+router.get(ROUTES.sessionPlanning, async (_req: Request, res: Response) => {
+    try {
+        const integrity = validateSessionPlanningModel()
+        if (!integrity.valid) {
+            // Fail loudly with the reference that is broken, per the Implementation Guide's error
+            // handling: knowledge errors get corrected in the workbook, never patched in code.
+            return res.status(500).send({
+                error: 'Session Planning Model failed its integrity gate.',
+                reasons: integrity.errors,
+            })
+        }
+
+        const phases = sessionPlanningModel.phases().map((phase) => ({
+            phase,
+            learningGoals: sessionPlanningModel.learningGoalsForPhase(phase).map((goal) => {
+                const id = String(goal['ID'])
+                return {
+                    id,
+                    name: String(goal['Learning Goal'] ?? ''),
+                    coachDefinition: String(goal['Coach Definition'] ?? ''),
+                    chooseThisWhen: String(goal['Choose This When...'] ?? ''),
+                    practiceSituations: sessionPlanningModel.practiceSituationsFor(id).map((situation) => ({
+                        id: String(situation['ID']),
+                        name: String(situation['Practice Situation'] ?? ''),
+                        definition: String(situation['Definition'] ?? ''),
+                    })),
+                }
+            }),
+        }))
+
+        return res.status(200).send({
+            phases,
+            // Entry language powers search. It is a navigation HINT and must never override an
+            // explicit coach selection — the client treats it as a filter, not a router.
+            entryLanguage: sessionPlanningModel.entryLanguage().map((entry) => ({
+                phrase: String(entry['Coach Phrase'] ?? ''),
+                learningGoalId: String(entry['Learning Goal ID'] ?? ''),
+            })),
+            // Surfaced so the unpopulated coach-to-knowledge bridge stays visible while it is filled
+            // in, rather than being discovered when a coach reaches the end of the conversation.
+            translation: translationStatus(),
+        })
+    } catch (error) {
+        return res.status(500).send({ error })
+    }
+})
+
 router.get(`${ROUTES.activity}/my-activities`, async (req: Request, res: Response) => {
     try {
         const userSessions = await Session.find({ createdBy: res.locals.sessionUser })
