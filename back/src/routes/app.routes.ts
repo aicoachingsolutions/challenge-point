@@ -29,6 +29,7 @@ import User from '../models/user.model'
 import Logger from '../logger'
 import LoggingService from '../services/logging.service'
 import { deriveInputConstraints } from '../system/input-constraints/deriveInputConstraints'
+import { describeUnsupportedGoal, isKnownUnsupportedGoal } from '../system/session-planning/goal-support'
 import {
     sessionPlanningModel,
     translationStatus,
@@ -536,27 +537,45 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         const previousActivities = await Activity.find({ session: req.params.id })
 
         const generationStart = Date.now()
-        const inputConstraints = deriveInputConstraints(learningGoals.join(' '))
-        if (inputConstraints.matchedSignals.length === 0) {
-            // MVP field evidence: rejected goals ARE the vocabulary-gap dataset.
+        const goalText = learningGoals.join(' ')
+        const inputConstraints = deriveInputConstraints(goalText)
+
+        // A KNOWN gap is answered differently from an unrecognised phrase, even when the parser DID
+        // match something. A Learning Goal like "Play Out from the Back" reaches only the general
+        // fallback, so it would otherwise proceed and produce a generic activity that does not
+        // address what was asked — worse than a refusal, because the coach cannot tell it went wrong.
+        const reachedOnlyFallback = inputConstraints.matchedSignals.every(
+            (signal) => !signal.startsWith('signalGroup:') || signal === 'signalGroup:Z_soccer_general'
+        )
+        const knownGap = reachedOnlyFallback && isKnownUnsupportedGoal(goalText)
+
+        if (inputConstraints.matchedSignals.length === 0 || knownGap) {
+            // MVP field evidence: rejected goals ARE the vocabulary-gap dataset. A known gap is
+            // recorded distinctly — it needs content or routing, not more coach vocabulary, so
+            // lumping the two together would corrupt exactly the dataset this exists to build.
             recordUsageEvent({
                 eventType: 'goal_rejected',
                 sessionId: req.params.id,
                 goalText: learningGoals.join(' | '),
+                payload: { knownGap },
             })
+
             // Graceful unsupported-goal response. The coach gets one message in one register plus
-            // concrete goals they can use as-is (each pinned by unit test to actually resolve).
-            // The internal stage name and validator string are debug-only — previously they were
-            // concatenated onto the friendly text, which read as three voices in one error.
-            const guidance = buildUnsupportedGoalGuidance()
+            // concrete goals they can use as-is. The internal stage name and validator string stay
+            // debug-only — concatenated onto the friendly text they read as three voices in one error.
+            const guidance = knownGap ? describeUnsupportedGoal(goalText) : buildUnsupportedGoalGuidance()
             return res.status(400).json({
-                error: guidance.message,
+                error: 'error' in guidance ? guidance.error : guidance.message,
                 suggestions: guidance.suggestions,
                 resolutionStatus: 'unresolved',
                 ...(debug
                     ? {
                           stage: 'input-selection',
-                          details: ['No supported soccer training signals were found in the learning goals.'],
+                          details: [
+                              knownGap
+                                  ? 'Goal recognised as a known unsupported planning intention.'
+                                  : 'No supported soccer training signals were found in the learning goals.',
+                          ],
                       }
                     : {}),
             })
