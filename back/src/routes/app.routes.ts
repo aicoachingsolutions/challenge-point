@@ -45,6 +45,13 @@ import { ActivityAssemblyRequest, SystemAssemblyInput, SystemPipelineError } fro
 import { validateConstraintPackage } from '../system/validate-constraint-package'
 import { validateGeneratedActivities } from '../system/validate-generated-activity'
 
+/** Structured selections from the guided planning conversation. Evidence today, routing later. */
+interface PlanningSelectionInput {
+    learningGoalId?: string
+    practiceSituationId?: string | null
+    learningStage?: string
+}
+
 const router = Router()
 const ROUTES = ENDPOINTS.app
 const ACTIVITY_ASSEMBLY_TIMEOUT_MS = Number.parseInt(process.env.ACTIVITY_ASSEMBLY_TIMEOUT_MS ?? '', 10) || 90000
@@ -520,6 +527,9 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
     let debugTrace: Record<string, unknown> | null = null
     try {
         const { challengeLevel, duration, learningGoals } = req.body as ActivityAssemblyRequest
+        // Structured planning selections from the guided Session Creation conversation. Present only
+        // when the coach used it, absent from the free-text form — so every read must tolerate null.
+        const planning = (req.body as { planning?: PlanningSelectionInput }).planning
 
         if (!challengeLevel || !duration) {
             return res.status(400).json({ error: 'Challenge level and duration are required' })
@@ -593,6 +603,24 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                 signalGroups: usageSignalGroups,
                 challengeLevel,
                 duration,
+                // EVIDENCE ONLY — none of these influence generation today.
+                //
+                // learningStage is the important one. It is asked in the conversation because
+                // Christian's MVP scope includes it, but nothing consumes it: his spec says it
+                // calibrates challenge rather than football content, and how it combines with
+                // Challenge is a coaching judgement that belongs to him. Recording what coaches
+                // actually pick means that decision can be made against a real distribution rather
+                // than in the abstract — and it means the question is not entirely wasted while it
+                // waits. Recorded as a KNOWN no-op, not quietly dropped.
+                ...(planning
+                    ? {
+                          learningGoalId: planning.learningGoalId,
+                          practiceSituationId: planning.practiceSituationId ?? null,
+                          learningStage: planning.learningStage,
+                          learningStageInfluencesGeneration: false,
+                          planningEntryPoint: 'guided',
+                      }
+                    : { planningEntryPoint: 'free_text' }),
             },
         })
 

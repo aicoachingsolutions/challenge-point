@@ -138,6 +138,15 @@ export default function ActivityGenerator() {
             challengeLevel: selection.challenge,
             duration: selection.duration,
             learningGoals: [goalText],
+            // Sent for EVIDENCE, not for routing. Learning Stage does not yet influence generation
+            // — the interaction between it and Challenge is a coaching judgement Christian still
+            // owns — so recording what coaches actually choose is what will let him define it
+            // against a real distribution rather than in the abstract.
+            planning: {
+                learningGoalId: selection.learningGoalId,
+                practiceSituationId: selection.practiceSituationId,
+                learningStage: selection.learningStage,
+            },
         })
     }
 
@@ -145,6 +154,11 @@ export default function ActivityGenerator() {
         challengeLevel: ChallengeLevels
         duration: number
         learningGoals: string[]
+        planning?: {
+            learningGoalId: string
+            practiceSituationId: string | null
+            learningStage: string
+        }
     }) => {
         const challengeLevel = override?.challengeLevel ?? selectedChallengeLevel
         const duration = override?.duration ?? selectedDuration
@@ -165,6 +179,7 @@ export default function ActivityGenerator() {
                 challengeLevel,
                 duration,
                 learningGoals,
+                ...(override?.planning ? { planning: override.planning } : {}),
                 ...(debugMode ? { debug: true } : {}),
             })
 
