@@ -20,6 +20,10 @@ const endpoints = {
         session: '/session',
         generateActivities: '/generate-activities',
         testSelection: '/test-selection',
+        // The Session Planning Model registry, served so the front end RENDERS the conversation
+        // rather than hardcoding it. Christian's Implementation Guide: "The workbook defines the
+        // conversation. The application renders it."
+        sessionPlanning: '/session-planning',
         user: '/user',
     },
     admin: {

@@ -1,0 +1,407 @@
+{
+  "source_workbook": "session-planning-model.rc1.xlsx",
+  "header_row": 1,
+  "learning_goals": [
+    {
+      "ID": "A01",
+      "Phase": "Attacking",
+      "Display Order": 1.0,
+      "Learning Goal": "Play Out from the Back",
+      "Coach Definition": "Build possession from deep while progressing beyond the opponent's first line of pressure.",
+      "Choose This When...": "Team struggles to build from the back.",
+      "Common Misclassification": "Play Through Pressure",
+      "Confidence": "High",
+      "Status": "Active"
+    },
+    {
+      "ID": "A02",
+      "Phase": "Attacking",
+      "Display Order": 2.0,
+      "Learning Goal": "Play Through Pressure",
+      "Coach Definition": "Continue progressing while under immediate pressure.",
+      "Choose This When...": "Players lose the ball once pressed.",
+      "Common Misclassification": "Play Out from the Back; Secure Possession",
+      "Confidence": "High",
+      "Status": "Active"
+    },
+    {
+      "ID": "A03",
+      "Phase": "Attacking",
+      "Display Order": 3.0,
+      "Learning Goal": "Create Scoring Chances",
+      "Coach Definition": "Create meaningful opportunities to threaten goal.",
+      "Choose This When...": "Team reaches attacking areas but creates few chances.",
+      "Common Misclassification": "Beat Defenders 1v1",
+      "Confidence": "High",
+      "Status": "Active"
+    },
+    {
+      "ID": "A04",
+      "Phase": "Attacking",
+      "Display Order": 4.0,
+      "Learning Goal": "Beat Defenders 1v1",
+      "Coach Definition": "Eliminate individual defenders.",
+      "Choose This When...": "Players avoid taking defenders on.",
+      "Common Misclassification": "Create Scoring Chances",
+      "Confidence": "High",
+      "Status": "Active"
+    },
+    {
+      "ID": "D01",
+      "Phase": "Defending",
+      "Display Order": 1.0,
+      "Learning Goal": "Stay Organized",
+      "Coach Definition": "Maintain collective defensive structure.",
+      "Choose This When...": "Team loses defensive shape.",
+      "Common Misclassification": "Recover Organization",
+      "Confidence": "High",
+      "Status": "Active"
+    },
+    {
+      "ID": "D02",
+      "Phase": "Defending",
+      "Display Order": 2.0,
+      "Learning Goal": "Win the Ball Back",
+      "Coach Definition": "Regain possession through coordinated defending.",
+      "Choose This When...": "Opponents keep possession comfortably.",
+      "Common Misclassification": "Delay the Attack",
+      "Confidence": "High",
+      "Status": "Active"
+    },
+    {
+      "ID": "D03",
+      "Phase": "Defending",
+      "Display Order": 3.0,
+      "Learning Goal": "Defend 1v1",
+      "Coach Definition": "Prevent attackers progressing in duels.",
+      "Choose This When...": "Players are beaten 1v1.",
+      "Common Misclassification": "Stay Organized",
+      "Confidence": "High",
+      "Status": "Active"
+    },
+    {
+      "ID": "TA01",
+      "Phase": "Transition to Attack",
+      "Display Order": 1.0,
+      "Learning Goal": "Attack Quickly",
+      "Coach Definition": "Exploit opportunities immediately after regaining possession.",
+      "Choose This When...": "Counterattacks stall.",
+      "Common Misclassification": "Secure Possession",
+      "Confidence": "High",
+      "Status": "Active"
+    },
+    {
+      "ID": "TA02",
+      "Phase": "Transition to Attack",
+      "Display Order": 2.0,
+      "Learning Goal": "Secure Possession",
+      "Coach Definition": "Stabilize possession after regaining it.",
+      "Choose This When...": "Immediately lose the ball after winning it.",
+      "Common Misclassification": "Attack Quickly",
+      "Confidence": "Medium",
+      "Status": "Active"
+    },
+    {
+      "ID": "TD01",
+      "Phase": "Transition to Defend",
+      "Display Order": 1.0,
+      "Learning Goal": "Recover Organization",
+      "Coach Definition": "Re-establish defensive structure after losing possession.",
+      "Choose This When...": "Team exposed after turnovers.",
+      "Common Misclassification": "Stay Organized",
+      "Confidence": "High",
+      "Status": "Active"
+    },
+    {
+      "ID": "TD02",
+      "Phase": "Transition to Defend",
+      "Display Order": 2.0,
+      "Learning Goal": "Delay the Attack",
+      "Coach Definition": "Slow attacks while teammates recover.",
+      "Choose This When...": "Opponents counter too quickly.",
+      "Common Misclassification": "Win the Ball Back",
+      "Confidence": "High",
+      "Status": "Active"
+    }
+  ],
+  "practice_situations": [
+    {
+      "ID": "A01-01",
+      "Parent ID": "A01",
+      "Display Order": 1.0,
+      "Practice Situation": "Against High Pressure",
+      "Definition": "Opponents aggressively press."
+    },
+    {
+      "ID": "A01-02",
+      "Parent ID": "A01",
+      "Display Order": 2.0,
+      "Practice Situation": "From Goal Kicks",
+      "Definition": "Restart from goal kicks."
+    },
+    {
+      "ID": "A01-03",
+      "Parent ID": "A01",
+      "Display Order": 3.0,
+      "Practice Situation": "Through Central Areas",
+      "Definition": "Build centrally."
+    },
+    {
+      "ID": "A01-04",
+      "Parent ID": "A01",
+      "Display Order": 4.0,
+      "Practice Situation": "Through Wide Areas",
+      "Definition": "Build wide."
+    },
+    {
+      "ID": "A02-01",
+      "Parent ID": "A02",
+      "Display Order": 1.0,
+      "Practice Situation": "Against High Pressure",
+      "Definition": "Escape pressure."
+    },
+    {
+      "ID": "A02-02",
+      "Parent ID": "A02",
+      "Display Order": 2.0,
+      "Practice Situation": "Near the Touchline",
+      "Definition": "Escape pressure near sideline."
+    },
+    {
+      "ID": "A02-03",
+      "Parent ID": "A02",
+      "Display Order": 3.0,
+      "Practice Situation": "Through Central Areas",
+      "Definition": "Progress centrally."
+    },
+    {
+      "ID": "A02-04",
+      "Parent ID": "A02",
+      "Display Order": 4.0,
+      "Practice Situation": "Immediately After Receiving",
+      "Definition": "Next action under pressure."
+    },
+    {
+      "ID": "A03-01",
+      "Parent ID": "A03",
+      "Display Order": 1.0,
+      "Practice Situation": "Against Deep Defenses",
+      "Definition": "Break compact defenses."
+    },
+    {
+      "ID": "A03-02",
+      "Parent ID": "A03",
+      "Display Order": 2.0,
+      "Practice Situation": "Through Central Areas",
+      "Definition": "Create centrally."
+    },
+    {
+      "ID": "A03-03",
+      "Parent ID": "A03",
+      "Display Order": 3.0,
+      "Practice Situation": "From Wide Areas",
+      "Definition": "Create wide."
+    },
+    {
+      "ID": "A03-04",
+      "Parent ID": "A03",
+      "Display Order": 4.0,
+      "Practice Situation": "Immediately After Winning Possession",
+      "Definition": "Exploit transition."
+    },
+    {
+      "ID": "D01-01",
+      "Parent ID": "D01",
+      "Display Order": 1.0,
+      "Practice Situation": "Against Wide Attacks",
+      "Definition": "Defend wide attacks."
+    },
+    {
+      "ID": "D01-02",
+      "Parent ID": "D01",
+      "Display Order": 2.0,
+      "Practice Situation": "Against Central Attacks",
+      "Definition": "Defend central attacks."
+    },
+    {
+      "ID": "D02-01",
+      "Parent ID": "D02",
+      "Display Order": 1.0,
+      "Practice Situation": "Against Short Build-Up",
+      "Definition": "Press short build-up."
+    },
+    {
+      "ID": "D02-02",
+      "Parent ID": "D02",
+      "Display Order": 2.0,
+      "Practice Situation": "Against Direct Play",
+      "Definition": "Regain against long/direct play."
+    },
+    {
+      "ID": "TA01-01",
+      "Parent ID": "TA01",
+      "Display Order": 1.0,
+      "Practice Situation": "Immediately After Winning Possession",
+      "Definition": "Attack before recovery."
+    },
+    {
+      "ID": "TA02-01",
+      "Parent ID": "TA02",
+      "Display Order": 1.0,
+      "Practice Situation": "Under Immediate Pressure",
+      "Definition": "Keep possession under pressure."
+    },
+    {
+      "ID": "TD01-01",
+      "Parent ID": "TD01",
+      "Display Order": 1.0,
+      "Practice Situation": "Immediately After Losing Possession",
+      "Definition": "Recover immediately."
+    },
+    {
+      "ID": "TD02-01",
+      "Parent ID": "TD02",
+      "Display Order": 1.0,
+      "Practice Situation": "In Open Space",
+      "Definition": "Delay in open space."
+    }
+  ],
+  "entry_language": [
+    {
+      "Coach Phrase": "playing out",
+      "Learning Goal ID": "A01"
+    },
+    {
+      "Coach Phrase": "build from the back",
+      "Learning Goal ID": "A01"
+    },
+    {
+      "Coach Phrase": "escape pressure",
+      "Learning Goal ID": "A02"
+    },
+    {
+      "Coach Phrase": "create chances",
+      "Learning Goal ID": "A03"
+    },
+    {
+      "Coach Phrase": "beat defenders",
+      "Learning Goal ID": "A04"
+    },
+    {
+      "Coach Phrase": "stay organized",
+      "Learning Goal ID": "D01"
+    },
+    {
+      "Coach Phrase": "win the ball back",
+      "Learning Goal ID": "D02"
+    },
+    {
+      "Coach Phrase": "defend 1v1",
+      "Learning Goal ID": "D03"
+    },
+    {
+      "Coach Phrase": "counterattack",
+      "Learning Goal ID": "TA01"
+    },
+    {
+      "Coach Phrase": "secure possession",
+      "Learning Goal ID": "TA02"
+    },
+    {
+      "Coach Phrase": "recover organization",
+      "Learning Goal ID": "TD01"
+    },
+    {
+      "Coach Phrase": "delay the attack",
+      "Learning Goal ID": "TD02"
+    }
+  ],
+  "engine_translation": [
+    {
+      "Learning Goal ID": "A01",
+      "Primary GP IDs": "TBD",
+      "Secondary GP IDs": "TBD",
+      "Notes": "Reference canonical Game Problem workbook"
+    },
+    {
+      "Learning Goal ID": "A02",
+      "Primary GP IDs": "TBD",
+      "Secondary GP IDs": "TBD",
+      "Notes": "Reference canonical Game Problem workbook"
+    },
+    {
+      "Learning Goal ID": "A03",
+      "Primary GP IDs": "TBD",
+      "Secondary GP IDs": "TBD",
+      "Notes": "Reference canonical Game Problem workbook"
+    },
+    {
+      "Learning Goal ID": "A04",
+      "Primary GP IDs": "TBD",
+      "Secondary GP IDs": "TBD",
+      "Notes": "Reference canonical Game Problem workbook"
+    },
+    {
+      "Learning Goal ID": "D01",
+      "Primary GP IDs": "TBD",
+      "Secondary GP IDs": "TBD",
+      "Notes": "Reference canonical Game Problem workbook"
+    },
+    {
+      "Learning Goal ID": "D02",
+      "Primary GP IDs": "TBD",
+      "Secondary GP IDs": "TBD",
+      "Notes": "Reference canonical Game Problem workbook"
+    },
+    {
+      "Learning Goal ID": "D03",
+      "Primary GP IDs": "TBD",
+      "Secondary GP IDs": "TBD",
+      "Notes": "Reference canonical Game Problem workbook"
+    },
+    {
+      "Learning Goal ID": "TA01",
+      "Primary GP IDs": "TBD",
+      "Secondary GP IDs": "TBD",
+      "Notes": "Reference canonical Game Problem workbook"
+    },
+    {
+      "Learning Goal ID": "TA02",
+      "Primary GP IDs": "TBD",
+      "Secondary GP IDs": "TBD",
+      "Notes": "Reference canonical Game Problem workbook"
+    },
+    {
+      "Learning Goal ID": "TD01",
+      "Primary GP IDs": "TBD",
+      "Secondary GP IDs": "TBD",
+      "Notes": "Reference canonical Game Problem workbook"
+    },
+    {
+      "Learning Goal ID": "TD02",
+      "Primary GP IDs": "TBD",
+      "Secondary GP IDs": "TBD",
+      "Notes": "Reference canonical Game Problem workbook"
+    }
+  ],
+  "governance": [
+    {
+      "Rule": "Coach language first."
+    },
+    {
+      "Rule": "Every interaction must reduce meaningful uncertainty."
+    },
+    {
+      "Rule": "Do not duplicate football knowledge."
+    },
+    {
+      "Rule": "Learning Goals represent planning decisions."
+    },
+    {
+      "Rule": "Practice Situations represent representative situations."
+    },
+    {
+      "Rule": "Store canonical knowledge only."
+    }
+  ]
+}

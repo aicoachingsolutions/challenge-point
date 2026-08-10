@@ -19,6 +19,7 @@ import { SessionStatus } from '@/MODELS/session.model'
 import { api } from '@/services/api.service'
 
 import Button from '@/components/Button'
+import SessionPlanningConversation, { type PlanningSelection } from './SessionPlanningConversation'
 
 // "Environmental Fit" (coach-facing rename of Challenge Level — Christian's MVP2 wording).
 // The enum values (low/medium/high) are unchanged so nothing downstream breaks; only the
@@ -63,6 +64,7 @@ export default function ActivityGenerator() {
     // ?debug=1 in the URL also forces it on. TEMPORARY, pre-field-test: shown to all signed-in
     // users because the primary tester's account isn't flagged admin. Re-gate before broader release.
     const [debugToggle, setDebugToggle] = useState(false)
+    const [useGuidedPlanning, setUseGuidedPlanning] = useState(true)
     const debugMode = debugToggle || new URLSearchParams(window.location.search).get('debug') === '1'
     const [debugTrace, setDebugTrace] = useState<Record<string, any> | null>(null)
     const navigate = useNavigate()
@@ -112,8 +114,43 @@ export default function ActivityGenerator() {
         return Array.isArray(raw) ? raw.filter((s): s is string => typeof s === 'string') : []
     }
 
-    const generateActivities = async () => {
-        if (!selectedChallengeLevel || !selectedDuration) {
+    /**
+     * Run generation from the guided planning conversation.
+     *
+     * PROVISIONAL BRIDGE. Christian's Engine Translation sheet — Learning Goal → Game Problem IDs —
+     * is unpopulated at RC1, so the structured selections cannot yet route structurally. Until it is
+     * filled in, the goal and situation NAMES are passed as the goal text and routed by the existing
+     * parser, which is the same path the free-text form uses and is already gated.
+     *
+     * This is deliberately the weakest part of the flow and is meant to be replaced, not built on.
+     * Two of the eleven Learning Goals ("Play Out from the Back", "Beat Defenders 1v1") only reach
+     * the general fallback this way, which is a knowledge gap the bridge will close.
+     */
+    const generateFromPlanning = async (selection: PlanningSelection) => {
+        const goalText = [selection.learningGoalName, selection.practiceSituationName, selection.additionalContext]
+            .filter(Boolean)
+            .join('. ')
+
+        setSelectedChallengeLevel(selection.challenge)
+        setSelectedDuration(selection.duration)
+        setSelectedLearningGoals([goalText])
+        await generateActivities({
+            challengeLevel: selection.challenge,
+            duration: selection.duration,
+            learningGoals: [goalText],
+        })
+    }
+
+    const generateActivities = async (override?: {
+        challengeLevel: ChallengeLevels
+        duration: number
+        learningGoals: string[]
+    }) => {
+        const challengeLevel = override?.challengeLevel ?? selectedChallengeLevel
+        const duration = override?.duration ?? selectedDuration
+        const learningGoals = override?.learningGoals ?? selectedLearningGoals
+
+        if (!challengeLevel || !duration) {
             return
         }
 
@@ -125,9 +162,9 @@ export default function ActivityGenerator() {
 
         try {
             const res = await api<any>(`${ROUTES.app.generateActivities}/${id}`, {
-                challengeLevel: selectedChallengeLevel,
-                duration: selectedDuration,
-                learningGoals: selectedLearningGoals,
+                challengeLevel,
+                duration,
+                learningGoals,
                 ...(debugMode ? { debug: true } : {}),
             })
 
@@ -372,7 +409,28 @@ export default function ActivityGenerator() {
                     <p className='mt-4 text-xs text-gray-500 sm:text-sm sm:mt-6'>This usually takes 10-15 seconds</p>
                 </div>
             )}
-            {generationStatus === 'creation' && (
+            {/*
+              * The guided planning conversation is the primary Session Creation experience, per
+              * Christian's Experience Specification. The free-text form stays reachable behind a
+              * link rather than being deleted: it is the proven path, the guided flow still routes
+              * through a provisional bridge, and pilots are imminent. Remove it once Engine
+              * Translation is populated and the guided path is demonstrably at least as good.
+              */}
+            {generationStatus === 'creation' && useGuidedPlanning && (
+                <div className='w-full p-4 mx-auto sm:p-6 lg:p-8'>
+                    <SessionPlanningConversation onComplete={generateFromPlanning} />
+                    <div className='max-w-2xl mx-auto mt-8 text-center'>
+                        <button
+                            type='button'
+                            onClick={() => setUseGuidedPlanning(false)}
+                            className='text-sm text-gray-500 underline'
+                        >
+                            Prefer to describe it in your own words?
+                        </button>
+                    </div>
+                </div>
+            )}
+            {generationStatus === 'creation' && !useGuidedPlanning && (
                 <div className='w-full max-w-lg p-4 mx-auto sm:max-w-xl lg:max-w-2xl sm:p-6 lg:p-8'>
                     {/* Header Section */}
                     <div className='mb-6 text-center sm:mb-8'>
@@ -508,7 +566,9 @@ export default function ActivityGenerator() {
                     {/* Action Buttons */}
                     <div className='flex flex-col gap-3 pt-4 mt-5 border-t border-gray-200 sm:flex-row sm:gap-4 sm:mt-10 sm:pt-6'>
                         <Button
-                            onClick={generateActivities}
+                            // Wrapped: the button hands its click event to the first argument, which
+                            // would arrive as the generation override.
+                            onClick={() => generateActivities()}
                             disabled={!selectedChallengeLevel || !selectedDuration || selectedLearningGoals?.length < 1}
                             className='flex-1 w-full px-6 py-3 text-base font-semibold text-white transition-colors shadow-lg bg-brand rounded-xl hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed'
                         >

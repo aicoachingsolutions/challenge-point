@@ -1,0 +1,97 @@
+[
+  {
+    "learningGoalId": "A01",
+    "learningGoalName": "Play Out from the Back",
+    "primary": [],
+    "secondary": [],
+    "notes": "GAP — no canonical Game Problem is reachable from this goal today. The coach phrases fall to the general fallback, so the activity would be generic. Needs either vocabulary that routes it or a decision about which Game Problem it belongs to. Left blank deliberately."
+  },
+  {
+    "learningGoalId": "D01",
+    "learningGoalName": "Stay Organized",
+    "primary": [
+      "GP-012"
+    ],
+    "secondary": [],
+    "notes": "PROPOSED from the live engine. Coach phrases resolved to signal group(s) I_defensive_protect -> GP-012 Protect Space."
+  },
+  {
+    "learningGoalId": "TA01",
+    "learningGoalName": "Attack Quickly",
+    "primary": [
+      "GP-002"
+    ],
+    "secondary": [],
+    "notes": "PROPOSED from the live engine. Coach phrases resolved to signal group(s) H_transition -> GP-002 Exploit Space."
+  },
+  {
+    "learningGoalId": "TD01",
+    "learningGoalName": "Recover Organization",
+    "primary": [
+      "GP-004"
+    ],
+    "secondary": [],
+    "notes": "PROPOSED from the live engine. Coach phrases resolved to signal group(s) I_defensive_recover -> GP-004 Recover Position."
+  },
+  {
+    "learningGoalId": "A02",
+    "learningGoalName": "Play Through Pressure",
+    "primary": [
+      "GP-015"
+    ],
+    "secondary": [],
+    "notes": "PROPOSED from the live engine. Coach phrases resolved to signal group(s) B_pressure -> GP-015 Maintain Possession."
+  },
+  {
+    "learningGoalId": "D02",
+    "learningGoalName": "Win the Ball Back",
+    "primary": [
+      "GP-016"
+    ],
+    "secondary": [],
+    "notes": "PROPOSED from the live engine. Coach phrases resolved to signal group(s) E_regain_pressing -> GP-016 Regain Possession."
+  },
+  {
+    "learningGoalId": "TA02",
+    "learningGoalName": "Secure Possession",
+    "primary": [
+      "GP-015"
+    ],
+    "secondary": [],
+    "notes": "PROPOSED from the live engine. Coach phrases resolved to signal group(s) F_possession_passing -> GP-015 Maintain Possession."
+  },
+  {
+    "learningGoalId": "TD02",
+    "learningGoalName": "Delay the Attack",
+    "primary": [
+      "GP-013"
+    ],
+    "secondary": [],
+    "notes": "PROPOSED from the live engine. Coach phrases resolved to signal group(s) I_defensive_delay -> GP-013 Deny Space."
+  },
+  {
+    "learningGoalId": "A03",
+    "learningGoalName": "Create Scoring Chances",
+    "primary": [
+      "GP-006"
+    ],
+    "secondary": [],
+    "notes": "PROPOSED from the live engine. Coach phrases resolved to signal group(s) F_finishing -> GP-006 Establish Functional Object Control."
+  },
+  {
+    "learningGoalId": "D03",
+    "learningGoalName": "Defend 1v1",
+    "primary": [
+      "GP-016"
+    ],
+    "secondary": [],
+    "notes": "PROPOSED from the live engine. Coach phrases resolved to signal group(s) E_regain_pressing -> GP-016 Regain Possession."
+  },
+  {
+    "learningGoalId": "A04",
+    "learningGoalName": "Beat Defenders 1v1",
+    "primary": [],
+    "secondary": [],
+    "notes": "GAP — no canonical Game Problem is reachable from this goal today. The coach phrases fall to the general fallback, so the activity would be generic. Needs either vocabulary that routes it or a decision about which Game Problem it belongs to. Left blank deliberately."
+  }
+]

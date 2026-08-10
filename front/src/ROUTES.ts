@@ -6,6 +6,8 @@ const endpoints = {
         activity: '/activity',
         session: '/session',
         generateActivities: '/generate-activities',
+        // Session Planning Model registry — the conversation is rendered from this, never hardcoded.
+        sessionPlanning: '/session-planning',
         user: '/user',
     },
     admin: {
