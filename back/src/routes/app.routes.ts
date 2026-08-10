@@ -698,6 +698,10 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                 challengeLevel,
                 duration,
                 learningGoals,
+                // IC-001. Realization input only — it reaches assembly, never selection, which is
+                // what makes "changing Learning Stage MUST NOT change the selected Learning Goal"
+                // structurally true rather than merely tested.
+                learningStage: planning?.learningStage,
             },
         })
 

@@ -68,7 +68,7 @@ const liveRuleSlot = slotFor('Directional Possession Games', [
 ])
 assertOperational('environmentalized live exchange rule', buildExplicitExchangeRule(liveRuleSlot))
 
-const mechanics = buildActivityMechanicsFromSkeleton({ activities: [liveRuleSlot], sessionEmphasis: undefined })
+const mechanics = buildActivityMechanicsFromSkeleton({ activities: [liveRuleSlot], sessionEmphasis: undefined, learningStageDirective: [] })
 assert.equal(
     mechanics.activities[0]!.rules[0],
     buildExplicitExchangeRule(liveRuleSlot),

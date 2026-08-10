@@ -87,7 +87,9 @@ export function systemAssemblyInputFromTestLibrarySelection(params: {
     selection: TestLibrarySelectionResult
     session: ISession
     previousActivities: IActivity[]
-    coachInput: { challengeLevel: string; duration: number; learningGoals: string[] }
+    // learningStage is optional: the free-text form never asks for one, and IC-001 requires the
+    // experience to PROVIDE the stage rather than the runtime assuming a default.
+    coachInput: { challengeLevel: string; duration: number; learningGoals: string[]; learningStage?: string }
 }): SystemAssemblyInput {
     const { selection, session, previousActivities, coachInput } = params
     const archetypeDef = testLibraryArchetypeToSystemDefinition(selection.archetype)

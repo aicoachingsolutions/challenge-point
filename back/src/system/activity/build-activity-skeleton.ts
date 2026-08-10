@@ -6,6 +6,7 @@ import type { TestLibraryV0Archetype, TestLibraryV0Constraint } from '../test-li
 import { registryIdString } from './assembly-package-ids'
 import { getEmphasisVariationProfile, getSlotVariationSpec } from './emphasis-variation-profile'
 import { getSlotMechanicalVariations, type ValueLandscapeModifier } from './slot-mechanics-variations'
+import { learningStageDirective } from './learning-stage-realization'
 
 /** One of three system-owned activity slots; AI fills wording but must not remove these mechanics. */
 export type ActivitySkeletonSlot = {
@@ -46,6 +47,8 @@ export type ActivitySkeletonSlot = {
 
 export type ActivitySkeletonBundle = {
     activities: ActivitySkeletonSlot[]
+    /** IC-001 realization directive. Empty when the coach was never asked for a Learning Stage. */
+    learningStageDirective: string[]
     /**
      * The session emphasis the skeleton was built under (Phase 3). Surfaces into the prompt
      * so the AI receives emphasis-specific variation-bandwidth guidance alongside the slot
@@ -897,7 +900,13 @@ export function buildActivitySkeleton(input: SystemAssemblyInput): ActivitySkele
         }
     })
 
-    return { activities: slots, sessionEmphasis }
+    return {
+        activities: slots,
+        sessionEmphasis,
+        // Realization only. Every selection decision above is already fixed, which is what makes
+        // IC-001's "MUST NOT change the Learning Goal / Practice Situation" true by construction.
+        learningStageDirective: learningStageDirective(input.coachInput.learningStage),
+    }
 }
 
 export function formatActivitySkeletonForPrompt(bundle: ActivitySkeletonBundle): string {
@@ -909,6 +918,11 @@ export function formatActivitySkeletonForPrompt(bundle: ActivitySkeletonBundle):
         'Do not remove meaning; paraphrase is allowed.',
         '',
     ]
+
+    if (bundle.learningStageDirective.length > 0) {
+        lines.push(...bundle.learningStageDirective)
+        lines.push('')
+    }
 
     const ref = bundle.activities[0]
     if (ref) {
