@@ -27,7 +27,7 @@
     "workbook_schema_version": "RC1-CANDIDATE-V3",
     "vocabulary_sheet_name": "Vocabulary",
     "vocabulary_header_row": 2,
-    "vocabulary_expected_rows": 175,
+    "vocabulary_expected_rows": 173,
     "lenses_sheet_name": "Lenses",
     "lenses_header_row": 2,
     "lenses_expected_rows": 10,
@@ -2671,62 +2671,6 @@
     },
     {
       "vocabulary_id": "SV-0094",
-      "phrase": "3 v 3",
-      "normalized_phrase": "3 v 3",
-      "phrase_type": "GOAL_TERM",
-      "match_mode": "CONTAINS",
-      "signal_group_id": "G_overload",
-      "signal_group_role": "PRIMARY",
-      "direct_target_concept_type": null,
-      "direct_target_concept_id": null,
-      "modifier_target_signal_group_ids": null,
-      "routing_weight": null,
-      "routing_polarity": "INCLUDE",
-      "age_band": null,
-      "level_band": null,
-      "regional_variant": null,
-      "ambiguity_group": null,
-      "disambiguation_rule": null,
-      "fallback_priority": 6,
-      "status": "ACTIVE",
-      "source_type": "LEGACY_PARSER_EXTRACTION",
-      "source_reference": "matchesOverload()",
-      "legacy_pattern_reference": "\\b\\d+\\s*v\\s*\\d+\\b",
-      "introduced_version": "RC1-CANDIDATE-V3",
-      "last_verified_version": "RC1-CANDIDATE-V3",
-      "provenance": "Extracted from deriveInputConstraints.ts via extract-soccer-vocabulary.ts",
-      "notes": null
-    },
-    {
-      "vocabulary_id": "SV-0095",
-      "phrase": "3 v 3",
-      "normalized_phrase": "3 v 3",
-      "phrase_type": "GOAL_TERM",
-      "match_mode": "CONTAINS",
-      "signal_group_id": "G_overload",
-      "signal_group_role": "PRIMARY",
-      "direct_target_concept_type": null,
-      "direct_target_concept_id": null,
-      "modifier_target_signal_group_ids": null,
-      "routing_weight": null,
-      "routing_polarity": "INCLUDE",
-      "age_band": null,
-      "level_band": null,
-      "regional_variant": null,
-      "ambiguity_group": null,
-      "disambiguation_rule": null,
-      "fallback_priority": 7,
-      "status": "ACTIVE",
-      "source_type": "LEGACY_PARSER_EXTRACTION",
-      "source_reference": "matchesOverload()",
-      "legacy_pattern_reference": "\\b\\d+\\s*(?:v|vs|versus)\\s*\\d+\\b",
-      "introduced_version": "RC1-CANDIDATE-V3",
-      "last_verified_version": "RC1-CANDIDATE-V3",
-      "provenance": "Extracted from deriveInputConstraints.ts via extract-soccer-vocabulary.ts",
-      "notes": null
-    },
-    {
-      "vocabulary_id": "SV-0096",
       "phrase": "transition",
       "normalized_phrase": "transition",
       "phrase_type": "GOAL_TERM",
@@ -2754,7 +2698,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0097",
+      "vocabulary_id": "SV-0095",
       "phrase": "counter attack",
       "normalized_phrase": "counter attack",
       "phrase_type": "GOAL_TERM",
@@ -2782,7 +2726,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0098",
+      "vocabulary_id": "SV-0096",
       "phrase": "quick break",
       "normalized_phrase": "quick break",
       "phrase_type": "GOAL_TERM",
@@ -2810,7 +2754,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0099",
+      "vocabulary_id": "SV-0097",
       "phrase": "fast break",
       "normalized_phrase": "fast break",
       "phrase_type": "GOAL_TERM",
@@ -2838,7 +2782,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0100",
+      "vocabulary_id": "SV-0098",
       "phrase": "break on turnover",
       "normalized_phrase": "break on turnover",
       "phrase_type": "GOAL_TERM",
@@ -2866,9 +2810,9 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0101",
+      "vocabulary_id": "SV-0099",
       "phrase": "\\b(?:attack|attacking|exploit(?:ing)?|counter[-\\s]?attack\\w*|hit|punish)\\b[^.]*\\bbefore\\b[^.]*\\b(?:recover|reorgani[sz]e|reset|get(?:ting)?\\s+(?:back|set|organi[sz]ed|compact))",
-      "normalized_phrase": null,
+      "normalized_phrase": "fast break",
       "phrase_type": "GOAL_TERM",
       "match_mode": "PATTERN",
       "signal_group_id": "H_transition",
@@ -2894,9 +2838,9 @@
       "notes": "Structural pattern — no single phrase represents it, so it is recorded rather than probed."
     },
     {
-      "vocabulary_id": "SV-0102",
+      "vocabulary_id": "SV-0100",
       "phrase": "\\bexploit(?:ing)?\\b[^.]*\\b(?:disorgani[sz]ation|disorder|disorgani[sz]ed\\s+defen[cs]e|broken\\s+(?:shape|defen[cs]e))\\b",
-      "normalized_phrase": null,
+      "normalized_phrase": "break on turnover",
       "phrase_type": "GOAL_TERM",
       "match_mode": "PATTERN",
       "signal_group_id": "H_transition",
@@ -2922,7 +2866,7 @@
       "notes": "Structural pattern — no single phrase represents it, so it is recorded rather than probed."
     },
     {
-      "vocabulary_id": "SV-0103",
+      "vocabulary_id": "SV-0101",
       "phrase": "read",
       "normalized_phrase": "read",
       "phrase_type": "GOAL_TERM",
@@ -2947,10 +2891,10 @@
       "introduced_version": "RC1-CANDIDATE-V3",
       "last_verified_version": "RC1-CANDIDATE-V3",
       "provenance": "Extracted from deriveInputConstraints.ts via extract-soccer-vocabulary.ts",
-      "notes": null
+      "notes": "Structural pattern — no single phrase represents it, so it is recorded rather than probed."
     },
     {
-      "vocabulary_id": "SV-0104",
+      "vocabulary_id": "SV-0102",
       "phrase": "far side",
       "normalized_phrase": "far side",
       "phrase_type": "GOAL_TERM",
@@ -2975,10 +2919,10 @@
       "introduced_version": "RC1-CANDIDATE-V3",
       "last_verified_version": "RC1-CANDIDATE-V3",
       "provenance": "Extracted from deriveInputConstraints.ts via extract-soccer-vocabulary.ts",
-      "notes": null
+      "notes": "Structural pattern — no single phrase represents it, so it is recorded rather than probed."
     },
     {
-      "vocabulary_id": "SV-0105",
+      "vocabulary_id": "SV-0103",
       "phrase": "play what you see",
       "normalized_phrase": "play what you see",
       "phrase_type": "GOAL_TERM",
@@ -3006,9 +2950,9 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0106",
+      "vocabulary_id": "SV-0104",
       "phrase": "\\bhead[s]?\\s+up\\b",
-      "normalized_phrase": null,
+      "normalized_phrase": "far side",
       "phrase_type": "GOAL_TERM",
       "match_mode": "PATTERN",
       "signal_group_id": "K_information",
@@ -3034,7 +2978,7 @@
       "notes": "Structural pattern — no single phrase represents it, so it is recorded rather than probed."
     },
     {
-      "vocabulary_id": "SV-0107",
+      "vocabulary_id": "SV-0105",
       "phrase": "scan",
       "normalized_phrase": "scan",
       "phrase_type": "GOAL_TERM",
@@ -3062,7 +3006,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0108",
+      "vocabulary_id": "SV-0106",
       "phrase": "perceiv",
       "normalized_phrase": "perceiv",
       "phrase_type": "GOAL_TERM",
@@ -3087,10 +3031,10 @@
       "introduced_version": "RC1-CANDIDATE-V3",
       "last_verified_version": "RC1-CANDIDATE-V3",
       "provenance": "Extracted from deriveInputConstraints.ts via extract-soccer-vocabulary.ts",
-      "notes": null
+      "notes": "Structural pattern — no single phrase represents it, so it is recorded rather than probed."
     },
     {
-      "vocabulary_id": "SV-0109",
+      "vocabulary_id": "SV-0107",
       "phrase": "perception",
       "normalized_phrase": "perception",
       "phrase_type": "GOAL_TERM",
@@ -3118,7 +3062,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0110",
+      "vocabulary_id": "SV-0108",
       "phrase": "recognis",
       "normalized_phrase": "recognis",
       "phrase_type": "GOAL_TERM",
@@ -3146,7 +3090,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0111",
+      "vocabulary_id": "SV-0109",
       "phrase": "anticipat",
       "normalized_phrase": "anticipat",
       "phrase_type": "GOAL_TERM",
@@ -3174,7 +3118,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0112",
+      "vocabulary_id": "SV-0110",
       "phrase": "awareness",
       "normalized_phrase": "awareness",
       "phrase_type": "GOAL_TERM",
@@ -3202,7 +3146,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0113",
+      "vocabulary_id": "SV-0111",
       "phrase": "vision",
       "normalized_phrase": "vision",
       "phrase_type": "GOAL_TERM",
@@ -3230,7 +3174,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0114",
+      "vocabulary_id": "SV-0112",
       "phrase": "decision making",
       "normalized_phrase": "decision making",
       "phrase_type": "GOAL_TERM",
@@ -3258,7 +3202,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0115",
+      "vocabulary_id": "SV-0113",
       "phrase": "make decision",
       "normalized_phrase": "make decision",
       "phrase_type": "GOAL_TERM",
@@ -3286,7 +3230,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0116",
+      "vocabulary_id": "SV-0114",
       "phrase": "decide when",
       "normalized_phrase": "decide when",
       "phrase_type": "GOAL_TERM",
@@ -3314,7 +3258,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0117",
+      "vocabulary_id": "SV-0115",
       "phrase": "which option is on",
       "normalized_phrase": "which option is on",
       "phrase_type": "GOAL_TERM",
@@ -3342,7 +3286,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0118",
+      "vocabulary_id": "SV-0116",
       "phrase": "disguis",
       "normalized_phrase": "disguis",
       "phrase_type": "GOAL_TERM",
@@ -3370,7 +3314,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0119",
+      "vocabulary_id": "SV-0117",
       "phrase": "variable target",
       "normalized_phrase": "variable target",
       "phrase_type": "GOAL_TERM",
@@ -3398,7 +3342,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0120",
+      "vocabulary_id": "SV-0118",
       "phrase": "blind side",
       "normalized_phrase": "blind side",
       "phrase_type": "GOAL_TERM",
@@ -3426,7 +3370,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0121",
+      "vocabulary_id": "SV-0119",
       "phrase": "break down compact",
       "normalized_phrase": "break down compact",
       "phrase_type": "DISAMBIGUATION",
@@ -3454,9 +3398,9 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0122",
+      "vocabulary_id": "SV-0120",
       "phrase": "\\b(?:attack|attacking|exploit(?:ing)?|counter[-\\s]?attack\\w*)\\b[^.]*\\bbefore\\b[^.]*\\b(?:recover|reorgani[sz]e|reset|get(?:ting)?\\s+(?:back|set|organi[sz]ed|compact))",
-      "normalized_phrase": null,
+      "normalized_phrase": "blind side",
       "phrase_type": "DISAMBIGUATION",
       "match_mode": "PATTERN",
       "signal_group_id": "I_defensive",
@@ -3482,9 +3426,9 @@
       "notes": "Structural pattern — no single phrase represents it, so it is recorded rather than probed."
     },
     {
-      "vocabulary_id": "SV-0123",
+      "vocabulary_id": "SV-0121",
       "phrase": "\\b(?:creat(?:e|ing)|chances?|scor(?:e|ing)|finish\\w*|shot\\w*|exploit\\w*|overload\\w*)\\b",
-      "normalized_phrase": null,
+      "normalized_phrase": "break down compact",
       "phrase_type": "DISAMBIGUATION",
       "match_mode": "PATTERN",
       "signal_group_id": "I_defensive",
@@ -3510,7 +3454,7 @@
       "notes": "Structural pattern — no single phrase represents it, so it is recorded rather than probed."
     },
     {
-      "vocabulary_id": "SV-0124",
+      "vocabulary_id": "SV-0122",
       "phrase": "\\b(?:against|versus|vs\\.?|past)\\b[^.]*\\b(?:compact|low[-\\s]?block|deep[-\\s]?block|defensive\\s+block|organi[sz]ed\\s+defen[cs]e|deep\\s+defen[cs]e|compact\\s+defen[cs]e|compact\\s+block)\\b",
       "normalized_phrase": null,
       "phrase_type": "DISAMBIGUATION",
@@ -3538,7 +3482,7 @@
       "notes": "Structural pattern — no single phrase represents it, so it is recorded rather than probed."
     },
     {
-      "vocabulary_id": "SV-0125",
+      "vocabulary_id": "SV-0123",
       "phrase": "protect",
       "normalized_phrase": "protect",
       "phrase_type": "GOAL_TERM",
@@ -3553,8 +3497,8 @@
       "age_band": null,
       "level_band": null,
       "regional_variant": null,
-      "ambiguity_group": null,
-      "disambiguation_rule": null,
+      "ambiguity_group": "I_defensive_POLARITY",
+      "disambiguation_rule": "Attacking-intent override: this phrasing must NOT route defensive even though its nouns are defensive.",
       "fallback_priority": 4,
       "status": "ACTIVE",
       "source_type": "LEGACY_PARSER_EXTRACTION",
@@ -3563,10 +3507,10 @@
       "introduced_version": "RC1-CANDIDATE-V3",
       "last_verified_version": "RC1-CANDIDATE-V3",
       "provenance": "Extracted from deriveInputConstraints.ts via extract-soccer-vocabulary.ts",
-      "notes": null
+      "notes": "Structural pattern — no single phrase represents it, so it is recorded rather than probed."
     },
     {
-      "vocabulary_id": "SV-0126",
+      "vocabulary_id": "SV-0124",
       "phrase": "prevent",
       "normalized_phrase": "prevent",
       "phrase_type": "GOAL_TERM",
@@ -3581,8 +3525,8 @@
       "age_band": null,
       "level_band": null,
       "regional_variant": null,
-      "ambiguity_group": null,
-      "disambiguation_rule": null,
+      "ambiguity_group": "I_defensive_POLARITY",
+      "disambiguation_rule": "Attacking-intent override: this phrasing must NOT route defensive even though its nouns are defensive.",
       "fallback_priority": 5,
       "status": "ACTIVE",
       "source_type": "LEGACY_PARSER_EXTRACTION",
@@ -3591,10 +3535,10 @@
       "introduced_version": "RC1-CANDIDATE-V3",
       "last_verified_version": "RC1-CANDIDATE-V3",
       "provenance": "Extracted from deriveInputConstraints.ts via extract-soccer-vocabulary.ts",
-      "notes": null
+      "notes": "Structural pattern — no single phrase represents it, so it is recorded rather than probed."
     },
     {
-      "vocabulary_id": "SV-0127",
+      "vocabulary_id": "SV-0125",
       "phrase": "deny",
       "normalized_phrase": "deny",
       "phrase_type": "GOAL_TERM",
@@ -3622,7 +3566,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0128",
+      "vocabulary_id": "SV-0126",
       "phrase": "denies",
       "normalized_phrase": "denies",
       "phrase_type": "GOAL_TERM",
@@ -3650,7 +3594,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0129",
+      "vocabulary_id": "SV-0127",
       "phrase": "delay",
       "normalized_phrase": "delay",
       "phrase_type": "GOAL_TERM",
@@ -3678,7 +3622,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0130",
+      "vocabulary_id": "SV-0128",
       "phrase": "contain",
       "normalized_phrase": "contain",
       "phrase_type": "GOAL_TERM",
@@ -3706,7 +3650,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0131",
+      "vocabulary_id": "SV-0129",
       "phrase": "screen",
       "normalized_phrase": "screen",
       "phrase_type": "GOAL_TERM",
@@ -3734,7 +3678,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0132",
+      "vocabulary_id": "SV-0130",
       "phrase": "shield",
       "normalized_phrase": "shield",
       "phrase_type": "GOAL_TERM",
@@ -3762,7 +3706,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0133",
+      "vocabulary_id": "SV-0131",
       "phrase": "stay compact",
       "normalized_phrase": "stay compact",
       "phrase_type": "GOAL_TERM",
@@ -3790,7 +3734,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0134",
+      "vocabulary_id": "SV-0132",
       "phrase": "compactness",
       "normalized_phrase": "compactness",
       "phrase_type": "GOAL_TERM",
@@ -3818,7 +3762,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0135",
+      "vocabulary_id": "SV-0133",
       "phrase": "compact shape",
       "normalized_phrase": "compact shape",
       "phrase_type": "GOAL_TERM",
@@ -3846,7 +3790,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0136",
+      "vocabulary_id": "SV-0134",
       "phrase": "low block",
       "normalized_phrase": "low block",
       "phrase_type": "GOAL_TERM",
@@ -3874,7 +3818,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0137",
+      "vocabulary_id": "SV-0135",
       "phrase": "deep block",
       "normalized_phrase": "deep block",
       "phrase_type": "GOAL_TERM",
@@ -3902,7 +3846,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0138",
+      "vocabulary_id": "SV-0136",
       "phrase": "defensive block",
       "normalized_phrase": "defensive block",
       "phrase_type": "GOAL_TERM",
@@ -3930,7 +3874,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0139",
+      "vocabulary_id": "SV-0137",
       "phrase": "defensive shape",
       "normalized_phrase": "defensive shape",
       "phrase_type": "GOAL_TERM",
@@ -3958,7 +3902,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0140",
+      "vocabulary_id": "SV-0138",
       "phrase": "stay organised",
       "normalized_phrase": "stay organised",
       "phrase_type": "GOAL_TERM",
@@ -3986,7 +3930,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0141",
+      "vocabulary_id": "SV-0139",
       "phrase": "organised defensively",
       "normalized_phrase": "organised defensively",
       "phrase_type": "GOAL_TERM",
@@ -4014,7 +3958,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0142",
+      "vocabulary_id": "SV-0140",
       "phrase": "defensively organised",
       "normalized_phrase": "defensively organised",
       "phrase_type": "GOAL_TERM",
@@ -4042,7 +3986,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0143",
+      "vocabulary_id": "SV-0141",
       "phrase": "recover shape",
       "normalized_phrase": "recover shape",
       "phrase_type": "GOAL_TERM",
@@ -4070,7 +4014,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0144",
+      "vocabulary_id": "SV-0142",
       "phrase": "defend deep",
       "normalized_phrase": "defend deep",
       "phrase_type": "GOAL_TERM",
@@ -4098,7 +4042,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0145",
+      "vocabulary_id": "SV-0143",
       "phrase": "slow attack",
       "normalized_phrase": "slow attack",
       "phrase_type": "GOAL_TERM",
@@ -4126,7 +4070,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0146",
+      "vocabulary_id": "SV-0144",
       "phrase": "stop attack",
       "normalized_phrase": "stop attack",
       "phrase_type": "GOAL_TERM",
@@ -4154,7 +4098,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0147",
+      "vocabulary_id": "SV-0145",
       "phrase": "block lane",
       "normalized_phrase": "block lane",
       "phrase_type": "GOAL_TERM",
@@ -4182,7 +4126,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0148",
+      "vocabulary_id": "SV-0146",
       "phrase": "cut off",
       "normalized_phrase": "cut off",
       "phrase_type": "GOAL_TERM",
@@ -4210,7 +4154,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0149",
+      "vocabulary_id": "SV-0147",
       "phrase": "force wide",
       "normalized_phrase": "force wide",
       "phrase_type": "GOAL_TERM",
@@ -4238,7 +4182,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0150",
+      "vocabulary_id": "SV-0148",
       "phrase": "keep out",
       "normalized_phrase": "keep out",
       "phrase_type": "GOAL_TERM",
@@ -4266,7 +4210,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0151",
+      "vocabulary_id": "SV-0149",
       "phrase": "away from central",
       "normalized_phrase": "away from central",
       "phrase_type": "GOAL_TERM",
@@ -4294,7 +4238,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0152",
+      "vocabulary_id": "SV-0150",
       "phrase": "harde to break down",
       "normalized_phrase": "harde to break down",
       "phrase_type": "GOAL_TERM",
@@ -4322,9 +4266,9 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0153",
+      "vocabulary_id": "SV-0151",
       "phrase": "\\b(?:difficult|hard|tough)\\b[^.]*\\b(?:for\\s+(?:the\\s+)?(?:attack|attackers?|opponents?)|to\\s+(?:play\\s+through|penetrate|break\\s+through|progress\\s+through))",
-      "normalized_phrase": null,
+      "normalized_phrase": "away from central",
       "phrase_type": "GOAL_TERM",
       "match_mode": "PATTERN",
       "signal_group_id": "I_defensive",
@@ -4350,7 +4294,7 @@
       "notes": "Structural pattern — no single phrase represents it, so it is recorded rather than probed."
     },
     {
-      "vocabulary_id": "SV-0154",
+      "vocabulary_id": "SV-0152",
       "phrase": "make difficult attack",
       "normalized_phrase": "make difficult attack",
       "phrase_type": "GOAL_TERM",
@@ -4378,7 +4322,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0155",
+      "vocabulary_id": "SV-0153",
       "phrase": "reorganise",
       "normalized_phrase": "reorganise",
       "phrase_type": "GOAL_TERM",
@@ -4403,10 +4347,10 @@
       "introduced_version": "RC1-CANDIDATE-V3",
       "last_verified_version": "RC1-CANDIDATE-V3",
       "provenance": "Extracted from deriveInputConstraints.ts via extract-soccer-vocabulary.ts",
-      "notes": null
+      "notes": "Structural pattern — no single phrase represents it, so it is recorded rather than probed."
     },
     {
-      "vocabulary_id": "SV-0156",
+      "vocabulary_id": "SV-0154",
       "phrase": "lose shape",
       "normalized_phrase": "lose shape",
       "phrase_type": "GOAL_TERM",
@@ -4434,7 +4378,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0157",
+      "vocabulary_id": "SV-0155",
       "phrase": "get shape",
       "normalized_phrase": "get shape",
       "phrase_type": "GOAL_TERM",
@@ -4462,7 +4406,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0158",
+      "vocabulary_id": "SV-0156",
       "phrase": "after lose ball",
       "normalized_phrase": "after lose ball",
       "phrase_type": "GOAL_TERM",
@@ -4490,7 +4434,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0159",
+      "vocabulary_id": "SV-0157",
       "phrase": "press",
       "normalized_phrase": "press",
       "phrase_type": "GOAL_TERM",
@@ -4518,7 +4462,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0160",
+      "vocabulary_id": "SV-0158",
       "phrase": "win ball",
       "normalized_phrase": "win ball",
       "phrase_type": "GOAL_TERM",
@@ -4546,7 +4490,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0161",
+      "vocabulary_id": "SV-0159",
       "phrase": "win it back",
       "normalized_phrase": "win it back",
       "phrase_type": "GOAL_TERM",
@@ -4574,7 +4518,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0162",
+      "vocabulary_id": "SV-0160",
       "phrase": "regain",
       "normalized_phrase": "regain",
       "phrase_type": "GOAL_TERM",
@@ -4602,7 +4546,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0163",
+      "vocabulary_id": "SV-0161",
       "phrase": "counter press",
       "normalized_phrase": "counter press",
       "phrase_type": "GOAL_TERM",
@@ -4630,7 +4574,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0164",
+      "vocabulary_id": "SV-0162",
       "phrase": "recover shape",
       "normalized_phrase": "recover shape",
       "phrase_type": "GOAL_TERM",
@@ -4658,7 +4602,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0165",
+      "vocabulary_id": "SV-0163",
       "phrase": "reorganise",
       "normalized_phrase": "reorganise",
       "phrase_type": "GOAL_TERM",
@@ -4686,7 +4630,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0166",
+      "vocabulary_id": "SV-0164",
       "phrase": "restore defensive shape",
       "normalized_phrase": "restore defensive shape",
       "phrase_type": "GOAL_TERM",
@@ -4714,7 +4658,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0167",
+      "vocabulary_id": "SV-0165",
       "phrase": "get shape",
       "normalized_phrase": "get shape",
       "phrase_type": "GOAL_TERM",
@@ -4742,7 +4686,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0168",
+      "vocabulary_id": "SV-0166",
       "phrase": "after being stretched",
       "normalized_phrase": "after being stretched",
       "phrase_type": "GOAL_TERM",
@@ -4770,7 +4714,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0169",
+      "vocabulary_id": "SV-0167",
       "phrase": "lose shape",
       "normalized_phrase": "lose shape",
       "phrase_type": "GOAL_TERM",
@@ -4798,7 +4742,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0170",
+      "vocabulary_id": "SV-0168",
       "phrase": "after lose ball",
       "normalized_phrase": "after lose ball",
       "phrase_type": "GOAL_TERM",
@@ -4826,7 +4770,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0171",
+      "vocabulary_id": "SV-0169",
       "phrase": "delay",
       "normalized_phrase": "delay",
       "phrase_type": "GOAL_TERM",
@@ -4854,7 +4798,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0172",
+      "vocabulary_id": "SV-0170",
       "phrase": "contain",
       "normalized_phrase": "contain",
       "phrase_type": "GOAL_TERM",
@@ -4882,7 +4826,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0173",
+      "vocabulary_id": "SV-0171",
       "phrase": "slow",
       "normalized_phrase": "slow",
       "phrase_type": "GOAL_TERM",
@@ -4910,7 +4854,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0174",
+      "vocabulary_id": "SV-0172",
       "phrase": "force wide",
       "normalized_phrase": "force wide",
       "phrase_type": "GOAL_TERM",
@@ -4938,7 +4882,7 @@
       "notes": null
     },
     {
-      "vocabulary_id": "SV-0175",
+      "vocabulary_id": "SV-0173",
       "phrase": "prevent counter",
       "normalized_phrase": "prevent counter",
       "phrase_type": "GOAL_TERM",

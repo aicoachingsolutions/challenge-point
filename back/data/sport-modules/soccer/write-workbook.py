@@ -73,6 +73,25 @@ def write_sheet(worksheet, rows):
         target = HEADER_ROW + 1 + offset
         for key, value in row.items():
             worksheet.cell(row=target, column=index[key] + 1, value=value if value != "" else None)
+
+    # CLEAR THE TAIL. A sheet that SHRINKS leaves orphan rows behind, and they are invisible: the
+    # projection reads every non-empty row, so the loader sees more rows than were written and the
+    # integrity gate — which compares against the count we just wrote — disagrees for a reason that
+    # points nowhere. Caught 2026-08-08 when a parser fix took vocabulary from 175 rows to 173 and
+    # two stale rows survived, still asserting routing the parser no longer does.
+    # delete_rows, NOT blanking the cells. Setting values to None leaves the cells in the sheet and
+    # the projection still counts the row, so the orphans survive a "clear" that looks like it worked
+    # — which is how this defect hid in the first place.
+    first_orphan = HEADER_ROW + 1 + len(rows)
+    populated = [
+        r
+        for r in range(first_orphan, worksheet.max_row + 1)
+        if any(worksheet.cell(row=r, column=c).value not in (None, "") for c in range(1, len(headers) + 1))
+    ]
+    if populated:
+        worksheet.delete_rows(first_orphan, max(populated) - first_orphan + 1)
+        print(f"    cleared {len(populated)} orphan row(s) left by a shrinking sheet")
+
     return len(rows)
 
 
