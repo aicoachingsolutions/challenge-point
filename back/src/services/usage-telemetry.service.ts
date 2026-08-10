@@ -19,6 +19,19 @@ export interface UsageSummary {
     resolutionBreakdown: Record<string, number>
     topSignalGroups: Array<{ signalGroup: string; count: number }>
     topArchetypes: Array<{ archetype: string; count: number }>
+    /**
+     * What the guided planning conversation actually produced. `learningStage` is the reason this
+     * exists: coaches are asked for it but nothing consumes it yet, because how it combines with
+     * Challenge is a coaching judgement still to be made. This turns that decision into one that can
+     * be made against a real distribution. `entryPoint` shows whether coaches are using the guided
+     * conversation or falling back to free text, which is the honest measure of whether it works.
+     */
+    planning: {
+        entryPoint: Record<string, number>
+        learningStage: Record<string, number>
+        topLearningGoals: Array<{ learningGoalId: string; count: number }>
+        practiceSituationUsed: number
+    }
     rejectedGoals: Array<{ goalText: string; count: number }>
     feedback: { up: number; down: number; comments: number }
     /**
@@ -67,6 +80,10 @@ export async function summarizeUsage(sinceDays = 30): Promise<UsageSummary> {
     const editFieldCounts = new Map<string, number>()
     const edits = { total: 0, structural: 0 }
     const feedback = { up: 0, down: 0, comments: 0 }
+    const planningEntryPoint: Record<string, number> = {}
+    const learningStageCounts: Record<string, number> = {}
+    const learningGoalCounts = new Map<string, number>()
+    let practiceSituationUsed = 0
 
     for (const e of events) {
         totals[e.eventType] = (totals[e.eventType] ?? 0) + 1
@@ -77,6 +94,21 @@ export async function summarizeUsage(sinceDays = 30): Promise<UsageSummary> {
             for (const sg of (p['signalGroups'] as string[]) ?? []) {
                 signalCounts.set(sg, (signalCounts.get(sg) ?? 0) + 1)
             }
+
+            const entryPoint = String(p['planningEntryPoint'] ?? 'unknown')
+            planningEntryPoint[entryPoint] = (planningEntryPoint[entryPoint] ?? 0) + 1
+
+            const stage = p['learningStage']
+            if (typeof stage === 'string' && stage) {
+                learningStageCounts[stage] = (learningStageCounts[stage] ?? 0) + 1
+            }
+            const learningGoalId = p['learningGoalId']
+            if (typeof learningGoalId === 'string' && learningGoalId) {
+                learningGoalCounts.set(learningGoalId, (learningGoalCounts.get(learningGoalId) ?? 0) + 1)
+            }
+            // How often the conditional step actually fired — the measure of whether Practice
+            // Situations are earning the extra question.
+            if (p['practiceSituationId']) practiceSituationUsed += 1
         }
         if (e.eventType === 'selection_resolved') {
             const arc = String(p['archetype'] ?? '')
@@ -125,6 +157,12 @@ export async function summarizeUsage(sinceDays = 30): Promise<UsageSummary> {
         totals,
         resolutionBreakdown,
         topSignalGroups: topN(signalCounts, 15).map(([signalGroup, count]) => ({ signalGroup, count })),
+        planning: {
+            entryPoint: planningEntryPoint,
+            learningStage: learningStageCounts,
+            topLearningGoals: topN(learningGoalCounts, 15).map(([learningGoalId, count]) => ({ learningGoalId, count })),
+            practiceSituationUsed,
+        },
         topArchetypes: topN(archetypeCounts, 15).map(([archetype, count]) => ({ archetype, count })),
         rejectedGoals: topN(rejectedCounts, 25).map(([goalText, count]) => ({ goalText, count })),
         feedback,
