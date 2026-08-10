@@ -52,6 +52,36 @@ interface PlanningSelectionInput {
     learningStage?: string
 }
 
+/**
+ * Resolve a Practice Situation id to its authored name and definition.
+ *
+ * Returns undefined for an absent id — several Learning Goals have no situations and the
+ * conversation skips the step, so "none selected" is a normal state rather than an error. An id that
+ * does not resolve is different: that means the client and the workbook disagree, so it is logged
+ * rather than silently treated as absent.
+ */
+function resolvePracticeSituation(
+    id: string | null | undefined
+): { id: string; name: string; definition: string } | undefined {
+    if (!id) return undefined
+
+    for (const goal of sessionPlanningModel.learningGoals()) {
+        const match = sessionPlanningModel
+            .practiceSituationsFor(String(goal['ID']))
+            .find((situation) => String(situation['ID']) === id)
+        if (match) {
+            return {
+                id,
+                name: String(match['Practice Situation'] ?? ''),
+                definition: String(match['Definition'] ?? ''),
+            }
+        }
+    }
+
+    Logger.warn(`[Activity Generation] Practice Situation "${id}" is not in the Session Planning Model.`)
+    return undefined
+}
+
 const router = Router()
 const ROUTES = ENDPOINTS.app
 const ACTIVITY_ASSEMBLY_TIMEOUT_MS = Number.parseInt(process.env.ACTIVITY_ASSEMBLY_TIMEOUT_MS ?? '', 10) || 90000
@@ -702,6 +732,10 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                 // what makes "changing Learning Stage MUST NOT change the selected Learning Goal"
                 // structurally true rather than merely tested.
                 learningStage: planning?.learningStage,
+                // IC-002. Resolved from the id against the workbook rather than trusting names sent
+                // by the client — the authored definition is the knowledge, and it should come from
+                // the canonical source on every request.
+                practiceSituation: resolvePracticeSituation(planning?.practiceSituationId),
             },
         })
 

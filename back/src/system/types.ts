@@ -15,6 +15,12 @@ export type ActivityAssemblyRequest = {
      * no such decision", which realization must respect rather than default.
      */
     learningStage?: string
+    /**
+     * IC-002. The selected Practice Situation as authored in the workbook — resolved server-side from
+     * its id so the coach-facing knowledge stays authoritative rather than round-tripping through the
+     * client. Absent when the goal has no situations, which is a legitimate and frequent state.
+     */
+    practiceSituation?: { id: string; name: string; definition: string }
 }
 
 export type ArchetypeDefinition = {
