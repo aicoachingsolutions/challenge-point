@@ -4,7 +4,7 @@
     "learningGoalName": "Play Out from the Back",
     "primary": [],
     "secondary": [],
-    "notes": "GAP — no canonical Game Problem is reachable from this goal today. The coach phrases fall to the general fallback, so the activity would be generic. Needs either vocabulary that routes it or a decision about which Game Problem it belongs to. Left blank deliberately."
+    "notes": "UNRESOLVED — the coach phrases for this goal reach only the general fallback today, so the activity would be generic. Left blank deliberately rather than filled with a plausible ID. NOTE (revised after IC-002): this is not necessarily a missing Game Problem. IC-002 defines a Practice Situation as a competitive context in which several Game Problems emerge, so a goal at this level may resolve through its situations rather than to one problem directly. Read this row as \"the runtime cannot currently reach it\", not as \"the knowledge is absent\"."
   },
   {
     "learningGoalId": "D01",
@@ -92,6 +92,6 @@
     "learningGoalName": "Beat Defenders 1v1",
     "primary": [],
     "secondary": [],
-    "notes": "GAP — no canonical Game Problem is reachable from this goal today. The coach phrases fall to the general fallback, so the activity would be generic. Needs either vocabulary that routes it or a decision about which Game Problem it belongs to. Left blank deliberately."
+    "notes": "UNRESOLVED — the coach phrases for this goal reach only the general fallback today, so the activity would be generic. Left blank deliberately rather than filled with a plausible ID. NOTE (revised after IC-002): this is not necessarily a missing Game Problem. IC-002 defines a Practice Situation as a competitive context in which several Game Problems emerge, so a goal at this level may resolve through its situations rather than to one problem directly. Read this row as \"the runtime cannot currently reach it\", not as \"the knowledge is absent\"."
   }
 ]

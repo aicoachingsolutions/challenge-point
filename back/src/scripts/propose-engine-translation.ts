@@ -18,8 +18,15 @@
  * silently become canonical. It writes to a SEPARATE file, never to the ingested workbook.
  *
  * WHAT IT REPORTS RATHER THAN HIDES. Where a Learning Goal reaches no Game Problem, the row is left
- * unpopulated with the reason stated. Those are real gaps in what soccer can currently serve, and
- * writing a plausible-looking ID into them would bury exactly the finding that matters most.
+ * unpopulated with the reason stated. Writing a plausible-looking ID into them would bury exactly
+ * the finding that matters most.
+ *
+ * REVISED AFTER IC-002. An earlier version of this script called those rows "gaps", which was a
+ * category error in Christian's terms: a Practice Situation is a competitive CONTEXT in which several
+ * Game Problems emerge, not a synonym for one. So a Learning Goal that reaches nothing directly may
+ * still be well-formed knowledge that resolves through its situations. The unresolved rows now say
+ * "the runtime cannot currently reach this", which is what was actually measured, rather than "the
+ * knowledge is missing", which was an inference beyond the evidence.
  *
  * Run: npx ts-node --files -r tsconfig-paths/register ./src/scripts/propose-engine-translation.ts
  */
@@ -98,9 +105,12 @@ function main(): void {
                 primary: [],
                 secondary: [],
                 notes:
-                    'GAP — no canonical Game Problem is reachable from this goal today. The coach phrases fall ' +
-                    'to the general fallback, so the activity would be generic. Needs either vocabulary that ' +
-                    'routes it or a decision about which Game Problem it belongs to. Left blank deliberately.',
+                    'UNRESOLVED — the coach phrases for this goal reach only the general fallback today, so the ' +
+                    'activity would be generic. Left blank deliberately rather than filled with a plausible ID. ' +
+                    'NOTE (revised after IC-002): this is not necessarily a missing Game Problem. IC-002 defines a ' +
+                    'Practice Situation as a competitive context in which several Game Problems emerge, so a goal ' +
+                    'at this level may resolve through its situations rather than to one problem directly. Read ' +
+                    'this row as "the runtime cannot currently reach it", not as "the knowledge is absent".',
             })
             continue
         }
