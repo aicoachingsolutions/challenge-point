@@ -33,7 +33,9 @@ function testRc1Shape(): void {
         ['Attacking', 'Defending', 'Transition to Attack', 'Transition to Defend'],
         'RC1 declares four phases, in authoring order.'
     )
-    assert.equal(sessionPlanningModel.entryLanguage().length, 12, 'RC1 declares 12 entry phrases.')
+    // RC1.1 (Cycle 8): 12 original + 57 merged from the verified runtime extraction, including the
+    // judgment phrases resolved by Christian's D02/D03 coaching-intent distinction.
+    assert.equal(sessionPlanningModel.entryLanguage().length, 69, 'RC1.1 declares 69 entry phrases.')
     assert.equal(sessionPlanningModel.governanceRules().length, 6, 'RC1 declares 6 governance rules.')
 }
 
@@ -74,26 +76,40 @@ function testPracticeSituationsResolve(): void {
 }
 
 /**
- * ENGINE TRANSLATION IS UNPOPULATED AT RC1 — all eleven rows read TBD.
+ * ENGINE TRANSLATION — approved and applied at RC1.1 (Cycle 8 §4).
  *
- * This asserts the CURRENT state on purpose. It is not an endorsement: the moment Christian
- * populates the mapping this test fails, which forces the wiring work to be done deliberately
- * instead of the bridge quietly appearing while nothing consumes it.
+ * This test previously asserted zero populated rows, deliberately, so that populating the bridge
+ * would force a conscious update rather than appearing silently. It fired exactly as intended when
+ * the Cycle 8 decisions landed, and is now updated to the approved state.
+ *
+ * Nine of eleven are mapped. A01 and A04 remain EMPTY by explicit decision (Cycle 8 §5: "No
+ * placeholder mappings should be introduced") — they are runtime realization opportunities rather
+ * than knowledge deficiencies, so an empty cell here is the correct recorded answer, not an omission.
  */
-function testEngineTranslationIsKnownUnpopulated(): void {
+function testEngineTranslationMatchesApprovedRc11(): void {
     const status = translationStatus()
     assert.equal(status.total, 11, 'Every Learning Goal must have an Engine Translation row.')
-    assert.equal(
-        status.populated,
-        0,
-        `Engine Translation is now partly populated (${status.populated}/${status.total}). That is the ` +
-            `expected next step — wire the Game Problem references through and update this test.`
+    assert.equal(status.populated, 9, 'Cycle 8 approved nine mappings.')
+    assert.deepEqual(
+        status.unpopulated.sort(),
+        ['A01', 'A04'],
+        'A01 and A04 are the intentional runtime gaps. Any other unmapped goal is a regression.'
     )
 
-    // `null` rather than an empty array: "not populated" and "no game problems apply" are opposite
-    // meanings, and the Implementation Guide requires failing loudly rather than defaulting.
-    assert.equal(gameProblemsForLearningGoal('A01'), null, 'An unpopulated bridge must report null, not empty.')
+    // Spot-pin two approved mappings so a silent change to the canonical workbook is caught.
+    assert.deepEqual(gameProblemsForLearningGoal('A02')?.primary, ['GP-015'])
+    assert.deepEqual(gameProblemsForLearningGoal('D02')?.primary, ['GP-016'])
+
+    // `null` rather than an empty array for a gap: "no mapping" and "no game problems apply" are
+    // opposite meanings, and the Implementation Guide requires failing loudly over defaulting.
+    assert.equal(gameProblemsForLearningGoal('A01'), null, 'An intentional gap must report null, not empty.')
     assert.equal(gameProblemsForLearningGoal('NOPE'), null, 'An unknown Learning Goal must report null.')
+
+    // Cycle 8 §4 defers secondary Game Problems to a future version, so none should be recorded.
+    for (const goal of sessionPlanningModel.learningGoals()) {
+        const mapping = gameProblemsForLearningGoal(String(goal['ID']))
+        assert.deepEqual(mapping?.secondary ?? [], [], `${String(goal['ID'])} records a secondary GP; RC1.1 approves primary only.`)
+    }
 }
 
 /** Entry language is a navigation hint. It must resolve, and it must not invent goals. */
@@ -159,7 +175,7 @@ function runAll(): void {
     testRc1Shape()
     testDisplayOrderPreserved()
     testPracticeSituationsResolve()
-    testEngineTranslationIsKnownUnpopulated()
+    testEngineTranslationMatchesApprovedRc11()
     testEntryLanguageResolves()
     testGateCatchesBrokenReferences()
     console.log('session-planning-model unit tests: all cases passed.')
