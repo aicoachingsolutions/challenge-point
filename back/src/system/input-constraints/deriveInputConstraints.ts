@@ -146,11 +146,29 @@ function matchesBreakLines(text: string): boolean {
  * matcher catches both broad finishing vocabulary (shot/finish/score/chance/final third) and
  * specific finishing-context phrases (penalty box / around the box / near the goal / get off a shot).
  */
+/**
+ * Remove goal-kick phrasing before testing for finishing vocabulary.
+ *
+ * Deliberately narrow: only the restart phrase is stripped, so "score from a goal kick situation"
+ * still reaches finishing through "score". Broadening this to any sentence containing "goal kick"
+ * would silently disqualify legitimate finishing goals.
+ */
+function withoutGoalKicks(text: string): string {
+    return text.replace(/\bgoal\s*kicks?\b/g, ' ')
+}
+
 function matchesFinishing(text: string): boolean {
     const t = text.toLowerCase()
     if (/\bshots?\b|\bshooting\b|\bshoot\b/.test(t)) return true
     if (/\bfinish(?:ing)?\b|\bscore\b|\bscoring\b/.test(t)) return true
-    if (/\bgoals?\b|\bgoal scoring\b/.test(t)) return true
+    // A GOAL KICK IS A RESTART, NOT A FINISHING PROBLEM. The bare word "goal" is good finishing
+    // vocabulary ("score a goal", "near goal"), but it also sits inside "goal kick" — so Christian's
+    // Practice Situation "From Goal Kicks", under "Play Out from the Back", was producing a Finishing
+    // Game. A coach asking to build from the back and receiving a shooting activity would rightly
+    // stop trusting the tool. Found 2026-08-10 testing IC-002 Invariant 1 across every Practice
+    // Situation. Same class as the "Defend 1v1" overload misroute: a substring carrying the wrong
+    // meaning in context.
+    if (/\bgoals?\b|\bgoal scoring\b/.test(withoutGoalKicks(t))) return true
     if (/\bchances?\b|\bchance creation\b/.test(t)) return true
     if (/\bfinal third\b|\battacking third\b/.test(t)) return true
     if (/\bcreate better shots?\b|\bcreating better shots?\b|\bcreate shots?\b/.test(t)) return true

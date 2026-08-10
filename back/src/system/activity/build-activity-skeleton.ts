@@ -7,6 +7,7 @@ import { registryIdString } from './assembly-package-ids'
 import { getEmphasisVariationProfile, getSlotVariationSpec } from './emphasis-variation-profile'
 import { getSlotMechanicalVariations, type ValueLandscapeModifier } from './slot-mechanics-variations'
 import { learningStageDirective } from './learning-stage-realization'
+import { practiceSituationDirective } from './practice-situation-realization'
 
 /** One of three system-owned activity slots; AI fills wording but must not remove these mechanics. */
 export type ActivitySkeletonSlot = {
@@ -49,6 +50,8 @@ export type ActivitySkeletonBundle = {
     activities: ActivitySkeletonSlot[]
     /** IC-001 realization directive. Empty when the coach was never asked for a Learning Stage. */
     learningStageDirective: string[]
+    /** IC-002 representative-context directive. Empty when the goal has no Practice Situations. */
+    practiceSituationDirective: string[]
     /**
      * The session emphasis the skeleton was built under (Phase 3). Surfaces into the prompt
      * so the AI receives emphasis-specific variation-bandwidth guidance alongside the slot
@@ -906,6 +909,7 @@ export function buildActivitySkeleton(input: SystemAssemblyInput): ActivitySkele
         // Realization only. Every selection decision above is already fixed, which is what makes
         // IC-001's "MUST NOT change the Learning Goal / Practice Situation" true by construction.
         learningStageDirective: learningStageDirective(input.coachInput.learningStage),
+        practiceSituationDirective: practiceSituationDirective(input.coachInput.practiceSituation),
     }
 }
 
@@ -918,6 +922,12 @@ export function formatActivitySkeletonForPrompt(bundle: ActivitySkeletonBundle):
         'Do not remove meaning; paraphrase is allowed.',
         '',
     ]
+
+    // Context first, then how it is realized for these players — the order a coach would describe it.
+    if (bundle.practiceSituationDirective.length > 0) {
+        lines.push(...bundle.practiceSituationDirective)
+        lines.push('')
+    }
 
     if (bundle.learningStageDirective.length > 0) {
         lines.push(...bundle.learningStageDirective)
