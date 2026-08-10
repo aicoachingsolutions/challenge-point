@@ -179,8 +179,19 @@ function matchesOverload(text: string): boolean {
     if (/\bnumbers?\s+advantages?\b/.test(t)) return true
     if (/\bextra\s+(?:man|player|attacker)\b/.test(t)) return true
     if (/\bman\s+(?:up|advantage)\b|\bup\s+a\s+(?:man|player)\b/.test(t)) return true
-    if (/\b\d+\s*v\s*\d+\b/.test(t)) return true
-    if (/\b\d+\s*(?:v|vs|versus)\s*\d+\b/.test(t)) return true
+    // An NvM shape is an overload ONLY when the numbers are UNEQUAL. "1v1", "4v4" and "7v7" are
+    // parity — the opposite of a numerical advantage — and matching them here sent "defend 1v1"
+    // to the overload group, which routes to Gain Access (numerical access at the point of
+    // interaction). Found 2026-08-08 probing Christian's Entry Language phrases through the parser:
+    // "Defend 1v1" resolved to regain + overload, and the overload half was simply wrong.
+    return unequalNumbersUp(t)
+}
+
+/** True when the text contains an NvM / N v M / N vs M shape with DIFFERENT numbers. */
+function unequalNumbersUp(text: string): boolean {
+    for (const match of text.matchAll(/\b(\d+)\s*(?:v|vs|versus)\s*(\d+)\b/g)) {
+        if (Number(match[1]) !== Number(match[2])) return true
+    }
     return false
 }
 
@@ -370,7 +381,10 @@ function defensiveSubtype(text: string): DefensiveSubtype {
  * than getting hard-rejected with "No supported soccer training signals". */
 function matchesSoccerRelatedDefault(text: string): boolean {
     const t = text.toLowerCase()
-    return /\bsoccer\b|\bfootball\b|\bplayers?\b|\bteams?\b|\bball\b|\battack(?:ing|ers?)?\b|\bdefen[cs]e\b|\bdefend(?:ing|ers?)?\b|\bmidfield\b|\boffen[cs]e\b|\badvantage\b|\boverloads?\b|\btransition(?:s|ing)?\b|\bnumerical\b|\bcounter\b|\bforward\b|\bscore\b|\bgoal\b|\bbuild[-\s]?up\b|\bplay(?:ing)?\s+(?:out|through)\b|\b(?:out|up)\s+of\s+the\s+back\b|\bfrom\s+the\s+back\b|\bbreak\s+down\b|\bblock\b|\bpenetrat\w*\b/.test(
+    // NvM formats belong here, not in the overload group. An EQUAL-numbers format ("4v4", "7v7") is
+    // parity rather than a numerical advantage, so it must not claim overload — but it is plainly
+    // soccer, and hard-rejecting it would be a worse answer than a sensible general activity.
+    return /\bsoccer\b|\bfootball\b|\bplayers?\b|\bteams?\b|\bball\b|\battack(?:ing|ers?)?\b|\bdefen[cs]e\b|\bdefend(?:ing|ers?)?\b|\bmidfield\b|\boffen[cs]e\b|\badvantage\b|\boverloads?\b|\btransition(?:s|ing)?\b|\bnumerical\b|\bcounter\b|\bforward\b|\bscore\b|\bgoal\b|\bbuild[-\s]?up\b|\bplay(?:ing)?\s+(?:out|through)\b|\b(?:out|up)\s+of\s+the\s+back\b|\bfrom\s+the\s+back\b|\bbreak\s+down\b|\bblock\b|\bpenetrat\w*\b|\b\d+\s*(?:v|vs|versus)\s*\d+\b/.test(
         t
     )
 }
