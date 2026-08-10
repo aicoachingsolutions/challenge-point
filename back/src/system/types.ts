@@ -10,6 +10,11 @@ export type ActivityAssemblyRequest = {
     challengeLevel: string
     duration: number
     learningGoals: string[]
+    /**
+     * IC-001. Optional because the free-text form does not ask for it — absent means "the coach made
+     * no such decision", which realization must respect rather than default.
+     */
+    learningStage?: string
 }
 
 export type ArchetypeDefinition = {
