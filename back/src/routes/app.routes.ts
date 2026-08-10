@@ -736,6 +736,7 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                 // by the client — the authored definition is the knowledge, and it should come from
                 // the canonical source on every request.
                 practiceSituation: resolvePracticeSituation(planning?.practiceSituationId),
+                learningGoalId: planning?.learningGoalId,
             },
         })
 

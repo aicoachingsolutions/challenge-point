@@ -700,6 +700,16 @@ function mapStructuredActivityToLegacy(activity: Activity, input: SystemAssembly
             foundationConstraintId: input.constraintPackage.foundation.constraint._id,
             shapingConstraintId: input.constraintPackage.shaping.constraint._id,
             consequenceConstraintId: input.constraintPackage.consequence?.constraint._id,
+            // IC-003 Invariant 5. Recorded on the activity itself rather than left to be joined from
+            // telemetry by session — an activity a coach disputes should carry its own provenance.
+            planning: {
+                learningGoalId: input.coachInput.learningGoalId,
+                learningGoalName: input.coachInput.learningGoals?.[0],
+                practiceSituationId: input.coachInput.practiceSituation?.id,
+                practiceSituationName: input.coachInput.practiceSituation?.name,
+                learningStage: input.coachInput.learningStage,
+                challengeLevel: input.coachInput.challengeLevel,
+            },
         },
         createdAt: now,
         updatedAt: now,

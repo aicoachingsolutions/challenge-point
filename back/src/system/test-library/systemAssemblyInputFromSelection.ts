@@ -95,6 +95,7 @@ export function systemAssemblyInputFromTestLibrarySelection(params: {
         learningGoals: string[]
         learningStage?: string
         practiceSituation?: { id: string; name: string; definition: string }
+        learningGoalId?: string
     }
 }): SystemAssemblyInput {
     const { selection, session, previousActivities, coachInput } = params
