@@ -64,7 +64,10 @@ function dedupeSignals(signals: string[]): string[] {
 /** Group A — Touch / receiving / first touch */
 function matchesTouchReceiving(text: string): boolean {
     const t = text.toLowerCase()
-    if (/\bfirst touches?\b/.test(t)) return true
+    // Read as "first touche" + optional s, so it never matched "first touch". Harmless in practice
+    // because the bare touch pattern below catches it, but a rule that does not do what it says is
+    // a trap for whoever edits it next. Same shape of mistake as the pass pattern in matchesPossession.
+    if (/\bfirst touch(?:es)?\b/.test(t)) return true
     if (/\breceiving\b|\breceive\b/.test(t)) return true
     if (/\bsettle\b/.test(t)) return true
     if (/\bcontrol\b/.test(t)) return true
@@ -85,7 +88,12 @@ function matchesPressure(text: string): boolean {
 
 function matchesPossession(text: string): boolean {
     const t = text.toLowerCase()
-    if (/\bpasses?\b|\bpassing\b/.test(t)) return true
+    // `passes?` was meant to be "pass" or "passes", but it reads as "passe" + optional s — so it
+    // matched the non-word "passe" and MISSED the bare word "pass". "pass and move", "better pass
+    // selection", "find the right pass" and "quicker pass" were all hard-rejected as unsupported
+    // goals. Found 2026-08-09 while preparing Entry Language candidates for Christian: the extraction
+    // offered "passe" as a coach phrase, and this pattern was the reason.
+    if (/\bpass(?:es)?\b|\bpassing\b/.test(t)) return true
     if (/\bkeep the ball\b|\bkeeping the ball\b/.test(t)) return true
     if (/\bpossess(?:ion)?\b|\bretain\b|\bretention\b/.test(t)) return true
     if (/\bcirculate\b|\bcombine\b|\bcombination\b/.test(t)) return true

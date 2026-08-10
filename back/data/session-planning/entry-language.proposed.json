@@ -1,0 +1,720 @@
+{
+  "proposed": [
+    {
+      "phrase": "under pressure",
+      "learningGoalId": "A02"
+    },
+    {
+      "phrase": "defender closing",
+      "learningGoalId": "A02"
+    },
+    {
+      "phrase": "tight space",
+      "learningGoalId": "A02"
+    },
+    {
+      "phrase": "pressed",
+      "learningGoalId": "A02"
+    },
+    {
+      "phrase": "pressure",
+      "learningGoalId": "A02"
+    },
+    {
+      "phrase": "pass",
+      "learningGoalId": "TA02"
+    },
+    {
+      "phrase": "passing",
+      "learningGoalId": "TA02"
+    },
+    {
+      "phrase": "keep the ball",
+      "learningGoalId": "TA02"
+    },
+    {
+      "phrase": "keeping the ball",
+      "learningGoalId": "TA02"
+    },
+    {
+      "phrase": "possess",
+      "learningGoalId": "TA02"
+    },
+    {
+      "phrase": "retain",
+      "learningGoalId": "TA02"
+    },
+    {
+      "phrase": "retention",
+      "learningGoalId": "TA02"
+    },
+    {
+      "phrase": "circulate",
+      "learningGoalId": "TA02"
+    },
+    {
+      "phrase": "combine",
+      "learningGoalId": "TA02"
+    },
+    {
+      "phrase": "combination",
+      "learningGoalId": "TA02"
+    },
+    {
+      "phrase": "shot",
+      "learningGoalId": "A03"
+    },
+    {
+      "phrase": "shooting",
+      "learningGoalId": "A03"
+    },
+    {
+      "phrase": "shoot",
+      "learningGoalId": "A03"
+    },
+    {
+      "phrase": "finish",
+      "learningGoalId": "A03"
+    },
+    {
+      "phrase": "score",
+      "learningGoalId": "A03"
+    },
+    {
+      "phrase": "scoring",
+      "learningGoalId": "A03"
+    },
+    {
+      "phrase": "goal",
+      "learningGoalId": "A03"
+    },
+    {
+      "phrase": "goal scoring",
+      "learningGoalId": "A03"
+    },
+    {
+      "phrase": "chance",
+      "learningGoalId": "A03"
+    },
+    {
+      "phrase": "chance creation",
+      "learningGoalId": "A03"
+    },
+    {
+      "phrase": "final third",
+      "learningGoalId": "A03"
+    },
+    {
+      "phrase": "attacking third",
+      "learningGoalId": "A03"
+    },
+    {
+      "phrase": "create better shot",
+      "learningGoalId": "A03"
+    },
+    {
+      "phrase": "creating better shot",
+      "learningGoalId": "A03"
+    },
+    {
+      "phrase": "create shot",
+      "learningGoalId": "A03"
+    },
+    {
+      "phrase": "penalty box",
+      "learningGoalId": "A03"
+    },
+    {
+      "phrase": "in the box",
+      "learningGoalId": "A03"
+    },
+    {
+      "phrase": "around the box",
+      "learningGoalId": "A03"
+    },
+    {
+      "phrase": "near goal",
+      "learningGoalId": "A03"
+    },
+    {
+      "phrase": "in front of goal",
+      "learningGoalId": "A03"
+    },
+    {
+      "phrase": "convert chance",
+      "learningGoalId": "A03"
+    },
+    {
+      "phrase": "get a shot",
+      "learningGoalId": "A03"
+    },
+    {
+      "phrase": "transition",
+      "learningGoalId": "TA01"
+    },
+    {
+      "phrase": "counter attack",
+      "learningGoalId": "TA01"
+    },
+    {
+      "phrase": "quick break",
+      "learningGoalId": "TA01"
+    },
+    {
+      "phrase": "fast break",
+      "learningGoalId": "TA01"
+    },
+    {
+      "phrase": "break on turnover",
+      "learningGoalId": "TA01"
+    },
+    {
+      "phrase": "restore defensive shape",
+      "learningGoalId": "TD01"
+    },
+    {
+      "phrase": "after being stretched",
+      "learningGoalId": "TD01"
+    },
+    {
+      "phrase": "slow",
+      "learningGoalId": "TD02"
+    },
+    {
+      "phrase": "prevent counter",
+      "learningGoalId": "TD02"
+    }
+  ],
+  "review": [
+    {
+      "phrase": "first touch",
+      "reason": "Signal group A_touch_receiving is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "receiving",
+      "reason": "Signal group A_touch_receiving is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "receive",
+      "reason": "Signal group A_touch_receiving is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "settle",
+      "reason": "Signal group A_touch_receiving is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "control",
+      "reason": "Signal group A_touch_receiving is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "touches",
+      "reason": "Signal group A_touch_receiving is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "touch",
+      "reason": "Signal group A_touch_receiving is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "spacing",
+      "reason": "Signal group C_spacing_support is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "support angles",
+      "reason": "Signal group C_spacing_support is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "passing lanes",
+      "reason": "Signal group C_spacing_support is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "shape",
+      "reason": "Signal group C_spacing_support is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "width",
+      "reason": "Signal group C_spacing_support is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "depth",
+      "reason": "Signal group C_spacing_support is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "wide",
+      "reason": "Signal group C_spacing_support is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "flank",
+      "reason": "Signal group C_spacing_support is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "channel",
+      "reason": "Signal group C_spacing_support is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "switch play",
+      "reason": "Signal group C_spacing_support is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "change the point of attack",
+      "reason": "Signal group C_spacing_support is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "play to the other side",
+      "reason": "Signal group C_spacing_support is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "gap",
+      "reason": "Signal group C_spacing_support is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "pocket",
+      "reason": "Signal group C_spacing_support is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "support",
+      "reason": "Signal group C_spacing_support is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "angles",
+      "reason": "Signal group C_spacing_support is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "space",
+      "reason": "Signal group C_spacing_support is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "break lines",
+      "reason": "Signal group D_break_lines is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "break defensive lines",
+      "reason": "Signal group D_break_lines is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "line breaking",
+      "reason": "Signal group D_break_lines is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "defensive lines",
+      "reason": "Signal group D_break_lines is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "split defense",
+      "reason": "Signal group D_break_lines is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "through ball",
+      "reason": "Signal group D_break_lines is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "split",
+      "reason": "Signal group D_break_lines is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "penetrate",
+      "reason": "Signal group D_break_lines is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "progress",
+      "reason": "Signal group D_break_lines is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "progression",
+      "reason": "Signal group D_break_lines is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "advance",
+      "reason": "Signal group D_break_lines is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "play forward",
+      "reason": "Signal group D_break_lines is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "attack space",
+      "reason": "Signal group D_break_lines is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "regain",
+      "reason": "Signal group E_regain_pressing is shared by 2 Learning Goals — which one this phrase means is a coaching judgement.",
+      "candidates": "D02; D03"
+    },
+    {
+      "phrase": "defend",
+      "reason": "Signal group E_regain_pressing is shared by 2 Learning Goals — which one this phrase means is a coaching judgement.",
+      "candidates": "D02; D03"
+    },
+    {
+      "phrase": "defending",
+      "reason": "Signal group E_regain_pressing is shared by 2 Learning Goals — which one this phrase means is a coaching judgement.",
+      "candidates": "D02; D03"
+    },
+    {
+      "phrase": "win the ball",
+      "reason": "Signal group E_regain_pressing is shared by 2 Learning Goals — which one this phrase means is a coaching judgement.",
+      "candidates": "D02; D03"
+    },
+    {
+      "phrase": "winning the ball",
+      "reason": "Signal group E_regain_pressing is shared by 2 Learning Goals — which one this phrase means is a coaching judgement.",
+      "candidates": "D02; D03"
+    },
+    {
+      "phrase": "win it back",
+      "reason": "Signal group E_regain_pressing is shared by 2 Learning Goals — which one this phrase means is a coaching judgement.",
+      "candidates": "D02; D03"
+    },
+    {
+      "phrase": "counterpress",
+      "reason": "Signal group E_regain_pressing is shared by 2 Learning Goals — which one this phrase means is a coaching judgement.",
+      "candidates": "D02; D03"
+    },
+    {
+      "phrase": "turnover",
+      "reason": "Signal group E_regain_pressing is shared by 2 Learning Goals — which one this phrase means is a coaching judgement.",
+      "candidates": "D02; D03"
+    },
+    {
+      "phrase": "pressing",
+      "reason": "Signal group E_regain_pressing is shared by 2 Learning Goals — which one this phrase means is a coaching judgement.",
+      "candidates": "D02; D03"
+    },
+    {
+      "phrase": "press",
+      "reason": "Signal group E_regain_pressing is shared by 2 Learning Goals — which one this phrase means is a coaching judgement.",
+      "candidates": "D02; D03"
+    },
+    {
+      "phrase": "overload",
+      "reason": "Signal group G_overload is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "numerical",
+      "reason": "Signal group G_overload is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "number up",
+      "reason": "Signal group G_overload is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "number advantage",
+      "reason": "Signal group G_overload is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "extra man",
+      "reason": "Signal group G_overload is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "man up",
+      "reason": "Signal group G_overload is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "up a man",
+      "reason": "Signal group G_overload is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "read",
+      "reason": "Signal group K_information is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "far side",
+      "reason": "Signal group K_information is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "play what you see",
+      "reason": "Signal group K_information is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "scan",
+      "reason": "Signal group K_information is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "perceiv",
+      "reason": "Signal group K_information is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "perception",
+      "reason": "Signal group K_information is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "recognis",
+      "reason": "Signal group K_information is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "anticipat",
+      "reason": "Signal group K_information is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "awareness",
+      "reason": "Signal group K_information is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "vision",
+      "reason": "Signal group K_information is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "decision making",
+      "reason": "Signal group K_information is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "make decision",
+      "reason": "Signal group K_information is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "decide when",
+      "reason": "Signal group K_information is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "which option is on",
+      "reason": "Signal group K_information is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "disguis",
+      "reason": "Signal group K_information is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "variable target",
+      "reason": "Signal group K_information is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "blind side",
+      "reason": "Signal group K_information is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "protect",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "prevent",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "deny",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "denies",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "delay",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "contain",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "screen",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "shield",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "stay compact",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "compactness",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "compact shape",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "low block",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "deep block",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "defensive block",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "defensive shape",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "stay organised",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "organised defensively",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "defensively organised",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "recover shape",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "defend deep",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "slow attack",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "stop attack",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "block lane",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "cut off",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "force wide",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "keep out",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "away from central",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "harde to break down",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "make difficult attack",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "reorganise",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "lose shape",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "get shape",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "after lose ball",
+      "reason": "Signal group I_defensive is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "win ball",
+      "reason": "Signal group I_defensive_press is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    },
+    {
+      "phrase": "counter press",
+      "reason": "Signal group I_defensive_press is reached by no Learning Goal, so this phrase has no home in the planning model yet.",
+      "candidates": ""
+    }
+  ]
+}
