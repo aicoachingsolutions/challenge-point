@@ -21,6 +21,8 @@ export type ActivityAssemblyRequest = {
      * client. Absent when the goal has no situations, which is a legitimate and frequent state.
      */
     practiceSituation?: { id: string; name: string; definition: string }
+    /** IC-003 Invariant 5 — which Learning Goal the coach actually chose, not just its text. */
+    learningGoalId?: string
 }
 
 export type ArchetypeDefinition = {

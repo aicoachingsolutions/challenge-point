@@ -49,6 +49,22 @@ export interface ISystemTrace {
     foundationConstraintId: string
     shapingConstraintId: string
     consequenceConstraintId?: string
+    /**
+     * IC-003 Invariant 5 — generated activities remain traceable to COACH PLANNING DECISIONS.
+     *
+     * The fields above trace an activity to what the ENGINE chose. That is not the same thing, and
+     * the difference matters when a coach says "this isn't what I asked for": without these you can
+     * reconstruct which constraints were selected but not which planning decision they came from.
+     * Optional because the free-text form makes none of these decisions.
+     */
+    planning?: {
+        learningGoalId?: string
+        learningGoalName?: string
+        practiceSituationId?: string
+        practiceSituationName?: string
+        learningStage?: string
+        challengeLevel?: string
+    }
 }
 
 export interface IActivity {

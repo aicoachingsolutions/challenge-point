@@ -51,6 +51,19 @@ export const NEVER_DISPLAY_TERMS: readonly string[] = [
     'self-organisation',
     // §6 Cross-Library Translation — "Never display" entries
     'information design',
+    // Session Creation Experience Specification §4 names five internal concepts that must never
+    // appear to a coach. Three were already covered above; these were not, and nothing would have
+    // caught them. Added 2026-08-10 auditing IC-003 Invariant 4 (implementation details remain
+    // hidden from coaches) rather than after finding one in real output.
+    'game problem',
+    'game problems',
+    'constraint manipulation',
+    'information variable',
+    'information variables',
+    // IC-003 §5 is explicit that signal groups are an implementation mechanism rather than a
+    // coach-facing planning concept, which puts them on exactly the same footing.
+    'signal group',
+    'signal groups',
 ] as const
 
 /**
