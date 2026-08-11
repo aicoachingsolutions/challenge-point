@@ -97,31 +97,41 @@ function testEligibilityVocabularyAgreementIsPinned(): void {
         'Challenge eligibility must use the same words the coach chooses from.'
     )
 
-    const stageValues = reportLearningStageVocabulary()
-    assert.deepEqual(
-        stageValues,
-        ['Building', 'Exploring', 'Refining'],
-        'Learning Stage eligibility vocabulary changed. If it now matches the canonical labels, the ' +
-            'bridge question is resolved and this test plus the reporting function should go.'
-    )
-
-    // The mismatch itself, asserted rather than described — no workbook value equals a canonical label.
+    // RESOLVED. The workbook adopted IC-001's labels and now declares that contract as their source,
+    // so both sides name the same authority rather than merely looking similar. This asserts they
+    // stay converged — a divergence would silently disable Learning Stage eligibility, which looks
+    // exactly like the runtime deciding no enhancement was needed.
     const canonical = LEARNING_STAGES.map(learningStageLabel)
-    for (const value of stageValues) {
+    for (const value of reportLearningStageVocabulary()) {
         assert.ok(
-            !canonical.includes(value),
-            `"${value}" now matches a canonical Learning Stage label. The vocabularies have converged — ` +
-                `implement eligibility matching and remove this assertion.`
+            canonical.includes(value),
+            `Learning Stage "${value}" is not one of IC-001's labels (${canonical.join(', ')}). Eligibility ` +
+                `on that axis would silently match nothing.`
         )
     }
+    assert.equal(
+        String(library.learningStageSource),
+        'IC-001 Learning Stage Contract',
+        'The workbook should keep declaring where its Learning Stage vocabulary comes from.'
+    )
 }
 
-/** Unresolved ecological ownership is a knowledge decision, so it is reported rather than assumed. */
-function testUnresolvedOwnershipIsReported(): void {
+/**
+ * All ecological ownership is now resolved.
+ *
+ * RI-004, RI-007 and RI-010 were "(review)" or "TBD", which blocked them at Decision 6 and disabled
+ * the Time Stakes Variable entirely. Christian resolved all three after we reported the cost.
+ *
+ * Asserting EMPTY keeps the property rather than the moment: a future intervention that arrives
+ * without an agreed home fails here, before anyone discovers it as a Stakes Variable that silently
+ * never fires.
+ */
+function testAllOwnershipIsResolved(): void {
     assert.deepEqual(
-        reportUnresolvedOwnership().map((entry) => entry.id).sort(),
-        ['RI-004', 'RI-007', 'RI-010'],
-        'The set of interventions with unresolved ecological ownership changed — worth noticing either way.'
+        reportUnresolvedOwnership().map((entry) => entry.id),
+        [],
+        'An intervention has unresolved ecological ownership, so Decision 6 will refuse it and its ' +
+            'Stakes Variable may become unreachable.'
     )
 }
 
@@ -201,7 +211,7 @@ function runAll(): void {
     testEveryStakesVariableHasInterventions()
     testInterventionsAreUsable()
     testEligibilityVocabularyAgreementIsPinned()
-    testUnresolvedOwnershipIsReported()
+    testAllOwnershipIsResolved()
     testGateCatchesDamage()
     console.log('representative-intervention-library unit tests: all cases passed.')
 }

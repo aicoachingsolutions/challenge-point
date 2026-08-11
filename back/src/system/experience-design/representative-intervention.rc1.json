@@ -162,7 +162,7 @@
       "Status": "Active",
       "Version Introduced": "RC1",
       "Notes": null,
-      "Primary Ecological Owner": "Interaction Regulation (review)",
+      "Primary Ecological Owner": "Interaction Regulation",
       "Representative Rationale": "Reward representative continuation when justified by activity design.",
       "Primary Affordance Intent": "Support; Possession",
       "Usage Guidance": "Use when continued possession reinforces the learning objective."
@@ -207,7 +207,7 @@
       "Status": "Active",
       "Version Introduced": "RC1",
       "Notes": null,
-      "Primary Ecological Owner": "Interaction Regulation (review)",
+      "Primary Ecological Owner": "Interaction Regulation",
       "Representative Rationale": "Increase urgency only after representative trigger.",
       "Primary Affordance Intent": "Transition; Speed of Play",
       "Usage Guidance": "Only use after a representative trigger creates genuine urgency."
@@ -252,7 +252,7 @@
       "Status": "Active",
       "Version Introduced": "RC1",
       "Notes": null,
-      "Primary Ecological Owner": "TBD",
+      "Primary Ecological Owner": "Interaction Regulation",
       "Representative Rationale": "Tie increased value only to representative success.",
       "Primary Affordance Intent": "Target Affordance",
       "Usage Guidance": "Only award additional value for representative success directly linked to the learning goal."
@@ -261,7 +261,7 @@
   "runtime_data": [
     {
       "Object ID": "RI-001",
-      "Learning Stage": "Building",
+      "Learning Stage": "Building Understanding",
       "Challenge Level": "Stretch",
       "Sport Tags": "Invasion",
       "Affordance IDs/Tags": "Scanning;Support;First Touch",
@@ -269,7 +269,7 @@
     },
     {
       "Object ID": "RI-002",
-      "Learning Stage": "Building",
+      "Learning Stage": "Building Understanding",
       "Challenge Level": "Stretch",
       "Sport Tags": "Invasion",
       "Affordance IDs/Tags": "Ball Protection;Support",
@@ -277,7 +277,7 @@
     },
     {
       "Object ID": "RI-003",
-      "Learning Stage": "Refining",
+      "Learning Stage": "Reinforcing & Refining",
       "Challenge Level": "Demanding",
       "Sport Tags": "Invasion",
       "Affordance IDs/Tags": "Overloads;Support",
@@ -285,7 +285,7 @@
     },
     {
       "Object ID": "RI-004",
-      "Learning Stage": "Exploring",
+      "Learning Stage": "First Time Exploring",
       "Challenge Level": "Comfortable",
       "Sport Tags": "All",
       "Affordance IDs/Tags": "Support;Continuation",
@@ -293,7 +293,7 @@
     },
     {
       "Object ID": "RI-005",
-      "Learning Stage": "Building",
+      "Learning Stage": "Building Understanding",
       "Challenge Level": "Stretch",
       "Sport Tags": "Invasion",
       "Affordance IDs/Tags": "Width;Scanning",
@@ -301,7 +301,7 @@
     },
     {
       "Object ID": "RI-006",
-      "Learning Stage": "Refining",
+      "Learning Stage": "Reinforcing & Refining",
       "Challenge Level": "Demanding",
       "Sport Tags": "Invasion",
       "Affordance IDs/Tags": "Numerical Advantage",
@@ -309,7 +309,7 @@
     },
     {
       "Object ID": "RI-007",
-      "Learning Stage": "Refining",
+      "Learning Stage": "Reinforcing & Refining",
       "Challenge Level": "Demanding",
       "Sport Tags": "All",
       "Affordance IDs/Tags": "Transition",
@@ -317,7 +317,7 @@
     },
     {
       "Object ID": "RI-008",
-      "Learning Stage": "Building",
+      "Learning Stage": "Building Understanding",
       "Challenge Level": "Stretch",
       "Sport Tags": "Invasion",
       "Affordance IDs/Tags": "Progression",
@@ -325,7 +325,7 @@
     },
     {
       "Object ID": "RI-009",
-      "Learning Stage": "Exploring",
+      "Learning Stage": "First Time Exploring",
       "Challenge Level": "Comfortable",
       "Sport Tags": "All",
       "Affordance IDs/Tags": "Scanning;Anticipation",
@@ -333,7 +333,7 @@
     },
     {
       "Object ID": "RI-010",
-      "Learning Stage": "Refining",
+      "Learning Stage": "Reinforcing & Refining",
       "Challenge Level": "Stretch",
       "Sport Tags": "All",
       "Affordance IDs/Tags": "Variable",
@@ -352,6 +352,7 @@
     "Notes": "Pilot RC1 implementation workbook",
     "Runtime Selection": "Deterministic",
     "Maximum Representative Stakes Variables per Activity": "1",
-    "Maximum Representative Interventions per Activity": "1"
+    "Maximum Representative Interventions per Activity": "1",
+    "Learning Stage Source": "IC-001 Learning Stage Contract"
   }
 }

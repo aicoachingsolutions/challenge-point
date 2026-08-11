@@ -19,13 +19,23 @@
  * step here is a pure function of the activity's own properties, and every tie is broken by a stable
  * key, so the same activity always produces the same enhancement.
  *
- * ONE THING IT CANNOT DO YET. Decision 4 says to retrieve interventions by "Learning Stage
- * compatibility", but the workbook's stage vocabulary (Exploring/Building/Refining) does not match
- * the stages a coach actually selects (First Time Exploring/Building Understanding/Reinforcing &
- * Refining), and no single rule bridges them. Filtering on a guessed mapping would silently discard
- * every intervention, so Learning Stage is deliberately NOT used as a filter and the omission is
- * reported on the result. Challenge compatibility, whose vocabulary does match, is applied.
+ * BOTH ELIGIBILITY AXES ARE NOW APPLIED. The workbook previously declared Learning Stage as
+ * Exploring/Building/Refining, which matched nothing a coach selects, so filtering on it would have
+ * silently discarded every intervention. Christian adopted the canonical IC-001 labels in response,
+ * and the workbook now declares `Learning Stage Source = IC-001 Learning Stage Contract`. So Decision
+ * 4 filters on Learning Stage as written, and the "unapplied filter" reporting that existed only to
+ * keep that gap visible is gone.
+ *
+ * ORDERING COMES FROM THE PREFERENCE FRAMEWORK, NOT FROM OWNERSHIP. An earlier version ranked
+ * interventions by their Primary Ecological Owner, reasoning that the framework puts interaction-rule
+ * changes last. Christian corrected that: ownership identifies which canonical library governs an
+ * intervention architecturally, and "isn't intended to determine the intervention's preference
+ * ranking". He is right, and the distinction matters — two interventions owned by the same library
+ * can preserve very different amounts of affordance diversity, so owner is simply the wrong
+ * discriminator. Decision 5 now uses fixed ordering, which the rules name as an acceptable Pilot RC1
+ * method, over the registry order he authored.
  */
+import { isLearningStage, learningStageLabel } from '../activity/learning-stage-realization'
 import {
     type RepresentativeIntervention,
     representativeInterventionLibrary as library,
@@ -35,36 +45,31 @@ import {
 const CHALLENGE_INVITING_ENHANCEMENT = ['medium', 'high']
 
 /**
- * Decision 2 / 5 — the Representative Design Preference Framework, expressed as a rank.
+ * Whether an intervention's architectural home is settled.
  *
- * The framework orders enhancement from richest to poorest: enrich performer affordances, then the
- * environment, then information, then stakes, and modify interaction RULES last, "because they often
- * reduce affordance diversity". The workbook already records which canonical library owns each
- * intervention's mechanism, so the rank is derived from that column rather than from a judgement
- * written here — "preserve before restrict" becomes a lookup rather than an opinion.
- *
- * Lower is preferred.
+ * This is NOT a preference signal — Christian was explicit that ownership identifies which canonical
+ * library governs an intervention and "isn't intended to determine the intervention's preference
+ * ranking". It is kept only as a Decision 6 guard: an intervention whose governing library is
+ * undecided has an undecided relationship to "behavior becomes overly prescribed", which is a listed
+ * failure condition. All ten are currently resolved, so this never fires today — it exists so a
+ * future unowned entry cannot be applied before anyone notices.
  */
-const PREFERENCE_RANK: Record<string, number> = {
-    'environmental manipulation': 2,
-    'information expression': 3,
-    'interaction regulation': 5,
+export function hasResolvedOwnership(intervention: RepresentativeIntervention): boolean {
+    const owner = intervention.ecologicalOwner.toLowerCase()
+    return owner !== '' && !owner.includes('tbd') && !owner.includes('review')
 }
 
-/** Anything unowned or still under review ranks last — see preferenceRank. */
-const UNRANKED = 99
-
 /**
- * Preference rank for an intervention.
+ * Decision 5 ordering — the registry position Christian authored.
  *
- * An owner marked "(review)" or "TBD" cannot be ranked honestly, so it sorts LAST rather than being
- * guessed into a tier. That is the conservative direction: an intervention whose mechanism is not
- * yet agreed should not be preferred over one whose is.
+ * The Decision Rules name "fixed ordering" as an acceptable Pilot RC1 selection method, and the
+ * registry order is authored knowledge rather than an inference of ours. That keeps the ordering
+ * inside the Preference Framework's domain instead of reconstructing it from a column that means
+ * something else.
  */
-export function preferenceRank(intervention: RepresentativeIntervention): number {
-    const owner = intervention.ecologicalOwner.toLowerCase()
-    if (!owner || owner.includes('tbd') || owner.includes('review')) return UNRANKED
-    return PREFERENCE_RANK[owner] ?? UNRANKED
+function registryPosition(intervention: RepresentativeIntervention): number {
+    const index = library.interventions().findIndex((candidate) => candidate.id === intervention.id)
+    return index === -1 ? Number.MAX_SAFE_INTEGER : index
 }
 
 export interface ExperienceDesignInput {
@@ -84,8 +89,6 @@ export interface ExperienceDesignResult {
     reason: string
     stakesVariable: string | null
     intervention: RepresentativeIntervention | null
-    /** Constraints the runtime could NOT apply, so a silent non-match is never mistaken for a decision. */
-    unappliedFilters: string[]
 }
 
 const norm = (value: string): string => value.trim().toLowerCase()
@@ -110,18 +113,29 @@ export function needsEnhancement(challengeLevel: string): boolean {
 }
 
 /**
- * DECISION 4 — eligible interventions.
+ * DECISION 4 — eligible interventions, on both declared axes.
  *
- * Challenge compatibility is applied. Learning Stage is not, for the reason in the module header;
- * the caller receives that omission rather than a quietly narrower result.
+ * The Learning Stage comparison goes through `learningStageLabel`, which is IC-001's own value→label
+ * mapping — the workbook declares `Learning Stage Source = IC-001 Learning Stage Contract`, so both
+ * sides now name the same authority instead of two vocabularies that happened to look similar.
+ *
+ * An ABSENT Learning Stage does not filter. The free-text form never asks for one, and treating
+ * "the coach was not asked" as "matches nothing" would silently disable Experience Design for every
+ * activity created that way.
  */
 export function eligibleInterventions(input: ExperienceDesignInput): RepresentativeIntervention[] {
     const challenge = CHALLENGE_LABELS[norm(input.challengeLevel)] ?? norm(input.challengeLevel)
+    const stage = isLearningStage(input.learningStage) ? norm(learningStageLabel(input.learningStage)) : null
 
     return library.interventions().filter((intervention) => {
         // No declared constraint means "no constraint", not "matches nothing".
-        if (intervention.challengeLevels.length === 0) return true
-        return intervention.challengeLevels.some((level) => norm(level) === challenge)
+        if (intervention.challengeLevels.length > 0) {
+            if (!intervention.challengeLevels.some((level) => norm(level) === challenge)) return false
+        }
+        if (stage !== null && intervention.learningStages.length > 0) {
+            if (!intervention.learningStages.some((value) => norm(value) === stage)) return false
+        }
+        return true
     })
 }
 
@@ -184,10 +198,14 @@ export function selectIntervention(
     if (candidates.length === 0) return null
 
     return [...candidates].sort((a, b) => {
-        const rank = preferenceRank(a) - preferenceRank(b)
-        if (rank !== 0) return rank
+        // Strongest fit to what the activity actually targets comes first — Decision 3's own
+        // criterion, "best increases the significance of the targeted affordances", applied again
+        // among the survivors.
         const overlap = affordanceOverlap(b, targetAffordances) - affordanceOverlap(a, targetAffordances)
         if (overlap !== 0) return overlap
+        // Then the authored registry order — "fixed ordering", named as acceptable by the rules.
+        const position = registryPosition(a) - registryPosition(b)
+        if (position !== 0) return position
         return a.id.localeCompare(b.id)
     })[0]
 }
@@ -213,7 +231,7 @@ export function validateExperience(intervention: RepresentativeIntervention): { 
     if (!intervention.representativeRationale.trim()) {
         reasons.push(`${intervention.id} has no representative rationale — representative integrity cannot be shown.`)
     }
-    if (preferenceRank(intervention) === UNRANKED) {
+    if (!hasResolvedOwnership(intervention)) {
         reasons.push(
             `${intervention.id} has unresolved ecological ownership, so which canonical library governs it — and ` +
                 `therefore whether it restricts behaviour — is not yet agreed.`
@@ -231,16 +249,11 @@ export function validateExperience(intervention: RepresentativeIntervention): { 
  * whole difficulty with this layer is that doing nothing and failing look identical from outside.
  */
 export function decideExperienceDesign(input: ExperienceDesignInput): ExperienceDesignResult {
-    const unappliedFilters = [
-        // See the module header. Reported on every result so it cannot be forgotten while it stands.
-        'Learning Stage compatibility (Decision 4) — workbook and coach-facing stage vocabularies do not match.',
-    ]
     const nothing = (reason: string): ExperienceDesignResult => ({
         applied: false,
         reason,
         stakesVariable: null,
         intervention: null,
-        unappliedFilters,
     })
 
     if (!input.representativeValidationPassed) {
@@ -278,7 +291,6 @@ export function decideExperienceDesign(input: ExperienceDesignInput): Experience
                 reason: 'Representative Stakes applied.',
                 stakesVariable,
                 intervention: candidate,
-                unappliedFilters,
             }
         }
 
@@ -287,4 +299,35 @@ export function decideExperienceDesign(input: ExperienceDesignInput): Experience
     }
 
     return nothing(`Experience validation rejected every candidate for "${stakesVariable}": ${rejected.join('; ')}`)
+}
+
+/**
+ * Interventions that CANNOT be selected under the current rules, whatever a coach asks for.
+ *
+ * Decision 1 evaluates enhancement only at Stretch or Demanding. An intervention declared eligible
+ * ONLY at Comfortable therefore sits behind a door that never opens — the workbook says it applies,
+ * and the rules guarantee it never will.
+ *
+ * This is the "silence" failure in its purest form: nothing errors, the intervention simply never
+ * appears, and that is indistinguishable from the runtime correctly deciding an activity needed no
+ * enhancement. Reported rather than resolved, because reconciling the two is a knowledge decision —
+ * either those interventions belong at a different Challenge level, or Decision 1's heuristic needs
+ * the "specifically justified" escape it currently describes but does not define.
+ */
+export function reportUnreachableInterventions(): Array<{ id: string; reason: string }> {
+    return library
+        .interventions()
+        .filter((intervention) => intervention.challengeLevels.length > 0)
+        .filter((intervention) =>
+            intervention.challengeLevels.every((level) => {
+                const engineValue = Object.entries(CHALLENGE_LABELS).find(([, label]) => label === norm(level))?.[0]
+                return engineValue === undefined || !needsEnhancement(engineValue)
+            })
+        )
+        .map((intervention) => ({
+            id: intervention.id,
+            reason:
+                `Eligible only at ${intervention.challengeLevels.join('/')}, but Decision 1 evaluates enhancement ` +
+                `only at Stretch or Demanding — so it can never be selected.`,
+        }))
 }
