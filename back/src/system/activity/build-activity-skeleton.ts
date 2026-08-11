@@ -8,6 +8,7 @@ import { getEmphasisVariationProfile, getSlotVariationSpec } from './emphasis-va
 import { getSlotMechanicalVariations, type ValueLandscapeModifier } from './slot-mechanics-variations'
 import { learningStageDirective } from './learning-stage-realization'
 import { practiceSituationDirective } from './practice-situation-realization'
+import { experienceDesignDirective } from './experience-design-directive'
 
 /** One of three system-owned activity slots; AI fills wording but must not remove these mechanics. */
 export type ActivitySkeletonSlot = {
@@ -52,6 +53,8 @@ export type ActivitySkeletonBundle = {
     learningStageDirective: string[]
     /** IC-002 representative-context directive. Empty when the goal has no Practice Situations. */
     practiceSituationDirective: string[]
+    /** Experience Design RC1. Empty when no Representative Stakes were applied — a normal outcome. */
+    experienceDesignDirective: string[]
     /**
      * The session emphasis the skeleton was built under (Phase 3). Surfaces into the prompt
      * so the AI receives emphasis-specific variation-bandwidth guidance alongside the slot
@@ -910,6 +913,7 @@ export function buildActivitySkeleton(input: SystemAssemblyInput): ActivitySkele
         // IC-001's "MUST NOT change the Learning Goal / Practice Situation" true by construction.
         learningStageDirective: learningStageDirective(input.coachInput.learningStage),
         practiceSituationDirective: practiceSituationDirective(input.coachInput.practiceSituation),
+        experienceDesignDirective: experienceDesignDirective(input),
     }
 }
 
@@ -923,6 +927,9 @@ export function formatActivitySkeletonForPrompt(bundle: ActivitySkeletonBundle):
         '',
     ]
 
+    // Stakes last of the three: the context frames the activity, the stage shapes how it is realized,
+    // and the intervention sharpens what is already there. Reversing that lets the intervention read
+    // as the point of the activity rather than an amplifier of it.
     // Context first, then how it is realized for these players — the order a coach would describe it.
     if (bundle.practiceSituationDirective.length > 0) {
         lines.push(...bundle.practiceSituationDirective)
@@ -931,6 +938,11 @@ export function formatActivitySkeletonForPrompt(bundle: ActivitySkeletonBundle):
 
     if (bundle.learningStageDirective.length > 0) {
         lines.push(...bundle.learningStageDirective)
+        lines.push('')
+    }
+
+    if (bundle.experienceDesignDirective.length > 0) {
+        lines.push(...bundle.experienceDesignDirective)
         lines.push('')
     }
 
