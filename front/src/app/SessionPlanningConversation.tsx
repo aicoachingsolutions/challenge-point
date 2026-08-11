@@ -53,9 +53,23 @@ interface EntryPhrase {
     learningGoalId: string
 }
 
+interface ClarificationDirection {
+    learningGoalId: string
+    learningGoal: string
+    phase: string
+    example: string | null
+}
+
+interface Clarification {
+    term: string
+    question: string
+    directions: ClarificationDirection[]
+}
+
 interface PlanningRegistry {
     phases: PhaseGroup[]
     entryLanguage: EntryPhrase[]
+    clarifications: Clarification[]
     translation: { total: number; populated: number; unpopulated: string[] }
 }
 
@@ -160,6 +174,21 @@ export default function SessionPlanningConversation({ onComplete, onCancel, subm
         [registry]
     )
     const selectedGoal = useMemo(() => allGoals.find((goal) => goal.id === goalId) ?? null, [allGoals, goalId])
+
+    /**
+     * GUIDED CLARIFICATION. A coach who opens with a broad term — "defending", "possession" — has not
+     * yet expressed a planning intention, so the platform asks rather than guesses. Christian's
+     * words: a coach saying "today we're working on defending" hasn't said what players are trying to
+     * handle better, any more than "attacking" would.
+     *
+     * This GUIDES, it does not validate. The full list stays visible underneath, nothing is rejected,
+     * and the coach can ignore the prompt entirely — per the spec, "the objective is not validation".
+     */
+    const clarification = useMemo(() => {
+        const needle = search.trim().toLowerCase()
+        if (!needle) return null
+        return (registry?.clarifications ?? []).find((c) => c.term === needle) ?? null
+    }, [registry, search])
     const situations = selectedGoal?.practiceSituations ?? []
 
     /**
@@ -255,6 +284,35 @@ export default function SessionPlanningConversation({ onComplete, onCancel, subm
                         placeholder='Search in your own words — e.g. “build from the back”'
                         className='w-full px-4 py-3 mb-5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
                     />
+                    {clarification && (
+                        <div className='p-4 mb-5 border rounded-lg border-blue-200 bg-blue-50'>
+                            <p className='font-medium text-gray-900'>{clarification.question}</p>
+                            <p className='mt-1 text-sm text-gray-600'>
+                                Pick a direction, or keep browsing below — either is fine.
+                            </p>
+                            <div className='mt-3 space-y-2'>
+                                {clarification.directions.map((direction) => {
+                                    const goal = allGoals.find((g) => g.id === direction.learningGoalId)
+                                    return (
+                                        <button
+                                            key={direction.learningGoalId}
+                                            type='button'
+                                            onClick={() => goal && selectGoal(goal)}
+                                            className='w-full p-3 text-left transition bg-white border border-gray-200 rounded-lg hover:border-blue-500'
+                                        >
+                                            <span className='font-medium text-gray-900'>{direction.learningGoal}</span>
+                                            {direction.example && (
+                                                <span className='block mt-0.5 text-sm text-gray-600'>
+                                                    for example, {direction.example.toLowerCase()}
+                                                </span>
+                                            )}
+                                        </button>
+                                    )
+                                })}
+                            </div>
+                        </div>
+                    )}
+
                     {registry.phases.map((group) => {
                         const goals = group.learningGoals.filter(matchesSearch)
                         if (goals.length === 0) return null

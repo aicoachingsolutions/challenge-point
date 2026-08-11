@@ -30,6 +30,7 @@ import Logger from '../logger'
 import LoggingService from '../services/logging.service'
 import { deriveInputConstraints } from '../system/input-constraints/deriveInputConstraints'
 import { describeUnsupportedGoal, isKnownUnsupportedGoal } from '../system/session-planning/goal-support'
+import { allClarifications } from '../system/session-planning/guided-clarification'
 import {
     sessionPlanningModel,
     translationStatus,
@@ -1071,6 +1072,10 @@ router.get(ROUTES.sessionPlanning, async (_req: Request, res: Response) => {
                 phrase: String(entry['Coach Phrase'] ?? ''),
                 learningGoalId: String(entry['Learning Goal ID'] ?? ''),
             })),
+            // Guided clarification for broad coach terms ("defending", "passing"). Precomputed
+            // because the term list is fixed and the registry is static, so the client can recognise
+            // a broad term without a round trip while the knowledge still comes from the workbook.
+            clarifications: allClarifications(),
             // Surfaced so the unpopulated coach-to-knowledge bridge stays visible while it is filled
             // in, rather than being discovered when a coach reaches the end of the conversation.
             translation: translationStatus(),
