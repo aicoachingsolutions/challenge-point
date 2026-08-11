@@ -13,9 +13,10 @@ import {
     type ExperienceDesignInput,
     decideExperienceDesign,
     eligibleInterventions,
+    hasResolvedOwnership,
     needsEnhancement,
-    preferenceRank,
     selectIntervention,
+    reportUnreachableInterventions,
     validateExperience,
 } from './experience-design-runtime'
 import { representativeInterventionLibrary as library } from './representative-intervention-library'
@@ -64,38 +65,38 @@ function testDecision4FiltersByChallenge(): void {
 }
 
 /**
- * DECISION 2 / 5 — the Preference Framework ordering.
+ * OWNERSHIP MUST NOT DRIVE ORDERING.
  *
- * Its central instruction is that behavioural restrictions come LAST, "because they often reduce
- * affordance diversity". So an environment-owned intervention must be preferred over a rule-owned
- * one, and this asserts the ordering rather than the specific ids it produces today.
+ * An earlier implementation ranked interventions by Primary Ecological Owner. Christian corrected
+ * that: ownership identifies the governing canonical library and "isn't intended to determine the
+ * intervention's preference ranking". This pins the correction — two interventions with the SAME
+ * owner must still be ordered by fit and authored position, and an intervention must not win merely
+ * because of which library governs it.
  */
-function testPreferenceOrderingPrefersEnvironmentOverRules(): void {
-    const environmental = library.interventions().find((i) => /environmental manipulation/i.test(i.ecologicalOwner))
-    const interaction = library
-        .interventions()
-        .find((i) => /^interaction regulation$/i.test(i.ecologicalOwner.trim()))
-    assert.ok(environmental && interaction, 'The workbook should contain both owner types.')
+function testOwnershipDoesNotDetermineOrdering(): void {
+    const sameOwner = library.interventions().filter((i) => /^interaction regulation$/i.test(i.ecologicalOwner.trim()))
+    assert.ok(sameOwner.length >= 2, 'Need at least two same-owner interventions to prove ordering is independent.')
 
-    assert.ok(
-        preferenceRank(environmental) < preferenceRank(interaction),
-        'Modifying the environment must rank ahead of modifying interaction rules.'
-    )
-
-    // And the selection must honour it when both are available.
-    const chosen = selectIntervention([interaction, environmental], [])
-    assert.equal(chosen?.id, environmental.id, 'Selection must follow the preference order, not input order.')
+    // Affordance fit decides between them, not their (identical) owner.
+    const target = sameOwner[1].primaryAffordanceIntent[0] ?? sameOwner[1].affordanceTags[0]
+    assert.ok(target, 'Fixture intervention should declare an affordance to target.')
+    const chosen = selectIntervention([sameOwner[0], sameOwner[1]], [target])
+    assert.equal(chosen?.id, sameOwner[1].id, 'The better affordance fit must win regardless of shared ownership.')
 }
 
-/** An unresolved owner cannot be ranked honestly, so it must sort last rather than be guessed. */
-function testUnresolvedOwnershipRanksLast(): void {
-    const unresolved = library.interventions().find((i) => /tbd/i.test(i.ecologicalOwner))
-    const resolved = library.interventions().find((i) => /^environmental manipulation$/i.test(i.ecologicalOwner.trim()))
-    assert.ok(unresolved && resolved)
-    assert.ok(preferenceRank(unresolved) > preferenceRank(resolved), 'An unowned intervention must not be preferred.')
+/** Ownership survives only as a Decision 6 guard against an intervention with no agreed home. */
+function testUnresolvedOwnershipStillBlocksDecision6(): void {
+    const unresolved = library.interventions().filter((i) => !hasResolvedOwnership(i))
+    assert.deepEqual(
+        unresolved.map((i) => i.id),
+        [],
+        'All ownership is resolved in the current workbook — if this fails, an intervention lost its home.'
+    )
 
-    // And Decision 6 must refuse it — an unowned mechanism could be a behavioural restriction.
-    assert.equal(validateExperience(unresolved).valid, false)
+    // The guard must still bite, proven on a synthetic entry rather than by waiting for a real one.
+    const synthetic = { ...library.interventions()[0], id: 'RI-TEST', ecologicalOwner: 'TBD' }
+    assert.equal(hasResolvedOwnership(synthetic), false)
+    assert.equal(validateExperience(synthetic).valid, false, 'An unowned intervention must fail Decision 6.')
 }
 
 /**
@@ -156,18 +157,67 @@ function testValidationRecovery(): void {
 }
 
 /**
- * The Learning Stage filter is NOT applied, and every result says so.
+ * DECISION 4 — Learning Stage now filters, using IC-001's labels.
  *
- * This is the honest-reporting property: a missing filter that silently narrowed nothing would be
- * indistinguishable from one that worked. When the vocabularies are reconciled this test fails,
- * which forces the omission to be removed deliberately.
+ * The workbook adopted the canonical labels and declares IC-001 as their source, so this axis works.
+ * Proven by showing different stages produce different eligibility, and that a stage genuinely
+ * excludes interventions declared for another.
  */
-function testUnappliedFilterIsReported(): void {
-    for (const decision of [decideExperienceDesign(input()), decideExperienceDesign(input({ challengeLevel: 'low' }))]) {
+function testDecision4FiltersByLearningStage(): void {
+    const exploring = eligibleInterventions(input({ challengeLevel: 'low', learningStage: 'first_time_exploring' }))
+    const refining = eligibleInterventions(input({ challengeLevel: 'high', learningStage: 'reinforcing_refining' }))
+
+    assert.ok(exploring.length > 0 && refining.length > 0, 'Both stages must reach some intervention.')
+    assert.notDeepEqual(
+        exploring.map((i) => i.id),
+        refining.map((i) => i.id),
+        'Different Learning Stages must produce different eligibility, or the filter is doing nothing.'
+    )
+
+    for (const intervention of exploring) {
         assert.ok(
-            decision.unappliedFilters.some((f) => /learning stage/i.test(f)),
-            'Every result must report that Learning Stage compatibility could not be applied.'
+            intervention.learningStages.some((s) => s.toLowerCase() === 'first time exploring'),
+            `${intervention.id} was eligible for Exploring but does not declare it.`
         )
+    }
+
+    // A coach who was never asked (free-text path) must not be filtered to nothing.
+    const unspecified = eligibleInterventions(input({ challengeLevel: 'medium', learningStage: undefined }))
+    assert.ok(unspecified.length > 0, 'An absent Learning Stage must not disable Experience Design.')
+}
+
+/**
+ * A KNOWN CONTRADICTION between the workbook and Decision 1, pinned so it stays visible.
+ *
+ * RI-004 and RI-009 are declared eligible only at Comfortable, but Decision 1 evaluates enhancement
+ * only at Stretch or Demanding — so they can never be selected. Nothing errors; they simply never
+ * appear, which looks exactly like the runtime deciding no enhancement was needed.
+ *
+ * Asserted as the CURRENT set rather than as "must be empty": it is Christian's call whether those
+ * interventions move to another Challenge level or Decision 1 gains its "specifically justified"
+ * escape. Either resolution changes this list and fails the test, which is the point.
+ */
+function testUnreachableInterventionsArePinned(): void {
+    assert.deepEqual(
+        reportUnreachableInterventions().map((entry) => entry.id).sort(),
+        ['RI-004', 'RI-009'],
+        'The set of structurally unreachable interventions changed. If it shrank, the contradiction was ' +
+            'resolved and this test should be updated; if it grew, a new intervention is dead on arrival.'
+    )
+
+    // Prove it empirically too, not just by inspecting eligibility declarations.
+    for (const challenge of ['low', 'medium', 'high']) {
+        for (const stage of ['first_time_exploring', 'building_understanding', 'reinforcing_refining']) {
+            const decision = decideExperienceDesign(
+                input({ challengeLevel: challenge, learningStage: stage, targetAffordances: ['Support', 'Scanning'] })
+            )
+            if (decision.applied) {
+                assert.ok(
+                    !['RI-004', 'RI-009'].includes(decision.intervention!.id),
+                    `${decision.intervention!.id} was selected but is reported unreachable — the report is wrong.`
+                )
+            }
+        }
     }
 }
 
@@ -175,12 +225,13 @@ function runAll(): void {
     testNeverRunsOnFailedValidation()
     testDecision1ChallengeHeuristic()
     testDecision4FiltersByChallenge()
-    testPreferenceOrderingPrefersEnvironmentOverRules()
-    testUnresolvedOwnershipRanksLast()
+    testOwnershipDoesNotDetermineOrdering()
+    testUnresolvedOwnershipStillBlocksDecision6()
     testDeterminism()
     testPilotLimitOfOne()
     testValidationRecovery()
-    testUnappliedFilterIsReported()
+    testUnreachableInterventionsArePinned()
+    testDecision4FiltersByLearningStage()
     console.log('experience-design-runtime unit tests: all cases passed.')
 }
 

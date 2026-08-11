@@ -207,19 +207,15 @@ export function reportUnresolvedOwnership(data: InterventionWorkbook = WB): Arra
 /**
  * Learning Stage vocabulary used by this workbook, reported for comparison against IC-001's.
  *
- * THIS IS A REAL INTEGRATION GAP, not a formatting quirk. The workbook declares eligibility using
- * "Exploring", "Building" and "Refining". IC-001 defines the Learning Stages a coach actually selects
- * as "First Time Exploring", "Building Understanding" and "Reinforcing & Refining". No single rule
- * bridges them — "Building" is a PREFIX of its canonical label while the other two are SUFFIXES — so
- * any matching code would be encoding a guess.
+ * RESOLVED, and kept as a guard. The workbook originally declared "Exploring", "Building" and
+ * "Refining" — none of which matched the labels a coach actually selects, and no single rule bridged
+ * them. Christian adopted IC-001's labels in response and added a `Learning Stage Source` declaration
+ * naming that contract.
  *
- * Eligibility is the whole point of the Runtime Data sheet: Runtime Decision 4 retrieves
- * interventions by "Learning Stage compatibility". If the vocabularies do not line up, every
- * intervention silently fails to match and Experience Design does nothing — which is indistinguishable
- * from the runtime deciding no enhancement was needed. Exactly the failure mode this library's gate
- * exists to prevent, so it is surfaced rather than papered over with a fuzzy match.
- *
- * Left for Christian: either the workbook adopts the canonical labels, or he declares the bridge.
+ * This remains because the failure it caught is invisible: Runtime Decision 4 retrieves interventions
+ * by Learning Stage compatibility, so if the vocabularies ever diverge again every intervention
+ * silently fails to match and Experience Design does nothing — indistinguishable from correctly
+ * deciding no enhancement was needed.
  */
 export function reportLearningStageVocabulary(data: InterventionWorkbook = WB): string[] {
     const values = new Set<string>()
@@ -256,6 +252,8 @@ function toIntervention(row: InterventionRow): RepresentativeIntervention {
 export const representativeInterventionLibrary = {
     sourceWorkbook: WB.source_workbook,
     version: String(WB.metadata['Version'] ?? ''),
+    /** Which contract the Learning Stage vocabulary comes from — added by Christian after our report. */
+    learningStageSource: String(WB.metadata['Learning Stage Source'] ?? ''),
     /** Pilot limits, read from the workbook rather than assumed. */
     maxStakesVariablesPerActivity: Number(WB.metadata['Maximum Representative Stakes Variables per Activity'] ?? 1),
     maxInterventionsPerActivity: Number(WB.metadata['Maximum Representative Interventions per Activity'] ?? 1),
