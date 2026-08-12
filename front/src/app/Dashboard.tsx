@@ -78,34 +78,64 @@ export default function DashboardPage() {
                         </h1>
                     </div>
 
-                    {/* Simple CTA Section */}
-                    <div className='p-6 transition-shadow bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md'>
-                        <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
-                            <div className='flex-1'>
-                                <h3 className='mb-2 text-lg font-semibold text-gray-900'>
-                                    Ready for Your Next Learning Session?
-                                </h3>
-                                <p className='text-sm text-gray-600'>
-                                    Start a new session to track your learning progress and discover your optimal
-                                    challenge zone.
-                                </p>
-                            </div>
-                            <Button
-                                onClick={() => navigate('/manage-session/new')}
-                                className='flex items-center justify-center w-full gap-2 px-6 py-3 font-medium text-white transition-colors rounded-lg sm:w-auto bg-brand-600 hover:bg-brand-700'
-                            >
-                                <PlusIcon className='w-5 h-5' />
-                                Start New Session
-                            </Button>
-                        </div>
+                    {/*
+                      * PRIMARY ACTIONS. Christian's UI Review found the Home screen led with
+                      * historical analytics, while coaches arrive asking "what are we working on?"
+                      * and "how do I get started?" rather than "how many activities have I
+                      * completed?" (EP9 — optimize every screen for the coach's next action).
+                      *
+                      * EP7 wants "Who are you coaching today?" above these, backed by a Team
+                      * Profile. Team Profile does not exist yet, so that row is deliberately absent
+                      * rather than faked — a team selector with nothing behind it would be a worse
+                      * answer than no selector.
+                      */}
+                    <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
+                        <button
+                            type='button'
+                            onClick={() => navigate('/manage-session/new')}
+                            className='flex items-center gap-4 p-6 text-left transition bg-white border border-gray-200 rounded-lg shadow-sm hover:border-brand-600 hover:shadow-md'
+                        >
+                            <span className='p-3 rounded-full bg-brand-100 text-brand-600'>
+                                <PlusIcon className='w-6 h-6' />
+                            </span>
+                            <span>
+                                <span className='block text-lg font-semibold text-gray-900'>New activity</span>
+                                <span className='block mt-1 text-sm text-gray-600'>
+                                    Plan what your players need to handle better during the game.
+                                </span>
+                            </span>
+                        </button>
+
+                        <button
+                            type='button'
+                            onClick={() => navigate('/session-library')}
+                            className='flex items-center gap-4 p-6 text-left transition bg-white border border-gray-200 rounded-lg shadow-sm hover:border-brand-600 hover:shadow-md'
+                        >
+                            <span className='p-3 text-indigo-600 bg-indigo-100 rounded-full'>
+                                <BookOpenIcon className='w-6 h-6' />
+                            </span>
+                            <span>
+                                <span className='block text-lg font-semibold text-gray-900'>Session library</span>
+                                <span className='block mt-1 text-sm text-gray-600'>
+                                    Revisit sessions you have already run.
+                                </span>
+                            </span>
+                        </button>
                     </div>
                 </header>
 
-                {/* Performance Metrics */}
-                <section className='mb-10'>
-                    <h2 className='flex items-center pb-3 text-xl font-semibold text-gray-800 border-b border-gray-200'>
-                        <span className='mr-2'>Performance Metrics</span>
-                    </h2>
+                {/*
+                  * SECONDARY. The UI Review's finding was about PRIMACY, not value — these metrics
+                  * are useful, they were simply answering a question the coach had not asked yet.
+                  * Collapsed rather than removed, and closed by default so the screen opens on the
+                  * next action.
+                  */}
+                <details className='mb-10 group'>
+                    <summary className='flex items-center pb-3 text-xl font-semibold text-gray-800 border-b border-gray-200 cursor-pointer list-none'>
+                        <span className='mr-2'>Performance metrics</span>
+                        <span className='text-sm font-normal text-gray-500 group-open:hidden'>show</span>
+                        <span className='hidden text-sm font-normal text-gray-500 group-open:inline'>hide</span>
+                    </summary>
                     <p className='max-w-3xl pt-2 pb-5 text-xs text-gray-500'>
                         {' '}
                         Here you can monitor progress across different activities. The metrics below provide insights
@@ -214,7 +244,7 @@ export default function DashboardPage() {
                             <p className='text-gray-500'>Loading metrics...</p>
                         </div>
                     )}
-                </section>
+                </details>
 
                 {/* Charts Section */}
                 <div className='grid grid-cols-1 gap-12 pt-10 sm:pt-2 lg:grid-cols-2'>

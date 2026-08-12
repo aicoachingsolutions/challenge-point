@@ -78,13 +78,26 @@ function assertCoachGoalsAllowedForTestLibrary(input: TestLibrarySelectionInput)
     }
 }
 
+/**
+ * The text selection matches lenses and constraints against.
+ *
+ * CHALLENGE LEVEL IS DELIBERATELY ABSENT. It used to be concatenated in, which gave it a third
+ * architectural role nobody designed: the literal token "low" or "high" participated in matching as
+ * a WORD. That is not a calibration signal, it is a coincidence — and it had real effects. For
+ * "Help players recognize space behind the defense", Comfortable produced End Zone Games while
+ * Stretch and Demanding produced Channel Games with a different constraint package. Same coach
+ * intention, different activity, decided by a token.
+ *
+ * Found 2026-08-12 while reviewing the Adaptive Learning Architecture, and removed on Christian's
+ * agreement that the dependency should go regardless of what happens to Challenge as a planning
+ * input. Challenge still reaches Experience Design, where it is read as a value rather than as text.
+ *
+ * The general rule this stands for: only put text in here that a coach actually wrote about what
+ * they want players to learn. Enum values, ids and internal codes match by accident, and an
+ * accidental match is indistinguishable from a real one in the output.
+ */
 function buildQueryCorpus(input: TestLibrarySelectionInput): string {
-    const parts = [
-        ...(input.learningGoals || []),
-        input.sport || '',
-        input.sessionDescription || '',
-        input.challengeLevel || '',
-    ]
+    const parts = [...(input.learningGoals || []), input.sport || '', input.sessionDescription || '']
     return parts.join(' ').trim()
 }
 
