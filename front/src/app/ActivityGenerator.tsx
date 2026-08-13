@@ -45,6 +45,25 @@ const ENVIRONMENTAL_FIT_OPTIONS: { value: ChallengeLevels; label: string; descri
 ]
 const challengeLevelOptions = ENVIRONMENTAL_FIT_OPTIONS.map((o) => ({ value: o.value, text: o.label }))
 
+/**
+ * What the guided flow sends now that it no longer asks the coach for Challenge.
+ *
+ * The Adaptive Learning Architecture Review concluded that Challenge is an emergent property of the
+ * learner-environment interaction, so the coach is no longer asked to predict it. The engine still
+ * needs a value: Experience Design reads it as an appropriateness signal when choosing a
+ * Representative Intervention.
+ *
+ * The middle value is used deliberately rather than as a shrug. It is the neutral position, and it
+ * is the one Decision 1 treats as "evaluate enhancement" — which keeps Experience Design active,
+ * per the review's Finding 6 that meaningful environmental design matters at every challenge state
+ * rather than only at high ones.
+ *
+ * THIS IS A PLACEHOLDER FOR A CALIBRATION MODEL THAT DOES NOT EXIST YET. When the closed loop is
+ * built, this value should come from observation and Team Profile calibration rather than from a
+ * constant. It is named so that it is findable then, instead of being an unexplained literal.
+ */
+const RUNTIME_CHALLENGE_DEFAULT = ChallengeLevels['Growth Zone']
+
 export default function ActivityGenerator() {
     const { id } = useParams()
     type GenerationStatus = 'creation' | 'generation' | 'selection'
@@ -131,11 +150,11 @@ export default function ActivityGenerator() {
             .filter(Boolean)
             .join('. ')
 
-        setSelectedChallengeLevel(selection.challenge)
+        setSelectedChallengeLevel(RUNTIME_CHALLENGE_DEFAULT)
         setSelectedDuration(selection.duration)
         setSelectedLearningGoals([goalText])
         await generateActivities({
-            challengeLevel: selection.challenge,
+            challengeLevel: RUNTIME_CHALLENGE_DEFAULT,
             duration: selection.duration,
             learningGoals: [goalText],
             // Sent for EVIDENCE, not for routing. Learning Stage does not yet influence generation
