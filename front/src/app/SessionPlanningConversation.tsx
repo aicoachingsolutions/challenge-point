@@ -7,10 +7,15 @@
  * the registry endpoint. If a coach-facing planning concept ever appears as a string literal below,
  * the knowledge has leaked back into code and the change should be reverted rather than extended.
  *
- * Two steps ARE defined here — Learning Stage and Challenge — because the workbook does not carry
- * them; they come from the Experience Specification. They are marked as such at their definitions so
- * the boundary stays legible, and they are the obvious first candidates to move into the workbook
- * when Christian is ready.
+ * ONE step is defined here rather than in the workbook — Learning Stage — because it comes from the
+ * Experience Specification rather than the Session Planning Model. It is marked as such at its
+ * definition so the boundary stays legible.
+ *
+ * CHALLENGE USED TO BE A SECOND ONE, AND IS DELIBERATELY GONE. The Adaptive Learning Architecture
+ * Review concluded that Challenge is an emergent property of the learner-environment interaction
+ * rather than something a coach can predict before the activity exists or players have interacted
+ * with it. Asking for it made the coach guess at an outcome, and the guess then acted as a runtime
+ * gate. It now belongs to observation and reflection, not planning.
  *
  * Design rules taken directly from the Experience Specification, and why each shows up in the code:
  *   * ONE MEANINGFUL DECISION PER SCREEN — one step renders at a time, never a long form.
@@ -25,7 +30,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import ROUTES from '@/ROUTES'
-import { ChallengeLevels } from '@/MODELS/activity.model'
 import { api } from '@/services/api.service'
 import Button from '@/components/Button'
 
@@ -74,8 +78,8 @@ interface PlanningRegistry {
 }
 
 /**
- * The coach's planning selections. `learningStage` and `challenge` are Experience-Specification
- * concepts rather than workbook ones — see the file header.
+ * The coach's planning selections — only things a coach can reasonably know before practice.
+ * `learningStage` is an Experience-Specification concept rather than a workbook one; see the header.
  */
 export interface PlanningSelection {
     learningGoalId: string
@@ -83,7 +87,6 @@ export interface PlanningSelection {
     practiceSituationId: string | null
     practiceSituationName: string | null
     learningStage: string
-    challenge: ChallengeLevels
     duration: number
     additionalContext: string
 }
@@ -100,17 +103,6 @@ const LEARNING_STAGES = [
 ]
 
 /**
- * Also from the Experience Specification — and it maps onto calibration the engine ALREADY has, so
- * these carry the existing ChallengeLevels values rather than a parallel set of strings. The spec's
- * labels and the ones already shipped are identical, which is a good sign the concept was right.
- */
-const CHALLENGE_LEVELS: { value: ChallengeLevels; label: string; description: string }[] = [
-    { value: ChallengeLevels['Low-Pressure Learning'], label: 'Comfortable', description: 'Build confidence while recognizing opportunities.' },
-    { value: ChallengeLevels['Growth Zone'], label: 'Stretch', description: 'Require consistent adaptation and problem-solving.' },
-    { value: ChallengeLevels['High Pressure Challenge'], label: 'Demanding', description: 'Push performance under realistic game pressure.' },
-]
-
-/**
  * TEAM CONTEXT — trimmed to what the engine consumes today.
  *
  * The Experience Specification describes Team Profiles carrying reusable defaults for player count,
@@ -121,14 +113,13 @@ const CHALLENGE_LEVELS: { value: ChallengeLevels; label: string; description: st
  */
 const DURATION_OPTIONS = [15, 20, 25, 30, 40, 45]
 
-type StepId = 'goal' | 'situation' | 'stage' | 'challenge' | 'team' | 'context'
+type StepId = 'goal' | 'situation' | 'stage' | 'team' | 'context'
 
 /** The coach-facing question for each step, verbatim from the Experience Specification. */
 const STEP_QUESTIONS: Record<StepId, string> = {
     goal: 'What are your players trying to handle better during the game?',
     situation: 'Can you tell us a little more about this situation?',
     stage: 'Where are your players with this learning today?',
-    challenge: 'How demanding should today’s activity feel?',
     team: 'Tell us about today’s practice.',
     context: 'Is there anything else we should know?',
 }
@@ -148,7 +139,6 @@ export default function SessionPlanningConversation({ onComplete, onCancel, subm
     const [goalId, setGoalId] = useState<string | null>(null)
     const [situationId, setSituationId] = useState<string | null>(null)
     const [learningStage, setLearningStage] = useState<string | null>(null)
-    const [challenge, setChallenge] = useState<ChallengeLevels | null>(null)
     const [duration, setDuration] = useState<number | null>(null)
     const [additionalContext, setAdditionalContext] = useState('')
 
@@ -217,7 +207,7 @@ export default function SessionPlanningConversation({ onComplete, onCancel, subm
     const order: StepId[] = useMemo(() => {
         const steps: StepId[] = ['goal']
         if (situations.length > 0) steps.push('situation')
-        return [...steps, 'stage', 'challenge', 'team', 'context']
+        return [...steps, 'stage', 'team', 'context']
     }, [situations.length])
 
     const goNext = () => {
@@ -238,7 +228,7 @@ export default function SessionPlanningConversation({ onComplete, onCancel, subm
     }
 
     const complete = () => {
-        if (!selectedGoal || !learningStage || !challenge || !duration) return
+        if (!selectedGoal || !learningStage || !duration) return
         const situation = situations.find((s) => s.id === situationId) ?? null
         onComplete({
             learningGoalId: selectedGoal.id,
@@ -246,7 +236,6 @@ export default function SessionPlanningConversation({ onComplete, onCancel, subm
             practiceSituationId: situation?.id ?? null,
             practiceSituationName: situation?.name ?? null,
             learningStage,
-            challenge,
             duration,
             additionalContext: additionalContext.trim(),
         })
@@ -387,27 +376,6 @@ export default function SessionPlanningConversation({ onComplete, onCancel, subm
                             }}
                             className={`w-full p-4 text-left border rounded-lg transition hover:border-blue-500 hover:bg-blue-50 ${
                                 learningStage === option.value ? 'border-blue-600 bg-blue-50' : 'border-gray-200'
-                            }`}
-                        >
-                            <span className='block font-medium text-gray-900'>{option.label}</span>
-                            <span className='block mt-1 text-sm text-gray-600'>{option.description}</span>
-                        </button>
-                    ))}
-                </div>
-            )}
-
-            {step === 'challenge' && (
-                <div className='space-y-2'>
-                    {CHALLENGE_LEVELS.map((option) => (
-                        <button
-                            key={option.value}
-                            type='button'
-                            onClick={() => {
-                                setChallenge(option.value)
-                                goNext()
-                            }}
-                            className={`w-full p-4 text-left border rounded-lg transition hover:border-blue-500 hover:bg-blue-50 ${
-                                challenge === option.value ? 'border-blue-600 bg-blue-50' : 'border-gray-200'
                             }`}
                         >
                             <span className='block font-medium text-gray-900'>{option.label}</span>
