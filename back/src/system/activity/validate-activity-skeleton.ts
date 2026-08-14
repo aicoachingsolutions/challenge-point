@@ -35,8 +35,31 @@ function archetypeNameFallbackMatches(bundle: string, archetypeName: string): bo
     return words.some((t) => new RegExp(`\\b${escapeRegExp(t)}\\b`, 'i').test(bundle))
 }
 
+/**
+ * Strip a requirement's instruction prefix so matching sees only the CONTENT it demands.
+ *
+ * Several skeleton requirements are written as "Label (how to satisfy it): signal; signal; signal".
+ * The part before the colon is addressed to the model — it tells it where to put something. Those
+ * words then counted toward the keyword-overlap budget, so an activity that satisfied the
+ * requirement in natural coaching language could still fail, while one that happened to echo the
+ * instruction's own vocabulary passed.
+ *
+ * That produced a real intermittent failure: "Play Through Pressure" returned no activity at all in
+ * roughly one generation in three, always on the same requirement, because whether it passed
+ * depended on whether the model happened to use the words "scoring" or "rules". Found 2026-08-13 by
+ * generating eighteen activities rather than by any test.
+ *
+ * Only the "Label (…): content" shape is stripped, so requirements that are plain prose — or that
+ * contain a colon inside real content — are untouched.
+ */
+function requirementContent(requirement: string): string {
+    const instructionPrefix = /^[^:()]{0,80}\([^()]{0,80}\):\s+/
+    return instructionPrefix.test(requirement) ? requirement.replace(instructionPrefix, '') : requirement
+}
+
 /** Whether text reflects enough of the requirement for skeleton compliance (keyword overlap + optional phrase match). */
-export function matchesMechanicRequirement(bundle: string, requirement: string): boolean {
+export function matchesMechanicRequirement(bundle: string, rawRequirement: string): boolean {
+    const requirement = requirementContent(rawRequirement)
     const normB = normalizeText(bundle)
     const normReq = normalizeText(requirement)
     if (!normReq) {

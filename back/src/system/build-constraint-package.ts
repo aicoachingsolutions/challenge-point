@@ -560,18 +560,20 @@ function buildPackageInteractionExchange(
     return applyConstraintMetadataOverlay(
         createAssemblyGuardrails(
         {
-            visibleCue: `The cue is the live opportunity created by ${shaping.constraint.title ?? archetype.name} inside ${foundation.constraint.title ?? 'the environment'}.`,
+            // Describes the cue WITHOUT naming the constraints that produce it. This sentence is
+            // coach-facing, and an internal object name tells a coach nothing they can act on.
+            visibleCue: `The cue is the live opportunity that appears inside this game as the conditions below take effect.`,
             visibleCueSignals: ['live opportunity', 'under pressure', 'picture opens'],
             decisionProblem: 'Players must decide whether the opportunity is genuinely on, what route to use, and why forcing it would hand the advantage away.',
             decisionProblemSignals: ['whether the opportunity is on', 'what route to use', 'forcing it', 'hand the advantage away'],
             preservedDecisions: ['what', 'where', 'when', 'why', 'how'],
             interactionExchange: {
-                visibleOpportunityCue: `a team recognizes the live opportunity created by ${shaping.constraint.title ?? archetype.name}`,
+                visibleOpportunityCue: `a team recognizes the live opportunity as it appears`,
                 decisionProblem: 'whether the opportunity is on or whether pressure makes another choice better',
                 rewardAdvantage: 'they exploit it under pressure, keep the next action live, and gain the selected advantage',
                 misreadOrForceRisk: 'they force the action into pressure or lose the ball while the picture is closed',
                 opponentAdvantage: 'the opponent gains the connected restart, regain, or counter-attacking advantage',
-                liveContinuation: `play continues live inside the ${foundation.constraint.title ?? 'selected game environment'}`,
+                liveContinuation: `play continues live inside the game environment`,
                 validationSignals: {
                     cue: ['live opportunity', 'under pressure', 'picture opens'],
                     reward: ['keep the next action live', 'selected advantage', 'reward'],

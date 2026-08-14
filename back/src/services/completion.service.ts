@@ -648,14 +648,13 @@ function mapStructuredActivityToLegacy(activity: Activity, input: SystemAssembly
     const scoringSystem = scoringTrim.startsWith(twoSidedScoringConsequence) ? scoringTrim : `${twoSidedScoringConsequence} ${scoringTrim}`
 
     const guard = input.constraintPackage.assemblyGuardrails
-    const constraintSummary = [
-        input.constraintPackage.foundation.constraint.title,
-        input.constraintPackage.shaping.constraint.title,
-        input.constraintPackage.consequence?.constraint.title,
-        guard.visibleCue.summary,
-        activity.setup,
-        activity.constraints.join(' '),
-    ]
+    // THE THREE CONSTRAINT TITLES USED TO BE PREPENDED HERE. That put our internal object names at
+    // the very front of the field a coach reads first — deterministically, on every activity, with
+    // the model playing no part. Generating real activities found it in all eighteen.
+    //
+    // Nothing is lost by dropping them: what each constraint DOES is already carried by the visible
+    // cue and by the coach-facing constraint lines. The names were only ever a handle for us.
+    const constraintSummary = [guard.visibleCue.summary, activity.setup, activity.constraints.join(' ')]
         .filter(Boolean)
         .join(' ')
 
