@@ -32,7 +32,10 @@ export type ActivitySkeletonSlot = {
     requiredAffordanceMechanics: string[]
     /** Selected foundation/shaping/consequence + assemblyGuardrails obligations (AI scaffolding only — not coach-facing) */
     requiredConstraintMechanics: string[]
-    /** Clean coach-facing constraint display: one line per selected constraint (title + brief intent) */
+    /**
+     * Coach-facing constraint display: one line per selected constraint, describing what it DOES.
+     * Never the constraint's internal name — see buildCoachFacingConstraintLine for why.
+     */
     coachFacingConstraints: string[]
     /** From selected archetype game form */
     requiredArchetypeMechanics: string[]
@@ -513,12 +516,34 @@ function affordanceMechanicsForLens(aff: IAffordance): string[] {
         .join(' ')
         .trim()
     if (extras.length > 0) {
-        const snippet = extras.length > 320 ? `${extras.slice(0, 317)}…` : extras
+        // Whole sentences only. Slicing at a character count produced "…finishing …." in every
+        // generated activity, because the model copied the fragment through verbatim.
+        const snippet = firstSentencesWithin(extras, 320)
         lines.push(
             `Affordance lens "${title}" — reflect lens behaviors in objective, rules, scoring, constraints, or coachingFocus: ${snippet}`
         )
     }
     return lines
+}
+
+
+/**
+ * As many whole sentences as fit within `budget` characters, never cutting one in half.
+ *
+ * Returns the first sentence even when it exceeds the budget: a single complete sentence a coach can
+ * act on is better than a fragment, and the budget exists to bound prompt size rather than to
+ * guarantee a maximum.
+ */
+function firstSentencesWithin(text: string, budget: number): string {
+    const sentences = text.split(/(?<=\.)\s+/).filter(Boolean)
+    if (sentences.length === 0) return text
+
+    let out = sentences[0]
+    for (const sentence of sentences.slice(1)) {
+        if (`${out} ${sentence}`.length > budget) break
+        out = `${out} ${sentence}`
+    }
+    return out
 }
 
 function pushConstraintCandidate(lines: string[], role: string, candidate: ConstraintSelectionCandidate): void {
@@ -565,16 +590,29 @@ function constraintAndGuardrailMechanics(input: SystemAssemblyInput): string[] {
     return lines
 }
 
+/**
+ * One coach-facing line describing what a constraint does — WITHOUT naming it.
+ *
+ * This used to emit `"${title}: ${firstSentence}…"`, which put our internal library names straight
+ * in front of a coach and cut the sentence mid-thought. Generating eighteen real activities showed
+ * it in ALL EIGHTEEN — coaches were reading a run of constraint titles followed by a fragment that
+ * stopped mid-clause. (The example that made it obvious is not quoted here: it is sport vocabulary,
+ * and the coupling guard rightly rejects that in this file.)
+ *
+ * The title is dropped entirely rather than translated. A constraint's NAME is an internal handle
+ * for a mechanism; what a coach needs is what the mechanism does to the game, which the design
+ * intent already says. Keeping the name and softening it would still be showing an engine label.
+ *
+ * The clip is gone too. If a description is long, the whole first sentence is used — a complete
+ * sentence a coach can act on beats a truncated one that fits a width nobody chose deliberately.
+ */
 function buildCoachFacingConstraintLine(candidate: ConstraintSelectionCandidate): string {
     const c = candidate.constraint
-    const title = c.title ?? 'Constraint'
     const body = (c.designIntent || c.description || '').trim()
-    if (!body) {
-        return `${title}.`
-    }
-    const firstSentence = body.split(/\.\s/)[0] ?? body
-    const clipped = firstSentence.length > 160 ? `${firstSentence.slice(0, 157)}…` : firstSentence
-    return `${title}: ${clipped}.`
+    if (!body) return ''
+
+    const firstSentence = (body.split(/(?<=\.)\s+/)[0] ?? body).trim()
+    return firstSentence.endsWith('.') ? firstSentence : `${firstSentence}.`
 }
 
 function buildCoachFacingConstraints(input: SystemAssemblyInput): string[] {
@@ -758,15 +796,17 @@ function setupFrameForSlot(
         for (const g of guidance.archetypeGuidance) lines.push(`  • ${g}`)
     }
     if (guidance.foundationGuidance.length > 0) {
-        lines.push(`- Foundation constraint (${input.constraintPackage.foundation.constraint.title ?? 'foundation'}):`)
+        // Role, not name. Labelling these with the constraint's internal title put that title into
+        // generated setup text — the model treats a label as part of the content to reproduce.
+        lines.push('- The base condition of the game:')
         for (const g of guidance.foundationGuidance) lines.push(`  • ${g}`)
     }
     if (guidance.shapingGuidance.length > 0) {
-        lines.push(`- Shaping constraint (${input.constraintPackage.shaping.constraint.title ?? 'shaping'}):`)
+        lines.push('- What shapes the decisions inside it:')
         for (const g of guidance.shapingGuidance) lines.push(`  • ${g}`)
     }
     if (guidance.consequenceGuidance.length > 0 && input.constraintPackage.consequence) {
-        lines.push(`- Consequence constraint (${input.constraintPackage.consequence.constraint.title ?? 'consequence'}):`)
+        lines.push('- What makes success and failure matter:')
         for (const g of guidance.consequenceGuidance) lines.push(`  • ${g}`)
     }
     lines.push('')

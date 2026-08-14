@@ -23,6 +23,8 @@
  * `findNeverDisplayViolations`.
  */
 
+import { testLibraryRegistry } from '../test-library/library/registry'
+
 /**
  * Dictionary §9 "Never Display List", plus the three library names §6 marks never-display.
  * These are internal ontology terms. If one reaches coach-facing text, the translation layer has
@@ -184,6 +186,71 @@ export function findNeverDisplayViolations(text: string): string[] {
     return [...found]
 }
 
+/**
+ * Library OBJECT NAMES that must never reach a coach — constraint, lens and game-form titles.
+ *
+ * Distinct from NEVER_DISPLAY_TERMS, which are concepts. These are the names of specific knowledge
+ * objects: "Counter-Press Window", "Possession Stability Opportunity", "Directional Possession
+ * Games". A coach has no idea what they refer to, and they are the single most visible way the
+ * engine shows through.
+ *
+ * WHY THIS IS DERIVED RATHER THAN LISTED. The titles come from the registry, so this tracks the
+ * knowledge automatically — a constraint renamed in the workbook is caught under its new name with
+ * no code change, and nothing here duplicates knowledge that lives in the library.
+ *
+ * Found by generating eighteen real activities on 2026-08-13: every single one contained at least
+ * one library name in coach-facing text. Nothing detected it, because the existing guard was
+ * looking for concepts rather than object names.
+ */
+function libraryObjectNames(): string[] {
+    const names = [
+        ...testLibraryRegistry.selectableConstraints().map((c) => c.title),
+        ...testLibraryRegistry.affordanceLenses().map((l) => l.title),
+        ...testLibraryRegistry.archetypes().map((a) => a.game_form_name),
+    ]
+    return [...new Set(names.map((n) => String(n ?? '').trim()).filter((n) => n.length > 3))]
+}
+
+let libraryNameMatchers: ReadonlyArray<readonly [string, RegExp]> | null = null
+
+/**
+ * Which library object names appear in `text`.
+ *
+ * Matched whole-phrase and case-insensitively. Compiled once — the registry is static, and this runs
+ * over every coach-facing field of every generated activity.
+ */
+export function findLibraryNameLeaks(text: string): string[] {
+    const value = String(text ?? '')
+    if (!value) return []
+
+    if (!libraryNameMatchers) {
+        libraryNameMatchers = libraryObjectNames().map(
+            (name) => [name, new RegExp(`(?<![\w-])${escapeRegExp(name)}(?![\w-])`, 'i')] as const
+        )
+    }
+
+    const found = new Set<string>()
+    for (const [name, matcher] of libraryNameMatchers) {
+        if (matcher.test(value)) found.add(name)
+    }
+    return [...found]
+}
+
+/**
+ * Text that was cut mid-sentence before reaching the coach.
+ *
+ * A trailing ellipsis in coach-facing output is always a defect: it means an internal description
+ * was clipped to a character budget and shipped. Every one of the eighteen generated activities had
+ * one.
+ */
+export function findTruncationArtifacts(text: string): string[] {
+    const value = String(text ?? '')
+    const hits: string[] = []
+    if (/…/.test(value)) hits.push('ellipsis character')
+    if (/\.\.\.\s*$/.test(value.trim())) hits.push('trailing ellipsis')
+    return hits
+}
+
 /** One field's worth of never-display leakage, for the evidence record. */
 export interface CoachLanguageViolation {
     /** Coach-facing field name, e.g. 'scoringSystem' or 'rules[2]'. */
@@ -210,10 +277,21 @@ const AUDITED_ARRAY_FIELDS = ['rules', 'scaffolding', 'extensions'] as const
  */
 export function auditCoachLanguage(activity: Record<string, unknown>): CoachLanguageViolation[] {
     const out: CoachLanguageViolation[] = []
+
+    // Three checks, not one. Concepts leak (never-display terms), OBJECT NAMES leak ("Counter-Press
+    // Window"), and clipped internal text leaks (a trailing ellipsis). Only the first was checked
+    // before, which is why eighteen of eighteen generated activities carried the other two
+    // undetected. They share a violation record so all three reach the same evidence path.
+    const scan = (text: string): string[] => [
+        ...findNeverDisplayViolations(text),
+        ...findLibraryNameLeaks(text),
+        ...findTruncationArtifacts(text),
+    ]
+
     for (const field of AUDITED_STRING_FIELDS) {
         const value = activity[field]
         if (typeof value !== 'string') continue
-        const terms = findNeverDisplayViolations(value)
+        const terms = scan(value)
         if (terms.length > 0) out.push({ field, terms })
     }
     for (const field of AUDITED_ARRAY_FIELDS) {
@@ -221,7 +299,7 @@ export function auditCoachLanguage(activity: Record<string, unknown>): CoachLang
         if (!Array.isArray(value)) continue
         value.forEach((entry, i) => {
             if (typeof entry !== 'string') return
-            const terms = findNeverDisplayViolations(entry)
+            const terms = scan(entry)
             if (terms.length > 0) out.push({ field: `${field}[${i}]`, terms })
         })
     }
