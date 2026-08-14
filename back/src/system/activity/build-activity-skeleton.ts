@@ -883,6 +883,25 @@ function slotAffordanceCountFor(_idx: 1 | 2 | 3, total: number): number {
  * Deterministic activity skeleton: three slots, structurally differentiated by affordance subset.
  * AI supplies readable wording for each slot; mechanic obligations progress 1→2→all lenses.
  */
+
+/**
+ * Does this mechanic describe how points are AWARDED, or how the game is PLAYED?
+ *
+ * Both kinds used to be required in the rules block AND the scoring block, identically. The model
+ * did exactly as instructed and satisfied each mechanic twice, which is why generated activities
+ * repeated themselves — measured at 5.3 sentences appearing verbatim in both sections.
+ *
+ * Routing each mechanic to ONE section is safe because the validator matches requirements against
+ * the whole activity bundle (objective + rules + scoring + constraints + coachingFocus), never
+ * per-section. The duplication was never doing validation work; it was only telling the model to
+ * write the same sentence twice.
+ */
+function isScoringMechanic(mechanic: string): boolean {
+    return /scor(?:e|es|ed|ing)|points?|counts?|awarded|bonus|advantage counts/i.test(
+        mechanic
+    )
+}
+
 export function buildActivitySkeleton(input: SystemAssemblyInput): ActivitySkeletonBundle {
     const archetypeName = input.archetype.name
     const affordances = uniqueSelectedAffordances(input)
@@ -916,16 +935,19 @@ export function buildActivitySkeleton(input: SystemAssemblyInput): ActivitySkele
             .filter((m) => m.placement === 'scoring')
             .map((m) => m.mechanicLine)
 
+        // Each mechanic belongs to ONE section — see isScoringMechanic. Previously both blocks
+        // carried the identical affordance and constraint arrays, which instructed the model to say
+        // the same thing twice.
         const combinedRulesForSlot: string[] = [
             ...archRulesScoring.rules,
-            ...slotAffMechanics.map((m) => `[Affordance] ${m}`),
-            ...constraintMechanics.map((m) => `[Constraint] ${m}`),
+            ...slotAffMechanics.filter((m) => !isScoringMechanic(m)).map((m) => `[Affordance] ${m}`),
+            ...constraintMechanics.filter((m) => !isScoringMechanic(m)).map((m) => `[Constraint] ${m}`),
             ...ruleModifierLines,
         ]
         const combinedScoringForSlot: string[] = [
             ...archRulesScoring.scoring,
-            ...slotAffMechanics.map((m) => `[Affordance] ${m}`),
-            ...constraintMechanics.map((m) => `[Constraint] ${m}`),
+            ...slotAffMechanics.filter(isScoringMechanic).map((m) => `[Affordance] ${m}`),
+            ...constraintMechanics.filter(isScoringMechanic).map((m) => `[Constraint] ${m}`),
             ...scoringModifierLines,
         ]
 
@@ -957,9 +979,41 @@ export function buildActivitySkeleton(input: SystemAssemblyInput): ActivitySkele
     }
 }
 
+
+/**
+ * The internal object names present in the current package, so the prompt can forbid them by name.
+ *
+ * Read from the registry rather than listed, for the same reason the coach-language detector is:
+ * a constraint renamed in the workbook is forbidden under its new name with no code change.
+ */
+function libraryNamesInPackage(): string[] {
+    return [
+        ...testLibraryRegistry.selectableConstraints().map((c) => String(c.title ?? '')),
+        ...testLibraryRegistry.archetypes().map((a) => String(a.game_form_name ?? '')),
+    ].filter((name) => name.length > 3)
+}
+
 export function formatActivitySkeletonForPrompt(bundle: ActivitySkeletonBundle): string {
+    // NAMES THE MODEL MUST NOT ECHO.
+    //
+    // The scaffolding below necessarily contains our internal object names — the validator matches
+    // against those requirement lines, so they cannot simply be removed. The model then borrowed
+    // them for titles ("Directional Possession with Interception Reward"), which is how the last
+    // name leak survived after the deterministic ones were fixed.
+    //
+    // Naming the exact forbidden strings works where a general instruction does not: the model is
+    // reliable at "do not output this literal phrase" and unreliable at "avoid internal jargon",
+    // because it has no way to know which of our phrases are internal.
+    const forbiddenNames = [...new Set(libraryNamesInPackage())].filter(Boolean)
+
     const lines: string[] = [
         'SYSTEM-OWNED ACTIVITY SKELETON (mandatory — do not invent a different structure):',
+        ...(forbiddenNames.length > 0
+            ? [
+                  `NEVER write these names in any coach-facing text, including titles: ${forbiddenNames.join(' / ')}.`,
+                  'They are internal labels. Describe what the condition DOES to the game instead.',
+              ]
+            : []),
         'You are filling coach-facing wording for this skeleton only.',
         'Do not omit any required mechanics listed below.',
         'Every required mechanic must be satisfied inside objective, rules, scoring, constraints, and/or coachingFocus with clear natural language.',

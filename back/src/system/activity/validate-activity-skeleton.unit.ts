@@ -6,7 +6,7 @@ import assert from 'node:assert/strict'
 
 import type { Activity } from './activity-schema'
 import type { ActivitySkeletonSlot } from './build-activity-skeleton'
-import { validateActivityAgainstSkeleton } from './validate-activity-skeleton'
+import { matchesMechanicRequirement, validateActivityAgainstSkeleton } from './validate-activity-skeleton'
 
 /** Marker token — must appear in mechanic bundle for the selected constraint line to match; proves constraint requirement is enforced. */
 const CONSTRAINT_MARKER = 'QUARK_CONSTRAINT_MARKER_ZETA'
@@ -167,5 +167,45 @@ assert.ok(
     case5.some((r) => r.includes('skeleton obligations') || r.includes('scoring/rules must reflect')),
     'case 5 should fail skeleton scoring tie'
 )
+
+
+/**
+ * A requirement's INSTRUCTION PREFIX must not count toward the keyword match.
+ *
+ * Requirements shaped "Label (how to satisfy it): signals" address the model in the part before the
+ * colon. Those words used to count toward the overlap budget, so an activity written in natural
+ * coaching language could fail while one that echoed the instruction's own vocabulary passed.
+ *
+ * This was a live defect, not a theoretical one: "Play Through Pressure" produced NO activity at all
+ * in roughly one generation in three, always on this requirement, because passing depended on
+ * whether the model happened to use the words "scoring" or "rules". Found by generating eighteen
+ * activities rather than by any test.
+ *
+ * Both directions are asserted. Stripping a prefix must not turn the matcher into one that accepts
+ * anything — that would trade an intermittent false failure for a permanent false pass, which is
+ * strictly worse because nothing would ever surface it.
+ */
+{
+    const requirement =
+        'Opponent consequence emphasis (reflect in scoring or rules): opponent gains; restart; regain; counter'
+
+    assert.ok(
+        matchesMechanicRequirement(
+            'Losing the ball hands the attack straight to the opponent, who counter immediately while the picture is open.',
+            requirement
+        ),
+        'Text satisfying the requirement in natural coaching language must match without echoing the instruction.'
+    )
+
+    assert.ok(
+        !matchesMechanicRequirement('Players pass in a circle between cones for two minutes.', requirement),
+        'Text with no opponent consequence must still fail.'
+    )
+
+    // Plain-prose requirements have no prefix to strip and must behave exactly as before.
+    const plain = 'Score awarded for winning the ball back or forcing a turnover.'
+    assert.ok(matchesMechanicRequirement('A point is scored for winning the ball back after a turnover.', plain))
+    assert.ok(!matchesMechanicRequirement('Players jog around the pitch in pairs.', plain))
+}
 
 console.log('validate-activity-skeleton unit tests: all cases passed.')
