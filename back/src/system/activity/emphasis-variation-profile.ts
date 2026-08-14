@@ -140,8 +140,26 @@ const PROFILES: Record<SessionEmphasis, EmphasisVariationProfile> = {
  * emphasis default to 'applying' (Christian's MVP2 decision: closest to pre-emphasis output
  * structure, minimizes migration inconsistency for existing sessions).
  */
+/**
+ * WHAT AN UNSET EMPHASIS MEANS, and why the default changed.
+ *
+ * The narrow ('applying') profile deliberately produces three near-identical activities — "three
+ * repeated exposures to the same problem with intentional small variation". That is correct when a
+ * coach has CHOSEN that emphasis.
+ *
+ * But the guided planning conversation never asks for emphasis, so every pilot activity resolved to
+ * it by default. Measured across eighteen generated activities, Activity 2's rule set was
+ * byte-identical to Activity 1's in every single case and Activity 3 was ~91% identical. Christian
+ * named that as pilot-blocking: the three should be "educationally distinct" realizations a coach
+ * chooses between, per ARS-001.
+ *
+ * So an ABSENT emphasis now resolves to the differentiated profile. This is a change of DEFAULT, not
+ * of framework: a coach who explicitly chooses "Applying Solutions Under Pressure" still gets the
+ * narrow bandwidth that emphasis asks for. The two documents disagree only about what happens when
+ * nobody has chosen, and the newer one governs how a single intention becomes multiple experiences.
+ */
 export function getEmphasisVariationProfile(emphasis: SessionEmphasis | undefined | null): EmphasisVariationProfile {
-    const resolved = emphasis ?? SessionEmphasis['Applying Solutions Under Pressure']
+    const resolved = emphasis ?? SessionEmphasis['Discovering Solutions']
     return PROFILES[resolved] ?? APPLYING_PROFILE
 }
 

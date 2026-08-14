@@ -232,7 +232,8 @@ export function getSlotMechanicalVariations(
     emphasis: SessionEmphasis | undefined | null,
     index: 1 | 2 | 3
 ): ValueLandscapeModifier[] {
-    const resolved = emphasis ?? SessionEmphasis['Applying Solutions Under Pressure']
+    // See getEmphasisVariationProfile for why an unset emphasis differentiates rather than repeats.
+    const resolved = emphasis ?? SessionEmphasis['Discovering Solutions']
 
     if (resolved === SessionEmphasis['Discovering Solutions']) {
         switch (index) {
