@@ -36,10 +36,13 @@ first (it supersedes the historical sections below). Then the memory files (auto
    (parser/selection/post-processing) ARE verifiable by you; anything about the *generated activity text*
    (does the AI express X?) needs **Christian's field validation** — be explicit about that boundary in
    replies.
-4. **Verify changes with:** from `back/`: `npx tsc --noEmit -p tsconfig.json` and `npm test` (**21 unit
-   suites** as of 2026-07-26; `deriveInputConstraints.unit.ts` is the main routing test — extend it when you
-   change routing). Front-end changes: `npx tsc --noEmit` from `front/`. Behaviour-preservation gate for engine changes: the selection-pipeline `bestScore`
-   sequence must stay **`68,64,94,115,91,68,64,94,115,91,97,84`**.
+4. **Verify changes with:** from `back/`: `npx tsc --noEmit -p tsconfig.json` and `npm test` (**32 unit
+   suites** as of 2026-08-16; `deriveInputConstraints.unit.ts` is the main routing test — extend it when you
+   change routing). Front-end changes: `npx tsc --noEmit` from `front/`. Behaviour-preservation gate for
+   engine changes: the selection-pipeline `bestScore` sequence must stay **`70,68,98,119,94,99,86`**
+   (**gate v2**, re-baselined 2026-08-05 when the Soccer Module became load-bearing — see MIGRATION
+   PROVEN below. The older `68,64,94,115,91,…` sequence is the pre-module baseline and is NO LONGER
+   the gate; do not restore it.)
    For behavior checks write a throwaway `src/scripts/_tmp-*.ts` run via
    `npx ts-node --files -r tsconfig-paths/register ./src/scripts/_tmp-x.ts` then delete it. The full
    `npm run test:selection-pipeline` needs `OPENAI_API_KEY=sk-dummy` and spews Mongo logging errors
