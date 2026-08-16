@@ -26,6 +26,18 @@ export interface UsageSummary {
      * be made against a real distribution. `entryPoint` shows whether coaches are using the guided
      * conversation or falling back to free text, which is the honest measure of whether it works.
      */
+    /**
+     * The evidence that cannot be reconstructed after the fact. `abandonedAtStep` is the one that
+     * matters most: a coach who leaves planning makes no server request, so without this they are
+     * indistinguishable from a coach who never opened the app.
+     */
+    pilotEvidence: {
+        planningStarted: number
+        planningAbandoned: number
+        abandonedAtStep: Record<string, number>
+        activitiesViewed: number
+        wouldUseAgain: Record<string, number>
+    }
     planning: {
         entryPoint: Record<string, number>
         learningStage: Record<string, number>
@@ -84,6 +96,9 @@ export async function summarizeUsage(sinceDays = 30): Promise<UsageSummary> {
     const learningStageCounts: Record<string, number> = {}
     const learningGoalCounts = new Map<string, number>()
     let practiceSituationUsed = 0
+    const pilot = { planningStarted: 0, planningAbandoned: 0, activitiesViewed: 0 }
+    const abandonedAtStep: Record<string, number> = {}
+    const wouldUseAgain: Record<string, number> = {}
 
     for (const e of events) {
         totals[e.eventType] = (totals[e.eventType] ?? 0) + 1
@@ -117,6 +132,20 @@ export async function summarizeUsage(sinceDays = 30): Promise<UsageSummary> {
         if (e.eventType === 'goal_rejected' && e.goalText) {
             const key = e.goalText.toLowerCase().trim()
             rejectedCounts.set(key, (rejectedCounts.get(key) ?? 0) + 1)
+        }
+        if (e.eventType === 'feature_used') {
+            const name = String(p['name'] ?? '')
+            if (name === 'planning_started') pilot.planningStarted += 1
+            if (name === 'activities_viewed') pilot.activitiesViewed += 1
+            if (name === 'planning_abandoned') {
+                pilot.planningAbandoned += 1
+                const step = String(p['atStep'] ?? 'unknown')
+                abandonedAtStep[step] = (abandonedAtStep[step] ?? 0) + 1
+            }
+        }
+        if (e.eventType === 'coach_feedback' && p['question'] === 'would_use_again') {
+            const answer = String(p['answer'] ?? 'unknown')
+            wouldUseAgain[answer] = (wouldUseAgain[answer] ?? 0) + 1
         }
         if (e.eventType === 'coach_language_leak') {
             for (const term of (p['terms'] as string[]) ?? []) {
@@ -157,6 +186,7 @@ export async function summarizeUsage(sinceDays = 30): Promise<UsageSummary> {
         totals,
         resolutionBreakdown,
         topSignalGroups: topN(signalCounts, 15).map(([signalGroup, count]) => ({ signalGroup, count })),
+        pilotEvidence: { ...pilot, abandonedAtStep, wouldUseAgain },
         planning: {
             entryPoint: planningEntryPoint,
             learningStage: learningStageCounts,

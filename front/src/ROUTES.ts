@@ -8,6 +8,8 @@ const endpoints = {
         generateActivities: '/generate-activities',
         // Session Planning Model registry — the conversation is rendered from this, never hardcoded.
         sessionPlanning: '/session-planning',
+        // Client-side pilot evidence — the events that leave no server-side trace.
+        coachEvent: '/coach-event',
         user: '/user',
     },
     admin: {
