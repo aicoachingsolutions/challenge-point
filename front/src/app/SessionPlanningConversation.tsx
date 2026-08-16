@@ -27,11 +27,12 @@
  *   * GUIDE RATHER THAN VALIDATE — entry-language search filters and suggests; it never overrides
  *     an explicit selection, and never rejects what the coach typed.
  */
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import ROUTES from '@/ROUTES'
 import { api } from '@/services/api.service'
 import Button from '@/components/Button'
+import { recordCoachEvent } from '@/services/coach-events.service'
 
 export interface PracticeSituation {
     id: string
@@ -142,6 +143,28 @@ export default function SessionPlanningConversation({ onComplete, onCancel, subm
     const [duration, setDuration] = useState<number | null>(null)
     const [additionalContext, setAdditionalContext] = useState('')
 
+    /**
+     * ABANDONMENT EVIDENCE.
+     *
+     * `stepRef` and `completedRef` are refs rather than state because the cleanup below runs once, on
+     * unmount, and a closure over state would capture the values from first render — reporting every
+     * coach as abandoning at step one. Refs read the values as they are when the coach actually left.
+     */
+    const stepRef = useRef<StepId>('goal')
+    const completedRef = useRef(false)
+    stepRef.current = step
+
+    useEffect(() => {
+        recordCoachEvent('planning_started')
+        return () => {
+            // Leaving without generating is the signal. It is invisible server-side: no request is
+            // ever made, so this coach would otherwise look identical to one who never opened the app.
+            if (!completedRef.current) {
+                recordCoachEvent('planning_abandoned', { atStep: stepRef.current })
+            }
+        }
+    }, [])
+
     useEffect(() => {
         let cancelled = false
         api<PlanningRegistry>(ROUTES.app.sessionPlanning).then((response) => {
@@ -229,6 +252,7 @@ export default function SessionPlanningConversation({ onComplete, onCancel, subm
 
     const complete = () => {
         if (!selectedGoal || !learningStage || !duration) return
+        completedRef.current = true
         const situation = situations.find((s) => s.id === situationId) ?? null
         onComplete({
             learningGoalId: selectedGoal.id,

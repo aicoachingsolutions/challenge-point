@@ -451,6 +451,65 @@ router.post('/activity-feedback', async (req: Request, res: Response) => {
 })
 
 /**
+ * CLIENT-SIDE EVIDENCE — the only events that cannot be reconstructed afterwards.
+ *
+ * Every other usage event fires server-side and therefore requires a COMPLETED request, so the
+ * database records what coaches did and never where they stopped. A coach who opens the planning
+ * conversation and leaves at step two currently produces nothing at all — indistinguishable from a
+ * coach who never opened the app.
+ *
+ * That asymmetry is why this endpoint exists and why it is narrow. Anything that leaves a record can
+ * be re-derived later from what was stored; anything that produces silence is gone the moment the
+ * tab closes. So only the silent things are collected here.
+ *
+ * Deliberately permissive about payload shape and never failing the caller: this is evidence, and a
+ * telemetry error must never surface to a coach mid-session.
+ */
+router.post('/coach-event', async (req: Request, res: Response) => {
+    const { name, sessionId, payload } = req.body as Record<string, unknown>
+    if (typeof name !== 'string' || !name.trim()) {
+        return res.status(400).json({ error: 'name is required' })
+    }
+
+    recordUsageEvent({
+        eventType: 'feature_used',
+        sessionId: typeof sessionId === 'string' ? sessionId : undefined,
+        payload: {
+            name: name.trim().slice(0, 64),
+            ...(payload && typeof payload === 'object' ? (payload as Record<string, unknown>) : {}),
+        },
+    })
+    return res.status(200).json({ ok: true })
+})
+
+/**
+ * THE PILOT'S MOST IMPORTANT QUESTION, and the only one no instrumentation can infer.
+ *
+ * Christian named "would you use Challenge Point for your next practice?" as the single most
+ * valuable thing the pilot could learn. It is not an event — no amount of behavioural telemetry
+ * produces it — so it has to be asked, and it has to be asked while the coach still remembers the
+ * session.
+ */
+router.post('/would-use-again', async (req: Request, res: Response) => {
+    const { activityId, sessionId, answer, comment } = req.body as Record<string, unknown>
+    if (answer !== 'yes' && answer !== 'no' && answer !== 'unsure') {
+        return res.status(400).json({ error: 'answer must be "yes", "no" or "unsure"' })
+    }
+
+    recordUsageEvent({
+        eventType: 'coach_feedback',
+        activityId: typeof activityId === 'string' ? activityId : undefined,
+        sessionId: typeof sessionId === 'string' ? sessionId : undefined,
+        payload: {
+            question: 'would_use_again',
+            answer,
+            comment: typeof comment === 'string' ? comment.slice(0, 2000) : undefined,
+        },
+    })
+    return res.status(200).json({ ok: true })
+})
+
+/**
  * MVP field evidence — aggregated usage view for Joe/Christian: what coaches ask for, how goals
  * resolve, what gets selected, what was rejected verbatim (the vocabulary-gap list), success rate,
  * and feedback tallies. GET /api/app/debug-usage?days=30
