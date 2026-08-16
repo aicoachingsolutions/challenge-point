@@ -118,11 +118,29 @@ differ, which is what the invariant requires. **That gap is the whole argument f
 `Play Through Pressure` differentiates less than other goals (78% setup similarity vs 21–28%). May be
 that its constraint package admits fewer environmental shapes — knowledge, not code.
 
-### Telemetry blind spot, NOT yet fixed
-There is **no client-side telemetry**. Every event fires server-side and therefore requires a completed
-request, so we capture what coaches DID and never where they stopped. Abandonment, hesitation, and
-"would you use it again" are unrecoverable after the fact — everything that produces a record can be
-re-derived; everything that produces silence cannot. Agreed as the top pilot-instrumentation priority.
+### Telemetry blind spot — FIXED (`0a0af04`)
+Every usage event used to fire server-side, so it required a COMPLETED request: we recorded what
+coaches DID and never where they stopped. A coach who opened planning and left at step two produced
+nothing, indistinguishable from one who never opened the app.
+
+Client-side events now capture only the silent things — anything that leaves a record can be
+re-derived later, anything that produces silence cannot:
+
+* `planning_started` — the denominator for every abandonment figure
+* `planning_abandoned` — with the step reached
+* `activities_viewed`
+* `would_use_again` — yes / unsure / no
+
+All surface in the existing usage summary as `pilotEvidence` (`GET /api/app/debug-usage`).
+
+**The abandonment event uses REFS, not state.** The cleanup runs once on unmount and a closure over
+state captures first-render values — that would report every coach as abandoning at step one, which
+is worse than no data because it looks like a finding.
+
+**"Would you use Challenge Point for your next practice?"** is asked after the coach has already
+given a thumb, so it cannot deter the cheaper signal, and while they still remember the session.
+Christian named it the most valuable thing the pilot could learn, and it is the one thing no
+instrumentation can infer.
 
 ### Architectural decisions settled this cycle
 * **Challenge is no longer a planning input.** It is an emergent property of the learner-environment
