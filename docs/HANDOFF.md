@@ -77,6 +77,66 @@ coach-output path — `map-activity-to-coach-view.ts` is NOT used in prod, only 
 **Key architectural belief:** Game Problems organize; archetypes are structural templates; constraints +
 incentives are the PRIMARY shapers of the affordance landscape (not archetypes).
 
+## PILOT APPROVED — Christian green-lit the build (2026-08-13)
+
+Christian is recruiting pilot coaches for the **fall soccer season** and has approved the current
+build. The pilot validates generated activities, the planning experience, and one question above all:
+**would a coach choose Challenge Point for their next practice?**
+
+### The lesson of this cycle: generate, don't reason
+Four "blocking priorities" were assessed by GENERATING REAL ACTIVITIES rather than reading code, and
+that changed the priority order. Measured before → after:
+
+| | before | after |
+|---|---|---|
+| internal library names in coach text | 18/18 | 0/9 |
+| truncated `…` text | 18/18 | 0/9 |
+| sentences repeated between Rules and Scoring | 5.3 per activity | 0.0 |
+| generation failures (Play Through Pressure) | ~1 in 3 | 0 |
+| setup similarity between the three activities | one clause apart | 21–28% |
+
+**Two of those were OUR deterministic code, not the model.** Constraint titles were concatenated onto
+the front of the field a coach reads first, and Rules/Scoring were each *required* to contain the same
+mechanics — the model was correctly doing as told, twice.
+
+**The generation failure was the validator marking its own homework.** Requirements shaped
+`"Label (how to satisfy it): signals"` counted their INSTRUCTION words toward the keyword match, so an
+activity satisfying the requirement in natural coaching language could fail while one echoing the
+instruction's vocabulary passed. Whether a coach got an activity depended on whether the model wrote
+the word "scoring".
+
+### KNOWN WEAK, accepted for pilot 1
+**Learning Stage does not visibly change activities.** Tested across 3 goals × 3 stages: activities
+carry the language IC-001 asks for at their own stage in only **3 of 9** cases — "Building
+Understanding" characteristics dominate whatever the coach picked. IC-001 Invariant 4 is not met in
+practice. Christian accepted this for pilot 1 as evidence to collect rather than reason about.
+
+The IC-001 tests assert the three DIRECTIVES differ, and they do. They cannot assert the ACTIVITIES
+differ, which is what the invariant requires. **That gap is the whole argument for generating.**
+
+### Also weak, recorded not tuned
+`Play Through Pressure` differentiates less than other goals (78% setup similarity vs 21–28%). May be
+that its constraint package admits fewer environmental shapes — knowledge, not code.
+
+### Telemetry blind spot, NOT yet fixed
+There is **no client-side telemetry**. Every event fires server-side and therefore requires a completed
+request, so we capture what coaches DID and never where they stopped. Abandonment, hesitation, and
+"would you use it again" are unrecoverable after the fact — everything that produces a record can be
+re-derived; everything that produces silence cannot. Agreed as the top pilot-instrumentation priority.
+
+### Architectural decisions settled this cycle
+* **Challenge is no longer a planning input.** It is an emergent property of the learner-environment
+  interaction; the planning conversation is five steps. A documented `RUNTIME_CHALLENGE_DEFAULT`
+  placeholder stands in until calibration exists.
+* **Challenge had a THIRD, undesigned role** — it was concatenated into the selection matching corpus,
+  where the literal token "low"/"high" changed which activity was selected. Removed. The behaviour gate
+  could not have caught it: no gate input passes a Challenge value.
+* **Default session emphasis flipped to differentiated.** The narrow "applying" profile deliberately
+  produces near-identical activities; nothing asks the coach for emphasis, so everything defaulted to
+  it. A coach who explicitly chooses that emphasis still gets narrow bandwidth.
+* **Ownership must not drive intervention ranking** (Christian's correction). Decision 5 orders by
+  affordance fit then authored registry position.
+
 ## CURRENT DIRECTION (updated 2026-07-23) — Knowledge Core ingestion + MVP gate
 
 ### Where the project is
