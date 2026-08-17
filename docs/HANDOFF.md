@@ -135,6 +135,61 @@ differ, which is what the invariant requires. **That gap is the whole argument f
 `Play Through Pressure` differentiates less than other goals (78% setup similarity vs 21–28%). May be
 that its constraint package admits fewer environmental shapes — knowledge, not code.
 
+### 2026-08-16 — THE OUTAGE, AND WHAT REAL GENERATION FOUND
+
+Christian reported that **nothing could generate at all**: `output-validation: Generated activity 1
+does not include the selected foundation constraint in its constraint summary`. Fixed in `60b469c`;
+the output defects that came after it in `0474359`.
+
+**Cause: two of our own deterministic pieces disagreeing.** `aae0ef0` stopped the mapper prepending
+the three constraint titles to the coach-facing `constraint` field; the validator still required
+them there. Those checks were never semantic — `constraint` is assembled by OUR mapper, so the
+validator was asserting a string our own code had just inserted. Trivially true while the mapper
+inserted it, trivially false the moment it stopped. Removed rather than satisfied.
+
+**Underneath it, the same leak we thought we'd fixed.** The validator re-added the titles anyway as
+`Foundation: … | Shaping: … | Consequence: …`, rendered to coaches at `SessionPage.tsx:488`. Only
+the outage kept it off a screen. **A leak fixed in one writer of a field is not fixed until every
+writer of that field is checked.**
+
+**Why nothing caught it — the part worth keeping:**
+- `run-local-create-activity-test.ts` kept its **own copy of the mapper**, which still prepended the
+  titles. Both paths ran the same validator, so the harness passed while production rejected
+  everything: *verification was testing a fork of production that no longer existed.*
+- The mapper **could not be unit-tested at all** — it lived in `completion.service.ts`, which builds
+  an OpenAI client at module load, so importing it needed a key. Now
+  `system/activity/map-structured-activity-to-legacy.ts`, pure and importable.
+- `assembly-output-contract.unit.ts` now runs mapper + validator **together** on three real
+  selections and asserts no internal name reaches the coach field. Confirmed by reintroducing the
+  original check: it fails with Christian's exact message.
+
+**Then the first real generation run found what only output can show** (6 activities, 2 goals):
+setup repeated verbatim inside Constraint 6/6 → 0; meaningless cue boilerplate 6/6 → 0;
+near-duplicate scoring sentences → 0; **activities with no way to score 2/6 → 0**.
+
+That last one: `winCondition` interpolated scoring's first sentence, then compression deleted
+scoring sentences duplicating winCondition — **we created the duplicate and deleted the original.**
+Fixed at the source. Removing it then exposed that **no dedup pass ever compared a field against
+itself** (`removeSelfRepeatingSentences` added). Also 22 archetype mechanic strings were design
+specs printed as coach rules ("Numerical or positional overload must be built into the game
+structure") — regrammared, keeping their nouns so skeleton validation still matches. Ratchet
+lowered 36 → **35** by hand: dropping "Final third" genuinely removed a coupling.
+
+**Still open, deliberately: 2 of 3 activities share identical rules.** Slots 1 and 3 place their
+modifiers in scoring, slot 2 places one in rules, so only slot 2's rule list differs. Setup and
+scoring do differ. This is Christian's known realization-diversity item; changing modifier placement
+is a knowledge decision, not a bug fix. **Note the measurement trap:** a scratch script passing `[]`
+for `perSlotModifierLines` (production passes real ones) makes all three look identical. Mirror
+`app.routes.ts` exactly or the harness lies to you — the same error as the fork above.
+
+**Review-moment prompts shipped** (`0474359`): *"Would you run this activity as written?"* —
+Yes / With changes / No, plus optional "what would you change?" and "anything confusing, unclear, or
+unrealistic?". Asked **at review, not after use**, because post-use feedback only reaches us from
+coaches who ran the session; the coach who reads an activity, decides it is unusable and closes the
+tab is otherwise invisible. Lands in `debug-usage` under `pilotEvidence.runAsWritten` with free text
+verbatim. **There is no Session Reflection surface in the app** — Christian's second moment is
+hosted on the activity page for now.
+
 ### Telemetry blind spot — FIXED (`0a0af04`)
 Every usage event used to fire server-side, so it required a COMPLETED request: we recorded what
 coaches DID and never where they stopped. A coach who opened planning and left at step two produced
