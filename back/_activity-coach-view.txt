@@ -1,0 +1,115 @@
+Local Create Activity Coach View
+
+Case 1
+Input: work on touches with pressure and spacing
+packageValidationStatus: PASS
+aiCalled: true
+outputValidationStatus: PASS
+generatedActivitiesCount: 3
+
+Activity 1
+--------------------------------
+Title:
+Wide Zone Exploitation
+
+Setup:
+- Field setup: Divide the field into central and wide zones. Teams aim to progress toward a defined goal by exploiting space in the wide zones. Restart play from the center after each goal
+- Player count: Use two even teams. One team keeps and progresses possession while the other pressures, wins it back, and attacks the other way
+- Restart rule: Restart quickly from the spot of the turnover, score, or coach stoppage
+
+Objective:
+Decide when to exploit space in wide zones to maintain possession and progress toward the goal. Maintain possession with forward intent.
+
+Rules:
+1. Directional target or progression (attack toward a defined goal or end)
+2. Maintain possession under pressure as a live game condition
+3. Support options and spacing must shape available passes and outlets
+4. Opponent consequence: If the live opportunity is forced after it closes, the opponent inherits the connected advantage immediately
+
+Scoring:
+- Main scoring rule: Teams score by keeping possession under pressure and progressing toward the target
+- Optional bonus rule: Award bonus points when players use the listed constraints successfully: Central Density Condition; Wide Zone Advantage
+
+Constraints:
+- Central Density Condition; Wide Zone Advantage
+
+Coaching Points:
+- Observe how players recognize and use wide zones to create forward momentum
+- Encourage players to read pressure and choose whether to secure possession or progress
+- Focus on maintaining possession with a forward intent while circulating the ball
+- Encourage progression without restricting passing options
+
+Teams:
+Use two even teams. One team keeps and progresses possession while the other pressures, wins it back, and attacks the other way.
+
+Activity 2
+--------------------------------
+Title:
+Central Density Challenge
+
+Setup:
+- Field setup: Set up a field with a dense central zone and open wide channels. Teams attack toward a goal by navigating through or around central density
+- Player count: Use two even teams. One team keeps and progresses possession while the other pressures, wins it back, and attacks the other way
+- Restart rule: Restart quickly from the spot of the turnover, score, or coach stoppage
+
+Objective:
+Choose when to switch play to wide channels to bypass central congestion and progress. Maintain possession with forward intent.
+
+Rules:
+1. Directional target or progression (attack toward a defined goal or end)
+2. Maintain possession under pressure as a live game condition
+3. Support options and spacing must shape available passes and outlets
+4. Opponent consequence: If the live opportunity is forced after it closes, the opponent inherits the connected advantage immediately
+
+Scoring:
+- Main scoring rule: Teams score by keeping possession under pressure and progressing toward the target
+- Optional bonus rule: Award bonus points when players use the listed constraints successfully: Central Density Condition; Wide Zone Advantage
+
+Constraints:
+- Central Density Condition; Wide Zone Advantage
+
+Coaching Points:
+- Watch how players adapt to central congestion by switching play
+- Encourage players to read the defensive setup and decide on the best progression path
+- Focus on continuous directional circulation with intent to progress
+- Encourage progression without restricting passing options
+
+Teams:
+Use two even teams. One team keeps and progresses possession while the other pressures, wins it back, and attacks the other way.
+
+Activity 3
+--------------------------------
+Title:
+Directional Build-up
+
+Setup:
+- Field setup: Create a field with designated end zones. Teams aim to build up play by progressing toward these zones using available space
+- Player count: Use two even teams. One team keeps and progresses possession while the other pressures, wins it back, and attacks the other way
+- Restart rule: Restart quickly from the spot of the turnover, score, or coach stoppage
+
+Objective:
+Read defensive pressure and decide when to progress or switch play to reach the end zone. Maintain possession with forward intent.
+
+Rules:
+1. Directional target or progression (attack toward a defined goal or end)
+2. Maintain possession under pressure as a live game condition
+3. Support options and spacing must shape available passes and outlets
+4. Opponent consequence: If the live opportunity is forced after it closes, the opponent inherits the connected advantage immediately
+
+Scoring:
+- Main scoring rule: Teams score by keeping possession under pressure and progressing toward the target
+- Optional bonus rule: Award bonus points when players use the listed constraints successfully: Central Density Condition; Wide Zone Advantage
+
+Constraints:
+- Central Density Condition; Wide Zone Advantage
+
+Coaching Points:
+- Observe players' ability to maintain possession under pressure while aiming for end zones
+- Encourage decision-making based on space exploitation and pressure reading
+- Focus on building up play with forward intent without limiting passing options
+- Encourage progression without restricting passing options
+
+Teams:
+Use two even teams. One team keeps and progresses possession while the other pressures, wins it back, and attacks the other way.
+
+---

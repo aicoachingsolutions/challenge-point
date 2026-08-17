@@ -1,0 +1,11 @@
+Error: Test Library selection could not find a valid lens and constraint combination that satisfies size (2GÇô3 lenses, 2GÇô4 constraints) and role-mix rules for this input.
+    at generateSelection (C:\challenge-point\back\src\system\test-library\generateSelection.ts:466:15)
+    at runSelectionOnly (C:\challenge-point\back\src\scripts\run-selection-pipeline-tests.ts:200:34)
+    at Array.map (<anonymous>)
+    at main (C:\challenge-point\back\src\scripts\run-selection-pipeline-tests.ts:312:71)
+    at Object.<anonymous> (C:\challenge-point\back\src\scripts\run-selection-pipeline-tests.ts:360:1)
+    at Module._compile (node:internal/modules/cjs/loader:1706:14)
+    at Module.m._compile (C:\challenge-point\back\node_modules\ts-node\src\index.ts:1618:23)
+    at node:internal/modules/cjs/loader:1839:10
+    at Object.require.extensions.<computed> [as .ts] (C:\challenge-point\back\node_modules\ts-node\src\index.ts:1621:12)
+    at Module.load (node:internal/modules/cjs/loader:1441:32)

@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/ADMINI~1/AppData/Local/Temp/claude/**)",
+      "Read(//c/Users/Administrator/AppData/Local/Temp/claude/**)",
+      "Read(//c/Users/Administrator/.claude/projects/**)",
+      "Edit(//c/Users/Administrator/.claude/projects/C--challenge-point/memory/**)",
+      "Workflow",
+      "Artifact",
+      "SendUserFile",
+      "Task",
+      "Agent",
+      "WebFetch",
+      "WebSearch",
+      "mcp__ccd_session__mark_chapter",
+      "mcp__ccd_session__spawn_task",
+      "mcp__ccd_view__show_pane",
+      "PowerShell(Get-ChildItem *)",
+      "PowerShell(Get-Content *)",
+      "PowerShell(Select-String *)",
+      "PowerShell(Test-Path *)",
+      "PowerShell(Measure-Object *)",
+      "PowerShell(New-Item -ItemType Directory *)",
+      "PowerShell(git *)",
+      "PowerShell(node *)",
+      "PowerShell(npx *)",
+      "PowerShell(npm *)",
+      "Bash(git *)",
+      "Bash(node *)",
+      "Bash(npx *)",
+      "Bash(npm *)"
+    ]
+  }
+}
