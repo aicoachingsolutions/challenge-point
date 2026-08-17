@@ -14,6 +14,7 @@
 import type { IActivity } from '../../models/activity.model'
 import type { SystemAssemblyInput } from '../types'
 import { getAssemblySelectedAffordanceIds, getAssemblySelectedConstraintIds } from './assembly-package-ids'
+import { reconcilePlayerFormat } from './player-format'
 import type { Activity } from './activity-schema'
 
 export function mapStructuredActivityToLegacy(activity: Activity, input: SystemAssemblyInput): IActivity {
@@ -68,6 +69,12 @@ export function mapStructuredActivityToLegacy(activity: Activity, input: SystemA
     const playerGroupSizes =
         input.session.playerCount && Number(input.session.playerCount) > 0 ? Number(input.session.playerCount) : 8
 
+    // THE STATED FORMAT MUST FIT THE SQUAD THE COACH ENTERED. A coach with 12 players was told to
+    // play "7v7 with a neutral player in each wide channel" — sixteen. Four prompt revisions failed
+    // to hold that invariant, so it is enforced here instead, where it is arithmetic rather than
+    // instruction-following. See player-format.ts for what each revision produced and why.
+    const reconciledSetup = reconcilePlayerFormat(activity.setup, playerGroupSizes, input.archetype.name)
+
     const legacy = {
         title: activity.title,
         constraint: constraintSummary,
@@ -76,7 +83,7 @@ export function mapStructuredActivityToLegacy(activity: Activity, input: SystemA
         // numbers, and equipment specifics rather than just generic placeholder text. Previously the
         // AI-written setup was folded into the constraint blob and lost when the blob was removed
         // from the UI; it's now a first-class field.
-        setup: activity.setup,
+        setup: reconciledSetup.text,
         twoSidedExchangeRule,
         twoSidedScoringConsequence,
         playerGroupSizes,

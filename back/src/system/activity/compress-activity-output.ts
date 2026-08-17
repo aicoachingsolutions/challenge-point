@@ -239,6 +239,21 @@ function stripScaffoldingNarration(text: string): string {
     for (const re of DANGLING_EM_DASH_PROMOTERS) {
         next = next.replace(re, '. ')
     }
+    // TRAILING connector cleanup. The promoters above only handle a dangling dash with a clause
+    // AFTER it; they cannot help when the stripped clause ran to the END of the line. A coach was
+    // shown the rule "Score awarded for attacks that use available space to gain advantage —",
+    // which stops mid-thought, because the narration clause following the dash was the rest of the
+    // sentence.
+    //
+    // Deliberately a general rule rather than another whitelist entry: the whitelist grows one
+    // sighting at a time and only ever covers phrasings someone already noticed, which is how this
+    // one survived a fix that claimed to have removed all truncated text.
+    next = next.replace(/[\s]*[—–-]\s*$/, '')
+    next = next.replace(/[\s]*[,;:]\s*$/, '')
+    next = next.replace(/\s+\b(and|or|but|so|because|while|before|after)\b\s*$/i, '')
+    next = next.trim()
+    // Restore terminal punctuation if the cut removed it, so the line still reads as a sentence.
+    if (next && !/[.!?]$/.test(next)) next = `${next}.`
     return next
 }
 
