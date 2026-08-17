@@ -32,10 +32,24 @@ first (it supersedes the historical sections below). Then the memory files (auto
    set via the front-end's `VITE_API_URL`) — routes are mounted at **`/api/app/...`**, so a bare
    `/api/debug-selection` 404s. Joe handles all merges/deploys; **never mention merges, PRs, or deploys
    in emails to Christian.**
-3. **You CANNOT run AI generation here (no `OPENAI_API_KEY`).** So: the deterministic layers
-   (parser/selection/post-processing) ARE verifiable by you; anything about the *generated activity text*
-   (does the AI express X?) needs **Christian's field validation** — be explicit about that boundary in
-   replies.
+3. **YOU CAN RUN AI GENERATION HERE. This entry used to say you couldn't, and that was false.**
+   `back/.env` has held a working `OPENAI_API_KEY` since 2026-05-03. The confusion: `.env` lives in the
+   MAIN repo (`C:\challenge-point\back\.env`) and the harness scripts load it with `dotenv/config`,
+   which resolves from the **current working directory** — so running from the worktree found nothing
+   and reported missing credentials. Copy `.env` into the worktree's `back/` (it is gitignored as of
+   the fix below) and generation works.
+
+   **The cost of believing otherwise was a total outage** (2026-08-16): every claim about generated
+   output was reasoned from code instead of read from an activity, and a break that one real run would
+   have exposed instantly reached Christian. **Generate first. Read the actual activity text. Then
+   decide.** The one-shot recipe, which prints what a coach really reads (compression + translation
+   applied — `run-local-create-activity-test.ts` does NOT apply them, so its output is NOT the coach
+   surface): write a throwaway `src/scripts/_tmp-*.ts` that runs `deriveInputConstraints` →
+   `generateSelection` → `systemAssemblyInputFromTestLibrarySelection` → `assembleActivities` →
+   `validateGeneratedActivities` → **`compressActivitiesForCoach`**, print, then delete the script.
+
+   Note `back/.env` was NOT gitignored (root `.gitignore` had `*.env.*`, which never matches a bare
+   `.env`), so a live API key sat one `git add -A` from a public remote. Fixed; keep it that way.
 4. **Verify changes with:** from `back/`: `npx tsc --noEmit -p tsconfig.json` and `npm test` (**32 unit
    suites** as of 2026-08-16; `deriveInputConstraints.unit.ts` is the main routing test — extend it when you
    change routing). Front-end changes: `npx tsc --noEmit` from `front/`. Behaviour-preservation gate for

@@ -12,5 +12,11 @@ node_modules/
 !.env.project
 !.env.vault
 *.env.*
+
+# A BARE `.env` WAS NOT IGNORED. back/.env holds a live OPENAI_API_KEY and sat untracked
+# but committable — one `git add -A` from being pushed to a remote. The `*.env.*` rule above
+# only covers suffixed files (.env.development, .env.production), never `.env` itself.
+.env
+!.env.example
 !front/.env.production
 !front/.env.example
