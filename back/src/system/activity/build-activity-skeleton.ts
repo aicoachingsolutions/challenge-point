@@ -247,6 +247,42 @@ function archetypeLibraryOverlay(archetypeName: string): {
     }
 }
 
+/**
+ * Turn a squad size into the formats that actually fit it, so the model never does the arithmetic.
+ *
+ * Every option returned accounts for EVERY player: sides plus neutrals equal the squad exactly. An
+ * activity that needs more players than the coach has is not a lesser activity, it is an activity
+ * they cannot run — and it is invisible to us, because the stored group size stays correct while
+ * only the setup prose disagrees.
+ */
+/**
+ * Choose the ONE format the activity will use. Deterministic Before Generative.
+ *
+ * Three attempts taught this. Stating the count as a parameter ("12 players total") produced 7v7
+ * plus two neutrals — sixteen. Offering a list of valid formats produced 7v6 — thirteen, because
+ * the game form wanted an overload and the model added a player rather than moving one. Forbidding
+ * wrong formats strongly enough made the model stop naming a format at all ("each team has equal
+ * numbers"), which is not wrong but is useless to a coach setting up a field.
+ *
+ * The common factor is that we kept asking the model to decide something we already know. The squad
+ * size is a fact, the overload requirement is a property of the selected game form, so the format is
+ * derivable and there is nothing to negotiate. The model is told what the format IS, and only has to
+ * write it into a sentence.
+ */
+export function choosePlayerFormat(total: number, archetypeName: string): string {
+    const wantsOverload = /overload/i.test(archetypeName)
+
+    if (wantsOverload) {
+        const larger = Math.ceil(total / 2) + (total % 2 === 0 ? 1 : 0)
+        const smaller = total - larger
+        if (smaller >= 2) return `${larger}v${smaller}`
+    }
+    if (total % 2 === 0) return `${total / 2}v${total / 2}`
+    const perSide = (total - 1) / 2
+    if (perSide >= 2) return `${perSide}v${perSide} plus 1 neutral player`
+    return `two teams totalling ${total} players`
+}
+
 function archetypeMechanics(archetypeName: string): string[] {
     const overlay = archetypeLibraryOverlay(archetypeName)
     switch (archetypeName) {
@@ -278,8 +314,8 @@ function archetypeMechanics(archetypeName: string): string[] {
             return [
                 'Teams score by progressing to the target or end zone.',
                 'Live opposition contests every attempt to progress.',
-                'Decision to penetrate, support behind the ball, or recycle when the lane is closed.',
-                'Scoring tied to reaching or using the end zone / target area.',
+                'Players decide whether to penetrate, support behind the ball, or recycle when the lane is closed.',
+                'Scoring is tied to reaching or using the end zone or target area.',
                 ...overlay.mechanics,
             ]
         case 'Positional Play Games':
@@ -772,7 +808,19 @@ function setupFrameForSlot(
     const fieldType = input.session.fieldType ?? 'surface'
     const fieldSpec = fieldLength && fieldWidth ? `${fieldLength}x${fieldWidth} ${fieldType}` : `${fieldType} (dimensions not specified — choose appropriate size for player count)`
     const playerCount = input.session.playerCount ? Number(input.session.playerCount) : null
-    const playerSpec = playerCount && playerCount > 0 ? `${playerCount} players total` : 'team count appropriate to the constraint package'
+    // THE COUNT WAS STATED AND NEVER ENFORCED. "Players: 12 players total." sat among a dozen other
+    // parameters, and a real activity for a 12-player group came back as "7v7 with a neutral player
+    // in each wide channel" — sixteen players. A coach with twelve cannot run it at all, and nothing
+    // downstream noticed, because the stored group size (12) is correct; only the prose disagrees.
+    //
+    // So the count is now given as ARITHMETIC ALREADY DONE rather than a number to reason from.
+    // Asking a language model to divide and then respect the remainder is asking for the one thing
+    // it is least reliable at; handing it valid splits removes the arithmetic from its job entirely.
+    const playerSpec =
+        playerCount && playerCount > 0
+            ? `${choosePlayerFormat(playerCount, input.archetype.name)} — exactly ${playerCount} players, all of them on the field. ` +
+              `Write this format into the setup as stated; do not substitute a different one.`
+            : 'team count appropriate to the constraint package'
 
     // Phase 3: emphasis-aware variation. Setup framing is shaped by the variation profile
     // (see emphasis-variation-profile.ts). For 'discovering', each slot foregrounds a
