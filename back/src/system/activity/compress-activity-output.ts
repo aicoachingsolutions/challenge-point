@@ -284,6 +284,29 @@ function removeSentencesOverlappingWithCandidates(
     return kept.join(' ').trim()
 }
 
+/**
+ * Remove sentences that repeat an EARLIER sentence in the same text.
+ *
+ * Every dedup pass here compared one field against ANOTHER field; none compared a field against
+ * itself. That gap was masked: winCondition used to embed scoring's opening sentence, so a scoring
+ * sentence duplicated within scoring was usually removed as a side effect of matching winCondition.
+ * When winCondition stopped embedding it, real output immediately showed a coach two consecutive
+ * sentences differing by one word ("...counts only when..." / "...counts when...").
+ *
+ * Keeps the FIRST occurrence: earlier sentences carry the archetype's own scoring rule, and later
+ * near-copies are restatements.
+ */
+function removeSelfRepeatingSentences(text: string, modifierMechanicLines: string[]): string {
+    if (!text) return text
+    const kept: string[] = []
+    for (const sentence of splitSentences(text)) {
+        if (containsModifierText(sentence, modifierMechanicLines) || !overlapsAnyCandidate(sentence, kept)) {
+            kept.push(sentence)
+        }
+    }
+    return kept.join(' ').trim()
+}
+
 function removeLinesOverlappingWithCandidates(
     lines: string[],
     candidates: string[],
@@ -332,11 +355,14 @@ export function compressActivityForCoach(activity: IActivity, modifierMechanicLi
         winConditionSentences,
         modifierMechanicLines
     )
-    const dedupedScoring = removeSentencesOverlappingWithCandidates(
+    const dedupedScoringAgainstRules = removeSentencesOverlappingWithCandidates(
         dedupedScoringAgainstWin,
         dedupedRules,
         modifierMechanicLines
     )
+    // ...and finally against ITSELF. Cross-field dedup never caught a field repeating its own
+    // content; see removeSelfRepeatingSentences.
+    const dedupedScoring = removeSelfRepeatingSentences(dedupedScoringAgainstRules, modifierMechanicLines)
 
     // Step 3: cap rules. rules[0] is the explicit exchange rule (validator requires it
     // there) — must-keep. Any rule that carries Phase 3.5 modifier text — must-keep.

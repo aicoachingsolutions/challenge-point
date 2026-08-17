@@ -562,7 +562,14 @@ function buildPackageInteractionExchange(
         {
             // Describes the cue WITHOUT naming the constraints that produce it. This sentence is
             // coach-facing, and an internal object name tells a coach nothing they can act on.
-            visibleCue: `The cue is the live opportunity that appears inside this game as the conditions below take effect.`,
+            //
+            // It also must not be a sentence ABOUT the activity. The previous wording — "The cue is
+            // the live opportunity that appears inside this game as the conditions below take
+            // effect" — opened the Constraint section of all 6 of 6 generated activities and told a
+            // coach nothing: it described that there would be a cue rather than naming one. A
+            // sentence a reader can skip with no loss is worse than no sentence, because it teaches
+            // them to skip the section.
+            visibleCue: `Players read the moment the opportunity is genuinely on, and the conditions below decide when it appears.`,
             visibleCueSignals: ['live opportunity', 'under pressure', 'picture opens'],
             decisionProblem: 'Players must decide whether the opportunity is genuinely on, what route to use, and why forcing it would hand the advantage away.',
             decisionProblemSignals: ['whether the opportunity is on', 'what route to use', 'forcing it', 'hand the advantage away'],

@@ -37,6 +37,17 @@ export interface UsageSummary {
         abandonedAtStep: Record<string, number>
         activitiesViewed: number
         wouldUseAgain: Record<string, number>
+        /**
+         * "Would you run this activity as written?" — answerable the moment a coach reads the
+         * activity, so it captures the ones who never reach the field. Christian's point: what we
+         * don't capture at the moment it happens gets reconstructed later from memory, and the
+         * specific detail is what goes missing.
+         */
+        runAsWritten: Record<string, number>
+        /** Free-text from a coach who said they would change something, most recent first. */
+        wouldChange: Array<{ answer: string; text: string }>
+        /** Free-text answers to "anything confusing, unclear, or unrealistic?" */
+        unclearNotes: string[]
     }
     planning: {
         entryPoint: Record<string, number>
@@ -99,6 +110,9 @@ export async function summarizeUsage(sinceDays = 30): Promise<UsageSummary> {
     const pilot = { planningStarted: 0, planningAbandoned: 0, activitiesViewed: 0 }
     const abandonedAtStep: Record<string, number> = {}
     const wouldUseAgain: Record<string, number> = {}
+    const runAsWritten: Record<string, number> = {}
+    const wouldChange: Array<{ answer: string; text: string }> = []
+    const unclearNotes: string[] = []
 
     for (const e of events) {
         totals[e.eventType] = (totals[e.eventType] ?? 0) + 1
@@ -147,6 +161,16 @@ export async function summarizeUsage(sinceDays = 30): Promise<UsageSummary> {
             const answer = String(p['answer'] ?? 'unknown')
             wouldUseAgain[answer] = (wouldUseAgain[answer] ?? 0) + 1
         }
+        if (e.eventType === 'coach_feedback' && p['question'] === 'run_as_written') {
+            const answer = String(p['answer'] ?? 'unknown')
+            runAsWritten[answer] = (runAsWritten[answer] ?? 0) + 1
+            const change = typeof p['whatWouldChange'] === 'string' ? (p['whatWouldChange'] as string).trim() : ''
+            // Kept verbatim, with the answer beside it. "I'd change X" is only interpretable next to
+            // whether they would have run it at all.
+            if (change) wouldChange.push({ answer, text: change })
+            const unclear = typeof p['unclear'] === 'string' ? (p['unclear'] as string).trim() : ''
+            if (unclear) unclearNotes.push(unclear)
+        }
         if (e.eventType === 'coach_language_leak') {
             for (const term of (p['terms'] as string[]) ?? []) {
                 leakCounts.set(term, (leakCounts.get(term) ?? 0) + 1)
@@ -186,7 +210,15 @@ export async function summarizeUsage(sinceDays = 30): Promise<UsageSummary> {
         totals,
         resolutionBreakdown,
         topSignalGroups: topN(signalCounts, 15).map(([signalGroup, count]) => ({ signalGroup, count })),
-        pilotEvidence: { ...pilot, abandonedAtStep, wouldUseAgain },
+        pilotEvidence: {
+            ...pilot,
+            abandonedAtStep,
+            wouldUseAgain,
+            runAsWritten,
+            // Newest first: during a pilot the most recent comment is the one still actionable.
+            wouldChange: wouldChange.slice(-50).reverse(),
+            unclearNotes: unclearNotes.slice(-50).reverse(),
+        },
         planning: {
             entryPoint: planningEntryPoint,
             learningStage: learningStageCounts,

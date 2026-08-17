@@ -40,18 +40,29 @@ export function mapStructuredActivityToLegacy(activity: Activity, input: SystemA
     // The output validator used to REQUIRE those titles here, so removing them rejected every
     // activity until the requirement went too. `assembly-output-contract.unit.ts` now pins the two
     // together; if you change what this field contains, that test is where it will be caught.
-    const constraintSummary = [guard.visibleCue.summary, activity.setup, activity.constraints.join(' ')]
-        .filter(Boolean)
-        .join(' ')
+    // `activity.setup` IS NOT INCLUDED HERE. It used to be, and since setup also became its own
+    // first-class field, every coach read the identical paragraph twice in a row — once under
+    // "Constraint", once under "Setup". Verified on 6 of 6 generated activities. Constraint answers
+    // "what shapes the decisions in this game"; Setup answers "how do I lay it out". One idea, one
+    // section: a field that repeats its neighbour is not extra detail, it is the coach losing their
+    // place.
+    const constraintSummary = [guard.visibleCue.summary, activity.constraints.join(' ')].filter(Boolean).join(' ')
 
-    // winCondition is a short framing statement, not a duplicate of scoring. Previously this
-    // interpolated the entire scoring text plus a trailing sentence, producing a ~500-character
-    // duplicate of the scoring section that Christian's translation-layer feedback called out
-    // as overwhelming. The first sentence of scoring is the archetype-specific scoring rule;
-    // surfacing only that gives the coach a one-line "what counts as winning" without repeating
-    // the whole scoring block.
-    const scoringFirstSentence = (activity.scoring.split(/(?<=[.!?])\s+/, 1)[0] ?? activity.scoring).trim()
-    const winCondition = `Teams compete live under two-sided opposition. ${scoringFirstSentence} The opponent inherits the connected advantage on every misread or forced action under pressure.`
+    // winCondition NO LONGER EMBEDS THE FIRST SCORING SENTENCE, and that fixes a defect that made
+    // activities unrunnable.
+    //
+    // The loop: this line copied scoring's opening sentence into winCondition; the coach-facing
+    // compression pass then deleted scoring sentences that duplicated winCondition. So we created
+    // the duplicate and then resolved it by deleting the ORIGINAL rather than the copy. On an
+    // activity whose scoring was short, that removed the only sentence saying how points are
+    // scored — one real activity's entire scoring section came out as "Players face a decision —
+    // attack the transition space now or hold possession", with no way to score the game at all.
+    //
+    // Fixed at the source of the duplication rather than by tuning the dedup: Scoring owns how
+    // points are scored, winCondition frames how the game is won. One idea, one section.
+    const winCondition =
+        'Teams compete live under two-sided opposition, and the team with more points when play ends wins. ' +
+        'The opponent inherits the connected advantage on every misread or forced action under pressure.'
 
     const now = new Date()
     const playerGroupSizes =
