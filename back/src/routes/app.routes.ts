@@ -490,6 +490,42 @@ router.post('/coach-event', async (req: Request, res: Response) => {
  * produces it — so it has to be asked, and it has to be asked while the coach still remembers the
  * session.
  */
+/**
+ * "WOULD YOU RUN THIS ACTIVITY AS WRITTEN?" — asked at review, not after use.
+ *
+ * The distinction matters. Post-use feedback only reaches us from coaches who got as far as running
+ * the session; a coach who reads a generated activity, decides it isn't usable, and closes the tab
+ * is invisible — and that is precisely the failure we most need to see. Asked at review, "no" is the
+ * most informative answer in the pilot, and it costs the coach one tap.
+ *
+ * Everything else is attached automatically. `activityId` resolves to the stored activity, which
+ * already carries its own provenance on `systemTrace.planning` (learning goal, practice situation,
+ * learning stage, challenge level) plus the full selection trace — so neither the coach nor Christian
+ * copies anything for us to find the exact activity that produced a complaint.
+ *
+ * Never fails the caller, for the same reason as the rest of the evidence layer: a coach mid-review
+ * must not meet an error from a question they were doing us a favour by answering.
+ */
+router.post('/activity-review', async (req: Request, res: Response) => {
+    const { activityId, sessionId, answer, whatWouldChange, unclear } = req.body as Record<string, unknown>
+    if (answer !== 'yes' && answer !== 'with_changes' && answer !== 'no') {
+        return res.status(400).json({ error: 'answer must be "yes", "with_changes" or "no"' })
+    }
+
+    recordUsageEvent({
+        eventType: 'coach_feedback',
+        activityId: typeof activityId === 'string' ? activityId : undefined,
+        sessionId: typeof sessionId === 'string' ? sessionId : undefined,
+        payload: {
+            question: 'run_as_written',
+            answer,
+            whatWouldChange: typeof whatWouldChange === 'string' ? whatWouldChange.slice(0, 2000) : undefined,
+            unclear: typeof unclear === 'string' ? unclear.slice(0, 2000) : undefined,
+        },
+    })
+    return res.status(200).json({ ok: true })
+})
+
 router.post('/would-use-again', async (req: Request, res: Response) => {
     const { activityId, sessionId, answer, comment } = req.body as Record<string, unknown>
     if (answer !== 'yes' && answer !== 'no' && answer !== 'unsure') {

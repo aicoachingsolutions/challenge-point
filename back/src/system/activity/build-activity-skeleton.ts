@@ -101,7 +101,7 @@ function affordanceMechanics(title: string): string[] {
     switch (title) {
         case 'Possession Stability Opportunity':
             return [
-                'Score awarded only when possession is maintained or secured under live opponent pressure; losing the ball when the picture closes hands the connected advantage to the opponent.',
+                'Score awarded only when possession is maintained or secured under live opponent pressure; losing the ball once the space closes hands the connected advantage to the opponent.',
             ]
         case 'Space Creation Opportunity':
             return [
@@ -169,7 +169,7 @@ function affordanceFamilyHints(aff: ExtendedAffordance): string[] {
         return ['Players read spacing, width, and depth before choosing the next action — the available space defines what is on.']
     }
     if (/transition|regain|recover|attack quickly|fast/.test(searchSpace)) {
-        return ['The next action plays immediately after the ball changes hands while the picture is still changing — no reset, no stoppage.']
+        return ['The next action plays immediately after the ball changes hands, while the shape is still unsettled — no reset, no stoppage.']
     }
     if (/retain|possession|stable|support/.test(searchSpace)) {
         return ['Players read possession security, support distance, and safe exits under pressure before choosing the next action.']
@@ -252,15 +252,15 @@ function archetypeMechanics(archetypeName: string): string[] {
     switch (archetypeName) {
         case 'Directional Possession Games':
             return [
-                'Directional target or progression (attack toward a defined goal or end).',
+                'Teams attack toward a defined goal or end, so every progression has a direction.',
                 'Maintain possession under pressure as a live game condition.',
                 'Support options and spacing must shape available passes and outlets.',
-                'Players must face a decision to secure possession, progress forward, or switch play.',
+                'Players decide whether to secure possession, progress forward, or switch play.',
                 ...overlay.mechanics,
             ]
         case 'Overload Games':
             return [
-                'Numerical or positional overload must be built into the game structure.',
+                'One team plays with a numerical or positional overload in the area where the contest happens.',
                 'Opponent pressure must remain live — not passive shadow defence.',
                 'Players must decide whether to use the overload, reset circulation, or switch the attack.',
                 'Success must depend on actually exploiting the overload to gain advantage.',
@@ -268,34 +268,34 @@ function archetypeMechanics(archetypeName: string): string[] {
             ]
         case 'Pressing & Regain Games':
             return [
-                'Live pressure on the ball or passing lanes.',
-                'Clear regain opportunity — winning possession or forcing a turnover.',
-                'Immediate transition after regain (attack or defend the counter).',
+                'Defenders keep live pressure on the ball and the passing lanes.',
+                'Winning possession or forcing a turnover is a clear, live regain opportunity.',
+                'Play transitions immediately after a regain — the team winning it attacks, the other defends the counter.',
                 'Opponent consequence on turnover — the other side gains a live advantage or restart.',
                 ...overlay.mechanics,
             ]
         case 'End Zone Games':
             return [
-                'Target or end-zone progression as core structure.',
-                'Active opposition contesting progression.',
+                'Teams score by progressing to the target or end zone.',
+                'Live opposition contests every attempt to progress.',
                 'Decision to penetrate, support behind the ball, or recycle when the lane is closed.',
                 'Scoring tied to reaching or using the end zone / target area.',
                 ...overlay.mechanics,
             ]
         case 'Positional Play Games':
             return [
-                'Positional structure — teams maintain spatial relationships and distances to create advantages in defined areas.',
-                'Positional advantage (numerical superiority or a free player in a zone) shapes when and how the team plays forward.',
+                'Teams hold their spatial relationships and distances to create advantages in defined areas.',
+                'A numerical superiority or a free player in a zone shapes when and how the team plays forward.',
                 'Live opposition contests the positional structure — defenders fill spaces and close lines of progression.',
-                'Players must face a decision to circulate to create a positional advantage or to exploit a free area that already exists.',
+                'Players decide whether to circulate to create an advantage or to exploit a free area that already exists.',
                 ...overlay.mechanics,
             ]
         case 'Transition Games':
             return [
-                'Transition moment is the core game event — the immediate action after possession changes defines the contest.',
+                'The immediate action after possession changes decides the contest — that transition moment is the game.',
                 'Attacking team exploits unorganized space before the defensive shape is restored after the turnover.',
                 'Defending team decides whether to press immediately, track recovery runs, or delay to reorganize.',
-                'Players must face a decision — attack the transition space now or hold possession while the picture clarifies.',
+                'Players decide whether to attack the transition space now or hold possession until a better option appears.',
                 ...overlay.mechanics,
             ]
         case 'Target Games':
@@ -303,7 +303,7 @@ function archetypeMechanics(archetypeName: string): string[] {
                 'A target player or designated area is the live focal point for forward progression throughout the game.',
                 'Connecting to the target under live defensive pressure is the core demand — not a scripted or required pass.',
                 'Defensive opposition actively contests target connections and attacks immediately from regains.',
-                'Players must face a decision — when the target is available, whether to connect now or recirculate to create a better angle.',
+                'When the target is available, players decide whether to connect now or recirculate to create a better angle.',
                 ...overlay.mechanics,
             ]
         case 'Channel Games':
@@ -316,18 +316,18 @@ function archetypeMechanics(archetypeName: string): string[] {
             ]
         case 'Finishing Games':
             return [
-                'Final third context — all game actions take place in or around the scoring area under live defensive pressure.',
+                'All game actions take place in or around the scoring area under live defensive pressure.',
                 'Creating a clear scoring chance requires reading timing, movement options, and entry angles under live opposition.',
                 'Live defenders contest every finishing attempt; clearances and saves create immediate counter-attack opportunities.',
-                'Players must face a decision — shoot, cut inside, or hold for a better angle based on goalkeeper position and defensive cover.',
+                'Players decide whether to shoot, cut inside, or hold for a better angle based on goalkeeper position and defensive cover.',
                 ...overlay.mechanics,
             ]
         case 'Constraint-Driven Free Play':
             return [
-                'Live two-sided game where the selected constraints define the structure — no fixed positional scheme beyond constraint outcomes.',
-                'Both teams solve the constraint problems through open decision-making in a genuinely contested live game.',
-                'Defensive and attacking phases must both be live — the constraint shapes what players notice, not how they play.',
-                'Players must face a decision on every action — the constraint creates the visible problem; open play decides the solution.',
+                'Both teams play a live, two-sided game; the conditions below define the structure rather than fixed positions.',
+                'Both teams solve the problems below through open decision-making in a genuinely contested live game.',
+                'Defending and attacking are both live — the conditions shape what players notice, not how they play.',
+                'Players decide on every action — the conditions create the visible problem; open play decides the solution.',
                 ...overlay.mechanics,
             ]
         default:

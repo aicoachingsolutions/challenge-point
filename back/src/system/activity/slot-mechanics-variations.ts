@@ -90,7 +90,7 @@ const TRANSITION_CONSEQUENCES_WIDE: ValueLandscapeModifier = {
     placement: 'rule',
     label: 'wide transition-consequence rule',
     mechanicLine:
-        'On possession change, both teams stay live in the same space with no reset: defenders re-press immediately from wherever they were standing when the ball changed hands, and the live picture continues until the next decision resolves.',
+        'On possession change, both teams stay live in the same space with no reset: defenders re-press immediately from wherever they were standing when the ball changed hands, and play continues until the next decision resolves.',
 }
 
 const TRANSITION_CONSEQUENCES_NARROW: ValueLandscapeModifier = {

@@ -32,14 +32,31 @@ first (it supersedes the historical sections below). Then the memory files (auto
    set via the front-end's `VITE_API_URL`) — routes are mounted at **`/api/app/...`**, so a bare
    `/api/debug-selection` 404s. Joe handles all merges/deploys; **never mention merges, PRs, or deploys
    in emails to Christian.**
-3. **You CANNOT run AI generation here (no `OPENAI_API_KEY`).** So: the deterministic layers
-   (parser/selection/post-processing) ARE verifiable by you; anything about the *generated activity text*
-   (does the AI express X?) needs **Christian's field validation** — be explicit about that boundary in
-   replies.
-4. **Verify changes with:** from `back/`: `npx tsc --noEmit -p tsconfig.json` and `npm test` (**21 unit
-   suites** as of 2026-07-26; `deriveInputConstraints.unit.ts` is the main routing test — extend it when you
-   change routing). Front-end changes: `npx tsc --noEmit` from `front/`. Behaviour-preservation gate for engine changes: the selection-pipeline `bestScore`
-   sequence must stay **`68,64,94,115,91,68,64,94,115,91,97,84`**.
+3. **YOU CAN RUN AI GENERATION HERE. This entry used to say you couldn't, and that was false.**
+   `back/.env` has held a working `OPENAI_API_KEY` since 2026-05-03. The confusion: `.env` lives in the
+   MAIN repo (`C:\challenge-point\back\.env`) and the harness scripts load it with `dotenv/config`,
+   which resolves from the **current working directory** — so running from the worktree found nothing
+   and reported missing credentials. Copy `.env` into the worktree's `back/` (it is gitignored as of
+   the fix below) and generation works.
+
+   **The cost of believing otherwise was a total outage** (2026-08-16): every claim about generated
+   output was reasoned from code instead of read from an activity, and a break that one real run would
+   have exposed instantly reached Christian. **Generate first. Read the actual activity text. Then
+   decide.** The one-shot recipe, which prints what a coach really reads (compression + translation
+   applied — `run-local-create-activity-test.ts` does NOT apply them, so its output is NOT the coach
+   surface): write a throwaway `src/scripts/_tmp-*.ts` that runs `deriveInputConstraints` →
+   `generateSelection` → `systemAssemblyInputFromTestLibrarySelection` → `assembleActivities` →
+   `validateGeneratedActivities` → **`compressActivitiesForCoach`**, print, then delete the script.
+
+   Note `back/.env` was NOT gitignored (root `.gitignore` had `*.env.*`, which never matches a bare
+   `.env`), so a live API key sat one `git add -A` from a public remote. Fixed; keep it that way.
+4. **Verify changes with:** from `back/`: `npx tsc --noEmit -p tsconfig.json` and `npm test` (**32 unit
+   suites** as of 2026-08-16; `deriveInputConstraints.unit.ts` is the main routing test — extend it when you
+   change routing). Front-end changes: `npx tsc --noEmit` from `front/`. Behaviour-preservation gate for
+   engine changes: the selection-pipeline `bestScore` sequence must stay **`70,68,98,119,94,99,86`**
+   (**gate v2**, re-baselined 2026-08-05 when the Soccer Module became load-bearing — see MIGRATION
+   PROVEN below. The older `68,64,94,115,91,…` sequence is the pre-module baseline and is NO LONGER
+   the gate; do not restore it.)
    For behavior checks write a throwaway `src/scripts/_tmp-*.ts` run via
    `npx ts-node --files -r tsconfig-paths/register ./src/scripts/_tmp-x.ts` then delete it. The full
    `npm run test:selection-pipeline` needs `OPENAI_API_KEY=sk-dummy` and spews Mongo logging errors
@@ -117,6 +134,61 @@ differ, which is what the invariant requires. **That gap is the whole argument f
 ### Also weak, recorded not tuned
 `Play Through Pressure` differentiates less than other goals (78% setup similarity vs 21–28%). May be
 that its constraint package admits fewer environmental shapes — knowledge, not code.
+
+### 2026-08-16 — THE OUTAGE, AND WHAT REAL GENERATION FOUND
+
+Christian reported that **nothing could generate at all**: `output-validation: Generated activity 1
+does not include the selected foundation constraint in its constraint summary`. Fixed in `60b469c`;
+the output defects that came after it in `0474359`.
+
+**Cause: two of our own deterministic pieces disagreeing.** `aae0ef0` stopped the mapper prepending
+the three constraint titles to the coach-facing `constraint` field; the validator still required
+them there. Those checks were never semantic — `constraint` is assembled by OUR mapper, so the
+validator was asserting a string our own code had just inserted. Trivially true while the mapper
+inserted it, trivially false the moment it stopped. Removed rather than satisfied.
+
+**Underneath it, the same leak we thought we'd fixed.** The validator re-added the titles anyway as
+`Foundation: … | Shaping: … | Consequence: …`, rendered to coaches at `SessionPage.tsx:488`. Only
+the outage kept it off a screen. **A leak fixed in one writer of a field is not fixed until every
+writer of that field is checked.**
+
+**Why nothing caught it — the part worth keeping:**
+- `run-local-create-activity-test.ts` kept its **own copy of the mapper**, which still prepended the
+  titles. Both paths ran the same validator, so the harness passed while production rejected
+  everything: *verification was testing a fork of production that no longer existed.*
+- The mapper **could not be unit-tested at all** — it lived in `completion.service.ts`, which builds
+  an OpenAI client at module load, so importing it needed a key. Now
+  `system/activity/map-structured-activity-to-legacy.ts`, pure and importable.
+- `assembly-output-contract.unit.ts` now runs mapper + validator **together** on three real
+  selections and asserts no internal name reaches the coach field. Confirmed by reintroducing the
+  original check: it fails with Christian's exact message.
+
+**Then the first real generation run found what only output can show** (6 activities, 2 goals):
+setup repeated verbatim inside Constraint 6/6 → 0; meaningless cue boilerplate 6/6 → 0;
+near-duplicate scoring sentences → 0; **activities with no way to score 2/6 → 0**.
+
+That last one: `winCondition` interpolated scoring's first sentence, then compression deleted
+scoring sentences duplicating winCondition — **we created the duplicate and deleted the original.**
+Fixed at the source. Removing it then exposed that **no dedup pass ever compared a field against
+itself** (`removeSelfRepeatingSentences` added). Also 22 archetype mechanic strings were design
+specs printed as coach rules ("Numerical or positional overload must be built into the game
+structure") — regrammared, keeping their nouns so skeleton validation still matches. Ratchet
+lowered 36 → **35** by hand: dropping "Final third" genuinely removed a coupling.
+
+**Still open, deliberately: 2 of 3 activities share identical rules.** Slots 1 and 3 place their
+modifiers in scoring, slot 2 places one in rules, so only slot 2's rule list differs. Setup and
+scoring do differ. This is Christian's known realization-diversity item; changing modifier placement
+is a knowledge decision, not a bug fix. **Note the measurement trap:** a scratch script passing `[]`
+for `perSlotModifierLines` (production passes real ones) makes all three look identical. Mirror
+`app.routes.ts` exactly or the harness lies to you — the same error as the fork above.
+
+**Review-moment prompts shipped** (`0474359`): *"Would you run this activity as written?"* —
+Yes / With changes / No, plus optional "what would you change?" and "anything confusing, unclear, or
+unrealistic?". Asked **at review, not after use**, because post-use feedback only reaches us from
+coaches who ran the session; the coach who reads an activity, decides it is unusable and closes the
+tab is otherwise invisible. Lands in `debug-usage` under `pilotEvidence.runAsWritten` with free text
+verbatim. **There is no Session Reflection surface in the app** — Christian's second moment is
+hosted on the activity page for now.
 
 ### Telemetry blind spot — FIXED (`0a0af04`)
 Every usage event used to fire server-side, so it required a COMPLETED request: we recorded what

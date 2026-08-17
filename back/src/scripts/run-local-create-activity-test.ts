@@ -16,7 +16,7 @@ import { Types } from 'mongoose'
 import type { IActivity } from '../models/activity.model'
 import type { ISession } from '../models/session.model'
 import { SessionStatus } from '../models/session.model'
-import { ActivityAssemblyValidationError, assembleActivities } from '../services/completion.service'
+import { ActivityAssemblyValidationError, assembleActivities, mapStructuredActivityToLegacy } from '../services/completion.service'
 import type { Activity } from '../system/activity/activity-schema'
 import { getAssemblySelectedAffordanceIds, getAssemblySelectedConstraintIds } from '../system/activity/assembly-package-ids'
 import { buildActivityMechanicsFromSkeleton } from '../system/activity/build-activity-mechanics'
@@ -182,63 +182,23 @@ function mergeEmptyPolishWithMechanics(
     })
 }
 
+/**
+ * THIS USED TO BE A SECOND COPY OF THE PRODUCTION MAPPER, and the copies drifted.
+ *
+ * Production stopped prepending the three constraint titles to the coach-facing constraint field;
+ * this copy kept doing it. Since both paths then ran the SAME output validator — which at the time
+ * required those titles to be present — the harness passed and production rejected every activity.
+ * The harness was not testing production; it was testing a fork of production that no longer existed.
+ *
+ * It now calls the real mapper and only adds the identifiers a throwaway local run needs.
+ */
 function mapStructuredActivityToLegacyLocal(activity: Activity, input: SystemAssemblyInput): IActivity {
-    const selectedAffordanceIds = getAssemblySelectedAffordanceIds(input)
-    const primaryId = selectedAffordanceIds[0] ?? ''
-    const supportingIds = selectedAffordanceIds.slice(1)
-    const constraintIds = getAssemblySelectedConstraintIds(input)
-
-    const twoSidedExchangeRule = activity.rules[0]
-    const rules = [...activity.rules]
-    const scoringTrim = activity.scoring.trim()
-    const firstScoringLine = scoringTrim.split(/\n/, 1)[0] || scoringTrim
-    const twoSidedScoringConsequence = firstScoringLine
-    const scoringSystem = scoringTrim.startsWith(twoSidedScoringConsequence) ? scoringTrim : `${twoSidedScoringConsequence} ${scoringTrim}`
-
-    const guard = input.constraintPackage.assemblyGuardrails
-    const constraintSummary = [
-        input.constraintPackage.foundation.constraint.title,
-        input.constraintPackage.shaping.constraint.title,
-        input.constraintPackage.consequence?.constraint.title,
-        guard.visibleCue.summary,
-        activity.setup,
-        activity.constraints.join(' '),
-    ]
-        .filter(Boolean)
-        .join(' ')
-
-    const winCondition = `Teams compete live; ${activity.scoring} Opponent gains advantage immediately on turnovers or forced misreads against pressure.`
-
     const now = new Date()
-    const playerGroupSizes =
-        input.session.playerCount && Number(input.session.playerCount) > 0 ? Number(input.session.playerCount) : 8
 
     return {
+        ...(mapStructuredActivityToLegacy(activity, input) as unknown as Record<string, unknown>),
         _id: new Types.ObjectId().toString(),
         session: new Types.ObjectId() as unknown as ISession,
-        title: activity.title,
-        constraint: constraintSummary,
-        intent: activity.objective,
-        twoSidedExchangeRule,
-        twoSidedScoringConsequence,
-        playerGroupSizes,
-        scaffolding: activity.coachingFocus,
-        extensions: [activity.teams],
-        equipmentNeeded: ['Marking cones or discs if needed for zones described in setup.'],
-        rules,
-        scoringSystem,
-        winCondition,
-        affordancesUsed: [primaryId, ...supportingIds] as any,
-        constraintsUsed: constraintIds as any,
-        systemTrace: {
-            primaryAffordanceId: primaryId,
-            supportingAffordanceIds: supportingIds,
-            archetypeId: input.archetype.id,
-            archetypeName: input.archetype.name,
-            foundationConstraintId: input.constraintPackage.foundation.constraint._id,
-            shapingConstraintId: input.constraintPackage.shaping.constraint._id,
-            consequenceConstraintId: input.constraintPackage.consequence?.constraint._id,
-        },
         createdAt: now,
         updatedAt: now,
     } as unknown as IActivity

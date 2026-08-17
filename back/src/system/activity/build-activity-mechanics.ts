@@ -400,7 +400,7 @@ function buildScoringLines(slot: ActivitySkeletonSlot, opponentConsequences: str
     // receives these patterns via requiredArchetypeMechanics; only coach output is cleaned.
     const firstLineMap: Record<string, string> = {
         'Directional Possession Games':
-            'A point or live advantage counts only when possession is maintained under pressure and the ball is progressed toward the target before the picture closes.',
+            'A point or live advantage counts only when possession is maintained under pressure and the ball is progressed toward the target before the space closes.',
         'Overload Games':
             'A point or live advantage counts only when the overload is used to create or exploit the free side before the defense resets.',
         'Pressing & Regain Games':
