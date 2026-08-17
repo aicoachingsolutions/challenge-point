@@ -220,19 +220,6 @@ function ensureArrayField(candidate: Record<string, any>, field: (typeof REQUIRE
     return candidate[field].map((entry: unknown) => String(entry).trim()).filter(Boolean)
 }
 
-function buildConstraintSummary(input: SystemAssemblyInput): string {
-    const segments = [
-        `Foundation: ${input.constraintPackage.foundation.constraint.title}`,
-        `Shaping: ${input.constraintPackage.shaping.constraint.title}`,
-    ]
-
-    if (input.constraintPackage.consequence) {
-        segments.push(`Consequence: ${input.constraintPackage.consequence.constraint.title}`)
-    }
-
-    return segments.join(' | ')
-}
-
 function buildSelectedConsequenceTokens(input: SystemAssemblyInput): string[] {
     const selectedConsequence = input.constraintPackage.consequence?.constraint
     if (!selectedConsequence) {
@@ -563,7 +550,6 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
 
     const affordanceIds = getAssemblySelectedAffordanceIds(input)
     const constraintIds = getAssemblySelectedConstraintIds(input)
-    const packageSummary = buildConstraintSummary(input)
     const validActivities: IActivity[] = []
     const validationErrors: SystemPipelineError[] = []
 
@@ -607,30 +593,22 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
         const environmentNarrative = [constraint, rules.join(' '), scoringSystem, winCondition].join(' ')
         const outcomeNarrative = [twoSidedScoringConsequence, scoringSystem, winCondition, rules.join(' ')].join(' ')
 
-        if (!includesNormalizedPhrase(constraint, input.constraintPackage.foundation.constraint.title ?? '')) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} does not include the selected foundation constraint in its constraint summary.`
-            )
-        }
-
-        if (!includesNormalizedPhrase(constraint, input.constraintPackage.shaping.constraint.title ?? '')) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} does not include the selected shaping constraint in its constraint summary.`
-            )
-        }
-
-        if (
-            input.constraintPackage.consequence &&
-            !includesNormalizedPhrase(constraint, input.constraintPackage.consequence.constraint.title ?? '')
-        ) {
-            throw new SystemPipelineError(
-                'output-validation',
-                `Generated activity ${index + 1} does not include the selected consequence constraint in its constraint summary.`
-            )
-        }
-
+        // THREE CHECKS REMOVED HERE: foundation / shaping / consequence title must appear in
+        // `constraint`. They looked like semantic validation and were incapable of being any.
+        //
+        // `constraint` is not written by the model. It is assembled by OUR mapper
+        // (mapStructuredActivityToLegacy), which used to prepend those three titles itself. So the
+        // validator was asserting the presence of a string our own deterministic code had just
+        // inserted: trivially true, never once a statement about the generated activity. When the
+        // mapper stopped prepending the titles, the same check became trivially false and rejected
+        // every activity — the check flipped from always-pass to always-fail without ever having
+        // tested anything in between.
+        //
+        // A real "the selected constraints are expressed" check has to read text the MODEL controls
+        // and compare it against what the constraint DOES, not against our internal object name.
+        // validateActivitiesAgainstSkeleton already does that for archetype mechanics; that is where
+        // such a check belongs. Deliberately not inventing a replacement gate here — a new
+        // rejection rule shipped without a generation run to calibrate it is how the last one got in.
         if (ENABLE_LEGACY_NARRATIVE_VALIDATION) {
             const prescriptiveViolations = findPrescriptivePhraseViolations(narrative)
             if (prescriptiveViolations.length > 0) {
@@ -865,7 +843,14 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
 
             validActivities.push({
             title,
-            constraint: `${packageSummary}. ${constraint}`,
+            // NOT `${packageSummary}. ${constraint}`. packageSummary was
+            // "Foundation: <title> | Shaping: <title> | Consequence: <title>" — our internal object
+            // names, under our internal role labels, prepended to the coach-facing field rendered at
+            // SessionPage.tsx as "Constraint: ...". This is the same defect removed from the mapper
+            // in aae0ef0, re-added one layer later, which is why removing it there did not remove it
+            // from what a coach reads. A leak fixed in one writer of a field is not fixed until
+            // every writer of that field is checked.
+            constraint,
             intent,
             setup,
             playerGroupSizes,
