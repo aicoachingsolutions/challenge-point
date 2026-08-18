@@ -430,6 +430,11 @@ export function compressActivityForCoach(activity: IActivity, modifierMechanicLi
         title: translateCoachLanguage(activity.title),
         setup: typeof activity.setup === 'string' ? translateCoachLanguage(activity.setup) : activity.setup,
         rules: cappedRules.map(translateCoachLanguage),
+        // Same coach-language pass as every other coach-facing field. Missed fields are how jargon
+        // fixed elsewhere kept resurfacing (see the Round-9 note below).
+        howToPlay: Array.isArray((activity as unknown as Record<string, unknown>).howToPlay)
+            ? ((activity as unknown as Record<string, unknown>).howToPlay as string[]).map(translateCoachLanguage)
+            : [],
         scoringSystem: translateCoachLanguage(finalScoring),
         winCondition: typeof activity.winCondition === 'string' ? translateCoachLanguage(activity.winCondition) : activity.winCondition,
         scaffolding: cappedScaffolding.map((s) => (typeof s === 'string' ? translateCoachLanguage(s) : s)),

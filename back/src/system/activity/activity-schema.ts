@@ -19,5 +19,7 @@ export interface Activity {
     scoring: string
     constraints: string[]
     coachingFocus: string[]
+    /** How the game runs, coach-facing. Optional — see ActivityPolish.howToPlay. */
+    howToPlay?: string[]
     validation: ActivityValidationBlock
 }

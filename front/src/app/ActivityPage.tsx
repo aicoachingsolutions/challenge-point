@@ -504,6 +504,29 @@ function ActivityScreen({
                             </div>
                         )}
 
+                        {/* How to Play — the flow of the game, immediately after Setup.
+                            Christian, 17 Aug, reading generated activities as a coach: "I frequently
+                            understand the learning intention, but I still don't consistently
+                            understand the game." Setup says what to lay out; this says what happens.
+                            Rules alone could not carry it — once scoring restatements and design
+                            rationale were routed to their own sections, Rules was left with one or
+                            two lines, because the section had mostly been full of things that were
+                            not rules. Optional: activities generated before this existed just show
+                            one heading fewer. */}
+                        {(activity as unknown as { howToPlay?: string[] })?.howToPlay?.length > 0 && (
+                            <div>
+                                <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2'>How to Play</p>
+                                <ul className='space-y-1.5'>
+                                    {(activity as unknown as { howToPlay: string[] }).howToPlay.map((line, i) => (
+                                        <li key={i} className='flex gap-2 text-sm leading-relaxed text-gray-700'>
+                                            <span aria-hidden className='text-gray-400'>&bull;</span>
+                                            <span>{line}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+
                         {/* Teams */}
                         {activity?.extensions?.[0] && (
                             <div>

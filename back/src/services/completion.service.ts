@@ -467,6 +467,14 @@ function mergePolishedActivitiesWithMechanics(
             scoring,
             constraints,
             coachingFocus,
+            // Coach-facing only, and defensive: anything that is not a usable line is dropped rather
+            // than surfaced or thrown on. An absent section costs a coach one heading; a broken one
+            // costs them the activity.
+            howToPlay: uniqueNonEmpty(
+                (Array.isArray(polish.howToPlay) ? polish.howToPlay : []).filter(
+                    (line): line is string => typeof line === 'string' && line.trim().length > 0
+                )
+            ),
         }
     })
 }
@@ -1090,6 +1098,8 @@ You are NOT designing a new game.
 You are polishing wording for three already-defined activities using a compact activity brief.
 
 HARD COMPLETION RULES
+- Every activity MUST include a "howToPlay" array of 3 to 5 strings. It is not optional and it is not
+  a summary of the other fields: it is how the game runs, in the order a coach would explain it.
 - Every activity needs at least one explicit decision phrase in objective or coachingFocus: choose, read, react, decide, based on, adapt, option.
 - Keep the game purpose visible in title, setup, objective, or coachingFocus.
 - Use live, coach-facing language that stays aligned with the supplied system mechanics.
@@ -1172,6 +1182,7 @@ Output requirements:
       "title": string,
       "setup": string,
       "objective": string,
+      "howToPlay": string[],   // REQUIRED, 3-5 short lines
       "coachingFocus": string[]
     }
   ]
@@ -1180,7 +1191,29 @@ Output requirements:
 - Do not add teams, rules, scoring, constraints, affordancesUsed, constraintsUsed, validation, or any other keys.
 - Keep every string non-empty.
 - Keep coachingFocus as an array of non-empty coach-facing observation cues.
-- setup should describe space, numbers, zones, equipment, and restarts in a way that matches the fixed mechanics.
+
+SETUP — THE COACH MUST BE ABLE TO PICTURE THE GAME AFTER READING IT ONCE
+A coach reads Setup while standing on a field with players waiting. After one read they must know
+all five of these, so state each one plainly:
+  1. how many players and the format (the format is given to you — write it as stated)
+  2. what they are attacking or defending: goals, target zones, or end zones
+  3. the playing area and any zones, channels or corridors inside it
+  4. where players and any neutrals start
+  5. how play begins, and how it restarts after a score or a ball out of play
+Write it as plain description, not as design intent. "Two 20-yard end zones at either end of a
+40x30 area" tells a coach what to lay out; "a directional structure with progression targets" does not.
+
+HOW TO PLAY — HOW THE GAME ACTUALLY RUNS
+- 3 to 5 short lines describing the flow of play from a player's point of view: what happens, what
+  happens next, and what happens when possession changes or a point is scored.
+- Every line must pass this test: COULD A COACH READ THIS ALOUD TO THEIR PLAYERS BEFORE KICK-OFF?
+  If a line explains why the activity was designed this way, or what the coach should watch for, it
+  belongs in coachingFocus instead — not here.
+- Do NOT state what the sport already guarantees. A coach knows that teams attack in a direction,
+  that losing the ball means the opponent attacks, and that defenders try to win it back. Say only
+  what is different from a normal game.
+- Do NOT restate how points are scored; scoring has its own section.
+
 - objective should describe the decision problem players read, not a drill command.
 - coachingFocus should describe what to observe, what players read, and how the fixed mechanics create trade-offs.
 
