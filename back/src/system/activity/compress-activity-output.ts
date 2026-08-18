@@ -47,6 +47,7 @@
 
 import type { IActivity } from '../../models/activity.model'
 import { translateCoachLanguage } from './coach-language'
+import { leadWithClearestScoringSentence, routeRulesForCoach } from './coach-section-ownership'
 
 const RULES_CAP = 5
 const SCORING_SENTENCE_CAP = 4
@@ -379,11 +380,18 @@ export function compressActivityForCoach(activity: IActivity, modifierMechanicLi
     // content; see removeSelfRepeatingSentences.
     const dedupedScoring = removeSelfRepeatingSentences(dedupedScoringAgainstRules, modifierMechanicLines)
 
+    // Step 2b: SECTION OWNERSHIP. Rules keep only what a coach could read aloud to players;
+    // scoring statements defer to Scoring, and design rationale, coaching principles and
+    // restatements of the ordinary run of play are dropped. Runs before the cap so the cap spends its budget
+    // on rules a coach can act on rather than on sentences explaining why the activity works.
+    // See coach-section-ownership.ts — knowledge is untouched, only what gets shown.
+    const routedRules = routeRulesForCoach(dedupedRules, modifierMechanicLines)
+
     // Step 3: cap rules. rules[0] is the explicit exchange rule (validator requires it
     // there) — must-keep. Any rule that carries Phase 3.5 modifier text — must-keep.
     // capByDistinctiveness preserves input order, so rules[0] stays at index 0.
     const cappedRules = capByDistinctiveness(
-        dedupedRules,
+        routedRules.rules,
         (line) => line === exchangeRule || containsModifierText(line, modifierMechanicLines),
         RULES_CAP,
         (line) => line
@@ -391,7 +399,9 @@ export function compressActivityForCoach(activity: IActivity, modifierMechanicLi
 
     // Step 4: cap scoring sentences. First sentence (consequence rule) must-keep. Any
     // sentence carrying modifier text — must-keep. Input sentence order preserved.
-    const scoringSentences = splitSentences(dedupedScoring)
+    // "How do teams score?" must be answerable from the first sentence — Christian's test is that a
+    // coach should not have to reread Scoring to find out how points are earned.
+    const scoringSentences = leadWithClearestScoringSentence(splitSentences(dedupedScoring))
     const firstScoringSentence = scoringSentences[0]
     const cappedScoringSentences = capByDistinctiveness(
         scoringSentences,
@@ -403,7 +413,13 @@ export function compressActivityForCoach(activity: IActivity, modifierMechanicLi
 
     // Step 5: cap scaffolding (coachingFocus) to 3 entries. No modifier-preservation
     // need here — coachingFocus doesn't carry modifier text; that lives in rules/scoring.
-    const cappedScaffolding = (activity.scaffolding ?? []).slice(0, COACHING_FOCUS_CAP)
+    // Rationale relocated out of Rules joins Coaching Focus, which is the section that owns "what
+    // should I watch for". Appended after the authored focus lines so the coach's primary cues stay
+    // first, and still subject to the cap.
+    const cappedScaffolding = [...(activity.scaffolding ?? []), ...routedRules.movedToCoachingFocus].slice(
+        0,
+        COACHING_FOCUS_CAP
+    )
 
     // Step 6: final coach-language pass — the Coach Vocabulary & Translation Dictionary applied to
     // every coach-facing field. Lives in ./coach-language so vocabulary can be revised without
