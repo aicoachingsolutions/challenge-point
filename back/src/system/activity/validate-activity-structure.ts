@@ -125,6 +125,10 @@ export function validateActivityStructure(raw: unknown): Activity {
         scoring: (scoring as string).trim(),
         constraints: (constraints as string[]).map((s) => s.trim()),
         coachingFocus: (coachingFocus as string[]).map((s) => s.trim()),
+        // Carried through, never required. See ActivityPolish.howToPlay.
+        howToPlay: Array.isArray(o.howToPlay)
+            ? (o.howToPlay as unknown[]).filter((l): l is string => typeof l === 'string' && l.trim().length > 0).map((l) => l.trim())
+            : [],
         validation: {
             hasOpposition: false,
             hasDecisionMaking: false,

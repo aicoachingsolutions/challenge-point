@@ -841,6 +841,16 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
                 ? candidate.setup
                 : undefined
 
+            // Same pass-through, same reason, learned twice. This validator reconstructs the
+            // activity from an ALLOWLIST, so any field not named here is silently dropped no matter
+            // how correctly it was generated. howToPlay arrived from the model complete (5 lines per
+            // activity) and vanished here, which looked exactly like the model ignoring the prompt —
+            // I revised the prompt twice before instrumenting and finding our own code was the one
+            // discarding it. A field that must survive validation has to be listed.
+            const howToPlay = Array.isArray(candidate.howToPlay)
+                ? (candidate.howToPlay as unknown[]).filter((l): l is string => typeof l === 'string' && l.trim().length > 0)
+                : []
+
             validActivities.push({
             title,
             // NOT `${packageSummary}. ${constraint}`. packageSummary was
@@ -853,6 +863,7 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
             constraint,
             intent,
             setup,
+            howToPlay,
             playerGroupSizes,
             scaffolding,
             extensions,

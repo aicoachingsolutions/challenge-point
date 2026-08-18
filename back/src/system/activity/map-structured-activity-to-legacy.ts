@@ -84,6 +84,9 @@ export function mapStructuredActivityToLegacy(activity: Activity, input: SystemA
         // AI-written setup was folded into the constraint blob and lost when the blob was removed
         // from the UI; it's now a first-class field.
         setup: reconciledSetup.text,
+        // How the game runs. Optional throughout: an activity generated before this section existed,
+        // or one where the model omitted it, simply shows one heading fewer.
+        howToPlay: activity.howToPlay ?? [],
         twoSidedExchangeRule,
         twoSidedScoringConsequence,
         playerGroupSizes,

@@ -3,6 +3,14 @@ export interface ActivityPolish {
     setup: string
     objective: string
     coachingFocus: string[]
+    /**
+     * How the game actually runs, in lines a coach could read aloud to players.
+     *
+     * OPTIONAL ON PURPOSE. A missing or malformed howToPlay must never reject an activity: this
+     * section was added the day before a pilot, and a new required field is a new way for every
+     * generation to fail. Absent means the coach sees one section fewer, not an error.
+     */
+    howToPlay?: string[]
 }
 
 const SYSTEM_OWNED_POLISH_FIELDS = [
@@ -48,6 +56,11 @@ const LEAKED_TITLE_SCAFFOLDING: RegExp[] = [
     /\brealization\b/i,
     /\bdifferentiator\b/i,
 ]
+
+/** Non-throwing variant, for fields where a leak is dropped rather than fatal. */
+function hasLeakedProfileVocab(value: string): boolean {
+    return LEAKED_PROFILE_VOCAB.some((re) => re.test(value))
+}
 
 function assertNoLeakedProfileVocab(activityIndexOneBased: number, field: string, value: string): void {
     for (const re of LEAKED_PROFILE_VOCAB) {
@@ -142,6 +155,16 @@ export function validateActivityPolishPayload(parsed: unknown): ActivityPolish[]
         // use of "structure" / "configuration" inside setup descriptions.
         assertNoLeakedTitleScaffolding(index + 1, title)
 
-        return { title, setup, objective, coachingFocus }
+        // howToPlay is NEVER validated into a rejection. Bad entries are dropped, a missing field
+        // yields an empty list, and the activity still ships — a section added the day before a
+        // pilot must not become a new way for every generation to fail.
+        const howToPlay = Array.isArray(o.howToPlay)
+            ? (o.howToPlay as unknown[])
+                  .filter((l): l is string => typeof l === 'string' && l.trim().length > 0)
+                  .map((l) => softenPrescriptivePhrasing(l.trim()))
+                  .filter((l) => !hasLeakedProfileVocab(l))
+            : []
+
+        return { title, setup, objective, coachingFocus, howToPlay }
     })
 }

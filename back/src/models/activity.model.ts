@@ -89,6 +89,8 @@ export interface IActivity {
     engagementLevel?: EngagementLevels
     breakthroughMoments?: number
     coachComments?: string
+    /** Coach-facing "How to Play" lines. Optional — absent on every activity generated before 17 Aug. */
+    howToPlay?: string[]
     rules?: string[]
     scoringSystem?: string
     winCondition?: string
@@ -119,6 +121,7 @@ const activitySchema = new Schema<IActivity>(
         engagementLevel: { type: String },
         breakthroughMoments: { type: Number },
         coachComments: { type: String },
+        howToPlay: { type: [String] },
         rules: {type: [String]},
         scoringSystem: {type: String},
         winCondition: {type: String},
