@@ -53,9 +53,31 @@ function constraintToIConstraint(c: TestLibraryV0Constraint): IConstraint {
         designIntent: c.designIntent,
         constraintArchetype: c.constraintArchetype,
         constraintRole: mapConstraintRole(c.constraintRole),
+        // SELECTION METADATA MUST SURVIVE THE PROJECTION.
+        //
+        // This function is an allowlist: it names the fields to copy and silently drops everything
+        // else. build-constraint-package.ts reads all four of these — and none of them were listed,
+        // so every one arrived `undefined` and the entire constraint-metadata overlay produced
+        // nothing on the live path. The visible symptom was the one Christian reported on 22 Aug:
+        // every activity's scoring collapsed to the hardcoded "A point or live advantage counts…"
+        // template, because the authored incentive mechanism never reached the code meant to express
+        // it. The workbook had five distinct mechanisms; the runtime saw none of them.
+        //
+        // Third allowlist projection this week to drop authored content on the floor (after `setup`
+        // and `howToPlay`). Any field a downstream layer reads has to be named in every projection
+        // between here and there, and nothing fails when it is not — the value just quietly becomes
+        // undefined and some fallback covers for it.
+        incentiveMechanism: c.incentiveMechanism,
+        visibilityEffect: c.visibilityEffect,
+        primaryConstraintType: c.primaryConstraintType,
+        targetAffordancePrimary: c.targetAffordancePrimary,
+        // NOTE: the realizations sheet also has an `incentive_patterns` column, intended for the
+        // coach-facing phrasing of each mechanism. It is empty on all 23 rows, so it is not mapped
+        // by the adapter yet. When it is authored, map it there and carry it here — expressIncentive
+        // already prefers authored phrasing over anything it derives.
         createdAt: d,
         updatedAt: d,
-    }
+    } as IConstraint
 }
 
 function buildAffordanceField(lenses: TestLibraryV0AffordanceLens[]): AffordanceField {

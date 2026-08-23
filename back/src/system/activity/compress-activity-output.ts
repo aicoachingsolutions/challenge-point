@@ -48,6 +48,7 @@
 import type { IActivity } from '../../models/activity.model'
 import { translateCoachLanguage } from './coach-language'
 import { leadWithClearestScoringSentence, routeRulesForCoach } from './coach-section-ownership'
+import { isGenericPointTemplate, isIncentiveExpression } from './incentive-expression'
 
 const RULES_CAP = 5
 const SCORING_SENTENCE_CAP = 4
@@ -399,13 +400,29 @@ export function compressActivityForCoach(activity: IActivity, modifierMechanicLi
 
     // Step 4: cap scoring sentences. First sentence (consequence rule) must-keep. Any
     // sentence carrying modifier text — must-keep. Input sentence order preserved.
+    // ONCE A REAL INCENTIVE MECHANISM HAS SPOKEN, DROP THE GENERIC TEMPLATE.
+    //
+    // "A point or live advantage counts…" is the hardcoded per-archetype sentence that used to be
+    // the ONLY incentive an activity could express. Now that authored mechanisms produce their own
+    // scoring lines, keeping both gives the coach a specific incentive followed by a generic
+    // restatement of it — precisely the repetition Christian reported. The template survives only
+    // when nothing else says how the game rewards, which is still the honest outcome for the nine
+    // realizations authored with no incentive mechanism.
+    const allScoringSentences = splitSentences(dedupedScoring)
+    const hasSpecificIncentive = allScoringSentences.some((s) => !isGenericPointTemplate(s) && /\b(point|score|bonus|double|advantage)\b/i.test(s))
+    const scoringAfterTemplateSuppression = hasSpecificIncentive
+        ? allScoringSentences.filter((s) => !isGenericPointTemplate(s))
+        : allScoringSentences
+
     // "How do teams score?" must be answerable from the first sentence — Christian's test is that a
     // coach should not have to reread Scoring to find out how points are earned.
-    const scoringSentences = leadWithClearestScoringSentence(splitSentences(dedupedScoring))
+    const scoringSentences = leadWithClearestScoringSentence(
+        scoringAfterTemplateSuppression.length > 0 ? scoringAfterTemplateSuppression : allScoringSentences
+    )
     const firstScoringSentence = scoringSentences[0]
     const cappedScoringSentences = capByDistinctiveness(
         scoringSentences,
-        (s) => s === firstScoringSentence || containsModifierText(s, modifierMechanicLines),
+        (s) => s === firstScoringSentence || isIncentiveExpression(s) || containsModifierText(s, modifierMechanicLines),
         SCORING_SENTENCE_CAP,
         (s) => s
     )

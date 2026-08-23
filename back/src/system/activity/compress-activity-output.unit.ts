@@ -249,9 +249,9 @@ function testDecisionStutterCollapsed(): void {
     })
     const out = compressActivityForCoach(activity, [])
     const all = [out.setup ?? '', (out.rules ?? []).join(' '), out.scoringSystem ?? ''].join(' ')
-    assert.ok(!/decide[s]?\s+to\s+decide/i.test(all), `"decide to decide" must collapse; got: ${all}`)
-    assert.ok(!/decide[s]?\s+to\s+choose/i.test(all), `"decide to choose" must collapse; got: ${all}`)
-    assert.ok(!/choose[s]?\s+to\s+select/i.test(all), `"chooses to select" must collapse; got: ${all}`)
+    assert.ok(!/\bdecide[s]?\s+to\s+decide\b/i.test(all), `"decide to decide" must collapse; got: ${all}`)
+    assert.ok(!/\bdecide[s]?\s+to\s+choose\b/i.test(all), `"decide to choose" must collapse; got: ${all}`)
+    assert.ok(!/\bchoose[s]?\s+to\s+select\b/i.test(all), `"chooses to select" must collapse; got: ${all}`)
 }
 
 function testStutterCollapsedInIntentConstraintExtensions(): void {
@@ -263,7 +263,7 @@ function testStutterCollapsedInIntentConstraintExtensions(): void {
     })
     const out = compressActivityForCoach(activity, [])
     const all = [out.intent ?? '', out.constraint ?? '', (out.extensions ?? []).join(' ')].join(' ')
-    assert.ok(!/decid(?:e|es|ing)\s+to\s+(?:decide|choose|select)/i.test(all), `stutter must collapse in intent/constraint/extensions; got: ${all}`)
+    assert.ok(!/\bdecid(?:e|es|ing)\s+to\s+(?:decide|choose|select)\b/i.test(all), `stutter must collapse in intent/constraint/extensions; got: ${all}`)
 }
 
 function testIdempotent(): void {

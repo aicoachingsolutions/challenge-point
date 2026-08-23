@@ -9,6 +9,7 @@ import { getSlotMechanicalVariations, type ValueLandscapeModifier } from './slot
 import { learningStageDirective } from './learning-stage-realization'
 import { practiceSituationDirective } from './practice-situation-realization'
 import { experienceDesignDirective } from './experience-design-directive'
+import { expressIncentive } from './incentive-expression'
 
 /** One of three system-owned activity slots; AI fills wording but must not remove these mechanics. */
 export type ActivitySkeletonSlot = {
@@ -604,6 +605,24 @@ function constraintAndGuardrailMechanics(input: SystemAssemblyInput): string[] {
         pushConstraintCandidate(lines, 'consequence', pkg.consequence)
     }
 
+    // HOW THIS GAME REWARDS, one line per selected constraint that carries an authored incentive
+    // mechanism. These are plain coach-facing sentences with no scaffolding prefix, so they survive
+    // isCoachFacingMechanicLine and land in the coach's Scoring section — which is the whole point:
+    // the mechanism used to be expressed (badly) into prompt-only text that coaches never saw.
+    for (const candidate of [pkg.foundation, pkg.shaping, pkg.consequence]) {
+        const constraint = candidate?.constraint as (typeof candidate.constraint & {
+            incentiveMechanism?: string
+            exampleIncentivePatterns?: string[]
+        }) | undefined
+        if (!constraint) continue
+        const incentive = expressIncentive(constraint.incentiveMechanism, {
+            designIntent: constraint.designIntent,
+            description: constraint.description,
+            incentivePatterns: constraint.exampleIncentivePatterns,
+        })
+        if (incentive) lines.push(incentive)
+    }
+
     const g = pkg.assemblyGuardrails
     const visibleSignals = g.visibleCue.signals?.length ? ` Signals: ${g.visibleCue.signals.join('; ')}` : ''
     lines.push(
@@ -938,16 +957,25 @@ function slotAffordanceCountFor(_idx: 1 | 2 | 3, total: number): number {
  * Both kinds used to be required in the rules block AND the scoring block, identically. The model
  * did exactly as instructed and satisfied each mechanic twice, which is why generated activities
  * repeated themselves — measured at 5.3 sentences appearing verbatim in both sections.
+/**
+ * CAUTION: the word boundaries below must be the two characters backslash + b. They were once
+ * written through a Python heredoc that interpreted \b as a literal BACKSPACE byte (0x08), so this
+ * regex read as /<BS>scor(e|es|ed|ing)<BS>|<BS>points?<BS>|.../ and matched nothing whatsoever.
  *
- * Routing each mechanic to ONE section is safe because the validator matches requirements against
- * the whole activity bundle (objective + rules + scoring + constraints + coachingFocus), never
- * per-section. The duplication was never doing validation work; it was only telling the model to
- * write the same sentence twice.
+ * It failed silently and expensively. Every mechanic routed to Rules, because !isScoringMechanic was
+ * true for all of them, and Scoring kept only the hardcoded per-archetype template. That is the
+ * mechanical cause of two things Christian reported as separate design problems: scoring statements
+ * appearing inside Rules, and every Scoring section collapsing to "A point or live advantage counts".
  */
 function isScoringMechanic(mechanic: string): boolean {
-    return /scor(?:e|es|ed|ing)|points?|counts?|awarded|bonus|advantage counts/i.test(
-        mechanic
-    )
+    return /\b(?:scor(?:e|es|ed|ing)|points?|counts?|awarded|bonus)\b|advantage counts/i.test(mechanic)
+}
+
+// A routing predicate that silently matches NOTHING is indistinguishable from one with nothing to
+// route, which is why this went a week unnoticed. Prove at load time that it still recognises the
+// plainest scoring sentence there is.
+if (!isScoringMechanic('Bonus points are awarded when the team scores.')) {
+    throw new Error('isScoringMechanic no longer matches scoring language - check for control characters in the pattern.')
 }
 
 export function buildActivitySkeleton(input: SystemAssemblyInput): ActivitySkeletonBundle {
