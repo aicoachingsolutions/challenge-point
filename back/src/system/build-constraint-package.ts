@@ -42,6 +42,7 @@ type GuardrailDraft = {
 
 type ExtendedConstraintMetadata = IConstraint & {
     incentiveMechanism?: string
+    exampleIncentivePatterns?: string[]
     visibilityEffect?: string
     targetAffordancePrimary?: string
     primaryConstraintType?: string
@@ -258,10 +259,11 @@ function collectConstraintMetadataOverlay(
         const constraint = candidate?.constraint as ExtendedConstraintMetadata | undefined
         if (!constraint) continue
 
-        if (constraint.incentiveMechanism === 'scoring_bonus') {
-            scoring.add('Additional point awarded when condition is met.')
-        }
-
+        // The incentive mechanism is NOT expressed here any more. This overlay feeds
+        // interactionExchange.rewardAdvantage, which reaches the model as prompt scaffolding and is
+        // filtered out of coach-facing text — so the branch that used to live here could never have
+        // put an incentive in front of a coach no matter what it said. It is expressed in
+        // build-activity-skeleton.ts instead, where scoring mechanics actually reach the coach.
         if (constraint.visibilityEffect === 'increase') {
             visibility.add('Players act based on visible cues created by the constraint.')
         } else if (constraint.visibilityEffect === 'decrease') {
