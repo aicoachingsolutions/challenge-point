@@ -71,10 +71,10 @@ function constraintToIConstraint(c: TestLibraryV0Constraint): IConstraint {
         visibilityEffect: c.visibilityEffect,
         primaryConstraintType: c.primaryConstraintType,
         targetAffordancePrimary: c.targetAffordancePrimary,
-        // NOTE: the realizations sheet also has an `incentive_patterns` column, intended for the
-        // coach-facing phrasing of each mechanism. It is empty on all 23 rows, so it is not mapped
-        // by the adapter yet. When it is authored, map it there and carry it here — expressIncentive
-        // already prefers authored phrasing over anything it derives.
+        // Authored coach phrasing, carried so it can outrank anything expressIncentive derives.
+        // Wired while the column is still empty ON PURPOSE: the alternative is Christian authoring
+        // 23 rows, seeing no change, and reasonably concluding the feature does not work.
+        exampleIncentivePatterns: c.exampleIncentivePatterns,
         createdAt: d,
         updatedAt: d,
     } as IConstraint
