@@ -47,7 +47,12 @@
 
 import type { IActivity } from '../../models/activity.model'
 import { translateCoachLanguage } from './coach-language'
-import { leadWithClearestScoringSentence, routeRulesForCoach } from './coach-section-ownership'
+import {
+    isNotAWayToEarnPoints,
+    leadWithClearestScoringSentence,
+    routeRulesForCoach,
+    toCoachScoringVoice,
+} from './coach-section-ownership'
 import { isGenericPointTemplate, isIncentiveExpression } from './incentive-expression'
 
 const RULES_CAP = 5
@@ -416,8 +421,15 @@ export function compressActivityForCoach(activity: IActivity, modifierMechanicLi
 
     // "How do teams score?" must be answerable from the first sentence — Christian's test is that a
     // coach should not have to reread Scoring to find out how points are earned.
-    const scoringSentences = leadWithClearestScoringSentence(
+    // Scoring answers one question: how are points earned. Design constraints on how the activity
+    // was built are dropped, and what remains is put in the coach's voice ("Score awarded for" ->
+    // "Earn a point for"). Never emptied: if every sentence looks like rationale, the coach keeps
+    // the original text rather than an empty section.
+    const scoringCandidates =
         scoringAfterTemplateSuppression.length > 0 ? scoringAfterTemplateSuppression : allScoringSentences
+    const scoringWaysToEarn = scoringCandidates.filter((s) => !isNotAWayToEarnPoints(s))
+    const scoringSentences = leadWithClearestScoringSentence(
+        (scoringWaysToEarn.length > 0 ? scoringWaysToEarn : scoringCandidates).map(toCoachScoringVoice)
     )
     const firstScoringSentence = scoringSentences[0]
     const cappedScoringSentences = capByDistinctiveness(

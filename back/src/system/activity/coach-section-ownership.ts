@@ -131,6 +131,41 @@ export function routeRulesForCoach(rules: string[], protectedLines: string[] = [
  * plainest statement is not reliably first. This promotes the most direct scoring sentence to the
  * front without discarding the detail after it.
  */
+/**
+ * Scoring says how points are earned. Nothing else belongs there.
+ *
+ * Christian, 24 Aug, still finding engine voice in the scoring section and asking the only question
+ * that matters — "what exactly am I rewarding?" — of lines like:
+ *
+ *   "Space usage, spacing, or lane access must shape the next action."
+ *   "Scoring and advantage must be tied to genuine channel exploitation."
+ *
+ * Both are true, neither answers the question, and both were sitting above the sentence that does.
+ * A design constraint on how the activity was built is not a way to earn a point, so it leaves the
+ * section — the same rule already applied to Rules, applied one section across.
+ */
+export function isNotAWayToEarnPoints(sentence: string): boolean {
+    return /\b(must shape|must be tied to|shall be|is the live read|structure how both teams)\b/i.test(sentence)
+}
+
+/**
+ * "Score awarded for X" is how a specification says it; "Earn a point for X" is how a coach does.
+ *
+ * The information was already right in these lines — the grammar just addressed the system rather
+ * than the person holding the whistle. Rewriting the opening is the whole change; the condition
+ * after it is authored knowledge and is left exactly alone.
+ */
+export function toCoachScoringVoice(sentence: string): string {
+    return sentence
+        .replace(/^Score awarded only when\b/i, 'Earn a point only when')
+        .replace(/^Score awarded for\b/i, 'Earn a point for')
+        .replace(/^Score is weighted by\b/i, 'Points are weighted by')
+        .replace(/^Scoring is tied to\b/i, 'Earn a point for')
+        .replace(/^Defenders score when\b/i, 'The defending team earns a point when')
+        .replace(/^A point or live advantage counts only when\b/i, 'Earn a point only when')
+        .replace(/^A point or live advantage counts when\b/i, 'Earn a point when')
+}
+
 export function leadWithClearestScoringSentence(sentences: string[]): string[] {
     if (sentences.length < 2) return sentences
 
