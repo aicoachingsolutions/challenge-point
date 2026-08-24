@@ -40,11 +40,42 @@ function testMechanismsReadDifferentlyFromEachOther(): void {
 
     // And they must differ structurally, not merely by a synonym.
     const [bonus, multiplier, window, defensive, advantage] = lines as string[]
-    assert.match(bonus, /bonus points on top of/i)
-    assert.match(multiplier, /worth double/i)
-    assert.match(window, /short live window/i)
-    assert.match(defensive, /defending team scores this way too/i)
-    assert.match(advantage, /live advantage rather than a point/i)
+    assert.match(bonus, /^Earn an extra point for /i)
+    assert.match(multiplier, /are worth double/i)
+    assert.match(window, /only inside a short window/i)
+    assert.match(defensive, /^The defending team earns a point for /i)
+    assert.match(advantage, /^Earn a live advantage instead of a point for /i)
+}
+
+/**
+ * Christian's test, 24 Aug: reading the scoring section, a coach must be able to answer "what
+ * exactly am I rewarding?" without interpreting how the engine thinks. Every line must therefore
+ * lead with what is EARNED and name the condition plainly.
+ */
+function testEveryLineAnswersWhatAmIRewarding(): void {
+    for (const row of AUTHORED) {
+        const line = expressIncentive(row.mechanism, row)
+        if (!line) continue
+        assert.match(
+            line,
+            /^(Earn an extra point for|Earn a live advantage instead of a point for|The defending team earns a point for|Scores from)/,
+            `line does not open with what the players earn: "${line}"`
+        )
+        // Engine vocabulary a coach should never have to decode.
+        assert.ok(
+            !/\b(mechanism|design intent|constraint|affordance|must shape|lane access)\b/i.test(line),
+            `engine vocabulary reached the coach: "${line}"`
+        )
+    }
+}
+
+/** A clause cannot follow "for"; silence beats a sentence written from the engine's point of view. */
+function testClauseShapedKnowledgeProducesSilenceNotGibberish(): void {
+    const line = expressIncentive('scoring_bonus', {
+        designIntent: 'Support lane requirement creates a visible spatial game problem',
+        description: 'A penetrating pass or forward run into a scoring area counts only when a supporting player has occupied the required lane',
+    })
+    assert.equal(line, null, `expected silence, got: "${line}"`)
 }
 
 function testSilenceWhenNothingIsAuthored(): void {
@@ -67,26 +98,36 @@ function testAuthoredPatternsWinOutright(): void {
     assert.equal(line, 'A switch that reaches the far channel unlocks a second target goal.')
 }
 
-function testLongProseIsCutAtAClauseNotMidWord(): void {
-    // The counter-press constraint's design intent is a paragraph.
+function testLongProseIsCutAtAClauseAndRejectedIfItStillReadsAsOne(): void {
+    // The counter-press constraint's design intent is a paragraph. Cutting at the clause boundary
+    // leaves "live counter-press window creates a contested advantage on every possession change",
+    // which is a STATEMENT, and no statement can complete "Earn an extra point for …". Silence is
+    // the right answer: this is exactly what the incentive_patterns column is for.
     const prose =
         'Live counter-press window creates a contested advantage on every possession change; the team losing the ball decides whether to commit to the press or recover shape'
-    const phrase = conditionPhrase({ description: prose })
-    assert.ok(phrase, 'long prose must still yield a usable phrase')
-    assert.ok(!phrase!.includes(';'), 'cut at the clause boundary')
-    assert.ok(phrase!.length <= 90, `phrase too long to read mid-sentence: ${phrase!.length}`)
+    assert.equal(conditionPhrase({ description: prose }), null, 'a clause must be refused, not reworded')
+
+    // Long prose that reduces to a usable phrase is still cut at the clause boundary and kept.
+    const usable = conditionPhrase({
+        description: 'Reward switching play across the field before the defence can shift across to cover the far side',
+    })
+    assert.ok(usable, 'long but phrase-shaped knowledge must still produce a condition')
+    assert.ok(!usable!.includes(';'), 'cut at the clause boundary')
+    assert.ok(usable!.length <= 90, `phrase too long to read mid-sentence: ${usable!.length}`)
 }
 
 function testGenericTemplateIsRecognizable(): void {
     assert.ok(isGenericPointTemplate('A point or live advantage counts when the team progresses possession toward the target.'))
-    assert.ok(!isGenericPointTemplate('Bonus points are on offer for switching play across the field.'))
+    assert.ok(!isGenericPointTemplate('Earn an extra point for switching play across the field.'))
 }
 
 testEveryAuthoredMechanismProducesSomething()
 testMechanismsReadDifferentlyFromEachOther()
+testEveryLineAnswersWhatAmIRewarding()
+testClauseShapedKnowledgeProducesSilenceNotGibberish()
 testSilenceWhenNothingIsAuthored()
 testAuthoredPatternsWinOutright()
-testLongProseIsCutAtAClauseNotMidWord()
+testLongProseIsCutAtAClauseAndRejectedIfItStillReadsAsOne()
 testGenericTemplateIsRecognizable()
 
 console.log('incentive-expression unit tests: all cases passed.')

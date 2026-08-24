@@ -52,6 +52,16 @@ function list(row: SoccerModuleRow, column: string): string[] {
  * semicolon split silently shredded them into extra entries. Short-token lists (vocabulary, IDs)
  * keep "; " because that is the convention Christian authors by hand.
  */
+/**
+ * Authored coach-facing incentive phrasing, or nothing.
+ *
+ * Separate from proseList because the sheet's unpopulated state is the literal text "None", which a
+ * plain read would happily pass downstream as a coach-facing sentence.
+ */
+function incentivePatterns(row: SoccerModuleRow): string[] {
+    return proseList(row, 'incentive_patterns').filter((entry) => entry.toLowerCase() !== 'none')
+}
+
 function proseList(row: SoccerModuleRow, column: string): string[] {
     const raw = text(row, column).trim()
     if (!raw) return []
@@ -173,6 +183,16 @@ function adaptRealizations(conceptType: string): TestLibraryV0Constraint[] {
                     // validator rejected every candidate combination for one input, giving
                     // possibilities=0 rather than a different score.
                     incentiveMechanism: optional(row, 'incentive_mechanism'),
+                    // THE COLUMN CHRISTIAN IS ABOUT TO AUTHOR. It is empty on all 23 rows today, and
+                    // until now it was not mapped at all — so filling it in would have changed
+                    // nothing, and the natural conclusion would have been that the feature does not
+                    // work. That is the same silent loss that cost this week four times over; wiring
+                    // it BEFORE the knowledge exists is the cheap half of the fix.
+                    //
+                    // The sheet currently holds the literal string "None" rather than a blank, so
+                    // that is treated as absent — otherwise every activity would be told its reward
+                    // is called None.
+                    exampleIncentivePatterns: incentivePatterns(row),
                     visibilityEffect: optional(row, 'visibility_effect'),
                     includesIncentiveLayer: text(row, 'includes_incentive_layer').toLowerCase() === 'true',
                     logicUsageNote: text(row, 'logic_usage_note'),

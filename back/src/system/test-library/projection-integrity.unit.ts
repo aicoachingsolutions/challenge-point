@@ -30,6 +30,7 @@ import { SessionStatus, type ISession } from '../../models/session.model'
 import type { IActivity } from '../../models/activity.model'
 import { deriveInputConstraints } from '../input-constraints/deriveInputConstraints'
 import { generateSelection, systemAssemblyInputFromTestLibrarySelection } from '.'
+import { expressIncentive } from '../activity/incentive-expression'
 
 /**
  * Fields with live consumers, and where they are read. Each entry is a promise that something in the
@@ -132,7 +133,36 @@ function testIncentiveMechanismsReachSelectedConstraints(): void {
     )
 }
 
+/**
+ * THE PATH FOR KNOWLEDGE THAT DOES NOT EXIST YET.
+ *
+ * `incentive_patterns` is empty on all 23 authored rows, so no assertion about live data can say
+ * anything about it — and a test that quietly passes because there is nothing to check is precisely
+ * the vacuous-assertion problem found earlier this week. So this proves the PLUMBING instead: a
+ * constraint carrying authored phrasing must have that phrasing win over the derived sentence.
+ *
+ * Wired before the knowledge exists on purpose. The alternative is Christian authoring 23 rows,
+ * seeing no change in the output, and concluding the feature does not work.
+ */
+function testAuthoredPhrasingWouldOutrankTheDerivedSentence(): void {
+    const authored = 'A switch that reaches the far channel unlocks a second target goal'
+    const derived = expressIncentive('scoring_bonus', {
+        designIntent: 'Switch play',
+        description: 'Reward switching play across the field',
+    })
+    const withAuthored = expressIncentive('scoring_bonus', {
+        designIntent: 'Switch play',
+        description: 'Reward switching play across the field',
+        incentivePatterns: [authored],
+    })
+
+    assert.ok(derived, 'sanity: the derived sentence should exist to be outranked')
+    assert.equal(withAuthored, `${authored}.`, 'authored phrasing must be used verbatim')
+    assert.notEqual(withAuthored, derived, 'authored phrasing must replace the derived sentence, not sit beside it')
+}
+
 testEveryConsumedFieldSurvivesTheProjection()
 testIncentiveMechanismsReachSelectedConstraints()
+testAuthoredPhrasingWouldOutrankTheDerivedSentence()
 
 console.log('projection-integrity unit tests: all cases passed.')

@@ -45,6 +45,12 @@ export interface TestLibraryV0Constraint {
     primaryConstraintType: string
     includesIncentiveLayer: boolean
     incentiveMechanism: string
+    /**
+     * Authored coach-facing phrasing for the incentive, from the realizations sheet's
+     * `incentive_patterns` column. Preferred over anything expressIncentive derives — a coach's own
+     * wording beats a template every time. Empty on every row today.
+     */
+    exampleIncentivePatterns?: string[]
     visibilityEffect: string
     targetAffordancePrimary: string
     logicUsageNote: string

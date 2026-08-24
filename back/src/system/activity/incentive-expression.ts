@@ -49,17 +49,62 @@ export interface IncentiveSource {
 const MAX_CONDITION_CHARS = 90
 
 /**
- * The phrase naming what earns the reward, taken from authored knowledge.
- *
- * `description` is preferred because it is authored as "Reward switching play across the field",
- * and stripping the leading verb yields a phrase that drops straight into a sentence. `designIntent`
- * is the fallback — it is shorter and imperative, so it reads less naturally mid-
- * sentence. Long prose entries are cut at the first clause boundary rather than mid-word.
+ * A CLAUSE cannot follow "for". "Support lane requirement creates a visible spatial game problem" is
+ * a statement about the design; "switching play across the field" is a thing a player does. Only the
+ * second can complete "Earn an extra point for …", and the first is what produced engine-voice
+ * scoring lines that left Christian asking "what exactly am I rewarding?".
  */
-export function conditionPhrase(source: IncentiveSource): string | null {
-    const candidates = [source.description, source.designIntent]
+function readsAsClause(phrase: string): boolean {
+    return /\b(creates?|is|are|was|were|counts?|decides?|opens?|must|shall|will|should|means?|makes?)\b/i.test(phrase)
+}
 
-    for (const raw of candidates) {
+/**
+ * Imperative intents become gerunds so they can follow "for": "Switch play" -> "switching play".
+ *
+ * The workbook authors design intents as instructions to the designer ("Win the ball back", "Use
+ * wide areas"), which is the right voice for a design field and the wrong voice for a coach. The -e
+ * rule covers the cases that actually occur ("Use" -> "using", "Penetrate" -> "penetrating"); a word
+ * already ending in -ing is left alone.
+ */
+const IMPERATIVE_VERBS = new Set([
+    'switch', 'win', 'use', 'slow', 'exploit', 'penetrate', 'maintain', 'protect', 'recover', 'delay',
+    'press', 'create', 'break', 'force', 'keep', 'progress', 'regain', 'deny', 'connect', 'attack',
+    'defend', 'score', 'secure', 'exploit', 'occupy', 'stretch', 'overload', 'combine', 'receive',
+])
+
+function toGerundPhrase(phrase: string): string {
+    const [first, ...rest] = phrase.split(' ')
+    if (!first || /ing$/i.test(first)) return phrase
+
+    // ONLY GERUNDIZE AN ACTUAL VERB. Not every design intent is imperative — an authored intent is
+    // a noun phrase, and treating its first word as a verb produced "Scores from finaling third
+    // entry are worth double." An unrecognised first word is left exactly as authored, which reads
+    // slightly stiffly at worst; the alternative invents a word.
+    const lower = first.toLowerCase()
+    if (!IMPERATIVE_VERBS.has(lower)) return phrase
+
+    const gerund = /e$/.test(lower) && !/ee$/.test(lower) ? `${lower.slice(0, -1)}ing` : `${lower}ing`
+    return [gerund, ...rest].join(' ')
+}
+
+export function conditionPhrase(source: IncentiveSource): string | null {
+    // ONLY A "Reward …" DESCRIPTION NAMES THE TRIGGER. "Reward switching play across the field"
+    // means the switch is what earns the reward, so stripping the verb leaves a usable gerund. But
+    // Some descriptions instead describe the MECHANISM, and using them as the trigger produced a doubled mechanism with the
+    // trigger never named — "Scores from scoring value in <area> are worth double".
+    // For those the short design intent is the better trigger, so it is tried first.
+    const describesTrigger = /^rewards?\s+/i.test((source.description ?? '').trim())
+    const candidates: Array<{ raw?: string; imperative: boolean }> = describesTrigger
+        ? [
+              { raw: source.description, imperative: false },
+              { raw: source.designIntent, imperative: true },
+          ]
+        : [
+              { raw: source.designIntent, imperative: true },
+              { raw: source.description, imperative: false },
+          ]
+
+    for (const { raw, imperative } of candidates) {
         if (typeof raw !== 'string' || raw.trim().length === 0) continue
 
         let phrase = raw
@@ -77,8 +122,16 @@ export function conditionPhrase(source: IncentiveSource): string | null {
         phrase = phrase.replace(/[.]+$/, '')
         if (phrase.length < 3) continue
 
-        // Mid-sentence position: drop a capital that only exists because it started a field.
-        return phrase.charAt(0).toLowerCase() + phrase.slice(1)
+        phrase = phrase.charAt(0).toLowerCase() + phrase.slice(1)
+        if (imperative) phrase = toGerundPhrase(phrase)
+
+        // A clause here would produce "Earn an extra point for support lane requirement creates a
+        // visible spatial game problem." Prefer the next source; if none works, say nothing at all.
+        // Silence is a missing line, which the coach can live with; the alternative is a sentence
+        // that tells them we are not writing for them.
+        if (readsAsClause(phrase)) continue
+
+        return phrase
     }
 
     return null
@@ -102,20 +155,24 @@ export function expressIncentive(mechanism: string | undefined, source: Incentiv
     if (!condition) return null
 
     switch (mechanism as IncentiveMechanism) {
-        // APPENDED, NOT EMBEDDED. Authored phrases are not all noun phrases — some are whole clauses
-        // ("Support lane requirement creates a visible spatial game problem") — and dropping those
-        // into "bonus points for {X}" produced sentences no coach would read twice. Appending the
-        // mechanism after the authored phrase is grammatical whatever shape the phrase takes.
+        // LEAD WITH WHAT THE PLAYERS EARN, then what earns it.
+        //
+        // Christian, 24 Aug: the incentive was reaching the activity but still "communicated from
+        // the engine's perspective rather than the coach's", leaving him asking "what exactly am I
+        // rewarding?" of lines like "Effective use of wide areas during play — bonus points on top
+        // of the normal way of scoring." The information was all there; the sentence just made the
+        // coach assemble it. His target shape is the reward first and the condition as a plain
+        // trigger — "Earn an extra point if your team switches play before entering the end zone."
         case 'scoring_bonus':
-            return `${capitalize(condition)} — bonus points on top of the normal way of scoring.`
+            return `Earn an extra point for ${condition}.`
         case 'value_multiplier':
-            return `${capitalize(condition)} — worth double.`
+            return `Scores from ${condition} are worth double.`
         case 'time_window_reward':
-            return `${capitalize(condition)} — but only inside a short live window; once it closes the extra value is gone.`
+            return `Earn an extra point for ${condition} — but only inside a short window, and it is gone once the window closes.`
         case 'defensive_reward':
-            return `${capitalize(condition)} — the defending team scores this way too, without needing to attack.`
+            return `The defending team earns a point for ${condition}.`
         case 'positional_or_scoring_advantage':
-            return `${capitalize(condition)} — earns a live advantage rather than a point, held until the next change of possession.`
+            return `Earn a live advantage instead of a point for ${condition} — your team keeps it until the next change of possession.`
         default:
             // An unrecognized mechanism is authored knowledge we do not understand yet. Say nothing
             // rather than guess: silence is recoverable, a wrong incentive teaches the wrong game.
@@ -137,7 +194,7 @@ function capitalize(s: string): string {
  * protected for the same reason: the differentiating line is the one worth keeping.
  */
 export function isIncentiveExpression(sentence: string): boolean {
-    return /— (?:bonus points on top of|worth double|but only inside a short live window|the defending team scores this way too|earns a live advantage rather than a point)/i.test(
+    return /(?:earn an extra point for|scores from .+ are worth double|the defending team earns a point for|earn a live advantage instead of a point for)/i.test(
         sentence
     )
 }
