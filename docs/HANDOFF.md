@@ -190,6 +190,47 @@ tab is otherwise invisible. Lands in `debug-usage` under `pilotEvidence.runAsWri
 verbatim. **There is no Session Reflection surface in the app** — Christian's second moment is
 hosted on the activity page for now.
 
+### 2026-08-22/23 — SILENT LOSS OF AUTHORED KNOWLEDGE is the lesson of this week
+
+Four separate times, authored content reached the engine and was silently discarded, each time by a
+projection that copies a NAMED LIST of fields and drops the rest: `setup` and `howToPlay` (output
+validator's allowlist reconstruction), and `incentiveMechanism` / `visibilityEffect` /
+`primaryConstraintType` / `targetAffordancePrimary` (`constraintToIConstraint`). None failed. The
+value became `undefined`, a fallback covered for it, and the loss surfaced weeks later as a DESIGN
+complaint rather than a bug. Christian's summary: the architecture was not the problem, the authored
+knowledge was not reaching the runtime.
+
+**Guarded now: `system/test-library/projection-integrity.unit.ts`.** It names the authored fields that
+have live consumers and fails the build when one stops arriving, in the spirit of the sport-coupling
+ratchet. **Add to that list whenever you write code that reads an authored field.** Verified by
+re-introducing the real regression: it fails naming `incentiveMechanism` and where it is read.
+
+**A second silent-failure class, same week: regexes that match NOTHING.** `isScoringMechanic`
+contained literal BACKSPACE bytes (0x08) where `` belongs — written through a Python heredoc that
+interpreted the escape. It matched nothing for a week, so every mechanic routed to Rules and Scoring
+kept only the hardcoded per-archetype template. That ONE fault produced two complaints Christian
+raised a week apart (scoring statements inside Rules; every Scoring section collapsing to "A point or
+live advantage counts"). A sweep found two more in `compress-activity-output.ts` and **eight in its
+unit test, inside NEGATED assertions — four tests that could never fail.** All repaired;
+`isScoringMechanic` now asserts at load time that it still matches plain scoring language.
+
+**NEVER write a regex through a Python heredoc.** Use the Edit tool, or a raw string, and verify with
+a byte scan afterwards (`b'' in open(f,'rb').read()`). This bug has now been introduced three
+times on this project.
+
+### Incentive expression (2026-08-22, `db6b21e`)
+Five mechanisms are authored in the sport module; the runtime saw none of them, and only
+`scoring_bonus` had an expression branch emitting a placeholder that named no condition.
+`system/activity/incentive-expression.ts` now gives each mechanism its own structure, filled with the
+constraint's OWN authored words — it invents no coaching content, and `none` produces silence rather
+than a placeholder. Measured on Christian's case: generic template 3/3 → **0/3**.
+
+**Christian froze scope here.** No new mechanism types, no incentive → Environmental Manipulation
+trigger, no taxonomy standard before the pilot. Observations go in `docs/DISCOVERY_INCENTIVE.md`; the
+*Representative Incentive Architecture* gets written immediately AFTER Pilot RC1 while evidence is
+fresh. His instinct on the boundary — incentives TRIGGER Environmental Manipulations, EM owns the
+change — is recorded there, deliberately not implemented.
+
 ### Telemetry blind spot — FIXED (`0a0af04`)
 Every usage event used to fire server-side, so it required a COMPLETED request: we recorded what
 coaches DID and never where they stopped. A coach who opened planning and left at step two produced
