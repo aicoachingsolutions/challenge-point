@@ -6,7 +6,7 @@ import {
     ClipboardDocumentIcon,
     XMarkIcon,
 } from '@heroicons/react/24/outline'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { ArrayFieldWrapper } from '@/form-control'
 import ActivityContentEditor, { type ActivityContentDraft } from '@/components/ActivityContentEditor'
@@ -20,6 +20,7 @@ import { useResource } from '@/services/resource.service'
 import { determineZpdZone, getZoneInfo } from '@/utils/analysis'
 
 import ActivityFeedback from '@/components/ActivityFeedback'
+import { recordCoachEvent } from '@/services/coach-events.service'
 import ActivityReviewPrompt from '@/components/ActivityReviewPrompt'
 import Button from '@/components/Button'
 import Loading from '@/components/Loading'
@@ -41,6 +42,29 @@ export const difficultyLevelOptions = Object.entries(DifficultyLevels).map(([tex
 export default function ActivityPage() {
     const { id } = useParams()
     const [activity, setActivity, activityResource] = useResource<IActivity>(`${ROUTES.app.activity}/${id}`)
+
+    /**
+     * THE DENOMINATOR FOR EVERY "DID COACHES ACTUALLY READ IT" QUESTION.
+     *
+     * `activities_viewed` was declared in the event vocabulary and never fired by anything, so the
+     * pilot summary would have reported zero views for two months — a number that reads as a finding
+     * ("coaches generate but never look") when it only means nothing called it. Exactly the silent
+     * kind of wrong that is worse than missing data.
+     *
+     * Fired once per activity, guarded by a ref: React re-renders this page on every local edit, and
+     * a view counted per render would inflate the number instead of leaving it at zero. Both failures
+     * look plausible in a summary, which is why this is pinned to the activity id.
+     */
+    const viewRecordedFor = useRef<string | null>(null)
+    useEffect(() => {
+        const activityId = activity?._id
+        if (!activityId || viewRecordedFor.current === activityId) return
+        viewRecordedFor.current = activityId
+        recordCoachEvent('activities_viewed', {
+            activityId,
+            sessionId: String((activity?.session as unknown as { _id?: string })?._id ?? activity?.session ?? ''),
+        })
+    }, [activity?._id, activity?.session])
     const [recommendedActivityModalOpen, setRecommendedActivityModalOpen] = useState(false)
     const navigate = useNavigate()
 
