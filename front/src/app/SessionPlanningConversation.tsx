@@ -114,7 +114,7 @@ const LEARNING_STAGES = [
  */
 const DURATION_OPTIONS = [15, 20, 25, 30, 40, 45]
 
-type StepId = 'goal' | 'situation' | 'stage' | 'team' | 'context'
+type StepId = 'goal' | 'situation' | 'stage' | 'team'
 
 /** The coach-facing question for each step, verbatim from the Experience Specification. */
 const STEP_QUESTIONS: Record<StepId, string> = {
@@ -122,7 +122,6 @@ const STEP_QUESTIONS: Record<StepId, string> = {
     situation: 'Can you tell us a little more about this situation?',
     stage: 'Where are your players with this learning today?',
     team: 'Tell us about today’s practice.',
-    context: 'Is there anything else we should know?',
 }
 
 interface Props {
@@ -230,7 +229,7 @@ export default function SessionPlanningConversation({ onComplete, onCancel, subm
     const order: StepId[] = useMemo(() => {
         const steps: StepId[] = ['goal']
         if (situations.length > 0) steps.push('situation')
-        return [...steps, 'stage', 'team', 'context']
+        return [...steps, 'stage', 'team']
     }, [situations.length])
 
     const goNext = () => {
@@ -409,40 +408,46 @@ export default function SessionPlanningConversation({ onComplete, onCancel, subm
                 </div>
             )}
 
+            {/*
+              * THE LAST SCREEN ENDS THE CONVERSATION. Duration, the optional context box and the
+              * generate button now sit together, because a whole extra page for one optional field
+              * asked the coach to take a step for something they can skip. Selecting a duration no
+              * longer advances — it stays put, so the coach can see they have finished answering and
+              * that the only thing left is to generate.
+              */}
             {step === 'team' && (
-                <div className='space-y-2'>
-                    <p className='mb-4 text-gray-600'>How long is this activity?</p>
-                    <div className='flex flex-wrap gap-2'>
-                        {DURATION_OPTIONS.map((minutes) => (
-                            <button
-                                key={minutes}
-                                type='button'
-                                onClick={() => {
-                                    setDuration(minutes)
-                                    goNext()
-                                }}
-                                className={`px-5 py-3 border rounded-lg transition hover:border-blue-500 hover:bg-blue-50 ${
-                                    duration === minutes ? 'border-blue-600 bg-blue-50' : 'border-gray-200'
-                                }`}
-                            >
-                                {minutes} min
-                            </button>
-                        ))}
+                <div className='space-y-6'>
+                    <div className='space-y-2'>
+                        <p className='mb-4 text-gray-600'>How long is this activity?</p>
+                        <div className='flex flex-wrap gap-2'>
+                            {DURATION_OPTIONS.map((minutes) => (
+                                <button
+                                    key={minutes}
+                                    type='button'
+                                    onClick={() => setDuration(minutes)}
+                                    className={`px-5 py-3 border rounded-lg transition hover:border-blue-500 hover:bg-blue-50 ${
+                                        duration === minutes ? 'border-blue-600 bg-blue-50' : 'border-gray-200'
+                                    }`}
+                                >
+                                    {minutes} min
+                                </button>
+                            ))}
+                        </div>
                     </div>
-                </div>
-            )}
 
-            {step === 'context' && (
-                <div>
-                    <textarea
-                        value={additionalContext}
-                        onChange={(event) => setAdditionalContext(event.target.value)}
-                        rows={4}
-                        placeholder='e.g. We panic after winning possession.'
-                        className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
-                    />
-                    <p className='mt-2 text-sm text-gray-500'>Optional — this adds detail to the activity.</p>
-                    <Button className='mt-5' onClick={complete} disabled={submitting}>
+                    <div>
+                        <p className='mb-2 text-gray-600'>Is there anything else we should know?</p>
+                        <textarea
+                            value={additionalContext}
+                            onChange={(event) => setAdditionalContext(event.target.value)}
+                            rows={3}
+                            placeholder='e.g. We panic after winning possession.'
+                            className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
+                        />
+                        <p className='mt-2 text-sm text-gray-500'>Optional — this adds detail to the activity.</p>
+                    </div>
+
+                    <Button onClick={complete} disabled={submitting}>
                         {submitting ? 'Generating…' : 'Generate activity'}
                     </Button>
                 </div>

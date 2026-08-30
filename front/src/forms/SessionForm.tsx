@@ -10,10 +10,7 @@ import { EngagementLevels } from '@/MODELS/activity.model'
 import {
     AgeGroups,
     ISession,
-    SessionEmphasis,
-    SESSION_EMPHASIS_LABELS,
     SessionStatus,
-    SkillLevels,
 } from '@/MODELS/session.model'
 
 import { api } from '@/services/api.service'
@@ -27,14 +24,6 @@ const ageGroupOptions = Object.entries(AgeGroups).map(([text, value]) => ({
     value,
     text,
 }))
-
-// Create options array from SkillLevels enum
-const skillLevelOptions = Object.entries(SkillLevels).map(([text, value]) => ({
-    value,
-    text,
-}))
-
-const sessionEmphasisOptions = Object.values(SessionEmphasis)
 
 const fieldTypeOptions = [
     { value: 'grass', text: 'Grass' },
@@ -55,18 +44,12 @@ const SessionForm: React.FC<{}> = () => {
             callbackAfterSubmit={(res) => {
                 navigate(`/session/${res.postResponse.data.data._id}`)
             }}
-            defaultValues={{ sessionEmphasis: SessionEmphasis['Applying Solutions Under Pressure'] }}
             submitButtonText={'Start Session'}
             submitButtonAlignment='center'
             insertIntoPostBody={{ createdBy: user._id, sessionStatus: SessionStatus['Draft'] }}
             submitButtonClass={'max-w-sm mx-auto px-8 py-3 text-lg font-semibold shadow-lg'}
         >
             {(f) => {
-                const sessionEmphasisField = f('sessionEmphasis')
-                const selectedSessionEmphasis =
-                    sessionEmphasisField.formValues.sessionEmphasis ??
-                    SessionEmphasis['Applying Solutions Under Pressure']
-
                 return (
                     <div className='min-h-screen px-2 py-6 sm:px-4 lg:px-0'>
                         <div className='max-w-sm mx-auto sm:max-w-3xl'>
@@ -138,69 +121,26 @@ const SessionForm: React.FC<{}> = () => {
                                             </div>
                                         </div>
 
-                                        {/* Skill Level - Full Width */}
-                                        <div>
-                                            <SelectField
-                                                {...f('skillLevel')}
-                                                label='Game Skill Level'
-                                                options={skillLevelOptions}
-                                                labelClass='text-gray-700 font-medium mb-2 block'
-                                                inputClass='text-base'
-                                                placeholder='Select overall skill level of participants'
-                                                className='w-full transition-colors border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500'
-                                                bracketSplit={true}
-                                            />
-                                            <p className='mt-2 text-sm text-gray-500'>
-                                                This helps us generate activities appropriate for your players' abilities
-                                            </p>
-                                        </div>
-
-                                        <div>
-                                            <label className='text-gray-700 font-medium mb-2 block'>
-                                                What should this activity emphasize?
-                                            </label>
-                                            <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
-                                                {sessionEmphasisOptions.map((value) => {
-                                                    const option = SESSION_EMPHASIS_LABELS[value]
-                                                    const isSelected = selectedSessionEmphasis === value
-
-                                                    return (
-                                                        <label
-                                                            key={value}
-                                                            className={`block h-full cursor-pointer rounded-xl border p-4 transition-colors ${
-                                                                isSelected
-                                                                    ? 'border-2 border-brand-500 bg-brand-50'
-                                                                    : 'border border-gray-300 bg-white hover:border-brand-300'
-                                                            }`}
-                                                        >
-                                                            <input
-                                                                type='radio'
-                                                                name={sessionEmphasisField.field}
-                                                                className='sr-only'
-                                                                value={value}
-                                                                checked={isSelected}
-                                                                onChange={() =>
-                                                                    sessionEmphasisField.setFormValues((previous) => ({
-                                                                        ...previous,
-                                                                        sessionEmphasis: value,
-                                                                    }))
-                                                                }
-                                                            />
-                                                            <span className='block text-base font-semibold text-gray-900'>
-                                                                {option.label}
-                                                            </span>
-                                                            <span className='block mt-1 text-sm leading-5 text-gray-600'>
-                                                                {option.description}
-                                                            </span>
-                                                        </label>
-                                                    )
-                                                })}
-                                            </div>
-                                            <p className='mt-2 text-sm text-gray-500'>
-                                                This is environmental intention, not a skill level. A beginner group may use
-                                                either option; an elite group may use either option.
-                                            </p>
-                                        </div>
+                                        {/*
+                                          * GAME SKILL LEVEL AND ACTIVITY EMPHASIS BOTH REMOVED, at
+                                          * Christian's request (25 Aug): asking a coach to
+                                          * characterise their players here AND again at the Learning
+                                          * Stage step made it unclear which one the engine listens to.
+                                          *
+                                          * Skill level was answerable: nothing read it. The only
+                                          * consumer was select-affordance.ts, which nothing imports —
+                                          * so the field a coach filled in reached no decision at all.
+                                          *
+                                          * Emphasis was NOT inert, and removing it changes behaviour
+                                          * for the better. This form defaulted every session to
+                                          * 'Applying Solutions Under Pressure' — the deliberately
+                                          * NARROW profile, which produces three near-identical
+                                          * activities on purpose. The engine's default for an unset
+                                          * emphasis is the differentiated profile, so every session
+                                          * created here has been opted into the narrow one without
+                                          * the coach choosing it. Omitting the field means sessions
+                                          * now get the differentiated default.
+                                          */}
                                     </div>
                                 </div>
 
