@@ -6,6 +6,7 @@ import assert from 'node:assert/strict'
 
 import {
     isDesignRationale,
+    isNotAWayToEarnPoints,
     selectPrimarySuccessCondition,
     toObservationVoice,
     isImpliedSportKnowledge,
@@ -76,6 +77,44 @@ function testNothingIsInventedOrLost(): void {
     for (const original of COMPETING_REWARDS) assert.ok(kept.includes(original), `lost: "${original}"`)
 }
 
+/**
+ * Christian, 28 Aug: the activities became clear but stopped feeling shaped around the coaching
+ * problem. The consequence that invites the intended behaviour must take the second slot ahead of
+ * the slot's own variation — the modifier differentiates the three activities from each other, the
+ * authored consequence is what makes all three about the coach's actual problem.
+ */
+function testTheAuthoredConsequenceOutranksSlotVariation(): void {
+    const authored =
+        'Earn an extra point for quick attacking actions after regain — but only inside a short window, and it is gone once the window closes.'
+    const modifier = 'regains in the central zone count higher'
+
+    const owned = selectPrimarySuccessCondition(
+        [
+            'Earn a point for reaching the target area under live opposition.',
+            `Points are weighted so ${modifier} than elsewhere.`,
+            authored,
+        ],
+        (s) => s.includes(modifier),
+        (s) => s === authored
+    )
+
+    assert.match(owned!.primary, /reaching the target area/i, 'the plain way to score still leads')
+    assert.equal(owned!.secondary, authored, `expected the authored consequence second, got: "${owned!.secondary}"`)
+    // Still exactly two ways to score — the middle ground, not a return to competing incentives.
+    assert.equal([owned!.primary, owned!.secondary].filter(Boolean).length, 2)
+}
+
+/** A setup description is not a way to succeed. His verbatim example. */
+function testSetupDescriptionLeavesScoring(): void {
+    assert.ok(isNotAWayToEarnPoints('The working area is set into a slightly different footprint for this activity.'))
+    // A weighting mentions space too, and must survive.
+    assert.ok(
+        !isNotAWayToEarnPoints(
+            'The field is treated as three value zones: regains in the central zone count higher than regains in the wide zones.'
+        )
+    )
+}
+
 function testReadAloudTest(): void {
     const routed = routeRulesForCoach(RULES_AS_SHOWN)
 
@@ -139,6 +178,8 @@ testOnePrimarySuccessCondition()
 testTheSlotVariationIsTheOnlyPermittedSecondary()
 testRelocatedRewardsBecomeObservations()
 testNothingIsInventedOrLost()
+testTheAuthoredConsequenceOutranksSlotVariation()
+testSetupDescriptionLeavesScoring()
 testReadAloudTest()
 testEachCategoryOnItsOwn()
 testTheExchangeRuleIsNeverDropped()
