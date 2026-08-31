@@ -23,6 +23,7 @@ import { api } from '@/services/api.service'
  */
 export default function ActivityReviewPrompt({ activityId, sessionId }: { activityId?: string; sessionId?: string }) {
     const [answer, setAnswer] = useState<'yes' | 'with_changes' | 'no' | null>(null)
+    const [successClarity, setSuccessClarity] = useState<'yes' | 'had_to_reread' | 'no' | null>(null)
     const [whatWouldChange, setWhatWouldChange] = useState('')
     const [unclear, setUnclear] = useState('')
     const [detailSent, setDetailSent] = useState(false)
@@ -39,9 +40,20 @@ export default function ActivityReviewPrompt({ activityId, sessionId }: { activi
 
     const sendDetail = () => {
         if (!answer) return
-        send({ answer, whatWouldChange: whatWouldChange.trim() || undefined, unclear: unclear.trim() || undefined })
+        send({
+            answer,
+            successClarity: successClarity ?? undefined,
+            whatWouldChange: whatWouldChange.trim() || undefined,
+            unclear: unclear.trim() || undefined,
+        })
         setDetailSent(true)
     }
+
+    const CLARITY_OPTIONS = [
+        { value: 'yes', label: 'Yes' },
+        { value: 'had_to_reread', label: 'Had to reread' },
+        { value: 'no', label: 'No' },
+    ] as const
 
     const OPTIONS = [
         { value: 'yes', label: 'Yes' },
@@ -72,7 +84,38 @@ export default function ActivityReviewPrompt({ activityId, sessionId }: { activi
             </div>
 
             {answer && !detailSent && (
-                <div className='mt-3 space-y-2'>
+                <div className='mt-3 space-y-3'>
+                    {/*
+                      * Christian's wording, 26 Aug, deliberately broader than "how players score".
+                      * The thing he kept failing to grasp on a first read was the PRIMARY CONSEQUENCE
+                      * the activity creates — sometimes scoring, sometimes retaining possession,
+                      * delaying an attack, or winning the ball back. "How players succeed" covers all
+                      * of them, and it turns his one-read test into pilot evidence rather than
+                      * something only he can judge.
+                      */}
+                    <div>
+                        <p className='mb-2 text-sm font-medium text-gray-700'>
+                            Was it immediately clear how players succeed in this activity?
+                        </p>
+                        <div className='flex flex-wrap gap-2'>
+                            {CLARITY_OPTIONS.map((option) => (
+                                <button
+                                    key={option.value}
+                                    type='button'
+                                    aria-pressed={successClarity === option.value}
+                                    onClick={() => setSuccessClarity(option.value)}
+                                    className={`px-4 py-1.5 text-sm border rounded-full transition-colors ${
+                                        successClarity === option.value
+                                            ? 'bg-brand-50 border-brand-400 text-brand-800'
+                                            : 'border-gray-200 text-gray-700 hover:bg-gray-50'
+                                    }`}
+                                >
+                                    {option.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
                     {/* Only asked when there is something to explain — a coach who said yes is not
                         interrogated about why. */}
                     {answer !== 'yes' && (

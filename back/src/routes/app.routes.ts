@@ -507,7 +507,7 @@ router.post('/coach-event', async (req: Request, res: Response) => {
  * must not meet an error from a question they were doing us a favour by answering.
  */
 router.post('/activity-review', async (req: Request, res: Response) => {
-    const { activityId, sessionId, answer, whatWouldChange, unclear } = req.body as Record<string, unknown>
+    const { activityId, sessionId, answer, successClarity, whatWouldChange, unclear } = req.body as Record<string, unknown>
     if (answer !== 'yes' && answer !== 'with_changes' && answer !== 'no') {
         return res.status(400).json({ error: 'answer must be "yes", "with_changes" or "no"' })
     }
@@ -519,6 +519,15 @@ router.post('/activity-review', async (req: Request, res: Response) => {
         payload: {
             question: 'run_as_written',
             answer,
+            // Christian's one-read test, asked of the coach rather than inferred: "was it
+            // immediately clear how players succeed in this activity?" Deliberately broader than
+            // scoring — the primary consequence is sometimes retaining possession, delaying an
+            // attack, or winning the ball back. Validated loosely and never fatal: an unrecognised
+            // value is dropped rather than failing a coach's feedback submission.
+            successClarity:
+                successClarity === 'yes' || successClarity === 'had_to_reread' || successClarity === 'no'
+                    ? successClarity
+                    : undefined,
             whatWouldChange: typeof whatWouldChange === 'string' ? whatWouldChange.slice(0, 2000) : undefined,
             unclear: typeof unclear === 'string' ? unclear.slice(0, 2000) : undefined,
         },
