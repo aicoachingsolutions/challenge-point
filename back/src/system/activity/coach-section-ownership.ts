@@ -166,6 +166,122 @@ export function toCoachScoringVoice(sentence: string): string {
         .replace(/^A point or live advantage counts when\b/i, 'Earn a point when')
 }
 
+/**
+ * ONE PRIMARY SUCCESS CONDITION. Optional secondary only when it strengthens the problem.
+ *
+ * Christian, 26 Aug, after ~60 generated activities: the remaining scoring problem is not wording,
+ * it is OWNERSHIP. The section aggregates every eligible incentive from every knowledge layer —
+ * one per selected affordance lens, plus the game form's own, plus the constraint's, plus this
+ * slot's variation — so a coach reads four or five reward statements and cannot tell which one
+ * actually defines success:
+ *
+ *   reach the target area · create a genuine scoring chance · create space for a teammate ·
+ *   use available space · switch play
+ *
+ * Individually representative, collectively competing. His two consequences are worth keeping in
+ * mind because they are different problems: too many simultaneous success criteria to explain, and
+ * several of them SUBJECTIVE — "create space", "gain advantage", "a genuine chance" are excellent
+ * coaching observations and poor scoring criteria, because two coaches will score the same action
+ * differently.
+ *
+ * There is also a representative argument, which is his: a checklist of point opportunities invites
+ * players to optimise for the checklist. The game should invite multiple solutions and reward the
+ * one consequence that shapes behaviour.
+ *
+ * Nothing is deleted. What leaves Scoring goes to Coaching Focus, where "watch for players creating
+ * space" is exactly the right kind of statement.
+ */
+export interface ScoringOwnership {
+    /** The single condition that defines success. */
+    primary: string
+    /** At most one, and only this slot's own variation — see below. */
+    secondary: string | null
+    /** Still true, still useful, no longer a way to score. */
+    movedToCoachingFocus: string[]
+}
+
+/** Words that make a condition a judgement call rather than an observation. */
+function subjectivityPenalty(sentence: string): number {
+    const markers = /\b(genuine|genuinely|visibly|clear|meaningful|quality|effective|appropriate|good|advantage)\b/gi
+    return (sentence.match(markers) ?? []).length
+}
+
+/** Concrete, countable events two coaches would score the same way. */
+function objectivityScore(sentence: string): number {
+    const markers =
+        /\b(enters?|entering|reach(?:es|ing)?|into the|target zone|end zone|zone|line|wins? the ball|turnover|regain|completes?|possession changes)\b/gi
+    return (sentence.match(markers) ?? []).length
+}
+
+export function selectPrimarySuccessCondition(
+    sentences: string[],
+    /**
+     * Recognises this slot's value modifier. A PREDICATE rather than a list of strings because the
+     * model paraphrases modifier text, and matching by exact substring silently failed to find it —
+     * which dropped the one sentence that differentiates this activity from its siblings. The caller
+     * passes the same token-containment check the rest of compression uses.
+     */
+    isSlotModifier: (sentence: string) => boolean = () => false
+): ScoringOwnership | null {
+    const usable = sentences.filter((s) => s.trim().length > 0)
+    if (usable.length === 0) return null
+
+    /**
+     * The secondary is THIS SLOT'S value modifier and nothing else.
+     *
+     * It earns the exception because it is the one incentive that differs between the three
+     * activities — it is what makes this a different representative problem rather than the same
+     * game re-scored. Every other candidate is shared across all three, so promoting one of those
+     * would add a competing criterion without adding a distinction.
+     */
+    const secondary = usable.find(isSlotModifier) ?? null
+
+    const candidates = usable.filter((s) => s !== secondary)
+    if (candidates.length === 0) {
+        return { primary: secondary as string, secondary: null, movedToCoachingFocus: [] }
+    }
+
+    /**
+     * A WEIGHTING IS NOT A SUCCESS CONDITION. "Points are weighted by where possession changes
+     * hands" presupposes a way to score without ever stating one, and a first pass promoted exactly
+     * that to primary on one activity — objective, concrete, and leaving the coach unable to say
+     * what earns a point at all. Weightings are detail ABOUT scoring; they qualify as primary only
+     * when nothing states how a point is earned.
+     */
+    const statesHowAPointIsEarned = (s: string) => /\b(earn (?:a|an extra) point|earns a point|a point counts|counts? when)\b/i.test(s)
+    const isWeighting = (s: string) => /\b(weighted|weighting|carry higher value|counts? higher|worth double|scales? with)\b/i.test(s)
+
+    const rank = (s: string): number =>
+        (statesHowAPointIsEarned(s) ? 8 : 0) -
+        (isWeighting(s) ? 6 : 0) +
+        objectivityScore(s) * 2 -
+        subjectivityPenalty(s) * 3 -
+        Math.floor(s.length / 160)
+
+    const primary = candidates.reduce((best, s) => (rank(s) > rank(best) ? s : best), candidates[0])
+
+    return {
+        primary,
+        secondary,
+        movedToCoachingFocus: candidates.filter((s) => s !== primary),
+    }
+}
+
+/**
+ * A reward statement re-voiced as something to watch for, since it is no longer a way to score.
+ * "Earn a point for X" as a coaching cue would just be the same competing criterion in a new place.
+ */
+export function toObservationVoice(sentence: string): string {
+    const observation = sentence
+        .replace(/^Earn an extra point for\s+/i, 'Watch for ')
+        .replace(/^Earn a point only when\s+/i, 'Watch whether ')
+        .replace(/^Earn a point for\s+/i, 'Watch for ')
+        .replace(/^Score awarded for\s+/i, 'Watch for ')
+        .replace(/^Score awarded only when\s+/i, 'Watch whether ')
+        .replace(/^The defending team earns a point for\s+/i, 'Watch the defending team for ')
+    return observation === sentence ? sentence : observation.charAt(0).toUpperCase() + observation.slice(1)
+}
+
 export function leadWithClearestScoringSentence(sentences: string[]): string[] {
     if (sentences.length < 2) return sentences
 

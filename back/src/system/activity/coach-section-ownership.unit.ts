@@ -6,6 +6,8 @@ import assert from 'node:assert/strict'
 
 import {
     isDesignRationale,
+    selectPrimarySuccessCondition,
+    toObservationVoice,
     isImpliedSportKnowledge,
     isScoringStatement,
     leadWithClearestScoringSentence,
@@ -20,6 +22,59 @@ const RULES_AS_SHOWN = [
     'Score awarded for plays that visibly create or open space for a teammate — stretching, unbalancing, or pulling defenders out of position so a teammate has a free option.',
     'On possession change, both teams stay live in the same space with no reset: defenders re-press immediately from wherever they were standing when the ball changed hands, and play continues until the next decision resolves.',
 ]
+
+/**
+ * The five competing reward statements Christian read inside ONE scoring section, 26 Aug. His point:
+ * individually representative, collectively impossible to tell which one defines success — and
+ * several unscoreable, because two coaches will judge "a genuine chance" differently.
+ */
+const COMPETING_REWARDS = [
+    'Earn a point for reaching the target area under live opposition.',
+    'Earn a point for creating a genuine scoring chance.',
+    'Earn a point for plays that visibly create space for a teammate.',
+    'Earn a point for attacks that use available space to gain advantage.',
+    'Earn an extra point for switching play across the field.',
+]
+
+function testOnePrimarySuccessCondition(): void {
+    const owned = selectPrimarySuccessCondition(COMPETING_REWARDS)
+    assert.ok(owned, 'expected an ownership decision')
+
+    assert.equal(owned!.secondary, null, 'no slot variation here, so no secondary is justified')
+    assert.equal(owned!.movedToCoachingFocus.length, 4, 'exactly one survives as the way to score')
+
+    // The objective condition wins. "Genuine chance", "visibly create space" and "gain advantage"
+    // are coaching observations, not criteria two coaches would score identically.
+    assert.match(owned!.primary, /reaching the target area/i, `subjective criterion chosen as primary: "${owned!.primary}"`)
+}
+
+function testTheSlotVariationIsTheOnlyPermittedSecondary(): void {
+    const modifier = 'regains in the central zone count higher'
+    const owned = selectPrimarySuccessCondition(
+        [...COMPETING_REWARDS, `Points are weighted so ${modifier} than elsewhere.`],
+        (s) => s.includes(modifier)
+    )
+    assert.ok(owned!.secondary, 'this slot differs from its siblings by the modifier; that earns the second slot')
+    assert.match(owned!.secondary!, new RegExp(modifier, 'i'))
+    // Still only ever two ways to score.
+    assert.equal([owned!.primary, owned!.secondary].filter(Boolean).length, 2)
+}
+
+/** Relocated rewards must stop being rewards, or they are the same competing criterion elsewhere. */
+function testRelocatedRewardsBecomeObservations(): void {
+    const owned = selectPrimarySuccessCondition(COMPETING_REWARDS)
+    for (const line of owned!.movedToCoachingFocus.map(toObservationVoice)) {
+        assert.ok(!/^Earn a(n extra)? point/i.test(line), `still reads as a way to score: "${line}"`)
+        assert.match(line, /^Watch/, `not re-voiced as an observation: "${line}"`)
+    }
+}
+
+function testNothingIsInventedOrLost(): void {
+    const owned = selectPrimarySuccessCondition(COMPETING_REWARDS)
+    const kept = [owned!.primary, ...(owned!.secondary ? [owned!.secondary] : []), ...owned!.movedToCoachingFocus]
+    assert.equal(kept.length, COMPETING_REWARDS.length, 'every statement is either scored or relocated, never dropped')
+    for (const original of COMPETING_REWARDS) assert.ok(kept.includes(original), `lost: "${original}"`)
+}
 
 function testReadAloudTest(): void {
     const routed = routeRulesForCoach(RULES_AS_SHOWN)
@@ -80,6 +135,10 @@ function testScoringLeadsWithThePlainestSentence(): void {
     for (const s of sentences) assert.ok(led.includes(s), 'every sentence must survive reordering')
 }
 
+testOnePrimarySuccessCondition()
+testTheSlotVariationIsTheOnlyPermittedSecondary()
+testRelocatedRewardsBecomeObservations()
+testNothingIsInventedOrLost()
 testReadAloudTest()
 testEachCategoryOnItsOwn()
 testTheExchangeRuleIsNeverDropped()

@@ -98,9 +98,13 @@ function testCoachingFocusCapAt3(): void {
     ]
     const activity = baseActivity({ scaffolding })
     const out = compressActivityForCoach(activity, [])
+    // CAP WIDENED 3 -> 5, deliberately and not speculatively (26 Aug). Scoring now keeps ONE primary
+    // success condition; every other reward statement is relocated here rather than deleted, and a
+    // cap of three meant the relocations were dropped the moment they arrived. Three remains the
+    // limit on AUTHORED cues — the extra two exist only to hold content moved out of Scoring.
     assert.ok(
-        (out.scaffolding ?? []).length <= 3,
-        `Expected scaffolding.length <= 3; got ${(out.scaffolding ?? []).length}`
+        (out.scaffolding ?? []).length <= 5,
+        `Expected scaffolding.length <= 5; got ${(out.scaffolding ?? []).length}`
     )
 }
 

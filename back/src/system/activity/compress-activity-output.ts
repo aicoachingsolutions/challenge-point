@@ -51,7 +51,9 @@ import {
     isNotAWayToEarnPoints,
     leadWithClearestScoringSentence,
     routeRulesForCoach,
+    selectPrimarySuccessCondition,
     toCoachScoringVoice,
+    toObservationVoice,
 } from './coach-section-ownership'
 import { isGenericPointTemplate, isIncentiveExpression } from './incentive-expression'
 
@@ -428,9 +430,17 @@ export function compressActivityForCoach(activity: IActivity, modifierMechanicLi
     const scoringCandidates =
         scoringAfterTemplateSuppression.length > 0 ? scoringAfterTemplateSuppression : allScoringSentences
     const scoringWaysToEarn = scoringCandidates.filter((s) => !isNotAWayToEarnPoints(s))
-    const scoringSentences = leadWithClearestScoringSentence(
+    const inCoachVoice = leadWithClearestScoringSentence(
         (scoringWaysToEarn.length > 0 ? scoringWaysToEarn : scoringCandidates).map(toCoachScoringVoice)
     )
+
+    // ONE PRIMARY SUCCESS CONDITION, plus this slot's own variation if it has one. Every other
+    // reward statement leaves for Coaching Focus — see selectPrimarySuccessCondition for why
+    // aggregating them made the section unreadable and several of them unscoreable.
+    const ownership = selectPrimarySuccessCondition(inCoachVoice, (s) => containsModifierText(s, modifierMechanicLines))
+    const scoringSentences = ownership
+        ? [ownership.primary, ...(ownership.secondary ? [ownership.secondary] : [])]
+        : inCoachVoice
     const firstScoringSentence = scoringSentences[0]
     const cappedScoringSentences = capByDistinctiveness(
         scoringSentences,
@@ -445,10 +455,35 @@ export function compressActivityForCoach(activity: IActivity, modifierMechanicLi
     // Rationale relocated out of Rules joins Coaching Focus, which is the section that owns "what
     // should I watch for". Appended after the authored focus lines so the coach's primary cues stay
     // first, and still subject to the cap.
-    const cappedScaffolding = [...(activity.scaffolding ?? []), ...routedRules.movedToCoachingFocus].slice(
-        0,
-        COACHING_FOCUS_CAP
-    )
+    // Reward statements that are no longer ways to score become things to watch for. Re-voiced,
+    // because "Earn a point for X" sitting under Coaching Focus is the same competing criterion in a
+    // new place. The cap widens by two to absorb them rather than silently dropping content that was
+    // moved here to be kept.
+    // RELOCATED CONTENT MUST NOT BE CROWDED OUT BY BOILERPLATE. Appending it after the authored
+    // focus meant the cap dropped it entirely — the section already carried five lines, two of them
+    // generic ("Coach observation: focus on the live decisions…"). Content moved here to be KEPT
+    // cannot be the first thing cut, so the authored cues take the original cap and the relocations
+    // take the widened remainder.
+    // Displaced REWARD statements come first. They are representative content a coach can act on
+    // ("watch for players creating space"); the rule-layer rationale behind them is true but is the
+    // thing most safely lost if only one fits.
+    const relocated = [
+        ...(ownership?.movedToCoachingFocus ?? []).map(toObservationVoice),
+        ...routedRules.movedToCoachingFocus,
+    ]
+    // IDEMPOTENT BY CONSTRUCTION. Appending relocations after the authored cues broke
+    // compress(compress(x)) === compress(x): on a second pass the relocations are part of
+    // `scaffolding`, nothing new is relocated, and a plain re-slice cut them straight back out.
+    // Interleaving at a fixed position makes the second pass reproduce the first exactly, because
+    // the relocated lines simply arrive as later authored entries.
+    const authoredFocus = activity.scaffolding ?? []
+    const cappedScaffolding = [
+        ...new Set([
+            ...authoredFocus.slice(0, COACHING_FOCUS_CAP),
+            ...relocated.slice(0, 2),
+            ...authoredFocus.slice(COACHING_FOCUS_CAP),
+        ]),
+    ].slice(0, COACHING_FOCUS_CAP + 2)
 
     // Step 6: final coach-language pass — the Coach Vocabulary & Translation Dictionary applied to
     // every coach-facing field. Lives in ./coach-language so vocabulary can be revised without

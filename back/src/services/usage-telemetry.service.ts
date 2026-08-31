@@ -48,6 +48,11 @@ export interface UsageSummary {
         wouldChange: Array<{ answer: string; text: string }>
         /** Free-text answers to "anything confusing, unclear, or unrealistic?" */
         unclearNotes: string[]
+        /**
+         * "Was it immediately clear how players succeed?" — yes / had_to_reread / no.
+         * Christian's one-read test, turned from something only he could judge into pilot evidence.
+         */
+        successClarity: Record<string, number>
     }
     planning: {
         entryPoint: Record<string, number>
@@ -111,6 +116,7 @@ export async function summarizeUsage(sinceDays = 30): Promise<UsageSummary> {
     const abandonedAtStep: Record<string, number> = {}
     const wouldUseAgain: Record<string, number> = {}
     const runAsWritten: Record<string, number> = {}
+    const successClarity: Record<string, number> = {}
     const wouldChange: Array<{ answer: string; text: string }> = []
     const unclearNotes: string[] = []
 
@@ -164,6 +170,8 @@ export async function summarizeUsage(sinceDays = 30): Promise<UsageSummary> {
         if (e.eventType === 'coach_feedback' && p['question'] === 'run_as_written') {
             const answer = String(p['answer'] ?? 'unknown')
             runAsWritten[answer] = (runAsWritten[answer] ?? 0) + 1
+            const clarity = typeof p['successClarity'] === 'string' ? (p['successClarity'] as string) : ''
+            if (clarity) successClarity[clarity] = (successClarity[clarity] ?? 0) + 1
             const change = typeof p['whatWouldChange'] === 'string' ? (p['whatWouldChange'] as string).trim() : ''
             // Kept verbatim, with the answer beside it. "I'd change X" is only interpretable next to
             // whether they would have run it at all.
@@ -215,6 +223,7 @@ export async function summarizeUsage(sinceDays = 30): Promise<UsageSummary> {
             abandonedAtStep,
             wouldUseAgain,
             runAsWritten,
+            successClarity,
             // Newest first: during a pilot the most recent comment is the one still actionable.
             wouldChange: wouldChange.slice(-50).reverse(),
             unclearNotes: unclearNotes.slice(-50).reverse(),
