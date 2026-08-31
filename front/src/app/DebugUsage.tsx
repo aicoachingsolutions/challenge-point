@@ -13,6 +13,26 @@ type CountRow = {
 
 type UsageSummary = {
     since: string
+    /**
+     * THE PILOT EVIDENCE. Computed and returned by the server since 16 Aug and rendered NOWHERE —
+     * every signal built for the pilot (planning funnel, would-run-as-written, success clarity,
+     * would-use-again, and the coaches' own words) was collected, aggregated and then displayed to
+     * no one. Christian would have run a two-month pilot unable to see any of it.
+     *
+     * Same shape of failure as the fields dropped by allowlist projections: the path terminated one
+     * step before its consumer, and nothing failed.
+     */
+    pilotEvidence?: {
+        planningStarted: number
+        planningAbandoned: number
+        abandonedAtStep: Record<string, number>
+        activitiesViewed: number
+        wouldUseAgain: Record<string, number>
+        runAsWritten: Record<string, number>
+        successClarity: Record<string, number>
+        wouldChange: Array<{ answer: string; text: string }>
+        unclearNotes: string[]
+    }
     totals: Record<string, number>
     resolutionBreakdown: Record<string, number>
     topSignalGroups: Array<{ signalGroup: string; count: number }>
@@ -37,6 +57,17 @@ type UsageResult = UsageSummary & {
 }
 
 const emptySummary = (): UsageSummary => ({
+    pilotEvidence: {
+        planningStarted: 0,
+        planningAbandoned: 0,
+        abandonedAtStep: {},
+        activitiesViewed: 0,
+        wouldUseAgain: {},
+        runAsWritten: {},
+        successClarity: {},
+        wouldChange: [],
+        unclearNotes: [],
+    },
     // Left blank rather than synthesised. `since` carries a server timestamp; inventing one here
     // would put a fabricated value in a field the reader is entitled to trust.
     since: '',
@@ -236,6 +267,94 @@ export default function DebugUsage() {
                                 { label: 'Count', render: (row) => row.count, className: 'w-24 text-right' },
                             ]}
                         />
+                    </Panel>
+
+                    {/*
+                      * First panel on the page on purpose: during the pilot this is the only section
+                      * that answers "is this working for coaches?". Everything else describes what
+                      * the engine did.
+                      */}
+                    <Panel title='Pilot evidence'>
+                        <dl className='grid grid-cols-2 gap-3 mb-4 sm:grid-cols-4'>
+                            <StatRow label='Planning started' value={summary.pilotEvidence?.planningStarted ?? 0} />
+                            <StatRow label='Planning abandoned' value={summary.pilotEvidence?.planningAbandoned ?? 0} />
+                            <StatRow label='Activities viewed' value={summary.pilotEvidence?.activitiesViewed ?? 0} />
+                            <StatRow
+                                label='Coach comments'
+                                value={
+                                    (summary.pilotEvidence?.wouldChange?.length ?? 0) +
+                                    (summary.pilotEvidence?.unclearNotes?.length ?? 0)
+                                }
+                            />
+                        </dl>
+
+                        <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+                            <div>
+                                <h3 className='mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500'>
+                                    Would you run this as written?
+                                </h3>
+                                <RecordTable
+                                    values={summary.pilotEvidence?.runAsWritten ?? {}}
+                                    emptyLabel='No answers in this window.'
+                                />
+                            </div>
+                            <div>
+                                <h3 className='mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500'>
+                                    Clear how players succeed?
+                                </h3>
+                                <RecordTable
+                                    values={summary.pilotEvidence?.successClarity ?? {}}
+                                    emptyLabel='No answers in this window.'
+                                />
+                            </div>
+                            <div>
+                                <h3 className='mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500'>
+                                    Would you use Challenge Point again?
+                                </h3>
+                                <RecordTable
+                                    values={summary.pilotEvidence?.wouldUseAgain ?? {}}
+                                    emptyLabel='No answers in this window.'
+                                />
+                            </div>
+                            <div>
+                                <h3 className='mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500'>
+                                    Where planning was abandoned
+                                </h3>
+                                <RecordTable
+                                    values={summary.pilotEvidence?.abandonedAtStep ?? {}}
+                                    emptyLabel='Nobody abandoned planning in this window.'
+                                />
+                            </div>
+                        </div>
+
+                        {/* The coaches' own words, verbatim. The single most actionable thing here. */}
+                        <div className='mt-4'>
+                            <h3 className='mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500'>
+                                What coaches would change
+                            </h3>
+                            <CountTable
+                                rows={(summary.pilotEvidence?.wouldChange ?? []).map((row) => ({
+                                    ...row,
+                                    count: 0,
+                                }))}
+                                emptyLabel='No written feedback in this window.'
+                                columns={[
+                                    { label: 'Answer', render: (row) => row.answer || '-', className: 'w-32' },
+                                    { label: 'What they would change', render: (row) => row.text },
+                                ]}
+                            />
+                        </div>
+
+                        <div className='mt-4'>
+                            <h3 className='mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500'>
+                                Confusing, unclear or unrealistic
+                            </h3>
+                            <CountTable
+                                rows={(summary.pilotEvidence?.unclearNotes ?? []).map((text) => ({ text, count: 0 }))}
+                                emptyLabel='Nothing reported in this window.'
+                                columns={[{ label: 'Note', render: (row) => row.text }]}
+                            />
+                        </div>
                     </Panel>
 
                     <Panel title='Observations'>

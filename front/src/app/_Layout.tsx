@@ -1,4 +1,4 @@
-import { BeakerIcon, BugAntIcon, HomeIcon, Square3Stack3DIcon, WrenchScrewdriverIcon, UserIcon } from '@heroicons/react/24/outline'
+import { BeakerIcon, BugAntIcon, ChartBarIcon, HomeIcon, Square3Stack3DIcon, WrenchScrewdriverIcon, UserIcon } from '@heroicons/react/24/outline'
 import { Outlet } from 'react-router-dom'
 
 import { useAuth } from '@/services/authentication.service'
@@ -20,6 +20,10 @@ const APPLICATION_LINKS: INavLink[] = [
     { text: 'Selection Debug', href: '/debug', icon: BugAntIcon },
     // TEMPORARY developer/testing tool — canonical EM reasoning (Knowledge Core Package 1.1).
     { text: 'Knowledge Core', href: '/debug-em', icon: BeakerIcon },
+    // Pilot evidence. The route and the data existed from 16 Aug; there was no way to REACH the page
+    // without typing the URL, so the one view that answers "is this working for coaches?" was
+    // effectively invisible to the person running the pilot.
+    { text: 'Pilot Evidence', href: '/debug-usage', icon: ChartBarIcon },
 ]
 const ACCOUNT_LINKS: INavLink[] = []
 const ADMIN_LINKS: INavLink[] = [{ text: 'Admin', href: '/admin', icon: WrenchScrewdriverIcon }]

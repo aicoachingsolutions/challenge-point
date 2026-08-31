@@ -190,6 +190,82 @@ tab is otherwise invisible. Lands in `debug-usage` under `pilotEvidence.runAsWri
 verbatim. **There is no Session Reflection surface in the app** — Christian's second moment is
 hosted on the activity page for now.
 
+### 2026-08-17 → 08-26 — THE COACH-COMMUNICATION ARC (pilot HELD, then audited)
+
+**Christian HELD the pilot on 17 Aug** — approved 13 Aug, then paused before inviting the ten
+coaches: *"I can't have pilot coaches evaluate representative learning if they're still spending
+cognitive effort figuring out what the activity actually is."* Pilot has NOT launched. He ran ~20
+coaching intentions / ~60 activities and delivered a **Pilot Readiness Audit (RC1)** on 26 Aug
+(original in `~/Downloads/`, extracted text in the session scratchpad).
+
+**Audit verdict:** translation 🟢, representative design 🟢 (no prescriptive drift found), activity
+variety 🟢, activity communication 🟢, **planning UX 🟠**, **incentives/scoring 🟠 — the largest
+remaining coach-facing issue.** His framing throughout: this is product refinement, not architecture.
+
+**What shipped in response, newest first:**
+
+| commit | what |
+|---|---|
+| `e5510aa` | Scoring keeps ONE primary success condition + at most one secondary |
+| `9f03f2f` | `activities_viewed` fired — it was declared and never called |
+| `efc58b8` | Planning flow consolidated; Skill Level + Emphasis removed; 5 steps → 4 |
+| `9615783` | `incentive_patterns` wired end-to-end before it is authored |
+| `1700d19` | Scoring written in the coach's voice |
+| `db6b21e` | The five authored incentive mechanisms actually expressed |
+| `ba7db07` | "How to Play" section; Setup must answer five things in one read |
+| `bb8dfbb` | Each coach-facing section given a single owner |
+| `4fd4fb2` | Playing format made to fit the squad the coach entered |
+
+**THE SCORING OWNERSHIP RULE (his, 26 Aug) — the governing principle now:**
+> One primary success condition. Optional secondary consequence only when it genuinely strengthens
+> the representative problem. Everything else should emerge from the game rather than be explicitly
+> rewarded.
+
+Implemented in `coach-section-ownership.ts`: the only permitted secondary is **this slot's own value
+modifier** (the one incentive that differs between the three activities; everything else is shared,
+so promoting it adds a competing criterion without adding a distinction). Primary selection prefers
+**objective** conditions and penalises judgement words — "create space", "gain advantage", "a genuine
+chance" are coaching observations, not criteria two coaches would score identically. Displaced
+rewards move to Coaching Focus **re-voiced as observations**; the cap widened 3 → 5 to hold them.
+Measured: 4–5 competing rewards → 1–2 sentences.
+
+**THE EMPHASIS FINDING — read this before comparing old and new output.** `SessionForm` set
+`defaultValues={{ sessionEmphasis: 'Applying Solutions Under Pressure' }}` — the deliberately NARROW
+profile that exists to produce near-identical activities. The engine's default for an UNSET emphasis
+is the differentiated profile, so **every session created through that form was opted into narrow
+variation without any coach choosing it**, and the differentiated default set weeks earlier never
+applied to a single real session. The control is now gone, so new sessions get differentiation.
+**Sessions created before `efc58b8` still carry 'Applying' and will keep producing narrow variation.**
+
+**Also removed: Game Skill Level.** Nothing read it — the only consumer was `select-affordance.ts`,
+which nothing imports.
+
+**EVIDENCE LAYER, as it now stands** (all in `GET /api/app/debug-usage`):
+* automatic — goal text, resolution status, signal groups, learning goal / practice situation /
+  learning stage / duration, **rejected goals verbatim** (the vocabulary-gap dataset), planning
+  started, planning abandoned + step, activities viewed, activity edits by field + structural flag,
+  coach-language leaks.
+* asked at REVIEW — "Would you run this activity as written?" (Yes / With changes / No), then
+  Christian's own wording **"Was it immediately clear how players succeed in this activity?"**
+  (Yes / Had to reread / No), plus two optional text boxes.
+* asked AFTER USE — thumb, the nine-code observation vocabulary, comment.
+* asked LAST — "Would you use Challenge Point for your next practice?"
+
+Linkage is by `activityId`; every activity carries its own provenance on `systemTrace.planning`.
+
+**STILL OPEN, and Christian's to author, not ours:**
+1. `incentive_patterns` — empty on all 23 realization rows. Wired now, so any row he fills changes
+   output immediately with no release. Derived phrasing is the fallback.
+2. **No switch-play Learning Goal.** His free text routes correctly to Channel Games; the guided list
+   has 11 goals and none covers switching play / far side / changing the point of attack. His audit
+   lists ~10 such gaps. Two existing goals (*Play Out from the Back*, *Beat Defenders 1v1*) still
+   cannot generate, so adding an unbuildable goal would be worse than the gap.
+3. Planning wording — Practice Situations sometimes restate the selected Learning Goal.
+
+**Do NOT** add incentive mechanism types, an incentive → Environmental Manipulation trigger, or a
+taxonomy standard: Christian froze that scope for a post-pilot *Representative Incentive
+Architecture*. Observations go in `docs/DISCOVERY_INCENTIVE.md`.
+
 ### 2026-08-22/23 — SILENT LOSS OF AUTHORED KNOWLEDGE is the lesson of this week
 
 Four separate times, authored content reached the engine and was silently discarded, each time by a
