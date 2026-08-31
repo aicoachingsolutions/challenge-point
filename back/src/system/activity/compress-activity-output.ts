@@ -248,6 +248,14 @@ function stripScaffoldingNarration(text: string): string {
     for (const re of DANGLING_EM_DASH_PROMOTERS) {
         next = next.replace(re, '. ')
     }
+
+    // GENERAL RULE, because the whitelist above went stale the moment the scoring openers were
+    // renamed ("Score awarded for" became "Earn a point for"), and a coach was shown
+    // "…use available space to gain advantage — Earn an extra point for quick attacking actions…".
+    // A capital letter after a dangling dash means a new sentence started: legitimate em-dash
+    // continuations read on in lower case ("advantage — the defending team…"). This is what the
+    // whitelist was approximating one phrase at a time.
+    next = next.replace(/\s+—\s+(?=[A-Z])/g, '. ')
     // TRAILING connector cleanup. The promoters above only handle a dangling dash with a clause
     // AFTER it; they cannot help when the stripped clause ran to the END of the line. A coach was
     // shown the rule "Score awarded for attacks that use available space to gain advantage —",
@@ -437,7 +445,11 @@ export function compressActivityForCoach(activity: IActivity, modifierMechanicLi
     // ONE PRIMARY SUCCESS CONDITION, plus this slot's own variation if it has one. Every other
     // reward statement leaves for Coaching Focus — see selectPrimarySuccessCondition for why
     // aggregating them made the section unreadable and several of them unscoreable.
-    const ownership = selectPrimarySuccessCondition(inCoachVoice, (s) => containsModifierText(s, modifierMechanicLines))
+    const ownership = selectPrimarySuccessCondition(
+        inCoachVoice,
+        (s) => containsModifierText(s, modifierMechanicLines),
+        isIncentiveExpression
+    )
     const scoringSentences = ownership
         ? [ownership.primary, ...(ownership.secondary ? [ownership.secondary] : [])]
         : inCoachVoice

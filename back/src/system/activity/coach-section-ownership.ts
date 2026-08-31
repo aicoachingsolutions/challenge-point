@@ -145,7 +145,19 @@ export function routeRulesForCoach(rules: string[], protectedLines: string[] = [
  * section — the same rule already applied to Rules, applied one section across.
  */
 export function isNotAWayToEarnPoints(sentence: string): boolean {
-    return /\b(must shape|must be tied to|shall be|is the live read|structure how both teams)\b/i.test(sentence)
+    if (/\b(must shape|must be tied to|shall be|is the live read|structure how both teams)\b/i.test(sentence)) {
+        return true
+    }
+
+    // SETUP DESCRIPTION INSIDE SCORING. Christian, 28 Aug: "The working area is set into a slightly
+    // different footprint…" — and he is right that this is ownership rather than wording, since it
+    // describes the environment rather than how teams succeed.
+    //
+    // Matched on layout VERBS, not on mentioning space: "the field is treated as three value zones,
+    // regains in the central zone count higher" is a weighting and must survive.
+    return /\b(working area|footprint|is set into|is laid out|is set up|area is divided|pitch is divided)\b/i.test(
+        sentence
+    )
 }
 
 /**
@@ -221,20 +233,44 @@ export function selectPrimarySuccessCondition(
      * which dropped the one sentence that differentiates this activity from its siblings. The caller
      * passes the same token-containment check the rest of compression uses.
      */
-    isSlotModifier: (sentence: string) => boolean = () => false
+    isSlotModifier: (sentence: string) => boolean = () => false,
+    /**
+     * Recognises a sentence produced from an AUTHORED incentive mechanism, i.e. the consequence the
+     * selected constraint package carries for this coaching problem. Injected rather than imported
+     * so this module stays free of incentive-expression details.
+     */
+    isAuthoredIncentive: (sentence: string) => boolean = () => false
 ): ScoringOwnership | null {
     const usable = sentences.filter((s) => s.trim().length > 0)
     if (usable.length === 0) return null
 
     /**
-     * The secondary is THIS SLOT'S value modifier and nothing else.
+     * THE SECOND SLOT BELONGS TO THE CONSEQUENCE THAT INVITES THE COACHING INTENTION.
      *
-     * It earns the exception because it is the one incentive that differs between the three
-     * activities — it is what makes this a different representative problem rather than the same
-     * game re-scored. Every other candidate is shared across all three, so promoting one of those
-     * would add a competing criterion without adding a distinction.
+     * Christian, 28 Aug, after the first version of this function: the activities became clear but
+     * "no longer feel intentionally shaped around the coaching problem" — a transition-attacking
+     * game scored end-zone entry, with nothing encouraging players to exploit the brief moment a
+     * defence is disorganised. *"We've corrected too far in the opposite direction."*
+     *
+     * He is right, and the fix is not to add incentives back. The consequence he wants ALREADY
+     * EXISTS and we were throwing it away: the selected constraint package for that goal carries an
+     * authored time-window reward — "quick attacking actions after regain, but only inside a short
+     * window". That is goal-specific BY CONSTRUCTION, because selection chose that package for this
+     * coaching problem; the archetype's own condition is generic to the game form. We were letting
+     * the generic one win because it read as more objective.
+     *
+     * So the ranking is: an AUTHORED INCENTIVE outranks this slot's value modifier for the second
+     * position. The modifier differentiates the three activities from each other; the authored
+     * incentive is what makes all three about the coach's actual problem. When the goal is served,
+     * variety is the lesser claim.
+     *
+     * His framing is the one to hold on to: the engine's job is to generate CONSEQUENCES, not
+     * scoring systems. Sometimes that consequence is a point; sometimes a short window. The
+     * consequence should make the desired affordance more inviting without making the behaviour
+     * mandatory — so it goes SECOND, after the plain way to score, and never replaces it.
      */
-    const secondary = usable.find(isSlotModifier) ?? null
+    const authoredConsequence = usable.find(isAuthoredIncentive) ?? null
+    const secondary = authoredConsequence ?? usable.find(isSlotModifier) ?? null
 
     const candidates = usable.filter((s) => s !== secondary)
     if (candidates.length === 0) {
