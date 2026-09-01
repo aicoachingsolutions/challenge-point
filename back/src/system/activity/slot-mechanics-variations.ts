@@ -235,18 +235,46 @@ export function getSlotMechanicalVariations(
     // See getEmphasisVariationProfile for why an unset emphasis differentiates rather than repeats.
     const resolved = emphasis ?? SessionEmphasis['Discovering Solutions']
 
+    /**
+     * EVERY SLOT CARRIES A RULE-PLACEMENT MODIFIER. This is the fix for Christian's 30 Aug finding
+     * that three activities read as "one activity with three minor variations".
+     *
+     * Measured on his goal before the change: 3 of the 4 wide modifiers had `scoring` placement and
+     * only slot 2 had a `rule` one, so exactly one of the three activities differed in its rules —
+     * and the scoring differences were being dropped downstream, where Scoring now keeps one primary
+     * condition plus the authored consequence (shared by all three). Net effect: rules differed 2/3,
+     * scoring 1/3. Slot 1 under `applying` returned NOTHING AT ALL, which is why one of his three
+     * activities had no differentiator of any kind.
+     *
+     * His own distinction says where the differentiation belongs. A scoring weighting is PARAMETER
+     * diversity — "different scoring variations". A rule changes what players must perceive and
+     * solve, which is EDUCATIONAL diversity. So the differentiators move into rules, and Scoring is
+     * left to do the job he asked of it on 28 Aug: one clear way to score plus the consequence that
+     * invites the coaching intention.
+     *
+     * Bandwidth still means what it meant: `applying` uses narrow modifiers, `discovering` wide ones.
+     * What changed is placement and coverage, not how far apart the three are allowed to be.
+     */
     if (resolved === SessionEmphasis['Discovering Solutions']) {
         switch (index) {
             case 1:
-                return [SPATIAL_VALUE_STRUCTURES_WIDE]
+                return [SPATIAL_VALUE_STRUCTURES_WIDE, REGAIN_CONDITIONS_WIDE]
             case 2:
                 return [TRANSITION_CONSEQUENCES_WIDE]
             case 3:
-                return [OVERLOAD_INCENTIVES_WIDE, SCORING_INCENTIVES_WIDE]
+                return [OVERLOAD_INCENTIVES_WIDE, TIMING_INCENTIVES_WIDE]
         }
     }
 
-    // applying
+    // APPLYING IS LEFT EXACTLY AS DESIGNED — slot 1 is the unmodified baseline and the other two
+    // vary narrowly from it. That is a deliberate property (pinned by
+    // testApplyingSlotOneIsBaselineWithNoModifier), and this profile exists to give repeated
+    // exposure to the same problem rather than three distinct options.
+    //
+    // I briefly changed it while chasing Christian's "one activity, three variations" report, then
+    // put it back: his session was on this profile only because the session form used to default
+    // every session to it, which is now fixed. Overriding a designed property to treat a symptom
+    // caused by a different bug would have erased the distinction between the two profiles.
     switch (index) {
         case 1:
             return []
