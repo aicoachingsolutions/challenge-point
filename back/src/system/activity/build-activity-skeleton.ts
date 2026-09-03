@@ -947,8 +947,16 @@ function slotAffordanceCountFor(_idx: 1 | 2 | 3, total: number): number {
 }
 
 /**
- * Deterministic activity skeleton: three slots, structurally differentiated by affordance subset.
- * AI supplies readable wording for each slot; mechanic obligations progress 1→2→all lenses.
+ * Deterministic activity skeleton: three slots sharing one selection.
+ *
+ * This comment used to say the slots were "structurally differentiated by affordance subset" with
+ * obligations progressing 1→2→all lenses. That stopped being true when the ramp was removed (see
+ * slotAffordanceCountFor above) — it read as a difficulty ladder, which the parallel-realization
+ * principle forbids. Every lens is now active in every slot, and differentiation comes from the
+ * per-slot value-landscape modifier.
+ *
+ * Left corrected rather than deleted because the stale version describes a mechanism someone might
+ * otherwise go looking for, or reintroduce.
  */
 
 /**

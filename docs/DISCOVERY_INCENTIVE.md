@@ -88,6 +88,47 @@ but it is the first thing the post-pilot document should look at.
 
 ---
 
+---
+
+## 2026-08-31 — RVD-06 observed in the field, by the person who specified it
+
+Christian ran a generated activity with his own team. It was representative and understandable, and
+his players immediately found the cheapest way to succeed: **launch the ball into the attacking zone
+and run onto it.** Requiring the ball to enter on the ground removed the long balls and produced a
+second degenerate solution — attackers stationed high, "cherry picking". What finally produced the
+intended problem was making the halfway line act as an **offside line**: supporting angles appeared,
+players stayed connected, possession recycled, organised attacks emerged.
+
+He coached none of those behaviours. He removed the unintended affordance and the intended problem
+surfaced on its own.
+
+**This is RVD-06 from his own Representative Validation spec** — *"what is the easiest way to win
+without engaging the intended problem?"* — encountered live rather than reasoned about. Two things
+worth recording while it is fresh:
+
+1. **It is the first concrete entry for the Degenerate Solution Pattern Catalogue** that RVD-06 calls
+   for. The pattern has a recognisable shape: *bypass the intended problem by playing over it*, and
+   its counter is a **positional constraint** (an offside line) rather than a technical prohibition
+   (must be on the ground). The technical prohibition failed and produced a second degenerate
+   solution; the positional constraint worked. That ordering is the transferable lesson, not the
+   offside line itself.
+
+2. **THE PRODUCT ASSUMPTION IT EXPOSES, which is the bigger finding.** The activity assumed a coach
+   who could recognise an unintended affordance and adjust the environment while preserving
+   representativeness. Christian has that skill. His own framing: we cannot assume the average high
+   school or youth coach does. So a generated activity is currently a *starting environment* that
+   presumes expert in-session adaptation — and the pilot cohort will contain coaches on both sides of
+   that line.
+
+**Why this matters for reading pilot evidence, not for building now:** a coach reporting "it didn't
+work" may have met a degenerate solution and lacked the adjustment, which looks identical in the data
+to a poorly generated activity. Worth asking about directly before concluding the engine failed. The
+nine-code observation vocabulary already has "activity becoming predictable", which is the closest
+existing signal.
+
+Explicitly NOT building a degenerate-solution detector before the pilot. Christian: *"I don't think
+this is something we solve before the pilot."*
+
 ## Explicitly NOT doing before the pilot
 
 - Adding the four missing mechanism types.
