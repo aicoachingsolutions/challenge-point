@@ -98,8 +98,46 @@ function testEveryRouteEndsWithAUsableFormat(): void {
     }
 }
 
+/**
+ * REGRESSION — real generation, 2026-09-08, 12-player squad. The setup read "Two teams of 5 players
+ * each. … Teams play 6v6." A per-team count was invisible to the scoreline parser, so the text
+ * counted as stating no format and a correct one was appended next to the wrong one. The coach is
+ * left holding two different squads in one paragraph with no way to tell which the activity assumes.
+ */
+function testPerTeamCountIsCorrectedRatherThanContradicted(): void {
+    const out = reconcilePlayerFormat(
+        'Play on a 40x30 yard field with a central corridor. Two teams of 5 players each. Players start in their own half.',
+        12,
+        'Transition Games'
+    )
+
+    assert.equal(parseStatedPlayerTotal(out.text), 12, `wrong squad after correction: "${out.text}"`)
+    assert.ok(!/\bTeams play\b/i.test(out.text), `appended a second format: "${out.text}"`)
+    assert.ok(!/\b5 players\b/.test(out.text), `left the wrong count standing: "${out.text}"`)
+    assert.ok(out.text.includes('Two teams of 6 players each'), `mangled the sentence: "${out.text}"`)
+    assert.ok(out.text.includes('40x30 yard field'), `lost the field description: "${out.text}"`)
+}
+
+/** A per-team count that already matches the squad must be left completely alone. */
+function testCorrectPerTeamCountIsNotTouched(): void {
+    const text = 'Two teams of 6 players each attack opposite end zones.'
+    const out = reconcilePlayerFormat(text, 12, 'End Zone Games')
+    assert.equal(out.text, text, `rewrote already-correct text: "${out.text}"`)
+    assert.equal(out.corrected, false)
+}
+
+/** An overload cannot say "each" — that would name four teams. */
+function testUnevenSidesDropTheEach(): void {
+    const out = reconcilePlayerFormat('Two teams of 5 players each.', 12, 'Overload Games')
+    assert.equal(parseStatedPlayerTotal(out.text), 12, `wrong squad: "${out.text}"`)
+    assert.ok(!/\beach\b/i.test(out.text), `"each" survived uneven sides: "${out.text}"`)
+}
+
 testFormatsAlwaysSpendTheWholeSquad()
 testOverloadMovesAPlayerRatherThanAddingOne()
+testPerTeamCountIsCorrectedRatherThanContradicted()
+testCorrectPerTeamCountIsNotTouched()
+testUnevenSidesDropTheEach()
 testParsesWhatTheTextActuallyAsksFor()
 testCorrectsTheRealFailureJoeReported()
 testCorrectsExtraPlayersUnderAnyName()
