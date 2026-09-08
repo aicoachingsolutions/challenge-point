@@ -36,6 +36,20 @@ export interface UsageSummary {
         planningAbandoned: number
         abandonedAtStep: Record<string, number>
         activitiesViewed: number
+        /**
+         * Which of the three generated activities a coach actually took to the field.
+         *
+         * The checklist lists "Activity selected" as automatic collection, and it was the one line
+         * nothing recorded. It carries more than its own count: the pilot's variety question — do
+         * coaches read the three as genuine alternatives, minor variations, or the same activity —
+         * has no other observable. If selection concentrates on slot 1, they are taking the first
+         * thing offered; if it spreads, the alternatives are doing work. Nothing a coach says
+         * afterwards substitutes for what they picked.
+         */
+        activitiesSelected: number
+        selectedBySlot: Record<string, number>
+        /** Reached the end of a session. Distinguishes "generated and abandoned" from "actually ran". */
+        sessionsCompleted: number
         wouldUseAgain: Record<string, number>
         /**
          * "Would you run this activity as written?" — answerable the moment a coach reads the
@@ -53,6 +67,32 @@ export interface UsageSummary {
          * Christian's one-read test, turned from something only he could judge into pilot evidence.
          */
         successClarity: Record<string, number>
+        /**
+         * "Did you modify the activity?" — asked AFTER practice, and deliberately not the same
+         * question as "would you run this as written?" asked before it.
+         *
+         * The pair is the measurement. A coach who says they would run it as written and then
+         * modifies it on the field has told us something neither answer contains alone: the activity
+         * read as usable and turned out not to be. That gap is invisible to either question by
+         * itself, and it is the one the pilot most needs, because it separates a communication
+         * problem from a design problem.
+         */
+        modifiedActivity: Record<string, number>
+        /** What changed, verbatim, with the answer beside it. */
+        modifications: Array<{ answer: string; text: string }>
+        /**
+         * "Did your players discover an unexpected way to succeed?"
+         *
+         * Degenerate solutions are the failure mode representative design is most exposed to, and
+         * they are invisible from our side: the activity ran, the points were scored, the telemetry
+         * looks healthy. Only the coach standing on the field sees players satisfying the scoring
+         * condition without engaging the intended problem. The checklist defers the Degenerate
+         * Solution Pattern Catalogue to post-pilot, which makes collecting the raw reports now the
+         * whole point — the catalogue cannot be built later from evidence nobody captured.
+         */
+        unexpectedSuccess: Record<string, number>
+        /** What happened, verbatim. The seed corpus for the post-pilot catalogue. */
+        unexpectedSuccessNotes: string[]
     }
     planning: {
         entryPoint: Record<string, number>
@@ -112,13 +152,24 @@ export async function summarizeUsage(sinceDays = 30): Promise<UsageSummary> {
     const learningStageCounts: Record<string, number> = {}
     const learningGoalCounts = new Map<string, number>()
     let practiceSituationUsed = 0
-    const pilot = { planningStarted: 0, planningAbandoned: 0, activitiesViewed: 0 }
+    const pilot = {
+        planningStarted: 0,
+        planningAbandoned: 0,
+        activitiesViewed: 0,
+        activitiesSelected: 0,
+        sessionsCompleted: 0,
+    }
     const abandonedAtStep: Record<string, number> = {}
+    const selectedBySlot: Record<string, number> = {}
     const wouldUseAgain: Record<string, number> = {}
     const runAsWritten: Record<string, number> = {}
     const successClarity: Record<string, number> = {}
     const wouldChange: Array<{ answer: string; text: string }> = []
     const unclearNotes: string[] = []
+    const modifiedActivity: Record<string, number> = {}
+    const modifications: Array<{ answer: string; text: string }> = []
+    const unexpectedSuccess: Record<string, number> = {}
+    const unexpectedSuccessNotes: string[] = []
 
     for (const e of events) {
         totals[e.eventType] = (totals[e.eventType] ?? 0) + 1
@@ -162,6 +213,14 @@ export async function summarizeUsage(sinceDays = 30): Promise<UsageSummary> {
                 const step = String(p['atStep'] ?? 'unknown')
                 abandonedAtStep[step] = (abandonedAtStep[step] ?? 0) + 1
             }
+            if (name === 'activity_selected') {
+                pilot.activitiesSelected += 1
+                // Slot, not activity id: the question is whether coaches spread across the three
+                // alternatives, and ids differ on every generation so they cannot answer that.
+                const slot = String(p['slot'] ?? 'unknown')
+                selectedBySlot[slot] = (selectedBySlot[slot] ?? 0) + 1
+            }
+            if (name === 'session_completed') pilot.sessionsCompleted += 1
         }
         if (e.eventType === 'coach_feedback' && p['question'] === 'would_use_again') {
             const answer = String(p['answer'] ?? 'unknown')
@@ -178,6 +237,24 @@ export async function summarizeUsage(sinceDays = 30): Promise<UsageSummary> {
             if (change) wouldChange.push({ answer, text: change })
             const unclear = typeof p['unclear'] === 'string' ? (p['unclear'] as string).trim() : ''
             if (unclear) unclearNotes.push(unclear)
+        }
+        if (e.eventType === 'coach_feedback' && p['question'] === 'practice_report') {
+            const modified = typeof p['didModify'] === 'string' ? (p['didModify'] as string) : ''
+            if (modified) {
+                modifiedActivity[modified] = (modifiedActivity[modified] ?? 0) + 1
+                const detail = typeof p['modificationDetail'] === 'string' ? (p['modificationDetail'] as string).trim() : ''
+                // Kept with the yes/no beside it: "we added a third team" only means something once
+                // you know whether the coach considered that a modification at all.
+                if (detail) modifications.push({ answer: modified, text: detail })
+            }
+
+            const unexpected = typeof p['unexpectedSuccess'] === 'string' ? (p['unexpectedSuccess'] as string) : ''
+            if (unexpected) {
+                unexpectedSuccess[unexpected] = (unexpectedSuccess[unexpected] ?? 0) + 1
+                const detail =
+                    typeof p['unexpectedSuccessDetail'] === 'string' ? (p['unexpectedSuccessDetail'] as string).trim() : ''
+                if (detail) unexpectedSuccessNotes.push(detail)
+            }
         }
         if (e.eventType === 'coach_language_leak') {
             for (const term of (p['terms'] as string[]) ?? []) {
@@ -221,12 +298,17 @@ export async function summarizeUsage(sinceDays = 30): Promise<UsageSummary> {
         pilotEvidence: {
             ...pilot,
             abandonedAtStep,
+            selectedBySlot,
             wouldUseAgain,
             runAsWritten,
             successClarity,
             // Newest first: during a pilot the most recent comment is the one still actionable.
             wouldChange: wouldChange.slice(-50).reverse(),
             unclearNotes: unclearNotes.slice(-50).reverse(),
+            modifiedActivity,
+            modifications: modifications.slice(-50).reverse(),
+            unexpectedSuccess,
+            unexpectedSuccessNotes: unexpectedSuccessNotes.slice(-50).reverse(),
         },
         planning: {
             entryPoint: planningEntryPoint,

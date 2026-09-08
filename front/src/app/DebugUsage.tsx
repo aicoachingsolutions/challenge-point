@@ -27,11 +27,18 @@ type UsageSummary = {
         planningAbandoned: number
         abandonedAtStep: Record<string, number>
         activitiesViewed: number
+        activitiesSelected: number
+        selectedBySlot: Record<string, number>
+        sessionsCompleted: number
         wouldUseAgain: Record<string, number>
         runAsWritten: Record<string, number>
         successClarity: Record<string, number>
         wouldChange: Array<{ answer: string; text: string }>
         unclearNotes: string[]
+        modifiedActivity: Record<string, number>
+        modifications: Array<{ answer: string; text: string }>
+        unexpectedSuccess: Record<string, number>
+        unexpectedSuccessNotes: string[]
     }
     totals: Record<string, number>
     resolutionBreakdown: Record<string, number>
@@ -62,11 +69,18 @@ const emptySummary = (): UsageSummary => ({
         planningAbandoned: 0,
         abandonedAtStep: {},
         activitiesViewed: 0,
+        activitiesSelected: 0,
+        selectedBySlot: {},
+        sessionsCompleted: 0,
         wouldUseAgain: {},
         runAsWritten: {},
         successClarity: {},
         wouldChange: [],
         unclearNotes: [],
+        modifiedActivity: {},
+        modifications: [],
+        unexpectedSuccess: {},
+        unexpectedSuccessNotes: [],
     },
     // Left blank rather than synthesised. `since` carries a server timestamp; inventing one here
     // would put a fabricated value in a field the reader is entitled to trust.
@@ -279,11 +293,15 @@ export default function DebugUsage() {
                             <StatRow label='Planning started' value={summary.pilotEvidence?.planningStarted ?? 0} />
                             <StatRow label='Planning abandoned' value={summary.pilotEvidence?.planningAbandoned ?? 0} />
                             <StatRow label='Activities viewed' value={summary.pilotEvidence?.activitiesViewed ?? 0} />
+                            <StatRow label='Activities selected' value={summary.pilotEvidence?.activitiesSelected ?? 0} />
+                            <StatRow label='Sessions completed' value={summary.pilotEvidence?.sessionsCompleted ?? 0} />
                             <StatRow
                                 label='Coach comments'
                                 value={
                                     (summary.pilotEvidence?.wouldChange?.length ?? 0) +
-                                    (summary.pilotEvidence?.unclearNotes?.length ?? 0)
+                                    (summary.pilotEvidence?.unclearNotes?.length ?? 0) +
+                                    (summary.pilotEvidence?.modifications?.length ?? 0) +
+                                    (summary.pilotEvidence?.unexpectedSuccessNotes?.length ?? 0)
                                 }
                             />
                         </dl>
@@ -313,6 +331,46 @@ export default function DebugUsage() {
                                 </h3>
                                 <RecordTable
                                     values={summary.pilotEvidence?.wouldUseAgain ?? {}}
+                                    emptyLabel='No answers in this window.'
+                                />
+                            </div>
+                            {/*
+                              * The variety question, as behaviour rather than opinion. The pilot has
+                              * to decide whether coaches read the three generated activities as
+                              * genuine alternatives or as the same activity three times; which one
+                              * they took to the field answers that more honestly than asking them.
+                              * Concentration on slot 1 means they took the first thing offered.
+                              */}
+                            <div>
+                                <h3 className='mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500'>
+                                    Which of the three was selected
+                                </h3>
+                                <RecordTable
+                                    values={summary.pilotEvidence?.selectedBySlot ?? {}}
+                                    emptyLabel='No activity started in this window.'
+                                />
+                            </div>
+                            <div>
+                                <h3 className='mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500'>
+                                    Did you modify the activity?
+                                </h3>
+                                <RecordTable
+                                    values={summary.pilotEvidence?.modifiedActivity ?? {}}
+                                    emptyLabel='No answers in this window.'
+                                />
+                            </div>
+                            {/*
+                              * The degenerate-solution report. Invisible from every other source we
+                              * have: the activity ran, points were scored, and only the coach on the
+                              * field saw players satisfying the scoring condition without engaging
+                              * the problem it was built around.
+                              */}
+                            <div>
+                                <h3 className='mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500'>
+                                    Unexpected way to succeed?
+                                </h3>
+                                <RecordTable
+                                    values={summary.pilotEvidence?.unexpectedSuccess ?? {}}
                                     emptyLabel='No answers in this window.'
                                 />
                             </div>
@@ -353,6 +411,39 @@ export default function DebugUsage() {
                                 rows={(summary.pilotEvidence?.unclearNotes ?? []).map((text) => ({ text, count: 0 }))}
                                 emptyLabel='Nothing reported in this window.'
                                 columns={[{ label: 'Note', render: (row) => row.text }]}
+                            />
+                        </div>
+
+                        <div className='mt-4'>
+                            <h3 className='mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500'>
+                                What coaches changed on the field
+                            </h3>
+                            <CountTable
+                                rows={(summary.pilotEvidence?.modifications ?? []).map((row) => ({ ...row, count: 0 }))}
+                                emptyLabel='No modifications reported in this window.'
+                                columns={[
+                                    { label: 'Modified', render: (row) => row.answer || '-', className: 'w-32' },
+                                    { label: 'What changed', render: (row) => row.text },
+                                ]}
+                            />
+                        </div>
+
+                        {/*
+                          * The seed corpus for the post-pilot Degenerate Solution Pattern Catalogue.
+                          * Kept verbatim and unaggregated on purpose: the value of these reports is
+                          * in the specific thing players did, which no count preserves.
+                          */}
+                        <div className='mt-4'>
+                            <h3 className='mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500'>
+                                Unexpected ways players found to succeed
+                            </h3>
+                            <CountTable
+                                rows={(summary.pilotEvidence?.unexpectedSuccessNotes ?? []).map((text) => ({
+                                    text,
+                                    count: 0,
+                                }))}
+                                emptyLabel='Nothing reported in this window.'
+                                columns={[{ label: 'What happened', render: (row) => row.text }]}
                             />
                         </div>
                     </Panel>
