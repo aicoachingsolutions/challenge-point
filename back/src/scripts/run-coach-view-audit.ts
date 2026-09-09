@@ -133,8 +133,11 @@ function buildMockSession(): ISession {
         name: 'CCS coach view',
         sessionStatus: SessionStatus['In Progress'],
         playerCount: 12,
-        fieldLength: '40',
-        fieldWidth: '30',
+        // Overridable so the harness can be pointed at what the session form actually collects.
+        // Running it at the form's own default (330x160) is how the missing-dimensions defect was
+        // found: two of three setups came back with no area at all, and the third invented one.
+        fieldLength: process.env.FIELD_LENGTH ?? '40',
+        fieldWidth: process.env.FIELD_WIDTH ?? '30',
         fieldType: 'grass',
         createdAt: d,
         updatedAt: d,
