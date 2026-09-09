@@ -142,6 +142,46 @@ function testApplyingNonBaselineSlotsCarryNarrowModifierOnly(): void {
     }
 }
 
+/**
+ * A SCORING MODIFIER MODULATES THE SCORE; IT MUST NOT NAME WHAT SCORES.
+ *
+ * Measured defect, 2026-09-08. Every scoring-placement line was written around "regains", but a
+ * modifier is composed with whatever primary success condition the activity already has. When that
+ * condition was something else, the coach got two reward systems in one section: "Earn a point for
+ * passes or runs that break or bypass a defensive line. The field is treated as three value zones:
+ * regains in the central zone count higher…" — points for line-breaking and points for regains, in
+ * the same paragraph, in two of the three slots.
+ *
+ * The checklist allows one primary condition plus one representative incentive, so the count was
+ * never the problem. An incentive rewarding a DIFFERENT action was: it leaves a coach unable to
+ * answer "what am I rewarding?", which is the one question the scoring section exists to answer.
+ *
+ * Rule-placement modifiers are exempt. They describe how play runs, where naming a regain is
+ * accurate and carries no reward claim.
+ */
+function testScoringModifiersDoNotNameTheScoringAction(): void {
+    // Verbs that assert a specific action IS what earns points. "Regain" appears legitimately in a
+    // scoring line as context ("...on the regain"); what must not appear is a rival earning rule.
+    const NAMES_ITS_OWN_ACTION = [
+        /\bregains?\s+(?:in|carry|count|values?|are)\b/i,
+        /\bregain\s+value\b/i,
+        /\bearns?\s+the\s+regain\b/i,
+    ]
+
+    for (const m of VALUE_LANDSCAPE_LIBRARY) {
+        if (m.placement !== 'scoring') continue
+        for (const pattern of NAMES_ITS_OWN_ACTION) {
+            assert.ok(
+                !pattern.test(m.mechanicLine),
+                `Scoring modifier "${m.label}" names its own scoring action (${pattern}). ` +
+                    'It will compete with the activity\'s primary success condition instead of ' +
+                    'weighting it. Say "points earned" or "the scoring action" instead.\n' +
+                    `  ${m.mechanicLine}`
+            )
+        }
+    }
+}
+
 function testEveryModifierHasPlacement(): void {
     for (const m of VALUE_LANDSCAPE_LIBRARY) {
         assert.ok(
@@ -231,6 +271,7 @@ function runAll(): void {
     testDiscoveringAllSlotsHaveAtLeastOneWideModifier()
     testApplyingNonBaselineSlotsCarryNarrowModifierOnly()
     testEveryModifierHasPlacement()
+    testScoringModifiersDoNotNameTheScoringAction()
     testEmphasisProfileAiFacingContentHasNoLeakedVocab()
     testSlotDirectiveCompositionHasNoLeakedVocab()
     console.log('slot-mechanics-variations unit tests: all cases passed.')

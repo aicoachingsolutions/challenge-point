@@ -192,14 +192,19 @@ async function main() {
         const perSlotModifierLines = ([1, 2, 3] as const).map((idx) =>
             getSlotMechanicalVariations(assemblyInput.session.sessionEmphasis, idx).map((m) => m.mechanicLine)
         )
-        const activity = compressActivitiesForCoach(legacy, perSlotModifierLines)[0] as unknown as Record<
+        const compressed = compressActivitiesForCoach(legacy, perSlotModifierLines)
+        // SLOT_INDEX picks which of the three generated alternatives to print. Defaulting to slot 1
+        // for every input is what made an earlier reading of "identical across activities" wrong:
+        // three slot-1 activities are not three slots.
+        const slot = Number(process.env.SLOT_INDEX ?? '1')
+        const activity = compressed[Math.min(Math.max(slot, 1), compressed.length) - 1] as unknown as Record<
             string,
             unknown
         >
 
         console.log('\n' + '='.repeat(90))
         console.log(`INPUT: ${input}`)
-        console.log(`ARCHETYPE: ${sel.archetype.game_form_name}`)
+        console.log(`ARCHETYPE: ${sel.archetype.game_form_name}  SLOT: ${slot} of ${compressed.length}`)
         console.log('='.repeat(90))
 
         for (const field of FIELDS) {
