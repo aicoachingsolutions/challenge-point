@@ -22,6 +22,11 @@
  * would interrupt a coach who did nothing wrong. A false positive here costs more than a false
  * negative: being asked to disambiguate something you did not write is worse than the current
  * blending, which at least produces something.
+ *
+ * THIS APPLIES TO THE FREE-TEXT PATH ONLY. The guided conversation has the coach pick exactly one
+ * Learning Goal from the registry, so it satisfies the requirement structurally; what it submits is
+ * that goal composed with the practice situation and an optional note, which is one intention
+ * written as three sentences. The route exempts it — see the call site.
  */
 
 /** List separators a coach uses deliberately. Commas and bare "and" are excluded on purpose. */

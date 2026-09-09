@@ -30,6 +30,19 @@ function testSingleIntentionsAreNotSplit(): void {
     }
 }
 
+/**
+ * What the guided conversation composes is ONE intention, written as sentences. The route exempts
+ * that path anyway, but the splitter must not treat a full stop as a list separator regardless — the
+ * free-text box accepts sentences too.
+ */
+function testSentencesAreNotAList(): void {
+    const composed =
+        'Break Defensive Lines. Building attacks through midfield. We panic after winning possession.'
+
+    assert.equal(splitCoachingIntentions([composed]).length, 1, `split a composed goal: "${composed}"`)
+    assert.equal(needsIntentionChoice([composed]), false)
+}
+
 /** Separate entries are separate intentions — the coach used separate boxes. */
 function testSeparateEntriesAreSeparateIntentions(): void {
     const goals = ['Help players break defensive lines.', 'Press higher after losing the ball.']
@@ -96,6 +109,7 @@ function testGuidanceOffersTheCoachTheirOwnWords(): void {
 }
 
 testSingleIntentionsAreNotSplit()
+testSentencesAreNotAList()
 testSeparateEntriesAreSeparateIntentions()
 testDeliberateListSeparatorsSplit()
 testListMarkersAreStripped()

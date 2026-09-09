@@ -737,7 +737,14 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         // this prevents: two intentions parsed as one produce an activity representing neither, and
         // nothing downstream can tell afterwards that it happened. Answered with the coach's own
         // wording so the choice is theirs to make rather than ours to guess.
-        if (needsIntentionChoice(learningGoals)) {
+        // The guided conversation is exempt, and structurally rather than by convenience: the coach
+        // picks exactly ONE Learning Goal from the registry there, so the requirement is already
+        // met. What it sends is that goal composed with the practice situation and an optional note
+        // ("Break Defensive Lines. Building attacks through midfield. We panic after winning
+        // possession."), which is one intention written as three sentences. Running the check over
+        // it would let a semicolon typed in the notes box split our own composition and ask the
+        // coach to choose between two fragments they never wrote.
+        if (!planning?.learningGoalId && needsIntentionChoice(learningGoals)) {
             const guidance = buildMultipleIntentionGuidance(splitCoachingIntentions(learningGoals))
             recordUsageEvent({
                 eventType: 'feature_used',
