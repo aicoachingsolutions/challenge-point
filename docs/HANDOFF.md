@@ -94,6 +94,75 @@ coach-output path — `map-activity-to-coach-view.ts` is NOT used in prod, only 
 **Key architectural belief:** Game Problems organize; archetypes are structural templates; constraints +
 incentives are the PRIMARY shapers of the affordance landscape (not archetypes).
 
+## PATH TO PILOT CHECKLIST RC4 — worked through 2026-09-08
+
+Christian sent a seven-document pilot package and asked for the remaining checklist items, then the
+pilot release. **Sections 1–4 are now implemented; the release decision is Joe's and Christian's.**
+
+Everything below was found by **generating activities and reading them**, not by reading code. Each
+item names the sentence a coach was actually shown, and each is pinned by a test using that sentence.
+`back/src/scripts/run-coach-view-audit.ts` is the tool — it audits the **route layer** (map to legacy
+→ `compressActivitiesForCoach`), because that is the only shape a coach ever sees, and it takes
+`SLOT_INDEX` / `FIELD_LENGTH` / `FIELD_WIDTH`.
+
+### §2 Communication — `coach-communication-standard.ts` (new)
+Enforces Christian's CCS RC2 as a **grammar pass**, separate from `translateCoachLanguage`, which is a
+vocabulary dictionary. Wired into `compress-activity-output.ts` AFTER translation. Unit tests use his
+Appendix B examples verbatim. Going green proved nothing — real generation still shipped:
+- `howToPlay` never went through the standard → "Teams aim to exploit the central corridor".
+- Clause removal truncated authored text → "…blind side counts more, so." Repair is now per sentence.
+- Orphaned determiners → "…possession change; the the." and "the free the ball carrier adapts timing".
+- **Design rationale** reaching coach fields verbatim — one Constraint section was 70 words of it.
+- Objective sections **emptied** by the strict pass. `applyStandardToRequiredSection` now falls back to
+  unwrapping for the five sections in Christian's table; sections outside it stay strict.
+- `scaffolding` is **deliberately exempt** — coachingFocus is the one section allowed to describe
+  perception. Do not "fix" it.
+
+### §1 Session Planning
+- **Surface Type removed.** Its only consumers were an unlabelled `"330x160 grass"` string and
+  `selectAffordances`, which has no callers.
+- **Metric-first dimensions — and a real defect underneath.** The form asked for **feet**, defaulting
+  to a full pitch (330×160); generation consumed the same numbers as the playing area with no unit.
+  At that default, **two of three activities gave the coach no dimensions at all** and the third
+  invented "a 40x30 yard area". Stating the unit in the prompt did not hold either. Fixed the way
+  `player-format.ts` was: `playing-area.ts` corrects it deterministically after generation. Zones keep
+  their own size but gain the same units.
+- **One learning intention.** Multiple goals were `join(' ')`-ed into a blend representing neither, and
+  an activity generated from a blend cannot be attributed to a learning goal afterwards. Detection is
+  conservative — bare "and" and commas are NOT separators. The **guided path is exempt** (it picks one
+  goal from the registry; its composed string is one intention in three sentences).
+- Planning redundancy review: the guided flow (goal / situation / stage / team) is already clean.
+  Guided and free-text are mutually exclusive, so Duration is not asked twice.
+
+### §3 Scoring
+The structure was already right — one primary condition plus this slot's variation. But every
+scoring-placement modifier was written around **"regains"**, so when the primary rewarded something
+else the coach got two reward systems in one paragraph ("Earn a point for … break a defensive line.
+The field is treated as three value zones: regains in the central zone count higher…"). Measured in
+**two of three slots**. The six lines now say "points earned"; guarded by a test that fails on all
+three original phrasings.
+
+### §4 Feedback infrastructure
+- **"Activity selected" and "Session completion" were not collected at all.** Selected carries the
+  **slot**, which is the only observable for the pilot's variety question.
+- Two new post-practice questions (`PracticeReportPrompt`, `POST /practice-report`): *"Did you modify
+  the activity?"* and *"Did your players discover an unexpected way to succeed?"*
+- **`coach-event-wiring.unit.ts`** pins the three-way contract: declared / fired / counted. Any two
+  without the third looks healthy and reports zero — which is how `activities_viewed` sat at zero.
+
+### Still open for Christian (raised, not decided here)
+1. **Section inventory vs his table.** His table names five sections; the coach view has ten
+   (adds Constraint, howToPlay, Extensions, Coaching Focus). "One Question Per Section" cannot be
+   fully closed without his call on which survive.
+2. **Wording discrepancy.** RC4 says *"Was it immediately clear how **teams score**?"*; shipped is his
+   own 26 Aug broader phrasing *"how **players succeed**"*. Shipped wording left as-is pending his call.
+3. **Objective content model.** Objectives still read as rationale ("Success depends on recognising…").
+
+**Behaviour gate re-verified after all of this: `70 68 98 119 94 99 86`.** Sport-coupling ratchet 35.
+41 unit suites.
+
+---
+
 ## PILOT APPROVED — Christian green-lit the build (2026-08-13)
 
 Christian is recruiting pilot coaches for the **fall soccer season** and has approved the current
@@ -282,7 +351,7 @@ ratchet. **Add to that list whenever you write code that reads an authored field
 re-introducing the real regression: it fails naming `incentiveMechanism` and where it is read.
 
 **A second silent-failure class, same week: regexes that match NOTHING.** `isScoringMechanic`
-contained literal BACKSPACE bytes (0x08) where `` belongs — written through a Python heredoc that
+contained literal BACKSPACE bytes (0x08) where `\b` belongs — written through a Python heredoc that
 interpreted the escape. It matched nothing for a week, so every mechanic routed to Rules and Scoring
 kept only the hardcoded per-archetype template. That ONE fault produced two complaints Christian
 raised a week apart (scoring statements inside Rules; every Scoring section collapsing to "A point or
@@ -291,7 +360,7 @@ unit test, inside NEGATED assertions — four tests that could never fail.** All
 `isScoringMechanic` now asserts at load time that it still matches plain scoring language.
 
 **NEVER write a regex through a Python heredoc.** Use the Edit tool, or a raw string, and verify with
-a byte scan afterwards (`b'' in open(f,'rb').read()`). This bug has now been introduced three
+a byte scan afterwards (`b'\b' in open(f,'rb').read()`). This bug has now been introduced three
 times on this project.
 
 ### Incentive expression (2026-08-22, `db6b21e`)
