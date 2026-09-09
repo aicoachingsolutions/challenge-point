@@ -1,4 +1,4 @@
-import { ChartBarIcon, Square3Stack3DIcon } from '@heroicons/react/24/outline'
+import { Square3Stack3DIcon } from '@heroicons/react/24/outline'
 import { useNavigate } from 'react-router'
 import ROUTES from '@/ROUTES'
 import { format } from 'date-fns'
@@ -185,12 +185,11 @@ export function SessionCard({ session, onClick }: { session: ISession; onClick: 
                         </div>
                     )}
 
-                    {session.skillLevel && (
-                        <div className='flex items-center gap-2'>
-                            <ChartBarIcon className='w-5 text-gray-400' />
-                            <span className='text-sm text-gray-600 capitalize'>{session.skillLevel}</span>
-                        </div>
-                    )}
+                    {/* Skill Level removed with the rest of the concept — redundant with the
+                        Learning Stage step, and nothing has been able to set it since the input
+                        left Session Parameters. Older sessions still carry a stored value; showing
+                        it on some cards and not others is the "two different models" feeling
+                        Christian described, so it is not shown at all. */}
                 </div>
 
                 <div className='mb-3'>
