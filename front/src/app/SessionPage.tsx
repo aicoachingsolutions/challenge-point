@@ -1,4 +1,3 @@
-import { XMarkIcon } from '@heroicons/react/20/solid'
 import {
     ArrowLeftCircleIcon,
     CheckIcon,
@@ -6,17 +5,15 @@ import {
     ChevronRightIcon,
     ClipboardDocumentIcon,
     DocumentDuplicateIcon,
-    PencilSquareIcon,
 } from '@heroicons/react/24/outline'
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
-import { toast } from 'react-toastify'
 import { ArrayFieldWrapper } from '@/form-control'
-import { NumberField, SelectField, TextAreaField } from '@/form-control/fields'
+import { NumberField, TextAreaField } from '@/form-control/fields'
 import ROUTES from '@/ROUTES'
 
 import { ActivityStatus, ChallengeLevels, DifficultyLevels, IActivity } from '@/MODELS/activity.model'
-import { ISession, SessionEmphasis, SESSION_EMPHASIS_LABELS, SessionStatus } from '@/MODELS/session.model'
+import { ISession, SessionStatus } from '@/MODELS/session.model'
 
 import { api } from '@/services/api.service'
 import { recordCoachEvent } from '@/services/coach-events.service'
@@ -25,7 +22,6 @@ import { camelCaseToTitleCase } from '@/utils/scary-utils'
 
 import Button from '@/components/Button'
 import Loading from '@/components/Loading'
-import Modal from '@/components/Modal'
 
 // Create options array from ChallengeLevels enum
 const challengeLevelOptions = Object.entries(ChallengeLevels).map(([text, value]) => ({
@@ -33,22 +29,10 @@ const challengeLevelOptions = Object.entries(ChallengeLevels).map(([text, value]
     text,
 }))
 
-const sessionEmphasisOptions = Object.values(SessionEmphasis)
-const defaultSessionEmphasis = SessionEmphasis['Applying Solutions Under Pressure']
-const sessionEmphasisChangeWarning =
-    'Changing the session emphasis will regenerate the three activities under the new environmental intention. Activities you have already saved or started will remain in place. Continue?'
-
-function getSessionEmphasis(session?: ISession | null): SessionEmphasis {
-    return session?.sessionEmphasis ?? defaultSessionEmphasis
-}
-
 export default function SessionPage() {
     const { id } = useParams()
-    const [session, setSession, sessionResource] = useResource<ISession>(`${ROUTES.app.session}/${id}`)
+    const [session, , sessionResource] = useResource<ISession>(`${ROUTES.app.session}/${id}`)
     const [generatingActivities, setGeneratingActivities] = useState(false)
-    const [isEmphasisModalOpen, setIsEmphasisModalOpen] = useState(false)
-    const [selectedSessionEmphasis, setSelectedSessionEmphasis] = useState<SessionEmphasis>(defaultSessionEmphasis)
-    const [isSavingSessionEmphasis, setIsSavingSessionEmphasis] = useState(false)
 
     const [selectedChallengeLevel, setSelectedChallengeLevel] = useState<ChallengeLevels>()
     const [selectedDuration, setSelectedDuration] = useState<number>()
@@ -84,40 +68,6 @@ export default function SessionPage() {
         })
     }
 
-    const openEmphasisModal = () => {
-        setSelectedSessionEmphasis(getSessionEmphasis(session))
-        setIsEmphasisModalOpen(true)
-    }
-
-    const updateSessionEmphasis = async () => {
-        if (!session || !id) return
-
-        const currentEmphasis = getSessionEmphasis(session)
-        if (selectedSessionEmphasis === currentEmphasis) {
-            setIsEmphasisModalOpen(false)
-            return
-        }
-
-        if (!window.confirm(sessionEmphasisChangeWarning)) return
-
-        setIsSavingSessionEmphasis(true)
-        const response = await api<ISession>(ROUTES.app.session, {
-            _id: id,
-            sessionEmphasis: selectedSessionEmphasis,
-        })
-        setIsSavingSessionEmphasis(false)
-
-        if (response.error) {
-            toast.error(response.error || 'Unable to update session emphasis. Please try again.')
-            return
-        }
-
-        setIsEmphasisModalOpen(false)
-        setSession((current) => (current ? { ...current, sessionEmphasis: selectedSessionEmphasis } : current))
-        await Promise.all([sessionResource.get({ preventLoading: true }), activitiesResource.get({ preventLoading: true })])
-        navigate('activity-generator')
-    }
-
     if (sessionResource.isLoading) {
         return (
             <div className='flex flex-col items-center justify-center min-h-screen px-4'>
@@ -142,54 +92,9 @@ export default function SessionPage() {
                         </div>
                     )}
 
-                    {session && <SessionMetadata session={session} onChangeEmphasis={openEmphasisModal} />}
+                    {session && <SessionMetadata session={session} />}
                 </div>
             </header>
-
-            {session && (
-                <Modal open={isEmphasisModalOpen} onClose={() => setIsEmphasisModalOpen(false)}>
-                    <div className='space-y-5'>
-                        <div className='flex items-start justify-between gap-4'>
-                            <div>
-                                <h2 className='text-lg font-semibold text-gray-900'>Change Session Emphasis</h2>
-                                <p className='mt-1 text-sm text-gray-600'>
-                                    Choose the environmental intention for the next generated activities.
-                                </p>
-                            </div>
-                            <button
-                                type='button'
-                                onClick={() => setIsEmphasisModalOpen(false)}
-                                className='p-1 text-gray-400 transition-colors rounded-md hover:text-gray-700 hover:bg-gray-100'
-                                aria-label='Close'
-                            >
-                                <XMarkIcon className='w-5 h-5' />
-                            </button>
-                        </div>
-
-                        <SessionEmphasisRadioCards
-                            selectedEmphasis={selectedSessionEmphasis}
-                            onChange={setSelectedSessionEmphasis}
-                        />
-
-                        <div className='flex flex-col-reverse gap-3 sm:flex-row sm:justify-end'>
-                            <Button.Outline
-                                onClick={() => setIsEmphasisModalOpen(false)}
-                                disabled={isSavingSessionEmphasis}
-                                className='w-full sm:w-auto'
-                            >
-                                Cancel
-                            </Button.Outline>
-                            <Button.Success
-                                onClickAsync={updateSessionEmphasis}
-                                disabled={isSavingSessionEmphasis}
-                                className='w-full sm:w-auto'
-                            >
-                                Save Emphasis
-                            </Button.Success>
-                        </div>
-                    </div>
-                </Modal>
-            )}
 
             <section className='flex flex-col gap-5 mb-6 sm:mb-8'>
                 {activitiesResource.isLoading ? (
@@ -311,41 +216,50 @@ export default function SessionPage() {
     )
 }
 
-function SessionMetadata({ session, onChangeEmphasis }: { session: ISession; onChangeEmphasis: () => void }) {
-    const emphasis = getSessionEmphasis(session)
-    const fieldDimensions =
-        session.fieldLength && session.fieldWidth ? `${session.fieldLength} ft x ${session.fieldWidth} ft` : 'Not set'
+/**
+ * The playing area, in the same words the generated activity uses.
+ *
+ * This tile said "330 ft x 160 ft" while the activity said "40 x 30 m (44 x 33 yd)" — the same two
+ * numbers presented in different units on two screens a coach reads minutes apart. Metric first,
+ * matching playing-area.ts, including its rounding.
+ */
+function formatPlayingArea(length?: string, width?: string): string {
+    const l = Number(length)
+    const w = Number(width)
+    if (!Number.isFinite(l) || !Number.isFinite(w) || l <= 0 || w <= 0) return 'Not set'
 
+    const yd = (m: number) => Math.round(m * 1.09361)
+    return `${l} x ${w} m (${yd(l)} x ${yd(w)} yd)`
+}
+
+/**
+ * Three things a coach set, and nothing they did not.
+ *
+ * SKILL LEVEL AND EMPHASIS BOTH REMOVED — Christian's planning-flow review. Skill Level's input was
+ * taken out of Session Parameters as redundant with the Learning Stage step, but this tile was left
+ * behind, so every session created afterwards displayed "Skill Level: Not set" permanently: a
+ * labelled planning concept that could never hold a value.
+ *
+ * Emphasis was worse than a remnant — it was still an editable control that regenerated the three
+ * activities, and it disagreed with the engine. `getSessionEmphasis` fell back to "Applying
+ * Solutions Under Pressure", the NARROW variation profile, while a session with no emphasis stored
+ * is generated by the engine's own default, the differentiated Discovering profile. A coach was told
+ * the narrow one and given the wide one. Removing the control means every new session simply uses
+ * the engine default, which is the behaviour we want and the reason the form's copy of this default
+ * was removed earlier.
+ */
+function SessionMetadata({ session }: { session: ISession }) {
     return (
-        <div className='grid grid-cols-1 gap-3 mt-4 sm:grid-cols-2 lg:grid-cols-5'>
+        <div className='grid grid-cols-1 gap-3 mt-4 sm:grid-cols-3'>
             <SessionMetadataItem label='Players' value={session.playerCount ? `${session.playerCount}` : 'Not set'} />
             <SessionMetadataItem
                 label='Age Group'
                 value={session.ageGroup ? camelCaseToTitleCase(session.ageGroup) : 'Not set'}
             />
             <SessionMetadataItem
-                label='Skill Level'
-                value={session.skillLevel ? camelCaseToTitleCase(session.skillLevel) : 'Not set'}
+                label='Playing area'
+                value={formatPlayingArea(session.fieldLength, session.fieldWidth)}
             />
-            <SessionMetadataItem label='Field' value={fieldDimensions} />
-            <div className='p-3 border border-gray-200 rounded-lg bg-white'>
-                <div className='flex items-start justify-between gap-3'>
-                    <div>
-                        <p className='mb-1 text-xs font-medium text-gray-500'>Emphasis</p>
-                        <p className='text-sm font-semibold text-gray-800'>
-                            {SESSION_EMPHASIS_LABELS[emphasis].label}
-                        </p>
-                    </div>
-                    <button
-                        type='button'
-                        onClick={onChangeEmphasis}
-                        className='inline-flex items-center gap-1 px-2 py-1 text-xs font-medium transition-colors border rounded-md text-brand-700 border-brand-200 hover:bg-brand-50'
-                    >
-                        <PencilSquareIcon className='w-4 h-4' />
-                        Change
-                    </button>
-                </div>
-            </div>
         </div>
     )
 }
@@ -355,45 +269,6 @@ function SessionMetadataItem({ label, value }: { label: string; value: string })
         <div className='p-3 border border-gray-200 rounded-lg bg-white'>
             <p className='mb-1 text-xs font-medium text-gray-500'>{label}</p>
             <p className='text-sm font-semibold text-gray-800'>{value}</p>
-        </div>
-    )
-}
-
-function SessionEmphasisRadioCards({
-    selectedEmphasis,
-    onChange,
-}: {
-    selectedEmphasis: SessionEmphasis
-    onChange: (value: SessionEmphasis) => void
-}) {
-    return (
-        <div className='grid grid-cols-1 gap-3 sm:grid-cols-2'>
-            {sessionEmphasisOptions.map((value) => {
-                const option = SESSION_EMPHASIS_LABELS[value]
-                const isSelected = selectedEmphasis === value
-
-                return (
-                    <label
-                        key={value}
-                        className={`block h-full cursor-pointer rounded-xl border p-4 transition-colors ${
-                            isSelected
-                                ? 'border-2 border-brand-500 bg-brand-50'
-                                : 'border border-gray-300 bg-white hover:border-brand-300'
-                        }`}
-                    >
-                        <input
-                            type='radio'
-                            name='sessionEmphasis'
-                            className='sr-only'
-                            value={value}
-                            checked={isSelected}
-                            onChange={() => onChange(value)}
-                        />
-                        <span className='block text-base font-semibold text-gray-900'>{option.label}</span>
-                        <span className='block mt-1 text-sm leading-5 text-gray-600'>{option.description}</span>
-                    </label>
-                )
-            })}
         </div>
     )
 }
