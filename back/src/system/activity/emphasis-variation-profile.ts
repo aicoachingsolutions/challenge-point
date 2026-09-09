@@ -165,7 +165,12 @@ export function getEmphasisVariationProfile(emphasis: SessionEmphasis | undefine
 
 /**
  * Returns the per-slot variation spec for the given session emphasis and 1-based slot index.
- * Defaults to 'applying' when emphasis is undefined.
+ *
+ * Defaults to DISCOVERING when emphasis is undefined, via getEmphasisVariationProfile — this line
+ * used to claim 'applying', which was the opposite of what the code does. Worth stating precisely,
+ * because there are two other answers to the same question in the product: the session page shows
+ * "Applying Solutions Under Pressure" for a session that has no emphasis stored, and the engine
+ * generates that session with the differentiated Discovering profile.
  */
 export function getSlotVariationSpec(
     emphasis: SessionEmphasis | undefined | null,
