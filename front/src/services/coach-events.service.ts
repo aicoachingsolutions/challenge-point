@@ -27,6 +27,20 @@ export type CoachEventName =
     | 'activities_viewed'
     /** Coach opened the full detail of an activity rather than only its summary. */
     | 'activity_details_expanded'
+    /**
+     * Coach committed to running THIS activity, and which of the three it was.
+     *
+     * Deliberately not the same as opening it — `activities_viewed` already covers that, and a coach
+     * reads all three. Selection is the moment they choose one, so it fires from Start Activity.
+     *
+     * The slot is why this matters beyond its own count. The pilot has to decide whether coaches
+     * read the three generated activities as genuine alternatives or as the same activity three
+     * times, and no question we can ask answers that as honestly as which one they took to the
+     * field. Concentration on slot 1 means they took the first thing offered.
+     */
+    | 'activity_selected'
+    /** Session marked complete. Separates "generated some activities" from "ran a practice". */
+    | 'session_completed'
 
 export function recordCoachEvent(name: CoachEventName, payload: Record<string, unknown> = {}): void {
     // Fire-and-forget. No await anywhere in the call chain, and errors are absorbed.

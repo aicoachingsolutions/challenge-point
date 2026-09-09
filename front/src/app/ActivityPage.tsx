@@ -7,7 +7,7 @@ import {
     XMarkIcon,
 } from '@heroicons/react/24/outline'
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate, useParams } from 'react-router'
+import { useLocation, useNavigate, useParams } from 'react-router'
 import { ArrayFieldWrapper } from '@/form-control'
 import ActivityContentEditor, { type ActivityContentDraft } from '@/components/ActivityContentEditor'
 import { NumberField, SliderField, TextField } from '@/form-control/fields'
@@ -22,6 +22,7 @@ import { determineZpdZone, getZoneInfo } from '@/utils/analysis'
 import ActivityFeedback from '@/components/ActivityFeedback'
 import { recordCoachEvent } from '@/services/coach-events.service'
 import ActivityReviewPrompt from '@/components/ActivityReviewPrompt'
+import PracticeReportPrompt from '@/components/PracticeReportPrompt'
 import Button from '@/components/Button'
 import Loading from '@/components/Loading'
 import Modal from '@/components/Modal'
@@ -103,7 +104,18 @@ export default function ActivityPage() {
             )}
 
             {activity?.activityStatus === ActivityStatus['Review'] && (
-                <ActivityReviewForm id={id} updateActivityStatus={updateActivityStatus} />
+                <>
+                    {/* Asked here because this is the first screen after the activity actually ran —
+                        the only moment a coach can answer either question, and while they still
+                        remember the specifics rather than a general impression. */}
+                    <PracticeReportPrompt
+                        activityId={activity._id}
+                        sessionId={String(
+                            (activity.session as unknown as { _id?: string })?._id ?? activity.session ?? ''
+                        )}
+                    />
+                    <ActivityReviewForm id={id} updateActivityStatus={updateActivityStatus} />
+                </>
             )}
 
             {activity?.activityStatus === ActivityStatus['Completed'] && (
@@ -298,6 +310,16 @@ function ActivityScreen({
     const [isEditingContent, setIsEditingContent] = useState(false)
 
     const navigate = useNavigate()
+    const location = useLocation()
+    /**
+     * Which of the three generated activities this is, handed over by the session list.
+     *
+     * Absent when a coach arrives by reload, bookmark, or back button, and that is recorded as
+     * 'unknown' rather than guessed. A slot number invented here would be indistinguishable in the
+     * summary from one a coach actually chose, and the entire value of this figure is that it was
+     * observed rather than assumed.
+     */
+    const selectedSlot = (location.state as { slot?: number } | null)?.slot
     const isInProgress = activity.activityStatus === ActivityStatus['In Progress']
     const activityDetailsExpanded = !isInProgress || showLiveActivityDetails
 
@@ -321,6 +343,9 @@ function ActivityScreen({
         try {
             setStartError(null)
             await updateActivityStatus(ActivityStatus['In Progress'])
+            // Recorded only after the status change succeeds. A selection that failed to start is
+            // not a selection, and counting it would overstate how many activities reached a field.
+            recordCoachEvent('activity_selected', { activityId, sessionId, slot: selectedSlot ?? 'unknown' })
             navigate(`/activity/${activityId}`)
             window.scrollTo(0, 0)
         } catch (error) {

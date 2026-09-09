@@ -815,6 +815,41 @@ export function informationExpressionDirective(input: SystemAssemblyInput): stri
     return lines.join('\n')
 }
 
+/**
+ * The playing area, stated with its unit, metric first.
+ *
+ * WHAT WENT WRONG WITHOUT THIS. The session form collects dimensions in feet and defaults to a full
+ * pitch (330 x 160); this line passed them on as a bare "330x160 grass" with no unit at all. Run at
+ * the form's own default, two of three generated activities came back with NO field dimensions in
+ * the setup, and the third invented "a 40x30 yard area" — a number that appears nowhere in the
+ * input. A coach was either told nothing about how big to make the area, or told something made up.
+ * The dimensions only looked correct in testing because the fixtures happened to use 40 x 30.
+ *
+ * Two things fix it, and both are necessary. The unit is stated, so the number means something. And
+ * the value is named as the AREA TO PLAY IN rather than offered as background, because an
+ * unexplained parameter is one the model is free to drop.
+ *
+ * Metric first is Christian's pilot requirement: roughly half of pilot coaches think in metres, and
+ * the interface should speak international coaching language by default. The yard equivalent stays,
+ * in brackets, for the other half.
+ */
+export function describePlayingArea(length?: string, width?: string): string {
+    const metres = (value?: string): number | null => {
+        const n = Number(value)
+        return Number.isFinite(n) && n > 0 ? n : null
+    }
+
+    const l = metres(length)
+    const w = metres(width)
+    if (l === null || w === null) {
+        return 'dimensions not specified — choose an area appropriate to the player count and state it in the setup'
+    }
+
+    // 1 m = 1.09361 yd, rounded to whole yards: coaches pace areas out, they do not measure them.
+    const toYards = (m: number) => Math.round(m * 1.09361)
+    return `${l} x ${w} m (${toYards(l)} x ${toYards(w)} yd) — this is the area to play in, and the setup must state it`
+}
+
 function setupFrameForSlot(
     input: SystemAssemblyInput,
     index: 1 | 2 | 3,
@@ -824,8 +859,7 @@ function setupFrameForSlot(
     const guidance = collectSetupGuidance(input)
     const fieldLength = input.session.fieldLength
     const fieldWidth = input.session.fieldWidth
-    const fieldType = input.session.fieldType ?? 'surface'
-    const fieldSpec = fieldLength && fieldWidth ? `${fieldLength}x${fieldWidth} ${fieldType}` : `${fieldType} (dimensions not specified — choose appropriate size for player count)`
+    const fieldSpec = describePlayingArea(fieldLength, fieldWidth)
     const playerCount = input.session.playerCount ? Number(input.session.playerCount) : null
     // THE COUNT WAS STATED AND NEVER ENFORCED. "Players: 12 players total." sat among a dozen other
     // parameters, and a real activity for a 12-player group came back as "7v7 with a neutral player

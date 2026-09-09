@@ -64,6 +64,24 @@ export interface ValueLandscapeModifier {
  * Each axis carries both a wide modifier (for discovering) and a narrow modifier (for
  * applying). Phase 3.5 first cut uses one modifier per (axis, bandwidth) pair to keep
  * variation deterministic; a future phase can expand the bank and seed-select among them.
+ *
+ * A MODIFIER MODULATES THE SCORE; IT DOES NOT NAME WHAT SCORES.
+ *
+ * Every scoring-placement line here used to be written around "regains". A modifier is composed
+ * with whatever primary success condition the activity already has, so when that condition was
+ * something else, the coach was handed two different reward systems in one section:
+ *
+ *   "Earn a point for passes or runs that break or bypass a defensive line. The field is treated
+ *    as three value zones: regains in the central zone count higher than regains in the wide zones."
+ *
+ * Points for line-breaking, and points for regains, in the same paragraph — measured in two of the
+ * three slots. The checklist allows one primary condition plus one representative incentive, so the
+ * count was never the problem; the incentive rewarding a DIFFERENT action was. A coach reading that
+ * cannot answer "what am I rewarding?", which is the question the scoring section exists to answer.
+ *
+ * So these lines say "points earned" and "the scoring action" rather than naming one. Each keeps its
+ * own mechanism — spatial weighting, overload weighting, a completion requirement — and now
+ * reinforces the primary condition instead of competing with it.
  */
 
 const SCORING_INCENTIVES_WIDE: ValueLandscapeModifier = {
@@ -72,7 +90,7 @@ const SCORING_INCENTIVES_WIDE: ValueLandscapeModifier = {
     placement: 'scoring',
     label: 'wide scoring-incentive value structure',
     mechanicLine:
-        'Score is weighted by where possession changes hands: regains in a forward zone count higher than regains in a defensive zone, and the same weighting applies in every live contest.',
+        'Score is weighted by where it is earned: points earned in a forward zone count higher than points earned in a defensive zone, and the same weighting applies in every live contest.',
 }
 
 const SCORING_INCENTIVES_NARROW: ValueLandscapeModifier = {
@@ -81,7 +99,7 @@ const SCORING_INCENTIVES_NARROW: ValueLandscapeModifier = {
     placement: 'scoring',
     label: 'narrow scoring-incentive shift',
     mechanicLine:
-        'Score completes when a regain is followed by one connected forward action under opposition; without a connected forward action the regain stays live but the score does not complete.',
+        'Score completes when the scoring action is followed by one connected forward action under opposition; without a connected forward action play stays live but the score does not complete.',
 }
 
 const TRANSITION_CONSEQUENCES_WIDE: ValueLandscapeModifier = {
@@ -117,7 +135,7 @@ const PRESSURE_REWARDS_NARROW: ValueLandscapeModifier = {
     placement: 'scoring',
     label: 'narrow pressure-reward shift',
     mechanicLine:
-        'Pressure that forces a possession change earns the regain value; pressure short of a possession change is observed by the coach but does not score on its own.',
+        'Pressure that forces a possession change scores at full value; pressure short of a possession change is observed by the coach but does not score on its own.',
 }
 
 const REGAIN_CONDITIONS_WIDE: ValueLandscapeModifier = {
@@ -144,7 +162,7 @@ const OVERLOAD_INCENTIVES_WIDE: ValueLandscapeModifier = {
     placement: 'scoring',
     label: 'wide overload-incentive value structure',
     mechanicLine:
-        'When a numerical advantage is held in the zone where pressure is applied, regains in that zone carry higher value: the scoring weight scales with the overload that produced the regain, and balanced-number regains keep the base value.',
+        'When a numerical advantage is held in the zone where pressure is applied, points earned in that zone carry higher value: the scoring weight scales with the overload that produced them, and points earned with balanced numbers keep the base value.',
 }
 
 const OVERLOAD_INCENTIVES_NARROW: ValueLandscapeModifier = {
@@ -153,7 +171,7 @@ const OVERLOAD_INCENTIVES_NARROW: ValueLandscapeModifier = {
     placement: 'scoring',
     label: 'narrow overload-incentive shift',
     mechanicLine:
-        'Numerical relationship across the field stays balanced: regain values are uniform across zones and the open decision facing players is the same on every possession.',
+        'Numerical relationship across the field stays balanced: point values are uniform across zones and the open decision facing players is the same on every possession.',
 }
 
 const SPATIAL_VALUE_STRUCTURES_WIDE: ValueLandscapeModifier = {
@@ -162,7 +180,7 @@ const SPATIAL_VALUE_STRUCTURES_WIDE: ValueLandscapeModifier = {
     placement: 'scoring',
     label: 'wide spatial-value structure',
     mechanicLine:
-        'The field is treated as three value zones: regains in the central zone count higher than regains in the wide zones, and regains in the wide zones count higher than regains deep. The zone weighting stays the same in every live contest.',
+        'The field is treated as three value zones: points earned in the central zone count higher than points earned in the wide zones, and points in the wide zones count higher than points earned deep. The zone weighting stays the same in every live contest.',
 }
 
 const SPATIAL_VALUE_STRUCTURES_NARROW: ValueLandscapeModifier = {

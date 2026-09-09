@@ -25,13 +25,15 @@ const ageGroupOptions = Object.entries(AgeGroups).map(([text, value]) => ({
     text,
 }))
 
-const fieldTypeOptions = [
-    { value: 'grass', text: 'Grass' },
-    { value: 'turf', text: 'Artificial Turf' },
-    { value: 'indoor', text: 'Indoor' },
-    { value: 'futsal', text: 'Futsal Court' },
-    { value: 'beach', text: 'Beach/Sand' },
-]
+// Surface Type removed for pilot (Path to Pilot Checklist RC4, section 1).
+//
+// It asked the coach for a planning decision nothing on the live path acted on. Its only two
+// consumers were the setup frame, where it was concatenated into an unlabelled "330x160 grass"
+// string, and selectAffordances, which has no callers. So the answer was collected and never used,
+// and every planning step has to contribute new planning information.
+//
+// The stored field stays on the session model: existing sessions carry it, and dropping a column to
+// remove a question would be a migration for no gain.
 
 const SessionForm: React.FC<{}> = () => {
     const { user } = useAuth()
@@ -161,55 +163,55 @@ const SessionForm: React.FC<{}> = () => {
                                     <div className='space-y-6'>
                                         {/* Field Dimensions */}
                                         <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+                                            {/*
+                                              * METRIC FIRST, and the number means the PLAYING AREA.
+                                              *
+                                              * Both parts were wrong together, and each hid the
+                                              * other. These fields asked for feet and defaulted to a
+                                              * full pitch (330 x 160), while generation consumed the
+                                              * same numbers as the area to play in, with no unit
+                                              * attached. Run at that default, two of three generated
+                                              * activities gave the coach no dimensions at all and
+                                              * the third invented "a 40x30 yard area".
+                                              *
+                                              * Metric leads because roughly half of pilot coaches
+                                              * think in metres; the yard equivalent follows in
+                                              * brackets, which is the same order the generated
+                                              * activity now uses.
+                                              */}
                                             <div>
                                                 <NumberField
                                                     {...f('fieldLength')}
-                                                    label='Field Length'
-                                                    defaultValue={330}
+                                                    label='Playing area length'
+                                                    defaultValue={40}
                                                     labelClass='text-gray-700 font-medium mb-2 block'
                                                     inputClass='text-base'
-                                                    placeholder='330'
-                                                    min={50}
-                                                    max={500}
+                                                    placeholder='40'
+                                                    min={10}
+                                                    max={120}
                                                     className='w-full transition-colors border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500'
                                                 />
                                                 <p className='mt-2 text-sm text-gray-500'>
-                                                    Length in feet (standard: 330 ft / 100 yards)
+                                                    Length in metres (typical: 40 m / 44 yd)
                                                 </p>
                                             </div>
 
                                             <div>
                                                 <NumberField
                                                     {...f('fieldWidth')}
-                                                    label='Field Width'
-                                                    defaultValue={160}
+                                                    label='Playing area width'
+                                                    defaultValue={30}
                                                     labelClass='text-gray-700 font-medium mb-2 block'
                                                     inputClass='text-base'
-                                                    placeholder='160'
-                                                    min={30}
-                                                    max={300}
+                                                    placeholder='30'
+                                                    min={10}
+                                                    max={90}
                                                     className='w-full transition-colors border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500'
                                                 />
                                                 <p className='mt-2 text-sm text-gray-500'>
-                                                    Width in feet (standard: 160 ft / 53 yards)
+                                                    Width in metres (typical: 30 m / 33 yd)
                                                 </p>
                                             </div>
-                                        </div>
-
-                                        {/* Field Surface Type */}
-                                        <div>
-                                            <SelectField
-                                                {...f('fieldType')}
-                                                label='Field Surface'
-                                                options={fieldTypeOptions}
-                                                labelClass='text-gray-700 font-medium mb-2 block'
-                                                inputClass='text-base'
-                                                placeholder='Select field surface type'
-                                                className='w-full transition-colors border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500'
-                                            />
-                                            <p className='mt-2 text-sm text-gray-500'>
-                                                Surface type affects activity recommendations and safety considerations
-                                            </p>
                                         </div>
                                     </div>
                                 </div>

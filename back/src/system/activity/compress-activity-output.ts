@@ -47,6 +47,7 @@
 
 import type { IActivity } from '../../models/activity.model'
 import { translateCoachLanguage } from './coach-language'
+import { applyCoachCommunicationStandard, applyStandardToRequiredSection } from './coach-communication-standard'
 import {
     isNotAWayToEarnPoints,
     leadWithClearestScoringSentence,
@@ -503,24 +504,41 @@ export function compressActivityForCoach(activity: IActivity, modifierMechanicLi
     // the original engine phrasing.
     return {
         ...activity,
+        // COACH COMMUNICATION STANDARD (RC2) runs LAST, after the vocabulary dictionary. Translation
+        // swaps terms; the standard removes whole clauses that describe cognition or announce
+        // purpose. Doing it last means it also cleans up anything translation introduced.
         title: translateCoachLanguage(activity.title),
-        setup: typeof activity.setup === 'string' ? translateCoachLanguage(activity.setup) : activity.setup,
-        rules: cappedRules.map(translateCoachLanguage),
+        setup: typeof activity.setup === 'string' ? applyCoachCommunicationStandard(translateCoachLanguage(activity.setup)) : activity.setup,
+        rules: cappedRules.map((r) => applyCoachCommunicationStandard(translateCoachLanguage(r))).filter(Boolean),
         // Same coach-language pass as every other coach-facing field. Missed fields are how jargon
-        // fixed elsewhere kept resurfacing (see the Round-9 note below).
+        // fixed elsewhere kept resurfacing (see the Round-9 note below) — and howToPlay proved it
+        // again: with only the vocabulary pass here, real generation shipped "Teams aim to exploit
+        // the central corridor to score" to a coach after the standard was already live everywhere
+        // else. This section IS "how to play", so it is the last place purpose framing belongs.
         howToPlay: Array.isArray((activity as unknown as Record<string, unknown>).howToPlay)
-            ? ((activity as unknown as Record<string, unknown>).howToPlay as string[]).map(translateCoachLanguage)
+            ? ((activity as unknown as Record<string, unknown>).howToPlay as string[])
+                  .map((h) => applyCoachCommunicationStandard(translateCoachLanguage(h)))
+                  .filter(Boolean)
             : [],
-        scoringSystem: translateCoachLanguage(finalScoring),
-        winCondition: typeof activity.winCondition === 'string' ? translateCoachLanguage(activity.winCondition) : activity.winCondition,
+        scoringSystem: applyCoachCommunicationStandard(translateCoachLanguage(finalScoring)),
+        winCondition: typeof activity.winCondition === 'string' ? applyCoachCommunicationStandard(translateCoachLanguage(activity.winCondition)) : activity.winCondition,
+        // scaffolding is DELIBERATELY exempt from the standard, and this is not an oversight.
+        // Player-read narration is stripped from rules and scoring precisely so it can surface once
+        // here — coachingFocus is the section that tells a coach what to watch, so "observe how
+        // players read the space" is the content, not a violation. Applying the cognition strip here
+        // would empty the one section allowed to describe perception.
         scaffolding: cappedScaffolding.map((s) => (typeof s === 'string' ? translateCoachLanguage(s) : s)),
         // Round-9 verification gap: these coach-facing fields previously passed through the spread
         // UNtranslated, so stutters/jargon fixed elsewhere still surfaced here ("players decide to
         // decide…" sighted after the rules/scoring fix shipped).
-        intent: typeof activity.intent === 'string' ? translateCoachLanguage(activity.intent) : activity.intent,
-        constraint: typeof activity.constraint === 'string' ? translateCoachLanguage(activity.constraint) : activity.constraint,
+        // Objective answers "what are we improving?" in Christian's section table, so it is one of
+        // the sections that must never come back blank. See applyStandardToRequiredSection.
+        intent: typeof activity.intent === 'string' ? applyStandardToRequiredSection(translateCoachLanguage(activity.intent)) : activity.intent,
+        constraint: typeof activity.constraint === 'string' ? applyCoachCommunicationStandard(translateCoachLanguage(activity.constraint)) : activity.constraint,
         extensions: Array.isArray(activity.extensions)
-            ? activity.extensions.map((e) => (typeof e === 'string' ? translateCoachLanguage(e) : e))
+            ? activity.extensions.map((e) =>
+                  typeof e === 'string' ? applyCoachCommunicationStandard(translateCoachLanguage(e)) : e
+              )
             : activity.extensions,
     }
 }

@@ -15,6 +15,7 @@ import type { IActivity } from '../../models/activity.model'
 import type { SystemAssemblyInput } from '../types'
 import { getAssemblySelectedAffordanceIds, getAssemblySelectedConstraintIds } from './assembly-package-ids'
 import { reconcilePlayerFormat } from './player-format'
+import { parseSessionArea, reconcilePlayingArea } from './playing-area'
 import type { Activity } from './activity-schema'
 
 export function mapStructuredActivityToLegacy(activity: Activity, input: SystemAssemblyInput): IActivity {
@@ -75,6 +76,15 @@ export function mapStructuredActivityToLegacy(activity: Activity, input: SystemA
     // instruction-following. See player-format.ts for what each revision produced and why.
     const reconciledSetup = reconcilePlayerFormat(activity.setup, playerGroupSizes, input.archetype.name)
 
+    // THE AREA MUST BE THE COACH'S SPACE, IN UNITS THEY CAN PACE OUT. Same reasoning as the player
+    // format directly above, and found the same way: generated at the session form's own default,
+    // two of three activities gave a coach no dimensions at all and the third invented some. Stating
+    // the unit in the prompt did not hold it either. See playing-area.ts.
+    const reconciledArea = reconcilePlayingArea(
+        reconciledSetup.text,
+        parseSessionArea(input.session.fieldLength, input.session.fieldWidth)
+    )
+
     const legacy = {
         title: activity.title,
         constraint: constraintSummary,
@@ -83,7 +93,7 @@ export function mapStructuredActivityToLegacy(activity: Activity, input: SystemA
         // numbers, and equipment specifics rather than just generic placeholder text. Previously the
         // AI-written setup was folded into the constraint blob and lost when the blob was removed
         // from the UI; it's now a first-class field.
-        setup: reconciledSetup.text,
+        setup: reconciledArea.text,
         // How the game runs. Optional throughout: an activity generated before this section existed,
         // or one where the model omitted it, simply shows one heading fewer.
         howToPlay: activity.howToPlay ?? [],

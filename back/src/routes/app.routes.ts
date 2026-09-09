@@ -30,6 +30,11 @@ import Logger from '../logger'
 import LoggingService from '../services/logging.service'
 import { deriveInputConstraints } from '../system/input-constraints/deriveInputConstraints'
 import { describeUnsupportedGoal, isKnownUnsupportedGoal } from '../system/session-planning/goal-support'
+import {
+    buildMultipleIntentionGuidance,
+    needsIntentionChoice,
+    splitCoachingIntentions,
+} from '../system/session-planning/single-learning-goal'
 import { allClarifications } from '../system/session-planning/guided-clarification'
 import {
     sessionPlanningModel,
@@ -535,6 +540,59 @@ router.post('/activity-review', async (req: Request, res: Response) => {
     return res.status(200).json({ ok: true })
 })
 
+/**
+ * THE TWO POST-PRACTICE QUESTIONS — asked after the session, not at review.
+ *
+ * Both exist because of the same gap: everything else the pilot collects is either an intention
+ * ("would you run this as written?") or a server-side event. Neither can see what happened once the
+ * activity met real players, and that is the only place the representative design is actually
+ * tested.
+ *
+ *   "Did you modify the activity?" is informative BECAUSE the coach was already asked, before
+ *   practice, whether they would run it as written. Yes-then-modified is the interesting cell in
+ *   that table: the activity read as usable and turned out not to be, which separates a
+ *   communication problem from a design problem. Neither question alone shows it.
+ *
+ *   "Did your players discover an unexpected way to succeed?" is the degenerate-solution report, and
+ *   it is invisible from our side by construction — the activity ran, points were scored, telemetry
+ *   looks healthy, and only the coach on the field saw players satisfying the scoring condition
+ *   without engaging the intended problem. The checklist defers the Degenerate Solution Pattern
+ *   Catalogue to post-pilot; that only works if the raw reports are being collected now.
+ *
+ * Both halves are optional so a coach can answer one and skip the other, and the free text is
+ * recorded verbatim. Like the rest of the evidence layer this never fails the caller: a coach
+ * reporting what happened at practice must not be met with an error.
+ */
+router.post('/practice-report', async (req: Request, res: Response) => {
+    const { activityId, sessionId, didModify, modificationDetail, unexpectedSuccess, unexpectedSuccessDetail } =
+        req.body as Record<string, unknown>
+
+    const yesNo = (v: unknown): string | undefined => (v === 'yes' || v === 'no' ? v : undefined)
+    const modified = yesNo(didModify)
+    const unexpected = yesNo(unexpectedSuccess)
+
+    if (!modified && !unexpected) {
+        return res.status(400).json({ error: 'at least one of didModify or unexpectedSuccess must be "yes" or "no"' })
+    }
+
+    recordUsageEvent({
+        eventType: 'coach_feedback',
+        activityId: typeof activityId === 'string' ? activityId : undefined,
+        sessionId: typeof sessionId === 'string' ? sessionId : undefined,
+        payload: {
+            question: 'practice_report',
+            didModify: modified,
+            // Only meaningful alongside a "yes"; a description attached to "no" is a coach
+            // contradicting themselves, which is worth keeping rather than discarding.
+            modificationDetail: typeof modificationDetail === 'string' ? modificationDetail.slice(0, 2000) : undefined,
+            unexpectedSuccess: unexpected,
+            unexpectedSuccessDetail:
+                typeof unexpectedSuccessDetail === 'string' ? unexpectedSuccessDetail.slice(0, 2000) : undefined,
+        },
+    })
+    return res.status(200).json({ ok: true })
+})
+
 router.post('/would-use-again', async (req: Request, res: Response) => {
     const { activityId, sessionId, answer, comment } = req.body as Record<string, unknown>
     if (answer !== 'yes' && answer !== 'no' && answer !== 'unsure') {
@@ -672,6 +730,32 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
 
         if (!Array.isArray(learningGoals) || learningGoals.length === 0) {
             return res.status(400).json({ error: 'At least one learning goal is required' })
+        }
+
+        // ONE PRIMARY LEARNING INTENTION (checklist RC4 section 1). Checked before anything else
+        // reads the goals, because `learningGoals.join(' ')` two lines down is precisely the blend
+        // this prevents: two intentions parsed as one produce an activity representing neither, and
+        // nothing downstream can tell afterwards that it happened. Answered with the coach's own
+        // wording so the choice is theirs to make rather than ours to guess.
+        // The guided conversation is exempt, and structurally rather than by convenience: the coach
+        // picks exactly ONE Learning Goal from the registry there, so the requirement is already
+        // met. What it sends is that goal composed with the practice situation and an optional note
+        // ("Break Defensive Lines. Building attacks through midfield. We panic after winning
+        // possession."), which is one intention written as three sentences. Running the check over
+        // it would let a semicolon typed in the notes box split our own composition and ask the
+        // coach to choose between two fragments they never wrote.
+        if (!planning?.learningGoalId && needsIntentionChoice(learningGoals)) {
+            const guidance = buildMultipleIntentionGuidance(splitCoachingIntentions(learningGoals))
+            recordUsageEvent({
+                eventType: 'feature_used',
+                sessionId: req.params.id,
+                payload: { name: 'multiple_intentions_offered', count: guidance.intentions.length },
+            })
+            return res.status(400).json({
+                error: guidance.message,
+                intentions: guidance.intentions,
+                resolutionStatus: 'needs-intention-choice',
+            })
         }
 
         const session = await Session.findById(req.params.id)

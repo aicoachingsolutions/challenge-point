@@ -62,13 +62,54 @@ const FORMAT_PATTERN = /(\d+)\s*(?:v|vs\.?|versus)\s*(\d+)/i
 const NEUTRAL_PATTERN =
     /\b(?:with|plus|and)\s+(a|an|one|two|three|\d+)\s+(?:neutral|extra|additional|floating|target|free)\s+players?\b([^.;]*)/i
 
-const WORD_NUMBERS: Record<string, number> = { a: 1, an: 1, one: 1, two: 2, three: 3 }
+const WORD_NUMBERS: Record<string, number> = {
+    a: 1,
+    an: 1,
+    one: 1,
+    two: 2,
+    three: 3,
+    four: 4,
+    five: 5,
+    six: 6,
+    seven: 7,
+    eight: 8,
+    nine: 9,
+    ten: 10,
+}
+
+/**
+ * A squad stated per team rather than as a scoreline: "Two teams of 5 players each."
+ *
+ * Real generation, 2026-09-08, for a 12-player squad. The NvN pattern found nothing, so the text
+ * counted as "no format stated" and a correct format was APPENDED — leaving the coach reading "Two
+ * teams of 5 players each. … Teams play 6v6." in one paragraph. That is worse than either number on
+ * its own: a wrong number is something a coach can see and overrule, but a paragraph that states two
+ * different squads gives them no way to tell which one the activity was actually built around.
+ *
+ * Grouped so the rewrite can replace the count while leaving the coach's own sentence shape intact.
+ */
+const PER_TEAM_PATTERN =
+    /\b((?:two|2)\s+)?(teams?\s+of\s+)(\d+|one|two|three|four|five|six|seven|eight|nine|ten)(\s+players?)(\s+each)?/i
+
+function toCount(raw: string): number {
+    return WORD_NUMBERS[raw.toLowerCase()] ?? (Number(raw) || 0)
+}
 
 /** How many players the text actually asks for, or null when no format is stated. */
 export function parseStatedPlayerTotal(text: string): number | null {
     const format = FORMAT_PATTERN.exec(text)
-    if (!format) return null
-    let total = Number(format[1]) + Number(format[2])
+    const perTeam = PER_TEAM_PATTERN.exec(text)
+
+    let total: number
+    if (format) {
+        total = Number(format[1]) + Number(format[2])
+    } else if (perTeam) {
+        const each = toCount(perTeam[3]!)
+        if (each <= 0) return null
+        total = each * 2
+    } else {
+        return null
+    }
 
     const neutral = NEUTRAL_PATTERN.exec(text)
     if (neutral) {
@@ -126,6 +167,24 @@ export function reconcilePlayerFormat(text: string, total: number, archetypeName
     }
 
     let next = text.replace(FORMAT_PATTERN, `${expected.perSide[0]}v${expected.perSide[1]}`)
+
+    // No scoreline to correct, but a per-team count that disagrees with the squad. Rewrite the count
+    // in place rather than appending a second format beside it.
+    //
+    // Uneven sides switch to a scoreline instead of a per-team count, because a per-team count
+    // cannot express them: "teams of 7 and 5 players each" reads as four teams. The scoreline is
+    // also the form parseStatedPlayerTotal already reads, which matters — output this function
+    // cannot parse back would look like "no format stated" to the next pass, and get a second
+    // format appended to it. That is exactly the contradiction this branch exists to prevent.
+    if (!FORMAT_PATTERN.test(text)) {
+        const [larger, smaller] = expected.perSide
+        next = next.replace(PER_TEAM_PATTERN, (_m, two = '', teamsOf = '', _n = '', players = '', each = '') =>
+            larger === smaller
+                ? `${two}${teamsOf}${larger}${players}${each}`
+                : `${two || 'Two '}teams playing ${larger}v${smaller}`
+        )
+    }
+
     if (expected.neutrals === 0) {
         // Our format has no neutrals, so a leftover "with a neutral player in the corridor" clause
         // would put the count wrong again by exactly the number it names.

@@ -19,6 +19,7 @@ import { ActivityStatus, ChallengeLevels, DifficultyLevels, IActivity } from '@/
 import { ISession, SessionEmphasis, SESSION_EMPHASIS_LABELS, SessionStatus } from '@/MODELS/session.model'
 
 import { api } from '@/services/api.service'
+import { recordCoachEvent } from '@/services/coach-events.service'
 import { useResource } from '@/services/resource.service'
 import { camelCaseToTitleCase } from '@/utils/scary-utils'
 
@@ -68,7 +69,13 @@ export default function SessionPage() {
     }, [sessionResource.isLoading, activitiesResource.isLoading, session, activities])
 
     const completeSession = async () => {
-        api(ROUTES.app.session, { _id: id, sessionStatus: SessionStatus['Completed'] }).then((res) => navigate('/'))
+        api(ROUTES.app.session, { _id: id, sessionStatus: SessionStatus['Completed'] }).then((res) => {
+            // The denominator for everything that happens on a field. Without it, a session that
+            // generated three activities and was abandoned is indistinguishable in the summary from
+            // one a coach actually ran, and every post-practice figure loses its base.
+            recordCoachEvent('session_completed', { sessionId: id, activityCount: activities?.length ?? 0 })
+            navigate('/')
+        })
     }
 
     const duplicateSession = () => {
@@ -191,11 +198,14 @@ export default function SessionPage() {
                     </div>
                 ) : activities && activities.length > 0 ? (
                     <div className='flex flex-col gap-5'>
-                        {activities.map((activity) => (
+                        {activities.map((activity, index) => (
                             <ActivityCard
                                 key={activity._id}
                                 activity={activity}
-                                onClick={() => navigate(`/activity/${activity._id}`)}
+                                // The slot travels with the coach, so that if they go on to start
+                                // this activity the pilot records WHICH of the three they chose.
+                                // This list is the only place that position is known.
+                                onClick={() => navigate(`/activity/${activity._id}`, { state: { slot: index + 1 } })}
                             />
                         ))}
                     </div>
@@ -484,9 +494,23 @@ function ActivityCard({ activity, onClick }: { activity: IActivity; onClick: () 
                     </span>
                 </div>
 
+                {/*
+                  * Rendered only when there is something to read. The Coach Communication Standard
+                  * removes design rationale from coach-facing text, and an activity whose Constraint
+                  * section was ENTIRELY rationale now legitimately has none — one measured activity
+                  * carried seventy words of it and nothing else. Without the guard the coach sees a
+                  * bare "Constraint:" label, which reads as something failing rather than as a
+                  * section that had nothing to say.
+                  */}
                 <div className='mb-4'>
-                    <p className='text-sm text-gray-700 break-words sm:text-base'>Constraint: {activity.constraint}</p>
-                    <p className='text-sm text-gray-700 break-words sm:text-base'>Intent: {activity.intent}</p>
+                    {activity.constraint?.trim() && (
+                        <p className='text-sm text-gray-700 break-words sm:text-base'>
+                            Constraint: {activity.constraint}
+                        </p>
+                    )}
+                    {activity.intent?.trim() && (
+                        <p className='text-sm text-gray-700 break-words sm:text-base'>Intent: {activity.intent}</p>
+                    )}
                 </div>
 
                 {/* Show completion data for completed activities */}
