@@ -71,6 +71,14 @@ export default function ActivityGenerator() {
     const [generationError, setGenerationError] = useState<string | null>(null)
     /** Concrete goals offered alongside a rejection, so the coach has a next step rather than a wall. */
     const [generationSuggestions, setGenerationSuggestions] = useState<string[]>([])
+    /**
+     * The coach's own intentions, when they entered more than one.
+     *
+     * Kept separate from `generationSuggestions` because the two look alike and behave oppositely.
+     * A suggestion is ours, and is ADDED to what the coach wrote. An intention is theirs, and
+     * REPLACES the list — the whole point is to end up generating from exactly one.
+     */
+    const [intentionChoices, setIntentionChoices] = useState<string[]>([])
     /** Set when the engine read the goal broadly rather than precisely. Null on a confident match. */
     const [resolutionNotice, setResolutionNotice] = useState<{ message: string; suggestions: string[] } | null>(null)
     const [selectedChallengeLevel, setSelectedChallengeLevel] = useState<ChallengeLevels>()
@@ -131,6 +139,27 @@ export default function ActivityGenerator() {
         if (!payload || typeof payload !== 'object') return []
         const raw = (payload as { suggestions?: unknown }).suggestions
         return Array.isArray(raw) ? raw.filter((s): s is string => typeof s === 'string') : []
+    }
+
+    /** The coach's own intentions, returned when they entered more than one. */
+    const intentionsFrom = (payload: unknown): string[] => {
+        if (!payload || typeof payload !== 'object') return []
+        const raw = (payload as { intentions?: unknown }).intentions
+        return Array.isArray(raw) ? raw.filter((s): s is string => typeof s === 'string') : []
+    }
+
+    /**
+     * Focus the session on one intention.
+     *
+     * Replaces the list rather than appending to it, which is the difference between this and
+     * applySuggestedGoal: the coach is choosing which of the things they already wrote this session
+     * is about, so anything left in the list would put the blend straight back.
+     */
+    const chooseIntention = (goal: string) => {
+        setSelectedLearningGoals([goal])
+        setGenerationError(null)
+        setGenerationSuggestions([])
+        setIntentionChoices([])
     }
 
     /**
@@ -216,6 +245,7 @@ export default function ActivityGenerator() {
             if (res.error || !Array.isArray(activities)) {
                 const errorPayload = wrapped ? payload : res
                 resetGenerationState(buildGenerationErrorMessage(errorPayload), suggestionsFrom(errorPayload))
+                setIntentionChoices(intentionsFrom(errorPayload))
                 return
             }
 
@@ -482,6 +512,27 @@ export default function ActivityGenerator() {
                         {generationError && (
                             <div className='px-4 py-3 text-sm border rounded-xl border-amber-200 bg-amber-50 text-amber-800'>
                                 <p>{generationError}</p>
+                                {/* The coach's own wording, offered back as the choice. Placed
+                                    before our suggestions because when both are present, theirs is
+                                    the one that resolves the situation. */}
+                                {intentionChoices.length > 0 && (
+                                    <>
+                                        <p className='mt-3 font-medium'>Focus this session on:</p>
+                                        <div className='flex flex-wrap gap-2 mt-2'>
+                                            {intentionChoices.map((goal) => (
+                                                <button
+                                                    key={goal}
+                                                    type='button'
+                                                    onClick={() => chooseIntention(goal)}
+                                                    className='px-3 py-1.5 text-sm text-left transition-colors bg-white border rounded-lg border-amber-300 text-amber-900 hover:bg-amber-100'
+                                                >
+                                                    {goal}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
+
                                 {generationSuggestions.length > 0 && (
                                     <>
                                         <p className='mt-3 font-medium'>Try one of these:</p>

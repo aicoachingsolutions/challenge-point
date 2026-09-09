@@ -30,6 +30,11 @@ import Logger from '../logger'
 import LoggingService from '../services/logging.service'
 import { deriveInputConstraints } from '../system/input-constraints/deriveInputConstraints'
 import { describeUnsupportedGoal, isKnownUnsupportedGoal } from '../system/session-planning/goal-support'
+import {
+    buildMultipleIntentionGuidance,
+    needsIntentionChoice,
+    splitCoachingIntentions,
+} from '../system/session-planning/single-learning-goal'
 import { allClarifications } from '../system/session-planning/guided-clarification'
 import {
     sessionPlanningModel,
@@ -725,6 +730,25 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
 
         if (!Array.isArray(learningGoals) || learningGoals.length === 0) {
             return res.status(400).json({ error: 'At least one learning goal is required' })
+        }
+
+        // ONE PRIMARY LEARNING INTENTION (checklist RC4 section 1). Checked before anything else
+        // reads the goals, because `learningGoals.join(' ')` two lines down is precisely the blend
+        // this prevents: two intentions parsed as one produce an activity representing neither, and
+        // nothing downstream can tell afterwards that it happened. Answered with the coach's own
+        // wording so the choice is theirs to make rather than ours to guess.
+        if (needsIntentionChoice(learningGoals)) {
+            const guidance = buildMultipleIntentionGuidance(splitCoachingIntentions(learningGoals))
+            recordUsageEvent({
+                eventType: 'feature_used',
+                sessionId: req.params.id,
+                payload: { name: 'multiple_intentions_offered', count: guidance.intentions.length },
+            })
+            return res.status(400).json({
+                error: guidance.message,
+                intentions: guidance.intentions,
+                resolutionStatus: 'needs-intention-choice',
+            })
         }
 
         const session = await Session.findById(req.params.id)
