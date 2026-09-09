@@ -494,9 +494,23 @@ function ActivityCard({ activity, onClick }: { activity: IActivity; onClick: () 
                     </span>
                 </div>
 
+                {/*
+                  * Rendered only when there is something to read. The Coach Communication Standard
+                  * removes design rationale from coach-facing text, and an activity whose Constraint
+                  * section was ENTIRELY rationale now legitimately has none — one measured activity
+                  * carried seventy words of it and nothing else. Without the guard the coach sees a
+                  * bare "Constraint:" label, which reads as something failing rather than as a
+                  * section that had nothing to say.
+                  */}
                 <div className='mb-4'>
-                    <p className='text-sm text-gray-700 break-words sm:text-base'>Constraint: {activity.constraint}</p>
-                    <p className='text-sm text-gray-700 break-words sm:text-base'>Intent: {activity.intent}</p>
+                    {activity.constraint?.trim() && (
+                        <p className='text-sm text-gray-700 break-words sm:text-base'>
+                            Constraint: {activity.constraint}
+                        </p>
+                    )}
+                    {activity.intent?.trim() && (
+                        <p className='text-sm text-gray-700 break-words sm:text-base'>Intent: {activity.intent}</p>
+                    )}
                 </div>
 
                 {/* Show completion data for completed activities */}

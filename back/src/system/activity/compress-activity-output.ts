@@ -47,7 +47,7 @@
 
 import type { IActivity } from '../../models/activity.model'
 import { translateCoachLanguage } from './coach-language'
-import { applyCoachCommunicationStandard } from './coach-communication-standard'
+import { applyCoachCommunicationStandard, applyStandardToRequiredSection } from './coach-communication-standard'
 import {
     isNotAWayToEarnPoints,
     leadWithClearestScoringSentence,
@@ -531,7 +531,9 @@ export function compressActivityForCoach(activity: IActivity, modifierMechanicLi
         // Round-9 verification gap: these coach-facing fields previously passed through the spread
         // UNtranslated, so stutters/jargon fixed elsewhere still surfaced here ("players decide to
         // decide…" sighted after the rules/scoring fix shipped).
-        intent: typeof activity.intent === 'string' ? applyCoachCommunicationStandard(translateCoachLanguage(activity.intent)) : activity.intent,
+        // Objective answers "what are we improving?" in Christian's section table, so it is one of
+        // the sections that must never come back blank. See applyStandardToRequiredSection.
+        intent: typeof activity.intent === 'string' ? applyStandardToRequiredSection(translateCoachLanguage(activity.intent)) : activity.intent,
         constraint: typeof activity.constraint === 'string' ? applyCoachCommunicationStandard(translateCoachLanguage(activity.constraint)) : activity.constraint,
         extensions: Array.isArray(activity.extensions)
             ? activity.extensions.map((e) =>

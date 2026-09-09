@@ -88,6 +88,41 @@ const COGNITION_FRAME_UNWRAP: ReadonlyArray<readonly [RegExp, string]> = [
  */
 const BARE_DECISION_IMPERATIVE = /^\s*(?:decide|choose|recognize|recognise|read)\s+(?:when|whether|where)\s+to\b/i
 
+/**
+ * Sentences that explain WHY the design works rather than HOW to play.
+ *
+ * Principle 2 is explicit: do not explain decisions, perceptions, representative intentions or
+ * tactical reasoning — those should emerge from the activity. The Sentence Test decides the rest: if
+ * removing a sentence does not reduce a coach's ability to organise or run the activity, remove it.
+ *
+ * This is authored design intent reaching a coach-facing field verbatim. Measured on 2026-09-08, one
+ * activity's whole Constraint section read:
+ *
+ *   "Several live targets create a perception problem: the attack reads which target is least
+ *    protected now and the defense reorganizes to cover, so advantage comes from recognizing the
+ *    open option, not from a rehearsed route. Support lane requirement creates a visible spatial
+ *    game problem; …"
+ *
+ * Seventy words, none of which tell a coach anything to do. The same section in another activity read
+ * "Central pressure. Use wide areas." — three words a coach can act on, which is the section's job.
+ * (The real example named a pitch region; this file is in the universal layer, so it is trimmed. The
+ * unit test keeps the full wording.)
+ *
+ * MATCHED ON DESIGN VOCABULARY, NOT ON LENGTH OR ABSTRACTION. "Creates a perception problem" and
+ * "is the resource" are how the Knowledge Core describes a manipulation to itself. A sentence that
+ * is merely long, or that describes a game condition ("a live counter-press window creates a
+ * contested advantage on every possession change"), is left alone: it may still be doing work for
+ * the coach, and over-removal here empties sections rather than clarifying them.
+ */
+const DESIGN_RATIONALE_SENTENCE: ReadonlyArray<RegExp> = [
+    // "…create a perception problem", "…creates a visible spatial game problem".
+    /\bcreates?\s+(?:a|an)\s+[\w\s-]{0,40}?(?:problem|resource)\b/i,
+    // "Information out of a defender's view is the resource".
+    /\bis\s+the\s+resource\b/i,
+    // "…so advantage comes from recognizing the open option".
+    /\badvantage\s+comes\s+from\b/i,
+]
+
 /** Framing that announces the activity's purpose instead of describing the game. */
 const PURPOSE_FRAMING: ReadonlyArray<readonly [RegExp, string]> = [
     // "Session focus: Move ball into a target zone." — an engine label on a coach-facing field.
@@ -138,6 +173,10 @@ export function applyCoachCommunicationStandard(value: string): string {
         // A sentence that is nothing but "decide when to …" carries no environment to preserve.
         if (BARE_DECISION_IMPERATIVE.test(sentence)) continue
 
+        // Design rationale fails the Sentence Test outright: there is nothing in it for a coach to
+        // act on, so there is nothing to unwrap or repair.
+        if (DESIGN_RATIONALE_SENTENCE.some((pattern) => pattern.test(sentence))) continue
+
         // Unwrap before removing: a real objective inside a cognition frame must survive the frame.
         let working = sentence
         for (const [pattern, replacement] of COGNITION_FRAME_UNWRAP) working = working.replace(pattern, replacement)
@@ -151,6 +190,58 @@ export function applyCoachCommunicationStandard(value: string): string {
 
     return kept.join(' ')
 }
+
+/**
+ * Apply the standard to a section that MUST NOT end up empty.
+ *
+ * Objective, Setup, Rules, Scoring and Win Condition each answer one of the coach questions in
+ * Christian's table. A blank Objective does not merely lose information — it removes the answer to
+ * "what are we improving?" from an activity that is otherwise complete, and the coach has no way to
+ * tell whether the section is empty because nothing was generated or because something was removed.
+ *
+ * Measured on 2026-09-08, this Objective emptied completely:
+ *
+ *   "Players decide to decide when to maintain possession and when to exploit line-breaking
+ *    opportunities to progress toward the end zone. Session focus: Maintain possession with forward
+ *    intent."
+ *
+ * Both sentences are forbidden framing, so the strict pass correctly removed both. But the objective
+ * a coach needs is inside the first one, and Christian's own Appendix B rewrite of this shape keeps
+ * the objective and drops the frame. So when the strict pass empties a required section, fall back
+ * to unwrapping rather than deleting: the frame still comes off, but what it was wrapped around
+ * survives.
+ *
+ * Sections NOT in that table — Constraint most of all — keep the strict pass. If everything in them
+ * is design rationale then they genuinely have nothing to say, and an empty section is the honest
+ * result rather than a salvaged sentence nobody needed.
+ */
+export function applyStandardToRequiredSection(value: string): string {
+    const strict = applyCoachCommunicationStandard(value)
+    if (strict || !value) return strict
+
+    let next = value
+    for (const [pattern, replacement] of PURPOSE_FRAMING) next = next.replace(pattern, replacement)
+
+    const kept: string[] = []
+    for (const sentence of splitIntoSentences(next)) {
+        let working = sentence
+        for (const [pattern, replacement] of COGNITION_FRAME_UNWRAP) working = working.replace(pattern, replacement)
+        // "…decide WHEN to X" unwraps the same way here. The strict pass drops it, following
+        // Christian's Appendix B; as a last resort before an empty section, the content wins.
+        working = working.replace(LAST_RESORT_FRAME, '')
+        // The unwrap leaves the second half of "when to X and when to Y" stranded mid-sentence.
+        working = working.replace(/\s+and\s+when\s+to\s+/gi, ' and ')
+
+        const cleaned = tidy(working)
+        if (cleaned && countWords(cleaned) >= 2) kept.push(cleaned)
+    }
+
+    return kept.join(' ')
+}
+
+/** The "when/whether to" frame, unwrapped only to keep a required section from emptying. */
+const LAST_RESORT_FRAME =
+    /^\s*(?:the\s+)?(?:players?|teams?)\s+(?:decide\s+to\s+decide|decides?|must\s+decide|chooses?)\s+(?:when|whether|where)\s+to\s+/i
 
 function countWords(value: string): number {
     return value.replace(/[^A-Za-z0-9\s]/g, ' ').trim().split(/\s+/).filter(Boolean).length
