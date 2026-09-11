@@ -377,14 +377,14 @@ function ActivityCard({ activity, onClick }: { activity: IActivity; onClick: () 
                   * bare "Constraint:" label, which reads as something failing rather than as a
                   * section that had nothing to say.
                   */}
+                {/*
+                  * Objective only. Constraint is no longer coach-facing anywhere (Christian,
+                  * 2026-09-10), and this label said "Intent" while every other screen says
+                  * "Objective" for the same field.
+                  */}
                 <div className='mb-4'>
-                    {activity.constraint?.trim() && (
-                        <p className='text-sm text-gray-700 break-words sm:text-base'>
-                            Constraint: {activity.constraint}
-                        </p>
-                    )}
                     {activity.intent?.trim() && (
-                        <p className='text-sm text-gray-700 break-words sm:text-base'>Intent: {activity.intent}</p>
+                        <p className='text-sm text-gray-700 break-words sm:text-base'>Objective: {activity.intent}</p>
                     )}
                 </div>
 

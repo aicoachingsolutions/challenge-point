@@ -1214,7 +1214,14 @@ HOW TO PLAY — HOW THE GAME ACTUALLY RUNS
   what is different from a normal game.
 - Do NOT restate how points are scored; scoring has its own section.
 
-- objective should describe the decision problem players read, not a drill command.
+OBJECTIVE — WHAT ARE WE WORKING ON TODAY?
+- ONE short sentence, said the way a coach would say it to their players before starting. For example:
+  "Build out from the back against high pressure." / "Create scoring chances before the defense
+  reorganizes." / "Create and use space to play forward."
+- Name the coaching intention for THIS activity. Do NOT explain why the activity works, what players
+  perceive, read or decide, or what success depends on. The game creates that problem; the objective
+  only names what we are working on. If a coach would not naturally say it before starting, leave it out.
+
 - coachingFocus should describe what to observe, what players read, and how the fixed mechanics create trade-offs.
 
 Avoid prohibited drill language and avoid the phrase "players must".`

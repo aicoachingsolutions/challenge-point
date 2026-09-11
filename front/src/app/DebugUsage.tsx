@@ -318,7 +318,7 @@ export default function DebugUsage() {
                             </div>
                             <div>
                                 <h3 className='mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500'>
-                                    Clear how players succeed?
+                                    Clear how teams score?
                                 </h3>
                                 <RecordTable
                                     values={summary.pilotEvidence?.successClarity ?? {}}

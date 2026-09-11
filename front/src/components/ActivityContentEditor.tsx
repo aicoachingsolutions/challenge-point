@@ -25,7 +25,12 @@ export interface ActivityContentDraft {
     rules: string[]
     scoringSystem: string
     winCondition: string
-    scaffolding: string[]
+    /**
+     * Equipment became one of the six core sections on 2026-09-10, so a coach can now correct it.
+     * It replaced "Coaching cues" here: Coaching Focus is no longer shown to coaches at all, and an
+     * editor for a section nobody can see only invites edits nobody will ever read.
+     */
+    equipmentNeeded: string[]
 }
 
 /** Editing any of these changes what the activity IS, not merely how it reads. */
@@ -47,7 +52,7 @@ export function draftFromActivity(activity: IActivity): ActivityContentDraft {
         rules: [...(activity.rules ?? [])],
         scoringSystem: activity.scoringSystem ?? '',
         winCondition: activity.winCondition ?? '',
-        scaffolding: [...(activity.scaffolding ?? [])],
+        equipmentNeeded: [...(activity.equipmentNeeded ?? [])],
     }
 }
 
@@ -160,7 +165,7 @@ export default function ActivityContentEditor({
             await onSave({
                 ...draft,
                 rules: draft.rules.map((r) => r.trim()).filter(Boolean),
-                scaffolding: draft.scaffolding.map((s) => s.trim()).filter(Boolean),
+                equipmentNeeded: draft.equipmentNeeded.map((e) => e.trim()).filter(Boolean),
             })
         } catch (e) {
             setError(e instanceof Error ? e.message : 'Could not save your changes. Please try again.')
@@ -174,16 +179,17 @@ export default function ActivityContentEditor({
             <Field label='Title' value={draft.title} onChange={(v) => set('title', v)} rows={1} />
             <Field label='Objective' value={draft.intent} onChange={(v) => set('intent', v)} />
             <Field label='Setup' value={draft.setup} onChange={(v) => set('setup', v)} rows={4} />
-            <Field label='Teams' value={draft.teams} onChange={(v) => set('teams', v)} rows={2} />
             <ListField label='Rules' values={draft.rules} onChange={(v) => set('rules', v)} addLabel='Add rule' />
             <Field label='Scoring' value={draft.scoringSystem} onChange={(v) => set('scoringSystem', v)} />
             <Field label='Win condition' value={draft.winCondition} onChange={(v) => set('winCondition', v)} rows={2} />
             <ListField
-                label='Coaching cues'
-                values={draft.scaffolding}
-                onChange={(v) => set('scaffolding', v)}
-                addLabel='Add cue'
+                label='Equipment'
+                values={draft.equipmentNeeded}
+                onChange={(v) => set('equipmentNeeded', v)}
+                addLabel='Add item'
             />
+            {/* Last, matching the read view: Teams is optional detail behind "More detail". */}
+            <Field label='Teams' value={draft.teams} onChange={(v) => set('teams', v)} rows={2} />
 
             {structuralChanges.length > 0 && (
                 <div className='px-4 py-3 text-sm border rounded-lg border-slate-200 bg-slate-50 text-slate-700'>

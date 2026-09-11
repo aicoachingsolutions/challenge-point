@@ -51,7 +51,9 @@ export default function ActivityReviewPrompt({ activityId, sessionId }: { activi
 
     const CLARITY_OPTIONS = [
         { value: 'yes', label: 'Yes' },
-        { value: 'had_to_reread', label: 'Had to reread' },
+        // The checklist's wording (RC4 section 4). The stored value keeps its original key so the
+        // server's validation and any existing records still match.
+        { value: 'had_to_reread', label: 'Needed to reread' },
         { value: 'no', label: 'No' },
     ] as const
 
@@ -86,17 +88,17 @@ export default function ActivityReviewPrompt({ activityId, sessionId }: { activi
             {answer && !detailSent && (
                 <div className='mt-3 space-y-3'>
                     {/*
-                      * Christian's wording, 26 Aug, deliberately broader than "how players score".
-                      * The thing he kept failing to grasp on a first read was the PRIMARY CONSEQUENCE
-                      * the activity creates — sometimes scoring, sometimes retaining possession,
-                      * delaying an attack, or winning the ball back. "How players succeed" covers all
-                      * of them, and it turns his one-read test into pilot evidence rather than
-                      * something only he can judge.
+                      * Christian's decision, 10 Sep: "Was it immediately clear how teams score?"
+                      *
+                      * This was "how players succeed" (his 26 Aug wording), which was educationally
+                      * broader — it covered activities won by keeping or regaining the ball. He
+                      * narrowed it because it was also more subjective: "how teams score" asks one
+                      * concrete, observable question, and matches the Communication Standard the rest
+                      * of the activity is now held to. Answers are tagged server-side with the
+                      * question they were given, so the two wordings are never tallied together.
                       */}
                     <div>
-                        <p className='mb-2 text-sm font-medium text-gray-700'>
-                            Was it immediately clear how players succeed in this activity?
-                        </p>
+                        <p className='mb-2 text-sm font-medium text-gray-700'>Was it immediately clear how teams score?</p>
                         <div className='flex flex-wrap gap-2'>
                             {CLARITY_OPTIONS.map((option) => (
                                 <button

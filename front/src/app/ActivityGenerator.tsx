@@ -20,6 +20,7 @@ import { api } from '@/services/api.service'
 
 import Button from '@/components/Button'
 import SessionPlanningConversation, { type PlanningSelection } from './SessionPlanningConversation'
+import ActivitySections from '@/components/ActivitySections'
 
 // "Environmental Fit" (coach-facing rename of Challenge Level — Christian's MVP2 wording).
 // The enum values (low/medium/high) are unchanged so nothing downstream breaks; only the
@@ -810,7 +811,6 @@ function GeneratedActivityCard({
     prevActivity: () => void
 }) {
     const [showFullDetails, setShowFullDetails] = useState(false)
-    const learningGoals = activity.learningPriorities?.map((goal) => goal.description).filter(Boolean) ?? []
     const setupSummary = summarizeText(activity.setup)
 
     // "Key differences" = content unique to this activity vs the other generated options, so the
@@ -888,55 +888,52 @@ function GeneratedActivityCard({
                     </div>
 
                     <div className='space-y-4 mb-4'>
-                        {/* Decision set */}
-                        <div>
-                            <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Learning Goal / Objective</p>
-                            {learningGoals.length > 0 && (
-                                <ul className='mb-2 space-y-1'>
-                                    {learningGoals.map((goal, i) => (
-                                        <li key={i} className='flex items-start gap-2 text-sm text-gray-700'>
-                                            <span className='flex-shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500'></span>
-                                            {goal}
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                            <p className='text-sm leading-relaxed text-gray-700'>{activity.intent}</p>
-                        </div>
+                        {/*
+                          * Two views of one card. The SUMMARY is for choosing between the three —
+                          * objective, a setup summary, and only what differs from the others. The FULL
+                          * ACTIVITY is the six sections every surface now shares (see ActivitySections).
+                          * They swap rather than stack: stacked, the expanded card repeated the
+                          * Objective and Setup the coach had just read above it.
+                          */}
+                        {!showFullDetails && (
+                            <>
+                                <div>
+                                    <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Objective</p>
+                                    <p className='text-sm leading-relaxed text-gray-700'>{activity.intent}</p>
+                                </div>
 
-                        {/* Setup — field dimensions, zones, numbers, equipment, restart logic.
-                            The AI-written setup description so coaches can physically set up the
-                            activity without inventing parameters. */}
-                        {setupSummary && (
-                            <div className='p-3 rounded-lg bg-blue-50 border border-blue-200'>
-                                <p className='text-xs font-semibold uppercase tracking-wide text-blue-700 mb-1'>Setup Summary</p>
-                                <p className='text-sm leading-relaxed text-blue-900'>{setupSummary}</p>
-                            </div>
-                        )}
+                                {setupSummary && (
+                                    <div className='p-3 rounded-lg bg-blue-50 border border-blue-200'>
+                                        <p className='text-xs font-semibold uppercase tracking-wide text-blue-700 mb-1'>Setup Summary</p>
+                                        <p className='text-sm leading-relaxed text-blue-900'>{setupSummary}</p>
+                                    </div>
+                                )}
 
-                        {keyRules.length > 0 && (
-                            <div>
-                                <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Key Rule Differences</p>
-                                <ol className='space-y-1'>
-                                    {keyRules.map((rule, i) => (
-                                        <li key={i} className='flex gap-2 text-sm text-gray-700'>
-                                            <span className='flex-shrink-0 w-4 h-4 mt-0.5 flex items-center justify-center rounded-full bg-brand-100 text-brand-700 text-xs font-bold'>{i + 1}</span>
-                                            <span className='leading-relaxed'>{rule}</span>
-                                        </li>
-                                    ))}
-                                </ol>
-                            </div>
-                        )}
+                                {keyRules.length > 0 && (
+                                    <div>
+                                        <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Key Rule Differences</p>
+                                        <ol className='space-y-1'>
+                                            {keyRules.map((rule, i) => (
+                                                <li key={i} className='flex gap-2 text-sm text-gray-700'>
+                                                    <span className='flex-shrink-0 w-4 h-4 mt-0.5 flex items-center justify-center rounded-full bg-brand-100 text-brand-700 text-xs font-bold'>{i + 1}</span>
+                                                    <span className='leading-relaxed'>{rule}</span>
+                                                </li>
+                                            ))}
+                                        </ol>
+                                    </div>
+                                )}
 
-                        {keyScoringLines.length > 0 && (
-                            <div className='px-3 py-2 rounded-lg bg-amber-50 border border-amber-200'>
-                                <p className='text-xs font-semibold uppercase tracking-wide text-amber-600 mb-1'>Key Scoring Differences</p>
-                                {keyScoringLines.map((line, i) => (
-                                    <p key={i} className='text-sm leading-relaxed text-amber-800'>
-                                        {line}
-                                    </p>
-                                ))}
-                            </div>
+                                {keyScoringLines.length > 0 && (
+                                    <div className='px-3 py-2 rounded-lg bg-amber-50 border border-amber-200'>
+                                        <p className='text-xs font-semibold uppercase tracking-wide text-amber-600 mb-1'>Key Scoring Differences</p>
+                                        {keyScoringLines.map((line, i) => (
+                                            <p key={i} className='text-sm leading-relaxed text-amber-800'>
+                                                {line}
+                                            </p>
+                                        ))}
+                                    </div>
+                                )}
+                            </>
                         )}
 
                         <button
@@ -947,77 +944,17 @@ function GeneratedActivityCard({
                             {showFullDetails ? (
                                 <>
                                     <ChevronUpIcon className='w-4 h-4' />
-                                    Hide details
+                                    Show summary
                                 </>
                             ) : (
                                 <>
                                     <ChevronDownIcon className='w-4 h-4' />
-                                    Show full details
+                                    Show full activity
                                 </>
                             )}
                         </button>
 
-                        {showFullDetails && (
-                            <div className='pt-4 mt-4 space-y-4 border-t border-gray-100'>
-                                <div>
-                                    <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Objective</p>
-                                    <p className='text-sm leading-relaxed text-gray-700'>{activity.intent}</p>
-                                </div>
-
-                                {activity.setup && (
-                                    <div className='p-3 rounded-lg bg-blue-50 border border-blue-200'>
-                                        <p className='text-xs font-semibold uppercase tracking-wide text-blue-700 mb-1'>Setup</p>
-                                        <p className='text-sm leading-relaxed text-blue-900 whitespace-pre-line'>{activity.setup}</p>
-                                    </div>
-                                )}
-
-                                {activity.extensions?.[0] && (
-                                    <div>
-                                        <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Teams</p>
-                                        <p className='text-sm leading-relaxed text-gray-700'>{activity.extensions[0]}</p>
-                                    </div>
-                                )}
-
-                                {activity.rules?.length > 0 && (
-                                    <div>
-                                        <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Rules</p>
-                                        <ol className='space-y-1'>
-                                            {activity.rules.map((rule, i) => (
-                                                <li key={i} className='flex gap-2 text-sm text-gray-700'>
-                                                    <span className='flex-shrink-0 w-4 h-4 mt-0.5 flex items-center justify-center rounded-full bg-brand-100 text-brand-700 text-xs font-bold'>{i + 1}</span>
-                                                    <span className='leading-relaxed'>{rule}</span>
-                                                </li>
-                                            ))}
-                                        </ol>
-                                    </div>
-                                )}
-
-                                {activity.scoringSystem && (
-                                    <div className='px-3 py-2 rounded-lg bg-amber-50 border border-amber-200'>
-                                        <p className='text-xs font-semibold uppercase tracking-wide text-amber-600 mb-1'>Scoring</p>
-                                        <p className='text-sm leading-relaxed text-amber-800'>{activity.scoringSystem}</p>
-                                    </div>
-                                )}
-
-                                {activity.winCondition && (
-                                    <div>
-                                        <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Win Condition</p>
-                                        <p className='text-sm leading-relaxed text-gray-700'>{activity.winCondition}</p>
-                                    </div>
-                                )}
-
-                                <div className='grid grid-cols-2 gap-3'>
-                                    <div className='p-3 rounded-lg bg-gray-50'>
-                                        <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Group Size</p>
-                                        <p className='text-sm text-gray-700'>{activity.playerGroupSizes} players</p>
-                                    </div>
-                                    <div className='p-3 rounded-lg bg-gray-50'>
-                                        <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Equipment</p>
-                                        <p className='text-sm text-gray-700'>{activity.equipmentNeeded?.join(', ') || 'None'}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+                        {showFullDetails && <ActivitySections activity={activity} compact />}
                     </div>
                 </div>
 

@@ -150,16 +150,46 @@ three original phrasings.
 - **`coach-event-wiring.unit.ts`** pins the three-way contract: declared / fired / counted. Any two
   without the third looks healthy and reports zero — which is how `activities_viewed` sat at zero.
 
-### Still open for Christian (raised, not decided here)
-1. **Section inventory vs his table.** His table names five sections; the coach view has ten
-   (adds Constraint, howToPlay, Extensions, Coaching Focus). "One Question Per Section" cannot be
-   fully closed without his call on which survive.
-2. **Wording discrepancy.** RC4 says *"Was it immediately clear how **teams score**?"*; shipped is his
-   own 26 Aug broader phrasing *"how **players succeed**"*. Shipped wording left as-is pending his call.
-3. **Objective content model.** Objectives still read as rationale ("Success depends on recognising…").
+### Christian decided all three on 2026-09-10 — implemented the same day
+He also gave the test that now governs every coach-facing sentence: *"If a coach wouldn't naturally
+say it before starting an activity, the activity probably shouldn't say it either. The engine should
+perform the educational reasoning."*
 
-**Behaviour gate re-verified after all of this: `70 68 98 119 94 99 86`.** Sport-coupling ratchet 35.
-41 unit suites.
+1. **Six sections: Objective, Setup, Rules, Scoring, Win Condition, Equipment.** Constraint and
+   Coaching Focus are off every coach screen (still *produced* — the validator requires both; see
+   below). How to Play folds into Rules. Teams + group size sit behind "More detail".
+   `front/src/components/ActivitySections.tsx` is the one definition every surface uses.
+   **Correction owed to him:** my section inventory called the Teams section "Extensions", because
+   the data field is `extensions[0]`. It holds the TEAM STRUCTURE, not progressions — there are no
+   progression-style extensions anywhere. He decided "optional" on the basis of that label.
+2. **"Was it immediately clear how teams score?"** Answer label "Needed to reread". Answers are
+   tagged `successClarityQuestion: 'how_teams_score'`; only tagged answers are tallied.
+3. **Objective = "what are we working on today?"** Root cause was a prompt line telling the model the
+   objective "should describe the decision problem players read". Replaced with his three examples +
+   his test, plus a deterministic fallback chain (generated → coach's learning goal → game-form
+   objective). Measured: 27/27 generated, 0 fallbacks, 0 assembly retries.
+
+**WHERE THIS LIVES, AND WHY — read before touching it.** Pipeline order is **map → validate →
+compress**. The validator builds its opposition/consequence/decision narratives FROM `winCondition`,
+`constraint`, `intent` and `coachingFocus`, and requires `scaffolding`, `extensions`,
+`equipmentNeeded` to exist. So every change is in `compress-activity-output.ts` (via
+`coach-facing-sections.ts`), AFTER validation. Do NOT "clean up" those fields upstream — that is how
+the 2026-08-16 outage happened.
+
+**Also found by reading output, fixed:** Setup stating its own scoring method (three answers to "how
+do teams score?" in one activity); Win Condition never saying when play ends (`duration` now set);
+Equipment one hedged line on every activity (now read off Setup); model paraphrases of what the sport
+guarantees leading Rules; and five squad-count gaps in `player-format.ts` (noun "neutrals", uncounted
+neutral sentences, "has an extra player", "teams of 6" without "players", "6v6, with the team of 7").
+
+**Known, not fixed — likely Christian's next finding:** Rules still leads with long engine mechanics
+that fail his test, e.g. *"A regain completes only when followed by a connected forward action under
+opposition within the live transition window…"*. These are slot-modifier `mechanicLine`s in
+`slot-mechanics-variations.ts` — the same file whose scoring lines were reworded on 09-08. Offer to
+reword to coach voice; don't do it unasked, it is wording he may want to own.
+
+**Behaviour gate re-verified 2026-09-10: `70 68 98 119 94 99 86`.** Sport-coupling ratchet 35.
+42 unit suites.
 
 ---
 
