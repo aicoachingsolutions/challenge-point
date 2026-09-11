@@ -63,8 +63,9 @@ export interface UsageSummary {
         /** Free-text answers to "anything confusing, unclear, or unrealistic?" */
         unclearNotes: string[]
         /**
-         * "Was it immediately clear how players succeed?" — yes / had_to_reread / no.
+         * "Was it immediately clear how teams score?" — yes / had_to_reread / no.
          * Christian's one-read test, turned from something only he could judge into pilot evidence.
+         * Asked as "how players succeed" until 2026-09-10; only answers to the current wording count.
          */
         successClarity: Record<string, number>
         /**
@@ -230,7 +231,12 @@ export async function summarizeUsage(sinceDays = 30): Promise<UsageSummary> {
             const answer = String(p['answer'] ?? 'unknown')
             runAsWritten[answer] = (runAsWritten[answer] ?? 0) + 1
             const clarity = typeof p['successClarity'] === 'string' ? (p['successClarity'] as string) : ''
-            if (clarity) successClarity[clarity] = (successClarity[clarity] ?? 0) + 1
+            // Only answers to the CURRENT question are tallied. Before 2026-09-10 coaches were asked
+            // "how players succeed"; those answers carry no question tag and measured something
+            // different, so they are left out rather than mixed in.
+            if (clarity && p['successClarityQuestion'] === 'how_teams_score') {
+                successClarity[clarity] = (successClarity[clarity] ?? 0) + 1
+            }
             const change = typeof p['whatWouldChange'] === 'string' ? (p['whatWouldChange'] as string).trim() : ''
             // Kept verbatim, with the answer beside it. "I'd change X" is only interpretable next to
             // whether they would have run it at all.

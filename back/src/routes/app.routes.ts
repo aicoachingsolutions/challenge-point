@@ -524,15 +524,21 @@ router.post('/activity-review', async (req: Request, res: Response) => {
         payload: {
             question: 'run_as_written',
             answer,
-            // Christian's one-read test, asked of the coach rather than inferred: "was it
-            // immediately clear how players succeed in this activity?" Deliberately broader than
-            // scoring — the primary consequence is sometimes retaining possession, delaying an
-            // attack, or winning the ball back. Validated loosely and never fatal: an unrecognised
-            // value is dropped rather than failing a coach's feedback submission.
+            // Christian's one-read test, asked of the coach rather than inferred: "Was it
+            // immediately clear how teams score?" Changed on 2026-09-10 from "how players succeed",
+            // at his decision: the broader wording covered activities won by keeping or regaining
+            // the ball, but it asked the coach to judge something subjective. "How teams score" is
+            // one concrete, observable question, matching the Communication Standard. Validated
+            // loosely and never fatal: an unrecognised value is dropped rather than failing a
+            // coach's feedback submission.
             successClarity:
                 successClarity === 'yes' || successClarity === 'had_to_reread' || successClarity === 'no'
                     ? successClarity
                     : undefined,
+            // Which question the clarity answer was given to. The two wordings measure different
+            // things, so any answers collected under the old one must not be tallied as if they
+            // answered the new one.
+            successClarityQuestion: successClarity ? 'how_teams_score' : undefined,
             whatWouldChange: typeof whatWouldChange === 'string' ? whatWouldChange.slice(0, 2000) : undefined,
             unclear: typeof unclear === 'string' ? unclear.slice(0, 2000) : undefined,
         },
