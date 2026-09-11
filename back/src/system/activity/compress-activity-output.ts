@@ -49,6 +49,13 @@ import type { IActivity } from '../../models/activity.model'
 import { translateCoachLanguage } from './coach-language'
 import { applyCoachCommunicationStandard, applyStandardToRequiredSection } from './coach-communication-standard'
 import {
+    deriveEquipment,
+    describeWinCondition,
+    mergeHowToPlayIntoRules,
+    removeScoringFromSetup,
+    toCoachingObjective,
+} from './coach-facing-sections'
+import {
     isNotAWayToEarnPoints,
     leadWithClearestScoringSentence,
     routeRulesForCoach,
@@ -402,7 +409,17 @@ export function compressActivityForCoach(activity: IActivity, modifierMechanicLi
     // restatements of the ordinary run of play are dropped. Runs before the cap so the cap spends its budget
     // on rules a coach can act on rather than on sentences explaining why the activity works.
     // See coach-section-ownership.ts — knowledge is untouched, only what gets shown.
-    const routedRules = routeRulesForCoach(dedupedRules, modifierMechanicLines)
+    //
+    // HOW TO PLAY FOLDS IN HERE, before routing (Christian, 2026-09-10: merge it into Rules unless it
+    // holds something Rules cannot). Merging first means the same ownership routing and the same cap
+    // apply to its lines as to every other rule, so How to Play cannot smuggle a scoring claim or a
+    // design explanation past the rules that already keep those out. See coach-facing-sections.ts.
+    const howToPlayLines = Array.isArray((activity as unknown as Record<string, unknown>).howToPlay)
+        ? ((activity as unknown as Record<string, unknown>).howToPlay as string[])
+        : []
+    const setupText = typeof activity.setup === 'string' ? activity.setup : ''
+    const rulesWithHowToPlay = mergeHowToPlayIntoRules(howToPlayLines, dedupedRules, setupText)
+    const routedRules = routeRulesForCoach(rulesWithHowToPlay, modifierMechanicLines)
 
     // Step 3: cap rules. rules[0] is the explicit exchange rule (validator requires it
     // there) — must-keep. Any rule that carries Phase 3.5 modifier text — must-keep.
@@ -502,39 +519,67 @@ export function compressActivityForCoach(activity: IActivity, modifierMechanicLi
     // every coach-facing field. Lives in ./coach-language so vocabulary can be revised without
     // touching compression, and vice versa. Runs LAST so the dedup/cap logic above still matches on
     // the original engine phrasing.
+    // Setup answers "how do I organize it?" and nothing else — a scoring method stated here is a
+    // second answer to "how do teams score?", and in real output it disagreed with Scoring.
+    const coachSetup =
+        typeof activity.setup === 'string'
+            ? removeScoringFromSetup(applyCoachCommunicationStandard(translateCoachLanguage(activity.setup)))
+            : activity.setup
+
+    // OBJECTIVE — "what are we working on today?" (Christian, 2026-09-10). The Communication Standard
+    // removes what must not be said; this then picks the one sentence that names the intention, or
+    // falls back to the coach's own goal. See toCoachingObjective for the order and why.
+    const rawObjective = typeof activity.intent === 'string' ? translateCoachLanguage(activity.intent) : ''
+    const coachObjective =
+        typeof activity.intent === 'string'
+            ? toCoachingObjective(
+                  applyStandardToRequiredSection(rawObjective),
+                  rawObjective,
+                  activity.systemTrace?.planning?.learningGoalName
+              ).text
+            : activity.intent
+
     return {
         ...activity,
         // COACH COMMUNICATION STANDARD (RC2) runs LAST, after the vocabulary dictionary. Translation
         // swaps terms; the standard removes whole clauses that describe cognition or announce
         // purpose. Doing it last means it also cleans up anything translation introduced.
+        //
+        // WHAT A COACH READS is six sections — Objective, Setup, Rules, Scoring, Win Condition,
+        // Equipment — plus Teams behind an optional expansion (Christian, 2026-09-10). The other
+        // fields below are still produced, because the output validator requires them and the engine
+        // reasons with them; they are simply no longer shown. See coach-facing-sections.ts.
         title: translateCoachLanguage(activity.title),
-        setup: typeof activity.setup === 'string' ? applyCoachCommunicationStandard(translateCoachLanguage(activity.setup)) : activity.setup,
+        setup: coachSetup,
         rules: cappedRules.map((r) => applyCoachCommunicationStandard(translateCoachLanguage(r))).filter(Boolean),
-        // Same coach-language pass as every other coach-facing field. Missed fields are how jargon
-        // fixed elsewhere kept resurfacing (see the Round-9 note below) — and howToPlay proved it
-        // again: with only the vocabulary pass here, real generation shipped "Teams aim to exploit
-        // the central corridor to score" to a coach after the standard was already live everywhere
-        // else. This section IS "how to play", so it is the last place purpose framing belongs.
-        howToPlay: Array.isArray((activity as unknown as Record<string, unknown>).howToPlay)
-            ? ((activity as unknown as Record<string, unknown>).howToPlay as string[])
-                  .map((h) => applyCoachCommunicationStandard(translateCoachLanguage(h)))
-                  .filter(Boolean)
-            : [],
+        // Folded into Rules above. Left as an empty array rather than removed so an activity always
+        // has the same shape, and the section simply does not render.
+        howToPlay: [],
         scoringSystem: applyCoachCommunicationStandard(translateCoachLanguage(finalScoring)),
-        winCondition: typeof activity.winCondition === 'string' ? applyCoachCommunicationStandard(translateCoachLanguage(activity.winCondition)) : activity.winCondition,
-        // scaffolding is DELIBERATELY exempt from the standard, and this is not an oversight.
-        // Player-read narration is stripped from rules and scoring precisely so it can surface once
-        // here — coachingFocus is the section that tells a coach what to watch, so "observe how
-        // players read the space" is the content, not a violation. Applying the cognition strip here
-        // would empty the one section allowed to describe perception.
+        // "When does the activity end?" — which the engine's template never said. The coach told us.
+        winCondition:
+            typeof activity.winCondition === 'string' || activity.duration
+                ? applyCoachCommunicationStandard(
+                      translateCoachLanguage(describeWinCondition(activity.winCondition, activity.duration))
+                  )
+                : activity.winCondition,
+        // Read off the Setup the coach will actually lay out, replacing the engine's hedged
+        // one-line placeholder. A coach-edited list is kept as they wrote it.
+        equipmentNeeded: deriveEquipment(activity.equipmentNeeded, typeof coachSetup === 'string' ? coachSetup : ''),
+        // NOT COACH-FACING since 2026-09-10: Christian judged Coaching Focus redundant with the
+        // Learning Goal and the Objective. Still produced — the validator requires the field and its
+        // observation language carries the decision vocabulary the structural check looks for — but
+        // no screen shows it. It stays exempt from the Communication Standard, because it is the one
+        // place perception language is the content rather than a leak.
         scaffolding: cappedScaffolding.map((s) => (typeof s === 'string' ? translateCoachLanguage(s) : s)),
-        // Round-9 verification gap: these coach-facing fields previously passed through the spread
-        // UNtranslated, so stutters/jargon fixed elsewhere still surfaced here ("players decide to
-        // decide…" sighted after the rules/scoring fix shipped).
-        // Objective answers "what are we improving?" in Christian's section table, so it is one of
-        // the sections that must never come back blank. See applyStandardToRequiredSection.
-        intent: typeof activity.intent === 'string' ? applyStandardToRequiredSection(translateCoachLanguage(activity.intent)) : activity.intent,
+        intent: coachObjective,
+        // NOT COACH-FACING since 2026-09-10 ("Constraint should not be coach-facing"). Kept intact:
+        // it carries the selected constraint package summary, which the validator checks — removing
+        // it is what caused the generation outage of 2026-08-16.
         constraint: typeof activity.constraint === 'string' ? applyCoachCommunicationStandard(translateCoachLanguage(activity.constraint)) : activity.constraint,
+        // Shown to coaches as "Teams", behind the optional expansion. The field name is historical:
+        // it holds the team structure (map-structured-activity-to-legacy puts `activity.teams` here),
+        // not progressions.
         extensions: Array.isArray(activity.extensions)
             ? activity.extensions.map((e) =>
                   typeof e === 'string' ? applyCoachCommunicationStandard(translateCoachLanguage(e)) : e

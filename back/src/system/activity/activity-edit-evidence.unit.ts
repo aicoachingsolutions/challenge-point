@@ -94,7 +94,10 @@ function testEveryFieldIsClassified(): void {
         )
     }
     // Guard against a field being added to the activity without a classification decision.
-    assert.equal(Object.keys(FIELD_CLASSIFICATION).length, 9, 'Field count changed — classify the new field.')
+    // 10 since 2026-09-10: equipmentNeeded became a core coach-facing section and editable, and was
+    // classified 'presentation' — the structure it serves lives in Setup, which is already a trigger.
+    assert.equal(Object.keys(FIELD_CLASSIFICATION).length, 10, 'Field count changed — classify the new field.')
+    assert.equal(FIELD_CLASSIFICATION.equipmentNeeded, 'presentation')
 }
 
 /** Missing/blank prior values must not crash, and must count as a change when filled in. */

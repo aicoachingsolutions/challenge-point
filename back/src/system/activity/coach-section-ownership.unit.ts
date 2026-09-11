@@ -174,7 +174,37 @@ function testScoringLeadsWithThePlainestSentence(): void {
     for (const s of sentences) assert.ok(led.includes(s), 'every sentence must survive reordering')
 }
 
+/**
+ * REGRESSION — real generation, 2026-09-10, once How to Play was folded into Rules. The model's own
+ * wording of what the How to Play brief says a coach already knows led the Rules section.
+ */
+function testModelParaphrasesOfTheObviousAreRecognised(): void {
+    for (const obvious of [
+        'If possession is lost, the opposing team quickly transitions to attack.',
+        'Defenders aim to intercept and transition quickly.',
+        'Losing the ball means the opponent attacks.',
+        'Defenders work to disrupt transitions and regain possession.',
+        'Upon losing possession, immediately transition to defense.',
+        'Game continues with live transitions after each turnover.',
+        'Play continues without stopping after each turnover.',
+    ]) {
+        assert.ok(isImpliedSportKnowledge(obvious), `missed an obvious statement: "${obvious}"`)
+    }
+
+    // Activity-specific content makes a line worth keeping even when it starts the same way.
+    for (const specific of [
+        'On a turnover, immediately counter into the central corridor.',
+        'If possession is lost, the opposing team may only attack through the wide channels.',
+        'Defenders aim to force play into the wide channels.',
+        'Defenders aim to intercept passes into the corridor.',
+        'Upon losing the ball, defenders must immediately regain shape.',
+    ]) {
+        assert.ok(!isImpliedSportKnowledge(specific), `dropped activity-specific content: "${specific}"`)
+    }
+}
+
 testOnePrimarySuccessCondition()
+testModelParaphrasesOfTheObviousAreRecognised()
 testTheSlotVariationIsTheOnlyPermittedSecondary()
 testRelocatedRewardsBecomeObservations()
 testNothingIsInventedOrLost()

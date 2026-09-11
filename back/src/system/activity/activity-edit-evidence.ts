@@ -38,6 +38,7 @@ export type EditableActivityField =
     | 'winCondition'
     | 'scaffolding'
     | 'extensions'
+    | 'equipmentNeeded'
 
 export type EditClassification = 'presentation' | 'revalidation-trigger'
 
@@ -52,8 +53,11 @@ export type EditClassification = 'presentation' | 'revalidation-trigger'
  *   - constraint    — carries the selected package summary; changing it restates the design.
  *   - setup         — Integration §36 ("participation structure"); setup carries area, numbers and
  *                     opposition, which RVD-01 treats as constitutive organization.
- *   - extensions    — progressions. RVD-06H "Progression Drift": a progression can change the
- *                     activity's ecological identity, so it is not presentation.
+ *   - extensions    — despite the name, holds the TEAM STRUCTURE (map-structured-activity-to-legacy
+ *                     puts `activity.teams` here; coaches see it as "Teams"). Team structure is
+ *                     participation structure, which RVD-01 treats as constitutive — so it stays a
+ *                     revalidation trigger, for that reason rather than the progression one this
+ *                     comment used to give.
  *
  * `presentation` sources:
  *   - title         — naming only; no mechanic depends on it.
@@ -61,10 +65,14 @@ export type EditClassification = 'presentation' | 'revalidation-trigger'
  *                     not what the activity IS. (Note: RVD-04K treats coach language as capable of
  *                     instructional leakage — that is a language concern owned by the coach-language
  *                     layer, not a structural modification.)
+ *   - equipmentNeeded — what to bring. Became a core coach-facing section on 2026-09-10 and is now
+ *                     editable. The structure it serves lives in Setup, which is already a trigger;
+ *                     changing the kit list does not change the game.
  */
 export const FIELD_CLASSIFICATION: Readonly<Record<EditableActivityField, EditClassification>> = {
     title: 'presentation',
     scaffolding: 'presentation',
+    equipmentNeeded: 'presentation',
     setup: 'revalidation-trigger',
     intent: 'revalidation-trigger',
     constraint: 'revalidation-trigger',

@@ -100,6 +100,10 @@ export function mapStructuredActivityToLegacy(activity: Activity, input: SystemA
         twoSidedExchangeRule,
         twoSidedScoringConsequence,
         playerGroupSizes,
+        // The coach's answer to "How long is this activity?". IActivity has always had the field and
+        // nothing ever set it, so the Win Condition could not say when play ends — the one question
+        // that section exists to answer. Not read by the output validator.
+        duration: input.coachInput.duration,
         scaffolding: activity.coachingFocus,
         extensions: [activity.teams],
         equipmentNeeded: ['Marking cones or discs if needed for zones described in setup.'],

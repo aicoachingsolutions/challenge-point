@@ -22,6 +22,7 @@ import { determineZpdZone, getZoneInfo } from '@/utils/analysis'
 import ActivityFeedback from '@/components/ActivityFeedback'
 import { recordCoachEvent } from '@/services/coach-events.service'
 import ActivityReviewPrompt from '@/components/ActivityReviewPrompt'
+import ActivitySections from '@/components/ActivitySections'
 import PracticeReportPrompt from '@/components/PracticeReportPrompt'
 import Button from '@/components/Button'
 import Loading from '@/components/Loading'
@@ -373,7 +374,7 @@ function ActivityScreen({
             rules: draft.rules,
             scoringSystem: draft.scoringSystem,
             winCondition: draft.winCondition,
-            scaffolding: draft.scaffolding,
+            equipmentNeeded: draft.equipmentNeeded,
         })
         if (res.error) {
             throw new Error(typeof res.error === 'string' ? res.error : 'Could not save your changes.')
@@ -534,115 +535,7 @@ function ActivityScreen({
                         />
                     )}
 
-                    {activityDetailsExpanded && !isEditingContent && (
-                        <div className='space-y-5'>
-
-                        {/* Objective */}
-                        <div>
-                            <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Objective</p>
-                            <p className='leading-relaxed text-gray-700'>{activity?.intent}</p>
-                        </div>
-
-                        {/* Setup — field dimensions, zones, numbers, equipment, restart logic.
-                            Surfaces the AI-written setup description so coaches can physically
-                            set up the activity without inventing parameters. */}
-                        {activity?.setup && (
-                            <div className='p-4 rounded-lg bg-blue-50 border border-blue-200'>
-                                <p className='text-xs font-semibold uppercase tracking-wide text-blue-700 mb-1'>Setup</p>
-                                <p className='text-sm leading-relaxed text-blue-900 whitespace-pre-line'>{activity.setup}</p>
-                            </div>
-                        )}
-
-                        {/* How to Play — the flow of the game, immediately after Setup.
-                            Christian, 17 Aug, reading generated activities as a coach: "I frequently
-                            understand the learning intention, but I still don't consistently
-                            understand the game." Setup says what to lay out; this says what happens.
-                            Rules alone could not carry it — once scoring restatements and design
-                            rationale were routed to their own sections, Rules was left with one or
-                            two lines, because the section had mostly been full of things that were
-                            not rules. Optional: activities generated before this existed just show
-                            one heading fewer. */}
-                        {(activity as unknown as { howToPlay?: string[] })?.howToPlay?.length > 0 && (
-                            <div>
-                                <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2'>How to Play</p>
-                                <ul className='space-y-1.5'>
-                                    {(activity as unknown as { howToPlay: string[] }).howToPlay.map((line, i) => (
-                                        <li key={i} className='flex gap-2 text-sm leading-relaxed text-gray-700'>
-                                            <span aria-hidden className='text-gray-400'>&bull;</span>
-                                            <span>{line}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        )}
-
-                        {/* Teams */}
-                        {activity?.extensions?.[0] && (
-                            <div>
-                                <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Teams</p>
-                                <p className='leading-relaxed text-gray-700'>{activity.extensions[0]}</p>
-                            </div>
-                        )}
-
-                        {/* Rules */}
-                        {activity?.rules?.length > 0 && (
-                            <div>
-                                <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2'>Rules</p>
-                                <ol className='space-y-2'>
-                                    {activity.rules.map((r, i) => (
-                                        <li key={i} className='flex gap-3 text-sm text-gray-700'>
-                                            <span className='flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full bg-brand-100 text-brand-700 text-xs font-bold mt-0.5'>{i + 1}</span>
-                                            <span className='leading-relaxed'>{r}</span>
-                                        </li>
-                                    ))}
-                                </ol>
-                            </div>
-                        )}
-
-                        {/* Scoring */}
-                        {activity?.scoringSystem && (
-                            <div className='p-4 rounded-lg bg-amber-50 border border-amber-200'>
-                                <p className='text-xs font-semibold uppercase tracking-wide text-amber-600 mb-1'>Scoring</p>
-                                <p className='text-sm leading-relaxed text-amber-800'>{activity.scoringSystem}</p>
-                            </div>
-                        )}
-
-                        {/* Win Condition */}
-                        {activity?.winCondition && (
-                            <div>
-                                <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Win Condition</p>
-                                <p className='text-sm leading-relaxed text-gray-700'>{activity.winCondition}</p>
-                            </div>
-                        )}
-
-                        {/* Setup info */}
-                        <div className='grid grid-cols-2 gap-3'>
-                            <div className='p-3 rounded-lg bg-gray-50'>
-                                <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Group Size</p>
-                                <p className='text-sm text-gray-700'>{activity?.playerGroupSizes} players</p>
-                            </div>
-                            <div className='p-3 rounded-lg bg-gray-50'>
-                                <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'>Equipment</p>
-                                <p className='text-sm text-gray-700'>{activity?.equipmentNeeded?.join(', ') || 'None'}</p>
-                            </div>
-                        </div>
-
-                        {/* Learning Goals */}
-                        {activity?.learningPriorities && activity.learningPriorities.length > 0 && (
-                            <div className='p-4 rounded-lg bg-blue-50 border border-blue-200'>
-                                <p className='text-xs font-semibold uppercase tracking-wide text-blue-600 mb-2'>Learning Goals</p>
-                                <ul className='space-y-1'>
-                                    {activity.learningPriorities.map((goal, index) => (
-                                        <li key={index} className='flex items-start gap-2 text-sm text-blue-800'>
-                                            <span className='flex-shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-500'></span>
-                                            {goal.description}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        )}
-                        </div>
-                    )}
+                    {activityDetailsExpanded && !isEditingContent && <ActivitySections activity={activity} />}
                 </div>
             </div>
 
@@ -654,21 +547,6 @@ function ActivityScreen({
                 Shown only In Progress per Christian's three-surface information architecture. */}
             {isInProgress && (
                 <div className='flex flex-col order-2 gap-6'>
-                    {/* Coaching Focus */}
-                    {activity?.scaffolding?.length > 0 && (
-                        <div className='p-4 rounded-lg bg-green-50 border border-green-200'>
-                            <p className='text-xs font-semibold uppercase tracking-wide text-green-600 mb-2'>Coaching Focus</p>
-                            <ul className='space-y-1'>
-                                {activity.scaffolding.map((cue, i) => (
-                                    <li key={i} className='flex items-start gap-2 text-sm text-green-800'>
-                                        <span className='flex-shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full bg-green-500'></span>
-                                        {cue}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
-
                     {/* What to Watch — placeholder for the future observation layer.
                         Non-functional by design (Christian's MVP2 request): reserves the
                         information-architecture home for observation support. No data binding. */}
@@ -735,16 +613,16 @@ function ActivityScreen({
                                 />
                                 {difficultyLevel === DifficultyLevels['High'] && (
                                     <div className='p-4 mt-4 border border-red-200 rounded-lg bg-red-50'>
-                                        {/* Bug-stream fix (#4): previously revealed activity.scaffolding,
-                                            which is the coaching-focus content now shown permanently in
-                                            the Coaching Focus block above — duplicated content. Replaced
-                                            with a non-duplicative adjustment cue that points to the
-                                            already-visible Coaching Focus. Activity-specific scaffolding
-                                            recommendations are deferred to the parked difficulty/engagement
-                                            interpretation work. */}
+                                        {/* Bug-stream fix (#4): previously revealed activity.scaffolding.
+                                            This cue then pointed the coach at "the Coaching Focus cues
+                                            above" — and on 2026-09-10 Coaching Focus stopped being shown
+                                            (Christian: redundant with the Learning Goal and Objective), so
+                                            the sentence sent a coach mid-session looking for a section
+                                            that no longer exists. Activity-specific adjustment advice is
+                                            still deferred to the parked difficulty/engagement work. */}
                                         <p className='text-sm font-medium leading-relaxed text-red-700'>
-                                            Players are finding this too difficult. Ease the demand — more time, space, or
-                                            support — and use the Coaching Focus cues above to guide your read.
+                                            Players are finding this too difficult. Ease the demand — give them more time,
+                                            more space, or more support.
                                         </p>
                                     </div>
                                 )}

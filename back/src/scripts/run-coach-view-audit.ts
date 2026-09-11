@@ -22,8 +22,9 @@
  *   It passes the REAL per-slot modifier lines. Passing [] here once produced a confident, wrong
  *   claim that all three activities had identical rules.
  *
- * scaffolding is reported separately rather than counted as violations: coachingFocus is the one
- * section deliberately allowed to describe perception. See compress-activity-output.ts.
+ * It audits only what a coach reads: the six sections Christian settled on 2026-09-10, plus Teams
+ * behind the optional expansion. Coaching Focus, Constraint and How to Play are still produced for
+ * the validator and the engine but no screen shows them, so they are not coach text to audit.
  */
 import 'dotenv/config'
 import '../loadEnv'
@@ -34,7 +35,12 @@ import type { IConstraint } from '../models/constraint.model'
 import type { ISession } from '../models/session.model'
 import { SessionStatus } from '../models/session.model'
 import { assembleActivities } from '../services/completion.service'
-import { findCommunicationStandardViolations } from '../system/activity/coach-communication-standard'
+import {
+    applyStandardToRequiredSection,
+    findCommunicationStandardViolations,
+} from '../system/activity/coach-communication-standard'
+import { toCoachingObjective, type ObjectiveSource } from '../system/activity/coach-facing-sections'
+import { translateCoachLanguage } from '../system/activity/coach-language'
 import { compressActivitiesForCoach } from '../system/activity/compress-activity-output'
 import { mapStructuredActivityToLegacy } from '../system/activity/map-structured-activity-to-legacy'
 import { getSlotMechanicalVariations } from '../system/activity/slot-mechanics-variations'
@@ -164,27 +170,32 @@ function buildSystemAssemblyInput(sel: TestLibrarySelectionResult, learningGoal:
     }
 }
 
-// The fields a coach actually reads, on the persisted IActivity the route returns.
+// What a coach reads, in the order they read it (Christian, 2026-09-10): six core sections, then
+// Teams behind the optional expansion. Constraint, How to Play and Coaching Focus are no longer shown
+// anywhere, so they are not audited as coach text.
 const FIELDS = [
     'title',
-    'setup',
     'intent',
-    'constraint',
-    'howToPlay',
+    'setup',
     'rules',
     'scoringSystem',
     'winCondition',
-    'scaffolding',
+    'equipmentNeeded',
     'extensions',
 ] as const
 
 async function main() {
     let totalViolations = 0
+    // How each Objective was produced, and whether assembly had to retry. The Objective instruction
+    // changed on 2026-09-10; these two figures are how that change is judged rather than assumed.
+    const objectiveSources: Record<ObjectiveSource, number> = { generated: 0, 'learning-goal': 0, 'game-form': 0, fallback: 0 }
+    let retriedAssemblies = 0
 
     for (const input of INPUTS) {
         const sel = generateSelection({ learningGoals: [input] }, deriveInputConstraints(input))
         const assemblyInput = buildSystemAssemblyInput(sel, input)
         const assembled = await assembleActivities(assemblyInput)
+        if (assembled.retriedAfterValidationFailure) retriedAssemblies++
 
         // Reproduce the route exactly: map to the persisted shape, then compress with the same
         // per-slot modifier lines production passes. Passing [] here once produced a false claim.
@@ -197,10 +208,20 @@ async function main() {
         // for every input is what made an earlier reading of "identical across activities" wrong:
         // three slot-1 activities are not three slots.
         const slot = Number(process.env.SLOT_INDEX ?? '1')
-        const activity = compressed[Math.min(Math.max(slot, 1), compressed.length) - 1] as unknown as Record<
-            string,
-            unknown
-        >
+        const slotIndex = Math.min(Math.max(slot, 1), compressed.length) - 1
+        const activity = compressed[slotIndex] as unknown as Record<string, unknown>
+
+        // Recomputed the way compress-activity-output does it, only to learn WHICH route fired.
+        for (const a of legacy) {
+            const rawObjective = translateCoachLanguage(a.intent ?? '')
+            objectiveSources[
+                toCoachingObjective(
+                    applyStandardToRequiredSection(rawObjective),
+                    rawObjective,
+                    a.systemTrace?.planning?.learningGoalName
+                ).source
+            ]++
+        }
 
         console.log('\n' + '='.repeat(90))
         console.log(`INPUT: ${input}`)
@@ -215,7 +236,9 @@ async function main() {
 
             // Attribute any emptied field: show what it held BEFORE compression, so a field the
             // standard blanked is distinguishable from one generation never filled.
-            const before = (legacy[0] as unknown as Record<string, unknown>)[field]
+            // The SAME slot's pre-compression value. This compared against slot 1 whatever slot was
+            // printed, which made the check meaningless for SLOT_INDEX 2 and 3.
+            const before = (legacy[slotIndex] as unknown as Record<string, unknown>)[field]
             const beforeText = Array.isArray(before) ? before.join(' | ') : String(before ?? '')
             if (!text.trim() && beforeText.trim()) {
                 console.log(`  !! EMPTIED BY COMPRESSION. Before: "${beforeText}"`)
@@ -224,20 +247,16 @@ async function main() {
             const flat = Array.isArray(raw) ? raw.join(' ') : String(raw ?? '')
             const violations = findCommunicationStandardViolations(flat)
             if (violations.length) {
-                // scaffolding is coachingFocus: the section that tells a coach what to watch for, and
-                // therefore the one place perception language is the content rather than a leak.
-                if (field === 'scaffolding') {
-                    console.log(`  (observation voice, exempt by design: ${JSON.stringify(violations)})`)
-                } else {
-                    totalViolations += violations.length
-                    console.log(`  !! CCS VIOLATIONS: ${JSON.stringify(violations)}`)
-                }
+                totalViolations += violations.length
+                console.log(`  !! CCS VIOLATIONS: ${JSON.stringify(violations)}`)
             }
         }
     }
 
     console.log('\n' + '='.repeat(90))
     console.log(`TOTAL CCS VIOLATIONS ACROSS ALL COACH-FACING FIELDS: ${totalViolations}`)
+    console.log(`OBJECTIVE SOURCES (all three slots per input): ${JSON.stringify(objectiveSources)}`)
+    console.log(`ASSEMBLIES THAT RETRIED AFTER A VALIDATION FAILURE: ${retriedAssemblies} of ${INPUTS.length}`)
 }
 
 main().catch((err) => {

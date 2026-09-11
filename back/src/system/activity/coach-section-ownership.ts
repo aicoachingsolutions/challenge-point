@@ -65,11 +65,38 @@ export function isDesignRationale(line: string): boolean {
  * Note the first pattern catches a sentence I wrote on 16 Aug while rewriting design specs into
  * rules: "Teams attack toward a defined goal or end, so every progression has a direction." It was
  * grammatical, coach-voiced, and still said nothing.
+ *
+ * THE MODEL SAYS THE SAME THINGS IN ITS OWN WORDS. The phrase list above matches the engine's
+ * phrasings; once How to Play was folded into Rules (2026-09-10), the model's paraphrases of the same
+ * obvious facts arrived too, and led the section: "If possession is lost, the opposing team quickly
+ * transitions to attack." and "Defenders aim to intercept and transition quickly." Those are two of
+ * the three things the How to Play brief itself lists as what a coach already knows — "losing the
+ * ball means the opponent attacks, and defenders try to win it back" — so they are matched here too.
  */
+const SPORT_GUARANTEES_PARAPHRASED: ReadonlyArray<RegExp> = [
+    /\bif\s+(?:possession|the\s+ball)\s+is\s+lost,?\s+the\s+(?:opposing|other)\s+team\s+(?:quickly\s+)?(?:transitions?\s+to\s+attack|attacks?)\s*\.?$/i,
+    /\blosing\s+the\s+ball\s+means\s+the\s+(?:opponent|opposing\s+team|other\s+team)\s+attacks?\b/i,
+    /\b(?:the\s+)?(?:opponents?|opposing\s+team|other\s+team)\s+(?:then\s+)?attacks?\s+after\s+winning\s+(?:the\s+ball|possession)\b/i,
+    // "Defenders aim to intercept and transition quickly." / "Defenders work to disrupt transitions
+    // and regain possession." Anchored to the WHOLE line, so "Defenders aim to intercept passes into
+    // the corridor" — which says where — is kept.
+    /^\s*defenders?\s+(?:aim|try|look|work)\s+to\s+(?:intercept|disrupt(?:\s+transitions)?|win\s+(?:it|the\s+ball)\s+back|regain(?:\s+possession)?)(?:\s+(?:and|then)\s+(?:transition\s+quickly|regain\s+possession|win\s+it\s+back))?\s*\.?$/i,
+    // "Upon losing possession, immediately transition to defense."
+    /^\s*(?:upon|after|on)\s+losing\s+(?:possession|the\s+ball),?\s+(?:immediately\s+)?transition\s+to\s+defen[cs]e\s*\.?$/i,
+    // "Game continues with live transitions after each turnover." / "Play continues without stopping
+    // after each turnover." The exchange rule already says it, with the reason attached.
+    /^\s*(?:game|play)\s+continues\s+(?:with\s+live\s+transitions|without\s+stopping)\s+after\s+(?:each|every)\s+turnover\s*\.?$/i,
+]
+
 export function isImpliedSportKnowledge(line: string): boolean {
-    return /\b(so every progression has a direction|teams attack toward a defined goal|live opposition contests every attempt|opponents? actively contests?|the immediate action after possession changes|transition moment is the game|both teams play a live, two-sided game|attack and defend as they would in a normal game)\b/i.test(
-        line
-    )
+    if (
+        /\b(so every progression has a direction|teams attack toward a defined goal|live opposition contests every attempt|opponents? actively contests?|the immediate action after possession changes|transition moment is the game|both teams play a live, two-sided game|attack and defend as they would in a normal game)\b/i.test(
+            line
+        )
+    ) {
+        return true
+    }
+    return SPORT_GUARANTEES_PARAPHRASED.some((pattern) => pattern.test(line.trim()))
 }
 
 export interface RuleRouting {
