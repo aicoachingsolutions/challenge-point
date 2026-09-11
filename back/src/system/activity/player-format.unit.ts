@@ -133,8 +133,104 @@ function testUnevenSidesDropTheEach(): void {
     assert.ok(!/\beach\b/i.test(out.text), `"each" survived uneven sides: "${out.text}"`)
 }
 
+/**
+ * REGRESSION — real generation, 2026-09-08, 12-player squad. "with two neutrals" was invisible to a
+ * pattern that required "neutral player(s)", so fourteen players parsed as twelve and passed.
+ */
+function testNeutralsAsANounAreCounted(): void {
+    const real =
+        'Play 6v6 with two neutrals in a 40x30 yard area. A central corridor divides the field into two halves. Neutrals start in the central corridor and play for the team in possession.'
+
+    assert.equal(parseStatedPlayerTotal(real), 14, 'the noun form was not counted')
+
+    const out = reconcilePlayerFormat(real, 12, 'Directional Possession Games')
+    assert.equal(out.corrected, true)
+    assert.equal(parseStatedPlayerTotal(out.text), 12, `still the wrong squad: "${out.text}"`)
+    assert.ok(!/\bneutrals?\b/i.test(out.text), `phantom neutrals survived: "${out.text}"`)
+    // The trailing phrase was the playing area, not where the neutrals stood.
+    assert.ok(out.text.includes('40x30 yard area'), `lost the playing area: "${out.text}"`)
+    assert.ok(out.text.includes('A central corridor divides the field'), `lost the layout: "${out.text}"`)
+}
+
+/**
+ * The count already spends the whole squad, so neutrals mentioned elsewhere are players the coach
+ * does not have. Real shape: "Play 6v6. … Neutrals start in the wide channels."
+ */
+function testUncountedNeutralsAreRemovedWhenTheSquadIsAlreadySpent(): void {
+    const out = reconcilePlayerFormat(
+        'Play 6v6 with a central corridor. Players start in their respective halves, with neutrals positioned in the wide channels. Neutrals start in the wide channels and can move freely.',
+        12,
+        'Channel Games'
+    )
+
+    assert.equal(out.corrected, true)
+    assert.ok(!/\bneutrals?\b/i.test(out.text), `phantom neutrals survived: "${out.text}"`)
+    assert.ok(out.text.includes('Players start in their respective halves'), `took the sentence with the clause: "${out.text}"`)
+}
+
+/** Counted neutrals are real structure and must be left exactly alone. */
+function testCountedNeutralsAreKept(): void {
+    const text = 'Play 5v5 with two neutrals in the wide channels. Neutrals play for the team in possession.'
+    const out = reconcilePlayerFormat(text, 12, 'Channel Games')
+
+    assert.equal(parseStatedPlayerTotal(text), 12)
+    assert.equal(out.text, text)
+    assert.equal(out.corrected, false)
+}
+
+/** REGRESSION — real Setup, 2026-09-10, 12 players: two formats in one sentence, count still 12. */
+function testTeamSizeContradictingTheScorelineIsRemoved(): void {
+    const out = reconcilePlayerFormat(
+        'Set up a 40x30 yard field with two end zones. Play 6v6, with the team of 7 defending. Play starts with a pass from the defending team.',
+        12,
+        'Transition Games'
+    )
+
+    assert.ok(!/team of 7/i.test(out.text), `contradiction survived: "${out.text}"`)
+    assert.ok(out.text.includes('Play 6v6.'), `mangled the format sentence: "${out.text}"`)
+    assert.ok(out.text.includes('Play starts with a pass from the defending team.'), `lost the restart: "${out.text}"`)
+    assert.equal(out.corrected, true)
+}
+
+/** A team size that IS one side of the stated format is the format, said twice. Leave it. */
+function testTeamSizeMatchingTheScorelineIsKept(): void {
+    const text = 'Play 7v5, with the team of 7 defending.'
+    assert.equal(reconcilePlayerFormat(text, 12, 'Overload Games').text, text)
+}
+
+/** REGRESSION — real Setup, 2026-09-10: "teams of 6" without the word "players" was not counted. */
+function testPerTeamCountWithoutTheWordPlayers(): void {
+    const text =
+        'Play with two teams of 6 in a 40x30 yard area. Create a central zone with a 2-player overload for the defending team. Teams start in their defensive half.'
+
+    assert.equal(parseStatedPlayerTotal(text), 12)
+    const out = reconcilePlayerFormat(text, 12, 'Transition Games')
+    assert.ok(!/Teams play \d+v\d+/.test(out.text), `appended a second format: "${out.text}"`)
+    assert.ok(out.text.includes('two teams of 6'), `rewrote a correct count: "${out.text}"`)
+}
+
+/** REGRESSION — real Setup, 2026-09-10: "Play 6v6 … One team has an extra player" is thirteen. */
+function testExtraPlayerAsTheVerbIsCounted(): void {
+    const text =
+        'Play 6v6 with two end zones on a 40x30 yard field. One team has an extra player in their attacking end zone. Play begins with a pass from the defending end zone.'
+
+    assert.equal(parseStatedPlayerTotal(text), 13, 'the "has an extra player" form was not counted')
+    const out = reconcilePlayerFormat(text, 12, 'Directional Possession Games')
+    assert.equal(parseStatedPlayerTotal(out.text), 12, `wrong squad after correction: "${out.text}"`)
+    assert.ok(!/extra player/i.test(out.text), `phantom player survived: "${out.text}"`)
+    assert.ok(!/\bOne team\.\s/.test(`${out.text} `), `left a fragment behind: "${out.text}"`)
+    assert.ok(out.text.includes('Play begins with a pass from the defending end zone.'), `lost the restart: "${out.text}"`)
+}
+
 testFormatsAlwaysSpendTheWholeSquad()
 testOverloadMovesAPlayerRatherThanAddingOne()
+testPerTeamCountWithoutTheWordPlayers()
+testExtraPlayerAsTheVerbIsCounted()
+testTeamSizeContradictingTheScorelineIsRemoved()
+testTeamSizeMatchingTheScorelineIsKept()
+testNeutralsAsANounAreCounted()
+testUncountedNeutralsAreRemovedWhenTheSquadIsAlreadySpent()
+testCountedNeutralsAreKept()
 testPerTeamCountIsCorrectedRatherThanContradicted()
 testCorrectPerTeamCountIsNotTouched()
 testUnevenSidesDropTheEach()
