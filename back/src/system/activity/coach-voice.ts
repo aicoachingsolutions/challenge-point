@@ -1,5 +1,5 @@
 /**
- * RULES IN COACH VOICE.
+ * ENGINE SENTENCES IN COACH VOICE — Rules, and now Scoring.
  *
  * Christian, 2026-09-11, on the engine's rule text: "Could I imagine saying this while setting up
  * cones before practice? If not, it probably shouldn't appear in the activity." His example:
@@ -23,9 +23,16 @@
  * Every translation states the same mechanic. None of them adds coaching content, softens a rule, or
  * drops a condition; where the engine names two outcomes, so does the coach line.
  *
- * COVERAGE IS PINNED BY TEST. coach-rule-voice.unit.ts walks EXCHANGE_RULE_BY_ARCHETYPE and every
- * rule-placement modifier in VALUE_LANDSCAPE_LIBRARY and fails if any of them has no translation, so
- * a new game form or a new modifier cannot quietly reach a coach in engine voice.
+ * COVERAGE IS PINNED BY TEST. coach-voice.unit.ts walks EXCHANGE_RULE_BY_ARCHETYPE and every
+ * rule-placement AND scoring-placement modifier in VALUE_LANDSCAPE_LIBRARY, and fails if any of them
+ * has no translation — so a new game form or a new modifier cannot quietly reach a coach in engine
+ * voice.
+ *
+ * SCORING WAS ADDED 2026-09-11, at Christian's request, once Rules were plain enough that Scoring
+ * became the longest engine-voice text a coach read. Same rule as everywhere else: the translation
+ * states the same condition, including the second outcome where the engine names one. Scoring's one
+ * question is "how do teams score?" — so these say what earns a point and what it is worth, and
+ * nothing else.
  */
 
 interface CoachRule {
@@ -118,8 +125,115 @@ const COACH_RULE_VOICE: readonly CoachRule[] = [
     },
 ]
 
+/**
+ * Scoring sentences. Same job, one section over.
+ *
+ * The engine's scoring text is written as a value structure — "Score is weighted by where it is
+ * earned: points earned in a forward zone count higher than points earned in a defensive zone, and
+ * the same weighting applies in every live contest." Accurate, and not something a coach says. The
+ * coach version answers Scoring's one question and stops.
+ *
+ * Fragments start AFTER the opening verb phrase. `toCoachScoringVoice` in coach-section-ownership
+ * has already rewritten "Score awarded for…" to "Earn a point for…" by the time these run, so
+ * fragments anchored on the engine's opening matched nothing — the primary condition reached a coach
+ * untranslated while the slot incentive beside it was in coach voice. Found by reading output, not
+ * by the coverage test, which walks the engine's own strings and so never sees the rewritten prefix.
+ *
+ * Fragments avoid sport-specific nouns on purpose: this file is in the universal layer and the
+ * coupling guard scans it, so the finishing entry is matched on its opening clause rather than on
+ * the part naming a position.
+ */
+const COACH_SCORING_VOICE: readonly CoachRule[] = [
+    // ---- Affordance-family scoring lines (build-activity-skeleton.ts) ----------------------
+    {
+        engine: 'possession is maintained or secured under live opponent pressure',
+        coach: 'Earn a point for keeping the ball under pressure. Lose it and the other team has the advantage.',
+    },
+    {
+        engine: 'plays that visibly create or open space for a teammate',
+        coach: 'Earn a point for opening space for a team-mate — pulling a defender out so someone else is free.',
+    },
+    {
+        engine: 'attacks that use available space to gain advantage',
+        coach: 'Earn a point for attacking the open space before the defence recovers. Too slow and the chance is gone.',
+    },
+    {
+        engine: 'passes or runs that break or bypass a defensive line',
+        coach: 'Earn a point for a pass or run that beats a defensive line. Get it intercepted and the other team has the advantage.',
+    },
+    {
+        engine: 'winning the ball back or forcing a turnover',
+        coach: 'Earn a point for winning the ball back. Whoever wins it attacks straight away and the other team defends.',
+    },
+    {
+        engine: 'quick attacking action immediately after winning possession',
+        coach: 'Earn a point for attacking straight after winning the ball. Once the defence is set, the chance has gone.',
+    },
+    {
+        engine: 'genuine chances created and converted under live defensive contest',
+        coach: 'Earn a point for a real chance created and finished against live defending. Efforts that were never on do not count.',
+    },
+    {
+        // Templated on the affordance title, which is an internal name — so the coach line drops it.
+        engine: 'players visibly engage with the',
+        coach: 'Earn a point when players actually solve the problem in the game, not when they talk about it.',
+    },
+
+    // ---- Scoring-placement slot modifiers (slot-mechanics-variations.ts) -------------------
+    {
+        engine: 'weighted by where it is earned',
+        coach: 'Points are worth more the further forward you earn them.',
+    },
+    {
+        engine: 'completes when the scoring action is followed by one connected forward action',
+        coach: 'A point only counts once you follow it with a forward action. Until then, keep playing.',
+    },
+    {
+        engine: 'Sustained team pressure that forces the opposing team to play backward earns the same value as a turnover',
+        coach: 'Forcing the other team backwards scores the same as winning the ball. Closing the pass they were looking for counts too.',
+    },
+    {
+        engine: 'Pressure that forces a possession change scores at full value',
+        coach: 'Pressure only scores when it wins the ball back.',
+    },
+    {
+        engine: 'When a numerical advantage is held in the zone where pressure is applied',
+        coach: 'Points are worth more when you score them where you have the extra numbers.',
+    },
+    {
+        engine: 'Numerical relationship across the field stays balanced',
+        coach: 'Every point is worth the same, wherever you score it.',
+    },
+    {
+        engine: 'The field is treated as three value zones',
+        coach: 'Points are worth most through the middle, then wide, then deep.',
+    },
+    {
+        engine: 'The working area is set into a slightly different footprint',
+        coach: 'Same zones and the same point values — only the shape of the area is different.',
+    },
+]
+
+/**
+ * Second sentences of scoring templates whose first sentence is translated above.
+ *
+ * Scoring is split into sentences before translation, so a two-sentence template matches on its
+ * first half and would leave its second half behind in engine voice, sitting after the coach line
+ * that already replaced it. These are dropped rather than translated: the coach version above says
+ * what they said.
+ */
+const SCORING_TAILS_TO_DROP: readonly string[] = ['The zone weighting stays the same in every live contest']
+
 function normalise(value: string): string {
     return value.toLowerCase().replace(/\s+/g, ' ').trim()
+}
+
+function translate(entries: readonly CoachRule[], line: string): string {
+    const text = normalise(line)
+    for (const { engine, coach } of entries) {
+        if (text.includes(normalise(engine))) return coach
+    }
+    return line
 }
 
 /**
@@ -129,12 +243,21 @@ function normalise(value: string): string {
  * plain `includes` cannot be tripped by an escape that did not survive being typed.
  */
 export function toCoachRuleVoice(line: string): string {
-    const text = normalise(line)
-    for (const { engine, coach } of COACH_RULE_VOICE) {
-        if (text.includes(normalise(engine))) return coach
-    }
-    return line
+    return translate(COACH_RULE_VOICE, line)
 }
 
-/** Exposed for the coverage test. */
+/**
+ * The coach's version of an engine SCORING sentence.
+ *
+ * Applied per sentence rather than per field: a Scoring section is a primary condition plus at most
+ * one slot incentive, and each half has its own engine template.
+ */
+export function toCoachScoringSentence(line: string): string {
+    const text = normalise(line)
+    if (SCORING_TAILS_TO_DROP.some((tail) => text.includes(normalise(tail)))) return ''
+    return translate(COACH_SCORING_VOICE, line)
+}
+
+/** Exposed for the coverage tests. */
 export const COACH_RULE_VOICE_ENTRIES = COACH_RULE_VOICE
+export const COACH_SCORING_VOICE_ENTRIES = COACH_SCORING_VOICE

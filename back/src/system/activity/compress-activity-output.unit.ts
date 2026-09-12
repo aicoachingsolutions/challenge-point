@@ -19,7 +19,7 @@ import assert from 'node:assert/strict'
 
 import type { IActivity } from '../../models/activity.model'
 import { compressActivityForCoach, splitSentences } from './compress-activity-output'
-import { toCoachRuleVoice } from './coach-rule-voice'
+import { toCoachRuleVoice } from './coach-voice'
 
 function baseActivity(overrides: Partial<IActivity> = {}): IActivity {
     const defaults: IActivity = {

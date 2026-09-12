@@ -152,6 +152,19 @@ const WORD_NUMBERS: Record<string, number> = {
 const PER_TEAM_PATTERN =
     /\b((?:two|2)\s+)?(teams?\s+of\s+)(\d+|one|two|three|four|five|six|seven|eight|nine|ten)(\s+players?)?(\s+each)?/i
 
+/**
+ * The other way a per-team count gets written: "Each team has 5 players, including a keeper."
+ * (The real sentence named a sport-specific position; this file is in the universal layer, so the
+ * example is trimmed. The unit test keeps it verbatim.)
+ *
+ * Real output, 2026-09-12, beside "Teams play 6v6" — ten players and twelve in the same paragraph.
+ * Third wording of the same count in three weeks ("teams of 5 players each", "two teams of 6",
+ * "each team has 5 players"), which is the argument for matching the SHAPE rather than collecting
+ * phrasings: any of them means (count x 2) players.
+ */
+const EACH_TEAM_HAS_PATTERN =
+    /\b(each\s+team\s+has\s+)(\d+|one|two|three|four|five|six|seven|eight|nine|ten)(\s+players?)/i
+
 function toCount(raw: string): number {
     return WORD_NUMBERS[raw.toLowerCase()] ?? (Number(raw) || 0)
 }
@@ -160,12 +173,13 @@ function toCount(raw: string): number {
 export function parseStatedPlayerTotal(text: string): number | null {
     const format = FORMAT_PATTERN.exec(text)
     const perTeam = PER_TEAM_PATTERN.exec(text)
+    const eachTeamHas = EACH_TEAM_HAS_PATTERN.exec(text)
 
     let total: number
     if (format) {
         total = Number(format[1]) + Number(format[2])
-    } else if (perTeam) {
-        const each = toCount(perTeam[3]!)
+    } else if (perTeam || eachTeamHas) {
+        const each = toCount((perTeam ? perTeam[3] : eachTeamHas![2])!)
         if (each <= 0) return null
         total = each * 2
     } else {
@@ -250,6 +264,9 @@ export function reconcilePlayerFormat(text: string, total: number, archetypeName
             larger === smaller
                 ? `${two}${teamsOf}${larger}${players}${each}`
                 : `${two || 'Two '}teams playing ${larger}v${smaller}`
+        )
+        next = next.replace(EACH_TEAM_HAS_PATTERN, (_m, prefix = '', _n = '', players = '') =>
+            larger === smaller ? `${prefix}${larger}${players}` : `Teams play ${larger}v${smaller}`
         )
     }
 

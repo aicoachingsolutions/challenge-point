@@ -55,7 +55,7 @@ import {
     removeScoringFromSetup,
     toCoachingObjective,
 } from './coach-facing-sections'
-import { toCoachRuleVoice } from './coach-rule-voice'
+import { toCoachRuleVoice, toCoachScoringSentence } from './coach-voice'
 import {
     isNotAWayToEarnPoints,
     leadWithClearestScoringSentence,
@@ -479,7 +479,10 @@ export function compressActivityForCoach(activity: IActivity, modifierMechanicLi
         SCORING_SENTENCE_CAP,
         (s) => s
     )
-    const finalScoring = cappedScoringSentences.join(' ').trim()
+    // Scoring in coach voice, sentence by sentence — the last section still written in engine
+    // language once Rules were plain (Christian, 11 Sep). A sentence that is the tail of an
+    // already-translated template returns empty and drops out. See coach-voice.ts.
+    const finalScoring = cappedScoringSentences.map(toCoachScoringSentence).filter(Boolean).join(' ').trim()
 
     // Step 5: cap scaffolding (coachingFocus) to 3 entries. No modifier-preservation
     // need here — coachingFocus doesn't carry modifier text; that lives in rules/scoring.
@@ -555,7 +558,7 @@ export function compressActivityForCoach(activity: IActivity, modifierMechanicLi
         // Rules answer "what do players have to do?" — in coach voice. toCoachRuleVoice runs FIRST,
         // swapping the engine's validator-coupled sentence for what a coach would say putting cones
         // out; the vocabulary pass and the Communication Standard then run on that. See
-        // coach-rule-voice.ts for why this is a translation rather than a rewrite at source.
+        // coach-voice.ts for why this is a translation rather than a rewrite at source.
         rules: cappedRules
             .map((r) => applyCoachCommunicationStandard(translateCoachLanguage(toCoachRuleVoice(r))))
             .filter(Boolean),
