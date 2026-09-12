@@ -201,10 +201,41 @@ confusion seems to follow."*
 - **Live screen has no observation panel** for the pilot: *"empty reserved space"* doesn't communicate
   confidence. It returns when the observation layer does something.
 
-**Next candidate, NOT done:** Scoring is now the longest engine-voice text a coach reads
-(*"…line-breaking attempts that are read and intercepted hand the advantage to the opponent on the
-regain. The field is treated as three value zones…"*). Same treatment would work, but scoring wording
-overlaps `incentive_patterns`, which is **his to author** — offer, don't do it unasked.
+### 2026-09-12 — Scoring translated; communication work is COMPLETE
+
+Scoring got the same treatment (15 more templates). `coach-rule-voice.ts` → **`coach-voice.ts`**,
+covering both sections. **Trap for the next person:** by the time scoring reaches this pass,
+`toCoachScoringVoice` (coach-section-ownership) has already rewritten "Score awarded for…" to "Earn a
+point for…" — so match fragments must start AFTER the verb phrase. Anchoring on the engine's opening
+silently matched nothing, and only reading generated output caught it.
+
+### THE NEXT PHASE IS HIS: representative IDENTITY, then DIVERSITY
+
+His new validation questions, which should replace "is this a good activity?":
+1. *"If the title and Learning Goal were removed, could an experienced coach correctly identify the
+   intended coaching problem from the activity itself?"*
+2. *"Would a coach genuinely view these as three different representative ways of coaching today's
+   problem?"*
+
+**Evidence gathered 09-12 — `run-archetype-distribution.ts`** (26 real coaching intentions through
+selection; deterministic, no AI, runs in seconds):
+
+| | |
+|---|---|
+| Reached | Directional Possession 27% · Channel 27% · Transition 15% · Finishing 12% · Pressing 8% · Positional 8% · End Zone 4% |
+| **Never reached** | **Overload · Target · Constraint-Driven Free Play · Recover & Reorganize** (4 of 11) |
+
+This **partly contradicts** his impression: the spread is wider than "overwhelmingly directional with
+end zones", and **Finishing Games IS selected** for explicit finishing intentions — generating one
+produces goalkeepers and goals.
+
+**THE IDENTITY DEFECT, IN ONE LINE.** That finishing activity's Scoring reads *"Earn a point for
+attacking the open space before the defence recovers."* The scoring condition is picked by the
+AFFORDANCE FAMILY (`affordanceFamilyHints` in build-activity-skeleton.ts), not by the coaching
+problem or the game form — so a finishing game rewards space exploitation. This is also checklist
+RC4 §3's third bullet ("scoring reinforces the learning goal"), which I earlier reported as done on
+the strength of the first two bullets. **Not fixed: what an activity rewards is a representative-design
+decision, and `incentive_patterns` is his to author.**
 
 **Behaviour gate re-verified 2026-09-10: `70 68 98 119 94 99 86`.** Sport-coupling ratchet 35.
 42 unit suites.
