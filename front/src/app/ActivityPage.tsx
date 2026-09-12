@@ -358,19 +358,19 @@ function ActivityScreen({
     /**
      * Persist a coach's content edit. The backend diffs this against the stored activity and records
      * which fields changed (and whether any were structural) as evidence — it never rejects an edit.
-     * `teams` maps onto extensions[0], which is where the assembly pipeline puts the team structure.
+     *
+     * `extensions` is not sent. It holds the team structure, which stopped being a coach-facing
+     * section on 11 Sep, so there is nothing for a coach to have edited. Updates are partial, so
+     * omitting it leaves the stored value alone — and the edit-evidence diff ignores absent fields,
+     * so nothing is recorded as changed either.
      */
     const saveActivityContent = async (draft: ActivityContentDraft) => {
-        const nextExtensions = [...(activity.extensions ?? [])]
-        nextExtensions[0] = draft.teams
-
         const res = await api(ROUTES.app.activity, {
             _id: activity._id,
             session: typeof activity.session === 'string' ? activity.session : activity.session?._id,
             title: draft.title,
             intent: draft.intent,
             setup: draft.setup,
-            extensions: nextExtensions,
             rules: draft.rules,
             scoringSystem: draft.scoringSystem,
             winCondition: draft.winCondition,
@@ -539,25 +539,12 @@ function ActivityScreen({
                 </div>
             </div>
 
-            {/* Live Session — observation surface. Deliberately OUTSIDE the collapsible
-                Activity Details card: "what to pay attention to" must always be visible while
-                the activity is live, regardless of whether the reference details are expanded.
-                order-2 places it directly under the status banner, above the live tools (Points
-                / Adjustments) and the collapsed-by-default Activity Details reference card.
-                Shown only In Progress per Christian's three-surface information architecture. */}
-            {isInProgress && (
-                <div className='flex flex-col order-2 gap-6'>
-                    {/* What to Watch — placeholder for the future observation layer.
-                        Non-functional by design (Christian's MVP2 request): reserves the
-                        information-architecture home for observation support. No data binding. */}
-                    <div className='p-4 rounded-lg bg-gray-50 border border-dashed border-gray-300'>
-                        <p className='text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2'>What to Watch</p>
-                        <p className='text-sm italic leading-relaxed text-gray-400'>
-                            Interaction signals and observation guidance will appear here in a future update.
-                        </p>
-                    </div>
-                </div>
-            )}
+            {/* The live screen deliberately carries no observation panel for the pilot. Coaching Focus
+                was removed as redundant (10 Sep), which left only a "What to Watch" placeholder for
+                the future observation layer — and Christian, 11 Sep: "I don't think empty reserved
+                space communicates confidence in the product... I'd rather the live screen feel
+                intentionally simple than obviously incomplete." The observation layer returns here
+                when it does something. */}
 
             {activity.activityStatus === ActivityStatus['Ready to Start'] && (
                 <div className='flex flex-col order-3 gap-2 py-5'>

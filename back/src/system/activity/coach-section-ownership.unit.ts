@@ -184,6 +184,7 @@ function testModelParaphrasesOfTheObviousAreRecognised(): void {
         'Defenders aim to intercept and transition quickly.',
         'Losing the ball means the opponent attacks.',
         'Defenders work to disrupt transitions and regain possession.',
+        'Defenders aim to intercept and counter-attack.',
         'Upon losing possession, immediately transition to defense.',
         'Game continues with live transitions after each turnover.',
         'Play continues without stopping after each turnover.',

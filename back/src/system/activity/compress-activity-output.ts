@@ -55,6 +55,7 @@ import {
     removeScoringFromSetup,
     toCoachingObjective,
 } from './coach-facing-sections'
+import { toCoachRuleVoice } from './coach-rule-voice'
 import {
     isNotAWayToEarnPoints,
     leadWithClearestScoringSentence,
@@ -551,7 +552,13 @@ export function compressActivityForCoach(activity: IActivity, modifierMechanicLi
         // reasons with them; they are simply no longer shown. See coach-facing-sections.ts.
         title: translateCoachLanguage(activity.title),
         setup: coachSetup,
-        rules: cappedRules.map((r) => applyCoachCommunicationStandard(translateCoachLanguage(r))).filter(Boolean),
+        // Rules answer "what do players have to do?" — in coach voice. toCoachRuleVoice runs FIRST,
+        // swapping the engine's validator-coupled sentence for what a coach would say putting cones
+        // out; the vocabulary pass and the Communication Standard then run on that. See
+        // coach-rule-voice.ts for why this is a translation rather than a rewrite at source.
+        rules: cappedRules
+            .map((r) => applyCoachCommunicationStandard(translateCoachLanguage(toCoachRuleVoice(r))))
+            .filter(Boolean),
         // Folded into Rules above. Left as an empty array rather than removed so an activity always
         // has the same shape, and the section simply does not render.
         howToPlay: [],

@@ -21,7 +21,6 @@ export interface ActivityContentDraft {
     title: string
     intent: string
     setup: string
-    teams: string
     rules: string[]
     scoringSystem: string
     winCondition: string
@@ -37,7 +36,6 @@ export interface ActivityContentDraft {
 const STRUCTURAL_FIELDS: ReadonlyArray<keyof ActivityContentDraft> = [
     'intent',
     'setup',
-    'teams',
     'rules',
     'scoringSystem',
     'winCondition',
@@ -48,7 +46,6 @@ export function draftFromActivity(activity: IActivity): ActivityContentDraft {
         title: activity.title ?? '',
         intent: activity.intent ?? '',
         setup: typeof activity.setup === 'string' ? activity.setup : '',
-        teams: activity.extensions?.[0] ?? '',
         rules: [...(activity.rules ?? [])],
         scoringSystem: activity.scoringSystem ?? '',
         winCondition: activity.winCondition ?? '',
@@ -188,8 +185,6 @@ export default function ActivityContentEditor({
                 onChange={(v) => set('equipmentNeeded', v)}
                 addLabel='Add item'
             />
-            {/* Last, matching the read view: Teams is optional detail behind "More detail". */}
-            <Field label='Teams' value={draft.teams} onChange={(v) => set('teams', v)} rows={2} />
 
             {structuralChanges.length > 0 && (
                 <div className='px-4 py-3 text-sm border rounded-lg border-slate-200 bg-slate-50 text-slate-700'>

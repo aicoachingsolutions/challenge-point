@@ -80,7 +80,7 @@ const SPORT_GUARANTEES_PARAPHRASED: ReadonlyArray<RegExp> = [
     // "Defenders aim to intercept and transition quickly." / "Defenders work to disrupt transitions
     // and regain possession." Anchored to the WHOLE line, so "Defenders aim to intercept passes into
     // the corridor" — which says where — is kept.
-    /^\s*defenders?\s+(?:aim|try|look|work)\s+to\s+(?:intercept|disrupt(?:\s+transitions)?|win\s+(?:it|the\s+ball)\s+back|regain(?:\s+possession)?)(?:\s+(?:and|then)\s+(?:transition\s+quickly|regain\s+possession|win\s+it\s+back))?\s*\.?$/i,
+    /^\s*defenders?\s+(?:aim|try|look|work)\s+to\s+(?:intercept|disrupt(?:\s+transitions)?|win\s+(?:it|the\s+ball)\s+back|regain(?:\s+possession)?)(?:\s+(?:and|then)\s+(?:transition\s+quickly|regain\s+possession|win\s+it\s+back|counter-?\s*attack))?\s*\.?$/i,
     // "Upon losing possession, immediately transition to defense."
     /^\s*(?:upon|after|on)\s+losing\s+(?:possession|the\s+ball),?\s+(?:immediately\s+)?transition\s+to\s+defen[cs]e\s*\.?$/i,
     // "Game continues with live transitions after each turnover." / "Play continues without stopping

@@ -1,25 +1,27 @@
-import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline'
-import { useState } from 'react'
-
 import { IActivity } from '@/MODELS/activity.model'
 
 /**
- * THE ACTIVITY, AS A COACH READS IT — Christian's decision, 2026-09-10.
+ * THE ACTIVITY, AS A COACH READS IT. Six sections, each answering exactly one question — Christian's
+ * design rule, 2026-09-11:
  *
- *   Objective · Setup · Rules · Scoring · Win Condition · Equipment
+ *   Objective      What are we working on today?
+ *   Setup          How do I organize it?
+ *   Rules          What do players have to do?
+ *   Scoring        How do teams score?
+ *   Win Condition  When does it end and who wins?
+ *   Equipment      What do I need?
  *
- * and nothing else on the first read. His reasoning: a coach should understand and organize the
- * activity after one read, and "if a coach wouldn't naturally say it before starting an activity, the
- * activity probably shouldn't say it either."
+ * "Whenever a section begins answering another section's question, confusion seems to follow."
  *
- * What changed, and where each thing went:
- *   - Constraint      — removed from every coach screen. Still stored: the validator checks it.
- *   - Coaching Focus  — removed; he judged it redundant with the Learning Goal and the Objective.
- *   - How to Play     — folded into Rules on the server. Activities generated before that change
- *                       still carry the field, so it is folded in here too, rather than dropped.
- *   - Teams           — optional, behind "More detail". (Stored as `extensions[0]`, which is why the
- *                       section list he reviewed called it Extensions. It holds the team structure.)
- *   - Group size      — optional; Setup already states the format.
+ * There is no seventh section and no optional expansion. Everything removed was removed because it
+ * answered a question another section already owns:
+ *   - Constraint      — answered none of them. Still stored: the validator checks it.
+ *   - Coaching Focus  — redundant with the Learning Goal and the Objective.
+ *   - How to Play     — "what do players have to do?" is Rules'. Folded in server-side; activities
+ *                       generated before that change still carry the field, so it is folded in here.
+ *   - Teams           — "how do I organize it?" is Setup's, and Setup already states the format.
+ *                       (Stored as `extensions[0]`, which is why the inventory called it Extensions.)
+ *   - Group size      — Setup's question too.
  *
  * ONE COMPONENT FOR EVERY SURFACE. The generator's cards and the activity page each had their own
  * copy of this list, in slightly different orders, and the generator's expanded card repeated the
@@ -27,8 +29,6 @@ import { IActivity } from '@/MODELS/activity.model'
  * cannot drift apart again surface by surface.
  */
 export default function ActivitySections({ activity, compact = false }: { activity: IActivity; compact?: boolean }) {
-    const [showMore, setShowMore] = useState(false)
-
     const body = compact ? 'text-sm leading-relaxed text-gray-700' : 'leading-relaxed text-gray-700'
     const label = 'text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1'
 
@@ -38,9 +38,6 @@ export default function ActivitySections({ activity, compact = false }: { activi
     const rules = [...legacyHowToPlay.filter((line) => !(activity.rules ?? []).includes(line)), ...(activity.rules ?? [])]
 
     const equipment = (activity.equipmentNeeded ?? []).filter(Boolean)
-    const teams = activity.extensions?.[0]
-    const learningGoals = activity.learningPriorities?.map((goal) => goal.description).filter(Boolean) ?? []
-    const hasMoreDetail = Boolean(teams) || Boolean(activity.playerGroupSizes) || learningGoals.length > 0
 
     return (
         <div className={compact ? 'space-y-4' : 'space-y-5'}>
@@ -104,48 +101,6 @@ export default function ActivitySections({ activity, compact = false }: { activi
                 </div>
             )}
 
-            {/* Optional, and collapsed by default: useful, but not part of the first read. */}
-            {hasMoreDetail && (
-                <div className='pt-1'>
-                    <button
-                        type='button'
-                        onClick={() => setShowMore((current) => !current)}
-                        className='inline-flex items-center gap-1 text-sm font-semibold text-brand-700 hover:text-brand-900'
-                    >
-                        {showMore ? <ChevronUpIcon className='w-4 h-4' /> : <ChevronDownIcon className='w-4 h-4' />}
-                        {showMore ? 'Less detail' : 'More detail'}
-                    </button>
-
-                    {showMore && (
-                        <div className='mt-3 space-y-4'>
-                            {teams && (
-                                <div>
-                                    <p className={label}>Teams</p>
-                                    <p className='text-sm leading-relaxed text-gray-700'>{teams}</p>
-                                </div>
-                            )}
-                            {Boolean(activity.playerGroupSizes) && (
-                                <div>
-                                    <p className={label}>Group size</p>
-                                    <p className='text-sm text-gray-700'>{activity.playerGroupSizes} players</p>
-                                </div>
-                            )}
-                            {learningGoals.length > 0 && (
-                                <div>
-                                    <p className={label}>Learning goals</p>
-                                    <ul className='space-y-1'>
-                                        {learningGoals.map((goal, i) => (
-                                            <li key={i} className='text-sm text-gray-700'>
-                                                {goal}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-            )}
         </div>
     )
 }

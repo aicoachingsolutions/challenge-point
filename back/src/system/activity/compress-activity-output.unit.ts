@@ -19,6 +19,7 @@ import assert from 'node:assert/strict'
 
 import type { IActivity } from '../../models/activity.model'
 import { compressActivityForCoach, splitSentences } from './compress-activity-output'
+import { toCoachRuleVoice } from './coach-rule-voice'
 
 function baseActivity(overrides: Partial<IActivity> = {}): IActivity {
     const defaults: IActivity = {
@@ -146,10 +147,17 @@ function testExchangeRuleSurvivesAsRule0(): void {
     ]
     const activity = baseActivity({ rules })
     const out = compressActivityForCoach(activity, [])
-    assert.ok(
-        (out.rules ?? [])[0]?.startsWith('Wide and central channels remain active throughout play'),
-        `Exchange rule must remain in rules[0] after compression; got: ${out.rules?.[0]}`
+
+    // Still first, still the exchange rule — but in coach voice. The VERBATIM requirement belongs to
+    // the output validator, which runs before compression; `toCoachRuleVoice` deliberately replaces
+    // the engine sentence afterwards (Christian, 11 Sep). What must not change is that the exchange
+    // rule leads Rules and is never dropped.
+    assert.equal(
+        (out.rules ?? [])[0],
+        toCoachRuleVoice(EXCHANGE_RULE),
+        `Exchange rule must lead Rules after compression; got: ${out.rules?.[0]}`
     )
+    assert.notEqual(toCoachRuleVoice(EXCHANGE_RULE), EXCHANGE_RULE, 'this fixture no longer exercises the translation')
 }
 
 function testCrossSectionEnvironmentalDedup(): void {
