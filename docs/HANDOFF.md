@@ -182,11 +182,29 @@ Equipment one hedged line on every activity (now read off Setup); model paraphra
 guarantees leading Rules; and five squad-count gaps in `player-format.ts` (noun "neutrals", uncounted
 neutral sentences, "has an extra player", "teams of 6" without "players", "6v6, with the team of 7").
 
-**Known, not fixed — likely Christian's next finding:** Rules still leads with long engine mechanics
-that fail his test, e.g. *"A regain completes only when followed by a connected forward action under
-opposition within the live transition window…"*. These are slot-modifier `mechanicLine`s in
-`slot-mechanics-variations.ts` — the same file whose scoring lines were reworded on 09-08. Offer to
-reword to coach voice; don't do it unasked, it is wording he may want to own.
+### 2026-09-11 — his design rule, and rules in coach voice
+
+**THE RULE HE WANTS KEPT BEYOND THIS RELEASE:** *every section answers one question, and only one.*
+Objective = what are we working on today · Setup = how do I organize it · Rules = what do players
+have to do · Scoring = how do teams score · Win Condition = when does it end and who wins ·
+Equipment = what do I need. *"Whenever a section begins answering another section's question,
+confusion seems to follow."*
+
+- **Rules are TRANSLATED, not rewritten** — `coach-rule-voice.ts`, 18 templates (10 exchange rules,
+  6 rule-placement modifiers, 2 affordance lines). **Do not "simplify" the engine sentences.**
+  `hasExplicitTwoSidedExchangeRule` / `rulesPreserveInteractionExchange` check the exchange rule
+  against the constraint package, and the validator needs it verbatim in `rules[0]`. Translation runs
+  in compress, after validation. Coverage is pinned: a test walks `EXCHANGE_RULE_BY_ARCHETYPE` and
+  every rule-placement modifier and fails on any that lacks a translation.
+- **Teams removed entirely** (not optional): Setup already answers its question. The whole "More
+  detail" expansion went with it. `extensions` is still produced — the validator requires it.
+- **Live screen has no observation panel** for the pilot: *"empty reserved space"* doesn't communicate
+  confidence. It returns when the observation layer does something.
+
+**Next candidate, NOT done:** Scoring is now the longest engine-voice text a coach reads
+(*"…line-breaking attempts that are read and intercepted hand the advantage to the opponent on the
+regain. The field is treated as three value zones…"*). Same treatment would work, but scoring wording
+overlaps `incentive_patterns`, which is **his to author** — offer, don't do it unasked.
 
 **Behaviour gate re-verified 2026-09-10: `70 68 98 119 94 99 86`.** Sport-coupling ratchet 35.
 42 unit suites.
