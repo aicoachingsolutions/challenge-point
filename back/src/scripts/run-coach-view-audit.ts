@@ -170,19 +170,11 @@ function buildSystemAssemblyInput(sel: TestLibrarySelectionResult, learningGoal:
     }
 }
 
-// What a coach reads, in the order they read it (Christian, 2026-09-10): six core sections, then
-// Teams behind the optional expansion. Constraint, How to Play and Coaching Focus are no longer shown
-// anywhere, so they are not audited as coach text.
-const FIELDS = [
-    'title',
-    'intent',
-    'setup',
-    'rules',
-    'scoringSystem',
-    'winCondition',
-    'equipmentNeeded',
-    'extensions',
-] as const
+// What a coach reads, in the order they read it, and nothing else (Christian, 2026-09-11): six
+// sections, each answering one question. Constraint, How to Play, Coaching Focus and Teams are still
+// produced — the validator requires several of them — but no screen shows them, so they are not
+// coach text to audit.
+const FIELDS = ['title', 'intent', 'setup', 'rules', 'scoringSystem', 'winCondition', 'equipmentNeeded'] as const
 
 async function main() {
     let totalViolations = 0

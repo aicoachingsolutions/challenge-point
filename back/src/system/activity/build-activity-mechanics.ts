@@ -335,29 +335,45 @@ export function buildExplicitExchangeRule(slot: ActivitySkeletonSlot): string {
     // than a cognitive "if team recognizes X then Y" sequence. We use them directly. The
     // constraint-specific detail still surfaces in setup, scoring, and the affordance lines;
     // the exchange rule does not need to carry it.
-    switch (slot.archetypeName) {
-        case 'Pressing & Regain Games':
-            return 'The press and regain window stays live for both teams. A regain opens an immediate attack, a turnover flips the same advantage to the opponent, and play continues live with no reset.'
-        case 'Overload Games':
-            return 'The overload remains active during live play and may be used to move the defense toward advantage. A forced action or turnover flips the exposed space to the opponent, and play continues live with no reset.'
-        case 'End Zone Games':
-            return 'The target zone remains active for both teams throughout play. Entry under pressure keeps the next action live, and any turnover gives the opponent immediate access to attack the other way with no reset.'
-        case 'Positional Play Games':
-            return 'Positional advantages remain live while the defensive structure is stretched. Forward play can continue through the open lane, and any ball forced into a covered zone gives the opponent immediate access to the disorganized shape with play continuing live.'
-        case 'Transition Games':
-            return 'Play continues immediately after every possession change with no reset. The team gaining the ball has first access to transition space, and a stalled attack or turnover flips the same transition advantage to the opponent.'
-        case 'Target Games':
-            return 'The target remains an active forward connection for both teams under live defensive pressure. A completed connection keeps play moving forward, and a blocked connection or turnover gives the opponent the immediate regain attack.'
-        case 'Channel Games':
-            return 'Wide and central channels remain active throughout play and may be used to progress forward. A channel entry keeps play live, and a forced entry or turnover opens the opposite channel for the opponent with no reset.'
-        case 'Finishing Games':
-            return 'Finishing chances remain live under defensive pressure, with rebounds, clearances, and counter-attacks continuing from the result. A forced chance or turnover gives the defending team immediate access to counter-attack with no reset.'
-        case 'Constraint-Driven Free Play':
-            return 'The selected constraint problem remains active for both teams during live play. The earned advantage belongs to whichever team satisfies the condition, and a missed condition or turnover flips possession or restart advantage to the opponent immediately.'
-        default:
-            return 'Play stays live as possession is secured and progressed toward the target under pressure. A forced ball or turnover flips the immediate attacking advantage to the opponent with no reset.'
-    }
+    return EXCHANGE_RULE_BY_ARCHETYPE[slot.archetypeName] ?? DEFAULT_EXCHANGE_RULE
 }
+
+/**
+ * The exchange rule per game form, as a record rather than a switch.
+ *
+ * Enumerable on purpose: this is engine text the coach reads through a translation
+ * (coach-rule-voice.ts), and a test walks these entries to prove every one of them still HAS a
+ * translation. A switch cannot be walked, so a new game form could add an untranslated rule and
+ * nothing would notice until a coach read it.
+ *
+ * THE WORDING HERE IS VALIDATOR-COUPLED — do not "simplify" it. `hasExplicitTwoSidedExchangeRule`
+ * and `rulesPreserveInteractionExchange` check this text against the constraint package's
+ * guardrails, and the validator requires it verbatim in rules[0]. Coach voice belongs in the
+ * translation, which runs after validation.
+ */
+export const EXCHANGE_RULE_BY_ARCHETYPE: Readonly<Record<string, string>> = {
+    'Pressing & Regain Games':
+        'The press and regain window stays live for both teams. A regain opens an immediate attack, a turnover flips the same advantage to the opponent, and play continues live with no reset.',
+    'Overload Games':
+        'The overload remains active during live play and may be used to move the defense toward advantage. A forced action or turnover flips the exposed space to the opponent, and play continues live with no reset.',
+    'End Zone Games':
+        'The target zone remains active for both teams throughout play. Entry under pressure keeps the next action live, and any turnover gives the opponent immediate access to attack the other way with no reset.',
+    'Positional Play Games':
+        'Positional advantages remain live while the defensive structure is stretched. Forward play can continue through the open lane, and any ball forced into a covered zone gives the opponent immediate access to the disorganized shape with play continuing live.',
+    'Transition Games':
+        'Play continues immediately after every possession change with no reset. The team gaining the ball has first access to transition space, and a stalled attack or turnover flips the same transition advantage to the opponent.',
+    'Target Games':
+        'The target remains an active forward connection for both teams under live defensive pressure. A completed connection keeps play moving forward, and a blocked connection or turnover gives the opponent the immediate regain attack.',
+    'Channel Games':
+        'Wide and central channels remain active throughout play and may be used to progress forward. A channel entry keeps play live, and a forced entry or turnover opens the opposite channel for the opponent with no reset.',
+    'Finishing Games':
+        'Finishing chances remain live under defensive pressure, with rebounds, clearances, and counter-attacks continuing from the result. A forced chance or turnover gives the defending team immediate access to counter-attack with no reset.',
+    'Constraint-Driven Free Play':
+        'The selected constraint problem remains active for both teams during live play. The earned advantage belongs to whichever team satisfies the condition, and a missed condition or turnover flips possession or restart advantage to the opponent immediately.',
+}
+
+export const DEFAULT_EXCHANGE_RULE =
+    'Play stays live as possession is secured and progressed toward the target under pressure. A forced ball or turnover flips the immediate attacking advantage to the opponent with no reset.'
 
 function buildOpponentConsequenceLines(slot: ActivitySkeletonSlot): string[] {
     const lines = slot.requiredConstraintMechanics.filter(
