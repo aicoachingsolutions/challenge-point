@@ -342,7 +342,7 @@ export function buildExplicitExchangeRule(slot: ActivitySkeletonSlot): string {
  * The exchange rule per game form, as a record rather than a switch.
  *
  * Enumerable on purpose: this is engine text the coach reads through a translation
- * (coach-rule-voice.ts), and a test walks these entries to prove every one of them still HAS a
+ * (coach-voice.ts), and a test walks these entries to prove every one of them still HAS a
  * translation. A switch cannot be walked, so a new game form could add an untranslated rule and
  * nothing would notice until a coach read it.
  *

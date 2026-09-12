@@ -209,6 +209,20 @@ function testPerTeamCountWithoutTheWordPlayers(): void {
     assert.ok(out.text.includes('two teams of 6'), `rewrote a correct count: "${out.text}"`)
 }
 
+/** REGRESSION — real Setup, 2026-09-12: "Each team has 5 players … Teams play 6v6." Ten and twelve. */
+function testEachTeamHasWording(): void {
+    const text =
+        'Play in a 40x30 yard area with two end zones. Each team has 5 players, including a goalkeeper. Players start in their respective halves.'
+
+    assert.equal(parseStatedPlayerTotal(text), 10, '"each team has N players" was not counted')
+
+    const out = reconcilePlayerFormat(text, 12, 'Finishing Games')
+    assert.equal(parseStatedPlayerTotal(out.text), 12, `wrong squad after correction: "${out.text}"`)
+    assert.ok(!/Teams play \d+v\d+/.test(out.text), `appended a second format: "${out.text}"`)
+    assert.ok(out.text.includes('Each team has 6 players'), `did not correct in place: "${out.text}"`)
+    assert.ok(out.text.includes('including a goalkeeper'), `lost the rest of the sentence: "${out.text}"`)
+}
+
 /** REGRESSION — real Setup, 2026-09-10: "Play 6v6 … One team has an extra player" is thirteen. */
 function testExtraPlayerAsTheVerbIsCounted(): void {
     const text =
@@ -239,5 +253,6 @@ testCorrectsTheRealFailureJoeReported()
 testCorrectsExtraPlayersUnderAnyName()
 testLeavesCorrectAndUnparseableTextAlone()
 testEveryRouteEndsWithAUsableFormat()
+testEachTeamHasWording()
 
 console.log('player-format unit tests: all cases passed.')

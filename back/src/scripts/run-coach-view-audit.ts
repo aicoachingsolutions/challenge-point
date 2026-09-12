@@ -61,11 +61,18 @@ import type {
     TestLibraryV0Constraint,
 } from '../system/test-library/types'
 
-const INPUTS: string[] = [
+const DEFAULT_INPUTS = [
     'Help players break defensive lines.',
     'Players keep winning the ball but turning away from field vision.',
     'Help players recognize space behind the defense.',
 ]
+
+/** Overridable with AUDIT_INPUTS ("goal one|goal two"), for reading a specific coaching intention. */
+const overrideInputs = (process.env.AUDIT_INPUTS ?? '')
+    .split('|')
+    .map((goal) => goal.trim())
+    .filter(Boolean)
+const INPUTS: string[] = overrideInputs.length > 0 ? overrideInputs : DEFAULT_INPUTS
 
 function lensToIAffordance(lens: TestLibraryV0AffordanceLens): IAffordance {
     const d = new Date()
