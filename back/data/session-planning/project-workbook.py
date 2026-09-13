@@ -39,6 +39,9 @@ SHEETS = {
     "Entry Language": "entry_language",
     "Engine Translation": "engine_translation",
     "Governance": "governance",
+    # RC1.1 (Christian, 2026-09-13): each Guided Learning Goal's route to its Representative
+    # Performance Context. Required from RC1.1 on, like every other declared sheet.
+    "RPC Routing": "rpc_routing",
 }
 
 

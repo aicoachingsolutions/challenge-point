@@ -14,6 +14,9 @@ Principle 5: narrative explanation should never be parsed by the runtime engine.
 
 Implementation Staging IS projected, but only so the loader can refuse to claim ACTIVE status while
 entries remain unresolved. Nothing reasons from it.
+
+RC1.1 adds two sheets, "RC1.1 Resolutions" and "RC1.1 Audit". Both are Christian's record of how the
+action items landed, written for people, so they are not projected either.
 """
 
 import json
@@ -25,7 +28,7 @@ import openpyxl
 sys.stdout.reconfigure(encoding="utf-8")
 
 HERE = pathlib.Path(__file__).parent
-WORKBOOK = HERE / "rpc-workbook.rc1.xlsx"
+WORKBOOK = HERE / "rpc-workbook.rc1.1.xlsm"
 OUT = pathlib.Path(__file__).parents[3] / "src/system/sport-module/rpc-library.rc1.json"
 
 HEADER_ROW = 1

@@ -292,6 +292,7 @@ Finishing, Counterattack, Counter-Press, Attack Prevention.
 **Where it lives:**
 - `back/data/sport-modules/soccer/rpc-workbook.rc1.xlsx` — his audited original is commit `3c053a6`;
   the next commit applies mechanical staging resolution (round-trip verified cell-identical elsewhere).
+  **Superseded by `rpc-workbook.rc1.1.xlsm` on 2026-09-13 — see the RC1.1 section below.**
 - `resolve-rpc-staging.py` → `rpc-staging-resolution.json`; `project-rpc-workbook.py` →
   `src/system/sport-module/rpc-library.rc1.json` (never hand-edit).
 - `src/system/sport-module/rpc-library.ts` — loader + `validateRpcLibraryIntegrity` (fail-loudly gate,
@@ -323,6 +324,155 @@ gate to change deliberately; record it as gate v3 with before/after.
 
 **Behaviour gate re-verified 2026-09-10: `70 68 98 119 94 99 86`.** Sport-coupling ratchet 35.
 42 unit suites.
+
+### 2026-09-13 — RC1.1: routing closed, Session Planning combined, scoring question answered
+
+Christian resolved audit Action Items 1–3 and sent three canonical files (RPC Library RC1.1 docx, RPC
+Workbook RC1.1 `.xlsm`, Session Planning Model RC1.1). **His decisions:**
+- **Game forms:** Full Goal removed; exactly the eight mappings verified on 09-13; "Finishing Games".
+  "One Primary Game Form per RPC is sufficient."
+- **Game Problems:** ontology NOT expanded. The three non-canonical GPs are removed, not remapped.
+  RPC-007 Regain Possession PRIMARY / Protect Space SECONDARY; RPC-008 the reverse.
+- **Learning goals:** two NEW canonical guided goals, **A05 Progress the Attack → RPC-003** and
+  **A06 Finish Attacks → RPC-005**. The full 13-goal routing is stated twice: a new SPM sheet
+  "RPC Routing", and LEARNING_GOAL staging rows in the RPC workbook. Coach phrasings stay in the
+  Library narrative; normalising Learning Goal ownership is explicitly deferred beyond RC1.1.
+- **Scoring (Action Item 4):** no canonical change. He asked US whether assembly already exposes a
+  discrete primary observable scoring event (answered below).
+
+**Where it lives:**
+- `rpc-workbook.rc1.1.xlsm`, received verbatim in commit `33b21a7`, resolved in place next commit;
+  replaces `rpc-workbook.rc1.xlsx`. No VBA project in it. The resolver saves with `keep_vba` so the
+  package stays macro-enabled. Two new narrative sheets, "RC1.1 Resolutions" and "RC1.1 Audit", are
+  not projected.
+- **Exact resolution: 62 of 105.** Game Problems 27/27, Game Forms 22/22, Learning Goals 13/13,
+  Affordances 0/43; 70 Relationships. Runtime stays PROPOSED on the affordances alone.
+- **The resolver now APPENDS to authored notes.** RC1.1 staging notes carry his "Canonical SPM ID: A01";
+  the RC1 resolver overwrote the notes column. A test checks each stated id equals the resolved one.
+- **The gate cross-checks routing both ways:** SPM RPC Routing ↔ ACTIVE LEARNING_GOAL relationships.
+  The route is stated in two places, so disagreement is a defined failure.
+- Loader exposes `libraryVersion` (RC1.1), distinct from the frozen `schemaVersion` (RC1).
+
+**THE SESSION PLANNING FILE WAS BUILT FROM THE ORIGINAL RC1, NOT FROM CYCLE 8.** It had 19 entry
+phrases where the canonical had 69 before RC1.1. The nine approved Engine Translation mappings read
+TBD, and so did the intentional EMPTY gaps A01/A04.
+`back/data/session-planning/apply-rc1.1-package.py` takes the received file as base and restores
+Cycle 8 content. It stops on any conflict (none found) and reads Cycle 8 from git ref `33b21a7`.
+Report: `rc1.1-package-application.json`; received original:
+`back/data/session-planning/received/`. **Asked Christian to adopt the combined workbook as
+canonical.** Result: 13 goals, 76 phrases, 13 translation rows (9 mapped, A01/A04 null, A05/A06 TBD),
+13 routes.
+
+**Two traps caught before commit, both reading the diff:**
+1. openpyxl `ws.cell(row, col, value=None)` IGNORES None, so an "empty" decision silently kept the TBD
+   placeholder. Assign `.value` instead.
+2. The first version read "Cycle 8" from the canonical file it overwrites. After one faulty run, the
+   rerun read the fault back as Cycle 8 and faithfully restored it. Sources must never be the
+   script's own output.
+
+A test now pins A01/A04 = null vs A05/A06 = 'TBD'.
+
+**Coverage (`run-rpc-coverage.ts`):** all 13 goals reach exactly the context SPM names; every context
+is reachable. Game forms fitting no context are unchanged (End Zone, Overload, Target, Pressing &
+Regain, Constraint-Driven Free Play, Recover & Reorganize).
+
+**Coach-visible:**
+- A05/A06 appear in the guided goal list, which is API-driven, and `goal-support` measures both
+  as supported.
+- Typing "finish", "score" or "goal" now clarifies between A03 and A06.
+- "shoot", "shot" and "convert chance" still go straight to A03, because Cycle 8 routed them there
+  before A06 existed. Asked him.
+
+**Action Item 4 answer: no discrete event exists.**
+- `activity.scoring` is free text.
+- The primary is picked AFTER generation by word ranking (`selectPrimarySuccessCondition`).
+- The physical event is only implied by `buildScoringLines`' one template sentence per game form,
+  several of them conceptual ("positional advantage", "transition space", "genuine scoring chance").
+
+Recommended a `primary_scoring_event`:
+- decided after realization but BEFORE text generation, from a controlled vocabulary (his six:
+  goal / target player / line / target zone / gate / regain-under-condition);
+- the game form supplies the available events and the context picks the valid one;
+- Transition Games is why the game form alone cannot decide: Counterattack scores the attack,
+  Counter-Press the disruption.
+
+Knowledge needed: valid primary events per context (8 rows). Offered to draft them.
+
+**Open with Christian:**
+1. Adopt the combined SPM.
+2. Move Cycle 8 finishing phrases to A06?
+3. Mark the 43 affordance staging rows DEFERRED so the library can go ACTIVE ("PROPOSED = not active in
+   runtime").
+4. The scoring event design.
+
+`learningGoalId` plumbing into selection does not depend on any of these.
+
+**Behaviour gate unchanged `70 68 98 119 94 99 86`. 44 suites. Ratchet 35.**
+
+### 2026-09-13 (later) — his RC1.1 decisions applied; primary scoring event draft
+
+**Decisions, all applied in commit `1248f02`:**
+- **He adopted the combined SPM** as canonical RC1.1. `apply-rc1.1-package.py` and the received file are
+  retired (they remain in git history).
+- **Entry Language rule, creation vs conversion:**
+  - language about CREATING an opportunity → A03 Create Scoring Chances;
+  - language about EXECUTING or CONVERTING one that exists → A06 Finish Attacks.
+  - shoot, shot, shooting and convert chance moved to A06; get a shot stays A03; finish, score and goal
+    keep disambiguating.
+  - **Apply this rule to future Entry Language questions.** Script: `apply-rc1.1-decisions.py`.
+- **RPC Routing column renamed "Routed RPC ID".** It names the context a goal routes to, not the
+  relationship's strength.
+- **43 Affordance Targets DEFERRED**, with his reason: "I do not want canonical IDs inferred simply to
+  get the RPC Library into runtime."
+  - The resolver skips DEFERRED/REJECTED rows, and the gate rejects a deferral without a note.
+  - Script: `apply-rpc-rc1.1-decisions.py`.
+- **Stale "Implementation Staging OLD" row removed** from the RC1.1 Audit sheet; no archive restored.
+- **ACTIVE:** nothing is NEEDS_CANONICAL_ID any more, but runtime_status stays PROPOSED. He ties ACTIVE
+  to approving the Context → primary scoring event rows, and a test fails when it flips.
+
+**Primary scoring event, the agreed architecture (his words, 13 Sep):** Realized Game Form →
+physically available scoring events → RPC / Primary Scoring Identity → selected primary scoring
+event → activity generation → coach-facing How to Score.
+- The event is decided after the realization is selected and BEFORE text generation, then given to
+  the generator.
+- Starting vocabulary: goal, target player, line crossed, target zone entered, gate, regain under a
+  stated condition.
+
+**Draft for his review:** `back/data/sport-modules/soccer/primary-scoring-events.rc1.1-PROPOSED.xlsx`,
+written by `write-proposed-scoring-events.py`. Sheets: Event Vocabulary, Game Form Evidence, the eight
+Context rows, 22 Context × Game Form pairs, Generated Evidence. The script fails if its pairs drift
+from the workbook's compatible game forms.
+
+**Evidence that settles WHY:** nine real activities generated on 13 Sep across Directional
+Possession, Transition, Channel, Finishing and Positional Play.
+- Seven setups marked a scoring object (end zones, goals with goalkeepers, halves). **None of the seven
+  scored it.**
+- Both finishing games had goals and goalkeepers, yet awarded "attacking the open space".
+- Both counter-attack games awarded "winning the ball back", the counter-press side of the exchange.
+- Scoring follows the affordance lens, not the organization.
+
+**What drafting surfaced for him:**
+1. **A stated condition is needed on most events, not only on regain.** Counterattack scores a goal
+   inside a window; Build-Out counts from a goalkeeper start; High Press Escape requires keeping the
+   ball after crossing. So the condition is an attribute any event can carry.
+2. **Proposed SE-07 "Held":** the opponent kept from crossing a line or entering a zone for a stated
+   time. Counter-Press ("rather than regain alone") and Attack Prevention need it. The Delay Reward
+   realization and Recover & Reorganize Games already author it.
+3. **Chance Creation:** zone entry is the closest proxy among the agreed events. Is "shot on target"
+   better?
+4. **Build-Out, High Press Escape and Attack Development share the same events.** Their difference is
+   the condition, which matches the identity rules.
+5. **Channel Games authors no scoring object** (channels are lanes), so 4 pairs need an end object.
+   Finishing through Positional Play needs goals added. 16 of 22 pairs resolve outright; 1 needs a
+   realization choice.
+6. **Placement fits the frozen schema.**
+   - Game form → the existing `scoring_structure_type` column, which is empty and read by nothing.
+   - Context → Relationships (`related_library` SCORING_EVENT), with the condition as a Property.
+   - Neither column is controlled vocabulary.
+
+**Defect found while generating:** "Create better support angles under pressure." (Positional Play)
+fails assembly 3 of 3 times with "Activity 2 missing skeleton mechanic: Opponent consequence emphasis…".
+A coach typing it gets an error. Spun off as a separate task.
 
 ---
 

@@ -132,8 +132,23 @@ function testEveryClarifiedTermComesFromTheWorkbook(): void {
     }
 }
 
+/**
+ * RC1.1: "finish", "score" and "goal" describe both creating a chance and converting one, so Christian
+ * kept them ambiguous on purpose. They must keep offering both goals rather than drift to one.
+ */
+function testFinishingWordsStillAskCreationOrConversion(): void {
+    for (const term of ['finish', 'score', 'goal']) {
+        const ids = clarificationFor(term)?.directions.map((d) => d.learningGoalId) ?? []
+        assert.ok(
+            ids.includes('A03') && ids.includes('A06'),
+            `"${term}" must offer both Create Scoring Chances and Finish Attacks; offered ${JSON.stringify(ids)}`
+        )
+    }
+}
+
 function runAll(): void {
     testDeferredJudgmentTermsAreHandled()
+    testFinishingWordsStillAskCreationOrConversion()
     testDirectionsAreRealRegistryEntries()
     testPhaseTermsOfferTheWholePhase()
     testSpecificTermsDoNotClarify()

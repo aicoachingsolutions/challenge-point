@@ -6,13 +6,14 @@
  * phrase pointing at a deleted goal routes nowhere, and a goal with no Engine Translation row is a
  * dead end the coach only discovers after answering every question.
  *
- * Also pins the RC1 shape itself — 11 goals, 20 situations, 4 phases — so that when Christian
+ * Also pins the shape itself — 13 goals, 20 situations, 4 phases at RC1.1 — so that when Christian
  * revises the workbook the change is deliberate and visible in a diff rather than absorbed silently.
  *
  * Run: part of `npm test`.
  */
 import assert from 'node:assert/strict'
 
+import workbook from './session-planning-model.rc1.json'
 import {
     gameProblemsForLearningGoal,
     sessionPlanningModel,
@@ -25,17 +26,25 @@ function testIntegrityGate(): void {
     assert.ok(result.valid, `Session Planning Model failed integrity: ${result.errors.slice(0, 6).join(' | ')}`)
 }
 
-/** The RC1 shape. A change here should be a deliberate workbook revision, not a surprise. */
+/** The RC1.1 shape. A change here should be a deliberate workbook revision, not a surprise. */
 function testRc1Shape(): void {
-    assert.equal(sessionPlanningModel.learningGoals().length, 11, 'RC1 declares 11 Learning Goals.')
+    // RC1.1 (Christian, 13 Sep): A05 Progress the Attack and A06 Finish Attacks, added so Attack
+    // Development and Finishing have a natural guided entry point.
+    assert.equal(sessionPlanningModel.learningGoals().length, 13, 'RC1.1 declares 13 Learning Goals.')
+    assert.deepEqual(
+        sessionPlanningModel.learningGoalsForPhase('Attacking').map((g) => String(g['ID'])),
+        ['A01', 'A02', 'A03', 'A04', 'A05', 'A06']
+    )
     assert.deepEqual(
         sessionPlanningModel.phases(),
         ['Attacking', 'Defending', 'Transition to Attack', 'Transition to Defend'],
         'RC1 declares four phases, in authoring order.'
     )
-    // RC1.1 (Cycle 8): 12 original + 57 merged from the verified runtime extraction, including the
-    // judgment phrases resolved by Christian's D02/D03 coaching-intent distinction.
-    assert.equal(sessionPlanningModel.entryLanguage().length, 69, 'RC1.1 declares 69 entry phrases.')
+    // Cycle 8: 12 original + 57 merged from the verified runtime extraction, including the judgment
+    // phrases resolved by Christian's D02/D03 coaching-intent distinction. RC1.1 adds 7 for A05/A06.
+    // The RC1.1 file arrived without the Cycle 8 phrases; apply-rc1.1-package.py restores them, and
+    // this count is what catches it if they are ever dropped again.
+    assert.equal(sessionPlanningModel.entryLanguage().length, 76, 'Cycle 8 (69) + RC1.1 (7) entry phrases.')
     assert.equal(sessionPlanningModel.governanceRules().length, 6, 'RC1 declares 6 governance rules.')
 }
 
@@ -88,13 +97,23 @@ function testPracticeSituationsResolve(): void {
  */
 function testEngineTranslationMatchesApprovedRc11(): void {
     const status = translationStatus()
-    assert.equal(status.total, 11, 'Every Learning Goal must have an Engine Translation row.')
+    assert.equal(status.total, 13, 'Every Learning Goal must have an Engine Translation row.')
     assert.equal(status.populated, 9, 'Cycle 8 approved nine mappings.')
     assert.deepEqual(
         status.unpopulated.sort(),
-        ['A01', 'A04'],
-        'A01 and A04 are the intentional runtime gaps. Any other unmapped goal is a regression.'
+        ['A01', 'A04', 'A05', 'A06'],
+        'A01 and A04 are the intentional runtime gaps; A05 and A06 are new at RC1.1 and not yet translated. ' +
+            'Any other unmapped goal is a regression.'
     )
+
+    // The two kinds of unmapped must stay distinguishable in the workbook itself: A01/A04 were looked
+    // at and deliberately left EMPTY; A05/A06 have not been looked at yet, and say TBD.
+    const raw = (id: string) =>
+        (workbook as unknown as { engine_translation: Array<Record<string, unknown>> }).engine_translation.find(
+            (r) => r['Learning Goal ID'] === id
+        )
+    for (const gap of ['A01', 'A04']) assert.equal(raw(gap)?.['Primary GP IDs'], null, `${gap} is an intentional gap, not TBD`)
+    for (const pending of ['A05', 'A06']) assert.equal(raw(pending)?.['Primary GP IDs'], 'TBD', `${pending} is pending, not a gap`)
 
     // Spot-pin two approved mappings so a silent change to the canonical workbook is caught.
     assert.deepEqual(gameProblemsForLearningGoal('A02')?.primary, ['GP-015'])
@@ -117,6 +136,27 @@ function testEntryLanguageResolves(): void {
     assert.equal(sessionPlanningModel.learningGoalIdForPhrase('build from the back'), 'A01')
     assert.equal(sessionPlanningModel.learningGoalIdForPhrase('  Win The Ball Back  '), 'D02', 'Lookup is forgiving of case and spacing.')
     assert.equal(sessionPlanningModel.learningGoalIdForPhrase('nonsense phrase'), null)
+
+    // RC1.1 (Christian, 13 Sep) — his semantic rule: language about CREATING an opportunity belongs to
+    // Create Scoring Chances; language about EXECUTING or CONVERTING one that exists belongs to Finish
+    // Attacks. Pinned so a later vocabulary edit cannot quietly put them back together.
+    for (const phrase of ['shoot', 'shot', 'shooting', 'convert chance']) {
+        assert.equal(sessionPlanningModel.learningGoalIdForPhrase(phrase), 'A06', `"${phrase}" is conversion language`)
+    }
+    for (const phrase of ['get a shot', 'create chances']) {
+        assert.equal(sessionPlanningModel.learningGoalIdForPhrase(phrase), 'A03', `"${phrase}" is creation language`)
+    }
+}
+
+/** RC1.1: every Guided Learning Goal routes to exactly one Representative Performance Context. */
+function testEveryGoalRoutesToOneContext(): void {
+    const routes = sessionPlanningModel.rpcRouting()
+    assert.equal(routes.length, 13)
+    for (const goal of sessionPlanningModel.learningGoals()) {
+        const id = String(goal['ID'])
+        assert.equal(routes.filter((r) => r.learningGoalId === id).length, 1, `${id} must route exactly once`)
+    }
+    assert.equal(routes.find((r) => r.learningGoalId === 'A06')?.rpcId, 'RPC-005', 'Finish Attacks routes to Finishing.')
 }
 
 /** Negative cases — proving the gate bites, not merely that it passes on a healthy workbook. */
@@ -129,6 +169,7 @@ function testGateCatchesBrokenReferences(): void {
         entry_language: [{ 'Coach Phrase': 'phrase', 'Learning Goal ID': 'A01' }],
         engine_translation: [{ 'Learning Goal ID': 'A01', 'Primary GP IDs': 'TBD' }],
         governance: [{ Rule: 'Coach language first.' }],
+        rpc_routing: [{ 'Learning Goal ID': 'A01', 'Routed RPC ID': 'RPC-001' }],
     }
     const damaged = (mutate: (d: typeof healthy) => void) => {
         const copy = JSON.parse(JSON.stringify(healthy)) as typeof healthy
@@ -168,6 +209,24 @@ function testGateCatchesBrokenReferences(): void {
         }).some((e) => e.includes('Coach Definition')),
         'A goal with no coach-facing definition must be caught.'
     )
+    assert.ok(
+        damaged((d) => {
+            d.rpc_routing[0]['Learning Goal ID'] = 'GONE'
+        }).some((e) => e.includes('RPC Routing names Learning Goal "GONE"')),
+        'A route for a goal that does not exist must be caught.'
+    )
+    assert.ok(
+        damaged((d) => {
+            d.rpc_routing = []
+        }).some((e) => e.includes('0 RPC Routing rows')),
+        'A goal with no route must be caught.'
+    )
+    assert.ok(
+        damaged((d) => {
+            d.rpc_routing.push({ ...d.rpc_routing[0] })
+        }).some((e) => e.includes('2 RPC Routing rows')),
+        'A goal routed twice must be caught.'
+    )
 }
 
 function runAll(): void {
@@ -177,6 +236,7 @@ function runAll(): void {
     testPracticeSituationsResolve()
     testEngineTranslationMatchesApprovedRc11()
     testEntryLanguageResolves()
+    testEveryGoalRoutesToOneContext()
     testGateCatchesBrokenReferences()
     console.log('session-planning-model unit tests: all cases passed.')
 }

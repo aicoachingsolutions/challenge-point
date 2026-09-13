@@ -1,1176 +1,551 @@
 [
   {
-    "mapping_id": "RPC-MAP-001",
-    "rpc_id": "RPC-001",
-    "library": "LEARNING_GOAL",
-    "candidate": "Play out from the back",
-    "outcome": "VERIFIED",
-    "canonical_id": "A01",
-    "canonical_name": "Play Out from the Back",
-    "relationship_id": "RPC-REL-009"
-  },
-  {
-    "mapping_id": "RPC-MAP-002",
-    "rpc_id": "RPC-001",
-    "library": "LEARNING_GOAL",
-    "candidate": "Build from the goalkeeper",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Build from the goalkeeper' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-  },
-  {
-    "mapping_id": "RPC-MAP-003",
-    "rpc_id": "RPC-001",
-    "library": "LEARNING_GOAL",
-    "candidate": "Build from goal kicks",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Build from goal kicks' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-  },
-  {
-    "mapping_id": "RPC-MAP-004",
-    "rpc_id": "RPC-001",
-    "library": "LEARNING_GOAL",
-    "candidate": "Support the player on the ball",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Support the player on the ball' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-  },
-  {
     "mapping_id": "RPC-MAP-005",
-    "rpc_id": "RPC-001",
-    "library": "GAME_PROBLEM",
-    "candidate": "Create Space",
-    "outcome": "VERIFIED",
-    "canonical_id": "GP-001",
-    "canonical_name": "Create Space",
-    "relationship_id": "RPC-REL-010"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-006",
-    "rpc_id": "RPC-001",
-    "library": "GAME_PROBLEM",
-    "candidate": "Gain Access",
-    "outcome": "VERIFIED",
-    "canonical_id": "GP-005",
-    "canonical_name": "Gain Access",
-    "relationship_id": "RPC-REL-011"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-007",
-    "rpc_id": "RPC-001",
-    "library": "GAME_PROBLEM",
-    "candidate": "Maintain Possession",
-    "outcome": "VERIFIED",
-    "canonical_id": "GP-015",
-    "canonical_name": "Maintain Possession",
-    "relationship_id": "RPC-REL-012"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-008",
-    "rpc_id": "RPC-001",
-    "library": "GAME_PROBLEM",
-    "candidate": "Exploit Space",
-    "outcome": "VERIFIED",
-    "canonical_id": "GP-002",
-    "canonical_name": "Exploit Space",
-    "relationship_id": "RPC-REL-013"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-009",
-    "rpc_id": "RPC-001",
-    "library": "GAME_FORM",
-    "candidate": "Directional Possession",
-    "outcome": "VERIFIED",
-    "canonical_id": "GF2",
-    "canonical_name": "Directional Possession Games",
-    "relationship_id": "RPC-REL-014"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-010",
-    "rpc_id": "RPC-001",
-    "library": "GAME_FORM",
-    "candidate": "Positional Play",
-    "outcome": "VERIFIED",
-    "canonical_id": "GF3",
-    "canonical_name": "Positional Play Games",
-    "relationship_id": "RPC-REL-015"
-  },
-  {
-    "mapping_id": "RPC-MAP-011",
-    "rpc_id": "RPC-001",
-    "library": "GAME_FORM",
-    "candidate": "Full Goal",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Full Goal' exists in soccer-module.rc1-v3.json (11 canonical objects; rule: exact name, with or without the ' Games' suffix)."
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-012",
-    "rpc_id": "RPC-001",
-    "library": "GAME_FORM",
-    "candidate": "Channel",
-    "outcome": "VERIFIED",
-    "canonical_id": "GF7",
-    "canonical_name": "Channel Games",
-    "relationship_id": "RPC-REL-016"
-  },
-  {
-    "mapping_id": "RPC-MAP-013",
-    "rpc_id": "RPC-002",
-    "library": "LEARNING_GOAL",
-    "candidate": "Escape a high press",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Escape a high press' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-  },
-  {
-    "mapping_id": "RPC-MAP-014",
-    "rpc_id": "RPC-002",
-    "library": "LEARNING_GOAL",
-    "candidate": "Play through pressure",
-    "outcome": "VERIFIED",
-    "canonical_id": "A02",
-    "canonical_name": "Play Through Pressure",
-    "relationship_id": "RPC-REL-017"
-  },
-  {
-    "mapping_id": "RPC-MAP-015",
-    "rpc_id": "RPC-002",
-    "library": "LEARNING_GOAL",
-    "candidate": "Maintain possession under pressure",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Maintain possession under pressure' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-016",
-    "rpc_id": "RPC-002",
-    "library": "GAME_PROBLEM",
-    "candidate": "Create Space",
-    "outcome": "VERIFIED",
-    "canonical_id": "GP-001",
-    "canonical_name": "Create Space",
-    "relationship_id": "RPC-REL-018"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-017",
-    "rpc_id": "RPC-002",
-    "library": "GAME_PROBLEM",
-    "candidate": "Gain Access",
-    "outcome": "VERIFIED",
-    "canonical_id": "GP-005",
-    "canonical_name": "Gain Access",
-    "relationship_id": "RPC-REL-019"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-018",
-    "rpc_id": "RPC-002",
-    "library": "GAME_PROBLEM",
-    "candidate": "Maintain Possession",
-    "outcome": "VERIFIED",
-    "canonical_id": "GP-015",
-    "canonical_name": "Maintain Possession",
-    "relationship_id": "RPC-REL-020"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-019",
-    "rpc_id": "RPC-002",
-    "library": "GAME_PROBLEM",
-    "candidate": "Exploit Space",
-    "outcome": "VERIFIED",
-    "canonical_id": "GP-002",
-    "canonical_name": "Exploit Space",
-    "relationship_id": "RPC-REL-021"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-020",
-    "rpc_id": "RPC-002",
-    "library": "GAME_FORM",
-    "candidate": "Directional Possession",
-    "outcome": "VERIFIED",
-    "canonical_id": "GF2",
-    "canonical_name": "Directional Possession Games",
-    "relationship_id": "RPC-REL-022"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-021",
-    "rpc_id": "RPC-002",
-    "library": "GAME_FORM",
-    "candidate": "Positional Play",
-    "outcome": "VERIFIED",
-    "canonical_id": "GF3",
-    "canonical_name": "Positional Play Games",
-    "relationship_id": "RPC-REL-023"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-022",
-    "rpc_id": "RPC-002",
-    "library": "GAME_FORM",
-    "candidate": "Channel",
-    "outcome": "VERIFIED",
-    "canonical_id": "GF7",
-    "canonical_name": "Channel Games",
-    "relationship_id": "RPC-REL-024"
-  },
-  {
-    "mapping_id": "RPC-MAP-023",
-    "rpc_id": "RPC-002",
-    "library": "GAME_FORM",
-    "candidate": "Full Goal",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Full Goal' exists in soccer-module.rc1-v3.json (11 canonical objects; rule: exact name, with or without the ' Games' suffix)."
-  },
-  {
-    "mapping_id": "RPC-MAP-024",
-    "rpc_id": "RPC-003",
-    "library": "LEARNING_GOAL",
-    "candidate": "Maintain purposeful possession",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Maintain purposeful possession' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-  },
-  {
-    "mapping_id": "RPC-MAP-025",
-    "rpc_id": "RPC-003",
-    "library": "LEARNING_GOAL",
-    "candidate": "Progress the attack",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Progress the attack' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-  },
-  {
-    "mapping_id": "RPC-MAP-026",
-    "rpc_id": "RPC-003",
-    "library": "LEARNING_GOAL",
-    "candidate": "Switch play",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Switch play' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-  },
-  {
-    "mapping_id": "RPC-MAP-027",
-    "rpc_id": "RPC-003",
-    "library": "LEARNING_GOAL",
-    "candidate": "Create overloads",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Create overloads' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-028",
-    "rpc_id": "RPC-003",
-    "library": "GAME_PROBLEM",
-    "candidate": "Create Space",
-    "outcome": "VERIFIED",
-    "canonical_id": "GP-001",
-    "canonical_name": "Create Space",
-    "relationship_id": "RPC-REL-025"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-029",
-    "rpc_id": "RPC-003",
-    "library": "GAME_PROBLEM",
-    "candidate": "Exploit Space",
-    "outcome": "VERIFIED",
-    "canonical_id": "GP-002",
-    "canonical_name": "Exploit Space",
-    "relationship_id": "RPC-REL-026"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-030",
-    "rpc_id": "RPC-003",
-    "library": "GAME_PROBLEM",
-    "candidate": "Gain Access",
-    "outcome": "VERIFIED",
-    "canonical_id": "GP-005",
-    "canonical_name": "Gain Access",
-    "relationship_id": "RPC-REL-027"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-031",
-    "rpc_id": "RPC-003",
-    "library": "GAME_PROBLEM",
-    "candidate": "Maintain Possession",
-    "outcome": "VERIFIED",
-    "canonical_id": "GP-015",
-    "canonical_name": "Maintain Possession",
-    "relationship_id": "RPC-REL-028"
-  },
-  {
-    "mapping_id": "RPC-MAP-032",
-    "rpc_id": "RPC-003",
-    "library": "GAME_PROBLEM",
-    "candidate": "Create Numerical Advantage",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Create Numerical Advantage' exists in gp-library.rc1.json (17 canonical objects; rule: exact canonical name)."
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-033",
-    "rpc_id": "RPC-003",
-    "library": "GAME_FORM",
-    "candidate": "Positional Play",
-    "outcome": "VERIFIED",
-    "canonical_id": "GF3",
-    "canonical_name": "Positional Play Games",
-    "relationship_id": "RPC-REL-029"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-034",
-    "rpc_id": "RPC-003",
-    "library": "GAME_FORM",
-    "candidate": "Directional Possession",
-    "outcome": "VERIFIED",
-    "canonical_id": "GF2",
-    "canonical_name": "Directional Possession Games",
-    "relationship_id": "RPC-REL-030"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-035",
-    "rpc_id": "RPC-003",
-    "library": "GAME_FORM",
-    "candidate": "Channel",
-    "outcome": "VERIFIED",
-    "canonical_id": "GF7",
-    "canonical_name": "Channel Games",
-    "relationship_id": "RPC-REL-031"
-  },
-  {
-    "mapping_id": "RPC-MAP-036",
-    "rpc_id": "RPC-003",
-    "library": "GAME_FORM",
-    "candidate": "Full Goal",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Full Goal' exists in soccer-module.rc1-v3.json (11 canonical objects; rule: exact name, with or without the ' Games' suffix)."
-  },
-  {
-    "mapping_id": "RPC-MAP-037",
-    "rpc_id": "RPC-004",
-    "library": "LEARNING_GOAL",
-    "candidate": "Create Scoring Chances",
-    "outcome": "VERIFIED",
-    "canonical_id": "A03",
-    "canonical_name": "Create Scoring Chances",
-    "relationship_id": "RPC-REL-032"
-  },
-  {
-    "mapping_id": "RPC-MAP-038",
-    "rpc_id": "RPC-004",
-    "library": "LEARNING_GOAL",
-    "candidate": "Break defensive lines",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Break defensive lines' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-  },
-  {
-    "mapping_id": "RPC-MAP-039",
-    "rpc_id": "RPC-004",
-    "library": "LEARNING_GOAL",
-    "candidate": "Create chances from wide areas",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Create chances from wide areas' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-040",
-    "rpc_id": "RPC-004",
-    "library": "GAME_PROBLEM",
-    "candidate": "Gain Access",
-    "outcome": "VERIFIED",
-    "canonical_id": "GP-005",
-    "canonical_name": "Gain Access",
-    "relationship_id": "RPC-REL-033"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-041",
-    "rpc_id": "RPC-004",
-    "library": "GAME_PROBLEM",
-    "candidate": "Establish Functional Object Control",
-    "outcome": "VERIFIED",
-    "canonical_id": "GP-006",
-    "canonical_name": "Establish Functional Object Control",
-    "relationship_id": "RPC-REL-034"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-042",
-    "rpc_id": "RPC-004",
-    "library": "GAME_PROBLEM",
-    "candidate": "Exploit Space",
-    "outcome": "VERIFIED",
-    "canonical_id": "GP-002",
-    "canonical_name": "Exploit Space",
-    "relationship_id": "RPC-REL-035"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-043",
-    "rpc_id": "RPC-004",
-    "library": "GAME_PROBLEM",
-    "candidate": "Create Space",
-    "outcome": "VERIFIED",
-    "canonical_id": "GP-001",
-    "canonical_name": "Create Space",
-    "relationship_id": "RPC-REL-036"
-  },
-  {
-    "mapping_id": "RPC-MAP-044",
-    "rpc_id": "RPC-004",
-    "library": "GAME_PROBLEM",
-    "candidate": "Create Numerical Advantage",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Create Numerical Advantage' exists in gp-library.rc1.json (17 canonical objects; rule: exact canonical name)."
-  },
-  {
-    "mapping_id": "RPC-MAP-045",
-    "rpc_id": "RPC-004",
-    "library": "GAME_FORM",
-    "candidate": "Full Goal",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Full Goal' exists in soccer-module.rc1-v3.json (11 canonical objects; rule: exact name, with or without the ' Games' suffix)."
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-046",
-    "rpc_id": "RPC-004",
-    "library": "GAME_FORM",
-    "candidate": "Positional Play",
-    "outcome": "VERIFIED",
-    "canonical_id": "GF3",
-    "canonical_name": "Positional Play Games",
-    "relationship_id": "RPC-REL-037"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-047",
-    "rpc_id": "RPC-004",
-    "library": "GAME_FORM",
-    "candidate": "Directional Possession",
-    "outcome": "VERIFIED",
-    "canonical_id": "GF2",
-    "canonical_name": "Directional Possession Games",
-    "relationship_id": "RPC-REL-038"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-048",
-    "rpc_id": "RPC-004",
-    "library": "GAME_FORM",
-    "candidate": "Channel",
-    "outcome": "VERIFIED",
-    "canonical_id": "GF7",
-    "canonical_name": "Channel Games",
-    "relationship_id": "RPC-REL-039"
-  },
-  {
-    "mapping_id": "RPC-MAP-049",
-    "rpc_id": "RPC-005",
-    "library": "LEARNING_GOAL",
-    "candidate": "Finish attacks",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Finish attacks' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-  },
-  {
-    "mapping_id": "RPC-MAP-050",
-    "rpc_id": "RPC-005",
-    "library": "LEARNING_GOAL",
-    "candidate": "Finish scoring chances",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Finish scoring chances' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-  },
-  {
-    "mapping_id": "RPC-MAP-051",
-    "rpc_id": "RPC-005",
-    "library": "LEARNING_GOAL",
-    "candidate": "Score more goals",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Score more goals' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-052",
-    "rpc_id": "RPC-005",
-    "library": "GAME_PROBLEM",
-    "candidate": "Establish Functional Object Control",
-    "outcome": "VERIFIED",
-    "canonical_id": "GP-006",
-    "canonical_name": "Establish Functional Object Control",
-    "relationship_id": "RPC-REL-040"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-053",
-    "rpc_id": "RPC-005",
-    "library": "GAME_PROBLEM",
-    "candidate": "Gain Access",
-    "outcome": "VERIFIED",
-    "canonical_id": "GP-005",
-    "canonical_name": "Gain Access",
-    "relationship_id": "RPC-REL-041"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-054",
-    "rpc_id": "RPC-005",
-    "library": "GAME_PROBLEM",
-    "candidate": "Exploit Space",
-    "outcome": "VERIFIED",
-    "canonical_id": "GP-002",
-    "canonical_name": "Exploit Space",
-    "relationship_id": "RPC-REL-042"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-055",
-    "rpc_id": "RPC-005",
-    "library": "GAME_FORM",
-    "candidate": "Finishing",
-    "outcome": "VERIFIED",
-    "canonical_id": "GF9",
-    "canonical_name": "Finishing Games",
-    "relationship_id": "RPC-REL-043"
-  },
-  {
-    "mapping_id": "RPC-MAP-056",
-    "rpc_id": "RPC-005",
-    "library": "GAME_FORM",
-    "candidate": "Full Goal",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Full Goal' exists in soccer-module.rc1-v3.json (11 canonical objects; rule: exact name, with or without the ' Games' suffix)."
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-057",
-    "rpc_id": "RPC-005",
-    "library": "GAME_FORM",
-    "candidate": "Transition",
-    "outcome": "VERIFIED",
-    "canonical_id": "GF4",
-    "canonical_name": "Transition Games",
-    "relationship_id": "RPC-REL-044"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-058",
-    "rpc_id": "RPC-005",
-    "library": "GAME_FORM",
-    "candidate": "Positional Play",
-    "outcome": "VERIFIED",
-    "canonical_id": "GF3",
-    "canonical_name": "Positional Play Games",
-    "relationship_id": "RPC-REL-045"
-  },
-  {
-    "mapping_id": "RPC-MAP-059",
-    "rpc_id": "RPC-006",
-    "library": "LEARNING_GOAL",
-    "candidate": "Transition to Attack",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Transition to Attack' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-  },
-  {
-    "mapping_id": "RPC-MAP-060",
-    "rpc_id": "RPC-006",
-    "library": "LEARNING_GOAL",
-    "candidate": "Attack Quickly",
-    "outcome": "VERIFIED",
-    "canonical_id": "TA01",
-    "canonical_name": "Attack Quickly",
-    "relationship_id": "RPC-REL-046"
-  },
-  {
-    "mapping_id": "RPC-MAP-061",
-    "rpc_id": "RPC-006",
-    "library": "LEARNING_GOAL",
-    "candidate": "Immediately After Winning Possession",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Immediately After Winning Possession' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-062",
-    "rpc_id": "RPC-006",
-    "library": "GAME_PROBLEM",
-    "candidate": "Gain Access",
-    "outcome": "VERIFIED",
-    "canonical_id": "GP-005",
-    "canonical_name": "Gain Access",
-    "relationship_id": "RPC-REL-047"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-063",
-    "rpc_id": "RPC-006",
-    "library": "GAME_PROBLEM",
-    "candidate": "Exploit Space",
-    "outcome": "VERIFIED",
-    "canonical_id": "GP-002",
-    "canonical_name": "Exploit Space",
-    "relationship_id": "RPC-REL-048"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-064",
-    "rpc_id": "RPC-006",
-    "library": "GAME_PROBLEM",
-    "candidate": "Create Space",
-    "outcome": "VERIFIED",
-    "canonical_id": "GP-001",
-    "canonical_name": "Create Space",
-    "relationship_id": "RPC-REL-049"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-065",
-    "rpc_id": "RPC-006",
-    "library": "GAME_PROBLEM",
-    "candidate": "Establish Functional Object Control",
-    "outcome": "VERIFIED",
-    "canonical_id": "GP-006",
-    "canonical_name": "Establish Functional Object Control",
-    "relationship_id": "RPC-REL-050"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-066",
-    "rpc_id": "RPC-006",
-    "library": "GAME_FORM",
-    "candidate": "Transition",
-    "outcome": "VERIFIED",
-    "canonical_id": "GF4",
-    "canonical_name": "Transition Games",
-    "relationship_id": "RPC-REL-051"
-  },
-  {
-    "mapping_id": "RPC-MAP-067",
-    "rpc_id": "RPC-006",
-    "library": "GAME_FORM",
-    "candidate": "Full Goal",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Full Goal' exists in soccer-module.rc1-v3.json (11 canonical objects; rule: exact name, with or without the ' Games' suffix)."
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-068",
-    "rpc_id": "RPC-006",
-    "library": "GAME_FORM",
-    "candidate": "Directional Possession",
-    "outcome": "VERIFIED",
-    "canonical_id": "GF2",
-    "canonical_name": "Directional Possession Games",
-    "relationship_id": "RPC-REL-052"
-  },
-  {
-    "mapping_id": "RPC-MAP-069",
-    "rpc_id": "RPC-007",
-    "library": "LEARNING_GOAL",
-    "candidate": "After Losing Possession",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'After Losing Possession' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-  },
-  {
-    "mapping_id": "RPC-MAP-070",
-    "rpc_id": "RPC-007",
-    "library": "LEARNING_GOAL",
-    "candidate": "Win the ball back",
-    "outcome": "VERIFIED",
-    "canonical_id": "D02",
-    "canonical_name": "Win the Ball Back",
-    "relationship_id": "RPC-REL-053"
-  },
-  {
-    "mapping_id": "RPC-MAP-071",
-    "rpc_id": "RPC-007",
-    "library": "LEARNING_GOAL",
-    "candidate": "Prevent counterattacks",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Prevent counterattacks' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-  },
-  {
-    "mapping_id": "RPC-MAP-072",
-    "rpc_id": "RPC-007",
-    "library": "GAME_PROBLEM",
-    "candidate": "Delay Progression",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Delay Progression' exists in gp-library.rc1.json (17 canonical objects; rule: exact canonical name)."
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-073",
-    "rpc_id": "RPC-007",
-    "library": "GAME_PROBLEM",
-    "candidate": "Regain Possession",
-    "outcome": "VERIFIED",
-    "canonical_id": "GP-016",
-    "canonical_name": "Regain Possession",
-    "relationship_id": "RPC-REL-054"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-074",
-    "rpc_id": "RPC-007",
-    "library": "GAME_PROBLEM",
-    "candidate": "Protect Space",
-    "outcome": "VERIFIED",
-    "canonical_id": "GP-012",
-    "canonical_name": "Protect Space",
-    "relationship_id": "RPC-REL-055"
-  },
-  {
-    "mapping_id": "RPC-MAP-075",
-    "rpc_id": "RPC-007",
-    "library": "GAME_PROBLEM",
-    "candidate": "Recover Organization",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Recover Organization' exists in gp-library.rc1.json (17 canonical objects; rule: exact canonical name)."
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-076",
-    "rpc_id": "RPC-007",
-    "library": "GAME_FORM",
-    "candidate": "Transition",
-    "outcome": "VERIFIED",
-    "canonical_id": "GF4",
-    "canonical_name": "Transition Games",
-    "relationship_id": "RPC-REL-056"
-  },
-  {
-    "mapping_id": "RPC-MAP-077",
-    "rpc_id": "RPC-007",
-    "library": "GAME_FORM",
-    "candidate": "Full Goal",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Full Goal' exists in soccer-module.rc1-v3.json (11 canonical objects; rule: exact name, with or without the ' Games' suffix)."
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-078",
-    "rpc_id": "RPC-007",
-    "library": "GAME_FORM",
-    "candidate": "Directional Possession",
-    "outcome": "VERIFIED",
-    "canonical_id": "GF2",
-    "canonical_name": "Directional Possession Games",
-    "relationship_id": "RPC-REL-057"
-  },
-  {
-    "mapping_id": "RPC-MAP-079",
-    "rpc_id": "RPC-008",
-    "library": "LEARNING_GOAL",
-    "candidate": "Stay Organized",
-    "outcome": "VERIFIED",
-    "canonical_id": "D01",
-    "canonical_name": "Stay Organized",
-    "relationship_id": "RPC-REL-058"
-  },
-  {
-    "mapping_id": "RPC-MAP-080",
-    "rpc_id": "RPC-008",
-    "library": "LEARNING_GOAL",
-    "candidate": "Protect Space",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Protect Space' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-  },
-  {
-    "mapping_id": "RPC-MAP-081",
-    "rpc_id": "RPC-008",
-    "library": "LEARNING_GOAL",
-    "candidate": "Delay Progression",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Delay Progression' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-  },
-  {
-    "mapping_id": "RPC-MAP-082",
-    "rpc_id": "RPC-008",
-    "library": "LEARNING_GOAL",
-    "candidate": "Prevent scoring chances",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Prevent scoring chances' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-083",
-    "rpc_id": "RPC-008",
-    "library": "GAME_PROBLEM",
-    "candidate": "Protect Space",
-    "outcome": "VERIFIED",
-    "canonical_id": "GP-012",
-    "canonical_name": "Protect Space",
-    "relationship_id": "RPC-REL-059"
-  },
-  {
-    "mapping_id": "RPC-MAP-084",
-    "rpc_id": "RPC-008",
-    "library": "GAME_PROBLEM",
-    "candidate": "Delay Progression",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Delay Progression' exists in gp-library.rc1.json (17 canonical objects; rule: exact canonical name)."
-  },
-  {
-    "mapping_id": "RPC-MAP-085",
-    "rpc_id": "RPC-008",
-    "library": "GAME_PROBLEM",
-    "candidate": "Recover Organization",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Recover Organization' exists in gp-library.rc1.json (17 canonical objects; rule: exact canonical name)."
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-086",
-    "rpc_id": "RPC-008",
-    "library": "GAME_PROBLEM",
-    "candidate": "Regain Possession",
-    "outcome": "VERIFIED",
-    "canonical_id": "GP-016",
-    "canonical_name": "Regain Possession",
-    "relationship_id": "RPC-REL-060"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-087",
-    "rpc_id": "RPC-008",
-    "library": "GAME_FORM",
-    "candidate": "Positional Play",
-    "outcome": "VERIFIED",
-    "canonical_id": "GF3",
-    "canonical_name": "Positional Play Games",
-    "relationship_id": "RPC-REL-061"
-  },
-  {
-    "mapping_id": "RPC-MAP-088",
-    "rpc_id": "RPC-008",
-    "library": "GAME_FORM",
-    "candidate": "Full Goal",
-    "outcome": "UNRESOLVED",
-    "reason": "No object named 'Full Goal' exists in soccer-module.rc1-v3.json (11 canonical objects; rule: exact name, with or without the ' Games' suffix)."
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-089",
-    "rpc_id": "RPC-008",
-    "library": "GAME_FORM",
-    "candidate": "Directional Possession",
-    "outcome": "VERIFIED",
-    "canonical_id": "GF2",
-    "canonical_name": "Directional Possession Games",
-    "relationship_id": "RPC-REL-062"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-090",
-    "rpc_id": "RPC-008",
-    "library": "GAME_FORM",
-    "candidate": "Channel",
-    "outcome": "VERIFIED",
-    "canonical_id": "GF7",
-    "canonical_name": "Channel Games",
-    "relationship_id": "RPC-REL-063"
+    "outcome": "ALREADY_VERIFIED"
   },
   {
     "mapping_id": "RPC-MAP-091",
     "rpc_id": "RPC-001",
     "library": "AFFORDANCE",
     "candidate": "Supporting goalkeeper",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-092",
     "rpc_id": "RPC-001",
     "library": "AFFORDANCE",
     "candidate": "Supporting defender",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-093",
     "rpc_id": "RPC-001",
     "library": "AFFORDANCE",
     "candidate": "Progression lane",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-094",
     "rpc_id": "RPC-001",
     "library": "AFFORDANCE",
     "candidate": "Immediate support",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-095",
     "rpc_id": "RPC-001",
     "library": "AFFORDANCE",
     "candidate": "Weak-side progression",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-096",
     "rpc_id": "RPC-001",
     "library": "AFFORDANCE",
     "candidate": "Third-player support",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-097",
     "rpc_id": "RPC-002",
     "library": "AFFORDANCE",
     "candidate": "Immediate support",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-098",
     "rpc_id": "RPC-002",
     "library": "AFFORDANCE",
     "candidate": "Pressure release",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-099",
     "rpc_id": "RPC-002",
     "library": "AFFORDANCE",
     "candidate": "Free player",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-100",
     "rpc_id": "RPC-002",
     "library": "AFFORDANCE",
     "candidate": "Progression lane",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-101",
     "rpc_id": "RPC-002",
     "library": "AFFORDANCE",
     "candidate": "Third-player support",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-102",
     "rpc_id": "RPC-002",
     "library": "AFFORDANCE",
     "candidate": "Weak-side progression",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-103",
     "rpc_id": "RPC-003",
     "library": "AFFORDANCE",
     "candidate": "Supporting player",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-104",
     "rpc_id": "RPC-003",
     "library": "AFFORDANCE",
     "candidate": "Progression lane",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-105",
     "rpc_id": "RPC-003",
     "library": "AFFORDANCE",
     "candidate": "Overload opportunity",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-106",
     "rpc_id": "RPC-003",
     "library": "AFFORDANCE",
     "candidate": "Weak-side opportunity",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-107",
     "rpc_id": "RPC-003",
     "library": "AFFORDANCE",
     "candidate": "Third-player support",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-108",
     "rpc_id": "RPC-004",
     "library": "AFFORDANCE",
     "candidate": "Shooting lane",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-109",
     "rpc_id": "RPC-004",
     "library": "AFFORDANCE",
     "candidate": "Final penetrating pass",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-110",
     "rpc_id": "RPC-004",
     "library": "AFFORDANCE",
     "candidate": "Attacker advantage",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-111",
     "rpc_id": "RPC-004",
     "library": "AFFORDANCE",
     "candidate": "Defensive imbalance",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-112",
     "rpc_id": "RPC-004",
     "library": "AFFORDANCE",
     "candidate": "Crossing opportunity",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-113",
     "rpc_id": "RPC-004",
     "library": "AFFORDANCE",
     "candidate": "Cut-back opportunity",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-114",
     "rpc_id": "RPC-005",
     "library": "AFFORDANCE",
     "candidate": "Shooting lane",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-115",
     "rpc_id": "RPC-005",
     "library": "AFFORDANCE",
     "candidate": "Goalkeeper position",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-116",
     "rpc_id": "RPC-005",
     "library": "AFFORDANCE",
     "candidate": "Defender position",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-117",
     "rpc_id": "RPC-005",
     "library": "AFFORDANCE",
     "candidate": "Immediate scoring window",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-118",
     "rpc_id": "RPC-005",
     "library": "AFFORDANCE",
     "candidate": "Rebound opportunity",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-119",
     "rpc_id": "RPC-006",
     "library": "AFFORDANCE",
     "candidate": "Forward progression lane",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-120",
     "rpc_id": "RPC-006",
     "library": "AFFORDANCE",
     "candidate": "Isolated defender",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-121",
     "rpc_id": "RPC-006",
     "library": "AFFORDANCE",
     "candidate": "Numerical superiority",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-122",
     "rpc_id": "RPC-006",
     "library": "AFFORDANCE",
     "candidate": "Immediate support",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-123",
     "rpc_id": "RPC-006",
     "library": "AFFORDANCE",
     "candidate": "Weak-side runner",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-124",
     "rpc_id": "RPC-007",
     "library": "AFFORDANCE",
     "candidate": "Immediate pressure",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-125",
     "rpc_id": "RPC-007",
     "library": "AFFORDANCE",
     "candidate": "Passing lane denial",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-126",
     "rpc_id": "RPC-007",
     "library": "AFFORDANCE",
     "candidate": "Transition delay",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-127",
     "rpc_id": "RPC-007",
     "library": "AFFORDANCE",
     "candidate": "Supporting defender",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-128",
     "rpc_id": "RPC-007",
     "library": "AFFORDANCE",
     "candidate": "Interception opportunity",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-129",
     "rpc_id": "RPC-008",
     "library": "AFFORDANCE",
     "candidate": "Central protection",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-130",
     "rpc_id": "RPC-008",
     "library": "AFFORDANCE",
     "candidate": "Pressure angle",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-131",
     "rpc_id": "RPC-008",
     "library": "AFFORDANCE",
     "candidate": "Defensive support",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-132",
     "rpc_id": "RPC-008",
     "library": "AFFORDANCE",
     "candidate": "Passing lane denial",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
   },
   {
     "mapping_id": "RPC-MAP-133",
     "rpc_id": "RPC-008",
     "library": "AFFORDANCE",
     "candidate": "Interception opportunity",
-    "outcome": "UNRESOLVED",
-    "reason": "No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    "outcome": "DEFERRED"
+  },
+  {
+    "mapping_id": "RPC-RC11-LG-001",
+    "outcome": "ALREADY_VERIFIED"
+  },
+  {
+    "mapping_id": "RPC-RC11-LG-002",
+    "outcome": "ALREADY_VERIFIED"
+  },
+  {
+    "mapping_id": "RPC-RC11-LG-003",
+    "outcome": "ALREADY_VERIFIED"
+  },
+  {
+    "mapping_id": "RPC-RC11-LG-004",
+    "outcome": "ALREADY_VERIFIED"
+  },
+  {
+    "mapping_id": "RPC-RC11-LG-005",
+    "outcome": "ALREADY_VERIFIED"
+  },
+  {
+    "mapping_id": "RPC-RC11-LG-006",
+    "outcome": "ALREADY_VERIFIED"
+  },
+  {
+    "mapping_id": "RPC-RC11-LG-007",
+    "outcome": "ALREADY_VERIFIED"
+  },
+  {
+    "mapping_id": "RPC-RC11-LG-008",
+    "outcome": "ALREADY_VERIFIED"
+  },
+  {
+    "mapping_id": "RPC-RC11-LG-009",
+    "outcome": "ALREADY_VERIFIED"
+  },
+  {
+    "mapping_id": "RPC-RC11-LG-010",
+    "outcome": "ALREADY_VERIFIED"
+  },
+  {
+    "mapping_id": "RPC-RC11-LG-011",
+    "outcome": "ALREADY_VERIFIED"
+  },
+  {
+    "mapping_id": "RPC-RC11-LG-012",
+    "outcome": "ALREADY_VERIFIED"
+  },
+  {
+    "mapping_id": "RPC-RC11-LG-013",
+    "outcome": "ALREADY_VERIFIED"
   }
 ]

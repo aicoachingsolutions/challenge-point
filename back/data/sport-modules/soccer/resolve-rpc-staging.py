@@ -18,6 +18,15 @@ What resolving does, per his Standard:
 What NOT resolving does: nothing to the relationship data. The staging row keeps NEEDS_CANONICAL_ID
 and gains a note saying precisely why — so the remaining list is a set of decisions, not a backlog.
 
+RC1.1 (Christian, 2026-09-13) regenerated the workbook after the implementation audit: Full Goal and
+the three non-canonical Game Problems are gone, and the Learning Goal rows now name exact Guided
+Learning Goals rather than coach phrasings. Staging was re-issued unresolved, so this runs again
+against it; nothing from the RC1 resolution is carried over.
+
+AUTHORED NOTES ARE KEPT. RC1.1 staging rows carry Christian's own notes ("Canonical SPM ID: A01").
+The RC1 version of this script overwrote the notes column, which would have deleted them; the
+resolution is now appended after them instead.
+
 Idempotent: re-running adds nothing twice. Writes the workbook in place (the audited original is in
 git history) and a resolution report beside it.
 
@@ -35,7 +44,7 @@ sys.stdout.reconfigure(encoding="utf-8")
 
 HERE = pathlib.Path(__file__).parent
 BACK = pathlib.Path(__file__).parents[3]
-WORKBOOK = HERE / "rpc-workbook.rc1.xlsx"
+WORKBOOK = HERE / "rpc-workbook.rc1.1.xlsm"
 REPORT = HERE / "rpc-staging-resolution.json"
 
 GP_LIBRARY = BACK / "src/system/knowledge-core/gp-library.rc1.json"
@@ -50,6 +59,18 @@ RELATIONSHIPS_SHEET = "Relationships"
 def norm(value):
     """Case- and whitespace-insensitive. Deliberately nothing more: no stemming, no synonyms."""
     return " ".join(str(value or "").lower().replace("‑", "-").split())
+
+
+RESOLUTION_MARKER = "Mechanical resolution: "
+
+
+def with_resolution(existing, resolution):
+    """The knowledge owner's note, followed by this run's resolution — never instead of it.
+
+    Any resolution text a previous run appended is removed first, so re-running does not stack them.
+    """
+    authored = str(existing or "").split(RESOLUTION_MARKER, 1)[0].strip().rstrip("|").strip()
+    return f"{authored} | {RESOLUTION_MARKER}{resolution}" if authored else f"{RESOLUTION_MARKER}{resolution}"
 
 
 def build_indexes():
@@ -93,7 +114,9 @@ def table(ws):
 
 def main():
     indexes = build_indexes()
-    wb = openpyxl.load_workbook(WORKBOOK)
+    # keep_vba so an .xlsm is saved back as a macro-enabled package; saving it without would leave an
+    # .xlsm whose content type says .xlsx, which Excel refuses to open.
+    wb = openpyxl.load_workbook(WORKBOOK, keep_vba=WORKBOOK.suffix.lower() == ".xlsm")
     for required in (STAGING_SHEET, RELATIONSHIPS_SHEET):
         if required not in wb.sheetnames:
             raise SystemExit(f"Workbook is missing required sheet: {required}")
@@ -129,6 +152,13 @@ def main():
             report.append({"mapping_id": mapping_id, "outcome": "ALREADY_VERIFIED"})
             continue
 
+        # DEFERRED and REJECTED are the knowledge owner's decisions about a mapping, not gaps awaiting
+        # resolution. Touching them — even to refresh a note — would overwrite a decision.
+        if status in ("DEFERRED", "REJECTED"):
+            report.append({"mapping_id": mapping_id, "rpc_id": cell("rpc_id").value, "library": library,
+                           "candidate": candidate, "outcome": status})
+            continue
+
         if library not in indexes:
             raise SystemExit(f"{mapping_id}: unknown target_library '{library}' — not guessing where it points.")
 
@@ -158,7 +188,7 @@ def main():
             else:
                 rel_id = "(existing relationship)"
             cell("mapping_status").value = "VERIFIED"
-            cell("notes").value = f"Resolved to {canonical_id} ('{canonical_name}') as {rel_id}."
+            cell("notes").value = with_resolution(cell("notes").value, f"Resolved to {canonical_id} ('{canonical_name}') as {rel_id}.")
             report.append({"mapping_id": mapping_id, "rpc_id": cell("rpc_id").value, "library": library,
                            "candidate": candidate, "outcome": "VERIFIED", "canonical_id": canonical_id,
                            "canonical_name": canonical_name, "relationship_id": rel_id})
@@ -171,7 +201,7 @@ def main():
                 reason = f"Ambiguous: '{candidate}' names {len(distinct)} canonical objects in {source}: {distinct}."
             else:
                 reason = f"No object named '{candidate}' exists in {source} ({size} canonical objects; rule: {rule})."
-            cell("notes").value = f"Mechanical resolution: {reason}"
+            cell("notes").value = with_resolution(cell("notes").value, reason)
             report.append({"mapping_id": mapping_id, "rpc_id": cell("rpc_id").value, "library": library,
                            "candidate": candidate, "outcome": "UNRESOLVED", "reason": reason})
 
@@ -181,10 +211,11 @@ def main():
     summary = {}
     for item in report:
         lib = item.get("library", "(already verified)")
-        summary.setdefault(lib, {"VERIFIED": 0, "UNRESOLVED": 0, "ALREADY_VERIFIED": 0})[item["outcome"]] += 1
+        counts = summary.setdefault(lib, {})
+        counts[item["outcome"]] = counts.get(item["outcome"], 0) + 1
     print("Resolution by target library:")
     for lib, counts in summary.items():
-        print(f"  {lib:16} verified {counts['VERIFIED']:3}   unresolved {counts['UNRESOLVED']:3}   already {counts['ALREADY_VERIFIED']:3}")
+        print(f"  {lib:18} " + "   ".join(f"{outcome.lower()} {n}" for outcome, n in sorted(counts.items())))
     print(f"Relationships now: {len(existing)}. Wrote {WORKBOOK.name} and {REPORT.name}.")
 
 

@@ -1,9 +1,10 @@
 /**
- * Representative Performance Context Library loader — RC1.
+ * Representative Performance Context Library loader — schema RC1, library RC1.1.
  *
- * Canonical source: `back/data/sport-modules/soccer/rpc-workbook.rc1.xlsx`, Christian's audited
+ * Canonical source: `back/data/sport-modules/soccer/rpc-workbook.rc1.1.xlsm`, Christian's RC1.1
  * workbook with its Implementation Staging mechanically resolved (`resolve-rpc-staging.py`), projected
- * completely into `rpc-library.rc1.json` (`project-rpc-workbook.py` — never hand-edit).
+ * completely into `rpc-library.rc1.json` (`project-rpc-workbook.py` — never hand-edit). The file name
+ * carries the SCHEMA version, which stays RC1 while the schema is frozen.
  *
  * WHAT THIS LAYER IS FOR. Identity had nowhere to live. Game Problems are sport-universal by design,
  * so none of them can say "convert a chance"; the affordance lens was left owning the primary success
@@ -121,8 +122,22 @@ export interface RpcIntegrityResult {
     errors: string[]
 }
 
-/** The gate. Accepts a workbook so tests can prove each check fails on a mutated copy. */
-export function validateRpcLibraryIntegrity(data: RpcWorkbook = WB): RpcIntegrityResult {
+export interface PlanningRoute {
+    learningGoalId: string
+    rpcId: string
+}
+
+/** The Session Planning Model's own statement of each Guided Learning Goal's route (RC1.1). */
+function planningRoutes(): PlanningRoute[] {
+    const sp = sessionPlanningWorkbook as unknown as { rpc_routing?: Array<Record<string, unknown>> }
+    return (sp.rpc_routing ?? []).map((r) => ({
+        learningGoalId: String(r['Learning Goal ID'] ?? '').trim(),
+        rpcId: String(r['Routed RPC ID'] ?? '').trim(),
+    }))
+}
+
+/** The gate. Accepts a workbook and routes so tests can prove each check fails on a mutated copy. */
+export function validateRpcLibraryIntegrity(data: RpcWorkbook = WB, routes: PlanningRoute[] = planningRoutes()): RpcIntegrityResult {
     const errors: string[] = []
     const meta = data.metadata ?? {}
 
@@ -224,6 +239,43 @@ export function validateRpcLibraryIntegrity(data: RpcWorkbook = WB): RpcIntegrit
         }
     }
 
+    // ONE FACT, TWO STATEMENTS, SO THEY MUST AGREE. At RC1.1 the Session Planning Model routes each
+    // Guided Learning Goal to a context, and this workbook states the same routes as LEARNING_GOAL
+    // relationships. If they drift apart, which one the selector happened to read would decide what a
+    // coach gets, so a disagreement is a defined failure rather than a silent preference.
+    const learningGoalLinks = data.relationships.filter(
+        (r) => text(r, 'related_library') === 'LEARNING_GOAL' && text(r, 'status') === 'ACTIVE'
+    )
+    for (const route of routes) {
+        if (!rpcIds.has(route.rpcId)) {
+            errors.push(`Session Planning routes "${route.learningGoalId}" to "${route.rpcId}", which is not a context.`)
+        } else if (!learningGoalLinks.some((r) => text(r, 'rpc_id') === route.rpcId && text(r, 'related_id') === route.learningGoalId)) {
+            errors.push(
+                `Session Planning routes "${route.learningGoalId}" to ${route.rpcId}, but this workbook has no ACTIVE ` +
+                    `LEARNING_GOAL relationship stating that route.`
+            )
+        }
+    }
+    for (const link of learningGoalLinks) {
+        const route = routes.find((r) => r.learningGoalId === text(link, 'related_id'))
+        if (!route || route.rpcId !== text(link, 'rpc_id')) {
+            errors.push(
+                `Relationship "${text(link, 'relationship_id')}" links ${text(link, 'rpc_id')} to Learning Goal ` +
+                    `"${text(link, 'related_id')}", but Session Planning routes that goal to ${route ? route.rpcId : 'no context'}.`
+            )
+        }
+    }
+
+    // A deferral or rejection is the knowledge owner's decision, and a decision recorded without its
+    // reason cannot be revisited deliberately — which is the whole point of deferring rather than
+    // inferring (Christian, 13 Sep, on the 43 Affordance Targets).
+    for (const row of data.implementation_staging) {
+        const status = text(row, 'mapping_status')
+        if ((status === 'DEFERRED' || status === 'REJECTED') && !text(row, 'notes')) {
+            errors.push(`Staging "${text(row, 'mapping_id')}" is ${status} with no note recording why.`)
+        }
+    }
+
     // "No workbook may reach ACTIVE status while unresolved staging entries remain."
     const unresolved = data.implementation_staging.filter((r) => text(r, 'mapping_status') === 'NEEDS_CANONICAL_ID')
     const claimsActive =
@@ -295,6 +347,8 @@ const activeRelationships = (): ContextRelationship[] =>
 export const rpcLibrary = {
     sourceWorkbook: WB.source_workbook,
     schemaVersion: String(WB.metadata['workbook_schema_version'] ?? ''),
+    /** The RPC Library release the workbook represents — distinct from the frozen schema version. */
+    libraryVersion: String(WB.metadata['rpc_library_version'] ?? ''),
     /** PROPOSED until every staging entry is resolved; see validateRpcLibraryIntegrity. */
     runtimeStatus: String(WB.metadata['runtime_status'] ?? ''),
 
@@ -330,6 +384,8 @@ export const rpcLibrary = {
     /** For reporting only — the Workbook Standard forbids reasoning from staging. */
     unresolvedStaging: (): RpcRow[] =>
         WB.implementation_staging.filter((r) => text(r, 'mapping_status') === 'NEEDS_CANONICAL_ID'),
+    /** Mappings deliberately postponed. Reported, never reasoned from, and they never block ACTIVE. */
+    deferredStaging: (): RpcRow[] => WB.implementation_staging.filter((r) => text(r, 'mapping_status') === 'DEFERRED'),
 }
 
 /** REQUIRED before PRIMARY before SECONDARY before SUPPORTING; unknown strengths sort last. */
