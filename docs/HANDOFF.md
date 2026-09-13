@@ -237,6 +237,90 @@ RC4 §3's third bullet ("scoring reinforces the learning goal"), which I earlier
 the strength of the first two bullets. **Not fixed: what an activity rewards is a representative-design
 decision, and `incentive_patterns` is his to author.**
 
+### 2026-09-12 — Christian's Representative Activity Family Reasoning Architecture (RC1)
+
+His proposal (`Downloads/…Activity Family Reasoning Architecture (RC1).docx`): a new reasoning
+dimension, **parallel to the Affordance Target Profile**, that owns an activity's *organizational
+identity* — starting conditions, player/directional/transition organization, interaction landscape,
+and **the primary success and scoring condition**. Affordances keep "what should players perceive";
+Families take "what success fundamentally represents". Families have Realizations (his example:
+Goalkeeper Build-Out realized as full goals / end zones / central overload / multiple targets /
+staggered pressing). He asked whether it is the right architectural explanation — **answered, not
+implemented.** Evidence gathered, all re-runnable:
+
+| Claim in his doc | What the code/data says |
+|---|---|
+| "commits a single highest-ranked family" | True. `TestLibrarySelectionResult` holds ONE archetype; diagnostics: *1 structure across 3 activities*. The 3-slot variation is what his doc calls **parameter** diversity (multipliers, timing windows, footprint). |
+| "engine already computes multiple candidate designs" | True. `run-structure-diagnostics.ts`: **74%** of planning cases have a viable alternative game form within 2 points; 19% exact ties. |
+| affordances own "one responsibility too many" | True. Primary scoring comes from `affordanceFamilyHints`. Finishing Games' authored incentive pattern: *"bonus for achieving target outcome linked to affordance"*. |
+| identity needs another layer | **Strongest support.** None of the 17 Game Problems is about converting a chance — they're sport-universal by design. Finishing vocabulary routes to GP-006 *Establish Functional Object Control*; Finishing Games links GP-005 + GP-002. Identity cannot live in the GP layer without breaking its universality → it belongs in the **sport layer**. |
+| "an extension, not a redesign" | Supported. `game_forms` already has `scoring_structure_type`, `restart_structure_type`, `opposition_structure`, `compatible_realization_group_ids` — **empty on all 11 rows, read by nothing**. Filled: `directionality_type`, `interaction_structure`, `role_structure`, `primary_game_problem_ids`. |
+
+**Why his experience differs from the free-text distribution:** through the GUIDED planning path
+Directional Possession is **45%** (free text: 27%). "Play Out from the Back / Through Wide Area":
+Directional 8, Positional 7, End Zone 4, Channel 4 — decided by one point.
+
+**Two decisions raised with him:**
+1. **Family vs game form.** His realizations (end zones, overload, targets, pressing) ARE today's game
+   forms, so a Family sits ABOVE game forms in practice — sharpen "does not replace Game Archetype
+   Reasoning". Recommended: Family as its own sport-module object, realized through compatible game
+   forms. **Naming collision:** the workbook `realizations` sheet (23 rows) is actually constraints/EMs
+   ("Progression Bonus", `INTERACTION_REGULATION`, no game-form or GP links) — rename one before
+   authoring begins.
+2. **ATP sequencing.** The ATP is still SHADOW (`generateSelection.ts:902`, "no selection influence").
+   "Parallel to the ATP" in practice means adding Families to the live candidate evaluation while the
+   ATP stays shadow. Recommended: Families go first.
+
+**Proposed integration:** Family as a scored dimension in `generateSelection`'s existing joint
+evaluation; return top candidates from DISTINCT families within a viability margin instead of one
+winner; Family supplies the primary success/scoring condition, affordance + slot incentive modulate
+how it is achieved. **Guard: identity before diversity** — when one family clearly wins (26% of
+cases), three realizations of it beat three families where two are weak. Families and their success
+conditions are HIS to author; the object, loader and selector dimension are ours.
+
+### 2026-09-12 — Representative Performance Context Library RC1: INGESTED, not wired
+
+Christian named the layer **Representative Performance Contexts (RPCs)** and delivered the package:
+Library (narrative, 8 contexts), Workbook Standard (implementation contract), Workbook (canonical).
+**His decisions:** RPCs sit ABOVE Representative Game Forms (game forms become realizations); **no
+renaming for pilot** despite the `realizations` sheet collision; RPCs enter selection BEFORE the ATP.
+Workbook schema is FROZEN.
+
+The 8 contexts: Goalkeeper Build-Out, High Press Escape, Attack Development, Chance Creation,
+Finishing, Counterattack, Counter-Press, Attack Prevention.
+
+**Where it lives:**
+- `back/data/sport-modules/soccer/rpc-workbook.rc1.xlsx` — his audited original is commit `3c053a6`;
+  the next commit applies mechanical staging resolution (round-trip verified cell-identical elsewhere).
+- `resolve-rpc-staging.py` → `rpc-staging-resolution.json`; `project-rpc-workbook.py` →
+  `src/system/sport-module/rpc-library.rc1.json` (never hand-edit).
+- `src/system/sport-module/rpc-library.ts` — loader + `validateRpcLibraryIntegrity` (fail-loudly gate,
+  10 mutation tests prove it fails). Declared in SPORT_LAYER_FILES: it is sport-specific by design.
+- `src/scripts/run-rpc-coverage.ts` — what context-gated selection would reach. Run it first.
+
+**Resolution was EXACT ONLY** (his Standard: Principle 6 Fail Loudly; the Library: "omit rather than
+invent"). 55 of 133 resolved: Game Problems 27/33, Game Forms 22/30, Learning Goals 6/27, Affordances
+0/43. **Staging is not "just unresolved references" — most name objects that don't exist:**
+- **"Full Goal"** — PRIMARY game form for 5 contexts; no such game form.
+- Game Problems **Create Numerical Advantage, Delay Progression, Recover Organization** — not among the 17.
+- 21 learning-goal candidates are coach phrasings, not the 11 guided goals.
+- **No canonical affordance-target library** exists at "shooting lane" granularity.
+
+**Consequences (from run-rpc-coverage.ts):** 5 of 11 guided goals reach NO context (A04, D03, TA02,
+TD01, TD02); **Attack Development and Finishing are reachable from no guided goal**; 6 of 11 game
+forms fit NO context (End Zone, Overload, Target, Pressing & Regain, Constraint-Driven Free Play,
+Recover & Reorganize); **Directional Possession is compatible with 7 of 8 contexts**, so gating alone
+will not reduce its dominance.
+
+**Also blocking selector integration:** the workbook holds scoring IDENTITY ("scoring should reward
+successful attacking establishment rather than possession alone"), not scoring CONDITIONS a coach can
+read. Turning identity into a concrete condition per game form is authoring. And `generateSelection`
+receives only goal TEXT — `planning.learningGoalId` never reaches it; plumb that first.
+
+**NEXT (after his answers):** plumb learningGoalId → RPC dimension in candidate evaluation → strongest
+viable contexts, identity before diversity → context supplies primary scoring. Expect the behaviour
+gate to change deliberately; record it as gate v3 with before/after.
+
 **Behaviour gate re-verified 2026-09-10: `70 68 98 119 94 99 86`.** Sport-coupling ratchet 35.
 42 unit suites.
 
