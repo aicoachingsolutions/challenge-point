@@ -21,16 +21,28 @@
 import assert from 'node:assert/strict'
 
 import { deriveInputConstraints } from '../input-constraints/deriveInputConstraints'
+import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { generateSelection } from './generateSelection'
 
+function selectionFor(goal: string, options: { challengeLevel?: string; learningGoalId?: string } = {}) {
+    return generateSelection(
+        { learningGoals: [goal], challengeLevel: options.challengeLevel, learningGoalId: options.learningGoalId },
+        deriveInputConstraints(goal)
+    )
+}
+
 /** A selection reduced to the decisions a coach would actually notice. */
-function decisionFingerprint(goal: string, challengeLevel?: string): string {
-    const selection = generateSelection({ learningGoals: [goal], challengeLevel }, deriveInputConstraints(goal))
+function decisionFingerprint(goal: string, challengeLevel?: string, learningGoalId?: string): string {
+    const selection = selectionFor(goal, { challengeLevel, learningGoalId })
     return JSON.stringify({
         archetype: selection.archetype.game_form_name,
         lenses: selection.affordanceLenses.map((lens) => lens.title),
         constraints: selection.constraints.map((constraint) => constraint.title),
     })
+}
+
+function routeForGoal(learningGoalId: string): string | null {
+    return sessionPlanningModel.rpcRouting().find((route) => route.learningGoalId === learningGoalId)?.rpcId ?? null
 }
 
 /**
@@ -86,9 +98,68 @@ function testUnrelatedInputValuesDoNotInfluenceSelection(): void {
     }
 }
 
+function testLearningGoalIdDoesNotInfluenceSelection(): void {
+    for (const goal of sessionPlanningModel.learningGoals()) {
+        const id = String(goal['ID'])
+        const name = String(goal['Learning Goal'] ?? '')
+        const withoutId = selectionFor(name)
+        const withId = selectionFor(name, { learningGoalId: id })
+
+        assert.equal(
+            decisionFingerprint(name, undefined, id),
+            decisionFingerprint(name),
+            `${id} ${name} selects differently when the chosen goal id is present. The id must stay out of matching.`
+        )
+        assert.equal(
+            withId.selectionTrace.queryCorpus,
+            withoutId.selectionTrace.queryCorpus,
+            `${id} ${name} changed selectionTrace.queryCorpus. The id has leaked into the matching corpus.`
+        )
+    }
+}
+
+function testLearningGoalIdTraceRecordsRoute(): void {
+    for (const goal of sessionPlanningModel.learningGoals()) {
+        const id = String(goal['ID'])
+        const name = String(goal['Learning Goal'] ?? '')
+        const selection = selectionFor(name, { learningGoalId: id })
+
+        assert.deepEqual(
+            selection.selectionTrace.planning,
+            { learningGoalId: id, routedRpcId: routeForGoal(id) },
+            `${id} ${name} did not record its Session Planning route in the selection trace.`
+        )
+    }
+
+    const goalName = (id: string): string => String(sessionPlanningModel.learningGoal(id)?.['Learning Goal'] ?? '')
+    assert.deepEqual(selectionFor(goalName('A06'), { learningGoalId: 'A06' }).selectionTrace.planning, {
+        learningGoalId: 'A06',
+        routedRpcId: 'RPC-005',
+    })
+    assert.deepEqual(selectionFor(goalName('A01'), { learningGoalId: 'A01' }).selectionTrace.planning, {
+        learningGoalId: 'A01',
+        routedRpcId: 'RPC-001',
+    })
+}
+
+function testFreeTextRecordsNoPlanning(): void {
+    const selection = selectionFor('Help players recognize space behind the defense.')
+    assert.equal(selection.selectionTrace.planning, undefined)
+}
+
+function testUnknownLearningGoalIdFailsLoudly(): void {
+    assert.throws(
+        () => selectionFor('Help players recognize space behind the defense.', { learningGoalId: 'NOPE' }),
+        /NOPE/
+    )
+}
 function runAll(): void {
     testChallengeDoesNotInfluenceSelection()
     testUnrelatedInputValuesDoNotInfluenceSelection()
+    testLearningGoalIdDoesNotInfluenceSelection()
+    testLearningGoalIdTraceRecordsRoute()
+    testFreeTextRecordsNoPlanning()
+    testUnknownLearningGoalIdFailsLoudly()
     console.log('selection-input-independence unit tests: all cases passed.')
 }
 

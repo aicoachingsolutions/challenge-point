@@ -856,6 +856,7 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                 {
                     learningGoals,
                     challengeLevel,
+                    learningGoalId: planning?.learningGoalId,
                 },
                 inputConstraints
             )
@@ -881,6 +882,8 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                     archetype: selection.archetype.game_form_name,
                     affordanceLenses: selection.affordanceLenses.map((l) => l.title),
                     constraints: selection.constraints.map((c) => c.title),
+                    learningGoalId: selection.selectionTrace.planning?.learningGoalId ?? null,
+                    routedRpcId: selection.selectionTrace.planning?.routedRpcId ?? null,
                     shadowAtpPrimary: atp?.primaryGameProblem ?? null,
                     versions: selection.selectionTrace.versions ?? null,
                 },
