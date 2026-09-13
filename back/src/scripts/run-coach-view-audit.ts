@@ -54,6 +54,10 @@ import type {
     SystemAssemblyInput,
 } from '../system/types'
 import { deriveInputConstraints } from '../system/input-constraints/deriveInputConstraints'
+import { sessionPlanningModel } from '../system/session-planning/session-planning-model'
+import { gateCandidateGameFormsToContext } from '../system/sport-module/context-selection'
+import { resolvePrimaryScoringDirectives } from '../system/sport-module/primary-scoring'
+import type { PrimaryScoringDirective } from '../system/types'
 import { generateSelection } from '../system/test-library/generateSelection'
 import type {
     TestLibrarySelectionResult,
@@ -73,6 +77,28 @@ const overrideInputs = (process.env.AUDIT_INPUTS ?? '')
     .map((goal) => goal.trim())
     .filter(Boolean)
 const INPUTS: string[] = overrideInputs.length > 0 ? overrideInputs : DEFAULT_INPUTS
+
+/**
+ * THE GUIDED PATH. PLANNING_GOAL_IDS="A06|TA01" runs each Learning Goal the way the planning
+ * conversation sends it — the goal's name as text, its id alongside — so the routed context and its
+ * resolved primary scoring event reach assembly exactly as on the live route. Free-text inputs never
+ * get a context, which is the point: it is not inferred from wording.
+ */
+const PLANNING_GOAL_IDS = (process.env.PLANNING_GOAL_IDS ?? '')
+    .split('|')
+    .map((id) => id.trim())
+    .filter(Boolean)
+
+type AuditCase = { input: string; learningGoalId?: string }
+
+const CASES: AuditCase[] =
+    PLANNING_GOAL_IDS.length > 0
+        ? PLANNING_GOAL_IDS.map((id) => {
+              const goal = sessionPlanningModel.learningGoal(id)
+              if (!goal) throw new Error(`Unknown Learning Goal "${id}".`)
+              return { input: String(goal['Learning Goal']), learningGoalId: id }
+          })
+        : INPUTS.map((input) => ({ input }))
 
 function lensToIAffordance(lens: TestLibraryV0AffordanceLens): IAffordance {
     const d = new Date()
@@ -157,7 +183,11 @@ function buildMockSession(): ISession {
     }
 }
 
-function buildSystemAssemblyInput(sel: TestLibrarySelectionResult, learningGoal: string): SystemAssemblyInput {
+function buildSystemAssemblyInput(
+    sel: TestLibrarySelectionResult,
+    learningGoal: string,
+    guided: { learningGoalId?: string; primaryScoring?: PrimaryScoringDirective[] } = {}
+): SystemAssemblyInput {
     const archetypeDef = testLibraryArchetypeToSystemDefinition(sel.archetype)
     const affordanceField = buildAffordanceField(sel.affordanceLenses)
     const constraintPackage = buildConstraintPackage(
@@ -169,7 +199,7 @@ function buildSystemAssemblyInput(sel: TestLibrarySelectionResult, learningGoal:
     return {
         session: buildMockSession(),
         previousActivities: [],
-        coachInput: { challengeLevel: 'intermediate', duration: 20, learningGoals: [learningGoal] },
+        coachInput: { challengeLevel: 'intermediate', duration: 20, learningGoals: [learningGoal], ...guided },
         affordances: affordanceField,
         archetype: archetypeDef,
         archetypeSelection: buildArchetypeSelection(archetypeDef),
@@ -189,11 +219,40 @@ async function main() {
     // changed on 2026-09-10; these two figures are how that change is judged rather than assumed.
     const objectiveSources: Record<ObjectiveSource, number> = { generated: 0, 'learning-goal': 0, 'game-form': 0, fallback: 0 }
     let retriedAssemblies = 0
+    let failedAssemblies = 0
 
-    for (const input of INPUTS) {
-        const sel = generateSelection({ learningGoals: [input] }, deriveInputConstraints(input))
-        const assemblyInput = buildSystemAssemblyInput(sel, input)
-        const assembled = await assembleActivities(assemblyInput)
+    for (const { input, learningGoalId } of CASES) {
+        // Same as the live route: a guided goal selects within its routed context.
+        const routedRpcId = learningGoalId
+            ? (sessionPlanningModel.rpcRouting().find((route) => route.learningGoalId === learningGoalId)?.rpcId ?? null)
+            : null
+        const baseHints = deriveInputConstraints(input)
+        const hints = routedRpcId ? gateCandidateGameFormsToContext(baseHints, routedRpcId) : baseHints
+        const sel = generateSelection({ learningGoals: [input], learningGoalId }, hints)
+        let primaryScoring: PrimaryScoringDirective[] | undefined
+        if (routedRpcId) {
+            try {
+                primaryScoring = resolvePrimaryScoringDirectives(routedRpcId, sel.archetype.game_form_id)
+            } catch (err) {
+                console.log('\n' + '='.repeat(90))
+                console.log(`INPUT: ${input} (${learningGoalId}) -> ${routedRpcId} via ${sel.archetype.game_form_name}`)
+                console.log(`PRIMARY SCORING UNRESOLVED: ${err instanceof Error ? err.message : String(err)}`)
+                continue
+            }
+        }
+        const assemblyInput = buildSystemAssemblyInput(sel, input, { learningGoalId, primaryScoring })
+        // One failed assembly must not end the run: a validation failure is itself a finding to report,
+        // and it once hid every goal queued behind it.
+        let assembled: Awaited<ReturnType<typeof assembleActivities>>
+        try {
+            assembled = await assembleActivities(assemblyInput)
+        } catch (err) {
+            failedAssemblies++
+            console.log('\n' + '='.repeat(90))
+            console.log(`INPUT: ${input}${learningGoalId ? ` (${learningGoalId})` : ''}  ARCHETYPE: ${sel.archetype.game_form_name}`)
+            console.log(`ASSEMBLY FAILED: ${err instanceof Error ? err.message : String(err)}`)
+            continue
+        }
         if (assembled.retriedAfterValidationFailure) retriedAssemblies++
 
         // Reproduce the route exactly: map to the persisted shape, then compress with the same
@@ -203,12 +262,10 @@ async function main() {
             getSlotMechanicalVariations(assemblyInput.session.sessionEmphasis, idx).map((m) => m.mechanicLine)
         )
         const compressed = compressActivitiesForCoach(legacy, perSlotModifierLines)
-        // SLOT_INDEX picks which of the three generated alternatives to print. Defaulting to slot 1
-        // for every input is what made an earlier reading of "identical across activities" wrong:
-        // three slot-1 activities are not three slots.
-        const slot = Number(process.env.SLOT_INDEX ?? '1')
-        const slotIndex = Math.min(Math.max(slot, 1), compressed.length) - 1
-        const activity = compressed[slotIndex] as unknown as Record<string, unknown>
+        // SLOT_INDEX picks which of the three generated alternatives to print ("all" prints every
+        // one from the same generation). Defaulting to slot 1 for every input is what made an earlier
+        // reading of "identical across activities" wrong: three slot-1 activities are not three slots.
+        const requestedSlots = process.env.SLOT_INDEX === 'all' ? [1, 2, 3] : [Number(process.env.SLOT_INDEX ?? '1')]
 
         // Recomputed the way compress-activity-output does it, only to learn WHICH route fired.
         for (const a of legacy) {
@@ -222,32 +279,44 @@ async function main() {
             ]++
         }
 
-        console.log('\n' + '='.repeat(90))
-        console.log(`INPUT: ${input}`)
-        console.log(`ARCHETYPE: ${sel.archetype.game_form_name}  SLOT: ${slot} of ${compressed.length}`)
-        console.log('='.repeat(90))
+        for (const slot of requestedSlots) {
+            const slotIndex = Math.min(Math.max(slot, 1), compressed.length) - 1
+            const activity = compressed[slotIndex] as unknown as Record<string, unknown>
 
-        for (const field of FIELDS) {
-            const raw = activity[field]
-            const text = Array.isArray(raw) ? raw.join('\n  - ') : String(raw ?? '')
-            console.log(`\n--- ${field.toUpperCase()} ---`)
-            console.log(Array.isArray(raw) ? `  - ${text}` : text)
-
-            // Attribute any emptied field: show what it held BEFORE compression, so a field the
-            // standard blanked is distinguishable from one generation never filled.
-            // The SAME slot's pre-compression value. This compared against slot 1 whatever slot was
-            // printed, which made the check meaningless for SLOT_INDEX 2 and 3.
-            const before = (legacy[slotIndex] as unknown as Record<string, unknown>)[field]
-            const beforeText = Array.isArray(before) ? before.join(' | ') : String(before ?? '')
-            if (!text.trim() && beforeText.trim()) {
-                console.log(`  !! EMPTIED BY COMPRESSION. Before: "${beforeText}"`)
+            console.log('\n' + '='.repeat(90))
+            console.log(`INPUT: ${input}${learningGoalId ? ` (${learningGoalId})` : ''}`)
+            console.log(`ARCHETYPE: ${sel.archetype.game_form_name}  SLOT: ${slotIndex + 1} of ${compressed.length}`)
+            const directive = primaryScoring?.[slotIndex]
+            if (directive) {
+                console.log(
+                    `CONTEXT: ${directive.contextId} ${directive.contextName}  EVENT: ${directive.eventKey}` +
+                        `${directive.objectKey ? `/${directive.objectKey}` : ''}${directive.realizationCoverage ? `  [coverage: ${directive.realizationCoverage}]` : ''}`
+                )
             }
+            console.log('='.repeat(90))
 
-            const flat = Array.isArray(raw) ? raw.join(' ') : String(raw ?? '')
-            const violations = findCommunicationStandardViolations(flat)
-            if (violations.length) {
-                totalViolations += violations.length
-                console.log(`  !! CCS VIOLATIONS: ${JSON.stringify(violations)}`)
+            for (const field of FIELDS) {
+                const raw = activity[field]
+                const text = Array.isArray(raw) ? raw.join('\n  - ') : String(raw ?? '')
+                console.log(`\n--- ${field.toUpperCase()} ---`)
+                console.log(Array.isArray(raw) ? `  - ${text}` : text)
+
+                // Attribute any emptied field: show what it held BEFORE compression, so a field the
+                // standard blanked is distinguishable from one generation never filled.
+                // The SAME slot's pre-compression value. This compared against slot 1 whatever slot was
+                // printed, which made the check meaningless for SLOT_INDEX 2 and 3.
+                const before = (legacy[slotIndex] as unknown as Record<string, unknown>)[field]
+                const beforeText = Array.isArray(before) ? before.join(' | ') : String(before ?? '')
+                if (!text.trim() && beforeText.trim()) {
+                    console.log(`  !! EMPTIED BY COMPRESSION. Before: "${beforeText}"`)
+                }
+
+                const flat = Array.isArray(raw) ? raw.join(' ') : String(raw ?? '')
+                const violations = findCommunicationStandardViolations(flat)
+                if (violations.length) {
+                    totalViolations += violations.length
+                    console.log(`  !! CCS VIOLATIONS: ${JSON.stringify(violations)}`)
+                }
             }
         }
     }
@@ -255,7 +324,8 @@ async function main() {
     console.log('\n' + '='.repeat(90))
     console.log(`TOTAL CCS VIOLATIONS ACROSS ALL COACH-FACING FIELDS: ${totalViolations}`)
     console.log(`OBJECTIVE SOURCES (all three slots per input): ${JSON.stringify(objectiveSources)}`)
-    console.log(`ASSEMBLIES THAT RETRIED AFTER A VALIDATION FAILURE: ${retriedAssemblies} of ${INPUTS.length}`)
+    console.log(`ASSEMBLIES THAT RETRIED AFTER A VALIDATION FAILURE: ${retriedAssemblies} of ${CASES.length}`)
+    console.log(`ASSEMBLIES THAT FAILED OUTRIGHT: ${failedAssemblies} of ${CASES.length}`)
 }
 
 main().catch((err) => {

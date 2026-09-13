@@ -130,6 +130,26 @@ function testStagingIsResolvedOrDeferredAndAuthoredNotesSurvive(): void {
     }
 }
 
+/** Christian's Primary Scoring Event approval, 13 Sep: seven events, eight rows, a condition each. */
+function testPrimaryScoringMatchesTheApproval(): void {
+    assert.deepEqual(
+        rpcLibrary.scoringEvents().map((e) => e.key),
+        ['goal', 'target_player', 'line_crossed', 'target_zone_entered', 'gate', 'regain', 'denial'],
+        'Denial, not Held; no shot on target.'
+    )
+    assert.deepEqual(rpcLibrary.scoringEventsForContext('RPC-001'), ['line_crossed', 'target_zone_entered', 'gate', 'target_player'])
+    assert.deepEqual(rpcLibrary.scoringEventsForContext('RPC-004'), ['target_zone_entered', 'gate', 'target_player'])
+    assert.deepEqual(rpcLibrary.scoringEventsForContext('RPC-005'), ['goal'])
+    assert.deepEqual(rpcLibrary.scoringEventsForContext('RPC-006'), ['goal', 'line_crossed', 'target_zone_entered', 'target_player'])
+    assert.deepEqual(rpcLibrary.scoringEventsForContext('RPC-007'), ['regain', 'denial'])
+    assert.deepEqual(rpcLibrary.scoringEventsForContext('RPC-008'), ['regain', 'denial'])
+    for (const context of rpcLibrary.contexts()) {
+        assert.ok(rpcLibrary.primaryScoringCondition(context.id).length > 0, `${context.id} has no qualifying condition`)
+    }
+    assert.ok(rpcLibrary.primaryScoringCondition('RPC-007').includes('5-second'), 'Counter-Press keeps the existing 5-second window.')
+    assert.ok(!/\d+\s*(?:-|to)\s*\d+\s*second/i.test(rpcLibrary.primaryScoringCondition('RPC-008')), 'Attack Prevention has no fixed window.')
+}
+
 // ---- the gate must be able to fail ---------------------------------------------------------------
 
 function assertFailsWith(mutate: (d: RpcWorkbook) => void, fragment: string, label: string, routes?: PlanningRoute[]): void {
@@ -174,6 +194,29 @@ function testGateFailsOnEachDefect(): void {
         'deferred without a reason'
     )
 
+    // Primary scoring (RC1.1): events stay inside the vocabulary, and every context keeps one of each.
+    assertFailsWith(
+        (d) => {
+            d.relationships.find((r) => r['related_library'] === 'SCORING_EVENT')!['related_id'] = 'shot_on_target'
+        },
+        'does not exist',
+        'scoring event outside the controlled vocabulary'
+    )
+    assertFailsWith(
+        (d) => {
+            d.relationships = d.relationships.filter((r) => !(r['rpc_id'] === 'RPC-005' && r['related_library'] === 'SCORING_EVENT'))
+        },
+        'no SCORING_EVENT relationship',
+        'context with no scoring event'
+    )
+    assertFailsWith(
+        (d) => {
+            d.properties = d.properties.filter((p) => !(p['rpc_id'] === 'RPC-006' && p['property_category'] === 'PRIMARY_SCORING_CONDITION'))
+        },
+        '0 PRIMARY_SCORING_CONDITION',
+        'context with no qualifying condition'
+    )
+
     // Routing agreement, both directions.
     assertFailsWith(
         (d) => {
@@ -201,6 +244,7 @@ testFinishingContextOwnsAScoringIdentityAboutGoals()
 testEveryGuidedGoalReachesTheContextPlanningNames()
 testEveryContextHasAPrimaryGameFormInStrengthOrder()
 testStagingIsResolvedOrDeferredAndAuthoredNotesSurvive()
+testPrimaryScoringMatchesTheApproval()
 testGateFailsOnEachDefect()
 
 console.log('rpc-library unit tests: all cases passed.')

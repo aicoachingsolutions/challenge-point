@@ -441,7 +441,13 @@ function buildScoringLines(slot: ActivitySkeletonSlot, opponentConsequences: str
         'A point or live advantage counts only when the selected game problem is solved under pressure and opposition.'
 
     const cleanConsequences = opponentConsequences.map(cleanOpponentConsequenceLine).filter(Boolean)
-    return uniqueLines([firstLine, ...scoringBase, ...cleanConsequences])
+    // RC1.1 PRIMARY SCORING EVENT goes SECOND, directly after the game form's line. The first line is
+    // validator-coupled: map-structured-activity-to-legacy copies it to twoSidedScoringConsequence and
+    // the output validator checks it there and at the start of scoringSystem. Nothing is removed here
+    // either, because the validator reads the exchange signals the other lines carry. Coach-facing
+    // ownership is settled afterwards, in compression, which pins this rule as the primary condition.
+    const primaryRule = slot.primaryScoring ? [slot.primaryScoring.scoringRule] : []
+    return uniqueLines([firstLine, ...primaryRule, ...scoringBase, ...cleanConsequences])
 }
 
 function buildConstraintLines(slot: ActivitySkeletonSlot): string[] {

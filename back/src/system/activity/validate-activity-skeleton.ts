@@ -116,6 +116,19 @@ export function validateActivityAgainstSkeleton(
     const reasons: string[] = []
     const prefix = `Activity ${activityIndex} missing skeleton mechanic:`
 
+    // RC1.1 PRIMARY SCORING: the event was chosen before generation, so the setup must make it
+    // physically possible. Each evidence group needs one WHOLE-WORD match, so a word merely containing
+    // the object's name does not count, and a playing "area" is not a marked zone.
+    if (slot.primaryScoring) {
+        const setup = activity.setup ?? ''
+        const unmet = slot.primaryScoring.setupEvidence.filter(
+            (group) => !group.some((word) => new RegExp(`\\b${escapeRegExp(word)}\\b`, 'i').test(setup))
+        )
+        if (unmet.length > 0) {
+            reasons.push(`${prefix} the setup must mark what this activity scores on: ${slot.primaryScoring.setupRequirement}`)
+        }
+    }
+
     const archeOk =
         slot.requiredArchetypeMechanics.some((m) => matchesMechanicRequirement(bundle, m)) ||
         archetypeNameFallbackMatches(bundle, slot.archetypeName)

@@ -23,6 +23,37 @@ export type ActivityAssemblyRequest = {
     practiceSituation?: { id: string; name: string; definition: string }
     /** IC-003 Invariant 5 — which Learning Goal the coach actually chose, not just its text. */
     learningGoalId?: string
+    /**
+     * RC1.1 primary scoring events, one per activity slot, resolved BEFORE any activity text exists.
+     * Present only when guided planning routed the goal to an ACTIVE Representative Performance
+     * Context; free-text goals never carry one, because a context is not inferred from coach wording.
+     */
+    primaryScoring?: PrimaryScoringDirective[]
+}
+
+/**
+ * A primary scoring event (Christian, RC1.1, 2026-09-13): an observable event plus the qualifying
+ * condition under which it counts. Resolved by the sport layer; consumed here generically, so the
+ * universal layer never needs to know which sport's events these are.
+ */
+export type PrimaryScoringDirective = {
+    /** Representative Performance Context id. */
+    contextId: string
+    contextName: string
+    /** A value of the controlled scoring-event vocabulary. */
+    eventKey: string
+    /** The marked object a regain or denial is judged against ("line", "zone"), or null. */
+    objectKey: string | null
+    /** The coach's How to Score rule. The only primary way to earn points in the activity. */
+    scoringRule: string
+    /** What the setup must mark so the event is physically possible. */
+    setupRequirement: string
+    /** Each inner group needs at least one whole-word match in the generated setup. */
+    setupEvidence: string[][]
+    /** The canonical qualifying condition, as authored. Carried for the prompt and trace; never parsed. */
+    qualifyingCondition: string
+    /** The realization-coverage entry that supplied the scoring object, when the game form marks none. */
+    realizationCoverage: string | null
 }
 
 export type ArchetypeDefinition = {

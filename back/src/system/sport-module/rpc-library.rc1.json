@@ -1183,6 +1183,270 @@
       "status": "ACTIVE",
       "provenance": "Mechanical resolution of RPC-RC11-LG-013 against session-planning-model.rc1.json",
       "notes": "Resolved 'Delay the Attack' to 'Delay the Attack' by rule: exact Learning Goal name."
+    },
+    {
+      "relationship_id": "RPC-REL-071",
+      "rpc_id": "RPC-001",
+      "related_library": "SCORING_EVENT",
+      "related_id": "line_crossed",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)",
+      "notes": "Valid primary scoring event 1 of 4, in the approved order."
+    },
+    {
+      "relationship_id": "RPC-REL-072",
+      "rpc_id": "RPC-001",
+      "related_library": "SCORING_EVENT",
+      "related_id": "target_zone_entered",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)",
+      "notes": "Valid primary scoring event 2 of 4, in the approved order."
+    },
+    {
+      "relationship_id": "RPC-REL-073",
+      "rpc_id": "RPC-001",
+      "related_library": "SCORING_EVENT",
+      "related_id": "gate",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)",
+      "notes": "Valid primary scoring event 3 of 4, in the approved order."
+    },
+    {
+      "relationship_id": "RPC-REL-074",
+      "rpc_id": "RPC-001",
+      "related_library": "SCORING_EVENT",
+      "related_id": "target_player",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)",
+      "notes": "Valid primary scoring event 4 of 4, in the approved order."
+    },
+    {
+      "relationship_id": "RPC-REL-075",
+      "rpc_id": "RPC-002",
+      "related_library": "SCORING_EVENT",
+      "related_id": "line_crossed",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)",
+      "notes": "Valid primary scoring event 1 of 4, in the approved order."
+    },
+    {
+      "relationship_id": "RPC-REL-076",
+      "rpc_id": "RPC-002",
+      "related_library": "SCORING_EVENT",
+      "related_id": "target_zone_entered",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)",
+      "notes": "Valid primary scoring event 2 of 4, in the approved order."
+    },
+    {
+      "relationship_id": "RPC-REL-077",
+      "rpc_id": "RPC-002",
+      "related_library": "SCORING_EVENT",
+      "related_id": "gate",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)",
+      "notes": "Valid primary scoring event 3 of 4, in the approved order."
+    },
+    {
+      "relationship_id": "RPC-REL-078",
+      "rpc_id": "RPC-002",
+      "related_library": "SCORING_EVENT",
+      "related_id": "target_player",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)",
+      "notes": "Valid primary scoring event 4 of 4, in the approved order."
+    },
+    {
+      "relationship_id": "RPC-REL-079",
+      "rpc_id": "RPC-003",
+      "related_library": "SCORING_EVENT",
+      "related_id": "target_zone_entered",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)",
+      "notes": "Valid primary scoring event 1 of 4, in the approved order."
+    },
+    {
+      "relationship_id": "RPC-REL-080",
+      "rpc_id": "RPC-003",
+      "related_library": "SCORING_EVENT",
+      "related_id": "line_crossed",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)",
+      "notes": "Valid primary scoring event 2 of 4, in the approved order."
+    },
+    {
+      "relationship_id": "RPC-REL-081",
+      "rpc_id": "RPC-003",
+      "related_library": "SCORING_EVENT",
+      "related_id": "gate",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)",
+      "notes": "Valid primary scoring event 3 of 4, in the approved order."
+    },
+    {
+      "relationship_id": "RPC-REL-082",
+      "rpc_id": "RPC-003",
+      "related_library": "SCORING_EVENT",
+      "related_id": "target_player",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)",
+      "notes": "Valid primary scoring event 4 of 4, in the approved order."
+    },
+    {
+      "relationship_id": "RPC-REL-083",
+      "rpc_id": "RPC-004",
+      "related_library": "SCORING_EVENT",
+      "related_id": "target_zone_entered",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)",
+      "notes": "Valid primary scoring event 1 of 3, in the approved order."
+    },
+    {
+      "relationship_id": "RPC-REL-084",
+      "rpc_id": "RPC-004",
+      "related_library": "SCORING_EVENT",
+      "related_id": "gate",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)",
+      "notes": "Valid primary scoring event 2 of 3, in the approved order."
+    },
+    {
+      "relationship_id": "RPC-REL-085",
+      "rpc_id": "RPC-004",
+      "related_library": "SCORING_EVENT",
+      "related_id": "target_player",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)",
+      "notes": "Valid primary scoring event 3 of 3, in the approved order."
+    },
+    {
+      "relationship_id": "RPC-REL-086",
+      "rpc_id": "RPC-005",
+      "related_library": "SCORING_EVENT",
+      "related_id": "goal",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)",
+      "notes": "Valid primary scoring event 1 of 1, in the approved order."
+    },
+    {
+      "relationship_id": "RPC-REL-087",
+      "rpc_id": "RPC-006",
+      "related_library": "SCORING_EVENT",
+      "related_id": "goal",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)",
+      "notes": "Valid primary scoring event 1 of 4, in the approved order."
+    },
+    {
+      "relationship_id": "RPC-REL-088",
+      "rpc_id": "RPC-006",
+      "related_library": "SCORING_EVENT",
+      "related_id": "line_crossed",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)",
+      "notes": "Valid primary scoring event 2 of 4, in the approved order."
+    },
+    {
+      "relationship_id": "RPC-REL-089",
+      "rpc_id": "RPC-006",
+      "related_library": "SCORING_EVENT",
+      "related_id": "target_zone_entered",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)",
+      "notes": "Valid primary scoring event 3 of 4, in the approved order."
+    },
+    {
+      "relationship_id": "RPC-REL-090",
+      "rpc_id": "RPC-006",
+      "related_library": "SCORING_EVENT",
+      "related_id": "target_player",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)",
+      "notes": "Valid primary scoring event 4 of 4, in the approved order."
+    },
+    {
+      "relationship_id": "RPC-REL-091",
+      "rpc_id": "RPC-007",
+      "related_library": "SCORING_EVENT",
+      "related_id": "regain",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)",
+      "notes": "Valid primary scoring event 1 of 2, in the approved order."
+    },
+    {
+      "relationship_id": "RPC-REL-092",
+      "rpc_id": "RPC-007",
+      "related_library": "SCORING_EVENT",
+      "related_id": "denial",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)",
+      "notes": "Valid primary scoring event 2 of 2, in the approved order."
+    },
+    {
+      "relationship_id": "RPC-REL-093",
+      "rpc_id": "RPC-008",
+      "related_library": "SCORING_EVENT",
+      "related_id": "regain",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)",
+      "notes": "Valid primary scoring event 1 of 2, in the approved order."
+    },
+    {
+      "relationship_id": "RPC-REL-094",
+      "rpc_id": "RPC-008",
+      "related_library": "SCORING_EVENT",
+      "related_id": "denial",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)",
+      "notes": "Valid primary scoring event 2 of 2, in the approved order."
     }
   ],
   "properties": [
@@ -2364,6 +2628,78 @@
       "importance": "COMMON",
       "status": "ACTIVE",
       "provenance": "Representative Performance Context Library RC1"
+    },
+    {
+      "property_id": "RPC-PROP-132",
+      "rpc_id": "RPC-001",
+      "property_category": "PRIMARY_SCORING_CONDITION",
+      "property_text": "Initiated from the goalkeeper or a controlled defensive restart, progressing beyond the initial pressure or progression line, with possession controlled on arrival. A long clearance that happens to reach the target does not satisfy the event.",
+      "importance": "CORE",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
+    },
+    {
+      "property_id": "RPC-PROP-133",
+      "rpc_id": "RPC-002",
+      "property_category": "PRIMARY_SCORING_CONDITION",
+      "property_text": "The sequence begins under established coordinated pressure, the event occurs beyond the pressing line, and the attacking team retains possession through the next action.",
+      "importance": "CORE",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
+    },
+    {
+      "property_id": "RPC-PROP-134",
+      "rpc_id": "RPC-003",
+      "property_category": "PRIMARY_SCORING_CONDITION",
+      "property_text": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+      "importance": "CORE",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
+    },
+    {
+      "property_id": "RPC-PROP-135",
+      "rpc_id": "RPC-004",
+      "property_category": "PRIMARY_SCORING_CONDITION",
+      "property_text": "The finishing area is reached through the event and the ball is received under control, with live defensive opposition. The context ends when the meaningful scoring opportunity has been created.",
+      "importance": "CORE",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
+    },
+    {
+      "property_id": "RPC-PROP-136",
+      "rpc_id": "RPC-005",
+      "property_category": "PRIMARY_SCORING_CONDITION",
+      "property_text": "Where the realization includes a goalkeeper, the goalkeeper remains active as part of the representative condition.",
+      "importance": "CORE",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
+    },
+    {
+      "property_id": "RPC-PROP-137",
+      "rpc_id": "RPC-006",
+      "property_category": "PRIMARY_SCORING_CONDITION",
+      "property_text": "Counts only within the representative transition window following the regain.",
+      "importance": "CORE",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
+    },
+    {
+      "property_id": "RPC-PROP-138",
+      "rpc_id": "RPC-007",
+      "property_category": "PRIMARY_SCORING_CONDITION",
+      "property_text": "Within the existing 5-second Counter-Press Window following possession loss. Denial: the opponent does not cross the specified progression line or enter the specified progression zone within that window.",
+      "importance": "CORE",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
+    },
+    {
+      "property_id": "RPC-PROP-139",
+      "rpc_id": "RPC-008",
+      "property_category": "PRIMARY_SCORING_CONDITION",
+      "property_text": "The opponent is prevented from crossing the specified progression line, entering the protected zone, or reaching the realized attacking objective during the attacking sequence. No fixed time is intrinsic to this context; a particular realization may use time where appropriate.",
+      "importance": "CORE",
+      "status": "ACTIVE",
+      "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
     }
   ],
   "identity_rules": [
@@ -3502,6 +3838,41 @@
       "vocabulary": "mapping_status",
       "value": "DEFERRED",
       "description": "Mapping intentionally postponed."
+    },
+    {
+      "vocabulary": "scoring_event",
+      "value": "goal",
+      "description": "The ball crosses the goal line inside a goal."
+    },
+    {
+      "vocabulary": "scoring_event",
+      "value": "target_player",
+      "description": "A pass is received and controlled by a designated target player."
+    },
+    {
+      "vocabulary": "scoring_event",
+      "value": "line_crossed",
+      "description": "A player dribbles the ball over a marked line, or receives and controls it beyond the line."
+    },
+    {
+      "vocabulary": "scoring_event",
+      "value": "target_zone_entered",
+      "description": "A player dribbles into a marked zone, or receives and controls the ball inside it."
+    },
+    {
+      "vocabulary": "scoring_event",
+      "value": "gate",
+      "description": "The ball is passed or dribbled through a pair of cones or poles."
+    },
+    {
+      "vocabulary": "scoring_event",
+      "value": "regain",
+      "description": "The team without the ball wins it."
+    },
+    {
+      "vocabulary": "scoring_event",
+      "value": "denial",
+      "description": "A specified opponent progression event does not occur before the stated defensive condition is satisfied."
     }
   ],
   "implementation_staging": [

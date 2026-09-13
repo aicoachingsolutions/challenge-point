@@ -1,6 +1,6 @@
 import type { IAffordance } from '../../models/affordance.model'
 import { SessionEmphasis } from '../../models/session.model'
-import type { ConstraintSelectionCandidate, SystemAssemblyInput } from '../types'
+import type { ConstraintSelectionCandidate, PrimaryScoringDirective, SystemAssemblyInput } from '../types'
 import { testLibraryRegistry } from '../test-library/library/registry'
 import type { TestLibraryV0Archetype, TestLibraryV0Constraint } from '../test-library/types'
 import { registryIdString } from './assembly-package-ids'
@@ -49,6 +49,11 @@ export type ActivitySkeletonSlot = {
      * the shared constraint package; they do not change WHAT the game is.
      */
     slotMechanicalVariations: ValueLandscapeModifier[]
+    /**
+     * RC1.1 — the primary scoring event for this slot, resolved before generation. When present, the
+     * setup must mark its object (validated) and scoring states it deterministically (mechanics).
+     */
+    primaryScoring?: PrimaryScoringDirective
 }
 
 export type ActivitySkeletonBundle = {
@@ -1069,11 +1074,17 @@ export function buildActivitySkeleton(input: SystemAssemblyInput): ActivitySkele
             ...scoringModifierLines,
         ]
 
+        const primaryScoring = input.coachInput.primaryScoring?.[idx - 1]
+        const baseSetupFrame = setupFrameForSlot(input, idx, sessionEmphasis)
+
         return {
             activityIndex: idx,
             archetypeName,
             titleFrame: titleFrameForSlot(archetypeName, idx),
-            setupFrame: setupFrameForSlot(input, idx, sessionEmphasis),
+            setupFrame: primaryScoring
+                ? `${baseSetupFrame} Scoring object (mandatory): ${primaryScoring.setupRequirement}`
+                : baseSetupFrame,
+            ...(primaryScoring ? { primaryScoring } : {}),
             slotProgressionEmphasis: slotProgressionEmphasisFor(idx, sessionEmphasis),
             requiredRuleMechanics: combinedRulesForSlot,
             requiredScoringMechanics: combinedScoringForSlot,
@@ -1192,6 +1203,18 @@ export function formatActivitySkeletonForPrompt(bundle: ActivitySkeletonBundle):
         lines.push(`environmentalConfiguration: ${slot.slotProgressionEmphasis}`)
         lines.push(`titleFrame: ${slot.titleFrame}`)
         lines.push(`setupFrame: ${slot.setupFrame}`)
+        if (slot.primaryScoring) {
+            // RC1.1: the event was chosen before this prompt. The model's job is to make it physically
+            // possible in the setup; scoring itself is written by the system, not the model.
+            lines.push('primaryScoring (mandatory — the system scores this activity this way and no other):')
+            lines.push(`  - how teams score: ${slot.primaryScoring.scoringRule}`)
+            lines.push(`  - the setup MUST mark: ${slot.primaryScoring.setupRequirement} Use exactly that name for it.`)
+            // Real output kept the game form's default objects beside the required one ("two end zones"
+            // plus "a target zone"; goalkeepers and "restart after a goal" in a game scored on a line),
+            // leaving a coach to guess which object scores.
+            lines.push('  - Every scoring object in the setup must be this one. Do not mark goals, end zones, or target areas that nothing scores on.')
+            lines.push('  - Do not describe any other way to earn points in the setup, objective, or rules.')
+        }
         lines.push('requiredAffordanceMechanics (this activity — same lens set as the other two; all three activities operate at the same affordance density):')
         for (const r of slot.requiredAffordanceMechanics) lines.push(`  - ${r}`)
         // Phase 3.5: surface this slot's value-landscape modifiers as a distinct block so

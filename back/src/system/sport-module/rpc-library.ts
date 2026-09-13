@@ -104,7 +104,7 @@ const ID_COLUMNS: ReadonlyArray<readonly [keyof RpcWorkbook, string]> = [
  * The canonical identifier set each related_library resolves against. A library not listed here is
  * an error rather than a pass: an unknown library is a relationship nothing can check.
  */
-function canonicalIds(): Record<string, Set<string>> {
+function canonicalIds(data: RpcWorkbook): Record<string, Set<string>> {
     const ga = gameArchetypeWorkbook as unknown as { archetypes: Array<Record<string, unknown>> }
     const gp = gpLibraryWorkbook as unknown as { gameProblems: Array<Record<string, unknown>> }
     const sp = sessionPlanningWorkbook as unknown as { learning_goals: Array<Record<string, unknown>> }
@@ -114,8 +114,18 @@ function canonicalIds(): Record<string, Set<string>> {
         GAME_PROBLEM: new Set(gp.gameProblems.map((r) => String(r['ID']))),
         LEARNING_GOAL: new Set(sp.learning_goals.map((r) => String(r['ID']))),
         GAME_FORM: new Set(sm.game_forms.map((r) => String(r['game_form_id']))),
+        // Christian, 13 Sep: the controlled scoring-event vocabulary is used with GA-001 Invasion
+        // "without yet making a broader ownership claim", so it lives in this workbook's own
+        // Controlled Vocabulary rather than in a library that would imply an owner.
+        SCORING_EVENT: new Set(data.controlled_vocabulary.filter((r) => text(r, 'vocabulary') === SCORING_EVENT_VOCABULARY).map((r) => text(r, 'value'))),
     }
 }
+
+/** The controlled vocabulary of observable primary scoring events (Christian, 2026-09-13). */
+export const SCORING_EVENT_VOCABULARY = 'scoring_event'
+
+/** The Properties category holding each context's qualifying condition for its primary scoring event. */
+export const PRIMARY_SCORING_CONDITION = 'PRIMARY_SCORING_CONDITION'
 
 export interface RpcIntegrityResult {
     valid: boolean
@@ -223,7 +233,25 @@ export function validateRpcLibraryIntegrity(data: RpcWorkbook = WB, routes: Plan
         }
     }
 
-    const canonical = canonicalIds()
+    // PRIMARY SCORING (Christian, 13 Sep): every context scores through at least one observable event,
+    // and carries exactly one qualifying condition — "observable event + qualifying condition". A
+    // context with no event would leave assembly to invent one, which is the defect this layer ends.
+    for (const rpcId of rpcIds) {
+        const events = data.relationships.filter(
+            (r) => text(r, 'rpc_id') === rpcId && text(r, 'related_library') === 'SCORING_EVENT' && text(r, 'status') === 'ACTIVE'
+        )
+        if (events.length === 0) {
+            errors.push(`Context "${rpcId}" has no SCORING_EVENT relationship, so nothing defines how it scores.`)
+        }
+        const conditions = data.properties.filter(
+            (p) => text(p, 'rpc_id') === rpcId && text(p, 'property_category') === PRIMARY_SCORING_CONDITION && text(p, 'property_text')
+        )
+        if (conditions.length !== 1) {
+            errors.push(`Context "${rpcId}" has ${conditions.length} ${PRIMARY_SCORING_CONDITION} properties; exactly one is required.`)
+        }
+    }
+
+    const canonical = canonicalIds(data)
     for (const row of data.relationships) {
         const id = text(row, 'relationship_id')
         const library = text(row, 'related_library')
@@ -373,6 +401,29 @@ export const rpcLibrary = {
         activeRelationships()
             .filter((r) => r.rpcId === rpcId && r.library === 'GAME_FORM')
             .sort((a, b) => strengthRank(a.strength) - strengthRank(b.strength)),
+
+    /**
+     * The observable events a context may score through, in the order Christian approved them.
+     * Relationship ids are appended in that order, so sorting by id preserves it.
+     */
+    scoringEventsForContext: (rpcId: string): string[] =>
+        activeRelationships()
+            .filter((r) => r.rpcId === rpcId && r.library === 'SCORING_EVENT')
+            .sort((a, b) => a.relationshipId.localeCompare(b.relationshipId))
+            .map((r) => r.relatedId),
+
+    /** The context's qualifying condition, as authored. Narrative: carried, never parsed. */
+    primaryScoringCondition: (rpcId: string): string =>
+        text(
+            WB.properties.find((p) => text(p, 'rpc_id') === rpcId && text(p, 'property_category') === PRIMARY_SCORING_CONDITION),
+            'property_text'
+        ),
+
+    /** The controlled scoring-event vocabulary with each event's observable definition. */
+    scoringEvents: (): Array<{ key: string; definition: string }> =>
+        WB.controlled_vocabulary
+            .filter((r) => text(r, 'vocabulary') === SCORING_EVENT_VOCABULARY)
+            .map((r) => ({ key: text(r, 'value'), definition: text(r, 'description') })),
 
     identityRules: (rpcId: string): RpcRow[] => WB.identity_rules.filter((r) => text(r, 'rpc_id') === rpcId),
     properties: (rpcId: string, category?: string): RpcRow[] =>

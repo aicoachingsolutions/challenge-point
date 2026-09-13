@@ -9,6 +9,7 @@ import type {
     AffordanceFieldCandidate,
     ArchetypeDefinition,
     ArchetypeSelection,
+    PrimaryScoringDirective,
     SystemAssemblyInput,
 } from '../types'
 import type { TestLibrarySelectionResult, TestLibraryV0AffordanceLens, TestLibraryV0Constraint } from './types'
@@ -118,6 +119,8 @@ export function systemAssemblyInputFromTestLibrarySelection(params: {
         learningStage?: string
         practiceSituation?: { id: string; name: string; definition: string }
         learningGoalId?: string
+        /** RC1.1 — one resolved primary scoring event per slot; present only on the guided path. */
+        primaryScoring?: PrimaryScoringDirective[]
     }
 }): SystemAssemblyInput {
     const { selection, session, previousActivities, coachInput } = params

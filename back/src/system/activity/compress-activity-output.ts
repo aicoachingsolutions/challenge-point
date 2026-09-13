@@ -464,11 +464,22 @@ export function compressActivityForCoach(activity: IActivity, modifierMechanicLi
     // ONE PRIMARY SUCCESS CONDITION, plus this slot's own variation if it has one. Every other
     // reward statement leaves for Coaching Focus — see selectPrimarySuccessCondition for why
     // aggregating them made the section unreadable and several of them unscoreable.
-    const ownership = selectPrimarySuccessCondition(
-        inCoachVoice,
-        (s) => containsModifierText(s, modifierMechanicLines),
-        isIncentiveExpression
-    )
+    //
+    // UNLESS THE PRIMARY EVENT WAS ALREADY DECIDED (RC1.1). The ranking exists because, without a
+    // resolved event, the primary condition had to be picked out of text after the fact — and in real
+    // output it picked the wrong side: "attacking the open space" in finishing games with goals and
+    // goalkeepers, the regain in counter-attack games. When the event was resolved before generation,
+    // its rule IS the primary condition. This slot's value modifier may follow as the one secondary,
+    // because it re-weights where points count without adding a competing way to earn them. Every
+    // other reward statement, authored incentives included, is relocated exactly as before.
+    const pinnedRule = activity.systemTrace?.primaryScoring?.scoringRule
+    const ownership = pinnedRule
+        ? pinPrimaryScoringRule(pinnedRule, inCoachVoice, (s) => containsModifierText(s, modifierMechanicLines))
+        : selectPrimarySuccessCondition(
+              inCoachVoice,
+              (s) => containsModifierText(s, modifierMechanicLines),
+              isIncentiveExpression
+          )
     const scoringSentences = ownership
         ? [ownership.primary, ...(ownership.secondary ? [ownership.secondary] : [])]
         : inCoachVoice
@@ -596,6 +607,24 @@ export function compressActivityForCoach(activity: IActivity, modifierMechanicLi
               )
             : activity.extensions,
     }
+}
+
+/**
+ * Ownership when the primary scoring event was resolved before generation: the resolved rule leads,
+ * this slot's modifier may follow, and every other reward sentence is relocated. Sentences that are
+ * pieces of the rule itself (scoring is split into sentences upstream) are recognised and dropped
+ * rather than relocated as if they competed with it.
+ */
+function pinPrimaryScoringRule(
+    rule: string,
+    sentences: string[],
+    isSlotModifier: (sentence: string) => boolean
+): NonNullable<ReturnType<typeof selectPrimarySuccessCondition>> {
+    const flatten = (value: string) => value.toLowerCase().replace(/\s+/g, ' ').trim()
+    const ruleText = flatten(rule)
+    const others = sentences.filter((sentence) => !ruleText.includes(flatten(sentence)))
+    const secondary = others.find(isSlotModifier) ?? null
+    return { primary: rule, secondary, movedToCoachingFocus: others.filter((sentence) => sentence !== secondary) }
 }
 
 /**
