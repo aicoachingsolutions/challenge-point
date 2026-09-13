@@ -122,6 +122,28 @@
       "Common Misclassification": "Win the Ball Back",
       "Confidence": "High",
       "Status": "Active"
+    },
+    {
+      "ID": "A05",
+      "Phase": "Attacking",
+      "Display Order": 5,
+      "Learning Goal": "Progress the Attack",
+      "Coach Definition": "Improve attacking conditions while maintaining purposeful possession.",
+      "Choose This When...": "Team keeps possession but struggles to advance or create better attacking positions.",
+      "Common Misclassification": "Secure Possession; Create Scoring Chances",
+      "Confidence": "High",
+      "Status": "Active"
+    },
+    {
+      "ID": "A06",
+      "Phase": "Attacking",
+      "Display Order": 6,
+      "Learning Goal": "Finish Attacks",
+      "Coach Definition": "Convert genuine scoring opportunities into goals.",
+      "Choose This When...": "Team creates scoring chances but does not finish them consistently.",
+      "Common Misclassification": "Create Scoring Chances",
+      "Confidence": "High",
+      "Status": "Active"
     }
   ],
   "practice_situations": [
@@ -314,6 +336,34 @@
     {
       "Coach Phrase": "delay the attack",
       "Learning Goal ID": "TD02"
+    },
+    {
+      "Coach Phrase": "progress the attack",
+      "Learning Goal ID": "A05"
+    },
+    {
+      "Coach Phrase": "develop the attack",
+      "Learning Goal ID": "A05"
+    },
+    {
+      "Coach Phrase": "improve attacking positions",
+      "Learning Goal ID": "A05"
+    },
+    {
+      "Coach Phrase": "finish attacks",
+      "Learning Goal ID": "A06"
+    },
+    {
+      "Coach Phrase": "finish chances",
+      "Learning Goal ID": "A06"
+    },
+    {
+      "Coach Phrase": "improve finishing",
+      "Learning Goal ID": "A06"
+    },
+    {
+      "Coach Phrase": "score more goals",
+      "Learning Goal ID": "A06"
     },
     {
       "Coach Phrase": "under pressure",
@@ -610,6 +660,18 @@
       "Primary GP IDs": "GP-013",
       "Secondary GP IDs": null,
       "Notes": "Approved RC1 — Primary Representative Game Problem Translation (Cycle 8)."
+    },
+    {
+      "Learning Goal ID": "A05",
+      "Primary GP IDs": "TBD",
+      "Secondary GP IDs": "TBD",
+      "Notes": "Reference canonical Game Problem workbook"
+    },
+    {
+      "Learning Goal ID": "A06",
+      "Primary GP IDs": "TBD",
+      "Secondary GP IDs": "TBD",
+      "Notes": "Reference canonical Game Problem workbook"
     }
   ],
   "governance": [
@@ -630,6 +692,99 @@
     },
     {
       "Rule": "Store canonical knowledge only."
+    }
+  ],
+  "rpc_routing": [
+    {
+      "Learning Goal ID": "A01",
+      "Learning Goal": "Play Out from the Back",
+      "Primary RPC ID": "RPC-001",
+      "RPC Name": "Goalkeeper Build-Out",
+      "Status": "Canonical RC1.1"
+    },
+    {
+      "Learning Goal ID": "A02",
+      "Learning Goal": "Play Through Pressure",
+      "Primary RPC ID": "RPC-002",
+      "RPC Name": "High Press Escape",
+      "Status": "Canonical RC1.1"
+    },
+    {
+      "Learning Goal ID": "A03",
+      "Learning Goal": "Create Scoring Chances",
+      "Primary RPC ID": "RPC-004",
+      "RPC Name": "Chance Creation",
+      "Status": "Canonical RC1.1"
+    },
+    {
+      "Learning Goal ID": "A04",
+      "Learning Goal": "Beat Defenders 1v1",
+      "Primary RPC ID": "RPC-004",
+      "RPC Name": "Chance Creation",
+      "Status": "Canonical RC1.1"
+    },
+    {
+      "Learning Goal ID": "A05",
+      "Learning Goal": "Progress the Attack",
+      "Primary RPC ID": "RPC-003",
+      "RPC Name": "Attack Development",
+      "Status": "Canonical RC1.1"
+    },
+    {
+      "Learning Goal ID": "A06",
+      "Learning Goal": "Finish Attacks",
+      "Primary RPC ID": "RPC-005",
+      "RPC Name": "Finishing",
+      "Status": "Canonical RC1.1"
+    },
+    {
+      "Learning Goal ID": "D01",
+      "Learning Goal": "Stay Organized",
+      "Primary RPC ID": "RPC-008",
+      "RPC Name": "Attack Prevention",
+      "Status": "Canonical RC1.1"
+    },
+    {
+      "Learning Goal ID": "D02",
+      "Learning Goal": "Win the Ball Back",
+      "Primary RPC ID": "RPC-007",
+      "RPC Name": "Counter-Press",
+      "Status": "Canonical RC1.1"
+    },
+    {
+      "Learning Goal ID": "D03",
+      "Learning Goal": "Defend 1v1",
+      "Primary RPC ID": "RPC-008",
+      "RPC Name": "Attack Prevention",
+      "Status": "Canonical RC1.1"
+    },
+    {
+      "Learning Goal ID": "TA01",
+      "Learning Goal": "Attack Quickly",
+      "Primary RPC ID": "RPC-006",
+      "RPC Name": "Counterattack",
+      "Status": "Canonical RC1.1"
+    },
+    {
+      "Learning Goal ID": "TA02",
+      "Learning Goal": "Secure Possession",
+      "Primary RPC ID": "RPC-003",
+      "RPC Name": "Attack Development",
+      "Status": "Canonical RC1.1"
+    },
+    {
+      "Learning Goal ID": "TD01",
+      "Learning Goal": "Recover Organization",
+      "Primary RPC ID": "RPC-007",
+      "RPC Name": "Counter-Press",
+      "Status": "Canonical RC1.1"
+    },
+    {
+      "Learning Goal ID": "TD02",
+      "Learning Goal": "Delay the Attack",
+      "Primary RPC ID": "RPC-007",
+      "RPC Name": "Counter-Press",
+      "Status": "Canonical RC1.1"
     }
   ]
 }

@@ -1,0 +1,407 @@
+{
+  "received_workbook": {
+    "path": "session-planning-model.rc1.1.received.xlsx",
+    "sha256": "1cb4805b7de5df7df9638db238f19bd209733bbc267f092d767f4932ace10fc1"
+  },
+  "cycle8_workbook": {
+    "git_ref": "33b21a7",
+    "path": "back/data/session-planning/session-planning-model.rc1.xlsx",
+    "sha256": "aaa01f46731e74b6e3de6b2faf56db14881d55caa89a12d1b6e2a2455031e108"
+  },
+  "added_by_rc1_1": {
+    "sheets": [
+      "RPC Routing"
+    ],
+    "Learning Goal Registry": [
+      "A05",
+      "A06"
+    ],
+    "Practice Situation Registry": [],
+    "Governance": [],
+    "Entry Language": [
+      {
+        "phrase": "progress the attack",
+        "learning_goal_id": "A05"
+      },
+      {
+        "phrase": "develop the attack",
+        "learning_goal_id": "A05"
+      },
+      {
+        "phrase": "improve attacking positions",
+        "learning_goal_id": "A05"
+      },
+      {
+        "phrase": "finish attacks",
+        "learning_goal_id": "A06"
+      },
+      {
+        "phrase": "finish chances",
+        "learning_goal_id": "A06"
+      },
+      {
+        "phrase": "improve finishing",
+        "learning_goal_id": "A06"
+      },
+      {
+        "phrase": "score more goals",
+        "learning_goal_id": "A06"
+      }
+    ]
+  },
+  "restored_from_cycle8": {
+    "Entry Language": [
+      {
+        "phrase": "under pressure",
+        "learning_goal_id": "A02"
+      },
+      {
+        "phrase": "defender closing",
+        "learning_goal_id": "A02"
+      },
+      {
+        "phrase": "tight space",
+        "learning_goal_id": "A02"
+      },
+      {
+        "phrase": "pressed",
+        "learning_goal_id": "A02"
+      },
+      {
+        "phrase": "pressure",
+        "learning_goal_id": "A02"
+      },
+      {
+        "phrase": "pass",
+        "learning_goal_id": "TA02"
+      },
+      {
+        "phrase": "passing",
+        "learning_goal_id": "TA02"
+      },
+      {
+        "phrase": "keep the ball",
+        "learning_goal_id": "TA02"
+      },
+      {
+        "phrase": "keeping the ball",
+        "learning_goal_id": "TA02"
+      },
+      {
+        "phrase": "possess",
+        "learning_goal_id": "TA02"
+      },
+      {
+        "phrase": "retain",
+        "learning_goal_id": "TA02"
+      },
+      {
+        "phrase": "retention",
+        "learning_goal_id": "TA02"
+      },
+      {
+        "phrase": "circulate",
+        "learning_goal_id": "TA02"
+      },
+      {
+        "phrase": "combine",
+        "learning_goal_id": "TA02"
+      },
+      {
+        "phrase": "combination",
+        "learning_goal_id": "TA02"
+      },
+      {
+        "phrase": "shot",
+        "learning_goal_id": "A03"
+      },
+      {
+        "phrase": "shooting",
+        "learning_goal_id": "A03"
+      },
+      {
+        "phrase": "shoot",
+        "learning_goal_id": "A03"
+      },
+      {
+        "phrase": "finish",
+        "learning_goal_id": "A03"
+      },
+      {
+        "phrase": "score",
+        "learning_goal_id": "A03"
+      },
+      {
+        "phrase": "scoring",
+        "learning_goal_id": "A03"
+      },
+      {
+        "phrase": "goal",
+        "learning_goal_id": "A03"
+      },
+      {
+        "phrase": "goal scoring",
+        "learning_goal_id": "A03"
+      },
+      {
+        "phrase": "chance",
+        "learning_goal_id": "A03"
+      },
+      {
+        "phrase": "chance creation",
+        "learning_goal_id": "A03"
+      },
+      {
+        "phrase": "final third",
+        "learning_goal_id": "A03"
+      },
+      {
+        "phrase": "attacking third",
+        "learning_goal_id": "A03"
+      },
+      {
+        "phrase": "create better shot",
+        "learning_goal_id": "A03"
+      },
+      {
+        "phrase": "creating better shot",
+        "learning_goal_id": "A03"
+      },
+      {
+        "phrase": "create shot",
+        "learning_goal_id": "A03"
+      },
+      {
+        "phrase": "penalty box",
+        "learning_goal_id": "A03"
+      },
+      {
+        "phrase": "in the box",
+        "learning_goal_id": "A03"
+      },
+      {
+        "phrase": "around the box",
+        "learning_goal_id": "A03"
+      },
+      {
+        "phrase": "near goal",
+        "learning_goal_id": "A03"
+      },
+      {
+        "phrase": "in front of goal",
+        "learning_goal_id": "A03"
+      },
+      {
+        "phrase": "convert chance",
+        "learning_goal_id": "A03"
+      },
+      {
+        "phrase": "get a shot",
+        "learning_goal_id": "A03"
+      },
+      {
+        "phrase": "transition",
+        "learning_goal_id": "TA01"
+      },
+      {
+        "phrase": "counter attack",
+        "learning_goal_id": "TA01"
+      },
+      {
+        "phrase": "quick break",
+        "learning_goal_id": "TA01"
+      },
+      {
+        "phrase": "fast break",
+        "learning_goal_id": "TA01"
+      },
+      {
+        "phrase": "break on turnover",
+        "learning_goal_id": "TA01"
+      },
+      {
+        "phrase": "restore defensive shape",
+        "learning_goal_id": "TD01"
+      },
+      {
+        "phrase": "after being stretched",
+        "learning_goal_id": "TD01"
+      },
+      {
+        "phrase": "slow",
+        "learning_goal_id": "TD02"
+      },
+      {
+        "phrase": "prevent counter",
+        "learning_goal_id": "TD02"
+      },
+      {
+        "phrase": "press",
+        "learning_goal_id": "D02"
+      },
+      {
+        "phrase": "pressing",
+        "learning_goal_id": "D02"
+      },
+      {
+        "phrase": "counterpress",
+        "learning_goal_id": "D02"
+      },
+      {
+        "phrase": "regain",
+        "learning_goal_id": "D02"
+      },
+      {
+        "phrase": "win it back",
+        "learning_goal_id": "D02"
+      },
+      {
+        "phrase": "turnover",
+        "learning_goal_id": "D02"
+      },
+      {
+        "phrase": "win the ball",
+        "learning_goal_id": "D02"
+      },
+      {
+        "phrase": "winning the ball",
+        "learning_goal_id": "D02"
+      },
+      {
+        "phrase": "isolate attacker",
+        "learning_goal_id": "D03"
+      },
+      {
+        "phrase": "stop your player",
+        "learning_goal_id": "D03"
+      },
+      {
+        "phrase": "defend the dribbler",
+        "learning_goal_id": "D03"
+      }
+    ],
+    "Engine Translation": [
+      {
+        "learning_goal_id": "A01",
+        "primary": null,
+        "secondary": null,
+        "notes": "Intentional runtime gap (Cycle 8 §5) — no placeholder mapping. Runtime realization opportunity, not a knowledge deficiency.",
+        "received_placeholder": {
+          "Primary GP IDs": "TBD",
+          "Secondary GP IDs": "TBD",
+          "Notes": "Reference canonical Game Problem workbook"
+        }
+      },
+      {
+        "learning_goal_id": "A02",
+        "primary": "GP-015",
+        "secondary": null,
+        "notes": "Approved RC1 — Primary Representative Game Problem Translation (Cycle 8).",
+        "received_placeholder": {
+          "Primary GP IDs": "TBD",
+          "Secondary GP IDs": "TBD",
+          "Notes": "Reference canonical Game Problem workbook"
+        }
+      },
+      {
+        "learning_goal_id": "A03",
+        "primary": "GP-006",
+        "secondary": null,
+        "notes": "Approved RC1 — Primary Representative Game Problem Translation (Cycle 8).",
+        "received_placeholder": {
+          "Primary GP IDs": "TBD",
+          "Secondary GP IDs": "TBD",
+          "Notes": "Reference canonical Game Problem workbook"
+        }
+      },
+      {
+        "learning_goal_id": "A04",
+        "primary": null,
+        "secondary": null,
+        "notes": "Intentional runtime gap (Cycle 8 §5) — no placeholder mapping. Runtime realization opportunity, not a knowledge deficiency.",
+        "received_placeholder": {
+          "Primary GP IDs": "TBD",
+          "Secondary GP IDs": "TBD",
+          "Notes": "Reference canonical Game Problem workbook"
+        }
+      },
+      {
+        "learning_goal_id": "D01",
+        "primary": "GP-012",
+        "secondary": null,
+        "notes": "Approved RC1 — Primary Representative Game Problem Translation (Cycle 8).",
+        "received_placeholder": {
+          "Primary GP IDs": "TBD",
+          "Secondary GP IDs": "TBD",
+          "Notes": "Reference canonical Game Problem workbook"
+        }
+      },
+      {
+        "learning_goal_id": "D02",
+        "primary": "GP-016",
+        "secondary": null,
+        "notes": "Approved RC1 — Primary Representative Game Problem Translation (Cycle 8).",
+        "received_placeholder": {
+          "Primary GP IDs": "TBD",
+          "Secondary GP IDs": "TBD",
+          "Notes": "Reference canonical Game Problem workbook"
+        }
+      },
+      {
+        "learning_goal_id": "D03",
+        "primary": "GP-016",
+        "secondary": null,
+        "notes": "Approved RC1 — Primary Representative Game Problem Translation (Cycle 8).",
+        "received_placeholder": {
+          "Primary GP IDs": "TBD",
+          "Secondary GP IDs": "TBD",
+          "Notes": "Reference canonical Game Problem workbook"
+        }
+      },
+      {
+        "learning_goal_id": "TA01",
+        "primary": "GP-002",
+        "secondary": null,
+        "notes": "Approved RC1 — Primary Representative Game Problem Translation (Cycle 8).",
+        "received_placeholder": {
+          "Primary GP IDs": "TBD",
+          "Secondary GP IDs": "TBD",
+          "Notes": "Reference canonical Game Problem workbook"
+        }
+      },
+      {
+        "learning_goal_id": "TA02",
+        "primary": "GP-015",
+        "secondary": null,
+        "notes": "Approved RC1 — Primary Representative Game Problem Translation (Cycle 8).",
+        "received_placeholder": {
+          "Primary GP IDs": "TBD",
+          "Secondary GP IDs": "TBD",
+          "Notes": "Reference canonical Game Problem workbook"
+        }
+      },
+      {
+        "learning_goal_id": "TD01",
+        "primary": "GP-004",
+        "secondary": null,
+        "notes": "Approved RC1 — Primary Representative Game Problem Translation (Cycle 8).",
+        "received_placeholder": {
+          "Primary GP IDs": "TBD",
+          "Secondary GP IDs": "TBD",
+          "Notes": "Reference canonical Game Problem workbook"
+        }
+      },
+      {
+        "learning_goal_id": "TD02",
+        "primary": "GP-013",
+        "secondary": null,
+        "notes": "Approved RC1 — Primary Representative Game Problem Translation (Cycle 8).",
+        "received_placeholder": {
+          "Primary GP IDs": "TBD",
+          "Secondary GP IDs": "TBD",
+          "Notes": "Reference canonical Game Problem workbook"
+        }
+      }
+    ]
+  }
+}

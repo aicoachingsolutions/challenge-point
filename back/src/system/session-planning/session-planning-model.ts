@@ -27,6 +27,12 @@
  * state — not damage — so it is REPORTED rather than treated as a load failure. `translationStatus()`
  * makes it countable, because the difference between "not populated yet" and "populated wrongly"
  * has to stay visible while it is being filled in.
+ *
+ * RPC ROUTING (RC1.1, Christian 2026-09-13): "Canonical Guided Learning Goals route deterministically
+ * to RPCs." Every goal names the Representative Performance Context it routes to. This loader checks
+ * only that the routing is complete and points at real goals; whether each RPC id exists, and whether
+ * the RPC workbook states the same route, is checked by the RPC library, which owns contexts. This
+ * layer deliberately does not import sport knowledge.
  */
 import workbook from './session-planning-model.rc1.json'
 
@@ -40,6 +46,7 @@ interface SessionPlanningWorkbook {
     entry_language: PlanningRow[]
     engine_translation: PlanningRow[]
     governance: PlanningRow[]
+    rpc_routing: PlanningRow[]
 }
 
 const WB = workbook as unknown as SessionPlanningWorkbook
@@ -62,6 +69,8 @@ const COL = {
     translationGoalId: 'Learning Goal ID',
     translationPrimary: 'Primary GP IDs',
     translationSecondary: 'Secondary GP IDs',
+    routingGoalId: 'Learning Goal ID',
+    routingRpcId: 'Primary RPC ID',
 } as const
 
 const text = (row: PlanningRow, column: string): string => {
@@ -137,6 +146,27 @@ export function validateSessionPlanningModel(data: SessionPlanningWorkbook = WB)
         if (!translated.has(id)) {
             errors.push(
                 `Learning Goal "${id}" has no Engine Translation row. A coach could select it and reach nothing.`
+            )
+        }
+    }
+
+    const routes = new Map<string, number>()
+    for (const route of data.rpc_routing ?? []) {
+        const goalId = text(route, COL.routingGoalId)
+        if (!goalIds.has(goalId)) {
+            errors.push(`RPC Routing names Learning Goal "${goalId}", which does not exist.`)
+        }
+        if (!text(route, COL.routingRpcId)) {
+            errors.push(`RPC Routing for Learning Goal "${goalId}" names no Representative Performance Context.`)
+        }
+        routes.set(goalId, (routes.get(goalId) ?? 0) + 1)
+    }
+    for (const id of goalIds) {
+        const count = routes.get(id) ?? 0
+        if (count !== 1) {
+            errors.push(
+                `Learning Goal "${id}" has ${count} RPC Routing rows; exactly one is required, because guided ` +
+                    `goals route deterministically to a context.`
             )
         }
     }
@@ -233,4 +263,7 @@ export const sessionPlanningModel = {
         return hit ? text(hit, COL.phraseGoalId) : null
     },
     governanceRules: (): string[] => WB.governance.map((r) => text(r, 'Rule')).filter(Boolean),
+    /** Each Guided Learning Goal's route to its Representative Performance Context, as authored. */
+    rpcRouting: (): Array<{ learningGoalId: string; rpcId: string }> =>
+        WB.rpc_routing.map((r) => ({ learningGoalId: text(r, COL.routingGoalId), rpcId: text(r, COL.routingRpcId) })),
 }

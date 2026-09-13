@@ -1,5 +1,5 @@
 {
-  "source_workbook": "rpc-workbook.rc1.xlsx",
+  "source_workbook": "rpc-workbook.rc1.1.xlsm",
   "header_row": 1,
   "registry": [
     {
@@ -9,7 +9,7 @@
       "canonical_status": "CANONICAL",
       "runtime_status": "PROPOSED",
       "introduced_version": "RC1",
-      "last_verified_version": "RC1",
+      "last_verified_version": "RC1.1",
       "provenance": "Representative Performance Context Library RC1",
       "notes": null
     },
@@ -20,7 +20,7 @@
       "canonical_status": "CANONICAL",
       "runtime_status": "PROPOSED",
       "introduced_version": "RC1",
-      "last_verified_version": "RC1",
+      "last_verified_version": "RC1.1",
       "provenance": "Representative Performance Context Library RC1",
       "notes": null
     },
@@ -31,7 +31,7 @@
       "canonical_status": "CANONICAL",
       "runtime_status": "PROPOSED",
       "introduced_version": "RC1",
-      "last_verified_version": "RC1",
+      "last_verified_version": "RC1.1",
       "provenance": "Representative Performance Context Library RC1",
       "notes": null
     },
@@ -42,7 +42,7 @@
       "canonical_status": "CANONICAL",
       "runtime_status": "PROPOSED",
       "introduced_version": "RC1",
-      "last_verified_version": "RC1",
+      "last_verified_version": "RC1.1",
       "provenance": "Representative Performance Context Library RC1",
       "notes": null
     },
@@ -53,7 +53,7 @@
       "canonical_status": "CANONICAL",
       "runtime_status": "PROPOSED",
       "introduced_version": "RC1",
-      "last_verified_version": "RC1",
+      "last_verified_version": "RC1.1",
       "provenance": "Representative Performance Context Library RC1",
       "notes": null
     },
@@ -64,7 +64,7 @@
       "canonical_status": "CANONICAL",
       "runtime_status": "PROPOSED",
       "introduced_version": "RC1",
-      "last_verified_version": "RC1",
+      "last_verified_version": "RC1.1",
       "provenance": "Representative Performance Context Library RC1",
       "notes": null
     },
@@ -75,7 +75,7 @@
       "canonical_status": "CANONICAL",
       "runtime_status": "PROPOSED",
       "introduced_version": "RC1",
-      "last_verified_version": "RC1",
+      "last_verified_version": "RC1.1",
       "provenance": "Representative Performance Context Library RC1",
       "notes": null
     },
@@ -86,7 +86,7 @@
       "canonical_status": "CANONICAL",
       "runtime_status": "PROPOSED",
       "introduced_version": "RC1",
-      "last_verified_version": "RC1",
+      "last_verified_version": "RC1.1",
       "provenance": "Representative Performance Context Library RC1",
       "notes": null
     }
@@ -505,17 +505,6 @@
     {
       "relationship_id": "RPC-REL-009",
       "rpc_id": "RPC-001",
-      "related_library": "LEARNING_GOAL",
-      "related_id": "A01",
-      "relationship_type": "COMPATIBLE",
-      "relationship_strength": "PRIMARY",
-      "status": "ACTIVE",
-      "provenance": "Mechanical resolution of RPC-MAP-001 against session-planning-model.rc1.json",
-      "notes": "Resolved 'Play out from the back' to 'Play Out from the Back' by rule: exact Learning Goal name."
-    },
-    {
-      "relationship_id": "RPC-REL-010",
-      "rpc_id": "RPC-001",
       "related_library": "GAME_PROBLEM",
       "related_id": "GP-001",
       "relationship_type": "COMPATIBLE",
@@ -525,7 +514,7 @@
       "notes": "Resolved 'Create Space' to 'Create Space' by rule: exact canonical name."
     },
     {
-      "relationship_id": "RPC-REL-011",
+      "relationship_id": "RPC-REL-010",
       "rpc_id": "RPC-001",
       "related_library": "GAME_PROBLEM",
       "related_id": "GP-005",
@@ -536,7 +525,7 @@
       "notes": "Resolved 'Gain Access' to 'Gain Access' by rule: exact canonical name."
     },
     {
-      "relationship_id": "RPC-REL-012",
+      "relationship_id": "RPC-REL-011",
       "rpc_id": "RPC-001",
       "related_library": "GAME_PROBLEM",
       "related_id": "GP-015",
@@ -547,7 +536,7 @@
       "notes": "Resolved 'Maintain Possession' to 'Maintain Possession' by rule: exact canonical name."
     },
     {
-      "relationship_id": "RPC-REL-013",
+      "relationship_id": "RPC-REL-012",
       "rpc_id": "RPC-001",
       "related_library": "GAME_PROBLEM",
       "related_id": "GP-002",
@@ -558,7 +547,7 @@
       "notes": "Resolved 'Exploit Space' to 'Exploit Space' by rule: exact canonical name."
     },
     {
-      "relationship_id": "RPC-REL-014",
+      "relationship_id": "RPC-REL-013",
       "rpc_id": "RPC-001",
       "related_library": "GAME_FORM",
       "related_id": "GF2",
@@ -569,7 +558,7 @@
       "notes": "Resolved 'Directional Possession' to 'Directional Possession Games' by rule: exact name, with or without the ' Games' suffix."
     },
     {
-      "relationship_id": "RPC-REL-015",
+      "relationship_id": "RPC-REL-014",
       "rpc_id": "RPC-001",
       "related_library": "GAME_FORM",
       "related_id": "GF3",
@@ -580,7 +569,7 @@
       "notes": "Resolved 'Positional Play' to 'Positional Play Games' by rule: exact name, with or without the ' Games' suffix."
     },
     {
-      "relationship_id": "RPC-REL-016",
+      "relationship_id": "RPC-REL-015",
       "rpc_id": "RPC-001",
       "related_library": "GAME_FORM",
       "related_id": "GF7",
@@ -591,18 +580,7 @@
       "notes": "Resolved 'Channel' to 'Channel Games' by rule: exact name, with or without the ' Games' suffix."
     },
     {
-      "relationship_id": "RPC-REL-017",
-      "rpc_id": "RPC-002",
-      "related_library": "LEARNING_GOAL",
-      "related_id": "A02",
-      "relationship_type": "COMPATIBLE",
-      "relationship_strength": "PRIMARY",
-      "status": "ACTIVE",
-      "provenance": "Mechanical resolution of RPC-MAP-014 against session-planning-model.rc1.json",
-      "notes": "Resolved 'Play through pressure' to 'Play Through Pressure' by rule: exact Learning Goal name."
-    },
-    {
-      "relationship_id": "RPC-REL-018",
+      "relationship_id": "RPC-REL-016",
       "rpc_id": "RPC-002",
       "related_library": "GAME_PROBLEM",
       "related_id": "GP-001",
@@ -613,7 +591,7 @@
       "notes": "Resolved 'Create Space' to 'Create Space' by rule: exact canonical name."
     },
     {
-      "relationship_id": "RPC-REL-019",
+      "relationship_id": "RPC-REL-017",
       "rpc_id": "RPC-002",
       "related_library": "GAME_PROBLEM",
       "related_id": "GP-005",
@@ -624,7 +602,7 @@
       "notes": "Resolved 'Gain Access' to 'Gain Access' by rule: exact canonical name."
     },
     {
-      "relationship_id": "RPC-REL-020",
+      "relationship_id": "RPC-REL-018",
       "rpc_id": "RPC-002",
       "related_library": "GAME_PROBLEM",
       "related_id": "GP-015",
@@ -635,7 +613,7 @@
       "notes": "Resolved 'Maintain Possession' to 'Maintain Possession' by rule: exact canonical name."
     },
     {
-      "relationship_id": "RPC-REL-021",
+      "relationship_id": "RPC-REL-019",
       "rpc_id": "RPC-002",
       "related_library": "GAME_PROBLEM",
       "related_id": "GP-002",
@@ -646,7 +624,7 @@
       "notes": "Resolved 'Exploit Space' to 'Exploit Space' by rule: exact canonical name."
     },
     {
-      "relationship_id": "RPC-REL-022",
+      "relationship_id": "RPC-REL-020",
       "rpc_id": "RPC-002",
       "related_library": "GAME_FORM",
       "related_id": "GF2",
@@ -657,7 +635,7 @@
       "notes": "Resolved 'Directional Possession' to 'Directional Possession Games' by rule: exact name, with or without the ' Games' suffix."
     },
     {
-      "relationship_id": "RPC-REL-023",
+      "relationship_id": "RPC-REL-021",
       "rpc_id": "RPC-002",
       "related_library": "GAME_FORM",
       "related_id": "GF3",
@@ -668,7 +646,7 @@
       "notes": "Resolved 'Positional Play' to 'Positional Play Games' by rule: exact name, with or without the ' Games' suffix."
     },
     {
-      "relationship_id": "RPC-REL-024",
+      "relationship_id": "RPC-REL-022",
       "rpc_id": "RPC-002",
       "related_library": "GAME_FORM",
       "related_id": "GF7",
@@ -679,7 +657,7 @@
       "notes": "Resolved 'Channel' to 'Channel Games' by rule: exact name, with or without the ' Games' suffix."
     },
     {
-      "relationship_id": "RPC-REL-025",
+      "relationship_id": "RPC-REL-023",
       "rpc_id": "RPC-003",
       "related_library": "GAME_PROBLEM",
       "related_id": "GP-001",
@@ -690,7 +668,7 @@
       "notes": "Resolved 'Create Space' to 'Create Space' by rule: exact canonical name."
     },
     {
-      "relationship_id": "RPC-REL-026",
+      "relationship_id": "RPC-REL-024",
       "rpc_id": "RPC-003",
       "related_library": "GAME_PROBLEM",
       "related_id": "GP-002",
@@ -701,7 +679,7 @@
       "notes": "Resolved 'Exploit Space' to 'Exploit Space' by rule: exact canonical name."
     },
     {
-      "relationship_id": "RPC-REL-027",
+      "relationship_id": "RPC-REL-025",
       "rpc_id": "RPC-003",
       "related_library": "GAME_PROBLEM",
       "related_id": "GP-005",
@@ -712,7 +690,7 @@
       "notes": "Resolved 'Gain Access' to 'Gain Access' by rule: exact canonical name."
     },
     {
-      "relationship_id": "RPC-REL-028",
+      "relationship_id": "RPC-REL-026",
       "rpc_id": "RPC-003",
       "related_library": "GAME_PROBLEM",
       "related_id": "GP-015",
@@ -723,7 +701,7 @@
       "notes": "Resolved 'Maintain Possession' to 'Maintain Possession' by rule: exact canonical name."
     },
     {
-      "relationship_id": "RPC-REL-029",
+      "relationship_id": "RPC-REL-027",
       "rpc_id": "RPC-003",
       "related_library": "GAME_FORM",
       "related_id": "GF3",
@@ -734,7 +712,7 @@
       "notes": "Resolved 'Positional Play' to 'Positional Play Games' by rule: exact name, with or without the ' Games' suffix."
     },
     {
-      "relationship_id": "RPC-REL-030",
+      "relationship_id": "RPC-REL-028",
       "rpc_id": "RPC-003",
       "related_library": "GAME_FORM",
       "related_id": "GF2",
@@ -745,7 +723,7 @@
       "notes": "Resolved 'Directional Possession' to 'Directional Possession Games' by rule: exact name, with or without the ' Games' suffix."
     },
     {
-      "relationship_id": "RPC-REL-031",
+      "relationship_id": "RPC-REL-029",
       "rpc_id": "RPC-003",
       "related_library": "GAME_FORM",
       "related_id": "GF7",
@@ -756,18 +734,7 @@
       "notes": "Resolved 'Channel' to 'Channel Games' by rule: exact name, with or without the ' Games' suffix."
     },
     {
-      "relationship_id": "RPC-REL-032",
-      "rpc_id": "RPC-004",
-      "related_library": "LEARNING_GOAL",
-      "related_id": "A03",
-      "relationship_type": "COMPATIBLE",
-      "relationship_strength": "PRIMARY",
-      "status": "ACTIVE",
-      "provenance": "Mechanical resolution of RPC-MAP-037 against session-planning-model.rc1.json",
-      "notes": "Resolved 'Create Scoring Chances' to 'Create Scoring Chances' by rule: exact Learning Goal name."
-    },
-    {
-      "relationship_id": "RPC-REL-033",
+      "relationship_id": "RPC-REL-030",
       "rpc_id": "RPC-004",
       "related_library": "GAME_PROBLEM",
       "related_id": "GP-005",
@@ -778,7 +745,7 @@
       "notes": "Resolved 'Gain Access' to 'Gain Access' by rule: exact canonical name."
     },
     {
-      "relationship_id": "RPC-REL-034",
+      "relationship_id": "RPC-REL-031",
       "rpc_id": "RPC-004",
       "related_library": "GAME_PROBLEM",
       "related_id": "GP-006",
@@ -789,7 +756,7 @@
       "notes": "Resolved 'Establish Functional Object Control' to 'Establish Functional Object Control' by rule: exact canonical name."
     },
     {
-      "relationship_id": "RPC-REL-035",
+      "relationship_id": "RPC-REL-032",
       "rpc_id": "RPC-004",
       "related_library": "GAME_PROBLEM",
       "related_id": "GP-002",
@@ -800,7 +767,7 @@
       "notes": "Resolved 'Exploit Space' to 'Exploit Space' by rule: exact canonical name."
     },
     {
-      "relationship_id": "RPC-REL-036",
+      "relationship_id": "RPC-REL-033",
       "rpc_id": "RPC-004",
       "related_library": "GAME_PROBLEM",
       "related_id": "GP-001",
@@ -811,7 +778,7 @@
       "notes": "Resolved 'Create Space' to 'Create Space' by rule: exact canonical name."
     },
     {
-      "relationship_id": "RPC-REL-037",
+      "relationship_id": "RPC-REL-034",
       "rpc_id": "RPC-004",
       "related_library": "GAME_FORM",
       "related_id": "GF3",
@@ -822,7 +789,7 @@
       "notes": "Resolved 'Positional Play' to 'Positional Play Games' by rule: exact name, with or without the ' Games' suffix."
     },
     {
-      "relationship_id": "RPC-REL-038",
+      "relationship_id": "RPC-REL-035",
       "rpc_id": "RPC-004",
       "related_library": "GAME_FORM",
       "related_id": "GF2",
@@ -833,7 +800,7 @@
       "notes": "Resolved 'Directional Possession' to 'Directional Possession Games' by rule: exact name, with or without the ' Games' suffix."
     },
     {
-      "relationship_id": "RPC-REL-039",
+      "relationship_id": "RPC-REL-036",
       "rpc_id": "RPC-004",
       "related_library": "GAME_FORM",
       "related_id": "GF7",
@@ -844,7 +811,7 @@
       "notes": "Resolved 'Channel' to 'Channel Games' by rule: exact name, with or without the ' Games' suffix."
     },
     {
-      "relationship_id": "RPC-REL-040",
+      "relationship_id": "RPC-REL-037",
       "rpc_id": "RPC-005",
       "related_library": "GAME_PROBLEM",
       "related_id": "GP-006",
@@ -855,7 +822,7 @@
       "notes": "Resolved 'Establish Functional Object Control' to 'Establish Functional Object Control' by rule: exact canonical name."
     },
     {
-      "relationship_id": "RPC-REL-041",
+      "relationship_id": "RPC-REL-038",
       "rpc_id": "RPC-005",
       "related_library": "GAME_PROBLEM",
       "related_id": "GP-005",
@@ -866,7 +833,7 @@
       "notes": "Resolved 'Gain Access' to 'Gain Access' by rule: exact canonical name."
     },
     {
-      "relationship_id": "RPC-REL-042",
+      "relationship_id": "RPC-REL-039",
       "rpc_id": "RPC-005",
       "related_library": "GAME_PROBLEM",
       "related_id": "GP-002",
@@ -877,7 +844,7 @@
       "notes": "Resolved 'Exploit Space' to 'Exploit Space' by rule: exact canonical name."
     },
     {
-      "relationship_id": "RPC-REL-043",
+      "relationship_id": "RPC-REL-040",
       "rpc_id": "RPC-005",
       "related_library": "GAME_FORM",
       "related_id": "GF9",
@@ -885,10 +852,10 @@
       "relationship_strength": "PRIMARY",
       "status": "ACTIVE",
       "provenance": "Mechanical resolution of RPC-MAP-055 against soccer-module.rc1-v3.json",
-      "notes": "Resolved 'Finishing' to 'Finishing Games' by rule: exact name, with or without the ' Games' suffix."
+      "notes": "Resolved 'Finishing Games' to 'Finishing Games' by rule: exact name, with or without the ' Games' suffix."
     },
     {
-      "relationship_id": "RPC-REL-044",
+      "relationship_id": "RPC-REL-041",
       "rpc_id": "RPC-005",
       "related_library": "GAME_FORM",
       "related_id": "GF4",
@@ -899,7 +866,7 @@
       "notes": "Resolved 'Transition' to 'Transition Games' by rule: exact name, with or without the ' Games' suffix."
     },
     {
-      "relationship_id": "RPC-REL-045",
+      "relationship_id": "RPC-REL-042",
       "rpc_id": "RPC-005",
       "related_library": "GAME_FORM",
       "related_id": "GF3",
@@ -910,18 +877,7 @@
       "notes": "Resolved 'Positional Play' to 'Positional Play Games' by rule: exact name, with or without the ' Games' suffix."
     },
     {
-      "relationship_id": "RPC-REL-046",
-      "rpc_id": "RPC-006",
-      "related_library": "LEARNING_GOAL",
-      "related_id": "TA01",
-      "relationship_type": "COMPATIBLE",
-      "relationship_strength": "PRIMARY",
-      "status": "ACTIVE",
-      "provenance": "Mechanical resolution of RPC-MAP-060 against session-planning-model.rc1.json",
-      "notes": "Resolved 'Attack Quickly' to 'Attack Quickly' by rule: exact Learning Goal name."
-    },
-    {
-      "relationship_id": "RPC-REL-047",
+      "relationship_id": "RPC-REL-043",
       "rpc_id": "RPC-006",
       "related_library": "GAME_PROBLEM",
       "related_id": "GP-005",
@@ -932,7 +888,7 @@
       "notes": "Resolved 'Gain Access' to 'Gain Access' by rule: exact canonical name."
     },
     {
-      "relationship_id": "RPC-REL-048",
+      "relationship_id": "RPC-REL-044",
       "rpc_id": "RPC-006",
       "related_library": "GAME_PROBLEM",
       "related_id": "GP-002",
@@ -943,7 +899,7 @@
       "notes": "Resolved 'Exploit Space' to 'Exploit Space' by rule: exact canonical name."
     },
     {
-      "relationship_id": "RPC-REL-049",
+      "relationship_id": "RPC-REL-045",
       "rpc_id": "RPC-006",
       "related_library": "GAME_PROBLEM",
       "related_id": "GP-001",
@@ -954,7 +910,7 @@
       "notes": "Resolved 'Create Space' to 'Create Space' by rule: exact canonical name."
     },
     {
-      "relationship_id": "RPC-REL-050",
+      "relationship_id": "RPC-REL-046",
       "rpc_id": "RPC-006",
       "related_library": "GAME_PROBLEM",
       "related_id": "GP-006",
@@ -965,7 +921,7 @@
       "notes": "Resolved 'Establish Functional Object Control' to 'Establish Functional Object Control' by rule: exact canonical name."
     },
     {
-      "relationship_id": "RPC-REL-051",
+      "relationship_id": "RPC-REL-047",
       "rpc_id": "RPC-006",
       "related_library": "GAME_FORM",
       "related_id": "GF4",
@@ -976,7 +932,7 @@
       "notes": "Resolved 'Transition' to 'Transition Games' by rule: exact name, with or without the ' Games' suffix."
     },
     {
-      "relationship_id": "RPC-REL-052",
+      "relationship_id": "RPC-REL-048",
       "rpc_id": "RPC-006",
       "related_library": "GAME_FORM",
       "related_id": "GF2",
@@ -987,18 +943,7 @@
       "notes": "Resolved 'Directional Possession' to 'Directional Possession Games' by rule: exact name, with or without the ' Games' suffix."
     },
     {
-      "relationship_id": "RPC-REL-053",
-      "rpc_id": "RPC-007",
-      "related_library": "LEARNING_GOAL",
-      "related_id": "D02",
-      "relationship_type": "COMPATIBLE",
-      "relationship_strength": "PRIMARY",
-      "status": "ACTIVE",
-      "provenance": "Mechanical resolution of RPC-MAP-070 against session-planning-model.rc1.json",
-      "notes": "Resolved 'Win the ball back' to 'Win the Ball Back' by rule: exact Learning Goal name."
-    },
-    {
-      "relationship_id": "RPC-REL-054",
+      "relationship_id": "RPC-REL-049",
       "rpc_id": "RPC-007",
       "related_library": "GAME_PROBLEM",
       "related_id": "GP-016",
@@ -1009,7 +954,7 @@
       "notes": "Resolved 'Regain Possession' to 'Regain Possession' by rule: exact canonical name."
     },
     {
-      "relationship_id": "RPC-REL-055",
+      "relationship_id": "RPC-REL-050",
       "rpc_id": "RPC-007",
       "related_library": "GAME_PROBLEM",
       "related_id": "GP-012",
@@ -1020,7 +965,7 @@
       "notes": "Resolved 'Protect Space' to 'Protect Space' by rule: exact canonical name."
     },
     {
-      "relationship_id": "RPC-REL-056",
+      "relationship_id": "RPC-REL-051",
       "rpc_id": "RPC-007",
       "related_library": "GAME_FORM",
       "related_id": "GF4",
@@ -1031,7 +976,7 @@
       "notes": "Resolved 'Transition' to 'Transition Games' by rule: exact name, with or without the ' Games' suffix."
     },
     {
-      "relationship_id": "RPC-REL-057",
+      "relationship_id": "RPC-REL-052",
       "rpc_id": "RPC-007",
       "related_library": "GAME_FORM",
       "related_id": "GF2",
@@ -1042,18 +987,7 @@
       "notes": "Resolved 'Directional Possession' to 'Directional Possession Games' by rule: exact name, with or without the ' Games' suffix."
     },
     {
-      "relationship_id": "RPC-REL-058",
-      "rpc_id": "RPC-008",
-      "related_library": "LEARNING_GOAL",
-      "related_id": "D01",
-      "relationship_type": "COMPATIBLE",
-      "relationship_strength": "PRIMARY",
-      "status": "ACTIVE",
-      "provenance": "Mechanical resolution of RPC-MAP-079 against session-planning-model.rc1.json",
-      "notes": "Resolved 'Stay Organized' to 'Stay Organized' by rule: exact Learning Goal name."
-    },
-    {
-      "relationship_id": "RPC-REL-059",
+      "relationship_id": "RPC-REL-053",
       "rpc_id": "RPC-008",
       "related_library": "GAME_PROBLEM",
       "related_id": "GP-012",
@@ -1064,7 +998,7 @@
       "notes": "Resolved 'Protect Space' to 'Protect Space' by rule: exact canonical name."
     },
     {
-      "relationship_id": "RPC-REL-060",
+      "relationship_id": "RPC-REL-054",
       "rpc_id": "RPC-008",
       "related_library": "GAME_PROBLEM",
       "related_id": "GP-016",
@@ -1075,7 +1009,7 @@
       "notes": "Resolved 'Regain Possession' to 'Regain Possession' by rule: exact canonical name."
     },
     {
-      "relationship_id": "RPC-REL-061",
+      "relationship_id": "RPC-REL-055",
       "rpc_id": "RPC-008",
       "related_library": "GAME_FORM",
       "related_id": "GF3",
@@ -1086,7 +1020,7 @@
       "notes": "Resolved 'Positional Play' to 'Positional Play Games' by rule: exact name, with or without the ' Games' suffix."
     },
     {
-      "relationship_id": "RPC-REL-062",
+      "relationship_id": "RPC-REL-056",
       "rpc_id": "RPC-008",
       "related_library": "GAME_FORM",
       "related_id": "GF2",
@@ -1097,7 +1031,7 @@
       "notes": "Resolved 'Directional Possession' to 'Directional Possession Games' by rule: exact name, with or without the ' Games' suffix."
     },
     {
-      "relationship_id": "RPC-REL-063",
+      "relationship_id": "RPC-REL-057",
       "rpc_id": "RPC-008",
       "related_library": "GAME_FORM",
       "related_id": "GF7",
@@ -1106,6 +1040,149 @@
       "status": "ACTIVE",
       "provenance": "Mechanical resolution of RPC-MAP-090 against soccer-module.rc1-v3.json",
       "notes": "Resolved 'Channel' to 'Channel Games' by rule: exact name, with or without the ' Games' suffix."
+    },
+    {
+      "relationship_id": "RPC-REL-058",
+      "rpc_id": "RPC-001",
+      "related_library": "LEARNING_GOAL",
+      "related_id": "A01",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Mechanical resolution of RPC-RC11-LG-001 against session-planning-model.rc1.json",
+      "notes": "Resolved 'Play Out from the Back' to 'Play Out from the Back' by rule: exact Learning Goal name."
+    },
+    {
+      "relationship_id": "RPC-REL-059",
+      "rpc_id": "RPC-002",
+      "related_library": "LEARNING_GOAL",
+      "related_id": "A02",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Mechanical resolution of RPC-RC11-LG-002 against session-planning-model.rc1.json",
+      "notes": "Resolved 'Play Through Pressure' to 'Play Through Pressure' by rule: exact Learning Goal name."
+    },
+    {
+      "relationship_id": "RPC-REL-060",
+      "rpc_id": "RPC-004",
+      "related_library": "LEARNING_GOAL",
+      "related_id": "A03",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Mechanical resolution of RPC-RC11-LG-003 against session-planning-model.rc1.json",
+      "notes": "Resolved 'Create Scoring Chances' to 'Create Scoring Chances' by rule: exact Learning Goal name."
+    },
+    {
+      "relationship_id": "RPC-REL-061",
+      "rpc_id": "RPC-004",
+      "related_library": "LEARNING_GOAL",
+      "related_id": "A04",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "SECONDARY",
+      "status": "ACTIVE",
+      "provenance": "Mechanical resolution of RPC-RC11-LG-004 against session-planning-model.rc1.json",
+      "notes": "Resolved 'Beat Defenders 1v1' to 'Beat Defenders 1v1' by rule: exact Learning Goal name."
+    },
+    {
+      "relationship_id": "RPC-REL-062",
+      "rpc_id": "RPC-003",
+      "related_library": "LEARNING_GOAL",
+      "related_id": "A05",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Mechanical resolution of RPC-RC11-LG-005 against session-planning-model.rc1.json",
+      "notes": "Resolved 'Progress the Attack' to 'Progress the Attack' by rule: exact Learning Goal name."
+    },
+    {
+      "relationship_id": "RPC-REL-063",
+      "rpc_id": "RPC-005",
+      "related_library": "LEARNING_GOAL",
+      "related_id": "A06",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Mechanical resolution of RPC-RC11-LG-006 against session-planning-model.rc1.json",
+      "notes": "Resolved 'Finish Attacks' to 'Finish Attacks' by rule: exact Learning Goal name."
+    },
+    {
+      "relationship_id": "RPC-REL-064",
+      "rpc_id": "RPC-008",
+      "related_library": "LEARNING_GOAL",
+      "related_id": "D01",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Mechanical resolution of RPC-RC11-LG-007 against session-planning-model.rc1.json",
+      "notes": "Resolved 'Stay Organized' to 'Stay Organized' by rule: exact Learning Goal name."
+    },
+    {
+      "relationship_id": "RPC-REL-065",
+      "rpc_id": "RPC-007",
+      "related_library": "LEARNING_GOAL",
+      "related_id": "D02",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Mechanical resolution of RPC-RC11-LG-008 against session-planning-model.rc1.json",
+      "notes": "Resolved 'Win the Ball Back' to 'Win the Ball Back' by rule: exact Learning Goal name."
+    },
+    {
+      "relationship_id": "RPC-REL-066",
+      "rpc_id": "RPC-008",
+      "related_library": "LEARNING_GOAL",
+      "related_id": "D03",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "SECONDARY",
+      "status": "ACTIVE",
+      "provenance": "Mechanical resolution of RPC-RC11-LG-009 against session-planning-model.rc1.json",
+      "notes": "Resolved 'Defend 1v1' to 'Defend 1v1' by rule: exact Learning Goal name."
+    },
+    {
+      "relationship_id": "RPC-REL-067",
+      "rpc_id": "RPC-006",
+      "related_library": "LEARNING_GOAL",
+      "related_id": "TA01",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Mechanical resolution of RPC-RC11-LG-010 against session-planning-model.rc1.json",
+      "notes": "Resolved 'Attack Quickly' to 'Attack Quickly' by rule: exact Learning Goal name."
+    },
+    {
+      "relationship_id": "RPC-REL-068",
+      "rpc_id": "RPC-003",
+      "related_library": "LEARNING_GOAL",
+      "related_id": "TA02",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "SECONDARY",
+      "status": "ACTIVE",
+      "provenance": "Mechanical resolution of RPC-RC11-LG-011 against session-planning-model.rc1.json",
+      "notes": "Resolved 'Secure Possession' to 'Secure Possession' by rule: exact Learning Goal name."
+    },
+    {
+      "relationship_id": "RPC-REL-069",
+      "rpc_id": "RPC-007",
+      "related_library": "LEARNING_GOAL",
+      "related_id": "TD01",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Mechanical resolution of RPC-RC11-LG-012 against session-planning-model.rc1.json",
+      "notes": "Resolved 'Recover Organization' to 'Recover Organization' by rule: exact Learning Goal name."
+    },
+    {
+      "relationship_id": "RPC-REL-070",
+      "rpc_id": "RPC-007",
+      "related_library": "LEARNING_GOAL",
+      "related_id": "TD02",
+      "relationship_type": "COMPATIBLE",
+      "relationship_strength": "PRIMARY",
+      "status": "ACTIVE",
+      "provenance": "Mechanical resolution of RPC-RC11-LG-013 against session-planning-model.rc1.json",
+      "notes": "Resolved 'Delay the Attack' to 'Delay the Attack' by rule: exact Learning Goal name."
     }
   ],
   "properties": [
@@ -3429,54 +3506,6 @@
   ],
   "implementation_staging": [
     {
-      "mapping_id": "RPC-MAP-001",
-      "rpc_id": "RPC-001",
-      "target_library": "LEARNING_GOAL",
-      "candidate_name": "Play out from the back",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "VERIFIED",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Learning Goals",
-      "notes": "Resolved to A01 ('Play Out from the Back') as RPC-REL-009."
-    },
-    {
-      "mapping_id": "RPC-MAP-002",
-      "rpc_id": "RPC-001",
-      "target_library": "LEARNING_GOAL",
-      "candidate_name": "Build from the goalkeeper",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Learning Goals",
-      "notes": "Mechanical resolution: No object named 'Build from the goalkeeper' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-    },
-    {
-      "mapping_id": "RPC-MAP-003",
-      "rpc_id": "RPC-001",
-      "target_library": "LEARNING_GOAL",
-      "candidate_name": "Build from goal kicks",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Learning Goals",
-      "notes": "Mechanical resolution: No object named 'Build from goal kicks' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-    },
-    {
-      "mapping_id": "RPC-MAP-004",
-      "rpc_id": "RPC-001",
-      "target_library": "LEARNING_GOAL",
-      "candidate_name": "Support the player on the ball",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "SECONDARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Learning Goals",
-      "notes": "Mechanical resolution: No object named 'Support the player on the ball' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-    },
-    {
       "mapping_id": "RPC-MAP-005",
       "rpc_id": "RPC-001",
       "target_library": "GAME_PROBLEM",
@@ -3486,7 +3515,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Game Problems",
-      "notes": "Resolved to GP-001 ('Create Space') as RPC-REL-010."
+      "notes": "Mechanical resolution: Resolved to GP-001 ('Create Space') as RPC-REL-009."
     },
     {
       "mapping_id": "RPC-MAP-006",
@@ -3498,7 +3527,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Game Problems",
-      "notes": "Resolved to GP-005 ('Gain Access') as RPC-REL-011."
+      "notes": "Mechanical resolution: Resolved to GP-005 ('Gain Access') as RPC-REL-010."
     },
     {
       "mapping_id": "RPC-MAP-007",
@@ -3510,7 +3539,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Game Problems",
-      "notes": "Resolved to GP-015 ('Maintain Possession') as RPC-REL-012."
+      "notes": "Mechanical resolution: Resolved to GP-015 ('Maintain Possession') as RPC-REL-011."
     },
     {
       "mapping_id": "RPC-MAP-008",
@@ -3522,7 +3551,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Game Problems",
-      "notes": "Resolved to GP-002 ('Exploit Space') as RPC-REL-013."
+      "notes": "Mechanical resolution: Resolved to GP-002 ('Exploit Space') as RPC-REL-012."
     },
     {
       "mapping_id": "RPC-MAP-009",
@@ -3534,7 +3563,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Representative Game Forms",
-      "notes": "Resolved to GF2 ('Directional Possession Games') as RPC-REL-014."
+      "notes": "Mechanical resolution: Resolved to GF2 ('Directional Possession Games') as RPC-REL-013."
     },
     {
       "mapping_id": "RPC-MAP-010",
@@ -3546,19 +3575,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Representative Game Forms",
-      "notes": "Resolved to GF3 ('Positional Play Games') as RPC-REL-015."
-    },
-    {
-      "mapping_id": "RPC-MAP-011",
-      "rpc_id": "RPC-001",
-      "target_library": "GAME_FORM",
-      "candidate_name": "Full Goal",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "SECONDARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Representative Game Forms",
-      "notes": "Mechanical resolution: No object named 'Full Goal' exists in soccer-module.rc1-v3.json (11 canonical objects; rule: exact name, with or without the ' Games' suffix)."
+      "notes": "Mechanical resolution: Resolved to GF3 ('Positional Play Games') as RPC-REL-014."
     },
     {
       "mapping_id": "RPC-MAP-012",
@@ -3570,43 +3587,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Representative Game Forms",
-      "notes": "Resolved to GF7 ('Channel Games') as RPC-REL-016."
-    },
-    {
-      "mapping_id": "RPC-MAP-013",
-      "rpc_id": "RPC-002",
-      "target_library": "LEARNING_GOAL",
-      "candidate_name": "Escape a high press",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Learning Goals",
-      "notes": "Mechanical resolution: No object named 'Escape a high press' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-    },
-    {
-      "mapping_id": "RPC-MAP-014",
-      "rpc_id": "RPC-002",
-      "target_library": "LEARNING_GOAL",
-      "candidate_name": "Play through pressure",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "VERIFIED",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Learning Goals",
-      "notes": "Resolved to A02 ('Play Through Pressure') as RPC-REL-017."
-    },
-    {
-      "mapping_id": "RPC-MAP-015",
-      "rpc_id": "RPC-002",
-      "target_library": "LEARNING_GOAL",
-      "candidate_name": "Maintain possession under pressure",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Learning Goals",
-      "notes": "Mechanical resolution: No object named 'Maintain possession under pressure' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
+      "notes": "Mechanical resolution: Resolved to GF7 ('Channel Games') as RPC-REL-015."
     },
     {
       "mapping_id": "RPC-MAP-016",
@@ -3618,7 +3599,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Game Problems",
-      "notes": "Resolved to GP-001 ('Create Space') as RPC-REL-018."
+      "notes": "Mechanical resolution: Resolved to GP-001 ('Create Space') as RPC-REL-016."
     },
     {
       "mapping_id": "RPC-MAP-017",
@@ -3630,7 +3611,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Game Problems",
-      "notes": "Resolved to GP-005 ('Gain Access') as RPC-REL-019."
+      "notes": "Mechanical resolution: Resolved to GP-005 ('Gain Access') as RPC-REL-017."
     },
     {
       "mapping_id": "RPC-MAP-018",
@@ -3642,7 +3623,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Game Problems",
-      "notes": "Resolved to GP-015 ('Maintain Possession') as RPC-REL-020."
+      "notes": "Mechanical resolution: Resolved to GP-015 ('Maintain Possession') as RPC-REL-018."
     },
     {
       "mapping_id": "RPC-MAP-019",
@@ -3654,7 +3635,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Game Problems",
-      "notes": "Resolved to GP-002 ('Exploit Space') as RPC-REL-021."
+      "notes": "Mechanical resolution: Resolved to GP-002 ('Exploit Space') as RPC-REL-019."
     },
     {
       "mapping_id": "RPC-MAP-020",
@@ -3666,7 +3647,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Representative Game Forms",
-      "notes": "Resolved to GF2 ('Directional Possession Games') as RPC-REL-022."
+      "notes": "Mechanical resolution: Resolved to GF2 ('Directional Possession Games') as RPC-REL-020."
     },
     {
       "mapping_id": "RPC-MAP-021",
@@ -3678,7 +3659,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Representative Game Forms",
-      "notes": "Resolved to GF3 ('Positional Play Games') as RPC-REL-023."
+      "notes": "Mechanical resolution: Resolved to GF3 ('Positional Play Games') as RPC-REL-021."
     },
     {
       "mapping_id": "RPC-MAP-022",
@@ -3690,67 +3671,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Representative Game Forms",
-      "notes": "Resolved to GF7 ('Channel Games') as RPC-REL-024."
-    },
-    {
-      "mapping_id": "RPC-MAP-023",
-      "rpc_id": "RPC-002",
-      "target_library": "GAME_FORM",
-      "candidate_name": "Full Goal",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "SECONDARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Representative Game Forms",
-      "notes": "Mechanical resolution: No object named 'Full Goal' exists in soccer-module.rc1-v3.json (11 canonical objects; rule: exact name, with or without the ' Games' suffix)."
-    },
-    {
-      "mapping_id": "RPC-MAP-024",
-      "rpc_id": "RPC-003",
-      "target_library": "LEARNING_GOAL",
-      "candidate_name": "Maintain purposeful possession",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Learning Goals",
-      "notes": "Mechanical resolution: No object named 'Maintain purposeful possession' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-    },
-    {
-      "mapping_id": "RPC-MAP-025",
-      "rpc_id": "RPC-003",
-      "target_library": "LEARNING_GOAL",
-      "candidate_name": "Progress the attack",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Learning Goals",
-      "notes": "Mechanical resolution: No object named 'Progress the attack' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-    },
-    {
-      "mapping_id": "RPC-MAP-026",
-      "rpc_id": "RPC-003",
-      "target_library": "LEARNING_GOAL",
-      "candidate_name": "Switch play",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "SECONDARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Learning Goals",
-      "notes": "Mechanical resolution: No object named 'Switch play' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-    },
-    {
-      "mapping_id": "RPC-MAP-027",
-      "rpc_id": "RPC-003",
-      "target_library": "LEARNING_GOAL",
-      "candidate_name": "Create overloads",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "SECONDARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Learning Goals",
-      "notes": "Mechanical resolution: No object named 'Create overloads' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
+      "notes": "Mechanical resolution: Resolved to GF7 ('Channel Games') as RPC-REL-022."
     },
     {
       "mapping_id": "RPC-MAP-028",
@@ -3762,7 +3683,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Game Problems",
-      "notes": "Resolved to GP-001 ('Create Space') as RPC-REL-025."
+      "notes": "Mechanical resolution: Resolved to GP-001 ('Create Space') as RPC-REL-023."
     },
     {
       "mapping_id": "RPC-MAP-029",
@@ -3774,7 +3695,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Game Problems",
-      "notes": "Resolved to GP-002 ('Exploit Space') as RPC-REL-026."
+      "notes": "Mechanical resolution: Resolved to GP-002 ('Exploit Space') as RPC-REL-024."
     },
     {
       "mapping_id": "RPC-MAP-030",
@@ -3786,7 +3707,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Game Problems",
-      "notes": "Resolved to GP-005 ('Gain Access') as RPC-REL-027."
+      "notes": "Mechanical resolution: Resolved to GP-005 ('Gain Access') as RPC-REL-025."
     },
     {
       "mapping_id": "RPC-MAP-031",
@@ -3798,19 +3719,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Game Problems",
-      "notes": "Resolved to GP-015 ('Maintain Possession') as RPC-REL-028."
-    },
-    {
-      "mapping_id": "RPC-MAP-032",
-      "rpc_id": "RPC-003",
-      "target_library": "GAME_PROBLEM",
-      "candidate_name": "Create Numerical Advantage",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "SECONDARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Game Problems",
-      "notes": "Mechanical resolution: No object named 'Create Numerical Advantage' exists in gp-library.rc1.json (17 canonical objects; rule: exact canonical name)."
+      "notes": "Mechanical resolution: Resolved to GP-015 ('Maintain Possession') as RPC-REL-026."
     },
     {
       "mapping_id": "RPC-MAP-033",
@@ -3822,7 +3731,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Representative Game Forms",
-      "notes": "Resolved to GF3 ('Positional Play Games') as RPC-REL-029."
+      "notes": "Mechanical resolution: Resolved to GF3 ('Positional Play Games') as RPC-REL-027."
     },
     {
       "mapping_id": "RPC-MAP-034",
@@ -3834,7 +3743,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Representative Game Forms",
-      "notes": "Resolved to GF2 ('Directional Possession Games') as RPC-REL-030."
+      "notes": "Mechanical resolution: Resolved to GF2 ('Directional Possession Games') as RPC-REL-028."
     },
     {
       "mapping_id": "RPC-MAP-035",
@@ -3846,55 +3755,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Representative Game Forms",
-      "notes": "Resolved to GF7 ('Channel Games') as RPC-REL-031."
-    },
-    {
-      "mapping_id": "RPC-MAP-036",
-      "rpc_id": "RPC-003",
-      "target_library": "GAME_FORM",
-      "candidate_name": "Full Goal",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "SECONDARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Representative Game Forms",
-      "notes": "Mechanical resolution: No object named 'Full Goal' exists in soccer-module.rc1-v3.json (11 canonical objects; rule: exact name, with or without the ' Games' suffix)."
-    },
-    {
-      "mapping_id": "RPC-MAP-037",
-      "rpc_id": "RPC-004",
-      "target_library": "LEARNING_GOAL",
-      "candidate_name": "Create Scoring Chances",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "VERIFIED",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Learning Goals",
-      "notes": "Resolved to A03 ('Create Scoring Chances') as RPC-REL-032."
-    },
-    {
-      "mapping_id": "RPC-MAP-038",
-      "rpc_id": "RPC-004",
-      "target_library": "LEARNING_GOAL",
-      "candidate_name": "Break defensive lines",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Learning Goals",
-      "notes": "Mechanical resolution: No object named 'Break defensive lines' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-    },
-    {
-      "mapping_id": "RPC-MAP-039",
-      "rpc_id": "RPC-004",
-      "target_library": "LEARNING_GOAL",
-      "candidate_name": "Create chances from wide areas",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Learning Goals",
-      "notes": "Mechanical resolution: No object named 'Create chances from wide areas' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
+      "notes": "Mechanical resolution: Resolved to GF7 ('Channel Games') as RPC-REL-029."
     },
     {
       "mapping_id": "RPC-MAP-040",
@@ -3906,7 +3767,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Game Problems",
-      "notes": "Resolved to GP-005 ('Gain Access') as RPC-REL-033."
+      "notes": "Mechanical resolution: Resolved to GP-005 ('Gain Access') as RPC-REL-030."
     },
     {
       "mapping_id": "RPC-MAP-041",
@@ -3918,7 +3779,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Game Problems",
-      "notes": "Resolved to GP-006 ('Establish Functional Object Control') as RPC-REL-034."
+      "notes": "Mechanical resolution: Resolved to GP-006 ('Establish Functional Object Control') as RPC-REL-031."
     },
     {
       "mapping_id": "RPC-MAP-042",
@@ -3930,7 +3791,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Game Problems",
-      "notes": "Resolved to GP-002 ('Exploit Space') as RPC-REL-035."
+      "notes": "Mechanical resolution: Resolved to GP-002 ('Exploit Space') as RPC-REL-032."
     },
     {
       "mapping_id": "RPC-MAP-043",
@@ -3942,31 +3803,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Game Problems",
-      "notes": "Resolved to GP-001 ('Create Space') as RPC-REL-036."
-    },
-    {
-      "mapping_id": "RPC-MAP-044",
-      "rpc_id": "RPC-004",
-      "target_library": "GAME_PROBLEM",
-      "candidate_name": "Create Numerical Advantage",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "SECONDARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Game Problems",
-      "notes": "Mechanical resolution: No object named 'Create Numerical Advantage' exists in gp-library.rc1.json (17 canonical objects; rule: exact canonical name)."
-    },
-    {
-      "mapping_id": "RPC-MAP-045",
-      "rpc_id": "RPC-004",
-      "target_library": "GAME_FORM",
-      "candidate_name": "Full Goal",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Representative Game Forms",
-      "notes": "Mechanical resolution: No object named 'Full Goal' exists in soccer-module.rc1-v3.json (11 canonical objects; rule: exact name, with or without the ' Games' suffix)."
+      "notes": "Mechanical resolution: Resolved to GP-001 ('Create Space') as RPC-REL-033."
     },
     {
       "mapping_id": "RPC-MAP-046",
@@ -3978,7 +3815,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Representative Game Forms",
-      "notes": "Resolved to GF3 ('Positional Play Games') as RPC-REL-037."
+      "notes": "Mechanical resolution: Resolved to GF3 ('Positional Play Games') as RPC-REL-034."
     },
     {
       "mapping_id": "RPC-MAP-047",
@@ -3990,7 +3827,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Representative Game Forms",
-      "notes": "Resolved to GF2 ('Directional Possession Games') as RPC-REL-038."
+      "notes": "Mechanical resolution: Resolved to GF2 ('Directional Possession Games') as RPC-REL-035."
     },
     {
       "mapping_id": "RPC-MAP-048",
@@ -4002,43 +3839,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Representative Game Forms",
-      "notes": "Resolved to GF7 ('Channel Games') as RPC-REL-039."
-    },
-    {
-      "mapping_id": "RPC-MAP-049",
-      "rpc_id": "RPC-005",
-      "target_library": "LEARNING_GOAL",
-      "candidate_name": "Finish attacks",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Learning Goals",
-      "notes": "Mechanical resolution: No object named 'Finish attacks' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-    },
-    {
-      "mapping_id": "RPC-MAP-050",
-      "rpc_id": "RPC-005",
-      "target_library": "LEARNING_GOAL",
-      "candidate_name": "Finish scoring chances",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Learning Goals",
-      "notes": "Mechanical resolution: No object named 'Finish scoring chances' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-    },
-    {
-      "mapping_id": "RPC-MAP-051",
-      "rpc_id": "RPC-005",
-      "target_library": "LEARNING_GOAL",
-      "candidate_name": "Score more goals",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Learning Goals",
-      "notes": "Mechanical resolution: No object named 'Score more goals' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
+      "notes": "Mechanical resolution: Resolved to GF7 ('Channel Games') as RPC-REL-036."
     },
     {
       "mapping_id": "RPC-MAP-052",
@@ -4050,7 +3851,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Game Problems",
-      "notes": "Resolved to GP-006 ('Establish Functional Object Control') as RPC-REL-040."
+      "notes": "Mechanical resolution: Resolved to GP-006 ('Establish Functional Object Control') as RPC-REL-037."
     },
     {
       "mapping_id": "RPC-MAP-053",
@@ -4062,7 +3863,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Game Problems",
-      "notes": "Resolved to GP-005 ('Gain Access') as RPC-REL-041."
+      "notes": "Mechanical resolution: Resolved to GP-005 ('Gain Access') as RPC-REL-038."
     },
     {
       "mapping_id": "RPC-MAP-054",
@@ -4074,31 +3875,19 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Game Problems",
-      "notes": "Resolved to GP-002 ('Exploit Space') as RPC-REL-042."
+      "notes": "Mechanical resolution: Resolved to GP-002 ('Exploit Space') as RPC-REL-039."
     },
     {
       "mapping_id": "RPC-MAP-055",
       "rpc_id": "RPC-005",
       "target_library": "GAME_FORM",
-      "candidate_name": "Finishing",
+      "candidate_name": "Finishing Games",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "PRIMARY",
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Representative Game Forms",
-      "notes": "Resolved to GF9 ('Finishing Games') as RPC-REL-043."
-    },
-    {
-      "mapping_id": "RPC-MAP-056",
-      "rpc_id": "RPC-005",
-      "target_library": "GAME_FORM",
-      "candidate_name": "Full Goal",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Representative Game Forms",
-      "notes": "Mechanical resolution: No object named 'Full Goal' exists in soccer-module.rc1-v3.json (11 canonical objects; rule: exact name, with or without the ' Games' suffix)."
+      "notes": "Mechanical resolution: Resolved to GF9 ('Finishing Games') as RPC-REL-040."
     },
     {
       "mapping_id": "RPC-MAP-057",
@@ -4110,7 +3899,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Representative Game Forms",
-      "notes": "Resolved to GF4 ('Transition Games') as RPC-REL-044."
+      "notes": "Mechanical resolution: Resolved to GF4 ('Transition Games') as RPC-REL-041."
     },
     {
       "mapping_id": "RPC-MAP-058",
@@ -4122,43 +3911,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Representative Game Forms",
-      "notes": "Resolved to GF3 ('Positional Play Games') as RPC-REL-045."
-    },
-    {
-      "mapping_id": "RPC-MAP-059",
-      "rpc_id": "RPC-006",
-      "target_library": "LEARNING_GOAL",
-      "candidate_name": "Transition to Attack",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Learning Goals",
-      "notes": "Mechanical resolution: No object named 'Transition to Attack' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-    },
-    {
-      "mapping_id": "RPC-MAP-060",
-      "rpc_id": "RPC-006",
-      "target_library": "LEARNING_GOAL",
-      "candidate_name": "Attack Quickly",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "VERIFIED",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Learning Goals",
-      "notes": "Resolved to TA01 ('Attack Quickly') as RPC-REL-046."
-    },
-    {
-      "mapping_id": "RPC-MAP-061",
-      "rpc_id": "RPC-006",
-      "target_library": "LEARNING_GOAL",
-      "candidate_name": "Immediately After Winning Possession",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Learning Goals",
-      "notes": "Mechanical resolution: No object named 'Immediately After Winning Possession' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
+      "notes": "Mechanical resolution: Resolved to GF3 ('Positional Play Games') as RPC-REL-042."
     },
     {
       "mapping_id": "RPC-MAP-062",
@@ -4170,7 +3923,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Game Problems",
-      "notes": "Resolved to GP-005 ('Gain Access') as RPC-REL-047."
+      "notes": "Mechanical resolution: Resolved to GP-005 ('Gain Access') as RPC-REL-043."
     },
     {
       "mapping_id": "RPC-MAP-063",
@@ -4182,7 +3935,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Game Problems",
-      "notes": "Resolved to GP-002 ('Exploit Space') as RPC-REL-048."
+      "notes": "Mechanical resolution: Resolved to GP-002 ('Exploit Space') as RPC-REL-044."
     },
     {
       "mapping_id": "RPC-MAP-064",
@@ -4194,7 +3947,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Game Problems",
-      "notes": "Resolved to GP-001 ('Create Space') as RPC-REL-049."
+      "notes": "Mechanical resolution: Resolved to GP-001 ('Create Space') as RPC-REL-045."
     },
     {
       "mapping_id": "RPC-MAP-065",
@@ -4206,7 +3959,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Game Problems",
-      "notes": "Resolved to GP-006 ('Establish Functional Object Control') as RPC-REL-050."
+      "notes": "Mechanical resolution: Resolved to GP-006 ('Establish Functional Object Control') as RPC-REL-046."
     },
     {
       "mapping_id": "RPC-MAP-066",
@@ -4218,19 +3971,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Representative Game Forms",
-      "notes": "Resolved to GF4 ('Transition Games') as RPC-REL-051."
-    },
-    {
-      "mapping_id": "RPC-MAP-067",
-      "rpc_id": "RPC-006",
-      "target_library": "GAME_FORM",
-      "candidate_name": "Full Goal",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Representative Game Forms",
-      "notes": "Mechanical resolution: No object named 'Full Goal' exists in soccer-module.rc1-v3.json (11 canonical objects; rule: exact name, with or without the ' Games' suffix)."
+      "notes": "Mechanical resolution: Resolved to GF4 ('Transition Games') as RPC-REL-047."
     },
     {
       "mapping_id": "RPC-MAP-068",
@@ -4242,55 +3983,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Representative Game Forms",
-      "notes": "Resolved to GF2 ('Directional Possession Games') as RPC-REL-052."
-    },
-    {
-      "mapping_id": "RPC-MAP-069",
-      "rpc_id": "RPC-007",
-      "target_library": "LEARNING_GOAL",
-      "candidate_name": "After Losing Possession",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Learning Goals",
-      "notes": "Mechanical resolution: No object named 'After Losing Possession' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-    },
-    {
-      "mapping_id": "RPC-MAP-070",
-      "rpc_id": "RPC-007",
-      "target_library": "LEARNING_GOAL",
-      "candidate_name": "Win the ball back",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "VERIFIED",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Learning Goals",
-      "notes": "Resolved to D02 ('Win the Ball Back') as RPC-REL-053."
-    },
-    {
-      "mapping_id": "RPC-MAP-071",
-      "rpc_id": "RPC-007",
-      "target_library": "LEARNING_GOAL",
-      "candidate_name": "Prevent counterattacks",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Learning Goals",
-      "notes": "Mechanical resolution: No object named 'Prevent counterattacks' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-    },
-    {
-      "mapping_id": "RPC-MAP-072",
-      "rpc_id": "RPC-007",
-      "target_library": "GAME_PROBLEM",
-      "candidate_name": "Delay Progression",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Game Problems",
-      "notes": "Mechanical resolution: No object named 'Delay Progression' exists in gp-library.rc1.json (17 canonical objects; rule: exact canonical name)."
+      "notes": "Mechanical resolution: Resolved to GF2 ('Directional Possession Games') as RPC-REL-048."
     },
     {
       "mapping_id": "RPC-MAP-073",
@@ -4302,7 +3995,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Game Problems",
-      "notes": "Resolved to GP-016 ('Regain Possession') as RPC-REL-054."
+      "notes": "Mechanical resolution: Resolved to GP-016 ('Regain Possession') as RPC-REL-049."
     },
     {
       "mapping_id": "RPC-MAP-074",
@@ -4314,19 +4007,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Game Problems",
-      "notes": "Resolved to GP-012 ('Protect Space') as RPC-REL-055."
-    },
-    {
-      "mapping_id": "RPC-MAP-075",
-      "rpc_id": "RPC-007",
-      "target_library": "GAME_PROBLEM",
-      "candidate_name": "Recover Organization",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "SECONDARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Game Problems",
-      "notes": "Mechanical resolution: No object named 'Recover Organization' exists in gp-library.rc1.json (17 canonical objects; rule: exact canonical name)."
+      "notes": "Mechanical resolution: Resolved to GP-012 ('Protect Space') as RPC-REL-050."
     },
     {
       "mapping_id": "RPC-MAP-076",
@@ -4338,19 +4019,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Representative Game Forms",
-      "notes": "Resolved to GF4 ('Transition Games') as RPC-REL-056."
-    },
-    {
-      "mapping_id": "RPC-MAP-077",
-      "rpc_id": "RPC-007",
-      "target_library": "GAME_FORM",
-      "candidate_name": "Full Goal",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Representative Game Forms",
-      "notes": "Mechanical resolution: No object named 'Full Goal' exists in soccer-module.rc1-v3.json (11 canonical objects; rule: exact name, with or without the ' Games' suffix)."
+      "notes": "Mechanical resolution: Resolved to GF4 ('Transition Games') as RPC-REL-051."
     },
     {
       "mapping_id": "RPC-MAP-078",
@@ -4362,55 +4031,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Representative Game Forms",
-      "notes": "Resolved to GF2 ('Directional Possession Games') as RPC-REL-057."
-    },
-    {
-      "mapping_id": "RPC-MAP-079",
-      "rpc_id": "RPC-008",
-      "target_library": "LEARNING_GOAL",
-      "candidate_name": "Stay Organized",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "VERIFIED",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Learning Goals",
-      "notes": "Resolved to D01 ('Stay Organized') as RPC-REL-058."
-    },
-    {
-      "mapping_id": "RPC-MAP-080",
-      "rpc_id": "RPC-008",
-      "target_library": "LEARNING_GOAL",
-      "candidate_name": "Protect Space",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Learning Goals",
-      "notes": "Mechanical resolution: No object named 'Protect Space' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-    },
-    {
-      "mapping_id": "RPC-MAP-081",
-      "rpc_id": "RPC-008",
-      "target_library": "LEARNING_GOAL",
-      "candidate_name": "Delay Progression",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Learning Goals",
-      "notes": "Mechanical resolution: No object named 'Delay Progression' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
-    },
-    {
-      "mapping_id": "RPC-MAP-082",
-      "rpc_id": "RPC-008",
-      "target_library": "LEARNING_GOAL",
-      "candidate_name": "Prevent scoring chances",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Learning Goals",
-      "notes": "Mechanical resolution: No object named 'Prevent scoring chances' exists in session-planning-model.rc1.json (11 canonical objects; rule: exact Learning Goal name)."
+      "notes": "Mechanical resolution: Resolved to GF2 ('Directional Possession Games') as RPC-REL-052."
     },
     {
       "mapping_id": "RPC-MAP-083",
@@ -4422,31 +4043,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Game Problems",
-      "notes": "Resolved to GP-012 ('Protect Space') as RPC-REL-059."
-    },
-    {
-      "mapping_id": "RPC-MAP-084",
-      "rpc_id": "RPC-008",
-      "target_library": "GAME_PROBLEM",
-      "candidate_name": "Delay Progression",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Game Problems",
-      "notes": "Mechanical resolution: No object named 'Delay Progression' exists in gp-library.rc1.json (17 canonical objects; rule: exact canonical name)."
-    },
-    {
-      "mapping_id": "RPC-MAP-085",
-      "rpc_id": "RPC-008",
-      "target_library": "GAME_PROBLEM",
-      "candidate_name": "Recover Organization",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "SECONDARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Game Problems",
-      "notes": "Mechanical resolution: No object named 'Recover Organization' exists in gp-library.rc1.json (17 canonical objects; rule: exact canonical name)."
+      "notes": "Mechanical resolution: Resolved to GP-012 ('Protect Space') as RPC-REL-053."
     },
     {
       "mapping_id": "RPC-MAP-086",
@@ -4458,7 +4055,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Game Problems",
-      "notes": "Resolved to GP-016 ('Regain Possession') as RPC-REL-060."
+      "notes": "Mechanical resolution: Resolved to GP-016 ('Regain Possession') as RPC-REL-054."
     },
     {
       "mapping_id": "RPC-MAP-087",
@@ -4470,19 +4067,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Representative Game Forms",
-      "notes": "Resolved to GF3 ('Positional Play Games') as RPC-REL-061."
-    },
-    {
-      "mapping_id": "RPC-MAP-088",
-      "rpc_id": "RPC-008",
-      "target_library": "GAME_FORM",
-      "candidate_name": "Full Goal",
-      "intended_relationship_type": "COMPATIBLE",
-      "intended_strength": "PRIMARY",
-      "mapping_status": "NEEDS_CANONICAL_ID",
-      "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
-      "source_section": "Compatible Representative Game Forms",
-      "notes": "Mechanical resolution: No object named 'Full Goal' exists in soccer-module.rc1-v3.json (11 canonical objects; rule: exact name, with or without the ' Games' suffix)."
+      "notes": "Mechanical resolution: Resolved to GF3 ('Positional Play Games') as RPC-REL-055."
     },
     {
       "mapping_id": "RPC-MAP-089",
@@ -4494,7 +4079,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Representative Game Forms",
-      "notes": "Resolved to GF2 ('Directional Possession Games') as RPC-REL-062."
+      "notes": "Mechanical resolution: Resolved to GF2 ('Directional Possession Games') as RPC-REL-056."
     },
     {
       "mapping_id": "RPC-MAP-090",
@@ -4506,7 +4091,7 @@
       "mapping_status": "VERIFIED",
       "reason_for_hold": "Exact foreign identifier must be resolved from the governing canonical workbook before runtime activation.",
       "source_section": "Compatible Representative Game Forms",
-      "notes": "Resolved to GF7 ('Channel Games') as RPC-REL-063."
+      "notes": "Mechanical resolution: Resolved to GF7 ('Channel Games') as RPC-REL-057."
     },
     {
       "mapping_id": "RPC-MAP-091",
@@ -5023,6 +4608,162 @@
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
       "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+    },
+    {
+      "mapping_id": "RPC-RC11-LG-001",
+      "rpc_id": "RPC-001",
+      "target_library": "LEARNING_GOAL",
+      "candidate_name": "Play Out from the Back",
+      "intended_relationship_type": "COMPATIBLE",
+      "intended_strength": "PRIMARY",
+      "mapping_status": "VERIFIED",
+      "reason_for_hold": "Resolve exact canonical Learning Goal ID A01 from Session Planning Model RC1.1.",
+      "source_section": "Compatible Learning Goals",
+      "notes": "Canonical SPM ID: A01 | Mechanical resolution: Resolved to A01 ('Play Out from the Back') as RPC-REL-058."
+    },
+    {
+      "mapping_id": "RPC-RC11-LG-002",
+      "rpc_id": "RPC-002",
+      "target_library": "LEARNING_GOAL",
+      "candidate_name": "Play Through Pressure",
+      "intended_relationship_type": "COMPATIBLE",
+      "intended_strength": "PRIMARY",
+      "mapping_status": "VERIFIED",
+      "reason_for_hold": "Resolve exact canonical Learning Goal ID A02 from Session Planning Model RC1.1.",
+      "source_section": "Compatible Learning Goals",
+      "notes": "Canonical SPM ID: A02 | Mechanical resolution: Resolved to A02 ('Play Through Pressure') as RPC-REL-059."
+    },
+    {
+      "mapping_id": "RPC-RC11-LG-003",
+      "rpc_id": "RPC-004",
+      "target_library": "LEARNING_GOAL",
+      "candidate_name": "Create Scoring Chances",
+      "intended_relationship_type": "COMPATIBLE",
+      "intended_strength": "PRIMARY",
+      "mapping_status": "VERIFIED",
+      "reason_for_hold": "Resolve exact canonical Learning Goal ID A03 from Session Planning Model RC1.1.",
+      "source_section": "Compatible Learning Goals",
+      "notes": "Canonical SPM ID: A03 | Mechanical resolution: Resolved to A03 ('Create Scoring Chances') as RPC-REL-060."
+    },
+    {
+      "mapping_id": "RPC-RC11-LG-004",
+      "rpc_id": "RPC-004",
+      "target_library": "LEARNING_GOAL",
+      "candidate_name": "Beat Defenders 1v1",
+      "intended_relationship_type": "COMPATIBLE",
+      "intended_strength": "SECONDARY",
+      "mapping_status": "VERIFIED",
+      "reason_for_hold": "Resolve exact canonical Learning Goal ID A04 from Session Planning Model RC1.1.",
+      "source_section": "Compatible Learning Goals",
+      "notes": "Canonical SPM ID: A04 | Mechanical resolution: Resolved to A04 ('Beat Defenders 1v1') as RPC-REL-061."
+    },
+    {
+      "mapping_id": "RPC-RC11-LG-005",
+      "rpc_id": "RPC-003",
+      "target_library": "LEARNING_GOAL",
+      "candidate_name": "Progress the Attack",
+      "intended_relationship_type": "COMPATIBLE",
+      "intended_strength": "PRIMARY",
+      "mapping_status": "VERIFIED",
+      "reason_for_hold": "Resolve exact canonical Learning Goal ID A05 from Session Planning Model RC1.1.",
+      "source_section": "Compatible Learning Goals",
+      "notes": "Canonical SPM ID: A05 | Mechanical resolution: Resolved to A05 ('Progress the Attack') as RPC-REL-062."
+    },
+    {
+      "mapping_id": "RPC-RC11-LG-006",
+      "rpc_id": "RPC-005",
+      "target_library": "LEARNING_GOAL",
+      "candidate_name": "Finish Attacks",
+      "intended_relationship_type": "COMPATIBLE",
+      "intended_strength": "PRIMARY",
+      "mapping_status": "VERIFIED",
+      "reason_for_hold": "Resolve exact canonical Learning Goal ID A06 from Session Planning Model RC1.1.",
+      "source_section": "Compatible Learning Goals",
+      "notes": "Canonical SPM ID: A06 | Mechanical resolution: Resolved to A06 ('Finish Attacks') as RPC-REL-063."
+    },
+    {
+      "mapping_id": "RPC-RC11-LG-007",
+      "rpc_id": "RPC-008",
+      "target_library": "LEARNING_GOAL",
+      "candidate_name": "Stay Organized",
+      "intended_relationship_type": "COMPATIBLE",
+      "intended_strength": "PRIMARY",
+      "mapping_status": "VERIFIED",
+      "reason_for_hold": "Resolve exact canonical Learning Goal ID D01 from Session Planning Model RC1.1.",
+      "source_section": "Compatible Learning Goals",
+      "notes": "Canonical SPM ID: D01 | Mechanical resolution: Resolved to D01 ('Stay Organized') as RPC-REL-064."
+    },
+    {
+      "mapping_id": "RPC-RC11-LG-008",
+      "rpc_id": "RPC-007",
+      "target_library": "LEARNING_GOAL",
+      "candidate_name": "Win the Ball Back",
+      "intended_relationship_type": "COMPATIBLE",
+      "intended_strength": "PRIMARY",
+      "mapping_status": "VERIFIED",
+      "reason_for_hold": "Resolve exact canonical Learning Goal ID D02 from Session Planning Model RC1.1.",
+      "source_section": "Compatible Learning Goals",
+      "notes": "Canonical SPM ID: D02 | Mechanical resolution: Resolved to D02 ('Win the Ball Back') as RPC-REL-065."
+    },
+    {
+      "mapping_id": "RPC-RC11-LG-009",
+      "rpc_id": "RPC-008",
+      "target_library": "LEARNING_GOAL",
+      "candidate_name": "Defend 1v1",
+      "intended_relationship_type": "COMPATIBLE",
+      "intended_strength": "SECONDARY",
+      "mapping_status": "VERIFIED",
+      "reason_for_hold": "Resolve exact canonical Learning Goal ID D03 from Session Planning Model RC1.1.",
+      "source_section": "Compatible Learning Goals",
+      "notes": "Canonical SPM ID: D03 | Mechanical resolution: Resolved to D03 ('Defend 1v1') as RPC-REL-066."
+    },
+    {
+      "mapping_id": "RPC-RC11-LG-010",
+      "rpc_id": "RPC-006",
+      "target_library": "LEARNING_GOAL",
+      "candidate_name": "Attack Quickly",
+      "intended_relationship_type": "COMPATIBLE",
+      "intended_strength": "PRIMARY",
+      "mapping_status": "VERIFIED",
+      "reason_for_hold": "Resolve exact canonical Learning Goal ID TA01 from Session Planning Model RC1.1.",
+      "source_section": "Compatible Learning Goals",
+      "notes": "Canonical SPM ID: TA01 | Mechanical resolution: Resolved to TA01 ('Attack Quickly') as RPC-REL-067."
+    },
+    {
+      "mapping_id": "RPC-RC11-LG-011",
+      "rpc_id": "RPC-003",
+      "target_library": "LEARNING_GOAL",
+      "candidate_name": "Secure Possession",
+      "intended_relationship_type": "COMPATIBLE",
+      "intended_strength": "SECONDARY",
+      "mapping_status": "VERIFIED",
+      "reason_for_hold": "Resolve exact canonical Learning Goal ID TA02 from Session Planning Model RC1.1.",
+      "source_section": "Compatible Learning Goals",
+      "notes": "Canonical SPM ID: TA02 | Mechanical resolution: Resolved to TA02 ('Secure Possession') as RPC-REL-068."
+    },
+    {
+      "mapping_id": "RPC-RC11-LG-012",
+      "rpc_id": "RPC-007",
+      "target_library": "LEARNING_GOAL",
+      "candidate_name": "Recover Organization",
+      "intended_relationship_type": "COMPATIBLE",
+      "intended_strength": "PRIMARY",
+      "mapping_status": "VERIFIED",
+      "reason_for_hold": "Resolve exact canonical Learning Goal ID TD01 from Session Planning Model RC1.1.",
+      "source_section": "Compatible Learning Goals",
+      "notes": "Canonical SPM ID: TD01 | Mechanical resolution: Resolved to TD01 ('Recover Organization') as RPC-REL-069."
+    },
+    {
+      "mapping_id": "RPC-RC11-LG-013",
+      "rpc_id": "RPC-007",
+      "target_library": "LEARNING_GOAL",
+      "candidate_name": "Delay the Attack",
+      "intended_relationship_type": "COMPATIBLE",
+      "intended_strength": "PRIMARY",
+      "mapping_status": "VERIFIED",
+      "reason_for_hold": "Resolve exact canonical Learning Goal ID TD02 from Session Planning Model RC1.1.",
+      "source_section": "Compatible Learning Goals",
+      "notes": "Canonical SPM ID: TD02 | Mechanical resolution: Resolved to TD02 ('Delay the Attack') as RPC-REL-070."
     }
   ],
   "metadata_rows": [
@@ -5055,7 +4796,7 @@
     },
     {
       "metadata_key": "rpc_library_version",
-      "metadata_value": "RC1",
+      "metadata_value": "RC1.1",
       "value_type": "VERSION",
       "required": true,
       "description": "Canonical RPC Library version represented.",
@@ -5208,7 +4949,7 @@
     },
     {
       "metadata_key": "canonical_source_document",
-      "metadata_value": "Representative Performance Context Library RC1",
+      "metadata_value": "Representative Performance Context Library RC1.1",
       "value_type": "TEXT",
       "required": true,
       "description": "Canonical human-readable knowledge source represented by this workbook.",
@@ -5256,7 +4997,7 @@
     "workbook_name": "Representative Performance Context Workbook",
     "workbook_schema_version": "RC1",
     "module_id": "sport.soccer",
-    "rpc_library_version": "RC1",
+    "rpc_library_version": "RC1.1",
     "canonical_rpc_count": "8",
     "canonical_game_archetype_context": "GA-001",
     "registry_sheet_name": "Registry",
@@ -5273,7 +5014,7 @@
     "foreign_id_policy": "CANONICAL_IDS_ONLY",
     "affordance_policy": "CANONICAL_IDS_ONLY",
     "provenance_policy": "REQUIRED",
-    "canonical_source_document": "Representative Performance Context Library RC1",
+    "canonical_source_document": "Representative Performance Context Library RC1.1",
     "governing_standard": "Representative Performance Context Workbook Standard (RC1)",
     "schema_frozen": true,
     "schema_change_policy": "IMPLEMENTATION_EVIDENCE_REQUIRED",
