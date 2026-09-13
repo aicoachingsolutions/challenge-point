@@ -4100,10 +4100,10 @@
       "candidate_name": "Supporting goalkeeper",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-092",
@@ -4112,10 +4112,10 @@
       "candidate_name": "Supporting defender",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-093",
@@ -4124,10 +4124,10 @@
       "candidate_name": "Progression lane",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-094",
@@ -4136,10 +4136,10 @@
       "candidate_name": "Immediate support",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-095",
@@ -4148,10 +4148,10 @@
       "candidate_name": "Weak-side progression",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-096",
@@ -4160,10 +4160,10 @@
       "candidate_name": "Third-player support",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-097",
@@ -4172,10 +4172,10 @@
       "candidate_name": "Immediate support",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-098",
@@ -4184,10 +4184,10 @@
       "candidate_name": "Pressure release",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-099",
@@ -4196,10 +4196,10 @@
       "candidate_name": "Free player",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-100",
@@ -4208,10 +4208,10 @@
       "candidate_name": "Progression lane",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-101",
@@ -4220,10 +4220,10 @@
       "candidate_name": "Third-player support",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-102",
@@ -4232,10 +4232,10 @@
       "candidate_name": "Weak-side progression",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-103",
@@ -4244,10 +4244,10 @@
       "candidate_name": "Supporting player",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-104",
@@ -4256,10 +4256,10 @@
       "candidate_name": "Progression lane",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-105",
@@ -4268,10 +4268,10 @@
       "candidate_name": "Overload opportunity",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-106",
@@ -4280,10 +4280,10 @@
       "candidate_name": "Weak-side opportunity",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-107",
@@ -4292,10 +4292,10 @@
       "candidate_name": "Third-player support",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-108",
@@ -4304,10 +4304,10 @@
       "candidate_name": "Shooting lane",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-109",
@@ -4316,10 +4316,10 @@
       "candidate_name": "Final penetrating pass",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-110",
@@ -4328,10 +4328,10 @@
       "candidate_name": "Attacker advantage",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-111",
@@ -4340,10 +4340,10 @@
       "candidate_name": "Defensive imbalance",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-112",
@@ -4352,10 +4352,10 @@
       "candidate_name": "Crossing opportunity",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-113",
@@ -4364,10 +4364,10 @@
       "candidate_name": "Cut-back opportunity",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-114",
@@ -4376,10 +4376,10 @@
       "candidate_name": "Shooting lane",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-115",
@@ -4388,10 +4388,10 @@
       "candidate_name": "Goalkeeper position",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-116",
@@ -4400,10 +4400,10 @@
       "candidate_name": "Defender position",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-117",
@@ -4412,10 +4412,10 @@
       "candidate_name": "Immediate scoring window",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-118",
@@ -4424,10 +4424,10 @@
       "candidate_name": "Rebound opportunity",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-119",
@@ -4436,10 +4436,10 @@
       "candidate_name": "Forward progression lane",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-120",
@@ -4448,10 +4448,10 @@
       "candidate_name": "Isolated defender",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-121",
@@ -4460,10 +4460,10 @@
       "candidate_name": "Numerical superiority",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-122",
@@ -4472,10 +4472,10 @@
       "candidate_name": "Immediate support",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-123",
@@ -4484,10 +4484,10 @@
       "candidate_name": "Weak-side runner",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-124",
@@ -4496,10 +4496,10 @@
       "candidate_name": "Immediate pressure",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-125",
@@ -4508,10 +4508,10 @@
       "candidate_name": "Passing lane denial",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-126",
@@ -4520,10 +4520,10 @@
       "candidate_name": "Transition delay",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-127",
@@ -4532,10 +4532,10 @@
       "candidate_name": "Supporting defender",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-128",
@@ -4544,10 +4544,10 @@
       "candidate_name": "Interception opportunity",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-129",
@@ -4556,10 +4556,10 @@
       "candidate_name": "Central protection",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-130",
@@ -4568,10 +4568,10 @@
       "candidate_name": "Pressure angle",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-131",
@@ -4580,10 +4580,10 @@
       "candidate_name": "Defensive support",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-132",
@@ -4592,10 +4592,10 @@
       "candidate_name": "Passing lane denial",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-MAP-133",
@@ -4604,10 +4604,10 @@
       "candidate_name": "Interception opportunity",
       "intended_relationship_type": "COMPATIBLE",
       "intended_strength": "SUPPORTING",
-      "mapping_status": "NEEDS_CANONICAL_ID",
+      "mapping_status": "DEFERRED",
       "reason_for_hold": "Sport-specific opportunity expression must be mapped to an existing canonical Affordance ID; do not create a new Affordance object by implication.",
       "source_section": "Typical Affordance Targets",
-      "notes": "Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
+      "notes": "Deferred by Christian, 2026-09-13: canonical Affordance Target ids are not to be inferred to reach runtime; revisit with the Affordance Target relationship work. | Mechanical resolution: No canonical affordance-target library exists at this granularity: the Affordance Target Matrix rates Game Problems on four abstract dimensions, and the soccer module uses thirteen coarse affordance ids."
     },
     {
       "mapping_id": "RPC-RC11-LG-001",

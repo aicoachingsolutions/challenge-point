@@ -71,6 +71,14 @@ function main(): void {
     for (const [key, candidates] of [...byKey.entries()].sort()) {
         console.log(`  ${key}\n      ${candidates.join('; ')}`)
     }
+
+    console.log('\n5. DEFERRED BY DECISION (reported, never reasoned from; does not block ACTIVE)')
+    const deferredBy = new Map<string, number>()
+    for (const row of rpcLibrary.deferredStaging()) {
+        const key = `${String(row['rpc_id'])} ${contextName.get(String(row['rpc_id']))} x ${String(row['target_library'])}`
+        deferredBy.set(key, (deferredBy.get(key) ?? 0) + 1)
+    }
+    for (const [key, count] of [...deferredBy.entries()].sort()) console.log(`  ${key}: ${count}`)
 }
 
 main()

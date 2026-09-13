@@ -132,7 +132,7 @@ function planningRoutes(): PlanningRoute[] {
     const sp = sessionPlanningWorkbook as unknown as { rpc_routing?: Array<Record<string, unknown>> }
     return (sp.rpc_routing ?? []).map((r) => ({
         learningGoalId: String(r['Learning Goal ID'] ?? '').trim(),
-        rpcId: String(r['Primary RPC ID'] ?? '').trim(),
+        rpcId: String(r['Routed RPC ID'] ?? '').trim(),
     }))
 }
 
@@ -266,6 +266,16 @@ export function validateRpcLibraryIntegrity(data: RpcWorkbook = WB, routes: Plan
         }
     }
 
+    // A deferral or rejection is the knowledge owner's decision, and a decision recorded without its
+    // reason cannot be revisited deliberately — which is the whole point of deferring rather than
+    // inferring (Christian, 13 Sep, on the 43 Affordance Targets).
+    for (const row of data.implementation_staging) {
+        const status = text(row, 'mapping_status')
+        if ((status === 'DEFERRED' || status === 'REJECTED') && !text(row, 'notes')) {
+            errors.push(`Staging "${text(row, 'mapping_id')}" is ${status} with no note recording why.`)
+        }
+    }
+
     // "No workbook may reach ACTIVE status while unresolved staging entries remain."
     const unresolved = data.implementation_staging.filter((r) => text(r, 'mapping_status') === 'NEEDS_CANONICAL_ID')
     const claimsActive =
@@ -374,6 +384,8 @@ export const rpcLibrary = {
     /** For reporting only — the Workbook Standard forbids reasoning from staging. */
     unresolvedStaging: (): RpcRow[] =>
         WB.implementation_staging.filter((r) => text(r, 'mapping_status') === 'NEEDS_CANONICAL_ID'),
+    /** Mappings deliberately postponed. Reported, never reasoned from, and they never block ACTIVE. */
+    deferredStaging: (): RpcRow[] => WB.implementation_staging.filter((r) => text(r, 'mapping_status') === 'DEFERRED'),
 }
 
 /** REQUIRED before PRIMARY before SECONDARY before SUPPORTING; unknown strengths sort last. */

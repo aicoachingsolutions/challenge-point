@@ -70,7 +70,9 @@ const COL = {
     translationPrimary: 'Primary GP IDs',
     translationSecondary: 'Secondary GP IDs',
     routingGoalId: 'Learning Goal ID',
-    routingRpcId: 'Primary RPC ID',
+    // Renamed from "Primary RPC ID" (Christian, 13 Sep): the column names the routed context, not the
+    // strength of the relationship inside it — three routes are SECONDARY.
+    routingRpcId: 'Routed RPC ID',
 } as const
 
 const text = (row: PlanningRow, column: string): string => {

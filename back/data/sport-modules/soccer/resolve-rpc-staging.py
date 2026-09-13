@@ -152,6 +152,13 @@ def main():
             report.append({"mapping_id": mapping_id, "outcome": "ALREADY_VERIFIED"})
             continue
 
+        # DEFERRED and REJECTED are the knowledge owner's decisions about a mapping, not gaps awaiting
+        # resolution. Touching them — even to refresh a note — would overwrite a decision.
+        if status in ("DEFERRED", "REJECTED"):
+            report.append({"mapping_id": mapping_id, "rpc_id": cell("rpc_id").value, "library": library,
+                           "candidate": candidate, "outcome": status})
+            continue
+
         if library not in indexes:
             raise SystemExit(f"{mapping_id}: unknown target_library '{library}' — not guessing where it points.")
 
@@ -204,10 +211,11 @@ def main():
     summary = {}
     for item in report:
         lib = item.get("library", "(already verified)")
-        summary.setdefault(lib, {"VERIFIED": 0, "UNRESOLVED": 0, "ALREADY_VERIFIED": 0})[item["outcome"]] += 1
+        counts = summary.setdefault(lib, {})
+        counts[item["outcome"]] = counts.get(item["outcome"], 0) + 1
     print("Resolution by target library:")
     for lib, counts in summary.items():
-        print(f"  {lib:16} verified {counts['VERIFIED']:3}   unresolved {counts['UNRESOLVED']:3}   already {counts['ALREADY_VERIFIED']:3}")
+        print(f"  {lib:18} " + "   ".join(f"{outcome.lower()} {n}" for outcome, n in sorted(counts.items())))
     print(f"Relationships now: {len(existing)}. Wrote {WORKBOOK.name} and {REPORT.name}.")
 
 

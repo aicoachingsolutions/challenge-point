@@ -98,20 +98,26 @@ function testEveryContextHasAPrimaryGameFormInStrengthOrder(): void {
 }
 
 /**
- * Staging is never runtime knowledge, and the library is honest that it is not ACTIVE yet. At RC1.1
- * only the affordance targets remain — and the resolver must have kept Christian's own notes, and
- * agreed with the Learning Goal id each of them states.
+ * Staging is never runtime knowledge. At RC1.1 every reference is either resolved or deliberately
+ * DEFERRED (Christian, 13 Sep: the 43 Affordance Targets, "I do not want canonical IDs inferred simply
+ * to get the RPC Library into runtime"). The resolver must have kept Christian's own notes, and agreed
+ * with the Learning Goal id each of them states.
  */
-function testStagingIsResolvedExceptAffordancesAndAuthoredNotesSurvive(): void {
-    const unresolved = rpcLibrary.unresolvedStaging()
-    if (unresolved.length > 0) assert.notEqual(rpcLibrary.runtimeStatus, 'ACTIVE')
-    assert.deepEqual([...new Set(unresolved.map((r) => String(r['target_library'])))], ['AFFORDANCE'])
-    for (const row of unresolved) {
-        assert.ok(
-            String(row['notes'] ?? '').includes('Mechanical resolution:'),
-            `${String(row['mapping_id'])} is unresolved without a recorded reason`
-        )
+function testStagingIsResolvedOrDeferredAndAuthoredNotesSurvive(): void {
+    assert.deepEqual(rpcLibrary.unresolvedStaging(), [], 'RC1.1 leaves nothing awaiting a canonical id.')
+
+    const deferred = rpcLibrary.deferredStaging()
+    assert.equal(deferred.length, 43, 'The decision covers the 43 Affordance Target references.')
+    assert.deepEqual([...new Set(deferred.map((r) => String(r['target_library'])))], ['AFFORDANCE'])
+    for (const row of deferred) {
+        assert.ok(String(row['notes'] ?? '').startsWith('Deferred by Christian'), `${String(row['mapping_id'])} is deferred without his reason`)
     }
+    assert.ok(!REAL.relationships.some((r) => r['related_library'] === 'AFFORDANCE'), 'A deferred mapping must never become a relationship.')
+
+    // Deferring removes the Standard's block on ACTIVE; it does not switch runtime on. Christian ties
+    // ACTIVE to his review of the Context -> primary scoring event rows, so flipping this is a
+    // deliberate edit that should make this assertion fail.
+    assert.equal(rpcLibrary.runtimeStatus, 'PROPOSED')
 
     const learningGoalRows = REAL.implementation_staging.filter((r) => r['target_library'] === 'LEARNING_GOAL')
     assert.equal(learningGoalRows.length, 13)
@@ -160,6 +166,14 @@ function testGateFailsOnEachDefect(): void {
         'active with unresolved staging'
     )
 
+    assertFailsWith(
+        (d) => {
+            d.implementation_staging.find((r) => r['mapping_status'] === 'DEFERRED')!['notes'] = null
+        },
+        'no note recording why',
+        'deferred without a reason'
+    )
+
     // Routing agreement, both directions.
     assertFailsWith(
         (d) => {
@@ -186,7 +200,7 @@ testEveryContextCarriesItsIdentity()
 testFinishingContextOwnsAScoringIdentityAboutGoals()
 testEveryGuidedGoalReachesTheContextPlanningNames()
 testEveryContextHasAPrimaryGameFormInStrengthOrder()
-testStagingIsResolvedExceptAffordancesAndAuthoredNotesSurvive()
+testStagingIsResolvedOrDeferredAndAuthoredNotesSurvive()
 testGateFailsOnEachDefect()
 
 console.log('rpc-library unit tests: all cases passed.')

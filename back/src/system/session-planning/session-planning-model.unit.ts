@@ -136,6 +136,16 @@ function testEntryLanguageResolves(): void {
     assert.equal(sessionPlanningModel.learningGoalIdForPhrase('build from the back'), 'A01')
     assert.equal(sessionPlanningModel.learningGoalIdForPhrase('  Win The Ball Back  '), 'D02', 'Lookup is forgiving of case and spacing.')
     assert.equal(sessionPlanningModel.learningGoalIdForPhrase('nonsense phrase'), null)
+
+    // RC1.1 (Christian, 13 Sep) — his semantic rule: language about CREATING an opportunity belongs to
+    // Create Scoring Chances; language about EXECUTING or CONVERTING one that exists belongs to Finish
+    // Attacks. Pinned so a later vocabulary edit cannot quietly put them back together.
+    for (const phrase of ['shoot', 'shot', 'shooting', 'convert chance']) {
+        assert.equal(sessionPlanningModel.learningGoalIdForPhrase(phrase), 'A06', `"${phrase}" is conversion language`)
+    }
+    for (const phrase of ['get a shot', 'create chances']) {
+        assert.equal(sessionPlanningModel.learningGoalIdForPhrase(phrase), 'A03', `"${phrase}" is creation language`)
+    }
 }
 
 /** RC1.1: every Guided Learning Goal routes to exactly one Representative Performance Context. */
@@ -159,7 +169,7 @@ function testGateCatchesBrokenReferences(): void {
         entry_language: [{ 'Coach Phrase': 'phrase', 'Learning Goal ID': 'A01' }],
         engine_translation: [{ 'Learning Goal ID': 'A01', 'Primary GP IDs': 'TBD' }],
         governance: [{ Rule: 'Coach language first.' }],
-        rpc_routing: [{ 'Learning Goal ID': 'A01', 'Primary RPC ID': 'RPC-001' }],
+        rpc_routing: [{ 'Learning Goal ID': 'A01', 'Routed RPC ID': 'RPC-001' }],
     }
     const damaged = (mutate: (d: typeof healthy) => void) => {
         const copy = JSON.parse(JSON.stringify(healthy)) as typeof healthy
