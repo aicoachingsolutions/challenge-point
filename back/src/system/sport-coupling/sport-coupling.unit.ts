@@ -56,6 +56,10 @@ const SPORT_LAYER_FILES = [
     // Reconstructs engine objects from the Soccer Module workbook. Sport-specific by design, for the
     // same reason as the loader above.
     'system/sport-module/soccer-module-adapter.ts',
+    // Representative Performance Context loader. Christian's RPC Library defines the SPORT-SPECIFIC
+    // identity layer by design — "Representative Performance Contexts occupy the sport-specific
+    // reasoning layer" — so it lives beside the Soccer Module and resolves against its game forms.
+    'system/sport-module/rpc-library.ts',
 ]
 
 const SPORT_TERMS = [
