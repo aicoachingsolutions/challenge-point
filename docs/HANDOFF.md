@@ -409,6 +409,71 @@ Knowledge needed: valid primary events per context (8 rows). Offered to draft th
 
 **Behaviour gate unchanged `70 68 98 119 94 99 86`. 44 suites. Ratchet 35.**
 
+### 2026-09-13 (later) — his RC1.1 decisions applied; primary scoring event draft
+
+**Decisions, all applied in commit `1248f02`:**
+- **He adopted the combined SPM** as canonical RC1.1. `apply-rc1.1-package.py` and the received file are
+  retired (they remain in git history).
+- **Entry Language rule, creation vs conversion:**
+  - language about CREATING an opportunity → A03 Create Scoring Chances;
+  - language about EXECUTING or CONVERTING one that exists → A06 Finish Attacks.
+  - shoot, shot, shooting and convert chance moved to A06; get a shot stays A03; finish, score and goal
+    keep disambiguating.
+  - **Apply this rule to future Entry Language questions.** Script: `apply-rc1.1-decisions.py`.
+- **RPC Routing column renamed "Routed RPC ID".** It names the context a goal routes to, not the
+  relationship's strength.
+- **43 Affordance Targets DEFERRED**, with his reason: "I do not want canonical IDs inferred simply to
+  get the RPC Library into runtime."
+  - The resolver skips DEFERRED/REJECTED rows, and the gate rejects a deferral without a note.
+  - Script: `apply-rpc-rc1.1-decisions.py`.
+- **Stale "Implementation Staging OLD" row removed** from the RC1.1 Audit sheet; no archive restored.
+- **ACTIVE:** nothing is NEEDS_CANONICAL_ID any more, but runtime_status stays PROPOSED. He ties ACTIVE
+  to approving the Context → primary scoring event rows, and a test fails when it flips.
+
+**Primary scoring event, the agreed architecture (his words, 13 Sep):** Realized Game Form →
+physically available scoring events → RPC / Primary Scoring Identity → selected primary scoring
+event → activity generation → coach-facing How to Score.
+- The event is decided after the realization is selected and BEFORE text generation, then given to
+  the generator.
+- Starting vocabulary: goal, target player, line crossed, target zone entered, gate, regain under a
+  stated condition.
+
+**Draft for his review:** `back/data/sport-modules/soccer/primary-scoring-events.rc1.1-PROPOSED.xlsx`,
+written by `write-proposed-scoring-events.py`. Sheets: Event Vocabulary, Game Form Evidence, the eight
+Context rows, 22 Context × Game Form pairs, Generated Evidence. The script fails if its pairs drift
+from the workbook's compatible game forms.
+
+**Evidence that settles WHY:** nine real activities generated on 13 Sep across Directional
+Possession, Transition, Channel, Finishing and Positional Play.
+- Seven setups marked a scoring object (end zones, goals with goalkeepers, halves). **None of the seven
+  scored it.**
+- Both finishing games had goals and goalkeepers, yet awarded "attacking the open space".
+- Both counter-attack games awarded "winning the ball back", the counter-press side of the exchange.
+- Scoring follows the affordance lens, not the organization.
+
+**What drafting surfaced for him:**
+1. **A stated condition is needed on most events, not only on regain.** Counterattack scores a goal
+   inside a window; Build-Out counts from a goalkeeper start; High Press Escape requires keeping the
+   ball after crossing. So the condition is an attribute any event can carry.
+2. **Proposed SE-07 "Held":** the opponent kept from crossing a line or entering a zone for a stated
+   time. Counter-Press ("rather than regain alone") and Attack Prevention need it. The Delay Reward
+   realization and Recover & Reorganize Games already author it.
+3. **Chance Creation:** zone entry is the closest proxy among the agreed events. Is "shot on target"
+   better?
+4. **Build-Out, High Press Escape and Attack Development share the same events.** Their difference is
+   the condition, which matches the identity rules.
+5. **Channel Games authors no scoring object** (channels are lanes), so 4 pairs need an end object.
+   Finishing through Positional Play needs goals added. 16 of 22 pairs resolve outright; 1 needs a
+   realization choice.
+6. **Placement fits the frozen schema.**
+   - Game form → the existing `scoring_structure_type` column, which is empty and read by nothing.
+   - Context → Relationships (`related_library` SCORING_EVENT), with the condition as a Property.
+   - Neither column is controlled vocabulary.
+
+**Defect found while generating:** "Create better support angles under pressure." (Positional Play)
+fails assembly 3 of 3 times with "Activity 2 missing skeleton mechanic: Opponent consequence emphasis…".
+A coach typing it gets an error. Spun off as a separate task.
+
 ---
 
 ## PILOT APPROVED — Christian green-lit the build (2026-08-13)
