@@ -591,7 +591,7 @@ function buildPackageInteractionExchange(
                     continuation: ['play continues live', 'restart', 'turnover', 'immediately'],
                 },
             },
-            opponentConsequence: 'If the live opportunity is forced after it closes, the opponent inherits the connected advantage immediately.',
+            opponentConsequence: 'If the live opportunity is forced after it closes, the opponent gains an immediate restart, regain chance, or counter-attacking advantage.',
             opponentConsequenceSignals: ['opponent gains', 'restart', 'regain', 'counter'],
         },
         sourceRole,
