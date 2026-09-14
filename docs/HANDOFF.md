@@ -624,6 +624,45 @@ not.
 
 Behaviour gate `70 68 98 119 94 99 86`; 47 suites; ratchet 35.
 
+### 2026-09-13 (night) — The live route never saw the scoring event; fixed
+
+**Found while checking the push against Christian's approval email, item by item.** The output
+validator rebuilds each activity from an allowlist, and its `systemTrace` kept seven fields, without
+`primaryScoring` or `planning`. The route compresses the VALIDATED activities. So in the live app:
+- compression never pinned the resolved scoring rule and fell back to ranking scoring sentences;
+- Setup, Rules and the Objective were never kept to the scored object, and the regain condition stayed
+  in games that score no regain;
+- the Objective could not fall back to the coach's goal, and saved activities carried no planning
+  trace (IC-003 Invariant 5).
+
+What did reach the route: gating, resolution, the 400 refusal, the deterministic Scoring text and the
+setup repair (both written before validation).
+
+**Why six real runs missed it:** `run-coach-view-audit.ts` compressed the mapper's output directly and
+skipped the validator. It is the same fork-of-production trap as 2026-08-16.
+
+**Fix:**
+- `planningTrace` and `primaryScoringTrace` (`map-structured-activity-to-legacy.ts`) build both fields;
+  the mapper and the validator call the same functions.
+- The harness now runs map → validate → compress, as the route does.
+- `assembly-output-contract.unit.ts` `testSystemTraceSurvivesValidation`. Bite-proved: with the two
+  validator lines removed it fails "activity 1 lost its scoring event".
+
+**Also closed from the approval email:**
+- Metadata row `scoring_event_vocabulary_scope` = "Used with GA-001 Invasion; no broader ownership
+  claim" (`apply-rpc-scoring-vocabulary-scope.py`, idempotent). `rpc-library.unit.ts` asserts it.
+- `systemTrace.primaryScoring.qualifyingCondition` records the context's authored condition on every
+  activity. It is not sent to the model, because the scoring rule already states it.
+- Still true: free-text goals rank scoring sentences, because no context is inferred from typed words.
+- Needs Christian's sign-off: the Counterattack coach wording asks for a 6–10 second countdown, borrowed
+  from Recover & Reorganize.
+
+**Real run through the route's path** (map → validate → compress, 13 goals × 3 slots), read slot by
+slot: 39 of 39 activities; 0 retries, 0 failures; 0 wording violations; the audit finds no unscored
+object, second way to score, missing countdown or missing goal.
+
+Behaviour gate `70 68 98 119 94 99 86`; 47 suites; ratchet 35.
+
 ---
 
 ## PILOT APPROVED — Christian green-lit the build (2026-08-13)

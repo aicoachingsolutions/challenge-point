@@ -1,6 +1,7 @@
 import { IActivity } from '../models/activity.model'
 import { getAssemblySelectedAffordanceIds, getAssemblySelectedConstraintIds, registryIdString } from './activity/assembly-package-ids'
 import { findPrescriptivePhraseViolations } from './activity/validate-activity-structure'
+import { planningTrace, primaryScoringTrace } from './activity/map-structured-activity-to-legacy'
 import { ActivityAssemblyGuardrails, InteractionExchange, SystemAssemblyInput, SystemPipelineError } from './types'
 import { countPatternHits, includesNormalizedPhrase, normalizeText, overlapScore, scoreKeywordMatches, uniqueTokens } from './text'
 
@@ -881,6 +882,11 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
                 foundationConstraintId: input.constraintPackage.foundation.constraint._id,
                 shapingConstraintId: input.constraintPackage.shaping.constraint._id,
                 consequenceConstraintId: input.constraintPackage.consequence?.constraint._id,
+                // The same allowlist, the third field it silently dropped. Without these two the live
+                // route compressed every activity with no resolved scoring event and no planning
+                // decisions. Built by the mapper's own functions so the two writers cannot drift.
+                planning: planningTrace(input),
+                primaryScoring: primaryScoringTrace(scoringSystem, input),
             },
             } as IActivity)
         } catch (error) {

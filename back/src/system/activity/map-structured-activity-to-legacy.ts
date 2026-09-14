@@ -11,7 +11,7 @@
  * database, or the clock beyond the timestamps below — keeping it importable without credentials is
  * what allows `assembly-output-contract.unit.ts` to prove the mapper still satisfies the validator.
  */
-import type { IActivity } from '../../models/activity.model'
+import type { IActivity, ISystemTrace } from '../../models/activity.model'
 import type { SystemAssemblyInput } from '../types'
 import { getAssemblySelectedAffordanceIds, getAssemblySelectedConstraintIds } from './assembly-package-ids'
 import { reconcilePlayerFormat } from './player-format'
@@ -122,35 +122,57 @@ export function mapStructuredActivityToLegacy(activity: Activity, input: SystemA
             consequenceConstraintId: input.constraintPackage.consequence?.constraint._id,
             // IC-003 Invariant 5. Recorded on the activity itself rather than left to be joined from
             // telemetry by session — an activity a coach disputes should carry its own provenance.
-            planning: {
-                learningGoalId: input.coachInput.learningGoalId,
-                learningGoalName: input.coachInput.learningGoals?.[0],
-                practiceSituationId: input.coachInput.practiceSituation?.id,
-                practiceSituationName: input.coachInput.practiceSituation?.name,
-                learningStage: input.coachInput.learningStage,
-                challengeLevel: input.coachInput.challengeLevel,
-            },
-            // RC1.1 — which resolved primary scoring event this activity scores on. Matched on the rule
-            // text, which buildScoringLines placed in scoring verbatim; compression pins it from here.
-            primaryScoring: (() => {
-                const directive = input.coachInput.primaryScoring?.find((d) => activity.scoring.includes(d.scoringRule))
-                return directive
-                    ? {
-                          contextId: directive.contextId,
-                          eventKey: directive.eventKey,
-                          objectKey: directive.objectKey,
-                          scoringRule: directive.scoringRule,
-                          realizationCoverage: directive.realizationCoverage,
-                          // Carried so compression can keep Setup, Rules and the Objective to this object.
-                          setupRequirement: directive.setupRequirement,
-                          setupEvidence: directive.setupEvidence,
-                      }
-                    : undefined
-            })(),
+            planning: planningTrace(input),
+            // RC1.1 — which resolved primary scoring event this activity scores on; compression pins it.
+            primaryScoring: primaryScoringTrace(activity.scoring, input),
         },
         createdAt: now,
         updatedAt: now,
     } as IActivity & { twoSidedExchangeRule: string; twoSidedScoringConsequence: string }
 
     return legacy as IActivity
+}
+
+/**
+ * The planning decisions an activity traces to (IC-003 Invariant 5).
+ *
+ * SHARED WITH THE OUTPUT VALIDATOR, which rebuilds systemTrace from an allowlist. It rebuilt it without
+ * this field and without primaryScoring, so in the live route every activity lost both before
+ * compression: the resolved scoring rule was never pinned, Setup, Rules and the Objective were never kept
+ * to its object, and the Objective could not fall back to the coach's own goal. The generation harness
+ * compressed this mapper's output directly, skipping the validator, so every real run looked right.
+ * Both writers of systemTrace now build these fields with the same functions.
+ */
+export function planningTrace(input: SystemAssemblyInput): NonNullable<ISystemTrace['planning']> {
+    return {
+        learningGoalId: input.coachInput.learningGoalId,
+        learningGoalName: input.coachInput.learningGoals?.[0],
+        practiceSituationId: input.coachInput.practiceSituation?.id,
+        practiceSituationName: input.coachInput.practiceSituation?.name,
+        learningStage: input.coachInput.learningStage,
+        challengeLevel: input.coachInput.challengeLevel,
+    }
+}
+
+/**
+ * RC1.1: the resolved primary scoring event a scoring text carries, or undefined. Matched on the rule
+ * text, which buildScoringLines places in scoring verbatim. Shared with the output validator; see
+ * planningTrace for why.
+ */
+export function primaryScoringTrace(scoring: string, input: SystemAssemblyInput): ISystemTrace['primaryScoring'] {
+    const directive = input.coachInput.primaryScoring?.find((d) => scoring.includes(d.scoringRule))
+    if (!directive) return undefined
+    return {
+        contextId: directive.contextId,
+        eventKey: directive.eventKey,
+        objectKey: directive.objectKey,
+        scoringRule: directive.scoringRule,
+        realizationCoverage: directive.realizationCoverage,
+        // Carried so compression can keep Setup, Rules and the Objective to this object.
+        setupRequirement: directive.setupRequirement,
+        setupEvidence: directive.setupEvidence,
+        // The condition the event counts under, as Christian authored it: the event says what happened,
+        // the condition says when it counts for this context.
+        qualifyingCondition: directive.qualifyingCondition,
+    }
 }

@@ -5362,6 +5362,15 @@
       "description": "Date on which the workbook schema was formally frozen.",
       "validation_rule": "Valid ISO 8601 date.",
       "introduced_version": "RC1"
+    },
+    {
+      "metadata_key": "scoring_event_vocabulary_scope",
+      "metadata_value": "Used with GA-001 Invasion; no broader ownership claim",
+      "value_type": "TEXT",
+      "required": true,
+      "description": "The controlled scoring_event vocabulary is used with GA-001 Invasion for RC1.1, without an architectural ownership decision. Several events (line crossed, zone entered, gate, target player) may prove reusable beyond invasion games; ownership is formalized only if later sport work shows they are archetype-specific. Christian, 2026-09-13: Primary Scoring Event approval.",
+      "validation_rule": "Must not assign ownership of the scoring_event vocabulary to a Game Archetype.",
+      "introduced_version": "RC1.1"
     }
   ],
   "metadata": {
@@ -5389,6 +5398,7 @@
     "governing_standard": "Representative Performance Context Workbook Standard (RC1)",
     "schema_frozen": true,
     "schema_change_policy": "IMPLEMENTATION_EVIDENCE_REQUIRED",
-    "schema_freeze_date": "2026-09-12"
+    "schema_freeze_date": "2026-09-12",
+    "scoring_event_vocabulary_scope": "Used with GA-001 Invasion; no broader ownership claim"
   }
 }

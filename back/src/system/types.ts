@@ -50,7 +50,12 @@ export type PrimaryScoringDirective = {
     setupRequirement: string
     /** Each inner group needs at least one whole-word match in the generated setup. */
     setupEvidence: string[][]
-    /** The canonical qualifying condition, as authored. Carried for the prompt and trace; never parsed. */
+    /**
+     * The canonical qualifying condition, as authored in the RPC workbook. Never parsed and not sent to
+     * the model: the scoring rule above already states it in coach words, and generation cannot change
+     * that rule. Recorded on each activity's system trace, so an activity shows the condition it was
+     * scored under.
+     */
     qualifyingCondition: string
     /** The realization-coverage entry that supplied the scoring object, when the game form marks none. */
     realizationCoverage: string | null

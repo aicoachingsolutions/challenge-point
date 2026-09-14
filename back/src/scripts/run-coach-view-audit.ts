@@ -17,7 +17,7 @@
  *
  *   It audits the LAST layer, not the first. Compression runs at the route on the persisted
  *   IActivity, so an audit of assembleActivities' output measures a shape no coach ever sees. It
- *   reproduces the route: map to legacy, then compress.
+ *   reproduces the route: map to legacy, validate, then compress.
  *
  *   It passes the REAL per-slot modifier lines. Passing [] here once produced a confident, wrong
  *   claim that all three activities had identical rules.
@@ -42,7 +42,7 @@ import {
 import { toCoachingObjective, type ObjectiveSource } from '../system/activity/coach-facing-sections'
 import { translateCoachLanguage } from '../system/activity/coach-language'
 import { compressActivitiesForCoach } from '../system/activity/compress-activity-output'
-import { mapStructuredActivityToLegacy } from '../system/activity/map-structured-activity-to-legacy'
+import { validateGeneratedActivities } from '../system/validate-generated-activity'
 import { getSlotMechanicalVariations } from '../system/activity/slot-mechanics-variations'
 import { testLibraryArchetypeToSystemDefinition } from '../system/activity/resolve-test-library-archetype'
 import { buildConstraintPackage } from '../system/build-constraint-package'
@@ -264,7 +264,10 @@ async function main() {
 
         // Reproduce the route exactly: map to the persisted shape, then compress with the same
         // per-slot modifier lines production passes. Passing [] here once produced a false claim.
-        const legacy = assembled.structuredActivities.map((a) => mapStructuredActivityToLegacy(a, assemblyInput))
+        // THROUGH THE OUTPUT VALIDATOR, as the route does. This harness used to compress the mapper's
+        // output directly. The validator rebuilds each activity from an allowlist and was dropping the
+        // resolved scoring event, so six runs on 13 Sep read correct activities the live app never showed.
+        const legacy = validateGeneratedActivities(assembled, assemblyInput)
         const perSlotModifierLines = ([1, 2, 3] as const).map((idx) =>
             getSlotMechanicalVariations(assemblyInput.session.sessionEmphasis, idx).map((m) => m.mechanicLine)
         )
