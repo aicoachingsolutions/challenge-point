@@ -33,7 +33,7 @@ import { ConstraintRoles } from '../models/constraint.model'
 import type { IAffordance } from '../models/affordance.model'
 import type { IConstraint } from '../models/constraint.model'
 import type { ISession } from '../models/session.model'
-import { SessionStatus } from '../models/session.model'
+import Session, { SessionStatus } from '../models/session.model'
 import { assembleActivities } from '../services/completion.service'
 import {
     applyStandardToRequiredSection,
@@ -164,9 +164,21 @@ function buildArchetypeSelection(archetype: ArchetypeDefinition): ArchetypeSelec
     }
 }
 
+/**
+ * THROUGH THE REAL SESSION MODEL, so schema defaults apply exactly as they do to a coach's session.
+ * A hand-written literal skipped them: the schema filled every live session's emphasis with 'applying'
+ * while this harness left it unset, so every run here tested a different variation profile from the one
+ * coaches got. SESSION_EMPHASIS sets an explicit choice, as a coach's session would carry one.
+ */
 function buildMockSession(): ISession {
     const d = new Date()
+    const modelled = new Session({
+        name: 'CCS coach view',
+        sessionStatus: SessionStatus['In Progress'],
+        ...(process.env.SESSION_EMPHASIS ? { sessionEmphasis: process.env.SESSION_EMPHASIS } : {}),
+    }).toObject() as unknown as ISession
     return {
+        ...modelled,
         _id: 'ccs-coach-view-session',
         createdBy: 'ccs-coach-view' as unknown as ISession['createdBy'],
         name: 'CCS coach view',

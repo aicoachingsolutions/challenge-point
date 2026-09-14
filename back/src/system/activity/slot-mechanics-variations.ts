@@ -39,7 +39,7 @@ import { SessionEmphasis } from '../../models/session.model'
  * fails build if any modifier line contains comparative-to-other-slots language.
  */
 
-import type { EnvironmentalAxis } from './emphasis-variation-profile'
+import { resolveSessionEmphasis, type EnvironmentalAxis } from './emphasis-variation-profile'
 
 export type ValueLandscapeBandwidth = 'wide' | 'narrow'
 
@@ -250,8 +250,8 @@ export function getSlotMechanicalVariations(
     emphasis: SessionEmphasis | undefined | null,
     index: 1 | 2 | 3
 ): ValueLandscapeModifier[] {
-    // See getEmphasisVariationProfile for why an unset emphasis differentiates rather than repeats.
-    const resolved = emphasis ?? SessionEmphasis['Discovering Solutions']
+    // See resolveSessionEmphasis for why an unset emphasis differentiates rather than repeats.
+    const resolved = resolveSessionEmphasis(emphasis)
 
     /**
      * EVERY SLOT CARRIES A RULE-PLACEMENT MODIFIER. This is the fix for Christian's 30 Aug finding

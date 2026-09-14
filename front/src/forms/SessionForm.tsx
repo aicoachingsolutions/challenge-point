@@ -140,8 +140,10 @@ const SessionForm: React.FC<{}> = () => {
                                           * activities on purpose. The engine's default for an unset
                                           * emphasis is the differentiated profile, so every session
                                           * created here has been opted into the narrow one without
-                                          * the coach choosing it. Omitting the field means sessions
-                                          * now get the differentiated default.
+                                          * the coach choosing it. Omitting the field was meant to give
+                                          * sessions the differentiated default. It only did from 14 Sep:
+                                          * until then the back-end session schema filled in 'applying'
+                                          * itself, on every session.
                                           */}
                                     </div>
                                 </div>

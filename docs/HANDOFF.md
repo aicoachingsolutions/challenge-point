@@ -1854,3 +1854,39 @@ changes, and to hold the Counterattack 6–10 second window until then.
 - Not changed yet: it would alter what Christian is evaluating, so it needs Joe's decision.
 
 No knowledge or code changed. Counterattack window held at Christian's request.
+
+### 2026-09-14 — Session emphasis fixed: an unchosen emphasis now runs the differentiated profile
+
+**Decision.** Christian's 14 Aug decision stands. A session nobody chose an emphasis for runs the
+differentiated Discovering profile, and an explicit choice is honoured. The defect was in the
+implementation: three places answered "which emphasis?", and the schema's answer won.
+
+**Changes:**
+- `resolveSessionEmphasis` (`emphasis-variation-profile.ts`) is the only resolver. The profile, slot
+  directives, slot modifiers and assembly prompt all use it.
+- The prompt's session block moved into `sessionEmphasisPromptBlock`. In `completion.service.ts` it had
+  its own 'applying' fallback and told the model "Coach selected emphasis"; it now says "Session
+  emphasis".
+- The Session schema has no default for `sessionEmphasis`.
+- The harness builds its session through the real Session model. `SESSION_EMPHASIS` sets an explicit
+  choice.
+- `session-emphasis.unit.ts` follows the real model (new and hydrated) through the resolver to the
+  profile, directives, modifiers and prompt. Bite-proved: restoring the schema default fails it.
+- `scripts/unset-defaulted-session-emphasis.ts` is a dry run by default. `--apply` unsets 'applying' on
+  sessions created on or after 2026-08-29, when the form stopped offering a choice. Earlier sessions
+  are left alone, and `--since` overrides the cutoff. **Not run: it needs the production database.**
+- Stale comments corrected in the schema, skeleton, profile, slot-variation test, SessionPage and
+  SessionForm.
+
+**Verified:**
+- Back-end and front-end tsc pass; 48 suites; ratchet 35; gate `70 68 98 119 94 99 86`.
+- Real Play Out from the Back through the model-built session gave three distinct activities, where the
+  Applying run gave three near-copies:
+  - Central Corridor (spatial, with zone values);
+  - Live Transition (a transition rule);
+  - Numerical Overload (overload values).
+- Slot 3's setup named "the team with the overload" without stating the numbers. That is a model
+  omission, not caused by the fix.
+
+**Still to do:** once this reaches the app, run the cleanup script against production (dry run first).
+Until then, existing sessions keep 'applying'; new sessions are correct.

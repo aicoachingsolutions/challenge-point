@@ -1,4 +1,4 @@
-import { SessionEmphasis } from '../../models/session.model'
+import { SESSION_EMPHASIS_LABELS, SessionEmphasis } from '../../models/session.model'
 
 /**
  * Environmental Variation Profile (Phase 3 of the Session Emphasis & Environmental
@@ -136,11 +136,6 @@ const PROFILES: Record<SessionEmphasis, EmphasisVariationProfile> = {
 }
 
 /**
- * Returns the variation profile for the given session emphasis. Sessions without a stored
- * emphasis default to 'applying' (Christian's MVP2 decision: closest to pre-emphasis output
- * structure, minimizes migration inconsistency for existing sessions).
- */
-/**
  * WHAT AN UNSET EMPHASIS MEANS, and why the default changed.
  *
  * The narrow ('applying') profile deliberately produces three near-identical activities — "three
@@ -159,18 +154,53 @@ const PROFILES: Record<SessionEmphasis, EmphasisVariationProfile> = {
  * nobody has chosen, and the newer one governs how a single intention becomes multiple experiences.
  */
 export function getEmphasisVariationProfile(emphasis: SessionEmphasis | undefined | null): EmphasisVariationProfile {
-    const resolved = emphasis ?? SessionEmphasis['Discovering Solutions']
-    return PROFILES[resolved] ?? APPLYING_PROFILE
+    return PROFILES[resolveSessionEmphasis(emphasis)]
+}
+
+/**
+ * THE ONE ANSWER to "which emphasis does this session run?". Every consumer asks here.
+ *
+ * Found 14 Sep, while tracing why three activities read as one: the answer lived in three places, and
+ * they disagreed.
+ * - The session schema filled 'applying' on every session, new or stored.
+ * - The assembly prompt fell back to 'applying' on its own.
+ * - The slot directives and modifiers fell back to 'discovering'.
+ * So the 14 Aug decision (a session nobody chose an emphasis for gets the differentiated profile) never
+ * reached a coach. Removing the form's control on 29 Aug did not change it either, and every live
+ * session ran the narrow profile, whose three activities are near-identical by design.
+ *
+ * An explicit, valid choice is honoured. Anything else, absent or unrecognised, is Discovering: a value
+ * nobody chose must never narrow the three activities silently.
+ */
+export function resolveSessionEmphasis(emphasis: unknown): SessionEmphasis {
+    return (Object.values(SessionEmphasis) as unknown[]).includes(emphasis)
+        ? (emphasis as SessionEmphasis)
+        : SessionEmphasis['Discovering Solutions']
+}
+
+/**
+ * The session-level frame for the assembly prompt: the emphasis and its bandwidth rule, resolved
+ * exactly as the per-slot directives are, so the model never receives a narrow session frame over
+ * differentiated slots. Says "Session emphasis" rather than "Coach selected": usually nobody selected
+ * one.
+ */
+export function sessionEmphasisPromptBlock(emphasis: unknown): string {
+    const resolved = resolveSessionEmphasis(emphasis)
+    const meta = SESSION_EMPHASIS_LABELS[resolved]
+    const profile = PROFILES[resolved]
+    return `SESSION EMPHASIS CONTEXT
+- Session emphasis: ${meta.label}.
+- Meaning: ${meta.description}
+- This is environmental intention, not a skill level or difficulty setting. Do NOT use this label to imply beginner-to-advanced progression in any coach-facing field.
+- Variation bandwidth for this emphasis: ${profile.bandwidthSummary}
+- Bandwidth rule: ${profile.bandwidthRule}
+`
 }
 
 /**
  * Returns the per-slot variation spec for the given session emphasis and 1-based slot index.
  *
- * Defaults to DISCOVERING when emphasis is undefined, via getEmphasisVariationProfile — this line
- * used to claim 'applying', which was the opposite of what the code does. Worth stating precisely,
- * because there are two other answers to the same question in the product: the session page shows
- * "Applying Solutions Under Pressure" for a session that has no emphasis stored, and the engine
- * generates that session with the differentiated Discovering profile.
+ * Resolved through resolveSessionEmphasis, like every other consumer of the emphasis.
  */
 export function getSlotVariationSpec(
     emphasis: SessionEmphasis | undefined | null,

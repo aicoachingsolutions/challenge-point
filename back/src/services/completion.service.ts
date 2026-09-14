@@ -3,8 +3,7 @@ import { IActivity } from 'src/models/activity.model'
 import { IAffordance } from 'src/models/affordance.model'
 import { IConstraint } from 'src/models/constraint.model'
 import { ICategory } from 'src/models/category.model'
-import { SESSION_EMPHASIS_LABELS, SessionEmphasis } from 'src/models/session.model'
-import { getEmphasisVariationProfile } from '../system/activity/emphasis-variation-profile'
+import { sessionEmphasisPromptBlock } from '../system/activity/emphasis-variation-profile'
 
 import LoggingService, { LoggingOptions } from '../services/logging.service'
 import type { Activity } from '../system/activity/activity-schema'
@@ -1051,21 +1050,11 @@ Diversity across the three activities (required):
 }
 
 function generateAssemblyPolishPrompt(input: SystemAssemblyInput) {
-    // Phase 3 emphasis-aware threading: surface the chosen session emphasis AND the
-    // bandwidth rule that prescribes how much the three activities should differ from one
-    // another under that emphasis. The skeleton block (built upstream from the same emphasis)
-    // already carries per-slot directives; this block establishes the session-level frame.
-    // Existing sessions without the field default to 'applying' per Christian's MVP2 decision.
-    const emphasisValue = input.session?.sessionEmphasis ?? SessionEmphasis['Applying Solutions Under Pressure']
-    const emphasisMeta = SESSION_EMPHASIS_LABELS[emphasisValue]
-    const emphasisProfile = getEmphasisVariationProfile(emphasisValue)
-    const sessionEmphasisBlock = `SESSION EMPHASIS CONTEXT
-- Coach selected emphasis: ${emphasisMeta.label}.
-- Meaning: ${emphasisMeta.description}
-- This is environmental intention, not a skill level or difficulty setting. Do NOT use this label to imply beginner-to-advanced progression in any coach-facing field.
-- Variation bandwidth for this emphasis: ${emphasisProfile.bandwidthSummary}
-- Bandwidth rule: ${emphasisProfile.bandwidthRule}
-`
+    // Phase 3 emphasis-aware threading: the session-level frame (emphasis and bandwidth rule), from the
+    // SAME resolver the per-slot directives use. This line used to fall back to 'applying' on its own
+    // while the slots fell back to 'discovering', so a session without an emphasis sent the model a
+    // narrow session frame over differentiated slot directives. See resolveSessionEmphasis.
+    const sessionEmphasisBlock = sessionEmphasisPromptBlock(input.session?.sessionEmphasis)
 
     // WORKSTREAM 1 follow-up — defensive polish emphasis. When the selected affordances are
     // defensive (Space Protection / Recovery / Delay or Deny / Regain), the polish layer was

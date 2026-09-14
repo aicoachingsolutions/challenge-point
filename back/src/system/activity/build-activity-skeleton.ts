@@ -1051,9 +1051,8 @@ export function buildActivitySkeleton(input: SystemAssemblyInput): ActivitySkele
     const requiredArchetypeMechanics = archetypeMechanics(archetypeName)
     const coachFacingConstraints = buildCoachFacingConstraints(input)
 
-    // Phase 3: read session emphasis once. Undefined / missing values default to 'applying'
-    // inside getEmphasisVariationProfile (Christian's MVP2 decision for existing sessions
-    // without the stored field).
+    // Phase 3: read session emphasis once. An absent value runs the differentiated Discovering profile;
+    // every consumer resolves it through resolveSessionEmphasis.
     const sessionEmphasis = input.session?.sessionEmphasis
 
     const slots: ActivitySkeletonSlot[] = ([1, 2, 3] as const).map((idx) => {
