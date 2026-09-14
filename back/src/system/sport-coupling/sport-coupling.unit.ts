@@ -60,6 +60,10 @@ const SPORT_LAYER_FILES = [
     // identity layer by design — "Representative Performance Contexts occupy the sport-specific
     // reasoning layer" — so it lives beside the Soccer Module and resolves against its game forms.
     'system/sport-module/rpc-library.ts',
+    // Primary scoring event resolution (RC1.1). Holds the coach's How to Score wording for each soccer
+    // context — goals, goalkeepers, pressing — so it is sport-specific by design, and it is the reason
+    // the universal activity layer can consume a resolved event without knowing any sport.
+    'system/sport-module/primary-scoring.ts',
 ]
 
 const SPORT_TERMS = [

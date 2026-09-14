@@ -108,6 +108,11 @@ export interface TestLibraryV0Archetype {
 
 export interface TestLibrarySelectionInput {
     learningGoals: string[]
+    /**
+     * Set only by the guided planning conversation. This is an id, not coach text; it is carried
+     * for context routing traceability and must not influence selection yet.
+     */
+    learningGoalId?: string
     sport?: string
     sessionDescription?: string
     challengeLevel?: string
@@ -169,6 +174,11 @@ export interface TestLibrarySelectionResult {
     resolution: SelectionResolution
     selectionTrace: {
         queryCorpus: string
+        planning?: {
+            learningGoalId: string
+            /** Session Planning Model "RPC Routing" for this goal. Trace only - no selection influence yet. */
+            routedRpcId: string | null
+        }
         /**
          * RAS RC1 Stage-3 SHADOW artifact: the Resolved Affordance Target Profile for this decision
          * (canonical Game Problems + merged affordance-target ratings from the versioned Affordance

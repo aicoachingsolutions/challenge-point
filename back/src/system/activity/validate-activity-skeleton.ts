@@ -1,3 +1,4 @@
+import type { PrimaryScoringDirective } from '../types'
 import type { Activity } from './activity-schema'
 import type { ActivitySkeletonBundle, ActivitySkeletonSlot } from './build-activity-skeleton'
 import { normalizeText, tokenize } from '../text'
@@ -24,6 +25,65 @@ const CONSEQUENCE_INDICATORS =
 
 function escapeRegExp(s: string): string {
     return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+/**
+ * Whether the setup uses this word for the marked object itself, as a WHOLE WORD. A word naming the
+ * object in passing does not mark it. Real output, 13 Sep: all three Finishing setups satisfied "goal"
+ * with "Restart with a goal kick" or "after a goal", marked no goals, and left a coach with a finishing
+ * game and nothing to finish into. Pitch markings ("end line", "halfway line") are not a marked line.
+ */
+function marksWithWord(setup: string, word: string): boolean {
+    const w = escapeRegExp(word)
+    const inPassing = new RegExp(
+        `\\bafter\\s+(?:a|an|each|every|the)\\s+${w}\\b|\\b${w}\\s+(?:is|was|are|were)\\s+scored\\b|\\b${w}\\s+(?:kicks?|lines?)\\b|\\b(?:end|goal|touch|half|halfway|side)\\s+${w}\\b`,
+        'gi'
+    )
+    return new RegExp(`\\b${w}\\b`, 'i').test(setup.replace(inPassing, ' '))
+}
+
+/** Whether a setup marks the resolved scoring object: every evidence group is used for the object itself. */
+export function setupMarksScoringObject(
+    setup: string,
+    directive: Pick<PrimaryScoringDirective, 'setupEvidence' | 'setupRequirement'>
+): boolean {
+    return directive.setupEvidence.every((group) => group.some((word) => marksWithWord(setup, word)))
+}
+
+/**
+ * The setup, guaranteed to carry what the scoring rule needs.
+ *
+ * DETERMINISTIC BEFORE GENERATIVE, as with player format and playing area. Measured 13 Sep: 12 of 13
+ * guided assemblies retried, and every first-attempt failure was the same one: the model described its
+ * own layout without naming the required object ("end zones" where scoring said "finishing zone"),
+ * then complied once the retry quoted the requirement back. A retry doubles what a coach waits for,
+ * to recover a sentence the system already knows. So the system writes it when the model does not.
+ * The validator keeps checking afterwards, as a guard on this path rather than the only line of defence.
+ *
+ * SENTENCE BY SENTENCE. A sentence naming the object is satisfied when the setup marks that object in
+ * its own words. A sentence naming no object (the Counterattack countdown, the Counter-Press count)
+ * cannot be recognised in other words, so it must appear as written. Found in real output: the model
+ * wrote "Each team defends a goal" and skipped "pick a countdown", so Scoring said "before the
+ * countdown ends" and nothing said what the countdown was.
+ */
+export function withScoringObjectInSetup(
+    setup: string,
+    directive: Pick<PrimaryScoringDirective, 'setupEvidence' | 'setupRequirement'> | undefined
+): string {
+    if (!directive) return setup
+    const flatten = (value: string) => value.toLowerCase().replace(/\s+/g, ' ').trim()
+    let next = setup.trim()
+    for (const sentence of directive.setupRequirement.split(/(?<=[.!?])\s+/).filter(Boolean)) {
+        if (flatten(next).includes(flatten(sentence))) continue
+        const namedGroups = directive.setupEvidence.filter((group) =>
+            group.some((word) => new RegExp(`\\b${escapeRegExp(word)}\\b`, 'i').test(sentence))
+        )
+        const marked = namedGroups.length > 0 && namedGroups.every((group) => group.some((word) => marksWithWord(next, word)))
+        if (marked) continue
+        const joiner = next === '' || /[.!?]$/.test(next) ? ' ' : '. '
+        next = `${next}${joiner}${sentence}`.trim()
+    }
+    return next
 }
 
 /** When long archetype bullets are paraphrased, still require archetype-specific vocabulary from the game form name. */
@@ -115,6 +175,13 @@ export function validateActivityAgainstSkeleton(
     const scoringRules = joinScoringAndRules(activity)
     const reasons: string[] = []
     const prefix = `Activity ${activityIndex} missing skeleton mechanic:`
+
+    // RC1.1 PRIMARY SCORING: the event was chosen before generation, so the setup must make it
+    // physically possible. Each evidence group needs one WHOLE-WORD match, so a word merely containing
+    // the object's name does not count, and a playing "area" is not a marked zone.
+    if (slot.primaryScoring && !setupMarksScoringObject(activity.setup ?? '', slot.primaryScoring)) {
+        reasons.push(`${prefix} the setup must mark what this activity scores on: ${slot.primaryScoring.setupRequirement}`)
+    }
 
     const archeOk =
         slot.requiredArchetypeMechanics.some((m) => matchesMechanicRequirement(bundle, m)) ||

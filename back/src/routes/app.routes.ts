@@ -47,7 +47,10 @@ import { recordUsageEvent, summarizeUsage } from '../services/usage-telemetry.se
 import { generateSelection, getTestLibraryV0LoadDebug, systemAssemblyInputFromTestLibrarySelection } from '../system/test-library'
 import { ENDPOINTS } from './_endpoints'
 import BaseRoutes from './helper'
-import { ActivityAssemblyRequest, SystemAssemblyInput, SystemPipelineError } from '../system/types'
+import { ActivityAssemblyRequest, PrimaryScoringDirective, SystemAssemblyInput, SystemPipelineError } from '../system/types'
+import { gateCandidateGameFormsToContext } from '../system/sport-module/context-selection'
+import { resolvePrimaryScoringDirectives } from '../system/sport-module/primary-scoring'
+import { rpcLibrary } from '../system/sport-module/rpc-library'
 import { validateConstraintPackage } from '../system/validate-constraint-package'
 import { validateGeneratedActivities } from '../system/validate-generated-activity'
 
@@ -775,14 +778,31 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         const goalText = learningGoals.join(' ')
         const inputConstraints = deriveInputConstraints(goalText)
 
+        // RC1.1 — A GUIDED GOAL SELECTS WITHIN ITS CONTEXT, AND SCORES ON ITS CONTEXT'S EVENT.
+        // Only once the RPC library is ACTIVE (Christian made ACTIVE conditional on these changes being
+        // reflected and validation passing), and only for a goal the coach picked in the guided
+        // conversation: a context is never inferred from free-text wording, so free text is unchanged.
+        // See sport-module/context-selection.ts for why gating is required before primary scoring can
+        // resolve — ungated, Create Scoring Chances landed on a game form with no valid event.
+        const guidedGoalId = planning?.learningGoalId
+        const routedRpcId =
+            guidedGoalId && rpcLibrary.runtimeStatus === 'ACTIVE'
+                ? (sessionPlanningModel.rpcRouting().find((route) => route.learningGoalId === guidedGoalId)?.rpcId ?? null)
+                : null
+
         // A KNOWN gap is answered differently from an unrecognised phrase, even when the parser DID
         // match something. A Learning Goal like "Play Out from the Back" reaches only the general
         // fallback, so it would otherwise proceed and produce a generic activity that does not
         // address what was asked — worse than a refusal, because the coach cannot tell it went wrong.
+        //
+        // NOT A GAP ONCE THE GOAL ROUTES TO A CONTEXT. Picked in the guided conversation, "Play Out from
+        // the Back" selects within Goalkeeper Build-Out and scores on that context's event, so the
+        // activity addresses exactly what was asked. The refusal stays for the same words typed as free
+        // text, where no context is inferred.
         const reachedOnlyFallback = inputConstraints.matchedSignals.every(
             (signal) => !signal.startsWith('signalGroup:') || signal === 'signalGroup:Z_soccer_general'
         )
-        const knownGap = reachedOnlyFallback && isKnownUnsupportedGoal(goalText)
+        const knownGap = !routedRpcId && reachedOnlyFallback && isKnownUnsupportedGoal(goalText)
 
         if (inputConstraints.matchedSignals.length === 0 || knownGap) {
             // MVP field evidence: rejected goals ARE the vocabulary-gap dataset. A known gap is
@@ -849,6 +869,8 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
             },
         })
 
+        const selectionHints = routedRpcId ? gateCandidateGameFormsToContext(inputConstraints, routedRpcId) : inputConstraints
+
         let selection
         try {
             Logger.info(`[Activity Generation] coach learning goals (original): ${JSON.stringify(learningGoals)}`)
@@ -856,8 +878,9 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                 {
                     learningGoals,
                     challengeLevel,
+                    learningGoalId: planning?.learningGoalId,
                 },
-                inputConstraints
+                selectionHints
             )
         } catch (selErr) {
             const message = selErr instanceof Error ? selErr.message : String(selErr)
@@ -868,6 +891,28 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                 payload: { stage: 'selection', reason: message.slice(0, 300) },
             })
             return res.status(400).json({ error: message })
+        }
+
+        // The primary scoring event is resolved BEFORE any activity text exists. An empty intersection
+        // is refused rather than guessed: "Validation should fail rather than infer if the selected
+        // realization cannot produce a valid event for the active Context."
+        let primaryScoring: PrimaryScoringDirective[] | undefined
+        if (routedRpcId) {
+            try {
+                primaryScoring = resolvePrimaryScoringDirectives(routedRpcId, selection.archetype.game_form_id)
+            } catch (scoringErr) {
+                const message = scoringErr instanceof Error ? scoringErr.message : String(scoringErr)
+                Logger.warn(`[Activity Generation] Primary scoring unresolved: ${message}`)
+                recordUsageEvent({
+                    eventType: 'generation_failed',
+                    sessionId: req.params.id,
+                    payload: { stage: 'primary-scoring', reason: message.slice(0, 300) },
+                })
+                return res.status(400).json({
+                    error: 'We could not build an activity with a clear way to score for this goal. Please try again, or choose a different goal.',
+                    ...(debug ? { stage: 'primary-scoring', details: [message] } : {}),
+                })
+            }
         }
 
         {
@@ -881,6 +926,10 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                     archetype: selection.archetype.game_form_name,
                     affordanceLenses: selection.affordanceLenses.map((l) => l.title),
                     constraints: selection.constraints.map((c) => c.title),
+                    learningGoalId: selection.selectionTrace.planning?.learningGoalId ?? null,
+                    routedRpcId: selection.selectionTrace.planning?.routedRpcId ?? null,
+                    gatedToContext: routedRpcId,
+                    primaryScoringEvents: primaryScoring ? primaryScoring.map((directive) => directive.eventKey) : null,
                     shadowAtpPrimary: atp?.primaryGameProblem ?? null,
                     versions: selection.selectionTrace.versions ?? null,
                 },
@@ -932,6 +981,8 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                 // the canonical source on every request.
                 practiceSituation: resolvePracticeSituation(planning?.practiceSituationId),
                 learningGoalId: planning?.learningGoalId,
+                // RC1.1 — one resolved primary scoring event per activity slot; absent for free text.
+                primaryScoring,
             },
         })
 

@@ -130,6 +130,23 @@ export function mapStructuredActivityToLegacy(activity: Activity, input: SystemA
                 learningStage: input.coachInput.learningStage,
                 challengeLevel: input.coachInput.challengeLevel,
             },
+            // RC1.1 — which resolved primary scoring event this activity scores on. Matched on the rule
+            // text, which buildScoringLines placed in scoring verbatim; compression pins it from here.
+            primaryScoring: (() => {
+                const directive = input.coachInput.primaryScoring?.find((d) => activity.scoring.includes(d.scoringRule))
+                return directive
+                    ? {
+                          contextId: directive.contextId,
+                          eventKey: directive.eventKey,
+                          objectKey: directive.objectKey,
+                          scoringRule: directive.scoringRule,
+                          realizationCoverage: directive.realizationCoverage,
+                          // Carried so compression can keep Setup, Rules and the Objective to this object.
+                          setupRequirement: directive.setupRequirement,
+                          setupEvidence: directive.setupEvidence,
+                      }
+                    : undefined
+            })(),
         },
         createdAt: now,
         updatedAt: now,

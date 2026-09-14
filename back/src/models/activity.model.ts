@@ -65,6 +65,17 @@ export interface ISystemTrace {
         learningStage?: string
         challengeLevel?: string
     }
+    /** RC1.1 primary scoring event this activity scores on. Absent for free-text goals. */
+    primaryScoring?: {
+        contextId: string
+        eventKey: string
+        objectKey: string | null
+        scoringRule: string
+        realizationCoverage: string | null
+        /** What the setup must mark, and the whole-word names of that object. */
+        setupRequirement?: string
+        setupEvidence?: string[][]
+    }
 }
 
 export interface IActivity {

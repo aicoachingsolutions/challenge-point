@@ -1,6 +1,7 @@
 import type { InputConstraintHints } from '../input-constraints/deriveInputConstraints'
 import { resolveAffordanceTargetProfile } from '../knowledge-core/affordance-target-matrix'
 import { emCanonical } from '../knowledge-core/em-canonical'
+import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { testLibraryRegistry } from './library/registry'
 import { normalizeCoachingInput } from './normalizeCoachingInput'
 import { isSelectionPackageCompatible } from './selection-compatibility'
@@ -695,6 +696,17 @@ export function generateSelection(
 
     assertCoachGoalsAllowedForTestLibrary(input)
 
+    const planning = input.learningGoalId
+        ? (() => {
+              const goal = sessionPlanningModel.learningGoal(input.learningGoalId!)
+              if (!goal) {
+                  throw new Error(['Unknown learningGoalId', input.learningGoalId, 'in Test Library selection input.'].join(' '))
+              }
+              const route = sessionPlanningModel.rpcRouting().find((r) => r.learningGoalId === input.learningGoalId)
+              return { learningGoalId: input.learningGoalId, routedRpcId: route?.rpcId ?? null }
+          })()
+        : undefined
+
     const selectionCorpusInput: TestLibrarySelectionInput = {
         ...input,
         learningGoals: input.learningGoals.map((g) => normalizeCoachingInput(g)),
@@ -899,6 +911,7 @@ export function generateSelection(
         resolution,
         selectionTrace: {
             queryCorpus,
+            ...(planning ? { planning } : {}),
             // RAS RC1 Stage 3, SHADOW MODE: resolved for inspection only — no selection influence.
             affordanceTargetProfile: resolveAffordanceTargetProfile(inputConstraints?.matchedSignals ?? []),
             versions: { knowledgeCore: emCanonical.version, reasoningEngine: 'test-library-v0+ras-rc1-shadow' },
