@@ -75,6 +75,8 @@ export interface ISystemTrace {
         /** What the setup must mark, and the whole-word names of that object. */
         setupRequirement?: string
         setupEvidence?: string[][]
+        /** The context's qualifying condition, as authored in the RPC workbook. */
+        qualifyingCondition?: string
     }
 }
 

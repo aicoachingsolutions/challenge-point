@@ -151,6 +151,11 @@ function testPrimaryScoringMatchesTheApproval(): void {
     }
     assert.ok(rpcLibrary.primaryScoringCondition('RPC-007').includes('5-second'), 'Counter-Press keeps the existing 5-second window.')
     assert.ok(!/\d+\s*(?:-|to)\s*\d+\s*second/i.test(rpcLibrary.primaryScoringCondition('RPC-008')), 'Attack Prevention has no fixed window.')
+
+    // "a controlled scoring-event vocabulary used by the Invasion archetype, without yet making a broader
+    // architectural ownership claim." Recorded in the workbook's Metadata, not only in a script comment.
+    const scope = String(REAL.metadata['scoring_event_vocabulary_scope'] ?? '')
+    assert.ok(scope.includes('GA-001') && /no broader ownership claim/i.test(scope), `vocabulary scope: "${scope}"`)
 }
 
 // ---- the gate must be able to fail ---------------------------------------------------------------

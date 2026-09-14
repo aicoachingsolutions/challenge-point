@@ -30,7 +30,7 @@ import { mapStructuredActivityToLegacy } from './map-structured-activity-to-lega
 import { deriveInputConstraints } from '../input-constraints/deriveInputConstraints'
 import { generateSelection, systemAssemblyInputFromTestLibrarySelection } from '../test-library'
 import { validateGeneratedActivities } from '../validate-generated-activity'
-import type { SystemAssemblyInput } from '../types'
+import type { PrimaryScoringDirective, SystemAssemblyInput } from '../types'
 import type { Activity } from './activity-schema'
 import type { IActivity } from '../../models/activity.model'
 import type { ISession } from '../../models/session.model'
@@ -164,8 +164,53 @@ function testValidatorPreservesCoachFacingFields(): void {
     }
 }
 
+/**
+ * THE SYSTEM TRACE SURVIVES VALIDATION. The validator rebuilt systemTrace without the resolved primary
+ * scoring event and the planning decisions, and the route compresses what the validator returns. So in
+ * the live app compression never saw the event: the scoring rule was not pinned and Setup, Rules and the
+ * Objective were not kept to its object. The generation harness skipped the validator and hid it for six
+ * real runs. What the mapper records, the validated activity must still carry.
+ */
+function testSystemTraceSurvivesValidation(): void {
+    const input = buildAssemblyInput(GOALS[1])
+    const directive: PrimaryScoringDirective = {
+        contextId: 'RPC-CONTRACT',
+        contextName: 'Contract test context',
+        eventKey: 'target_zone_entered',
+        objectKey: null,
+        // The synthetic activity's own first scoring line, as buildScoringLines would place the rule.
+        scoringRule: 'One point for a controlled entry into the far target zone.',
+        setupRequirement: 'Mark a target zone at each end.',
+        setupEvidence: [['target zone', 'target zones']],
+        qualifyingCondition: 'Entered with the ball under control, against live opposition.',
+        realizationCoverage: null,
+    }
+    const guided: SystemAssemblyInput = {
+        ...input,
+        coachInput: { ...input.coachInput, learningGoalId: 'A-CONTRACT', primaryScoring: [directive, directive, directive] },
+    }
+    const mapped = [0, 1, 2].map((index) => mapStructuredActivityToLegacy(syntheticActivity(index), guided))
+    assert.equal(mapped[0]!.systemTrace?.primaryScoring?.qualifyingCondition, directive.qualifyingCondition, 'the mapper records the condition')
+
+    const validated = validateGeneratedActivities({ generatedActivities: mapped }, guided)
+    assert.equal(validated.length, 3)
+    for (const [index, activity] of validated.entries()) {
+        assert.deepEqual(activity.systemTrace?.primaryScoring, mapped[index]!.systemTrace?.primaryScoring, `activity ${index + 1} lost its scoring event`)
+        assert.equal(activity.systemTrace?.primaryScoring?.qualifyingCondition, directive.qualifyingCondition)
+        assert.equal(activity.systemTrace?.planning?.learningGoalId, 'A-CONTRACT', `activity ${index + 1} lost its planning trace`)
+    }
+
+    // A free-text goal resolves no event, and validation must not invent one.
+    const freeText = validateGeneratedActivities(
+        { generatedActivities: [0, 1, 2].map((index) => mapStructuredActivityToLegacy(syntheticActivity(index), input)) },
+        input
+    )
+    for (const activity of freeText) assert.equal(activity.systemTrace?.primaryScoring, undefined)
+}
+
 testMapperOutputSatisfiesValidator()
 testCoachFacingConstraintCarriesNoInternalNames()
 testValidatorPreservesCoachFacingFields()
+testSystemTraceSurvivesValidation()
 
 console.log('assembly-output-contract unit tests: all cases passed.')
