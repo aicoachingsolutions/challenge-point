@@ -56,6 +56,8 @@ import {
     toCoachingObjective,
 } from './coach-facing-sections'
 import { toCoachRuleVoice, toCoachScoringSentence } from './coach-voice'
+import { rulesForScoredObject, withoutUnscoredObjects, type ScoredObject } from './scoring-object-consistency'
+import { withScoringObjectInSetup } from './validate-activity-skeleton'
 import {
     isNotAWayToEarnPoints,
     leadWithClearestScoringSentence,
@@ -422,11 +424,26 @@ export function compressActivityForCoach(activity: IActivity, modifierMechanicLi
     const rulesWithHowToPlay = mergeHowToPlayIntoRules(howToPlayLines, dedupedRules, setupText)
     const routedRules = routeRulesForCoach(rulesWithHowToPlay, modifierMechanicLines)
 
+    // ONE WAY TO SCORE (RC1.1). When the scoring event was resolved before generation, Rules may not
+    // name an object nothing scores on, or state a second way to earn points. Before the cap, so the
+    // cap spends its budget on rules that fit the game. See scoring-object-consistency.ts.
+    const primaryScoring = activity.systemTrace?.primaryScoring
+    const scoredObject: ScoredObject | null = primaryScoring?.setupEvidence
+        ? { eventKey: primaryScoring.eventKey, names: primaryScoring.setupEvidence.flat() }
+        : null
+    const rulesForThisGame = scoredObject
+        ? rulesForScoredObject(
+              routedRules.rules,
+              scoredObject,
+              (line) => line === exchangeRule || containsModifierText(line, modifierMechanicLines)
+          )
+        : routedRules.rules
+
     // Step 3: cap rules. rules[0] is the explicit exchange rule (validator requires it
     // there) — must-keep. Any rule that carries Phase 3.5 modifier text — must-keep.
     // capByDistinctiveness preserves input order, so rules[0] stays at index 0.
     const cappedRules = capByDistinctiveness(
-        routedRules.rules,
+        rulesForThisGame,
         (line) => line === exchangeRule || containsModifierText(line, modifierMechanicLines),
         RULES_CAP,
         (line) => line
@@ -536,15 +553,27 @@ export function compressActivityForCoach(activity: IActivity, modifierMechanicLi
     // the original engine phrasing.
     // Setup answers "how do I organize it?" and nothing else — a scoring method stated here is a
     // second answer to "how do teams score?", and in real output it disagreed with Scoring.
-    const coachSetup =
+    const setupWithoutScoring =
         typeof activity.setup === 'string'
             ? removeScoringFromSetup(applyCoachCommunicationStandard(translateCoachLanguage(activity.setup)))
             : activity.setup
+    // With a resolved scoring event, Setup marks that object and no other. Cleaning can remove the
+    // sentence that marked it (a layout sentence also naming an unscored object), so it is re-ensured.
+    const coachSetup =
+        typeof setupWithoutScoring === 'string' && scoredObject && primaryScoring?.setupRequirement && primaryScoring.setupEvidence
+            ? withScoringObjectInSetup(withoutUnscoredObjects(setupWithoutScoring, scoredObject), {
+                  setupRequirement: primaryScoring.setupRequirement,
+                  setupEvidence: primaryScoring.setupEvidence,
+              })
+            : setupWithoutScoring
 
     // OBJECTIVE — "what are we working on today?" (Christian, 2026-09-10). The Communication Standard
     // removes what must not be said; this then picks the one sentence that names the intention, or
     // falls back to the coach's own goal. See toCoachingObjective for the order and why.
-    const rawObjective = typeof activity.intent === 'string' ? translateCoachLanguage(activity.intent) : ''
+    // An intention naming an object nothing scores on ("…to reach the end zone") is not today's work,
+    // so with a resolved scoring event it is set aside and the coach's own goal names the intention.
+    const translatedObjective = typeof activity.intent === 'string' ? translateCoachLanguage(activity.intent) : ''
+    const rawObjective = scoredObject ? withoutUnscoredObjects(translatedObjective, scoredObject, 'drop') : translatedObjective
     const coachObjective =
         typeof activity.intent === 'string'
             ? toCoachingObjective(

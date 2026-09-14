@@ -22,9 +22,11 @@
  *   * Implementation Staging "is never consumed by runtime reasoning" — it is exposed only so the
  *     library can refuse to claim ACTIVE while unresolved entries remain.
  *
- * NOT WIRED TO SELECTION YET. Same sequencing that worked for the Sport Module and Experience
- * Design: prove the knowledge loads and validates before it changes an activity, so a behaviour
- * change can be attributed to exactly one thing.
+ * WIRED FOR GUIDED GOALS SINCE RC1.1 WENT ACTIVE (13 Sep). Same sequencing that worked for the Sport
+ * Module and Experience Design: the knowledge was proven to load and validate first, then wired. A goal
+ * picked in the guided conversation selects within its routed context (context-selection.ts) and
+ * scores on that context's primary event (primary-scoring.ts). Free-text goals are unchanged: a
+ * context is never inferred from wording.
  */
 import rpcWorkbook from './rpc-library.rc1.json'
 import gameArchetypeWorkbook from '../knowledge-core/game-archetype-workbook.rc1.1.json'
@@ -377,7 +379,11 @@ export const rpcLibrary = {
     schemaVersion: String(WB.metadata['workbook_schema_version'] ?? ''),
     /** The RPC Library release the workbook represents — distinct from the frozen schema version. */
     libraryVersion: String(WB.metadata['rpc_library_version'] ?? ''),
-    /** PROPOSED until every staging entry is resolved; see validateRpcLibraryIntegrity. */
+    /**
+     * ACTIVE since 13 Sep (RC1.1), on Christian's condition that primary scoring was reflected and
+     * validation passed. The live route selects within a context and resolves its scoring event only
+     * while this reads ACTIVE. validateRpcLibraryIntegrity refuses ACTIVE while staging is unresolved.
+     */
     runtimeStatus: String(WB.metadata['runtime_status'] ?? ''),
 
     contexts: (): RepresentativePerformanceContext[] => WB.registry.map(toContext),

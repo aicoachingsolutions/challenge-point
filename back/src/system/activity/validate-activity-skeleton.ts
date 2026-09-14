@@ -27,13 +27,31 @@ function escapeRegExp(s: string): string {
     return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
-/** Whether a setup marks the resolved scoring object: every evidence group has a WHOLE-WORD match. */
-export function setupMarksScoringObject(setup: string, directive: PrimaryScoringDirective): boolean {
-    return directive.setupEvidence.every((group) => group.some((word) => new RegExp(`\\b${escapeRegExp(word)}\\b`, 'i').test(setup)))
+/**
+ * Whether the setup uses this word for the marked object itself, as a WHOLE WORD. A word naming the
+ * object in passing does not mark it. Real output, 13 Sep: all three Finishing setups satisfied "goal"
+ * with "Restart with a goal kick" or "after a goal", marked no goals, and left a coach with a finishing
+ * game and nothing to finish into. Pitch markings ("end line", "halfway line") are not a marked line.
+ */
+function marksWithWord(setup: string, word: string): boolean {
+    const w = escapeRegExp(word)
+    const inPassing = new RegExp(
+        `\\bafter\\s+(?:a|an|each|every|the)\\s+${w}\\b|\\b${w}\\s+(?:is|was|are|were)\\s+scored\\b|\\b${w}\\s+(?:kicks?|lines?)\\b|\\b(?:end|goal|touch|half|halfway|side)\\s+${w}\\b`,
+        'gi'
+    )
+    return new RegExp(`\\b${w}\\b`, 'i').test(setup.replace(inPassing, ' '))
+}
+
+/** Whether a setup marks the resolved scoring object: every evidence group is used for the object itself. */
+export function setupMarksScoringObject(
+    setup: string,
+    directive: Pick<PrimaryScoringDirective, 'setupEvidence' | 'setupRequirement'>
+): boolean {
+    return directive.setupEvidence.every((group) => group.some((word) => marksWithWord(setup, word)))
 }
 
 /**
- * The setup, guaranteed to mark the resolved scoring object.
+ * The setup, guaranteed to carry what the scoring rule needs.
  *
  * DETERMINISTIC BEFORE GENERATIVE, as with player format and playing area. Measured 13 Sep: 12 of 13
  * guided assemblies retried, and every first-attempt failure was the same one: the model described its
@@ -41,12 +59,31 @@ export function setupMarksScoringObject(setup: string, directive: PrimaryScoring
  * then complied once the retry quoted the requirement back. A retry doubles what a coach waits for,
  * to recover a sentence the system already knows. So the system writes it when the model does not.
  * The validator keeps checking afterwards, as a guard on this path rather than the only line of defence.
+ *
+ * SENTENCE BY SENTENCE. A sentence naming the object is satisfied when the setup marks that object in
+ * its own words. A sentence naming no object (the Counterattack countdown, the Counter-Press count)
+ * cannot be recognised in other words, so it must appear as written. Found in real output: the model
+ * wrote "Each team defends a goal" and skipped "pick a countdown", so Scoring said "before the
+ * countdown ends" and nothing said what the countdown was.
  */
-export function withScoringObjectInSetup(setup: string, directive: PrimaryScoringDirective | undefined): string {
-    if (!directive || setupMarksScoringObject(setup, directive)) return setup
-    const trimmed = setup.trim()
-    const joiner = trimmed === '' || /[.!?]$/.test(trimmed) ? ' ' : '. '
-    return `${trimmed}${joiner}${directive.setupRequirement}`.trim()
+export function withScoringObjectInSetup(
+    setup: string,
+    directive: Pick<PrimaryScoringDirective, 'setupEvidence' | 'setupRequirement'> | undefined
+): string {
+    if (!directive) return setup
+    const flatten = (value: string) => value.toLowerCase().replace(/\s+/g, ' ').trim()
+    let next = setup.trim()
+    for (const sentence of directive.setupRequirement.split(/(?<=[.!?])\s+/).filter(Boolean)) {
+        if (flatten(next).includes(flatten(sentence))) continue
+        const namedGroups = directive.setupEvidence.filter((group) =>
+            group.some((word) => new RegExp(`\\b${escapeRegExp(word)}\\b`, 'i').test(sentence))
+        )
+        const marked = namedGroups.length > 0 && namedGroups.every((group) => group.some((word) => marksWithWord(next, word)))
+        if (marked) continue
+        const joiner = next === '' || /[.!?]$/.test(next) ? ' ' : '. '
+        next = `${next}${joiner}${sentence}`.trim()
+    }
+    return next
 }
 
 /** When long archetype bullets are paraphrased, still require archetype-specific vocabulary from the game form name. */

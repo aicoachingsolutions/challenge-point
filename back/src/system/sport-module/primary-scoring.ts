@@ -120,7 +120,8 @@ interface CoachRule {
      *   * timing ("pick a countdown", "count to five") is part of the scoring rule, which the system
      *     writes itself. Demanding it in the setup failed a whole Counterattack assembly twice while
      *     checking nothing a coach has to mark out.
-     * Empty when the event needs no marked object.
+     * Never empty: even the Counter-Press regain, judged on its five-second window, marks an escape line
+     * for the team that won the ball to attack. Without one, real setups fell back on end zones.
      */
     evidence: string[][]
 }
@@ -146,7 +147,7 @@ const PRESS_START = 'The other team presses from the start of every attack.'
 const NOT_FORWARD = 'Passing it around without moving forward never scores.'
 const COUNTDOWN_SETUP = 'Before you start, pick a countdown between 6 and 10 seconds that starts each time a team wins the ball.'
 const COUNTDOWN_START = 'The countdown starts each time your team wins the ball.'
-const COUNT_FIVE = 'When your team loses the ball, count to five out loud.'
+const COUNT_FIVE = 'Count to five out loud as soon as your team loses the ball.'
 
 /**
  * Coach wording per approved context x event, keyed `${rpcId}|${eventKey}|${objectKey}`. The object
@@ -156,48 +157,53 @@ const COUNT_FIVE = 'When your team loses the ball, count to five out loud.'
  * Reorganize Games: the time an attack has before a disrupted defence recovers. No number is
  * canonical for Counterattack, so the coach picks one inside the authored range rather than the
  * engine inventing one. Counter-Press uses the existing 5-second Counter-Press Window, as approved.
+ *
+ * EVERY RULE LEADS WITH HOW THE POINT IS EARNED. Christian: "If I have to reread the Scoring section to
+ * determine how points are earned, it probably isn't clear enough." Real output on 13 Sep opened
+ * Goalkeeper Build-Out's Scoring with "Start each attack from your goalkeeper…" and Counter-Press's
+ * with "When your team loses the ball, count to five…", so the start and the count now follow.
  */
 export const COACH_RULES: Readonly<Record<string, CoachRule>> = {
     // ---- RPC-001 Goalkeeper Build-Out ---------------------------------------------------------------
     'RPC-001|line_crossed|': {
-        rule: `${BUILD_OUT_START} Earn a point when a player dribbles over the line, or receives the ball past it and controls it. A long kick that lands past the line does not count.`,
+        rule: `Earn a point when a player dribbles over the line, or receives the ball past it and controls it. A long kick that lands past the line does not count. ${BUILD_OUT_START}`,
         setup: `Mark a line across the pitch beyond the first defenders. ${BUILD_OUT_START}`,
         evidence: [LINE, GOALKEEPER],
     },
     'RPC-001|target_zone_entered|': {
-        rule: `${BUILD_OUT_START} Earn a point when a player dribbles into the target zone, or receives the ball there and controls it. A long kick into the target zone does not count.`,
+        rule: `Earn a point when a player dribbles into the target zone, or receives the ball there and controls it. A long kick into the target zone does not count. ${BUILD_OUT_START}`,
         setup: `Mark a target zone beyond the first defenders. ${BUILD_OUT_START}`,
         evidence: [TARGET_ZONE, GOALKEEPER],
     },
     'RPC-001|gate|': {
-        rule: `${BUILD_OUT_START} Earn a point when a player passes or dribbles through a gate and your team keeps the ball. A long kick through a gate does not count.`,
+        rule: `Earn a point when a player passes or dribbles through a gate and your team keeps the ball. A long kick through a gate does not count. ${BUILD_OUT_START}`,
         setup: `Set out gates of two cones beyond the first defenders. ${BUILD_OUT_START}`,
         evidence: [GATE, GOALKEEPER],
     },
     'RPC-001|target_player|': {
-        rule: `${BUILD_OUT_START} Earn a point when your target player receives the ball and controls it. A long kick straight to the target player does not count.`,
+        rule: `Earn a point when your target player receives the ball and controls it. A long kick straight to the target player does not count. ${BUILD_OUT_START}`,
         setup: `Place a target player beyond the first defenders. ${BUILD_OUT_START}`,
         evidence: [TARGET, GOALKEEPER],
     },
 
     // ---- RPC-002 High Press Escape ------------------------------------------------------------------
     'RPC-002|line_crossed|': {
-        rule: `${PRESS_START} Earn a point when a player dribbles over the line behind the press, or receives the ball past it and controls it, and your team keeps the ball with the next pass.`,
+        rule: `Earn a point when a player dribbles over the line behind the press, or receives the ball past it and controls it, and your team keeps the ball with the next pass. ${PRESS_START}`,
         setup: `Mark a line behind the pressing players. ${PRESS_START}`,
         evidence: [LINE, PRESS],
     },
     'RPC-002|target_zone_entered|': {
-        rule: `${PRESS_START} Earn a point when a player dribbles into the target zone behind the press, or receives the ball there and controls it, and your team keeps the ball with the next pass.`,
+        rule: `Earn a point when a player dribbles into the target zone behind the press, or receives the ball there and controls it, and your team keeps the ball with the next pass. ${PRESS_START}`,
         setup: `Mark a target zone behind the pressing players. ${PRESS_START}`,
         evidence: [TARGET_ZONE, PRESS],
     },
     'RPC-002|gate|': {
-        rule: `${PRESS_START} Earn a point when a player passes or dribbles through a gate behind the press and your team keeps the ball with the next pass.`,
+        rule: `Earn a point when a player passes or dribbles through a gate behind the press and your team keeps the ball with the next pass. ${PRESS_START}`,
         setup: `Set out gates of two cones behind the pressing players. ${PRESS_START}`,
         evidence: [GATE, PRESS],
     },
     'RPC-002|target_player|': {
-        rule: `${PRESS_START} Earn a point when your target player behind the press receives the ball and controls it, and your team keeps the ball with the next pass.`,
+        rule: `Earn a point when your target player behind the press receives the ball and controls it, and your team keeps the ball with the next pass. ${PRESS_START}`,
         setup: `Place a target player behind the pressing players. ${PRESS_START}`,
         evidence: [TARGET, PRESS],
     },
@@ -244,7 +250,9 @@ export const COACH_RULES: Readonly<Record<string, CoachRule>> = {
     // ---- RPC-005 Finishing --------------------------------------------------------------------------
     'RPC-005|goal|': {
         rule: 'Earn a point for every goal. If you use goalkeepers, they play live on every attempt.',
-        setup: 'Put a goal at each end. Use goalkeepers if you have them.',
+        // Goalkeepers are the rule's to mention. Repeated in Setup, the sentence was appended after
+        // setups that already had a goalkeeper in each goal.
+        setup: 'Put a goal at each end.',
         evidence: [GOAL],
     },
 
@@ -271,18 +279,25 @@ export const COACH_RULES: Readonly<Record<string, CoachRule>> = {
     },
 
     // ---- RPC-007 Counter-Press ----------------------------------------------------------------------
-    'RPC-007|regain|': {
-        rule: `${COUNT_FIVE} Earn a point if you win it back before you reach five.`,
-        setup: 'Every time a team loses the ball, count to five out loud.',
-        evidence: [],
+    // The regain is judged on the five-second window alone, but the team that won the ball still needs
+    // somewhere to attack. Without it, real setups fell back on end zones nothing scored on.
+    'RPC-007|regain|line': {
+        rule: `Earn a point if your team wins the ball back before you reach five. ${COUNT_FIVE}`,
+        setup: 'Mark an escape line across the pitch for each team to attack. Every time a team loses the ball, count to five out loud.',
+        evidence: [ESCAPE_LINE],
+    },
+    'RPC-007|regain|zone': {
+        rule: `Earn a point if your team wins the ball back before you reach five. ${COUNT_FIVE}`,
+        setup: 'Mark a target zone for each team to attack. Every time a team loses the ball, count to five out loud.',
+        evidence: [TARGET_ZONE],
     },
     'RPC-007|denial|line': {
-        rule: `${COUNT_FIVE} Earn a point if the other team has not crossed the escape line when you reach five.`,
+        rule: `Earn a point if the other team has not crossed the escape line when you reach five. ${COUNT_FIVE}`,
         setup: 'Mark an escape line across the pitch for each team. Every time a team loses the ball, count to five out loud.',
         evidence: [ESCAPE_LINE],
     },
     'RPC-007|denial|zone': {
-        rule: `${COUNT_FIVE} Earn a point if the other team has not got into the target zone when you reach five.`,
+        rule: `Earn a point if the other team has not got into the target zone when you reach five. ${COUNT_FIVE}`,
         setup: 'Mark a target zone for each team. Every time a team loses the ball, count to five out loud.',
         evidence: [TARGET_ZONE],
     },
@@ -290,7 +305,7 @@ export const COACH_RULES: Readonly<Record<string, CoachRule>> = {
     // ---- RPC-008 Attack Prevention ------------------------------------------------------------------
     'RPC-008|regain|zone': {
         rule: 'Earn a point when your team wins the ball before the other team gets into the protected zone.',
-        setup: 'Mark a protected zone in front of each goal or end line.',
+        setup: 'Mark a protected zone at each end.',
         evidence: [PROTECTED_ZONE],
     },
     'RPC-008|regain|line': {
@@ -300,7 +315,7 @@ export const COACH_RULES: Readonly<Record<string, CoachRule>> = {
     },
     'RPC-008|denial|zone': {
         rule: "Earn a point when the other team's attack ends without them getting into the protected zone.",
-        setup: 'Mark a protected zone in front of each goal or end line.',
+        setup: 'Mark a protected zone at each end.',
         evidence: [PROTECTED_ZONE],
     },
     'RPC-008|denial|line': {
@@ -315,9 +330,6 @@ const OBJECT_PREFERENCE: Readonly<Record<string, readonly ('line' | 'zone')[]>> 
     'RPC-007': ['line', 'zone'],
     'RPC-008': ['zone', 'line'],
 }
-
-/** Counter-Press judges a regain against its window alone; every other regain or denial needs an object. */
-const REGAIN_WITHOUT_OBJECT: readonly string[] = ['RPC-007']
 
 const unique = <T>(values: T[]): T[] => [...new Set(values)]
 
@@ -342,7 +354,6 @@ export function availableScoringEvents(rpcId: string, gameFormId: string): { eve
 
 function objectFor(rpcId: string, eventKey: string, available: string[]): string {
     if (eventKey !== 'regain' && eventKey !== 'denial') return ''
-    if (eventKey === 'regain' && REGAIN_WITHOUT_OBJECT.includes(rpcId)) return ''
     const marked = { line: available.includes('line_crossed'), zone: available.includes('target_zone_entered') }
     return (OBJECT_PREFERENCE[rpcId] ?? ['line', 'zone']).find((object) => marked[object]) ?? ''
 }

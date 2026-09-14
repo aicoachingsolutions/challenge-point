@@ -45,7 +45,14 @@ export function isDesignRationale(line: string): boolean {
         ) ||
         // Internal framing that survived translation. Christian flagged this label a year ago and it
         // is still arriving in coach-facing rules.
-        /^two-sided contest\b/i.test(line.trim())
+        /^two-sided contest\b/i.test(line.trim()) ||
+        // ADDRESSED TO THE COACH, NOT THE PLAYERS. Real output, 13 Sep: "Encourage players to exploit
+        // their numerical advantage effectively.", "Monitor the use of overloads to maintain
+        // possession.", and "Ensure quick transitions…", which the vocabulary pass then turned into
+        // "Watch whether quick transitions to maintain pressure on the defense." And, in the same run,
+        // "Reward defensive interceptions by transitioning quickly to attack." A coach cannot read any
+        // of them aloud to players, which is the test for a rule.
+        /^\s*(?:encourage|ensure|monitor|observe|reward)\b/i.test(line)
     )
 }
 

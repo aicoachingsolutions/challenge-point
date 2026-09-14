@@ -778,14 +778,31 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         const goalText = learningGoals.join(' ')
         const inputConstraints = deriveInputConstraints(goalText)
 
+        // RC1.1 — A GUIDED GOAL SELECTS WITHIN ITS CONTEXT, AND SCORES ON ITS CONTEXT'S EVENT.
+        // Only once the RPC library is ACTIVE (Christian made ACTIVE conditional on these changes being
+        // reflected and validation passing), and only for a goal the coach picked in the guided
+        // conversation: a context is never inferred from free-text wording, so free text is unchanged.
+        // See sport-module/context-selection.ts for why gating is required before primary scoring can
+        // resolve — ungated, Create Scoring Chances landed on a game form with no valid event.
+        const guidedGoalId = planning?.learningGoalId
+        const routedRpcId =
+            guidedGoalId && rpcLibrary.runtimeStatus === 'ACTIVE'
+                ? (sessionPlanningModel.rpcRouting().find((route) => route.learningGoalId === guidedGoalId)?.rpcId ?? null)
+                : null
+
         // A KNOWN gap is answered differently from an unrecognised phrase, even when the parser DID
         // match something. A Learning Goal like "Play Out from the Back" reaches only the general
         // fallback, so it would otherwise proceed and produce a generic activity that does not
         // address what was asked — worse than a refusal, because the coach cannot tell it went wrong.
+        //
+        // NOT A GAP ONCE THE GOAL ROUTES TO A CONTEXT. Picked in the guided conversation, "Play Out from
+        // the Back" selects within Goalkeeper Build-Out and scores on that context's event, so the
+        // activity addresses exactly what was asked. The refusal stays for the same words typed as free
+        // text, where no context is inferred.
         const reachedOnlyFallback = inputConstraints.matchedSignals.every(
             (signal) => !signal.startsWith('signalGroup:') || signal === 'signalGroup:Z_soccer_general'
         )
-        const knownGap = reachedOnlyFallback && isKnownUnsupportedGoal(goalText)
+        const knownGap = !routedRpcId && reachedOnlyFallback && isKnownUnsupportedGoal(goalText)
 
         if (inputConstraints.matchedSignals.length === 0 || knownGap) {
             // MVP field evidence: rejected goals ARE the vocabulary-gap dataset. A known gap is
@@ -852,17 +869,6 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
             },
         })
 
-        // RC1.1 — A GUIDED GOAL SELECTS WITHIN ITS CONTEXT, AND SCORES ON ITS CONTEXT'S EVENT.
-        // Only once the RPC library is ACTIVE (Christian made ACTIVE conditional on these changes being
-        // reflected and validation passing), and only for a goal the coach picked in the guided
-        // conversation: a context is never inferred from free-text wording, so free text is unchanged.
-        // See sport-module/context-selection.ts for why gating is required before primary scoring can
-        // resolve — ungated, Create Scoring Chances landed on a game form with no valid event.
-        const guidedGoalId = planning?.learningGoalId
-        const routedRpcId =
-            guidedGoalId && rpcLibrary.runtimeStatus === 'ACTIVE'
-                ? (sessionPlanningModel.rpcRouting().find((route) => route.learningGoalId === guidedGoalId)?.rpcId ?? null)
-                : null
         const selectionHints = routedRpcId ? gateCandidateGameFormsToContext(inputConstraints, routedRpcId) : inputConstraints
 
         let selection

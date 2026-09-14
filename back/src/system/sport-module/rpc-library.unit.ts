@@ -114,10 +114,13 @@ function testStagingIsResolvedOrDeferredAndAuthoredNotesSurvive(): void {
     }
     assert.ok(!REAL.relationships.some((r) => r['related_library'] === 'AFFORDANCE'), 'A deferred mapping must never become a relationship.')
 
-    // Deferring removes the Standard's block on ACTIVE; it does not switch runtime on. Christian ties
-    // ACTIVE to his review of the Context -> primary scoring event rows, so flipping this is a
-    // deliberate edit that should make this assertion fail.
-    assert.equal(rpcLibrary.runtimeStatus, 'PROPOSED')
+    // Deferring removed the Standard's block on ACTIVE; it did not switch runtime on. Christian tied
+    // ACTIVE to his primary scoring approval: "Once those changes are reflected and the validation
+    // passes, I'm comfortable with RPC RC1.1 moving from PROPOSED to ACTIVE." Both held on 13 Sep
+    // (docs/HANDOFF.md), so the workbook now says ACTIVE, and guided goals route through it. Changing
+    // this back is a deliberate edit that should make this assertion fail.
+    assert.equal(rpcLibrary.runtimeStatus, 'ACTIVE')
+    assert.ok(REAL.registry.every((r) => r['runtime_status'] === 'ACTIVE'), 'every context carries the library status')
 
     const learningGoalRows = REAL.implementation_staging.filter((r) => r['target_library'] === 'LEARNING_GOAL')
     assert.equal(learningGoalRows.length, 13)

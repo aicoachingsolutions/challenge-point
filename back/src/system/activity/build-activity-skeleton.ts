@@ -665,14 +665,32 @@ function constraintAndGuardrailMechanics(input: SystemAssemblyInput): string[] {
  *
  * The clip is gone too. If a description is long, the whole first sentence is used — a complete
  * sentence a coach can act on beats a truncated one that fits a width nobody chose deliberately.
+ *
+ * A TERSE DESIGN INTENT IS FOLLOWED BY THE DESCRIPTION. Measured 13 Sep over all 13 guided goals x 3
+ * slots, system-written text only: 111 of 117 selected-constraint requirements were met, and the six
+ * that were not were all Interception Reward, whose intent reads "Win the ball back" while its
+ * requirement also names "Reward defensive interceptions". Passing depended on the model happening to
+ * write those words: two goals retried in every real run that day, and one failed outright, which a
+ * coach sees as an error. With the description after a terse intent, 117 of 117. A long intent already
+ * says what the constraint does, and its description is rule-shaped, so it is left alone. This line has
+ * not been shown to coaches since 10 Sep; the output validator reads it.
  */
+const TERSE_INTENT_WORDS = 8
+
+function firstSentenceOf(text: string | undefined): string {
+    const body = (text ?? '').trim()
+    if (!body) return ''
+    const sentence = (body.split(/(?<=\.)\s+/)[0] ?? body).trim()
+    return sentence.endsWith('.') ? sentence : `${sentence}.`
+}
+
 function buildCoachFacingConstraintLine(candidate: ConstraintSelectionCandidate): string {
     const c = candidate.constraint
-    const body = (c.designIntent || c.description || '').trim()
-    if (!body) return ''
-
-    const firstSentence = (body.split(/(?<=\.)\s+/)[0] ?? body).trim()
-    return firstSentence.endsWith('.') ? firstSentence : `${firstSentence}.`
+    const intent = firstSentenceOf(c.designIntent)
+    const description = firstSentenceOf(c.description)
+    if (!intent) return description
+    const terse = intent.split(/\s+/).length < TERSE_INTENT_WORDS
+    return terse && description && description.toLowerCase() !== intent.toLowerCase() ? `${intent} ${description}` : intent
 }
 
 function buildCoachFacingConstraints(input: SystemAssemblyInput): string[] {

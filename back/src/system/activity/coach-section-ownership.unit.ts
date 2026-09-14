@@ -204,7 +204,26 @@ function testModelParaphrasesOfTheObviousAreRecognised(): void {
     }
 }
 
+/**
+ * REGRESSION — real generation, 2026-09-13. Lines addressed to the coach arrived in Rules, and the
+ * vocabulary pass turned "Ensure quick transitions…" into "Watch whether quick transitions to maintain
+ * pressure on the defense." None can be read aloud to players.
+ */
+function testLinesAddressedToTheCoachLeaveRules(): void {
+    for (const toTheCoach of [
+        'Encourage players to exploit their numerical advantage effectively.',
+        'Monitor the use of overloads to maintain possession.',
+        'Ensure quick transitions to maintain pressure on the defense.',
+        'Reward defensive interceptions by transitioning quickly to attack.',
+    ]) {
+        assert.ok(isDesignRationale(toTheCoach), `kept a line addressed to the coach: "${toTheCoach}"`)
+    }
+    // A rule that merely mentions encouragement or monitoring is still a rule.
+    assert.ok(!isDesignRationale('Neutrals encourage switches of play by staying wide.'))
+}
+
 testOnePrimarySuccessCondition()
+testLinesAddressedToTheCoachLeaveRules()
 testModelParaphrasesOfTheObviousAreRecognised()
 testTheSlotVariationIsTheOnlyPermittedSecondary()
 testRelocatedRewardsBecomeObservations()

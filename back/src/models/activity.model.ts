@@ -72,6 +72,9 @@ export interface ISystemTrace {
         objectKey: string | null
         scoringRule: string
         realizationCoverage: string | null
+        /** What the setup must mark, and the whole-word names of that object. */
+        setupRequirement?: string
+        setupEvidence?: string[][]
     }
 }
 

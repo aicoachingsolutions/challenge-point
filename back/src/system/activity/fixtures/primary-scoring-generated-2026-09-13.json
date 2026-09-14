@@ -1,0 +1,698 @@
+{
+  "source": "run-coach-view-audit.ts, PLANNING_GOAL_IDS all 13, SLOT_INDEX=all, 2026-09-13 (coach view after compression)",
+  "cases": [
+    {
+      "learningGoal": "Play Out from the Back",
+      "learningGoalId": "A01",
+      "gameFormId": "GF2",
+      "slot": 1,
+      "contextId": "RPC-001",
+      "eventKey": "line_crossed",
+      "objectKey": null,
+      "intent": "Maintain possession and progress through the central corridor.",
+      "setup": "Play 6v6 in a 40 x 30 m (44 x 33 yd) area with a central corridor. Two end zones are 9 m (10 yd) deep at each end. Players start in their half, and play begins with a pass from the defending team. Restart from the defensive end zone after a score or ball out of play. Mark a line across the pitch beyond the first defenders. Start each attack from your goalkeeper or a restart in your own half.",
+      "rules": [
+        "Maintain possession while progressing through the central corridor.",
+        "Use the wide zones to create passing options and space.",
+        "Keep the ball and work it forward under pressure. Force it or lose it and the other team attacks straight away. Play does not stop.",
+        "A regain only counts if your team plays forward with the next action. Win it and give it straight back and it does not count."
+      ]
+    },
+    {
+      "learningGoal": "Play Out from the Back",
+      "learningGoalId": "A01",
+      "gameFormId": "GF2",
+      "slot": 2,
+      "contextId": "RPC-001",
+      "eventKey": "target_zone_entered",
+      "objectKey": null,
+      "intent": "React quickly to transitions and maintain possession.",
+      "setup": "Play 6v6 in a 40 x 30 m (44 x 33 yd) area with two end zones. Players start in their half, and play begins with a pass from the defending team. Possession flips immediately on a turnover, with no stoppage. Mark a target zone beyond the first defenders. Start each attack from your goalkeeper or a restart in your own half.",
+      "rules": [
+        "Maintain possession and react quickly to turnovers.",
+        "Use quick transitions to exploit defensive disorganization.",
+        "Keep the ball and work it forward under pressure. Force it or lose it and the other team attacks straight away. Play does not stop.",
+        "When the ball changes hands, play carries on from wherever everyone is. Whoever lost it presses straight away."
+      ]
+    },
+    {
+      "learningGoal": "Play Out from the Back",
+      "learningGoalId": "A01",
+      "gameFormId": "GF2",
+      "slot": 3,
+      "contextId": "RPC-001",
+      "eventKey": "line_crossed",
+      "objectKey": null,
+      "intent": "Utilize numerical advantage to maintain possession and score.",
+      "setup": "Play 7v5 in a 40 x 30 m (44 x 33 yd) area with two end zones. The attacking team has a numerical advantage. Mark a line across the pitch beyond the first defenders. Start each attack from your goalkeeper or a restart in your own half.",
+      "rules": [
+        "Maintain possession using the numerical advantage.",
+        "Keep the ball and work it forward under pressure. Force it or lose it and the other team attacks straight away. Play does not stop.",
+        "Win the ball back quickly after losing it. If you do not, the other team plays on from there."
+      ]
+    },
+    {
+      "learningGoal": "Play Through Pressure",
+      "learningGoalId": "A02",
+      "gameFormId": "GF2",
+      "slot": 1,
+      "contextId": "RPC-002",
+      "eventKey": "line_crossed",
+      "objectKey": null,
+      "intent": "Maintain possession and progress through the central corridor.",
+      "setup": "Play 6v6 with a goalkeeper on each team in a 40 x 30 m (44 x 33 yd) field. A central corridor divides the field lengthwise. Teams attack end zones located at either end. Players start in their respective halves, with the game beginning from a goalkeeper's pass. Mark a line behind the pressing players. The other team presses from the start of every attack.",
+      "rules": [
+        "Maintain possession and progress through the central corridor.",
+        "If the ball goes out of play, restart from the goalkeeper.",
+        "Switch roles after a score or turnover.",
+        "Keep the ball and work it forward under pressure. Force it or lose it and the other team attacks straight away. Play does not stop.",
+        "A regain only counts if your team plays forward with the next action. Win it and give it straight back and it does not count."
+      ]
+    },
+    {
+      "learningGoal": "Play Through Pressure",
+      "learningGoalId": "A02",
+      "gameFormId": "GF2",
+      "slot": 2,
+      "contextId": "RPC-002",
+      "eventKey": "target_zone_entered",
+      "objectKey": null,
+      "intent": "Transition quickly and maintain possession to reach the end zone.",
+      "setup": "Play 6v6 with goalkeepers in a 40 x 30 m (44 x 33 yd) field. The field is divided into thirds, with teams attacking end zones. Players start in their defensive third, and the game begins with a pass from the goalkeeper. Mark a target zone behind the pressing players. The other team presses from the start of every attack.",
+      "rules": [
+        "Teams must transition quickly to maintain possession.",
+        "Play continues live after a score; no stoppages.",
+        "Keep the ball and work it forward under pressure. Force it or lose it and the other team attacks straight away. Play does not stop.",
+        "When the ball changes hands, the next action goes straight away. No reset, no stoppage.",
+        "When the ball changes hands, play carries on from wherever everyone is. Whoever lost it presses straight away."
+      ]
+    },
+    {
+      "learningGoal": "Play Through Pressure",
+      "learningGoalId": "A02",
+      "gameFormId": "GF2",
+      "slot": 3,
+      "contextId": "RPC-002",
+      "eventKey": "line_crossed",
+      "objectKey": null,
+      "intent": "Utilize numerical advantage to score in the end zone.",
+      "setup": "Play 6v6 with one team having an extra player in a 40 x 30 m (44 x 33 yd) field. The field has two wide channels and end zones. Teams attack the end zones, starting with a goalkeeper's pass. Mark a line behind the pressing players. The other team presses from the start of every attack.",
+      "rules": [
+        "Points are weighted based on successful overload use.",
+        "Switch roles after a score or turnover.",
+        "Keep the ball and work it forward under pressure. Force it or lose it and the other team attacks straight away. Play does not stop.",
+        "When the ball changes hands, the next action goes straight away. No reset, no stoppage.",
+        "Win the ball back quickly after losing it. If you do not, the other team plays on from there."
+      ]
+    },
+    {
+      "learningGoal": "Create Scoring Chances",
+      "learningGoalId": "A03",
+      "gameFormId": "GF3",
+      "slot": 1,
+      "contextId": "RPC-004",
+      "eventKey": "target_zone_entered",
+      "objectKey": null,
+      "intent": "Maintain structure while creating advantages in wide areas.",
+      "setup": "Play 6v6 in a 40 x 30 m (44 x 33 yd) area with two wide channels along the length. Each team defends their end zone. Players start in their half, and play begins with a pass from the coach. Restart from the coach after a score or ball out of play. Mark a finishing zone at each end, with defenders free to defend it.",
+      "rules": [
+        "Create and exploit space in the wide channels.",
+        "Play through the gap while it is open. Force it into a covered area and the other team attacks the space you left. Play does not stop.",
+        "Teams hold their spatial relationships and distances to create advantages in defined areas.",
+        "Live opposition contests the positional structure — defenders fill spaces and close lines of progression.",
+        "A regain only counts if your team plays forward with the next action. Win it and give it straight back and it does not count."
+      ]
+    },
+    {
+      "learningGoal": "Create Scoring Chances",
+      "learningGoalId": "A03",
+      "gameFormId": "GF3",
+      "slot": 2,
+      "contextId": "RPC-004",
+      "eventKey": "target_zone_entered",
+      "objectKey": null,
+      "intent": "Create and use space during quick transitions.",
+      "setup": "Play 6v6 in a 40 x 30 m (44 x 33 yd) area with no additional zones. Teams defend their end zones. Players start in their half, and play begins with a pass from the coach. Live restarts from the spot of possession loss. Mark a finishing zone at each end, with defenders free to defend it.",
+      "rules": [
+        "Quickly adapt to possession changes with live restarts.",
+        "Focus on creating space and exploiting it immediately.",
+        "Play through the gap while it is open. Force it into a covered area and the other team attacks the space you left. Play does not stop.",
+        "Teams hold their spatial relationships and distances to create advantages in defined areas.",
+        "When the ball changes hands, play carries on from wherever everyone is. Whoever lost it presses straight away."
+      ]
+    },
+    {
+      "learningGoal": "Create Scoring Chances",
+      "learningGoalId": "A03",
+      "gameFormId": "GF3",
+      "slot": 3,
+      "contextId": "RPC-004",
+      "eventKey": "target_zone_entered",
+      "objectKey": null,
+      "intent": "Use overloads to create scoring opportunities.",
+      "setup": "Play 6v6 in a 40 x 30 m (44 x 33 yd) area with a central corridor. Teams defend their end zones. Players start in their half, and play begins with a pass from the coach. Mark a finishing zone at each end, with defenders free to defend it.",
+      "rules": [
+        "Create overloads in the central corridor.",
+        "Restart with a coach's pass after a goal or ball out of play.",
+        "Play through the gap while it is open. Force it into a covered area and the other team attacks the space you left. Play does not stop.",
+        "Live opposition contests the positional structure — defenders fill spaces and close lines of progression.",
+        "Win the ball back quickly after losing it. If you do not, the other team plays on from there."
+      ]
+    },
+    {
+      "learningGoal": "Beat Defenders 1v1",
+      "learningGoalId": "A04",
+      "gameFormId": "GF2",
+      "slot": 1,
+      "contextId": "RPC-004",
+      "eventKey": "target_zone_entered",
+      "objectKey": null,
+      "intent": "Create and exploit space to progress forward through the central corridor.",
+      "setup": "Play 5v5 with two neutral players in a 40 x 30 m (44 x 33 yd) area. A central corridor runs the length of the field, with teams attacking end zones at each end. Neutrals start in the wide zones. Play begins with a pass from the coach to one team, and restarts in the same way after a score or ball out of play. Mark a finishing zone at each end, with defenders free to defend it.",
+      "rules": [
+        "Neutrals provide support in the wide zones, maintaining possession and enabling switches of play.",
+        "Encourage players to find line-breaking opportunities through the central corridor.",
+        "Keep the ball and work it forward under pressure. Force it or lose it and the other team attacks straight away. Play does not stop.",
+        "A regain only counts if your team plays forward with the next action. Win it and give it straight back and it does not count."
+      ]
+    },
+    {
+      "learningGoal": "Beat Defenders 1v1",
+      "learningGoalId": "A04",
+      "gameFormId": "GF2",
+      "slot": 2,
+      "contextId": "RPC-004",
+      "eventKey": "target_zone_entered",
+      "objectKey": null,
+      "intent": "React quickly to transition opportunities and maintain forward momentum.",
+      "setup": "Play 5v5 with two neutral players in a 40 x 30 m (44 x 33 yd) area. Teams attack end zones at each end, with neutrals starting in the wide zones. Play begins with a pass from the coach to one team. After a score, possession flips immediately to the opposing team. Mark a finishing zone at each end, with defenders free to defend it.",
+      "rules": [
+        "After scoring, possession flips immediately to the opposing team.",
+        "Neutrals provide support and facilitate quick transitions.",
+        "Encourage players to react swiftly to changes in possession.",
+        "Keep the ball and work it forward under pressure. Force it or lose it and the other team attacks straight away. Play does not stop.",
+        "When the ball changes hands, play carries on from wherever everyone is. Whoever lost it presses straight away."
+      ]
+    },
+    {
+      "learningGoal": "Beat Defenders 1v1",
+      "learningGoalId": "A04",
+      "gameFormId": "GF2",
+      "slot": 3,
+      "contextId": "RPC-004",
+      "eventKey": "target_zone_entered",
+      "objectKey": null,
+      "intent": "Utilize numerical overloads to create high-quality scoring chances.",
+      "setup": "Play 7v5 in a 40 x 30 m (44 x 33 yd) area with two end zones. The team with six players has a numerical advantage. Teams attack end zones at each end, and play starts with a pass from the coach. Mark a finishing zone at each end, with defenders free to defend it.",
+      "rules": [
+        "If the ball goes out of play or a goal is scored, restart with a pass from the coach.",
+        "Encourage players to exploit their numerical advantage effectively.",
+        "Keep the ball and work it forward under pressure. Force it or lose it and the other team attacks straight away. Play does not stop.",
+        "Win the ball back quickly after losing it. If you do not, the other team plays on from there."
+      ]
+    },
+    {
+      "learningGoal": "Progress the Attack",
+      "learningGoalId": "A05",
+      "gameFormId": "GF2",
+      "slot": 1,
+      "contextId": "RPC-003",
+      "eventKey": "target_zone_entered",
+      "objectKey": null,
+      "intent": "Create and use space to play forward through the central corridor.",
+      "setup": "Set up a 40 x 30 m (44 x 33 yd) field with a central corridor and two 18 m (20 yd) end zones. Play 6v6. Teams start in their defensive half and aim to progress through the central corridor to score in the end zone. Restart from the defensive end zone after a score or ball out. Mark an attacking zone across the far third of the pitch at each end.",
+      "rules": [
+        "Teams start in their defensive half and aim to progress through the central corridor.",
+        "Keep the ball and work it forward under pressure. Force it or lose it and the other team attacks straight away. Play does not stop.",
+        "When the ball changes hands, the next action goes straight away. No reset, no stoppage.",
+        "A regain only counts if your team plays forward with the next action. Win it and give it straight back and it does not count."
+      ]
+    },
+    {
+      "learningGoal": "Progress the Attack",
+      "learningGoalId": "A05",
+      "gameFormId": "GF2",
+      "slot": 2,
+      "contextId": "RPC-003",
+      "eventKey": "line_crossed",
+      "objectKey": null,
+      "intent": "Maintain possession under pressure and exploit wide channels to progress.",
+      "setup": "Create a 40 x 30 m (44 x 33 yd) field with two 14 m (15 yd) wide channels on each side. Play 6v6. Teams attack toward a defined goal, starting from their defensive third. Play restarts live from the point of turnover or out-of-bounds. Mark an attacking line across the pitch two thirds of the way up, at each end.",
+      "rules": [
+        "Teams attack toward a defined goal starting from their defensive third.",
+        "Use wide channels to create space and progress forward.",
+        "Possession restarts live from the point of turnover or out-of-bounds.",
+        "Keep the ball and work it forward under pressure. Force it or lose it and the other team attacks straight away. Play does not stop.",
+        "When the ball changes hands, play carries on from wherever everyone is. Whoever lost it presses straight away."
+      ]
+    },
+    {
+      "learningGoal": "Progress the Attack",
+      "learningGoalId": "A05",
+      "gameFormId": "GF2",
+      "slot": 3,
+      "contextId": "RPC-003",
+      "eventKey": "target_zone_entered",
+      "objectKey": null,
+      "intent": "Exploit numerical overloads to progress and score within target zones.",
+      "setup": "Set up a 40 x 30 m (44 x 33 yd) field with two 9 m (10 yd) target zones at each end. Play 7v5 with a 2-player overload for the attacking team. Teams score by entering the target zone with control. Mark an attacking zone across the far third of the pitch at each end.",
+      "rules": [
+        "Teams play with a 2-player overload for the attacking side.",
+        "Keep the ball and work it forward under pressure. Force it or lose it and the other team attacks straight away. Play does not stop.",
+        "When the ball changes hands, the next action goes straight away. No reset, no stoppage.",
+        "Win the ball back quickly after losing it. If you do not, the other team plays on from there."
+      ]
+    },
+    {
+      "learningGoal": "Finish Attacks",
+      "learningGoalId": "A06",
+      "gameFormId": "GF9",
+      "slot": 1,
+      "contextId": "RPC-005",
+      "eventKey": "goal",
+      "objectKey": null,
+      "intent": "Create and convert scoring chances in tight spaces.",
+      "setup": "Set up a 40 x 30 m (44 x 33 yd) area with two small goals at each end. Divide the area into three zones: a central zone and two wide channels. Play 6v6.",
+      "rules": [
+        "Create scoring chances by exploiting space in the wide channels.",
+        "If a goal is scored or the ball goes out, restart with a pass from the coach.",
+        "Play every chance out — rebounds and clearances stay live. Lose it and the other team counters straight away.",
+        "All game actions take place in or around the scoring area under live defensive pressure.",
+        "A regain only counts if your team plays forward with the next action. Win it and give it straight back and it does not count."
+      ]
+    },
+    {
+      "learningGoal": "Finish Attacks",
+      "learningGoalId": "A06",
+      "gameFormId": "GF9",
+      "slot": 2,
+      "contextId": "RPC-005",
+      "eventKey": "goal",
+      "objectKey": null,
+      "intent": "React quickly to transition opportunities and finish under pressure.",
+      "setup": "Create a 40 x 30 m (44 x 33 yd) area with two small goals at each end. Play 6v6 with a dedicated goalkeeper for each team. The game begins with a live ball from the goalkeeper, and play continues without stoppages.",
+      "rules": [
+        "Play continues immediately after a goal or save, with no stoppages.",
+        "Play every chance out — rebounds and clearances stay live. Lose it and the other team counters straight away.",
+        "All game actions take place in or around the scoring area under live defensive pressure.",
+        "Live defenders contest every finishing attempt; clearances and saves create immediate counter-attack opportunities.",
+        "When the ball changes hands, play carries on from wherever everyone is. Whoever lost it presses straight away."
+      ]
+    },
+    {
+      "learningGoal": "Finish Attacks",
+      "learningGoalId": "A06",
+      "gameFormId": "GF9",
+      "slot": 3,
+      "contextId": "RPC-005",
+      "eventKey": "goal",
+      "objectKey": null,
+      "intent": "Utilize numerical advantage to create high-quality scoring chances.",
+      "setup": "Set up a 40 x 30 m (44 x 33 yd) area with two small goals at each end. Play 7v5 with an attacking overload. Use a central corridor to emphasize direct play.",
+      "rules": [
+        "Start play with a pass from the coach to the overloaded attacking team.",
+        "Restart with a pass from the coach after a goal or clearance.",
+        "Play every chance out — rebounds and clearances stay live. Lose it and the other team counters straight away.",
+        "All game actions take place in or around the scoring area under live defensive pressure.",
+        "Win the ball back quickly after losing it. If you do not, the other team plays on from there."
+      ]
+    },
+    {
+      "learningGoal": "Stay Organized",
+      "learningGoalId": "D01",
+      "gameFormId": "GF3",
+      "slot": 1,
+      "contextId": "RPC-008",
+      "eventKey": "regain",
+      "objectKey": "zone",
+      "intent": "Protect the central corridor and force play wide or backward.",
+      "setup": "Set up a 40 x 30 m (44 x 33 yd) field with a central corridor and two 18 m (20 yd) end zones. Play 6v6. Defending team starts in the central corridor, attackers in their half. Play begins with a pass from the attacking team. Restart with a pass from the defending team's end zone after a score or ball out of play. Mark a protected zone in front of each goal or end line.",
+      "rules": [
+        "If attackers reach the end zone, restart from the defending end zone.",
+        "Play through the gap while it is open. Force it into a covered area and the other team attacks the space you left. Play does not stop.",
+        "Teams hold their spatial relationships and distances to create advantages in defined areas.",
+        "When the ball changes hands, the next action goes straight away. No reset, no stoppage.",
+        "A regain only counts if your team plays forward with the next action. Win it and give it straight back and it does not count."
+      ]
+    },
+    {
+      "learningGoal": "Stay Organized",
+      "learningGoalId": "D01",
+      "gameFormId": "GF3",
+      "slot": 2,
+      "contextId": "RPC-008",
+      "eventKey": "denial",
+      "objectKey": "zone",
+      "intent": "Regain shape quickly after losing possession and deny forward progression.",
+      "setup": "Use a 40 x 30 m (44 x 33 yd) field with no fixed zones. Play 6v6. Start with a pass from the defending team. After a score, play restarts immediately with the team that conceded. Mark a protected zone in front of each goal or end line.",
+      "rules": [
+        "Immediate restart after a score keeps play continuous.",
+        "Play through the gap while it is open. Force it into a covered area and the other team attacks the space you left. Play does not stop.",
+        "Teams hold their spatial relationships and distances to create advantages in defined areas.",
+        "Live opposition contests the positional structure — defenders fill spaces and close lines of progression.",
+        "When the ball changes hands, play carries on from wherever everyone is. Whoever lost it presses straight away."
+      ]
+    },
+    {
+      "learningGoal": "Stay Organized",
+      "learningGoalId": "D01",
+      "gameFormId": "GF3",
+      "slot": 3,
+      "contextId": "RPC-008",
+      "eventKey": "regain",
+      "objectKey": "zone",
+      "intent": "Use numerical overloads to protect key zones and regain possession.",
+      "setup": "Set up a 40 x 30 m (44 x 33 yd) field divided into three equal zones. Play 6v6 with an additional defender in the middle zone. Mark a protected zone in front of each goal or end line.",
+      "rules": [
+        "Start with attacking team passing into the middle zone.",
+        "Play through the gap while it is open. Force it into a covered area and the other team attacks the space you left. Play does not stop.",
+        "Teams hold their spatial relationships and distances to create advantages in defined areas.",
+        "When the ball changes hands, the next action goes straight away. No reset, no stoppage.",
+        "Win the ball back quickly after losing it. If you do not, the other team plays on from there."
+      ]
+    },
+    {
+      "learningGoal": "Win the Ball Back",
+      "learningGoalId": "D02",
+      "gameFormId": "GF4",
+      "slot": 1,
+      "contextId": "RPC-007",
+      "eventKey": "regain",
+      "objectKey": null,
+      "intent": "Exploit transition moments by quickly attacking open spaces and rewarding defensive interceptions.",
+      "setup": "Set up a 40 x 30 m (44 x 33 yd) field with a central corridor. Play 6v6 with two teams, each defending and attacking end zones. Players start within their half, and play begins with a pass from the defending end zone. After a score or out of play, restart with a pass from the end zone.",
+      "rules": [
+        "Upon possession change, decide whether to attack the opponent's end zone quickly.",
+        "Use the central corridor to exploit transition spaces.",
+        "Reward defensive interceptions with immediate counter-attacks.",
+        "Whoever wins the ball attacks immediately. If the attack stalls or the ball is lost, the other team does the same. Play does not stop.",
+        "A regain only counts if your team plays forward with the next action. Win it and give it straight back and it does not count."
+      ]
+    },
+    {
+      "learningGoal": "Win the Ball Back",
+      "learningGoalId": "D02",
+      "gameFormId": "GF4",
+      "slot": 2,
+      "contextId": "RPC-007",
+      "eventKey": "denial",
+      "objectKey": "line",
+      "intent": "Capitalize on transition opportunities with immediate restarts and defensive interception rewards.",
+      "setup": "Create a 40 x 30 m (44 x 33 yd) field with no specific zones. Play 6v6 with two teams, each attacking and defending end zones. Players start in their half, and play begins with a live ball. After a score or out of play, immediately restart with the nearest player. Mark an escape line across the pitch for each team. Every time a team loses the ball, count to five out loud.",
+      "rules": [
+        "Upon possession change, decide whether to attack the opponent's end zone quickly.",
+        "Use immediate restarts to maintain game flow.",
+        "Reward defensive interceptions with a chance to counter-attack.",
+        "Whoever wins the ball attacks immediately. If the attack stalls or the ball is lost, the other team does the same. Play does not stop.",
+        "When the ball changes hands, play carries on from wherever everyone is. Whoever lost it presses straight away."
+      ]
+    },
+    {
+      "learningGoal": "Win the Ball Back",
+      "learningGoalId": "D02",
+      "gameFormId": "GF4",
+      "slot": 3,
+      "contextId": "RPC-007",
+      "eventKey": "regain",
+      "objectKey": null,
+      "intent": "Use numerical advantage to exploit transition spaces and reward defensive interceptions.",
+      "setup": "Set up a 40 x 30 m (44 x 33 yd) field with two wide channels. Play 7v5 with one team having a numerical advantage. Each team attacks and defends end zones. Players start in their half, and play begins with a pass from the defending end zone. Restart with a pass from the end zone after a score or out of play.",
+      "rules": [
+        "Choose to attack the opponent's end zone using the wide channels.",
+        "Leverage the numerical advantage to control transitions.",
+        "Reward defensive interceptions with fast counter-attacks.",
+        "Whoever wins the ball attacks immediately. If the attack stalls or the ball is lost, the other team does the same. Play does not stop.",
+        "Win the ball back quickly after losing it. If you do not, the other team plays on from there."
+      ]
+    },
+    {
+      "learningGoal": "Defend 1v1",
+      "learningGoalId": "D03",
+      "gameFormId": "GF2",
+      "slot": 1,
+      "contextId": "RPC-008",
+      "eventKey": "regain",
+      "objectKey": "zone",
+      "intent": "Maintain possession and progress through wide channels to create scoring chances.",
+      "setup": "Play 6v6 with two goalkeepers in a 40 x 30 m (44 x 33 yd) area divided into three zones: central and two wide channels. Teams attack end zones with goalkeepers. Players start in their respective halves, and play begins with a goalkeeper distribution. Mark a protected zone in front of each goal or end line.",
+      "rules": [
+        "Use wide channels to maintain possession and progress forward.",
+        "Defensive interceptions are rewarded, encouraging anticipation.",
+        "Restart with a goalkeeper distribution after a goal or ball out of play.",
+        "Keep the ball and work it forward under pressure. Force it or lose it and the other team attacks straight away. Play does not stop.",
+        "A regain only counts if your team plays forward with the next action. Win it and give it straight back and it does not count."
+      ]
+    },
+    {
+      "learningGoal": "Defend 1v1",
+      "learningGoalId": "D03",
+      "gameFormId": "GF2",
+      "slot": 2,
+      "contextId": "RPC-008",
+      "eventKey": "denial",
+      "objectKey": "zone",
+      "intent": "React quickly to transition opportunities and maintain possession.",
+      "setup": "Play 6v6 with two goalkeepers in a 40 x 30 m (44 x 33 yd) area. The field is divided into thirds, with a central transition zone. Teams attack end zones with goalkeepers. Play begins with a goalkeeper distribution, and transitions are live. Mark a protected zone in front of each goal or end line.",
+      "rules": [
+        "Advance through the central zone to create scoring chances.",
+        "Defensive interceptions are rewarded, encouraging anticipation.",
+        "Restart with a goalkeeper distribution after a goal or ball out of play.",
+        "Keep the ball and work it forward under pressure. Force it or lose it and the other team attacks straight away. Play does not stop.",
+        "When the ball changes hands, play carries on from wherever everyone is. Whoever lost it presses straight away."
+      ]
+    },
+    {
+      "learningGoal": "Defend 1v1",
+      "learningGoalId": "D03",
+      "gameFormId": "GF2",
+      "slot": 3,
+      "contextId": "RPC-008",
+      "eventKey": "regain",
+      "objectKey": "zone",
+      "intent": "Utilize numerical overloads to create and capitalize on scoring opportunities.",
+      "setup": "Play 7v5 with two goalkeepers in a 40 x 30 m (44 x 33 yd) area. The field includes a central overload zone. Teams attack end zones with goalkeepers. Play begins with a goalkeeper distribution. Mark a protected zone in front of each goal or end line.",
+      "rules": [
+        "Use the central overload zone to create numerical advantages.",
+        "Defensive interceptions are rewarded, encouraging anticipation.",
+        "Restart with a goalkeeper distribution after a goal or ball out of play.",
+        "Keep the ball and work it forward under pressure. Force it or lose it and the other team attacks straight away. Play does not stop.",
+        "Win the ball back quickly after losing it. If you do not, the other team plays on from there."
+      ]
+    },
+    {
+      "learningGoal": "Attack Quickly",
+      "learningGoalId": "TA01",
+      "gameFormId": "GF4",
+      "slot": 1,
+      "contextId": "RPC-006",
+      "eventKey": "goal",
+      "objectKey": null,
+      "intent": "Exploit transition moments to attack the end zones quickly.",
+      "setup": "Set up a 40 x 30 m (44 x 33 yd) field with a central corridor and two 18 m (20 yd) end zones. Play 5v5 with two neutral players in the central corridor. Teams attack the end zones, starting with possession in the central corridor. Play begins with a pass from the neutral players. Put a goal at each end. Before you start, pick a countdown between 6 and 10 seconds that starts each time a team wins the ball.",
+      "rules": [
+        "Play continues without stopping after each goal or turnover.",
+        "Neutrals support the team in possession by maintaining ball circulation.",
+        "Whoever wins the ball attacks immediately. If the attack stalls or the ball is lost, the other team does the same. Play does not stop.",
+        "The transition moment chains directly into the next attacking action — the advantage is live only before the defensive shape is restored.",
+        "A regain only counts if your team plays forward with the next action. Win it and give it straight back and it does not count."
+      ]
+    },
+    {
+      "learningGoal": "Attack Quickly",
+      "learningGoalId": "TA01",
+      "gameFormId": "GF4",
+      "slot": 2,
+      "contextId": "RPC-006",
+      "eventKey": "line_crossed",
+      "objectKey": null,
+      "intent": "Capitalize on live restarts to exploit disorganized defenses.",
+      "setup": "Create a 40 x 30 m (44 x 33 yd) area with two wide channels and two 18 m (20 yd) end zones. Play 6v6 with a live restart rule where possession changes trigger immediate play. Mark an end line for each team. Before you start, pick a countdown between 6 and 10 seconds that starts each time a team wins the ball.",
+      "rules": [
+        "Use wide channels to stretch the defense and create space.",
+        "Play continues seamlessly after each score or turnover.",
+        "Watch whether quick transitions to maintain pressure on the defense.",
+        "Whoever wins the ball attacks immediately. If the attack stalls or the ball is lost, the other team does the same. Play does not stop.",
+        "When the ball changes hands, play carries on from wherever everyone is. Whoever lost it presses straight away."
+      ]
+    },
+    {
+      "learningGoal": "Attack Quickly",
+      "learningGoalId": "TA01",
+      "gameFormId": "GF4",
+      "slot": 3,
+      "contextId": "RPC-006",
+      "eventKey": "goal",
+      "objectKey": null,
+      "intent": "Use numerical overloads to create scoring opportunities quickly.",
+      "setup": "Set up a 40 x 30 m (44 x 33 yd) field with two 18 m (20 yd) end zones and a central overload zone. Play 7v5, with the attacking team having a numerical advantage in the central zone. Put a goal at each end. Before you start, pick a countdown between 6 and 10 seconds that starts each time a team wins the ball.",
+      "rules": [
+        "Attack the end zone using the numerical advantage immediately.",
+        "Scores are weighted based on the speed of transition.",
+        "Play continues without stopping after each goal or turnover.",
+        "Whoever wins the ball attacks immediately. If the attack stalls or the ball is lost, the other team does the same. Play does not stop.",
+        "Win the ball back quickly after losing it. If you do not, the other team plays on from there."
+      ]
+    },
+    {
+      "learningGoal": "Secure Possession",
+      "learningGoalId": "TA02",
+      "gameFormId": "GF2",
+      "slot": 1,
+      "contextId": "RPC-003",
+      "eventKey": "target_zone_entered",
+      "objectKey": null,
+      "intent": "Maintain possession and progress through the central corridor.",
+      "setup": "Play with two teams of 6 in a 40 x 30 m (44 x 33 yd) area with a central corridor. Each team attacks an end zone, starting from their own half. Play begins with a pass from the defending team. Mark an attacking zone across the far third of the pitch at each end.",
+      "rules": [
+        "Progress the ball through the central corridor to reach the end zone.",
+        "Restart from the defending half after a score or ball out of play.",
+        "Keep the ball and work it forward under pressure. Force it or lose it and the other team attacks straight away. Play does not stop.",
+        "A regain only counts if your team plays forward with the next action. Win it and give it straight back and it does not count."
+      ]
+    },
+    {
+      "learningGoal": "Secure Possession",
+      "learningGoalId": "TA02",
+      "gameFormId": "GF2",
+      "slot": 2,
+      "contextId": "RPC-003",
+      "eventKey": "line_crossed",
+      "objectKey": null,
+      "intent": "React quickly to transitions and maintain possession.",
+      "setup": "Two teams of 6 play in a 40 x 30 m (44 x 33 yd) area with end zones. Play starts with a live ball from a central kick-off. Transition occurs on possession change, with immediate attack. Mark an attacking line across the pitch two thirds of the way up, at each end.",
+      "rules": [
+        "Maintain possession and reach the end zone.",
+        "Play continues without stopping for transitions.",
+        "Restart from the center after a score.",
+        "Keep the ball and work it forward under pressure. Force it or lose it and the other team attacks straight away. Play does not stop.",
+        "When the ball changes hands, play carries on from wherever everyone is. Whoever lost it presses straight away."
+      ]
+    },
+    {
+      "learningGoal": "Secure Possession",
+      "learningGoalId": "TA02",
+      "gameFormId": "GF2",
+      "slot": 3,
+      "contextId": "RPC-003",
+      "eventKey": "target_zone_entered",
+      "objectKey": null,
+      "intent": "Utilize overloads to maintain possession and score efficiently.",
+      "setup": "Two teams of 6 in a 40 x 30 m (44 x 33 yd) area with end zones. One team starts with a numerical overload. Mark an attacking zone across the far third of the pitch at each end.",
+      "rules": [
+        "Aim to reach the end zone using the numerical advantage.",
+        "Play resets from the starting position after a score.",
+        "Monitor the use of overloads to maintain possession.",
+        "Keep the ball and work it forward under pressure. Force it or lose it and the other team attacks straight away. Play does not stop.",
+        "Win the ball back quickly after losing it. If you do not, the other team plays on from there."
+      ]
+    },
+    {
+      "learningGoal": "Recover Organization",
+      "learningGoalId": "TD01",
+      "gameFormId": "GF4",
+      "slot": 1,
+      "contextId": "RPC-007",
+      "eventKey": "regain",
+      "objectKey": null,
+      "intent": "Deny space and force the opponent into wide channels.",
+      "setup": "Set up a 40 x 30 m (44 x 33 yd) area with two 18 m (20 yd) wide channels on either side. Play 6v6. Each team defends one end zone and attacks the opposite.",
+      "rules": [
+        "Use the wide channels to create space and opportunities.",
+        "Defenders aim to regain possession and counter quickly.",
+        "Play restarts with a pass from the coach after each score or out of play.",
+        "Whoever wins the ball attacks immediately. If the attack stalls or the ball is lost, the other team does the same. Play does not stop.",
+        "A regain only counts if your team plays forward with the next action. Win it and give it straight back and it does not count."
+      ]
+    },
+    {
+      "learningGoal": "Recover Organization",
+      "learningGoalId": "TD01",
+      "gameFormId": "GF4",
+      "slot": 2,
+      "contextId": "RPC-007",
+      "eventKey": "denial",
+      "objectKey": "line",
+      "intent": "React quickly to transition moments and regain shape.",
+      "setup": "Create a 40 x 30 m (44 x 33 yd) field with two end zones. Play 6v6. Teams attack the opponent's end zone. Play begins with a live ball from the coach, and possession changes trigger immediate transitions. Mark an escape line across the pitch for each team. Every time a team loses the ball, count to five out loud.",
+      "rules": [
+        "Defenders must quickly regain shape and deny space.",
+        "Play continues without stopping after transitions.",
+        "Whoever wins the ball attacks immediately. If the attack stalls or the ball is lost, the other team does the same. Play does not stop.",
+        "When the ball changes hands, the next action goes straight away. No reset, no stoppage.",
+        "When the ball changes hands, play carries on from wherever everyone is. Whoever lost it presses straight away."
+      ]
+    },
+    {
+      "learningGoal": "Recover Organization",
+      "learningGoalId": "TD01",
+      "gameFormId": "GF4",
+      "slot": 3,
+      "contextId": "RPC-007",
+      "eventKey": "regain",
+      "objectKey": null,
+      "intent": "Utilize numerical advantage to regain possession and transition effectively.",
+      "setup": "Set up a 40 x 30 m (44 x 33 yd) field with a central 9 m (10 yd) zone. Play 7v5 with the overload team having one extra player. Teams attack the opponent's end zone. Play starts with a pass from the coach to the overload team.",
+      "rules": [
+        "The overload team has a numerical advantage.",
+        "Defenders focus on regaining possession and countering.",
+        "Whoever wins the ball attacks immediately. If the attack stalls or the ball is lost, the other team does the same. Play does not stop.",
+        "When the ball changes hands, the next action goes straight away. No reset, no stoppage.",
+        "Win the ball back quickly after losing it. If you do not, the other team plays on from there."
+      ]
+    },
+    {
+      "learningGoal": "Delay the Attack",
+      "learningGoalId": "TD02",
+      "gameFormId": "GF4",
+      "slot": 1,
+      "contextId": "RPC-007",
+      "eventKey": "regain",
+      "objectKey": null,
+      "intent": "Quickly exploit transition moments to regain control and attack.",
+      "setup": "Set up a 40 x 30 m (44 x 33 yd) field with a central corridor. Two teams of 6 players each. Teams attack and defend end zones.",
+      "rules": [
+        "Whoever wins the ball attacks immediately. If the attack stalls or the ball is lost, the other team does the same. Play does not stop.",
+        "The transition moment chains directly into the next attacking action — the advantage is live only before the defensive shape is restored.",
+        "When the ball changes hands, the next action goes straight away. No reset, no stoppage.",
+        "Defenders can shield the ball, block the space, or use their body to push attackers where they want them.",
+        "A regain only counts if your team plays forward with the next action. Win it and give it straight back and it does not count."
+      ]
+    },
+    {
+      "learningGoal": "Delay the Attack",
+      "learningGoalId": "TD02",
+      "gameFormId": "GF4",
+      "slot": 2,
+      "contextId": "RPC-007",
+      "eventKey": "denial",
+      "objectKey": "line",
+      "intent": "Capitalize on immediate transition opportunities to regain possession.",
+      "setup": "Set up a 40 x 30 m (44 x 33 yd) field with two end zones. Two teams of 6 players each. After a goal or out of play, the ball is immediately live again. Mark an escape line across the pitch for each team. Every time a team loses the ball, count to five out loud.",
+      "rules": [
+        "Play is continuous; no stoppages after scores or out of play.",
+        "Whoever wins the ball attacks immediately. If the attack stalls or the ball is lost, the other team does the same. Play does not stop.",
+        "When the ball changes hands, the next action goes straight away. No reset, no stoppage.",
+        "Defenders can shield the ball, block the space, or use their body to push attackers where they want them.",
+        "When the ball changes hands, play carries on from wherever everyone is. Whoever lost it presses straight away."
+      ]
+    },
+    {
+      "learningGoal": "Delay the Attack",
+      "learningGoalId": "TD02",
+      "gameFormId": "GF4",
+      "slot": 3,
+      "contextId": "RPC-007",
+      "eventKey": "regain",
+      "objectKey": null,
+      "intent": "Use numerical overloads to regain possession and transition quickly.",
+      "setup": "Set up a 40 x 30 m (44 x 33 yd) field with two end zones. Two teams of 5 players each, with an additional player creating a 6v5 overload. Play starts with a pass from the overloaded team.",
+      "rules": [
+        "The overloaded team starts with possession.",
+        "After a turnover, exploit the numerical advantage.",
+        "Whoever wins the ball attacks immediately. If the attack stalls or the ball is lost, the other team does the same. Play does not stop.",
+        "Defenders can shield the ball, block the space, or use their body to push attackers where they want them.",
+        "Win the ball back quickly after losing it. If you do not, the other team plays on from there."
+      ]
+    }
+  ]
+}

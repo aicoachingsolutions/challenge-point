@@ -141,6 +141,9 @@ export function mapStructuredActivityToLegacy(activity: Activity, input: SystemA
                           objectKey: directive.objectKey,
                           scoringRule: directive.scoringRule,
                           realizationCoverage: directive.realizationCoverage,
+                          // Carried so compression can keep Setup, Rules and the Objective to this object.
+                          setupRequirement: directive.setupRequirement,
+                          setupEvidence: directive.setupEvidence,
                       }
                     : undefined
             })(),
