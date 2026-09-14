@@ -253,7 +253,14 @@ async function main() {
             console.log(`ASSEMBLY FAILED: ${err instanceof Error ? err.message : String(err)}`)
             continue
         }
-        if (assembled.retriedAfterValidationFailure) retriedAssemblies++
+        if (assembled.retriedAfterValidationFailure) {
+            retriedAssemblies++
+            // Why the first attempt failed. A retry doubles what a coach waits for, so the reason is a
+            // finding in its own right, not noise to hide behind the eventual success.
+            const reasons = (assembled as { validationFailureReasons?: string[] }).validationFailureReasons ?? []
+            console.log(`\nRETRIED: ${input}${learningGoalId ? ` (${learningGoalId})` : ''} — first attempt failed:`)
+            for (const reason of reasons.flatMap((r) => r.split('\n'))) console.log(`  - ${reason.slice(0, 300)}`)
+        }
 
         // Reproduce the route exactly: map to the persisted shape, then compress with the same
         // per-slot modifier lines production passes. Passing [] here once produced a false claim.

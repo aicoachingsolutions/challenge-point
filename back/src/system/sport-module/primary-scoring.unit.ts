@@ -15,7 +15,7 @@ import type { ActivitySkeletonSlot } from '../activity/build-activity-skeleton'
 import { findCommunicationStandardViolations } from '../activity/coach-communication-standard'
 import { toCoachScoringSentence } from '../activity/coach-voice'
 import { compressActivityForCoach } from '../activity/compress-activity-output'
-import { validateActivityAgainstSkeleton } from '../activity/validate-activity-skeleton'
+import { validateActivityAgainstSkeleton, withScoringObjectInSetup } from '../activity/validate-activity-skeleton'
 import { deriveInputConstraints } from '../input-constraints/deriveInputConstraints'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { generateSelection } from '../test-library/generateSelection'
@@ -210,6 +210,26 @@ function testSetupMustMarkTheScoringObject(): void {
     assert.equal(setupFailures('Mark a finishing zone at each end.', chanceCreationZone).length, 0)
 }
 
+/**
+ * When generation omits the object, the system writes the sentence it already knows, once. Every
+ * first-attempt failure on 13 Sep was an omitted or renamed object, and Play Out from the Back failed
+ * outright after its retry, so without this a coach gets an error instead of activities.
+ */
+function testSetupGainsTheObjectWhenGenerationOmitsIt(): void {
+    const directive = resolvePrimaryScoring('RPC-004', 'GF3', 1)
+    const omitted = 'Play 6v6 in a 40 x 30 m (44 x 33 yd) area with two end zones.'
+    const repaired = withScoringObjectInSetup(omitted, directive)
+    assert.ok(repaired.startsWith(omitted), "the model's own layout is kept")
+    assert.ok(repaired.endsWith(directive.setupRequirement), repaired)
+    assert.equal(setupFailures(repaired, slotFor('RPC-004', 'GF3')).length, 0, 'the repaired setup passes the check')
+    assert.equal(withScoringObjectInSetup(repaired, directive), repaired, 'idempotent')
+
+    const alreadyMarked = 'Mark a finishing zone at each end. Play 6v6.'
+    assert.equal(withScoringObjectInSetup(alreadyMarked, directive), alreadyMarked, 'a setup that marks it is untouched')
+    assert.equal(withScoringObjectInSetup('Play 6v6', undefined), 'Play 6v6', 'free-text goals are untouched')
+    assert.equal(withScoringObjectInSetup('Play 6v6 in a grid', directive), `Play 6v6 in a grid. ${directive.setupRequirement}`)
+}
+
 /** Compression pins the resolved rule; the competing reward from the real evidence cannot lead. */
 function testCompressionPinsTheResolvedRule(): void {
     const directive = resolvePrimaryScoring('RPC-005', 'GF9', 1)
@@ -295,6 +315,7 @@ testEmptyIntersectionFailsInsteadOfInferring()
 testGameFormStructureUsesTheControlledVocabulary()
 testCoachWordingIsCompleteApprovedAndCoachFacing()
 testSetupMustMarkTheScoringObject()
+testSetupGainsTheObjectWhenGenerationOmitsIt()
 testCompressionPinsTheResolvedRule()
 
 console.log('primary-scoring unit tests: all cases passed.')

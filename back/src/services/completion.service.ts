@@ -26,7 +26,7 @@ import {
     type ActivitySkeletonBundle,
 } from '../system/activity/build-activity-skeleton'
 import { type ActivityPolish, validateActivityPolishPayload } from '../system/activity/validate-activity-polish'
-import { validateActivitiesAgainstSkeleton } from '../system/activity/validate-activity-skeleton'
+import { validateActivitiesAgainstSkeleton, withScoringObjectInSetup } from '../system/activity/validate-activity-skeleton'
 import { validateActivitiesAssemblyPayload } from '../system/activity/validate-activity-structure'
 import { inferCategoryIdFromText } from '../system/infer-category'
 import { ArchetypeDefinition, SystemAssemblyInput, SystemPipelineError } from '../system/types'
@@ -460,7 +460,9 @@ function mergePolishedActivitiesWithMechanics(
 
         return {
             title: nonEmptyOrDefault(polish.title, defaultTitle(index)),
-            setup: nonEmptyOrDefault(polish.setup, defaultSetup()),
+            // RC1.1: the setup must mark the resolved scoring object; when the model's layout does not
+            // name it, the system adds the sentence it already knows. See withScoringObjectInSetup.
+            setup: withScoringObjectInSetup(nonEmptyOrDefault(polish.setup, defaultSetup()), slot?.primaryScoring),
             teams: mechanics.teams,
             objective: mergeObjective(nonEmptyOrDefault(polish.objective, defaultObjective()), mechanics.decisionCues),
             rules: uniqueNonEmpty(mechanics.rules),

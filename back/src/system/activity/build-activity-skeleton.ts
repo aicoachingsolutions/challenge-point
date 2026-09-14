@@ -1081,8 +1081,14 @@ export function buildActivitySkeleton(input: SystemAssemblyInput): ActivitySkele
             activityIndex: idx,
             archetypeName,
             titleFrame: titleFrameForSlot(archetypeName, idx),
+            // The game form's own guidance names its default objects ("a directional target line or
+            // zone at one end"), and real output kept those beside the required one: "two end zones"
+            // plus "a target zone", a coach left to guess which scores. The resolved object REPLACES
+            // them rather than joining them.
             setupFrame: primaryScoring
-                ? `${baseSetupFrame} Scoring object (mandatory): ${primaryScoring.setupRequirement}`
+                ? `${baseSetupFrame}\n\nSCORING OBJECT (mandatory): ${primaryScoring.setupRequirement} ` +
+                  'This is the only scoring object. Where the game form guidance above mentions a target line, target zone, ' +
+                  'end zone, or goal, use this scoring object in its place instead of adding another.'
                 : baseSetupFrame,
             ...(primaryScoring ? { primaryScoring } : {}),
             slotProgressionEmphasis: slotProgressionEmphasisFor(idx, sessionEmphasis),
@@ -1208,7 +1214,10 @@ export function formatActivitySkeletonForPrompt(bundle: ActivitySkeletonBundle):
             // possible in the setup; scoring itself is written by the system, not the model.
             lines.push('primaryScoring (mandatory — the system scores this activity this way and no other):')
             lines.push(`  - how teams score: ${slot.primaryScoring.scoringRule}`)
-            lines.push(`  - the setup MUST mark: ${slot.primaryScoring.setupRequirement} Use exactly that name for it.`)
+            // Given as a sentence to copy rather than a thing to describe: the model is reliable at
+            // reproducing a literal phrase and unreliable at keeping our exact object name in its own
+            // layout (every first-attempt failure on 13 Sep was a renamed or omitted object).
+            lines.push(`  - write this sentence into the setup, word for word: "${slot.primaryScoring.setupRequirement}"`)
             // Real output kept the game form's default objects beside the required one ("two end zones"
             // plus "a target zone"; goalkeepers and "restart after a goal" in a game scored on a line),
             // leaving a coach to guess which object scores.

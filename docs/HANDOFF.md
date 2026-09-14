@@ -472,7 +472,103 @@ Possession, Transition, Channel, Finishing and Positional Play.
 
 **Defect found while generating:** "Create better support angles under pressure." (Positional Play)
 fails assembly 3 of 3 times with "Activity 2 missing skeleton mechanic: Opponent consequence emphasis…".
-A coach typing it gets an error. Spun off as a separate task.
+A coach typing it gets an error. Spun off as a separate task; **Codex fixed it in `a2ea0c1`.** The
+fallback opponent-consequence sentence now carries its own signal words. Audited: 3/3 reruns assemble,
+the behaviour gate is unchanged, and the learning-goal plumbing (`adc892e`) passed a bite proof.
+
+### 2026-09-13 (evening) — Primary scoring events: approved, built, NOT yet ACTIVE
+
+**Christian's approval (13 Sep):**
+- An event is scored with a qualifying condition, and any event can carry one.
+- Seven events: goal, target player, line crossed, target zone entered, gate, regain, and **denial**
+  (not "Held").
+- No shot on target for Chance Creation.
+- Counter-Press uses the existing 5-second window. Attack Prevention has no fixed window.
+- Close the Channel gap and the Positional Play → Finishing gap rather than removing relationships.
+- The vocabulary is "used with GA-001", with no ownership claim.
+- "Validation should fail rather than infer."
+- ACTIVE comes "once those changes are reflected and the validation passes".
+
+**Codex started it in the STALE MAIN CHECKOUT** (`C:\challenge-point`, 61 behind origin/main).
+- Its uncommitted files are still there, untouched: `back/src/system/primary-scoring/`,
+  `back/data/primary-scoring/`, `.tmp-primary-scoring/`, edits to 7 files, and
+  `back/_rc11-regression.*`.
+- Not ported, and why:
+  - a standalone JSON marked ACTIVE that duplicates the contexts;
+  - setup checks that substring-match "area" and "goal";
+  - regex parsing of condition prose;
+  - sport-coupling pushed to 38.
+- Rebuilt in the worktree in `e954541`. Cleaning the main checkout needs Joe's OK.
+
+**Where it lives:**
+- **RPC workbook** (`apply-rpc-scoring-events.py`):
+  - Controlled Vocabulary `scoring_event`: 7 events.
+  - Relationships SCORING_EVENT: 24, where id order = his approved order.
+  - Properties PRIMARY_SCORING_CONDITION: 8.
+  - The gate requires at least one event and exactly one condition per context.
+- **Soccer module** (`apply-game-form-scoring-structure.py`): `scoring_structure_type` lists the
+  objects the authored setup marks, "none" for GF5/GF7/GF10. Regain and denial are derived, not listed.
+- **`sport-module/primary-scoring.ts`:**
+  - valid events ∩ available events, rotating per slot;
+  - REALIZATION_COVERAGE: Channel attacking object for RPC-001..004 × GF7, Channel protected zone for
+    RPC-008 × GF7, Positional Play finishing goal for RPC-005 × GF3;
+  - COACH_RULES: coach wording, setup requirement and evidence for each context × event × object;
+  - throws `PrimaryScoringResolutionError` rather than inferring.
+- **`sport-module/context-selection.ts`:** gates a guided goal's candidate game forms to its routed
+  context's declared forms, through the existing hint. `test-library/` is untouched.
+- **Pipeline:**
+  - skeleton setupFrame and prompt block;
+  - `validate-activity-skeleton` requires the object in setup, as a whole word using the rule's own noun;
+  - `buildScoringLines` puts the rule second, because the first line is validator-coupled;
+  - `systemTrace.primaryScoring` records it;
+  - compression pins it as primary, the slot modifier may follow, and other rewards are relocated.
+- **Route:** applies only to guided goals AND only when `rpcLibrary.runtimeStatus === 'ACTIVE'`.
+  Runtime is **PROPOSED**, so nothing live has changed. `apply-rpc-rc1.1-active.py` flips it after
+  checking staging, events and conditions.
+
+**Measurement** (`run-primary-scoring-coverage.ts`, deterministic):
+- all 22 context × game form pairs resolve;
+- ungated live selector: 9 of 13 guided goals land on a declared form, and A03 cannot resolve because
+  it lands on Finishing Games;
+- gated: 13 of 13 resolve.
+
+**Real generation** (`PLANNING_GOAL_IDS=… SLOT_INDEX=all run-coach-view-audit.ts`, 13 goals × 3 slots):
+- 13 of 13 assembled; all 39 activities score on their resolved event; 0 wording violations.
+- Counterattack scores goals or the end line within the countdown, Counter-Press scores regain or
+  denial, and Finishing scores goals.
+
+**Retries, diagnosed and fixed.** The first run had 12 of 13 assemblies retry, and Play Out from the
+Back failed outright on a rerun. Every first-attempt failure was the setup check: the model omitted or
+renamed the object ("end zones" where scoring said "finishing zone").
+- Fix, deterministic before generative: `withScoringObjectInSetup` (validate-activity-skeleton.ts),
+  called in the completion.service merge, appends the setup requirement when the model's setup does
+  not mark the object.
+- The prompt now gives the sentence to copy word for word.
+- Final run, 13 goals × 3 slots: **0 of 13 failed; 2 of 13 retried**, both on the pre-existing
+  "Interception Reward" consequence requirement, unrelated to scoring. All 39 activities score on
+  their resolved event, with 0 wording violations.
+
+**Open before ACTIVE (our side; no decision needed from Christian):**
+1. **Setup still mixes objects.** Many setups keep the game form's default end zones, or goals,
+   beside the resolved object: "Teams attack the end zones… Put a goal at each end", "Teams defend
+   their end zones… Mark a finishing zone". Rules lines from How to Play sometimes say "reach the end
+   zone" too. Scoring is unambiguous, but Setup can still make a coach ask which object counts.
+   Candidate fix: when primary scoring is present, strip default scoring-object language from the
+   game form guidance fed to setupFrame, then re-measure.
+2. "A regain only counts if your team plays forward" appears in finishing and possession games. This
+   is pre-existing.
+
+Also: Directional Possession Games still wins 6 of 13 gated guided goals, so diversity across goals
+is unchanged by gating.
+
+**Lessons:**
+- Setup evidence must name PHYSICAL objects using the rule's own noun. "Zone" matched "end zones"
+  while scoring said "finishing zone".
+- Timing lives in the deterministic rule, never in setup evidence. A countdown check failed TA01 twice.
+- Generate sequentially. Parallel runs hit OpenAI's 30k tokens-per-minute limit and hid half the goals.
+- The harness must survive one failed assembly.
+
+Behaviour gate `70 68 98 119 94 99 86`; 45 suites; ratchet 35.
 
 ---
 

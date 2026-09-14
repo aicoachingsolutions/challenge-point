@@ -1,3 +1,4 @@
+import type { PrimaryScoringDirective } from '../types'
 import type { Activity } from './activity-schema'
 import type { ActivitySkeletonBundle, ActivitySkeletonSlot } from './build-activity-skeleton'
 import { normalizeText, tokenize } from '../text'
@@ -24,6 +25,28 @@ const CONSEQUENCE_INDICATORS =
 
 function escapeRegExp(s: string): string {
     return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+/** Whether a setup marks the resolved scoring object: every evidence group has a WHOLE-WORD match. */
+export function setupMarksScoringObject(setup: string, directive: PrimaryScoringDirective): boolean {
+    return directive.setupEvidence.every((group) => group.some((word) => new RegExp(`\\b${escapeRegExp(word)}\\b`, 'i').test(setup)))
+}
+
+/**
+ * The setup, guaranteed to mark the resolved scoring object.
+ *
+ * DETERMINISTIC BEFORE GENERATIVE, as with player format and playing area. Measured 13 Sep: 12 of 13
+ * guided assemblies retried, and every first-attempt failure was the same one: the model described its
+ * own layout without naming the required object ("end zones" where scoring said "finishing zone"),
+ * then complied once the retry quoted the requirement back. A retry doubles what a coach waits for,
+ * to recover a sentence the system already knows. So the system writes it when the model does not.
+ * The validator keeps checking afterwards, as a guard on this path rather than the only line of defence.
+ */
+export function withScoringObjectInSetup(setup: string, directive: PrimaryScoringDirective | undefined): string {
+    if (!directive || setupMarksScoringObject(setup, directive)) return setup
+    const trimmed = setup.trim()
+    const joiner = trimmed === '' || /[.!?]$/.test(trimmed) ? ' ' : '. '
+    return `${trimmed}${joiner}${directive.setupRequirement}`.trim()
 }
 
 /** When long archetype bullets are paraphrased, still require archetype-specific vocabulary from the game form name. */
@@ -119,14 +142,8 @@ export function validateActivityAgainstSkeleton(
     // RC1.1 PRIMARY SCORING: the event was chosen before generation, so the setup must make it
     // physically possible. Each evidence group needs one WHOLE-WORD match, so a word merely containing
     // the object's name does not count, and a playing "area" is not a marked zone.
-    if (slot.primaryScoring) {
-        const setup = activity.setup ?? ''
-        const unmet = slot.primaryScoring.setupEvidence.filter(
-            (group) => !group.some((word) => new RegExp(`\\b${escapeRegExp(word)}\\b`, 'i').test(setup))
-        )
-        if (unmet.length > 0) {
-            reasons.push(`${prefix} the setup must mark what this activity scores on: ${slot.primaryScoring.setupRequirement}`)
-        }
+    if (slot.primaryScoring && !setupMarksScoringObject(activity.setup ?? '', slot.primaryScoring)) {
+        reasons.push(`${prefix} the setup must mark what this activity scores on: ${slot.primaryScoring.setupRequirement}`)
     }
 
     const archeOk =
