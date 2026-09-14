@@ -1804,3 +1804,53 @@ _Superseded by 'What to work on next' in CURRENT DIRECTION above._
   `round7-game-problem-findings.md`, `round2-closure-ontology.md`, `project_architecture.md`.
 - Christian's Knowledge Core docs (Batch 1, finalized RC1) are in `~/Downloads/` (`.docx`); they define
   the stable architecture the software builds toward — NOT current coding tasks.
+
+### 2026-09-14 — What the selected Game Form contributes (Christian's question), measured
+
+**His question (14 Sep).** He generated Play Out from the Back and got End Zone, Wide Channel and Timed
+Possession Games, all scoring beyond the first defenders. He asked what the selected Game Form
+contributes to each realization, and whether "Setup marks the scoring object, and only that object"
+also removes representative objectives such as goals. He asked to see this before any knowledge
+changes, and to hold the Counterattack 6–10 second window until then.
+
+**How it was measured:**
+- A deterministic trace of Play Out from the Back through each RPC-001 form: GF2 (selected), GF3 and
+  GF7 (forced).
+- Real generation through all three, the way the live app runs: Against High Pressure, Building
+  Understanding, Applying emphasis. Raw model text was read before and after compression.
+
+**Findings:**
+- **One Game Form per generation.** The three activities are three slots of Directional Possession
+  Games (gated candidates GF2, GF3, GF7; GF2 wins). "End Zone", "Wide Channel" and "Timed" are titles
+  the model writes from the per-slot variation directives.
+- **What the form feeds the engine:**
+  - its scoring objects (`scoring_structure_type`), which set the line/zone rotation;
+  - three `setup_guidance` lines;
+  - 14 mechanics lines the validator checks as text;
+  - an exchange rule (GF2 has none in `EXCHANGE_RULE_BY_ARCHETYPE`, so it gets the default);
+  - the player format, only when the form's name contains "overload".
+- **What reaches the coach:**
+  - GF2: nothing distinctive. Raw setups drew "two end zones" from its "target line or zone"
+    guidance, and cleanup removed them. Rules showed only the default exchange rule.
+  - GF3: two positional rules survive, plus a central zone with wide channels. The 3×3 grid never
+    appears.
+  - GF7: three lengthwise channels and a channel exchange rule. Nothing ties the channels to what
+    players read or to how they score.
+- **Constraints are identical across all three forms:** Central Density Condition, Wide Zone
+  Advantage and Progression Bonus. The wide channels in his activity come from Wide Zone Advantage.
+- **Slots differ only by** the emphasis directive, one modifier and the event rotation.
+- **Goals:** no RPC-001 form marks a goal. The SCORING OBJECT directive and
+  `scoring-object-consistency.ts` remove goals nothing scores on, so the goalkeeper only starts
+  attacks. His point stands: the rule removes representative objectives, not only competing scoring
+  objects.
+
+**Defect found: every live session runs the narrow Applying profile.**
+- The session schema's default of 'applying' (since 20 May) fills new sessions and also hydrates
+  stored sessions missing the field. Checked on the real model: omitted → applying; stored without
+  the field → applying.
+- The engine's 14 Aug switch to Discovering for an unset emphasis, and the form's 29 Aug removal of
+  the control, never reached the app.
+- The generation harness sets no emphasis, so every harness run used Discovering.
+- Not changed yet: it would alter what Christian is evaluating, so it needs Joe's decision.
+
+No knowledge or code changed. Counterattack window held at Christian's request.
