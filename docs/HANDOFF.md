@@ -491,7 +491,7 @@ the behaviour gate is unchanged, and the learning-goal plumbing (`adc892e`) pass
 - ACTIVE comes "once those changes are reflected and the validation passes".
 
 **Codex started it in the STALE MAIN CHECKOUT** (`C:\challenge-point`, 61 behind origin/main).
-- Its uncommitted files are still there, untouched: `back/src/system/primary-scoring/`,
+- Its uncommitted files were left there untouched, then cleared on 14 Sep with Joe's OK: `back/src/system/primary-scoring/`,
   `back/data/primary-scoring/`, `.tmp-primary-scoring/`, edits to 7 files, and
   `back/_rc11-regression.*`.
 - Not ported, and why:
@@ -499,7 +499,7 @@ the behaviour gate is unchanged, and the learning-goal plumbing (`adc892e`) pass
   - setup checks that substring-match "area" and "goal";
   - regex parsing of condition prose;
   - sport-coupling pushed to 38.
-- Rebuilt in the worktree in `e954541`. Cleaning the main checkout needs Joe's OK.
+- Rebuilt in the worktree in `e954541`. The main checkout was cleared on 14 Sep with Joe's OK.
 
 **Where it lives:**
 - **RPC workbook** (`apply-rpc-scoring-events.py`):
@@ -608,8 +608,14 @@ not.
 - Model phrasing outside scoring that the cleaning leaves alone: "Play 7v5 creating a 7v6 overload"
   (player-format reconciliation), "divided into a central zone", "Play with 6v6".
 - Directional Possession Games wins 6 of 13 gated guided goals, so diversity across goals is unchanged.
-- Codex's uncommitted primary-scoring attempt is still in the stale main checkout; cleaning it needs
-  Joe's OK.
+- ~~Codex's uncommitted primary-scoring attempt in the stale main checkout.~~ Cleared 14 Sep with Joe's
+  OK: 7 tracked edits restored, and its untracked files removed. A patch and archive were kept in that
+  session's scratchpad.
+  - `.tmp-primary-scoring/node_modules` was an NTFS junction into Codex's runtime cache. It was
+    unlinked first, and the cache was left intact.
+  - Main still holds two July Codex worktrees (`codex-phase1-baseline`, `codex-phase1-worktree`).
+    Their commits are on main; only test output and a lockfile change are uncommitted. They were not
+    removed.
 - Two Finishing rules can restate each other ("Defenders contest every finishing attempt…").
 
 **Lessons:**
