@@ -88,7 +88,8 @@ F_possession,G_overload,H_transition,I_defensive[protect/recover/delay/press],**
 Z_fallback) → `generateSelection` (token-overlap picks 1 archetype from the pool, then scores
 lenses/constraints; bonuses: +10 target-matches-selected-lens, +6 archetype-affordance, +3
 recommended-type, **+12 information-intent**) → assembly (`build-activity-skeleton`,
-`build-activity-mechanics`, `completion.service.generateAssemblyPrompt`) → validation →
+`build-activity-mechanics`, `completion.service.generateAssemblyPolishPrompt` plus a short payload;
+`generateAssemblyPrompt` has had no caller since 7 May, see the 14 Sep audit) → validation →
 `compress-activity-output.compressActivitiesForCoach` (coach-facing post-process; this is the prod
 coach-output path — `map-activity-to-coach-view.ts` is NOT used in prod, only a test script).
 **Key architectural belief:** Game Problems organize; archetypes are structural templates; constraints +
@@ -1804,3 +1805,175 @@ _Superseded by 'What to work on next' in CURRENT DIRECTION above._
   `round7-game-problem-findings.md`, `round2-closure-ontology.md`, `project_architecture.md`.
 - Christian's Knowledge Core docs (Batch 1, finalized RC1) are in `~/Downloads/` (`.docx`); they define
   the stable architecture the software builds toward — NOT current coding tasks.
+
+### 2026-09-14 — What the selected Game Form contributes (Christian's question), measured
+
+**His question (14 Sep).** He generated Play Out from the Back and got End Zone, Wide Channel and Timed
+Possession Games, all scoring beyond the first defenders. He asked what the selected Game Form
+contributes to each realization, and whether "Setup marks the scoring object, and only that object"
+also removes representative objectives such as goals. He asked to see this before any knowledge
+changes, and to hold the Counterattack 6–10 second window until then.
+
+**How it was measured:**
+- A deterministic trace of Play Out from the Back through each RPC-001 form: GF2 (selected), GF3 and
+  GF7 (forced).
+- Real generation through all three, the way the live app runs: Against High Pressure, Building
+  Understanding, Applying emphasis. Raw model text was read before and after compression.
+
+**Findings:**
+- **One Game Form per generation.** The three activities are three slots of Directional Possession
+  Games (gated candidates GF2, GF3, GF7; GF2 wins). "End Zone", "Wide Channel" and "Timed" are titles
+  the model writes from the per-slot variation directives.
+- **What the form feeds the engine:**
+  - its scoring objects (`scoring_structure_type`), which set the line/zone rotation;
+  - three `setup_guidance` lines;
+  - 14 mechanics lines the validator checks as text;
+  - an exchange rule (GF2 has none in `EXCHANGE_RULE_BY_ARCHETYPE`, so it gets the default);
+  - the player format, only when the form's name contains "overload".
+- **What reaches the coach:**
+  - GF2: nothing distinctive. Raw setups drew "two end zones" from its "target line or zone"
+    guidance, and cleanup removed them. Rules showed only the default exchange rule.
+  - GF3: two positional rules survive, plus a central zone with wide channels. The 3×3 grid never
+    appears.
+  - GF7: three lengthwise channels and a channel exchange rule. Nothing ties the channels to what
+    players read or to how they score.
+- **Constraints are identical across all three forms:** Central Density Condition, Wide Zone
+  Advantage and Progression Bonus. The wide channels in his activity come from Wide Zone Advantage.
+- **Slots differ only by** the emphasis directive, one modifier and the event rotation.
+- **Goals:** no RPC-001 form marks a goal. The SCORING OBJECT directive and
+  `scoring-object-consistency.ts` remove goals nothing scores on, so the goalkeeper only starts
+  attacks. His point stands: the rule removes representative objectives, not only competing scoring
+  objects.
+
+**Defect found: every live session runs the narrow Applying profile.**
+- The session schema's default of 'applying' (since 20 May) fills new sessions and also hydrates
+  stored sessions missing the field. Checked on the real model: omitted → applying; stored without
+  the field → applying.
+- The engine's 14 Aug switch to Discovering for an unset emphasis, and the form's 29 Aug removal of
+  the control, never reached the app.
+- The generation harness sets no emphasis, so every harness run used Discovering.
+- Not changed yet: it would alter what Christian is evaluating, so it needs Joe's decision.
+
+No knowledge or code changed. Counterattack window held at Christian's request.
+
+### 2026-09-14 — Session emphasis fixed: an unchosen emphasis now runs the differentiated profile
+
+**Decision.** Christian's 14 Aug decision stands. A session nobody chose an emphasis for runs the
+differentiated Discovering profile, and an explicit choice is honoured. The defect was in the
+implementation: three places answered "which emphasis?", and the schema's answer won.
+
+**Changes:**
+- `resolveSessionEmphasis` (`emphasis-variation-profile.ts`) is the only resolver. The profile, slot
+  directives, slot modifiers and assembly prompt all use it.
+- The prompt's session block moved into `sessionEmphasisPromptBlock`. In `completion.service.ts` it had
+  its own 'applying' fallback and told the model "Coach selected emphasis"; it now says "Session
+  emphasis".
+- The Session schema has no default for `sessionEmphasis`.
+- The harness builds its session through the real Session model. `SESSION_EMPHASIS` sets an explicit
+  choice.
+- `session-emphasis.unit.ts` follows the real model (new and hydrated) through the resolver to the
+  profile, directives, modifiers and prompt. Bite-proved: restoring the schema default fails it.
+- `scripts/unset-defaulted-session-emphasis.ts` is a dry run by default. `--apply` unsets 'applying' on
+  sessions created on or after 2026-08-29, when the form stopped offering a choice. Earlier sessions
+  are left alone, and `--since` overrides the cutoff. **Not run: it needs the production database.**
+- Stale comments corrected in the schema, skeleton, profile, slot-variation test, SessionPage and
+  SessionForm.
+
+**Verified:**
+- Back-end and front-end tsc pass; 48 suites; ratchet 35; gate `70 68 98 119 94 99 86`.
+- Real Play Out from the Back through the model-built session gave three distinct activities, where the
+  Applying run gave three near-copies:
+  - Central Corridor (spatial, with zone values);
+  - Live Transition (a transition rule);
+  - Numerical Overload (overload values).
+- Slot 3's setup named "the team with the overload" without stating the numbers. That is a model
+  omission, not caused by the fix.
+
+**Still to do:** once this reaches the app, run the cleanup script against production (dry run first).
+Until then, existing sessions keep 'applying'; new sessions are correct.
+
+### 2026-09-14 — Baseline corrected for the causal expression audit; implementation frozen
+
+**Christian (14 Sep)** asked for a system-wide causal expression audit, measuring what each selection
+changes in the game players experience. He allowed exactly one correction first: the coach's
+selected Learning Stage and variant must actually reach generation. After that, implementation is
+frozen for the duration of the audit.
+
+**Correction:**
+1. **Emphasis:** already fixed (the entry above).
+2. **Learning Stage never reached the model.**
+   - Found by capturing the live prompt, not by reading the code.
+   - The IC-001 directive (9 Aug) was built into the skeleton bundle and rendered by
+     `formatActivitySkeletonForPrompt`. That formatter's only caller, `generateAssemblyPrompt`, has not
+     been called since 7 May, when the live path moved to `generateAssemblyPolishPrompt` plus payload.
+   - Fix: the directive is now added to the live polish prompt.
+   - `live-assembly-prompt.unit.ts` runs the real `assembleActivities` with the OpenAI call
+     intercepted. Bite-proved: removing the block fails it.
+   - The telemetry flag `learningStageInfluencesGeneration` is now truthful, and the comments are
+     corrected.
+
+**Verified:** 49 suites; ratchet 35; gate `70 68 98 119 94 99 86`. Captured prompts show the stage
+directive changing per stage and absent without one.
+
+**FROZEN, deliberately left as found:** the same dead formatter still holds, unsent:
+- the Practice Situation directive;
+- representative stakes;
+- the information-expression directive;
+- the setup brief (Game Form and constraint setup guidance, field, format);
+- the SCORING OBJECT instruction.
+These are audit evidence and must not be fixed before the audit reports.
+
+### 2026-09-14 — Causal expression audit delivered; freeze still in force
+
+**Report:** `docs/audits/causal-expression-2026-09-14.md`. The 60 real activities it rests on are
+kept verbatim in `docs/audits/causal-expression-2026-09-14-evidence.md`.
+
+**Answer:** Challenge Point assembles individually valid pieces that coexist, not a coherent
+representative game. Only two selections reliably change the game players experience:
+- the scoring event and its condition;
+- the session emphasis's slot template.
+
+**Diagnosis:**
+- Primary: selected knowledge not realized, and assembly not reconciling.
+- Enabling: validation checks ingredients.
+- Underlying: two writers. The model writes the physical game from a thin payload; the system writes
+  rules and scoring and never sees the physical game.
+
+**Method:**
+- One corrected baseline: A01, Against High Pressure, Building Understanding, emphasis unset.
+- 20 one-change conditions, each captured before the model call, then generated for real.
+- A validation probe: the real output with only the model's text broken, merge emulated, every route
+  validator run.
+- The instrumentation stayed in the session scratchpad, outside the product code.
+
+**Findings to carry forward:**
+- **What the model receives:** the Game Form name, a truncated hint, four rule summaries, two
+  constraint titles, two decision cues, and the emphasis and stage blocks.
+- **What it never receives:**
+  - the goal;
+  - the situation;
+  - the field or player count;
+  - the scoring event;
+  - the consequence constraint;
+  - the stakes.
+- **Where the layout comes from:** the prompt's generic example ("Two 20-yard end zones at either
+  end of a…").
+- **Across 20 runs:**
+  - activity 1 is a zone-weighted line game in 19;
+  - activity 2 is a target-zone transition game in 19;
+  - activity 3 is 7v5 in 14.
+  Situation, stage, constraints, challenge and note do not move this.
+- **Selected but not realized:**
+  - Pass Combination Gate: no passing requirement in 41 of 42 activities.
+  - Neutral Player: 0 of 6 activities show a neutral.
+  - Consequence rewards: shown in Scoring in 0 of 57.
+- **Goals and goalkeepers:** 0 of 60 activities contain a goal, while 57 start attacks from a
+  goalkeeper and 31 never place one.
+- **Validation:** five deliberately broken games passed every validator: impossible geometry, an
+  unopposed drill, goals only, three identical activities, corner kicks.
+- **Corrections to my 14 Sep trace:**
+  - Game Form setup guidance is not sent.
+  - The end zones come from the generic prompt example.
+  - The Practice Situation acts only through its name, as parser text.
+
+**Freeze:** still in force. Nothing identified here is to be fixed until Christian or Joe lifts it.

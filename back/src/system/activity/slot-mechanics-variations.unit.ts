@@ -88,7 +88,7 @@ function testEverySlotUnderEveryEmphasisIsCovered(): void {
         { emphasis: SessionEmphasis['Applying Solutions Under Pressure'], idx: 1 },
         { emphasis: SessionEmphasis['Applying Solutions Under Pressure'], idx: 2 },
         { emphasis: SessionEmphasis['Applying Solutions Under Pressure'], idx: 3 },
-        { emphasis: undefined, idx: 1 }, // undefined defaults to applying
+        { emphasis: undefined, idx: 1 }, // undefined runs Discovering; see session-emphasis.unit.ts
     ]
     for (const { emphasis, idx } of cases) {
         const mods = getSlotMechanicalVariations(emphasis, idx)

@@ -78,8 +78,8 @@ export interface ISession {
     skillLevel?: SkillLevels
     /**
      * Environmental intention for the session — not a skill level or difficulty setting.
-     * Defaults to 'applying' for existing sessions without the field (per Christian's MVP2
-     * decision: closest to pre-emphasis output structure, minimizes migration inconsistency).
+     * Absent unless explicitly chosen; an absent emphasis runs the differentiated Discovering
+     * profile. Always read it through resolveSessionEmphasis (emphasis-variation-profile.ts).
      */
     sessionEmphasis?: SessionEmphasis
     fieldLength?: string
@@ -101,10 +101,11 @@ const sessionSchema = new Schema<ISession>(
         sessionEmphasis: {
             type: String,
             enum: Object.values(SessionEmphasis),
-            // Default for new sessions if the client does not supply a value. Existing saved
-            // sessions without the field will also read as 'applying' via the default below
-            // when surfaced through ISession.
-            default: SessionEmphasis['Applying Solutions Under Pressure'],
+            // NO DEFAULT, deliberately. A schema default here filled 'applying' on every new session
+            // and on every stored session read without the field, so the engine's own default for an
+            // unchosen emphasis (the differentiated profile) never ran for a coach. The schema must not
+            // choose for the coach; resolveSessionEmphasis decides what an absent value means.
+            // Pinned by session-emphasis.unit.ts.
         },
         fieldLength: { type: String },
         fieldWidth: { type: String },

@@ -848,21 +848,18 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                 signalGroups: usageSignalGroups,
                 challengeLevel,
                 duration,
-                // EVIDENCE ONLY — none of these influence generation today.
+                // Planning selections, recorded as evidence of what coaches choose.
                 //
-                // learningStage is the important one. It is asked in the conversation because
-                // Christian's MVP scope includes it, but nothing consumes it: his spec says it
-                // calibrates challenge rather than football content, and how it combines with
-                // Challenge is a coaching judgement that belongs to him. Recording what coaches
-                // actually pick means that decision can be made against a real distribution rather
-                // than in the abstract — and it means the question is not entirely wasted while it
-                // waits. Recorded as a KNOWN no-op, not quietly dropped.
+                // learningStage REACHES GENERATION since 14 Sep: its IC-001 directive is in the live
+                // assembly prompt. Until then this flag said false, and it was true to the live path:
+                // the directive existed, but it was wired into a prompt builder the route no longer
+                // called. How the stage combines with Challenge is still Christian's judgement.
                 ...(planning
                     ? {
                           learningGoalId: planning.learningGoalId,
                           practiceSituationId: planning.practiceSituationId ?? null,
                           learningStage: planning.learningStage,
-                          learningStageInfluencesGeneration: false,
+                          learningStageInfluencesGeneration: Boolean(planning.learningStage),
                           planningEntryPoint: 'guided',
                       }
                     : { planningEntryPoint: 'free_text' }),
