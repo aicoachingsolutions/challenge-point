@@ -1977,3 +1977,53 @@ representative game. Only two selections reliably change the game players experi
   - The Practice Situation acts only through its name, as parser text.
 
 **Freeze:** still in force. Nothing identified here is to be fixed until Christian or Joe lifts it.
+
+### 2026-09-14 — Christian's reply: a Selection → Realization Contract; freeze continues
+
+**Christian agreed with the audit's central conclusion** and asked to keep implementation frozen.
+- **Don't patch the individual failures.** They become hostile tests for whatever contract results.
+- **The Counterattack timing question stays parked.**
+- **His framing:**
+  - The knowledge architecture makes more decisions than the activity expresses.
+  - What is missing is a deterministic contract for what each selection must make true in the game.
+  - Selection → obligation → realization → validation against the obligation.
+  - He deliberately named no new architectural layer.
+- **His plan:** author realization requirements for a small sample: one RPC, contrasting Practice
+  Situations, the three compatible Game Forms, a hostile set of constraints, one consequence, one
+  Information Expression example, and representative versus scoring objectives.
+- **His question:** what minimum structure could the runtime consume before the model call, or should
+  he specify independently?
+
+**Sent:** `docs/design/selection-realization-contract-draft-shape.md`, also published as a page.
+- **Runtime today:** it consumes exactly one structured object per activity, the primary scoring
+  directive. That directive is the only layer the audit found functional.
+- **Recommendation:** author in football terms, row by row, in a small obligation shape: source,
+  subject, requirement, value, strength, owner, precedence, evidence, needs-vocabulary. The rows are
+  about a resolved game specification. Author against existing vocabularies, not against today's
+  runtime.
+- **Key finding:** both halves already exist separately.
+  - *Obligations as prose:* setup guidance with parameters, never sent. For example, Neutral Player
+    "one or two neutral players… always play with the team in possession", and Pass Combination Gate
+    "4-6 connected passes".
+  - *Vocabulary as typed canon, unconsumed:*
+    - EM Schema v2.0 (64 typed parameters);
+    - Information Expression RC1.1 (26 dimensions, 139 values, 6 presets);
+    - Game Archetype integrity conditions and Interaction Regulation families;
+    - RPC begin/end conditions, identity rules and validation rules;
+    - the Soccer Module's empty opposition, restart and player-count columns.
+- **Worked rows** for Neutral Player, From Goal Kicks, Wide Zone Advantage, Pass Combination Gate,
+  Variable Target, Goalkeeper Included, RPC-001, Through Wide Areas and Turnover Reward (no realization
+  authored), plus GF2, GF3 and GF7.
+- **Six questions for him:**
+  1. GF2 direction: its authored guidance says "teams attack in the same direction".
+  2. Whether consequences may award points.
+  3. The precedence order, or FAIL by default.
+  4. Whether "typical" values are REQUIRED.
+  5. Whether EM v2.0 has a knowledge object for a sub-area (it appears not to).
+  6. Mismatched EM family IDs between the Game Archetype Workbook and the EM Schema.
+
+**Audit corrected:** its "missing knowledge" row said Neutral Player and Pass Combination Gate gave no
+count or pass number. That described the system's line, not the authored guidance.
+
+**Next:** wait for his answers and sample. When the sample arrives, check each row against the
+existing audit runs. No new implementation.
