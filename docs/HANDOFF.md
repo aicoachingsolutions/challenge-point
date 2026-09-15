@@ -88,7 +88,8 @@ F_possession,G_overload,H_transition,I_defensive[protect/recover/delay/press],**
 Z_fallback) → `generateSelection` (token-overlap picks 1 archetype from the pool, then scores
 lenses/constraints; bonuses: +10 target-matches-selected-lens, +6 archetype-affordance, +3
 recommended-type, **+12 information-intent**) → assembly (`build-activity-skeleton`,
-`build-activity-mechanics`, `completion.service.generateAssemblyPrompt`) → validation →
+`build-activity-mechanics`, `completion.service.generateAssemblyPolishPrompt` plus a short payload;
+`generateAssemblyPrompt` has had no caller since 7 May, see the 14 Sep audit) → validation →
 `compress-activity-output.compressActivitiesForCoach` (coach-facing post-process; this is the prod
 coach-output path — `map-activity-to-coach-view.ts` is NOT used in prod, only a test script).
 **Key architectural belief:** Game Problems organize; archetypes are structural templates; constraints +
@@ -1921,3 +1922,58 @@ directive changing per stage and absent without one.
 - the setup brief (Game Form and constraint setup guidance, field, format);
 - the SCORING OBJECT instruction.
 These are audit evidence and must not be fixed before the audit reports.
+
+### 2026-09-14 — Causal expression audit delivered; freeze still in force
+
+**Report:** `docs/audits/causal-expression-2026-09-14.md`. The 60 real activities it rests on are
+kept verbatim in `docs/audits/causal-expression-2026-09-14-evidence.md`.
+
+**Answer:** Challenge Point assembles individually valid pieces that coexist, not a coherent
+representative game. Only two selections reliably change the game players experience:
+- the scoring event and its condition;
+- the session emphasis's slot template.
+
+**Diagnosis:**
+- Primary: selected knowledge not realized, and assembly not reconciling.
+- Enabling: validation checks ingredients.
+- Underlying: two writers. The model writes the physical game from a thin payload; the system writes
+  rules and scoring and never sees the physical game.
+
+**Method:**
+- One corrected baseline: A01, Against High Pressure, Building Understanding, emphasis unset.
+- 20 one-change conditions, each captured before the model call, then generated for real.
+- A validation probe: the real output with only the model's text broken, merge emulated, every route
+  validator run.
+- The instrumentation stayed in the session scratchpad, outside the product code.
+
+**Findings to carry forward:**
+- **What the model receives:** the Game Form name, a truncated hint, four rule summaries, two
+  constraint titles, two decision cues, and the emphasis and stage blocks.
+- **What it never receives:**
+  - the goal;
+  - the situation;
+  - the field or player count;
+  - the scoring event;
+  - the consequence constraint;
+  - the stakes.
+- **Where the layout comes from:** the prompt's generic example ("Two 20-yard end zones at either
+  end of a…").
+- **Across 20 runs:**
+  - activity 1 is a zone-weighted line game in 19;
+  - activity 2 is a target-zone transition game in 19;
+  - activity 3 is 7v5 in 14.
+  Situation, stage, constraints, challenge and note do not move this.
+- **Selected but not realized:**
+  - Pass Combination Gate: no passing requirement in 41 of 42 activities.
+  - Neutral Player: 0 of 6 activities show a neutral.
+  - Consequence rewards: shown in Scoring in 0 of 57.
+- **Goals and goalkeepers:** 0 of 60 activities contain a goal, while 57 start attacks from a
+  goalkeeper and 31 never place one.
+- **Validation:** five deliberately broken games passed every validator: impossible geometry, an
+  unopposed drill, goals only, three identical activities, corner kicks.
+- **Corrections to my 14 Sep trace:**
+  - Game Form setup guidance is not sent.
+  - The end zones come from the generic prompt example.
+  - The Practice Situation acts only through its name, as parser text.
+
+**Freeze:** still in force. Nothing identified here is to be fixed until Christian or Joe lifts it.
