@@ -2033,3 +2033,55 @@ count or pass number. That described the system's line, not the authored guidanc
 
 **Next:** wait for his answers and sample. When the sample arrives, check each row against the
 existing audit runs. No new implementation.
+
+### 2026-09-15 — Christian's decisions on the six questions; he is authoring the vertical slice
+
+**The shape stands:** source → scope → what must be true → strictness → value authority → collision
+behavior → validation. He called primary scoring evidence that this extends a working mechanism.
+
+**His principle:** Selection ≠ Realization, and Realization ≠ Mention. A requirement is satisfied only
+when its functional effect exists in the player–environment interaction.
+
+**Decisions:**
+1. **Direction invariant:** each team has a stable, perceivable direction of progression and at least
+   one functional directional objective; normally each attacks one way and defends the other. GF2's
+   "Teams attack in the same direction" is to be corrected, not bound. Same-target play may be an
+   authored realization only.
+2. **One primary scoring event.** Consequences change state: possession, restart/state, temporary
+   numerical advantage, access/eligibility, spatial advantage, target availability, continuation.
+   - Exception: an explicitly authored change to the primary event's value.
+   - A second independent point, such as "five passes = point", is invalid.
+3. **No universal precedence.** Reconcile only through an authored ownership or relationship rule
+   (e.g. RPC scoring ownership); otherwise fail loudly and return to selection.
+4. **Three value statuses:** REQUIRED RANGE, PREFERRED/DEFAULT, TYPICAL/EXAMPLE. Guidance values are
+   never hard rules unless canonical knowledge makes them boundaries.
+5. **Regions:** no new EM knowledge object and no ontology change. Knowledge requires or organizes a
+   region; realization instantiates it; the resolved game needs a generic region representation.
+6. **EM family IDs:** bind neither until reconciled. He expects the canonical EM RC1 library to own
+   them, and asked for the conflicting rows.
+
+**Done:**
+- `docs/design/selection-realization-contract-draft-shape.md` revised with these decisions, and the page
+  republished. Field names follow his chain; `value_status` and fail-to-selection collisions added;
+  the worked rows re-graded.
+- `docs/design/em-family-id-conflict.md` sent for question 6:
+  - **EM Schema v2.0** (Family Registry rows 5–10): EMF-01 to 06, with 05 Environmental Objects and
+    06 Playing Surface. Dated 12 Jul; it supersedes an "Implementation Workbook Package 1.1".
+  - **Game Archetype Workbook RC1.1** (Knowledge rows 152–187, GAK-0151–0186): EMF-001 to 006, with
+    005 Transition Triggers and 006 Environmental Elements.
+  - **Provenance:** all 36 archetype rows cite "Environmental Manipulation Library RC1 + Game Archetype
+    Canonical Reference v1.0".
+  - **Nothing checks family IDs across the two:** the archetype loader counts rows only.
+  - **Missing sources:** neither the EM Library RC1 document nor the superseded package is in the repo.
+
+**Knowledge corrections recorded, NOT made (frozen):**
+- GF2's direction wording and the system Teams line "Two teams compete in the same direction";
+- Neutral Player's "one or two" against its own "6v6 + 3 neutrals" example;
+- Wide Zone Advantage's "bonus point".
+
+**He is authoring the vertical slice** over the audit's hostile cases: RPC-001, Against High Pressure,
+From Goal Kicks, Through Wide Areas, GF2, GF3, GF7, Neutral Player, Pass Combination Gate, Wide Zone
+Advantage, Variable Target, Goalkeeper Included, Turnover Reward. It covers representative versus
+primary scoring objectives and reconciliation of counts, geometry, direction, objectives,
+states/restarts, constraints, information and consequences. Implementation stays frozen until it
+arrives.
