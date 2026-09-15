@@ -40,7 +40,7 @@ It is a combination, and not an even one.
 | Primary | **4. Activity Assembly not reconciling** | The model invents the layout. The system restates area and player count and appends the scoring sentence. Nothing makes the pieces fit. |
 | Enabling | **5. Validation checking ingredients** | All five deliberately broken games passed every validator. |
 | Underlying | **3. Poor integration** | Two writers work apart. The model writes the physical game with the least access to what was selected. The system writes rules and scoring with no view of the physical game. |
-| Secondary | **1. Missing knowledge** | Not the binding limit: most existing knowledge goes unused. Where the system does write a constraint, some lines state rationale rather than something to lay out. The Neutral Player line gives no count or position. The Pass Combination Gate line gives no number of passes. |
+| Secondary | **1. Missing knowledge** | Not the binding limit: most existing knowledge goes unused. The lines the system writes for constraints state rationale, not what to lay out. The authored setup guidance behind them does carry the parameters, but it sits in the setup brief, which is never sent: Neutral Player Condition gives one or two neutrals who always join the team in possession, with team numbers adjusted; Pass Combination Gate gives a minimum of 4–6 connected passes, reset when possession is lost. Turnover Reward has no setup guidance at all, which is a real gap. *Corrected after the first reading: this row originally said the knowledge gave no count or pass number, which described the system's line rather than the authored guidance.* |
 
 ## Recurring failure patterns
 
