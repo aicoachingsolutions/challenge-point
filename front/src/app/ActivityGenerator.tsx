@@ -187,10 +187,9 @@ export default function ActivityGenerator() {
             challengeLevel: RUNTIME_CHALLENGE_DEFAULT,
             duration: selection.duration,
             learningGoals: [goalText],
-            // Sent for EVIDENCE, not for routing. Learning Stage does not yet influence generation
-            // — the interaction between it and Challenge is a coaching judgement Christian still
-            // owns — so recording what coaches actually choose is what will let him define it
-            // against a real distribution rather than in the abstract.
+            // Learning Stage reaches generation (its directive is in the live assembly prompt since
+            // 14 Sep). Its interaction with Challenge is still a coaching judgement Christian owns, and
+            // recording what coaches choose lets him define it against a real distribution.
             planning: {
                 learningGoalId: selection.learningGoalId,
                 practiceSituationId: selection.practiceSituationId,

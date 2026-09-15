@@ -4,6 +4,7 @@ import { IAffordance } from 'src/models/affordance.model'
 import { IConstraint } from 'src/models/constraint.model'
 import { ICategory } from 'src/models/category.model'
 import { sessionEmphasisPromptBlock } from '../system/activity/emphasis-variation-profile'
+import { learningStageDirective } from '../system/activity/learning-stage-realization'
 
 import LoggingService, { LoggingOptions } from '../services/logging.service'
 import type { Activity } from '../system/activity/activity-schema'
@@ -1055,6 +1056,13 @@ function generateAssemblyPolishPrompt(input: SystemAssemblyInput) {
     // while the slots fell back to 'discovering', so a session without an emphasis sent the model a
     // narrow session frame over differentiated slot directives. See resolveSessionEmphasis.
     const sessionEmphasisBlock = sessionEmphasisPromptBlock(input.session?.sessionEmphasis)
+    // THE COACH'S LEARNING STAGE, IN THE PROMPT THE MODEL ACTUALLY RECEIVES. IC-001's directive was
+    // added on 9 Aug to formatActivitySkeletonForPrompt, whose only caller (generateAssemblyPrompt) has
+    // not been called since this live path replaced it on 7 May. So the stage was recorded, built and
+    // unit-tested, and never sent. Found 14 Sep by capturing the live prompt. Pinned by
+    // live-assembly-prompt.unit.ts.
+    const learningStageLines = learningStageDirective(input.coachInput.learningStage)
+    const learningStageBlock = learningStageLines.length > 0 ? `${learningStageLines.join('\n')}\n\n` : ''
 
     // WORKSTREAM 1 follow-up — defensive polish emphasis. When the selected affordances are
     // defensive (Space Protection / Recovery / Delay or Deny / Regain), the polish layer was
@@ -1118,7 +1126,7 @@ Use only these payload sections as locked inputs:
 - activityBriefs[].coachingEmphasis
 
 ${sessionEmphasisBlock}
-${defensiveEmphasisBlock}
+${learningStageBlock}${defensiveEmphasisBlock}
 PARALLEL ENVIRONMENTAL REALIZATIONS — NOT A PROGRESSION
 - The three activities are PARALLEL realizations of the same session emphasis. They are NOT stages of a difficulty ramp.
 - Do NOT write Activity 1 as the "establish" or "entry-level" version.

@@ -1890,3 +1890,34 @@ implementation: three places answered "which emphasis?", and the schema's answer
 
 **Still to do:** once this reaches the app, run the cleanup script against production (dry run first).
 Until then, existing sessions keep 'applying'; new sessions are correct.
+
+### 2026-09-14 — Baseline corrected for the causal expression audit; implementation frozen
+
+**Christian (14 Sep)** asked for a system-wide causal expression audit, measuring what each selection
+changes in the game players experience. He allowed exactly one correction first: the coach's
+selected Learning Stage and variant must actually reach generation. After that, implementation is
+frozen for the duration of the audit.
+
+**Correction:**
+1. **Emphasis:** already fixed (the entry above).
+2. **Learning Stage never reached the model.**
+   - Found by capturing the live prompt, not by reading the code.
+   - The IC-001 directive (9 Aug) was built into the skeleton bundle and rendered by
+     `formatActivitySkeletonForPrompt`. That formatter's only caller, `generateAssemblyPrompt`, has not
+     been called since 7 May, when the live path moved to `generateAssemblyPolishPrompt` plus payload.
+   - Fix: the directive is now added to the live polish prompt.
+   - `live-assembly-prompt.unit.ts` runs the real `assembleActivities` with the OpenAI call
+     intercepted. Bite-proved: removing the block fails it.
+   - The telemetry flag `learningStageInfluencesGeneration` is now truthful, and the comments are
+     corrected.
+
+**Verified:** 49 suites; ratchet 35; gate `70 68 98 119 94 99 86`. Captured prompts show the stage
+directive changing per stage and absent without one.
+
+**FROZEN, deliberately left as found:** the same dead formatter still holds, unsent:
+- the Practice Situation directive;
+- representative stakes;
+- the information-expression directive;
+- the setup brief (Game Form and constraint setup guidance, field, format);
+- the SCORING OBJECT instruction.
+These are audit evidence and must not be fixed before the audit reports.
