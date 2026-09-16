@@ -2130,3 +2130,46 @@ already too strict.
 **Still preserved as unresolved:** Game Form restart × From Goal Kicks; central weighting × Wide Zone
 Advantage; Turnover Reward's missing consequence; EM family-ID provenance; Counterattack timing; and
 the three wording issues.
+
+### 2026-09-16 — Replay of the 60 activities against the eight invariants
+
+**Report:** `docs/audits/minimum-representation-replay-2026-09-16.md`, also published as a page. A paper
+exercise over the captured audit evidence: no implementation change, nothing regenerated.
+
+**Result:** the eight invariants reject all 60. **Three** activities genuinely cannot be laid out, all
+the same failure — 18 m channels across a 30 m width (baseline s1, ls-reinforcing s1,
+em-shaping-wide-zone s1). The other 57 a competent coach runs without noticing.
+
+**The eight AREAS held; the eight CHECKS did not.** None of the 39 missed defects needed a category
+outside the eight tables. What was missing were checks, mostly across two tables.
+
+**False alarms, 128 of 288 adjudicated findings.** Three invariants fire on one fact: a single unowned
+scoring object marked "beyond the first defenders" (59 of 60) trips `objective-object-team-role`,
+`primary-object-fixed` and `team-direction` at once.
+- `objective-object-team-role`'s role leg is wrong on the text: all 60 scoring sections begin "Earn a
+  point when…", so only team ownership is unstated.
+- `regions-fit-area` fired 5 times in 60, every time on an activity that volunteered numbers: it
+  rewards vagueness and punishes specificity.
+- Four of the eight were applied oppositely on identical text by careful readers (`primary-object-fixed`
+  overturned 15/15 by one challenger, upheld 15/15 by another). Each invariant needs a decision
+  procedure, not just a name.
+
+**False negatives, 39.** Objects and Transitions have no invariant at all. Verified instances: 19 of 60
+score by a "deep" tier no setup defines; 3 restart with a goal kick in games with no goals; 3 carry a
+value condition that can never be true; 2 state no start of play; several pair two rules with one
+trigger and incompatible effects.
+
+**Shortlist (checks, not a ninth table):** `referenced-region-exists`, `transitions-complete`,
+`value-condition-evaluable`; then `regions-well-formed`, `no-contradictory-rules`,
+`objects-instantiated`, `start-state-valid`, `trigger-decidable`, `consequence-changes-something`,
+`region-bound-counts`, `rule-scope-stated`, `performer-fully-specified`, `score-resets-play`.
+
+**The structural conclusion:** one invariant set was doing two jobs. Seven ask "can it be laid out and
+played" (3 of 60 fail); `selected-contribution-present` asks "did the selection reach the field" (57 of
+60 fail). Two gates, different consequences.
+
+**Method:** a 9-agent workflow — four replay agents over 15 activities each, an adversarial challenger
+per batch instructed to defend the coach rather than the invariant, one synthesis. Every load-bearing
+count was then re-verified directly against the captured activities, which corrected three agent claims
+(balls ARE listed in Equipment in all 60; "Teams start with the ball" is idiomatic; one "no start of
+play" case in fact states a restart but no initial start).
