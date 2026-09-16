@@ -491,7 +491,7 @@ the behaviour gate is unchanged, and the learning-goal plumbing (`adc892e`) pass
 - ACTIVE comes "once those changes are reflected and the validation passes".
 
 **Codex started it in the STALE MAIN CHECKOUT** (`C:\challenge-point`, 61 behind origin/main).
-- Its uncommitted files are still there, untouched: `back/src/system/primary-scoring/`,
+- Its uncommitted files were left there untouched, then cleared on 14 Sep with Joe's OK: `back/src/system/primary-scoring/`,
   `back/data/primary-scoring/`, `.tmp-primary-scoring/`, edits to 7 files, and
   `back/_rc11-regression.*`.
 - Not ported, and why:
@@ -499,7 +499,7 @@ the behaviour gate is unchanged, and the learning-goal plumbing (`adc892e`) pass
   - setup checks that substring-match "area" and "goal";
   - regex parsing of condition prose;
   - sport-coupling pushed to 38.
-- Rebuilt in the worktree in `e954541`. Cleaning the main checkout needs Joe's OK.
+- Rebuilt in the worktree in `e954541`. The main checkout was cleared on 14 Sep with Joe's OK.
 
 **Where it lives:**
 - **RPC workbook** (`apply-rpc-scoring-events.py`):
@@ -608,8 +608,14 @@ not.
 - Model phrasing outside scoring that the cleaning leaves alone: "Play 7v5 creating a 7v6 overload"
   (player-format reconciliation), "divided into a central zone", "Play with 6v6".
 - Directional Possession Games wins 6 of 13 gated guided goals, so diversity across goals is unchanged.
-- Codex's uncommitted primary-scoring attempt is still in the stale main checkout; cleaning it needs
-  Joe's OK.
+- ~~Codex's uncommitted primary-scoring attempt in the stale main checkout.~~ Cleared 14 Sep with Joe's
+  OK: 7 tracked edits restored, and its untracked files removed. A patch and archive were kept in that
+  session's scratchpad.
+  - `.tmp-primary-scoring/node_modules` was an NTFS junction into Codex's runtime cache. It was
+    unlinked first, and the cache was left intact.
+  - Main still holds two July Codex worktrees (`codex-phase1-baseline`, `codex-phase1-worktree`).
+    Their commits are on main; only test output and a lockfile change are uncommitted. They were not
+    removed.
 - Two Finishing rules can restate each other ("Defenders contest every finishing attempt…").
 
 **Lessons:**
@@ -2027,3 +2033,143 @@ count or pass number. That described the system's line, not the authored guidanc
 
 **Next:** wait for his answers and sample. When the sample arrives, check each row against the
 existing audit runs. No new implementation.
+
+### 2026-09-15 — Christian's decisions on the six questions; he is authoring the vertical slice
+
+**The shape stands:** source → scope → what must be true → strictness → value authority → collision
+behavior → validation. He called primary scoring evidence that this extends a working mechanism.
+
+**His principle:** Selection ≠ Realization, and Realization ≠ Mention. A requirement is satisfied only
+when its functional effect exists in the player–environment interaction.
+
+**Decisions:**
+1. **Direction invariant:** each team has a stable, perceivable direction of progression and at least
+   one functional directional objective; normally each attacks one way and defends the other. GF2's
+   "Teams attack in the same direction" is to be corrected, not bound. Same-target play may be an
+   authored realization only.
+2. **One primary scoring event.** Consequences change state: possession, restart/state, temporary
+   numerical advantage, access/eligibility, spatial advantage, target availability, continuation.
+   - Exception: an explicitly authored change to the primary event's value.
+   - A second independent point, such as "five passes = point", is invalid.
+3. **No universal precedence.** Reconcile only through an authored ownership or relationship rule
+   (e.g. RPC scoring ownership); otherwise fail loudly and return to selection.
+4. **Three value statuses:** REQUIRED RANGE, PREFERRED/DEFAULT, TYPICAL/EXAMPLE. Guidance values are
+   never hard rules unless canonical knowledge makes them boundaries.
+5. **Regions:** no new EM knowledge object and no ontology change. Knowledge requires or organizes a
+   region; realization instantiates it; the resolved game needs a generic region representation.
+6. **EM family IDs:** bind neither until reconciled. He expects the canonical EM RC1 library to own
+   them, and asked for the conflicting rows.
+
+**Done:**
+- `docs/design/selection-realization-contract-draft-shape.md` revised with these decisions, and the page
+  republished. Field names follow his chain; `value_status` and fail-to-selection collisions added;
+  the worked rows re-graded.
+- `docs/design/em-family-id-conflict.md` sent for question 6:
+  - **EM Schema v2.0** (Family Registry rows 5–10): EMF-01 to 06, with 05 Environmental Objects and
+    06 Playing Surface. Dated 12 Jul; it supersedes an "Implementation Workbook Package 1.1".
+  - **Game Archetype Workbook RC1.1** (Knowledge rows 152–187, GAK-0151–0186): EMF-001 to 006, with
+    005 Transition Triggers and 006 Environmental Elements.
+  - **Provenance:** all 36 archetype rows cite "Environmental Manipulation Library RC1 + Game Archetype
+    Canonical Reference v1.0".
+  - **Nothing checks family IDs across the two:** the archetype loader counts rows only.
+  - **Missing sources:** neither the EM Library RC1 document nor the superseded package is in the repo.
+
+**Knowledge corrections recorded, NOT made (frozen):**
+- GF2's direction wording and the system Teams line "Two teams compete in the same direction";
+- Neutral Player's "one or two" against its own "6v6 + 3 neutrals" example;
+- Wide Zone Advantage's "bonus point".
+
+**He is authoring the vertical slice** over the audit's hostile cases: RPC-001, Against High Pressure,
+From Goal Kicks, Through Wide Areas, GF2, GF3, GF7, Neutral Player, Pass Combination Gate, Wide Zone
+Advantage, Variable Target, Goalkeeper Included, Turnover Reward. It covers representative versus
+primary scoring objectives and reconciliation of counts, geometry, direction, objectives,
+states/restarts, constraints, information and consequences. Implementation stays frozen until it
+arrives.
+
+### 2026-09-15 — Christian's shared-game hypothesis; runtime read delivered
+
+**He paused the realization ledger** and asked whether the audit points at something simpler: that the
+gap is not a contract per knowledge object but the absence of an authoritative representation of the
+game that currently exists. He asked for an architectural read, explicitly including an attempt to
+break the idea. Nothing to implement.
+
+**Read:** `docs/design/shared-game-representation-runtime-read.md`, also published as a page.
+
+**The decisive evidence:** `mapStructuredActivityToLegacy` already resolves two facts and then defends
+them inside the model's prose —
+`reconcilePlayerFormat(setup, session.playerCount, archetype.name)` and
+`reconcilePlayingArea(setup, parseSessionArea(...))`. 477 lines across `player-format.ts` and
+`playing-area.ts`, and the resolved values are never stored. `player-format.ts` states the thesis
+itself: the format "is derivable — there was never anything to negotiate".
+
+**Answers, in short:**
+1. **Fits.** Three writers share strings, not state: system mechanics, the model, and post-hoc repair.
+   The area is fixed while the regions inside it are deliberately left alone, which is exactly how 54 m
+   of channels survive on 30 m.
+2. **Primitives nearly sufficient,** with four corrections: the session envelope is missing; a general
+   Relationships primitive will absorb everything and must be a closed typed set; State should split
+   into element state and transitions; Objectives and Direction are derivable but earn explicit fields.
+   Emergent qualities (pressure, uncertainty, opportunity) are not representable, and cross-activity
+   variation has no home.
+3. **Knowledge mostly expresses as contributions.** What doesn't: affordance lenses (opportunities, not
+   properties), Learning Stage (a policy over parameters), session emphasis (cross-activity).
+4. **Outside:** coach language, rationale, provenance, selection scores, stage and emphasis language.
+   Attribution per element stays attached, so a failure can name what to reconsider.
+5. **Scoring generalizes in shape but not in method:** its authored sentence per context × event cannot
+   scale; rendering must compose from structure.
+6. **Removes a class of work** — roughly 1,900–2,500 lines of text repair and lexical validation — and
+   adds a reconciler, a renderer and the authoring conversion. Simplification only if the
+   representation refuses to model play. Strongest counter-argument: today's model-written Setup is the
+   only source of concrete layout, since layout knowledge is authored as prose that is never sent.
+7. **Minimum:** 8 tables, ~35 fields, 8 invariants, mapped to the audit's counts.
+
+**Proposed next step, no implementation:** replay the 60 captured activities against the eight
+invariants as a paper exercise. False alarms on runnable activities would mean the representation is
+already too strict.
+
+**Still preserved as unresolved:** Game Form restart × From Goal Kicks; central weighting × Wide Zone
+Advantage; Turnover Reward's missing consequence; EM family-ID provenance; Counterattack timing; and
+the three wording issues.
+
+### 2026-09-16 — Replay of the 60 activities against the eight invariants
+
+**Report:** `docs/audits/minimum-representation-replay-2026-09-16.md`, also published as a page. A paper
+exercise over the captured audit evidence: no implementation change, nothing regenerated.
+
+**Result:** the eight invariants reject all 60. **Three** activities genuinely cannot be laid out, all
+the same failure — 18 m channels across a 30 m width (baseline s1, ls-reinforcing s1,
+em-shaping-wide-zone s1). The other 57 a competent coach runs without noticing.
+
+**The eight AREAS held; the eight CHECKS did not.** None of the 39 missed defects needed a category
+outside the eight tables. What was missing were checks, mostly across two tables.
+
+**False alarms, 128 of 288 adjudicated findings.** Three invariants fire on one fact: a single unowned
+scoring object marked "beyond the first defenders" (59 of 60) trips `objective-object-team-role`,
+`primary-object-fixed` and `team-direction` at once.
+- `objective-object-team-role`'s role leg is wrong on the text: all 60 scoring sections begin "Earn a
+  point when…", so only team ownership is unstated.
+- `regions-fit-area` fired 5 times in 60, every time on an activity that volunteered numbers: it
+  rewards vagueness and punishes specificity.
+- Four of the eight were applied oppositely on identical text by careful readers (`primary-object-fixed`
+  overturned 15/15 by one challenger, upheld 15/15 by another). Each invariant needs a decision
+  procedure, not just a name.
+
+**False negatives, 39.** Objects and Transitions have no invariant at all. Verified instances: 19 of 60
+score by a "deep" tier no setup defines; 3 restart with a goal kick in games with no goals; 3 carry a
+value condition that can never be true; 2 state no start of play; several pair two rules with one
+trigger and incompatible effects.
+
+**Shortlist (checks, not a ninth table):** `referenced-region-exists`, `transitions-complete`,
+`value-condition-evaluable`; then `regions-well-formed`, `no-contradictory-rules`,
+`objects-instantiated`, `start-state-valid`, `trigger-decidable`, `consequence-changes-something`,
+`region-bound-counts`, `rule-scope-stated`, `performer-fully-specified`, `score-resets-play`.
+
+**The structural conclusion:** one invariant set was doing two jobs. Seven ask "can it be laid out and
+played" (3 of 60 fail); `selected-contribution-present` asks "did the selection reach the field" (57 of
+60 fail). Two gates, different consequences.
+
+**Method:** a 9-agent workflow — four replay agents over 15 activities each, an adversarial challenger
+per batch instructed to defend the coach rather than the invariant, one synthesis. Every load-bearing
+count was then re-verified directly against the captured activities, which corrected three agent claims
+(balls ARE listed in Equipment in all 60; "Teams start with the ball" is idiomatic; one "no start of
+play" case in fact states a restart but no initial start).
