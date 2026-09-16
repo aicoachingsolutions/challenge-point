@@ -2085,3 +2085,48 @@ Advantage, Variable Target, Goalkeeper Included, Turnover Reward. It covers repr
 primary scoring objectives and reconciliation of counts, geometry, direction, objectives,
 states/restarts, constraints, information and consequences. Implementation stays frozen until it
 arrives.
+
+### 2026-09-15 — Christian's shared-game hypothesis; runtime read delivered
+
+**He paused the realization ledger** and asked whether the audit points at something simpler: that the
+gap is not a contract per knowledge object but the absence of an authoritative representation of the
+game that currently exists. He asked for an architectural read, explicitly including an attempt to
+break the idea. Nothing to implement.
+
+**Read:** `docs/design/shared-game-representation-runtime-read.md`, also published as a page.
+
+**The decisive evidence:** `mapStructuredActivityToLegacy` already resolves two facts and then defends
+them inside the model's prose —
+`reconcilePlayerFormat(setup, session.playerCount, archetype.name)` and
+`reconcilePlayingArea(setup, parseSessionArea(...))`. 477 lines across `player-format.ts` and
+`playing-area.ts`, and the resolved values are never stored. `player-format.ts` states the thesis
+itself: the format "is derivable — there was never anything to negotiate".
+
+**Answers, in short:**
+1. **Fits.** Three writers share strings, not state: system mechanics, the model, and post-hoc repair.
+   The area is fixed while the regions inside it are deliberately left alone, which is exactly how 54 m
+   of channels survive on 30 m.
+2. **Primitives nearly sufficient,** with four corrections: the session envelope is missing; a general
+   Relationships primitive will absorb everything and must be a closed typed set; State should split
+   into element state and transitions; Objectives and Direction are derivable but earn explicit fields.
+   Emergent qualities (pressure, uncertainty, opportunity) are not representable, and cross-activity
+   variation has no home.
+3. **Knowledge mostly expresses as contributions.** What doesn't: affordance lenses (opportunities, not
+   properties), Learning Stage (a policy over parameters), session emphasis (cross-activity).
+4. **Outside:** coach language, rationale, provenance, selection scores, stage and emphasis language.
+   Attribution per element stays attached, so a failure can name what to reconsider.
+5. **Scoring generalizes in shape but not in method:** its authored sentence per context × event cannot
+   scale; rendering must compose from structure.
+6. **Removes a class of work** — roughly 1,900–2,500 lines of text repair and lexical validation — and
+   adds a reconciler, a renderer and the authoring conversion. Simplification only if the
+   representation refuses to model play. Strongest counter-argument: today's model-written Setup is the
+   only source of concrete layout, since layout knowledge is authored as prose that is never sent.
+7. **Minimum:** 8 tables, ~35 fields, 8 invariants, mapped to the audit's counts.
+
+**Proposed next step, no implementation:** replay the 60 captured activities against the eight
+invariants as a paper exercise. False alarms on runnable activities would mean the representation is
+already too strict.
+
+**Still preserved as unresolved:** Game Form restart × From Goal Kicks; central weighting × Wide Zone
+Advantage; Turnover Reward's missing consequence; EM family-ID provenance; Counterattack timing; and
+the three wording issues.
