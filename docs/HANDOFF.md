@@ -2173,3 +2173,89 @@ per batch instructed to defend the coach rather than the invariant, one synthesi
 count was then re-verified directly against the captured activities, which corrected three agent claims
 (balls ARE listed in Equipment in all 60; "Teams start with the ball" is idiomatic; one "no start of
 play" case in fact states a restart but no initial start).
+
+### 2026-09-16 — Christian's decisions on the replay; Gate A procedure derivation requested
+
+**Agreed:**
+- **Gate A, Structural Coherence:** can this game be laid out and played? Its only claim is "This game
+  can be coherently laid out and played as specified."
+- **Gate B, Realization Fidelity:** did the selected knowledge reach the field? Kept separate; the
+  evidence there is already strong (57 of 60).
+- The eight-area shape survived its first hostile test; the initial checks failed.
+- **An invariant name is not a gate.** If careful readers reach opposite verdicts on identical text, it
+  is a principle. Each Gate A invariant needs a deterministic decision procedure.
+- **A possible third question** — does a coherent, realized game preserve the representative learning
+  problem — is explicitly NOT to be folded into Gate A.
+
+**Requested (paper only, no implementation, no regeneration):**
+1. From the 39 false negatives and the overturned findings, derive the **smallest non-overlapping set**
+   of structural decision procedures that:
+   - catches meaningful defects;
+   - admits unambiguous coach shorthand;
+   - never has several checks report one underlying defect;
+   - does not reward vague language over precise language;
+   - stays inside the eight areas.
+   Let the evidence decide; don't treat the three shortlisted checks as required. A check needing
+   subjective football judgment is flagged, not forced into Gate A.
+2. Replay the same 60 with that set, reporting: true defects caught, false alarms, defects missed,
+   duplicate findings, and cases still needing subjective interpretation.
+
+Everything else remains frozen.
+
+### 2026-09-17 — Gate A procedures derived; second replay done
+
+**Report:** `docs/audits/gate-a-second-replay-2026-09-17.md`, also published as a page. The derived
+specification and ledgers are in `docs/audits/gate-a/`. Paper only.
+
+**Derivation:**
+- **How it ran:** a workflow with three independent derivations (defect-first, noise-first,
+  representation-first), then a judge. Defect-first failed on the 64k output limit, so two were merged.
+- **What came out:** two procedures —
+  - **GA-LAYOUT** — space declarations and roster resolve to exactly one arrangement inside 40 × 30 m /
+    12 players (`L-UNPARSEABLE`, `L-INFEASIBLE`, `L-ROSTER`);
+  - **GA-PLAY** — every structural rule has existing referents, a typed effect and no incompatible rival
+    on one trigger (`P-REFERENT`, `P-EFFECT`, `P-CONFLICT`).
+- **Verdict rule:** fail only when, after closed shorthand readings and defaults, a field has zero or
+  conflicting values. The only search allowed is over unstated quantities, never over word readings.
+  This fixes the vagueness asymmetry.
+- **Excluded:** 20 candidates (4 subjective, 2 Gate B, 7 not structural, 7 merged).
+
+**Replay design:** two blind readers per half of the 60, with agreement computed in code; an independent
+defect hunter per half with no checklist; a scorer.
+
+**Results (identical for both readers):**
+- 34 of 35 true defects caught; 5 false alarms; 1 miss; 1 duplicate.
+- 13 distinct subjective issues (24 instances). No ninth area needed.
+- GA-LAYOUT: 8 caught, 0 errors. GA-PLAY: 26 caught, 5 false alarms, 1 miss.
+
+**Determinism:** 60/60 verdicts, 60/60 fact codes, 59/60 exact keys (a label). **Caveat:** reader B
+raised 12 indeterminates that reader A resolved silently the same way. They trace to a spec
+self-contradiction: X1 lists "Use" as both a layout verb and a tactical verb. Every remaining error is
+shared by both readers, so it is spec policy or spec flaws, not reader noise.
+
+**Contested rulings:**
+- "deep" tier: structural, low severity, 19 rows — the most consequential call and one sentence, flagged
+  as Christian's.
+- "extra numbers" in even games: subjective, out of Gate A (4 rows).
+- The 30-second shot clock and "goal kick" with no goals: shorthand.
+- Truncated "Create a central overload by having one team.": structural, missed by both readers (verb-first
+  routing), caught by the hunter.
+
+**Origin of the 35 true defects:**
+- **23 are system-written template sentences in `coach-voice.ts`:** line 209 "then deep" (19), line 73
+  "opposite channel" (3), line 112 "decides it" (1).
+- 10 are model-written; 2 are model text against a system rule.
+- These 23 are the representation argument in miniature: prose value tiers and effects with nothing to
+  bind to.
+
+**Spec flaws found, not applied:**
+1. Fix the "Use" contradiction.
+2. Merge advantage-attached place names into the advantage group.
+3. Garbled setup declarations should fail `L-UNPARSEABLE`, not route to tactical.
+4. Move "extra numbers" out of Gate A and admit the shot clock.
+
+With these the corpus would score 35/35 — meaningless in-sample.
+
+**Overfitting:** the spec was derived from the same 60 and has closed lexicons. There are only ~9 distinct
+defect types, and it fails closed on new wording. The real test is a held-out set read against a ledger
+written in advance, which needs new generation (frozen, Christian's call).
