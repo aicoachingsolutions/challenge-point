@@ -2259,3 +2259,50 @@ With these the corpus would score 35/35 — meaningless in-sample.
 **Overfitting:** the spec was derived from the same 60 and has closed lexicons. There are only ~9 distinct
 defect types, and it fails closed on new wording. The real test is a held-out set read against a ledger
 written in advance, which needs new generation (frozen, Christian's call).
+
+### 2026-09-17 — RPC-001 vertical slice: six selections into one resolved game
+
+**Report:** `docs/audits/rpc001-slice-2026-09-17.md`, also published as a page. Paper only.
+**Christian's decisions recorded first:** `docs/audits/gate-a/corrections-accepted-2026-09-17.md` — "deep"
+is STRUCTURAL (low severity); the four procedural corrections accepted but NOT applied; the 60 are NOT
+replayed again; generation stays frozen.
+
+**The test:** six objects (RPC-001, From Goal Kicks, GF2, Neutral Player, Wide Zone Advantage, Variable
+Target) each derived contributions in isolation, forbidden from mentioning the others. Two reconcilers
+merged them independently from opposite directions. Then Gate A (two blind readers) and Gate B (one
+checker) ran separately, with an adversarial pass.
+
+**Answer: five of six coexist with no bespoke awareness. The sixth fails on one field.**
+
+**Reconciliation converged** on the same game from both directions: 2 goalkeepers + 4v4 + 2 neutrals
+(forced once Neutral Player's "one or two" picks 2), `target_zone_entered`, one candidate set per team at
+opposite ends, turnovers stop play, only the wide-zone multiplier survives, three restart rules that turn
+out to be orthogonal.
+
+**Gate A:** it lays out (width 6+18+6=30, length 20+20=40, 12 players, all cross-references resolve) and
+**cannot be played**: nothing determines which candidate zone is live, so the only scoring event has no
+object.
+
+**Gate B:** 0 of 89 dropped; 71 operable; 10 present-but-dead; 8 unresolved. The 8 are one failure.
+Variable Target is the selection that did not arrive (6 of 15). Seven of the ten dead items are gaps the
+contributing object declares itself.
+
+**Bespoke awareness:** fired irreducibly once (RPC-001 × Variable Target, both writing
+`objectives[].state`); once half-representationally; once against a standing decision (the 2-3 target
+range against reciprocal direction); one near-miss survived only because Wide Zone authored three
+alternatives.
+
+**What makes independent authoring work:** an object's own declaration of what it does NOT claim.
+Coexistence held wherever objects declared silence, and failed where two claimed the same field.
+
+**Seven representation gaps, all inside the eight areas:** Transitions needs internal fields;
+`objectives[].state` is one field doing five jobs; Rules of value has no information type; value modifiers
+have no magnitude field; target zones never appear in Space; Performers has no start-placement slot;
+provenance cannot express the kind of a source.
+
+**Errors found, including mine:** my canonical (symmetric) choice breached Variable Target's authored 2-3
+range — the variant respected it; the resolved game contains an invented consequence (entering an inactive
+zone is out of play) citing six contributions, none of which authorizes it, creating play-stopping regions
+inside a channel declared never entry-prohibited, missed by both Gate A readers; one reader used a fact
+code the procedures do not offer; Gate B's arithmetic slipped 17/18; and a challenger claim was wrong
+because I failed to pass it the four accepted corrections.

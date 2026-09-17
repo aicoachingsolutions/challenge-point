@@ -1,0 +1,1400 @@
+{
+ "note": "Six knowledge objects, each derived independently with no awareness of the others. Gate B must check these against the resolved game.",
+ "sets": [
+  {
+   "object": "RPC-001 Goalkeeper Build-Out",
+   "contributions": [
+    {
+     "area": "Performers",
+     "field": "teams[] — two opposed teams, both able to contest the ball",
+     "requirement": "COUNT",
+     "value": "2 teams, both live and able to deny or reverse progression (no passive, scripted or absent opposition)",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"Opposition can deny, redirect, or reverse progression.\" (GAK-0105, GA-001-OIC-03, binding via RPC-REL-001 relationship_strength REQUIRED)",
+     "provenanceId": "RPC-001-01"
+    },
+    {
+     "area": "Performers",
+     "field": "teams[].goalkeeper",
+     "requirement": "EXISTS",
+     "value": "The team beginning an attack has a goalkeeper who can hold controlled possession at the start",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Goalkeeper controls possession or play restarts from a controlled defensive restart.\" (RPC-PROP-001, BEGIN_CONDITION, CORE)",
+     "provenanceId": "RPC-001-02"
+    },
+    {
+     "area": "Performers",
+     "field": "teams[].goalkeeper — availability during live play, not only at the start",
+     "requirement": "EXISTS",
+     "value": "The goalkeeper remains a legal, reachable receiving option for the team in possession throughout the attack",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Goalkeeper availability.\" (RPC-PROP-009, REPRESENTATIVE_INFORMATION, importance CORE)",
+     "provenanceId": "RPC-001-03"
+    },
+    {
+     "area": "Performers",
+     "field": "teams[].outfield count — starting positions of the defending team",
+     "requirement": "POSITIONED",
+     "value": "The defending team starts with an identifiable forward-most defensive line (\"the first defenders\") between the build-out start and the scoring reference",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Mark a line across the pitch beyond the first defenders.\" (COACH_RULES 'RPC-001|line_crossed|'.setup; same phrase in all four RPC-001 setups)",
+     "provenanceId": "RPC-001-04"
+    },
+    {
+     "area": "Performers",
+     "field": "target players",
+     "requirement": "EXISTS",
+     "value": "Required ONLY if target_player is the chosen primary event: one target player positioned beyond the first defenders. RPC-001 does not choose the event, so this is conditional, not a standing requirement",
+     "strictness": "SUPPORTING",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Place a target player beyond the first defenders.\" (COACH_RULES 'RPC-001|target_player|'.setup)",
+     "provenanceId": "RPC-001-05"
+    },
+    {
+     "area": "Space",
+     "field": "regions[] — a build-out / own-half start area at the building team's own end",
+     "requirement": "EXISTS",
+     "value": "A locatable own-half (defensive) start area per attacking team; it need not be physically marked, only determinable",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Start each attack from your goalkeeper or a restart in your own half.\" (primary-scoring.ts BUILD_OUT_START, appended to every RPC-001 rule and setup)",
+     "provenanceId": "RPC-001-06"
+    },
+    {
+     "area": "Space",
+     "field": "area — orientation of the playing space",
+     "requirement": "ORIENTED",
+     "value": "The space carries a longitudinal axis from each team's own end to the end it attacks, so that \"beyond\" the pressure/progression line is decidable",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"progressing beyond the initial pressure or progression line, with possession controlled on arrival\" (RPC-PROP-132, PRIMARY_SCORING_CONDITION)",
+     "provenanceId": "RPC-001-07"
+    },
+    {
+     "area": "Objects",
+     "field": "objects[] — the scoring reference (id, kind)",
+     "requirement": "EXISTS",
+     "value": "Exactly one scoring reference, of one of the four approved kinds: marked line (line_crossed) | target zone (target_zone_entered) | gate of two cones (gate) | target player (target_player). RPC-001 does not fix which",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"Valid primary scoring event 1 of 4, in the approved order.\" (RPC-REL-071; RPC-REL-072/073/074 carry events 2-4)",
+     "provenanceId": "RPC-001-08"
+    },
+    {
+     "area": "Objects",
+     "field": "objects[].position reference — placement of the scoring reference",
+     "requirement": "POSITIONED",
+     "value": "Beyond the defending team's first defenders, in the building team's direction of progression, and downfield of the build-out start area",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Mark a target zone beyond the first defenders.\" / \"Set out gates of two cones beyond the first defenders.\" (COACH_RULES setups)",
+     "provenanceId": "RPC-001-09"
+    },
+    {
+     "area": "Objects",
+     "field": "objects[] — the ball, and a determinable possession state",
+     "requirement": "EXISTS",
+     "value": "A contested ball whose possession/control state is decidable at the moment of the scoring event and at loss of possession",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"with possession controlled on arrival\" (RPC-PROP-132); \"receives the ball past it and controls it\" (COACH_RULES 'RPC-001|line_crossed|'.rule)",
+     "provenanceId": "RPC-001-10"
+    },
+    {
+     "area": "Objectives",
+     "field": "objectives[] — [object id, team, role, state]",
+     "requirement": "EQUALS",
+     "value": "The scoring reference is bound as role = PRIMARY SCORING for the team building out, state = active from the moment that team's attack begins",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Reinforce successful establishment of organized attack beyond the initial build phase rather than possession alone.\" (RPC-STMT-004, PRIMARY_SCORING_IDENTITY)",
+     "provenanceId": "RPC-001-11"
+    },
+    {
+     "area": "Objectives",
+     "field": "objectives[].role — what the primary scoring role may be attached to",
+     "requirement": "NOT_EXISTS",
+     "value": "No objective may make possession retention alone (pass counts, keep-away, time in possession) the primary scoring event",
+     "strictness": "EXCLUSION",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Primary scoring must reinforce the RPC Primary Scoring Identity and must not substitute an unrelated affordance outcome.\" (RPC-VAL-002)",
+     "provenanceId": "RPC-001-12"
+    },
+    {
+     "area": "Direction",
+     "field": "per team: objective attacked / objective defended",
+     "requirement": "ORIENTED",
+     "value": "Each team attacks the scoring reference lying beyond the opposing first defenders and away from its own build-out area, and defends the opposite direction",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Opponent interaction, direction, consequence, and representative information must remain intact where required.\" (RPC-VAL-004)",
+     "provenanceId": "RPC-001-13"
+    },
+    {
+     "area": "Direction",
+     "field": "per team: symmetry of the two teams' attacked objectives",
+     "requirement": "EXISTS",
+     "value": "Each team needs one functional directional objective; RPC-001 does not require the two teams' scoring references to be mirrored or identical in kind",
+     "strictness": "SUPPORTING",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Reciprocal progression toward meaningful external objectives.\" (GA-001 Objective_Organization, binding via RPC-REL-001)",
+     "provenanceId": "RPC-001-14"
+    },
+    {
+     "area": "Transitions",
+     "field": "start",
+     "requirement": "EQUALS",
+     "value": "Play starts with the goalkeeper in control, or from a controlled defensive restart — a stable, uncontested starting state, not a 50/50",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Controlled defensive possession provides a stable starting state.\" (RPC-ID-001, identity_role REQUIRED)",
+     "provenanceId": "RPC-001-15"
+    },
+    {
+     "area": "Transitions",
+     "field": "restart after score, out of play, turnover",
+     "requirement": "CHANGES_ON",
+     "value": "Every restart re-establishes the begin condition: the next attack starts from that team's goalkeeper or a restart in its own half",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Start each attack from your goalkeeper or a restart in your own half.\" (primary-scoring.ts BUILD_OUT_START)",
+     "provenanceId": "RPC-001-16"
+    },
+    {
+     "area": "Transitions",
+     "field": "turnover",
+     "requirement": "CHANGES_ON",
+     "value": "Loss of possession is a defined end of the attacking episode and must have a defined consequence in the representation",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Possession is lost.\" (RPC-PROP-005, END_CONDITION, importance CORE)",
+     "provenanceId": "RPC-001-17"
+    },
+    {
+     "area": "Rules of value",
+     "field": "primary event [object, condition]",
+     "requirement": "EQUALS",
+     "value": "Condition: initiated from the goalkeeper or a controlled defensive restart, progressing beyond the initial pressure or progression line, with possession controlled on arrival",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Initiated from the goalkeeper or a controlled defensive restart, progressing beyond the initial pressure or progression line, with possession controlled on arrival.\" (RPC-PROP-132)",
+     "provenanceId": "RPC-001-18"
+    },
+    {
+     "area": "Rules of value",
+     "field": "primary event [object, condition] — the degenerate bypass",
+     "requirement": "NOT_EXISTS",
+     "value": "No scoring path may exist in which an uncontrolled long kick/clearance reaching or crossing the scoring reference earns the point",
+     "strictness": "EXCLUSION",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"A long clearance that happens to reach the target does not satisfy the event.\" (RPC-PROP-132); cf. RPC-PROP-010",
+     "provenanceId": "RPC-001-19"
+    },
+    {
+     "area": "Rules of value",
+     "field": "primary event — point value",
+     "requirement": "EQUALS",
+     "value": "One point per qualifying event",
+     "strictness": "SUPPORTING",
+     "valueStatus": "PREFERRED_DEFAULT",
+     "authoredEvidence": "\"Earn a point when a player dribbles over the line, or receives the ball past it and controls it.\" (COACH_RULES 'RPC-001|line_crossed|'.rule)",
+     "provenanceId": "RPC-001-20"
+    },
+    {
+     "area": "Rules of value",
+     "field": "value modifiers; consequences [trigger, effect, beneficiary]",
+     "requirement": "NOT_DOMINANT",
+     "value": "No modifier or consequence may make established coordinated high pressure the dominant organizing problem of the game",
+     "strictness": "EXCLUSION",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Established coordinated high pressure cannot become the dominant identity without transition to RPC-002.\" (RPC-ID-005, identity_role EXCLUSION)",
+     "provenanceId": "RPC-001-21"
+    },
+    {
+     "area": "Rules of value",
+     "field": "available progression routes to the primary scoring object",
+     "requirement": "COUNT",
+     "value": ">= 2 distinct viable progression routes to the scoring reference; no rule or layout may reduce progression to a single permitted route",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"Multiple future progression possibilities remain available.\" (RPC-ID-003, identity_role REQUIRED); cf. \"Available progression opportunities.\" (RPC-PROP-008)",
+     "provenanceId": "RPC-001-22"
+    },
+    {
+     "area": "Rules of value",
+     "field": "information [trigger, what changes]",
+     "requirement": "NOT_EXISTS",
+     "value": "No information rule may remove or hide teammate positioning and immediate support, or opponent positioning and developing pressure, from the player on the ball",
+     "strictness": "EXCLUSION",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Opponent positioning and developing pressure.\" (RPC-PROP-007) and \"Teammate positioning and immediate support.\" (RPC-PROP-006), both REPRESENTATIVE_INFORMATION, CORE",
+     "provenanceId": "RPC-001-23"
+    }
+   ],
+   "doesNotConstrain": [
+    "Envelope.players — RPC-001 authors no player count. Numerical relationships are explicitly adjustable: \"Manipulate numerical relationships without prescribing a single solution.\" (RPC-PROP-014..017 are BEHAVIOR_ADJUSTMENT, importance COMMON)",
+    "Envelope.area length and width — no authored dimension, ratio, or minimum. \"Adjust starting positions or progression zones while preserving build-out identity.\" (RPC-PROP-016) treats these as free",
+    "Envelope.duration — RPC-001 authors no duration, period structure, or episode length",
+    "Performers.teams[].outfield count — no authored per-team number, and no authored requirement of numerical balance OR imbalance in either direction",
+    "Performers.neutrals [count, plays for] — RPC-001 neither requires nor prohibits neutral players; nothing authored",
+    "Performers.target players — permitted as one of four scoring references, never required. Three of the four approved events need no target player at all",
+    "Space.regions[] beyond the two it needs — no authored requirement for thirds, channels, lanes, grids, a positional matrix, or any count of regions",
+    "Space.regions[].kind / orientation / extent of the scoring reference — the RPC requires it be beyond the first defenders and does not fix its shape, width, depth, or how far beyond",
+    "Objects — real goals. RPC-001 requires no goal and no goalkeeper-defended target; none of its four approved events is 'goal'",
+    "Objects.owner — no authored ownership rule for the scoring reference; whether it is shared or per-team is free",
+    "Objectives — any REPRESENTATIVE objective. RPC-001 requires exactly one PRIMARY SCORING objective and neither requires nor forbids additional objectives present for representativeness",
+    "Direction — whether the two teams' objectives are mirrored, symmetric, or of the same kind",
+    "Transitions.restart after out of play — the procedure (who restarts, throw/pass/dribble-in, whether opponents retreat) is not constrained beyond re-establishing the begin condition",
+    "Rules of value.value modifiers — RPC-001 authors none. No multipliers, bonus zones, or differential point values are required or forbidden",
+    "Rules of value.consequences [trigger, effect, beneficiary] — RPC-001 requires no consequence at all beyond the restart. Possession, advantage, access, eligibility, spatial advantage, target availability and continuation consequences are all free",
+    "Rules of value.time windows — RPC-001 authors no countdown, shot clock, or time limit on the build-out",
+    "Player-level constraints — touch limits, pass minimums, restricted areas, pressing restrictions: none authored. RPC-001 has no CONSTRAINT relationship rows",
+    "Environmental Manipulations — RPC-001 has no EM relationship rows; it neither requires nor excludes any typed EM",
+    "Information Expression dimensions and presets — RPC-001 has no INFORMATION_EXPRESSION relationship row; it fixes no preset, only forbids hiding the two representative information sources in RPC-001-23",
+    "Game Form and Family — RPC-001 is COMPATIBLE with several (GF2, GF3 PRIMARY; GF7 SECONDARY) and REQUIRES none. Nothing here selects a game form",
+    "Affordance targets — all six RPC-001 affordance mappings are mapping_status DEFERRED (RPC-MAP-091..096), so they contribute no structure",
+    "Game Problems — GP-001/GP-005 PRIMARY and GP-015/GP-002 SECONDARY are compatibility relationships, not structural requirements",
+    "Which of the four approved scoring events is used — RPC-001 authors the valid set and their order, not the choice"
+   ],
+   "assumptionsNeeded": [
+    "\"the first defenders\" is read as the defending team's forward-most starting positions. The four COACH_RULES setups all position the scoring reference relative to it, but nothing in RPC-001 defines or marks that line — the representation must be able to express 'beyond the defending team's initial line' without an authored value for it",
+    "\"Multiple\" in RPC-ID-003 is read as at least two viable progression routes. No number is authored",
+    "The turnover restart (RPC-001-16/17) is a composition of two authored statements — RPC-PROP-005 \"Possession is lost.\" as an END_CONDITION, and BUILD_OUT_START \"Start each attack from your goalkeeper or a restart in your own half.\" Neither states the turnover restart on its own",
+    "GA-001 conditions are treated as binding on RPC-001 because RPC-REL-001 carries relationship_strength REQUIRED. The workbook labels OIC-01..08 uniformly Knowledge_Role CONDITION although OIC-06/07/08 read as boundary VIOLATIONS; only OIC-01..05 were used, and only as positive requirements",
+    "The goalkeeper is assumed to be one of the envelope's 12 players, not an additional performer. Nothing authored says which",
+    "The four approved scoring events are assumed mutually exclusive alternatives — exactly one is instantiated — per the standing decision ONE PRIMARY SCORING EVENT. The relationship rows author them as a valid set in approved order, not as a choice rule",
+    "40 x 30 m is assumed long enough to place a scoring reference beyond the first defenders while leaving a build-out area behind them. RPC-001 authors no minimum and the envelope was fixed externally",
+    "'Objects' is assumed to be the area that carries the scoring reference whatever it is physically realized as (line, zone, gate or player), because Objectives references it by object id. If the representation instead files a marked line or zone under Space.regions, contributions RPC-001-08/09 move there unchanged"
+   ],
+   "notAuthored": [
+    "How far beyond the first defenders the scoring reference sits. Every RPC-001 setup says \"beyond the first defenders\" and no distance, depth, or fraction of the area is authored anywhere",
+    "What operationally counts as \"controlled on arrival\". The four coach rules do not agree: line_crossed and target_zone_entered say \"controls it\", gate says \"and your team keeps the ball\", target_player says \"receives the ball and controls it\". RPC-002 adds \"with the next pass\" and RPC-001 does not. No single test is authored",
+    "What counts as a \"long clearance\" / \"long kick\". The exclusion is authored four times over but no threshold is — not distance, not air time, not lines bypassed. The primary event cannot be adjudicated without one",
+    "Whether play stops at the moment of the scoring event or continues. \"Start each attack from your goalkeeper\" implies a new attack follows, but nothing authors the stoppage",
+    "The restart procedure itself — who restarts, from where inside the own half, whether opponents must retreat and how far. Only the region is authored",
+    "Whether the defending team gets its own scoring reference and its own build-out start (the reciprocal case). RPC-001 authors the building team's side only; the direction invariant, not RPC-001, requires the other",
+    "Whether the scoring reference is one shared object or one per team, and whether it can be crossed in both directions",
+    "Duration or episode length for the RPC — how long a build-out episode runs before it is deemed to have ended without a score"
+   ]
+  },
+  {
+   "object": "From Goal Kicks (Practice Situation A01-02, parent A01) — authored name \"From Goal Kicks\", authored Definition \"Restart from goal kicks.\" Confirmed to be the ONLY authored text for this object: the string appears exactly once across all authored JSON (session-planning-model.rc1.json lines 158-163); there is no richer Practice Situation registry anywhere in knowledge-core, the sport module, or the RPC library.",
+   "contributions": [
+    {
+     "area": "Transitions",
+     "field": "Transitions.restart — a named goal-kick restart procedure exists",
+     "requirement": "EXISTS",
+     "value": "The resolved game defines one restart procedure identifiable as a goal kick: a way play is put back into play from the restarting team's own defended end.",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"Restart from goal kicks.\" (session-planning-model.rc1.json, A01-02 Definition)",
+     "provenanceId": "A01-02-01"
+    },
+    {
+     "area": "Transitions",
+     "field": "Transitions.restart — trigger condition that awards the goal-kick restart",
+     "requirement": "EXISTS",
+     "value": "Some defined condition determines when the goal-kick restart occurs. The condition itself is not authored (see notAuthored); only its existence is required, because a restart with no trigger cannot be entered.",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"A GOAL KICK IS A RESTART, NOT A FINISHING PROBLEM.\" (deriveInputConstraints.ts:164, on this Practice Situation)",
+     "provenanceId": "A01-02-02"
+    },
+    {
+     "area": "Transitions",
+     "field": "Transitions.restart after out of play — recurrence of the goal-kick restart",
+     "requirement": "CHANGES_ON",
+     "value": "The goal-kick restart recurs within the period rather than occurring once, so the situation is a context that is re-entered repeatedly. A single occurrence does not realize it.",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"The runtime MUST treat the selected Practice Situation as the CONTEXTUAL FRAME within which representative learning occurs.\" (practice-situation-realization.ts)",
+     "provenanceId": "A01-02-03"
+    },
+    {
+     "area": "Transitions",
+     "field": "Transitions.restart — play state at the goal-kick restart",
+     "requirement": "EQUALS",
+     "value": "Play is stopped and then resumed from a stationary object. The goal-kick restart is a stoppage-and-resume, not an uninterrupted continuation of live play.",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"play continues immediately without stoppage — no restart, no whistle.\" (environmental-manipulations.ts:79 — authored contrast: continuation is defined as the absence of a restart)",
+     "provenanceId": "A01-02-04"
+    },
+    {
+     "area": "Transitions",
+     "field": "Transitions.restart — possession award at the goal-kick restart",
+     "requirement": "EQUALS",
+     "value": "Possession at the restart belongs to the team defending that end; that team puts the object back into play. The restart is not a neutral serve and not awarded to the opponent.",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"Restart from goal kicks.\" (session-planning-model.rc1.json, A01-02 Definition; \"from\" locates the restart with the team at that end)",
+     "provenanceId": "A01-02-05"
+    },
+    {
+     "area": "Transitions",
+     "field": "Transitions.start — initial entry into play",
+     "requirement": "EQUALS",
+     "value": "The initial start defaults to the goal-kick restart, so the period begins inside the situation. Adaptable: the object is realized as long as the goal-kick restart recurs (A01-02-03), even if the very first start differs.",
+     "strictness": "SUPPORTING",
+     "valueStatus": "PREFERRED_DEFAULT",
+     "authoredEvidence": "\"Set the activity INSIDE this situation: the starting conditions, where players begin, how the opposition is organized\" (practice-situation-realization.ts)",
+     "provenanceId": "A01-02-06"
+    },
+    {
+     "area": "Objects",
+     "field": "Objects[].position reference — the game object at the goal-kick restart",
+     "requirement": "POSITIONED",
+     "value": "At each goal-kick restart the game object is placed at the restarting team's own defended end, not at midfield, in the opponent's half, or at a neutral serve point.",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "EM schema EMD-0008: \"Manipulates the spatial location of one or more environmental objects.\"; EMP-0025 Value_Type \"Initial / Restart / Conditional reset\"",
+     "provenanceId": "A01-02-07"
+    },
+    {
+     "area": "Objects",
+     "field": "Objects[].kind — a single game object that is put into play by being kicked",
+     "requirement": "EXISTS",
+     "value": "One game object exists that can be placed stationary and played by kicking. No property of that object (size, type, count beyond one) is constrained.",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Restart from goal kicks.\" (session-planning-model.rc1.json, A01-02 Definition)",
+     "provenanceId": "A01-02-08"
+    },
+    {
+     "area": "Space",
+     "field": "Space.area — the defended end boundary used as the restart position reference",
+     "requirement": "EXISTS",
+     "value": "Each team's own end of the playing area is a perceivable boundary that the restart position can be expressed against. Satisfied by the fixed 40 x 30 m envelope; NO additional region is required.",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "EM schema EMP-0021 Reference Target: \"Playing area / Boundary / Performer / Objective / Environmental object\"; Definition \"Reference used to define location.\"",
+     "provenanceId": "A01-02-09"
+    },
+    {
+     "area": "Direction",
+     "field": "Direction.per team — the end defended must be distinguishable from the end attacked",
+     "requirement": "EXISTS",
+     "value": "The restarting team has an identifiable own/defended end distinct from the end it progresses toward, otherwise \"from\" the goal kick has no locatable origin. (Coincides with the standing Direction invariant; stated because this object depends on it.)",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Restart from goal kicks.\" (session-planning-model.rc1.json, A01-02 Definition)",
+     "provenanceId": "A01-02-10"
+    },
+    {
+     "area": "Performers",
+     "field": "Performers.teams[] — a player of the restarting team available to take the restart",
+     "requirement": "EXISTS",
+     "value": "At least one player of the restarting team is positioned at that team's own end to put the object into play. NO role, position or specialization is required — specifically not a goalkeeper.",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Restart from goal kicks.\" (session-planning-model.rc1.json, A01-02 Definition — the row names no performer role)",
+     "provenanceId": "A01-02-11"
+    },
+    {
+     "area": "Rules of value",
+     "field": "Rules of value.primary event — the goal-kick restart carries no scoring value",
+     "requirement": "NOT_EXISTS",
+     "value": "No primary scoring event, and no value tier, may be defined on taking or conceding the goal-kick restart. The restart resumes play; it never scores and never marks the scoring object.",
+     "strictness": "EXCLUSION",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"a goal kick is not a goal\" (primary-scoring.unit.ts:195; scoring-object-consistency.unit.ts:289)",
+     "provenanceId": "A01-02-12"
+    }
+   ],
+   "doesNotConstrain": [
+    "Envelope: nothing at all. Player count, area length and width, and duration are untouched by this object; the fixed 12 players / 40 x 30 m / 20 minutes are accepted as given and would be accepted at any other value.",
+    "Space.regions: this object requires NO region. Not a goal area, not a penalty area, not a marked restart zone or spot, not channels, thirds, halves or build-out lines. It requires only a boundary to reference (A01-02-09), which the envelope already supplies.",
+    "Space.regions[kind, orientation, extent, position]: entirely free. Any region present for other reasons may sit anywhere; this object has no opinion.",
+    "Performers.teams[].goalkeeper: explicitly free. A goal kick does not require a goalkeeper to exist, and does not require the restart to be taken by one. Deliberately not claimed.",
+    "Performers.teams[].outfield count, team count, team sizes, symmetry or asymmetry: free.",
+    "Performers.neutrals[count, plays for] and target players: free. This object neither requires nor forbids them, and does not say whether a neutral may take or receive the restart.",
+    "Performers: who takes the restart beyond \"a player of that team\" — no role, shirt, position or rotation is constrained.",
+    "Objects: the number of game objects beyond the one required, and every object property (size, type, weight); any additional environmental objects.",
+    "Objects[].owner: free outside the restart moment.",
+    "Objectives: whether any objective exists, how many, of what kind, their positions, their PRIMARY SCORING or REPRESENTATIVE role, and their active/inactive state. This object requires no objective at all — including at the end the restart is taken from.",
+    "Direction: which physical end each team attacks, whether both teams progress toward external objectives, and whether direction is symmetric. Only distinguishability of own-end vs far-end is required (A01-02-10).",
+    "Transitions.restart after a score: free. This object says nothing about what happens after a score.",
+    "Transitions.restart after a turnover: free. Whether a turnover stops play, is played live, or triggers anything at all is unconstrained.",
+    "Transitions: restarts for the object leaving play over the side boundaries or over the OPPONENT's end line. Only the goal-kick restart is contributed; every other out-of-play case is free.",
+    "Rules of value.primary event [object, condition]: completely free apart from the exclusion in A01-02-12. This object proposes no scoring event and no scoring condition.",
+    "Rules of value.value modifiers: none contributed, none forbidden.",
+    "Rules of value.consequences [trigger, effect, beneficiary]: none contributed. This object attaches no consequence to the restart and claims no consequence anywhere else.",
+    "Rules of value.information [trigger, what changes]: free. The restart is not required to reveal, hide or change any information.",
+    "Rules of value.time windows: free — including any time limit on taking the restart, and any window opened by it.",
+    "Opponent behaviour at the restart: retreat lines, exclusion distances, whether opponents may press the restart immediately, and any numerical or positional restriction on them. All free.",
+    "Where the restart may be played: short or long, to which zone, to which player, over how many passes, or whether it must be played along the ground. All free.",
+    "Which team the restart is more often awarded to, and any balance requirement between the two teams."
+   ],
+   "assumptionsNeeded": [
+    "That \"goal kick\" carries its ordinary Laws-of-the-Game meaning: a dead-ball restart taken by the team defending that end, from within its own end. The A01-02 row does not define the term, and no authored file in this repo defines it either. A01-02-05 and A01-02-07 rest on this.",
+    "That \"Restart\" means play is stopped and then resumed, as distinct from uninterrupted continuation. Supported by the authored contrast in environmental-manipulations.ts (\"no restart, no whistle\" describes continuation), but never stated positively.",
+    "That the plural in \"From Goal Kicks\" / \"goal kicks\" implies recurrence within one period rather than a single occurrence. A01-02-03 depends on this reading.",
+    "That a Practice Situation enters the resolved game as a contextual frame governing starting conditions, per the IC-002 realization contract, rather than as a Game Problem, a learning objective, or coach prose. Without this, the object contributes nothing structural at all.",
+    "That the restart's position and timing can be expressed with existing Environmental Manipulation ontology (EM-0004 Environmental Object Configuration, EMD-0008 Position, EMP-0025 Timing = \"Restart\"), so no new EM ontology is introduced.",
+    "That the parent Learning Goal A01 \"Play Out from the Back\" is NOT part of this selection. Its coach definition (\"Build possession from deep while progressing beyond the opponent's first line of pressure\") would import direction, depth and pressure requirements that the A01-02 row itself does not author, so it is deliberately excluded."
+   ],
+   "notAuthored": [
+    "The trigger that awards the goal-kick restart. The canonical trigger (object leaves play over the defended end line, last played by the attacking team) is nowhere authored. A01-02-02 therefore requires only that SOME trigger exist. If the resolved game instead uses the goal-kick restart after every stoppage, or after a score, nothing authored forbids it.",
+    "Whether the end the restart is taken from must carry a goal objective for the restart to be called a \"goal kick\". The row does not say. This object therefore requires no objective there — but a resolved game with no objective at that end makes the name \"goal kick\" descriptive of nothing, which is a real open question rather than something I can settle from authored text.",
+    "The exact restart spot: no goal-area / six-yard-box equivalent is authored, and no scaling rule for expressing one inside a 40 x 30 m area exists.",
+    "Any opponent retreat or exclusion distance at the restart, and whether the restart is live immediately on the kick or only after a further condition.",
+    "How often the restart must recur to count as realized. A01-02-03 requires recurrence but no rate, minimum count, or interval is authored.",
+    "Whether the initial start of the period must itself be a goal kick. A01-02-06 is stated as PREFERRED_DEFAULT precisely because this is unauthored.",
+    "Any richer Practice Situation detail. practice-situation-realization.ts anticipates a registry (\"When the Practice Situation Registry carries richer authored detail, this directive gets richer for free\"), but that registry does not exist: A01-02 occurs exactly once in the authored JSON, with five fields and a five-word definition. Every structural contribution above is squeezed from that one line plus the situation's name."
+   ]
+  },
+  {
+   "object": "Directional Possession Games (GF2) — Soccer Module game form, canonical archetype GA-001 Invasion",
+   "contributions": [
+    {
+     "area": "Space",
+     "field": "area.shape",
+     "requirement": "EQUALS",
+     "value": "A single rectangular playing area.",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"Rectangular field with a directional target line or zone at one end\" — soccer-module.rc1-v3.json GF2.setup_guidance / archetypes.ts GF2.setupGuidance[0]",
+     "provenanceId": "GF2-01"
+    },
+    {
+     "area": "Space",
+     "field": "area (shared occupancy)",
+     "requirement": "EXISTS",
+     "value": "One area both teams occupy simultaneously; no partition or separating boundary that removes direct contest for the ball.",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"Participants share an adaptive opportunity space.\" — game-archetype-workbook.rc1.1.json GA-001-OIC-04 (GAK-0106)",
+     "provenanceId": "GF2-02"
+    },
+    {
+     "area": "Space",
+     "field": "regions[].kind",
+     "requirement": "EXISTS",
+     "value": "At least one directional target feature — either a target line or a target zone. Which of the two is instantiated is free.",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"a directional target line or zone at one end\" — soccer-module.rc1-v3.json GF2.setup_guidance",
+     "provenanceId": "GF2-03"
+    },
+    {
+     "area": "Space",
+     "field": "regions[].position",
+     "requirement": "POSITIONED",
+     "value": "The target line/zone sits at an end of the playing area, not in its interior.",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"a directional target line or zone at one end\" — soccer-module.rc1-v3.json GF2.setup_guidance",
+     "provenanceId": "GF2-04"
+    },
+    {
+     "area": "Space",
+     "field": "regions[].orientation",
+     "requirement": "ORIENTED",
+     "value": "The target feature lies across the direction of progression (the field's longer axis is the progression axis), so reaching it is forward progression.",
+     "strictness": "SUPPORTING",
+     "valueStatus": "PREFERRED_DEFAULT",
+     "authoredEvidence": "\"Rectangular field with a directional target line or zone at one end (typical: 40-60m long, 25-40m wide).\" — soccer-module.rc1-v3.json GF2.setup_guidance",
+     "provenanceId": "GF2-05"
+    },
+    {
+     "area": "Objects",
+     "field": "objects[].kind + position reference",
+     "requirement": "EXISTS",
+     "value": "One progression object of kind line_crossed or target_zone_entered, physically marked, position reference = the end target region.",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"line_crossed; target_zone_entered\" — soccer-module.rc1-v3.json GF2.scoring_structure_type",
+     "provenanceId": "GF2-06"
+    },
+    {
+     "area": "Objects",
+     "field": "objects[].owner",
+     "requirement": "CHANGES_ON",
+     "value": "The ball's owner is whichever team is currently in possession; ownership is not fixed and must be able to change through opposed play.",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"Shared, adaptive, generally simultaneous access with reciprocal influence.\" — game-archetype-workbook.rc1.1.json GA-001.Interaction_Organization",
+     "provenanceId": "GF2-07"
+    },
+    {
+     "area": "Objectives",
+     "field": "objectives[].role",
+     "requirement": "EQUALS",
+     "value": "PRIMARY SCORING, attached to the target line/zone object — the forward objective that possession serves.",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"Maintain possession with forward intent\" — soccer-module.rc1-v3.json GF2.objective",
+     "provenanceId": "GF2-08"
+    },
+    {
+     "area": "Objectives",
+     "field": "objectives[].state",
+     "requirement": "EQUALS",
+     "value": "active, for both teams, for the whole activity — the target objective is never inert for either side.",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"Meaningful external objectives remain live for both sides.\" — game-archetype-workbook.rc1.1.json GA-001-OIC-01 (GAK-0103)",
+     "provenanceId": "GF2-09"
+    },
+    {
+     "area": "Objectives",
+     "field": "objectives[] access condition",
+     "requirement": "CHANGES_ON",
+     "value": "Access to the objective changes with the attacking team's spatial progression; the objective cannot be equally reachable from anywhere in the area.",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"Progression changes access to the objective.\" — game-archetype-workbook.rc1.1.json GA-001-OIC-02 (GAK-0104)",
+     "provenanceId": "GF2-10"
+    },
+    {
+     "area": "Direction",
+     "field": "per team: objective attacked",
+     "requirement": "EXISTS",
+     "value": "Each team has one directional objective reached by forward progression, and a stable, perceivable direction of progression toward it.",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"Continuous directional circulation\" — soccer-module.rc1-v3.json GF2.interaction_structure",
+     "provenanceId": "GF2-11"
+    },
+    {
+     "area": "Direction",
+     "field": "per team: objective attacked (layout)",
+     "requirement": "EQUALS",
+     "value": "Both teams attack the same end target; a second, opposing target is not required. Adaptable — a target per team also satisfies GF2-11.",
+     "strictness": "SUPPORTING",
+     "valueStatus": "PREFERRED_DEFAULT",
+     "authoredEvidence": "\"Teams attack in the same direction, building from their own end toward the target.\" — soccer-module.rc1-v3.json GF2.setup_guidance",
+     "provenanceId": "GF2-12"
+    },
+    {
+     "area": "Direction",
+     "field": "per team: objective defended",
+     "requirement": "EXISTS",
+     "value": "The out-of-possession team can deny, redirect or reverse progression toward the objective it defends; defending is live, not nominal.",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"Opposition can deny, redirect, or reverse progression.\" — game-archetype-workbook.rc1.1.json GA-001-OIC-03 (GAK-0105)",
+     "provenanceId": "GF2-13"
+    },
+    {
+     "area": "Performers",
+     "field": "teams[].outfield count",
+     "requirement": "EQUALS",
+     "value": "The two teams' outfield counts are equal to each other. No absolute number is authored.",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"Even numbers\" — soccer-module.rc1-v3.json GF2.role_structure / archetypes.ts GF2.player_structure_logic",
+     "provenanceId": "GF2-14"
+    },
+    {
+     "area": "Performers",
+     "field": "teams[] (live opposition)",
+     "requirement": "NOT_EXISTS",
+     "value": "No team may be passive, scripted, or structurally unable to change the other's progression.",
+     "strictness": "EXCLUSION",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Opposition is passive, scripted, or unable to change progression.\" — game-archetype-workbook.rc1.1.json GA-001-OIC-07 (GAK-0109)",
+     "provenanceId": "GF2-15"
+    },
+    {
+     "area": "Transitions",
+     "field": "restart after out of play",
+     "requirement": "EQUALS",
+     "value": "The ball restarts with the team that did not touch it last. Adaptable if another selection or the realization authors a different restart.",
+     "strictness": "SUPPORTING",
+     "valueStatus": "PREFERRED_DEFAULT",
+     "authoredEvidence": "\"ball out of play restarts from the team that didn't touch it last\" — soccer-module.rc1-v3.json GF2.setup_guidance",
+     "provenanceId": "GF2-16"
+    },
+    {
+     "area": "Transitions",
+     "field": "restart after turnover",
+     "requirement": "EQUALS",
+     "value": "Play continues without stoppage on a turnover; the team that wins the ball progresses toward the target from where it won it.",
+     "strictness": "SUPPORTING",
+     "valueStatus": "PREFERRED_DEFAULT",
+     "authoredEvidence": "\"Continuous directional circulation\" — soccer-module.rc1-v3.json GF2.interaction_structure",
+     "provenanceId": "GF2-17"
+    },
+    {
+     "area": "Transitions",
+     "field": "turn structure",
+     "requirement": "NOT_EXISTS",
+     "value": "No alternating-turn, queued or sequential-attempt structure in which the two teams' attempts do not influence each other.",
+     "strictness": "EXCLUSION",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Attempts are independent with no reciprocal ecological influence.\" — game-archetype-workbook.rc1.1.json GA-001-OIC-08 (GAK-0110)",
+     "provenanceId": "GF2-18"
+    },
+    {
+     "area": "Rules of value",
+     "field": "primary event [object, condition]",
+     "requirement": "EQUALS",
+     "value": "object = the marked target line/zone; the event resolves on the ball reaching it (crossing the line / entering the zone). The qualifying condition itself is not authored by GF2.",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"objects each game form physically marks\" [from Game Forms.scoring_structure_type] — primary-scoring.ts, header, line 18",
+     "provenanceId": "GF2-19"
+    },
+    {
+     "area": "Rules of value",
+     "field": "primary event [object, condition]",
+     "requirement": "NOT_EXISTS",
+     "value": "The primary scoring event may not resolve on retained possession alone (consecutive-pass counts, keep-away, time-in-possession).",
+     "strictness": "EXCLUSION",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Possession becomes the terminal objective rather than serving progression.\" — game-archetype-workbook.rc1.1.json GA-001-OIC-06 (GAK-0108)",
+     "provenanceId": "GF2-20"
+    },
+    {
+     "area": "Rules of value",
+     "field": "value modifiers",
+     "requirement": "NOT_DOMINANT",
+     "value": "Rewards for retaining possession may not outweigh or displace the progression event; possession stays instrumental.",
+     "strictness": "EXCLUSION",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Possession is compatible but remains instrumental to progression rather than terminal.\" — game-archetype-workbook.rc1.1.json GAK-0012, GP-015 rationale",
+     "provenanceId": "GF2-21"
+    },
+    {
+     "area": "Rules of value",
+     "field": "value modifiers / consequences (passing options)",
+     "requirement": "NOT_EXISTS",
+     "value": "No rule that removes legal passing options (banned receivers, forced pass order, prohibited backward or square passes). Incentivising progression is allowed; restricting options is not.",
+     "strictness": "EXCLUSION",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Encourage progression without restricting passing options\" — soccer-module.rc1-v3.json GF2.representative_requirements",
+     "provenanceId": "GF2-22"
+    },
+    {
+     "area": "Rules of value",
+     "field": "consequences [trigger, effect, beneficiary]",
+     "requirement": "EXISTS",
+     "value": "Meaningful events (score, turnover, ball out) reorganize game state rather than leaving space, roles, access and threat unchanged.",
+     "strictness": "SUPPORTING",
+     "valueStatus": "PREFERRED_DEFAULT",
+     "authoredEvidence": "\"Meaningful events continuously reorganize space, roles, access, or threat.\" — game-archetype-workbook.rc1.1.json GA-001-OIC-05 (GAK-0107)",
+     "provenanceId": "GF2-23"
+    },
+    {
+     "area": "Envelope",
+     "field": "area length and width",
+     "requirement": "RANGE",
+     "value": "40-60 m long by 25-40 m wide. Informative only: the fixed 40 x 30 m envelope lies inside it, so GF2 imposes nothing on the envelope.",
+     "strictness": "SUPPORTING",
+     "valueStatus": "TYPICAL_EXAMPLE",
+     "authoredEvidence": "\"(typical: 40-60m long, 25-40m wide)\" — soccer-module.rc1-v3.json GF2.setup_guidance",
+     "provenanceId": "GF2-24"
+    }
+   ],
+   "doesNotConstrain": [
+    "Envelope / duration — GF2 authors no time limit, period structure or clock.",
+    "Envelope / players — minimum_players and maximum_players are both null for GF2; only the equality of the two teams (GF2-14) is authored, not any total.",
+    "Envelope / exact dimensions — the authored 40-60 x 25-40 m is parenthetically 'typical'; any rectangle satisfies GF2-01.",
+    "Space / number of regions — GF2 requires one target feature and nothing else; additional regions are free.",
+    "Space / internal zoning — thirds, channels, grids, halfway or build-up lines are not required. 'zones or channels' appears only under example_constraint_patterns.",
+    "Space / regions[].extent — the depth of a target zone, the length of a target line, and whether either spans the full width are unauthored for GF2 (GF1, not GF2, authors 'across the full width').",
+    "Performers / goalkeeper — GF2 authors no goalkeeper, for either team, in any position.",
+    "Performers / any performer outside the two teams — GF2 authors none and forbids none; GF2-14 constrains only the two teams' counts relative to each other.",
+    "Performers / target players — not required by GF2; scoring_structure_type lists no target_player object.",
+    "Performers / positions, shape, roles, rotation, substitution — entirely free.",
+    "Objects / number of balls, ball type, bibs, markers — unauthored beyond the single scoring object of GF2-06.",
+    "Objects / any object other than the target line/zone — GF2 requires no goal, gate or additional object and excludes none.",
+    "Objectives / additional REPRESENTATIVE objectives — GF2 neither requires nor forbids objectives present for representativeness rather than scoring.",
+    "Objectives / duplication — whether the target object is instantiated once or once per team is free (see GF2-12).",
+    "Objectives / qualifying condition — whether control, a dribble, a received pass or a long ball counts is not GF2's to say; GF2 authors the object, not the condition.",
+    "Direction / which physical end carries the target, and whether teams change ends.",
+    "Direction / whether a second, opposing directional objective exists (GF2-11 needs one per team; GF2-12 merely prefers a shared one).",
+    "Transitions / start — how the first ball is put into play, from where, and by whom.",
+    "Transitions / restart after a score — completely unauthored by GF2.",
+    "Transitions / restart location and whether restarts are timed or contested.",
+    "Rules of value / point value of the primary event.",
+    "Rules of value / value modifiers and bonuses — GF2's example_incentive_patterns ('reward line-breaking pass leading to shot', 'bonus for switching play then scoring') are labelled examples and bind nothing.",
+    "Rules of value / consequences — specific triggers, effects and beneficiaries are free; GF2-23 asks only that meaningful events change something.",
+    "Rules of value / information — no information-expression requirement; GF2's information_expression_ids field is null.",
+    "Rules of value / time windows — touch limits, countdowns, shot clocks and possession clocks are all free.",
+    "Constraint selection — GF2's recommended_constraint_types and constraint_fit ratings are routing preferences for selection, not requirements on the resolved game; GF2 requires no particular constraint and compatible_realization_group_ids is null.",
+    "Lenses, phases and affordances — compatible_lens_ids and phase_of_play_ids are null; typical_affordances ('A1; A4; A2') is informative and out of scope here."
+   ],
+   "notAuthored": [
+    "The qualifying condition of the primary scoring event. GF2 authors which object is marked (scoring_structure_type) but never what counts as crossing or entering it. Any control requirement has to come from elsewhere.",
+    "Which of line_crossed or target_zone_entered to instantiate when both are listed. GF2 states no preference, and the only authored preference table (OBJECT_PREFERENCE in primary-scoring.ts) is keyed by context, not by game form — and covers only RPC-007 and RPC-008.",
+    "The extent of the target feature: depth of a zone, length of a line, whether it spans the full width.",
+    "The point value of the primary event.",
+    "Whether 'Teams attack in the same direction' means one shared target for both teams or one target per team. The two setup_guidance lines — a target 'at one end' and each team 'building from their own end' — are not reconciled in the authored text. Recorded as an authored ambiguity, not resolved here.",
+    "The semantics of directionality_type. 'Moderate directional' appears only as a literal string in archetypes.ts (GF2 and GF3) and the module row; nothing anywhere defines the tiers or what distinguishes them from 'High directional'. It cannot be converted into a structural requirement beyond 'a direction of progression exists'.",
+    "Team size floor or ceiling: minimum_players and maximum_players are both null for GF2.",
+    "Duration, start procedure, and restart after a score.",
+    "Polarity of the GA-001 organizational integrity conditions. All eight carry Knowledge_Role 'CONDITION' with an identical rationale; the workbook never marks 06-08 as violations. See assumptions."
+   ],
+   "assumptionsNeeded": [
+    "That GA-001-OIC-06, -07 and -08 are identity-boundary statements (drift indicators to exclude) rather than conditions to satisfy. The workbook gives all eight the same Knowledge_Role 'CONDITION' and the same rationale, 'derived from the archetype's Constitutive Configuration and known identity boundaries', with no polarity field. The reading is taken from the parallel GA-002 set, where OIC-06 to -08 are plainly violations of net/wall organization. If this reading is wrong, GF2-15, GF2-18 and GF2-20 invert.",
+    "That the shared representation puts the target line/zone object in Objects (with a position reference) and the marked area it occupies in Space/regions. The authored text says 'a directional target line or zone' without distinguishing object from region, so GF2-03/04/05 and GF2-06 may be one thing described twice rather than two.",
+    "That the direction of progression runs along the field's longer axis, because the target sits 'at one end' and every authored typical dimension is longer than wide. Needed to state GF2-05 at all.",
+    "That role_structure 'Even numbers' means equal outfield counts between the two teams, not an even total number of players. Read across from GF1 'Even or slight overload' and GF3 'Even or overload', where 'even' plainly means balanced.",
+    "That exactly one ball is in play. GF2 authors no ball count; GF2-07 states only that access to it is shared and its owner can change.",
+    "That setup_guidance lines not marked 'typical:' carry structural weight while the parenthetical 'typical:' values do not, per the value-status standing decision.",
+    "That the DIRECTION INVARIANT is satisfied by its core clause — a stable, perceivable direction of progression plus at least one functional directional objective per team (GF2-11). GF2's authored same-direction layout (GF2-12) does not produce the invariant's second sentence, where each team attacks one direction and defends the opposite. Recorded as a tension between an authored game form and a standing decision, and deliberately left unresolved rather than solved by preferring one over the other.",
+    "That representative_requirements, 'Encourage progression without restricting passing options', is binding enough to state as an EXCLUSION (GF2-22). It is the only prohibition GF2 states in its own voice, but it is authored as a design note, so its strictness is a judgement, not a quotation."
+   ]
+  },
+  {
+   "object": "Neutral Player Condition (tl-v0-constraint-neutral-player-condition) — Environmental Manipulation, constraint_role \"structure\", primary_constraint_type \"structural\"",
+   "contributions": [
+    {
+     "area": "Performers",
+     "field": "neutrals.count",
+     "requirement": "COUNT",
+     "value": ">= 1 neutral player exists in the game",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"One or more neutral players join the team in possession creating a live numerical overload\"",
+     "provenanceId": "NEUTRAL-01"
+    },
+    {
+     "area": "Performers",
+     "field": "neutrals.count",
+     "requirement": "RANGE",
+     "value": "1-2 neutrals (preferred; the entry's own example uses 3, so this is not a hard ceiling)",
+     "strictness": "SUPPORTING",
+     "valueStatus": "PREFERRED_DEFAULT",
+     "authoredEvidence": "\"Designate one or two neutral players (wear contrasting bibs).\"",
+     "provenanceId": "NEUTRAL-02"
+    },
+    {
+     "area": "Performers",
+     "field": "neutrals.playsFor",
+     "requirement": "EQUALS",
+     "value": "the team currently in possession — a state-dependent affiliation, re-evaluated continuously, not a fixed team",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"Neutrals always play with the team in possession, creating a permanent numerical advantage for whichever side has the ball.\"",
+     "provenanceId": "NEUTRAL-03"
+    },
+    {
+     "area": "Performers",
+     "field": "neutrals.playsFor",
+     "requirement": "NOT_EXISTS",
+     "value": "no neutral is fixed to one team, and no neutral is ever affiliated with the team out of possession",
+     "strictness": "EXCLUSION",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Neutrals always play with the team in possession\"",
+     "provenanceId": "NEUTRAL-04"
+    },
+    {
+     "area": "Performers",
+     "field": "neutrals.participationState",
+     "requirement": "EQUALS",
+     "value": "active outfield participant, persistent for the whole activity (not rotated in and out, not a waiting/observing role)",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"creating a permanent numerical advantage for whichever side has the ball\"",
+     "provenanceId": "NEUTRAL-05"
+    },
+    {
+     "area": "Performers",
+     "field": "neutrals.identification",
+     "requirement": "EXISTS",
+     "value": "neutrals are visually distinguishable from both teams; authored means is contrasting bibs",
+     "strictness": "REQUIRED",
+     "valueStatus": "PREFERRED_DEFAULT",
+     "authoredEvidence": "\"Designate one or two neutral players (wear contrasting bibs).\"",
+     "provenanceId": "NEUTRAL-06"
+    },
+    {
+     "area": "Performers",
+     "field": "neutrals.eligibility (as a playing teammate of the possessing side)",
+     "requirement": "EXISTS",
+     "value": "a neutral is a live playing option for the possessing team — able to receive and play the primary object and to occupy support positions",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Neutral player changes the space, support angles, and passing options for both sides\"",
+     "provenanceId": "NEUTRAL-07"
+    },
+    {
+     "area": "Performers",
+     "field": "teams[].outfieldCount",
+     "requirement": "RANGE",
+     "value": "for EITHER team T: outfield(T) + neutrals.count > outfield(other team), so the possessing side is numerically superior whichever side has the ball",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"a permanent numerical advantage for whichever side has the ball\"",
+     "provenanceId": "NEUTRAL-08"
+    },
+    {
+     "area": "Performers",
+     "field": "teams[].outfieldCount",
+     "requirement": "EQUALS",
+     "value": "the two teams' outfield counts equal each other (both authored splits are symmetric)",
+     "strictness": "SUPPORTING",
+     "valueStatus": "PREFERRED_DEFAULT",
+     "authoredEvidence": "\"Adjust team numbers accordingly (e.g., for 15 players: 6v6 + 3 neutrals, or 7v7 + 1 neutral).\"",
+     "provenanceId": "NEUTRAL-09"
+    },
+    {
+     "area": "Envelope",
+     "field": "players (partition of the fixed 12)",
+     "requirement": "EQUALS",
+     "value": "neutrals are drawn from the fixed player total, not added to it: team A + team B + neutrals (+ any goalkeepers) = 12",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"Adjust team numbers accordingly\"",
+     "provenanceId": "NEUTRAL-10"
+    },
+    {
+     "area": "Envelope",
+     "field": "players (authored example splits)",
+     "requirement": "COUNT",
+     "value": "6v6 + 3 neutrals, or 7v7 + 1 neutral — stated for a 15-player total and marked \"e.g.\"; informative only, does not transfer to the fixed 12",
+     "strictness": "SUPPORTING",
+     "valueStatus": "TYPICAL_EXAMPLE",
+     "authoredEvidence": "\"e.g., for 15 players: 6v6 + 3 neutrals, or 7v7 + 1 neutral\"",
+     "provenanceId": "NEUTRAL-11"
+    },
+    {
+     "area": "Transitions",
+     "field": "turnover / possession state",
+     "requirement": "EXISTS",
+     "value": "the resolved game must contain something that determines which team is in possession at any moment, continuously and not only at restarts — otherwise \"plays with the team in possession\" has no truth value",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"creating a permanent numerical advantage for whichever side has the ball\"",
+     "provenanceId": "NEUTRAL-12"
+    },
+    {
+     "area": "Transitions",
+     "field": "start",
+     "requirement": "EXISTS",
+     "value": "the start must establish which team begins in possession, so neutral affiliation is defined from the first moment of play",
+     "strictness": "SUPPORTING",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Neutrals always play with the team in possession\"",
+     "provenanceId": "NEUTRAL-13"
+    },
+    {
+     "area": "Rules of value",
+     "field": "consequences [trigger, effect, beneficiary]",
+     "requirement": "CHANGES_ON",
+     "value": "trigger: change of possession; effect: all neutrals become teammates of the team now in possession; beneficiary: the team now in possession (a temporary numerical advantage, not a change to the value of the primary scoring event)",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"Neutrals always play with the team in possession, creating a permanent numerical advantage for whichever side has the ball.\"",
+     "provenanceId": "NEUTRAL-14"
+    },
+    {
+     "area": "Rules of value",
+     "field": "value modifiers",
+     "requirement": "NOT_EXISTS",
+     "value": "no bonus, multiplier or added scoring value is attached to neutral involvement — this object carries no incentive layer",
+     "strictness": "EXCLUSION",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"incentive_mechanism\": \"none\" / \"includes_incentive_layer\": \"false\"",
+     "provenanceId": "NEUTRAL-15"
+    },
+    {
+     "area": "Rules of value",
+     "field": "primary event [object, condition]",
+     "requirement": "NOT_DOMINANT",
+     "value": "involving the neutral must not be compulsory, nor the only or dominant route to the primary scoring event; use of the overload stays a player choice",
+     "strictness": "EXCLUSION",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Players choose when and how to use the numerical advantage based on the live pressure picture.\"",
+     "provenanceId": "NEUTRAL-16"
+    },
+    {
+     "area": "Direction",
+     "field": "per team: the objective attacked / defended (as applied to a neutral)",
+     "requirement": "NOT_EXISTS",
+     "value": "no direction, attacked objective or defended objective is assigned to a neutral independently; a neutral inherits the direction of whichever team it is currently playing for",
+     "strictness": "EXCLUSION",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Neutrals always play with the team in possession\"",
+     "provenanceId": "NEUTRAL-17"
+    }
+   ],
+   "doesNotConstrain": [
+    "Envelope / area length and width: no dimension, ratio or density value is authored for this object (realization row: area_length_value, area_width_value, area_unit all null).",
+    "Envelope / duration: not authored (duration_value and duration_unit null).",
+    "Space / the area and regions entirely: the setup guidance marks no zone, channel or box — unlike sibling entries that say \"Mark a central zone\" or \"Mark zone boundaries clearly\". Region id, kind, orientation, extent and position are all left free.",
+    "Space / the phrase \"protect the deeper zone\" in the description is coaching language describing what the defending team reads, not a Use declaration of a region. It creates no region requirement.",
+    "Performers / whether goalkeepers exist, how many, or which team has one; target players; team ids and naming.",
+    "Performers / where neutrals start, whether they have a restricted area, and any positional or role assignment for them.",
+    "Objects / entirely free: this object introduces no ball, goal, cone or other environmental object, and sets no object kind, owner or position reference. It manipulates Performer Availability only. (Bibs are performer identification, not a game object.)",
+    "Objectives / entirely free: number of objectives, PRIMARY SCORING vs REPRESENTATIVE role, and active/inactive state are all untouched. This object says nothing about what is scored on.",
+    "Direction / which objective each team attacks and defends, and whether the game is directional at all — beyond the exclusion that a neutral holds no direction of its own (NEUTRAL-17).",
+    "Transitions / restart after a score and restart after out of play: form, taker, location and whether play stops are all free.",
+    "Transitions / whether play is continuous or stopped at a turnover — only that possession is determinable (NEUTRAL-12).",
+    "Rules of value / the primary event's object and condition; consequences other than the possession-linked re-affiliation; beneficiaries of any other consequence.",
+    "Rules of value / information [trigger, what changes]: the object's visibility effect is \"indirect_increase\", achieved structurally through support angles and pressure differences, not through any authored information rule. No information trigger is required.",
+    "Rules of value / time windows: none authored."
+   ],
+   "notAuthored": [
+    "Whether a neutral may score, or may be the performer who satisfies the primary scoring event. Nothing in the entry, its realization row or the primary-scoring source addresses this (no occurrence of \"neutral\" in primary-scoring.ts).",
+    "Whether a neutral may be pressed, tackled or dispossessed, or holds any protected status or touch limit. Coach vocabulary contains \"press the free player\", but that is vocabulary, not a rule.",
+    "What happens during a contested or loose ball, when no team is in possession — the authored text covers only \"the team in possession\", so neutral affiliation in that interval has no authored value.",
+    "Whether re-affiliation on turnover is instantaneous or takes effect at a restart.",
+    "A neutral count for a 12-player envelope. The realization row leaves player_count_min, player_count_max, team_structure and role_configuration null; the only authored counts are \"e.g.\" values for 15 players.",
+    "Any typed EM parameter for performer affiliation, or for affiliation that varies with a game state. The Performer Availability family owns only quantity — \"Owns the number of participating performers within one or more groups.\" — and status — \"Owns the current participation status of performers.\" Affiliation-follows-possession exists only as prose in setup guidance.",
+    "Whether neutrals rotate among players between rounds or periods."
+   ],
+   "assumptionsNeeded": [
+    "The soccer realization row adds no sport-specific value: it is a verbatim extraction (\"Extracted from TEST_LIBRARY_V0_CONSTRAINTS and TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS via extract-soccer-realizations.ts\") with every typed realization field null. I therefore derived from the library entry text.",
+    "I treated the object as structural, per constraint_role \"structure\" and primary_constraint_type \"structural\", and derived no spatial requirement from the conflicting metadata label constraint_archetype \"Spatial Condition\". That inconsistency is in the authored record; I did not resolve it in either direction beyond declining to invent a region.",
+    "I assumed \"the team in possession\" is a state the resolved game can evaluate. If the resolved game contains nothing that determines it, NEUTRAL-03 and NEUTRAL-14 are unrealizable rather than merely unspecified.",
+    "I assumed neutrals are counted inside the player envelope rather than added to it, from \"Adjust team numbers accordingly\" plus the arithmetic of the authored example (6 + 6 + 3 = 15).",
+    "I assumed the description's \"One or more\" governs the hard minimum and the setup guidance's \"one or two\" is a preferred default, because the entry's own example instantiates three neutrals.",
+    "NEUTRAL-08 (the outnumbering condition) is derived, not stated: the authored text never gives team counts, only \"a permanent numerical advantage for whichever side has the ball\". I state the condition that makes that sentence true rather than picking counts.",
+    "Arithmetic note on the fixed 12, stated rather than resolved: with 2 neutrals the remaining 10 split evenly; with 1 or 3 neutrals an even split requires goalkeepers (or some other role) to absorb the remainder. Nothing authored here picks a split, so NEUTRAL-08/09/10 constrain the partition without choosing one."
+   ]
+  },
+  {
+   "object": "Wide Zone Advantage (tl-v0-constraint-wide-zone-advantage) — Environmental Manipulation, constraint_role \"hybrid\", primary_constraint_type \"spatial\", incentive_mechanism \"positional_or_scoring_advantage\"",
+   "contributions": [
+    {
+     "area": "Space",
+     "field": "area — lateral boundaries",
+     "requirement": "EXISTS",
+     "value": "The playing area must have two opposite long boundaries identifiable as touchlines, so that 'wide' is a defined lateral position rather than a figure of speech.",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Mark wide channels along both touchlines\"",
+     "provenanceId": "WIDEZONE-01"
+    },
+    {
+     "area": "Space",
+     "field": "regions[] — existence",
+     "requirement": "EXISTS",
+     "value": "A wide-channel region exists, instantiated in the resolved game's Space area (this object organizes a region; it does not introduce new Environmental Manipulation ontology).",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Mark wide channels along both touchlines (~6-10m wide depending on field size).\"",
+     "provenanceId": "WIDEZONE-02"
+    },
+    {
+     "area": "Space",
+     "field": "regions[] — count of wide-channel regions",
+     "requirement": "COUNT",
+     "value": "2 — one along each touchline. A single channel on one side does not realize the object.",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"Mark wide channels along both touchlines\"",
+     "provenanceId": "WIDEZONE-03"
+    },
+    {
+     "area": "Space",
+     "field": "regions[].orientation",
+     "requirement": "ORIENTED",
+     "value": "Longitudinal — each channel runs along its touchline, parallel to the length axis of the area.",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"Mark wide channels along both touchlines\"",
+     "provenanceId": "WIDEZONE-04"
+    },
+    {
+     "area": "Space",
+     "field": "regions[].position",
+     "requirement": "POSITIONED",
+     "value": "Each channel is bounded on its outer edge by one touchline; one channel on each lateral side of the area.",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"Mark wide channels along both touchlines\"",
+     "provenanceId": "WIDEZONE-05"
+    },
+    {
+     "area": "Space",
+     "field": "regions[].extent — channel width",
+     "requirement": "RANGE",
+     "value": "About 6-10 m each, scaled to the size of the area. Authored as a size-dependent guide, so it adapts rather than binding; on a 30 m width a narrower value is admissible.",
+     "strictness": "SUPPORTING",
+     "valueStatus": "PREFERRED_DEFAULT",
+     "authoredEvidence": "\"(~6-10m wide depending on field size)\"",
+     "provenanceId": "WIDEZONE-06"
+    },
+    {
+     "area": "Space",
+     "field": "regions[].extent — channel length",
+     "requirement": "EQUALS",
+     "value": "Runs along the touchline, i.e. the full length of the area by default; a shortened channel is a departure, not the authored shape.",
+     "strictness": "SUPPORTING",
+     "valueStatus": "PREFERRED_DEFAULT",
+     "authoredEvidence": "\"Mark wide channels along both touchlines\"",
+     "provenanceId": "WIDEZONE-07"
+    },
+    {
+     "area": "Space",
+     "field": "regions[].kind",
+     "requirement": "EQUALS",
+     "value": "Reference/advantage channel — a region that is optional to use. It must not be realized as a restricted, exclusive or entry-prohibited zone, and entering it must not be compulsory.",
+     "strictness": "EXCLUSION",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"Channels are reference markers — players can choose to use them or not.\"",
+     "provenanceId": "WIDEZONE-08"
+    },
+    {
+     "area": "Space",
+     "field": "regions[] — extent relative to the area's width",
+     "requirement": "NOT_DOMINANT",
+     "value": "The two channels must not consume the whole width; playable non-channel space must remain, otherwise the choice to use them and the differential advantage both vanish.",
+     "strictness": "EXCLUSION",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Channels are reference markers — players can choose to use them or not.\"",
+     "provenanceId": "WIDEZONE-09"
+    },
+    {
+     "area": "Space",
+     "field": "regions[].id — determinacy of the boundary",
+     "requirement": "EXISTS",
+     "value": "Each channel must be a referenceable region with a determinate boundary, so that 'in or through the wide channel' is decidable during play and can be cited by the rules of value.",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Actions starting in or moving through the wide channel earn an advantage\"",
+     "provenanceId": "WIDEZONE-10"
+    },
+    {
+     "area": "Rules of value",
+     "field": "consequences[trigger]",
+     "requirement": "EXISTS",
+     "value": "A trigger condition evaluated against the wide-channel region: an action that starts inside a channel, or moves through one.",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"Actions starting in or moving through the wide channel earn an advantage\"",
+     "provenanceId": "WIDEZONE-11"
+    },
+    {
+     "area": "Rules of value",
+     "field": "consequences[effect]",
+     "requirement": "EXISTS",
+     "value": "The trigger must produce an advantage — positional or scoring. A marked channel with no attached advantage does not realize this object; the incentive layer is half of its hybrid role.",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Use as a hybrid spatial + consequence constraint when wide areas should become more available and more valuable.\"",
+     "provenanceId": "WIDEZONE-12"
+    },
+    {
+     "area": "Rules of value",
+     "field": "consequences[effect] — choice of effect",
+     "requirement": "EQUALS",
+     "value": "Authored options are bonus point, free restart, or scoring multiplier. These are illustrative alternatives, not a required set; exactly one advantage mechanism is required, and no authored default picks between them.",
+     "strictness": "SUPPORTING",
+     "valueStatus": "TYPICAL_EXAMPLE",
+     "authoredEvidence": "\"earn an advantage (bonus point, free restart, or scoring multiplier)\"",
+     "provenanceId": "WIDEZONE-13"
+    },
+    {
+     "area": "Rules of value",
+     "field": "consequences[beneficiary]",
+     "requirement": "EQUALS",
+     "value": "The team performing the qualifying action. The object never confers the advantage on the opponent or on a neutral party.",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "\"Actions starting in or moving through the wide channel earn an advantage\"",
+     "provenanceId": "WIDEZONE-14"
+    },
+    {
+     "area": "Rules of value",
+     "field": "value modifiers — on the primary scoring event",
+     "requirement": "EXISTS",
+     "value": "This object is one of the explicitly authored cases permitted to change the VALUE of the primary scoring event: a scoring multiplier conditioned on wide-channel involvement is an admissible realization of the advantage.",
+     "strictness": "SUPPORTING",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"Actions starting in or moving through the wide channel earn an advantage (bonus point, free restart, or scoring multiplier).\"",
+     "provenanceId": "WIDEZONE-15"
+    },
+    {
+     "area": "Rules of value",
+     "field": "primary event — number of scoring routes",
+     "requirement": "NOT_EXISTS",
+     "value": "The advantage must not be realized as a second independent way to score. It either modifies the value of the existing primary scoring event or changes game state; wide areas become more valuable, they do not become an objective.",
+     "strictness": "EXCLUSION",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"when wide areas should become more available and more valuable\"",
+     "provenanceId": "WIDEZONE-16"
+    },
+    {
+     "area": "Rules of value",
+     "field": "information[trigger, what changes]",
+     "requirement": "EXISTS",
+     "value": "The channel and its advantage are standing, openly known information for both teams — the object works by raising the visibility of the wide affordance, not by hiding or revealing it during play.",
+     "strictness": "SUPPORTING",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"visibility_effect\": \"increase\"; \"Channels are reference markers\"",
+     "provenanceId": "WIDEZONE-17"
+    }
+   ],
+   "doesNotConstrain": [
+    "Envelope — player count, area length, area width, area shape and duration are all free. The object is authored to scale (\"depending on field size\") and states no player-count, dimension or duration values; the realization row has player_count_min/max, area_*_value and duration_value all null.",
+    "Performers — number of teams, outfield counts, presence or role of a goalkeeper, neutrals (count or who they play for), and target players are untouched. In particular NO designated wide player, winger or channel player is required: the coach_vocabulary strings (\"find the wide player\") are coaching language, not a structural declaration, and team_structure / role_configuration are null in the realization row.",
+    "Objects — ball kind, count, owner and position reference are free. How the channel boundary is physically realized (cones, discs, painted lines, existing pitch markings, or none at all) is also free: equipment_configuration is null and the object requires only that the boundary be determinate, not that it be made of any particular thing.",
+    "Objectives — number, kind, position, ownership, PRIMARY SCORING vs REPRESENTATIVE role, and active/inactive state are all free. The object requires NO objective inside, at the end of, or attached to a channel, and removes or deactivates nothing.",
+    "Direction — which objective each team attacks and which it defends is free. The object is symmetric across both lateral sides and takes no view on direction of progression; it neither creates nor consumes a directional objective.",
+    "Transitions — start, restart after a score, restart after out of play, and restart after turnover are all free. \"Free restart\" is one of three illustrative effect options, not the minimum, so Transitions is only touched if a realization chooses that option.",
+    "Rules of value — what the primary scoring event is (its object and condition) and its base value are entirely free; the object attaches to whatever primary event the game has. Other consequences, other value modifiers and other information rules are untouched.",
+    "Rules of value — time windows. The object requires no window, countdown, clock or phase gating of the advantage; it states none.",
+    "Space — the rest of the area's internal organization. Any other regions (thirds, end zones, central zones, target zones) are neither required nor forbidden by this object, which organizes only the two lateral channels.",
+    "Player movement generally — the object restricts nobody's position or movement anywhere on the field, including inside the channels. It only attaches value to a spatial condition.",
+    "Frequency, cap and repeatability of the advantage within a possession or a game — free, because nothing is authored (see notAuthored)."
+   ],
+   "notAuthored": [
+    "Which of the three effects to use. \"bonus point, free restart, or scoring multiplier\" are offered as alternatives with no authored default and no selection rule. Note that the first option, read literally as a separate point, would be a second independent way to score, which this slice's standing decision forbids — so authored knowledge alone does not resolve the choice, and one of the three authored options is unusable here.",
+    "The magnitude of the advantage — no multiplier size, no number of bonus points, no restart terms. The Soccer Module realization row has parameter_name, parameter_value, parameter_unit, allowed_range_min and allowed_range_max all null.",
+    "How long a 'positional' advantage persists. The knowledge library says nothing. The engine's incentive renderer (back/src/system/activity/incentive-expression.ts, case 'positional_or_scoring_advantage') produces \"your team keeps it until the next change of possession\", but that is renderer prose, not authored knowledge, and per the deep-case ruling prose must not create structure.",
+    "Whether the advantage is per qualifying action, once per possession, or repeatable without limit.",
+    "A scaling rule for channel width. \"~6-10m wide depending on field size\" gives a band and a dependency but no function, so the width for a 40 x 30 m area is not derivable.",
+    "Whether the advantage is symmetric for both teams and both channels, or can be team-specific / side-specific. Nothing authored assigns ownership of a channel, so a resolved game that gave one channel to one team could not be validated against this object either way.",
+    "How 'moving through' is adjudicated — ball only, player only, both; whether a touch inside the channel is required; how much of the channel must be traversed.",
+    "Whether the channel must be physically marked at all. The setup guidance says \"Mark wide channels along both touchlines\" while the same entry's contextual audit / contraindication field says \"Zones optional\". The source does not reconcile these two statements.",
+    "No canonical Environmental Manipulation dimension owns an internal region. EM-0001 Playing Area Configuration owns only Length, Width and Shape (EMD-0001..0003), and no EM parameter covers subdivision, zone or channel. The wide channel therefore exists only in Test Library setup guidance and must live in the shared representation's Space area — consistent with the standing decision that knowledge requires a region and realization instantiates it, and with no new EM ontology.",
+    "The object's own classification is flagged unresolved in source: the line immediately above the entry in environmental-manipulations.ts reads \"BORDERLINE (EM vs Constraint) — confirm with Christian's authoritative EM Library\", and the record carries type \"constraint\" with universal_concept_type ENVIRONMENTAL_MANIPULATION."
+   ],
+   "assumptionsNeeded": [
+    "That 'touchlines' means the two long sides of the playing area, so 'wide' is the lateral axis. The object's own text never defines it; without this the channel's orientation and position cannot be stated at all.",
+    "That the 'advantage' in the setup guidance and the record's incentive_mechanism \"positional_or_scoring_advantage\" name the same single consequence — i.e. one advantage mechanism, not three applied together.",
+    "That a value-bearing condition requires something in the resolved game that determines when it is true; this is why I state the channel must be a determinate, referenceable region (WIDEZONE-10) rather than a described one.",
+    "That \"Channels are reference markers — players can choose to use them or not\" entails that playable non-channel space remains, which is what licenses the exclusion in WIDEZONE-09. Authored text does not say this directly.",
+    "That the acting team is the beneficiary. The authored sentence says actions 'earn an advantage' without naming who receives it; no reading in which the opponent benefits is available, but the beneficiary is inferred rather than stated.",
+    "That coach_vocabulary strings in the Soccer Module realization row are coaching language for a coach-facing renderer, not structural declarations — otherwise 'find the wide player' would appear to require a designated wide performer, which nothing structural authorizes."
+   ]
+  },
+  {
+   "object": "Variable Target Condition (tl-v0-constraint-variable-target-condition; soccer realization RB-VARIABLE-TARGET-CONDITION; Information Expression preset IE-C006 VARIABLE_TARGET_MEANING)",
+   "contributions": [
+    {
+     "area": "Objects",
+     "field": "objects[] — count and kind of target objects",
+     "requirement": "COUNT",
+     "value": "At least 2 target objects (goals / gates / marked targets) exist in the playing area; the authored working range is 2-3.",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "Mark 2-3 possible targets/gates (e.g. across the far line or at multiple edges).",
+     "provenanceId": "VARTARGET-01"
+    },
+    {
+     "area": "Objects",
+     "field": "objects[] — physical presence across the activity",
+     "requirement": "NOT_EXISTS",
+     "value": "No candidate target is removed, closed off or relocated on account of not currently being the live one; all candidates stay physically present for the whole activity.",
+     "strictness": "EXCLUSION",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "All targets stay physically available so the choice remains open; only the LIVE one scores.",
+     "provenanceId": "VARTARGET-02"
+    },
+    {
+     "area": "Space",
+     "field": "regions / position reference of the candidate targets",
+     "requirement": "POSITIONED",
+     "value": "The candidate targets occupy distinct positions, such that which one is live changes where the attack has to progress. Separation distance is not specified.",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "teams adapt the direction of their progression to the target that becomes available.",
+     "provenanceId": "VARTARGET-03"
+    },
+    {
+     "area": "Space",
+     "field": "regions / position reference of the candidate targets (placement pattern)",
+     "requirement": "POSITIONED",
+     "value": "Placement across the far line, or at multiple edges of the area, is an authored example only — it is informative, not a layout requirement.",
+     "strictness": "SUPPORTING",
+     "valueStatus": "TYPICAL_EXAMPLE",
+     "authoredEvidence": "Mark 2-3 possible targets/gates (e.g. across the far line or at multiple edges).",
+     "provenanceId": "VARTARGET-04"
+    },
+    {
+     "area": "Space",
+     "field": "regions[] — trigger region",
+     "requirement": "EXISTS",
+     "value": "Where the reveal trigger is spatial, a perceivable trigger line or threshold region must exist in the layout. A non-spatial in-play trigger removes this requirement.",
+     "strictness": "SUPPORTING",
+     "valueStatus": "PREFERRED_DEFAULT",
+     "authoredEvidence": "Which target is live is revealed only after play crosses a trigger line, or switches on a coach cue during play.",
+     "provenanceId": "VARTARGET-05"
+    },
+    {
+     "area": "Objectives",
+     "field": "objectives[] — count of candidate objectives in one team's target set",
+     "requirement": "COUNT",
+     "value": "At least 2 objectives, all with role PRIMARY SCORING, belong to the same attacking team's candidate set, so that 'which one is live' can vary.",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "Which target is live is tied to a defender's commitment — when the defense shifts to cover one gate, the other becomes the live one.",
+     "provenanceId": "VARTARGET-06"
+    },
+    {
+     "area": "Objectives",
+     "field": "objectives[].state (active / inactive)",
+     "requirement": "EQUALS",
+     "value": "At any instant exactly one candidate objective in the set has state = active; every other candidate has state = inactive.",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "All targets stay physically available so the choice remains open; only the LIVE one scores.",
+     "provenanceId": "VARTARGET-07"
+    },
+    {
+     "area": "Objectives",
+     "field": "objectives[].state — mutability during play",
+     "requirement": "CHANGES_ON",
+     "value": "The active/inactive assignment must be re-assignable during play and must change at least once in the course of the activity, on a trigger occurring in play.",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "Which target or scoring option is live is revealed late or changes during play, so teams must read the current picture rather than commit to a pre-planned route.",
+     "provenanceId": "VARTARGET-08"
+    },
+    {
+     "area": "Objectives",
+     "field": "objectives[].state — scope and persistence attributes",
+     "requirement": "EXISTS",
+     "value": "The state field must be able to carry the scope of the change (individual objective / objective group / team-specific set) and its expected persistence (temporary or persistent).",
+     "strictness": "SUPPORTING",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "Owns the current functional activation state of objectives.",
+     "provenanceId": "VARTARGET-09"
+    },
+    {
+     "area": "Direction",
+     "field": "per team: the objective attacked",
+     "requirement": "EQUALS",
+     "value": "The attacked objective must be expressible as 'the currently active member of this team's candidate set', not as one fixed objective id resolved once at setup.",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "teams adapt the direction of their progression to the target that becomes available.",
+     "provenanceId": "VARTARGET-10"
+    },
+    {
+     "area": "Rules of value",
+     "field": "primary event [object, condition]",
+     "requirement": "EQUALS",
+     "value": "The single primary scoring event's object resolves to whichever candidate objective has state = active at the moment of the event; the event definition itself is unchanged.",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "All targets stay physically available so the choice remains open; only the LIVE one scores.",
+     "provenanceId": "VARTARGET-11"
+    },
+    {
+     "area": "Rules of value",
+     "field": "primary event [object, condition] — inactive candidates",
+     "requirement": "NOT_EXISTS",
+     "value": "No value accrues from the same event performed on a candidate whose state is inactive, and the candidate set creates no second, independent way to score.",
+     "strictness": "EXCLUSION",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "only the LIVE one scores.",
+     "provenanceId": "VARTARGET-12"
+    },
+    {
+     "area": "Rules of value",
+     "field": "information [trigger, what changes]",
+     "requirement": "EXISTS",
+     "value": "One information element must exist whose 'what changes' is which candidate objective is active. Without it nothing in the game determines the live target.",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "Revelation state dependency: objective dependent; trigger: state transition or opponent action; reveal progression: immediate or staged.",
+     "provenanceId": "VARTARGET-13"
+    },
+    {
+     "area": "Rules of value",
+     "field": "information[].trigger — kind",
+     "requirement": "RANGE",
+     "value": "The trigger is a state transition or an opponent action. The authored coach-cue variant is an external signal and sits outside this range.",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "trigger: state transition or opponent action",
+     "provenanceId": "VARTARGET-14"
+    },
+    {
+     "area": "Rules of value",
+     "field": "information[].trigger — detectability",
+     "requirement": "EXISTS",
+     "value": "The trigger must be detectable by the players and causally connected to which target becomes live; the resulting state change must alter available action possibilities.",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "The trigger must be detectable and causally connected to the revealed information; external signals require additional scrutiny.",
+     "provenanceId": "VARTARGET-15"
+    },
+    {
+     "area": "Rules of value",
+     "field": "information[] — advance availability",
+     "requirement": "NOT_EXISTS",
+     "value": "Which candidate is live must not be determinable before its trigger fires; no rule or setup may let a team fix the target in advance.",
+     "strictness": "REQUIRED",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "The active goal is revealed only after the ball enters the final third (flip a cone / call it), so the route cannot be pre-planned.",
+     "provenanceId": "VARTARGET-16"
+    },
+    {
+     "area": "Rules of value",
+     "field": "information[] — reveal progression",
+     "requirement": "RANGE",
+     "value": "The reveal is immediate or staged; where staged, each stage must remain meaningful and later information refines rather than arbitrarily overturns the task.",
+     "strictness": "SUPPORTING",
+     "valueStatus": "REQUIRED_RANGE",
+     "authoredEvidence": "Each stage must remain meaningful and later information should refine rather than arbitrarily overturn the task.",
+     "provenanceId": "VARTARGET-17"
+    },
+    {
+     "area": "Rules of value",
+     "field": "value modifiers",
+     "requirement": "NOT_EXISTS",
+     "value": "No incentive layer: candidates do not carry differing or changing point values, and the live/not-live status never changes the value of the primary scoring event.",
+     "strictness": "EXCLUSION",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "\"incentive_mechanism\": \"none\"",
+     "provenanceId": "VARTARGET-18"
+    },
+    {
+     "area": "Rules of value",
+     "field": "consequences [trigger, effect, beneficiary] — prescribed behaviour",
+     "requirement": "NOT_EXISTS",
+     "value": "No rule may prescribe a player behaviour (for example a mandatory scan or a required route) as a condition of scoring on the live target.",
+     "strictness": "EXCLUSION",
+     "valueStatus": "not-a-value",
+     "authoredEvidence": "The variability shapes information availability, not behavior — players choose how to exploit whichever target is live.",
+     "provenanceId": "VARTARGET-19"
+    },
+    {
+     "area": "Transitions",
+     "field": "restart — re-establishment of the live-target assignment",
+     "requirement": "CHANGES_ON",
+     "value": "In possession-scoped realizations the live-target assignment is re-established at the start of each possession rather than persisting from the previous one.",
+     "strictness": "SUPPORTING",
+     "valueStatus": "TYPICAL_EXAMPLE",
+     "authoredEvidence": "The first receiver in the attacking half sets which goal is live for that possession.",
+     "provenanceId": "VARTARGET-20"
+    }
+   ],
+   "doesNotConstrain": [
+    "Envelope: player count, area length, area width, duration — nothing in the authored entry sets or bounds any of them (player_count_min/max, area_length_value, area_width_value, duration_value are all null in the soccer realization).",
+    "Space: whether the area is zoned at all, and the number, kind, orientation or extent of any region other than a trigger region; the distance or separation between candidate targets (no spacing requirement is authored).",
+    "Performers: team count and sizes, outfield counts, goalkeepers, neutrals, target players, who any neutral plays for. The object is indifferent to the performer configuration.",
+    "Objects: the ball and any object that is not a candidate target; the number of balls; the physical kind of the candidate targets (full goal, small goal, gate, marked target zone or target player are all open).",
+    "Objectives: whether additional REPRESENTATIVE objectives exist alongside the candidate set; whether the opposing team also has a varying candidate set or a single fixed objective.",
+    "Objectives: which candidate starts active at kick-off.",
+    "Direction: which compass/end direction each team attacks or defends; whether progression is end-to-end; whether the candidate set sits at one end or several edges.",
+    "Transitions: the start method, the restart after a score, the restart after the ball goes out of play, and the restart after a turnover.",
+    "Rules of value: what the primary scoring event actually is (goal, line crossed, target zone entered, gate, target player received) — only that it binds to the active objective.",
+    "Rules of value: the point value of the primary event, any consequence not concerning target availability, and any time window.",
+    "Rules of value: how often the live target switches, and whether both teams' assignments switch together or independently.",
+    "Coach-facing wording: which of the authored vocabulary terms ('read the picture', 'which option is on', 'late target') is used, and how the rule is explained."
+   ],
+   "notAuthored": [
+    "Minimum or maximum frequency of switching. The entry says the live target 'changes during play' but never says how often; the schema's own risk note warns 'Frequent state changes can turn the task into game logic' without giving a bound.",
+    "The time window between the reveal and the scoring opportunity. 'revealed late' is not quantified anywhere for this object, and IE-C006 composes no timing dimension (no REVEAL_TIMING value).",
+    "Whether the live-target assignment resets at restarts in general. Only the possession-scoped realization (RB-VARIABLE-TARGET-CONDITION-04) says so; there is no general restart rule.",
+    "Edge adjudication: what happens if the scoring event occurs at the instant the active state switches, or if the ball is already travelling toward a target that goes inactive.",
+    "Informational distribution: whether the live target is knowable to both teams or only to the attacking team. IE-C006 composes no distribution dimension, so no authored value exists.",
+    "Whether the constraint applies to one team's target set or to both teams symmetrically.",
+    "Minimum perceivable separation between candidate targets — required for 'which is live' to matter in practice, but no distance, proportion or width rule is authored for this object.",
+    "Whether the coach-cue trigger variant in the setup guidance is permitted given that the IE-C006 preset restricts the trigger to state transition or opponent action, and IE-D006 flags external signals for 'additional scrutiny'. The two authored sources are not reconciled."
+   ],
+   "assumptionsNeeded": [
+    "That 'which target is live' maps onto the representation's Objectives[].state field (active / inactive), on the authority of EM-0010 Objective State — 'Owns the current functional activation state of objectives' — with parameter EMP-0058 State Value 'Active / Inactive'. Without that mapping the object has no home in the eight areas.",
+    "That the physical targets/gates are Objects and each is referenced by an Objectives entry, so that 'stays physically available' (Objects) and 'is not live' (Objectives.state) can be true at the same time — this split is what makes the authored line internally consistent.",
+    "That 'only the LIVE one scores' means exactly one candidate is active at a time. Every authored formulation is singular ('the live one', 'the active goal', 'which goal is now on'), but a cardinality rule is never stated outright.",
+    "That candidate targets carry role PRIMARY SCORING rather than REPRESENTATIVE, since the primary scoring event lands on whichever of them is currently active.",
+    "That a trigger must be perceivable to the players for the constraint to be realized at all — taken from the IE-D006 integrity condition ('The trigger must be detectable...'), not from the environmental manipulation entry, which never says so.",
+    "That 'at least once during play' is the floor for the state change. The authored text requires change but gives no count; one switch is the weakest reading that still makes the object genuinely realized rather than a fixed single target."
+   ]
+  }
+ ]
+}
