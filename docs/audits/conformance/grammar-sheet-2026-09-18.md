@@ -1,162 +1,155 @@
-# Contract grammar sheet — for writing and reading contribution contracts
+# Contract grammar sheet — for writing contribution contracts
 
-18 September 2026. This sheet is self-contained. It states the rules a contribution contract follows
-under revision 4 of the Game Representation Specification. It deliberately contains no worked examples
-from any existing contract, so that a contract can be drafted from it without seeing how others were
-drafted. The register of field paths is `register-2026-09-18.json` in this folder.
+18 September 2026, version 2 (after the stage A review). This sheet is self-contained. It states the
+rules a contribution contract follows under revision 4 of the Game Representation Specification. It
+contains no worked examples from any existing contract or knowledge object, so a contract can be drafted
+from it without seeing how others were drafted. The register of field paths is
+`register-2026-09-18.json` in this folder. How support is derived from contracts is in a separate file,
+`derivation-rules-2026-09-18.md`, which contract writers do not need.
 
 ## 1. What a contract is
 
 A contribution contract says what one selected knowledge object requires, excludes and constrains in a
-game, and what it does not claim. It contains **items**, **non-claim declarations** covering every
-register row, and **not-authored declarations**. It holds no coach language and no play-level
-description.
+game, and what it does not claim. It contains:
+- **items**;
+- **declarations** covering every register row;
+- **relationship rules** the object authors, if any.
 
-**The boundary.** A contract may only say things about what a coach lays out and what the rules key on.
-Player movement, tactics, positions during play, pressure, opportunity, affordance, uncertainty,
-representativeness and the state of a game in progress are outside it. A requirement about those is
-recorded with checkability `OUTSIDE_BOUNDARY`, not forced onto a row.
+It holds no coach language and no play-level description. A session emphasis or slot template that
+needs structure contributes only through a contract of this same form (SD-17); nothing else enters a
+game.
+
+**The boundary.** A contract may say things only about what a coach lays out and what the rules key on.
+The following are outside it:
+- player movement, tactics and positions during play;
+- pressure, opportunity, affordance, uncertainty and representativeness;
+- the state of a game in progress.
+
+A requirement about those is still recorded, with checkability `OUTSIDE_BOUNDARY`, and is not forced
+onto a row it doesn't fit.
 
 ## 2. Paths
 
 A path names one register row, plus a **selector** when the row sits in a collection.
 
-- **Syntax:** `<row path>[<selector>]`, for example `space.regions[noun=channel].position.across`, or
-  `transitions[trigger=OUT_TOUCHLINE].awardedTo`.
-- **A selector is a predicate** over the element's own attributes, restricted to the row's
-  `selectorAttributes` in the register. Predicates may use `=`, `∈ {…}` (set membership), `∋` (for set
-  valued attributes such as `functions`), `&` (and), and `*` (any element).
-- **An item on a selector applies to every element that satisfies it.** An item using
-  `trigger ∈ {OUT_TOUCHLINE, OUT_END_LINE}` applies to both transitions.
-- **Element existence.** An item with requirement `EXISTS`, `COUNT` or `RANGE` on a COLLECTION row says
-  that elements satisfying its selector exist, or how many. `NOT_EXISTS` on a COLLECTION row forbids
-  them.
-- **Relative values are allowed** where the register says so (for example a position "beyond" another
-  element, or a team designation such as "the team that did not touch it last"). Name the element or
-  designation referred to.
+- **Syntax** (RC-11): `<row path>[<selector>]`, for example `<collection>[<attribute>=<value>].<field>`.
+- **A selector is a predicate** over the element's own attributes. It may use only the row's
+  `selectorAttributes` in the register, with the operators:
+  - `=`;
+  - `∈ {…}` (set membership);
+  - `∋` (contains, for set-valued attributes);
+  - `&` (and);
+  - `*` (any element).
+
+  An element that lacks an attribute does not satisfy a selector on it.
+- **An item on a FIELD row applies to every element that satisfies its selector.**
+- **Element existence.** `EXISTS`, `COUNT` or `RANGE` on a COLLECTION row says that elements
+  satisfying the selector exist, or how many. `NOT_EXISTS` there forbids them. On a FIELD row, `EXISTS`
+  means only that the field is present, never what its value is.
+- **Relative values** (a position relative to another element, or a team designation) use the
+  register's `relativeTerms` and `teamDesignations`. Name the element referred to. If the referent is
+  players or play rather than a game element, the item is `OUTSIDE_BOUNDARY`.
 
 ## 3. Item fields
 
 | Field | Values |
 |---|---|
 | `id` | the contract's own id for the item |
-| `row` | a register row id (E1 … V26, SV1, DV1) |
+| `row` | a register row id |
 | `selector` | a predicate, or `*` |
 | `requirement` | closed: `EQUALS`, `RANGE`, `COUNT`, `EXISTS`, `NOT_EXISTS`, `POSITIONED`, `ORIENTED` |
-| `value` | the required value, bound or set; a set of alternatives is marked *ordered* only if the source orders it |
-| `strictness` | `REQUIRED`, `SUPPORTING`, `EXCLUSION` |
+| `value` | the required value or bound. A **set of alternatives** is written as a set and marked *ordered* only if the source orders it |
+| `strictness` | `REQUIRED`, `SUPPORTING`, `EXCLUSION`. An `EXCLUSION` item's value is the **forbidden** value, whatever its requirement kind |
 | `valueStatus` | `REQUIRED_RANGE` (outside is invalid), `PREFERRED_DEFAULT` (use when feasible, adapt to context), `TYPICAL_EXAMPLE` (informative only), or `N/A` when the item carries no value (RC-6) |
-| `scope` | `WHOLE_GAME`, `PER_TEAM`, `PER_OBJECTIVE_SET`, `PER_SIDE`, `OWN_INVOLVEMENT` |
-| `basis` | `AUTHORED` (quote the knowledge text verbatim and give its source id), `ASSUMED` (state the assumption), or `OWNER_RULING` (cite the ruling id; RC-4) |
-| `checkability` | `STRUCTURAL`, `PARTLY_STRUCTURAL` (say which clause is structural), `OUTSIDE_BOUNDARY` |
+| `scope` | `WHOLE_GAME`, `PER_TEAM`, `PER_OBJECTIVE_SET`, `OWN_INVOLVEMENT`. `PER_SIDE` is not used in this run (RC-23) |
+| `basis` | `AUTHORED` (quote the knowledge verbatim and give its source id); `ASSUMED` (state the assumption); `OWNER_RULING` (cite the ruling id); or `ENGINE_ONLY` (RC-12) |
+| `checkability` | `STRUCTURAL`, `PARTLY_STRUCTURAL` (write out which clause is structural), `OUTSIDE_BOUNDARY` |
 
-**Engine wording is never a basis (SD-21).** Code, prompts, tests, templates and coach-rule sentences
-do not count as authored knowledge merely because they exist. If the only evidence for an item is such
-wording, record the item with `basis: ENGINE_ONLY`. It is a candidate for ratification, and it can
-support nothing.
-
-**An `ASSUMED` item can narrow but never entail** (§5).
+**Where authored knowledge lives (RC-10):**
+- **Authored:** the knowledge workbooks held as data — `sport-module/soccer-module.rc1-v3.json`,
+  `sport-module/rpc-library.rc1.json`, `session-planning/session-planning-model.rc1.json`, and
+  `knowledge-core/*.json`.
+- **Mirrors:** `test-library/archetypes.ts`, `constraints.ts` and `environmental-manipulations.ts` mirror
+  that knowledge. Cite the workbook where it carries the same text, and flag any text found only in a
+  mirror.
+- **Engine wording:** everything else — scoring, activity-building and coach-voice code, services,
+  prompts, validators and unit tests. Code, prompts, tests, templates and coach-rule sentences do not
+  count as authored knowledge merely because they exist (SD-21). An item whose only evidence is engine
+  wording is recorded with `basis: ENGINE_ONLY`. It supports nothing; it is a candidate for
+  ratification. Name the sentence and file, so it can be surfaced.
 
 ## 4. Declarations covering the register
 
-For **every** register row, the contract gives at least one declaration:
+For **every** register row, including VIEW rows, the contract gives at least one declaration.
 
 | Declaration | Meaning |
 |---|---|
 | `CLAIMED` | one or more items address this row |
 | `EXCLUDED` | an `EXCLUSION` item forbids something on this row |
 | `NON_CLAIMED` | the object says nothing about this row and does not constrain it |
-| `NOT_AUTHORED` | the object needs this row filled but its knowledge does not author the value; say what is missing |
+| `NOT_AUTHORED` | the object needs this row filled but its knowledge does not author the value. Say what is missing |
 
-A row may carry `CLAIMED` and `NOT_AUTHORED` together when it is partly authored (RC-7). Silence is not
-a declaration: an unexamined row is a contract defect.
+- A declaration may carry an optional **selector and scope**, like an item (RC-13). Without one it
+  covers every element on the row.
+- A row may carry `CLAIMED` and `NOT_AUTHORED` together when it is partly authored (RC-7). Say which
+  elements are authored and which are not.
+- **Silence is not a declaration.** When restating an older contract, a row it never examined is
+  recorded as `UNDECLARED`. That is a gap in the older contract, not a permission.
 
-## 5. How support is derived
+## 5. Relationship rules
 
-A game property is a value on a row, for one element. A contract item **supports** it only when:
-1. the item's row equals the property's row, and the element satisfies the item's selector (RC-1);
-2. the value passes the comparison:
+If the object's own knowledge authors a rule that decides between two requirements on one row (for
+example, which of several alternatives applies when another object is present), record it as a
+relationship rule:
 
-| Requirement | Passes when | Relation |
-|---|---|---|
-| `EQUALS` | the value is equal | ENTAILS |
-| `EXISTS` | the element or value is present | ENTAILS |
-| `RANGE`, `COUNT` | the value is inside, at the item's scope | NARROWS |
-| `POSITIONED` | the position interval satisfies it | NARROWS |
-| `ORIENTED` | the orientation satisfies it | NARROWS (RC-3) |
-| `NOT_EXISTS` | the value or element is absent | EXCLUDES: never support; checked as an exclusion (RC-3) |
+```
+{ id, owner, decides: <rows and selectors>, outcome }
+```
 
-- **`ASSUMED` items only NARROW.** `ENGINE_ONLY` items do nothing.
-- **Existence.** A property may exist only if an item that ENTAILS, a citable standing decision, or the
-  session entails its existence. For elements this means an `EXISTS`/`COUNT`/`RANGE` item whose
-  selector the element satisfies (RC-2).
-- **Free choice (SD-16).** A value may be chosen freely only for an element whose existence is already
-  entailed, only on rows marked `fillable` in the register (P-4, RC-8), only inside every in-scope
-  NARROWS bound, and only where every other in-scope item is a non-claim. A free choice never creates a
-  region, object, trigger, consequence, modifier, information rule or other structural property.
-- **Citable standing decisions** are listed in the register (`citableStandingDecisions`).
+Quote the knowledge as for an item. Nothing else decides a collision.
 
-**Per-property verdicts:**
-
-| Verdict | Meaning |
-|---|---|
-| `ENTAILED` | supported by an ENTAILS item, a citable standing decision or the session |
-| `NARROWED_CHOICE` | a legitimate free choice inside NARROWS bounds |
-| `FREE` | left to the coach: a quantity inside authored bounds, or "long kick" / "controlled on arrival" (SD-15) |
-| `NOT_AUTHORED` | required but unauthored. Mark *source missing: ordinary sport-state knowledge* for an out-of-play restart (PSD-03) |
-| `UNRESOLVED` | two items collide on the row with no authored relationship rule |
-| `INVENTED` | present in the game with no valid support |
-
-## 6. Decisions in force that bear on derivation
-
-- **SD-20:** on `POSSESSION_CHANGE`, play continues and the team that won the ball plays on, unless
-  selected knowledge explicitly creates a stoppage or reset.
-- **SD-R2:** which team starts is a free choice unless selected knowledge requires otherwise. There is
-  no default start location.
-- **SD-R3:** a valid post-score procedure is necessary; there is no universal default for it.
-- **PSD-03:** an out-of-play restart that no selected object authors is `NOT_AUTHORED`, source missing.
-- **SD-13:** only at a kickoff or stationary-ball START, a player of the starting team steps to the
-  ball.
-- **SD-14:** START, SCORE and POSSESSION_CHANGE begin an attacking episode. This defines boundaries
-  only; it does not reinitialize other requirements.
-- **SD-15:** "long kick" and "controlled on arrival" are FREE. No other term is.
-- **SD-10:** an objective is not removed merely because it is not the primary scoring object, when its
-  presence remains functionally necessary to the representative game structure.
-- **KR-01:** Variable Target's 2–3 range applies per objective set.
-- **KR-02, KR-03:** RPC-001's scoring objective functions within the build-out episode. Returning to a
-  goalkeeper build-out after a turnover needs an authored reset rule.
-- **SD-06:** exactly one primary scoring event. A value change only where explicitly authored.
-
-## 7. When something will not fit
+## 6. When something will not fit
 
 **Do not repair the grammar.** Record the item as best you can, and add a ledger entry with one class:
 
-| Class | Use when | Examples of what it means |
-|---|---|---|
-| `SCHEMA` | there is no row, field, requirement kind, selector attribute, relation or declaration that can hold it | a kind of rule the representation has no place for |
-| `VOCABULARY` | the row exists, but a draft closed list lacks the value | a region noun, object kind or trigger not on the draft list |
-| `KNOWLEDGE` | the grammar can hold it, but the knowledge does not author it, is ambiguous, or rests only on engine wording | a missing magnitude, an unauthored restart |
+| Class | Use when |
+|---|---|
+| `SCHEMA` | no row, field, requirement kind, selector attribute, relation or declaration can hold it |
+| `VOCABULARY` | the row exists, but a draft closed list lacks the value. Still record the value as authored |
+| `KNOWLEDGE` | the grammar can hold it, but the knowledge does not author it, is ambiguous, or rests only on engine wording |
 
-For `SCHEMA` entries, also say whether it looks `LOCAL` or `STRUCTURAL`:
-- **`LOCAL`:** absorbable as a new row inside an existing area, a new field on an existing collection, a
-  new selector attribute, or a new requirement kind with a stated relation. It leaves how support,
-  statuses, non-claims and the gates work unchanged.
-- **`STRUCTURAL`:** it would change how support is derived, the set of statuses, the non-claim
-  mechanism, the source kinds, or would need a ninth area.
+For every `SCHEMA` entry, also say `LOCAL` or `STRUCTURAL` (RC-14).
 
-## 8. Run conventions
+**`LOCAL`** means one of:
+- a new row inside an existing area;
+- a new field on an existing collection;
+- a new COLLECTION row whose existence works like the others;
+- a new selector attribute;
+- a new requirement kind whose relation is one that already exists (ENTAILS, NARROWS, EXCLUDES, or
+  inert).
 
-Revision 4 leaves these points implicit. They are fixed here so that two readers apply the same rules,
-and each is reported for Christian's ratification together with whether it changed any verdict.
+**`STRUCTURAL`** means one of:
+- a new relation;
+- a change to how support is derived;
+- a new status;
+- a new strictness, value-status or basis value;
+- a change to the declaration mechanism or the source kinds;
+- a ninth area.
+
+A new scope value is `VOCABULARY`.
+
+## 7. Run conventions stated in this sheet
+
+Each of these conventions is reported to Christian for ratification, along with whether it changed any
+verdict. The full list, including those about derivation, is in `derivation-rules-2026-09-18.md` §9.
 
 | Id | Convention |
 |---|---|
-| RC-1 | A path matches when rows are equal and the element satisfies the selector. This refines §3's "fieldPath equals the property's path" |
-| RC-2 | Element existence is entailed by an `EXISTS`, `COUNT` or `RANGE` item whose selector the element satisfies |
-| RC-3 | `ORIENTED` NARROWS; `NOT_EXISTS` EXCLUDES and never supports |
-| RC-4 | `OWNER_RULING` (KR-01 to KR-03) may entail, pending proposal P-6 |
-| RC-5 | `conditions[].value` (V6) is a row, implied by §3's statuses though not named in §5.8 |
 | RC-6 | `valueStatus` is `N/A` for items that carry no value |
 | RC-7 | Coverage is per register row; `CLAIMED` and `NOT_AUTHORED` may coexist on a row |
-| RC-8 | The fillable rows are proposal P-4's list, used as it stands |
-| RC-9 | Proposal P-2 is applied: an unauthored START procedure or post-score restart is `NOT_AUTHORED` |
+| RC-10 | Where authored knowledge lives (§3) |
+| RC-11 | The selector syntax and operators (§2) |
+| RC-12 | `ENGINE_ONLY` as a recorded basis that supports nothing (SD-21 applied) |
+| RC-13 | Declarations may carry a selector and scope (§4) |
+| RC-14 | The `LOCAL` / `STRUCTURAL` test (§6) |
+| RC-23 | `PER_SIDE` is not used in this run |
