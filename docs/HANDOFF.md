@@ -2306,3 +2306,59 @@ zone is out of play) citing six contributions, none of which authorizes it, crea
 inside a channel declared never entry-prohibited, missed by both Gate A readers; one reader used a fact
 code the procedures do not offer; Gate B's arithmetic slipped 17/18; and a challenger claim was wrong
 because I failed to pass it the four accepted corrections.
+
+### 2026-09-17 — Game Representation Specification drafted, audited, revised
+
+**Christian** closed architectural discovery provisionally and asked for the minimum Game
+Representation Specification:
+- keep the eight areas, refining fields where the slice showed the shape insufficient;
+- for every field, give why it exists, what owns its value, and what can be validated;
+- separate provenance from support;
+- put non-claims in the contribution contract if that is where they belong;
+- do NOT resolve C1 — decompose objective state first.
+
+He asked to preserve two principles:
+- **Non-claim:** knowledge states what it requires, excludes, constrains, and does NOT claim.
+- **Support:** provenance is insufficient unless the cited contribution actually supports the property.
+
+**Revision 1 was drafted, then audited by four independent agents** (evidence, boundary/contract, replay,
+minimality). They converged on blocking problems:
+- support was presence-only and written by the reconciler, so it would NOT have caught the invented
+  inactive-zone rule;
+- non-claims counted as support, so silence could license invented rules;
+- "no invented property" sat in Gate A instead of Gate B;
+- a universal Gate A rule partly resolved C1;
+- SET_POLICY and DEFAULT_RULE owned values with no contract;
+- the contract had no ownership scope;
+- about ten citations were wrong, including a quotation attributed to the causal audit that exists in no
+  evidence file — a P2 violation in the spec itself.
+
+**Revision 2:** `docs/design/game-representation-spec-2026-09-17.md`. Revision 1 is kept as
+`...-v1-audited-2026-09-17.md`.
+- **Support is derived:** field-path match plus a closed comparison. An ASSUMED item can narrow but never
+  entail. Properties are atomic, and sources are computed from the contract.
+- **Existence rule:** SESSION, SELECTION or STANDING_DECISION must entail a property's existence;
+  REALIZATION only fills unstated quantities and never creates rules.
+- **Gate B checks both directions:** survival forward, invention in reverse.
+- **Contract:** scope, basis, checkability, mandatory non-claim coverage, relationship rules.
+- **One home per fact.**
+- **Transitions:** coherence rules and one closed trigger vocabulary.
+- **Value modifiers:** an overlap rule, which is what catches "deep".
+- **Render fidelity** makes P5 checkable.
+- **The hostile-case table shows four cases revision 1 let through** that revision 2 catches: ps-central
+  s1, "deep", "opposite channel", and the invented rule. It also catches the four-zone breach.
+- **C1 made precise:** RPC-001-11's timing clause ("active from the moment that team's attack begins")
+  cites RPC-STMT-004, which contains no timing. The slice treated it as authored; the spec treats it as
+  ASSUMED pending Christian. IE-C006 also composes no reveal timing.
+
+**Citation check of revision 2** (a 4-agent workflow, 101 claims) found two wrong and nineteen imprecise;
+all were corrected before publishing.
+- **Wrong:** "the one functional layer" (carried over from revision 1; [CA] says scoring is one of two
+  functional selections, alongside the emphasis slot template).
+- **Wrong:** IE-C006 composes D006, D008 and D011 only; D007 and D013 are the spec's own addition.
+- **Other corrections:** replay ids live in the ledgers, not the report; P5 is ruled only for value
+  tiers; GF2-10 and GF2-15 are PARTLY_STRUCTURAL; WIDEZONE-13 is unordered; and WIDEZONE-14 cannot
+  justify removing the modifier beneficiary.
+
+**Page:** The Smallest Authoritative Game — https://claude.ai/artifact/7Nu6gdRSrDRsfxLv7mMr67 (private
+until Joe shares it). The email to Christian was delivered as a file.
