@@ -2362,3 +2362,79 @@ all were corrected before publishing.
 
 **Page:** The Smallest Authoritative Game — https://claude.ai/artifact/7Nu6gdRSrDRsfxLv7mMr67 (private
 until Joe shares it). The email to Christian was delivered as a file.
+
+### 2026-09-18 — Christian's decisions incorporated (revision 3); next-step recommendation
+
+**Christian accepted the boundary** and moved from discovery to specification decisions:
+- **C1 withdrawn as a demonstrated collision (KR-02).** RPC-001 timing is not authored. RPC-001 needs
+  the build-out situation from the episode start and the objective functioning within the episode.
+  Variable Target's questions stay open on its own evidence.
+- **Defaults, given ids:**
+  - SD-11: the longer dimension is the axis.
+  - SD-12: halves and thirds are derived views.
+  - SD-13: a starting player steps to the ball only at a stationary-ball start.
+  - SD-14: START, SCORE and POSSESSION_CHANGE begin an episode.
+  - SD-R1 (rejected): a time window starts on possession won.
+- **SD-15:** "long kick" and "controlled on arrival" are FREE judgements.
+- **KR-01:** Variable Target's 2–3 applies per objective set.
+- **SD-16:** the free-choice boundary.
+- **SD-17:** emphasis and templates stay outside the game.
+- **SD-18:** closed vocabularies approved, contents not frozen.
+- **SD-19:** reveal timing and information holder as fields.
+- **SD-05:** P5 applies beyond value tiers.
+- **He asked for** the smallest next step toward implementation design, and which open items block it.
+
+**Revision 3:** `docs/design/game-representation-spec-2026-09-18.md` (revision 2 marked superseded).
+- **§2** is a standing-decision register: SD-01 to SD-19, SD-R1, KR-01, KR-02 and RR-01. Only the
+  field-supplying ids are citable, and SD-10 is not citable until he confirms it.
+- **§10** holds our own readings as proposals awaiting his ruling:
+  - PSD-01 to PSD-04: the four start and restart defaults from Gate A X6, never his;
+  - P-1 to P-11, among them the start method field, unauthored restarts, RPC-001-11's split, the
+    free-choice list, engine wording never being a source, when defaults yield, and a second Variable
+    Target set.
+- **Workflow A** (9 agents): two fidelity audits, citation checks, two coverage measurements, three
+  next-step proposers and a judge. Both fidelity audits found my first draft of revision 3 had
+  stretched his decisions: SD-13 as "every START needs a method", SD-19 applied to every information
+  rule, FREE redefined, and restart-default removal presented as his.
+- **Workflow B** (3 agents), a final check, found three more readings (now P-9 to P-11). It also found
+  my engine-wording count too low: 10 items, 6 REQUIRED, not 6. My filter missed the `COACH_RULES`
+  citations.
+
+**Measured findings (load-bearing counts re-checked by hand):**
+- **Starts and restarts:** all 11 Game Forms leave a start or restart unauthored.
+  `restart_structure_type` is empty in all 11. Nothing authors a touchline restart's method or who
+  restarts after a score. The model invents them because the prompt (completion.service.ts) demands
+  them.
+- **Engine wording in the slice:** 10 slice items rest only on engine wording, prompts or tests, 6 of
+  them REQUIRED:
+  - RPC-001-04 and -09, "beyond the first defenders", from `COACH_RULES`;
+  - RPC-001-06 and -16, `BUILD_OUT_START`;
+  - A01-02-02 and -03.
+
+  The slice's turnover-stops-play rule loses its support. C4 reopens.
+- **The contract grammar is untested:** 0 of 113 slice items carry a registered field path;
+  `CHANGES_ON` (8) and `NOT_DOMINANT` (4) are missing from the comparison table; 57 items have no value
+  status.
+- **Contract load:** about 69 objects can bring structure into a session (63 guided); 6 have contracts;
+  roughly 1,100 items remain.
+- **The runtime seam** sits between app.routes.ts:913 and :964. Coach text is written before any game
+  exists, at primary-scoring resolution.
+
+**Recommendation:** `docs/design/next-step-recommendation-2026-09-18.md`.
+- **The step:** a paper contract-shape conformance check, in three parts:
+  - a register of every atomic field path;
+  - the six slice contracts restated on it, with support worked out by hand;
+  - two blind contracts, Pass Combination Gate and GF4 Transition.
+
+  It produces a SCHEMA / VOCABULARY / KNOWLEDGE ledger and a test for "schema stable".
+- **Blockers:**
+  - only the untested grammar blocks design;
+  - five things block build: restarts, engine wording, contracts, vocabulary review, and variation;
+  - the authoring gaps block only the games that select their object.
+
+**Pages** (private until Joe shares them):
+- Before the Data Model — https://claude.ai/artifact/46iX2D64re9HDz2ymucMwp
+- The Smallest Authoritative Game, updated to revision 3 at the same link.
+
+The email to Christian was delivered as a file. Freeze unchanged. Not run: the conformance check itself,
+which awaits Christian's approval.

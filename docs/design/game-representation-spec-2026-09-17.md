@@ -1,5 +1,8 @@
 # Game Representation Specification — minimum draft, revised after adversarial audit
 
+> **Superseded by revision 3** (`game-representation-spec-2026-09-18.md`), which incorporates
+> Christian's decisions of 18 September. This revision is kept as he reviewed it.
+
 17 September 2026. Paper only: no implementation, no generation. Revision 2. Revision 1 was audited
 by four independent auditors (evidence, boundary and contract, replay, minimality), and every blocking
 finding is addressed here; §8 lists what changed and why. Revision 1 is kept, unedited, as
