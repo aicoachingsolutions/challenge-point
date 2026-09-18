@@ -1,8 +1,16 @@
-# Game Representation Specification — revision 3, with Christian's ownership decisions
+# Game Representation Specification — revision 4, with Christian's ownership decisions
 
-18 September 2026. Paper only: no implementation, no generation. Revision 3 incorporates Christian's
-decisions of 18 September on revision 2 ([C18]). Revision 2, which he reviewed, is kept as
-`game-representation-spec-2026-09-17.md`; revision 1 as `game-representation-spec-v1-audited-2026-09-17.md`.
+18 September 2026. Paper only: no implementation, no generation. Revision 3 incorporated Christian's
+decisions on revision 2 ([C18]). Revision 4 adds his second set of decisions the same day ([C18b]):
+- starts and restarts;
+- engine wording (P-8);
+- RPC-001's scope (P-3);
+- SD-10's wording;
+- approval of the conformance check.
+
+Revision 4 is the fixed rule set the conformance check runs against. Revision 3 is in the history.
+Revision 2, which he reviewed, is kept as `game-representation-spec-2026-09-17.md`; revision 1 as
+`game-representation-spec-v1-audited-2026-09-17.md`.
 
 **How to read this revision.** Where the text rests on one of Christian's decisions, it cites an id from
 §2. Where it rests on this specification's own reading, it says so and points to a numbered proposal in
@@ -35,6 +43,7 @@ coach language can describe that game but cannot create additional structure."
   `docs/audits/rpc001-slice/contributions-2026-09-17.json`;
 - **[RT]** runtime read (`docs/design/shared-game-representation-runtime-read.md`);
 - **[C18]** Christian's decisions of 18 September on revision 2, quoted where used;
+- **[C18b]** Christian's second set of decisions of 18 September, on revision 3, quoted where used;
 - **[CV]** coverage measurement of 18 September (`docs/design/next-step-recommendation-2026-09-18.md`
   §4).
 
@@ -93,7 +102,7 @@ writes the field is proposal P-9.
 | SD-07 | Direction invariant: each team has a stable, perceivable direction of progression and at least one functional directional objective | Direction (view) | yes | [DS] decision 1, 15 Sep |
 | SD-08 | Three value statuses: REQUIRED_RANGE, PREFERRED_DEFAULT, TYPICAL_EXAMPLE | the contract's `valueStatus` | — | [DS] decision 4, 15 Sep |
 | SD-09 | Knowledge requires or organizes a region; realization instantiates it | `regions[]` | yes | [DS] decision 5, 15 Sep |
-| SD-10 | Representative objectives stay present even when nothing scores on them | `objectives[].role` | **not until confirmed** | [DS] invariants and collision table, recorded as settled after Christian's 14 Sep question. **The one id whose source is our record rather than his words. Like the PSDs in §10, it supports nothing until he confirms it** |
+| SD-10 | "An objective is not removed merely because it is not the primary scoring object when its presence remains functionally necessary to the representative game structure." Not a universal requirement to retain every possible objective | `objectives[].role` | yes | Confirmed, with this wording, in [C18b] |
 
 ### Defaults
 
@@ -102,7 +111,8 @@ writes the field is proposal P-9.
 | SD-11 | The longer dimension is the longitudinal axis, absent authored or session information to the contrary | `space.axis` | yes | [C18] |
 | SD-12 | Implicit halves and thirds lie along that axis, as derived views, not marked regions | halves and thirds (view) | yes | [C18] |
 | SD-13 | A player of the starting team steps to the ball — only when the resolved START procedure is a kickoff or stationary-ball start. Not a universal activity-start default | the START transition's actor | yes | [C18] |
-| SD-14 | START, SCORE and POSSESSION_CHANGE each begin a new attacking episode | `transitions[].startsEpisode` | yes | [C18] |
+| SD-14 | START, SCORE and POSSESSION_CHANGE each begin a new attacking episode. SD-14 defines episode boundaries only; it "does not mean that every RPC requirement reinitializes whenever a new episode begins" | `transitions[].startsEpisode` | yes | [C18]; the limit from [C18b] |
+| SD-20 | Turnovers play on: "YES as ordinary/default soccer state unless selected knowledge explicitly creates a stoppage/reset consequence" (formerly PSD-04) | `transitions[trigger=POSSESSION_CHANGE].playState` = `CONTINUE` | yes | [C18b] |
 
 ### Rulings on status, scope and process
 
@@ -113,12 +123,24 @@ writes the field is proposal P-9.
 | SD-17 | Session emphasis and slot templates stay outside the individual game. A structural property they require enters through the same contribution contract as any other selected knowledge. There is no separate route into generated activity language. Their role in variation across the three-activity set is a later question | §6 | [C18] |
 | SD-18 | Closed vocabularies are approved as an approach. Their contents are not frozen: once the schema is stable, they are reviewed independently against broader knowledge rather than optimized around this evidence set | every closed list (§4) | [C18] |
 | SD-19 | Reveal timing (IE-D007) and information holder (IE-D013, canonically ACCESS_HOLDER) are fields the representation must be able to express. Their presence authorizes no value for Variable Target; where its knowledge does not author them, they stay visibly unresolved or not authored | `informationRules[].dimensions` | [C18] |
+| SD-21 | Wording held in code (formerly P-8): "Code, prompts, tests, templates and coach-rule sentences do not count as authored knowledge merely because they exist. They may be evidence of previous design intent and candidates for ratification, but they cannot support a resolved property until deliberately authored into an appropriate knowledge source or standing decision." The coach-rule sentences are not audited wholesale; those a check depends on are surfaced, to be classed later as ratify, standing decision or retire | every contract item's `basis` | [C18b] |
 
 ### Rejected, recorded so it is not reintroduced
 
 | Id | Rejected default | Instead | Source |
 |---|---|---|---|
 | SD-R1 | A time window begins when possession is won | Its starting trigger comes from the selected, authored time-window mechanism. A possession-win window can use `POSSESSION_CHANGE` | [C18] |
+| SD-R2 | The coin-toss team starts from its own half (formerly PSD-01) | Which team starts "can remain a permitted free choice unless selected knowledge requires otherwise" | [C18b] |
+| SD-R3 | The conceding team restarts from its own end or half (formerly PSD-02) | "A valid post-score procedure is necessary, but I don't want this particular realization made universal" | [C18b] |
+
+**Recorded, not citable — PSD-03.** "Team that didn't put it out restarts where it went out: YES in
+substance as ordinary soccer behavior, but I don't think its proper owner is a Game Form or a
+founder-created Game Representation default. Treat the missing source as visible for now rather than
+solving its ontology during this check" [C18b]. An out-of-play restart that no selected object authors
+is therefore `NOT_AUTHORED`, marked *source missing: ordinary sport-state knowledge*. Christian also
+said: "Game Forms shouldn't have to duplicate ordinary soccer-state behavior simply to produce a
+playable game", and "Please don't turn that observation into a new library or architectural layer
+during this step."
 
 ### Knowledge rulings — applied to the contracts in this specification; knowledge files unedited (frozen)
 
@@ -126,6 +148,7 @@ writes the field is proposal P-9.
 |---|---|---|---|
 | KR-01 | Variable Target's authored 2–3 range is per objective set, not per layout. "A reciprocal game can legitimately instantiate 2–3 candidates for each team's objective set, even when that produces more than three physical targets across the whole game." The slice proposed re-authoring the range per set; KR-01 reaches the same scope by interpreting the existing authoring, with no knowledge change | VARTARGET-01: `scope = PER_OBJECTIVE_SET` | [C18] |
 | KR-02 | "Do not treat 'the scoring objective is active from the moment that team's attack begins' as authored RPC-001 knowledge." RPC-001 requires the representative build-out situation to exist from the beginning of the attacking episode, and the scoring objective to function within that episode. Christian does not currently see authored evidence that RPC-001 also requires the identity of a valid scoring target to be fixed or knowable at the first instant | RPC-001-11 restated (§5.5); the first clause bears on RPC-001-15 and RPC-001-16 (§11) | [C18] |
+| KR-03 | "RPC-001's build-out requirement applies to the build-out episode, not automatically to every attacking episode in the activity … a turnover may begin a new attacking episode while play continues. Returning to a goalkeeper build-out requires an authored transition/reset rule; it should not be inferred simply from RPC-001 being selected." The former rule that every turnover stops play under RPC-001 is unsupported (formerly P-3's scope question) | RPC-001-11 and RPC-001-16 scoped to the build-out episode | [C18b] |
 
 ### Relationship rules in evidence
 
@@ -230,9 +253,10 @@ Silence licenses a choice; it never licenses a new rule.
 | `STANDING_DECISION` | A citable id in §2 |
 | `REALIZATION` | A free choice under SD-16 |
 
-**Engine wording is not a source kind, under proposal P-8.** Sentences held in code — prompts,
-templates, fixed rule text — would not support a property unless Christian authors them as knowledge.
-Ten slice items rely only on such sentences (§11).
+**Engine wording is not a source kind (SD-21).** Code, prompts, tests, templates and coach-rule
+sentences do not count as authored knowledge merely because they exist. They cannot support a resolved
+property until deliberately authored into an appropriate knowledge source or standing decision. Ten
+slice items rely only on such sentences (§11).
 
 **Adaptation is not support.** When a PREFERRED_DEFAULT contribution is displaced — GF2's "same
 direction", GF2's continuous play [VS] — the displacement is recorded as an `ADAPTED` disposition on
@@ -313,17 +337,15 @@ and each fact has one home.
 
 **C1 is withdrawn as a demonstrated collision (KR-02).** RPC-001-11 is restated as:
 - **What it requires:** a `PRIMARY_SCORING` objective for the team building out, which functions within
-  the attacking episode.
-- **Its basis:** Christian's ruling KR-02. RPC-STMT-004, the item's cited evidence, contains no episode
-  clause. Whether an owner ruling is its own basis value is proposal P-6.
-- **Its checkability:** PARTLY_STRUCTURAL (proposal P-3).
+  the build-out episode (KR-03). Not every attacking episode: SD-14 defines boundaries only.
+- **Its basis:** Christian's rulings KR-02 and KR-03. RPC-STMT-004, the item's cited evidence, contains
+  no episode clause. Whether an owner ruling is its own basis value is proposal P-6.
+- **Its checkability:** PARTLY_STRUCTURAL (proposal P-3, now only about this split).
   - **Structural clause:** the objective set's assignment rule can yield a live member within the
-    episode, on START or on a trigger that does not itself end the episode.
+    build-out episode, on START or on a trigger that does not itself end the episode.
   - **Outside the boundary:** whether that happens in a given passage of play.
 
-Two points are not decided here:
-- **Which episodes.** Christian wrote "that episode", the build-out one. Under SD-14 a change of
-  possession also begins an episode, and it need not be a build-out (proposal P-3).
+One point is not decided here:
 - **RPC-001 against Variable Target.** The restated structural clause is a residual constraint on
   Variable Target's assignment rule, and it has not been tested. RPC-001-15 and RPC-001-16 against
   Variable Target's triggers were never re-derived. The slice's eight unresolved items all rested on C1;
@@ -372,17 +394,21 @@ Not stored: storing it would create a second place that can disagree with `objec
 | `.playState` — `STOP_RESUME` or `CONTINUE` | [R2], [LG] D36–D37: ps-central s1 and s2 restart from a place on the same trigger on which play continues ("Play does not stop"; "play carries on from wherever everyone is") | SELECTION; else see below | **Coherence:** a non-empty `.placement` requires `STOP_RESUME`, and `CONTINUE` requires `.placement` empty. Consequences that restart, continue or change possession on a transition trigger are folded into that trigger before comparing |
 | `.startsEpisode` | [VS] RPC-001-17 authors loss of possession as an episode end; VARTARGET-20 scopes by possession | SELECTION; else SD-14 (START, SCORE and POSSESSION_CHANGE begin an episode) | Stated per trigger, by an authored source or SD-14; never derived |
 
-**Where no selected object authors a start or restart.** Revision 2 named unspecified "standing
-defaults" as owners of these slots. The only defaults behind them are the four in the Gate A procedure
-that reads generated text [GP X6], and those were never Christian's decisions. They are now put to him
-as proposals PSD-01 to PSD-04 (§10), and none of them is citable until he rules. Two things follow in the meantime:
-- a restart that no selected object authors has no source, so it is `NOT_AUTHORED` under the existence
-  rule (proposal P-2);
-- a START with no authored procedure is likewise `NOT_AUTHORED` (proposal P-2). **This is this
-  specification's reading, not SD-13.** SD-13 only limits when its actor default applies.
+**Where no selected object authors a start or restart** — Christian's rulings [C18b]:
+- **Turnover:** plays on (SD-20), unless selected knowledge explicitly creates a stoppage or reset.
+- **Which team starts:** a permitted free choice unless selected knowledge requires otherwise (SD-R2).
+  There is no default start location.
+- **After a score:** a valid post-score procedure is necessary, but no universal realization is
+  adopted (SD-R3). An unauthored post-score restart is `NOT_AUTHORED`.
+- **Ball out of play:** "the team that didn't put it out restarts where it went out" is ordinary soccer
+  behaviour in substance, but it has no proper source yet. An unauthored out-of-play restart is
+  `NOT_AUTHORED`, marked *source missing: ordinary sport-state knowledge* (PSD-03, §2).
+- **START procedure and method:** unauthored is `NOT_AUTHORED`. This is the specification's reading
+  (proposal P-2), not SD-13. SD-13 only limits when its actor default applies.
+- **Game Forms** are not asked to duplicate ordinary soccer-state behaviour [C18b].
 
-Measured against today's knowledge [CV], this leaves all 11 Game Forms with at least one unauthored
-start or restart.
+Measured against today's knowledge [CV], all 11 Game Forms leave at least one start or restart
+unauthored. After SD-20, turnovers are covered; starts, post-score and out-of-play restarts are not.
 
 **One closed trigger vocabulary for every field that has a trigger (draft):**
 - `START`
@@ -441,7 +467,7 @@ own contract (SD-17), with no separate route into the game or its language.
 |---|---|---|
 | `items[] {id, fieldPath, requirement, value, strictness, valueStatus}` | Requirements and exclusions in one list: an exclusion is an item with strictness `EXCLUSION`. A value may be a **set of alternatives, ordered only where the source orders them**. `valueStatus` per SD-08 | [VS] 68 REQUIRED, 24 SUPPORTING and 21 EXCLUSION items (113). RPC-001-08's "in the approved order" is ordered. WIDEZONE-13's three rewards are unordered alternatives with no authored default |
 | `items[].scope` — `WHOLE_GAME`, `PER_TEAM`, `PER_OBJECTIVE_SET`, `PER_SIDE`, `OWN_INVOLVEMENT` (draft) | Christian asked for ownership scope. [VS] Wide Zone's multiplier coexisted with VARTARGET-18 and NEUTRAL-15 only because each was object-scoped; GF2-09 survived only when read per side; KR-01 settles VARTARGET-01 as `PER_OBJECTIVE_SET` |
-| `items[].basis` — `AUTHORED` with the verbatim evidence, or `ASSUMED` with the assumption stated; whether an owner ruling (KR-02) is a third value is proposal P-6 | [VS] RPC-001-08's "exactly one" came from a standing decision; VARTARGET-07's "exactly one active" is a derivation; RPC-001-11's former timing clause was a reading. An assumed item can narrow but never entail. Engine wording is never `AUTHORED` unless Christian authors it (P-8) |
+| `items[].basis` — `AUTHORED` with the verbatim evidence, or `ASSUMED` with the assumption stated; whether an owner ruling (KR-02) is a third value is proposal P-6 | [VS] RPC-001-08's "exactly one" came from a standing decision; VARTARGET-07's "exactly one active" is a derivation; RPC-001-11's former timing clause was a reading. An assumed item can narrow but never entail. Engine wording is never `AUTHORED` (SD-21) |
 | `items[].checkability` — `STRUCTURAL`, `PARTLY_STRUCTURAL` or `OUTSIDE_BOUNDARY` | RPC-001-21 (pressure not dominant), RPC-001-22 (at least two routes) and VARTARGET-15 cannot be checked on a structure that excludes play. GF2-10, GF2-15, WIDEZONE-09, NEUTRAL-16 and the restated RPC-001-11 mix a structural clause with a clause about play. The classification is this specification's. SD-15 is the same boundary applied to two named thresholds |
 | `nonClaims[] {fieldPath, scope}` — **mandatory coverage**: every field path is claimed, excluded, non-claimed or not authored | P1. [VS] every successful composition — the player partition, the three-rule restart, the goalkeeper question, the incentive exclusions, the choice of scoring event — ran on an object declaring what it did not claim. Unexamined silence is a contract defect, reported before reconciliation, not a permission |
 | `notAuthored[] {fieldPath, missing}` | [VS] seven of the ten dead contributions were gaps the objects declared themselves. Two of them, "controlled on arrival" and "long kick", are now `FREE` under SD-15 |
@@ -498,34 +524,28 @@ Neither puts knowledge prose into the game.
 None of these is used as a decision anywhere above. Each is the specification's own reading, labelled
 where it appears.
 
-### Proposed standing defaults for starts and restarts
+### Start and restart defaults — ruled [C18b]
 
-These are revision 2's four transition defaults, taken from the Gate A procedure that reads generated
-text [GP X6]. They are **not citable** until he rules on each one.
-
-| Id | Proposed default | [GP X6] wording |
+| Id | Proposed default | Ruling |
 |---|---|---|
-| PSD-01 | START: a team chosen by free choice starts from its own half | "START: coin-toss team, own half" |
-| PSD-02 | After a score, the conceding team restarts from its own end or half | "AFTER-SCORE: the conceding team, own end or half" |
-| PSD-03 | After the ball goes out, the team that did not put it out restarts where it went out | "AFTER-OUT: the team that did not put it out, where the ball went out" |
-| PSD-04 | On a turnover, the team that won the ball plays on in place | "TURNOVER: the team that won the ball, CONTINUE in place" |
-
-He may instead prefer that each Game Form authors these. Measured [CV], no Game Form authors a start
-method, how a touchline restart is taken, or who restarts after a score. PSD-04 would also meet P-3's
-question under RPC-001 (§11).
+| PSD-01 | START: coin-toss team, own half | **No** → SD-R2 (who starts is a free choice) |
+| PSD-02 | After a score, the conceding team restarts from its own end or half | **No** → SD-R3 (a valid procedure is necessary; none made universal) |
+| PSD-03 | After the ball goes out, the team that did not put it out restarts where it went out | **Yes in substance; owner unresolved.** Source visibly missing (§2) |
+| PSD-04 | On a turnover, the team that won the ball plays on | **Yes** → SD-20 |
 
 ### Specification proposals
+
+P-8 was approved as SD-21. P-3's scope question was ruled in KR-03; only the split remains.
 
 | Id | Proposal | Why it is needed |
 |---|---|---|
 | P-1 | A `method` on placements (draft: `STATIONARY_BALL`, `SERVED`, `IN_HAND`) | SD-13 is conditional on the START method, which nothing else can express |
-| P-2 | A START or restart that no source authors is `NOT_AUTHORED` | Follows from the existence rule and SD-02 unless PSD-01 to PSD-04, or authoring, fill it |
-| P-3 | RPC-001-11's PARTLY_STRUCTURAL split, and which episodes it covers ("that episode" or every episode under SD-14) | KR-02 states what RPC-001 requires; how it is checked is the specification's reading |
+| P-2 | A START procedure or post-score restart that no source authors is `NOT_AUTHORED` | Follows from the existence rule and SD-02; consistent with SD-R3 and PSD-03's visible missing source |
+| P-3 | RPC-001-11's PARTLY_STRUCTURAL split (its scope is ruled: KR-03) | KR-02 and KR-03 state what RPC-001 requires; how it is checked is the specification's reading |
 | P-4 | The list of what a free choice may fill (§3), drawn from the Gate A search, including the event kind inside a narrowed set | SD-16 states the principle; the list is ours and not claimed to be exhaustive |
 | P-5 | The status of knowledge authored only outside the boundary (Variable Target's defender-shift trigger): `UNRESOLVED` as revision 2 had it, `NOT_AUTHORED`, or a distinct label | It blocks rendering either way; only the label and the remedy differ |
 | P-6 | Whether an owner ruling (KR-02) is a third `basis` value beside `AUTHORED` and `ASSUMED` | The restated RPC-001-11 rests on his ruling, not on the text it cites |
 | P-7 | Only the ids marked *citable* in §2 can support a property | Principles, process rulings, rejected defaults and knowledge rulings should not entail existence |
-| P-8 | Engine wording (prompts, templates, fixed rule text in code, including the 28 `COACH_RULES` sentences) is never a source unless Christian authors it as knowledge | Ten slice items rest only on such sentences (§11). primary-scoring.ts is itself ambiguous: it treats coach wording as the one exception to "nothing below is authored football knowledge", yet lists `COACH_RULES` under "why none of it is knowledge" |
 | P-9 | SD-12, SD-13 and SD-14 yield to a selection that writes the field, as SD-11 does in his words | He attached that condition only to SD-11 |
 | P-10 | Draft vocabulary contents are never used to classify authored knowledge; what falls outside a draft list is logged for the review | SD-18 defers the contents; it does not say how drafts treat knowledge meanwhile |
 | P-11 | KR-01's "can legitimately instantiate" permits a set for each team but does not by itself entail one; a second set needs a selection that requires it | Variable Target declares one-team-or-both not authored, and SD-16 forbids a free choice creating objects |
@@ -549,8 +569,9 @@ classified in the recommendation, as a proposal):
   restarts after a score or a ball out of play" (completion.service.ts), so the model invents them.
   Engine exchange rules keep play live on turnovers for every archetype (build-activity-mechanics.ts,
   `DEFAULT_EXCHANGE_RULE` and `EXCHANGE_RULE_BY_ARCHETYPE`), most of them with the literal words "no
-  reset". One entry, Constraint-Driven Free Play, speaks of "restart advantage". PSD-01 to PSD-04 are
-  the proposed answer.
+  reset". One entry, Constraint-Driven Free Play, speaks of "restart advantage". Christian's rulings on
+  PSD-01 to PSD-04 settle turnovers (SD-20). They leave starts, post-score restarts and out-of-play
+  restarts visibly unauthored (§5.7).
 - **Engine wording cited as knowledge in the slice.** Ten of the 113 slice items rest only on sentences
   held in code, prompts or unit tests. Six of them are REQUIRED:
   - RPC-001-04 and RPC-001-09, placing the scoring line, zone or gates "beyond the first defenders"
@@ -565,30 +586,44 @@ classified in the recommendation, as a proposal):
   - A01-02-06 (SUPPORTING);
   - A01-02-12 (EXCLUSION, unit tests).
 
-  Under P-8, none of them supports a property.
-- **The turnover rule loses its support.** The slice's rule that turnovers stop play cited RPC-001-16
-  and RPC-001-17. RPC-001-17 is authored ("Possession is lost.", RPC-PROP-005), but it requires only
-  that losing the ball ends the episode, not that play stops. So under P-8 the stoppage has no
-  remaining support.
-- **KR-02 with SD-14.** If RPC-001's build-out situation must exist at the start of every episode, and
-  a turnover begins an episode, then under RPC-001 play would stop and rebuild after every turnover.
-  That meets GF4's and GF8's authored continuous play, PSD-04, and GF2's continuous circulation (P-3).
-  Under the gating measured today, RPC-001 routes to GF2, GF3 and GF7, not GF4 or GF8.
+  Under SD-21, none of them supports a property. The coach-rule sentences among them are surfaced by
+  the conformance check for classification as ratify, standing decision or retire.
+- **The turnover rule is unsupported** (confirmed by KR-03). The slice's rule that turnovers stop play
+  cited RPC-001-16 and RPC-001-17. RPC-001-17 is authored ("Possession is lost.", RPC-PROP-005), but it
+  requires only that losing the ball ends the episode, not that play stops. Under SD-20 turnovers play
+  on unless selected knowledge authors a stoppage.
 - **C4, reopened.** How possession is determined for neutral affiliation was closed in the slice by
-  turnovers stopping play. That premise rested on RPC-001-16, so C4 is open again.
+  turnovers stopping play. With turnovers playing on (SD-20), C4 is open again. It is a question of
+  what counts as `POSSESSION_CHANGE` while play continues.
 
 **Still open from the slice and earlier:**
 - Game Form restart × From Goal Kicks.
 - Central weighting × Wide Zone Advantage.
 - Family-ID provenance.
 - The three wording issues.
-- SD-10's source, for confirmation.
+- **Ordinary sport-state knowledge.** Where out-of-play restarts, and perhaps other ordinary soccer
+  behaviour, should be authored. Christian: not in Game Forms, not as a founder-created default, and no
+  new library or layer during the check [C18b].
 
 **Deferred by Christian:**
 - Vocabulary contents, for independent review once the schema is stable (SD-18).
 - Session emphasis and slot templates' role in variation across the three-activity set (SD-17).
 
-## 12. What changed from revision 2
+## 12. What changed
+
+**Revision 4, from Christian's second decisions [C18b]:**
+
+| Change | Basis |
+|---|---|
+| SD-10 confirmed in his wording (functional necessity, not universal retention) and made citable | [C18b] |
+| Turnovers play on unless selected knowledge authors a stoppage | SD-20 (was PSD-04) |
+| Coin-toss own-half start and conceding-team restart rejected | SD-R2, SD-R3 (were PSD-01, 02) |
+| Out-of-play restart: substance accepted, source visibly missing | PSD-03, §2 |
+| Wording held in code is never a source until authored | SD-21 (was P-8) |
+| RPC-001's build-out requirement limited to the build-out episode; SD-14 only defines boundaries | KR-03 |
+| The conformance check approved, with its boundary: amendments that change a verdict come back to him first | [C18b] |
+
+**Revision 3, from revision 2:**
 
 | Change | Basis |
 |---|---|
