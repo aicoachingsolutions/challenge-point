@@ -2438,3 +2438,47 @@ until Joe shares it). The email to Christian was delivered as a file.
 
 The email to Christian was delivered as a file. Freeze unchanged. Not run: the conformance check itself,
 which awaits Christian's approval.
+
+### 2026-09-18/19 — Christian's second decisions; the conformance check run
+
+**His decisions (revision 4 of the spec):**
+- SD-10 confirmed, in his wording.
+- **SD-20:** turnovers play on unless selected knowledge authors a stoppage.
+- **SD-R2, SD-R3:** the coin-toss start and the conceding-team restart are rejected.
+- **PSD-03:** accepted in substance, with the source visibly missing.
+- **SD-21:** engine wording is never a source until authored.
+- **KR-03:** RPC-001's build-out applies to the build-out episode only.
+- He approved the conformance check, with Pass Combination Gate and GF4 as the blind objects.
+  Amendments that change a verdict go back to him before incorporation.
+
+**The check** — protocol and stability test committed before any result; all in
+`docs/audits/conformance/`:
+
+| Stage | What | Outcome |
+|---|---|---|
+| A | Register review | 16 must-fix ambiguities became RC-11 to RC-36 |
+| B | Restatement | 6 contracts restated; the game restated (210 lines); 2 blind contracts |
+| C | Script | Blind contracts 81/81 rows declared |
+| D | Two independent derivers | 208/210 same verdict; kappa 0.983 |
+| E | Verification and judgement | 9 schema verifiers: 22 real gaps, all LOCAL. Interpretation clusters: 19 residual gaps. Independent trace: all 10 disagreements traced, 3 of them reader errors. A critic; a judge |
+
+**Verdict:** STABLE WITH LOCAL AMENDMENTS. The data model can be designed now. The derivation engine
+waits for his rulings on AM-01 to AM-15, the verdict-changing amendments.
+- **Two rulings would reverse it:** requiring RPC-001 to supply its own carrier (a structural guard),
+  or counting derivation reading rules as structural.
+- **Collisions were never exercised.** Suggested next: a small paper test on central weighting × Wide
+  Zone.
+- **Engine sentences relied on:** six — RPC-001's four "beyond the first defenders" setups, its scoring
+  rule (the only source of "long kick"), and `BUILD_OUT_START`.
+
+**Report:** `docs/audits/conformance-check-2026-09-19.md`.
+**Page:** Does the Grammar Hold? — https://claude.ai/artifact/7GQ1R3ozFbTMpBb35Yd93e
+
+**My errors:**
+- My trace claimed no reader errors; the independent tracer found three.
+- Splitting derivation by area caused a shared mistake (L67/L72).
+- Coverage was counted per row, not per element.
+- Nothing was re-derived after the restatement errors were found.
+
+**Also:** a permission allowlist was added to `.claude/settings.json` (worktree and main; not
+committed).
