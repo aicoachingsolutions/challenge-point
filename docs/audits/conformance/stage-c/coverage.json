@@ -1,0 +1,451 @@
+[
+ {
+  "contract": "RPC-001 Goalkeeper Build-Out",
+  "kind": "restated",
+  "items": 44,
+  "rowsDeclared": 65,
+  "rowsTotal": 81,
+  "undeclaredRows": [
+   "P7",
+   "P9",
+   "O3",
+   "J5",
+   "J6",
+   "J7",
+   "J8",
+   "J9",
+   "J10",
+   "J11a",
+   "J12",
+   "T1",
+   "T1a",
+   "T1b",
+   "T1c",
+   "V4"
+  ],
+  "explicitlyUndeclared": 16,
+  "unknownDeclRows": [],
+  "unknownItemRows": [],
+  "badRequirements": [],
+  "badBasis": [],
+  "claimedNoItems": [],
+  "itemsOnUnclaimedRow": [],
+  "basisTally": {
+   "ASSUMED": 5,
+   "AUTHORED": 25,
+   "ENGINE_ONLY": 12,
+   "OWNER_RULING": 2
+  },
+  "requirementTally": {
+   "COUNT": 3,
+   "EXISTS": 20,
+   "EQUALS": 14,
+   "POSITIONED": 5,
+   "ORIENTED": 1,
+   "RANGE": 1
+  },
+  "checkabilityTally": {
+   "STRUCTURAL": 29,
+   "OUTSIDE_BOUNDARY": 6,
+   "PARTLY_STRUCTURAL": 9
+  },
+  "ledgerTally": {
+   "SCHEMA:STRUCTURAL": 1,
+   "SCHEMA:LOCAL": 3,
+   "VOCABULARY": 3,
+   "KNOWLEDGE": 12
+  },
+  "placementTally": {
+   "SPLIT": 11,
+   "PLACED": 10,
+   "PARTIAL": 2
+  }
+ },
+ {
+  "contract": "From Goal Kicks (A01-02)",
+  "kind": "restated",
+  "items": 15,
+  "rowsDeclared": 70,
+  "rowsTotal": 81,
+  "undeclaredRows": [
+   "S4",
+   "SV1",
+   "P7",
+   "P8",
+   "P9",
+   "P10",
+   "V2",
+   "V19",
+   "V20",
+   "V21",
+   "V22"
+  ],
+  "explicitlyUndeclared": 11,
+  "unknownDeclRows": [],
+  "unknownItemRows": [],
+  "badRequirements": [],
+  "badBasis": [],
+  "claimedNoItems": [],
+  "itemsOnUnclaimedRow": [],
+  "basisTally": {
+   "AUTHORED": 2,
+   "ENGINE_ONLY": 6,
+   "ASSUMED": 7
+  },
+  "requirementTally": {
+   "EXISTS": 5,
+   "EQUALS": 7,
+   "POSITIONED": 2,
+   "ORIENTED": 1
+  },
+  "checkabilityTally": {
+   "STRUCTURAL": 14,
+   "PARTLY_STRUCTURAL": 1
+  },
+  "ledgerTally": {
+   "SCHEMA:LOCAL": 5,
+   "VOCABULARY": 2,
+   "KNOWLEDGE": 9
+  },
+  "placementTally": {
+   "PARTIAL": 6,
+   "SPLIT": 3,
+   "PLACED": 3
+  }
+ },
+ {
+  "contract": "Directional Possession Games (GF2)",
+  "kind": "restated",
+  "items": 34,
+  "rowsDeclared": 67,
+  "rowsTotal": 81,
+  "undeclaredRows": [
+   "SV1",
+   "J5",
+   "J6",
+   "J7",
+   "J9",
+   "J10",
+   "J11a",
+   "J11b",
+   "J12",
+   "T1a",
+   "T1b",
+   "T1c",
+   "T7",
+   "V0"
+  ],
+  "explicitlyUndeclared": 14,
+  "unknownDeclRows": [],
+  "unknownItemRows": [
+   "GF2-01:NONE",
+   "GF2-02:NONE",
+   "GF2-13:NONE",
+   "GF2-15:NONE",
+   "GF2-18:NONE",
+   "GF2-21:NONE",
+   "GF2-22:NONE",
+   "GF2-23:NONE"
+  ],
+  "badRequirements": [],
+  "badBasis": [],
+  "claimedNoItems": [],
+  "itemsOnUnclaimedRow": [],
+  "basisTally": {
+   "AUTHORED": 23,
+   "ASSUMED": 11
+  },
+  "requirementTally": {
+   "EQUALS": 12,
+   "EXISTS": 5,
+   "RANGE": 6,
+   "POSITIONED": 2,
+   "ORIENTED": 4,
+   "COUNT": 1,
+   "NOT_EXISTS": 4
+  },
+  "checkabilityTally": {
+   "STRUCTURAL": 25,
+   "PARTLY_STRUCTURAL": 5,
+   "OUTSIDE_BOUNDARY": 4
+  },
+  "ledgerTally": {
+   "SCHEMA:LOCAL": 11,
+   "VOCABULARY": 3,
+   "KNOWLEDGE": 11
+  },
+  "placementTally": {
+   "UNPLACED": 8,
+   "SPLIT": 10,
+   "PLACED": 4,
+   "PARTIAL": 2
+  }
+ },
+ {
+  "contract": "Neutral Player Condition",
+  "kind": "restated",
+  "items": 24,
+  "rowsDeclared": 70,
+  "rowsTotal": 81,
+  "undeclaredRows": [
+   "P1",
+   "T1a",
+   "T1b",
+   "T1c",
+   "T7",
+   "V0",
+   "V2",
+   "V7",
+   "V8a",
+   "V9",
+   "V10"
+  ],
+  "explicitlyUndeclared": 11,
+  "unknownDeclRows": [],
+  "unknownItemRows": [
+   "NEUTRAL-05.a:NONE",
+   "NEUTRAL-07.a:NONE",
+   "NEUTRAL-12.b:NONE",
+   "NEUTRAL-16.b:NONE"
+  ],
+  "badRequirements": [],
+  "badBasis": [],
+  "claimedNoItems": [],
+  "itemsOnUnclaimedRow": [],
+  "basisTally": {
+   "AUTHORED": 22,
+   "ASSUMED": 2
+  },
+  "requirementTally": {
+   "RANGE": 3,
+   "EQUALS": 14,
+   "EXISTS": 5,
+   "NOT_EXISTS": 2
+  },
+  "checkabilityTally": {
+   "STRUCTURAL": 21,
+   "OUTSIDE_BOUNDARY": 3
+  },
+  "ledgerTally": {
+   "SCHEMA:LOCAL": 8,
+   "VOCABULARY": 1,
+   "KNOWLEDGE": 14
+  },
+  "placementTally": {
+   "PLACED": 5,
+   "SPLIT": 4,
+   "UNPLACED": 2,
+   "PARTIAL": 6
+  }
+ },
+ {
+  "contract": "Wide Zone Advantage",
+  "kind": "restated",
+  "items": 27,
+  "rowsDeclared": 73,
+  "rowsTotal": 81,
+  "undeclaredRows": [
+   "P7",
+   "P8",
+   "P9",
+   "P10",
+   "J5",
+   "J6",
+   "J7",
+   "J12"
+  ],
+  "explicitlyUndeclared": 8,
+  "unknownDeclRows": [],
+  "unknownItemRows": [],
+  "badRequirements": [],
+  "badBasis": [],
+  "claimedNoItems": [],
+  "itemsOnUnclaimedRow": [],
+  "basisTally": {
+   "AUTHORED": 16,
+   "ASSUMED": 11
+  },
+  "requirementTally": {
+   "EXISTS": 5,
+   "EQUALS": 16,
+   "COUNT": 3,
+   "POSITIONED": 2,
+   "RANGE": 1
+  },
+  "checkabilityTally": {
+   "STRUCTURAL": 26,
+   "PARTLY_STRUCTURAL": 1
+  },
+  "ledgerTally": {
+   "SCHEMA:LOCAL": 9,
+   "VOCABULARY": 2,
+   "KNOWLEDGE": 15
+  },
+  "placementTally": {
+   "SPLIT": 7,
+   "PLACED": 4,
+   "PARTIAL": 3,
+   "UNPLACED": 3
+  }
+ },
+ {
+  "contract": "Variable Target Condition",
+  "kind": "restated",
+  "items": 34,
+  "rowsDeclared": 65,
+  "rowsTotal": 81,
+  "undeclaredRows": [
+   "S1",
+   "S4",
+   "SV1",
+   "P8",
+   "P9",
+   "P10",
+   "J2",
+   "J11b",
+   "T7",
+   "V4",
+   "V5",
+   "V6",
+   "V7",
+   "V8a",
+   "V9",
+   "V10"
+  ],
+  "explicitlyUndeclared": 16,
+  "unknownDeclRows": [],
+  "unknownItemRows": [],
+  "badRequirements": [],
+  "badBasis": [],
+  "claimedNoItems": [],
+  "itemsOnUnclaimedRow": [],
+  "basisTally": {
+   "AUTHORED": 27,
+   "ASSUMED": 7
+  },
+  "requirementTally": {
+   "RANGE": 4,
+   "EXISTS": 13,
+   "POSITIONED": 3,
+   "EQUALS": 9,
+   "ORIENTED": 1,
+   "COUNT": 1,
+   "NOT_EXISTS": 3
+  },
+  "checkabilityTally": {
+   "STRUCTURAL": 25,
+   "PARTLY_STRUCTURAL": 3,
+   "OUTSIDE_BOUNDARY": 6
+  },
+  "ledgerTally": {
+   "SCHEMA:LOCAL": 5,
+   "VOCABULARY": 5,
+   "KNOWLEDGE": 12
+  },
+  "placementTally": {
+   "PLACED": 8,
+   "PARTIAL": 4,
+   "SPLIT": 8
+  }
+ },
+ {
+  "contract": "Pass Combination Gate",
+  "kind": "blind",
+  "items": 19,
+  "rowsDeclared": 81,
+  "rowsTotal": 81,
+  "undeclaredRows": [],
+  "explicitlyUndeclared": 0,
+  "unknownDeclRows": [],
+  "unknownItemRows": [
+   "PCG-14:â€”",
+   "PCG-15:â€”",
+   "PCG-16:â€”",
+   "PCG-17:â€”",
+   "PCG-18:â€”",
+   "PCG-19:â€”"
+  ],
+  "badRequirements": [],
+  "badBasis": [],
+  "claimedNoItems": [],
+  "itemsOnUnclaimedRow": [],
+  "basisTally": {
+   "AUTHORED": 16,
+   "ASSUMED": 3
+  },
+  "requirementTally": {
+   "EXISTS": 10,
+   "EQUALS": 7,
+   "RANGE": 2
+  },
+  "checkabilityTally": {
+   "STRUCTURAL": 10,
+   "PARTLY_STRUCTURAL": 3,
+   "OUTSIDE_BOUNDARY": 6
+  },
+  "ledgerTally": {
+   "VOCABULARY": 1,
+   "SCHEMA:LOCAL": 5,
+   "KNOWLEDGE": 6
+  },
+  "placementTally": {
+   "SPLIT": 3,
+   "PARTIAL": 3,
+   "PLACED": 3,
+   "UNPLACED": 2,
+   "N/A": 3
+  }
+ },
+ {
+  "contract": "GF4 Transition Games",
+  "kind": "blind",
+  "items": 24,
+  "rowsDeclared": 81,
+  "rowsTotal": 81,
+  "undeclaredRows": [],
+  "explicitlyUndeclared": 0,
+  "unknownDeclRows": [],
+  "unknownItemRows": [
+   "OB1:NONE",
+   "OB2:NONE",
+   "OB3:NONE",
+   "OB4:NONE",
+   "OB5:NONE",
+   "OB6:NONE",
+   "OB7:NONE"
+  ],
+  "badRequirements": [],
+  "badBasis": [],
+  "claimedNoItems": [],
+  "itemsOnUnclaimedRow": [],
+  "basisTally": {
+   "AUTHORED": 20,
+   "ASSUMED": 4
+  },
+  "requirementTally": {
+   "EQUALS": 7,
+   "COUNT": 4,
+   "POSITIONED": 1,
+   "ORIENTED": 1,
+   "EXISTS": 11
+  },
+  "checkabilityTally": {
+   "STRUCTURAL": 14,
+   "PARTLY_STRUCTURAL": 3,
+   "OUTSIDE_BOUNDARY": 7
+  },
+  "ledgerTally": {
+   "SCHEMA:STRUCTURAL": 4,
+   "VOCABULARY": 2,
+   "KNOWLEDGE": 10,
+   "SCHEMA:LOCAL": 3
+  },
+  "placementTally": {
+   "PLACED": 7,
+   "PARTIAL": 6,
+   "SPLIT": 2,
+   "UNPLACED": 3,
+   "N/A": 3
+  }
+ }
+]
