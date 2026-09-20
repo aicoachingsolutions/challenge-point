@@ -340,10 +340,16 @@ And his reason, which generalises: **"authored intention that could not reach an
 nobody authorized."**
 
 So the scope is two things, not one: it fixes the **application set** of the contract's items, and it
-does not limit what the contract has **said about its own knowledge**. Across the eight contracts, 31
-items and 29 declarations sit at own-involvement scope; under this ruling the items reach nothing when
-the scope is empty, and every one of those declarations still reaches §4.6(2). Wide Zone's two channel
-lines move from `INVENTED` to a declared gap, which is what its contract actually says.
+does not limit what the contract has **said about its own knowledge**.
+
+**How much this moves, counted rather than replayed.** Across the eight contracts, 31 items and 29
+declarations sit at own-involvement scope. Of those declarations, **seven are `NOT_AUTHORED` and one is
+`UNDECLARED`** — the eight that can reach §4.6(2) and change a failure class — on rows S2, S6, J6, J10,
+V18, V19 and V22. The other 21 are `CLAIMED`, `EXCLUDED` or `NON_CLAIMED` and change no verdict. Only
+where a contract's own-involvement scope resolves empty does any of this bite; Wide Zone's S2
+declaration is the case the rederivation demonstrated, and its two channel lines move from `INVENTED`
+to a declared gap, which is what its contract actually says. **No broader replay was run**, per his
+instruction, and under SD-30 no earlier result is validated by these rules anyway.
 | Whole game | everything |
 
 Scope spreads a bound across units; it does not create them.
