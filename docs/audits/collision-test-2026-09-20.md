@@ -83,6 +83,11 @@ The fourth was not on anyone's list before this test.
 
 ## The one thing that is Christian's
 
+> **Answered, 20 September: YES**, and the exercise is closed. He extended AM-16, then ruled on the
+> conditions under which a comparative may take part in reconciliation (SD-23 to SD-29). Notably he
+> ruled *against* the second branch below: a comparative is never translated into mutual exclusions.
+> See `collision-rerun-2026-09-20.md` §7.
+
 **May a contract author a comparative value claim?** "Wide is worth more than central" is the knowledge
 at stake, and the grammar cannot hold it.
 

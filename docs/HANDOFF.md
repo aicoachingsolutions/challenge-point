@@ -2582,6 +2582,30 @@ judge check rather than asserted:
 - **Correction sent:** revision 5's claim that AM-17 rescues L21/L27 was wrong; four of five lateral
   values had no interval test. Written now, not re-derived.
 
+**20 Sep, second — he closed the collision exercise, and three of his rulings overturn rules of mine.**
+Registered as SD-23 to SD-29 and KR-05 (spec revision 6, `docs/design/derivation-spec-2026-09-20.md`):
+- **SD-23, operands:** a represented game property, **or a deterministically derived quantity whose
+  inputs are supported represented game properties**. No region-value row. A derived quantity may
+  compute relationships among represented environmental properties, never learner or ecological states.
+- **SD-24, effective value:** "primary-event base value after application of all applicable resolved
+  value modifiers for the referent." A modifier **must declare its operation** (new field `V9a`);
+  multiplier versus increment is never inferred. Unauthored operation or magnitude → **not computable**.
+- **SD-25:** one point per qualifying primary scoring event unless authoritatively modified. This is
+  what makes V2 supported, and so what makes any effective value computable at all.
+- **SD-26, where a comparison lands — replaces my reaches-line rule:** it takes **no property line**. A
+  relationship assertion evaluated over its operands, outside the eight areas. Unresolvable operands →
+  unmet or not evaluable by requirement status. Two authoritative, well-formed, evaluable comparatives
+  that nothing satisfies → **unresolved relationship conflict**. **No ninth area.**
+- **SD-27:** an assumed item **cannot** create an authoritative collision — diagnostic "possible
+  tension" only. This closes the fabricated-comparative problem.
+- **SD-28:** **gap before collision.** An unauthored or incomputable dependency is a gap first.
+- **SD-29, the classification he asked to be recorded precisely:** a **bounded structural-semantic
+  extension to the contribution/derivation grammar**, not an operational reading rule; **the Game
+  Representation data shape remains stable**. Record the distinction, do not weaken the data-model
+  stability finding.
+- **The worked case now resolves as a GAP, not a collision** — the right answer, and the opposite of
+  what my rules gave.
+
 **The six code sentences are classified** (`docs/design/code-sentences-classification-2026-09-20.md`),
 awaiting his individual rulings: retire 1–4 (the "beyond the first defenders" setups — KR-04 already
 says RPC-001 does not instantiate its carrier, and RPC-PROP-132 authors the scoring condition); retire
