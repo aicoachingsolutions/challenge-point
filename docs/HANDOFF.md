@@ -2482,3 +2482,32 @@ waits for his rulings on AM-01 to AM-15, the verdict-changing amendments.
 
 **Also:** a permission allowlist was added to `.claude/settings.json` (worktree and main; not
 committed).
+
+### 2026-09-19 — Christian's rulings; the fifteen amendment rules; data-model design begun
+
+**His rulings, recorded in revision 5 of the spec:**
+- **KR-04:** RPC-001 does not own or instantiate the carrier of its scoring event. It narrows the
+  acceptable event identity; the game must independently contain a supported compatible carrier; where
+  none exists, reconciliation fails back to selection. No conditional contract structure. This closes
+  AM-25.
+- **SD-22:** a new derivation reading rule is not by itself structural. Structural-semantic means
+  changing the grammar, statuses, source kinds, areas, relationship model or the meaning of support;
+  operational means making an already-defined relationship deterministic. This replaces the protocol's
+  test condition (amended, with a note that the verdict did not depend on it).
+
+**He accepted the primary result:** the data-model shape is stable enough to design; the derivation
+engine is not. He also accepted that the unexercised collision is a derivation test, not a reason to
+reopen the data model.
+
+**He asked for the actual rules** for AM-01 to AM-15, in the form: id / ambiguity / proposed rule /
+example whose verdict changes / classification. Delivered as an email and as
+`docs/design/amendments-am01-am15-2026-09-19.md`. Thirteen are plainly operational; AM-03 sits closest
+to the line; AM-04 is structural only in its strictest option (c); AM-05 is operational either way.
+Every example is a real slice-game line with the verdicts the derivers produced.
+
+**Held at his instruction:** the collision test waits for his AM rulings. All six code sentences stay
+unratified, and "beyond the first defenders" is not promoted into RPC-001 knowledge.
+
+**Begun:** `docs/design/data-model-design-2026-09-19.md`, part 1 — the artefacts, the register as
+versioned schema, the shapes, storage and loading (fail closed, no allowlist projection), and the seam.
+Everything derivation-dependent is marked and deferred.
