@@ -2511,3 +2511,45 @@ unratified, and "beyond the first defenders" is not promoted into RPC-001 knowle
 **Begun:** `docs/design/data-model-design-2026-09-19.md`, part 1 — the artefacts, the register as
 versioned schema, the shapes, storage and loading (fail closed, no allowlist projection), and the seam.
 Everything derivation-dependent is marked and deferred.
+
+### 2026-09-20 — His fifteen rulings; the delta; the collision test
+
+**He ruled on all fifteen:** twelve as proposed; AM-04 resolves to (b), undeclared, because silence
+cannot license a free choice; AM-05 becomes **cardinality without identity** (no ordering, no
+all-elements entitlement); AM-06 is corrected so an absent supporting or preferred value is never
+"satisfied". Recorded in `docs/design/derivation-spec-2026-09-20.md`.
+
+**Applying them moves 34 of 210 slice lines.** Three interactions:
+- **AM-13 needs AM-17.** All of Wide Zone's region items are own-involvement scoped, and no item of its
+  at another scope entails a region, so AM-13 empties that scope: ten lines fall, nine items go unmet.
+  AM-17's lateral-position selector attribute is the fix, which makes a "local" amendment
+  verdict-relevant. His call.
+- **AM-05 overrides the AM-01 example I gave him:** the item matches two objectives against a minimum
+  of one, so it entails neither. The forward result still changes.
+- **AM-05 works as intended:** the four target zones' existence moves from entailed to unauthored.
+
+**Three labels flagged, none invented quietly:** cardinality is only ever an item result, never a
+property; `NOT_REALIZED` for a supporting item whose value is absent; `VALID_ABSENCE` for a
+closed-world absence.
+
+**The collision test answers NO** (`docs/audits/collision-test-2026-09-20.md`):
+- As authored, nothing collides because no contract mentions central value at all; it lives only in
+  engine code.
+- Written as if authored, the objects still never share a line: under AM-11 an item marked "each" binds
+  the member it names. The disagreement lands as two unrelated forward "unmet" entries.
+- **The failure mode is silent acceptance:** name the corridor an additional referent and every line
+  reads entailed while Wide Zone's point is dead.
+- **The contradiction is comparative** and no requirement kind is.
+- **Gate A's overlap rule cannot fire** as the register stands, which corrects revision 5's claim that
+  it catches the "deep" tier. Render fidelity does.
+- **The collision path has never fired:** 0 unresolved across 420 line judgements; 2 relationship rules
+  across 8 contracts, neither on a value row.
+- **A fourth hiding mechanism:** unplaced. WIDEZONE-09 never became an item, yet the game's corridor
+  lines cite it as provenance.
+
+**To him:** may a contract author a comparative value claim? If yes it needs a row and a kind (AM-16
+extended); if no, mutual exclusion becomes an authoring duty via exclusion items.
+
+**Live behaviour worth checking when the freeze lifts:** the slot modifier carrying central weighting is
+attached to slot 1 of every Discovering Solutions session regardless of the selected constraint, so a
+coach running Wide Zone Advantage is told to go wide and paid to go central.
