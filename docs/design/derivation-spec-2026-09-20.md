@@ -236,6 +236,13 @@ never declared, so effective value is **not computable** on either side; the com
 evaluable; and under §6 the line is a **gap**, not a collision. His rulings resolve the rerun's crux in
 the opposite direction from my rule, and they are right: nobody authored that magnitude.
 
+**A consequence of adding `V9a` that has to be carried through.** §1 requires that a property the game
+needs but leaves unstated is listed with its verdict. So **every value modifier now gains a `V9a`
+line**, and in the slice game that line is `NOT_AUTHORED` — no object declares an operation anywhere.
+Without it, "effective value is not computable" would be true for a reason the audit records nowhere.
+Games resolved before 20 September are short one line per modifier, and their audits do not mean what
+they say until they are re-derived against the current register.
+
 **A comparative is not an exclusion.** Christian: "I do not want Wide Zone's comparative meaning
 translated into mutual exclusions. 'Wide has greater task value than central' is a relationship, not
 equivalent to 'central value is forbidden.'" A contract states the relationship; the reconciler does not
@@ -429,6 +436,12 @@ adapted (nothing displaced it), and not inert (it is real authored knowledge). I
 `NOT_REALIZED` for it, used only here. That is an addition to the item-result vocabulary in the audit
 record, not a new property status and not a change to support. If he prefers "adapted" stretched to
 cover it, say so and I will use that instead.
+
+**A third instance of the same hole, found in the AM-17 rederivation.** A **supporting existence** item
+whose cardinality check fails — Wide Zone's `COUNT 2` on channels, met by zero elements — has no row
+here either. It is not required, so not *unmet*; not a preferred default, so not *adapted*; not a
+typical example, so not *inert*. The existence row names the check and §4.3 points back here. If he
+takes `NOT_REALIZED`, it must cover a failed cardinality check as well as an absent value.
 
 ## 8. Closed-world absence (AM-07, as qualified)
 

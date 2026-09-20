@@ -59,6 +59,15 @@ written refusal rather than a default:
 That is the failure this architecture exists to end, so the refusals are the design, not a limitation of
 it.
 
+## One consequence of your own ruling, carried through
+
+Requiring a modifier to declare its operation adds a line per modifier to every game, because §1 says a
+property the game needs but leaves unstated is listed with its verdict. In the slice game that line is
+`NOT_AUTHORED` — **no object anywhere declares an operation.** That is the right outcome: "effective
+value is not computable" now has a line the audit can point at, instead of being true for a reason
+nothing records. It also means any game resolved before today is short one line per modifier, and its
+audit does not mean what it says until it is re-derived.
+
 ## Two things worth knowing, neither of them blockers
 
 **Your second comparison example cannot be written.** `count(A) = count(B)` needs a count to be a
