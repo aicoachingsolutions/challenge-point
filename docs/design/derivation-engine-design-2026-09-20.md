@@ -205,9 +205,12 @@ activities, or otherwise repair selection". Concretely, it never:
 
 Every one of these is a decision his rulings do not settle. None is presented as a consequence of them.
 
+**All six were ruled on 20 September, and all six approved.** Choice 1 is now SD-35 and the others
+SD-37; the table stands as the record of what was proposed and why.
+
 | # | Choice | What I propose | The alternative I rejected, and why |
 |---|---|---|---|
-| 1 | **Who fills a permitted free choice** | The engine emits it as `open` with its bounds and the permitting rule; **a separate realization step fills it** | The engine could fill it deterministically. I rejected that because choosing a value is the act that creates what a coach sees, and a policy for choosing is the kind of thing that should be authored or ruled, not invented inside a derivation engine. **This is the one choice I most want him to rule on** — it decides whether the engine emits a complete game or a resolved-plus-open one |
+| 1 | **Who fills a permitted free choice** — **APPROVED, SD-35** | The engine emits it as `open` with its bounds and the permitting rule; **a separate realization step fills it** | The engine could fill it deterministically. I rejected that because choosing a value is the act that creates what a coach sees, and a policy for choosing is the kind of thing that should be authored or ruled, not invented inside a derivation engine. **His ruling states the boundary more generally than my proposal did:** *"Derivation determines what must be true, what may vary, and the legitimate bounds of variation. A downstream explicitly governed choice process determines which permitted value becomes true in the particular game."* An `open` property therefore carries bounds, the permitting authority **and any applicable constraints**, and no value; the downstream process is explicitly not designed yet, and the engine gets no hidden selection policy |
 | 2 | **Emit a partial resolution when lines fail** | Yes — everything that resolved, plus the failures | Emitting nothing on failure. Rejected: the caller cannot report usefully on an empty result, and SD-33 asks for "resolved results where possible" |
 | 3 | **Both gates always run** | Yes, even when one has already failed | Short-circuiting. Rejected: it hides half the picture, and the caller decides what to do with the whole of it |
 | 4 | **Canonical ordering** | Sort by line id, then item id, then contract id, everywhere | Insertion order. Rejected: it makes determinism accidental rather than structural |
@@ -304,14 +307,24 @@ reads correctly to a person and cannot be executed by a machine. That gap is exa
 engine converts from a latent problem into a visible one, and it is a good argument for the design
 review he has asked for happening against data an engine could actually consume.
 
-## What this needs from him
+## What he ruled — the direction is approved, and this document is superseded in one respect
 
-1. **Choice 1 in §8** — whether the engine emits open free choices or fills them. It changes the output
-   contract, so it is worth settling before anything is built.
-2. **`BUILD_OUT_EPISODE` as a sixth scope** (§10.3) — a VOCABULARY decision, and six items in the
-   corpus already depend on it.
-3. A yes or no on the other five choices in §8, or silence read as assent if he prefers.
-4. Confirmation that §9's limits are understood as limits rather than as work items.
+He approved the direction on 20 September: the pure-function boundary, the typed refusal model,
+gap-before-collision, canonical determinism, version-bound results and the refusal-centered test
+strategy. The restricted-pass solution to the own-involvement circularity is approved **provisionally**,
+with the divergence check and refusal behaviour kept, and with an instruction not to chase the residual
+standing-decision risk *"unless a concrete case demonstrates it"*.
+
+| What he ruled | Where it now lives |
+|---|---|
+| Free choice: the engine does not choose | **SD-35**, and §8 choice 1 |
+| `BUILD_OUT_EPISODE` as the sixth scope, defined narrowly; every use checked | **SD-36**, and §10.3 — two of six conform, four do not |
+| The five smaller choices, all approved. *"Derivation diagnoses. It does not design."* | **SD-37** |
+| The six unrepresentable cases: recorded individually, not solved, and the three conditional-looking ones **not collapsed** | **SD-38**, and §9 |
+
+**Superseded:** this document proposed the direction. The implementation-ready package that follows it
+(`derivation-engine-design-package-2026-09-20.md`) carries the detail he asked to inspect, across his
+ten points. Where the two differ, the package is later and wins.
 
 **And one note on method.** This design was drafted, then attacked by an independent review whose job
 was to find where it guesses. It found the scope circularity in §3.1 and all three data problems in
