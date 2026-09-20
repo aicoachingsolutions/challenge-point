@@ -96,7 +96,7 @@ entries, and a game value written "(= entry)" counts as that entry.
 | `POSITIONED` | the interval satisfies it, by the register's relative terms | narrows |
 | `ORIENTED` | the orientation satisfies it | narrows |
 | `NOT_EXISTS` | absent | excludes: never supports |
-| `COMPARES` | the comparison holds between the two named properties | narrows (§4.4). **Never an exclusion:** a comparative is a relationship, not a prohibition [C20] |
+| `COMPARES` | the comparison holds between its two operands | **takes no line** (SD-26): evaluated over its operands, never a bound on a property. **Never an exclusion:** a comparative is a relationship, not a prohibition [C20] |
 
 An item that entails an element also entails each attribute its selector fixes with `=` or `∋`; an
 attribute given with `∈` is only narrowed.
@@ -139,35 +139,57 @@ If he wants cardinality to be a first-class property, that is a schema change �
 Christian: **"A contract may author a comparative claim between represented game properties."** The
 examples he gave: value(A) > value(B), count(A) = count(B), width(A) > width(B).
 
-**Form.** A `COMPARES` item names a left property (row and selector), an operator from `=`, `≠`, `<`,
-`≤`, `>`, `≥`, and a right property (row and selector). It may also compare an aggregate over
-selector-matched elements at its scope — **but no aggregate function is named** (each, some, the sum,
-the greatest). Where a selector matches several elements whose values differ, the rules do not say what
-the operand is. It did not bite in the worked case only because both matching regions carry the same
-modifier. Open.
+**All of his 20 September rulings are incorporated below.** Where an earlier draft of this section held
+a rule of mine, his ruling replaces it and the replacement is marked.
+
+**Form.** A `COMPARES` item names a left operand, an operator from `=`, `≠`, `<`, `≤`, `>`, `≥`, and a
+right operand.
+
+**What may be an operand (SD-23, his ruling).** Either:
+- **a represented game property** — a register row plus a selector; or
+- **a deterministically derived quantity whose inputs are supported represented game properties.**
+
+Two limits come with it, in his words:
+- **"Do not add region value as a stored Game Representation row merely to support this case."** The
+  derived quantity is computed for the comparison; it is not stored, and it is not a ninth thing the
+  game holds.
+- **"A derived quantity may compute relationships among represented environmental properties. It may
+  not derive learner/ecological states such as pressure, opportunity, affordance availability,
+  difficulty or uncertainty."**
+
+**Its inputs must be supported, not merely stated.** A derived quantity computed from a property the
+game states but nothing supports is not computable. This is what his word *supported* does, and it
+bites: before he adopted SD-25, the primary event's base value rested only on engine wording, so no
+region's effective value could be computed at all.
+
+**Aggregates.** A comparison may range over selector-matched elements, but **no aggregate function is
+named** (each, some, the sum, the greatest). Where a selector matches several elements whose values
+differ, the rules do not say what the operand is. Still open; it did not bite in the worked case only
+because both matching regions carry the same modifier.
 
 **Relation.** It narrows. **It never entails a value, and it never entails existence.** A comparison
 constrains a relationship between properties that other items or the session must establish. It is
 **never written with exclusion strictness**: a comparative is a relationship, not a prohibition.
 
-**Which line it reaches.** A `COMPARES` item reaches a line, so that two comparatives that no single
-value satisfies can meet:
-1. Reduce the comparison using the stated derivation rules (for regions, effective value below). If it
-   reduces to a bound on **one** property the game holds, the item reaches **that property's line**.
-   **"Holds" means the game has a line for that property** — not that the line carries a value. A bound
-   on an unstated value is the ordinary case, and reading it the other way would make this rule
-   unreachable in exactly the case it was written for.
-   *(Example: `eff(wide) > eff(central)` reduces, where only the wide side carries a modifier, to
-   "magnitude > 1" on the modifier's magnitude line.)*
-2. If it does not reduce to one property, the item reaches the line of its **left operand** — the
-   property it constrains.
-3. If neither operand resolves to a line, it reaches no line and is reported **not evaluable** in the
-   forward list only.
+**Where a comparison lands (SD-26, his ruling — this replaces my rule).** I had a comparison reduce to a
+bound and reach one operand's property line. He ruled against that:
 
-Two comparatives that reach one line and that no single value satisfies collide, and §6 decides or
-reports them. *(This rule is mine, added after the rerun: without it, two contradictory comparatives
-were reported as two unrelated forward failures and never named as opposed. Operational under SD-22,
-and it depends on the effective-value reading below, which is also mine and also unratified.)*
+> "Do not force a comparative relationship onto one operand's ordinary property line. The comparison is
+> a relationship assertion evaluated over its operands. It may remain outside the eight stored Game
+> Representation areas as part of contribution/reconciliation evaluation."
+
+So:
+1. A comparison is **evaluated over its operands**, in the contribution and reconciliation record. It
+   is not a line, it does not take a property's verdict, and it changes no line's status.
+2. **If its operands cannot be resolved or computed, the comparison is not evaluable or unmet,
+   according to its requirement status** — required items unmet, supporting items not evaluable.
+3. **If two authoritative, well-formed comparative requirements are mutually incompatible, report an
+   unresolved relationship conflict** (§6.1). That is a report of its own kind, not a line status.
+4. **No ninth Game Representation area is authorized**, and none is added.
+
+*Why this is better than my rule: a relationship is not a property, and forcing it onto a property's
+line made an unauthored magnitude read as "two objects disagree" when nobody had authored it at all.
+His §6 ordering — gap before collision — falls out of this naturally.*
 
 **The boundary.** Both operands must be properties the resolved game contains and can evaluate.
 Christian: not "inferred player states or ecological outcomes such as pressure, opportunity, affordance
@@ -175,34 +197,28 @@ availability, difficulty, uncertainty". The test he gave: **"whether the compari
 properties the resolved game actually contains and can evaluate."** An item comparing anything else is
 recorded outside the boundary, not forced onto a row.
 
-**Evaluability.** A comparison is evaluable only when both operands resolve to a value the game holds,
-or to a value derived by a stated rule from rows it holds. Where an operand does not resolve, the item
-is reported **not evaluable** in the forward list. It is never quietly satisfied.
+**Evaluability.** A comparison is evaluable only when both operands resolve — to a value the game holds
+and supports, or to a derived quantity whose inputs the game holds and supports. Otherwise it is
+reported unmet or not evaluable by its requirement status, per his ruling above. It is never quietly
+satisfied.
 
-**Not evaluable and still a bound — my reading, flagged.** "Not evaluable" covers two different
-failures: *no value* (the line exists, the game leaves it unstated) and *no line* (neither operand
-reaches one). In the first case the item still constrains that line, so it is reported not evaluable as
-a forward check **and** remains a live bound for §6. In the second it is a forward result only. Nothing
-he ruled on says this, and the distinction decides whether an unstated value with two contradictory
-bounds is a collision or a gap. **His.**
+**Effective value (SD-24, his provisional definition).** In his words:
 
-**Operand form — open, and it blocks his own first example.** AM-16 as adopted makes each operand a
-register row plus a selector. **No row holds a region's value**, so `value(A) > value(B)` — his first
-example — cannot be written in that form. The rerun's items used a derived operand
-(`effectiveValue(...)`) instead. Either a derived operand is legitimate, or a region's value becomes a
-row. Both are his call, and until one is taken, the worked case here is ill-formed against the grammar
-sheet it was drafted from.
+> "primary-event base value after application of all applicable resolved value modifiers for the
+> referent."
 
-**Effective value, for comparisons over regions.** The effective value of a region is the primary
-event's base value, as changed by the magnitude of every value modifier whose referents include that
-region. A region no modifier names takes the base value. **This derivation is my reading, flagged for
-him:** it is what makes "wide has greater task value than central" evaluable when only one side carries
-a modifier.
+With the two conditions he attached:
+- **"A value modifier must explicitly declare its operation/type. Do not infer multiplier versus
+  increment."** The register gains one field for this (`V9a`, the modifier's operation), and `V9`
+  remains its magnitude. This is the only addition his rulings make to the representation, and it is a
+  new field on an existing collection — LOCAL by the grammar sheet's own test.
+- **"If an operation or magnitude required for the derivation is unauthored, effective value is not
+  computable."**
 
-**And the magnitude's own kind is not fixed.** V9 may be a multiplier or an increment; the register has
-said both. The same claim then bounds the same line differently — magnitude > 1 under one reading,
-magnitude > 0 under the other. The contradiction in the worked case survives either reading, but the
-arithmetic is a choice the documents leave open. Flagged, not taken.
+**What that does to the worked case.** The wide modifier's magnitude is unstated and its operation was
+never declared, so effective value is **not computable** on either side; the comparison is not
+evaluable; and under §6 the line is a **gap**, not a collision. His rulings resolve the rerun's crux in
+the opposite direction from my rule, and they are right: nobody authored that magnitude.
 
 **A comparative is not an exclusion.** Christian: "I do not want Wide Zone's comparative meaning
 translated into mutual exclusions. 'Wide has greater task value than central' is a relationship, not
@@ -224,6 +240,13 @@ likewise selectable, so one contract's region modifier can be addressed apart fr
 already-supported region; it must not create a wide region merely because a contract selects for one."
 So a lateral selector identifies; existence still comes only from an existence-type item on the
 collection row, judged by §4.3's necessity rule.
+
+**His governing principle, restated 20 September:** *"selection may identify supported existing
+structure; it does not entail that structure's existence."* The word **supported** is doing work: a
+selector reaches an element the game holds, and whether that element is itself supported is a separate
+question with its own verdict. Selecting an unsupported element neither supports it nor is barred by
+its being unsupported — the selector simply inherits the weakness, and any derived quantity computed
+from it is **not computable** under SD-23.
 
 ### 4.6 A stated value with no support (AM-03, adopted)
 
@@ -283,19 +306,57 @@ reason alternatives. An authored order is recorded, not applied.
 Scope spreads a bound across units; it does not create them.
 
 **Support-capable**, for collisions, means an item that constrains the value: one that entails it or
-bounds it, including an assumed item and a comparative. Inert items never collide — engine-only,
-outside the boundary, and typical examples. *(This definition is mine, added after the rerun, which
-found "support-capable" undefined for bound-only items. Operational under SD-22.)*
-
-**A precedence consequence worth his attention.** §2 takes the first verdict that applies, and
-`UNRESOLVED` sits above `NOT_AUTHORED`. So on a line nobody authored, two contradictory comparatives
-turn "no one has said what this is" into "two objects disagree". The second reads like a knowledge
-conflict; the first is the truth about the game. I have not changed the order — it is his.
+bounds it, including an assumed item. Inert items never collide — engine-only, outside the boundary,
+and typical examples. Comparatives are no longer in this list: under SD-26 they are evaluated over their
+operands and never take a line.
 
 **A collision** is two in-scope, support-capable items on one line that no single value satisfies.
 Overlapping bounds intersect and do not collide. Only an authored relationship rule, or SD-06, SD-07 or
 SD-08, decides one; otherwise the line is unresolved (SD-02). A displaced preferred default is adapted,
 not a collision.
+
+**Gap before collision (SD-28, his ruling).** In his words, a collision "requires well-formed,
+support-capable authoritative claims with sufficiently resolved operands/properties". Therefore:
+
+| What is true of the line | What is reported |
+|---|---|
+| A dependency it needs is unauthored or not computable | **a gap** — and only a gap |
+| Contradictory authoritative claims, both evaluable | **an unresolved collision** |
+
+An unauthored or incomputable dependency is a gap **first**, and nothing downstream converts it into a
+disagreement. This replaces the precedence problem I flagged after the rerun: `UNRESOLVED` no longer
+outranks a gap, because on an unresolved dependency there is nothing to collide.
+
+**An assumed item cannot manufacture a collision (SD-27, his ruling).** In his words:
+
+> "An assumed item may not create an authoritative collision with authored knowledge. If Wide Zone does
+> not actually author `wide > central`, we do not promote that interpretation merely because it appears
+> consistent with the object's prose meaning. Assumed-vs-authored may be reported diagnostically as a
+> possible tension, but it cannot drive UNRESOLVED. If comparative value is truly part of Wide Zone's
+> intended canonical meaning, we can author that explicitly later."
+
+So an assumed item still bounds, still reports, and still appears in the audit — as a **possible
+tension**, a diagnostic record that no gate reads. Two assumed items, or an assumed against an authored
+one, never produce an unresolved verdict.
+
+**This closes the fabricated-comparative problem**, as he intended. A comparative that is invented or
+assumed cannot drive any line unresolved, so no single fabricated sentence can stop a game.
+
+### 6.1 Unresolved relationship conflict
+
+A report of its own kind, created by SD-26. It holds: the two comparative requirements, their operands
+as resolved, why no single assignment satisfies both, and the objects that authored them.
+
+It is raised **only** when every one of these holds:
+1. both requirements are **authoritative** — authored or owner-ruled, never assumed, never engine-only;
+2. both are **well-formed** under SD-23's operand rule;
+3. both are **evaluable** — every operand, or every input to a derived operand, resolves and is
+   supported;
+4. no single assignment of the operands satisfies both.
+
+Fail any of 1 to 3 and it is not a conflict: it is a gap, a diagnostic tension, or an unmet item,
+whichever applies. **It is not a line status, it is not one of the four Game statuses, and it adds no
+area.** The game's eight areas hold what they held before.
 
 ## 7. Forward results (AM-06, as revised)
 
@@ -316,12 +377,13 @@ did not survive, "rather than satisfied", to keep Realization ≠ Mention in bot
 | Partly structural | clause checked, with the clause's result |
 | Assumed item | checked as a bound |
 | Existence-type item | its cardinality check (§4.3) |
-| A comparative whose operand does not resolve | **not evaluable** — reported, never quietly satisfied (§4.4) |
+| Comparative, **required**, whose operands do not resolve or compute | **unmet** (SD-26) |
+| Comparative, **supporting**, whose operands do not resolve or compute | **not evaluable** (SD-26) — never quietly satisfied |
 
-**Take the first row that applies**, as in §2. Without an order, a required comparative with an absent
-operand is claimed by both *unmet* and *not evaluable*, and the two say different things: one blames
-the game, the other says the check could not be run. *Not evaluable* wins, because it is the truthful
-one. *(The ordering is mine, added after the rerun. Operational, and reversible.)*
+**Which of the last two applies is decided by requirement status**, in his words: "If its operands
+cannot be resolved/computed, the comparison is not evaluable/unmet according to its requirement
+status." That replaces the ordering rule I had written after the rerun, which made *not evaluable* win
+outright. His version keeps a required claim's failure visible as a failure.
 
 **FLAGGED (third).** An absence that §8 records as valid has no verdict in §2's table. Both derivers hit
 it and forced a verdict. I propose recording it as `VALID_ABSENCE`, which is a line outcome, not a
@@ -344,12 +406,12 @@ So an absence is recorded as **valid** when no support-capable item entails an e
 that scope, and as **unmet** against each item that does. It is never entailed by silence, and an
 absence is never a positive support record.
 
-**A mismatch with §6, flagged rather than patched.** §6 makes an item support-capable when it *entails
-or bounds* a value; this section keys a valid absence on **entailment alone**. A comparative never
-entails, so on this section's own words an absent value that two contradictory comparatives bound reads
-as a *valid* absence. §2's ordering puts UNRESOLVED first, so the verdict comes out right — but the two
-tests are written to different standards and should be reconciled deliberately, not by ordering. I have
-not chosen which one gives way.
+**The mismatch I flagged here is closed by his rulings**, not by ordering. §6 made an item
+support-capable when it *entails or bounds*, while this section keys a valid absence on **entailment
+alone** — so an absent value that two contradictory comparatives bounded read as a *valid* absence on
+this section's own words. Under SD-26 a comparative never takes a line at all, so it cannot bound an
+absence, and under SD-28 an unauthored dependency is a gap before anything else. The two tests no
+longer meet on one line. Nothing about entailment here changes.
 
 ## 9. Transitions
 
@@ -389,26 +451,20 @@ count.
 
 ## 11. What is not decided here
 
-- The engine that applies these rules (after the collision test, by his direction).
-- Whether cardinality becomes a first-class property (§4.3).
-- The one item-result label (§7).
+**Closed by his rulings of 20 September**, and recorded here so nobody reopens them: what may be an
+operand (SD-23); effective value and the modifier's declared operation (SD-24); the base value of a
+qualifying primary scoring event (SD-25); where a comparison lands (SD-26); whether an assumed item can
+collide (SD-27 — it cannot); gap before collision (SD-28); and the classification of the whole
+extension (SD-29). The six sentences are ruled (KR-05). The §6/§8 mismatch and the fabricated-comparative
+problem both fall away under SD-26 to SD-28.
+
+**Still open, and none of it blocks the engine's design:**
+- Whether cardinality becomes a first-class property (§4.3). He ruled no schema change yet.
+- The `NOT_REALIZED` item-result label (§7), which is still a proposal.
 - The closed vocabularies' contents (SD-18).
-- The six sentences held in code, to be classified individually after the collision test.
-- AM-16 to AM-24 and AM-26 remain local operational amendments "unless one proves to require a
-  structural-semantic change during design".
-- **Whether two of my post-rerun rules are structural, and so are not covered by SD-22.** SD-22 counts a
-  change as structural-semantic when it changes "the contract grammar, declaration statuses, source
-  kinds, the eight areas, the relationship model, or the meaning of support". *Which line a comparison
-  reaches* touches the relationship model; *what counts as support-capable* touches the meaning of
-  support. I have written both as operational. If he reads either as structural, the conformance check's
-  verdict — stable with local amendments — weakens on that point, and I would rather he decide that than
-  have me classify my own work favourably.
-- **Whether an assumed item can collide with an authored one**, which is what this case turns on.
-- **The operand form for a value comparison**, and the magnitude's kind (§4.4).
-- **Whether anything screens a comparative for whether its knowledge is real** before it can drive a
-  line to unresolved. In the worked case one invented sentence carrying basis AUTHORED was enough, and
-  §6's deciding set cannot unpick it, because deciding requires an authored relationship rule. As the
-  rules stand, any modified property can be made unresolved by one fabricated comparative. That is the
-  cost of letting comparatives collide, and it is worth his eyes.
-- **Whether a collision should outrank an unauthored gap on the same line** (§6).
-- **Whether §6's and §8's tests for a live item should be reconciled** (§8).
+- **No aggregate function is named** for a comparison that ranges over several matched elements (§4.4).
+  This is the one genuine hole left in the comparative grammar. It does not bite in anything derived so
+  far, and an engine can refuse an aggregate comparison until he names the function — but an engine
+  cannot invent one.
+- AM-18 to AM-24 and AM-26 remain local operational amendments "unless one proves to require a
+  structural-semantic change during design". AM-16 and AM-17 no longer sit here: SD-29 classifies them.

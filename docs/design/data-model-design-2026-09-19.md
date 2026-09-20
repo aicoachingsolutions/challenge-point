@@ -5,11 +5,17 @@ claim, and the collision rerun. Paper only: no implementation, no generation. Ch
 begin on 19 September, "if that work is separable from the unresolved derivation semantics".
 
 **What changed in revision 2.** The shapes gained what his rulings settled and the rerun exercised: a
-comparative item, a collision record, a line outcome distinct from a property status, and the item
-results he approved. The `[waits]` marks shrank — AM-01 to AM-15 are ruled — and the ones that remain
-now name the six residuals from the rerun rather than the fifteen amendments. **No new area, status,
-source kind or relation** has been added; `valid absence` is a line outcome and the four Game statuses
-are untouched, as he directed.
+comparative item with a tagged-union operand, a collision record, relationship conflicts and diagnostic
+tensions as records of their own, a line outcome distinct from a property status, and the item results
+he approved. The `[waits]` marks are nearly gone: AM-01 to AM-15 are ruled, and his rulings of 20
+September close the rerun's residuals.
+
+**No new area, status, source kind or relation has been added.** `valid absence` is a line outcome and
+the four Game statuses are untouched, as he directed. **One field** was added to an existing
+collection — a value modifier's declared operation (SD-24). Under SD-29 the extension is classified as
+bounded and structural-semantic **to the contribution and derivation grammar**, with the Game
+Representation data shape stable; this document is where that distinction has to hold, and §3.1 and
+§3.2 are the two places to check it.
 
 **What this covers:** the shapes that hold a game, a contract and the audit trail, how they are stored
 and loaded, and where they sit in the generation path.
@@ -68,6 +74,11 @@ Game {
 - A view row (direction, implicit fractions) is computed on read and never stored. The computation is
   pure and lives with the register version.
 - A property with no element, such as the envelope's, carries `elementId: null`.
+- **One row was added on 20 September** and it is the only change his rulings make to what the game
+  stores: a value modifier's **operation** (`V9a` — multiply, add or replace), because SD-24 forbids
+  inferring it from the magnitude. A new field on an existing collection, so LOCAL by the grammar
+  sheet's test. Nothing else in the eight areas moved, and **no derived quantity is stored**: an
+  effective value is computed for a comparison and discarded, never written as a property.
 
 ### 3.2 A contract
 
@@ -96,14 +107,17 @@ Contract {
 
 - **`strictness` may not be `EXCLUSION`.** A comparative is a relationship, not a prohibition — his
   instruction, enforced at load rather than left to a checker.
-- **[waits] what an operand may be.** Two shapes are possible and the choice is his (residual 1 of the
-  rerun): `{ row, selector }`, which is AM-16 as adopted but cannot express `value(A) > value(B)`
-  because no row holds a region's value; or `{ derived: <named rule>, args }`, which can, at the cost of
-  admitting derived quantities into the grammar. The storage shape is the same either way — one tagged
-  union — so this waits without blocking anything else.
-- A comparative's `basis` is load-bearing in a way other items' is not: it decides whether one object's
-  reading of its own meaning can contradict another object's words. Where the comparand is not in the
-  object's text, the item is `ASSUMED` and says so.
+- **An operand is a tagged union** (SD-23, ruled 20 September): `{ row, selector }` for a represented
+  property, or `{ derived: <ruleId>, args }` for a deterministically derived quantity. A derived
+  operand's rule id is registered, like a row id; `effectiveValue` is the only one today. **No stored
+  row is added for a region's value**, per his instruction.
+- **A derived operand's inputs must be supported**, not merely present, or it is not computable. This is
+  a derivation check, but the shape must carry what it needs: the audit records which inputs a derived
+  operand used, so "not computable" can name the input that failed rather than being a bare verdict.
+- A comparative's `basis` is load-bearing in a way other items' is not: under SD-27 an `ASSUMED`
+  comparative can never produce an authoritative conflict, only a diagnostic tension. Where the comparand
+  is not in the object's text, the item is `ASSUMED` and says so — and the loader has no way to check
+  that, so it is an authoring discipline the grammar sheet now states in terms.
 
 ### 3.3 The audit record
 
@@ -114,6 +128,8 @@ Audit {
   items: [ { contractId, itemId, result, note? } ]
   collisions: [ { collisionId, propertyId, items: [ref], bounds: [text],
                   decidedBy: ruleId | null, why } ]
+  relationshipConflicts: [ { conflictId, items: [ref], operandsAsResolved, why, objects: [id] } ]
+  tensions: [ { items: [ref], why, diagnosticOnly: true } ]
   dispositions: [ { contractId, itemId, disposition, citing } ]
 }
 ```
@@ -130,6 +146,15 @@ Audit {
   record in its own right, not a flag on a property: it names the items, what each demanded, and why
   nothing decided it. `decidedBy` is null when nothing did, which is the case SD-02 sends to unresolved.
   Without this record, the audit can show a game stopped without showing which two objects stopped it.
+- **`relationshipConflicts` and `tensions` are separate records, not collisions** (SD-26, SD-27). A
+  relationship conflict is raised over *operands*, never on a property line, and it is what two
+  authoritative, well-formed, evaluable comparative requirements produce. A tension is the diagnostic
+  an assumed comparative produces instead, and **no gate reads it**. Three records rather than one is
+  deliberate: each answers a different question — "two items disagree about this property", "two
+  objects assert incompatible relationships", "one object's evident meaning sits oddly with another's
+  words" — and collapsing them was exactly the mistake his rulings corrected.
+- **Nothing here ranks above a gap.** Under SD-28 an unauthored or incomputable dependency is reported
+  as a gap, and no conflict record is raised on it. The shapes cannot express the inversion.
 - `sources` and `support` are computed, never written by whatever resolves the game.
 - `derivationVersion` stamps which rule set produced the record, so a stored activity can be re-audited
   when the rules change.
@@ -149,7 +174,7 @@ satisfies these:
 | Keyed by knowledge object id, never by EM family id | Decision 6 of 15 September binds neither family id set |
 | Versioned with the knowledge it describes | A contract is only true of one version of its object |
 | Loaded whole, with no allowlist projection | The project's costliest recurring failure is an allowlist quietly dropping authored fields. The Soccer Module's parameter columns are empty today and the adapter maps none of them, so anything authored there would vanish |
-| **Fail closed** | An unknown row id, an unknown requirement kind, a missing basis quote, or a field the loader does not recognise is a load error that refuses the contract. Never a default, never a skip. Extended in revision 2: an unknown comparison operator, an operand shape the register does not permit, and a comparative written with exclusion strictness are all load errors |
+| **Fail closed** | An unknown row id, an unknown requirement kind, a missing basis quote, or a field the loader does not recognise is a load error that refuses the contract. Never a default, never a skip. Extended in revision 2: an unknown comparison operator, an unregistered derived-operand rule, an operand shape the register does not permit, a comparative written with exclusion strictness, and **an item that sets a value modifier's magnitude without declaring its operation** (SD-24) are all load errors |
 | Contract coverage checked at load | Every register row declared. A row left undeclared is reported against the contract, not against the game |
 
 The loader emits one report per load: contracts loaded, rows covered, engine-only items, and every
@@ -179,14 +204,13 @@ follow the rulings. The seam does not.
 ## 6. What this design refuses to decide
 
 Revision 2 narrows this list: AM-01 to AM-15 are ruled, so how support is derived is settled in the
-derivation specification and no longer sits here. What the shapes still refuse to settle:
+derivation specification and no longer sits here. His rulings of 20 September close three more — what
+may be an operand (SD-23), whether an assumed item can collide (SD-27, it cannot) and whether a
+collision outranks a gap (SD-28, it does not). What the shapes still refuse to settle:
 
-- **What may be an operand of a comparison** (§3.2). The storage shape is a tagged union either way.
-- **Whether an assumed item can collide with an authored one.** The collision record holds both cases;
-  which one produces a collision is derivation, and his.
-- **Whether a collision outranks an unauthored gap on the same line.** The shapes keep them separable —
-  `status` and `collisions` are different fields — precisely so that ordering is a derivation decision
-  and not a storage one.
+- **The aggregate function** for a comparison ranging over several matched elements. Unnamed, so an
+  engine refuses such a comparison rather than choosing one. This is the only hole left in the
+  comparative grammar.
 - **Cardinality as a first-class property.** He ruled no schema change yet, so there is no cardinality
   line, and a count remains an item result. If that changes it is a new row kind, not a new area.
 - The closed vocabularies' contents (SD-18): they are versioned data for exactly this reason.

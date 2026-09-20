@@ -1,5 +1,19 @@
-# Game Representation Specification — revision 5, with Christian's ownership decisions
+# Game Representation Specification — revision 6, with Christian's ownership decisions
 
+> **Revision 6 (20 September)** closes the collision exercise. It adds SD-23 to SD-29 and KR-05: what
+> may be an operand of a comparison, effective value and the modifier's declared operation, the base
+> value of a scoring event, where a comparison lands, that an assumed item cannot create an
+> authoritative collision, gap before collision, the classification of the whole extension, and his
+> individual rulings on the six code sentences.
+>
+> **The classification matters and is his (SD-29).** This is *"a bounded structural-semantic extension
+> to the contribution/derivation grammar, not merely an operational reading rule. The Game
+> Representation data shape remains stable. What changed is the grammar's ability to express and
+> evaluate relationships among represented properties."* The eight areas, the four statuses, the source
+> kinds and the declaration mechanism are all unchanged, and **no ninth area is authorized**. The
+> conformance check's data-model stability finding stands; what is extended is the grammar, not the
+> representation.
+>
 > **Revision 5 (19 September)** adds his two rulings after the conformance check: KR-04 (RPC-001 does
 > not own or instantiate its scoring carrier) and SD-22 (structural-semantic versus operational
 > derivation rules). Everything else is revision 4, which the check ran against.
@@ -49,6 +63,10 @@ coach language can describe that game but cannot create additional structure."
 - **[C18]** Christian's decisions of 18 September on revision 2, quoted where used;
 - **[C18b]** Christian's second set of decisions of 18 September, on revision 3, quoted where used;
 - **[C19]** Christian's rulings of 19 September, after the conformance check, quoted where used;
+- **[C20]** Christian's rulings of 20 September on comparative claims, quoted where used;
+- **[C20b]** Christian's rulings of 20 September closing the collision exercise — operands, effective
+  value, assumed items, where a comparison lands, classification, gap versus collision, and the six
+  code sentences — quoted where used;
 - **[CV]** coverage measurement of 18 September (`docs/design/next-step-recommendation-2026-09-18.md`
   §4).
 
@@ -129,6 +147,14 @@ writes the field is proposal P-9.
 | SD-18 | Closed vocabularies are approved as an approach. Their contents are not frozen: once the schema is stable, they are reviewed independently against broader knowledge rather than optimized around this evidence set | every closed list (§4) | [C18] |
 | SD-19 | Reveal timing (IE-D007) and information holder (IE-D013, canonically ACCESS_HOLDER) are fields the representation must be able to express. Their presence authorizes no value for Variable Target; where its knowledge does not author them, they stay visibly unresolved or not authored | `informationRules[].dimensions` | [C18] |
 | SD-22 | A new derivation reading rule is not by itself a structural change. **Structural-semantic:** it changes the contract grammar, declaration statuses, source kinds, the eight areas, the relationship model, or the meaning of support. **Operational:** it makes an already-defined relationship deterministic without changing what can be represented or what support means. Only the first can reverse the structural-stability verdict. This replaces the earlier test condition, which counted any new support-reading rule as structural | the stability test; the LOCAL/STRUCTURAL test in the grammar sheet §6 | [C19] |
+| SD-23 | **What may be an operand of a comparison.** Either a represented game property, or "a deterministically derived quantity whose inputs are supported represented game properties". Two limits, in his words: "Do not add region value as a stored Game Representation row merely to support this case", and "A derived quantity may compute relationships among represented environmental properties. It may not derive learner/ecological states such as pressure, opportunity, affordance availability, difficulty or uncertainty" | `COMPARES` items; derivation spec §4.4 | [C20b] |
+| SD-24 | **Effective value, provisionally:** "primary-event base value after application of all applicable resolved value modifiers for the referent." With two conditions: "A value modifier must explicitly declare its operation/type. Do not infer multiplier versus increment", and "If an operation or magnitude required for the derivation is unauthored, effective value is not computable" | new field `V9a` (the modifier's operation); `V9` stays its magnitude | [C20b] |
+| SD-25 | **Base value of a scoring event:** "A qualifying primary scoring event has a base value of one point unless an authoritative selected contribution explicitly modifies that value." His note: "This is a scoring convention, not football knowledge" | `value.primaryEvent.baseValue`; retires the code sentence in KR-05 §5b | [C20b] |
+| SD-26 | **Where a comparison lands.** "Do not force a comparative relationship onto one operand's ordinary property line. The comparison is a relationship assertion evaluated over its operands. It may remain outside the eight stored Game Representation areas as part of contribution/reconciliation evaluation." If its operands cannot be resolved or computed, it is "not evaluable/unmet according to its requirement status". Two authoritative, well-formed, mutually incompatible comparative requirements produce an **unresolved relationship conflict**. "No ninth Game Representation area is authorized" | derivation spec §4.4, §6.1 | [C20b] |
+| SD-27 | **An assumed item may not create an authoritative collision with authored knowledge.** "Assumed-vs-authored may be reported diagnostically as a possible tension, but it cannot drive UNRESOLVED." An interpretation consistent with an object's prose is not promoted to canonical meaning; if comparative value is truly part of an object's meaning, it is authored explicitly later | derivation spec §6 | [C20b] |
+| SD-28 | **Gap before collision.** "A collision requires well-formed, support-capable authoritative claims with sufficiently resolved operands/properties." Therefore an unauthored or incomputable dependency is a **gap first**, and only contradictory authoritative evaluable claims give an unresolved collision. "An invented or assumed comparative cannot manufacture an authoritative collision" | derivation spec §6 | [C20b] |
+| SD-29 | **Classification of the comparative extension:** "a bounded structural-semantic extension to the contribution/derivation grammar, not merely an operational reading rule. The Game Representation data shape remains stable. What changed is the grammar's ability to express and evaluate relationships among represented properties." Recorded as that distinction, and **not** as a weakening of the data-model stability finding | the stability test; qualifies SD-22 for this case | [C20b] |
+| KR-05 | **The six sentences held in code, ruled individually.** 1–4 retire as legacy realization wording, and "beyond the first defenders" is not promoted. 5a retires; existing scoring-event knowledge owns it. 5b becomes SD-25. 5c: the code sentence retires, `long clearance` is the canonical internal term, SD-15's free qualitative judgement attaches to it, and "long kick" may remain coach-facing wording rather than a canonical matching term. 6 retires: RPC-001's build-out episode is not converted into every attacking episode, and own-half restart placement is not inferred. The resulting **carrier placement** and **build-out restart placement** questions "remain explicit knowledge gaps. Do not fill them from legacy code" | `COACH_RULES`; RPC-001's contract items | [C20b] |
 | SD-21 | Wording held in code (formerly P-8): "Code, prompts, tests, templates and coach-rule sentences do not count as authored knowledge merely because they exist. They may be evidence of previous design intent and candidates for ratification, but they cannot support a resolved property until deliberately authored into an appropriate knowledge source or standing decision." The coach-rule sentences are not audited wholesale; those a check depends on are surfaced, to be classed later as ratify, standing decision or retire | every contract item's `basis` | [C18b] |
 
 ### Rejected, recorded so it is not reintroduced

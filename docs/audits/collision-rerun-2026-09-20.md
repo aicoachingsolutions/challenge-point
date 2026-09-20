@@ -182,4 +182,40 @@ classification, and it is his to close.
 Unchanged and worth keeping, in his words: **reconciliation can only expose conflicts that have first
 been expressed in the grammar.** AM-16 expressed one that was previously inexpressible. It did not, on
 its own, make the grammar catch it — that took rules about where a comparison lands, which is a
-different kind of question and is his to rule on.
+different kind of question and was his to rule on.
+
+---
+
+## 7. How he ruled, and what it does to everything above
+
+He closed the collision exercise on 20 September, and **three of the rulings go against rules I had
+written.** They are better than mine, and the record should say why.
+
+| Residual | His ruling | Effect here |
+|---|---|---|
+| What may be an operand | Either a represented property **or a deterministically derived quantity whose inputs are supported properties**. No region-value row. No derivation of learner or ecological states | The worked items become well-formed. The word *supported* is load-bearing — see below |
+| Effective value | His provisional definition, plus: a modifier **must declare its operation**, and an unauthored operation or magnitude makes effective value **not computable** | The one new field in the representation, `V9a` |
+| Where a comparison lands | **Not on a property line.** A relationship assertion evaluated over its operands, outside the eight areas. No ninth area | **My reaches-line rule is withdrawn** |
+| Assumed items | **Cannot create an authoritative collision.** Diagnostic "possible tension" only | Wide Zone's comparative, which was my reading of its prose, can no longer drive anything unresolved |
+| Gap versus collision | A collision needs well-formed, authoritative, evaluable claims. Unauthored or incomputable → **gap first** | See below |
+| Classification | A **bounded structural-semantic extension to the contribution/derivation grammar**, not an operational reading rule; the data shape stays stable | Recorded as SD-29. The stability finding is not weakened, it is qualified precisely |
+
+**What the worked case now produces.** The wide modifier's magnitude is unstated and its operation was
+never declared, so effective value is not computable on either side; the comparison is unmet or not
+evaluable by requirement status; and the line is a **gap**. Not a collision. **That is the right
+answer, and my rules gave the wrong one** — they turned "nobody authored this magnitude" into "two
+objects disagree", on a line whose modifier's own existence is unauthored too.
+
+**The fabricated-comparative problem is closed**, as he intended: an invented or assumed comparative
+cannot manufacture an authoritative collision, so no single sentence can stop a game.
+
+**What is left of this report's findings.** The gains in §2 stand: the claim is expressible, both sides
+surface, the silent-acceptance configuration is closed, the boundary held, and AM-17 created nothing.
+The §3 finding that the two claims were never named as opposed stands as a description of the run. What
+does not stand is my remedy for it, and the residuals in §5 are now answered — by him, not by me.
+
+**His closing words on the exercise:** *"I consider the collision exercise complete as an architectural
+test. We have demonstrated that the grammar can express comparative relationships and identified the
+semantic conditions under which they may legitimately participate in reconciliation."* And on the
+hypothetical: *"I don't want to keep forcing the hypothetical Wide Zone × central-weighting example to
+prove an authored collision that does not currently exist."* No further replay is run.

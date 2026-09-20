@@ -42,6 +42,25 @@ rulings could reverse it:
 
 Completeness of the knowledge base was not the criterion. No knowledge gap counts against the verdict.
 
+**Both were ruled, and the verdict stands** (20 September).
+1. KR-04 settled the carrier: RPC-001 does not own or instantiate it, and no conditional contract
+   structure is added. AM-25 is closed.
+2. SD-22 settled derivation rules in general, and **SD-29 settles this case in particular**. The
+   comparative extension is *"a bounded structural-semantic extension to the contribution/derivation
+   grammar, not merely an operational reading rule. The Game Representation data shape remains stable.
+   What changed is the grammar's ability to express and evaluate relationships among represented
+   properties."*
+
+**That distinction is the point, and it is recorded rather than smoothed over.** Something
+structural-semantic did happen — the grammar can now express a relationship between properties, which
+it could not before. It happened **inside the contribution and derivation grammar**, and it left the
+representation alone: the same eight areas, the same four statuses, the same source kinds, the same
+declaration mechanism, and no ninth area. One field was added to an existing collection, a value
+modifier's declared operation (SD-24), which is LOCAL by the grammar sheet's own test.
+
+So the data-model stability finding is **not weakened**. It is stated more exactly: *the Game
+Representation is stable; the contribution/derivation grammar took a bounded extension.*
+
 ## What was run
 
 | Stage | What | Result |

@@ -65,25 +65,32 @@ A path names one register row, plus a **selector** when the row sits in a collec
 | `basis` | `AUTHORED` (quote the knowledge verbatim and give its source id); `ASSUMED` (state the assumption); `OWNER_RULING` (cite the ruling id); or `ENGINE_ONLY` (RC-12) |
 | `checkability` | `STRUCTURAL`, `PARTLY_STRUCTURAL` (write out which clause is structural), `OUTSIDE_BOUNDARY` |
 
-**A comparative claim (`COMPARES`, adopted 20 September).** A contract may state a relationship between
-two properties the game holds: value(A) greater than value(B), count(A) equal to count(B), width(A)
-greater than width(B). Write it as `{ row, selector, operator, rightRow, rightSelector }`, with the
-operator from `=`, `≠`, `<`, `≤`, `>`, `≥`.
-- Both sides must be properties the resolved game contains and can evaluate. Never an inferred player
-  state or ecological outcome: not pressure, opportunity, affordance availability, difficulty or
-  uncertainty. A claim about those is recorded `OUTSIDE_BOUNDARY`.
+**A comparative claim (`COMPARES`, adopted 20 September and closed by his rulings the same day).** A
+contract may state a relationship between two things the game holds: value(A) greater than value(B),
+count(A) equal to count(B), width(A) greater than width(B). Write it as
+`{ left: <operand>, operator, right: <operand> }`, with the operator from `=`, `≠`, `<`, `≤`, `>`, `≥`.
+
+**An operand is one of two things** (SD-23):
+- a **represented game property** — `{ row, selector }`; or
+- a **deterministically derived quantity whose inputs are supported represented game properties** —
+  `{ derived: <named rule>, args }`. Effective value (SD-24) is the one such rule today.
+
+- A derived quantity may compute relationships among represented environmental properties. It may
+  **not** derive a learner or ecological state — pressure, opportunity, affordance availability,
+  difficulty, uncertainty. A claim about those is recorded `OUTSIDE_BOUNDARY`.
+- **Its inputs must be supported, not merely stated.** A derived operand computed from an unsupported
+  property is not computable, and the comparison is then unmet or not evaluable.
 - A comparative narrows; it never entails a value or an element's existence.
 - **Do not write a comparative as an exclusion.** "Wide has greater task value than central" is a
   relationship, not "central value is forbidden".
-- **A comparative lands on a line, and can collide there.** Where it reduces to a bound on one property
-  the game has a line for, it bounds that line; two comparatives bounding one line with no value between
-  them make it unresolved, and no authored relationship rule can decide it unless an object owns one.
-  So a comparative is not a free remark: adding one can stop a game that otherwise resolves. Write it
-  only where the object's knowledge genuinely asserts the relationship, and mark the basis honestly —
-  `ASSUMED` if the comparand is your reading rather than the object's words.
-- **Open, and it affects how you write one:** no row holds a region's value, so a value comparison over
-  regions cannot yet be written in the `{row, selector}` form above. Record the item as best you can and
-  add a `SCHEMA` ledger entry. Do not invent a row.
+- **A comparative takes no line** (SD-26). It is evaluated over its operands, outside the eight areas;
+  it never changes a property's status and it adds no area. Two *authoritative, well-formed, evaluable*
+  comparative requirements that nothing satisfies raise an **unresolved relationship conflict**.
+- **Mark the basis honestly.** An `ASSUMED` comparative — one where the comparand is your reading rather
+  than the object's words — can never produce that conflict (SD-27). It is reported as a **possible
+  tension** instead. Do not upgrade a reading to `AUTHORED` to make it bite.
+- **A value modifier must declare its operation** (row `V9a`): multiply, add or replace. Never leave it
+  to be inferred from the magnitude. An undeclared operation makes effective value not computable.
 
 **Selecting an existing element (AM-17).** A region's **lateral** position (wide-left, wide-right, wide,
 central, full-width) and a value modifier's **referents** are registered selector attributes, so a

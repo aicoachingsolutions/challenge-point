@@ -1,8 +1,30 @@
-# The six sentences held in code — classification, for Christian's ruling
+# The six sentences held in code — **ruled** by Christian, 20 September
 
-20 September 2026. Paper only. Christian: classify each "as authored domain knowledge / Christian
-standing decision / retire as legacy realization wording", and "don't promote 'beyond the first
-defenders' into canonical RPC-001 knowledge simply because the existing code used it."
+20 September 2026. Paper only. He asked for each to be classified "as authored domain knowledge /
+Christian standing decision / retire as legacy realization wording", with "don't promote 'beyond the
+first defenders' into canonical RPC-001 knowledge simply because the existing code used it." **He has
+now ruled on all six (KR-05, and SD-25 for 5b).** His rulings are recorded at the top of each section;
+the analysis below them is the recommendation he ruled on, kept as the reasoning.
+
+## His rulings, in his words
+
+| # | Ruling |
+|---|---|
+| 1–4 | "RETIRE as legacy realization wording. Do not promote 'beyond the first defenders.'" |
+| 5a | "RETIRE. Existing scoring-event knowledge owns it." |
+| 5b | "STANDING DECISION — one point per qualifying primary scoring event unless authoritatively modified." Registered as **SD-25**: "A qualifying primary scoring event has a base value of one point unless an authoritative selected contribution explicitly modifies that value. This is a scoring convention, not football knowledge" |
+| 5c | "RETIRE the code sentence. Use canonical `long clearance` internally. Attach SD-15's free qualitative judgment to `long clearance`; `long kick` may remain coach-facing wording rather than a canonical matching term." |
+| 6 | "RETIRE. Do not convert RPC-001's build-out episode into every attacking episode, and do not infer own-half restart placement." |
+
+**And on the gaps this leaves:** "The resulting unanswered carrier placement and build-out
+restart-placement questions remain explicit knowledge gaps. **Do not fill them from legacy code.**"
+
+**One consequence worth stating plainly.** SD-25 does more than retire a sentence. The primary event's
+base value was the input every region's effective value is computed from, and its only evidence was the
+retired sentence — so before SD-25 no value comparison was computable at all. Adopting it is what makes
+the comparative machinery usable, not just tidy.
+
+---
 
 These are only the sentences the conformance check actually depended on. Each row gives what the
 sentence asserts, what the knowledge already authors, what rested on it, my recommendation, and what
@@ -101,7 +123,14 @@ authoring, and it is his.
 | 5c | The long-kick exclusion | Retire; already authored as "long clearance" |
 | 6 | "Start each attack from your goalkeeper…" | Retire; contradicts KR-03 and adds an unauthored placement |
 
-**Nothing is promoted into canonical RPC-001 knowledge.** Five of the six are recommended for retirement
-and one for a standing decision. Three genuine authoring gaps are named rather than filled: where a
-carrier sits relative to the progression line, where a build-out restart is taken from, and the base
-value of a scoring event if he prefers it authored rather than decided.
+**Nothing is promoted into canonical RPC-001 knowledge.** He ruled five retired and one a standing
+decision, as recommended. Of the three authoring gaps named here, one is closed by his own decision
+(the base value, SD-25) and **two remain open by his explicit instruction**: where a carrier sits
+relative to the progression line, and where a build-out restart is taken from. His words: "remain
+explicit knowledge gaps. Do not fill them from legacy code."
+
+**What retiring them means in practice**, so nobody has to guess: the sentences stay in the codebase
+until the freeze lifts and are recorded as `ENGINE_ONLY`, supporting nothing (SD-21). Retirement is a
+knowledge ruling, not a code change, and no code changes while implementation is frozen. When it lifts,
+the four setup sentences and sentence 6 are removed from the rule text a coach sees, 5a and 5c are
+rendered from the authored condition rather than restated, and the base value comes from SD-25.
