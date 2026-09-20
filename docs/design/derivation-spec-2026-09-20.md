@@ -141,7 +141,10 @@ examples he gave: value(A) > value(B), count(A) = count(B), width(A) > width(B).
 
 **Form.** A `COMPARES` item names a left property (row and selector), an operator from `=`, `≠`, `<`,
 `≤`, `>`, `≥`, and a right property (row and selector). It may also compare an aggregate over
-selector-matched elements at its scope.
+selector-matched elements at its scope — **but no aggregate function is named** (each, some, the sum,
+the greatest). Where a selector matches several elements whose values differ, the rules do not say what
+the operand is. It did not bite in the worked case only because both matching regions carry the same
+modifier. Open.
 
 **Relation.** It narrows. **It never entails a value, and it never entails existence.** A comparison
 constrains a relationship between properties that other items or the session must establish. It is
@@ -151,6 +154,9 @@ constrains a relationship between properties that other items or the session mus
 value satisfies can meet:
 1. Reduce the comparison using the stated derivation rules (for regions, effective value below). If it
    reduces to a bound on **one** property the game holds, the item reaches **that property's line**.
+   **"Holds" means the game has a line for that property** — not that the line carries a value. A bound
+   on an unstated value is the ordinary case, and reading it the other way would make this rule
+   unreachable in exactly the case it was written for.
    *(Example: `eff(wide) > eff(central)` reduces, where only the wide side carries a modifier, to
    "magnitude > 1" on the modifier's magnitude line.)*
 2. If it does not reduce to one property, the item reaches the line of its **left operand** — the
@@ -173,11 +179,30 @@ recorded outside the boundary, not forced onto a row.
 or to a value derived by a stated rule from rows it holds. Where an operand does not resolve, the item
 is reported **not evaluable** in the forward list. It is never quietly satisfied.
 
+**Not evaluable and still a bound — my reading, flagged.** "Not evaluable" covers two different
+failures: *no value* (the line exists, the game leaves it unstated) and *no line* (neither operand
+reaches one). In the first case the item still constrains that line, so it is reported not evaluable as
+a forward check **and** remains a live bound for §6. In the second it is a forward result only. Nothing
+he ruled on says this, and the distinction decides whether an unstated value with two contradictory
+bounds is a collision or a gap. **His.**
+
+**Operand form — open, and it blocks his own first example.** AM-16 as adopted makes each operand a
+register row plus a selector. **No row holds a region's value**, so `value(A) > value(B)` — his first
+example — cannot be written in that form. The rerun's items used a derived operand
+(`effectiveValue(...)`) instead. Either a derived operand is legitimate, or a region's value becomes a
+row. Both are his call, and until one is taken, the worked case here is ill-formed against the grammar
+sheet it was drafted from.
+
 **Effective value, for comparisons over regions.** The effective value of a region is the primary
 event's base value, as changed by the magnitude of every value modifier whose referents include that
 region. A region no modifier names takes the base value. **This derivation is my reading, flagged for
 him:** it is what makes "wide has greater task value than central" evaluable when only one side carries
 a modifier.
+
+**And the magnitude's own kind is not fixed.** V9 may be a multiplier or an increment; the register has
+said both. The same claim then bounds the same line differently — magnitude > 1 under one reading,
+magnitude > 0 under the other. The contradiction in the worked case survives either reading, but the
+arithmetic is a choice the documents leave open. Flagged, not taken.
 
 **A comparative is not an exclusion.** Christian: "I do not want Wide Zone's comparative meaning
 translated into mutual exclusions. 'Wide has greater task value than central' is a relationship, not
@@ -262,6 +287,11 @@ bounds it, including an assumed item and a comparative. Inert items never collid
 outside the boundary, and typical examples. *(This definition is mine, added after the rerun, which
 found "support-capable" undefined for bound-only items. Operational under SD-22.)*
 
+**A precedence consequence worth his attention.** §2 takes the first verdict that applies, and
+`UNRESOLVED` sits above `NOT_AUTHORED`. So on a line nobody authored, two contradictory comparatives
+turn "no one has said what this is" into "two objects disagree". The second reads like a knowledge
+conflict; the first is the truth about the game. I have not changed the order — it is his.
+
 **A collision** is two in-scope, support-capable items on one line that no single value satisfies.
 Overlapping bounds intersect and do not collide. Only an authored relationship rule, or SD-06, SD-07 or
 SD-08, decides one; otherwise the line is unresolved (SD-02). A displaced preferred default is adapted,
@@ -288,6 +318,11 @@ did not survive, "rather than satisfied", to keep Realization ≠ Mention in bot
 | Existence-type item | its cardinality check (§4.3) |
 | A comparative whose operand does not resolve | **not evaluable** — reported, never quietly satisfied (§4.4) |
 
+**Take the first row that applies**, as in §2. Without an order, a required comparative with an absent
+operand is claimed by both *unmet* and *not evaluable*, and the two say different things: one blames
+the game, the other says the check could not be run. *Not evaluable* wins, because it is the truthful
+one. *(The ordering is mine, added after the rerun. Operational, and reversible.)*
+
 **FLAGGED (third).** An absence that §8 records as valid has no verdict in §2's table. Both derivers hit
 it and forced a verdict. I propose recording it as `VALID_ABSENCE`, which is a line outcome, not a
 support record, and not one of the four statuses.
@@ -308,6 +343,13 @@ element there. Don't manufacture positive support for absence merely from silenc
 So an absence is recorded as **valid** when no support-capable item entails an element on that row at
 that scope, and as **unmet** against each item that does. It is never entailed by silence, and an
 absence is never a positive support record.
+
+**A mismatch with §6, flagged rather than patched.** §6 makes an item support-capable when it *entails
+or bounds* a value; this section keys a valid absence on **entailment alone**. A comparative never
+entails, so on this section's own words an absent value that two contradictory comparatives bound reads
+as a *valid* absence. §2's ordering puts UNRESOLVED first, so the verdict comes out right — but the two
+tests are written to different standards and should be reconciled deliberately, not by ordering. I have
+not chosen which one gives way.
 
 ## 9. Transitions
 
@@ -354,3 +396,19 @@ count.
 - The six sentences held in code, to be classified individually after the collision test.
 - AM-16 to AM-24 and AM-26 remain local operational amendments "unless one proves to require a
   structural-semantic change during design".
+- **Whether two of my post-rerun rules are structural, and so are not covered by SD-22.** SD-22 counts a
+  change as structural-semantic when it changes "the contract grammar, declaration statuses, source
+  kinds, the eight areas, the relationship model, or the meaning of support". *Which line a comparison
+  reaches* touches the relationship model; *what counts as support-capable* touches the meaning of
+  support. I have written both as operational. If he reads either as structural, the conformance check's
+  verdict — stable with local amendments — weakens on that point, and I would rather he decide that than
+  have me classify my own work favourably.
+- **Whether an assumed item can collide with an authored one**, which is what this case turns on.
+- **The operand form for a value comparison**, and the magnitude's kind (§4.4).
+- **Whether anything screens a comparative for whether its knowledge is real** before it can drive a
+  line to unresolved. In the worked case one invented sentence carrying basis AUTHORED was enough, and
+  §6's deciding set cannot unpick it, because deciding requires an authored relationship rule. As the
+  rules stand, any modified property can be made unresolved by one fabricated comparative. That is the
+  cost of letting comparatives collide, and it is worth his eyes.
+- **Whether a collision should outrank an unauthored gap on the same line** (§6).
+- **Whether §6's and §8's tests for a live item should be reconciled** (§8).

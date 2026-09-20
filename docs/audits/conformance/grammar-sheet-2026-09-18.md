@@ -75,6 +75,15 @@ operator from `=`, `≠`, `<`, `≤`, `>`, `≥`.
 - A comparative narrows; it never entails a value or an element's existence.
 - **Do not write a comparative as an exclusion.** "Wide has greater task value than central" is a
   relationship, not "central value is forbidden".
+- **A comparative lands on a line, and can collide there.** Where it reduces to a bound on one property
+  the game has a line for, it bounds that line; two comparatives bounding one line with no value between
+  them make it unresolved, and no authored relationship rule can decide it unless an object owns one.
+  So a comparative is not a free remark: adding one can stop a game that otherwise resolves. Write it
+  only where the object's knowledge genuinely asserts the relationship, and mark the basis honestly —
+  `ASSUMED` if the comparand is your reading rather than the object's words.
+- **Open, and it affects how you write one:** no row holds a region's value, so a value comparison over
+  regions cannot yet be written in the `{row, selector}` form above. Record the item as best you can and
+  add a `SCHEMA` ledger entry. Do not invent a row.
 
 **Selecting an existing element (AM-17).** A region's **lateral** position (wide-left, wide-right, wide,
 central, full-width) and a value modifier's **referents** are registered selector attributes, so a
