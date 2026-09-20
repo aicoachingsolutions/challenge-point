@@ -81,10 +81,10 @@ Each stage names what it refuses. A refusal is never a default and never a best 
 
 | # | Stage | What it does | What it refuses |
 |---|---|---|---|
-| 0 | **Load** | Reads contracts, register, vocabularies, envelope. No allowlist projection; every field kept | An unknown row id, requirement kind, operator or derived-operand rule; a missing basis quote; a comparative written as an exclusion; a magnitude with no declared operation (SD-30). The contract is **rejected whole**, with the reason named |
+| 0 | **Load** | Reads contracts, register, vocabularies, envelope. No allowlist projection; every field kept. Checks every enumerated value against the register's `vocabularies` block **as data** | An unknown row id, requirement kind, operator, scope, basis, declaration, derived-operand rule or vocabulary value; a missing basis quote; a comparative written as an exclusion; a magnitude with no declared operation (SD-30). **That contract is rejected whole and the run continues with the rest** — a refusal is per contract, never a halt, or one mistyped value would annihilate the report |
 | 1 | **Normalise** | Resolves every structural reference — in selectors **and in item values** — through registered identity (SD-32). Records what each selector denotes, before any derivation | Anything that will not resolve: reported as a **reference defect** against the contract that wrote it. Never matched by meaning, never inferred |
-| 2 | **Index** | Builds the line inventory: one line per (element, row), one per member for set-valued rows. Views are computed on read, never stored | — |
-| 3 | **Scope** | Fixes each contract's **application set** per scope. Own involvement is fixed before any own-involvement item applies (AM-13). **Declarations are held beside the items, not inside them** (SD-31) | — |
+| 2 | **Index** | Builds the line inventory: one line per (element, row), one per member for set-valued rows, **and only where the row applies to that element** (the register's new `applicability` block). Views are computed on read, never stored | A row whose applicability condition cannot be evaluated: the line is enumerated and reported, rather than assumed inapplicable |
+| 3 | **Scope** | Fixes each contract's **application set** per scope. Own involvement is fixed in **one restricted pass** (below) before any own-involvement item applies (AM-13). **Declarations are held beside the items, not inside them** (SD-31) | An own-involvement item that would reach what it itself entails |
 | 4 | **Reach** | Matches items to lines: row equality plus selector satisfaction | — |
 | 5 | **Derive** | Per line: entailment, bounds, cardinality by necessity (§4.3), standing decisions (§4.8), permitted free choice (§5) | A free choice on a row with no `fillable` entry, or a count fill with no authored maximum: **refused**, surplus reported unsupported |
 | 6 | **Classify** | One verdict per line, first that applies (§2), with its reason code. Gap before collision (SD-28) | — |
@@ -93,6 +93,27 @@ Each stage names what it refuses. A refusal is never a default and never a best 
 | 9 | **Reverse** | Gate B reverse: every resolved property traced back to a support-capable source; anything else is invented | — |
 | 10 | **Gates** | Gate A structural coherence; Gate B forward and reverse. **Both always run**, even when one has already failed | A Gate A check it cannot evaluate: fails and names the pair, rather than inferring |
 | 11 | **Emit** | Assembles the result, stamped with every version | — |
+
+### 3.1 The one circularity in the pipeline, and how it is broken
+
+AM-13 defines own involvement as **the elements entailed by the contract's other-scoped items** — but
+entailment is derived at stage 5, after scope at stage 3. Read naively the pipeline needs its own
+output. An adversarial review of this design found it, and it matters because it is the computation
+that decides the Wide Zone outcome he ruled on in SD-31.
+
+**The break is a restricted pass, defined precisely so it cannot become a fixed-point search:**
+1. Run stages 4 and 5 over **only that contract's items at other scopes** — whole game, per team, per
+   objective set. These cannot depend on own involvement, so the pass terminates in one iteration.
+2. **Fix** the own-involvement element set from what that pass entails.
+3. Run the full derivation. Own-involvement items now apply against a set that cannot grow.
+
+**Two properties this must have, and they are test obligations:** the restricted pass and the full pass
+must agree on every line the restricted pass judged, and no ordering of contracts may change the fixed
+set. **The residual risk, stated rather than hidden:** a standing decision fires only on a line already
+entailed or legitimately chosen (§4.8), so a decision that would fire in the full pass might not fire in
+the restricted one. I believe this cannot change an own-involvement set, because standing decisions
+supply values rather than element existence — but "I believe" is not a proof, so the engine **compares
+the two passes and reports a divergence as a defect** rather than silently preferring one.
 
 **Render fidelity (SD-05 / P5) is deliberately outside this engine.** It compares coach text against a
 resolved game, so it belongs after rendering. Putting it here would require the engine to know about
@@ -219,11 +240,52 @@ just classified carefully, and the right moment to consider one is when a real o
 
 ---
 
+## 10. Three things in the data that block implementation, not design
+
+The adversarial review of this design found these, and each was verified directly against the
+artefacts. None changes the design; each has to be true of the data before an engine built to this
+design can run at all.
+
+**1. The closed vocabularies were not data.** Thirteen closed lists existed only inside the register's
+`valueType` prose — "closed list (draft): ACCESS, COUNT_CHANGE" and so on — so the load-time check in
+stage 0 had nothing to check against, and would have had to parse prose, which SD-32 rules out in
+spirit. **Fixed:** the register now carries a `vocabularies` block holding every list verbatim, plus
+the contract enumerations. The prose is unchanged and still the human reading. This changes their
+**form**, not their membership, so SD-18's "contents not frozen" is untouched.
+
+**2. Conditional applicability was also prose, and it would have made Gate A unpassable.** Rows T2 to
+T5 read "N/A when CONTINUE"; V14b applies only to an ACCESS consequence, V14c only to COUNT_CHANGE.
+Enumerating a line regardless would give **every** turnover transition four permanently unclosable
+`NOT_AUTHORED` lines — and under his SD-20 turnovers continue play, so that is the common case, not an
+edge. **Fixed the same way:** an `applicability` block, read from the register's own prose, adding no
+new rule. Whether applicability belongs in the register like this or needs its own mechanism is his.
+
+**3. The contract corpus uses a scope the register does not hold.** Six items and declarations carry
+`BUILD_OUT_EPISODE`; the closed list is whole game, per team, per objective set and own involvement.
+A new scope value is VOCABULARY class by the grammar sheet's own test, so **I have not added it** —
+recorded and put to him. Until he rules, a contract carrying it is refused at load, which is the engine
+behaving correctly rather than a workaround. Separately, **64 items and declarations carry an em-dash
+placeholder where a scope belongs**, which is a contract-authoring defect from the restatement
+exercise rather than a vocabulary question.
+
+**What these three have in common** is worth more than the fixes: each is a place where the register
+reads correctly to a person and cannot be executed by a machine. That gap is exactly what building the
+engine converts from a latent problem into a visible one, and it is a good argument for the design
+review he has asked for happening against data an engine could actually consume.
+
 ## What this needs from him
 
 1. **Choice 1 in §8** — whether the engine emits open free choices or fills them. It changes the output
    contract, so it is worth settling before anything is built.
-2. A yes or no on the other five choices, or silence read as assent if he prefers.
-3. Confirmation that §9's limits are understood as limits rather than as work items.
+2. **`BUILD_OUT_EPISODE` as a sixth scope** (§10.3) — a VOCABULARY decision, and six items in the
+   corpus already depend on it.
+3. A yes or no on the other five choices in §8, or silence read as assent if he prefers.
+4. Confirmation that §9's limits are understood as limits rather than as work items.
+
+**And one note on method.** This design was drafted, then attacked by an independent review whose job
+was to find where it guesses. It found the scope circularity in §3.1 and all three data problems in
+§10; every one was verified against the artefacts before being written up here. Two of its findings I
+rejected on checking — it read a figure from the 19 September check as current, which SD-30 forbids,
+and it treated a refusal as a representational limit.
 
 Nothing is implemented. Generation remains frozen.

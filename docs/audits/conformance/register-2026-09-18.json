@@ -116,6 +116,46 @@
     "notAnExclusion": "A comparative claim is not translated into a mutual exclusion. 'Wide has greater task value than central' is a relationship; it is not 'central value is forbidden' [C20]",
     "stillOpen": "No aggregate function is named (each, some, the sum, the greatest) for a comparison ranging over several matched elements. An engine refuses such a comparison rather than choosing one"
   },
+  "vocabularies": {
+    "note": "Added 20 September. Every closed list the register held ONLY inside a valueType prose string is extracted here verbatim, so the engine can check a value against data rather than parse prose. The valueType strings are unchanged and remain the human reading. Contents are still unfrozen (SD-18); this changes their FORM, not their membership.",
+    "draft": "Lists marked (draft) in valueType are drafts here too. A draft list is still closed for checking: a value outside it is refused, not admitted as an extension.",
+    "S3.noun": ["band", "channel", "corridor", "zone", "half", "third"],
+    "S4.functions": ["objective-area", "value-condition", "access", "start-placement", "trigger", "perceptual-reference"],
+    "O2.kind": ["ball", "goal", "line", "gate"],
+    "trigger": ["START", "SCORE", "OUT_END_LINE", "OUT_TOUCHLINE", "POSSESSION_CHANGE", "REGION_ENTRY", "TIME_EXPIRY", "STANDING"],
+    "triggerQualifiers": { "REGION_ENTRY": "a region reference (T1c)", "TIME_EXPIRY": "a time-window reference" },
+    "triggerRows": ["T1", "V12", "V17", "V24"],
+    "T5.method": ["STATIONARY_BALL", "SERVED", "IN_HAND"],
+    "T6.playState": ["STOP_RESUME", "CONTINUE"],
+    "V4.conditionType": ["origin", "control", "eligibility", "progression", "exclusion"],
+    "V8a.conditionType": ["region", "object", "event"],
+    "V9a.operation": ["MULTIPLY", "ADD", "REPLACE"],
+    "V13.effect": ["ACCESS", "COUNT_CHANGE"],
+    "V26.expiryEffect": ["POSSESSION_CHANGE", "RESTART", "ACCESS", "COUNT_CHANGE", "VALUE_CHANGE", "NONE"],
+    "J4.role": ["PRIMARY_SCORING", "REPRESENTATIVE"],
+    "contractEnums": {
+      "requirement": ["EQUALS", "RANGE", "COUNT", "EXISTS", "NOT_EXISTS", "POSITIONED", "ORIENTED", "COMPARES"],
+      "strictness": ["REQUIRED", "SUPPORTING", "EXCLUSION"],
+      "valueStatus": ["REQUIRED_RANGE", "PREFERRED_DEFAULT", "TYPICAL_EXAMPLE", "N/A"],
+      "scope": ["WHOLE_GAME", "PER_TEAM", "PER_OBJECTIVE_SET", "OWN_INVOLVEMENT"],
+      "basis": ["AUTHORED", "ASSUMED", "OWNER_RULING", "ENGINE_ONLY"],
+      "checkability": ["STRUCTURAL", "PARTLY_STRUCTURAL", "OUTSIDE_BOUNDARY"],
+      "declaration": ["CLAIMED", "EXCLUDED", "NON_CLAIMED", "NOT_AUTHORED", "UNDECLARED"]
+    },
+    "scopeGap": "MEASURED 20 September and NOT silently fixed: the stage-B contracts use a sixth scope, BUILD_OUT_EPISODE, on 6 items and declarations, and it is in no closed list. A new scope value is VOCABULARY class by the grammar sheet. Until Christian rules, a contract carrying it is REFUSED at load - which is the engine behaving correctly, not a workaround. 64 more carry an em-dash placeholder where a scope belongs, which is a contract defect rather than a vocabulary question."
+  },
+  "applicability": {
+    "note": "Added 20 September. Some FIELD rows do not apply to every element of their collection, and the register stated that ONLY inside valueType prose. Without this as data, line enumeration creates lines no author can ever close and Gate A can never pass. A row listed here yields NO line for an element whose condition fails; it is not NOT_AUTHORED, it is not applicable.",
+    "T2": "applies only when T6 playState is STOP_RESUME (RC-20)",
+    "T3": "applies only when T6 playState is STOP_RESUME",
+    "T4": "applies only when T6 playState is STOP_RESUME",
+    "T5": "applies only when T6 playState is STOP_RESUME",
+    "V14a": "applies to a consequence whose V13 effect is ACCESS or COUNT_CHANGE, as its team designation",
+    "V14b": "applies only when V13 effect is ACCESS",
+    "V14c": "applies only when V13 effect is COUNT_CHANGE",
+    "whyItMatters": "Under SD-20 turnovers continue play, so a POSSESSION_CHANGE transition has playState CONTINUE and T2 to T5 do not apply to it. Enumerating them anyway would give every such transition four permanently unclosable NOT_AUTHORED lines.",
+    "flagged": "These conditions are read from the register prose as it stands; none is a new rule. Whether applicability belongs in the register this way, or needs its own mechanism, is for Christian."
+  },
   "teamDesignations": {
     "note": "Canonical list for this run (RC-22). Two designations are equal only if they map to one entry. A designation is evaluated at the trigger or episode it is attached to.",
     "list": ["TEAM_<id> (a named team)", "EACH_TEAM", "STARTING_TEAM", "ATTACKING_TEAM (in possession for the episode)", "DEFENDING_TEAM", "SCORING_TEAM", "CONCEDING_TEAM", "WON_BALL (team that won possession at the trigger)", "LOST_BALL", "LAST_TOUCH (team that touched the ball last)", "NOT_LAST_TOUCH", "BUILD_OUT_TEAM (team whose build-out episode it is)"]
