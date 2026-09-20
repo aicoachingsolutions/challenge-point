@@ -467,13 +467,25 @@ count.
 - **AM-13 needs AM-17.** Every one of Wide Zone Advantage's region items is scoped to its own
   involvement, and no item of its at another scope entails a region. Under AM-13 that scope is empty, so
   the contract can no longer reach its own wide channels: ten lines fall to invented or unauthored, and
-  nine of its items go unmet. AM-17's lateral selector attribute lets those items work at whole-game
-  scope. Christian adopted AM-17 on 20 September.
-  **Corrected after the rerun:** I claimed AM-17 rescues those lines. It did not, because four of its
-  five lateral values had no interval test and the one that existed over-matched, so a lateral selector
-  normalised to nothing (AM-12). The tests are now written into the register, and the orientation terms
-  are renamed to lengthwise and crosswise so they no longer collide with the lateral attribute. **The
-  rescue is now computable in principle. It has not been re-derived, so I am not claiming it works.**
+  nine of its items go unmet. Christian adopted AM-17 on 20 September.
+
+  **Re-derived 20 September, on his instruction, and the claim was wrong twice over.** I first said
+  AM-17 rescues those lines. After the rerun I said the rescue failed because the lateral values had no
+  interval tests, and was "computable in principle" once they were written. Two independent derivations
+  of the eight affected lines now agree: **the tests are complete and correct, and no verdict moves.**
+  The register was never the obstacle.
+
+  **Why the rescue does not happen.** Not one item in any of the eight contracts carries a lateral
+  selector — the word appears only in fit notes — and every one of Wide Zone's region items is at
+  own-involvement scope. §4.5 says a contract **can** select regions from whole-game scope; that is a
+  capability offered to a contract author. Derivation never rewrites an authored selector or scope on an
+  author's behalf, and AM-12 forbids supplying one by interpretation. **So AM-17 is usable and unused,
+  and the remedy is authoring — restating the contract — not derivation.**
+
+  **What the completed tests did fix:** all five values now have tests; the over-match is cured, so the
+  full-width regions (the area and both halves) are no longer matched as wide or central; and the
+  orientation terms are renamed lengthwise and crosswise so they no longer collide with the lateral
+  attribute.
 - **AM-05 overrides AM-01's worked example.** I told him AM-01 would make the attacking team of Team A's
   north zone entailed. Under his AM-05 ruling it does not: the selector now matches two objectives
   against a minimum of one, so the item entails neither. AM-01 still changes that item's forward result

@@ -131,11 +131,21 @@ names no aggregate function (flagged open); and the grammar sheet, which is what
 actually works from, said nothing about a comparative reaching a line or colliding there — so a writer
 could not see that adding one can stop a game. That paragraph is now in it.
 
-**A correction to revision 5 of the specification.** I wrote there that AM-17 rescues the two wide
-channel existence lines, L21 and L27. It did not. A lateral selector normalised to nothing, because the
-values had no interval tests, so those lines stayed INVENTED. With the tests now written the rescue is
-**computable in principle and has not been re-derived** — I am not claiming it works, and §10 now says
-so.
+**A correction to revision 5 of the specification — and then a correction to the correction.** I wrote
+in revision 5 that AM-17 rescues the two wide channel existence lines, L21 and L27. It did not. After
+the rerun I said the reason was the missing lateral interval tests, and that with those written the
+rescue was computable in principle.
+
+**On his instruction the affected lines were re-derived, by two independent derivations that agree on
+all eight. No verdict moves, and the register was never the obstacle.** Not one item in any of the
+eight contracts carries a lateral selector, and every Wide Zone region item is at own-involvement
+scope. AM-17 offers a capability to a *contract author*; derivation does not apply it on an author's
+behalf, and AM-12 forbids supplying a selector by interpretation. **AM-17 is usable and unused. The
+remedy is to restate the contract, which is authoring, and his.**
+
+What the completed tests did fix is real: all five lateral values now have interval tests, the
+over-match is cured — the area and both halves are full-width, no longer matched as wide or central —
+and the orientation terms are renamed so they stop colliding with the lateral attribute.
 
 ## 5. Residuals for his ruling
 
