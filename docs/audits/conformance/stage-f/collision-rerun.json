@@ -1,0 +1,259 @@
+﻿{
+    "runs":  [
+                 {
+                     "wideZoneComparative":  {
+                                                 "item":  "WIDEZONE-18, COMPARES: effectiveValue(space.regions[lateral IN {wide-left, wide-right}]) \u003e effectiveValue(space.regions[lateral = central]). SUPPORTING, WHOLE_GAME, STRUCTURAL. Both operands derive by the register\u0027s effectiveValue rule from V2 (base 1, line L161) and V9 (magnitude of each V7 modifier whose V8b referents contain the region).",
+                                                 "basis":  "ASSUMED. The relation is authored (\u0027earn an advantage\u0027, \u0027more valuable\u0027, visibility_effect \u0027increase\u0027); the right operand is not. \u0027Central\u0027 appears nowhere in Wide Zone\u0027s knowledge. The assumption: the comparison class of \u0027an advantage\u0027 is the remaining playable non-channel space, which in this game is central-corridor.",
+                                                 "evidence":  "soccer-module.rc1-v3.json:6713 setup_guidance \u0027Actions starting in or moving through the wide channel earn an advantage (bonus point, free restart, or scoring multiplier)\u0027; :6720 \u0027...wide areas should become more available and more valuable\u0027. Mirror is environmental-manipulations.ts:31-55, verbatim; constraints.ts holds only the pool-order id, not the object.",
+                                                 "note":  "The only verbatim spatial value ordering in the product is the opposite one, and it is ENGINE_ONLY: slot-mechanics-variations.ts:183 and coach-voice.ts:209. AM-16 also gives the unplaced WIDEZONE-09 a home as width(central residual) \u003e 0, which is his third example."
+                                             },
+                     "centralComparative":  {
+                                                "item":  "CW-H-10, COMPARES, HYPOTHETICAL: effectiveValue(space.regions[lateral = central]) \u003e effectiveValue(space.regions[lateral IN {wide-left, wide-right}]). REQUIRED, WHOLE_GAME, STRUCTURAL. Same two operands as WIDEZONE-18, operator reversed; nothing else in the hypothetical contract changed.",
+                                                "basis":  "AUTHORED (HYPOTHETICAL) - invented for this test only, from the test\u0027s own sentence \u0027Scoring in the central corridor is worth double.\u0027 No workbook holds it; do not cite, merge or promote. Its real-world twin is engine text that SD-21 keeps inert.",
+                                                "note":  "Written as a relationship, not as an exclusion of wide value, per his instruction. Its other items (CW-H-01/05/06) are restated with AM-17\u0027s condition.referents selector, so they address a central modifier the restated game does not hold and no longer land on mod-wide."
+                                            },
+                     "lines":  [
+                                   {
+                                       "line":  "L21 - channel-north, S2 existence",
+                                       "verdictBefore":  "INVENTED",
+                                       "verdictNow":  "RESOLVED:ENTAILED",
+                                       "why":  "AM-17 lets WIDEZONE-02.a (EXISTS) and -03 (COUNT 2) be restated with lateral IN {wide-left, wide-right} at WHOLE_GAME, escaping the own-involvement unit AM-13 empties. Two elements match a minimum of two, so neither is surplus and 4.3(2) entails each. Support comes from the existence item, not from the selector."
+                                   },
+                                   {
+                                       "line":  "L27 - channel-south, S2 existence",
+                                       "verdictBefore":  "INVENTED",
+                                       "verdictNow":  "RESOLVED:ENTAILED",
+                                       "why":  "Identical to L21; the two channels are symmetric and the adopted rules judge them alike. This is the AM-13/AM-17 interaction the spec flagged in section 10 working as he intended."
+                                   },
+                                   {
+                                       "line":  "L33 - central-corridor, S2 existence",
+                                       "verdictBefore":  "RESOLVED:ENTAILED (via CW-H-02/03)",
+                                       "verdictNow":  "INVENTED",
+                                       "why":  "Neither comparative touches it: 4.4 says COMPARES never entails existence and 4.5/AM-13 say selection never creates. The right operand identifies the corridor and leaves it unsupported. It returns to ENTAILED only if the hypothetical restates its own S2 EXISTS with lateral at whole-game scope - an existence item, not a selection."
+                                   },
+                                   {
+                                       "line":  "L183 - mod-wide, V7 existence",
+                                       "verdictBefore":  "RESOLVED:ENTAILED",
+                                       "verdictNow":  "NOT_AUTHORED(DECLARED_GAP)",
+                                       "why":  "The first test\u0027s silent rescue is closed. AM-17 adds condition.referents to V7, so CW-H-01 is restated \u0027referents contains lateral=central\u0027 and matches zero elements; it no longer entails mod-wide. Wide Zone\u0027s own V7 NOT_AUTHORED declaration reaches, so the line returns to its as-authored declared gap."
+                                   },
+                                   {
+                                       "line":  "L184 - mod-wide, V8a condition type",
+                                       "verdictBefore":  "RESOLVED:ENTAILED",
+                                       "verdictNow":  "NOT_AUTHORED(COVERAGE)",
+                                       "why":  "The type was carried only by 4.2\u0027s attribute carry from CW-H-01, which no longer reaches mod-wide. No V8a item remains, and Wide Zone, Neutral Player and Variable Target are all UNDECLARED for type=region."
+                                   },
+                                   {
+                                       "line":  "L185 - mod-wide, V8b referent channel-north",
+                                       "verdictBefore":  "UNRESOLVED (CW-H-05 vs WIDEZONE-11.a)",
+                                       "verdictNow":  "RESOLVED:ENTAILED, no collision",
+                                       "why":  "The first test\u0027s collision was an artifact of the word \u0027sole\u0027 and the union trick defeated it. With AM-17, CW-H-05 selects a central-referent modifier the game does not hold and never reaches this line; WIDEZONE-11.a alone entails the referent. Correct outcome: he did not want the comparative carried as a referent-level exclusion."
+                                   },
+                                   {
+                                       "line":  "L186 - mod-wide, V8b referent channel-south",
+                                       "verdictBefore":  "UNRESOLVED (CW-H-05 vs WIDEZONE-11.a)",
+                                       "verdictNow":  "RESOLVED:ENTAILED, no collision",
+                                       "why":  "Identical to L185. The whole referent-level collision path goes quiet, and the contradiction moves to where it belongs: two comparative claims over the same pair of represented properties."
+                                   },
+                                   {
+                                       "line":  "L187 - mod-wide, V9 magnitude",
+                                       "verdictBefore":  "RESOLVED:ENTAILED at \u0027a x2 multiplier\u0027",
+                                       "verdictNow":  "NOT_AUTHORED(DECLARED_GAP)",
+                                       "why":  "Second silent rescue closed: CW-H-06 restated with the referent selector matches no element, so a central x2 no longer becomes the wide modifier\u0027s magnitude. The game leaves V9 unstated, and this is the line both comparatives depend on - it is why each is reported not evaluable rather than satisfied or violated."
+                                   },
+                                   {
+                                       "line":  "L161 - primary event base value, V2 = 1",
+                                       "verdictBefore":  "NOT_AUTHORED(ENGINE_ONLY)",
+                                       "verdictNow":  "NOT_AUTHORED(ENGINE_ONLY), unchanged but newly load-bearing",
+                                       "why":  "A region no modifier names takes the base value, so L161 carries the central operand. The central side of both comparatives therefore resolves to a value whose own support is engine-only (RPC-001-20, \u0027One point per qualifying event\u0027)."
+                                   },
+                                   {
+                                       "line":  "WIDEZONE-18 - forward item, no line",
+                                       "verdictBefore":  "did not exist; the comparative was unplaced",
+                                       "verdictNow":  "not evaluable, Gate B forward",
+                                       "why":  "Before AM-16 the comparative was inexpressible, which was the first test\u0027s real finding. It is now placed and checked. Its left operand needs V9 (L187), which the game leaves unstated, so 4.4 reports it not evaluable. Never quietly satisfied - but never named as contradicting CW-H-10."
+                                   },
+                                   {
+                                       "line":  "CW-H-10 - forward item, no line",
+                                       "verdictBefore":  "did not exist; the comparative was unplaced",
+                                       "verdictNow":  "not evaluable, Gate B forward",
+                                       "why":  "Same two operands, same unresolved left side. Two forward results that cannot both hold under any single V9, reported independently. Section 1 gives a line per (element, row); no row holds a relationship, and 4.2/4.4 do not say which line a COMPARES reaches, so section 6 never runs on the pair."
+                                   }
+                               ],
+                     "reachesFailPath":  "PARTLY",
+                     "whereExactly":  "Gate B forward. Spec rev 5 line 507 checks every NARROWS bound at its scope, and 4.4 reports an unresolved operand as \u0027not evaluable\u0027, never quietly satisfied - so both items appear and Gate B does not pass. It is NOT an UNRESOLVED line: no row holds a relationship and no rule says which line a COMPARES reaches. Gate A fails only on pre-existing NOT_AUTHORED lines.",
+                     "canItStillHideSilently":  "No, not on value. Make central an additional referent of mod-wide and the effectiveValue rule gives eff(central) = eff(wide): both comparatives demand a strict inequality between equal quantities, so both are VIOLATED and named. With V9 still unstated both read not evaluable. Either way the first test\u0027s all-green outcome is closed. The referent-set widening itself stays unreported.",
+                     "boundaryRespected":  "Yes. Both operands are a region\u0027s effective value, from V2 (L161) and V9 (L187) of the V7 modifier whose V8b referents contain it - rows the game holds and can evaluate. Regions are S2 elements matched by lateral against S6 (0-6 and 24-30 touchline-adjacent; 6-24 holds the 15 m midline). No pressure, opportunity, availability, difficulty or uncertainty appears as an operand.",
+                     "am17CreatesNothing":  "Correct - it creates nothing. Every region the lateral selector reaches already exists: channel-north (L21), channel-south (L27), central-corridor (L33). L33 stays INVENTED although the right operand selects it. Where existence moves (L21/L27), it moves because Wide Zone\u0027s own EXISTS/COUNT items reach whole-game scope; 4.3\u0027s necessity rule does the work, not the selector.",
+                     "residualConcerns":  "Five. (1) No rule normalises operand order, so \u0027a\u003eb\u0027 and \u0027b\u003ca\u0027 never meet. (2) No rule says which line a COMPARES reaches; 4.3\u0027s precedent is forward-only, so reconciliation still cannot name the pair. (3) ASSUMED may not be \u0027support-capable\u0027 under section 6. (4) The effectiveValue derivation is the spec\u0027s own reading, unratified. (5) The right operand rests on INVENTED L33 and engine-only L161."
+                 },
+                 {
+                     "wideZoneComparative":  {
+                                                 "item":  "WZ-C1: COMPARES {row V9, selector condition.referents contains region[lateral=wide]} \u003e {rightRow V2, rightSelector *} - the wide modifier\u0027s magnitude exceeds the base event value. This is the only value comparative Wide Zone\u0027s text supports; \u0027value(wide) \u003e value(central)\u0027 has no authored sentence and I will not write it AUTHORED.",
+                                                 "basis":  "ASSUMED, not AUTHORED. setup_guidance says only \u0027earn an advantage\u0027; the nearest comparative is logic_usage_note \u0027more available and more valuable\u0027, which names no comparand. Spec s3 makes ASSUMED a bound that never entails.",
+                                                 "evidence":  "back/src/system/sport-module/soccer-module.rc1-v3.json, tl-v0-constraint-wide-zone-advantage: \u0027Actions starting in or moving through the wide channel earn an advantage (bonus point, free restart, or scoring multiplier).\u0027 Nothing in the object mentions central space or compares anything to it.",
+                                                 "note":  "WIDEZONE-09\u0027s real comparative is spatial - combined channel widths under E3, AM-16\u0027s width(A)\u003ewidth(B) - and it contradicts no value claim. Calling the value comparative AUTHORED would repeat the first test\u0027s \u0027sole referent\u0027 fiction: the collision manufactured, not found."
+                                             },
+                     "centralComparative":  {
+                                                "item":  "CW-C1 (HYPOTHETICAL): COMPARES {row V9, selector condition.referents contains region[lateral=central]} \u003e {rightRow V9, rightSelector condition.referents contains region[lateral=wide]}.",
+                                                "basis":  "HYPOTHETICAL AUTHORED, mirroring CW-H-05. The real product text (slot-mechanics-variations.ts:183; coach-voice.ts:209 \u0027Points are worth most through the middle, then wide, then deep\u0027) is ENGINE_ONLY and inert under SD-21, so as authored it still collides with nothing.",
+                                                "note":  "Its left operand matches zero elements: the game holds one modifier, mod-wide, whose referents are the two channels. A central-referent selector reaches no V9 line, so CW-C1 lands on no line WZ-C1 touches. Different selectors, different elements - the first test\u0027s failure mode repeated."
+                                            },
+                     "lines":  [
+                                   {
+                                       "line":  "L187 - mod-wide, V9 magnitude",
+                                       "verdictBefore":  "NOT_AUTHORED (DECLARED_GAP)",
+                                       "verdictNow":  "NOT_AUTHORED (DECLARED_GAP), plus one forward \u0027not evaluable\u0027",
+                                       "why":  "WZ-C1 narrows, never entails (s4.4). The game states V9 as \u0027UNSTATED (a multiplier; size unstated)\u0027, so the left operand does not resolve and the item is reported not evaluable. CW-C1\u0027s central selector matches no element, so only one bound reaches this line. One bound never collides; s2\u0027s UNRESOLVED needs two on one line."
+                                   },
+                                   {
+                                       "line":  "L185, L186 - mod-wide, V8b referents",
+                                       "verdictBefore":  "RESOLVED:ENTAILED",
+                                       "verdictNow":  "RESOLVED:ENTAILED, unchanged",
+                                       "why":  "No comparative reaches V8b. COMPARES never entails a referent and never entails existence, and neither comparative names V8b as an operand row. The membership disagreement the first test found is untouched by AM-16."
+                                   },
+                                   {
+                                       "line":  "L183 - mod-wide, V7 existence",
+                                       "verdictBefore":  "NOT_AUTHORED (DECLARED_GAP)",
+                                       "verdictNow":  "NOT_AUTHORED, unchanged",
+                                       "why":  "AM-16 and AM-17 are both explicitly non-creating. Nothing new entails a modifier, so every comparative on V9 is evaluated over an element the audit says nothing authors."
+                                   },
+                                   {
+                                       "line":  "L33, L34, L37 - central-corridor, S2/S3/S6",
+                                       "verdictBefore":  "INVENTED (both derivers)",
+                                       "verdictNow":  "INVENTED, unchanged",
+                                       "why":  "AM-17 lets a contract select the corridor; AM-13 stops it creating one. An EXISTS with lateral=central would not rescue it either: four elements match (L10/L15/L20/L37) against a minimum of one, so s4.3(2) entails none. Any central comparative\u0027s operand names an invented element."
+                                   },
+                                   {
+                                       "line":  "L161 - pe, V2 base value 1",
+                                       "verdictBefore":  "NOT_AUTHORED (ENGINE_ONLY / declared gap)",
+                                       "verdictNow":  "NOT_AUTHORED, unchanged",
+                                       "why":  "s4.4 evaluates against values the game holds, not values with support. The game holds V2=1, but both derivers gave L161 NOT_AUTHORED (its only evidence, RPC-001-20, is ENGINE_ONLY). So any \u0027satisfied\u0027 comparative here is computed from an unsupported number."
+                                   },
+                                   {
+                                       "line":  "L10, L15, L20 - area and both own halves, S6 = 0-30 m",
+                                       "verdictBefore":  "not implicated",
+                                       "verdictNow":  "newly matched by lateral=central",
+                                       "why":  "relativeTerms defines central as \u0027contains the axis midline across the width\u0027. The midline is 15 m; area 0-30, own-half-A 0-30 and own-half-B 0-30 all contain it, as does central-corridor 6-24. Nothing makes full-width exclude central, so lateral=central is a four-way match here."
+                                   },
+                                   {
+                                       "line":  "lateral=wide - no interval test in the register",
+                                       "verdictBefore":  "n/a",
+                                       "verdictNow":  "matches nothing, or over-matches five elements",
+                                       "why":  "relativeTerms holds only \u0027central\u0027 and \u0027touchline-adjacent\u0027. AM-17 registers five lateral values; four have no interval test. Under AM-12 an unregistered term matches nothing and is a restatement defect. Map wide to touchline-adjacent and it also catches area and both halves, which touch both touchlines: five elements, three wrong."
+                                   },
+                                   {
+                                       "line":  "Gate A overlapping-modifier rule (spec rev 5 line 438)",
+                                       "verdictBefore":  "idle (first test)",
+                                       "verdictNow":  "still idle",
+                                       "why":  "The rule needs two modifier elements whose conditions can hold at once. Comparatives create no element, so the game still holds one, mod-wide. AM-17\u0027s condition.referents selector lets a contract address a modifier; it does not make the game hold a second one."
+                                   }
+                               ],
+                     "reachesFailPath":  "PARTLY",
+                     "whereExactly":  "Gate B forward only. A REQUIRED comparative that is not evaluable is not \u0027satisfied by a property with derived support\u0027 (spec rev 5 line 507), so it fails - twice, in two unrelated contract entries. It never reaches UNRESOLVED: s2 needs two items on one line, and the two comparatives\u0027 left selectors pick different elements. Gate A fails on the 246 pre-existing NOT_AUTHORED lines, as before.",
+                     "canItStillHideSilently":  "Not silently - s4.4 forbids quiet satisfaction. But quieter: \u0027not evaluable\u0027 is absent from s7\u0027s result table and no gate treatment is defined, so it can be visible and non-blocking. And once a magnitude exists, two contradictory comparatives cannot both fail: the game has one state, so one is satisfied and one violated. A defect against one contract, never a named conflict between two.",
+                     "boundaryRespected":  "On operands, yes if both sides sit on V9/V2 - properties the game holds. Two risks. s4.4\u0027s effective value imputes base value 1 to central-corridor, whose functions are UNSTATED and which no value row touches: that asserts a property the resolved game does not contain. And s4.2 still permits EXCLUSION strictness on a COMPARES, which the grammar sheet forbids - check the item.",
+                     "am17CreatesNothing":  "Creates nothing: confirmed. COMPARES never entails existence, s4.5 says selection identifies, and AM-05 stops a lateral EXISTS entailing any of four matching elements. But AM-17 is under-specified: the register lists five lateral values and relativeTerms defines an interval test for one. It also collides in name with AM-22\u0027s \u0027lateral\u0027 (orientation), which L36\u0027s note already uses.",
+                     "residualConcerns":  "AM-16\u0027s form makes both operands register rows, but value(region) is no row - Christian\u0027s first example is unwritable as adopted. s6 needs two \u0027support-capable\u0027 items and s3 never says a NARROWS-only item qualifies; read strictly, no COMPARES yields UNRESOLVED. Making the two meet needs three unstated steps: bound both operand lines, reduce one side to a constant, lean on an unsupported V2."
+                 }
+             ],
+    "judged":  {
+                   "wideZoneComparative":  {
+                                               "item":  "WIDEZONE-18, COMPARES: effectiveValue(regions[lateral=wide]) \u003e effectiveValue(regions[lateral=central]). SUPPORTING, WHOLE_GAME. Under the register\u0027s own effectiveValue rule this reduces to one bound on one line the game holds: V9 at L187 must exceed 1. The reviewer\u0027s V9\u003eV2 form is not a rival claim; it is this claim after that reduction.",
+                                               "basis":  "ASSUMED, as both agents said. \u0027Earn an advantage\u0027 and \u0027more available and more valuable\u0027 name no comparand, and \u0027central\u0027 appears nowhere in Wide Zone\u0027s knowledge. Under s3 an ASSUMED item is \u0027a bound only; never entails\u0027, so whether it is \u0027support-capable\u0027 for s6 is doubtful - which alone would stop any COMPARES reaching UNRESOLVED.",
+                                               "evidence":  "soccer-module.rc1-v3.json:6713 setup_guidance \u0027Actions starting in or moving through the wide channel earn an advantage (bonus point, free restart, or scoring multiplier)\u0027; :6720 \u0027wide areas should become more available and more valuable\u0027. :6713 also: \u0027Channels are reference markers - players can choose to use them or not.\u0027",
+                                               "note":  "WIDEZONE-09 does get a home under 4.4\u0027s aggregate clause, but in the reviewer\u0027s form, not the deriver\u0027s: the contract ledger says it needs \u0027the two channels\u0027 combined S6 widths to stay under E3\u0027. That is his width(A)\u003ewidth(B) example. It is ASSUMED in the original too, and it contradicts no value claim."
+                                           },
+                   "centralComparative":  {
+                                              "item":  "CW-H-10, HYPOTHETICAL: effectiveValue(regions[lateral=central]) \u003e effectiveValue(regions[lateral=wide]). REQUIRED, WHOLE_GAME. I take the deriver\u0027s form over the reviewer\u0027s CW-C1, because CW-C1\u0027s left operand is a central modifier the game does not hold, so it reduces to nothing and cannot contradict anything.",
+                                              "basis":  "AUTHORED (HYPOTHETICAL) - invented for this test only, from \u0027Scoring in the central corridor is worth double.\u0027 Do not cite, merge or promote. Its real-world twin (slot-mechanics-variations.ts:183; coach-voice.ts:209 \u0027worth most through the middle, then wide, then deep\u0027) is ENGINE_ONLY and SD-21 keeps it inert.",
+                                              "note":  "Written as a relationship, not an exclusion, per his instruction. It reduces to V9 \u003c 1 on the very line L187 that WIDEZONE-18 reduces to V9 \u003e 1. That is a genuine contradiction over one quantity the game holds - the first test never got this far."
+                                          },
+                   "lines":  [
+                                 {
+                                     "line":  "L21 - channel-north, S2 existence",
+                                     "verdictBefore":  "INVENTED (AM-13 emptied own-involvement)",
+                                     "verdictNow":  "INVENTED - the AM-17 rescue is not derivable",
+                                     "why":  "Reviewer wins. The deriver\u0027s \u0027lateral IN {wide-left, wide-right}\u0027 has no interval test: S2 says lateral is matched by the register\u0027s relative terms, and relativeTerms holds only \u0027central\u0027 and \u0027touchline-adjacent\u0027. AM-12 bars semantic interpretation, so it normalises to nothing. Fall back to touchline-adjacent and five elements match a minimum of two, so 4.3(2) entails none."
+                                 },
+                                 {
+                                     "line":  "L27 - channel-south, S2 existence",
+                                     "verdictBefore":  "INVENTED (AM-13 emptied own-involvement)",
+                                     "verdictNow":  "INVENTED - the AM-17 rescue is not derivable",
+                                     "why":  "Identical to L21, and corroborated by the contract ledger\u0027s own SCHEMA note: \u0027touchline-adjacent does not name which touchline and S2 has no side attribute... Needs a side selector attribute or per-touchline relative terms.\u0027 AM-17 named the values; nobody authored the tests. So spec s10\u0027s promise that AM-17 rescues these lines does not yet hold."
+                                 },
+                                 {
+                                     "line":  "L33 - central-corridor, S2 existence",
+                                     "verdictBefore":  "INVENTED (both derivers, stage-f)",
+                                     "verdictNow":  "INVENTED, unchanged",
+                                     "why":  "Outcome agreed; the deriver\u0027s \u0027before\u0027 is wrong. CW-H-02 is OWN_INVOLVEMENT, and AM-13 empties the hypothetical\u0027s scope exactly as it empties Wide Zone\u0027s, so it never entailed L33. The reviewer also wins the counterfactual: an EXISTS at lateral=central would not rescue it, because four elements match a minimum of one and 4.3(2) entails none."
+                                 },
+                                 {
+                                     "line":  "L183 - mod-wide, V7 existence",
+                                     "verdictBefore":  "NOT_AUTHORED (DECLARED_GAP)",
+                                     "verdictNow":  "NOT_AUTHORED (DECLARED_GAP), unchanged",
+                                     "why":  "Reviewer\u0027s \u0027before\u0027 is right; stage-f records \u0027A and B agree\u0027 on this line, so the deriver\u0027s \u0027silent rescue closed\u0027 overstates a delta that was not there. AM-17 does work here, for a good reason: mod-wide\u0027s referents are 0-6 m and 24-30 m, neither contains the 15 m midline, so a restated \u0027referents contains lateral=central\u0027 matches zero modifiers."
+                                 },
+                                 {
+                                     "line":  "L184 - mod-wide, V8a condition type",
+                                     "verdictBefore":  "RESOLVED:ENTAILED (as-if-authored)",
+                                     "verdictNow":  "NOT_AUTHORED (COVERAGE)",
+                                     "why":  "Deriver\u0027s line; the reviewer does not cover it. 4.2\u0027s attribute carry is explicit - an item entailing an element entails each attribute its selector fixes with \u0027=\u0027 - and CW-H-01\u0027s condition.type=region fixed it. Restated with the referent selector, CW-H-01 reaches no modifier, so no V8a item remains on the line."
+                                 },
+                                 {
+                                     "line":  "L185, L186 - mod-wide, V8b referents",
+                                     "verdictBefore":  "RESOLVED:ENTAILED, no collision",
+                                     "verdictNow":  "RESOLVED:ENTAILED, unchanged",
+                                     "why":  "Reviewer wins the \u0027before\u0027 outright: stage-f\u0027s consolidated entry reads \u0027Reviewer upheld; no UNRESOLVED\u0027. The first test\u0027s V8b collision was an artifact of the word \u0027sole\u0027 and had already been struck out, so the deriver reports closing a collision that did not exist. The now-state is agreed, and it is what he asked for: no referent-level exclusion."
+                                 },
+                                 {
+                                     "line":  "L187 - mod-wide, V9 magnitude (the crux)",
+                                     "verdictBefore":  "RESOLVED:ENTAILED at x2 (as-if-authored)",
+                                     "verdictNow":  "NOT_AUTHORED (DECLARED_GAP), plus two not-evaluable bounds",
+                                     "why":  "Each \u0027before\u0027 is right on its own baseline; a rerun\u0027s baseline is the as-if-authored run, so the deriver\u0027s is the apt one. Now: the game states V9 \u0027UNSTATED (a multiplier; size unstated)\u0027. Both comparatives reduce to this one line - V9\u003e1 and V9\u003c1 - so the contradiction is real and single-line. Neither side is checkable, so both read not evaluable."
+                                 },
+                                 {
+                                     "line":  "L161 - primary event base value, V2 = 1",
+                                     "verdictBefore":  "NOT_AUTHORED (ENGINE_ONLY)",
+                                     "verdictNow":  "NOT_AUTHORED (ENGINE_ONLY), unchanged but load-bearing",
+                                     "why":  "Both agree. A region no modifier names takes the base value, so L161 carries the whole central operand. The central side of both comparatives is computed from a number whose only evidence is RPC-001-20, which SD-21 makes inert. 4.4 evaluates against what the game holds, not what has support, so the comparison runs on an unsupported number."
+                                 },
+                                 {
+                                     "line":  "L10, L15, L20 - area and both halves, S6 0-30 m",
+                                     "verdictBefore":  "not implicated",
+                                     "verdictNow":  "newly matched by lateral=central",
+                                     "why":  "Reviewer\u0027s find, verified. The register\u0027s \u0027central\u0027 test is \u0027contains the axis midline across the width\u0027; E3 is 30, so the midline is 15, and area 0-30, own-half-A 0-30 and own-half-B 0-30 all contain it, as does central-corridor 6-24. Nothing makes full-width exclude central, so any central EXISTS entails none of the four under 4.3(2)."
+                                 },
+                                 {
+                                     "line":  "lateral - four of five values have no interval test",
+                                     "verdictBefore":  "n/a",
+                                     "verdictNow":  "AM-17 registered, not yet computable",
+                                     "why":  "Reviewer\u0027s find, verified in two documents. The grammar sheet and S2 both list wide-left, wide-right, wide, central, full-width; relativeTerms defines only \u0027central\u0027 and \u0027touchline-adjacent\u0027. The one usable test over-matches, and \u0027lateral\u0027 collides in name with AM-22\u0027s \u0027lateral\u0027 (which way an element runs), already in use on L36."
+                                 },
+                                 {
+                                     "line":  "WIDEZONE-18 - forward item, no line",
+                                     "verdictBefore":  "did not exist; the comparative was unplaced",
+                                     "verdictNow":  "not evaluable; Gate B forward does not pass",
+                                     "why":  "This is the real gain, and it is his. Before AM-16 the claim was inexpressible, which was the first test\u0027s finding; it is now written and checked. Its left operand needs V9 (L187), which the game leaves unstated, so 4.4 reports it not evaluable and never quietly satisfied. But it is never named as contradicting CW-H-10."
+                                 },
+                                 {
+                                     "line":  "CW-H-10 - forward item, no line",
+                                     "verdictBefore":  "did not exist; the comparative was unplaced",
+                                     "verdictNow":  "not evaluable; Gate B forward does not pass",
+                                     "why":  "Same single unresolved operand, opposite direction. Two forward results that cannot both hold under any one V9, reported independently in two unrelated contract entries. Section 1 gives a line per (element, row); no row holds a relationship, and neither 4.2 nor 4.4 says which line a COMPARES reaches, so section 6 never runs on the pair."
+                                 },
+                                 {
+                                     "line":  "The all-green configuration - central as an extra referent",
+                                     "verdictBefore":  "every line entailed; the constraint silently dead",
+                                     "verdictNow":  "both comparatives violated and named, once V9 resolves",
+                                     "why":  "Deriver\u0027s point, and the most valuable single gain from AM-16. Name central an additional referent and the effectiveValue rule gives eff(central) = eff(wide); both claims demand a strict inequality between equal quantities, so both are violated and reported. The first test\u0027s all-green outcome is closed. With V9 unstated both read not evaluable instead."
+                                 }
+                             ],
+                   "reachesFailPath":  "PARTLY",
+                   "whereExactly":  "Gate B forward, spec rev 5 line 507. CW-H-10 is REQUIRED and is not \u0027satisfied by a property with derived support\u0027; WIDEZONE-18 is a NARROWS bound not shown to \u0027hold at its scope\u0027. Two clauses, two failures. It is NOT UNRESOLVED (s6): no rule maps a COMPARES onto a line, and s3 makes an ASSUMED item a bound only. Gate A fails separately on 246 pre-existing NOT_AUTHORED lines.",
+                   "canItStillHideSilently":  "Not on the value claim - 4.4 forbids quiet satisfaction and both items surface. Three quieter paths remain: the pair is never named as opposed, two rows among hundreds; \u0027not evaluable\u0027 has no row in s7\u0027s table, no gate treatment, so it can be visible yet non-blocking; once a magnitude exists, one comparative is satisfied and one violated - a defect against one contract, not a named conflict.",
+                   "boundaryRespected":  "Yes. Both operands reduce to V2 (L161) and V9 (L187), rows the game holds. No pressure, opportunity, availability, difficulty or uncertainty appears. eff(central)=base rests on a closed-world read of V8b, which s8 permits: mod-wide\u0027s referent list is stated and V7 holds one modifier. Defect: s4.2 and the register let a COMPARES exclude under EXCLUSION strictness; the grammar sheet forbids it.",
+                   "am17CreatesNothing":  "Correct, and AM-13 held. Every region a lateral selector reaches already exists; L33 stays INVENTED although the right operand selects it; the V7 referent selector identifies mod-wide without creating it. But AM-17 supports less than spec s10 promised: it does not rescue L21/L27, because four of its five values have no interval test and the fifth over-matches.",
+                   "residualConcerns":  "Four for him. (1) Which line a COMPARES reaches - the only thing blocking UNRESOLVED. (2) Ratify or reject the effectiveValue rule; without it his value(A)\u003evalue(B) example is unwritable. (3) Interval tests for wide-left/wide-right/wide/full-width; \u0027lateral\u0027 also collides with AM-22. (4) Is an ASSUMED item support-capable for s6? Minor: \u0027not evaluable\u0027 has no row in s7."
+               }
+}

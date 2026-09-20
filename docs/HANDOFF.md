@@ -2547,8 +2547,26 @@ closed-world absence.
 - **A fourth hiding mechanism:** unplaced. WIDEZONE-09 never became an item, yet the game's corridor
   lines cite it as provenance.
 
-**To him:** may a contract author a comparative value claim? If yes it needs a row and a kind (AM-16
-extended); if no, mutual exclusion becomes an authoring duty via exclusion items.
+**He answered that on 20 Sep: YES.** His rulings, all incorporated:
+- **AM-16 extended** as the minimum generalized comparison mechanism — value(A)>value(B),
+  count(A)=count(B), width(A)>width(B). **Never translated into mutual exclusions**; a comparative is a
+  relationship, not a prohibition. Preserve the distinction between changing the relative value or
+  availability of possibilities in the environment and prescribing the learner's solution.
+- **The comparison boundary stays inside represented game properties** — never pressure, opportunity,
+  affordance availability, difficulty or uncertainty. His test: "whether the comparison is between
+  properties the resolved game actually contains and can evaluate."
+- **AM-17 adopted**, with AM-13 preserved: selection does not entail existence.
+- **Cardinality: no schema change yet.** `not realized` approved. `valid absence` approved as a **line
+  outcome, not a Game status** — the four Game statuses stay as they are.
+- Retain: "Reconciliation can only expose conflicts that have first been expressed in the grammar."
+
+**The six code sentences are classified** (`docs/design/code-sentences-classification-2026-09-20.md`),
+awaiting his individual rulings: retire 1–4 (the "beyond the first defenders" setups — KR-04 already
+says RPC-001 does not instantiate its carrier, and RPC-PROP-132 authors the scoring condition); retire
+5a and 5c (5c is authored as "long clearance", while SD-15 names "long kick" — flagged); **5b needs a
+standing decision** (one point per qualifying event — no workbook authors any base value); retire 6
+("each attack" contradicts KR-03, and "in your own half" is an unauthored placement claim). Three
+authoring gaps are named, not filled.
 
 **Live behaviour worth checking when the freeze lifts:** the slot modifier carrying central weighting is
 attached to slot 1 of every Discovering Solutions session regardless of the selected constraint, so a

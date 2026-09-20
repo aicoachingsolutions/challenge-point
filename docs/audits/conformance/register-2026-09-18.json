@@ -16,7 +16,7 @@
     { "id": "E4", "path": "envelope.duration_min", "kind": "FIELD", "valueType": "number (minutes)", "sourceKinds": ["SESSION"] },
 
     { "id": "S1", "path": "space.axis", "kind": "FIELD", "valueType": "which envelope dimension is longitudinal", "sourceKinds": ["SELECTION", "SD-11"] },
-    { "id": "S2", "path": "space.regions[]", "kind": "COLLECTION", "selectorAttributes": ["noun", "functions"], "fillable": "element count above an authored COUNT/RANGE minimum and inside its maximum", "sourceKinds": ["SELECTION", "REALIZATION"] },
+    { "id": "S2", "path": "space.regions[]", "kind": "COLLECTION", "selectorAttributes": ["noun", "functions", "lateral"], "lateralValues": "closed list (draft, AM-17), each with its interval test against the element's position.across, on an envelope of width W with the midline at W/2. wide-left: touches the 0 touchline and does not contain the midline. wide-right: touches the W touchline and does not contain the midline. wide: either of those. central: contains the midline and touches neither touchline. full-width: touches both touchlines. An element matching none carries no lateral value. A lateral selector identifies an existing region; it never creates one (AM-13 preserved)", "fillable": "element count above an authored COUNT/RANGE minimum and inside its maximum", "sourceKinds": ["SELECTION", "REALIZATION"] },
     { "id": "S3", "path": "space.regions[].noun", "kind": "FIELD", "valueType": "closed list (draft): band, channel, corridor, zone, half, third", "sourceKinds": ["SELECTION"] },
     { "id": "S4", "path": "space.regions[].functions", "kind": "FIELD", "valueType": "set from closed list (draft): objective-area, value-condition, access, start-placement, trigger, perceptual-reference. One property per member", "sourceKinds": ["SELECTION"] },
     { "id": "S5", "path": "space.regions[].position.along", "kind": "FIELD", "valueType": "interval along the axis, in metres or relative (see relative terms)", "fillable": "metres and position inside authored bounds", "sourceKinds": ["SELECTION", "REALIZATION"] },
@@ -74,7 +74,7 @@
     { "id": "V4", "path": "value.primaryEvent.conditions[].type", "kind": "FIELD", "valueType": "closed list (draft): origin, control, eligibility, progression, exclusion", "sourceKinds": ["SELECTION"] },
     { "id": "V5", "path": "value.primaryEvent.conditions[].referents", "kind": "FIELD", "valueType": "references to regions, objects or placements; never a player's position during play. One property per referent", "sourceKinds": ["SELECTION"] },
     { "id": "V6", "path": "value.primaryEvent.conditions[].value", "kind": "FIELD", "valueType": "the condition's parameter: a threshold, a count, or a qualitative term (RC-5)", "sourceKinds": ["SELECTION"] },
-    { "id": "V7", "path": "value.valueModifiers[]", "kind": "COLLECTION", "selectorAttributes": ["condition.type"], "sourceKinds": ["SELECTION"] },
+    { "id": "V7", "path": "value.valueModifiers[]", "kind": "COLLECTION", "selectorAttributes": ["condition.type", "condition.referents"], "referentSelector": "condition.referents is matched with the contains operator, so one contract's region modifier can be addressed apart from another's (AM-17). Identifies; never creates", "sourceKinds": ["SELECTION"] },
     { "id": "V8a", "path": "value.valueModifiers[].condition.type", "kind": "FIELD", "valueType": "closed list (draft): region, object, event", "sourceKinds": ["SELECTION"] },
     { "id": "V8b", "path": "value.valueModifiers[].condition.referents", "kind": "FIELD", "valueType": "references to regions, objects or events; one property per referent", "sourceKinds": ["SELECTION"] },
     { "id": "V9", "path": "value.valueModifiers[].magnitude", "kind": "FIELD", "valueType": "number or multiplier", "sourceKinds": ["SELECTION"] },
@@ -98,6 +98,17 @@
     { "id": "V25", "path": "value.timeWindows[].duration", "kind": "FIELD", "valueType": "seconds; FREE (a) where the source leaves it to the coach inside authored bounds", "sourceKinds": ["SELECTION"] },
     { "id": "V26", "path": "value.timeWindows[].expiryEffect", "kind": "FIELD", "valueType": "closed list (draft): POSSESSION_CHANGE, RESTART, ACCESS, COUNT_CHANGE, VALUE_CHANGE, NONE", "sourceKinds": ["SELECTION"] }
   ],
+  "comparison": {
+    "note": "AM-16 as extended by Christian, 20 September: a contract may author a comparative claim between represented game properties. Requirement kind COMPARES.",
+    "form": "{ row, selector (the left element), operator, rightRow, rightSelector }, operator in { =, !=, <, <=, >, >= }",
+    "relation": "NARROWS. Never written with EXCLUSION strictness: a comparative is a relationship, not a prohibition [C20]. It never entails a value and never entails existence",
+    "reachesLine": "The line of its left operand. Two comparatives on one line that no single value satisfies collide (derivation spec s6). Added after the rerun; operational under SD-22",
+    "examples": ["value(A) > value(B)", "count(A) = count(B)", "width(A) > width(B)"],
+    "boundary": "Both operands must be properties the resolved game contains and can evaluate. Never an inferred player state or ecological outcome: not pressure, opportunity, affordance availability, difficulty or uncertainty",
+    "evaluability": "A comparison is evaluable only when both operands resolve to a value the game holds, or to a value derived by a stated rule from rows the game holds. Otherwise it is reported not evaluable, never quietly true",
+    "effectiveValue": "For value comparisons over regions: the effective value of a region is the primary event's base value (V2) multiplied or increased by the magnitude (V9) of each value modifier whose referents include that region. A region no modifier names takes the base value. This derivation is this specification's reading, flagged for Christian",
+    "notAnExclusion": "A comparative claim is not translated into a mutual exclusion. 'Wide has greater task value than central' is a relationship; it is not 'central value is forbidden' [C20]"
+  },
   "teamDesignations": {
     "note": "Canonical list for this run (RC-22). Two designations are equal only if they map to one entry. A designation is evaluated at the trigger or episode it is attached to.",
     "list": ["TEAM_<id> (a named team)", "EACH_TEAM", "STARTING_TEAM", "ATTACKING_TEAM (in possession for the episode)", "DEFENDING_TEAM", "SCORING_TEAM", "CONCEDING_TEAM", "WON_BALL (team that won possession at the trigger)", "LOST_BALL", "LAST_TOUCH (team that touched the ball last)", "NOT_LAST_TOUCH", "BUILD_OUT_TEAM (team whose build-out episode it is)"]
@@ -107,8 +118,10 @@
     "beyond X (for team T)": "the element's near edge is at or past X's far edge, in T's attacking direction",
     "own end (of team T)": "touches the end line T defends",
     "attacking end (of team T)": "touches the end line T attacks",
-    "central": "contains the axis midline across the width",
-    "touchline-adjacent": "touches a touchline"
+    "central": "contains the axis midline across the width, and touches neither touchline",
+    "touchline-adjacent": "touches a touchline",
+    "lengthwise": "the element's extent along the axis is at least its extent across it (AM-22; renamed from 'longitudinal' to avoid colliding with the lateral selector attribute)",
+    "crosswise": "the reverse of lengthwise (AM-22)"
   },
   "citableStandingDecisions": [
     { "id": "SD-06", "item": { "row": "V0", "requirement": "COUNT", "value": 1, "relation": "ENTAILS existence of exactly one primary event" }, "restrictsOnly": ["V7", "V11"], "note": "On V7 and V11 it only restricts (a value change must be explicitly authored); it supports nothing there" },

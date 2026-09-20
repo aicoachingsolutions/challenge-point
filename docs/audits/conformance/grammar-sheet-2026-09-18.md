@@ -57,13 +57,29 @@ A path names one register row, plus a **selector** when the row sits in a collec
 | `id` | the contract's own id for the item |
 | `row` | a register row id |
 | `selector` | a predicate, or `*` |
-| `requirement` | closed: `EQUALS`, `RANGE`, `COUNT`, `EXISTS`, `NOT_EXISTS`, `POSITIONED`, `ORIENTED` |
+| `requirement` | closed: `EQUALS`, `RANGE`, `COUNT`, `EXISTS`, `NOT_EXISTS`, `POSITIONED`, `ORIENTED`, `COMPARES` |
 | `value` | the required value or bound. A **set of alternatives** is written as a set and marked *ordered* only if the source orders it |
 | `strictness` | `REQUIRED`, `SUPPORTING`, `EXCLUSION`. An `EXCLUSION` item's value is the **forbidden** value, whatever its requirement kind |
 | `valueStatus` | `REQUIRED_RANGE` (outside is invalid), `PREFERRED_DEFAULT` (use when feasible, adapt to context), `TYPICAL_EXAMPLE` (informative only), or `N/A` when the item carries no value (RC-6) |
 | `scope` | `WHOLE_GAME`, `PER_TEAM`, `PER_OBJECTIVE_SET`, `OWN_INVOLVEMENT`. `PER_SIDE` is not used in this run (RC-23) |
 | `basis` | `AUTHORED` (quote the knowledge verbatim and give its source id); `ASSUMED` (state the assumption); `OWNER_RULING` (cite the ruling id); or `ENGINE_ONLY` (RC-12) |
 | `checkability` | `STRUCTURAL`, `PARTLY_STRUCTURAL` (write out which clause is structural), `OUTSIDE_BOUNDARY` |
+
+**A comparative claim (`COMPARES`, adopted 20 September).** A contract may state a relationship between
+two properties the game holds: value(A) greater than value(B), count(A) equal to count(B), width(A)
+greater than width(B). Write it as `{ row, selector, operator, rightRow, rightSelector }`, with the
+operator from `=`, `≠`, `<`, `≤`, `>`, `≥`.
+- Both sides must be properties the resolved game contains and can evaluate. Never an inferred player
+  state or ecological outcome: not pressure, opportunity, affordance availability, difficulty or
+  uncertainty. A claim about those is recorded `OUTSIDE_BOUNDARY`.
+- A comparative narrows; it never entails a value or an element's existence.
+- **Do not write a comparative as an exclusion.** "Wide has greater task value than central" is a
+  relationship, not "central value is forbidden".
+
+**Selecting an existing element (AM-17).** A region's **lateral** position (wide-left, wide-right, wide,
+central, full-width) and a value modifier's **referents** are registered selector attributes, so a
+contract can address an existing element from whole-game scope. Selecting never creates: existence still
+comes only from an existence item on the collection row.
 
 **Where authored knowledge lives (RC-10):**
 - **Authored:** the knowledge workbooks held as data — `sport-module/soccer-module.rc1-v3.json`,

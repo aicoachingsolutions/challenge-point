@@ -36,7 +36,7 @@ Every line gets exactly one verdict. Take the first that applies:
 | `NOT_AUTHORED(reason)` | required but unauthored; reason codes below |
 | `FREE(a)` | the authored source leaves the quantity to the coach and the game states the range |
 | `RESOLVED:NARROWED_CHOICE` | a legitimate free choice (§5) |
-| `INVENTED` | stated with no valid support (§4.4) |
+| `INVENTED` | stated with no valid support (§4.6) |
 
 **Reason codes, in this order** (AM-23): start procedure, post-score, out-of-play source missing; then
 alternatives, outside boundary, engine-only, assumed-only, each only where such an item bears on the
@@ -96,6 +96,7 @@ entries, and a game value written "(= entry)" counts as that entry.
 | `POSITIONED` | the interval satisfies it, by the register's relative terms | narrows |
 | `ORIENTED` | the orientation satisfies it | narrows |
 | `NOT_EXISTS` | absent | excludes: never supports |
+| `COMPARES` | the comparison holds between the two named properties | narrows (§4.4). **Never an exclusion:** a comparative is a relationship, not a prohibition [C20] |
 
 An item that entails an element also entails each attribute its selector fixes with `=` or `∋`; an
 attribute given with `∈` is only narrowed.
@@ -118,7 +119,7 @@ all-elements entitlement.
    entailed by it: each needs its own support — an item whose selector reaches that element and no
    other matching element of the surplus — or an authorised free choice under §5, within the bound.
 3. **Surplus with neither** is unsupported: `INVENTED`, or `NOT_AUTHORED` where a declaration reaches it
-   (§4.4).
+   (§4.6).
 
 This is neither of the readings he rejected. It introduces no ordering, and it does not turn a minimum
 into an entitlement for every matching element.
@@ -133,7 +134,73 @@ contains N elements matching P". Two consequences:
 If he wants cardinality to be a first-class property, that is a schema change — a cardinality line per
 (collection, selector) — and it needs his ruling before anyone builds it. I am not making it.
 
-### 4.4 A stated value with no support (AM-03, adopted)
+### 4.4 Comparative claims (AM-16 as extended, adopted 20 September)
+
+Christian: **"A contract may author a comparative claim between represented game properties."** The
+examples he gave: value(A) > value(B), count(A) = count(B), width(A) > width(B).
+
+**Form.** A `COMPARES` item names a left property (row and selector), an operator from `=`, `≠`, `<`,
+`≤`, `>`, `≥`, and a right property (row and selector). It may also compare an aggregate over
+selector-matched elements at its scope.
+
+**Relation.** It narrows. **It never entails a value, and it never entails existence.** A comparison
+constrains a relationship between properties that other items or the session must establish. It is
+**never written with exclusion strictness**: a comparative is a relationship, not a prohibition.
+
+**Which line it reaches.** A `COMPARES` item reaches a line, so that two comparatives that no single
+value satisfies can meet:
+1. Reduce the comparison using the stated derivation rules (for regions, effective value below). If it
+   reduces to a bound on **one** property the game holds, the item reaches **that property's line**.
+   *(Example: `eff(wide) > eff(central)` reduces, where only the wide side carries a modifier, to
+   "magnitude > 1" on the modifier's magnitude line.)*
+2. If it does not reduce to one property, the item reaches the line of its **left operand** — the
+   property it constrains.
+3. If neither operand resolves to a line, it reaches no line and is reported **not evaluable** in the
+   forward list only.
+
+Two comparatives that reach one line and that no single value satisfies collide, and §6 decides or
+reports them. *(This rule is mine, added after the rerun: without it, two contradictory comparatives
+were reported as two unrelated forward failures and never named as opposed. Operational under SD-22,
+and it depends on the effective-value reading below, which is also mine and also unratified.)*
+
+**The boundary.** Both operands must be properties the resolved game contains and can evaluate.
+Christian: not "inferred player states or ecological outcomes such as pressure, opportunity, affordance
+availability, difficulty, uncertainty". The test he gave: **"whether the comparison is between
+properties the resolved game actually contains and can evaluate."** An item comparing anything else is
+recorded outside the boundary, not forced onto a row.
+
+**Evaluability.** A comparison is evaluable only when both operands resolve to a value the game holds,
+or to a value derived by a stated rule from rows it holds. Where an operand does not resolve, the item
+is reported **not evaluable** in the forward list. It is never quietly satisfied.
+
+**Effective value, for comparisons over regions.** The effective value of a region is the primary
+event's base value, as changed by the magnitude of every value modifier whose referents include that
+region. A region no modifier names takes the base value. **This derivation is my reading, flagged for
+him:** it is what makes "wide has greater task value than central" evaluable when only one side carries
+a modifier.
+
+**A comparative is not an exclusion.** Christian: "I do not want Wide Zone's comparative meaning
+translated into mutual exclusions. 'Wide has greater task value than central' is a relationship, not
+equivalent to 'central value is forbidden.'" A contract states the relationship; the reconciler does not
+convert it into a prohibition, and a checker does not read it as one.
+
+**The principle behind the boundary**, in his words: preserve the distinction between *changing the
+relative value or availability of possibilities in the environment* and *prescribing the learner's
+solution*. "The representation may deterministically specify the former; it should not infer or encode
+the latter."
+
+### 4.5 Selecting an existing element (AM-17, adopted)
+
+A region's **lateral position** is a registered selector attribute, so a contract can select regions
+from whole-game scope instead of relying on its own involvement. A value modifier's **referents** are
+likewise selectable, so one contract's region modifier can be addressed apart from another's.
+
+**Selection does not entail existence** (AM-13 preserved). Christian: "AM-17 may identify an
+already-supported region; it must not create a wide region merely because a contract selects for one."
+So a lateral selector identifies; existence still comes only from an existence-type item on the
+collection row, judged by §4.3's necessity rule.
+
+### 4.6 A stated value with no support (AM-03, adopted)
 
 In order:
 1. **Invented** if an entailing source fixes a different, incompatible value.
@@ -144,12 +211,12 @@ In order:
 Engine-only evidence names a reason code, never the verdict. Christian: "I view this as failure
 classification after support derivation, not a change to what support means."
 
-### 4.5 A value the game leaves unstated (AM-08, adopted)
+### 4.7 A value the game leaves unstated (AM-08, adopted)
 
 "The support result records the entailed value; separately report that the provisional game omitted
 it." The line is entailed; the omission is a forward note.
 
-### 4.6 Standing decisions
+### 4.8 Standing decisions
 
 Only the citable ids in the register, as typed there. A standing decision's condition is met only by a
 value whose own verdict is entailed or a legitimate choice. A default yields only to an item that
@@ -190,6 +257,11 @@ reason alternatives. An authored order is recorded, not applied.
 
 Scope spreads a bound across units; it does not create them.
 
+**Support-capable**, for collisions, means an item that constrains the value: one that entails it or
+bounds it, including an assumed item and a comparative. Inert items never collide — engine-only,
+outside the boundary, and typical examples. *(This definition is mine, added after the rerun, which
+found "support-capable" undefined for bound-only items. Operational under SD-22.)*
+
 **A collision** is two in-scope, support-capable items on one line that no single value satisfies.
 Overlapping bounds intersect and do not collide. Only an authored relationship rule, or SD-06, SD-07 or
 SD-08, decides one; otherwise the line is unresolved (SD-02). A displaced preferred default is adapted,
@@ -214,6 +286,7 @@ did not survive, "rather than satisfied", to keep Realization ≠ Mention in bot
 | Partly structural | clause checked, with the clause's result |
 | Assumed item | checked as a bound |
 | Existence-type item | its cardinality check (§4.3) |
+| A comparative whose operand does not resolve | **not evaluable** — reported, never quietly satisfied (§4.4) |
 
 **FLAGGED (third).** An absence that §8 records as valid has no verdict in §2's table. Both derivers hit
 it and forced a verdict. I propose recording it as `VALID_ABSENCE`, which is a line outcome, not a
@@ -256,10 +329,13 @@ count.
 - **AM-13 needs AM-17.** Every one of Wide Zone Advantage's region items is scoped to its own
   involvement, and no item of its at another scope entails a region. Under AM-13 that scope is empty, so
   the contract can no longer reach its own wide channels: ten lines fall to invented or unauthored, and
-  nine of its items go unmet. The fix is AM-17's selector attribute (a region's lateral position, with
-  touchline identity), which lets those items work at whole-game scope. **AM-13 should not be adopted
-  without AM-17.** Christian kept AM-17 as a local amendment; this makes it verdict-relevant, so it is
-  his call whether to adopt it now.
+  nine of its items go unmet. AM-17's lateral selector attribute lets those items work at whole-game
+  scope. Christian adopted AM-17 on 20 September.
+  **Corrected after the rerun:** I claimed AM-17 rescues those lines. It did not, because four of its
+  five lateral values had no interval test and the one that existed over-matched, so a lateral selector
+  normalised to nothing (AM-12). The tests are now written into the register, and the orientation terms
+  are renamed to lengthwise and crosswise so they no longer collide with the lateral attribute. **The
+  rescue is now computable in principle. It has not been re-derived, so I am not claiming it works.**
 - **AM-05 overrides AM-01's worked example.** I told him AM-01 would make the attacking team of Team A's
   north zone entailed. Under his AM-05 ruling it does not: the selector now matches two objectives
   against a minimum of one, so the item entails neither. AM-01 still changes that item's forward result
