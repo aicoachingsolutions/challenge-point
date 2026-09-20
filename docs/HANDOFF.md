@@ -2606,6 +2606,27 @@ Registered as SD-23 to SD-29 and KR-05 (spec revision 6, `docs/design/derivation
 - **The worked case now resolves as a GAP, not a collision** — the right answer, and the opposite of
   what my rules gave.
 
+**The engine-design question is answered** (`docs/design/engine-design-readiness-2026-09-20.md`):
+**no true blocker**, on one condition — the engine is specified to **refuse rather than guess**. Eight
+refusals belong in its spec, chiefly: effective value with two applicable modifiers and no authored
+combination rule is **not computable** (the operations do not commute, so a fold order would be an
+invented answer that reads as supported). Three scoped items are his, one sentence each: whether
+own-involvement **declarations** empty with their items (31 items, 29 declarations across the eight
+contracts; it flips Wide Zone's channels between INVENTED and a declared gap); whether AM-12 extends to
+an element reference held in an item's **value** (today a prose reference misses silently); and the
+failure path, which does not block if the engine is **report-only**.
+- **His second comparison example cannot be written:** `count(A) = count(B)` needs cardinality to be a
+  property, and he ruled no schema change yet. No change proposed on a hypothetical.
+- **SD-10 could never fire as I typed it** — an EXISTS item whose value was the prose phrase
+  "functionally necessary". Retyped as what his ruling is, a prohibition on removal; the machine test
+  for necessity is flagged as his.
+- **AM-17 rederived** (two independent derivations agree, all eight lines): the lateral tests are
+  complete and correct, **no verdict moves**, and the register was never the obstacle — **no contract
+  carries a lateral selector at all**. AM-17 is usable and unused; the remedy is re-authoring the
+  contract, not derivation. My earlier claim was wrong twice over and the correction is in the record.
+- **`V9a` costs a line per modifier**, unauthored in the slice game — so "not computable" now has a line
+  the audit can point at. Games resolved before 20 Sep are short that line and need re-deriving.
+
 **The six code sentences are classified** (`docs/design/code-sentences-classification-2026-09-20.md`),
 awaiting his individual rulings: retire 1–4 (the "beyond the first defenders" setups — KR-04 already
 says RPC-001 does not instantiate its carrier, and RPC-PROP-132 authors the scoring condition); retire
