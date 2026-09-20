@@ -2606,6 +2606,28 @@ Registered as SD-23 to SD-29 and KR-05 (spec revision 6, `docs/design/derivation
 - **The worked case now resolves as a GAP, not a collision** — the right answer, and the opposite of
   what my rules gave.
 
+**20 Sep — derivation-engine DESIGN is authorized** (SD-30..SD-34, SD-10a; spec revision 7). **Design
+may begin; implementation stays frozen until he reviews the proposed design.** Proposal:
+`docs/design/derivation-engine-design-2026-09-20.md` — a pure function over loaded data, report-only
+(SD-33), with three property states (derived / open-with-bounds / failed), twelve stages each naming
+what it refuses, six typed failure kinds plus a diagnostic tension no gate reads, and versions in the
+output because SD-30 means a result is valid only for the versions it names.
+- **Open for him:** who fills a permitted free choice (proposed: the engine reports it open, a separate
+  realization step fills it), and whether `BUILD_OUT_EPISODE` becomes a sixth scope.
+- **The register was not executable.** Thirteen closed vocabularies and every conditional applicability
+  rule (T2–T5 "N/A when CONTINUE"; V14b ACCESS, V14c COUNT_CHANGE) lived only inside `valueType` prose.
+  Now `vocabularies` and `applicability` blocks — **form changed, membership untouched**. Left as it
+  was, applicability alone would have made Gate A unpassable for every turnover transition, which under
+  SD-20 is the common case.
+- **A sixth scope is in use and unregistered:** `BUILD_OUT_EPISODE` on 6 items; 64 more carry an em-dash
+  placeholder where a scope belongs (a contract defect, not a vocabulary question).
+- **The one circularity, found by attacking my own design:** own-involvement scope is defined by what
+  other-scoped items entail, and entailment comes later. Broken with a restricted one-iteration pass;
+  the engine compares both passes and reports divergence rather than preferring one.
+- **Cannot be represented** (§9): conditional requirements, either/or between whole layouts,
+  permissions conditioned on another object, example-only existence, aggregates across elements, and
+  comparative cardinality. Three share one shape — knowledge that says *when* a requirement is live.
+
 **The engine-design question is answered** (`docs/design/engine-design-readiness-2026-09-20.md`):
 **no true blocker**, on one condition — the engine is specified to **refuse rather than guess**. Eight
 refusals belong in its spec, chiefly: effective value with two applicable modifiers and no authored
