@@ -1,4 +1,8 @@
-# Game Representation Specification — revision 4, with Christian's ownership decisions
+# Game Representation Specification — revision 5, with Christian's ownership decisions
+
+> **Revision 5 (19 September)** adds his two rulings after the conformance check: KR-04 (RPC-001 does
+> not own or instantiate its scoring carrier) and SD-22 (structural-semantic versus operational
+> derivation rules). Everything else is revision 4, which the check ran against.
 
 18 September 2026. Paper only: no implementation, no generation. Revision 3 incorporated Christian's
 decisions on revision 2 ([C18]). Revision 4 adds his second set of decisions the same day ([C18b]):
@@ -44,6 +48,7 @@ coach language can describe that game but cannot create additional structure."
 - **[RT]** runtime read (`docs/design/shared-game-representation-runtime-read.md`);
 - **[C18]** Christian's decisions of 18 September on revision 2, quoted where used;
 - **[C18b]** Christian's second set of decisions of 18 September, on revision 3, quoted where used;
+- **[C19]** Christian's rulings of 19 September, after the conformance check, quoted where used;
 - **[CV]** coverage measurement of 18 September (`docs/design/next-step-recommendation-2026-09-18.md`
   §4).
 
@@ -123,6 +128,7 @@ writes the field is proposal P-9.
 | SD-17 | Session emphasis and slot templates stay outside the individual game. A structural property they require enters through the same contribution contract as any other selected knowledge. There is no separate route into generated activity language. Their role in variation across the three-activity set is a later question | §6 | [C18] |
 | SD-18 | Closed vocabularies are approved as an approach. Their contents are not frozen: once the schema is stable, they are reviewed independently against broader knowledge rather than optimized around this evidence set | every closed list (§4) | [C18] |
 | SD-19 | Reveal timing (IE-D007) and information holder (IE-D013, canonically ACCESS_HOLDER) are fields the representation must be able to express. Their presence authorizes no value for Variable Target; where its knowledge does not author them, they stay visibly unresolved or not authored | `informationRules[].dimensions` | [C18] |
+| SD-22 | A new derivation reading rule is not by itself a structural change. **Structural-semantic:** it changes the contract grammar, declaration statuses, source kinds, the eight areas, the relationship model, or the meaning of support. **Operational:** it makes an already-defined relationship deterministic without changing what can be represented or what support means. Only the first can reverse the structural-stability verdict. This replaces the earlier test condition, which counted any new support-reading rule as structural | the stability test; the LOCAL/STRUCTURAL test in the grammar sheet §6 | [C19] |
 | SD-21 | Wording held in code (formerly P-8): "Code, prompts, tests, templates and coach-rule sentences do not count as authored knowledge merely because they exist. They may be evidence of previous design intent and candidates for ratification, but they cannot support a resolved property until deliberately authored into an appropriate knowledge source or standing decision." The coach-rule sentences are not audited wholesale; those a check depends on are surfaced, to be classed later as ratify, standing decision or retire | every contract item's `basis` | [C18b] |
 
 ### Rejected, recorded so it is not reintroduced
@@ -148,6 +154,7 @@ during this step."
 |---|---|---|---|
 | KR-01 | Variable Target's authored 2–3 range is per objective set, not per layout. "A reciprocal game can legitimately instantiate 2–3 candidates for each team's objective set, even when that produces more than three physical targets across the whole game." The slice proposed re-authoring the range per set; KR-01 reaches the same scope by interpreting the existing authoring, with no knowledge change | VARTARGET-01: `scope = PER_OBJECTIVE_SET` | [C18] |
 | KR-02 | "Do not treat 'the scoring objective is active from the moment that team's attack begins' as authored RPC-001 knowledge." RPC-001 requires the representative build-out situation to exist from the beginning of the attacking episode, and the scoring objective to function within that episode. Christian does not currently see authored evidence that RPC-001 also requires the identity of a valid scoring target to be fixed or knowable at the first instant | RPC-001-11 restated (§5.5); the first clause bears on RPC-001-15 and RPC-001-16 (§11) | [C18] |
+| KR-04 | RPC-001 does not own or instantiate the physical carrier of its scoring event. "Its responsibility is to constrain/narrow the acceptable scoring-event identity for the representative context." The resolved game must independently contain a supported compatible carrier — line, zone, gates, target player — and the gates must establish that the chosen event can operate through it. "If selection produces an RPC-compatible scoring event for which no supported physical carrier exists, reconciliation fails/returns to selection. RPC-001 does not manufacture the carrier conditionally." No conditional contract structure is added for this (closes AM-25) | RPC-001-08 and RPC-001-09; §5.8 | [C19] |
 | KR-03 | "RPC-001's build-out requirement applies to the build-out episode, not automatically to every attacking episode in the activity … a turnover may begin a new attacking episode while play continues. Returning to a goalkeeper build-out requires an authored transition/reset rule; it should not be inferred simply from RPC-001 being selected." The former rule that every turnover stops play under RPC-001 is unsupported (formerly P-3's scope question) | RPC-001-11 and RPC-001-16 scoped to the build-out episode | [C18b] |
 
 ### Relationship rules in evidence
