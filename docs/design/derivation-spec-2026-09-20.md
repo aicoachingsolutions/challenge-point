@@ -72,6 +72,14 @@ predicate language before derivation. Unregistered prose selectors match nothing
 restatement defects. No semantic interpretation during derivation." The elements each selector denotes
 are recorded before derivation begins.
 
+**Which line an item reaches on a set-valued row.** §1 gives one line per member, and matching above is
+written per element. Nothing said how an item's value set maps onto member lines; the collision test
+found two competent readings of that silence. The rule, following AM-11: a value set the source marks
+"each" binds the member it names, so such an item reaches the line of that member and no other. An
+unmarked set is alternatives and reaches every member line as a bound. An item that names a member the
+game does not hold is reported unmet against that member (§7), never as a collision on another member's
+line.
+
 **Team designations (AM-01, adopted).** "Use the game's transitions/episode context to resolve
 contextual team designations. An episode-scoped designation remains episode-scoped." In a selector, a
 designation is met by each team the game's stated transitions make it at some trigger; the build-out
@@ -207,7 +215,11 @@ did not survive, "rather than satisfied", to keep Realization ≠ Mention in bot
 | Assumed item | checked as a bound |
 | Existence-type item | its cardinality check (§4.3) |
 
-**FLAGGED.** One case has no fitting label: a **supporting** item, not a preferred default and not a
+**FLAGGED (third).** An absence that §8 records as valid has no verdict in §2's table. Both derivers hit
+it and forced a verdict. I propose recording it as `VALID_ABSENCE`, which is a line outcome, not a
+support record, and not one of the four statuses.
+
+**FLAGGED (second).** One case has no fitting label: a **supporting** item, not a preferred default and not a
 typical example, whose value the game leaves absent. It is not satisfied (nothing was realised), not
 adapted (nothing displaced it), and not inert (it is real authored knowledge). I propose a result
 `NOT_REALIZED` for it, used only here. That is an addition to the item-result vocabulary in the audit
@@ -236,7 +248,28 @@ absence is never a positive support record.
   a free choice (SD-R2); a post-score procedure is necessary but has no universal default (SD-R3); an
   out-of-play restart is not authored, its source visibly missing (PSD-03).
 
-## 10. What is not decided here
+## 10. Known interactions, found by applying these rules
+
+Applying the adopted rules to the slice moved 34 of 210 lines. Three interactions matter more than the
+count.
+
+- **AM-13 needs AM-17.** Every one of Wide Zone Advantage's region items is scoped to its own
+  involvement, and no item of its at another scope entails a region. Under AM-13 that scope is empty, so
+  the contract can no longer reach its own wide channels: ten lines fall to invented or unauthored, and
+  nine of its items go unmet. The fix is AM-17's selector attribute (a region's lateral position, with
+  touchline identity), which lets those items work at whole-game scope. **AM-13 should not be adopted
+  without AM-17.** Christian kept AM-17 as a local amendment; this makes it verdict-relevant, so it is
+  his call whether to adopt it now.
+- **AM-05 overrides AM-01's worked example.** I told him AM-01 would make the attacking team of Team A's
+  north zone entailed. Under his AM-05 ruling it does not: the selector now matches two objectives
+  against a minimum of one, so the item entails neither. AM-01 still changes that item's forward result
+  from unmet to satisfied. The example I gave was right about the matching and wrong about the verdict.
+- **AM-05 bites hardest on objectives.** Four primary scoring objectives match a minimum of one, so none
+  is individually entailed; the four target zones' existence moves from entailed to unauthored. This is
+  his rule working as intended: the game must satisfy the cardinality, and identity needs its own
+  support.
+
+## 11. What is not decided here
 
 - The engine that applies these rules (after the collision test, by his direction).
 - Whether cardinality becomes a first-class property (§4.3).

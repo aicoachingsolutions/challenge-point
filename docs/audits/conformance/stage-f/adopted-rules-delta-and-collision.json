@@ -1,0 +1,1221 @@
+﻿{
+    "delta":  [
+                  {
+                      "kind":  "delta",
+                      "area":  1,
+                      "result":  {
+                                     "area":  1,
+                                     "linesChecked":  76,
+                                     "unchanged":  65,
+                                     "changes":  [
+                                                     {
+                                                         "lineId":  "L21",
+                                                         "row":  "S2 (channel-north existence)",
+                                                         "oldVerdict":  "RESOLVED:ENTAILED",
+                                                         "newVerdict":  "INVENTED",
+                                                         "rule":  "AM-13 (section 6, own involvement), with AM-05",
+                                                         "why":  "Wide Zone\u0027s own-involvement unit is fixed from its other-scoped items, WIDEZONE-01.a and 01.b on S1. An EXISTS on a field row entails no element and an assumed item never entails, so the unit holds no channel, and 02.a, 03 and 08.d may not use it to reach what they entail themselves. Nothing supports the channel; only NON_CLAIMED declarations reach S2, so 4.4(3) gives INVENTED."
+                                                     },
+                                                     {
+                                                         "lineId":  "L27",
+                                                         "row":  "S2 (channel-south existence)",
+                                                         "oldVerdict":  "RESOLVED:ENTAILED",
+                                                         "newVerdict":  "INVENTED",
+                                                         "rule":  "AM-13 (section 6, own involvement), with AM-05",
+                                                         "why":  "Identical to L21: the two channels are symmetric and the adopted rules judge them alike. WIDEZONE-02.a, 03 and 08.d all sit at own-involvement scope, whose unit is now empty, so no item reaches channel-south on S2. Only NON_CLAIMED declarations reach it, so the stated existence is INVENTED rather than a declared gap."
+                                                     },
+                                                     {
+                                                         "lineId":  "L22",
+                                                         "row":  "S3 (channel-north noun)",
+                                                         "oldVerdict":  "RESOLVED:ENTAILED",
+                                                         "newVerdict":  "INVENTED",
+                                                         "rule":  "AM-13 (section 6), with section 4.2 attribute carry",
+                                                         "why":  "WIDEZONE-02.b (S3 EQUALS channel) is own-involvement and now reaches no element, and the attribute carry from 02.a and 03 goes with it. GF2-03.b\u0027s selector (functions contains objective-area) is unmet. No entailing source, and no NOT_AUTHORED or UNDECLARED declaration reaches a channel on S3, so the stated noun is INVENTED."
+                                                     },
+                                                     {
+                                                         "lineId":  "L28",
+                                                         "row":  "S3 (channel-south noun)",
+                                                         "oldVerdict":  "RESOLVED:ENTAILED",
+                                                         "newVerdict":  "INVENTED",
+                                                         "rule":  "AM-13 (section 6), with section 4.2 attribute carry",
+                                                         "why":  "As L22. Deriver B additionally cited WIDEZONE-03 and 08.d here; both are own-involvement too, so the extra citations fall with 02.b. Only NON_CLAIMED declarations reach S3 for a channel."
+                                                     },
+                                                     {
+                                                         "lineId":  "L23",
+                                                         "row":  "S4 (channel-north function: perceptual-reference)",
+                                                         "oldVerdict":  "RESOLVED:ENTAILED",
+                                                         "newVerdict":  "NOT_AUTHORED(COVERAGE)",
+                                                         "rule":  "AM-13 (section 6), with section 4.2 and 4.4(2)",
+                                                         "why":  "The value was carried only by WIDEZONE-08.d\u0027s selector (noun=channel and functions contains perceptual-reference) under 4.2. AM-13 empties that item\u0027s scope, so nothing entails the function. RPC-001, A01-02 and Variable Target each declare S4 UNDECLARED with selector *, reaching the channels, so the line is NOT_AUTHORED(COVERAGE), as L24 and L30 already were."
+                                                     },
+                                                     {
+                                                         "lineId":  "L29",
+                                                         "row":  "S4 (channel-south function: perceptual-reference)",
+                                                         "oldVerdict":  "RESOLVED:ENTAILED",
+                                                         "newVerdict":  "NOT_AUTHORED(COVERAGE)",
+                                                         "rule":  "AM-13 (section 6), with section 4.2 and 4.4(2)",
+                                                         "why":  "As L23. The channel-south function was stated as identical in kind and was entailed only through 08.d\u0027s selector; with that item out of scope the UNDECLARED S4 declarations decide the line."
+                                                     },
+                                                     {
+                                                         "lineId":  "L25",
+                                                         "row":  "S5 (channel-north position along)",
+                                                         "oldVerdict":  "RESOLVED:NARROWED_CHOICE",
+                                                         "newVerdict":  "INVENTED",
+                                                         "rule":  "AM-13 with section 5.2 (AM-10 unchanged)",
+                                                         "why":  "A free choice needs existence entailed or itself a legitimate choice (5.2). Channel existence is now INVENTED, and S2\u0027s fillable entry needs an authored COUNT/RANGE minimum that nothing reaching the channels supplies. The WIDEZONE-07 and 10.a bounds are own-involvement and no longer reach. Only NON_CLAIMED declarations reach S5, so 4.4(3) gives INVENTED."
+                                                     },
+                                                     {
+                                                         "lineId":  "L31",
+                                                         "row":  "S5 (channel-south position along)",
+                                                         "oldVerdict":  "RESOLVED:NARROWED_CHOICE",
+                                                         "newVerdict":  "INVENTED",
+                                                         "rule":  "AM-13 with section 5.2 (AM-10 unchanged)",
+                                                         "why":  "As L25. AM-10 itself survives: a position may be filled inside assumed bounds because existence is already entailed. Here existence is no longer entailed, so the premise of AM-10 fails and the stated 0-40 m has no support."
+                                                     },
+                                                     {
+                                                         "lineId":  "L26",
+                                                         "row":  "S6 (channel-north position across)",
+                                                         "oldVerdict":  "NOT_AUTHORED(DECLARED_GAP)",
+                                                         "newVerdict":  "INVENTED",
+                                                         "rule":  "AM-13 (section 6), with section 4.4(3)",
+                                                         "why":  "The bar was Wide Zone\u0027s own NOT_AUTHORED declaration on S6 [noun=channel], scoped OWN_INVOLVEMENT; under AM-13 it reaches no element, as do items 04.a, 05.a, 06 and 10.b. GF2-05.b\u0027s selector is unmet. Nothing supports the stated width and no NOT_AUTHORED or UNDECLARED declaration reaches it, so a declared gap becomes INVENTED."
+                                                     },
+                                                     {
+                                                         "lineId":  "L32",
+                                                         "row":  "S6 (channel-south position across)",
+                                                         "oldVerdict":  "NOT_AUTHORED(DECLARED_GAP)",
+                                                         "newVerdict":  "INVENTED",
+                                                         "rule":  "AM-13 (section 6), with section 4.4(3)",
+                                                         "why":  "As L26. This is the change most sensitive to how declaration scope is read: it holds only if an own-involvement declaration covers the same (now empty) unit as an own-involvement item, which the grammar sheet\u0027s \u0027a declaration may carry a selector and scope, like an item\u0027 supports."
+                                                     },
+                                                     {
+                                                         "lineId":  "L44",
+                                                         "row":  "P4 (target-player roles: stated absence)",
+                                                         "oldVerdict":  "NOT_AUTHORED(ENGINE_ONLY)",
+                                                         "newVerdict":  "VALID_ABSENCE (recorded valid, not a support record)",
+                                                         "rule":  "AM-07 as qualified (section 8)",
+                                                         "why":  "P4\u0027s only item, RPC-001-05.b, is engine-only and inert, so no support-capable item entails a target-player role; under closed-world semantics the stated absence is valid. Not RESOLVED:ENTAILED, since 8 bars a positive support record for absence, and 2\u0027s table has no code for a valid absence: a third case to flag. The proposal\u0027s dropped declaration clause would have kept it NOT_AUTHORED."
+                                                     }
+                                                 ],
+                                     "forwardChanges":  [
+                                                            {
+                                                                "item":  "Wide Zone Advantage|WIDEZONE-02.a",
+                                                                "oldResult":  "SATISFIED",
+                                                                "newResult":  "UNMET",
+                                                                "rule":  "AM-13, then AM-05 cardinality check (section 4.3)"
+                                                            },
+                                                            {
+                                                                "item":  "Wide Zone Advantage|WIDEZONE-02.b",
+                                                                "oldResult":  "SATISFIED",
+                                                                "newResult":  "UNMET",
+                                                                "rule":  "AM-13, then AM-06 (required, no matching element)"
+                                                            },
+                                                            {
+                                                                "item":  "Wide Zone Advantage|WIDEZONE-03",
+                                                                "oldResult":  "SATISFIED",
+                                                                "newResult":  "UNMET",
+                                                                "rule":  "AM-13, then AM-05 (0 matching against a minimum of 2)"
+                                                            },
+                                                            {
+                                                                "item":  "Wide Zone Advantage|WIDEZONE-04.a",
+                                                                "oldResult":  "SATISFIED",
+                                                                "newResult":  "UNMET",
+                                                                "rule":  "AM-13, then AM-06 (required, no matching element)"
+                                                            },
+                                                            {
+                                                                "item":  "Wide Zone Advantage|WIDEZONE-05.a",
+                                                                "oldResult":  "SATISFIED",
+                                                                "newResult":  "UNMET",
+                                                                "rule":  "AM-13, then AM-06 (required, no matching element)"
+                                                            },
+                                                            {
+                                                                "item":  "Wide Zone Advantage|WIDEZONE-06",
+                                                                "oldResult":  "SATISFIED",
+                                                                "newResult":  "ADAPTED",
+                                                                "rule":  "AM-13, then AM-06 (preferred default, value absent)"
+                                                            },
+                                                            {
+                                                                "item":  "Wide Zone Advantage|WIDEZONE-07",
+                                                                "oldResult":  "SATISFIED",
+                                                                "newResult":  "ADAPTED",
+                                                                "rule":  "AM-13, then AM-06 (preferred default, value absent)"
+                                                            },
+                                                            {
+                                                                "item":  "Wide Zone Advantage|WIDEZONE-08.d",
+                                                                "oldResult":  "SATISFIED",
+                                                                "newResult":  "NOT_REALIZED",
+                                                                "rule":  "AM-13, then AM-06 revised: the one supporting item that is neither preferred default nor typical example with its value absent. This is the only use of the flagged label in area 1; if Christian prefers \u0027adapted\u0027 stretched, this single result changes."
+                                                            },
+                                                            {
+                                                                "item":  "Wide Zone Advantage|WIDEZONE-10.a",
+                                                                "oldResult":  "SATISFIED",
+                                                                "newResult":  "UNMET",
+                                                                "rule":  "AM-13, then AM-06 (required existence item, nothing to check; assumed basis makes it a bound, so \u0027not exercised\u0027 is the alternative label)"
+                                                            },
+                                                            {
+                                                                "item":  "Wide Zone Advantage|WIDEZONE-10.b",
+                                                                "oldResult":  "SATISFIED",
+                                                                "newResult":  "UNMET",
+                                                                "rule":  "AM-13, then AM-06 (as 10.a)"
+                                                            },
+                                                            {
+                                                                "item":  "Directional Possession Games (GF2)|GF2-05.b",
+                                                                "oldResult":  "SATISFIED",
+                                                                "newResult":  "ADAPTED",
+                                                                "rule":  "AM-06 revised: a preferred default whose selector matches no element is adapted, not satisfied vacuously. The only forward change in area 1 that does not depend on AM-13."
+                                                            }
+                                                        ],
+                                     "cardinalityCases":  [
+                                                              {
+                                                                  "item":  "Directional Possession Games (GF2)|GF2-14.a (P1, COUNT, selector *)",
+                                                                  "matching":  2,
+                                                                  "minimum":  "2",
+                                                                  "effect":  "Matching count does not exceed the minimum, so every matching team is necessary: team-A and team-B each stay entailed. L38 and L41 unchanged; forward satisfied."
+                                                              },
+                                                              {
+                                                                  "item":  "RPC-001|RPC-001-01.a (P1, COUNT, assumed)",
+                                                                  "matching":  2,
+                                                                  "minimum":  "2",
+                                                                  "effect":  "Assumed, so a bound only: it never entails either team whatever the count. Bound met, forward satisfied. No change."
+                                                              },
+                                                              {
+                                                                  "item":  "RPC-001|RPC-001-10.a and A01-02|A01-02-08.a (O1, EXISTS, kind=ball)",
+                                                                  "matching":  1,
+                                                                  "minimum":  "1",
+                                                                  "effect":  "One matching element, so it is necessary to the cardinality and the ball\u0027s existence is entailed, carrying kind=ball under 4.2. L52 and L53 unchanged."
+                                                              },
+                                                              {
+                                                                  "item":  "Variable Target|VARTARGET-01.a (O1, RANGE, per objective set)",
+                                                                  "matching":  2,
+                                                                  "minimum":  "2",
+                                                                  "effect":  "Two candidates match in each set, equal to the minimum, so both are necessary and both entailed. This alone keeps L57, L62, L67 and L72 at RESOLVED:ENTAILED."
+                                                              },
+                                                              {
+                                                                  "item":  "Variable Target|VARTARGET-02.a (O1, EXISTS, per objective set)",
+                                                                  "matching":  2,
+                                                                  "minimum":  "1",
+                                                                  "effect":  "More match than the minimum, so it entails neither candidate individually. It drops out of the support for the four target-zone existence lines; no verdict changes, because 01.a\u0027s minimum equals the matching count. Forward still satisfied."
+                                                              },
+                                                              {
+                                                                  "item":  "Wide Zone|WIDEZONE-02.a (S2, EXISTS, noun=channel)",
+                                                                  "matching":  0,
+                                                                  "minimum":  "1",
+                                                                  "effect":  "Two channels matched under the run\u0027s scope reading, already more than the minimum, so AM-05 alone would have stopped it entailing either. Under AM-13 its unit is empty: 0 matching, unmet."
+                                                              },
+                                                              {
+                                                                  "item":  "Wide Zone|WIDEZONE-03 (S2, COUNT, noun=channel)",
+                                                                  "matching":  0,
+                                                                  "minimum":  "2",
+                                                                  "effect":  "The decisive case. Under AM-05 alone this item would still have entailed both channels (2 matching, minimum 2). AM-13 empties its scope first, so it matches nothing, is unmet, and L21/L27 lose their last entailing source."
+                                                              },
+                                                              {
+                                                                  "item":  "Wide Zone|WIDEZONE-08.d (S2, COUNT, supporting)",
+                                                                  "matching":  0,
+                                                                  "minimum":  "2",
+                                                                  "effect":  "Same emptied scope. Besides the forward NOT_REALIZED, its loss removes the 4.2 attribute carry that entailed perceptual-reference on S4, changing L23 and L29."
+                                                              },
+                                                              {
+                                                                  "item":  "Wide Zone|WIDEZONE-10.a and 10.b (S5/S6, EXISTS, assumed)",
+                                                                  "matching":  0,
+                                                                  "minimum":  "1",
+                                                                  "effect":  "Field-presence items on the channels; after AM-13 they reach no element, so both are unmet and neither bounds anything on S5 or S6."
+                                                              },
+                                                              {
+                                                                  "item":  "Directional Possession Games (GF2)|GF2-03.a (S2, RANGE, functions contains objective-area)",
+                                                                  "matching":  0,
+                                                                  "minimum":  "1",
+                                                                  "effect":  "No region carries the objective-area function, so the cardinality fails and the required item is unmet. It entails no region. Unchanged from the run."
+                                                              },
+                                                              {
+                                                                  "item":  "Directional Possession Games (GF2)|GF2-06.a (O1, RANGE, kind in {line, zone}, assumed)",
+                                                                  "matching":  0,
+                                                                  "minimum":  "1",
+                                                                  "effect":  "The target zones\u0027 kind is \u0027target zone (off-list)\u0027, which does not match the closed list exactly, so nothing matches and the item is unmet. Unchanged."
+                                                              },
+                                                              {
+                                                                  "item":  "Variable Target|VARTARGET-05.a (S2, EXISTS, functions contains trigger)",
+                                                                  "matching":  0,
+                                                                  "minimum":  "1",
+                                                                  "effect":  "No trigger region exists, and the item is a preferred default, so it is adapted rather than unmet. Unchanged from the run."
+                                                              },
+                                                              {
+                                                                  "item":  "RPC-001|RPC-001-05.b (P4, EXISTS, roleName=target player)",
+                                                                  "matching":  0,
+                                                                  "minimum":  "1",
+                                                                  "effect":  "Engine-only and inert, so it is not support-capable. Being the only P4 item, nothing support-capable entails a role element, which is what makes the stated absence at L44 valid under section 8."
+                                                              }
+                                                          ],
+                                     "notes":  "B matched A on all 76 verdicts and 62 forward results, differing only on L44\u0027s reason code. AM-04(b) and AM-12 changed nothing here: every area-1 element is reached by some declaration. I applied AM-13 to Wide Zone\u0027s own-involvement declarations too; if those keep their reach, L21/L27 read NOT_AUTHORED(DECLARED_GAP) and L26/L32 do not change. Third flag: no verdict code for a valid absence."
+                                 }
+                  },
+                  {
+                      "kind":  "delta",
+                      "area":  2,
+                      "result":  {
+                                     "area":  2,
+                                     "linesChecked":  82,
+                                     "unchanged":  67,
+                                     "changes":  [
+                                                     {
+                                                         "lineId":  "L77",
+                                                         "row":  "J1 obj:tz-A-north (existence)",
+                                                         "oldVerdict":  "RESOLVED:ENTAILED",
+                                                         "newVerdict":  "NOT_AUTHORED(DECLARED_GAP)",
+                                                         "rule":  "AM-05 (spec 4.3)",
+                                                         "why":  "Four PRIMARY_SCORING objectives match GF2-08.a (min 1); two match GF2-09.a and RPC-001-14.a in Team A\u0027s unit (min 1); two match RPC-001-11.a. Every minimum is exceeded, so no item entails this one individually, no J1 item reaches it alone, and J1 is not fillable. GF2\u0027s J1 NOT_AUTHORED on role=PRIMARY_SCORING reaches it, so declared gap, not coverage."
+                                                     },
+                                                     {
+                                                         "lineId":  "L81",
+                                                         "row":  "J1 obj:tz-A-south (existence)",
+                                                         "oldVerdict":  "RESOLVED:ENTAILED",
+                                                         "newVerdict":  "NOT_AUTHORED(DECLARED_GAP)",
+                                                         "rule":  "AM-05 (spec 4.3)",
+                                                         "why":  "Same cardinality as L77. A entailed it as the second member of set-A\u0027s unit under VARTARGET-06.b, but set-A\u0027s own existence is no longer entailed, and scope does not create units. No J1 item reaches it alone; J1 is not fillable; GF2\u0027s J1 NOT_AUTHORED on role=PRIMARY_SCORING reaches."
+                                                     },
+                                                     {
+                                                         "lineId":  "L85",
+                                                         "row":  "J1 obj:tz-B-north (existence)",
+                                                         "oldVerdict":  "RESOLVED:ENTAILED",
+                                                         "newVerdict":  "NOT_AUTHORED(DECLARED_GAP)",
+                                                         "rule":  "AM-05 (spec 4.3)",
+                                                         "why":  "Team B\u0027s unit holds two matching objectives against the minimum of 1 in GF2-09.a and RPC-001-14.a, and four match GF2-08.a. A entailed this one as \u0027first listed\u0027, the ordered reading AM-05 rejects; its twin L89 was already unsupported, and the two are now judged alike. GF2\u0027s J1 NOT_AUTHORED on role=PRIMARY_SCORING reaches."
+                                                     },
+                                                     {
+                                                         "lineId":  "L78",
+                                                         "row":  "J2 obj:tz-A-north (reference)",
+                                                         "oldVerdict":  "NOT_AUTHORED(COVERAGE)",
+                                                         "newVerdict":  "INVENTED",
+                                                         "rule":  "AM-03 (spec 4.4)",
+                                                         "why":  "GF2-08.b is support-capable, reaches every PRIMARY_SCORING objective and EQUALS the objective-area region of GF2-03.a; the game states the target-zone object instead (forward VIOLATED). Step 1 of 4.4 as adopted, \u0027invented if an entailing source fixes a different, incompatible value\u0027, now runs before the not-authored branch A used."
+                                                     },
+                                                     {
+                                                         "lineId":  "L82",
+                                                         "row":  "J2 obj:tz-A-south (reference)",
+                                                         "oldVerdict":  "NOT_AUTHORED(COVERAGE)",
+                                                         "newVerdict":  "INVENTED",
+                                                         "rule":  "AM-03 (spec 4.4)",
+                                                         "why":  "As L78: GF2-08.b fixes a different, incompatible J2 value for this objective, so step 1 fires before VARTARGET\u0027s reaching UNDECLARED declaration."
+                                                     },
+                                                     {
+                                                         "lineId":  "L86",
+                                                         "row":  "J2 obj:tz-B-north (reference)",
+                                                         "oldVerdict":  "NOT_AUTHORED(COVERAGE)",
+                                                         "newVerdict":  "INVENTED",
+                                                         "rule":  "AM-03 (spec 4.4)",
+                                                         "why":  "As L78: GF2-08.b\u0027s selector is role=PRIMARY_SCORING at whole-game scope, so it reaches Team B\u0027s objectives too and fixes an incompatible value."
+                                                     },
+                                                     {
+                                                         "lineId":  "L90",
+                                                         "row":  "J2 obj:tz-B-south (reference)",
+                                                         "oldVerdict":  "NOT_AUTHORED(COVERAGE)",
+                                                         "newVerdict":  "INVENTED",
+                                                         "rule":  "AM-03 (spec 4.4)",
+                                                         "why":  "As L78. Existence being unentailed does not change the classification: 4.4 orders invented first whenever an entailing source fixes a different value."
+                                                     },
+                                                     {
+                                                         "lineId":  "L80",
+                                                         "row":  "J4 obj:tz-A-north (role)",
+                                                         "oldVerdict":  "RESOLVED:ENTAILED",
+                                                         "newVerdict":  "NOT_AUTHORED(COVERAGE)",
+                                                         "rule":  "AM-05 (via spec 4.2 carry-over)",
+                                                         "why":  "A\u0027s support was attribute carry-over: GF2-08.a\u0027s selector fixes role=PRIMARY_SCORING on the element it entails. Under AM-05 it entails no element (4 match, min 1), so nothing carries; RPC-001-11.a is in the same position. VARTARGET-06.c would fix the role but its OWN_INVOLVEMENT scope is now empty, so no assumed item bears. RPC-001\u0027s UNDECLARED role=PRIMARY_SCORING reaches."
+                                                     },
+                                                     {
+                                                         "lineId":  "L84",
+                                                         "row":  "J4 obj:tz-A-south (role)",
+                                                         "oldVerdict":  "NOT_AUTHORED(ASSUMED_ONLY)",
+                                                         "newVerdict":  "NOT_AUTHORED(COVERAGE)",
+                                                         "rule":  "AM-13 with AM-05",
+                                                         "why":  "ASSUMED_ONLY rested on VARTARGET-06.c. Own involvement is the elements the contract\u0027s other-scoped items entail; VARTARGET-06.a and 06.b now entail nothing, so that scope is empty and 06.c bears on no value. The reason code falls through to coverage, from RPC-001\u0027s UNDECLARED role=PRIMARY_SCORING on J4."
+                                                     },
+                                                     {
+                                                         "lineId":  "L93",
+                                                         "row":  "J5 set-A (existence)",
+                                                         "oldVerdict":  "RESOLVED:ENTAILED",
+                                                         "newVerdict":  "NOT_AUTHORED(DECLARED_GAP)",
+                                                         "rule":  "AM-05 (spec 4.3)",
+                                                         "why":  "VARTARGET-06.a is the only J5 item: selector *, minimum 1, and both set-A and set-B match it. Two exceed one, so neither set is entailed: exactly the case Christian ruled on. No J5 item reaches one set alone (nothing uses the scope= attribute) and J5 is not fillable. VARTARGET\u0027s own J5 NOT_AUTHORED (one team\u0027s set or both) reaches, so declared gap."
+                                                     },
+                                                     {
+                                                         "lineId":  "L94",
+                                                         "row":  "J6 set-A (scope)",
+                                                         "oldVerdict":  "NOT_AUTHORED(ASSUMED_ONLY)",
+                                                         "newVerdict":  "NOT_AUTHORED(COVERAGE)",
+                                                         "rule":  "AM-13 with AM-05",
+                                                         "why":  "VARTARGET-06.d and 09.a are OWN_INVOLVEMENT items and that scope is now empty, so no assumed item bears on the value. VARTARGET\u0027s own J6 NOT_AUTHORED is also OWN_INVOLVEMENT-scoped and therefore reaches nothing. What remains are RPC-001, GF2 and WIDEZONE UNDECLARED on J6: coverage. Deriver B gave DECLARED_GAP here; that rested on the same now-empty scope."
+                                                     },
+                                                     {
+                                                         "lineId":  "L97",
+                                                         "row":  "J8 set-A (liveCardinality)",
+                                                         "oldVerdict":  "NOT_AUTHORED(ASSUMED_ONLY)",
+                                                         "newVerdict":  "NOT_AUTHORED(COVERAGE)",
+                                                         "rule":  "AM-13 with AM-05",
+                                                         "why":  "VARTARGET-07.a (EQUALS 1, ASSUMED) is OWN_INVOLVEMENT and now out of scope, so ASSUMED_ONLY no longer applies. GF2-09.b still narrows to \u003e=1 and the stated 1 meets it, but a RANGE narrows and never entails. RPC-001\u0027s UNDECLARED on J8 reaches: coverage."
+                                                     },
+                                                     {
+                                                         "lineId":  "L111",
+                                                         "row":  "DV1 team-A (direction view)",
+                                                         "oldVerdict":  "NOT_AUTHORED(DECLARED_GAP)",
+                                                         "newVerdict":  "NO LINE",
+                                                         "rule":  "AM-07 (spec 1, 8)",
+                                                         "why":  "DV1 is a VIEW row and views get no line at all under AM-07 as adopted; items on them are checked in the forward direction only. RPC-001-13, RPC-001-22, A01-02-10.a, GF2-10, GF2-11, GF2-12.b and VARTARGET-10.a keep their forward results unchanged."
+                                                     },
+                                                     {
+                                                         "lineId":  "L112",
+                                                         "row":  "DV1 team-B (direction view)",
+                                                         "oldVerdict":  "NOT_AUTHORED(DECLARED_GAP)",
+                                                         "newVerdict":  "NO LINE",
+                                                         "rule":  "AM-07 (spec 1, 8)",
+                                                         "why":  "As L111. Both derivers said they were forcing a verdict on a row that never needs support; the adopted rule removes the line rather than choosing one."
+                                                     },
+                                                     {
+                                                         "lineId":  "L114",
+                                                         "row":  "T2 tr-START (awardedTo)",
+                                                         "oldVerdict":  "RESOLVED:NARROWED_CHOICE",
+                                                         "newVerdict":  "NOT_AUTHORED(COVERAGE)",
+                                                         "rule":  "AM-04 ruled (b), with AM-12",
+                                                         "why":  "T2 is fillable for START and SD-R2 leaves which team free, and A found no bar. But A01-02\u0027s two T2 declarations are restart=GOAL_KICK (unregistered attribute) and \u0027elements other than the goal kick\u0027 (prose; the predicate language has no negation). Under AM-12 both match nothing, so no A01-02 declaration reaches tr-START, and AM-04(b) makes it undeclared, which bars the choice."
+                                                     }
+                                                 ],
+                                     "forwardChanges":  [
+                                                            {
+                                                                "item":  "RPC-001-08.c (J2, EXISTS, REQUIRED)",
+                                                                "oldResult":  "UNMET",
+                                                                "newResult":  "SATISFIED",
+                                                                "rule":  "AM-01 (spec 4.1)"
+                                                            },
+                                                            {
+                                                                "item":  "RPC-001-11.a (J1, EXISTS, REQUIRED, OWNER_RULING)",
+                                                                "oldResult":  "UNMET",
+                                                                "newResult":  "SATISFIED",
+                                                                "rule":  "AM-01 with AM-05 cardinality check"
+                                                            },
+                                                            {
+                                                                "item":  "VARTARGET-06.c (J4, EQUALS PRIMARY_SCORING, REQUIRED)",
+                                                                "oldResult":  "SATISFIED",
+                                                                "newResult":  "UNMET",
+                                                                "rule":  "AM-13 with AM-05; AM-06 (no matching element)"
+                                                            },
+                                                            {
+                                                                "item":  "VARTARGET-06.d (J6, EQUALS one team, REQUIRED)",
+                                                                "oldResult":  "SATISFIED",
+                                                                "newResult":  "UNMET",
+                                                                "rule":  "AM-13 with AM-05; AM-06"
+                                                            },
+                                                            {
+                                                                "item":  "VARTARGET-06.e (J7, EXISTS members, REQUIRED)",
+                                                                "oldResult":  "SATISFIED",
+                                                                "newResult":  "UNMET",
+                                                                "rule":  "AM-13 with AM-05; AM-06"
+                                                            },
+                                                            {
+                                                                "item":  "VARTARGET-07.a (J8, EQUALS 1, REQUIRED)",
+                                                                "oldResult":  "SATISFIED",
+                                                                "newResult":  "UNMET",
+                                                                "rule":  "AM-13 with AM-05; AM-06"
+                                                            },
+                                                            {
+                                                                "item":  "VARTARGET-09.a (J6, EXISTS scope field, SUPPORTING)",
+                                                                "oldResult":  "SATISFIED",
+                                                                "newResult":  "NOT_REALIZED",
+                                                                "rule":  "AM-06 as revised, with AM-13"
+                                                            },
+                                                            {
+                                                                "item":  "VARTARGET-09.b (J10, EXISTS persistence field, SUPPORTING)",
+                                                                "oldResult":  "SATISFIED",
+                                                                "newResult":  "NOT_REALIZED",
+                                                                "rule":  "AM-06 as revised, with AM-13"
+                                                            },
+                                                            {
+                                                                "item":  "VARTARGET-13.c (J12, EXISTS revelation, REQUIRED)",
+                                                                "oldResult":  "VIOLATED",
+                                                                "newResult":  "UNMET",
+                                                                "rule":  "AM-06 (required, no matching element) with AM-13"
+                                                            }
+                                                        ],
+                                     "cardinalityCases":  [
+                                                              {
+                                                                  "item":  "VARTARGET-06.a (J5, EXISTS, selector *, whole game)",
+                                                                  "matching":  2,
+                                                                  "minimum":  "1",
+                                                                  "effect":  "The headline case. set-A and set-B both match a minimum of one, so neither is entailed. No J5 item reaches one set alone and J5 is not fillable, so both are unsupported: L93 changes to NOT_AUTHORED(DECLARED_GAP), L102 keeps it. Forward: satisfied. Because this entails no set, VARTARGET\u0027s own-involvement scope is empty, which drives seven forward changes."
+                                                              },
+                                                              {
+                                                                  "item":  "VARTARGET-06.b (J1, RANGE min 2, per objective set)",
+                                                                  "matching":  2,
+                                                                  "minimum":  "2",
+                                                                  "effect":  "Two members in each stated set: the count equals the minimum, so every matching element would be necessary and entailed. But no set\u0027s existence is entailed, and scope spreads a bound without creating units, so it entails nothing. Forward: satisfied (2 \u003e= 2 in each stated set)."
+                                                              },
+                                                              {
+                                                                  "item":  "GF2-08.a (J1, EXISTS, role=PRIMARY_SCORING, whole game)",
+                                                                  "matching":  4,
+                                                                  "minimum":  "1",
+                                                                  "effect":  "Four match one, so no objective is entailed. This removes A\u0027s support for L77 and, through the 4.2 attribute carry-over, for L80\u0027s role value. Forward: satisfied."
+                                                              },
+                                                              {
+                                                                  "item":  "GF2-09.a (J1, RANGE min 1 per team)",
+                                                                  "matching":  2,
+                                                                  "minimum":  "1",
+                                                                  "effect":  "Two matching objectives in each team\u0027s unit against a minimum of one, so neither unit\u0027s objectives are individually entailed. Drives L77, L81, L85 (with L89 already unsupported). Forward: satisfied."
+                                                              },
+                                                              {
+                                                                  "item":  "RPC-001-14.a (J1, RANGE \u003e=1, per team, SUPPORTING)",
+                                                                  "matching":  2,
+                                                                  "minimum":  "1",
+                                                                  "effect":  "Same two-against-one per unit; entails nothing. Its bound is met, not absent, so it stays SATISFIED and is not the AM-06 NOT_REALIZED case."
+                                                              },
+                                                              {
+                                                                  "item":  "RPC-001-11.a (J1, EXISTS, role=PRIMARY_SCORING \u0026 team=BUILD_OUT_TEAM, per team)",
+                                                                  "matching":  2,
+                                                                  "minimum":  "1",
+                                                                  "effect":  "Under AM-01 BUILD_OUT_TEAM resolves to Team A (awarded the start placement), so the selector now matches two objectives instead of none: forward UNMET becomes SATISFIED. But two exceed one, so it entails neither, and the carry-over that would have made L79 ENTAILED does not follow."
+                                                              },
+                                                              {
+                                                                  "item":  "NEUTRAL-12.a (T1, EXISTS, trigger=POSSESSION_CHANGE)",
+                                                                  "matching":  1,
+                                                                  "minimum":  "1",
+                                                                  "effect":  "The count equals the minimum, so the single matching element is necessary and tr-PC\u0027s existence is entailed. L152 unchanged. Forward: satisfied."
+                                                              },
+                                                              {
+                                                                  "item":  "GF2-07.a (T1, EXISTS, trigger=POSSESSION_CHANGE, partly structural)",
+                                                                  "matching":  1,
+                                                                  "minimum":  "1",
+                                                                  "effect":  "Acts through its structural clause only. One matches one, so tr-PC is entailed by it as well. Forward: clause checked, satisfied."
+                                                              },
+                                                              {
+                                                                  "item":  "A01-02-01.a (T1, EXISTS, restart=GOAL_KICK)",
+                                                                  "matching":  0,
+                                                                  "minimum":  "1",
+                                                                  "effect":  "The selector uses an attribute the register does not have, so under AM-12 it denotes no element: zero against a minimum of one. Forward UNMET, unchanged, and now also reportable as a restatement defect rather than passing silently."
+                                                              },
+                                                              {
+                                                                  "item":  "VARTARGET-08.a (J11a, EXISTS, own involvement)",
+                                                                  "matching":  0,
+                                                                  "minimum":  "1",
+                                                                  "effect":  "Zero against one on two counts: the game states no assignment key, and the own-involvement scope is now empty. Forward UNMET, unchanged. L100 and L109 stay NOT_AUTHORED(COVERAGE)."
+                                                              }
+                                                          ],
+                                     "notes":  "Deriver B differed on four area-2 lines: L79 ENTAILED, L94 and L100 reason codes, L157 NOT_AUTHORED(ENGINE_ONLY). Adopted rules back A on L79 and L157, B on neither reason. AM-01 alone would make L79 ENTAILED via RPC-001-11.a, as its own worked example says, but AM-05 as ruled blocks the entailment (two match, minimum one). L114 turns on AM-12 voiding A01-02\u0027s prose \u0027elements other than the goal kick\u0027, then AM-04(b)."
+                                 }
+                  },
+                  {
+                      "kind":  "delta",
+                      "area":  3,
+                      "result":  {
+                                     "area":  3,
+                                     "linesChecked":  52,
+                                     "unchanged":  44,
+                                     "changes":  [
+                                                     {
+                                                         "lineId":  "L161",
+                                                         "row":  "V2 (primary event base value)",
+                                                         "oldVerdict":  "NOT_AUTHORED(DECLARED_GAP)",
+                                                         "newVerdict":  "NOT_AUTHORED(ENGINE_ONLY)",
+                                                         "rule":  "AM-23 reason-code order (spec Â§2), with Â§4.4",
+                                                         "why":  "The only item bearing on the value is RPC-001-20, ENGINE_ONLY. GF2 also declares V2 NOT_AUTHORED, so both codes fit; the run left their order open and A chose the declared gap, noting engine-only also fit. AM-23 now ranks engine-only above declared gap where such an item bears on the value. The verdict stays NOT_AUTHORED; the code changes."
+                                                     },
+                                                     {
+                                                         "lineId":  "L190",
+                                                         "row":  "V12 (cons-neutral trigger = POSSESSION_CHANGE)",
+                                                         "oldVerdict":  "INVENTED",
+                                                         "newVerdict":  "NOT_AUTHORED(COVERAGE)",
+                                                         "rule":  "AM-04 as ruled (b), then Â§4.4 step 2",
+                                                         "why":  "cons-neutral\u0027s effect is off-list, so Wide Zone\u0027s V12 declarations (effect=RESTART; effect in {ACCESS, COUNT_CHANGE}) reach it with nothing. A treated that silence as barring nothing. Under (b) the element is undeclared there, so Â§4.4 step 2 gives NOT_AUTHORED(COVERAGE) for the stated POSSESSION_CHANGE. This is AM-04\u0027s own worked example."
+                                                     },
+                                                     {
+                                                         "lineId":  "L191",
+                                                         "row":  "V13 (cons-neutral effect = neutral affiliation, off-list)",
+                                                         "oldVerdict":  "INVENTED",
+                                                         "newVerdict":  "NOT_AUTHORED(COVERAGE)",
+                                                         "rule":  "AM-04 as ruled (b), then Â§4.4 step 2",
+                                                         "why":  "Wide Zone\u0027s V13 declarations select trigger=REGION_ENTRY and effect in {ACCESS, COUNT_CHANGE}; cons-neutral is POSSESSION_CHANGE with an off-list effect, so neither reaches it. The element is undeclared on V13, so the stated off-list effect is not authored for want of coverage rather than invented. WIDEZONE-13.c stays inert either way."
+                                                     },
+                                                     {
+                                                         "lineId":  "L192",
+                                                         "row":  "V14a (cons-neutral beneficiary = WON_BALL)",
+                                                         "oldVerdict":  "INVENTED",
+                                                         "newVerdict":  "NOT_AUTHORED(COVERAGE)",
+                                                         "rule":  "AM-04 as ruled (b), then Â§4.4 step 2",
+                                                         "why":  "Wide Zone\u0027s three V14a declarations all select effect=RESTART or effect in {ACCESS, COUNT_CHANGE}; none reaches cons-neutral\u0027s off-list effect. Undeclared there, so the stated \u0027team now in possession\u0027 is NOT_AUTHORED(COVERAGE). WIDEZONE-14.a (effect=RESTART, ASSUMED) still matches no element and is unchanged in the forward list."
+                                                     },
+                                                     {
+                                                         "lineId":  "L195",
+                                                         "row":  "V12 (cons-reset triggers SCORE | OUT_* | POSSESSION_CHANGE)",
+                                                         "oldVerdict":  "INVENTED",
+                                                         "newVerdict":  "NOT_AUTHORED(COVERAGE)",
+                                                         "rule":  "AM-04 as ruled (b), then Â§4.4 step 2",
+                                                         "why":  "Same mechanism as L190: the reset\u0027s effect is off-list, so Wide Zone\u0027s effect-scoped V12 declarations reach it with nothing and the element is undeclared there. The stated trigger set is NOT_AUTHORED(COVERAGE). AM-04\u0027s example names only L190-L192; the three reset lines are the identical case and must move with them."
+                                                     },
+                                                     {
+                                                         "lineId":  "L196",
+                                                         "row":  "V13 (cons-reset effect = re-establish begin condition, off-list)",
+                                                         "oldVerdict":  "INVENTED",
+                                                         "newVerdict":  "NOT_AUTHORED(COVERAGE)",
+                                                         "rule":  "AM-04 as ruled (b), then Â§4.4 step 2",
+                                                         "why":  "Wide Zone\u0027s V13 CLAIMED selects trigger=REGION_ENTRY, which is not among cons-reset\u0027s four triggers, and its NON_CLAIMED selects effects the reset does not have. No declaration reaches the element on V13, so the off-list effect is NOT_AUTHORED(COVERAGE), not INVENTED."
+                                                     },
+                                                     {
+                                                         "lineId":  "L197",
+                                                         "row":  "V14a (cons-reset beneficiary = restarting team)",
+                                                         "oldVerdict":  "INVENTED",
+                                                         "newVerdict":  "NOT_AUTHORED(COVERAGE)",
+                                                         "rule":  "AM-04 as ruled (b), then Â§4.4 step 2",
+                                                         "why":  "Wide Zone\u0027s V14a declarations select effect=RESTART or {ACCESS, COUNT_CHANGE}; the reset\u0027s effect is off-list, so none reaches. Undeclared there, so the \u0027restarting team\u0027 beneficiary is NOT_AUTHORED(COVERAGE). KR-03 still stands: the reset is not inferable from RPC-001 being selected, which the new code reports more honestly than INVENTED did."
+                                                     },
+                                                     {
+                                                         "lineId":  "L210",
+                                                         "row":  "V23 (time windows: NONE, 0 elements)",
+                                                         "oldVerdict":  "RESOLVED:ENTAILED",
+                                                         "newVerdict":  "VALID (closed-world absence; no support line)",
+                                                         "rule":  "AM-07 as qualified (spec Â§8)",
+                                                         "why":  "A forced ENTAILED and said no verdict applied literally. Under the qualification an absence is valid only where no support-capable item entails an element on that row at that scope, and is never entailed by silence. No contract holds any V23 item and all six are NON_CLAIMED, so the empty collection is recorded valid, not as a positive support record."
+                                                     }
+                                                 ],
+                                     "forwardChanges":  [
+                                                            {
+                                                                "item":  "VARTARGET-05.b (V17 trigger alternatives, SUPPORTING, own involvement)",
+                                                                "oldResult":  "VIOLATED (A) / SATISFIED (B)",
+                                                                "newResult":  "NOT_REALIZED",
+                                                                "rule":  "AM-06 as revised: a SUPPORTING item that is neither preferred default nor typical example, whose matched element leaves the value absent. Its selector reaches info-live, which states no V17 trigger. The adopted rule rejects both A\u0027s VIOLATED (nothing was broken) and B\u0027s \u0027satisfied vacuously\u0027 (nothing was realized). This is the sole instance of the label the spec flags in Â§7."
+                                                            },
+                                                            {
+                                                                "item":  "VARTARGET-13.d (V21 EQUALS OBJECTIVE_DEPENDENT, REQUIRED)",
+                                                                "oldResult":  "VIOLATED (A) / UNMET (B)",
+                                                                "newResult":  "UNMET",
+                                                                "rule":  "AM-06 as revised: a required item whose value is absent is unmet. It matches info-live, whose V21 the game leaves unstated. B\u0027s reading is adopted. The line verdict L204 stays RESOLVED:ENTAILED under AM-08: the support result records the entailed value and the game\u0027s omission is this forward note."
+                                                            }
+                                                        ],
+                                     "cardinalityCases":  [
+                                                              {
+                                                                  "item":  "VARTARGET-11.a (V0, EXISTS, selector *)",
+                                                                  "matching":  1,
+                                                                  "minimum":  "1",
+                                                                  "effect":  "1 does not exceed the minimum, so pe is necessary to the cardinality and its existence is entailed. L159 stays RESOLVED:ENTAILED. Forward: the cardinality check passes, reported through the item\u0027s structural clause (CLAUSE_CHECKED, satisfied)."
+                                                              },
+                                                              {
+                                                                  "item":  "SD-06 (citable standing decision, V0, COUNT 1)",
+                                                                  "matching":  1,
+                                                                  "minimum":  "1",
+                                                                  "effect":  "Exactly one primary event; one matching element does not exceed the minimum, so pe is entailed. Co-supports L159 with VARTARGET-11.a, no collision."
+                                                              },
+                                                              {
+                                                                  "item":  "RPC-001-08.b (V0, COUNT 1, ASSUMED)",
+                                                                  "matching":  1,
+                                                                  "minimum":  "1",
+                                                                  "effect":  "ASSUMED, so a bound only and never an entailment whatever the count. Cardinality met; forward SATISFIED as a bound. Unchanged."
+                                                              },
+                                                              {
+                                                                  "item":  "RPC-001-18.a (V3, EXISTS, type=origin)",
+                                                                  "matching":  1,
+                                                                  "minimum":  "1",
+                                                                  "effect":  "One matching condition element, so cond-origin is necessary and entailed. L162 unchanged; V4 \u0027origin\u0027 still carried by the selector (Â§4.2)."
+                                                              },
+                                                              {
+                                                                  "item":  "RPC-001-18.c (V3, EXISTS, type=progression)",
+                                                                  "matching":  1,
+                                                                  "minimum":  "1",
+                                                                  "effect":  "cond-progression is the only match, so it is entailed. L167 and L168 unchanged."
+                                                              },
+                                                              {
+                                                                  "item":  "RPC-001-18.f (V3, EXISTS, type=control)",
+                                                                  "matching":  1,
+                                                                  "minimum":  "1",
+                                                                  "effect":  "cond-control is the only match, so it is entailed. L171 and L172 unchanged."
+                                                              },
+                                                              {
+                                                                  "item":  "RPC-001-19.a (V3, EXISTS, type=exclusion)",
+                                                                  "matching":  1,
+                                                                  "minimum":  "1",
+                                                                  "effect":  "cond-exclusion is the only match, so it is entailed. L179 and L180 unchanged."
+                                                              },
+                                                              {
+                                                                  "item":  "VARTARGET-13.a (V15, EXISTS, subject = live member of the candidate set)",
+                                                                  "matching":  1,
+                                                                  "minimum":  "1",
+                                                                  "effect":  "info-live is the only information rule the selector reaches, so it is entailed. L198 unchanged, and it is what puts info-live inside Variable Target\u0027s own involvement under AM-13."
+                                                              },
+                                                              {
+                                                                  "item":  "WIDEZONE-17.a (V15, EXISTS, subject = wide channels and their advantage, ASSUMED)",
+                                                                  "matching":  1,
+                                                                  "minimum":  "1",
+                                                                  "effect":  "One match (info-wide) and the minimum is met, but ASSUMED never entails, so no existence support. L206 stays NOT_AUTHORED(ASSUMED_ONLY); the bound is met and the forward result is satisfied."
+                                                              },
+                                                              {
+                                                                  "item":  "RPC-001-23 (V15, existence-shaped EXCLUSION, partly structural)",
+                                                                  "matching":  0,
+                                                                  "minimum":  "n/a (exclusion)",
+                                                                  "effect":  "Its two prose subjects reach no information rule, so there is nothing to withhold. An exclusion never entails cardinality. Clause satisfied; CLAUSE_CHECKED unchanged."
+                                                              },
+                                                              {
+                                                                  "item":  "WIDEZONE-16.b (V0, COUNT 2 or more, forbidden)",
+                                                                  "matching":  1,
+                                                                  "minimum":  "forbidden at 2",
+                                                                  "effect":  "One primary event, so the forbidden count is absent: satisfied under AM-06. An exclusion is never support, so it contributes nothing to L159."
+                                                              },
+                                                              {
+                                                                  "item":  "VARTARGET-12.a (V0, COUNT more than 1, forbidden)",
+                                                                  "matching":  1,
+                                                                  "minimum":  "forbidden above 1",
+                                                                  "effect":  "Same as WIDEZONE-16.b: the forbidden count is absent, satisfied, and no support. Its twin 12.b is outside the boundary and not checkable."
+                                                              },
+                                                              {
+                                                                  "item":  "(no item on V23 time windows)",
+                                                                  "matching":  0,
+                                                                  "minimum":  "none: no existence item at all",
+                                                                  "effect":  "With no support-capable item on the row, the empty collection cannot be entailed and silence cannot entail it. Recorded valid under AM-07, and nothing is reported unmet. This is what drives the L210 change."
+                                                              },
+                                                              {
+                                                                  "item":  "(no V3 item selects type=eligibility)",
+                                                                  "matching":  0,
+                                                                  "minimum":  "none: no existence item reaches it",
+                                                                  "effect":  "cond-eligibility\u0027s existence has no cardinality support of any kind; the \u0027LIVE only\u0027 content rests on VARTARGET-12.b, which is outside the boundary. L175 stays NOT_AUTHORED(DECLARED_GAP), as do its three fields."
+                                                              }
+                                                          ],
+                                     "notes":  "A and B agreed on all 52 line verdicts, differing only on the two forward results, both AM-06 cases. No surplus cardinality anywhere, so AM-05 changes nothing here. Only V1 is fillable, so AM-04 bites as COVERAGE only, never as a free-choice bar. VARTARGET-05.b is the sole NOT_REALIZED (Â§7 flag). Kept DECLARED_GAP over OUTSIDE_BOUNDARY at L183/L189/L194: an unbreached exclusion does not bear on the value."
+                                 }
+                  }
+              ],
+    "contracts":  {
+                      "asAuthored":  {
+                                         "summary":  "Nothing authored makes scoring worth most centrally. Every authored spatial value-weighter weights WIDE, FORWARD, SWITCH or BLIND-SIDE. The central-weighting text lives only in slot-mechanics-variations.ts and its coach-voice translation: ENGINE_ONLY under RC-10/SD-21, inert under spec s3, forward result \u0027inert\u0027 under s7. So as authored this contract can collide with nothing.",
+                                         "items":  [
+                                                       {
+                                                           "itemId":  "CW-A-01",
+                                                           "row":  "V8b",
+                                                           "selector":  "condition.type=region",
+                                                           "requirement":  "EQUALS",
+                                                           "value":  "a central region of the layout, as the region modifier\u0027s referent",
+                                                           "strictness":  "REQUIRED",
+                                                           "valueStatus":  "REQUIRED_RANGE",
+                                                           "scope":  "WHOLE_GAME",
+                                                           "basis":  "ENGINE_ONLY",
+                                                           "basisEvidence":  "back/src/system/activity/slot-mechanics-variations.ts:183, SPATIAL_VALUE_STRUCTURES_WIDE.mechanicLine: \u0027The field is treated as three value zones: points earned in the central zone count higher than points earned in the wide zones\u0027. Engine template text, no workbook. RC-10/SD-21: supports nothing.",
+                                                           "checkability":  "STRUCTURAL"
+                                                       },
+                                                       {
+                                                           "itemId":  "CW-A-02",
+                                                           "row":  "V9",
+                                                           "selector":  "condition.type=region",
+                                                           "requirement":  "EQUALS",
+                                                           "value":  "central \u003e wide \u003e deep: an ordering only. No number, multiplier or point count is stated anywhere",
+                                                           "strictness":  "REQUIRED",
+                                                           "valueStatus":  "REQUIRED_RANGE",
+                                                           "scope":  "WHOLE_GAME",
+                                                           "basis":  "ENGINE_ONLY",
+                                                           "basisEvidence":  "Same line, slot-mechanics-variations.ts:183 (\u0027points in the wide zones count higher than points earned deep\u0027). Note the fit problem: V9\u0027s valueType is \u0027number or multiplier\u0027, so a bare ordering does not fit the row. VOCABULARY difficulty, recorded not repaired.",
+                                                           "checkability":  "STRUCTURAL"
+                                                       },
+                                                       {
+                                                           "itemId":  "CW-A-03",
+                                                           "row":  "S2",
+                                                           "selector":  "noun=zone",
+                                                           "requirement":  "COUNT",
+                                                           "value":  "3",
+                                                           "strictness":  "REQUIRED",
+                                                           "valueStatus":  "REQUIRED_RANGE",
+                                                           "scope":  "OWN_INVOLVEMENT",
+                                                           "basis":  "ENGINE_ONLY",
+                                                           "basisEvidence":  "slot-mechanics-variations.ts:183: \u0027The field is treated as three value zones\u0027. Engine template text. Under spec s4.3 a COUNT is checked forward as an item result, never as a line, so it cannot collide even if it were support-capable.",
+                                                           "checkability":  "STRUCTURAL"
+                                                       },
+                                                       {
+                                                           "itemId":  "CW-A-04",
+                                                           "row":  "S6",
+                                                           "selector":  "noun=zone",
+                                                           "requirement":  "POSITIONED",
+                                                           "value":  "central (register relative term: contains the axis midline across the width)",
+                                                           "strictness":  "REQUIRED",
+                                                           "valueStatus":  "REQUIRED_RANGE",
+                                                           "scope":  "OWN_INVOLVEMENT",
+                                                           "basis":  "ENGINE_ONLY",
+                                                           "basisEvidence":  "slot-mechanics-variations.ts:183 (\u0027the central zone\u0027). The register\u0027s relativeTerms hold \u0027central\u0027 exactly, so the grammar fits; only the source does not. ENGINE_ONLY, inert.",
+                                                           "checkability":  "STRUCTURAL"
+                                                       },
+                                                       {
+                                                           "itemId":  "CW-A-05",
+                                                           "row":  "V17",
+                                                           "selector":  "subject=the zone value weighting",
+                                                           "requirement":  "EQUALS",
+                                                           "value":  "STANDING",
+                                                           "strictness":  "SUPPORTING",
+                                                           "valueStatus":  "REQUIRED_RANGE",
+                                                           "scope":  "WHOLE_GAME",
+                                                           "basis":  "ENGINE_ONLY",
+                                                           "basisEvidence":  "slot-mechanics-variations.ts:183: \u0027The zone weighting stays the same in every live contest.\u0027 Read as standing, open information rather than revealed or hidden during play.",
+                                                           "checkability":  "STRUCTURAL"
+                                                       },
+                                                       {
+                                                           "itemId":  "CW-A-06",
+                                                           "row":  "V9",
+                                                           "selector":  "condition.type=region",
+                                                           "requirement":  "EQUALS",
+                                                           "value":  "worth most through the middle, then wide, then deep",
+                                                           "strictness":  "SUPPORTING",
+                                                           "valueStatus":  "REQUIRED_RANGE",
+                                                           "scope":  "WHOLE_GAME",
+                                                           "basis":  "ENGINE_ONLY",
+                                                           "basisEvidence":  "back/src/system/activity/coach-voice.ts:209: \u0027Points are worth most through the middle, then wide, then deep.\u0027 A coach-rule sentence, exactly the kind SD-21 names. Per spec s3 the six sentences held in code stay unratified and are classified individually after this collision test.",
+                                                           "checkability":  "STRUCTURAL"
+                                                       },
+                                                       {
+                                                           "itemId":  "CW-A-07",
+                                                           "row":  "S2",
+                                                           "selector":  "noun=zone",
+                                                           "requirement":  "EXISTS",
+                                                           "value":  "N/A",
+                                                           "strictness":  "REQUIRED",
+                                                           "valueStatus":  "N/A",
+                                                           "scope":  "OWN_INVOLVEMENT",
+                                                           "basis":  "AUTHORED",
+                                                           "basisEvidence":  "soccer-module.rc1-v3.json#tl-v0-constraint-central-density-condition setup_guidance: \u0027Mark a central zone (roughly the middle third lengthwise, half the field width) with cones or discs.\u0027 This is the ONLY authored central item in the knowledge, and it carries no value at all.",
+                                                           "checkability":  "STRUCTURAL"
+                                                       },
+                                                       {
+                                                           "itemId":  "CW-A-08",
+                                                           "row":  "S5",
+                                                           "selector":  "noun=zone",
+                                                           "requirement":  "POSITIONED",
+                                                           "value":  "the middle third along the axis",
+                                                           "strictness":  "SUPPORTING",
+                                                           "valueStatus":  "PREFERRED_DEFAULT",
+                                                           "scope":  "OWN_INVOLVEMENT",
+                                                           "basis":  "AUTHORED",
+                                                           "basisEvidence":  "Same source: \u0027roughly the middle third lengthwise\u0027. \u0027Roughly\u0027 is what PREFERRED_DEFAULT carries; a game departing from it is adapted (SD-08), not in collision.",
+                                                           "checkability":  "STRUCTURAL"
+                                                       },
+                                                       {
+                                                           "itemId":  "CW-A-09",
+                                                           "row":  "S6",
+                                                           "selector":  "noun=zone",
+                                                           "requirement":  "RANGE",
+                                                           "value":  "about half the envelope width, containing the axis midline",
+                                                           "strictness":  "SUPPORTING",
+                                                           "valueStatus":  "PREFERRED_DEFAULT",
+                                                           "scope":  "OWN_INVOLVEMENT",
+                                                           "basis":  "AUTHORED",
+                                                           "basisEvidence":  "Same source: \u0027half the field width\u0027. Width read as the length of the S6 across-interval, as WIDEZONE-06 reads it.",
+                                                           "checkability":  "STRUCTURAL"
+                                                       },
+                                                       {
+                                                           "itemId":  "CW-A-10",
+                                                           "row":  "none (no register row; grammar s1 boundary)",
+                                                           "selector":  "noun=zone",
+                                                           "requirement":  "COUNT",
+                                                           "value":  "2-3 defenders inside the central zone (typical cap)",
+                                                           "strictness":  "SUPPORTING",
+                                                           "valueStatus":  "TYPICAL_EXAMPLE",
+                                                           "scope":  "OWN_INVOLVEMENT",
+                                                           "basis":  "AUTHORED",
+                                                           "basisEvidence":  "Same source: \u0027Restrict defenders allowed inside the central zone (typical cap: 2-3 defenders).\u0027 This is player movement during play, outside the contract boundary, and the grammar forbids forcing it onto a row it does not fit. Recorded, not placed.",
+                                                           "checkability":  "OUTSIDE_BOUNDARY"
+                                                       },
+                                                       {
+                                                           "itemId":  "CW-A-11",
+                                                           "row":  "V7",
+                                                           "selector":  "condition.type=region",
+                                                           "requirement":  "EXISTS",
+                                                           "value":  "N/A",
+                                                           "strictness":  "REQUIRED",
+                                                           "valueStatus":  "N/A",
+                                                           "scope":  "WHOLE_GAME",
+                                                           "basis":  "ENGINE_ONLY",
+                                                           "basisEvidence":  "That a region value modifier exists at all is implied only by the engine mechanicLine. No workbook authors it. Inert, so nothing entails the modifier element, and every CW-A item on V8b/V9 rests on an element no authored source brings into being.",
+                                                           "checkability":  "STRUCTURAL"
+                                                       }
+                                                   ],
+                                         "declarations":  "V7, V8b, V9 (condition.type=region): NOT_AUTHORED. No authored item names a central region as a value-modifier referent. S2, S5, S6 (noun=zone): CLAIMED, from Central Density Condition, structure only. V0, V1, V2: NON_CLAIMED. Central Density declares incentive_mechanism \u0027none\u0027 and includes_incentive_layer \u0027false\u0027; its own note reads \u0027Encourages wide play indirectly\u0027. Relationship rules: none."
+                                     },
+                      "asIfAuthored":  {
+                                           "summary":  "HYPOTHETICAL. A central corridor carrying a x2 value modifier, written as though Christian had authored it as knowledge. Nine items, minimal. The load-bearing one is CW-H-05 on V8b (condition.type=region, WHOLE_GAME, REQUIRED EQUALS), which meets WIDEZONE-11.a head-on. No relationship rule on either side, and SD-06/07/08 do not reach V8b, so spec s6 yields UNRESOLVED under SD-02.",
+                                           "items":  [
+                                                         {
+                                                             "itemId":  "CW-H-01",
+                                                             "row":  "V7",
+                                                             "selector":  "condition.type=region",
+                                                             "requirement":  "EXISTS",
+                                                             "value":  "N/A",
+                                                             "strictness":  "REQUIRED",
+                                                             "valueStatus":  "N/A",
+                                                             "scope":  "WHOLE_GAME",
+                                                             "basis":  "AUTHORED (HYPOTHETICAL)",
+                                                             "basisEvidence":  "HYPOTHETICAL knowledge sentence: \u0027Scoring in the central corridor is worth double.\u0027 Brings the region modifier element into being. V7\u0027s only selectorAttribute is condition.type, so it cannot separate this object\u0027s modifier from Wide Zone Advantage\u0027s; both land in one collection.",
+                                                             "checkability":  "STRUCTURAL"
+                                                         },
+                                                         {
+                                                             "itemId":  "CW-H-02",
+                                                             "row":  "S2",
+                                                             "selector":  "noun=corridor",
+                                                             "requirement":  "EXISTS",
+                                                             "value":  "N/A",
+                                                             "strictness":  "REQUIRED",
+                                                             "valueStatus":  "N/A",
+                                                             "scope":  "OWN_INVOLVEMENT",
+                                                             "basis":  "AUTHORED (HYPOTHETICAL)",
+                                                             "basisEvidence":  "HYPOTHETICAL: \u0027Mark a central corridor down the middle of the area, about a third of the width.\u0027 Noun \u0027corridor\u0027 chosen deliberately so the region items do not overlap Wide Zone Advantage\u0027s noun=channel selectors, isolating the collision on the value rows.",
+                                                             "checkability":  "STRUCTURAL"
+                                                         },
+                                                         {
+                                                             "itemId":  "CW-H-03",
+                                                             "row":  "S3",
+                                                             "selector":  "*",
+                                                             "requirement":  "EQUALS",
+                                                             "value":  "corridor",
+                                                             "strictness":  "REQUIRED",
+                                                             "valueStatus":  "REQUIRED_RANGE",
+                                                             "scope":  "OWN_INVOLVEMENT",
+                                                             "basis":  "AUTHORED (HYPOTHETICAL)",
+                                                             "basisEvidence":  "HYPOTHETICAL, same sentence. Noun of the region this contract entails; \u0027corridor\u0027 is on the S3 draft closed list. Wide Zone Advantage declares noun in {band, corridor, zone, half, third} NON_CLAIMED at WHOLE_GAME, so this row stays clear.",
+                                                             "checkability":  "STRUCTURAL"
+                                                         },
+                                                         {
+                                                             "itemId":  "CW-H-04",
+                                                             "row":  "S6",
+                                                             "selector":  "noun=corridor",
+                                                             "requirement":  "POSITIONED",
+                                                             "value":  "central (contains the axis midline across the width)",
+                                                             "strictness":  "REQUIRED",
+                                                             "valueStatus":  "REQUIRED_RANGE",
+                                                             "scope":  "OWN_INVOLVEMENT",
+                                                             "basis":  "AUTHORED (HYPOTHETICAL)",
+                                                             "basisEvidence":  "HYPOTHETICAL: \u0027down the middle of the area\u0027. Uses the register\u0027s own relative term \u0027central\u0027, so no new vocabulary is needed. This is the mirror of WIDEZONE-04.a/05.a\u0027s \u0027touchline-adjacent\u0027 on the same row but a different noun.",
+                                                             "checkability":  "STRUCTURAL"
+                                                         },
+                                                         {
+                                                             "itemId":  "CW-H-05",
+                                                             "row":  "V8b",
+                                                             "selector":  "condition.type=region",
+                                                             "requirement":  "EQUALS",
+                                                             "value":  "the central corridor of this contract, its sole region referent",
+                                                             "strictness":  "REQUIRED",
+                                                             "valueStatus":  "REQUIRED_RANGE",
+                                                             "scope":  "WHOLE_GAME",
+                                                             "basis":  "AUTHORED (HYPOTHETICAL)",
+                                                             "basisEvidence":  "HYPOTHETICAL: \u0027Scoring in the central corridor is worth double.\u0027 THE COLLIDER. Same row, same selector, same scope and same strictness as WIDEZONE-11.a, whose value is \u0027both wide channels of this contract, each a referent\u0027. No single value satisfies both.",
+                                                             "checkability":  "STRUCTURAL"
+                                                         },
+                                                         {
+                                                             "itemId":  "CW-H-06",
+                                                             "row":  "V9",
+                                                             "selector":  "condition.type=region",
+                                                             "requirement":  "EQUALS",
+                                                             "value":  "a x2 multiplier on the primary event value",
+                                                             "strictness":  "REQUIRED",
+                                                             "valueStatus":  "REQUIRED_RANGE",
+                                                             "scope":  "WHOLE_GAME",
+                                                             "basis":  "AUTHORED (HYPOTHETICAL)",
+                                                             "basisEvidence":  "HYPOTHETICAL: \u0027worth double\u0027. Second probe, expected NOT to collide: WIDEZONE-13.a and 13.b sit on this row and selector but are TYPICAL_EXAMPLE, hence inert under spec s3. If the machinery reports a collision here it is over-reporting.",
+                                                             "checkability":  "STRUCTURAL"
+                                                         },
+                                                         {
+                                                             "itemId":  "CW-H-07",
+                                                             "row":  "S4",
+                                                             "selector":  "noun=corridor",
+                                                             "requirement":  "EQUALS",
+                                                             "value":  "value-condition (required member of functions)",
+                                                             "strictness":  "REQUIRED",
+                                                             "valueStatus":  "REQUIRED_RANGE",
+                                                             "scope":  "OWN_INVOLVEMENT",
+                                                             "basis":  "AUTHORED (HYPOTHETICAL)",
+                                                             "basisEvidence":  "HYPOTHETICAL: the corridor\u0027s function is to condition value. Contrast WIDEZONE-08.d, which gives its channels perceptual-reference, and WIDEZONE-08.a, which forbids the access function on them.",
+                                                             "checkability":  "STRUCTURAL"
+                                                         },
+                                                         {
+                                                             "itemId":  "CW-H-08",
+                                                             "row":  "S5",
+                                                             "selector":  "noun=corridor",
+                                                             "requirement":  "EQUALS",
+                                                             "value":  "the full axis extent, end line to end line",
+                                                             "strictness":  "SUPPORTING",
+                                                             "valueStatus":  "PREFERRED_DEFAULT",
+                                                             "scope":  "OWN_INVOLVEMENT",
+                                                             "basis":  "AUTHORED (HYPOTHETICAL)",
+                                                             "basisEvidence":  "HYPOTHETICAL: \u0027down the middle\u0027 read as running the length by default. PREFERRED_DEFAULT, so a game that shortens it is adapted under SD-08, not in collision. Mirrors WIDEZONE-07.",
+                                                             "checkability":  "STRUCTURAL"
+                                                         },
+                                                         {
+                                                             "itemId":  "CW-H-09",
+                                                             "row":  "V10",
+                                                             "selector":  "condition.type=region",
+                                                             "requirement":  "EQUALS",
+                                                             "value":  "mutually exclusive on the layout",
+                                                             "strictness":  "SUPPORTING",
+                                                             "valueStatus":  "REQUIRED_RANGE",
+                                                             "scope":  "WHOLE_GAME",
+                                                             "basis":  "AUTHORED (HYPOTHETICAL)",
+                                                             "basisEvidence":  "HYPOTHETICAL, included deliberately as a third probe. V10 is a field value, not a relationship rule, so under spec s6 it must NOT decide the CW-H-05 collision. Wide Zone Advantage leaves V10 UNDECLARED. If the engine lets V10 resolve the line, that is the defect the test should catch.",
+                                                             "checkability":  "STRUCTURAL"
+                                                         }
+                                                     ],
+                                           "declarations":  "HYPOTHETICAL. V7, V8b, V9, V10 (condition.type=region): CLAIMED. S2, S3, S4, S5, S6 (noun=corridor): CLAIMED. V0, V1, V2: NON_CLAIMED, it attaches to whatever primary event the game has. All other register rows: NON_CLAIMED. Relationship rules: none, deliberately, so that nothing this contract owns can decide the collision.",
+                                           "hypotheticalMarker":  "HYPOTHETICAL - NOT AUTHORED BY CHRISTIAN. Every CW-H-* item is invented for this collision test only. No such knowledge exists in any workbook; basis is written \u0027AUTHORED (HYPOTHETICAL)\u0027 so the machinery treats it as support-capable. Do not cite, merge or promote it. It does not solve the knowledge collision and does not reopen the Game Representation."
+                                       },
+                      "wideZoneItemsThatCouldCollide":  "V8b: WIDEZONE-11.a, the only genuine collision (same row, selector, scope and strictness; both AUTHORED). V9: WIDEZONE-13.a and 13.b, TYPICAL_EXAMPLE so inert under s3, cannot collide. The noun=channel items 02.a, 02.b, 03, 04.a, 05.a, 06, 07, 08.a, 08.d, 10.a, 10.b (rows S2-S6) collide only if the central region is written noun=channel too. Exclusions 08.c (V5), 16.a (J2), 16.b (V0): not breached.",
+                      "notes":  "Read-only; nothing edited, no generation run. Root: C:\\challenge-point\\.claude\\worktrees\\serene-dewdney-c78e18. Files: back/src/system/activity/slot-mechanics-variations.ts:183, coach-voice.ts:209, back/src/system/sport-module/soccer-module.rc1-v3.json:6647 (Central Density) and :6713 (Wide Zone), docs/audits/conformance/stage-b/contracts.json set 4. WIDEZONE-11.a\u0027s own fitNote already flags that V7 cannot select one object\u0027s modifier; that is why the two land on one line."
+                  },
+    "collision":  [
+                      {
+                          "kind":  "collision",
+                          "result":  {
+                                         "asAuthoredOutcome":  "Nothing collides â€” and not because the game is coherent. Every central-weighting item touching a value row is ENGINE_ONLY (slot-mechanics-variations.ts:183; coach-voice.ts:209), which spec s3 / SD-21 makes inert: no support, no bound, no collision. The only AUTHORED central items (CW-A-07/08/09) sit on S2/S5/S6 with selector noun=zone and carry no value at all, so no value line ever holds two items.",
+                                         "asIfAuthoredOutcome":  "UNRESOLVED on the two V8b referent lines, L185 and L186: CW-H-05 against WIDEZONE-11.a â€” same row, same selector (condition.type=region), same WHOLE_GAME scope, both REQUIRED / REQUIRED_RANGE and support-capable. No contract authors a relationship rule on V8b, and SD-06 (restricts V7/V11 only), SD-07 and SD-08 do not reach it, so spec s6 yields UNRESOLVED under SD-02.",
+                                         "whereItSurfaces":  [
+                                                                 {
+                                                                     "stage":  "Case 1 â€” s3 / SD-21",
+                                                                     "line":  "CW-A-01, 02, 03, 04, 05, 06, 11",
+                                                                     "result":  "inert",
+                                                                     "detail":  "Seven ENGINE_ONLY items, including every one on V7/V8b/V9/V17. Spec s3 makes them inert and s7 reports each as \u0027inert\u0027 â€” one forward line apiece, no verdict changed, no collision. The real contradiction is classified as not-knowledge rather than as a conflict."
+                                                                 },
+                                                                 {
+                                                                     "stage":  "Case 1 â€” s4.3 / s7",
+                                                                     "line":  "CW-A-07 (S2), CW-A-08 (S5), CW-A-09 (S6)",
+                                                                     "result":  "unmet / adapted / adapted",
+                                                                     "detail":  "The only authored central knowledge in the product. Its selector is noun=zone; the game\u0027s central region is written noun=corridor (element central-corridor, 6-24 m, contains the midline). It matches zero elements, so CW-A-07\u0027s cardinality check fails 0\u003c1 and the two PREFERRED_DEFAULTs read \u0027adapted\u0027. The region is there; the selector cannot see it."
+                                                                 },
+                                                                 {
+                                                                     "stage":  "Case 1 â€” grammar s1 boundary",
+                                                                     "line":  "CW-A-10",
+                                                                     "result":  "not checkable",
+                                                                     "detail":  "The 2-3 defender cap inside the central zone is player movement during play, outside the contract boundary. Recorded, not placed on a row, never compared with anything."
+                                                                 },
+                                                                 {
+                                                                     "stage":  "Case 1 â€” s6 (why nothing meets)",
+                                                                     "line":  "S2/S5/S6 lines",
+                                                                     "result":  "no collision possible",
+                                                                     "detail":  "Even support-capable, the authored central items could not meet Wide Zone\u0027s: every WIDEZONE S-item carries selector noun=channel, so they reach different elements and different lines. Wide Zone additionally declares noun in {band, corridor, zone, half, third} NON_CLAIMED at WHOLE_GAME."
+                                                                 },
+                                                                 {
+                                                                     "stage":  "Case 2 â€” s4.3 rule 2 (AM-05)",
+                                                                     "line":  "L183 â€” mod-wide, V7 existence",
+                                                                     "result":  "RESOLVED:ENTAILED (was NOT_AUTHORED)",
+                                                                     "detail":  "CW-H-01 EXISTS at WHOLE_GAME matches exactly one element, mod-wide; the count does not exceed the minimum, so every matching element is necessary and entailed. The hypothetical central contract supplies the existence support Wide Zone Advantage itself could not. Silently, and with no flag."
+                                                                 },
+                                                                 {
+                                                                     "stage":  "Case 2 â€” s4.2 final rule",
+                                                                     "line":  "L184 â€” mod-wide, V8a",
+                                                                     "result":  "RESOLVED:ENTAILED (was NOT_AUTHORED)",
+                                                                     "detail":  "CW-H-01\u0027s selector fixes condition.type=region with \u0027=\u0027, and an item that entails an element entails each attribute its selector fixes that way. The wide modifier\u0027s condition type now reads as authored â€” by the central-corridor contract."
+                                                                 },
+                                                                 {
+                                                                     "stage":  "Case 2 â€” s6 COLLISION",
+                                                                     "line":  "L185 â€” mod-wide, V8b, referent channel-north",
+                                                                     "result":  "UNRESOLVED",
+                                                                     "detail":  "CW-H-05 (EQUALS: the central corridor, sole region referent) against WIDEZONE-11.a (EQUALS: both wide channels, each a referent). One line, no single value satisfies both, nothing authored decides. This is the genuine collision, and both items are nameable in the record."
+                                                                 },
+                                                                 {
+                                                                     "stage":  "Case 2 â€” s6 COLLISION",
+                                                                     "line":  "L186 â€” mod-wide, V8b, referent channel-south",
+                                                                     "result":  "UNRESOLVED",
+                                                                     "detail":  "Identical to L185. V8b is list-valued, so spec s1 gives one line per referent member and the same item pair collides twice. Note that CW-H-05\u0027s \u0027sole\u0027 clause is unenforceable: it is an EQUALS item, and s4.3 checks cardinality only on EXISTS/COUNT/RANGE â€” the s4.3 FLAG biting here."
+                                                                 },
+                                                                 {
+                                                                     "stage":  "Case 2 â€” s4.5 (AM-08)",
+                                                                     "line":  "L187 â€” mod-wide, V9 magnitude",
+                                                                     "result":  "RESOLVED:ENTAILED at \u0027a x2 multiplier\u0027 (was NOT_AUTHORED)",
+                                                                     "detail":  "Correctly no collision: WIDEZONE-13.a/13.b are TYPICAL_EXAMPLE, inert under s3, so CW-H-06 is the only support-capable item. Not over-reported. But the game leaves V9 unstated, so s4.5 records the entailed value â€” an x2 authored for a central corridor becomes the entailed magnitude of the modifier whose referents are the two wide channels."
+                                                                 },
+                                                                 {
+                                                                     "stage":  "Case 2 â€” s6 third probe",
+                                                                     "line":  "L188 â€” mod-wide, V10 combination",
+                                                                     "result":  "RESOLVED:ENTAILED at \u0027mutually exclusive on the layout\u0027; does NOT decide",
+                                                                     "detail":  "CW-H-09 is the sole item (Wide Zone leaves V10 UNDECLARED). It correctly does not resolve L185/L186: s6 and the register\u0027s decidingRules admit only authored relationship rules, RR-01, SD-06, SD-07 and SD-08. The only two relationship rules in all eight contracts decide V1 and T6. The probe passes."
+                                                                 },
+                                                                 {
+                                                                     "stage":  "Case 2 â€” Gate A, overlapping modifiers",
+                                                                     "line":  "spec rev 5 line 438, value.valueModifiers[]",
+                                                                     "result":  "DOES NOT FIRE",
+                                                                     "detail":  "The rule needs two modifier elements whose conditions can hold at once. The restated game holds one, mod-wide. Because V7\u0027s only selectorAttribute is condition.type, both objects\u0027 region modifiers collapse into that single element, so the dedicated overlap check has nothing to compare. The named Gate A defence for exactly this case is idle."
+                                                                 },
+                                                                 {
+                                                                     "stage":  "Case 2 â€” Gate A, no UNRESOLVED property",
+                                                                     "line":  "L185, L186",
+                                                                     "result":  "FAILS; rendering blocked",
+                                                                     "detail":  "Gate A also requires no UNRESOLVED or NOT_AUTHORED property, so it does fail and the rendering precondition holds. But it already fails today on L26, L32, L36 and others, so a reader sees a gate that was failing anyway, not a named contradiction between two knowledge objects."
+                                                                 },
+                                                                 {
+                                                                     "stage":  "Case 2 â€” Gate B forward, required items",
+                                                                     "line":  "CW-H-05, CW-H-07",
+                                                                     "result":  "violated / unmet",
+                                                                     "detail":  "CW-H-05: the stated referents are the two channels, so s7 gives \u0027violated\u0027. CW-H-07 requires the corridor\u0027s functions to include value-condition; the game\u0027s L35 is UNSTATED, so \u0027unmet\u0027. Genuine Gate B forward failures â€” against required items, not against any exclusion."
+                                                                 },
+                                                                 {
+                                                                     "stage":  "Case 2 â€” Gate B forward, exclusions",
+                                                                     "line":  "WIDEZONE-08.a, 08.b, 08.c, 16.a, 16.b",
+                                                                     "result":  "all satisfied; no breach",
+                                                                     "detail":  "No primary-event condition (V5) or objective (J2) names a channel, there is exactly one primary event (V0), the corridor items use noun=corridor so the S4 access exclusion is untouched, and no ACCESS consequence exists. The collision never reaches an exclusion, so that branch answers no."
+                                                                 },
+                                                                 {
+                                                                     "stage":  "Case 2 â€” s4.3 / s5 (AM-10), corridor rows",
+                                                                     "line":  "L33, L34, L37 (and L36)",
+                                                                     "result":  "INVENTED to ENTAILED / ENTAILED / NARROWED_CHOICE; L36 unchanged",
+                                                                     "detail":  "CW-H-02/03 entail the corridor and its noun, and CW-H-04\u0027s POSITIONED \u0027central\u0027 narrows S6 so 6-24 m is a legitimate fill under AM-10. L36 (S5) stays NOT_AUTHORED: CW-H-08 is a PREFERRED_DEFAULT the game leaves absent, read \u0027adapted\u0027 under s7. The hypothetical\u0027s \u0027about a third of the width\u0027 is carried by no item, so the game\u0027s 60% corridor departs invisibly."
+                                                                 }
+                                                             ],
+                                         "exposedCorrectly":  "PARTLY",
+                                         "whatWouldBeMissed":  "The collision surfaces only because the hypothetical wrote \u0027its sole region referent\u0027. Name the corridor as an ADDITIONAL referent instead and each item owns a different V8b member line, both ENTAILED, no collision; Gate A\u0027s overlap rule still idle on one modifier element; V10 \u0027mutually exclusive\u0027 geometrically true. Two opposed value structures on one modifier, every line green.",
+                                         "coachFacingConsequence":  "SPATIAL_VALUE_STRUCTURES_WIDE is attached to slot 1 of every \u0027Discovering Solutions\u0027 session regardless of which constraint was selected (slot-mechanics-variations.ts:279). So a coach can be handed wide channels that \u0027earn an advantage\u0027 and, in the same activity, \u0027Points are worth most through the middle, then wide, then deep.\u0027 Told to go wide, paid to go central.",
+                                         "notes":  "Read-only; nothing edited, no generation run. Two side risks. (1) AM-13 read literally empties OWN_INVOLVEMENT scope for both contracts\u0027 region-existence items â€” neither has a whole-game item entailing a region â€” which would strand WIDEZONE-02.a/03/08.d and CW-H-02. (2) Both sides\u0027 referents rest on the unregistered value phrase \u0027of this contract\u0027; nothing in the register holds it."
+                                     }
+                      },
+                      {
+                          "kind":  "review",
+                          "result":  {
+                                         "asAuthoredOutcome":  "Agree there is no collision, disagree on why. The slice game already instantiates the central element: central-corridor, S2 noun=corridor, S6 6-24 m. Stage D gives L33/L34/L37 INVENTED and L35/L36 NOT_AUTHORED (COVERAGE), both derivers. SD-21 inertness is not what makes the collision vanish; there is simply no central VALUE line anywhere to collide on. The corridor exists and carries nothing.",
+                                         "asIfAuthoredOutcome":  "Reject UNRESOLVED at V8b. V8b is one line per referent (register valueType: one property per referent; game L185/L186 are two lines). Both derivers read WIDEZONE-11.a as a conjunctive per-referent set, not an exclusive EQUALS. A third referent line satisfies both items. The collision exists only because CW-H-05 writes \"sole\" - a completeness claim that s4.3 says can never be a line.",
+                                         "whereItSurfaces":  [
+                                                                 {
+                                                                     "stage":  "Stage D, area 3 (V8b referent lines)",
+                                                                     "line":  "L185, L186",
+                                                                     "result":  "RESOLVED:ENTAILED, collision none - A and B agree",
+                                                                     "detail":  "WIDEZONE-11.a entails channel-north and channel-south as two separate referent lines. Deriver A: \"A conjunctive set, one property per referent, not RC-29 alternatives.\" A third line for central-corridor would be entailed by CW-H-05 and leave 11.a satisfied. The grammar\u0027s natural outcome is the UNION of referents, not a conflict."
+                                                                 },
+                                                                 {
+                                                                     "stage":  "Stage D, area 3 (V7 existence)",
+                                                                     "line":  "L183",
+                                                                     "result":  "NOT_AUTHORED, reason DECLARED_GAP - A and B agree",
+                                                                     "detail":  "Wide Zone declares V7 NOT_AUTHORED at selector *, WHOLE_GAME: \"whether the advantage is a modifier (no default among three)\". mod-wide is already unsupported today, before anything central is added. The prepared head-on collision would sit between two items on an element the same audit says nothing authors (SD-16 lets the field line be entailed anyway)."
+                                                                 },
+                                                                 {
+                                                                     "stage":  "s4.3 AM-05, the two-modifier branch CW-H-01 creates",
+                                                                     "line":  "V7, value.valueModifiers[]",
+                                                                     "result":  "mod-wide AND mod-central both NOT_AUTHORED",
+                                                                     "detail":  "Count 2 exceeds CW-H-01\u0027s minimum of 1, so s4.3(2) entails no individual element; each needs a selector reaching it and no other. V7\u0027s only selectorAttribute is condition.type, so no such selector exists. V7 has no fillable entry, so s5 free choice cannot rescue it. Adding the hypothetical central modifier destroys support for the WIDE one too."
+                                                                 },
+                                                                 {
+                                                                     "stage":  "s8 closed-world absence",
+                                                                     "line":  "mod-central V8b and mod-wide V8b",
+                                                                     "result":  "two forward UNMETs, not an UNRESOLVED line",
+                                                                     "detail":  "WIDEZONE-11.a is WHOLE_GAME, so it binds mod-central as well (the ledger flags exactly this over-broadness). Its channel referents are absent there, and s8 records an absence \"as unmet against each item that does\" entail an element. Symmetrically CW-H-05 on mod-wide. Two forward UNMETs, not an UNRESOLVED line. The prepared contract never cites s8."
+                                                                 },
+                                                                 {
+                                                                     "stage":  "Stage B contract, unplaced original item",
+                                                                     "line":  "WIDEZONE-09 (originalPlacement: UNPLACED)",
+                                                                     "result":  "no item exists, so it can never collide",
+                                                                     "detail":  "The only Wide Zone knowledge bearing on central space. Ledger: \"NOT_DOMINANT has no closed kind... An S6 EXCLUSION of central would be a stronger proxy, so it was not used.\" Dropped as SCHEMA LOCAL, so it is not an item at all. A fourth hiding mechanism beyond inert, assumed and outside-boundary: simply unplaced."
+                                                                 },
+                                                                 {
+                                                                     "stage":  "Stage D, area 1 (does the slice game instantiate it)",
+                                                                     "line":  "L33, L34, L37 INVENTED; L35, L36 NOT_AUTHORED",
+                                                                     "result":  "YES - present and wholly unsupported",
+                                                                     "detail":  "The game does instantiate the central element, with provenance \"WIDEZONE-09, RPC-001-22\" - an item the restated contract does not contain. Authoring CW-H-02/03/04 would convert four unsupported lines into entailed ones. That, not a collision, is the real effect of writing the central corridor as if authored."
+                                                                 },
+                                                                 {
+                                                                     "stage":  "Exclusion items - would any fire instead",
+                                                                     "line":  "08.c (V5), 16.a (J2), 16.b (V0), 08.b (V14b)",
+                                                                     "result":  "none fire",
+                                                                     "detail":  "Each exclusion names a WIDE CHANNEL as the forbidden referent, on a different row. A central corridor modifier touches none of them. 16.b and SD-06 bite only if \"worth double\" is modelled as a second primary event; as a V7 modifier it is not. Confirmed: the exclusions are no backstop here."
+                                                                 },
+                                                                 {
+                                                                     "stage":  "Geometry of the two regions",
+                                                                     "line":  "S6: channels 0-6 and 24-30; corridor 6-24",
+                                                                     "result":  "no relation in the register compares them",
+                                                                     "detail":  "S6 lines are per element and nothing in the register intersects two regions\u0027 across-intervals. A central corridor written 0-30 m carrying x2 would swallow both channels and every line would still read entailed. s6\u0027s \"overlapping bounds intersect and do not collide\" is about item bounds on one line, not geometry."
+                                                                 },
+                                                                 {
+                                                                     "stage":  "Whole run - has the collision path ever fired",
+                                                                     "line":  "UNRESOLVED verdicts across stage D, A and B",
+                                                                     "result":  "0; one collision field, resolved by intersection at L160",
+                                                                     "detail":  "The collision path has never fired. The game\u0027s own bookkeeping is broken too: its ledger records \"dangling collision references - game cites collision 8 and collision 7; flaggedCollisions holds only C1-C4\", and both derivers rejected collision 7 at L187 because typical examples are inert."
+                                                                 }
+                                                             ],
+                                         "exposedCorrectly":  "NO",
+                                         "whatWouldBeMissed":  "That V8b\u0027s per-referent structure makes the UNION the default outcome, so central x2 and Wide Zone coexist with every line green and the wide incentive dead. That mod-wide is already NOT_AUTHORED, so any collision reported on it rests on an unauthored element. That AM-05 turns a second modifier into a support failure for BOTH. And WIDEZONE-09, the one item speaking to central space, is unplaced.",
+                                         "coachFacingConsequence":  "A coach could be handed a game where scoring counts double in the wide channels and double through the middle, with every audit line green. The whole point of Wide Zone Advantage - that wide is worth more than central - is gone, and nothing reports it. The failure mode here is silent acceptance, not a false UNRESOLVED.",
+                                         "notes":  "Read-only; nothing edited, no generation run. Root: C:/challenge-point/.claude/worktrees/serene-dewdney-c78e18. Sources: docs/design/derivation-spec-2026-09-20.md s1, s3, s4.3, s5, s6, s8; register-2026-09-18.json (V7, V8b, V10, fillableIsExhaustive); stage-b/contracts.json set 4 (items, declarations, ledger, originalPlacement); stage-b/game.json L33-L37, L183-L188; stage-d/derivations.json A and B."
+                                     }
+                      }
+                  ],
+    "consolidated":  {
+                         "asAuthoredOutcome":  "Nothing collides, and neither agent gives the first reason. No item in the eight restated contracts mentions central value at all: the weighting exists only in engine code. The game holds one V7 element, mod-wide, and central-corridor carries no value row. No central item, no central value line, nothing for SD-21 inertness to bite on. The corridor exists and is worth nothing.",
+                         "asIfAuthoredOutcome":  "Still no collision, and on Christian\u0027s own adopted rule. AM-11 (spec s5): \"Explicit each means one requirement per member.\" WIDEZONE-11.a says \"each a referent\", so V8b items bind the member they name; CW-H-05 names central-corridor and never reaches L185/L186. Read the deriver\u0027s way, 11.a would demand channel-south on L185 and collide with itself. Reviewer upheld.",
+                         "whereItSurfaces":  [
+                                                 {
+                                                     "stage":  "Decision: the V8b collision, A vs B",
+                                                     "line":  "L185, L186 (mod-wide, V8b)",
+                                                     "result":  "Reviewer upheld; no UNRESOLVED",
+                                                     "detail":  "Register V8b: \"one property per referent\". Both stage-D derivers already read 11.a distributively and gave both lines RESOLVED:ENTAILED. The deriver\u0027s own note concedes its premise: \"sole\" is unenforceable because s4.3 checks cardinality only on EXISTS/COUNT/RANGE. A collision built on an unenforceable clause is not derivable."
+                                                 },
+                                                 {
+                                                     "stage":  "The spec defect the test really exposed",
+                                                     "line":  "spec s1 vs s4.1; grammar sheet line 45",
+                                                     "result":  "One text, two competent readings",
+                                                     "detail":  "s1 makes one line per member. s4.1 matches on row plus element selector only. The grammar sheet: \"An item on a FIELD row applies to every element that satisfies its selector.\" Nothing maps an item onto a member. AM-11 settles it by implication; the text never says it. That wording is mine to fix, not his."
+                                                 },
+                                                 {
+                                                     "stage":  "Has the collision path ever fired",
+                                                     "line":  "stage-d/derivations.json, 420 lines, A and B",
+                                                     "result":  "0 UNRESOLVED",
+                                                     "detail":  "117 ENTAILED, 246 NOT_AUTHORED, 47 INVENTED, 6 NARROWED_CHOICE, 4 FREE(b). Exactly one non-none collision field, L160, resolved by set intersection. Game ledger entry 18 records dangling references to \"collision 7\" and \"collision 8\" that flaggedCollisions never held."
+                                                 },
+                                                 {
+                                                     "stage":  "SD-02\u0027s deciding vocabulary, counted",
+                                                     "line":  "relationshipRules across all eight contracts",
+                                                     "result":  "2 rules, neither on a value row",
+                                                     "detail":  "RPC-001-RR-1 decides V1; RR-GF4-01 decides T6. Wide Zone Advantage has none. With RR-01 and SD-06/07/08, nothing in the corpus can decide a value-modifier collision, so SD-02\u0027s \"unless an authored rule decides it\" branch is unreachable there. SD-02 is untested in both directions: none produced, none decidable."
+                                                 },
+                                                 {
+                                                     "stage":  "Where a genuine collision would surface",
+                                                     "line":  "L187 - mod-wide, V9 magnitude",
+                                                     "result":  "One valueStatus away; machinery sound",
+                                                     "detail":  "V9 is single-valued, so two support-capable items fixing different magnitudes on mod-wide is a true collision under s6 and yields UNRESOLVED. It does not fire only because WIDEZONE-13.a/13.b are TYPICAL_EXAMPLE, inert under s3. Mark one REQUIRED_RANGE with a size against a central x2 and the collision path works as designed."
+                                                 },
+                                                 {
+                                                     "stage":  "What the disagreement is reported as instead",
+                                                     "line":  "s7 and s8 forward list",
+                                                     "result":  "unmet, in two unrelated entries",
+                                                     "detail":  "Membership disagreements never share a line, so they land in the forward list: CW-H-05 unmet, its referent absent; and on a second modifier element WIDEZONE-11.a unmet there under s8. Two rows among hundreds, nothing saying the two knowledge objects are opposed, no verdict changed."
+                                                 },
+                                                 {
+                                                     "stage":  "Gate A overlap rule - its first evidence",
+                                                     "line":  "spec rev 5 line 438; claim at line 521",
+                                                     "result":  "Cannot fire, and the claim is unsupported",
+                                                     "detail":  "The rule needs two modifier elements whose conditions can hold at once. V7\u0027s only selectorAttribute is condition.type, so two contracts\u0027 region modifiers collapse into one element and there is nothing to compare. Line 521 claims revision 3 catches \"...then wide, then deep\" by this exact rule. This is its first test and it does not."
+                                                 },
+                                                 {
+                                                     "stage":  "Gate A does fail, for the wrong reason",
+                                                     "line":  "L26, L32, L36 and 243 others",
+                                                     "result":  "Fails on \"no NOT_AUTHORED property\"",
+                                                     "detail":  "246 NOT_AUTHORED and 47 INVENTED lines today, so the rendering precondition at line 512 already holds before anything central is written. A reader sees a gate that was failing anyway, not a named contradiction between two knowledge objects."
+                                                 },
+                                                 {
+                                                     "stage":  "s4.3 AM-05, if the game holds both modifiers",
+                                                     "line":  "V7, value.valueModifiers[]",
+                                                     "result":  "mod-wide loses its support too",
+                                                     "detail":  "Count 2 exceeds a minimum of 1, so no individual element is entailed; each then needs a selector reaching it and no other, and condition.type cannot separate two region modifiers. V7 has no \"fillable\" entry in the register, so s5 free choice cannot rescue either. Authoring central knowledge unsupports the wide modifier."
+                                                 },
+                                                 {
+                                                     "stage":  "The all-green configuration",
+                                                     "line":  "mod-wide V8b, a third referent line",
+                                                     "result":  "Every line entailed; the constraint is dead",
+                                                     "detail":  "Name central-corridor an additional referent rather than a sole one: 11.a entails L185/L186, the central item entails the new line, and V9 takes x2 as the only support-capable magnitude. Nothing reports that wide no longer beats central. Both agents converge here; this is the real failure mode."
+                                                 },
+                                                 {
+                                                     "stage":  "The one Wide Zone item about central space",
+                                                     "line":  "WIDEZONE-09, originalPlacement UNPLACED",
+                                                     "result":  "Never became an item, so it cannot collide",
+                                                     "detail":  "Ledger: NOT_DOMINANT has no closed kind, and \"An S6 EXCLUSION of \u0027central\u0027 would be a stronger proxy, so it was not used.\" Meanwhile the game\u0027s L33/L34/L37 (corridor, 6-24 m) are INVENTED in both derivations and cite provenance \"WIDEZONE-09, RPC-001-22\" - an item the restated contract does not contain."
+                                                 },
+                                                 {
+                                                     "stage":  "Why the contradiction is inexpressible",
+                                                     "line":  "register rows V7-V10; grammar sheet s3",
+                                                     "result":  "No comparative requirement exists",
+                                                     "detail":  "Requirement kinds are closed - EQUALS, RANGE, COUNT, EXISTS, NOT_EXISTS, POSITIONED, ORIENTED - all absolute and per element. \"Wide is worth more than central\" compares two modifiers and has no row and no requirement kind. coach-voice.ts:209 ships that exact comparative to coaches."
+                                                 },
+                                                 {
+                                                     "stage":  "Side risk: AM-13 empties OWN_INVOLVEMENT",
+                                                     "line":  "WIDEZONE-02.a, 02.b, 03, 04.a, 05.a, 06, 08.a, 08.d, 10.b",
+                                                     "result":  "Wide Zone\u0027s spatial half stranded",
+                                                     "detail":  "Every Wide Zone region item is OWN_INVOLVEMENT. AM-13 fixes that scope to elements entailed by the contract\u0027s other-scoped items, and no Wide Zone WHOLE_GAME item entails a region, so the scope is empty. Stage D gave L21/L22/L23 ENTAILED from 02.a/03/08.d under the older rules. Nobody has re-run this."
+                                                 },
+                                                 {
+                                                     "stage":  "For Christian - the only thing that is his",
+                                                     "line":  "One ruling",
+                                                     "result":  "May a contract author a comparative value claim?",
+                                                     "detail":  "That is the knowledge at stake: wide is worth more than central. The grammar cannot hold it, and Wide Zone\u0027s ledger records that it considered the S6 exclusion proxy and declined. Yes: it needs a row and I design it. No: mutual exclusion is a contract-authoring duty via an EXCLUSION item, and I write that into the grammar sheet. Everything else above is mine."
+                                                 }
+                                             ],
+                         "exposedCorrectly":  "NO",
+                         "whatWouldBeMissed":  "The union: name central-corridor an additional referent on mod-wide and every line reads entailed while Wide Zone\u0027s whole point is gone. That membership disagreements can never be collisions at all. That a second modifier unsupports the first (AM-05). That the comparative \"wide beats central\" has no row. And that WIDEZONE-09, the only item about central space, was never placed.",
+                         "coachFacingConsequence":  "getSlotMechanicalVariations(emphasis, index) takes no constraint argument (slot-mechanics-variations.ts:249), so slot 1 of every Discovering Solutions session carries SPATIAL_VALUE_STRUCTURES_WIDE (:279). Its coach line, coach-voice.ts:209: \"Points are worth most through the middle, then wide, then deep.\" A coach running Wide Zone Advantage is told to go wide and paid to go central.",
+                         "notes":  "Read-only; nothing edited, no generation run; worktree serene-dewdney-c78e18. Two side notes. \"of this contract\" (11.a, 08.b, 08.c, 16.a) is in no register list, so both sides\u0027 referents rest on an unresolvable phrase. And \"central\" IS a registered relativeTerm, so the S6 exclusion Wide Zone\u0027s ledger says it declined was writable in the grammar it had."
+                     }
+}

@@ -518,7 +518,7 @@ Neither puts knowledge prose into the game.
 |---|---|---|---|
 | baseline s1: 18 m channels on 30 m | caught | caught | caught, Gate A (regions fit) |
 | ps-central s1: restart from a place against "play does not stop" | **let through** | caught | caught, Gate A (transition coherence) |
-| "…then wide, then deep", 19 activities | **let through** | caught | caught, Gate A (overlapping modifiers with no combination rule) and render fidelity (SD-05) |
+| "…then wide, then deep", 19 activities | **let through** | caught | **corrected 20 Sep:** caught by render fidelity (SD-05) only. The collision test showed Gate A's overlap rule cannot fire as the register stands: a modifier's only selector attribute is its condition type, so two objects' region modifiers collapse into one element and there is nothing to compare. The claim that the overlap rule catches this was untested until then |
 | gf-channel s1: "the other team gets the opposite channel" | **let through** | caught | caught, Gate A (`ACCESS` needs a uniquely resolving region) |
 | em-foundation-neutral s1: "10 players in a 6v6 format" | uncaught | caught | caught by render fidelity; the missing neutral by Gate B |
 | ps-goal-kicks s2: "Teams start in their defensive zone, with the ball in the central zone. Play begins with a pass from the central zone." | — | passed on an implicit kickoff default ([LG] MP-KICKOFF) | **pending.** The text authors no START method. Reading "the ball in the central zone" as a stationary-ball start is this specification's inference from generated prose. The verdict waits on how START is resolved (P-1, P-2). From Goal Kicks unrealized is caught by Gate B either way |
