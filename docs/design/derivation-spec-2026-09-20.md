@@ -42,6 +42,12 @@ Every line gets exactly one verdict. Take the first that applies:
 alternatives, outside boundary, engine-only, assumed-only, each only where such an item bears on the
 value; then declared gap; then coverage.
 
+**The last two need definitions the order does not supply**, and every derivation so far has used the
+same working convention rather than a stated rule: **declared gap** where a `NOT_AUTHORED` declaration
+reaches the element — an object said it needs this and cannot author it; **coverage** where only an
+`UNDECLARED` row reaches it — nobody looked. The distinction matters because one is knowledge missing
+and the other is a contract that never examined the row. *(Convention, not his ruling. Flagged.)*
+
 Existence and value are judged separately. A field of an element whose existence is neither entailed
 nor a legitimate choice may still be entailed or not authored, but never a choice or free.
 
@@ -85,6 +91,16 @@ contextual team designations. An episode-scoped designation remains episode-scop
 designation is met by each team the game's stated transitions make it at some trigger; the build-out
 team is the team awarded the start placement (KR-03). In a value, designations compare as canonical
 entries, and a game value written "(= entry)" counts as that entry.
+
+**Open: nothing normalises a reference held in an item's *value*.** AM-12 governs selectors, and the
+team-designation sentence above is the only rule for the value side. But items also carry values that
+*refer* to elements — "both wide channels of this contract", a region reference on a start placement, a
+referent list on a value modifier. Matching those is verbatim (§4.2), so a paraphrase misses and a
+prose reference matches nothing, silently. This was the weakest joint in the rederivation, and it is a
+genuine hole rather than a flagged preference: either the value side gets AM-12's treatment — normalise
+to registered element ids, and an unnormalisable reference is a restatement defect, reported — or
+contract authors must write element ids in values, which the grammar sheet does not currently say.
+**I recommend the first**, and have not applied it.
 
 ### 4.2 Comparison and relation
 
@@ -301,6 +317,24 @@ reason alternatives. An authored order is recorded, not applied.
 | Per objective set | the set's member objectives and every element they reference (AM-02, adopted) |
 | Per team | by the team designation, resolved as in §4.1 |
 | Own involvement | the elements entailed by the contract's other-scoped items, fixed before any own-involvement item applies; an item may not use it to reach what it entails itself (AM-13, adopted) |
+
+**Open, and it changes verdicts: are own-involvement *declarations* emptied with the items?** AM-13's
+restriction is written about items; the scope is defined as a set of elements. Across the eight
+contracts, 31 items and **29 declarations** sit at own-involvement scope. Where the scope resolves
+empty, the items plainly reach nothing — but if the declarations go with them, a line the object
+explicitly declared `NOT_AUTHORED` falls through to **invented** instead of a gap. That is what
+happened to Wide Zone's two channel lines.
+
+Two readings, and it is his call:
+- **(a) Declarations share the scope.** Consistent, and the current reading. Wide Zone's channels read
+  invented.
+- **(b) A declaration survives its items.** A declaration is a statement about the contract's own
+  knowledge — "I need channels and cannot author them" — not a claim about elements, so an empty scope
+  does not falsify it. The lines then read as a declared gap.
+
+**I recommend (b)**, for the reason his SD-28 gives in the neighbouring case: reporting "someone
+invented this" when the object actually said "I cannot author this" inverts a gap into a fault. I have
+not applied it; the derivations above use (a).
 | Whole game | everything |
 
 Scope spreads a bound across units; it does not create them.
