@@ -2560,6 +2560,28 @@ closed-world absence.
   outcome, not a Game status** — the four Game statuses stay as they are.
 - Retain: "Reconciliation can only expose conflicts that have first been expressed in the grammar."
 
+**The narrow rerun** (`docs/audits/collision-rerun-2026-09-20.md`), verified by a re-derive / attack /
+judge check rather than asserted:
+- **The gain:** the comparative is expressible for the first time, both sides surface, Gate B forward
+  does not pass, and the silent-acceptance configuration now reports both claims violated. AM-17 created
+  nothing and AM-13 held.
+- **As run it reached PARTLY:** the two claims landed as two unrelated forward failures, because nothing
+  said which line a comparison reaches. Four rules were missing from my spec, not from his decisions.
+- **On the amended text it does reach UNRESOLVED** at the wide modifier's magnitude line, under either
+  reading of that magnitude.
+- **Still not established:** neither item is real knowledge (Wide Zone's contract stops at item 17, and
+  the other side is invented); **no row holds a region's value, so his own `value(A) > value(B)` example
+  is unwritable in the form he adopted**; nothing he ruled says a not-evaluable comparative still bounds
+  its line; the magnitude's kind is unfixed, so the conflict is detectable but not recordable.
+- **Six residuals sent**, in load-bearing order: operand form; effective value and the magnitude's kind;
+  whether an ASSUMED item can collide with an authored one; which line a comparison reaches; **whether
+  my amendments are operational under SD-22 or structural** (they touch the relationship model and the
+  meaning of support, both named in SD-22's own list); and two the case exposed — whether a collision
+  should outrank an unauthored gap, and whether anything screens a comparative for whether its knowledge
+  is real, since one fabricated comparative can currently unresolve any modified property.
+- **Correction sent:** revision 5's claim that AM-17 rescues L21/L27 was wrong; four of five lateral
+  values had no interval test. Written now, not re-derived.
+
 **The six code sentences are classified** (`docs/design/code-sentences-classification-2026-09-20.md`),
 awaiting his individual rulings: retire 1–4 (the "beyond the first defenders" setups — KR-04 already
 says RPC-001 does not instantiate its carrier, and RPC-PROP-132 authors the scoring condition); retire
