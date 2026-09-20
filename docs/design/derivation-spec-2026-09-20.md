@@ -92,15 +92,20 @@ designation is met by each team the game's stated transitions make it at some tr
 team is the team awarded the start placement (KR-03). In a value, designations compare as canonical
 entries, and a game value written "(= entry)" counts as that entry.
 
-**Open: nothing normalises a reference held in an item's *value*.** AM-12 governs selectors, and the
-team-designation sentence above is the only rule for the value side. But items also carry values that
-*refer* to elements — "both wide channels of this contract", a region reference on a start placement, a
-referent list on a value modifier. Matching those is verbatim (§4.2), so a paraphrase misses and a
-prose reference matches nothing, silently. This was the weakest joint in the rederivation, and it is a
-genuine hole rather than a flagged preference: either the value side gets AM-12's treatment — normalise
-to registered element ids, and an unnormalisable reference is a restatement defect, reported — or
-contract authors must write element ids in values, which the grammar sheet does not currently say.
-**I recommend the first**, and have not applied it.
+**Every structural reference normalises, not only selectors (SD-32, ruled).** In his words:
+
+> "Any structural reference participating in derivation must resolve through the registered
+> identity/reference system before derivation. If it cannot normalize, report the reference/restatement
+> defect. Do not silently use prose matching and do not infer the intended element."
+
+This reaches the references items carry in their **values** — "both wide channels of this contract", a
+region on a start placement, a modifier's referent list — which AM-12 did not cover, so a prose
+reference used to miss verbatim and silently. Now:
+1. Every structural reference, in a selector or a value, resolves to registered element identity before
+   derivation begins.
+2. One that will not resolve is a **reference defect**, reported against the contract that wrote it.
+3. **Nothing is matched by meaning**, and no intended element is inferred. A defect is the outcome, not
+   a best guess.
 
 ### 4.2 Comparison and relation
 
@@ -325,23 +330,20 @@ reason alternatives. An authored order is recorded, not applied.
 | Per team | by the team designation, resolved as in §4.1 |
 | Own involvement | the elements entailed by the contract's other-scoped items, fixed before any own-involvement item applies; an item may not use it to reach what it entails itself (AM-13, adopted) |
 
-**Open, and it changes verdicts: are own-involvement *declarations* emptied with the items?** AM-13's
-restriction is written about items; the scope is defined as a set of elements. Across the eight
-contracts, 31 items and **29 declarations** sit at own-involvement scope. Where the scope resolves
-empty, the items plainly reach nothing — but if the declarations go with them, a line the object
-explicitly declared `NOT_AUTHORED` falls through to **invented** instead of a gap. That is what
-happened to Wide Zone's two channel lines.
+**Declarations survive an empty own-involvement scope (SD-31, ruled).** In his words:
 
-Two readings, and it is his call:
-- **(a) Declarations share the scope.** Consistent, and the current reading. Wide Zone's channels read
-  invented.
-- **(b) A declaration survives its items.** A declaration is a statement about the contract's own
-  knowledge — "I need channels and cannot author them" — not a claim about elements, so an empty scope
-  does not falsify it. The lines then read as a declared gap.
+> "Declarations do not disappear when own-involvement resolves empty. An empty resolved scope empties
+> the item's application set, not the contract's declaration. Preserve the declaration so the result
+> reports the authored gap rather than converting it into `invented`."
 
-**I recommend (b)**, for the reason his SD-28 gives in the neighbouring case: reporting "someone
-invented this" when the object actually said "I cannot author this" inverts a gap into a fault. I have
-not applied it; the derivations above use (a).
+And his reason, which generalises: **"authored intention that could not reach an element ≠ structure
+nobody authorized."**
+
+So the scope is two things, not one: it fixes the **application set** of the contract's items, and it
+does not limit what the contract has **said about its own knowledge**. Across the eight contracts, 31
+items and 29 declarations sit at own-involvement scope; under this ruling the items reach nothing when
+the scope is empty, and every one of those declarations still reaches §4.6(2). Wide Zone's two channel
+lines move from `INVENTED` to a declared gap, which is what its contract actually says.
 | Whole game | everything |
 
 Scope spreads a bound across units; it does not create them.
@@ -516,6 +518,19 @@ qualifying primary scoring event (SD-25); where a comparison lands (SD-26); whet
 collide (SD-27 — it cannot); gap before collision (SD-28); and the classification of the whole
 extension (SD-29). The six sentences are ruled (KR-05). The §6/§8 mismatch and the fabricated-comparative
 problem both fall away under SD-26 to SD-28.
+
+**Closed by his rulings authorizing design** (20 September, [C20c]): the value modifier's operation
+approved as a local addition with `multiply / add / replace` as the vocabulary *currently* supported
+(SD-30); declarations survive an empty own-involvement scope (SD-31); every structural reference
+normalises, not only selectors (SD-32); the engine is report-only and the recovery policy is explicitly
+**not** to be designed now (SD-33); comparative cardinality stays unsupported until a real case needs it
+(SD-34); and SD-10 gains a machine test (SD-10a). AM-17's disposition: derivation does not repair Wide
+Zone; restating its contract is a future **knowledge-authoring** task.
+
+**One standing consequence of SD-30 that outlives this document:** *"No historical activity should be
+treated as retrospectively validated under this newer specification merely because it passed an earlier
+audit."* Every result produced before 20 September — the slice, the replays, the conformance check —
+describes what an older rule set said. None of it certifies an activity under these rules.
 
 **Still open, and none of it blocks the engine's design:**
 - Whether cardinality becomes a first-class property (§4.3). He ruled no schema change yet.

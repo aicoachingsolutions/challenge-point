@@ -129,6 +129,7 @@ Audit {
   collisions: [ { collisionId, propertyId, items: [ref], bounds: [text],
                   decidedBy: ruleId | null, why } ]
   relationshipConflicts: [ { conflictId, items: [ref], operandsAsResolved, why, objects: [id] } ]
+  referenceDefects: [ { contractId, itemId, where: 'selector' | 'value', text, why } ]
   tensions: [ { items: [ref], why, diagnosticOnly: true } ]
   dispositions: [ { contractId, itemId, disposition, citing } ]
 }
@@ -155,6 +156,14 @@ Audit {
   words" — and collapsing them was exactly the mistake his rulings corrected.
 - **Nothing here ranks above a gap.** Under SD-28 an unauthored or incomputable dependency is reported
   as a gap, and no conflict record is raised on it. The shapes cannot express the inversion.
+- **`referenceDefects` is required by SD-32:** a structural reference — in a selector *or* in an item's
+  value — that will not resolve through registered identity is reported against the contract that wrote
+  it. It is never matched by meaning and no intended element is inferred, so the record must carry the
+  unresolvable text itself, not a best guess at what it meant.
+- **A declaration is stored independently of its items' application set** (SD-31). An empty scope
+  empties what the items reach; the declaration still reaches the failure classification. Storing a
+  declaration inside its items' resolution would make his distinction unrepresentable, so it is stored
+  beside them.
 - `sources` and `support` are computed, never written by whatever resolves the game.
 - `derivationVersion` stamps which rule set produced the record, so a stored activity can be re-audited
   when the rules change.
@@ -220,9 +229,12 @@ collision outranks a gap (SD-28, it does not). What the shapes still refuse to s
 
 ## 7. Next parts
 
-- **Part 2, after the six residuals:** the derivation engine — support, statuses, the gates, and the
-  failure path. He said the collision question is sufficiently exercised for this design to begin once
-  the rerun worked; it partly did, and the residuals are what part 2 would otherwise have to guess.
+- **Part 2 is authorized and under way** (20 September): the derivation engine — support, statuses, the
+  gates, and the failure path. He ruled the engine **report-only** (SD-33): it returns resolved results
+  where possible, both gates' results, structured failures, gaps and conflicts, and the audit; it never
+  re-selects, weakens a requirement, decides to generate fewer activities, or repairs selection.
+  Recovery belongs to the caller, and **its policy is explicitly not to be designed now**. The design
+  goes to him for review before any implementation.
 - **Part 3:** rendering under render fidelity, and the disposition of every step that writes structure
   today.
 - **Done, before part 2:** the collision test (19–20 September) and the narrow rerun under AM-16 and

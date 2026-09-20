@@ -1,5 +1,16 @@
-# Game Representation Specification — revision 6, with Christian's ownership decisions
+# Game Representation Specification — revision 7, with Christian's ownership decisions
 
+> **Revision 7 (20 September)** authorizes derivation-engine **design** and adds SD-30 to SD-34 and
+> SD-10a. **Design may begin; implementation stays frozen until he reviews the proposed design.**
+>
+> **The architecture, in his words, and this is the form to use from here:** *"The eight-area Game
+> Representation remains stable; one existing collection gained a required property necessary to make
+> its authored meaning computable. The contribution/derivation grammar has also received the previously
+> identified bounded structural-semantic extension."*
+>
+> He also ruled, and it governs every earlier result: **"No historical activity should be treated as
+> retrospectively validated under this newer specification merely because it passed an earlier audit."**
+>
 > **Revision 6 (20 September)** closes the collision exercise. It adds SD-23 to SD-29 and KR-05: what
 > may be an operand of a comparison, effective value and the modifier's declared operation, the base
 > value of a scoring event, where a comparison lands, that an assumed item cannot create an
@@ -64,6 +75,9 @@ coach language can describe that game but cannot create additional structure."
 - **[C18b]** Christian's second set of decisions of 18 September, on revision 3, quoted where used;
 - **[C19]** Christian's rulings of 19 September, after the conformance check, quoted where used;
 - **[C20]** Christian's rulings of 20 September on comparative claims, quoted where used;
+- **[C20c]** Christian's rulings of 20 September authorizing derivation-engine **design** — the value
+  modifier's operation, empty own-involvement scope, AM-12's extension, the report-only failure path,
+  comparative cardinality, SD-10's necessity test and AM-17's disposition — quoted where used;
 - **[C20b]** Christian's rulings of 20 September closing the collision exercise — operands, effective
   value, assumed items, where a comparison lands, classification, gap versus collision, and the six
   code sentences — quoted where used;
@@ -155,6 +169,12 @@ writes the field is proposal P-9.
 | SD-28 | **Gap before collision.** "A collision requires well-formed, support-capable authoritative claims with sufficiently resolved operands/properties." Therefore an unauthored or incomputable dependency is a **gap first**, and only contradictory authoritative evaluable claims give an unresolved collision. "An invented or assumed comparative cannot manufacture an authoritative collision" | derivation spec §6 | [C20b] |
 | SD-29 | **Classification of the comparative extension:** "a bounded structural-semantic extension to the contribution/derivation grammar, not merely an operational reading rule. The Game Representation data shape remains stable. What changed is the grammar's ability to express and evaluate relationships among represented properties." Recorded as that distinction, and **not** as a weakening of the data-model stability finding | the stability test; qualifies SD-22 for this case | [C20b] |
 | KR-05 | **The six sentences held in code, ruled individually.** 1–4 retire as legacy realization wording, and "beyond the first defenders" is not promoted. 5a retires; existing scoring-event knowledge owns it. 5b becomes SD-25. 5c: the code sentence retires, `long clearance` is the canonical internal term, SD-15's free qualitative judgement attaches to it, and "long kick" may remain coach-facing wording rather than a canonical matching term. 6 retires: RPC-001's build-out episode is not converted into every attacking episode, and own-half restart placement is not inferred. The resulting **carrier placement** and **build-out restart placement** questions "remain explicit knowledge gaps. Do not fill them from legacy code" | `COACH_RULES`; RPC-001's contract items | [C20b] |
+| SD-30 | **The value modifier's `operation` is approved** as a local Game Representation addition. The architecture is recorded in his words: *"The eight-area Game Representation remains stable; one existing collection gained a required property necessary to make its authored meaning computable. The contribution/derivation grammar has also received the previously identified bounded structural-semantic extension."* The vocabulary is `multiply / add / replace` — *"the currently supported closed vocabulary, not an assertion that no future legitimate operation can exist"*. **"An authored modifier magnitude without an authored operation is incomplete and effective value is not computable."** And: *"No historical activity should be treated as retrospectively validated under this newer specification merely because it passed an earlier audit"* | row `V9a`; SD-24; every prior audit | [C20c] |
+| SD-31 | **Declarations survive an empty own-involvement scope.** *"An empty resolved scope empties the item's application set, not the contract's declaration. Preserve the declaration so the result reports the authored gap rather than converting it into `invented`."* His reason: *"authored intention that could not reach an element ≠ structure nobody authorized"* | derivation spec §6 and §4.6; moves Wide Zone's channel lines from `INVENTED` to a declared gap | [C20c] |
+| SD-32 | **AM-12 extends past selectors.** *"Any structural reference participating in derivation must resolve through the registered identity/reference system before derivation. If it cannot normalize, report the reference/restatement defect. Do not silently use prose matching and do not infer the intended element"* | derivation spec §4.1; element references held in an item's value | [C20c] |
+| SD-33 | **The engine is report-only.** It returns resolved results where possible, Gate A and Gate B results, structured failures, gaps and conflicts, and the audit, provenance and support record. *"It does not re-select knowledge, weaken requirements, decide to generate fewer activities, or otherwise repair selection."* Recovery belongs to the caller. If re-selection is ever permitted *"it must be bounded and must preserve specified planning/learning invariants so repeated attempts cannot silently select away the coach's intention or session emphasis"*. **"Do not design that recovery policy now"** | the engine's output contract; the failure path | [C20c] |
+| SD-34 | **Comparative cardinality stays unsupported.** `count(A) = count(B)` was *"illustrative, not authorization for a cardinality schema change"*. It returns only with a concrete authored case that requires it | AM-16's operand kinds; §4.3 | [C20c] |
+| SD-10a | **The machine test for SD-10's structural necessity**, in his words: *"An objective is structurally necessary when removing it would make at least one authoritative required contribution unsatisfied or make the resolved game's required primary event, direction, transition, or representative configuration structurally incomplete. A mere reference from optional/supporting knowledge is not sufficient to establish necessity."* SD-10 is typed as a prohibition on removal, not a source of support | the register's SD-10 entry; J1 and J4 | [C20c] |
 | SD-21 | Wording held in code (formerly P-8): "Code, prompts, tests, templates and coach-rule sentences do not count as authored knowledge merely because they exist. They may be evidence of previous design intent and candidates for ratification, but they cannot support a resolved property until deliberately authored into an appropriate knowledge source or standing decision." The coach-rule sentences are not audited wholesale; those a check depends on are surfaced, to be classed later as ratify, standing decision or retire | every contract item's `basis` | [C18b] |
 
 ### Rejected, recorded so it is not reintroduced

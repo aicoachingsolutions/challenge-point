@@ -82,6 +82,26 @@ hypothetical.
 decision is sound; its typing is not. This is register hygiene and I will fix the typing rather than
 send it back to you, unless you would rather see the correction first.
 
+## How he ruled — all three scoped items closed, and design authorized
+
+He accepted the central conclusion and closed every scoped item the same day. **Design may begin;
+implementation stays frozen until he reviews the proposed design.**
+
+| Item | His ruling |
+|---|---|
+| Own-involvement declarations | **Preserved.** "An empty resolved scope empties the item's application set, not the contract's declaration… authored intention that could not reach an element ≠ structure nobody authorized" (SD-31). Wide Zone's channel lines become a declared gap |
+| AM-12 on values | **Extended, and generalised past what I proposed:** "Any structural reference participating in derivation must resolve through the registered identity/reference system before derivation… Do not silently use prose matching and do not infer the intended element" (SD-32) |
+| The failure path | **Report-only, as recommended** — resolved results, gate results, structured failures, gaps and conflicts, and the audit. "It does not re-select knowledge, weaken requirements, decide to generate fewer activities, or otherwise repair selection." Recovery belongs to the caller, and **"do not design that recovery policy now"** (SD-33) |
+| The modifier's operation | **Approved** as a local addition, with `multiply / add / replace` the vocabulary *currently* supported. An authored magnitude with no authored operation is **incomplete** (SD-30) |
+| Comparative cardinality | Stays unsupported; his example was "illustrative, not authorization for a cardinality schema change" (SD-34) |
+| SD-10 | Retyped as a prohibition, with his own machine test for structural necessity — and **a mere reference from optional or supporting knowledge is explicitly not sufficient**, which rejects the candidate test I had proposed (SD-10a) |
+| AM-17 | Correction accepted. "Do not repair Wide Zone through derivation." Restating its contract is recorded as a future **knowledge-authoring** task, not work to do now |
+
+**And one ruling that reaches backwards over everything:** *"No historical activity should be treated as
+retrospectively validated under this newer specification merely because it passed an earlier audit."*
+The slice, the replays and the conformance check describe what older rules said. None of them certifies
+an activity under these.
+
 ## What was checked, and what was not
 
 Six documents were read in full: the derivation specification, the representation specification at
