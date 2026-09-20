@@ -42,7 +42,8 @@ rendered, and nothing in the audit is coach-facing.
 
 The register (`docs/audits/conformance/register-2026-09-18.json`) is the schema, not a document about
 it. It is versioned data, loaded at start-up, and it defines:
-- the **rows**: 81 today, each with an id, a path, a kind (collection, field, view), a value type and,
+- the **rows**: 82 today — 81 plus `V9a`, the value modifier's operation, added 20 September by
+  SD-30 — each with an id, a path, a kind (collection, field, view), a value type and,
   for collections, its selector attributes;
 - which rows a free choice may fill;
 - the closed vocabularies, each versioned separately so SD-18's review can replace contents without
