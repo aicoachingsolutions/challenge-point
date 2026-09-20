@@ -1,5 +1,9 @@
-# Game Representation Specification — revision 7, with Christian's ownership decisions
+# Game Representation Specification — revision 8, with Christian's ownership decisions
 
+> **Revision 8 (20 September)** approves the engine-design direction and adds SD-35 to SD-38: the
+> derivation boundary on variation, BUILD_OUT_EPISODE as the sixth scope, "derivation diagnoses; it
+> does not design", and how the unrepresentable cases are held without being solved.
+>
 > **Revision 7 (20 September)** authorizes derivation-engine **design** and adds SD-30 to SD-34 and
 > SD-10a. **Design may begin; implementation stays frozen until he reviews the proposed design.**
 >
@@ -75,6 +79,7 @@ coach language can describe that game but cannot create additional structure."
 - **[C18b]** Christian's second set of decisions of 18 September, on revision 3, quoted where used;
 - **[C19]** Christian's rulings of 19 September, after the conformance check, quoted where used;
 - **[C20]** Christian's rulings of 20 September on comparative claims, quoted where used;
+- **[C20d]** Christian's rulings of 20 September approving the engine-design direction — the free-choice boundary, BUILD_OUT_EPISODE as the sixth scope, the five smaller choices, and how the unrepresentable cases are to be held — quoted where used;
 - **[C20c]** Christian's rulings of 20 September authorizing derivation-engine **design** — the value
   modifier's operation, empty own-involvement scope, AM-12's extension, the report-only failure path,
   comparative cardinality, SD-10's necessity test and AM-17's disposition — quoted where used;
@@ -175,6 +180,10 @@ writes the field is proposal P-9.
 | SD-33 | **The engine is report-only.** It returns resolved results where possible, Gate A and Gate B results, structured failures, gaps and conflicts, and the audit, provenance and support record. *"It does not re-select knowledge, weaken requirements, decide to generate fewer activities, or otherwise repair selection."* Recovery belongs to the caller. If re-selection is ever permitted *"it must be bounded and must preserve specified planning/learning invariants so repeated attempts cannot silently select away the coach's intention or session emphasis"*. **"Do not design that recovery policy now"** | the engine's output contract; the failure path | [C20c] |
 | SD-34 | **Comparative cardinality stays unsupported.** `count(A) = count(B)` was *"illustrative, not authorization for a cardinality schema change"*. It returns only with a concrete authored case that requires it | AM-16's operand kinds; §4.3 | [C20c] |
 | SD-10a | **The machine test for SD-10's structural necessity**, in his words: *"An objective is structurally necessary when removing it would make at least one authoritative required contribution unsatisfied or make the resolved game's required primary event, direction, transition, or representative configuration structurally incomplete. A mere reference from optional/supporting knowledge is not sufficient to establish necessity."* SD-10 is typed as a prohibition on removal, not a source of support | the register's SD-10 entry; J1 and J4 | [C20c] |
+| SD-35 | **The derivation boundary on variation.** In his words: *"Derivation determines what must be true, what may vary, and the legitimate bounds of variation. A downstream explicitly governed choice process determines which permitted value becomes true in the particular game."* The engine emits a permitted free choice as `OPEN`, carrying its legitimate bounds, the authority or rule permitting it, and any applicable constraints — **and no selected value**. *"Do not define that downstream process yet, and do not give the derivation engine a hidden deterministic selection policy"* | the engine's output contract; SD-16 | [C20d] |
+| SD-36 | **`BUILD_OUT_EPISODE` is approved as the sixth scope**, defined narrowly in his words: *"applies to the attacking episode whose beginning satisfies the resolved RPC-001 build-out begin condition. It does not automatically extend to subsequent attacking episodes."* *"This is a vocabulary addition making an already-authored distinction executable, not a new Game Representation area"* | the scope vocabulary; KR-03 | [C20d] |
+| SD-37 | **Derivation diagnoses; it does not design.** Failure records diagnose only — they never recommend or perform a repair. With it he approved: partial resolution preserved alongside failures; both gates run where they are independently evaluable; canonical ordering throughout; render-fidelity validation outside the engine and after rendering | the engine's failure records; §8 of the engine design | [C20d] |
+| SD-38 | **The six unrepresentable cases are recorded, not solved.** No grammar extension yet, each recorded **individually**, and specifically: *"do not yet collapse the three conditional-looking cases into one mechanism. They may have different eventual ownership"* — RPC-001's carrier may need conditional applicability on a resolved game property; GF4's "when the goal is defending under overload" may belong upstream in selection; GF4's two-goal-or-two-target layout may be an alternative-realization issue. Example-status existence and aggregate comparison wait for authored knowledge that justifies the change | the knowledge-authoring task register | [C20d] |
 | SD-21 | Wording held in code (formerly P-8): "Code, prompts, tests, templates and coach-rule sentences do not count as authored knowledge merely because they exist. They may be evidence of previous design intent and candidates for ratification, but they cannot support a resolved property until deliberately authored into an appropriate knowledge source or standing decision." The coach-rule sentences are not audited wholesale; those a check depends on are surfaced, to be classed later as ratify, standing decision or retire | every contract item's `basis` | [C18b] |
 
 ### Rejected, recorded so it is not reintroduced

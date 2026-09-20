@@ -137,12 +137,14 @@
       "requirement": ["EQUALS", "RANGE", "COUNT", "EXISTS", "NOT_EXISTS", "POSITIONED", "ORIENTED", "COMPARES"],
       "strictness": ["REQUIRED", "SUPPORTING", "EXCLUSION"],
       "valueStatus": ["REQUIRED_RANGE", "PREFERRED_DEFAULT", "TYPICAL_EXAMPLE", "N/A"],
-      "scope": ["WHOLE_GAME", "PER_TEAM", "PER_OBJECTIVE_SET", "OWN_INVOLVEMENT"],
+      "scope": ["WHOLE_GAME", "PER_TEAM", "PER_OBJECTIVE_SET", "OWN_INVOLVEMENT", "BUILD_OUT_EPISODE"],
+      "scopeBuildOutEpisode": "APPROVED 20 September (SD-36), in his words: applies to the attacking episode whose beginning satisfies the resolved RPC-001 build-out begin condition. It does NOT automatically extend to subsequent attacking episodes. A vocabulary addition making an already-authored distinction executable, not a new Game Representation area.",
       "basis": ["AUTHORED", "ASSUMED", "OWNER_RULING", "ENGINE_ONLY"],
       "checkability": ["STRUCTURAL", "PARTLY_STRUCTURAL", "OUTSIDE_BOUNDARY"],
       "declaration": ["CLAIMED", "EXCLUDED", "NON_CLAIMED", "NOT_AUTHORED", "UNDECLARED"]
     },
-    "scopeGap": "MEASURED 20 September and NOT silently fixed: the stage-B contracts use a sixth scope, BUILD_OUT_EPISODE, on 6 items and declarations, and it is in no closed list. A new scope value is VOCABULARY class by the grammar sheet. Until Christian rules, a contract carrying it is REFUSED at load - which is the engine behaving correctly, not a workaround. 64 more carry an em-dash placeholder where a scope belongs, which is a contract defect rather than a vocabulary question."
+    "scopeConformance": "CHECKED 20 September at his instruction, against his definition. All six uses: RPC-001-11.b (J11b) CONFORMS - it is about the build-out episode and cites KR-02/KR-03 as OWNER_RULING - and so does its J11b declaration. The other four do NOT: RPC-001-16.a (T4), 16.b (T3) and 16.c (T6) are all keyed on the selector trigger in {SCORE, OUT_END_LINE, OUT_TOUCHLINE, POSSESSION_CHANGE}, which are the triggers that END an episode and begin the NEXT one, so scoping them to the build-out episode claims exactly the extension to subsequent attacking episodes his definition excludes. The T4 declaration inherits 16.a. All three items are also basis ENGINE_ONLY on the sentence retired under KR-05 item 6, so they support nothing under SD-21, and 16.c additionally contradicts SD-20. Reported, not broadened; recorded as a contract-authoring task.",
+    "scopePlaceholderDefect": "Separately, 64 items and declarations carry an em-dash placeholder where a scope belongs. A contract-authoring defect from the restatement exercise, not a vocabulary question."
   },
   "applicability": {
     "note": "Added 20 September. Some FIELD rows do not apply to every element of their collection, and the register stated that ONLY inside valueType prose. Without this as data, line enumeration creates lines no author can ever close and Gate A can never pass. A row listed here yields NO line for an element whose condition fails; it is not NOT_AUTHORED, it is not applicable.",

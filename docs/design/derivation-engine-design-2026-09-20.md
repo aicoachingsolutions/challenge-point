@@ -230,13 +230,25 @@ contracts.
 | 5 | **An aggregate across elements** | Wide Zone's "not dominant": the two channels' combined widths must stay under the envelope width | No requirement kind aggregates, and no aggregate function is named for comparisons either. This is the same hole seen from two sides | Today — it is why WIDEZONE-09 never became an item at all |
 | 6 | **A comparison of two counts** | `count(A) = count(B)` | Cardinality is not a property (SD-34, deliberate) | Not today. His ruling: bring it back with a concrete authored case |
 
-**Numbers 1, 3 and 4 share one shape:** knowledge that says *when* something applies. The grammar holds
-what a game must contain, not under what circumstances a requirement is live. That is the single largest
-representational limit, it is deliberate, and **it is not something the engine can work around** — an
-engine that inferred the condition would be authoring.
+**I had grouped three of these as one problem — "knowledge that says *when* a requirement is live" —
+and he corrected that.** His instruction: *"do not yet collapse the three conditional-looking cases into
+one mechanism. They may have different eventual ownership."* He is right, and the grouping was a
+premature synthesis of the kind that looks like insight and forecloses options. They look alike in the
+grammar and may belong in three different places:
 
-I am not proposing a mechanism for any of them. Each would be a grammar extension of the kind he has
-just classified carefully, and the right moment to consider one is when a real object is blocked by it.
+| Case | Where it may actually belong, in his words |
+|---|---|
+| RPC-001's carrier (1) | *"may require conditional applicability based on a resolved game property"* — inside the representation |
+| GF4's "when the goal is defending under overload" (3) | *"may instead belong upstream in selection/applicability"* — before a contract exists at all |
+| GF4's two-goal or two-target layout (2) | *"may be an alternative-realization issue"* — downstream, where a permitted choice is made |
+
+If those are the right homes, one conditional mechanism would have been the wrong answer three times
+over. **The distinctions are preserved until real cases say otherwise** (SD-38), and each is recorded
+separately in the knowledge-authoring task register.
+
+The same restraint applies to the other two: example-status existence and aggregate comparison wait for
+authored knowledge that needs them strongly enough to justify a grammar change. **It is not the engine's
+place to work around any of them** — an engine that inferred a condition would be authoring.
 
 ---
 
@@ -260,13 +272,32 @@ Enumerating a line regardless would give **every** turnover transition four perm
 edge. **Fixed the same way:** an `applicability` block, read from the register's own prose, adding no
 new rule. Whether applicability belongs in the register like this or needs its own mechanism is his.
 
-**3. The contract corpus uses a scope the register does not hold.** Six items and declarations carry
-`BUILD_OUT_EPISODE`; the closed list is whole game, per team, per objective set and own involvement.
-A new scope value is VOCABULARY class by the grammar sheet's own test, so **I have not added it** —
-recorded and put to him. Until he rules, a contract carrying it is refused at load, which is the engine
-behaving correctly rather than a workaround. Separately, **64 items and declarations carry an em-dash
-placeholder where a scope belongs**, which is a contract-authoring defect from the restatement
-exercise rather than a vocabulary question.
+**3. The contract corpus uses a scope the register did not hold — now approved, and four of its six
+uses do not conform.** He approved `BUILD_OUT_EPISODE` as the sixth scope (SD-36), defined narrowly:
+*"applies to the attacking episode whose beginning satisfies the resolved RPC-001 build-out begin
+condition. It does not automatically extend to subsequent attacking episodes."* He asked for every
+current use to be checked against that definition, and for a mismatch to be reported rather than the
+definition broadened. Checked:
+
+| Use | Verdict |
+|---|---|
+| `RPC-001-11.b` on J11b, and its J11b declaration | **Conform.** The item is about the build-out episode and cites KR-02 and KR-03 as an owner ruling |
+| `RPC-001-16.a` (T4), `16.b` (T3), `16.c` (T6), and the T4 declaration | **Do not conform** |
+
+**Why the four fail, and it is the same reason three times.** All three items are keyed on
+`trigger ∈ {SCORE, OUT_END_LINE, OUT_TOUCHLINE, POSSESSION_CHANGE}` — the triggers that *end* an
+episode and begin the next one. Scoping them to the build-out episode claims precisely the extension to
+subsequent attacking episodes his definition excludes. Two further facts point the same way: all three
+carry basis `ENGINE_ONLY` on the sentence retired under KR-05 item 6, so they support nothing under
+SD-21; and `16.c` requires `STOP_RESUME` on a turnover, which SD-20 has already unsupported. The
+contract's own fit note says as much: "KR-03 leaves the every-restart reading unsupported."
+
+So the mismatch is not a surprise about the scope — it is the same legacy the turnover ruling and the
+retired sentence already exposed, showing up once more. **Recorded as a contract-authoring task, not
+repaired here.**
+
+Separately, **64 items and declarations carry an em-dash placeholder where a scope belongs**, which is a
+contract-authoring defect from the restatement exercise rather than a vocabulary question.
 
 **What these three have in common** is worth more than the fixes: each is a place where the register
 reads correctly to a person and cannot be executed by a machine. That gap is exactly what building the
