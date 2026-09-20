@@ -58,6 +58,18 @@ them. He ruled against that, and the reason holds: if their homes are the repres
 realization respectively, then one conditional mechanism would have been the wrong answer three times.
 The distinction is preserved until real cases decide it.
 
+## E. For Christian — surfaced by the design work, needing a ruling
+
+| # | What | Why it needs him |
+|---|---|---|
+| E1 | **The whole free-choice mechanism rests on an unruled proposal.** A free choice is possible only on a row with a `fillable` entry, "proposal P-4, applied for this run" — P-4 has never been ruled | **SD-35 made this load-bearing.** Every `OPEN` property must now carry the authority permitting the choice. Today two of the twelve fillable rows name an authority that cannot be cited: `T2` names **SD-R2, a rejected default**, and `J3` names **P-4 itself** |
+| E2 | **Does the engine take a game as input?** The approved direction lists none, but `INVENTED`, the reverse trace and derivation spec §4.6/§4.7 are all written about *a value the game states*, and have no subject without one | Proposed: two modes — DERIVE (no game; the engine states nothing so it can invent nothing) and CHECK (a candidate supplied, the full §4.6 order available). This changes a design he has approved, so it is his |
+
+**On E1's substance:** his SD-R2 wording — *"which team starts can remain a permitted free choice unless
+selected knowledge requires otherwise"* — is exactly the permission needed. The defect is the citation
+form, not the decision: a rejected default is not a citable source, so it cannot be named as an
+authority. The same shape as SD-10's mistyping. **I have flagged it rather than inventing an id.**
+
 ## D. Register hygiene — done, recorded so it is not redone
 
 | # | What it was | What was done |
