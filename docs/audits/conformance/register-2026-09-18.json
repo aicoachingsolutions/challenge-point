@@ -8,7 +8,14 @@
     "FIELD": "An atomic property of one element, or of the game for non-collection rows.",
     "VIEW": "Computed from other rows, never stored. Items may constrain a view (checked in Gate B forward); a view never needs support and supports no stored row. Every contract still declares it."
   },
-  "ownerRowNote": "Added 20 September. A selector on a FIELD or VIEW row selects the ELEMENT OF ITS OWNING COLLECTION, so its attributes come from that collection selectorAttributes, not from the field row. The register recorded no owner, and a design review found the two readings differ by 55 items across the corpus - one refuses 63, the other 8. ownerRow is now explicit so no implementer has to infer it. A row with no ownerRow is game-level: E1-E4, S1, SV1, P5, P6a, P6b, P7, DV1, V1, V2.",
+  "selectorSyntax": {
+    "note": "Added 20 September. The selector language existed only in the grammar sheet prose (RC-11), so nothing in data said how to parse one - and three independent readers validating the same items produced three different failure counts because of it. Extracted here: form changed, language unchanged.",
+    "operators": ["=", "IN (set membership)", "CONTAINS (set-valued attribute)", "AND", "* (any element)"],
+    "attributeNames": "An attribute name is taken WHOLE, including dots. V7 registers condition.type and condition.referents as attribute names, so a parser that splits on the dot and validates against condition is wrong - that alone moved one recount from 5 failures to 11.",
+    "noAttribute": "A selector of * or an absent selector uses no attribute and is validated against nothing. Whether such an item counts in a failure tally is a reporting convention, not a rule; state the convention with any count.",
+    "unregistered": "An attribute not in the row selectorAttributes (resolved via ownerRow for a FIELD row) makes the selector unnormalisable: a reference defect under SD-32, never a prose match."
+  },
+  "ownerRowNote": "Added 20 September. A selector on a FIELD or VIEW row selects the ELEMENT OF ITS OWNING COLLECTION, so its attributes come from that collection selectorAttributes, not from the field row. The register recorded no owner, and the two readings differ across the corpus. RECOUNTED 20 September, three times independently, because three readers produced three different pairs: validating against the owning collection refuses 5 items, and validating against the field row own attributes refuses 59 to 70 depending on whether an item with no attribute in its selector is counted. The load-bearing number is the 5: they are exactly the From Goal Kicks restart=GOAL_KICK items already recorded as a defect, so the ownerRow reading adds NO new failures, while the other reading condemns about 60 items that are sound. ownerRow is now explicit so no implementer has to infer it. A row with no ownerRow is game-level: E1-E4, S1, SV1, P5, P6a, P6b, P7, DV1, V1, V2.",
   "fillableIsExhaustive": "A free choice (REALIZATION) is possible only on rows with a 'fillable' entry, and only as that entry says (proposal P-4, applied for this run). sourceKinds is descriptive and licenses nothing. FLAGGED 20 September: SD-35 makes this load-bearing in a way it was not when it was written. Every OPEN property must carry the authority permitting the choice, and the whole fillable mechanism still rests on P-4, an UNRULED proposal - so today two of the twelve fillable rows name authorities that cannot be cited: T2 names a rejected default (SD-R2) and J3 names P-4 itself.",
   "rows": [
     { "id": "E1", "path": "envelope.players", "kind": "FIELD", "valueType": "integer", "sourceKinds": ["SESSION"] },
@@ -125,7 +132,7 @@
       "S3.noun": "1 (2026-09-18, draft)", "S4.functions": "1 (2026-09-18, draft)", "O2.kind": "1 (2026-09-18, draft)",
       "trigger": "1 (2026-09-18, draft)", "T5.method": "1 (2026-09-18, draft)", "T6.playState": "1 (2026-09-18)",
       "V4.conditionType": "1 (2026-09-18, draft)", "V8a.conditionType": "1 (2026-09-18, draft)",
-      "V9a.operation": "1 (2026-09-20, SD-30)", "V13.effect": "1 (2026-09-18, draft)",
+      "V9a.operation": "1 (2026-09-20, SD-30)", "V1.kind": "1 (2026-09-20, extracted late)", "V13.effect": "1 (2026-09-18, draft)",
       "V26.expiryEffect": "1 (2026-09-18, draft)", "J4.role": "1 (2026-09-18)",
       "contractEnums.requirement": "2 (2026-09-20, COMPARES added by AM-16)",
       "contractEnums.scope": "2 (2026-09-20, BUILD_OUT_EPISODE added by SD-36)",
@@ -144,6 +151,8 @@
     "V4.conditionType": ["origin", "control", "eligibility", "progression", "exclusion"],
     "V8a.conditionType": ["region", "object", "event"],
     "V9a.operation": ["MULTIPLY", "ADD", "REPLACE"],
+    "V1.kind": ["goal", "target_player", "line_crossed", "target_zone_entered", "gate", "regain", "denial"],
+    "V1.source": "the RPC library controlled vocabulary. MISSED in the 20 September extraction because that pass filtered on the phrase closed list and V1 says controlled vocabulary - a synonym the filter did not catch. Found by an independent fact check.",
     "V13.effect": ["ACCESS", "COUNT_CHANGE"],
     "V26.expiryEffect": ["POSSESSION_CHANGE", "RESTART", "ACCESS", "COUNT_CHANGE", "VALUE_CHANGE", "NONE"],
     "J4.role": ["PRIMARY_SCORING", "REPRESENTATIVE"],
