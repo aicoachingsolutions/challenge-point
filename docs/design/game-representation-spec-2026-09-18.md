@@ -252,7 +252,7 @@ A property has two parts. The **renderer reads only the game part.**
 
 | Status | Meaning | Blocks rendering? |
 |---|---|---|
-| `RESOLVED` | The value is fixed, by an authored source, a citable standing decision, or a free choice under SD-16 | No |
+| `RESOLVED` | The value is fixed, by an authored source or a citable standing decision. *(Before 21 September a free choice under SD-16 could also resolve a property; under SD-39 and SD-40 a permitted choice is `FREE` — the value is chosen downstream — and a candidate's chosen value carries `REALIZATION` provenance, never support)* | No |
 | `FREE` | Left to the coach. Two cases. **(a)** A quantity inside authored bounds (for example a time window's duration, or a count "adjusted by age/ability"), rendered as its range; this is revision 2's meaning, unchanged. **(b)** "Long kick" and "controlled on arrival" (SD-15), rendered in the authored words, with bounds only where bounds are authored and never with invented numbers. Any other qualitative term is not `FREE` until Christian rules on it. In both cases validation claims only that the condition exists, is attached to its event, and, for (a), stays inside its bounds | No |
 | `NOT_AUTHORED` | The selected knowledge does not author this value: an authoring gap, usually one the object declares itself | **Yes** |
 | `UNRESOLVED` | Two or more contract items collide on the path with no authored relationship rule (SD-02) | **Yes** |
@@ -300,8 +300,11 @@ A property may exist only if its existence is **entailed** by `SESSION`, `SELECT
 existence is already entailed, within permitted bounds. It may not create a region, object, trigger,
 consequence, modifier, information rule, or other structural property."
 
-What a free choice may fill is **proposal P-4**, not yet ruled. The draft list is drawn from the
-unstated quantities the Gate A procedures search over [GP, `verdictSemantics`]:
+**The authority for a free choice is SD-39** (21 September), which superseded proposal P-4: *"OPEN is
+an explicitly authorized degree of freedom within an already-supported property, not a synonym for
+unknown."* The list below survives as the register's description of which **choice spaces** exist —
+data, not authority. It was drawn from the unstated quantities the Gate A procedures search over
+[GP, `verdictSemantics`]:
 - metres;
 - a position inside a named region;
 - a count inside an authored range, at that range's scope;
@@ -315,7 +318,9 @@ It is not claimed to be exhaustive.
 
 A non-claim is a **permission check**. A `REALIZATION` value on a path is admissible only if every
 in-scope contract item on that path is either a non-claim or a NARROWS bound the value satisfies.
-Silence licenses a choice; it never licenses a new rule.
+**Silence licenses nothing** (SD-39, 21 September): a non-claim permits a choice only inside a property
+whose existence and choice space are already supported, and never creates a property, rule or
+structure. *(Revision 8 and earlier read "silence licenses a choice"; that sentence is superseded.)*
 
 ### Source kinds (closed)
 
@@ -469,7 +474,9 @@ Not stored: storing it would create a second place that can disagree with `objec
 
 **Where no selected object authors a start or restart** — Christian's rulings [C18b]:
 - **Turnover:** plays on (SD-20), unless selected knowledge explicitly creates a stoppage or reset.
-- **Which team starts:** a permitted free choice unless selected knowledge requires otherwise (SD-R2).
+- **Which team starts:** a permitted free choice unless selected knowledge requires otherwise — the
+  substance of the SD-R2 rejection, with **SD-39** as the authority, since a rejected default cannot be
+  cited as one.
   There is no default start location.
 - **After a score:** a valid post-score procedure is necessary, but no universal realization is
   adopted (SD-R3). An unauthored post-score restart is `NOT_AUTHORED`.
@@ -499,7 +506,7 @@ Whether `POSSESSION_CHANGE` is structural when play continues through a turnover
 
 | Field | Why | Owner | Claim |
 |---|---|---|---|
-| `primaryEvent {kind, value, conditions[]}` — its reference is derived from `PRIMARY_SCORING` objectives and sets | [CA]: the scoring event and its condition were one of two selections that reliably changed what players experience. RPC-001-20's "One point per qualifying event" had no typed field; the slice placed it as an ad hoc "point value" entry | SELECTION narrows to a valid set (for RPC-001, RPC-REL-071 to 074: the valid events "in the approved order"); under RR-01 the Context decides which physically available event applies; REALIZATION chooses only where that leaves a choice (proposal P-4). SD-06 fixes one | Exactly one primary event; base `value` present and numeric; every member of its reference has a Space position. How the approved order binds the choice is not settled here |
+| `primaryEvent {kind, value, conditions[]}` — its reference is derived from `PRIMARY_SCORING` objectives and sets | [CA]: the scoring event and its condition were one of two selections that reliably changed what players experience. RPC-001-20's "One point per qualifying event" had no typed field; the slice placed it as an ad hoc "point value" entry | SELECTION narrows to a valid set (for RPC-001, RPC-REL-071 to 074: the valid events "in the approved order"); under RR-01 the Context decides which physically available event applies; where that leaves a choice the kind is `FREE` under SD-39 and is chosen downstream. SD-06 fixes one | Exactly one primary event; base `value` present and numeric; every member of its reference has a Space position. How the approved order binds the choice is not settled here |
 | `.conditions[]` — typed: `origin`, `control`, `eligibility`, `progression`, `exclusion` (draft) | [CA] 41 of 42 Pass Combination Gate activities contain no passing requirement; [VS] RPC-001-18's "progressing beyond the initial pressure or progression line"; RPC-001-19 long kick | SELECTION | Each condition refers to existing regions, objects or placements, and is attached to the primary event. **No condition refers to a player's position during play.** "Long kick" and "controlled on arrival" are `FREE` under SD-15: no invented number, and no claim about the in-play judgement |
 | `valueModifiers[] {condition, magnitude, combination}` — condition typed over regions, objects and events only | [R2], [LG] D09–D27, 19 "deep" tiers, structural per [AC]; [VS] C2, a multiplier with no magnitude | SELECTION only (SD-06: a value change must be explicitly authored) | Referents exist; **magnitude present**, else `NOT_AUTHORED`; any two modifiers whose conditions can hold at once are mutually exclusive on the layout or covered by an authored combination rule; a modifier changes only the primary event's value, never adds a second way to score |
 | `consequences[] {trigger, effect, referents}` — effects: `ACCESS {team, region}`, `COUNT_CHANGE {team, delta}` (draft) | [CA] consequence rewards reached Scoring in 0 of 57; [R2], [LG] D33–D35 "the other team gets the opposite channel", D39 "the next action decides it" | SELECTION | Every effect is typed and writes a field; every referent resolves uniquely in every state its trigger can fire from |
@@ -571,12 +578,14 @@ Neither puts knowledge prose into the game.
 |---|---|---|
 | **Gate A — structural coherence** | This game can be coherently laid out and played as specified | Regions and scoring references fit; performers sum; every reference resolves; one value per atomic transition property per trigger, with the coherence rules; every effect typed and every referent unique; one primary event whose reference resolves whenever it can fire; overlapping value modifiers exclusive or combined by an authored rule; no `UNRESOLVED` or `NOT_AUTHORED` property |
 | **Gate B — realization fidelity, forward** | Every required contribution survived | Every `REQUIRED` structural item or clause is satisfied by a property with derived support; every `EXCLUSION` holds; every NARROWS bound holds **at its scope** |
-| **Gate B — realization fidelity, reverse** | Nothing was invented | Every property in the game has derived support from a contract item or a citable SD id. **Otherwise: INVENTED** |
+| **Gate B — realization fidelity, reverse** | Nothing was invented | **Checking mode only** (SD-40): every property a candidate game asserts has derived support from a contract item or a citable SD id. **Otherwise: INVENTED.** In derivation mode no candidate asserts anything, so reverse is not applicable |
 | **Gate B — reporting** | Nothing is silently lost | `OUTSIDE_BOUNDARY` items are reported as not structurally checkable, counted, and never dropped from the denominator. A `PARTLY_STRUCTURAL` item's structural clause is checked and the rest is reported. `FREE` conditions are reported as existing and attached, not as judged. Adaptations are recorded as dispositions |
 | **Render fidelity, after rendering** | The text describes the game and introduces nothing (SD-05) | **Every structural property the text names or describes maps to a property of the game** — regions, objects, states, triggers, consequences, counts, value tiers, conditions, roles and placements are examples, not a closed list. No number is attached to a `FREE` (b) condition unless bounds are authored. [R2]: 23 of 35 true defects were written by the renderer's own templates |
 
 **The rendering precondition:** Gate A and both directions of Gate B pass, and no property is
-`UNRESOLVED` or `NOT_AUTHORED`.
+`UNRESOLVED` or `NOT_AUTHORED`. Since reverse applies only in checking mode (SD-40), **what is rendered
+is a realized game checked against the derivation** — never a derivation-mode result, whose `FREE`
+properties have no value yet.
 
 ## 9. The hostile cases, across the three revisions
 
@@ -601,7 +610,7 @@ where it appears.
 
 | Id | Proposed default | Ruling |
 |---|---|---|
-| PSD-01 | START: coin-toss team, own half | **No** → SD-R2 (who starts is a free choice) |
+| PSD-01 | START: coin-toss team, own half | **No** → SD-R2 (who starts is a free choice; authority now SD-39) |
 | PSD-02 | After a score, the conceding team restarts from its own end or half | **No** → SD-R3 (a valid procedure is necessary; none made universal) |
 | PSD-03 | After the ball goes out, the team that did not put it out restarts where it went out | **Yes in substance; owner unresolved.** Source visibly missing (§2) |
 | PSD-04 | On a turnover, the team that won the ball plays on | **Yes** → SD-20 |
@@ -615,7 +624,7 @@ P-8 was approved as SD-21. P-3's scope question was ruled in KR-03; only the spl
 | P-1 | A `method` on placements (draft: `STATIONARY_BALL`, `SERVED`, `IN_HAND`) | SD-13 is conditional on the START method, which nothing else can express |
 | P-2 | A START procedure or post-score restart that no source authors is `NOT_AUTHORED` | Follows from the existence rule and SD-02; consistent with SD-R3 and PSD-03's visible missing source |
 | P-3 | RPC-001-11's PARTLY_STRUCTURAL split (its scope is ruled: KR-03) | KR-02 and KR-03 state what RPC-001 requires; how it is checked is the specification's reading |
-| P-4 | The list of what a free choice may fill (§3), drawn from the Gate A search, including the event kind inside a narrowed set | SD-16 states the principle; the list is ours and not claimed to be exhaustive |
+| P-4 | The list of what a free choice may fill (§3), drawn from the Gate A search, including the event kind inside a narrowed set | **Superseded 21 September by SD-39** as authority. The list survives as register data describing choice spaces |
 | P-5 | The status of knowledge authored only outside the boundary (Variable Target's defender-shift trigger): `UNRESOLVED` as revision 2 had it, `NOT_AUTHORED`, or a distinct label | It blocks rendering either way; only the label and the remedy differ |
 | P-6 | Whether an owner ruling (KR-02) is a third `basis` value beside `AUTHORED` and `ASSUMED` | The restated RPC-001-11 rests on his ruling, not on the text it cites |
 | P-7 | Only the ids marked *citable* in §2 can support a property | Principles, process rulings, rejected defaults and knowledge rulings should not entail existence |

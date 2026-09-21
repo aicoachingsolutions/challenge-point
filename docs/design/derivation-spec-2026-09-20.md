@@ -35,7 +35,7 @@ Every line gets exactly one verdict. Take the first that applies:
 | `RESOLVED:ENTAILED` | an entailing source supports it (§4) |
 | `NOT_AUTHORED(reason)` | required but unauthored; reason codes below |
 | `FREE(a)` | the authored source leaves the quantity to the coach and the game states the range |
-| `RESOLVED:NARROWED_CHOICE` | a legitimate free choice (§5) |
+| `FREE(choice)` | a degree of freedom SD-39 authorizes, within supported bounds, with the value chosen downstream (§5). *Replaces `RESOLVED:NARROWED_CHOICE` as a line verdict (21 September): under SD-40 a stated value resolves nothing, so that name now belongs to the candidate-check outcome. `FREE(choice)` keeps the four Game statuses unchanged — it is a kind of `FREE`, as `FREE(a)` and `FREE(b)` are* |
 | `INVENTED` | stated with no valid support (§4.6) |
 
 **Reason codes, in this order** (AM-23): start procedure, post-score, out-of-play source missing; then
@@ -498,7 +498,7 @@ longer meet on one line. Nothing about entailment here changes.
   downstream structure disappear from evaluation." So the restart fields are still judged, and the
   unsupported play state is reported in its own right.
 - Where no selected object authors a start or restart: turnovers play on (SD-20); which team starts is
-  a free choice (SD-R2); a post-score procedure is necessary but has no universal default (SD-R3); an
+  a free choice (the substance of the SD-R2 rejection; authority SD-39); a post-score procedure is necessary but has no universal default (SD-R3); an
   out-of-play restart is not authored, its source visibly missing (PSD-03).
 
 ## 10. Known interactions, found by applying these rules
@@ -561,7 +561,9 @@ describes what an older rule set said. None of it certifies an activity under th
 
 **Still open, and none of it blocks the engine's design:**
 - Whether cardinality becomes a first-class property (§4.3). He ruled no schema change yet.
-- The `NOT_REALIZED` item-result label (§7), which is still a proposal.
+- Whether `NOT_REALIZED` — approved 20 September for a supporting item with an absent value — also
+  covers a supporting existence item whose cardinality check fails. Until he says so, that case is
+  `UNLABELLED` with a `LABEL_NOT_RULED` refusal (§7).
 - The closed vocabularies' contents (SD-18).
 - **No aggregate function is named** for a comparison that ranges over several matched elements (§4.4).
   This is the one genuine hole left in the comparative grammar. It does not bite in anything derived so

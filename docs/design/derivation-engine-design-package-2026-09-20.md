@@ -1,20 +1,25 @@
-# The derivation engine — design package, revision 2
+# The derivation engine — design package, revision 3
 
 **21 September 2026. Design only. Implementation stays frozen until Christian confirms this package.**
 Generation remains frozen. No code exists.
 
-Revision 2 incorporates his rulings of 21 September: SD-39 (the authority for OPEN), SD-40 (two modes;
-the candidate game is evidence, never authority), SD-41 (comparatives presently unexercised) and SD-42
-(what a restricted computation may do). He asked for the package to be finished with those decisions in
-it, and to surface only three things. **They are in §11**, and the short answer is: two contradictions
-his rulings introduced, both resolved here; one decision genuinely his before implementation; and no
-point left where an implementer must invent semantics, because every remaining gap is a refusal.
+Revision 3 incorporates his rulings of 21 September — SD-39 (the authority for OPEN), SD-40 (two
+modes; the candidate game is evidence, never authority), SD-41 (comparatives presently unexercised),
+SD-42 (what a restricted computation may do) — and answers the three things he asked to have surfaced,
+in §11.
 
-This supersedes the direction document (`derivation-engine-design-2026-09-20.md`) where they differ.
+**On how revision 3 came about.** Revision 2 claimed no point remained where an implementer would have
+to invent semantics. Before sending it, I had that claim tested by an independent read-only sweep. **It
+was false.** The sweep found stale statements contradicting the new rulings in the live specifications,
+three records the package used but never defined, three rules with no implementation home, and six
+places two careful implementers would have diverged. Every finding was checked against the files, and
+all are fixed here. §11 gives the account.
+
+This supersedes the direction document where they differ.
 
 ---
 
-## 1. Inputs and outputs
+## 1. Inputs, outputs and records
 
 ### 1.1 The call
 
@@ -28,12 +33,12 @@ A pure function. No I/O, no clock, no randomness, no ambient state.
 
 | Field | Meaning |
 |---|---|
-| `selection` | the selected knowledge objects: `{ objectId, knowledgeVersion }[]` |
+| `selection` | `{ objectId, knowledgeVersion }[]` |
 | `contracts` | one `LoadedContract` per selected object, loaded whole |
-| `envelope` | the session's players, area dimensions and duration — the `SESSION` source |
-| `register` | the register as versioned data: rows, `ownerRow`, `fillable`, `applicability`, `vocabularies` with versions, `selectorSyntax`, `relativeTerms`, `teamDesignations`, `comparison`, `decidingRules`, `citableStandingDecisions` |
-| `derivationRules` | `{ version, adoptedLabels[] }` — which still-proposed labels are ruled (§3.4) |
-| `candidate` | **optional.** A `CandidateGame`. Its presence selects checking mode (§1.5) |
+| `envelope` | `{ players, lengthM, widthM, durationMin }` — the `SESSION` source |
+| `register` | versioned data: rows with `ownerRow`, `fillable`, structured `applicability`, versioned `vocabularies`, `selectorSyntax`, `relativeTerms`, `teamDesignations`, `comparison`, `decidingRules`, `citableStandingDecisions` |
+| `derivationRules` | `{ version, adoptedLabels[] }` |
+| `candidate` | **optional** `CandidateGame` (§1.8). Its presence selects checking mode |
 
 ### 1.3 `DerivationResult`
 
@@ -43,74 +48,51 @@ DerivationResult {
   resolution : ResolutionEntry[]
   audit      : Audit
   gates      : { gateA, gateBForward, gateBReverse : GateReport }
-  candidate  : CandidateCheck[] | null     // checking mode only
+  candidate  : CandidateCheck[] | null
   failures   : FailureRecord[]
   refusals   : RefusalRecord[]
   run        : RunReport
 }
 ```
 
-**A result is always returned.** A failure to stamp versions returns a stamped-halt result (§3.5), never
-an absence.
-
-**`resolution` never depends on `candidate`.** It is computed first, from authoritative knowledge only,
-and is byte-identical in both modes for the same authoritative input. `candidate` is a separate array
-that reads the resolution and writes nothing back to it. That is SD-40's order made structural:
-*derive from authoritative knowledge → optionally check a candidate game.* (Invariant D10, §9.)
+A result is always returned; a failure to stamp returns a stamped-halt result (§3.5). **`resolution`
+never depends on `candidate`**: it is byte-identical in both modes for the same authoritative input
+(invariant D10).
 
 ### 1.4 `ResolutionEntry`
 
 | Field | Present | Meaning |
 |---|---|---|
-| `lineId` | always | `<elementId or 'game'>::<row>[::<member>]`. One id; there is no separate `propertyId` |
-| `elementId` | always | `null` for the 13 game-level rows with no `ownerRow` |
-| `row` / `member` | always / when set-valued | the register row; the member key for a per-member line |
-| `state` | always | `derived` · `open` · `failed` |
-| `verdict` | always | `RESOLVED:ENTAILED`, `FREE(a)`, `FREE(b)`, `NOT_AUTHORED`, `UNRESOLVED`, `INVENTED`, or `OPEN`. **`RESOLVED:NARROWED_CHOICE` is not a resolution verdict** — under SD-40 it is the outcome of a candidate check (§1.5) |
-| `reason` | iff `NOT_AUTHORED` | AM-23's codes in his order, with *declared gap* and *coverage* defined in derivation spec §2 |
-| `value` | iff `derived` | typed by the row's registered value type |
-| `bounds` | iff `open` | the supported bounds of variation. `null` is legitimate for a qualitative bound (SD-15) |
-| `permittedBy` | iff `open` | the authority permitting openness — §4.2 |
-| `constraints` | iff `open` | every applicable in-scope constraint with its source |
-| `openKind` | iff `open` | `PERMITTED_CHOICE` · `BOUNDED_QUANTITY` · `COACH_JUDGEMENT` |
-| `resolvedBy` | iff `derived` | `ENTAILMENT` · `STANDING_DECISION` · `SESSION`. **No `REALIZATION`**: a derived value is never a choice |
-| `support` | always (`[]` unless derived) | what **validly supports** the value — knowledge entailment only |
-| `lineOutcome` | when it applies | `VALID_ABSENCE` (checking mode only) |
-| `failureIds` / `refusalIds` | when any | the records explaining it |
+| `lineId` | always | `<elementId or 'game'>::<row>[::<member>]` |
+| `elementId` | always | an element handle (§2.3), or `null` for the 13 game-level rows |
+| `row` / `member` | always / set-valued rows | |
+| `lineState` | always | `ENUMERATED` · `WITHDRAWN` · `CONDITIONAL` (§2.1). Only `ENUMERATED` lines carry a `state` |
+| `state` | iff `ENUMERATED` | `derived` · `open` · `failed` |
+| `verdict` | iff `ENUMERATED` | `RESOLVED:ENTAILED`, `FREE(a)`, `FREE(b)`, `FREE(choice)`, `NOT_AUTHORED`, `UNRESOLVED`, `INVENTED` |
+| `reason` | iff `NOT_AUTHORED` | AM-23's codes in his order |
+| `value` | iff `derived` | a `Value` (§1.9) |
+| `bounds` / `permittedBy` / `constraints` / `openKind` | iff `open` | §1.8, §4 |
+| `resolvedBy` | iff `derived` | `ENTAILMENT` · `STANDING_DECISION` · `SESSION` |
+| `support` | always | `SupportRef[]` — knowledge entailment only; `[]` unless derived |
+| `conditionalOn` | iff `CONDITIONAL` | the governing line |
+| `failureIds` / `refusalIds` | when any | |
+
+**States map onto the four Game statuses, which stay unchanged.** `derived` is `RESOLVED`. `open` is
+`FREE` — `FREE(a)` a bounded quantity, `FREE(b)` a coach judgement, `FREE(choice)` a degree of freedom
+SD-39 authorizes. `failed` is `NOT_AUTHORED` or `UNRESOLVED`, or an invented line in checking mode.
 
 ### 1.5 Two modes (SD-40)
 
-| | **Derivation mode** (no candidate) | **Checking mode** (candidate supplied) |
+| | **Derivation mode** | **Checking mode** |
 |---|---|---|
-| Derivation | from authoritative knowledge | **identical** — the same derivation, byte for byte |
-| Emits | `derived` / `open` / `failed` | the same, **plus** a `CandidateCheck` per candidate assertion |
-| Forward and gate evaluation | the applicable forward results; Gate A; Gate B forward | the same, plus the checks against the candidate |
-| Gate B reverse | **not applicable** — no candidate asserts anything, so there is nothing to trace back | the real reverse trace |
-| `INVENTED` | **not applicable** | detected: a candidate asserts structure no source supports |
-| `VALID_ABSENCE` | not decidable | decidable |
+| Derivation | from authoritative knowledge | **identical**, byte for byte — the candidate contributes nothing to it |
+| Element inventory | handles minted from existence items (§2.3) | **the same handles**. The candidate's elements are matched to them at stage 9, never used to derive |
+| Gate B reverse, `INVENTED`, `VALID_ABSENCE` | **not applicable** | applicable, at stage 9 |
+| Adds | — | one `CandidateCheck` per enumerated line, and one per unmatched candidate assertion |
 
-**The boundary, in his words:** *"The candidate game is evidence to be checked, never authority used to
-complete derivation."* A candidate value **cannot** turn `open` into `derived`, cure a `GAP`, supply
-missing support, satisfy an otherwise unsupported dependency, or resolve an authoritative collision or
-relationship conflict. Each of those five is a test (§9, D10).
-
-```
-CandidateCheck { lineId, asserted: Value | ABSENT, outcome, provenance, failureIds[] }
-```
-
-| `outcome` | When |
-|---|---|
-| `MATCHES_DERIVED` | the line is `derived` and the candidate states the same value |
-| `CONTRADICTS_DERIVED` | the line is `derived` and the candidate states something else |
-| `WITHIN_BOUNDS` | the line is `open` and the candidate's value lies inside the authorized bounds — **this is what `RESOLVED:NARROWED_CHOICE` now names**. Provenance: `DOWNSTREAM_CHOICE` |
-| `OUTSIDE_BOUNDS` | the line is `open` and the value lies outside them |
-| `ON_FAILED_LINE` | the line is `failed`; the candidate's value is recorded and **changes nothing** |
-| `INVENTED` | the candidate asserts a line the derivation did not enumerate, or structure no source supports |
-| `ABSENT` | the candidate states nothing for a line that requires a value — `VALID_ABSENCE` where §8 permits it |
-
-`provenance` is `KNOWLEDGE` for `MATCHES_DERIVED`, and `DOWNSTREAM_CHOICE` for `WITHIN_BOUNDS` — the
-`REALIZATION` source kind, retained as provenance and never as support. That keeps the four source kinds
-of the representation unchanged while honouring SD-40.
+*"The candidate game is evidence to be checked, never authority used to complete derivation."* A
+candidate value cannot turn `open` into `derived`, cure a `GAP`, supply support, satisfy an unsupported
+dependency, or resolve a collision or relationship conflict — five tests in §9.
 
 ### 1.6 `Versions`
 
@@ -119,58 +101,163 @@ Versions { register, vocabularies: {<list>: version}, derivation, engine,
            contracts: [{id, version}], objects: [{id, version}] }
 ```
 
-Compared verbatim, never parsed. A stored result is valid only for the versions it names; when any
-changes, it is stale by construction and is re-derived rather than reused (SD-30).
+Compared verbatim. A stored result is valid only for the versions it names (SD-30).
 
 ### 1.7 What is never an output
 
-No re-selection, no weakened requirement, no decision about how many activities to return, no contract
-repaired — Wide Zone's scope included — no coach-facing text, no render-fidelity verdict, and no recovery
-policy. **No record carries a suggestion, recommendation, repair or retry field.** *Derivation
-diagnoses; it does not design* (SD-37).
+No re-selection, no weakened requirement, no decision about how many activities to return, no repaired
+contract, no coach-facing text, no render-fidelity verdict, no recovery policy, and **no field carrying a
+suggestion, recommendation, repair or retry** — *derivation diagnoses; it does not design* (SD-37).
+
+### 1.8 The records
+
+Every record the package names is defined here; a record not listed does not exist.
+
+```
+Audit            { properties: AuditProperty[], items: AuditItem[], collisions: Collision[],
+                   relationshipConflicts: RelationshipConflict[], tensions: Tension[],
+                   referenceDefects: ReferenceDefect[], dispositions: Disposition[] }
+AuditProperty    { lineId, sources: SourceRef[], lineState, collisionId | null }
+AuditItem        { contractId, itemId, result: ForwardResult, reach: lineId[],
+                   cardinality: { matched, min, max } | null }
+Collision        { collisionId, lineId, items: ItemRef[], demanded: Bounds[], decidedBy: ruleId | null }
+RelationshipConflict { conflictId, items: ItemRef[], operands: Value[], why, objects: objectId[] }
+Tension          { tensionId, items: ItemRef[], why }                    // diagnostic; no gate reads it
+ReferenceDefect  { contractId, itemId, where: 'SELECTOR' | 'VALUE', text, why }
+Disposition      { contractId, itemId, disposition, clause }
+RunReport        { mode: 'DERIVATION' | 'CHECKING', halted: boolean, divergent: boolean,
+                   inputDigest, counts: { lines, withdrawn, conditional, derived, open, failed,
+                                          failures, refusals } }
+SourceRef        { kind: 'CONTRACT_ITEM' | 'STANDING_DECISION' | 'SESSION' | 'DECLARATION', ref }
+SupportRef       { kind: 'CONTRACT_ITEM', contractId, itemId, relation: 'ENTAILS' | 'NARROWS' }
+                 | { kind: 'STANDING_DECISION', id } | { kind: 'SESSION', row }
+Constraint       { source: SourceRef, bound: Bounds }
+Bounds           { kind: 'COUNT' | 'INTERVAL' | 'SET' | 'QUALITATIVE', min?, max?, members?, text? }
+PermittedBy      { authority: 'SD-39' | 'SD-15', choiceSpace: { row, fillableText } | { itemRef } }
+CandidateGame    { elements: [{ elementId, row, attributes: {<attr>: Value} }],
+                   properties: [{ elementId | null, row, member | null, value: Value }] }
+CandidateCheck   { lineId | null, asserted: Value | 'ABSENT', outcome, provenance, failureIds[] }
+```
+
+**`ForwardResult` — closed, first that applies:** `NOT_CHECKABLE` (outside the boundary) · `INERT`
+(typical example or engine-only) · `SATISFIED` · `VIOLATED` · `PENDING_CHOICE` (derivation mode: the
+item's only unmet dependency is a `FREE(choice)` line) · `UNMET` (required, absent) · `ADAPTED`
+(preferred default displaced) · `NOT_REALIZED` (checking mode: a supporting item whose value the candidate
+leaves absent) · `NOT_EVALUABLE` (a supporting comparative whose operand does not resolve) ·
+`UNLABELLED` (a supporting existence item whose cardinality check fails — §3.4).
+
+**`CandidateCheck.outcome` — closed:** `MATCHES_DERIVED`, `CONTRADICTS_DERIVED`, `WITHIN_BOUNDS` (what
+`RESOLVED:NARROWED_CHOICE` now names), `OUTSIDE_BOUNDS`, `ON_FAILED_LINE` (recorded, changes nothing),
+`INVENTED`, `ABSENT`, `VALID_ABSENCE`. Provenance is `KNOWLEDGE` for a match and `DOWNSTREAM_CHOICE` —
+the `REALIZATION` source kind — for a within-bounds value; never support.
+
+### 1.9 The value model
+
+| Value | Representation | Comparison |
+|---|---|---|
+| Count, integer | exact integer | numeric |
+| Metres | exact rational | numeric |
+| Interval | `{ axis: 'along' \| 'across', lo, hi }`, closed, exact rationals | containment and overlap; `touches` means sharing an endpoint |
+| Relative position | `{ term, referent }` from `relativeTerms` | converted to an interval **only once the referent resolves**; until then the comparison is *undetermined* and the engine refuses rather than guesses |
+| Enumerated | a member of the row's `vocabularies` list | equality on the canonical member |
+| Set | a set of enumerated members | set equality, membership, containment |
+| Team designation | a canonical entry of `teamDesignations` | equality on the entry, evaluated at the trigger or episode it is attached to (AM-01) |
+| Reference | a registered element id | equality after normalisation (SD-32) |
+| Trigger | `{ trigger, qualifiers: {<name>: Value} }` | equality on the tagged record |
+
+**A value outside this table is not comparable, and a comparison over it is refused** (`VALUE_NOT_COMPARABLE`).
 
 ---
 
-## 2. The twelve-stage pipeline
+## 2. The pipeline
 
-**Five invariants across all twelve.** No stage halts on a finding. Single pass, with exactly three
-declared bounded iterations. Three-valued logic — true, false or undetermined, and undetermined is never
-rounded to false. Every collection sorted by the canonical key before iteration. No stage after 6 writes
-a value onto a line.
+**Five invariants.** No stage halts on a finding. Single pass, with three declared bounded computations.
+Three-valued logic, with *undetermined* never rounded to false. Every collection sorted before
+iteration. No stage after 6 writes a value onto a line.
 
 ### 2.1 The three restricted computations (SD-42)
 
-**His constraint:** *"A restricted computation may establish prerequisites for full derivation, but may
-not create additional authority or broaden the set of potentially entailed elements."*
+*"A restricted computation may establish prerequisites for full derivation, but may not create
+additional authority or broaden the set of potentially entailed elements."*
 
 | # | Circularity | Restricted computation | Why it cannot broaden or authorize |
 |---|---|---|---|
-| 1 | Own involvement is *the elements entailed by the contract's other-scoped items* (AM-13), but entailment is stage 5 and scope is stage 3 | derive over that contract's **other-scoped items only**, fix the own-involvement set, then derive fully | it runs a strict subset of the contract's items, so it can reach no element the full derivation could not |
-| 2 | `T2`–`T5` apply only when `T6` is `STOP_RESUME`, and `V14b`/`V14c` only on a given `V13` effect, but those governing values are derived at stage 5 | enumerate the conditional lines as `PENDING`, re-check at stage 6 | it can only **withdraw** a line, never add one |
-| 3 | A standing decision fires only on a line already entailed or legitimately chosen, but decisions supply values before verdicts exist | a monotone closure over the citable decisions | it applies only authority that is already citable, and only adds support that the decision already carries |
+| 1 | Own involvement is what the contract's other-scoped items entail (AM-13), but entailment is stage 5 and scope stage 3 | derive over the other-scoped items only, fix the set, then derive fully | a strict subset of the contract's items can reach nothing the full set cannot |
+| 2 | Conditional rows (`T2`–`T5`, `V14a`–`V14c`) apply only on a governing value derived later | enumerate them conditionally; resolve at stage 6 by the governing-line rule below | it only withdraws or conditions a line, never adds one |
+| 3 | A standing decision fires only on a line already entailed, but decisions supply values before verdicts exist | a monotone closure over citable decisions | it applies only already-citable authority, and only adds support that authority carries |
 
-**Divergence is a defect, not a choice.** Each computation is checked against the full derivation. Where
-they disagree on a line, **neither result is adopted**: the line is `failed`, naming a
-`PASS_DIVERGENCE` refusal; `run.divergent` is set; the run continues so the report survives. In his
-words: *"Divergence is a defect/refusal, not an invitation to choose one pass."* The residual
-standing-decision risk is not pursued further unless a concrete case demonstrates it, as he directed.
+**The governing-line rule**, now in the register's `applicability` as data: if the governing line is
+**derived**, the condition is evaluated — true keeps the dependent line, false makes it `WITHDRAWN` (not
+applicable, never `NOT_AUTHORED`). If it is **`FREE(choice)`**, the dependent line is `CONDITIONAL` on that
+choice: it takes no value and is not open in its own right, and a gate check over it asks satisfiability
+across the governing choice. If it is **failed**, the dependent line is failed as a `GAP` whose dependency
+is the governing line — never withdrawn, because an unresolvable condition is not a false one.
+
+**Divergence is a defect.** Where a restricted computation and the full derivation disagree on a line,
+**neither result is adopted**: the line fails, naming a `PASS_DIVERGENCE` refusal, and `run.divergent` is
+set. *"Divergence is a defect/refusal, not an invitation to choose one pass."* The residual
+standing-decision risk is not pursued unless a concrete case shows it.
 
 ### 2.2 The stages
 
 | # | Stage | Does | Refuses |
 |---|---|---|---|
-| 0 | **Load** | Validates the register's meta-schema; indexes rows, `ownerRow`, `rowOrdinal`, `fillable`, `applicability`, `vocabularies`, `selectorSyntax`; validates each contract against the register **as data** | An unknown row, requirement kind, operator, scope, basis, declaration kind, derived-operand rule or vocabulary value; a missing basis quote; a comparative with exclusion strictness; a magnitude with no declared operation. **Whole contract; the run continues** |
-| 1 | **Normalise** | Resolves every structural reference — selectors *and* values — through registered identity (SD-32), attribute names taken whole including dots; records each selector's denotation | Anything that will not resolve: a `REFERENCE_DEFECT` with the text verbatim. No meaning-matching, no inferred element, no AM-17 rewrite |
-| 2 | **Index** | One line per (element, row), per member for set-valued rows, and only where the row applies; conditional lines enumerated `PENDING` | Omitting a line because no value is stated; a line for a `VIEW` row |
-| 3 | **Scope** | Fixes each contract's application set, including `BUILD_OUT_EPISODE` (SD-36); own involvement by restricted computation 1; declarations held beside items (SD-31) | An own-involvement item reaching what it itself entails |
-| 4 | **Reach** | Row equality plus selector satisfaction, against the owning collection's attributes for a field row | — |
-| 5 | **Derive** | Entailment, bounds, cardinality by necessity, standing decisions by restricted computation 3, openness under SD-39 | Openness on a row with no structurally defined choice space; a count fill with no authored maximum |
-| 6 | **Classify** | One verdict per line; resolves `PENDING` applicability; **gap before collision** (SD-28) | — |
-| 7 | **Relationships** | Comparatives over their operands, never onto a line (SD-26) | A multi-element operand (unconditionally — no aggregate function is named); a range or open operand; two modifiers with no authored order; a modifier with no declared operation |
-| 8 | **Forward** | Per item: satisfied, violated, unmet, adapted, inert, not checkable, not evaluable, `NOT_REALIZED`, `PENDING_CHOICE` | A failed supporting cardinality check: `UNLABELLED` with `LABEL_NOT_RULED` (§3.4) |
-| 9 | **Candidate** | **Checking mode only.** Reads the finished resolution and emits a `CandidateCheck` per assertion; the reverse trace and `INVENTED` detection live here | Writing anything back to `resolution` — enforced, not advised |
-| 10 | **Gates** | Gate A and Gate B, each where independently evaluable (§7) | A check it cannot evaluate: `NOT_EVALUABLE`, naming its subjects |
-| 11 | **Emit** | Sorts canonically, stamps every version | An `open` entry carrying a value; an unstamped result |
+| 0 | **Load** | Register meta-schema; index rows, `ownerRow`, `rowOrdinal`, `fillable`, `applicability`, versioned `vocabularies`, `selectorSyntax`; validate each contract as data | Unknown row, kind, operator, scope, basis, declaration or vocabulary value; missing basis quote; comparative with exclusion strictness; magnitude with no operation. **Whole contract; the run continues** |
+| 1 | **Normalise** | Every structural reference, in selectors and values, through registered identity (SD-32); attribute names taken whole | Unresolvable reference → `REFERENCE_DEFECT`, text verbatim. No meaning-matching, no inferred element, no AM-17 rewrite |
+| 2 | **Index** | Mint element handles (§2.3); construct reachable trigger elements (§2.4); one line per (handle, row), per member for set-valued rows; conditional lines per §2.1 | A line for a `VIEW` row; omitting a line because nothing states a value |
+| 3 | **Scope** | Application sets, including `BUILD_OUT_EPISODE` (SD-36); own involvement by computation 1; declarations beside items (SD-31) | An own-involvement item reaching what it entails itself |
+| 4 | **Reach** | Row equality and selector satisfaction, against the owning collection's attributes for a field row | — |
+| 5 | **Derive** | Entailment, bounds, cardinality by necessity, standing decisions by computation 3, openness under SD-39 | Openness without a supported choice space; a count fill with no authored maximum |
+| 6 | **Classify** | One verdict per line; resolve conditional lines; gap before collision (SD-28) | — |
+| 7 | **Relationships** | Comparatives over operands (SD-26) | A multi-element operand; a range or open operand; two modifiers with no authored order; a modifier with no operation; **an authored combination rule (`V10`), which has no executable form** — zero exist in the corpus |
+| 8 | **Forward** | One `ForwardResult` per admitted item (§1.8) | A failed supporting cardinality check → `UNLABELLED` |
+| 9 | **Candidate** | **Checking mode only** — §2.5 | Writing anything to `resolution` |
+| 10 | **Gates** | §7 | An unexecutable check → `NOT_EVALUABLE` |
+| 11 | **Emit** | Canonical order; stamp every version | An `open` entry with a value; an unstamped result |
+
+### 2.3 Element handles
+
+The derivation has no game to read elements from, so it mints them. **From each existence item** (an
+`EXISTS`, `COUNT` or `RANGE` on a collection row, at its scope): one handle per unit of the item's
+**minimum**, and no more — `h:<contractId>:<itemId>:<ordinal>`. Handles are anonymous: they carry the
+attributes the item's selector fixes with `=` or `∋`, and **no identity beyond that** — AM-05: *"a count
+entails how many, never which."* Two items whose selectors a handle satisfies share it rather than minting
+twice; that merge is by selector satisfaction, deterministic under the canonical order. Elements above a
+minimum are never minted: surplus is a free choice only within an authored maximum, and otherwise does not
+exist. The same handles are used in both modes.
+
+### 2.4 Reachable triggers (AM-15)
+
+AM-15 says reachable triggers and the elements partitioning them by qualifier *exist by construction*;
+the qualifier values still need support. It does not say what "reachable" means, and without a definition
+no trigger element can be built. **My proposed definition, for his confirmation (§11.2):** a trigger is
+reachable when its structural prerequisite is derived.
+
+| Trigger | Reachable when |
+|---|---|
+| `START` | always — every game begins |
+| `SCORE` | a primary event is derived (SD-06 entails exactly one) |
+| `OUT_END_LINE`, `OUT_TOUCHLINE` | the envelope area is derived — a bounded rectangle has both |
+| `POSSESSION_CHANGE` | two opposing teams are derived |
+| `REGION_ENTRY {r}` | region `r` is derived |
+| `TIME_EXPIRY {w}` | time window `w` is derived |
+| `STANDING` | always — it names a standing condition, not an event |
+
+### 2.5 Stage 9, checking mode
+
+1. **Iterate the resolution, not the candidate.** For every enumerated line, emit one `CandidateCheck`:
+   `MATCHES_DERIVED` or `CONTRADICTS_DERIVED` on a derived line; `WITHIN_BOUNDS` or `OUTSIDE_BOUNDS` on an
+   open line; `ON_FAILED_LINE` on a failed one; `ABSENT` where the candidate states nothing for a line
+   that requires a value.
+2. **Match candidate elements to handles by cardinality, not identity.** A candidate satisfies an
+   existence item if at least its minimum of candidate elements satisfy the item's selector; an item on a
+   field row applies to every matching element. No bijection between handles and candidate elements is
+   formed, because none is authorized.
+3. **Then the remainder.** Every candidate assertion that matched no enumerated line is `INVENTED` — this
+   is the Gate B reverse trace.
+4. **Closed-world absence (derivation spec §8).** An `ABSENT` becomes `VALID_ABSENCE` when no
+   support-capable item entails an element on that row at that scope; otherwise it is recorded against
+   each item that does.
 
 ---
 
@@ -178,120 +265,115 @@ standing-decision risk is not pursued further unless a concrete case demonstrate
 
 ### 3.1 Two arrays
 
-`failures[]` hold findings about **the knowledge or the data**, closed by authoring. `refusals[]` hold
-findings about **the rule set** — "the specification names no rule here, so the engine declined" —
-closed by a ruling. That is why `LOAD_REFUSAL` is a failure: a contract that fails validation is a
-defect in the data.
+`failures[]` are findings about the knowledge or the data, closed by authoring. `refusals[]` are findings
+about the rule set — "the specification names no rule here" — closed by a ruling.
 
 ```
 FailureRecord { failureId, kind, stage, locus: { lineId?, itemRef?, contractId? },
-                implicated: { contractIds[], objectIds[] }, clause, offendingInput?, detailRef?, detail? }
+                implicated: { contractIds[], objectIds[] }, clause, offendingInput?, detailRef? }
 RefusalRecord { refusalId, kind, cause, stage, clause, openQuestion: { clause, quote } | null,
                 affects: { lineIds[], itemRefs[], contractIds[] }, failureRef? }
 ```
 
-**Ids are content-derived** — `<kind>#<locusKey>#<ordinal>` — so an unrelated record never renumbers the
-rest and an SD-30 comparison between two runs stays meaningful. Refusals are deduplicated by
-`(kind, cause)` and name everything they affected. A refusal fails a line only where it made that line
+Ids are content-derived — `<kind>#<locusKey>#<ordinal>` — so an unrelated record never renumbers the
+rest. Refusals are deduplicated by `(kind, cause)`. A refusal fails a line only where it made the line
 uncomputable.
 
-### 3.2 The six kinds
+### 3.2 The six failure kinds
 
 | Kind | Raised | Carries |
 |---|---|---|
-| `LOAD_REFUSAL` | stage 0 | contract, offending field and value, the rule violated |
-| `REFERENCE_DEFECT` | stage 1 | contract, item, `where: selector \| value`, **the text verbatim**, why it would not resolve |
-| `GAP` | stages 2, 5, 7 — one gap, one id | line, what is unauthored or not computable, the dependency that failed |
-| `INVENTED` | stage 9, **checking mode only** | the candidate assertion, and why no source supports it |
-| `COLLISION` | stage 6 | line, the items, what each demanded, `decidedBy` (null when nothing decided) |
-| `RELATIONSHIP_CONFLICT` | stage 7 | the comparatives, operands as resolved, why nothing satisfies both, the authoring objects |
+| `LOAD_REFUSAL` | 0 | contract, offending field and value, rule violated |
+| `REFERENCE_DEFECT` | 1 | contract, item, `where`, the text verbatim, why |
+| `GAP` | 2, 5, 6, 7 — one gap, one id | line, what is unauthored or not computable, the failed dependency |
+| `INVENTED` | 9, checking mode only | the candidate assertion, why nothing supports it |
+| `COLLISION` | 6 | line, items, what each demanded, `decidedBy` |
+| `RELATIONSHIP_CONFLICT` | 7 | the comparatives, operands, why nothing satisfies both, the authoring objects |
 
-`TENSION` is **not** a failure: an assumed item sitting oddly against authored knowledge (SD-27). No gate
-reads it, enforced by the gate input not containing it.
+`TENSION` is not a failure (SD-27).
 
-### 3.3 Refusal kinds — a closed list
+### 3.3 Refusal kinds — closed
 
-`NO_AGGREGATE_FUNCTION`, `NO_MODIFIER_ORDER_RULE`, `MODIFIER_OPERATION_MISSING`, `OPERAND_NOT_SCALAR`,
-`NOT_FILLABLE`, `UNBOUNDED_COUNT_FILL`, `LABEL_NOT_RULED`, `PASS_DIVERGENCE`, `CHECK_NOT_EXECUTABLE`,
-`SELECTION_CONTRACT_MISMATCH`, `INPUT_DEFECT`, `CONSERVATION_VIOLATION`. Adding one is a design change.
+`NO_AGGREGATE_FUNCTION`, `NO_MODIFIER_ORDER_RULE`, `MODIFIER_OPERATION_MISSING`, `RULE_NOT_EXECUTABLE`,
+`OPERAND_NOT_SCALAR`, `VALUE_NOT_COMPARABLE`, `NOT_FILLABLE`, `UNBOUNDED_COUNT_FILL`, `LABEL_NOT_RULED`,
+`PASS_DIVERGENCE`, `CHECK_NOT_EXECUTABLE`, `SELECTION_CONTRACT_MISMATCH`, `INPUT_DEFECT`,
+`CONSERVATION_VIOLATION`. Adding one is a design change.
 
 ### 3.4 Labels
 
-`NOT_REALIZED` and `VALID_ABSENCE` are ruled (20 September). The one adjacent case his ruling does not
-reach — a **supporting existence item whose cardinality check fails** — takes `UNLABELLED` with a single
-`LABEL_NOT_RULED` refusal naming every affected item. The engine does not stretch a ruled label to cover
-an unruled case.
+`NOT_REALIZED` and `VALID_ABSENCE` are ruled (20 September). A supporting existence item whose
+cardinality check fails is outside what he approved `NOT_REALIZED` for, so it is `UNLABELLED` with one
+`LABEL_NOT_RULED` refusal naming every such item.
 
-### 3.5 When stamping fails
+### 3.5 Halts
 
-Two halt conditions, both "the engine cannot name what it is talking about": the register fails its
-meta-schema, or the `Versions` block cannot be built. Stages 1–11 are skipped and a stamped-halt result is
+Two only: the register fails its meta-schema, or `Versions` cannot be built. A stamped-halt result is
 returned — never nothing.
 
 ---
 
 ## 4. `derived` / `open` / `failed`
 
-### 4.1 The three states
-
-- **`derived`** — entailed by contracts, the session or a citable standing decision, carrying support.
-- **`open`** — a degree of freedom SD-39 authorizes: bounds, authority, constraints, **no value**. No code
-  path moves a line from open to derived, in either mode.
+- **`derived`** — entailed by contracts, the session or a citable standing decision, with support.
+- **`open`** — a degree of freedom: bounds, authority, constraints, **no value**, in either mode.
 - **`failed`** — no value, naming its records.
 
-### 4.2 The authority for OPEN (SD-39)
+**Authority for `open` (SD-39).** *"OPEN is an explicitly authorized degree of freedom within an
+already-supported property, not a synonym for unknown."* A line is open only if, in order: its existence
+is supported; its choice space is supported — a `fillable` entry, now register data describing the space,
+or an authored range; selected knowledge neither determines nor further constrains it; no standing rule
+determines it. Fail any and it is a gap.
 
-*"OPEN is an explicitly authorized degree of freedom within an already-supported property, not a synonym
-for unknown."* So `open` requires, in order: the property's existence is supported; its choice space is
-supported — a `fillable` entry, which under SD-39 is register data describing the space, or an authored
-range; selected knowledge neither determines nor further constrains the value; and no standing rule
-determines it. Fail any one and the line is not open — it is a gap.
-
-| `openKind` | Filled by | `permittedBy` | Bounds |
+| `openKind` | Verdict | `permittedBy.authority` | Bounds |
 |---|---|---|---|
-| `PERMITTED_CHOICE` | downstream governed choice (SD-35) | **SD-39**, plus the row's `fillable` entry | intersection of applicable constraints |
-| `BOUNDED_QUANTITY` | downstream choice, or rendered as a range | **SD-39**, plus the authoring item's range (`FREE(a)`) | numeric, from authored bounds |
-| `COACH_JUDGEMENT` | the coach, at delivery | **SD-15** | `null` — no number is invented |
+| `PERMITTED_CHOICE` | `FREE(choice)` | SD-39, with the row's `fillable` text | intersection of the constraints' bounds |
+| `BOUNDED_QUANTITY` | `FREE(a)` | SD-39, with the authoring item's range | the authored interval |
+| `COACH_JUDGEMENT` | `FREE(b)` | SD-15 | `QUALITATIVE`, with the authored words; no number |
 
-`T2` (starting team) and `J3` (end assignment) cite SD-39 where their properties and choice spaces are
-independently supported — the rejected SD-R2 and the unruled P-4 are no longer authorities anywhere.
+`T2` and `J3` cite SD-39 where their properties and choice spaces are independently supported. P-4 and
+SD-R2 are no longer authorities anywhere.
 
 ---
 
-## 5. Support and declarations
+## 5. Support, declarations and SD-10
 
-**Support is knowledge entailment, derived never asserted**: a contract item that entails or narrows, a
-citable standing decision, or the session. `ASSUMED` bounds but never entails; engine wording supports
-nothing. **A candidate value is never support** (SD-40). `sources` (everything addressing a row) lives in
-the audit; `support` (what validly supports the value) lives on the resolution entry — one home each.
+**Support is knowledge entailment**: an item that entails or narrows, a citable standing decision, or the
+session. `ASSUMED` bounds but never entails; engine wording supports nothing; **a candidate value is
+never support**.
 
-| Declaration | Count in corpus | What it does |
+| Declaration | In corpus | Effect |
 |---|---|---|
-| `NON_CLAIMED` | 502 | says nothing, constrains nothing; permits openness, supports nothing |
+| `NON_CLAIMED` | 502 | constrains nothing; permits openness; supports nothing |
 | `CLAIMED` | 129 | items address the row |
 | `UNDECLARED` | 122 | never examined; bars openness (AM-04); reason code *coverage* |
 | `NOT_AUTHORED` | 85 | needed and unauthored; reason code *declared gap* |
 | `EXCLUDED` | 22 | an exclusion item forbids something |
 
-**A declaration survives an empty scope** (SD-31): *"authored intention that could not reach an element ≠
-structure nobody authorized."*
+A declaration survives an empty scope (SD-31).
+
+**SD-10 and SD-10a.** SD-10 prohibits removing a structurally necessary objective. **The engine never
+removes anything**, so in derivation mode it is honoured by construction. It bites in checking mode, when
+a candidate omits an objective the derivation derives: SD-10a's test is executed as — *the objective is
+structurally necessary if a required item entails it, or if its absence makes `GA-ONE-PRIMARY-EVENT`,
+`GA-DIRECTION`, `GA-TRANSITION-COHERENCE` or `GA-OBJECTIVE-SETS` fail*. Those four checks are exactly
+"primary event, direction, transition, or representative configuration" in his wording. A necessary
+objective the candidate omits is `ABSENT` against it and fails Gate B forward; a mere reference from
+supporting knowledge is not sufficient, as he ruled.
 
 ---
 
 ## 6. Relationship evaluation
 
-A comparison **takes no line** (SD-26); it is evaluated over its operands. Operands are a represented
-property, or a derived quantity whose inputs are supported (SD-23); `effectiveValue` is the one derived
-rule. Effective value is **not computable** when an operation or magnitude is unauthored, or when two
-modifiers apply without an authored order — the operations do not commute.
+A comparison takes no line (SD-26); it is evaluated over its operands — a represented property, or a
+derived quantity with supported inputs (SD-23). Effective value is not computable when an operation or
+magnitude is unauthored, or when two modifiers apply without an authored order.
 
-Outcomes, in order: an operand that will not resolve → unmet (required) or not evaluable (supporting),
-the dependency a `GAP`; two authoritative, well-formed, evaluable comparatives nothing satisfies →
-`RELATIONSHIP_CONFLICT`; an assumed comparative → `TENSION`, diagnostic only.
+An unresolvable operand → unmet (required) or not evaluable (supporting), the dependency a `GAP`. Two
+authoritative, well-formed, evaluable comparatives nothing satisfies → `RELATIONSHIP_CONFLICT`. An
+assumed comparative → `TENSION`.
 
-**Presently unexercised (SD-41).** Zero `COMPARES` items exist across the 221-item corpus. The capability
-and its tests are kept; nothing is expanded or optimized until a real authored requirement provides
-evidence for it.
+**Presently unexercised (SD-41):** zero `COMPARES` items across the 221-item corpus. Kept, tested, and
+not expanded until a real authored requirement provides evidence.
 
 ---
 
@@ -301,89 +383,75 @@ evidence for it.
 
 ```
 GateReport { verdict: PASS | FAIL | NOT_EVALUABLE,
-             checks: [{ checkId, verdict: PASS|FAIL|NOT_CHECKABLE|NOT_EVALUABLE,
-                        subjects, why, pendingOn, blockedBy }] }
+             checks: [{ checkId, verdict: PASS | FAIL | NOT_CHECKABLE | NOT_EVALUABLE,
+                        subjects, why, pendingOn: lineId[], blockedBy: lineId[] }] }
+GateInput  = resolution + audit without tensions        // SD-27 made unrepresentable
 ```
 
 **FAIL** if any check failed; otherwise **PASS** if every check is `PASS` or `NOT_CHECKABLE`; otherwise
-**NOT_EVALUABLE**. Rendering requires `PASS`. Both gates run where independently evaluable. The gate input
-excludes tensions.
+**NOT_EVALUABLE**. Rendering requires `PASS`, and renders a realized game checked in checking mode —
+never a derivation-mode result, whose free properties have no value yet.
 
-**An open line poses a satisfiability question.** A check depending on an open line asks whether *any*
-permitted value passes it: SAT passes with `pendingOn` naming the open lines; UNSAT fails, because no
-permitted choice can rescue it. Any other reading makes SD-35 vacuous.
+**`NOT_CHECKABLE` is used only where he has already ruled something outside the representation.** An
+unexecutable clause of a Gate A check is **not** `NOT_CHECKABLE` today: it is `NOT_EVALUABLE`, which
+blocks, until he rules on §11.2. *(Revision 2 silently treated those clauses as `NOT_CHECKABLE` while
+asking him to decide — the sweep caught it.)*
 
-### 7.2 Gate A — the check catalogue
+A check depending on an open or conditional line asks **satisfiability**: SAT passes with `pendingOn`;
+UNSAT fails.
 
-Each assertion is the specification's; the decomposition into checks is mine.
+### 7.2 Gate A — the checks
 
 | Check | Asserts | Executable |
 |---|---|---|
-| `GA-ROSTER-SUM` | outfield plus goalkeepers plus neutrals equals the session's players | yes |
-| `GA-ENVELOPE-FIT` | every region and object lies inside the area, non-empty | yes |
-| `GA-LAYOUT-FEASIBLE` | the joint geometric constraints over open lines are satisfiable | yes — linear feasibility over exact rationals |
-| `GA-REGION-FUNCTION` | every instantiated region serves at least one supported function | yes |
-| `GA-REFERENCE-INTEGRITY` | every reference names an element the game holds, and no reference defect implicates it | yes |
-| `GA-TRIGGER-UNIQUE` | no two transitions share a trigger key; no transition line collides | yes |
-| `GA-TRANSITION-COHERENCE` | `CONTINUE` means no placement; `STOP_RESUME` means taker and region present | yes |
-| `GA-INFORMATION` | information rules name existing subjects and registered triggers | yes |
-| `GA-TIME-WINDOWS` | window fields in their vocabularies; duration inside the session | yes |
-| `GA-NO-FAILED-LINE` | no resolution line is `failed` | yes |
-| `GA-EFFECT-TYPED` | every consequence is typed and its referent resolves uniquely … *"in every state its trigger can fire from"* | **partial** |
-| `GA-ONE-PRIMARY-EVENT` | exactly one primary event, whose reference resolves … *"whenever it can fire"* | **partial** |
-| `GA-DIRECTION` | each team has an objective, at opposite ends … *"stable, perceivable"* | **partial** |
+| `GA-ROSTER-SUM` | outfield + goalkeepers + neutrals = the session's players | yes |
+| `GA-ENVELOPE-FIT` | every region and object inside the area, non-empty | yes |
+| `GA-LAYOUT-FEASIBLE` | the geometric constraints over open lines are jointly satisfiable | yes — linear feasibility over exact rationals |
+| `GA-REGION-FUNCTION` | every instantiated region serves a supported function | yes |
+| `GA-REFERENCE-INTEGRITY` | every reference names a held element; no reference defect implicates it | yes |
+| `GA-TRIGGER-UNIQUE` | no two transitions share a trigger key; none collides | yes |
+| `GA-TRANSITION-COHERENCE` | `CONTINUE` ⇒ no placement; `STOP_RESUME` ⇒ taker and region | yes |
+| `GA-INFORMATION` | information rules name held subjects and registered triggers | yes |
+| `GA-TIME-WINDOWS` | window fields in vocabulary; duration inside the session | yes |
+| `GA-NO-FAILED-LINE` | no enumerated line is `failed` | yes |
+| `GA-EFFECT-TYPED` | consequences typed, referents unique … *"in every state its trigger can fire from"* | **partial** |
+| `GA-ONE-PRIMARY-EVENT` | one primary event, reference resolving … *"whenever it can fire"* | **partial** |
+| `GA-DIRECTION` | opposed objectives per team … *"stable, perceivable"* | **partial** |
 | `GA-OBJECTIVE-SETS` | assignment triggers map to rules … *"while the set is in scope"* | **partial** |
-| `GA-MODIFIER-OVERLAP` | modifiers that can hold at once are exclusive or covered by a rule | **partial** — no test for `object` or `event` conditions |
-| `GA-RESIDUAL-SPACE` | residual space is not instantiated | **none** |
-
-**The six partial or unexecutable checks are §11's one remaining decision.** Four of them quantify over
-states of play — "in every state its trigger can fire from", "whenever it can fire", "stable,
-perceivable", "while the set is in scope" — and the representation deliberately holds no state of play.
-The structural part of each is executable; the play-state clause is not, and cannot be without adding
-what he has kept out. `GA-MODIFIER-OVERLAP` has no test for two of its three condition types, and two
-corpus items use them. `GA-RESIDUAL-SPACE` has no executable form at all.
+| `GA-MODIFIER-OVERLAP` | concurrent modifiers exclusive or covered by a rule | **partial** — no test for `object` or `event` conditions |
+| `GA-RESIDUAL-SPACE` | residual space not instantiated | **none** |
 
 ### 7.3 Gate B
 
-**Forward:** every support-capable item's requirement is met, reported per item with the §7 results; the
-denominator counts every item of every loaded contract, and none is dropped. **Reverse:** checking mode
-only — every candidate assertion traced to a support-capable source, or it is `INVENTED`. Neither
-re-derives; both read stages 5–9.
+**Forward:** every admitted item's `ForwardResult`, with every item of every loaded contract counted and
+none dropped. **Reverse:** checking mode only, stage 9's remainder step. Neither re-derives.
 
 ---
 
 ## 8. Determinism and versions
 
-**Reporting order and semantic order are kept apart, and the engine never substitutes one for the
-other.** Reporting order — how records are sorted and iterated — is fixed here, totally and
-mechanically: lines by `(rowOrdinal, elementId, member)`, then item id, then contract id; records by
-subject, then kind rank. Semantic order — an order that changes the answer — comes only from authored
-knowledge or a ruling, and where it is missing the engine **refuses**. A canonical sort used to break a
-semantic tie would be exactly the hidden selection policy SD-35 forbids, arrived at by accident; AM-05
-rules out "the first matching element" for the same reason.
+**Reporting order and semantic order are kept apart.** Reporting order is fixed and total: lines by
+`(rowOrdinal, elementId, member)`, then item, then contract; records by subject, then kind rank.
+**Semantic order comes only from authored knowledge or a ruling; where it is missing the engine
+refuses.** A canonical sort used to break a semantic tie would be the hidden selection policy SD-35
+forbids — AM-05 rules out "the first matching element" for the same reason. Handle minting (§2.3) uses the
+canonical order only to *name* handles, never to decide which exist.
 
-- Two runs on the same input are byte-identical; a shuffled input produces identical output.
-- One deliberate exception: the member order inside an authored value set is data (AM-11), emitted as
-  authored and excluded from the shuffle guarantee.
-- **Exact rationals** throughout — no floating point, and no division that would lose exactness. *(This
-  corrects revision 1, which chose decimals with division refused; that could not support the
-  satisfiability check in §7.1, which is linear feasibility.)*
-- Ids structural and content-derived, never positional.
-- Every version stamped; an unstamped result is refused, because under SD-30 it asserts nothing.
+Byte-identical output on repeat and under shuffled input, except the authored member order inside a value
+set (AM-11), which is emitted as authored. Exact rationals throughout. Ids content-derived. Every version
+stamped; an unstamped result is refused.
 
 ---
 
 ## 9. The refusal-centred test plan
 
-Nothing needs the model, the API or a generated activity.
-
 | Layer | Asserts |
 |---|---|
-| **1. Refusal coverage** *(primary)* | one test per refusal in §2.2 and §3.3: the engine refuses, names the case, and continues |
-| **2. Invariants** | **D1** conservation — every line once, in resolution or withdrawn. **D2** determinism, with the shuffle. **D3** no `open` entry carries a value. **D4** bounds recomputable from constraints. **D5** gap outranks collision. **D6** no gate reads a tension. **D7** fully stamped. **D8** no advice field anywhere. **D9** in derivation mode every `derived` line has non-empty knowledge support — the engine checking itself, not Gate B reverse. **D10 the candidate is evidence**: `resolution` is byte-identical with and without a candidate, and five dedicated tests assert a candidate value cannot turn open into derived, cure a gap, supply support, satisfy an unsupported dependency, or resolve a collision or conflict |
-| **3. Ruling conformance** | one test per standing decision bearing on derivation, including the three that overturned rules of mine, so a drift back toward them fails loudly |
-| **4. Golden regression** | the eight contracts and the slice game — **regression fixtures, not validation** (SD-30) |
-| **5. Pre-registration** | expected outcome written and committed before any new run |
+| **1. Refusal coverage** *(primary)* | one test per refusal in §2.2 and §3.3 |
+| **2. Invariants** | **D1** conservation: every enumerated line appears once, with a `lineState`. **D2** determinism, including shuffle. **D3** no `open` entry has a value. **D4** `bounds` equals the intersection of `constraints[].bound`. **D5** no collision or conflict on a line with a gap. **D6** `GateInput` contains no `Tension`, and gate output is identical whatever tensions exist. **D7** fully stamped. **D8** no field outside §1.8's records, and none named for advice. **D9** in derivation mode every `derived` line has knowledge support. **D10** `resolution` is byte-identical with and without a `CandidateGame`, plus five tests: a candidate value cannot make a line derived, cure a gap, supply support, satisfy an unsupported dependency, or resolve a collision or conflict |
+| **3. Ruling conformance** | one test per standing decision bearing on derivation, including the three that overturned rules of mine |
+| **4. Golden regression** | the eight contracts and the slice game — **fixtures, not validation** (SD-30) |
+| **5. Pre-registration** | expected outcome committed before any new run |
 
 ---
 
@@ -391,67 +459,74 @@ Nothing needs the model, the API or a generated activity.
 
 | # | Choice | Chosen | Rejected |
 |---|---|---|---|
-| 1 | Gate verdict | three-valued; `NOT_EVALUABLE` distinct from `FAIL` | collapsing to `FAIL` |
-| 2 | Open line in Gate A | satisfiability, with `pendingOn` | treating open as unevaluable — makes SD-35 vacuous |
+| 1 | Gate verdict | three-valued | collapsing `NOT_EVALUABLE` into `FAIL` |
+| 2 | Open line in a gate check | satisfiability | treating it as unevaluable — makes SD-35 vacuous |
 | 3 | Record ids | content-derived | emission order |
-| 4 | Reporting order | `(rowOrdinal, elementId, member)` | lexicographic on the id |
-| 5 | Numbers | exact rationals | decimals with division refused — revision 1's choice, now corrected |
-| 6 | Candidate results | a separate `CandidateCheck` array | recording them on the resolution — would let a candidate appear to resolve a line |
-| 7 | `PENDING_CHOICE` | a distinct forward result | reusing "not evaluable" |
-| 8 | Load granularity | whole contract | per record |
-| 9 | Divergent lines | `failed`, naming the refusal | keeping either pass's verdict — SD-42 forbids it |
+| 4 | Numbers | exact rationals | decimals — could not support §7.2's feasibility check |
+| 5 | Candidate results | a separate array | on the resolution — would let a candidate appear to resolve a line |
+| 6 | Element handles | minted from existence items, one per unit of the minimum, anonymous | reading elements from the candidate — makes the candidate an authority |
+| 7 | Candidate matching | by cardinality per selector | a handle-to-element bijection — asserts an identity nothing authorizes |
+| 8 | Governing line open or failed | conditional, or a gap | withdrawing — treats an unresolvable condition as false |
+| 9 | Reason codes | *declared gap* where a `NOT_AUTHORED` declaration reaches; *coverage* where only `UNDECLARED` does | leaving them undefined — the convention every derivation has used |
+| 10 | Divergent lines | failed, neither pass adopted | keeping either pass — SD-42 forbids it |
 
 ---
 
 ## 11. What he asked to have surfaced
 
-### 11.1 Contradictions introduced by these rulings — two, both resolved here
+### 11.1 Contradictions introduced by these rulings
 
-**1. SD-40 contradicted revision 1's checking mode.** Revision 1 let a candidate's value make a line
-`derived` with `resolvedBy: REALIZATION`, with `bounds` carried on that derived entry and a `REALIZATION`
-entry in its support. That is precisely "turn OPEN into DERIVED" and "supply missing support". **Resolved:**
-checking mode now writes nothing to the resolution; candidate results are a separate `CandidateCheck`
-array; `REALIZATION` survives only as the provenance of a within-bounds choice, never as support — so the
-representation's four source kinds are unchanged.
+**Two in the package, both resolved.** Revision 1's checking mode let a candidate make a line `derived`
+via `REALIZATION`, contradicting SD-40; checking mode now writes nothing to the resolution. And
+`RESOLVED:NARROWED_CHOICE` could no longer be a line verdict; its name moves to the candidate-check
+outcome, and the line verdict becomes `FREE(choice)` — which also keeps the four Game statuses
+unchanged, since revision 2 had briefly introduced an `OPEN` verdict outside them.
 
-**2. SD-40 moves the `RESOLVED:NARROWED_CHOICE` verdict.** Derivation spec §2 listed it as a line verdict
-for a legitimate stated choice. Under SD-40 a stated value resolves nothing, and in derivation mode no
-value is stated at all. **Resolved:** the verdict keeps its meaning and becomes the candidate-check
-outcome `WITHIN_BOUNDS`; an open line's resolution verdict is `OPEN`. Recorded in derivation spec §5.
+**Six more in the live specifications, found by the sweep and all fixed:** P-4 and SD-R2 still named as
+authorities in the representation spec's body and the derivation spec's transitions rule; the line
+*"silence licenses a choice"*, the direct opposite of SD-39; `RESOLVED` still reachable by a free choice;
+Gate B reverse described as applying to every game; and `NOT_REALIZED` still called a proposal.
 
-Neither required a choice of his: both follow directly from SD-40's own words. Two further inconsistencies
-were mine rather than his rulings', and are fixed: revision 1's numeric choice could not support its own
-satisfiability check (§8), and derivation spec §7 still described `NOT_REALIZED` and `VALID_ABSENCE` as
-proposals a month after he approved them.
+**One that mattered more than the rest:** SD-13's register condition fired on a start method with verdict
+`NARROWED_CHOICE`. Under SD-40 that is a candidate outcome, so **a candidate game could have switched a
+standing decision on** — exactly the unsupported dependency he forbade. It now fires only on a derived
+value.
 
-### 11.2 Decisions that must be made before implementation — one
+### 11.2 Decisions that must be made before implementation — two
 
-**The six Gate A checks in §7.2 that cannot be fully executed.** Four quantify over states of play the
-representation deliberately does not hold; one lacks a test for two of its condition types; one has no
-executable form. The engine can run each check's structural part. The question is what the rest means:
+**1. The six Gate A checks that cannot be fully executed** (§7.2). Four quantify over states of play the
+representation deliberately does not hold; one lacks a test for two condition types; one has no
+executable form. Until he rules, those clauses are `NOT_EVALUABLE` and block — the engine refuses rather
+than guesses. The options:
+- **(a) Recommended:** the unexecutable clause becomes `NOT_CHECKABLE`, reported, non-blocking — the
+  boundary he already drew for requirements outside the representation, applied to the gate's own
+  wording;
+- **(b)** it stays `NOT_EVALUABLE` and blocks — no game carrying those features can pass;
+- **(c)** the specification's wording is narrowed to the structural part.
 
-- **(a) Recommended:** the unexecutable clause is `NOT_CHECKABLE`, reported, and does **not** block Gate A.
-  This is the boundary he already drew for requirements outside the representation, applied to the
-  gate's own wording. Gate A then certifies *"this game can be coherently laid out and played as
-  specified"* for everything the representation can express, and says plainly which clauses it could
-  not examine.
-- **(b)** the clause is `NOT_EVALUABLE` and blocks Gate A. No game carrying those features could pass.
-- **(c)** the specification's wording for those invariants is narrowed to their structural part.
+`GA-RESIDUAL-SPACE` needs a definition of residual space, or removal, under any option.
 
-`GA-RESIDUAL-SPACE` needs a definition of residual space or removal, under any option.
+**2. What "reachable" means in AM-15.** His adopted rule says reachable triggers exist by construction,
+but nothing defines reachable, and without a definition no transition can be built at all. §2.4 proposes
+one: **a trigger is reachable when its structural prerequisite is derived**. It is mine and needs his yes
+or his correction.
 
-### 11.3 Points where an implementer would otherwise invent semantics — none
+### 11.3 Points where an implementer would otherwise invent semantics
 
-Every remaining gap in the rules is now a **named refusal** with a closed kind (§3.3), not a place an
-implementer must decide: the unnamed aggregate function, modifier order, a failed supporting cardinality
-check's label, an unexecutable gate clause pending 11.2, and divergence between passes. **Once 11.2 is
-settled, I see no point in this package where implementation would require inventing semantics.**
+**None, provided 11.2 is settled.** The sweep found six, and each is now either defined or a named
+refusal: element identity in derivation mode (§2.3); the result, candidate and forward-result records
+(§1.8); value comparison (§1.9, with `VALUE_NOT_COMPARABLE` for anything outside it); a conditional line
+whose governing value is open or failed (§2.1); an authored modifier combination rule (refused as
+`RULE_NOT_EXECUTABLE` — none exists in the corpus); and whether stage 9 iterates assertions or lines
+(§2.5 — lines, then the remainder).
+
+I would rather he had this tested once more than take my word for it a second time, so before this goes
+the same sweep can be re-run against revision 3 if he prefers.
 
 ---
 
 ## 12. What this package does not do
 
-It does not define the downstream choice process or the recovery policy — both deferred by his explicit
-instruction. It proposes no grammar extension for the six unrepresentable cases (SD-38). It does not
-reinterpret the four nonconforming `BUILD_OUT_EPISODE` uses or derive replacements from the retired
-sentence (SD-36). It repairs no contract. **It implements nothing until he confirms it.**
+It does not define the downstream choice process or the recovery policy. It proposes no grammar extension
+for the six unrepresentable cases (SD-38). It does not reinterpret the four nonconforming
+`BUILD_OUT_EPISODE` uses (SD-36). It repairs no contract. **It implements nothing until he confirms it.**
