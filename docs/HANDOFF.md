@@ -2637,6 +2637,10 @@ own-involvement **declarations** empty with their items (31 items, 29 declaratio
 contracts; it flips Wide Zone's channels between INVENTED and a declared gap); whether AM-12 extends to
 an element reference held in an item's **value** (today a prose reference misses silently); and the
 failure path, which does not block if the engine is **report-only**.
+- **All three were ruled the same day** — SD-31 (declarations survive; an empty scope empties the
+  item's application set, not the declaration), SD-32 (every structural reference normalises, not just
+  selectors) and SD-33 (report-only). The three questions above are the record of what was asked, not
+  of anything still open.
 - **His second comparison example cannot be written:** `count(A) = count(B)` needs cardinality to be a
   property, and he ruled no schema change yet. No change proposed on a hypothetical.
 - **SD-10 could never fire as I typed it** — an EXISTS item whose value was the prose phrase

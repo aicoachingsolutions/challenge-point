@@ -1,5 +1,10 @@
 # Contract-shape conformance check — result
 
+> **This document describes the register as it stood on 19 September: 81 rows.** The register now
+> holds 82 — `V9a`, added by SD-30 on 20 September. The counts here are deliberately not retrofitted —
+> under SD-30 a past result describes what the older rules said, and editing it would manufacture a
+> retrospective validity the ruling exists to prevent.
+
 19 September 2026. Paper only; generation and implementation stay frozen. Christian approved the check
 on 18 September, with its boundary:
 - an atomic path register;

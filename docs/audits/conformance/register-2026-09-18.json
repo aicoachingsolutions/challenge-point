@@ -208,7 +208,7 @@
     { "id": "SD-25", "item": { "row": "V2", "requirement": "EQUALS", "value": 1, "relation": "ENTAILS the primary event's base value" }, "yields": "to an authoritative selected contribution that explicitly modifies that value (his wording)", "note": "Added 20 September [C20b]. A scoring convention, not football knowledge. It is what makes V2 supported, and so what makes any effective-value derivation computable at all; before it, V2 rested only on engine wording and was inert under SD-21" }
   ],
   "decidingRules": {
-    "note": "Only these may decide a collision (SD-02): the relationship rules each contract lists, RR-01, and SD-06, SD-07, SD-08.",
+    "note": "Only these may decide a collision (SD-02): the relationship rules each contract lists, RR-01, and SD-06, SD-07, SD-08. NOTE, added 20 September after a cross-document audit queried it: this list and citableStandingDecisions have DIFFERENT membership by design, and SD-08 is the case that shows it. Deciding a collision and supporting a value are different roles - SD-08 decides (a displaced PREFERRED_DEFAULT is ADAPTED, not a collision) while supporting no value anywhere, so it belongs here and not there. Not a defect.",
     "RR-01": "RPC scoring ownership: the Context decides which physically available event reinforces its Primary Scoring Identity",
     "SD-06": "exactly one primary scoring event",
     "SD-07": "direction invariant",
