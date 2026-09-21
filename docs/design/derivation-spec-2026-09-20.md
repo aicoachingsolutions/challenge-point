@@ -301,8 +301,28 @@ default or free choice. Existence alone doesn't."
 
 ## 5. Free choice
 
-A value is a legitimate choice only when all hold:
-1. the row is fillable, and the value is of the kind the register's entry names;
+**The authority is SD-39** (21 September), which supersedes P-4. In his words: *"Where the
+representation requires a value in order to produce a playable game, selected authoritative knowledge
+neither determines nor further constrains that value, and no standing rule determines it, the value may
+remain OPEN for downstream governed choice within its supported bounds."* And the qualification that
+governs everything below: **"OPEN is an explicitly authorized degree of freedom within an
+already-supported property, not a synonym for unknown."** Silence creates no property, relationship,
+trigger, qualifier, consequence, modifier, information rule, region, object or other structure.
+
+**What the engine does with a choice, in each mode (SD-40).**
+- **Derivation mode** — the property is `OPEN`, with its bounds, its authority and its constraints, and
+  **no value**. The conditions below decide whether it may be open at all.
+- **Checking mode** — a candidate's value for an open property is checked against those bounds. **It
+  does not make the property derived, and it supplies no support**: its provenance stays downstream
+  governed choice (the `REALIZATION` source kind), never knowledge entailment. The verdict
+  `RESOLVED:NARROWED_CHOICE` therefore names **the outcome of that check** — a candidate value inside
+  the authorized bounds — and not a resolution of the line. *(Reconciliation of the §2 verdict with
+  SD-40, 21 September. The verdict's meaning is unchanged; where it is recorded moves, because SD-40
+  forbids a candidate value from resolving anything.)*
+
+A property may be open, and a candidate value within it is a legitimate choice, only when all hold:
+1. the row has a structurally defined choice space — a `fillable` entry, now register data under SD-39
+   rather than authority — and the value is of the kind that entry names;
 2. the element's existence is entailed or is itself a legitimate choice;
 3. the value is inside every in-scope bound;
 4. no declaration reaching the element bars it.
@@ -434,22 +454,23 @@ cannot be resolved/computed, the comparison is not evaluable/unmet according to 
 status." That replaces the ordering rule I had written after the rerun, which made *not evaluable* win
 outright. His version keeps a required claim's failure visible as a failure.
 
-**FLAGGED (third).** An absence that §8 records as valid has no verdict in §2's table. Both derivers hit
-it and forced a verdict. I propose recording it as `VALID_ABSENCE`, which is a line outcome, not a
-support record, and not one of the four statuses.
+**`VALID_ABSENCE` — approved 20 September**, *"as a line outcome, not a Game status. Keep the four
+Game statuses unchanged."* An absence §8 records as valid takes it, recorded on the line and never as a
+support record. It is decidable only in checking mode, where absence is a fact about a candidate.
 
-**FLAGGED (second).** One case has no fitting label: a **supporting** item, not a preferred default and not a
-typical example, whose value the game leaves absent. It is not satisfied (nothing was realised), not
-adapted (nothing displaced it), and not inert (it is real authored knowledge). I propose a result
-`NOT_REALIZED` for it, used only here. That is an addition to the item-result vocabulary in the audit
-record, not a new property status and not a change to support. If he prefers "adapted" stretched to
-cover it, say so and I will use that instead.
+**`NOT_REALIZED` — approved 20 September** for its proposed case: *"Supporting item + absent value —
+`not realized`: APPROVE."* A **supporting** item — not a preferred default, not a typical example —
+whose value the game leaves absent takes `NOT_REALIZED`: not satisfied (nothing was realised), not
+adapted (nothing displaced it), not inert (it is real authored knowledge). An item result, not a
+property status, and no change to support.
 
-**A third instance of the same hole, found in the AM-17 rederivation.** A **supporting existence** item
-whose cardinality check fails — Wide Zone's `COUNT 2` on channels, met by zero elements — has no row
-here either. It is not required, so not *unmet*; not a preferred default, so not *adapted*; not a
-typical example, so not *inert*. The existence row names the check and §4.3 points back here. If he
-takes `NOT_REALIZED`, it must cover a failed cardinality check as well as an absent value.
+**One adjacent case his approval does not reach, and the engine refuses rather than stretching it.** A
+**supporting existence** item whose cardinality check fails — Wide Zone's `COUNT 2` on channels, met by
+zero elements. It is not required, so not *unmet*; not a preferred default, so not *adapted*; not a
+typical example, so not *inert*; and it is not "an absent value", which is what he approved
+`NOT_REALIZED` for. **Until he says `NOT_REALIZED` covers it**, the item result is `UNLABELLED` and one
+`LABEL_NOT_RULED` refusal names every item in that position. This does not block design: the engine
+refuses instead of guessing, and the refusal makes the size of the unruled case visible.
 
 ## 8. Closed-world absence (AM-07, as qualified)
 
