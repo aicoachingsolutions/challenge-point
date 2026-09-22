@@ -67,6 +67,8 @@ outside the representation, so they may not be reported as not checkable.
 |---|---|---|---|
 | F1 | **`GA-RESIDUAL-SPACE` has no machine-testable definition.** Its wording fuses an anti-invention rule for leftover regions — possibly already enforced by `GA-REGION-FUNCTION` and Gate B reverse — with Wide Zone's single-contract "not dominant" aggregate (C5, B3) | blocks Gate A for every game | exact wording and analysis sent to him, 22 Sep; define or remove is his |
 | F2 | **`GA-MODIFIER-OVERLAP` has no test for `object` and `event` conditions.** The information is represented; the test is incomplete | blocks Gate A where those types occur — two corpus items | tests to be authored |
+| F3 | **No authored order for combining two value modifiers on one referent.** The operations do not commute, so a fold order would be an invented answer | effective value not computable, refused as `NO_MODIFIER_ORDER_RULE`; no corpus case today | an authored combination rule, with an executable form |
+| F4 | **A supporting existence item whose cardinality check fails has no ruled label.** `NOT_REALIZED` was approved for an absent value, not a failed count | `UNLABELLED`, one `LABEL_NOT_RULED` refusal naming every case | his ruling on whether `NOT_REALIZED` covers it |
 
 ## E. For Christian — surfaced by the design work, needing a ruling
 

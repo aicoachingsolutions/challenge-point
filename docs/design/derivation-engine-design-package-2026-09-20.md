@@ -126,6 +126,37 @@ suggestion, recommendation, repair or retry** — *derivation diagnoses; it does
 
 Every record the package names is defined here; a record not listed does not exist.
 
+**Input records** — the contract shape of the data-model design §3.2 and the grammar sheet §3, declared
+here so the package is self-contained:
+
+```
+LoadedContract   { contractId, objectId, objectKind, knowledgeVersion, registerVersion,
+                   items: ContractItem[], declarations: Declaration[],
+                   relationshipRules: RelationshipRule[], notAuthored: [{ row, selector?, missing }] }
+ContractItem     { itemId, row, selector, requirement, value, strictness, valueStatus, scope, basis,
+                   basisEvidence: { quote, sourceId }, checkability, structuralClause | null,
+                   comparison?: { left: Operand, operator, right: Operand } }   // COMPARES only
+Operand          { row, selector } | { derived: ruleId, args }                   // SD-23
+Declaration      { row, selector?, scope?, declaration, note }
+RelationshipRule { ruleId, owner, decides, outcome, evidence }
+```
+
+Every enumerated field takes its values from the register's `vocabularies.contractEnums`. **An item or
+declaration with a field outside those lists is a `LOAD_REFUSAL` of its whole contract.**
+
+**Identifiers and references:**
+
+```
+ItemRef          { contractId, itemId }
+objectId         a knowledge object's id, as selection names it
+ruleId           a relationship rule's id, a citable standing decision's id, or a registered
+                 derived-operand rule id — by context, always one of those three registered forms
+SpecClause       { document, section } — the clause a verdict rests on, e.g. { 'derivation-spec', '§4.6' }
+GateInput        { resolution: ResolutionEntry[], audit: Audit minus tensions }   // SD-27
+```
+
+**Output records:**
+
 ```
 Audit            { properties: AuditProperty[], items: AuditItem[], collisions: Collision[],
                    relationshipConflicts: RelationshipConflict[], tensions: Tension[],
@@ -631,9 +662,26 @@ the register, rather than to Gate A. Until he rules it stays a blocking specific
 | The contract file's mojibake (B2), 19 row-less items of which 5 structural (B4), 8 items selecting on an unregistered attribute (B5) | data | those contracts or items are refused at load |
 | The six representational limits (C1–C6) | grammar, deliberately unsolved | recorded individually; no extension until a real case needs one |
 
-### 11.3 Points where an implementer would otherwise invent semantics
+### 11.3 The final independent check — his four questions (22 September)
 
-**None, provided 11.2 is settled — and this claim has now been tested twice.**
+Run once against revision 5, as he directed, on his four questions only.
+
+| Question | Result | What it found |
+|---|---|---|
+| 1. Does live text contradict SD-39 onward or another current ruling? | **not clean — minor** | the package said every residual gap was on the task register; two were not. Added as F3 and F4. No engine behaviour affected |
+| 2. Is any record, type or rule used by the engine undefined? | **not clean** | `LoadedContract` and `ItemRef` were named but never declared, and `GateInput` was described only in prose. The check classed the first two as genuine blockers. **All three are now declared in §1.8.** The contract's shape already existed in the data-model design §3.2 and the grammar sheet, outside the check's reading list, but the package never declared it or pointed there, so the finding stood. `ItemRef` was undefined anywhere. **No semantic question was involved** in any of the three |
+| 3. Could two conforming implementers make different semantic choices? | **clean** | — |
+| 4. Does any code path require an inference no authority supports? | **clean** | — |
+
+**Questions 3 and 4 are the ones the earlier sweeps failed**, and they are clean. A mechanical scan
+afterwards confirms every type the package names now has a definition. Whether the two definitional
+omissions under question 2 count as the "genuine blocker" that withholds authorization is his call; I
+do not think they do, because no behaviour changes, but the check classed them that way and I have not
+overridden it.
+
+### 11.4 How the claim was tested before this
+
+**None, provided 11.2 is settled — and this claim was tested twice before the final check.**
 
 - **First sweep, of revision 2:** found six invention points, plus stale contradictions in the live
   specifications and records the package used without defining. All fixed in revision 3.
