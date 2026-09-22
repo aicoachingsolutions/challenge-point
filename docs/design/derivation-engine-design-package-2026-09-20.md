@@ -1,12 +1,20 @@
-# The derivation engine — design package, revision 4
+# The derivation engine — design package, revision 5
 
+> **Revision 5 (22 September)** incorporates his rulings of the same day: SD-43 (Gate A certifies only
+> structurally decidable claims; information outside the representation is reported
+> `NOT CHECKABLE — OUTSIDE REPRESENTATION` and does not block; information inside it but undefined is a
+> blocking specification gap) and SD-44 (structurally reachable). Both of revision 4's pending decisions
+> are therefore ruled. **Implementation is authorized once a final independent check returns clean on
+> its four questions** (§11).
+>
 > **Revision 4 (22 September)** closes what a second independent sweep of revision 3 found: two
 > consistency defects and five invention points, all confirmed against the files. The largest change is
 > §2.3 — element **classes** replace merged handles, because the merge rule in revision 3 was itself a
 > guess. Revision 3's account of how it came about follows unchanged.
 
-**21 September 2026. Design only. Implementation stays frozen until Christian confirms this package.**
-Generation remains frozen. No code exists.
+**22 September 2026.** Per his ruling of 22 September, derivation-engine implementation is authorized
+once the final independent check returns clean on its four questions, unless it finds a genuine blocker.
+**Activity generation remains frozen.** No code exists yet.
 
 Revision 3 incorporates his rulings of 21 September — SD-39 (the authority for OPEN), SD-40 (two
 modes; the candidate game is evidence, never authority), SD-41 (comparatives presently unexercised),
@@ -146,12 +154,17 @@ CandidateGame    { elements: [{ elementId, row, attributes: {<attr>: Value} }],
 CandidateCheck   { lineId | null, candidateElementId | null, asserted: Value | 'ABSENT',
                    outcome, provenance, failureIds[] }
 GateReport       { verdict: PASS | FAIL | NOT_EVALUABLE | NOT_APPLICABLE,
-                   checks: [{ checkId, verdict: PASS | FAIL | NOT_CHECKABLE | NOT_EVALUABLE,
-                              subjects, why, pendingOn: lineId[], blockedBy: lineId[] }] }
-                 // NOT_APPLICABLE is a whole-gate verdict only: gateBReverse in derivation mode
+                   checks: [{ checkId, verdict: ClauseVerdict, subjects, why,
+                              clauses: [{ clause, verdict: ClauseVerdict, refusalId? }],
+                              pendingOn: lineId[], blockedBy: lineId[] }],
+                   notEstablished: [{ checkId, clause }] }
+ClauseVerdict    = PASS | FAIL | NOT_CHECKABLE_OUTSIDE_REPRESENTATION | NOT_EVALUABLE
+                 // NOT_APPLICABLE is a whole-gate verdict only: gateBReverse in derivation mode.
+                 // notEstablished lists every clause reported NOT_CHECKABLE_OUTSIDE_REPRESENTATION, so a
+                 // PASS always travels with the exact list of what it did not establish (SD-43)
 ```
 
-**`ForwardResult` — closed, first that applies:** `NOT_CHECKABLE` (outside the boundary) · `INERT`
+**`ForwardResult` — closed, first that applies:** `NOT_CHECKABLE_OUTSIDE_REPRESENTATION` (an item he has ruled outside the boundary — the same label SD-43 uses for Gate A) · `INERT`
 (typical example or engine-only) · `SATISFIED` · `VIOLATED` · `PENDING_CHOICE` (derivation mode: the
 item's only unmet dependency is a `FREE(choice)` line) · `UNMET` (required, absent) · `ADAPTED`
 (preferred default displaced) · `NOT_REALIZED` (checking mode: a supporting item whose value the candidate
@@ -254,25 +267,46 @@ class's cardinality. The class id is `c:<contractId>:<itemId>`.
   Surplus above a minimum exists only as a free choice within an authored maximum.
 - The same classes are used in both modes.
 
-### 2.4 Reachable triggers (AM-15)
+### 2.4 Structurally reachable triggers (AM-15, SD-44)
 
-AM-15 says reachable triggers and the elements partitioning them by qualifier *exist by construction*;
-the qualifier values still need support. It does not say what "reachable" means, and without a definition
-no trigger element can be built. **Until he rules, the engine refuses rather than implementing a
-definition of its own:** a trigger element exists only where an item entails it, and one
-`REACHABILITY_NOT_RULED` refusal names every trigger construction withheld. Transitions that depend on
-it fail as gaps, visibly. **My proposed definition, for his confirmation (§11.2):** a trigger is
-reachable when its structural prerequisite is derived.
+AM-15: structurally reachable triggers, and the elements partitioning them by qualifier, **exist by
+construction**; the qualifier values still need support. SD-44 defines the term, in his words: *"A
+trigger is structurally reachable when the Game Representation contains the resolved structural
+prerequisites necessary for that trigger to occur. Structural reachability does not assert that the
+trigger will occur, is likely to occur, or is reachable through simulation of player behavior or game
+state."*
 
-| Trigger | Reachable when |
-|---|---|
-| `START` | always — every game begins |
-| `SCORE` | a primary event is derived (SD-06 entails exactly one) |
-| `OUT_END_LINE`, `OUT_TOUCHLINE` | the envelope area is derived — a bounded rectangle has both |
-| `POSSESSION_CHANGE` | two opposing teams are derived |
-| `REGION_ENTRY {r}` | region `r` is derived |
-| `TIME_EXPIRY {w}` | time window `w` is derived |
-| `STANDING` | always — it names a standing condition, not an event |
+| Trigger | Structurally reachable when (SD-44) | How the engine establishes it |
+|---|---|---|
+| `START` | by construction, for a playable game | always constructed |
+| `SCORE` | a resolved primary scoring event exists | SD-06 entails exactly one primary event |
+| `OUT_END_LINE`, `OUT_TOUCHLINE` — his "ball out" | a bounded playing area exists | the envelope's length and width, from the session |
+| `POSSESSION_CHANGE` — his "turnover" | opposing teams and the relevant possession relationship exist | two team classes with distinct team designations and opposed objectives, and a ball object |
+| `REGION_ENTRY {r}` | region `r` exists **and is structurally accessible** under the represented layout and rules | below |
+| `TIME_EXPIRY {w}` | time window `w` exists | a derived time-window class |
+| `STANDING` | a standing condition, not an event | always constructed |
+
+**Structural accessibility, for `REGION_ENTRY`.** His qualification: *"region existence alone is not
+necessarily sufficient … if represented structure makes entry impossible. Use structural accessibility
+where the representation can establish it; do not simulate movement or infer player behavior."* The
+engine therefore withdraws a `REGION_ENTRY` trigger **only when the represented structure establishes that
+entry is impossible**, and in exactly two cases:
+1. the region's represented extent is empty, or lies wholly outside the playing area; or
+2. the region is an `access` region, and **no** consequence granting `ACCESS` to it has a structurally
+   reachable trigger — evaluated in one pass, and a granting trigger that is itself a `REGION_ENTRY`
+   counts as reachable, because establishing otherwise would need iteration.
+
+Where the representation cannot establish impossibility, the trigger is reachable. *(This
+operationalisation of "structurally accessible" is mine; it withdraws only on represented structure and
+never on movement, pressure, skill, likelihood or intention.)*
+
+**When it is computed.** Existence prerequisites are known at stage 2 — from support-capable existence
+items, SD-06 and the session. Accessibility needs derived positions and rules, so a `REGION_ENTRY` trigger
+is constructed at stage 2 and **withdrawn at stage 6** if either case above holds — restricted computation 2,
+which can only withdraw (SD-42).
+
+**Not stored.** Reachability is derived from the represented prerequisites and is never a property or a
+line: *"Do not store `reachable` as game state if it can be derived."*
 
 ### 2.5 Stage 9, checking mode
 
@@ -330,7 +364,8 @@ uncomputable.
 `NO_AGGREGATE_FUNCTION`, `NO_MODIFIER_ORDER_RULE`, `MODIFIER_OPERATION_MISSING`, `RULE_NOT_EXECUTABLE`
 (an authored modifier combination rule or a procedure value), `OPERAND_NOT_SCALAR`,
 `VALUE_NOT_COMPARABLE`, `NOT_FILLABLE`, `UNBOUNDED_COUNT_FILL`, `LABEL_NOT_RULED`,
-`REACHABILITY_NOT_RULED`, `PASS_DIVERGENCE`, `CHECK_NOT_EXECUTABLE`, `SELECTION_CONTRACT_MISMATCH`,
+`PASS_DIVERGENCE`, `CHECK_NOT_EXECUTABLE` (a specification gap: represented information with no
+executable definition — SD-43), `SELECTION_CONTRACT_MISMATCH`,
 `INPUT_DEFECT`, `CONSERVATION_VIOLATION`. Adding one is a design change.
 
 ### 3.4 Labels
@@ -419,38 +454,58 @@ not expanded until a real authored requirement provides evidence.
 SD-27 made unrepresentable. In derivation mode `gateBReverse.verdict` is `NOT_APPLICABLE`, never a
 `PASS` it has not earned.
 
-**FAIL** if any check failed; otherwise **PASS** if every check is `PASS` or `NOT_CHECKABLE`; otherwise
-**NOT_EVALUABLE**. Rendering requires `PASS`, and renders a realized game checked in checking mode —
-never a derivation-mode result, whose free properties have no value yet.
+**The verdict, per SD-43.** Each check is evaluated clause by clause.
+- **FAIL** if any clause is `FAIL`.
+- Otherwise **NOT_EVALUABLE** if any clause is `NOT_EVALUABLE` — a clause about represented information
+  that has no executable definition is a **specification gap**, carries a `CHECK_NOT_EXECUTABLE` refusal,
+  and **blocks**.
+- Otherwise **PASS**, with every clause reported `NOT_CHECKABLE_OUTSIDE_REPRESENTATION` listed in
+  `notEstablished`. In his words, that result *"does not itself fail Gate A, but it is not a PASS for that
+  clause either."*
 
-**`NOT_CHECKABLE` is used only where he has already ruled something outside the representation.** An
-unexecutable clause of a Gate A check is **not** `NOT_CHECKABLE` today: it is `NOT_EVALUABLE`, which
-blocks, until he rules on §11.2. *(Revision 2 silently treated those clauses as `NOT_CHECKABLE` while
-asking him to decide — the sweep caught it.)*
+**`NOT_CHECKABLE_OUTSIDE_REPRESENTATION` is used only where the required information is intentionally
+excluded by the established representation boundary.** It is never a way to downgrade a missing
+implementation: *"inside the representation but undefined → specification gap and blocking/refusal."*
+The canonical Gate A wording is not narrowed; the uncheckable remainder is preserved and reported, so the
+result says exactly what the system has and has not established.
 
-A check depending on an open or conditional line asks **satisfiability**: SAT passes with `pendingOn`;
-UNSAT fails.
+Rendering requires `PASS`, and renders a realized game checked in checking mode — never a derivation-mode
+result, whose free properties have no value yet. A check depending on an open or conditional line asks
+**satisfiability**: SAT passes with `pendingOn`; UNSAT fails.
 
 ### 7.2 Gate A — the checks
 
-| Check | Asserts | Executable |
+**Fully structural — executed in full:**
+
+| Check | Asserts |
+|---|---|
+| `GA-ROSTER-SUM` | outfield + goalkeepers + neutrals = the session's players |
+| `GA-ENVELOPE-FIT` | every region and object inside the area, non-empty |
+| `GA-LAYOUT-FEASIBLE` | the geometric constraints over open lines are jointly satisfiable — linear feasibility over exact rationals |
+| `GA-REGION-FUNCTION` | every instantiated region serves at least one supported function |
+| `GA-REFERENCE-INTEGRITY` | every reference names a held element; no reference defect implicates it |
+| `GA-TRIGGER-UNIQUE` | no two transitions share a trigger key; none collides |
+| `GA-TRANSITION-COHERENCE` | `CONTINUE` ⇒ no placement; `STOP_RESUME` ⇒ taker and region |
+| `GA-INFORMATION` | information rules name held subjects and registered triggers |
+| `GA-TIME-WINDOWS` | window fields in vocabulary; duration inside the session |
+| `GA-NO-FAILED-LINE` | no enumerated line is `failed` |
+
+**Split under SD-43 — the structural clause executed, the state-of-play clause reported as not
+established.** "Can fire" in these clauses is read through SD-44: a structurally reachable trigger.
+
+| Check | Structural clause — executed | Outside the representation — `NOT_CHECKABLE_OUTSIDE_REPRESENTATION` |
 |---|---|---|
-| `GA-ROSTER-SUM` | outfield + goalkeepers + neutrals = the session's players | yes |
-| `GA-ENVELOPE-FIT` | every region and object inside the area, non-empty | yes |
-| `GA-LAYOUT-FEASIBLE` | the geometric constraints over open lines are jointly satisfiable | yes — linear feasibility over exact rationals |
-| `GA-REGION-FUNCTION` | every instantiated region serves a supported function | yes |
-| `GA-REFERENCE-INTEGRITY` | every reference names a held element; no reference defect implicates it | yes |
-| `GA-TRIGGER-UNIQUE` | no two transitions share a trigger key; none collides | yes |
-| `GA-TRANSITION-COHERENCE` | `CONTINUE` ⇒ no placement; `STOP_RESUME` ⇒ taker and region | yes |
-| `GA-INFORMATION` | information rules name held subjects and registered triggers | yes |
-| `GA-TIME-WINDOWS` | window fields in vocabulary; duration inside the session | yes |
-| `GA-NO-FAILED-LINE` | no enumerated line is `failed` | yes |
-| `GA-EFFECT-TYPED` | consequences typed, referents unique … *"in every state its trigger can fire from"* | **partial** |
-| `GA-ONE-PRIMARY-EVENT` | one primary event, reference resolving … *"whenever it can fire"* | **partial** |
-| `GA-DIRECTION` | opposed objectives per team … *"stable, perceivable"* | **partial** |
-| `GA-OBJECTIVE-SETS` | assignment triggers map to rules … *"while the set is in scope"* | **partial** |
-| `GA-MODIFIER-OVERLAP` | concurrent modifiers exclusive or covered by a rule | **partial** — no test for `object` or `event` conditions |
-| `GA-RESIDUAL-SPACE` | residual space not instantiated | **none** |
+| `GA-EFFECT-TYPED` | every consequence's effect is in its vocabulary, and its applicable referent is derived and resolves to exactly one element under every structurally reachable trigger that fires it | *"in every state its trigger can fire from"* — resolution across the states of play themselves |
+| `GA-ONE-PRIMARY-EVENT` | exactly one primary event; base value derived and numeric; every member of its reference has a space position, and the reference resolves under every structurally reachable trigger that can fire the event | *"whenever it can fire"* — resolution across states of play |
+| `GA-DIRECTION` | each team has an objective it attacks; the two teams' objectives lie at opposite ends of the axis; and **no represented transition or consequence changes a team's direction or objective ends** — the structural part of "stable" | *"perceivable"*, and "stable" as experienced in play — properties of play and perception, which the representation deliberately does not hold |
+| `GA-OBJECTIVE-SETS` | every persistence trigger maps to an assignment entry with a derived member; members resolve; the minimum does not exceed the members; the named member is one of them; an assignment yields a member under every structurally reachable trigger that begins or continues the set's scope | *"while the set is in scope"* across the states of play between those triggers |
+
+**Specification gaps — blocking, with a `CHECK_NOT_EXECUTABLE` refusal:**
+
+| Check | Why it is a gap, not outside the representation |
+|---|---|
+| `GA-MODIFIER-OVERLAP` for `object` and `event` conditions | the information **is** represented; the test is incomplete. The `region` case executes. Two corpus items use the other two types, so this blocks real games until the tests are authored |
+| `GA-RESIDUAL-SPACE` | no machine-testable definition exists. Not defined here: his instruction is *"do not invent a definition merely to make Gate A executable."* Its exact wording and apparent purpose are in §11.2, for his decision to define or remove it |
 
 ### 7.3 Gate B
 
@@ -500,6 +555,8 @@ stamped; an unstamped result is refused.
 | 8 | Governing line open or failed | conditional, or a gap | withdrawing — treats an unresolvable condition as false |
 | 9 | Reason codes | *declared gap* where a `NOT_AUTHORED` declaration reaches; *coverage* where only `UNDECLARED` does | leaving them undefined — the convention every derivation has used |
 | 10 | Divergent lines | failed, neither pass adopted | keeping either pass — SD-42 forbids it |
+| 11 | Splitting the four state-of-play checks (§7.2) | the structural clause reads "can fire" as "under a structurally reachable trigger" (SD-44); "stable" keeps a structural part — no represented rule changes a team's direction | marking whole clauses not checkable — would leave decidable structure unexamined, which SD-43 forbids |
+| 12 | Structural accessibility for `REGION_ENTRY` (§2.4) | withdraw only when represented structure establishes entry impossible: an empty or out-of-area extent, or an access region no reachable consequence ever opens | withdrawing on anything the representation cannot establish — that would be inference |
 
 ---
 
@@ -523,26 +580,56 @@ Gate B reverse described as applying to every game; and `NOT_REALIZED` still cal
 standing decision on** — exactly the unsupported dependency he forbade. It now fires only on a derived
 value.
 
-### 11.2 Decisions that must be made before implementation — two
+### 11.2 Decisions before implementation — both ruled, one question returned to him
 
-**1. The six Gate A checks that cannot be fully executed** (§7.2). Four quantify over states of play the
-representation deliberately does not hold; one lacks a test for two condition types; one has no
-executable form. Until he rules, those clauses are `NOT_EVALUABLE` and block — the engine refuses rather
-than guesses. The options:
-- **(a) Recommended:** the unexecutable clause becomes `NOT_CHECKABLE`, reported, non-blocking — the
-  boundary he already drew for requirements outside the representation, applied to the gate's own
-  wording;
-- **(b)** it stays `NOT_EVALUABLE` and blocks — no game carrying those features can pass;
-- **(c)** the specification's wording is narrowed to the structural part.
+**Both of revision 4's decisions are ruled** (22 September): the partially executable Gate A checks by
+SD-43 (§7.1–7.2), and reachability by SD-44 (§2.4).
 
-`GA-RESIDUAL-SPACE` needs a definition of residual space, or removal, under any option.
+**One question he asked to have brought back: residual space.** He ruled it a specification gap and asked
+for *"the exact existing Gate A wording and what property it appears intended to protect before we decide
+whether to define it structurally or remove it."*
 
-**2. What "reachable" means in AM-15.** His adopted rule says reachable triggers exist by construction,
-but nothing defines reachable. §2.4 proposes one: **a trigger is reachable when its structural
-prerequisite is derived**. It is mine and needs his yes or his correction. **Until he rules, the engine
-refuses** (`REACHABILITY_NOT_RULED`): a trigger element exists only where an item entails it, and the
-transitions that depend on reachability fail as visible gaps. Both decisions therefore have a
-refusing default — neither can be implemented around by guessing.
+**The exact wording** — representation specification §5.2, the Gate A column of the row
+`regions[].functions`:
+
+> "Every instantiated region serves at least one supported function. Residual space is not instantiated:
+> `WIDEZONE-09` is checked by comparing channel extents with `area`"
+
+**It appears to protect two different properties, fused into one sentence:**
+
+1. **"Residual space is not instantiated"** — the space left over once functional regions are carved out
+   (the middle of the pitch between two wide channels, for example) must not become a region in its own
+   right merely because it is what remains. That is an **anti-invention rule at the level of regions** —
+   the spatial form of SD-16 and SD-39: silence and leftovers create no structure. In the slice game this
+   is exactly what happened: a central corridor was instantiated with no stated function and no support.
+   **It may already be covered**: such a region fails `GA-REGION-FUNCTION` (no supported function), and
+   in checking mode its existence is `INVENTED` under Gate B reverse. If both hold, the clause adds nothing
+   a machine can test that those two do not.
+2. **"WIDEZONE-09 is checked by comparing channel extents with area"** — a **single contract's**
+   requirement: Wide Zone Advantage's "not dominant", meaning the two channels' combined widths stay
+   within the area. That is not a generic structural property of every game. It is an aggregate across
+   elements (task register C5), and `WIDEZONE-09` never became a contract item at all because nothing
+   can express that aggregate (B3). As a Gate A check it would apply one object's knowledge to every game.
+
+So the choice he has is sharper than define-or-remove: the first property may be **already enforced**
+elsewhere, and the second may **belong to Wide Zone's contract**, as a representational limit already on
+the register, rather than to Gate A. Until he rules it stays a blocking specification gap.
+
+**Residual known gaps — the exact list** (each also on the task register):
+
+| Gap | Kind | Effect today |
+|---|---|---|
+| `GA-RESIDUAL-SPACE` has no machine-testable definition | specification | blocks Gate A for every game |
+| `GA-MODIFIER-OVERLAP` has no test for `object` and `event` conditions | specification | blocks Gate A where those types occur — two corpus items |
+| No aggregate function for a comparison over several matched elements | specification | comparison refused; none in the corpus |
+| No authored order for combining two modifiers on one referent | specification | effective value not computable; none in the corpus |
+| A failed supporting cardinality check has no ruled label | specification | `UNLABELLED`, one refusal naming every case |
+| No value modifier in the corpus declares an operation (3 magnitudes, 0 operations) | knowledge | no effective value is computable |
+| Carrier placement relative to the progression line (A1); build-out restart placement (A2) | knowledge | those properties fail as gaps |
+| Eleven Game Forms leave a start or restart unauthored (A5) | knowledge | those transitions fail as gaps |
+| Wide Zone's contract restatement (A3); the four nonconforming `BUILD_OUT_EPISODE` uses (B1) | knowledge | Wide Zone's channels resolve as a declared gap; the four items support nothing |
+| The contract file's mojibake (B2), 19 row-less items of which 5 structural (B4), 8 items selecting on an unregistered attribute (B5) | data | those contracts or items are refused at load |
+| The six representational limits (C1–C6) | grammar, deliberately unsolved | recorded individually; no extension until a real case needs one |
 
 ### 11.3 Points where an implementer would otherwise invent semantics
 

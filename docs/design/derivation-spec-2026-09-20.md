@@ -493,6 +493,10 @@ longer meet on one line. Nothing about entailment here changes.
 
 - **Reachable triggers exist by construction,** and so does every element partitioning a reachable
   trigger by qualifier values (AM-15, adopted). The qualifier values themselves still need support.
+  **"Reachable" means structurally reachable (SD-44, 22 September):** the representation contains the
+  resolved structural prerequisites for the trigger to occur — asserting nothing about whether it will
+  occur, and never depending on simulation, pressure, skill, likelihood or intention. It is derived,
+  never stored. The prerequisites per trigger are in the engine package §2.4.
 - **Continuing play keys on the game's stated play state** (AM-14, adopted). Christian: "If that state
   is itself unsupported or contradicted, Gate B should expose that independently rather than making the
   downstream structure disappear from evaluation." So the restart fields are still judged, and the

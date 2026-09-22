@@ -58,6 +58,16 @@ them. He ruled against that, and the reason holds: if their homes are the repres
 realization respectively, then one conditional mechanism would have been the wrong answer three times.
 The distinction is preserved until real cases decide it.
 
+## F. Specification gaps — blocking, per SD-43
+
+*"Inside the representation but undefined → specification gap and blocking/refusal."* These are not
+outside the representation, so they may not be reported as not checkable.
+
+| # | Gap | Effect | Status |
+|---|---|---|---|
+| F1 | **`GA-RESIDUAL-SPACE` has no machine-testable definition.** Its wording fuses an anti-invention rule for leftover regions — possibly already enforced by `GA-REGION-FUNCTION` and Gate B reverse — with Wide Zone's single-contract "not dominant" aggregate (C5, B3) | blocks Gate A for every game | exact wording and analysis sent to him, 22 Sep; define or remove is his |
+| F2 | **`GA-MODIFIER-OVERLAP` has no test for `object` and `event` conditions.** The information is represented; the test is incomplete | blocks Gate A where those types occur — two corpus items | tests to be authored |
+
 ## E. For Christian — surfaced by the design work, needing a ruling
 
 | # | What | Why it needs him |
