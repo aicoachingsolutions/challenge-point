@@ -52,8 +52,10 @@ function emit(title, rows) {
 }
 
 function section(text, startHeading, endHeading) {
-  const start = text.indexOf(startHeading);
-  const end = endHeading ? text.indexOf(endHeading, start + startHeading.length) : text.length;
+  const aliases = new Map([['### 3.2 The six kinds', '### 3.2 The six failure kinds'], ['## 1. Inputs and outputs', '## 1. Inputs, outputs and records'], ['## 2. The twelve-stage pipeline', '## 2. The pipeline']]);
+  const start = text.indexOf(aliases.get(startHeading) || startHeading);
+  const currentEndHeading = aliases.get(endHeading) || endHeading;
+  const end = endHeading ? text.indexOf(currentEndHeading, start + startHeading.length) : text.length;
   if (start < 0 || end < 0) throw new Error(`Could not locate ${startHeading}`);
   return text.slice(start, end);
 }
@@ -100,7 +102,7 @@ const namedRefusals = [
   'NO_AGGREGATE_FUNCTION', 'NO_MODIFIER_ORDER_RULE', 'MODIFIER_OPERATION_MISSING',
   'OPERAND_NOT_SCALAR', 'NOT_FILLABLE', 'UNBOUNDED_COUNT_FILL', 'LABEL_NOT_RULED',
   'PASS_DIVERGENCE', 'CHECK_NOT_EXECUTABLE', 'SELECTION_CONTRACT_MISMATCH',
-  'INPUT_DEFECT', 'CONSERVATION_VIOLATION',
+  'INPUT_DEFECT', 'CONSERVATION_VIOLATION', 'RULE_NOT_EXECUTABLE', 'VALUE_NOT_COMPARABLE',
 ];
 const refusalNamesOutsideClosedList = namedRefusals.filter((name) => !closedRefusals.includes(name));
 
@@ -112,7 +114,7 @@ const unexpectedFailureKinds = failureKinds.filter((kind) => !expectedFailureKin
 
 const definedInOneOrThree = section(packageText, '## 1. Inputs and outputs', '## 2. The twelve-stage pipeline')
   + section(packageText, '## 3. Typed failure records', '## 4. `derived` / `open` / `failed`');
-const recordDefinitionGaps = ['Audit', 'RunReport', 'GateReport', 'PENDING', 'PENDING_CHOICE']
+const recordDefinitionGaps = ['Audit', 'RunReport', 'GateReport']
   .filter((name) => !new RegExp(`(^|[\\s\\n])${name}\\s*(?:\\{|\\|)`, 'm').test(definedInOneOrThree));
 
 process.stdout.write('\nMechanical package checks\n');

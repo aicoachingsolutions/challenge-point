@@ -1,167 +1,126 @@
-# Final package sweep — 21 September rulings
+# Final package sweep - 21 September rulings (rerun)
 
-**Audited checkout:** `C:/challenge-point/.claude/worktrees/serene-dewdney-c78e18`  
-**Branch:** `claude/serene-dewdney-c78e18`  
-**Commit:** `edc4b37e47254c43bba6d9e69aeaf67b4e75cba7`
+**Audited checkout:** C:/challenge-point/.claude/worktrees/serene-dewdney-c78e18
+**Branch:** claude/serene-dewdney-c78e18
+**Commit:** 0675ee467660cda6c0e9ea3d725cae44998455dd
 
 ## Verdict and totals
 
-The package's claim — *two contradictions resolved, one decision remaining, no invention points* — is **not sustained**. The two revision-1 contradictions are described as resolved in the package, but six current contradiction groups remain elsewhere in the live specification/register; the claimed single implementation decision is internally preselected in one section; and six places still require an implementer to choose semantics or have the engine refuse.
+The earlier claim - *two contradictions resolved, one decision remaining, no invention points* - is **not sustained** on revision 3. The two package contradictions are resolved, and the seven stale-ruling searches found no current contradiction. But section 11.2 now names **two** owner decisions, not one, and five invention-point groups remain.
 
 | Family | Result |
 |---|---:|
-| S — current ruling contradictions | 6 groups (12 live source lines) |
-| P — package internal defects | 3 |
-| C — derivation-spec/decision rules with no implementation home | 3 |
-| I — invention points | 6 |
-| Explicit historical hits retained as records, not defects | 15 reviewed hit groups |
+| S - current ruling contradictions | 0 |
+| P - package internal defects | 2 |
+| C - uncovered derivation rules/decisions | 0 |
+| I - invention-point groups | 5 |
+| Decisions still needed before implementation | 2 |
 
-I treated a statement as **historical** only where it says it is superseded, a proposal, a past revision, or corrected. A dated filename alone was not enough. An **invention point** is the task's test: two careful implementers can choose different semantics from valid inputs, and no named refusal directs the engine to stop.
+An invention point is counted where valid input leaves two careful implementers with different semantics and the package does not direct a named refusal. I treated text as historical only when it explicitly says superseded, corrected, proposed, revised, or is in a document explicitly superseded by a later revision.
 
 ## Method
 
-I read the 21 September rulings in `game-representation-spec-2026-09-18.md` §2, the complete derivation package, the complete derivation specification, the grammar sheet, and the register. I then searched every `docs/design/*.md`, the grammar sheet, and the register for the seven S families; read the affected context to distinguish live rules from records; and read the pipeline and gate algorithms rather than relying on keywords.
+I read revision 3 of the package, the complete derivation specification, the 21 September ruling rows SD-39 to SD-42, the grammar sheet, and the register. I ran final-package-sweep.js with Node only. The script removes a UTF-8 BOM before JSON parsing, checks package stages/failures/refusals, scans the required source set, and parses the corpus.
 
-`final-package-sweep.js` is a Node-only, read-only evidence sweep. It strips a UTF-8 BOM before every JSON parse, parses the register and the Stage-B contract corpus, checks the package's stage/failure/refusal claims, and prints the review anchors used below. Its corpus count is **8 contracts, 221 items, 0 `COMPARES`**; SD-41 is therefore factually correct.
+Mechanical result: 12 stages (0 through 11); no out-of-table stage citations; no refusal outside the closed list; no unexpected failure kind; 8 contracts, 221 items, and 0 COMPARES items; 82 register rows and 21 vocabulary versions.
 
-## S — stale statements against SD-39 to SD-42
+## S - stale statements against SD-39 to SD-42
 
-### Current defects
+There are **no current S defects**. The following are the relevant hits reviewed; the quoted current text either states the new rule or explicitly records the old rule as superseded.
 
-| Id | File and line | Text | Conflict |
-|---|---|---|---|
-| S1 | `docs/design/game-representation-spec-2026-09-18.md:303` | “What a free choice may fill is **proposal P-4**, not yet ruled.” | SD-39 supersedes P-4 as the authority. This is a live rule in §3, not a revision note. |
-| S1 | `docs/design/game-representation-spec-2026-09-18.md:318` | “Silence licenses a choice.” | SD-39 says silence creates no structure and OPEN needs a supported property and choice space. |
-| S1 | `docs/design/game-representation-spec-2026-09-18.md:472` | “Which team starts … (SD-R2).” | SD-R2 is rejected and is replaced by SD-39 as the authority. |
-| S1 | `docs/design/game-representation-spec-2026-09-18.md:502` | “REALIZATION chooses … (proposal P-4).” | It presents P-4 as the current authority for choosing the primary event. |
-| S1 | `docs/design/game-representation-spec-2026-09-18.md:604` and `:618` | “SD-R2 (who starts is a free choice)” / “P-4 … free choice may fill.” | The active proposal register leaves both obsolete authorities live without the SD-39 correction. |
-| S1 | `docs/design/derivation-spec-2026-09-20.md:501` | “which team starts is a free choice (SD-R2)” | The live transitions rule still uses the rejected default as its authority. |
-| S2 | `docs/audits/conformance/register-2026-09-18.json:205` | SD-13 applies when T5 has verdict “ENTAILED or `NARROWED_CHOICE`”. | `NARROWED_CHOICE` is now a candidate-check outcome. This condition can let a candidate T5 value activate SD-13's derived T3 actor: precisely an otherwise unsupported dependency supplied by the candidate, prohibited by SD-40. |
-| S2 | `docs/design/game-representation-spec-2026-09-18.md:249,255,316-327` | `support[]` is a valid-source list; `RESOLVED` may be fixed by a free choice; `REALIZATION` is a source kind. | In the current representation text, REALIZATION can still authorize a resolved property. SD-40 permits it only as candidate provenance, never support or derivation authority. |
-| S3 | `docs/design/derivation-spec-2026-09-20.md:38` | “`RESOLVED:NARROWED_CHOICE` | a legitimate free choice.” | It remains in the resolution-verdict table, despite §5:318 correctly moving it to a candidate check. |
-| S6 | `docs/design/game-representation-spec-2026-09-18.md:574,578` | “Gate B … reverse” applies to every game; rendering requires “both directions of Gate B.” | SD-40 makes reverse tracing and `INVENTED` checking-mode only. The live validation table does not qualify it by mode. |
-| S7 | `docs/design/derivation-spec-2026-09-20.md:564` | “The `NOT_REALIZED` item-result label (§7), which is still a proposal.” | The same file says it was approved at :461; package §3.4 says both labels are ruled. |
-
-The package's statement at `derivation-engine-design-package-2026-09-20.md:424` that this stale label wording was fixed is consequently false in this checkout.
-
-### Historical or conforming hits reviewed
-
-These are not defects because their own wording makes the status clear.
-
-| Family | File and line | Classification and reason |
+| Check | File, line, text | Classification |
 |---|---|---|
-| S1 | `register-2026-09-18.json:19,54,71` | Historical correction: each says P-4/SD-R2 is superseded/replaced by SD-39. |
-| S1 | `derivation-spec-2026-09-20.md:304` | Conforming: it explicitly says SD-39 supersedes P-4. |
-| S1 | `derivation-engine-design-package-2026-09-20.md:257` | Conforming: it says P-4 and SD-R2 are no longer authorities. |
-| S1 | `knowledge-authoring-tasks.md:65,68` | Historical record, explicitly headed “RESOLVED 21 Sep” and “record of what was found.” |
-| S1 | `game-representation-spec-2026-09-18.md:3-4,194,205,693,711` | Revision/rejected-default history or the current SD-39 correction; none authorizes the obsolete rule. |
-| S2/S3 | `derivation-engine-design-package-2026-09-20.md:69,76,93,105,112,205,265,411-418` | Conforming current rule or explicitly “revision 1” historical account. |
-| S3 | `amendments-am01-am15-2026-09-19.md:1-16,213` | Historical proposal: the header says “Nothing here is adopted.” |
-| S4 | `derivation-engine-design-2026-09-20.md:104-116` and package `:152-155,402` | Conforming: divergence is reported/refused, never selected. The former direction is explicitly superseded at `derivation-engine-design-2026-09-20.md:329`. |
-| S5 | `derivation-engine-design-package-2026-09-20.md:292`, `knowledge-authoring-tasks.md:38`, register `:125` | Conforming: zero corpus items, unexercised capability, and named aggregate refusal. No document claims canonical authored exercise. |
-| S6 | `derivation-engine-design-2026-09-20.md:93` | Historical only: the document is expressly superseded at :329; the package corrects its unconditional reverse stage. |
-| S7 | `derivation-spec-2026-09-20.md:457,461,471` and package `:78,90,109,170,220` | Conforming: approved labels, with only the separate supporting-cardinality case refused as `LABEL_NOT_RULED`. |
+| S1 | game-representation-spec-2026-09-18.md:303, "The authority for a free choice is SD-39"; :321, "Silence licenses nothing"; :478, SD-39 is the authority rather than SD-R2; :627, P-4 is "Superseded 21 September" | Current and conforming. Register entries :19, :54 and :71 likewise call P-4/SD-R2 replaced or superseded. |
+| S2 | derivation-engine-design-package-2026-09-20.md:94-95, "candidate value cannot turn open into derived ... supply support"; :149-152 keeps REALIZATION as provenance, never support. register-2026-09-18.json:207 requires SD-13's T5 condition to be derived. | Current and conforming to SD-40. |
+| S3 | derivation-spec-2026-09-20.md:38 and :318 say RESOLVED:NARROWED_CHOICE is a candidate-check outcome; package :149-151 defines WITHIN_BOUNDS for it. | Current and conforming. |
+| S4 | package :196-198 says neither restricted nor full result is adopted on divergence and records PASS_DIVERGENCE. | Current and conforming to SD-42. |
+| S5 | package :375 says 0 COMPARES items across 221 and calls the capability presently unexercised. game-representation-spec-2026-09-18.md:196 says the same. | Current and conforming to SD-41. |
+| S6 | game-representation-spec-2026-09-18.md:581 limits Gate B reverse and INVENTED to checking mode. The contrary 2026-09-17 draft at :353 is historical: its header :3 says it is superseded by revision 3. | No current defect. |
+| S7 | derivation-spec-2026-09-20.md:457 and :461 call VALID_ABSENCE and NOT_REALIZED approved; package :304 says both are ruled. | Current and conforming. |
 
-## P — package internal consistency
+Other textual candidates found by the script are the audit brief itself, the explicit revision-history account in package section 11.1, or documents headed as superseded/proposed. None is a live authority.
 
-### P1 — output and pipeline records are not all defined
+## P - package internal consistency
 
-| File and line | Text | Defect |
-|---|---|---|
-| `docs/design/derivation-engine-design-package-2026-09-20.md:45` | `audit : Audit` and `run : RunReport` | Neither record is defined in §1 or §3. A test cannot know its fields, sorting, or which failures it carries. |
-| `:45,302-304` | `gateA … : GateReport`; its shape appears only in §7 | P1 requires a §1/§3 definition. More importantly, this leaves the output contract incomplete where callers need it. |
-| `:154` | ``run.divergent`` is set | `RunReport` is undefined, so this field has no representation. |
-| `:164,383` | conditional lines are `PENDING`; D1 says lines can be “withdrawn” | Neither is a declared line state, record, or output collection. |
-| `:170,400` | `PENDING_CHOICE` is a distinct forward result | There is no `ForwardResult`/item-result record or closed outcome vocabulary defining it. |
+### P1 - public gate output is not in the declared record catalogue
 
-### P2–P4 — mechanically consistent
-
-The closed refusal list has all 12 named refusal kinds used by the package; the §3.2 table contains exactly the six listed failure kinds; and every cited pipeline stage is in the 0–11 table. These are passes, not evidence that the unnamed records above are implementable.
-
-### P5 — invariants not testable from defined package data
-
-| Invariant | Why it cannot be written against the defined contract |
+| File, line, text | Conflict |
 |---|---|
-| D1 | “withdrawn” is neither an output collection nor a typed line state. An omitted line is indistinguishable from an intentionally withdrawn one. |
-| D4 | `constraints` has no record shape and §1.4 only says values are typed by a register prose type. There is no defined intersection/recomputation operation for all bound kinds. |
-| D6 | `TENSION` has no record shape and the asserted “gate input” is not a defined input. The output cannot prove a gate did not read it. |
-| D8 | `Audit` and `RunReport` are open types, so “no advice field anywhere” cannot be exhaustively tested. |
-| D10 | `CandidateGame` is not defined. A byte-identical test can be named, but no legal candidate shape is specified to construct the five cases. |
+| derivation-engine-design-package-2026-09-20.md:50, "gates : { gateA, gateBForward, gateBReverse : GateReport }"; :114, "Every record the package names is defined here; a record not listed does not exist"; :385 defines GateReport only in section 7 | GateReport is named in the public result but omitted from section 1.8, contrary to section 1.8's closed-record statement and P1's requirement that records used after section 1 be defined in section 1 or 3. |
 
-### P6 — the remaining Gate A decision is already preselected
+This also produces a modal output gap: package :90 says gateBReverse is not applicable in derivation mode, while :50 requires it to be a GateReport and :385 permits only PASS, FAIL, or NOT_EVALUABLE. No representation is supplied for not applicable.
 
-`derivation-engine-design-package-2026-09-20.md:307` makes a gate `PASS` when every check is `PASS` or `NOT_CHECKABLE`. But `:427-441` says the treatment of six unexecutable clauses is the one owner decision still needed, offering non-blocking `NOT_CHECKABLE`, blocking `NOT_EVALUABLE`, or wording removal. The earlier rule silently chooses option (a), while §11 says that choice is unmade. An implementer can reasonably either follow §7.1 or wait for the owner; this is both an internal conflict and an invention point unless the decision is made.
+### P2-P4 - pass
 
-## C — coverage of the derivation specification and standing decisions
+The closed refusal list contains every used refusal kind, including RULE_NOT_EXECUTABLE and VALUE_NOT_COMPARABLE. The six failure kinds are the only failure kinds used, and every cited stage exists in the 0-11 stage table.
 
-### C1 — derivation-spec map
+### P5 - one invariant cannot be tested from defined semantics
 
-| Derivation specification section | Package home |
+| Invariant | File and line | Why it is not testable as written |
+|---|---|---|
+| D4 | package :135 defines Bounds as COUNT, INTERVAL, SET, or QUALITATIVE; :331 permits qualitative bounds as authored words; :451 requires the intersection of constraints[].bound | The package defines no intersection or containment operation for QUALITATIVE text. Two test implementations can respectively require identical text, retain both texts, or declare the pair non-intersectable. No refusal requires one result. |
+
+D1-D3 and D5-D10 name defined data or records sufficiently to write a test, although D8 will immediately expose the P1 GateReport omission.
+
+### P6 - pass
+
+The ten choices in section 10 are consistent with the rest of revision 3. In particular, section 7 now consistently makes unexecutable Gate A clauses NOT_EVALUABLE and blocking pending the owner decision; it no longer silently preselects NOT_CHECKABLE.
+
+## C - coverage
+
+### C1 - derivation specification map
+
+Every numbered derivation-spec section has a package home: sections 1-2 at package 1.4, 2.2 stage 2, stage 6 and section 4; sections 3-4.3 at stages 1, 4 and 5 plus sections 1.9 and 5; section 4.4 at section 6/stage 7; sections 4.5-4.8 at stages 1-6; section 5 at section 4; section 6 and 6.1 at stage 3, stage 6 and section 6; section 7 at stage 8 and 1.8; section 8 at stage 9.4; section 9 at stage 2.4; sections 10-11 at sections 3, 9 and 12.
+
+The prior no-home findings are now covered: closed-world absence is package :258-260, reachable-trigger construction is :230-244, and SD-10/SD-10a is :345-352.
+
+### C2 - standing decisions and knowledge rulings
+
+No derivation-bearing SD/KR rule lacks a home. SD-01 to SD-09 and SD-11 to SD-42 flow through stage 0's validated register plus stages 3-8; SD-10/10a is explicitly implemented at package :345-352; SD-39 to SD-42 additionally have the dedicated rules at :83-95, :178-198, :375 and :317-334. KR-01 to KR-05 are honoured through the same register/contract route, with the build-out rule at stage 3 and the retired knowledge boundary at sections 5 and 12.
+
+The AM-15 definition is a coverage home at section 2.4, but remains an owner decision listed below; a home is not the same as a settled rule.
+
+## I - invention points
+
+### I1 - Gate B reverse has no derivation-mode output
+
+| File, line, text | Two defensible readings |
 |---|---|
-| §1 Unit of judgement | §1.4 `ResolutionEntry`; §2.2 Stage 2 |
-| §2 Verdicts | §4 states; §2.2 Stage 6; §1.5 candidate outcomes |
-| §3 What can support | §5 Support and declarations |
-| §4 / §4.1 Matching | §5; Stages 1 and 4 |
-| §4.2 Comparison and relation | Stages 4–6; register input at §1.2 |
-| §4.3 Cardinality and identity | Stage 5; Stage 8 forward results |
-| §4.4 Comparative claims | §6; Stage 7 |
-| §4.5 Selecting an existing element | Stages 1, 4 and 5; §12 no repair |
-| §4.6 Unsupported stated value | §4 states; Stages 5–6; typed failure record §3 |
-| §4.7 Game omission | §1.5 candidate `ABSENT`; Stage 8 — partial only, because its forward-result record is undefined (P1) |
-| §4.8 Standing decisions | §2.1 computation 3; Stage 5 |
-| §5 Free choice | §4.2; §1.5; Stage 5 |
-| §6 Scope and collisions / §6.1 relationship conflict | Stage 3; Stage 6; §6; §3.2 |
-| §7 Forward results | Stage 8; §3.4 — partial only, because `PENDING_CHOICE` has no result definition |
-| §8 Closed-world absence | §1.4 `lineOutcome` and §1.5 cite it, but no stage implements the test “no support-capable item entails an element at that scope.” **No home.** |
-| §9 Transitions | Stages 2–5 and Gate A transition checks — except the rule that reachable triggers/elements “exist by construction” has no construction algorithm. **No home for that rule.** |
-| §10 Known interactions | Stages 1, 3, 5 and §12 retain the no-repair boundaries |
-| §11 Open matters | §3.3 refusals, §11.2 decision, and §12; its `NOT_REALIZED` proposal statement is contradicted by S7 |
+| package :50 declares every gate result GateReport; :90 says Gate B reverse is not applicable in derivation mode; :385 gives GateReport only PASS, FAIL, NOT_EVALUABLE | Emit null/omit the field; emit NOT_EVALUABLE; or add a forbidden NOT_APPLICABLE value. The package directs no named refusal. |
 
-### C2 — standing decisions and knowledge rulings
+### I1/I4 - candidate properties cannot be associated with anonymous handles
 
-The package has a general home — Stage 5 consumes the register's citable standing decisions, Stage 6 applies collision rules, and Stage 0 validates the register as data — so the following decisions are covered through that data-driven route: **SD-01–09 (except the restriction below), SD-11–21, SD-23–28, SD-30–32, SD-34–42, and KR-01–05**. Their more specific homes are respectively Gate B/support (§§1.4,5,7), scope (Stage 3), relationship evaluation (§6/Stage 7), versions (§8), report-only outputs (§1.7), and the SD-39–42 sections already named in the table above. SD-22 and SD-29 govern design classification rather than a runtime derivation step.
-
-One decision that does bear on derivation lacks an operational home:
-
-| Decision | Missing home |
+| File, line, text | Two defensible readings |
 |---|---|
-| SD-10 and SD-10a | The register makes this a **restriction**, not a citable item: do not remove a representative objective when it is structurally necessary. The package neither indexes restrictions nor gives a Stage 5/6/Gate A test for the SD-10a necessity definition. Generic standing-decision closure cannot apply an `item: null` restriction. |
+| package :137-139 gives CandidateGame.properties an elementId; :223-225 says derived handles are anonymous; :252-255 says candidate elements match handles by cardinality, not identity, and no bijection is formed | Require candidate properties to use engine handle IDs, or invent a matching/bijection (or a multiset rule) to attach them to resolution lines. These produce different CandidateCheck results; no refusal selects one. The open attributes map at :137 also does not state which attribute keys are legal. |
 
-SD-13 is nominally in Stage 5's citable-decision path, but its register condition is the S2 defect above; it is not a sound implementation home until `NARROWED_CHOICE` is replaced by an authoritative derivation-state condition.
+### I2 - valid register value forms have no Value representation
 
-## I — invention points
+| File, line, text | Missing semantics |
+|---|---|
+| register-2026-09-18.json:63, J11b is "member, or procedure over members"; package 1.9 has no procedure representation or equality/evaluator | An implementation must choose a procedure language, opaque token, or an ordering/selection behavior. RULE_NOT_EXECUTABLE is only assigned to V10 modifier-combination rules, not J11b. |
+| register :73 permits T4 to be a region reference or "where the ball went out"; :84 permits V6 qualitative terms; :37 leaves role names open | Package 1.9 represents only registered element references and enumerated members. It supplies no tagged dynamic-location, qualitative-value, or open-role representation/comparison. VALUE_NOT_COMPARABLE applies only to comparisons, not normal derivation or candidate checking. |
 
-### I1/I2 — closed fields and value representations
+### I4 - handle minting does not say how IN-selector attributes exist
 
-| Point | File and line | Two defensible readings / missing decision |
-|---|---|---|
-| Element inventory and identity | Package `:59-64,164-168`; derivation spec `:134-142` | Stage 2 must create one line per `(element,row)` before Stage 5 derives element existence, but derivation-mode input contains no candidate game and gives no identity/allocation rule. One implementer can mint elements from existence items; another can require a pre-existing universe and report no lines. Neither is directed to refuse. |
-| Result and candidate shapes | Package `:39-47,95,170` | `Audit`, `RunReport`, `CandidateGame`, the forward-result record, and `PENDING_CHOICE` are unnamed/open shapes. Implementers must choose fields and the mapping from candidate structure to line assertions. No refusal covers valid input using these undefined types. |
-| Value comparison representation | Package `:70,314,337`; register `:30-31,63,71,84,90,184-204` | “typed by the row's registered value type” delegates to prose. The contract does not define a common interval encoding/normal form, mixed absolute-relative comparison, contextual team-designation evaluation, or the tagged representation of trigger qualifiers and “procedure over members.” Two engines can validly compare different values differently; no refusal applies to a well-formed value. |
+| File, line, text | Two defensible readings |
+|---|---|
+| register :13 allows IN membership selectors and the grammar sheet section 2 says an element lacking an attribute does not satisfy its selector. Package :221-225 says a minted handle carries only attributes fixed by = or CONTAINS, then shares handles when selectors are satisfied. | Represent an unresolved membership constraint on the anonymous handle, or choose a concrete member so it can satisfy and merge. The choice changes which handles exist and which item minima they satisfy. No record representation or refusal decides it. |
 
-### I3 — unresolved markers without an operational refusal
+### I3 - AM-15 reachability is still neither ruled nor refused
 
-| File and line | Text | Finding |
-|---|---|---|
-| `docs/design/derivation-spec-2026-09-20.md:42-49` | “same working convention rather than a stated rule … *(Convention, not his ruling. Flagged.)*” | The declared-gap/coverage split produces different `NOT_AUTHORED(reason)` results, but is not adopted by a ruling or made a named refusal. The package imports it at `:70`. Either adopt the convention or refuse this classification. |
-| `docs/audits/conformance/register-2026-09-18.json:182` | Whether applicability belongs in the register “is for Christian.” | The current prose conditions are usable, but the package relies on them as executable meta-schema without defining their data grammar. A reader must decide whether prose is accepted, parsed, or rejected. |
+| File, line, text | Finding |
+|---|---|
+| package :230-244 calls "reachable when its structural prerequisite is derived" a proposed definition needing confirmation; :495-509 lists it as owner decision 2 | The package has surfaced the issue, but does not turn the unconfirmed rule into a named refusal. Until confirmed, stage 2 must either implement the proposal or choose another meaning of reachable. Under this audit's definition it remains an invention point as well as a pre-implementation decision. |
 
-### I4 — algorithm steps admitting different results
+## Decisions still needed before implementation
 
-| Step | File and line | Two careful readings |
-|---|---|---|
-| Stage 2 / Stage 5 inventory | Package `:164,167`; derivation spec `:134-142` | Allocate identities necessary for a COUNT minimum, or derive only over elements supplied from elsewhere. This is the element-inventory point above. |
-| Conditional applicability | Package `:149-151,164,168`; register `:160-167` | If the governing T6/V13 line is `open` or `failed`, withdraw the dependent line because its condition is not true, or retain/fail it because applicability is undecidable. `PENDING` only says “re-check”; it provides neither outcome nor refusal. |
-| Stage 7 modifiers | Package `:169,285-289,335`; register `:90` | A present “authored combination rule” could define ordered composition, a replacement, or a separate effective value. The package refuses *no* order/rule, but never defines how a rule that exists is represented or applied. |
-| Stage 8 forward results | Package `:170,400`; derivation spec `:430-473` | An open supporting item can be `PENDING_CHOICE`, `NOT_REALIZED`, or merely not evaluable. `PENDING_CHOICE` has no meaning/record, so the result is invented rather than refused. |
-| Stage 9 candidate checking | Package `:95-110` | It says both “a check per candidate assertion” and `ABSENT` for a line with no assertion. One engine checks only asserted lines; another enumerates resolution lines to manufacture absence checks. `CandidateGame` has no shape and no refusal resolves the contradiction. |
-| Stage 10 Gate A | Package `:302-313,329-344,427-441` | §7.1 makes `NOT_CHECKABLE` non-blocking; §11 offers it, blocking `NOT_EVALUABLE`, or a wording change. This is the stated remaining decision, but its already-chosen alternate treatment makes implementation non-deterministic. |
-
-The named refusals correctly cover unnamed aggregate functions, missing modifier order, a failed supporting-cardinality label, and pass divergence. They do **not** cover the six points above. Therefore “no invention points” is false, and the remaining implementation decisions are not limited to the six Gate A clauses.
+1. package :497-505 - decide the treatment of six partially or wholly unexecutable Gate A checks. The current blocking NOT_EVALUABLE path prevents guessing.
+2. package :507-509 - confirm or replace the AM-15 reachability definition. Unlike the Gate A case, it has no named refusal while unconfirmed.
 
 ## Working-tree check
 
-Before this audit, the target worktree already reported unrelated untracked `.claude/` and `back/_*.txt` paths. They were not touched. The only files created for this audit are:
+The target worktree already contained unrelated untracked .claude/ and back/_*.txt paths. They were not touched. Scoped status for this rerun contains only the two audit deliverables:
 
-- `docs/audits/conformance/final-package-sweep.js`
-- `docs/audits/conformance/final-package-sweep-report.md`
+- docs/audits/conformance/final-package-sweep.js
+- docs/audits/conformance/final-package-sweep-report.md

@@ -1,4 +1,9 @@
-# The derivation engine — design package, revision 3
+# The derivation engine — design package, revision 4
+
+> **Revision 4 (22 September)** closes what a second independent sweep of revision 3 found: two
+> consistency defects and five invention points, all confirmed against the files. The largest change is
+> §2.3 — element **classes** replace merged handles, because the merge rule in revision 3 was itself a
+> guess. Revision 3's account of how it came about follows unchanged.
 
 **21 September 2026. Design only. Implementation stays frozen until Christian confirms this package.**
 Generation remains frozen. No code exists.
@@ -64,7 +69,7 @@ never depends on `candidate`**: it is byte-identical in both modes for the same 
 | Field | Present | Meaning |
 |---|---|---|
 | `lineId` | always | `<elementId or 'game'>::<row>[::<member>]` |
-| `elementId` | always | an element handle (§2.3), or `null` for the 13 game-level rows |
+| `elementId` | always | an element class id (§2.3), or `null` for the 13 game-level rows |
 | `row` / `member` | always / set-valued rows | |
 | `lineState` | always | `ENUMERATED` · `WITHDRAWN` · `CONDITIONAL` (§2.1). Only `ENUMERATED` lines carry a `state` |
 | `state` | iff `ENUMERATED` | `derived` · `open` · `failed` |
@@ -86,7 +91,7 @@ SD-39 authorizes. `failed` is `NOT_AUTHORED` or `UNRESOLVED`, or an invented lin
 | | **Derivation mode** | **Checking mode** |
 |---|---|---|
 | Derivation | from authoritative knowledge | **identical**, byte for byte — the candidate contributes nothing to it |
-| Element inventory | handles minted from existence items (§2.3) | **the same handles**. The candidate's elements are matched to them at stage 9, never used to derive |
+| Element inventory | one class per existence item (§2.3) | **the same classes**. The candidate's elements are assigned to them at stage 9, never used to derive |
 | Gate B reverse, `INVENTED`, `VALID_ABSENCE` | **not applicable** | applicable, at stage 9 |
 | Adds | — | one `CandidateCheck` per enumerated line, and one per unmatched candidate assertion |
 
@@ -132,11 +137,18 @@ SourceRef        { kind: 'CONTRACT_ITEM' | 'STANDING_DECISION' | 'SESSION' | 'DE
 SupportRef       { kind: 'CONTRACT_ITEM', contractId, itemId, relation: 'ENTAILS' | 'NARROWS' }
                  | { kind: 'STANDING_DECISION', id } | { kind: 'SESSION', row }
 Constraint       { source: SourceRef, bound: Bounds }
-Bounds           { kind: 'COUNT' | 'INTERVAL' | 'SET' | 'QUALITATIVE', min?, max?, members?, text? }
+Bounds           { kind: 'COUNT' | 'INTERVAL' | 'SET' | 'QUALITATIVE', min?, max?, members?, term? }
 PermittedBy      { authority: 'SD-39' | 'SD-15', choiceSpace: { row, fillableText } | { itemRef } }
 CandidateGame    { elements: [{ elementId, row, attributes: {<attr>: Value} }],
                    properties: [{ elementId | null, row, member | null, value: Value }] }
-CandidateCheck   { lineId | null, asserted: Value | 'ABSENT', outcome, provenance, failureIds[] }
+                 // elementIds are the candidate's own; attribute keys must be the row's registered
+                 // selectorAttributes (via ownerRow), or the element is an INPUT_DEFECT
+CandidateCheck   { lineId | null, candidateElementId | null, asserted: Value | 'ABSENT',
+                   outcome, provenance, failureIds[] }
+GateReport       { verdict: PASS | FAIL | NOT_EVALUABLE | NOT_APPLICABLE,
+                   checks: [{ checkId, verdict: PASS | FAIL | NOT_CHECKABLE | NOT_EVALUABLE,
+                              subjects, why, pendingOn: lineId[], blockedBy: lineId[] }] }
+                 // NOT_APPLICABLE is a whole-gate verdict only: gateBReverse in derivation mode
 ```
 
 **`ForwardResult` — closed, first that applies:** `NOT_CHECKABLE` (outside the boundary) · `INERT`
@@ -164,8 +176,13 @@ the `REALIZATION` source kind — for a within-bounds value; never support.
 | Team designation | a canonical entry of `teamDesignations` | equality on the entry, evaluated at the trigger or episode it is attached to (AM-01) |
 | Reference | a registered element id | equality after normalisation (SD-32) |
 | Trigger | `{ trigger, qualifiers: {<name>: Value} }` | equality on the tagged record |
+| Qualitative term | the canonical authored term (`long clearance`, `controlled on arrival`, `beyond`) | equality on the canonical term only. Two different terms do not intersect; a `QUALITATIVE` bound meeting a different term is `VALUE_NOT_COMPARABLE` |
+| Dynamic location | a tagged token, e.g. `{ dynamic: 'BALL_EXIT_POINT' }` for "where the ball went out" | equality on the token. Its position is a fact of play, outside the representation, so **any geometric use of it is `VALUE_NOT_COMPARABLE`** |
+| Open-vocabulary token | exact text, for a list the register leaves open (role names) | exact equality after trimming. No synonym, case-folding or meaning match (SD-32) |
+| Procedure | "a procedure over members" (J11b) | **no executable form; refused as `RULE_NOT_EXECUTABLE`**. No corpus item authors one today |
 
-**A value outside this table is not comparable, and a comparison over it is refused** (`VALUE_NOT_COMPARABLE`).
+**A value outside this table, or an operation this table does not define, is refused** —
+`VALUE_NOT_COMPARABLE` — whether it arises in derivation, in a gate, or in checking a candidate.
 
 ---
 
@@ -204,7 +221,7 @@ standing-decision risk is not pursued unless a concrete case shows it.
 |---|---|---|---|
 | 0 | **Load** | Register meta-schema; index rows, `ownerRow`, `rowOrdinal`, `fillable`, `applicability`, versioned `vocabularies`, `selectorSyntax`; validate each contract as data | Unknown row, kind, operator, scope, basis, declaration or vocabulary value; missing basis quote; comparative with exclusion strictness; magnitude with no operation. **Whole contract; the run continues** |
 | 1 | **Normalise** | Every structural reference, in selectors and values, through registered identity (SD-32); attribute names taken whole | Unresolvable reference → `REFERENCE_DEFECT`, text verbatim. No meaning-matching, no inferred element, no AM-17 rewrite |
-| 2 | **Index** | Mint element handles (§2.3); construct reachable trigger elements (§2.4); one line per (handle, row), per member for set-valued rows; conditional lines per §2.1 | A line for a `VIEW` row; omitting a line because nothing states a value |
+| 2 | **Index** | Form element classes (§2.3); construct trigger elements where §2.4 permits; one line per (class, row), per member for set-valued rows; conditional lines per §2.1 | A line for a `VIEW` row; omitting a line because nothing states a value |
 | 3 | **Scope** | Application sets, including `BUILD_OUT_EPISODE` (SD-36); own involvement by computation 1; declarations beside items (SD-31) | An own-involvement item reaching what it entails itself |
 | 4 | **Reach** | Row equality and selector satisfaction, against the owning collection's attributes for a field row | — |
 | 5 | **Derive** | Entailment, bounds, cardinality by necessity, standing decisions by computation 3, openness under SD-39 | Openness without a supported choice space; a count fill with no authored maximum |
@@ -215,22 +232,36 @@ standing-decision risk is not pursued unless a concrete case shows it.
 | 10 | **Gates** | §7 | An unexecutable check → `NOT_EVALUABLE` |
 | 11 | **Emit** | Canonical order; stamp every version | An `open` entry with a value; an unstamped result |
 
-### 2.3 Element handles
+### 2.3 Element classes
 
-The derivation has no game to read elements from, so it mints them. **From each existence item** (an
-`EXISTS`, `COUNT` or `RANGE` on a collection row, at its scope): one handle per unit of the item's
-**minimum**, and no more — `h:<contractId>:<itemId>:<ordinal>`. Handles are anonymous: they carry the
-attributes the item's selector fixes with `=` or `∋`, and **no identity beyond that** — AM-05: *"a count
-entails how many, never which."* Two items whose selectors a handle satisfies share it rather than minting
-twice; that merge is by selector satisfaction, deterministic under the canonical order. Elements above a
-minimum are never minted: surplus is a free choice only within an authored maximum, and otherwise does not
-exist. The same handles are used in both modes.
+The derivation has no game to read elements from. It does not invent individual elements either. **Each
+existence item** (an `EXISTS`, `COUNT` or `RANGE` on a collection row, at its scope) **defines one element
+class**: *the elements satisfying this item's selector*, with the item's minimum and maximum as the
+class's cardinality. The class id is `c:<contractId>:<itemId>`.
+
+- **A class carries its selector as a constraint, not as chosen values.** `=` fixes a single value; `IN`
+  constrains the attribute to a set; `CONTAINS` requires a member. **No concrete member is ever chosen for
+  an `IN` attribute.** A field line on such a class is decided by AM-11: a set of alternatives on a
+  non-fillable row is `NOT_AUTHORED`, reason *alternatives*; on a fillable row it is `FREE(choice)` within
+  the set.
+- **Classes are never merged.** Revision 3 merged handles when one "satisfied" another item's selector.
+  With an `IN` selector that cannot be decided without choosing a member, so the merge was itself a guess.
+  Two classes may well describe overlapping elements in a real game; the derivation does not say whether
+  they do, because nothing authorizes that claim. AM-05: *"a count entails how many, never which."*
+- **Lines are per (class, row).** A derived fact about a class is a statement about **every** element
+  satisfying its selector — which is exactly what the grammar says an item on a field row means.
+- **Cardinality is a property of the class**, checked as a count; it never becomes a list of individuals.
+  Surplus above a minimum exists only as a free choice within an authored maximum.
+- The same classes are used in both modes.
 
 ### 2.4 Reachable triggers (AM-15)
 
 AM-15 says reachable triggers and the elements partitioning them by qualifier *exist by construction*;
 the qualifier values still need support. It does not say what "reachable" means, and without a definition
-no trigger element can be built. **My proposed definition, for his confirmation (§11.2):** a trigger is
+no trigger element can be built. **Until he rules, the engine refuses rather than implementing a
+definition of its own:** a trigger element exists only where an item entails it, and one
+`REACHABILITY_NOT_RULED` refusal names every trigger construction withheld. Transitions that depend on
+it fail as gaps, visibly. **My proposed definition, for his confirmation (§11.2):** a trigger is
 reachable when its structural prerequisite is derived.
 
 | Trigger | Reachable when |
@@ -245,17 +276,19 @@ reachable when its structural prerequisite is derived.
 
 ### 2.5 Stage 9, checking mode
 
-1. **Iterate the resolution, not the candidate.** For every enumerated line, emit one `CandidateCheck`:
+1. **Assign candidate elements to classes by satisfaction.** A candidate element belongs to every class
+   whose selector it satisfies — candidate attributes are concrete, so satisfaction is decidable. An
+   element may belong to several classes; no element is paired with any single engine element, because
+   none exists to pair with.
+2. **Check each class's cardinality** against the count of candidate elements assigned to it.
+3. **Iterate the resolution, then each assigned element.** For every class line, and every candidate
+   element in that class, emit one `CandidateCheck` carrying both `lineId` and `candidateElementId`:
    `MATCHES_DERIVED` or `CONTRADICTS_DERIVED` on a derived line; `WITHIN_BOUNDS` or `OUTSIDE_BOUNDS` on an
-   open line; `ON_FAILED_LINE` on a failed one; `ABSENT` where the candidate states nothing for a line
-   that requires a value.
-2. **Match candidate elements to handles by cardinality, not identity.** A candidate satisfies an
-   existence item if at least its minimum of candidate elements satisfy the item's selector; an item on a
-   field row applies to every matching element. No bijection between handles and candidate elements is
-   formed, because none is authorized.
-3. **Then the remainder.** Every candidate assertion that matched no enumerated line is `INVENTED` — this
-   is the Gate B reverse trace.
-4. **Closed-world absence (derivation spec §8).** An `ABSENT` becomes `VALID_ABSENCE` when no
+   open line; `ON_FAILED_LINE` on a failed one; `ABSENT` where that element states nothing for a line that
+   requires a value. Game-level lines are checked once, with `candidateElementId` null.
+4. **Then the remainder.** Every candidate element in no class, and every candidate property on a row no
+   class line covers, is `INVENTED` — this is the Gate B reverse trace.
+5. **Closed-world absence (derivation spec §8).** An `ABSENT` becomes `VALID_ABSENCE` when no
    support-capable item entails an element on that row at that scope; otherwise it is recorded against
    each item that does.
 
@@ -294,10 +327,11 @@ uncomputable.
 
 ### 3.3 Refusal kinds — closed
 
-`NO_AGGREGATE_FUNCTION`, `NO_MODIFIER_ORDER_RULE`, `MODIFIER_OPERATION_MISSING`, `RULE_NOT_EXECUTABLE`,
-`OPERAND_NOT_SCALAR`, `VALUE_NOT_COMPARABLE`, `NOT_FILLABLE`, `UNBOUNDED_COUNT_FILL`, `LABEL_NOT_RULED`,
-`PASS_DIVERGENCE`, `CHECK_NOT_EXECUTABLE`, `SELECTION_CONTRACT_MISMATCH`, `INPUT_DEFECT`,
-`CONSERVATION_VIOLATION`. Adding one is a design change.
+`NO_AGGREGATE_FUNCTION`, `NO_MODIFIER_ORDER_RULE`, `MODIFIER_OPERATION_MISSING`, `RULE_NOT_EXECUTABLE`
+(an authored modifier combination rule or a procedure value), `OPERAND_NOT_SCALAR`,
+`VALUE_NOT_COMPARABLE`, `NOT_FILLABLE`, `UNBOUNDED_COUNT_FILL`, `LABEL_NOT_RULED`,
+`REACHABILITY_NOT_RULED`, `PASS_DIVERGENCE`, `CHECK_NOT_EXECUTABLE`, `SELECTION_CONTRACT_MISMATCH`,
+`INPUT_DEFECT`, `CONSERVATION_VIOLATION`. Adding one is a design change.
 
 ### 3.4 Labels
 
@@ -381,12 +415,9 @@ not expanded until a real authored requirement provides evidence.
 
 ### 7.1 Verdicts
 
-```
-GateReport { verdict: PASS | FAIL | NOT_EVALUABLE,
-             checks: [{ checkId, verdict: PASS | FAIL | NOT_CHECKABLE | NOT_EVALUABLE,
-                        subjects, why, pendingOn: lineId[], blockedBy: lineId[] }] }
-GateInput  = resolution + audit without tensions        // SD-27 made unrepresentable
-```
+`GateReport` is defined in §1.8. The gate input is `resolution` plus the audit **without tensions** —
+SD-27 made unrepresentable. In derivation mode `gateBReverse.verdict` is `NOT_APPLICABLE`, never a
+`PASS` it has not earned.
 
 **FAIL** if any check failed; otherwise **PASS** if every check is `PASS` or `NOT_CHECKABLE`; otherwise
 **NOT_EVALUABLE**. Rendering requires `PASS`, and renders a realized game checked in checking mode —
@@ -434,8 +465,8 @@ none dropped. **Reverse:** checking mode only, stage 9's remainder step. Neither
 `(rowOrdinal, elementId, member)`, then item, then contract; records by subject, then kind rank.
 **Semantic order comes only from authored knowledge or a ruling; where it is missing the engine
 refuses.** A canonical sort used to break a semantic tie would be the hidden selection policy SD-35
-forbids — AM-05 rules out "the first matching element" for the same reason. Handle minting (§2.3) uses the
-canonical order only to *name* handles, never to decide which exist.
+forbids — AM-05 rules out "the first matching element" for the same reason. Classes (§2.3) are named by
+their item, so no ordering is involved in deciding which exist.
 
 Byte-identical output on repeat and under shuffled input, except the authored member order inside a value
 set (AM-11), which is emitted as authored. Exact rationals throughout. Ids content-derived. Every version
@@ -448,7 +479,7 @@ stamped; an unstamped result is refused.
 | Layer | Asserts |
 |---|---|
 | **1. Refusal coverage** *(primary)* | one test per refusal in §2.2 and §3.3 |
-| **2. Invariants** | **D1** conservation: every enumerated line appears once, with a `lineState`. **D2** determinism, including shuffle. **D3** no `open` entry has a value. **D4** `bounds` equals the intersection of `constraints[].bound`. **D5** no collision or conflict on a line with a gap. **D6** `GateInput` contains no `Tension`, and gate output is identical whatever tensions exist. **D7** fully stamped. **D8** no field outside §1.8's records, and none named for advice. **D9** in derivation mode every `derived` line has knowledge support. **D10** `resolution` is byte-identical with and without a `CandidateGame`, plus five tests: a candidate value cannot make a line derived, cure a gap, supply support, satisfy an unsupported dependency, or resolve a collision or conflict |
+| **2. Invariants** | **D1** conservation: every enumerated line appears once, with a `lineState`. **D2** determinism, including shuffle. **D3** no `open` entry has a value. **D4** for `COUNT`, `INTERVAL` and `SET` bounds, `bounds` equals the intersection of `constraints[].bound`; for `QUALITATIVE`, every constraint carries the same canonical term, or the line carries a `VALUE_NOT_COMPARABLE` refusal. **D5** no collision or conflict on a line with a gap. **D6** `GateInput` contains no `Tension`, and gate output is identical whatever tensions exist. **D7** fully stamped. **D8** no field outside §1.8's records, and none named for advice. **D9** in derivation mode every `derived` line has knowledge support. **D10** `resolution` is byte-identical with and without a `CandidateGame`, plus five tests: a candidate value cannot make a line derived, cure a gap, supply support, satisfy an unsupported dependency, or resolve a collision or conflict |
 | **3. Ruling conformance** | one test per standing decision bearing on derivation, including the three that overturned rules of mine |
 | **4. Golden regression** | the eight contracts and the slice game — **fixtures, not validation** (SD-30) |
 | **5. Pre-registration** | expected outcome committed before any new run |
@@ -464,8 +495,8 @@ stamped; an unstamped result is refused.
 | 3 | Record ids | content-derived | emission order |
 | 4 | Numbers | exact rationals | decimals — could not support §7.2's feasibility check |
 | 5 | Candidate results | a separate array | on the resolution — would let a candidate appear to resolve a line |
-| 6 | Element handles | minted from existence items, one per unit of the minimum, anonymous | reading elements from the candidate — makes the candidate an authority |
-| 7 | Candidate matching | by cardinality per selector | a handle-to-element bijection — asserts an identity nothing authorizes |
+| 6 | Elements in derivation | one **class** per existence item, never merged | minting individual handles and merging them — the merge had to guess whenever a selector used `IN`; reading elements from the candidate — makes the candidate an authority |
+| 7 | Candidate matching | each candidate element belongs to every class whose selector it satisfies | a pairing of candidate elements to engine elements — asserts an identity nothing authorizes |
 | 8 | Governing line open or failed | conditional, or a gap | withdrawing — treats an unresolvable condition as false |
 | 9 | Reason codes | *declared gap* where a `NOT_AUTHORED` declaration reaches; *coverage* where only `UNDECLARED` does | leaving them undefined — the convention every derivation has used |
 | 10 | Divergent lines | failed, neither pass adopted | keeping either pass — SD-42 forbids it |
@@ -507,21 +538,34 @@ than guesses. The options:
 `GA-RESIDUAL-SPACE` needs a definition of residual space, or removal, under any option.
 
 **2. What "reachable" means in AM-15.** His adopted rule says reachable triggers exist by construction,
-but nothing defines reachable, and without a definition no transition can be built at all. §2.4 proposes
-one: **a trigger is reachable when its structural prerequisite is derived**. It is mine and needs his yes
-or his correction.
+but nothing defines reachable. §2.4 proposes one: **a trigger is reachable when its structural
+prerequisite is derived**. It is mine and needs his yes or his correction. **Until he rules, the engine
+refuses** (`REACHABILITY_NOT_RULED`): a trigger element exists only where an item entails it, and the
+transitions that depend on reachability fail as visible gaps. Both decisions therefore have a
+refusing default — neither can be implemented around by guessing.
 
 ### 11.3 Points where an implementer would otherwise invent semantics
 
-**None, provided 11.2 is settled.** The sweep found six, and each is now either defined or a named
-refusal: element identity in derivation mode (§2.3); the result, candidate and forward-result records
-(§1.8); value comparison (§1.9, with `VALUE_NOT_COMPARABLE` for anything outside it); a conditional line
-whose governing value is open or failed (§2.1); an authored modifier combination rule (refused as
-`RULE_NOT_EXECUTABLE` — none exists in the corpus); and whether stage 9 iterates assertions or lines
-(§2.5 — lines, then the remainder).
+**None, provided 11.2 is settled — and this claim has now been tested twice.**
 
-I would rather he had this tested once more than take my word for it a second time, so before this goes
-the same sweep can be re-run against revision 3 if he prefers.
+- **First sweep, of revision 2:** found six invention points, plus stale contradictions in the live
+  specifications and records the package used without defining. All fixed in revision 3.
+- **Second sweep, of revision 3:** zero contradictions with the new rulings and zero rules without an
+  implementation home — but two consistency defects and five invention points remained. All confirmed
+  against the files, all fixed here:
+  - **Element identity** — revision 3 merged element handles across items, which had to guess whenever a
+    selector used `IN`. Replaced by one class per existence item, never merged (§2.3).
+  - **Matching a candidate** — candidate elements are assigned to every class whose selector they
+    satisfy, with no pairing of individuals (§2.5).
+  - **Value forms the register permits but the value model did not cover** — qualitative terms, "where
+    the ball went out", open role names, and procedures (§1.9; procedures are refused, and none exists in
+    the corpus).
+  - **Gate B reverse in derivation mode** had no representable verdict — now `NOT_APPLICABLE` (§1.8).
+  - **Qualitative bounds** had no intersection rule — now equality on the canonical term, or a refusal.
+  - **Reachability** had no refusing default — now it does (above).
+
+The second sweep also said the package claimed one decision rather than two; that compared against an
+out-of-date brief, and revision 3 already said two. Revision 4 has not been swept a third time.
 
 ---
 
