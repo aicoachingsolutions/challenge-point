@@ -673,11 +673,14 @@ Run once against revision 5, as he directed, on his four questions only.
 | 3. Could two conforming implementers make different semantic choices? | **clean** | — |
 | 4. Does any code path require an inference no authority supports? | **clean** | — |
 
-**Questions 3 and 4 are the ones the earlier sweeps failed**, and they are clean. A mechanical scan
-afterwards confirms every type the package names now has a definition. Whether the two definitional
-omissions under question 2 count as the "genuine blocker" that withholds authorization is his call; I
-do not think they do, because no behaviour changes, but the check classed them that way and I have not
-overridden it.
+**Questions 3 and 4 are the ones the earlier sweeps failed**, and they were clean on the first run.
+
+**Re-run once to confirm the fixes, 22 September: all four clean, no genuine blocker.** The check was run
+a second time only because the first had classed two definitional omissions as blockers, and his
+authorization turns on the check's result rather than on my view of its classification.
+
+**Implementation is therefore authorized under his ruling of 22 September.** Activity generation remains
+frozen.
 
 ### 11.4 How the claim was tested before this
 

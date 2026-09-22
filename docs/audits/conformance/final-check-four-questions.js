@@ -99,18 +99,26 @@ check('Q1', 'SD-43 and SD-44 are carried into the package', all([
   has('derivation', '"Reachable" means structurally reachable (SD-44, 22 September)'),
 ]), 'current Gate A and reachability rules are present');
 
-const residualGapsClaimedInTaskRegister = [
-  'No authored order for combining two modifiers on one referent',
-  'A failed supporting cardinality check has no ruled label',
+const residualGapTaskMappings = [
+  {
+    packageGap: 'No authored order for combining two modifiers on one referent',
+    taskRow: /No authored order for combining two value modifiers on one referent/,
+  },
+  {
+    packageGap: 'A failed supporting cardinality check has no ruled label',
+    taskRow: /A supporting existence item whose cardinality check fails has no ruled label/,
+  },
 ];
-const residualGapsAbsentFromTaskRegister = residualGapsClaimedInTaskRegister.filter((gap) => !has('tasks', gap));
+const residualGapsAbsentFromTaskRegister = residualGapTaskMappings
+  .filter((entry) => !entry.taskRow.test(text.tasks))
+  .map((entry) => entry.packageGap);
 check('Q1', 'Every residual gap the package says is on the task register is present there',
   residualGapsAbsentFromTaskRegister.length === 0,
   residualGapsAbsentFromTaskRegister.length
     ? `absent from task register: ${residualGapsAbsentFromTaskRegister.join('; ')}`
     : 'all claimed residual gaps are present');
 if (residualGapsAbsentFromTaskRegister.length) {
-  finding('Q1', 'Package claims residual gaps are all on the task register when two are absent', 'minor',
+  finding('Q1', 'Package claims residual gaps are all on the task register when one or more are absent', 'minor',
     locations('package', /Residual known gaps/),
     `The package's \"each also on the task register\" claim does not hold for: ${residualGapsAbsentFromTaskRegister.join('; ')}. This is a documentation consistency defect and does not change engine behaviour.`);
 }
