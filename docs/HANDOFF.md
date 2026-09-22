@@ -2606,6 +2606,24 @@ Registered as SD-23 to SD-29 and KR-05 (spec revision 6, `docs/design/derivation
 - **The worked case now resolves as a GAP, not a collision** — the right answer, and the opposite of
   what my rules gave.
 
+**22 Sep — design phase CLOSED; derivation-engine IMPLEMENTATION AUTHORIZED.** The final independent
+check (his four questions) returned **all four clean, no genuine blocker**, at commit `123f29b`. Under his
+22 Sep ruling, implementation is authorized. **Activity generation remains frozen.** Implementation has
+**not started** — it begins when Joe says go.
+- **The spec to implement:** `docs/design/derivation-engine-design-package-2026-09-20.md`, revision 5.
+- **Rulings since 20 Sep** (spec revision 10): SD-39 (OPEN authority), SD-40 (candidate = evidence),
+  SD-41 (comparatives unexercised), SD-42 (restricted computations), SD-43 (Gate A certifies only
+  structurally decidable claims; `NOT_CHECKABLE_OUTSIDE_REPRESENTATION` non-blocking, represented-but-
+  undefined blocks), SD-44 (structurally reachable).
+- **Open with him:** residual space — sent the exact wording and the finding that it fuses an
+  anti-invention rule with Wide Zone's single-contract aggregate; define or remove is his. And whether
+  `NOT_REALIZED` covers a failed supporting cardinality check.
+- **Proposed first slice:** stages 0–2 (load, normalise, index) with the refusal-coverage tests.
+- **The rev-4 email was never sent**; its content was carried into the 22 Sep response
+  (`docs/design/email-carry-forward-rev4.md`).
+- **How the checking worked:** Codex ran read-only briefs; every finding was audited against the files.
+  Three sweeps plus the final check; each found less than the last.
+
 **20 Sep — derivation-engine DESIGN is authorized** (SD-30..SD-34, SD-10a; spec revision 7). **Design
 may begin; implementation stays frozen until he reviews the proposed design.** Proposal:
 `docs/design/derivation-engine-design-2026-09-20.md` — a pure function over loaded data, report-only
