@@ -259,16 +259,22 @@ test('every clause of every check carries a verdict from the closed list', () =>
 // GA-MODIFIER-OVERLAP — the specification gap (F2). Its semantics are not invented here.
 // ---------------------------------------------------------------------------------------------
 
-test('the region case executes: two modifiers claiming one referent overlap and fail', () => {
-    const contracts = [
+/** Two region modifiers, each naming a held region class by its structural id (SD-57). */
+function regionModifiers(referentOfB: string): LoadedContract[] {
+    return [
         contract([
+            item({ itemId: 'R-A', row: 'S2', selector: 'noun=channel', requirement: 'EXISTS' }),
+            item({ itemId: 'R-B', row: 'S2', selector: 'noun=lane', requirement: 'EXISTS' }),
             item({ itemId: 'M-1', row: 'V7', selector: 'condition.type=region AND condition.referents=RA', requirement: 'EXISTS' }),
             item({ itemId: 'M-2', row: 'V7', selector: 'condition.type=region AND condition.referents=RB', requirement: 'EXISTS' }),
-            item({ itemId: 'M-3', row: 'V8b', selector: 'condition.referents=RA', requirement: 'EQUALS', value: 'R-1' }),
-            item({ itemId: 'M-4', row: 'V8b', selector: 'condition.referents=RB', requirement: 'EQUALS', value: 'R-1' }),
+            item({ itemId: 'M-3', row: 'V8b', selector: 'condition.referents=RA', requirement: 'EQUALS', value: 'c:C-1:R-A' }),
+            item({ itemId: 'M-4', row: 'V8b', selector: 'condition.referents=RB', requirement: 'EQUALS', value: referentOfB }),
         ]),
     ]
-    const result: any = runStages0to10(input(contracts))
+}
+
+test('the region case executes: two modifiers claiming one held referent overlap and fail', () => {
+    const result: any = runStages0to10(input(regionModifiers('c:C-1:R-A')))
     const overlap = check(result, 'GA-MODIFIER-OVERLAP')
     const regionClause = overlap.clauses.find((c: any) => /region conditions/.test(c.clause))
     assert.ok(regionClause, 'the region clause is executed rather than withheld')
@@ -276,20 +282,54 @@ test('the region case executes: two modifiers claiming one referent overlap and 
     assert.equal(overlap.verdict, 'FAIL')
 })
 
-test('two region modifiers on distinct referents do not overlap', () => {
-    const contracts = [
-        contract([
-            item({ itemId: 'M-1', row: 'V7', selector: 'condition.type=region AND condition.referents=RA', requirement: 'EXISTS' }),
-            item({ itemId: 'M-2', row: 'V7', selector: 'condition.type=region AND condition.referents=RB', requirement: 'EXISTS' }),
-            item({ itemId: 'M-3', row: 'V8b', selector: 'condition.referents=RA', requirement: 'EQUALS', value: 'R-1' }),
-            item({ itemId: 'M-4', row: 'V8b', selector: 'condition.referents=RB', requirement: 'EQUALS', value: 'R-2' }),
-        ]),
-    ]
-    const result: any = runStages0to10(input(contracts))
+test('two region modifiers on distinct held referents do not overlap', () => {
+    const result: any = runStages0to10(input(regionModifiers('c:C-1:R-B')))
     assert.equal(check(result, 'GA-MODIFIER-OVERLAP').verdict, 'PASS')
 })
 
-test('an object or event condition refuses with CHECK_NOT_EXECUTABLE and blocks only those cases', () => {
+test('SD-57: an open-text referent is not compared as a token — it blocks instead', () => {
+    const result: any = runStages0to10(input(regionModifiers('the wide channel on the far side')))
+    const overlap = check(result, 'GA-MODIFIER-OVERLAP')
+    const regionClause = overlap.clauses.find((c: any) => /region conditions/.test(c.clause))
+    assert.equal(regionClause.verdict, 'NOT_EVALUABLE', 'open text establishes no structural identity')
+    assert.ok(overlap.blockedBy.length > 0, 'and the dependency is named')
+    assert.notEqual(overlap.verdict, 'FAIL', 'SD-58: not representable is a gap, never a violation')
+})
+
+test('an unestablishable relationship is reported as a stop, since §3.2 raises no stage-10 GAP record', () => {
+    const result: any = runStages0to10(input(regionModifiers('the wide channel on the far side')))
+    const stop = result.stopped.find((s: any) => s.where === 'stage 10, Gate A' && /not representable/.test(s.why))
+    assert.ok(stop, 'the record-keeping question is surfaced, not silently decided')
+    assert.equal(
+        result.failures.filter((f: any) => f.kind === 'GAP' && f.stage === 10).length,
+        0,
+        '§3.2 does not raise a GAP at stage 10, and the engine does not extend it unilaterally',
+    )
+    // The corpus exercises no such case, so it stays silent there.
+    const corpus: any = runStages0to10(corpusInput())
+    assert.equal(corpus.stopped.length, 0, 'the stop fires only where the case actually arises')
+})
+
+test('SD-58: event conditions whose referents are open text block as a gap, with no refusal', () => {
+    const contracts = [
+        contract([
+            item({ itemId: 'M-1', row: 'V7', selector: 'condition.type=event AND condition.referents=RA', requirement: 'EXISTS' }),
+            item({ itemId: 'M-2', row: 'V8b', selector: 'condition.referents=RA', requirement: 'EQUALS', value: '{regain, shot}' }),
+        ]),
+    ]
+    const result: any = runStages0to10(input(contracts))
+    const overlap = check(result, 'GA-MODIFIER-OVERLAP')
+    const eventClause = overlap.clauses.find((c: any) => /event conditions/.test(c.clause))
+    assert.equal(eventClause.verdict, 'NOT_EVALUABLE')
+    assert.equal(eventClause.refusalId, undefined, 'not representable is a gap, not a specification defect')
+    assert.equal(
+        result.refusals.filter((r: any) => r.kind === 'CHECK_NOT_EXECUTABLE').length,
+        0,
+        'no event-identity system is invented, and no specification defect is claimed',
+    )
+})
+
+test('SD-60: an object condition refuses, invents no semantics, and blocks only that clause', () => {
     const contracts = [
         contract([
             item({ itemId: 'M-1', row: 'V7', selector: 'condition.type=object', requirement: 'EXISTS' }),
@@ -300,13 +340,16 @@ test('an object or event condition refuses with CHECK_NOT_EXECUTABLE and blocks 
     const overlap = check(result, 'GA-MODIFIER-OVERLAP')
     assert.equal(overlap.verdict, 'NOT_EVALUABLE')
 
-    const refusal = result.refusals.find((r: any) => r.kind === 'CHECK_NOT_EXECUTABLE')
-    assert.ok(refusal, 'the gap refuses rather than passing or inventing a test')
+    const objectClause = overlap.clauses.find((c: any) => /object conditions/.test(c.clause))
+    assert.equal(objectClause.verdict, 'NOT_EVALUABLE')
+    const refusal = result.refusals.find((r: any) => r.refusalId === objectClause.refusalId)
+    assert.ok(refusal, 'the clause names the refusal that withheld it')
     assert.ok(refusal.affects.lineIds.length > 0, 'the refusal names the affected cases only')
-    assert.ok(refusal.openQuestion, 'the refusal carries the open question back to him')
+    assert.ok(/no canonical item exercises this case/i.test(refusal.cause))
 
-    // The region clause still executed: a game with no such modifier is unaffected.
+    // The region and event clauses are untouched: a game with no such modifier is unaffected.
     assert.ok(overlap.clauses.some((c: any) => /region conditions/.test(c.clause) && c.verdict === 'PASS'))
+    assert.ok(overlap.clauses.some((c: any) => /event conditions/.test(c.clause) && c.verdict === 'PASS'))
 })
 
 test('a game with no value modifier at all is unaffected by the gap', () => {

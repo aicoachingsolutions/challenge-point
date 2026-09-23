@@ -165,6 +165,18 @@ class Probe {
         })
     }
 
+    /**
+     * SD-58 — a valid authoritative contribution whose required relationship cannot be established
+     * because the necessary reference is not represented. The clause is blocked, naming the dependency;
+     * it is not a violation, and never a collision. Gap before collision stays intact.
+     */
+    unestablishedCount = 0
+
+    unestablished(lineId: string): void {
+        this.unestablishedCount++
+        if (!this.blockedBy.includes(lineId)) this.blockedBy.push(lineId)
+    }
+
     get blocked(): boolean {
         return this.blockedBy.length > 0 || this.missing.length > 0
     }
@@ -181,6 +193,34 @@ class Probe {
 const classesOn = (ctx: GateContext, row: string) => ctx.classes.filter(c => c.row === row)
 const lineOf = (classId: string, row: string) => `${classId}::${row}`
 
+/**
+ * SD-57, his ruling of 23 September: "An event referent establishes structural identity only when it
+ * resolves through an existing registered structural reference. Open-text event descriptions do not
+ * establish event identity." No synonym matching — and equally, **exact open-text equality is not
+ * promoted into canonical identity**, which is what comparing two raw value strings would do.
+ *
+ * The engine's registered structural reference is an element class id. So:
+ *   HELD       the value names a class this game holds — identity established, comparisons decidable;
+ *   DANGLING   the value has the form of a class id but names none — a violation the engine can
+ *              establish, so it fails;
+ *   OPEN_TEXT  anything else — no identity is established, nothing is compared, and the case is a gap
+ *              rather than a failure (SD-58).
+ */
+type ReferenceIdentity = 'HELD' | 'DANGLING' | 'OPEN_TEXT'
+
+function identityOf(ctx: GateContext, value: unknown): ReferenceIdentity {
+    const text = String(value)
+    if (ctx.classes.some(c => c.classId === text)) return 'HELD'
+    return /^c:[^:]+:.+$/.test(text) ? 'DANGLING' : 'OPEN_TEXT'
+}
+
+function referentsOf(cell: Cell): unknown[] {
+    if (cell.state !== 'DERIVED') return []
+    const value = cell.value
+    if (Array.isArray(value)) return value
+    return value === null || value === undefined ? [] : [value]
+}
+
 /** The check-level rule of §7.1, applied to one check's clauses. */
 function combine(clauses: ClauseResult[]): ClauseVerdict {
     if (clauses.some(c => c.verdict === 'FAIL')) return 'FAIL'
@@ -192,6 +232,8 @@ function combine(clauses: ClauseResult[]): ClauseVerdict {
 interface CheckOutcome {
     check: CheckResult
     refusals: RefusalRecord[]
+    /** How many relationships this check could not establish for want of a representable reference. */
+    unestablished: number
 }
 
 function result(checkId: string, probe: Probe, clauses: ClauseResult[], why: string): CheckOutcome {
@@ -206,6 +248,7 @@ function result(checkId: string, probe: Probe, clauses: ClauseResult[], why: str
             blockedBy: probe.blockedBy,
         },
         refusals: probe.refusals,
+        unestablished: probe.unestablishedCount,
     }
 }
 
@@ -462,18 +505,24 @@ function gaReferenceIntegrity(ctx: GateContext): CheckOutcome {
 
     const defects = ctx.failures.filter(f => f.kind === 'REFERENCE_DEFECT')
     const referenceRows = ['J2', 'V5', 'V14b', 'V16', 'T4', 'P10']
-    const held = new Set(ctx.classes.map(c => c.classId))
     const dangling: string[] = []
+    let resolved = 0
+    let openText = 0
 
     for (const line of ctx.lines) {
         if (!referenceRows.includes(line.row)) continue
         const cell = probe.cell(line.lineId)
-        if (cell.state !== 'DERIVED') continue
-        const names = Array.isArray(cell.value) ? cell.value : [cell.value]
-        for (const name of names) {
-            if (name === null || name === undefined) continue
+        for (const name of referentsOf(cell)) {
             if (typeof name === 'object' && (name as any).dynamic) continue // 'where the ball went out' — a token, not an element
-            if (!held.has(String(name))) dangling.push(`${line.lineId} → ${String(name)}`)
+            const identity = identityOf(ctx, name)
+            if (identity === 'HELD') resolved++
+            else if (identity === 'DANGLING') dangling.push(`${line.lineId} → ${String(name)}`)
+            else {
+                // SD-57/SD-58: open text establishes no identity, so it establishes no violation either.
+                // The relationship is unestablished — a gap, naming the line — not a failed reference.
+                openText++
+                probe.unestablished(line.lineId)
+            }
         }
     }
 
@@ -481,15 +530,14 @@ function gaReferenceIntegrity(ctx: GateContext): CheckOutcome {
     // reported even where every line it touches is a gap. A blocked line only withholds the second
     // clause.
     const loadedItems = ctx.contracts.reduce((total, c) => total + (c.items || []).length, 0)
-    const referencesRead = probe.subjects.length
     const defectClause = defects.length ? fail(NO_DEFECT, loadedItems) : pass(NO_DEFECT, loadedItems)
-    const heldClause = probe.blocked && !dangling.length ? notEvaluable(NAMES_HELD) : dangling.length ? fail(NAMES_HELD, referencesRead) : pass(NAMES_HELD, referencesRead)
+    const heldClause = dangling.length ? fail(NAMES_HELD, resolved + dangling.length) : probe.blocked ? notEvaluable(NAMES_HELD) : pass(NAMES_HELD, resolved)
 
     return result(
         'GA-REFERENCE-INTEGRITY',
         probe,
         [defectClause, heldClause],
-        `${defects.length} reference defect(s) on the loaded knowledge; ${dangling.length} derived reference(s) name no held element`,
+        `${defects.length} reference defect(s) on the loaded knowledge; ${resolved} reference(s) resolved; ${dangling.length} named no held element; ${openText} established no structural identity`,
     )
 }
 
@@ -1024,7 +1072,8 @@ function gaObjectiveSets(ctx: GateContext): CheckOutcome {
  */
 function gaModifierOverlap(ctx: GateContext): CheckOutcome {
     const REGION = 'no two value modifiers with region conditions overlap'
-    const OBJECT_EVENT = 'no two value modifiers with object or event conditions overlap'
+    const EVENT = 'no two value modifiers with event conditions overlap'
+    const OBJECT = 'no two value modifiers with object conditions overlap'
     const probe = new Probe(ctx, 'GA-MODIFIER-OVERLAP')
     const modifiers = classesOn(ctx, 'V7')
 
@@ -1033,35 +1082,80 @@ function gaModifierOverlap(ctx: GateContext): CheckOutcome {
         return term && 'value' in term ? String(term.value) : null
     }
     const regions = modifiers.filter(m => typeOf(m) === 'region')
-    const objectOrEvent = modifiers.filter(m => typeOf(m) === 'object' || typeOf(m) === 'event')
+    const events = modifiers.filter(m => typeOf(m) === 'event')
+    const objects = modifiers.filter(m => typeOf(m) === 'object')
 
-    // The region case: two modifiers overlap when their referent sets intersect.
-    const referents = new Map<string, string[]>()
+    // The region case executes. Two modifiers overlap when their referent sets intersect **by
+    // structural identity** — SD-57. A referent that establishes no identity is not compared as a text
+    // token, because that would promote open-text equality into identity; it blocks instead (SD-58).
+    const claimed = new Map<string, string[]>()
+    let comparable = 0
     for (const modifier of regions) {
         const cell = probe.cell(lineOf(modifier.classId, 'V8b'))
-        if (cell.state !== 'DERIVED') continue
-        for (const referent of Array.isArray(cell.value) ? cell.value : [cell.value]) {
-            referents.set(String(referent), [...(referents.get(String(referent)) || []), modifier.classId])
+        for (const referent of referentsOf(cell)) {
+            if (identityOf(ctx, referent) !== 'HELD') {
+                probe.unestablished(lineOf(modifier.classId, 'V8b'))
+                continue
+            }
+            comparable++
+            claimed.set(String(referent), [...(claimed.get(String(referent)) || []), modifier.classId])
         }
     }
-    const overlapping = [...referents.entries()].filter(([, ids]) => ids.length > 1)
-    const regionClause = overlapping.length ? fail(REGION, regions.length) : pass(REGION, regions.length)
+    const overlapping = [...claimed.entries()].filter(([, ids]) => ids.length > 1)
+    const regionClause = overlapping.length
+        ? fail(REGION, regions.length)
+        : probe.blockedBy.length
+          ? notEvaluable(REGION)
+          : pass(REGION, regions.length)
 
-    if (!objectOrEvent.length) {
-        return result('GA-MODIFIER-OVERLAP', probe, [regionClause], overlapping.length ? `${overlapping.length} region referent(s) claimed by more than one modifier` : `${regions.length} region modifier(s) do not overlap; no object or event condition occurs`)
+    const clauses: ClauseResult[] = [regionClause]
+    const notes: string[] = []
+
+    // SD-58/SD-61 — the event case. Identity comes only from a registered structural reference; where the
+    // referents are open text the relationship is simply not representable, which is a gap, not a
+    // specification defect. Where they do resolve, the overlap test itself remains unspecified (SD-60),
+    // and its semantics are not invented here.
+    if (!events.length) {
+        clauses.push(pass(EVENT, 0))
+    } else {
+        const unresolved = events.filter(m => referentsOf(probe.cell(lineOf(m.classId, 'V8b'))).some(r => identityOf(ctx, r) !== 'HELD'))
+        for (const modifier of unresolved) probe.unestablished(lineOf(modifier.classId, 'V8b'))
+        if (unresolved.length === events.length) {
+            clauses.push(notEvaluable(EVENT))
+            notes.push(`${events.length} event-conditioned modifier(s) whose referents establish no structural identity: the relationship is not representable`)
+        } else {
+            probe.refuse(
+                'CHECK_NOT_EXECUTABLE',
+                `${events.length - unresolved.length} event-conditioned modifier(s) resolve structurally, but no overlap test for event conditions is specified. Its semantics are not invented here.`,
+                events.map(m => lineOf(m.classId, 'V8b')),
+                { clause: CLAUSE('§7.2'), quote: 'modifier-overlap execution is underspecified for future reachable authoritative cases' },
+            )
+            clauses.push(notEvaluable(EVENT, probe.refusals[probe.refusals.length - 1].refusalId))
+            notes.push(`${events.length} event-conditioned modifier(s); overlap execution is unspecified`)
+        }
     }
 
-    probe.refuse(
-        'CHECK_NOT_EXECUTABLE',
-        `${objectOrEvent.length} value modifier(s) carry an object or event condition, for which no overlap test is specified. The information is represented; the test is incomplete, so this blocks the affected cases and its semantics are not invented here.`,
-        objectOrEvent.map(m => lineOf(m.classId, 'V8b')),
-        { clause: CLAUSE('§7.2'), quote: 'the information is represented; the test is incomplete' },
-    )
+    // SD-60 — object conditions. No canonical corpus item exercises one, so no execution semantics are
+    // specified and none are invented. The representational capability is preserved untouched.
+    if (!objects.length) {
+        clauses.push(pass(OBJECT, 0))
+    } else {
+        probe.refuse(
+            'CHECK_NOT_EXECUTABLE',
+            `${objects.length} value modifier(s) carry an object condition, for which no overlap semantics are specified. No canonical item exercises this case, so none are invented from constructed examples.`,
+            objects.map(m => lineOf(m.classId, 'V8b')),
+            { clause: CLAUSE('§7.2'), quote: 'add no execution semantics from invented examples' },
+        )
+        clauses.push(notEvaluable(OBJECT, probe.refusals[probe.refusals.length - 1].refusalId))
+        notes.push(`${objects.length} object-conditioned modifier(s); no overlap semantics specified`)
+    }
+
+    if (!modifiers.length) return result('GA-MODIFIER-OVERLAP', probe, clauses, 'no value modifier is instantiated')
     return result(
         'GA-MODIFIER-OVERLAP',
         probe,
-        [regionClause, notEvaluable(OBJECT_EVENT, probe.refusals[0].refusalId)],
-        `${objectOrEvent.length} modifier(s) use an object or event condition, which has no authored overlap test`,
+        clauses,
+        notes.concat(overlapping.length ? [`${overlapping.length} region referent(s) claimed by more than one modifier`] : [`${comparable} region referent(s) compared by structural identity`]).join('; '),
     )
 }
 
@@ -1099,10 +1193,12 @@ export function runGates(ctx: GateContext): GateOutcome {
     const refusals: RefusalRecord[] = []
     const checks: CheckResult[] = []
 
+    let unestablished = 0
     for (const check of GATE_A_CHECKS) {
         const outcome = check(ctx)
         checks.push(outcome.check)
         refusals.push(...outcome.refusals)
+        unestablished += outcome.unestablished
     }
 
     checks.sort((a, b) => a.checkId.localeCompare(b.checkId))
@@ -1127,6 +1223,23 @@ export function runGates(ctx: GateContext): GateOutcome {
     }
 
     const stopped: { where: string; why: string }[] = []
+
+    // SD-58 gives the *verdict* for a relationship that cannot be established — GAP / NOT EVALUABLE,
+    // naming the dependency — and the clause reports exactly that. What it does not settle is the
+    // *record*: §3.2 raises a `GAP` failure at stages 2, 5, 6 and 7, and stage 10 is not among them.
+    //
+    // The line in question is typically derived, so no earlier stage raised a gap for it either, and
+    // nothing in `failures` marks the case. The engine does not mint a stage-10 GAP record, because
+    // extending §3.2's list is a change to the record model rather than an implementation detail.
+    // The clause blocks either way, so this cannot produce a pass — only a thinner audit trail.
+    if (unestablished > 0) {
+        stopped.push({
+            where: 'stage 10, Gate A',
+            why:
+                `${unestablished} relationship(s) could not be established because the reference is not representable. SD-58 gives the verdict — NOT EVALUABLE, naming the dependency — and that is reported. ` +
+                'But §3.2 raises a GAP record only at stages 2, 5, 6 and 7, so no failure record marks these, and the line itself is usually derived. Whether stage 10 should raise a GAP record is not established.',
+        })
+    }
 
     // §1.4: `value` is required "iff `derived`". A resolved line holding no value is an engine defect,
     // not a defect of the game, and it would otherwise surface as a check failing for a reason that is

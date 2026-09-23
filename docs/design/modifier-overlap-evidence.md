@@ -1,5 +1,12 @@
 # `GA-MODIFIER-OVERLAP` — the real corpus evidence
 
+> **RULED, 23 September (SD-57 to SD-61).** He reviewed this evidence and found it *"does not establish a
+> current reachable modifier-overlap problem"* — §6 below is why. **Modifier overlap is no longer a
+> current implementation blocker.** No event-identity system is created, open text never establishes
+> identity, an undecidable relationship is a gap and never a collision, no alternatives mechanism is
+> added, and object-condition semantics are not specified without a canonical case. The questions in §7
+> are answered by those decisions; this document is kept as the evidence they rest on.
+
 23 September 2026. Prepared for his ruling on the minimum general semantics for overlap between value
 modifiers whose condition type is `object` or `event`. **Nothing here is a proposal to implement**; the
 engine refuses these cases today and continues to.
