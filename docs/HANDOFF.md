@@ -2695,4 +2695,37 @@ coach running Wide Zone Advantage is told to go wide and paid to go central.
   values with nothing authored, and set-valued member expansion.
 - **Corpus today:** 1 contract admitted / 7 refused; 15 lines → 2 resolved, 13 gaps, 0 collisions;
   forward 7 unmet / 6 inert / 2 satisfied. Every refusal traces to a task-register defect.
-- **Next:** stage 10 gates (10 structural checks ready; 4 need SD-43 clause reporting; F2 blocking).
+  *(Corrected by increment 4 — see below. The real figures are 6 resolved / 9 gaps.)*
+
+**22 Sep — INCREMENT 4: STAGE 10, THE GATES.** 33 further tests, **88 across the four increments**; full
+project suite passes. Report: `docs/design/implementation-increment-4.md`. Code adds
+`{gates,rational,corpus}.ts`.
+- **Gate A:** fifteen checks, the §7.2 catalogue exactly — ten fully structural, four split under SD-43,
+  `GA-MODIFIER-OVERLAP` refusing with `CHECK_NOT_EXECUTABLE` for object/event (F2, still open).
+  `GA-RESIDUAL-SPACE` is absent and a test keeps it absent (SD-45). Gate B reverse is `NOT_APPLICABLE`.
+- **The gate rule that matters:** a clause whose subject line is a **gap** blocks and names the line; it
+  never reports that the game failed. SD-28 carried into the gate. A test asserts **no check ever returns
+  `PASS` while naming a line it was blocked on**, across fixtures and the real corpus.
+- **Three defects found, all mine:**
+  1. **the session's four envelope values were being dropped** — §1.2 makes the envelope the `SESSION`
+     source and §1.4 makes `SESSION` a way a line is *derived*, but stage 5 consulted it only to decide
+     openness. `E1`–`E4` were `NOT_AUTHORED` in every run. **This is why the increment 3 corpus figures
+     were wrong.**
+  2. a line resolved by a **standing decision carried no value** (SD-25 states `V2 = 1`; the record held
+     nothing), though §1.4 requires a value wherever a line is derived;
+  3. a **qualitative range became a `COUNT` bound with null endpoints** — constraining nothing while
+     looking numeric, which `GA-LAYOUT-FEASIBLE` would have ignored while certifying feasibility.
+- **Also fixed:** the `GAP` failure record §3.2 raises at stage 6, which increment 3 omitted entirely.
+- **Four clause texts asserted more than their code checked** — the fused-claim defect he found in
+  `GA-RESIDUAL-SPACE`, recurring in `GA-DIRECTION`, `GA-ONE-PRIMARY-EVENT`, `GA-TRIGGER-UNIQUE` and
+  `GA-EFFECT-TYPED`. Each split; each part executed.
+- **One reading surfaced to him:** §7 does not say what a clause does when the line it needs is a gap.
+  The engine reads it as `NOT_EVALUABLE` per §8's rule for a gapped dependency. Both readings block, so
+  it cannot manufacture a `PASS` — recorded as a stop, not buried.
+- **Corpus, stages 0–10:** 1 admitted / 7 refused; 15 lines → **6 resolved, 9 gaps**, 0 collisions;
+  failures 7 `LOAD_REFUSAL` + 8 `REFERENCE_DEFECT` + 9 `GAP`. **Gate A: FAIL** (9 pass, 4 not evaluable,
+  2 fail). Seven of the nine passes are *emptiness, not verification* — nothing of that kind is
+  instantiated, because seven of eight contracts were refused at load.
+- **The corpus is now a committed input** (`corpus.ts`) and its figures are asserted in tests, so numbers
+  quoted in any report are reproducible from the repository.
+- **Next:** stage 11 (emit) — assemble and stamp the full `DerivationResult`. That is the last stage.
