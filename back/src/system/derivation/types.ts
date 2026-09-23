@@ -42,6 +42,27 @@ export const REFUSAL_KINDS = [
     'CONSERVATION_VIOLATION',
 ] as const
 
+/** Derivation spec §2 — every line gets exactly one, first that applies. */
+export const VERDICTS = ['UNRESOLVED', 'FREE(b)', 'RESOLVED:ENTAILED', 'NOT_AUTHORED', 'FREE(a)', 'FREE(choice)', 'INVENTED'] as const
+
+/** Package §1.8 — the closed forward-result vocabulary, first that applies. */
+export const FORWARD_RESULTS = [
+    'NOT_CHECKABLE_OUTSIDE_REPRESENTATION',
+    'INERT',
+    'SATISFIED',
+    'VIOLATED',
+    'PENDING_CHOICE',
+    'UNMET',
+    'ADAPTED',
+    'NOT_REALIZED',
+    'NOT_EVALUABLE',
+] as const
+
+export type Verdict = (typeof VERDICTS)[number]
+export type ForwardResult = (typeof FORWARD_RESULTS)[number]
+/** AM-23's codes, in his order. Increment 3 distinguishes the three it can decide. */
+export type ReasonCode = 'declared gap' | 'coverage' | 'excluded'
+
 export type Requirement = (typeof REQUIREMENTS)[number]
 export type Scope = (typeof SCOPES)[number]
 export type FailureKind = (typeof FAILURE_KINDS)[number]

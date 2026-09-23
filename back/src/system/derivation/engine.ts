@@ -12,6 +12,8 @@ import { HaltError, indexRegister, buildVersions, RegisterIndex } from './regist
 import { loadContracts } from './load'
 import { resolveScopes } from './scope'
 import { deriveLines } from './derive'
+import { classifyLines } from './classify'
+import { forwardResults } from './forward'
 import { parseSelector, predicateKey } from './selector'
 import {
     ContractItem,
@@ -302,6 +304,58 @@ export function runStages0to2(input: DerivationInput): PartialResult {
 }
 
 export { predicateKey }
+
+/**
+ * Increment 3 — stages 6 (classify) and 8 (forward) on top of 0–5.
+ *
+ * Stage 7 (relationships) is not implemented: the corpus contains **zero** comparative items (SD-41),
+ * so it would be built against constructed cases only. Stages 9–11 follow.
+ */
+export function runStages0to8(input: DerivationInput) {
+    const base = runStages0to5(input)
+    if (base.run.halted || !base.derived || !base.scope) return { ...base, classified: null, forward: null }
+
+    const index = indexRegister(input.register)
+    const admitted = (input.contracts || []).filter(c => !base.failures.some(f => f.kind === 'LOAD_REFUSAL' && f.locus.contractId === c.contractId))
+
+    const classified = classifyLines(base.lines, base.derived.lines, base.scope.declarations, index)
+    const forward = forwardResults(admitted, base.lines, base.derived.lines, classified, base.scope.applicationSets, index)
+
+    // A collision on a line is a failure record in its own right: without it, an audit can show a game
+    // stopped without showing which two items stopped it.
+    let collisionOrdinal = 0
+    for (const line of classified.values()) {
+        if (line.verdict !== 'UNRESOLVED') continue
+        base.failures.push({
+            failureId: recordId('COLLISION', line.lineId, collisionOrdinal++),
+            kind: 'COLLISION',
+            stage: 6,
+            locus: { lineId: line.lineId },
+            implicated: {
+                contractIds: [...new Set(line.collidingItems.map(i => i.contractId))].sort(),
+                objectIds: [],
+            },
+            clause: CLAUSE('§6'),
+            detailRef: 'two support-capable items on one line that no single value satisfies, and nothing authored decides it (SD-02)',
+        })
+    }
+
+    const tally = (list: string[]) => list.reduce<Record<string, number>>((acc, key) => ({ ...acc, [key]: (acc[key] || 0) + 1 }), {})
+    base.run.counts.verdicts = Object.keys(tally([...classified.values()].map(l => String(l.verdict)))).length
+    for (const [verdict, count] of Object.entries(tally([...classified.values()].map(l => String(l.verdict))))) {
+        base.run.counts[`verdict:${verdict}`] = count
+    }
+    for (const [result, count] of Object.entries(tally(forward.map(f => f.result)))) {
+        base.run.counts[`forward:${result}`] = count
+    }
+
+    return {
+        ...base,
+        failures: base.failures.sort((a, b) => a.failureId.localeCompare(b.failureId)),
+        classified,
+        forward,
+    }
+}
 
 /**
  * Increment 2 — stages 3 (scope), 4 (reach) and 5 (derive), on top of 0–2.
