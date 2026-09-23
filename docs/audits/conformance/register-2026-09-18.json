@@ -132,7 +132,7 @@
       "S3.noun": "1 (2026-09-18, draft)", "S4.functions": "1 (2026-09-18, draft)", "O2.kind": "1 (2026-09-18, draft)",
       "trigger": "1 (2026-09-18, draft)", "T5.method": "1 (2026-09-18, draft)", "T6.playState": "1 (2026-09-18)",
       "V4.conditionType": "1 (2026-09-18, draft)", "V8a.conditionType": "1 (2026-09-18, draft)",
-      "V9a.operation": "1 (2026-09-20, SD-30)", "V1.kind": "1 (2026-09-20, extracted late)", "V13.effect": "1 (2026-09-18, draft)",
+      "V9a.operation": "1 (2026-09-20, SD-30)", "V1.kind": "1 (2026-09-20, extracted late)", "triggerRows": "1 (2026-09-18) - not a value list but a list of the rows that use the trigger vocabulary; versioned so every array in this block carries one", "V13.effect": "1 (2026-09-18, draft)",
       "V26.expiryEffect": "1 (2026-09-18, draft)", "J4.role": "1 (2026-09-18)",
       "contractEnums.requirement": "2 (2026-09-20, COMPARES added by AM-16)",
       "contractEnums.scope": "2 (2026-09-20, BUILD_OUT_EPISODE added by SD-36)",
