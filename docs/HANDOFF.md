@@ -2729,3 +2729,31 @@ project suite passes. Report: `docs/design/implementation-increment-4.md`. Code 
 - **The corpus is now a committed input** (`corpus.ts`) and its figures are asserted in tests, so numbers
   quoted in any report are reproducible from the repository.
 - **Next:** stage 11 (emit) — assemble and stamp the full `DerivationResult`. That is the last stage.
+
+**23 Sep — INCREMENT 5: HIS RULINGS (SD-49..SD-56) AND STAGE 11.** Pipeline complete. 103 tests across
+five increments; suite green. Report: `docs/design/implementation-increment-5.md`. Spec now **revision 12**.
+- **Every SD-48 stop is closed; a run reports zero stops.** SD-49 reach against a class (three-valued —
+  `reaches()` already matched it exactly, so no change); SD-50 unsupported choice space is a **GAP**;
+  SD-51 member lines only from authoritatively resolved membership; SD-52 confirmed the gap-blocks
+  reading.
+- **SD-53 applied generally**, not as four exceptions: every executable gate clause is atomic, guarded by
+  a test that no clause text fuses claims. `GA-REGION-FUNCTION`, `GA-EFFECT-TYPED`, `GA-TIME-WINDOWS`,
+  `GA-OBJECTIVE-SETS` decomposed.
+- **SD-54 — and it paid for itself immediately.** Of 24 passing clauses on the corpus, **2 evaluated
+  anything and 22 are vacuous**. Never report an aggregate pass count without this split.
+- **Fourth defect, found by §8 itself:** `run.inputDigest` was taken over the input as given, so shuffling
+  item order changed the emitted result. Now taken over a canonical form — contracts/items/selection and
+  object keys ordered, **array values left as authored** (AM-11). Found only because the stage 11 test
+  compared the *whole* record, not the parts expected to vary.
+- **Stage 11 enforces rather than assumes:** an unstamped result is emitted as a stamped halt (SD-30);
+  every §1.4 field appears only where its condition licenses it, asserted both directions over the corpus.
+- **Corpus, complete pipeline:** 15 entries (6 derived — 4 SESSION, 2 STANDING_DECISION — 9 failed);
+  audit 15/15, 0 collisions, 8 reference defects, 0 tensions; **Gate A FAIL**; Gate B forward PASS,
+  reverse NOT_APPLICABLE; **0 stops**.
+- **Open with Christian:** `GA-MODIFIER-OVERLAP` semantics. Evidence delivered in
+  `docs/design/modifier-overlap-evidence.md` — **four** items across two contracts, all `event`; **no
+  corpus item uses `object` at all** (the package's "two items, object and event" was wrong on both
+  halves). Neither case reaches the gate today: GF4 is refused whole over an unrelated `row: "NONE"`
+  item, and A01-02's item is `ENGINE_ONLY` so it is inert.
+- **Deferred with his confirmation:** stage 7 (no canonical comparative) and stage 9 (no legitimate
+  candidate representation until the downstream governed-choice process exists).
