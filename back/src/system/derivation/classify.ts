@@ -21,6 +21,8 @@ export interface ClassifiedLine {
     reason: ReasonCode | null
     /** Items that collide on this line, when the verdict is UNRESOLVED. */
     collidingItems: ItemRef[]
+    /** §1.4, iff derived: which of the three routes resolved it. */
+    resolvedBy?: 'ENTAILMENT' | 'STANDING_DECISION' | 'SESSION'
     /** The governing line, where applicability left this one conditional. */
     conditionalOn?: string
 }
@@ -96,7 +98,7 @@ export function classifyLines(
 
         // SD-28 — gap first. A line whose value nothing authored is NOT_AUTHORED, and no collision is
         // raised on it, whatever else is true.
-        const noDependency = record.entailing.length === 0 && record.standingDecisions.length === 0 && !record.open
+        const noDependency = record.entailing.length === 0 && record.standingDecisions.length === 0 && !record.open && !record.session
 
         if (noDependency) {
             result.verdict = 'NOT_AUTHORED'
@@ -115,8 +117,12 @@ export function classifyLines(
             continue
         }
 
-        if (record.entailing.length > 0 || record.standingDecisions.length > 0) {
+        // Derived, by any of §1.4's three routes: entailment, a standing decision, or the session.
+        // `resolvedBy` keeps them apart on the emitted line; the verdict vocabulary is closed and has
+        // one name for derived, so no new verdict is minted for a session value.
+        if (record.entailing.length > 0 || record.standingDecisions.length > 0 || record.session) {
             result.verdict = 'RESOLVED:ENTAILED'
+            result.resolvedBy = record.session ? 'SESSION' : record.entailing.length > 0 ? 'ENTAILMENT' : 'STANDING_DECISION'
             classified.set(line.lineId, result)
             continue
         }

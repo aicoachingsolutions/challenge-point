@@ -14,6 +14,7 @@ import { resolveScopes } from './scope'
 import { deriveLines } from './derive'
 import { classifyLines } from './classify'
 import { forwardResults } from './forward'
+import { runGates } from './gates'
 import { parseSelector, predicateKey } from './selector'
 import {
     ContractItem,
@@ -306,6 +307,53 @@ export function runStages0to2(input: DerivationInput): PartialResult {
 export { predicateKey }
 
 /**
+ * Increment 4 — stage 10, the gates, on top of 0–8.
+ *
+ * Stage 9 (checking a candidate game) is still not built: it needs a `CandidateGame` input, and none
+ * exists. Gate B reverse is stage 9's remainder step and is `NOT_APPLICABLE` in derivation mode, never
+ * a `PASS` it has not earned.
+ */
+export function runStages0to10(input: DerivationInput) {
+    const base = runStages0to8(input)
+    if (base.run.halted || !base.classified || !base.derived) return { ...base, gates: null }
+
+    const index = indexRegister(input.register)
+    const admitted = (input.contracts || []).filter(c => !base.failures.some(f => f.kind === 'LOAD_REFUSAL' && f.locus.contractId === c.contractId))
+
+    const gates = runGates({
+        classes: base.classes,
+        lines: base.lines,
+        classified: base.classified,
+        derived: base.derived.lines,
+        index,
+        envelope: input.envelope || {},
+        triggers: base.triggers,
+        failures: base.failures,
+        forward: base.forward || [],
+        contracts: admitted,
+    })
+
+    base.refusals.push(...gates.refusals)
+    base.stopped.push(...gates.stopped)
+
+    base.run.counts.gateAChecks = gates.gateA.checks.length
+    for (const [verdict, count] of Object.entries(
+        gates.gateA.checks.reduce<Record<string, number>>((acc, c) => ({ ...acc, [c.verdict]: (acc[c.verdict] || 0) + 1 }), {}),
+    )) {
+        base.run.counts[`gateA:${verdict}`] = count
+    }
+    base.run.counts.gateANotEstablished = gates.gateA.notEstablished.length
+    base.run.counts.refusals = base.refusals.length
+
+    return {
+        ...base,
+        refusals: base.refusals.sort((a, b) => a.refusalId.localeCompare(b.refusalId)),
+        stopped: [...new Map(base.stopped.map(s => [`${s.where}|${s.why}`, s])).values()].sort((a, b) => a.where.localeCompare(b.where)),
+        gates,
+    }
+}
+
+/**
  * Increment 3 — stages 6 (classify) and 8 (forward) on top of 0–5.
  *
  * Stage 7 (relationships) is not implemented: the corpus contains **zero** comparative items (SD-41),
@@ -320,6 +368,24 @@ export function runStages0to8(input: DerivationInput) {
 
     const classified = classifyLines(base.lines, base.derived.lines, base.scope.declarations, index)
     const forward = forwardResults(admitted, base.lines, base.derived.lines, classified, base.scope.applicationSets, index)
+
+    // §1.4: "`failed` is `NOT_AUTHORED` or `UNRESOLVED`", and §3.2 raises a `GAP` at stage 6, one gap
+    // one id. Increment 3 raised none, so a run could report thirteen unauthored lines with no failure
+    // record at all — and Gate A's `GA-NO-FAILED-LINE`, which asks exactly this question, would have
+    // certified that corpus vacuously.
+    let gapOrdinal = 0
+    for (const line of [...classified.values()].sort((a, b) => a.lineId.localeCompare(b.lineId))) {
+        if (line.verdict !== 'NOT_AUTHORED') continue
+        base.failures.push({
+            failureId: recordId('GAP', line.lineId, gapOrdinal++),
+            kind: 'GAP',
+            stage: 6,
+            locus: { lineId: line.lineId },
+            implicated: { contractIds: [], objectIds: [] },
+            clause: CLAUSE('§3.2'),
+            detailRef: `the line's value is unauthored (${line.reason ?? 'coverage'})`,
+        })
+    }
 
     // A collision on a line is a failure record in its own right: without it, an audit can show a game
     // stopped without showing which two items stopped it.
