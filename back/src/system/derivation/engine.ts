@@ -10,6 +10,8 @@
 
 import { HaltError, indexRegister, buildVersions, RegisterIndex } from './register'
 import { loadContracts } from './load'
+import { resolveScopes } from './scope'
+import { deriveLines } from './derive'
 import { parseSelector, predicateKey } from './selector'
 import {
     ContractItem,
@@ -300,3 +302,65 @@ export function runStages0to2(input: DerivationInput): PartialResult {
 }
 
 export { predicateKey }
+
+/**
+ * Increment 2 — stages 3 (scope), 4 (reach) and 5 (derive), on top of 0–2.
+ *
+ * Still no verdicts: classification is stage 6. Still no value on an open line: SD-39 authorises the
+ * freedom, and the downstream choice process fills it.
+ */
+export function runStages0to5(input: DerivationInput): PartialResult & {
+    scope: ReturnType<typeof resolveScopes> | null
+    derived: ReturnType<typeof deriveLines> | null
+} {
+    const base = runStages0to2(input)
+    if (base.run.halted) return { ...base, scope: null, derived: null }
+
+    const index = indexRegister(input.register)
+    const admitted = (input.contracts || []).filter(c => !base.failures.some(f => f.kind === 'LOAD_REFUSAL' && f.locus.contractId === c.contractId))
+
+    const scope = resolveScopes(admitted, base.classes)
+    for (const divergence of scope.divergence) {
+        base.refusals.push({
+            refusalId: recordId('PASS_DIVERGENCE', divergence.contractId, 0),
+            kind: 'PASS_DIVERGENCE',
+            cause: divergence.why,
+            stage: 3,
+            clause: CLAUSE('§2.1'),
+            openQuestion: null,
+            affects: { lineIds: [], itemRefs: [], contractIds: [divergence.contractId] },
+        })
+    }
+
+    const derived = deriveLines(admitted, base.classes, base.lines, scope.applicationSets, scope.declarations, index, input.envelope || {})
+    base.stopped.push(...derived.stopped)
+
+    // SD-48 — an item whose reach a class neither entails nor contradicts. The package's reach rule is
+    // written for an element; under SD-47 an element is a class, and a selector the class leaves open
+    // would constrain some of its elements and not others. Nothing establishes what that means, so the
+    // engine records it, derives nothing from it, and reports it rather than choosing a reading.
+    if (derived.undeterminedReaches.length) {
+        base.stopped.push({
+            where: 'stage 4, reach',
+            why:
+                `${derived.undeterminedReaches.length} item-to-class reaches are undetermined: the class's authoritative selector ` +
+                'neither entails nor contradicts the item\'s selector, so the item would constrain some elements of the class and ' +
+                'not others. The package\'s reach rule is written for an element, and SD-47 makes an element a class. Nothing is ' +
+                'derived from these, and no reading is chosen here.',
+        })
+    }
+
+    const openCount = [...derived.lines.values()].filter(l => l.open).length
+    base.run.counts.applicationSets = scope.applicationSets.length
+    base.run.counts.declarationsPreserved = scope.declarations.length
+    base.run.counts.linesWithEntailment = [...derived.lines.values()].filter(l => l.entailing.length > 0).length
+    base.run.counts.linesOpen = openCount
+    base.run.counts.undeterminedReaches = derived.undeterminedReaches.length
+
+    return {
+        ...base,
+        stopped: [...new Map(base.stopped.map(s => [`${s.where}|${s.why}`, s])).values()].sort((a, b) => a.where.localeCompare(b.where)),
+        scope,
+        derived,
+    }
+}

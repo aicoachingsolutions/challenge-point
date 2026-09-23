@@ -206,6 +206,25 @@ export type SelectorTerm =
     | { attribute: string; op: 'IN'; values: string[] }
     | { attribute: string; op: 'CONTAINS'; value: string }
 
+// ---------------------------------------------------------------------------------------------
+// Support and bounds — package §1.8. Support is knowledge entailment only: a candidate value is
+// never support (SD-40), and an assumed item bounds but never entails (§3).
+// ---------------------------------------------------------------------------------------------
+
+export type SupportRef =
+    | { kind: 'CONTRACT_ITEM'; contractId: string; itemId: string; relation: 'ENTAILS' | 'NARROWS' }
+    | { kind: 'STANDING_DECISION'; id: string }
+    | { kind: 'SESSION'; row: string }
+
+export interface Bounds {
+    kind: 'COUNT' | 'INTERVAL' | 'SET' | 'QUALITATIVE'
+    min?: number | null
+    max?: number | null
+    members?: unknown[]
+    /** The authored words, for a qualitative bound. SD-15 forbids inventing a number here. */
+    term?: string
+}
+
 export interface SelectorPredicate {
     /** `*` or an absent selector: matches any element of the row, using no attribute. */
     any: boolean

@@ -40,6 +40,8 @@ export interface RegisterIndex {
     vocabularyVersions: Record<string, string>
     contractEnums: Record<string, string[]>
     citableStandingDecisions: Set<string>
+    /** The citable entries themselves, as the register states them. */
+    standingDecisions: any[]
     registerVersion: string
 }
 
@@ -110,6 +112,7 @@ export function indexRegister(register: any): RegisterIndex {
         vocabularyVersions: (vocabBlock.versions as any) || {},
         contractEnums,
         citableStandingDecisions: citable,
+        standingDecisions: (register.citableStandingDecisions || []).filter((d: any) => d && d.id),
         registerVersion: register.version,
     }
 }
