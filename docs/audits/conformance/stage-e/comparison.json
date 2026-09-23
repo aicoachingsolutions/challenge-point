@@ -1,0 +1,987 @@
+{
+ "lines": {
+  "gameLines": 210,
+  "judgedByBoth": 210,
+  "verdictAgreement": 208,
+  "fullAgreement": 204,
+  "tallyA": {
+   "RESOLVED:ENTAILED": 58,
+   "INVENTED": 24,
+   "NOT_AUTHORED": 123,
+   "RESOLVED:NARROWED_CHOICE": 3,
+   "FREE(b)": 2
+  },
+  "tallyB": {
+   "RESOLVED:ENTAILED": 59,
+   "INVENTED": 23,
+   "NOT_AUTHORED": 123,
+   "RESOLVED:NARROWED_CHOICE": 3,
+   "FREE(b)": 2
+  }
+ },
+ "forward": {
+  "items": 166,
+  "judgedByBoth": 166,
+  "agreement": 162
+ },
+ "disagreements": [
+  {
+   "lineId": "L44",
+   "kind": "REASON",
+   "row": "P4",
+   "value": "NONE (0 target-player roles, both teams)",
+   "A": {
+    "verdict": "NOT_AUTHORED(ENGINE_ONLY)",
+    "support": "none",
+    "collision": "none",
+    "note": "Stated absence. The only P4 item on target player is RPC-001-05.b (ENGINE_ONLY, inert); nothing entails presence or absence."
+   },
+   "B": {
+    "verdict": "NOT_AUTHORED(COVERAGE)",
+    "support": "none",
+    "collision": "none",
+    "note": "An absence, so not INVENTED. RPC-001-05.b is engine-only and inert. UNDECLARED P4 [*] in RPC-001 and Neutral reaches literally."
+   }
+  },
+  {
+   "lineId": "L79",
+   "kind": "VERDICT",
+   "row": "J3",
+   "value": "TEAM_A",
+   "A": {
+    "verdict": "NOT_AUTHORED(DECLARED_GAP)",
+    "support": "none",
+    "collision": "none",
+    "note": "J3 fillable, existence entailed, but RPC-001 NOT_AUTHORED * and GF2 NOT_AUTHORED role=PS reach and bar free choice. GF2-12.a ADAPTED"
+   },
+   "B": {
+    "verdict": "RESOLVED:ENTAILED",
+    "support": "RPC-001 Goalkeeper Build-Out|RPC-001-11.a (RC-16: team=BUILD_OUT_TEAM, Team A at START)",
+    "collision": "none",
+    "note": "GF2-12.a EACH_TEAM is PREFERRED_DEFAULT and ASSUMED; displaced, so ADAPTED, not a collision."
+   }
+  },
+  {
+   "lineId": "L94",
+   "kind": "REASON",
+   "row": "J6",
+   "value": "TEAM_A",
+   "A": {
+    "verdict": "NOT_AUTHORED(ASSUMED_ONLY)",
+    "support": "none",
+    "collision": "none",
+    "note": "06.d (one team) and 09.a (presence) are ASSUMED bounds, met; J6 not fillable; VARTARGET NOT_AUTHORED on J6 reaches."
+   },
+   "B": {
+    "verdict": "NOT_AUTHORED(DECLARED_GAP)",
+    "support": "none",
+    "collision": "none",
+    "note": "Only VARTARGET-06.d/09.a (ASSUMED) bear on it; VARTARGET J6 NOT_AUTHORED (#6) reaches; RPC-001, GF2 UNDECLARED."
+   }
+  },
+  {
+   "lineId": "L100",
+   "kind": "REASON",
+   "row": "J11a",
+   "value": "UNSTATED",
+   "A": {
+    "verdict": "NOT_AUTHORED(COVERAGE)",
+    "support": "none",
+    "collision": "none",
+    "note": "No assignment keys; VARTARGET-08.a UNMET, 08.b inert; RPC-001 and GF2 UNDECLARED on J11a."
+   },
+   "B": {
+    "verdict": "NOT_AUTHORED(ALTERNATIVES)",
+    "support": "none",
+    "collision": "none",
+    "note": "VARTARGET-08.a requires a key from a 4-member set; J11a not fillable; the game states no key."
+   }
+  },
+  {
+   "lineId": "L157",
+   "kind": "VERDICT",
+   "row": "T6",
+   "value": "STOP_RESUME ('Play stops')",
+   "A": {
+    "verdict": "INVENTED",
+    "support": "none",
+    "collision": "none",
+    "note": "GF2-17 ADAPTED (SD-08); 16.c ENGINE_ONLY inert; 17.b ASSUMED presence only. No authored stoppage for SD-20 to yield to; no NA/UNDECL reaches."
+   },
+   "B": {
+    "verdict": "NOT_AUTHORED(ENGINE_ONLY)",
+    "support": "none",
+    "collision": "none",
+    "note": "Only RPC-001-16.c (ENGINE_ONLY) says STOP_RESUME. SD-20 and GF2-17 (ADAPTED) give CONTINUE; no authored stoppage item seen."
+   }
+  },
+  {
+   "lineId": "L161",
+   "kind": "REASON",
+   "row": "V2",
+   "value": "1",
+   "A": {
+    "verdict": "NOT_AUTHORED(DECLARED_GAP)",
+    "support": "none",
+    "collision": "none",
+    "note": "ENGINE_ONLY also fits as a reason; I chose the declared gap. A01-02 and Neutral are UNDECLARED on V2."
+   },
+   "B": {
+    "verdict": "NOT_AUTHORED(ENGINE_ONLY)",
+    "support": "none",
+    "collision": "none",
+    "note": "V2 is not fillable. A01-02 and NEUTRAL are UNDECLARED on V2."
+   }
+  }
+ ],
+ "forwardDisagreements": [
+  {
+   "item": "RPC-001 Goalkeeper Build-Out|RPC-001-08.c",
+   "A": "UNMET",
+   "B": "SATISFIED",
+   "noteA": "Selector team=BUILD_OUT_TEAM matches no objective: stated teams are TEAM_A/TEAM_B, distinct entries (RC-22).",
+   "noteB": "Team A's PS objectives (BUILD_OUT_TEAM at START) have a J2 reference."
+  },
+  {
+   "item": "RPC-001 Goalkeeper Build-Out|RPC-001-11.a",
+   "A": "UNMET",
+   "B": "SATISFIED",
+   "noteA": "Same selector: no objective states team=BUILD_OUT_TEAM.",
+   "noteB": "PS objectives exist for Team A."
+  },
+  {
+   "item": "Variable Target Condition|VARTARGET-05.b",
+   "A": "VIOLATED",
+   "B": "SATISFIED",
+   "noteA": "element in scope (info-live) but the game states no V17 trigger; SUPPORTING, and absent rather than off-set",
+   "noteB": "Vacuous: info-live states no V17 value, so nothing breaches the SUPPORTING set."
+  },
+  {
+   "item": "Variable Target Condition|VARTARGET-13.d",
+   "A": "VIOLATED",
+   "B": "UNMET",
+   "noteA": "REQUIRED OBJECTIVE_DEPENDENT; the game leaves V21 unstated on info-live",
+   "noteB": "REQUIRED value OBJECTIVE_DEPENDENT; info-live's V21 is unstated (it matches an element, but the value is absent)."
+  }
+ ],
+ "interpretationsA": [
+  {
+   "rule": "RC-36 / Â§3",
+   "point": "How the session supports E1-E4",
+   "howIRead": "The session (fixed envelope) counts as an ENTAILS source for E1-E4, so L1-L4 are ENTAILED with support 'SESSION'. Contract NOT_AUTHORED declarations on E1/E4 do not displace it.",
+   "area": 1
+  },
+  {
+   "rule": "SD-11 / RC-1 table (EXISTS on FIELD)",
+   "point": "S1 value",
+   "howIRead": "RPC-001-07 and WIDEZONE-01.a only entail that S1 is present. The value comes from SD-11: no support-capable selection item differs, and its inputs E2/E3 are ENTAILED. ASSUMED items with the same value are bounds only.",
+   "area": 1
+  },
+  {
+   "rule": "RC-17 / Â§4 last paragraph / RC-18",
+   "point": "A stated value with no support on a row, fillable or not",
+   "howIRead": "If a NOT_AUTHORED or UNDECLARED declaration reaches the element, the verdict is NOT_AUTHORED: DECLARED_GAP if any NOT_AUTHORED reaches, else COVERAGE. If only NON_CLAIMED reach, it is INVENTED.",
+   "area": 1
+  },
+  {
+   "rule": "RC-17 (NOT_AUTHORED = required but unauthored)",
+   "point": "P6a/P6b: the game differs from a value the items entail (L46, L47)",
+   "howIRead": "The row is authored (STANDING / ATTACKING_TEAM), so the game's different value is INVENTED, not NOT_AUTHORED, even though NEUTRAL's partial NOT_AUTHORED declarations reach it. The breach goes to the forward list as VIOLATED.",
+   "area": 1
+  },
+  {
+   "rule": "RC-22",
+   "point": "WON_BALL against ATTACKING_TEAM",
+   "howIRead": "They are different canonical entries, so NEUTRAL-03.a/14.b do not support 'team now in possession (WON_BALL)', and both are VIOLATED.",
+   "area": 1
+  },
+  {
+   "rule": "Reason code ENGINE_ONLY",
+   "point": "When the ENGINE_ONLY code applies rather than COVERAGE or INVENTED",
+   "howIRead": "Used when an ENGINE_ONLY item reaches the line, directly or through RC-16 selector carriage, and is the only evidence (L44, L49-L51). It takes precedence over COVERAGE. It is not used for own halves on S2: RPC-001-06 sits on SV1, so L11/L16 are INVENTED.",
+   "area": 1
+  },
+  {
+   "rule": "RC-15 (unstated needed property)",
+   "point": "UNSTATED fields where every reaching declaration is NON_CLAIMED (L36 corridor S5)",
+   "howIRead": "Gave NOT_AUTHORED(COVERAGE) as the nearest code. No listed reason fits, and INVENTED does not fit an absent value.",
+   "area": 1
+  },
+  {
+   "rule": "RC-1 (selectors on stated attributes)",
+   "point": "kind 'target zone' against the selector kindâˆˆ{line, zone}",
+   "howIRead": "Strict string test: 'target zone' does not satisfy it. So GF2-06.a/06.b are UNMET, and GF2's O2/O4/O5 declarations on kindâˆˆ{line,zone} do not reach the target zones. A looser reading would change the L58-type reasons to DECLARED_GAP.",
+   "area": 1
+  },
+  {
+   "rule": "RC-1 / RC-22 / designation map",
+   "point": "Contextual designations in selectors (team=BUILD_OUT_TEAM, team=ATTACKING_TEAM on P3)",
+   "howIRead": "Resolved through the designation map. Each resolves to Team A or Team B depending on the episode, so each reaches both team elements. A literal reading, where no element has team=ATTACKING_TEAM, would leave both items UNMET and L40/L43 INVENTED.",
+   "area": 1
+  },
+  {
+   "rule": "RC-26 / Â§5 PER_OBJECTIVE_SET",
+   "point": "Whether set-A and set-B exist, which I cannot see (J5 is not in this area's input)",
+   "howIRead": "Treated both units as entailed (KR-01: 'each team's objective set'), so VARTARGET-01.a/02.a entail the four target zones. If area 2 finds J5 not entailed, L57/L62/L67/L72 become unsupported.",
+   "area": 1
+  },
+  {
+   "rule": "Â§5 PER_OBJECTIVE_SET membership",
+   "point": "Whether the ball falls under VARTARGET's selector-* items",
+   "howIRead": "No objective's J2 references the ball, so it is in no unit. VARTARGET's O1/O4/O5 items and declarations do not reach it, except the WHOLE_GAME NON_CLAIMED 'non-candidate objects'.",
+   "area": 1
+  },
+  {
+   "rule": "RC-2 / RC-16",
+   "point": "O3 count of the ball and of each target zone",
+   "howIRead": "EXISTS on O1 fixes no O3 value (O3 is not a selector attribute). VARTARGET-01.a's O1 sum is a NARROWS bound. So O3=1 is not entailed, and UNDECLARED O3 declarations (RPC-001 *, VARTARGET candidates) bar the fill: COVERAGE.",
+   "area": 1
+  },
+  {
+   "rule": "Â§4 condition 4 / RC-7",
+   "point": "Partial NOT_AUTHORED declarations whose notes concern a narrower gap (WIDEZONE S6 width scaling; GF2 P2 floor/ceiling; NEUTRAL P5 count; VARTARGET O4/O5 separation)",
+   "howIRead": "Applied by selector and scope, not by note. Each reaches the element and bars free choice, so the lines are NOT_AUTHORED(DECLARED_GAP) even where every bound is met.",
+   "area": 1
+  },
+  {
+   "rule": "Â§5 OWN_INVOLVEMENT",
+   "point": "WIDEZONE-02.b (selector *) and WIDEZONE's CLAIMED S3 *",
+   "howIRead": "They reach only the elements WIDEZONE entails (the two channels). Area, halves and corridor are out of scope.",
+   "area": 1
+  },
+  {
+   "rule": "Declaration selectors written in words",
+   "point": "VARTARGET 'regions without the trigger function' / 'non-candidate objects'",
+   "howIRead": "Taken to reach every region that lacks a stated trigger function, and every object in no objective-set unit.",
+   "area": 1
+  },
+  {
+   "rule": "Â§3 COLLECTION existence / fillable S2",
+   "point": "Regions matched by no COUNT/RANGE (area, own halves, corridor)",
+   "howIRead": "A count fill needs an authored COUNT/RANGE whose selector the element meets. None does, so existence is INVENTED, and their position fields cannot be NARROWED_CHOICE (SD-16).",
+   "area": 1
+  },
+  {
+   "rule": "Â§4 condition 2",
+   "point": "Existence of the neutral group for P5-P7 (non-collection rows)",
+   "howIRead": "Treated as a game-level field whose existence condition is trivially met. This is moot for P5, where a NOT_AUTHORED declaration bars the fill.",
+   "area": 1
+  },
+  {
+   "rule": "RC-15 / L44",
+   "point": "A P4 line stating a role is absent",
+   "howIRead": "Absence is neither entailed nor invented. The only item is engine-only, so NOT_AUTHORED(ENGINE_ONLY). COVERAGE was the alternative (RPC-001 and NEUTRAL UNDECLARED * reach).",
+   "area": 1
+  },
+  {
+   "rule": "RC-35",
+   "point": "Unmatched REQUIRED COLLECTION RANGE (GF2-03.a, GF2-06.a)",
+   "howIRead": "Reported as UNMET (a REQUIRED item matching no element), not VIOLATED, although the min-1 bound is also breached.",
+   "area": 1
+  },
+  {
+   "rule": "RC-35",
+   "point": "Unmatched non-REQUIRED items",
+   "howIRead": "GF2-05.b (FIELD, SUPPORTING): SATISFIED, met with nothing to check. VARTARGET-05.a (COLLECTION EXISTS, PREFERRED_DEFAULT): ADAPTED under SD-08.",
+   "area": 1
+  },
+  {
+   "rule": "RC-35 / RC-31",
+   "point": "Items that are ENGINE_ONLY and also OUTSIDE_BOUNDARY or PARTLY_STRUCTURAL (RPC-001-04.c, 05.a, 09.a, 09.b)",
+   "howIRead": "INERT: the basis is taken first, and no clause is applied for engine-only items. RPC-001-03 and VARTARGET-03.a (not engine-only) are CLAUSE_CHECKED.",
+   "area": 1
+  },
+  {
+   "rule": "RC-30 / Â§4",
+   "point": "Channel S5 with only ASSUMED bounds (L25, L31)",
+   "howIRead": "ASSUMED items act as bounds. The fill passes as NARROWED_CHOICE on fillable S5 with entailed existence; WIDEZONE's CLAIMED declaration holds only bounds, all met.",
+   "area": 1
+  },
+  {
+   "rule": "L55 ball O4",
+   "point": "Value mixes a restart position with in-play position",
+   "howIRead": "Not split. Judged as one stated value with no reaching item: NOT_AUTHORED(COVERAGE) via A01-02's UNDECLARED O4 kind=ball.",
+   "area": 1
+  },
+  {
+   "rule": "RC-1 / RC-22",
+   "point": "Selector team=BUILD_OUT_TEAM (RPC-001-08.c, 11.a, J1/J2 declarations) against stated team TEAM_A/TEAM_B",
+   "howIRead": "Distinct canonical entries are unequal, so no match. 08.c and 11.a UNMET, their declarations reach nothing. Same for team=DEFENDING_TEAM (RPC-001 J1 NOT_AUTHORED).",
+   "area": 2
+  },
+  {
+   "rule": "RC-1 / grammar Â§2",
+   "point": "A01-02 selectors restart=GOAL_KICK use an unregistered attribute no element states, even where game slots say 'goal kick'",
+   "howIRead": "They match no element, so the REQUIRED items are UNMET and those declarations reach nothing. 'Elements other than the goal kick' then reaches every element.",
+   "area": 2
+  },
+  {
+   "rule": "RC-2 / RC-26",
+   "point": "COUNT/RANGE entails a minimum below the number of matching elements; which element is the entailed one",
+   "howIRead": "I took the first listed as entailed: set-A (06.a), obj:tz-A-north (GF2-08.a role), obj:tz-B-north (Team B min 1). The others are excess on non-fillable rows.",
+   "area": 2
+  },
+  {
+   "rule": "Â§5 PER_OBJECTIVE_SET",
+   "point": "Whether objectives are in their own set's unit (the rule names only J2 referents)",
+   "howIRead": "J7 member objectives count as in their set's unit, so VARTARGET-06.b entails both of set-A's members but none of set-B's (unit not entailed).",
+   "area": 2
+  },
+  {
+   "rule": "RC-26 PER_TEAM",
+   "point": "Team units come from area-1 P1 lines that I do not judge here",
+   "howIRead": "I treated both team units as existing for PER_TEAM entailment (GF2-09.a, RPC-001-14.a).",
+   "area": 2
+  },
+  {
+   "rule": "RC-18 / Â§3 ASSUMED / RC-17",
+   "point": "Present value, no support, non-fillable row: NOT_AUTHORED or INVENTED, and which code",
+   "howIRead": "NOT_AUTHORED when a NOT_AUTHORED/UNDECLARED declaration reaches it, else INVENTED. ASSUMED_ONLY if an in-scope ASSUMED item fixes the value, else DECLARED_GAP/COVERAGE by type.",
+   "area": 2
+  },
+  {
+   "rule": "Â§3 comparison",
+   "point": "GF2-08.b EQUALS an objective-area region vs game J2 references to O1 target-zone objects",
+   "howIRead": "Not equal: VIOLATED in the forward list, no support. The J2 lines take NOT_AUTHORED(COVERAGE) from VARTARGET's reaching UNDECLARED, not INVENTED.",
+   "area": 2
+  },
+  {
+   "rule": "RC-22",
+   "point": "Out-of-play T2 values 'team defending that end (= NOT_LAST_TOUCH)' and 'ATTACKING_TEAM (= NOT_LAST_TOUCH)'",
+   "howIRead": "I accepted the game's stated equivalence given the lastTouch qualifier, so GF2-16.a entails the value.",
+   "area": 2
+  },
+  {
+   "rule": "RC-19",
+   "point": "OUT_END_LINE split into two elements by qualifier.lastTouch",
+   "howIRead": "Both treated as existing by construction: the split partitions one reachable trigger. T1a/T1b values still need support.",
+   "area": 2
+  },
+  {
+   "rule": "RC-19",
+   "point": "SCORE existence depends on V0 (area 4)",
+   "howIRead": "SD-06 entails V0 existence, so SCORE exists by construction.",
+   "area": 2
+  },
+  {
+   "rule": "RC-17 order vs Â§4 / SD-R2",
+   "point": "START T2 is unauthored but fillable; also whether EXISTS field-presence items (RPC-001-15.a, NEUTRAL-13.a) count as non-NARROWS items that bar",
+   "howIRead": "NOT_AUTHORED applies only where free choice fails. EXISTS presence items are met and value-neutral, so they do not bar. NARROWED_CHOICE.",
+   "area": 2
+  },
+  {
+   "rule": "RC-9 vs RC-29 / RC-30",
+   "point": "START T3 bounded only by the ASSUMED alternatives set RPC-001-15.b (fitNote suggests ALTERNATIVES)",
+   "howIRead": "RC-19 says RC-9 gives the reason for unsupported T2-T6 at START, so START_PROCEDURE.",
+   "area": 2
+  },
+  {
+   "rule": "RC-36 / SD-14",
+   "point": "START T7 unstated in the game while SD-14 entails true",
+   "howIRead": "RESOLVED:ENTAILED from SD-14. The game's silence does not remove the entailment, and no differing selection item exists.",
+   "area": 2
+  },
+  {
+   "rule": "RC-20",
+   "point": "POSSESSION_CHANGE T2-T5 when the game states STOP_RESUME but SD-20 derives CONTINUE",
+   "howIRead": "RC-20 keys on the game's stated playState, so the lines are judged, not N/A. RPC-001 NOT_AUTHORED reaches them: DECLARED_GAP.",
+   "area": 2
+  },
+  {
+   "rule": "SD-20 / RC-24 / Â§2 ENGINE_ONLY code",
+   "point": "POSSESSION_CHANGE T6 STOP_RESUME, whose only evidence is ENGINE_ONLY RPC-001-16.c",
+   "howIRead": "INVENTED, not NOT_AUTHORED(ENGINE_ONLY): SD-20 authors CONTINUE. My input holds no V11 selection item creating a stoppage, so SD-20 does not yield. GF2-17 ADAPTED.",
+   "area": 2
+  },
+  {
+   "rule": "Register VIEW rows / task N/A restriction",
+   "point": "DV1 lines need a verdict though a view 'never needs support'",
+   "howIRead": "NOT_AUTHORED(DECLARED_GAP): no ENTAILS source (ORIENTED only narrows), J3 inputs NOT_AUTHORED, and GF2's DV1 NOT_AUTHORED reaches. Bounds checked forward.",
+   "area": 2
+  },
+  {
+   "rule": "Â§3 EXISTS on FIELD",
+   "point": "VARTARGET-06.e 'members lists the candidate objectives' on J7",
+   "howIRead": "Presence only, never the member values, so the J7 member lines are unsupported (COVERAGE).",
+   "area": 2
+  },
+  {
+   "rule": "RC-35",
+   "point": "PARTLY_STRUCTURAL items that are also ENGINE_ONLY (A01-02-03.a); a REQUIRED FIELD item whose selector matches but the field is absent (VARTARGET-13.c)",
+   "howIRead": "ENGINE_ONLY gives INERT first. The matched-but-absent case is VIOLATED, not UNMET. Other PARTLY_STRUCTURAL items are CLAUSE_CHECKED, with the clause result in the note.",
+   "area": 2
+  },
+  {
+   "rule": "RC-19 / PSD-03 scope",
+   "point": "Out-of-play T7 and T1a/T1b lines",
+   "howIRead": "PSD-03's code applies only to T2-T6, so the unsupported T7/T1a/T1b lines use COVERAGE (UNDECLARED declarations reach).",
+   "area": 2
+  },
+  {
+   "rule": "RC-1 on J11b",
+   "point": "RPC-001-11.b (selector *) when the game has no J11a keys, so no J11b elements",
+   "howIRead": "Matches no element; reported CLAUSE_CHECKED with clause unmet, since the item is PARTLY_STRUCTURAL.",
+   "area": 2
+  },
+  {
+   "rule": "RC-1 selector matching",
+   "point": "Free-text selector values against stated attributes",
+   "howIRead": "Matched by meaning, not string: VT-13.a 'live member of this object's candidate set' = info-live 'which candidate ... is active'; WZ-17.* 'wide channels' = info-wide; channel-north/south = 'wide channels of this contract'.",
+   "area": 3
+  },
+  {
+   "rule": "RC-17 / Â§4 / RC-30: NOT_AUTHORED versus INVENTED on unsupported lines",
+   "point": "The rules state the switch only for free choice and ASSUMED items",
+   "howIRead": "Applied generally. A NOT_AUTHORED declaration reaching the element gives DECLARED_GAP; only UNDECLARED gives COVERAGE; only NON_CLAIMED (or silence under a non-matching selector) gives INVENTED.",
+   "area": 3
+  },
+  {
+   "rule": "Grammar Â§4 silence / COVERAGE code",
+   "point": "Wide Zone declares V12-V14a only for effect=RESTART or {ACCESS, COUNT_CHANGE}, so it is silent on the off-list effects",
+   "howIRead": "Silence under a selector is not UNDECLARED and not 'never declared the row', so it bars nothing. L190-L192 and L195-L197 are INVENTED.",
+   "area": 3
+  },
+  {
+   "rule": "Â§2 reason codes when several apply",
+   "point": "Precedence among reason codes is not stated",
+   "howIRead": "RC-29 ALTERNATIVES over DECLARED_GAP/COVERAGE (L164, L165, L200, L201, L203); ASSUMED_ONLY over COVERAGE (L209); DECLARED_GAP over ENGINE_ONLY (L161); OUTSIDE_BOUNDARY over DECLARED_GAP (L169).",
+   "area": 3
+  },
+  {
+   "rule": "Â§4 condition 4 (free choice on V1)",
+   "point": "Does an EXCLUDED declaration whose exclusion is unviolated bar free choice?",
+   "howIRead": "No: only NOT_AUTHORED or UNDECLARED bar. L160 is still barred by GF2's V1 NOT_AUTHORED, so DECLARED_GAP. RR-01 is not applied because nothing collides; RPC-001-RR-1 does not choose a member.",
+   "area": 3
+  },
+  {
+   "rule": "RC-15 unstated properties",
+   "point": "The game leaves a field unstated that an item authors (L204, V21)",
+   "howIRead": "The verdict records authorship support (RESOLVED:ENTAILED by VT-13.d); the game's omission goes only in the forward list (13.d VIOLATED), as RC-15 separates them.",
+   "area": 3
+  },
+  {
+   "rule": "RC-35 forward: VIOLATED versus UNMET",
+   "point": "An item whose selector matches an element whose value the game leaves unstated (VT-05.b, VT-13.d)",
+   "howIRead": "VIOLATED, because UNMET is reserved for a REQUIRED item matching no element. A REQUIRED ASSUMED item matching no element (WZ-14.a) is UNMET, like WZ-11.b.",
+   "area": 3
+  },
+  {
+   "rule": "RC-17 list with N/A limited to RC-20",
+   "point": "L210, an empty V23 collection (placeholder)",
+   "howIRead": "No verdict applies literally. I chose RESOLVED:ENTAILED, because RC-2 derives zero V23 elements with no fillable count; support 'none'. Other readers may differ.",
+   "area": 3
+  },
+  {
+   "rule": "NOT_AUTHORED reason codes",
+   "point": "L193 (V14c unstated; every contract NON_CLAIMED; the effect is not COUNT_CHANGE)",
+   "howIRead": "No code fits. I chose NOT_AUTHORED(COVERAGE) as the closest: nothing covers the delta the game implies with '6 v 4'.",
+   "area": 3
+  },
+  {
+   "rule": "SD-15 / RC-34 FREE(b)",
+   "point": "L182: the game uses 'long kick'; RPC-001-19.b authors 'long clearance that happens to reach the target' (L-11 open)",
+   "howIRead": "FREE(b) is keyed on the line's term, so FREE(b) with support none. Forward 19.b is VIOLATED under RC-34 verbatim matching, although the substance overlaps.",
+   "area": 3
+  },
+  {
+   "rule": "RC-29 / RPC-001-18.b alternatives",
+   "point": "The game lists both 18.b placements as simultaneous referents; own-half (a region) against 'a controlled defensive restart placement'",
+   "howIRead": "Own half read as the placement area of member 2. Each referent line is NOT_AUTHORED(ALTERNATIVES) on non-fillable V5; forward 18.b SATISFIED.",
+   "area": 3
+  },
+  {
+   "rule": "RC-29 scope",
+   "point": "WIDEZONE-11.a 'both wide channels, each a referent'",
+   "howIRead": "A conjunctive set on a one-property-per-referent row, not a set of alternatives. It ENTAILS each referent (L185, L186), even though V7 existence is not entailed (SD-16 allows it).",
+   "area": 3
+  },
+  {
+   "rule": "RC-31 PARTLY_STRUCTURAL (RPC-001-18.d)",
+   "point": "The game's referent is the P8 defenders' restart placement; the clause admits only a marked progression line or the PS reference",
+   "howIRead": "The clause is not met and the game took the item's outside reading. L169 is NOT_AUTHORED(OUTSIDE_BOUNDARY) under RC-32. Forward CLAUSE_CHECKED (not met).",
+   "area": 3
+  },
+  {
+   "rule": "RC-31 PARTLY_STRUCTURAL (VARTARGET-11.a)",
+   "point": "Does the clause entail V0 existence?",
+   "howIRead": "Yes: the clause says 'a primary event exists', so 11.a entails pe alongside SD-06 (L159).",
+   "area": 3
+  },
+  {
+   "rule": "RC-16 on V4",
+   "point": "No items sit on V4",
+   "howIRead": "V3 selectors type=X on EXISTS items carry the type, so V4 is ENTAILED for origin, progression, control and exclusion. Eligibility gets nothing because its existence is not entailed.",
+   "area": 3
+  },
+  {
+   "rule": "Â§5 OWN_INVOLVEMENT",
+   "point": "Which elements VT's OWN_INVOLVEMENT items reach",
+   "howIRead": "Only info-live (entailed by VT-13.a). info-wide and mod-wide are not VT-entailed, so VT-16.a does not reach info-wide's STANDING and VT-13.b does not reach its subject.",
+   "area": 3
+  },
+  {
+   "rule": "Declaration reach by selector",
+   "point": "Wide Zone's V11 NOT_AUTHORED (sel *) is about its own advantage, but reaches cons-neutral and cons-reset",
+   "howIRead": "Reach is by selector, not by note, so L189 and L194 are NOT_AUTHORED(DECLARED_GAP). KR-03 is noted for cons-reset.",
+   "area": 3
+  },
+  {
+   "rule": "Support field format",
+   "point": "What to list for NOT_AUTHORED lines that NARROWS items bound",
+   "howIRead": "Support lists ENTAILS items and met NARROWS items, marked '(narrows)'. ASSUMED bounds and inert items are not listed; 'none' otherwise.",
+   "area": 3
+  },
+  {
+   "rule": "RC-29 applied to the game's stated value",
+   "point": "L201 and L203: the game restates the whole authored set instead of choosing a member",
+   "howIRead": "Treated as unresolved alternatives on a non-fillable row: NOT_AUTHORED(ALTERNATIVES). Forward: the RANGE item is SATISFIED.",
+   "area": 3
+  },
+  {
+   "rule": "RC-15 needed property",
+   "point": "L188 V10 with a single modifier",
+   "howIRead": "Treated as needed because the restater lists it; NOT_AUTHORED(COVERAGE) from the UNDECLARED declarations (WZ for region, Neutral, VT).",
+   "area": 3
+  },
+  {
+   "rule": "Forward for EXCLUSION items matching no element",
+   "point": "WZ-08.b (no ACCESS consequence); RPC-001-23 (no such subjects)",
+   "howIRead": "SATISFIED, or CLAUSE_CHECKED satisfied: nothing forbidden is present. UNMET applies only to REQUIRED strictness.",
+   "area": 3
+  }
+ ],
+ "interpretationsB": [
+  {
+   "rule": "RC-36 / Â§3 'The session supports E1â€“E4 only'",
+   "point": "What supports E1â€“E4",
+   "howIRead": "I treated the fixed session envelope (game provenance ENVELOPE-FIXED) as an ENTAILS source for E1â€“E4 and cited it as SESSION|ENVELOPE-FIXED. The value E4=20 is known only from game provenance, because no contract states the session duration.",
+   "area": 1
+  },
+  {
+   "rule": "SD-11 'yields' / RC-24",
+   "point": "S1 has EXISTS items (RPC-001-07, WIDEZONE-01.a) and ASSUMED EQUALS items",
+   "howIRead": "SD-11 yields only to a support-capable item that gives a contrary value. EXISTS gives none, and the ASSUMED items agree. Its condition, the longer dimension, rests on E2 and E3, both ENTAILED, so SD-11 entails S1.",
+   "area": 1
+  },
+  {
+   "rule": "Â§2 NOT_AUTHORED vs INVENTED; Â§4 bar; RC-18",
+   "point": "An unsupported value where an UNDECLARED or NOT_AUTHORED declaration reaches the element, but the row is not fillable or the element's existence is not entailed",
+   "howIRead": "The verdict is NOT_AUTHORED (COVERAGE for UNDECLARED, DECLARED_GAP for NOT_AUTHORED) wherever no item authors the value, not only where a free choice was otherwise open. This parallels the ASSUMED rule's 'NOT_AUTHORED(ASSUMED_ONLY) where a declaration reaches it'. Examples: L8, L13, L24, L44, L54, L58.",
+   "area": 1
+  },
+  {
+   "rule": "Â§2 NOT_AUTHORED = 'required but unauthored'",
+   "point": "P6a and P6b: the game's value differs from the value an in-scope ENTAILS item fixes, and the same contract also declares NOT_AUTHORED on a sub-question",
+   "howIRead": "The row is authored for the element, so NOT_AUTHORED does not apply. The game's departing value is INVENTED (L46, L47), and the entailing items are VIOLATED forward.",
+   "area": 1
+  },
+  {
+   "rule": "RC-1 reach / Â§4 condition 4 / COVERAGE ('a contract never declared the row')",
+   "point": "A contract that declares the row but whose selectors do not reach the element (RPC-001 S5/S6 select only objective-area zones; WIDEZONE's noun lists omit 'area'; A01-02 O4/O5 cover ball, goal, line, gate)",
+   "howIRead": "Such a contract neither bars nor permits, and it is not COVERAGE because it did declare the row. COVERAGE comes only from an UNDECLARED declaration that reaches the element. Every contract declares every area-1 row.",
+   "area": 1
+  },
+  {
+   "rule": "Â§1 unstated properties / RC-17",
+   "point": "L36: an UNSTATED value (corridor S5) that no NOT_AUTHORED or UNDECLARED declaration reaches",
+   "howIRead": "INVENTED needs a present value, so the line is NOT_AUTHORED. I used COVERAGE, citing RPC-001's S5 declarations, which do not reach the corridor. This is the only line decided on that ground.",
+   "area": 1
+  },
+  {
+   "rule": "NOT_AUTHORED reason codes (no precedence stated)",
+   "point": "More than one code applies",
+   "howIRead": "DECLARED_GAP first. Next, an evidence code (ENGINE_ONLY) where engine-only items are the only matching evidence (L49â€“L51, where COVERAGE also applies). COVERAGE otherwise.",
+   "area": 1
+  },
+  {
+   "rule": "RC-1: selectors tested on stated attributes",
+   "point": "The game's kind 'target zone (off-list)' against GF2 selectors kind âˆˆ {line, zone}",
+   "howIRead": "Literal match: 'target zone' is not 'zone'. GF2-06.a/06.b and GF2's O-row declarations on {line, zone} therefore do not reach the tz objects, and GF2-06.a/06.b are UNMET forward. A semantic match would make them SATISFIED and turn the tz O2 reason into DECLARED_GAP.",
+   "area": 1
+  },
+  {
+   "rule": "RC-1 / RC-22 / Â§5 PER_TEAM",
+   "point": "P3 selectors team=ATTACKING_TEAM and team=BUILD_OUT_TEAM against the stated TEAM_A / TEAM_B",
+   "howIRead": "Evaluated through the designation map at each episode. Each team is ATTACKING_TEAM, and BUILD_OUT_TEAM, in some episode, so both satisfy the selectors. I used RC-22 equality only when comparing designation values (P6b).",
+   "area": 1
+  },
+  {
+   "rule": "RC-26 / Â§5 PER_OBJECTIVE_SET",
+   "point": "Units set-A and set-B, whose J5 existence is judged in area 2 and is not visible in this input",
+   "howIRead": "I assumed both units' existence is entailed, so VARTARGET-01.a/02.a entail the four tz objects. If area 2 finds a set not entailed, that set's tz O1 lines become INVENTED.",
+   "area": 1
+  },
+  {
+   "rule": "RC-17 (existence and value judged separately) / RC-2",
+   "point": "O3 counts for the ball and the tz objects",
+   "howIRead": "An EXISTS, or a RANGE minimum on O1, entails existence, not an element's O3 value. The ball's O3 is not fillable (no COUNT/RANGE). The tz O3 is fillable inside VARTARGET-01.a but barred by UNDECLARED declarations, so both are NOT_AUTHORED(COVERAGE).",
+   "area": 1
+  },
+  {
+   "rule": "RC-13 (declarations carry a scope) / Â§5 scope",
+   "point": "WIDEZONE CLAIMED S3 [*] OWN_INVOLVEMENT and item WIDEZONE-02.b [*]",
+   "howIRead": "An item or declaration with OWN_INVOLVEMENT reaches only the elements its contract entails: channel-north and channel-south, entailed by 02.a/03. It does not reach area, the halves or the corridor.",
+   "area": 1
+  },
+  {
+   "rule": "RC-16",
+   "point": "WIDEZONE-08.d, COUNT 2 with selector noun=channel & functions âˆ‹ perceptual-reference",
+   "howIRead": "It entails both channels and carries functions âˆ‹ perceptual-reference for each (L23, L29). Nothing carries value-condition (L24, L30).",
+   "area": 1
+  },
+  {
+   "rule": "RC-30 (ASSUMED) / Â§4 condition 4",
+   "point": "Channel S5, where WIDEZONE holds only ASSUMED items (07 EQUALS, 10.a EXISTS) under a CLAIMED declaration",
+   "howIRead": "An ASSUMED EQUALS counts as a bound the value meets, so it does not bar. S5's 'inside authored bounds' is met vacuously, which gives NARROWED_CHOICE (L25, L31).",
+   "area": 1
+  },
+  {
+   "rule": "RC-18 (reach of a bar)",
+   "point": "WIDEZONE NOT_AUTHORED S6 [noun=channel] concerns only the width-scaling rule",
+   "howIRead": "It reaches the channel element on S6, so it bars free choice for the whole across-interval: NOT_AUTHORED(DECLARED_GAP) (L26, L32).",
+   "area": 1
+  },
+  {
+   "rule": "Â§4 condition 2 on non-collection rows",
+   "point": "Neutrals (P5â€“P7) have no COLLECTION row",
+   "howIRead": "I took the element to be the game on a FIELD row, whose existence is given. P5 then fails only on Neutral's NOT_AUTHORED bar.",
+   "area": 1
+  },
+  {
+   "rule": "Â§2 verdicts for an absence line",
+   "point": "L44: target-players NONE",
+   "howIRead": "An absence is not 'present', so it is not INVENTED. Nothing entails it and P4 is not fillable. UNDECLARED P4 [*] (RPC-001, Neutral) reaches literally, although their notes say 'other roles', so the verdict is NOT_AUTHORED(COVERAGE).",
+   "area": 1
+  },
+  {
+   "rule": "Variable Target word selectors",
+   "point": "'regions without the trigger function', 'candidate objects', 'non-candidate objects'",
+   "howIRead": "Applied as worded. An element with unstated functions counts as lacking the trigger function. The tz objects are candidates, since they are in a set's unit through J7/J2; the ball is not.",
+   "area": 1
+  },
+  {
+   "rule": "RC-35 UNMET vs VIOLATED",
+   "point": "A REQUIRED COLLECTION RANGE min 1 with no matching element (GF2-03.a, GF2-06.a)",
+   "howIRead": "UNMET, following 'a REQUIRED item matching no element', rather than VIOLATED.",
+   "area": 1
+  },
+  {
+   "rule": "RC-35 / Â§3 no-match FIELD item",
+   "point": "A SUPPORTING PREFERRED_DEFAULT FIELD item that matches no element (GF2-05.b)",
+   "howIRead": "SATISFIED (met, with nothing to check), not ADAPTED.",
+   "area": 1
+  },
+  {
+   "rule": "RC-35 / RC-31",
+   "point": "Items with ENGINE_ONLY basis that are also PARTLY_STRUCTURAL or OUTSIDE_BOUNDARY (RPC-001-04.c, 05.a, 09.a, 09.b)",
+   "howIRead": "INERT: the basis governs, so neither CLAUSE_CHECKED nor NOT_CHECKABLE.",
+   "area": 1
+  },
+  {
+   "rule": "RC-35 ADAPTED",
+   "point": "VARTARGET-05.a, a PREFERRED_DEFAULT trigger region the game lacks",
+   "howIRead": "ADAPTED: the game departs from the default. The item is SUPPORTING, so it is not UNMET.",
+   "area": 1
+  },
+  {
+   "rule": "RC-35 for ASSUMED items",
+   "point": "ASSUMED items (RPC-001-01.a, 02, GF2-14.b, NEUTRAL-09.a, 10.a, WIDEZONE-01.b, 07, 10.a/b, A01-02-09.a)",
+   "howIRead": "Checked as bounds: SATISFIED when the game meets them.",
+   "area": 1
+  },
+  {
+   "rule": "PREFERRED_DEFAULT support (Â§3)",
+   "point": "NEUTRAL-06.b, REQUIRED PREFERRED_DEFAULT EQUALS contrasting bibs",
+   "howIRead": "The game uses its value, so it supports as EQUALS: ENTAILED (L48).",
+   "area": 1
+  },
+  {
+   "rule": "RC-22",
+   "point": "P6b: WON_BALL against ATTACKING_TEAM and DEFENDING_TEAM",
+   "howIRead": "Different entries. Not equal to ATTACKING_TEAM, so 03.a and 14.b are VIOLATED; not equal to DEFENDING_TEAM, so the 04.a exclusion is SATISFIED.",
+   "area": 1
+  },
+  {
+   "rule": "NEUTRAL-08.a relative RANGE",
+   "point": "A bound read from other rows (P2 of the other team, P5)",
+   "howIRead": "Evaluated with the game's values (4 > 4-2) and treated as an authored RANGE for P2 fillability. This is moot, because GF2's NOT_AUTHORED bars P2.",
+   "area": 1
+  },
+  {
+   "rule": "SV1 VIEW / Â§3 existence",
+   "point": "Own-half regions on S2 when RPC-001-06 (own half, need not be marked) sits on SV1",
+   "howIRead": "A view supports no stored row, and 06 is ENGINE_ONLY. No S2 item matches noun half, so the half regions and their stated fields are INVENTED, except S4, which is COVERAGE.",
+   "area": 1
+  },
+  {
+   "rule": "Selector encoding",
+   "point": "Selectors in the input appear as mojibake (e.g. 'Ã¢Ë†â€¹', 'Ã¢Ë†Ë†')",
+   "howIRead": "Read as âˆ‹ and âˆˆ respectively.",
+   "area": 1
+  },
+  {
+   "rule": "RC-1 / grammar Â§2 (selector attributes)",
+   "point": "A01-02 selector restart=GOAL_KICK (not a T1 selectorAttribute)",
+   "howIRead": "No game T1 element states a 'restart' attribute; the 'goal kick' wording in slot notes or T5 values is not one. It matches nothing: REQUIRED FIELD items are UNMET, declarations with it reach nothing, and 'elements other than the goal kick' reaches every element.",
+   "area": 2
+  },
+  {
+   "rule": "RC-22 / designation map",
+   "point": "Selector team=BUILD_OUT_TEAM (RPC-001-11.a, 08.c) and team=DEFENDING_TEAM (RPC-001 J1 NOT_AUTHORED) against stated TEAM_A/TEAM_B",
+   "howIRead": "I evaluated them through the designation map at the one build-out episode whose existence is entailed (START, per KR-03): BUILD_OUT_TEAM=Team A, DEFENDING_TEAM=Team B. So 11.a/08.c match tz-A-*, and RPC-001's NOT_AUTHORED reaches tz-B-*.",
+   "area": 2
+  },
+  {
+   "rule": "RC-16 with RC-22",
+   "point": "Whether 11.a entails J3=TEAM_A",
+   "howIRead": "11.a's selector fixes team=BUILD_OUT_TEAM, which equals TEAM_A at START, so the J3 value of the element 11.a entails is ENTAILED.",
+   "area": 2
+  },
+  {
+   "rule": "RC-2 (a minimum entails existence)",
+   "point": "Which of several identical-attribute elements an EXISTS/RANGE minimum entails",
+   "howIRead": "The minimum is allocated to the first N matching elements in game order: 11.a/08.a to obj:tz-A-north; 06.a to set-A; GF2-09.a to obj:tz-B-north. The rest are count fill.",
+   "area": 2
+  },
+  {
+   "rule": "RC-23 PER_OBJECTIVE_SET",
+   "point": "Whether an objective is in its own set's unit (VARTARGET-06.b, L-01)",
+   "howIRead": "Objectives listed as J7 members count as in their set's unit. The J2 clause adds only the elements they reference.",
+   "area": 2
+  },
+  {
+   "rule": "RC-26",
+   "point": "PER_TEAM units: team-A/team-B existence is in area 1 and not visible here",
+   "howIRead": "I assumed both team units' existence is entailed. Set-B's unit is not entailed (06.a gives one set), so 06.b entails nothing there.",
+   "area": 2
+  },
+  {
+   "rule": "RC-23 OWN_INVOLVEMENT",
+   "point": "VARTARGET scope",
+   "howIRead": "OWN_INVOLVEMENT = set-A and obj:tz-A-* (what VARTARGET entails). Its OWN_INVOLVEMENT items and declarations do not reach set-B or tz-B-*. Its NON_CLAIMED team=TEAM_<opposing team> is read as Team B.",
+   "area": 2
+  },
+  {
+   "rule": "RC-17 NOT_AUTHORED vs INVENTED; reason priority",
+   "point": "A present value with no ENTAILS on a non-fillable row",
+   "howIRead": "NOT_AUTHORED, not INVENTED, whenever a declaration reaches it or engine/assumed evidence exists. Reason priority: RC-9/SD-R3/PSD-03 (T2-T6) > DECLARED_GAP > ALTERNATIVES > ASSUMED_ONLY/ENGINE_ONLY (only if the item bears on the value, not mere presence) > COVERAGE.",
+   "area": 2
+  },
+  {
+   "rule": "Â§4 condition 4",
+   "point": "RPC-001-15.a and NEUTRAL-13.a (EXISTS field presence) on START T2",
+   "howIRead": "They are not NARROWS items, but they do not constrain the value, which meets them. I did not treat them as barring, so L114 is NARROWED_CHOICE under the SD-R2 fillable entry.",
+   "area": 2
+  },
+  {
+   "rule": "Â§3 EXISTS on a FIELD row",
+   "point": "VARTARGET-06.e 'members lists the candidate objectives'",
+   "howIRead": "This is presence only, never member identity, so the J7 member lines have no ENTAILS source.",
+   "area": 2
+  },
+  {
+   "rule": "VIEW rows vs RC-17 (N/A only via RC-20)",
+   "point": "DV1 lines L111/L112",
+   "howIRead": "A view needs no support and ORIENTED only narrows, but N/A is barred. I gave NOT_AUTHORED(DECLARED_GAP): it is computed from J3 values that RPC-001/GF2 declare NOT_AUTHORED, and GF2's DV1 NOT_AUTHORED reaches it.",
+   "area": 2
+  },
+  {
+   "rule": "RC-22 on T2 out-of-play",
+   "point": "Game value 'team defending that end (= NOT_LAST_TOUCH)'",
+   "howIRead": "I took the game's stated equality at face value, so GF2-16.a's value is used and ENTAILS. I did not test the off-list 'team defending that end' separately, although T1b is unstated.",
+   "area": 2
+  },
+  {
+   "rule": "RC-19",
+   "point": "The game splits OUT_END_LINE into two last-touch elements",
+   "howIRead": "Construction covers each reachable last-touch case, so both existence lines are ENTAILED. The qualifier values are judged on T1a (COVERAGE).",
+   "area": 2
+  },
+  {
+   "rule": "RC-36 SD-14 / RC-15",
+   "point": "START T7 is UNSTATED in the game",
+   "howIRead": "SD-14 entails T7=true at START, so the line is ENTAILED (the value is authored by a standing decision); the note flags the omission.",
+   "area": 2
+  },
+  {
+   "rule": "SD-20 yield / RC-24",
+   "point": "tr-PC T6 STOP_RESUME",
+   "howIRead": "No support-capable T6 or V11 selection item creating a stoppage is visible in this input; the game's cons-reset is a game element, not an item. SD-20 does not yield, and GF2-17 is ADAPTED. The only evidence is RPC-001-16.c, so NOT_AUTHORED(ENGINE_ONLY), not INVENTED.",
+   "area": 2
+  },
+  {
+   "rule": "RC-20",
+   "point": "T2-T5 of tr-PC",
+   "howIRead": "RC-20 is keyed to the game's stated playState (STOP_RESUME), so those lines are judged, not N/A, even though SD-20 would give CONTINUE.",
+   "area": 2
+  },
+  {
+   "rule": "RC-2 / RC-29 on J11a",
+   "point": "VARTARGET-08.a requires an entry keyed on one of four triggers; the game has none",
+   "howIRead": "The needed element's key is a set of alternatives on a non-fillable row, so NOT_AUTHORED(ALTERNATIVES) for set-A; COVERAGE for set-B, which is outside VARTARGET's scope.",
+   "area": 2
+  },
+  {
+   "rule": "GF2-08.b EQUALS",
+   "point": "'The objective-area region of GF2-03.a' vs the game's J2 object references",
+   "howIRead": "Not equal: the game references O1 target-zone objects, and no game region states the objective-area function. The forward result is VIOLATED; it is no collision, because no other item gives a J2 value.",
+   "area": 2
+  },
+  {
+   "rule": "RC-35 with RC-31",
+   "point": "Items that are both ENGINE_ONLY and PREFERRED_DEFAULT or PARTLY_STRUCTURAL (A01-02-06.a, 03.a)",
+   "howIRead": "Inertness wins: INERT, not ADAPTED or CLAUSE_CHECKED. For a REQUIRED FIELD item with no matching element, UNMET even though RC-1 counts it met.",
+   "area": 2
+  },
+  {
+   "rule": "RC-35 on RPC-001-11.b",
+   "point": "Off-list scope BUILD_OUT_EPISODE; PARTLY_STRUCTURAL; no J11b elements",
+   "howIRead": "CLAUSE_CHECKED, with the clause UNMET (no assignment keys, so no yields).",
+   "area": 2
+  },
+  {
+   "rule": "RC-13",
+   "point": "A01-02 J1 NOT_AUTHORED with an unwritable selector (L6); VARTARGET J10 NOT_AUTHORED on members âˆˆ {START,...}",
+   "howIRead": "Neither reaches any element: the first has no testable predicate, and the game's J10 names no triggers.",
+   "area": 2
+  },
+  {
+   "rule": "RC-29 vs Â§4.4/RC-18",
+   "point": "L160: V1 is fillable and RC-29 says the chosen member is NARROWED_CHOICE, but GF2 declares V1 NOT_AUTHORED (selector *).",
+   "howIRead": "The NOT_AUTHORED declaration bars free choice even on a fillable row, so I gave NOT_AUTHORED(DECLARED_GAP). RR-01 and RPC-001-RR-1 decide collisions only, and there is none here.",
+   "area": 3
+  },
+  {
+   "rule": "Â§2 reason codes (no order given)",
+   "point": "Several lines fit more than one reason code, for example ENGINE_ONLY plus DECLARED_GAP, or ALTERNATIVES plus DECLARED_GAP.",
+   "howIRead": "Where an item on the line's own row is the only evidence, I named its kind: ENGINE_ONLY, OUTSIDE_BOUNDARY, ASSUMED_ONLY or ALTERNATIVES. Otherwise DECLARED_GAP if a NOT_AUTHORED declaration reaches, else COVERAGE if only UNDECLARED does.",
+   "area": 3
+  },
+  {
+   "rule": "Â§2 NOT_AUTHORED vs INVENTED",
+   "point": "An unsupported value present on a non-fillable row (L166, L173, L177-L178, L181, L189-L192, L194-L197).",
+   "howIRead": "NOT_AUTHORED where a NOT_AUTHORED or UNDECLARED declaration reaches the element (mirroring the ASSUMED rule's 'where a declaration reaches it'), otherwise INVENTED.",
+   "area": 3
+  },
+  {
+   "rule": "RC-13 declaration reach",
+   "point": "WIDEZONE's V11 NOT_AUTHORED (selector *) concerns its own advantage, yet by selector it reaches cons-neutral and cons-reset.",
+   "howIRead": "I applied the selector, not the note, so L189 and L194 are DECLARED_GAP. Their V12-V14a fields, which no such declaration reaches, are INVENTED.",
+   "area": 3
+  },
+  {
+   "rule": "RC-31 PARTLY_STRUCTURAL",
+   "point": "VARTARGET-11.a's clause reads 'a primary event exists and its derived reference includes the set's members'.",
+   "howIRead": "The clause is structural, so the item entails pe's existence (L159). SD-06 is cited alongside as a typed citable item.",
+   "area": 3
+  },
+  {
+   "rule": "RC-16",
+   "point": "V4 type lines have no items on V4.",
+   "howIRead": "The V3 EXISTS items whose selectors fix type= (18.a, 18.c, 18.f, 19.a) entail the V4 value. Eligibility gets no carry, because its existence is not entailed.",
+   "area": 3
+  },
+  {
+   "rule": "RC-29 on V5",
+   "point": "RPC-001-18.b is a 2-member set, and the game uses both members as separate referents (L164, L165).",
+   "howIRead": "I judged each referent line as a chosen member of the alternatives on a non-fillable row, giving NOT_AUTHORED(ALTERNATIVES). I counted own-half as the member 'controlled defensive restart placement', so the bound is met.",
+   "area": 3
+  },
+  {
+   "rule": "RC-31/RC-32 with 18.d",
+   "point": "The game's progression referent is the defenders' start line, which 18.d puts in its outside part.",
+   "howIRead": "Line L169 is NOT_AUTHORED(OUTSIDE_BOUNDARY). For the forward result I report CLAUSE_CHECKED with the clause unmet, because the referent is not a marked line or the PRIMARY_SCORING reference.",
+   "area": 3
+  },
+  {
+   "rule": "SD-15 / RC-34",
+   "point": "L182: the game says 'long kick', while RPC-001-19.b authors 'a long clearance that happens to reach the target'.",
+   "howIRead": "The line is 'long kick', so FREE(b). No collision, since only one support-capable item applies. For the forward result 19.b is VIOLATED, because the term is not verbatim.",
+   "area": 3
+  },
+  {
+   "rule": "RC-1 selector matching",
+   "point": "info-live's stated subject says 'active candidate', while VARTARGET-13.a's selector says 'live member of this object's candidate set'.",
+   "howIRead": "I treated them as the same subject, so the selector is satisfied (L198, L199).",
+   "area": 3
+  },
+  {
+   "rule": "RC-23 OWN_INVOLVEMENT",
+   "point": "VARTARGET-05.b, 13.b, 16.a and the V22 NOT_AUTHORED are selector * with OWN_INVOLVEMENT scope.",
+   "howIRead": "Only elements VARTARGET entails (info-live) are in scope. info-wide is out of scope, so there is no collision or breach against WIDEZONE-17.b's STANDING at L208.",
+   "area": 3
+  },
+  {
+   "rule": "Â§1 unstated properties",
+   "point": "L204: V21 is unstated in the game, but VARTARGET-13.d authors OBJECTIVE_DEPENDENT.",
+   "howIRead": "The verdict is RESOLVED:ENTAILED because the property is authored. The omission goes in the forward list as UNMET, not in the verdict.",
+   "area": 3
+  },
+  {
+   "rule": "RC-35 forward results",
+   "point": "Items that match an element whose field is absent (VARTARGET-13.d, VARTARGET-05.b).",
+   "howIRead": "By analogy with RC-1's 'met, nothing to check': a REQUIRED item gets UNMET, and a SUPPORTING bound gets SATISFIED (vacuous).",
+   "area": 3
+  },
+  {
+   "rule": "Â§3 ASSUMED row",
+   "point": "'NOT_AUTHORED(ASSUMED_ONLY) where a declaration reaches it' (L206-L209).",
+   "howIRead": "I counted the owning contract's CLAIMED declaration (WIDEZONE on the wide-channel subject) as reaching, giving ASSUMED_ONLY rather than INVENTED.",
+   "area": 3
+  },
+  {
+   "rule": "Â§2 verdict list",
+   "point": "L210 is a placeholder for zero time windows. No verdict fits, and N/A is limited to RC-20.",
+   "howIRead": "RESOLVED:ENTAILED by construction: no item entails any element (RC-2), so zero is the entailed state, and all six contracts are NON_CLAIMED. Support is recorded as none.",
+   "area": 3
+  },
+  {
+   "rule": "Â§1 default NOT_AUTHORED",
+   "point": "L193 (V14c, unstated): no item, and every reaching declaration is NON_CLAIMED, so no reason code fits.",
+   "howIRead": "NOT_AUTHORED(COVERAGE) as the nearest code, noted as an imperfect fit.",
+   "area": 3
+  },
+  {
+   "rule": "RC-29 / RC-28 on V7",
+   "point": "L183: WIDEZONE's advantage has three alternatives (bonus point, free restart, multiplier), but those items are TYPICAL_EXAMPLE.",
+   "howIRead": "Inert items form no alternatives set, so DECLARED_GAP (WIDEZONE's V7 NOT_AUTHORED) rather than ALTERNATIVES.",
+   "area": 3
+  },
+  {
+   "rule": "RC-1 row equality",
+   "point": "L175: the live-only eligibility rests on VARTARGET-12.b, an OUTSIDE_BOUNDARY item on V0.",
+   "howIRead": "Only items on V3 reach this line, so I gave DECLARED_GAP (NEUTRAL's eligibility NOT_AUTHORED) rather than OUTSIDE_BOUNDARY.",
+   "area": 3
+  },
+  {
+   "rule": "RC-29 on V18/V20",
+   "point": "The game restates the whole authored range (STATE_TRANSITION | OPPONENT_ACTION; IMMEDIATE | STAGED) instead of choosing a member.",
+   "howIRead": "Bound met, but a set never entails and the row is not fillable, so NOT_AUTHORED(ALTERNATIVES). I preferred this over VARTARGET's V18 DECLARED_GAP.",
+   "area": 3
+  },
+  {
+   "rule": "SD-16",
+   "point": "L185 and L186: mod-wide's existence is NOT_AUTHORED, but WIDEZONE-11.a entails its referents.",
+   "howIRead": "Fields may be ENTAILED despite unentailed existence, so both lines are RESOLVED:ENTAILED.",
+   "area": 3
+  },
+  {
+   "rule": "RC-35 with EXCLUSION plus ENGINE_ONLY",
+   "point": "A01-02-12.a and 12.b are EXCLUSION items with ENGINE_ONLY basis. RPC-001-20 is PREFERRED_DEFAULT with ENGINE_ONLY basis.",
+   "howIRead": "The basis governs, so all three are INERT, not SATISFIED or ADAPTED.",
+   "area": 3
+  },
+  {
+   "rule": "RC-1 REQUIRED unmatched",
+   "point": "WIDEZONE-11.b and 14.a (selector effect=RESTART) match no V11 element. 14.a is ASSUMED.",
+   "howIRead": "Both are UNMET. ASSUMED basis does not change the forward result.",
+   "area": 3
+  },
+  {
+   "rule": "Designations / IE-D013",
+   "point": "The game's V22 'both teams' against WIDEZONE-17.c's ALL.",
+   "howIRead": "I read them as equal, so the bound is met and 17.c is SATISFIED.",
+   "area": 3
+  }
+ ]
+}

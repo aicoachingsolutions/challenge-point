@@ -1,0 +1,3715 @@
+{
+ "chunk": 3,
+ "area": "Rules of value",
+ "rows": [
+  "V0",
+  "V1",
+  "V2",
+  "V3",
+  "V4",
+  "V5",
+  "V6",
+  "V7",
+  "V8a",
+  "V8b",
+  "V9",
+  "V10",
+  "V11",
+  "V12",
+  "V13",
+  "V14a",
+  "V14b",
+  "V14c",
+  "V15",
+  "V16",
+  "V17",
+  "V18",
+  "V19",
+  "V20",
+  "V21",
+  "V22",
+  "V23",
+  "V24",
+  "V25",
+  "V26"
+ ],
+ "gameElements": [
+  {
+   "elementId": "game",
+   "row": "non-collection (E1-E4, S1)",
+   "attributes": "the game itself"
+  },
+  {
+   "elementId": "area",
+   "row": "S2",
+   "attributes": "noun: area (off-list); functions: unstated; game id 'area'"
+  },
+  {
+   "elementId": "own-half-A",
+   "row": "S2",
+   "attributes": "noun: half; functions: {start-placement}; for Team A (no register attribute)"
+  },
+  {
+   "elementId": "own-half-B",
+   "row": "S2",
+   "attributes": "noun: half; functions: {start-placement}; for Team B (no register attribute)"
+  },
+  {
+   "elementId": "channel-north",
+   "row": "S2",
+   "attributes": "noun: channel; functions: {perceptual-reference, value-condition}"
+  },
+  {
+   "elementId": "channel-south",
+   "row": "S2",
+   "attributes": "noun: channel; functions: {perceptual-reference, value-condition}"
+  },
+  {
+   "elementId": "central-corridor",
+   "row": "S2",
+   "attributes": "noun: corridor; functions: unstated"
+  },
+  {
+   "elementId": "team-A",
+   "row": "P1",
+   "attributes": "team: TEAM_A"
+  },
+  {
+   "elementId": "team-B",
+   "row": "P1",
+   "attributes": "team: TEAM_B"
+  },
+  {
+   "elementId": "target-players",
+   "row": "P4",
+   "attributes": "roleName: target player; stated as none, both teams"
+  },
+  {
+   "elementId": "neutrals",
+   "row": "non-collection (P5-P7)",
+   "attributes": "neutral group"
+  },
+  {
+   "elementId": "starting-positions-at-every-restart",
+   "row": "P8",
+   "attributes": "group: DEFENDING_TEAM (forward-most defensive line)"
+  },
+  {
+   "elementId": "ball",
+   "row": "O1",
+   "attributes": "kind: ball"
+  },
+  {
+   "elementId": "tz-A-north",
+   "row": "O1",
+   "attributes": "kind: target zone (off-list); candidate 1 of Team A's set"
+  },
+  {
+   "elementId": "tz-A-south",
+   "row": "O1",
+   "attributes": "kind: target zone (off-list); candidate 2 of Team A's set"
+  },
+  {
+   "elementId": "tz-B-north",
+   "row": "O1",
+   "attributes": "kind: target zone (off-list); candidate 1 of Team B's set"
+  },
+  {
+   "elementId": "tz-B-south",
+   "row": "O1",
+   "attributes": "kind: target zone (off-list); candidate 2 of Team B's set"
+  },
+  {
+   "elementId": "obj:tz-A-north",
+   "row": "J1",
+   "attributes": "role: PRIMARY_SCORING; team: TEAM_A (game objectId tz-A-north)"
+  },
+  {
+   "elementId": "obj:tz-A-south",
+   "row": "J1",
+   "attributes": "role: PRIMARY_SCORING; team: TEAM_A (game objectId tz-A-south)"
+  },
+  {
+   "elementId": "obj:tz-B-north",
+   "row": "J1",
+   "attributes": "role: PRIMARY_SCORING; team: TEAM_B (game objectId tz-B-north)"
+  },
+  {
+   "elementId": "obj:tz-B-south",
+   "row": "J1",
+   "attributes": "role: PRIMARY_SCORING; team: TEAM_B (game objectId tz-B-south)"
+  },
+  {
+   "elementId": "set-A",
+   "row": "J5",
+   "attributes": "scope: TEAM_A; restater id (game: 'Team A's two-candidate set')"
+  },
+  {
+   "elementId": "set-B",
+   "row": "J5",
+   "attributes": "scope: TEAM_B; restater id (game: 'Team B's two-candidate set')"
+  },
+  {
+   "elementId": "tr-START",
+   "row": "T1",
+   "attributes": "trigger: START (game slot 'start')"
+  },
+  {
+   "elementId": "tr-SCORE",
+   "row": "T1",
+   "attributes": "trigger: SCORE (slot 'restart after score')"
+  },
+  {
+   "elementId": "tr-OEL-att",
+   "row": "T1",
+   "attributes": "trigger: OUT_END_LINE; qualifier.lastTouch: ATTACKING_TEAM (slot: goal-kick case)"
+  },
+  {
+   "elementId": "tr-OEL-def",
+   "row": "T1",
+   "attributes": "trigger: OUT_END_LINE; qualifier.lastTouch: DEFENDING_TEAM"
+  },
+  {
+   "elementId": "tr-OTL",
+   "row": "T1",
+   "attributes": "trigger: OUT_TOUCHLINE; no qualifier"
+  },
+  {
+   "elementId": "tr-PC",
+   "row": "T1",
+   "attributes": "trigger: POSSESSION_CHANGE (slot 'restart after turnover')"
+  },
+  {
+   "elementId": "pe",
+   "row": "V0",
+   "attributes": "the one primary event"
+  },
+  {
+   "elementId": "cond-origin",
+   "row": "V3",
+   "attributes": "type: origin (split from primary-event prose)"
+  },
+  {
+   "elementId": "cond-progression",
+   "row": "V3",
+   "attributes": "type: progression (split from primary-event prose)"
+  },
+  {
+   "elementId": "cond-control",
+   "row": "V3",
+   "attributes": "type: control (split from primary-event prose)"
+  },
+  {
+   "elementId": "cond-eligibility",
+   "row": "V3",
+   "attributes": "type: eligibility (split: active zone only; scorer of team in possession)"
+  },
+  {
+   "elementId": "cond-exclusion",
+   "row": "V3",
+   "attributes": "type: exclusion (long kick; split from primary event + degenerate-bypass entry)"
+  },
+  {
+   "elementId": "mod-wide",
+   "row": "V7",
+   "attributes": "condition.type: region (wide channels); scoring multiplier"
+  },
+  {
+   "elementId": "cons-neutral",
+   "row": "V11",
+   "attributes": "trigger: POSSESSION_CHANGE; effect: neutral affiliation (off-list)"
+  },
+  {
+   "elementId": "cons-reset",
+   "row": "V11",
+   "attributes": "trigger: SCORE|OUT_*|POSSESSION_CHANGE; effect: re-establish begin condition (off-list)"
+  },
+  {
+   "elementId": "info-live",
+   "row": "V15",
+   "attributes": "subject: which candidate of a team's set is active"
+  },
+  {
+   "elementId": "info-wide",
+   "row": "V15",
+   "attributes": "subject: wide channels and their advantage; STANDING"
+  },
+  {
+   "elementId": "tw-none",
+   "row": "V23",
+   "attributes": "placeholder: game states no time windows"
+  }
+ ],
+ "designationMap": [
+  {
+   "designation": "TEAM_A / TEAM_B",
+   "context": "whole game",
+   "team": "Team A attacks the east end (tz-A-*), defends west, own-half-A; Team B mirrored (west, own-half-B)"
+  },
+  {
+   "designation": "STARTING_TEAM",
+   "context": "START",
+   "team": "Team A (game fixes it)"
+  },
+  {
+   "designation": "ATTACKING_TEAM",
+   "context": "any episode; OUT_* qualifiers; primary event 'team in possession'",
+   "team": "the team in possession for the episode: A when A has the ball, else B"
+  },
+  {
+   "designation": "DEFENDING_TEAM",
+   "context": "any episode; P9; OUT_END_LINE qualifier",
+   "team": "the team not in possession (B when A attacks, A when B attacks)"
+  },
+  {
+   "designation": "SCORING_TEAM / CONCEDING_TEAM",
+   "context": "SCORE; mod-wide 'team performing the action'",
+   "team": "score at east end: A scores, B concedes; at west end: B scores, A concedes"
+  },
+  {
+   "designation": "'team defending that end'",
+   "context": "OUT_END_LINE",
+   "team": "west end line: Team A; east end line: Team B"
+  },
+  {
+   "designation": "WON_BALL / LOST_BALL",
+   "context": "POSSESSION_CHANGE; cons-neutral 'team now in possession'",
+   "team": "the team that gains the ball / the team that loses it"
+  },
+  {
+   "designation": "LAST_TOUCH / NOT_LAST_TOUCH",
+   "context": "OUT_END_LINE, OUT_TOUCHLINE",
+   "team": "team that touched the ball last / the other team"
+  },
+  {
+   "designation": "BUILD_OUT_TEAM ('restarting team')",
+   "context": "every restart; P10; cons-reset",
+   "team": "the T2 awardee of that transition (START: Team A); not used literally by the game"
+  },
+  {
+   "designation": "neutrals' team",
+   "context": "whole game",
+   "team": "not a designation: the team currently in possession (START: Team A)"
+  }
+ ],
+ "gameLines": [
+  {
+   "lineId": "L159",
+   "elementId": "pe",
+   "row": "V0",
+   "value": "EXISTS, exactly one",
+   "gameProvenance": "primary event: RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16; second route: RPC-001-12, GF2-20, VARTARGET-12, WIDEZONE-16, A01-02-12",
+   "note": "'ONE event'; 'no second independent way to score'"
+  },
+  {
+   "lineId": "L160",
+   "elementId": "pe",
+   "row": "V1",
+   "value": "target_zone_entered",
+   "gameProvenance": "RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16",
+   "note": "literal stated in objects[].kind of the four zones"
+  },
+  {
+   "lineId": "L161",
+   "elementId": "pe",
+   "row": "V2",
+   "value": "1",
+   "gameProvenance": "RPC-001-20",
+   "note": "'One point per qualifying event'"
+  },
+  {
+   "lineId": "L162",
+   "elementId": "cond-origin",
+   "row": "V3",
+   "value": "EXISTS",
+   "gameProvenance": "RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16",
+   "note": "split from primary-event statement"
+  },
+  {
+   "lineId": "L163",
+   "elementId": "cond-origin",
+   "row": "V4",
+   "value": "origin",
+   "gameProvenance": "RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16",
+   "note": ""
+  },
+  {
+   "lineId": "L164",
+   "elementId": "cond-origin",
+   "row": "V5",
+   "value": "scoring team's goalkeeper (restart placement)",
+   "gameProvenance": "RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16",
+   "note": ""
+  },
+  {
+   "lineId": "L165",
+   "elementId": "cond-origin",
+   "row": "V5",
+   "value": "scoring team's own half (own-half-A | own-half-B)",
+   "gameProvenance": "RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16",
+   "note": ""
+  },
+  {
+   "lineId": "L166",
+   "elementId": "cond-origin",
+   "row": "V6",
+   "value": "'initiated from that team's goalkeeper or a controlled restart in its own half'",
+   "gameProvenance": "RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16",
+   "note": ""
+  },
+  {
+   "lineId": "L167",
+   "elementId": "cond-progression",
+   "row": "V3",
+   "value": "EXISTS",
+   "gameProvenance": "RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16",
+   "note": "split from primary-event statement"
+  },
+  {
+   "lineId": "L168",
+   "elementId": "cond-progression",
+   "row": "V4",
+   "value": "progression",
+   "gameProvenance": "RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16",
+   "note": ""
+  },
+  {
+   "lineId": "L169",
+   "elementId": "cond-progression",
+   "row": "V5",
+   "value": "opposing first defenders / initial pressure line (starting-positions-at-every-restart)",
+   "gameProvenance": "RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16",
+   "note": "referent is a defenders' line"
+  },
+  {
+   "lineId": "L170",
+   "elementId": "cond-progression",
+   "row": "V6",
+   "value": "beyond",
+   "gameProvenance": "RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16",
+   "note": "'having progressed beyond'"
+  },
+  {
+   "lineId": "L171",
+   "elementId": "cond-control",
+   "row": "V3",
+   "value": "EXISTS",
+   "gameProvenance": "RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16",
+   "note": "split from primary-event statement"
+  },
+  {
+   "lineId": "L172",
+   "elementId": "cond-control",
+   "row": "V4",
+   "value": "control",
+   "gameProvenance": "RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16",
+   "note": ""
+  },
+  {
+   "lineId": "L173",
+   "elementId": "cond-control",
+   "row": "V5",
+   "value": "the active target zone",
+   "gameProvenance": "RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16",
+   "note": ""
+  },
+  {
+   "lineId": "L174",
+   "elementId": "cond-control",
+   "row": "V6",
+   "value": "'controlled on arrival' ('dribbles into, or receives ... and controls it')",
+   "gameProvenance": "RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16",
+   "note": ""
+  },
+  {
+   "lineId": "L175",
+   "elementId": "cond-eligibility",
+   "row": "V3",
+   "value": "EXISTS",
+   "gameProvenance": "primary event: RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16; second route: RPC-001-12, GF2-20, VARTARGET-12, WIDEZONE-16, A01-02-12",
+   "note": "split: 'currently ACTIVE target zone'; 'no value ... on an inactive candidate'"
+  },
+  {
+   "lineId": "L176",
+   "elementId": "cond-eligibility",
+   "row": "V4",
+   "value": "eligibility",
+   "gameProvenance": "primary event: RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16; second route: RPC-001-12, GF2-20, VARTARGET-12, WIDEZONE-16, A01-02-12",
+   "note": ""
+  },
+  {
+   "lineId": "L177",
+   "elementId": "cond-eligibility",
+   "row": "V5",
+   "value": "active member of scoring team's set (set-A | set-B)",
+   "gameProvenance": "primary event: RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16; second route: RPC-001-12, GF2-20, VARTARGET-12, WIDEZONE-16, A01-02-12",
+   "note": ""
+  },
+  {
+   "lineId": "L178",
+   "elementId": "cond-eligibility",
+   "row": "V6",
+   "value": "active at the moment of the event; scorer a player of the team in possession",
+   "gameProvenance": "primary event: RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16; second route: RPC-001-12, GF2-20, VARTARGET-12, WIDEZONE-16, A01-02-12",
+   "note": ""
+  },
+  {
+   "lineId": "L179",
+   "elementId": "cond-exclusion",
+   "row": "V3",
+   "value": "EXISTS",
+   "gameProvenance": "primary event: RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16; bypass: RPC-001-19",
+   "note": "split from coach form + 'exclusion - degenerate bypass'"
+  },
+  {
+   "lineId": "L180",
+   "elementId": "cond-exclusion",
+   "row": "V4",
+   "value": "exclusion",
+   "gameProvenance": "primary event: RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16; bypass: RPC-001-19",
+   "note": ""
+  },
+  {
+   "lineId": "L181",
+   "elementId": "cond-exclusion",
+   "row": "V5",
+   "value": "the target zone",
+   "gameProvenance": "primary event: RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16; bypass: RPC-001-19",
+   "note": ""
+  },
+  {
+   "lineId": "L182",
+   "elementId": "cond-exclusion",
+   "row": "V6",
+   "value": "'long kick' (uncontrolled long kick or clearance) does not count",
+   "gameProvenance": "primary event: RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16; bypass: RPC-001-19",
+   "note": "'no authored threshold exists for long kick'"
+  },
+  {
+   "lineId": "L183",
+   "elementId": "mod-wide",
+   "row": "V7",
+   "value": "EXISTS",
+   "gameProvenance": "WIDEZONE-11, WIDEZONE-12, WIDEZONE-13, WIDEZONE-14, WIDEZONE-15, WIDEZONE-16, RPC-001-20",
+   "note": "'A scoring multiplier on the primary event'"
+  },
+  {
+   "lineId": "L184",
+   "elementId": "mod-wide",
+   "row": "V8a",
+   "value": "region",
+   "gameProvenance": "WIDEZONE-11, WIDEZONE-12, WIDEZONE-13, WIDEZONE-14, WIDEZONE-15, WIDEZONE-16, RPC-001-20",
+   "note": "'action starts inside, or moves through'"
+  },
+  {
+   "lineId": "L185",
+   "elementId": "mod-wide",
+   "row": "V8b",
+   "value": "channel-north",
+   "gameProvenance": "WIDEZONE-11, WIDEZONE-12, WIDEZONE-13, WIDEZONE-14, WIDEZONE-15, WIDEZONE-16, RPC-001-20",
+   "note": ""
+  },
+  {
+   "lineId": "L186",
+   "elementId": "mod-wide",
+   "row": "V8b",
+   "value": "channel-south",
+   "gameProvenance": "WIDEZONE-11, WIDEZONE-12, WIDEZONE-13, WIDEZONE-14, WIDEZONE-15, WIDEZONE-16, RPC-001-20",
+   "note": ""
+  },
+  {
+   "lineId": "L187",
+   "elementId": "mod-wide",
+   "row": "V9",
+   "value": "UNSTATED (a multiplier; size unstated)",
+   "gameProvenance": "WIDEZONE-11, WIDEZONE-12, WIDEZONE-13, WIDEZONE-14, WIDEZONE-15, WIDEZONE-16, RPC-001-20",
+   "note": "'MAGNITUDE UNRESOLVED - see collision 7'"
+  },
+  {
+   "lineId": "L188",
+   "elementId": "mod-wide",
+   "row": "V10",
+   "value": "UNSTATED",
+   "gameProvenance": "WIDEZONE-11, WIDEZONE-12, WIDEZONE-13, WIDEZONE-14, WIDEZONE-15, WIDEZONE-16, RPC-001-20",
+   "note": "only modifier stated; no combination rule"
+  },
+  {
+   "lineId": "L189",
+   "elementId": "cons-neutral",
+   "row": "V11",
+   "value": "EXISTS",
+   "gameProvenance": "NEUTRAL-03, NEUTRAL-12, NEUTRAL-14",
+   "note": "duplicates P6a/P6b content"
+  },
+  {
+   "lineId": "L190",
+   "elementId": "cons-neutral",
+   "row": "V12",
+   "value": "POSSESSION_CHANGE",
+   "gameProvenance": "NEUTRAL-03, NEUTRAL-12, NEUTRAL-14",
+   "note": "'change of possession'"
+  },
+  {
+   "lineId": "L191",
+   "elementId": "cons-neutral",
+   "row": "V13",
+   "value": "neutral affiliation (off-list)",
+   "gameProvenance": "NEUTRAL-03, NEUTRAL-12, NEUTRAL-14",
+   "note": "'all neutrals become teammates of the team now in possession'"
+  },
+  {
+   "lineId": "L192",
+   "elementId": "cons-neutral",
+   "row": "V14a",
+   "value": "team now in possession (WON_BALL)",
+   "gameProvenance": "NEUTRAL-03, NEUTRAL-12, NEUTRAL-14",
+   "note": ""
+  },
+  {
+   "lineId": "L193",
+   "elementId": "cons-neutral",
+   "row": "V14c",
+   "value": "UNSTATED",
+   "gameProvenance": "NEUTRAL-03, NEUTRAL-12, NEUTRAL-14",
+   "note": "'6 v 4 in open play'; no delta stated"
+  },
+  {
+   "lineId": "L194",
+   "elementId": "cons-reset",
+   "row": "V11",
+   "value": "EXISTS",
+   "gameProvenance": "RPC-001-16, RPC-001-17, GF2-23",
+   "note": ""
+  },
+  {
+   "lineId": "L195",
+   "elementId": "cons-reset",
+   "row": "V12",
+   "value": "SCORE | OUT_END_LINE | OUT_TOUCHLINE | POSSESSION_CHANGE",
+   "gameProvenance": "RPC-001-16, RPC-001-17, GF2-23",
+   "note": "'any score, ball out of play, or turnover'"
+  },
+  {
+   "lineId": "L196",
+   "elementId": "cons-reset",
+   "row": "V13",
+   "value": "re-establish begin condition (off-list)",
+   "gameProvenance": "RPC-001-16, RPC-001-17, GF2-23",
+   "note": "'reorganizing space, roles, access and threat'"
+  },
+  {
+   "lineId": "L197",
+   "elementId": "cons-reset",
+   "row": "V14a",
+   "value": "restarting team ('as set per restart above')",
+   "gameProvenance": "RPC-001-16, RPC-001-17, GF2-23",
+   "note": "= T2 of each transition"
+  },
+  {
+   "lineId": "L198",
+   "elementId": "info-live",
+   "row": "V15",
+   "value": "EXISTS",
+   "gameProvenance": "VARTARGET-08, VARTARGET-13, VARTARGET-14, VARTARGET-15, VARTARGET-16, VARTARGET-17, VARTARGET-09",
+   "note": ""
+  },
+  {
+   "lineId": "L199",
+   "elementId": "info-live",
+   "row": "V16",
+   "value": "which member of a team's candidate set is active (set-A, set-B)",
+   "gameProvenance": "VARTARGET-08, VARTARGET-13, VARTARGET-14, VARTARGET-15, VARTARGET-16, VARTARGET-17, VARTARGET-09",
+   "note": ""
+  },
+  {
+   "lineId": "L200",
+   "elementId": "info-live",
+   "row": "V17",
+   "value": "UNSTATED",
+   "gameProvenance": "VARTARGET-08, VARTARGET-13, VARTARGET-14, VARTARGET-15, VARTARGET-16, VARTARGET-17, VARTARGET-09",
+   "note": "game gives trigger kinds only (see V18)"
+  },
+  {
+   "lineId": "L201",
+   "elementId": "info-live",
+   "row": "V18",
+   "value": "STATE_TRANSITION | OPPONENT_ACTION",
+   "gameProvenance": "VARTARGET-08, VARTARGET-13, VARTARGET-14, VARTARGET-15, VARTARGET-16, VARTARGET-17, VARTARGET-09",
+   "note": "'a state transition or an opponent action'; coach cue 'not used'"
+  },
+  {
+   "lineId": "L202",
+   "elementId": "info-live",
+   "row": "V19",
+   "value": "UNSTATED",
+   "gameProvenance": "VARTARGET-08, VARTARGET-13, VARTARGET-14, VARTARGET-15, VARTARGET-16, VARTARGET-17, VARTARGET-09",
+   "note": ""
+  },
+  {
+   "lineId": "L203",
+   "elementId": "info-live",
+   "row": "V20",
+   "value": "IMMEDIATE | STAGED",
+   "gameProvenance": "VARTARGET-08, VARTARGET-13, VARTARGET-14, VARTARGET-15, VARTARGET-16, VARTARGET-17, VARTARGET-09",
+   "note": "'Reveal progression: immediate or staged'"
+  },
+  {
+   "lineId": "L204",
+   "elementId": "info-live",
+   "row": "V21",
+   "value": "UNSTATED",
+   "gameProvenance": "VARTARGET-08, VARTARGET-13, VARTARGET-14, VARTARGET-15, VARTARGET-16, VARTARGET-17, VARTARGET-09",
+   "note": ""
+  },
+  {
+   "lineId": "L205",
+   "elementId": "info-live",
+   "row": "V22",
+   "value": "UNSTATED",
+   "gameProvenance": "VARTARGET-08, VARTARGET-13, VARTARGET-14, VARTARGET-15, VARTARGET-16, VARTARGET-17, VARTARGET-09",
+   "note": ""
+  },
+  {
+   "lineId": "L206",
+   "elementId": "info-wide",
+   "row": "V15",
+   "value": "EXISTS",
+   "gameProvenance": "WIDEZONE-17",
+   "note": ""
+  },
+  {
+   "lineId": "L207",
+   "elementId": "info-wide",
+   "row": "V16",
+   "value": "wide channels and their advantage (channel-north, channel-south, mod-wide)",
+   "gameProvenance": "WIDEZONE-17",
+   "note": ""
+  },
+  {
+   "lineId": "L208",
+   "elementId": "info-wide",
+   "row": "V17",
+   "value": "STANDING",
+   "gameProvenance": "WIDEZONE-17",
+   "note": "'for the whole activity ... Nothing ... hidden or revealed'"
+  },
+  {
+   "lineId": "L209",
+   "elementId": "info-wide",
+   "row": "V22",
+   "value": "both teams",
+   "gameProvenance": "WIDEZONE-17",
+   "note": "'openly known information for both teams'; D006-D011 not stated"
+  },
+  {
+   "lineId": "L210",
+   "elementId": "tw-none",
+   "row": "V23",
+   "value": "NONE (0 elements)",
+   "gameProvenance": "RPC-001-EXPLICIT-NONE, GF2-EXPLICIT-NONE, A01-02-EXPLICIT-NONE, NEUTRAL-EXPLICIT-NONE, WIDEZONE-EXPLICIT-NONE, VARTARGET-EXPLICIT-NONE",
+   "note": "'The only clock is the fixed 20-minute envelope'"
+  }
+ ],
+ "lineCandidates": [
+  {
+   "lineId": "L159",
+   "elementId": "pe",
+   "row": "V0",
+   "value": "EXISTS, exactly one",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-08.b",
+    "Wide Zone Advantage|WIDEZONE-16.b",
+    "Variable Target Condition|VARTARGET-11.a",
+    "Variable Target Condition|VARTARGET-12.a",
+    "Variable Target Condition|VARTARGET-12.b"
+   ]
+  },
+  {
+   "lineId": "L160",
+   "elementId": "pe",
+   "row": "V1",
+   "value": "target_zone_entered",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-08.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-12",
+    "From Goal Kicks (A01-02)|A01-02-12.a",
+    "Directional Possession Games (GF2)|GF2-19",
+    "Directional Possession Games (GF2)|GF2-20"
+   ]
+  },
+  {
+   "lineId": "L161",
+   "elementId": "pe",
+   "row": "V2",
+   "value": "1",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-20"
+   ]
+  },
+  {
+   "lineId": "L162",
+   "elementId": "cond-origin",
+   "row": "V3",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.c",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.f",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-19.a",
+    "Variable Target Condition|VARTARGET-19.a"
+   ]
+  },
+  {
+   "lineId": "L163",
+   "elementId": "cond-origin",
+   "row": "V4",
+   "value": "origin",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L164",
+   "elementId": "cond-origin",
+   "row": "V5",
+   "value": "scoring team's goalkeeper (restart placement)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.b",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.d",
+    "Wide Zone Advantage|WIDEZONE-08.c"
+   ]
+  },
+  {
+   "lineId": "L165",
+   "elementId": "cond-origin",
+   "row": "V5",
+   "value": "scoring team's own half (own-half-A | own-half-B)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.b",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.d",
+    "Wide Zone Advantage|WIDEZONE-08.c"
+   ]
+  },
+  {
+   "lineId": "L166",
+   "elementId": "cond-origin",
+   "row": "V6",
+   "value": "'initiated from that team's goalkeeper or a controlled restart in its own half'",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.e",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.g",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-19.b",
+    "Neutral Player Condition|NEUTRAL-16.a"
+   ]
+  },
+  {
+   "lineId": "L167",
+   "elementId": "cond-progression",
+   "row": "V3",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.c",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.f",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-19.a",
+    "Variable Target Condition|VARTARGET-19.a"
+   ]
+  },
+  {
+   "lineId": "L168",
+   "elementId": "cond-progression",
+   "row": "V4",
+   "value": "progression",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L169",
+   "elementId": "cond-progression",
+   "row": "V5",
+   "value": "opposing first defenders / initial pressure line (starting-positions-at-every-restart)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.b",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.d",
+    "Wide Zone Advantage|WIDEZONE-08.c"
+   ]
+  },
+  {
+   "lineId": "L170",
+   "elementId": "cond-progression",
+   "row": "V6",
+   "value": "beyond",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.e",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.g",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-19.b",
+    "Neutral Player Condition|NEUTRAL-16.a"
+   ]
+  },
+  {
+   "lineId": "L171",
+   "elementId": "cond-control",
+   "row": "V3",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.c",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.f",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-19.a",
+    "Variable Target Condition|VARTARGET-19.a"
+   ]
+  },
+  {
+   "lineId": "L172",
+   "elementId": "cond-control",
+   "row": "V4",
+   "value": "control",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L173",
+   "elementId": "cond-control",
+   "row": "V5",
+   "value": "the active target zone",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.b",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.d",
+    "Wide Zone Advantage|WIDEZONE-08.c"
+   ]
+  },
+  {
+   "lineId": "L174",
+   "elementId": "cond-control",
+   "row": "V6",
+   "value": "'controlled on arrival' ('dribbles into, or receives ... and controls it')",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.e",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.g",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-19.b",
+    "Neutral Player Condition|NEUTRAL-16.a"
+   ]
+  },
+  {
+   "lineId": "L175",
+   "elementId": "cond-eligibility",
+   "row": "V3",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.c",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.f",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-19.a",
+    "Variable Target Condition|VARTARGET-19.a"
+   ]
+  },
+  {
+   "lineId": "L176",
+   "elementId": "cond-eligibility",
+   "row": "V4",
+   "value": "eligibility",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L177",
+   "elementId": "cond-eligibility",
+   "row": "V5",
+   "value": "active member of scoring team's set (set-A | set-B)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.b",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.d",
+    "Wide Zone Advantage|WIDEZONE-08.c"
+   ]
+  },
+  {
+   "lineId": "L178",
+   "elementId": "cond-eligibility",
+   "row": "V6",
+   "value": "active at the moment of the event; scorer a player of the team in possession",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.e",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.g",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-19.b",
+    "Neutral Player Condition|NEUTRAL-16.a"
+   ]
+  },
+  {
+   "lineId": "L179",
+   "elementId": "cond-exclusion",
+   "row": "V3",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.c",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.f",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-19.a",
+    "Variable Target Condition|VARTARGET-19.a"
+   ]
+  },
+  {
+   "lineId": "L180",
+   "elementId": "cond-exclusion",
+   "row": "V4",
+   "value": "exclusion",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L181",
+   "elementId": "cond-exclusion",
+   "row": "V5",
+   "value": "the target zone",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.b",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.d",
+    "Wide Zone Advantage|WIDEZONE-08.c"
+   ]
+  },
+  {
+   "lineId": "L182",
+   "elementId": "cond-exclusion",
+   "row": "V6",
+   "value": "'long kick' (uncontrolled long kick or clearance) does not count",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.e",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.g",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-19.b",
+    "Neutral Player Condition|NEUTRAL-16.a"
+   ]
+  },
+  {
+   "lineId": "L183",
+   "elementId": "mod-wide",
+   "row": "V7",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-21.a"
+   ]
+  },
+  {
+   "lineId": "L184",
+   "elementId": "mod-wide",
+   "row": "V8a",
+   "value": "region",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L185",
+   "elementId": "mod-wide",
+   "row": "V8b",
+   "value": "channel-north",
+   "candidateItems": [
+    "From Goal Kicks (A01-02)|A01-02-12.b",
+    "Neutral Player Condition|NEUTRAL-15.a",
+    "Wide Zone Advantage|WIDEZONE-11.a",
+    "Variable Target Condition|VARTARGET-18.a"
+   ]
+  },
+  {
+   "lineId": "L186",
+   "elementId": "mod-wide",
+   "row": "V8b",
+   "value": "channel-south",
+   "candidateItems": [
+    "From Goal Kicks (A01-02)|A01-02-12.b",
+    "Neutral Player Condition|NEUTRAL-15.a",
+    "Wide Zone Advantage|WIDEZONE-11.a",
+    "Variable Target Condition|VARTARGET-18.a"
+   ]
+  },
+  {
+   "lineId": "L187",
+   "elementId": "mod-wide",
+   "row": "V9",
+   "value": "UNSTATED (a multiplier; size unstated)",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-13.a",
+    "Wide Zone Advantage|WIDEZONE-13.b"
+   ]
+  },
+  {
+   "lineId": "L188",
+   "elementId": "mod-wide",
+   "row": "V10",
+   "value": "UNSTATED",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L189",
+   "elementId": "cons-neutral",
+   "row": "V11",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-21.b"
+   ]
+  },
+  {
+   "lineId": "L190",
+   "elementId": "cons-neutral",
+   "row": "V12",
+   "value": "POSSESSION_CHANGE",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-11.b"
+   ]
+  },
+  {
+   "lineId": "L191",
+   "elementId": "cons-neutral",
+   "row": "V13",
+   "value": "neutral affiliation (off-list)",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-13.c"
+   ]
+  },
+  {
+   "lineId": "L192",
+   "elementId": "cons-neutral",
+   "row": "V14a",
+   "value": "team now in possession (WON_BALL)",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-14.a"
+   ]
+  },
+  {
+   "lineId": "L193",
+   "elementId": "cons-neutral",
+   "row": "V14c",
+   "value": "UNSTATED",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L194",
+   "elementId": "cons-reset",
+   "row": "V11",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-21.b"
+   ]
+  },
+  {
+   "lineId": "L195",
+   "elementId": "cons-reset",
+   "row": "V12",
+   "value": "SCORE | OUT_END_LINE | OUT_TOUCHLINE | POSSESSION_CHANGE",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-11.b"
+   ]
+  },
+  {
+   "lineId": "L196",
+   "elementId": "cons-reset",
+   "row": "V13",
+   "value": "re-establish begin condition (off-list)",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-13.c"
+   ]
+  },
+  {
+   "lineId": "L197",
+   "elementId": "cons-reset",
+   "row": "V14a",
+   "value": "restarting team ('as set per restart above')",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-14.a"
+   ]
+  },
+  {
+   "lineId": "L198",
+   "elementId": "info-live",
+   "row": "V15",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-23",
+    "Wide Zone Advantage|WIDEZONE-17.a",
+    "Variable Target Condition|VARTARGET-13.a"
+   ]
+  },
+  {
+   "lineId": "L199",
+   "elementId": "info-live",
+   "row": "V16",
+   "value": "which member of a team's candidate set is active (set-A, set-B)",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-17.d",
+    "Variable Target Condition|VARTARGET-13.b"
+   ]
+  },
+  {
+   "lineId": "L200",
+   "elementId": "info-live",
+   "row": "V17",
+   "value": "UNSTATED",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-17.b",
+    "Variable Target Condition|VARTARGET-05.b",
+    "Variable Target Condition|VARTARGET-15.a",
+    "Variable Target Condition|VARTARGET-16.a",
+    "Variable Target Condition|VARTARGET-16.b"
+   ]
+  },
+  {
+   "lineId": "L201",
+   "elementId": "info-live",
+   "row": "V18",
+   "value": "STATE_TRANSITION | OPPONENT_ACTION",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-14.a"
+   ]
+  },
+  {
+   "lineId": "L202",
+   "elementId": "info-live",
+   "row": "V19",
+   "value": "UNSTATED",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L203",
+   "elementId": "info-live",
+   "row": "V20",
+   "value": "IMMEDIATE | STAGED",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-17.a",
+    "Variable Target Condition|VARTARGET-17.b"
+   ]
+  },
+  {
+   "lineId": "L204",
+   "elementId": "info-live",
+   "row": "V21",
+   "value": "UNSTATED",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-13.d"
+   ]
+  },
+  {
+   "lineId": "L205",
+   "elementId": "info-live",
+   "row": "V22",
+   "value": "UNSTATED",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-17.c"
+   ]
+  },
+  {
+   "lineId": "L206",
+   "elementId": "info-wide",
+   "row": "V15",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-23",
+    "Wide Zone Advantage|WIDEZONE-17.a",
+    "Variable Target Condition|VARTARGET-13.a"
+   ]
+  },
+  {
+   "lineId": "L207",
+   "elementId": "info-wide",
+   "row": "V16",
+   "value": "wide channels and their advantage (channel-north, channel-south, mod-wide)",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-17.d",
+    "Variable Target Condition|VARTARGET-13.b"
+   ]
+  },
+  {
+   "lineId": "L208",
+   "elementId": "info-wide",
+   "row": "V17",
+   "value": "STANDING",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-17.b",
+    "Variable Target Condition|VARTARGET-05.b",
+    "Variable Target Condition|VARTARGET-15.a",
+    "Variable Target Condition|VARTARGET-16.a",
+    "Variable Target Condition|VARTARGET-16.b"
+   ]
+  },
+  {
+   "lineId": "L209",
+   "elementId": "info-wide",
+   "row": "V22",
+   "value": "both teams",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-17.c"
+   ]
+  },
+  {
+   "lineId": "L210",
+   "elementId": "tw-none",
+   "row": "V23",
+   "value": "NONE (0 elements)",
+   "candidateItems": []
+  }
+ ],
+ "contracts": [
+  {
+   "contract": "RPC-001 Goalkeeper Build-Out",
+   "items": [
+    {
+     "id": "RPC-001-08.a",
+     "origId": "RPC-001-08",
+     "row": "V1",
+     "selector": "*",
+     "requirement": "EQUALS",
+     "value": "{line_crossed, target_zone_entered, gate, target_player}, ordered 1-4",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"Valid primary scoring event 1 of 4, in the approved order.\" (RPC-REL-071; RPC-REL-072/073/074 carry 2-4; provenance Christian, 2026-09-13)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "â€”",
+     "fitNote": "A set of alternatives, marked ordered because the source orders it. The order is recorded but not applied (RC-29)."
+    },
+    {
+     "id": "RPC-001-08.b",
+     "origId": "RPC-001-08",
+     "row": "V0",
+     "selector": "*",
+     "requirement": "COUNT",
+     "value": "1",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "ASSUMED",
+     "basisEvidence": "'Exactly one' comes from SD-06, as the original's own assumption 6 says. RPC-001 authors a valid set, not a count.",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "â€”",
+     "fitNote": "Recorded only as a bound. SD-06 enters derivation through the register's citable items."
+    },
+    {
+     "id": "RPC-001-12",
+     "origId": "RPC-001-12",
+     "row": "V1",
+     "selector": "*",
+     "requirement": "EQUALS",
+     "value": "possession retention alone (pass counts, keep-away, time in possession)",
+     "strictness": "EXCLUSION",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"...rather than possession alone.\" (RPC-STMT-004, PRIMARY_SCORING_IDENTITY); \"must not substitute an unrelated affordance outcome.\" (RPC-VAL-002)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "â€”",
+     "fitNote": "NOT_EXISTS becomes an EXCLUSION on V1 holding the forbidden value. The value is off-list (L-07) and already excluded by 08.a. The forbidden value is a hard bound, so REQUIRED_RANGE."
+    },
+    {
+     "id": "RPC-001-18.a",
+     "origId": "RPC-001-18",
+     "row": "V3",
+     "selector": "type=origin",
+     "requirement": "EXISTS",
+     "value": "N/A",
+     "strictness": "REQUIRED",
+     "valueStatus": "N/A",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"Initiated from the goalkeeper or a controlled defensive restart\" (RPC-PROP-132)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "â€”",
+     "fitNote": "One compound EQUALS is split into typed conditions."
+    },
+    {
+     "id": "RPC-001-18.b",
+     "origId": "RPC-001-18",
+     "row": "V5",
+     "selector": "type=origin",
+     "requirement": "EQUALS",
+     "value": "{the goalkeeper's START/restart placement, a controlled defensive restart placement}",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"Initiated from the goalkeeper or a controlled defensive restart\" (RPC-PROP-132)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "â€”",
+     "fitNote": "The referents are placements, which V5 allows. Which placement applies is undecided (15.b)."
+    },
+    {
+     "id": "RPC-001-18.c",
+     "origId": "RPC-001-18",
+     "row": "V3",
+     "selector": "type=progression",
+     "requirement": "EXISTS",
+     "value": "N/A",
+     "strictness": "REQUIRED",
+     "valueStatus": "N/A",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"progressing beyond the initial pressure or progression line\" (RPC-PROP-132)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "â€”",
+     "fitNote": "â€”"
+    },
+    {
+     "id": "RPC-001-18.d",
+     "origId": "RPC-001-18",
+     "row": "V5",
+     "selector": "type=progression",
+     "requirement": "EQUALS",
+     "value": "the initial pressure or progression line",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"progressing beyond the initial pressure or progression line\" (RPC-PROP-132)",
+     "checkability": "PARTLY_STRUCTURAL",
+     "structuralClause": "Structural: the referent is a marked progression line or the PRIMARY_SCORING reference. Outside: the 'initial pressure line', if that means the defenders.",
+     "fitNote": "'Progression line' as the scoring reference is a reading."
+    },
+    {
+     "id": "RPC-001-18.e",
+     "origId": "RPC-001-18",
+     "row": "V6",
+     "selector": "type=progression",
+     "requirement": "EQUALS",
+     "value": "beyond",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"progressing beyond the initial pressure or progression line\" (RPC-PROP-132)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "â€”",
+     "fitNote": "A verbatim qualitative term (RC-34)."
+    },
+    {
+     "id": "RPC-001-18.f",
+     "origId": "RPC-001-18",
+     "row": "V3",
+     "selector": "type=control",
+     "requirement": "EXISTS",
+     "value": "N/A",
+     "strictness": "REQUIRED",
+     "valueStatus": "N/A",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"with possession controlled on arrival\" (RPC-PROP-132)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "â€”",
+     "fitNote": "â€”"
+    },
+    {
+     "id": "RPC-001-18.g",
+     "origId": "RPC-001-18",
+     "row": "V6",
+     "selector": "type=control",
+     "requirement": "EQUALS",
+     "value": "controlled on arrival",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"with possession controlled on arrival\" (RPC-PROP-132)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "â€”",
+     "fitNote": "SD-15 makes this FREE(b). Only the condition's attachment is structural."
+    },
+    {
+     "id": "RPC-001-19.a",
+     "origId": "RPC-001-19",
+     "row": "V3",
+     "selector": "type=exclusion",
+     "requirement": "EXISTS",
+     "value": "N/A",
+     "strictness": "REQUIRED",
+     "valueStatus": "N/A",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"A long clearance that happens to reach the target does not satisfy the event.\" (RPC-PROP-132)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "â€”",
+     "fitNote": "The NOT_EXISTS/EXCLUSION on a scoring path becomes a REQUIRED exclusion-type condition on the event (spec Â§5.8). Judging a given kick is in play and outside the boundary."
+    },
+    {
+     "id": "RPC-001-19.b",
+     "origId": "RPC-001-19",
+     "row": "V6",
+     "selector": "type=exclusion",
+     "requirement": "EQUALS",
+     "value": "a long clearance that happens to reach the target",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"A long clearance that happens to reach the target does not satisfy the event.\" (RPC-PROP-132); cf. \"Immediate long clearances bypass the intended representative problem.\" (RPC-PROP-010)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "â€”",
+     "fitNote": "The authored term is 'long clearance', while SD-15 names 'long kick' (COACH_RULES only). Whether FREE(b) covers it is open (L-11)."
+    },
+    {
+     "id": "RPC-001-20",
+     "origId": "RPC-001-20",
+     "row": "V2",
+     "selector": "*",
+     "requirement": "EQUALS",
+     "value": "1",
+     "strictness": "SUPPORTING",
+     "valueStatus": "PREFERRED_DEFAULT",
+     "scope": "WHOLE_GAME",
+     "basis": "ENGINE_ONLY",
+     "basisEvidence": "\"Earn a point when a player dribbles over the line, or receives the ball past it and controls it.\" (COACH_RULES, sport-module/primary-scoring.ts:169). No RPC-001 workbook text authors a value.",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "â€”",
+     "fitNote": "The original's value status is kept."
+    },
+    {
+     "id": "RPC-001-21.a",
+     "origId": "RPC-001-21",
+     "row": "V7",
+     "selector": "*",
+     "requirement": "EXISTS",
+     "value": "(forbidden) a modifier that makes established coordinated high pressure the dominant organizing problem",
+     "strictness": "EXCLUSION",
+     "valueStatus": "N/A",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"Established coordinated high pressure cannot become the dominant identity without transition to RPC-002.\" (RPC-ID-005, identity_role EXCLUSION)",
+     "checkability": "OUTSIDE_BOUNDARY",
+     "structuralClause": "â€”",
+     "fitNote": "NOT_DOMINANT has no closed kind and dominance is play, so it is recorded as an EXCLUSION with a play-level forbidden value. It does not forbid modifiers as such."
+    },
+    {
+     "id": "RPC-001-21.b",
+     "origId": "RPC-001-21",
+     "row": "V11",
+     "selector": "*",
+     "requirement": "EXISTS",
+     "value": "(forbidden) a consequence that makes established coordinated high pressure the dominant organizing problem",
+     "strictness": "EXCLUSION",
+     "valueStatus": "N/A",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"Established coordinated high pressure cannot become the dominant identity without transition to RPC-002.\" (RPC-ID-005)",
+     "checkability": "OUTSIDE_BOUNDARY",
+     "structuralClause": "â€”",
+     "fitNote": "As 21.a. It does not forbid consequences as such."
+    },
+    {
+     "id": "RPC-001-23",
+     "origId": "RPC-001-23",
+     "row": "V15",
+     "selector": "subject âˆˆ {teammate positioning and immediate support, opponent positioning and developing pressure}",
+     "requirement": "EXISTS",
+     "value": "(forbidden) an information rule that removes or hides the subject from the player on the ball",
+     "strictness": "EXCLUSION",
+     "valueStatus": "N/A",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"Teammate positioning and immediate support.\" (RPC-PROP-006); \"Opponent positioning and developing pressure.\" (RPC-PROP-007); \"...representative information must remain intact where required.\" (RPC-VAL-004)",
+     "checkability": "PARTLY_STRUCTURAL",
+     "structuralClause": "Structural: no informationRules element on these subjects withholds them (a D013 holder narrower than ALL, or a delayed D007). Outside: what the player on the ball perceives in play.",
+     "fitNote": "Selectors can use only 'subject'; hiding shows in V19/V22 values. The subjects are players' positioning, so the clause may match nothing."
+    }
+   ],
+   "declarations": [
+    {
+     "row": "V0",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "08.b (assumed; SD-06)."
+    },
+    {
+     "row": "V1",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "08.a. The DNC says the choice among the four is not authored."
+    },
+    {
+     "row": "V1",
+     "declaration": "EXCLUDED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "RPC-001-12: possession retention alone."
+    },
+    {
+     "row": "V2",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "RPC-001-20 (engine-only)."
+    },
+    {
+     "row": "V3",
+     "declaration": "CLAIMED",
+     "selector": "type âˆˆ {origin, progression, control, exclusion}",
+     "scope": "WHOLE_GAME",
+     "note": "18.a, 18.c, 18.f, 19.a."
+    },
+    {
+     "row": "V3",
+     "declaration": "NON_CLAIMED",
+     "selector": "type=eligibility",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: pass minimums none authored."
+    },
+    {
+     "row": "V4",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Types are fixed only through V3 selectors."
+    },
+    {
+     "row": "V5",
+     "declaration": "CLAIMED",
+     "selector": "type âˆˆ {origin, progression}",
+     "scope": "WHOLE_GAME",
+     "note": "18.b, 18.d."
+    },
+    {
+     "row": "V5",
+     "declaration": "UNDECLARED",
+     "selector": "type âˆˆ {control, exclusion}",
+     "scope": "WHOLE_GAME",
+     "note": "Referents never examined."
+    },
+    {
+     "row": "V6",
+     "declaration": "CLAIMED",
+     "selector": "type âˆˆ {progression, control, exclusion}",
+     "scope": "WHOLE_GAME",
+     "note": "18.e, 18.g, 19.b."
+    },
+    {
+     "row": "V6",
+     "declaration": "NOT_AUTHORED",
+     "selector": "type=control",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored 2: no operational test for 'controlled on arrival' (FREE(b) under SD-15)."
+    },
+    {
+     "row": "V6",
+     "declaration": "NOT_AUTHORED",
+     "selector": "type=exclusion",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored 3: no threshold for 'long clearance'/'long kick' (L-11)."
+    },
+    {
+     "row": "V7",
+     "declaration": "EXCLUDED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "21.a (outside boundary)."
+    },
+    {
+     "row": "V7",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: RPC-001 authors no modifiers; none required or forbidden."
+    },
+    {
+     "row": "V8a",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: value modifiers."
+    },
+    {
+     "row": "V8b",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: value modifiers."
+    },
+    {
+     "row": "V9",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: no multipliers or differential values."
+    },
+    {
+     "row": "V10",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: value modifiers."
+    },
+    {
+     "row": "V11",
+     "declaration": "EXCLUDED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "21.b (outside boundary)."
+    },
+    {
+     "row": "V11",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: no consequence required beyond the restart."
+    },
+    {
+     "row": "V12",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: consequences."
+    },
+    {
+     "row": "V13",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: access, eligibility and spatial-advantage consequences are free."
+    },
+    {
+     "row": "V14a",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: consequences."
+    },
+    {
+     "row": "V14b",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: consequences."
+    },
+    {
+     "row": "V14c",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: advantage consequences are free."
+    },
+    {
+     "row": "V15",
+     "declaration": "EXCLUDED",
+     "selector": "subject âˆˆ {teammate positioning and immediate support, opponent positioning and developing pressure}",
+     "scope": "WHOLE_GAME",
+     "note": "RPC-001-23."
+    },
+    {
+     "row": "V15",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: no IE preset; only forbids hiding the two sources."
+    },
+    {
+     "row": "V16",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: IE dimensions and presets."
+    },
+    {
+     "row": "V17",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: IE dimensions and presets."
+    },
+    {
+     "row": "V18",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: IE dimensions and presets."
+    },
+    {
+     "row": "V19",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: IE dimensions and presets."
+    },
+    {
+     "row": "V20",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: IE dimensions and presets."
+    },
+    {
+     "row": "V21",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: IE dimensions and presets."
+    },
+    {
+     "row": "V22",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: IE dimensions and presets."
+    },
+    {
+     "row": "V23",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: no countdown, shot clock or time limit."
+    },
+    {
+     "row": "V24",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: time windows."
+    },
+    {
+     "row": "V25",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: time windows."
+    },
+    {
+     "row": "V25",
+     "declaration": "NOT_AUTHORED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored 8: build-out episode length; a window's duration is the nearest row. Contradicts the DNC (L-12)."
+    },
+    {
+     "row": "V26",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: time windows."
+    }
+   ],
+   "relationshipRules": [
+    {
+     "id": "RPC-001-RR-1",
+     "owner": "RPC-001 (RPC-REL-071 to RPC-REL-074)",
+     "decides": "V1 [*] (the primary event kind) against another object's V1 requirement",
+     "outcome": "V1 takes a member of {line_crossed, target_zone_entered, gate, target_player}; a value outside the set loses, with RR-01 (the Context owns scoring). The authored order is recorded but not applied (RC-29, spec Â§5.8), so it does not choose among members.",
+     "evidence": "\"Valid primary scoring event 1 of 4, in the approved order.\" (RPC-REL-071 notes; 072-074 say 2-4), provenance \"Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)\", sport-module/rpc-library.rc1.json"
+    }
+   ]
+  },
+  {
+   "contract": "From Goal Kicks (A01-02)",
+   "items": [
+    {
+     "id": "A01-02-12.a",
+     "origId": "A01-02-12",
+     "row": "V1",
+     "selector": "*",
+     "requirement": "EQUALS",
+     "value": "forbidden: taking or conceding the goal-kick restart as the primary scoring event",
+     "strictness": "EXCLUSION",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "ENGINE_ONLY",
+     "basisEvidence": "\"a goal kick is not a goal\": assertion messages in unit tests, primary-scoring.unit.ts:195 and scoring-object-consistency.unit.ts:289.",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "N/A",
+     "fitNote": "V1's closed list holds no restart event, so the forbidden value cannot occur. The exclusion is vacuous on V1 and kept for fidelity. REQUIRED_RANGE is kept because an EXCLUSION carries its forbidden value. 'Never marks the scoring object' is a non-entailment, covered by the J1/O1 non-claims."
+    },
+    {
+     "id": "A01-02-12.b",
+     "origId": "A01-02-12",
+     "row": "V8b",
+     "selector": "condition.type=event",
+     "requirement": "EQUALS",
+     "value": "forbidden member: the goal-kick restart (taken or conceded) as a modifier referent",
+     "strictness": "EXCLUSION",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "ENGINE_ONLY",
+     "basisEvidence": "Same unit-test messages: primary-scoring.unit.ts:195 and scoring-object-consistency.unit.ts:289.",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "N/A",
+     "fitNote": "'No value tier' means no modifier conditioned on the goal kick. V7 cannot select by referent, so this is held on V8b. Naming the goal kick as a referent also needs L1. SD-06 would already require any such modifier to be authored."
+    }
+   ],
+   "declarations": [
+    {
+     "row": "V0",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "\"primary event [object, condition]: completely free apart from the exclusion in A01-02-12. This object proposes no scoring event\"."
+    },
+    {
+     "row": "V1",
+     "declaration": "EXCLUDED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "A01-02-12.a forbids the goal-kick restart as the primary event (vacuous under V1's list)."
+    },
+    {
+     "row": "V1",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "\"primary event [object, ...]: completely free apart from the exclusion\"."
+    },
+    {
+     "row": "V2",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "The base value is not in the original's list [object, condition] and was never examined."
+    },
+    {
+     "row": "V3",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "\"primary event [..., condition]: completely free\"; \"no scoring condition\"."
+    },
+    {
+     "row": "V4",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Same as V3."
+    },
+    {
+     "row": "V5",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Same as V3."
+    },
+    {
+     "row": "V6",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Same as V3."
+    },
+    {
+     "row": "V7",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "\"value modifiers: none contributed, none forbidden\". This contradicts 12's value-tier exclusion, which is held on V8b (L13)."
+    },
+    {
+     "row": "V8a",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "\"value modifiers: none contributed\"."
+    },
+    {
+     "row": "V8b",
+     "declaration": "EXCLUDED",
+     "selector": "condition.type=event",
+     "scope": "WHOLE_GAME",
+     "note": "A01-02-12.b forbids the goal-kick restart as a referent."
+    },
+    {
+     "row": "V8b",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Other referents: \"none contributed\"."
+    },
+    {
+     "row": "V9",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "\"value modifiers: none contributed\"."
+    },
+    {
+     "row": "V10",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "\"value modifiers: none contributed\"."
+    },
+    {
+     "row": "V11",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "\"consequences [trigger, effect, beneficiary]: none contributed ... claims no consequence anywhere else\"; opponent retreat lines and exclusion distances: \"All free\"."
+    },
+    {
+     "row": "V11",
+     "declaration": "NOT_AUTHORED",
+     "selector": "effect=ACCESS & trigger=<the goal-kick trigger> [L1]",
+     "scope": "WHOLE_GAME",
+     "note": "An opponent retreat or exclusion distance at the restart is not authored. A distance from the ball has no exact row (L5). This conflicts with the 'All free' non-claim (L13)."
+    },
+    {
+     "row": "V12",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "\"consequences [trigger, ...]: none contributed\"."
+    },
+    {
+     "row": "V13",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "\"consequences [..., effect, ...]: none contributed\"."
+    },
+    {
+     "row": "V14a",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "\"consequences [..., beneficiary]: none contributed\"."
+    },
+    {
+     "row": "V14b",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "No consequence is claimed; \"positional restriction on [opponents at the restart]. All free\"."
+    },
+    {
+     "row": "V14c",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "No consequence is claimed; \"numerical ... restriction on them. All free\"."
+    },
+    {
+     "row": "V15",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "\"Rules of value.information [trigger, what changes]: free. The restart is not required to reveal, hide or change any information.\""
+    },
+    {
+     "row": "V16",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "\"what changes\": free."
+    },
+    {
+     "row": "V17",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "\"trigger\": free."
+    },
+    {
+     "row": "V18",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "\"trigger\", read as trigger type (IE-D006): free."
+    },
+    {
+     "row": "V19",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Reveal timing is not in [trigger, what changes]; never examined."
+    },
+    {
+     "row": "V20",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Reveal progression was never examined."
+    },
+    {
+     "row": "V21",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "State dependency was never examined."
+    },
+    {
+     "row": "V22",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "The access holder was never examined."
+    },
+    {
+     "row": "V23",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "\"Rules of value.time windows: free, including any time limit on taking the restart, and any window opened by it.\""
+    },
+    {
+     "row": "V24",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Time windows are free."
+    },
+    {
+     "row": "V25",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Time windows are free, including a time limit on taking the restart."
+    },
+    {
+     "row": "V26",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Time windows are free."
+    }
+   ],
+   "relationshipRules": []
+  },
+  {
+   "contract": "Directional Possession Games (GF2)",
+   "items": [
+    {
+     "id": "GF2-19",
+     "origId": "GF2-19",
+     "row": "V1",
+     "selector": "*",
+     "requirement": "EQUALS",
+     "value": "{line_crossed, target_zone_entered} â€” set of alternatives, unordered",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"line_crossed; target_zone_entered\" â€” soccer-module.rc1-v3.json GF2.scoring_structure_type",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Original cited only engine wording (primary-scoring.ts header, line 18); re-sourced to the workbook column that line names. Object clause: GF2-08.b. Condition: NOT_AUTHORED on V3-V6. Which member: NOT_AUTHORED, barring a free fill; RR-01 lets the Context decide."
+    },
+    {
+     "id": "GF2-20",
+     "origId": "GF2-20",
+     "row": "V1",
+     "selector": "*",
+     "requirement": "EQUALS",
+     "value": "{consecutive-pass count, keep-away, time-in-possession} (forbidden: retained possession alone as the scoring event)",
+     "strictness": "EXCLUSION",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "ASSUMED",
+     "basisEvidence": "Assumption (original #1): \"Possession becomes the terminal objective rather than serving progression.\" (game-archetype-workbook.rc1.1.json GAK-0108, GA-001-OIC-06) is a violation to exclude; no polarity authored.",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Carries forbidden values, so a real status: REQUIRED_RANGE (hard). The forbidden kinds are off V1's closed list, so the exclusion bites only if the vocabulary review adds such a kind (VOCABULARY)."
+    }
+   ],
+   "declarations": [
+    {
+     "row": "V0",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Existence of the primary event was never examined (SD-06 supplies it)."
+    },
+    {
+     "row": "V1",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "GF2-19: {line_crossed, target_zone_entered}."
+    },
+    {
+     "row": "V1",
+     "declaration": "EXCLUDED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "GF2-20: possession-retention kinds forbidden."
+    },
+    {
+     "row": "V1",
+     "declaration": "NOT_AUTHORED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored: which of line_crossed or target_zone_entered; GF2 states no preference (the OBJECT_PREFERENCE table the original cites is engine wording)."
+    },
+    {
+     "row": "V2",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: point value of the primary event."
+    },
+    {
+     "row": "V2",
+     "declaration": "NOT_AUTHORED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored: the point value of the primary event."
+    },
+    {
+     "row": "V3",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: the qualifying condition (control, dribble, received pass, long ball) is not GF2's to say."
+    },
+    {
+     "row": "V3",
+     "declaration": "NOT_AUTHORED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored: the qualifying condition of the primary scoring event; any control requirement must come from elsewhere."
+    },
+    {
+     "row": "V4",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: the qualifying condition (control, dribble, received pass, long ball) is not GF2's to say."
+    },
+    {
+     "row": "V4",
+     "declaration": "NOT_AUTHORED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored: the qualifying condition of the primary scoring event; any control requirement must come from elsewhere."
+    },
+    {
+     "row": "V5",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: the qualifying condition (control, dribble, received pass, long ball) is not GF2's to say."
+    },
+    {
+     "row": "V5",
+     "declaration": "NOT_AUTHORED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored: the qualifying condition of the primary scoring event; any control requirement must come from elsewhere."
+    },
+    {
+     "row": "V6",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: the qualifying condition (control, dribble, received pass, long ball) is not GF2's to say."
+    },
+    {
+     "row": "V6",
+     "declaration": "NOT_AUTHORED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored: the qualifying condition of the primary scoring event; any control requirement must come from elsewhere."
+    },
+    {
+     "row": "V7",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: value modifiers and bonuses; example_incentive_patterns are labelled examples and bind nothing."
+    },
+    {
+     "row": "V8a",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: value modifiers and bonuses; example_incentive_patterns are labelled examples and bind nothing."
+    },
+    {
+     "row": "V8b",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: value modifiers and bonuses; example_incentive_patterns are labelled examples and bind nothing."
+    },
+    {
+     "row": "V9",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: value modifiers and bonuses; example_incentive_patterns are labelled examples and bind nothing."
+    },
+    {
+     "row": "V10",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: value modifiers and bonuses; example_incentive_patterns are labelled examples and bind nothing."
+    },
+    {
+     "row": "V11",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: consequence triggers, effects and beneficiaries are free."
+    },
+    {
+     "row": "V12",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: consequence triggers, effects and beneficiaries are free."
+    },
+    {
+     "row": "V13",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: consequence triggers, effects and beneficiaries are free."
+    },
+    {
+     "row": "V14a",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: consequence triggers, effects and beneficiaries are free."
+    },
+    {
+     "row": "V14b",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: consequence triggers, effects and beneficiaries are free."
+    },
+    {
+     "row": "V14c",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: consequence triggers, effects and beneficiaries are free."
+    },
+    {
+     "row": "V15",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: no information-expression requirement (information_expression_ids is null)."
+    },
+    {
+     "row": "V16",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: no information-expression requirement (information_expression_ids is null)."
+    },
+    {
+     "row": "V17",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: no information-expression requirement (information_expression_ids is null)."
+    },
+    {
+     "row": "V18",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: no information-expression requirement (information_expression_ids is null)."
+    },
+    {
+     "row": "V19",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: no information-expression requirement (information_expression_ids is null)."
+    },
+    {
+     "row": "V20",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: no information-expression requirement (information_expression_ids is null)."
+    },
+    {
+     "row": "V21",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: no information-expression requirement (information_expression_ids is null)."
+    },
+    {
+     "row": "V22",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: no information-expression requirement (information_expression_ids is null)."
+    },
+    {
+     "row": "V23",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: touch limits, countdowns, shot clocks and possession clocks are all free."
+    },
+    {
+     "row": "V24",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: touch limits, countdowns, shot clocks and possession clocks are all free."
+    },
+    {
+     "row": "V25",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: touch limits, countdowns, shot clocks and possession clocks are all free."
+    },
+    {
+     "row": "V26",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: touch limits, countdowns, shot clocks and possession clocks are all free."
+    }
+   ],
+   "relationshipRules": []
+  },
+  {
+   "contract": "Neutral Player Condition",
+   "items": [
+    {
+     "id": "NEUTRAL-15.a",
+     "origId": "NEUTRAL-15",
+     "row": "V8b",
+     "selector": "*",
+     "requirement": "EQUALS",
+     "value": "neutral involvement (an event of a neutral taking part) as a modifier's condition",
+     "strictness": "EXCLUSION",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"incentive_mechanism\": \"none\" and \"includes_incentive_layer\": \"false\" (soccer-module.rc1-v3.json, tl-v0-constraint-neutral-player-condition)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Held as a forbidden referent: V7's selector cannot name referents, so NOT_EXISTS on V7 would forbid every modifier. Was not-a-value; it now carries a forbidden value, so REQUIRED_RANGE."
+    },
+    {
+     "id": "NEUTRAL-16.a",
+     "origId": "NEUTRAL-16",
+     "row": "V6",
+     "selector": "*",
+     "requirement": "EQUALS",
+     "value": "neutral involvement required for the primary event to count",
+     "strictness": "EXCLUSION",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"Players choose when and how to use the numerical advantage based on the live pressure picture.\" (soccer-module.rc1-v3.json, tl-v0-constraint-neutral-player-condition, contraindications)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "The 'not compulsory' clause. V5 admits only regions, objects or placements, so the neutral sits in V6 as a qualitative term; RC-34 verbatim matching makes it wording-sensitive. Forbidden value carried, so REQUIRED_RANGE."
+    }
+   ],
+   "declarations": [
+    {
+     "row": "V0",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Existence of the primary event never examined."
+    },
+    {
+     "row": "V1",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: 'the primary event's object'; 'says nothing about what is scored on'."
+    },
+    {
+     "row": "V2",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Base value never examined."
+    },
+    {
+     "row": "V3",
+     "declaration": "NON_CLAIMED",
+     "selector": "type âˆˆ {origin, control, progression, exclusion}",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: 'the primary event's object and condition'."
+    },
+    {
+     "row": "V3",
+     "declaration": "NOT_AUTHORED",
+     "selector": "type=eligibility",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored: whether a neutral may score or be the performer who satisfies the primary event."
+    },
+    {
+     "row": "V4",
+     "declaration": "NON_CLAIMED",
+     "selector": "type âˆˆ {origin, control, progression, exclusion}",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: 'the primary event's object and condition'."
+    },
+    {
+     "row": "V4",
+     "declaration": "NOT_AUTHORED",
+     "selector": "type=eligibility",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored: whether a neutral may score."
+    },
+    {
+     "row": "V5",
+     "declaration": "NON_CLAIMED",
+     "selector": "type âˆˆ {origin, control, progression, exclusion}",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: 'the primary event's object and condition'."
+    },
+    {
+     "row": "V5",
+     "declaration": "NOT_AUTHORED",
+     "selector": "type=eligibility",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored: whether a neutral may score. V5 cannot reference a performer group."
+    },
+    {
+     "row": "V6",
+     "declaration": "EXCLUDED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "NEUTRAL-16.a."
+    },
+    {
+     "row": "V6",
+     "declaration": "NON_CLAIMED",
+     "selector": "type âˆˆ {origin, control, progression, exclusion}",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: the primary event's condition is free, except the NEUTRAL-16.a term."
+    },
+    {
+     "row": "V6",
+     "declaration": "NOT_AUTHORED",
+     "selector": "type=eligibility",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored: whether a neutral may score."
+    },
+    {
+     "row": "V7",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Value modifiers never examined beyond NEUTRAL-15 (held on V8b)."
+    },
+    {
+     "row": "V8a",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Never examined."
+    },
+    {
+     "row": "V8b",
+     "declaration": "EXCLUDED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "NEUTRAL-15.a."
+    },
+    {
+     "row": "V8b",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Other referents never examined."
+    },
+    {
+     "row": "V9",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Never examined."
+    },
+    {
+     "row": "V10",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Never examined."
+    },
+    {
+     "row": "V11",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: 'consequences other than the possession-linked re-affiliation', which this restatement holds on P6a/P6b."
+    },
+    {
+     "row": "V12",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: 'consequences other than the possession-linked re-affiliation'."
+    },
+    {
+     "row": "V13",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: 'consequences other than the possession-linked re-affiliation'."
+    },
+    {
+     "row": "V14a",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: 'beneficiaries of any other consequence'."
+    },
+    {
+     "row": "V14b",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: 'consequences other than the possession-linked re-affiliation'."
+    },
+    {
+     "row": "V14c",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: 'consequences other than the possession-linked re-affiliation'."
+    },
+    {
+     "row": "V15",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: information; 'No information trigger is required.'"
+    },
+    {
+     "row": "V16",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: information; 'No information trigger is required.'"
+    },
+    {
+     "row": "V17",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: information; 'No information trigger is required.'"
+    },
+    {
+     "row": "V18",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: information; 'No information trigger is required.'"
+    },
+    {
+     "row": "V19",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: information; 'No information trigger is required.'"
+    },
+    {
+     "row": "V20",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: information; 'No information trigger is required.'"
+    },
+    {
+     "row": "V21",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: information; 'No information trigger is required.'"
+    },
+    {
+     "row": "V22",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: information; 'No information trigger is required.'"
+    },
+    {
+     "row": "V23",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: 'time windows: none authored'."
+    },
+    {
+     "row": "V24",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: 'time windows: none authored'."
+    },
+    {
+     "row": "V25",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: 'time windows: none authored'."
+    },
+    {
+     "row": "V26",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: 'time windows: none authored'."
+    }
+   ],
+   "relationshipRules": []
+  },
+  {
+   "contract": "Wide Zone Advantage",
+   "items": [
+    {
+     "id": "WIDEZONE-08.b",
+     "origId": "WIDEZONE-08",
+     "row": "V14b",
+     "selector": "effect=ACCESS",
+     "requirement": "EQUALS",
+     "value": "a wide channel of this contract (forbidden region referent)",
+     "strictness": "EXCLUSION",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"Channels are reference markers â€” players can choose to use them or not.\"",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "No ACCESS consequence, from any object, may restrict entry to a wide channel."
+    },
+    {
+     "id": "WIDEZONE-08.c",
+     "origId": "WIDEZONE-08",
+     "row": "V5",
+     "selector": "*",
+     "requirement": "EQUALS",
+     "value": "a wide channel of this contract (forbidden referent)",
+     "strictness": "EXCLUSION",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"Channels are reference markers â€” players can choose to use them or not.\"",
+     "checkability": "PARTLY_STRUCTURAL",
+     "structuralClause": "No primary-event condition names a wide channel as referent (such a condition would compel or penalise channel use to score).",
+     "fitNote": "\"Entering must not be compulsory\" read structurally; the player-choice remainder is outside the boundary. In tension with the original non-claim that the primary event condition is free (ledger)."
+    },
+    {
+     "id": "WIDEZONE-11.a",
+     "origId": "WIDEZONE-11",
+     "row": "V8b",
+     "selector": "condition.type=region",
+     "requirement": "EQUALS",
+     "value": "both wide channels of this contract, each a referent",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"Actions starting in or moving through the wide channel earn an advantage (bonus point, free restart, or scoring multiplier).\"",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "For the value-modifier alternatives (multiplier, bonus on a score). V7 cannot select this object's modifier, so WHOLE_GAME is over-broad; if a restart is chosen it matches nothing and reads UNMET (ledger)."
+    },
+    {
+     "id": "WIDEZONE-11.b",
+     "origId": "WIDEZONE-11",
+     "row": "V12",
+     "selector": "effect=RESTART",
+     "requirement": "EQUALS",
+     "value": "REGION_ENTRY {a wide channel of this contract}",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"Actions starting in or moving through the wide channel earn an advantage (bonus point, free restart, or scoring multiplier).\"",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "For the free-restart alternative. REGION_ENTRY holds \"moves through\" only; \"starts in\" has no trigger (VOCABULARY). RESTART is off-list (RC-33). Reads UNMET if a modifier is chosen."
+    },
+    {
+     "id": "WIDEZONE-13.a",
+     "origId": "WIDEZONE-13",
+     "row": "V9",
+     "selector": "condition.type=region",
+     "requirement": "EQUALS",
+     "value": "a multiplier on the primary event value (size not authored)",
+     "strictness": "SUPPORTING",
+     "valueStatus": "TYPICAL_EXAMPLE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"earn an advantage (bonus point, free restart, or scoring multiplier)\"",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "One of three options spanning V9 and V13; kept TYPICAL_EXAMPLE as the original read them, so inert."
+    },
+    {
+     "id": "WIDEZONE-13.b",
+     "origId": "WIDEZONE-13",
+     "row": "V9",
+     "selector": "condition.type=region",
+     "requirement": "EQUALS",
+     "value": "added point(s) on the primary event (number not authored)",
+     "strictness": "SUPPORTING",
+     "valueStatus": "TYPICAL_EXAMPLE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"earn an advantage (bonus point, free restart, or scoring multiplier)\"",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "\"Bonus point\" read as added to a score. Read as a separate score it is excluded by WIDEZONE-16 and SD-06 (ledger). Inert."
+    },
+    {
+     "id": "WIDEZONE-13.c",
+     "origId": "WIDEZONE-13",
+     "row": "V13",
+     "selector": "trigger=REGION_ENTRY",
+     "requirement": "EQUALS",
+     "value": "RESTART (free restart)",
+     "strictness": "SUPPORTING",
+     "valueStatus": "TYPICAL_EXAMPLE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"earn an advantage (bonus point, free restart, or scoring multiplier)\"",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "RESTART is not on V13's draft list (VOCABULARY; V26 has it). Inert."
+    },
+    {
+     "id": "WIDEZONE-14.a",
+     "origId": "WIDEZONE-14",
+     "row": "V14a",
+     "selector": "effect=RESTART",
+     "requirement": "EQUALS",
+     "value": "ATTACKING_TEAM (the team performing the qualifying action)",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "ASSUMED",
+     "basisEvidence": "Original assumption #5: the acting team is the beneficiary; the authored sentence names no recipient.",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Restart alternative. A value modifier accrues to the scoring team by construction, so no V7 item is needed. Nearest canonical designation (RC-22)."
+    },
+    {
+     "id": "WIDEZONE-16.b",
+     "origId": "WIDEZONE-16",
+     "row": "V0",
+     "selector": "*",
+     "requirement": "COUNT",
+     "value": "2 or more (forbidden)",
+     "strictness": "EXCLUSION",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "ASSUMED",
+     "basisEvidence": "Assumption as 16.a; the rule itself is SD-06 (exactly one primary scoring event).",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "The object's own exclusion of a second scoring route; duplicates SD-06. not-a-value becomes REQUIRED_RANGE."
+    },
+    {
+     "id": "WIDEZONE-17.a",
+     "origId": "WIDEZONE-17",
+     "row": "V15",
+     "selector": "subject=the wide channels and their advantage",
+     "requirement": "EXISTS",
+     "value": "N/A",
+     "strictness": "SUPPORTING",
+     "valueStatus": "N/A",
+     "scope": "WHOLE_GAME",
+     "basis": "ASSUMED",
+     "basisEvidence": "Assumption: soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage visibility_effect \"increase\" and \"Channels are reference markers\" mean standing, open information for both teams.",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "ASSUMED, so it entails no information-rule element (RC-2). not-a-value becomes N/A."
+    },
+    {
+     "id": "WIDEZONE-17.b",
+     "origId": "WIDEZONE-17",
+     "row": "V17",
+     "selector": "subject=the wide channels and their advantage",
+     "requirement": "EQUALS",
+     "value": "STANDING",
+     "strictness": "SUPPORTING",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "ASSUMED",
+     "basisEvidence": "Assumption as 17.a.",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "\"Not hidden or revealed during play\". Value now stated; REQUIRED_RANGE because the original says a revealed or hidden reading is wrong."
+    },
+    {
+     "id": "WIDEZONE-17.c",
+     "origId": "WIDEZONE-17",
+     "row": "V22",
+     "selector": "subject=the wide channels and their advantage",
+     "requirement": "EQUALS",
+     "value": "ALL (IE-D013)",
+     "strictness": "SUPPORTING",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "ASSUMED",
+     "basisEvidence": "Assumption as 17.a.",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "\"Openly known for both teams\" mapped to IE-D013 ALL."
+    },
+    {
+     "id": "WIDEZONE-17.d",
+     "origId": "WIDEZONE-17",
+     "row": "V16",
+     "selector": "subject=the wide channels and their advantage",
+     "requirement": "EQUALS",
+     "value": "the wide channels and their advantage",
+     "strictness": "SUPPORTING",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "ASSUMED",
+     "basisEvidence": "Assumption as 17.a.",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Restates the subject its selector names, so the subject row carries an item; the subject is unique to this object."
+    }
+   ],
+   "declarations": [
+    {
+     "row": "V0",
+     "declaration": "EXCLUDED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "16.b: a second primary event."
+    },
+    {
+     "row": "V0",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #7: attaches to whatever primary event the game has."
+    },
+    {
+     "row": "V1",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #7: what the primary event is free."
+    },
+    {
+     "row": "V2",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #7: base value free."
+    },
+    {
+     "row": "V3",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #7: its condition free."
+    },
+    {
+     "row": "V4",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #7: its condition free."
+    },
+    {
+     "row": "V5",
+     "declaration": "EXCLUDED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "08.c: a wide channel as condition referent."
+    },
+    {
+     "row": "V5",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #7: condition otherwise free."
+    },
+    {
+     "row": "V6",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #7: its condition free."
+    },
+    {
+     "row": "V7",
+     "declaration": "NOT_AUTHORED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored #1, #4, #6: whether the advantage is a modifier (no default among three), frequency or cap, team or side symmetry."
+    },
+    {
+     "row": "V7",
+     "declaration": "NON_CLAIMED",
+     "selector": "condition.type âˆˆ {object, event}",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #7: other modifiers untouched (other objects' region modifiers too; the selector cannot separate them)."
+    },
+    {
+     "row": "V8a",
+     "declaration": "UNDECLARED",
+     "selector": "condition.type=region",
+     "scope": "WHOLE_GAME",
+     "note": "The channel modifier's type is fixed only by 11.a/13 selectors; no item, since V7 cannot select this object's modifier."
+    },
+    {
+     "row": "V8a",
+     "declaration": "NON_CLAIMED",
+     "selector": "condition.type âˆˆ {object, event}",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #7: other modifiers untouched."
+    },
+    {
+     "row": "V8b",
+     "declaration": "CLAIMED",
+     "selector": "condition.type=region",
+     "scope": "WHOLE_GAME",
+     "note": "11.a."
+    },
+    {
+     "row": "V8b",
+     "declaration": "NON_CLAIMED",
+     "selector": "condition.type âˆˆ {object, event}",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #7."
+    },
+    {
+     "row": "V9",
+     "declaration": "CLAIMED",
+     "selector": "condition.type=region",
+     "scope": "WHOLE_GAME",
+     "note": "13.a, 13.b (inert examples)."
+    },
+    {
+     "row": "V9",
+     "declaration": "NOT_AUTHORED",
+     "selector": "condition.type=region",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored #2: no multiplier size or bonus points; realization parameters null."
+    },
+    {
+     "row": "V9",
+     "declaration": "NON_CLAIMED",
+     "selector": "condition.type âˆˆ {object, event}",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #7."
+    },
+    {
+     "row": "V10",
+     "declaration": "UNDECLARED",
+     "selector": "condition.type=region",
+     "scope": "WHOLE_GAME",
+     "note": "Combination with an overlapping modifier never addressed."
+    },
+    {
+     "row": "V10",
+     "declaration": "NON_CLAIMED",
+     "selector": "condition.type âˆˆ {object, event}",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #7."
+    },
+    {
+     "row": "V11",
+     "declaration": "NOT_AUTHORED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored #1-#4, #6: which effect, restart terms, how long a positional advantage lasts, frequency, symmetry."
+    },
+    {
+     "row": "V11",
+     "declaration": "NON_CLAIMED",
+     "selector": "effect âˆˆ {ACCESS, COUNT_CHANGE}",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #7: other consequences untouched (08.b excludes ACCESS on a channel)."
+    },
+    {
+     "row": "V12",
+     "declaration": "CLAIMED",
+     "selector": "effect=RESTART",
+     "scope": "WHOLE_GAME",
+     "note": "11.b."
+    },
+    {
+     "row": "V12",
+     "declaration": "NON_CLAIMED",
+     "selector": "effect âˆˆ {ACCESS, COUNT_CHANGE}",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #7."
+    },
+    {
+     "row": "V13",
+     "declaration": "CLAIMED",
+     "selector": "trigger=REGION_ENTRY",
+     "scope": "WHOLE_GAME",
+     "note": "13.c (inert example)."
+    },
+    {
+     "row": "V13",
+     "declaration": "NON_CLAIMED",
+     "selector": "effect âˆˆ {ACCESS, COUNT_CHANGE}",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #7."
+    },
+    {
+     "row": "V14a",
+     "declaration": "CLAIMED",
+     "selector": "effect=RESTART",
+     "scope": "WHOLE_GAME",
+     "note": "14.a."
+    },
+    {
+     "row": "V14a",
+     "declaration": "NOT_AUTHORED",
+     "selector": "effect=RESTART",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored #6: symmetric or team/side-specific advantage not authored."
+    },
+    {
+     "row": "V14a",
+     "declaration": "NON_CLAIMED",
+     "selector": "effect âˆˆ {ACCESS, COUNT_CHANGE}",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #7."
+    },
+    {
+     "row": "V14b",
+     "declaration": "EXCLUDED",
+     "selector": "effect=ACCESS",
+     "scope": "WHOLE_GAME",
+     "note": "08.b: a wide channel as ACCESS region."
+    },
+    {
+     "row": "V14b",
+     "declaration": "NON_CLAIMED",
+     "selector": "effect=ACCESS",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #7: ACCESS on any other region free."
+    },
+    {
+     "row": "V14c",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #7: other consequences untouched; no count change authored."
+    },
+    {
+     "row": "V15",
+     "declaration": "CLAIMED",
+     "selector": "subject=the wide channels and their advantage",
+     "scope": "WHOLE_GAME",
+     "note": "17.a."
+    },
+    {
+     "row": "V15",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #7: other information rules untouched (no â‰  operator to exclude own)."
+    },
+    {
+     "row": "V16",
+     "declaration": "CLAIMED",
+     "selector": "subject=the wide channels and their advantage",
+     "scope": "WHOLE_GAME",
+     "note": "17.d."
+    },
+    {
+     "row": "V16",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #7: other information rules."
+    },
+    {
+     "row": "V17",
+     "declaration": "CLAIMED",
+     "selector": "subject=the wide channels and their advantage",
+     "scope": "WHOLE_GAME",
+     "note": "17.b."
+    },
+    {
+     "row": "V17",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #7: other information rules."
+    },
+    {
+     "row": "V18",
+     "declaration": "UNDECLARED",
+     "selector": "subject=the wide channels and their advantage",
+     "scope": "WHOLE_GAME",
+     "note": "The object's standing rule leaves this IE dimension unstated."
+    },
+    {
+     "row": "V18",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #7: other information rules."
+    },
+    {
+     "row": "V19",
+     "declaration": "UNDECLARED",
+     "selector": "subject=the wide channels and their advantage",
+     "scope": "WHOLE_GAME",
+     "note": "The object's standing rule leaves this IE dimension unstated."
+    },
+    {
+     "row": "V19",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #7: other information rules."
+    },
+    {
+     "row": "V20",
+     "declaration": "UNDECLARED",
+     "selector": "subject=the wide channels and their advantage",
+     "scope": "WHOLE_GAME",
+     "note": "The object's standing rule leaves this IE dimension unstated."
+    },
+    {
+     "row": "V20",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #7: other information rules."
+    },
+    {
+     "row": "V21",
+     "declaration": "UNDECLARED",
+     "selector": "subject=the wide channels and their advantage",
+     "scope": "WHOLE_GAME",
+     "note": "The object's standing rule leaves this IE dimension unstated."
+    },
+    {
+     "row": "V21",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #7: other information rules."
+    },
+    {
+     "row": "V22",
+     "declaration": "CLAIMED",
+     "selector": "subject=the wide channels and their advantage",
+     "scope": "WHOLE_GAME",
+     "note": "17.c."
+    },
+    {
+     "row": "V22",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #7: other information rules."
+    },
+    {
+     "row": "V23",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #8: no window, countdown, clock or phase gating."
+    },
+    {
+     "row": "V24",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #8: no window, countdown, clock or phase gating."
+    },
+    {
+     "row": "V25",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #8: no window, countdown, clock or phase gating."
+    },
+    {
+     "row": "V26",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #8: no window, countdown, clock or phase gating."
+    }
+   ],
+   "relationshipRules": []
+  },
+  {
+   "contract": "Variable Target Condition",
+   "items": [
+    {
+     "id": "VARTARGET-05.b",
+     "origId": "VARTARGET-05",
+     "row": "V17",
+     "selector": "*",
+     "requirement": "EQUALS",
+     "value": "unordered {REGION_ENTRY {trigger region}; COACH_CUEâ€ ; FIRST_FORWARD_PASSâ€ ; REGION_ENTRY {final third}; REGION_ENTRY {attacking half} + first receiverâ€ }; â€  off-list",
+     "strictness": "SUPPORTING",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "OWN_INVOLVEMENT",
+     "basis": "AUTHORED",
+     "basisEvidence": "setup_guidance: \"revealed only after play crosses a trigger line, or switches on a coach cue during play\"; RB-VARIABLE-TARGET-CONDITION-01 (first penetrating/forward pass), -02 (ball enters the final third), -04 (first receiver in the attacking half).",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Split from 05: its trigger alternatives, on the rule's trigger row. RB-03 (defender shift) left out: keyed on players (P-5, L-12). COACH_CUE conflicts with 14.a (L-11). Off-list values per RC-33 (L-08)."
+    },
+    {
+     "id": "VARTARGET-11.a",
+     "origId": "VARTARGET-11",
+     "row": "V0",
+     "selector": "*",
+     "requirement": "EXISTS",
+     "value": "one primary event, its reference derived from PRIMARY_SCORING objectives including the set's members; event definition unchanged",
+     "strictness": "REQUIRED",
+     "valueStatus": "N/A",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "setup_guidance: \"only the LIVE one scores.\"",
+     "checkability": "PARTLY_STRUCTURAL",
+     "structuralClause": "a primary event exists and its derived reference includes the candidate set's members",
+     "fitNote": "'not-a-value' -> N/A. Binding to the member live at the event is play. 'Definition unchanged' is carried by NON_CLAIMED on V1 and V2."
+    },
+    {
+     "id": "VARTARGET-12.a",
+     "origId": "VARTARGET-12",
+     "row": "V0",
+     "selector": "*",
+     "requirement": "COUNT",
+     "value": "more than 1 (a second, independent way to score created by the candidate set)",
+     "strictness": "EXCLUSION",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "setup_guidance: \"only the LIVE one scores.\"",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "The forbidden count (grammar Â§3). Coincides with SD-06. 'not-a-value' -> REQUIRED_RANGE (the forbidden value)."
+    },
+    {
+     "id": "VARTARGET-12.b",
+     "origId": "VARTARGET-12",
+     "row": "V0",
+     "selector": "*",
+     "requirement": "NOT_EXISTS",
+     "value": "credit for the primary event performed on a candidate that is not live at that moment",
+     "strictness": "EXCLUSION",
+     "valueStatus": "N/A",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "setup_guidance: \"only the LIVE one scores.\"",
+     "checkability": "OUTSIDE_BOUNDARY",
+     "structuralClause": "none",
+     "fitNote": "Which candidate is live at an instant is play state (EMP-0058). Inert."
+    },
+    {
+     "id": "VARTARGET-13.a",
+     "origId": "VARTARGET-13",
+     "row": "V15",
+     "selector": "subject=live member of this object's candidate set",
+     "requirement": "EXISTS",
+     "value": "one information rule about which candidate is live",
+     "strictness": "REQUIRED",
+     "valueStatus": "N/A",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "information-expression.rc1.1.json IE-C006 (IEK-0201): \"Revelation state dependency: objective dependent; trigger: state transition or opponent action; reveal progression: immediate or staged.\"",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "'not-a-value' -> N/A. Existence carries its subject (RC-16). IE-C006 is linked to this object by preset name only (L-14)."
+    },
+    {
+     "id": "VARTARGET-13.b",
+     "origId": "VARTARGET-13",
+     "row": "V16",
+     "selector": "*",
+     "requirement": "EQUALS",
+     "value": "which member of this object's candidate set is live",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "OWN_INVOLVEMENT",
+     "basis": "AUTHORED",
+     "basisEvidence": "IE-C006 (IEK-0201): \"Revelation state dependency: objective dependent\"",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "The subject field, split from 13."
+    },
+    {
+     "id": "VARTARGET-13.d",
+     "origId": "VARTARGET-13",
+     "row": "V21",
+     "selector": "*",
+     "requirement": "EQUALS",
+     "value": "OBJECTIVE_DEPENDENT",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "OWN_INVOLVEMENT",
+     "basis": "AUTHORED",
+     "basisEvidence": "IE-C006 (IEK-0201): \"state dependency: objective dependent\"",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Taken from 13's own quoted evidence; the original had no separate item for it."
+    },
+    {
+     "id": "VARTARGET-14.a",
+     "origId": "VARTARGET-14",
+     "row": "V18",
+     "selector": "*",
+     "requirement": "RANGE",
+     "value": "unordered {STATE_TRANSITION, OPPONENT_ACTION}; EXTERNAL_SIGNAL (coach cue) falls outside",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "OWN_INVOLVEMENT",
+     "basis": "AUTHORED",
+     "basisEvidence": "IE-C006 (IEK-0201): \"trigger: state transition or opponent action\"",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Placed as in the original. Its only authored OPPONENT_ACTION instance (RB-03) is keyed on players (L-12). The coach cue is unreconciled (L-11)."
+    },
+    {
+     "id": "VARTARGET-15.a",
+     "origId": "VARTARGET-15",
+     "row": "V17",
+     "selector": "*",
+     "requirement": "EXISTS",
+     "value": "the trigger is detectable by players and causally connected to which target becomes live; the change alters action possibilities",
+     "strictness": "REQUIRED",
+     "valueStatus": "N/A",
+     "scope": "OWN_INVOLVEMENT",
+     "basis": "AUTHORED",
+     "basisEvidence": "IE-D006 IEK-0042: \"The trigger must be detectable and causally connected to the revealed information; external signals require additional scrutiny.\" Also IE-D011 IEK-0078.",
+     "checkability": "OUTSIDE_BOUNDARY",
+     "structuralClause": "none",
+     "fitNote": "Perception and action possibilities are outside the boundary (spec Â§6 names VARTARGET-15). Integrity conditions of dimensions IE-C006 composes. 'not-a-value' -> N/A."
+    },
+    {
+     "id": "VARTARGET-16.a",
+     "origId": "VARTARGET-16",
+     "row": "V17",
+     "selector": "*",
+     "requirement": "EQUALS",
+     "value": "STANDING (the live member openly known in advance)",
+     "strictness": "EXCLUSION",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "OWN_INVOLVEMENT",
+     "basis": "AUTHORED",
+     "basisEvidence": "description: \"revealed late or changes during play, so teams must read the current picture rather than commit to a pre-planned route\"; RB-02: \"so the route cannot be pre-planned\"",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "The original's REQUIRED strictness on a NOT_EXISTS becomes EXCLUSION, with the forbidden value. 'not-a-value' -> REQUIRED_RANGE (the forbidden trigger)."
+    },
+    {
+     "id": "VARTARGET-16.b",
+     "origId": "VARTARGET-16",
+     "row": "V17",
+     "selector": "*",
+     "requirement": "NOT_EXISTS",
+     "value": "the live member determinable by a team before the rule's trigger fires",
+     "strictness": "EXCLUSION",
+     "valueStatus": "N/A",
+     "scope": "OWN_INVOLVEMENT",
+     "basis": "AUTHORED",
+     "basisEvidence": "RB-VARIABLE-TARGET-CONDITION-02: \"The active goal is revealed only after the ball enters the final third (flip a cone / call it), so the route cannot be pre-planned.\"",
+     "checkability": "OUTSIDE_BOUNDARY",
+     "structuralClause": "none",
+     "fitNote": "What players can determine is play. Not placed on J9, because the original non-claims 'which candidate starts active' (L-16)."
+    },
+    {
+     "id": "VARTARGET-17.a",
+     "origId": "VARTARGET-17",
+     "row": "V20",
+     "selector": "*",
+     "requirement": "RANGE",
+     "value": "unordered {IMMEDIATE, STAGED}",
+     "strictness": "SUPPORTING",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "OWN_INVOLVEMENT",
+     "basis": "AUTHORED",
+     "basisEvidence": "IE-C006 (IEK-0201): \"reveal progression: immediate or staged\"",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Range clause of 17."
+    },
+    {
+     "id": "VARTARGET-17.b",
+     "origId": "VARTARGET-17",
+     "row": "V20",
+     "selector": "*",
+     "requirement": "EXISTS",
+     "value": "each stage stays meaningful; later information refines rather than arbitrarily overturns the task",
+     "strictness": "SUPPORTING",
+     "valueStatus": "N/A",
+     "scope": "OWN_INVOLVEMENT",
+     "basis": "AUTHORED",
+     "basisEvidence": "IE-D008 IEK-0058: \"Each stage must remain meaningful and later information should refine rather than arbitrarily overturn the task.\"",
+     "checkability": "OUTSIDE_BOUNDARY",
+     "structuralClause": "none",
+     "fitNote": "A judgement about play. Inert."
+    },
+    {
+     "id": "VARTARGET-18.a",
+     "origId": "VARTARGET-18",
+     "row": "V8b",
+     "selector": "*",
+     "requirement": "EQUALS",
+     "value": "a member of this object's candidate set (its object or region), or the live/not-live status as an event",
+     "strictness": "EXCLUSION",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "soccer realization: \"incentive_mechanism\": \"none\"; \"includes_incentive_layer\": \"false\"",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Moved from V7 existence to V8b referents, so it forbids only modifiers that reference candidates and leaves other objects' modifiers (e.g. Wide Zone) legal. 'not-a-value' -> REQUIRED_RANGE (the forbidden referent)."
+    },
+    {
+     "id": "VARTARGET-19.a",
+     "origId": "VARTARGET-19",
+     "row": "V3",
+     "selector": "*",
+     "requirement": "NOT_EXISTS",
+     "value": "a condition prescribing a player behaviour (e.g. a mandatory scan or required route) for scoring on the live target",
+     "strictness": "EXCLUSION",
+     "valueStatus": "N/A",
+     "scope": "OWN_INVOLVEMENT",
+     "basis": "AUTHORED",
+     "basisEvidence": "contraindications: \"The variability shapes information availability, not behavior â€” players choose how to exploit whichever target is live.\"",
+     "checkability": "OUTSIDE_BOUNDARY",
+     "structuralClause": "none",
+     "fitNote": "Moved from consequences to conditions (it is a condition of scoring). Player behaviour is outside the boundary; V5 already bars player-position referents. 'not-a-value' -> N/A."
+    }
+   ],
+   "declarations": [
+    {
+     "row": "V0",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "11.a."
+    },
+    {
+     "row": "V0",
+     "declaration": "EXCLUDED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "12.a, 12.b."
+    },
+    {
+     "row": "V1",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: what the primary scoring event actually is."
+    },
+    {
+     "row": "V2",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: the point value of the primary event."
+    },
+    {
+     "row": "V3",
+     "declaration": "EXCLUDED",
+     "selector": "*",
+     "scope": "OWN_INVOLVEMENT",
+     "note": "19.a."
+    },
+    {
+     "row": "V3",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Other conditions never examined."
+    },
+    {
+     "row": "V4",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Never examined."
+    },
+    {
+     "row": "V5",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Never examined."
+    },
+    {
+     "row": "V6",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Never examined."
+    },
+    {
+     "row": "V7",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Modifier existence not examined as such; 18.a forbids candidate referents on V8b."
+    },
+    {
+     "row": "V8a",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Never examined."
+    },
+    {
+     "row": "V8b",
+     "declaration": "EXCLUDED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "18.a."
+    },
+    {
+     "row": "V9",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Never examined."
+    },
+    {
+     "row": "V10",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Never examined."
+    },
+    {
+     "row": "V11",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: any consequence not concerning target availability (target availability lives in assignmentRule)."
+    },
+    {
+     "row": "V12",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "As V11."
+    },
+    {
+     "row": "V13",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "As V11."
+    },
+    {
+     "row": "V14a",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "As V11."
+    },
+    {
+     "row": "V14b",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "As V11."
+    },
+    {
+     "row": "V14c",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "As V11."
+    },
+    {
+     "row": "V15",
+     "declaration": "CLAIMED",
+     "selector": "subject=live member of this object's candidate set",
+     "scope": "WHOLE_GAME",
+     "note": "13.a."
+    },
+    {
+     "row": "V16",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "OWN_INVOLVEMENT",
+     "note": "13.b."
+    },
+    {
+     "row": "V17",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "OWN_INVOLVEMENT",
+     "note": "05.b, 15.a."
+    },
+    {
+     "row": "V17",
+     "declaration": "EXCLUDED",
+     "selector": "*",
+     "scope": "OWN_INVOLVEMENT",
+     "note": "16.a, 16.b."
+    },
+    {
+     "row": "V18",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "OWN_INVOLVEMENT",
+     "note": "14.a."
+    },
+    {
+     "row": "V18",
+     "declaration": "NOT_AUTHORED",
+     "selector": "*",
+     "scope": "OWN_INVOLVEMENT",
+     "note": "notAuthored #8: whether EXTERNAL_SIGNAL (coach cue) is admissible; setup guidance and IE-C006/IE-D006 unreconciled."
+    },
+    {
+     "row": "V19",
+     "declaration": "NOT_AUTHORED",
+     "selector": "*",
+     "scope": "OWN_INVOLVEMENT",
+     "note": "notAuthored #2: reveal timing; IE-C006 composes no REVEAL_TIMING (SD-19)."
+    },
+    {
+     "row": "V20",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "OWN_INVOLVEMENT",
+     "note": "17.a, 17.b."
+    },
+    {
+     "row": "V21",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "OWN_INVOLVEMENT",
+     "note": "13.d."
+    },
+    {
+     "row": "V22",
+     "declaration": "NOT_AUTHORED",
+     "selector": "*",
+     "scope": "OWN_INVOLVEMENT",
+     "note": "notAuthored #5: whether the live target is knowable to both teams or only the attacker (SD-19)."
+    },
+    {
+     "row": "V23",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: any time window."
+    },
+    {
+     "row": "V24",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: any time window."
+    },
+    {
+     "row": "V25",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: any time window."
+    },
+    {
+     "row": "V26",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: any time window."
+    }
+   ],
+   "relationshipRules": []
+  }
+ ]
+}

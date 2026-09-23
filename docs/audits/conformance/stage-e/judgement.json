@@ -1,0 +1,866 @@
+﻿{
+    "clusters":  {
+                     "clusters":  [
+                                      {
+                                          "gap":  "Contextual team designations (BUILD_OUT_TEAM, ATTACKING_TEAM, DEFENDING_TEAM, WON_BALL) compared either as canonical entries or as the teams they evaluate to, both in selectors on static rows (P3, J1-J3 carry TEAM_A/TEAM_B) and in values. Each deriver switched reading between areas: A map-to-both (area 1) then literal no-match (area 2); B both teams (area 1) then START team only (area 2). Lead\u0027s G1; stage E1 entry #3.",
+                                          "rule":  "RC-22 and RC-1 (with RC-16); register teamDesignations note",
+                                          "countA":  4,
+                                          "countB":  6,
+                                          "sameChoice":  "PARTLY",
+                                          "couldChangeVerdict":  "YES",
+                                          "scope":  "LOCAL",
+                                          "readingRule":  "A designation denotes the team(s) it evaluates to at its trigger or episode. On a row not keyed by a trigger, a selector designation is met by each team the game\u0027s stated transitions make it at some trigger (BUILD_OUT_TEAM: the START team only, per KR-03). Values compare by canonical entry; a game value glossed \u0027(= ENTRY)\u0027 is that entry. Moves L79, RPC-001-08.c and 11.a: Christian first."
+                                      },
+                                      {
+                                          "gap":  "When a stated value has no support, NOT_AUTHORED or INVENTED? The switch is written only for free choice (section 4 bar) and ASSUMED items (RC-30). Unsaid for non-fillable rows, for element-level silence (a declared row whose selector misses the element), and for a value contradicting an entailing source whose only evidence is engine wording (L157, lead\u0027s G2).",
+                                          "rule":  "RC-17 order and \u0027required but unauthored\u0027; section 4 bar (RC-18); RC-30; RC-13; SD-20 with RC-24",
+                                          "countA":  6,
+                                          "countB":  6,
+                                          "sameChoice":  "PARTLY",
+                                          "couldChangeVerdict":  "YES",
+                                          "scope":  "LOCAL",
+                                          "readingRule":  "For a stated, unsupported value: INVENTED if an ENTAILS source (item or citable SD) fixes a different value. Else NOT_AUTHORED if a NOT_AUTHORED or UNDECLARED declaration reaches that element, or an ASSUMED item fixes the value under any reaching declaration (RC-30). Else INVENTED. A declaration whose selector misses the element is silence. Engine-only evidence names a reason, never the verdict."
+                                      },
+                                      {
+                                          "gap":  "No precedence among NOT_AUTHORED reason codes when several apply (DECLARED_GAP, COVERAGE, ENGINE_ONLY, ASSUMED_ONLY, ALTERNATIVES, OUTSIDE_BOUNDARY, START_PROCEDURE). A\u0027s order is not consistent across lines; B\u0027s order changed between areas 1, 2 and 3. Lead\u0027s G3: L44, L94, L100, L161.",
+                                          "rule":  "Section 2 reason-code table; RC-9, RC-29, RC-32",
+                                          "countA":  4,
+                                          "countB":  5,
+                                          "sameChoice":  "NO",
+                                          "couldChangeVerdict":  "NO",
+                                          "scope":  "LOCAL",
+                                          "readingRule":  "Take the first code that applies: START_PROCEDURE, POST_SCORE, OUT_OF_PLAY_SOURCE_MISSING; then ALTERNATIVES, OUTSIDE_BOUNDARY, ENGINE_ONLY, ASSUMED_ONLY, each only when that item bears on the line\u0027s value (not mere presence); then DECLARED_GAP; then COVERAGE. Any fixed order settles it; the verdict stays NOT_AUTHORED."
+                                      },
+                                      {
+                                          "gap":  "RC-35 gives no result for an item whose selector matches an element that leaves the value unstated, and does not say how a SUPPORTING item fails. A: VIOLATED throughout. B: UNMET for REQUIRED and SATISFIED for SUPPORTING in area 3, but VIOLATED for VARTARGET-13.c in area 2. Lead\u0027s G4: VARTARGET-05.b, 13.d.",
+                                          "rule":  "RC-35, with RC-1\u0027s \u0027met, with nothing to check\u0027",
+                                          "countA":  2,
+                                          "countB":  1,
+                                          "sameChoice":  "NO",
+                                          "couldChangeVerdict":  "YES",
+                                          "scope":  "LOCAL",
+                                          "readingRule":  "A matched element whose value is absent gives UNMET for a REQUIRED item and SATISFIED (vacuous) for a SUPPORTING or EXCLUSION item. VIOLATED only when a stated value breaks the item."
+                                      },
+                                      {
+                                          "gap":  "RC-35\u0027s labels overlap (an ENGINE_ONLY item that is also PARTLY_STRUCTURAL, OUTSIDE_BOUNDARY, PREFERRED_DEFAULT or EXCLUSION) and give nothing for unmatched non-REQUIRED items, a REQUIRED COLLECTION minimum with no match (UNMET or VIOLATED), unmatched PARTLY_STRUCTURAL items, or ASSUMED items. Forward results only.",
+                                          "rule":  "RC-35, RC-31, RC-1 no-match clause, SD-08, RC-30",
+                                          "countA":  5,
+                                          "countB":  9,
+                                          "sameChoice":  "YES",
+                                          "couldChangeVerdict":  "YES",
+                                          "scope":  "LOCAL",
+                                          "readingRule":  "Assign in order: INERT (ENGINE_ONLY or TYPICAL_EXAMPLE basis), NOT_CHECKABLE, CLAUSE_CHECKED. Then, with no matching element: a FIELD item is met (REQUIRED gives UNMET, else SATISFIED); a COLLECTION item gives UNMET if REQUIRED, ADAPTED if PREFERRED_DEFAULT, SATISFIED if EXCLUSION. Otherwise compare; ASSUMED items are checked as bounds."
+                                      },
+                                      {
+                                          "gap":  "RC-15 lists needed-but-unstated properties without saying who decides a property is needed (V10 with one modifier), how a composite value is split (ball O4: restart place plus in-play), or which reason applies when no declaration bars and every reaching declaration is NON_CLAIMED (L36, L193).",
+                                          "rule":  "RC-15; section 2 COVERAGE (\u0027a contract never declared the row\u0027)",
+                                          "countA":  4,
+                                          "countB":  2,
+                                          "sameChoice":  "YES",
+                                          "couldChangeVerdict":  "NO",
+                                          "scope":  "LOCAL",
+                                          "readingRule":  "The restated game\u0027s line list fixes which properties are needed. A value mixing a restart placement with in-play position is judged on its placement part; the rest is OUTSIDE_BOUNDARY. An unstated needed value that nothing authors or bars is NOT_AUTHORED(COVERAGE), read as \u0027no source\u0027."
+                                      },
+                                      {
+                                          "gap":  "RC-17 has no verdict for lines that need no support: VIEW rows (DV1, L111-L112), an empty collection (V23, L210) and a stated absence (P4 none, L44). N/A exists only under RC-20, so both forced NOT_AUTHORED or ENTAILED.",
+                                          "rule":  "RC-15, RC-17; register VIEW kind (\u0027never needs support\u0027)",
+                                          "countA":  3,
+                                          "countB":  3,
+                                          "sameChoice":  "PARTLY",
+                                          "couldChangeVerdict":  "YES",
+                                          "scope":  "LOCAL",
+                                          "readingRule":  "VIEW rows get no support line; their items are checked in Gate B forward only. A stated absence or empty collection is RESOLVED:ENTAILED unless an item requires an element there (forward UNMET) or a NOT_AUTHORED/UNDECLARED declaration reaches the row (then NOT_AUTHORED, reason by the code order)."
+                                      },
+                                      {
+                                          "gap":  "The game leaves a value unstated that an item or citable SD entails (START T7 via SD-14, L119; V21 via VARTARGET-13.d, L204). Does the line record authorship (ENTAILED) or the game\u0027s omission?",
+                                          "rule":  "RC-15 (forward results kept out of verdicts), RC-17, RC-36",
+                                          "countA":  2,
+                                          "countB":  2,
+                                          "sameChoice":  "YES",
+                                          "couldChangeVerdict":  "YES",
+                                          "scope":  "LOCAL",
+                                          "readingRule":  "A line\u0027s verdict records the support for the property, not whether the game states it. An unstated value that an ENTAILS source fixes is RESOLVED:ENTAILED; the omission goes to the forward list (the item\u0027s result, or a Gate B note for an SD)."
+                                      },
+                                      {
+                                          "gap":  "Value-neutral items (a FIELD-row EXISTS, an unviolated EXCLUSION or EXCLUDED declaration): do they count as a differing selection item that stops an SD (SD-11 on S1), or as non-NARROWS holdings that fail section 4 condition 4 and bar free choice (START T2, V1)?",
+                                          "rule":  "SD-11 \u0027yields\u0027 (register); section 4 condition 4 against its bar paragraph (RC-18); RC-29 on fillable V1",
+                                          "countA":  3,
+                                          "countB":  3,
+                                          "sameChoice":  "YES",
+                                          "couldChangeVerdict":  "YES",
+                                          "scope":  "LOCAL",
+                                          "readingRule":  "Only an item that constrains the value counts. A FIELD EXISTS or an unviolated EXCLUSION neither triggers an SD\u0027s yield nor fails section 4 condition 4. Free choice is barred only by a NOT_AUTHORED or UNDECLARED declaration reaching the element, or by a bound the value breaks."
+                                      },
+                                      {
+                                          "gap":  "A position fill \u0027inside authored bounds\u0027 where the only bounds are ASSUMED (channel S5): met vacuously, or not fillable, as count fills are without an authored COUNT/RANGE? Decides L25 and L31.",
+                                          "rule":  "RC-8 fillable wording (S5/S6/O4/O5 against S2/P2/O3); RC-30",
+                                          "countA":  1,
+                                          "countB":  1,
+                                          "sameChoice":  "YES",
+                                          "couldChangeVerdict":  "YES",
+                                          "scope":  "LOCAL",
+                                          "readingRule":  "A position fill \u0027inside authored bounds\u0027 needs no authored bound: it holds when every in-scope bound, authored or ASSUMED, is met. A count fill \u0027inside an authored COUNT/RANGE\u0027 needs an authored one."
+                                      },
+                                      {
+                                          "gap":  "A set value on a one-property-per-member row may be conjunctive (\u0027both wide channels, each a referent\u0027) or alternatives, and the game may use several alternatives at once (18.b) or restate the whole set (V18, V20). RC-29 covers only a single chosen member.",
+                                          "rule":  "RC-29; grammar section 3 value field; RC-15 per-member lines",
+                                          "countA":  3,
+                                          "countB":  2,
+                                          "sameChoice":  "YES",
+                                          "couldChangeVerdict":  "YES",
+                                          "scope":  "LOCAL",
+                                          "readingRule":  "On S4, J7, J10, V5 and V8b a set marked \u0027each\u0027 is read as one EQUALS item per member; an unmarked set is alternatives. A game value that restates the set or uses several alternatives at once chooses none: no NARROWED_CHOICE, and NOT_AUTHORED(ALTERNATIVES) on a non-fillable row."
+                                      },
+                                      {
+                                          "gap":  "Selectors written outside the predicate language: in words (\u0027non-candidate objects\u0027), on unregistered attributes (restart=GOAL_KICK), with negation (\u0027other than\u0027), or with free-text or off-list values. Both matched \u0027target zone\u0027 literally against kind in {line, zone} but \u0027live member\u0027 by meaning against \u0027active candidate\u0027.",
+                                          "rule":  "RC-1, RC-11; grammar section 2 (selectorAttributes, operators); RC-33",
+                                          "countA":  4,
+                                          "countB":  5,
+                                          "sameChoice":  "YES",
+                                          "couldChangeVerdict":  "YES",
+                                          "scope":  "LOCAL",
+                                          "readingRule":  "Before derivation the restater rewrites each selector over registered attributes and operators and records the element ids it denotes. Closed-list values match exactly (an off-list value matches no listed one). A selector left in words or on an unregistered attribute matches no element, and its complement every element."
+                                      },
+                                      {
+                                          "gap":  "OWN_INVOLVEMENT reaches \u0027elements the same contract entails\u0027, which is circular for items that themselves entail, and decides whether a contract\u0027s bounds reach elements others entail (VARTARGET-16.a against info-wide STANDING at L208; WIDEZONE S3). Stage E1 entry #29.",
+                                          "rule":  "Section 5 scope table (RC-23); RC-13",
+                                          "countA":  2,
+                                          "countB":  3,
+                                          "sameChoice":  "YES",
+                                          "couldChangeVerdict":  "YES",
+                                          "scope":  "LOCAL",
+                                          "readingRule":  "OWN_INVOLVEMENT covers the elements entailed by the contract\u0027s other-scoped items, fixed before any OWN_INVOLVEMENT item applies; an OWN_INVOLVEMENT item never widens its own unit."
+                                      },
+                                      {
+                                          "gap":  "A PER_OBJECTIVE_SET unit is defined only by J2 referents, so whether a set\u0027s own J7 member objectives are in it is unstated (VARTARGET-06.b). Stage E1 entry #38 says it moves a slice verdict.",
+                                          "rule":  "Section 5 PER_OBJECTIVE_SET (RC-23)",
+                                          "countA":  2,
+                                          "countB":  1,
+                                          "sameChoice":  "YES",
+                                          "couldChangeVerdict":  "YES",
+                                          "scope":  "LOCAL",
+                                          "readingRule":  "A set\u0027s unit contains its J7 member objectives and every element they reference through J2."
+                                      },
+                                      {
+                                          "gap":  "When a COUNT/RANGE minimum entails fewer elements than match its selector, which ones are entailed. Both took game order, so of two symmetric elements one is ENTAILED and the other not (set-A/set-B, L93/L102; obj:tz-B-north/south, L85/L89).",
+                                          "rule":  "RC-2 (a minimum is entailed); RC-26",
+                                          "countA":  1,
+                                          "countB":  1,
+                                          "sameChoice":  "YES",
+                                          "couldChangeVerdict":  "YES",
+                                          "scope":  "LOCAL",
+                                          "readingRule":  "A minimum N entails the first N matching elements in the restated game\u0027s listed order; the rest are count fill on a fillable row, otherwise unsupported."
+                                      },
+                                      {
+                                          "gap":  "RC-20 makes T2-T5 N/A when playState is CONTINUE, but not whether the stated or the derived playState counts (tr-PC states STOP_RESUME; SD-20 derives CONTINUE). Decides whether L153-L156 are judged at all.",
+                                          "rule":  "RC-20; SD-20",
+                                          "countA":  1,
+                                          "countB":  1,
+                                          "sameChoice":  "YES",
+                                          "couldChangeVerdict":  "YES",
+                                          "scope":  "LOCAL",
+                                          "readingRule":  "RC-20 keys on the game\u0027s stated playState. If that stated value is itself unsupported, T2-T5 are still judged."
+                                      },
+                                      {
+                                          "gap":  "RC-19 makes a reachable trigger\u0027s T1 element exist by construction, but not when the game splits one trigger into several elements by qualifier (OUT_END_LINE by lastTouch, L127 and L136).",
+                                          "rule":  "RC-19",
+                                          "countA":  1,
+                                          "countB":  1,
+                                          "sameChoice":  "YES",
+                                          "couldChangeVerdict":  "YES",
+                                          "scope":  "LOCAL",
+                                          "readingRule":  "Construction covers every element that partitions a reachable trigger by qualifier values; the qualifier fields (T1a-T1c) still need support."
+                                      },
+                                      {
+                                          "gap":  "Section 4 condition 2 (the element\u0027s existence is entailed) has no element for game-level FIELD rows outside any collection (neutrals, P5-P7).",
+                                          "rule":  "Section 4 condition 2; SD-16",
+                                          "countA":  1,
+                                          "countB":  1,
+                                          "sameChoice":  "YES",
+                                          "couldChangeVerdict":  "NO",
+                                          "scope":  "LOCAL",
+                                          "readingRule":  "On a FIELD row outside any collection the element is the game, whose existence is given."
+                                      },
+                                      {
+                                          "gap":  "A bound whose operand is another row\u0027s value (NEUTRAL-08.a: each team\u0027s P2 against the other\u0027s minus P5) has no requirement kind; readers evaluated it from the stated game. Moot here: GF2 bars P2. Stage E1 entries #16 and #22 (RELATIVE_BOUND).",
+                                          "rule":  "Requirement kinds (RANGE); RC-21 by analogy; P2 fillable entry",
+                                          "countA":  0,
+                                          "countB":  1,
+                                          "sameChoice":  "YES",
+                                          "couldChangeVerdict":  "NO",
+                                          "scope":  "LOCAL",
+                                          "readingRule":  "Read a relative bound\u0027s operands from the stated game, as RC-21 does. It is a bound only, never the authored COUNT/RANGE a fillable entry needs."
+                                      },
+                                      {
+                                          "gap":  "Noted but settled: O1 existence carries no O3 count; regions no S2 item matches are INVENTED; EXISTS on a FIELD is presence only (J7 members); V4 and S4 values carried from selectors; a PARTLY_STRUCTURAL clause entails V0; fields ENTAILED despite unentailed existence; a VIEW supports no stored row.",
+                                          "rule":  "RC-2, RC-16, RC-31, SD-16, grammar section 2, register VIEW kind",
+                                          "countA":  5,
+                                          "countB":  7,
+                                          "sameChoice":  "YES",
+                                          "couldChangeVerdict":  "NO",
+                                          "scope":  "NOT_A_GAP",
+                                          "readingRule":  "None needed; the cited rules settle each case."
+                                      },
+                                      {
+                                          "gap":  "Noted but settled: the session supports E1-E4; GF2-08.b EQUALS fails against object references; RC-19 codes apply to T2-T6 only; FREE(b) keys on the line\u0027s term and RC-34 matches verbatim; a used PREFERRED_DEFAULT supports; TYPICAL_EXAMPLE forms no set; only same-row items reach a line.",
+                                          "rule":  "RC-36, section 3 comparison, RC-19, SD-15 and RC-34, RC-28, RC-1",
+                                          "countA":  4,
+                                          "countB":  6,
+                                          "sameChoice":  "YES",
+                                          "couldChangeVerdict":  "NO",
+                                          "scope":  "NOT_A_GAP",
+                                          "readingRule":  "None needed. Optional: type the session in citableStandingDecisions as EQUALS on E1-E4 (ENTAILS), so RC-36\u0027s \u0027supports\u0027 is explicit."
+                                      },
+                                      {
+                                          "gap":  "Noted but settled: a partial NOT_AUTHORED declaration reaches by selector and scope, not by the narrower gap its note describes (WIDEZONE S6 width scaling, GF2 P2, NEUTRAL P5, WIDEZONE V11). A note-based reading would free about a dozen DECLARED_GAP lines.",
+                                          "rule":  "RC-13, RC-7, RC-18",
+                                          "countA":  2,
+                                          "countB":  2,
+                                          "sameChoice":  "YES",
+                                          "couldChangeVerdict":  "NO",
+                                          "scope":  "NOT_A_GAP",
+                                          "readingRule":  "None needed: without a selector a declaration covers every element on the row, and its note does not narrow it. A drafter who means only part of a value must declare it in the value, not the note."
+                                      },
+                                      {
+                                          "gap":  "Split by area, not by rule: area-1 lines assumed unit existence judged in area 2. RC-26 settles it, and both derivers\u0027 L102 (set-B NOT_AUTHORED) removes the basis for L67/L72, which both still marked ENTAILED. The comparison missed it because both erred alike.",
+                                          "rule":  "RC-26, RC-19 (SCORE through V0); the stage D area split",
+                                          "countA":  3,
+                                          "countB":  2,
+                                          "sameChoice":  "YES",
+                                          "couldChangeVerdict":  "YES",
+                                          "scope":  "NOT_A_GAP",
+                                          "readingRule":  "No rule change. Derive J5, P1 and V0 existence before any PER_X or construction-dependent line, then re-judge the conditioned lines: L67 and L72 lose VARTARGET-01.a/02.a support."
+                                      },
+                                      {
+                                          "gap":  "Harness artefacts, not rules: mojibake in the selector operators (read as the set-membership and contains operators) and what the support field lists for NOT_AUTHORED lines.",
+                                          "rule":  "None (input encoding; output format)",
+                                          "countA":  1,
+                                          "countB":  1,
+                                          "sameChoice":  "YES",
+                                          "couldChangeVerdict":  "NO",
+                                          "scope":  "NOT_A_GAP",
+                                          "readingRule":  "None for the grammar. Write inputs as UTF-8 and fix the support field\u0027s format in the output schema."
+                                      }
+                                  ],
+                     "summary":  "The 136 interpretations reduce to 19 distinct LOCAL rule gaps, none STRUCTURAL, plus 5 NOT_A_GAP groups (A 15, B 18). Four gaps cause all 10 disagreements (lead\u0027s G1-G4). Twelve more could change a result, but both derivers chose alike, so 99% agreement overstates determinism. Readings changed between areas (G1 both; G3 and G4 in B). An agreed error: L67/L72 ENTAILED contradicts both derivers\u0027 L102 under RC-26. G1 and PER_OBJECTIVE_SET change slice verdicts, so Christian decides first."
+                 },
+    "traces":  {
+                   "traces":  [
+                                  {
+                                      "id":  "L44",
+                                      "cause":  "GRAMMAR_AMBIGUITY",
+                                      "namedGap":  "The rules give no order among NOT_AUTHORED reason codes, and \u0027only evidence\u0027 (ENGINE_ONLY) is not defined for an item that points against the stated value. Also, RC-15 makes no provision for a line recording a stated absence as an element.",
+                                      "correctVerdictUnderRulesAsWritten":  "NOT_AUTHORED. The reason code is not settled: COVERAGE and ENGINE_ONLY both meet their definitions. Arguably the line should not exist, because RC-15 lines are per element and an absence is not an element.",
+                                      "scope":  "LOCAL",
+                                      "reasoning":  "Both give NOT_AUTHORED, and P4 is not fillable. The only item, RPC-001-05.b (EXISTS one target player, ENGINE_ONLY), is inert (RC-31) and points to presence. RPC-001\u0027s and Neutral\u0027s UNDECLARED P4 [*] reach by selector (RC-13). Â§2 lists codes without order. A ranks ENGINE_ONLY first, as both did on L49-L51. B treats an engine item that contradicts the value as no evidence for it. Neither breaks a written rule."
+                                  },
+                                  {
+                                      "id":  "L79",
+                                      "cause":  "GRAMMAR_AMBIGUITY",
+                                      "namedGap":  "RC-22 says designations are equal only if they map to one entry, and also that a designation is evaluated at its trigger or episode. It does not say which governs when a selector or RC-16-carried value holds a context-relative designation (team=BUILD_OUT_TEAM) and the game states a named team (TEAM_A), nor at what episode a J1/J3 row with no trigger is evaluated.",
+                                      "correctVerdictUnderRulesAsWritten":  "Not settled. Entry identity (A): 11.a matches nothing, so NOT_AUTHORED(DECLARED_GAP), barred by RPC-001/GF2 J3 NOT_AUTHORED. Evaluation at START (B): 11.a entails obj:tz-A-north and carries team=Team A (RC-16), so RESOLVED:ENTAILED, which overrides the bars (Â§4 \u0027unless another item entails\u0027).",
+                                      "scope":  "LOCAL",
+                                      "reasoning":  "Everything else agrees: existence is entailed, GF2-12.a is ADAPTED, and the declarations reach. Only 11.a\u0027s match differs. A used evaluation in area 1 (RPC-001-02/03 on P3: \u0027resolves to either team per restart\u0027) but entry identity in area 2. The agreed ENTAILED L40/L43 rest on the evaluation reading; A\u0027s area-1 note says a literal reading makes them INVENTED. This changes a verdict, so it goes to Christian."
+                                  },
+                                  {
+                                      "id":  "L94",
+                                      "cause":  "READER_ERROR_B",
+                                      "namedGap":  "None for this line. The general lack of an order among reason codes does not reach it, because the ASSUMED rule names this code. Caveat: if Â§4\u0027s last paragraph is read as applying to all rows, it conflicts with the ASSUMED row. Its \u0027then\u0027 follows \u0027bars free choice\u0027.",
+                                      "correctVerdictUnderRulesAsWritten":  "NOT_AUTHORED(ASSUMED_ONLY).",
+                                      "scope":  "N/A",
+                                      "reasoning":  "Â§3, ASSUMED row: an ASSUMED value on a non-fillable row is \u0027INVENTED, or NOT_AUTHORED(ASSUMED_ONLY) where a declaration reaches it\u0027. J6 has no fillable entry (RC-8). TEAM_A is VARTARGET-06.d\u0027s ASSUMED value, and VARTARGET\u0027s J6 NOT_AUTHORED reaches set-A. B\u0027s ranking of DECLARED_GAP over ASSUMED_ONLY is not written, and B\u0027s area-3 order is the reverse. Reading Â§4 as general would also make the agreed ASSUMED_ONLY on L84/L97 become COVERAGE."
+                                  },
+                                  {
+                                      "id":  "L100",
+                                      "cause":  "GRAMMAR_AMBIGUITY",
+                                      "namedGap":  "RC-15 gives no reason code for a needed-but-unstated property, and does not say whether a missing collection element is judged on its existence or its key. RC-29\u0027s ALTERNATIVES is written for value sets, not âˆˆ selector sets, which RC-16 says only narrow. COVERAGE assumes a declaration reaches an element, and set-A has no J11a element.",
+                                      "correctVerdictUnderRulesAsWritten":  "Not settled. NOT_AUTHORED with COVERAGE (A) or ALTERNATIVES (B). A third reading is also open: existence ENTAILED by 08.a (RC-2), with 08.a UNMET forward. Both derivers used that treatment for the unstated-but-authored L204 and START T7.",
+                                      "scope":  "LOCAL",
+                                      "reasoning":  "Both give NOT_AUTHORED, and both report VARTARGET-08.a (REQUIRED, AUTHORED, EXISTS on J11a, OWN_INVOLVEMENT) as UNMET. A cites the UNDECLARED J11a declarations of RPC-001 and GF2. B reads 08.a\u0027s four-trigger âˆˆ selector as unresolved alternatives on a non-fillable row. set-B\u0027s L109, outside VARTARGET\u0027s scope, is COVERAGE for both. So the split is only over how 08.a\u0027s selector set is coded."
+                                  },
+                                  {
+                                      "id":  "L157",
+                                      "cause":  "READER_ERROR_B",
+                                      "namedGap":  "None. The rules settle it.",
+                                      "correctVerdictUnderRulesAsWritten":  "INVENTED.",
+                                      "scope":  "N/A",
+                                      "reasoning":  "SD-20 is typed in the register (T6 CONTINUE on POSSESSION_CHANGE). It yields only to a support-capable stoppage item. RPC-001-16.c is ENGINE_ONLY, so inert (RC-31), and no area-3 V11 item authors a reset, so T6 is authored for tr-PC. NOT_AUTHORED means \u0027required but unauthored\u0027 (Â§2), and no NOT_AUTHORED or UNDECLARED declaration reaches tr-PC T6. So STOP_RESUME has no valid support. B applied this same principle to P6a/P6b in area 1."
+                                  },
+                                  {
+                                      "id":  "L161",
+                                      "cause":  "GRAMMAR_AMBIGUITY",
+                                      "namedGap":  "The rules give no order among NOT_AUTHORED reason codes. On V2 (not fillable), three codes meet their definitions: DECLARED_GAP (GF2 V2 NOT_AUTHORED [*]), ENGINE_ONLY (RPC-001-20 is the only evidence) and COVERAGE (A01-02 and Neutral UNDECLARED). No rule names the code for an engine-only value, as the ASSUMED row does for assumed ones.",
+                                      "correctVerdictUnderRulesAsWritten":  "NOT_AUTHORED. The reason code is not settled.",
+                                      "scope":  "LOCAL",
+                                      "reasoning":  "Both give NOT_AUTHORED, and A notes that ENGINE_ONLY also fits. Each deriver stated its own, unwritten order: A puts DECLARED_GAP over ENGINE_ONLY; B (area 3) names the item\u0027s kind first. This is the same gap as L44, and one fixed order of codes would settle both."
+                                  },
+                                  {
+                                      "id":  "FWD:RPC-001-08.c",
+                                      "cause":  "GRAMMAR_AMBIGUITY",
+                                      "namedGap":  "The same gap as L79: whether team=BUILD_OUT_TEAM in a selector matches an objective stated as TEAM_A by canonical-entry identity or by evaluation through the designation map, and at which episode.",
+                                      "correctVerdictUnderRulesAsWritten":  "Not settled. UNMET under entry identity (RC-1: a REQUIRED FIELD item whose selector matches no element). SATISFIED under evaluation (obj:tz-A-* state a J2 reference).",
+                                      "scope":  "LOCAL",
+                                      "reasoning":  "Each result follows correctly from its deriver\u0027s matching reading; only the match differs. B evaluated at the one entailed build-out episode (START, KR-03). In area 1, B had said each team is BUILD_OUT_TEAM in some episode. So even the evaluation reading has two variants."
+                                  },
+                                  {
+                                      "id":  "FWD:RPC-001-11.a",
+                                      "cause":  "GRAMMAR_AMBIGUITY",
+                                      "namedGap":  "The same gap as L79 and 08.c: how a context-relative designation in a J1 selector compares with a named team.",
+                                      "correctVerdictUnderRulesAsWritten":  "Not settled. UNMET (a REQUIRED COLLECTION EXISTS with no matching element) under entry identity; SATISFIED under evaluation.",
+                                      "scope":  "LOCAL",
+                                      "reasoning":  "Identical in cause to 08.c. The same selector (role=PRIMARY_SCORING \u0026 team=BUILD_OUT_TEAM) drives the L79 verdict through RC-16 carriage, so one amendment settles all three results."
+                                  },
+                                  {
+                                      "id":  "FWD:VARTARGET-05.b",
+                                      "cause":  "GRAMMAR_AMBIGUITY",
+                                      "namedGap":  "No forward rule covers an item whose selector matches an element whose field the game leaves unstated. RC-1\u0027s \u0027met, nothing to check\u0027 covers only a selector matching no element. The comparison table (\u0027passes when equal\u0027) assumes a value. RC-15\u0027s \u0027a bound breached\u0027 implies no value cannot breach a bound. SUPPORTING has no forward meaning beyond avoiding UNMET.",
+                                      "correctVerdictUnderRulesAsWritten":  "Not settled. VIOLATED if an unstated value fails the set (A); SATISFIED if a bound on an unstated value is vacuously met (B).",
+                                      "scope":  "LOCAL",
+                                      "reasoning":  "05.b (SUPPORTING; EQUALS an unordered set, so NARROWS under RC-29) reaches info-live, which VARTARGET-13.a entails (agreed). L200 states no V17 value. UNMET is excluded (not REQUIRED, and the selector matches), so the result is SATISFIED or VIOLATED. Neither definition addresses an absent value, and both derivers flagged it as an interpretation."
+                                  },
+                                  {
+                                      "id":  "FWD:VARTARGET-13.d",
+                                      "cause":  "READER_ERROR_B",
+                                      "namedGap":  "None for the label. The absent-field gap traced under 05.b lies beneath it, but UNMET is excluded by definition whichever way that gap is resolved.",
+                                      "correctVerdictUnderRulesAsWritten":  "VIOLATED.",
+                                      "scope":  "N/A",
+                                      "reasoning":  "RC-35 defines UNMET as \u0027a REQUIRED item matching no element\u0027. RC-1\u0027s UNMET clause likewise covers only a selector matching no element. 13.d (REQUIRED EQUALS OBJECTIVE_DEPENDENT) matches info-live, as B\u0027s note concedes. An unstated value does not meet a REQUIRED EQUALS, so SATISFIED is out, which leaves VIOLATED. B reached UNMET by extending RC-1 \u0027by analogy\u0027."
+                                  }
+                              ],
+                   "untraced":  0,
+                   "summary":  "10 disagreements traced, 0 untraced. 7 are GRAMMAR_AMBIGUITY across 4 LOCAL gaps: team designations in selectors (L79, 08.c, 11.a; the agreed L40/L43 also rest on it); no order of reason codes (L44, L161); coding a needed but unstated element (L100); an unstated field in the forward check (05.b). 3 are READER_ERROR_B: L94 is ASSUMED_ONLY, L157 is INVENTED, 13.d is VIOLATED. The designation gap changes verdicts, so it goes to Christian."
+               },
+    "critic":  {
+                   "summary":  "At most a qualified STABLE WITH LOCAL AMENDMENTS. The NOT_AUTHORED-inflation worry fails (86/88 lines with any other verdict agree). But agreement rests on at least 9 gaps both derivers filled the same way, readings that flip by area, a shared cross-area error and restater glosses. S1 and S4 depend on downgrading every STRUCTURAL label. #1\u0027s downgrade over-entails, and the verifier\u0027s own #25 test makes it STRUCTURAL. Collisions and 55 of 81 rows were never exercised blind.",
+                   "sliceFindings":  "Agreed: 58 ENTAILED, 3 NARROWED, 2 FREE(b), 122 NOT_AUTHORED (48 COVERAGE, 39 DECLARED_GAP, 9 out-of-play, 7 ASSUMED_ONLY, 5 POST_SCORE, 5 ALTERNATIVES, 4 START, 4 ENGINE_ONLY), 23 INVENTED; 70% of lines block. INVENTED: own-half start regions (engine only), corridor, build-out reset after score/out/turnover (KR-03), plus 9 restatement artifacts. Turnover: play stops, ball-winner restarts from GK/own half; T6 INVENTED/ENGINE_ONLY; SD-20 and GF2-17 say play on.",
+                   "challenges":  [
+                                      {
+                                          "severity":  "UNDERMINES_VERDICT",
+                                          "claim":  "E1: no SCHEMA entry needs a STRUCTURAL change, so S1 holds (RPC-001 L-01, entry #1, is ALREADY_HOLDABLE).",
+                                          "challenge":  "#1 is cleared by SUPPORTING EXISTS items on every carrier. RC-2/RC-28 make SUPPORTING items entail existence, so every RPC-001 game supports a line, a gate, a zone and a target player, whichever V1 member is chosen. An unused carrier then escapes Gate B reverse. Holding \u0027the carrier exists only for the chosen event\u0027 needs a condition on another row, which the verifier calls a hidden STRUCTURAL change in #25.",
+                                          "evidence":  "schema-verification.json n1: \u0027Optional LOCAL: an O1 functions attribute ... so an unused carrier gets no support\u0027; n25: \u0027a selector testing E1 ... would change RC-1 matching, a hidden STRUCTURAL change\u0027; derivation-rules Â§3 RC-28: \u0027REQUIRED or SUPPORTING strictness supports alike\u0027; RC-2."
+                                      },
+                                      {
+                                          "severity":  "QUALIFIES_VERDICT",
+                                          "claim":  "S4 holds: the blind contracts produce no STRUCTURAL SCHEMA failure.",
+                                          "challenge":  "S4 passes only because E1 overruled the GF4 blind drafter\u0027s 4 STRUCTURAL labels. E1 downgraded all 5 drafter STRUCTURAL labels and tested none of the 66 LOCAL entries for an upgrade. #51 keeps GF4\u0027s permission for uneven teams only by dropping its authored condition. Theme A (conditional items) recurs in 4 sources (#1, #25, #41, #51), and each fix weakens the item: inert, SUPPORTING, ADAPTED or condition dropped. That is the documented pattern of silently losing authored knowledge.",
+                                          "evidence":  "schema-entries.json #48, #51, #53, #54 (GF4, STRUCTURAL) mapped to ALREADY_HOLDABLE or OUTSIDE_BOUNDARY_BY_DESIGN; #51 minimalAmendment \u0027Hold \"can be introduced\" as NON_CLAIMED on P2\u0027; #41 drafter: \u0027a true conditional item would be STRUCTURAL\u0027."
+                                      },
+                                      {
+                                          "severity":  "MINOR",
+                                          "claim":  "Hypothesis to test: the 208/210 agreement is inflated because most lines are NOT_AUTHORED.",
+                                          "challenge":  "The hypothesis mostly fails. On the 88 lines where at least one deriver gave a verdict other than NOT_AUTHORED, the derivers gave the same verdict on 86 (97.7%). Cohen\u0027s kappa is 0.983 on verdicts and 0.965 on verdict plus reason. On the 122 lines both judged NOT_AUTHORED, the reasons agree on 118. The inflation comes from shared unwritten readings, not from the NOT_AUTHORED base rate (see the next challenges).",
+                                          "evidence":  "Recomputed from stage-d/derivations.json and stage-b/game.json: 88 lines with a verdict other than NOT_AUTHORED, 86 agree; 122 lines both NOT_AUTHORED, 118 with the same reason; verdict kappa 0.983 (chance agreement 0.433)."
+                                      },
+                                      {
+                                          "severity":  "QUALIFIES_VERDICT",
+                                          "claim":  "S2: every disagreement traces to four gaps (G1-G4), so the rules settle everything else.",
+                                          "challenge":  "S2 sees only disagreements. The derivers logged 64 and 72 interpretations, and at least 9 are gaps both filled the same way with no rule: a count minimum goes to the first-listed element; the INVENTED/NOT_AUTHORED bar is extended past free choice; silence under a selector does not bar; J7 members sit in their own set\u0027s unit (#38, verdict-changing); L210 \u0027no verdict fits\u0027; L36/L193 \u0027nearest code\u0027; the DV1 view verdict; RC-20 reads the stated playState. None is on G1-G4.",
+                                          "evidence":  "comparison.json interpretationsA/B. A2: \u0027I took the first listed as entailed\u0027; B2: \u0027allocated to the first N matching elements in game order\u0027. A3: \u0027Silence under a selector is not UNDECLARED\u0027. A3 and B3 on L210: \u0027No verdict applies literally\u0027 and \u0027No verdict fits\u0027."
+                                      },
+                                      {
+                                          "severity":  "QUALIFIES_VERDICT",
+                                          "claim":  "Two independent derivers applied the grammar consistently.",
+                                          "challenge":  "Each deriver was three separate area runs, and each contradicts itself across areas. On BUILD_OUT_TEAM, A1 matches both teams through the designation map, A2 matches nothing, B1 matches both teams and B2 matches Team A only. On \u0027target zone\u0027, A1 and B1 match strictly while A3 and B3 match by meaning. The lines agree because both derivers switched readings in the same area on the same inputs. G1 has at least three readings, and the agreed L40/L43 depend on it (#3: the fix \u0027settles L40/L43\u0027).",
+                                          "evidence":  "comparison.json: A1 \u0027Resolved through the designation map ... each reaches both team elements\u0027; A2 \u0027Distinct canonical entries are unequal, so no match\u0027; B2 \u0027BUILD_OUT_TEAM=Team A\u0027; A3 \u0027Matched by meaning, not string\u0027; B1 \u0027Literal match: target zone is not zone\u0027."
+                                      },
+                                      {
+                                          "severity":  "QUALIFIES_VERDICT",
+                                          "claim":  "No disagreement is a reader error; all agreement is sound.",
+                                          "challenge":  "Both derivers made the same error, and it counts as agreement. In area 1 both assumed set-B\u0027s unit is entailed, and both noted that L67/L72 flip otherwise. In area 2 both found set-B J5 NOT_AUTHORED (L102). Under RC-26, VARTARGET\u0027s PER_OBJECTIVE_SET items cannot then entail tz-B, so L67/L72 ENTAILED is wrong in both. T6 at L157 was also judged without the V11 items that could make SD-20 yield. This untraced reader error comes from the area split in stage-d-inputs.js.",
+                                          "evidence":  "B1: \u0027If area 2 finds a set not entailed, that set\u0027s tz O1 lines become INVENTED\u0027; L102 set-B J5 NOT_AUTHORED(DECLARED_GAP) (A and B); L67/L72 support only VARTARGET-01.a/02.a; A2: \u0027V11 items that might make SD-20 yield are not in this input\u0027."
+                                      },
+                                      {
+                                          "severity":  "QUALIFIES_VERDICT",
+                                          "claim":  "The derivers worked independently from the grammar; the shared inputs did not decide hard cases.",
+                                          "challenge":  "The restater\u0027s designation map (BUILD_OUT_TEAM = \u0027T2 awardee (START: Team A)\u0027) made B\u0027s L79 reading possible and decided both area-1 P3 verdicts. The restater\u0027s glosses decided others. \u0027team defending that end (= NOT_LAST_TOUCH)\u0027 and \u0027ATTACKING_TEAM (= NOT_LAST_TOUCH)\u0027 were accepted (L130, L139 ENTAILED), against RC-22. The equally context-derived WON_BALL=ATTACKING_TEAM was rejected (L46/L47 INVENTED, 4 NEUTRAL items VIOLATED). Stage C candidates are row-level only.",
+                                          "evidence":  "game.json designationMap; A2 and B2 on RC-22: \u0027I accepted the game\u0027s stated equivalence\u0027; register teamDesignations: \u0027Two designations are equal only if they map to one entry\u0027; A1 and B1 on P6b: WON_BALL is a different entry (RC-22)."
+                                      },
+                                      {
+                                          "severity":  "QUALIFIES_VERDICT",
+                                          "claim":  "The restatements are faithful enough that the derivation tests the grammar.",
+                                          "challenge":  "E1 found errors in the game restatement that decide verdicts. #55: the whole area as an S2 region (L6, L7, L9, L10 INVENTED). #61: neutrals encoded as consequences (L46, L47, L190-L192 INVENTED; NEUTRAL-03/14 VIOLATED). #66: an invented REGION_ENTRY transition was folded in and escaped the check. Zones belong on S2 (Â§5.2), not O1 (GF2-03/04/06 UNMET). A01-02 used an unregistered selector, restart=GOAL_KICK, so all 6 of its REQUIRED items are UNMET. Nothing was re-derived.",
+                                          "evidence":  "schema-verification.json n55, n61 (\u0027Report this to the derivers\u0027), n66 (\u0027Folded in, the invented trigger escapes Gate B reverse\u0027), n65 RESTATEMENT_ERROR; A2 and B2 on restart=GOAL_KICK; forward results for A01-02-01.a, 04.a/b, 05.a, 07.a and 11.a are UNMET."
+                                      },
+                                      {
+                                          "severity":  "QUALIFIES_VERDICT",
+                                          "claim":  "Stage D shows that support can be derived mechanically when several contracts are combined.",
+                                          "challenge":  "The collision machinery was never exercised. Neither deriver found an UNRESOLVED line or recorded a collision on any line, and all 8 contracts together hold only 2 relationship rules. Would-be collisions disappeared because ENGINE_ONLY items are inert or because a PREFERRED_DEFAULT becomes ADAPTED (GF2-12.a/.b, GF2-17, VARTARGET-05.a). Nullifying A01-02 removed another source. SD-02, RC-27, RC-24 and relationship rules therefore have no agreement evidence.",
+                                          "evidence":  "comparison.json tallies (no UNRESOLVED); every collision field in derivations.json is \u0027none\u0027; relationshipRules count is 1 each for RPC-001 and GF4 and 0 elsewhere; ADAPTED forward results: GF2-12.a, 12.b, 17, VARTARGET-05.a."
+                                      },
+                                      {
+                                          "severity":  "QUALIFIES_VERDICT",
+                                          "claim":  "Two blind contracts, drafted from the grammar alone, show that the grammar transfers.",
+                                          "challenge":  "The blind contracts CLAIM or EXCLUDE only 26 of 81 rows. They never touch J3-J12, T2-T5, T7, V11-V14c, V18-V21, P3-P10 or O2-O5. They hold only 19 support-capable, non-ASSUMED items (PCG 10, GF4 9), and GF4\u0027s transition identity (OB1, OB4, REQUIRED) is all OUTSIDE_BOUNDARY. Neither was derived. Their context included the memory index line \u0027restarts unauthored in 11/11 Game Forms\u0027, which bears on GF4\u0027s T2-T5 NOT_AUTHORED declarations.",
+                                          "evidence":  "stage-b/contracts.json (blind): rows claimed PCG = SV1,P1,O1,V0,V3-V6,V15-V17,V22; GF4 = S2,S5,P1,P2,O1,J1,J2,DV1,T1,T1c,T6,V1,V7,V8b,V9,V23; GF4 OB1-OB7 are OUTSIDE_BOUNDARY with no row; auto-injected MEMORY.md index."
+                                      },
+                                      {
+                                          "severity":  "QUALIFIES_VERDICT",
+                                          "claim":  "S3: the blind contracts declare 81/81 rows.",
+                                          "challenge":  "The count is per row. stage-c-mechanical.js counts a row as declared if any declaration names it, whatever its selector. PCG declares 13 rows, and GF4 about 19, only for elements that match a selector: PCG\u0027s O1 covers only kind=ball, and GF4\u0027s T2-T6 omit REGION_ENTRY, TIME_EXPIRY and STANDING. Other elements on those rows are undeclared. The derivers treated such silence as neither a bar nor a coverage gap, an unwritten rule that made L190-L197 INVENTED.",
+                                          "evidence":  "stage-c-mechanical.js line 38 (row-level test); declarations in stage-b/contracts.json; B1: \u0027Such a contract neither bars nor permits, and it is not COVERAGE\u0027; grammar Â§4: \u0027Silence is not a declaration\u0027."
+                                      },
+                                      {
+                                          "severity":  "QUALIFIES_VERDICT",
+                                          "claim":  "The grammar of revision 4 is stable.",
+                                          "challenge":  "The set of reading rules has not converged. Revision 4 needed RC-11 to RC-36 (26 rules) before the run. Stage D added G1-G4. E1 added an RC-23 clarification (#38, verdict-changing), an RC-35 clarification (#41), a complement operator and new relative terms. At least 9 shared readings remain unwritten. About 45 rules so far, more at every stage. The verdict is about revision 4 plus conventions still being written, not revision 4 itself; the protocol says the count is part of the answer.",
+                                          "evidence":  "protocol: \u002726 added reading rules ... That count is itself part of the answer\u0027; lead-trace G1-G4; schema-verification n38 (\u0027Clarify RC-23\u0027, changesASliceVerdict YES), n41, n18/n26, n13/n31; derivers\u0027 difficulties lists."
+                                      },
+                                      {
+                                          "severity":  "QUALIFIES_VERDICT",
+                                          "claim":  "G2-G4 are LOCAL clarifications, and G1 is LOCAL.",
+                                          "challenge":  "Â§6 counts as LOCAL only new rows, fields, selector attributes or requirement kinds, and it lists \u0027a change to how support is derived\u0027 as STRUCTURAL. No pre-registered test calls a derivation-rule change LOCAL. G2 changes how a verdict is assigned and flips L157 for deriver B, so by protocol it goes to Christian. G1\u0027s fix brings in an episode scope (L-05), which Â§6 files as VOCABULARY, although it needs a new RC-23 unit-membership rule.",
+                                          "evidence":  "grammar-sheet Â§6 LOCAL/STRUCTURAL lists; lead-trace: \u0027G2, G3 and G4 are LOCAL clarifications\u0027; schema-verification n3: \u0027An item binding only one episode also carries an episode scope (the L-05 VOCABULARY value)\u0027."
+                                      },
+                                      {
+                                          "severity":  "QUALIFIES_VERDICT",
+                                          "claim":  "Every real gap is LOCAL (about 22).",
+                                          "challenge":  "Â§6 decides by the form of an amendment, and several LOCAL fixes bring in new meanings. KR-03 scopes RPC-001 to \u0027the build-out episode\u0027, held only as the off-list scope BUILD_OUT_EPISODE (11.b, 16.a-c), which no rule defines; those items were inert or unmatched, so it was never exercised. #36 (per-episode caps, endsOn), #43 (resetOn) and #52 (same episode) add episode timing, and RELATIVE_BOUND (#16, #22, #32) makes free choice a joint constraint.",
+                                          "evidence":  "RPC-001 ledger L-05; items with scope BUILD_OUT_EPISODE; derivation-rules Â§5 lists only four scopes; schema-verification n36, n43, n52, n16 (\u0027op ... against another element\u0027s value ... sum/spread\u0027)."
+                                      },
+                                      {
+                                          "severity":  "QUALIFIES_VERDICT",
+                                          "claim":  "RC-2 and RC-15 give a determinate verdict for each element.",
+                                          "challenge":  "RC-2 entails a COUNT/RANGE minimum but does not say which elements. Both derivers gave it to the first-listed element, and that alone splits symmetric lines: L80 ENTAILED against L84 ASSUMED_ONLY, L85 ENTAILED against L89 NOT_AUTHORED, and set-A against set-B. RC-15 judges each element while RC-2 entails a count, and the two conflict. The fix probably changes the unit of judgement, which Â§6 would class STRUCTURAL. Neither the lead nor E1 lists it.",
+                                          "evidence":  "A2 difficulties: \u0027the rules do not say which element is the entailed one. I chose the first listed, which drives the set-B and obj:tz-B-south verdicts\u0027; B2: \u0027This splits otherwise symmetric Team A and Team B lines\u0027."
+                                      },
+                                      {
+                                          "severity":  "MINOR",
+                                          "claim":  "Items classed OUTSIDE_BOUNDARY or KNOWLEDGE are properly outside the grammar.",
+                                          "challenge":  "Some hide grammar gaps. VARTARGET-12.b (credit only on the live candidate) and 16.b (the live member cannot be known before the trigger) are rules the V0 and V15-V22 rows key on, yet both are inert: L175-L178 are NOT_AUTHORED and the object\u0027s defining rule is never checked. #33 was parked as KNOWLEDGE because the verdict would be the same, but \u0027exactly one of V7 or V11\u0027 has no cross-row form. The RPC-001 restater put \u0027NOT_DOMINANT and routes\u0027 in OUTSIDE_BOUNDARY because \u0027they had no row\u0027.",
+                                          "evidence":  "contracts.json VARTARGET-12.b and 16.b (OUTSIDE_BOUNDARY); B3 on L175: \u0027rests on VARTARGET-12.b, an OUTSIDE_BOUNDARY item\u0027; schema-verification n33: \u0027blocks just as DECLARED_GAP does now\u0027; RPC-001 difficulties."
+                                      }
+                                  ]
+               },
+    "judged":  {
+                   "verdict":  "STABLE_WITH_LOCAL_AMENDMENTS",
+                   "tests":  [
+                                 {
+                                     "test":  "S1 Holdability",
+                                     "result":  "PASS",
+                                     "evidence":  "E1 verified all 71 ledger entries: 22 real SCHEMA gaps, all LOCAL; 33 already holdable; 12 outside by design; 3 KNOWLEDGE; 1 restatement error. Stage C found no bad kinds or bases. All 5 drafter STRUCTURAL labels fail review. On #1 the critic is right that E1\u0027s SUPPORTING EXISTS carrier items over-entail, but no guard is needed: under RR-01 the RPC picks among physically available events, and Gate A makes the chosen reference resolve (AM-25)."
+                                 },
+                                 {
+                                     "test":  "S2 Mechanical support",
+                                     "result":  "PASS",
+                                     "evidence":  "210 lines judged by both. Verdict agreement 208 (99.0%), verdict and reason 204 (97.1%), forward 162/166, kappa 0.983. The lead and an independent tracer each traced all 10 disagreements; none is untraced. 7 trace to four LOCAL gaps: designations, reason-code order, a needed unstated element, absent value forward. 3 are B\u0027s reader errors: L94, L157 (INVENTED), VARTARGET-13.d (VIOLATED). I side with the tracer over the lead\u0027s \u0027no reader error\u0027."
+                                 },
+                                 {
+                                     "test":  "S3 Coverage",
+                                     "result":  "PASS",
+                                     "evidence":  "All 8 contracts declare all 81 rows with only the four types. Rows the restated contracts never examined (8-16 each) are recorded UNDECLARED, which is KNOWLEDGE per the protocol\u0027s S3 clarification. Both blind contracts declare 81/81, with no unknown rows. Caveat: the count is per row, as grammar Â§4 asks. Elements outside every selector-scoped declaration on a declared row (PCG O1 beyond the ball; GF4 T2-T6 beyond five triggers) are unruled silence (AM-04)."
+                                 },
+                                 {
+                                     "test":  "S4 Blind transfer",
+                                     "result":  "PASS",
+                                     "evidence":  "PCG: 5 LOCAL, 0 STRUCTURAL. GF4: 3 LOCAL and 4 STRUCTURAL labels. All 4 fail review, which I checked. I02 (two goals or two targets) is COUNT 2 plus EXCLUSION COUNT 1 per kind, as WIDEZONE-16.b does. I13\u0027s session-goal condition and the object links are selection knowledge (SD-17, Â§7). I16/I17 is COUNT with TYPICAL_EXAMPLE, which is inert. The sample is thin: 28 of 81 rows claimed or excluded, 19 support-capable items, never derived."
+                                 }
+                             ],
+                   "localAmendments":  [
+                                           {
+                                               "id":  "AM-01",
+                                               "amendment":  "Rule how a context designation (BUILD_OUT_TEAM, ATTACKING_TEAM, DEFENDING_TEAM) in a selector, or carried by RC-16, is met on a row not keyed by a trigger. (a) Each team the stated transitions make it at some trigger. (b) The START team only, with an episode scope (L-05) for one-episode items. (c) Entry identity only. Also rule whether a game gloss \u0027(= NOT_LAST_TOUCH)\u0027 counts as that entry.",
+                                               "source":  "E1 #3; RPC-001 L-03; lead G1; independent trace L79, forward RPC-001-08.c and 11.a; cluster 1 (A and B each switched reading between areas); critic (L130/L139 glosses accepted, L46/L47 WON_BALL rejected). Also moves agreed L40/L43 and 11.a\u0027s reach to L85/L89.",
+                                               "changesASliceVerdict":  "YES",
+                                               "toChristianFirst":  "YES"
+                                           },
+                                           {
+                                               "id":  "AM-02",
+                                               "amendment":  "Clarify RC-23: a PER_OBJECTIVE_SET unit contains the set\u0027s J7 member objectives and every element they reference through J2.",
+                                               "source":  "E1 #38; VARTARGET L-01; cluster PER_OBJECTIVE_SET; critic. Both derivers read it this way without a rule; strictly read, VARTARGET-06.b reaches no objective and L81 (obj:tz-A-south J1) loses its only support.",
+                                               "changesASliceVerdict":  "YES",
+                                               "toChristianFirst":  "YES"
+                                           },
+                                           {
+                                               "id":  "AM-03",
+                                               "amendment":  "Handling of a stated value with no support. INVENTED if an ENTAILS source (item or citable SD) fixes a different value. Otherwise NOT_AUTHORED if a NOT_AUTHORED or UNDECLARED declaration reaches the element on any row, or an ASSUMED item fixes it under a reaching declaration. Otherwise INVENTED. Engine-only evidence names a reason, never the verdict.",
+                                               "source":  "Lead G2; cluster 2 (the switch is written only for free choice and ASSUMED items); independent trace L157 (INVENTED as written); A/B area-1 and area-3 readings; affects L46/L47, L157, L166-L192.",
+                                               "changesASliceVerdict":  "YES",
+                                               "toChristianFirst":  "YES"
+                                           },
+                                           {
+                                               "id":  "AM-04",
+                                               "amendment":  "RC-13, element-level coverage. Rule whether an element that no selector-scoped declaration on a declared row reaches is (a) silence, which neither bars nor is COVERAGE (both derivers\u0027 reading); (b) UNDECLARED; or (c) a drafting error, with a contract\u0027s declarations required to cover every element of a row.",
+                                               "source":  "Critic S3 challenge; B area-1 and A area-3 interpretations; stage-c-mechanical.js counts rows only. Under (b), L190-L192 and L195-L197 turn from INVENTED to NOT_AUTHORED.",
+                                               "changesASliceVerdict":  "YES",
+                                               "toChristianFirst":  "YES"
+                                           },
+                                           {
+                                               "id":  "AM-05",
+                                               "amendment":  "RC-2: rule which elements a COUNT/RANGE minimum entails when more elements match than the minimum. Either the first N in the restated game\u0027s order (both derivers\u0027 unruled choice), or none individually, with every matching existence line judged as excess on a non-fillable row.",
+                                               "source":  "Critic (not listed by the lead or E1); A2 and B2 interpretations; cluster RC-2. Splits symmetric lines: L80/L84, L85/L89, L93/L102.",
+                                               "changesASliceVerdict":  "YES",
+                                               "toChristianFirst":  "YES"
+                                           },
+                                           {
+                                               "id":  "AM-06",
+                                               "amendment":  "RC-35. A matched element with an absent value is UNMET if REQUIRED and SATISFIED if SUPPORTING or EXCLUSION. VIOLATED is only for a stated value that breaks the item. Labels in order: INERT, NOT_CHECKABLE, CLAUSE_CHECKED. When nothing matches: a REQUIRED FIELD or COLLECTION item is UNMET, PREFERRED_DEFAULT is ADAPTED or \u0027not used\u0027, others SATISFIED. ASSUMED items are checked as bounds.",
+                                               "source":  "Lead G4; E1 #41; RC-35 clusters; GF2-09.b ledger entry; independent trace: VARTARGET-05.b open, 13.d VIOLATED as written. Changes forward results (05.b, 13.d, 11.b, 05.a), not line verdicts.",
+                                               "changesASliceVerdict":  "YES",
+                                               "toChristianFirst":  "YES"
+                                           },
+                                           {
+                                               "id":  "AM-07",
+                                               "amendment":  "VIEW rows get no support line (the register already says a view never needs support); items on them are checked forward only. A stated absence or empty collection is RESOLVED:ENTAILED, unless an item requires an element there or a NOT_AUTHORED or UNDECLARED declaration reaches the row.",
+                                               "source":  "Cluster 7; DV1 L111/L112 (both forced NOT_AUTHORED); L210 (both: \u0027no verdict fits\u0027, placeholder ENTAILED); L44.",
+                                               "changesASliceVerdict":  "YES",
+                                               "toChristianFirst":  "YES"
+                                           },
+                                           {
+                                               "id":  "AM-08",
+                                               "amendment":  "RC-15: a line\u0027s verdict records the support for the property. An unstated value that an ENTAILS source fixes is RESOLVED:ENTAILED; the game\u0027s omission goes to the forward list, or to a Gate B note for an SD.",
+                                               "source":  "Cluster 8; L119 (SD-14 START T7) and L204 (VARTARGET-13.d V21), where both derivers agreed without a rule.",
+                                               "changesASliceVerdict":  "YES",
+                                               "toChristianFirst":  "YES"
+                                           },
+                                           {
+                                               "id":  "AM-09",
+                                               "amendment":  "Only an item that constrains the value counts. A FIELD EXISTS, or an unviolated EXCLUSION or EXCLUDED declaration, neither makes an SD yield nor fails Â§4 condition 4. Free choice is barred only by a reaching NOT_AUTHORED or UNDECLARED declaration, or by a breached bound.",
+                                               "source":  "Cluster 9; A and B on SD-11 at S1 (L5), START T2 (L114), V1 (L160).",
+                                               "changesASliceVerdict":  "YES",
+                                               "toChristianFirst":  "YES"
+                                           },
+                                           {
+                                               "id":  "AM-10",
+                                               "amendment":  "A position fill \u0027inside authored bounds\u0027 (S5, S6, O4, O5) holds when every in-scope bound, authored or ASSUMED, is met, including when all of them are ASSUMED. A count fill still needs an authored COUNT/RANGE.",
+                                               "source":  "Cluster 10; L25 and L31 (channel lengths NARROWED_CHOICE on ASSUMED bounds only).",
+                                               "changesASliceVerdict":  "YES",
+                                               "toChristianFirst":  "YES"
+                                           },
+                                           {
+                                               "id":  "AM-11",
+                                               "amendment":  "RC-29. On one-property-per-member rows (S4, J7, J10, V5, V8b), a set marked \u0027each\u0027 is one EQUALS item per member; an unmarked set is alternatives. A game value that restates the whole set, or uses several alternatives at once, chooses none.",
+                                               "source":  "Cluster 11; L185/L186 (WIDEZONE-11.a conjunctive), L201/L203 (restated sets), L164/L165 (RPC-001-18.b both used).",
+                                               "changesASliceVerdict":  "YES",
+                                               "toChristianFirst":  "YES"
+                                           },
+                                           {
+                                               "id":  "AM-12",
+                                               "amendment":  "Before derivation, the restater rewrites each selector over registered attributes and operators and records the element ids it denotes. Closed-list values match exactly. A selector left in words, or on an unregistered attribute, matches no element.",
+                                               "source":  "Cluster 12. A1/B1 matched \u0027target zone\u0027 literally, A3/B3 matched \u0027active candidate\u0027 by meaning. A01-02\u0027s restart=GOAL_KICK left its 6 REQUIRED items UNMET. GF2-06 is UNMET or SATISFIED depending on the reading.",
+                                               "changesASliceVerdict":  "YES",
+                                               "toChristianFirst":  "YES"
+                                           },
+                                           {
+                                               "id":  "AM-13",
+                                               "amendment":  "OWN_INVOLVEMENT covers the elements entailed by the contract\u0027s other-scoped items, fixed before any OWN_INVOLVEMENT item applies. An item that entails a COLLECTION element may not use it; such items use E1 #29\u0027s S2 attribute at WHOLE_GAME.",
+                                               "source":  "E1 #29, #42; cluster OWN_INVOLVEMENT; critic. Decides L21/L27 support (WIDEZONE-02.a/03/08.d) and whether VARTARGET-16.a reaches info-wide\u0027s STANDING (L208).",
+                                               "changesASliceVerdict":  "YES",
+                                               "toChristianFirst":  "YES"
+                                           },
+                                           {
+                                               "id":  "AM-14",
+                                               "amendment":  "RC-20 keys on the game\u0027s stated playState. T2-T5 are still judged when that stated value is itself unsupported.",
+                                               "source":  "Cluster RC-20; A and B on tr-PC. Decides whether L153-L156 are judged at all (SD-20 derives CONTINUE).",
+                                               "changesASliceVerdict":  "YES",
+                                               "toChristianFirst":  "YES"
+                                           },
+                                           {
+                                               "id":  "AM-15",
+                                               "amendment":  "RC-19\u0027s construction covers every element that partitions a reachable trigger by qualifier values. The qualifier fields T1a-T1c still need support.",
+                                               "source":  "Cluster RC-19; L127/L136 (OUT_END_LINE split by lastTouch), ENTAILED by both without a rule.",
+                                               "changesASliceVerdict":  "YES",
+                                               "toChristianFirst":  "YES"
+                                           },
+                                           {
+                                               "id":  "AM-16",
+                                               "amendment":  "New requirement kind RELATIVE_BOUND: NARROWS, or EXCLUDES under EXCLUSION. It compares against another named element\u0027s value, or a sum or spread over matched elements at the item\u0027s scope, with operands read from the stated game. FIELD rows only. It never entails a value or existence, and it never counts as an authored COUNT/RANGE for fillability.",
+                                               "source":  "E1 #16, #22, #23, #32 (theme C); GF2-14.b, NEUTRAL-08.a/09.a, WIDEZONE-09; cluster on relative bounds.",
+                                               "changesASliceVerdict":  "NO",
+                                               "toChristianFirst":  "NO"
+                                           },
+                                           {
+                                               "id":  "AM-17",
+                                               "amendment":  "New selector attributes. On S2: position.across, matched by RC-21 terms, with per-touchline identity. On V7: condition.referents (âˆ‹). Also clarify grammar Â§2: a FIELD row\u0027s selector uses its collection\u0027s selectorAttributes.",
+                                               "source":  "E1 #29, #30, #35, #42, #49 (theme D); WIDEZONE L-selector entries; GF4 I03/I14/I15.",
+                                               "changesASliceVerdict":  "NO",
+                                               "toChristianFirst":  "NO"
+                                           },
+                                           {
+                                               "id":  "AM-18",
+                                               "amendment":  "Let J2 take a P4 role reference (target_player), and limit Â§5.8\u0027s Gate A position claim to object and region members.",
+                                               "source":  "E1 #2; RPC-001 L-02.",
+                                               "changesASliceVerdict":  "NO",
+                                               "toChristianFirst":  "NO"
+                                           },
+                                           {
+                                               "id":  "AM-19",
+                                               "amendment":  "Add a complement Â¬(selector) to RC-11. It is true of elements that fail the inner selector, including those lacking the attribute, and it fixes no attribute under RC-16. It may be limited to declaration selectors.",
+                                               "source":  "E1 #18, #26; GF2 and NEUTRAL negation entries.",
+                                               "changesASliceVerdict":  "NO",
+                                               "toChristianFirst":  "NO"
+                                           },
+                                           {
+                                               "id":  "AM-20",
+                                               "amendment":  "New COLLECTION row performers.actionRules[] (selectorAttributes group, action), with FIELD rows .group, .action (a draft closed list) and .limit. It uses existing kinds, existence follows RC-2, and it has no fillable entry.",
+                                               "source":  "E1 #17 (theme F); GF2-15, GF2-22; RPC-001 L-04; NEUTRAL touch-limit and protected-status entries.",
+                                               "changesASliceVerdict":  "NO",
+                                               "toChristianFirst":  "NO"
+                                           },
+                                           {
+                                               "id":  "AM-21",
+                                               "amendment":  "Optional trigger-keyed fields, each existing only where authored. conditions[].resetOn; timeWindows[].endsOn; cap {count, per EPISODE or GAME} on valueModifiers[] and consequences[]; V8c valueModifiers[].condition.value; transitions[].placement.restrictions[] {group, region or minDistance_m, playedTo}. Do not reinstate consequences[].duration.",
+                                               "source":  "E1 #7, #9, #34, #36, #43, #52, #69 (themes G and H2); PCG L2; A01-02 L4/L5/L7; WIDEZONE-11.",
+                                               "changesASliceVerdict":  "NO",
+                                               "toChristianFirst":  "NO"
+                                           },
+                                           {
+                                               "id":  "AM-22",
+                                               "amendment":  "Add relative terms \u0027longitudinal\u0027 (along-extent at least across-extent) and \u0027lateral\u0027 (the reverse), usable with POSITIONED or ORIENTED on S5, S6, O4 and O5. The relation stays NARROWS.",
+                                               "source":  "E1 #13, #31 (theme H1); GF2-05.b; WIDEZONE-04.",
+                                               "changesASliceVerdict":  "NO",
+                                               "toChristianFirst":  "NO"
+                                           },
+                                           {
+                                               "id":  "AM-23",
+                                               "amendment":  "A fixed order of reason codes: START_PROCEDURE, POST_SCORE, OUT_OF_PLAY_SOURCE_MISSING; then ALTERNATIVES, OUTSIDE_BOUNDARY, ENGINE_ONLY, ASSUMED_ONLY, where that item bears on the value; then DECLARED_GAP; then COVERAGE, which is also used as \u0027no source\u0027 when every reaching declaration is NON_CLAIMED.",
+                                               "source":  "Lead G3; independent trace L44, L161 (same gap), L100; clusters on reason codes and RC-15 (L36, L193 \u0027nearest code\u0027). The verdict stays NOT_AUTHORED.",
+                                               "changesASliceVerdict":  "NO",
+                                               "toChristianFirst":  "NO"
+                                           },
+                                           {
+                                               "id":  "AM-24",
+                                               "amendment":  "Housekeeping. An OUTSIDE_BOUNDARY item takes row NONE and requirement N/A. On a FIELD row outside any collection (P5-P7), Â§4 condition 2\u0027s element is the game. Optionally type the session in citableStandingDecisions (EQUALS on E1-E4).",
+                                               "source":  "E1 #47; PCG L6; cluster on Â§4 condition 2; NOT_A_GAP cluster note on RC-36.",
+                                               "changesASliceVerdict":  "NO",
+                                               "toChristianFirst":  "NO"
+                                           },
+                                           {
+                                               "id":  "AM-25",
+                                               "amendment":  "No grammar change. Do not adopt E1 #1\u0027s SUPPORTING EXISTS carrier items (O1 line/gate, S2 zone, P4 target player): they would support unused carriers. Carriers come from the layout\u0027s other objects; RPC-001 narrows V1 among physically available events (RR-01); Gate A makes the chosen reference resolve. If Christian rules that RPC-001 must supply its own carrier, that needs a guard: STRUCTURAL.",
+                                               "source":  "Critic challenge 1 (upheld against the re-draft, not its conclusion); E1 #1, #25 and theme A watch item; RPC-001 L-01; spec Â§5.8 and register RR-01.",
+                                               "changesASliceVerdict":  "NO",
+                                               "toChristianFirst":  "YES"
+                                           },
+                                           {
+                                               "id":  "AM-26",
+                                               "amendment":  "Latent and optional, adopted only when needed. E5 envelope.area.shape, when EM-0001 is contracted. An alternativeGroup for cross-row alternatives whose members keep RC-29. A note that V5 and V8b may reference an SV1 fraction.",
+                                               "source":  "E1 #10, #37 (H1); theme B verdict (#12, #33, #48, #67); #45.",
+                                               "changesASliceVerdict":  "NO",
+                                               "toChristianFirst":  "NO"
+                                           }
+                                       ],
+                   "whatPreventsTheConclusion":  "Nothing, under the pre-registered criterion. Two rulings by Christian would reverse it. (1) RPC-001 must itself entail the carrier of its chosen event: that needs a guard, which is STRUCTURAL, so S1 fails (AM-25). (2) The new derivation reading rules count as Â§6\u0027s \u0027a change to how support is derived\u0027: then so would the 26 pre-run ones. AM-01 to AM-15 change verdicts and go to him first. Data-model design can start; the derivation engine should wait for his rulings.",
+                   "knowledgeGapsThatDoNotBlock":  "None count against stability. Unauthored: who restarts after out of play, a score or START (18 lines); which V1 event; which team attacks which end (J3); a second objective set (P-11); Variable Target\u0027s assignment keys, initial state, revelation, timing and holder; neutral and outfield counts; channel widths and target positions; \u0027goal kick\u0027, \u0027first defenders\u0027, \u0027own half\u0027; Wide Zone\u0027s advantage form and size; GF4\u0027s asymmetry condition; 18 engine-only items.",
+                   "runConventions":  [
+                                          {
+                                              "rc":  "RC-1",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "YES",
+                                              "note":  "Central. Readings split on team designations (L79, 08.c, 11.a), on literal versus by-meaning matching (\u0027target zone\u0027 made GF2-06 UNMET; \u0027active candidate\u0027), and on restart=GOAL_KICK (6 A01-02 items UNMET). See AM-01 and AM-12."
+                                          },
+                                          {
+                                              "rc":  "RC-2",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "YES",
+                                              "note":  "Existence only from own-row, non-ASSUMED items; a minimum is entailed. Which matching element takes the minimum is unruled; the first-listed choice split L80/L84, L85/L89 and L93/L102 (AM-05)."
+                                          },
+                                          {
+                                              "rc":  "RC-3",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "UNCLEAR",
+                                              "note":  "ORIENTED narrows, so DV1 had no ENTAILS source (L111/L112), though its J3 inputs were NOT_AUTHORED anyway. NOT_EXISTS items never supported (GF2-07.b at L153)."
+                                          },
+                                          {
+                                              "rc":  "RC-4",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "UNCLEAR",
+                                              "note":  "KR-02/KR-03 let RPC-001-11.a entail a PRIMARY_SCORING objective (L77, L80), which other items also support; for B it also gave L79. KR-01 entailed no set (L102)."
+                                          },
+                                          {
+                                              "rc":  "RC-5",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "NO",
+                                              "note":  "V6 values judged as a row (L170, L174, L178, L182). No alternative reading was raised."
+                                          },
+                                          {
+                                              "rc":  "RC-6",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "NO",
+                                              "note":  "Restaters gave N/A to valueless EXISTS items. GF4\u0027s example-only existence and VARTARGET-05.a hinged on it, but COUNT with TYPICAL_EXAMPLE holds them (E1 #41, #53). No line moves."
+                                          },
+                                          {
+                                              "rc":  "RC-7",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "YES",
+                                              "note":  "CLAIMED with NOT_AUTHORED on one row was common (WIDEZONE S2/S6). Per-row coverage left selector-scoped silence standing; an element-level reading moves L190-L192 and L195-L197 (AM-04)."
+                                          },
+                                          {
+                                              "rc":  "RC-8",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "YES",
+                                              "note":  "The exhaustive fillable list decided many lines. Unsupported values on J1, J4-J7, S3, S4 and O2 are not choices; S5 (L25/L31) and START T2 (L114) are. A non-exhaustive list would free many lines."
+                                          },
+                                          {
+                                              "rc":  "RC-9",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "YES",
+                                              "note":  "Gave 4 START_PROCEDURE and 5 POST_SCORE lines; without it they would be INVENTED."
+                                          },
+                                          {
+                                              "rc":  "RC-10",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "YES",
+                                              "note":  "It put 12 RPC-001 items and 6 A01-02 items on engine wording. Counting that wording as authored would support the own-half regions (L11-L20), the restart T3/T4/T6 lines and L157."
+                                          },
+                                          {
+                                              "rc":  "RC-11",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "YES",
+                                              "note":  "There is no complement operator (E1 #18, #26). Selectors written in words or on unregistered attributes were matched inconsistently (AM-12, AM-19)."
+                                          },
+                                          {
+                                              "rc":  "RC-12",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "YES",
+                                              "note":  "ENGINE_ONLY items supported nothing (L44, L49-L51, L157, restarts). Treating them as support would change those lines."
+                                          },
+                                          {
+                                              "rc":  "RC-13",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "YES",
+                                              "note":  "Reach is by selector, not by note: WIDEZONE\u0027s V11 NOT_AUTHORED reached cons-neutral (L189, L194). A note-based reading would free about a dozen DECLARED_GAP lines. Silence under a selector is AM-04."
+                                          },
+                                          {
+                                              "rc":  "RC-14",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "NO",
+                                              "note":  "Applied by every drafter and by E1. It moves no line verdict, but it decides the stability verdict: #1, and whether the new reading rules are LOCAL, rest on it."
+                                          },
+                                          {
+                                              "rc":  "RC-15",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "YES",
+                                              "note":  "Needed-but-unstated lines (L36, L100, L193) lacked a code. Unstated authored values (L119, L204) were ENTAILED by an unwritten reading (AM-08). Per-element units clash with RC-2 minimums (AM-05)."
+                                          },
+                                          {
+                                              "rc":  "RC-16",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "YES",
+                                              "note":  "Carried S3/S4 (L22, L23), V4 (L172, L180) and J4 (L80). With RC-22 it gave B\u0027s L79 ENTAILED from team=BUILD_OUT_TEAM."
+                                          },
+                                          {
+                                              "rc":  "RC-17",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "YES",
+                                              "note":  "The precedence mostly held. NOT_AUTHORED versus INVENTED outside free choice is unwritten (AM-03). Views, absences and empty collections have no verdict that fits (AM-07)."
+                                          },
+                                          {
+                                              "rc":  "RC-18",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "YES",
+                                              "note":  "Barred L26, L32, L45, L160 and A\u0027s L79. Whether value-neutral items bar (L114, L160) is AM-09."
+                                          },
+                                          {
+                                              "rc":  "RC-19",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "YES",
+                                              "note":  "T1 elements exist by construction, SCORE through V0. The OUT_END_LINE qualifier split (L127/L136) rests on an unwritten extension (AM-15). RC-9 and PSD-03 codes applied on T2-T6."
+                                          },
+                                          {
+                                              "rc":  "RC-20",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "YES",
+                                              "note":  "Keyed on the stated playState, so tr-PC T2-T5 (L153-L156) were judged although SD-20 derives CONTINUE (AM-14)."
+                                          },
+                                          {
+                                              "rc":  "RC-21",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "NO",
+                                              "note":  "Touchline-adjacent and beyond tests were met (L26, L32 bounds; RPC-001-04.b). The lines were decided by declarations, not by these tests."
+                                          },
+                                          {
+                                              "rc":  "RC-22",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "YES",
+                                              "note":  "WON_BALL is not ATTACKING_TEAM, so L46/L47 are INVENTED. The glosses \u0027(= NOT_LAST_TOUCH)\u0027 were accepted at L130/L139. Designations on static rows are unruled (AM-01)."
+                                          },
+                                          {
+                                              "rc":  "RC-23",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "YES",
+                                              "note":  "Whether J7 members fall in PER_OBJECTIVE_SET decides L81 (E1 #38, AM-02). OWN_INVOLVEMENT circularity decides L21/L27 support and L208 reach (AM-13). PER_SIDE unused."
+                                          },
+                                          {
+                                              "rc":  "RC-24",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "YES",
+                                              "note":  "SD-11 entailed S1 (L5), because EXISTS items were taken as not differing. SD-20 did not yield at L157. SD-14 entailed START T7 (L119)."
+                                          },
+                                          {
+                                              "rc":  "RC-25",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "NO",
+                                              "note":  "The game leaves J9 unstated (L98), so fillability made no difference."
+                                          },
+                                          {
+                                              "rc":  "RC-26",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "YES",
+                                              "note":  "Set-B\u0027s unit is not entailed, which gave L89/L102. Both derivers still ENTAILED L67/L72 on an area-1 assumption that RC-26 forbids once L102 is known: a shared error from the area split."
+                                          },
+                                          {
+                                              "rc":  "RC-27",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "UNCLEAR",
+                                              "note":  "Checked on every line; no collision and no UNRESOLVED arose. Never exercised, so there is no agreement evidence for it, SD-02 or the relationship rules."
+                                          },
+                                          {
+                                              "rc":  "RC-28",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "YES",
+                                              "note":  "Displaced PREFERRED_DEFAULTs were ADAPTED, not collisions (GF2-12.a/.b, GF2-17, VARTARGET-05.a); defaults the game used supported (L48, L130). Reading displacement as a collision would make L79 and L157 UNRESOLVED."
+                                          },
+                                          {
+                                              "rc":  "RC-29",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "YES",
+                                              "note":  "Gave 5 ALTERNATIVES lines and shaped L160. Conjunctive \u0027each\u0027 sets (L185/L186) and restated whole sets (L201/L203) were read without a rule (AM-11). Applying the authored order would entail a member."
+                                          },
+                                          {
+                                              "rc":  "RC-30",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "YES",
+                                              "note":  "Gave 7 ASSUMED_ONLY lines (e.g. L84, L94, L97, L206-L209). ASSUMED bounds let L25/L31 be choices (AM-10). If ASSUMED items entailed, these lines would be ENTAILED."
+                                          },
+                                          {
+                                              "rc":  "RC-31",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "YES",
+                                              "note":  "Inert ENGINE_ONLY (RPC-001-16.c at L157) and OUTSIDE_BOUNDARY items (VARTARGET-12.b at L175-L178). VARTARGET-11.a\u0027s structural clause entailed V0 (L159)."
+                                          },
+                                          {
+                                              "rc":  "RC-32",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "UNCLEAR",
+                                              "note":  "One line: L169 is NOT_AUTHORED(OUTSIDE_BOUNDARY). The alternative is INVENTED or another code."
+                                          },
+                                          {
+                                              "rc":  "RC-33",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "UNCLEAR",
+                                              "note":  "Off-list values were logged as VOCABULARY (\u0027target zone\u0027, BUILD_OUT_EPISODE, V13 effects). BUILD_OUT_EPISODE items were inert or unmatched, so its effect is untested."
+                                          },
+                                          {
+                                              "rc":  "RC-34",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "YES",
+                                              "note":  "L174 and L182 are FREE(b), keyed on the line\u0027s own term. RPC-001-19.b is VIOLATED forward because \u0027long clearance\u0027 is not verbatim \u0027long kick\u0027. Keying on the authored term would change L182."
+                                          },
+                                          {
+                                              "rc":  "RC-35",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "YES",
+                                              "note":  "Four forward disagreements (two from G1, VARTARGET-05.b, 13.d). It affects forward results only, not line verdicts (AM-06)."
+                                          },
+                                          {
+                                              "rc":  "RC-36",
+                                              "used":  "YES",
+                                              "alternativeWouldChangeAVerdict":  "YES",
+                                              "note":  "The session supported E1-E4 (L1-L4). SD-06, SD-11, SD-14 and SD-20 were cited as typed. The session\u0027s support is not typed in the register (AM-24)."
+                                          }
+                                      ],
+                   "qualifications":  "The verdict covers revision 4 plus about 45 reading rules: 26 set before the run and about 20 found here, 15 of which change verdicts and are unratified. Agreement (kappa 0.983) is real, but part of it comes from gaps both derivers filled alike, readings that flipped by area, and one shared error (L67/L72). No collision arose. The blind sample is thin, never derived, and possibly primed by the memory index. Restatement errors (#55, #61, #66) decide some lines.",
+                   "sliceGameFindings":  "210 lines; 208 agreed: 58 ENTAILED, 3 NARROWED_CHOICE (channel lengths, START team), 2 FREE(b), 122 NOT_AUTHORED, 23 INVENTED. About 69% block, so the game cannot render; no collision arose. INVENTED: the turnover stop (L157, against SD-20), a build-out reset after every restart (KR-03), own-half start regions (engine wording only), the corridor, and 9 restatement artifacts. Set-B is unauthored (L102), so tz-B existence (L67/L72) should not be ENTAILED. V1 is barred (L160)."
+               }
+}

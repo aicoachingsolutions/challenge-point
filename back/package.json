@@ -1,73 +1,73 @@
 {
-    "name": "challenge-point-back",
-    "version": "1.0.0",
-    "author": "Verticode",
-    "scripts": {
-        "build": "node build.js",
-        "dev": "nodemon",
-        "start": "node dist/index.js",
-        "sync:affordances": "ts-node --files -r tsconfig-paths/register ./src/run-sync-affordances.ts",
-        "sync:constraints": "ts-node --files -r tsconfig-paths/register ./src/run-sync-constraints.ts",
-        "integrity-review": "ts-node src/scripts/run-integrity-review.ts",
-        "test": "ts-node --files -r tsconfig-paths/register ./src/system/activity/validate-activity-skeleton.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/assembly-output-contract.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/player-format.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/playing-area.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/coach-section-ownership.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/coach-communication-standard.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/coach-facing-sections.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/coach-voice.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/incentive-expression.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/slot-mechanics-variations.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/session-emphasis.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/live-assembly-prompt.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/compress-activity-output.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/scoring-object-consistency.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/coach-language.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/coach-guidance.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/learning-stage-realization.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/practice-situation-realization.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/activity-edit-evidence.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/runtime-interface/observation-vocabulary.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/operational-translation.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/input-constraints/deriveInputConstraints.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/information-expression-directive.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/test-library/library/schema/schema.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/test-library/library/composition.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/test-library/library/registry.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/test-library/reasoning-commitment.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/test-library/selection-input-independence.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/test-library/projection-integrity.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/knowledge-core/knowledge-core.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/knowledge-core/em-canonical.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/knowledge-core/em-selection-metadata.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/knowledge-core/affordance-target-matrix.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/knowledge-core/gp-library.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/knowledge-core/game-archetype-library.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/knowledge-core/information-expression-library.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/sport-coupling/sport-coupling.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/sport-module/soccer-module.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/sport-module/soccer-module-adapter.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/sport-module/rpc-library.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/sport-module/primary-scoring.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/guided-goal-constraint-coverage.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/session-planning/session-planning-model.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/session-planning/goal-support.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/session-planning/single-learning-goal.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/session-planning/guided-clarification.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/experience-design/representative-intervention-library.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/experience-design/experience-design-runtime.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/pilot-evidence/coach-event-wiring.unit.ts",
-        "test:selection-pipeline": "ts-node --files -r tsconfig-paths/register ./src/scripts/run-selection-pipeline-tests.ts",
-        "test:create-activity-local": "node .\\run-local-create-activity-test.js"
+  "name": "challenge-point-back",
+  "version": "1.0.0",
+  "author": "Verticode",
+  "scripts": {
+    "build": "node build.js",
+    "dev": "nodemon",
+    "start": "node dist/index.js",
+    "sync:affordances": "ts-node --files -r tsconfig-paths/register ./src/run-sync-affordances.ts",
+    "sync:constraints": "ts-node --files -r tsconfig-paths/register ./src/run-sync-constraints.ts",
+    "integrity-review": "ts-node src/scripts/run-integrity-review.ts",
+    "test": "ts-node --files -r tsconfig-paths/register ./src/system/activity/validate-activity-skeleton.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/assembly-output-contract.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/player-format.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/playing-area.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/coach-section-ownership.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/coach-communication-standard.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/coach-facing-sections.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/coach-voice.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/incentive-expression.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/slot-mechanics-variations.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/session-emphasis.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/live-assembly-prompt.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/compress-activity-output.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/scoring-object-consistency.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/coach-language.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/coach-guidance.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/learning-stage-realization.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/practice-situation-realization.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/activity-edit-evidence.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/runtime-interface/observation-vocabulary.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/operational-translation.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/input-constraints/deriveInputConstraints.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/information-expression-directive.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/test-library/library/schema/schema.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/test-library/library/composition.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/test-library/library/registry.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/test-library/reasoning-commitment.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/test-library/selection-input-independence.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/test-library/projection-integrity.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/knowledge-core/knowledge-core.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/knowledge-core/em-canonical.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/knowledge-core/em-selection-metadata.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/knowledge-core/affordance-target-matrix.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/knowledge-core/gp-library.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/knowledge-core/game-archetype-library.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/knowledge-core/information-expression-library.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/sport-coupling/sport-coupling.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/sport-module/soccer-module.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/sport-module/soccer-module-adapter.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/sport-module/rpc-library.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/sport-module/primary-scoring.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/activity/guided-goal-constraint-coverage.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/session-planning/session-planning-model.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/session-planning/goal-support.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/session-planning/single-learning-goal.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/session-planning/guided-clarification.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/experience-design/representative-intervention-library.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/experience-design/experience-design-runtime.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/pilot-evidence/coach-event-wiring.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/derivation/derivation.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/derivation/derivation-stage345.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/derivation/derivation-stage68.unit.ts && ts-node --files -r tsconfig-paths/register ./src/system/derivation/derivation-stage10.unit.ts",
+    "test:selection-pipeline": "ts-node --files -r tsconfig-paths/register ./src/scripts/run-selection-pipeline-tests.ts",
+    "test:create-activity-local": "node .\\run-local-create-activity-test.js"
+  },
+  "nodemonConfig": {
+    "env": {
+      "NODE_ENV": "development"
     },
-    "nodemonConfig": {
-        "env": {
-            "NODE_ENV": "development"
-        },
-        "watch": [
-            "src"
-        ],
-        "ext": "ts, html",
-        "ignore": [
-            "src/public"
-        ],
-        "exec": "./node_modules/.bin/ts-node --files -r tsconfig-paths/register ./src"
-    },
-    "dependencies": {
-        "@aws-sdk/client-s3": "^3.744.0",
-        "@aws-sdk/s3-request-presigner": "^3.744.0",
-        "bcrypt": "^5.0.1",
-        "boilerplate": "file:..",
-        "chalk": "^4.1.2",
-        "challenge-point": "file:..",
-        "command-line-args": "^5.2.1",
-        "cors": "^2.8.5",
-        "date-fns": "^3.6.0",
-        "dotenv": "^16.4.7",
-        "express": "^4.18.1",
-        "express-async-errors": "^3.1.1",
-        "helmet": "^8.0.0",
-        "http-status-codes": "^2.2.0",
-        "jsonwebtoken": "^8.5.1",
-        "mongoose": "^8.9.3",
-        "morgan": "^1.10.0",
-        "node-mailjet": "^5.1.1",
-        "openai": "^6.34.0",
-        "uuid": "^9.0.0",
-        "winston": "^3.17.0",
-        "winston-mongodb": "^6.0.0"
-    },
-    "devDependencies": {
-        "@types/bcrypt": "^5.0.0",
-        "@types/command-line-args": "^5.2.0",
-        "@types/cors": "^2.8.17",
-        "@types/express": "^4.17.13",
-        "@types/fs-extra": "^9.0.13",
-        "@types/jsonwebtoken": "^8.5.8",
-        "@types/morgan": "^1.9.3",
-        "@types/node": "^18.7.6",
-        "@types/uuid": "^9.0.0",
-        "@typescript-eslint/eslint-plugin": "^5.33.1",
-        "@typescript-eslint/parser": "^5.33.1",
-        "esbuild": "^0.23.1",
-        "eslint": "^8.22.0",
-        "fs-extra": "^10.1.0",
-        "nodemon": "^2.0.19",
-        "ts-node": "^10.9.1",
-        "tsconfig-paths": "^4.1.0",
-        "typescript": "^4.7.4"
-    }
+    "watch": [
+      "src"
+    ],
+    "ext": "ts, html",
+    "ignore": [
+      "src/public"
+    ],
+    "exec": "./node_modules/.bin/ts-node --files -r tsconfig-paths/register ./src"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.744.0",
+    "@aws-sdk/s3-request-presigner": "^3.744.0",
+    "bcrypt": "^5.0.1",
+    "boilerplate": "file:..",
+    "chalk": "^4.1.2",
+    "challenge-point": "file:..",
+    "command-line-args": "^5.2.1",
+    "cors": "^2.8.5",
+    "date-fns": "^3.6.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.18.1",
+    "express-async-errors": "^3.1.1",
+    "helmet": "^8.0.0",
+    "http-status-codes": "^2.2.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^8.9.3",
+    "morgan": "^1.10.0",
+    "node-mailjet": "^5.1.1",
+    "openai": "^6.34.0",
+    "uuid": "^9.0.0",
+    "winston": "^3.17.0",
+    "winston-mongodb": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.0",
+    "@types/command-line-args": "^5.2.0",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.13",
+    "@types/fs-extra": "^9.0.13",
+    "@types/jsonwebtoken": "^8.5.8",
+    "@types/morgan": "^1.9.3",
+    "@types/node": "^18.7.6",
+    "@types/uuid": "^9.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.33.1",
+    "@typescript-eslint/parser": "^5.33.1",
+    "esbuild": "^0.23.1",
+    "eslint": "^8.22.0",
+    "fs-extra": "^10.1.0",
+    "nodemon": "^2.0.19",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.1.0",
+    "typescript": "^4.7.4"
+  }
 }

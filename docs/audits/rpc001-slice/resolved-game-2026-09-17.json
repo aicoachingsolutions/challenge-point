@@ -1,0 +1,843 @@
+{
+ "title": "RPC-001 vertical slice — canonical resolved game (paper)",
+ "date": "2026-09-17",
+ "selections": [
+  "RPC-001 Goalkeeper Build-Out",
+  "From Goal Kicks (A01-02)",
+  "Directional Possession Games (GF2)",
+  "Neutral Player Condition",
+  "Wide Zone Advantage",
+  "Variable Target Condition"
+ ],
+ "envelopeFixed": "12 players, 40 x 30 m, 20 minutes",
+ "adjudication": {
+  "by": "Joe, after two independent reconciliations from opposite directions (layout-outward and value-inward)",
+  "convergence": [
+   "player partition 2 goalkeepers + 4v4 outfield + 2 neutrals = 12, forced not chosen",
+   "scoring event kind target_zone_entered",
+   "one candidate set per team at opposite ends (GF2 same-direction guidance adapted as PREFERRED_DEFAULT)",
+   "turnovers stop play; every restart re-establishes the begin condition",
+   "only the scoring multiplier survives of Wide Zone Advantage three authored effects",
+   "no REQUIRED contribution dropped by either reconciler"
+  ],
+  "canonicalChoice": "The symmetric version (both teams hold a two-candidate set) is canonical: GA-001 authors reciprocal progression toward meaningful external objectives, and the direction invariant gives each team a functional directional objective. Variable Target explicitly leaves the opponent set free, so this is a realization free parameter, not a knowledge decision.",
+  "admissibleVariant": "Asymmetric: Team A holds two candidates, Team B one (three target zones total, inside Variable Target 2-3 working range). Also keeps candidate zones wholly outside the wide channels so the multiplier cannot attach to every score. Equally admissible on the authored knowledge."
+ },
+ "resolvedGame": {
+  "envelope": "12 players, 40 x 30 m, 20 minutes (fixed for this slice). The 12 partition as 2 goalkeepers (1 per team) + 8 outfield (4 per team) + 2 neutrals. The partition is FORCED, not chosen: NEUTRAL-10 puts neutrals inside the fixed total; RPC-001-02 requires a goalkeeper for each team that begins an attack (both do, under the direction invariant); GF2-14 REQUIRES equal outfield counts, so 12 - 2 GKs - n neutrals must be even, i.e. n even; NEUTRAL-01 requires n >= 1, NEUTRAL-02 prefers 1-2. n = 2 is the only value satisfying all four, giving 4 v 4 outfield. NEUTRAL-08 then holds: 4 + 2 = 6 > 4 whichever side has the ball. NEUTRAL-11's 6v6+3 / 7v7+1 are TYPICAL_EXAMPLE for 15 players and do not transfer. Provenance: ENVELOPE-FIXED, NEUTRAL-01, NEUTRAL-02, NEUTRAL-08, NEUTRAL-09, NEUTRAL-10, NEUTRAL-11, GF2-14, RPC-001-02.",
+  "space": [
+   {
+    "id": "area",
+    "kind": "single rectangular playing area, shared occupancy, no partition or separating boundary",
+    "orientation": "longitudinal progression axis along the 40 m side; each team's own end faces the end it attacks, so 'beyond the initial pressure/progression line' is decidable",
+    "extent": "40 x 30 m",
+    "position": "the whole activity space",
+    "provenance": [
+     "GF2-01",
+     "GF2-02",
+     "GF2-05",
+     "RPC-001-07",
+     "A01-02-09",
+     "WIDEZONE-01",
+     "ENVELOPE-FIXED"
+    ]
+   },
+   {
+    "id": "own-half-A",
+    "kind": "build-out / own-half start area for Team A; determinable, need not be marked",
+    "orientation": "west half of the longitudinal axis",
+    "extent": "20 x 30 m",
+    "position": "between the west end line and the halfway line",
+    "provenance": [
+     "RPC-001-06",
+     "A01-02-07",
+     "A01-02-09",
+     "A01-02-10"
+    ]
+   },
+   {
+    "id": "own-half-B",
+    "kind": "build-out / own-half start area for Team B; determinable, need not be marked",
+    "orientation": "east half of the longitudinal axis",
+    "extent": "20 x 30 m",
+    "position": "between the east end line and the halfway line",
+    "provenance": [
+     "RPC-001-06",
+     "A01-02-07",
+     "A01-02-09",
+     "A01-02-10"
+    ]
+   },
+   {
+    "id": "channel-north",
+    "kind": "wide reference/advantage channel - optional to use; NOT restricted, exclusive or entry-prohibited, and entering it is never compulsory; boundary determinate so 'in or through the channel' is decidable",
+    "orientation": "longitudinal, parallel to the touchline",
+    "extent": "6 m wide x the full 40 m length (low end of the authored ~6-10 m band, scaled to a 30 m width)",
+    "position": "outer edge on the north touchline",
+    "provenance": [
+     "WIDEZONE-02",
+     "WIDEZONE-03",
+     "WIDEZONE-04",
+     "WIDEZONE-05",
+     "WIDEZONE-06",
+     "WIDEZONE-07",
+     "WIDEZONE-08",
+     "WIDEZONE-10"
+    ]
+   },
+   {
+    "id": "channel-south",
+    "kind": "wide reference/advantage channel - identical in kind to channel-north",
+    "orientation": "longitudinal, parallel to the touchline",
+    "extent": "6 m wide x the full 40 m length",
+    "position": "outer edge on the south touchline",
+    "provenance": [
+     "WIDEZONE-02",
+     "WIDEZONE-03",
+     "WIDEZONE-04",
+     "WIDEZONE-05",
+     "WIDEZONE-06",
+     "WIDEZONE-07",
+     "WIDEZONE-08",
+     "WIDEZONE-10"
+    ]
+   },
+   {
+    "id": "central-corridor",
+    "kind": "unmarked residual playable space - exists so the two channels do not consume the whole width and so at least two viable progression routes to the live target remain",
+    "orientation": "longitudinal",
+    "extent": "18 m of the 30 m width (30 - 6 - 6)",
+    "position": "between the two wide channels",
+    "provenance": [
+     "WIDEZONE-09",
+     "RPC-001-22"
+    ]
+   }
+  ],
+  "performers": [
+   {
+    "id": "team-A",
+    "detail": "5 players: 1 goalkeeper + 4 outfield. The goalkeeper holds controlled possession at the start of the team's attack and remains a legal, reachable receiving option throughout it. Live opposition when out of possession: able to deny, redirect or reverse Team B's progression; never passive, scripted or structurally unable to change progression. Outfield count equal to Team B's.",
+    "provenance": [
+     "RPC-001-01",
+     "RPC-001-02",
+     "RPC-001-03",
+     "GF2-13",
+     "GF2-14",
+     "GF2-15",
+     "NEUTRAL-09",
+     "NEUTRAL-10",
+     "A01-02-11"
+    ]
+   },
+   {
+    "id": "team-B",
+    "detail": "5 players: 1 goalkeeper + 4 outfield. Identical in kind to Team A; the two teams are symmetric in performer structure.",
+    "provenance": [
+     "RPC-001-01",
+     "RPC-001-02",
+     "RPC-001-03",
+     "GF2-13",
+     "GF2-14",
+     "GF2-15",
+     "NEUTRAL-09",
+     "NEUTRAL-10",
+     "A01-02-11"
+    ]
+   },
+   {
+    "id": "neutrals",
+    "detail": "2 neutral players in contrasting bibs, drawn from the fixed 12, persistent active outfield participants for the whole activity (not rotated in and out). They always play for the team currently in possession, never for the team out of possession, and are never fixed to one team. Each is a live receiving and supporting option for that team. They hold no direction of their own and inherit the direction of whichever team they are currently playing for. 4 + 2 = 6 against 4, so the possessing side outnumbers the other whichever side has the ball.",
+    "provenance": [
+     "NEUTRAL-01",
+     "NEUTRAL-02",
+     "NEUTRAL-03",
+     "NEUTRAL-04",
+     "NEUTRAL-05",
+     "NEUTRAL-06",
+     "NEUTRAL-07",
+     "NEUTRAL-08",
+     "NEUTRAL-10",
+     "NEUTRAL-17"
+    ]
+   },
+   {
+    "id": "starting-positions-at-every-restart",
+    "detail": "At every restart the defending team has an identifiable forward-most defensive line - the 'first defenders' / initial pressure line - positioned between the restarting team's own-half build-out area and the candidate target zones that team attacks. The line is not marked; only determinable. This is what makes the target zones 'beyond the first defenders' and makes 'progressing beyond the initial pressure line' decidable.",
+    "provenance": [
+     "RPC-001-04",
+     "RPC-001-07",
+     "RPC-001-09",
+     "RPC-001-18"
+    ]
+   },
+   {
+    "id": "target-players",
+    "detail": "None. RPC-001-05 is SUPPORTING and conditional on target_player being the chosen primary scoring event; the chosen event is target_zone_entered, so its condition is not met. No other selection requires or forbids a target player. Specifically NOT a drop.",
+    "provenance": [
+     "RPC-001-05"
+    ]
+   }
+  ],
+  "objects": [
+   {
+    "id": "ball",
+    "kind": "one game object, playable by kicking, placeable stationary; possession/control state decidable at the scoring event, at loss of possession, and continuously (the neutrals' affiliation depends on it)",
+    "owner": "the team currently in possession; ownership is not fixed and changes through opposed play",
+    "position": "at each goal-kick restart, placed within the restarting team's own half at its defended end; otherwise wherever play takes it",
+    "provenance": [
+     "RPC-001-10",
+     "A01-02-08",
+     "A01-02-07",
+     "GF2-07",
+     "NEUTRAL-12"
+    ]
+   },
+   {
+    "id": "tz-A-north",
+    "kind": "marked target zone; scoring event kind = target_zone_entered (candidate 1 of Team A's set)",
+    "owner": "Team A (the team attacking the east end)",
+    "position": "east end line, north side: 12 m wide x 3 m deep, outer edge on the north touchline; spans the 6 m north channel plus 6 m of the central corridor. Beyond Team B's first defenders and downfield of own-half-A. Depth and width are realization values inside space RPC-001 and GF2 both leave free.",
+    "provenance": [
+     "RPC-001-08",
+     "RPC-001-09",
+     "RPC-001-13",
+     "RPC-001-22",
+     "GF2-03",
+     "GF2-04",
+     "GF2-05",
+     "GF2-06",
+     "VARTARGET-01",
+     "VARTARGET-02",
+     "VARTARGET-03"
+    ]
+   },
+   {
+    "id": "tz-A-south",
+    "kind": "marked target zone; target_zone_entered (candidate 2 of Team A's set)",
+    "owner": "Team A",
+    "position": "east end line, south side: 12 m wide x 3 m deep, outer edge on the south touchline; a 6 m unmarked gap separates it from tz-A-north, so the two candidates are laterally distinct and which one is live changes where the attack must progress",
+    "provenance": [
+     "RPC-001-08",
+     "RPC-001-09",
+     "RPC-001-13",
+     "RPC-001-22",
+     "GF2-03",
+     "GF2-04",
+     "GF2-05",
+     "GF2-06",
+     "VARTARGET-01",
+     "VARTARGET-02",
+     "VARTARGET-03"
+    ]
+   },
+   {
+    "id": "tz-B-north",
+    "kind": "marked target zone; target_zone_entered (candidate 1 of Team B's set)",
+    "owner": "Team B (the team attacking the west end)",
+    "position": "west end line, north side: 12 m wide x 3 m deep, mirrored from tz-A-north",
+    "provenance": [
+     "RPC-001-08",
+     "RPC-001-09",
+     "RPC-001-13",
+     "RPC-001-14",
+     "RPC-001-22",
+     "GF2-03",
+     "GF2-04",
+     "GF2-06",
+     "GF2-11",
+     "VARTARGET-01",
+     "VARTARGET-02",
+     "VARTARGET-03",
+     "STANDING-DIRECTION-INVARIANT"
+    ]
+   },
+   {
+    "id": "tz-B-south",
+    "kind": "marked target zone; target_zone_entered (candidate 2 of Team B's set)",
+    "owner": "Team B",
+    "position": "west end line, south side: 12 m wide x 3 m deep, mirrored from tz-A-south",
+    "provenance": [
+     "RPC-001-08",
+     "RPC-001-09",
+     "RPC-001-13",
+     "RPC-001-14",
+     "RPC-001-22",
+     "GF2-03",
+     "GF2-04",
+     "GF2-06",
+     "GF2-11",
+     "VARTARGET-01",
+     "VARTARGET-02",
+     "VARTARGET-03",
+     "STANDING-DIRECTION-INVARIANT"
+    ]
+   }
+  ],
+  "objectives": [
+   {
+    "objectId": "tz-A-north",
+    "team": "Team A",
+    "role": "PRIMARY SCORING",
+    "state": "Member of Team A's two-candidate set. Exactly one of {tz-A-north, tz-A-south} is active at any instant; the other is inactive but stays physically present. The assignment is re-assignable during play, must change at least once, must be set by a detectable state transition or opponent action, and must not be determinable before that trigger fires. The state field carries the scope (this objective group, team-specific) and persistence (re-established per attacking episode). Team A therefore always has exactly one live external objective, active from the moment its attack begins. ASSIGNMENT FUNCTION UNRESOLVED - see collision 8.",
+    "provenance": [
+     "RPC-001-11",
+     "GF2-08",
+     "GF2-09",
+     "GF2-10",
+     "VARTARGET-02",
+     "VARTARGET-06",
+     "VARTARGET-07",
+     "VARTARGET-08",
+     "VARTARGET-09",
+     "VARTARGET-13",
+     "STANDING-TARGET-AVAILABILITY",
+     "STANDING-REPRESENTATIVE-OBJECTIVES"
+    ]
+   },
+   {
+    "objectId": "tz-A-south",
+    "team": "Team A",
+    "role": "PRIMARY SCORING",
+    "state": "Second member of Team A's candidate set; active exactly when tz-A-north is not. Same assignment rule and same unresolved assignment function.",
+    "provenance": [
+     "RPC-001-11",
+     "GF2-08",
+     "GF2-09",
+     "GF2-10",
+     "VARTARGET-02",
+     "VARTARGET-06",
+     "VARTARGET-07",
+     "VARTARGET-08",
+     "VARTARGET-09",
+     "VARTARGET-13",
+     "STANDING-TARGET-AVAILABILITY",
+     "STANDING-REPRESENTATIVE-OBJECTIVES"
+    ]
+   },
+   {
+    "objectId": "tz-B-north",
+    "team": "Team B",
+    "role": "PRIMARY SCORING",
+    "state": "Member of Team B's two-candidate set; exactly one of {tz-B-north, tz-B-south} active at any instant. Same rule as Team A's set; the two teams' assignments are independent (nothing authored couples them).",
+    "provenance": [
+     "RPC-001-11",
+     "GF2-08",
+     "GF2-09",
+     "GF2-10",
+     "VARTARGET-02",
+     "VARTARGET-06",
+     "VARTARGET-07",
+     "VARTARGET-08",
+     "VARTARGET-09",
+     "VARTARGET-13",
+     "STANDING-DIRECTION-INVARIANT"
+    ]
+   },
+   {
+    "objectId": "tz-B-south",
+    "team": "Team B",
+    "role": "PRIMARY SCORING",
+    "state": "Second member of Team B's candidate set; active exactly when tz-B-north is not.",
+    "provenance": [
+     "RPC-001-11",
+     "GF2-08",
+     "GF2-09",
+     "GF2-10",
+     "VARTARGET-02",
+     "VARTARGET-06",
+     "VARTARGET-07",
+     "VARTARGET-08",
+     "VARTARGET-09",
+     "VARTARGET-13",
+     "STANDING-DIRECTION-INVARIANT"
+    ]
+   }
+  ],
+  "direction": [
+   {
+    "team": "Team A",
+    "attacks": "the currently active member of {tz-A-north, tz-A-south} at the east end line - beyond Team B's first defenders and away from own-half-A. The attacked objective is expressed as 'the currently active member of this team's candidate set', not as one fixed objective id resolved at setup. Access to it changes with spatial progression; it is not equally reachable from anywhere.",
+    "defends": "the west end line and Team B's candidate set there; Team A can deny, redirect or reverse Team B's progression, and takes its goal kicks from that end",
+    "provenance": [
+     "RPC-001-13",
+     "RPC-001-14",
+     "GF2-10",
+     "GF2-11",
+     "GF2-13",
+     "A01-02-10",
+     "VARTARGET-10",
+     "STANDING-DIRECTION-INVARIANT",
+     "GF2-12-ADAPTED"
+    ]
+   },
+   {
+    "team": "Team B",
+    "attacks": "the currently active member of {tz-B-north, tz-B-south} at the west end line - beyond Team A's first defenders and away from own-half-B",
+    "defends": "the east end line and Team A's candidate set there; takes its goal kicks from that end",
+    "provenance": [
+     "RPC-001-13",
+     "RPC-001-14",
+     "GF2-10",
+     "GF2-11",
+     "GF2-13",
+     "A01-02-10",
+     "VARTARGET-10",
+     "STANDING-DIRECTION-INVARIANT",
+     "GF2-12-ADAPTED"
+    ]
+   },
+   {
+    "team": "Neutrals (2)",
+    "attacks": "whichever end the team they are currently playing for attacks - no direction of their own",
+    "defends": "nothing independently; a neutral is never affiliated with the team out of possession, so it never defends",
+    "provenance": [
+     "NEUTRAL-03",
+     "NEUTRAL-04",
+     "NEUTRAL-17"
+    ]
+   }
+  ],
+  "transitions": [
+   {
+    "slot": "start",
+    "value": "Team A's goalkeeper takes a goal kick from within own-half-A at the west end line. Ball stationary, play stopped then resumed. A stable, uncontested starting state, not a 50/50. Team A is in possession from the first moment, so both neutrals begin as Team A's teammates. The period therefore begins inside the Practice Situation. No opponent retreat or exclusion distance is authored by any selection, so none is imposed.",
+    "provenance": [
+     "RPC-001-02",
+     "RPC-001-15",
+     "A01-02-04",
+     "A01-02-05",
+     "A01-02-06",
+     "A01-02-07",
+     "A01-02-11",
+     "NEUTRAL-13"
+    ]
+   },
+   {
+    "slot": "restart after score",
+    "value": "The conceding team - the team defending the end where the score occurred - restarts with a goal kick from its goalkeeper or from within its own half at that end. A01-02 authors no trigger of its own and explicitly does not forbid using the goal-kick restart after a score; RPC-001-16 independently requires the next attack to start from that team's goalkeeper or own half. Because a score always occurs at the scoring team's attacking end, which is the other team's defended end, the two land on the same procedure.",
+    "provenance": [
+     "RPC-001-16",
+     "A01-02-01",
+     "A01-02-02",
+     "A01-02-04",
+     "A01-02-05",
+     "A01-02-07",
+     "A01-02-12"
+    ]
+   },
+   {
+    "slot": "restart after out of play over an end line, attacking team last touch (the goal-kick case)",
+    "value": "Awarded to the team defending that end (which is also the team that did not touch it last) and taken from its goalkeeper or within its own half at that end. This includes the ball entering an INACTIVE candidate zone, which carries no value and is simply out of play. GF2-16 and A01-02-05 agree on the beneficiary; RPC-001-16 fixes the location.",
+    "provenance": [
+     "GF2-16",
+     "A01-02-01",
+     "A01-02-02",
+     "A01-02-05",
+     "A01-02-07",
+     "RPC-001-16",
+     "VARTARGET-12"
+    ]
+   },
+   {
+    "slot": "restart after out of play over an end line, defending team last touch",
+    "value": "Awarded to the attacking team (GF2-16), but taken from that team's goalkeeper or within its own half (RPC-001-16). This is the one restart where the two rules pull the ball in opposite directions along the field; they are not in conflict because GF2-16 fixes WHO and RPC-001-16 fixes WHERE.",
+    "provenance": [
+     "GF2-16",
+     "RPC-001-16"
+    ]
+   },
+   {
+    "slot": "restart after out of play over a touchline",
+    "value": "Awarded to the team that did not touch it last, taken from that team's goalkeeper or within its own half.",
+    "provenance": [
+     "GF2-16",
+     "RPC-001-16"
+    ]
+   },
+   {
+    "slot": "restart after turnover",
+    "value": "Loss of possession is a defined end of the attacking episode. Play stops and the team that won the ball restarts from its goalkeeper or within its own half. GF2-17 (play continues without stoppage) is SUPPORTING/PREFERRED_DEFAULT and adapts to the REQUIRED RPC-001-16/17. The dead-ball interval also disposes of the Neutral object's open question about whether re-affiliation is instantaneous or takes effect at a restart: affiliation is irrelevant while the ball is dead, and is settled again the moment the restart is taken.",
+    "provenance": [
+     "RPC-001-16",
+     "RPC-001-17",
+     "A01-02-04",
+     "GF2-17-ADAPTED",
+     "NEUTRAL-14"
+    ]
+   },
+   {
+    "slot": "play state at every restart",
+    "value": "Every restart above is a stoppage-and-resume from a stationary ball, not uninterrupted continuation. Taken from the authored contrast that defines continuation as the absence of a restart ('play continues immediately without stoppage - no restart, no whistle').",
+    "provenance": [
+     "A01-02-04"
+    ]
+   },
+   {
+    "slot": "what every restart re-establishes",
+    "value": "The begin condition: the next attack starts from that team's goalkeeper or a restart in its own half, with that team in controlled possession, the neutrals affiliated to it, and the defending team re-formed with an identifiable forward-most line. The goal-kick restart therefore recurs many times within the 20 minutes rather than occurring once, which is what A01-02-03 requires.",
+    "provenance": [
+     "RPC-001-15",
+     "RPC-001-16",
+     "A01-02-03",
+     "NEUTRAL-13",
+     "NEUTRAL-14",
+     "RPC-001-04"
+    ]
+   },
+   {
+    "slot": "turn structure (exclusion)",
+    "value": "No alternating-turn, queued or sequential-attempt structure. Episodes here are opponent-generated - each begins because the other team scored, forced the ball out, or won it back - so attempts are not independent and retain reciprocal influence, even though every episode restarts from an own half.",
+    "provenance": [
+     "GF2-18"
+    ]
+   }
+  ],
+  "rulesOfValue": [
+   {
+    "kind": "primary event [object, condition]",
+    "statement": "ONE event. A player of the team in possession dribbles into, or receives the ball in and controls it in, the currently ACTIVE target zone of that team's candidate set - the attack having been initiated from that team's goalkeeper or a controlled restart in its own half, and having progressed beyond the opposing first defenders / initial pressure line, with possession controlled on arrival. Authored coach form: 'Earn a point when a player dribbles into the target zone, or receives the ball there and controls it. A long kick into the target zone does not count. Start each attack from your goalkeeper or a restart in your own half.' The event definition is fixed; only its object varies, resolving to whichever candidate is active at the moment of the event.",
+    "provenance": [
+     "RPC-001-18",
+     "RPC-001-08",
+     "RPC-001-10",
+     "GF2-06",
+     "GF2-19",
+     "VARTARGET-11",
+     "RPC-001-16"
+    ]
+   },
+   {
+    "kind": "point value",
+    "statement": "One point per qualifying event.",
+    "provenance": [
+     "RPC-001-20"
+    ]
+   },
+   {
+    "kind": "exclusion - degenerate bypass",
+    "statement": "No scoring path exists in which an uncontrolled long kick or clearance reaching the target zone earns the point. Carried verbatim; no authored threshold exists for 'long kick' beyond the coach rule sentence itself.",
+    "provenance": [
+     "RPC-001-19"
+    ]
+   },
+   {
+    "kind": "exclusion - second scoring route",
+    "statement": "There is no second independent way to score. Possession retention alone (pass counts, keep-away, time in possession) never scores and is never the terminal objective; no value accrues from the same event performed on an inactive candidate; the wide channels are never an objective; the goal-kick restart never scores and never marks the scoring object.",
+    "provenance": [
+     "RPC-001-12",
+     "GF2-20",
+     "VARTARGET-12",
+     "WIDEZONE-16",
+     "A01-02-12"
+    ]
+   },
+   {
+    "kind": "value modifier",
+    "statement": "A scoring multiplier on the primary event when the scoring action started in or moved through a wide channel. Trigger: the qualifying action starts inside, or moves through, channel-north or channel-south. Beneficiary: the team performing the action - never the opponent, never a neutral. This is one of the explicitly authored cases in which a consequence may change the VALUE of the primary scoring event. MAGNITUDE UNRESOLVED - see collision 7. The modifier does not make the value depend on which candidate is live, and is not attached to neutral involvement, so it clears VARTARGET-18 and NEUTRAL-15.",
+    "provenance": [
+     "WIDEZONE-11",
+     "WIDEZONE-12",
+     "WIDEZONE-13",
+     "WIDEZONE-14",
+     "WIDEZONE-15",
+     "WIDEZONE-16",
+     "RPC-001-20"
+    ]
+   },
+   {
+    "kind": "exclusion - value modifiers elsewhere",
+    "statement": "No bonus, multiplier or added scoring value is attached to neutral involvement. Candidate target zones carry no differing or changing point values, and live/not-live status never changes the value of the primary event. Rewards for retaining possession may not outweigh or displace the progression event. No modifier or consequence may make established coordinated high pressure the dominant organizing problem.",
+    "provenance": [
+     "NEUTRAL-15",
+     "VARTARGET-18",
+     "GF2-21",
+     "RPC-001-21"
+    ]
+   },
+   {
+    "kind": "consequence [trigger, effect, beneficiary]",
+    "statement": "Trigger: change of possession. Effect: all neutrals become teammates of the team now in possession. Beneficiary: the team now in possession - a temporary numerical advantage (6 v 4 in open play), not a change to the value of the primary scoring event.",
+    "provenance": [
+     "NEUTRAL-03",
+     "NEUTRAL-12",
+     "NEUTRAL-14"
+    ]
+   },
+   {
+    "kind": "consequence [trigger, effect, beneficiary]",
+    "statement": "Trigger: any score, ball out of play, or turnover. Effect: the begin condition is re-established (see Transitions), reorganizing space, roles, access and threat. Beneficiary: as set per restart above.",
+    "provenance": [
+     "RPC-001-16",
+     "RPC-001-17",
+     "GF2-23"
+    ]
+   },
+   {
+    "kind": "information [trigger, what changes]",
+    "statement": "What changes: which member of a team's candidate set is active. Trigger kind: a state transition or an opponent action - the coach-cue variant in the setup guidance is outside the authored range and is not used. The trigger must be detectable by the players and causally connected to which target becomes live, and which candidate is live must not be determinable before the trigger fires. Reveal progression: immediate or staged. ASSIGNMENT FUNCTION UNRESOLVED - see collision 8.",
+    "provenance": [
+     "VARTARGET-08",
+     "VARTARGET-13",
+     "VARTARGET-14",
+     "VARTARGET-15",
+     "VARTARGET-16",
+     "VARTARGET-17",
+     "VARTARGET-09"
+    ]
+   },
+   {
+    "kind": "information [trigger, what changes]",
+    "statement": "The wide channels and the advantage attached to them are standing, openly known information for both teams for the whole activity. Nothing about them is hidden or revealed during play.",
+    "provenance": [
+     "WIDEZONE-17"
+    ]
+   },
+   {
+    "kind": "exclusion - information",
+    "statement": "No information rule may remove or hide teammate positioning and immediate support, or opponent positioning and developing pressure, from the player on the ball. The variable-target rule clears this: it varies which target is live, which is a third information source and not one of the two protected ones.",
+    "provenance": [
+     "RPC-001-23",
+     "VARTARGET-13"
+    ]
+   },
+   {
+    "kind": "exclusion - routes and options",
+    "statement": "At least two distinct viable progression routes to the live target zone remain at all times; no rule or layout reduces progression to a single permitted route. No rule removes legal passing options (no banned receivers, no forced pass order, no prohibited backward or square passes). Entering a wide channel is never compulsory and the channels are never exclusive. Involving a neutral is never compulsory and never the only or dominant route. No player behaviour (a mandatory scan, a required route) is a condition of scoring on the live target.",
+    "provenance": [
+     "RPC-001-22",
+     "GF2-22",
+     "WIDEZONE-08",
+     "NEUTRAL-16",
+     "VARTARGET-19"
+    ]
+   },
+   {
+    "kind": "exclusion - opposition and structure",
+    "statement": "Neither team may be passive, scripted or structurally unable to change the other's progression. The out-of-possession team can deny, redirect or reverse progression toward the objective it defends, including at 4 v 6.",
+    "provenance": [
+     "GF2-15",
+     "GF2-13",
+     "RPC-001-01"
+    ]
+   },
+   {
+    "kind": "time windows",
+    "statement": "None. No selection authors a countdown, shot clock, touch limit, possession clock or time limit on the build-out or on taking a restart. The only clock is the fixed 20-minute envelope.",
+    "provenance": [
+     "RPC-001-EXPLICIT-NONE",
+     "GF2-EXPLICIT-NONE",
+     "A01-02-EXPLICIT-NONE",
+     "NEUTRAL-EXPLICIT-NONE",
+     "WIDEZONE-EXPLICIT-NONE",
+     "VARTARGET-EXPLICIT-NONE"
+    ]
+   }
+  ]
+ },
+ "flaggedCollisions": [
+  {
+   "id": "C1",
+   "between": [
+    "RPC-001",
+    "Variable Target",
+    "From Goal Kicks"
+   ],
+   "found": "both reconcilers",
+   "description": "Live-target assignment at the start of every attack. RPC-001 requires the scoring objective active from the moment the attack begins; Variable Target forbids the live candidate being determinable before its trigger fires; every score, ball-out and turnover starts a new attack from an own half. Variable Target authors a reset rule only inside a TYPICAL_EXAMPLE realization.",
+   "ruleThatWouldBeNeeded": "An authored rule stating what determines the live candidate at each restart, and who owns that rule."
+  },
+  {
+   "id": "C2",
+   "between": [
+    "Wide Zone Advantage"
+   ],
+   "found": "value-in",
+   "description": "The channel trigger must produce an advantage, but no authored source picks among bonus point / free restart / scoring multiplier, and none gives a magnitude. Two of three are eliminated by standing decisions, leaving the multiplier with no authored size.",
+   "ruleThatWouldBeNeeded": "An authored default effect and magnitude for the wide-zone advantage."
+  },
+  {
+   "id": "C3",
+   "between": [
+    "RPC-001"
+   ],
+   "found": "value-in",
+   "description": "Intra-object gap, not an inter-object collision: possession controlled on arrival and the long-kick exclusion have no authored threshold.",
+   "ruleThatWouldBeNeeded": "None between objects; an authored threshold inside RPC-001 if one is ever wanted."
+  },
+  {
+   "id": "C4",
+   "between": [
+    "Neutral Player Condition",
+    "RPC-001"
+   ],
+   "found": "value-in",
+   "description": "Neutral Player needs possession determinable continuously; RPC-001 needs it decidable at the scoring event and at loss of possession. Largely self-closing because turnovers stop play.",
+   "ruleThatWouldBeNeeded": "None if turnovers stop play; otherwise a rule for affiliation during contested or loose balls."
+  }
+ ],
+ "bespokeAwarenessFindings": {
+  "fired": [
+   "Objective state: RPC-001 and GF2 each wrote the scoring objective as single and constant because nothing in their own world contemplates a varying objective. Variable Target varies it. This is the one axis where an object would have needed to know about another."
+  ],
+  "representationalNotObject": [
+   "Transitions as specified holds one value per slot, so three restart rules read as competing. Decomposing a restart into (trigger, awarded to, ball placement, play state, what it re-establishes) makes them orthogonal. This is a finding about the representation, not the knowledge."
+  ],
+  "didNotFire": [
+   "Wide Zone three effect options",
+   "the player partition (forced uniquely by three objects that never mention each other)",
+   "From Goal Kicks own open question about an objective at the restart end",
+   "choosing the scoring event kind"
+  ]
+ },
+ "authoredContradictionsFound": [
+  "Wide Zone Advantage: setup guidance says \"Mark wide channels along both touchlines\" while its contextualAudit field says \"Zones optional\" (verified in environmental-manipulations.ts).",
+  "GF2: setup guidance pairs \"a directional target line or zone at one end\" with \"Teams attack in the same direction, building from their own end toward the target\" (verified in archetypes.ts)."
+ ],
+ "alternativeReconciliation": {
+  "collisions": [
+   {
+    "between": [
+     "RPC-001 Goalkeeper Build-Out (RPC-001-11, RPC-001-04)",
+     "Variable Target (VARTARGET-08, VARTARGET-14, VARTARGET-16)"
+    ],
+    "description": "Which candidate objective is active at the first instant of an attack. RPC-001-11 (REQUIRED) binds the scoring reference as active from the moment that team's attack begins. VARTARGET-16 (REQUIRED) forbids the live candidate being determinable before its trigger fires, and VARTARGET-08 requires the assignment to change in play on an in-play trigger.",
+    "outcome": "FLAGGED - would require inventing a rule",
+    "detail": "The two cannot both hold at a restart. If a candidate is live from the first instant by a fixed rule ('candidate 1 starts live'), a team can fix the target in advance and VARTARGET-16 fails. If no candidate is live until a later trigger, RPC-001-11 fails (and the attacking side has no live objective for the opening phase). The obvious escape — deriving the start-of-attack assignment from live opponent state — is blocked by the authored mapping itself: the only authored opponent-action mapping is 'when the defense shifts to cover one gate, the other becomes the live one', and at a restart RPC-001-04 mandates exactly the state in which that mapping has no value, with the defence organized as a first-defender line away from both candidates, committed to neither. The missing rule would have to (a) make the activation assignment TOTAL — defined at every instant including the first instant of an attack, with exactly one candidate active — and (b) derive it from in-play state rather than setup. Owner: EM-0010 Objective State, which owns this field (EMD-0023 carries State Value 'Active / Inactive', Scope, and Persistence, but no assignment or trigger-mapping parameter). Alternative owner: the Information Expression layer, if the mapping from trigger to which-objective-activates is deemed informational — IE-D006 authors the trigger TYPE and an integrity condition on detectability, but nothing about the mapping or its totality. If instead the answer is that a scoring reference need not be live from the first instant, that is a relaxation of RPC-001-11 and is Christian's to author. Not solved here."
+   },
+   {
+    "between": [
+     "RPC-001 Goalkeeper Build-Out (RPC-001-08)",
+     "Variable Target (VARTARGET-01, VARTARGET-06)"
+    ],
+    "description": "RPC-001-08 requires 'exactly one scoring reference'; Variable Target requires at least two candidate targets, all carrying the PRIMARY SCORING role, in one team's set.",
+    "outcome": "reconciled by authored rule",
+    "authoredRuleUsed": "RPC-REL-071..074 (rpc-library.rc1.json): four SCORING_EVENT rows, relationship_type COMPATIBLE, 'Valid primary scoring event 1/2/3/4 of 4, in the approved order' — they author the valid set of scoring EVENTS and their order, not a count of physical objects; plus the standing decision ONE PRIMARY SCORING EVENT; plus VARTARGET-07 (exactly one candidate active at any instant).",
+    "detail": "'Exactly one' survives as exactly one event KIND (target_zone_entered) and exactly one LIVE scoring reference per team at any instant. The RPC-001 set itself derived the 'exactly one' count from the standing decision rather than from RPC-001's own text (its assumption: 'The four approved scoring events are assumed mutually exclusive alternatives ... per the standing decision'), so the authored basis is untouched. Three physical references exist (two candidates for Team A, one for Team B) and only the active one scores, so there is one scoring event, not two."
+   },
+   {
+    "between": [
+     "Directional Possession Games GF2 (GF2-09)",
+     "Variable Target (VARTARGET-07, VARTARGET-08)"
+    ],
+    "description": "GF2-09 (REQUIRED) states objectives[].state = active for both teams for the whole activity, 'never inert for either side'. VARTARGET-07 (REQUIRED) makes one of Team A's two candidates inactive at any instant.",
+    "outcome": "reconciled by authored rule",
+    "authoredRuleUsed": "GAK-0103 / GA-001-OIC-01, verbatim: 'Meaningful external objectives remain live for both sides.' The condition quantifies over SIDES, not over instantiated objects. Supported by EM-0010 / EMD-0023 Scope, whose allowed values include 'Individual objective' inside a 'Team-specific set'.",
+    "detail": "In the resolved game each side always has exactly one live external objective: Team A the active candidate, Team B its single reference. GF2-09's stronger per-object reading is a derivation from the workbook sentence, not the sentence itself. Recorded because a per-object projection of GF2-09 would have silently deleted Variable Target's entire contribution."
+   },
+   {
+    "between": [
+     "Directional Possession Games GF2 (GF2-12)",
+     "RPC-001 Goalkeeper Build-Out (RPC-001-13)",
+     "Standing decision: DIRECTION INVARIANT"
+    ],
+    "description": "GF2's authored setup guidance says 'Teams attack in the same direction, building from their own end toward the target' — one shared target at one end. The direction invariant and RPC-001-13 require each team to attack one direction and defend the opposite.",
+    "outcome": "reconciled by authored rule",
+    "authoredRuleUsed": "VALUE STATUS standing decision (PREFERRED_DEFAULT: use when feasible, adapt) applied to GF2-12, which is SUPPORTING / PREFERRED_DEFAULT and self-describes as adaptable; plus the DIRECTION INVARIANT standing decision. GF2-11 (REQUIRED — each team has one directional objective reached by forward progression) survives untouched.",
+    "detail": "Instantiated as one target set per team at opposite ends. The GF2 set flagged this as an unresolved tension between an authored game form and a standing decision and declined to resolve it; the value-status rule resolves it without inventing precedence. GF2's own notAuthored also records that the authored text never reconciles 'a target at one end' with 'each team building from their own end'."
+   },
+   {
+    "between": [
+     "Directional Possession Games GF2 (GF2-16, GF2-17)",
+     "RPC-001 Goalkeeper Build-Out (RPC-001-16, RPC-001-17)"
+    ],
+    "description": "GF2-17 wants play to continue without stoppage on a turnover, with the winning team progressing from where it won the ball; GF2-16 restarts the ball with the team that did not touch it last, implicitly where it left play. RPC-001-16/17 require loss of possession to end the attacking episode and every restart to re-establish the begin condition (goalkeeper or own half).",
+    "outcome": "reconciled by authored rule",
+    "authoredRuleUsed": "VALUE STATUS standing decision: GF2-16 and GF2-17 are SUPPORTING / PREFERRED_DEFAULT (GF2-16 self-describes as 'Adaptable if another selection or the realization authors a different restart'); RPC-001-16 and RPC-001-17 are REQUIRED.",
+    "detail": "GF2-16's beneficiary rule survives intact (the non-toucher restarts); only the restart LOCATION is adapted to the restarting team's own half or goalkeeper. GF2-17 is adapted away: turnovers stop play. GF2-18's exclusion (no independent, non-reciprocal attempts) still holds, because each team's play causes and shapes the other's episodes — but the resolved game is a sequence of reset build-out episodes rather than continuous circulation, and that is the largest single change reconciliation made to any selection."
+   },
+   {
+    "between": [
+     "Wide Zone Advantage (WIDEZONE-15)",
+     "Variable Target (VARTARGET-18)",
+     "Neutral Player Condition (NEUTRAL-15)"
+    ],
+    "description": "Wide Zone requires an advantage that may be realized as a scoring multiplier — a value modifier on the primary event. Variable Target states value modifiers NOT_EXISTS and Neutral Player states no added scoring value.",
+    "outcome": "reconciled by authored rule",
+    "authoredRuleUsed": "The authored field incentive_mechanism is object-scoped: 'none' on tl-v0-constraint-variable-target-condition and tl-v0-constraint-neutral-player-condition, 'positional_or_scoring_advantage' with includesIncentiveLayer: true on tl-v0-constraint-wide-zone-advantage. Each exclusion is scoped to its own object's involvement; plus the standing decision permitting a change to the VALUE of the primary event 'only where explicitly authored', which Wide Zone is.",
+    "detail": "VARTARGET-18 bars candidates carrying differing or changing point values and bars live/not-live status changing the value; NEUTRAL-15 bars value attached to neutral involvement. Neither is violated by a multiplier conditioned on the channel. A field-level projection of 'value modifiers: NOT_EXISTS' would have deleted Wide Zone's only REQUIRED consequence — the same class of silent loss the project has been bitten by before."
+   },
+   {
+    "between": [
+     "Wide Zone Advantage (WIDEZONE-13)",
+     "RPC-001 Goalkeeper Build-Out (RPC-001-16)",
+     "Standing decision: ONE PRIMARY SCORING EVENT"
+    ],
+    "description": "Wide Zone offers three authored effects — bonus point, free restart, or scoring multiplier — with no authored default. Two of the three are unusable in this resolved game.",
+    "outcome": "reconciled by authored rule",
+    "authoredRuleUsed": "Standing decision ONE PRIMARY SCORING EVENT ('a second independent way to score is invalid'), reinforced by WIDEZONE-16; and RPC-001-16 (REQUIRED — every restart re-establishes the begin condition). WIDEZONE-13 carries valueStatus TYPICAL_EXAMPLE, so the three options are informative and narrowing them is authorized.",
+    "detail": "'Bonus point' read literally as a separate point would be a second independent way to score. 'Free restart' would be a restart that does not re-establish the begin condition, or else an advantage that sends the rewarded team back to its own half. Only the scoring multiplier survives. The object was realizable only because it authored alternatives; had it authored 'bonus point' alone it would have been unrealizable in this selection without the object knowing what else was selected."
+   },
+   {
+    "between": [
+     "Wide Zone Advantage (WIDEZONE-02..07)",
+     "Variable Target (VARTARGET-03, VARTARGET-18)",
+     "Directional Possession Games GF2 (GF2-04)"
+    ],
+    "description": "Geometric clash: the wide channels run the full length to the end lines, and the candidate target zones sit at an end. A candidate lying inside a channel would make every score on it carry the multiplier, giving the two candidates differing effective values.",
+    "outcome": "reconciled by authored rule",
+    "authoredRuleUsed": "VARTARGET-04 (the 'across the far line or at multiple edges' placement pattern is TYPICAL_EXAMPLE, informative only, so placement is free); VARTARGET-18 (candidates may not carry differing point values); WIDEZONE-09 (playable non-channel space must remain).",
+    "detail": "All three target zones are instantiated inside the central 18 m band, wholly outside both channels. Each object's own authored freedom absorbed the clash; no precedence rule was needed and no object had to know about the other."
+   },
+   {
+    "between": [
+     "From Goal Kicks A01-02 (A01-02-05)",
+     "Directional Possession Games GF2 (GF2-16)",
+     "RPC-001 Goalkeeper Build-Out (RPC-001-16)"
+    ],
+    "description": "Three different rules for who restarts and from where.",
+    "outcome": "reconciled by authored rule",
+    "authoredRuleUsed": "Scope plus the VALUE STATUS standing decision: A01-02-05 governs only the goal-kick case (REQUIRED there); GF2-16 (PREFERRED_DEFAULT) covers the remaining out-of-play cases; RPC-001-16 (REQUIRED) fixes the location for all of them.",
+    "detail": "Ball out over an end line last played by the attacker: the defending team restarts from that end (both A01-02-05 and GF2-16 select the same team, so the goal-kick trigger that A01-02 leaves unauthored is supplied by GF2-16 without either object referring to the other). All other cases: the non-toucher restarts, relocated to its own half or goalkeeper."
+   },
+   {
+    "between": [
+     "From Goal Kicks A01-02 (A01-02-11)",
+     "RPC-001 Goalkeeper Build-Out (RPC-001-02, RPC-001-03)"
+    ],
+    "description": "A01-02-11 states that no role is required to take the restart, 'specifically not a goalkeeper'. RPC-001-02/03 require a goalkeeper who holds controlled possession at the start and remains reachable throughout.",
+    "outcome": "reconciled by authored rule",
+    "authoredRuleUsed": "A01-02's own doesNotConstrain declaration: 'Performers.teams[].goalkeeper: explicitly free. A goal kick does not require a goalkeeper to exist, and does not require the restart to be taken by one. Deliberately not claimed.' A permission is not an exclusion, so the union takes the requirement.",
+    "detail": "The restart is taken by the restarting team's goalkeeper. A01-02-11's requirement ('at least one player of that team at that end') is satisfied a fortiori. Only the derived phrasing 'specifically not a goalkeeper' looked like a conflict; the object's own scope statement dissolves it."
+   },
+   {
+    "between": [
+     "Neutral Player Condition (NEUTRAL-01, NEUTRAL-02, NEUTRAL-08, NEUTRAL-10)",
+     "Directional Possession Games GF2 (GF2-14)",
+     "RPC-001 Goalkeeper Build-Out (RPC-001-02, RPC-001-03)",
+     "Envelope (12 players)"
+    ],
+    "description": "Four independent writers to the same player partition: neutrals must come out of the fixed 12 and outnumber for whichever side has the ball; the two teams' outfield counts must be equal; each attacking team needs a goalkeeper.",
+    "outcome": "reconciled by authored rule",
+    "authoredRuleUsed": "No precedence rule was needed — the intersection is non-empty. NEUTRAL-02 (PREFERRED_DEFAULT, 1-2 neutrals) under the VALUE STATUS standing decision selects 2 from the feasible set {2, 4}.",
+    "detail": "12 - 2 goalkeepers = 10; GF2-14 forces an even split, so the neutral count must be even; NEUTRAL-01 forces at least one; NEUTRAL-02 caps the preference at two. Unique result: 4v4 + 2 neutrals + 2 goalkeepers, with 4 + 2 = 6 > 4 satisfying NEUTRAL-08 for either side. This is the strongest positive evidence in the slice: three knowledge objects wrote to one field, none named another, and the resolved value is forced rather than chosen."
+   },
+   {
+    "between": [
+     "Variable Target (VARTARGET-01)",
+     "RPC-001 Goalkeeper Build-Out (RPC-001-13)",
+     "Standing decision: DIRECTION INVARIANT"
+    ],
+    "description": "VARTARGET-01 puts the authored working range for targets at 2-3 in the playing area. The direction invariant requires each team to have its own functional directional objective, so a symmetric variable set for both teams would need four targets — outside the authored range.",
+    "outcome": "reconciled by authored rule",
+    "authoredRuleUsed": "EM-0010 / EMD-0023 Scope, allowed value 'Team-specific set'; and Variable Target's own doesNotConstrain: 'whether the opposing team also has a varying candidate set or a single fixed objective' is free.",
+    "detail": "Applied to Team A's set only: two candidates at the south end plus Team B's single reference at the north end = three targets, inside the authored band. Worth recording as evidence that this object was authored against an implicit single-direction layout: its target-count range does not scale to a reciprocal two-direction game, and only the authored Scope parameter kept it inside its own range."
+   }
+  ],
+  "contributionsDropped": [
+   "No REQUIRED or EXCLUSION contribution from any of the six was dropped by decision. One REQUIRED pair is carried UNRESOLVED rather than dropped: RPC-001-11 ('state = active from the moment that team's attack begins') and VARTARGET-16 ('must not be determinable before its trigger fires; no rule or setup may let a team fix the target in advance') cannot both hold at the first instant of an attack. The resolved game leaves Objectives.state for {O-TGT-A1, O-TGT-A2} and the corresponding information element without a value at that instant — see flagged collision C1. Solving it either way would drop one of the two.",
+   "GF2-12 (SUPPORTING / PREFERRED_DEFAULT — both teams attack the same end target): adapted away in favour of one target set per team. Authorized by the VALUE STATUS decision; GF2-11, its REQUIRED sibling, survives intact.",
+   "GF2-17 (SUPPORTING / PREFERRED_DEFAULT — play continues without stoppage on a turnover): adapted away; turnovers stop play so that RPC-001-16/17 can hold.",
+   "GF2-16 (SUPPORTING / PREFERRED_DEFAULT — restart location where the ball left play): beneficiary survives, location adapted to the restarting team's own half or goalkeeper.",
+   "WIDEZONE-13 (TYPICAL_EXAMPLE — bonus point / free restart / scoring multiplier): two of the three authored options are unusable here (bonus point = a second independent way to score; free restart = a restart that does not re-establish the begin condition). Only the multiplier is instantiated; the magnitude is authored nowhere and is left as a free parameter.",
+   "VARTARGET-05 (SUPPORTING / PREFERRED_DEFAULT — a trigger line region): not instantiated, because the trigger chosen is an opponent action rather than a spatial threshold. The contribution itself states that a non-spatial in-play trigger removes the requirement.",
+   "VARTARGET-20 (SUPPORTING / TYPICAL_EXAMPLE — possession-scoped reassignment by the first receiver in the attacking half): not instantiated; informative only.",
+   "RPC-001-05 (SUPPORTING — a target player beyond the first defenders): not triggered, because target_player is not the chosen primary event.",
+   "Informative-only values not instantiated: GF2-24 (typical 40-60 x 25-40 m), NEUTRAL-11 (6v6+3 / 7v7+1 for a 15-player total), VARTARGET-04 (placement across the far line or at multiple edges)."
+  ],
+  "bespokeAwarenessNeeded": [
+   "RPC-001 <-> Variable Target, on Objectives.state (this is the failure the test exists to detect, and the only one found). RPC-001-11 could only be stated in the form it takes — one reference, PRIMARY SCORING, active from the moment the attack begins — by assuming the objective set is fixed and singular. Variable Target's VARTARGET-08/16 could only be stated in the form they take — live target revealed late or changing, never determinable in advance — by assuming nothing else requires a live objective at the first instant of an attack. Each object had to know the other's shape to state its own contribution correctly, and neither could have avoided it by being more careful: the conflict is in the content, not the wording.",
+   "RPC-001-04 sharpens the same point and is worth separating. RPC-001 states where the defending team starts (a first-defender line between the build-out area and the scoring reference) with no awareness that another selection might make 'which scoring reference' depend on where the defence is committed. Variable Target states a defender-commitment trigger with no awareness that another selection fixes the defence's starting shape away from the candidates. The two contributions are individually correct and jointly leave the live-target function undefined exactly at each restart."
+  ]
+ }
+}

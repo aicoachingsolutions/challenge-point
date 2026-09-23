@@ -1,0 +1,4547 @@
+{
+ "candidatesByRow": {
+  "P1": [
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-01.a",
+    "selector": "*",
+    "requirement": "COUNT",
+    "value": "2",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-01.b",
+    "selector": "*",
+    "requirement": "EXISTS",
+    "value": "an opposing team that can deny, redirect or reverse progression (play)",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "OUTSIDE_BOUNDARY"
+   },
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-14.a",
+    "selector": "*",
+    "requirement": "COUNT",
+    "value": "2",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "P3": [
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-02",
+    "selector": "team=BUILD_OUT_TEAM",
+    "requirement": "EQUALS",
+    "value": "1",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "PER_TEAM",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-03",
+    "selector": "team=ATTACKING_TEAM",
+    "requirement": "EQUALS",
+    "value": "1",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "PER_TEAM",
+    "basis": "AUTHORED",
+    "checkability": "PARTLY_STRUCTURAL"
+   }
+  ],
+  "P8": [
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-04.a",
+    "selector": "group=DEFENDING_TEAM",
+    "requirement": "EXISTS",
+    "value": "N/A",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "PER_TEAM",
+    "basis": "ENGINE_ONLY",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-04.c",
+    "selector": "group=DEFENDING_TEAM",
+    "requirement": "EXISTS",
+    "value": "an identifiable forward-most defensive line of players ('the first defenders')",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "PER_TEAM",
+    "basis": "ENGINE_ONLY",
+    "checkability": "OUTSIDE_BOUNDARY"
+   }
+  ],
+  "P10": [
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-04.b",
+    "selector": "group=DEFENDING_TEAM",
+    "requirement": "POSITIONED",
+    "value": "beyond BUILD_OUT_TEAM's build-out start area, with the scoring reference beyond it, along S1 for BUILD_OUT_TEAM",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "PER_TEAM",
+    "basis": "ENGINE_ONLY",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-05.a",
+    "selector": "group=target player",
+    "requirement": "POSITIONED",
+    "value": "beyond the first defenders, for BUILD_OUT_TEAM; only if V1 = target_player",
+    "strictness": "SUPPORTING",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "PER_TEAM",
+    "basis": "ENGINE_ONLY",
+    "checkability": "PARTLY_STRUCTURAL"
+   }
+  ],
+  "P4": [
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-05.b",
+    "selector": "roleName=target player",
+    "requirement": "EXISTS",
+    "value": "one target player; only if V1 = target_player (condition not holdable)",
+    "strictness": "SUPPORTING",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "ENGINE_ONLY",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "SV1": [
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-06",
+    "selector": "*",
+    "requirement": "EXISTS",
+    "value": "BUILD_OUT_TEAM's own half, determinable along S1 (need not be marked)",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "PER_TEAM",
+    "basis": "ENGINE_ONLY",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "S1": [
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-07",
+    "selector": "*",
+    "requirement": "EXISTS",
+    "value": "N/A",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "From Goal Kicks (A01-02)",
+    "id": "A01-02-09.a",
+    "selector": "*",
+    "requirement": "EXISTS",
+    "value": "none (a longitudinal axis is set, so each team has an end)",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-05.a",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "the longer envelope dimension",
+    "strictness": "SUPPORTING",
+    "valueStatus": "PREFERRED_DEFAULT",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Wide Zone Advantage",
+    "id": "WIDEZONE-01.a",
+    "selector": "*",
+    "requirement": "EXISTS",
+    "value": "N/A",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Wide Zone Advantage",
+    "id": "WIDEZONE-01.b",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "the longer envelope dimension (touchlines are the two long boundaries)",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "V1": [
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-08.a",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "{line_crossed, target_zone_entered, gate, target_player}, ordered 1-4",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-12",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "possession retention alone (pass counts, keep-away, time in possession)",
+    "strictness": "EXCLUSION",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "From Goal Kicks (A01-02)",
+    "id": "A01-02-12.a",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "forbidden: taking or conceding the goal-kick restart as the primary scoring event",
+    "strictness": "EXCLUSION",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "ENGINE_ONLY",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-19",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "{line_crossed, target_zone_entered} â€” set of alternatives, unordered",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-20",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "{consecutive-pass count, keep-away, time-in-possession} (forbidden: retained possession alone as the scoring event)",
+    "strictness": "EXCLUSION",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "V0": [
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-08.b",
+    "selector": "*",
+    "requirement": "COUNT",
+    "value": "1",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Wide Zone Advantage",
+    "id": "WIDEZONE-16.b",
+    "selector": "*",
+    "requirement": "COUNT",
+    "value": "2 or more (forbidden)",
+    "strictness": "EXCLUSION",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-11.a",
+    "selector": "*",
+    "requirement": "EXISTS",
+    "value": "one primary event, its reference derived from PRIMARY_SCORING objectives including the set's members; event definition unchanged",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "PARTLY_STRUCTURAL"
+   },
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-12.a",
+    "selector": "*",
+    "requirement": "COUNT",
+    "value": "more than 1 (a second, independent way to score created by the candidate set)",
+    "strictness": "EXCLUSION",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-12.b",
+    "selector": "*",
+    "requirement": "NOT_EXISTS",
+    "value": "credit for the primary event performed on a candidate that is not live at that moment",
+    "strictness": "EXCLUSION",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "OUTSIDE_BOUNDARY"
+   }
+  ],
+  "J2": [
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-08.c",
+    "selector": "role=PRIMARY_SCORING & team=BUILD_OUT_TEAM",
+    "requirement": "EXISTS",
+    "value": "N/A (references the scoring reference: marked line, zone, gate or target player per V1)",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "PER_TEAM",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-08.b",
+    "selector": "role=PRIMARY_SCORING",
+    "requirement": "EQUALS",
+    "value": "the target feature: the objective-area region of GF2-03.a (line or zone)",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Wide Zone Advantage",
+    "id": "WIDEZONE-16.a",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "a wide channel of this contract (forbidden objective reference)",
+    "strictness": "EXCLUSION",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "O4": [
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-09.a",
+    "selector": "kind âˆˆ {line, gate}",
+    "requirement": "POSITIONED",
+    "value": "beyond BUILD_OUT_TEAM's own-half start area and beyond the first defenders, for BUILD_OUT_TEAM",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "PER_TEAM",
+    "basis": "ENGINE_ONLY",
+    "checkability": "PARTLY_STRUCTURAL"
+   },
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-06.b",
+    "selector": "kind âˆˆ {line, zone}",
+    "requirement": "POSITIONED",
+    "value": "attacking end, as GF2-04: the object sits on the end target region",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-03.a",
+    "selector": "*",
+    "requirement": "POSITIONED",
+    "value": "each candidate's (along, across) position differs from every other candidate's in the same set; no separation distance",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "PER_OBJECTIVE_SET",
+    "basis": "ASSUMED",
+    "checkability": "PARTLY_STRUCTURAL"
+   },
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-04.a",
+    "selector": "*",
+    "requirement": "POSITIONED",
+    "value": "unordered {attacking end (of the set's team), i.e. on the far line; several edges (off-list)}",
+    "strictness": "SUPPORTING",
+    "valueStatus": "TYPICAL_EXAMPLE",
+    "scope": "PER_OBJECTIVE_SET",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "S5": [
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-09.b",
+    "selector": "noun=zone & functionsâˆ‹objective-area",
+    "requirement": "POSITIONED",
+    "value": "beyond BUILD_OUT_TEAM's own-half start area and beyond the first defenders, for BUILD_OUT_TEAM",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "PER_TEAM",
+    "basis": "ENGINE_ONLY",
+    "checkability": "PARTLY_STRUCTURAL"
+   },
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-04",
+    "selector": "functions âˆ‹ objective-area",
+    "requirement": "POSITIONED",
+    "value": "attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Wide Zone Advantage",
+    "id": "WIDEZONE-07",
+    "selector": "noun=channel",
+    "requirement": "EQUALS",
+    "value": "the full axis extent, end line to end line",
+    "strictness": "SUPPORTING",
+    "valueStatus": "PREFERRED_DEFAULT",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Wide Zone Advantage",
+    "id": "WIDEZONE-10.a",
+    "selector": "noun=channel",
+    "requirement": "EXISTS",
+    "value": "N/A",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "O1": [
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-10.a",
+    "selector": "kind=ball",
+    "requirement": "EXISTS",
+    "value": "N/A",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-10.b",
+    "selector": "kind=ball",
+    "requirement": "EXISTS",
+    "value": "contested; possession and control decidable at the scoring event and at loss of possession",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "OUTSIDE_BOUNDARY"
+   },
+   {
+    "contract": "From Goal Kicks (A01-02)",
+    "id": "A01-02-08.a",
+    "selector": "kind=ball",
+    "requirement": "EXISTS",
+    "value": "none (at least one ball)",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-06.a",
+    "selector": "kind âˆˆ {line, zone}",
+    "requirement": "RANGE",
+    "value": "min 1: the target line or zone as a physically marked object",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-01.a",
+    "selector": "*",
+    "requirement": "RANGE",
+    "value": "min 2, max 3 candidate target objects per objective set (O3 summed over matching elements)",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "PER_OBJECTIVE_SET",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-02.a",
+    "selector": "*",
+    "requirement": "EXISTS",
+    "value": "every candidate target object is present in objects[] (the representation is static, so for the whole activity)",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "PER_OBJECTIVE_SET",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "J1": [
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-11.a",
+    "selector": "role=PRIMARY_SCORING & team=BUILD_OUT_TEAM",
+    "requirement": "EXISTS",
+    "value": "N/A",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "PER_TEAM",
+    "basis": "OWNER_RULING",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-14.a",
+    "selector": "*",
+    "requirement": "RANGE",
+    "value": ">=1",
+    "strictness": "SUPPORTING",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "PER_TEAM",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-08.a",
+    "selector": "role=PRIMARY_SCORING",
+    "requirement": "EXISTS",
+    "value": "a primary scoring objective: the forward objective possession serves",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-09.a",
+    "selector": "*",
+    "requirement": "RANGE",
+    "value": "min 1 per team: each side has at least one external objective it attacks (J3)",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "PER_TEAM",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Neutral Player Condition",
+    "id": "NEUTRAL-17.a",
+    "selector": "team=NEUTRALS",
+    "requirement": "NOT_EXISTS",
+    "value": "an objective attacked by the neutrals as their own",
+    "strictness": "EXCLUSION",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-06.b",
+    "selector": "*",
+    "requirement": "RANGE",
+    "value": "min 2 candidate objectives per set (the original's floor)",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "PER_OBJECTIVE_SET",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "J11b": [
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-11.b",
+    "selector": "*",
+    "requirement": "EXISTS",
+    "value": "can yield a live PRIMARY_SCORING member for BUILD_OUT_TEAM within the build-out episode, on START or on a trigger that does not itself end it",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "BUILD_OUT_EPISODE",
+    "basis": "OWNER_RULING",
+    "checkability": "PARTLY_STRUCTURAL"
+   }
+  ],
+  "DV1": [
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-13",
+    "selector": "*",
+    "requirement": "ORIENTED",
+    "value": "BUILD_OUT_TEAM attacks away from its own-half start area toward its PRIMARY_SCORING reference and defends the opposite",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "PER_TEAM",
+    "basis": "AUTHORED",
+    "checkability": "PARTLY_STRUCTURAL"
+   },
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-22",
+    "selector": "*",
+    "requirement": "COUNT",
+    "value": ">=2 distinct viable progression routes toward the scoring reference (routes, not elements)",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "PER_TEAM",
+    "basis": "AUTHORED",
+    "checkability": "OUTSIDE_BOUNDARY"
+   },
+   {
+    "contract": "From Goal Kicks (A01-02)",
+    "id": "A01-02-10.a",
+    "selector": "*",
+    "requirement": "ORIENTED",
+    "value": "each team that can be awarded a goal kick has a defended end distinct from the end it attacks",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "PER_TEAM",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-10",
+    "selector": "*",
+    "requirement": "ORIENTED",
+    "value": "each team's objective lies ahead of it along the axis, so progression toward it changes access (not equally reachable from everywhere)",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "PER_TEAM",
+    "basis": "AUTHORED",
+    "checkability": "PARTLY_STRUCTURAL"
+   },
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-11",
+    "selector": "*",
+    "requirement": "ORIENTED",
+    "value": "each team: a stable, perceivable direction of progression toward at least one functional directional objective",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "PER_TEAM",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-12.b",
+    "selector": "*",
+    "requirement": "ORIENTED",
+    "value": "EACH_TEAM attacks in the same sense along the axis",
+    "strictness": "SUPPORTING",
+    "valueStatus": "PREFERRED_DEFAULT",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-10.a",
+    "selector": "*",
+    "requirement": "ORIENTED",
+    "value": "each set-owning team is oriented toward its candidate set as a whole (whichever member is live), not toward one fixed objective",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "PER_TEAM",
+    "basis": "AUTHORED",
+    "checkability": "PARTLY_STRUCTURAL"
+   }
+  ],
+  "T2": [
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-15.a",
+    "selector": "trigger=START",
+    "requirement": "EXISTS",
+    "value": "N/A",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "PARTLY_STRUCTURAL"
+   },
+   {
+    "contract": "From Goal Kicks (A01-02)",
+    "id": "A01-02-05.a",
+    "selector": "restart=GOAL_KICK [L1]",
+    "requirement": "EQUALS",
+    "value": "the team defending the end where the goal kick is placed [off-list designation; L2]",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-07.b",
+    "selector": "trigger=POSSESSION_CHANGE",
+    "requirement": "EQUALS",
+    "value": "LOST_BALL (forbidden: a rule returning a won ball to the team that lost it)",
+    "strictness": "EXCLUSION",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-16.a",
+    "selector": "trigger âˆˆ {OUT_END_LINE, OUT_TOUCHLINE}",
+    "requirement": "EQUALS",
+    "value": "NOT_LAST_TOUCH",
+    "strictness": "SUPPORTING",
+    "valueStatus": "PREFERRED_DEFAULT",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Neutral Player Condition",
+    "id": "NEUTRAL-13.a",
+    "selector": "trigger=START",
+    "requirement": "EXISTS",
+    "value": "field present: the START element names the team awarded the start",
+    "strictness": "SUPPORTING",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "T3": [
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-15.b",
+    "selector": "trigger=START",
+    "requirement": "EQUALS",
+    "value": "{goalkeeper, a player of STARTING_TEAM taking a controlled defensive restart}, unordered",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-16.b",
+    "selector": "trigger âˆˆ {SCORE, OUT_END_LINE, OUT_TOUCHLINE, POSSESSION_CHANGE}",
+    "requirement": "EQUALS",
+    "value": "{goalkeeper, a player of the team T2 names}",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "BUILD_OUT_EPISODE",
+    "basis": "ENGINE_ONLY",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "From Goal Kicks (A01-02)",
+    "id": "A01-02-11.a",
+    "selector": "restart=GOAL_KICK [L1]",
+    "requirement": "EQUALS",
+    "value": "a player of the team in this element's T2: any role, not necessarily a goalkeeper [off-list designation; L2]",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "T4": [
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-16.a",
+    "selector": "trigger âˆˆ {SCORE, OUT_END_LINE, OUT_TOUCHLINE, POSSESSION_CHANGE}",
+    "requirement": "POSITIONED",
+    "value": "inside the own half of the team T2 names",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "BUILD_OUT_EPISODE",
+    "basis": "ENGINE_ONLY",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "From Goal Kicks (A01-02)",
+    "id": "A01-02-06.b",
+    "selector": "trigger=START",
+    "requirement": "POSITIONED",
+    "value": "own end (of STARTING_TEAM)",
+    "strictness": "SUPPORTING",
+    "valueStatus": "PREFERRED_DEFAULT",
+    "scope": "WHOLE_GAME",
+    "basis": "ENGINE_ONLY",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "From Goal Kicks (A01-02)",
+    "id": "A01-02-07.a",
+    "selector": "restart=GOAL_KICK [L1]",
+    "requirement": "POSITIONED",
+    "value": "own end (of the team in this element's T2) [off-list referent; L2]",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "T6": [
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-16.c",
+    "selector": "trigger âˆˆ {SCORE, OUT_END_LINE, OUT_TOUCHLINE, POSSESSION_CHANGE}",
+    "requirement": "EQUALS",
+    "value": "STOP_RESUME",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "BUILD_OUT_EPISODE",
+    "basis": "ENGINE_ONLY",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-17.b",
+    "selector": "trigger=POSSESSION_CHANGE",
+    "requirement": "EXISTS",
+    "value": "N/A",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "From Goal Kicks (A01-02)",
+    "id": "A01-02-04.a",
+    "selector": "restart=GOAL_KICK [L1]",
+    "requirement": "EQUALS",
+    "value": "STOP_RESUME",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-16.b",
+    "selector": "trigger âˆˆ {OUT_END_LINE, OUT_TOUCHLINE}",
+    "requirement": "EQUALS",
+    "value": "STOP_RESUME",
+    "strictness": "SUPPORTING",
+    "valueStatus": "PREFERRED_DEFAULT",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-17",
+    "selector": "trigger=POSSESSION_CHANGE",
+    "requirement": "EQUALS",
+    "value": "CONTINUE",
+    "strictness": "SUPPORTING",
+    "valueStatus": "PREFERRED_DEFAULT",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "T7": [
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-17.a",
+    "selector": "trigger=POSSESSION_CHANGE",
+    "requirement": "EQUALS",
+    "value": "true",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "V3": [
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-18.a",
+    "selector": "type=origin",
+    "requirement": "EXISTS",
+    "value": "N/A",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-18.c",
+    "selector": "type=progression",
+    "requirement": "EXISTS",
+    "value": "N/A",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-18.f",
+    "selector": "type=control",
+    "requirement": "EXISTS",
+    "value": "N/A",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-19.a",
+    "selector": "type=exclusion",
+    "requirement": "EXISTS",
+    "value": "N/A",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-19.a",
+    "selector": "*",
+    "requirement": "NOT_EXISTS",
+    "value": "a condition prescribing a player behaviour (e.g. a mandatory scan or required route) for scoring on the live target",
+    "strictness": "EXCLUSION",
+    "valueStatus": "N/A",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "AUTHORED",
+    "checkability": "OUTSIDE_BOUNDARY"
+   }
+  ],
+  "V5": [
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-18.b",
+    "selector": "type=origin",
+    "requirement": "EQUALS",
+    "value": "{the goalkeeper's START/restart placement, a controlled defensive restart placement}",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-18.d",
+    "selector": "type=progression",
+    "requirement": "EQUALS",
+    "value": "the initial pressure or progression line",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "PARTLY_STRUCTURAL"
+   },
+   {
+    "contract": "Wide Zone Advantage",
+    "id": "WIDEZONE-08.c",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "a wide channel of this contract (forbidden referent)",
+    "strictness": "EXCLUSION",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "PARTLY_STRUCTURAL"
+   }
+  ],
+  "V6": [
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-18.e",
+    "selector": "type=progression",
+    "requirement": "EQUALS",
+    "value": "beyond",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-18.g",
+    "selector": "type=control",
+    "requirement": "EQUALS",
+    "value": "controlled on arrival",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-19.b",
+    "selector": "type=exclusion",
+    "requirement": "EQUALS",
+    "value": "a long clearance that happens to reach the target",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Neutral Player Condition",
+    "id": "NEUTRAL-16.a",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "neutral involvement required for the primary event to count",
+    "strictness": "EXCLUSION",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "V2": [
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-20",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "1",
+    "strictness": "SUPPORTING",
+    "valueStatus": "PREFERRED_DEFAULT",
+    "scope": "WHOLE_GAME",
+    "basis": "ENGINE_ONLY",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "V7": [
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-21.a",
+    "selector": "*",
+    "requirement": "EXISTS",
+    "value": "(forbidden) a modifier that makes established coordinated high pressure the dominant organizing problem",
+    "strictness": "EXCLUSION",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "OUTSIDE_BOUNDARY"
+   }
+  ],
+  "V11": [
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-21.b",
+    "selector": "*",
+    "requirement": "EXISTS",
+    "value": "(forbidden) a consequence that makes established coordinated high pressure the dominant organizing problem",
+    "strictness": "EXCLUSION",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "OUTSIDE_BOUNDARY"
+   }
+  ],
+  "V15": [
+   {
+    "contract": "RPC-001 Goalkeeper Build-Out",
+    "id": "RPC-001-23",
+    "selector": "subject âˆˆ {teammate positioning and immediate support, opponent positioning and developing pressure}",
+    "requirement": "EXISTS",
+    "value": "(forbidden) an information rule that removes or hides the subject from the player on the ball",
+    "strictness": "EXCLUSION",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "PARTLY_STRUCTURAL"
+   },
+   {
+    "contract": "Wide Zone Advantage",
+    "id": "WIDEZONE-17.a",
+    "selector": "subject=the wide channels and their advantage",
+    "requirement": "EXISTS",
+    "value": "N/A",
+    "strictness": "SUPPORTING",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-13.a",
+    "selector": "subject=live member of this object's candidate set",
+    "requirement": "EXISTS",
+    "value": "one information rule about which candidate is live",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "T1": [
+   {
+    "contract": "From Goal Kicks (A01-02)",
+    "id": "A01-02-01.a",
+    "selector": "restart=GOAL_KICK [not a registered T1 selector attribute; ledger L1]",
+    "requirement": "EXISTS",
+    "value": "none (at least one transition whose procedure is a goal kick; its trigger unstated)",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "From Goal Kicks (A01-02)",
+    "id": "A01-02-02.a",
+    "selector": "restart=GOAL_KICK [L1]",
+    "requirement": "EXISTS",
+    "value": "none (some trigger keys the goal-kick element; which one is not authored)",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "ENGINE_ONLY",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "From Goal Kicks (A01-02)",
+    "id": "A01-02-03.a",
+    "selector": "restart=GOAL_KICK & trigger âˆˆ {SCORE, OUT_END_LINE, OUT_TOUCHLINE, POSSESSION_CHANGE, REGION_ENTRY, TIME_EXPIRY} [restart: L1]",
+    "requirement": "EXISTS",
+    "value": "none (a goal-kick transition on some trigger other than START)",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "ENGINE_ONLY",
+    "checkability": "PARTLY_STRUCTURAL"
+   },
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-07.a",
+    "selector": "trigger=POSSESSION_CHANGE",
+    "requirement": "EXISTS",
+    "value": "a possession-change transition: the ball's owner is not fixed",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "PARTLY_STRUCTURAL"
+   },
+   {
+    "contract": "Neutral Player Condition",
+    "id": "NEUTRAL-12.a",
+    "selector": "trigger=POSSESSION_CHANGE",
+    "requirement": "EXISTS",
+    "value": "a possession-change element exists",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "T5": [
+   {
+    "contract": "From Goal Kicks (A01-02)",
+    "id": "A01-02-04.b",
+    "selector": "restart=GOAL_KICK [L1]",
+    "requirement": "EQUALS",
+    "value": "STATIONARY_BALL",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "From Goal Kicks (A01-02)",
+    "id": "A01-02-06.a",
+    "selector": "trigger=START",
+    "requirement": "EQUALS",
+    "value": "STATIONARY_BALL",
+    "strictness": "SUPPORTING",
+    "valueStatus": "PREFERRED_DEFAULT",
+    "scope": "WHOLE_GAME",
+    "basis": "ENGINE_ONLY",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "V8b": [
+   {
+    "contract": "From Goal Kicks (A01-02)",
+    "id": "A01-02-12.b",
+    "selector": "condition.type=event",
+    "requirement": "EQUALS",
+    "value": "forbidden member: the goal-kick restart (taken or conceded) as a modifier referent",
+    "strictness": "EXCLUSION",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "ENGINE_ONLY",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Neutral Player Condition",
+    "id": "NEUTRAL-15.a",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "neutral involvement (an event of a neutral taking part) as a modifier's condition",
+    "strictness": "EXCLUSION",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Wide Zone Advantage",
+    "id": "WIDEZONE-11.a",
+    "selector": "condition.type=region",
+    "requirement": "EQUALS",
+    "value": "both wide channels of this contract, each a referent",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-18.a",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "a member of this object's candidate set (its object or region), or the live/not-live status as an event",
+    "strictness": "EXCLUSION",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "NONE": [
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-01",
+    "selector": "N/A",
+    "requirement": "EQUALS",
+    "value": "a single rectangular playing area",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-02",
+    "selector": "N/A",
+    "requirement": "EXISTS",
+    "value": "one area both teams occupy at once, with no partition or separating boundary that removes direct contest for the ball",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "PARTLY_STRUCTURAL"
+   },
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-13",
+    "selector": "N/A",
+    "requirement": "EXISTS",
+    "value": "the out-of-possession team can deny, redirect or reverse progression toward the objective it defends",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "PER_TEAM",
+    "basis": "AUTHORED",
+    "checkability": "OUTSIDE_BOUNDARY"
+   },
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-15",
+    "selector": "N/A",
+    "requirement": "NOT_EXISTS",
+    "value": "a team that is passive, scripted or unable to change the other team's progression",
+    "strictness": "EXCLUSION",
+    "valueStatus": "N/A",
+    "scope": "PER_TEAM",
+    "basis": "ASSUMED",
+    "checkability": "PARTLY_STRUCTURAL"
+   },
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-18",
+    "selector": "N/A",
+    "requirement": "NOT_EXISTS",
+    "value": "an alternating-turn, queued or sequential-attempt structure in which the teams' attempts do not influence each other",
+    "strictness": "EXCLUSION",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "OUTSIDE_BOUNDARY"
+   },
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-21",
+    "selector": "N/A",
+    "requirement": "NOT_EXISTS",
+    "value": "a possession reward that outweighs or displaces the progression event (possession terminal rather than instrumental)",
+    "strictness": "EXCLUSION",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "OUTSIDE_BOUNDARY"
+   },
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-22",
+    "selector": "N/A",
+    "requirement": "NOT_EXISTS",
+    "value": "a rule removing legal passing options (banned receivers, forced pass order, prohibited backward or square passes); incentives to progress remain allowed",
+    "strictness": "EXCLUSION",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-23",
+    "selector": "N/A",
+    "requirement": "EXISTS",
+    "value": "meaningful events (score, turnover, ball out) reorganize space, roles, access or threat",
+    "strictness": "SUPPORTING",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "OUTSIDE_BOUNDARY"
+   },
+   {
+    "contract": "Neutral Player Condition",
+    "id": "NEUTRAL-05.a",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "active outfield participant for the whole activity: not rotated in and out, not a waiting or observing role",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Neutral Player Condition",
+    "id": "NEUTRAL-07.a",
+    "selector": "*",
+    "requirement": "EXISTS",
+    "value": "a neutral is a live playing option for the possessing team: receives and plays the ball and occupies support positions",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "OUTSIDE_BOUNDARY"
+   },
+   {
+    "contract": "Neutral Player Condition",
+    "id": "NEUTRAL-12.b",
+    "selector": "*",
+    "requirement": "EXISTS",
+    "value": "which team is in possession is determinable at every moment of play, not only at restarts",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "OUTSIDE_BOUNDARY"
+   },
+   {
+    "contract": "Neutral Player Condition",
+    "id": "NEUTRAL-16.b",
+    "selector": "*",
+    "requirement": "NOT_EXISTS",
+    "value": "neutral involvement as the only or dominant route to the primary event; use of the overload directed rather than chosen",
+    "strictness": "EXCLUSION",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "OUTSIDE_BOUNDARY"
+   }
+  ],
+  "S2": [
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-03.a",
+    "selector": "functions âˆ‹ objective-area",
+    "requirement": "RANGE",
+    "value": "min 1; no maximum authored",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Wide Zone Advantage",
+    "id": "WIDEZONE-02.a",
+    "selector": "noun=channel",
+    "requirement": "EXISTS",
+    "value": "N/A",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Wide Zone Advantage",
+    "id": "WIDEZONE-03",
+    "selector": "noun=channel",
+    "requirement": "COUNT",
+    "value": "2",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Wide Zone Advantage",
+    "id": "WIDEZONE-08.d",
+    "selector": "noun=channel & functions âˆ‹ perceptual-reference",
+    "requirement": "COUNT",
+    "value": "2",
+    "strictness": "SUPPORTING",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-05.a",
+    "selector": "functions âˆ‹ trigger",
+    "requirement": "EXISTS",
+    "value": "a trigger region (e.g. beyond a trigger line) is present",
+    "strictness": "SUPPORTING",
+    "valueStatus": "PREFERRED_DEFAULT",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "S3": [
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-03.b",
+    "selector": "functions âˆ‹ objective-area",
+    "requirement": "EQUALS",
+    "value": "{zone, line} â€” set of alternatives, unordered",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Wide Zone Advantage",
+    "id": "WIDEZONE-02.b",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "channel",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "S6": [
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-05.b",
+    "selector": "functions âˆ‹ objective-area",
+    "requirement": "ORIENTED",
+    "value": "extends across the axis: the target lies across the direction of progression",
+    "strictness": "SUPPORTING",
+    "valueStatus": "PREFERRED_DEFAULT",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Wide Zone Advantage",
+    "id": "WIDEZONE-04.a",
+    "selector": "noun=channel",
+    "requirement": "POSITIONED",
+    "value": "touchline-adjacent",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Wide Zone Advantage",
+    "id": "WIDEZONE-05.a",
+    "selector": "noun=channel",
+    "requirement": "POSITIONED",
+    "value": "touchline-adjacent (outer edge on a touchline)",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Wide Zone Advantage",
+    "id": "WIDEZONE-06",
+    "selector": "noun=channel",
+    "requirement": "RANGE",
+    "value": "across-interval width about 6-10 m",
+    "strictness": "SUPPORTING",
+    "valueStatus": "PREFERRED_DEFAULT",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Wide Zone Advantage",
+    "id": "WIDEZONE-10.b",
+    "selector": "noun=channel",
+    "requirement": "EXISTS",
+    "value": "N/A",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "J8": [
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-09.b",
+    "selector": "*",
+    "requirement": "RANGE",
+    "value": "min 1: every objective set keeps at least one live member at every instant, START included",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "PARTLY_STRUCTURAL"
+   },
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-07.a",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "1",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "J3": [
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-12.a",
+    "selector": "role=PRIMARY_SCORING",
+    "requirement": "EQUALS",
+    "value": "EACH_TEAM: one shared target attacked by both teams",
+    "strictness": "SUPPORTING",
+    "valueStatus": "PREFERRED_DEFAULT",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "P2": [
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-14.b",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "equal to the other team's outfieldCount; no absolute number",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Neutral Player Condition",
+    "id": "NEUTRAL-08.a",
+    "selector": "*",
+    "requirement": "RANGE",
+    "value": "for each team T: P2(T) > P2(other team) - P5",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "PER_TEAM",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Neutral Player Condition",
+    "id": "NEUTRAL-09.a",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "P2 equal for the two teams",
+    "strictness": "SUPPORTING",
+    "valueStatus": "PREFERRED_DEFAULT",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Neutral Player Condition",
+    "id": "NEUTRAL-11.b",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "{6, 7} per team, unordered, for a 15-player envelope (paired with 3 and 1 neutrals)",
+    "strictness": "SUPPORTING",
+    "valueStatus": "TYPICAL_EXAMPLE",
+    "scope": "PER_TEAM",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "E2": [
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-24.a",
+    "selector": "*",
+    "requirement": "RANGE",
+    "value": "40-60 m",
+    "strictness": "SUPPORTING",
+    "valueStatus": "TYPICAL_EXAMPLE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "E3": [
+   {
+    "contract": "Directional Possession Games (GF2)",
+    "id": "GF2-24.b",
+    "selector": "*",
+    "requirement": "RANGE",
+    "value": "25-40 m",
+    "strictness": "SUPPORTING",
+    "valueStatus": "TYPICAL_EXAMPLE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "P5": [
+   {
+    "contract": "Neutral Player Condition",
+    "id": "NEUTRAL-01.a",
+    "selector": "*",
+    "requirement": "RANGE",
+    "value": ">= 1 (no authored maximum)",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Neutral Player Condition",
+    "id": "NEUTRAL-02.a",
+    "selector": "*",
+    "requirement": "RANGE",
+    "value": "1-2 (one or two)",
+    "strictness": "SUPPORTING",
+    "valueStatus": "PREFERRED_DEFAULT",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Neutral Player Condition",
+    "id": "NEUTRAL-11.a",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "{3, 1}, unordered, for a 15-player envelope (3 with 6v6, 1 with 7v7)",
+    "strictness": "SUPPORTING",
+    "valueStatus": "TYPICAL_EXAMPLE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "P6b": [
+   {
+    "contract": "Neutral Player Condition",
+    "id": "NEUTRAL-03.a",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "ATTACKING_TEAM",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Neutral Player Condition",
+    "id": "NEUTRAL-04.a",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "DEFENDING_TEAM",
+    "strictness": "EXCLUSION",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Neutral Player Condition",
+    "id": "NEUTRAL-04.b",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "TEAM_<id> (any fixed named team)",
+    "strictness": "EXCLUSION",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Neutral Player Condition",
+    "id": "NEUTRAL-14.b",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "ATTACKING_TEAM",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "P6a": [
+   {
+    "contract": "Neutral Player Condition",
+    "id": "NEUTRAL-03.b",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "STANDING",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Neutral Player Condition",
+    "id": "NEUTRAL-14.a",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "STANDING",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "P7": [
+   {
+    "contract": "Neutral Player Condition",
+    "id": "NEUTRAL-06.a",
+    "selector": "*",
+    "requirement": "EXISTS",
+    "value": "field present: neutrals are made visibly distinct from both teams",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Neutral Player Condition",
+    "id": "NEUTRAL-06.b",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "contrasting bibs",
+    "strictness": "REQUIRED",
+    "valueStatus": "PREFERRED_DEFAULT",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "E1": [
+   {
+    "contract": "Neutral Player Condition",
+    "id": "NEUTRAL-10.a",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "E1 = sum over teams of (P2 + P3) + P5: neutrals are drawn from the player total, not added to it",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "S4": [
+   {
+    "contract": "Wide Zone Advantage",
+    "id": "WIDEZONE-08.a",
+    "selector": "noun=channel",
+    "requirement": "EQUALS",
+    "value": "access (forbidden as a member of functions)",
+    "strictness": "EXCLUSION",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "V14b": [
+   {
+    "contract": "Wide Zone Advantage",
+    "id": "WIDEZONE-08.b",
+    "selector": "effect=ACCESS",
+    "requirement": "EQUALS",
+    "value": "a wide channel of this contract (forbidden region referent)",
+    "strictness": "EXCLUSION",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "V12": [
+   {
+    "contract": "Wide Zone Advantage",
+    "id": "WIDEZONE-11.b",
+    "selector": "effect=RESTART",
+    "requirement": "EQUALS",
+    "value": "REGION_ENTRY {a wide channel of this contract}",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "V9": [
+   {
+    "contract": "Wide Zone Advantage",
+    "id": "WIDEZONE-13.a",
+    "selector": "condition.type=region",
+    "requirement": "EQUALS",
+    "value": "a multiplier on the primary event value (size not authored)",
+    "strictness": "SUPPORTING",
+    "valueStatus": "TYPICAL_EXAMPLE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Wide Zone Advantage",
+    "id": "WIDEZONE-13.b",
+    "selector": "condition.type=region",
+    "requirement": "EQUALS",
+    "value": "added point(s) on the primary event (number not authored)",
+    "strictness": "SUPPORTING",
+    "valueStatus": "TYPICAL_EXAMPLE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "V13": [
+   {
+    "contract": "Wide Zone Advantage",
+    "id": "WIDEZONE-13.c",
+    "selector": "trigger=REGION_ENTRY",
+    "requirement": "EQUALS",
+    "value": "RESTART (free restart)",
+    "strictness": "SUPPORTING",
+    "valueStatus": "TYPICAL_EXAMPLE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "V14a": [
+   {
+    "contract": "Wide Zone Advantage",
+    "id": "WIDEZONE-14.a",
+    "selector": "effect=RESTART",
+    "requirement": "EQUALS",
+    "value": "ATTACKING_TEAM (the team performing the qualifying action)",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "V17": [
+   {
+    "contract": "Wide Zone Advantage",
+    "id": "WIDEZONE-17.b",
+    "selector": "subject=the wide channels and their advantage",
+    "requirement": "EQUALS",
+    "value": "STANDING",
+    "strictness": "SUPPORTING",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-05.b",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "unordered {REGION_ENTRY {trigger region}; COACH_CUEâ€ ; FIRST_FORWARD_PASSâ€ ; REGION_ENTRY {final third}; REGION_ENTRY {attacking half} + first receiverâ€ }; â€  off-list",
+    "strictness": "SUPPORTING",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-15.a",
+    "selector": "*",
+    "requirement": "EXISTS",
+    "value": "the trigger is detectable by players and causally connected to which target becomes live; the change alters action possibilities",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "AUTHORED",
+    "checkability": "OUTSIDE_BOUNDARY"
+   },
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-16.a",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "STANDING (the live member openly known in advance)",
+    "strictness": "EXCLUSION",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-16.b",
+    "selector": "*",
+    "requirement": "NOT_EXISTS",
+    "value": "the live member determinable by a team before the rule's trigger fires",
+    "strictness": "EXCLUSION",
+    "valueStatus": "N/A",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "AUTHORED",
+    "checkability": "OUTSIDE_BOUNDARY"
+   }
+  ],
+  "V22": [
+   {
+    "contract": "Wide Zone Advantage",
+    "id": "WIDEZONE-17.c",
+    "selector": "subject=the wide channels and their advantage",
+    "requirement": "EQUALS",
+    "value": "ALL (IE-D013)",
+    "strictness": "SUPPORTING",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "V16": [
+   {
+    "contract": "Wide Zone Advantage",
+    "id": "WIDEZONE-17.d",
+    "selector": "subject=the wide channels and their advantage",
+    "requirement": "EQUALS",
+    "value": "the wide channels and their advantage",
+    "strictness": "SUPPORTING",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-13.b",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "which member of this object's candidate set is live",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "O5": [
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-04.b",
+    "selector": "*",
+    "requirement": "POSITIONED",
+    "value": "unordered {spread across the width of the far line; touchline-adjacent, as one of several edges (off-list)}",
+    "strictness": "SUPPORTING",
+    "valueStatus": "TYPICAL_EXAMPLE",
+    "scope": "PER_OBJECTIVE_SET",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "J5": [
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-06.a",
+    "selector": "*",
+    "requirement": "EXISTS",
+    "value": "one objective set holding this object's candidate targets",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "J4": [
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-06.c",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "PRIMARY_SCORING for every member of the candidate set",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "J6": [
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-06.d",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "one team (the TEAM_<id> whose candidate set it is)",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-09.a",
+    "selector": "*",
+    "requirement": "EXISTS",
+    "value": "the set's scope field is present (EMP-0059 Scope)",
+    "strictness": "SUPPORTING",
+    "valueStatus": "N/A",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "J7": [
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-06.e",
+    "selector": "*",
+    "requirement": "EXISTS",
+    "value": "members lists the candidate objectives",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "J11a": [
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-08.a",
+    "selector": "on âˆˆ {REGION_ENTRY, POSSESSION_CHANGE, TIME_EXPIRY, FIRST_FORWARD_PASSâ€ }",
+    "requirement": "EXISTS",
+    "value": "an assignment entry keyed on a trigger that occurs in play (not START)",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-08.b",
+    "selector": "on âˆˆ {REGION_ENTRY, POSSESSION_CHANGE, TIME_EXPIRY, FIRST_FORWARD_PASSâ€ }",
+    "requirement": "EXISTS",
+    "value": "the assignment actually changes at least once in the activity",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "ASSUMED",
+    "checkability": "OUTSIDE_BOUNDARY"
+   }
+  ],
+  "J10": [
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-09.b",
+    "selector": "*",
+    "requirement": "EXISTS",
+    "value": "the set's persistence field is present (EMP-0060 Persistence)",
+    "strictness": "SUPPORTING",
+    "valueStatus": "N/A",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "ASSUMED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-20.a",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "âˆ‹ POSSESSION_CHANGE (a new possession re-runs the assignment)",
+    "strictness": "SUPPORTING",
+    "valueStatus": "TYPICAL_EXAMPLE",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "J12": [
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-13.c",
+    "selector": "*",
+    "requirement": "EXISTS",
+    "value": "the set's revelation references the rule in 13.a",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "V21": [
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-13.d",
+    "selector": "*",
+    "requirement": "EQUALS",
+    "value": "OBJECTIVE_DEPENDENT",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "V18": [
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-14.a",
+    "selector": "*",
+    "requirement": "RANGE",
+    "value": "unordered {STATE_TRANSITION, OPPONENT_ACTION}; EXTERNAL_SIGNAL (coach cue) falls outside",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   }
+  ],
+  "V20": [
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-17.a",
+    "selector": "*",
+    "requirement": "RANGE",
+    "value": "unordered {IMMEDIATE, STAGED}",
+    "strictness": "SUPPORTING",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "AUTHORED",
+    "checkability": "STRUCTURAL"
+   },
+   {
+    "contract": "Variable Target Condition",
+    "id": "VARTARGET-17.b",
+    "selector": "*",
+    "requirement": "EXISTS",
+    "value": "each stage stays meaningful; later information refines rather than arbitrarily overturns the task",
+    "strictness": "SUPPORTING",
+    "valueStatus": "N/A",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "AUTHORED",
+    "checkability": "OUTSIDE_BOUNDARY"
+   }
+  ]
+ },
+ "lineCandidates": [
+  {
+   "lineId": "L1",
+   "elementId": "game",
+   "row": "E1",
+   "value": "12",
+   "candidateItems": [
+    "Neutral Player Condition|NEUTRAL-10.a"
+   ]
+  },
+  {
+   "lineId": "L2",
+   "elementId": "game",
+   "row": "E2",
+   "value": "40",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-24.a"
+   ]
+  },
+  {
+   "lineId": "L3",
+   "elementId": "game",
+   "row": "E3",
+   "value": "30",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-24.b"
+   ]
+  },
+  {
+   "lineId": "L4",
+   "elementId": "game",
+   "row": "E4",
+   "value": "20",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L5",
+   "elementId": "game",
+   "row": "S1",
+   "value": "the 40 m side (longitudinal)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-07",
+    "From Goal Kicks (A01-02)|A01-02-09.a",
+    "Directional Possession Games (GF2)|GF2-05.a",
+    "Wide Zone Advantage|WIDEZONE-01.a",
+    "Wide Zone Advantage|WIDEZONE-01.b"
+   ]
+  },
+  {
+   "lineId": "L6",
+   "elementId": "area",
+   "row": "S2",
+   "value": "EXISTS",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-03.a",
+    "Wide Zone Advantage|WIDEZONE-02.a",
+    "Wide Zone Advantage|WIDEZONE-03",
+    "Wide Zone Advantage|WIDEZONE-08.d",
+    "Variable Target Condition|VARTARGET-05.a"
+   ]
+  },
+  {
+   "lineId": "L7",
+   "elementId": "area",
+   "row": "S3",
+   "value": "area (off-list)",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-03.b",
+    "Wide Zone Advantage|WIDEZONE-02.b"
+   ]
+  },
+  {
+   "lineId": "L8",
+   "elementId": "area",
+   "row": "S4",
+   "value": "UNSTATED",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-08.a"
+   ]
+  },
+  {
+   "lineId": "L9",
+   "elementId": "area",
+   "row": "S5",
+   "value": "0-40 m (whole)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-09.b",
+    "Directional Possession Games (GF2)|GF2-04",
+    "Wide Zone Advantage|WIDEZONE-07",
+    "Wide Zone Advantage|WIDEZONE-10.a"
+   ]
+  },
+  {
+   "lineId": "L10",
+   "elementId": "area",
+   "row": "S6",
+   "value": "0-30 m (whole)",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-05.b",
+    "Wide Zone Advantage|WIDEZONE-04.a",
+    "Wide Zone Advantage|WIDEZONE-05.a",
+    "Wide Zone Advantage|WIDEZONE-06",
+    "Wide Zone Advantage|WIDEZONE-10.b"
+   ]
+  },
+  {
+   "lineId": "L11",
+   "elementId": "own-half-A",
+   "row": "S2",
+   "value": "EXISTS",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-03.a",
+    "Wide Zone Advantage|WIDEZONE-02.a",
+    "Wide Zone Advantage|WIDEZONE-03",
+    "Wide Zone Advantage|WIDEZONE-08.d",
+    "Variable Target Condition|VARTARGET-05.a"
+   ]
+  },
+  {
+   "lineId": "L12",
+   "elementId": "own-half-A",
+   "row": "S3",
+   "value": "half",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-03.b",
+    "Wide Zone Advantage|WIDEZONE-02.b"
+   ]
+  },
+  {
+   "lineId": "L13",
+   "elementId": "own-half-A",
+   "row": "S4",
+   "value": "start-placement",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-08.a"
+   ]
+  },
+  {
+   "lineId": "L14",
+   "elementId": "own-half-A",
+   "row": "S5",
+   "value": "0-20 m (west end line to halfway line)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-09.b",
+    "Directional Possession Games (GF2)|GF2-04",
+    "Wide Zone Advantage|WIDEZONE-07",
+    "Wide Zone Advantage|WIDEZONE-10.a"
+   ]
+  },
+  {
+   "lineId": "L15",
+   "elementId": "own-half-A",
+   "row": "S6",
+   "value": "0-30 m (full width)",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-05.b",
+    "Wide Zone Advantage|WIDEZONE-04.a",
+    "Wide Zone Advantage|WIDEZONE-05.a",
+    "Wide Zone Advantage|WIDEZONE-06",
+    "Wide Zone Advantage|WIDEZONE-10.b"
+   ]
+  },
+  {
+   "lineId": "L16",
+   "elementId": "own-half-B",
+   "row": "S2",
+   "value": "EXISTS",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-03.a",
+    "Wide Zone Advantage|WIDEZONE-02.a",
+    "Wide Zone Advantage|WIDEZONE-03",
+    "Wide Zone Advantage|WIDEZONE-08.d",
+    "Variable Target Condition|VARTARGET-05.a"
+   ]
+  },
+  {
+   "lineId": "L17",
+   "elementId": "own-half-B",
+   "row": "S3",
+   "value": "half",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-03.b",
+    "Wide Zone Advantage|WIDEZONE-02.b"
+   ]
+  },
+  {
+   "lineId": "L18",
+   "elementId": "own-half-B",
+   "row": "S4",
+   "value": "start-placement",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-08.a"
+   ]
+  },
+  {
+   "lineId": "L19",
+   "elementId": "own-half-B",
+   "row": "S5",
+   "value": "20-40 m (halfway line to east end line)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-09.b",
+    "Directional Possession Games (GF2)|GF2-04",
+    "Wide Zone Advantage|WIDEZONE-07",
+    "Wide Zone Advantage|WIDEZONE-10.a"
+   ]
+  },
+  {
+   "lineId": "L20",
+   "elementId": "own-half-B",
+   "row": "S6",
+   "value": "0-30 m (full width)",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-05.b",
+    "Wide Zone Advantage|WIDEZONE-04.a",
+    "Wide Zone Advantage|WIDEZONE-05.a",
+    "Wide Zone Advantage|WIDEZONE-06",
+    "Wide Zone Advantage|WIDEZONE-10.b"
+   ]
+  },
+  {
+   "lineId": "L21",
+   "elementId": "channel-north",
+   "row": "S2",
+   "value": "EXISTS",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-03.a",
+    "Wide Zone Advantage|WIDEZONE-02.a",
+    "Wide Zone Advantage|WIDEZONE-03",
+    "Wide Zone Advantage|WIDEZONE-08.d",
+    "Variable Target Condition|VARTARGET-05.a"
+   ]
+  },
+  {
+   "lineId": "L22",
+   "elementId": "channel-north",
+   "row": "S3",
+   "value": "channel",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-03.b",
+    "Wide Zone Advantage|WIDEZONE-02.b"
+   ]
+  },
+  {
+   "lineId": "L23",
+   "elementId": "channel-north",
+   "row": "S4",
+   "value": "perceptual-reference",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-08.a"
+   ]
+  },
+  {
+   "lineId": "L24",
+   "elementId": "channel-north",
+   "row": "S4",
+   "value": "value-condition",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-08.a"
+   ]
+  },
+  {
+   "lineId": "L25",
+   "elementId": "channel-north",
+   "row": "S5",
+   "value": "0-40 m (full length)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-09.b",
+    "Directional Possession Games (GF2)|GF2-04",
+    "Wide Zone Advantage|WIDEZONE-07",
+    "Wide Zone Advantage|WIDEZONE-10.a"
+   ]
+  },
+  {
+   "lineId": "L26",
+   "elementId": "channel-north",
+   "row": "S6",
+   "value": "0-6 m (outer edge on north touchline)",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-05.b",
+    "Wide Zone Advantage|WIDEZONE-04.a",
+    "Wide Zone Advantage|WIDEZONE-05.a",
+    "Wide Zone Advantage|WIDEZONE-06",
+    "Wide Zone Advantage|WIDEZONE-10.b"
+   ]
+  },
+  {
+   "lineId": "L27",
+   "elementId": "channel-south",
+   "row": "S2",
+   "value": "EXISTS",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-03.a",
+    "Wide Zone Advantage|WIDEZONE-02.a",
+    "Wide Zone Advantage|WIDEZONE-03",
+    "Wide Zone Advantage|WIDEZONE-08.d",
+    "Variable Target Condition|VARTARGET-05.a"
+   ]
+  },
+  {
+   "lineId": "L28",
+   "elementId": "channel-south",
+   "row": "S3",
+   "value": "channel",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-03.b",
+    "Wide Zone Advantage|WIDEZONE-02.b"
+   ]
+  },
+  {
+   "lineId": "L29",
+   "elementId": "channel-south",
+   "row": "S4",
+   "value": "perceptual-reference",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-08.a"
+   ]
+  },
+  {
+   "lineId": "L30",
+   "elementId": "channel-south",
+   "row": "S4",
+   "value": "value-condition",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-08.a"
+   ]
+  },
+  {
+   "lineId": "L31",
+   "elementId": "channel-south",
+   "row": "S5",
+   "value": "0-40 m (full length)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-09.b",
+    "Directional Possession Games (GF2)|GF2-04",
+    "Wide Zone Advantage|WIDEZONE-07",
+    "Wide Zone Advantage|WIDEZONE-10.a"
+   ]
+  },
+  {
+   "lineId": "L32",
+   "elementId": "channel-south",
+   "row": "S6",
+   "value": "24-30 m (outer edge on south touchline)",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-05.b",
+    "Wide Zone Advantage|WIDEZONE-04.a",
+    "Wide Zone Advantage|WIDEZONE-05.a",
+    "Wide Zone Advantage|WIDEZONE-06",
+    "Wide Zone Advantage|WIDEZONE-10.b"
+   ]
+  },
+  {
+   "lineId": "L33",
+   "elementId": "central-corridor",
+   "row": "S2",
+   "value": "EXISTS",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-03.a",
+    "Wide Zone Advantage|WIDEZONE-02.a",
+    "Wide Zone Advantage|WIDEZONE-03",
+    "Wide Zone Advantage|WIDEZONE-08.d",
+    "Variable Target Condition|VARTARGET-05.a"
+   ]
+  },
+  {
+   "lineId": "L34",
+   "elementId": "central-corridor",
+   "row": "S3",
+   "value": "corridor",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-03.b",
+    "Wide Zone Advantage|WIDEZONE-02.b"
+   ]
+  },
+  {
+   "lineId": "L35",
+   "elementId": "central-corridor",
+   "row": "S4",
+   "value": "UNSTATED",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-08.a"
+   ]
+  },
+  {
+   "lineId": "L36",
+   "elementId": "central-corridor",
+   "row": "S5",
+   "value": "UNSTATED",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-09.b",
+    "Directional Possession Games (GF2)|GF2-04",
+    "Wide Zone Advantage|WIDEZONE-07",
+    "Wide Zone Advantage|WIDEZONE-10.a"
+   ]
+  },
+  {
+   "lineId": "L37",
+   "elementId": "central-corridor",
+   "row": "S6",
+   "value": "6-24 m (18 m, between the channels)",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-05.b",
+    "Wide Zone Advantage|WIDEZONE-04.a",
+    "Wide Zone Advantage|WIDEZONE-05.a",
+    "Wide Zone Advantage|WIDEZONE-06",
+    "Wide Zone Advantage|WIDEZONE-10.b"
+   ]
+  },
+  {
+   "lineId": "L38",
+   "elementId": "team-A",
+   "row": "P1",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-01.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-01.b",
+    "Directional Possession Games (GF2)|GF2-14.a"
+   ]
+  },
+  {
+   "lineId": "L39",
+   "elementId": "team-A",
+   "row": "P2",
+   "value": "4",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-14.b",
+    "Neutral Player Condition|NEUTRAL-08.a",
+    "Neutral Player Condition|NEUTRAL-09.a",
+    "Neutral Player Condition|NEUTRAL-11.b"
+   ]
+  },
+  {
+   "lineId": "L40",
+   "elementId": "team-A",
+   "row": "P3",
+   "value": "1",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-02",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-03"
+   ]
+  },
+  {
+   "lineId": "L41",
+   "elementId": "team-B",
+   "row": "P1",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-01.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-01.b",
+    "Directional Possession Games (GF2)|GF2-14.a"
+   ]
+  },
+  {
+   "lineId": "L42",
+   "elementId": "team-B",
+   "row": "P2",
+   "value": "4",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-14.b",
+    "Neutral Player Condition|NEUTRAL-08.a",
+    "Neutral Player Condition|NEUTRAL-09.a",
+    "Neutral Player Condition|NEUTRAL-11.b"
+   ]
+  },
+  {
+   "lineId": "L43",
+   "elementId": "team-B",
+   "row": "P3",
+   "value": "1",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-02",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-03"
+   ]
+  },
+  {
+   "lineId": "L44",
+   "elementId": "target-players",
+   "row": "P4",
+   "value": "NONE (0 target-player roles, both teams)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-05.b"
+   ]
+  },
+  {
+   "lineId": "L45",
+   "elementId": "neutrals",
+   "row": "P5",
+   "value": "2",
+   "candidateItems": [
+    "Neutral Player Condition|NEUTRAL-01.a",
+    "Neutral Player Condition|NEUTRAL-02.a",
+    "Neutral Player Condition|NEUTRAL-11.a"
+   ]
+  },
+  {
+   "lineId": "L46",
+   "elementId": "neutrals",
+   "row": "P6a",
+   "value": "POSSESSION_CHANGE",
+   "candidateItems": [
+    "Neutral Player Condition|NEUTRAL-03.b",
+    "Neutral Player Condition|NEUTRAL-14.a"
+   ]
+  },
+  {
+   "lineId": "L47",
+   "elementId": "neutrals",
+   "row": "P6b",
+   "value": "team now in possession (WON_BALL)",
+   "candidateItems": [
+    "Neutral Player Condition|NEUTRAL-03.a",
+    "Neutral Player Condition|NEUTRAL-04.a",
+    "Neutral Player Condition|NEUTRAL-04.b",
+    "Neutral Player Condition|NEUTRAL-14.b"
+   ]
+  },
+  {
+   "lineId": "L48",
+   "elementId": "neutrals",
+   "row": "P7",
+   "value": "contrasting bibs",
+   "candidateItems": [
+    "Neutral Player Condition|NEUTRAL-06.a",
+    "Neutral Player Condition|NEUTRAL-06.b"
+   ]
+  },
+  {
+   "lineId": "L49",
+   "elementId": "starting-positions-at-every-restart",
+   "row": "P8",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-04.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-04.c"
+   ]
+  },
+  {
+   "lineId": "L50",
+   "elementId": "starting-positions-at-every-restart",
+   "row": "P9",
+   "value": "DEFENDING_TEAM (its forward-most defensive line)",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L51",
+   "elementId": "starting-positions-at-every-restart",
+   "row": "P10",
+   "value": "no region ref: 'between restarting team's own-half build-out area and the target zones it attacks'",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-04.b",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-05.a"
+   ]
+  },
+  {
+   "lineId": "L52",
+   "elementId": "ball",
+   "row": "O1",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-10.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-10.b",
+    "From Goal Kicks (A01-02)|A01-02-08.a",
+    "Directional Possession Games (GF2)|GF2-06.a",
+    "Variable Target Condition|VARTARGET-01.a",
+    "Variable Target Condition|VARTARGET-02.a"
+   ]
+  },
+  {
+   "lineId": "L53",
+   "elementId": "ball",
+   "row": "O2",
+   "value": "ball",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L54",
+   "elementId": "ball",
+   "row": "O3",
+   "value": "1",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L55",
+   "elementId": "ball",
+   "row": "O4",
+   "value": "at goal-kick restart: restarting team's own half, defended end; otherwise where play takes it",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-09.a",
+    "Directional Possession Games (GF2)|GF2-06.b",
+    "Variable Target Condition|VARTARGET-03.a",
+    "Variable Target Condition|VARTARGET-04.a"
+   ]
+  },
+  {
+   "lineId": "L56",
+   "elementId": "ball",
+   "row": "O5",
+   "value": "UNSTATED",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-04.b"
+   ]
+  },
+  {
+   "lineId": "L57",
+   "elementId": "tz-A-north",
+   "row": "O1",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-10.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-10.b",
+    "From Goal Kicks (A01-02)|A01-02-08.a",
+    "Directional Possession Games (GF2)|GF2-06.a",
+    "Variable Target Condition|VARTARGET-01.a",
+    "Variable Target Condition|VARTARGET-02.a"
+   ]
+  },
+  {
+   "lineId": "L58",
+   "elementId": "tz-A-north",
+   "row": "O2",
+   "value": "target zone (off-list)",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L59",
+   "elementId": "tz-A-north",
+   "row": "O3",
+   "value": "1",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L60",
+   "elementId": "tz-A-north",
+   "row": "O4",
+   "value": "37-40 m (east end line, 3 m deep)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-09.a",
+    "Directional Possession Games (GF2)|GF2-06.b",
+    "Variable Target Condition|VARTARGET-03.a",
+    "Variable Target Condition|VARTARGET-04.a"
+   ]
+  },
+  {
+   "lineId": "L61",
+   "elementId": "tz-A-north",
+   "row": "O5",
+   "value": "0-12 m (outer edge on north touchline)",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-04.b"
+   ]
+  },
+  {
+   "lineId": "L62",
+   "elementId": "tz-A-south",
+   "row": "O1",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-10.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-10.b",
+    "From Goal Kicks (A01-02)|A01-02-08.a",
+    "Directional Possession Games (GF2)|GF2-06.a",
+    "Variable Target Condition|VARTARGET-01.a",
+    "Variable Target Condition|VARTARGET-02.a"
+   ]
+  },
+  {
+   "lineId": "L63",
+   "elementId": "tz-A-south",
+   "row": "O2",
+   "value": "target zone (off-list)",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L64",
+   "elementId": "tz-A-south",
+   "row": "O3",
+   "value": "1",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L65",
+   "elementId": "tz-A-south",
+   "row": "O4",
+   "value": "37-40 m (east end line, 3 m deep)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-09.a",
+    "Directional Possession Games (GF2)|GF2-06.b",
+    "Variable Target Condition|VARTARGET-03.a",
+    "Variable Target Condition|VARTARGET-04.a"
+   ]
+  },
+  {
+   "lineId": "L66",
+   "elementId": "tz-A-south",
+   "row": "O5",
+   "value": "18-30 m (outer edge on south touchline)",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-04.b"
+   ]
+  },
+  {
+   "lineId": "L67",
+   "elementId": "tz-B-north",
+   "row": "O1",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-10.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-10.b",
+    "From Goal Kicks (A01-02)|A01-02-08.a",
+    "Directional Possession Games (GF2)|GF2-06.a",
+    "Variable Target Condition|VARTARGET-01.a",
+    "Variable Target Condition|VARTARGET-02.a"
+   ]
+  },
+  {
+   "lineId": "L68",
+   "elementId": "tz-B-north",
+   "row": "O2",
+   "value": "target zone (off-list)",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L69",
+   "elementId": "tz-B-north",
+   "row": "O3",
+   "value": "1",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L70",
+   "elementId": "tz-B-north",
+   "row": "O4",
+   "value": "0-3 m (west end line, 3 m deep)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-09.a",
+    "Directional Possession Games (GF2)|GF2-06.b",
+    "Variable Target Condition|VARTARGET-03.a",
+    "Variable Target Condition|VARTARGET-04.a"
+   ]
+  },
+  {
+   "lineId": "L71",
+   "elementId": "tz-B-north",
+   "row": "O5",
+   "value": "0-12 m (north side, mirrored)",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-04.b"
+   ]
+  },
+  {
+   "lineId": "L72",
+   "elementId": "tz-B-south",
+   "row": "O1",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-10.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-10.b",
+    "From Goal Kicks (A01-02)|A01-02-08.a",
+    "Directional Possession Games (GF2)|GF2-06.a",
+    "Variable Target Condition|VARTARGET-01.a",
+    "Variable Target Condition|VARTARGET-02.a"
+   ]
+  },
+  {
+   "lineId": "L73",
+   "elementId": "tz-B-south",
+   "row": "O2",
+   "value": "target zone (off-list)",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L74",
+   "elementId": "tz-B-south",
+   "row": "O3",
+   "value": "1",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L75",
+   "elementId": "tz-B-south",
+   "row": "O4",
+   "value": "0-3 m (west end line, 3 m deep)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-09.a",
+    "Directional Possession Games (GF2)|GF2-06.b",
+    "Variable Target Condition|VARTARGET-03.a",
+    "Variable Target Condition|VARTARGET-04.a"
+   ]
+  },
+  {
+   "lineId": "L76",
+   "elementId": "tz-B-south",
+   "row": "O5",
+   "value": "18-30 m (south side, mirrored)",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-04.b"
+   ]
+  },
+  {
+   "lineId": "L77",
+   "elementId": "obj:tz-A-north",
+   "row": "J1",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-11.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-14.a",
+    "Directional Possession Games (GF2)|GF2-08.a",
+    "Directional Possession Games (GF2)|GF2-09.a",
+    "Neutral Player Condition|NEUTRAL-17.a",
+    "Variable Target Condition|VARTARGET-06.b"
+   ]
+  },
+  {
+   "lineId": "L78",
+   "elementId": "obj:tz-A-north",
+   "row": "J2",
+   "value": "tz-A-north",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-08.c",
+    "Directional Possession Games (GF2)|GF2-08.b",
+    "Wide Zone Advantage|WIDEZONE-16.a"
+   ]
+  },
+  {
+   "lineId": "L79",
+   "elementId": "obj:tz-A-north",
+   "row": "J3",
+   "value": "TEAM_A",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-12.a"
+   ]
+  },
+  {
+   "lineId": "L80",
+   "elementId": "obj:tz-A-north",
+   "row": "J4",
+   "value": "PRIMARY_SCORING",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-06.c"
+   ]
+  },
+  {
+   "lineId": "L81",
+   "elementId": "obj:tz-A-south",
+   "row": "J1",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-11.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-14.a",
+    "Directional Possession Games (GF2)|GF2-08.a",
+    "Directional Possession Games (GF2)|GF2-09.a",
+    "Neutral Player Condition|NEUTRAL-17.a",
+    "Variable Target Condition|VARTARGET-06.b"
+   ]
+  },
+  {
+   "lineId": "L82",
+   "elementId": "obj:tz-A-south",
+   "row": "J2",
+   "value": "tz-A-south",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-08.c",
+    "Directional Possession Games (GF2)|GF2-08.b",
+    "Wide Zone Advantage|WIDEZONE-16.a"
+   ]
+  },
+  {
+   "lineId": "L83",
+   "elementId": "obj:tz-A-south",
+   "row": "J3",
+   "value": "TEAM_A",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-12.a"
+   ]
+  },
+  {
+   "lineId": "L84",
+   "elementId": "obj:tz-A-south",
+   "row": "J4",
+   "value": "PRIMARY_SCORING",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-06.c"
+   ]
+  },
+  {
+   "lineId": "L85",
+   "elementId": "obj:tz-B-north",
+   "row": "J1",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-11.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-14.a",
+    "Directional Possession Games (GF2)|GF2-08.a",
+    "Directional Possession Games (GF2)|GF2-09.a",
+    "Neutral Player Condition|NEUTRAL-17.a",
+    "Variable Target Condition|VARTARGET-06.b"
+   ]
+  },
+  {
+   "lineId": "L86",
+   "elementId": "obj:tz-B-north",
+   "row": "J2",
+   "value": "tz-B-north",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-08.c",
+    "Directional Possession Games (GF2)|GF2-08.b",
+    "Wide Zone Advantage|WIDEZONE-16.a"
+   ]
+  },
+  {
+   "lineId": "L87",
+   "elementId": "obj:tz-B-north",
+   "row": "J3",
+   "value": "TEAM_B",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-12.a"
+   ]
+  },
+  {
+   "lineId": "L88",
+   "elementId": "obj:tz-B-north",
+   "row": "J4",
+   "value": "PRIMARY_SCORING",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-06.c"
+   ]
+  },
+  {
+   "lineId": "L89",
+   "elementId": "obj:tz-B-south",
+   "row": "J1",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-11.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-14.a",
+    "Directional Possession Games (GF2)|GF2-08.a",
+    "Directional Possession Games (GF2)|GF2-09.a",
+    "Neutral Player Condition|NEUTRAL-17.a",
+    "Variable Target Condition|VARTARGET-06.b"
+   ]
+  },
+  {
+   "lineId": "L90",
+   "elementId": "obj:tz-B-south",
+   "row": "J2",
+   "value": "tz-B-south",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-08.c",
+    "Directional Possession Games (GF2)|GF2-08.b",
+    "Wide Zone Advantage|WIDEZONE-16.a"
+   ]
+  },
+  {
+   "lineId": "L91",
+   "elementId": "obj:tz-B-south",
+   "row": "J3",
+   "value": "TEAM_B",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-12.a"
+   ]
+  },
+  {
+   "lineId": "L92",
+   "elementId": "obj:tz-B-south",
+   "row": "J4",
+   "value": "PRIMARY_SCORING",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-06.c"
+   ]
+  },
+  {
+   "lineId": "L93",
+   "elementId": "set-A",
+   "row": "J5",
+   "value": "EXISTS",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-06.a"
+   ]
+  },
+  {
+   "lineId": "L94",
+   "elementId": "set-A",
+   "row": "J6",
+   "value": "TEAM_A",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-06.d",
+    "Variable Target Condition|VARTARGET-09.a"
+   ]
+  },
+  {
+   "lineId": "L95",
+   "elementId": "set-A",
+   "row": "J7",
+   "value": "obj:tz-A-north",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-06.e"
+   ]
+  },
+  {
+   "lineId": "L96",
+   "elementId": "set-A",
+   "row": "J7",
+   "value": "obj:tz-A-south",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-06.e"
+   ]
+  },
+  {
+   "lineId": "L97",
+   "elementId": "set-A",
+   "row": "J8",
+   "value": "1",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-09.b",
+    "Variable Target Condition|VARTARGET-07.a"
+   ]
+  },
+  {
+   "lineId": "L98",
+   "elementId": "set-A",
+   "row": "J9",
+   "value": "UNSTATED",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L99",
+   "elementId": "set-A",
+   "row": "J10",
+   "value": "per attacking episode (no triggers named)",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-09.b",
+    "Variable Target Condition|VARTARGET-20.a"
+   ]
+  },
+  {
+   "lineId": "L100",
+   "elementId": "set-A",
+   "row": "J11a",
+   "value": "UNSTATED",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-08.a",
+    "Variable Target Condition|VARTARGET-08.b"
+   ]
+  },
+  {
+   "lineId": "L101",
+   "elementId": "set-A",
+   "row": "J12",
+   "value": "UNSTATED",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-13.c"
+   ]
+  },
+  {
+   "lineId": "L102",
+   "elementId": "set-B",
+   "row": "J5",
+   "value": "EXISTS",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-06.a"
+   ]
+  },
+  {
+   "lineId": "L103",
+   "elementId": "set-B",
+   "row": "J6",
+   "value": "TEAM_B",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-06.d",
+    "Variable Target Condition|VARTARGET-09.a"
+   ]
+  },
+  {
+   "lineId": "L104",
+   "elementId": "set-B",
+   "row": "J7",
+   "value": "obj:tz-B-north",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-06.e"
+   ]
+  },
+  {
+   "lineId": "L105",
+   "elementId": "set-B",
+   "row": "J7",
+   "value": "obj:tz-B-south",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-06.e"
+   ]
+  },
+  {
+   "lineId": "L106",
+   "elementId": "set-B",
+   "row": "J8",
+   "value": "1",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-09.b",
+    "Variable Target Condition|VARTARGET-07.a"
+   ]
+  },
+  {
+   "lineId": "L107",
+   "elementId": "set-B",
+   "row": "J9",
+   "value": "UNSTATED",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L108",
+   "elementId": "set-B",
+   "row": "J10",
+   "value": "per attacking episode (by 'same rule as Team A's set')",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-09.b",
+    "Variable Target Condition|VARTARGET-20.a"
+   ]
+  },
+  {
+   "lineId": "L109",
+   "elementId": "set-B",
+   "row": "J11a",
+   "value": "UNSTATED",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-08.a",
+    "Variable Target Condition|VARTARGET-08.b"
+   ]
+  },
+  {
+   "lineId": "L110",
+   "elementId": "set-B",
+   "row": "J12",
+   "value": "UNSTATED",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-13.c"
+   ]
+  },
+  {
+   "lineId": "L111",
+   "elementId": "team-A",
+   "row": "DV1",
+   "value": "attacks active member of {tz-A-north, tz-A-south}, east end; defends west end line and Team B's set",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-13",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-22",
+    "From Goal Kicks (A01-02)|A01-02-10.a",
+    "Directional Possession Games (GF2)|GF2-10",
+    "Directional Possession Games (GF2)|GF2-11",
+    "Directional Possession Games (GF2)|GF2-12.b",
+    "Variable Target Condition|VARTARGET-10.a"
+   ]
+  },
+  {
+   "lineId": "L112",
+   "elementId": "team-B",
+   "row": "DV1",
+   "value": "attacks active member of {tz-B-north, tz-B-south}, west end; defends east end line and Team A's set",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-13",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-22",
+    "From Goal Kicks (A01-02)|A01-02-10.a",
+    "Directional Possession Games (GF2)|GF2-10",
+    "Directional Possession Games (GF2)|GF2-11",
+    "Directional Possession Games (GF2)|GF2-12.b",
+    "Variable Target Condition|VARTARGET-10.a"
+   ]
+  },
+  {
+   "lineId": "L113",
+   "elementId": "tr-START",
+   "row": "T1",
+   "value": "EXISTS",
+   "candidateItems": [
+    "From Goal Kicks (A01-02)|A01-02-01.a",
+    "From Goal Kicks (A01-02)|A01-02-02.a",
+    "From Goal Kicks (A01-02)|A01-02-03.a",
+    "Directional Possession Games (GF2)|GF2-07.a",
+    "Neutral Player Condition|NEUTRAL-12.a"
+   ]
+  },
+  {
+   "lineId": "L114",
+   "elementId": "tr-START",
+   "row": "T2",
+   "value": "TEAM_A (STARTING_TEAM)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-15.a",
+    "From Goal Kicks (A01-02)|A01-02-05.a",
+    "Directional Possession Games (GF2)|GF2-07.b",
+    "Directional Possession Games (GF2)|GF2-16.a",
+    "Neutral Player Condition|NEUTRAL-13.a"
+   ]
+  },
+  {
+   "lineId": "L115",
+   "elementId": "tr-START",
+   "row": "T3",
+   "value": "goalkeeper of TEAM_A",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-15.b",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-16.b",
+    "From Goal Kicks (A01-02)|A01-02-11.a"
+   ]
+  },
+  {
+   "lineId": "L116",
+   "elementId": "tr-START",
+   "row": "T4",
+   "value": "own-half-A, at the west end line",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-16.a",
+    "From Goal Kicks (A01-02)|A01-02-06.b",
+    "From Goal Kicks (A01-02)|A01-02-07.a"
+   ]
+  },
+  {
+   "lineId": "L117",
+   "elementId": "tr-START",
+   "row": "T5",
+   "value": "STATIONARY_BALL ('goal kick'; 'Ball stationary')",
+   "candidateItems": [
+    "From Goal Kicks (A01-02)|A01-02-04.b",
+    "From Goal Kicks (A01-02)|A01-02-06.a"
+   ]
+  },
+  {
+   "lineId": "L118",
+   "elementId": "tr-START",
+   "row": "T6",
+   "value": "STOP_RESUME ('play stopped then resumed')",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-16.c",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-17.b",
+    "From Goal Kicks (A01-02)|A01-02-04.a",
+    "Directional Possession Games (GF2)|GF2-16.b",
+    "Directional Possession Games (GF2)|GF2-17"
+   ]
+  },
+  {
+   "lineId": "L119",
+   "elementId": "tr-START",
+   "row": "T7",
+   "value": "UNSTATED",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-17.a"
+   ]
+  },
+  {
+   "lineId": "L120",
+   "elementId": "tr-SCORE",
+   "row": "T1",
+   "value": "EXISTS",
+   "candidateItems": [
+    "From Goal Kicks (A01-02)|A01-02-01.a",
+    "From Goal Kicks (A01-02)|A01-02-02.a",
+    "From Goal Kicks (A01-02)|A01-02-03.a",
+    "Directional Possession Games (GF2)|GF2-07.a",
+    "Neutral Player Condition|NEUTRAL-12.a"
+   ]
+  },
+  {
+   "lineId": "L121",
+   "elementId": "tr-SCORE",
+   "row": "T2",
+   "value": "CONCEDING_TEAM",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-15.a",
+    "From Goal Kicks (A01-02)|A01-02-05.a",
+    "Directional Possession Games (GF2)|GF2-07.b",
+    "Directional Possession Games (GF2)|GF2-16.a",
+    "Neutral Player Condition|NEUTRAL-13.a"
+   ]
+  },
+  {
+   "lineId": "L122",
+   "elementId": "tr-SCORE",
+   "row": "T3",
+   "value": "goalkeeper, or UNSTATED (alt: 'from within its own half')",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-15.b",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-16.b",
+    "From Goal Kicks (A01-02)|A01-02-11.a"
+   ]
+  },
+  {
+   "lineId": "L123",
+   "elementId": "tr-SCORE",
+   "row": "T4",
+   "value": "CONCEDING_TEAM's own half, at that end",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-16.a",
+    "From Goal Kicks (A01-02)|A01-02-06.b",
+    "From Goal Kicks (A01-02)|A01-02-07.a"
+   ]
+  },
+  {
+   "lineId": "L124",
+   "elementId": "tr-SCORE",
+   "row": "T5",
+   "value": "STATIONARY_BALL ('goal kick')",
+   "candidateItems": [
+    "From Goal Kicks (A01-02)|A01-02-04.b",
+    "From Goal Kicks (A01-02)|A01-02-06.a"
+   ]
+  },
+  {
+   "lineId": "L125",
+   "elementId": "tr-SCORE",
+   "row": "T6",
+   "value": "STOP_RESUME",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-16.c",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-17.b",
+    "From Goal Kicks (A01-02)|A01-02-04.a",
+    "Directional Possession Games (GF2)|GF2-16.b",
+    "Directional Possession Games (GF2)|GF2-17"
+   ]
+  },
+  {
+   "lineId": "L126",
+   "elementId": "tr-SCORE",
+   "row": "T7",
+   "value": "true",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-17.a"
+   ]
+  },
+  {
+   "lineId": "L127",
+   "elementId": "tr-OEL-att",
+   "row": "T1",
+   "value": "EXISTS",
+   "candidateItems": [
+    "From Goal Kicks (A01-02)|A01-02-01.a",
+    "From Goal Kicks (A01-02)|A01-02-02.a",
+    "From Goal Kicks (A01-02)|A01-02-03.a",
+    "Directional Possession Games (GF2)|GF2-07.a",
+    "Neutral Player Condition|NEUTRAL-12.a"
+   ]
+  },
+  {
+   "lineId": "L128",
+   "elementId": "tr-OEL-att",
+   "row": "T1a",
+   "value": "ATTACKING_TEAM",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L129",
+   "elementId": "tr-OEL-att",
+   "row": "T1b",
+   "value": "UNSTATED",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L130",
+   "elementId": "tr-OEL-att",
+   "row": "T2",
+   "value": "team defending that end (= NOT_LAST_TOUCH)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-15.a",
+    "From Goal Kicks (A01-02)|A01-02-05.a",
+    "Directional Possession Games (GF2)|GF2-07.b",
+    "Directional Possession Games (GF2)|GF2-16.a",
+    "Neutral Player Condition|NEUTRAL-13.a"
+   ]
+  },
+  {
+   "lineId": "L131",
+   "elementId": "tr-OEL-att",
+   "row": "T3",
+   "value": "goalkeeper, or UNSTATED (alt: 'within its own half')",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-15.b",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-16.b",
+    "From Goal Kicks (A01-02)|A01-02-11.a"
+   ]
+  },
+  {
+   "lineId": "L132",
+   "elementId": "tr-OEL-att",
+   "row": "T4",
+   "value": "awardee's own half, at that end",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-16.a",
+    "From Goal Kicks (A01-02)|A01-02-06.b",
+    "From Goal Kicks (A01-02)|A01-02-07.a"
+   ]
+  },
+  {
+   "lineId": "L133",
+   "elementId": "tr-OEL-att",
+   "row": "T5",
+   "value": "STATIONARY_BALL ('the goal-kick case')",
+   "candidateItems": [
+    "From Goal Kicks (A01-02)|A01-02-04.b",
+    "From Goal Kicks (A01-02)|A01-02-06.a"
+   ]
+  },
+  {
+   "lineId": "L134",
+   "elementId": "tr-OEL-att",
+   "row": "T6",
+   "value": "STOP_RESUME",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-16.c",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-17.b",
+    "From Goal Kicks (A01-02)|A01-02-04.a",
+    "Directional Possession Games (GF2)|GF2-16.b",
+    "Directional Possession Games (GF2)|GF2-17"
+   ]
+  },
+  {
+   "lineId": "L135",
+   "elementId": "tr-OEL-att",
+   "row": "T7",
+   "value": "true",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-17.a"
+   ]
+  },
+  {
+   "lineId": "L136",
+   "elementId": "tr-OEL-def",
+   "row": "T1",
+   "value": "EXISTS",
+   "candidateItems": [
+    "From Goal Kicks (A01-02)|A01-02-01.a",
+    "From Goal Kicks (A01-02)|A01-02-02.a",
+    "From Goal Kicks (A01-02)|A01-02-03.a",
+    "Directional Possession Games (GF2)|GF2-07.a",
+    "Neutral Player Condition|NEUTRAL-12.a"
+   ]
+  },
+  {
+   "lineId": "L137",
+   "elementId": "tr-OEL-def",
+   "row": "T1a",
+   "value": "DEFENDING_TEAM",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L138",
+   "elementId": "tr-OEL-def",
+   "row": "T1b",
+   "value": "UNSTATED",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L139",
+   "elementId": "tr-OEL-def",
+   "row": "T2",
+   "value": "ATTACKING_TEAM (= NOT_LAST_TOUCH)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-15.a",
+    "From Goal Kicks (A01-02)|A01-02-05.a",
+    "Directional Possession Games (GF2)|GF2-07.b",
+    "Directional Possession Games (GF2)|GF2-16.a",
+    "Neutral Player Condition|NEUTRAL-13.a"
+   ]
+  },
+  {
+   "lineId": "L140",
+   "elementId": "tr-OEL-def",
+   "row": "T3",
+   "value": "goalkeeper, or UNSTATED (alt: 'within its own half')",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-15.b",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-16.b",
+    "From Goal Kicks (A01-02)|A01-02-11.a"
+   ]
+  },
+  {
+   "lineId": "L141",
+   "elementId": "tr-OEL-def",
+   "row": "T4",
+   "value": "ATTACKING_TEAM's own half",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-16.a",
+    "From Goal Kicks (A01-02)|A01-02-06.b",
+    "From Goal Kicks (A01-02)|A01-02-07.a"
+   ]
+  },
+  {
+   "lineId": "L142",
+   "elementId": "tr-OEL-def",
+   "row": "T5",
+   "value": "STATIONARY_BALL",
+   "candidateItems": [
+    "From Goal Kicks (A01-02)|A01-02-04.b",
+    "From Goal Kicks (A01-02)|A01-02-06.a"
+   ]
+  },
+  {
+   "lineId": "L143",
+   "elementId": "tr-OEL-def",
+   "row": "T6",
+   "value": "STOP_RESUME",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-16.c",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-17.b",
+    "From Goal Kicks (A01-02)|A01-02-04.a",
+    "Directional Possession Games (GF2)|GF2-16.b",
+    "Directional Possession Games (GF2)|GF2-17"
+   ]
+  },
+  {
+   "lineId": "L144",
+   "elementId": "tr-OEL-def",
+   "row": "T7",
+   "value": "true",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-17.a"
+   ]
+  },
+  {
+   "lineId": "L145",
+   "elementId": "tr-OTL",
+   "row": "T1",
+   "value": "EXISTS",
+   "candidateItems": [
+    "From Goal Kicks (A01-02)|A01-02-01.a",
+    "From Goal Kicks (A01-02)|A01-02-02.a",
+    "From Goal Kicks (A01-02)|A01-02-03.a",
+    "Directional Possession Games (GF2)|GF2-07.a",
+    "Neutral Player Condition|NEUTRAL-12.a"
+   ]
+  },
+  {
+   "lineId": "L146",
+   "elementId": "tr-OTL",
+   "row": "T2",
+   "value": "NOT_LAST_TOUCH",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-15.a",
+    "From Goal Kicks (A01-02)|A01-02-05.a",
+    "Directional Possession Games (GF2)|GF2-07.b",
+    "Directional Possession Games (GF2)|GF2-16.a",
+    "Neutral Player Condition|NEUTRAL-13.a"
+   ]
+  },
+  {
+   "lineId": "L147",
+   "elementId": "tr-OTL",
+   "row": "T3",
+   "value": "goalkeeper, or UNSTATED (alt: 'within its own half')",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-15.b",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-16.b",
+    "From Goal Kicks (A01-02)|A01-02-11.a"
+   ]
+  },
+  {
+   "lineId": "L148",
+   "elementId": "tr-OTL",
+   "row": "T4",
+   "value": "NOT_LAST_TOUCH's own half",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-16.a",
+    "From Goal Kicks (A01-02)|A01-02-06.b",
+    "From Goal Kicks (A01-02)|A01-02-07.a"
+   ]
+  },
+  {
+   "lineId": "L149",
+   "elementId": "tr-OTL",
+   "row": "T5",
+   "value": "STATIONARY_BALL",
+   "candidateItems": [
+    "From Goal Kicks (A01-02)|A01-02-04.b",
+    "From Goal Kicks (A01-02)|A01-02-06.a"
+   ]
+  },
+  {
+   "lineId": "L150",
+   "elementId": "tr-OTL",
+   "row": "T6",
+   "value": "STOP_RESUME",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-16.c",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-17.b",
+    "From Goal Kicks (A01-02)|A01-02-04.a",
+    "Directional Possession Games (GF2)|GF2-16.b",
+    "Directional Possession Games (GF2)|GF2-17"
+   ]
+  },
+  {
+   "lineId": "L151",
+   "elementId": "tr-OTL",
+   "row": "T7",
+   "value": "true",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-17.a"
+   ]
+  },
+  {
+   "lineId": "L152",
+   "elementId": "tr-PC",
+   "row": "T1",
+   "value": "EXISTS",
+   "candidateItems": [
+    "From Goal Kicks (A01-02)|A01-02-01.a",
+    "From Goal Kicks (A01-02)|A01-02-02.a",
+    "From Goal Kicks (A01-02)|A01-02-03.a",
+    "Directional Possession Games (GF2)|GF2-07.a",
+    "Neutral Player Condition|NEUTRAL-12.a"
+   ]
+  },
+  {
+   "lineId": "L153",
+   "elementId": "tr-PC",
+   "row": "T2",
+   "value": "WON_BALL",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-15.a",
+    "From Goal Kicks (A01-02)|A01-02-05.a",
+    "Directional Possession Games (GF2)|GF2-07.b",
+    "Directional Possession Games (GF2)|GF2-16.a",
+    "Neutral Player Condition|NEUTRAL-13.a"
+   ]
+  },
+  {
+   "lineId": "L154",
+   "elementId": "tr-PC",
+   "row": "T3",
+   "value": "goalkeeper, or UNSTATED (alt: 'within its own half')",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-15.b",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-16.b",
+    "From Goal Kicks (A01-02)|A01-02-11.a"
+   ]
+  },
+  {
+   "lineId": "L155",
+   "elementId": "tr-PC",
+   "row": "T4",
+   "value": "WON_BALL's own half",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-16.a",
+    "From Goal Kicks (A01-02)|A01-02-06.b",
+    "From Goal Kicks (A01-02)|A01-02-07.a"
+   ]
+  },
+  {
+   "lineId": "L156",
+   "elementId": "tr-PC",
+   "row": "T5",
+   "value": "STATIONARY_BALL",
+   "candidateItems": [
+    "From Goal Kicks (A01-02)|A01-02-04.b",
+    "From Goal Kicks (A01-02)|A01-02-06.a"
+   ]
+  },
+  {
+   "lineId": "L157",
+   "elementId": "tr-PC",
+   "row": "T6",
+   "value": "STOP_RESUME ('Play stops')",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-16.c",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-17.b",
+    "From Goal Kicks (A01-02)|A01-02-04.a",
+    "Directional Possession Games (GF2)|GF2-16.b",
+    "Directional Possession Games (GF2)|GF2-17"
+   ]
+  },
+  {
+   "lineId": "L158",
+   "elementId": "tr-PC",
+   "row": "T7",
+   "value": "true",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-17.a"
+   ]
+  },
+  {
+   "lineId": "L159",
+   "elementId": "pe",
+   "row": "V0",
+   "value": "EXISTS, exactly one",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-08.b",
+    "Wide Zone Advantage|WIDEZONE-16.b",
+    "Variable Target Condition|VARTARGET-11.a",
+    "Variable Target Condition|VARTARGET-12.a",
+    "Variable Target Condition|VARTARGET-12.b"
+   ]
+  },
+  {
+   "lineId": "L160",
+   "elementId": "pe",
+   "row": "V1",
+   "value": "target_zone_entered",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-08.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-12",
+    "From Goal Kicks (A01-02)|A01-02-12.a",
+    "Directional Possession Games (GF2)|GF2-19",
+    "Directional Possession Games (GF2)|GF2-20"
+   ]
+  },
+  {
+   "lineId": "L161",
+   "elementId": "pe",
+   "row": "V2",
+   "value": "1",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-20"
+   ]
+  },
+  {
+   "lineId": "L162",
+   "elementId": "cond-origin",
+   "row": "V3",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.c",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.f",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-19.a",
+    "Variable Target Condition|VARTARGET-19.a"
+   ]
+  },
+  {
+   "lineId": "L163",
+   "elementId": "cond-origin",
+   "row": "V4",
+   "value": "origin",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L164",
+   "elementId": "cond-origin",
+   "row": "V5",
+   "value": "scoring team's goalkeeper (restart placement)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.b",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.d",
+    "Wide Zone Advantage|WIDEZONE-08.c"
+   ]
+  },
+  {
+   "lineId": "L165",
+   "elementId": "cond-origin",
+   "row": "V5",
+   "value": "scoring team's own half (own-half-A | own-half-B)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.b",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.d",
+    "Wide Zone Advantage|WIDEZONE-08.c"
+   ]
+  },
+  {
+   "lineId": "L166",
+   "elementId": "cond-origin",
+   "row": "V6",
+   "value": "'initiated from that team's goalkeeper or a controlled restart in its own half'",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.e",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.g",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-19.b",
+    "Neutral Player Condition|NEUTRAL-16.a"
+   ]
+  },
+  {
+   "lineId": "L167",
+   "elementId": "cond-progression",
+   "row": "V3",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.c",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.f",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-19.a",
+    "Variable Target Condition|VARTARGET-19.a"
+   ]
+  },
+  {
+   "lineId": "L168",
+   "elementId": "cond-progression",
+   "row": "V4",
+   "value": "progression",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L169",
+   "elementId": "cond-progression",
+   "row": "V5",
+   "value": "opposing first defenders / initial pressure line (starting-positions-at-every-restart)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.b",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.d",
+    "Wide Zone Advantage|WIDEZONE-08.c"
+   ]
+  },
+  {
+   "lineId": "L170",
+   "elementId": "cond-progression",
+   "row": "V6",
+   "value": "beyond",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.e",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.g",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-19.b",
+    "Neutral Player Condition|NEUTRAL-16.a"
+   ]
+  },
+  {
+   "lineId": "L171",
+   "elementId": "cond-control",
+   "row": "V3",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.c",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.f",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-19.a",
+    "Variable Target Condition|VARTARGET-19.a"
+   ]
+  },
+  {
+   "lineId": "L172",
+   "elementId": "cond-control",
+   "row": "V4",
+   "value": "control",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L173",
+   "elementId": "cond-control",
+   "row": "V5",
+   "value": "the active target zone",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.b",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.d",
+    "Wide Zone Advantage|WIDEZONE-08.c"
+   ]
+  },
+  {
+   "lineId": "L174",
+   "elementId": "cond-control",
+   "row": "V6",
+   "value": "'controlled on arrival' ('dribbles into, or receives ... and controls it')",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.e",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.g",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-19.b",
+    "Neutral Player Condition|NEUTRAL-16.a"
+   ]
+  },
+  {
+   "lineId": "L175",
+   "elementId": "cond-eligibility",
+   "row": "V3",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.c",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.f",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-19.a",
+    "Variable Target Condition|VARTARGET-19.a"
+   ]
+  },
+  {
+   "lineId": "L176",
+   "elementId": "cond-eligibility",
+   "row": "V4",
+   "value": "eligibility",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L177",
+   "elementId": "cond-eligibility",
+   "row": "V5",
+   "value": "active member of scoring team's set (set-A | set-B)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.b",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.d",
+    "Wide Zone Advantage|WIDEZONE-08.c"
+   ]
+  },
+  {
+   "lineId": "L178",
+   "elementId": "cond-eligibility",
+   "row": "V6",
+   "value": "active at the moment of the event; scorer a player of the team in possession",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.e",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.g",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-19.b",
+    "Neutral Player Condition|NEUTRAL-16.a"
+   ]
+  },
+  {
+   "lineId": "L179",
+   "elementId": "cond-exclusion",
+   "row": "V3",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.c",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.f",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-19.a",
+    "Variable Target Condition|VARTARGET-19.a"
+   ]
+  },
+  {
+   "lineId": "L180",
+   "elementId": "cond-exclusion",
+   "row": "V4",
+   "value": "exclusion",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L181",
+   "elementId": "cond-exclusion",
+   "row": "V5",
+   "value": "the target zone",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.b",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.d",
+    "Wide Zone Advantage|WIDEZONE-08.c"
+   ]
+  },
+  {
+   "lineId": "L182",
+   "elementId": "cond-exclusion",
+   "row": "V6",
+   "value": "'long kick' (uncontrolled long kick or clearance) does not count",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.e",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-18.g",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-19.b",
+    "Neutral Player Condition|NEUTRAL-16.a"
+   ]
+  },
+  {
+   "lineId": "L183",
+   "elementId": "mod-wide",
+   "row": "V7",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-21.a"
+   ]
+  },
+  {
+   "lineId": "L184",
+   "elementId": "mod-wide",
+   "row": "V8a",
+   "value": "region",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L185",
+   "elementId": "mod-wide",
+   "row": "V8b",
+   "value": "channel-north",
+   "candidateItems": [
+    "From Goal Kicks (A01-02)|A01-02-12.b",
+    "Neutral Player Condition|NEUTRAL-15.a",
+    "Wide Zone Advantage|WIDEZONE-11.a",
+    "Variable Target Condition|VARTARGET-18.a"
+   ]
+  },
+  {
+   "lineId": "L186",
+   "elementId": "mod-wide",
+   "row": "V8b",
+   "value": "channel-south",
+   "candidateItems": [
+    "From Goal Kicks (A01-02)|A01-02-12.b",
+    "Neutral Player Condition|NEUTRAL-15.a",
+    "Wide Zone Advantage|WIDEZONE-11.a",
+    "Variable Target Condition|VARTARGET-18.a"
+   ]
+  },
+  {
+   "lineId": "L187",
+   "elementId": "mod-wide",
+   "row": "V9",
+   "value": "UNSTATED (a multiplier; size unstated)",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-13.a",
+    "Wide Zone Advantage|WIDEZONE-13.b"
+   ]
+  },
+  {
+   "lineId": "L188",
+   "elementId": "mod-wide",
+   "row": "V10",
+   "value": "UNSTATED",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L189",
+   "elementId": "cons-neutral",
+   "row": "V11",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-21.b"
+   ]
+  },
+  {
+   "lineId": "L190",
+   "elementId": "cons-neutral",
+   "row": "V12",
+   "value": "POSSESSION_CHANGE",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-11.b"
+   ]
+  },
+  {
+   "lineId": "L191",
+   "elementId": "cons-neutral",
+   "row": "V13",
+   "value": "neutral affiliation (off-list)",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-13.c"
+   ]
+  },
+  {
+   "lineId": "L192",
+   "elementId": "cons-neutral",
+   "row": "V14a",
+   "value": "team now in possession (WON_BALL)",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-14.a"
+   ]
+  },
+  {
+   "lineId": "L193",
+   "elementId": "cons-neutral",
+   "row": "V14c",
+   "value": "UNSTATED",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L194",
+   "elementId": "cons-reset",
+   "row": "V11",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-21.b"
+   ]
+  },
+  {
+   "lineId": "L195",
+   "elementId": "cons-reset",
+   "row": "V12",
+   "value": "SCORE | OUT_END_LINE | OUT_TOUCHLINE | POSSESSION_CHANGE",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-11.b"
+   ]
+  },
+  {
+   "lineId": "L196",
+   "elementId": "cons-reset",
+   "row": "V13",
+   "value": "re-establish begin condition (off-list)",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-13.c"
+   ]
+  },
+  {
+   "lineId": "L197",
+   "elementId": "cons-reset",
+   "row": "V14a",
+   "value": "restarting team ('as set per restart above')",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-14.a"
+   ]
+  },
+  {
+   "lineId": "L198",
+   "elementId": "info-live",
+   "row": "V15",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-23",
+    "Wide Zone Advantage|WIDEZONE-17.a",
+    "Variable Target Condition|VARTARGET-13.a"
+   ]
+  },
+  {
+   "lineId": "L199",
+   "elementId": "info-live",
+   "row": "V16",
+   "value": "which member of a team's candidate set is active (set-A, set-B)",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-17.d",
+    "Variable Target Condition|VARTARGET-13.b"
+   ]
+  },
+  {
+   "lineId": "L200",
+   "elementId": "info-live",
+   "row": "V17",
+   "value": "UNSTATED",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-17.b",
+    "Variable Target Condition|VARTARGET-05.b",
+    "Variable Target Condition|VARTARGET-15.a",
+    "Variable Target Condition|VARTARGET-16.a",
+    "Variable Target Condition|VARTARGET-16.b"
+   ]
+  },
+  {
+   "lineId": "L201",
+   "elementId": "info-live",
+   "row": "V18",
+   "value": "STATE_TRANSITION | OPPONENT_ACTION",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-14.a"
+   ]
+  },
+  {
+   "lineId": "L202",
+   "elementId": "info-live",
+   "row": "V19",
+   "value": "UNSTATED",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L203",
+   "elementId": "info-live",
+   "row": "V20",
+   "value": "IMMEDIATE | STAGED",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-17.a",
+    "Variable Target Condition|VARTARGET-17.b"
+   ]
+  },
+  {
+   "lineId": "L204",
+   "elementId": "info-live",
+   "row": "V21",
+   "value": "UNSTATED",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-13.d"
+   ]
+  },
+  {
+   "lineId": "L205",
+   "elementId": "info-live",
+   "row": "V22",
+   "value": "UNSTATED",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-17.c"
+   ]
+  },
+  {
+   "lineId": "L206",
+   "elementId": "info-wide",
+   "row": "V15",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-23",
+    "Wide Zone Advantage|WIDEZONE-17.a",
+    "Variable Target Condition|VARTARGET-13.a"
+   ]
+  },
+  {
+   "lineId": "L207",
+   "elementId": "info-wide",
+   "row": "V16",
+   "value": "wide channels and their advantage (channel-north, channel-south, mod-wide)",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-17.d",
+    "Variable Target Condition|VARTARGET-13.b"
+   ]
+  },
+  {
+   "lineId": "L208",
+   "elementId": "info-wide",
+   "row": "V17",
+   "value": "STANDING",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-17.b",
+    "Variable Target Condition|VARTARGET-05.b",
+    "Variable Target Condition|VARTARGET-15.a",
+    "Variable Target Condition|VARTARGET-16.a",
+    "Variable Target Condition|VARTARGET-16.b"
+   ]
+  },
+  {
+   "lineId": "L209",
+   "elementId": "info-wide",
+   "row": "V22",
+   "value": "both teams",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-17.c"
+   ]
+  },
+  {
+   "lineId": "L210",
+   "elementId": "tw-none",
+   "row": "V23",
+   "value": "NONE (0 elements)",
+   "candidateItems": []
+  }
+ ],
+ "unknownGameRows": [],
+ "linesPerRow": {
+  "E1": 1,
+  "E2": 1,
+  "E3": 1,
+  "E4": 1,
+  "S1": 1,
+  "S2": 6,
+  "S3": 6,
+  "S4": 8,
+  "S5": 6,
+  "S6": 6,
+  "P1": 2,
+  "P2": 2,
+  "P3": 2,
+  "P4": 1,
+  "P5": 1,
+  "P6a": 1,
+  "P6b": 1,
+  "P7": 1,
+  "P8": 1,
+  "P9": 1,
+  "P10": 1,
+  "O1": 5,
+  "O2": 5,
+  "O3": 5,
+  "O4": 5,
+  "O5": 5,
+  "J1": 4,
+  "J2": 4,
+  "J3": 4,
+  "J4": 4,
+  "J5": 2,
+  "J6": 2,
+  "J7": 4,
+  "J8": 2,
+  "J9": 2,
+  "J10": 2,
+  "J11a": 2,
+  "J12": 2,
+  "DV1": 2,
+  "T1": 6,
+  "T2": 6,
+  "T3": 6,
+  "T4": 6,
+  "T5": 6,
+  "T6": 6,
+  "T7": 6,
+  "T1a": 2,
+  "T1b": 2,
+  "V0": 1,
+  "V1": 1,
+  "V2": 1,
+  "V3": 5,
+  "V4": 5,
+  "V5": 6,
+  "V6": 5,
+  "V7": 1,
+  "V8a": 1,
+  "V8b": 2,
+  "V9": 1,
+  "V10": 1,
+  "V11": 2,
+  "V12": 2,
+  "V13": 2,
+  "V14a": 2,
+  "V14c": 1,
+  "V15": 2,
+  "V16": 2,
+  "V17": 2,
+  "V18": 1,
+  "V19": 1,
+  "V20": 1,
+  "V21": 1,
+  "V22": 2,
+  "V23": 1
+ }
+}

@@ -1,0 +1,633 @@
+{
+ "defectLedger": [
+  {
+   "id": "D01",
+   "activity": "baseline s1",
+   "fact": "Lengthwise bands 18 + 18 + 18 = 54 m do not fit the 30 m width (nor the 40 m length)",
+   "evidence": "Divide the field into three zones: two 18 m (20 yd) wide channels and a central 18 m (20 yd) corridor.",
+   "procedure": "GA-LAYOUT"
+  },
+  {
+   "id": "D02",
+   "activity": "ls-reinforcing s1",
+   "fact": "Two 18 m wide channels, one per side, need 36 m plus a central band on a 30 m width; the 'middle' tier depends on this failed group and is suppressed",
+   "evidence": "Set up a 40 x 30 m (44 x 33 yd) field with two 18 m (20 yd) wide channels on each side.",
+   "procedure": "GA-LAYOUT"
+  },
+  {
+   "id": "D03",
+   "activity": "em-shaping-wide-zone s1",
+   "fact": "Two 18 m wide channels = 36 m on a 30 m width",
+   "evidence": "6v6 format with two 18 m (20 yd) wide channels on a 40 x 30 m (44 x 33 yd) field.",
+   "procedure": "GA-LAYOUT"
+  },
+  {
+   "id": "D04",
+   "activity": "em-consequence-progression s3",
+   "fact": "Region declaration matches no template (nested 'halves in each half')",
+   "evidence": "Divide the field into two halves in each half.",
+   "procedure": "GA-LAYOUT"
+  },
+  {
+   "id": "D05",
+   "activity": "em-foundation-neutral s1",
+   "fact": "Stated total 10 contradicts 6v6 = 12",
+   "evidence": "10 players in a 6v6 format in a 40 x 30 m (44 x 33 yd) area.",
+   "procedure": "GA-LAYOUT"
+  },
+  {
+   "id": "D06",
+   "activity": "em-foundation-neutral s3",
+   "fact": "Stated total 14 contradicts 7v5 = 12 and the envelope",
+   "evidence": "14 players in a 7v5 format on a 40 x 30 m (44 x 33 yd) field.",
+   "procedure": "GA-LAYOUT"
+  },
+  {
+   "id": "D07",
+   "activity": "rpc-high-press-escape s3",
+   "fact": "Two roster tokens give different tables, (7,7) and (7,5); count-dependent 'extra numbers' is suppressed",
+   "evidence": "Teams of 7 with a goalkeeper create a 7v5 overload in the attacking half.",
+   "procedure": "GA-LAYOUT"
+  },
+  {
+   "id": "D08",
+   "activity": "ls-reinforcing s3",
+   "fact": "7v5 plus one neutral for the team in possession = 13, not 12; 'extra numbers' is suppressed",
+   "evidence": "Play 7v5 with an extra attacker for the team in possession.",
+   "procedure": "GA-LAYOUT"
+  },
+  {
+   "id": "D09",
+   "activity": "baseline s1",
+   "fact": "Value tier 'deep' names no region",
+   "evidence": "Points are worth most through the middle, then wide, then deep.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D10",
+   "activity": "baseline-rep2 s1",
+   "fact": "Value tier 'deep' names no region",
+   "evidence": "Points are worth most through the middle, then wide, then deep.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D11",
+   "activity": "ps-goal-kicks s1",
+   "fact": "Value tier 'deep' names no region",
+   "evidence": "Points are worth most through the middle, then wide, then deep.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D12",
+   "activity": "ps-central s1",
+   "fact": "Value tier 'deep' names no region",
+   "evidence": "Points are worth most through the middle, then wide, then deep.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D13",
+   "activity": "ps-wide s1",
+   "fact": "Value tier 'deep' names no region",
+   "evidence": "Points are worth most through the middle, then wide, then deep.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D14",
+   "activity": "ps-none s1",
+   "fact": "Value tier 'deep' names no region",
+   "evidence": "Points are worth most through the middle, then wide, then deep.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D15",
+   "activity": "ls-first-time s1",
+   "fact": "Value tier 'deep' names no region",
+   "evidence": "Points are worth most through the middle, then wide, then deep.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D16",
+   "activity": "ls-reinforcing s1",
+   "fact": "Value tier 'deep' names no region (not a band of the failed channel group, so not suppressed)",
+   "evidence": "Points are worth most through the middle, then wide, then deep.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D17",
+   "activity": "ls-none s1",
+   "fact": "Value tier 'deep' names no region",
+   "evidence": "Points are worth most through the middle, then wide, then deep.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D18",
+   "activity": "gf-positional s1",
+   "fact": "Value tier 'deep' names no region",
+   "evidence": "Points are worth most through the middle, then wide, then deep.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D19",
+   "activity": "gf-channel s1",
+   "fact": "Value tier 'deep' names no region",
+   "evidence": "Points are worth most through the middle, then wide, then deep.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D20",
+   "activity": "em-foundation-neutral s1",
+   "fact": "Value tier 'deep' names no region (the roster failure does not suppress a place referent)",
+   "evidence": "Points are worth most through the middle, then wide, then deep.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D21",
+   "activity": "em-shaping-wide-zone s1",
+   "fact": "Value tier 'deep' names no region",
+   "evidence": "Points are worth most through the middle, then wide, then deep.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D22",
+   "activity": "em-consequence-progression s1",
+   "fact": "Value tier 'deep' names no region",
+   "evidence": "Points are worth most through the middle, then wide, then deep.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D23",
+   "activity": "info-variable-target s1",
+   "fact": "Value tier 'deep' names no region",
+   "evidence": "Points are worth most through the middle, then wide, then deep.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D24",
+   "activity": "scoring-swapped s1",
+   "fact": "Value tier 'deep' names no region",
+   "evidence": "Points are worth most through the middle, then wide, then deep.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D25",
+   "activity": "rpc-high-press-escape s1",
+   "fact": "Value tier 'deep' names no region",
+   "evidence": "Points are worth most through the middle, then wide, then deep.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D26",
+   "activity": "challenge-high s1",
+   "fact": "Value tier 'deep' names no region",
+   "evidence": "Points are worth most through the middle, then wide, then deep.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D27",
+   "activity": "note-panic s1",
+   "fact": "Value tier 'deep' names no region",
+   "evidence": "Points are worth most through the middle, then wide, then deep.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D28",
+   "activity": "baseline s3",
+   "fact": "ADVANTAGE group has no referent in an even 6v6 with no region-bound count",
+   "evidence": "Play 6v6 with goalkeepers on a 40 x 30 m (44 x 33 yd) field. ... Points are worth more when you score them where you have the extra numbers.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D29",
+   "activity": "ls-none s3",
+   "fact": "ADVANTAGE group has no referent in an even 6v6",
+   "evidence": "Play 6v6 with two goalkeepers on a 40 x 30 m (44 x 33 yd) field. ... Points are worth more when you score them where you have the extra numbers.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D30",
+   "activity": "em-consequence-progression s3",
+   "fact": "ADVANTAGE group has no referent in an even 6v6 (independent of D04)",
+   "evidence": "Play 6v6 on a 40 x 30 m (44 x 33 yd) field. ... Points are worth more when you score them where you have the extra numbers.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D31",
+   "activity": "scoring-swapped s3",
+   "fact": "ADVANTAGE group has no referent once the missing roster defaults to 6v6",
+   "evidence": "Teams start with the ball in their defensive third. ... Play in a 40 x 30 m (44 x 33 yd) area. ... Points are worth more when you score them where you have the extra numbers.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D32",
+   "activity": "ps-none s3",
+   "fact": "ADVANTAGE group ('advantage in one zone', 'the overloaded zone', 'extra numbers') has no referent: 6v6, no zone declared; one finding for three sites",
+   "evidence": "Two teams of 6 players each, with one team having a numerical advantage in one zone. Begin play with a pass from the overloaded zone. ... Points are worth more when you score them where you have the extra numbers.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D33",
+   "activity": "gf-channel s1",
+   "fact": "Turnover consequence effect 'gets <region>' is not typed (and 'opposite' is undefined for the central channel)",
+   "evidence": "Force it or lose it and the other team gets the opposite channel. Play does not stop.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D34",
+   "activity": "gf-channel s2",
+   "fact": "Turnover consequence effect 'gets <region>' is not typed",
+   "evidence": "Force it or lose it and the other team gets the opposite channel. Play does not stop.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D35",
+   "activity": "gf-channel s3",
+   "fact": "Turnover consequence effect 'gets <region>' is not typed",
+   "evidence": "Force it or lose it and the other team gets the opposite channel. Play does not stop.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D36",
+   "activity": "ps-central s1",
+   "fact": "TURNOVER slot: RELOCATE to the defensive third vs CONTINUE",
+   "evidence": "If possession changes, the opposing team starts from their defensive third. / Force it or lose it and the other team attacks straight away. Play does not stop.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D37",
+   "activity": "ps-central s2",
+   "fact": "TURNOVER slot: RELOCATE to the middle zone vs CONTINUE in place",
+   "evidence": "On a turnover, transition immediately from the middle zone. / When the ball changes hands, play carries on from wherever everyone is.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D38",
+   "activity": "emphasis-applying s3",
+   "fact": "Time window states a duration but no start trigger and no expiry effect",
+   "evidence": "Maintain possession and score within a 30-second window.",
+   "procedure": "GA-PLAY"
+  },
+  {
+   "id": "D39",
+   "activity": "emphasis-applying s3",
+   "fact": "Consequence effect 'decides it' is not typed",
+   "evidence": "After the ball changes hands, the next action decides it.",
+   "procedure": "GA-PLAY"
+  }
+ ],
+ "mustPassLedger": [
+  {
+   "id": "MP-KEEPER-INCLUSIVE",
+   "pattern": "'Play NvM with goalkeepers' / 'with two goalkeepers' / 'Teams of N with a goalkeeper'",
+   "instances": [
+    "baseline s1",
+    "baseline s3",
+    "baseline-rep2 s1",
+    "baseline-rep2 s3",
+    "ls-first-time s1-s3",
+    "ls-none s1-s3",
+    "gf-channel s1-s3",
+    "emphasis-applying s1-s3",
+    "em-consequence-progression s1",
+    "info-variable-target s1-s3",
+    "scoring-swapped s1",
+    "rpc-high-press-escape s1-s2",
+    "challenge-high s1-s3"
+   ],
+   "why": "Keepers counted inside is the only reading that fits 12, and coaches use it without noticing. performers-sum was overturned 13 times and upheld 7 times on identical text, so the additive reading is not admitted anywhere."
+  },
+  {
+   "id": "MP-KEEPER-ELSEWHERE",
+   "pattern": "Bare 'Play 6v6' / '6v6 format' / '7v5' with the goalkeeper named only in a start, restart or the boilerplate",
+   "instances": [
+    "baseline-rep2 s2",
+    "ls-reinforcing s1-s2",
+    "em-shaping-wide-zone s1-s3",
+    "em-consequence-progression s2-s3",
+    "and the boilerplate-only keeper in all 57 boilerplate activities"
+   ],
+   "why": "The same fact gets the same verdict whichever sentence names the keeper. This dissolves all 22 upheld referenced-performer-exists findings without changing any count."
+  },
+  {
+   "id": "MP-MIRRORED-OBJECT",
+   "pattern": "'Mark a line across the pitch | a target zone | Set out gates of two cones — beyond the first defenders | behind the pressing players'",
+   "instances": [
+    "59 of 60 (all but gf-positional s2)"
+   ],
+   "why": "Marked at layout means fixed; there is one copy per end, and the scoring text states the role. primary-object-fixed (29 overturned / 21 upheld) and objective-object-team-role (35 overturned) split readers on identical text."
+  },
+  {
+   "id": "MP-SHARED-CENTRAL-TARGET",
+   "pattern": "'with a central target zone', with only a restart and the boilerplate stated",
+   "instances": [
+    "gf-positional s2"
+   ],
+   "why": "One shared objective. START comes from the boilerplate and AFTER-SCORE defaults to the conceding team in its own half, so there is no repeat-scoring loop."
+  },
+  {
+   "id": "MP-IMPLICIT-FRACTIONS",
+   "pattern": "own / defensive / attacking half or third, 'one half', 'their half', 'own end' with no crosswise declaration, across lengthwise channels, or after a negation",
+   "instances": [
+    "ps-central s1",
+    "ps-central s3",
+    "challenge-high s1",
+    "challenge-high s3",
+    "scoring-swapped s2",
+    "scoring-swapped s3",
+    "baseline-rep2 s3",
+    "ps-wide s3",
+    "note-panic s3",
+    "gf-positional s1",
+    "em-consequence-progression s2",
+    "em-foundation-neutral s3",
+    "ls-first-time s1"
+   ],
+   "why": "Halves and thirds of the length exist on every field without cones."
+  },
+  {
+   "id": "MP-NEGATION-SCOPE",
+   "pattern": "'No fixed zones inside the field' / 'No zones are marked' / 'open with no specific channels' alongside 'Mark a target zone' or 'defensive third'",
+   "instances": [
+    "baseline s2",
+    "em-consequence-progression s2",
+    "ls-first-time s2"
+   ],
+   "why": "The negation removes marked internal bands only, never marked scoring objects or implicit fractions."
+  },
+  {
+   "id": "MP-BAND-LEXICON",
+   "pattern": "'N [X m] wide channels on each side', corridor or channel with no axis, unsized bands, 'wider than', 'a wide channel on each side', 'three horizontal zones', 'divided into thirds|two equal halves'",
+   "instances": [
+    "rpc-high-press-escape s1",
+    "ps-wide s1",
+    "note-panic s1",
+    "ps-central s1",
+    "ps-none s1",
+    "ps-goal-kicks s1",
+    "ps-goal-kicks s2",
+    "ps-goal-kicks s3",
+    "ps-central s2",
+    "scoring-swapped s1",
+    "gf-channel s1-s3",
+    "emphasis-applying s2",
+    "ls-first-time s1",
+    "ls-none s1",
+    "ls-none s2",
+    "baseline-rep2 s1",
+    "challenge-high s1",
+    "info-variable-target s1",
+    "em-foundation-neutral s1",
+    "em-foundation-neutral s2",
+    "em-shaping-wide-zone s2",
+    "em-shaping-wide-zone s3",
+    "em-consequence-progression s1",
+    "gf-positional s1",
+    "scoring-swapped s2",
+    "ls-first-time s3"
+   ],
+   "why": "The lexicon fixes kind, axis and count, and free extents have a feasible layout."
+  },
+  {
+   "id": "MP-NO-ROSTER-DEFAULT",
+   "pattern": "No roster token",
+   "instances": [
+    "scoring-swapped s3 (passes GA-LAYOUT; fails GA-PLAY only on D31)"
+   ],
+   "why": "The envelope's 12 split evenly is a sensible team split, then checked like a stated 6v6."
+  },
+  {
+   "id": "MP-NEUTRALS",
+   "pattern": "'NvM with K neutral players', 'Neutrals assist in maintaining possession' with no 'plays for'; 'N players in an NvM format' when N = 12",
+   "instances": [
+    "note-panic s1",
+    "em-foundation-neutral s2"
+   ],
+   "why": "Neutrals are added on top and play for the team in possession by default; a matching stated total is consistent."
+  },
+  {
+   "id": "MP-FOR-ATTACKING-TEAM",
+   "pattern": "'Play NvM for the attacking team'",
+   "instances": [
+    "gf-positional s3"
+   ],
+   "why": "The qualifier names the N side and creates no performer, so the table is 7v5 = 12."
+  },
+  {
+   "id": "MP-COACH-SERVER",
+   "pattern": "'a pass from the coach [to either team | to the overloaded team]', 'a live ball from the coach'",
+   "instances": [
+    "ps-wide s1-s3",
+    "note-panic s1-s3"
+   ],
+   "why": "The session coach is a server outside the roster."
+  },
+  {
+   "id": "MP-BOILERPLATE",
+   "pattern": "'Start each attack from your goalkeeper or a restart in your own half' next to a specific start or restart location",
+   "instances": [
+    "gf-channel s2 (central channel)",
+    "scoring-swapped s2 (circle)",
+    "ps-goal-kicks s1",
+    "ps-goal-kicks s2 (central zone)",
+    "ps-central s1 (defensive third)",
+    "ps-central s2 (middle zone after score)",
+    "ps-none s1 (central corridor; pass-in)",
+    "em-consequence-progression s2 (sideline)",
+    "em-foundation-neutral s2 (central pass)",
+    "note-panic s3",
+    "baseline s2"
+   ],
+   "why": "A disjunctive location for starts and non-turnover restarts; each specific location intersects the own half."
+  },
+  {
+   "id": "MP-TRANSITION-DEFAULTS",
+   "pattern": "An unstated slot, a restarting team not named, or a start stated only in Rules",
+   "instances": [
+    "rpc-high-press-escape s2 (no after-score restart)",
+    "em-shaping-wide-zone s2",
+    "baseline-rep2 s2 ('restart immediately from the goalkeeper')",
+    "baseline-rep2 s3 and info-variable-target s3 ('Start with a pass from the goalkeeper' in Rules)",
+    "baseline s2 ('a pass from the defending team')",
+    "ps-wide s2 ('Players start spread across the field')"
+   ],
+   "why": "Universal conventions are filled and then checked; silence is not a defect."
+  },
+  {
+   "id": "MP-RESTART-WORDS",
+   "pattern": "'goal kick', 'pass-in', 'free pass', 'restart immediately with a possession flip', 'quick transition' with no place",
+   "instances": [
+    "emphasis-applying s1-s3",
+    "ps-none s1",
+    "ps-central s2 (start)",
+    "ls-first-time s2",
+    "ls-none s2",
+    "gf-positional s2",
+    "em-shaping-wide-zone s2"
+   ],
+   "why": "Fixed readings: 'goal kick' is a restart from the own end line with no goal object; a verb with no place leaves the mode unstated."
+  },
+  {
+   "id": "MP-CONTINUE-SCOPE",
+   "pattern": "'Play does not stop' / 'Play is continuous' / 'No reset, no stoppage' in an activity with stated restarts after a score or ball out",
+   "instances": [
+    "challenge-high s2",
+    "info-variable-target s2",
+    "rpc-high-press-escape s2",
+    "baseline s2",
+    "ls-reinforcing s2"
+   ],
+   "why": "CONTINUE phrases apply to turnovers only."
+  },
+  {
+   "id": "MP-KICKOFF",
+   "pattern": "Start from a region where no player stands",
+   "instances": [
+    "ps-goal-kicks s2 ('Teams start in their defensive zone, with the ball in the central zone. Play begins with a pass from the central zone.')"
+   ],
+   "why": "A player of the starting team steps to the ball, as at a kick-off."
+  },
+  {
+   "id": "MP-TACTICAL",
+   "pattern": "A trigger or imperative whose consequent is a player behaviour with no 'from <place>' (the X1 list)",
+   "instances": [
+    "baseline s1",
+    "baseline s2",
+    "baseline-rep2 s1",
+    "ls-first-time s1",
+    "rpc-high-press-escape s1",
+    "ps-wide s2",
+    "em-foundation-neutral s2",
+    "gf-positional s1-s3",
+    "em-shaping-wide-zone s3",
+    "info-variable-target s3",
+    "rpc-high-press-escape s1-s3 ('The other team presses from the start of every attack')",
+    "every 'Whoever lost it presses straight away'"
+   ],
+   "why": "Coaching instructions write no field. The first-pass consequence-typed-effect findings on these were upheld as 'a coaching instruction sitting in the consequences slot', which is a misfiling, not something that stops play."
+  },
+  {
+   "id": "MP-NO-OP-CONSEQUENCE",
+   "pattern": "A consequence whose effect equals the turnover default",
+   "instances": [
+    "19 x 'Win the ball back quickly after losing it. If you do not, the other team plays on from there.'",
+    "54 x 'Force it or lose it and the other team attacks straight away. Play does not stop.'",
+    "gf-positional s1-s3 'Force it into a covered area and the other team attacks the space you left.'",
+    "note-panic s1 'the opposing team immediately transitions to attack'"
+   ],
+   "why": "The sentence writes nothing, so its trigger is never evaluated. Whether it confers anything is design or Gate B."
+  },
+  {
+   "id": "MP-ONE-BALL",
+   "pattern": "'Teams start with the ball ...'",
+   "instances": [
+    "challenge-high s2",
+    "scoring-swapped s3",
+    "em-consequence-progression s1",
+    "em-consequence-progression s2"
+   ],
+   "why": "Hand-verified idiom: one ball, held by the starting team."
+  },
+  {
+   "id": "MP-ADVANTAGE-7V5",
+   "pattern": "'where you have the extra numbers', 'the overloaded team', 'numerical advantage|overload in <resolvable region>' when team counts differ",
+   "instances": [
+    "baseline-rep2 s3",
+    "ps-goal-kicks s3",
+    "ps-central s3",
+    "ps-wide s3",
+    "ls-first-time s3",
+    "gf-positional s3",
+    "gf-channel s3",
+    "em-shaping-wide-zone s3",
+    "info-variable-target s3",
+    "challenge-high s3",
+    "note-panic s3"
+   ],
+   "why": "X8 step 1: the larger team has the extra numbers all game. Whether a local overload is enforced is Gate B."
+  },
+  {
+   "id": "MP-VALUE-GATES",
+   "pattern": "Gates and adjectives that resolve or are not judged",
+   "instances": [
+    "ps-wide s1 'scoring only counts when possession is maintained through the central corridor'",
+    "ls-first-time s3 'the overload team must complete three passes before scoring'",
+    "rpc-high-press-escape s1-s3 'your team keeps the ball with the next pass'",
+    "gf-channel s3 'your team keeps the ball'",
+    "57 x 'A long kick ... does not count'"
+   ],
+   "why": "Their referents exist, and 'long' is an adjective that is not judged in Gate A."
+  }
+ ],
+ "selfCheck": "INPUT NOTE: the brief names three proposals, but only two were supplied, NOISE-FIRST (3 procedures) and REPRESENTATION-FIRST (2 procedures). The defect-first set was not in the input, so this reconciliation covers two.\n\nSTRUCTURE DECISION: 2 procedures, split by which sentence class is at fault, not by failure mode. Representation-first split by determinacy vs capacity, which leaves a seam readers could fall into: '10 players in a 6v6 format' can be read as a conflict (GA-1) or a total (GA-2). Noise-first's separate SPACE and ROSTER procedures share one root fact (declarations do not resolve to one configuration inside the envelope), so they are merged into GA-LAYOUT. GA-LAYOUT reads only declaration templates and roster tokens. GA-PLAY reads only X1 (c)-(f). No sentence pattern is read by both, and X9 suppression stops GA-PLAY re-reporting a referent into a failed layout or roster.\n\nDEFECT LEDGER WALK (39 rows, 31 activities rejected, 29 pass):\n- D01-D03: GA-LAYOUT steps 4-5, lengthwise group (54 > 30; 36 + central > 30; 36 > 30). GA-PLAY sees 'middle'/'wide' in the same activities as suppressed names; 'deep' is not a band of the failed group, so it is reported separately (D09, D16, D21). Different facts, one owner each.\n- D04: step 1, no template. GA-PLAY D30 in the same activity reads the roster, not that declaration, so it is not suppressed. Independent.\n- D05-D08: step 7, one L-ROSTER each. D07's and D08's 'extra numbers' are suppressed in GA-PLAY under X9(b). em-foundation-neutral s3's 'extra numbers' is suppressed too. D20's 'deep' is a place referent, so the roster failure does not suppress it.\n- D09-D27: GA-PLAY step 5, the 'deep' name, one per activity. Verified 19 of 60 by script; emphasis-applying s1 is the only slot 1 without the sentence.\n- D28-D32: step 5, X8 step 4, one group finding each. D31 depends on the 6v6 default (X2). D32 merges three sites.\n- D33-D35: step 3 P-EFFECT, so processing stops and 'opposite' is not reported again as P-REFERENT.\n- D36-D37: step 6, TURNOVER, RELOCATE vs CONTINUE. The other statements in those activities resolve, so the comparison is not blocked.\n- D38-D39: step 3, two distinct statements.\nNo row is caught by two procedures, and no row is caught twice inside GA-PLAY.\n\nMUST-PASS WALK: every item was traced against X1-X8. No GA-LAYOUT template misfires on the 26 layout instances. ps-wide s1's second sentence joins the corridor group, giving 5 + 20 + 5. Every boilerplate intersection holds, including the sideline, the circle and the middle crosswise band. em-shaping-wide-zone s2 'restarts with a quick transition after a turnover' leaves the mode unstated, so there is no conflict. The rpc s1 and ls-first-time s1 'Use the goalkeeper to reset play' lines are tactical under the X1 verb rule. gf-positional s2 passes (START from the boilerplate; AFTER-SCORE default). emphasis-applying s1-s2 pass (goal kick). scoring-swapped s3 passes GA-LAYOUT and fails only D31.\n\nWHERE THIS SET OVERRULES A PROPOSAL, AND WHY:\n(1) gf-positional s2: representation-first failed it on unresolved ends. Its own S9 derives ends from any 'own half' statement, and the boilerplate is one, so the failure was internally inconsistent. It passes here.\n(2) emphasis-applying s3 30-second window: representation-first admitted a default reading (S19). This set requires a stated start trigger and expiry effect for novel mechanics, because no coaching convention fixes them (turnover vs score-void). The first-pass finding was upheld by its challenger. Kept as D38.\n(3) ls-reinforcing s3: noise-first said 'two tables, not admitted'; this set uses representation-first's deterministic additive reading (13). Same verdict, but a fixed arithmetic reason.\n(4) 'gets the opposite channel': noise-first typed it as an untyped effect, representation-first as an unresolved referent. Effect-first ordering was chosen, so it is one finding either way.\n(5) Noise-first said 20 slot-3 activities carry 'extra numbers'; the script shows 19 (not emphasis-applying s3).\n(6) Noise-first's FAIL-OBJECTIVE step and representation-first's separate conflict and capacity steps are folded into step 5 or step 6.\n\nHAND-VERIFIED ITEMS: all 3 geometry and all 3 roster items are in the ledger. 'deep' 19 of 19. 'extraNumbersInEvenGame' 3 is extended to 5 by the default and the alias merge (scoring-swapped s3, ps-none s3). 'goalKickWithoutGoals' 3 and 'noStartOrRestartStated' 2 are counts, not rulings: the first is admitted (MP-RESTART-WORDS), and both activities in the second state a start in Rules.\n\nTHINGS THAT DO NOT FULLY WORK:\n(a) The X3 and X1 lexicons are closed. A correct but new phrasing in a future activity will fail until it is added. That is deliberate, and it reports as a finding rather than a silent pass.\n(b) The boilerplate scope choice (START + AFTER-SCORE + AFTER-OUT vs START + AFTER-SCORE) changes no verdict on these 60, so the corpus cannot test it.\n(c) info-variable-target s3 'Create a central overload by having one team.' is a truncated sentence that passes only because it is tactical by verb. A garbled declaration that starts with 'Create a <region>' would fail, but this one does not.\n(d) Unexercised steps (GA-LAYOUT step 3 negation contradiction; GA-PLAY placement count against the roster) are stated but not validated by any instance.",
+ "openRisks": [
+  "X1 trigger-sentence classification is still where careful readers are most likely to split. 'Use the goalkeeper to reset play when possession is lost' (rpc s1) could be read as a stoppage RELOCATE, which would add a TURNOVER conflict with 'No reset, no stoppage'. The rule (imperative behaviour verb, no 'from <place>' → tactical) decides it, but a reader who weighs 'reset' as a restart word would disagree.",
+  "D38 (30-second window) against an admitted value-gate reading: a reader who accepts 'a score counts only within 30 s of gaining possession' as ordinary coach shorthand would pass it. The deciding line in this set is that novel mechanics get no default effect.",
+  "D28-D31 ('extra numbers' in 6v6) depend on refusing the local-overload reading. A coach might run a local-superiority bonus by eye, so some readers will call this subjective rather than structural.",
+  "D31 (scoring-swapped s3) depends on the 6v6 roster default. A reader tempted to split 12 as 7v5 because the title says 'Overload' would pass it, but that reads the title, which X0 excludes.",
+  "D08 (ls-reinforcing s3) is not among the hand-verified rosters. A reader who takes 'with an extra attacker for the team in possession' as describing the 7th of a fixed 7v5 gets a legal table of 12.",
+  "gf-positional s3 'Play 7v5 for the attacking team' passes as fixed 7v5. It could also mean 5v5 plus 2 floaters for whoever attacks: also 12, but a different table. X2 decides it, but the text genuinely supports both.",
+  "D33-D35: a reader who types 'the other team gets the opposite channel' as ACCESS would report the defect as an unresolved 'opposite' instead of an untyped effect. The count stays the same, but the label differs.",
+  "Admitted table policies that change hand counts and need owner sign-off: 'goal kick' with no goals (emphasis-applying s1-s3); the negation scope in baseline s2 and em-consequence-progression s2 (a first-pass finding on baseline s2 was upheld); the kick-off convention (ps-goal-kicks s2); the boilerplate's scope.",
+  "X3 'zones' with no list and no axis word fails to parse. No activity exercises it, but the rule is strict, and a future 'Divide the field into three zones.' would fail although many coaches would read thirds.",
+  "'Play begins with a pass from the defending team' (baseline s2) is resolved as a coin-toss role. A reader could call a start by the 'defending' team incoherent."
+ ],
+ "catches": {
+  "GA-LAYOUT": {
+   "catches": [
+    "baseline s1 L-INFEASIBLE",
+    "ls-reinforcing s1 L-INFEASIBLE",
+    "em-shaping-wide-zone s1 L-INFEASIBLE",
+    "em-consequence-progression s3 L-UNPARSEABLE",
+    "em-foundation-neutral s1 L-ROSTER",
+    "em-foundation-neutral s3 L-ROSTER",
+    "rpc-high-press-escape s3 L-ROSTER",
+    "ls-reinforcing s3 L-ROSTER"
+   ],
+   "mustPass": [
+    "rpc-high-press-escape s1 (9 + 12 + 9)",
+    "ps-wide s1 (5 + 20 + 5)",
+    "gf-channel s1 (9 m wide channels)",
+    "emphasis-applying s2 (5 m central channel)",
+    "scoring-swapped s1 (inequality)",
+    "note-panic s1 (corridor; 5v5 + 2 neutrals = 12)",
+    "em-foundation-neutral s2 ('12 players in a 6v6 format')",
+    "ps-goal-kicks s3 ('a wide channel on each side')",
+    "scoring-swapped s3 (no roster, 6v6)",
+    "gf-positional s3 ('7v5 for the attacking team')",
+    "all 'with (two) goalkeepers' and 'Teams of 6 with a goalkeeper' rosters"
+   ]
+  },
+  "GA-PLAY": {
+   "catches": [
+    "19 x P-REFERENT 'deep' (every slot 1 except emphasis-applying s1)",
+    "5 x P-REFERENT ADVANTAGE group: baseline s3, ls-none s3, em-consequence-progression s3, scoring-swapped s3, ps-none s3",
+    "3 x P-EFFECT 'the other team gets the opposite channel': gf-channel s1, s2, s3",
+    "2 x P-CONFLICT TURNOVER: ps-central s1, ps-central s2",
+    "2 x P-EFFECT: emphasis-applying s3 (30-second window; 'the next action decides it')"
+   ],
+   "mustPass": [
+    "baseline s2",
+    "baseline-rep2 s2",
+    "baseline-rep2 s3",
+    "ps-goal-kicks s2",
+    "ps-goal-kicks s3",
+    "ps-central s3",
+    "ps-wide s2",
+    "ps-wide s3",
+    "gf-positional s2",
+    "gf-positional s3",
+    "gf-channel s2 transitions (fails only on 'opposite channel')",
+    "emphasis-applying s1",
+    "emphasis-applying s2",
+    "em-shaping-wide-zone s2",
+    "em-consequence-progression s2",
+    "info-variable-target s3",
+    "scoring-swapped s2",
+    "rpc-high-press-escape s2",
+    "challenge-high s2",
+    "challenge-high s3",
+    "note-panic s2",
+    "note-panic s3"
+   ]
+  }
+ }
+}

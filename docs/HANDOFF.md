@@ -2173,3 +2173,526 @@ per batch instructed to defend the coach rather than the invariant, one synthesi
 count was then re-verified directly against the captured activities, which corrected three agent claims
 (balls ARE listed in Equipment in all 60; "Teams start with the ball" is idiomatic; one "no start of
 play" case in fact states a restart but no initial start).
+
+### 2026-09-16 — Christian's decisions on the replay; Gate A procedure derivation requested
+
+**Agreed:**
+- **Gate A, Structural Coherence:** can this game be laid out and played? Its only claim is "This game
+  can be coherently laid out and played as specified."
+- **Gate B, Realization Fidelity:** did the selected knowledge reach the field? Kept separate; the
+  evidence there is already strong (57 of 60).
+- The eight-area shape survived its first hostile test; the initial checks failed.
+- **An invariant name is not a gate.** If careful readers reach opposite verdicts on identical text, it
+  is a principle. Each Gate A invariant needs a deterministic decision procedure.
+- **A possible third question** — does a coherent, realized game preserve the representative learning
+  problem — is explicitly NOT to be folded into Gate A.
+
+**Requested (paper only, no implementation, no regeneration):**
+1. From the 39 false negatives and the overturned findings, derive the **smallest non-overlapping set**
+   of structural decision procedures that:
+   - catches meaningful defects;
+   - admits unambiguous coach shorthand;
+   - never has several checks report one underlying defect;
+   - does not reward vague language over precise language;
+   - stays inside the eight areas.
+   Let the evidence decide; don't treat the three shortlisted checks as required. A check needing
+   subjective football judgment is flagged, not forced into Gate A.
+2. Replay the same 60 with that set, reporting: true defects caught, false alarms, defects missed,
+   duplicate findings, and cases still needing subjective interpretation.
+
+Everything else remains frozen.
+
+### 2026-09-17 — Gate A procedures derived; second replay done
+
+**Report:** `docs/audits/gate-a-second-replay-2026-09-17.md`, also published as a page. The derived
+specification and ledgers are in `docs/audits/gate-a/`. Paper only.
+
+**Derivation:**
+- **How it ran:** a workflow with three independent derivations (defect-first, noise-first,
+  representation-first), then a judge. Defect-first failed on the 64k output limit, so two were merged.
+- **What came out:** two procedures —
+  - **GA-LAYOUT** — space declarations and roster resolve to exactly one arrangement inside 40 × 30 m /
+    12 players (`L-UNPARSEABLE`, `L-INFEASIBLE`, `L-ROSTER`);
+  - **GA-PLAY** — every structural rule has existing referents, a typed effect and no incompatible rival
+    on one trigger (`P-REFERENT`, `P-EFFECT`, `P-CONFLICT`).
+- **Verdict rule:** fail only when, after closed shorthand readings and defaults, a field has zero or
+  conflicting values. The only search allowed is over unstated quantities, never over word readings.
+  This fixes the vagueness asymmetry.
+- **Excluded:** 20 candidates (4 subjective, 2 Gate B, 7 not structural, 7 merged).
+
+**Replay design:** two blind readers per half of the 60, with agreement computed in code; an independent
+defect hunter per half with no checklist; a scorer.
+
+**Results (identical for both readers):**
+- 34 of 35 true defects caught; 5 false alarms; 1 miss; 1 duplicate.
+- 13 distinct subjective issues (24 instances). No ninth area needed.
+- GA-LAYOUT: 8 caught, 0 errors. GA-PLAY: 26 caught, 5 false alarms, 1 miss.
+
+**Determinism:** 60/60 verdicts, 60/60 fact codes, 59/60 exact keys (a label). **Caveat:** reader B
+raised 12 indeterminates that reader A resolved silently the same way. They trace to a spec
+self-contradiction: X1 lists "Use" as both a layout verb and a tactical verb. Every remaining error is
+shared by both readers, so it is spec policy or spec flaws, not reader noise.
+
+**Contested rulings:**
+- "deep" tier: structural, low severity, 19 rows — the most consequential call and one sentence, flagged
+  as Christian's.
+- "extra numbers" in even games: subjective, out of Gate A (4 rows).
+- The 30-second shot clock and "goal kick" with no goals: shorthand.
+- Truncated "Create a central overload by having one team.": structural, missed by both readers (verb-first
+  routing), caught by the hunter.
+
+**Origin of the 35 true defects:**
+- **23 are system-written template sentences in `coach-voice.ts`:** line 209 "then deep" (19), line 73
+  "opposite channel" (3), line 112 "decides it" (1).
+- 10 are model-written; 2 are model text against a system rule.
+- These 23 are the representation argument in miniature: prose value tiers and effects with nothing to
+  bind to.
+
+**Spec flaws found, not applied:**
+1. Fix the "Use" contradiction.
+2. Merge advantage-attached place names into the advantage group.
+3. Garbled setup declarations should fail `L-UNPARSEABLE`, not route to tactical.
+4. Move "extra numbers" out of Gate A and admit the shot clock.
+
+With these the corpus would score 35/35 — meaningless in-sample.
+
+**Overfitting:** the spec was derived from the same 60 and has closed lexicons. There are only ~9 distinct
+defect types, and it fails closed on new wording. The real test is a held-out set read against a ledger
+written in advance, which needs new generation (frozen, Christian's call).
+
+### 2026-09-17 — RPC-001 vertical slice: six selections into one resolved game
+
+**Report:** `docs/audits/rpc001-slice-2026-09-17.md`, also published as a page. Paper only.
+**Christian's decisions recorded first:** `docs/audits/gate-a/corrections-accepted-2026-09-17.md` — "deep"
+is STRUCTURAL (low severity); the four procedural corrections accepted but NOT applied; the 60 are NOT
+replayed again; generation stays frozen.
+
+**The test:** six objects (RPC-001, From Goal Kicks, GF2, Neutral Player, Wide Zone Advantage, Variable
+Target) each derived contributions in isolation, forbidden from mentioning the others. Two reconcilers
+merged them independently from opposite directions. Then Gate A (two blind readers) and Gate B (one
+checker) ran separately, with an adversarial pass.
+
+**Answer: five of six coexist with no bespoke awareness. The sixth fails on one field.**
+
+**Reconciliation converged** on the same game from both directions: 2 goalkeepers + 4v4 + 2 neutrals
+(forced once Neutral Player's "one or two" picks 2), `target_zone_entered`, one candidate set per team at
+opposite ends, turnovers stop play, only the wide-zone multiplier survives, three restart rules that turn
+out to be orthogonal.
+
+**Gate A:** it lays out (width 6+18+6=30, length 20+20=40, 12 players, all cross-references resolve) and
+**cannot be played**: nothing determines which candidate zone is live, so the only scoring event has no
+object.
+
+**Gate B:** 0 of 89 dropped; 71 operable; 10 present-but-dead; 8 unresolved. The 8 are one failure.
+Variable Target is the selection that did not arrive (6 of 15). Seven of the ten dead items are gaps the
+contributing object declares itself.
+
+**Bespoke awareness:** fired irreducibly once (RPC-001 × Variable Target, both writing
+`objectives[].state`); once half-representationally; once against a standing decision (the 2-3 target
+range against reciprocal direction); one near-miss survived only because Wide Zone authored three
+alternatives.
+
+**What makes independent authoring work:** an object's own declaration of what it does NOT claim.
+Coexistence held wherever objects declared silence, and failed where two claimed the same field.
+
+**Seven representation gaps, all inside the eight areas:** Transitions needs internal fields;
+`objectives[].state` is one field doing five jobs; Rules of value has no information type; value modifiers
+have no magnitude field; target zones never appear in Space; Performers has no start-placement slot;
+provenance cannot express the kind of a source.
+
+**Errors found, including mine:** my canonical (symmetric) choice breached Variable Target's authored 2-3
+range — the variant respected it; the resolved game contains an invented consequence (entering an inactive
+zone is out of play) citing six contributions, none of which authorizes it, creating play-stopping regions
+inside a channel declared never entry-prohibited, missed by both Gate A readers; one reader used a fact
+code the procedures do not offer; Gate B's arithmetic slipped 17/18; and a challenger claim was wrong
+because I failed to pass it the four accepted corrections.
+
+### 2026-09-17 — Game Representation Specification drafted, audited, revised
+
+**Christian** closed architectural discovery provisionally and asked for the minimum Game
+Representation Specification:
+- keep the eight areas, refining fields where the slice showed the shape insufficient;
+- for every field, give why it exists, what owns its value, and what can be validated;
+- separate provenance from support;
+- put non-claims in the contribution contract if that is where they belong;
+- do NOT resolve C1 — decompose objective state first.
+
+He asked to preserve two principles:
+- **Non-claim:** knowledge states what it requires, excludes, constrains, and does NOT claim.
+- **Support:** provenance is insufficient unless the cited contribution actually supports the property.
+
+**Revision 1 was drafted, then audited by four independent agents** (evidence, boundary/contract, replay,
+minimality). They converged on blocking problems:
+- support was presence-only and written by the reconciler, so it would NOT have caught the invented
+  inactive-zone rule;
+- non-claims counted as support, so silence could license invented rules;
+- "no invented property" sat in Gate A instead of Gate B;
+- a universal Gate A rule partly resolved C1;
+- SET_POLICY and DEFAULT_RULE owned values with no contract;
+- the contract had no ownership scope;
+- about ten citations were wrong, including a quotation attributed to the causal audit that exists in no
+  evidence file — a P2 violation in the spec itself.
+
+**Revision 2:** `docs/design/game-representation-spec-2026-09-17.md`. Revision 1 is kept as
+`...-v1-audited-2026-09-17.md`.
+- **Support is derived:** field-path match plus a closed comparison. An ASSUMED item can narrow but never
+  entail. Properties are atomic, and sources are computed from the contract.
+- **Existence rule:** SESSION, SELECTION or STANDING_DECISION must entail a property's existence;
+  REALIZATION only fills unstated quantities and never creates rules.
+- **Gate B checks both directions:** survival forward, invention in reverse.
+- **Contract:** scope, basis, checkability, mandatory non-claim coverage, relationship rules.
+- **One home per fact.**
+- **Transitions:** coherence rules and one closed trigger vocabulary.
+- **Value modifiers:** an overlap rule, which is what catches "deep".
+- **Render fidelity** makes P5 checkable.
+- **The hostile-case table shows four cases revision 1 let through** that revision 2 catches: ps-central
+  s1, "deep", "opposite channel", and the invented rule. It also catches the four-zone breach.
+- **C1 made precise:** RPC-001-11's timing clause ("active from the moment that team's attack begins")
+  cites RPC-STMT-004, which contains no timing. The slice treated it as authored; the spec treats it as
+  ASSUMED pending Christian. IE-C006 also composes no reveal timing.
+
+**Citation check of revision 2** (a 4-agent workflow, 101 claims) found two wrong and nineteen imprecise;
+all were corrected before publishing.
+- **Wrong:** "the one functional layer" (carried over from revision 1; [CA] says scoring is one of two
+  functional selections, alongside the emphasis slot template).
+- **Wrong:** IE-C006 composes D006, D008 and D011 only; D007 and D013 are the spec's own addition.
+- **Other corrections:** replay ids live in the ledgers, not the report; P5 is ruled only for value
+  tiers; GF2-10 and GF2-15 are PARTLY_STRUCTURAL; WIDEZONE-13 is unordered; and WIDEZONE-14 cannot
+  justify removing the modifier beneficiary.
+
+**Page:** The Smallest Authoritative Game — https://claude.ai/artifact/7Nu6gdRSrDRsfxLv7mMr67 (private
+until Joe shares it). The email to Christian was delivered as a file.
+
+### 2026-09-18 — Christian's decisions incorporated (revision 3); next-step recommendation
+
+**Christian accepted the boundary** and moved from discovery to specification decisions:
+- **C1 withdrawn as a demonstrated collision (KR-02).** RPC-001 timing is not authored. RPC-001 needs
+  the build-out situation from the episode start and the objective functioning within the episode.
+  Variable Target's questions stay open on its own evidence.
+- **Defaults, given ids:**
+  - SD-11: the longer dimension is the axis.
+  - SD-12: halves and thirds are derived views.
+  - SD-13: a starting player steps to the ball only at a stationary-ball start.
+  - SD-14: START, SCORE and POSSESSION_CHANGE begin an episode.
+  - SD-R1 (rejected): a time window starts on possession won.
+- **SD-15:** "long kick" and "controlled on arrival" are FREE judgements.
+- **KR-01:** Variable Target's 2–3 applies per objective set.
+- **SD-16:** the free-choice boundary.
+- **SD-17:** emphasis and templates stay outside the game.
+- **SD-18:** closed vocabularies approved, contents not frozen.
+- **SD-19:** reveal timing and information holder as fields.
+- **SD-05:** P5 applies beyond value tiers.
+- **He asked for** the smallest next step toward implementation design, and which open items block it.
+
+**Revision 3:** `docs/design/game-representation-spec-2026-09-18.md` (revision 2 marked superseded).
+- **§2** is a standing-decision register: SD-01 to SD-19, SD-R1, KR-01, KR-02 and RR-01. Only the
+  field-supplying ids are citable, and SD-10 is not citable until he confirms it.
+- **§10** holds our own readings as proposals awaiting his ruling:
+  - PSD-01 to PSD-04: the four start and restart defaults from Gate A X6, never his;
+  - P-1 to P-11, among them the start method field, unauthored restarts, RPC-001-11's split, the
+    free-choice list, engine wording never being a source, when defaults yield, and a second Variable
+    Target set.
+- **Workflow A** (9 agents): two fidelity audits, citation checks, two coverage measurements, three
+  next-step proposers and a judge. Both fidelity audits found my first draft of revision 3 had
+  stretched his decisions: SD-13 as "every START needs a method", SD-19 applied to every information
+  rule, FREE redefined, and restart-default removal presented as his.
+- **Workflow B** (3 agents), a final check, found three more readings (now P-9 to P-11). It also found
+  my engine-wording count too low: 10 items, 6 REQUIRED, not 6. My filter missed the `COACH_RULES`
+  citations.
+
+**Measured findings (load-bearing counts re-checked by hand):**
+- **Starts and restarts:** all 11 Game Forms leave a start or restart unauthored.
+  `restart_structure_type` is empty in all 11. Nothing authors a touchline restart's method or who
+  restarts after a score. The model invents them because the prompt (completion.service.ts) demands
+  them.
+- **Engine wording in the slice:** 10 slice items rest only on engine wording, prompts or tests, 6 of
+  them REQUIRED:
+  - RPC-001-04 and -09, "beyond the first defenders", from `COACH_RULES`;
+  - RPC-001-06 and -16, `BUILD_OUT_START`;
+  - A01-02-02 and -03.
+
+  The slice's turnover-stops-play rule loses its support. C4 reopens.
+- **The contract grammar is untested:** 0 of 113 slice items carry a registered field path;
+  `CHANGES_ON` (8) and `NOT_DOMINANT` (4) are missing from the comparison table; 57 items have no value
+  status.
+- **Contract load:** about 69 objects can bring structure into a session (63 guided); 6 have contracts;
+  roughly 1,100 items remain.
+- **The runtime seam** sits between app.routes.ts:913 and :964. Coach text is written before any game
+  exists, at primary-scoring resolution.
+
+**Recommendation:** `docs/design/next-step-recommendation-2026-09-18.md`.
+- **The step:** a paper contract-shape conformance check, in three parts:
+  - a register of every atomic field path;
+  - the six slice contracts restated on it, with support worked out by hand;
+  - two blind contracts, Pass Combination Gate and GF4 Transition.
+
+  It produces a SCHEMA / VOCABULARY / KNOWLEDGE ledger and a test for "schema stable".
+- **Blockers:**
+  - only the untested grammar blocks design;
+  - five things block build: restarts, engine wording, contracts, vocabulary review, and variation;
+  - the authoring gaps block only the games that select their object.
+
+**Pages** (private until Joe shares them):
+- Before the Data Model — https://claude.ai/artifact/46iX2D64re9HDz2ymucMwp
+- The Smallest Authoritative Game, updated to revision 3 at the same link.
+
+The email to Christian was delivered as a file. Freeze unchanged. Not run: the conformance check itself,
+which awaits Christian's approval.
+
+### 2026-09-18/19 — Christian's second decisions; the conformance check run
+
+**His decisions (revision 4 of the spec):**
+- SD-10 confirmed, in his wording.
+- **SD-20:** turnovers play on unless selected knowledge authors a stoppage.
+- **SD-R2, SD-R3:** the coin-toss start and the conceding-team restart are rejected.
+- **PSD-03:** accepted in substance, with the source visibly missing.
+- **SD-21:** engine wording is never a source until authored.
+- **KR-03:** RPC-001's build-out applies to the build-out episode only.
+- He approved the conformance check, with Pass Combination Gate and GF4 as the blind objects.
+  Amendments that change a verdict go back to him before incorporation.
+
+**The check** — protocol and stability test committed before any result; all in
+`docs/audits/conformance/`:
+
+| Stage | What | Outcome |
+|---|---|---|
+| A | Register review | 16 must-fix ambiguities became RC-11 to RC-36 |
+| B | Restatement | 6 contracts restated; the game restated (210 lines); 2 blind contracts |
+| C | Script | Blind contracts 81/81 rows declared |
+| D | Two independent derivers | 208/210 same verdict; kappa 0.983 |
+| E | Verification and judgement | 9 schema verifiers: 22 real gaps, all LOCAL. Interpretation clusters: 19 residual gaps. Independent trace: all 10 disagreements traced, 3 of them reader errors. A critic; a judge |
+
+**Verdict:** STABLE WITH LOCAL AMENDMENTS. The data model can be designed now. The derivation engine
+waits for his rulings on AM-01 to AM-15, the verdict-changing amendments.
+- **Two rulings would reverse it:** requiring RPC-001 to supply its own carrier (a structural guard),
+  or counting derivation reading rules as structural.
+- **Collisions were never exercised.** Suggested next: a small paper test on central weighting × Wide
+  Zone.
+- **Engine sentences relied on:** six — RPC-001's four "beyond the first defenders" setups, its scoring
+  rule (the only source of "long kick"), and `BUILD_OUT_START`.
+
+**Report:** `docs/audits/conformance-check-2026-09-19.md`.
+**Page:** Does the Grammar Hold? — https://claude.ai/artifact/7GQ1R3ozFbTMpBb35Yd93e
+
+**My errors:**
+- My trace claimed no reader errors; the independent tracer found three.
+- Splitting derivation by area caused a shared mistake (L67/L72).
+- Coverage was counted per row, not per element.
+- Nothing was re-derived after the restatement errors were found.
+
+**Also:** a permission allowlist was added to `.claude/settings.json` (worktree and main; not
+committed).
+
+### 2026-09-19 — Christian's rulings; the fifteen amendment rules; data-model design begun
+
+**His rulings, recorded in revision 5 of the spec:**
+- **KR-04:** RPC-001 does not own or instantiate the carrier of its scoring event. It narrows the
+  acceptable event identity; the game must independently contain a supported compatible carrier; where
+  none exists, reconciliation fails back to selection. No conditional contract structure. This closes
+  AM-25.
+- **SD-22:** a new derivation reading rule is not by itself structural. Structural-semantic means
+  changing the grammar, statuses, source kinds, areas, relationship model or the meaning of support;
+  operational means making an already-defined relationship deterministic. This replaces the protocol's
+  test condition (amended, with a note that the verdict did not depend on it).
+
+**He accepted the primary result:** the data-model shape is stable enough to design; the derivation
+engine is not. He also accepted that the unexercised collision is a derivation test, not a reason to
+reopen the data model.
+
+**He asked for the actual rules** for AM-01 to AM-15, in the form: id / ambiguity / proposed rule /
+example whose verdict changes / classification. Delivered as an email and as
+`docs/design/amendments-am01-am15-2026-09-19.md`. Thirteen are plainly operational; AM-03 sits closest
+to the line; AM-04 is structural only in its strictest option (c); AM-05 is operational either way.
+Every example is a real slice-game line with the verdicts the derivers produced.
+
+**Held at his instruction:** the collision test waits for his AM rulings. All six code sentences stay
+unratified, and "beyond the first defenders" is not promoted into RPC-001 knowledge.
+
+**Begun:** `docs/design/data-model-design-2026-09-19.md`, part 1 — the artefacts, the register as
+versioned schema, the shapes, storage and loading (fail closed, no allowlist projection), and the seam.
+Everything derivation-dependent is marked and deferred.
+
+### 2026-09-20 — His fifteen rulings; the delta; the collision test
+
+**He ruled on all fifteen:** twelve as proposed; AM-04 resolves to (b), undeclared, because silence
+cannot license a free choice; AM-05 becomes **cardinality without identity** (no ordering, no
+all-elements entitlement); AM-06 is corrected so an absent supporting or preferred value is never
+"satisfied". Recorded in `docs/design/derivation-spec-2026-09-20.md`.
+
+**Applying them moves 34 of 210 slice lines.** Three interactions:
+- **AM-13 needs AM-17.** All of Wide Zone's region items are own-involvement scoped, and no item of its
+  at another scope entails a region, so AM-13 empties that scope: ten lines fall, nine items go unmet.
+  AM-17's lateral-position selector attribute is the fix, which makes a "local" amendment
+  verdict-relevant. His call.
+- **AM-05 overrides the AM-01 example I gave him:** the item matches two objectives against a minimum
+  of one, so it entails neither. The forward result still changes.
+- **AM-05 works as intended:** the four target zones' existence moves from entailed to unauthored.
+
+**Three labels flagged, none invented quietly:** cardinality is only ever an item result, never a
+property; `NOT_REALIZED` for a supporting item whose value is absent; `VALID_ABSENCE` for a
+closed-world absence.
+
+**The collision test answers NO** (`docs/audits/collision-test-2026-09-20.md`):
+- As authored, nothing collides because no contract mentions central value at all; it lives only in
+  engine code.
+- Written as if authored, the objects still never share a line: under AM-11 an item marked "each" binds
+  the member it names. The disagreement lands as two unrelated forward "unmet" entries.
+- **The failure mode is silent acceptance:** name the corridor an additional referent and every line
+  reads entailed while Wide Zone's point is dead.
+- **The contradiction is comparative** and no requirement kind is.
+- **Gate A's overlap rule cannot fire** as the register stands, which corrects revision 5's claim that
+  it catches the "deep" tier. Render fidelity does.
+- **The collision path has never fired:** 0 unresolved across 420 line judgements; 2 relationship rules
+  across 8 contracts, neither on a value row.
+- **A fourth hiding mechanism:** unplaced. WIDEZONE-09 never became an item, yet the game's corridor
+  lines cite it as provenance.
+
+**He answered that on 20 Sep: YES.** His rulings, all incorporated:
+- **AM-16 extended** as the minimum generalized comparison mechanism — value(A)>value(B),
+  count(A)=count(B), width(A)>width(B). **Never translated into mutual exclusions**; a comparative is a
+  relationship, not a prohibition. Preserve the distinction between changing the relative value or
+  availability of possibilities in the environment and prescribing the learner's solution.
+- **The comparison boundary stays inside represented game properties** — never pressure, opportunity,
+  affordance availability, difficulty or uncertainty. His test: "whether the comparison is between
+  properties the resolved game actually contains and can evaluate."
+- **AM-17 adopted**, with AM-13 preserved: selection does not entail existence.
+- **Cardinality: no schema change yet.** `not realized` approved. `valid absence` approved as a **line
+  outcome, not a Game status** — the four Game statuses stay as they are.
+- Retain: "Reconciliation can only expose conflicts that have first been expressed in the grammar."
+
+**The narrow rerun** (`docs/audits/collision-rerun-2026-09-20.md`), verified by a re-derive / attack /
+judge check rather than asserted:
+- **The gain:** the comparative is expressible for the first time, both sides surface, Gate B forward
+  does not pass, and the silent-acceptance configuration now reports both claims violated. AM-17 created
+  nothing and AM-13 held.
+- **As run it reached PARTLY:** the two claims landed as two unrelated forward failures, because nothing
+  said which line a comparison reaches. Four rules were missing from my spec, not from his decisions.
+- **On the amended text it does reach UNRESOLVED** at the wide modifier's magnitude line, under either
+  reading of that magnitude.
+- **Still not established:** neither item is real knowledge (Wide Zone's contract stops at item 17, and
+  the other side is invented); **no row holds a region's value, so his own `value(A) > value(B)` example
+  is unwritable in the form he adopted**; nothing he ruled says a not-evaluable comparative still bounds
+  its line; the magnitude's kind is unfixed, so the conflict is detectable but not recordable.
+- **Six residuals sent**, in load-bearing order: operand form; effective value and the magnitude's kind;
+  whether an ASSUMED item can collide with an authored one; which line a comparison reaches; **whether
+  my amendments are operational under SD-22 or structural** (they touch the relationship model and the
+  meaning of support, both named in SD-22's own list); and two the case exposed — whether a collision
+  should outrank an unauthored gap, and whether anything screens a comparative for whether its knowledge
+  is real, since one fabricated comparative can currently unresolve any modified property.
+- **Correction sent:** revision 5's claim that AM-17 rescues L21/L27 was wrong; four of five lateral
+  values had no interval test. Written now, not re-derived.
+
+**20 Sep, second — he closed the collision exercise, and three of his rulings overturn rules of mine.**
+Registered as SD-23 to SD-29 and KR-05 (spec revision 6, `docs/design/derivation-spec-2026-09-20.md`):
+- **SD-23, operands:** a represented game property, **or a deterministically derived quantity whose
+  inputs are supported represented game properties**. No region-value row. A derived quantity may
+  compute relationships among represented environmental properties, never learner or ecological states.
+- **SD-24, effective value:** "primary-event base value after application of all applicable resolved
+  value modifiers for the referent." A modifier **must declare its operation** (new field `V9a`);
+  multiplier versus increment is never inferred. Unauthored operation or magnitude → **not computable**.
+- **SD-25:** one point per qualifying primary scoring event unless authoritatively modified. This is
+  what makes V2 supported, and so what makes any effective value computable at all.
+- **SD-26, where a comparison lands — replaces my reaches-line rule:** it takes **no property line**. A
+  relationship assertion evaluated over its operands, outside the eight areas. Unresolvable operands →
+  unmet or not evaluable by requirement status. Two authoritative, well-formed, evaluable comparatives
+  that nothing satisfies → **unresolved relationship conflict**. **No ninth area.**
+- **SD-27:** an assumed item **cannot** create an authoritative collision — diagnostic "possible
+  tension" only. This closes the fabricated-comparative problem.
+- **SD-28:** **gap before collision.** An unauthored or incomputable dependency is a gap first.
+- **SD-29, the classification he asked to be recorded precisely:** a **bounded structural-semantic
+  extension to the contribution/derivation grammar**, not an operational reading rule; **the Game
+  Representation data shape remains stable**. Record the distinction, do not weaken the data-model
+  stability finding.
+- **The worked case now resolves as a GAP, not a collision** — the right answer, and the opposite of
+  what my rules gave.
+
+**22 Sep — design phase CLOSED; derivation-engine IMPLEMENTATION AUTHORIZED.** The final independent
+check (his four questions) returned **all four clean, no genuine blocker**, at commit `123f29b`. Under his
+22 Sep ruling, implementation is authorized. **Activity generation remains frozen.** Implementation has
+**not started** — it begins when Joe says go.
+- **The spec to implement:** `docs/design/derivation-engine-design-package-2026-09-20.md`, revision 5.
+- **Rulings since 20 Sep** (spec revision 10): SD-39 (OPEN authority), SD-40 (candidate = evidence),
+  SD-41 (comparatives unexercised), SD-42 (restricted computations), SD-43 (Gate A certifies only
+  structurally decidable claims; `NOT_CHECKABLE_OUTSIDE_REPRESENTATION` non-blocking, represented-but-
+  undefined blocks), SD-44 (structurally reachable).
+- **Open with him:** residual space — sent the exact wording and the finding that it fuses an
+  anti-invention rule with Wide Zone's single-contract aggregate; define or remove is his. And whether
+  `NOT_REALIZED` covers a failed supporting cardinality check.
+- **Proposed first slice:** stages 0–2 (load, normalise, index) with the refusal-coverage tests.
+- **The rev-4 email was never sent**; its content was carried into the 22 Sep response
+  (`docs/design/email-carry-forward-rev4.md`).
+- **How the checking worked:** Codex ran read-only briefs; every finding was audited against the files.
+  Three sweeps plus the final check; each found less than the last.
+
+**20 Sep — derivation-engine DESIGN is authorized** (SD-30..SD-34, SD-10a; spec revision 7). **Design
+may begin; implementation stays frozen until he reviews the proposed design.** Proposal:
+`docs/design/derivation-engine-design-2026-09-20.md` — a pure function over loaded data, report-only
+(SD-33), with three property states (derived / open-with-bounds / failed), twelve stages each naming
+what it refuses, six typed failure kinds plus a diagnostic tension no gate reads, and versions in the
+output because SD-30 means a result is valid only for the versions it names.
+- **Open for him:** who fills a permitted free choice (proposed: the engine reports it open, a separate
+  realization step fills it), and whether `BUILD_OUT_EPISODE` becomes a sixth scope.
+- **The register was not executable.** Thirteen closed vocabularies and every conditional applicability
+  rule (T2–T5 "N/A when CONTINUE"; V14b ACCESS, V14c COUNT_CHANGE) lived only inside `valueType` prose.
+  Now `vocabularies` and `applicability` blocks — **form changed, membership untouched**. Left as it
+  was, applicability alone would have made Gate A unpassable for every turnover transition, which under
+  SD-20 is the common case.
+- **A sixth scope is in use and unregistered:** `BUILD_OUT_EPISODE` on 6 items; 64 more carry an em-dash
+  placeholder where a scope belongs (a contract defect, not a vocabulary question).
+- **The one circularity, found by attacking my own design:** own-involvement scope is defined by what
+  other-scoped items entail, and entailment comes later. Broken with a restricted one-iteration pass;
+  the engine compares both passes and reports divergence rather than preferring one.
+- **Cannot be represented** (§9): conditional requirements, either/or between whole layouts,
+  permissions conditioned on another object, example-only existence, aggregates across elements, and
+  comparative cardinality. Three share one shape — knowledge that says *when* a requirement is live.
+
+**The engine-design question is answered** (`docs/design/engine-design-readiness-2026-09-20.md`):
+**no true blocker**, on one condition — the engine is specified to **refuse rather than guess**. Eight
+refusals belong in its spec, chiefly: effective value with two applicable modifiers and no authored
+combination rule is **not computable** (the operations do not commute, so a fold order would be an
+invented answer that reads as supported). Three scoped items are his, one sentence each: whether
+own-involvement **declarations** empty with their items (31 items, 29 declarations across the eight
+contracts; it flips Wide Zone's channels between INVENTED and a declared gap); whether AM-12 extends to
+an element reference held in an item's **value** (today a prose reference misses silently); and the
+failure path, which does not block if the engine is **report-only**.
+- **All three were ruled the same day** — SD-31 (declarations survive; an empty scope empties the
+  item's application set, not the declaration), SD-32 (every structural reference normalises, not just
+  selectors) and SD-33 (report-only). The three questions above are the record of what was asked, not
+  of anything still open.
+- **His second comparison example cannot be written:** `count(A) = count(B)` needs cardinality to be a
+  property, and he ruled no schema change yet. No change proposed on a hypothetical.
+- **SD-10 could never fire as I typed it** — an EXISTS item whose value was the prose phrase
+  "functionally necessary". Retyped as what his ruling is, a prohibition on removal; the machine test
+  for necessity is flagged as his.
+- **AM-17 rederived** (two independent derivations agree, all eight lines): the lateral tests are
+  complete and correct, **no verdict moves**, and the register was never the obstacle — **no contract
+  carries a lateral selector at all**. AM-17 is usable and unused; the remedy is re-authoring the
+  contract, not derivation. My earlier claim was wrong twice over and the correction is in the record.
+- **`V9a` costs a line per modifier**, unauthored in the slice game — so "not computable" now has a line
+  the audit can point at. Games resolved before 20 Sep are short that line and need re-deriving.
+
+**The six code sentences are classified** (`docs/design/code-sentences-classification-2026-09-20.md`),
+awaiting his individual rulings: retire 1–4 (the "beyond the first defenders" setups — KR-04 already
+says RPC-001 does not instantiate its carrier, and RPC-PROP-132 authors the scoring condition); retire
+5a and 5c (5c is authored as "long clearance", while SD-15 names "long kick" — flagged); **5b needs a
+standing decision** (one point per qualifying event — no workbook authors any base value); retire 6
+("each attack" contradicts KR-03, and "in your own half" is an unauthored placement claim). Three
+authoring gaps are named, not filled.
+
+**Live behaviour worth checking when the freeze lifts:** the slot modifier carrying central weighting is
+attached to slot 1 of every Discovering Solutions session regardless of the selected constraint, so a
+coach running Wide Zone Advantage is told to go wide and paid to go central.
+
+**22 Sep — IMPLEMENTATION STARTED (increments 1–3).** Code: `back/src/system/derivation/`; 55 tests in
+`npm test`; full project suite passes. Reports: `docs/design/implementation-increment-{1,2,3}.md`.
+- **Stages built:** 0 load · 1 normalise · 2 index · 3 scope · 4 reach · 5 derive · 6 classify · 8 forward.
+- **Not built, deliberately:** stage 7 (zero `COMPARES` items in the corpus; SD-41 forbids expanding it
+  without authored evidence) and stage 9 (no `CandidateGame` input exists — the stage-B game is a
+  hand-derivation worksheet with prose attributes and positional ids).
+- **Two defects the real corpus found that unit tests did not:** openness produced by absence, against
+  SD-39; and `COUNT`/`RANGE` read as existence on a field row.
+- **Three SD-48 stops** recorded and reported: reach against a class, a choice space bounded by authored
+  values with nothing authored, and set-valued member expansion.
+- **Corpus today:** 1 contract admitted / 7 refused; 15 lines → 2 resolved, 13 gaps, 0 collisions;
+  forward 7 unmet / 6 inert / 2 satisfied. Every refusal traces to a task-register defect.
+- **Next:** stage 10 gates (10 structural checks ready; 4 need SD-43 clause reporting; F2 blocking).

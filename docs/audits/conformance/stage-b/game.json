@@ -1,0 +1,2215 @@
+﻿{
+    "kind":  "game",
+    "result":  {
+                   "elements":  [
+                                    {
+                                        "elementId":  "game",
+                                        "row":  "non-collection (E1-E4, S1)",
+                                        "attributes":  "the game itself"
+                                    },
+                                    {
+                                        "elementId":  "area",
+                                        "row":  "S2",
+                                        "attributes":  "noun: area (off-list); functions: unstated; game id \u0027area\u0027"
+                                    },
+                                    {
+                                        "elementId":  "own-half-A",
+                                        "row":  "S2",
+                                        "attributes":  "noun: half; functions: {start-placement}; for Team A (no register attribute)"
+                                    },
+                                    {
+                                        "elementId":  "own-half-B",
+                                        "row":  "S2",
+                                        "attributes":  "noun: half; functions: {start-placement}; for Team B (no register attribute)"
+                                    },
+                                    {
+                                        "elementId":  "channel-north",
+                                        "row":  "S2",
+                                        "attributes":  "noun: channel; functions: {perceptual-reference, value-condition}"
+                                    },
+                                    {
+                                        "elementId":  "channel-south",
+                                        "row":  "S2",
+                                        "attributes":  "noun: channel; functions: {perceptual-reference, value-condition}"
+                                    },
+                                    {
+                                        "elementId":  "central-corridor",
+                                        "row":  "S2",
+                                        "attributes":  "noun: corridor; functions: unstated"
+                                    },
+                                    {
+                                        "elementId":  "team-A",
+                                        "row":  "P1",
+                                        "attributes":  "team: TEAM_A"
+                                    },
+                                    {
+                                        "elementId":  "team-B",
+                                        "row":  "P1",
+                                        "attributes":  "team: TEAM_B"
+                                    },
+                                    {
+                                        "elementId":  "target-players",
+                                        "row":  "P4",
+                                        "attributes":  "roleName: target player; stated as none, both teams"
+                                    },
+                                    {
+                                        "elementId":  "neutrals",
+                                        "row":  "non-collection (P5-P7)",
+                                        "attributes":  "neutral group"
+                                    },
+                                    {
+                                        "elementId":  "starting-positions-at-every-restart",
+                                        "row":  "P8",
+                                        "attributes":  "group: DEFENDING_TEAM (forward-most defensive line)"
+                                    },
+                                    {
+                                        "elementId":  "ball",
+                                        "row":  "O1",
+                                        "attributes":  "kind: ball"
+                                    },
+                                    {
+                                        "elementId":  "tz-A-north",
+                                        "row":  "O1",
+                                        "attributes":  "kind: target zone (off-list); candidate 1 of Team A\u0027s set"
+                                    },
+                                    {
+                                        "elementId":  "tz-A-south",
+                                        "row":  "O1",
+                                        "attributes":  "kind: target zone (off-list); candidate 2 of Team A\u0027s set"
+                                    },
+                                    {
+                                        "elementId":  "tz-B-north",
+                                        "row":  "O1",
+                                        "attributes":  "kind: target zone (off-list); candidate 1 of Team B\u0027s set"
+                                    },
+                                    {
+                                        "elementId":  "tz-B-south",
+                                        "row":  "O1",
+                                        "attributes":  "kind: target zone (off-list); candidate 2 of Team B\u0027s set"
+                                    },
+                                    {
+                                        "elementId":  "obj:tz-A-north",
+                                        "row":  "J1",
+                                        "attributes":  "role: PRIMARY_SCORING; team: TEAM_A (game objectId tz-A-north)"
+                                    },
+                                    {
+                                        "elementId":  "obj:tz-A-south",
+                                        "row":  "J1",
+                                        "attributes":  "role: PRIMARY_SCORING; team: TEAM_A (game objectId tz-A-south)"
+                                    },
+                                    {
+                                        "elementId":  "obj:tz-B-north",
+                                        "row":  "J1",
+                                        "attributes":  "role: PRIMARY_SCORING; team: TEAM_B (game objectId tz-B-north)"
+                                    },
+                                    {
+                                        "elementId":  "obj:tz-B-south",
+                                        "row":  "J1",
+                                        "attributes":  "role: PRIMARY_SCORING; team: TEAM_B (game objectId tz-B-south)"
+                                    },
+                                    {
+                                        "elementId":  "set-A",
+                                        "row":  "J5",
+                                        "attributes":  "scope: TEAM_A; restater id (game: \u0027Team A\u0027s two-candidate set\u0027)"
+                                    },
+                                    {
+                                        "elementId":  "set-B",
+                                        "row":  "J5",
+                                        "attributes":  "scope: TEAM_B; restater id (game: \u0027Team B\u0027s two-candidate set\u0027)"
+                                    },
+                                    {
+                                        "elementId":  "tr-START",
+                                        "row":  "T1",
+                                        "attributes":  "trigger: START (game slot \u0027start\u0027)"
+                                    },
+                                    {
+                                        "elementId":  "tr-SCORE",
+                                        "row":  "T1",
+                                        "attributes":  "trigger: SCORE (slot \u0027restart after score\u0027)"
+                                    },
+                                    {
+                                        "elementId":  "tr-OEL-att",
+                                        "row":  "T1",
+                                        "attributes":  "trigger: OUT_END_LINE; qualifier.lastTouch: ATTACKING_TEAM (slot: goal-kick case)"
+                                    },
+                                    {
+                                        "elementId":  "tr-OEL-def",
+                                        "row":  "T1",
+                                        "attributes":  "trigger: OUT_END_LINE; qualifier.lastTouch: DEFENDING_TEAM"
+                                    },
+                                    {
+                                        "elementId":  "tr-OTL",
+                                        "row":  "T1",
+                                        "attributes":  "trigger: OUT_TOUCHLINE; no qualifier"
+                                    },
+                                    {
+                                        "elementId":  "tr-PC",
+                                        "row":  "T1",
+                                        "attributes":  "trigger: POSSESSION_CHANGE (slot \u0027restart after turnover\u0027)"
+                                    },
+                                    {
+                                        "elementId":  "pe",
+                                        "row":  "V0",
+                                        "attributes":  "the one primary event"
+                                    },
+                                    {
+                                        "elementId":  "cond-origin",
+                                        "row":  "V3",
+                                        "attributes":  "type: origin (split from primary-event prose)"
+                                    },
+                                    {
+                                        "elementId":  "cond-progression",
+                                        "row":  "V3",
+                                        "attributes":  "type: progression (split from primary-event prose)"
+                                    },
+                                    {
+                                        "elementId":  "cond-control",
+                                        "row":  "V3",
+                                        "attributes":  "type: control (split from primary-event prose)"
+                                    },
+                                    {
+                                        "elementId":  "cond-eligibility",
+                                        "row":  "V3",
+                                        "attributes":  "type: eligibility (split: active zone only; scorer of team in possession)"
+                                    },
+                                    {
+                                        "elementId":  "cond-exclusion",
+                                        "row":  "V3",
+                                        "attributes":  "type: exclusion (long kick; split from primary event + degenerate-bypass entry)"
+                                    },
+                                    {
+                                        "elementId":  "mod-wide",
+                                        "row":  "V7",
+                                        "attributes":  "condition.type: region (wide channels); scoring multiplier"
+                                    },
+                                    {
+                                        "elementId":  "cons-neutral",
+                                        "row":  "V11",
+                                        "attributes":  "trigger: POSSESSION_CHANGE; effect: neutral affiliation (off-list)"
+                                    },
+                                    {
+                                        "elementId":  "cons-reset",
+                                        "row":  "V11",
+                                        "attributes":  "trigger: SCORE|OUT_*|POSSESSION_CHANGE; effect: re-establish begin condition (off-list)"
+                                    },
+                                    {
+                                        "elementId":  "info-live",
+                                        "row":  "V15",
+                                        "attributes":  "subject: which candidate of a team\u0027s set is active"
+                                    },
+                                    {
+                                        "elementId":  "info-wide",
+                                        "row":  "V15",
+                                        "attributes":  "subject: wide channels and their advantage; STANDING"
+                                    },
+                                    {
+                                        "elementId":  "tw-none",
+                                        "row":  "V23",
+                                        "attributes":  "placeholder: game states no time windows"
+                                    }
+                                ],
+                   "lines":  [
+                                 {
+                                     "lineId":  "L1",
+                                     "elementId":  "game",
+                                     "row":  "E1",
+                                     "value":  "12",
+                                     "gameProvenance":  "ENVELOPE-FIXED, NEUTRAL-01, NEUTRAL-02, NEUTRAL-08, NEUTRAL-09, NEUTRAL-10, NEUTRAL-11, GF2-14, RPC-001-02",
+                                     "note":  "partition 2 GK + 8 outfield + 2 neutrals"
+                                 },
+                                 {
+                                     "lineId":  "L2",
+                                     "elementId":  "game",
+                                     "row":  "E2",
+                                     "value":  "40",
+                                     "gameProvenance":  "ENVELOPE-FIXED, NEUTRAL-01, NEUTRAL-02, NEUTRAL-08, NEUTRAL-09, NEUTRAL-10, NEUTRAL-11, GF2-14, RPC-001-02",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L3",
+                                     "elementId":  "game",
+                                     "row":  "E3",
+                                     "value":  "30",
+                                     "gameProvenance":  "ENVELOPE-FIXED, NEUTRAL-01, NEUTRAL-02, NEUTRAL-08, NEUTRAL-09, NEUTRAL-10, NEUTRAL-11, GF2-14, RPC-001-02",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L4",
+                                     "elementId":  "game",
+                                     "row":  "E4",
+                                     "value":  "20",
+                                     "gameProvenance":  "ENVELOPE-FIXED, NEUTRAL-01, NEUTRAL-02, NEUTRAL-08, NEUTRAL-09, NEUTRAL-10, NEUTRAL-11, GF2-14, RPC-001-02",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L5",
+                                     "elementId":  "game",
+                                     "row":  "S1",
+                                     "value":  "the 40 m side (longitudinal)",
+                                     "gameProvenance":  "GF2-01, GF2-02, GF2-05, RPC-001-07, A01-02-09, WIDEZONE-01, ENVELOPE-FIXED",
+                                     "note":  "stated in region \u0027area\u0027 orientation"
+                                 },
+                                 {
+                                     "lineId":  "L6",
+                                     "elementId":  "area",
+                                     "row":  "S2",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "GF2-01, GF2-02, GF2-05, RPC-001-07, A01-02-09, WIDEZONE-01, ENVELOPE-FIXED",
+                                     "note":  "\u0027the whole activity space\u0027; same extent as E2 x E3"
+                                 },
+                                 {
+                                     "lineId":  "L7",
+                                     "elementId":  "area",
+                                     "row":  "S3",
+                                     "value":  "area (off-list)",
+                                     "gameProvenance":  "GF2-01, GF2-02, GF2-05, RPC-001-07, A01-02-09, WIDEZONE-01, ENVELOPE-FIXED",
+                                     "note":  "kind: \u0027single rectangular playing area\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L8",
+                                     "elementId":  "area",
+                                     "row":  "S4",
+                                     "value":  "UNSTATED",
+                                     "gameProvenance":  "GF2-01, GF2-02, GF2-05, RPC-001-07, A01-02-09, WIDEZONE-01, ENVELOPE-FIXED",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L9",
+                                     "elementId":  "area",
+                                     "row":  "S5",
+                                     "value":  "0-40 m (whole)",
+                                     "gameProvenance":  "GF2-01, GF2-02, GF2-05, RPC-001-07, A01-02-09, WIDEZONE-01, ENVELOPE-FIXED",
+                                     "note":  "extent \u002740 x 30 m\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L10",
+                                     "elementId":  "area",
+                                     "row":  "S6",
+                                     "value":  "0-30 m (whole)",
+                                     "gameProvenance":  "GF2-01, GF2-02, GF2-05, RPC-001-07, A01-02-09, WIDEZONE-01, ENVELOPE-FIXED",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L11",
+                                     "elementId":  "own-half-A",
+                                     "row":  "S2",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "RPC-001-06, A01-02-07, A01-02-09, A01-02-10",
+                                     "note":  "\u0027determinable, need not be marked\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L12",
+                                     "elementId":  "own-half-A",
+                                     "row":  "S3",
+                                     "value":  "half",
+                                     "gameProvenance":  "RPC-001-06, A01-02-07, A01-02-09, A01-02-10",
+                                     "note":  "from id/kind \u0027own-half start area\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L13",
+                                     "elementId":  "own-half-A",
+                                     "row":  "S4",
+                                     "value":  "start-placement",
+                                     "gameProvenance":  "RPC-001-06, A01-02-07, A01-02-09, A01-02-10",
+                                     "note":  "kind: \u0027build-out / own-half start area for Team A\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L14",
+                                     "elementId":  "own-half-A",
+                                     "row":  "S5",
+                                     "value":  "0-20 m (west end line to halfway line)",
+                                     "gameProvenance":  "RPC-001-06, A01-02-07, A01-02-09, A01-02-10",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L15",
+                                     "elementId":  "own-half-A",
+                                     "row":  "S6",
+                                     "value":  "0-30 m (full width)",
+                                     "gameProvenance":  "RPC-001-06, A01-02-07, A01-02-09, A01-02-10",
+                                     "note":  "extent \u002720 x 30 m\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L16",
+                                     "elementId":  "own-half-B",
+                                     "row":  "S2",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "RPC-001-06, A01-02-07, A01-02-09, A01-02-10",
+                                     "note":  "\u0027determinable, need not be marked\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L17",
+                                     "elementId":  "own-half-B",
+                                     "row":  "S3",
+                                     "value":  "half",
+                                     "gameProvenance":  "RPC-001-06, A01-02-07, A01-02-09, A01-02-10",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L18",
+                                     "elementId":  "own-half-B",
+                                     "row":  "S4",
+                                     "value":  "start-placement",
+                                     "gameProvenance":  "RPC-001-06, A01-02-07, A01-02-09, A01-02-10",
+                                     "note":  "kind: \u0027build-out / own-half start area for Team B\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L19",
+                                     "elementId":  "own-half-B",
+                                     "row":  "S5",
+                                     "value":  "20-40 m (halfway line to east end line)",
+                                     "gameProvenance":  "RPC-001-06, A01-02-07, A01-02-09, A01-02-10",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L20",
+                                     "elementId":  "own-half-B",
+                                     "row":  "S6",
+                                     "value":  "0-30 m (full width)",
+                                     "gameProvenance":  "RPC-001-06, A01-02-07, A01-02-09, A01-02-10",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L21",
+                                     "elementId":  "channel-north",
+                                     "row":  "S2",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "WIDEZONE-02, WIDEZONE-03, WIDEZONE-04, WIDEZONE-05, WIDEZONE-06, WIDEZONE-07, WIDEZONE-08, WIDEZONE-10",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L22",
+                                     "elementId":  "channel-north",
+                                     "row":  "S3",
+                                     "value":  "channel",
+                                     "gameProvenance":  "WIDEZONE-02, WIDEZONE-03, WIDEZONE-04, WIDEZONE-05, WIDEZONE-06, WIDEZONE-07, WIDEZONE-08, WIDEZONE-10",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L23",
+                                     "elementId":  "channel-north",
+                                     "row":  "S4",
+                                     "value":  "perceptual-reference",
+                                     "gameProvenance":  "WIDEZONE-02, WIDEZONE-03, WIDEZONE-04, WIDEZONE-05, WIDEZONE-06, WIDEZONE-07, WIDEZONE-08, WIDEZONE-10",
+                                     "note":  "from \u0027wide reference/advantage channel\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L24",
+                                     "elementId":  "channel-north",
+                                     "row":  "S4",
+                                     "value":  "value-condition",
+                                     "gameProvenance":  "WIDEZONE-02, WIDEZONE-03, WIDEZONE-04, WIDEZONE-05, WIDEZONE-06, WIDEZONE-07, WIDEZONE-08, WIDEZONE-10",
+                                     "note":  "from \u0027advantage\u0027; referent of mod-wide"
+                                 },
+                                 {
+                                     "lineId":  "L25",
+                                     "elementId":  "channel-north",
+                                     "row":  "S5",
+                                     "value":  "0-40 m (full length)",
+                                     "gameProvenance":  "WIDEZONE-02, WIDEZONE-03, WIDEZONE-04, WIDEZONE-05, WIDEZONE-06, WIDEZONE-07, WIDEZONE-08, WIDEZONE-10",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L26",
+                                     "elementId":  "channel-north",
+                                     "row":  "S6",
+                                     "value":  "0-6 m (outer edge on north touchline)",
+                                     "gameProvenance":  "WIDEZONE-02, WIDEZONE-03, WIDEZONE-04, WIDEZONE-05, WIDEZONE-06, WIDEZONE-07, WIDEZONE-08, WIDEZONE-10",
+                                     "note":  "\u0027low end of the authored ~6-10 m band\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L27",
+                                     "elementId":  "channel-south",
+                                     "row":  "S2",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "WIDEZONE-02, WIDEZONE-03, WIDEZONE-04, WIDEZONE-05, WIDEZONE-06, WIDEZONE-07, WIDEZONE-08, WIDEZONE-10",
+                                     "note":  "\u0027identical in kind to channel-north\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L28",
+                                     "elementId":  "channel-south",
+                                     "row":  "S3",
+                                     "value":  "channel",
+                                     "gameProvenance":  "WIDEZONE-02, WIDEZONE-03, WIDEZONE-04, WIDEZONE-05, WIDEZONE-06, WIDEZONE-07, WIDEZONE-08, WIDEZONE-10",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L29",
+                                     "elementId":  "channel-south",
+                                     "row":  "S4",
+                                     "value":  "perceptual-reference",
+                                     "gameProvenance":  "WIDEZONE-02, WIDEZONE-03, WIDEZONE-04, WIDEZONE-05, WIDEZONE-06, WIDEZONE-07, WIDEZONE-08, WIDEZONE-10",
+                                     "note":  "by \u0027identical in kind\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L30",
+                                     "elementId":  "channel-south",
+                                     "row":  "S4",
+                                     "value":  "value-condition",
+                                     "gameProvenance":  "WIDEZONE-02, WIDEZONE-03, WIDEZONE-04, WIDEZONE-05, WIDEZONE-06, WIDEZONE-07, WIDEZONE-08, WIDEZONE-10",
+                                     "note":  "by \u0027identical in kind\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L31",
+                                     "elementId":  "channel-south",
+                                     "row":  "S5",
+                                     "value":  "0-40 m (full length)",
+                                     "gameProvenance":  "WIDEZONE-02, WIDEZONE-03, WIDEZONE-04, WIDEZONE-05, WIDEZONE-06, WIDEZONE-07, WIDEZONE-08, WIDEZONE-10",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L32",
+                                     "elementId":  "channel-south",
+                                     "row":  "S6",
+                                     "value":  "24-30 m (outer edge on south touchline)",
+                                     "gameProvenance":  "WIDEZONE-02, WIDEZONE-03, WIDEZONE-04, WIDEZONE-05, WIDEZONE-06, WIDEZONE-07, WIDEZONE-08, WIDEZONE-10",
+                                     "note":  "6 m wide"
+                                 },
+                                 {
+                                     "lineId":  "L33",
+                                     "elementId":  "central-corridor",
+                                     "row":  "S2",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "WIDEZONE-09, RPC-001-22",
+                                     "note":  "\u0027unmarked residual playable space\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L34",
+                                     "elementId":  "central-corridor",
+                                     "row":  "S3",
+                                     "value":  "corridor",
+                                     "gameProvenance":  "WIDEZONE-09, RPC-001-22",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L35",
+                                     "elementId":  "central-corridor",
+                                     "row":  "S4",
+                                     "value":  "UNSTATED",
+                                     "gameProvenance":  "WIDEZONE-09, RPC-001-22",
+                                     "note":  "kind gives a purpose, no function value"
+                                 },
+                                 {
+                                     "lineId":  "L36",
+                                     "elementId":  "central-corridor",
+                                     "row":  "S5",
+                                     "value":  "UNSTATED",
+                                     "gameProvenance":  "WIDEZONE-09, RPC-001-22",
+                                     "note":  "orientation \u0027longitudinal\u0027 only"
+                                 },
+                                 {
+                                     "lineId":  "L37",
+                                     "elementId":  "central-corridor",
+                                     "row":  "S6",
+                                     "value":  "6-24 m (18 m, between the channels)",
+                                     "gameProvenance":  "WIDEZONE-09, RPC-001-22",
+                                     "note":  "\u002730 - 6 - 6\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L38",
+                                     "elementId":  "team-A",
+                                     "row":  "P1",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "RPC-001-01, RPC-001-02, RPC-001-03, GF2-13, GF2-14, GF2-15, NEUTRAL-09, NEUTRAL-10, A01-02-11",
+                                     "note":  "\u00275 players\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L39",
+                                     "elementId":  "team-A",
+                                     "row":  "P2",
+                                     "value":  "4",
+                                     "gameProvenance":  "RPC-001-01, RPC-001-02, RPC-001-03, GF2-13, GF2-14, GF2-15, NEUTRAL-09, NEUTRAL-10, A01-02-11",
+                                     "note":  "\u0027equal to Team B\u0027s\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L40",
+                                     "elementId":  "team-A",
+                                     "row":  "P3",
+                                     "value":  "1",
+                                     "gameProvenance":  "RPC-001-01, RPC-001-02, RPC-001-03, GF2-13, GF2-14, GF2-15, NEUTRAL-09, NEUTRAL-10, A01-02-11",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L41",
+                                     "elementId":  "team-B",
+                                     "row":  "P1",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "RPC-001-01, RPC-001-02, RPC-001-03, GF2-13, GF2-14, GF2-15, NEUTRAL-09, NEUTRAL-10, A01-02-11",
+                                     "note":  "\u0027identical in kind to Team A\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L42",
+                                     "elementId":  "team-B",
+                                     "row":  "P2",
+                                     "value":  "4",
+                                     "gameProvenance":  "RPC-001-01, RPC-001-02, RPC-001-03, GF2-13, GF2-14, GF2-15, NEUTRAL-09, NEUTRAL-10, A01-02-11",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L43",
+                                     "elementId":  "team-B",
+                                     "row":  "P3",
+                                     "value":  "1",
+                                     "gameProvenance":  "RPC-001-01, RPC-001-02, RPC-001-03, GF2-13, GF2-14, GF2-15, NEUTRAL-09, NEUTRAL-10, A01-02-11",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L44",
+                                     "elementId":  "target-players",
+                                     "row":  "P4",
+                                     "value":  "NONE (0 target-player roles, both teams)",
+                                     "gameProvenance":  "RPC-001-05",
+                                     "note":  "\u0027Specifically NOT a drop\u0027; no other P4 role stated"
+                                 },
+                                 {
+                                     "lineId":  "L45",
+                                     "elementId":  "neutrals",
+                                     "row":  "P5",
+                                     "value":  "2",
+                                     "gameProvenance":  "NEUTRAL-01, NEUTRAL-02, NEUTRAL-03, NEUTRAL-04, NEUTRAL-05, NEUTRAL-06, NEUTRAL-07, NEUTRAL-08, NEUTRAL-10, NEUTRAL-17",
+                                     "note":  "\u0027drawn from the fixed 12\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L46",
+                                     "elementId":  "neutrals",
+                                     "row":  "P6a",
+                                     "value":  "POSSESSION_CHANGE",
+                                     "gameProvenance":  "neutrals: NEUTRAL-01..-08, NEUTRAL-10, NEUTRAL-17 (as listed); consequence: NEUTRAL-03, NEUTRAL-12, NEUTRAL-14",
+                                     "note":  "\u0027change of possession\u0027; \u0027always play for the team currently in possession\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L47",
+                                     "elementId":  "neutrals",
+                                     "row":  "P6b",
+                                     "value":  "team now in possession (WON_BALL)",
+                                     "gameProvenance":  "neutrals: NEUTRAL-01..-08, NEUTRAL-10, NEUTRAL-17 (as listed); consequence: NEUTRAL-03, NEUTRAL-12, NEUTRAL-14",
+                                     "note":  "\u0027never for the team out of possession\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L48",
+                                     "elementId":  "neutrals",
+                                     "row":  "P7",
+                                     "value":  "contrasting bibs",
+                                     "gameProvenance":  "NEUTRAL-01, NEUTRAL-02, NEUTRAL-03, NEUTRAL-04, NEUTRAL-05, NEUTRAL-06, NEUTRAL-07, NEUTRAL-08, NEUTRAL-10, NEUTRAL-17",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L49",
+                                     "elementId":  "starting-positions-at-every-restart",
+                                     "row":  "P8",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "RPC-001-04, RPC-001-07, RPC-001-09, RPC-001-18",
+                                     "note":  "stated \u0027at every restart\u0027, not START only"
+                                 },
+                                 {
+                                     "lineId":  "L50",
+                                     "elementId":  "starting-positions-at-every-restart",
+                                     "row":  "P9",
+                                     "value":  "DEFENDING_TEAM (its forward-most defensive line)",
+                                     "gameProvenance":  "RPC-001-04, RPC-001-07, RPC-001-09, RPC-001-18",
+                                     "note":  "\u0027first defenders\u0027 / initial pressure line"
+                                 },
+                                 {
+                                     "lineId":  "L51",
+                                     "elementId":  "starting-positions-at-every-restart",
+                                     "row":  "P10",
+                                     "value":  "no region ref: \u0027between restarting team\u0027s own-half build-out area and the target zones it attacks\u0027",
+                                     "gameProvenance":  "RPC-001-04, RPC-001-07, RPC-001-09, RPC-001-18",
+                                     "note":  "\u0027not marked; only determinable\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L52",
+                                     "elementId":  "ball",
+                                     "row":  "O1",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "RPC-001-10, A01-02-08, A01-02-07, GF2-07, NEUTRAL-12",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L53",
+                                     "elementId":  "ball",
+                                     "row":  "O2",
+                                     "value":  "ball",
+                                     "gameProvenance":  "RPC-001-10, A01-02-08, A01-02-07, GF2-07, NEUTRAL-12",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L54",
+                                     "elementId":  "ball",
+                                     "row":  "O3",
+                                     "value":  "1",
+                                     "gameProvenance":  "RPC-001-10, A01-02-08, A01-02-07, GF2-07, NEUTRAL-12",
+                                     "note":  "\u0027one game object\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L55",
+                                     "elementId":  "ball",
+                                     "row":  "O4",
+                                     "value":  "at goal-kick restart: restarting team\u0027s own half, defended end; otherwise where play takes it",
+                                     "gameProvenance":  "RPC-001-10, A01-02-08, A01-02-07, GF2-07, NEUTRAL-12",
+                                     "note":  "in-play part is play-level"
+                                 },
+                                 {
+                                     "lineId":  "L56",
+                                     "elementId":  "ball",
+                                     "row":  "O5",
+                                     "value":  "UNSTATED",
+                                     "gameProvenance":  "RPC-001-10, A01-02-08, A01-02-07, GF2-07, NEUTRAL-12",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L57",
+                                     "elementId":  "tz-A-north",
+                                     "row":  "O1",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-22, GF2-03, GF2-04, GF2-05, GF2-06, VARTARGET-01, VARTARGET-02, VARTARGET-03",
+                                     "note":  "inactive candidate \u0027stays physically present\u0027 (objectives)"
+                                 },
+                                 {
+                                     "lineId":  "L58",
+                                     "elementId":  "tz-A-north",
+                                     "row":  "O2",
+                                     "value":  "target zone (off-list)",
+                                     "gameProvenance":  "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-22, GF2-03, GF2-04, GF2-05, GF2-06, VARTARGET-01, VARTARGET-02, VARTARGET-03",
+                                     "note":  "\u0027marked target zone\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L59",
+                                     "elementId":  "tz-A-north",
+                                     "row":  "O3",
+                                     "value":  "1",
+                                     "gameProvenance":  "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-22, GF2-03, GF2-04, GF2-05, GF2-06, VARTARGET-01, VARTARGET-02, VARTARGET-03",
+                                     "note":  "singular; no count field stated"
+                                 },
+                                 {
+                                     "lineId":  "L60",
+                                     "elementId":  "tz-A-north",
+                                     "row":  "O4",
+                                     "value":  "37-40 m (east end line, 3 m deep)",
+                                     "gameProvenance":  "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-22, GF2-03, GF2-04, GF2-05, GF2-06, VARTARGET-01, VARTARGET-02, VARTARGET-03",
+                                     "note":  "game calls depth/width \u0027realization values\u0027 left free"
+                                 },
+                                 {
+                                     "lineId":  "L61",
+                                     "elementId":  "tz-A-north",
+                                     "row":  "O5",
+                                     "value":  "0-12 m (outer edge on north touchline)",
+                                     "gameProvenance":  "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-22, GF2-03, GF2-04, GF2-05, GF2-06, VARTARGET-01, VARTARGET-02, VARTARGET-03",
+                                     "note":  "\u0027spans the 6 m north channel plus 6 m of the central corridor\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L62",
+                                     "elementId":  "tz-A-south",
+                                     "row":  "O1",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-22, GF2-03, GF2-04, GF2-05, GF2-06, VARTARGET-01, VARTARGET-02, VARTARGET-03",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L63",
+                                     "elementId":  "tz-A-south",
+                                     "row":  "O2",
+                                     "value":  "target zone (off-list)",
+                                     "gameProvenance":  "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-22, GF2-03, GF2-04, GF2-05, GF2-06, VARTARGET-01, VARTARGET-02, VARTARGET-03",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L64",
+                                     "elementId":  "tz-A-south",
+                                     "row":  "O3",
+                                     "value":  "1",
+                                     "gameProvenance":  "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-22, GF2-03, GF2-04, GF2-05, GF2-06, VARTARGET-01, VARTARGET-02, VARTARGET-03",
+                                     "note":  "singular"
+                                 },
+                                 {
+                                     "lineId":  "L65",
+                                     "elementId":  "tz-A-south",
+                                     "row":  "O4",
+                                     "value":  "37-40 m (east end line, 3 m deep)",
+                                     "gameProvenance":  "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-22, GF2-03, GF2-04, GF2-05, GF2-06, VARTARGET-01, VARTARGET-02, VARTARGET-03",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L66",
+                                     "elementId":  "tz-A-south",
+                                     "row":  "O5",
+                                     "value":  "18-30 m (outer edge on south touchline)",
+                                     "gameProvenance":  "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-22, GF2-03, GF2-04, GF2-05, GF2-06, VARTARGET-01, VARTARGET-02, VARTARGET-03",
+                                     "note":  "\u0027a 6 m unmarked gap separates it from tz-A-north\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L67",
+                                     "elementId":  "tz-B-north",
+                                     "row":  "O1",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-14, RPC-001-22, GF2-03, GF2-04, GF2-06, GF2-11, VARTARGET-01, VARTARGET-02, VARTARGET-03, STANDING-DIRECTION-INVARIANT",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L68",
+                                     "elementId":  "tz-B-north",
+                                     "row":  "O2",
+                                     "value":  "target zone (off-list)",
+                                     "gameProvenance":  "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-14, RPC-001-22, GF2-03, GF2-04, GF2-06, GF2-11, VARTARGET-01, VARTARGET-02, VARTARGET-03, STANDING-DIRECTION-INVARIANT",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L69",
+                                     "elementId":  "tz-B-north",
+                                     "row":  "O3",
+                                     "value":  "1",
+                                     "gameProvenance":  "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-14, RPC-001-22, GF2-03, GF2-04, GF2-06, GF2-11, VARTARGET-01, VARTARGET-02, VARTARGET-03, STANDING-DIRECTION-INVARIANT",
+                                     "note":  "singular"
+                                 },
+                                 {
+                                     "lineId":  "L70",
+                                     "elementId":  "tz-B-north",
+                                     "row":  "O4",
+                                     "value":  "0-3 m (west end line, 3 m deep)",
+                                     "gameProvenance":  "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-14, RPC-001-22, GF2-03, GF2-04, GF2-06, GF2-11, VARTARGET-01, VARTARGET-02, VARTARGET-03, STANDING-DIRECTION-INVARIANT",
+                                     "note":  "\u0027mirrored from tz-A-north\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L71",
+                                     "elementId":  "tz-B-north",
+                                     "row":  "O5",
+                                     "value":  "0-12 m (north side, mirrored)",
+                                     "gameProvenance":  "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-14, RPC-001-22, GF2-03, GF2-04, GF2-06, GF2-11, VARTARGET-01, VARTARGET-02, VARTARGET-03, STANDING-DIRECTION-INVARIANT",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L72",
+                                     "elementId":  "tz-B-south",
+                                     "row":  "O1",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-14, RPC-001-22, GF2-03, GF2-04, GF2-06, GF2-11, VARTARGET-01, VARTARGET-02, VARTARGET-03, STANDING-DIRECTION-INVARIANT",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L73",
+                                     "elementId":  "tz-B-south",
+                                     "row":  "O2",
+                                     "value":  "target zone (off-list)",
+                                     "gameProvenance":  "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-14, RPC-001-22, GF2-03, GF2-04, GF2-06, GF2-11, VARTARGET-01, VARTARGET-02, VARTARGET-03, STANDING-DIRECTION-INVARIANT",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L74",
+                                     "elementId":  "tz-B-south",
+                                     "row":  "O3",
+                                     "value":  "1",
+                                     "gameProvenance":  "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-14, RPC-001-22, GF2-03, GF2-04, GF2-06, GF2-11, VARTARGET-01, VARTARGET-02, VARTARGET-03, STANDING-DIRECTION-INVARIANT",
+                                     "note":  "singular"
+                                 },
+                                 {
+                                     "lineId":  "L75",
+                                     "elementId":  "tz-B-south",
+                                     "row":  "O4",
+                                     "value":  "0-3 m (west end line, 3 m deep)",
+                                     "gameProvenance":  "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-14, RPC-001-22, GF2-03, GF2-04, GF2-06, GF2-11, VARTARGET-01, VARTARGET-02, VARTARGET-03, STANDING-DIRECTION-INVARIANT",
+                                     "note":  "\u0027mirrored from tz-A-south\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L76",
+                                     "elementId":  "tz-B-south",
+                                     "row":  "O5",
+                                     "value":  "18-30 m (south side, mirrored)",
+                                     "gameProvenance":  "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-14, RPC-001-22, GF2-03, GF2-04, GF2-06, GF2-11, VARTARGET-01, VARTARGET-02, VARTARGET-03, STANDING-DIRECTION-INVARIANT",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L77",
+                                     "elementId":  "obj:tz-A-north",
+                                     "row":  "J1",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-TARGET-AVAILABILITY, STANDING-REPRESENTATIVE-OBJECTIVES",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L78",
+                                     "elementId":  "obj:tz-A-north",
+                                     "row":  "J2",
+                                     "value":  "tz-A-north",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-TARGET-AVAILABILITY, STANDING-REPRESENTATIVE-OBJECTIVES",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L79",
+                                     "elementId":  "obj:tz-A-north",
+                                     "row":  "J3",
+                                     "value":  "TEAM_A",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-TARGET-AVAILABILITY, STANDING-REPRESENTATIVE-OBJECTIVES",
+                                     "note":  "object owner: \u0027Team A (the team attacking the east end)\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L80",
+                                     "elementId":  "obj:tz-A-north",
+                                     "row":  "J4",
+                                     "value":  "PRIMARY_SCORING",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-TARGET-AVAILABILITY, STANDING-REPRESENTATIVE-OBJECTIVES",
+                                     "note":  "written \u0027PRIMARY SCORING\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L81",
+                                     "elementId":  "obj:tz-A-south",
+                                     "row":  "J1",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-TARGET-AVAILABILITY, STANDING-REPRESENTATIVE-OBJECTIVES",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L82",
+                                     "elementId":  "obj:tz-A-south",
+                                     "row":  "J2",
+                                     "value":  "tz-A-south",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-TARGET-AVAILABILITY, STANDING-REPRESENTATIVE-OBJECTIVES",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L83",
+                                     "elementId":  "obj:tz-A-south",
+                                     "row":  "J3",
+                                     "value":  "TEAM_A",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-TARGET-AVAILABILITY, STANDING-REPRESENTATIVE-OBJECTIVES",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L84",
+                                     "elementId":  "obj:tz-A-south",
+                                     "row":  "J4",
+                                     "value":  "PRIMARY_SCORING",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-TARGET-AVAILABILITY, STANDING-REPRESENTATIVE-OBJECTIVES",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L85",
+                                     "elementId":  "obj:tz-B-north",
+                                     "row":  "J1",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-DIRECTION-INVARIANT",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L86",
+                                     "elementId":  "obj:tz-B-north",
+                                     "row":  "J2",
+                                     "value":  "tz-B-north",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-DIRECTION-INVARIANT",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L87",
+                                     "elementId":  "obj:tz-B-north",
+                                     "row":  "J3",
+                                     "value":  "TEAM_B",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-DIRECTION-INVARIANT",
+                                     "note":  "object owner: \u0027Team B (the team attacking the west end)\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L88",
+                                     "elementId":  "obj:tz-B-north",
+                                     "row":  "J4",
+                                     "value":  "PRIMARY_SCORING",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-DIRECTION-INVARIANT",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L89",
+                                     "elementId":  "obj:tz-B-south",
+                                     "row":  "J1",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-DIRECTION-INVARIANT",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L90",
+                                     "elementId":  "obj:tz-B-south",
+                                     "row":  "J2",
+                                     "value":  "tz-B-south",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-DIRECTION-INVARIANT",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L91",
+                                     "elementId":  "obj:tz-B-south",
+                                     "row":  "J3",
+                                     "value":  "TEAM_B",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-DIRECTION-INVARIANT",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L92",
+                                     "elementId":  "obj:tz-B-south",
+                                     "row":  "J4",
+                                     "value":  "PRIMARY_SCORING",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-DIRECTION-INVARIANT",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L93",
+                                     "elementId":  "set-A",
+                                     "row":  "J5",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-TARGET-AVAILABILITY, STANDING-REPRESENTATIVE-OBJECTIVES",
+                                     "note":  "set stated in objective \u0027state\u0027 prose; no id"
+                                 },
+                                 {
+                                     "lineId":  "L94",
+                                     "elementId":  "set-A",
+                                     "row":  "J6",
+                                     "value":  "TEAM_A",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-TARGET-AVAILABILITY, STANDING-REPRESENTATIVE-OBJECTIVES",
+                                     "note":  "\u0027this objective group, team-specific\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L95",
+                                     "elementId":  "set-A",
+                                     "row":  "J7",
+                                     "value":  "obj:tz-A-north",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-TARGET-AVAILABILITY, STANDING-REPRESENTATIVE-OBJECTIVES",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L96",
+                                     "elementId":  "set-A",
+                                     "row":  "J7",
+                                     "value":  "obj:tz-A-south",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-TARGET-AVAILABILITY, STANDING-REPRESENTATIVE-OBJECTIVES",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L97",
+                                     "elementId":  "set-A",
+                                     "row":  "J8",
+                                     "value":  "1",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-TARGET-AVAILABILITY, STANDING-REPRESENTATIVE-OBJECTIVES",
+                                     "note":  "\u0027Exactly one ... is active at any instant\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L98",
+                                     "elementId":  "set-A",
+                                     "row":  "J9",
+                                     "value":  "UNSTATED",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-TARGET-AVAILABILITY, STANDING-REPRESENTATIVE-OBJECTIVES",
+                                     "note":  "game: live \u0027from the moment its attack begins\u0027 but \u0027ASSIGNMENT FUNCTION UNRESOLVED\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L99",
+                                     "elementId":  "set-A",
+                                     "row":  "J10",
+                                     "value":  "per attacking episode (no triggers named)",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-TARGET-AVAILABILITY, STANDING-REPRESENTATIVE-OBJECTIVES",
+                                     "note":  "\u0027persistence (re-established per attacking episode)\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L100",
+                                     "elementId":  "set-A",
+                                     "row":  "J11a",
+                                     "value":  "UNSTATED",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-TARGET-AVAILABILITY, STANDING-REPRESENTATIVE-OBJECTIVES",
+                                     "note":  "\u0027ASSIGNMENT FUNCTION UNRESOLVED - see collision 8\u0027; no keys, so no J11b lines"
+                                 },
+                                 {
+                                     "lineId":  "L101",
+                                     "elementId":  "set-A",
+                                     "row":  "J12",
+                                     "value":  "UNSTATED",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-TARGET-AVAILABILITY, STANDING-REPRESENTATIVE-OBJECTIVES",
+                                     "note":  "info-live has the same subject; no link stated"
+                                 },
+                                 {
+                                     "lineId":  "L102",
+                                     "elementId":  "set-B",
+                                     "row":  "J5",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-DIRECTION-INVARIANT",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L103",
+                                     "elementId":  "set-B",
+                                     "row":  "J6",
+                                     "value":  "TEAM_B",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-DIRECTION-INVARIANT",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L104",
+                                     "elementId":  "set-B",
+                                     "row":  "J7",
+                                     "value":  "obj:tz-B-north",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-DIRECTION-INVARIANT",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L105",
+                                     "elementId":  "set-B",
+                                     "row":  "J7",
+                                     "value":  "obj:tz-B-south",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-DIRECTION-INVARIANT",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L106",
+                                     "elementId":  "set-B",
+                                     "row":  "J8",
+                                     "value":  "1",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-DIRECTION-INVARIANT",
+                                     "note":  "\u0027exactly one ... active at any instant\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L107",
+                                     "elementId":  "set-B",
+                                     "row":  "J9",
+                                     "value":  "UNSTATED",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-DIRECTION-INVARIANT",
+                                     "note":  "\u0027Same rule as Team A\u0027s set\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L108",
+                                     "elementId":  "set-B",
+                                     "row":  "J10",
+                                     "value":  "per attacking episode (by \u0027same rule as Team A\u0027s set\u0027)",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-DIRECTION-INVARIANT",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L109",
+                                     "elementId":  "set-B",
+                                     "row":  "J11a",
+                                     "value":  "UNSTATED",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-DIRECTION-INVARIANT",
+                                     "note":  "\u0027the two teams\u0027 assignments are independent\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L110",
+                                     "elementId":  "set-B",
+                                     "row":  "J12",
+                                     "value":  "UNSTATED",
+                                     "gameProvenance":  "RPC-001-11, GF2-08, GF2-09, GF2-10, VARTARGET-02, VARTARGET-06, VARTARGET-07, VARTARGET-08, VARTARGET-09, VARTARGET-13, STANDING-DIRECTION-INVARIANT",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L111",
+                                     "elementId":  "team-A",
+                                     "row":  "DV1",
+                                     "value":  "attacks active member of {tz-A-north, tz-A-south}, east end; defends west end line and Team B\u0027s set",
+                                     "gameProvenance":  "RPC-001-13, RPC-001-14, GF2-10, GF2-11, GF2-13, A01-02-10, VARTARGET-10, STANDING-DIRECTION-INVARIANT, GF2-12-ADAPTED",
+                                     "note":  "VIEW row; \u0027takes its goal kicks from that end\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L112",
+                                     "elementId":  "team-B",
+                                     "row":  "DV1",
+                                     "value":  "attacks active member of {tz-B-north, tz-B-south}, west end; defends east end line and Team A\u0027s set",
+                                     "gameProvenance":  "RPC-001-13, RPC-001-14, GF2-10, GF2-11, GF2-13, A01-02-10, VARTARGET-10, STANDING-DIRECTION-INVARIANT, GF2-12-ADAPTED",
+                                     "note":  "VIEW row"
+                                 },
+                                 {
+                                     "lineId":  "L113",
+                                     "elementId":  "tr-START",
+                                     "row":  "T1",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "RPC-001-02, RPC-001-15, A01-02-04, A01-02-05, A01-02-06, A01-02-07, A01-02-11, NEUTRAL-13",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L114",
+                                     "elementId":  "tr-START",
+                                     "row":  "T2",
+                                     "value":  "TEAM_A (STARTING_TEAM)",
+                                     "gameProvenance":  "RPC-001-02, RPC-001-15, A01-02-04, A01-02-05, A01-02-06, A01-02-07, A01-02-11, NEUTRAL-13",
+                                     "note":  "\u0027Team A is in possession from the first moment\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L115",
+                                     "elementId":  "tr-START",
+                                     "row":  "T3",
+                                     "value":  "goalkeeper of TEAM_A",
+                                     "gameProvenance":  "RPC-001-02, RPC-001-15, A01-02-04, A01-02-05, A01-02-06, A01-02-07, A01-02-11, NEUTRAL-13",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L116",
+                                     "elementId":  "tr-START",
+                                     "row":  "T4",
+                                     "value":  "own-half-A, at the west end line",
+                                     "gameProvenance":  "RPC-001-02, RPC-001-15, A01-02-04, A01-02-05, A01-02-06, A01-02-07, A01-02-11, NEUTRAL-13",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L117",
+                                     "elementId":  "tr-START",
+                                     "row":  "T5",
+                                     "value":  "STATIONARY_BALL (\u0027goal kick\u0027; \u0027Ball stationary\u0027)",
+                                     "gameProvenance":  "RPC-001-02, RPC-001-15, A01-02-04, A01-02-05, A01-02-06, A01-02-07, A01-02-11, NEUTRAL-13",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L118",
+                                     "elementId":  "tr-START",
+                                     "row":  "T6",
+                                     "value":  "STOP_RESUME (\u0027play stopped then resumed\u0027)",
+                                     "gameProvenance":  "start: RPC-001-02, RPC-001-15, A01-02-04, A01-02-05, A01-02-06, A01-02-07, A01-02-11, NEUTRAL-13; play state: A01-02-04",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L119",
+                                     "elementId":  "tr-START",
+                                     "row":  "T7",
+                                     "value":  "UNSTATED",
+                                     "gameProvenance":  "RPC-001-02, RPC-001-15, A01-02-04, A01-02-05, A01-02-06, A01-02-07, A01-02-11, NEUTRAL-13",
+                                     "note":  "game: \u0027period therefore begins inside the Practice Situation\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L120",
+                                     "elementId":  "tr-SCORE",
+                                     "row":  "T1",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "RPC-001-16, A01-02-01, A01-02-02, A01-02-04, A01-02-05, A01-02-07, A01-02-12",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L121",
+                                     "elementId":  "tr-SCORE",
+                                     "row":  "T2",
+                                     "value":  "CONCEDING_TEAM",
+                                     "gameProvenance":  "RPC-001-16, A01-02-01, A01-02-02, A01-02-04, A01-02-05, A01-02-07, A01-02-12",
+                                     "note":  "\u0027the team defending the end where the score occurred\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L122",
+                                     "elementId":  "tr-SCORE",
+                                     "row":  "T3",
+                                     "value":  "goalkeeper, or UNSTATED (alt: \u0027from within its own half\u0027)",
+                                     "gameProvenance":  "RPC-001-16, A01-02-01, A01-02-02, A01-02-04, A01-02-05, A01-02-07, A01-02-12",
+                                     "note":  "\u0027from its goalkeeper or from within its own half\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L123",
+                                     "elementId":  "tr-SCORE",
+                                     "row":  "T4",
+                                     "value":  "CONCEDING_TEAM\u0027s own half, at that end",
+                                     "gameProvenance":  "RPC-001-16, A01-02-01, A01-02-02, A01-02-04, A01-02-05, A01-02-07, A01-02-12",
+                                     "note":  "own-half-A or own-half-B"
+                                 },
+                                 {
+                                     "lineId":  "L124",
+                                     "elementId":  "tr-SCORE",
+                                     "row":  "T5",
+                                     "value":  "STATIONARY_BALL (\u0027goal kick\u0027)",
+                                     "gameProvenance":  "restart after score: RPC-001-16, A01-02-01, A01-02-02, A01-02-04, A01-02-05, A01-02-07, A01-02-12; play state: A01-02-04",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L125",
+                                     "elementId":  "tr-SCORE",
+                                     "row":  "T6",
+                                     "value":  "STOP_RESUME",
+                                     "gameProvenance":  "play state at every restart: A01-02-04",
+                                     "note":  "\u0027Every restart above is a stoppage-and-resume\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L126",
+                                     "elementId":  "tr-SCORE",
+                                     "row":  "T7",
+                                     "value":  "true",
+                                     "gameProvenance":  "re-establishes: RPC-001-15, RPC-001-16, A01-02-03, NEUTRAL-13, NEUTRAL-14, RPC-001-04; turn structure: GF2-18",
+                                     "note":  "\u0027the next attack starts\u0027; episode \u0027begins because the other team scored\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L127",
+                                     "elementId":  "tr-OEL-att",
+                                     "row":  "T1",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "GF2-16, A01-02-01, A01-02-02, A01-02-05, A01-02-07, RPC-001-16, VARTARGET-12",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L128",
+                                     "elementId":  "tr-OEL-att",
+                                     "row":  "T1a",
+                                     "value":  "ATTACKING_TEAM",
+                                     "gameProvenance":  "GF2-16, A01-02-01, A01-02-02, A01-02-05, A01-02-07, RPC-001-16, VARTARGET-12",
+                                     "note":  "slot: \u0027attacking team last touch\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L129",
+                                     "elementId":  "tr-OEL-att",
+                                     "row":  "T1b",
+                                     "value":  "UNSTATED",
+                                     "gameProvenance":  "GF2-16, A01-02-01, A01-02-02, A01-02-05, A01-02-07, RPC-001-16, VARTARGET-12",
+                                     "note":  "implied: the end the non-toucher defends"
+                                 },
+                                 {
+                                     "lineId":  "L130",
+                                     "elementId":  "tr-OEL-att",
+                                     "row":  "T2",
+                                     "value":  "team defending that end (= NOT_LAST_TOUCH)",
+                                     "gameProvenance":  "GF2-16, A01-02-01, A01-02-02, A01-02-05, A01-02-07, RPC-001-16, VARTARGET-12",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L131",
+                                     "elementId":  "tr-OEL-att",
+                                     "row":  "T3",
+                                     "value":  "goalkeeper, or UNSTATED (alt: \u0027within its own half\u0027)",
+                                     "gameProvenance":  "GF2-16, A01-02-01, A01-02-02, A01-02-05, A01-02-07, RPC-001-16, VARTARGET-12",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L132",
+                                     "elementId":  "tr-OEL-att",
+                                     "row":  "T4",
+                                     "value":  "awardee\u0027s own half, at that end",
+                                     "gameProvenance":  "GF2-16, A01-02-01, A01-02-02, A01-02-05, A01-02-07, RPC-001-16, VARTARGET-12",
+                                     "note":  "\u0027RPC-001-16 fixes the location\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L133",
+                                     "elementId":  "tr-OEL-att",
+                                     "row":  "T5",
+                                     "value":  "STATIONARY_BALL (\u0027the goal-kick case\u0027)",
+                                     "gameProvenance":  "out over end line, attacking last touch: GF2-16, A01-02-01, A01-02-02, A01-02-05, A01-02-07, RPC-001-16, VARTARGET-12; play state: A01-02-04",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L134",
+                                     "elementId":  "tr-OEL-att",
+                                     "row":  "T6",
+                                     "value":  "STOP_RESUME",
+                                     "gameProvenance":  "play state at every restart: A01-02-04",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L135",
+                                     "elementId":  "tr-OEL-att",
+                                     "row":  "T7",
+                                     "value":  "true",
+                                     "gameProvenance":  "re-establishes: RPC-001-15, RPC-001-16, A01-02-03, NEUTRAL-13, NEUTRAL-14, RPC-001-04; turn structure: GF2-18",
+                                     "note":  "episode begins because the other team \u0027forced the ball out\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L136",
+                                     "elementId":  "tr-OEL-def",
+                                     "row":  "T1",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "GF2-16, RPC-001-16",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L137",
+                                     "elementId":  "tr-OEL-def",
+                                     "row":  "T1a",
+                                     "value":  "DEFENDING_TEAM",
+                                     "gameProvenance":  "GF2-16, RPC-001-16",
+                                     "note":  "slot: \u0027defending team last touch\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L138",
+                                     "elementId":  "tr-OEL-def",
+                                     "row":  "T1b",
+                                     "value":  "UNSTATED",
+                                     "gameProvenance":  "GF2-16, RPC-001-16",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L139",
+                                     "elementId":  "tr-OEL-def",
+                                     "row":  "T2",
+                                     "value":  "ATTACKING_TEAM (= NOT_LAST_TOUCH)",
+                                     "gameProvenance":  "GF2-16, RPC-001-16",
+                                     "note":  "\u0027Awarded to the attacking team (GF2-16)\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L140",
+                                     "elementId":  "tr-OEL-def",
+                                     "row":  "T3",
+                                     "value":  "goalkeeper, or UNSTATED (alt: \u0027within its own half\u0027)",
+                                     "gameProvenance":  "GF2-16, RPC-001-16",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L141",
+                                     "elementId":  "tr-OEL-def",
+                                     "row":  "T4",
+                                     "value":  "ATTACKING_TEAM\u0027s own half",
+                                     "gameProvenance":  "GF2-16, RPC-001-16",
+                                     "note":  "\u0027pull the ball in opposite directions along the field\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L142",
+                                     "elementId":  "tr-OEL-def",
+                                     "row":  "T5",
+                                     "value":  "STATIONARY_BALL",
+                                     "gameProvenance":  "play state at every restart: A01-02-04",
+                                     "note":  "\u0027from a stationary ball\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L143",
+                                     "elementId":  "tr-OEL-def",
+                                     "row":  "T6",
+                                     "value":  "STOP_RESUME",
+                                     "gameProvenance":  "play state at every restart: A01-02-04",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L144",
+                                     "elementId":  "tr-OEL-def",
+                                     "row":  "T7",
+                                     "value":  "true",
+                                     "gameProvenance":  "re-establishes: RPC-001-15, RPC-001-16, A01-02-03, NEUTRAL-13, NEUTRAL-14, RPC-001-04; turn structure: GF2-18",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L145",
+                                     "elementId":  "tr-OTL",
+                                     "row":  "T1",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "GF2-16, RPC-001-16",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L146",
+                                     "elementId":  "tr-OTL",
+                                     "row":  "T2",
+                                     "value":  "NOT_LAST_TOUCH",
+                                     "gameProvenance":  "GF2-16, RPC-001-16",
+                                     "note":  "\u0027the team that did not touch it last\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L147",
+                                     "elementId":  "tr-OTL",
+                                     "row":  "T3",
+                                     "value":  "goalkeeper, or UNSTATED (alt: \u0027within its own half\u0027)",
+                                     "gameProvenance":  "GF2-16, RPC-001-16",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L148",
+                                     "elementId":  "tr-OTL",
+                                     "row":  "T4",
+                                     "value":  "NOT_LAST_TOUCH\u0027s own half",
+                                     "gameProvenance":  "GF2-16, RPC-001-16",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L149",
+                                     "elementId":  "tr-OTL",
+                                     "row":  "T5",
+                                     "value":  "STATIONARY_BALL",
+                                     "gameProvenance":  "play state at every restart: A01-02-04",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L150",
+                                     "elementId":  "tr-OTL",
+                                     "row":  "T6",
+                                     "value":  "STOP_RESUME",
+                                     "gameProvenance":  "play state at every restart: A01-02-04",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L151",
+                                     "elementId":  "tr-OTL",
+                                     "row":  "T7",
+                                     "value":  "true",
+                                     "gameProvenance":  "re-establishes: RPC-001-15, RPC-001-16, A01-02-03, NEUTRAL-13, NEUTRAL-14, RPC-001-04; turn structure: GF2-18",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L152",
+                                     "elementId":  "tr-PC",
+                                     "row":  "T1",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "RPC-001-16, RPC-001-17, A01-02-04, GF2-17-ADAPTED, NEUTRAL-14",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L153",
+                                     "elementId":  "tr-PC",
+                                     "row":  "T2",
+                                     "value":  "WON_BALL",
+                                     "gameProvenance":  "RPC-001-16, RPC-001-17, A01-02-04, GF2-17-ADAPTED, NEUTRAL-14",
+                                     "note":  "\u0027the team that won the ball restarts\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L154",
+                                     "elementId":  "tr-PC",
+                                     "row":  "T3",
+                                     "value":  "goalkeeper, or UNSTATED (alt: \u0027within its own half\u0027)",
+                                     "gameProvenance":  "RPC-001-16, RPC-001-17, A01-02-04, GF2-17-ADAPTED, NEUTRAL-14",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L155",
+                                     "elementId":  "tr-PC",
+                                     "row":  "T4",
+                                     "value":  "WON_BALL\u0027s own half",
+                                     "gameProvenance":  "RPC-001-16, RPC-001-17, A01-02-04, GF2-17-ADAPTED, NEUTRAL-14",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L156",
+                                     "elementId":  "tr-PC",
+                                     "row":  "T5",
+                                     "value":  "STATIONARY_BALL",
+                                     "gameProvenance":  "play state at every restart: A01-02-04",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L157",
+                                     "elementId":  "tr-PC",
+                                     "row":  "T6",
+                                     "value":  "STOP_RESUME (\u0027Play stops\u0027)",
+                                     "gameProvenance":  "turnover: RPC-001-16, RPC-001-17, A01-02-04, GF2-17-ADAPTED, NEUTRAL-14; play state: A01-02-04",
+                                     "note":  "game says GF2-17 continue is adapted away"
+                                 },
+                                 {
+                                     "lineId":  "L158",
+                                     "elementId":  "tr-PC",
+                                     "row":  "T7",
+                                     "value":  "true",
+                                     "gameProvenance":  "turnover: RPC-001-16, RPC-001-17, A01-02-04, GF2-17-ADAPTED, NEUTRAL-14; re-establishes: RPC-001-15, RPC-001-16, A01-02-03, NEUTRAL-13, NEUTRAL-14, RPC-001-04; turn structure: GF2-18",
+                                     "note":  "\u0027Loss of possession is a defined end of the attacking episode\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L159",
+                                     "elementId":  "pe",
+                                     "row":  "V0",
+                                     "value":  "EXISTS, exactly one",
+                                     "gameProvenance":  "primary event: RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16; second route: RPC-001-12, GF2-20, VARTARGET-12, WIDEZONE-16, A01-02-12",
+                                     "note":  "\u0027ONE event\u0027; \u0027no second independent way to score\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L160",
+                                     "elementId":  "pe",
+                                     "row":  "V1",
+                                     "value":  "target_zone_entered",
+                                     "gameProvenance":  "RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16",
+                                     "note":  "literal stated in objects[].kind of the four zones"
+                                 },
+                                 {
+                                     "lineId":  "L161",
+                                     "elementId":  "pe",
+                                     "row":  "V2",
+                                     "value":  "1",
+                                     "gameProvenance":  "RPC-001-20",
+                                     "note":  "\u0027One point per qualifying event\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L162",
+                                     "elementId":  "cond-origin",
+                                     "row":  "V3",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16",
+                                     "note":  "split from primary-event statement"
+                                 },
+                                 {
+                                     "lineId":  "L163",
+                                     "elementId":  "cond-origin",
+                                     "row":  "V4",
+                                     "value":  "origin",
+                                     "gameProvenance":  "RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L164",
+                                     "elementId":  "cond-origin",
+                                     "row":  "V5",
+                                     "value":  "scoring team\u0027s goalkeeper (restart placement)",
+                                     "gameProvenance":  "RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L165",
+                                     "elementId":  "cond-origin",
+                                     "row":  "V5",
+                                     "value":  "scoring team\u0027s own half (own-half-A | own-half-B)",
+                                     "gameProvenance":  "RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L166",
+                                     "elementId":  "cond-origin",
+                                     "row":  "V6",
+                                     "value":  "\u0027initiated from that team\u0027s goalkeeper or a controlled restart in its own half\u0027",
+                                     "gameProvenance":  "RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L167",
+                                     "elementId":  "cond-progression",
+                                     "row":  "V3",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16",
+                                     "note":  "split from primary-event statement"
+                                 },
+                                 {
+                                     "lineId":  "L168",
+                                     "elementId":  "cond-progression",
+                                     "row":  "V4",
+                                     "value":  "progression",
+                                     "gameProvenance":  "RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L169",
+                                     "elementId":  "cond-progression",
+                                     "row":  "V5",
+                                     "value":  "opposing first defenders / initial pressure line (starting-positions-at-every-restart)",
+                                     "gameProvenance":  "RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16",
+                                     "note":  "referent is a defenders\u0027 line"
+                                 },
+                                 {
+                                     "lineId":  "L170",
+                                     "elementId":  "cond-progression",
+                                     "row":  "V6",
+                                     "value":  "beyond",
+                                     "gameProvenance":  "RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16",
+                                     "note":  "\u0027having progressed beyond\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L171",
+                                     "elementId":  "cond-control",
+                                     "row":  "V3",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16",
+                                     "note":  "split from primary-event statement"
+                                 },
+                                 {
+                                     "lineId":  "L172",
+                                     "elementId":  "cond-control",
+                                     "row":  "V4",
+                                     "value":  "control",
+                                     "gameProvenance":  "RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L173",
+                                     "elementId":  "cond-control",
+                                     "row":  "V5",
+                                     "value":  "the active target zone",
+                                     "gameProvenance":  "RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L174",
+                                     "elementId":  "cond-control",
+                                     "row":  "V6",
+                                     "value":  "\u0027controlled on arrival\u0027 (\u0027dribbles into, or receives ... and controls it\u0027)",
+                                     "gameProvenance":  "RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L175",
+                                     "elementId":  "cond-eligibility",
+                                     "row":  "V3",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "primary event: RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16; second route: RPC-001-12, GF2-20, VARTARGET-12, WIDEZONE-16, A01-02-12",
+                                     "note":  "split: \u0027currently ACTIVE target zone\u0027; \u0027no value ... on an inactive candidate\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L176",
+                                     "elementId":  "cond-eligibility",
+                                     "row":  "V4",
+                                     "value":  "eligibility",
+                                     "gameProvenance":  "primary event: RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16; second route: RPC-001-12, GF2-20, VARTARGET-12, WIDEZONE-16, A01-02-12",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L177",
+                                     "elementId":  "cond-eligibility",
+                                     "row":  "V5",
+                                     "value":  "active member of scoring team\u0027s set (set-A | set-B)",
+                                     "gameProvenance":  "primary event: RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16; second route: RPC-001-12, GF2-20, VARTARGET-12, WIDEZONE-16, A01-02-12",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L178",
+                                     "elementId":  "cond-eligibility",
+                                     "row":  "V6",
+                                     "value":  "active at the moment of the event; scorer a player of the team in possession",
+                                     "gameProvenance":  "primary event: RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16; second route: RPC-001-12, GF2-20, VARTARGET-12, WIDEZONE-16, A01-02-12",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L179",
+                                     "elementId":  "cond-exclusion",
+                                     "row":  "V3",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "primary event: RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16; bypass: RPC-001-19",
+                                     "note":  "split from coach form + \u0027exclusion - degenerate bypass\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L180",
+                                     "elementId":  "cond-exclusion",
+                                     "row":  "V4",
+                                     "value":  "exclusion",
+                                     "gameProvenance":  "primary event: RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16; bypass: RPC-001-19",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L181",
+                                     "elementId":  "cond-exclusion",
+                                     "row":  "V5",
+                                     "value":  "the target zone",
+                                     "gameProvenance":  "primary event: RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16; bypass: RPC-001-19",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L182",
+                                     "elementId":  "cond-exclusion",
+                                     "row":  "V6",
+                                     "value":  "\u0027long kick\u0027 (uncontrolled long kick or clearance) does not count",
+                                     "gameProvenance":  "primary event: RPC-001-18, RPC-001-08, RPC-001-10, GF2-06, GF2-19, VARTARGET-11, RPC-001-16; bypass: RPC-001-19",
+                                     "note":  "\u0027no authored threshold exists for long kick\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L183",
+                                     "elementId":  "mod-wide",
+                                     "row":  "V7",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "WIDEZONE-11, WIDEZONE-12, WIDEZONE-13, WIDEZONE-14, WIDEZONE-15, WIDEZONE-16, RPC-001-20",
+                                     "note":  "\u0027A scoring multiplier on the primary event\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L184",
+                                     "elementId":  "mod-wide",
+                                     "row":  "V8a",
+                                     "value":  "region",
+                                     "gameProvenance":  "WIDEZONE-11, WIDEZONE-12, WIDEZONE-13, WIDEZONE-14, WIDEZONE-15, WIDEZONE-16, RPC-001-20",
+                                     "note":  "\u0027action starts inside, or moves through\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L185",
+                                     "elementId":  "mod-wide",
+                                     "row":  "V8b",
+                                     "value":  "channel-north",
+                                     "gameProvenance":  "WIDEZONE-11, WIDEZONE-12, WIDEZONE-13, WIDEZONE-14, WIDEZONE-15, WIDEZONE-16, RPC-001-20",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L186",
+                                     "elementId":  "mod-wide",
+                                     "row":  "V8b",
+                                     "value":  "channel-south",
+                                     "gameProvenance":  "WIDEZONE-11, WIDEZONE-12, WIDEZONE-13, WIDEZONE-14, WIDEZONE-15, WIDEZONE-16, RPC-001-20",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L187",
+                                     "elementId":  "mod-wide",
+                                     "row":  "V9",
+                                     "value":  "UNSTATED (a multiplier; size unstated)",
+                                     "gameProvenance":  "WIDEZONE-11, WIDEZONE-12, WIDEZONE-13, WIDEZONE-14, WIDEZONE-15, WIDEZONE-16, RPC-001-20",
+                                     "note":  "\u0027MAGNITUDE UNRESOLVED - see collision 7\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L188",
+                                     "elementId":  "mod-wide",
+                                     "row":  "V10",
+                                     "value":  "UNSTATED",
+                                     "gameProvenance":  "WIDEZONE-11, WIDEZONE-12, WIDEZONE-13, WIDEZONE-14, WIDEZONE-15, WIDEZONE-16, RPC-001-20",
+                                     "note":  "only modifier stated; no combination rule"
+                                 },
+                                 {
+                                     "lineId":  "L189",
+                                     "elementId":  "cons-neutral",
+                                     "row":  "V11",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "NEUTRAL-03, NEUTRAL-12, NEUTRAL-14",
+                                     "note":  "duplicates P6a/P6b content"
+                                 },
+                                 {
+                                     "lineId":  "L190",
+                                     "elementId":  "cons-neutral",
+                                     "row":  "V12",
+                                     "value":  "POSSESSION_CHANGE",
+                                     "gameProvenance":  "NEUTRAL-03, NEUTRAL-12, NEUTRAL-14",
+                                     "note":  "\u0027change of possession\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L191",
+                                     "elementId":  "cons-neutral",
+                                     "row":  "V13",
+                                     "value":  "neutral affiliation (off-list)",
+                                     "gameProvenance":  "NEUTRAL-03, NEUTRAL-12, NEUTRAL-14",
+                                     "note":  "\u0027all neutrals become teammates of the team now in possession\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L192",
+                                     "elementId":  "cons-neutral",
+                                     "row":  "V14a",
+                                     "value":  "team now in possession (WON_BALL)",
+                                     "gameProvenance":  "NEUTRAL-03, NEUTRAL-12, NEUTRAL-14",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L193",
+                                     "elementId":  "cons-neutral",
+                                     "row":  "V14c",
+                                     "value":  "UNSTATED",
+                                     "gameProvenance":  "NEUTRAL-03, NEUTRAL-12, NEUTRAL-14",
+                                     "note":  "\u00276 v 4 in open play\u0027; no delta stated"
+                                 },
+                                 {
+                                     "lineId":  "L194",
+                                     "elementId":  "cons-reset",
+                                     "row":  "V11",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "RPC-001-16, RPC-001-17, GF2-23",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L195",
+                                     "elementId":  "cons-reset",
+                                     "row":  "V12",
+                                     "value":  "SCORE | OUT_END_LINE | OUT_TOUCHLINE | POSSESSION_CHANGE",
+                                     "gameProvenance":  "RPC-001-16, RPC-001-17, GF2-23",
+                                     "note":  "\u0027any score, ball out of play, or turnover\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L196",
+                                     "elementId":  "cons-reset",
+                                     "row":  "V13",
+                                     "value":  "re-establish begin condition (off-list)",
+                                     "gameProvenance":  "RPC-001-16, RPC-001-17, GF2-23",
+                                     "note":  "\u0027reorganizing space, roles, access and threat\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L197",
+                                     "elementId":  "cons-reset",
+                                     "row":  "V14a",
+                                     "value":  "restarting team (\u0027as set per restart above\u0027)",
+                                     "gameProvenance":  "RPC-001-16, RPC-001-17, GF2-23",
+                                     "note":  "= T2 of each transition"
+                                 },
+                                 {
+                                     "lineId":  "L198",
+                                     "elementId":  "info-live",
+                                     "row":  "V15",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "VARTARGET-08, VARTARGET-13, VARTARGET-14, VARTARGET-15, VARTARGET-16, VARTARGET-17, VARTARGET-09",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L199",
+                                     "elementId":  "info-live",
+                                     "row":  "V16",
+                                     "value":  "which member of a team\u0027s candidate set is active (set-A, set-B)",
+                                     "gameProvenance":  "VARTARGET-08, VARTARGET-13, VARTARGET-14, VARTARGET-15, VARTARGET-16, VARTARGET-17, VARTARGET-09",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L200",
+                                     "elementId":  "info-live",
+                                     "row":  "V17",
+                                     "value":  "UNSTATED",
+                                     "gameProvenance":  "VARTARGET-08, VARTARGET-13, VARTARGET-14, VARTARGET-15, VARTARGET-16, VARTARGET-17, VARTARGET-09",
+                                     "note":  "game gives trigger kinds only (see V18)"
+                                 },
+                                 {
+                                     "lineId":  "L201",
+                                     "elementId":  "info-live",
+                                     "row":  "V18",
+                                     "value":  "STATE_TRANSITION | OPPONENT_ACTION",
+                                     "gameProvenance":  "VARTARGET-08, VARTARGET-13, VARTARGET-14, VARTARGET-15, VARTARGET-16, VARTARGET-17, VARTARGET-09",
+                                     "note":  "\u0027a state transition or an opponent action\u0027; coach cue \u0027not used\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L202",
+                                     "elementId":  "info-live",
+                                     "row":  "V19",
+                                     "value":  "UNSTATED",
+                                     "gameProvenance":  "VARTARGET-08, VARTARGET-13, VARTARGET-14, VARTARGET-15, VARTARGET-16, VARTARGET-17, VARTARGET-09",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L203",
+                                     "elementId":  "info-live",
+                                     "row":  "V20",
+                                     "value":  "IMMEDIATE | STAGED",
+                                     "gameProvenance":  "VARTARGET-08, VARTARGET-13, VARTARGET-14, VARTARGET-15, VARTARGET-16, VARTARGET-17, VARTARGET-09",
+                                     "note":  "\u0027Reveal progression: immediate or staged\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L204",
+                                     "elementId":  "info-live",
+                                     "row":  "V21",
+                                     "value":  "UNSTATED",
+                                     "gameProvenance":  "VARTARGET-08, VARTARGET-13, VARTARGET-14, VARTARGET-15, VARTARGET-16, VARTARGET-17, VARTARGET-09",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L205",
+                                     "elementId":  "info-live",
+                                     "row":  "V22",
+                                     "value":  "UNSTATED",
+                                     "gameProvenance":  "VARTARGET-08, VARTARGET-13, VARTARGET-14, VARTARGET-15, VARTARGET-16, VARTARGET-17, VARTARGET-09",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L206",
+                                     "elementId":  "info-wide",
+                                     "row":  "V15",
+                                     "value":  "EXISTS",
+                                     "gameProvenance":  "WIDEZONE-17",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L207",
+                                     "elementId":  "info-wide",
+                                     "row":  "V16",
+                                     "value":  "wide channels and their advantage (channel-north, channel-south, mod-wide)",
+                                     "gameProvenance":  "WIDEZONE-17",
+                                     "note":  ""
+                                 },
+                                 {
+                                     "lineId":  "L208",
+                                     "elementId":  "info-wide",
+                                     "row":  "V17",
+                                     "value":  "STANDING",
+                                     "gameProvenance":  "WIDEZONE-17",
+                                     "note":  "\u0027for the whole activity ... Nothing ... hidden or revealed\u0027"
+                                 },
+                                 {
+                                     "lineId":  "L209",
+                                     "elementId":  "info-wide",
+                                     "row":  "V22",
+                                     "value":  "both teams",
+                                     "gameProvenance":  "WIDEZONE-17",
+                                     "note":  "\u0027openly known information for both teams\u0027; D006-D011 not stated"
+                                 },
+                                 {
+                                     "lineId":  "L210",
+                                     "elementId":  "tw-none",
+                                     "row":  "V23",
+                                     "value":  "NONE (0 elements)",
+                                     "gameProvenance":  "RPC-001-EXPLICIT-NONE, GF2-EXPLICIT-NONE, A01-02-EXPLICIT-NONE, NEUTRAL-EXPLICIT-NONE, WIDEZONE-EXPLICIT-NONE, VARTARGET-EXPLICIT-NONE",
+                                     "note":  "\u0027The only clock is the fixed 20-minute envelope\u0027"
+                                 }
+                             ],
+                   "designationMap":  [
+                                          {
+                                              "designation":  "TEAM_A / TEAM_B",
+                                              "context":  "whole game",
+                                              "team":  "Team A attacks the east end (tz-A-*), defends west, own-half-A; Team B mirrored (west, own-half-B)"
+                                          },
+                                          {
+                                              "designation":  "STARTING_TEAM",
+                                              "context":  "START",
+                                              "team":  "Team A (game fixes it)"
+                                          },
+                                          {
+                                              "designation":  "ATTACKING_TEAM",
+                                              "context":  "any episode; OUT_* qualifiers; primary event \u0027team in possession\u0027",
+                                              "team":  "the team in possession for the episode: A when A has the ball, else B"
+                                          },
+                                          {
+                                              "designation":  "DEFENDING_TEAM",
+                                              "context":  "any episode; P9; OUT_END_LINE qualifier",
+                                              "team":  "the team not in possession (B when A attacks, A when B attacks)"
+                                          },
+                                          {
+                                              "designation":  "SCORING_TEAM / CONCEDING_TEAM",
+                                              "context":  "SCORE; mod-wide \u0027team performing the action\u0027",
+                                              "team":  "score at east end: A scores, B concedes; at west end: B scores, A concedes"
+                                          },
+                                          {
+                                              "designation":  "\u0027team defending that end\u0027",
+                                              "context":  "OUT_END_LINE",
+                                              "team":  "west end line: Team A; east end line: Team B"
+                                          },
+                                          {
+                                              "designation":  "WON_BALL / LOST_BALL",
+                                              "context":  "POSSESSION_CHANGE; cons-neutral \u0027team now in possession\u0027",
+                                              "team":  "the team that gains the ball / the team that loses it"
+                                          },
+                                          {
+                                              "designation":  "LAST_TOUCH / NOT_LAST_TOUCH",
+                                              "context":  "OUT_END_LINE, OUT_TOUCHLINE",
+                                              "team":  "team that touched the ball last / the other team"
+                                          },
+                                          {
+                                              "designation":  "BUILD_OUT_TEAM (\u0027restarting team\u0027)",
+                                              "context":  "every restart; P10; cons-reset",
+                                              "team":  "the T2 awardee of that transition (START: Team A); not used literally by the game"
+                                          },
+                                          {
+                                              "designation":  "neutrals\u0027 team",
+                                              "context":  "whole game",
+                                              "team":  "not a designation: the team currently in possession (START: Team A)"
+                                          }
+                                      ],
+                   "ledger":  [
+                                  {
+                                      "ref":  "S3 area",
+                                      "class":  "VOCABULARY",
+                                      "schemaScope":  "N/A",
+                                      "what":  "region noun \u0027area\u0027",
+                                      "detail":  "\u0027single rectangular playing area\u0027 is not in the S3 draft list (band, channel, corridor, zone, half, third)"
+                                  },
+                                  {
+                                      "ref":  "S2 area",
+                                      "class":  "SCHEMA",
+                                      "schemaScope":  "LOCAL",
+                                      "what":  "occupancy / partition",
+                                      "detail":  "\u0027shared occupancy, no partition or separating boundary\u0027: no row holds occupancy or partition"
+                                  },
+                                  {
+                                      "ref":  "S2 marking",
+                                      "class":  "SCHEMA",
+                                      "schemaScope":  "LOCAL",
+                                      "what":  "marked vs determinable",
+                                      "detail":  "own halves \u0027need not be marked\u0027, corridor \u0027unmarked\u0027, zones \u0027marked\u0027, defending line \u0027not marked\u0027: no row holds marking"
+                                  },
+                                  {
+                                      "ref":  "S2 own halves",
+                                      "class":  "SCHEMA",
+                                      "schemaScope":  "LOCAL",
+                                      "what":  "region team ownership",
+                                      "detail":  "\u0027own-half start area for Team A/B\u0027: regions have no team attribute (selector attrs are noun and functions only)"
+                                  },
+                                  {
+                                      "ref":  "S4 channels, corridor",
+                                      "class":  "VOCABULARY",
+                                      "schemaScope":  "N/A",
+                                      "what":  "function wording",
+                                      "detail":  "\u0027reference/advantage\u0027 mapped to perceptual-reference and value-condition; corridor\u0027s \u0027residual playable space\u0027 has no function value"
+                                  },
+                                  {
+                                      "ref":  "S2 channels",
+                                      "class":  "SCHEMA",
+                                      "schemaScope":  "LOCAL",
+                                      "what":  "game-held exclusion",
+                                      "detail":  "channels \u0027NOT restricted, exclusive or entry-prohibited\u0027; entry \u0027never compulsory\u0027: the game has no exclusion rows (spec 5.8 keeps exclusions in contracts)"
+                                  },
+                                  {
+                                      "ref":  "O2 zones",
+                                      "class":  "VOCABULARY",
+                                      "schemaScope":  "N/A",
+                                      "what":  "object kind \u0027target zone\u0027",
+                                      "detail":  "not in the O2 draft list (ball, goal, line, gate); the game holds zones as objects, not regions"
+                                  },
+                                  {
+                                      "ref":  "O owner",
+                                      "class":  "SCHEMA",
+                                      "schemaScope":  "LOCAL",
+                                      "what":  "objects[].owner",
+                                      "detail":  "zone owner (Team A/B) and ball owner stated; no owner row (zone owner duplicates J3)"
+                                  },
+                                  {
+                                      "ref":  "O ball",
+                                      "class":  "KNOWLEDGE",
+                                      "schemaScope":  "N/A",
+                                      "what":  "possession state",
+                                      "detail":  "outside boundary: ball \u0027possession/control state decidable ... continuously\u0027; ownership \u0027changes through opposed play\u0027"
+                                  },
+                                  {
+                                      "ref":  "O4 zones, DV1",
+                                      "class":  "KNOWLEDGE",
+                                      "schemaScope":  "N/A",
+                                      "what":  "relative to defenders / progression",
+                                      "detail":  "outside boundary: zones \u0027beyond Team B\u0027s first defenders\u0027; which zone is live \u0027changes where the attack must progress\u0027; access \u0027not equally reachable\u0027"
+                                  },
+                                  {
+                                      "ref":  "P1 teams",
+                                      "class":  "KNOWLEDGE",
+                                      "schemaScope":  "N/A",
+                                      "what":  "GK and opposition play",
+                                      "detail":  "outside boundary: GK \u0027holds controlled possession ... remains a legal, reachable receiving option\u0027; \u0027live opposition ... never passive\u0027"
+                                  },
+                                  {
+                                      "ref":  "P5 neutrals",
+                                      "class":  "SCHEMA",
+                                      "schemaScope":  "LOCAL",
+                                      "what":  "persistence of neutrals",
+                                      "detail":  "\u0027persistent active outfield participants ... (not rotated)\u0027, \u0027never fixed to one team\u0027: no row"
+                                  },
+                                  {
+                                      "ref":  "P5 neutrals",
+                                      "class":  "KNOWLEDGE",
+                                      "schemaScope":  "N/A",
+                                      "what":  "neutral play role, superiority",
+                                      "detail":  "outside boundary: \u0027live receiving and supporting option\u0027; \u00276 against 4 ... whichever side has the ball\u0027; re-affiliation during dead ball"
+                                  },
+                                  {
+                                      "ref":  "P6a/P6b",
+                                      "class":  "SCHEMA",
+                                      "schemaScope":  "LOCAL",
+                                      "what":  "affiliation at START and restarts",
+                                      "detail":  "one trigger/team pair only; game also states START: \u0027both neutrals begin as Team A\u0027s teammates\u0027, and every restart: \u0027neutrals affiliated to it\u0027"
+                                  },
+                                  {
+                                      "ref":  "DV1 neutrals",
+                                      "class":  "SCHEMA",
+                                      "schemaScope":  "LOCAL",
+                                      "what":  "neutrals\u0027 direction",
+                                      "detail":  "direction entry \u0027Neutrals (2)\u0027: no direction of their own, inherit, never defend; DV1 is per team only"
+                                  },
+                                  {
+                                      "ref":  "P8",
+                                      "class":  "SCHEMA",
+                                      "schemaScope":  "LOCAL",
+                                      "what":  "placement at every restart",
+                                      "detail":  "startPlacement is START only; game places the defending line \u0027at every restart\u0027 and gives a between-description, not a region reference"
+                                  },
+                                  {
+                                      "ref":  "E1 envelope",
+                                      "class":  "KNOWLEDGE",
+                                      "schemaScope":  "N/A",
+                                      "what":  "partition reasoning",
+                                      "detail":  "outside boundary: prose on why n=2 is forced, NEUTRAL-08 \u00276 \u003e 4\u0027, NEUTRAL-11 \u0027does not transfer\u0027 is rationale, not a property"
+                                  },
+                                  {
+                                      "ref":  "J5-J11 sets",
+                                      "class":  "SCHEMA",
+                                      "schemaScope":  "LOCAL",
+                                      "what":  "assignment-rule requirements",
+                                      "detail":  "\u0027re-assignable during play, must change at least once\u0027, \u0027not determinable before that trigger fires\u0027, assignments \u0027independent\u0027: no row"
+                                  },
+                                  {
+                                      "ref":  "J11a, V9",
+                                      "class":  "KNOWLEDGE",
+                                      "schemaScope":  "N/A",
+                                      "what":  "dangling collision references",
+                                      "detail":  "game cites \u0027collision 8\u0027 (assignment) and \u0027collision 7\u0027 (magnitude); flaggedCollisions holds only C1-C4"
+                                  },
+                                  {
+                                      "ref":  "T tr-START",
+                                      "class":  "SCHEMA",
+                                      "schemaScope":  "LOCAL",
+                                      "what":  "opponent retreat distance",
+                                      "detail":  "\u0027No opponent retreat or exclusion distance ... imposed\u0027: no row for a retreat distance"
+                                  },
+                                  {
+                                      "ref":  "T restarts",
+                                      "class":  "KNOWLEDGE",
+                                      "schemaScope":  "N/A",
+                                      "what":  "state claims at restarts",
+                                      "detail":  "outside boundary: \u0027stable, uncontested ... not a 50/50\u0027, \u0027begins inside the Practice Situation\u0027, \u0027in controlled possession\u0027, goal kick \u0027recurs many times\u0027 (A01-02-03)"
+                                  },
+                                  {
+                                      "ref":  "T1 tr-OEL-att",
+                                      "class":  "SCHEMA",
+                                      "schemaScope":  "LOCAL",
+                                      "what":  "inactive-zone entry as out of play",
+                                      "detail":  "\u0027includes the ball entering an INACTIVE candidate zone ... simply out of play\u0027: no row equates REGION_ENTRY of a state-dependent zone with OUT_END_LINE"
+                                  },
+                                  {
+                                      "ref":  "T3/T4 restarts",
+                                      "class":  "SCHEMA",
+                                      "schemaScope":  "LOCAL",
+                                      "what":  "actor-or-region alternative",
+                                      "detail":  "\u0027from its goalkeeper or from within its own half\u0027 mixes T3 and T4 in one alternative; T3 other actor unnamed"
+                                  },
+                                  {
+                                      "ref":  "T turn structure",
+                                      "class":  "SCHEMA",
+                                      "schemaScope":  "LOCAL",
+                                      "what":  "turn-structure exclusion",
+                                      "detail":  "\u0027No alternating-turn, queued or sequential-attempt structure\u0027 (GF2-18): no row; \u0027retain reciprocal influence\u0027 is outside boundary"
+                                  },
+                                  {
+                                      "ref":  "V13 cons-reset",
+                                      "class":  "VOCABULARY",
+                                      "schemaScope":  "N/A",
+                                      "what":  "effect \u0027re-establish begin condition\u0027",
+                                      "detail":  "not ACCESS or COUNT_CHANGE; also one consequence keyed on four triggers; spec 5.7 folds restart consequences into transitions"
+                                  },
+                                  {
+                                      "ref":  "V13 cons-neutral",
+                                      "class":  "VOCABULARY",
+                                      "schemaScope":  "N/A",
+                                      "what":  "effect \u0027neutrals become teammates\u0027",
+                                      "detail":  "not ACCESS or COUNT_CHANGE; same content as P6a/P6b"
+                                  },
+                                  {
+                                      "ref":  "V7 mod-wide",
+                                      "class":  "SCHEMA",
+                                      "schemaScope":  "LOCAL",
+                                      "what":  "modifier beneficiary and path",
+                                      "detail":  "\u0027Beneficiary: the team performing the action - never ... a neutral\u0027 (field removed in spec 5.8); \u0027starts inside, or moves through\u0027 has no qualifier field"
+                                  },
+                                  {
+                                      "ref":  "V0 second route",
+                                      "class":  "SCHEMA",
+                                      "schemaScope":  "LOCAL",
+                                      "what":  "game-held exclusions",
+                                      "detail":  "possession retention \u0027never scores\u0027; channels \u0027never an objective\u0027; goal kick \u0027never scores and never marks the scoring object\u0027: no exclusion rows"
+                                  },
+                                  {
+                                      "ref":  "V7 elsewhere",
+                                      "class":  "SCHEMA",
+                                      "schemaScope":  "LOCAL",
+                                      "what":  "game-held value exclusions",
+                                      "detail":  "no bonus on neutral involvement; no differing zone values; retention rewards may not outweigh progression: no exclusion rows"
+                                  },
+                                  {
+                                      "ref":  "V7 high pressure",
+                                      "class":  "KNOWLEDGE",
+                                      "schemaScope":  "N/A",
+                                      "what":  "pressure exclusion",
+                                      "detail":  "outside boundary: no modifier \u0027may make established coordinated high pressure the dominant organizing problem\u0027"
+                                  },
+                                  {
+                                      "ref":  "V15 protected info",
+                                      "class":  "KNOWLEDGE",
+                                      "schemaScope":  "N/A",
+                                      "what":  "information exclusion",
+                                      "detail":  "outside boundary: nothing may hide teammate or opponent positioning \u0027from the player on the ball\u0027 (RPC-001-23)"
+                                  },
+                                  {
+                                      "ref":  "routes and options",
+                                      "class":  "KNOWLEDGE",
+                                      "schemaScope":  "N/A",
+                                      "what":  "route/option exclusions",
+                                      "detail":  "outside boundary: two viable routes, no removed passing options, channel/neutral use never compulsory, no player behaviour as a scoring condition"
+                                  },
+                                  {
+                                      "ref":  "opposition",
+                                      "class":  "KNOWLEDGE",
+                                      "schemaScope":  "N/A",
+                                      "what":  "opposition exclusion",
+                                      "detail":  "outside boundary: neither team \u0027passive, scripted or structurally unable\u0027; can deny, redirect or reverse \u0027including at 4 v 6\u0027"
+                                  },
+                                  {
+                                      "ref":  "V18 info-live",
+                                      "class":  "KNOWLEDGE",
+                                      "schemaScope":  "N/A",
+                                      "what":  "trigger detectability",
+                                      "detail":  "outside boundary: trigger \u0027detectable by the players and causally connected\u0027; live candidate \u0027not determinable before the trigger fires\u0027"
+                                  },
+                                  {
+                                      "ref":  "V17 info-live",
+                                      "class":  "VOCABULARY",
+                                      "schemaScope":  "N/A",
+                                      "what":  "trigger kinds vs trigger list",
+                                      "detail":  "\u0027state transition or an opponent action\u0027 are IE-D006 kinds, not members of the register trigger list; placed on V18"
+                                  },
+                                  {
+                                      "ref":  "V22 info-wide",
+                                      "class":  "VOCABULARY",
+                                      "schemaScope":  "N/A",
+                                      "what":  "\u0027both teams\u0027",
+                                      "detail":  "IE-D013 values are ALL, TEAM, ROLE, LOCAL_GROUP, INDIVIDUAL, OPPONENT_ONLY; \u0027both teams\u0027 recorded as stated"
+                                  },
+                                  {
+                                      "ref":  "V0 coach form",
+                                      "class":  "KNOWLEDGE",
+                                      "schemaScope":  "N/A",
+                                      "what":  "coach wording in game",
+                                      "detail":  "outside boundary: quoted \u0027Authored coach form\u0027 sentence inside the primary-event statement"
+                                  },
+                                  {
+                                      "ref":  "rationale prose",
+                                      "class":  "KNOWLEDGE",
+                                      "schemaScope":  "N/A",
+                                      "what":  "reconciliation rationale",
+                                      "detail":  "outside boundary: \u0027the two land on the same procedure\u0027, \u0027not in conflict because...\u0027, modifier \u0027clears VARTARGET-18 and NEUTRAL-15\u0027, \u0027event definition is fixed\u0027"
+                                  }
+                              ],
+                   "notes":  "Only resolvedGame restated; no files written. Along = metres from west end line (0) to east (40); across = metres from north touchline (0) to south (30). Ids set-*, tr-*, cond-*, cons-*, info-*, obj:*, tw-none are the restater\u0027s. 210 lines, 41 elements."
+               }
+}

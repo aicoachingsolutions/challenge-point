@@ -1,0 +1,588 @@
+﻿{
+    "A-conditional-items":  [
+                                {
+                                    "n":  1,
+                                    "src":  "RPC-001 Goalkeeper Build-Out",
+                                    "scope":  "STRUCTURAL",
+                                    "ref":  "L-01",
+                                    "what":  "Carrier of the scoring reference depends on the chosen V1 member; conditional items",
+                                    "detail":  "08 needs the carrier of whichever V1 member is chosen (O1 line/gate, S2 zone, P4 target player); 05 and 11.b are also conditional. No item can guard on another row\u0027s value or span rows. Holding it needs support conditioned on another line."
+                                },
+                                {
+                                    "n":  25,
+                                    "src":  "Neutral Player Condition",
+                                    "scope":  "LOCAL",
+                                    "ref":  "NEUTRAL-11.a, NEUTRAL-11.b",
+                                    "what":  "Example conditional on E1 = 15 and paired across P2 and P5",
+                                    "detail":  "No selector conditions an item on another row\u0027s value, and no field pairs values across rows. A selector attribute would hold it. The items are TYPICAL_EXAMPLE and inert, so no verdict changes."
+                                },
+                                {
+                                    "n":  41,
+                                    "src":  "Variable Target Condition",
+                                    "scope":  "LOCAL",
+                                    "ref":  "L-04 (05.a)",
+                                    "what":  "Conditional existence of the trigger region",
+                                    "detail":  "Held as PREFERRED_DEFAULT on an EXISTS item, so a non-spatial trigger gives ADAPTED, not VIOLATED. A strict RC-6 forces N/A and makes it an unconditional claim; a true conditional item would be STRUCTURAL."
+                                },
+                                {
+                                    "n":  51,
+                                    "src":  "GF4 Transition Games",
+                                    "scope":  "STRUCTURAL",
+                                    "ref":  "I13",
+                                    "what":  "Permission conditioned on another object",
+                                    "detail":  "\u0027can be introduced ... when the goal is defending under overload\u0027 depends on a session goal. There is no condition field, and relationship rules only decide collisions."
+                                }
+                            ],
+    "B-alternatives-across-rows":  [
+                                       {
+                                           "n":  12,
+                                           "src":  "Directional Possession Games (GF2)",
+                                           "scope":  "LOCAL",
+                                           "ref":  "GF2-03, GF2-06",
+                                           "what":  "One authored alternative, a target line or zone, crosses rows.",
+                                           "detail":  "The register makes a line an object kind (O2) and a zone a region noun (S3); a set of alternatives sits on one row only. Held on S2/S3 with an off-list noun, the O1 copy ASSUMED. Fix: a list value or an object-to-region link."
+                                       },
+                                       {
+                                           "n":  33,
+                                           "src":  "Wide Zone Advantage",
+                                           "scope":  "LOCAL",
+                                           "ref":  "WIDEZONE-12, 15 (with 11, 13, 14)",
+                                           "what":  "One advantage from alternatives on different rows",
+                                           "detail":  "Multiplier and bonus sit on V7-V9, a free restart on V11-V13; RC-29 alternatives work only within one row, and REQUIRED items for the unchosen alternative read UNMET. LOCAL as a new collection like objectiveSets (live cardinality 1); STRUCTURAL if stage E reads it as changing derivation."
+                                       },
+                                       {
+                                           "n":  48,
+                                           "src":  "GF4 Transition Games",
+                                           "scope":  "STRUCTURAL",
+                                           "ref":  "I02",
+                                           "what":  "Either/or between two whole layouts",
+                                           "detail":  "\u0027Two-goal or two-target field\u0027 means two of one kind. The âˆˆ selector also allows one goal plus one target, and the grammar has no alternative-of-items mechanism."
+                                       },
+                                       {
+                                           "n":  67,
+                                           "src":  "GAME",
+                                           "scope":  "LOCAL",
+                                           "ref":  "T3/T4 restarts",
+                                           "what":  "actor-or-region alternative",
+                                           "detail":  "\u0027from its goalkeeper or from within its own half\u0027 mixes T3 and T4 in one alternative; T3 other actor unnamed"
+                                       }
+                                   ],
+    "C-cross-element-relations":  [
+                                      {
+                                          "n":  16,
+                                          "src":  "Directional Possession Games (GF2)",
+                                          "scope":  "LOCAL",
+                                          "ref":  "GF2-14.b",
+                                          "what":  "No comparison between two elements\u0027 fields.",
+                                          "detail":  "\"Equal outfield counts\" relates P2 of two teams; EQUALS needs a value, and relative terms cover positions and teams only. Fix: a requirement kind whose relation is NARROWS, or a relative term for counts."
+                                      },
+                                      {
+                                          "n":  22,
+                                          "src":  "Neutral Player Condition",
+                                          "scope":  "LOCAL",
+                                          "ref":  "NEUTRAL-08.a",
+                                          "what":  "Count bound read from other rows",
+                                          "detail":  "P2(T) \u003e P2(other) - P5 needs a bound read from other elements. A relative count kind (NARROWS, with referent lookup as RC-21 does for positions) would hold it: LOCAL. If a verifier reads it as changing how support is derived, STRUCTURAL."
+                                      },
+                                      {
+                                          "n":  23,
+                                          "src":  "Neutral Player Condition",
+                                          "scope":  "LOCAL",
+                                          "ref":  "NEUTRAL-09.a",
+                                          "what":  "Equality between the two teams\u0027 P2",
+                                          "detail":  "\u0027Equal outfield counts\u0027 is a relation between elements, not a value. The relative count kind of NEUTRAL-08.a would hold it."
+                                      },
+                                      {
+                                          "n":  24,
+                                          "src":  "Neutral Player Condition",
+                                          "scope":  "LOCAL",
+                                          "ref":  "NEUTRAL-10.a",
+                                          "what":  "E1 as a sum over P2, P3 and P5",
+                                          "detail":  "\u0027Neutrals inside the player total\u0027 is a sum across rows. The relative count kind of NEUTRAL-08.a would hold it."
+                                      },
+                                      {
+                                          "n":  32,
+                                          "src":  "Wide Zone Advantage",
+                                          "scope":  "LOCAL",
+                                          "ref":  "WIDEZONE-09",
+                                          "what":  "NOT_DOMINANT has no closed kind",
+                                          "detail":  "Needs the two channels\u0027 combined S6 widths to stay under E3: an aggregate across elements and rows. New requirement kind with the existing EXCLUDES relation. An S6 EXCLUSION of \u0027central\u0027 would be a stronger proxy, so it was not used."
+                                      },
+                                      {
+                                          "n":  40,
+                                          "src":  "Variable Target Condition",
+                                          "scope":  "LOCAL",
+                                          "ref":  "L-03 (03.a)",
+                                          "what":  "Distinct position spans O4 and O5 (S5/S6 for region candidates)",
+                                          "detail":  "There is no relative term \u0027distinct from \u003celement\u003e\u0027 and no cross-row requirement. 03.a is written on O4 naming the (along, across) pair. A new relative term that NARROWS would hold it."
+                                      },
+                                      {
+                                          "n":  50,
+                                          "src":  "GF4 Transition Games",
+                                          "scope":  "LOCAL",
+                                          "ref":  "I13",
+                                          "what":  "Unequal between teams",
+                                          "detail":  "\u0027Numerical asymmetry\u0027 is a relation across P2 elements. No requirement kind states \u0027differs\u0027 over PER_TEAM."
+                                      }
+                                  ],
+    "D-selector-attributes-and-references":  [
+                                                 {
+                                                     "n":  2,
+                                                     "src":  "RPC-001 Goalkeeper Build-Out",
+                                                     "scope":  "LOCAL",
+                                                     "ref":  "L-02",
+                                                     "what":  "J2 cannot reference a performer role",
+                                                     "detail":  "target_player\u0027s scoring reference is a P4 role, but J2 takes only object or region references. The fix is a new reference type on an existing field."
+                                                 },
+                                                 {
+                                                     "n":  5,
+                                                     "src":  "From Goal Kicks (A01-02)",
+                                                     "scope":  "LOCAL",
+                                                     "ref":  "L1: T1 selector (items 01-05, 07, 11; T and V11 declarations)",
+                                                     "what":  "No T1 selector attribute can pick out a transition by its procedure",
+                                                     "detail":  "The object authors a goal-kick restart but not its trigger, and T1 selects only by trigger and qualifiers. That leaves 7 of 12 originals unaddressable. The fix is a field plus selector attribute naming the restart (restart=GOAL_KICK, with a VOCABULARY value): LOCAL. The trigger key stays NOT_AUTHORED."
+                                                 },
+                                                 {
+                                                     "n":  8,
+                                                     "src":  "From Goal Kicks (A01-02)",
+                                                     "scope":  "LOCAL",
+                                                     "ref":  "L6: J1 NOT_AUTHORED declaration",
+                                                     "what":  "J1 cannot select an objective by where it sits",
+                                                     "detail":  "J1\u0027s selector attributes are role and team, so the open question (must the restart end carry a goal objective?) cannot be scoped to that end. The fix is a positional selector attribute: LOCAL. Declaration only."
+                                                 },
+                                                 {
+                                                     "n":  11,
+                                                     "src":  "Directional Possession Games (GF2)",
+                                                     "scope":  "LOCAL",
+                                                     "ref":  "GF2-02",
+                                                     "what":  "A partition that removes direct contest cannot be forbidden.",
+                                                     "detail":  "Region selectors (noun, functions) carry no team, and ACCESS consequences are trigger-keyed, so a standing team partition has no home. Fix: a selector attribute or field on S2. The adaptive opportunity space half is outside the boundary."
+                                                 },
+                                                 {
+                                                     "n":  29,
+                                                     "src":  "Wide Zone Advantage",
+                                                     "scope":  "LOCAL",
+                                                     "ref":  "WIDEZONE-02.a, 03, 05.a, 06, 07, 08.a, 08.d, 10 (S2 selector)",
+                                                     "what":  "Wide channels cannot be selected apart from other channels",
+                                                     "detail":  "S2 selects only by noun and functions, and \u0027wide\u0027 is a position. Items use noun=channel with OWN_INVOLVEMENT, which is circular for the items that entail the channels (02.a, 03, 08.d). Needs a new selector attribute (position class or contributing object) on an existing collection."
+                                                 },
+                                                 {
+                                                     "n":  30,
+                                                     "src":  "Wide Zone Advantage",
+                                                     "scope":  "LOCAL",
+                                                     "ref":  "WIDEZONE-05, WIDEZONE-03",
+                                                     "what":  "One channel per touchline cannot be required",
+                                                     "detail":  "touchline-adjacent does not name which touchline and S2 has no side attribute, so \u0027one on each lateral side\u0027 is unheld; COUNT 2 alone allows both channels on one side. Needs a side selector attribute or per-touchline relative terms."
+                                                 },
+                                                 {
+                                                     "n":  35,
+                                                     "src":  "Wide Zone Advantage",
+                                                     "scope":  "LOCAL",
+                                                     "ref":  "WIDEZONE-11.a, 13.a, 13.b (V7 selector)",
+                                                     "what":  "This object\u0027s modifier cannot be addressed",
+                                                     "detail":  "V7 selects only by condition.type, so 11.a (WHOLE_GAME) would bind any region-typed modifier from another object, and the V8a type line gets no item. New selector attribute (condition.referents or contributing object)."
+                                                 },
+                                                 {
+                                                     "n":  38,
+                                                     "src":  "Variable Target Condition",
+                                                     "scope":  "LOCAL",
+                                                     "ref":  "L-01 (06.b)",
+                                                     "what":  "J1 has no set-membership selector attribute",
+                                                     "detail":  "The PER_OBJECTIVE_SET unit is defined by what objectives reference through J2; whether the objectives themselves are in their own set\u0027s unit is not stated. A \u0027set\u0027 selector attribute on J1 would hold 06.b exactly."
+                                                 },
+                                                 {
+                                                     "n":  42,
+                                                     "src":  "Variable Target Condition",
+                                                     "scope":  "LOCAL",
+                                                     "ref":  "L-05 (06.c-e, 07, 08, 09, 13-17, 20)",
+                                                     "what":  "Field rows under objectiveSets and informationRules have no selectorAttributes",
+                                                     "detail":  "Items use selector * with OWN_INVOLVEMENT to reach only this object\u0027s set and rule. With WHOLE_GAME, 16.a would forbid Wide Zone\u0027s STANDING rule (WIDEZONE-17). Selector attributes on these rows would remove the dependence."
+                                                 },
+                                                 {
+                                                     "n":  49,
+                                                     "src":  "GF4 Transition Games",
+                                                     "scope":  "LOCAL",
+                                                     "ref":  "I03/I14/I15",
+                                                     "what":  "Selectors too coarse",
+                                                     "detail":  "O1 selects only on kind, so a midline line cannot be told from target lines. V7 selects only on condition.type, so the two event modifiers cannot be addressed apart. Needs a new selector attribute."
+                                                 },
+                                                 {
+                                                     "n":  57,
+                                                     "src":  "GAME",
+                                                     "scope":  "LOCAL",
+                                                     "ref":  "S2 own halves",
+                                                     "what":  "region team ownership",
+                                                     "detail":  "\u0027own-half start area for Team A/B\u0027: regions have no team attribute (selector attrs are noun and functions only)"
+                                                 }
+                                             ],
+    "E-declaration-and-convention-mechanics-plus-by-design-exclusions":  [
+                                                                             {
+                                                                                 "n":  3,
+                                                                                 "src":  "RPC-001 Goalkeeper Build-Out",
+                                                                                 "scope":  "LOCAL",
+                                                                                 "ref":  "L-03",
+                                                                                 "what":  "Episode team designations on static rows",
+                                                                                 "detail":  "P3 [team=BUILD_OUT_TEAM / ATTACKING_TEAM] and J1/J2 [team=BUILD_OUT_TEAM]: a designation is evaluated \u0027at the trigger or episode it is attached to\u0027, and these items attach to none. Two readers may resolve them differently."
+                                                                             },
+                                                                             {
+                                                                                 "n":  14,
+                                                                                 "src":  "Directional Possession Games (GF2)",
+                                                                                 "scope":  "LOCAL",
+                                                                                 "ref":  "GF2-08, J4, S4",
+                                                                                 "what":  "A value fixed only by another row\u0027s selector cannot be CLAIMED on its own row.",
+                                                                                 "detail":  "The target\u0027s role (J4) and objective-area function (S4) are entailed through J1/S2 selectors (RC-16); J1 has no reference attribute. Stage C flags CLAIMED rows without items, so J4/S4 carry NON_CLAIMED for other elements only."
+                                                                             },
+                                                                             {
+                                                                                 "n":  15,
+                                                                                 "src":  "Directional Possession Games (GF2)",
+                                                                                 "scope":  "LOCAL",
+                                                                                 "ref":  "GF2-09.b",
+                                                                                 "what":  "A universal FIELD item is reported UNMET when nothing matches.",
+                                                                                 "detail":  "\"Every objective set keeps a live member\" is vacuously met with no set, but RC-1 reports a REQUIRED item matching nothing as UNMET. Affects forward results only; if read as a change to derivation it is STRUCTURAL. For stage E."
+                                                                             },
+                                                                             {
+                                                                                 "n":  18,
+                                                                                 "src":  "Directional Possession Games (GF2)",
+                                                                                 "scope":  "LOCAL",
+                                                                                 "ref":  "S2, S3, S4, O1, J1 declarations",
+                                                                                 "what":  "Selectors have no negation.",
+                                                                                 "detail":  "A non-claim for \"every region, object or objective other than the target\" cannot be scoped, so it is declared with * or by naming other kinds beside CLAIMED on the target. Fix: a complement operator, akin to a new selector attribute."
+                                                                             },
+                                                                             {
+                                                                                 "n":  19,
+                                                                                 "src":  "Directional Possession Games (GF2)",
+                                                                                 "scope":  "LOCAL",
+                                                                                 "ref":  "E2, E3",
+                                                                                 "what":  "A row whose only item is TYPICAL_EXAMPLE.",
+                                                                                 "detail":  "CLAIMED because an item addresses it, yet the original says GF2 constrains nothing there; RC-7 speaks only of CLAIMED with NOT_AUTHORED. Declared CLAIMED and NON_CLAIMED; no verdict changes (session rows). STRUCTURAL if read as a declaration-mechanism change."
+                                                                             },
+                                                                             {
+                                                                                 "n":  26,
+                                                                                 "src":  "Neutral Player Condition",
+                                                                                 "scope":  "LOCAL",
+                                                                                 "ref":  "declarations on J1, V6, V8b, P4, P8-P10",
+                                                                                 "what":  "No negation operator for \u0027all elements except\u0027",
+                                                                                 "detail":  "\u0027Free except the excluded element\u0027 and \u0027roles other than target player\u0027 cannot be selected; a broad NON_CLAIMED or UNDECLARED(*) overlaps a narrower declaration instead. A \u0027â‰ \u0027 operator would hold it; no relation changes."
+                                                                             },
+                                                                             {
+                                                                                 "n":  45,
+                                                                                 "src":  "Pass Combination Gate",
+                                                                                 "scope":  "LOCAL",
+                                                                                 "ref":  "L4 / V5, SV1, S2",
+                                                                                 "what":  "Can V5 point at a view fraction?",
+                                                                                 "detail":  "\u0027in their half\u0027 names a per-team half. V5 lists regions, objects and placements, and does not say whether an SV1 fraction qualifies. If it does not, an S2 half region is needed that the object does not author."
+                                                                             },
+                                                                             {
+                                                                                 "n":  47,
+                                                                                 "src":  "Pass Combination Gate",
+                                                                                 "scope":  "LOCAL",
+                                                                                 "ref":  "L6 / OUTSIDE_BOUNDARY items",
+                                                                                 "what":  "No row or requirement placeholder for outside items",
+                                                                                 "detail":  "Â§1 says outside items are not forced onto a row, yet row and requirement are required fields. I used row \u0027â€”\u0027 and requirement EXISTS/EQUALS as inert placeholders (PCG-14..19)."
+                                                                             },
+                                                                             {
+                                                                                 "n":  53,
+                                                                                 "src":  "GF4 Transition Games",
+                                                                                 "scope":  "STRUCTURAL",
+                                                                                 "ref":  "I16/I17",
+                                                                                 "what":  "Example-only existence",
+                                                                                 "detail":  "RC-6 forces N/A on EXISTS items, so an existence the source gives only as an example cannot be marked TYPICAL_EXAMPLE. Only SUPPORTING softens it."
+                                                                             },
+                                                                             {
+                                                                                 "n":  54,
+                                                                                 "src":  "GF4 Transition Games",
+                                                                                 "scope":  "STRUCTURAL",
+                                                                                 "ref":  "recommended_constraint_*, constraint_fit_*, example_constraint_patterns, canonical_game_archetype_id",
+                                                                                 "what":  "Links to other objects",
+                                                                                 "detail":  "Recommending other objects and the GA-001 link are relations between objects, not game requirements. There is no relation to hold them; this may be deliberate."
+                                                                             },
+                                                                             {
+                                                                                 "n":  58,
+                                                                                 "src":  "GAME",
+                                                                                 "scope":  "LOCAL",
+                                                                                 "ref":  "S2 channels",
+                                                                                 "what":  "game-held exclusion",
+                                                                                 "detail":  "channels \u0027NOT restricted, exclusive or entry-prohibited\u0027; entry \u0027never compulsory\u0027: the game has no exclusion rows (spec 5.8 keeps exclusions in contracts)"
+                                                                             },
+                                                                             {
+                                                                                 "n":  70,
+                                                                                 "src":  "GAME",
+                                                                                 "scope":  "LOCAL",
+                                                                                 "ref":  "V0 second route",
+                                                                                 "what":  "game-held exclusions",
+                                                                                 "detail":  "possession retention \u0027never scores\u0027; channels \u0027never an objective\u0027; goal kick \u0027never scores and never marks the scoring object\u0027: no exclusion rows"
+                                                                             },
+                                                                             {
+                                                                                 "n":  71,
+                                                                                 "src":  "GAME",
+                                                                                 "scope":  "LOCAL",
+                                                                                 "ref":  "V7 elsewhere",
+                                                                                 "what":  "game-held value exclusions",
+                                                                                 "detail":  "no bonus on neutral involvement; no differing zone values; retention rewards may not outweigh progression: no exclusion rows"
+                                                                             }
+                                                                         ],
+    "F-rules-on-play-actions-and-performer-status":  [
+                                                         {
+                                                             "n":  4,
+                                                             "src":  "RPC-001 Goalkeeper Build-Out",
+                                                             "scope":  "LOCAL",
+                                                             "ref":  "L-04",
+                                                             "what":  "Non-claims with no row",
+                                                             "detail":  "\u0027Whether opponents retreat\u0027 at restarts has no field for opponent placement on transitions. \u0027Touch limits\u0027 have no row for rules on player actions. Each needs a new field or row in an existing area."
+                                                         },
+                                                         {
+                                                             "n":  17,
+                                                             "src":  "Directional Possession Games (GF2)",
+                                                             "scope":  "LOCAL",
+                                                             "ref":  "GF2-22, GF2-15",
+                                                             "what":  "No row for rules that restrict play actions.",
+                                                             "detail":  "Banned receivers, forced pass order, pass-direction bans, or a rule stopping a team contesting the ball have no home; V4 eligibility attaches only to the primary event. The exclusions cannot be violated on the structure, nor checked against coach text. Fix: a new collection row."
+                                                         },
+                                                         {
+                                                             "n":  21,
+                                                             "src":  "Neutral Player Condition",
+                                                             "scope":  "LOCAL",
+                                                             "ref":  "NEUTRAL-05.a",
+                                                             "what":  "No row for a neutral\u0027s participation status",
+                                                             "detail":  "\u0027Active outfield participant for the whole activity\u0027 has no row. knowledge-core EM-0007 Participant State: \"Owns the current participation status of performers.\" A new row in the Performers area would hold it."
+                                                         },
+                                                         {
+                                                             "n":  27,
+                                                             "src":  "Neutral Player Condition",
+                                                             "scope":  "LOCAL",
+                                                             "ref":  "notAuthored: pressed, protected status, touch limit",
+                                                             "what":  "No row for rules restricting a performer group",
+                                                             "detail":  "A touch limit or protected status for neutrals has no row to be declared on (and is unauthored: KNOWLEDGE). Pressing and tackling are play (OUTSIDE_BOUNDARY). A new Performers row would hold it."
+                                                         },
+                                                         {
+                                                             "n":  28,
+                                                             "src":  "Neutral Player Condition",
+                                                             "scope":  "LOCAL",
+                                                             "ref":  "notAuthored: rotation between rounds",
+                                                             "what":  "No row for rotating who plays as a neutral",
+                                                             "detail":  "The register has no rounds or periods and no row for changing which players are neutrals, so this non-claim cannot be declared (also unauthored: KNOWLEDGE). A new Performers row would hold it."
+                                                         },
+                                                         {
+                                                             "n":  60,
+                                                             "src":  "GAME",
+                                                             "scope":  "LOCAL",
+                                                             "ref":  "P5 neutrals",
+                                                             "what":  "persistence of neutrals",
+                                                             "detail":  "\u0027persistent active outfield participants ... (not rotated)\u0027, \u0027never fixed to one team\u0027: no row"
+                                                         },
+                                                         {
+                                                             "n":  68,
+                                                             "src":  "GAME",
+                                                             "scope":  "LOCAL",
+                                                             "ref":  "T turn structure",
+                                                             "what":  "turn-structure exclusion",
+                                                             "detail":  "\u0027No alternating-turn, queued or sequential-attempt structure\u0027 (GF2-18): no row; \u0027retain reciprocal influence\u0027 is outside boundary"
+                                                         }
+                                                     ],
+    "G-transition-and-trigger-keyed-fields":  [
+                                                  {
+                                                      "n":  6,
+                                                      "src":  "From Goal Kicks (A01-02)",
+                                                      "scope":  "LOCAL",
+                                                      "ref":  "L4: T6 NOT_AUTHORED declaration (notAuthored item on liveness)",
+                                                      "what":  "No field for the resume condition of a STOP_RESUME transition",
+                                                      "detail":  "No row holds \u0027live as soon as the ball is kicked, or only after a further condition\u0027. Only a declaration needs it. The fix is a new field on transitions[]: LOCAL."
+                                                  },
+                                                  {
+                                                      "n":  7,
+                                                      "src":  "From Goal Kicks (A01-02)",
+                                                      "scope":  "LOCAL",
+                                                      "ref":  "L5: V11 declarations (opponent exclusion distance)",
+                                                      "what":  "No exact row for an opponent exclusion distance at a restart",
+                                                      "detail":  "Regions are fixed layout. A distance measured from a restart placement is neither a region nor a consequence referent, so it is held only approximately on V11 ACCESS. The fix is a placement field on transitions[]: LOCAL. Declarations only."
+                                                  },
+                                                  {
+                                                      "n":  9,
+                                                      "src":  "From Goal Kicks (A01-02)",
+                                                      "scope":  "LOCAL",
+                                                      "ref":  "L7: non-claim \u0027Where the restart may be played\u0027",
+                                                      "what":  "No row for a rule on where a restart must be played",
+                                                      "detail":  "\u0027To which zone\u0027 is a rule with no row. \u0027To which player, over how many passes, along the ground\u0027 concern play (OUTSIDE_BOUNDARY). This is a non-claim only; the fix would be a field on transitions[]: LOCAL."
+                                                  },
+                                                  {
+                                                      "n":  36,
+                                                      "src":  "Wide Zone Advantage",
+                                                      "scope":  "LOCAL",
+                                                      "ref":  "notAuthored #3, #4; doesNotConstrain #11",
+                                                      "what":  "No field for an advantage\u0027s persistence or frequency",
+                                                      "detail":  "V11 consequences have no end or cap; time windows end by duration, not by a trigger such as a possession change; nothing holds \u0027once per possession\u0027. New fields on existing collections. Nothing is authored for them either."
+                                                  },
+                                                  {
+                                                      "n":  43,
+                                                      "src":  "Pass Combination Gate",
+                                                      "scope":  "LOCAL",
+                                                      "ref":  "L2 / V3, V6",
+                                                      "what":  "No field for the triggers that reset a condition",
+                                                      "detail":  "Authored: \u0027Pass count resets when possession is lost or the ball leaves play.\u0027 It needs something like conditions[].resetOn. Held as V6 text (PCG-05). This is a new field on an existing collection."
+                                                  },
+                                                  {
+                                                      "n":  52,
+                                                      "src":  "GF4 Transition Games",
+                                                      "scope":  "LOCAL",
+                                                      "ref":  "I15",
+                                                      "what":  "Event sequence",
+                                                      "detail":  "\u0027regain leading to shot\u0027 is an ordered sequence, but V8b holds an unordered set. Needs a new field on V7."
+                                                  },
+                                                  {
+                                                      "n":  61,
+                                                      "src":  "GAME",
+                                                      "scope":  "LOCAL",
+                                                      "ref":  "P6a/P6b",
+                                                      "what":  "affiliation at START and restarts",
+                                                      "detail":  "one trigger/team pair only; game also states START: \u0027both neutrals begin as Team A\u0027s teammates\u0027, and every restart: \u0027neutrals affiliated to it\u0027"
+                                                  },
+                                                  {
+                                                      "n":  63,
+                                                      "src":  "GAME",
+                                                      "scope":  "LOCAL",
+                                                      "ref":  "P8",
+                                                      "what":  "placement at every restart",
+                                                      "detail":  "startPlacement is START only; game places the defending line \u0027at every restart\u0027 and gives a between-description, not a region reference"
+                                                  },
+                                                  {
+                                                      "n":  65,
+                                                      "src":  "GAME",
+                                                      "scope":  "LOCAL",
+                                                      "ref":  "T tr-START",
+                                                      "what":  "opponent retreat distance",
+                                                      "detail":  "\u0027No opponent retreat or exclusion distance ... imposed\u0027: no row for a retreat distance"
+                                                  },
+                                                  {
+                                                      "n":  66,
+                                                      "src":  "GAME",
+                                                      "scope":  "LOCAL",
+                                                      "ref":  "T1 tr-OEL-att",
+                                                      "what":  "inactive-zone entry as out of play",
+                                                      "detail":  "\u0027includes the ball entering an INACTIVE candidate zone ... simply out of play\u0027: no row equates REGION_ENTRY of a state-dependent zone with OUT_END_LINE"
+                                                  }
+                                              ],
+    "H1-layout-rows":  [
+                           {
+                               "n":  10,
+                               "src":  "Directional Possession Games (GF2)",
+                               "scope":  "LOCAL",
+                               "ref":  "GF2-01",
+                               "what":  "No row for area shape or number of areas.",
+                               "detail":  "The envelope is E2 length x E3 width, so one rectangle holds by construction but can be neither stated nor checked, and no other layout can be represented. Fix: a new row inside an existing area."
+                           },
+                           {
+                               "n":  13,
+                               "src":  "Directional Possession Games (GF2)",
+                               "scope":  "LOCAL",
+                               "ref":  "GF2-05.b",
+                               "what":  "No orientation row for a region or object.",
+                               "detail":  "\"Lies across the direction of progression\" is implicit in S5/S6 intervals, and ORIENTED is typed only for DV1 (SD-07). Placed on S6 as the nearest fit. Fix: a field on an existing collection."
+                           },
+                           {
+                               "n":  20,
+                               "src":  "Directional Possession Games (GF2)",
+                               "scope":  "LOCAL",
+                               "ref":  "E4, J3, DV1",
+                               "what":  "Non-claims about period structure and changing ends have no row.",
+                               "detail":  "The original says GF2 authors no period structure and leaves whether teams change ends free; nothing in the register varies direction over time. Declared on the nearest rows; nothing is lost because GF2 claims nothing there."
+                           },
+                           {
+                               "n":  31,
+                               "src":  "Wide Zone Advantage",
+                               "scope":  "LOCAL",
+                               "ref":  "WIDEZONE-04",
+                               "what":  "No field for a region\u0027s orientation",
+                               "detail":  "ORIENTED exists but no region field takes an orientation; \u0027parallel to the axis\u0027 is no longer implied once WIDEZONE-07\u0027s full length is adapted. New field on an existing collection (regions[].orientation)."
+                           },
+                           {
+                               "n":  37,
+                               "src":  "Wide Zone Advantage",
+                               "scope":  "LOCAL",
+                               "ref":  "doesNotConstrain #1 (area shape)",
+                               "what":  "No envelope row for area shape",
+                               "detail":  "The non-claim on area shape has no row: EM-0001 owns Shape (EMD-0003, em-schema.v2.0-rc1.json) but the register holds only length and width. New row in an existing area."
+                           },
+                           {
+                               "n":  55,
+                               "src":  "GAME",
+                               "scope":  "LOCAL",
+                               "ref":  "S2 area",
+                               "what":  "occupancy / partition",
+                               "detail":  "\u0027shared occupancy, no partition or separating boundary\u0027: no row holds occupancy or partition"
+                           },
+                           {
+                               "n":  56,
+                               "src":  "GAME",
+                               "scope":  "LOCAL",
+                               "ref":  "S2 marking",
+                               "what":  "marked vs determinable",
+                               "detail":  "own halves \u0027need not be marked\u0027, corridor \u0027unmarked\u0027, zones \u0027marked\u0027, defending line \u0027not marked\u0027: no row holds marking"
+                           },
+                           {
+                               "n":  59,
+                               "src":  "GAME",
+                               "scope":  "LOCAL",
+                               "ref":  "O owner",
+                               "what":  "objects[].owner",
+                               "detail":  "zone owner (Team A/B) and ball owner stated; no owner row (zone owner duplicates J3)"
+                           },
+                           {
+                               "n":  62,
+                               "src":  "GAME",
+                               "scope":  "LOCAL",
+                               "ref":  "DV1 neutrals",
+                               "what":  "neutrals\u0027 direction",
+                               "detail":  "direction entry \u0027Neutrals (2)\u0027: no direction of their own, inherit, never defend; DV1 is per team only"
+                           }
+                       ],
+    "H2-value-and-objective-fields":  [
+                                          {
+                                              "n":  34,
+                                              "src":  "Wide Zone Advantage",
+                                              "scope":  "LOCAL",
+                                              "ref":  "WIDEZONE-11",
+                                              "what":  "No predicate on a value-modifier condition",
+                                              "detail":  "V8a/V8b hold only type and referents; \u0027starts in\u0027 versus \u0027moves through\u0027 cannot be held for a multiplier or bonus. New field on an existing collection (a condition value, as V6 is for primary-event conditions)."
+                                          },
+                                          {
+                                              "n":  39,
+                                              "src":  "Variable Target Condition",
+                                              "scope":  "LOCAL",
+                                              "ref":  "L-02 (02)",
+                                              "what":  "No row states an in-play change to an object\u0027s presence or position",
+                                              "detail":  "Objects are static. V13 has no removal, closure or relocation effect, V12 no liveness trigger, V14 no object referent. The liveness clause is unplaced, and it is vacuous for any game on the register."
+                                          },
+                                          {
+                                              "n":  44,
+                                              "src":  "Pass Combination Gate",
+                                              "scope":  "LOCAL",
+                                              "ref":  "L3 / V3, V5",
+                                              "what":  "No team field on conditions",
+                                              "detail":  "Whose passes count (ATTACKING_TEAM, the team that then scores) has no home, because V5 takes only regions, objects and placements. Carried in V6 text and PER_TEAM scope. This is a new field on an existing collection."
+                                          },
+                                          {
+                                              "n":  46,
+                                              "src":  "Pass Combination Gate",
+                                              "scope":  "LOCAL",
+                                              "ref":  "L5 / V15",
+                                              "what":  "No row for how information is conveyed",
+                                              "detail":  "Authored alternatives, unordered: \u0027count out loud or use a counter\u0027. The register carries only D006, D007, D008, D011 and D013, with no medium or access-mode row. This is a new row inside an existing area."
+                                          },
+                                          {
+                                              "n":  64,
+                                              "src":  "GAME",
+                                              "scope":  "LOCAL",
+                                              "ref":  "J5-J11 sets",
+                                              "what":  "assignment-rule requirements",
+                                              "detail":  "\u0027re-assignable during play, must change at least once\u0027, \u0027not determinable before that trigger fires\u0027, assignments \u0027independent\u0027: no row"
+                                          },
+                                          {
+                                              "n":  69,
+                                              "src":  "GAME",
+                                              "scope":  "LOCAL",
+                                              "ref":  "V7 mod-wide",
+                                              "what":  "modifier beneficiary and path",
+                                              "detail":  "\u0027Beneficiary: the team performing the action - never ... a neutral\u0027 (field removed in spec 5.8); \u0027starts inside, or moves through\u0027 has no qualifier field"
+                                          }
+                                      ]
+}

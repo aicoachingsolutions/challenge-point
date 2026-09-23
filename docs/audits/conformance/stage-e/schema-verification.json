@@ -1,0 +1,678 @@
+﻿[
+    {
+        "theme":  "A-conditional-items",
+        "entries":  [
+                        {
+                            "n":  1,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None to the grammar. Re-draft: SUPPORTING EXISTS items (AUTHORED from the V1 vocabulary\u0027s own definitions) on O1[kind=line], O1[kind=gate], S2[noun=zone \u0026 functionsâˆ‹objective-area] and P4[roleName=target player]; 11.b as an EXCLUSION on J11b forbidding an assignment that yields no live PRIMARY_SCORING member in the build-out episode. Optional LOCAL: an O1 functions attribute (as S4 has), so an unused carrier gets no support.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "No guard is needed. FIELD items (05.a, 09.a/b) apply only where their carrier exists (RC-1). SUPPORTING existence supports without requiring (RC-28; Â§8 checks REQUIRED only); RPC-001\u0027s DNC calls target players \u0027permitted, never required\u0027. Gate A makes the chosen event\u0027s reference resolve (Â§5.4, Â§5.8). Slice: zones on O1, supported by VARTARGET; no line moves. Re-drafting 11.b turns its UNMET to SATISFIED; the missing J11a still blocks (Â§5.5)."
+                        },
+                        {
+                            "n":  25,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None. TYPICAL_EXAMPLE is inert (RC-28: no support, bound or collision), so the E1 = 15 condition and the P2/P5 pairing can stay in one item\u0027s value text with nothing lost. Do not adopt the drafter\u0027s selector fix: P5 has no selector, and a selector testing E1 is not over the element\u0027s own attributes, so it would change RC-1 matching, a hidden STRUCTURAL change.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "The source is an example (\u0027e.g., for 15 players: 6v6 + 3 neutrals, or 7v7 + 1 neutral\u0027). Nothing evaluates an inert value, so there is nothing for a condition to gate. The slice envelope is 12, not 15, so the example would not apply anyway. The rule the pairing implies (neutrals inside the total) is NEUTRAL-10.a, in another theme. Only if Christian made the example a default would a guard on E1 be needed, and that would be STRUCTURAL."
+                        },
+                        {
+                            "n":  41,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None. Hold 05.a as SUPPORTING EXISTS on S2[functionsâˆ‹trigger] with valueStatus N/A (RC-6). It supports a trigger region if one is laid out and requires none. Where 05.b\u0027s REGION_ENTRY {trigger region} is chosen, Â§5.2\u0027s \u0027every region referenced anywhere exists\u0027 requires the region. Clarify RC-35: an unmatched SUPPORTING existence item is reported as not used, never VIOLATED.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "Optionality comes from strictness, not valueStatus: SUPPORTING items support like REQUIRED ones, but Gate B checks only REQUIRED items (RC-28, Â§8). So RC-6\u0027s N/A does not make 05.a unconditional, and PREFERRED_DEFAULT/ADAPTED turns SD-08 (a displaced value) into a guard. The drafter is right that a true guard would be STRUCTURAL; none is needed. Slice: no trigger region, V17 unstated; no line moves, and 05.a\u0027s ADAPTED report becomes not used."
+                        },
+                        {
+                            "n":  51,
+                            "verdict":  "OUTSIDE_BOUNDARY_BY_DESIGN",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None. Hold \u0027can be introduced\u0027 as NON_CLAIMED on P2 (a permission is a non-claim), beside the inert TYPICAL_EXAMPLE I13, so a CLAIMED declaration with only an inert item cannot be read as barring free choice. \u0027When the goal is defending under overload\u0027 is selection knowledge: under SD-17, a session goal that wants asymmetry enters with its own contract requiring it.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "The clause says when a variant suits a session goal, which is cross-object selection knowledge the spec keeps out (Â§7, SD-17). GF4 authors no symmetry, so there is no requirement to switch off. Had it authored a default, SD-08 already settles it: a PREFERRED_DEFAULT displaced by another contract is ADAPTED. \u0027In defending half\u0027 and which \u0027goal\u0027 is meant are KNOWLEDGE. I13 is inert, and GF4 is not in the slice."
+                        }
+                    ],
+        "themeVerdict":  {
+                             "requiresStructuralChange":  "NO",
+                             "whatTheGrammarLacks":  "A guard: no contract item can apply only when another row holds a given value. The register has one only for SD-13 (its condition, read by RC-24). None of the four entries needs it. FIELD items apply only where their element exists; branch-dependent existence is held as SUPPORTING EXISTS, with the chosen branch made necessary by Gate A reference resolution; examples are inert; session-goal conditions are selection knowledge.",
+                             "smallestAmendmentForTheTheme":  "No grammar change. One run-convention clarification: an unmatched SUPPORTING existence item is non-failing and creates no needed-but-unstated line (RC-15, RC-35). Optional LOCAL: an O1 functions attribute, as S4 has, so only a carrier used as a scoring reference draws support. A true item-level guard would be STRUCTURAL (support would depend on another line\u0027s verdict, as RC-24 does for SD-13) and should wait for a case that needs it.",
+                             "blocksImplementationDesign":  "NO",
+                             "why":  "All four entries are held with existing strictness, selectors, Gate A and SD-08, and none changes a slice line verdict. Two drafter labels were wrong: #1 and #51 are not STRUCTURAL, and #25\u0027s proposed LOCAL fix hides a STRUCTURAL change to selectors. Watch item: if Christian authors a REQUIRED existence that holds in only one branch, and no reference makes Gate A require it, a guard would be needed, and that would be STRUCTURAL."
+                         }
+    },
+    {
+        "theme":  "B-alternatives-across-rows",
+        "entries":  [
+                        {
+                            "n":  12,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None to the grammar. Hold the target as the objective: J1[role=PRIMARY_SCORING] EXISTS, J2 EQUALS {the target line object, the target zone region} (J2 is already typed \u0027object or region reference\u0027), carriers bounded by O1[kind=line] RANGE 0..1 and S2[noun=zone \u0026 functionsâˆ‹objective-area] RANGE 0..1, both fillable rows. Or keep the drafter\u0027s S3 {zone, line} and send \u0027line\u0027 to the SD-18 noun review (VOCABULARY).",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "J2 is the register\u0027s own cross-collection slot, so \u0027line or zone\u0027 becomes a one-row set there. RC-29 then gives NOT_AUTHORED(ALTERNATIVES) on non-fillable J2, the same result as the drafter\u0027s S3 route. The chosen carrier is a count fill inside an authored 0..1. Tying the carrier to the V1 member (line_crossed or target_zone_entered) is theme A. No amendment is adopted, so nothing on the slice moves."
+                        },
+                        {
+                            "n":  33,
+                            "verdict":  "KNOWLEDGE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None to the grammar. Keep V7 and V11 NOT_AUTHORED (selector-scoped, RC-13), naming the three options as what is missing, with the options as inert TYPICAL_EXAMPLE items. Christian rules whether they are closed and exclusive. 11.b reads UNMET on the slice because RC-35 reports a REQUIRED FIELD item that matches nothing (themes A and E); that is not this gap. The drafter\u0027s collection is LOCAL only if its members keep RC-29.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "The drafter\u0027s own ledger logs both premises as KNOWLEDGE: examples or closed options, and \u0027exactly one\u0027 (assumption #2). The authored part (an advantage is needed; its form is not authored) is a NOT_AUTHORED declaration, and RC-15 lists a missing advantage as needed. A cross-row set would give NOT_AUTHORED(ALTERNATIVES) on non-fillable V7/V11, which blocks just as DECLARED_GAP does now. C2\u0027s magnitude stays NOT_AUTHORED either way."
+                        },
+                        {
+                            "n":  48,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None. Keep I02 (O1[kindâˆˆ{goal,target}] COUNT 2) and add two EXCLUSION items: O1[kind=goal] COUNT 1 and O1[kind=target] COUNT 1 (forbidden values). WIDEZONE-16.b already uses COUNT with EXCLUSION this way on V0. Per-kind COUNT âˆˆ {0,2} does the same job. \u0027target\u0027 off the O2 list is VOCABULARY; what \u0027target\u0027 is stays KNOWLEDGE (drafter\u0027s I02 entry).",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "\u0027Two of one kind\u0027 constrains one collection; it is not an either/or between items. A total of 2, with exactly one of either kind forbidden, leaves only 2+0 or 0+2. EXCLUSION never supports, so derivation is untouched. Kinds stay only narrowed by âˆˆ and O2 is non-fillable, so NOT_AUTHORED(ALTERNATIVES), which is correct: GF4 names no default. The midline has to stay off O1 (I03 does this). GF4 is not in the slice. The STRUCTURAL label fails."
+                        },
+                        {
+                            "n":  67,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None. Restate the game with T3 = a player of the team T2 names (goalkeeper included) and T4 = that team\u0027s own half (own-half-A/B). The goalkeeper stands in its own half and T5 is STATIONARY_BALL in both arms, so the arms differ only in who takes the ball. RPC-001-16.b already holds the same wording on T3 alone, and so does A01-02-11.a. The unnamed second actor is KNOWLEDGE.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "The \u0027or\u0027 is a permission to the restarting team. Which player takes a given restart is play, outside the boundary. T4 is the same in both arms, so nothing crosses rows. Every item that reaches these T3 lines is either ENGINE_ONLY (RPC-001-16.b) or ASSUMED on non-fillable T3 (A01-02-11.a). So L122, L131, L140, L147 and L154 stay unsupported however T3 is written. The drafter mis-split one alternative across two rows."
+                        }
+                    ],
+        "themeVerdict":  {
+                             "requiresStructuralChange":  "NO",
+                             "whatTheGrammarLacks":  "An item-level disjunction: one authored alternative whose members sit on different rows or collections. Value sets hold alternatives only within one row. No entry here needs it. Each is held by the existing cross-kind J2 reference, by COUNT plus EXCLUSION on one collection, by vocabulary, by NOT_AUTHORED declarations, or by a superset value, and gets the same verdicts RC-29 would give.",
+                             "smallestAmendmentForTheTheme":  "None to the grammar. Record it as restatement guidance, not a new mechanism. An either/or across rows is held in one of three ways: on one row where J2 or the vocabulary allows; as COUNT plus EXCLUSION items on one collection; or as selector-scoped NOT_AUTHORED declarations, with no option REQUIRED on its own row. Optional and LOCAL later: an item alternativeGroup whose members keep RC-29 (NARROWS, never ENTAILS).",
+                             "blocksImplementationDesign":  "NO",
+                             "why":  "No entry is a real schema gap. The one labelled STRUCTURAL (GF4 I02) is held with EXCLUSION COUNT items, as WIDEZONE-16.b is. RC-29 already makes unchosen alternatives on non-fillable rows NOT_AUTHORED(ALTERNATIVES), so a cross-row mechanism would change at most a reason code on the slice, never a status. It turns STRUCTURAL only if a cross-row choice were made to entail, or made free against SD-16. Christian\u0027s ruling, not a grammar need."
+                         }
+    },
+    {
+        "theme":  "C-cross-element-relations",
+        "entries":  [
+                        {
+                            "n":  16,
+                            "verdict":  "REAL_SCHEMA_GAP",
+                            "scope":  "LOCAL",
+                            "minimalAmendment":  "New kind RELATIVE_BOUND, relation NARROWS: op (=,â‰ ,\u003c,â‰¤,\u003e,â‰¥) against another element\u0027s value on a named row, or a sum/spread over selector-matched elements at the item\u0027s scope, read from the stated game first (as RC-21). Here P2[team=*] spread(P2)=0, WHOLE_GAME. FIELD rows only; never entails a value or existence.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "Not holdable: EQUALS needs a constant, FIELD items apply per element, only O1 aggregates (summing O3) and only POSITIONED reads another element. Team sizes are layout, so not boundary; not a missing list value. What \u0027Even numbers\u0027 means is KNOWLEDGE (ledgered), but either reading is relational. A NARROWS kind is Â§6 LOCAL; RC-21 already reads a referent\u0027s stated value. Slice: P2 stays NOT_AUTHORED (GF2\u0027s declared gap bars choice); 4=4 holds."
+                        },
+                        {
+                            "n":  22,
+                            "verdict":  "REAL_SCHEMA_GAP",
+                            "scope":  "LOCAL",
+                            "minimalAmendment":  "Entry 16\u0027s RELATIVE_BOUND: P2[team=*] spread(P2) \u003c P5, written symmetric so no \u0027other team\u0027 designation is needed. Bound only: it is not the authored COUNT/RANGE P2\u0027s fillable entry requires, and it entails no value.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "Authored REQUIRED (\u0027a permanent numerical advantage for whichever side has the ball\u0027). P6a/P6b hold the affiliation, not the count inequality (7v4 plus 1 neutral breaks it). A whole-game count, not local numbers: inside the boundary. The STRUCTURAL worry fails: referent lookup exists (RC-21), the relation stays NARROWS, and once operands are read RC-27 sees an ordinary interval. Slice: 4+2\u003e4 holds; P2/P5 stay NOT_AUTHORED."
+                        },
+                        {
+                            "n":  23,
+                            "verdict":  "REAL_SCHEMA_GAP",
+                            "scope":  "LOCAL",
+                            "minimalAmendment":  "None beyond entry 16: P2[team=*] RELATIVE_BOUND spread(P2)=0, PREFERRED_DEFAULT, basis ASSUMED.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "Same equality as GF2-14.b, so not an independent gap. Near-inert: ASSUMED never entails and a departed PREFERRED_DEFAULT is ADAPTED, so it only changes a forward label; its sole evidence is an \u0027e.g.\u0027 already held inert by NEUTRAL-11.b (KNOWLEDGE, ledgered). Still, as restated, no kind records it, and RESTATEMENT_ERROR fails: the restater kept the original and marked the basis. Slice: 4=4, SATISFIED."
+                        },
+                        {
+                            "n":  24,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None. Declare E1 NON_CLAIMED (session-owned) with a note citing the Gate A performers-sum invariant; keep the engine-wording rule as a KNOWLEDGE ratification candidate.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "Revision 4 already holds this for every game: Â§5.1 players claim \u0027Teams plus neutrals equal it\u0027 (its Why cites NEUTRAL-10), Â§5.3 teams claim, and Â§8 Gate A \u0027performers sum\u0027. A contract need not restate a universal Gate A invariant, and E1 is SESSION-only, so a selection item never sets it. ASSUMED anyway (bound only); the explicit rule is engine wording. Slice: 12 = 4+1+4+1+2; nothing moves."
+                        },
+                        {
+                            "n":  32,
+                            "verdict":  "REAL_SCHEMA_GAP",
+                            "scope":  "LOCAL",
+                            "minimalAmendment":  "RELATIVE_BOUND with EXCLUSION strictness (EXCLUDES) on S6[noun=channel], OWN_INVOLVEMENT: forbidden value sum(S6 interval widths over the unit) \u003e= E3. It must never entail a residual region (Â§5.2: residual space is not instantiated).",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "The specification names this check (Â§5.2: \u0027WIDEZONE-09 is checked by comparing channel extents with area\u0027; Â§6 lists it PARTLY_STRUCTURAL), so not outside the boundary. Not holdable: Gate A region fit is \u003c=, not \u003c; a \u0027central\u0027 exclusion over-restricts uneven channels; a residual S2 element would be INVENTED. Aggregate kind + existing EXCLUDES = LOCAL. Slice: 12 m \u003c 30 m holds; the corridor stays unsupported."
+                        },
+                        {
+                            "n":  40,
+                            "verdict":  "OUTSIDE_BOUNDARY_BY_DESIGN",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None now: record 03.a as OUTSIDE_BOUNDARY with the distinctness proxy as KNOWLEDGE. If a separation is ever authored, entry 16\u0027s RELATIVE_BOUND reading the other set members\u0027 O4 and O5 holds it (LOCAL).",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "The authored text is design intent about play (\u0027teams adapt the direction of their progression to the target that becomes available\u0027). The clause is ASSUMED, and Variable Target itself declares candidate separation NOT_AUTHORED (#7) and unconstrained. \u0027Not identical\u0027 is empty for physically distinct objects. Slice: candidate O4/O5 stay NOT_AUTHORED (declared gaps); the O5 intervals differ, so the clause holds anyway."
+                        },
+                        {
+                            "n":  50,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None. Restate I13 as P2[team=*] EQUALS {4, 6}, unordered, TYPICAL_EXAMPLE (as NEUTRAL-11.b holds its splits); \u0027can be introduced\u0027 is a permission, so no balance item. The session-goal condition is theme A (#51).",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "TYPICAL_EXAMPLE is inert (no support, bound or collision), so no comparison ever runs and no relational kind is needed; only the inert 4-with-6 pairing is lost. The knowledge requires no inequality: asymmetry \u0027can be introduced\u0027 is a permission, not a requirement; \u0027Uneven during transitions\u0027 is OB3, outside the boundary. GF4 is not in the slice."
+                        }
+                    ],
+        "themeVerdict":  {
+                             "requiresStructuralChange":  "NO",
+                             "whatTheGrammarLacks":  "An item whose bound is read from other elements\u0027 stated values or from an aggregate over them. Items are unary per element; the only cross-element reads are POSITIONED relative terms (RC-21, positions only) and O1 summing O3. So equal or greater-than counts across teams with neutrals (P2, P5), and combined channel width against E3, cannot be written.",
+                             "smallestAmendmentForTheTheme":  "One requirement kind, RELATIVE_BOUND, relation NARROWS (EXCLUDES under EXCLUSION): op in {=,â‰ ,\u003c,\u003c=,\u003e,\u003e=} against another named element\u0027s value on a named row, or a sum/spread over selector-matched elements at the item\u0027s scope, read from the stated game first (as RC-21). FIELD rows only; never entails a value or existence; not a fillable licence. Equally LOCAL alternative: new VIEW rows.",
+                             "blocksImplementationDesign":  "NO",
+                             "why":  "The real entries (authored NEUTRAL-08.a; equality in GF2-14.b and NEUTRAL-09.a; WIDEZONE-09, which Â§5.2 names) fit a new kind with an existing relation: Â§6 LOCAL. NEUTRAL-10.a is Gate A\u0027s performers sum; I13 is inert; VARTARGET-03 is play. It turns STRUCTURAL only if it may ENTAIL by reference or entail existence (RC-2); the amendment forbids both. No slice verdict moves."
+                         }
+    },
+    {
+        "theme":  "D-selector-attributes-and-references",
+        "entries":  [
+                        {
+                            "n":  2,
+                            "verdict":  "REAL_SCHEMA_GAP",
+                            "scope":  "LOCAL",
+                            "minimalAmendment":  "Let J2 take a P4 role reference: register J2 valueType becomes \u0027object, region or performer-role reference\u0027, or add a field objectives[].roleReference, exclusive with J2. Limit spec Â§5.8\u0027s Gate A claim \u0027every member of its reference has a Space position\u0027 to object and region members.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "Not holdable: rpc-library defines target_player as \u0027received and controlled by a designated target player\u0027, a P4 role. No object or region carries it, and a region reading would be invented. Not KNOWLEDGE (V1 lists it) and not outside the boundary (a designated role is layout; spec Â§5.3 expects roles to be referenced). A new reference type on an existing collection is LOCAL. The slice uses target_zone_entered and has no target player."
+                        },
+                        {
+                            "n":  5,
+                            "verdict":  "KNOWLEDGE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None to the grammar. Choose a reading on existing selectors. Laws: trigger=OUT_END_LINE \u0026 qualifier.lastTouch=ATTACKING_TEAM (ASSUMED, like items 04-11). Practice: trigger=START, or * (T3-T5 are N/A under CONTINUE). Declare the trigger NOT_AUTHORED. If an unkeyed goal-kick element is still wanted: a label-only T1 field plus selector attribute (LOCAL). A label that entails T3-T6 values would be a new relation (STRUCTURAL).",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "The only authored text is \u0027Restart from goal kicks.\u0027, and L11 says \u0027goal kick\u0027 is undefined in every workbook. The drafter applies the Laws meaning to method, actor, awardee and place, but not to the trigger, though the Laws define a goal kick by its trigger, which T1 holds exactly (tr-OEL-att). Only which transitions are goal kicks stays unheld: a knowledge ambiguity. Dependents are ASSUMED or ENGINE_ONLY."
+                        },
+                        {
+                            "n":  8,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None. Put the NOT_AUTHORED declaration on O1 [kind=goal] (the open question is whether a goal stands at the kicking end) or on J1 [*]. A positional J1 attribute is unnecessary. It would also need a join through J2 to O4/S5.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "It is declaration-only, on a question the knowledge leaves open: \u0027goal kick\u0027 is undefined (L11), and the original both non-claims J1 and leaves this open (L13). The object lets either team take the kick (05.a, T2 non-claim), so in a reciprocal game every end is some team\u0027s goal-kick end. J1 [*] therefore reaches what a positional selector would. On O1 [kind=goal] it reaches nothing in the slice, which has no goals."
+                        },
+                        {
+                            "n":  11,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None. Write the structural clause as an EXCLUSION: V11 [trigger=STANDING \u0026 effect=ACCESS] NOT_EXISTS, with V14a/V14b carrying team and region, or S4 functions âˆ‹ access forbidden, as WIDEZONE-08.a does. Basis ASSUMED, because \u0027no partition\u0027 is the original\u0027s reading. \u0027Removes direct contest\u0027 is OUTSIDE_BOUNDARY. An exact partition test belongs to theme C.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "The premise is wrong twice. A team partition needs no team on the region, because ACCESS {team, region} carries it (spec Â§5.8: access and spatial advantage live in ACCESS). And ACCESS is not limited to event triggers, since STANDING is in the single closed trigger list that V12 uses (Â§5.7). The authored text (GAK-0106) concerns opportunity, which is outside the boundary. The slice has no ACCESS rule, so the exclusion holds."
+                        },
+                        {
+                            "n":  29,
+                            "verdict":  "REAL_SCHEMA_GAP",
+                            "scope":  "LOCAL",
+                            "minimalAmendment":  "Add position.across as an S2 selector attribute, matched against register relative terms by the RC-21 interval test. Under RC-16 it narrows like âˆˆ and never entails. Write S2 [noun=channel \u0026 position.across=touchline-adjacent] at WHOLE_GAME. Bar OWN_INVOLVEMENT on COLLECTION items that entail. Reject \u0027contributing object\u0027: provenance held in the game feeds derivation back into matching, which is a STRUCTURAL change.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "Not VOCABULARY: a \u0027wide channel\u0027 noun would put a relation in a noun, and spec Â§5.2 treats \u0027wide\u0027 as an interval comparison. Functions cannot separate wide channels from other channels. OWN_INVOLVEMENT is circular on 02.a, 03 and 08.d, because their scope depends on what they entail. A new selector attribute on an existing collection is LOCAL. The slice has exactly two channels, both wide (its centre is a corridor)."
+                        },
+                        {
+                            "n":  30,
+                            "verdict":  "REAL_SCHEMA_GAP",
+                            "scope":  "LOCAL",
+                            "minimalAmendment":  "Build on #29\u0027s attribute. Give the touchlines identities, either per-team relative terms (\u0027touchline-adjacent, left/right of T\u0027s attack\u0027) or a neutral pair TOUCHLINE_1/TOUCHLINE_2 (VOCABULARY). Then write S2 [noun=channel \u0026 position.across=adjacent to touchline k] COUNT 1 for each k. Equivalent: a PER_TOUCHLINE scope whose unit is \u0027touches that touchline\u0027. A new scope value is VOCABULARY under Â§6.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "FIELD items apply to every match, so per-touchline relative terms alone cannot say \u0027one each\u0027. COLLECTION existence selects only through selector attributes. Gate A\u0027s \u0027fit\u0027 does not rescue it: two non-overlapping channels can share one touchline by splitting its length (07\u0027s full length is only an ASSUMED default). A selector or scope over lateral side is needed, both LOCAL or VOCABULARY. The slice has one channel per touchline."
+                        },
+                        {
+                            "n":  35,
+                            "verdict":  "REAL_SCHEMA_GAP",
+                            "scope":  "LOCAL",
+                            "minimalAmendment":  "Add condition.referents to V7\u0027s selectorAttributes (âˆ‹). Event referents are vocabulary tokens. Region/object referents use the same descriptions V8b values already use (VARTARGET-18.a, NEUTRAL-15.a), made contract-independent by #29. Not \u0027contributing object\u0027, which is STRUCTURAL. FIELD items may also use OWN_INVOLVEMENT once theme B lets Wide Zone entail its modifier.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "Partly downstream of theme B. OWN_INVOLVEMENT is the spec\u0027s device for this case (Â§6: Wide Zone\u0027s multiplier coexisted \u0027only because each was object-scoped\u0027), but it reaches nothing here. The advantage alternatives are TYPICAL_EXAMPLE, so no V7 element is entailed. Even when entailed, the entailing item cannot scope itself. A new selector attribute is LOCAL. The slice has one modifier (mod-wide)."
+                        },
+                        {
+                            "n":  38,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "No selector attribute. Clarify RC-23 (derivation Â§5): \u0027a set\u0027s unit contains its J7 members and every element they reference through J2\u0027, as spec Â§5.5 implies (\u0027a count range authored per set is checked per set\u0027). Then 06.b\u0027s J1 [*] RANGE \u003e=2 PER_OBJECTIVE_SET reaches exactly the set\u0027s member objectives. A \u0027set\u0027 attribute on J1 would duplicate J7 and still need this.",
+                            "changesASliceVerdict":  "YES",
+                            "reasoning":  "This is an ambiguity in the run\u0027s definition of a unit, not a missing attribute. Read strictly, RC-23 puts only referenced objects and regions in a unit, so 06.b reaches no objective. Unit membership is a scope matter (Â§6 treats scope values as VOCABULARY), not a relation or a status. It moves a slice verdict: only 06.b can entail the second candidate objective in the set 06.a entails, else INVENTED (J1 is not fillable). Christian decides."
+                        },
+                        {
+                            "n":  42,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "No register change. Clarify grammar Â§2: a FIELD row\u0027s selector uses its collection\u0027s selectorAttributes, as the syntax \u0027\u003ccollection\u003e[\u003cattribute\u003e=\u003cvalue\u003e].\u003cfield\u003e\u0027 shows. Every other drafter already does so (S6 noun=, J2 role/team, T3-T6 trigger=, V17 subject=). 16.a becomes V17 [subject=live member of this set] at WHOLE_GAME.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "V16-V22 inherit V15\u0027s \u0027subject\u0027 and J6-J12 inherit J5\u0027s \u0027scope\u0027. Through subject, 16.a\u0027s forbidden STANDING reaches info-live only, never Wide Zone\u0027s rule, whose subject differs. OWN_INVOLVEMENT on FIELD items is not circular, because 06.a and 13.a entail the set and the rule. The only defect is Â§2\u0027s wording \u0027the row\u0027s selectorAttributes\u0027, an S2 risk. In the slice the two rules\u0027 subjects differ."
+                        },
+                        {
+                            "n":  49,
+                            "verdict":  "REAL_SCHEMA_GAP",
+                            "scope":  "LOCAL",
+                            "minimalAmendment":  "Use #35\u0027s V7 attribute condition.referents (âˆ‹). I15 becomes V7 [condition.type=event \u0026 condition.referents âˆ‹ regain], and I14 selects on its own referent. No O1 change: I03 already holds the midline as two S2 halves.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "The O1 half is already held: I03 keeps the midline off O1, and \u0027target\u0027 as line, zone or gate is a KNOWLEDGE ambiguity the drafter logged. The V7 half is real, because condition.type cannot separate two event modifiers. But I14 and I15 are TYPICAL_EXAMPLE and inert, so no verdict depends on their reach. A new selector attribute is LOCAL, so S4 holds for this entry. GF4 is not in the slice."
+                        },
+                        {
+                            "n":  57,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None structural. State the association where it lives: P8 {group=TEAM_A, region=own-half-A} for the start area, and T4 references for restarts. \u0027Own half of T\u0027 resolves by position: the half touching the end T defends (RC-21 \u0027own end\u0027). Add the relative term \u0027own half (of team T)\u0027 (VOCABULARY, RPC-001 L-06). A stored region team would be a second place that can disagree (spec Â§5.6).",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "Team ownership of a half is derivable, not a property of the half. own-half-A spans 0-20 m from the west end line, and Team A defends west (J3 plus positions give DV1). The spec refuses to store direction for exactly this reason. The game needs the start placement on P8 and designation-based T4 references, both on existing rows. The restater put the association on the region instead."
+                        }
+                    ],
+        "themeVerdict":  {
+                             "requiresStructuralChange":  "NO",
+                             "whatTheGrammarLacks":  "It lacks selector attributes that tell same-kind elements apart: lateral position (with touchline identity) on S2, and referents on V7. J2 cannot target a performer role. Two wording gaps put S2 at risk: Â§2 must say FIELD rows use their collection\u0027s attributes, and RC-23 must put J7 members in their set\u0027s unit. OWN_INVOLVEMENT is circular on items that entail their own elements.",
+                             "smallestAmendmentForTheTheme":  "(1) S2 selector position.across, matched by RC-21 relative terms, narrowing under RC-16, plus per-touchline terms. (2) V7 selector condition.referents (âˆ‹). (3) J2 accepts P4 role references, with Â§5.8\u0027s position claim limited to objects and regions. (4) One-line clarifications to Â§2 and RC-23. (5) No OWN_INVOLVEMENT on entailing COLLECTION items. Never \u0027contributing object\u0027.",
+                             "blocksImplementationDesign":  "NO",
+                             "why":  "Of 11 entries, 5 are LOCAL gaps (#2, #29, #30, #35, #49), 5 are already holdable (#8, #11, #38, #42, #57) and 1 is KNOWLEDGE (#5). None adds a relation, status, strictness, value status, basis, declaration or area. The only STRUCTURAL risk is the drafters\u0027 optional \u0027contributing object\u0027 selector, which can be avoided. Only #38\u0027s RC-23 clarification moves a slice verdict, so it goes to Christian first."
+                         }
+    },
+    {
+        "theme":  "E-declaration-and-convention-mechanics-plus-by-design-exclusions",
+        "entries":  [
+                        {
+                            "n":  3,
+                            "verdict":  "REAL_SCHEMA_GAP",
+                            "scope":  "LOCAL",
+                            "changesASliceVerdict":  "YES",
+                            "minimalAmendment":  "Register teamDesignations note: on a row not keyed by a trigger or episode, an episode or trigger designation in a selector is satisfied by every team that the game\u0027s stated transitions (T1/T2/T7, stated attributes per RC-1) make it at some START or trigger. An item binding only one episode also carries an episode scope (the L-05 VOCABULARY value).",
+                            "reasoning":  "Not holdable as written: designations are evaluated only at a trigger or episode, and P1/J1 elements carry TEAM_A/TEAM_B, so readers can match both teams, START\u0027s team only, or none (RC-22). RPC-001-03 alone fits selector * (RC-19 makes every team ATTACKING_TEAM sometime). The rule fixes a selector value\u0027s meaning, like RC-21/22; matching on verdicts would be STRUCTURAL. It settles L40/L43 and 11.a\u0027s reach to L85/L89 (KR-03): Christian first."
+                        },
+                        {
+                            "n":  14,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "changesASliceVerdict":  "NO",
+                            "minimalAmendment":  "None. Add tautological items J4[role=PRIMARY_SCORING] EQUALS PRIMARY_SCORING and S4[functions âˆ‹ objective-area] EQUALS objective-area (that member line), so both rows are CLAIMED by items; RC-16 already entails the same values.",
+                            "reasoning":  "Â§4 needs an item on the row for CLAIMED; nothing forbids an item whose selector fixes the value it asserts, and it reaches exactly the elements RC-16 already entails, so no line can move. The missing J1 reference attribute behind GF2-08.b\u0027s workaround is a selector-attribute question (theme D). The declarations as written are also correct: J4 lines stay ENTAILED via GF2-08.a."
+                        },
+                        {
+                            "n":  15,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "changesASliceVerdict":  "NO",
+                            "minimalAmendment":  "None. Write the universal as an exclusion: J8[*] EQUALS 0, strictness EXCLUSION, WHOLE_GAME. With no set the forbidden value is absent, so the forward result is SATISFIED; UNMET applies only to REQUIRED items (RC-35).",
+                            "reasoning":  "liveCardinality is a non-negative integer, so \u0027\u003e= 1 for every set\u0027 is exactly \u0027no set has 0\u0027. As a RANGE on non-fillable J8 the item supported nothing anyway (NARROWS), so no support is lost, and VARTARGET-07\u0027s J8 = 1 neither collides with nor violates the exclusion. No derivation change is needed. The slice has set-A and set-B, so the item is not vacuous there."
+                        },
+                        {
+                            "n":  18,
+                            "verdict":  "REAL_SCHEMA_GAP",
+                            "scope":  "LOCAL",
+                            "changesASliceVerdict":  "NO",
+                            "minimalAmendment":  "RC-11 gains a complement Â¬(selector), satisfied by every element that fails the inner selector, including one lacking the attribute. It fixes no attribute under RC-16, like âˆˆ. It may be limited to declaration selectors (RC-13).",
+                            "reasoning":  "Partly holdable: for single-valued closed lists the complement is an âˆˆ enumeration (GF2\u0027s O1). Not for set-valued S4 functions or unstated attributes, so S2-S4 fall back to NON_CLAIMED(*) over the target, and rule 4\u0027s \u0027declares NON_CLAIMED\u0027 can be read as permission against the contract\u0027s own ENTAILS item. An operator is on neither Â§6 list; like a new attribute it adds no relation. No slice region is objective-area, so nothing moves."
+                        },
+                        {
+                            "n":  19,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "changesASliceVerdict":  "NO",
+                            "minimalAmendment":  "None. Â§4 asks for \u0027at least one\u0027 declaration per row, so CLAIMED with NON_CLAIMED is already allowed. CLAIMED alone also works: RC-28 makes TYPICAL_EXAMPLE inert (no bound), so derivation rule 4 finds nothing to bar. Optionally note this beside RC-7.",
+                            "reasoning":  "No declaration-mechanism change: several declarations per row are used throughout (GF2 O1 and J1, RPC-001 J3). The item supports, bounds and collides with nothing, so either declaration gives the same verdicts. E2 and E3 are SESSION rows with no fillable entry, so no free choice arises on the slice."
+                        },
+                        {
+                            "n":  26,
+                            "verdict":  "REAL_SCHEMA_GAP",
+                            "scope":  "LOCAL",
+                            "changesASliceVerdict":  "NO",
+                            "minimalAmendment":  "Same as entry 18: a complement Â¬(selector) in RC-11, true of elements failing the inner selector including those lacking the attribute, fixing no attribute under RC-16.",
+                            "reasoning":  "Partly holdable: V6 was done by âˆˆ over the rest of the closed V4 list, and J1 needs no carve-out since NEUTRAL-17.a acts as an exclusion whatever overlaps it. V8b \u0027other referents\u0027 is per-member selection (theme D), not negation. The residue is P4 roleName (open list) and P8-P10 group, where UNDECLARED(*) wrongly bars choice on neutral elements the object non-claims. None of these rows is fillable and no neutral placement exists."
+                        },
+                        {
+                            "n":  45,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "changesASliceVerdict":  "NO",
+                            "minimalAmendment":  "None needed. Optional register clarification: V5 (and V8b, T4, P10) references may name an SV1 implicit fraction, which exists by SD-12 without an S2 element.",
+                            "reasoning":  "Spec Â§5.2: implicit halves and thirds \u0027exist without declaration\u0027 and are never instantiated as marked regions; Â§5.8 needs condition referents to be existing regions. An SV1 half is one (half is on the S3 noun list), so PCG-06 with PCG-07 already holds \u0027in their half\u0027. A reference is not support, so views still support no stored row. No slice V5 item names an SV1 fraction; the game\u0027s halves are S2 elements."
+                        },
+                        {
+                            "n":  47,
+                            "verdict":  "OUTSIDE_BOUNDARY_BY_DESIGN",
+                            "scope":  "N/A",
+                            "changesASliceVerdict":  "NO",
+                            "minimalAmendment":  "Run convention beside RC-6: an item whose checkability is OUTSIDE_BOUNDARY takes row NONE and requirement N/A. It stays inert (RC-31); only its form changes.",
+                            "reasoning":  "Grammar Â§1 already records such items as OUTSIDE_BOUNDARY and says they are not forced onto a row; Â§3\u0027s required row and requirement fields simply lack an N/A. That is a drafting inconsistency, not a missing row, field or kind. Restaters diverged (nearest row in RPC-001, NONE in NEUTRAL and GF4, a dash in PCG), but RC-31 makes every form inert, so no line or forward result differs."
+                        },
+                        {
+                            "n":  53,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "changesASliceVerdict":  "NO",
+                            "minimalAmendment":  "None. State example-only existence as COUNT (or RANGE \u003e= 1) on the COLLECTION row. That carries a value, so it may be TYPICAL_EXAMPLE: V7[condition.type=event] COUNT 1 TYPICAL_EXAMPLE, and V23[startsOn=POSSESSION_CHANGE] likewise.",
+                            "reasoning":  "Â§2 lets COUNT/RANGE state existence. RC-6 forces N/A only on items with no value, and RC-28 then makes the item inert, which is exactly \u0027example only\u0027. No new value status is needed, so the STRUCTURAL label fails. As drafted, I17 (AUTHORED, SUPPORTING, EXISTS on V7) would entail a modifier\u0027s existence under RC-2, an over-entailment. GF4 is a blind contract, not in the slice."
+                        },
+                        {
+                            "n":  54,
+                            "verdict":  "OUTSIDE_BOUNDARY_BY_DESIGN",
+                            "scope":  "N/A",
+                            "changesASliceVerdict":  "NO",
+                            "minimalAmendment":  "None. Recommendations and fit scores are cross-object selection knowledge; a contract states what one object requires in a game. A requirement GA-001 imposes is written as GF4\u0027s own item citing GA-001, as RPC-001-01.a, RPC-001-14.a and GF2-09 did.",
+                            "reasoning":  "The contract touches the game only through item matching and non-claim permission (Â§6); an object-to-object link touches neither, and Â§7 excludes selection scores. Relationship rules exist only to decide collisions on one row, and \u0027recommended with\u0027 decides none. A link\u0027s requirement content is holdable today by citation, so no relation is needed and the STRUCTURAL label fails. No slice object depends on a link."
+                        },
+                        {
+                            "n":  58,
+                            "verdict":  "OUTSIDE_BOUNDARY_BY_DESIGN",
+                            "scope":  "N/A",
+                            "changesASliceVerdict":  "NO",
+                            "minimalAmendment":  "None. Drop the exclusion prose from the restated game. The contracts hold it: WIDEZONE-08.a (no access function on channels), 08.b (no ACCESS consequence on a channel), 08.c. \u0027Entry never compulsory\u0027 is route and play, outside the boundary.",
+                            "reasoning":  "Spec Â§5.8 removes exclusions[] from the representation: they live in the contract and are checked by Gate B. The game states only what exists, and under the existence rule an unstated restriction, access consequence or compulsory-entry rule cannot exist without entailed support. The restater\u0027s own note cites Â§5.8. Nothing is lost: each clause has a contract EXCLUSION item or is play."
+                        },
+                        {
+                            "n":  70,
+                            "verdict":  "OUTSIDE_BOUNDARY_BY_DESIGN",
+                            "scope":  "N/A",
+                            "changesASliceVerdict":  "NO",
+                            "minimalAmendment":  "None. Contract exclusions hold it: RPC-001-12 and GF2-20 (retention as V1), WIDEZONE-16.a (channel as J2) and 16.b, VARTARGET-12.a (a second route). A01-02-12.a/b (goal kick) rest on ENGINE_ONLY: a KNOWLEDGE gap, not schema.",
+                            "reasoning":  "Same design rule (Â§5.8): the game holds one primary event (SD-06) and its objectives, anything else is simply absent, and Gate B checks the contract EXCLUSION items against it. The goal-kick clause is inert only because its basis is engine wording (SD-21); ratifying that wording, not changing the grammar, would cure it."
+                        },
+                        {
+                            "n":  71,
+                            "verdict":  "OUTSIDE_BOUNDARY_BY_DESIGN",
+                            "scope":  "N/A",
+                            "changesASliceVerdict":  "NO",
+                            "minimalAmendment":  "None. NEUTRAL-15.a (neutral involvement as a modifier referent) and VARTARGET-18.a (a candidate member as a referent) hold the first two clauses. \u0027Retention may not outweigh progression\u0027 is incentive balance, recorded inert in GF2-21 (OUTSIDE_BOUNDARY).",
+                            "reasoning":  "Â§5.8 keeps exclusions out of the game, and SD-06 restricts V7: a value change must be explicitly authored, so an absent modifier needs no row to stay absent. The only clause no row could hold, \u0027outweigh\u0027, concerns the incentive landscape, which Â§7 keeps outside the representation."
+                        }
+                    ],
+        "themeVerdict":  {
+                             "requiresStructuralChange":  "NO",
+                             "whatTheGrammarLacks":  "Two selector-level reading rules: how an episode or trigger team designation (BUILD_OUT_TEAM, ATTACKING_TEAM) is satisfied on a row with no trigger or episode, and a complement operator for open-listed, set-valued or unstated selector attributes. Every other entry is holdable today or deliberately outside the representation. Both drafter STRUCTURAL labels (53, 54) fail on verification.",
+                             "smallestAmendmentForTheTheme":  "(1) A teamDesignations note: on a static row, an episode or trigger designation is satisfied by each team that the game\u0027s stated transitions make it at some START or trigger, or the item takes an episode scope. (2) RC-11 gains Â¬(selector), true of elements failing the inner selector, including those lacking the attribute, fixing none under RC-16. Housekeeping: row NONE and requirement N/A for OUTSIDE_BOUNDARY items.",
+                             "blocksImplementationDesign":  "ONLY_IF_UNAMENDED",
+                             "why":  "Both real gaps meet Â§6 LOCAL: they fix selector meaning and add no relation, status, strictness, value-status, basis, declaration type, source kind or area. Unamended, matching stays non-deterministic on static-row designations and on overlapping declarations. Rule (1) moves slice lines L40/L43 (P3) and 11.a\u0027s reach to team B\u0027s objectives under KR-03, so it goes to Christian before incorporation."
+                         }
+    },
+    {
+        "theme":  "F-rules-on-play-actions-and-performer-status",
+        "entries":  [
+                        {
+                            "n":  4,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None. The retreat non-claim sits on V11/V13/V14b (effect=ACCESS on the restart triggers) and on T2-T5 for out of play. RPC-001 already declares NON_CLAIMED(*) there, and From Goal Kicks places the same question there. The touch-limit non-claim needs no row. If the #17 row is adopted, RPC-001 adds NON_CLAIMED on it.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "A non-claim is only a permission check on REALIZATION values on a registered path (spec Â§3), and S3 coverage is per register row. A retreat line is an ACCESS consequence on the restart trigger, which RPC-001 already non-claims (V13 note: access and eligibility are free). A touch limit has no row, so no free choice can create one (SD-16) and no text may describe one (SD-05). The non-claim has nothing to permit, and no line is touched."
+                        },
+                        {
+                            "n":  17,
+                            "verdict":  "REAL_SCHEMA_GAP",
+                            "scope":  "LOCAL",
+                            "minimalAmendment":  "A new COLLECTION row in Performers, e.g. performers.actionRules[] (selectorAttributes: group, action), with FIELD rows .group (team designation, role or NEUTRALS), .action (draft list: touch, pass, receive, contest) and .limit. GF2-22 and GF2-15\u0027s clause become EXCLUSION NOT_EXISTS items (EXCLUDES). No fillable entry. GF2-22 should be PARTLY_STRUCTURAL, because \u0027passing options\u0027 are affordances.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "Not holdable: V4 eligibility binds only the primary event, and forbidding it would bar incentives GF2-22 allows. S4 access and V11 ACCESS hold only region limits. Not out by design: Â§1 holds what the rules key on, and Â§7 does not list rules. LOCAL: existing kinds, relations, statuses and RC-2 existence. The slice game holds no such rule, so there are no lines and GF2-22 is SATISFIED either way. GF2-15\u0027s remainder is play plus an ASSUMED polarity."
+                        },
+                        {
+                            "n":  21,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None. Re-place NEUTRAL-05.a as P5 RANGE \u003e= 1 (as NEUTRAL-01.a does); NEUTRAL-03.a/.b and 14.a/.b carry the \u0027permanent advantage\u0027. The \u0027not rotated, not waiting\u0027 clause needs no row, because the representation cannot express either.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "The authored words (\u0027permanent numerical advantage for whichever side has the ball\u0027, \u0027live numerical overload\u0027) are held by P5 \u003e= 1 and P6a STANDING / P6b ATTACKING_TEAM. \u0027Whole activity, outfield, not rotated or waiting\u0027 is a gloss from the prose-era contract. It is true by construction: one continuous game, a fixed partition (E1 = teams + neutrals), and no inactive state. Only the item\u0027s own forward result changes (unplaced to SATISFIED); no line verdict does."
+                        },
+                        {
+                            "n":  27,
+                            "verdict":  "KNOWLEDGE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None of its own. If the #17 row is adopted, the Neutral contract declares it NON_CLAIMED (or NOT_AUTHORED) for group=NEUTRALS. Pressing, tackling and dispossession stay OUTSIDE_BOUNDARY.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "Nothing is authored and nothing is needed. NOT_AUTHORED means the object needs the row filled (sheet Â§4), and a game with neutrals is complete without protection or a touch limit. Pressing and tackling are play, as the drafter agrees. The missing row is the #17 gap seen from the declaration side and adds no failure: no game can contain such a rule (SD-16, SD-05), so the open question reaches no line."
+                        },
+                        {
+                            "n":  28,
+                            "verdict":  "OUTSIDE_BOUNDARY_BY_DESIGN",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None. Which individuals wear the neutral bibs is not game structure. Rounds and periods belong to the separate period-structure entry (GF2 ledger \u0027E4, J3, DV1\u0027), not to this theme.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "The spec holds performers as counts, affiliation and distinguishability (Â§5.3), never as individual players. No rule keys on who a neutral is, so rotating players between rounds changes no row. Rounds themselves are period structure, a separate ledger item. Rotation is also unauthored and is not a value the object needs, so no declaration is owed and no line is affected."
+                        },
+                        {
+                            "n":  60,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None. The game\u0027s P5 (L45, value 2), P6a (L46) and P6b (L47) lines hold the positive content. \u0027Never fixed to one team\u0027 is P6b\u0027s value stated as a negation. \u0027Not rotated\u0027 is an exclusion, and by design the game holds no exclusions (spec Â§5.8).",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "P5, P6a and P6b state two neutrals whose affiliation follows possession. \u0027Persistent active outfield\u0027 is true by construction: one period, a fixed partition, no inactive state. The negations are exclusions. Â§5.8 removed exclusions[] from the game: they live in NEUTRAL-04 and NEUTRAL-05, and Gate B checks them. The game\u0027s P6a/P6b values differ from the contract\u0027s, but that is a derivation matter, not this entry."
+                        },
+                        {
+                            "n":  68,
+                            "verdict":  "OUTSIDE_BOUNDARY_BY_DESIGN",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None. Keep the exclusion in GF2-18\u0027s contract (OUTSIDE_BOUNDARY: reciprocal influence is play). Its structural effect is already held on T2/T6 (GF2-07.b forbids giving the ball back to LOST_BALL; GF2-17 sets CONTINUE on POSSESSION_CHANGE) and by J1 objectives for both teams.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "A game statement that something is absent is an exclusion. Â§5.8 deliberately removed exclusions[] from the representation: contracts hold them and Gate B checks them. What a turn structure would change (who gets the ball after an attempt, whether play stops) sits on T2/T6/T7, which the game states (L153, L157, L158). Queued or waiting players cannot be represented at all. No verdict changes."
+                        }
+                    ],
+        "themeVerdict":  {
+                             "requiresStructuralChange":  "NO",
+                             "whatTheGrammarLacks":  "A home for standing rules on what players may do, or on their status, outside the primary event\u0027s conditions: touch limits, banned receivers, pass-direction bans, rules stopping a team contesting the ball, protected status, and later EM-0007 participation state. Region restrictions already fit S4 access + V11 ACCESS (as Wide Zone did). Pass rules tied to scoring fit V3-V6 (as Pass Combination Gate did). Players\u0027 persistence holds by construction.",
+                             "smallestAmendmentForTheTheme":  "One new COLLECTION row in Performers, performers.actionRules[] (selectorAttributes: group, action), with FIELD rows .group, .action (a draft closed list) and .limit. Existence follows RC-2; no fillable entry; items use existing kinds (EQUALS/RANGE/NOT_EXISTS). A trigger for breaking a rule, if ever authored, is VOCABULARY. Every contract then declares the new row (S3).",
+                             "blocksImplementationDesign":  "NO",
+                             "why":  "Only #17 is a real gap, and its fix is LOCAL: an added row using existing kinds, relations, statuses and derivation. No hidden STRUCTURAL step was found. The other six entries are already held, out of scope by design, or unauthored. The run used action rules only as exclusions, and SD-16 and SD-05 already keep such rules out of every game, so no slice line verdict changes. A rule authored later would fail Gate B visibly, not be lost silently."
+                         }
+    },
+    {
+        "theme":  "G-transition-and-trigger-keyed-fields",
+        "entries":  [
+                        {
+                            "n":  6,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None. Record the declaration as NOT_AUTHORED on T5 for the goal-kick element (RC-7, beside A01-02-04.b): how the ball is put back into play, including when it is live, is what the P-1 method list types. A fixed variant, if ever authored, is VOCABULARY on that draft list (SD-18). Only a region-parameterised liveness rule would need a field, and n7\u0027s optional restriction element can carry it.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "Only a notAuthored declaration exists; nothing is authored. The declaration mechanism holds it (T5 or T6 with a note, RC-7). Slice: goal-kick T6 lines are ENTAILED by GF2-16.b on OUT_*, and otherwise NOT_AUTHORED because A01-02-04.a/.b are ASSUMED (START_PROCEDURE, POST_SCORE). Moving the declaration shifts at most a reason code, not a verdict."
+                        },
+                        {
+                            "n":  7,
+                            "verdict":  "REAL_SCHEMA_GAP",
+                            "scope":  "LOCAL",
+                            "minimalAmendment":  "Optional transitions[].placement.restrictions[] {group: team designation, region | minDistance_m from the placement}: a new COLLECTION row under Transitions. It exists only where an authored item entails it (absent = none imposed). Sitting under .placement, the existing CONTINUE coherence rule makes it N/A; metres fall under P-4\u0027s existing \u0027metres\u0027. It also covers n9 and the restart-keyed part of n63.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "V11 ACCESS is only approximate: regions are fixed layout, a distance from a mobile placement is not a region, and consequences have no end (Â§5.8 removed duration). P8 places groups at START only. A clearance or retreat rule (a build-out line) is a dead-ball rule a coach lays out, inside the boundary. EQUALS/RANGE only: LOCAL. It must stay optional: if required whenever STOP_RESUME, every slice restart gains a NOT_AUTHORED line."
+                        },
+                        {
+                            "n":  9,
+                            "verdict":  "REAL_SCHEMA_GAP",
+                            "scope":  "LOCAL",
+                            "minimalAmendment":  "Same optional element as n7, with a playedTo {region} field (the ball\u0027s first destination), existing only where authored. \u0027Short or long\u0027, \u0027to which player\u0027, \u0027how many passes\u0027 and \u0027along the ground\u0027 stay OUTSIDE_BOUNDARY (play).",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "Only a non-claim (\u0027All free\u0027), vacuous today: SD-16 bars a free choice from creating such a rule, and no row lets knowledge require one. The \u0027to which zone\u0027 clause is a rule keyed on the ball entering a region, the kind of fact REGION_ENTRY keys on, so it is inside the boundary. No existing row holds it: T4 is where the restart is taken from, not where it goes. LOCAL; no slice line exists for it."
+                        },
+                        {
+                            "n":  36,
+                            "verdict":  "REAL_SCHEMA_GAP",
+                            "scope":  "LOCAL",
+                            "minimalAmendment":  "timeWindows[].endsOn (a trigger list from the closed vocabulary, as an alternative to duration), so a temporary effect ends on a trigger through the window\u0027s existing expiryEffect; and cap {count, per EPISODE|GAME} on valueModifiers[] and consequences[]. Both optional, existing only where authored. Do not reinstate consequences[].duration, which Â§5.8 removed deliberately.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "Not holdable: V11 has no end; windows end by duration only; a reversing consequence on POSSESSION_CHANGE would fire in states with no advantage, failing \u0027every referent resolves in every state\u0027; nothing caps frequency. These are rules governing state, not state, so inside the boundary. New fields on existing collections: LOCAL. Declarations only; the only persistence text is engine wording. Slice mod-wide stays NOT_AUTHORED (notAuthored #1, #2)."
+                        },
+                        {
+                            "n":  43,
+                            "verdict":  "REAL_SCHEMA_GAP",
+                            "scope":  "LOCAL",
+                            "minimalAmendment":  "value.primaryEvent.conditions[].resetOn: a list of triggers from the closed vocabulary, one property per trigger (as J10), added to RC-15\u0027s list-valued rows. PCG-05 then splits into typed items: resetOn contains POSSESSION_CHANGE, OUT_END_LINE and OUT_TOUCHLINE.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "Authored: \u0027Pass count resets when possession is lost or the ball leaves play.\u0027 V6 holds it only as a compound string that RC-34 can match verbatim. Its triggers are hidden in prose, against Â§3\u0027s atomic properties and the single closed trigger vocabulary, so Gate A cannot check them. Episodes do not substitute: OUT_* begin none under SD-14, which does not reinitialise requirements. New field, EQUALS: LOCAL. PCG is not in the slice."
+                        },
+                        {
+                            "n":  52,
+                            "verdict":  "REAL_SCHEMA_GAP",
+                            "scope":  "LOCAL",
+                            "minimalAmendment":  "valueModifiers[].condition.value (the V6 analogue for modifiers), holding \u0027the regain began the scoring team\u0027s current episode\u0027, with V8b = {regain} only; the modified event is the primary event by construction. \u0027Shot\u0027 as its own rewarded event is barred by SD-06 (a second way to score); as the event kind it is VOCABULARY.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "Partly holdable: V8b can name the regain, and the later event is always the modified primary event, so order is implicit. What is missing is the link \u0027in the same episode\u0027 (SD-14: POSSESSION_CHANGE begins one); without it, \u0027a regain occurred\u0027 is vacuous. No row carries a parameter on a modifier condition. New field on an existing collection: LOCAL. I15 is TYPICAL_EXAMPLE, so inert; GF4 is not in the slice."
+                        },
+                        {
+                            "n":  61,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None (schema). Restate the game\u0027s neutrals as P6a = STANDING and P6b = ATTACKING_TEAM, as NEUTRAL-03 and NEUTRAL-14 already do. ATTACKING_TEAM is re-evaluated each episode, so START (Team A) and each restart\u0027s awardee are covered without a second pair. Flag STANDING\u0027s gloss (\u0027openly known information\u0027) for the SD-18 review; C4 stays open.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "The game\u0027s own words, \u0027always play for the team currently in possession\u0027, are a standing rule; the restater chose the consequence reading. No amendment is needed, but the restatement matters: POSSESSION_CHANGE/WON_BALL fails NEUTRAL-03.a/.b and 14.a/.b (EQUALS), so P6a/P6b lose support and those items read VIOLATED. STANDING/ATTACKING_TEAM makes them ENTAILED. Report this to the derivers."
+                        },
+                        {
+                            "n":  63,
+                            "verdict":  "OUTSIDE_BOUNDARY_BY_DESIGN",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None. The placed \u0027group\u0027 is a formation of players (the first defenders\u0027 line), which Â§5.3 makes NOT_AUTHORED and never inferred. Its placement sources are ENGINE_ONLY (RPC-001-04.a-c). The between-description can be written as two \u0027beyond\u0027 tests (as RPC-001-04.b does). A restart retreat rule with a region, if ever authored, is n7\u0027s LOCAL amendment.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "P8 is START-only by design. The game\u0027s \u0027at every restart the defending team has a line positioned between...\u0027 (\u0027not marked; only determinable\u0027) says where defenders are during play. It is not a rule a coach lays out. Its sources are engine wording (inert, SD-21) and RPC-001-18.d\u0027s outside clause. Extending P8 to restarts changes nothing: the element stays NOT_AUTHORED(ENGINE_ONLY) or INVENTED."
+                        },
+                        {
+                            "n":  65,
+                            "verdict":  "RESTATEMENT_ERROR",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None. \u0027No opponent retreat or exclusion distance is authored by any selection, so none is imposed\u0027 is reconciler rationale about an absence. The game holds nothing, and Gate B reverse has nothing to check. Reclassify it with the restater\u0027s \u0027rationale prose\u0027 KNOWLEDGE entry. The row a retreat rule would need, if one were authored, is n7\u0027s.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "The representation holds supported facts; an absence is represented by absence, and SD-16 forbids a free choice creating the rule anyway. The same restater classed comparable reconciliation prose as KNOWLEDGE (outside the boundary). This is the game-side duplicate of n7 and should not be counted twice."
+                        },
+                        {
+                            "n":  66,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None (schema). Restate it as its own T1 element: trigger=REGION_ENTRY, trigger.region in {the candidate zones, held as S2 regions per Â§5.2}, with T2-T7 copied from tr-OEL-att. Under RC-19 a REGION_ENTRY element exists only where authored, and none is, so it is INVENTED: spec Â§9\u0027s expected catch. Folding it into tr-OEL-att hides it.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "No row equating two triggers is needed: a separate element carries the same restart values. The \u0027inactive\u0027 restriction depends on which target is live now (Â§7, state in progress). That does not matter here, because the element has no support at all (VARTARGET-12 supports only \u0027carries no value\u0027). Folded in, the invented trigger escapes Gate B reverse, the Â§3 failure. The restatement must change; the schema need not."
+                        }
+                    ],
+        "themeVerdict":  {
+                             "requiresStructuralChange":  "NO",
+                             "whatTheGrammarLacks":  "Optional rule fields keyed on the closed trigger vocabulary. (1) At a restart: rules on non-acting groups and on the ball\u0027s destination (clearance or retreat, playedTo), since P8 is START-only and T3-T5 hold only actor, spot and method. (2) The lifecycle of value rules: a condition\u0027s reset triggers, an effect or window that ends on a trigger, and a per-episode cap. (3) A same-episode link for event referents in modifier conditions.",
+                             "smallestAmendmentForTheTheme":  "One reusable trigger-list field type (as J10: closed triggers, one property per trigger), used in optional fields on existing collections: conditions[].resetOn; timeWindows[].endsOn; cap {count, per EPISODE|GAME} on valueModifiers[] and consequences[]; valueModifiers[].condition.value; transitions[].placement.restrictions[] {group, region | minDistance_m, playedTo}. Each exists only where authored; the RC-15 and RC-20 lists are extended.",
+                             "blocksImplementationDesign":  "NO",
+                             "why":  "Every real gap is a new optional field or collection row on an existing collection, using EQUALS/RANGE/COUNT (ENTAILS or NARROWS). None needs a new relation, status, strictness, valueStatus, basis, declaration or source kind. None changes a slice verdict: each is declaration-only or outside the slice. Keep the fields optional, and do not reinstate consequences[].duration. The verdict-relevant findings are restatement errors (n61, n66)."
+                         }
+    },
+    {
+        "theme":  "H1-layout-rows",
+        "entries":  [
+                        {
+                            "n":  10,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None for the eight contracts. Place GF2-01 as E2 EXISTS and E3 EXISTS (REQUIRED, AUTHORED, note: one length x width rectangle by construction). It is then always SATISFIED, as RC-19\u0027s reachable triggers exist by construction. Only if EM-0001\u0027s authored Shape (EMP-0007) is ever contracted: a FIELD row E5 envelope.area.shape, LOCAL (see #37).",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "E2 and E3 are non-collection FIELD rows, so every representable game has exactly one area and it is a length x width rectangle. \u0027A single rectangular playing area\u0027 can never be violated, so placing it as field presence on E2/E3 loses nothing and moves no line (the session still supports E2/E3). \u0027No other layout can be represented\u0027 is true, but only knowledge that authors other shapes needs one, and none of the eight contracts does."
+                        },
+                        {
+                            "n":  13,
+                            "verdict":  "REAL_SCHEMA_GAP",
+                            "scope":  "LOCAL",
+                            "minimalAmendment":  "Shared with #31: two register relative terms, \u0027longitudinal\u0027 (the element\u0027s along-extent \u003e= its across-extent) and \u0027lateral\u0027 (the reverse), usable with POSITIONED or ORIENTED on S5/S6 and O4/O5, relation NARROWS as now. GF2-05.b then reads S6 ORIENTED lateral.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "The premise is wrong: nothing restricts ORIENTED to DV1, and spec 3 tests ORIENTED on \u0027the position interval\u0027. The real gap is that the register split position into S5 and S6, so no defined test says which way an element runs. For GF2 nothing authored hinges on it: the item is ASSUMED (\u0027the text never states an orientation\u0027), SUPPORTING, and its S2 objective-area selector matches no slice element (the targets are O1)."
+                        },
+                        {
+                            "n":  20,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None. Coverage is per register row (S3), and NON_CLAIMED on E4, J3 and DV1 with notes carries it. A property with no row can be neither claimed nor filled, so the non-claim\u0027s only job, permitting a REALIZATION value (spec 3), has nothing to act on.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "Period structure is not a game property: E4 is one session-owned duration. Changing ends would make direction vary over time, which SD-07\u0027s stable direction and a static J3 exclude by design. GF2 claims nothing on either, so no item, bound or permission is lost. If a future object authored periods or an end switch, that would be a positive claim needing a home, not this non-claim."
+                        },
+                        {
+                            "n":  31,
+                            "verdict":  "REAL_SCHEMA_GAP",
+                            "scope":  "LOCAL",
+                            "minimalAmendment":  "Add register relative terms \u0027longitudinal\u0027 (element\u0027s along-extent \u003e= its across-extent) and \u0027lateral\u0027 (the reverse) for POSITIONED/ORIENTED on S5/S6 and O4/O5, relation NARROWS. WIDEZONE-04.b: S5 POSITIONED longitudinal, selector noun=channel. Equal-rank alternative: a VIEW row space.regions[].orientation computed from S5/S6. Not a stored field (see reasoning).",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "\u0027Along both touchlines\u0027 authors that channels run with the axis. Once WIDEZONE-07 (ASSUMED full length) is adapted, touchline-adjacent plus a 6-10 m across-width still admit an 8 m stub, and no one-row bound says along \u003e= across. LOCAL: existing kind and relation, and POSITIONED already reads other intervals. The drafter\u0027s stored field hides cost: it would need support or a new fillable kind under unruled P-4. Slice channels 40x6 m: SATISFIED."
+                        },
+                        {
+                            "n":  37,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None for the eight contracts: E2 and E3 NON_CLAIMED carry it, because the register represents one rectangle only. If EM-0001\u0027s Shape is contracted: FIELD row E5 envelope.area.shape (session default rectangular), noting that relative terms, SV1 and SD-11 are defined only for rectangles. LOCAL: a new row in an existing area.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "A non-claim over a property no contract can claim and no realization can fill has nothing to permit, so nothing is lost. The drafter is right that EM-0001 authors Shape (EMD-0003; EMP-0007 lists circular, triangular, irregular), so that object\u0027s knowledge would not fit, but no selected object carries it. Hidden cost checked: the session already owns the area, so E5 needs no new source kind; extending E1-E4 to E5 follows the area."
+                        },
+                        {
+                            "n":  55,
+                            "verdict":  "OUTSIDE_BOUNDARY_BY_DESIGN",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None. The game states what exists; \u0027no partition\u0027 is an exclusion, and spec 5.8 removes exclusions[] from the representation (they live in contracts and Gate B checks them). A partition would show as an access-function region or an ACCESS consequence, and the game lists neither. The \u0027area\u0027 S2 element duplicates the envelope and should not be a region.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "\u0027Shared occupancy\u0027 is where players may be during play, outside the boundary. \u0027No partition or separating boundary\u0027 is a negative the game holds by absence, with Gate B reverse catching any invented access region. The restater also made the whole area an S2 region with an off-list noun and no function, against spec 5.2 (\u0027every instantiated region serves at least one supported function\u0027); E2 x E3 already holds it."
+                        },
+                        {
+                            "n":  56,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None. SD-12 draws the line: halves and thirds are \u0027derived views, not marked regions\u0027, so marked = an instantiated S2 region or O1 object, determinable but unmarked = SV1. RPC-001-06 already used it. Only if Christian rules that Wide Zone\u0027s \u0027Zones optional\u0027 makes channel marking optional would a field regions[].marked be needed (LOCAL).",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "Each case has a home. Own halves that \u0027need not be marked\u0027 are SV1 per team, referenced by P10 (views \u0027exist without declaration\u0027, spec 5.2). The \u0027unmarked\u0027 corridor is residual space, which 5.2 says is not instantiated. The \u0027not marked\u0027 defending line is a formation of players (5.3: NOT_AUTHORED). \u0027Marked\u0027 target zones are O1 objects. The gap comes from the restater putting own halves and corridor in S2."
+                        },
+                        {
+                            "n":  59,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None. Revision 3 removed objects[].owner on purpose: for scoring references it duplicated objectives[].team, and for the ball it was game-in-progress state. The zone owner is J3 through J2, which the game already states (L79, L87). A change of ball owner is the POSSESSION_CHANGE transition, as GF2-07.a restated it.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "The entry\u0027s own detail concedes that the zone owner duplicates J3. \u0027The team currently in possession; ownership changes through opposed play\u0027 is the state of a game in progress, which the boundary excludes; its rule-relevant part, that possession can change, is a reachable T1 element (RC-19). Revision 4 keeps objects without owner, so this is one home per fact by design, not an omission."
+                        },
+                        {
+                            "n":  62,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None. The neutrals\u0027 direction is derived, not stored: P6a STANDING and P6b ATTACKING_TEAM (NEUTRAL-03, NEUTRAL-14) say whom they play for, and DV1 gives that team\u0027s direction. NEUTRAL-04.a forbids P6b = DEFENDING_TEAM (\u0027never defend\u0027); NEUTRAL-17.a forbids any J1 objective of their own, so DV1 computes no neutral entry.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "DV1 is per team because only teams attack objectives (J3). A group with no objective has no direction of its own by computation, and \u0027attacks whichever end its team attacks\u0027 is player movement during play, outside the boundary. Storing a neutral direction would create a second place that can disagree, which spec 5.6 rejects for direction. The game\u0027s P6a/P6b values (L46-L47) are a separate, trigger-keyed theme."
+                        }
+                    ],
+        "themeVerdict":  {
+                             "requiresStructuralChange":  "NO",
+                             "whatTheGrammarLacks":  "A defined test for which way a region or object runs. Elements are axis-aligned intervals split over S5/S6 (O4/O5), and ORIENTED has a comparison only on DV1, so \u0027along both touchlines\u0027 (WIDEZONE-04) cannot be required once full length is adapted. Latent only: an envelope shape row for EM-0001\u0027s authored Shape (EMP-0007). None of the eight contracts selects it.",
+                             "smallestAmendmentForTheTheme":  "Add two register relative terms, \u0027longitudinal\u0027 (the element\u0027s along-extent \u003e= its across-extent) and \u0027lateral\u0027 (the reverse), usable with POSITIONED/ORIENTED on S5/S6 and O4/O5, relation NARROWS unchanged. An equivalent is a VIEW row space.regions[].orientation. The other seven entries need no amendment. Add E5 envelope.area.shape only when EM-0001 is contracted.",
+                             "blocksImplementationDesign":  "NO",
+                             "why":  "Only the orientation pair (#13, #31) is a real gap, and it is LOCAL under grammar 6 (an existing kind and relation, or a new row in an existing area). It changes no slice verdict. The rest are held by construction (E2 x E3), by SD-12\u0027s S2/SV1 split, by J3 and P6a/P6b, or are kept out of the game by design (exclusions, ball ownership, play). Nothing needs a new relation, status or derivation change."
+                         }
+    },
+    {
+        "theme":  "H2-value-and-objective-fields",
+        "entries":  [
+                        {
+                            "n":  34,
+                            "verdict":  "REAL_SCHEMA_GAP",
+                            "scope":  "LOCAL",
+                            "minimalAmendment":  "Add FIELD row V8c value.valueModifiers[].condition.value: the predicate or parameter of a modifier\u0027s condition (a qualitative term or threshold, e.g. \u0027starts in or moves through\u0027), SELECTION, not fillable, derived as V6 is (RC-5: an EQUALS verbatim term ENTAILS; SD-15 FREE(b) not extended). Gate A\u0027s modifier-overlap test should then read V8c with V8b.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "Not holdable: V8a types only the referent kind and V8b lists referents, so \u0027starts in or moves through\u0027 (wide) and \u0027scored from\u0027 (deep tiers) become one property and the renderer could supply either (SD-05). V8a=event with REGION_ENTRY covers only \u0027moves through\u0027. Inside the boundary: V4-V6 already hold origin/progression terms for primary events. LOCAL under Â§6: new field on V7, EQUALS/ENTAILS, no new relation, status or value."
+                        },
+                        {
+                            "n":  39,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None. Optional sheet note: objects and their O4/O5 positions are static and target availability\u0027s only home is assignmentRule (Â§5.8), so \u0027stays present\u0027 is met by O1 EXISTS (02.a); closing a region-type candidate is excludable on V14b as WIDEZONE-08.b does. Only if SD-18 adds an object-changing V13 effect would an object referent on V14 be needed (LOCAL).",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "Positive clause placed (02.a). The negative clause (not removed, closed or relocated on account of liveness) cannot be violated by any game on the register: V13 is closed (ACCESS, COUNT_CHANGE) and names no object, O4/O5 hold one interval, and Â§5.8 homes liveness only in J11. The vacuity the drafter notes is the grammar\u0027s guarantee, not a loss: an unviolable exclusion needs no row."
+                        },
+                        {
+                            "n":  44,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None. Record the gate at WHOLE_GAME: it gates the one primary event, credited to the team that achieves it (Â§5.8), so \u0027the attacking team\u0027s passes\u0027 is that team by construction. Keep V6 for the threshold (PCG-04); a team term on V6 beside a RANGE item invites a V6 collision. Only a one-team condition would need a V3 team selector attribute (LOCAL); none of the eight contracts authors one.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "A team field would hold a constant: conditions attach to the primary event, whose scorer is the team whose passes count, and SCORING_TEAM/ATTACKING_TEAM are evaluated at the event (sheet Â§2). The drafter\u0027s PER_TEAM is what fails: V3 elements carry no J3/P1/T2 designation, so RC-23 puts them in no team unit. Who passes during play is outside the boundary. All RPC-001 conditions are WHOLE_GAME."
+                        },
+                        {
+                            "n":  46,
+                            "verdict":  "OUTSIDE_BOUNDARY_BY_DESIGN",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None. The functional content is held: PCG-10/11 (the count is shown), V22 ALL, and V17 STANDING versus a per-pass reveal (off-list trigger, RC-33). If Christian wants a mode held, IE-D004 ACCESS_MODE as a sixth V row is LOCAL (the five-dimension cap is the specification\u0027s own), but both media map to DIRECT, so it would not separate them.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "\u0027Count out loud or use a counter\u0027 is how the coach delivers information; no rule keys on the medium, and spec Â§1 and Â§7 keep coach behaviour and language out. Unlike P7 bibs, which make a structural role perceivable, the medium changes no structure; its one functional difference (per pass vs continuous) already has V17. As a non-fillable row, RC-29 would block every PCG game on a coach-delivery choice."
+                        },
+                        {
+                            "n":  64,
+                            "verdict":  "ALREADY_HOLDABLE",
+                            "scope":  "N/A",
+                            "minimalAmendment":  "None. The Variable Target restatement already places each clause: in-play re-assignment as J11a EXISTS on in-play keys (08.a); \u0027changes at least once\u0027 OUTSIDE_BOUNDARY (08.b); \u0027not determinable before the trigger\u0027 as V17 EXCLUSION of STANDING (16.a) plus OUTSIDE_BOUNDARY (16.b); independence NON_CLAIMED on J11a. The game holds resolved J10/J11/J12 values, not requirements.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "These are requirement prose from the old game\u0027s \u0027state\u0027 field, not game properties: a game holds the resolved rule (J10 triggers, J11a keys, J11b yields, J12) and requirements live in contracts (spec Â§6). The VARTARGET restater placed every clause on existing rows or as OUTSIDE_BOUNDARY. Independence holds by construction (each set has its own J11 map; a coupled J11b procedure is excludable). The game restater misfiled them."
+                        },
+                        {
+                            "n":  69,
+                            "verdict":  "REAL_SCHEMA_GAP",
+                            "scope":  "LOCAL",
+                            "minimalAmendment":  "The same V8c field as entry 34, nothing more. The beneficiary needs no field: Â§5.8 removed valueModifiers[].beneficiary on purpose, because a modifier changes the primary event\u0027s value, which is credited to the team that achieves it; a neutral is not a team and cannot be credited.",
+                            "changesASliceVerdict":  "NO",
+                            "reasoning":  "Two halves. Beneficiary: OUTSIDE_BOUNDARY_BY_DESIGN (deliberately removed in Â§5.8; the acting team is the scoring team by construction). Path: the same gap as entry 34, LOCAL. On the slice, V8c adds one line for mod-wide (ENTAILED once WIDEZONE-11 sits on it); no existing line changes, and mod-wide stays blocked by Wide Zone\u0027s declared NOT_AUTHORED on V7 existence and V9 magnitude."
+                        }
+                    ],
+        "themeVerdict":  {
+                             "requiresStructuralChange":  "NO",
+                             "whatTheGrammarLacks":  "One field: value-modifier conditions (V7-V10) hold only the referent kind (V8a) and referents (V8b), so how the qualifying action must relate to the referent (\u0027starts in or moves through\u0027 versus \u0027scored from\u0027) has no home; primary-event conditions have V6 for this. The other four entries are held by existing rows, deliberately outside the boundary, or vacuous by construction.",
+                             "smallestAmendmentForTheTheme":  "Add FIELD row V8c value.valueModifiers[].condition.value (predicate or parameter; SELECTION; not fillable), derived exactly as V6 under RC-5 with SD-15 unchanged, and have Gate A\u0027s overlap test read it with V8b. It would also give GF4\u0027s \u0027regain leading to shot\u0027 a home. No relation, status, strictness, value status, basis, declaration or source-kind change.",
+                             "blocksImplementationDesign":  "NO",
+                             "why":  "Only 34 and 69\u0027s path half are real, and they are one LOCAL gap under sheet Â§6: a new field on an existing collection using EQUALS/ENTAILS. It changes no existing slice line (it adds one ENTAILED line to mod-wide, which stays blocked by declared gaps), so it can be listed as a LOCAL amendment rather than precede design. Nothing here meets any STRUCTURAL criterion."
+                         }
+    }
+]

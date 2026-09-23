@@ -1,0 +1,4298 @@
+{
+ "chunk": 1,
+ "area": "Envelope, Space, Performers, Objects",
+ "rows": [
+  "E1",
+  "E2",
+  "E3",
+  "E4",
+  "S1",
+  "S2",
+  "S3",
+  "S4",
+  "S5",
+  "S6",
+  "SV1",
+  "P1",
+  "P2",
+  "P3",
+  "P4",
+  "P5",
+  "P6a",
+  "P6b",
+  "P7",
+  "P8",
+  "P9",
+  "P10",
+  "O1",
+  "O2",
+  "O3",
+  "O4",
+  "O5"
+ ],
+ "gameElements": [
+  {
+   "elementId": "game",
+   "row": "non-collection (E1-E4, S1)",
+   "attributes": "the game itself"
+  },
+  {
+   "elementId": "area",
+   "row": "S2",
+   "attributes": "noun: area (off-list); functions: unstated; game id 'area'"
+  },
+  {
+   "elementId": "own-half-A",
+   "row": "S2",
+   "attributes": "noun: half; functions: {start-placement}; for Team A (no register attribute)"
+  },
+  {
+   "elementId": "own-half-B",
+   "row": "S2",
+   "attributes": "noun: half; functions: {start-placement}; for Team B (no register attribute)"
+  },
+  {
+   "elementId": "channel-north",
+   "row": "S2",
+   "attributes": "noun: channel; functions: {perceptual-reference, value-condition}"
+  },
+  {
+   "elementId": "channel-south",
+   "row": "S2",
+   "attributes": "noun: channel; functions: {perceptual-reference, value-condition}"
+  },
+  {
+   "elementId": "central-corridor",
+   "row": "S2",
+   "attributes": "noun: corridor; functions: unstated"
+  },
+  {
+   "elementId": "team-A",
+   "row": "P1",
+   "attributes": "team: TEAM_A"
+  },
+  {
+   "elementId": "team-B",
+   "row": "P1",
+   "attributes": "team: TEAM_B"
+  },
+  {
+   "elementId": "target-players",
+   "row": "P4",
+   "attributes": "roleName: target player; stated as none, both teams"
+  },
+  {
+   "elementId": "neutrals",
+   "row": "non-collection (P5-P7)",
+   "attributes": "neutral group"
+  },
+  {
+   "elementId": "starting-positions-at-every-restart",
+   "row": "P8",
+   "attributes": "group: DEFENDING_TEAM (forward-most defensive line)"
+  },
+  {
+   "elementId": "ball",
+   "row": "O1",
+   "attributes": "kind: ball"
+  },
+  {
+   "elementId": "tz-A-north",
+   "row": "O1",
+   "attributes": "kind: target zone (off-list); candidate 1 of Team A's set"
+  },
+  {
+   "elementId": "tz-A-south",
+   "row": "O1",
+   "attributes": "kind: target zone (off-list); candidate 2 of Team A's set"
+  },
+  {
+   "elementId": "tz-B-north",
+   "row": "O1",
+   "attributes": "kind: target zone (off-list); candidate 1 of Team B's set"
+  },
+  {
+   "elementId": "tz-B-south",
+   "row": "O1",
+   "attributes": "kind: target zone (off-list); candidate 2 of Team B's set"
+  },
+  {
+   "elementId": "obj:tz-A-north",
+   "row": "J1",
+   "attributes": "role: PRIMARY_SCORING; team: TEAM_A (game objectId tz-A-north)"
+  },
+  {
+   "elementId": "obj:tz-A-south",
+   "row": "J1",
+   "attributes": "role: PRIMARY_SCORING; team: TEAM_A (game objectId tz-A-south)"
+  },
+  {
+   "elementId": "obj:tz-B-north",
+   "row": "J1",
+   "attributes": "role: PRIMARY_SCORING; team: TEAM_B (game objectId tz-B-north)"
+  },
+  {
+   "elementId": "obj:tz-B-south",
+   "row": "J1",
+   "attributes": "role: PRIMARY_SCORING; team: TEAM_B (game objectId tz-B-south)"
+  },
+  {
+   "elementId": "set-A",
+   "row": "J5",
+   "attributes": "scope: TEAM_A; restater id (game: 'Team A's two-candidate set')"
+  },
+  {
+   "elementId": "set-B",
+   "row": "J5",
+   "attributes": "scope: TEAM_B; restater id (game: 'Team B's two-candidate set')"
+  },
+  {
+   "elementId": "tr-START",
+   "row": "T1",
+   "attributes": "trigger: START (game slot 'start')"
+  },
+  {
+   "elementId": "tr-SCORE",
+   "row": "T1",
+   "attributes": "trigger: SCORE (slot 'restart after score')"
+  },
+  {
+   "elementId": "tr-OEL-att",
+   "row": "T1",
+   "attributes": "trigger: OUT_END_LINE; qualifier.lastTouch: ATTACKING_TEAM (slot: goal-kick case)"
+  },
+  {
+   "elementId": "tr-OEL-def",
+   "row": "T1",
+   "attributes": "trigger: OUT_END_LINE; qualifier.lastTouch: DEFENDING_TEAM"
+  },
+  {
+   "elementId": "tr-OTL",
+   "row": "T1",
+   "attributes": "trigger: OUT_TOUCHLINE; no qualifier"
+  },
+  {
+   "elementId": "tr-PC",
+   "row": "T1",
+   "attributes": "trigger: POSSESSION_CHANGE (slot 'restart after turnover')"
+  },
+  {
+   "elementId": "pe",
+   "row": "V0",
+   "attributes": "the one primary event"
+  },
+  {
+   "elementId": "cond-origin",
+   "row": "V3",
+   "attributes": "type: origin (split from primary-event prose)"
+  },
+  {
+   "elementId": "cond-progression",
+   "row": "V3",
+   "attributes": "type: progression (split from primary-event prose)"
+  },
+  {
+   "elementId": "cond-control",
+   "row": "V3",
+   "attributes": "type: control (split from primary-event prose)"
+  },
+  {
+   "elementId": "cond-eligibility",
+   "row": "V3",
+   "attributes": "type: eligibility (split: active zone only; scorer of team in possession)"
+  },
+  {
+   "elementId": "cond-exclusion",
+   "row": "V3",
+   "attributes": "type: exclusion (long kick; split from primary event + degenerate-bypass entry)"
+  },
+  {
+   "elementId": "mod-wide",
+   "row": "V7",
+   "attributes": "condition.type: region (wide channels); scoring multiplier"
+  },
+  {
+   "elementId": "cons-neutral",
+   "row": "V11",
+   "attributes": "trigger: POSSESSION_CHANGE; effect: neutral affiliation (off-list)"
+  },
+  {
+   "elementId": "cons-reset",
+   "row": "V11",
+   "attributes": "trigger: SCORE|OUT_*|POSSESSION_CHANGE; effect: re-establish begin condition (off-list)"
+  },
+  {
+   "elementId": "info-live",
+   "row": "V15",
+   "attributes": "subject: which candidate of a team's set is active"
+  },
+  {
+   "elementId": "info-wide",
+   "row": "V15",
+   "attributes": "subject: wide channels and their advantage; STANDING"
+  },
+  {
+   "elementId": "tw-none",
+   "row": "V23",
+   "attributes": "placeholder: game states no time windows"
+  }
+ ],
+ "designationMap": [
+  {
+   "designation": "TEAM_A / TEAM_B",
+   "context": "whole game",
+   "team": "Team A attacks the east end (tz-A-*), defends west, own-half-A; Team B mirrored (west, own-half-B)"
+  },
+  {
+   "designation": "STARTING_TEAM",
+   "context": "START",
+   "team": "Team A (game fixes it)"
+  },
+  {
+   "designation": "ATTACKING_TEAM",
+   "context": "any episode; OUT_* qualifiers; primary event 'team in possession'",
+   "team": "the team in possession for the episode: A when A has the ball, else B"
+  },
+  {
+   "designation": "DEFENDING_TEAM",
+   "context": "any episode; P9; OUT_END_LINE qualifier",
+   "team": "the team not in possession (B when A attacks, A when B attacks)"
+  },
+  {
+   "designation": "SCORING_TEAM / CONCEDING_TEAM",
+   "context": "SCORE; mod-wide 'team performing the action'",
+   "team": "score at east end: A scores, B concedes; at west end: B scores, A concedes"
+  },
+  {
+   "designation": "'team defending that end'",
+   "context": "OUT_END_LINE",
+   "team": "west end line: Team A; east end line: Team B"
+  },
+  {
+   "designation": "WON_BALL / LOST_BALL",
+   "context": "POSSESSION_CHANGE; cons-neutral 'team now in possession'",
+   "team": "the team that gains the ball / the team that loses it"
+  },
+  {
+   "designation": "LAST_TOUCH / NOT_LAST_TOUCH",
+   "context": "OUT_END_LINE, OUT_TOUCHLINE",
+   "team": "team that touched the ball last / the other team"
+  },
+  {
+   "designation": "BUILD_OUT_TEAM ('restarting team')",
+   "context": "every restart; P10; cons-reset",
+   "team": "the T2 awardee of that transition (START: Team A); not used literally by the game"
+  },
+  {
+   "designation": "neutrals' team",
+   "context": "whole game",
+   "team": "not a designation: the team currently in possession (START: Team A)"
+  }
+ ],
+ "gameLines": [
+  {
+   "lineId": "L1",
+   "elementId": "game",
+   "row": "E1",
+   "value": "12",
+   "gameProvenance": "ENVELOPE-FIXED, NEUTRAL-01, NEUTRAL-02, NEUTRAL-08, NEUTRAL-09, NEUTRAL-10, NEUTRAL-11, GF2-14, RPC-001-02",
+   "note": "partition 2 GK + 8 outfield + 2 neutrals"
+  },
+  {
+   "lineId": "L2",
+   "elementId": "game",
+   "row": "E2",
+   "value": "40",
+   "gameProvenance": "ENVELOPE-FIXED, NEUTRAL-01, NEUTRAL-02, NEUTRAL-08, NEUTRAL-09, NEUTRAL-10, NEUTRAL-11, GF2-14, RPC-001-02",
+   "note": ""
+  },
+  {
+   "lineId": "L3",
+   "elementId": "game",
+   "row": "E3",
+   "value": "30",
+   "gameProvenance": "ENVELOPE-FIXED, NEUTRAL-01, NEUTRAL-02, NEUTRAL-08, NEUTRAL-09, NEUTRAL-10, NEUTRAL-11, GF2-14, RPC-001-02",
+   "note": ""
+  },
+  {
+   "lineId": "L4",
+   "elementId": "game",
+   "row": "E4",
+   "value": "20",
+   "gameProvenance": "ENVELOPE-FIXED, NEUTRAL-01, NEUTRAL-02, NEUTRAL-08, NEUTRAL-09, NEUTRAL-10, NEUTRAL-11, GF2-14, RPC-001-02",
+   "note": ""
+  },
+  {
+   "lineId": "L5",
+   "elementId": "game",
+   "row": "S1",
+   "value": "the 40 m side (longitudinal)",
+   "gameProvenance": "GF2-01, GF2-02, GF2-05, RPC-001-07, A01-02-09, WIDEZONE-01, ENVELOPE-FIXED",
+   "note": "stated in region 'area' orientation"
+  },
+  {
+   "lineId": "L6",
+   "elementId": "area",
+   "row": "S2",
+   "value": "EXISTS",
+   "gameProvenance": "GF2-01, GF2-02, GF2-05, RPC-001-07, A01-02-09, WIDEZONE-01, ENVELOPE-FIXED",
+   "note": "'the whole activity space'; same extent as E2 x E3"
+  },
+  {
+   "lineId": "L7",
+   "elementId": "area",
+   "row": "S3",
+   "value": "area (off-list)",
+   "gameProvenance": "GF2-01, GF2-02, GF2-05, RPC-001-07, A01-02-09, WIDEZONE-01, ENVELOPE-FIXED",
+   "note": "kind: 'single rectangular playing area'"
+  },
+  {
+   "lineId": "L8",
+   "elementId": "area",
+   "row": "S4",
+   "value": "UNSTATED",
+   "gameProvenance": "GF2-01, GF2-02, GF2-05, RPC-001-07, A01-02-09, WIDEZONE-01, ENVELOPE-FIXED",
+   "note": ""
+  },
+  {
+   "lineId": "L9",
+   "elementId": "area",
+   "row": "S5",
+   "value": "0-40 m (whole)",
+   "gameProvenance": "GF2-01, GF2-02, GF2-05, RPC-001-07, A01-02-09, WIDEZONE-01, ENVELOPE-FIXED",
+   "note": "extent '40 x 30 m'"
+  },
+  {
+   "lineId": "L10",
+   "elementId": "area",
+   "row": "S6",
+   "value": "0-30 m (whole)",
+   "gameProvenance": "GF2-01, GF2-02, GF2-05, RPC-001-07, A01-02-09, WIDEZONE-01, ENVELOPE-FIXED",
+   "note": ""
+  },
+  {
+   "lineId": "L11",
+   "elementId": "own-half-A",
+   "row": "S2",
+   "value": "EXISTS",
+   "gameProvenance": "RPC-001-06, A01-02-07, A01-02-09, A01-02-10",
+   "note": "'determinable, need not be marked'"
+  },
+  {
+   "lineId": "L12",
+   "elementId": "own-half-A",
+   "row": "S3",
+   "value": "half",
+   "gameProvenance": "RPC-001-06, A01-02-07, A01-02-09, A01-02-10",
+   "note": "from id/kind 'own-half start area'"
+  },
+  {
+   "lineId": "L13",
+   "elementId": "own-half-A",
+   "row": "S4",
+   "value": "start-placement",
+   "gameProvenance": "RPC-001-06, A01-02-07, A01-02-09, A01-02-10",
+   "note": "kind: 'build-out / own-half start area for Team A'"
+  },
+  {
+   "lineId": "L14",
+   "elementId": "own-half-A",
+   "row": "S5",
+   "value": "0-20 m (west end line to halfway line)",
+   "gameProvenance": "RPC-001-06, A01-02-07, A01-02-09, A01-02-10",
+   "note": ""
+  },
+  {
+   "lineId": "L15",
+   "elementId": "own-half-A",
+   "row": "S6",
+   "value": "0-30 m (full width)",
+   "gameProvenance": "RPC-001-06, A01-02-07, A01-02-09, A01-02-10",
+   "note": "extent '20 x 30 m'"
+  },
+  {
+   "lineId": "L16",
+   "elementId": "own-half-B",
+   "row": "S2",
+   "value": "EXISTS",
+   "gameProvenance": "RPC-001-06, A01-02-07, A01-02-09, A01-02-10",
+   "note": "'determinable, need not be marked'"
+  },
+  {
+   "lineId": "L17",
+   "elementId": "own-half-B",
+   "row": "S3",
+   "value": "half",
+   "gameProvenance": "RPC-001-06, A01-02-07, A01-02-09, A01-02-10",
+   "note": ""
+  },
+  {
+   "lineId": "L18",
+   "elementId": "own-half-B",
+   "row": "S4",
+   "value": "start-placement",
+   "gameProvenance": "RPC-001-06, A01-02-07, A01-02-09, A01-02-10",
+   "note": "kind: 'build-out / own-half start area for Team B'"
+  },
+  {
+   "lineId": "L19",
+   "elementId": "own-half-B",
+   "row": "S5",
+   "value": "20-40 m (halfway line to east end line)",
+   "gameProvenance": "RPC-001-06, A01-02-07, A01-02-09, A01-02-10",
+   "note": ""
+  },
+  {
+   "lineId": "L20",
+   "elementId": "own-half-B",
+   "row": "S6",
+   "value": "0-30 m (full width)",
+   "gameProvenance": "RPC-001-06, A01-02-07, A01-02-09, A01-02-10",
+   "note": ""
+  },
+  {
+   "lineId": "L21",
+   "elementId": "channel-north",
+   "row": "S2",
+   "value": "EXISTS",
+   "gameProvenance": "WIDEZONE-02, WIDEZONE-03, WIDEZONE-04, WIDEZONE-05, WIDEZONE-06, WIDEZONE-07, WIDEZONE-08, WIDEZONE-10",
+   "note": ""
+  },
+  {
+   "lineId": "L22",
+   "elementId": "channel-north",
+   "row": "S3",
+   "value": "channel",
+   "gameProvenance": "WIDEZONE-02, WIDEZONE-03, WIDEZONE-04, WIDEZONE-05, WIDEZONE-06, WIDEZONE-07, WIDEZONE-08, WIDEZONE-10",
+   "note": ""
+  },
+  {
+   "lineId": "L23",
+   "elementId": "channel-north",
+   "row": "S4",
+   "value": "perceptual-reference",
+   "gameProvenance": "WIDEZONE-02, WIDEZONE-03, WIDEZONE-04, WIDEZONE-05, WIDEZONE-06, WIDEZONE-07, WIDEZONE-08, WIDEZONE-10",
+   "note": "from 'wide reference/advantage channel'"
+  },
+  {
+   "lineId": "L24",
+   "elementId": "channel-north",
+   "row": "S4",
+   "value": "value-condition",
+   "gameProvenance": "WIDEZONE-02, WIDEZONE-03, WIDEZONE-04, WIDEZONE-05, WIDEZONE-06, WIDEZONE-07, WIDEZONE-08, WIDEZONE-10",
+   "note": "from 'advantage'; referent of mod-wide"
+  },
+  {
+   "lineId": "L25",
+   "elementId": "channel-north",
+   "row": "S5",
+   "value": "0-40 m (full length)",
+   "gameProvenance": "WIDEZONE-02, WIDEZONE-03, WIDEZONE-04, WIDEZONE-05, WIDEZONE-06, WIDEZONE-07, WIDEZONE-08, WIDEZONE-10",
+   "note": ""
+  },
+  {
+   "lineId": "L26",
+   "elementId": "channel-north",
+   "row": "S6",
+   "value": "0-6 m (outer edge on north touchline)",
+   "gameProvenance": "WIDEZONE-02, WIDEZONE-03, WIDEZONE-04, WIDEZONE-05, WIDEZONE-06, WIDEZONE-07, WIDEZONE-08, WIDEZONE-10",
+   "note": "'low end of the authored ~6-10 m band'"
+  },
+  {
+   "lineId": "L27",
+   "elementId": "channel-south",
+   "row": "S2",
+   "value": "EXISTS",
+   "gameProvenance": "WIDEZONE-02, WIDEZONE-03, WIDEZONE-04, WIDEZONE-05, WIDEZONE-06, WIDEZONE-07, WIDEZONE-08, WIDEZONE-10",
+   "note": "'identical in kind to channel-north'"
+  },
+  {
+   "lineId": "L28",
+   "elementId": "channel-south",
+   "row": "S3",
+   "value": "channel",
+   "gameProvenance": "WIDEZONE-02, WIDEZONE-03, WIDEZONE-04, WIDEZONE-05, WIDEZONE-06, WIDEZONE-07, WIDEZONE-08, WIDEZONE-10",
+   "note": ""
+  },
+  {
+   "lineId": "L29",
+   "elementId": "channel-south",
+   "row": "S4",
+   "value": "perceptual-reference",
+   "gameProvenance": "WIDEZONE-02, WIDEZONE-03, WIDEZONE-04, WIDEZONE-05, WIDEZONE-06, WIDEZONE-07, WIDEZONE-08, WIDEZONE-10",
+   "note": "by 'identical in kind'"
+  },
+  {
+   "lineId": "L30",
+   "elementId": "channel-south",
+   "row": "S4",
+   "value": "value-condition",
+   "gameProvenance": "WIDEZONE-02, WIDEZONE-03, WIDEZONE-04, WIDEZONE-05, WIDEZONE-06, WIDEZONE-07, WIDEZONE-08, WIDEZONE-10",
+   "note": "by 'identical in kind'"
+  },
+  {
+   "lineId": "L31",
+   "elementId": "channel-south",
+   "row": "S5",
+   "value": "0-40 m (full length)",
+   "gameProvenance": "WIDEZONE-02, WIDEZONE-03, WIDEZONE-04, WIDEZONE-05, WIDEZONE-06, WIDEZONE-07, WIDEZONE-08, WIDEZONE-10",
+   "note": ""
+  },
+  {
+   "lineId": "L32",
+   "elementId": "channel-south",
+   "row": "S6",
+   "value": "24-30 m (outer edge on south touchline)",
+   "gameProvenance": "WIDEZONE-02, WIDEZONE-03, WIDEZONE-04, WIDEZONE-05, WIDEZONE-06, WIDEZONE-07, WIDEZONE-08, WIDEZONE-10",
+   "note": "6 m wide"
+  },
+  {
+   "lineId": "L33",
+   "elementId": "central-corridor",
+   "row": "S2",
+   "value": "EXISTS",
+   "gameProvenance": "WIDEZONE-09, RPC-001-22",
+   "note": "'unmarked residual playable space'"
+  },
+  {
+   "lineId": "L34",
+   "elementId": "central-corridor",
+   "row": "S3",
+   "value": "corridor",
+   "gameProvenance": "WIDEZONE-09, RPC-001-22",
+   "note": ""
+  },
+  {
+   "lineId": "L35",
+   "elementId": "central-corridor",
+   "row": "S4",
+   "value": "UNSTATED",
+   "gameProvenance": "WIDEZONE-09, RPC-001-22",
+   "note": "kind gives a purpose, no function value"
+  },
+  {
+   "lineId": "L36",
+   "elementId": "central-corridor",
+   "row": "S5",
+   "value": "UNSTATED",
+   "gameProvenance": "WIDEZONE-09, RPC-001-22",
+   "note": "orientation 'longitudinal' only"
+  },
+  {
+   "lineId": "L37",
+   "elementId": "central-corridor",
+   "row": "S6",
+   "value": "6-24 m (18 m, between the channels)",
+   "gameProvenance": "WIDEZONE-09, RPC-001-22",
+   "note": "'30 - 6 - 6'"
+  },
+  {
+   "lineId": "L38",
+   "elementId": "team-A",
+   "row": "P1",
+   "value": "EXISTS",
+   "gameProvenance": "RPC-001-01, RPC-001-02, RPC-001-03, GF2-13, GF2-14, GF2-15, NEUTRAL-09, NEUTRAL-10, A01-02-11",
+   "note": "'5 players'"
+  },
+  {
+   "lineId": "L39",
+   "elementId": "team-A",
+   "row": "P2",
+   "value": "4",
+   "gameProvenance": "RPC-001-01, RPC-001-02, RPC-001-03, GF2-13, GF2-14, GF2-15, NEUTRAL-09, NEUTRAL-10, A01-02-11",
+   "note": "'equal to Team B's'"
+  },
+  {
+   "lineId": "L40",
+   "elementId": "team-A",
+   "row": "P3",
+   "value": "1",
+   "gameProvenance": "RPC-001-01, RPC-001-02, RPC-001-03, GF2-13, GF2-14, GF2-15, NEUTRAL-09, NEUTRAL-10, A01-02-11",
+   "note": ""
+  },
+  {
+   "lineId": "L41",
+   "elementId": "team-B",
+   "row": "P1",
+   "value": "EXISTS",
+   "gameProvenance": "RPC-001-01, RPC-001-02, RPC-001-03, GF2-13, GF2-14, GF2-15, NEUTRAL-09, NEUTRAL-10, A01-02-11",
+   "note": "'identical in kind to Team A'"
+  },
+  {
+   "lineId": "L42",
+   "elementId": "team-B",
+   "row": "P2",
+   "value": "4",
+   "gameProvenance": "RPC-001-01, RPC-001-02, RPC-001-03, GF2-13, GF2-14, GF2-15, NEUTRAL-09, NEUTRAL-10, A01-02-11",
+   "note": ""
+  },
+  {
+   "lineId": "L43",
+   "elementId": "team-B",
+   "row": "P3",
+   "value": "1",
+   "gameProvenance": "RPC-001-01, RPC-001-02, RPC-001-03, GF2-13, GF2-14, GF2-15, NEUTRAL-09, NEUTRAL-10, A01-02-11",
+   "note": ""
+  },
+  {
+   "lineId": "L44",
+   "elementId": "target-players",
+   "row": "P4",
+   "value": "NONE (0 target-player roles, both teams)",
+   "gameProvenance": "RPC-001-05",
+   "note": "'Specifically NOT a drop'; no other P4 role stated"
+  },
+  {
+   "lineId": "L45",
+   "elementId": "neutrals",
+   "row": "P5",
+   "value": "2",
+   "gameProvenance": "NEUTRAL-01, NEUTRAL-02, NEUTRAL-03, NEUTRAL-04, NEUTRAL-05, NEUTRAL-06, NEUTRAL-07, NEUTRAL-08, NEUTRAL-10, NEUTRAL-17",
+   "note": "'drawn from the fixed 12'"
+  },
+  {
+   "lineId": "L46",
+   "elementId": "neutrals",
+   "row": "P6a",
+   "value": "POSSESSION_CHANGE",
+   "gameProvenance": "neutrals: NEUTRAL-01..-08, NEUTRAL-10, NEUTRAL-17 (as listed); consequence: NEUTRAL-03, NEUTRAL-12, NEUTRAL-14",
+   "note": "'change of possession'; 'always play for the team currently in possession'"
+  },
+  {
+   "lineId": "L47",
+   "elementId": "neutrals",
+   "row": "P6b",
+   "value": "team now in possession (WON_BALL)",
+   "gameProvenance": "neutrals: NEUTRAL-01..-08, NEUTRAL-10, NEUTRAL-17 (as listed); consequence: NEUTRAL-03, NEUTRAL-12, NEUTRAL-14",
+   "note": "'never for the team out of possession'"
+  },
+  {
+   "lineId": "L48",
+   "elementId": "neutrals",
+   "row": "P7",
+   "value": "contrasting bibs",
+   "gameProvenance": "NEUTRAL-01, NEUTRAL-02, NEUTRAL-03, NEUTRAL-04, NEUTRAL-05, NEUTRAL-06, NEUTRAL-07, NEUTRAL-08, NEUTRAL-10, NEUTRAL-17",
+   "note": ""
+  },
+  {
+   "lineId": "L49",
+   "elementId": "starting-positions-at-every-restart",
+   "row": "P8",
+   "value": "EXISTS",
+   "gameProvenance": "RPC-001-04, RPC-001-07, RPC-001-09, RPC-001-18",
+   "note": "stated 'at every restart', not START only"
+  },
+  {
+   "lineId": "L50",
+   "elementId": "starting-positions-at-every-restart",
+   "row": "P9",
+   "value": "DEFENDING_TEAM (its forward-most defensive line)",
+   "gameProvenance": "RPC-001-04, RPC-001-07, RPC-001-09, RPC-001-18",
+   "note": "'first defenders' / initial pressure line"
+  },
+  {
+   "lineId": "L51",
+   "elementId": "starting-positions-at-every-restart",
+   "row": "P10",
+   "value": "no region ref: 'between restarting team's own-half build-out area and the target zones it attacks'",
+   "gameProvenance": "RPC-001-04, RPC-001-07, RPC-001-09, RPC-001-18",
+   "note": "'not marked; only determinable'"
+  },
+  {
+   "lineId": "L52",
+   "elementId": "ball",
+   "row": "O1",
+   "value": "EXISTS",
+   "gameProvenance": "RPC-001-10, A01-02-08, A01-02-07, GF2-07, NEUTRAL-12",
+   "note": ""
+  },
+  {
+   "lineId": "L53",
+   "elementId": "ball",
+   "row": "O2",
+   "value": "ball",
+   "gameProvenance": "RPC-001-10, A01-02-08, A01-02-07, GF2-07, NEUTRAL-12",
+   "note": ""
+  },
+  {
+   "lineId": "L54",
+   "elementId": "ball",
+   "row": "O3",
+   "value": "1",
+   "gameProvenance": "RPC-001-10, A01-02-08, A01-02-07, GF2-07, NEUTRAL-12",
+   "note": "'one game object'"
+  },
+  {
+   "lineId": "L55",
+   "elementId": "ball",
+   "row": "O4",
+   "value": "at goal-kick restart: restarting team's own half, defended end; otherwise where play takes it",
+   "gameProvenance": "RPC-001-10, A01-02-08, A01-02-07, GF2-07, NEUTRAL-12",
+   "note": "in-play part is play-level"
+  },
+  {
+   "lineId": "L56",
+   "elementId": "ball",
+   "row": "O5",
+   "value": "UNSTATED",
+   "gameProvenance": "RPC-001-10, A01-02-08, A01-02-07, GF2-07, NEUTRAL-12",
+   "note": ""
+  },
+  {
+   "lineId": "L57",
+   "elementId": "tz-A-north",
+   "row": "O1",
+   "value": "EXISTS",
+   "gameProvenance": "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-22, GF2-03, GF2-04, GF2-05, GF2-06, VARTARGET-01, VARTARGET-02, VARTARGET-03",
+   "note": "inactive candidate 'stays physically present' (objectives)"
+  },
+  {
+   "lineId": "L58",
+   "elementId": "tz-A-north",
+   "row": "O2",
+   "value": "target zone (off-list)",
+   "gameProvenance": "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-22, GF2-03, GF2-04, GF2-05, GF2-06, VARTARGET-01, VARTARGET-02, VARTARGET-03",
+   "note": "'marked target zone'"
+  },
+  {
+   "lineId": "L59",
+   "elementId": "tz-A-north",
+   "row": "O3",
+   "value": "1",
+   "gameProvenance": "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-22, GF2-03, GF2-04, GF2-05, GF2-06, VARTARGET-01, VARTARGET-02, VARTARGET-03",
+   "note": "singular; no count field stated"
+  },
+  {
+   "lineId": "L60",
+   "elementId": "tz-A-north",
+   "row": "O4",
+   "value": "37-40 m (east end line, 3 m deep)",
+   "gameProvenance": "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-22, GF2-03, GF2-04, GF2-05, GF2-06, VARTARGET-01, VARTARGET-02, VARTARGET-03",
+   "note": "game calls depth/width 'realization values' left free"
+  },
+  {
+   "lineId": "L61",
+   "elementId": "tz-A-north",
+   "row": "O5",
+   "value": "0-12 m (outer edge on north touchline)",
+   "gameProvenance": "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-22, GF2-03, GF2-04, GF2-05, GF2-06, VARTARGET-01, VARTARGET-02, VARTARGET-03",
+   "note": "'spans the 6 m north channel plus 6 m of the central corridor'"
+  },
+  {
+   "lineId": "L62",
+   "elementId": "tz-A-south",
+   "row": "O1",
+   "value": "EXISTS",
+   "gameProvenance": "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-22, GF2-03, GF2-04, GF2-05, GF2-06, VARTARGET-01, VARTARGET-02, VARTARGET-03",
+   "note": ""
+  },
+  {
+   "lineId": "L63",
+   "elementId": "tz-A-south",
+   "row": "O2",
+   "value": "target zone (off-list)",
+   "gameProvenance": "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-22, GF2-03, GF2-04, GF2-05, GF2-06, VARTARGET-01, VARTARGET-02, VARTARGET-03",
+   "note": ""
+  },
+  {
+   "lineId": "L64",
+   "elementId": "tz-A-south",
+   "row": "O3",
+   "value": "1",
+   "gameProvenance": "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-22, GF2-03, GF2-04, GF2-05, GF2-06, VARTARGET-01, VARTARGET-02, VARTARGET-03",
+   "note": "singular"
+  },
+  {
+   "lineId": "L65",
+   "elementId": "tz-A-south",
+   "row": "O4",
+   "value": "37-40 m (east end line, 3 m deep)",
+   "gameProvenance": "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-22, GF2-03, GF2-04, GF2-05, GF2-06, VARTARGET-01, VARTARGET-02, VARTARGET-03",
+   "note": ""
+  },
+  {
+   "lineId": "L66",
+   "elementId": "tz-A-south",
+   "row": "O5",
+   "value": "18-30 m (outer edge on south touchline)",
+   "gameProvenance": "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-22, GF2-03, GF2-04, GF2-05, GF2-06, VARTARGET-01, VARTARGET-02, VARTARGET-03",
+   "note": "'a 6 m unmarked gap separates it from tz-A-north'"
+  },
+  {
+   "lineId": "L67",
+   "elementId": "tz-B-north",
+   "row": "O1",
+   "value": "EXISTS",
+   "gameProvenance": "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-14, RPC-001-22, GF2-03, GF2-04, GF2-06, GF2-11, VARTARGET-01, VARTARGET-02, VARTARGET-03, STANDING-DIRECTION-INVARIANT",
+   "note": ""
+  },
+  {
+   "lineId": "L68",
+   "elementId": "tz-B-north",
+   "row": "O2",
+   "value": "target zone (off-list)",
+   "gameProvenance": "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-14, RPC-001-22, GF2-03, GF2-04, GF2-06, GF2-11, VARTARGET-01, VARTARGET-02, VARTARGET-03, STANDING-DIRECTION-INVARIANT",
+   "note": ""
+  },
+  {
+   "lineId": "L69",
+   "elementId": "tz-B-north",
+   "row": "O3",
+   "value": "1",
+   "gameProvenance": "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-14, RPC-001-22, GF2-03, GF2-04, GF2-06, GF2-11, VARTARGET-01, VARTARGET-02, VARTARGET-03, STANDING-DIRECTION-INVARIANT",
+   "note": "singular"
+  },
+  {
+   "lineId": "L70",
+   "elementId": "tz-B-north",
+   "row": "O4",
+   "value": "0-3 m (west end line, 3 m deep)",
+   "gameProvenance": "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-14, RPC-001-22, GF2-03, GF2-04, GF2-06, GF2-11, VARTARGET-01, VARTARGET-02, VARTARGET-03, STANDING-DIRECTION-INVARIANT",
+   "note": "'mirrored from tz-A-north'"
+  },
+  {
+   "lineId": "L71",
+   "elementId": "tz-B-north",
+   "row": "O5",
+   "value": "0-12 m (north side, mirrored)",
+   "gameProvenance": "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-14, RPC-001-22, GF2-03, GF2-04, GF2-06, GF2-11, VARTARGET-01, VARTARGET-02, VARTARGET-03, STANDING-DIRECTION-INVARIANT",
+   "note": ""
+  },
+  {
+   "lineId": "L72",
+   "elementId": "tz-B-south",
+   "row": "O1",
+   "value": "EXISTS",
+   "gameProvenance": "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-14, RPC-001-22, GF2-03, GF2-04, GF2-06, GF2-11, VARTARGET-01, VARTARGET-02, VARTARGET-03, STANDING-DIRECTION-INVARIANT",
+   "note": ""
+  },
+  {
+   "lineId": "L73",
+   "elementId": "tz-B-south",
+   "row": "O2",
+   "value": "target zone (off-list)",
+   "gameProvenance": "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-14, RPC-001-22, GF2-03, GF2-04, GF2-06, GF2-11, VARTARGET-01, VARTARGET-02, VARTARGET-03, STANDING-DIRECTION-INVARIANT",
+   "note": ""
+  },
+  {
+   "lineId": "L74",
+   "elementId": "tz-B-south",
+   "row": "O3",
+   "value": "1",
+   "gameProvenance": "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-14, RPC-001-22, GF2-03, GF2-04, GF2-06, GF2-11, VARTARGET-01, VARTARGET-02, VARTARGET-03, STANDING-DIRECTION-INVARIANT",
+   "note": "singular"
+  },
+  {
+   "lineId": "L75",
+   "elementId": "tz-B-south",
+   "row": "O4",
+   "value": "0-3 m (west end line, 3 m deep)",
+   "gameProvenance": "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-14, RPC-001-22, GF2-03, GF2-04, GF2-06, GF2-11, VARTARGET-01, VARTARGET-02, VARTARGET-03, STANDING-DIRECTION-INVARIANT",
+   "note": "'mirrored from tz-A-south'"
+  },
+  {
+   "lineId": "L76",
+   "elementId": "tz-B-south",
+   "row": "O5",
+   "value": "18-30 m (south side, mirrored)",
+   "gameProvenance": "RPC-001-08, RPC-001-09, RPC-001-13, RPC-001-14, RPC-001-22, GF2-03, GF2-04, GF2-06, GF2-11, VARTARGET-01, VARTARGET-02, VARTARGET-03, STANDING-DIRECTION-INVARIANT",
+   "note": ""
+  }
+ ],
+ "lineCandidates": [
+  {
+   "lineId": "L1",
+   "elementId": "game",
+   "row": "E1",
+   "value": "12",
+   "candidateItems": [
+    "Neutral Player Condition|NEUTRAL-10.a"
+   ]
+  },
+  {
+   "lineId": "L2",
+   "elementId": "game",
+   "row": "E2",
+   "value": "40",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-24.a"
+   ]
+  },
+  {
+   "lineId": "L3",
+   "elementId": "game",
+   "row": "E3",
+   "value": "30",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-24.b"
+   ]
+  },
+  {
+   "lineId": "L4",
+   "elementId": "game",
+   "row": "E4",
+   "value": "20",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L5",
+   "elementId": "game",
+   "row": "S1",
+   "value": "the 40 m side (longitudinal)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-07",
+    "From Goal Kicks (A01-02)|A01-02-09.a",
+    "Directional Possession Games (GF2)|GF2-05.a",
+    "Wide Zone Advantage|WIDEZONE-01.a",
+    "Wide Zone Advantage|WIDEZONE-01.b"
+   ]
+  },
+  {
+   "lineId": "L6",
+   "elementId": "area",
+   "row": "S2",
+   "value": "EXISTS",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-03.a",
+    "Wide Zone Advantage|WIDEZONE-02.a",
+    "Wide Zone Advantage|WIDEZONE-03",
+    "Wide Zone Advantage|WIDEZONE-08.d",
+    "Variable Target Condition|VARTARGET-05.a"
+   ]
+  },
+  {
+   "lineId": "L7",
+   "elementId": "area",
+   "row": "S3",
+   "value": "area (off-list)",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-03.b",
+    "Wide Zone Advantage|WIDEZONE-02.b"
+   ]
+  },
+  {
+   "lineId": "L8",
+   "elementId": "area",
+   "row": "S4",
+   "value": "UNSTATED",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-08.a"
+   ]
+  },
+  {
+   "lineId": "L9",
+   "elementId": "area",
+   "row": "S5",
+   "value": "0-40 m (whole)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-09.b",
+    "Directional Possession Games (GF2)|GF2-04",
+    "Wide Zone Advantage|WIDEZONE-07",
+    "Wide Zone Advantage|WIDEZONE-10.a"
+   ]
+  },
+  {
+   "lineId": "L10",
+   "elementId": "area",
+   "row": "S6",
+   "value": "0-30 m (whole)",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-05.b",
+    "Wide Zone Advantage|WIDEZONE-04.a",
+    "Wide Zone Advantage|WIDEZONE-05.a",
+    "Wide Zone Advantage|WIDEZONE-06",
+    "Wide Zone Advantage|WIDEZONE-10.b"
+   ]
+  },
+  {
+   "lineId": "L11",
+   "elementId": "own-half-A",
+   "row": "S2",
+   "value": "EXISTS",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-03.a",
+    "Wide Zone Advantage|WIDEZONE-02.a",
+    "Wide Zone Advantage|WIDEZONE-03",
+    "Wide Zone Advantage|WIDEZONE-08.d",
+    "Variable Target Condition|VARTARGET-05.a"
+   ]
+  },
+  {
+   "lineId": "L12",
+   "elementId": "own-half-A",
+   "row": "S3",
+   "value": "half",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-03.b",
+    "Wide Zone Advantage|WIDEZONE-02.b"
+   ]
+  },
+  {
+   "lineId": "L13",
+   "elementId": "own-half-A",
+   "row": "S4",
+   "value": "start-placement",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-08.a"
+   ]
+  },
+  {
+   "lineId": "L14",
+   "elementId": "own-half-A",
+   "row": "S5",
+   "value": "0-20 m (west end line to halfway line)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-09.b",
+    "Directional Possession Games (GF2)|GF2-04",
+    "Wide Zone Advantage|WIDEZONE-07",
+    "Wide Zone Advantage|WIDEZONE-10.a"
+   ]
+  },
+  {
+   "lineId": "L15",
+   "elementId": "own-half-A",
+   "row": "S6",
+   "value": "0-30 m (full width)",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-05.b",
+    "Wide Zone Advantage|WIDEZONE-04.a",
+    "Wide Zone Advantage|WIDEZONE-05.a",
+    "Wide Zone Advantage|WIDEZONE-06",
+    "Wide Zone Advantage|WIDEZONE-10.b"
+   ]
+  },
+  {
+   "lineId": "L16",
+   "elementId": "own-half-B",
+   "row": "S2",
+   "value": "EXISTS",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-03.a",
+    "Wide Zone Advantage|WIDEZONE-02.a",
+    "Wide Zone Advantage|WIDEZONE-03",
+    "Wide Zone Advantage|WIDEZONE-08.d",
+    "Variable Target Condition|VARTARGET-05.a"
+   ]
+  },
+  {
+   "lineId": "L17",
+   "elementId": "own-half-B",
+   "row": "S3",
+   "value": "half",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-03.b",
+    "Wide Zone Advantage|WIDEZONE-02.b"
+   ]
+  },
+  {
+   "lineId": "L18",
+   "elementId": "own-half-B",
+   "row": "S4",
+   "value": "start-placement",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-08.a"
+   ]
+  },
+  {
+   "lineId": "L19",
+   "elementId": "own-half-B",
+   "row": "S5",
+   "value": "20-40 m (halfway line to east end line)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-09.b",
+    "Directional Possession Games (GF2)|GF2-04",
+    "Wide Zone Advantage|WIDEZONE-07",
+    "Wide Zone Advantage|WIDEZONE-10.a"
+   ]
+  },
+  {
+   "lineId": "L20",
+   "elementId": "own-half-B",
+   "row": "S6",
+   "value": "0-30 m (full width)",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-05.b",
+    "Wide Zone Advantage|WIDEZONE-04.a",
+    "Wide Zone Advantage|WIDEZONE-05.a",
+    "Wide Zone Advantage|WIDEZONE-06",
+    "Wide Zone Advantage|WIDEZONE-10.b"
+   ]
+  },
+  {
+   "lineId": "L21",
+   "elementId": "channel-north",
+   "row": "S2",
+   "value": "EXISTS",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-03.a",
+    "Wide Zone Advantage|WIDEZONE-02.a",
+    "Wide Zone Advantage|WIDEZONE-03",
+    "Wide Zone Advantage|WIDEZONE-08.d",
+    "Variable Target Condition|VARTARGET-05.a"
+   ]
+  },
+  {
+   "lineId": "L22",
+   "elementId": "channel-north",
+   "row": "S3",
+   "value": "channel",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-03.b",
+    "Wide Zone Advantage|WIDEZONE-02.b"
+   ]
+  },
+  {
+   "lineId": "L23",
+   "elementId": "channel-north",
+   "row": "S4",
+   "value": "perceptual-reference",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-08.a"
+   ]
+  },
+  {
+   "lineId": "L24",
+   "elementId": "channel-north",
+   "row": "S4",
+   "value": "value-condition",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-08.a"
+   ]
+  },
+  {
+   "lineId": "L25",
+   "elementId": "channel-north",
+   "row": "S5",
+   "value": "0-40 m (full length)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-09.b",
+    "Directional Possession Games (GF2)|GF2-04",
+    "Wide Zone Advantage|WIDEZONE-07",
+    "Wide Zone Advantage|WIDEZONE-10.a"
+   ]
+  },
+  {
+   "lineId": "L26",
+   "elementId": "channel-north",
+   "row": "S6",
+   "value": "0-6 m (outer edge on north touchline)",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-05.b",
+    "Wide Zone Advantage|WIDEZONE-04.a",
+    "Wide Zone Advantage|WIDEZONE-05.a",
+    "Wide Zone Advantage|WIDEZONE-06",
+    "Wide Zone Advantage|WIDEZONE-10.b"
+   ]
+  },
+  {
+   "lineId": "L27",
+   "elementId": "channel-south",
+   "row": "S2",
+   "value": "EXISTS",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-03.a",
+    "Wide Zone Advantage|WIDEZONE-02.a",
+    "Wide Zone Advantage|WIDEZONE-03",
+    "Wide Zone Advantage|WIDEZONE-08.d",
+    "Variable Target Condition|VARTARGET-05.a"
+   ]
+  },
+  {
+   "lineId": "L28",
+   "elementId": "channel-south",
+   "row": "S3",
+   "value": "channel",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-03.b",
+    "Wide Zone Advantage|WIDEZONE-02.b"
+   ]
+  },
+  {
+   "lineId": "L29",
+   "elementId": "channel-south",
+   "row": "S4",
+   "value": "perceptual-reference",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-08.a"
+   ]
+  },
+  {
+   "lineId": "L30",
+   "elementId": "channel-south",
+   "row": "S4",
+   "value": "value-condition",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-08.a"
+   ]
+  },
+  {
+   "lineId": "L31",
+   "elementId": "channel-south",
+   "row": "S5",
+   "value": "0-40 m (full length)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-09.b",
+    "Directional Possession Games (GF2)|GF2-04",
+    "Wide Zone Advantage|WIDEZONE-07",
+    "Wide Zone Advantage|WIDEZONE-10.a"
+   ]
+  },
+  {
+   "lineId": "L32",
+   "elementId": "channel-south",
+   "row": "S6",
+   "value": "24-30 m (outer edge on south touchline)",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-05.b",
+    "Wide Zone Advantage|WIDEZONE-04.a",
+    "Wide Zone Advantage|WIDEZONE-05.a",
+    "Wide Zone Advantage|WIDEZONE-06",
+    "Wide Zone Advantage|WIDEZONE-10.b"
+   ]
+  },
+  {
+   "lineId": "L33",
+   "elementId": "central-corridor",
+   "row": "S2",
+   "value": "EXISTS",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-03.a",
+    "Wide Zone Advantage|WIDEZONE-02.a",
+    "Wide Zone Advantage|WIDEZONE-03",
+    "Wide Zone Advantage|WIDEZONE-08.d",
+    "Variable Target Condition|VARTARGET-05.a"
+   ]
+  },
+  {
+   "lineId": "L34",
+   "elementId": "central-corridor",
+   "row": "S3",
+   "value": "corridor",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-03.b",
+    "Wide Zone Advantage|WIDEZONE-02.b"
+   ]
+  },
+  {
+   "lineId": "L35",
+   "elementId": "central-corridor",
+   "row": "S4",
+   "value": "UNSTATED",
+   "candidateItems": [
+    "Wide Zone Advantage|WIDEZONE-08.a"
+   ]
+  },
+  {
+   "lineId": "L36",
+   "elementId": "central-corridor",
+   "row": "S5",
+   "value": "UNSTATED",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-09.b",
+    "Directional Possession Games (GF2)|GF2-04",
+    "Wide Zone Advantage|WIDEZONE-07",
+    "Wide Zone Advantage|WIDEZONE-10.a"
+   ]
+  },
+  {
+   "lineId": "L37",
+   "elementId": "central-corridor",
+   "row": "S6",
+   "value": "6-24 m (18 m, between the channels)",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-05.b",
+    "Wide Zone Advantage|WIDEZONE-04.a",
+    "Wide Zone Advantage|WIDEZONE-05.a",
+    "Wide Zone Advantage|WIDEZONE-06",
+    "Wide Zone Advantage|WIDEZONE-10.b"
+   ]
+  },
+  {
+   "lineId": "L38",
+   "elementId": "team-A",
+   "row": "P1",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-01.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-01.b",
+    "Directional Possession Games (GF2)|GF2-14.a"
+   ]
+  },
+  {
+   "lineId": "L39",
+   "elementId": "team-A",
+   "row": "P2",
+   "value": "4",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-14.b",
+    "Neutral Player Condition|NEUTRAL-08.a",
+    "Neutral Player Condition|NEUTRAL-09.a",
+    "Neutral Player Condition|NEUTRAL-11.b"
+   ]
+  },
+  {
+   "lineId": "L40",
+   "elementId": "team-A",
+   "row": "P3",
+   "value": "1",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-02",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-03"
+   ]
+  },
+  {
+   "lineId": "L41",
+   "elementId": "team-B",
+   "row": "P1",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-01.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-01.b",
+    "Directional Possession Games (GF2)|GF2-14.a"
+   ]
+  },
+  {
+   "lineId": "L42",
+   "elementId": "team-B",
+   "row": "P2",
+   "value": "4",
+   "candidateItems": [
+    "Directional Possession Games (GF2)|GF2-14.b",
+    "Neutral Player Condition|NEUTRAL-08.a",
+    "Neutral Player Condition|NEUTRAL-09.a",
+    "Neutral Player Condition|NEUTRAL-11.b"
+   ]
+  },
+  {
+   "lineId": "L43",
+   "elementId": "team-B",
+   "row": "P3",
+   "value": "1",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-02",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-03"
+   ]
+  },
+  {
+   "lineId": "L44",
+   "elementId": "target-players",
+   "row": "P4",
+   "value": "NONE (0 target-player roles, both teams)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-05.b"
+   ]
+  },
+  {
+   "lineId": "L45",
+   "elementId": "neutrals",
+   "row": "P5",
+   "value": "2",
+   "candidateItems": [
+    "Neutral Player Condition|NEUTRAL-01.a",
+    "Neutral Player Condition|NEUTRAL-02.a",
+    "Neutral Player Condition|NEUTRAL-11.a"
+   ]
+  },
+  {
+   "lineId": "L46",
+   "elementId": "neutrals",
+   "row": "P6a",
+   "value": "POSSESSION_CHANGE",
+   "candidateItems": [
+    "Neutral Player Condition|NEUTRAL-03.b",
+    "Neutral Player Condition|NEUTRAL-14.a"
+   ]
+  },
+  {
+   "lineId": "L47",
+   "elementId": "neutrals",
+   "row": "P6b",
+   "value": "team now in possession (WON_BALL)",
+   "candidateItems": [
+    "Neutral Player Condition|NEUTRAL-03.a",
+    "Neutral Player Condition|NEUTRAL-04.a",
+    "Neutral Player Condition|NEUTRAL-04.b",
+    "Neutral Player Condition|NEUTRAL-14.b"
+   ]
+  },
+  {
+   "lineId": "L48",
+   "elementId": "neutrals",
+   "row": "P7",
+   "value": "contrasting bibs",
+   "candidateItems": [
+    "Neutral Player Condition|NEUTRAL-06.a",
+    "Neutral Player Condition|NEUTRAL-06.b"
+   ]
+  },
+  {
+   "lineId": "L49",
+   "elementId": "starting-positions-at-every-restart",
+   "row": "P8",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-04.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-04.c"
+   ]
+  },
+  {
+   "lineId": "L50",
+   "elementId": "starting-positions-at-every-restart",
+   "row": "P9",
+   "value": "DEFENDING_TEAM (its forward-most defensive line)",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L51",
+   "elementId": "starting-positions-at-every-restart",
+   "row": "P10",
+   "value": "no region ref: 'between restarting team's own-half build-out area and the target zones it attacks'",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-04.b",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-05.a"
+   ]
+  },
+  {
+   "lineId": "L52",
+   "elementId": "ball",
+   "row": "O1",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-10.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-10.b",
+    "From Goal Kicks (A01-02)|A01-02-08.a",
+    "Directional Possession Games (GF2)|GF2-06.a",
+    "Variable Target Condition|VARTARGET-01.a",
+    "Variable Target Condition|VARTARGET-02.a"
+   ]
+  },
+  {
+   "lineId": "L53",
+   "elementId": "ball",
+   "row": "O2",
+   "value": "ball",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L54",
+   "elementId": "ball",
+   "row": "O3",
+   "value": "1",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L55",
+   "elementId": "ball",
+   "row": "O4",
+   "value": "at goal-kick restart: restarting team's own half, defended end; otherwise where play takes it",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-09.a",
+    "Directional Possession Games (GF2)|GF2-06.b",
+    "Variable Target Condition|VARTARGET-03.a",
+    "Variable Target Condition|VARTARGET-04.a"
+   ]
+  },
+  {
+   "lineId": "L56",
+   "elementId": "ball",
+   "row": "O5",
+   "value": "UNSTATED",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-04.b"
+   ]
+  },
+  {
+   "lineId": "L57",
+   "elementId": "tz-A-north",
+   "row": "O1",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-10.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-10.b",
+    "From Goal Kicks (A01-02)|A01-02-08.a",
+    "Directional Possession Games (GF2)|GF2-06.a",
+    "Variable Target Condition|VARTARGET-01.a",
+    "Variable Target Condition|VARTARGET-02.a"
+   ]
+  },
+  {
+   "lineId": "L58",
+   "elementId": "tz-A-north",
+   "row": "O2",
+   "value": "target zone (off-list)",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L59",
+   "elementId": "tz-A-north",
+   "row": "O3",
+   "value": "1",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L60",
+   "elementId": "tz-A-north",
+   "row": "O4",
+   "value": "37-40 m (east end line, 3 m deep)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-09.a",
+    "Directional Possession Games (GF2)|GF2-06.b",
+    "Variable Target Condition|VARTARGET-03.a",
+    "Variable Target Condition|VARTARGET-04.a"
+   ]
+  },
+  {
+   "lineId": "L61",
+   "elementId": "tz-A-north",
+   "row": "O5",
+   "value": "0-12 m (outer edge on north touchline)",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-04.b"
+   ]
+  },
+  {
+   "lineId": "L62",
+   "elementId": "tz-A-south",
+   "row": "O1",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-10.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-10.b",
+    "From Goal Kicks (A01-02)|A01-02-08.a",
+    "Directional Possession Games (GF2)|GF2-06.a",
+    "Variable Target Condition|VARTARGET-01.a",
+    "Variable Target Condition|VARTARGET-02.a"
+   ]
+  },
+  {
+   "lineId": "L63",
+   "elementId": "tz-A-south",
+   "row": "O2",
+   "value": "target zone (off-list)",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L64",
+   "elementId": "tz-A-south",
+   "row": "O3",
+   "value": "1",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L65",
+   "elementId": "tz-A-south",
+   "row": "O4",
+   "value": "37-40 m (east end line, 3 m deep)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-09.a",
+    "Directional Possession Games (GF2)|GF2-06.b",
+    "Variable Target Condition|VARTARGET-03.a",
+    "Variable Target Condition|VARTARGET-04.a"
+   ]
+  },
+  {
+   "lineId": "L66",
+   "elementId": "tz-A-south",
+   "row": "O5",
+   "value": "18-30 m (outer edge on south touchline)",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-04.b"
+   ]
+  },
+  {
+   "lineId": "L67",
+   "elementId": "tz-B-north",
+   "row": "O1",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-10.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-10.b",
+    "From Goal Kicks (A01-02)|A01-02-08.a",
+    "Directional Possession Games (GF2)|GF2-06.a",
+    "Variable Target Condition|VARTARGET-01.a",
+    "Variable Target Condition|VARTARGET-02.a"
+   ]
+  },
+  {
+   "lineId": "L68",
+   "elementId": "tz-B-north",
+   "row": "O2",
+   "value": "target zone (off-list)",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L69",
+   "elementId": "tz-B-north",
+   "row": "O3",
+   "value": "1",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L70",
+   "elementId": "tz-B-north",
+   "row": "O4",
+   "value": "0-3 m (west end line, 3 m deep)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-09.a",
+    "Directional Possession Games (GF2)|GF2-06.b",
+    "Variable Target Condition|VARTARGET-03.a",
+    "Variable Target Condition|VARTARGET-04.a"
+   ]
+  },
+  {
+   "lineId": "L71",
+   "elementId": "tz-B-north",
+   "row": "O5",
+   "value": "0-12 m (north side, mirrored)",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-04.b"
+   ]
+  },
+  {
+   "lineId": "L72",
+   "elementId": "tz-B-south",
+   "row": "O1",
+   "value": "EXISTS",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-10.a",
+    "RPC-001 Goalkeeper Build-Out|RPC-001-10.b",
+    "From Goal Kicks (A01-02)|A01-02-08.a",
+    "Directional Possession Games (GF2)|GF2-06.a",
+    "Variable Target Condition|VARTARGET-01.a",
+    "Variable Target Condition|VARTARGET-02.a"
+   ]
+  },
+  {
+   "lineId": "L73",
+   "elementId": "tz-B-south",
+   "row": "O2",
+   "value": "target zone (off-list)",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L74",
+   "elementId": "tz-B-south",
+   "row": "O3",
+   "value": "1",
+   "candidateItems": []
+  },
+  {
+   "lineId": "L75",
+   "elementId": "tz-B-south",
+   "row": "O4",
+   "value": "0-3 m (west end line, 3 m deep)",
+   "candidateItems": [
+    "RPC-001 Goalkeeper Build-Out|RPC-001-09.a",
+    "Directional Possession Games (GF2)|GF2-06.b",
+    "Variable Target Condition|VARTARGET-03.a",
+    "Variable Target Condition|VARTARGET-04.a"
+   ]
+  },
+  {
+   "lineId": "L76",
+   "elementId": "tz-B-south",
+   "row": "O5",
+   "value": "18-30 m (south side, mirrored)",
+   "candidateItems": [
+    "Variable Target Condition|VARTARGET-04.b"
+   ]
+  }
+ ],
+ "contracts": [
+  {
+   "contract": "RPC-001 Goalkeeper Build-Out",
+   "items": [
+    {
+     "id": "RPC-001-01.a",
+     "origId": "RPC-001-01",
+     "row": "P1",
+     "selector": "*",
+     "requirement": "COUNT",
+     "value": "2",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "ASSUMED",
+     "basisEvidence": "Assumes \"Opposition can deny, redirect, or reverse progression.\" (GAK-0105) and \"Reciprocal progression toward meaningful external objectives.\" (GA-001) mean exactly two opposed teams; GA-001 binds via RPC-REL-001 (COMPATIBLE, strength REQUIRED).",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "â€”",
+     "fitNote": "The number 2 is not verbatim, so it is kept as an assumed bound. It carries a value, so it stays REQUIRED_RANGE."
+    },
+    {
+     "id": "RPC-001-01.b",
+     "origId": "RPC-001-01",
+     "row": "P1",
+     "selector": "*",
+     "requirement": "EXISTS",
+     "value": "an opposing team that can deny, redirect or reverse progression (play)",
+     "strictness": "REQUIRED",
+     "valueStatus": "N/A",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"Opposition can deny, redirect, or reverse progression.\" (GAK-0105, GA-001-OIC-03, knowledge-core/game-archetype-workbook.rc1.1.json)",
+     "checkability": "OUTSIDE_BOUNDARY",
+     "structuralClause": "â€”",
+     "fitNote": "'Live, not passive or scripted' is about play. It is recorded on the nearest row, not forced. 'not-a-value' becomes N/A."
+    },
+    {
+     "id": "RPC-001-02",
+     "origId": "RPC-001-02",
+     "row": "P3",
+     "selector": "team=BUILD_OUT_TEAM",
+     "requirement": "EQUALS",
+     "value": "1",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "PER_TEAM",
+     "basis": "ASSUMED",
+     "basisEvidence": "Reads the goalkeeper arm of \"Goalkeeper controls possession or play restarts from a controlled defensive restart.\" (RPC-PROP-001) as required; RPC-ID-004: \"Goalkeeper involvement is typical but not independently defining.\"",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "â€”",
+     "fitNote": "EXISTS on a FIELD row would mean only 'field present', so 'has a goalkeeper' becomes EQUALS 1 and 'not-a-value' becomes REQUIRED_RANGE. The start-control clause is carried by 15.b."
+    },
+    {
+     "id": "RPC-001-03",
+     "origId": "RPC-001-03",
+     "row": "P3",
+     "selector": "team=ATTACKING_TEAM",
+     "requirement": "EQUALS",
+     "value": "1",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "PER_TEAM",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"Goalkeeper availability.\" (RPC-PROP-009, REPRESENTATIVE_INFORMATION, CORE, sport-module/rpc-library.rc1.json)",
+     "checkability": "PARTLY_STRUCTURAL",
+     "structuralClause": "Structural: the team in possession has a goalkeeper (P3 = 1). Outside: the goalkeeper stays a legal, reachable receiving option throughout the attack.",
+     "fitNote": "The structural clause is a presupposition of the quote, not a statement of it (ledger L-10, L-14). EQUALS 1 carries a value, so the status is REQUIRED_RANGE."
+    },
+    {
+     "id": "RPC-001-04.a",
+     "origId": "RPC-001-04",
+     "row": "P8",
+     "selector": "group=DEFENDING_TEAM",
+     "requirement": "EXISTS",
+     "value": "N/A",
+     "strictness": "REQUIRED",
+     "valueStatus": "N/A",
+     "scope": "PER_TEAM",
+     "basis": "ENGINE_ONLY",
+     "basisEvidence": "Only \"Mark a line across the pitch beyond the first defenders.\" and sibling COACH_RULES setups (sport-module/primary-scoring.ts:170-185). No workbook contains 'first defenders'.",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "â€”",
+     "fitNote": "The original path 'teams[].outfield count' cannot hold a placement. P8 is the register's home for start placements (spec Â§5.3)."
+    },
+    {
+     "id": "RPC-001-04.b",
+     "origId": "RPC-001-04",
+     "row": "P10",
+     "selector": "group=DEFENDING_TEAM",
+     "requirement": "POSITIONED",
+     "value": "beyond BUILD_OUT_TEAM's build-out start area, with the scoring reference beyond it, along S1 for BUILD_OUT_TEAM",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "PER_TEAM",
+     "basis": "ENGINE_ONLY",
+     "basisEvidence": "COACH_RULES setups 'beyond the first defenders' (sport-module/primary-scoring.ts:170-185)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "â€”",
+     "fitNote": "'Between' becomes two 'beyond' tests. 'not-a-value' becomes REQUIRED_RANGE because the item is a positional bound."
+    },
+    {
+     "id": "RPC-001-04.c",
+     "origId": "RPC-001-04",
+     "row": "P8",
+     "selector": "group=DEFENDING_TEAM",
+     "requirement": "EXISTS",
+     "value": "an identifiable forward-most defensive line of players ('the first defenders')",
+     "strictness": "REQUIRED",
+     "valueStatus": "N/A",
+     "scope": "PER_TEAM",
+     "basis": "ENGINE_ONLY",
+     "basisEvidence": "COACH_RULES setups (sport-module/primary-scoring.ts:170-185)",
+     "checkability": "OUTSIDE_BOUNDARY",
+     "structuralClause": "â€”",
+     "fitNote": "This is a formation of players, not a region. Spec Â§5.3: a formation authored without a region is NOT_AUTHORED and is never inferred."
+    },
+    {
+     "id": "RPC-001-05.a",
+     "origId": "RPC-001-05",
+     "row": "P10",
+     "selector": "group=target player",
+     "requirement": "POSITIONED",
+     "value": "beyond the first defenders, for BUILD_OUT_TEAM; only if V1 = target_player",
+     "strictness": "SUPPORTING",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "PER_TEAM",
+     "basis": "ENGINE_ONLY",
+     "basisEvidence": "\"Place a target player beyond the first defenders.\" (COACH_RULES 'RPC-001|target_player|'.setup, sport-module/primary-scoring.ts:185)",
+     "checkability": "PARTLY_STRUCTURAL",
+     "structuralClause": "Structural: beyond DEFENDING_TEAM's start-placement region (04.b) along S1. Outside: beyond the first defenders as players.",
+     "fitNote": "The condition 'only if V1 = target_player' cannot be held (ledger L-01). The item is inert, so no verdict moves."
+    },
+    {
+     "id": "RPC-001-05.b",
+     "origId": "RPC-001-05",
+     "row": "P4",
+     "selector": "roleName=target player",
+     "requirement": "EXISTS",
+     "value": "one target player; only if V1 = target_player (condition not holdable)",
+     "strictness": "SUPPORTING",
+     "valueStatus": "N/A",
+     "scope": "WHOLE_GAME",
+     "basis": "ENGINE_ONLY",
+     "basisEvidence": "\"Place a target player beyond the first defenders.\" (COACH_RULES, sport-module/primary-scoring.ts:185)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "â€”",
+     "fitNote": "The vocabulary's 'designated target player' implies the role only for that event. Marking it AUTHORED without the condition would require the role in every game, so it stays ENGINE_ONLY, as the original cited it."
+    },
+    {
+     "id": "RPC-001-06",
+     "origId": "RPC-001-06",
+     "row": "SV1",
+     "selector": "*",
+     "requirement": "EXISTS",
+     "value": "BUILD_OUT_TEAM's own half, determinable along S1 (need not be marked)",
+     "strictness": "REQUIRED",
+     "valueStatus": "N/A",
+     "scope": "PER_TEAM",
+     "basis": "ENGINE_ONLY",
+     "basisEvidence": "\"Start each attack from your goalkeeper or a restart in your own half.\" (BUILD_OUT_START, sport-module/primary-scoring.ts:145). 'own half' is in no RPC-001 workbook text.",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "â€”",
+     "fitNote": "'Need not be marked' fits the SD-12 view, not an S2 region. A marked area would be S2 [functionsâˆ‹start-placement]."
+    },
+    {
+     "id": "RPC-001-07",
+     "origId": "RPC-001-07",
+     "row": "S1",
+     "selector": "*",
+     "requirement": "EXISTS",
+     "value": "N/A",
+     "strictness": "REQUIRED",
+     "valueStatus": "N/A",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"progressing beyond the initial pressure or progression line, with possession controlled on arrival\" (RPC-PROP-132, PRIMARY_SCORING_CONDITION, sport-module/rpc-library.rc1.json)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "â€”",
+     "fitNote": "ORIENTED becomes EXISTS because no dimension is fixed. 'Own end to attacked end' is direction and sits in RPC-001-13. The axis is presupposed by 'beyond'."
+    },
+    {
+     "id": "RPC-001-09.a",
+     "origId": "RPC-001-09",
+     "row": "O4",
+     "selector": "kind âˆˆ {line, gate}",
+     "requirement": "POSITIONED",
+     "value": "beyond BUILD_OUT_TEAM's own-half start area and beyond the first defenders, for BUILD_OUT_TEAM",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "PER_TEAM",
+     "basis": "ENGINE_ONLY",
+     "basisEvidence": "\"Mark a line across the pitch beyond the first defenders.\" / \"Set out gates of two cones beyond the first defenders.\" (COACH_RULES, sport-module/primary-scoring.ts:170,180)",
+     "checkability": "PARTLY_STRUCTURAL",
+     "structuralClause": "Structural: beyond BUILD_OUT_TEAM's own half along S1. Outside: beyond the first defenders (players).",
+     "fitNote": "Split by carrier row. The target-player carrier is 05.a."
+    },
+    {
+     "id": "RPC-001-09.b",
+     "origId": "RPC-001-09",
+     "row": "S5",
+     "selector": "noun=zone & functionsâˆ‹objective-area",
+     "requirement": "POSITIONED",
+     "value": "beyond BUILD_OUT_TEAM's own-half start area and beyond the first defenders, for BUILD_OUT_TEAM",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "PER_TEAM",
+     "basis": "ENGINE_ONLY",
+     "basisEvidence": "\"Mark a target zone beyond the first defenders.\" (COACH_RULES 'RPC-001|target_zone_entered|'.setup, sport-module/primary-scoring.ts:175)",
+     "checkability": "PARTLY_STRUCTURAL",
+     "structuralClause": "Structural: beyond BUILD_OUT_TEAM's own half along S1. Outside: beyond the first defenders (players).",
+     "fitNote": "This is the zone carrier, which the original filed under Objects (its assumption 8 moves it here unchanged)."
+    },
+    {
+     "id": "RPC-001-10.a",
+     "origId": "RPC-001-10",
+     "row": "O1",
+     "selector": "kind=ball",
+     "requirement": "EXISTS",
+     "value": "N/A",
+     "strictness": "REQUIRED",
+     "valueStatus": "N/A",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"with possession controlled on arrival\" (RPC-PROP-132); \"Possession is lost.\" (RPC-PROP-005)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "â€”",
+     "fitNote": "A ball is presupposed by the quotes, not stated in them (L-14)."
+    },
+    {
+     "id": "RPC-001-10.b",
+     "origId": "RPC-001-10",
+     "row": "O1",
+     "selector": "kind=ball",
+     "requirement": "EXISTS",
+     "value": "contested; possession and control decidable at the scoring event and at loss of possession",
+     "strictness": "REQUIRED",
+     "valueStatus": "N/A",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"with possession controlled on arrival\" (RPC-PROP-132)",
+     "checkability": "OUTSIDE_BOUNDARY",
+     "structuralClause": "â€”",
+     "fitNote": "Contest and control are in-play judgements (SD-15 covers 'controlled on arrival'). The COACH_RULES wording 'controls it' is engine-only and is not relied on."
+    }
+   ],
+   "declarations": [
+    {
+     "row": "E1",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: 'RPC-001 authors no player count.'"
+    },
+    {
+     "row": "E2",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: no authored dimension, ratio, or minimum."
+    },
+    {
+     "row": "E3",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: no authored dimension, ratio, or minimum."
+    },
+    {
+     "row": "E4",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: no duration, period structure, or episode length. Contradicted by notAuthored 8 (L-12)."
+    },
+    {
+     "row": "S1",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "RPC-001-07."
+    },
+    {
+     "row": "S2",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: no thirds, channels, lanes, grids or region count beyond the two it needs."
+    },
+    {
+     "row": "S2",
+     "declaration": "UNDECLARED",
+     "selector": "noun=zone & functionsâˆ‹objective-area",
+     "scope": "WHOLE_GAME",
+     "note": "The scoring zone was claimed through RPC-001-08, but that carrier could not be placed (L-01)."
+    },
+    {
+     "row": "S3",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: the kind/shape of the scoring reference is not fixed; other regions are not required."
+    },
+    {
+     "row": "S4",
+     "declaration": "NON_CLAIMED",
+     "selector": "functionsâˆ‹access",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: 'restricted areas' none authored."
+    },
+    {
+     "row": "S4",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Other functions, such as the scoring zone's objective-area, are never declared."
+    },
+    {
+     "row": "S5",
+     "declaration": "CLAIMED",
+     "selector": "noun=zone & functionsâˆ‹objective-area",
+     "scope": "PER_TEAM",
+     "note": "RPC-001-09.b (engine-only)."
+    },
+    {
+     "row": "S5",
+     "declaration": "NON_CLAIMED",
+     "selector": "noun=zone & functionsâˆ‹objective-area",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: depth and how far beyond are not fixed."
+    },
+    {
+     "row": "S5",
+     "declaration": "NOT_AUTHORED",
+     "selector": "noun=zone & functionsâˆ‹objective-area",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored 1: how far beyond the first defenders."
+    },
+    {
+     "row": "S6",
+     "declaration": "NON_CLAIMED",
+     "selector": "noun=zone & functionsâˆ‹objective-area",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: width of the scoring reference is not fixed."
+    },
+    {
+     "row": "SV1",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "PER_TEAM",
+     "note": "RPC-001-06 (engine-only)."
+    },
+    {
+     "row": "P1",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "RPC-001-01.a/.b."
+    },
+    {
+     "row": "P2",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "PER_TEAM",
+     "note": "DNC: no per-team number, and no balance or imbalance."
+    },
+    {
+     "row": "P3",
+     "declaration": "CLAIMED",
+     "selector": "team âˆˆ {BUILD_OUT_TEAM, ATTACKING_TEAM}",
+     "scope": "PER_TEAM",
+     "note": "RPC-001-02, -03."
+    },
+    {
+     "row": "P4",
+     "declaration": "CLAIMED",
+     "selector": "roleName=target player",
+     "scope": "WHOLE_GAME",
+     "note": "05.b (engine-only). DNC: target players are 'permitted..., never required' as a standing requirement."
+    },
+    {
+     "row": "P4",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Roles other than target player were never examined."
+    },
+    {
+     "row": "P5",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: neutrals are neither required nor prohibited."
+    },
+    {
+     "row": "P6a",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: neutrals' 'plays for'."
+    },
+    {
+     "row": "P6b",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: neutrals' 'plays for'."
+    },
+    {
+     "row": "P7",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "The DNC names neutrals' count and 'plays for' only."
+    },
+    {
+     "row": "P8",
+     "declaration": "CLAIMED",
+     "selector": "group=DEFENDING_TEAM",
+     "scope": "PER_TEAM",
+     "note": "04.a, 04.c (engine-only)."
+    },
+    {
+     "row": "P9",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Group values are fixed only through P8/P10 selectors. No item is on this row."
+    },
+    {
+     "row": "P10",
+     "declaration": "CLAIMED",
+     "selector": "group âˆˆ {DEFENDING_TEAM, target player}",
+     "scope": "PER_TEAM",
+     "note": "04.b, 05.a (engine-only)."
+    },
+    {
+     "row": "O1",
+     "declaration": "CLAIMED",
+     "selector": "kind=ball",
+     "scope": "WHOLE_GAME",
+     "note": "RPC-001-10.a/.b."
+    },
+    {
+     "row": "O1",
+     "declaration": "NON_CLAIMED",
+     "selector": "kind=goal",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: no goal required."
+    },
+    {
+     "row": "O1",
+     "declaration": "NOT_AUTHORED",
+     "selector": "kind âˆˆ {line, gate}",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored 7: one shared reference or one per team."
+    },
+    {
+     "row": "O2",
+     "declaration": "NON_CLAIMED",
+     "selector": "kind=goal",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: real goals."
+    },
+    {
+     "row": "O2",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Kinds are fixed only through O1 selectors."
+    },
+    {
+     "row": "O3",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Object counts, such as the number of gates, were never examined."
+    },
+    {
+     "row": "O4",
+     "declaration": "CLAIMED",
+     "selector": "kind âˆˆ {line, gate}",
+     "scope": "PER_TEAM",
+     "note": "RPC-001-09.a (engine-only)."
+    },
+    {
+     "row": "O4",
+     "declaration": "NON_CLAIMED",
+     "selector": "kind âˆˆ {line, gate}",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: extent and how far beyond are not fixed."
+    },
+    {
+     "row": "O4",
+     "declaration": "NOT_AUTHORED",
+     "selector": "kind âˆˆ {line, gate}",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored 1: how far beyond the first defenders."
+    },
+    {
+     "row": "O5",
+     "declaration": "NON_CLAIMED",
+     "selector": "kind âˆˆ {line, gate}",
+     "scope": "WHOLE_GAME",
+     "note": "DNC: width and extent of the scoring reference."
+    }
+   ],
+   "relationshipRules": [
+    {
+     "id": "RPC-001-RR-1",
+     "owner": "RPC-001 (RPC-REL-071 to RPC-REL-074)",
+     "decides": "V1 [*] (the primary event kind) against another object's V1 requirement",
+     "outcome": "V1 takes a member of {line_crossed, target_zone_entered, gate, target_player}; a value outside the set loses, with RR-01 (the Context owns scoring). The authored order is recorded but not applied (RC-29, spec Â§5.8), so it does not choose among members.",
+     "evidence": "\"Valid primary scoring event 1 of 4, in the approved order.\" (RPC-REL-071 notes; 072-074 say 2-4), provenance \"Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)\", sport-module/rpc-library.rc1.json"
+    }
+   ]
+  },
+  {
+   "contract": "From Goal Kicks (A01-02)",
+   "items": [
+    {
+     "id": "A01-02-08.a",
+     "origId": "A01-02-08",
+     "row": "O1",
+     "selector": "kind=ball",
+     "requirement": "EXISTS",
+     "value": "none (at least one ball)",
+     "strictness": "REQUIRED",
+     "valueStatus": "N/A",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"Restart from goal kicks.\" (session-planning-model.rc1.json, A01-02 Definition): a kick needs an object to kick.",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "N/A",
+     "fitNote": "'not-a-value' becomes N/A. 'A game object put into play by being kicked' is the register's kind ball, carried through RC-16. 'No count beyond one, no property' is held as non-claims on O2 and O3."
+    },
+    {
+     "id": "A01-02-09.a",
+     "origId": "A01-02-09",
+     "row": "S1",
+     "selector": "*",
+     "requirement": "EXISTS",
+     "value": "none (a longitudinal axis is set, so each team has an end)",
+     "strictness": "REQUIRED",
+     "valueStatus": "N/A",
+     "scope": "WHOLE_GAME",
+     "basis": "ASSUMED",
+     "basisEvidence": "Assumes a goal kick is taken from an end, so the area needs ends. The cited EMP-0021 Reference Target \"Playing area / Boundary / ...\" is general authored ontology, not about A01-02.",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "N/A",
+     "fitNote": "'not-a-value' becomes N/A. Ends exist only once S1 is set, and SD-11 already sets it, so a derivation gains nothing from this item. 'Perceivable' is about perception and has no row. The envelope (E2/E3) is not claimed."
+    }
+   ],
+   "declarations": [
+    {
+     "row": "E1",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "\"Envelope: nothing at all. Player count, area length and width, and duration are untouched by this object\"."
+    },
+    {
+     "row": "E2",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Same envelope non-claim (area length)."
+    },
+    {
+     "row": "E3",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Same envelope non-claim (area width)."
+    },
+    {
+     "row": "E4",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Same envelope non-claim (duration)."
+    },
+    {
+     "row": "S1",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "A01-02-09.a (EXISTS; coincides with SD-11)."
+    },
+    {
+     "row": "S2",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "\"Space.regions: this object requires NO region.\" That rules out requiring a goal area, restart zone or spot, channels, thirds, halves or build-out lines."
+    },
+    {
+     "row": "S3",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "\"Space.regions[kind, orientation, extent, position]: entirely free\"; 'kind' is read as the noun."
+    },
+    {
+     "row": "S4",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Functions are not in the original's list [kind, orientation, extent, position]. 'No marked restart zone' concerns whether regions exist (S2), not the functions of regions that do. A gap, not a permission."
+    },
+    {
+     "row": "S5",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "\"[... extent, position]: entirely free\"; \"Any region present for other reasons may sit anywhere\"."
+    },
+    {
+     "row": "S6",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Same as S5."
+    },
+    {
+     "row": "SV1",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Halves and thirds are named only as regions that are not required (S2). The fraction view was never examined."
+    },
+    {
+     "row": "P1",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "\"Performers.teams[].outfield count, team count, team sizes, symmetry or asymmetry: free.\""
+    },
+    {
+     "row": "P2",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Same quote (outfield count, team sizes)."
+    },
+    {
+     "row": "P3",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "\"Performers.teams[].goalkeeper: explicitly free. A goal kick does not require a goalkeeper to exist\"."
+    },
+    {
+     "row": "P4",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "\"no role, shirt, position or rotation is constrained\"; \"target players: free\"."
+    },
+    {
+     "row": "P5",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "\"Performers.neutrals[count, plays for] and target players: free.\""
+    },
+    {
+     "row": "P6a",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "\"neutrals[count, plays for] ... free\". 'Plays for' is read as the whole affiliation rule, which the register splits into P6a and P6b."
+    },
+    {
+     "row": "P6b",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "\"plays for ... free\"; also \"does not say whether a neutral may take or receive the restart\"."
+    },
+    {
+     "row": "P7",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "How neutrals are made distinct was never examined."
+    },
+    {
+     "row": "P8",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Start placement was never examined. The engine directive behind 06 says 'where players begin', but the original claims nothing here."
+    },
+    {
+     "row": "P9",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Never examined."
+    },
+    {
+     "row": "P10",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Never examined."
+    },
+    {
+     "row": "O1",
+     "declaration": "CLAIMED",
+     "selector": "kind=ball",
+     "scope": "WHOLE_GAME",
+     "note": "A01-02-08.a: at least one ball."
+    },
+    {
+     "row": "O1",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "\"the number of game objects beyond the one required ...; any additional environmental objects\"."
+    },
+    {
+     "row": "O2",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "\"every object property (size, type, weight)\". The ball's kind comes from 08.a's selector (RC-16), not from an O2 item."
+    },
+    {
+     "row": "O3",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "\"the number of game objects beyond the one required\"."
+    },
+    {
+     "row": "O4",
+     "declaration": "NON_CLAIMED",
+     "selector": "kind âˆˆ {goal, line, gate}",
+     "scope": "WHOLE_GAME",
+     "note": "\"any additional environmental objects\" are free."
+    },
+    {
+     "row": "O4",
+     "declaration": "UNDECLARED",
+     "selector": "kind=ball",
+     "scope": "WHOLE_GAME",
+     "note": "The ball's layout position was never examined. Its position at the restart moved to T4 (07.a)."
+    },
+    {
+     "row": "O5",
+     "declaration": "NON_CLAIMED",
+     "selector": "kind âˆˆ {goal, line, gate}",
+     "scope": "WHOLE_GAME",
+     "note": "\"any additional environmental objects\" are free."
+    },
+    {
+     "row": "O5",
+     "declaration": "UNDECLARED",
+     "selector": "kind=ball",
+     "scope": "WHOLE_GAME",
+     "note": "As O4."
+    }
+   ],
+   "relationshipRules": []
+  },
+  {
+   "contract": "Directional Possession Games (GF2)",
+   "items": [
+    {
+     "id": "GF2-03.a",
+     "origId": "GF2-03",
+     "row": "S2",
+     "selector": "functions âˆ‹ objective-area",
+     "requirement": "RANGE",
+     "value": "min 1; no maximum authored",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"a directional target line or zone at one end\" â€” soccer-module.rc1-v3.json GF2.setup_guidance",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Carries the authored existence of the target. The register types a line as an object (O2) and a zone as a region (S3); the authored alternative crosses rows, so the region holds it and the object copy (GF2-06.a) is ASSUMED."
+    },
+    {
+     "id": "GF2-03.b",
+     "origId": "GF2-03",
+     "row": "S3",
+     "selector": "functions âˆ‹ objective-area",
+     "requirement": "EQUALS",
+     "value": "{zone, line} â€” set of alternatives, unordered",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"a directional target line or zone at one end\" â€” soccer-module.rc1-v3.json GF2.setup_guidance",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "\"line\" is not on the draft S3 noun list (VOCABULARY; derived as if listed, RC-33). Which member applies is declared NOT_AUTHORED; S3 is not fillable, so RC-29 gives NOT_AUTHORED(ALTERNATIVES) unless decided elsewhere."
+    },
+    {
+     "id": "GF2-04",
+     "origId": "GF2-04",
+     "row": "S5",
+     "selector": "functions âˆ‹ objective-area",
+     "requirement": "POSITIONED",
+     "value": "attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"a directional target line or zone at one end\" â€” soccer-module.rc1-v3.json GF2.setup_guidance",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "\"At one end\" has no team-free relative term, so \"attacking end\" is used; since direction is computed from this objective (DV1), the test reduces to touching an end line. Which end is free (NON_CLAIMED)."
+    },
+    {
+     "id": "GF2-05.a",
+     "origId": "GF2-05",
+     "row": "S1",
+     "selector": "*",
+     "requirement": "EQUALS",
+     "value": "the longer envelope dimension",
+     "strictness": "SUPPORTING",
+     "valueStatus": "PREFERRED_DEFAULT",
+     "scope": "WHOLE_GAME",
+     "basis": "ASSUMED",
+     "basisEvidence": "Assumption (original #3): progression runs along the longer axis because the target is \"at one end\" and every typical dimension (TYPICAL_EXAMPLE, binding nothing) is longer than wide.",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Same value as SD-11. An ASSUMED item is a bound only and is not authored information to the contrary, so SD-11 still governs S1."
+    },
+    {
+     "id": "GF2-05.b",
+     "origId": "GF2-05",
+     "row": "S6",
+     "selector": "functions âˆ‹ objective-area",
+     "requirement": "ORIENTED",
+     "value": "extends across the axis: the target lies across the direction of progression",
+     "strictness": "SUPPORTING",
+     "valueStatus": "PREFERRED_DEFAULT",
+     "scope": "WHOLE_GAME",
+     "basis": "ASSUMED",
+     "basisEvidence": "Assumption: \"a directional target line or zone at one end\" (soccer-module.rc1-v3.json GF2.setup_guidance) lies across the axis; the text never states an orientation.",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "No orientation row for a region or object; the register types ORIENTED only for DV1 (SD-07). Placed on the across-interval as the nearest fit (SCHEMA LOCAL)."
+    },
+    {
+     "id": "GF2-06.a",
+     "origId": "GF2-06",
+     "row": "O1",
+     "selector": "kind âˆˆ {line, zone}",
+     "requirement": "RANGE",
+     "value": "min 1: the target line or zone as a physically marked object",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "ASSUMED",
+     "basisEvidence": "Assumption (original #2): the target is held both as an object and as the region it occupies. The cited \"line_crossed; target_zone_entered\" (GF2.scoring_structure_type) names events, not objects.",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "ASSUMED so one target does not entail two elements (GF2-03.a carries the authored existence). \"zone\" is not on the O2 list (VOCABULARY). The engine reads the column as marked objects (primary-scoring.ts); not relied on."
+    },
+    {
+     "id": "GF2-06.b",
+     "origId": "GF2-06",
+     "row": "O4",
+     "selector": "kind âˆˆ {line, zone}",
+     "requirement": "POSITIONED",
+     "value": "attacking end, as GF2-04: the object sits on the end target region",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "ASSUMED",
+     "basisEvidence": "Assumption (original #2), with \"a directional target line or zone at one end\" â€” soccer-module.rc1-v3.json GF2.setup_guidance",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "The original's \"position reference = the end target region\" has no field (objects carry intervals, not region references); restated as the same relative position as GF2-04."
+    },
+    {
+     "id": "GF2-14.a",
+     "origId": "GF2-14",
+     "row": "P1",
+     "selector": "*",
+     "requirement": "COUNT",
+     "value": "2",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"Meaningful external objectives remain live for both sides.\" â€” game-archetype-workbook.rc1.1.json GAK-0103 (GA-001-OIC-01)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Presupposed by GF2-14 (\"the two teams\"); \"both sides\" is the authored count. No total is authored (E1 NON_CLAIMED)."
+    },
+    {
+     "id": "GF2-14.b",
+     "origId": "GF2-14",
+     "row": "P2",
+     "selector": "*",
+     "requirement": "EQUALS",
+     "value": "equal to the other team's outfieldCount; no absolute number",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "ASSUMED",
+     "basisEvidence": "Assumption (original #4): \"Even numbers\" (soccer-module GF2.role_structure; mirror test-library/archetypes.ts player_structure_logic) means equal team counts, not an even total.",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "No requirement kind compares two elements; the value is a reference to another element's field, which EQUALS cannot test (SCHEMA LOCAL). Team-size bounds declared NOT_AUTHORED."
+    },
+    {
+     "id": "GF2-24.a",
+     "origId": "GF2-24",
+     "row": "E2",
+     "selector": "*",
+     "requirement": "RANGE",
+     "value": "40-60 m",
+     "strictness": "SUPPORTING",
+     "valueStatus": "TYPICAL_EXAMPLE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"(typical: 40-60m long, 25-40m wide)\" â€” soccer-module.rc1-v3.json GF2.setup_guidance",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Inert (TYPICAL_EXAMPLE). The fixed 40 x 30 m session envelope lies inside it anyway."
+    },
+    {
+     "id": "GF2-24.b",
+     "origId": "GF2-24",
+     "row": "E3",
+     "selector": "*",
+     "requirement": "RANGE",
+     "value": "25-40 m",
+     "strictness": "SUPPORTING",
+     "valueStatus": "TYPICAL_EXAMPLE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"(typical: 40-60m long, 25-40m wide)\" â€” soccer-module.rc1-v3.json GF2.setup_guidance",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Inert (TYPICAL_EXAMPLE)."
+    }
+   ],
+   "declarations": [
+    {
+     "row": "E1",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: minimum_players and maximum_players are null; only the equality of the two teams is authored, not any total."
+    },
+    {
+     "row": "E1",
+     "declaration": "NOT_AUTHORED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored: team size floor or ceiling (minimum_players and maximum_players null). E1 itself is supplied by the session."
+    },
+    {
+     "row": "E2",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "GF2-24.a only: TYPICAL_EXAMPLE, inert."
+    },
+    {
+     "row": "E2",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: the 40-60 x 25-40 m is 'typical'; any rectangle satisfies GF2-01. Coexists with CLAIMED because the only item is inert (ledger)."
+    },
+    {
+     "row": "E3",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "GF2-24.b only: TYPICAL_EXAMPLE, inert."
+    },
+    {
+     "row": "E3",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: exact dimensions are 'typical'; any rectangle satisfies GF2-01."
+    },
+    {
+     "row": "E4",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: no time limit, period structure or clock (period structure has no row)."
+    },
+    {
+     "row": "E4",
+     "declaration": "NOT_AUTHORED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored: duration. E4 itself is supplied by the session."
+    },
+    {
+     "row": "S1",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "GF2-05.a (ASSUMED, PREFERRED_DEFAULT): the longer envelope dimension."
+    },
+    {
+     "row": "S2",
+     "declaration": "CLAIMED",
+     "selector": "functions âˆ‹ objective-area",
+     "scope": "WHOLE_GAME",
+     "note": "GF2-03.a: at least one target region serving as objective area."
+    },
+    {
+     "row": "S2",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: additional regions and internal zoning (thirds, channels, grids, halfway or build-up lines) are free. Meant for regions other than the target; selectors have no negation (ledger)."
+    },
+    {
+     "row": "S3",
+     "declaration": "CLAIMED",
+     "selector": "functions âˆ‹ objective-area",
+     "scope": "WHOLE_GAME",
+     "note": "GF2-03.b: noun zone or line."
+    },
+    {
+     "row": "S3",
+     "declaration": "NOT_AUTHORED",
+     "selector": "functions âˆ‹ objective-area",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored: which of line_crossed or target_zone_entered, here its physical side (line or zone); GF2 states no preference."
+    },
+    {
+     "row": "S3",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: zoning nouns (third, channel, half) for other regions are not required. Meant for non-target regions."
+    },
+    {
+     "row": "S4",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: additional regions are free. The target's objective-area function is fixed through GF2-03's selector (RC-16), not by an item on S4 (ledger)."
+    },
+    {
+     "row": "S5",
+     "declaration": "CLAIMED",
+     "selector": "functions âˆ‹ objective-area",
+     "scope": "WHOLE_GAME",
+     "note": "GF2-04: at an end (attacking end)."
+    },
+    {
+     "row": "S5",
+     "declaration": "NOT_AUTHORED",
+     "selector": "functions âˆ‹ objective-area",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored: extent of the target feature (depth of a zone)."
+    },
+    {
+     "row": "S5",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: the target extent is unauthored; which physical end carries the target is free; other regions are free."
+    },
+    {
+     "row": "S6",
+     "declaration": "CLAIMED",
+     "selector": "functions âˆ‹ objective-area",
+     "scope": "WHOLE_GAME",
+     "note": "GF2-05.b (ASSUMED, PREFERRED_DEFAULT): lies across the axis."
+    },
+    {
+     "row": "S6",
+     "declaration": "NOT_AUTHORED",
+     "selector": "functions âˆ‹ objective-area",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored: length of a target line; whether a line or zone spans the full width."
+    },
+    {
+     "row": "S6",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: the target extent is unauthored; other regions are free."
+    },
+    {
+     "row": "SV1",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "The original addressed marked zoning only, never the implicit halves and thirds view."
+    },
+    {
+     "row": "P1",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "GF2-14.a: two teams."
+    },
+    {
+     "row": "P2",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "GF2-14.b (ASSUMED): equal outfield counts."
+    },
+    {
+     "row": "P2",
+     "declaration": "NOT_AUTHORED",
+     "selector": "*",
+     "scope": "PER_TEAM",
+     "note": "notAuthored: team size floor or ceiling; no absolute count is authored."
+    },
+    {
+     "row": "P3",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: no goalkeeper is authored for either team, in any position."
+    },
+    {
+     "row": "P4",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: target players not required; roles, rotation and substitution entirely free."
+    },
+    {
+     "row": "P5",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: performers outside the two teams are neither authored nor forbidden."
+    },
+    {
+     "row": "P6a",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: performers outside the two teams are neither authored nor forbidden."
+    },
+    {
+     "row": "P6b",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: performers outside the two teams are neither authored nor forbidden."
+    },
+    {
+     "row": "P7",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: performers outside the two teams are neither authored nor forbidden."
+    },
+    {
+     "row": "P8",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: positions and shape entirely free, read as covering start placement (see ledger on rev 4's 'own-half start')."
+    },
+    {
+     "row": "P9",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: positions and shape entirely free, read as covering start placement (see ledger on rev 4's 'own-half start')."
+    },
+    {
+     "row": "P10",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: positions and shape entirely free, read as covering start placement (see ledger on rev 4's 'own-half start')."
+    },
+    {
+     "row": "O1",
+     "declaration": "CLAIMED",
+     "selector": "kind âˆˆ {line, zone}",
+     "scope": "WHOLE_GAME",
+     "note": "GF2-06.a (ASSUMED): the target as a marked object."
+    },
+    {
+     "row": "O1",
+     "declaration": "NON_CLAIMED",
+     "selector": "kind âˆˆ {ball, goal, gate}",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: number of balls unauthored; no goal, gate or other object required or excluded."
+    },
+    {
+     "row": "O1",
+     "declaration": "NON_CLAIMED",
+     "selector": "kind âˆˆ {line, zone}",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: whether the target is instantiated once or once per team is free (count above one)."
+    },
+    {
+     "row": "O2",
+     "declaration": "NOT_AUTHORED",
+     "selector": "kind âˆˆ {line, zone}",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored: line or zone is not decided (the physical side of line_crossed vs target_zone_entered)."
+    },
+    {
+     "row": "O2",
+     "declaration": "NON_CLAIMED",
+     "selector": "kind âˆˆ {ball, goal, gate}",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: objects other than the target are free."
+    },
+    {
+     "row": "O3",
+     "declaration": "NON_CLAIMED",
+     "selector": "kind=ball",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: number of balls unauthored."
+    },
+    {
+     "row": "O3",
+     "declaration": "NON_CLAIMED",
+     "selector": "kind âˆˆ {line, zone}",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: once or once per team is free."
+    },
+    {
+     "row": "O4",
+     "declaration": "CLAIMED",
+     "selector": "kind âˆˆ {line, zone}",
+     "scope": "WHOLE_GAME",
+     "note": "GF2-06.b (ASSUMED): at an end."
+    },
+    {
+     "row": "O4",
+     "declaration": "NOT_AUTHORED",
+     "selector": "kind âˆˆ {line, zone}",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored: extent of the target (depth of a zone)."
+    },
+    {
+     "row": "O4",
+     "declaration": "NON_CLAIMED",
+     "selector": "kind âˆˆ {ball, goal, gate}",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: objects other than the target are free."
+    },
+    {
+     "row": "O5",
+     "declaration": "NOT_AUTHORED",
+     "selector": "kind âˆˆ {line, zone}",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored: length of a target line; whether it spans the full width."
+    },
+    {
+     "row": "O5",
+     "declaration": "NON_CLAIMED",
+     "selector": "kind âˆˆ {line, zone}",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: the target extent is unauthored (listed in both lists; ledger)."
+    },
+    {
+     "row": "O5",
+     "declaration": "NON_CLAIMED",
+     "selector": "kind âˆˆ {ball, goal, gate}",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: objects other than the target are free."
+    }
+   ],
+   "relationshipRules": []
+  },
+  {
+   "contract": "Neutral Player Condition",
+   "items": [
+    {
+     "id": "NEUTRAL-01.a",
+     "origId": "NEUTRAL-01",
+     "row": "P5",
+     "selector": "*",
+     "requirement": "RANGE",
+     "value": ">= 1 (no authored maximum)",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"One or more neutral players join the team in possession creating a live numerical overload\" (soccer-module.rc1-v3.json, tl-v0-constraint-neutral-player-condition, description; mirror has the same text)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "COUNT '>= 1' restated as RANGE on the FIELD row P5 (neutrals have no COLLECTION row); same NARROWS relation. valueStatus unchanged."
+    },
+    {
+     "id": "NEUTRAL-02.a",
+     "origId": "NEUTRAL-02",
+     "row": "P5",
+     "selector": "*",
+     "requirement": "RANGE",
+     "value": "1-2 (one or two)",
+     "strictness": "SUPPORTING",
+     "valueStatus": "PREFERRED_DEFAULT",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"Designate one or two neutral players (wear contrasting bibs).\" (soccer-module.rc1-v3.json, tl-v0-constraint-neutral-player-condition, setup_guidance)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Unchanged. PREFERRED_DEFAULT is the original's reading: the sentence is imperative, but the entry's own example uses 3 neutrals (KNOWLEDGE, ledger)."
+    },
+    {
+     "id": "NEUTRAL-03.a",
+     "origId": "NEUTRAL-03",
+     "row": "P6b",
+     "selector": "*",
+     "requirement": "EQUALS",
+     "value": "ATTACKING_TEAM",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"Neutrals always play with the team in possession, creating a permanent numerical advantage for whichever side has the ball.\" (soccer-module.rc1-v3.json, tl-v0-constraint-neutral-player-condition, setup_guidance)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "ATTACKING_TEAM ('in possession for the episode') is re-evaluated each episode; START and POSSESSION_CHANGE begin one (SD-14), so it holds 'currently in possession'. WON_BALL misses START and is a different designation (RC-22)."
+    },
+    {
+     "id": "NEUTRAL-03.b",
+     "origId": "NEUTRAL-03",
+     "row": "P6a",
+     "selector": "*",
+     "requirement": "EQUALS",
+     "value": "STANDING",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"Neutrals always play with the team in possession, creating a permanent numerical advantage for whichever side has the ball.\" (soccer-module.rc1-v3.json, tl-v0-constraint-neutral-player-condition, setup_guidance)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "'Always ... not a fixed team' held as a standing affiliation rule. POSSESSION_CHANGE was rejected: P6a holds one trigger, so it would leave affiliation at START undecided."
+    },
+    {
+     "id": "NEUTRAL-04.a",
+     "origId": "NEUTRAL-04",
+     "row": "P6b",
+     "selector": "*",
+     "requirement": "EQUALS",
+     "value": "DEFENDING_TEAM",
+     "strictness": "EXCLUSION",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"Neutrals always play with the team in possession\" (soccer-module.rc1-v3.json, tl-v0-constraint-neutral-player-condition, setup_guidance)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Forbids the team out of possession. Was not-a-value; it now carries a forbidden value, so REQUIRED_RANGE, read as a hard bar. Implied by NEUTRAL-03.a; kept as the original's exclusion."
+    },
+    {
+     "id": "NEUTRAL-04.b",
+     "origId": "NEUTRAL-04",
+     "row": "P6b",
+     "selector": "*",
+     "requirement": "EQUALS",
+     "value": "TEAM_<id> (any fixed named team)",
+     "strictness": "EXCLUSION",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"Neutrals always play with the team in possession\" (soccer-module.rc1-v3.json, tl-v0-constraint-neutral-player-condition, setup_guidance)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "'No neutral is fixed to one team'. Was not-a-value; it now carries a forbidden value, so REQUIRED_RANGE."
+    },
+    {
+     "id": "NEUTRAL-06.a",
+     "origId": "NEUTRAL-06",
+     "row": "P7",
+     "selector": "*",
+     "requirement": "EXISTS",
+     "value": "field present: neutrals are made visibly distinct from both teams",
+     "strictness": "REQUIRED",
+     "valueStatus": "N/A",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"Designate one or two neutral players (wear contrasting bibs).\" (soccer-module.rc1-v3.json, tl-v0-constraint-neutral-player-condition, setup_guidance)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "EXISTS on a FIELD row asserts presence only. The original's PREFERRED_DEFAULT belongs to the means (moved to .b); this part carries no value, so N/A."
+    },
+    {
+     "id": "NEUTRAL-06.b",
+     "origId": "NEUTRAL-06",
+     "row": "P7",
+     "selector": "*",
+     "requirement": "EQUALS",
+     "value": "contrasting bibs",
+     "strictness": "REQUIRED",
+     "valueStatus": "PREFERRED_DEFAULT",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"Designate one or two neutral players (wear contrasting bibs).\" (soccer-module.rc1-v3.json, tl-v0-constraint-neutral-player-condition, setup_guidance)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "The authored means. Strictness and status kept from the original pair; the text is imperative, so PREFERRED_DEFAULT is a reading (KNOWLEDGE, ledger)."
+    },
+    {
+     "id": "NEUTRAL-08.a",
+     "origId": "NEUTRAL-08",
+     "row": "P2",
+     "selector": "*",
+     "requirement": "RANGE",
+     "value": "for each team T: P2(T) > P2(other team) - P5",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "PER_TEAM",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"a permanent numerical advantage for whichever side has the ball\" (soccer-module.rc1-v3.json, tl-v0-constraint-neutral-player-condition, setup_guidance); the inequality is the original's formalisation",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Row and kind fit, but the bound is read from other elements and rows, which no requirement kind holds (SCHEMA LOCAL). Counting outfield players only is the original's reading (KNOWLEDGE)."
+    },
+    {
+     "id": "NEUTRAL-09.a",
+     "origId": "NEUTRAL-09",
+     "row": "P2",
+     "selector": "*",
+     "requirement": "EQUALS",
+     "value": "P2 equal for the two teams",
+     "strictness": "SUPPORTING",
+     "valueStatus": "PREFERRED_DEFAULT",
+     "scope": "WHOLE_GAME",
+     "basis": "ASSUMED",
+     "basisEvidence": "Assumes the symmetry of both example splits is a preferred default, not incidental: \"(e.g., for 15 players: 6v6 + 3 neutrals, or 7v7 + 1 neutral)\" (soccer-module.rc1-v3.json, setup_guidance)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Equality across elements is not a value any requirement kind holds (SCHEMA LOCAL). Basis ASSUMED: the only evidence is text the original itself marks TYPICAL_EXAMPLE (NEUTRAL-11)."
+    },
+    {
+     "id": "NEUTRAL-10.a",
+     "origId": "NEUTRAL-10",
+     "row": "E1",
+     "selector": "*",
+     "requirement": "EQUALS",
+     "value": "E1 = sum over teams of (P2 + P3) + P5: neutrals are drawn from the player total, not added to it",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "ASSUMED",
+     "basisEvidence": "The original's stated assumption, from \"Adjust team numbers accordingly\" and the example arithmetic 6 + 6 + 3 = 15 \"for 15 players\" (soccer-module.rc1-v3.json, setup_guidance)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "'= 12' generalised to E1 (the session supplies 12). A sum across rows has no requirement kind (SCHEMA LOCAL). The explicit rule exists only as engine wording (ledger), which is not a source."
+    },
+    {
+     "id": "NEUTRAL-11.a",
+     "origId": "NEUTRAL-11",
+     "row": "P5",
+     "selector": "*",
+     "requirement": "EQUALS",
+     "value": "{3, 1}, unordered, for a 15-player envelope (3 with 6v6, 1 with 7v7)",
+     "strictness": "SUPPORTING",
+     "valueStatus": "TYPICAL_EXAMPLE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"e.g., for 15 players: 6v6 + 3 neutrals, or 7v7 + 1 neutral\" (soccer-module.rc1-v3.json, tl-v0-constraint-neutral-player-condition, setup_guidance)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item (inert)",
+     "fitNote": "Inert (RC-28). The condition E1 = 15 and the pairing with P2 have no holder and live only in the value text (SCHEMA LOCAL; changes no verdict). Moved from envelope players to the rows the example counts."
+    },
+    {
+     "id": "NEUTRAL-11.b",
+     "origId": "NEUTRAL-11",
+     "row": "P2",
+     "selector": "*",
+     "requirement": "EQUALS",
+     "value": "{6, 7} per team, unordered, for a 15-player envelope (paired with 3 and 1 neutrals)",
+     "strictness": "SUPPORTING",
+     "valueStatus": "TYPICAL_EXAMPLE",
+     "scope": "PER_TEAM",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"e.g., for 15 players: 6v6 + 3 neutrals, or 7v7 + 1 neutral\" (soccer-module.rc1-v3.json, tl-v0-constraint-neutral-player-condition, setup_guidance)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item (inert)",
+     "fitNote": "Inert (RC-28). See NEUTRAL-11.a."
+    },
+    {
+     "id": "NEUTRAL-14.a",
+     "origId": "NEUTRAL-14",
+     "row": "P6a",
+     "selector": "*",
+     "requirement": "EQUALS",
+     "value": "STANDING",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"Neutrals always play with the team in possession, creating a permanent numerical advantage for whichever side has the ball.\" (soccer-module.rc1-v3.json, tl-v0-constraint-neutral-player-condition, setup_guidance)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "CHANGES_ON held with closed kinds: a standing affiliation to ATTACKING_TEAM changes at every POSSESSION_CHANGE, which begins an episode (SD-14). Same values as NEUTRAL-03. No V11 consequence: it is neither ACCESS nor COUNT_CHANGE."
+    },
+    {
+     "id": "NEUTRAL-14.b",
+     "origId": "NEUTRAL-14",
+     "row": "P6b",
+     "selector": "*",
+     "requirement": "EQUALS",
+     "value": "ATTACKING_TEAM",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "\"Neutrals always play with the team in possession, creating a permanent numerical advantage for whichever side has the ball.\" (soccer-module.rc1-v3.json, tl-v0-constraint-neutral-player-condition, setup_guidance)",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "'All neutrals become teammates of the team now in possession'. 'Not a change to the primary event's value' is held by NEUTRAL-15.a and by this contract having no V7 item."
+    }
+   ],
+   "declarations": [
+    {
+     "row": "E1",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "NEUTRAL-10.a: neutrals drawn from the player total (ASSUMED)."
+    },
+    {
+     "row": "E2",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: area length and width, 'no dimension, ratio or density value is authored'."
+    },
+    {
+     "row": "E3",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: area length and width, 'no dimension, ratio or density value is authored'."
+    },
+    {
+     "row": "E4",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: 'Envelope / duration: not authored'."
+    },
+    {
+     "row": "S1",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: 'the area and regions entirely' are left free, orientation included."
+    },
+    {
+     "row": "S2",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: no zone, channel or box; 'protect the deeper zone' creates no region requirement."
+    },
+    {
+     "row": "S3",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: region kind left free."
+    },
+    {
+     "row": "S4",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: 'protect the deeper zone' is 'not a Use declaration of a region'."
+    },
+    {
+     "row": "S5",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: region extent and position left free."
+    },
+    {
+     "row": "S6",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: region extent and position left free."
+    },
+    {
+     "row": "SV1",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: 'the area and regions entirely'."
+    },
+    {
+     "row": "P1",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Team ids and naming are freed, but no row holds them; existence and count of teams never examined (NEUTRAL-08/09 presuppose two)."
+    },
+    {
+     "row": "P2",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "PER_TEAM",
+     "note": "NEUTRAL-08.a, NEUTRAL-09.a, NEUTRAL-11.b."
+    },
+    {
+     "row": "P3",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: 'whether goalkeepers exist, how many, or which team has one'."
+    },
+    {
+     "row": "P4",
+     "declaration": "NON_CLAIMED",
+     "selector": "roleName=target player",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: 'target players'."
+    },
+    {
+     "row": "P4",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Roles other than target player never examined (no negation operator to select them)."
+    },
+    {
+     "row": "P5",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "NEUTRAL-01.a, NEUTRAL-02.a, NEUTRAL-11.a."
+    },
+    {
+     "row": "P5",
+     "declaration": "NOT_AUTHORED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored: a neutral count for this envelope. Only 'e.g.' counts for 15 players exist; the realization row nulls player counts and team_structure (RC-7)."
+    },
+    {
+     "row": "P6a",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "NEUTRAL-03.b, NEUTRAL-14.a: STANDING."
+    },
+    {
+     "row": "P6a",
+     "declaration": "NOT_AUTHORED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored: whether re-affiliation on a turnover is instantaneous or takes effect at a restart (RC-7)."
+    },
+    {
+     "row": "P6b",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "NEUTRAL-03.a, NEUTRAL-14.b: ATTACKING_TEAM."
+    },
+    {
+     "row": "P6b",
+     "declaration": "EXCLUDED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "NEUTRAL-04.a (DEFENDING_TEAM), NEUTRAL-04.b (a fixed TEAM_<id>)."
+    },
+    {
+     "row": "P6b",
+     "declaration": "NOT_AUTHORED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "notAuthored: affiliation during a contested or loose ball, when no team is in possession (RC-7)."
+    },
+    {
+     "row": "P7",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "NEUTRAL-06.a, NEUTRAL-06.b."
+    },
+    {
+     "row": "P8",
+     "declaration": "NON_CLAIMED",
+     "selector": "group=NEUTRALS",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: 'where neutrals start'."
+    },
+    {
+     "row": "P8",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Start placement of team groups never examined."
+    },
+    {
+     "row": "P9",
+     "declaration": "NON_CLAIMED",
+     "selector": "group=NEUTRALS",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: 'where neutrals start'."
+    },
+    {
+     "row": "P9",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Start placement of team groups never examined."
+    },
+    {
+     "row": "P10",
+     "declaration": "NON_CLAIMED",
+     "selector": "group=NEUTRALS",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: 'where neutrals start, whether they have a restricted area'."
+    },
+    {
+     "row": "P10",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Start placement of team groups never examined."
+    },
+    {
+     "row": "O1",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: 'Objects / entirely free'; the object introduces no ball, goal, cone or other object."
+    },
+    {
+     "row": "O2",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: 'sets no object kind'."
+    },
+    {
+     "row": "O3",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: 'Objects / entirely free'."
+    },
+    {
+     "row": "O4",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: no 'position reference'."
+    },
+    {
+     "row": "O5",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: no 'position reference'."
+    }
+   ],
+   "relationshipRules": []
+  },
+  {
+   "contract": "Wide Zone Advantage",
+   "items": [
+    {
+     "id": "WIDEZONE-01.a",
+     "origId": "WIDEZONE-01",
+     "row": "S1",
+     "selector": "*",
+     "requirement": "EXISTS",
+     "value": "N/A",
+     "strictness": "REQUIRED",
+     "valueStatus": "N/A",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"Mark wide channels along both touchlines (~6-10m wide depending on field size).\"",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Touchlines have no row of their own; they are the boundaries along the axis, so their existence is held as S1 being stated. The original not-a-value becomes N/A (EXISTS carries no value)."
+    },
+    {
+     "id": "WIDEZONE-01.b",
+     "origId": "WIDEZONE-01",
+     "row": "S1",
+     "selector": "*",
+     "requirement": "EQUALS",
+     "value": "the longer envelope dimension (touchlines are the two long boundaries)",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "WHOLE_GAME",
+     "basis": "ASSUMED",
+     "basisEvidence": "Original assumption #1: \"touchlines\" means the two long sides; the source never defines it.",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Now carries a value, so not-a-value becomes REQUIRED_RANGE. Same value as SD-11; being ASSUMED it is a bound only."
+    },
+    {
+     "id": "WIDEZONE-02.a",
+     "origId": "WIDEZONE-02",
+     "row": "S2",
+     "selector": "noun=channel",
+     "requirement": "EXISTS",
+     "value": "N/A",
+     "strictness": "REQUIRED",
+     "valueStatus": "N/A",
+     "scope": "OWN_INVOLVEMENT",
+     "basis": "AUTHORED",
+     "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"Mark wide channels along both touchlines (~6-10m wide depending on field size).\"",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "\"Wide channel\" held as noun channel (on list); \"wide\" is carried by S6 touchline-adjacent. OWN_INVOLVEMENT because the selector cannot tell wide channels from other channels. not-a-value becomes N/A."
+    },
+    {
+     "id": "WIDEZONE-02.b",
+     "origId": "WIDEZONE-02",
+     "row": "S3",
+     "selector": "*",
+     "requirement": "EQUALS",
+     "value": "channel",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "OWN_INVOLVEMENT",
+     "basis": "AUTHORED",
+     "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"Mark wide channels along both touchlines (~6-10m wide depending on field size).\"",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Noun of the regions this contract entails (also fixed by 02.a selector, RC-16). A value is now stated, so not-a-value becomes REQUIRED_RANGE."
+    },
+    {
+     "id": "WIDEZONE-03",
+     "origId": "WIDEZONE-03",
+     "row": "S2",
+     "selector": "noun=channel",
+     "requirement": "COUNT",
+     "value": "2",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "OWN_INVOLVEMENT",
+     "basis": "AUTHORED",
+     "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"Mark wide channels along both touchlines\"",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Exactly two, counted over this contract's own channels so another object's channel cannot break it. The one-per-touchline split is not held (see WIDEZONE-05)."
+    },
+    {
+     "id": "WIDEZONE-04.a",
+     "origId": "WIDEZONE-04",
+     "row": "S6",
+     "selector": "noun=channel",
+     "requirement": "POSITIONED",
+     "value": "touchline-adjacent",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "OWN_INVOLVEMENT",
+     "basis": "AUTHORED",
+     "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"Mark wide channels along both touchlines\"",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Holds only the contact in \"runs along its touchline\" (same as 05.a). ORIENTED parallel to the axis has no region row to sit on (ledger SCHEMA LOCAL)."
+    },
+    {
+     "id": "WIDEZONE-05.a",
+     "origId": "WIDEZONE-05",
+     "row": "S6",
+     "selector": "noun=channel",
+     "requirement": "POSITIONED",
+     "value": "touchline-adjacent (outer edge on a touchline)",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "OWN_INVOLVEMENT",
+     "basis": "AUTHORED",
+     "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"Mark wide channels along both touchlines\"",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "\"One channel on each lateral side\" is not held: touchline-adjacent does not say which touchline and S2 has no side attribute (ledger)."
+    },
+    {
+     "id": "WIDEZONE-06",
+     "origId": "WIDEZONE-06",
+     "row": "S6",
+     "selector": "noun=channel",
+     "requirement": "RANGE",
+     "value": "across-interval width about 6-10 m",
+     "strictness": "SUPPORTING",
+     "valueStatus": "PREFERRED_DEFAULT",
+     "scope": "OWN_INVOLVEMENT",
+     "basis": "AUTHORED",
+     "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"(~6-10m wide depending on field size)\"",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Width read as the length of the S6 interval. \"Depending on field size\" gives no function (not authored); PREFERRED_DEFAULT carries the adaptation."
+    },
+    {
+     "id": "WIDEZONE-07",
+     "origId": "WIDEZONE-07",
+     "row": "S5",
+     "selector": "noun=channel",
+     "requirement": "EQUALS",
+     "value": "the full axis extent, end line to end line",
+     "strictness": "SUPPORTING",
+     "valueStatus": "PREFERRED_DEFAULT",
+     "scope": "OWN_INVOLVEMENT",
+     "basis": "ASSUMED",
+     "basisEvidence": "Assumption: \"along both touchlines\" means the full touchline length by default; the words fix no length.",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "The original cited the setup sentence as authored, but \"along\" does not state a length, so restated ASSUMED (bound only)."
+    },
+    {
+     "id": "WIDEZONE-08.a",
+     "origId": "WIDEZONE-08",
+     "row": "S4",
+     "selector": "noun=channel",
+     "requirement": "EQUALS",
+     "value": "access (forbidden as a member of functions)",
+     "strictness": "EXCLUSION",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "OWN_INVOLVEMENT",
+     "basis": "AUTHORED",
+     "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"Channels are reference markers â€” players can choose to use them or not.\"",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Restricted, exclusive or entry-prohibited zone = an access function on the channel; forbidden."
+    },
+    {
+     "id": "WIDEZONE-08.d",
+     "origId": "WIDEZONE-08",
+     "row": "S2",
+     "selector": "noun=channel & functions âˆ‹ perceptual-reference",
+     "requirement": "COUNT",
+     "value": "2",
+     "strictness": "SUPPORTING",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "OWN_INVOLVEMENT",
+     "basis": "AUTHORED",
+     "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"Channels are reference markers\"",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Positive clause of the original EXCLUSION item (\"reference/advantage channel\"); strictness unstated, taken SUPPORTING. COUNT 2 (from WIDEZONE-03) so both channels carry the member (RC-16)."
+    },
+    {
+     "id": "WIDEZONE-10.a",
+     "origId": "WIDEZONE-10",
+     "row": "S5",
+     "selector": "noun=channel",
+     "requirement": "EXISTS",
+     "value": "N/A",
+     "strictness": "REQUIRED",
+     "valueStatus": "N/A",
+     "scope": "OWN_INVOLVEMENT",
+     "basis": "ASSUMED",
+     "basisEvidence": "Original assumption #3: a value-bearing condition needs a determinate region; \"Mark\" vs \"Zones optional\" is unreconciled.",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Determinate boundary held as stated S5/S6 intervals; \"referenceable\" is region identity; \"decidable during play\" is outside the boundary. not-a-value becomes N/A."
+    },
+    {
+     "id": "WIDEZONE-10.b",
+     "origId": "WIDEZONE-10",
+     "row": "S6",
+     "selector": "noun=channel",
+     "requirement": "EXISTS",
+     "value": "N/A",
+     "strictness": "REQUIRED",
+     "valueStatus": "N/A",
+     "scope": "OWN_INVOLVEMENT",
+     "basis": "ASSUMED",
+     "basisEvidence": "Original assumption #3 (as 10.a).",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Across half of the determinate boundary. not-a-value becomes N/A."
+    }
+   ],
+   "declarations": [
+    {
+     "row": "E1",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #1: player count free."
+    },
+    {
+     "row": "E2",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #1: area length free."
+    },
+    {
+     "row": "E3",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #1: area width free (channel width depends on it only by an unauthored rule)."
+    },
+    {
+     "row": "E4",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #1: duration free."
+    },
+    {
+     "row": "S1",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "01.a, 01.b."
+    },
+    {
+     "row": "S2",
+     "declaration": "CLAIMED",
+     "selector": "noun=channel",
+     "scope": "OWN_INVOLVEMENT",
+     "note": "02.a, 03, 08.d: the two wide channels."
+    },
+    {
+     "row": "S2",
+     "declaration": "NOT_AUTHORED",
+     "selector": "noun=channel",
+     "scope": "OWN_INVOLVEMENT",
+     "note": "notAuthored #8: whether channels must be marked (\"Mark wide channels\" vs \"Zones optional\") is unreconciled; read broadly, \"Zones optional\" makes them optional."
+    },
+    {
+     "row": "S2",
+     "declaration": "NON_CLAIMED",
+     "selector": "noun âˆˆ {band, corridor, zone, half, third}",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #9: other regions neither required nor forbidden (other objects' channels too; no selector can exclude own)."
+    },
+    {
+     "row": "S3",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "OWN_INVOLVEMENT",
+     "note": "02.b."
+    },
+    {
+     "row": "S3",
+     "declaration": "NON_CLAIMED",
+     "selector": "noun âˆˆ {band, corridor, zone, half, third}",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #9."
+    },
+    {
+     "row": "S4",
+     "declaration": "CLAIMED",
+     "selector": "noun=channel",
+     "scope": "OWN_INVOLVEMENT",
+     "note": "08.a addresses the row; perceptual-reference member entailed via 08.d selector (RC-16)."
+    },
+    {
+     "row": "S4",
+     "declaration": "EXCLUDED",
+     "selector": "noun=channel",
+     "scope": "OWN_INVOLVEMENT",
+     "note": "08.a: access forbidden."
+    },
+    {
+     "row": "S4",
+     "declaration": "NON_CLAIMED",
+     "selector": "noun âˆˆ {band, corridor, zone, half, third}",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #9."
+    },
+    {
+     "row": "S5",
+     "declaration": "CLAIMED",
+     "selector": "noun=channel",
+     "scope": "OWN_INVOLVEMENT",
+     "note": "07, 10.a."
+    },
+    {
+     "row": "S5",
+     "declaration": "NON_CLAIMED",
+     "selector": "noun âˆˆ {band, corridor, zone, half, third}",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #9."
+    },
+    {
+     "row": "S6",
+     "declaration": "CLAIMED",
+     "selector": "noun=channel",
+     "scope": "OWN_INVOLVEMENT",
+     "note": "04.a, 05.a, 06, 10.b."
+    },
+    {
+     "row": "S6",
+     "declaration": "NOT_AUTHORED",
+     "selector": "noun=channel",
+     "scope": "OWN_INVOLVEMENT",
+     "note": "notAuthored #5: no scaling rule for width; \"depending on field size\" gives no function."
+    },
+    {
+     "row": "S6",
+     "declaration": "NON_CLAIMED",
+     "selector": "noun âˆˆ {band, corridor, zone, half, third}",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #9."
+    },
+    {
+     "row": "SV1",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #9 names thirds among regions neither required nor forbidden."
+    },
+    {
+     "row": "P1",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #2: number of teams untouched."
+    },
+    {
+     "row": "P2",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #2: outfield counts untouched."
+    },
+    {
+     "row": "P3",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #2: goalkeeper presence or role untouched."
+    },
+    {
+     "row": "P4",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #2: no designated wide player, winger, channel or target player."
+    },
+    {
+     "row": "P5",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #2: neutral count untouched."
+    },
+    {
+     "row": "P6a",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #2: who neutrals play for untouched."
+    },
+    {
+     "row": "P6b",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #2: who neutrals play for untouched."
+    },
+    {
+     "row": "P7",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Neutral distinguishability never addressed."
+    },
+    {
+     "row": "P8",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Start placement never addressed; \"restricts nobody's position or movement\" (#10) is framed as play, not layout."
+    },
+    {
+     "row": "P9",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Start placement never addressed; \"restricts nobody's position or movement\" (#10) is framed as play, not layout."
+    },
+    {
+     "row": "P10",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Start placement never addressed; \"restricts nobody's position or movement\" (#10) is framed as play, not layout."
+    },
+    {
+     "row": "O1",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #3: objects free (\"ball kind, count, owner and position reference\"), and how the channel boundary is made is free."
+    },
+    {
+     "row": "O2",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #3: objects free (\"ball kind, count, owner and position reference\"), and how the channel boundary is made is free."
+    },
+    {
+     "row": "O3",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #3: objects free (\"ball kind, count, owner and position reference\"), and how the channel boundary is made is free."
+    },
+    {
+     "row": "O4",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #3: objects free (\"ball kind, count, owner and position reference\"), and how the channel boundary is made is free."
+    },
+    {
+     "row": "O5",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain #3: objects free (\"ball kind, count, owner and position reference\"), and how the channel boundary is made is free."
+    }
+   ],
+   "relationshipRules": []
+  },
+  {
+   "contract": "Variable Target Condition",
+   "items": [
+    {
+     "id": "VARTARGET-01.a",
+     "origId": "VARTARGET-01",
+     "row": "O1",
+     "selector": "*",
+     "requirement": "RANGE",
+     "value": "min 2, max 3 candidate target objects per objective set (O3 summed over matching elements)",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "PER_OBJECTIVE_SET",
+     "basis": "AUTHORED",
+     "basisEvidence": "soccer-module.rc1-v3.json tl-v0-constraint-variable-target-condition setup_guidance: \"Mark 2-3 possible targets/gates (e.g. across the far line or at multiple edges).\" Scope per KR-01 (fixes scope only, RC-4).",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Original COUNT 'at least 2, range 2-3' kept as RANGE 2-3 per set (KR-01). Counts object-kind candidates only; a region or target-player candidate is not counted on O1 (L-06)."
+    },
+    {
+     "id": "VARTARGET-02.a",
+     "origId": "VARTARGET-02",
+     "row": "O1",
+     "selector": "*",
+     "requirement": "EXISTS",
+     "value": "every candidate target object is present in objects[] (the representation is static, so for the whole activity)",
+     "strictness": "REQUIRED",
+     "valueStatus": "N/A",
+     "scope": "PER_OBJECTIVE_SET",
+     "basis": "AUTHORED",
+     "basisEvidence": "setup_guidance: \"All targets stay physically available so the choice remains open; only the LIVE one scores.\"",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Original NOT_EXISTS/EXCLUSION restated positively as presence. 'not-a-value' -> N/A (existence carries no value). The 'not removed, closed or relocated on account of liveness' clause is unplaced (L-02)."
+    },
+    {
+     "id": "VARTARGET-03.a",
+     "origId": "VARTARGET-03",
+     "row": "O4",
+     "selector": "*",
+     "requirement": "POSITIONED",
+     "value": "each candidate's (along, across) position differs from every other candidate's in the same set; no separation distance",
+     "strictness": "REQUIRED",
+     "valueStatus": "REQUIRED_RANGE",
+     "scope": "PER_OBJECTIVE_SET",
+     "basis": "ASSUMED",
+     "basisEvidence": "Assumes design_intent \"teams adapt the direction of their progression to the target that becomes available\" needs candidates at distinct positions; no position rule is authored.",
+     "checkability": "PARTLY_STRUCTURAL",
+     "structuralClause": "candidates in one set are not at identical (along, across) positions",
+     "fitNote": "'not-a-value' -> REQUIRED_RANGE (a positional relation is a value). 'Which is live changes where the attack progresses' is play. Needs O4 and O5 together (L-03)."
+    },
+    {
+     "id": "VARTARGET-04.a",
+     "origId": "VARTARGET-04",
+     "row": "O4",
+     "selector": "*",
+     "requirement": "POSITIONED",
+     "value": "unordered {attacking end (of the set's team), i.e. on the far line; several edges (off-list)}",
+     "strictness": "SUPPORTING",
+     "valueStatus": "TYPICAL_EXAMPLE",
+     "scope": "PER_OBJECTIVE_SET",
+     "basis": "AUTHORED",
+     "basisEvidence": "setup_guidance: \"(e.g. across the far line or at multiple edges)\"",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Inert (RC-28). Along-axis part of the example; across part is 04.b. 'Far line' read as the attacking end of the team whose set it is."
+    },
+    {
+     "id": "VARTARGET-04.b",
+     "origId": "VARTARGET-04",
+     "row": "O5",
+     "selector": "*",
+     "requirement": "POSITIONED",
+     "value": "unordered {spread across the width of the far line; touchline-adjacent, as one of several edges (off-list)}",
+     "strictness": "SUPPORTING",
+     "valueStatus": "TYPICAL_EXAMPLE",
+     "scope": "PER_OBJECTIVE_SET",
+     "basis": "AUTHORED",
+     "basisEvidence": "setup_guidance: \"(e.g. across the far line or at multiple edges)\"",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Inert. Across-axis part of 04's example."
+    },
+    {
+     "id": "VARTARGET-05.a",
+     "origId": "VARTARGET-05",
+     "row": "S2",
+     "selector": "functions âˆ‹ trigger",
+     "requirement": "EXISTS",
+     "value": "a trigger region (e.g. beyond a trigger line) is present",
+     "strictness": "SUPPORTING",
+     "valueStatus": "PREFERRED_DEFAULT",
+     "scope": "WHOLE_GAME",
+     "basis": "AUTHORED",
+     "basisEvidence": "setup_guidance: \"Which target is live is revealed only after play crosses a trigger line, or switches on a coach cue during play.\"",
+     "checkability": "STRUCTURAL",
+     "structuralClause": "whole item",
+     "fitNote": "Original PREFERRED_DEFAULT kept: a non-spatial trigger makes it ADAPTED, which carries 'where the trigger is spatial'. Tension with RC-6 (L-04). Existence carries functions âˆ‹ trigger (RC-16)."
+    }
+   ],
+   "declarations": [
+    {
+     "row": "E1",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: player count (player_count_min/max null)."
+    },
+    {
+     "row": "E2",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: area length."
+    },
+    {
+     "row": "E3",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: area width."
+    },
+    {
+     "row": "E4",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: duration."
+    },
+    {
+     "row": "S1",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Axis never examined by the original."
+    },
+    {
+     "row": "S2",
+     "declaration": "CLAIMED",
+     "selector": "functions âˆ‹ trigger",
+     "scope": "WHOLE_GAME",
+     "note": "05.a."
+    },
+    {
+     "row": "S2",
+     "declaration": "NON_CLAIMED",
+     "selector": "regions without the trigger function (no negation operator; stated in words)",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: whether the area is zoned at all; the number of any region other than a trigger region."
+    },
+    {
+     "row": "S3",
+     "declaration": "NON_CLAIMED",
+     "selector": "regions without the trigger function",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: kind of any region other than a trigger region."
+    },
+    {
+     "row": "S3",
+     "declaration": "UNDECLARED",
+     "selector": "functions âˆ‹ trigger",
+     "scope": "WHOLE_GAME",
+     "note": "The trigger region's noun was never examined ('trigger line' is not a region noun, L-07)."
+    },
+    {
+     "row": "S4",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Functions not examined as a field; trigger function carried only by 05.a's selector (RC-16)."
+    },
+    {
+     "row": "S5",
+     "declaration": "NON_CLAIMED",
+     "selector": "regions without the trigger function",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: orientation or extent of any region other than a trigger region."
+    },
+    {
+     "row": "S5",
+     "declaration": "UNDECLARED",
+     "selector": "functions âˆ‹ trigger",
+     "scope": "WHOLE_GAME",
+     "note": "Trigger region's position never examined."
+    },
+    {
+     "row": "S6",
+     "declaration": "NON_CLAIMED",
+     "selector": "regions without the trigger function",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: orientation or extent of any region other than a trigger region."
+    },
+    {
+     "row": "S6",
+     "declaration": "UNDECLARED",
+     "selector": "functions âˆ‹ trigger",
+     "scope": "WHOLE_GAME",
+     "note": "Trigger region's position never examined."
+    },
+    {
+     "row": "SV1",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "View never examined; RB-02/RB-04 mention final third and attacking half only in examples."
+    },
+    {
+     "row": "P1",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: team count."
+    },
+    {
+     "row": "P2",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: team sizes, outfield counts."
+    },
+    {
+     "row": "P3",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: goalkeepers."
+    },
+    {
+     "row": "P4",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: target players; 'indifferent to the performer configuration'."
+    },
+    {
+     "row": "P5",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: neutrals."
+    },
+    {
+     "row": "P6a",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: who any neutral plays for."
+    },
+    {
+     "row": "P6b",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: who any neutral plays for."
+    },
+    {
+     "row": "P7",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: neutrals."
+    },
+    {
+     "row": "P8",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "Start placement not named; 'performer configuration' not read as covering START placement."
+    },
+    {
+     "row": "P9",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "As P8."
+    },
+    {
+     "row": "P10",
+     "declaration": "UNDECLARED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "As P8."
+    },
+    {
+     "row": "O1",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "PER_OBJECTIVE_SET",
+     "note": "01.a, 02.a (candidate target objects)."
+    },
+    {
+     "row": "O1",
+     "declaration": "NON_CLAIMED",
+     "selector": "kind=ball; and any non-candidate object (not selectable: no membership attribute)",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: the ball, number of balls, any object that is not a candidate target."
+    },
+    {
+     "row": "O2",
+     "declaration": "NON_CLAIMED",
+     "selector": "*",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: the physical kind of the candidate targets; the ball."
+    },
+    {
+     "row": "O3",
+     "declaration": "NON_CLAIMED",
+     "selector": "kind=ball; non-candidate objects",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: number of balls; non-candidate objects."
+    },
+    {
+     "row": "O3",
+     "declaration": "UNDECLARED",
+     "selector": "candidate objects",
+     "scope": "PER_OBJECTIVE_SET",
+     "note": "Per-element count not examined; bounded only through 01.a's O1 sum."
+    },
+    {
+     "row": "O4",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "PER_OBJECTIVE_SET",
+     "note": "03.a, 04.a."
+    },
+    {
+     "row": "O4",
+     "declaration": "NOT_AUTHORED",
+     "selector": "*",
+     "scope": "PER_OBJECTIVE_SET",
+     "note": "notAuthored #7: minimum perceivable separation between candidates; no distance, proportion or width rule."
+    },
+    {
+     "row": "O4",
+     "declaration": "NON_CLAIMED",
+     "selector": "non-candidate objects",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: any object not a candidate; also lists candidate separation as unconstrained (L-17)."
+    },
+    {
+     "row": "O5",
+     "declaration": "CLAIMED",
+     "selector": "*",
+     "scope": "PER_OBJECTIVE_SET",
+     "note": "04.b."
+    },
+    {
+     "row": "O5",
+     "declaration": "NOT_AUTHORED",
+     "selector": "*",
+     "scope": "PER_OBJECTIVE_SET",
+     "note": "notAuthored #7: minimum separation between candidates."
+    },
+    {
+     "row": "O5",
+     "declaration": "NON_CLAIMED",
+     "selector": "non-candidate objects",
+     "scope": "WHOLE_GAME",
+     "note": "doesNotConstrain: any object not a candidate."
+    }
+   ],
+   "relationshipRules": []
+  }
+ ]
+}

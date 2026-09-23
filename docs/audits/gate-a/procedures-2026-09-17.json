@@ -1,0 +1,336 @@
+{
+ "gateAClaim": "This game can be coherently laid out and played as specified.",
+ "verdictSemantics": "An activity passes Gate A if and only if GA-LAYOUT and GA-PLAY both record no finding. A structural statement fails in exactly one situation: after the closed shorthand readings (X1-X8) and the closed defaults (X2 roster, X6 transitions) are applied, the field it writes has zero values or two or more incompatible values inside the 40 x 30 m, 12-player envelope. Defaults are filled BEFORE any check and then checked exactly like stated text, so leaving something out can never skip a check: an unstated roster fails a count-dependent rule just as a stated 6v6 does. The only existential search allowed is over unstated free quantities: metres, the exact spot inside a named region, marker depth, gate count, which team takes which end, and which team starts. Choosing between readings of words is never allowed. Words outside the tables have zero readings and fail exactly as an arithmetically impossible precise statement fails. Undefined adjectives ('quickly', 'immediately', 'long') are never judged, whether they appear in vague or precise text. Sentences that write no field (tactical sentences, no-op consequences, the title, the Objective) are never checked. Silence is not a failure: an omitted field takes its default, and only a field that some statement or default actually uses must resolve.",
+ "sharedExtraction": [
+  {
+   "field": "X0 Scope",
+   "rule": "Read only the Setup, Rules and Scoring sections. Ignore the title, the Objective line and the run header (game form, package, scoring-event list). Split text into sentences at a full stop or semicolon. A sentence may contain several patterns, and each pattern writes its own field. Metric figures count; yard figures in brackets are ignored. Equipment lists balls in all 60 activities.",
+   "admittedShorthand": [
+    "Title and Objective wording such as 'End Zones' or 'in the designated zones' writes no field."
+   ]
+  },
+  {
+   "field": "X1 Sentence classification",
+   "rule": "A sentence writes fields only through the closed patterns (a)-(f). (a) LAYOUT: Divide / divided into / Set / Set up / Set out / Use / Create / Mark / 'field|area with' / 'divides the field' / 'runs|spans the length', followed by a region or object noun. (b) ROSTER token (X2). (c) TRANSITION token: begin(s)/start(s) with|from, 'play begins|starts', restart(s), kick-off, goal kick, pass-in, free pass, live ball|pass, stop / stoppage / does not stop / continues / continuous / carries on / plays on, 'possession flips' / 'flip possession', 'attacks straight away'. (d) VALUE token: point(s), worth, counts / does not count / only counts, 'must ... before scoring', or a number of seconds or passes. (e) DECLARATIVE CONSEQUENCE: a trigger (If / When / After / On / Upon plus a possession or ball event, or 'Force it or lose it') whose consequent has team, play, ball, possession, point or 'the next action' as its grammatical subject. (f) ADVANTAGE STATEMENT: a declarative 'has / having / exists / plays with / start(s) with' plus 'numerical advantage|overload in <region>'. Anything else is TACTICAL and writes nothing. That includes an imperative consequent whose verb is a player behaviour (reorganize, regain, reset through, react, adapt, transition quickly|immediately|to defense|to attack, use, utilize, maintain, keep, focus, look for, switch, exploit, hold, progress, create + a non-region noun, press) and that has no 'from <place>'. OVERRIDE: 'from <place>' attached to a transition verb, or any VALUE token, makes the sentence structural in any mood. 'there', 'from there' and 'wherever everyone is' are not places.",
+   "admittedShorthand": [
+    "'If possession changes, quickly reorganize to regain control.' (baseline s1): tactical",
+    "'If possession is lost, regain and reset through the goalkeeper.' (baseline-rep2 s1): tactical ('reset through', no 'from <place>')",
+    "'Use the goalkeeper to reset play when possession is lost.' (rpc s1) and '... and switch sides when needed' (ls-first-time s1): tactical",
+    "'Teams must react quickly to possession changes and transition immediately.' (ps-wide s2), 'Upon losing possession, transition immediately to defense.' (em-foundation-neutral s2): tactical",
+    "'Whoever lost it presses straight away.', 'The other team presses from the start of every attack.' (rpc s1-s3; 'the start of every attack' is not a place): tactical",
+    "'Teams hold their spatial relationships and distances to create advantages in defined areas.', 'Live opposition contests the positional structure ...' (gf-positional s1-s3): tactical",
+    "'Create overloads in specific zones to gain an advantage.' (em-shaping-wide-zone s3), 'Create a central overload by having one team.' (info-variable-target s3): tactical",
+    "'On a turnover, transition immediately from the middle zone.' (ps-central s2): structural by the OVERRIDE",
+    "'Maintain possession and score within a 30-second window.' (emphasis-applying s3): structural by the OVERRIDE (a number of seconds)"
+   ]
+  },
+  {
+   "field": "X2 Performers (roster)",
+   "rule": "Roster tokens: 'NvM' anywhere in a sentence ('Play NvM', 'NvM format', 'create a NvM overload', 'NvM for the <team role>'), 'Teams of N', 'Two teams of N [players each]', 'N players' (a stated total), 'with K neutral players', and 'an extra <player|attacker> for the team in possession'. Readings: NvM gives team counts N and M. 'Teams of N' gives N and N. The word goalkeeper or keeper ANYWHERE in Setup, Rules or Scoring creates one goalkeeper per team, counted INSIDE N and M, never added on top, wherever it is mentioned. Neutrals are added on top of N+M; 'plays for' is as stated, otherwise the team in possession. 'an extra <player> for the team in possession' is exactly one neutral who plays for the team in possession, added on top. 'for the attacking team' names the N side and creates no performer. A coach named as server ('from the coach') is not a performer. No roster token at all gives 6v6, which is then checked like a stated 6v6. Starting placements ('3 players starting in the central corridor') are Transitions START data, not roster data.",
+   "admittedShorthand": [
+    "'Play 6v6 with goalkeepers' / 'with two goalkeepers' = 5+GK v 5+GK; 'Play 7v5 with goalkeepers' = 6+GK v 4+GK",
+    "'Teams of 6 with a goalkeeper' = 6 a side including the keeper",
+    "'Play 6v6.' plus 'play begins with a pass from the goalkeeper' = keepers inside the sixes (ls-reinforcing s1-s2, baseline-rep2 s2, em-shaping-wide-zone s1-s3, em-consequence-progression s2-s3)",
+    "'Play 5v5 with two neutral players' = 12; the neutrals play for the team in possession (note-panic s1)",
+    "'Play 7v5 for the attacking team' = fixed 7v5 (gf-positional s3)",
+    "No roster stated = 6v6 (scoring-swapped s3)",
+    "'Play begins with a pass from the coach' = a server outside the 12"
+   ]
+  },
+  {
+   "field": "X3 Space declarations",
+   "rule": "Only these templates declare regions. D1 partition: 'Divide the field into N <kind>[: <list>]', '<field|area> divided into N <kind>[: <list>]', 'The field is divided into N [horizontal|vertical|equal] <kind>', 'divided into thirds|halves'. The bands sum exactly to the dimension they span. D2 bands: '<field|area> with <band list>', 'Use|Set a <band> [on each side]', '[N] [<m> m] wide channels [on each side|on either side]'. The bands sum to at most the dimension, and the remainder is a complement band. D3: 'A <band> divides the field[, with <bands> on either side]', '<band> runs|spans the length'. D4 extent constraints on bands already declared: 'The wide channels are 9 m wide each', 'The central channel is wider than the two side channels'. D5 enclosed region: 'with a central zone|circle', 'Create a central zone'. D6 negation: 'No fixed zones inside the field', 'No zones are marked', 'open with no specific channels'. A negation removes declared internal bands of its class only. It never removes implicit regions (X4) or marked scoring objects (X5). KIND LEXICON: channel, corridor, lane and 'vertical' run the 40 m length, and their widths add across 30 m. half, third and 'horizontal zone' run across, and their depths add along 40 m. 'zones' takes the kind of its list or its axis word. 'zones' with no list and no axis word does not parse. 'central|middle' is a centred band; 'wide|side' is a band on a touchline. 'N ... on each side|on either side' means N bands in total, one on each side, with a central complement wider than 0. Unstated extents are free variables greater than 0. 'wider than' and 'equal' are linear constraints. A nested form ('<kind> in each <kind>') matches no template. Scoring objects ('Mark a line', 'Mark a target zone', 'Set out gates', 'a central target zone') are Objects under X5, never declarations.",
+   "admittedShorthand": [
+    "'two 9 m (10 yd) wide channels on each side' = 9 + 12 + 9 (rpc s1)",
+    "'Two 5 m (5 yd) wide channels on each side' plus a central corridor = 5 + 20 + 5 (ps-wide s1)",
+    "'A central corridor divides the field' runs the length (note-panic s1)",
+    "'The central channel is wider than the two side channels' is feasible (scoring-swapped s1)",
+    "'Use a wide channel on each side of the field' = two channels plus a central remainder (ps-goal-kicks s3)",
+    "'A 5 m (5 yd) central channel runs the length' = 12.5 + 5 + 12.5 (emphasis-applying s2)",
+    "'three zones: central and two wide channels' = lengthwise channels"
+   ]
+  },
+  {
+   "field": "X4 Referent lexicon for places",
+   "rule": "A place named in a structural rule resolves only to: R1, a declared region by kind or label (for example 'the middle zone' is the middle crosswise band when horizontal zones are declared). R2, the implicit crosswise fractions of the 40 m length, which always exist with or without declarations or negations: own / defensive / attacking half or third, 'their half', 'one half', halfway, the centre ('central pass'), and a team's own end or end line. 'defensive zone' is the end band of declared crosswise bands, otherwise the own third. R3, value-tier words: 'middle' / 'through the middle' is the declared central lengthwise band; 'wide' is the declared wide or side bands, or the complement of a declared central corridor or channel. R4, the touchlines, sidelines and end lines. 'through <region>' means the ball was in that region at some point in the scoring team's current possession. 'the same spot' means the location named just before. 'opposite <band>' resolves only if every band of that kind has a unique opposite. NOT resolvable: 'deep', 'the gap', 'a covered area', 'defined areas', 'designated zones', 'specific zones', and an undeclared 'zone' or 'channel' (including the indefinite 'one zone' when no zone exists).",
+   "admittedShorthand": [
+    "'Teams start in their defensive third' on a field cut into lengthwise channels (challenge-high s1, ps-central s1, gf-positional s1)",
+    "'No zones are marked' followed by 'in their defensive third' (em-consequence-progression s2)",
+    "'a restart in your own half' with no halves declared (note-panic s3)",
+    "'numerical advantage in the attacking half|third|one half' (baseline-rep2 s3, ps-central s3, challenge-high s3, ps-wide s3)"
+   ]
+  },
+  {
+   "field": "X5 Objects, Objectives, Direction",
+   "rule": "One ball is in play and it comes from Equipment. 'Teams start with the ball' means the starting team holds that one ball. 'a new ball from the sideline' is the restart ball. 'Mark a line across the pitch' / 'Mark a target zone' / 'Set out gates of two cones' with 'beyond the first defenders' or 'behind the pressing players' is an object marked at layout and FIXED from then on. There is one copy at each end; each team scores on the copy at the far end and defends its own. Depth, extent, gate count and which team takes which end are coach defaults and are never checked. 'a central target zone' with no locator is one shared objective that both teams score on. The primary event 'Earn a point when a player dribbles over | into | through <object> ...' states the scored-on role; 'your team' means the scoring team. Direction: the attack axis is the 40 m length. Ends come from mirrored objects, from any own or defensive half / third / end statement, or from the boilerplate. Which team takes which end is a coin toss. Direction never produces a finding of its own. 'goal kick' is a restart from the restarting team's own end line (by its goalkeeper) and needs no goal object.",
+   "admittedShorthand": [
+    "'Mark a line across the pitch beyond the first defenders' (59 of 60)",
+    "'Mark a line|target zone behind the pressing players' (rpc s1-s3)",
+    "'Set out gates of two cones beyond the first defenders' (gf-channel s3)",
+    "'a central target zone' (gf-positional s2)",
+    "'Restart with a goal kick after a score or when the ball goes out' (emphasis-applying s1-s3)",
+    "'Teams start with the ball in their defensive half|third' (challenge-high s2, scoring-swapped s3, em-consequence-progression s1-s2)"
+   ]
+  },
+  {
+   "field": "X6 Transitions",
+   "rule": "There are four slots: START, AFTER-SCORE, AFTER-OUT and TURNOVER. Each value is [team, location, mode], where mode is RELOCATE, CONTINUE or unstated. 'from <place>' on a transition verb, 'goal kick' (own end line), 'pass-in' (touchline) and 'new ball from the sideline' (sideline) give RELOCATE. A transition verb with no place ('restart immediately', 'quick|live transition', 'free pass', 'possession flip') leaves mode and location unstated. 'restarts the same way' and 'from the same spot' copy the START location. CONTINUE comes from 'Play does not stop', 'No reset, no stoppage', 'the next action goes straight away', 'play carries on from wherever everyone is', 'plays on from there', 'Play continues (live|without stoppage) on turnovers', 'Play is continuous', 'transitions are live' and 'possession flips immediately'. CONTINUE phrases apply to TURNOVER only. BOILERPLATE: 'Start each attack from your goalkeeper or a restart in your own half' gives the disjunctive location {goalkeeper position, own half} for START, AFTER-SCORE and AFTER-OUT, never TURNOVER; it is satisfied if either branch resolves. A starting team named by role ('the defending team', 'the team in possession', 'either team', 'the team with the numerical advantage', 'the overloaded team') is that role; a role with no referent at kick-off becomes a coin toss. DEFAULTS are filled only where no stated value exists, and are then checked exactly like stated values. START: coin-toss team, own half; if the start location is somewhere no player stands, a player of the starting team steps to the ball. AFTER-SCORE: the conceding team, own end or half. AFTER-OUT: the team that did not put it out, where the ball went out. TURNOVER: the team that won the ball, CONTINUE in place. COMPATIBILITY of two stated values on one slot: modes agree, or one is unstated; two RELOCATE locations intersect (a disjunction needs only one branch to intersect); named teams agree, or one is unstated. A lengthwise band, a circle, the centre, a middle crosswise band and a sideline each intersect a team's own half; a defensive third lies inside the own half.",
+   "admittedShorthand": [
+    "'play begins with a live restart from the central channel' plus the boilerplate (gf-channel s2)",
+    "'Play begins with a pass from the circle. If the ball goes out, restart from the circle.' plus the boilerplate (scoring-swapped s2)",
+    "'Play begins with a pass from the central zone' with both teams in outer zones (ps-goal-kicks s2)",
+    "'restarts with a quick transition after a turnover' (em-shaping-wide-zone s2): mode unstated, no conflict with CONTINUE",
+    "'Play is continuous ... Restart with a pass from the goalkeeper after a score' (challenge-high s2)",
+    "No stated after-score restart (rpc s2): default",
+    "A central target zone with only 'Play restarts with a quick transition after a score' plus the boilerplate (gf-positional s2): START comes from the boilerplate, and AFTER-SCORE defaults to the conceding team"
+   ]
+  },
+  {
+   "field": "X7 Rules of value and consequences",
+   "rule": "EFFECT LEXICON (closed): POSSESSION-CHANGE; CONTINUE (as in X6, plus 'attacks straight away', 'attacks the space you left', 'transitions to attack', 'plays on'); RESTART (RELOCATE by a team); VALUE (earn a point, worth more|most, does not count, only counts when, 'must <action> before scoring'); ACCESS ('<team|players> may|can enter|use <region> [for <duration>]'); COUNT-CHANGE ('<team> gains|loses a player'); TIME-WINDOW (a duration AND a start trigger AND an expiry effect, all three stated). Readings: 'worth most X, then Y, then Z' ranks the tiers 3/2/1 and every tier word must resolve under R3. 'worth more when <condition>' is 2 against 1. 'only counts when possession is maintained through <region>' is a gate. 'must complete three passes before scoring' is a gate on the named team. 'your team keeps the ball [with the next pass]' is a gate. 'A long kick ... does not count' is admitted, and 'long' is not judged. NO-OP: a consequence whose typed effect equals the TURNOVER default (POSSESSION-CHANGE and/or CONTINUE) writes nothing, and its trigger ('quickly', 'the gap', 'a covered area') is never evaluated. UNTYPED: any other effect verb ('gets <region>', 'decides it'), and a TIME-WINDOW missing its start trigger or expiry effect.",
+   "admittedShorthand": [
+    "'Win the ball back quickly after losing it. If you do not, the other team plays on from there.' (19 slot-3 activities): no-op",
+    "'Force it or lose it and the other team attacks straight away. Play does not stop.' (54 activities): no-op plus TURNOVER CONTINUE",
+    "'Play through the gap while it is open. Force it into a covered area and the other team attacks the space you left.' (gf-positional s1-s3): no-op",
+    "'If possession is lost, the opposing team immediately transitions to attack.' (note-panic s1): no-op",
+    "'scoring only counts when possession is maintained through the central corridor' (ps-wide s1)",
+    "'the overload team must complete three passes before scoring' (ls-first-time s3)",
+    "'and your team keeps the ball with the next pass' (rpc s1-s3)"
+   ]
+  },
+  {
+   "field": "X8 ADVANTAGE alias group",
+   "rule": "One group holds 'where you have the extra numbers', 'the overloaded zone', 'the overloaded team', 'the overload team', 'the team with the numerical advantage', and every advantage statement (X1 f). Resolve in this order. (1) If the resolved team counts differ, every member means 'the larger team', which holds all game. A region attached to an advantage statement must still resolve under X4, but it imposes no placement. (2) If counts are equal but neutrals play for the team in possession, the members mean the team in possession. (3) If counts are equal and a structural statement gives a stated count or player restriction for a resolvable region, the members mean that region. (4) Otherwise the whole group has no referent. The phrase is never read as a local count around the ball.",
+   "admittedShorthand": [
+    "'where you have the extra numbers' in any 7v5 (11 activities that pass)",
+    "'Teams start with an overload in one channel.' in 7v5 with channels declared (gf-channel s3)",
+    "'Play begins with a pass from the coach to the overloaded team' in 7v5 (ps-wide s3, note-panic s3)"
+   ]
+  },
+  {
+   "field": "X9 Finding discipline",
+   "rule": "GA-LAYOUT runs first, and GA-PLAY reads its output. One finding per fact. GA-LAYOUT reports one finding per unparseable declaration, one per infeasible orientation group and at most one roster finding per activity. GA-PLAY reports one finding per untyped statement, one per unresolved referent name per activity (an alias group counts as one name) and one per conflicting slot or value field. SUPPRESSION: GA-PLAY does not evaluate or report (a) a place referent that names a band kind or label belonging to a failed GA-LAYOUT orientation group, such as middle, central, wide, channel or corridor for a failed lengthwise group; or (b) a referent that depends on team counts when the roster failed. Once a statement has an untyped-effect finding, it is not resolved or compared further. A statement with an unresolved-referent finding is left out of conflict comparison.",
+   "admittedShorthand": []
+  }
+ ],
+ "procedures": [
+  {
+   "id": "GA-LAYOUT",
+   "name": "The setup resolves to one layout and one roster inside the envelope",
+   "question": "Do the Space declarations and the roster statements resolve to exactly one arrangement of regions and exactly one Performers table that fit 40 x 30 m and 12 players?",
+   "areasRead": [
+    "1 Envelope (40 x 30 m, 12 players)",
+    "2 Space (declarations only)",
+    "3 Performers (roster statements only)"
+   ],
+   "extractionRules": [
+    "X0 scope; X1 patterns (a) and (b) only.",
+    "X2 roster tokens and readings, including keeper-inclusive counts, a goalkeeper mentioned anywhere counted inside, the additive neutral, 'extra <player> for the team in possession' = 1 neutral, and the 6v6 default.",
+    "X3 declaration templates D1-D6, the kind lexicon, 'on each side' = one per side, free extents, linear relational constraints. Scoring objects are not declarations.",
+    "Never read: starts, restarts, placements, advantage statements, value or consequence sentences, implicit fractions (X4 R2)."
+   ],
+   "steps": [
+    "1. List every sentence that matches an X3 layout verb followed by a region noun. If it matches no template D1-D6, record L-UNPARSEABLE for that sentence.",
+    "2. Assign every parsed band to its orientation group (lengthwise across 30 m, crosswise along 40 m) and every enclosed region to the enclosed group.",
+    "3. If a D6 negation and a positive band declaration of the same class both stand, record L-INFEASIBLE for that group (0 in the corpus).",
+    "4. For each group, write the constraints: every band > 0; stated metres fixed; 'wide|side' bands or 'on each side' imply a central band > 0; D1 bands sum exactly to the dimension; D2 and D3 bands plus complements sum exactly to the dimension; D4 relations hold; bands in one group do not overlap; an enclosed region has extent > 0 and fits inside both dimensions.",
+    "5. If no real assignment satisfies a group's constraints, record L-INFEASIBLE, once for that group.",
+    "6. List every roster token (X2). Convert each to (team A, team B, neutrals, stated total or none). If there are none, use (6, 6, 0, none).",
+    "7. Record L-ROSTER if any of these holds: a stated total differs from A+B+neutrals; two tokens give different (A, B); A+B+neutrals != 12. Record at most one L-ROSTER per activity.",
+    "8. Verdict: PASS if steps 1-7 recorded nothing. Publish the resolved regions (failed groups marked) and the resolved roster (or mark it failed) for GA-PLAY."
+   ],
+   "failsWhen": "A region declaration matches no template, a declared orientation group has no non-overlapping positive layout inside its dimension, or the roster tokens do not yield one table totalling 12.",
+   "ownsFacts": [
+    "L-UNPARSEABLE: a Space declaration has no reading under the declaration templates",
+    "L-INFEASIBLE: a declared orientation group (or a negation against a declaration) has no layout inside the envelope dimension",
+    "L-ROSTER: roster tokens give no single Performers table, conflicting tables, or a total other than 12 (including a stated 'N players' that disagrees)"
+   ],
+   "doesNotOwn": [
+    "Any place named by a start, restart, placement, value tier, gate or consequence, whether declared, implicit or missing (GA-PLAY P-REFERENT)",
+    "A region that exists only in a failed group, such as 'middle' when the channels do not fit (suppressed in GA-PLAY, never re-reported)",
+    "Numerical advantage and overload statements and 'extra numbers' (GA-PLAY, X8)",
+    "Marked scoring objects and their placement (X5, GA-PLAY)",
+    "Start placement counts per region (GA-PLAY P-CONFLICT)",
+    "Whether a local overload is enforced (Gate B)"
+   ],
+   "vaguenessNeutrality": "Unsized and sized declarations face the same test. Unstated extents are free positive variables that must still sum to the dimension, so 'two wide channels and a central corridor' passes because a layout exists, not because nothing could be measured, and '18 + 18 + 18' fails because none exists. Orientation and count come from the lexicon, never from a reader's choice, so no reader can rescue a layout by overlapping bands or reading 'on each side' two ways. A declaration too loose to parse ('two halves in each half') fails in step 1 rather than passing for lack of numbers. A missing roster takes the 6v6 default and is summed like a stated one. What remains, and is correct: leaving out metres can never create an infeasibility, because silence is not a contradiction.",
+   "admits": [
+    "MP-KEEPER-INCLUSIVE",
+    "MP-KEEPER-ELSEWHERE",
+    "MP-BAND-LEXICON",
+    "MP-NO-ROSTER-DEFAULT",
+    "MP-NEUTRALS",
+    "MP-NEGATION-SCOPE",
+    "MP-FOR-ATTACKING-TEAM"
+   ],
+   "determinismNote": "Step 1 is template matching against a closed list. Steps 4-5 are linear feasibility. Step 7 is integer comparison. The only reader-sensitive point is whether a new phrasing matches a template; anything that does not match fails and should be added to X3 deliberately, not rescued by a reader.",
+   "subjectiveRisk": "none"
+  },
+  {
+   "id": "GA-PLAY",
+   "name": "Every structural rule resolves to one applicable value on that layout",
+   "question": "On the configuration GA-LAYOUT published, does every structural statement about objects, objectives, direction, the four transition slots, value modifiers, gates, consequences and time windows have a typed effect, referents that exist, and no incompatible rival on the same trigger?",
+   "areasRead": [
+    "4 Objects",
+    "5 Objectives",
+    "6 Direction",
+    "7 Transitions",
+    "8 Rules of value (primary event, modifiers, consequences, information, time windows)",
+    "GA-LAYOUT output (regions, roster, failed groups)"
+   ],
+   "extractionRules": [
+    "X1 classification: drop tactical sentences; read patterns (c)-(f).",
+    "X4 referent lexicon (declared, implicit fractions, value tier words, the not-resolvable list).",
+    "X5 objects, mirrored ends, shared central objective, goal kick.",
+    "X6 slots, RELOCATE/CONTINUE, boilerplate scope, role-named teams, defaults, compatibility.",
+    "X7 effect lexicon, value readings, no-op rule, untyped effects.",
+    "X8 ADVANTAGE alias group.",
+    "X9 finding discipline and suppression."
+   ],
+   "steps": [
+    "1. Classify every sentence under X1 and drop the tactical ones.",
+    "2. Fill Objects, Objectives and Direction (X5), the four transition slots (X6: stated values, then boilerplate, then defaults), and the value and consequence entries (X7).",
+    "3. Type each consequence, value statement and time window against the X7 lexicon. If it cannot be typed, or a TIME-WINDOW lacks its start trigger or expiry effect, record P-EFFECT for that statement and stop processing it.",
+    "4. If a typed consequence's effect equals the TURNOVER default, mark it no-op and stop processing it; its trigger is not evaluated.",
+    "5. For every remaining statement and every filled default, resolve each named place, object, performer and advantage term, in order: X4, X5, the X2 roster plus the coach, then X8. If the name falls under X9 suppression, skip it. Otherwise, if it has zero matches, record P-REFERENT, grouped as one finding per name per activity (the X8 group counts as one name). An indefinite term ('one half', 'one channel') resolves if at least one instance of its kind exists.",
+    "6. For each slot (START, AFTER-SCORE, AFTER-OUT, TURNOVER) and each value field, compare the stated values from statements that received no finding in steps 3 or 5, using the X6 compatibility rule. Also compare stated start placement counts with the roster. Record P-CONFLICT once per slot or field if any pair is incompatible.",
+    "7. Verdict: PASS if steps 3, 5 and 6 recorded nothing."
+   ],
+   "failsWhen": "A structural rule's effect cannot be typed, a rule or default names a place, object, performer or advantage that does not exist in the laid-out game, or one trigger or value field receives incompatible stated values.",
+   "ownsFacts": [
+    "P-REFERENT: a structural rule names a place, object, performer or advantage with no referent (for example the 'deep' tier, or 'extra numbers' in an even game)",
+    "P-EFFECT: a consequence or time window whose effect cannot be typed or is incomplete",
+    "P-CONFLICT: one transition slot or value field receives incompatible stated values (stop vs continue, disjoint locations, different teams, a placement count above the roster)"
+   ],
+   "doesNotOwn": [
+    "Declaration parse, band geometry and roster totals or contradictions (GA-LAYOUT)",
+    "Referents into a failed GA-LAYOUT group or into a failed roster (suppressed, never reported)",
+    "Whether a trigger is observable or bounded ('quickly', 'the gap', 'a covered area', 'long kick'): subjective, excluded",
+    "Whether a consequence changes anything worthwhile, or whether a modifier is ever true for the smaller team: design, excluded",
+    "Whether the selected constraint or consequence reached the field: Gate B"
+   ],
+   "vaguenessNeutrality": "Defaults are filled before checking, so an unstated roster fails 'extra numbers' exactly as a stated 6v6 does (scoring-swapped s3 against baseline s3), and an unstated restart is checked through its default. Place nouns must resolve whether the text is vague or precise: an undefined 'deep' tier fails exactly as an undeclared '5 m deep zone' would, and an indefinite 'one zone' fails when no zone exists, just like a definite one. Adjectives are never judged in either kind of text. A no-op consequence passes because it writes nothing, not because its trigger is vague: the same vague trigger attached to a real effect has its place nouns resolved in step 5. What remains: a rule that is left out cannot fail here; whether it should have been present is Gate B.",
+   "admits": [
+    "MP-MIRRORED-OBJECT",
+    "MP-SHARED-CENTRAL-TARGET",
+    "MP-IMPLICIT-FRACTIONS",
+    "MP-NEGATION-SCOPE",
+    "MP-COACH-SERVER",
+    "MP-BOILERPLATE",
+    "MP-TRANSITION-DEFAULTS",
+    "MP-RESTART-WORDS",
+    "MP-CONTINUE-SCOPE",
+    "MP-KICKOFF",
+    "MP-TACTICAL",
+    "MP-NO-OP-CONSEQUENCE",
+    "MP-ONE-BALL",
+    "MP-ADVANTAGE-7V5",
+    "MP-VALUE-GATES"
+   ],
+   "determinismNote": "Every lexicon is closed and every resolution order is fixed. The reader-sensitive point is X1 classification of trigger sentences, where the subject and imperative-verb test decides. The contested sentences are ruled on by name in X1.",
+   "subjectiveRisk": "low"
+  }
+ ],
+ "excludedFromGateA": [
+  {
+   "candidate": "trigger-decidable ('quickly', 'the gap', 'a covered area', 'while it is open', 'immediately')",
+   "reason": "subjective",
+   "detail": "Tempo and space thresholds need football judgement. It never matters in this corpus, because every such trigger sits on a no-op consequence (X7)."
+  },
+  {
+   "candidate": "'long kick' threshold in 'A long kick that lands past the line does not count' (57 activities)",
+   "reason": "subjective",
+   "detail": "How long counts as 'long' is a judgement; Gate A does not judge it, whether the text is vague or precise."
+  },
+  {
+   "candidate": "Local reading of 'where you have the extra numbers' (a 3v2 near the ball in a 6v6)",
+   "reason": "subjective",
+   "detail": "It needs a judgement of how large the local area is. X8 reads the phrase only as a reference to a whole-team count or a stated region-bound count."
+  },
+  {
+   "candidate": "Depth or extent of a marked end object ('beyond the first defenders' with no distance)",
+   "reason": "subjective",
+   "detail": "A coach default; it is a free quantity under verdictSemantics and never checked."
+  },
+  {
+   "candidate": "selected-contribution-present (for example rpc-high-press-escape s2, where Turnover Reward is absent)",
+   "reason": "gate-b",
+   "detail": "Whether selected knowledge reached the field is realization, not coherence."
+  },
+  {
+   "candidate": "region-bound-counts (a local overload in 7v5 silently becoming a global one: ps-wide s3, baseline-rep2 s3, ps-central s3)",
+   "reason": "gate-b",
+   "detail": "Under X8 the text is coherent; whether the selected density or advantage constraint is enforced per region is realization."
+  },
+  {
+   "candidate": "consequence-changes-something ('the other team plays on from there')",
+   "reason": "not-a-structural-defect",
+   "detail": "A default-equal effect is coherent and playable. Its worth is design, and its absence of reward is Gate B."
+  },
+  {
+   "candidate": "value-condition can be both true and false ('extra numbers' always true for the 7 and never for the 5)",
+   "reason": "not-a-structural-defect",
+   "detail": "The condition is evaluable; how useful it is belongs to design. The part about the referent existing is kept in GA-PLAY step 5."
+  },
+  {
+   "candidate": "start-state-valid (actor able to stand at the start, ball count, start already satisfying the scoring event)",
+   "reason": "not-a-structural-defect",
+   "detail": "Dissolved by MP-KICKOFF (ps-goal-kicks s2), MP-ONE-BALL (challenge-high s2) and MP-MIRRORED-OBJECT (scoring-swapped s3's single shared zone does not arise)."
+  },
+  {
+   "candidate": "score-resets-play (repeat scoring in gf-positional s2)",
+   "reason": "not-a-structural-defect",
+   "detail": "The X6 AFTER-SCORE default gives the ball to the conceding team in its own half."
+  },
+  {
+   "candidate": "rule-scope-stated (a per-team scope for gates)",
+   "reason": "not-a-structural-defect",
+   "detail": "A rule applies to the team it names ('the overload team') or to both; the only asymmetric gate in the corpus names its team."
+  },
+  {
+   "candidate": "performer-fully-specified (a neutral's 'plays for'; a non-playing server)",
+   "reason": "not-a-structural-defect",
+   "detail": "X2 defaults a neutral to the team in possession, and the coach is a server outside the roster (MP-NEUTRALS, MP-COACH-SERVER)."
+  },
+  {
+   "candidate": "primary-object-fixed (object placed relative to moving players)",
+   "reason": "not-a-structural-defect",
+   "detail": "Marked at layout means fixed (X5). It was applied oppositely by two challengers on identical text, 15/15 each way."
+  },
+  {
+   "candidate": "team-direction and objective-object-team-role",
+   "reason": "merged",
+   "detail": "Mirrored ends plus the stated scored-on role fill them (X5). Any residual own-region that cannot resolve is a GA-PLAY P-REFERENT."
+  },
+  {
+   "candidate": "referenced-region-exists, objects-instantiated, referenced-performer-exists, value-condition-evaluable (referent part)",
+   "reason": "merged",
+   "detail": "One root fact: a structural rule names something with no referent. Owned by GA-PLAY step 5."
+  },
+  {
+   "candidate": "transitions-complete",
+   "reason": "merged",
+   "detail": "Not a separate failure: slots are filled with defaults before checking (X6), and the defaults' referents are resolved in GA-PLAY step 5."
+  },
+  {
+   "candidate": "no-contradictory-rules",
+   "reason": "merged",
+   "detail": "Roster contradictions go to GA-LAYOUT L-ROSTER; transition and value contradictions go to GA-PLAY P-CONFLICT. The two share no sentence class, so they cannot double-report."
+  },
+  {
+   "candidate": "regions-well-formed and regions-fit-area",
+   "reason": "merged",
+   "detail": "One root fact: declarations have no single layout inside the envelope. Owned by GA-LAYOUT steps 1-5."
+  },
+  {
+   "candidate": "performers-sum",
+   "reason": "merged",
+   "detail": "Merged with roster self-contradiction into GA-LAYOUT L-ROSTER, at most one per activity."
+  },
+  {
+   "candidate": "consequence-typed-effect",
+   "reason": "merged",
+   "detail": "Kept only for structural consequents (X1 e) as GA-PLAY P-EFFECT. Imperative behaviour lines are tactical."
+  }
+ ]
+}
