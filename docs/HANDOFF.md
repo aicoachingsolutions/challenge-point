@@ -2682,3 +2682,17 @@ authoring gaps are named, not filled.
 **Live behaviour worth checking when the freeze lifts:** the slot modifier carrying central weighting is
 attached to slot 1 of every Discovering Solutions session regardless of the selected constraint, so a
 coach running Wide Zone Advantage is told to go wide and paid to go central.
+
+**22 Sep — IMPLEMENTATION STARTED (increments 1–3).** Code: `back/src/system/derivation/`; 55 tests in
+`npm test`; full project suite passes. Reports: `docs/design/implementation-increment-{1,2,3}.md`.
+- **Stages built:** 0 load · 1 normalise · 2 index · 3 scope · 4 reach · 5 derive · 6 classify · 8 forward.
+- **Not built, deliberately:** stage 7 (zero `COMPARES` items in the corpus; SD-41 forbids expanding it
+  without authored evidence) and stage 9 (no `CandidateGame` input exists — the stage-B game is a
+  hand-derivation worksheet with prose attributes and positional ids).
+- **Two defects the real corpus found that unit tests did not:** openness produced by absence, against
+  SD-39; and `COUNT`/`RANGE` read as existence on a field row.
+- **Three SD-48 stops** recorded and reported: reach against a class, a choice space bounded by authored
+  values with nothing authored, and set-valued member expansion.
+- **Corpus today:** 1 contract admitted / 7 refused; 15 lines → 2 resolved, 13 gaps, 0 collisions;
+  forward 7 unmet / 6 inert / 2 satisfied. Every refusal traces to a task-register defect.
+- **Next:** stage 10 gates (10 structural checks ready; 4 need SD-43 clause reporting; F2 blocking).
