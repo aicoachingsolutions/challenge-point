@@ -36,7 +36,7 @@ design*.
 | B4 | **19 items carry `row: "NONE"`.** Fourteen are `OUTSIDE_BOUNDARY` and legitimate; **five are `STRUCTURAL` or `PARTLY_STRUCTURAL`** and so are genuine defects — a structural claim with no row to land on | Stage-B contracts, 221 items | 20 Sep |
 | B5 | **Eight items select on `restart`, which is not a registered selector attribute** of T1–T6. All are From Goal Kicks, and its own ledger already flags them | Stage-B contracts | 20 Sep |
 | B6 | **No contract in the corpus contains a single `COMPARES` item.** The comparative machinery — AM-16, SD-23 to SD-28, effective value, relationship conflicts — has never been exercised against authored contract data, only against items written for the collision tests. **Classified by SD-41 (21 Sep) as presently unexercised by canonical authored knowledge**: capability and tests kept, nothing expanded or optimized until a real authored requirement provides evidence | Stage-B contracts, 221 items | 20 Sep; ruled 21 Sep |
-| B3 | **`WIDEZONE-09` never became an item at all.** Its "not dominant" requirement had no closed kind, yet the game's corridor lines cite it as provenance | Collision test, 20 Sep | 20 Sep |
+| B3 | **`WIDEZONE-09` is an explicit unsupported requirement**, retained here by his ruling of 22 Sep: its aggregate — the two channels' combined extents against the area — *"does not belong in Gate A"*, the grammar cannot express it, and **no aggregate machinery is added now**. It never became an item at all. Its "not dominant" requirement had no closed kind, yet the game's corridor lines cite it as provenance | Collision test, 20 Sep | 20 Sep |
 
 ## C. Representational limits — recorded individually, and deliberately not solved
 
@@ -65,10 +65,10 @@ outside the representation, so they may not be reported as not checkable.
 
 | # | Gap | Effect | Status |
 |---|---|---|---|
-| F1 | **`GA-RESIDUAL-SPACE` has no machine-testable definition.** Its wording fuses an anti-invention rule for leftover regions — possibly already enforced by `GA-REGION-FUNCTION` and Gate B reverse — with Wide Zone's single-contract "not dominant" aggregate (C5, B3) | blocks Gate A for every game | exact wording and analysis sent to him, 22 Sep; define or remove is his |
-| F2 | **`GA-MODIFIER-OVERLAP` has no test for `object` and `event` conditions.** The information is represented; the test is incomplete | blocks Gate A where those types occur — two corpus items | tests to be authored |
+| ~~F1~~ | **CLOSED 22 Sep by SD-45.** Residual space is removed as a Gate A requirement and no machine-testable concept is created. *"Absence does not need to become an object in order to remain absent."* The real invariant was already enforced: derivation cannot instantiate an unsupported region, every instantiated region needs a supported function and authority, and an unsupported candidate region is invented | — | closed; the universal Gate A blocker is gone |
+| F2 | **`GA-MODIFIER-OVERLAP` has no test for `object` and `event` conditions.** The information is represented; the test is incomplete | **blocking for the affected cases only** (22 Sep): a game with no such modifier is unaffected, and stages that do not depend on it are unaffected. Two corpus items use these types | tests to be authored. It must eventually be specified and may never be reclassified as outside the representation; its semantics are not invented during implementation |
 | F3 | **No authored order for combining two value modifiers on one referent.** The operations do not commute, so a fold order would be an invented answer | effective value not computable, refused as `NO_MODIFIER_ORDER_RULE`; no corpus case today | an authored combination rule, with an executable form |
-| F4 | **A supporting existence item whose cardinality check fails has no ruled label.** `NOT_REALIZED` was approved for an absent value, not a failed count | `UNLABELLED`, one `LABEL_NOT_RULED` refusal naming every case | his ruling on whether `NOT_REALIZED` covers it |
+| ~~F4~~ | **CLOSED 22 Sep by SD-46.** A supporting contribution whose realization conditions are not satisfied is `NOT_REALIZED` — an item outcome, not a property status; no gap, because it is supporting rather than required | — | closed |
 
 ## E. For Christian — surfaced by the design work, needing a ruling
 

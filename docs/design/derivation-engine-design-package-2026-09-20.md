@@ -198,9 +198,10 @@ ClauseVerdict    = PASS | FAIL | NOT_CHECKABLE_OUTSIDE_REPRESENTATION | NOT_EVAL
 **`ForwardResult` — closed, first that applies:** `NOT_CHECKABLE_OUTSIDE_REPRESENTATION` (an item he has ruled outside the boundary — the same label SD-43 uses for Gate A) · `INERT`
 (typical example or engine-only) · `SATISFIED` · `VIOLATED` · `PENDING_CHOICE` (derivation mode: the
 item's only unmet dependency is a `FREE(choice)` line) · `UNMET` (required, absent) · `ADAPTED`
-(preferred default displaced) · `NOT_REALIZED` (checking mode: a supporting item whose value the candidate
-leaves absent) · `NOT_EVALUABLE` (a supporting comparative whose operand does not resolve) ·
-`UNLABELLED` (a supporting existence item whose cardinality check fails — §3.4).
+(preferred default displaced) · `NOT_REALIZED` (SD-46: **any supporting contribution whose realization conditions are not satisfied** —
+an absent value, or a failed cardinality check. It is an item outcome, never a fifth property status; it
+creates no `GAP`, because the contribution is supporting rather than required, and no invented verdict) ·
+`NOT_EVALUABLE` (a supporting comparative whose operand does not resolve).
 
 **`CandidateCheck.outcome` — closed:** `MATCHES_DERIVED`, `CONTRADICTS_DERIVED`, `WITHIN_BOUNDS` (what
 `RESOLVED:NARROWED_CHOICE` now names), `OUTSIDE_BOUNDS`, `ON_FAILED_LINE` (recorded, changes nothing),
@@ -271,7 +272,7 @@ standing-decision risk is not pursued unless a concrete case shows it.
 | 5 | **Derive** | Entailment, bounds, cardinality by necessity, standing decisions by computation 3, openness under SD-39 | Openness without a supported choice space; a count fill with no authored maximum |
 | 6 | **Classify** | One verdict per line; resolve conditional lines; gap before collision (SD-28) | — |
 | 7 | **Relationships** | Comparatives over operands (SD-26) | A multi-element operand; a range or open operand; two modifiers with no authored order; a modifier with no operation; **an authored combination rule (`V10`), which has no executable form** — zero exist in the corpus |
-| 8 | **Forward** | One `ForwardResult` per admitted item (§1.8) | A failed supporting cardinality check → `UNLABELLED` |
+| 8 | **Forward** | One `ForwardResult` per admitted item (§1.8). A supporting contribution whose realization conditions fail is `NOT_REALIZED` (SD-46) | — |
 | 9 | **Candidate** | **Checking mode only** — §2.5 | Writing anything to `resolution` |
 | 10 | **Gates** | §7 | An unexecutable check → `NOT_EVALUABLE` |
 | 11 | **Emit** | Canonical order; stamp every version | An `open` entry with a value; an unstamped result |
@@ -394,16 +395,17 @@ uncomputable.
 
 `NO_AGGREGATE_FUNCTION`, `NO_MODIFIER_ORDER_RULE`, `MODIFIER_OPERATION_MISSING`, `RULE_NOT_EXECUTABLE`
 (an authored modifier combination rule or a procedure value), `OPERAND_NOT_SCALAR`,
-`VALUE_NOT_COMPARABLE`, `NOT_FILLABLE`, `UNBOUNDED_COUNT_FILL`, `LABEL_NOT_RULED`,
+`VALUE_NOT_COMPARABLE`, `NOT_FILLABLE`, `UNBOUNDED_COUNT_FILL`,
 `PASS_DIVERGENCE`, `CHECK_NOT_EXECUTABLE` (a specification gap: represented information with no
 executable definition — SD-43), `SELECTION_CONTRACT_MISMATCH`,
 `INPUT_DEFECT`, `CONSERVATION_VIOLATION`. Adding one is a design change.
 
 ### 3.4 Labels
 
-`NOT_REALIZED` and `VALID_ABSENCE` are ruled (20 September). A supporting existence item whose
-cardinality check fails is outside what he approved `NOT_REALIZED` for, so it is `UNLABELLED` with one
-`LABEL_NOT_RULED` refusal naming every such item.
+`NOT_REALIZED` and `VALID_ABSENCE` are ruled. SD-46 generalises the first: **a supporting contribution
+whose realization conditions are not satisfied is `NOT_REALIZED`**, which covers the failed cardinality
+check that was previously unlabelled. **No unruled label case remains**, so the engine emits no
+`LABEL_NOT_RULED` refusal and that kind is retired from §3.3.
 
 ### 3.5 Halts
 
@@ -535,8 +537,17 @@ established.** "Can fire" in these clauses is read through SD-44: a structurally
 
 | Check | Why it is a gap, not outside the representation |
 |---|---|
-| `GA-MODIFIER-OVERLAP` for `object` and `event` conditions | the information **is** represented; the test is incomplete. The `region` case executes. Two corpus items use the other two types, so this blocks real games until the tests are authored |
-| `GA-RESIDUAL-SPACE` | no machine-testable definition exists. Not defined here: his instruction is *"do not invent a definition merely to make Gate A executable."* Its exact wording and apparent purpose are in §11.2, for his decision to define or remove it |
+| `GA-MODIFIER-OVERLAP` for `object` and `event` conditions | the information **is** represented; the test is incomplete. The `region` case executes. **Blocking for the affected cases only** (SD-45's companion ruling): a game with no such modifier is unaffected, and stages that do not depend on it are unaffected. Two corpus items use these types, so it must eventually be specified, never reclassified as outside the representation. Its semantics are not invented during implementation |
+
+**`GA-RESIDUAL-SPACE` is removed** (SD-45). He ruled the check was two claims fused, and neither belongs
+here. *"Absence does not need to become an object in order to remain absent"*: the space between or
+outside supported regions is simply not represented, and the real invariant is already enforced —
+derivation cannot instantiate an unsupported region, every instantiated region needs a supported
+function and authority, and in checking mode an unsupported candidate region is `INVENTED`. **No
+machine-testable concept of residual space is created, and the universal Gate A blocker is gone.** The
+sentence's other half — comparing channel extents with the area — is Wide Zone's own aggregate
+requirement and stays on the task register as an explicit unsupported requirement (B3); no aggregate
+machinery is added.
 
 ### 7.3 Gate B
 
