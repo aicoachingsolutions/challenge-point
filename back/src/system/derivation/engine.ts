@@ -11,10 +11,11 @@
 import { HaltError, indexRegister, buildVersions, RegisterIndex } from './register'
 import { loadContracts } from './load'
 import { resolveScopes } from './scope'
-import { deriveLines } from './derive'
-import { classifyLines } from './classify'
+import { deriveLines, DerivedLine } from './derive'
+import { classifyLines, ClassifiedLine } from './classify'
 import { forwardResults } from './forward'
 import { runGates } from './gates'
+import { emit, DerivationResult, StampedHalt } from './emit'
 import { parseSelector, predicateKey } from './selector'
 import {
     ContractItem,
@@ -36,6 +37,41 @@ const CLAUSE = (section: string): SpecClause => ({ document: 'derivation-engine-
 /** Content-derived ids: an unrelated record must never renumber the rest (package §3.1). */
 function recordId(kind: string, locus: string, ordinal: number): string {
     return `${kind}#${locus}#${ordinal}`
+}
+
+/**
+ * §8 requires "byte-identical output on repeat **and under shuffled input**", and the digest is part of
+ * the output. So it is taken over a canonical form: contracts, their items and the selection are ordered
+ * by id, and object keys are ordered, before hashing.
+ *
+ * **Array values are left exactly as authored.** AM-11 keeps the member order inside a value set as the
+ * author wrote it, so sorting values would both violate that and make two genuinely different inputs
+ * hash alike. Only the collections whose order carries no meaning are ordered.
+ */
+function canonical(value: unknown): unknown {
+    if (Array.isArray(value)) return value.map(canonical)
+    if (!value || typeof value !== 'object') return value
+    const source = value as Record<string, unknown>
+    const out: Record<string, unknown> = {}
+    for (const key of Object.keys(source).sort()) out[key] = canonical(source[key])
+    return out
+}
+
+function byId(list: any[] | undefined, key: string): any[] {
+    return [...(list || [])].sort((a, b) => String(a?.[key] ?? '').localeCompare(String(b?.[key] ?? '')))
+}
+
+function canonicalInput(input: DerivationInput): unknown {
+    return canonical({
+        selection: byId(input.selection as any[], 'objectId'),
+        contracts: byId(input.contracts as any[], 'contractId').map(contract => ({
+            ...contract,
+            items: byId(contract.items, 'itemId'),
+        })),
+        envelope: input.envelope,
+        registerVersion: input.register?.version,
+        derivationRules: input.derivationRules,
+    })
 }
 
 function digest(value: unknown): string {
@@ -165,14 +201,13 @@ function enumerateLines(classes: ElementClass[], index: RegisterIndex, stopped: 
             if (condition) line.conditionalOn = `${cls.classId}::${condition.row}`
             lines.push(line)
 
-            if (/one property per (member|referent)/i.test(row.valueType || '')) {
-                stopped.push({
-                    where: `stage 2, row ${row.id}`,
-                    why:
-                        'the package enumerates "one line per member for set-valued rows", but the member set is not known until values are derived at stage 5. ' +
-                        'Increment 1 enumerates the row once with member null and does not expand it. The expansion point needs stating in the package.',
-                })
-            }
+            // SD-51, his ruling of 23 September: "Do not enumerate member lines before membership is
+            // authoritatively resolved. Resolve the set/collection membership first. Materialize member
+            // lines only from an authoritative resolved member set. OPEN, failed or gapped membership
+            // does not authorize creation of member identities."
+            //
+            // So stage 2 enumerates the membership line and nothing else. Member lines are materialized
+            // after stage 6, and only where the membership line is RESOLVED — see `materialiseMembers`.
         }
     }
 
@@ -207,7 +242,7 @@ function haltResult(halt: 'H1' | 'H2', message: string, input: DerivationInput):
             mode: input.candidate ? 'CHECKING' : 'DERIVATION',
             halted: true,
             divergent: false,
-            inputDigest: digest(input),
+            inputDigest: digest(canonicalInput(input)),
             counts: {},
         },
         stopped: [],
@@ -289,7 +324,7 @@ export function runStages0to2(input: DerivationInput): PartialResult {
             mode: input.candidate ? 'CHECKING' : 'DERIVATION',
             halted: false,
             divergent: false,
-            inputDigest: digest(input),
+            inputDigest: digest(canonicalInput(input)),
             counts: {
                 contractsAdmitted: loaded.admitted.length,
                 contractsRefused: loaded.refusals.length,
@@ -304,7 +339,114 @@ export function runStages0to2(input: DerivationInput): PartialResult {
     }
 }
 
+/**
+ * SD-51 — materialize one line per member of a set-valued row, **only** from a member set that has been
+ * authoritatively resolved.
+ *
+ * "OPEN, failed or gapped membership does not authorize creation of member identities." A membership
+ * line that is open, unauthored or unresolved yields no member lines at all: the engine holds no
+ * identity for a member it cannot establish. Each materialized line carries the member's own value and
+ * inherits the membership line's support, creating no new authority.
+ */
+function materialiseMembers(
+    lines: ResolutionLine[],
+    classified: Map<string, ClassifiedLine>,
+    derived: Map<string, DerivedLine>,
+    index: RegisterIndex,
+): { lines: ResolutionLine[]; classified: Map<string, ClassifiedLine>; withheld: number } {
+    const produced: ResolutionLine[] = []
+    const verdicts = new Map<string, ClassifiedLine>()
+    let withheld = 0
+
+    for (const line of lines) {
+        if (line.member !== null) continue
+        const row = index.rows.get(line.row)
+        if (!row || !/one property per (member|referent|trigger)/i.test(row.valueType || '')) continue
+
+        const membership = classified.get(line.lineId)
+        if (!membership || membership.verdict !== 'RESOLVED:ENTAILED') {
+            withheld++
+            continue
+        }
+
+        const record = derived.get(line.lineId)
+        const value = record?.session ? record.session.value : record?.entailing.length ? record.entailing[0].value : record?.standingValue?.value
+        const memberValues = Array.isArray(value) ? value : typeof value === 'string' ? parseMemberSet(value) : null
+        if (!memberValues || !memberValues.length) {
+            // Resolved, but the value is not a set this stage can enumerate. No member identity is
+            // invented from it; the membership line stands alone and the case is counted.
+            withheld++
+            continue
+        }
+
+        for (const member of [...new Set(memberValues.map(String))].sort()) {
+            const memberLine: ResolutionLine = {
+                lineId: `${line.lineId}::${member}`,
+                elementId: line.elementId,
+                row: line.row,
+                member,
+                lineState: 'ENUMERATED',
+            }
+            produced.push(memberLine)
+            verdicts.set(memberLine.lineId, {
+                lineId: memberLine.lineId,
+                lineState: 'ENUMERATED',
+                verdict: 'RESOLVED:ENTAILED',
+                reason: null,
+                collidingItems: [],
+                resolvedBy: membership.resolvedBy,
+            })
+        }
+    }
+
+    return { lines: produced, classified: verdicts, withheld }
+}
+
+/**
+ * A set written as authored text. Only the two unambiguous spellings are read — a braced or
+ * comma-separated list of bare tokens. Anything carrying prose is not a member set this stage can
+ * enumerate, and yields no members rather than a guess (SD-32 forbids meaning matching).
+ */
+function parseMemberSet(text: string): string[] | null {
+    const trimmed = text.trim()
+    const braced = trimmed.match(/^\{([^{}]*)\}$/)
+    const body = braced ? braced[1] : trimmed
+    if (!body.trim()) return null
+    const parts = body.split(',').map(p => p.trim())
+    if (!parts.length || parts.some(p => !p || /\s/.test(p))) return null
+    return parts
+}
+
 export { predicateKey }
+
+/**
+ * Increment 5 — stage 11, Emit. The complete pipeline: load through gates, assembled and stamped.
+ *
+ * Stages 7 and 9 remain deliberately unbuilt, and he has confirmed both (23 September): comparative
+ * execution is not built against invented cases, and no candidate-game input is fabricated merely to
+ * exercise checking mode. So `candidate` is null and Gate B reverse is `NOT_APPLICABLE` — neither is an
+ * empty result standing in for a check that did not happen.
+ */
+export function runDerivation(input: DerivationInput): DerivationResult | StampedHalt {
+    const staged = runStages0to10(input)
+
+    return emit({
+        versions: staged.versions,
+        lines: staged.lines,
+        classified: staged.classified ?? new Map(),
+        derived: staged.derived?.lines ?? new Map(),
+        forward: staged.forward ?? [],
+        gates: staged.gates ?? {
+            gateA: { verdict: 'NOT_EVALUABLE', checks: [], notEstablished: [] },
+            gateBForward: { verdict: 'NOT_EVALUABLE', checks: [], notEstablished: [] },
+            gateBReverse: { verdict: 'NOT_APPLICABLE', checks: [], notEstablished: [] },
+        },
+        failures: staged.failures,
+        refusals: staged.refusals,
+        run: staged.run,
+        stopped: staged.stopped,
+    })
+}
 
 /**
  * Increment 4 — stage 10, the gates, on top of 0–8.
@@ -368,6 +510,13 @@ export function runStages0to8(input: DerivationInput) {
 
     const classified = classifyLines(base.lines, base.derived.lines, base.scope.declarations, index)
     const forward = forwardResults(admitted, base.lines, base.derived.lines, classified, base.scope.applicationSets, index)
+
+    // SD-51 — member lines, materialized only from an authoritatively resolved member set.
+    const members = materialiseMembers(base.lines, classified, base.derived.lines, index)
+    base.lines.push(...members.lines)
+    for (const [lineId, line] of members.classified) classified.set(lineId, line)
+    base.run.counts.memberLines = members.lines.length
+    base.run.counts.memberSetsUnresolved = members.withheld
 
     // §1.4: "`failed` is `NOT_AUTHORED` or `UNRESOLVED`", and §3.2 raises a `GAP` at stage 6, one gap
     // one id. Increment 3 raised none, so a run could report thirteen unauthored lines with no failure

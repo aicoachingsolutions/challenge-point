@@ -14,10 +14,19 @@
  *     authored test, so it refuses with `CHECK_NOT_EXECUTABLE` and blocks the cases that use it.
  *
  * `NOT_EVALUABLE` covers both "the specification defines no test" (with a refusal attached) and "the
- * knowledge this clause needs is a gap" (with the lines named in `blockedBy`). The second reading is
- * §7's, by way of §8: "An unresolvable operand → unmet (required) or **not evaluable** (supporting),
- * the dependency a `GAP`." §7 does not state the case in its own words, so the engine records a stop
- * saying so. It blocks in both readings, so the choice cannot manufacture a pass — only withhold one.
+ * knowledge this clause needs is a gap" (with the lines named in `blockedBy`). **SD-52** settles the
+ * second, in his words of 23 September:
+ *
+ *   "FAIL = sufficient authoritative information establishes violation. NOT EVALUABLE / BLOCKED =
+ *    authoritative information is insufficient to determine the clause. A blocked clause cannot
+ *    contribute to a gate PASS."
+ *
+ * **SD-53** governs the shape: "One executable gate clause → one independently reported verdict …
+ * No PASS may imply a claim the engine did not evaluate." Compound wording may survive for human
+ * readers; the executable form decomposes every independently testable claim.
+ *
+ * **SD-54** governs what a pass is worth: every passing clause states whether it evaluated applicable
+ * instances or found none, and the report carries that split so a summary cannot flatten it.
  */
 
 import { ClassifiedLine } from './classify'
@@ -30,9 +39,20 @@ import { ElementClass, Envelope, FailureRecord, ItemRef, LoadedContract, Refusal
 export type ClauseVerdict = 'PASS' | 'FAIL' | 'NOT_CHECKABLE_OUTSIDE_REPRESENTATION' | 'NOT_EVALUABLE'
 export type GateVerdict = 'PASS' | 'FAIL' | 'NOT_EVALUABLE' | 'NOT_APPLICABLE'
 
+/**
+ * SD-54, his ruling of 23 September: "A universally stated structural check with zero applicable
+ * instances may remain PASS, but its basis must be explicit: PASS — no applicable instances versus
+ * PASS — evaluated applicable instances. Do not present those as equivalent evidence."
+ */
+export type ClauseBasis = 'EVALUATED' | 'NO_APPLICABLE_INSTANCES'
+
 export interface ClauseResult {
     clause: string
     verdict: ClauseVerdict
+    /** Set on every PASS: what the pass rests on. A vacuous pass is not evidence of a checked property. */
+    basis?: ClauseBasis
+    /** How many applicable instances the clause ranged over. Zero is what makes a pass vacuous. */
+    instances?: number
     refusalId?: string
 }
 
@@ -50,6 +70,17 @@ export interface GateReport {
     verdict: GateVerdict
     checks: CheckResult[]
     notEstablished: { checkId: string; clause: string }[]
+    /**
+     * SD-54 — the split a summary must not flatten. A clause that passed with no applicable instances is
+     * not evidence that the property holds of anything, and an aggregate count would hide that.
+     */
+    evidence?: {
+        clausesEvaluated: number
+        clausesVacuous: number
+        clausesFailed: number
+        clausesNotEvaluable: number
+        clausesOutsideRepresentation: number
+    }
 }
 
 export interface GateContext {
@@ -178,8 +209,17 @@ function result(checkId: string, probe: Probe, clauses: ClauseResult[], why: str
     }
 }
 
-const pass = (clause: string): ClauseResult => ({ clause, verdict: 'PASS' })
-const fail = (clause: string): ClauseResult => ({ clause, verdict: 'FAIL' })
+/**
+ * A pass must state how many applicable instances it ranged over (SD-54). `instances` is required
+ * rather than optional so that a new clause cannot be added without answering the question.
+ */
+const pass = (clause: string, instances: number): ClauseResult => ({
+    clause,
+    verdict: 'PASS',
+    basis: instances > 0 ? 'EVALUATED' : 'NO_APPLICABLE_INSTANCES',
+    instances,
+})
+const fail = (clause: string, instances?: number): ClauseResult => ({ clause, verdict: 'FAIL', instances })
 const notEvaluable = (clause: string, refusalId?: string): ClauseResult => ({ clause, verdict: 'NOT_EVALUABLE', refusalId })
 const outside = (clause: string): ClauseResult => ({ clause, verdict: 'NOT_CHECKABLE_OUTSIDE_REPRESENTATION' })
 
@@ -241,7 +281,7 @@ function gaRosterSum(ctx: GateContext): CheckOutcome {
     }
 
     const reachable = compare(low, target) <= 0 && (high === null || compare(target, high) <= 0)
-    const clause = reachable ? pass(CLAUSE_TEXT) : fail(CLAUSE_TEXT)
+    const clause = reachable ? pass(CLAUSE_TEXT, terms.length) : fail(CLAUSE_TEXT, terms.length)
     const why = reachable
         ? probe.pendingOn.length
             ? 'the sum can reach the session count within the open terms bounds'
@@ -313,7 +353,7 @@ function gaEnvelopeFit(ctx: GateContext): CheckOutcome {
     return result(
         'GA-ENVELOPE-FIT',
         probe,
-        [outsideArea.length ? fail(INSIDE) : pass(INSIDE), empty.length ? fail(NON_EMPTY) : pass(NON_EMPTY)],
+        [outsideArea.length ? fail(INSIDE, placed.length) : pass(INSIDE, placed.length), empty.length ? fail(NON_EMPTY, placed.length) : pass(NON_EMPTY, placed.length)],
         placed.length
             ? `${placed.length} placement(s) checked; ${outsideArea.length} outside the area, ${empty.length} empty`
             : 'no region or object is placed, so nothing lies outside the area',
@@ -341,7 +381,7 @@ function gaLayoutFeasible(ctx: GateContext): CheckOutcome {
     const geometricRows = new Set(['S5', 'S6', 'O4', 'O5'])
     const open = ctx.lines.filter(l => geometricRows.has(l.row) && ctx.classified.get(l.lineId)?.verdict?.startsWith('FREE'))
 
-    if (!open.length) return result('GA-LAYOUT-FEASIBLE', probe, [pass(CLAUSE_TEXT)], 'no geometric line is open, so the constraint set is trivially satisfiable')
+    if (!open.length) return result('GA-LAYOUT-FEASIBLE', probe, [pass(CLAUSE_TEXT, 0)], 'no geometric line is open, so the constraint set is trivially satisfiable')
     for (const line of open) probe.cell(line.lineId)
     if (!along || !across) return result('GA-LAYOUT-FEASIBLE', probe, [notEvaluable(CLAUSE_TEXT)], 'the area dimensions are not derived')
 
@@ -375,37 +415,42 @@ function gaLayoutFeasible(ctx: GateContext): CheckOutcome {
     return result(
         'GA-LAYOUT-FEASIBLE',
         probe,
-        [infeasible.length ? fail(CLAUSE_TEXT) : pass(CLAUSE_TEXT)],
+        [infeasible.length ? fail(CLAUSE_TEXT, open.length) : pass(CLAUSE_TEXT, open.length)],
         infeasible.length ? `${infeasible.length} open extent(s) have no feasible value: ${infeasible.join(', ')}` : `${open.length} open extent(s) admit a joint assignment inside the area`,
     )
 }
 
 /** `GA-REGION-FUNCTION` — every instantiated region serves at least one supported function. */
 function gaRegionFunction(ctx: GateContext): CheckOutcome {
-    const CLAUSE_TEXT = 'every instantiated region serves at least one supported function'
+    const SERVES = 'every instantiated region serves at least one function'
+    const REGISTERED = 'every function a region serves is a registered member'
     const probe = new Probe(ctx, 'GA-REGION-FUNCTION')
     const regions = classesOn(ctx, 'S2')
-    if (!regions.length) return result('GA-REGION-FUNCTION', probe, [pass(CLAUSE_TEXT)], 'no region is instantiated')
+    if (!regions.length) return result('GA-REGION-FUNCTION', probe, [pass(SERVES, 0), pass(REGISTERED, 0)], 'no region is instantiated')
 
     const vocabulary = ctx.index.vocabularies.get('S4.functions') || []
     const functionless: string[] = []
     const unregistered: string[] = []
+    let examined = 0
 
     for (const region of regions) {
         const cell = probe.cell(lineOf(region.classId, 'S4'))
         if (cell.state !== 'DERIVED') continue
         const members = Array.isArray(cell.value) ? cell.value : String(cell.value ?? '').split(/\s*,\s*/).filter(Boolean)
         if (!members.length) functionless.push(region.classId)
+        examined += members.length
         for (const member of members) if (!vocabulary.includes(String(member))) unregistered.push(`${region.classId}:${member}`)
     }
 
-    if (probe.blocked) return result('GA-REGION-FUNCTION', probe, [notEvaluable(CLAUSE_TEXT)], probe.blockedWhy)
-    const bad = functionless.length + unregistered.length
+    if (probe.blocked) return result('GA-REGION-FUNCTION', probe, [notEvaluable(SERVES), notEvaluable(REGISTERED)], probe.blockedWhy)
     return result(
         'GA-REGION-FUNCTION',
         probe,
-        [bad ? fail(CLAUSE_TEXT) : pass(CLAUSE_TEXT)],
-        bad ? `${functionless.length} region(s) serve no function; ${unregistered.length} function(s) are not in the registered list` : `${regions.length} region(s) each serve a registered function`,
+        [
+            functionless.length ? fail(SERVES, regions.length) : pass(SERVES, regions.length),
+            unregistered.length ? fail(REGISTERED, examined) : pass(REGISTERED, examined),
+        ],
+        `${regions.length} region(s); ${functionless.length} serve no function; ${unregistered.length} function(s) not in the registered list`,
     )
 }
 
@@ -435,8 +480,10 @@ function gaReferenceIntegrity(ctx: GateContext): CheckOutcome {
     // A reference defect is a fact about the loaded knowledge, not about a line's value, so it is
     // reported even where every line it touches is a gap. A blocked line only withholds the second
     // clause.
-    const defectClause = defects.length ? fail(NO_DEFECT) : pass(NO_DEFECT)
-    const heldClause = probe.blocked && !dangling.length ? notEvaluable(NAMES_HELD) : dangling.length ? fail(NAMES_HELD) : pass(NAMES_HELD)
+    const loadedItems = ctx.contracts.reduce((total, c) => total + (c.items || []).length, 0)
+    const referencesRead = probe.subjects.length
+    const defectClause = defects.length ? fail(NO_DEFECT, loadedItems) : pass(NO_DEFECT, loadedItems)
+    const heldClause = probe.blocked && !dangling.length ? notEvaluable(NAMES_HELD) : dangling.length ? fail(NAMES_HELD, referencesRead) : pass(NAMES_HELD, referencesRead)
 
     return result(
         'GA-REFERENCE-INTEGRITY',
@@ -452,7 +499,9 @@ function gaTriggerUnique(ctx: GateContext): CheckOutcome {
     const COLLIDES = 'no transition collides'
     const probe = new Probe(ctx, 'GA-TRIGGER-UNIQUE')
     const transitions = classesOn(ctx, 'T1')
-    if (transitions.length < 2) return result('GA-TRIGGER-UNIQUE', probe, [pass(CLAUSE_TEXT), pass(COLLIDES)], `${transitions.length} transition(s): no pair can share a key`)
+    if (transitions.length < 2) {
+        return result('GA-TRIGGER-UNIQUE', probe, [pass(CLAUSE_TEXT, transitions.length), pass(COLLIDES, transitions.length)], `${transitions.length} transition(s): no pair can share a key`)
+    }
 
     // The key is the transition's own selector: T1 is "keyed by trigger", and its registered selector
     // attributes are the trigger and its qualifiers.
@@ -479,7 +528,10 @@ function gaTriggerUnique(ctx: GateContext): CheckOutcome {
     return result(
         'GA-TRIGGER-UNIQUE',
         probe,
-        [shared.length ? fail(CLAUSE_TEXT) : pass(CLAUSE_TEXT), collided.length ? fail(COLLIDES) : pass(COLLIDES)],
+        [
+            shared.length ? fail(CLAUSE_TEXT, transitions.length) : pass(CLAUSE_TEXT, transitions.length),
+            collided.length ? fail(COLLIDES, transitions.length) : pass(COLLIDES, transitions.length),
+        ],
         `${shared.length} trigger key(s) claimed by more than one transition; ${collided.length} transition line(s) collided`,
     )
 }
@@ -490,11 +542,13 @@ function gaTransitionCoherence(ctx: GateContext): CheckOutcome {
     const RESUME_CLAUSE = 'a STOP_RESUME transition carries a taker and a region'
     const probe = new Probe(ctx, 'GA-TRANSITION-COHERENCE')
     const transitions = classesOn(ctx, 'T1')
-    if (!transitions.length) return result('GA-TRANSITION-COHERENCE', probe, [pass(CONTINUE_CLAUSE), pass(RESUME_CLAUSE)], 'no transition is instantiated')
+    if (!transitions.length) return result('GA-TRANSITION-COHERENCE', probe, [pass(CONTINUE_CLAUSE, 0), pass(RESUME_CLAUSE, 0)], 'no transition is instantiated')
 
     const continueViolations: string[] = []
     const resumeViolations: string[] = []
     let blockedAny = false
+    let continueSeen = 0
+    let resumeSeen = 0
 
     for (const transition of transitions) {
         const state = probe.cell(lineOf(transition.classId, 'T6'))
@@ -502,6 +556,8 @@ function gaTransitionCoherence(ctx: GateContext): CheckOutcome {
             blockedAny = true
             continue
         }
+        if (String(state.value) === 'CONTINUE') continueSeen++
+        if (String(state.value) === 'STOP_RESUME') resumeSeen++
         const actor = probe.cell(lineOf(transition.classId, 'T3'))
         const region = probe.cell(lineOf(transition.classId, 'T4'))
         const method = probe.cell(lineOf(transition.classId, 'T5'))
@@ -517,8 +573,8 @@ function gaTransitionCoherence(ctx: GateContext): CheckOutcome {
         }
     }
 
-    const continueClause = continueViolations.length ? fail(CONTINUE_CLAUSE) : blockedAny ? notEvaluable(CONTINUE_CLAUSE) : pass(CONTINUE_CLAUSE)
-    const resumeClause = resumeViolations.length ? fail(RESUME_CLAUSE) : blockedAny ? notEvaluable(RESUME_CLAUSE) : pass(RESUME_CLAUSE)
+    const continueClause = continueViolations.length ? fail(CONTINUE_CLAUSE, continueSeen) : blockedAny ? notEvaluable(CONTINUE_CLAUSE) : pass(CONTINUE_CLAUSE, continueSeen)
+    const resumeClause = resumeViolations.length ? fail(RESUME_CLAUSE, resumeSeen) : blockedAny ? notEvaluable(RESUME_CLAUSE) : pass(RESUME_CLAUSE, resumeSeen)
     return result(
         'GA-TRANSITION-COHERENCE',
         probe,
@@ -533,7 +589,7 @@ function gaInformation(ctx: GateContext): CheckOutcome {
     const TRIGGER = 'every information rule names a registered trigger'
     const probe = new Probe(ctx, 'GA-INFORMATION')
     const rules = classesOn(ctx, 'V15')
-    if (!rules.length) return result('GA-INFORMATION', probe, [pass(SUBJECT), pass(TRIGGER)], 'no information rule is instantiated')
+    if (!rules.length) return result('GA-INFORMATION', probe, [pass(SUBJECT, 0), pass(TRIGGER, 0)], 'no information rule is instantiated')
 
     const held = new Set(ctx.classes.map(c => c.classId))
     const vocabulary = ctx.index.vocabularies.get('trigger') || []
@@ -550,38 +606,48 @@ function gaInformation(ctx: GateContext): CheckOutcome {
         }
     }
 
-    const subjectClause = badSubjects.length ? fail(SUBJECT) : probe.blocked ? notEvaluable(SUBJECT) : pass(SUBJECT)
-    const triggerClause = badTriggers.length ? fail(TRIGGER) : probe.blocked ? notEvaluable(TRIGGER) : pass(TRIGGER)
+    const subjectClause = badSubjects.length ? fail(SUBJECT, rules.length) : probe.blocked ? notEvaluable(SUBJECT) : pass(SUBJECT, rules.length)
+    const triggerClause = badTriggers.length ? fail(TRIGGER, rules.length) : probe.blocked ? notEvaluable(TRIGGER) : pass(TRIGGER, rules.length)
     return result('GA-INFORMATION', probe, [subjectClause, triggerClause], `${badSubjects.length} unheld subject(s); ${badTriggers.length} unregistered trigger(s)`)
 }
 
 /** `GA-TIME-WINDOWS` — window fields in vocabulary; duration inside the session. */
 function gaTimeWindows(ctx: GateContext): CheckOutcome {
-    const FIELDS = 'every window field takes a registered member'
+    const STARTS_ON = 'every window starts on a registered trigger'
+    const EXPIRY = 'every window expiry effect is a registered member'
     const DURATION = 'every window duration lies inside the session'
     const probe = new Probe(ctx, 'GA-TIME-WINDOWS')
     const windows = classesOn(ctx, 'V23')
-    if (!windows.length) return result('GA-TIME-WINDOWS', probe, [pass(FIELDS), pass(DURATION)], 'no time window is instantiated')
+    if (!windows.length) {
+        return result('GA-TIME-WINDOWS', probe, [pass(STARTS_ON, 0), pass(EXPIRY, 0), pass(DURATION, 0)], 'no time window is instantiated')
+    }
 
     const triggerVocabulary = ctx.index.vocabularies.get('trigger') || []
     const expiryVocabulary = ctx.index.vocabularies.get('V26.expiryEffect') || []
     const session = probe.cell('game::E4')
-    const badFields: string[] = []
+    const badStarts: string[] = []
+    const badExpiry: string[] = []
     const tooLong: string[] = []
+    let startsSeen = 0
+    let expirySeen = 0
+    let durationSeen = 0
 
     for (const window of windows) {
         const startsOn = probe.cell(lineOf(window.classId, 'V24'))
         if (startsOn.state === 'DERIVED') {
+            startsSeen++
             const name = typeof startsOn.value === 'object' && startsOn.value ? String((startsOn.value as any).trigger) : String(startsOn.value)
-            if (!triggerVocabulary.includes(name)) badFields.push(`${window.classId}:V24=${name}`)
+            if (!triggerVocabulary.includes(name)) badStarts.push(`${window.classId}:V24=${name}`)
         }
         const expiry = probe.cell(lineOf(window.classId, 'V26'))
-        if (expiry.state === 'DERIVED' && expiryVocabulary.length && !expiryVocabulary.includes(String(expiry.value))) {
-            badFields.push(`${window.classId}:V26=${String(expiry.value)}`)
+        if (expiry.state === 'DERIVED' && expiryVocabulary.length) {
+            expirySeen++
+            if (!expiryVocabulary.includes(String(expiry.value))) badExpiry.push(`${window.classId}:V26=${String(expiry.value)}`)
         }
 
         const duration = probe.cell(lineOf(window.classId, 'V25'))
         if (duration.state === 'DERIVED' && session.state === 'DERIVED') {
+            durationSeen++
             const seconds = toRational(duration.value)
             const minutes = toRational(session.value)
             // V25 is seconds and E4 is minutes: the comparison is made in seconds, exactly.
@@ -592,9 +658,15 @@ function gaTimeWindows(ctx: GateContext): CheckOutcome {
         }
     }
 
-    const fieldsClause = badFields.length ? fail(FIELDS) : probe.blocked ? notEvaluable(FIELDS) : pass(FIELDS)
-    const durationClause = tooLong.length ? fail(DURATION) : probe.blocked ? notEvaluable(DURATION) : pass(DURATION)
-    return result('GA-TIME-WINDOWS', probe, [fieldsClause, durationClause], `${badFields.length} unregistered window field(s); ${tooLong.length} window(s) longer than the session`)
+    const clauseFor = (text: string, problems: string[], seen: number): ClauseResult =>
+        problems.length ? fail(text, seen) : seen === 0 && probe.blocked ? notEvaluable(text) : pass(text, seen)
+
+    return result(
+        'GA-TIME-WINDOWS',
+        probe,
+        [clauseFor(STARTS_ON, badStarts, startsSeen), clauseFor(EXPIRY, badExpiry, expirySeen), clauseFor(DURATION, tooLong, durationSeen)],
+        `${badStarts.length} unregistered start trigger(s); ${badExpiry.length} unregistered expiry effect(s); ${tooLong.length} window(s) longer than the session`,
+    )
 }
 
 /**
@@ -607,6 +679,7 @@ function gaTimeWindows(ctx: GateContext): CheckOutcome {
 function gaNoFailedLine(ctx: GateContext): CheckOutcome {
     const CLAUSE_TEXT = 'no enumerated line is failed'
     const probe = new Probe(ctx, 'GA-NO-FAILED-LINE')
+    const enumerated = [...ctx.classified.values()].filter(l => l.lineState === 'ENUMERATED').length
     const failed = [...ctx.classified.values()]
         .filter(l => l.lineState === 'ENUMERATED' && (l.verdict === 'NOT_AUTHORED' || l.verdict === 'UNRESOLVED' || l.verdict === 'INVENTED'))
         .map(l => l.lineId)
@@ -616,7 +689,7 @@ function gaNoFailedLine(ctx: GateContext): CheckOutcome {
     return result(
         'GA-NO-FAILED-LINE',
         probe,
-        [failed.length ? fail(CLAUSE_TEXT) : pass(CLAUSE_TEXT)],
+        [failed.length ? fail(CLAUSE_TEXT, enumerated) : pass(CLAUSE_TEXT, enumerated)],
         failed.length ? `${failed.length} enumerated line(s) are failed: ${failed.slice(0, 6).join(', ')}${failed.length > 6 ? ', …' : ''}` : 'every enumerated line is derived or open',
     )
 }
@@ -628,45 +701,65 @@ function gaNoFailedLine(ctx: GateContext): CheckOutcome {
 
 /** `GA-EFFECT-TYPED`. */
 function gaEffectTyped(ctx: GateContext): CheckOutcome {
-    const TYPED = "every consequence's effect is in its vocabulary, and its applicable referent resolves to exactly one element under every structurally reachable trigger that fires it"
+    const TYPED = "every consequence's effect is a registered member of its vocabulary"
+    const UNIQUE = 'every applicable referent resolves to exactly one element'
+    const REACHABLE = 'every consequence trigger is structurally reachable'
     const STATES = 'in every state its trigger can fire from'
     const probe = new Probe(ctx, 'GA-EFFECT-TYPED')
     const consequences = classesOn(ctx, 'V11')
-    if (!consequences.length) return result('GA-EFFECT-TYPED', probe, [pass(TYPED), outside(STATES)], 'no consequence is instantiated')
+    if (!consequences.length) {
+        return result('GA-EFFECT-TYPED', probe, [pass(TYPED, 0), pass(UNIQUE, 0), pass(REACHABLE, 0), outside(STATES)], 'no consequence is instantiated')
+    }
 
     const effects = ctx.index.vocabularies.get('V13.effect') || []
-    const held = new Set(ctx.classes.map(c => c.classId))
-    const problems: string[] = []
+    const typedProblems: string[] = []
+    const uniqueProblems: string[] = []
+    const reachableProblems: string[] = []
+    let typedSeen = 0
+    let uniqueSeen = 0
+    let reachableSeen = 0
 
     for (const consequence of consequences) {
         const effect = probe.cell(lineOf(consequence.classId, 'V13'))
-        if (effect.state === 'DERIVED' && effects.length && !effects.includes(String(effect.value))) problems.push(`${consequence.classId}: effect ${String(effect.value)} is not registered`)
+        if (effect.state === 'DERIVED') {
+            typedSeen++
+            if (effects.length && !effects.includes(String(effect.value))) typedProblems.push(`${consequence.classId}: effect ${String(effect.value)} is not registered`)
+        }
 
         // The applicable referent is the one its effect selects: ACCESS names a region, COUNT_CHANGE a
         // delta. Only the applicable one is required to resolve.
         const referentRow = String(effect.state === 'DERIVED' ? effect.value : '') === 'ACCESS' ? 'V14b' : 'V14c'
         const referent = probe.cell(lineOf(consequence.classId, referentRow))
         if (referent.state === 'DERIVED' && referentRow === 'V14b') {
+            uniqueSeen++
             const target = ctx.classes.find(c => c.classId === String(referent.value))
-            if (!target) problems.push(`${consequence.classId}: region referent names no held element`)
+            if (!target) uniqueProblems.push(`${consequence.classId}: region referent names no held element`)
             // "resolves to exactly one element": under SD-47 a referent names a class, and a class whose
             // cardinality admits more than one element does not resolve uniquely (V14b: "resolving
             // uniquely"). Without this the check would claim a uniqueness it never examined.
             else if (target.cardinality.max === null || target.cardinality.max > 1) {
-                problems.push(`${consequence.classId}: region referent names a class of up to ${target.cardinality.max ?? 'unbounded'} elements, so it does not resolve to exactly one`)
+                uniqueProblems.push(`${consequence.classId}: region referent names a class of up to ${target.cardinality.max ?? 'unbounded'} elements, so it does not resolve to exactly one`)
             }
         }
 
         const trigger = probe.cell(lineOf(consequence.classId, 'V12'))
         if (trigger.state === 'DERIVED') {
+            reachableSeen++
             const name = typeof trigger.value === 'object' && trigger.value ? String((trigger.value as any).trigger) : String(trigger.value)
             // SD-44: only a structurally reachable trigger counts.
-            if (!ctx.triggers.some(t => t === name || t.startsWith(`${name}{`))) problems.push(`${consequence.classId}: trigger ${name} is not structurally reachable`)
+            if (!ctx.triggers.some(t => t === name || t.startsWith(`${name}{`))) reachableProblems.push(`${consequence.classId}: trigger ${name} is not structurally reachable`)
         }
     }
 
-    const typedClause = problems.length ? fail(TYPED) : probe.blocked ? notEvaluable(TYPED) : pass(TYPED)
-    return result('GA-EFFECT-TYPED', probe, [typedClause, outside(STATES)], problems.length ? problems.slice(0, 3).join('; ') : `${consequences.length} consequence(s) typed and reachable`)
+    const clauseFor = (text: string, problems: string[], seen: number): ClauseResult =>
+        problems.length ? fail(text, seen) : seen === 0 && probe.blocked ? notEvaluable(text) : pass(text, seen)
+
+    return result(
+        'GA-EFFECT-TYPED',
+        probe,
+        [clauseFor(TYPED, typedProblems, typedSeen), clauseFor(UNIQUE, uniqueProblems, uniqueSeen), clauseFor(REACHABLE, reachableProblems, reachableSeen), outside(STATES)],
+        [...typedProblems, ...uniqueProblems, ...reachableProblems].slice(0, 3).join('; ') || `${consequences.length} consequence(s) examined`,
+    )
 }
 
 /** `GA-ONE-PRIMARY-EVENT`. */
@@ -685,14 +778,15 @@ function gaOnePrimaryEvent(ctx: GateContext): CheckOutcome {
     const value = probe.cell('game::V2')
 
     let oneClause: ClauseResult
-    if (events.length > 1) oneClause = fail(ONE)
-    else if (events.length === 0 && !entailedBySd06) oneClause = fail(ONE)
+    const eventCount = events.length || (entailedBySd06 ? 1 : 0)
+    if (events.length > 1) oneClause = fail(ONE, events.length)
+    else if (events.length === 0 && !entailedBySd06) oneClause = fail(ONE, 0)
     else if (kind.state === 'DERIVED') {
         const kinds = ctx.index.vocabularies.get('V1.kind') || []
-        oneClause = kinds.length && !kinds.includes(String(kind.value)) ? fail(ONE) : pass(ONE)
+        oneClause = kinds.length && !kinds.includes(String(kind.value)) ? fail(ONE, eventCount) : pass(ONE, eventCount)
     } else oneClause = notEvaluable(ONE)
 
-    const valueClause = value.state === 'DERIVED' ? (toRational(value.value) ? pass(VALUE) : fail(VALUE)) : notEvaluable(VALUE)
+    const valueClause = value.state === 'DERIVED' ? (toRational(value.value) ? pass(VALUE, 1) : fail(VALUE, 1)) : notEvaluable(VALUE)
 
     // "every member of its reference has a space position" — each condition's referents must name a
     // held element that carries a derived position. Previously claimed and never examined.
@@ -721,7 +815,7 @@ function gaOnePrimaryEvent(ctx: GateContext): CheckOutcome {
             else positionBlocked = true
         }
     }
-    const positionClause = unpositioned.length ? fail(POSITION) : positionBlocked ? notEvaluable(POSITION) : pass(POSITION)
+    const positionClause = unpositioned.length ? fail(POSITION, positioned.length + unpositioned.length) : positionBlocked ? notEvaluable(POSITION) : pass(POSITION, positioned.length)
 
     return result(
         'GA-ONE-PRIMARY-EVENT',
@@ -750,7 +844,7 @@ function gaDirection(ctx: GateContext): CheckOutcome {
     // than asserted, so that adding a direction-changing effect would make this clause start failing.
     const effects = ctx.index.vocabularies.get('V13.effect') || []
     const directional = effects.filter(e => /direction|end|attack|swap|switch/i.test(e))
-    const noChangeClause = directional.length ? fail(NO_CHANGE) : pass(NO_CHANGE)
+    const noChangeClause = directional.length ? fail(NO_CHANGE, effects.length) : pass(NO_CHANGE, effects.length)
 
     const teams = classesOn(ctx, 'P1')
     const objectives = classesOn(ctx, 'J1')
@@ -785,7 +879,7 @@ function gaDirection(ctx: GateContext): CheckOutcome {
         if (!attacked.has(designation)) unattached.push(`${team.classId} (${designation}) attacks no objective`)
     }
 
-    const attacksClause = unattached.length ? fail(ATTACKS) : undesignated || probe.blocked ? notEvaluable(ATTACKS) : pass(ATTACKS)
+    const attacksClause = unattached.length ? fail(ATTACKS, teams.length) : undesignated || probe.blocked ? notEvaluable(ATTACKS) : pass(ATTACKS, teams.length)
 
     // Opposite ends: an objective's end is the end of the axis its referent sits in. `lo + hi` against
     // the area length compares the referent's midpoint with the centre without dividing.
@@ -811,8 +905,8 @@ function gaDirection(ctx: GateContext): CheckOutcome {
     } else {
         const ends = [...attacked.values()].map(ids => endOf(ids[0]))
         if (ends.length !== 2 || ends.some(e => e === null)) oppositeClause = notEvaluable(OPPOSITE)
-        else if (ends[0] === 'CENTRE' || ends[1] === 'CENTRE' || ends[0] === ends[1]) oppositeClause = fail(OPPOSITE)
-        else oppositeClause = pass(OPPOSITE)
+        else if (ends[0] === 'CENTRE' || ends[1] === 'CENTRE' || ends[0] === ends[1]) oppositeClause = fail(OPPOSITE, 2)
+        else oppositeClause = pass(OPPOSITE, 2)
     }
 
     return result(
@@ -827,14 +921,26 @@ function gaDirection(ctx: GateContext): CheckOutcome {
 
 /** `GA-OBJECTIVE-SETS`. */
 function gaObjectiveSets(ctx: GateContext): CheckOutcome {
-    const STRUCTURAL = 'every persistence trigger maps to an assignment entry with a derived member; members resolve; the minimum does not exceed the members; the named member is one of them'
+    const MEMBERS = 'every member of an objective set resolves to a held element'
+    const MINIMUM = 'the live cardinality does not exceed the member count'
+    const NAMED = 'the named initial member is one of the members'
+    const ASSIGNMENT = 'every structurally reachable persistence trigger maps to an assignment entry'
     const SCOPE = 'while the set is in scope, across the states of play between those triggers'
     const probe = new Probe(ctx, 'GA-OBJECTIVE-SETS')
     const sets = classesOn(ctx, 'J5')
-    if (!sets.length) return result('GA-OBJECTIVE-SETS', probe, [pass(STRUCTURAL), outside(SCOPE)], 'no objective set is instantiated')
+    if (!sets.length) {
+        return result('GA-OBJECTIVE-SETS', probe, [pass(MEMBERS, 0), pass(MINIMUM, 0), pass(NAMED, 0), pass(ASSIGNMENT, 0), outside(SCOPE)], 'no objective set is instantiated')
+    }
 
     const held = new Set(ctx.classes.map(c => c.classId))
-    const problems: string[] = []
+    const memberProblems: string[] = []
+    const minimumProblems: string[] = []
+    const namedProblems: string[] = []
+    const assignmentProblems: string[] = []
+    let membersSeen = 0
+    let minimumSeen = 0
+    let namedSeen = 0
+    let assignmentSeen = 0
 
     for (const set of sets) {
         const members = probe.cell(lineOf(set.classId, 'J7'))
@@ -844,13 +950,16 @@ function gaObjectiveSets(ctx: GateContext): CheckOutcome {
 
         const list = members.state === 'DERIVED' ? (Array.isArray(members.value) ? members.value : [members.value]) : null
         if (list) {
-            for (const member of list) if (!held.has(String(member))) problems.push(`${set.classId}: member ${String(member)} resolves to no held element`)
+            membersSeen += list.length
+            for (const member of list) if (!held.has(String(member))) memberProblems.push(`${set.classId}: member ${String(member)} resolves to no held element`)
             if (minimum.state === 'DERIVED') {
+                minimumSeen++
                 const min = toRational(minimum.value)
-                if (min && compare(min, { n: BigInt(list.length), d: 1n }) > 0) problems.push(`${set.classId}: live cardinality exceeds the member count`)
+                if (min && compare(min, { n: BigInt(list.length), d: 1n }) > 0) minimumProblems.push(`${set.classId}: live cardinality exceeds the member count`)
             }
-            if (initial.state === 'DERIVED' && initial.value !== null && !list.map(String).includes(String(initial.value))) {
-                problems.push(`${set.classId}: the named initial member is not one of the members`)
+            if (initial.state === 'DERIVED' && initial.value !== null) {
+                namedSeen++
+                if (!list.map(String).includes(String(initial.value))) namedProblems.push(`${set.classId}: the named initial member is not one of the members`)
             }
         }
 
@@ -862,8 +971,9 @@ function gaObjectiveSets(ctx: GateContext): CheckOutcome {
                 // SD-44: "an assignment yields a member under every **structurally reachable** trigger".
                 // A trigger the game cannot reach places no demand on the assignment.
                 if (!ctx.triggers.some(t => t === name || t.startsWith(`${name}{`))) continue
+                assignmentSeen++
                 const matching = entries.filter(e => e.constraints.terms.some(t => t.attribute === 'on' && 'value' in t && t.value === name))
-                if (!matching.length) problems.push(`${set.classId}: structurally reachable persistence trigger ${name} maps to no assignment entry`)
+                if (!matching.length) assignmentProblems.push(`${set.classId}: structurally reachable persistence trigger ${name} maps to no assignment entry`)
                 for (const entry of matching) {
                     const yields = probe.cell(lineOf(entry.classId, 'J11b'))
                     if (yields.state === 'DERIVED' && typeof yields.value === 'object' && yields.value && (yields.value as any).procedure) {
@@ -874,10 +984,31 @@ function gaObjectiveSets(ctx: GateContext): CheckOutcome {
         }
     }
 
-    if (probe.refusals.length) return result('GA-OBJECTIVE-SETS', probe, [notEvaluable(STRUCTURAL, probe.refusals[0].refusalId), outside(SCOPE)], probe.refusals[0].cause)
-    if (problems.length) return result('GA-OBJECTIVE-SETS', probe, [fail(STRUCTURAL), outside(SCOPE)], problems.slice(0, 3).join('; '))
-    if (probe.blocked) return result('GA-OBJECTIVE-SETS', probe, [notEvaluable(STRUCTURAL), outside(SCOPE)], probe.blockedWhy)
-    return result('GA-OBJECTIVE-SETS', probe, [pass(STRUCTURAL), outside(SCOPE)], `${sets.length} objective set(s) coherent`)
+    if (probe.refusals.length) {
+        const id = probe.refusals[0].refusalId
+        return result(
+            'GA-OBJECTIVE-SETS',
+            probe,
+            [notEvaluable(MEMBERS, id), notEvaluable(MINIMUM, id), notEvaluable(NAMED, id), notEvaluable(ASSIGNMENT, id), outside(SCOPE)],
+            probe.refusals[0].cause,
+        )
+    }
+
+    const clauseFor = (text: string, problems: string[], seen: number): ClauseResult =>
+        problems.length ? fail(text, seen) : seen === 0 && probe.blocked ? notEvaluable(text) : pass(text, seen)
+
+    return result(
+        'GA-OBJECTIVE-SETS',
+        probe,
+        [
+            clauseFor(MEMBERS, memberProblems, membersSeen),
+            clauseFor(MINIMUM, minimumProblems, minimumSeen),
+            clauseFor(NAMED, namedProblems, namedSeen),
+            clauseFor(ASSIGNMENT, assignmentProblems, assignmentSeen),
+            outside(SCOPE),
+        ],
+        [...memberProblems, ...minimumProblems, ...namedProblems, ...assignmentProblems].slice(0, 3).join('; ') || `${sets.length} objective set(s) examined`,
+    )
 }
 
 // =================================================================================================
@@ -914,7 +1045,7 @@ function gaModifierOverlap(ctx: GateContext): CheckOutcome {
         }
     }
     const overlapping = [...referents.entries()].filter(([, ids]) => ids.length > 1)
-    const regionClause = overlapping.length ? fail(REGION) : pass(REGION)
+    const regionClause = overlapping.length ? fail(REGION, regions.length) : pass(REGION, regions.length)
 
     if (!objectOrEvent.length) {
         return result('GA-MODIFIER-OVERLAP', probe, [regionClause], overlapping.length ? `${overlapping.length} region referent(s) claimed by more than one modifier` : `${regions.length} region modifier(s) do not overlap; no object or event condition occurs`)
@@ -979,10 +1110,20 @@ export function runGates(ctx: GateContext): GateOutcome {
         .flatMap(c => c.clauses.filter(l => l.verdict === 'NOT_CHECKABLE_OUTSIDE_REPRESENTATION').map(l => ({ checkId: c.checkId, clause: l.clause })))
         .sort((a, b) => a.checkId.localeCompare(b.checkId))
 
+    // SD-54 — a summary may not present a vacuous pass and an evaluated one as equivalent evidence, so
+    // the report carries the split rather than leaving a reader to compute "N checks passed".
+    const passedClauses = checks.flatMap(c => c.clauses).filter(c => c.verdict === 'PASS')
     const gateA: GateReport = {
         verdict: checks.some(c => c.verdict === 'FAIL') ? 'FAIL' : checks.some(c => c.verdict === 'NOT_EVALUABLE') ? 'NOT_EVALUABLE' : 'PASS',
         checks,
         notEstablished,
+        evidence: {
+            clausesEvaluated: passedClauses.filter(c => c.basis === 'EVALUATED').length,
+            clausesVacuous: passedClauses.filter(c => c.basis === 'NO_APPLICABLE_INSTANCES').length,
+            clausesFailed: checks.flatMap(c => c.clauses).filter(c => c.verdict === 'FAIL').length,
+            clausesNotEvaluable: checks.flatMap(c => c.clauses).filter(c => c.verdict === 'NOT_EVALUABLE').length,
+            clausesOutsideRepresentation: notEstablished.length,
+        },
     }
 
     const stopped: { where: string; why: string }[] = []
@@ -1006,16 +1147,6 @@ export function runGates(ctx: GateContext): GateOutcome {
             why:
                 `${valueless.length} line(s) are RESOLVED but carry no value (${valueless.slice(0, 4).join(', ')}), and §1.4 requires a value wherever a line is derived. ` +
                 'The gates treat these as unusable rather than reading absence as a value; the defect is in the stage that resolved them.',
-        })
-    }
-
-    if (checks.some(c => c.blockedBy.length)) {
-        stopped.push({
-            where: 'stage 10, Gate A',
-            why:
-                '§7 states the verdict rule for a clause that is outside the representation and for one with no executable definition, but not for a clause whose subject line is a gap. ' +
-                'The engine reads it as NOT_EVALUABLE, following §8\'s rule that an unresolvable operand whose dependency is a GAP is not evaluable, and names the lines in blockedBy. ' +
-                'Both readings block, so the choice cannot produce a PASS that has not been earned — but it is a reading, and it is his to confirm.',
         })
     }
 
@@ -1043,7 +1174,7 @@ function gateBForward(ctx: GateContext): GateReport {
         verdict: dropped === 0 && ctx.forward.length === expected ? 'PASS' : 'FAIL',
         subjects: [],
         why: `${expected} admitted item(s); ${ctx.forward.length} forward result(s); ${dropped} uncounted`,
-        clauses: [dropped === 0 && ctx.forward.length === expected ? pass(CLAUSE_TEXT) : fail(CLAUSE_TEXT)],
+        clauses: [dropped === 0 && ctx.forward.length === expected ? pass(CLAUSE_TEXT, expected) : fail(CLAUSE_TEXT, expected)],
         pendingOn: [],
         blockedBy: [],
     }

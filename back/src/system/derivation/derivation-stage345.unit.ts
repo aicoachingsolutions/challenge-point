@@ -123,9 +123,13 @@ function testAbsenceOfKnowledgeDoesNotProduceOpen(): void {
 
     const position = lines.find(l => l.lineId.endsWith('::S5'))!
     assert.equal(position.open, null, 'the register bounds this choice space by authored values, and none is authored')
-    assert.ok(
-        result.stopped.some(s => /stage 5, row S5/.test(s.where)),
-        'and whether such a row should instead refuse is reported, not decided here',
+    // SD-50 settled what increment 2 had to leave open: "If a required property must be resolved, its
+    // existence is supported, but the legitimate choice space/bounds required to make it OPEN are
+    // unsupported, report a GAP." Not a refusal, and no longer an unresolved question.
+    assert.equal(
+        result.stopped.filter(s => /should instead refuse/.test(s.why)).length,
+        0,
+        'SD-50 settled it: an unsupported choice space is a GAP',
     )
 
     for (const line of lines.filter(l => l.lineId.endsWith('::S3'))) {

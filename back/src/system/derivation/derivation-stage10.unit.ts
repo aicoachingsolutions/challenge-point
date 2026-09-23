@@ -502,11 +502,52 @@ test('the fifteen Gate A checks are all present, and GA-RESIDUAL-SPACE is gone (
     assert.ok(ids.includes('GA-MODIFIER-OVERLAP'))
 })
 
-test('the gate records the one reading §7 does not state, rather than burying it', () => {
+test('SD-52: a blocked clause is NOT_EVALUABLE and cannot contribute to a gate PASS', () => {
     const result: any = runStages0to10(corpusInput())
-    const stop = result.stopped.find((s: any) => s.where === 'stage 10, Gate A')
-    assert.ok(stop, 'the blocked-by-a-gap reading is surfaced')
-    assert.ok(/NOT_EVALUABLE/.test(stop.why) && /his to confirm/.test(stop.why))
+    // The reading is ruled, so it is no longer carried as an open question.
+    assert.equal(
+        result.stopped.filter((s: any) => s.where === 'stage 10, Gate A' && /his to confirm/.test(s.why)).length,
+        0,
+        'SD-52 settled this; it should no longer be reported as unresolved',
+    )
+    for (const c of gateA(result).checks) {
+        for (const clause of c.clauses) {
+            if (clause.verdict !== 'NOT_EVALUABLE') continue
+            assert.notEqual(c.verdict, 'PASS', `${c.checkId} passed while carrying a blocked clause`)
+        }
+    }
+    assert.notEqual(gateA(result).verdict, 'PASS')
+})
+
+test('SD-54: every passing clause states whether it evaluated instances or found none', () => {
+    const result: any = runStages0to10(corpusInput())
+    for (const c of gateA(result).checks) {
+        for (const clause of c.clauses) {
+            if (clause.verdict !== 'PASS') continue
+            assert.ok(clause.basis, `${c.checkId}: a pass with no stated basis`)
+            assert.equal(clause.basis === 'NO_APPLICABLE_INSTANCES', clause.instances === 0)
+        }
+    }
+    const evidence = gateA(result).evidence
+    assert.ok(evidence, 'the report carries the vacuous/evaluated split')
+    assert.ok(evidence.clausesVacuous > 0, 'this corpus does have vacuous passes, and they are counted as such')
+    assert.equal(
+        evidence.clausesEvaluated + evidence.clausesVacuous,
+        gateA(result).checks.flatMap((c: any) => c.clauses).filter((c: any) => c.verdict === 'PASS').length,
+    )
+})
+
+test('SD-53: no executable clause fuses independently testable claims', () => {
+    const result: any = runStages0to10(corpusInput())
+    for (const c of gateA(result).checks) {
+        for (const clause of c.clauses) {
+            if (clause.verdict === 'NOT_CHECKABLE_OUTSIDE_REPRESENTATION') continue // human wording may stay compound
+            assert.ok(
+                !/;/.test(clause.clause),
+                `${c.checkId} still carries a fused executable clause: "${clause.clause}"`,
+            )
+        }
+    }
 })
 
 console.log(`\n${passed} assertions passed — increment 4\n`)

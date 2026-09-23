@@ -184,17 +184,14 @@ function mayBeOpen(
 
     // The register expresses some choice spaces as bounded by authored values — "a count inside an
     // authored COUNT/RANGE", "metres and position inside authored bounds". With nothing authored, the
-    // space itself is not supported, so the line is not open. Whether such a row should instead refuse
-    // (as a count fill with no authored maximum does) is not established by the package.
-    if (/authored/i.test(choiceSpace) && record.bounding.length === 0) {
-        stopped.push({
-            where: `stage 5, row ${row}`,
-            why:
-                `the register expresses this choice space as bounded by authored values (${JSON.stringify(choiceSpace)}), and nothing authored a bound. ` +
-                'SD-39 requires the choice space to be supported, so the line is not open here. Whether it should instead refuse, as an unbounded count fill does, is not established.',
-        })
-        return null
-    }
+    // space itself is unsupported.
+    //
+    // SD-50, his ruling of 23 September: "If a required property must be resolved, its existence is
+    // supported, but the legitimate choice space/bounds required to make it OPEN are unsupported,
+    // report a GAP. OPEN requires both: supported existence + supported legitimate choice space.
+    // Silence supplies neither." So the line is not open, and stage 6 classifies it NOT_AUTHORED, which
+    // raises the GAP. It is not a refusal.
+    if (/authored/i.test(choiceSpace) && record.bounding.length === 0) return null
 
     return { authority: 'SD-39', choiceSpace }
 }

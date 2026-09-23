@@ -256,19 +256,28 @@ function testRefusedContractContributesNothing(): void {
 }
 
 /**
- * SD-48 — "If a stage reaches semantics not explicitly established by the specification, stop that
- * path and report it." The set-valued rows are the live case: the package enumerates one line per
- * member, but the member set is not known until values are derived at a later stage.
+ * SD-51, his ruling of 23 September, settling what increment 1 had to stop on: "Do not enumerate member
+ * lines before membership is authoritatively resolved … OPEN, failed or gapped membership does not
+ * authorize creation of member identities."
+ *
+ * Stage 2 therefore enumerates the membership line and nothing else. Materialization from a resolved
+ * member set is tested in the increment 5 suite.
  */
-function testUnestablishedSemanticsStopAndReport(): void {
+function testSetValuedRowsEnumerateMembershipOnly(): void {
     const result = runStages0to2(input())
-    assert.ok(result.stopped.length > 0, 'the set-valued row must record a stop, not a guess')
-    const stop = result.stopped[0]
-    assert.match(stop.where, /stage 2/)
-    assert.match(stop.why, /member set is not known/)
     assert.ok(
         result.lines.some(l => l.row === 'S4' && l.member === null),
-        'the line is enumerated once with no member, rather than members being invented',
+        'the membership line itself is enumerated',
+    )
+    assert.equal(
+        result.lines.filter(l => l.member !== null).length,
+        0,
+        'no member identity exists before membership is authoritatively resolved',
+    )
+    assert.equal(
+        result.stopped.filter(s => /member set is not known/.test(s.why)).length,
+        0,
+        'SD-51 settled this; it is no longer carried as unestablished',
     )
 }
 
@@ -329,7 +338,7 @@ const TESTS: [string, () => void][] = [
     ['an IN selector keeps its set and chooses nothing', testInSelectorKeepsItsSetAndChoosesNothing],
     ['dotted attribute names are taken whole', testDottedAttributeNamesAreTakenWhole],
     ['no line carries a value', testNoLineCarriesAValue],
-    ['unestablished semantics stop and report', testUnestablishedSemanticsStopAndReport],
+    ['SD-51: set-valued rows enumerate membership only', testSetValuedRowsEnumerateMembershipOnly],
     ['conditional rows are conditional, not unauthored', testConditionalRowsAreConditionalNotAuthored],
     ['a refused contract contributes nothing', testRefusedContractContributesNothing],
     ['versions are stamped', testVersionsAreStamped],
