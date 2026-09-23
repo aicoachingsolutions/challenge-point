@@ -2757,3 +2757,26 @@ five increments; suite green. Report: `docs/design/implementation-increment-5.md
   item, and A01-02's item is `ENGINE_ONLY` so it is inert.
 - **Deferred with his confirmation:** stage 7 (no canonical comparative) and stage 9 (no legitimate
   candidate representation until the downstream governed-choice process exists).
+
+**23 Sep — INCREMENT 6: SD-57..SD-61. MODIFIER OVERLAP IS NO LONGER A BLOCKER.** Spec **revision 13**;
+106 tests; suite green. Report: `docs/design/implementation-increment-6.md`.
+- **His verdict on the evidence:** it *"does not establish a current reachable modifier-overlap problem."*
+  GF4 is refused whole at load over an unrelated `row: "NONE"` item; `A01-02-12.b` is `ENGINE_ONLY` and
+  inert. The gate sees **zero** modifiers. F2 and the package entry both corrected — the "two corpus
+  items" claim was wrong twice (four items, all `event`, none reachable).
+- **SD-57 identity:** a referent resolves only through a registered structural reference. Open text
+  establishes none, and is **not** compared as a token — that would promote open-text equality into
+  identity. Applied to region referents too (flagged to him): the code had been comparing raw strings.
+- **SD-58 — and it caught a real fault.** `GA-REFERENCE-INTEGRITY` was **failing** on any derived
+  reference naming no held element, open text included: the engine asserting a violation it had no
+  authority to establish. Now blocks and names the line. Gap-before-collision untouched.
+- **SD-59** no alternatives mechanism → task register **C7**; **SD-60** no object-condition semantics
+  → its own refusing clause; **C8** added (events have no first-class identity).
+- **One new stop, record-keeping not semantics:** §3.2 raises `GAP` at stages 2/5/6/7 only, and the line
+  in an unestablishable-relationship case is usually *derived*, so nothing in `failures` marks it. Did
+  **not** extend §3.2 unilaterally. Blocks either way, so it cannot cause a wrong pass. Fires only where
+  the case arises — corpus reports zero stops.
+- **`npm run corpus:diagnostic`** renders the emitted result and **adds no semantics** — if a figure is
+  wrong, the engine is wrong. Headline: **2 clauses evaluated against real instances, 24 vacuous.**
+- **Not done, on his instruction:** stages 7/9 not reopened for coverage; **no corpus repair begun**;
+  generation still frozen.
