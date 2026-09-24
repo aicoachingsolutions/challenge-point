@@ -18,6 +18,7 @@ import path from 'node:path'
 
 import { ContractItem, DerivationInput, LoadedContract } from './types'
 import { repairCorpusEncoding, RepairTally } from './corpus-repair'
+import { applyNoRowRestatement, RestatementTally } from './corpus-restatement'
 
 export const CONFORMANCE_DIR = path.resolve(__dirname, '../../../../docs/audits/conformance')
 
@@ -58,13 +59,16 @@ function objectIdOf(name: string, index: number): string {
  */
 export const repairTally: RepairTally = { strings: 0, charactersRecovered: 0 }
 
+/** Restatement is counted separately from encoding repair: they are different kinds of change. */
+export const restatementTally: RestatementTally = { applied: 0, withheld: [] }
+
 export function loadCorpusContracts(): LoadedContract[] {
     repairTally.strings = 0
     repairTally.charactersRecovered = 0
     const raw = repairCorpusEncoding(readJson('stage-b/contracts.json'), repairTally)
     const entries: any[] = Array.isArray(raw) ? raw : Object.values(raw)
 
-    return entries.map((entry, index) => {
+    const adapted = entries.map((entry, index) => {
         const result = entry.result || {}
         const objectId = objectIdOf(entry.name, index)
         const items: ContractItem[] = (result.items || []).map((item: any) => {
@@ -81,6 +85,10 @@ export function loadCorpusContracts(): LoadedContract[] {
             relationshipRules: result.relationshipRules || [],
         }
     })
+
+    // Phase A, second kind: the one restatement he has ruled. Applied after the encoding repair, because
+    // one of the two unregistered spellings is an em dash that only exists once the encoding is restored.
+    return applyNoRowRestatement(adapted, restatementTally)
 }
 
 export function corpusInput(): DerivationInput {

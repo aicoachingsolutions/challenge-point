@@ -1,11 +1,12 @@
 /**
- * Prints the corpus diagnostic. Run: npx ts-node --files -r tsconfig-paths/register
- * ./src/system/derivation/run-corpus-diagnostic.ts
+ * Prints the corpus diagnostic. Run: npm run corpus:diagnostic
  *
- * It adds no semantics: it runs the engine over the committed corpus and renders the emitted result.
+ * It adds no semantics: it runs the engine over the committed corpus and renders the emitted result,
+ * together with the provenance of the repairs applied on load.
  */
-import { corpusInput } from './corpus'
+import { corpusInput, repairTally, restatementTally } from './corpus'
 import { runDerivation } from './engine'
 import { renderDiagnostic } from './diagnostic'
 
-console.log(renderDiagnostic(runDerivation(corpusInput())))
+const result = runDerivation(corpusInput())
+console.log(renderDiagnostic(result, { encoding: repairTally, restatement: restatementTally }))

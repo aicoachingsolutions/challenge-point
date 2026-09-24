@@ -39,6 +39,8 @@ export interface RegisterIndex {
     vocabularies: Map<string, string[]>
     vocabularyVersions: Record<string, string>
     contractEnums: Record<string, string[]>
+    /** Contract-level sentinels for an item's `row`. A sentinel is never a row and creates no property. */
+    contractSentinels: Record<string, any>
     citableStandingDecisions: Set<string>
     /** The citable entries themselves, as the register states them. */
     standingDecisions: any[]
@@ -100,6 +102,14 @@ export function indexRegister(register: any): RegisterIndex {
     }
     const contractEnums: Record<string, string[]> = (vocabBlock.contractEnums as any) || {}
 
+    // A sentinel may never collide with a row id: that is what keeps it outside the representation.
+    const sentinels: Record<string, any> = {}
+    for (const [key, entry] of Object.entries(register.contractSentinels || {})) {
+        if (key === 'note' || !entry || typeof entry !== 'object') continue
+        if (rows.has(key)) throw new HaltError('H1', `contract sentinel ${key} collides with a register row id`)
+        sentinels[key] = entry
+    }
+
     const citable = new Set<string>((register.citableStandingDecisions || []).map((d: any) => d.id).filter(Boolean))
 
     return {
@@ -111,6 +121,7 @@ export function indexRegister(register: any): RegisterIndex {
         vocabularies,
         vocabularyVersions: (vocabBlock.versions as any) || {},
         contractEnums,
+        contractSentinels: sentinels,
         citableStandingDecisions: citable,
         standingDecisions: (register.citableStandingDecisions || []).filter((d: any) => d && d.id),
         registerVersion: register.version,

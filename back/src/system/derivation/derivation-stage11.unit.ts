@@ -12,8 +12,9 @@
  */
 import assert from 'node:assert/strict'
 
-import { corpusInput, loadRegister, loadCorpusContracts, repairTally } from './corpus'
+import { corpusInput, loadRegister, loadCorpusContracts, repairTally, restatementTally } from './corpus'
 import { repairEncoding } from './corpus-repair'
+import { NO_ROW_RESTATEMENTS } from './corpus-restatement'
 import { runDerivation, runStages0to10 } from './engine'
 import { isStampedHalt } from './emit'
 import { ContractItem, DerivationInput, LoadedContract } from './types'
@@ -273,16 +274,85 @@ test('the repair restores authored text and changes no structure', () => {
     assert.ok(text.includes('—'), 'the authored em dashes are back')
 })
 
-test('phase A repairs encoding only — every remaining refusal needs a semantic decision', () => {
+/**
+ * Phase A's boundary, in his words: a contract either loads from mechanically- or
+ * restatement-corrected authored knowledge, **or** has a specific unresolved semantic issue that
+ * deliberately prevents it. This test is the boundary — every remaining refusal must be one of the
+ * three known semantic issues, and a new kind of refusal appearing here is a finding, not a failure.
+ */
+test('every remaining refusal is a known, specific semantic issue — a correct refusal', () => {
     const result: any = runStages0to10(corpusInput())
+    const known = [
+        /row is not a register row id/, // the five structural no-row items
+        /no declared operation/, // the three modifiers without an operation (SD-30)
+        /declaration scope is not registered/, // PASS-COMBINATION-GATE's em-dash declaration scopes
+    ]
     for (const refusal of result.failures.filter((f: any) => f.kind === 'LOAD_REFUSAL')) {
         assert.ok(
-            /row is not a register row id|no declared operation/.test(String(refusal.detailRef)),
-            `a refusal phase A should have fixed: ${refusal.detailRef}`,
+            known.some(pattern => pattern.test(String(refusal.detailRef))),
+            `an unclassified refusal — phase A must account for it: ${refusal.detailRef}`,
         )
     }
-    assert.equal(result.run.counts.contractsAdmitted, 3, 'encoding repair alone admits three contracts')
-    assert.equal(result.run.counts.contractsRefused, 5, 'and five still need his ruling')
+    assert.equal(result.run.counts.contractsAdmitted, 3)
+    assert.equal(result.run.counts.contractsRefused, 5, 'each refusing for a reason that is his to rule')
+})
+
+// ---------------------------------------------------------------------------------------------
+// The NO_ROW contract sentinel. Its whole risk is becoming a way to bypass a structural claim.
+// ---------------------------------------------------------------------------------------------
+
+const noRowItem = (overrides: Partial<ContractItem> = {}) =>
+    item({ itemId: 'N-1', row: 'NO_ROW', requirement: 'EXISTS', selector: '*', checkability: 'OUTSIDE_BOUNDARY', structuralClause: 'none', ...overrides })
+
+test('NO_ROW is a contract sentinel, not a row: it creates no property, line, class or element', () => {
+    const result: any = runStages0to10(input([contract([item(), noRowItem()])]))
+    assert.equal(result.run.counts.contractsRefused, 0, 'a well-formed NO_ROW item loads')
+    assert.equal(result.lines.filter((l: any) => l.row === 'NO_ROW').length, 0, 'no line')
+    assert.equal(result.classes.filter((c: any) => c.row === 'NO_ROW').length, 0, 'no class')
+    const outcome = result.forward.find((f: any) => f.item.itemId === 'N-1')
+    assert.equal(outcome.result, 'NOT_CHECKABLE_OUTSIDE_REPRESENTATION', 'the established outside-representation treatment')
+    assert.deepEqual(outcome.reach, [], 'it reaches nothing')
+})
+
+test('NO_ROW may not carry a structural claim — condition one is enforced, not trusted', () => {
+    const result: any = runStages0to10(input([contract([noRowItem({ checkability: 'STRUCTURAL' })])]))
+    const refusal = result.failures.find((f: any) => f.kind === 'LOAD_REFUSAL')
+    assert.ok(refusal, 'a structural item may not hide behind the sentinel')
+    assert.ok(/classified outside the representation/.test(String(refusal.detailRef)))
+})
+
+test('NO_ROW may not carry a structural requirement — condition two is enforced', () => {
+    const result: any = runStages0to10(input([contract([noRowItem({ structuralClause: 'whole item' })])]))
+    const refusal = result.failures.find((f: any) => f.kind === 'LOAD_REFUSAL')
+    assert.ok(refusal, 'an item stating a structural requirement may not hide behind the sentinel')
+    assert.ok(/carry no structural requirement/.test(String(refusal.detailRef)))
+})
+
+test('a sentinel may never collide with a register row id', () => {
+    const colliding = JSON.parse(JSON.stringify(REGISTER))
+    colliding.contractSentinels = { P1: { meaning: 'not allowed' } }
+    const result = runDerivation(input([contract([item()])], colliding))
+    assert.ok(isStampedHalt(result), 'the register itself is refused')
+    assert.ok(/collides with a register row id/.test(String(result.refusals[0].cause)))
+})
+
+test('the twenty ruled restatements apply, and none is applied against its conditions', () => {
+    loadCorpusContracts()
+    assert.equal(restatementTally.applied, 20, 'exactly the twenty he ruled')
+    assert.deepEqual(restatementTally.withheld, [], 'none was named but disqualified')
+})
+
+test('the five structural no-row items are NOT restated — they are evidence, not material', () => {
+    const contracts = loadCorpusContracts()
+    const structural = contracts.flatMap(c => c.items.filter(i => String(i.row) === 'NONE').map(i => `${c.contractId}::${i.itemId}`))
+    assert.deepEqual(structural.sort(), [
+        'restated:GF2::GF2-01',
+        'restated:GF2::GF2-02',
+        'restated:GF2::GF2-15',
+        'restated:GF2::GF2-22',
+        'restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-05.a',
+    ])
+    for (const id of structural) assert.ok(!NO_ROW_RESTATEMENTS.has(id), `${id} must not be on the restatement list`)
 })
 
 console.log(`\n${passed} assertions passed — increment 5\n`)

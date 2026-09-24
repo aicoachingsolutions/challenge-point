@@ -25,7 +25,14 @@ function table(rows: [string, string | number][], pad = 46): string[] {
     return rows.map(([label, value]) => `  ${String(label).padEnd(pad)} ${value}`)
 }
 
-export function renderDiagnostic(result: DerivationResult | StampedHalt): string {
+export interface RepairProvenance {
+    encoding: { strings: number; charactersRecovered: number }
+    restatement: { applied: number; withheld: { item: string; why: string }[] }
+}
+
+const NO_REPAIRS: RepairProvenance = { encoding: { strings: 0, charactersRecovered: 0 }, restatement: { applied: 0, withheld: [] } }
+
+export function renderDiagnostic(result: DerivationResult | StampedHalt, repairs: RepairProvenance = NO_REPAIRS): string {
     const out: string[] = []
     out.push('DERIVATION ENGINE — CORPUS DIAGNOSTIC')
     out.push('Every figure below is read from the emitted result. Nothing here is recomputed.')
@@ -50,6 +57,19 @@ export function renderDiagnostic(result: DerivationResult | StampedHalt): string
             ['vocabularies stamped', Object.keys(result.versions.vocabularies).length],
         ]),
     )
+
+    out.push(section('CORPUS REPAIR APPLIED TO THIS RUN'))
+    out.push('  The source artefact is never modified. Each kind is counted separately, because they are')
+    out.push('  different kinds of change: one recovers authored text, the other restates authored meaning.')
+    out.push(
+        ...table([
+            ['encoding repair — strings restored', repairs.encoding.strings],
+            ['encoding repair — characters recovered', repairs.encoding.charactersRecovered],
+            ['restatement — items rewritten to NO_ROW', repairs.restatement.applied],
+            ['restatement — named but withheld on a condition', repairs.restatement.withheld.length],
+        ]),
+    )
+    for (const withheld of repairs.restatement.withheld) out.push(`    WITHHELD ${withheld.item}: ${withheld.why}`)
 
     out.push(section('KNOWLEDGE ADMITTED'))
     const admitted = result.run.counts.contractsAdmitted ?? 0

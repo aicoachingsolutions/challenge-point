@@ -49,12 +49,40 @@ Two contracts — `RPC-001` and `VARIABLE-TARGET-CONDITION` — now load with no
 
 ---
 
+## Phase A, second repair — of kind 2, restatement, ruled 24 September
+
+**Ruling.** He added a contract-level sentinel to the register (version **3**):
+
+> `NO_ROW` — this contribution intentionally makes no claim on a Game Representation property.
+
+It is **not** a new Game Representation row: it creates no property, line, class or element. It is valid
+only where the contribution is explicitly classified outside the representation, carries no structural
+requirement, and already takes the established outside-representation treatment. And it *"must never be
+usable to suppress, bypass or reclassify a structural claim merely because no suitable row exists."*
+
+**Applied.** 20 items restated from `NONE` or an em dash to `NO_ROW`; **0 withheld**.
+
+**How, and why that way.** The twenty are named one by one in `corpus-restatement.ts`, so the change is
+auditable rather than inferred by a rule that might drift — *and* every one is re-checked against the
+three conditions before it is applied. An item on the list that fails a condition is **not** restated and
+is reported. The loader enforces the same conditions independently, so an item cannot reach the engine
+through the sentinel while carrying a structural claim. Three tests hold that guard.
+
+The five structural-in-kind items are deliberately **absent** from the list, and a test asserts they stay
+absent.
+
+---
+
 ## What remains at phase A, and why it is not mine to fix
 
 Five contracts still refuse. The loader stops at the first bad item, so the figures below are the
 **complete** set of load-blocking defects, not first failures: 28 across the five.
 
-### Kind 2 — restatement (25 items)
+> **Superseded below for 20 of the 25 items** — they were restated to `NO_ROW` on 24 September. The five
+> structural-in-kind items, and everything in "kind 3", remain open. See
+> `phase-a-evidence-packet.md` for the full evidence on each.
+
+### Kind 2 — restatement (25 items, 20 now applied)
 
 An item whose `row` names no register row. Two spellings of the same situation, neither registered:
 `"NONE"` (19 items) and an em dash (6 items, in `PASS-COMBINATION-GATE`, whose own fit-note says *"the

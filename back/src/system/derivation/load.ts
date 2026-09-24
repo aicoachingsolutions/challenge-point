@@ -37,6 +37,19 @@ function isPlaceholder(value: unknown): boolean {
     return typeof value === 'string' && value.includes(MOJIBAKE)
 }
 
+/** The registered contract-level sentinel for "this contribution claims no Game Representation property". */
+export const NO_ROW = 'NO_ROW'
+
+/**
+ * The second NO_ROW condition, as data rather than prose. An item states no structural requirement when
+ * its `structuralClause` is absent, null, or one of the registered spellings of "none". Anything else —
+ * including a sentence describing what the item would require — states one, and disqualifies it.
+ */
+function namesNoStructuralRequirement(clause: unknown): boolean {
+    if (clause === null || clause === undefined) return true
+    return /^(none|n\/a)$/i.test(String(clause).trim())
+}
+
 function enumOk(index: RegisterIndex, enumName: string, value: unknown): boolean {
     const list = index.contractEnums[enumName]
     if (!Array.isArray(list)) return false
@@ -53,6 +66,22 @@ function checkItem(item: ContractItem, index: RegisterIndex, contract: LoadedCon
 
     for (const [field, value] of Object.entries(item)) {
         if (isPlaceholder(value)) return at(`field ${field} carries the placeholder glyph; the only registered spelling of "not applicable" is null`, value)
+    }
+
+    // The `NO_ROW` contract-level sentinel (register `contractSentinels`, his ruling of 24 September).
+    // It is not a Game Representation row: it creates no property, line, class or element. It is valid
+    // only under the three stated conditions, and the conditions are enforced here rather than trusted,
+    // because the one thing it must never become is a way to "suppress, bypass or reclassify a
+    // structural claim merely because no suitable row exists".
+    if (item.row === NO_ROW) {
+        if (!index.contractSentinels[NO_ROW]) return at('NO_ROW is not a registered contract sentinel in this register version', item.row)
+        if (item.checkability !== 'OUTSIDE_BOUNDARY') {
+            return at(`NO_ROW requires the contribution to be classified outside the representation; this item is ${String(item.checkability)}`, item.checkability)
+        }
+        if (!namesNoStructuralRequirement(item.structuralClause)) {
+            return at('NO_ROW requires the contribution to carry no structural requirement; this item states one', item.structuralClause)
+        }
+        return null
     }
 
     if (typeof item.row !== 'string' || !index.rows.has(item.row)) {

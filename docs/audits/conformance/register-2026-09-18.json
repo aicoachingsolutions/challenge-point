@@ -1,219 +1,1325 @@
 {
-  "title": "Atomic field-path register — Game Representation Specification revision 4",
-  "date": "2026-09-18",
-  "version": "2, after the stage A review (fidelity and determinism; the review did not look at slice items)",
-  "source": "docs/design/game-representation-spec-2026-09-18.md §5 (the eight areas), §3 (statuses), §6 (the contract), §2 (standing decisions)",
-  "rowKinds": {
-    "COLLECTION": "The existence and count of elements in a collection. Items on a COLLECTION row say that elements matching a selector exist (EXISTS), how many (COUNT/RANGE), or that none may (NOT_EXISTS).",
-    "FIELD": "An atomic property of one element, or of the game for non-collection rows.",
-    "VIEW": "Computed from other rows, never stored. Items may constrain a view (checked in Gate B forward); a view never needs support and supports no stored row. Every contract still declares it."
-  },
-  "selectorSyntax": {
-    "note": "Added 20 September. The selector language existed only in the grammar sheet prose (RC-11), so nothing in data said how to parse one - and three independent readers validating the same items produced three different failure counts because of it. Extracted here: form changed, language unchanged.",
-    "operators": ["=", "IN (set membership)", "CONTAINS (set-valued attribute)", "AND", "* (any element)"],
-    "attributeNames": "An attribute name is taken WHOLE, including dots. V7 registers condition.type and condition.referents as attribute names, so a parser that splits on the dot and validates against condition is wrong - that alone moved one recount from 5 failures to 11.",
-    "noAttribute": "A selector of * or an absent selector uses no attribute and is validated against nothing. Whether such an item counts in a failure tally is a reporting convention, not a rule; state the convention with any count.",
-    "unregistered": "An attribute not in the row selectorAttributes (resolved via ownerRow for a FIELD row) makes the selector unnormalisable: a reference defect under SD-32, never a prose match."
-  },
-  "ownerRowNote": "Added 20 September. A selector on a FIELD or VIEW row selects the ELEMENT OF ITS OWNING COLLECTION, so its attributes come from that collection selectorAttributes, not from the field row. The register recorded no owner, and the two readings differ across the corpus. RECOUNTED 20 September, three times independently, because three readers produced three different pairs: validating against the owning collection refuses 5 items, and validating against the field row own attributes refuses 59 to 70 depending on whether an item with no attribute in its selector is counted. The load-bearing number is the 5: they are exactly the From Goal Kicks restart=GOAL_KICK items already recorded as a defect, so the ownerRow reading adds NO new failures, while the other reading condemns about 60 items that are sound. ownerRow is now explicit so no implementer has to infer it. A row with no ownerRow is game-level: E1-E4, S1, SV1, P5, P6a, P6b, P7, DV1, V1, V2.",
-  "fillableIsExhaustive": "A free choice (REALIZATION) is possible only on rows with a 'fillable' entry, and only as that entry says. sourceKinds is descriptive and licenses nothing. SUPERSEDED 21 September: P-4 is no longer the authority. SD-39 is - OPEN is an explicitly authorized degree of freedom within an already-supported property, not a synonym for unknown. These twelve entries survive as DATA: the register statement of which rows have a structurally defined choice space. A fillable entry states the space; it does not by itself authorize a choice, and silence never creates one.",
-  "rows": [
-    { "id": "E1", "path": "envelope.players", "kind": "FIELD", "valueType": "integer", "sourceKinds": ["SESSION"] },
-    { "id": "E2", "path": "envelope.area.length_m", "kind": "FIELD", "valueType": "number (metres)", "sourceKinds": ["SESSION"] },
-    { "id": "E3", "path": "envelope.area.width_m", "kind": "FIELD", "valueType": "number (metres)", "sourceKinds": ["SESSION"] },
-    { "id": "E4", "path": "envelope.duration_min", "kind": "FIELD", "valueType": "number (minutes)", "sourceKinds": ["SESSION"] },
-
-    { "id": "S1", "path": "space.axis", "kind": "FIELD", "valueType": "which envelope dimension is longitudinal", "sourceKinds": ["SELECTION", "SD-11"] },
-    { "id": "S2", "path": "space.regions[]", "kind": "COLLECTION", "selectorAttributes": ["noun", "functions", "lateral"], "lateralValues": "closed list (draft, AM-17), each with its interval test against the element's position.across, on an envelope of width W with the midline at W/2. wide-left: touches the 0 touchline and does not contain the midline. wide-right: touches the W touchline and does not contain the midline. wide: either of those. central: THE SAME TEST AS relativeTerms.central, which is canonical - contains the axis midline across the width, and touches neither touchline. full-width: touches both touchlines. lateral is SET-VALUED: an element carries every value whose test it satisfies, so a wide-left region also carries wide. Intervals are closed at both ends, and touches means shares an endpoint with the touchline. The list is NOT exhaustive - an element touching one touchline and containing the midline (0-20 on W=30) satisfies none, carries no lateral value, and no lateral selector can reach it. An element matching none carries no lateral value. A lateral selector identifies an existing region; it never creates one (AM-13 preserved). These five values are a capability offered to CONTRACT AUTHORS: derivation never rewrites an authored selector or scope to use them (AM-12), so an existing contract gains nothing from AM-17 until it is restated", "fillable": "element count above an authored COUNT/RANGE minimum and inside its maximum", "sourceKinds": ["SELECTION", "REALIZATION"] },
-    { "id": "S3", "path": "space.regions[].noun", "ownerRow": "S2", "kind": "FIELD", "valueType": "closed list (draft): band, channel, corridor, zone, half, third", "sourceKinds": ["SELECTION"] },
-    { "id": "S4", "path": "space.regions[].functions", "ownerRow": "S2", "kind": "FIELD", "valueType": "set from closed list (draft): objective-area, value-condition, access, start-placement, trigger, perceptual-reference. One property per member", "sourceKinds": ["SELECTION"] },
-    { "id": "S5", "path": "space.regions[].position.along", "ownerRow": "S2", "kind": "FIELD", "valueType": "interval along the axis, in metres or relative (see relative terms)", "fillable": "metres and position inside authored bounds", "sourceKinds": ["SELECTION", "REALIZATION"] },
-    { "id": "S6", "path": "space.regions[].position.across", "ownerRow": "S2", "kind": "FIELD", "valueType": "interval across the axis, in metres or relative (see relative terms)", "fillable": "metres and position inside authored bounds", "sourceKinds": ["SELECTION", "REALIZATION"] },
-    { "id": "SV1", "path": "space.fractions", "kind": "VIEW", "valueType": "halves and thirds along the axis, per team (own/attacking)", "sourceKinds": ["SD-12"] },
-
-    { "id": "P1", "path": "performers.teams[]", "kind": "COLLECTION", "selectorAttributes": ["team"], "sourceKinds": ["SELECTION"] },
-    { "id": "P2", "path": "performers.teams[].outfieldCount", "ownerRow": "P1", "kind": "FIELD", "valueType": "integer", "fillable": "a count inside an authored COUNT/RANGE", "sourceKinds": ["SELECTION", "REALIZATION"] },
-    { "id": "P3", "path": "performers.teams[].goalkeeper", "ownerRow": "P1", "kind": "FIELD", "valueType": "integer (0 or 1)", "sourceKinds": ["SELECTION"] },
-    { "id": "P4", "path": "performers.teams[].roles[]", "kind": "COLLECTION", "selectorAttributes": ["roleName"], "valueType": "named roles; the list is open for this run", "sourceKinds": ["SELECTION"] },
-    { "id": "P5", "path": "performers.neutrals.count", "kind": "FIELD", "valueType": "integer", "fillable": "a count inside an authored COUNT/RANGE", "sourceKinds": ["SELECTION", "REALIZATION"] },
-    { "id": "P6a", "path": "performers.neutrals.affiliation.on", "kind": "FIELD", "valueType": "trigger on which a neutral's affiliation is decided", "sourceKinds": ["SELECTION"] },
-    { "id": "P6b", "path": "performers.neutrals.affiliation.joins", "kind": "FIELD", "valueType": "team designation the neutral joins", "sourceKinds": ["SELECTION"] },
-    { "id": "P7", "path": "performers.neutrals.distinguishable", "kind": "FIELD", "valueType": "how neutrals are made visibly distinct", "sourceKinds": ["SELECTION"] },
-    { "id": "P8", "path": "performers.startPlacement[]", "kind": "COLLECTION", "selectorAttributes": ["group"], "sourceKinds": ["SELECTION"] },
-    { "id": "P9", "path": "performers.startPlacement[].group", "ownerRow": "P8", "kind": "FIELD", "valueType": "team designation or role", "sourceKinds": ["SELECTION"] },
-    { "id": "P10", "path": "performers.startPlacement[].region", "ownerRow": "P8", "kind": "FIELD", "valueType": "region reference", "sourceKinds": ["SELECTION"] },
-
-    { "id": "O1", "path": "objects[]", "kind": "COLLECTION", "selectorAttributes": ["kind"], "fillable": "element count above an authored COUNT/RANGE minimum and inside its maximum (COUNT/RANGE on O1 adds up O3 over matching elements)", "sourceKinds": ["SELECTION", "REALIZATION"] },
-    { "id": "O2", "path": "objects[].kind", "ownerRow": "O1", "kind": "FIELD", "valueType": "closed list (draft): ball, goal, line, gate", "sourceKinds": ["SELECTION"] },
-    { "id": "O3", "path": "objects[].count", "ownerRow": "O1", "kind": "FIELD", "valueType": "integer", "fillable": "inside an authored COUNT/RANGE", "sourceKinds": ["SELECTION", "REALIZATION"] },
-    { "id": "O4", "path": "objects[].position.along", "ownerRow": "O1", "kind": "FIELD", "valueType": "interval along the axis, metres or relative", "fillable": "inside authored bounds", "sourceKinds": ["SELECTION", "REALIZATION"] },
-    { "id": "O5", "path": "objects[].position.across", "ownerRow": "O1", "kind": "FIELD", "valueType": "interval across the axis, metres or relative", "fillable": "inside authored bounds", "sourceKinds": ["SELECTION", "REALIZATION"] },
-
-    { "id": "J1", "path": "objectives[]", "kind": "COLLECTION", "selectorAttributes": ["role", "team"], "sourceKinds": ["SELECTION", "SD-10"] },
-    { "id": "J2", "path": "objectives[].reference", "ownerRow": "J1", "kind": "FIELD", "valueType": "object or region reference", "sourceKinds": ["SELECTION"] },
-    { "id": "J3", "path": "objectives[].team", "ownerRow": "J1", "kind": "FIELD", "valueType": "team designation: the team that attacks it", "fillable": "which team takes which end", "fillableAuthority": "SD-39 (ruled 21 September), where the property and its choice space are independently supported. Replaces the earlier citation of P-4, an unruled proposal", "sourceKinds": ["SELECTION", "REALIZATION"] },
-    { "id": "J4", "path": "objectives[].role", "ownerRow": "J1", "kind": "FIELD", "valueType": "PRIMARY_SCORING or REPRESENTATIVE", "sourceKinds": ["SELECTION", "SD-10"] },
-    { "id": "J5", "path": "objectiveSets[]", "kind": "COLLECTION", "selectorAttributes": ["scope"], "sourceKinds": ["SELECTION"] },
-    { "id": "J6", "path": "objectiveSets[].scope", "ownerRow": "J5", "kind": "FIELD", "valueType": "one team (which) or both", "sourceKinds": ["SELECTION"] },
-    { "id": "J7", "path": "objectiveSets[].members", "ownerRow": "J5", "kind": "FIELD", "valueType": "list of objective references; one property per member", "sourceKinds": ["SELECTION"] },
-    { "id": "J8", "path": "objectiveSets[].liveCardinality", "ownerRow": "J5", "kind": "FIELD", "valueType": "integer", "sourceKinds": ["SELECTION"] },
-    { "id": "J9", "path": "objectiveSets[].initialState", "ownerRow": "J5", "kind": "FIELD", "valueType": "live member(s) at START. Not fillable for this run (RC-25)", "sourceKinds": ["SELECTION"] },
-    { "id": "J10", "path": "objectiveSets[].persistence", "ownerRow": "J5", "kind": "FIELD", "valueType": "list of triggers that re-run the assignment; one property per trigger", "sourceKinds": ["SELECTION"] },
-    { "id": "J11a", "path": "objectiveSets[].assignmentRule[on]", "kind": "COLLECTION", "selectorAttributes": ["on"], "valueType": "entries keyed by trigger or START", "sourceKinds": ["SELECTION"] },
-    { "id": "J11b", "path": "objectiveSets[].assignmentRule[on].yields", "ownerRow": "J5", "kind": "FIELD", "valueType": "member, or procedure over members", "sourceKinds": ["SELECTION"] },
-    { "id": "J12", "path": "objectiveSets[].revelation", "ownerRow": "J5", "kind": "FIELD", "valueType": "reference to an informationRules element", "sourceKinds": ["SELECTION"] },
-    { "id": "DV1", "path": "direction", "kind": "VIEW", "valueType": "per team {attacks, defends}, computed from objectives[].team and positions on the axis", "sourceKinds": ["SD-07"] },
-
-    { "id": "T1", "path": "transitions[]", "kind": "COLLECTION", "selectorAttributes": ["trigger", "trigger.region", "trigger.window", "qualifier.lastTouch", "qualifier.endLine", "qualifier.region"], "valueType": "keyed by trigger (closed list, draft: START, SCORE, OUT_END_LINE, OUT_TOUCHLINE, POSSESSION_CHANGE, REGION_ENTRY {region}, TIME_EXPIRY {window}, STANDING) plus qualifiers. Reachable triggers exist by construction (RC-19)", "sourceKinds": ["SELECTION"] },
-    { "id": "T1a", "path": "transitions[].qualifiers.lastTouch", "ownerRow": "T1", "kind": "FIELD", "valueType": "team designation", "sourceKinds": ["SELECTION"] },
-    { "id": "T1b", "path": "transitions[].qualifiers.endLine", "ownerRow": "T1", "kind": "FIELD", "valueType": "whose end line (team designation)", "sourceKinds": ["SELECTION"] },
-    { "id": "T1c", "path": "transitions[].qualifiers.region", "ownerRow": "T1", "kind": "FIELD", "valueType": "region reference", "sourceKinds": ["SELECTION"] },
-    { "id": "T2", "path": "transitions[].awardedTo", "ownerRow": "T1", "kind": "FIELD", "valueType": "team designation evaluated at the trigger. N/A when playState is CONTINUE (RC-20)", "fillable": "only which team starts, for trigger START", "fillableAuthority": "SD-39 (ruled 21 September), where the property and its choice space are independently supported - the START transition exists and two teams exist. Replaces the earlier citation of SD-R2, a rejected default that could not be cited as an authority", "sourceKinds": ["SELECTION", "REALIZATION"] },
-    { "id": "T3", "path": "transitions[].placement.actor", "ownerRow": "T1", "kind": "FIELD", "valueType": "a team role, goalkeeper, or COACH. N/A when CONTINUE", "sourceKinds": ["SELECTION", "SD-13"] },
-    { "id": "T4", "path": "transitions[].placement.region", "ownerRow": "T1", "kind": "FIELD", "valueType": "region reference, or 'where the ball went out'. N/A when CONTINUE", "sourceKinds": ["SELECTION"] },
-    { "id": "T5", "path": "transitions[].placement.method", "ownerRow": "T1", "kind": "FIELD", "valueType": "closed list (draft, proposal P-1): STATIONARY_BALL, SERVED, IN_HAND. N/A when CONTINUE", "sourceKinds": ["SELECTION"] },
-    { "id": "T6", "path": "transitions[].playState", "ownerRow": "T1", "kind": "FIELD", "valueType": "STOP_RESUME or CONTINUE", "sourceKinds": ["SELECTION", "SD-20"] },
-    { "id": "T7", "path": "transitions[].startsEpisode", "ownerRow": "T1", "kind": "FIELD", "valueType": "boolean", "sourceKinds": ["SELECTION", "SD-14"] },
-
-    { "id": "V0", "path": "value.primaryEvent", "kind": "COLLECTION", "valueType": "exactly one element (SD-06)", "sourceKinds": ["SD-06", "SELECTION"] },
-    { "id": "V1", "path": "value.primaryEvent.kind", "kind": "FIELD", "valueType": "one scoring event from the RPC library's controlled vocabulary: goal, target_player, line_crossed, target_zone_entered, gate, regain, denial", "fillable": "a member of the set the selection narrows", "sourceKinds": ["SELECTION", "REALIZATION"] },
-    { "id": "V2", "path": "value.primaryEvent.value", "kind": "FIELD", "valueType": "number (base points)", "sourceKinds": ["SELECTION"] },
-    { "id": "V3", "path": "value.primaryEvent.conditions[]", "kind": "COLLECTION", "selectorAttributes": ["type"], "sourceKinds": ["SELECTION"] },
-    { "id": "V4", "path": "value.primaryEvent.conditions[].type", "ownerRow": "V3", "kind": "FIELD", "valueType": "closed list (draft): origin, control, eligibility, progression, exclusion", "sourceKinds": ["SELECTION"] },
-    { "id": "V5", "path": "value.primaryEvent.conditions[].referents", "ownerRow": "V3", "kind": "FIELD", "valueType": "references to regions, objects or placements; never a player's position during play. One property per referent", "sourceKinds": ["SELECTION"] },
-    { "id": "V6", "path": "value.primaryEvent.conditions[].value", "ownerRow": "V3", "kind": "FIELD", "valueType": "the condition's parameter: a threshold, a count, or a qualitative term (RC-5)", "sourceKinds": ["SELECTION"] },
-    { "id": "V7", "path": "value.valueModifiers[]", "kind": "COLLECTION", "selectorAttributes": ["condition.type", "condition.referents"], "referentSelector": "condition.referents is matched with the contains operator, so one contract's region modifier can be addressed apart from another's (AM-17). Identifies; never creates", "sourceKinds": ["SELECTION"] },
-    { "id": "V8a", "path": "value.valueModifiers[].condition.type", "ownerRow": "V7", "kind": "FIELD", "valueType": "closed list (draft): region, object, event", "sourceKinds": ["SELECTION"] },
-    { "id": "V8b", "path": "value.valueModifiers[].condition.referents", "ownerRow": "V7", "kind": "FIELD", "valueType": "references to regions, objects or events; one property per referent", "sourceKinds": ["SELECTION"] },
-    { "id": "V9", "path": "value.valueModifiers[].magnitude", "ownerRow": "V7", "kind": "FIELD", "valueType": "number; its meaning is fixed by V9a and is never inferred (SD-24)", "sourceKinds": ["SELECTION"] },
-    { "id": "V9a", "path": "value.valueModifiers[].operation", "ownerRow": "V7", "kind": "FIELD", "valueType": "closed list: MULTIPLY, ADD, REPLACE (SD-30, the vocabulary CURRENTLY supported - not an assertion that no future legitimate operation can exist)", "note": "APPROVED by SD-30 as a local Game Representation addition. A value modifier must explicitly declare its operation. An authored magnitude with no authored operation is INCOMPLETE and effective value is not computable. A new field on an existing collection, so LOCAL by the grammar sheet's own test; the only addition these rulings make to the representation", "sourceKinds": ["SELECTION"] },
-    { "id": "V10", "path": "value.valueModifiers[].combination", "ownerRow": "V7", "kind": "FIELD", "valueType": "how it combines with an overlapping modifier (authored rule), or 'mutually exclusive on the layout'", "sourceKinds": ["SELECTION"] },
-    { "id": "V11", "path": "value.consequences[]", "kind": "COLLECTION", "selectorAttributes": ["trigger", "effect"], "sourceKinds": ["SELECTION"] },
-    { "id": "V12", "path": "value.consequences[].trigger", "ownerRow": "V11", "kind": "FIELD", "valueType": "trigger (closed list, draft)", "sourceKinds": ["SELECTION"] },
-    { "id": "V13", "path": "value.consequences[].effect", "ownerRow": "V11", "kind": "FIELD", "valueType": "closed list (draft): ACCESS, COUNT_CHANGE", "sourceKinds": ["SELECTION"] },
-    { "id": "V14a", "path": "value.consequences[].referents.team", "ownerRow": "V11", "kind": "FIELD", "valueType": "team designation, resolving uniquely", "sourceKinds": ["SELECTION"] },
-    { "id": "V14b", "path": "value.consequences[].referents.region", "ownerRow": "V11", "kind": "FIELD", "valueType": "region reference, resolving uniquely (ACCESS)", "sourceKinds": ["SELECTION"] },
-    { "id": "V14c", "path": "value.consequences[].referents.delta", "ownerRow": "V11", "kind": "FIELD", "valueType": "integer (COUNT_CHANGE)", "sourceKinds": ["SELECTION"] },
-    { "id": "V15", "path": "value.informationRules[]", "kind": "COLLECTION", "selectorAttributes": ["subject"], "sourceKinds": ["SELECTION"] },
-    { "id": "V16", "path": "value.informationRules[].subject", "ownerRow": "V15", "kind": "FIELD", "valueType": "reference to what the information is about", "sourceKinds": ["SELECTION"] },
-    { "id": "V17", "path": "value.informationRules[].trigger", "ownerRow": "V15", "kind": "FIELD", "valueType": "trigger (closed list, draft), or STANDING", "sourceKinds": ["SELECTION"] },
-    { "id": "V18", "path": "value.informationRules[].dimensions.D006_triggerType", "ownerRow": "V15", "kind": "FIELD", "valueType": "IE-D006 values", "sourceKinds": ["SELECTION"] },
-    { "id": "V19", "path": "value.informationRules[].dimensions.D007_revealTiming", "ownerRow": "V15", "kind": "FIELD", "valueType": "IE-D007 values", "sourceKinds": ["SELECTION"] },
-    { "id": "V20", "path": "value.informationRules[].dimensions.D008_revealProgression", "ownerRow": "V15", "kind": "FIELD", "valueType": "IE-D008 values", "sourceKinds": ["SELECTION"] },
-    { "id": "V21", "path": "value.informationRules[].dimensions.D011_stateDependency", "ownerRow": "V15", "kind": "FIELD", "valueType": "IE-D011 values", "sourceKinds": ["SELECTION"] },
-    { "id": "V22", "path": "value.informationRules[].dimensions.D013_accessHolder", "ownerRow": "V15", "kind": "FIELD", "valueType": "IE-D013 ACCESS_HOLDER values", "sourceKinds": ["SELECTION"] },
-    { "id": "V23", "path": "value.timeWindows[]", "kind": "COLLECTION", "selectorAttributes": ["startsOn"], "sourceKinds": ["SELECTION"] },
-    { "id": "V24", "path": "value.timeWindows[].startsOn", "ownerRow": "V23", "kind": "FIELD", "valueType": "trigger (closed list, draft); no default (SD-R1)", "sourceKinds": ["SELECTION"] },
-    { "id": "V25", "path": "value.timeWindows[].duration", "ownerRow": "V23", "kind": "FIELD", "valueType": "seconds; FREE (a) where the source leaves it to the coach inside authored bounds", "sourceKinds": ["SELECTION"] },
-    { "id": "V26", "path": "value.timeWindows[].expiryEffect", "ownerRow": "V23", "kind": "FIELD", "valueType": "closed list (draft): POSSESSION_CHANGE, RESTART, ACCESS, COUNT_CHANGE, VALUE_CHANGE, NONE", "sourceKinds": ["SELECTION"] }
+ "title": "Atomic field-path register — Game Representation Specification revision 4",
+ "date": "2026-09-18",
+ "version": "3, adds the NO_ROW contract-level sentinel (Christian, 2026-09-24)",
+ "source": "docs/design/game-representation-spec-2026-09-18.md §5 (the eight areas), §3 (statuses), §6 (the contract), §2 (standing decisions)",
+ "rowKinds": {
+  "COLLECTION": "The existence and count of elements in a collection. Items on a COLLECTION row say that elements matching a selector exist (EXISTS), how many (COUNT/RANGE), or that none may (NOT_EXISTS).",
+  "FIELD": "An atomic property of one element, or of the game for non-collection rows.",
+  "VIEW": "Computed from other rows, never stored. Items may constrain a view (checked in Gate B forward); a view never needs support and supports no stored row. Every contract still declares it."
+ },
+ "selectorSyntax": {
+  "note": "Added 20 September. The selector language existed only in the grammar sheet prose (RC-11), so nothing in data said how to parse one - and three independent readers validating the same items produced three different failure counts because of it. Extracted here: form changed, language unchanged.",
+  "operators": [
+   "=",
+   "IN (set membership)",
+   "CONTAINS (set-valued attribute)",
+   "AND",
+   "* (any element)"
   ],
-  "comparison": {
-    "note": "AM-16 as extended by Christian on 20 September and closed by his rulings the same day [C20b]. Requirement kind COMPARES. Classified under SD-29 as a bounded structural-semantic extension to the contribution/derivation grammar; the Game Representation data shape is unchanged and no ninth area is authorized.",
-    "form": "{ left: <operand>, operator, right: <operand> }, operator in { =, !=, <, <=, >, >= }",
-    "operandForms": "SD-23. Either (a) a represented game property: { row, selector }; or (b) a deterministically derived quantity whose inputs are SUPPORTED represented game properties: { derived: <named rule>, args }. Region value is NOT added as a stored row to support this. A derived quantity may compute relationships among represented environmental properties; it may not derive learner or ecological states (pressure, opportunity, affordance availability, difficulty, uncertainty)",
-    "inputsMustBeSupported": "SD-23. A derived operand whose input the game states but nothing supports is not computable. Before SD-25 the primary event's base value rested only on engine wording, so no region's effective value was computable at all",
-    "relation": "NARROWS. Never written with EXCLUSION strictness: a comparative is a relationship, not a prohibition [C20]. It never entails a value and never entails existence",
-    "whereItLands": "SD-26. A comparison takes NO LINE. It is a relationship assertion evaluated over its operands, held in the contribution and reconciliation record, outside the eight stored areas. It never takes a property's verdict and never changes a line's status. This replaces the earlier reachesLine rule, which Christian overruled",
-    "examples": ["value(A) > value(B)", "count(A) = count(B)", "width(A) > width(B)"],
-    "boundary": "Both operands must be properties the resolved game contains and can evaluate. Never an inferred player state or ecological outcome: not pressure, opportunity, affordance availability, difficulty or uncertainty",
-    "evaluability": "SD-26. A comparison is evaluable only when both operands resolve - to a value the game holds and supports, or to a derived quantity whose inputs it holds and supports. Otherwise it is unmet (required) or not evaluable (supporting), by its requirement status. Never quietly true",
-    "relationshipConflict": "SD-26. Two comparative requirements that no single assignment satisfies produce an UNRESOLVED RELATIONSHIP CONFLICT - a report of its own kind, not a line status and not a Game status. Raised only when both are authoritative (authored or owner-ruled, never assumed, never engine-only), both well-formed under SD-23, and both evaluable. Fail any of those and it is a gap, a diagnostic tension, or an unmet item instead",
-    "assumedCannotCollide": "SD-27. An assumed item may not create an authoritative collision with authored knowledge. Assumed-vs-authored is reported diagnostically as a POSSIBLE TENSION, which no gate reads; it can never drive UNRESOLVED. An interpretation consistent with an object's prose is not promoted to canonical meaning",
-    "gapBeforeCollision": "SD-28. A collision requires well-formed, support-capable authoritative claims with sufficiently resolved operands. An unauthored or incomputable dependency is a GAP first, and nothing downstream converts it into a disagreement. An invented or assumed comparative cannot manufacture an authoritative collision",
-    "effectiveValue": "SD-24, provisional, in his words: the primary-event base value after application of all applicable resolved value modifiers for the referent. A value modifier must explicitly declare its operation or type (row V9a); multiplier versus increment is never inferred. If an operation or magnitude required for the derivation is unauthored, effective value is NOT COMPUTABLE",
-    "notAnExclusion": "A comparative claim is not translated into a mutual exclusion. 'Wide has greater task value than central' is a relationship; it is not 'central value is forbidden' [C20]",
-    "stillOpen": "No aggregate function is named (each, some, the sum, the greatest) for a comparison ranging over several matched elements. An engine refuses such a comparison rather than choosing one"
+  "attributeNames": "An attribute name is taken WHOLE, including dots. V7 registers condition.type and condition.referents as attribute names, so a parser that splits on the dot and validates against condition is wrong - that alone moved one recount from 5 failures to 11.",
+  "noAttribute": "A selector of * or an absent selector uses no attribute and is validated against nothing. Whether such an item counts in a failure tally is a reporting convention, not a rule; state the convention with any count.",
+  "unregistered": "An attribute not in the row selectorAttributes (resolved via ownerRow for a FIELD row) makes the selector unnormalisable: a reference defect under SD-32, never a prose match."
+ },
+ "ownerRowNote": "Added 20 September. A selector on a FIELD or VIEW row selects the ELEMENT OF ITS OWNING COLLECTION, so its attributes come from that collection selectorAttributes, not from the field row. The register recorded no owner, and the two readings differ across the corpus. RECOUNTED 20 September, three times independently, because three readers produced three different pairs: validating against the owning collection refuses 5 items, and validating against the field row own attributes refuses 59 to 70 depending on whether an item with no attribute in its selector is counted. The load-bearing number is the 5: they are exactly the From Goal Kicks restart=GOAL_KICK items already recorded as a defect, so the ownerRow reading adds NO new failures, while the other reading condemns about 60 items that are sound. ownerRow is now explicit so no implementer has to infer it. A row with no ownerRow is game-level: E1-E4, S1, SV1, P5, P6a, P6b, P7, DV1, V1, V2.",
+ "fillableIsExhaustive": "A free choice (REALIZATION) is possible only on rows with a 'fillable' entry, and only as that entry says. sourceKinds is descriptive and licenses nothing. SUPERSEDED 21 September: P-4 is no longer the authority. SD-39 is - OPEN is an explicitly authorized degree of freedom within an already-supported property, not a synonym for unknown. These twelve entries survive as DATA: the register statement of which rows have a structurally defined choice space. A fillable entry states the space; it does not by itself authorize a choice, and silence never creates one.",
+ "rows": [
+  {
+   "id": "E1",
+   "path": "envelope.players",
+   "kind": "FIELD",
+   "valueType": "integer",
+   "sourceKinds": [
+    "SESSION"
+   ]
   },
-  "vocabularies": {
-    "note": "Added 20 September. Every closed list the register held ONLY inside a valueType prose string is extracted here verbatim, so the engine can check a value against data rather than parse prose. The valueType strings are unchanged and remain the human reading. Contents are still unfrozen (SD-18); this changes their FORM, not their membership.",
-    "draft": "Lists marked (draft) in valueType are drafts here too. A draft list is still closed for checking: a value outside it is refused, not admitted as an extension.",
-    "versions": {
-      "note": "Data-model section 2 requires each closed vocabulary to be versioned separately, so SD-18 review can replace contents without touching code. Added 20 September after a design review found the block had none - without them a stored result cannot be known stale when a list membership changes.",
-      "S3.noun": "1 (2026-09-18, draft)", "S4.functions": "1 (2026-09-18, draft)", "O2.kind": "1 (2026-09-18, draft)",
-      "trigger": "1 (2026-09-18, draft)", "T5.method": "1 (2026-09-18, draft)", "T6.playState": "1 (2026-09-18)",
-      "V4.conditionType": "1 (2026-09-18, draft)", "V8a.conditionType": "1 (2026-09-18, draft)",
-      "V9a.operation": "1 (2026-09-20, SD-30)", "V1.kind": "1 (2026-09-20, extracted late)", "triggerRows": "1 (2026-09-18) - not a value list but a list of the rows that use the trigger vocabulary; versioned so every array in this block carries one", "V13.effect": "1 (2026-09-18, draft)",
-      "V26.expiryEffect": "1 (2026-09-18, draft)", "J4.role": "1 (2026-09-18)",
-      "contractEnums.requirement": "2 (2026-09-20, COMPARES added by AM-16)",
-      "contractEnums.scope": "2 (2026-09-20, BUILD_OUT_EPISODE added by SD-36)",
-      "contractEnums.strictness": "1 (2026-09-18)", "contractEnums.valueStatus": "1 (2026-09-18)",
-      "contractEnums.basis": "1 (2026-09-18)", "contractEnums.checkability": "1 (2026-09-18)",
-      "contractEnums.declaration": "1 (2026-09-18)"
-    },
-    "S3.noun": ["band", "channel", "corridor", "zone", "half", "third"],
-    "S4.functions": ["objective-area", "value-condition", "access", "start-placement", "trigger", "perceptual-reference"],
-    "O2.kind": ["ball", "goal", "line", "gate"],
-    "trigger": ["START", "SCORE", "OUT_END_LINE", "OUT_TOUCHLINE", "POSSESSION_CHANGE", "REGION_ENTRY", "TIME_EXPIRY", "STANDING"],
-    "triggerQualifiers": { "REGION_ENTRY": "a region reference (T1c)", "TIME_EXPIRY": "a time-window reference" },
-    "triggerRows": ["T1", "V12", "V17", "V24"],
-    "T5.method": ["STATIONARY_BALL", "SERVED", "IN_HAND"],
-    "T6.playState": ["STOP_RESUME", "CONTINUE"],
-    "V4.conditionType": ["origin", "control", "eligibility", "progression", "exclusion"],
-    "V8a.conditionType": ["region", "object", "event"],
-    "V9a.operation": ["MULTIPLY", "ADD", "REPLACE"],
-    "V1.kind": ["goal", "target_player", "line_crossed", "target_zone_entered", "gate", "regain", "denial"],
-    "V1.source": "the RPC library controlled vocabulary. MISSED in the 20 September extraction because that pass filtered on the phrase closed list and V1 says controlled vocabulary - a synonym the filter did not catch. Found by an independent fact check.",
-    "V13.effect": ["ACCESS", "COUNT_CHANGE"],
-    "V26.expiryEffect": ["POSSESSION_CHANGE", "RESTART", "ACCESS", "COUNT_CHANGE", "VALUE_CHANGE", "NONE"],
-    "J4.role": ["PRIMARY_SCORING", "REPRESENTATIVE"],
-    "contractEnums": {
-      "requirement": ["EQUALS", "RANGE", "COUNT", "EXISTS", "NOT_EXISTS", "POSITIONED", "ORIENTED", "COMPARES"],
-      "strictness": ["REQUIRED", "SUPPORTING", "EXCLUSION"],
-      "valueStatus": ["REQUIRED_RANGE", "PREFERRED_DEFAULT", "TYPICAL_EXAMPLE", "N/A"],
-      "scope": ["WHOLE_GAME", "PER_TEAM", "PER_OBJECTIVE_SET", "OWN_INVOLVEMENT", "BUILD_OUT_EPISODE"],
-      "scopeBuildOutEpisode": "APPROVED 20 September (SD-36), in his words: applies to the attacking episode whose beginning satisfies the resolved RPC-001 build-out begin condition. It does NOT automatically extend to subsequent attacking episodes. A vocabulary addition making an already-authored distinction executable, not a new Game Representation area.",
-      "basis": ["AUTHORED", "ASSUMED", "OWNER_RULING", "ENGINE_ONLY"],
-      "checkability": ["STRUCTURAL", "PARTLY_STRUCTURAL", "OUTSIDE_BOUNDARY"],
-      "declaration": ["CLAIMED", "EXCLUDED", "NON_CLAIMED", "NOT_AUTHORED", "UNDECLARED"]
-    },
-    "scopeConformance": "CHECKED 20 September at his instruction, against his definition. All six uses: RPC-001-11.b (J11b) CONFORMS - it is about the build-out episode and cites KR-02/KR-03 as OWNER_RULING - and so does its J11b declaration. The other four do NOT: RPC-001-16.a (T4), 16.b (T3) and 16.c (T6) are all keyed on the selector trigger in {SCORE, OUT_END_LINE, OUT_TOUCHLINE, POSSESSION_CHANGE}, which are the triggers that END an episode and begin the NEXT one, so scoping them to the build-out episode claims exactly the extension to subsequent attacking episodes his definition excludes. The T4 declaration inherits 16.a. All three items are also basis ENGINE_ONLY on the sentence retired under KR-05 item 6, so they support nothing under SD-21, and 16.c additionally contradicts SD-20. Reported, not broadened; recorded as a contract-authoring task.",
-    "scopePlaceholderDefect": "Separately, 64 items and declarations carry an em-dash placeholder where a scope belongs. A contract-authoring defect from the restatement exercise, not a vocabulary question."
+  {
+   "id": "E2",
+   "path": "envelope.area.length_m",
+   "kind": "FIELD",
+   "valueType": "number (metres)",
+   "sourceKinds": [
+    "SESSION"
+   ]
   },
-  "applicability": {
-    "note": "Added 20 September. Some FIELD rows do not apply to every element of their collection, and the register stated that ONLY inside valueType prose. Without this as data, line enumeration creates lines no author can ever close and Gate A can never pass. A row listed here yields NO line for an element whose condition fails; it is not NOT_AUTHORED, it is not applicable.",
-    "grammar": "Each entry is { when: { row, sameElement, in: [values] }, text }. The condition reads the GOVERNING line for the same element (a transition, or a consequence). Evaluated at stage 6, after the governing line is resolved.",
-    "governingLineRule": "If the governing line is DERIVED, the condition is evaluated: true keeps the dependent line, false WITHDRAWS it (not applicable, never NOT_AUTHORED). If the governing line is FREE(choice), the dependent line is CONDITIONAL on that choice: it takes no value, is not open in its own right, and a gate check over it is a satisfiability question across the governing choice. If the governing line is FAILED, the dependent line is FAILED as a GAP whose dependency is the governing line - gap before collision, and never withdrawn, because an unresolvable condition is not a false one. A candidate value for the governing line changes none of this (SD-40).",
-    "T2": { "when": { "row": "T6", "sameElement": true, "in": ["STOP_RESUME"] }, "text": "applies only when T6 playState is STOP_RESUME (RC-20)" },
-    "T3": { "when": { "row": "T6", "sameElement": true, "in": ["STOP_RESUME"] }, "text": "applies only when T6 playState is STOP_RESUME" },
-    "T4": { "when": { "row": "T6", "sameElement": true, "in": ["STOP_RESUME"] }, "text": "applies only when T6 playState is STOP_RESUME" },
-    "T5": { "when": { "row": "T6", "sameElement": true, "in": ["STOP_RESUME"] }, "text": "applies only when T6 playState is STOP_RESUME" },
-    "V14a": { "when": { "row": "V13", "sameElement": true, "in": ["ACCESS", "COUNT_CHANGE"] }, "text": "applies to a consequence whose V13 effect is ACCESS or COUNT_CHANGE, as its team designation" },
-    "V14b": { "when": { "row": "V13", "sameElement": true, "in": ["ACCESS"] }, "text": "applies only when V13 effect is ACCESS" },
-    "V14c": { "when": { "row": "V13", "sameElement": true, "in": ["COUNT_CHANGE"] }, "text": "applies only when V13 effect is COUNT_CHANGE" },
-    "whyItMatters": "Under SD-20 turnovers continue play, so a POSSESSION_CHANGE transition has playState CONTINUE and T2 to T5 do not apply to it. Enumerating them anyway would give every such transition four permanently unclosable NOT_AUTHORED lines.",
-    "flagged": "These conditions are read from the register prose as it stands; none is a new rule. Made machine-readable 21 September: they were prose sentences, which an engine cannot read without parsing prose. The governingLineRule is a design decision recorded in the engine package, section 2.1."
+  {
+   "id": "E3",
+   "path": "envelope.area.width_m",
+   "kind": "FIELD",
+   "valueType": "number (metres)",
+   "sourceKinds": [
+    "SESSION"
+   ]
   },
-  "teamDesignations": {
-    "note": "Canonical list for this run (RC-22). Two designations are equal only if they map to one entry. A designation is evaluated at the trigger or episode it is attached to.",
-    "list": ["TEAM_<id> (a named team)", "EACH_TEAM", "STARTING_TEAM", "ATTACKING_TEAM (in possession for the episode)", "DEFENDING_TEAM", "SCORING_TEAM", "CONCEDING_TEAM", "WON_BALL (team that won possession at the trigger)", "LOST_BALL", "LAST_TOUCH (team that touched the ball last)", "NOT_LAST_TOUCH", "BUILD_OUT_TEAM (team whose build-out episode it is)"]
+  {
+   "id": "E4",
+   "path": "envelope.duration_min",
+   "kind": "FIELD",
+   "valueType": "number (minutes)",
+   "sourceKinds": [
+    "SESSION"
+   ]
   },
-  "relativeTerms": {
-    "note": "Interval tests for relative positions (RC-21). The referent must be a game element; if it is players or play, the item is OUTSIDE_BOUNDARY.",
-    "beyond X (for team T)": "the element's near edge is at or past X's far edge, in T's attacking direction",
-    "own end (of team T)": "touches the end line T defends",
-    "attacking end (of team T)": "touches the end line T attacks",
-    "central": "contains the axis midline across the width, and touches neither touchline",
-    "touchline-adjacent": "touches a touchline",
-    "lengthwise": "the element's extent along the axis is at least its extent across it (AM-22; renamed from 'longitudinal' to avoid colliding with the lateral selector attribute)",
-    "crosswise": "the reverse of lengthwise (AM-22)"
+  {
+   "id": "S1",
+   "path": "space.axis",
+   "kind": "FIELD",
+   "valueType": "which envelope dimension is longitudinal",
+   "sourceKinds": [
+    "SELECTION",
+    "SD-11"
+   ]
   },
-  "citableStandingDecisions": [
-    { "id": "SD-06", "item": { "row": "V0", "requirement": "COUNT", "value": 1, "relation": "ENTAILS existence of exactly one primary event" }, "restrictsOnly": ["V7", "V11"], "note": "On V7 and V11 it only restricts (a value change must be explicitly authored); it supports nothing there" },
-    { "id": "SD-07", "item": { "row": "DV1", "requirement": "ORIENTED", "value": "each team a stable direction and a functional directional objective" }, "note": "View check only; supports no stored row" },
-    { "id": "SD-09", "item": null, "note": "Process rule: knowledge requires regions, realization instantiates them. Entails nothing" },
-    { "id": "SD-10", "item": null, "kind": "RESTRICTION, not a support item", "restricts": "No reconciliation or rendering step may remove an objective element from J1, or change its J4 role away from REPRESENTATIVE, on the ground that it is not the primary scoring objective", "note": "Retyped 20 September. It was typed as an EXISTS/EQUALS item whose value was the prose phrase functionally necessary to the representative game structure, which no requirement kind can express - so as typed it could never fire and supported nothing. His decision is a prohibition on removal, not a source of support, so it is typed as one. RULED 20 September (SD-10a), in his words: an objective is structurally necessary when removing it would make at least one authoritative required contribution unsatisfied, or make the resolved game required primary event, direction, transition, or representative configuration structurally incomplete. A mere reference from optional or supporting knowledge is NOT sufficient - which explicitly rejects the candidate test proposed here before his ruling" },
-    { "id": "SD-11", "item": { "row": "S1", "requirement": "EQUALS", "value": "the longer envelope dimension" }, "yields": "to a support-capable SELECTION item on S1 (his wording)" },
-    { "id": "SD-12", "item": { "row": "SV1", "requirement": "EQUALS", "value": "halves and thirds along the axis" }, "note": "View only" },
-    { "id": "SD-13", "item": { "row": "T3", "selector": "trigger=START", "requirement": "EQUALS", "value": "a player of STARTING_TEAM" }, "condition": {"row": "T5", "sameElement": true, "state": "derived", "equals": "STATIONARY_BALL"}, "conditionNote": "Corrected 21 September. It read verdict ENTAILED or NARROWED_CHOICE - and NARROWED_CHOICE is now a candidate-check outcome, so a candidate game value for T5 could have switched this decision on. That is an otherwise unsupported dependency supplied by the candidate, which SD-40 forbids. Now: SD-13 fires only when T5 for the START element is DERIVED as STATIONARY_BALL. Where T5 is FREE(choice), SD-13 does not fire in derivation mode and the T3 actor stays dependent on the downstream choice; no candidate value can ever activate it", "yields": "no; a differing selection item makes it UNRESOLVED (RC-24)" },
-    { "id": "SD-14", "item": { "row": "T7", "selector": "trigger ∈ {START, SCORE, POSSESSION_CHANGE}", "requirement": "EQUALS", "value": true }, "note": "Defines boundaries only; entails no T1 element", "yields": "no; a differing selection item makes it UNRESOLVED (RC-24)" },
-    { "id": "SD-20", "item": { "row": "T6", "selector": "trigger=POSSESSION_CHANGE", "requirement": "EQUALS", "value": "CONTINUE" }, "yields": "to a support-capable T6 item on POSSESSION_CHANGE, or a V11 consequence folded into that trigger, that explicitly creates a stoppage or reset (his wording)" },
-    { "id": "SD-25", "item": { "row": "V2", "requirement": "EQUALS", "value": 1, "relation": "ENTAILS the primary event's base value" }, "yields": "to an authoritative selected contribution that explicitly modifies that value (his wording)", "note": "Added 20 September [C20b]. A scoring convention, not football knowledge. It is what makes V2 supported, and so what makes any effective-value derivation computable at all; before it, V2 rested only on engine wording and was inert under SD-21" }
-  ],
-  "decidingRules": {
-    "note": "Only these may decide a collision (SD-02): the relationship rules each contract lists, RR-01, and SD-06, SD-07, SD-08. NOTE, added 20 September after a cross-document audit queried it: this list and citableStandingDecisions have DIFFERENT membership by design, and SD-08 is the case that shows it. Deciding a collision and supporting a value are different roles - SD-08 decides (a displaced PREFERRED_DEFAULT is ADAPTED, not a collision) while supporting no value anywhere, so it belongs here and not there. Not a defect.",
-    "RR-01": "RPC scoring ownership: the Context decides which physically available event reinforces its Primary Scoring Identity",
-    "SD-06": "exactly one primary scoring event",
-    "SD-07": "direction invariant",
-    "SD-08": "value statuses; a displaced PREFERRED_DEFAULT is ADAPTED, not a collision"
+  {
+   "id": "S2",
+   "path": "space.regions[]",
+   "kind": "COLLECTION",
+   "selectorAttributes": [
+    "noun",
+    "functions",
+    "lateral"
+   ],
+   "lateralValues": "closed list (draft, AM-17), each with its interval test against the element's position.across, on an envelope of width W with the midline at W/2. wide-left: touches the 0 touchline and does not contain the midline. wide-right: touches the W touchline and does not contain the midline. wide: either of those. central: THE SAME TEST AS relativeTerms.central, which is canonical - contains the axis midline across the width, and touches neither touchline. full-width: touches both touchlines. lateral is SET-VALUED: an element carries every value whose test it satisfies, so a wide-left region also carries wide. Intervals are closed at both ends, and touches means shares an endpoint with the touchline. The list is NOT exhaustive - an element touching one touchline and containing the midline (0-20 on W=30) satisfies none, carries no lateral value, and no lateral selector can reach it. An element matching none carries no lateral value. A lateral selector identifies an existing region; it never creates one (AM-13 preserved). These five values are a capability offered to CONTRACT AUTHORS: derivation never rewrites an authored selector or scope to use them (AM-12), so an existing contract gains nothing from AM-17 until it is restated",
+   "fillable": "element count above an authored COUNT/RANGE minimum and inside its maximum",
+   "sourceKinds": [
+    "SELECTION",
+    "REALIZATION"
+   ]
+  },
+  {
+   "id": "S3",
+   "path": "space.regions[].noun",
+   "ownerRow": "S2",
+   "kind": "FIELD",
+   "valueType": "closed list (draft): band, channel, corridor, zone, half, third",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "S4",
+   "path": "space.regions[].functions",
+   "ownerRow": "S2",
+   "kind": "FIELD",
+   "valueType": "set from closed list (draft): objective-area, value-condition, access, start-placement, trigger, perceptual-reference. One property per member",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "S5",
+   "path": "space.regions[].position.along",
+   "ownerRow": "S2",
+   "kind": "FIELD",
+   "valueType": "interval along the axis, in metres or relative (see relative terms)",
+   "fillable": "metres and position inside authored bounds",
+   "sourceKinds": [
+    "SELECTION",
+    "REALIZATION"
+   ]
+  },
+  {
+   "id": "S6",
+   "path": "space.regions[].position.across",
+   "ownerRow": "S2",
+   "kind": "FIELD",
+   "valueType": "interval across the axis, in metres or relative (see relative terms)",
+   "fillable": "metres and position inside authored bounds",
+   "sourceKinds": [
+    "SELECTION",
+    "REALIZATION"
+   ]
+  },
+  {
+   "id": "SV1",
+   "path": "space.fractions",
+   "kind": "VIEW",
+   "valueType": "halves and thirds along the axis, per team (own/attacking)",
+   "sourceKinds": [
+    "SD-12"
+   ]
+  },
+  {
+   "id": "P1",
+   "path": "performers.teams[]",
+   "kind": "COLLECTION",
+   "selectorAttributes": [
+    "team"
+   ],
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "P2",
+   "path": "performers.teams[].outfieldCount",
+   "ownerRow": "P1",
+   "kind": "FIELD",
+   "valueType": "integer",
+   "fillable": "a count inside an authored COUNT/RANGE",
+   "sourceKinds": [
+    "SELECTION",
+    "REALIZATION"
+   ]
+  },
+  {
+   "id": "P3",
+   "path": "performers.teams[].goalkeeper",
+   "ownerRow": "P1",
+   "kind": "FIELD",
+   "valueType": "integer (0 or 1)",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "P4",
+   "path": "performers.teams[].roles[]",
+   "kind": "COLLECTION",
+   "selectorAttributes": [
+    "roleName"
+   ],
+   "valueType": "named roles; the list is open for this run",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "P5",
+   "path": "performers.neutrals.count",
+   "kind": "FIELD",
+   "valueType": "integer",
+   "fillable": "a count inside an authored COUNT/RANGE",
+   "sourceKinds": [
+    "SELECTION",
+    "REALIZATION"
+   ]
+  },
+  {
+   "id": "P6a",
+   "path": "performers.neutrals.affiliation.on",
+   "kind": "FIELD",
+   "valueType": "trigger on which a neutral's affiliation is decided",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "P6b",
+   "path": "performers.neutrals.affiliation.joins",
+   "kind": "FIELD",
+   "valueType": "team designation the neutral joins",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "P7",
+   "path": "performers.neutrals.distinguishable",
+   "kind": "FIELD",
+   "valueType": "how neutrals are made visibly distinct",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "P8",
+   "path": "performers.startPlacement[]",
+   "kind": "COLLECTION",
+   "selectorAttributes": [
+    "group"
+   ],
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "P9",
+   "path": "performers.startPlacement[].group",
+   "ownerRow": "P8",
+   "kind": "FIELD",
+   "valueType": "team designation or role",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "P10",
+   "path": "performers.startPlacement[].region",
+   "ownerRow": "P8",
+   "kind": "FIELD",
+   "valueType": "region reference",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "O1",
+   "path": "objects[]",
+   "kind": "COLLECTION",
+   "selectorAttributes": [
+    "kind"
+   ],
+   "fillable": "element count above an authored COUNT/RANGE minimum and inside its maximum (COUNT/RANGE on O1 adds up O3 over matching elements)",
+   "sourceKinds": [
+    "SELECTION",
+    "REALIZATION"
+   ]
+  },
+  {
+   "id": "O2",
+   "path": "objects[].kind",
+   "ownerRow": "O1",
+   "kind": "FIELD",
+   "valueType": "closed list (draft): ball, goal, line, gate",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "O3",
+   "path": "objects[].count",
+   "ownerRow": "O1",
+   "kind": "FIELD",
+   "valueType": "integer",
+   "fillable": "inside an authored COUNT/RANGE",
+   "sourceKinds": [
+    "SELECTION",
+    "REALIZATION"
+   ]
+  },
+  {
+   "id": "O4",
+   "path": "objects[].position.along",
+   "ownerRow": "O1",
+   "kind": "FIELD",
+   "valueType": "interval along the axis, metres or relative",
+   "fillable": "inside authored bounds",
+   "sourceKinds": [
+    "SELECTION",
+    "REALIZATION"
+   ]
+  },
+  {
+   "id": "O5",
+   "path": "objects[].position.across",
+   "ownerRow": "O1",
+   "kind": "FIELD",
+   "valueType": "interval across the axis, metres or relative",
+   "fillable": "inside authored bounds",
+   "sourceKinds": [
+    "SELECTION",
+    "REALIZATION"
+   ]
+  },
+  {
+   "id": "J1",
+   "path": "objectives[]",
+   "kind": "COLLECTION",
+   "selectorAttributes": [
+    "role",
+    "team"
+   ],
+   "sourceKinds": [
+    "SELECTION",
+    "SD-10"
+   ]
+  },
+  {
+   "id": "J2",
+   "path": "objectives[].reference",
+   "ownerRow": "J1",
+   "kind": "FIELD",
+   "valueType": "object or region reference",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "J3",
+   "path": "objectives[].team",
+   "ownerRow": "J1",
+   "kind": "FIELD",
+   "valueType": "team designation: the team that attacks it",
+   "fillable": "which team takes which end",
+   "fillableAuthority": "SD-39 (ruled 21 September), where the property and its choice space are independently supported. Replaces the earlier citation of P-4, an unruled proposal",
+   "sourceKinds": [
+    "SELECTION",
+    "REALIZATION"
+   ]
+  },
+  {
+   "id": "J4",
+   "path": "objectives[].role",
+   "ownerRow": "J1",
+   "kind": "FIELD",
+   "valueType": "PRIMARY_SCORING or REPRESENTATIVE",
+   "sourceKinds": [
+    "SELECTION",
+    "SD-10"
+   ]
+  },
+  {
+   "id": "J5",
+   "path": "objectiveSets[]",
+   "kind": "COLLECTION",
+   "selectorAttributes": [
+    "scope"
+   ],
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "J6",
+   "path": "objectiveSets[].scope",
+   "ownerRow": "J5",
+   "kind": "FIELD",
+   "valueType": "one team (which) or both",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "J7",
+   "path": "objectiveSets[].members",
+   "ownerRow": "J5",
+   "kind": "FIELD",
+   "valueType": "list of objective references; one property per member",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "J8",
+   "path": "objectiveSets[].liveCardinality",
+   "ownerRow": "J5",
+   "kind": "FIELD",
+   "valueType": "integer",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "J9",
+   "path": "objectiveSets[].initialState",
+   "ownerRow": "J5",
+   "kind": "FIELD",
+   "valueType": "live member(s) at START. Not fillable for this run (RC-25)",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "J10",
+   "path": "objectiveSets[].persistence",
+   "ownerRow": "J5",
+   "kind": "FIELD",
+   "valueType": "list of triggers that re-run the assignment; one property per trigger",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "J11a",
+   "path": "objectiveSets[].assignmentRule[on]",
+   "kind": "COLLECTION",
+   "selectorAttributes": [
+    "on"
+   ],
+   "valueType": "entries keyed by trigger or START",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "J11b",
+   "path": "objectiveSets[].assignmentRule[on].yields",
+   "ownerRow": "J5",
+   "kind": "FIELD",
+   "valueType": "member, or procedure over members",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "J12",
+   "path": "objectiveSets[].revelation",
+   "ownerRow": "J5",
+   "kind": "FIELD",
+   "valueType": "reference to an informationRules element",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "DV1",
+   "path": "direction",
+   "kind": "VIEW",
+   "valueType": "per team {attacks, defends}, computed from objectives[].team and positions on the axis",
+   "sourceKinds": [
+    "SD-07"
+   ]
+  },
+  {
+   "id": "T1",
+   "path": "transitions[]",
+   "kind": "COLLECTION",
+   "selectorAttributes": [
+    "trigger",
+    "trigger.region",
+    "trigger.window",
+    "qualifier.lastTouch",
+    "qualifier.endLine",
+    "qualifier.region"
+   ],
+   "valueType": "keyed by trigger (closed list, draft: START, SCORE, OUT_END_LINE, OUT_TOUCHLINE, POSSESSION_CHANGE, REGION_ENTRY {region}, TIME_EXPIRY {window}, STANDING) plus qualifiers. Reachable triggers exist by construction (RC-19)",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "T1a",
+   "path": "transitions[].qualifiers.lastTouch",
+   "ownerRow": "T1",
+   "kind": "FIELD",
+   "valueType": "team designation",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "T1b",
+   "path": "transitions[].qualifiers.endLine",
+   "ownerRow": "T1",
+   "kind": "FIELD",
+   "valueType": "whose end line (team designation)",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "T1c",
+   "path": "transitions[].qualifiers.region",
+   "ownerRow": "T1",
+   "kind": "FIELD",
+   "valueType": "region reference",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "T2",
+   "path": "transitions[].awardedTo",
+   "ownerRow": "T1",
+   "kind": "FIELD",
+   "valueType": "team designation evaluated at the trigger. N/A when playState is CONTINUE (RC-20)",
+   "fillable": "only which team starts, for trigger START",
+   "fillableAuthority": "SD-39 (ruled 21 September), where the property and its choice space are independently supported - the START transition exists and two teams exist. Replaces the earlier citation of SD-R2, a rejected default that could not be cited as an authority",
+   "sourceKinds": [
+    "SELECTION",
+    "REALIZATION"
+   ]
+  },
+  {
+   "id": "T3",
+   "path": "transitions[].placement.actor",
+   "ownerRow": "T1",
+   "kind": "FIELD",
+   "valueType": "a team role, goalkeeper, or COACH. N/A when CONTINUE",
+   "sourceKinds": [
+    "SELECTION",
+    "SD-13"
+   ]
+  },
+  {
+   "id": "T4",
+   "path": "transitions[].placement.region",
+   "ownerRow": "T1",
+   "kind": "FIELD",
+   "valueType": "region reference, or 'where the ball went out'. N/A when CONTINUE",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "T5",
+   "path": "transitions[].placement.method",
+   "ownerRow": "T1",
+   "kind": "FIELD",
+   "valueType": "closed list (draft, proposal P-1): STATIONARY_BALL, SERVED, IN_HAND. N/A when CONTINUE",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "T6",
+   "path": "transitions[].playState",
+   "ownerRow": "T1",
+   "kind": "FIELD",
+   "valueType": "STOP_RESUME or CONTINUE",
+   "sourceKinds": [
+    "SELECTION",
+    "SD-20"
+   ]
+  },
+  {
+   "id": "T7",
+   "path": "transitions[].startsEpisode",
+   "ownerRow": "T1",
+   "kind": "FIELD",
+   "valueType": "boolean",
+   "sourceKinds": [
+    "SELECTION",
+    "SD-14"
+   ]
+  },
+  {
+   "id": "V0",
+   "path": "value.primaryEvent",
+   "kind": "COLLECTION",
+   "valueType": "exactly one element (SD-06)",
+   "sourceKinds": [
+    "SD-06",
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "V1",
+   "path": "value.primaryEvent.kind",
+   "kind": "FIELD",
+   "valueType": "one scoring event from the RPC library's controlled vocabulary: goal, target_player, line_crossed, target_zone_entered, gate, regain, denial",
+   "fillable": "a member of the set the selection narrows",
+   "sourceKinds": [
+    "SELECTION",
+    "REALIZATION"
+   ]
+  },
+  {
+   "id": "V2",
+   "path": "value.primaryEvent.value",
+   "kind": "FIELD",
+   "valueType": "number (base points)",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "V3",
+   "path": "value.primaryEvent.conditions[]",
+   "kind": "COLLECTION",
+   "selectorAttributes": [
+    "type"
+   ],
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "V4",
+   "path": "value.primaryEvent.conditions[].type",
+   "ownerRow": "V3",
+   "kind": "FIELD",
+   "valueType": "closed list (draft): origin, control, eligibility, progression, exclusion",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "V5",
+   "path": "value.primaryEvent.conditions[].referents",
+   "ownerRow": "V3",
+   "kind": "FIELD",
+   "valueType": "references to regions, objects or placements; never a player's position during play. One property per referent",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "V6",
+   "path": "value.primaryEvent.conditions[].value",
+   "ownerRow": "V3",
+   "kind": "FIELD",
+   "valueType": "the condition's parameter: a threshold, a count, or a qualitative term (RC-5)",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "V7",
+   "path": "value.valueModifiers[]",
+   "kind": "COLLECTION",
+   "selectorAttributes": [
+    "condition.type",
+    "condition.referents"
+   ],
+   "referentSelector": "condition.referents is matched with the contains operator, so one contract's region modifier can be addressed apart from another's (AM-17). Identifies; never creates",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "V8a",
+   "path": "value.valueModifiers[].condition.type",
+   "ownerRow": "V7",
+   "kind": "FIELD",
+   "valueType": "closed list (draft): region, object, event",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "V8b",
+   "path": "value.valueModifiers[].condition.referents",
+   "ownerRow": "V7",
+   "kind": "FIELD",
+   "valueType": "references to regions, objects or events; one property per referent",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "V9",
+   "path": "value.valueModifiers[].magnitude",
+   "ownerRow": "V7",
+   "kind": "FIELD",
+   "valueType": "number; its meaning is fixed by V9a and is never inferred (SD-24)",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "V9a",
+   "path": "value.valueModifiers[].operation",
+   "ownerRow": "V7",
+   "kind": "FIELD",
+   "valueType": "closed list: MULTIPLY, ADD, REPLACE (SD-30, the vocabulary CURRENTLY supported - not an assertion that no future legitimate operation can exist)",
+   "note": "APPROVED by SD-30 as a local Game Representation addition. A value modifier must explicitly declare its operation. An authored magnitude with no authored operation is INCOMPLETE and effective value is not computable. A new field on an existing collection, so LOCAL by the grammar sheet's own test; the only addition these rulings make to the representation",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "V10",
+   "path": "value.valueModifiers[].combination",
+   "ownerRow": "V7",
+   "kind": "FIELD",
+   "valueType": "how it combines with an overlapping modifier (authored rule), or 'mutually exclusive on the layout'",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "V11",
+   "path": "value.consequences[]",
+   "kind": "COLLECTION",
+   "selectorAttributes": [
+    "trigger",
+    "effect"
+   ],
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "V12",
+   "path": "value.consequences[].trigger",
+   "ownerRow": "V11",
+   "kind": "FIELD",
+   "valueType": "trigger (closed list, draft)",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "V13",
+   "path": "value.consequences[].effect",
+   "ownerRow": "V11",
+   "kind": "FIELD",
+   "valueType": "closed list (draft): ACCESS, COUNT_CHANGE",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "V14a",
+   "path": "value.consequences[].referents.team",
+   "ownerRow": "V11",
+   "kind": "FIELD",
+   "valueType": "team designation, resolving uniquely",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "V14b",
+   "path": "value.consequences[].referents.region",
+   "ownerRow": "V11",
+   "kind": "FIELD",
+   "valueType": "region reference, resolving uniquely (ACCESS)",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "V14c",
+   "path": "value.consequences[].referents.delta",
+   "ownerRow": "V11",
+   "kind": "FIELD",
+   "valueType": "integer (COUNT_CHANGE)",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "V15",
+   "path": "value.informationRules[]",
+   "kind": "COLLECTION",
+   "selectorAttributes": [
+    "subject"
+   ],
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "V16",
+   "path": "value.informationRules[].subject",
+   "ownerRow": "V15",
+   "kind": "FIELD",
+   "valueType": "reference to what the information is about",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "V17",
+   "path": "value.informationRules[].trigger",
+   "ownerRow": "V15",
+   "kind": "FIELD",
+   "valueType": "trigger (closed list, draft), or STANDING",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "V18",
+   "path": "value.informationRules[].dimensions.D006_triggerType",
+   "ownerRow": "V15",
+   "kind": "FIELD",
+   "valueType": "IE-D006 values",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "V19",
+   "path": "value.informationRules[].dimensions.D007_revealTiming",
+   "ownerRow": "V15",
+   "kind": "FIELD",
+   "valueType": "IE-D007 values",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "V20",
+   "path": "value.informationRules[].dimensions.D008_revealProgression",
+   "ownerRow": "V15",
+   "kind": "FIELD",
+   "valueType": "IE-D008 values",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "V21",
+   "path": "value.informationRules[].dimensions.D011_stateDependency",
+   "ownerRow": "V15",
+   "kind": "FIELD",
+   "valueType": "IE-D011 values",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "V22",
+   "path": "value.informationRules[].dimensions.D013_accessHolder",
+   "ownerRow": "V15",
+   "kind": "FIELD",
+   "valueType": "IE-D013 ACCESS_HOLDER values",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "V23",
+   "path": "value.timeWindows[]",
+   "kind": "COLLECTION",
+   "selectorAttributes": [
+    "startsOn"
+   ],
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "V24",
+   "path": "value.timeWindows[].startsOn",
+   "ownerRow": "V23",
+   "kind": "FIELD",
+   "valueType": "trigger (closed list, draft); no default (SD-R1)",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "V25",
+   "path": "value.timeWindows[].duration",
+   "ownerRow": "V23",
+   "kind": "FIELD",
+   "valueType": "seconds; FREE (a) where the source leaves it to the coach inside authored bounds",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "V26",
+   "path": "value.timeWindows[].expiryEffect",
+   "ownerRow": "V23",
+   "kind": "FIELD",
+   "valueType": "closed list (draft): POSSESSION_CHANGE, RESTART, ACCESS, COUNT_CHANGE, VALUE_CHANGE, NONE",
+   "sourceKinds": [
+    "SELECTION"
+   ]
   }
+ ],
+ "comparison": {
+  "note": "AM-16 as extended by Christian on 20 September and closed by his rulings the same day [C20b]. Requirement kind COMPARES. Classified under SD-29 as a bounded structural-semantic extension to the contribution/derivation grammar; the Game Representation data shape is unchanged and no ninth area is authorized.",
+  "form": "{ left: <operand>, operator, right: <operand> }, operator in { =, !=, <, <=, >, >= }",
+  "operandForms": "SD-23. Either (a) a represented game property: { row, selector }; or (b) a deterministically derived quantity whose inputs are SUPPORTED represented game properties: { derived: <named rule>, args }. Region value is NOT added as a stored row to support this. A derived quantity may compute relationships among represented environmental properties; it may not derive learner or ecological states (pressure, opportunity, affordance availability, difficulty, uncertainty)",
+  "inputsMustBeSupported": "SD-23. A derived operand whose input the game states but nothing supports is not computable. Before SD-25 the primary event's base value rested only on engine wording, so no region's effective value was computable at all",
+  "relation": "NARROWS. Never written with EXCLUSION strictness: a comparative is a relationship, not a prohibition [C20]. It never entails a value and never entails existence",
+  "whereItLands": "SD-26. A comparison takes NO LINE. It is a relationship assertion evaluated over its operands, held in the contribution and reconciliation record, outside the eight stored areas. It never takes a property's verdict and never changes a line's status. This replaces the earlier reachesLine rule, which Christian overruled",
+  "examples": [
+   "value(A) > value(B)",
+   "count(A) = count(B)",
+   "width(A) > width(B)"
+  ],
+  "boundary": "Both operands must be properties the resolved game contains and can evaluate. Never an inferred player state or ecological outcome: not pressure, opportunity, affordance availability, difficulty or uncertainty",
+  "evaluability": "SD-26. A comparison is evaluable only when both operands resolve - to a value the game holds and supports, or to a derived quantity whose inputs it holds and supports. Otherwise it is unmet (required) or not evaluable (supporting), by its requirement status. Never quietly true",
+  "relationshipConflict": "SD-26. Two comparative requirements that no single assignment satisfies produce an UNRESOLVED RELATIONSHIP CONFLICT - a report of its own kind, not a line status and not a Game status. Raised only when both are authoritative (authored or owner-ruled, never assumed, never engine-only), both well-formed under SD-23, and both evaluable. Fail any of those and it is a gap, a diagnostic tension, or an unmet item instead",
+  "assumedCannotCollide": "SD-27. An assumed item may not create an authoritative collision with authored knowledge. Assumed-vs-authored is reported diagnostically as a POSSIBLE TENSION, which no gate reads; it can never drive UNRESOLVED. An interpretation consistent with an object's prose is not promoted to canonical meaning",
+  "gapBeforeCollision": "SD-28. A collision requires well-formed, support-capable authoritative claims with sufficiently resolved operands. An unauthored or incomputable dependency is a GAP first, and nothing downstream converts it into a disagreement. An invented or assumed comparative cannot manufacture an authoritative collision",
+  "effectiveValue": "SD-24, provisional, in his words: the primary-event base value after application of all applicable resolved value modifiers for the referent. A value modifier must explicitly declare its operation or type (row V9a); multiplier versus increment is never inferred. If an operation or magnitude required for the derivation is unauthored, effective value is NOT COMPUTABLE",
+  "notAnExclusion": "A comparative claim is not translated into a mutual exclusion. 'Wide has greater task value than central' is a relationship; it is not 'central value is forbidden' [C20]",
+  "stillOpen": "No aggregate function is named (each, some, the sum, the greatest) for a comparison ranging over several matched elements. An engine refuses such a comparison rather than choosing one"
+ },
+ "vocabularies": {
+  "note": "Added 20 September. Every closed list the register held ONLY inside a valueType prose string is extracted here verbatim, so the engine can check a value against data rather than parse prose. The valueType strings are unchanged and remain the human reading. Contents are still unfrozen (SD-18); this changes their FORM, not their membership.",
+  "draft": "Lists marked (draft) in valueType are drafts here too. A draft list is still closed for checking: a value outside it is refused, not admitted as an extension.",
+  "versions": {
+   "note": "Data-model section 2 requires each closed vocabulary to be versioned separately, so SD-18 review can replace contents without touching code. Added 20 September after a design review found the block had none - without them a stored result cannot be known stale when a list membership changes.",
+   "S3.noun": "1 (2026-09-18, draft)",
+   "S4.functions": "1 (2026-09-18, draft)",
+   "O2.kind": "1 (2026-09-18, draft)",
+   "trigger": "1 (2026-09-18, draft)",
+   "T5.method": "1 (2026-09-18, draft)",
+   "T6.playState": "1 (2026-09-18)",
+   "V4.conditionType": "1 (2026-09-18, draft)",
+   "V8a.conditionType": "1 (2026-09-18, draft)",
+   "V9a.operation": "1 (2026-09-20, SD-30)",
+   "V1.kind": "1 (2026-09-20, extracted late)",
+   "triggerRows": "1 (2026-09-18) - not a value list but a list of the rows that use the trigger vocabulary; versioned so every array in this block carries one",
+   "V13.effect": "1 (2026-09-18, draft)",
+   "V26.expiryEffect": "1 (2026-09-18, draft)",
+   "J4.role": "1 (2026-09-18)",
+   "contractEnums.requirement": "2 (2026-09-20, COMPARES added by AM-16)",
+   "contractEnums.scope": "2 (2026-09-20, BUILD_OUT_EPISODE added by SD-36)",
+   "contractEnums.strictness": "1 (2026-09-18)",
+   "contractEnums.valueStatus": "1 (2026-09-18)",
+   "contractEnums.basis": "1 (2026-09-18)",
+   "contractEnums.checkability": "1 (2026-09-18)",
+   "contractEnums.declaration": "1 (2026-09-18)"
+  },
+  "S3.noun": [
+   "band",
+   "channel",
+   "corridor",
+   "zone",
+   "half",
+   "third"
+  ],
+  "S4.functions": [
+   "objective-area",
+   "value-condition",
+   "access",
+   "start-placement",
+   "trigger",
+   "perceptual-reference"
+  ],
+  "O2.kind": [
+   "ball",
+   "goal",
+   "line",
+   "gate"
+  ],
+  "trigger": [
+   "START",
+   "SCORE",
+   "OUT_END_LINE",
+   "OUT_TOUCHLINE",
+   "POSSESSION_CHANGE",
+   "REGION_ENTRY",
+   "TIME_EXPIRY",
+   "STANDING"
+  ],
+  "triggerQualifiers": {
+   "REGION_ENTRY": "a region reference (T1c)",
+   "TIME_EXPIRY": "a time-window reference"
+  },
+  "triggerRows": [
+   "T1",
+   "V12",
+   "V17",
+   "V24"
+  ],
+  "T5.method": [
+   "STATIONARY_BALL",
+   "SERVED",
+   "IN_HAND"
+  ],
+  "T6.playState": [
+   "STOP_RESUME",
+   "CONTINUE"
+  ],
+  "V4.conditionType": [
+   "origin",
+   "control",
+   "eligibility",
+   "progression",
+   "exclusion"
+  ],
+  "V8a.conditionType": [
+   "region",
+   "object",
+   "event"
+  ],
+  "V9a.operation": [
+   "MULTIPLY",
+   "ADD",
+   "REPLACE"
+  ],
+  "V1.kind": [
+   "goal",
+   "target_player",
+   "line_crossed",
+   "target_zone_entered",
+   "gate",
+   "regain",
+   "denial"
+  ],
+  "V1.source": "the RPC library controlled vocabulary. MISSED in the 20 September extraction because that pass filtered on the phrase closed list and V1 says controlled vocabulary - a synonym the filter did not catch. Found by an independent fact check.",
+  "V13.effect": [
+   "ACCESS",
+   "COUNT_CHANGE"
+  ],
+  "V26.expiryEffect": [
+   "POSSESSION_CHANGE",
+   "RESTART",
+   "ACCESS",
+   "COUNT_CHANGE",
+   "VALUE_CHANGE",
+   "NONE"
+  ],
+  "J4.role": [
+   "PRIMARY_SCORING",
+   "REPRESENTATIVE"
+  ],
+  "contractEnums": {
+   "requirement": [
+    "EQUALS",
+    "RANGE",
+    "COUNT",
+    "EXISTS",
+    "NOT_EXISTS",
+    "POSITIONED",
+    "ORIENTED",
+    "COMPARES"
+   ],
+   "strictness": [
+    "REQUIRED",
+    "SUPPORTING",
+    "EXCLUSION"
+   ],
+   "valueStatus": [
+    "REQUIRED_RANGE",
+    "PREFERRED_DEFAULT",
+    "TYPICAL_EXAMPLE",
+    "N/A"
+   ],
+   "scope": [
+    "WHOLE_GAME",
+    "PER_TEAM",
+    "PER_OBJECTIVE_SET",
+    "OWN_INVOLVEMENT",
+    "BUILD_OUT_EPISODE"
+   ],
+   "scopeBuildOutEpisode": "APPROVED 20 September (SD-36), in his words: applies to the attacking episode whose beginning satisfies the resolved RPC-001 build-out begin condition. It does NOT automatically extend to subsequent attacking episodes. A vocabulary addition making an already-authored distinction executable, not a new Game Representation area.",
+   "basis": [
+    "AUTHORED",
+    "ASSUMED",
+    "OWNER_RULING",
+    "ENGINE_ONLY"
+   ],
+   "checkability": [
+    "STRUCTURAL",
+    "PARTLY_STRUCTURAL",
+    "OUTSIDE_BOUNDARY"
+   ],
+   "declaration": [
+    "CLAIMED",
+    "EXCLUDED",
+    "NON_CLAIMED",
+    "NOT_AUTHORED",
+    "UNDECLARED"
+   ]
+  },
+  "scopeConformance": "CHECKED 20 September at his instruction, against his definition. All six uses: RPC-001-11.b (J11b) CONFORMS - it is about the build-out episode and cites KR-02/KR-03 as OWNER_RULING - and so does its J11b declaration. The other four do NOT: RPC-001-16.a (T4), 16.b (T3) and 16.c (T6) are all keyed on the selector trigger in {SCORE, OUT_END_LINE, OUT_TOUCHLINE, POSSESSION_CHANGE}, which are the triggers that END an episode and begin the NEXT one, so scoping them to the build-out episode claims exactly the extension to subsequent attacking episodes his definition excludes. The T4 declaration inherits 16.a. All three items are also basis ENGINE_ONLY on the sentence retired under KR-05 item 6, so they support nothing under SD-21, and 16.c additionally contradicts SD-20. Reported, not broadened; recorded as a contract-authoring task.",
+  "scopePlaceholderDefect": "Separately, 64 items and declarations carry an em-dash placeholder where a scope belongs. A contract-authoring defect from the restatement exercise, not a vocabulary question."
+ },
+ "applicability": {
+  "note": "Added 20 September. Some FIELD rows do not apply to every element of their collection, and the register stated that ONLY inside valueType prose. Without this as data, line enumeration creates lines no author can ever close and Gate A can never pass. A row listed here yields NO line for an element whose condition fails; it is not NOT_AUTHORED, it is not applicable.",
+  "grammar": "Each entry is { when: { row, sameElement, in: [values] }, text }. The condition reads the GOVERNING line for the same element (a transition, or a consequence). Evaluated at stage 6, after the governing line is resolved.",
+  "governingLineRule": "If the governing line is DERIVED, the condition is evaluated: true keeps the dependent line, false WITHDRAWS it (not applicable, never NOT_AUTHORED). If the governing line is FREE(choice), the dependent line is CONDITIONAL on that choice: it takes no value, is not open in its own right, and a gate check over it is a satisfiability question across the governing choice. If the governing line is FAILED, the dependent line is FAILED as a GAP whose dependency is the governing line - gap before collision, and never withdrawn, because an unresolvable condition is not a false one. A candidate value for the governing line changes none of this (SD-40).",
+  "T2": {
+   "when": {
+    "row": "T6",
+    "sameElement": true,
+    "in": [
+     "STOP_RESUME"
+    ]
+   },
+   "text": "applies only when T6 playState is STOP_RESUME (RC-20)"
+  },
+  "T3": {
+   "when": {
+    "row": "T6",
+    "sameElement": true,
+    "in": [
+     "STOP_RESUME"
+    ]
+   },
+   "text": "applies only when T6 playState is STOP_RESUME"
+  },
+  "T4": {
+   "when": {
+    "row": "T6",
+    "sameElement": true,
+    "in": [
+     "STOP_RESUME"
+    ]
+   },
+   "text": "applies only when T6 playState is STOP_RESUME"
+  },
+  "T5": {
+   "when": {
+    "row": "T6",
+    "sameElement": true,
+    "in": [
+     "STOP_RESUME"
+    ]
+   },
+   "text": "applies only when T6 playState is STOP_RESUME"
+  },
+  "V14a": {
+   "when": {
+    "row": "V13",
+    "sameElement": true,
+    "in": [
+     "ACCESS",
+     "COUNT_CHANGE"
+    ]
+   },
+   "text": "applies to a consequence whose V13 effect is ACCESS or COUNT_CHANGE, as its team designation"
+  },
+  "V14b": {
+   "when": {
+    "row": "V13",
+    "sameElement": true,
+    "in": [
+     "ACCESS"
+    ]
+   },
+   "text": "applies only when V13 effect is ACCESS"
+  },
+  "V14c": {
+   "when": {
+    "row": "V13",
+    "sameElement": true,
+    "in": [
+     "COUNT_CHANGE"
+    ]
+   },
+   "text": "applies only when V13 effect is COUNT_CHANGE"
+  },
+  "whyItMatters": "Under SD-20 turnovers continue play, so a POSSESSION_CHANGE transition has playState CONTINUE and T2 to T5 do not apply to it. Enumerating them anyway would give every such transition four permanently unclosable NOT_AUTHORED lines.",
+  "flagged": "These conditions are read from the register prose as it stands; none is a new rule. Made machine-readable 21 September: they were prose sentences, which an engine cannot read without parsing prose. The governingLineRule is a design decision recorded in the engine package, section 2.1."
+ },
+ "teamDesignations": {
+  "note": "Canonical list for this run (RC-22). Two designations are equal only if they map to one entry. A designation is evaluated at the trigger or episode it is attached to.",
+  "list": [
+   "TEAM_<id> (a named team)",
+   "EACH_TEAM",
+   "STARTING_TEAM",
+   "ATTACKING_TEAM (in possession for the episode)",
+   "DEFENDING_TEAM",
+   "SCORING_TEAM",
+   "CONCEDING_TEAM",
+   "WON_BALL (team that won possession at the trigger)",
+   "LOST_BALL",
+   "LAST_TOUCH (team that touched the ball last)",
+   "NOT_LAST_TOUCH",
+   "BUILD_OUT_TEAM (team whose build-out episode it is)"
+  ]
+ },
+ "relativeTerms": {
+  "note": "Interval tests for relative positions (RC-21). The referent must be a game element; if it is players or play, the item is OUTSIDE_BOUNDARY.",
+  "beyond X (for team T)": "the element's near edge is at or past X's far edge, in T's attacking direction",
+  "own end (of team T)": "touches the end line T defends",
+  "attacking end (of team T)": "touches the end line T attacks",
+  "central": "contains the axis midline across the width, and touches neither touchline",
+  "touchline-adjacent": "touches a touchline",
+  "lengthwise": "the element's extent along the axis is at least its extent across it (AM-22; renamed from 'longitudinal' to avoid colliding with the lateral selector attribute)",
+  "crosswise": "the reverse of lengthwise (AM-22)"
+ },
+ "citableStandingDecisions": [
+  {
+   "id": "SD-06",
+   "item": {
+    "row": "V0",
+    "requirement": "COUNT",
+    "value": 1,
+    "relation": "ENTAILS existence of exactly one primary event"
+   },
+   "restrictsOnly": [
+    "V7",
+    "V11"
+   ],
+   "note": "On V7 and V11 it only restricts (a value change must be explicitly authored); it supports nothing there"
+  },
+  {
+   "id": "SD-07",
+   "item": {
+    "row": "DV1",
+    "requirement": "ORIENTED",
+    "value": "each team a stable direction and a functional directional objective"
+   },
+   "note": "View check only; supports no stored row"
+  },
+  {
+   "id": "SD-09",
+   "item": null,
+   "note": "Process rule: knowledge requires regions, realization instantiates them. Entails nothing"
+  },
+  {
+   "id": "SD-10",
+   "item": null,
+   "kind": "RESTRICTION, not a support item",
+   "restricts": "No reconciliation or rendering step may remove an objective element from J1, or change its J4 role away from REPRESENTATIVE, on the ground that it is not the primary scoring objective",
+   "note": "Retyped 20 September. It was typed as an EXISTS/EQUALS item whose value was the prose phrase functionally necessary to the representative game structure, which no requirement kind can express - so as typed it could never fire and supported nothing. His decision is a prohibition on removal, not a source of support, so it is typed as one. RULED 20 September (SD-10a), in his words: an objective is structurally necessary when removing it would make at least one authoritative required contribution unsatisfied, or make the resolved game required primary event, direction, transition, or representative configuration structurally incomplete. A mere reference from optional or supporting knowledge is NOT sufficient - which explicitly rejects the candidate test proposed here before his ruling"
+  },
+  {
+   "id": "SD-11",
+   "item": {
+    "row": "S1",
+    "requirement": "EQUALS",
+    "value": "the longer envelope dimension"
+   },
+   "yields": "to a support-capable SELECTION item on S1 (his wording)"
+  },
+  {
+   "id": "SD-12",
+   "item": {
+    "row": "SV1",
+    "requirement": "EQUALS",
+    "value": "halves and thirds along the axis"
+   },
+   "note": "View only"
+  },
+  {
+   "id": "SD-13",
+   "item": {
+    "row": "T3",
+    "selector": "trigger=START",
+    "requirement": "EQUALS",
+    "value": "a player of STARTING_TEAM"
+   },
+   "condition": {
+    "row": "T5",
+    "sameElement": true,
+    "state": "derived",
+    "equals": "STATIONARY_BALL"
+   },
+   "conditionNote": "Corrected 21 September. It read verdict ENTAILED or NARROWED_CHOICE - and NARROWED_CHOICE is now a candidate-check outcome, so a candidate game value for T5 could have switched this decision on. That is an otherwise unsupported dependency supplied by the candidate, which SD-40 forbids. Now: SD-13 fires only when T5 for the START element is DERIVED as STATIONARY_BALL. Where T5 is FREE(choice), SD-13 does not fire in derivation mode and the T3 actor stays dependent on the downstream choice; no candidate value can ever activate it",
+   "yields": "no; a differing selection item makes it UNRESOLVED (RC-24)"
+  },
+  {
+   "id": "SD-14",
+   "item": {
+    "row": "T7",
+    "selector": "trigger ∈ {START, SCORE, POSSESSION_CHANGE}",
+    "requirement": "EQUALS",
+    "value": true
+   },
+   "note": "Defines boundaries only; entails no T1 element",
+   "yields": "no; a differing selection item makes it UNRESOLVED (RC-24)"
+  },
+  {
+   "id": "SD-20",
+   "item": {
+    "row": "T6",
+    "selector": "trigger=POSSESSION_CHANGE",
+    "requirement": "EQUALS",
+    "value": "CONTINUE"
+   },
+   "yields": "to a support-capable T6 item on POSSESSION_CHANGE, or a V11 consequence folded into that trigger, that explicitly creates a stoppage or reset (his wording)"
+  },
+  {
+   "id": "SD-25",
+   "item": {
+    "row": "V2",
+    "requirement": "EQUALS",
+    "value": 1,
+    "relation": "ENTAILS the primary event's base value"
+   },
+   "yields": "to an authoritative selected contribution that explicitly modifies that value (his wording)",
+   "note": "Added 20 September [C20b]. A scoring convention, not football knowledge. It is what makes V2 supported, and so what makes any effective-value derivation computable at all; before it, V2 rested only on engine wording and was inert under SD-21"
+  }
+ ],
+ "decidingRules": {
+  "note": "Only these may decide a collision (SD-02): the relationship rules each contract lists, RR-01, and SD-06, SD-07, SD-08. NOTE, added 20 September after a cross-document audit queried it: this list and citableStandingDecisions have DIFFERENT membership by design, and SD-08 is the case that shows it. Deciding a collision and supporting a value are different roles - SD-08 decides (a displaced PREFERRED_DEFAULT is ADAPTED, not a collision) while supporting no value anywhere, so it belongs here and not there. Not a defect.",
+  "RR-01": "RPC scoring ownership: the Context decides which physically available event reinforces its Primary Scoring Identity",
+  "SD-06": "exactly one primary scoring event",
+  "SD-07": "direction invariant",
+  "SD-08": "value statuses; a displaced PREFERRED_DEFAULT is ADAPTED, not a collision"
+ },
+ "contractSentinels": {
+  "note": "Contract-level sentinels for an item's `row` field. A sentinel is NOT a Game Representation row: it creates no property, no line, no class and no element, and it never appears in `rows`.",
+  "NO_ROW": {
+   "meaning": "this contribution intentionally makes no claim on a Game Representation property",
+   "validOnlyWhen": [
+    "the contribution is explicitly classified outside the representation",
+    "it contains no structural requirement that must be held by the Game Representation",
+    "its existing treatment is the established outside-representation treatment"
+   ],
+   "machineTest": {
+    "checkability": "OUTSIDE_BOUNDARY",
+    "structuralClause": "names no structural requirement (none, N/A or absent)"
+   },
+   "neverUsableTo": "suppress, bypass or reclassify a structural claim merely because no suitable row exists",
+   "onViolation": "LOAD_REFUSAL naming the condition that failed",
+   "source": "Christian, 2026-09-24"
+  }
+ }
 }
