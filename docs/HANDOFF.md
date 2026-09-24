@@ -2829,3 +2829,31 @@ Ledger: `docs/design/corpus-repair-ledger.md`.
 - **Diagnostic now reports repair provenance**, counting encoding and restatement separately.
 - **Untouched:** 77 failed lines, 3 primary events, unregistered trigger, 17 gate blocks. **Phase B not
   begun** and must not begin until these nine are ruled or retained as justified refusals.
+
+**24 Sep — SD-67..SD-74: THE PHASE A LOAD BOUNDARY IS REACHED.** Spec **revision 15**, register
+**version 4**; 123 tests; suite green. **All 8 contracts load; 0 refusals** (was 1/7 two days ago).
+- **Two bounded refinements, eight areas unchanged:** `R1`–`R4` **Action Restriction** in the Rules area
+  (receiver eligibility · action order · direction class; authored legal eligibility only), and
+  `P11`–`P13` **Performer Participation State** *bound* to knowledge-core EM-0007/EMD-0014/EMP-0040/42 via
+  `register.boundVocabularies` — referenced, not re-authored.
+- **`BY_CONSTRUCTION` (SD-67) executes its invariant at load, never trusts it.** Absent, unregistered,
+  untestable or false → refused. Four tests. *"By construction" is otherwise the shape of an excuse.*
+- **BOTH REFINEMENTS EXPOSE A DEPENDENCY — the answer he asked for:**
+  1. Action Restriction holds a restriction, but GF2-22 asserts **none exists**, and `NOT_EXISTS` on a
+     COLLECTION has no existence treatment in stage 8 (`isExistence` covers EXISTS/COUNT/RANGE only) → it
+     reads `UNMET`. 2 structural NOT_EXISTS items corpus-wide; both hit it.
+  2. Participation State holds the value, but NEUTRAL-05.a states a state with **nothing asserting the
+     participation entry exists**. P8/S2/J1 all carry existence items; this contract predates the row.
+     Authoring it is new knowledge. **Neither repaired.**
+- **Flagged to him:** Action Restriction sits in area §5.8, titled *"Rules of value"* — it is the first
+  rule there that is not about value. Placed as directed; title left alone; naming is his call.
+- **SD-49 reclassified:** an indeterminate reach is no longer a `stopped` entry — the semantics are
+  established, so following them is not stopping. Count stays in `run.counts.undeterminedReaches`.
+- **Bug my own invariant caught** once transitions reached the corpus: `GA-TRANSITION-COHERENCE` passed
+  while naming blocked lines. An unauthored placement *confirms* "a CONTINUE transition carries no
+  placement". Added `Probe.peek` for that one case only.
+- **Corpus now:** 194 lines · 33 derived (27 entailment, 4 session, 2 SD) · 137 failed · 12 open · 220
+  item outcomes. **First collision ever:** `game::V1`, three contracts disagree on the primary event kind.
+  Gate A FAIL — **4 clauses evaluated vs 4 vacuous** (was 2 vs 24).
+- **Untouched, on his order:** 5 primary events, unregistered trigger, 137 failed lines, 20 gate blocks.
+  **Phase B awaits his word on the two exposed dependencies.**
