@@ -2780,3 +2780,28 @@ five increments; suite green. Report: `docs/design/implementation-increment-5.md
   wrong, the engine is wrong. Headline: **2 clauses evaluated against real instances, 24 vacuous.**
 - **Not done, on his instruction:** stages 7/9 not reopened for coverage; **no corpus repair begun**;
   generation still frozen.
+
+**24 Sep — SD-62..SD-66, AND CORPUS REPAIR PHASE A.** Spec **revision 14**; 113 tests; suite green.
+Ledger: `docs/design/corpus-repair-ledger.md`.
+- **SD-62** a blocked gate clause carries its own structured record (clause · dependency · reason) and is
+  **not** a derivation GAP. *"Both prevent an unearned PASS, but they describe different failures of
+  knowledge."* Built in `result()` so no blocked clause escapes without one, and a block can never name
+  nothing — if a check can't point to a line it names what it examined.
+- **SD-63 generalized the identity rule — and it found five more of the same bug.** Information subjects,
+  consequence referents, objective-set members, objective references, primary-event referents were all
+  still inferring identity from matching text and **failing** when it didn't match. All now withhold.
+- **SD-66 phase A — encoding repair only.** Corpus was UTF-8 read as CP1252. Repair is the **exact
+  inverse** (char → CP1252 byte → decode UTF-8), no character special-cased, non-round-tripping strings
+  left untouched. Original artefact **not modified**; applied on load, counted, reported every run.
+  **339 strings, 680 chars recovered.**
+- **Effect: contracts admitted 1 → 3, lines 15 → 95, derived 6 → 15, outcome kinds 3 → 5.** RPC-001 and
+  VARIABLE-TARGET-CONDITION now load clean.
+- **Stopped at his line.** 28 remaining load defects, none mine: **25 restatement** (row names no register
+  row — and they split **20 outside-boundary vs 5 structural-in-kind**, which is the real question) and
+  **3 new authoring** (V9 magnitude with no V9a operation, SD-30).
+- **Phase A exposed two genuine gate failures, recorded not repaired:** three primary events where SD-06
+  requires one; an information rule naming an unregistered trigger. 77 failed lines (52 coverage, 23
+  declared gap) = the shape of phase B. **Do not optimize toward green.**
+- **Also fixed:** SD-51 member lines were `RESOLVED` while carrying no value — caught by the §1.4
+  invariant added in increment 5.
+- **Next:** await his ruling on the 25 + 3. Phases B/C/D not started.
