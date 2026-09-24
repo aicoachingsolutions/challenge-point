@@ -2805,3 +2805,27 @@ Ledger: `docs/design/corpus-repair-ledger.md`.
 - **Also fixed:** SD-51 member lines were `RESOLVED` while carrying no value — caught by the §1.4
   invariant added in increment 5.
 - **Next:** await his ruling on the 25 + 3. Phases B/C/D not started.
+
+**24 Sep — PHASE A COMPLETE (NO_ROW applied; 9-case evidence packet sent).** Register **version 3**;
+119 tests; suite green. Packet: `docs/design/phase-a-evidence-packet.md`.
+- **`NO_ROW` is a contract-level sentinel, NOT a row** — creates no property, line, class or element.
+  **The guard is the point:** the three conditions are enforced in `load.ts` (not trusted), a sentinel
+  colliding with a row id halts the register (H1), and three tests hold it. The 20 items are named one by
+  one in `corpus-restatement.ts` *and* re-checked against the conditions before applying — **20 applied,
+  0 withheld**. The 5 structural items are deliberately absent, guarded by a test.
+- **Phase A meets his boundary: no contract refuses for a mechanical reason.** 3 load clean
+  (RPC-001, A01-02, VARIABLE-TARGET-CONDITION); 5 refuse for a specific named semantic issue.
+- **A 9th case surfaced that he didn't ask for:** `PASS-COMBINATION-GATE` has **64 declarations with an
+  em-dash `scope`**, every one a `NON_CLAIMED`. Hidden until now because the loader stops at the first
+  defect and its six row items came first. Two readings differ (`null` vs `WHOLE_GAME` as its 6 peers
+  use) — left alone.
+- **The 5 structural cases split three ways, and the packet says so:** GF2-01 may be derivable by
+  construction; GF2-02 + GF2-22 are the same representation gap from two directions; GF2-15 is `ASSUMED`
+  so it could never entail regardless of row (likely mistyped); NEUTRAL-05.a belongs to knowledge-core
+  Participant State — a layer boundary.
+- **The 3 modifiers split too:** WIDEZONE-13.a/b are **one source sentence read twice** (source offers
+  three alternatives, states no operation — the contract's own declaration says so). **GF4 I14 is
+  different: "double points" IS operation-bearing language.** Reported separately, not flattened.
+- **Diagnostic now reports repair provenance**, counting encoding and restatement separately.
+- **Untouched:** 77 failed lines, 3 primary events, unregistered trigger, 17 gate blocks. **Phase B not
+  begun** and must not begin until these nine are ruled or retained as justified refusals.
