@@ -552,25 +552,42 @@ test('shuffled input produces an identical gate report', () => {
 // rather than produced by a script that no longer exists.
 // ---------------------------------------------------------------------------------------------
 
-/** The baseline after repair phase A (encoding only). Quoted in the increment report. */
+/** The baseline at the Phase A load boundary: all eight contracts load, none refuses. */
 test('the corpus run reproduces the reported figures exactly', () => {
     const result: any = runStages0to10(corpusInput())
-    assert.equal(result.run.counts.contractsAdmitted, 3)
-    assert.equal(result.run.counts.contractsRefused, 5)
-    assert.equal(result.run.counts.lines, 95)
-    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 15)
-    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 77)
+    assert.equal(result.run.counts.contractsAdmitted, 8)
+    assert.equal(result.run.counts.contractsRefused, 0)
+    assert.equal(result.run.counts.lines, 194)
+    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 33)
+    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 136)
     assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 8)
-    assert.equal(result.failures.filter((f: any) => f.kind === 'COLLISION').length, 0)
-    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 77)
+    assert.equal(result.failures.filter((f: any) => f.kind === 'COLLISION').length, 1)
+    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 136)
 })
 
 test('Gate A fails on the corpus, and says which checks and why', () => {
     const result: any = runStages0to10(corpusInput())
     assert.equal(gateA(result).verdict, 'FAIL')
     const failing = gateA(result).checks.filter((c: any) => c.verdict === 'FAIL').map((c: any) => c.checkId)
-    assert.deepEqual(failing.sort(), ['GA-INFORMATION', 'GA-NO-FAILED-LINE', 'GA-ONE-PRIMARY-EVENT', 'GA-REFERENCE-INTEGRITY'])
+    assert.deepEqual(failing.sort(), [
+        'GA-DIRECTION',
+        'GA-INFORMATION',
+        'GA-NO-FAILED-LINE',
+        'GA-ONE-PRIMARY-EVENT',
+        'GA-REFERENCE-INTEGRITY',
+        'GA-TRIGGER-UNIQUE',
+    ])
     for (const c of gateA(result).checks) assert.ok(c.why && c.why.length > 0, `${c.checkId} gives no reason`)
+})
+
+test('SD-49: an indeterminate reach is recorded, and is no longer an open question', () => {
+    const result: any = runStages0to10(corpusInput())
+    assert.ok(result.run.counts.undeterminedReaches > 0, 'the corpus does exercise the case')
+    assert.equal(
+        result.stopped.filter((s: any) => s.where === 'stage 4, reach').length,
+        0,
+        'SD-49 established the semantics; the engine is following them, not stopping on them',
+    )
 })
 
 /**
@@ -580,10 +597,18 @@ test('Gate A fails on the corpus, and says which checks and why', () => {
 test('what the newly admitted knowledge exposes is recorded, not repaired', () => {
     const result: any = runStages0to10(corpusInput())
     const primary = check(result, 'GA-ONE-PRIMARY-EVENT')
-    assert.equal(primary.clauses[0].verdict, 'FAIL', 'three primary events where SD-06 requires exactly one')
-    assert.ok(/3 primary event/.test(primary.why))
+    assert.equal(primary.clauses[0].verdict, 'FAIL', 'more than one primary event where SD-06 requires exactly one')
+    const count = Number((primary.why.match(/^(\d+) primary event/) || [])[1])
+    assert.ok(count > 1, `the finding is a count greater than one, got ${count}`)
+
     const information = check(result, 'GA-INFORMATION')
     assert.equal(information.clauses.find((c: any) => /registered trigger/.test(c.clause)).verdict, 'FAIL')
+
+    // The first real collision in the corpus: three contracts disagree on the primary event kind.
+    const collisions = result.failures.filter((f: any) => f.kind === 'COLLISION')
+    assert.equal(collisions.length, 1)
+    assert.equal(collisions[0].locus.lineId, 'game::V1')
+    assert.ok(collisions[0].implicated.contractIds.length >= 2, 'and it names the contracts that disagree')
 })
 
 test('the fifteen Gate A checks are all present, and GA-RESIDUAL-SPACE is gone (SD-45)', () => {

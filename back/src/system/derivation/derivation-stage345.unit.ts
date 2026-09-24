@@ -180,9 +180,13 @@ function testUndeterminedReachDerivesNothingAndReports(): void {
     const line = [...result.derived!.lines.values()].find(l => l.lineId.endsWith('::S5'))!
     assert.equal(line.entailing.length, 0, 'nothing is derived from an undetermined reach')
     assert.ok(line.undetermined.length > 0, 'it is recorded against the line')
-    assert.ok(
-        result.stopped.some(s => /stage 4, reach/.test(s.where)),
-        'and reported as a stop under SD-48 rather than resolved here',
+    // SD-49 established the semantics — "applicability is unresolved; derive nothing from that
+    // application … record the indeterminate case rather than resolving it by interpretation" — so the
+    // engine follows a rule here rather than stopping on an open question.
+    assert.equal(
+        result.stopped.filter(s => /stage 4, reach/.test(s.where)).length,
+        0,
+        'SD-49 settled it; the indeterminate case is recorded, not reported as unestablished',
     )
 }
 

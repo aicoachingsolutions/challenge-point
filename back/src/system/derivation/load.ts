@@ -40,6 +40,38 @@ function isPlaceholder(value: unknown): boolean {
 /** The registered contract-level sentinel for "this contribution claims no Game Representation property". */
 export const NO_ROW = 'NO_ROW'
 
+/** The registered contract-level sentinel for "the schema itself entails this requirement". */
+export const BY_CONSTRUCTION = 'BY_CONSTRUCTION'
+
+/**
+ * Run a registered invariant's mechanical test against the register. Returns null when it holds, or the
+ * reason it does not. Only the test forms the register actually uses are executed; an invariant carrying
+ * a form this does not know is reported as untestable rather than assumed true — an invariant that
+ * cannot be tested is exactly what "mechanically testable" excludes.
+ */
+function invariantFails(invariant: any, index: RegisterIndex): string | null {
+    const test = invariant && invariant.test
+    if (!test || typeof test !== 'object') return 'it carries no mechanical test'
+
+    const known = ['fieldRowsPresent', 'noCollectionRowWithPathPrefix']
+    const unknown = Object.keys(test).filter(key => !known.includes(key))
+    if (unknown.length) return `it carries a test form this engine cannot execute: ${unknown.join(', ')}`
+
+    for (const rowId of test.fieldRowsPresent || []) {
+        const row = index.rows.get(String(rowId))
+        if (!row) return `row ${rowId} is not in the register`
+        if (row.kind !== 'FIELD') return `row ${rowId} is ${row.kind}, not FIELD`
+    }
+
+    const prefix = test.noCollectionRowWithPathPrefix
+    if (prefix) {
+        const offending = [...index.rows.values()].find(row => row.kind === 'COLLECTION' && row.path.startsWith(String(prefix)))
+        if (offending) return `${offending.id} enumerates ${String(prefix)}, so the schema does not entail exactly one`
+    }
+
+    return null
+}
+
 /**
  * The second NO_ROW condition, as data rather than prose. An item states no structural requirement when
  * its `structuralClause` is absent, null, or one of the registered spellings of "none". Anything else —
@@ -81,6 +113,24 @@ function checkItem(item: ContractItem, index: RegisterIndex, contract: LoadedCon
         if (!namesNoStructuralRequirement(item.structuralClause)) {
             return at('NO_ROW requires the contribution to carry no structural requirement; this item states one', item.structuralClause)
         }
+        return null
+    }
+
+    // `BY_CONSTRUCTION` — his ruling of 24 September. "A structural requirement that is necessarily true
+    // by the authoritative representation schema may be satisfied by construction, provided the exact
+    // schema invariant that entails it is named and mechanically testable."
+    //
+    // It is neither NO_ROW nor silence: the contract still makes a structural claim, and the schema
+    // supplies its entailment. So the named invariant must exist **and hold**, tested here against the
+    // register itself — otherwise this becomes a way to excuse a requirement the schema does not entail.
+    if (item.row === BY_CONSTRUCTION) {
+        const sentinel = index.contractSentinels[BY_CONSTRUCTION]
+        if (!sentinel) return at('BY_CONSTRUCTION is not a registered contract sentinel in this register version', item.row)
+        const named = String((item as any).satisfiedBy ?? '')
+        const invariant = (sentinel.invariants || {})[named]
+        if (!invariant) return at('BY_CONSTRUCTION requires `satisfiedBy` to name a registered schema invariant', named || '(absent)')
+        const failure = invariantFails(invariant, index)
+        if (failure) return at(`the named invariant ${named} does not hold: ${failure}`, named)
         return null
     }
 

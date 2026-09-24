@@ -188,6 +188,22 @@ class Probe {
         return { state: 'DERIVED', value }
     }
 
+    /**
+     * Read a line **without** recording it as a blocker, for the one case where an absent value is what
+     * the clause asserts rather than something it is waiting on — "a CONTINUE transition carries no
+     * placement" is confirmed, not obstructed, by an unauthored placement.
+     *
+     * It still records the line as a subject, so the check's reach stays visible. It must never be used
+     * where the clause needs the value: that would hide a real block behind a pass.
+     */
+    peek(lineId: string): Cell {
+        const blockedBefore = [...this.blockedBy]
+        const cell = this.cell(lineId)
+        this.blockedBy.length = 0
+        this.blockedBy.push(...blockedBefore)
+        return cell
+    }
+
     /** §1.9: "A value outside this table, or an operation this table does not define, is refused." */
     refuse(kind: RefusalRecord['kind'], cause: string, lineIds: string[], openQuestion: RefusalRecord['openQuestion'] = null): void {
         this.refusals.push({
@@ -672,16 +688,20 @@ function gaTransitionCoherence(ctx: GateContext): CheckOutcome {
             blockedAny = true
             continue
         }
-        if (String(state.value) === 'CONTINUE') continueSeen++
-        if (String(state.value) === 'STOP_RESUME') resumeSeen++
-        const actor = probe.cell(lineOf(transition.classId, 'T3'))
-        const region = probe.cell(lineOf(transition.classId, 'T4'))
-        const method = probe.cell(lineOf(transition.classId, 'T5'))
         const carries = (cell: Cell) => cell.state === 'DERIVED' && cell.value !== null && cell.value !== undefined
 
         if (String(state.value) === 'CONTINUE') {
+            continueSeen++
+            // An unauthored placement *confirms* this clause, so it is read without blocking on it.
+            const actor = probe.peek(lineOf(transition.classId, 'T3'))
+            const region = probe.peek(lineOf(transition.classId, 'T4'))
+            const method = probe.peek(lineOf(transition.classId, 'T5'))
             if (carries(actor) || carries(region) || carries(method)) continueViolations.push(transition.classId)
         } else if (String(state.value) === 'STOP_RESUME') {
+            resumeSeen++
+            // Here the clause needs the values, so an absent one genuinely blocks it.
+            const actor = probe.cell(lineOf(transition.classId, 'T3'))
+            const region = probe.cell(lineOf(transition.classId, 'T4'))
             if (!carries(actor) || !carries(region)) {
                 if (actor.state === 'FAILED' || region.state === 'FAILED') blockedAny = true
                 else resumeViolations.push(transition.classId)

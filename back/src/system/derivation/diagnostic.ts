@@ -27,7 +27,15 @@ function table(rows: [string, string | number][], pad = 46): string[] {
 
 export interface RepairProvenance {
     encoding: { strings: number; charactersRecovered: number }
-    restatement: { applied: number; withheld: { item: string; why: string }[] }
+    restatement: {
+        applied: number
+        withheld: { item: string; why: string }[]
+        itemsRestated?: number
+        itemsRemoved?: number
+        itemsAdded?: number
+        declarationScopes?: number
+        notFound?: string[]
+    }
 }
 
 const NO_REPAIRS: RepairProvenance = { encoding: { strings: 0, charactersRecovered: 0 }, restatement: { applied: 0, withheld: [] } }
@@ -66,10 +74,16 @@ export function renderDiagnostic(result: DerivationResult | StampedHalt, repairs
             ['encoding repair — strings restored', repairs.encoding.strings],
             ['encoding repair — characters recovered', repairs.encoding.charactersRecovered],
             ['restatement — items rewritten to NO_ROW', repairs.restatement.applied],
+            ['restatement — items restated by an individual ruling', repairs.restatement.itemsRestated ?? 0],
+            ['restatement — items removed as exceeding their source', repairs.restatement.itemsRemoved ?? 0],
+            ['restatement — items added from what the source entails', repairs.restatement.itemsAdded ?? 0],
+            ['restatement — declaration scopes restated', repairs.restatement.declarationScopes ?? 0],
             ['restatement — named but withheld on a condition', repairs.restatement.withheld.length],
+            ['restatement — named in a ruling but not found', (repairs.restatement.notFound ?? []).length],
         ]),
     )
     for (const withheld of repairs.restatement.withheld) out.push(`    WITHHELD ${withheld.item}: ${withheld.why}`)
+    for (const missing of repairs.restatement.notFound ?? []) out.push(`    NOT FOUND ${missing}`)
 
     out.push(section('KNOWLEDGE ADMITTED'))
     const admitted = result.run.counts.contractsAdmitted ?? 0

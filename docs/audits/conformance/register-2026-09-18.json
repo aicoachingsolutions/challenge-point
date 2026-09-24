@@ -1,7 +1,7 @@
 {
  "title": "Atomic field-path register — Game Representation Specification revision 4",
  "date": "2026-09-18",
- "version": "3, adds the NO_ROW contract-level sentinel (Christian, 2026-09-24)",
+ "version": "4, adds BY_CONSTRUCTION, the Rules-area Action Restriction, and Performer Participation State (Christian, 2026-09-24)",
  "source": "docs/design/game-representation-spec-2026-09-18.md §5 (the eight areas), §3 (statuses), §6 (the contract), §2 (standing decisions)",
  "rowKinds": {
   "COLLECTION": "The existence and count of elements in a collection. Items on a COLLECTION row say that elements matching a selector exist (EXISTS), how many (COUNT/RANGE), or that none may (NOT_EXISTS).",
@@ -249,6 +249,38 @@
    "ownerRow": "P8",
    "kind": "FIELD",
    "valueType": "region reference",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "P11",
+   "path": "performers.participation[]",
+   "kind": "COLLECTION",
+   "selectorAttributes": [
+    "group"
+   ],
+   "valueType": "the realized participation state of a performer group; `group` names it as `startPlacement[].group` does",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "P12",
+   "path": "performers.participation[].state",
+   "kind": "FIELD",
+   "ownerRow": "P11",
+   "valueType": "the canonical Participant State value (knowledge core EM-0007, dimension EMD-0014, parameter EMP-0040)",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "P13",
+   "path": "performers.participation[].persistence",
+   "kind": "FIELD",
+   "ownerRow": "P11",
+   "valueType": "the canonical Participant State persistence (EM-0007, parameter EMP-0042)",
    "sourceKinds": [
     "SELECTION"
    ]
@@ -892,6 +924,49 @@
    "sourceKinds": [
     "SELECTION"
    ]
+  },
+  {
+   "id": "R1",
+   "path": "rules.actionRestrictions[]",
+   "kind": "COLLECTION",
+   "selectorAttributes": [
+    "kind",
+    "effect"
+   ],
+   "valueType": "an authored rule that changes whether an otherwise available game action or target is legally eligible",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "R2",
+   "path": "rules.actionRestrictions[].kind",
+   "kind": "FIELD",
+   "ownerRow": "R1",
+   "valueType": "closed list (draft): receiver_eligibility, action_order, direction_class",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "R3",
+   "path": "rules.actionRestrictions[].effect",
+   "kind": "FIELD",
+   "ownerRow": "R1",
+   "valueType": "closed list: PROHIBITED (the action or target is made ineligible), REQUIRED (the action is forced)",
+   "sourceKinds": [
+    "SELECTION"
+   ]
+  },
+  {
+   "id": "R4",
+   "path": "rules.actionRestrictions[].subject",
+   "kind": "FIELD",
+   "ownerRow": "R1",
+   "valueType": "what the rule names: a reference to a held element, or an open-vocabulary token for a direction class",
+   "sourceKinds": [
+    "SELECTION"
+   ]
   }
  ],
  "comparison": {
@@ -940,7 +1015,11 @@
    "contractEnums.valueStatus": "1 (2026-09-18)",
    "contractEnums.basis": "1 (2026-09-18)",
    "contractEnums.checkability": "1 (2026-09-18)",
-   "contractEnums.declaration": "1 (2026-09-18)"
+   "contractEnums.declaration": "1 (2026-09-18)",
+   "R2.kind": "1 (2026-09-24, draft) - narrow by intent; not a general rules ontology",
+   "R3.effect": "1 (2026-09-24)",
+   "P12.state": "1 (2026-09-24) - bound to knowledge core EM-0007 EMD-0014 EMP-0040 \"Active / Inactive / Waiting / Resting / Observing\"; not duplicate vocabulary",
+   "P13.persistence": "1 (2026-09-24) - bound to EM-0007 EMP-0042 \"Temporary / Persistent\""
   },
   "S3.noun": [
    "band",
@@ -1086,7 +1165,27 @@
    ]
   },
   "scopeConformance": "CHECKED 20 September at his instruction, against his definition. All six uses: RPC-001-11.b (J11b) CONFORMS - it is about the build-out episode and cites KR-02/KR-03 as OWNER_RULING - and so does its J11b declaration. The other four do NOT: RPC-001-16.a (T4), 16.b (T3) and 16.c (T6) are all keyed on the selector trigger in {SCORE, OUT_END_LINE, OUT_TOUCHLINE, POSSESSION_CHANGE}, which are the triggers that END an episode and begin the NEXT one, so scoping them to the build-out episode claims exactly the extension to subsequent attacking episodes his definition excludes. The T4 declaration inherits 16.a. All three items are also basis ENGINE_ONLY on the sentence retired under KR-05 item 6, so they support nothing under SD-21, and 16.c additionally contradicts SD-20. Reported, not broadened; recorded as a contract-authoring task.",
-  "scopePlaceholderDefect": "Separately, 64 items and declarations carry an em-dash placeholder where a scope belongs. A contract-authoring defect from the restatement exercise, not a vocabulary question."
+  "scopePlaceholderDefect": "Separately, 64 items and declarations carry an em-dash placeholder where a scope belongs. A contract-authoring defect from the restatement exercise, not a vocabulary question.",
+  "R2.kind": [
+   "receiver_eligibility",
+   "action_order",
+   "direction_class"
+  ],
+  "R3.effect": [
+   "PROHIBITED",
+   "REQUIRED"
+  ],
+  "P12.state": [
+   "ACTIVE",
+   "INACTIVE",
+   "WAITING",
+   "RESTING",
+   "OBSERVING"
+  ],
+  "P13.persistence": [
+   "TEMPORARY",
+   "PERSISTENT"
+  ]
  },
  "applicability": {
   "note": "Added 20 September. Some FIELD rows do not apply to every element of their collection, and the register stated that ONLY inside valueType prose. Without this as data, line enumeration creates lines no author can ever close and Gate A can never pass. A row listed here yields NO line for an element whose condition fails; it is not NOT_AUTHORED, it is not applicable.",
@@ -1320,6 +1419,43 @@
    "neverUsableTo": "suppress, bypass or reclassify a structural claim merely because no suitable row exists",
    "onViolation": "LOAD_REFUSAL naming the condition that failed",
    "source": "Christian, 2026-09-24"
+  },
+  "BY_CONSTRUCTION": {
+   "meaning": "this structural requirement is necessarily true by the authoritative representation schema, and is satisfied by the named schema invariant rather than by an authored value",
+   "validOnlyWhen": [
+    "the item names a registered invariant in its `satisfiedBy` field",
+    "that invariant is mechanically testable against the register, and holds"
+   ],
+   "neverUsableTo": "excuse a requirement the schema does not mechanically entail. It is not NO_ROW and not silence: the contract still makes a structural claim, and the schema supplies its entailment",
+   "onViolation": "LOAD_REFUSAL naming the missing or failing invariant",
+   "doNotGeneralize": "beyond mechanically necessary schema consequences",
+   "source": "Christian, 2026-09-24",
+   "invariants": {
+    "SINGLE_RECTANGULAR_PLAYING_AREA": {
+     "states": "The playing area is represented as exactly two scalar dimensions — E2 length and E3 width — and no row enumerates playing areas. A representation therefore holds exactly one rectangular playing area in every well-formed game; it can be neither stated nor varied.",
+     "test": {
+      "fieldRowsPresent": [
+       "E2",
+       "E3"
+      ],
+      "noCollectionRowWithPathPrefix": "envelope.area"
+     },
+     "entails": "a single rectangular playing area"
+    }
+   }
+  }
+ },
+ "boundVocabularies": {
+  "note": "Vocabularies whose canonical owner is another layer. The Game Representation holds the realized value; the concept is owned elsewhere and must not be re-authored here.",
+  "P12.state": {
+   "owner": "knowledge core EM-0007 Participant State",
+   "dimension": "EMD-0014",
+   "parameter": "EMP-0040"
+  },
+  "P13.persistence": {
+   "owner": "knowledge core EM-0007 Participant State",
+   "dimension": "EMD-0014",
+   "parameter": "EMP-0042"
   }
  }
 }

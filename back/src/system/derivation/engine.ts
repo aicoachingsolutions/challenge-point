@@ -619,20 +619,11 @@ export function runStages0to5(input: DerivationInput): PartialResult & {
     const derived = deriveLines(admitted, base.classes, base.lines, scope.applicationSets, scope.declarations, index, input.envelope || {})
     base.stopped.push(...derived.stopped)
 
-    // SD-48 — an item whose reach a class neither entails nor contradicts. The package's reach rule is
-    // written for an element; under SD-47 an element is a class, and a selector the class leaves open
-    // would constrain some of its elements and not others. Nothing establishes what that means, so the
-    // engine records it, derives nothing from it, and reports it rather than choosing a reading.
-    if (derived.undeterminedReaches.length) {
-        base.stopped.push({
-            where: 'stage 4, reach',
-            why:
-                `${derived.undeterminedReaches.length} item-to-class reaches are undetermined: the class's authoritative selector ` +
-                'neither entails nor contradicts the item\'s selector, so the item would constrain some elements of the class and ' +
-                'not others. The package\'s reach rule is written for an element, and SD-47 makes an element a class. Nothing is ' +
-                'derived from these, and no reading is chosen here.',
-        })
-    }
+    // SD-49 settled this: an item whose reach a class neither entails nor contradicts has "applicability
+    // unresolved; derive nothing from that application", and the indeterminate case is recorded rather
+    // than resolved by interpretation. So it is **not** a stop — the semantics are established, and the
+    // engine is doing what they say. The count stays in `run.counts.undeterminedReaches`, where it is
+    // diagnostic rather than an open question.
 
     const openCount = [...derived.lines.values()].filter(l => l.open).length
     base.run.counts.applicationSets = scope.applicationSets.length

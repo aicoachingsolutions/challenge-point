@@ -42,6 +42,19 @@ export function forwardResults(
             const key = `${ref.contractId}:${ref.itemId}`
             const supporting = item.strictness === 'SUPPORTING'
 
+            // Satisfied by construction: the schema invariant the item names entails its requirement,
+            // and the loader has already checked that the invariant holds. The claim is met — so this is
+            // SATISFIED, not inert and not outside the representation.
+            if (String(item.row) === 'BY_CONSTRUCTION') {
+                outcomes.push({
+                    item: ref,
+                    result: 'SATISFIED',
+                    reach: [],
+                    why: `entailed by the schema invariant ${String((item as any).satisfiedBy)}`,
+                })
+                continue
+            }
+
             // Outside the representation by his own boundary — counted, never dropped, never checked.
             if (item.checkability === 'OUTSIDE_BOUNDARY') {
                 outcomes.push({ item: ref, result: 'NOT_CHECKABLE_OUTSIDE_REPRESENTATION', reach: [], why: 'recorded outside the representation boundary' })

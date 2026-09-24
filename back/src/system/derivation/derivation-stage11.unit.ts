@@ -280,21 +280,56 @@ test('the repair restores authored text and changes no structure', () => {
  * deliberately prevents it. This test is the boundary — every remaining refusal must be one of the
  * three known semantic issues, and a new kind of refusal appearing here is a finding, not a failure.
  */
-test('every remaining refusal is a known, specific semantic issue — a correct refusal', () => {
+test('the Phase A load boundary is reached: every contract loads, none refuses', () => {
     const result: any = runStages0to10(corpusInput())
-    const known = [
-        /row is not a register row id/, // the five structural no-row items
-        /no declared operation/, // the three modifiers without an operation (SD-30)
-        /declaration scope is not registered/, // PASS-COMBINATION-GATE's em-dash declaration scopes
-    ]
-    for (const refusal of result.failures.filter((f: any) => f.kind === 'LOAD_REFUSAL')) {
-        assert.ok(
-            known.some(pattern => pattern.test(String(refusal.detailRef))),
-            `an unclassified refusal — phase A must account for it: ${refusal.detailRef}`,
-        )
-    }
-    assert.equal(result.run.counts.contractsAdmitted, 3)
-    assert.equal(result.run.counts.contractsRefused, 5, 'each refusing for a reason that is his to rule')
+    const refusals = result.failures.filter((f: any) => f.kind === 'LOAD_REFUSAL')
+    assert.deepEqual(
+        refusals.map((f: any) => `${f.locus.contractId}: ${f.detailRef}`),
+        [],
+        'after the ruled repairs no contract refuses at load',
+    )
+    assert.equal(result.run.counts.contractsAdmitted, 8)
+    assert.equal(result.run.counts.contractsRefused, 0)
+})
+
+test('the ruled restatements each land, and nothing named in a ruling goes missing', () => {
+    loadCorpusContracts()
+    assert.equal(restatementTally.applied, 20, 'the twenty NO_ROW items')
+    assert.deepEqual(restatementTally.withheld, [], 'none was named but disqualified')
+    assert.equal(restatementTally.itemsRestated, 6)
+    assert.equal(restatementTally.itemsRemoved, 2, 'WIDEZONE-13.a and 13.b')
+    assert.equal(restatementTally.itemsAdded, 1, 'the recovered GF4 operation')
+    assert.equal(restatementTally.declarationScopes, 64)
+    assert.deepEqual(restatementTally.notFound, [], 'every item a ruling names was found')
+})
+
+test('BY_CONSTRUCTION is satisfied by its named invariant, not excused by it', () => {
+    const result: any = runStages0to10(corpusInput())
+    const outcome = result.forward.find((f: any) => f.item.itemId === 'GF2-01')
+    assert.equal(outcome.result, 'SATISFIED', 'the schema entails the claim, so the claim is met')
+    assert.ok(/SINGLE_RECTANGULAR_PLAYING_AREA/.test(outcome.why), 'and the invariant that entails it is named')
+})
+
+test('BY_CONSTRUCTION refuses an invariant that is absent, untestable, or does not hold', () => {
+    const base = item({ itemId: 'BC-1', row: 'BY_CONSTRUCTION', requirement: 'EQUALS', value: 'x' })
+    const refusalOf = (result: any) => String((result.failures.find((f: any) => f.kind === 'LOAD_REFUSAL') || {}).detailRef)
+
+    assert.ok(/name a registered schema invariant/.test(refusalOf(runStages0to10(input([contract([base])])))), 'no invariant named')
+
+    const wrong = runStages0to10(input([contract([{ ...base, satisfiedBy: 'NO_SUCH_INVARIANT' } as any])]))
+    assert.ok(/name a registered schema invariant/.test(refusalOf(wrong)), 'an unregistered invariant')
+
+    // An invariant whose test would not hold must refuse rather than be taken on trust.
+    const broken = JSON.parse(JSON.stringify(REGISTER))
+    broken.contractSentinels.BY_CONSTRUCTION.invariants.SINGLE_RECTANGULAR_PLAYING_AREA.test.fieldRowsPresent = ['E2', 'NOT_A_ROW']
+    const failing = runStages0to10(input([contract([{ ...base, satisfiedBy: 'SINGLE_RECTANGULAR_PLAYING_AREA' } as any])], broken))
+    assert.ok(/does not hold/.test(refusalOf(failing)), 'an invariant that does not hold')
+
+    // And one that cannot be executed at all is not assumed true.
+    const untestable = JSON.parse(JSON.stringify(REGISTER))
+    untestable.contractSentinels.BY_CONSTRUCTION.invariants.SINGLE_RECTANGULAR_PLAYING_AREA.test = { somethingElse: true }
+    const unexecutable = runStages0to10(input([contract([{ ...base, satisfiedBy: 'SINGLE_RECTANGULAR_PLAYING_AREA' } as any])], untestable))
+    assert.ok(/cannot execute/.test(refusalOf(unexecutable)), 'an invariant this engine cannot test')
 })
 
 // ---------------------------------------------------------------------------------------------
@@ -342,17 +377,35 @@ test('the twenty ruled restatements apply, and none is applied against its condi
     assert.deepEqual(restatementTally.withheld, [], 'none was named but disqualified')
 })
 
-test('the five structural no-row items are NOT restated — they are evidence, not material', () => {
+/**
+ * The five structural items were never swept into the blanket NO_ROW list — each was ruled
+ * individually, and two of them only *look* alike in their outcome. The guard that matters is that
+ * none reached its treatment through the generic list.
+ */
+test('each of the five structural items got its own ruled treatment, not the blanket one', () => {
     const contracts = loadCorpusContracts()
-    const structural = contracts.flatMap(c => c.items.filter(i => String(i.row) === 'NONE').map(i => `${c.contractId}::${i.itemId}`))
-    assert.deepEqual(structural.sort(), [
+    const rowOf = (contractId: string, itemId: string) =>
+        String(contracts.find(c => c.contractId === contractId)!.items.find(i => i.itemId === itemId)!.row)
+
+    assert.equal(rowOf('restated:GF2', 'GF2-01'), 'BY_CONSTRUCTION', 'satisfied by a named schema invariant')
+    assert.equal(rowOf('restated:GF2', 'GF2-02'), 'NO_ROW', 'restated back to what its source supports')
+    assert.equal(rowOf('restated:GF2', 'GF2-15'), 'NO_ROW', 'its structural typing retired')
+    assert.equal(rowOf('restated:GF2', 'GF2-22'), 'R1', 'the new Action Restriction capability')
+    assert.equal(rowOf('restated:NEUTRAL-PLAYER-CONDITION', 'NEUTRAL-05.a'), 'P12', 'Performer Participation State')
+
+    for (const id of [
         'restated:GF2::GF2-01',
         'restated:GF2::GF2-02',
         'restated:GF2::GF2-15',
         'restated:GF2::GF2-22',
         'restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-05.a',
-    ])
-    for (const id of structural) assert.ok(!NO_ROW_RESTATEMENTS.has(id), `${id} must not be on the restatement list`)
+    ]) {
+        assert.ok(!NO_ROW_RESTATEMENTS.has(id), `${id} must never reach its row through the blanket list`)
+    }
+
+    // No item anywhere still carries an unregistered no-row spelling.
+    const leftover = contracts.flatMap(c => c.items.filter(i => ['NONE', '—'].includes(String(i.row))).map(i => `${c.contractId}::${i.itemId}`))
+    assert.deepEqual(leftover, [])
 })
 
 console.log(`\n${passed} assertions passed — increment 5\n`)
