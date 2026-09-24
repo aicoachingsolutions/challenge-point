@@ -17,6 +17,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import { ContractItem, DerivationInput, LoadedContract } from './types'
+import { repairCorpusEncoding, RepairTally } from './corpus-repair'
 
 export const CONFORMANCE_DIR = path.resolve(__dirname, '../../../../docs/audits/conformance')
 
@@ -50,8 +51,17 @@ function objectIdOf(name: string, index: number): string {
     return slug || `OBJ-${index}`
 }
 
+/**
+ * Repair phase A — **encoding only**. The original artefact is never modified; the repair is applied on
+ * load and counted, so every run states how much of what it read was repaired. Restatement and new
+ * authoring are not done here: they need a semantic decision that is his.
+ */
+export const repairTally: RepairTally = { strings: 0, charactersRecovered: 0 }
+
 export function loadCorpusContracts(): LoadedContract[] {
-    const raw = readJson('stage-b/contracts.json')
+    repairTally.strings = 0
+    repairTally.charactersRecovered = 0
+    const raw = repairCorpusEncoding(readJson('stage-b/contracts.json'), repairTally)
     const entries: any[] = Array.isArray(raw) ? raw : Object.values(raw)
 
     return entries.map((entry, index) => {

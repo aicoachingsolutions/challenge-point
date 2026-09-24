@@ -129,6 +129,20 @@ export function renderDiagnostic(result: DerivationResult | StampedHalt): string
         out.push(`      ${check.why}`)
         if (check.blockedBy.length) out.push(`      blocked on: ${check.blockedBy.slice(0, 3).join(', ')}${check.blockedBy.length > 3 ? ` (+${check.blockedBy.length - 3})` : ''}`)
     }
+    const blocks = result.gates.gateA.blocks || []
+    if (blocks.length) {
+        out.push('\n  Blocked clauses (SD-62) — a gate block is not a derivation gap:')
+        out.push('    GAP        = authoritative information required during derivation is missing')
+        out.push('    GATE BLOCK = derivation completed as authorized; the gate lacks the structural authority to evaluate')
+        for (const block of blocks) {
+            out.push(`\n    ${block.kind.padEnd(20)} ${block.checkId}`)
+            out.push(`      clause:     ${block.clause}`)
+            const dependency = [...block.dependency.lineIds, ...block.dependency.rows]
+            out.push(`      depends on: ${dependency.length ? dependency.slice(0, 3).join(', ') + (dependency.length > 3 ? ` (+${dependency.length - 3})` : '') : '(the clause itself has no executable definition)'}`)
+            out.push(`      reason:     ${block.reason}`)
+        }
+    }
+
     if (result.gates.gateA.notEstablished.length) {
         out.push('\n  Not established — carried with the result, never counted as passed (SD-43):')
         for (const entry of result.gates.gateA.notEstablished) out.push(`    ${entry.checkId.padEnd(26)} ${entry.clause}`)

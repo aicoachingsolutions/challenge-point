@@ -296,18 +296,53 @@ test('SD-57: an open-text referent is not compared as a token — it blocks inst
     assert.notEqual(overlap.verdict, 'FAIL', 'SD-58: not representable is a gap, never a violation')
 })
 
-test('an unestablishable relationship is reported as a stop, since §3.2 raises no stage-10 GAP record', () => {
+test('SD-62: a blocked clause carries a structured block record, and creates no derivation GAP', () => {
     const result: any = runStages0to10(input(regionModifiers('the wide channel on the far side')))
-    const stop = result.stopped.find((s: any) => s.where === 'stage 10, Gate A' && /not representable/.test(s.why))
-    assert.ok(stop, 'the record-keeping question is surfaced, not silently decided')
-    assert.equal(
-        result.failures.filter((f: any) => f.kind === 'GAP' && f.stage === 10).length,
-        0,
-        '§3.2 does not raise a GAP at stage 10, and the engine does not extend it unilaterally',
-    )
-    // The corpus exercises no such case, so it stays silent there.
-    const corpus: any = runStages0to10(corpusInput())
-    assert.equal(corpus.stopped.length, 0, 'the stop fires only where the case actually arises')
+    const blocks = gateA(result).blocks
+    const block = blocks.find((b: any) => b.checkId === 'GA-MODIFIER-OVERLAP')
+    assert.ok(block, 'the blocked clause has a record of its own')
+    assert.ok(block.clause, 'it identifies the clause')
+    assert.ok(block.dependency.lineIds.length > 0, 'it identifies the unresolved dependency')
+    assert.ok(block.reason, 'it says why evaluation could not be completed')
+    assert.equal(block.kind, 'NOT_REPRESENTABLE')
+
+    // It does not create a derivation GAP, nor turn the derived line into a failed one.
+    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP' && f.stage === 10).length, 0)
+    for (const lineId of block.dependency.lineIds) {
+        const line = result.classified.get(lineId)
+        if (line) assert.notEqual(line.verdict, 'NOT_AUTHORED', 'a gate block never re-states a derived line as failed')
+    }
+    assert.equal(result.stopped.length, 0, 'SD-62 settled this; it is no longer an open question')
+})
+
+test('SD-62: every NOT_EVALUABLE clause anywhere carries a block record', () => {
+    for (const source of [corpusInput(), input(regionModifiers('open text'))]) {
+        const result: any = runStages0to10(source)
+        const blocked = gateA(result).checks.flatMap((c: any) => c.clauses.filter((l: any) => l.verdict === 'NOT_EVALUABLE').map((l: any) => `${c.checkId}|${l.clause}`))
+        const recorded = gateA(result).blocks.map((b: any) => `${b.checkId}|${b.clause}`)
+        assert.deepEqual(blocked.sort(), recorded.sort(), 'no blocked clause escapes without a record')
+        for (const b of gateA(result).blocks) {
+            assert.ok(['KNOWLEDGE_GAP', 'NOT_REPRESENTABLE', 'SPECIFICATION_GAP'].includes(b.kind))
+            assert.ok(b.dependency.lineIds.length + b.dependency.rows.length > 0 || b.kind === 'SPECIFICATION_GAP')
+        }
+    }
+})
+
+test('SD-63: the identity rule is general — an open-text objective reference withholds, not fails', () => {
+    const contracts = [
+        contract([
+            item({ itemId: 'P-A', row: 'P1', selector: 'team=A', requirement: 'EXISTS' }),
+            item({ itemId: 'P-B', row: 'P1', selector: 'team=B', requirement: 'EXISTS' }),
+            item({ itemId: 'J-A', row: 'J1', selector: 'team=A', requirement: 'EXISTS' }),
+            item({ itemId: 'JT-A', row: 'J3', selector: 'team=A', requirement: 'EQUALS', value: 'A' }),
+            item({ itemId: 'JR-A', row: 'J2', selector: 'team=A', requirement: 'EQUALS', value: 'the goal at the far end' }),
+        ]),
+    ]
+    const result: any = runStages0to10(input(contracts))
+    const direction = check(result, 'GA-DIRECTION')
+    const opposite = direction.clauses.find((c: any) => /opposite ends/.test(c.clause))
+    assert.equal(opposite.verdict, 'NOT_EVALUABLE', 'no end is inferred from a text description')
+    assert.notEqual(opposite.verdict, 'FAIL', 'withhold the verdict rather than infer identity from text')
 })
 
 test('SD-58: event conditions whose referents are open text block as a gap, with no refusal', () => {
@@ -517,24 +552,38 @@ test('shuffled input produces an identical gate report', () => {
 // rather than produced by a script that no longer exists.
 // ---------------------------------------------------------------------------------------------
 
+/** The baseline after repair phase A (encoding only). Quoted in the increment report. */
 test('the corpus run reproduces the reported figures exactly', () => {
     const result: any = runStages0to10(corpusInput())
-    assert.equal(result.run.counts.contractsAdmitted, 1)
-    assert.equal(result.run.counts.contractsRefused, 7)
-    assert.equal(result.run.counts.lines, 15)
-    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 6)
-    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 9)
+    assert.equal(result.run.counts.contractsAdmitted, 3)
+    assert.equal(result.run.counts.contractsRefused, 5)
+    assert.equal(result.run.counts.lines, 95)
+    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 15)
+    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 77)
     assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 8)
     assert.equal(result.failures.filter((f: any) => f.kind === 'COLLISION').length, 0)
-    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 9)
+    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 77)
 })
 
 test('Gate A fails on the corpus, and says which checks and why', () => {
     const result: any = runStages0to10(corpusInput())
     assert.equal(gateA(result).verdict, 'FAIL')
     const failing = gateA(result).checks.filter((c: any) => c.verdict === 'FAIL').map((c: any) => c.checkId)
-    assert.deepEqual(failing.sort(), ['GA-NO-FAILED-LINE', 'GA-REFERENCE-INTEGRITY'])
+    assert.deepEqual(failing.sort(), ['GA-INFORMATION', 'GA-NO-FAILED-LINE', 'GA-ONE-PRIMARY-EVENT', 'GA-REFERENCE-INTEGRITY'])
     for (const c of gateA(result).checks) assert.ok(c.why && c.why.length > 0, `${c.checkId} gives no reason`)
+})
+
+/**
+ * Phase A brought real knowledge into the engine, and the gate now sees things it could not see before.
+ * These are **not** repaired here: they are downstream of phase B, and his order is upstream first.
+ */
+test('what the newly admitted knowledge exposes is recorded, not repaired', () => {
+    const result: any = runStages0to10(corpusInput())
+    const primary = check(result, 'GA-ONE-PRIMARY-EVENT')
+    assert.equal(primary.clauses[0].verdict, 'FAIL', 'three primary events where SD-06 requires exactly one')
+    assert.ok(/3 primary event/.test(primary.why))
+    const information = check(result, 'GA-INFORMATION')
+    assert.equal(information.clauses.find((c: any) => /registered trigger/.test(c.clause)).verdict, 'FAIL')
 })
 
 test('the fifteen Gate A checks are all present, and GA-RESIDUAL-SPACE is gone (SD-45)', () => {

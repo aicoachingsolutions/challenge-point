@@ -12,7 +12,8 @@
  */
 import assert from 'node:assert/strict'
 
-import { corpusInput, loadRegister } from './corpus'
+import { corpusInput, loadRegister, loadCorpusContracts, repairTally } from './corpus'
+import { repairEncoding } from './corpus-repair'
 import { runDerivation, runStages0to10 } from './engine'
 import { isStampedHalt } from './emit'
 import { ContractItem, DerivationInput, LoadedContract } from './types'
@@ -242,6 +243,46 @@ test('SD-49: an indeterminate reach derives nothing and is recorded', () => {
     const record = result.derived.lines.get(s3.lineId)
     assert.equal(record.entailing.length, 0)
     assert.ok(record.undetermined.length > 0, 'and it is recorded rather than rounded to false')
+})
+
+// ---------------------------------------------------------------------------------------------
+// Corpus repair, phase A — encoding only. It restores authored text and decides nothing.
+// ---------------------------------------------------------------------------------------------
+
+test('the encoding repair is the exact inverse of the corruption, not a character list', () => {
+    // Each of these is a UTF-8 sequence that was read as CP1252. None is special-cased in the code.
+    assert.equal(repairEncoding('a â€” b'), 'a — b')
+    assert.equal(repairEncoding('Â§1'), '§1')
+    assert.equal(repairEncoding('x â‰¥ 2'), 'x ≥ 2')
+    assert.equal(repairEncoding('p â†’ q'), 'p → q')
+})
+
+test('anything that is not this defect is left exactly as it was', () => {
+    assert.equal(repairEncoding('plain ascii'), null)
+    assert.equal(repairEncoding('already — correct'), null, 'a real em dash is not re-repaired')
+    assert.equal(repairEncoding('café'), null, 'a legitimate Latin-1 character is not touched')
+    assert.equal(repairEncoding(''), null)
+})
+
+test('the repair restores authored text and changes no structure', () => {
+    const contracts = loadCorpusContracts()
+    assert.ok(repairTally.strings > 0, 'the corpus does carry the defect')
+    const text = JSON.stringify(contracts)
+    assert.ok(!text.includes('â€”'), 'no mojibake em dash survives')
+    assert.ok(!text.includes('Â§'), 'no mojibake section sign survives')
+    assert.ok(text.includes('—'), 'the authored em dashes are back')
+})
+
+test('phase A repairs encoding only — every remaining refusal needs a semantic decision', () => {
+    const result: any = runStages0to10(corpusInput())
+    for (const refusal of result.failures.filter((f: any) => f.kind === 'LOAD_REFUSAL')) {
+        assert.ok(
+            /row is not a register row id|no declared operation/.test(String(refusal.detailRef)),
+            `a refusal phase A should have fixed: ${refusal.detailRef}`,
+        )
+    }
+    assert.equal(result.run.counts.contractsAdmitted, 3, 'encoding repair alone admits three contracts')
+    assert.equal(result.run.counts.contractsRefused, 5, 'and five still need his ruling')
 })
 
 console.log(`\n${passed} assertions passed — increment 5\n`)

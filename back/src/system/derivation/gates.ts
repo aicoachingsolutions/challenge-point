@@ -66,10 +66,44 @@ export interface CheckResult {
     blockedBy: string[]
 }
 
+/**
+ * SD-62, his ruling of 24 September. A blocked gate clause carries a structured record of its own — it
+ * does **not** create a derivation `GAP`:
+ *
+ *   "GAP = authoritative information required during derivation is missing.
+ *    GATE BLOCK = derivation completed as far as authorized, but the gate lacks sufficient structural
+ *    authority to evaluate a particular clause.
+ *    Both prevent an unearned PASS, but they describe different failures of knowledge."
+ *
+ * A block never changes a line from derived to failed, never creates a gap retrospectively, never
+ * asserts that the game condition failed, and never extends the derivation failure taxonomy. It lives
+ * in the gate's own audit trail.
+ */
+export type GateBlockKind =
+    /** The dependency is a line derivation left unauthored or unresolved. */
+    | 'KNOWLEDGE_GAP'
+    /** A structural identity could not be established through the registered reference system (SD-63). */
+    | 'NOT_REPRESENTABLE'
+    /** The clause itself has no executable definition; carries a refusal. */
+    | 'SPECIFICATION_GAP'
+
+export interface GateBlock {
+    checkId: string
+    clause: string
+    kind: GateBlockKind
+    /** The unresolved dependency: lines, and rows named where no line exists at all. */
+    dependency: { lineIds: string[]; rows: string[] }
+    /** Why evaluation could not be completed. */
+    reason: string
+    refusalId?: string
+}
+
 export interface GateReport {
     verdict: GateVerdict
     checks: CheckResult[]
     notEstablished: { checkId: string; clause: string }[]
+    /** SD-62 — one record per blocked clause. Never empty while any clause is NOT_EVALUABLE. */
+    blocks?: GateBlock[]
     /**
      * SD-54 — the split a summary must not flatten. A clause that passed with no applicable instances is
      * not evidence that the property holds of anything, and an aggregate count would hide that.
@@ -132,10 +166,12 @@ class Probe {
         if (line.lineState === 'WITHDRAWN') return { state: 'ABSENT' }
         if (line.lineState === 'CONDITIONAL' && !line.verdict) {
             if (!this.blockedBy.includes(lineId)) this.blockedBy.push(lineId)
+            if (!this.blockKind.has(lineId)) this.blockKind.set(lineId, 'KNOWLEDGE_GAP')
             return { state: 'CONDITIONAL' }
         }
         if (line.verdict === 'NOT_AUTHORED' || line.verdict === 'UNRESOLVED' || line.verdict === 'INVENTED') {
             if (!this.blockedBy.includes(lineId)) this.blockedBy.push(lineId)
+            if (!this.blockKind.has(lineId)) this.blockKind.set(lineId, 'KNOWLEDGE_GAP')
             return { state: 'FAILED' }
         }
         if (line.verdict && line.verdict.startsWith('FREE')) {
@@ -171,10 +207,13 @@ class Probe {
      * it is not a violation, and never a collision. Gap before collision stays intact.
      */
     unestablishedCount = 0
+    /** Why each blocked line blocked — so a block record can say which kind of failure it is. */
+    readonly blockKind = new Map<string, GateBlockKind>()
 
     unestablished(lineId: string): void {
         this.unestablishedCount++
         if (!this.blockedBy.includes(lineId)) this.blockedBy.push(lineId)
+        this.blockKind.set(lineId, 'NOT_REPRESENTABLE')
     }
 
     get blocked(): boolean {
@@ -194,10 +233,14 @@ const classesOn = (ctx: GateContext, row: string) => ctx.classes.filter(c => c.r
 const lineOf = (classId: string, row: string) => `${classId}::${row}`
 
 /**
- * SD-57, his ruling of 23 September: "An event referent establishes structural identity only when it
- * resolves through an existing registered structural reference. Open-text event descriptions do not
- * establish event identity." No synonym matching — and equally, **exact open-text equality is not
- * promoted into canonical identity**, which is what comparing two raw value strings would do.
+ * **SD-63**, his generalization of 24 September, replacing the separate event and region rules:
+ *
+ *   "Open-text equality does not establish identity for a structural referent. Structural identity must
+ *    be established through the registered reference/selector system. Where that identity cannot be
+ *    established, withhold the verdict rather than infer identity from matching text."
+ *
+ * One rule, applied wherever a structural referent is read — objective references, information subjects,
+ * consequence referents, objective-set members, modifier referents.
  *
  * The engine's registered structural reference is an element class id. So:
  *   HELD       the value names a class this game holds — identity established, comparisons decidable;
@@ -232,11 +275,36 @@ function combine(clauses: ClauseResult[]): ClauseVerdict {
 interface CheckOutcome {
     check: CheckResult
     refusals: RefusalRecord[]
-    /** How many relationships this check could not establish for want of a representable reference. */
-    unestablished: number
+    /** SD-62 — one record per blocked clause, built here so none can be emitted without one. */
+    blocks: GateBlock[]
 }
 
 function result(checkId: string, probe: Probe, clauses: ClauseResult[], why: string): CheckOutcome {
+    const rows = [...new Set(probe.missing)]
+    const blocks: GateBlock[] = clauses
+        .filter(c => c.verdict === 'NOT_EVALUABLE')
+        .map(c => {
+            // SD-62 requires every block to identify its unresolved dependency. Where a check could not
+            // name a specific line, what it consulted is the honest answer — a record that names nothing
+            // would say only that something went wrong, which is what this ruling exists to prevent.
+            const named = probe.blockedBy.length || rows.length
+            return {
+                checkId,
+                clause: c.clause,
+                kind: c.refusalId
+                    ? ('SPECIFICATION_GAP' as const)
+                    : probe.blockedBy.some(l => probe.blockKind.get(l) === 'NOT_REPRESENTABLE')
+                      ? ('NOT_REPRESENTABLE' as const)
+                      : ('KNOWLEDGE_GAP' as const),
+                dependency: {
+                    lineIds: named ? probe.blockedBy : probe.subjects,
+                    rows: named || probe.subjects.length ? rows : ['(the check found no instance to range over)'],
+                },
+                reason: why,
+                ...(c.refusalId ? { refusalId: c.refusalId } : {}),
+            }
+        })
+
     return {
         check: {
             checkId,
@@ -248,7 +316,7 @@ function result(checkId: string, probe: Probe, clauses: ClauseResult[], why: str
             blockedBy: probe.blockedBy,
         },
         refusals: probe.refusals,
-        unestablished: probe.unestablishedCount,
+        blocks,
     }
 }
 
@@ -645,8 +713,15 @@ function gaInformation(ctx: GateContext): CheckOutcome {
     const badTriggers: string[] = []
 
     for (const rule of rules) {
-        const subject = probe.cell(lineOf(rule.classId, 'V16'))
-        if (subject.state === 'DERIVED' && !held.has(String(subject.value))) badSubjects.push(rule.classId)
+        // SD-63 — a subject that establishes no structural identity withholds the verdict; only a
+        // reference that resolves *and* names nothing held is a violation the engine can establish.
+        const subjectLine = lineOf(rule.classId, 'V16')
+        const subject = probe.cell(subjectLine)
+        if (subject.state === 'DERIVED') {
+            const identity = identityOf(ctx, subject.value)
+            if (identity === 'DANGLING') badSubjects.push(rule.classId)
+            else if (identity === 'OPEN_TEXT') probe.unestablished(subjectLine)
+        }
         const trigger = probe.cell(lineOf(rule.classId, 'V17'))
         if (trigger.state === 'DERIVED') {
             const name = typeof trigger.value === 'object' && trigger.value ? String((trigger.value as any).trigger) : String(trigger.value)
@@ -778,7 +853,9 @@ function gaEffectTyped(ctx: GateContext): CheckOutcome {
         // delta. Only the applicable one is required to resolve.
         const referentRow = String(effect.state === 'DERIVED' ? effect.value : '') === 'ACCESS' ? 'V14b' : 'V14c'
         const referent = probe.cell(lineOf(consequence.classId, referentRow))
-        if (referent.state === 'DERIVED' && referentRow === 'V14b') {
+        if (referent.state === 'DERIVED' && referentRow === 'V14b' && identityOf(ctx, referent.value) === 'OPEN_TEXT') {
+            probe.unestablished(lineOf(consequence.classId, referentRow)) // SD-63
+        } else if (referent.state === 'DERIVED' && referentRow === 'V14b') {
             uniqueSeen++
             const target = ctx.classes.find(c => c.classId === String(referent.value))
             if (!target) uniqueProblems.push(`${consequence.classId}: region referent names no held element`)
@@ -848,6 +925,12 @@ function gaOnePrimaryEvent(ctx: GateContext): CheckOutcome {
             continue
         }
         for (const name of Array.isArray(referents.value) ? referents.value : [referents.value]) {
+            // SD-63 — open text establishes no identity, so it establishes no violation either.
+            if (identityOf(ctx, name) === 'OPEN_TEXT') {
+                probe.unestablished(lineOf(condition.classId, 'V5'))
+                positionBlocked = true
+                continue
+            }
             const target = ctx.classes.find(c => c.classId === String(name))
             if (!target) {
                 unpositioned.push(`${String(name)} names no held element`)
@@ -922,10 +1005,12 @@ function gaDirection(ctx: GateContext): CheckOutcome {
         const designation = designationOf(team)
         if (!designation) {
             undesignated++
+            probe.missing.push(`${team.classId} (the team class carries no designation)`)
             continue
         }
         if (!attacked.has(designation)) unattached.push(`${team.classId} (${designation}) attacks no objective`)
     }
+    if (objectives.length && !attacked.size) probe.missing.push('J3 (no objective names the team that attacks it)')
 
     const attacksClause = unattached.length ? fail(ATTACKS, teams.length) : undesignated || probe.blocked ? notEvaluable(ATTACKS) : pass(ATTACKS, teams.length)
 
@@ -934,6 +1019,11 @@ function gaDirection(ctx: GateContext): CheckOutcome {
     const endOf = (objectiveClassId: string): 'LOW' | 'HIGH' | 'CENTRE' | null => {
         const reference = probe.cell(lineOf(objectiveClassId, 'J2'))
         if (reference.state !== 'DERIVED' || length.state !== 'DERIVED') return null
+        // SD-63 — an objective reference that is open text establishes no identity, so no end is read.
+        if (identityOf(ctx, reference.value) === 'OPEN_TEXT') {
+            probe.unestablished(lineOf(objectiveClassId, 'J2'))
+            return null
+        }
         const referent = ctx.classes.find(c => c.classId === String(reference.value))
         if (!referent) return null
         const alongRow = referent.row === 'S2' ? 'S5' : referent.row === 'O1' ? 'O4' : null
@@ -998,8 +1088,16 @@ function gaObjectiveSets(ctx: GateContext): CheckOutcome {
 
         const list = members.state === 'DERIVED' ? (Array.isArray(members.value) ? members.value : [members.value]) : null
         if (list) {
-            membersSeen += list.length
-            for (const member of list) if (!held.has(String(member))) memberProblems.push(`${set.classId}: member ${String(member)} resolves to no held element`)
+            for (const member of list) {
+                // SD-63 — withhold rather than infer identity from text.
+                const identity = identityOf(ctx, member)
+                if (identity === 'OPEN_TEXT') {
+                    probe.unestablished(lineOf(set.classId, 'J7'))
+                    continue
+                }
+                membersSeen++
+                if (identity === 'DANGLING') memberProblems.push(`${set.classId}: member ${String(member)} resolves to no held element`)
+            }
             if (minimum.state === 'DERIVED') {
                 minimumSeen++
                 const min = toRational(minimum.value)
@@ -1193,13 +1291,14 @@ export function runGates(ctx: GateContext): GateOutcome {
     const refusals: RefusalRecord[] = []
     const checks: CheckResult[] = []
 
-    let unestablished = 0
+    const blocks: GateBlock[] = []
     for (const check of GATE_A_CHECKS) {
         const outcome = check(ctx)
         checks.push(outcome.check)
         refusals.push(...outcome.refusals)
-        unestablished += outcome.unestablished
+        blocks.push(...outcome.blocks)
     }
+    blocks.sort((a, b) => `${a.checkId}|${a.clause}`.localeCompare(`${b.checkId}|${b.clause}`))
 
     checks.sort((a, b) => a.checkId.localeCompare(b.checkId))
     const notEstablished = checks
@@ -1213,6 +1312,7 @@ export function runGates(ctx: GateContext): GateOutcome {
         verdict: checks.some(c => c.verdict === 'FAIL') ? 'FAIL' : checks.some(c => c.verdict === 'NOT_EVALUABLE') ? 'NOT_EVALUABLE' : 'PASS',
         checks,
         notEstablished,
+        blocks,
         evidence: {
             clausesEvaluated: passedClauses.filter(c => c.basis === 'EVALUATED').length,
             clausesVacuous: passedClauses.filter(c => c.basis === 'NO_APPLICABLE_INSTANCES').length,
@@ -1223,23 +1323,6 @@ export function runGates(ctx: GateContext): GateOutcome {
     }
 
     const stopped: { where: string; why: string }[] = []
-
-    // SD-58 gives the *verdict* for a relationship that cannot be established — GAP / NOT EVALUABLE,
-    // naming the dependency — and the clause reports exactly that. What it does not settle is the
-    // *record*: §3.2 raises a `GAP` failure at stages 2, 5, 6 and 7, and stage 10 is not among them.
-    //
-    // The line in question is typically derived, so no earlier stage raised a gap for it either, and
-    // nothing in `failures` marks the case. The engine does not mint a stage-10 GAP record, because
-    // extending §3.2's list is a change to the record model rather than an implementation detail.
-    // The clause blocks either way, so this cannot produce a pass — only a thinner audit trail.
-    if (unestablished > 0) {
-        stopped.push({
-            where: 'stage 10, Gate A',
-            why:
-                `${unestablished} relationship(s) could not be established because the reference is not representable. SD-58 gives the verdict — NOT EVALUABLE, naming the dependency — and that is reported. ` +
-                'But §3.2 raises a GAP record only at stages 2, 5, 6 and 7, so no failure record marks these, and the line itself is usually derived. Whether stage 10 should raise a GAP record is not established.',
-        })
-    }
 
     // §1.4: `value` is required "iff `derived`". A resolved line holding no value is an engine defect,
     // not a defect of the game, and it would otherwise surface as a check failing for a reason that is

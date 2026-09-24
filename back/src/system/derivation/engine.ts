@@ -353,9 +353,10 @@ function materialiseMembers(
     classified: Map<string, ClassifiedLine>,
     derived: Map<string, DerivedLine>,
     index: RegisterIndex,
-): { lines: ResolutionLine[]; classified: Map<string, ClassifiedLine>; withheld: number } {
+): { lines: ResolutionLine[]; classified: Map<string, ClassifiedLine>; derived: Map<string, DerivedLine>; withheld: number } {
     const produced: ResolutionLine[] = []
     const verdicts = new Map<string, ClassifiedLine>()
+    const records = new Map<string, DerivedLine>()
     let withheld = 0
 
     for (const line of lines) {
@@ -396,10 +397,23 @@ function materialiseMembers(
                 collidingItems: [],
                 resolvedBy: membership.resolvedBy,
             })
+
+            // §1.4 requires a value wherever a line is derived. A member line's value is the member,
+            // and its support is the membership line's — inherited, never newly minted.
+            records.set(memberLine.lineId, {
+                lineId: memberLine.lineId,
+                entailing: record && record.entailing.length ? record.entailing.map(e => ({ ...e, value: member })) : [],
+                bounding: [],
+                undetermined: [],
+                open: null,
+                standingDecisions: record ? [...record.standingDecisions] : [],
+                standingValue: record && record.standingValue && !record.entailing.length && !record.session ? { id: record.standingValue.id, value: member } : null,
+                session: record && record.session ? { row: record.session.row, value: member } : null,
+            })
         }
     }
 
-    return { lines: produced, classified: verdicts, withheld }
+    return { lines: produced, classified: verdicts, derived: records, withheld }
 }
 
 /**
@@ -515,6 +529,7 @@ export function runStages0to8(input: DerivationInput) {
     const members = materialiseMembers(base.lines, classified, base.derived.lines, index)
     base.lines.push(...members.lines)
     for (const [lineId, line] of members.classified) classified.set(lineId, line)
+    for (const [lineId, record] of members.derived) base.derived.lines.set(lineId, record)
     base.run.counts.memberLines = members.lines.length
     base.run.counts.memberSetsUnresolved = members.withheld
 
