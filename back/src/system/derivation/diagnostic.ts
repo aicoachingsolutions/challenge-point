@@ -122,6 +122,19 @@ export function renderDiagnostic(result: DerivationResult | StampedHalt, repairs
         out.push(...table(reasons.map(([k, v]) => [k, v]), 44))
     }
 
+    // What each derived line actually resolved to. Counts alone let the resolution view and the gate
+    // view drift apart without either being visibly wrong — which is exactly what happened to
+    // `game::V1`. Printing the values makes the diagnostic self-evidencing on that question.
+    const derived = result.resolution.filter(e => e.state === 'derived')
+    if (derived.length) {
+        out.push(section('DERIVED VALUES'))
+        for (const entry of derived) {
+            const value = typeof entry.value === 'object' ? JSON.stringify(entry.value) : String(entry.value)
+            out.push(`  ${entry.lineId.padEnd(54)} ${String(entry.resolvedBy ?? '').padEnd(18)} ${value}`)
+            if (entry.support.length > 1) out.push(`  ${''.padEnd(54)} ${''.padEnd(18)} supported by ${entry.support.length} contributions`)
+        }
+    }
+
     out.push(section('ITEM OUTCOMES'))
     out.push(...table(tally(result.audit.items, i => i.result).map(([k, v]) => [k, v])))
 

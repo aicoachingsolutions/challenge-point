@@ -30,7 +30,7 @@
  */
 
 import { ClassifiedLine } from './classify'
-import { DerivedLine } from './derive'
+import { DerivedLine, resolvedValue } from './derive'
 import { ItemOutcome } from './forward'
 import { RegisterIndex } from './register'
 import { add, compare, Interval, lt, lte, Rational, toInterval, toRational, ZERO } from './rational'
@@ -179,19 +179,9 @@ class Probe {
             return { state: 'OPEN', bounds: this.ctx.derived.get(lineId)?.bounding || [] }
         }
         // §1.4's three routes, in the order stage 6 resolved them.
-        // §1.4's routes, in the order stage 6 resolved them. A line resolved by composition (SD-78)
-        // carries the single surviving member — never the permitted set (SD-80).
-        const record = this.ctx.derived.get(lineId)
-        const value = record?.session
-            ? record.session.value
-            : record?.entailing.length
-              ? record.entailing[0].value
-              : record?.narrowedTo
-                ? record.narrowedTo.members.length === 1
-                    ? record.narrowedTo.members[0]
-                    : undefined
-                : record?.standingValue?.value
-        return { state: 'DERIVED', value }
+        // One shared answer to "what value does this line carry", so the gate can never disagree with
+        // the emitted result about it.
+        return { state: 'DERIVED', value: resolvedValue(this.ctx.derived.get(lineId))?.value }
     }
 
     /**
@@ -1353,15 +1343,12 @@ export function runGates(ctx: GateContext): GateOutcome {
     // §1.4: `value` is required "iff `derived`". A resolved line holding no value is an engine defect,
     // not a defect of the game, and it would otherwise surface as a check failing for a reason that is
     // not the real one — which is how the standing-decision route was found to carry no value at all.
+    // It asks the same resolver the emitted result uses, so the two views cannot drift apart. They did
+    // once — SD-78 added a route and this invariant alone was not told, so it reported `game::V1`
+    // valueless while the emitted result carried its value correctly.
     const valueless = [...ctx.classified.values()]
         .filter(l => l.verdict === 'RESOLVED:ENTAILED')
-        .filter(l => {
-            const record = ctx.derived.get(l.lineId)
-            if (!record) return true
-            if (record.session) return record.session.value === undefined
-            if (record.entailing.length) return record.entailing[0].value === undefined
-            return !record.standingValue || record.standingValue.value === undefined
-        })
+        .filter(l => resolvedValue(ctx.derived.get(l.lineId))?.value === undefined)
         .map(l => l.lineId)
     if (valueless.length) {
         stopped.push({

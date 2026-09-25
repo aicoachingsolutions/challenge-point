@@ -16,7 +16,7 @@
  */
 
 import { ClassifiedLine } from './classify'
-import { DerivedLine } from './derive'
+import { DerivedLine, resolvedValue } from './derive'
 import { ItemOutcome } from './forward'
 import { GateReport } from './gates'
 import {
@@ -255,15 +255,13 @@ export function emit(input: EmitInput): DerivationResult | StampedHalt {
 }
 
 /** §1.4: "`support` — knowledge entailment only; `[]` unless derived." */
+/**
+ * §1.4: "`support` — knowledge entailment only; `[]` unless derived." SD-78 adds that a composition is
+ * supported by *every* contributing narrowing, not only the one whose member survived.
+ */
 function supportOf(record: DerivedLine | undefined, classified: ClassifiedLine | undefined): SupportRef[] {
-    if (!record || classified?.verdict !== 'RESOLVED:ENTAILED') return []
-    if (record.session) return [{ kind: 'SESSION', row: record.session.row }]
-    if (record.entailing.length) return record.entailing.map(e => e.support)
-    // SD-78: "every contributing narrowing retained as support" — all of them, not just the one whose
-    // member survived. The value is what they jointly permit, so they jointly support it.
-    if (record.narrowedTo && record.narrowedTo.members.length === 1) return record.narrowing.map(n => n.support)
-    if (record.standingValue) return [{ kind: 'STANDING_DECISION', id: record.standingValue.id }]
-    return []
+    if (classified?.verdict !== 'RESOLVED:ENTAILED') return []
+    return resolvedValue(record)?.support ?? []
 }
 
 /**
@@ -272,9 +270,5 @@ function supportOf(record: DerivedLine | undefined, classified: ClassifiedLine |
  * is `FREE(choice)`, which carries no value at all.
  */
 function valueOf(record: DerivedLine | undefined): unknown {
-    if (!record) return undefined
-    if (record.session) return record.session.value
-    if (record.entailing.length) return record.entailing[0].value
-    if (record.narrowedTo) return record.narrowedTo.members.length === 1 ? record.narrowedTo.members[0] : undefined
-    return record.standingValue?.value
+    return resolvedValue(record)?.value
 }

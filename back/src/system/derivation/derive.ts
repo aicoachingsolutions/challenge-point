@@ -223,6 +223,44 @@ function mayBeOpen(
     return { authority: 'SD-39', choiceSpace }
 }
 
+/**
+ * How a derived line came by its value. `COMPOSITION` is a form of entailment — several contributions
+ * entailing jointly — so it reports as `ENTAILMENT` in §1.4's closed `resolvedBy` list, which is
+ * unchanged. The distinction is kept here because the support differs: a composition is supported by
+ * *every* contributing narrowing (SD-78).
+ */
+export type ResolutionRoute = 'SESSION' | 'ENTAILMENT' | 'COMPOSITION' | 'STANDING_DECISION'
+
+export interface Resolved {
+    route: ResolutionRoute
+    value: unknown
+    support: SupportRef[]
+}
+
+/**
+ * **The single answer to "does this line have a value, and from where".**
+ *
+ * Four places used to decide this independently — the verdict, the emitted value, the emitted support,
+ * and the gate's own "no resolved line may be valueless" invariant. When SD-78 added a fourth route,
+ * three were updated and the invariant was not, so the gate reported `game::V1` valueless while the
+ * emitted result carried `line_crossed` correctly. The value was never lost; the two views had drifted.
+ *
+ * Every consumer now asks this function, so a future route cannot desynchronise them.
+ */
+export function resolvedValue(record: DerivedLine | undefined): Resolved | null {
+    if (!record) return null
+    if (record.session) return { route: 'SESSION', value: record.session.value, support: [{ kind: 'SESSION', row: record.session.row }] }
+    if (record.entailing.length) return { route: 'ENTAILMENT', value: record.entailing[0].value, support: record.entailing.map(e => e.support) }
+    if (record.narrowedTo) {
+        // A composition resolves only where exactly one member survives. More than one is a genuine
+        // downstream choice and less than one is a collision — neither carries a value (SD-78, SD-80).
+        if (record.narrowedTo.members.length !== 1) return null
+        return { route: 'COMPOSITION', value: record.narrowedTo.members[0], support: record.narrowing.map(n => n.support) }
+    }
+    if (record.standingValue) return { route: 'STANDING_DECISION', value: record.standingValue.value, support: [{ kind: 'STANDING_DECISION', id: record.standingValue.id }] }
+    return null
+}
+
 export interface DeriveOutcome {
     lines: Map<string, DerivedLine>
     undeterminedReaches: { item: ItemRef; classId: string }[]

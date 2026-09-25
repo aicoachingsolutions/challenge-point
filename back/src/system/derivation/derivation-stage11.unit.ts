@@ -443,6 +443,58 @@ test('SD-78: a REQUIRED_RANGE carrying a scalar still fixes what it states', () 
     assert.equal(line.value, 'line_crossed')
 })
 
+/**
+ * His acceptance condition for cluster 1: the emitted diagnostic and the cluster evidence must agree on
+ * `game::V1`, proven **through final assembly** rather than during derivation.
+ *
+ * The discrepancy that prompted this was not a lost value. Four places independently answered "how does
+ * a derived line get its value"; SD-78 added a route and the gate's own valueless invariant was the one
+ * not told. All four now ask a single resolver, and the two tests below hold that from both ends.
+ */
+test('game::V1 carries line_crossed through final assembly, not merely during derivation', () => {
+    const emitted = runDerivation(corpusInput())
+    if (isStampedHalt(emitted)) return assert.fail('unexpected halt')
+
+    const entry = emitted.resolution.find(e => e.lineId === 'game::V1')!
+    assert.equal(entry.verdict, 'RESOLVED:ENTAILED')
+    assert.equal(entry.state, 'derived')
+    assert.equal(entry.value, 'line_crossed', 'the value survives to the emitted result')
+    assert.equal(entry.support.length, 3, 'with all three narrowings retained as support')
+
+    // The audit view of the same line must agree with the resolution view.
+    const property = emitted.audit.properties.find(p => p.lineId === 'game::V1')!
+    assert.equal(property.sources.length, 3)
+    assert.equal(property.collisionId, null, 'and it is not recorded as a collision anywhere')
+
+    // And the gate must not contradict either of them.
+    assert.deepEqual(
+        emitted.stopped.filter(s => /carry no value/.test(s.why)),
+        [],
+        'the gate agrees the line carries a value',
+    )
+})
+
+test('no line is reported derived-with-a-value by one view and valueless by another', () => {
+    for (const source of [corpusInput(), input([contract([narrowing('N-1', ['only_member'])])])]) {
+        const emitted = runDerivation(source)
+        if (isStampedHalt(emitted)) continue
+
+        // Every line the emitted result gives a value to must be absent from the gate's valueless stop,
+        // and every line it leaves without one must not claim to be derived. This is the cross-check
+        // that would have caught the drift, so it is asserted rather than left to inspection.
+        const withValue = emitted.resolution.filter(e => e.state === 'derived').map(e => e.lineId)
+        const flagged = emitted.stopped
+            .filter(s => /carry no value/.test(s.why))
+            .flatMap(s => withValue.filter(lineId => s.why.includes(lineId)))
+        assert.deepEqual(flagged, [], `the two views disagree about: ${flagged.join(', ')}`)
+
+        for (const entry of emitted.resolution) {
+            if (entry.state !== 'derived') continue
+            assert.notEqual(entry.value, undefined, `${entry.lineId} is derived but carries no value`)
+        }
+    }
+})
+
 test('the corpus collision is gone, because it was never a collision', () => {
     const result = runDerivation(corpusInput())
     if (isStampedHalt(result)) return assert.fail('unexpected halt')
