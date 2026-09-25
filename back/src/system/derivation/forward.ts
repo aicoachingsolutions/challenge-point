@@ -12,8 +12,10 @@
 import { ClassifiedLine } from './classify'
 import { DerivedLine } from './derive'
 import { ApplicationSet } from './scope'
-import { ForwardResult, ItemRef, LoadedContract, ResolutionLine } from './types'
+import { ElementClass, ForwardResult, ItemRef, LoadedContract, ResolutionLine } from './types'
 import { RegisterIndex } from './register'
+import { parseSelector } from './selector'
+import { reaches } from './reach'
 
 export interface ItemOutcome {
     item: ItemRef
@@ -32,6 +34,7 @@ export function forwardResults(
     classified: Map<string, ClassifiedLine>,
     applicationSets: ApplicationSet[],
     index: RegisterIndex,
+    classes: ElementClass[] = [],
 ): ItemOutcome[] {
     const outcomes: ItemOutcome[] = []
     const applicationByItem = new Map(applicationSets.map(a => [`${a.item.contractId}:${a.item.itemId}`, a]))
@@ -65,9 +68,71 @@ export function forwardResults(
                 continue
             }
 
+            const row = index.rows.get(String(item.row))
+
+            // SD-75 — negative existence, a general treatment for collections and not specific to any
+            // one row. In his words: satisfied when no represented element within the item's
+            // authoritative scope matches its selector; unmet when one or more matching elements exist;
+            // not evaluable when the relevant collection or selector cannot itself be structurally
+            // established.
+            //
+            // This completes the semantics of an existing requirement kind. It sits **after** the
+            // outside-the-representation guard above, so an item his boundary places outside is never
+            // pulled inside by it.
+            if (String(item.requirement) === 'NOT_EXISTS') {
+                if (!row || row.kind !== 'COLLECTION') {
+                    outcomes.push({
+                        item: ref,
+                        result: 'NOT_EVALUABLE',
+                        reach: [],
+                        why: `negative existence needs a structurally established collection; ${String(item.row)} is ${row ? row.kind : 'not a register row'}`,
+                    })
+                    continue
+                }
+                const parsed = parseSelector(item.selector, String(item.row), index)
+                if (!parsed.predicate) {
+                    outcomes.push({ item: ref, result: 'NOT_EVALUABLE', reach: [], why: 'the selector does not normalise, so what it excludes cannot be established' })
+                    continue
+                }
+
+                // The authoritative scope: the classes this item applies to, or every class of the row
+                // where scope resolution named none.
+                const application = applicationByItem.get(key)
+                const inScope = classes.filter(c => c.row === String(item.row) && (!application || !application.classIds.length || application.classIds.includes(c.classId)))
+                const reach = inScope.map(c => ({ classId: c.classId, verdict: reaches(parsed.predicate!, c) }))
+                const matching = reach.filter(r => r.verdict === 'TRUE')
+                const undetermined = reach.filter(r => r.verdict === 'UNDETERMINED')
+
+                if (matching.length) {
+                    outcomes.push({
+                        item: ref,
+                        result: 'UNMET',
+                        reach: matching.map(m => m.classId),
+                        why: `${matching.length} represented element(s) match a selector this item excludes`,
+                    })
+                } else if (undetermined.length) {
+                    outcomes.push({
+                        item: ref,
+                        result: 'NOT_EVALUABLE',
+                        reach: undetermined.map(u => u.classId),
+                        why: `${undetermined.length} element class(es) neither match nor contradict the excluded selector, so absence cannot be established (SD-49)`,
+                    })
+                } else {
+                    outcomes.push({
+                        item: ref,
+                        result: 'SATISFIED',
+                        reach: [],
+                        why: inScope.length
+                            ? `no element of ${String(item.row)} in scope matches the excluded selector`
+                            : `no element of ${String(item.row)} is represented at all, so none matches`,
+                    })
+                }
+                continue
+            }
+
             // Existence is a claim on a COLLECTION row. The same requirement kinds on a field row are
             // ordinary value requirements — a count field is not an existence claim.
-            const isExistence = EXISTENCE_REQUIREMENTS.has(String(item.requirement)) && index.rows.get(String(item.row))?.kind === 'COLLECTION'
+            const isExistence = EXISTENCE_REQUIREMENTS.has(String(item.requirement)) && row?.kind === 'COLLECTION'
 
             // An existence item establishes its own class in derivation mode: nothing contradicts it,
             // and its cardinality is checked against candidate elements only in checking mode.

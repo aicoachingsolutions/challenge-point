@@ -298,9 +298,69 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
     assert.deepEqual(restatementTally.withheld, [], 'none was named but disqualified')
     assert.equal(restatementTally.itemsRestated, 6)
     assert.equal(restatementTally.itemsRemoved, 2, 'WIDEZONE-13.a and 13.b')
-    assert.equal(restatementTally.itemsAdded, 1, 'the recovered GF4 operation')
+    assert.equal(restatementTally.itemsAdded, 2, 'the recovered GF4 operation, and the traced neutral existence')
     assert.equal(restatementTally.declarationScopes, 64)
     assert.deepEqual(restatementTally.notFound, [], 'every item a ruling names was found')
+})
+
+/**
+ * SD-75 — negative existence. The risk he named: the treatment must not pull inside the structural
+ * boundary anything his ruling placed outside it.
+ */
+test('SD-75: negative existence is satisfied, unmet or not evaluable — and never reaches outside items', () => {
+    const result: any = runStages0to10(corpusInput())
+    const notExists = loadCorpusContracts().flatMap(c => c.items.filter(i => i.requirement === 'NOT_EXISTS').map(i => ({ c: c.contractId, i: i as any })))
+    assert.equal(notExists.length, 9, 'the corpus-wide population')
+
+    let outside = 0
+    for (const { c, i } of notExists) {
+        const outcome = result.forward.find((f: any) => f.item.contractId === c && f.item.itemId === i.itemId)
+        if (i.checkability === 'OUTSIDE_BOUNDARY') {
+            outside++
+            assert.equal(
+                outcome.result,
+                'NOT_CHECKABLE_OUTSIDE_REPRESENTATION',
+                `${i.itemId} is outside the representation and must stay there`,
+            )
+        } else {
+            assert.ok(['SATISFIED', 'UNMET', 'NOT_EVALUABLE'].includes(outcome.result), `${i.itemId} gave ${outcome.result}`)
+        }
+    }
+    assert.equal(outside, 7, 'all seven outside-the-representation cases are still outside')
+
+    // The structural pair, each behaving as the ruling states.
+    const excluded = result.forward.find((f: any) => f.item.itemId === 'GF2-22')
+    assert.equal(excluded.result, 'SATISFIED', 'no action restriction is represented, so the exclusion holds')
+})
+
+test('SD-75: negative existence is unmet when a matching element does exist', () => {
+    const contracts = [
+        contract([
+            item({ itemId: 'R-1', row: 'S2', selector: 'noun=channel', requirement: 'EXISTS' }),
+            item({ itemId: 'X-1', row: 'S2', selector: 'noun=channel', requirement: 'NOT_EXISTS', value: 'no channel' }),
+        ]),
+    ]
+    const result: any = runStages0to10(input(contracts))
+    const outcome = result.forward.find((f: any) => f.item.itemId === 'X-1')
+    assert.equal(outcome.result, 'UNMET')
+    assert.ok(outcome.reach.length > 0, 'and it names the element that contradicts it')
+})
+
+test('SD-76: neutral existence is independently supported, so the property has an element', () => {
+    const result: any = runStages0to10(corpusInput())
+    const existence = result.forward.find((f: any) => f.item.itemId === 'NEUTRAL-01.b')
+    assert.ok(existence, 'the traced existence contribution is present')
+    assert.equal(existence.result, 'SATISFIED', 'it establishes the neutral participant group')
+
+    const property = result.forward.find((f: any) => f.item.itemId === 'NEUTRAL-05.a')
+    assert.equal(property.result, 'SATISFIED', 'and the participation-state property now reaches its element')
+
+    // The existence rests on its own source, not on the property that needed it.
+    const item01b = loadCorpusContracts()
+        .find(c => c.contractId === 'restated:NEUTRAL-PLAYER-CONDITION')!
+        .items.find(i => i.itemId === 'NEUTRAL-01.b') as any
+    assert.equal(item01b.origId, 'NEUTRAL-01', 'traced to the count contribution, not to NEUTRAL-05')
+    assert.ok(/One or more neutral players/.test(String(item01b.basisEvidence)), 'the source is visible on the item')
 })
 
 test('BY_CONSTRUCTION is satisfied by its named invariant, not excused by it', () => {

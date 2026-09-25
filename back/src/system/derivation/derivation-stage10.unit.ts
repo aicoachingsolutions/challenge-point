@@ -557,12 +557,12 @@ test('the corpus run reproduces the reported figures exactly', () => {
     const result: any = runStages0to10(corpusInput())
     assert.equal(result.run.counts.contractsAdmitted, 8)
     assert.equal(result.run.counts.contractsRefused, 0)
-    assert.equal(result.run.counts.lines, 194)
-    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 33)
-    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 136)
+    assert.equal(result.run.counts.lines, 196)
+    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 34)
+    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 137)
     assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 8)
     assert.equal(result.failures.filter((f: any) => f.kind === 'COLLISION').length, 1)
-    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 136)
+    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 137)
 })
 
 test('Gate A fails on the corpus, and says which checks and why', () => {

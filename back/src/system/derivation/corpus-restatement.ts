@@ -132,6 +132,56 @@ export const ITEM_RESTATEMENTS: ItemRestatement[] = [
     },
 ]
 
+/**
+ * SD-76 — the traced result for Neutral Player.
+ *
+ * His rule: *"A property contribution cannot entail the existence of its owning element. Element
+ * existence requires independent authoritative support."* And his conditional: *"If the existing source
+ * entails the presence of the neutral participant/group, restate that as an existence contribution with
+ * the source and entailment visible. If it does not, leave this as a knowledge gap."*
+ *
+ * **It does.** `NEUTRAL-01.a` is a `REQUIRED`, `AUTHORED`, `STRUCTURAL` contribution on `P5`
+ * (`performers.neutrals.count`) with value `">= 1 (no authored maximum)"`, from *"One or more neutral
+ * players join the team in possession creating a live numerical overload"*. That entails the presence of
+ * a neutral participant group **independently of NEUTRAL-05.a**, which is a property contribution about
+ * their participation state.
+ *
+ * So this is restatement, not authoring: the same source sentence, already carried as a count on a
+ * game-level field, restated as the existence contribution the participation collection needs. It
+ * follows the contract's own `.a`/`.b` convention for one original contribution restated across rows.
+ * Nothing is authored because the property needed somewhere to attach.
+ */
+const NEUTRAL_EXISTENCE = {
+    contractId: 'restated:NEUTRAL-PLAYER-CONDITION',
+    after: 'NEUTRAL-05.a',
+    ruling: 'SD-76',
+    item: {
+        itemId: 'NEUTRAL-01.b',
+        origId: 'NEUTRAL-01',
+        row: 'P11',
+        selector: 'group=neutral',
+        requirement: 'EXISTS',
+        value: 'a neutral participant group takes part in the activity',
+        strictness: 'REQUIRED',
+        valueStatus: 'N/A',
+        scope: 'WHOLE_GAME',
+        basis: 'AUTHORED',
+        // The quote and the knowledge-object id carry the provenance. The sport module's filename is
+        // deliberately not repeated here: the derivation engine is sport-neutral, and NEUTRAL-01.a in
+        // the corpus already carries the full source reference this restatement rests on.
+        basisEvidence:
+            '"One or more neutral players join the team in possession creating a live numerical overload" ' +
+            '(tl-v0-constraint-neutral-player-condition, description — full source reference as carried by NEUTRAL-01.a)',
+        checkability: 'STRUCTURAL',
+        structuralClause: 'whole item',
+        fitNote:
+            'SD-76. The entailment, made visible: the same source already carried as NEUTRAL-01.a (P5 count >= 1) ' +
+            'entails that a neutral participant group is present, independently of the participation-state property ' +
+            'NEUTRAL-05.a. Restated onto P11 so that state has an element to belong to. No existence is authored here.',
+    },
+    why: 'the existing source independently entails the neutral group, so its existence is restated rather than left a gap',
+}
+
 /** Ruling SD-73 also supplies the operation the source entails, as a new item beside the magnitude. */
 export const ADDED_ITEMS: { contractId: string; after: string; ruling: string; item: Record<string, unknown>; why: string }[] = [
     {
@@ -155,6 +205,7 @@ export const ADDED_ITEMS: { contractId: string; after: string; ruling: string; i
         },
         why: 'the operation is recoverable from "double"; recording it keeps the magnitude computable without making the example authoritative',
     },
+    NEUTRAL_EXISTENCE,
 ]
 
 /** SD-74 — the sixty-four NON_CLAIMED declarations whose scope is an em dash. */

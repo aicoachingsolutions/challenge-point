@@ -1,5 +1,13 @@
-# Game Representation Specification — revision 15, with Christian's ownership decisions
+# Game Representation Specification — revision 16, with Christian's ownership decisions
 
+> **Revision 16 (24 September) — PHASE A CLOSED.** Adds SD-75 to SD-77. Negative existence becomes a
+> general treatment for collections, completing an existing requirement kind rather than adding
+> representation. Neutral participant existence is traced and found **independently entailed** by
+> `NEUTRAL-01.a`, so it is restated rather than authored — a property contribution never entails the
+> existence of its owning element. §5.8 is renamed **Interaction Rules**, descriptively and without
+> broadening. All eight contracts load, no mechanical refusal remains, and the primary-event collision
+> is preserved untouched for Phase B. Activity generation remains frozen.
+>
 > **Revision 15 (24 September)** adds SD-67 to SD-74, ruling the nine Phase A evidence cases, and
 > **closes the Phase A load boundary: all eight contracts now load, none refuses.** Two bounded local
 > refinements enter the representation — **Action Restriction** in the Rules area (§5.8) and **Performer
@@ -273,6 +281,9 @@ writes the field is proposal P-9.
 | SD-72 | **Alternative realization examples are not modifier claims.** Wide Zone's source offers *"bonus point, free restart or scoring multiplier"* without selecting one or authoring its parameters, so `WIDEZONE-13.a` and `13.b` — two readings of that one sentence — are removed as structural modifier claims. No operation or magnitude is inferred. *"This is a contract restatement correcting structure that exceeded its source, not deletion of the source knowledge"*, which is preserved as typical realization alternatives | task register C11 | [C27] |
 | SD-73 | **An operation the source entails may be recorded.** GF4's *"double points for quick goal"* directly entails both, so `operation = multiply` and `magnitude = 2` are recorded. **Its `TYPICAL_EXAMPLE` status is unchanged**: *"Encoding what the example says does not make the example authoritative or support-capable."* Its unresolved condition identity and the alternatives limitation are untouched, and the recovered operation does **not** promote the item into derivation | `blind:GF4` `I14`, `I14.op` | [C27] |
 | SD-74 | **`NON_CLAIMED` is always scoped.** Pass Combination Gate's 64 em-dash declaration scopes are restated to `WHOLE_GAME` — *"this contract makes no claim on this row anywhere in the game."* **`null` is deliberately not introduced as a second scope treatment for `NON_CLAIMED`**: the rest of the corpus consistently scopes these, and this preserves that grammar | `corpus-restatement.ts` | [C27] |
+| SD-75 | **Negative existence, as a general treatment for collections.** `NOT_EXISTS` is **satisfied** when no represented element within the item's authoritative scope matches its selector; **unmet** when one or more matching elements exist; **not evaluable** when the relevant collection or selector cannot itself be structurally established. *"Do not make this specific to Action Restriction."* It completes the semantics of an existing requirement kind rather than adding football knowledge or another representation field, and it sits **after** the outside-the-representation guard so no item his boundary places outside is pulled inside by it | `forward.ts`; tested against all nine corpus cases | [C28] |
+| SD-76 | **A property contribution cannot entail the existence of its owning element.** *"Element existence requires independent authoritative support."* Traced for Neutral Player: `NEUTRAL-01.a` — `REQUIRED`, `AUTHORED`, `STRUCTURAL`, `P5` count `>= 1`, from *"One or more neutral players join the team in possession creating a live numerical overload"* — **does** entail the neutral group independently of the participation-state property, so it is restated as an existence contribution (`NEUTRAL-01.b` on `P11`) with source and entailment visible. **No existence is authored because a property needed somewhere to attach** | `corpus-restatement.ts` | [C28] |
+| SD-77 | **§5.8 is renamed Interaction Rules**, from "Rules of value". *"Do not broaden its structural responsibility as part of the rename. The area continues to contain only the explicitly represented interaction-rule structures currently authorized. The rename is descriptive, not permission to turn this into a general rules ontology."* **No ninth area** | spec §5.8 | [C28] |
 | SD-21 | Wording held in code (formerly P-8): "Code, prompts, tests, templates and coach-rule sentences do not count as authored knowledge merely because they exist. They may be evidence of previous design intent and candidates for ratification, but they cannot support a resolved property until deliberately authored into an appropriate knowledge source or standing decision." The coach-rule sentences are not audited wholesale; those a check depends on are surfaced, to be classed later as ratify, standing decision or retire | every contract item's `basis` | [C18b] |
 
 ### Rejected, recorded so it is not reintroduced
@@ -582,7 +593,12 @@ unauthored. After SD-20, turnovers are covered; starts, post-score and out-of-pl
 
 Whether `POSSESSION_CHANGE` is structural when play continues through a turnover is untested (C4).
 
-### 5.8 Rules of value
+### 5.8 Interaction Rules
+
+> **Renamed from "Rules of value" (SD-77, 24 September).** The rename is **descriptive, not permission**:
+> the area continues to contain only the explicitly represented interaction-rule structures currently
+> authorized, and its structural responsibility is unchanged. It is not a general rules ontology, and
+> there is no ninth area.
 
 | Field | Why | Owner | Claim |
 |---|---|---|---|
@@ -593,8 +609,8 @@ Whether `POSSESSION_CHANGE` is structural when play continues through a turnover
 | `informationRules[] {subject, trigger, dimensions}` — the three dimensions IE-C006 composes (IE-D006 trigger type, IE-D008 reveal progression, IE-D011 state dependency), plus IE-D007 reveal timing and IE-D013 ACCESS_HOLDER, which the representation must be able to express (SD-19). The cap of five is this specification's own | [VS] the effect vocabulary had no information type; [CA] Variable Target Condition was INERT: "No target varies"; WIDEZONE-17 is standing, openly known information | SELECTION | The subject exists; the trigger kind lies in the authored range; a `STANDING` rule changes nothing and is exempt from "changes a property". A rule carries only the dimensions its own object's contract calls for. Variable Target's contract itself declares reveal timing and distribution not authored, so for it those stay visibly not authored (SD-19) |
 | `timeWindows[] {startsOn, duration, expiryEffect}` | [CA] the Applying emphasis added "score within a 30-second window"; [AC] #4 admits it as shot-clock shorthand | SELECTION only; `startsOn` comes from the selected time-window mechanism, with no default (SD-R1); `duration` from its authored range, `FREE` (a) where the coach adjusts it | Start trigger and expiry effect typed; inside `duration_min` |
 
-**Action restriction** (SD-70, 24 September). The area's content until now has been rules *of value*;
-this is the first rule in it that is not about value, and the area title has not been changed to match.
+**Action restriction** (SD-70, 24 September). The first rule in this area that is not about value, and
+the reason it is now called Interaction Rules.
 
 | Field | Why | Owner | Claim |
 |---|---|---|---|
