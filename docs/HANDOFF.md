@@ -2857,3 +2857,40 @@ Ledger: `docs/design/corpus-repair-ledger.md`.
   Gate A FAIL — **4 clauses evaluated vs 4 vacuous** (was 2 vs 24).
 - **Untouched, on his order:** 5 primary events, unregistered trigger, 137 failed lines, 20 gate blocks.
   **Phase B awaits his word on the two exposed dependencies.**
+
+**24 Sep — SD-75..SD-77: PHASE A CLOSED. PHASE B CLUSTER 1 ANALYSED.** Spec **revision 16**; 126 tests;
+suite green. All four of his closure conditions hold.
+- **SD-75 negative existence**, general for collections. Tested against **all nine** corpus cases: the
+  **7 outside-the-representation ones all stayed outside** (the treatment sits after the boundary guard;
+  a test asserts the count of 7 rather than trusting order). GF2-22 → `SATISFIED`, NEUTRAL-17.a →
+  `NOT_EVALUABLE`.
+- **SD-76 traced, and the answer was yes.** `NEUTRAL-01.a` (P5 count `>= 1`, REQUIRED/AUTHORED/STRUCTURAL,
+  *"One or more neutral players join…"*) entails the group **independently** of the participation
+  property, so it is restated as `NEUTRAL-01.b` on P11 — traced to `NEUTRAL-01`, **not** to NEUTRAL-05,
+  with a test on that provenance. A property never establishes its own element.
+- **SD-77** §5.8 renamed **Interaction Rules**. Descriptive only. No ninth area.
+- **The sport-coupling ratchet caught a real thing**: my evidence string named a soccer module file in
+  *engine* source. Provenance now carried by reference; ratchet back to baseline 35.
+- **Corpus at the closed boundary:** 8 admitted / 0 refused · 196 lines · 34 derived · 137 failed ·
+  221 item outcomes. Gate A FAIL, **4 clauses evaluated vs 4 vacuous**.
+
+**PHASE B CLUSTER 1 — `docs/design/phase-b-cluster-1-primary-event.md`. THE COLLISION IS NOT A
+DISAGREEMENT.**
+- Three contributions (GF4 `I01`, GF2 `GF2-19`, RPC-001 `RPC-001-08.a`), all REQUIRED/AUTHORED/
+  REQUIRED_RANGE/WHOLE_GAME. **None states a value** — each states a permitted *set*. The three
+  intersect to exactly **`{line_crossed}`**. Independent objects **converging**, not conflicting.
+- **Cause: derivation semantics.** `entails()` reads `EQUALS` as fixing a value and ignores
+  `valueStatus: REQUIRED_RANGE`. **Spec §5.8 already says the right thing** ("SELECTION narrows to a
+  valid set … the kind is FREE under SD-39 and is chosen downstream") — unimplemented.
+- **The worse, quiet half:** where *one* set-valued item reaches a line, it is reported
+  `RESOLVED:ENTAILED` **holding the set as its value**. Two lines do this today (`GF2-03.a::S3` holds
+  the literal `"{zone, line} — set of alternatives, unordered"`). A wrong answer labelled right.
+- **Correction (NOT applied):** REQUIRED_RANGE set narrows; narrowings intersect; singleton → resolved,
+  many → `FREE(choice)`, empty → genuine collision. Resolves the only collision, both silent lines, and
+  part of 2 gate checks. **Knowledge-side prerequisite is his**: the set values are prose-wrapped and
+  SD-32 forbids reading meaning out of text — 5 items would need restating.
+- **Must stay unresolved:** the approved order (RC-29 keeps but does not apply it — *the singleton here
+  is luck, not resolution*); the prose sets; and whether narrowings from different objects may be
+  intersected at all (a composition rule, his to confirm).
+- **Implication for the rest:** the corpus's only collision was an artefact. Some of the 137 failed lines
+  will be the same defect relabelled — which is why counting failed lines points the wrong way.
