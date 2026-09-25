@@ -2976,3 +2976,31 @@ DISAGREEMENT.**
   existence path, not the existence path.
 - **Reach (SD-81): a general derivation rule** — which contributions may *establish* anything at all
   (cluster 1 was how they *compose*). 7 rows, 5 contracts, 6 areas, no football knowledge.
+
+**25 Sep — SD-83..SD-85: CLUSTER 2 CORRECTED.** Spec **revision 18**; 144 tests; suite green. All eight
+closure conditions hold.
+- **SD-83 establishment boundary**, one shared definition (`establishesExistence` in `derive.ts`): only
+  support-capable *authoritative* contributions establish an element. **Classes 53 → 33**; nothing
+  anywhere is now established by an EXCLUSION/ASSUMED/ENGINE_ONLY/OUTSIDE_BOUNDARY item, asserted
+  corpus-wide.
+- **SD-84 singleton identity**, read from the invariant **as data** — a citable decision stating
+  `COUNT = 1` on a COLLECTION row (`register.singletonRows`), **never** from the row's prose.
+  `c:singleton:V0`, `supportedBy` = PCG-01 + VARTARGET-11.a, `singletonBy` = SD-06.
+  **A test asserts it is NOT a relaxation of SD-47** — identical selectors on a *non*-singleton row still
+  form two classes.
+- **SD-85** exclusions route through SD-75's negative-existence path; no new mechanism.
+- **Failed lines 137 → 90. None of it is progress** — those 47 were fields of elements never established.
+  Recorded that way in the cluster report, the commit and the email.
+- **Gate A by cause, not counts.** `GA-ONE-PRIMARY-EVENT` first clause **PASSES (1 primary event)**;
+  `GA-DIRECTION` stopped failing **because the teams causing the failure were themselves illegitimate**;
+  `GA-EFFECT-TYPED` passes because its only consequence had been created by an exclusion forbidding one.
+  **Vacuous passes 4 → 10 — the gate reads better partly because there is less to check** (not evidence,
+  SD-54).
+- **DEPENDENCY EXPOSED, STOPPED AT (his instruction):** both exclusions report `NOT_EVALUABLE` — their
+  forbidden cardinality is prose (*"more than 1 (…)"*, *"2 or more (forbidden)"*). Reading a bound out of
+  that is interpreting text (SD-32); it is **the same restatement question as the five prose sets
+  (SD-79)** and is his. Both are almost certainly satisfied — which is exactly the reasoning we refuse.
+- **Reach (SD-81): a general derivation rule.** Two clusters, both general mechanisms; between them a
+  false conflict, two silent wrong values, 19 phantom elements and 47 unreal failures — **no knowledge
+  repair at all**.
+- **Next: cluster 3**, unless the exclusion bounds reorder it.
