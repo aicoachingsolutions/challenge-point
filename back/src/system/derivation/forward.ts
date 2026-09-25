@@ -79,7 +79,14 @@ export function forwardResults(
             // This completes the semantics of an existing requirement kind. It sits **after** the
             // outside-the-representation guard above, so an item his boundary places outside is never
             // pulled inside by it.
-            if (String(item.requirement) === 'NOT_EXISTS') {
+            // SD-85 — an exclusion carrying an existence or count requirement is a negative existence
+            // claim, so it is evaluated through SD-75's treatment against the structure support-capable
+            // contributions established. No separate exclusion mechanism is created: §3 says an
+            // exclusion is "checked only as an exclusion", and this is that check.
+            const isExclusionOfExistence =
+                item.strictness === 'EXCLUSION' && EXISTENCE_REQUIREMENTS.has(String(item.requirement)) && row?.kind === 'COLLECTION'
+
+            if (String(item.requirement) === 'NOT_EXISTS' || isExclusionOfExistence) {
                 if (!row || row.kind !== 'COLLECTION') {
                     outcomes.push({
                         item: ref,
@@ -103,12 +110,34 @@ export function forwardResults(
                 const matching = reach.filter(r => r.verdict === 'TRUE')
                 const undetermined = reach.filter(r => r.verdict === 'UNDETERMINED')
 
-                if (matching.length) {
+                // The bound beyond which existence is forbidden. A plain negative existence forbids any
+                // match; a count-bearing exclusion forbids only a cardinality at or above its threshold.
+                // Where that threshold is stated in prose it is **not** read out of the text — SD-32
+                // forbids that, and guessing it here would decide the item's meaning.
+                let forbiddenAt = 1
+                if (isExclusionOfExistence && String(item.requirement) === 'COUNT') {
+                    const stated = typeof item.value === 'number' ? item.value : null
+                    if (stated === null) {
+                        outcomes.push({
+                            item: ref,
+                            result: 'NOT_EVALUABLE',
+                            reach: inScope.map(c => c.classId),
+                            why: `the cardinality this item forbids is stated in prose (${JSON.stringify(String(item.value))}), so the bound cannot be read without interpreting it`,
+                        })
+                        continue
+                    }
+                    forbiddenAt = stated
+                }
+
+                if (matching.length >= forbiddenAt) {
                     outcomes.push({
                         item: ref,
                         result: 'UNMET',
                         reach: matching.map(m => m.classId),
-                        why: `${matching.length} represented element(s) match a selector this item excludes`,
+                        why:
+                            forbiddenAt > 1
+                                ? `${matching.length} represented element(s) reach the forbidden cardinality of ${forbiddenAt}`
+                                : `${matching.length} represented element(s) match a selector this item excludes`,
                     })
                 } else if (undetermined.length) {
                     outcomes.push({
@@ -121,10 +150,13 @@ export function forwardResults(
                     outcomes.push({
                         item: ref,
                         result: 'SATISFIED',
-                        reach: [],
-                        why: inScope.length
-                            ? `no element of ${String(item.row)} in scope matches the excluded selector`
-                            : `no element of ${String(item.row)} is represented at all, so none matches`,
+                        reach: matching.map(m => m.classId),
+                        why:
+                            forbiddenAt > 1
+                                ? `${matching.length} represented element(s), below the forbidden cardinality of ${forbiddenAt}`
+                                : inScope.length
+                                  ? `no element of ${String(item.row)} in scope matches the excluded selector`
+                                  : `no element of ${String(item.row)} is represented at all, so none matches`,
                     })
                 }
                 continue

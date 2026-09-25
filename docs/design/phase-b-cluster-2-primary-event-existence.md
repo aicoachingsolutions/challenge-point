@@ -1,5 +1,33 @@
 # Phase B, cluster 2 — five primary events where one is required
 
+> **RULED AND CORRECTED, 25 September (SD-83 to SD-85).** His closure conditions, each checked:
+>
+> | Condition | Result |
+> |---|---|
+> | the `V0` singleton supported by both legitimate contributions | `c:singleton:V0`, `supportedBy` = `PCG-01` + `VARTARGET-11.a`, `singletonBy` = SD-06 |
+> | the two exclusions evaluated against it, not creating elements | both route through SD-75; neither establishes anything |
+> | no `ASSUMED`/`EXCLUSION`/`ENGINE_ONLY`/`OUTSIDE_BOUNDARY` establishing an element anywhere | **none**, asserted corpus-wide |
+> | the 19 manufactured classes removed | classes **53 → 33** (19 removed, and the two legitimate `V0` merged into one singleton) |
+> | the 47-line reduction classified | failed lines **137 → 90**. **Diagnostic correction, not knowledge improvement** — see below |
+> | Gate A change reported by cause | below, by cause |
+> | regression coverage | the general rule and the singleton exception, including that SD-84 is *not* a relaxation of SD-47 |
+> | reach under SD-81 | **a general derivation rule** |
+>
+> **Gate A, by cause.** Failing checks 6 → 4.
+>
+> | Check | Change | Cause |
+> |---|---|---|
+> | `GA-ONE-PRIMARY-EVENT` | `FAIL` → `NOT_EVALUABLE`; **its first clause now PASSES — "1 primary event"** | the four illegitimate `V0` classes are gone and the two legitimate ones are one singleton. It remains not-evaluable only because a *separate* clause — whether the event's referents have a space position — is still blocked |
+> | `GA-DIRECTION` | `FAIL` → `NOT_EVALUABLE` | **the teams that made it fail were themselves illegitimate**, formed from an assumption and an out-of-boundary note. Two legitimate teams remain and their objective links are not derived, so it blocks rather than failing |
+> | `GA-EFFECT-TYPED` | `NOT_EVALUABLE` → `PASS (vacuous)` | the only "consequence" in the corpus was created by an exclusion forbidding one |
+> | Clause evidence | evaluated 4 → 5, **vacuous 4 → 10**, failed 6 → 4, not evaluable 20 → 15 | **the gate looks better partly because there is less to check.** Ten clauses now pass with no applicable instance, because the structure they ranged over was manufactured. Under SD-54 that is not evidence |
+>
+> **One dependency exposed, and stopped at rather than resolved.** Both exclusions now report
+> `NOT_EVALUABLE`: their forbidden cardinality is stated in prose — *"more than 1 (a second, independent
+> way to score…)"* and *"2 or more (forbidden)"*. Reading a bound out of that is interpreting the text,
+> which SD-32 forbids and which SD-79 required his authorization for in the equivalent case. **This is
+> the same restatement question as the five prose-wrapped sets, and it is his.**
+
 25 September 2026. Analysis only; nothing corrected. Structured by the Phase B method, with the SD-81
 reach classification at the end.
 

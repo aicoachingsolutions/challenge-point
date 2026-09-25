@@ -182,7 +182,12 @@ export interface RefusalRecord {
 export interface ElementClass {
     classId: string
     row: string
+    /** The first contribution to establish it, by canonical order. Kept for a stable id and locus. */
     fromItem: ItemRef
+    /** Every contribution that establishes it. More than one only on a singleton row (SD-84). */
+    supportedBy: ItemRef[]
+    /** Set on a singleton class: the standing decision whose invariant fixes the row at one (SD-84). */
+    singletonBy?: string
     /** Attribute constraints from the selector: `=` fixes one value, `IN` a set, `CONTAINS` a member. */
     constraints: SelectorPredicate
     cardinality: { min: number | null; max: number | null }

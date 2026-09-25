@@ -504,6 +504,153 @@ test('the corpus collision is gone, because it was never a collision', () => {
     assert.equal(v1.support.length, 3)
 })
 
+// ---------------------------------------------------------------------------------------------
+// SD-83/SD-84/SD-85 — who may establish an element, and the singleton exception.
+// ---------------------------------------------------------------------------------------------
+
+const existence = (itemId: string, row: string, overrides: Partial<ContractItem> = {}) =>
+    item({ itemId, row, selector: '*', requirement: 'EXISTS', value: 'it exists', valueStatus: 'N/A', ...overrides })
+
+/** The general rule, asserted over the whole corpus rather than over a fixture. */
+test('SD-83: no element anywhere is established by a contribution that supports nothing', () => {
+    const result: any = runStages0to10(corpusInput())
+    const items = new Map<string, any>()
+    for (const c of loadCorpusContracts()) for (const i of c.items) items.set(`${c.contractId}::${i.itemId}`, i)
+
+    for (const cls of result.classes) {
+        for (const ref of cls.supportedBy) {
+            const source = items.get(`${ref.contractId}::${ref.itemId}`)!
+            assert.notEqual(source.strictness, 'EXCLUSION', `${cls.classId} established by an exclusion`)
+            assert.notEqual(source.basis, 'ASSUMED', `${cls.classId} established by an assumption`)
+            assert.notEqual(source.basis, 'ENGINE_ONLY', `${cls.classId} established by engine wording`)
+            assert.notEqual(source.checkability, 'OUTSIDE_BOUNDARY', `${cls.classId} established by an out-of-boundary note`)
+        }
+    }
+})
+
+test('SD-83: each disqualifying kind is checked on its own, so none can be reinstated quietly', () => {
+    for (const [what, overrides] of [
+        ['an exclusion', { strictness: 'EXCLUSION' }],
+        ['an assumption', { basis: 'ASSUMED' }],
+        ['engine wording', { basis: 'ENGINE_ONLY' }],
+        ['an out-of-boundary note', { checkability: 'OUTSIDE_BOUNDARY' }],
+        ['a typical example', { valueStatus: 'TYPICAL_EXAMPLE' }],
+    ] as const) {
+        const result: any = runStages0to10(input([contract([existence('E-1', 'S2', overrides as any)])]))
+        assert.equal(result.classes.filter((c: any) => c.row === 'S2').length, 0, `${what} established an element`)
+    }
+})
+
+test('SD-83: an assumption may still bound something whose existence is established elsewhere', () => {
+    const contracts = [
+        contract([
+            existence('R-1', 'S2', { selector: 'noun=channel' }), // authoritative: establishes the region
+            item({ itemId: 'A-1', row: 'S3', selector: 'noun=channel', requirement: 'EQUALS', value: 'channel', basis: 'ASSUMED' }),
+        ]),
+    ]
+    const result: any = runStages0to10(input(contracts))
+    assert.equal(result.classes.filter((c: any) => c.row === 'S2').length, 1, 'the authoritative item still establishes it')
+    const line = [...result.derived.lines.values()].find((l: any) => l.lineId.endsWith('::S3')) as any
+    assert.ok(line.bounding.length > 0, 'and the assumption still bounds its value — it constrains, it does not establish')
+    assert.equal(line.entailing.length, 0, 'while never entailing one')
+})
+
+test('SD-84: several contributions to a singleton collection support one element, not several', () => {
+    const contracts = [
+        contract([existence('A-1', 'V0')], { contractId: 'C-A', objectId: 'O-A' }),
+        contract([existence('B-1', 'V0')], { contractId: 'C-B', objectId: 'O-B' }),
+        contract([existence('C-1', 'V0')], { contractId: 'C-C', objectId: 'O-C' }),
+    ]
+    const result: any = runStages0to10(input(contracts))
+    const v0 = result.classes.filter((c: any) => c.row === 'V0')
+    assert.equal(v0.length, 1, 'one singleton, however many contributions establish it')
+    assert.equal(v0[0].supportedBy.length, 3, 'each contribution recorded as supporting it')
+    assert.equal(v0[0].singletonBy, 'SD-06', 'and the schema invariant that makes it a singleton is named')
+    assert.deepEqual(v0[0].cardinality, { min: 1, max: 1 })
+})
+
+test('SD-84 is NOT a general relaxation of SD-47: a non-singleton row still forms one class each', () => {
+    const contracts = [
+        contract([existence('A-1', 'S2', { selector: 'noun=channel' })], { contractId: 'C-A', objectId: 'O-A' }),
+        contract([existence('B-1', 'S2', { selector: 'noun=channel' })], { contractId: 'C-B', objectId: 'O-B' }),
+    ]
+    const result: any = runStages0to10(input(contracts))
+    assert.equal(
+        result.classes.filter((c: any) => c.row === 'S2').length,
+        2,
+        'identical selectors on a non-singleton row are still two classes — derivation manufactures no equivalence',
+    )
+})
+
+/**
+ * The singleton rule is read from the schema invariant, so it is tested that way: a register in which a
+ * *different* row is fixed at exactly one behaves the same. `V0` registers no selector attributes, so
+ * `S2` is used here to exercise contradictory selectors, which `V0` could not express.
+ */
+function singletonRegister(rowId: string) {
+    const modified = JSON.parse(JSON.stringify(REGISTER))
+    modified.citableStandingDecisions.push({
+        id: 'SD-TEST-SINGLETON',
+        item: { row: rowId, requirement: 'COUNT', value: 1, relation: `ENTAILS existence of exactly one ${rowId}` },
+    })
+    return modified
+}
+
+test('SD-84 follows the schema invariant, not the row: any row fixed at one behaves as a singleton', () => {
+    const contracts = [
+        contract([existence('A-1', 'S2', { selector: 'noun=channel' })], { contractId: 'C-A', objectId: 'O-A' }),
+        contract([existence('B-1', 'S2', { selector: 'noun=channel' })], { contractId: 'C-B', objectId: 'O-B' }),
+    ]
+    const result: any = runStages0to10(input(contracts, singletonRegister('S2')))
+    const s2 = result.classes.filter((c: any) => c.row === 'S2')
+    assert.equal(s2.length, 1, 'one element, because the schema now fixes this row at one')
+    assert.equal(s2[0].singletonBy, 'SD-TEST-SINGLETON', 'and it names the invariant that made it so')
+    assert.equal(s2[0].supportedBy.length, 2)
+})
+
+test('SD-84: contradictory selectors on a singleton are recorded, never merged or split silently', () => {
+    const contracts = [
+        contract([existence('A-1', 'S2', { selector: 'noun=channel' })], { contractId: 'C-A', objectId: 'O-A' }),
+        contract([existence('B-1', 'S2', { selector: 'noun=zone' })], { contractId: 'C-B', objectId: 'O-B' }),
+    ]
+    const result: any = runStages0to10(input(contracts, singletonRegister('S2')))
+    const s2 = result.classes.filter((c: any) => c.row === 'S2')
+    assert.equal(s2.length, 1, 'the incompatible contribution does not create a second element either')
+    assert.equal(s2[0].supportedBy.length, 1, 'and is not recorded as supporting the singleton')
+    assert.ok(
+        result.stopped.some((s: any) => /explicitly establishes incompatibility/.test(s.why)),
+        'the incompatibility is reported rather than resolved here',
+    )
+})
+
+test('SD-85: an exclusion is checked against the structure, and creates none of it', () => {
+    const contracts = [
+        contract([
+            existence('R-1', 'S2', { selector: 'noun=channel' }),
+            item({ itemId: 'X-1', row: 'S2', selector: 'noun=lane', requirement: 'EXISTS', strictness: 'EXCLUSION', value: 'no lane' }),
+        ]),
+    ]
+    const result: any = runStages0to10(input(contracts))
+    assert.equal(result.classes.filter((c: any) => c.row === 'S2').length, 1, 'the exclusion established nothing')
+    const outcome = result.forward.find((f: any) => f.item.itemId === 'X-1')
+    assert.equal(outcome.result, 'SATISFIED', 'and is evaluated through the negative-existence path')
+    assert.ok(/matches the excluded selector/.test(outcome.why))
+})
+
+test('the corpus V0 singleton is supported by both legitimate contributions, and only those', () => {
+    const result: any = runStages0to10(corpusInput())
+    const v0 = result.classes.filter((c: any) => c.row === 'V0')
+    assert.equal(v0.length, 1)
+    assert.deepEqual(
+        v0[0].supportedBy.map((s: any) => s.itemId).sort(),
+        ['PCG-01', 'VARTARGET-11.a'],
+        'the two authored existence assertions, and neither exclusion nor the assumed restatement',
+    )
+    const primary = result.gates.gateA.checks.find((c: any) => c.checkId === 'GA-ONE-PRIMARY-EVENT')
+    assert.equal(primary.clauses[0].verdict, 'PASS', 'exactly one primary event')
+    assert.ok(/^1 primary event/.test(primary.why))
+})
+
 test('BY_CONSTRUCTION is satisfied by its named invariant, not excused by it', () => {
     const result: any = runStages0to10(corpusInput())
     const outcome = result.forward.find((f: any) => f.item.itemId === 'GF2-01')

@@ -11,10 +11,11 @@
 import { HaltError, indexRegister, buildVersions, RegisterIndex } from './register'
 import { loadContracts } from './load'
 import { resolveScopes } from './scope'
-import { deriveLines, DerivedLine } from './derive'
+import { deriveLines, DerivedLine, establishesExistence } from './derive'
 import { classifyLines, ClassifiedLine } from './classify'
 import { forwardResults } from './forward'
 import { runGates } from './gates'
+import { reaches } from './reach'
 import { emit, DerivationResult, StampedHalt } from './emit'
 import { parseSelector, predicateKey } from './selector'
 import {
@@ -104,30 +105,78 @@ function cardinalityOf(item: ContractItem): { min: number | null; max: number | 
  * "Existence requirements establish supported classes defined by authoritative selectors. Derivation
  * does not manufacture individual identity or equivalence between classes."
  */
-function formClasses(contracts: LoadedContract[], index: RegisterIndex): ElementClass[] {
+function formClasses(contracts: LoadedContract[], index: RegisterIndex, stopped: PartialResult['stopped']): ElementClass[] {
     const classes: ElementClass[] = []
+    const singletons = new Map<string, ElementClass>()
 
     for (const contract of contracts) {
         for (const item of contract.items || []) {
             const row = index.rows.get(String(item.row))
             if (!row || row.kind !== 'COLLECTION') continue
-            if (!EXISTENCE_REQUIREMENTS.has(String(item.requirement))) continue
+
+            // SD-83 — the establishment boundary. An exclusion, an assumption, engine wording or an
+            // out-of-boundary note may constrain what exists; none of them brings it into existence.
+            if (!establishesExistence(item)) continue
 
             const parsed = parseSelector(item.selector, String(item.row), index)
             // A selector that will not normalise was already recorded once, at stage 1. One defect,
             // one id: an item that cannot be normalised simply forms no class.
             if (!parsed.predicate) continue
 
+            const ref: ItemRef = { contractId: contract.contractId, itemId: item.itemId }
+            const singletonRule = index.singletonRows.get(row.id)
+
+            // SD-84 — a collection the schema fixes at exactly one holds one element, so several
+            // support-capable contributions support **the same** singleton rather than instantiating
+            // several. This is not a relaxation of SD-47: identity here comes from the schema invariant,
+            // not from comparing selectors or presuming equivalence.
+            if (singletonRule) {
+                const existing = singletons.get(row.id)
+                if (!existing) {
+                    const singleton: ElementClass = {
+                        classId: `c:singleton:${row.id}`,
+                        row: row.id,
+                        fromItem: ref,
+                        supportedBy: [ref],
+                        constraints: parsed.predicate,
+                        cardinality: { min: 1, max: 1 },
+                        singletonBy: singletonRule,
+                    }
+                    singletons.set(row.id, singleton)
+                    classes.push(singleton)
+                    continue
+                }
+
+                // "unless authoritative knowledge explicitly establishes incompatibility" — the one
+                // exception he named. Incompatibility is not decided here: it is recorded.
+                if (reaches(parsed.predicate, existing) === 'FALSE') {
+                    stopped.push({
+                        where: `stage 2, row ${row.id}`,
+                        why:
+                            `${ref.contractId}::${ref.itemId} and ${existing.fromItem.contractId}::${existing.fromItem.itemId} both establish the ` +
+                            `${row.id} singleton, but their authoritative selectors contradict each other. SD-84 makes them the same element ` +
+                            '"unless authoritative knowledge explicitly establishes incompatibility", and this is that case. Nothing is merged or split here.',
+                    })
+                    continue
+                }
+                existing.supportedBy.push(ref)
+                continue
+            }
+
             classes.push({
                 classId: `c:${contract.contractId}:${item.itemId}`,
                 row: String(item.row),
-                fromItem: { contractId: contract.contractId, itemId: item.itemId },
+                fromItem: ref,
+                supportedBy: [ref],
                 constraints: parsed.predicate,
                 cardinality: cardinalityOf(item),
             })
         }
     }
 
+    for (const singleton of singletons.values()) {
+        singleton.supportedBy.sort((a, b) => `${a.contractId}:${a.itemId}`.localeCompare(`${b.contractId}:${b.itemId}`))
+    }
     return classes.sort((a, b) => a.classId.localeCompare(b.classId))
 }
 
@@ -306,7 +355,7 @@ export function runStages0to2(input: DerivationInput): PartialResult {
     normaliseSelectors(loaded.admitted, index, failures)
 
     // Stage 2 — classes, triggers, lines.
-    const classes = formClasses(loaded.admitted, index)
+    const classes = formClasses(loaded.admitted, index, stopped)
     const triggers = constructTriggers(classes, index, input.envelope)
     const lines = enumerateLines(classes, index, stopped)
 

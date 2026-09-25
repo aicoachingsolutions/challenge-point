@@ -557,12 +557,12 @@ test('the corpus run reproduces the reported figures exactly', () => {
     const result: any = runStages0to10(corpusInput())
     assert.equal(result.run.counts.contractsAdmitted, 8)
     assert.equal(result.run.counts.contractsRefused, 0)
-    assert.equal(result.run.counts.lines, 196)
-    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 33)
-    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 137)
+    assert.equal(result.run.counts.lines, 144)
+    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 32)
+    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 90)
     assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 8)
     assert.equal(result.failures.filter((f: any) => f.kind === 'COLLISION').length, 0, 'cluster 1 removed the only collision: it was convergence, not conflict')
-    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 137)
+    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 90)
 })
 
 test('Gate A fails on the corpus, and says which checks and why', () => {
@@ -570,10 +570,8 @@ test('Gate A fails on the corpus, and says which checks and why', () => {
     assert.equal(gateA(result).verdict, 'FAIL')
     const failing = gateA(result).checks.filter((c: any) => c.verdict === 'FAIL').map((c: any) => c.checkId)
     assert.deepEqual(failing.sort(), [
-        'GA-DIRECTION',
         'GA-INFORMATION',
         'GA-NO-FAILED-LINE',
-        'GA-ONE-PRIMARY-EVENT',
         'GA-REFERENCE-INTEGRITY',
         'GA-TRIGGER-UNIQUE',
     ])
@@ -591,23 +589,26 @@ test('SD-49: an indeterminate reach is recorded, and is no longer an open questi
 })
 
 /**
- * Phase A brought real knowledge into the engine, and the gate now sees things it could not see before.
- * These are **not** repaired here: they are downstream of phase B, and his order is upstream first.
+ * Where the two closed clusters left the corpus, and what remains genuinely open.
+ *
+ * Cluster 1 (composition) resolved the primary-event **kind**; cluster 2 (establishment) resolved its
+ * **count**. Neither was a knowledge defect. What still fails is recorded, not repaired.
  */
-test('what the newly admitted knowledge exposes is recorded, not repaired', () => {
+test('the two closed clusters hold, and what remains is what is genuinely unresolved', () => {
     const result: any = runStages0to10(corpusInput())
-    const primary = check(result, 'GA-ONE-PRIMARY-EVENT')
-    assert.equal(primary.clauses[0].verdict, 'FAIL', 'more than one primary event where SD-06 requires exactly one')
-    const count = Number((primary.why.match(/^(\d+) primary event/) || [])[1])
-    assert.ok(count > 1, `the finding is a count greater than one, got ${count}`)
 
+    // Cluster 1 — the kind, by composition. No collision remains.
+    assert.equal(result.failures.filter((f: any) => f.kind === 'COLLISION').length, 0)
+    assert.equal(result.classified.get('game::V1').verdict, 'RESOLVED:ENTAILED')
+
+    // Cluster 2 — the count, by the establishment boundary and the singleton rule.
+    const primary = check(result, 'GA-ONE-PRIMARY-EVENT')
+    assert.equal(primary.clauses[0].verdict, 'PASS', 'exactly one primary event')
+    assert.ok(/^1 primary event/.test(primary.why))
+
+    // Still open, and untouched: an information rule names an unregistered trigger.
     const information = check(result, 'GA-INFORMATION')
     assert.equal(information.clauses.find((c: any) => /registered trigger/.test(c.clause)).verdict, 'FAIL')
-
-    // Phase B cluster 1 removed the corpus's only collision, because it was convergence, not conflict.
-    // The primary-event *existence* problem it was tangled with is untouched, and is cluster 2.
-    assert.equal(result.failures.filter((f: any) => f.kind === 'COLLISION').length, 0)
-    assert.equal(result.classified.get('game::V1').verdict, 'RESOLVED:ENTAILED', 'the kind resolved by composition')
 })
 
 test('the fifteen Gate A checks are all present, and GA-RESIDUAL-SPACE is gone (SD-45)', () => {

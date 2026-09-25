@@ -112,6 +112,28 @@ function applySession(
     }
 }
 
+/**
+ * **SD-83 — the establishment boundary.** His ruling of 25 September:
+ *
+ *   "Only support-capable, authoritative contributions may establish an element class. EXCLUSION,
+ *    ASSUMED, ENGINE_ONLY, and OUTSIDE_BOUNDARY contributions do not establish existence."
+ *
+ * An assumed contribution *"may constrain something whose existence is independently established, but
+ * it may not establish the element itself"*.
+ *
+ * This is the single definition. Class formation used to decide it separately and decided it
+ * differently, which is how 19 of 53 element classes came to be manufactured from contributions that
+ * support nothing — including two exclusions that were satisfied by creating the very thing they forbid.
+ */
+export function establishesExistence(item: any): boolean {
+    if (!isSupportCapable(item)) return false // ENGINE_ONLY, TYPICAL_EXAMPLE, OUTSIDE_BOUNDARY
+    if (item.strictness === 'EXCLUSION') return false // §3: never supports; checked only as an exclusion
+    if (item.basis === 'ASSUMED') return false // §3: a bound only; SD-83: never establishes an element
+    return EXISTENCE_REQUIREMENTS.has(String(item.requirement))
+}
+
+export const EXISTENCE_REQUIREMENTS = new Set(['EXISTS', 'COUNT', 'RANGE'])
+
 /** §3 — what may support: an item that entails, a citable standing decision, or the session. */
 function isSupportCapable(item: any): boolean {
     if (item.basis === 'ENGINE_ONLY') return false // SD-21: engine wording supports nothing

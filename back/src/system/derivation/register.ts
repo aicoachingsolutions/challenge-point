@@ -39,6 +39,15 @@ export interface RegisterIndex {
     vocabularies: Map<string, string[]>
     vocabularyVersions: Record<string, string>
     contractEnums: Record<string, string[]>
+    /**
+     * **SD-84 — singleton collections.** Rows the authoritative schema fixes at cardinality exactly one.
+     *
+     * Read from the schema invariant itself, as data: a citable standing decision whose item states
+     * `COUNT = 1` on a `COLLECTION` row. Never from the row's prose `valueType`, because identity here
+     * *"follows from the authoritative schema invariant itself rather than from interpretation of
+     * selectors, wording, or presumed equivalence"*.
+     */
+    singletonRows: Map<string, string>
     /** Contract-level sentinels for an item's `row`. A sentinel is never a row and creates no property. */
     contractSentinels: Record<string, any>
     citableStandingDecisions: Set<string>
@@ -110,6 +119,16 @@ export function indexRegister(register: any): RegisterIndex {
         sentinels[key] = entry
     }
 
+    // SD-84 — row id → the standing decision that fixes it at exactly one.
+    const singletonRows = new Map<string, string>()
+    for (const decision of register.citableStandingDecisions || []) {
+        const claim = decision && decision.item
+        if (!claim || claim.requirement !== 'COUNT' || claim.value !== 1) continue
+        const row = rows.get(String(claim.row))
+        if (!row || row.kind !== 'COLLECTION') continue
+        singletonRows.set(row.id, decision.id)
+    }
+
     const citable = new Set<string>((register.citableStandingDecisions || []).map((d: any) => d.id).filter(Boolean))
 
     return {
@@ -121,6 +140,7 @@ export function indexRegister(register: any): RegisterIndex {
         vocabularies,
         vocabularyVersions: (vocabBlock.versions as any) || {},
         contractEnums,
+        singletonRows,
         contractSentinels: sentinels,
         citableStandingDecisions: citable,
         standingDecisions: (register.citableStandingDecisions || []).filter((d: any) => d && d.id),
