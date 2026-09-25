@@ -2942,4 +2942,37 @@ DISAGREEMENT.**
   3 contributions` **in the diagnostic itself**, so it agrees visibly, not by absence of complaint.
 - **Reach (SD-81):** general, but about **engine internal consistency**, not knowledge — one fact, one
   place that computes it. Changes no count; makes two reports agree. Counted as part of cluster 1.
-- **Cluster 1 CLOSED.** Next: cluster 2, primary-event existence/cardinality.
+- **Cluster 1 CLOSED** (he confirmed 25 Sep). Next: cluster 2.
+
+**25 Sep — PHASE B CLUSTER 2 ANALYSED (nothing corrected; awaits his ruling).**
+`docs/design/phase-b-cluster-2-primary-event-existence.md`.
+- **The five primary events are not five events.** Two are **exclusions forbidding a second primary
+  event** (`VARTARGET-12.a`, `WIDEZONE-16.b`) — and **both report `SATISFIED`, because they formed a
+  class.** The engine discharged "there must not be more than one" *by instantiating one*, then failed
+  the game for having too many. A third (`RPC-001-08.b`) is an `ASSUMED` restatement of SD-06 and says so
+  in its own evidence. **Only two are genuine authored existence assertions** (`PCG-01`, `VARTARGET-11.a`).
+- **Cause: `formClasses()` never calls the support rules.** §3 (EXCLUSION never supports · ASSUMED a
+  bound only · ENGINE_ONLY and OUTSIDE_BOUNDARY inert) and SD-47 ("**authoritative** selectors") are
+  already enforced by `isSupportCapable()`/`entails()` wherever a *value* is derived. `formClasses` forms
+  a class from any COLLECTION row with an existence-shaped requirement, whatever its strictness or basis.
+  **Same shape as the `game::V1` follow-up: one rule, written down, applied inconsistently.**
+- **Not about the primary event. 19 of 53 element classes (36%) were manufactured from contributions
+  that cannot support anything**, accounting for **47 of the 137 failed lines**.
+  | from | classes | failed lines |
+  |---|---|---|
+  | `ASSUMED` | 9 | 21 |
+  | `EXCLUSION` | 5 | 17 |
+  | `ENGINE_ONLY` | 3 | 4 |
+  | `OUTSIDE_BOUNDARY` | 2 | 5 |
+- **Correction splits:** (a) EXCLUSION/ENGINE_ONLY/OUTSIDE_BOUNDARY are unambiguous and already enforced
+  a few lines away — 10 classes, 26 lines; (b) **`ASSUMED` needs his ruling** — whether an assumption may
+  establish *existence* (as distinct from entailing a value) is stated nowhere — 9 classes, 21 lines.
+- **The 47 lines are NOT progress.** They are fields of elements never established. Flagged hard per
+  SD-81: a 34% drop in the failure count would badly misrepresent it.
+- **Residual, his:** after both corrections **two** legitimate authored assertions remain on `V0`, the
+  only row whose `valueType` fixes its own cardinality ("exactly one element (SD-06)"). SD-47 forbids the
+  engine merging them or deciding whether SD-06 is violated or merely restated twice. Same territory as
+  SD-67 (by construction). Also open: an EXCLUSION existence item probably belongs in SD-75's negative-
+  existence path, not the existence path.
+- **Reach (SD-81): a general derivation rule** — which contributions may *establish* anything at all
+  (cluster 1 was how they *compose*). 7 rows, 5 contracts, 6 areas, no football knowledge.
