@@ -2923,3 +2923,23 @@ DISAGREEMENT.**
   found it.
 - **V0 untouched.** Five primary events, Gate A still FAIL on the same six checks. **Cluster 2 = the
   primary-event existence/cardinality problem.**
+
+**25 Sep — THE `game::V1` DISCREPANCY, TRACED AND RECONCILED.** 135 tests; suite green; stops back to 0.
+- **He caught an inconsistency between two things I sent him** — the cluster report said `game::V1` =
+  `line_crossed`, the diagnostic said "RESOLVED but carries no value". He was right to hold cluster 2.
+- **The value was never lost.** It reached final assembly correctly throughout. **The gate's own
+  valueless invariant was wrong** — the check whose entire job is catching that fault had the fault.
+- **Root cause: four sites each had their own copy of "how a derived line gets its value"** (the verdict,
+  emitted value, emitted support, and the invariant). SD-78 added a route; three were updated, the
+  invariant was not.
+- **Fix: `resolvedValue()` in `derive.ts` is now the single answer**, called by all four. Nothing left
+  to keep in step. *Patching the fourth copy would have left three more chances to repeat it.*
+- **Tests, two:** (1) `game::V1` carries `line_crossed` **through final assembly**, with the resolution,
+  audit and gate views all agreeing; (2) **the general cross-check** — no line may be derived-with-a-value
+  in one view and valueless in another, asserted corpus-wide. That is the one that would have caught it.
+- **Diagnostic now prints `DERIVED VALUES`** (line · route · value · support count). Counts alone let two
+  views drift without either looking wrong. `game::V1` now reads `ENTAILMENT  line_crossed / supported by
+  3 contributions` **in the diagnostic itself**, so it agrees visibly, not by absence of complaint.
+- **Reach (SD-81):** general, but about **engine internal consistency**, not knowledge — one fact, one
+  place that computes it. Changes no count; makes two reports agree. Counted as part of cluster 1.
+- **Cluster 1 CLOSED.** Next: cluster 2, primary-event existence/cardinality.
