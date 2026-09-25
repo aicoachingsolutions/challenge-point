@@ -558,10 +558,10 @@ test('the corpus run reproduces the reported figures exactly', () => {
     assert.equal(result.run.counts.contractsAdmitted, 8)
     assert.equal(result.run.counts.contractsRefused, 0)
     assert.equal(result.run.counts.lines, 196)
-    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 34)
+    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 33)
     assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 137)
     assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 8)
-    assert.equal(result.failures.filter((f: any) => f.kind === 'COLLISION').length, 1)
+    assert.equal(result.failures.filter((f: any) => f.kind === 'COLLISION').length, 0, 'cluster 1 removed the only collision: it was convergence, not conflict')
     assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 137)
 })
 
@@ -604,11 +604,10 @@ test('what the newly admitted knowledge exposes is recorded, not repaired', () =
     const information = check(result, 'GA-INFORMATION')
     assert.equal(information.clauses.find((c: any) => /registered trigger/.test(c.clause)).verdict, 'FAIL')
 
-    // The first real collision in the corpus: three contracts disagree on the primary event kind.
-    const collisions = result.failures.filter((f: any) => f.kind === 'COLLISION')
-    assert.equal(collisions.length, 1)
-    assert.equal(collisions[0].locus.lineId, 'game::V1')
-    assert.ok(collisions[0].implicated.contractIds.length >= 2, 'and it names the contracts that disagree')
+    // Phase B cluster 1 removed the corpus's only collision, because it was convergence, not conflict.
+    // The primary-event *existence* problem it was tangled with is untouched, and is cluster 2.
+    assert.equal(result.failures.filter((f: any) => f.kind === 'COLLISION').length, 0)
+    assert.equal(result.classified.get('game::V1').verdict, 'RESOLVED:ENTAILED', 'the kind resolved by composition')
 })
 
 test('the fifteen Gate A checks are all present, and GA-RESIDUAL-SPACE is gone (SD-45)', () => {

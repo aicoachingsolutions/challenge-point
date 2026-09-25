@@ -38,6 +38,14 @@ export interface DerivedLine {
      * so it is carried as authored and a consumer that needs a number refuses it (§1.9).
      */
     standingValue: { id: string; value: unknown } | null
+    /** Contributions that narrow the line to a set of permitted alternatives (SD-78). */
+    narrowing: { item: ItemRef; members: unknown[]; support: SupportRef }[]
+    /**
+     * SD-78's composition, computed once the narrowings are collected: the **jointly permitted** value
+     * set, the intersection of every narrowing that applies. The engine chooses nothing here and
+     * establishes no precedence between contributions — it determines what they permit together.
+     */
+    narrowedTo: { members: unknown[]; items: ItemRef[] } | null
     /** A value the session supplies, on a row the register sources from the session (§1.2, §1.4). */
     session: { row: string; value: unknown } | null
 }
@@ -112,11 +120,30 @@ function isSupportCapable(item: any): boolean {
     return true
 }
 
+/**
+ * SD-78 — a contribution that states a **set of permitted alternatives** narrows the line; it does not
+ * fix it. "A set of permitted alternatives is not itself the resolved value of a single-valued property."
+ *
+ * This is the distinction the value model and §5.8 already draw — *"SELECTION narrows to a valid set …
+ * where that leaves a choice the kind is FREE under SD-39 and is chosen downstream"* — and reading it as
+ * a fixed assertion is what made three converging narrowings look like a collision.
+ *
+ * The trigger is narrow on purpose: `REQUIRED_RANGE` **and** an array value. A `REQUIRED_RANGE` carrying
+ * a scalar still fixes what it states.
+ */
+function narrowsToSet(item: any): boolean {
+    if (!isSupportCapable(item)) return false
+    if (item.basis === 'ASSUMED') return false
+    if (item.strictness === 'EXCLUSION') return false
+    return item.valueStatus === 'REQUIRED_RANGE' && Array.isArray(item.value)
+}
+
 /** An item entails only when it fixes the value: an assumed item bounds but never entails (§3). */
 function entails(item: any): boolean {
     if (!isSupportCapable(item)) return false
     if (item.basis === 'ASSUMED') return false
     if (item.strictness === 'EXCLUSION') return false
+    if (narrowsToSet(item)) return false // it narrows instead (SD-78)
     return item.requirement === 'EQUALS' || item.requirement === 'POSITIONED' || item.requirement === 'ORIENTED'
 }
 
@@ -223,7 +250,18 @@ export function deriveLines(
     const undeterminedReaches: { item: ItemRef; classId: string }[] = []
 
     for (const line of lines) {
-        derived.set(line.lineId, { lineId: line.lineId, entailing: [], bounding: [], undetermined: [], open: null, standingDecisions: [], standingValue: null, session: null })
+        derived.set(line.lineId, {
+            lineId: line.lineId,
+            entailing: [],
+            bounding: [],
+            undetermined: [],
+            open: null,
+            standingDecisions: [],
+            standingValue: null,
+            narrowing: [],
+            narrowedTo: null,
+            session: null,
+        })
     }
 
     for (const [key, item] of itemsById) {
@@ -252,7 +290,13 @@ export function deriveLines(
                 continue
             }
 
-            if (entails(item)) {
+            if (narrowsToSet(item)) {
+                record.narrowing.push({
+                    item: ref,
+                    members: (item.value as unknown[]).slice(),
+                    support: { kind: 'CONTRACT_ITEM', contractId: ref.contractId, itemId: ref.itemId, relation: 'NARROWS' },
+                })
+            } else if (entails(item)) {
                 record.entailing.push({
                     item: ref,
                     value: item.value,
@@ -265,6 +309,22 @@ export function deriveLines(
                     support: { kind: 'CONTRACT_ITEM', contractId: ref.contractId, itemId: ref.itemId, relation: 'NARROWS' },
                 })
             }
+        }
+    }
+
+    // SD-78 — compose the narrowings. Restricted to exactly this: intersecting sets the contracts
+    // already state. No ordering is consulted (RC-29 stays unresolved), no contribution outranks
+    // another, and membership is compared only by exact equality of the authored member.
+    for (const line of lines) {
+        const record = derived.get(line.lineId)!
+        if (!record.narrowing.length) continue
+        record.narrowing.sort((a, b) => `${a.item.contractId}:${a.item.itemId}`.localeCompare(`${b.item.contractId}:${b.item.itemId}`))
+        const members = record.narrowing
+            .map(n => n.members.map(m => JSON.stringify(m)))
+            .reduce((a, b) => a.filter(m => b.includes(m)))
+        record.narrowedTo = {
+            members: members.map(m => JSON.parse(m)),
+            items: record.narrowing.map(n => n.item),
         }
     }
 

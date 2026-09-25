@@ -179,12 +179,18 @@ class Probe {
             return { state: 'OPEN', bounds: this.ctx.derived.get(lineId)?.bounding || [] }
         }
         // §1.4's three routes, in the order stage 6 resolved them.
+        // §1.4's routes, in the order stage 6 resolved them. A line resolved by composition (SD-78)
+        // carries the single surviving member — never the permitted set (SD-80).
         const record = this.ctx.derived.get(lineId)
         const value = record?.session
             ? record.session.value
             : record?.entailing.length
               ? record.entailing[0].value
-              : record?.standingValue?.value
+              : record?.narrowedTo
+                ? record.narrowedTo.members.length === 1
+                    ? record.narrowedTo.members[0]
+                    : undefined
+                : record?.standingValue?.value
         return { state: 'DERIVED', value }
     }
 

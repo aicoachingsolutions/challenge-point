@@ -407,6 +407,8 @@ function materialiseMembers(
                 undetermined: [],
                 open: null,
                 standingDecisions: record ? [...record.standingDecisions] : [],
+                narrowing: [],
+                narrowedTo: null,
                 standingValue: record && record.standingValue && !record.entailing.length && !record.session ? { id: record.standingValue.id, value: member } : null,
                 session: record && record.session ? { row: record.session.row, value: member } : null,
             })

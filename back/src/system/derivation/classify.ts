@@ -98,11 +98,33 @@ export function classifyLines(
 
         // SD-28 — gap first. A line whose value nothing authored is NOT_AUTHORED, and no collision is
         // raised on it, whatever else is true.
-        const noDependency = record.entailing.length === 0 && record.standingDecisions.length === 0 && !record.open && !record.session
+        const noDependency =
+            record.entailing.length === 0 && record.standingDecisions.length === 0 && !record.open && !record.session && !record.narrowedTo
 
         if (noDependency) {
             result.verdict = 'NOT_AUTHORED'
             result.reason = reasonFor(line.row, declarations)
+            classified.set(line.lineId, result)
+            continue
+        }
+
+        // SD-78 — the composed narrowings decide the line before anything else looks at it, because
+        // they are what the contributions jointly permit. The engine is not choosing among them.
+        if (record.narrowedTo && !record.entailing.length && !record.session) {
+            const members = record.narrowedTo.members
+            if (members.length === 1) {
+                result.verdict = 'RESOLVED:ENTAILED'
+                result.resolvedBy = 'ENTAILMENT'
+            } else if (members.length > 1) {
+                // A real downstream choice, within the jointly permitted set (SD-39). The authored order
+                // is not consulted to narrow it further: RC-29 remains unresolved.
+                result.verdict = 'FREE(choice)'
+            } else {
+                // Empty intersection: the narrowings exclude one another. A genuine collision, with
+                // every contributing narrowing preserved.
+                result.verdict = 'UNRESOLVED'
+                result.collidingItems = record.narrowedTo.items
+            }
             classified.set(line.lineId, result)
             continue
         }

@@ -1,5 +1,21 @@
 # Phase B, cluster 1 — the primary-event collision
 
+> **RULED AND CORRECTED, 24 September (SD-78 to SD-80).** The diagnosis below was accepted and the
+> correction applied. Outcome, and the reach classification SD-81 now requires of every cluster:
+>
+> | | |
+> |---|---|
+> | **Reach of the correction** | **A general derivation/composition rule.** Not local to this knowledge, not confined to one representation area. It applies wherever independently authored `REQUIRED_RANGE` contributions meet on one structural property |
+> | `game::V1` | `UNRESOLVED` → **`RESOLVED:ENTAILED` = `line_crossed`**, with all three narrowings retained as support |
+> | Collisions in the corpus | **1 → 0** |
+> | `c:restated:GF2:GF2-03.a::S3` | was `RESOLVED` holding `"{zone, line} — set of alternatives, unordered"` → **`FREE(choice)`**, no value |
+> | `c:restated:RPC-001:RPC-001-18.a::V5` | was `RESOLVED` holding a set → **`FREE(choice)`**, matching its own fit-note *"Which placement applies is undecided"* |
+> | Lines derived / open | 34 → 33 derived, 12 → 14 open |
+> | Items restated | 5, membership preserved exactly; the one authored order kept as provenance and applied by nothing |
+>
+> **What did not move, and should not have:** Gate A still fails on the same six checks, and the five
+> primary *events* are untouched. Existence and kind are separate mechanisms, and that is cluster 2.
+
 24 September 2026. The first cluster, in the order he set: *"begin with the primary-event collision
 because it is our first real evidence of independently authored knowledge reaching the same structural
 property and disagreeing."*

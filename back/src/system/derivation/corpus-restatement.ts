@@ -1,231 +1,64 @@
 /**
- * Corpus repair — **restatement** (his ruling of 24 September, repair phase A).
+ * Corpus repair — **restatement** (his repair phase A, and the Phase B cluster-1 correction).
  *
  * Restatement makes existing authored meaning machine-expressible. It changes no meaning, so it is
- * separate from encoding repair (`corpus-repair.ts`) and counted separately, and it is applied only
- * where he has ruled.
+ * separate from encoding repair (`corpus-repair.ts`), counted separately, and applied only where he has
+ * ruled.
  *
- * **The one restatement ruled so far.** Twenty items record a contribution that intentionally claims no
- * Game Representation property, spelled `NONE` or as an em dash — neither registered. He added the
- * contract-level sentinel `NO_ROW` for exactly this, valid only where:
+ * **The ruled restatements live in data**, at `stage-b/corpus-restatements.json`. Only the mechanism and
+ * the conditions live here. That split is deliberate for two reasons: the authored member text is
+ * knowledge and the derivation engine is sport-neutral, so sport-specific wording must not appear in
+ * engine source; and a ledger of what was restated is more reviewable as data than as code.
  *
- *   - the contribution is explicitly classified outside the representation;
- *   - it contains no structural requirement that must be held by the Game Representation;
- *   - its existing treatment is the established outside-representation treatment.
- *
- * And: *"NO_ROW must never be usable to suppress, bypass or reclassify a structural claim merely because
- * no suitable row exists."*
- *
- * So the restatement is **belt and braces**: the twenty items are named explicitly, so the change is
- * auditable rather than inferred by a rule that might drift — and every one is still checked against the
- * conditions before it is applied. An item on the list that does not satisfy them is **not** restated,
- * and is reported. The five structural-in-kind items are deliberately absent from the list; they are
- * evidence for his individual review, not restatement material.
+ * What the data holds:
+ *   - `noRow` — the twenty items he ruled may take the `NO_ROW` sentinel. Named one by one so the change
+ *     is auditable rather than inferred by a rule that might drift, **and** re-checked against the three
+ *     conditions below before each is applied. One that fails a condition is left alone and reported.
+ *   - `items` — per-item restatements, each naming its ruling.
+ *   - `added` — items a ruling adds, each carrying its own source and entailment.
+ *   - `declarationScope` — the declaration-scope restatement.
  */
+
+import fs from 'node:fs'
+import path from 'node:path'
 
 import { ContractItem, LoadedContract } from './types'
 
 /** The spellings the corpus used for "no row holds this", neither of them registered. */
 const UNREGISTERED_SPELLINGS = ['NONE', '—']
 
-/**
- * The twenty items he ruled may be restated, named one by one. Each is `contractId :: itemId`.
- * Adding to this list is a restatement decision and is his, not a maintenance task.
- */
-export const NO_ROW_RESTATEMENTS: ReadonlySet<string> = new Set([
-    'restated:GF2::GF2-13',
-    'restated:GF2::GF2-18',
-    'restated:GF2::GF2-21',
-    'restated:GF2::GF2-23',
-    'restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-07.a',
-    'restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-12.b',
-    'restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-16.b',
-    'blind:PASS-COMBINATION-GATE::PCG-14',
-    'blind:PASS-COMBINATION-GATE::PCG-15',
-    'blind:PASS-COMBINATION-GATE::PCG-16',
-    'blind:PASS-COMBINATION-GATE::PCG-17',
-    'blind:PASS-COMBINATION-GATE::PCG-18',
-    'blind:PASS-COMBINATION-GATE::PCG-19',
-    'blind:GF4::OB1',
-    'blind:GF4::OB2',
-    'blind:GF4::OB3',
-    'blind:GF4::OB4',
-    'blind:GF4::OB5',
-    'blind:GF4::OB6',
-    'blind:GF4::OB7',
-])
-
-/**
- * The per-item restatements he ruled on 24 September, each naming its ruling. Every one corrects a
- * contract that said more, or less, than its own source supports. None invents knowledge.
- */
 export interface ItemRestatement {
     /** `contractId::itemId`. */
     item: string
     ruling: string
-    /** Fields to overwrite. A field set to `undefined` is removed. */
+    /** Fields to overwrite. */
     set?: Record<string, unknown>
     /** Remove the item from its contract entirely (its source is preserved on the task register). */
     remove?: true
     why: string
 }
 
-export const ITEM_RESTATEMENTS: ItemRestatement[] = [
-    {
-        item: 'restated:GF2::GF2-01',
-        ruling: 'SD-67',
-        set: { row: 'BY_CONSTRUCTION', satisfiedBy: 'SINGLE_RECTANGULAR_PLAYING_AREA', structuralClause: 'satisfied by the named schema invariant' },
-        why: 'the schema represents the area as two scalar dimensions and enumerates no areas, so exactly one rectangular area holds by construction',
-    },
-    {
-        item: 'restated:GF2::GF2-02',
-        ruling: 'SD-68',
-        set: {
-            row: 'NO_ROW',
-            checkability: 'OUTSIDE_BOUNDARY',
-            structuralClause: 'none',
-            value: 'participants share an adaptive opportunity space',
-        },
-        why:
-            'restated back to what its source supports. The stronger no-team-partition clause was one interpretation of ' +
-            '"Participants share an adaptive opportunity space", not something the source entails; it is recorded as unsupported contract interpretation (task register C9)',
-    },
-    {
-        item: 'restated:GF2::GF2-15',
-        ruling: 'SD-69',
-        set: { row: 'NO_ROW', checkability: 'OUTSIDE_BOUNDARY', structuralClause: 'none' },
-        why:
-            'its typing as a structural Game Representation claim is retired. It is ASSUMED and mixes structure with play; ' +
-            'it is preserved as a diagnostic/boundary condition outside structural entailment (task register C10)',
-    },
-    {
-        item: 'restated:GF2::GF2-22',
-        ruling: 'SD-70',
-        set: { row: 'R1', selector: '*', checkability: 'STRUCTURAL', structuralClause: 'whole item' },
-        why: 'the Rules area now holds action restriction, so the exclusion is representable: no action restriction exists in this game',
-    },
-    {
-        item: 'restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-05.a',
-        ruling: 'SD-71',
-        set: { row: 'P12', selector: 'group=neutral', value: 'ACTIVE', structuralClause: 'whole item' },
-        why: 'Performer Participation State now holds the realized value; the concept stays owned by knowledge core EM-0007',
-    },
-    {
-        item: 'restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-13.a',
-        ruling: 'SD-72',
-        remove: true,
-        why:
-            'removed as a structural modifier claim: the source offers alternative realization examples — bonus point, free restart or scoring multiplier — ' +
-            'without selecting one or authoring its parameters. The source is preserved as typical realization alternatives outside structural derivation (task register C11)',
-    },
-    {
-        item: 'restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-13.b',
-        ruling: 'SD-72',
-        remove: true,
-        why: 'the same source sentence read a second way; removed for the same reason, and the source is preserved unchanged',
-    },
-    {
-        item: 'blind:GF4::I14',
-        ruling: 'SD-73',
-        set: { value: 2 },
-        why: '"double" entails both the operation and the magnitude, so the magnitude is recorded as 2. Its TYPICAL_EXAMPLE status is unchanged: encoding what the example says does not make it authoritative',
-    },
-]
-
-/**
- * SD-76 — the traced result for Neutral Player.
- *
- * His rule: *"A property contribution cannot entail the existence of its owning element. Element
- * existence requires independent authoritative support."* And his conditional: *"If the existing source
- * entails the presence of the neutral participant/group, restate that as an existence contribution with
- * the source and entailment visible. If it does not, leave this as a knowledge gap."*
- *
- * **It does.** `NEUTRAL-01.a` is a `REQUIRED`, `AUTHORED`, `STRUCTURAL` contribution on `P5`
- * (`performers.neutrals.count`) with value `">= 1 (no authored maximum)"`, from *"One or more neutral
- * players join the team in possession creating a live numerical overload"*. That entails the presence of
- * a neutral participant group **independently of NEUTRAL-05.a**, which is a property contribution about
- * their participation state.
- *
- * So this is restatement, not authoring: the same source sentence, already carried as a count on a
- * game-level field, restated as the existence contribution the participation collection needs. It
- * follows the contract's own `.a`/`.b` convention for one original contribution restated across rows.
- * Nothing is authored because the property needed somewhere to attach.
- */
-const NEUTRAL_EXISTENCE = {
-    contractId: 'restated:NEUTRAL-PLAYER-CONDITION',
-    after: 'NEUTRAL-05.a',
-    ruling: 'SD-76',
-    item: {
-        itemId: 'NEUTRAL-01.b',
-        origId: 'NEUTRAL-01',
-        row: 'P11',
-        selector: 'group=neutral',
-        requirement: 'EXISTS',
-        value: 'a neutral participant group takes part in the activity',
-        strictness: 'REQUIRED',
-        valueStatus: 'N/A',
-        scope: 'WHOLE_GAME',
-        basis: 'AUTHORED',
-        // The quote and the knowledge-object id carry the provenance. The sport module's filename is
-        // deliberately not repeated here: the derivation engine is sport-neutral, and NEUTRAL-01.a in
-        // the corpus already carries the full source reference this restatement rests on.
-        basisEvidence:
-            '"One or more neutral players join the team in possession creating a live numerical overload" ' +
-            '(tl-v0-constraint-neutral-player-condition, description — full source reference as carried by NEUTRAL-01.a)',
-        checkability: 'STRUCTURAL',
-        structuralClause: 'whole item',
-        fitNote:
-            'SD-76. The entailment, made visible: the same source already carried as NEUTRAL-01.a (P5 count >= 1) ' +
-            'entails that a neutral participant group is present, independently of the participation-state property ' +
-            'NEUTRAL-05.a. Restated onto P11 so that state has an element to belong to. No existence is authored here.',
-    },
-    why: 'the existing source independently entails the neutral group, so its existence is restated rather than left a gap',
+interface RestatementData {
+    noRow: string[]
+    items: ItemRestatement[]
+    added: { contractId: string; after: string; ruling: string; item: Record<string, unknown>; why: string }[]
+    declarationScope: { contractId: string; ruling: string; onlyDeclaration: string; from: string; to: string; why: string }
 }
 
-/** Ruling SD-73 also supplies the operation the source entails, as a new item beside the magnitude. */
-export const ADDED_ITEMS: { contractId: string; after: string; ruling: string; item: Record<string, unknown>; why: string }[] = [
-    {
-        contractId: 'blind:GF4',
-        after: 'I14',
-        ruling: 'SD-73',
-        item: {
-            itemId: 'I14.op',
-            row: 'V9a',
-            selector: 'condition.type=event',
-            requirement: 'EQUALS',
-            value: 'multiply',
-            strictness: 'SUPPORTING',
-            valueStatus: 'TYPICAL_EXAMPLE',
-            scope: 'WHOLE_GAME',
-            basis: 'AUTHORED',
-            basisEvidence: '"double points for quick goal" (game_forms[GF4].example_incentive_patterns) — "double" entails multiply',
-            checkability: 'STRUCTURAL',
-            structuralClause: 'whole item',
-            fitNote: 'Recovered from the source per SD-73. TYPICAL_EXAMPLE, so inert: the recovered operation does not promote the item into derivation.',
-        },
-        why: 'the operation is recoverable from "double"; recording it keeps the magnitude computable without making the example authoritative',
-    },
-    NEUTRAL_EXISTENCE,
-]
+const DATA: RestatementData = JSON.parse(
+    fs.readFileSync(path.resolve(__dirname, '../../../../docs/audits/conformance/stage-b/corpus-restatements.json'), 'utf8').replace(/^﻿/, ''),
+)
 
-/** SD-74 — the sixty-four NON_CLAIMED declarations whose scope is an em dash. */
-export const DECLARATION_SCOPE_RESTATEMENT = {
-    contractId: 'blind:PASS-COMBINATION-GATE',
-    ruling: 'SD-74',
-    onlyDeclaration: 'NON_CLAIMED',
-    from: '—',
-    to: 'WHOLE_GAME',
-    why:
-        'this contract makes no claim on the row anywhere in the game. The rest of the corpus consistently scopes ' +
-        'NON_CLAIMED declarations, and `null` is deliberately not introduced as a second treatment',
-}
+export const NO_ROW_RESTATEMENTS: ReadonlySet<string> = new Set(DATA.noRow)
+export const ITEM_RESTATEMENTS: ItemRestatement[] = DATA.items
+export const ADDED_ITEMS = DATA.added
+export const DECLARATION_SCOPE_RESTATEMENT = DATA.declarationScope
 
 export interface RestatementTally {
     /** Items rewritten to the NO_ROW sentinel. */
     applied: number
     /** Items on the NO_ROW list that failed a condition and were therefore left alone. */
     withheld: { item: string; why: string }[]
-    /** Per-item restatements applied, by ruling. */
     itemsRestated: number
     itemsRemoved: number
     itemsAdded: number
@@ -239,7 +72,7 @@ function statesNoStructuralRequirement(clause: unknown): boolean {
     return /^(none|n\/a)$/i.test(String(clause).trim())
 }
 
-/** The three conditions, checked per item. Returns null when the item qualifies. */
+/** The three NO_ROW conditions, checked per item. Returns null when the item qualifies. */
 function disqualifies(item: ContractItem): string | null {
     if (!UNREGISTERED_SPELLINGS.includes(String(item.row))) return `row is ${JSON.stringify(item.row)}, not an unregistered no-row spelling`
     if (item.checkability !== 'OUTSIDE_BOUNDARY') return `checkability is ${String(item.checkability)}, not OUTSIDE_BOUNDARY`
@@ -264,7 +97,6 @@ export function applyNoRowRestatement(contracts: LoadedContract[], tally: Restat
         let items = (contract.items || []).flatMap(item => {
             const key = `${contract.contractId}::${item.itemId}`
 
-            // The twenty NO_ROW restatements, each re-checked against its three conditions.
             if (NO_ROW_RESTATEMENTS.has(key)) {
                 seen.add(key)
                 const reason = disqualifies(item)

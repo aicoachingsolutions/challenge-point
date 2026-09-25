@@ -259,13 +259,22 @@ function supportOf(record: DerivedLine | undefined, classified: ClassifiedLine |
     if (!record || classified?.verdict !== 'RESOLVED:ENTAILED') return []
     if (record.session) return [{ kind: 'SESSION', row: record.session.row }]
     if (record.entailing.length) return record.entailing.map(e => e.support)
+    // SD-78: "every contributing narrowing retained as support" — all of them, not just the one whose
+    // member survived. The value is what they jointly permit, so they jointly support it.
+    if (record.narrowedTo && record.narrowedTo.members.length === 1) return record.narrowing.map(n => n.support)
     if (record.standingValue) return [{ kind: 'STANDING_DECISION', id: record.standingValue.id }]
     return []
 }
 
+/**
+ * SD-80 — a set of permitted alternatives is never emitted as a resolved value. A line resolved by
+ * composition carries **the single surviving member**, and a composition that left more than one member
+ * is `FREE(choice)`, which carries no value at all.
+ */
 function valueOf(record: DerivedLine | undefined): unknown {
     if (!record) return undefined
     if (record.session) return record.session.value
     if (record.entailing.length) return record.entailing[0].value
+    if (record.narrowedTo) return record.narrowedTo.members.length === 1 ? record.narrowedTo.members[0] : undefined
     return record.standingValue?.value
 }

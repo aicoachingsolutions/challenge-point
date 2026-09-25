@@ -296,7 +296,7 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
     loadCorpusContracts()
     assert.equal(restatementTally.applied, 20, 'the twenty NO_ROW items')
     assert.deepEqual(restatementTally.withheld, [], 'none was named but disqualified')
-    assert.equal(restatementTally.itemsRestated, 6)
+    assert.equal(restatementTally.itemsRestated, 11, 'six Phase A rulings, plus the five sets made machine-readable (SD-79)')
     assert.equal(restatementTally.itemsRemoved, 2, 'WIDEZONE-13.a and 13.b')
     assert.equal(restatementTally.itemsAdded, 2, 'the recovered GF4 operation, and the traced neutral existence')
     assert.equal(restatementTally.declarationScopes, 64)
@@ -361,6 +361,95 @@ test('SD-76: neutral existence is independently supported, so the property has a
         .items.find(i => i.itemId === 'NEUTRAL-01.b') as any
     assert.equal(item01b.origId, 'NEUTRAL-01', 'traced to the count contribution, not to NEUTRAL-05')
     assert.ok(/One or more neutral players/.test(String(item01b.basisEvidence)), 'the source is visible on the item')
+})
+
+// ---------------------------------------------------------------------------------------------
+// SD-78/SD-80 — composing narrowings. A set of permitted alternatives is never a resolved value.
+// ---------------------------------------------------------------------------------------------
+
+const narrowing = (itemId: string, members: string[], row = 'V1') =>
+    item({ itemId, row, selector: '*', requirement: 'EQUALS', value: members as any, valueStatus: 'REQUIRED_RANGE', strictness: 'REQUIRED' })
+
+/**
+ * **The regression he asked for by name.** A single `REQUIRED_RANGE` set reaching a line must not be
+ * emitted as that line's resolved value. This is the silent half of the defect — a wrong answer wearing
+ * the label of a right one — and it is worse than the visible collision that led us to it.
+ */
+test('SD-80: one set-valued contribution does NOT resolve the line to the set', () => {
+    const result = runDerivation(input([contract([narrowing('N-1', ['zone', 'line'])])]))
+    if (isStampedHalt(result)) return assert.fail('unexpected halt')
+    const line = result.resolution.find(e => e.lineId === 'game::V1')!
+    assert.equal(line.verdict, 'FREE(choice)', 'two permitted alternatives are a downstream choice, not a value')
+    assert.equal(line.value, undefined, 'and a free line carries no value at all')
+    assert.notDeepEqual(line.value, ['zone', 'line'], 'the permitted set is never the value')
+})
+
+test('SD-80: no resolved line anywhere ever holds a set as its value', () => {
+    for (const source of [corpusInput(), input([contract([narrowing('N-1', ['a', 'b'])])])]) {
+        const result = runDerivation(source)
+        if (isStampedHalt(result)) continue
+        for (const entry of result.resolution) {
+            if (entry.state !== 'derived') continue
+            assert.ok(!Array.isArray(entry.value), `${entry.lineId} is derived while holding a set: ${JSON.stringify(entry.value)}`)
+        }
+    }
+})
+
+test('SD-78: narrowings that intersect to one member resolve, keeping every contributor as support', () => {
+    const contracts = [
+        contract([narrowing('A-1', ['goal', 'line_crossed'])], { contractId: 'C-A', objectId: 'O-A' }),
+        contract([narrowing('B-1', ['line_crossed', 'target_zone_entered'])], { contractId: 'C-B', objectId: 'O-B' }),
+        contract([narrowing('C-1', ['line_crossed', 'target_zone_entered', 'gate'])], { contractId: 'C-C', objectId: 'O-C' }),
+    ]
+    const result = runDerivation(input(contracts))
+    if (isStampedHalt(result)) return assert.fail('unexpected halt')
+    const line = result.resolution.find(e => e.lineId === 'game::V1')!
+    assert.equal(line.verdict, 'RESOLVED:ENTAILED')
+    assert.equal(line.value, 'line_crossed', 'the one member all three permit')
+    assert.equal(line.support.length, 3, 'every contributing narrowing is retained as support')
+    assert.equal(result.failures.filter(f => f.kind === 'COLLISION').length, 0, 'converging narrowings are not a collision')
+})
+
+test('SD-78: an intersection with several members is FREE(choice), and order does not narrow it', () => {
+    const contracts = [
+        // The first carries an authored order. RC-29 keeps it and does not apply it.
+        contract([{ ...narrowing('A-1', ['gate', 'line_crossed', 'target_zone_entered']), authoredOrder: true } as any], { contractId: 'C-A', objectId: 'O-A' }),
+        contract([narrowing('B-1', ['line_crossed', 'target_zone_entered'])], { contractId: 'C-B', objectId: 'O-B' }),
+    ]
+    const result = runDerivation(input(contracts))
+    if (isStampedHalt(result)) return assert.fail('unexpected halt')
+    const line = result.resolution.find(e => e.lineId === 'game::V1')!
+    assert.equal(line.verdict, 'FREE(choice)', 'two members survive, so the choice is real')
+    assert.equal(line.value, undefined, 'and the authored order does not pick one (RC-29 unresolved)')
+})
+
+test('SD-78: narrowings that exclude each other are a genuine collision, contributors preserved', () => {
+    const contracts = [
+        contract([narrowing('A-1', ['goal'])], { contractId: 'C-A', objectId: 'O-A' }),
+        contract([narrowing('B-1', ['target_zone_entered'])], { contractId: 'C-B', objectId: 'O-B' }),
+    ]
+    const result: any = runStages0to10(input(contracts))
+    const line = result.classified.get('game::V1')
+    assert.equal(line.verdict, 'UNRESOLVED', 'an empty intersection is a real disagreement')
+    assert.equal(line.collidingItems.length, 2, 'and both contributing narrowings are preserved')
+})
+
+test('SD-78: a REQUIRED_RANGE carrying a scalar still fixes what it states', () => {
+    const scalar = item({ itemId: 'S-1', row: 'V1', selector: '*', requirement: 'EQUALS', value: 'line_crossed', valueStatus: 'REQUIRED_RANGE' })
+    const result = runDerivation(input([contract([scalar])]))
+    if (isStampedHalt(result)) return assert.fail('unexpected halt')
+    const line = result.resolution.find(e => e.lineId === 'game::V1')!
+    assert.equal(line.verdict, 'RESOLVED:ENTAILED', 'the narrowing rule is triggered by a set, not by the status alone')
+    assert.equal(line.value, 'line_crossed')
+})
+
+test('the corpus collision is gone, because it was never a collision', () => {
+    const result = runDerivation(corpusInput())
+    if (isStampedHalt(result)) return assert.fail('unexpected halt')
+    assert.equal(result.failures.filter(f => f.kind === 'COLLISION').length, 0)
+    const v1 = result.resolution.find(e => e.lineId === 'game::V1')!
+    assert.equal(v1.value, 'line_crossed', 'three independently authored objects converge on one member')
+    assert.equal(v1.support.length, 3)
 })
 
 test('BY_CONSTRUCTION is satisfied by its named invariant, not excused by it', () => {
