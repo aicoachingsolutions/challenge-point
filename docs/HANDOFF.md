@@ -2894,3 +2894,32 @@ DISAGREEMENT.**
   intersected at all (a composition rule, his to confirm).
 - **Implication for the rest:** the corpus's only collision was an artefact. Some of the 137 failed lines
   will be the same defect relabelled — which is why counting failed lines points the wrong way.
+
+**24 Sep — SD-78..SD-82: CLUSTER 1 CORRECTED.** Spec **revision 17**; 133 tests; suite green.
+- **SD-78 composition by intersection.** Independently authored `REQUIRED_RANGE` narrowings on one
+  property are intersected — the engine determines what they *jointly permit* and chooses nothing.
+  1 member → `RESOLVED` with **all** contributors as support; >1 → `FREE(choice)`; 0 → genuine
+  `UNRESOLVED`. **Authored order may not narrow a multi-member intersection (RC-29 stays unresolved).**
+- **`game::V1` → `RESOLVED:ENTAILED` = `line_crossed`, support 3. Corpus collisions 1 → 0.**
+- **Both silent set-as-value lines corrected** → `FREE(choice)`. `RPC-001-18.a::V5` now agrees with its
+  own contract fit-note ("Which placement applies is undecided") — the engine had been contradicting the
+  contract, and the contract was right.
+- **SD-80 regression, wider than asked:** besides the specific one-contribution case, a **corpus-wide
+  invariant that no derived line may hold an array as its value**. Also asserted: a `REQUIRED_RANGE`
+  carrying a *scalar* still fixes what it states (trigger is the set, not the status).
+- **The failed-line count did not move: 137 → 137.** Cleanest illustration of SD-81 — a wrong value
+  fixed, a false conflict removed, two silent errors made honest, and the headline number unchanged.
+- **Sport-coupling ratchet caught me again, and was right again.** An authored member reads *"the
+  goalkeeper's START/restart placement"* and SD-79 forbids paraphrase. The real fault: **corpus data in
+  engine source.** Restatements now live at `docs/audits/conformance/stage-b/corpus-restatements.json`;
+  only mechanism + conditions stay in code. Better provenance — the ledger is now a reviewable diff.
+- **SD-81 reach classification (required of every cluster from now on):** cluster 1 is **a general
+  derivation/composition rule** — one correction touched 5 items, 3 rows, 3 contracts, no football
+  knowledge.
+- **SD-82 pilot boundary** is a *criterion*, not a date (~5–6 weeks of season left, explicitly not a
+  deadline): keep diagnosing internally while failures are what engine/contracts/controlled tests can
+  establish; pilot when unresolved questions need observation of real coach–learner–environment
+  interaction. Cluster 1 is evidence we are still firmly on the internal side — no coach could have
+  found it.
+- **V0 untouched.** Five primary events, Gate A still FAIL on the same six checks. **Cluster 2 = the
+  primary-event existence/cardinality problem.**
