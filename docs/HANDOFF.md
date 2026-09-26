@@ -3004,3 +3004,34 @@ closure conditions hold.
   false conflict, two silent wrong values, 19 phantom elements and 47 unreal failures — **no knowledge
   repair at all**.
 - **Next: cluster 3**, unless the exclusion bounds reorder it.
+
+**26 Sep — SD-86 CLOSES CLUSTER 2; CLUSTER 3 ANALYSED.** Spec **revision 19**; 147 tests; suite green.
+- **SD-86 bounded restatement of the two exclusion bounds.** Both now `SATISFIED` against their **own**
+  authored bound. **The relation is carried across as written, not converted:** `"more than 1"` → `> 1`
+  (not `>= 2`); `"2 or more"` → `>= 2` (not `> 1`). Same set for an integer count, but rewriting the
+  author's comparison is not typing it. Prose `value` left in place as the source.
+- **Three guards:** a bound is never read out of prose; **a bound is never borrowed from the schema
+  invariant** (an exclusion on the singleton row with no authored bound stays `NOT_EVALUABLE` rather than
+  taking SD-06's) — that was his explicit prohibition and is now tested.
+- **Classified by cause:** the *only* change is two item outcomes `NOT_EVALUABLE` → `SATISFIED`.
+  Structure untouched — 33 classes, 144 lines, 90 gaps, same 4 failing checks, 0 stops.
+
+**CLUSTER 3 — `docs/design/phase-b-cluster-3-goal-kick-selection.md` (analysed, nothing corrected).**
+- **All 8 reference defects — the oldest unexplained finding in the project — are ONE cause in ONE
+  contract.** Every selector in `restated:A01-02` is `restart=GOAL_KICK`; `T1` has no `restart`
+  attribute (it keys on `trigger` + qualifiers).
+- **The restater knew:** every selector carries an `[L1]` marker, and the fit-note says it outright —
+  *"T1 selects only by trigger and qualifiers. The goal kick has to be picked out by its procedure
+  because its trigger is not authored."*
+- **Cause: missing knowledge, not a representation gap.** The source authors a restart *procedure* and
+  **no trigger**; the representation keys transitions by trigger. Authoring the trigger turns all eight
+  selectors into ordinary ones — **no new row, attribute or register change**.
+- **Did not guess the trigger.** `OUT_END_LINE` is the obvious candidate; the restater had the same
+  candidate and declined, enumerating six. "Obvious" is the reasoning we refuse.
+- **Resolves:** 8 → 0 reference defects, the `GA-REFERENCE-INTEGRITY` clause, and 9 authored `A01-02`
+  transition items that currently establish and reach nothing.
+- **Also recorded, not pursued:** `T5.method` (`STATIONARY_BALL`/`SERVED`/`IN_HAND`) is too coarse to
+  distinguish a goal kick from a free kick, corner or kick-off.
+- **Reach (SD-81): LOCAL to that knowledge — the first cluster that is not a general mechanism.**
+  Clusters 1–2 were general rules taking the large populations; what remains is beginning to look like
+  ordinary knowledge work. Still clearly internal on the SD-82 criterion.
