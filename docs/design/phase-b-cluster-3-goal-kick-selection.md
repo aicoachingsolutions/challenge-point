@@ -1,5 +1,46 @@
 # Phase B, cluster 3 — the eight reference defects
 
+> **RULED AND CORRECTED, 26 September (SD-87). CLOSED.**
+>
+> He authored the trigger as *"the state in which the ball leaves play over the defending team's goal
+> line, having last been touched by an attacking player, without a goal being scored"*, and it maps
+> through the existing structure with **no schema change**:
+>
+> | Authored component | Structural expression |
+> |---|---|
+> | the ball leaves play over a goal line | `trigger = OUT_END_LINE` |
+> | …the **defending team's** goal line | `qualifier.endLine = DEFENDING_TEAM` |
+> | last touched by an **attacking** player | `qualifier.lastTouch = ATTACKING_TEAM` |
+> | **without a goal being scored** | carried by `OUT_END_LINE` being a distinct member of the closed trigger list from `SCORE`, on a row *"keyed by trigger"* — one per transition, so mutually exclusive |
+>
+> **His specific warning is met.** It is not reduced to `OUT_END_LINE` alone: `qualifier.lastTouch` is
+> what separates a goal kick from a corner, which shares the trigger *and* the end line. A test asserts
+> a corner does not reach the element and a goal kick does.
+>
+> | Closure condition | Result |
+> |---|---|
+> | the eight reference defects clear | **8 → 0**, the whole population |
+> | no new general mechanism | none — one contract, one selector key |
+> | no representation dependency | none — no row, attribute or register change |
+>
+> **A compounding effect worth recording.** Three of the eight are `T1` existence items, and identical
+> selectors on a non-singleton row would have formed three transitions where there is one goal kick.
+> They did not: two of the three are `ENGINE_ONLY`, and **cluster 2's establishment boundary already
+> stops them**. One element formed, which is correct. A correction from two clusters ago silently
+> prevented a fault this one would otherwise have introduced.
+>
+> **The failure count went UP, and that is the right direction.** Lines 144 → 153, gaps 90 → 93. A real
+> transition now exists and its fields are enumerated. After the 47-line drop that was *not* progress,
+> this 3-line rise is *not* regression — the same accounting in the other direction.
+>
+> **What surfaced, and it is cluster 4.** `GA-TRANSITION-COHERENCE` now fails: the goal-kick transition
+> exists as `STOP_RESUME`, and a `STOP_RESUME` requires a taker and a region. Both are authored —
+> `A01-02-11.a` and `A01-02-07.a` — but carry **off-list designations**, each marked `[L2]` by the
+> restater exactly as `[L1]` marked this cluster. *"The team defending the end where the goal kick is
+> placed"* and *"a player of the team in this element's T2"* are not registered team designations.
+>
+> That is the next bounded knowledge gap in the same contract, not a new mechanism.
+
 26 September 2026. Analysis only; nothing corrected.
 
 **All eight are one cause, and it is the first cluster that is not a general mechanism.** Two clusters of

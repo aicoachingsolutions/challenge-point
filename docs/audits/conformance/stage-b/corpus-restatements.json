@@ -175,6 +175,78 @@
     }
    },
    "why": "the authored bound is \"2 or more\": the number 2 and the relation \"or more\", typed as >= 2. Not rewritten as > 1, and the prose value is left in place as its source."
+  },
+  {
+   "item": "restated:A01-02::A01-02-01.a",
+   "ruling": "SD-87",
+   "set": {
+    "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
+    "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
+   },
+   "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
+  },
+  {
+   "item": "restated:A01-02::A01-02-02.a",
+   "ruling": "SD-87",
+   "set": {
+    "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
+    "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
+   },
+   "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
+  },
+  {
+   "item": "restated:A01-02::A01-02-03.a",
+   "ruling": "SD-87",
+   "set": {
+    "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
+    "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
+   },
+   "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
+  },
+  {
+   "item": "restated:A01-02::A01-02-04.a",
+   "ruling": "SD-87",
+   "set": {
+    "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
+    "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
+   },
+   "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
+  },
+  {
+   "item": "restated:A01-02::A01-02-04.b",
+   "ruling": "SD-87",
+   "set": {
+    "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
+    "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
+   },
+   "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
+  },
+  {
+   "item": "restated:A01-02::A01-02-05.a",
+   "ruling": "SD-87",
+   "set": {
+    "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
+    "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
+   },
+   "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
+  },
+  {
+   "item": "restated:A01-02::A01-02-07.a",
+   "ruling": "SD-87",
+   "set": {
+    "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
+    "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
+   },
+   "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
+  },
+  {
+   "item": "restated:A01-02::A01-02-11.a",
+   "ruling": "SD-87",
+   "set": {
+    "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
+    "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
+   },
+   "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
   }
  ],
  "added": [

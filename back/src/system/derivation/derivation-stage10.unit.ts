@@ -557,12 +557,12 @@ test('the corpus run reproduces the reported figures exactly', () => {
     const result: any = runStages0to10(corpusInput())
     assert.equal(result.run.counts.contractsAdmitted, 8)
     assert.equal(result.run.counts.contractsRefused, 0)
-    assert.equal(result.run.counts.lines, 144)
-    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 32)
-    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 90)
-    assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 8)
+    assert.equal(result.run.counts.lines, 153)
+    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 34)
+    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 93)
+    assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 0, 'cluster 3 cleared the whole population')
     assert.equal(result.failures.filter((f: any) => f.kind === 'COLLISION').length, 0, 'cluster 1 removed the only collision: it was convergence, not conflict')
-    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 90)
+    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 93)
 })
 
 test('Gate A fails on the corpus, and says which checks and why', () => {
@@ -572,7 +572,7 @@ test('Gate A fails on the corpus, and says which checks and why', () => {
     assert.deepEqual(failing.sort(), [
         'GA-INFORMATION',
         'GA-NO-FAILED-LINE',
-        'GA-REFERENCE-INTEGRITY',
+        'GA-TRANSITION-COHERENCE',
         'GA-TRIGGER-UNIQUE',
     ])
     for (const c of gateA(result).checks) assert.ok(c.why && c.why.length > 0, `${c.checkId} gives no reason`)

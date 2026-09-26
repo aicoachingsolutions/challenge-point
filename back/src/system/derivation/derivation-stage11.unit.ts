@@ -15,6 +15,7 @@ import assert from 'node:assert/strict'
 import { corpusInput, loadRegister, loadCorpusContracts, repairTally, restatementTally } from './corpus'
 import { repairEncoding } from './corpus-repair'
 import { NO_ROW_RESTATEMENTS } from './corpus-restatement'
+import { reaches } from './reach'
 import { runDerivation, runStages0to10 } from './engine'
 import { isStampedHalt } from './emit'
 import { ContractItem, DerivationInput, LoadedContract } from './types'
@@ -296,7 +297,11 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
     loadCorpusContracts()
     assert.equal(restatementTally.applied, 20, 'the twenty NO_ROW items')
     assert.deepEqual(restatementTally.withheld, [], 'none was named but disqualified')
-    assert.equal(restatementTally.itemsRestated, 13, 'six Phase A rulings, five sets (SD-79), two exclusion bounds (SD-86)')
+    assert.equal(
+        restatementTally.itemsRestated,
+        21,
+        'six Phase A rulings, five sets (SD-79), two exclusion bounds (SD-86), eight goal-kick selectors (SD-87)',
+    )
     assert.equal(restatementTally.itemsRemoved, 2, 'WIDEZONE-13.a and 13.b')
     assert.equal(restatementTally.itemsAdded, 2, 'the recovered GF4 operation, and the traced neutral existence')
     assert.equal(restatementTally.declarationScopes, 64)
@@ -688,6 +693,39 @@ test('SD-86: the bound comes from the item, never from the schema invariant', ()
     const result: any = runStages0to10(input(contracts))
     const outcome = result.forward.find((f: any) => f.item.itemId === 'X-1')
     assert.equal(outcome.result, 'NOT_EVALUABLE', 'the singleton invariant does not supply the exclusion its bound')
+})
+
+/**
+ * SD-87 — the authored goal-kick trigger, mapped through the existing structure. The thing to protect is
+ * that the mapping keeps the discriminating information: his specific warning was not to reduce it to
+ * `OUT_END_LINE` alone, which would also match a corner.
+ */
+test('SD-87: the eight reference defects are gone, and the goal kick is selected structurally', () => {
+    const result: any = runStages0to10(corpusInput())
+    assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 0, 'the whole population cleared')
+
+    const transition = result.classes.find((c: any) => c.classId === 'c:restated:A01-02:A01-02-01.a')
+    assert.ok(transition, 'the goal-kick transition now exists as an element')
+    assert.equal(transition.row, 'T1')
+
+    // Every discriminating component of his authored state is present in the selector.
+    const terms = Object.fromEntries(transition.constraints.terms.map((t: any) => [t.attribute, t.value]))
+    assert.equal(terms['trigger'], 'OUT_END_LINE', 'the ball leaves play over a goal line')
+    assert.equal(terms['qualifier.endLine'], 'DEFENDING_TEAM', "the defending team's goal line")
+    assert.equal(terms['qualifier.lastTouch'], 'ATTACKING_TEAM', 'last touched by an attacking player')
+})
+
+test('SD-87: the selector discriminates a goal kick from a corner', () => {
+    const result: any = runStages0to10(corpusInput())
+    const transition = result.classes.find((c: any) => c.classId === 'c:restated:A01-02:A01-02-01.a')
+
+    // A corner is the same trigger and the same end line, differing only in who touched it last.
+    // If the mapping had reduced to OUT_END_LINE alone, this selector would match both.
+    const corner = { any: false, terms: [{ attribute: 'qualifier.lastTouch', op: '=', value: 'DEFENDING_TEAM' }] } as any
+    assert.equal(reaches(corner, transition), 'FALSE', 'a corner does not reach the goal-kick element')
+
+    const goalKick = { any: false, terms: [{ attribute: 'qualifier.lastTouch', op: '=', value: 'ATTACKING_TEAM' }] } as any
+    assert.equal(reaches(goalKick, transition), 'TRUE', 'and the goal kick does')
 })
 
 test('the corpus V0 singleton is supported by both legitimate contributions, and only those', () => {
