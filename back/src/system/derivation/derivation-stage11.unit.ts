@@ -296,7 +296,7 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
     loadCorpusContracts()
     assert.equal(restatementTally.applied, 20, 'the twenty NO_ROW items')
     assert.deepEqual(restatementTally.withheld, [], 'none was named but disqualified')
-    assert.equal(restatementTally.itemsRestated, 11, 'six Phase A rulings, plus the five sets made machine-readable (SD-79)')
+    assert.equal(restatementTally.itemsRestated, 13, 'six Phase A rulings, five sets (SD-79), two exclusion bounds (SD-86)')
     assert.equal(restatementTally.itemsRemoved, 2, 'WIDEZONE-13.a and 13.b')
     assert.equal(restatementTally.itemsAdded, 2, 'the recovered GF4 operation, and the traced neutral existence')
     assert.equal(restatementTally.declarationScopes, 64)
@@ -635,6 +635,59 @@ test('SD-85: an exclusion is checked against the structure, and creates none of 
     const outcome = result.forward.find((f: any) => f.item.itemId === 'X-1')
     assert.equal(outcome.result, 'SATISFIED', 'and is evaluated through the negative-existence path')
     assert.ok(/matches the excluded selector/.test(outcome.why))
+})
+
+test('SD-86: an exclusion applies its own authored bound, with the relation as written', () => {
+    const result: any = runStages0to10(corpusInput())
+    const outcomes = Object.fromEntries(result.forward.map((f: any) => [f.item.itemId, f]))
+
+    // "more than 1" is typed as > 1, and "2 or more" as >= 2. Neither is rewritten as the other.
+    assert.equal(outcomes['VARTARGET-12.a'].result, 'SATISFIED')
+    assert.ok(/forbidden > 1/.test(outcomes['VARTARGET-12.a'].why), 'the authored relation, not a converted one')
+    assert.equal(outcomes['WIDEZONE-16.b'].result, 'SATISFIED')
+    assert.ok(/forbidden >= 2/.test(outcomes['WIDEZONE-16.b'].why))
+
+    // The prose stays beside the typed form: the source is preserved, not replaced.
+    const item = loadCorpusContracts()
+        .find(c => c.contractId === 'restated:WIDE-ZONE-ADVANTAGE')!
+        .items.find(i => i.itemId === 'WIDEZONE-16.b') as any
+    assert.ok(/2 or more/.test(String(item.value)), 'the authored prose is untouched')
+    assert.deepEqual(item.forbiddenCardinality, { operator: '>=', value: 2 })
+})
+
+test('SD-86: a bound is never inferred — an exclusion without one stays not evaluable', () => {
+    const contracts = [
+        contract([
+            existence('R-1', 'S2', { selector: 'noun=channel' }),
+            item({
+                itemId: 'X-1',
+                row: 'S2',
+                selector: '*',
+                requirement: 'COUNT',
+                strictness: 'EXCLUSION',
+                value: 'too many channels to be workable',
+            }),
+        ]),
+    ]
+    const result: any = runStages0to10(input(contracts))
+    const outcome = result.forward.find((f: any) => f.item.itemId === 'X-1')
+    assert.equal(outcome.result, 'NOT_EVALUABLE', 'no bound is read out of the prose')
+    assert.ok(/cannot be read without interpreting it/.test(outcome.why))
+})
+
+test('SD-86: the bound comes from the item, never from the schema invariant', () => {
+    // A singleton row fixes cardinality at one, but an exclusion on it with no authored bound must
+    // not borrow that — deriving the bound from SD-06 is exactly what the ruling forbids.
+    const contracts = [
+        contract([existence('A-1', 'V0')], { contractId: 'C-A', objectId: 'O-A' }),
+        contract([item({ itemId: 'X-1', row: 'V0', selector: '*', requirement: 'COUNT', strictness: 'EXCLUSION', value: 'more than the permitted number' })], {
+            contractId: 'C-B',
+            objectId: 'O-B',
+        }),
+    ]
+    const result: any = runStages0to10(input(contracts))
+    const outcome = result.forward.find((f: any) => f.item.itemId === 'X-1')
+    assert.equal(outcome.result, 'NOT_EVALUABLE', 'the singleton invariant does not supply the exclusion its bound')
 })
 
 test('the corpus V0 singleton is supported by both legitimate contributions, and only those', () => {

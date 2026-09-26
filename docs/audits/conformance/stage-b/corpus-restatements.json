@@ -153,6 +153,28 @@
     "value": 2
    },
    "why": "\"double\" entails both the operation and the magnitude, so the magnitude is recorded as 2. Its TYPICAL_EXAMPLE status is unchanged: encoding what the example says does not make it authoritative"
+  },
+  {
+   "item": "restated:VARIABLE-TARGET-CONDITION::VARTARGET-12.a",
+   "ruling": "SD-86",
+   "set": {
+    "forbiddenCardinality": {
+     "operator": ">",
+     "value": 1
+    }
+   },
+   "why": "the authored bound is \"more than 1\": the number 1 and the relation \"more than\", typed as > 1. The relation is carried across as written rather than converted to >= 2, and the prose value is left in place as its source."
+  },
+  {
+   "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-16.b",
+   "ruling": "SD-86",
+   "set": {
+    "forbiddenCardinality": {
+     "operator": ">=",
+     "value": 2
+    }
+   },
+   "why": "the authored bound is \"2 or more\": the number 2 and the relation \"or more\", typed as >= 2. Not rewritten as > 1, and the prose value is left in place as its source."
   }
  ],
  "added": [

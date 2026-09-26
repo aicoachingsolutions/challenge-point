@@ -38,6 +38,23 @@ export interface ItemRestatement {
     why: string
 }
 
+/**
+ * SD-86 — the typed form of an exclusion's own authored cardinality bound.
+ *
+ * His constraint is that the restatement *"may move an explicitly authored numerical/cardinality bound
+ * from the existing prose into the typed field"*, and may not infer a bound, derive it from SD-06
+ * instead of the item's own content, broaden what the exclusion means, or establish anything new.
+ *
+ * So **the relation is carried across as authored, not converted**. `"more than 1"` becomes `> 1`, not
+ * `>= 2`; `"2 or more"` becomes `>= 2`, not `> 1`. For an integer cardinality those denote the same set,
+ * but writing either as the other would be rewriting the author's comparison rather than typing it. The
+ * prose `value` is left exactly as it stands, so the source remains visible beside its typed form.
+ */
+export interface ForbiddenCardinality {
+    operator: '>' | '>=' | '<' | '<=' | '=' | '!='
+    value: number
+}
+
 interface RestatementData {
     noRow: string[]
     items: ItemRestatement[]

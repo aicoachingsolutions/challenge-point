@@ -16,6 +16,7 @@ import { ElementClass, ForwardResult, ItemRef, LoadedContract, ResolutionLine } 
 import { RegisterIndex } from './register'
 import { parseSelector } from './selector'
 import { reaches } from './reach'
+import { ForbiddenCardinality } from './corpus-restatement'
 
 export interface ItemOutcome {
     item: ItemRef
@@ -114,10 +115,15 @@ export function forwardResults(
                 // match; a count-bearing exclusion forbids only a cardinality at or above its threshold.
                 // Where that threshold is stated in prose it is **not** read out of the text — SD-32
                 // forbids that, and guessing it here would decide the item's meaning.
-                let forbiddenAt = 1
+                // SD-86 — an exclusion's own authored bound, in typed form. Its comparison is applied as
+                // the author wrote it; nothing is read out of the prose value, which stays beside it as
+                // the source. Where no typed bound exists the item is not evaluable, and stays so: a
+                // bound is never inferred, and never borrowed from the schema invariant.
+                let forbidden: ForbiddenCardinality = { operator: '>=', value: 1 }
                 if (isExclusionOfExistence && String(item.requirement) === 'COUNT') {
-                    const stated = typeof item.value === 'number' ? item.value : null
-                    if (stated === null) {
+                    const typed = (item as any).forbiddenCardinality as ForbiddenCardinality | undefined
+                    const stated = typed ?? (typeof item.value === 'number' ? ({ operator: '>=', value: item.value } as ForbiddenCardinality) : null)
+                    if (!stated) {
                         outcomes.push({
                             item: ref,
                             result: 'NOT_EVALUABLE',
@@ -126,17 +132,34 @@ export function forwardResults(
                         })
                         continue
                     }
-                    forbiddenAt = stated
+                    forbidden = stated
                 }
 
-                if (matching.length >= forbiddenAt) {
+                const breaches = (count: number) => {
+                    switch (forbidden.operator) {
+                        case '>':
+                            return count > forbidden.value
+                        case '>=':
+                            return count >= forbidden.value
+                        case '<':
+                            return count < forbidden.value
+                        case '<=':
+                            return count <= forbidden.value
+                        case '=':
+                            return count === forbidden.value
+                        case '!=':
+                            return count !== forbidden.value
+                    }
+                }
+
+                if (breaches(matching.length)) {
                     outcomes.push({
                         item: ref,
                         result: 'UNMET',
                         reach: matching.map(m => m.classId),
                         why:
-                            forbiddenAt > 1
-                                ? `${matching.length} represented element(s) reach the forbidden cardinality of ${forbiddenAt}`
+                            isExclusionOfExistence && String(item.requirement) === 'COUNT'
+                                ? `${matching.length} represented element(s) breach the forbidden cardinality ${forbidden.operator} ${forbidden.value}`
                                 : `${matching.length} represented element(s) match a selector this item excludes`,
                     })
                 } else if (undetermined.length) {
@@ -152,8 +175,8 @@ export function forwardResults(
                         result: 'SATISFIED',
                         reach: matching.map(m => m.classId),
                         why:
-                            forbiddenAt > 1
-                                ? `${matching.length} represented element(s), below the forbidden cardinality of ${forbiddenAt}`
+                            isExclusionOfExistence && String(item.requirement) === 'COUNT'
+                                ? `${matching.length} represented element(s), within the authored bound (forbidden ${forbidden.operator} ${forbidden.value})`
                                 : inScope.length
                                   ? `no element of ${String(item.row)} in scope matches the excluded selector`
                                   : `no element of ${String(item.row)} is represented at all, so none matches`,
