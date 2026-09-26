@@ -3035,3 +3035,28 @@ closure conditions hold.
 - **Reach (SD-81): LOCAL to that knowledge — the first cluster that is not a general mechanism.**
   Clusters 1–2 were general rules taking the large populations; what remains is beginning to look like
   ordinary knowledge work. Still clearly internal on the SD-82 criterion.
+
+**26 Sep — SD-87: CLUSTER 3 CLOSED.** Spec **revision 20**; 149 tests; suite green.
+- **He authored the trigger**: *"the ball leaves play over the defending team's goal line, having last
+  been touched by an attacking player, without a goal being scored."* Maps through the **existing**
+  structure, **no schema change**: `trigger=OUT_END_LINE` · `qualifier.endLine=DEFENDING_TEAM` ·
+  `qualifier.lastTouch=ATTACKING_TEAM`.
+- *"Without a goal being scored"* is carried by `OUT_END_LINE` ≠ `SCORE` in a closed list on a row keyed
+  by one trigger — **flagged explicitly** as the one component with no qualifier of its own.
+- **Not reduced to `OUT_END_LINE` alone** (his warning): a corner shares trigger *and* end line, so
+  `qualifier.lastTouch` is the discriminator. **A test asserts a corner does not reach the element.**
+- **Closure: 8 → 0 reference defects, no new mechanism, no representation dependency.** Only the
+  selector key changed on each item.
+- **A CORRECTION FROM TWO CLUSTERS AGO PAID FOR ITSELF.** Three of the eight are `T1` existence items
+  with now-identical selectors — on a non-singleton row that would have formed **three** transitions
+  where there is one goal kick, reintroducing exactly the cluster-2 fault. It didn't: two are
+  `ENGINE_ONLY` and the SD-83 establishment boundary refuses them. First time the general rules have
+  protected each other.
+- **Failures went UP, 90 → 93, and that is correct.** A real transition now exists and its fields are
+  enumerated. Same accounting as the 47-line drop, in the other direction.
+- **CLUSTER 4 identified, not started:** `GA-TRANSITION-COHERENCE` fails — the goal kick is
+  `STOP_RESUME`, needing a taker and region; both authored but with **off-list team designations**
+  (`A01-02-11.a`, `A01-02-07.a`), each marked `[L2]` by the restater exactly as `[L1]` marked cluster 3.
+  **The ledger is pointing at the next gap.** Bounded knowledge work, same contract.
+- **Reach pattern now:** 2 general mechanisms, then 2 local knowledge gaps. Still internal on SD-82 —
+  no coach could tell us a designation is unregistered — but the character of the work has changed.
