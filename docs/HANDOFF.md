@@ -3060,3 +3060,32 @@ closure conditions hold.
   **The ledger is pointing at the next gap.** Bounded knowledge work, same contract.
 - **Reach pattern now:** 2 general mechanisms, then 2 local knowledge gaps. Still internal on SD-82 —
   no coach could tell us a designation is unregistered — but the character of the work has changed.
+
+**26 Sep — PHASE B CLUSTER 4 ANALYSED** (`docs/design/phase-b-cluster-4-restart-team-identity.md`).
+Nothing corrected; two rulings needed.
+- **A GENERAL MECHANISM SITS UPSTREAM OF HIS FIVE QUESTIONS.** `T2`/`T3`/`T4`/`T5` are **conditional**
+  rows (apply only when the same element's `T6` = `STOP_RESUME`). All four corpus transitions now have
+  `T6` derived as `STOP_RESUME` — and **all 16 conditional lines in the corpus have a resolved governing
+  line and NOT ONE has been evaluated.**
+- **The cause is a comment I wrote in increment 3 that has lapsed:** *"increment 3 derives no transition
+  values, so the governing value is not available to compare."* True then; transition values are derived
+  now. So asking why `T2` doesn't resolve is asking about a line never judged. **Not changed — removing
+  that SD-48 stop is his.**
+- **The five answers:** (1) the source authors **nothing** — its only text is the name + *"Restart from
+  goal kicks."*; all three items are `ASSUMED`, evidence *"Laws meaning (assumption 1)"*, one calling its
+  own reading *an inference*. (2) `DEFENDING_TEAM` and `NOT_LAST_TOUCH` now fit — **cluster 3 removed the
+  blocker the restater named**: *"with the trigger unauthored, T2 cannot be written as LAST_TOUCH or
+  NOT_LAST_TOUCH."* (3) the **phrases** restate; the **claims** don't — restating never changes `basis`,
+  and an assumption bounds without entailing. **What's missing is authoritative knowledge, not
+  vocabulary.** (4) `T3`/`T4` are derivative — both say *"the team in this element's T2"*; `T2` is the
+  only root and is `ASSUMED`. (5) **L2 is one fact, three faces; L3 is genuinely separate** (T4 takes a
+  region reference and *"own end"* is not one — `SV1` gives halves/thirds, not ends).
+- **The narrow ruling needed:** does the goal kick's team **follow from the trigger he already authored**,
+  or is *"awarded to the defending team"* a separate fact? Either way no designation is added and no
+  identity inferred. Can't choose — one reading treats his trigger as carrying the award, the other not.
+- **Reach, not to be conflated:** conditional-line evaluation = **general**; the goal kick's team =
+  **local**.
+- **PILOT BOUNDARY — first thing leaning the other way.** L3 (placing a restart by an *end* vs a *half*)
+  is a question about what a coach actually does setting up a goal kick; watching one would answer it
+  faster than reasoning about the register. One item, so not moving on it — but **flagged early rather
+  than discovered late**, as he asked.
