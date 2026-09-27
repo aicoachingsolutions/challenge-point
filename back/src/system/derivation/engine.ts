@@ -573,7 +573,7 @@ export function runStages0to8(input: DerivationInput) {
     const index = indexRegister(input.register)
     const admitted = (input.contracts || []).filter(c => !base.failures.some(f => f.kind === 'LOAD_REFUSAL' && f.locus.contractId === c.contractId))
 
-    const classified = classifyLines(base.lines, base.derived.lines, base.scope.declarations, index)
+    const classified = classifyLines(base.lines, base.derived.lines, base.scope.declarations, index, base.stopped)
     const forward = forwardResults(admitted, base.lines, base.derived.lines, classified, base.scope.applicationSets, index, base.classes)
 
     // SD-51 — member lines, materialized only from an authoritatively resolved member set.

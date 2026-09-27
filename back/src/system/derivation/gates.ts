@@ -674,14 +674,21 @@ function gaTransitionCoherence(ctx: GateContext): CheckOutcome {
 
     const continueViolations: string[] = []
     const resumeViolations: string[] = []
-    let blockedAny = false
+    // One blocked flag per clause (SD-65: the categories are reported per clause, not collapsed). A
+    // STOP_RESUME transition whose taker is unauthored blocks the resume clause and nothing else; it
+    // used to mark the CONTINUE clause not-evaluable too, which reported three real instances the
+    // clause had genuinely examined as if it had never run.
+    let continueBlocked = false
+    let resumeBlocked = false
     let continueSeen = 0
     let resumeSeen = 0
 
     for (const transition of transitions) {
         const state = probe.cell(lineOf(transition.classId, 'T6'))
         if (state.state !== 'DERIVED') {
-            blockedAny = true
+            // Which clause applies is unknown while the play state is, so this one blocks both.
+            continueBlocked = true
+            resumeBlocked = true
             continue
         }
         const carries = (cell: Cell) => cell.state === 'DERIVED' && cell.value !== null && cell.value !== undefined
@@ -699,19 +706,22 @@ function gaTransitionCoherence(ctx: GateContext): CheckOutcome {
             const actor = probe.cell(lineOf(transition.classId, 'T3'))
             const region = probe.cell(lineOf(transition.classId, 'T4'))
             if (!carries(actor) || !carries(region)) {
-                if (actor.state === 'FAILED' || region.state === 'FAILED') blockedAny = true
+                if (actor.state === 'FAILED' || region.state === 'FAILED') resumeBlocked = true
                 else resumeViolations.push(transition.classId)
             }
         }
     }
 
-    const continueClause = continueViolations.length ? fail(CONTINUE_CLAUSE, continueSeen) : blockedAny ? notEvaluable(CONTINUE_CLAUSE) : pass(CONTINUE_CLAUSE, continueSeen)
-    const resumeClause = resumeViolations.length ? fail(RESUME_CLAUSE, resumeSeen) : blockedAny ? notEvaluable(RESUME_CLAUSE) : pass(RESUME_CLAUSE, resumeSeen)
+    const continueClause = continueViolations.length ? fail(CONTINUE_CLAUSE, continueSeen) : continueBlocked ? notEvaluable(CONTINUE_CLAUSE) : pass(CONTINUE_CLAUSE, continueSeen)
+    const resumeClause = resumeViolations.length ? fail(RESUME_CLAUSE, resumeSeen) : resumeBlocked ? notEvaluable(RESUME_CLAUSE) : pass(RESUME_CLAUSE, resumeSeen)
     return result(
         'GA-TRANSITION-COHERENCE',
         probe,
         [continueClause, resumeClause],
-        `${continueViolations.length} CONTINUE transition(s) carry a placement; ${resumeViolations.length} STOP_RESUME transition(s) lack a taker or region`,
+        `${continueViolations.length} CONTINUE transition(s) carry a placement; ${resumeViolations.length} STOP_RESUME transition(s) lack a taker or region` +
+            // Without this, a clause blocked on an unauthored taker reads "0 lack a taker or region",
+            // which is true of violations and false of the corpus.
+            (resumeBlocked ? '; the resume clause is blocked on an unauthored taker or region, so it counts no violation either way' : ''),
     )
 }
 

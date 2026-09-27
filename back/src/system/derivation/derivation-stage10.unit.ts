@@ -559,22 +559,36 @@ test('the corpus run reproduces the reported figures exactly', () => {
     assert.equal(result.run.counts.contractsRefused, 0)
     assert.equal(result.run.counts.lines, 153)
     assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 34)
-    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 93)
+    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 96)
     assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 0, 'cluster 3 cleared the whole population')
-    assert.equal(result.failures.filter((f: any) => f.kind === 'COLLISION').length, 0, 'cluster 1 removed the only collision: it was convergence, not conflict')
-    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 93)
+    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 96)
+
+    // SD-88 evaluated the sixteen conditional lines for the first time: twelve are not applicable
+    // (the three CONTINUE transitions carry no placement) and four are judged.
+    assert.equal(
+        result.lines.filter((l: any) => (result.classified.get(l.lineId)?.lineState ?? l.lineState) === 'CONDITIONAL').length,
+        0,
+        'no line is left unjudged behind a governing value that has resolved',
+    )
+    assert.equal(result.lines.filter((l: any) => result.classified.get(l.lineId)?.lineState === 'WITHDRAWN').length, 12)
+
+    // SD-89's authored restart ownership meets GF2's authored restart default on one line. Both are
+    // authoritative, they name two entries of the designation list, and RC-22 makes two designations
+    // equal only if they map to one entry — so the engine reports a collision and resolves nothing.
+    const collisions = result.failures.filter((f: any) => f.kind === 'COLLISION')
+    assert.equal(collisions.length, 1, 'the corpus has exactly one collision, and it is between two authoritative team designations')
+    assert.equal(collisions[0].locus.lineId, 'c:restated:A01-02:A01-02-01.a::T2')
 })
 
 test('Gate A fails on the corpus, and says which checks and why', () => {
     const result: any = runStages0to10(corpusInput())
     assert.equal(gateA(result).verdict, 'FAIL')
     const failing = gateA(result).checks.filter((c: any) => c.verdict === 'FAIL').map((c: any) => c.checkId)
-    assert.deepEqual(failing.sort(), [
-        'GA-INFORMATION',
-        'GA-NO-FAILED-LINE',
-        'GA-TRANSITION-COHERENCE',
-        'GA-TRIGGER-UNIQUE',
-    ])
+    // GA-TRANSITION-COHERENCE left this list under SD-88, and the reason matters more than the
+    // membership: it used to report a STOP_RESUME transition as *violating* the clause because its
+    // taker line was CONDITIONAL — a line the engine had never judged. Judged, that line is a
+    // knowledge gap, and a gap blocks the clause rather than failing it (SD-28, SD-62).
+    assert.deepEqual(failing.sort(), ['GA-INFORMATION', 'GA-NO-FAILED-LINE', 'GA-TRIGGER-UNIQUE'])
     for (const c of gateA(result).checks) assert.ok(c.why && c.why.length > 0, `${c.checkId} gives no reason`)
 })
 
@@ -597,9 +611,10 @@ test('SD-49: an indeterminate reach is recorded, and is no longer an open questi
 test('the two closed clusters hold, and what remains is what is genuinely unresolved', () => {
     const result: any = runStages0to10(corpusInput())
 
-    // Cluster 1 — the kind, by composition. No collision remains.
-    assert.equal(result.failures.filter((f: any) => f.kind === 'COLLISION').length, 0)
+    // Cluster 1 — the kind, by composition. The convergence it settled still holds: three narrowings
+    // intersect to one member, and no collision is raised on that line.
     assert.equal(result.classified.get('game::V1').verdict, 'RESOLVED:ENTAILED')
+    assert.equal(result.failures.filter((f: any) => f.kind === 'COLLISION' && f.locus.lineId === 'game::V1').length, 0)
 
     // Cluster 2 — the count, by the establishment boundary and the singleton rule.
     const primary = check(result, 'GA-ONE-PRIMARY-EVENT')

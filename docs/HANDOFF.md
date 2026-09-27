@@ -3089,3 +3089,59 @@ Nothing corrected; two rulings needed.
   is a question about what a coach actually does setting up a goal kick; watching one would answer it
   faster than reasoning about the register. One item, so not moving on it — but **flagged early rather
   than discovered late**, as he asked.
+
+**27 Sep — SD-88 + SD-89: CLUSTER 4 REDERIVED** (`docs/design/phase-b-cluster-4-rederived.md`). Spec
+**revision 21**; 154 tests; suite green; `npx tsc --noEmit` clean.
+- **SD-88 removes the increment-3 stop.** A conditional line whose governing property is
+  authoritatively resolved now has its condition evaluated: true keeps the line **and the verdict its
+  own contributions earn**, false **WITHDRAWS** it (never `NOT_AUTHORED`). Conditional 16 → **0**;
+  withdrawn 0 → **12** (T2–T5 on the three CONTINUE transitions). `classify.ts` `resolveConditional`.
+- **The read/supply distinction is in the code, not just the comment.** A governing line that is FREE,
+  failed, or **derived-but-valueless** is not evaluated; the valueless case pushes an SD-48 stop.
+  `classifyLines` now takes the `stopped` channel.
+- **Four regression tests, none of them on a transition** — three on consequences (`V11`/`V13`/`V14a-c`)
+  and one on a Space row given a **synthetic** applicability entry, plus an assertion that
+  `classify.ts` names no register row at all. **All four bite-proved.**
+- **`GA-TRANSITION-COHERENCE` stopped failing, and that is the same lapse from the other side:** it had
+  been reporting a *violation* on lines never judged. Judged, they are gaps, and a gap blocks a clause
+  rather than failing it. Also fixed: **one `blockedAny` flag served two clauses**, so a blocked resume
+  clause made the CONTINUE clause report not-evaluable after it had passed on 3 real instances.
+- **THE REAL FINDING — THE CORPUS'S FIRST GENUINE COLLISION.** SD-89 authored `T2 = DEFENDING_TEAM`.
+  It collides with **`restated:GF2::GF2-16.a`** (`NOT_LAST_TOUCH`, AUTHORED, from GF2 setup guidance
+  *"ball out of play restarts from the team that didn't touch it last"*), whose selector is
+  `trigger ∈ {OUT_END_LINE, OUT_TOUCHLINE}`. **Cluster 3's trigger is what routed GF2 onto this
+  element.** Before SD-89, `T2` RESOLVED to `NOT_LAST_TOUCH`; now it is `UNRESOLVED`.
+- **Why it will not reconcile:** RC-22 — *"two designations are equal only if they map to one entry"*;
+  SD-02 — no universal precedence hierarchy; stage 7 deferred. Both denote the same team *here*, since
+  the trigger makes last touch `ATTACKING_TEAM`. Agreement in fact, difference in expression.
+- **§3 already half-answers it and the engine never implemented it:** *"Adaptation is not support …
+  the displacement is recorded as an `ADAPTED` disposition on that contribution in Gate B, citing
+  SD-08."* `ADAPTED` is in the closed vocabulary and **has never been produced** — no corpus case had
+  displaced a default before. NOT implemented: what "displaced" means is unestablished, and reading
+  SD-08 as precedence is what SD-02 forbids. **Stopped and reported, per his standing instruction.**
+- **Three routes out, deliberately not chosen: A** implement `ADAPTED` (**general**); **B** author an
+  equality between the two designations (**area-reusable**, needs stage 7); **C** withdraw the
+  ownership fact since GF2 already answers `T2` (**local**). C is live — before SD-89 the line resolved.
+- **`T3`/`T4` NOT restated**: his permission was conditional on `T2` being established, and it is not.
+  **L3 untouched and open** — no `end` region added, no half substituted; the rederivation revealed no
+  existing authoritative answer for it.
+- **A SECOND LAPSED STOP OF THE SAME SHAPE, reported not fixed.** `derive.ts` `applies()` refuses any
+  citable standing decision whose condition reads another line's derived value, because *"increment 2
+  derives no transition values"*. Only SD-13 has one, its firing condition is stated exactly in the
+  register, and the corpus holds **no START element** — so nothing changes either way today. A calm
+  one to rule on. It is a standing decision's condition, not a line's applicability, so SD-88 does not
+  reach it.
+- **Figures:** lines 153; enumerated/conditional/withdrawn 141/0/12; derived 34; **failed 93 → 97**;
+  open 10; **collisions 0 → 1**; reference defects 0. The rise is the accounting, as in cluster 3.
+- **A SILENT-OVERWRITE TRAP CAUGHT AND GUARDED.** `corpus-restatement.ts` keyed **one ruling per item**
+  in a `Map`, so SD-89's entry for `A01-02-05.a` would have silently replaced SD-87's selector. Now
+  multiple rulings per item apply in order, each counted, with a test asserting both survive.
+- **HIS QUESTION ABOUT THE REMAINING POPULATION, answered with a census not an impression.** Of 97
+  failed lines: **declared gap 64 · coverage 31 · unresolved 1 · excluded 1** — **95 of 97 are missing
+  authored knowledge, not mechanism.** And **20 of them are one question twenty times over**: `S5`
+  `S6` `O4` `O5`, *where a region or object sits along/across the axis* — the same question as L3.
+  `T1a`/`T1b`/`T1c` add 12 (three transitions carry no qualifiers).
+- **PILOT BOUNDARY:** not recommending it opens. Recording that the door is further open than last
+  week, and that the placement rows give it a **named, countable region — twenty lines** — rather than
+  a single item. Caveat stated plainly: two of the last four clusters looked local and turned out
+  general, and this round found two lapsed stops and an unimplemented disposition.

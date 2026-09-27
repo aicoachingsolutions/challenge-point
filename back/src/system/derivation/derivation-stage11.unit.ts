@@ -299,13 +299,23 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
     assert.deepEqual(restatementTally.withheld, [], 'none was named but disqualified')
     assert.equal(
         restatementTally.itemsRestated,
-        21,
-        'six Phase A rulings, five sets (SD-79), two exclusion bounds (SD-86), eight goal-kick selectors (SD-87)',
+        22,
+        'six Phase A rulings, five sets (SD-79), two exclusion bounds (SD-86), eight goal-kick selectors (SD-87), one restart ownership (SD-89)',
     )
     assert.equal(restatementTally.itemsRemoved, 2, 'WIDEZONE-13.a and 13.b')
     assert.equal(restatementTally.itemsAdded, 2, 'the recovered GF4 operation, and the traced neutral existence')
     assert.equal(restatementTally.declarationScopes, 64)
     assert.deepEqual(restatementTally.notFound, [], 'every item a ruling names was found')
+
+    // A01-02-05.a is the first item two rulings touch: SD-87 set its selector, SD-89 its value and
+    // basis. Both must survive. Keying one restatement per item would have let the later entry
+    // replace the earlier one without a word, which is this project's costliest recurring failure.
+    const goalKick: any = loadCorpusContracts()
+        .find(c => c.contractId === 'restated:A01-02')!
+        .items.find((i: any) => i.itemId === 'A01-02-05.a')
+    assert.match(goalKick.selector, /qualifier\.lastTouch=ATTACKING_TEAM/, 'SD-87 selector kept')
+    assert.equal(goalKick.value, 'DEFENDING_TEAM', 'SD-89 value applied')
+    assert.equal(goalKick.basis, 'AUTHORED', 'SD-89 made the ownership authoritative; it was ASSUMED')
 })
 
 /**
@@ -503,10 +513,38 @@ test('no line is reported derived-with-a-value by one view and valueless by anot
 test('the corpus collision is gone, because it was never a collision', () => {
     const result = runDerivation(corpusInput())
     if (isStampedHalt(result)) return assert.fail('unexpected halt')
-    assert.equal(result.failures.filter(f => f.kind === 'COLLISION').length, 0)
+    assert.equal(result.failures.filter(f => f.kind === 'COLLISION' && f.locus.lineId === 'game::V1').length, 0)
     const v1 = result.resolution.find(e => e.lineId === 'game::V1')!
     assert.equal(v1.value, 'line_crossed', 'three independently authored objects converge on one member')
     assert.equal(v1.support.length, 3)
+})
+
+/**
+ * The corpus's one genuine collision, and the two things that make it genuine rather than a repeat of
+ * cluster 1's convergence: both contributions **entail** (neither is a narrowing to be intersected),
+ * and RC-22 says *"two designations are equal only if they map to one entry"* — `DEFENDING_TEAM` and
+ * `NOT_LAST_TOUCH` are two entries of the canonical list.
+ *
+ * It is recorded, not repaired. Deciding between two authoritative designations is a knowledge ruling.
+ */
+test('SD-89 meets GF2 on one line, and the disagreement is reported with both contributors', () => {
+    const result = runDerivation(corpusInput())
+    if (isStampedHalt(result)) return assert.fail('unexpected halt')
+
+    const collisions = result.failures.filter(f => f.kind === 'COLLISION')
+    assert.equal(collisions.length, 1)
+    assert.equal(collisions[0].locus.lineId, 'c:restated:A01-02:A01-02-01.a::T2')
+
+    const recorded = result.audit.collisions.find(c => c.lineId === 'c:restated:A01-02:A01-02-01.a::T2')!
+    assert.deepEqual(
+        recorded.items.map(i => `${i.contractId}::${i.itemId}`),
+        ['restated:A01-02::A01-02-05.a', 'restated:GF2::GF2-16.a'],
+        'both contributions are preserved: neither is silently preferred (SD-02 — no universal precedence hierarchy)',
+    )
+
+    const line = result.resolution.find(e => e.lineId === 'c:restated:A01-02:A01-02-01.a::T2')!
+    assert.equal(line.verdict, 'UNRESOLVED')
+    assert.equal(line.value, undefined, 'an unresolved line carries no value, so nothing downstream reads one designation as the answer')
 })
 
 // ---------------------------------------------------------------------------------------------

@@ -9,9 +9,9 @@
  * something false about the knowledge.
  */
 
-import { DerivedLine } from './derive'
+import { DerivedLine, resolvedValue } from './derive'
 import { DeclarationReach } from './scope'
-import { RegisterIndex } from './register'
+import { ApplicabilityCondition, RegisterIndex } from './register'
 import { ItemRef, ResolutionLine, Verdict, ReasonCode } from './types'
 
 export interface ClassifiedLine {
@@ -56,19 +56,65 @@ function reasonFor(row: string, declarations: DeclarationReach[]): ReasonCode {
  *   governing FREE(choice) → the line stays CONDITIONAL on that choice;
  *   governing failed       → the line fails as a GAP whose dependency is the governing line, because
  *                            an unresolvable condition is not a false one.
+ *
+ * **SD-88, his ruling of 27 September**, which removed the increment-3 stop that sat on the first
+ * branch: *"when a conditional line's governing property has been authoritatively resolved, its
+ * applicability condition should be evaluated. This is completion of the existing conditional
+ * mechanism, not permission to infer a governing value."*
+ *
+ * The stop it replaces read *"increment 3 derives no transition values, so the governing value is not
+ * available to compare"*. That was true when written and stopped being true when transitions began
+ * resolving; nothing revisited it, so sixteen conditional lines held a resolved governing value and
+ * none had ever been judged.
+ *
+ * The distinction his ruling draws is kept in the code: **this function reads a governing value, it
+ * never supplies one.** Where the governing line carries no value the condition is not evaluated and
+ * the line stays conditional — the engine does not manufacture the comparison it needs.
  */
 function resolveConditional(
     line: ResolutionLine,
+    condition: ApplicabilityCondition | undefined,
     governing: ClassifiedLine | undefined,
-): { lineState: ResolutionLine['lineState']; verdict: Verdict | null; reason: ReasonCode | null } {
-    if (!governing) return { lineState: 'CONDITIONAL', verdict: null, reason: null }
+    derived: Map<string, DerivedLine>,
+    stopped: { where: string; why: string }[],
+): { lineState: ResolutionLine['lineState']; verdict: Verdict | null; reason: ReasonCode | null } | null {
+    const unevaluated = { lineState: 'CONDITIONAL' as const, verdict: null, reason: null }
+    if (!governing || !condition) return unevaluated
+
     if (governing.verdict === 'RESOLVED:ENTAILED') {
-        // The engine does not evaluate the condition's value here: increment 3 derives no transition
-        // values, so the governing value is not available to compare. The line stays conditional and
-        // the case is reported rather than guessed (SD-48).
-        return { lineState: 'CONDITIONAL', verdict: null, reason: null }
+        // The one question this branch may ask: what value does the governing line already hold? It is
+        // read through the single resolver, so a route added later cannot leave this view behind.
+        const resolved = resolvedValue(derived.get(String(line.conditionalOn)))
+        if (!resolved) {
+            stopped.push({
+                where: `stage 6, line ${line.lineId}`,
+                why:
+                    `its governing line ${String(line.conditionalOn)} is derived but carries no value, so the applicability ` +
+                    'condition cannot be evaluated. Supplying one here is exactly what SD-88 withholds, so the line stays conditional.',
+            })
+            return unevaluated
+        }
+        if (typeof resolved.value !== 'string') {
+            // The register states each condition as a list of authored member strings. Nothing
+            // establishes how a structured value is tested against them, and reading one into a member
+            // name would be interpretation, not evaluation (SD-48).
+            stopped.push({
+                where: `stage 6, line ${line.lineId}`,
+                why:
+                    `its governing line holds ${JSON.stringify(resolved.value)}, and the register states this condition as a list of ` +
+                    'authored member strings. How a structured value is tested for membership is not established, so the condition is not evaluated.',
+            })
+            return unevaluated
+        }
+        // True keeps the line — and keeps the verdict the main pass already reached for it, which is
+        // the point of the ruling: applicability decides whether the line is judged, never what it
+        // holds. A line nothing authored is `NOT_AUTHORED` here exactly as it would be on any other row.
+        if (condition.in.includes(resolved.value)) return null
+        // False withdraws it: not applicable, and never NOT_AUTHORED.
+        return { lineState: 'WITHDRAWN', verdict: null, reason: null }
     }
-    if (governing.verdict && governing.verdict.startsWith('FREE')) return { lineState: 'CONDITIONAL', verdict: null, reason: null }
+
+    if (governing.verdict && governing.verdict.startsWith('FREE')) return unevaluated
     return { lineState: 'ENUMERATED', verdict: 'NOT_AUTHORED', reason: 'declared gap' }
 }
 
@@ -77,6 +123,7 @@ export function classifyLines(
     derived: Map<string, DerivedLine>,
     declarations: DeclarationReach[],
     index: RegisterIndex,
+    stopped: { where: string; why: string }[] = [],
 ): Map<string, ClassifiedLine> {
     const classified = new Map<string, ClassifiedLine>()
 
@@ -162,13 +209,16 @@ export function classifyLines(
         classified.set(line.lineId, result)
     }
 
-    // Conditional lines are resolved after their governing lines have verdicts.
+    // Conditional lines are resolved after their governing lines have verdicts. A null result means the
+    // condition evaluated true: the line is applicable, and the verdict the main pass reached for it
+    // stands untouched on an ENUMERATED line.
     for (const line of lines) {
         if (line.lineState !== 'CONDITIONAL') continue
         const governing = line.conditionalOn ? classified.get(line.conditionalOn) : undefined
-        const resolved = resolveConditional(line, governing)
+        const condition = index.applicability.get(line.row)
+        const resolved = resolveConditional(line, condition, governing, derived, stopped)
         const current = classified.get(line.lineId)!
-        classified.set(line.lineId, { ...current, ...resolved })
+        classified.set(line.lineId, resolved ? { ...current, ...resolved } : { ...current, lineState: 'ENUMERATED' })
     }
 
     return classified

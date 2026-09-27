@@ -11,8 +11,11 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 
-import { runStages0to8 } from './engine'
-import { ContractItem, DerivationInput, LoadedContract, VERDICTS, FORWARD_RESULTS } from './types'
+import { classifyLines } from './classify'
+import { DerivedLine } from './derive'
+import { runStages0to5, runStages0to8 } from './engine'
+import { indexRegister } from './register'
+import { ContractItem, DerivationInput, LoadedContract, ResolutionLine, VERDICTS, FORWARD_RESULTS } from './types'
 
 const DOCS = path.resolve(__dirname, '../../../../docs/audits/conformance')
 const REGISTER = JSON.parse(fs.readFileSync(path.join(DOCS, 'register-2026-09-18.json'), 'utf8').replace(/^﻿/, ''))
@@ -226,6 +229,145 @@ function testNoVerdictIsInventedInDerivationMode(): void {
     }
 }
 
+// ---------------------------------------------------------------------------------------------
+// SD-88 — evaluating a conditional line whose governing property is authoritatively resolved.
+//
+// His ruling of 27 September, and the four demonstrations he asked for: a resolved governing value
+// causes the condition to be evaluated; an unresolved one does not; evaluation cannot itself supply or
+// infer the governing value; and the change works through the general mechanism rather than through
+// transition-specific handling.
+//
+// The transitions are deliberately **not** the subject here. Every case below runs on consequences
+// (`V11`/`V13`/`V14a-c`, the Interaction Rules area) or on a Space row given an applicability entry
+// the canonical register does not carry — because a mechanism demonstrated only where it was noticed
+// is not a mechanism.
+// ---------------------------------------------------------------------------------------------
+
+const linesFor = (result: any, suffix: string) => [...result.classified!.values()].filter((l: any) => l.lineId.endsWith(suffix)) as any[]
+
+/** A consequence whose effect is authored, so `V13` resolves and the `V14` conditions can be read. */
+function consequenceContract(withEffect: boolean): LoadedContract {
+    const items = [item({ itemId: 'CQ-1', row: 'V11', selector: 'effect=ACCESS', requirement: 'EXISTS', value: 'a consequence changing access' })]
+    if (withEffect) items.push(item({ itemId: 'CQ-2', row: 'V13', selector: 'effect=ACCESS', requirement: 'EQUALS', value: 'ACCESS' }))
+    return contract(items, { declarations: [{ row: 'V13', declaration: 'CLAIMED', note: '' }] })
+}
+
+function emptyRecord(overrides: Partial<DerivedLine> = {}): DerivedLine {
+    return {
+        lineId: 'X',
+        entailing: [],
+        bounding: [],
+        undetermined: [],
+        open: null,
+        standingDecisions: [],
+        standingValue: null,
+        narrowing: [],
+        narrowedTo: null,
+        session: null,
+        ...overrides,
+    }
+}
+
+function testResolvedGoverningValueIsEvaluated(): void {
+    const result = runStages0to8(input([consequenceContract(true)]))
+    assert.equal(linesFor(result, '::V13')[0].verdict, 'RESOLVED:ENTAILED', 'the governing line is authoritatively resolved')
+
+    // ACCESS satisfies V14a and V14b; V14c applies only to COUNT_CHANGE.
+    assert.equal(linesFor(result, '::V14a')[0].lineState, 'ENUMERATED', 'the condition held, so the line is judged instead of left conditional')
+    assert.equal(linesFor(result, '::V14b')[0].lineState, 'ENUMERATED')
+    const withdrawn = linesFor(result, '::V14c')[0]
+    assert.equal(withdrawn.lineState, 'WITHDRAWN', 'the condition failed: not applicable')
+    assert.equal(withdrawn.verdict, null, 'a withdrawn line is not NOT_AUTHORED — nobody owes a value on a line that does not apply')
+}
+
+function testUnresolvedGoverningValueIsNotEvaluated(): void {
+    // (a) Nothing authors the effect, so the governing line has no value. The dependents fail as gaps
+    //     on the governing line — and crucially none of them is WITHDRAWN, which would be the engine
+    //     reading "unknown" as "the condition is false".
+    const result = runStages0to8(input([consequenceContract(false)]))
+    assert.equal(linesFor(result, '::V13')[0].verdict, 'NOT_AUTHORED')
+    for (const suffix of ['::V14a', '::V14b', '::V14c']) {
+        const line = linesFor(result, suffix)[0]
+        assert.notEqual(line.lineState, 'WITHDRAWN', `${suffix}: an unresolved governing value must never withdraw its dependent`)
+        assert.equal(line.verdict, 'NOT_AUTHORED', `${suffix}: an unresolvable condition is not a false one (SD-28)`)
+    }
+
+    // (b) A governing line that is FREE is a downstream choice, not a resolved value. The dependent
+    //     stays CONDITIONAL on that choice; the condition is not evaluated against a value nobody has.
+    const index = indexRegister(REGISTER)
+    const lines: ResolutionLine[] = [
+        { lineId: 'X::V13', elementId: 'X', row: 'V13', member: null, lineState: 'ENUMERATED' },
+        { lineId: 'X::V14a', elementId: 'X', row: 'V14a', member: null, lineState: 'CONDITIONAL', conditionalOn: 'X::V13' },
+    ]
+    const derived = new Map<string, DerivedLine>([
+        ['X::V13', emptyRecord({ lineId: 'X::V13', open: { authority: 'SD-39', choiceSpace: 'either effect' } })],
+        ['X::V14a', emptyRecord({ lineId: 'X::V14a' })],
+    ])
+    const classified = classifyLines(lines, derived, [], index)
+    assert.ok(String(classified.get('X::V13')!.verdict).startsWith('FREE'), 'the governing line is an authorized choice')
+    assert.equal(classified.get('X::V14a')!.lineState, 'CONDITIONAL', 'the dependent stays conditional on the choice')
+}
+
+function testEvaluationCannotSupplyTheGoverningValue(): void {
+    // (a) The governing line is derived by a route that carries no value. Comparing against the
+    //     condition would mean inventing one, so the condition is not evaluated and the stop is
+    //     reported rather than absorbed.
+    const index = indexRegister(REGISTER)
+    const lines: ResolutionLine[] = [
+        { lineId: 'X::V13', elementId: 'X', row: 'V13', member: null, lineState: 'ENUMERATED' },
+        { lineId: 'X::V14a', elementId: 'X', row: 'V14a', member: null, lineState: 'CONDITIONAL', conditionalOn: 'X::V13' },
+    ]
+    const derived = new Map<string, DerivedLine>([
+        ['X::V13', emptyRecord({ lineId: 'X::V13', standingDecisions: ['SD-20'] })],
+        ['X::V14a', emptyRecord({ lineId: 'X::V14a' })],
+    ])
+    const stopped: { where: string; why: string }[] = []
+    const classified = classifyLines(lines, derived, [], index, stopped)
+    assert.equal(classified.get('X::V13')!.verdict, 'RESOLVED:ENTAILED', 'the governing line is derived')
+    assert.equal(classified.get('X::V14a')!.lineState, 'CONDITIONAL', 'derived but valueless: the condition is not evaluated')
+    assert.ok(
+        stopped.some(s => s.where.includes('X::V14a')),
+        'the engine reports that it could not evaluate the condition rather than completing it from judgement (SD-48)',
+    )
+
+    // (b) Where the condition does hold, the line is judged — and judged on its own contributions. A
+    //     line nothing authored is NOT_AUTHORED: applicability decides whether a line is judged, never
+    //     what it holds. Classification also writes nothing back into the derived records.
+    const staged: any = runStages0to5(input([consequenceContract(true)]))
+    const snapshot = JSON.stringify([...staged.derived.lines.entries()])
+    const out = classifyLines(staged.lines, staged.derived.lines, staged.scope.declarations, indexRegister(REGISTER))
+    assert.equal(JSON.stringify([...staged.derived.lines.entries()]), snapshot, 'classification reads derived values and writes none')
+    const applicable = [...out.values()].find(l => l.lineId.endsWith('::V14a'))!
+    assert.equal(applicable.lineState, 'ENUMERATED')
+    assert.equal(applicable.verdict, 'NOT_AUTHORED', 'the condition made the line judged; it supplied no value for it')
+}
+
+function testConditionalMechanismIsGeneral(): void {
+    // A register entry the canonical file does not carry: a Space row made conditional on another
+    // Space row. Nothing about transitions is involved, and the same code path decides it.
+    const register = JSON.parse(JSON.stringify(REGISTER))
+    register.applicability.S5 = { when: { row: 'S3', sameElement: true, in: ['channel'] }, text: 'fixture: position along applies only to a channel' }
+
+    const regions = contract([
+        item({ itemId: 'R-1', row: 'S2', selector: 'noun=channel', requirement: 'COUNT', value: 1 }),
+        item({ itemId: 'R-2', row: 'S3', selector: 'noun=channel', requirement: 'EQUALS', value: 'channel' }),
+        item({ itemId: 'R-3', row: 'S2', selector: 'noun=zone', requirement: 'COUNT', value: 1 }),
+        item({ itemId: 'R-4', row: 'S3', selector: 'noun=zone', requirement: 'EQUALS', value: 'zone' }),
+    ])
+    const result = runStages0to8({ ...input([regions]), register })
+
+    const channel = result.classified!.get('c:C-1:R-1::S5')
+    const zone = result.classified!.get('c:C-1:R-3::S5')
+    assert.ok(channel && zone, 'both regions enumerate the conditional row')
+    assert.equal(channel!.lineState, 'ENUMERATED', 'the channel satisfies the condition, so its line is judged')
+    assert.equal(zone!.lineState, 'WITHDRAWN', 'the zone does not, so its line is withdrawn')
+
+    // And the mechanism names no row: it reads the register's applicability block, whatever is in it.
+    const source = fs.readFileSync(path.join(__dirname, 'classify.ts'), 'utf8')
+    const rowIds = source.match(/\b(T[1-9]|V1[1-9][a-c]?|S[1-9])\b/g)
+    assert.equal(rowIds, null, `classify.ts must name no register row: found ${JSON.stringify(rowIds)}`)
+}
+
 const TESTS: [string, () => void][] = [
     ['an entailed line resolves', testEntailedLineResolves],
     ['an unauthored line is a gap with its reason', testUnauthoredLineIsAGapWithItsReason],
@@ -244,6 +386,10 @@ const TESTS: [string, () => void][] = [
     ['every forward result is from the closed list', testEveryResultIsFromTheClosedList],
     ['deterministic across stages 6-8', testDeterministicAcrossStages68],
     ['no verdict is invented in derivation mode', testNoVerdictIsInventedInDerivationMode],
+    ['SD-88: a resolved governing value causes the condition to be evaluated', testResolvedGoverningValueIsEvaluated],
+    ['SD-88: an unresolved governing value does not', testUnresolvedGoverningValueIsNotEvaluated],
+    ['SD-88: evaluation cannot supply or infer the governing value', testEvaluationCannotSupplyTheGoverningValue],
+    ['SD-88: the mechanism is general, not transition-specific', testConditionalMechanismIsGeneral],
 ]
 
 let failed = 0

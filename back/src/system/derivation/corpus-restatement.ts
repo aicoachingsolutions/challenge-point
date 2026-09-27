@@ -107,7 +107,14 @@ export function applyNoRowRestatement(contracts: LoadedContract[], tally: Restat
     tally.declarationScopes = 0
     tally.notFound = []
 
-    const byKey = new Map(ITEM_RESTATEMENTS.map(r => [r.item, r]))
+    // An item can carry more than one ruling — A01-02-05.a carries SD-87's selector and SD-88's
+    // authored ownership — so they are collected per item and applied in the order listed. Keying one
+    // ruling per item would have let the later entry silently replace the earlier one, which is this
+    // project's costliest recurring failure in a new place.
+    const byKey = new Map<string, ItemRestatement[]>()
+    for (const restatement of ITEM_RESTATEMENTS) {
+        byKey.set(restatement.item, [...(byKey.get(restatement.item) || []), restatement])
+    }
     const seen = new Set<string>()
 
     const result = contracts.map(contract => {
@@ -125,18 +132,21 @@ export function applyNoRowRestatement(contracts: LoadedContract[], tally: Restat
                 return [{ ...item, row: 'NO_ROW' }]
             }
 
-            const ruling = byKey.get(key)
-            if (!ruling) return [item]
+            const rulings = byKey.get(key)
+            if (!rulings || !rulings.length) return [item]
             seen.add(key)
 
-            if (ruling.remove) {
+            if (rulings.some(r => r.remove)) {
                 tally.itemsRemoved++
                 return []
             }
 
-            tally.itemsRestated++
-            const restated: any = { ...item, ...(ruling.set || {}) }
-            for (const [field, value] of Object.entries(ruling.set || {})) if (value === undefined) delete restated[field]
+            let restated: any = { ...item }
+            for (const ruling of rulings) {
+                tally.itemsRestated++
+                restated = { ...restated, ...(ruling.set || {}) }
+                for (const [field, value] of Object.entries(ruling.set || {})) if (value === undefined) delete restated[field]
+            }
             return [restated as ContractItem]
         })
 

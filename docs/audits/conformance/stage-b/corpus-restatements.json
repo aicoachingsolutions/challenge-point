@@ -247,6 +247,18 @@
     "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
    },
    "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
+  },
+  {
+   "item": "restated:A01-02::A01-02-05.a",
+   "ruling": "SD-89",
+   "set": {
+    "value": "DEFENDING_TEAM",
+    "basis": "AUTHORED",
+    "basisEvidence": "Christian, 2026-09-27: \"When a goal kick is triggered, the restart is awarded to the defending team.\" Authored as a football fact in its own right, not read off the trigger: \"The trigger identifies the state that produces the restart; it does not by itself establish who owns the resulting restart.\" It replaces the original's assumption 1 and the inference the original drew from the word \"from\".",
+    "restartOwnershipSource": "Christian, 2026-09-27: \"When a goal kick is triggered, the restart is awarded to the defending team.\"",
+    "fitNote": "DEFENDING_TEAM is an already-registered team designation; nothing is added to the vocabulary. The off-list phrase \"the team defending the end where the goal kick is placed\" is retired with the L2 marker it carried, because the authored fact states the designation directly. Ownership and trigger are kept separate as he required: the selector still carries SD-87's trigger, and this item carries the award."
+   },
+   "why": "restart ownership is authored as its own football fact. Until it was, T2 rested on assumption 1, and an assumption bounds without ever entailing (SD-83)."
   }
  ],
  "added": [
