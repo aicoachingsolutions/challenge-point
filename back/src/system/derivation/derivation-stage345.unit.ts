@@ -12,6 +12,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 
+import { corpusInput } from './corpus'
 import { runStages0to5 } from './engine'
 import { DerivationInput, LoadedContract, ContractItem } from './types'
 
@@ -255,6 +256,113 @@ function testNoDivergenceIsClaimedFalsely(): void {
 }
 
 // ---------------------------------------------------------------------------------------------
+// SD-91 — a citable standing decision whose condition reads another property's value.
+//
+// His ruling of 27 September, authorized "as a separate mechanism from SD-88": where the condition is
+// explicitly authored and the governing property is authoritatively resolved, evaluate it. "Evaluation
+// may read the governing value but may not supply, infer or modify it. If the governing value is
+// unresolved, free, failed or valueless, do not infer the condition's result."
+//
+// He asked for this to be tested generally rather than only against SD-13, so every case below uses a
+// standing decision that does not exist in the canonical register, on Space rows, with no transition
+// anywhere near it.
+// ---------------------------------------------------------------------------------------------
+
+/** A register carrying one extra citable decision: S6 takes a value, but only on a channel. */
+function registerWithConditionalDecision(extra: any[] = []): any {
+    const register = JSON.parse(JSON.stringify(REGISTER))
+    register.citableStandingDecisions.push({
+        id: 'SD-TEST',
+        item: { row: 'S6', selector: '*', requirement: 'EQUALS', value: 'the full width' },
+        condition: { row: 'S3', sameElement: true, state: 'derived', equals: 'channel' },
+    })
+    register.citableStandingDecisions.push(...extra)
+    return register
+}
+
+/** Two regions, each naming its own noun, so one satisfies the condition and one does not. */
+function twoRegions(channelNoun: ContractItem | null, zoneNoun: ContractItem | null): LoadedContract {
+    const items = [
+        item({ itemId: 'R-CH', selector: 'noun=channel', requirement: 'COUNT', value: 1 }),
+        item({ itemId: 'R-ZN', selector: 'noun=zone', requirement: 'COUNT', value: 1 }),
+    ]
+    if (channelNoun) items.push(channelNoun)
+    if (zoneNoun) items.push(zoneNoun)
+    return contract(items, {
+        declarations: [
+            { row: 'S2', declaration: 'CLAIMED', note: '' },
+            { row: 'S3', declaration: 'CLAIMED', note: '' },
+            { row: 'S6', declaration: 'CLAIMED', note: '' },
+        ],
+    })
+}
+
+const nounItem = (itemId: string, selectorNoun: string, value: string, overrides: Partial<ContractItem> = {}) =>
+    item({ itemId, row: 'S3', selector: `noun=${selectorNoun}`, requirement: 'EQUALS', value, ...overrides })
+
+function testConditionalDecisionFiresOnAResolvedGoverningValue(): void {
+    const register = registerWithConditionalDecision()
+    const contracts = [twoRegions(nounItem('N-CH', 'channel', 'channel'), nounItem('N-ZN', 'zone', 'zone'))]
+    const result: any = runStages0to5({ ...input(contracts), register })
+
+    const channel = result.derived.lines.get('c:C-1:R-CH::S6')
+    const zone = result.derived.lines.get('c:C-1:R-ZN::S6')
+    assert.ok(channel && zone, 'both regions enumerate the governed row')
+
+    assert.deepEqual(channel.standingDecisions, ['SD-TEST'], 'the condition held, so the decision applies')
+    assert.deepEqual(channel.standingValue, { id: 'SD-TEST', value: 'the full width' })
+    assert.deepEqual(zone.standingDecisions, [], 'the condition failed on the other element, so it does not')
+    assert.equal(zone.standingValue, null)
+}
+
+function testConditionalDecisionDoesNotFireWithoutAGoverningValue(): void {
+    const register = registerWithConditionalDecision()
+
+    // (a) unresolved / failed: nothing authors the noun at all.
+    const unauthored: any = runStages0to5({ ...input([twoRegions(null, null)]), register })
+    assert.deepEqual(unauthored.derived.lines.get('c:C-1:R-CH::S6').standingDecisions, [], 'no governing value, so no result is inferred')
+
+    // (b) valueless: the governing line is resolved by a route that carries no value. A second
+    //     decision claims S3 and states none, so the line has a standing decision and no value.
+    const valueless: any = runStages0to5({
+        ...input([twoRegions(null, null)]),
+        register: registerWithConditionalDecision([{ id: 'SD-TEST-SILENT', item: { row: 'S3', selector: '*', requirement: 'EQUALS' } }]),
+    })
+    const governing = valueless.derived.lines.get('c:C-1:R-CH::S3')
+    assert.deepEqual(governing.standingDecisions, ['SD-TEST-SILENT'], 'the governing line is resolved by a route')
+    assert.equal(governing.standingValue, null, 'but that route carries no value')
+    assert.deepEqual(
+        valueless.derived.lines.get('c:C-1:R-CH::S6').standingDecisions,
+        [],
+        'derived but valueless is one of his four cases: the condition is not evaluated',
+    )
+}
+
+function testConditionalEvaluationDoesNotTouchTheGoverningValue(): void {
+    const register = registerWithConditionalDecision()
+    const contracts = [twoRegions(nounItem('N-CH', 'channel', 'channel'), nounItem('N-ZN', 'zone', 'zone'))]
+    const result: any = runStages0to5({ ...input(contracts), register })
+
+    for (const [lineId, expected] of [
+        ['c:C-1:R-CH::S3', 'channel'],
+        ['c:C-1:R-ZN::S3', 'zone'],
+    ] as [string, string][]) {
+        const governing = result.derived.lines.get(lineId)
+        assert.equal(governing.entailing.length, 1, `${lineId}: the governing line keeps exactly its own contribution`)
+        assert.equal(governing.entailing[0].value, expected)
+        assert.deepEqual(governing.standingDecisions, [], `${lineId}: reading a value never writes one back to it`)
+        assert.equal(governing.standingValue, null)
+    }
+}
+
+/** His expectation, asserted rather than assumed: this mechanism moves nothing in today's corpus. */
+function testConditionalDecisionsChangeNothingInTheCorpus(): void {
+    const result: any = runStages0to5(corpusInput())
+    const firing = [...result.derived.lines.entries()].filter(([, r]: any) => r.standingDecisions.includes('SD-13'))
+    assert.deepEqual(firing, [], 'SD-13 is the corpus’s only conditional decision and the corpus holds no START element')
+}
+
+// ---------------------------------------------------------------------------------------------
 
 const TESTS: [string, () => void][] = [
     ['an authored EQUALS item entails', testAuthoredEqualsEntails],
@@ -273,6 +381,10 @@ const TESTS: [string, () => void][] = [
     ['deterministic across stages 3-5', testDeterministicAcrossStages345],
     ['a refused contract derives nothing', testRefusedContractDerivesNothing],
     ['no divergence is claimed falsely', testNoDivergenceIsClaimedFalsely],
+    ['SD-91: a conditional standing decision fires on a resolved governing value', testConditionalDecisionFiresOnAResolvedGoverningValue],
+    ['SD-91: and does not fire without one', testConditionalDecisionDoesNotFireWithoutAGoverningValue],
+    ['SD-91: evaluation never supplies or modifies the governing value', testConditionalEvaluationDoesNotTouchTheGoverningValue],
+    ['SD-91: the corpus result is unchanged', testConditionalDecisionsChangeNothingInTheCorpus],
 ]
 
 let failed = 0

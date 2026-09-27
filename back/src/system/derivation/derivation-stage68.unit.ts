@@ -12,7 +12,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import { classifyLines } from './classify'
-import { DerivedLine } from './derive'
+import { DerivedLine, resolvedValue } from './derive'
 import { runStages0to5, runStages0to8 } from './engine'
 import { indexRegister } from './register'
 import { ContractItem, DerivationInput, LoadedContract, ResolutionLine, VERDICTS, FORWARD_RESULTS } from './types'
@@ -264,6 +264,7 @@ function emptyRecord(overrides: Partial<DerivedLine> = {}): DerivedLine {
         narrowing: [],
         narrowedTo: null,
         session: null,
+        displaced: [],
         ...overrides,
     }
 }
@@ -368,6 +369,129 @@ function testConditionalMechanismIsGeneral(): void {
     assert.equal(rowIds, null, `classify.ts must name no register row: found ${JSON.stringify(rowIds)}`)
 }
 
+// ---------------------------------------------------------------------------------------------
+// SD-90 — the ADAPTED disposition, his ruling of 27 September.
+//
+// "A PREFERRED_DEFAULT contribution is displaced when an applicable, support-capable required
+// contribution authoritatively resolves the same property." Then the required contribution supplies
+// the value, the default takes no part in collision resolution, the default receives the disposition,
+// its source stays visible, and adaptation supplies no support.
+//
+// The five cases below are the five he asked for. The distinction between the first two is his: a
+// default whose value *differs* has adapted; one that *matches* has not adapted at all, and the only
+// thing displacement does to it is stop it counting as a second support.
+// ---------------------------------------------------------------------------------------------
+
+/** A region class, plus whatever contributions the case needs on its noun. */
+function regionWith(...noun: ContractItem[]): LoadedContract {
+    return contract([item(), ...noun], {
+        declarations: [
+            { row: 'S2', declaration: 'CLAIMED', note: '' },
+            { row: 'S3', declaration: 'CLAIMED', note: '' },
+        ],
+    })
+}
+
+const noun = (itemId: string, value: string, valueStatus: string, overrides: Partial<ContractItem> = {}): ContractItem =>
+    item({ itemId, row: 'S3', requirement: 'EQUALS', value, valueStatus: valueStatus as any, strictness: 'SUPPORTING', ...overrides })
+
+const required = (itemId: string, value: string) => noun(itemId, value, 'REQUIRED_RANGE', { strictness: 'REQUIRED' })
+const preferred = (itemId: string, value: string, overrides: Partial<ContractItem> = {}) => noun(itemId, value, 'PREFERRED_DEFAULT', overrides)
+
+function recordFor(result: any, suffix: string): DerivedLine {
+    return [...(result.derived!.lines as Map<string, DerivedLine>).entries()].find(([id]) => id.endsWith(suffix))![1]
+}
+const outcomeFor = (result: any, itemId: string) => result.forward!.find((o: any) => o.item.itemId === itemId)!
+
+function testDisplacedDifferingDefaultIsAdapted(): void {
+    const result = runStages0to8(input([regionWith(required('R', 'channel'), preferred('P', 'zone'))]))
+    const line = linesFor(result, '::S3')[0]
+    const record = recordFor(result, '::S3')
+
+    assert.equal(line.verdict, 'RESOLVED:ENTAILED', 'the required contribution resolves the property')
+    assert.equal(resolvedValue(record)!.value, 'channel', 'and supplies its own value, not the default')
+    assert.deepEqual(
+        record.entailing.map(e => e.item.itemId),
+        ['R'],
+        'the displaced default is out of `entailing`, which is what support is read from',
+    )
+    assert.equal(record.displaced.length, 1)
+    assert.equal(record.displaced[0].item.itemId, 'P')
+    assert.equal(record.displaced[0].agreed, false)
+    assert.equal(record.displaced[0].preferred, 'zone', 'what it preferred stays visible in provenance')
+    assert.deepEqual(
+        record.displaced[0].displacedBy.map(i => i.itemId),
+        ['R'],
+        'and so does what displaced it',
+    )
+    assert.equal(outcomeFor(result, 'P').result, 'ADAPTED')
+    assert.deepEqual(outcomeFor(result, 'P').reach, [line.lineId], 'a displaced contribution still reached the line — that is why it could be displaced')
+}
+
+function testDisplacedMatchingDefaultAddsNoSupport(): void {
+    const result = runStages0to8(input([regionWith(required('R', 'channel'), preferred('P', 'channel'))]))
+    const record = recordFor(result, '::S3')
+
+    assert.equal(resolvedValue(record)!.value, 'channel')
+    assert.deepEqual(record.entailing.map(e => e.item.itemId), ['R'], 'the matching default adds no second support')
+    assert.equal(record.displaced.length, 1)
+    assert.equal(record.displaced[0].agreed, true)
+    assert.equal(record.displaced[0].preferred, 'channel', 'still visible in provenance')
+    assert.equal(
+        outcomeFor(result, 'P').result,
+        'SATISFIED',
+        'it adapted to nothing: the game holds the value it preferred, so calling it ADAPTED would be false',
+    )
+}
+
+function testPreferredDefaultAloneIsUnchanged(): void {
+    const result = runStages0to8(input([regionWith(preferred('P', 'zone'))]))
+    const record = recordFor(result, '::S3')
+
+    assert.equal(linesFor(result, '::S3')[0].verdict, 'RESOLVED:ENTAILED', 'with nothing required on the line, the default keeps its existing behaviour')
+    assert.equal(resolvedValue(record)!.value, 'zone')
+    assert.deepEqual(record.entailing.map(e => e.item.itemId), ['P'])
+    assert.deepEqual(record.displaced, [], 'nothing displaced it, so nothing is recorded')
+    assert.equal(outcomeFor(result, 'P').result, 'SATISFIED')
+}
+
+function testTwoRequiredContributionsStillCollide(): void {
+    const plain = runStages0to8(input([regionWith(required('R1', 'channel'), required('R2', 'zone'))]))
+    const collided = linesFor(plain, '::S3')[0]
+    assert.equal(collided.verdict, 'UNRESOLVED', 'displacement is not a precedence hierarchy: two required contributions still collide')
+    assert.deepEqual(collided.collidingItems.map((i: any) => i.itemId).sort(), ['R1', 'R2'])
+
+    // And with a preferred default alongside them: it is displaced, and it is **not** one of the
+    // colliding items. "The PREFERRED_DEFAULT does not participate in collision resolution."
+    const withDefault = runStages0to8(input([regionWith(required('R1', 'channel'), required('R2', 'zone'), preferred('P', 'band'))]))
+    const line = linesFor(withDefault, '::S3')[0]
+    assert.equal(line.verdict, 'UNRESOLVED')
+    assert.deepEqual(line.collidingItems.map((i: any) => i.itemId).sort(), ['R1', 'R2'], 'the default is absent from the collision')
+    assert.deepEqual(recordFor(withDefault, '::S3').displaced.map(d => d.item.itemId), ['P'])
+}
+
+function testAdaptationCannotCreateSupport(): void {
+    const result = runStages0to8(
+        input([
+            regionWith(
+                required('R', 'channel'),
+                preferred('E', 'zone', { basis: 'ENGINE_ONLY' }),
+                preferred('A', 'zone', { basis: 'ASSUMED' }),
+                preferred('O', 'zone', { checkability: 'OUTSIDE_BOUNDARY' }),
+                noun('T', 'zone', 'TYPICAL_EXAMPLE'),
+            ),
+        ]),
+    )
+    const record = recordFor(result, '::S3')
+
+    assert.deepEqual(record.entailing.map(e => e.item.itemId), ['R'], 'nothing unsupported became support')
+    assert.deepEqual(record.displaced, [], 'and nothing unsupported was displaced: it never contributed a value to displace')
+    assert.equal(outcomeFor(result, 'E').result, 'INERT', 'engine wording supports nothing, adapted or not (SD-21)')
+    assert.equal(outcomeFor(result, 'T').result, 'INERT')
+    assert.equal(outcomeFor(result, 'O').result, 'NOT_CHECKABLE_OUTSIDE_REPRESENTATION')
+    assert.notEqual(outcomeFor(result, 'A').result, 'ADAPTED', 'an assumption bounds and never entailed, so it was never displaced (SD-83)')
+}
+
 const TESTS: [string, () => void][] = [
     ['an entailed line resolves', testEntailedLineResolves],
     ['an unauthored line is a gap with its reason', testUnauthoredLineIsAGapWithItsReason],
@@ -390,6 +514,11 @@ const TESTS: [string, () => void][] = [
     ['SD-88: an unresolved governing value does not', testUnresolvedGoverningValueIsNotEvaluated],
     ['SD-88: evaluation cannot supply or infer the governing value', testEvaluationCannotSupplyTheGoverningValue],
     ['SD-88: the mechanism is general, not transition-specific', testConditionalMechanismIsGeneral],
+    ['SD-90: a differing preferred default is displaced and ADAPTED', testDisplacedDifferingDefaultIsAdapted],
+    ['SD-90: a matching preferred default stays visible but adds no support', testDisplacedMatchingDefaultAddsNoSupport],
+    ['SD-90: a preferred default alone keeps its existing behaviour', testPreferredDefaultAloneIsUnchanged],
+    ['SD-90: two required contributions still collide', testTwoRequiredContributionsStillCollide],
+    ['SD-90: adaptation cannot turn an unsupported contribution into support', testAdaptationCannotCreateSupport],
 ]
 
 let failed = 0

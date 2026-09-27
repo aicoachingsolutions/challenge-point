@@ -520,31 +520,50 @@ test('the corpus collision is gone, because it was never a collision', () => {
 })
 
 /**
- * The corpus's one genuine collision, and the two things that make it genuine rather than a repeat of
- * cluster 1's convergence: both contributions **entail** (neither is a narrowing to be intersected),
- * and RC-22 says *"two designations are equal only if they map to one entry"* — `DEFENDING_TEAM` and
- * `NOT_LAST_TOUCH` are two entries of the canonical list.
- *
- * It is recorded, not repaired. Deciding between two authoritative designations is a knowledge ruling.
+ * SD-89's authored ownership met GF2's authored restart default on one line, and SD-90 settled it.
+ * What the engine must **not** do here is as important as what it does: it may not conclude that
+ * `DEFENDING_TEAM` and `NOT_LAST_TOUCH` name the same team. They do, on this element — but RC-22 says
+ * *"two designations are equal only if they map to one entry"*, and his ruling keeps that question for
+ * stage 7. The default is displaced because the property was authoritatively resolved without it, not
+ * because the engine decided the two agree.
  */
-test('SD-89 meets GF2 on one line, and the disagreement is reported with both contributors', () => {
+test('SD-90: GF2 is recorded as adapted, and no equivalence between designations is claimed', () => {
+    const result = runDerivation(corpusInput())
+    if (isStampedHalt(result)) return assert.fail('unexpected halt')
+    const T2 = 'c:restated:A01-02:A01-02-01.a::T2'
+
+    assert.equal(result.failures.filter(f => f.kind === 'COLLISION').length, 0)
+    const line = result.resolution.find(e => e.lineId === T2)!
+    assert.equal(line.verdict, 'RESOLVED:ENTAILED')
+    assert.equal(line.value, 'DEFENDING_TEAM', 'the required contribution supplies the value')
+
+    assert.deepEqual(
+        line.support.map(s => (s.kind === 'CONTRACT_ITEM' ? `${s.contractId}::${s.itemId}` : s.kind)),
+        ['restated:A01-02::A01-02-05.a'],
+        'adaptation supplies no support: the displaced default is not among the sources',
+    )
+
+    const disposition = result.audit.dispositions.find(d => d.lineId === T2)!
+    assert.equal(disposition.kind, 'ADAPTED')
+    assert.equal(`${disposition.contractId}::${disposition.itemId}`, 'restated:GF2::GF2-16.a')
+    assert.equal(disposition.preferred, 'NOT_LAST_TOUCH', 'what it preferred stays visible')
+    assert.deepEqual(disposition.displacedBy.map(i => `${i.contractId}::${i.itemId}`), ['restated:A01-02::A01-02-05.a'])
+})
+
+/**
+ * The cross-cutting form of "adaptation is not support", asserted over the whole corpus rather than
+ * over the one case — the shape of assertion that caught the `game::V1` drift.
+ */
+test('SD-90: no displaced contribution appears in any line’s support, anywhere in the corpus', () => {
     const result = runDerivation(corpusInput())
     if (isStampedHalt(result)) return assert.fail('unexpected halt')
 
-    const collisions = result.failures.filter(f => f.kind === 'COLLISION')
-    assert.equal(collisions.length, 1)
-    assert.equal(collisions[0].locus.lineId, 'c:restated:A01-02:A01-02-01.a::T2')
-
-    const recorded = result.audit.collisions.find(c => c.lineId === 'c:restated:A01-02:A01-02-01.a::T2')!
-    assert.deepEqual(
-        recorded.items.map(i => `${i.contractId}::${i.itemId}`),
-        ['restated:A01-02::A01-02-05.a', 'restated:GF2::GF2-16.a'],
-        'both contributions are preserved: neither is silently preferred (SD-02 — no universal precedence hierarchy)',
-    )
-
-    const line = result.resolution.find(e => e.lineId === 'c:restated:A01-02:A01-02-01.a::T2')!
-    assert.equal(line.verdict, 'UNRESOLVED')
-    assert.equal(line.value, undefined, 'an unresolved line carries no value, so nothing downstream reads one designation as the answer')
+    assert.ok(result.audit.dispositions.length > 0, 'the corpus does exercise displacement')
+    for (const d of result.audit.dispositions) {
+        const line = result.resolution.find(e => e.lineId === d.lineId)!
+        const sources = line.support.map(s => (s.kind === 'CONTRACT_ITEM' ? `${s.contractId}::${s.itemId}` : s.kind))
+        assert.ok(!sources.includes(`${d.contractId}::${d.itemId}`), `${d.lineId}: ${d.itemId} was displaced and is still counted as support`)
+    }
 })
 
 // ---------------------------------------------------------------------------------------------

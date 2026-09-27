@@ -3145,3 +3145,54 @@ Nothing corrected; two rulings needed.
   week, and that the placement rows give it a **named, countable region — twenty lines** — rather than
   a single item. Caveat stated plainly: two of the last four clusters looked local and turned out
   general, and this round found two lapsed stops and an unimplemented disposition.
+
+**27 Sep (second) — SD-90 + SD-91; THE POPULATION CLASSIFIED**
+(`docs/design/phase-b-population-classification.md`). Spec **revision 22**; 164 tests; suite green.
+- **SD-90 implements `ADAPTED`**, which §3 specified from the start and no run had ever produced. A
+  `PREFERRED_DEFAULT` displaced by an applicable `REQUIRED_RANGE` contribution leaves `entailing`,
+  takes no part in collision resolution, keeps provenance in `audit.dispositions`, and **supplies no
+  support**. `T2` → `DEFENDING_TEAM`; `GF2-16.a` → `ADAPTED`; **collisions 1 → 0**; derived 34 → 35;
+  failed 97 → **96**.
+- **His two bullets kept distinct:** a default whose value **differs** is `ADAPTED`; one that
+  **matches** adapted to nothing and stays `SATISFIED`. Both leave `entailing`, so neither is a second
+  support. Three `T6` lines drop from 2 contributions to 1.
+- **"Required" read as `valueStatus: REQUIRED_RANGE`** (the axis SD-08 governs). Real choice — the
+  corpus has 2 `PREFERRED_DEFAULT`/`REQUIRED` and 9 `REQUIRED_RANGE`/`SUPPORTING` items — but both
+  readings coincide today. A test pins it.
+- **No equivalence claimed** between `DEFENDING_TEAM` and `NOT_LAST_TOUCH`, per his instruction.
+  Corpus-wide test: no displaced contribution appears in any line's support.
+- **DISPLACEMENT BROKE `reach`, caught by reading output not by a test.** Removing the default from
+  `entailing` removed it from the forward stage's reach computation, so `GF2-17` — satisfied, adapted
+  to nothing — reported *"its realization conditions are not satisfied"*. A displaced contribution
+  still reached the line. Same family as [[silent-loss-of-authored-knowledge]].
+- **SD-91** evaluates a citable standing decision's authored condition when the governing property is
+  resolved; separate mechanism from SD-88. Tested on a synthetic decision over Space rows, including a
+  *derived-but-valueless* governing line. **Corpus unchanged**, as he expected.
+- **THE 96 REMAINING LINES, IN HIS FOUR CATEGORIES:** internal deterministic **53** ·
+  knowledge-authoring **20** · realization-sensitive **23** · outside boundary **0** (structural: the
+  boundary is enforced at item level — 34 `NOT_CHECKABLE` items produce no lines at all).
+- **TWO MECHANISMS ACCOUNT FOR 28 OF THE 53:**
+  1. **Wide Zone Advantage's own-involvement set is EMPTY (12 lines).** Own involvement = classes the
+     contract formed *from items in the OTHER scopes*. All its channel classes come from
+     `OWN_INVOLVEMENT` items, so the set is empty and all 11 of its own-involvement items reach
+     nothing — **including `WIDEZONE-02.a`, the existence item that forms the channels.**
+     *An `OWN_INVOLVEMENT` existence item cannot seed the involvement its own contract is scoped to.*
+     Variable Target escapes only because its object-existence items are `WHOLE_GAME`.
+  2. **A selector-fixed attribute does not reach its own line (16 lines).** `c:blind:GF4:I03` is
+     formed by `noun=half` and its `S3` line is unauthored. The contracts say so repeatedly —
+     *"fixed only through the S2 selector (RC-16)"*. General derivation-composition question.
+- **THE CORRECTION I OWED HIM ON THE 20 PLACEMENT LINES: half are not realization questions.** 10
+  realization-sensitive, **10 blocked internally** (Wide Zone's 6 + the 4 ball-position lines, which
+  A01-02 says moved to `T4`). Last week's "20 lean outward" was wrong by half.
+- **The one Gate A failure that genuinely blocks a coherent game: THREE transitions claim
+  `POSSESSION_CHANGE`** (`GF4:I06`, `GF2-07.a`, `NEUTRAL-12.a`). Three contracts each authored the
+  turnover; SD-47 forms one class per existence item. **Same shape as SD-84 one level along** — `T1`
+  is keyed by trigger, so the trigger key is the identity. Not acted on; extending SD-84 to a keyed
+  collection is his.
+- **Also reported, not corrected:** the register spells the qualifier rows `qualifiers.lastTouch` in
+  `path` and `qualifier.lastTouch` in `selectorAttributes`.
+- **PILOT BOUNDARY, revised DOWN from last week and stated as such.** 55% of the remainder is internal
+  deterministic. Reason last week read differently: *a "declared gap" reason code says some object
+  could not author the row — it says nothing about whether another object authored it and failed to
+  reach.* Wide Zone's 12 are declared gaps with the knowledge in the same contract. **Recommendation:
+  the next cluster should be one of the two mechanisms, not a knowledge cluster.**

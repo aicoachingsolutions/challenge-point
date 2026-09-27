@@ -460,6 +460,9 @@ function materialiseMembers(
                 narrowedTo: null,
                 standingValue: record && record.standingValue && !record.entailing.length && !record.session ? { id: record.standingValue.id, value: member } : null,
                 session: record && record.session ? { row: record.session.row, value: member } : null,
+                // A displacement belongs to the membership line, where it happened. Copying it onto
+                // each member would report one adaptation several times.
+                displaced: [],
             })
         }
     }

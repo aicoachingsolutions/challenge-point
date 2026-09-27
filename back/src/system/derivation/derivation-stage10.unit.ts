@@ -558,7 +558,7 @@ test('the corpus run reproduces the reported figures exactly', () => {
     assert.equal(result.run.counts.contractsAdmitted, 8)
     assert.equal(result.run.counts.contractsRefused, 0)
     assert.equal(result.run.counts.lines, 153)
-    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 34)
+    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 35)
     assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 96)
     assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 0, 'cluster 3 cleared the whole population')
     assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 96)
@@ -572,12 +572,16 @@ test('the corpus run reproduces the reported figures exactly', () => {
     )
     assert.equal(result.lines.filter((l: any) => result.classified.get(l.lineId)?.lineState === 'WITHDRAWN').length, 12)
 
-    // SD-89's authored restart ownership meets GF2's authored restart default on one line. Both are
-    // authoritative, they name two entries of the designation list, and RC-22 makes two designations
-    // equal only if they map to one entry — so the engine reports a collision and resolves nothing.
-    const collisions = result.failures.filter((f: any) => f.kind === 'COLLISION')
-    assert.equal(collisions.length, 1, 'the corpus has exactly one collision, and it is between two authoritative team designations')
-    assert.equal(collisions[0].locus.lineId, 'c:restated:A01-02:A01-02-01.a::T2')
+    // SD-89's authored restart ownership met GF2's authored restart default on one line, and SD-90
+    // settled it: a required contribution resolves the property, the preferred default is displaced
+    // rather than colliding with it. The engine claims nothing about the two designations being the
+    // same team — that question stays with stage 7.
+    assert.equal(result.failures.filter((f: any) => f.kind === 'COLLISION').length, 0)
+    assert.equal(result.classified.get('c:restated:A01-02:A01-02-01.a::T2').verdict, 'RESOLVED:ENTAILED')
+    assert.equal(
+        result.forward.find((o: any) => o.item.contractId === 'restated:GF2' && o.item.itemId === 'GF2-16.a').result,
+        'ADAPTED',
+    )
 })
 
 test('Gate A fails on the corpus, and says which checks and why', () => {

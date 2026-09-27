@@ -74,7 +74,23 @@ export interface Audit {
     /** SD-27 made tensions unrepresentable. The field stays, always empty, so no gate can read one. */
     tensions: never[]
     referenceDefects: { contractId: string; itemId: string; where: string; text: string; why: string }[]
-    dispositions: unknown[]
+    /**
+     * SD-90 — the displacement record. *"Its source and displacement remain visible in provenance"*,
+     * and it is kept here rather than on the property because *"adaptation itself supplies no
+     * support"*: a displaced contribution must never appear in a line's `sources`.
+     */
+    dispositions: Disposition[]
+}
+
+export interface Disposition {
+    kind: 'ADAPTED' | 'DISPLACED_IN_AGREEMENT'
+    lineId: string
+    contractId: string
+    itemId: string
+    /** The value this contribution preferred, kept verbatim. */
+    preferred: unknown
+    /** The required contribution(s) that resolved the property without it. */
+    displacedBy: { contractId: string; itemId: string }[]
 }
 
 export interface DerivationResult {
@@ -238,7 +254,18 @@ export function emit(input: EmitInput): DerivationResult | StampedHalt {
                 why: String(f.detailRef ?? ''),
             }))
             .sort((a, b) => `${a.contractId}:${a.itemId}`.localeCompare(`${b.contractId}:${b.itemId}`)),
-        dispositions: [],
+        dispositions: [...input.derived.entries()]
+            .flatMap(([lineId, record]) =>
+                (record.displaced || []).map(d => ({
+                    kind: (d.agreed ? 'DISPLACED_IN_AGREEMENT' : 'ADAPTED') as Disposition['kind'],
+                    lineId,
+                    contractId: d.item.contractId,
+                    itemId: d.item.itemId,
+                    preferred: d.preferred,
+                    displacedBy: d.displacedBy.map(i => ({ contractId: i.contractId, itemId: i.itemId })),
+                })),
+            )
+            .sort((a, b) => `${a.lineId}:${a.contractId}:${a.itemId}`.localeCompare(`${b.lineId}:${b.contractId}:${b.itemId}`)),
     }
 
     return {
