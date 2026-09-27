@@ -3196,3 +3196,57 @@ Nothing corrected; two rulings needed.
   could not author the row — it says nothing about whether another object authored it and failed to
   reach.* Wide Zone's 12 are declared gaps with the knowledge in the same contract. **Recommendation:
   the next cluster should be one of the two mechanisms, not a knowledge cluster.**
+
+**27 Sep (third) — THREE MECHANISMS ANALYSED, NOTHING IMPLEMENTED**
+(`docs/design/phase-b-three-mechanisms.md`). No code changes; suite unchanged at 164.
+- **HIS INSTRUCTION: analyse, don't implement where more than one valid reading remains.** All three
+  have two or more, so all three come back for ruling. Nothing merged, nothing authored, no
+  enforcement added, no register change.
+- **CLUSTER 5 — own involvement. THE RULE ALREADY EXISTS AND WIDE ZONE BREAKS IT.** AM-13, adopted
+  19 Sep: *"An item that entails a collection element may not use own-involvement; it uses a selector
+  attribute at whole-game scope instead (AM-17)."* Three Wide Zone items do exactly that. The
+  20 Sep derivation note already concluded *"the remedy is authoring — restating the contract — not
+  derivation"*, and SD-31 ruled the declaration survives the empty scope. **What was never ruled is
+  that the engine should let the violation through silently** — class formation uses the item, scope
+  resolution excludes it, no report.
+  - Reach: **5 violating items in 2 contracts**. Variable Target violates it too (`VARTARGET-08.a/.b`
+    on `J11a`) but is **symptomless** — it has 8 other-scoped existence items, and no own-involvement
+    item targets a `J11a` field row. *A silent class of authoring defect, not a one-off.*
+  - **R1** enforce AM-13 + restate Wide Zone's 3 scopes (authoring, his). **R2** drop AM-13's
+    prohibition — **its stated reason is a fossil of the pre-class model**: the circularity was about
+    stage-5 entailment, and SD-47 made elements classes fixed at stage 2, so seeding from all own
+    classes is now a subset selection, not circular. Both resolve the same 12 lines.
+- **CLUSTER 6 — RC-16, AND THE CORPUS AND ENGINE WERE BUILT TO DIFFERENT RULES.** His question has an
+  exact answer: **RC-16**, a *run convention*, never ratified — *"an item that entails an element also
+  entails each attribute its selector fixes with `=` or `∋`. An attribute given with `∈` is only
+  narrowed."* The derivation-rules doc says plainly that every RC *"goes beyond the specification's
+  text"*. **Six of eight contracts cite RC-16 and omitted items on those rows because of it.** The
+  engine never adopted it. That is why the lines read as coverage gaps.
+  - Reach: **19 FIELD rows are selector attributes** (every area but Envelope and Direction); 24
+    instances today. Applying RC-16 literally: **19 failed lines resolve**, 0 agree, **3 collide**,
+    **1 closes an SD-39 freedom** (`RPC-001-11.a::J3`), 1 narrows only (`∈`).
+  - **The three collisions are the same thing written twice** — selector `"connected-pass count"` vs
+    item `"current connected-pass count of ATTACKING_TEAM"`. Same shape as DEFENDING_TEAM /
+    NOT_LAST_TOUCH. **S2 (ratify subordinately — the selector supplies a value only where no item
+    entails) avoids all three**, and has a precedent: `applies()` already requires
+    `entailing.length === 0` for standing decisions.
+- **CLUSTER 7 — THE SD-84 ANALOGY FAILS, ON SD-84'S OWN TERMS.** (a) SD-84 requires *cardinality
+  exactly one*; `T1` has no bound. (b) SD-84 says identity follows from the schema invariant *"rather
+  than from interpretation of selectors"* — the trigger key IS a selector attribute. (c) SD-84 reads
+  singletons *as data*, **"never from the row's prose"** — `T1`'s key is prose only.
+  - **The three turnover classes are indistinguishable in every derived property** (T6 CONTINUE and
+    T7 true, both from the same items; T2–T5 withdrawn). Merging would create no collision.
+  - **The prior question is whether the gate is asking the right thing.** Gate A's spec says *"one
+    value per atomic transition property per trigger"* — satisfied. The implemented clause asserts one
+    **element** per key. SD-47 says derivation holds classes, not individuals, and a candidate *"may
+    satisfy every supported class whose selectors it matches"*.
+  - **T1** fix the gate clause (no lines change). **T2** rule that a canonical key establishes
+    identity — a NEW decision; **must be scoped to declared keys**, because six class groups share
+    identical selectors and only one is on a keyed row, and an "identical selectors" rule would merge
+    13 classes against SD-47. Needs `keyedBy` **as data** to meet SD-84's own standard. Removes 18
+    lines (6 failed).
+- **Union if all three resolve maximally: failed 96 → 63.** Recommended order: **6, then 5, then 7** —
+  6 is largest and until it is settled we cannot tell which "coverage" gaps are real.
+- **Warned him the reclassification will move a lot**: 19 of the lines cluster 6 resolves were
+  classified yesterday as knowledge-authoring or realization-sensitive (e.g. RPC-001's four condition
+  types). They are not missing knowledge; they are written in a selector.
