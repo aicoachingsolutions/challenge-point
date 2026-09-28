@@ -3293,3 +3293,58 @@ Nothing corrected; two rulings needed.
   resolves from the class selector; any fixture asserting "nothing entails this line" must use a row
   no selector carries. Same for the SD-91 fixture (now governs on `S6`) and the SD-88 consequence
   fixture (now selected on `trigger`, not `effect`).
+
+**27 Sep (fifth) — OBJECTIVE/DIRECTION CLUSTER: ANALYSED, DOES NOT CLOSE**
+(`docs/design/phase-b-objective-direction-closure.md`). No code changes; suite unchanged at 173.
+- **He reframed the pass**: not the next failure cluster but a **pilot-boundary closure pass**, with
+  four buckets (general mechanism / knowledge required for coherence / knowledge non-blocking /
+  realization-sensitive) and "stop and return anything needing a new semantic ruling".
+- **THE CLUSTER DOES NOT CLOSE. Three rulings and one authored fact are needed.**
+- **F1 — A TEAM CANNOT CARRY A DESIGNATION.** `P1.selectorAttributes = ["team"]` and **no FIELD row
+  corresponds**, so a designation is expressible only as a class selector, never authored. Both team
+  classes have **empty selectors**. `GA-DIRECTION` reads `designationOf` off the selector because
+  there is nowhere else. *May not be a defect* — RC-22 says a designation is evaluated at the trigger
+  or episode, so a team plausibly should not carry one statically. **D1** add a designation field ·
+  **D2** ask what derivation can establish (the SD-94 pattern) — recommended · **D3** direction moves
+  to the realization layer.
+- **F2 — `J3` IS UNAUTHORED ON 4 OF 5 OBJECTIVES.** The corpus has **one** `J3` item: `GF2-12.a`
+  *"EACH_TEAM: one shared target attacked by both teams"*, ASSUMED/PREFERRED_DEFAULT → bounds, never
+  entails (SD-83). **D2 does not rescue direction** — a designation-only check still needs to know
+  which designation attacks which objective. **Bucket 2, load-bearing, held not authored.**
+- **F3 — the primary objective's reference is authored AS PROSE.** `GF2-08.b` = *"the target feature:
+  the objective-area region of GF2-03.a (line or zone)"*. `c:restated:GF2:GF2-03.a` **is a held
+  class**; SD-63 withholds because it is open text, blocking GA-DIRECTION clause 2. Same shape as
+  SD-79's bounded restatement. Reach: reusable — 6 references establish no structural identity.
+- **F4 — THREE OBJECTIVE CLASSES HAVE EMPTY SELECTORS** (`GF2-09.a`, `RPC-001-14.a`,
+  `VARTARGET-06.b`). **9 of the 80 failed lines are fields of objectives nobody described.** Mirror
+  of SD-94: there identity-neutrality was harmless, here it *multiplies the line population*.
+  **Does an undescribed existence assertion owe field values?** Returned, not acted on — resolving it
+  would remove 9 lines with nothing authored, which is exactly why not to.
+- **F5 — SET COMPLETION, TRACED. ONE READING SURVIVES.** RC-15 (per member) · SD-51 (resolve the set
+  first) · SD-78/79/80 (a set is an authored array) · SD-92 (`∋` does not define the set) · AM-04
+  (silence licenses nothing). **A set-valued row resolves only from an authored array.** Both
+  closed-world readings die on AM-04 *and* on the corpus — `S4` carries two `UNDECLARED` declarations
+  (*"Functions not examined as a field"*), so completeness would be read out of an admission that
+  nobody looked. **Answered, not returned.**
+  - **BUT completeness is needed less often than the count suggests.** `GA-REGION-FUNCTION` asks
+    "serves at least one function" and "every function is registered" — **both satisfiable from
+    `establishedMembers`**, which SD-92 now records for three regions. The check reads only the line
+    and blocks. *A consequence of SD-92 nothing has implemented; the only item here needing no
+    ruling.* Not done, because it belongs to the returned cluster.
+- **F6 — FIVE ITEMS USE `EXISTS` ON A `FIELD` ROW** (`J6`,`J7`,`J10`,`J11b`,`J12`). A field exists by
+  schema, so they assert nothing. **What does `EXISTS` mean on a FIELD row?** General grammar
+  question. The knowledge underneath is bucket 3 — Variable Target's set is optional machinery.
+- **PILOT-READINESS ACCOUNTING (his six questions):**
+  - *Deterministic generation:* nothing in engine behaviour prevents it; the engine **is not wired to
+    the generation pipeline at all**, which is unscoped work and not a knowledge question.
+  - *Structural coherence:* **one thing — direction.** GA-NO-FAILED-LINE is a count; GA-INFORMATION
+    is bucket 3.
+  - *Representative validity:* **unmeasured by design** — he kept it out of Gate A on 16 Sep. Not
+    blocked by a defect; the pilot is the instrument.
+  - *Safely open:* the 23, presumed legitimate-open.
+  - *Non-blocking gaps:* ~14.
+  - *Would another cluster teach us what coaches cannot?* **This one would, and it is the last of
+    which that is clearly true.** Three of its findings are representation semantics no coach could
+    answer. After it: one football fact, ~14 non-blocking gaps, 23 realization choices.
+- **The Wide Zone `S6` collisions DO NOT BLOCK** — they are on a channel's across-axis position,
+  which is one of the 23, and no Gate A clause depends on them. Left untouched as instructed.
