@@ -483,6 +483,7 @@ function materialiseMembers(
                 // each member would report one adaptation several times.
                 displaced: [],
                 establishedMembers: [],
+                contradicted: [],
             })
         }
     }
@@ -694,6 +695,7 @@ export function runStages0to5(input: DerivationInput): PartialResult & {
 
     const derived = deriveLines(admitted, base.classes, base.lines, scope.applicationSets, scope.declarations, index, input.envelope || {})
     base.stopped.push(...derived.stopped)
+    base.diagnostics.push(...derived.diagnostics) // SD-101's contradictions reach the emitted result
 
     // SD-49 settled this: an item whose reach a class neither entails nor contradicts has "applicability
     // unresolved; derive nothing from that application", and the indeterminate case is recorded rather

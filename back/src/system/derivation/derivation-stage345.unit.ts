@@ -13,6 +13,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import { corpusInput } from './corpus'
+import { resolvedValue } from './derive'
 import { runStages0to5 } from './engine'
 import { DerivationInput, LoadedContract, ContractItem } from './types'
 
@@ -422,11 +423,61 @@ function testSelectorFixesTheValueWhereNothingEntails(): void {
 }
 
 function testAnItemOnTheRowIsNotCompetedWith(): void {
-    const result = runStages0to5(input([contract([item(), item({ itemId: 'I-2', row: 'S3', requirement: 'EQUALS', value: 'band' })])]))
+    // The item agrees with the selector, so SD-101 is not in play and subordination is what is
+    // visible: the support says the item entailed it, not that the selector carried it.
+    const result = runStages0to5(input([contract([item(), item({ itemId: 'I-2', row: 'S3', requirement: 'EQUALS', value: 'channel' })])]))
     const line = lineOf(result, '::S3')
     assert.equal(line.entailing.length, 1, 'the selector does not compete with an item that entails the field')
     assert.equal(line.entailing[0].item.itemId, 'I-2')
-    assert.equal(line.entailing[0].value, 'band', 'and it does not override it either — no collision is manufactured')
+    assert.equal(line.entailing[0].support.relation, 'ENTAILS', 'the item supplied it; the selector stayed out')
+}
+
+/**
+ * SD-101 — a contribution may not entail a value contradicting the selector that defines the class.
+ * The class-defining value stands, the contribution is preserved rather than resolved against, and
+ * its reach to the element is untouched for every other row.
+ */
+function testAContradictedConstitutiveSelectorStands(): void {
+    const result: any = runStages0to5(
+        input([
+            contract([
+                item(),
+                item({ itemId: 'I-BAD', row: 'S3', requirement: 'EQUALS', value: 'band' }),
+                item({ itemId: 'I-OK', row: 'S5', requirement: 'EQUALS', value: 'the near end' }),
+            ]),
+        ]),
+    )
+    const noun = lineOf(result, '::S3')
+    assert.ok(
+        !noun.entailing.some((e: any) => e.item.itemId === 'I-BAD'),
+        'the contradicting contribution does not entail the line',
+    )
+    assert.equal(noun.entailing[0].support.relation, 'CARRIES', 'what stands is the class-defining value, carried by its own selector')
+    assert.equal(noun.contradicted.length, 1)
+    assert.equal(noun.contradicted[0].item.itemId, 'I-BAD')
+    assert.equal(noun.contradicted[0].value, 'band', 'what it required is preserved, not discarded')
+    assert.deepEqual(noun.contradicted[0].constitutive, { attribute: 'noun', value: 'channel' })
+
+    // The class-defining value stands, carried by the selector (SD-92) now that nothing entails it.
+    assert.equal(resolvedValue(noun)!.value, 'channel')
+
+    // "Do not simply suppress the contribution's reach": the same contract still reaches the element
+    // on every other row.
+    assert.equal(lineOf(result, '::S5').entailing[0].item.itemId, 'I-OK')
+
+    const named = result.derived.diagnostics.find((d: any) => d.code === 'CONSTITUTIVE_SELECTOR_CONTRADICTED')
+    assert.ok(named, 'and the contradiction is reported rather than absorbed')
+    assert.match(named.where, /::S3$/)
+}
+
+/** The exception is narrow: an attribute the selector does not fix is untouched by it. */
+function testConstitutiveOnlyAppliesToTheDefiningAttribute(): void {
+    const result: any = runStages0to5(
+        input([contract([item({ selector: 'noun=channel' }), item({ itemId: 'I-2', row: 'S4', requirement: 'EQUALS', value: ['access'] })])]),
+    )
+    const functions = lineOf(result, '::S4')
+    assert.deepEqual(functions.contradicted, [], 'the class fixes noun, not functions, so nothing here is constitutive')
+    assert.equal(functions.narrowing.length, 1, 'and the item contributes as it always did')
 }
 
 function testMembershipDoesNotDefineTheSet(): void {
@@ -463,6 +514,8 @@ const TESTS: [string, () => void][] = [
     ['an authored EQUALS item entails', testAuthoredEqualsEntails],
     ['SD-92: an establishing selector fixes the value where nothing entails', testSelectorFixesTheValueWhereNothingEntails],
     ['SD-92: it does not compete with an item that entails the field', testAnItemOnTheRowIsNotCompetedWith],
+    ['SD-101: a contradicted constitutive selector stands, and the contribution is preserved', testAContradictedConstitutiveSelectorStands],
+    ['SD-101: only the defining attribute is constitutive', testConstitutiveOnlyAppliesToTheDefiningAttribute],
     ['SD-92: ∋ establishes membership without defining the set', testMembershipDoesNotDefineTheSet],
     ['SD-92: ∈ narrows and fixes nothing', testInNarrowsAndFixesNothing],
     ['SD-92: the carry reaches only its own element', testTheCarryReachesOnlyItsOwnElement],

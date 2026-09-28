@@ -15,7 +15,7 @@ import { RegisterIndex } from './register'
 import { reaches, Reach } from './reach'
 import { parseSelector } from './selector'
 import { ApplicationSet, DeclarationReach } from './scope'
-import { Bounds, ElementClass, ItemRef, LoadedContract, ResolutionLine, SupportRef } from './types'
+import { Bounds, ElementClass, ItemRef, LoadedContract, NamedDiagnostic, ResolutionLine, SupportRef } from './types'
 
 export interface DerivedLine {
     lineId: string
@@ -61,6 +61,12 @@ export interface DerivedLine {
      * while what is known about it stays visible.
      */
     establishedMembers: { item: ItemRef; member: unknown; support: SupportRef }[]
+    /**
+     * SD-101 — contributions that entail a value contradicting a **constitutive** selector attribute
+     * of the class they reach. They are held here, not in `entailing`: the class-defining value
+     * stands and the contradiction is preserved rather than resolved either way.
+     */
+    contradicted: { item: ItemRef; value: unknown; constitutive: { attribute: string; value: unknown }; support: SupportRef }[]
 }
 
 /**
@@ -171,6 +177,78 @@ function narrowsToSet(item: any): boolean {
     if (item.basis === 'ASSUMED') return false
     if (item.strictness === 'EXCLUSION') return false
     return item.valueStatus === 'REQUIRED_RANGE' && Array.isArray(item.value)
+}
+
+/**
+ * **SD-101, his ruling of 28 September — a defining selector is constitutive of class identity.**
+ *
+ *   "Where a selector attribute participates in establishing the identity of a class, a contribution
+ *    reaching that class may not entail a contradictory value for the corresponding field. … Do not
+ *    simply suppress the contribution's reach, since it may legitimately reach the class for other
+ *    properties. And do not treat the defining selector as an ordinary competing contribution. If an
+ *    authored item contradicts a constitutive selector attribute, **preserve and report that
+ *    contradiction** rather than allowing the item's value to replace the class-defining value."
+ *
+ * A class *is* its selector: `c:restated:RPC-001:RPC-001-11.a` is "the PRIMARY_SCORING objective of
+ * the build-out team". An item reaching it and entailing some other team for its `J3` would leave a
+ * class whose identity says one thing and whose line says another, and under SD-92 the item would
+ * win because an item always beats a selector.
+ *
+ * **This is a narrow exception to that subordination and nothing more.** It fires only on the
+ * attribute the selector fixed, only where the entailed value contradicts it, and only on that one
+ * line. The contribution keeps its reach: every other row of that class is untouched, because a rule
+ * about one property is not a reason to stop reading the rest of a contract.
+ */
+function applyConstitutiveSelector(
+    lines: ResolutionLine[],
+    derived: Map<string, DerivedLine>,
+    classes: ElementClass[],
+    index: RegisterIndex,
+    diagnostics: NamedDiagnostic[],
+): void {
+    const byClass = new Map(classes.map(c => [c.classId, c]))
+
+    for (const line of lines) {
+        if (!line.elementId) continue
+        const row = index.rows.get(line.row)
+        if (!row || !row.selectorAttribute) continue
+        const cls = byClass.get(line.elementId)
+        if (!cls || row.ownerRow !== cls.row) continue
+        const term = (cls.constraints?.terms || []).find(t => t.attribute === row.selectorAttribute)
+        if (!term) continue
+
+        const record = derived.get(line.lineId)!
+        const contradicts = (value: unknown): boolean => {
+            if (term.op === '=') return typeof value === 'string' && value !== term.value
+            if (term.op === 'IN') return typeof value === 'string' && !term.values.includes(value)
+            // A `∋` term says the set holds this member. Only an explicit set that leaves it out
+            // contradicts it; anything else is not something this can decide.
+            if (term.op === 'CONTAINS') return Array.isArray(value) && !value.map(String).includes(term.value)
+            return false
+        }
+
+        const offending = record.entailing.filter(e => contradicts(e.value))
+        if (!offending.length) continue
+
+        record.entailing = record.entailing.filter(e => !contradicts(e.value))
+        for (const entry of offending) {
+            record.contradicted.push({
+                item: entry.item,
+                value: entry.value,
+                constitutive: { attribute: String(row.selectorAttribute), value: 'value' in term ? term.value : term.values },
+                support: entry.support,
+            })
+            diagnostics.push({
+                code: 'CONSTITUTIVE_SELECTOR_CONTRADICTED',
+                where: line.lineId,
+                detail:
+                    `${entry.item.contractId}::${entry.item.itemId} entails ${JSON.stringify(entry.value)} on a property the class's own selector fixes as ` +
+                    `${JSON.stringify('value' in term ? term.value : term.values)}. The class-defining value stands and the contribution is preserved, ` +
+                    'not resolved against it (SD-101). Its reach to this element is unchanged for every other row.',
+            })
+        }
+        record.contradicted.sort((a, b) => `${a.item.contractId}:${a.item.itemId}`.localeCompare(`${b.item.contractId}:${b.item.itemId}`))
+    }
 }
 
 /**
@@ -440,6 +518,8 @@ export interface DeriveOutcome {
     lines: Map<string, DerivedLine>
     undeterminedReaches: { item: ItemRef; classId: string }[]
     stopped: { where: string; why: string }[]
+    /** SD-93's channel — named conditions this stage must not leave to be inferred downstream. */
+    diagnostics: NamedDiagnostic[]
 }
 
 export function deriveLines(
@@ -460,6 +540,7 @@ export function deriveLines(
 
     const derived = new Map<string, DerivedLine>()
     const stopped: { where: string; why: string }[] = []
+    const diagnostics: NamedDiagnostic[] = []
     const undeterminedReaches: { item: ItemRef; classId: string }[] = []
 
     for (const line of lines) {
@@ -476,6 +557,7 @@ export function deriveLines(
             session: null,
             displaced: [],
             establishedMembers: [],
+            contradicted: [],
         })
     }
 
@@ -528,6 +610,10 @@ export function deriveLines(
             }
         }
     }
+
+    // SD-101 — a contribution contradicting a constitutive selector attribute leaves the line before
+    // SD-92 looks, so the class-defining value is what the selector then carries.
+    applyConstitutiveSelector(lines, derived, classes, index, diagnostics)
 
     // SD-92 — the establishing selector's contribution, before the narrowings are composed (an `∈`
     // term is one of them) and before anything reads a value off the line.
@@ -591,6 +677,7 @@ export function deriveLines(
         lines: derived,
         undeterminedReaches: undeterminedReaches.sort((a, b) => a.classId.localeCompare(b.classId)),
         stopped: [...new Map(stopped.map(s => [s.where + s.why, s])).values()].sort((a, b) => a.where.localeCompare(b.where)),
+        diagnostics: diagnostics.sort((a, b) => `:`.localeCompare(`:`)),
     }
 }
 

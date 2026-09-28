@@ -16,7 +16,7 @@ import { corpusInput } from './corpus'
 import { runStages0to10 } from './engine'
 import { compare, toRational } from './rational'
 import { ContractItem, DerivationInput, LoadedContract } from './types'
-import { loadRegister } from './corpus'
+import { loadCorpusContracts, loadRegister } from './corpus'
 
 const REGISTER = loadRegister()
 
@@ -200,14 +200,14 @@ test('GA-NO-FAILED-LINE counts an UNRESOLVED line as failed, not only a gap', ()
         contract(
             [
                 item({ itemId: 'A-1', row: 'S2', selector: 'noun=channel', requirement: 'EXISTS' }),
-                item({ itemId: 'A-2', row: 'S3', selector: 'noun=channel', requirement: 'EQUALS', value: 'channel' }),
+                item({ itemId: 'A-2', row: 'S5', selector: 'noun=channel', requirement: 'EQUALS', value: 'the near end' }),
             ],
             { contractId: 'C-A', objectId: 'O-A' },
         ),
         contract(
             [
                 item({ itemId: 'B-1', row: 'S2', selector: 'noun=channel', requirement: 'EXISTS' }),
-                item({ itemId: 'B-2', row: 'S3', selector: 'noun=channel', requirement: 'EQUALS', value: 'lane' }),
+                item({ itemId: 'B-2', row: 'S5', selector: 'noun=channel', requirement: 'EQUALS', value: 'the far end' }),
             ],
             { contractId: 'C-B', objectId: 'O-B' },
         ),
@@ -259,16 +259,23 @@ test('every clause of every check carries a verdict from the closed list', () =>
 // GA-MODIFIER-OVERLAP — the specification gap (F2). Its semantics are not invented here.
 // ---------------------------------------------------------------------------------------------
 
-/** Two region modifiers, each naming a held region class by its structural id (SD-57). */
+/**
+ * Two region modifiers, each naming a held region class by its structural id (SD-57).
+ *
+ * The selector names the referent itself rather than a label for it. `condition.referents` is a
+ * registered selector attribute of `V7`, so under SD-101 it is constitutive of the modifier it
+ * establishes: selecting on a handle and then authoring a different referent for the same property
+ * would be the modifier's identity disagreeing with its own field.
+ */
 function regionModifiers(referentOfB: string): LoadedContract[] {
     return [
         contract([
             item({ itemId: 'R-A', row: 'S2', selector: 'noun=channel', requirement: 'EXISTS' }),
             item({ itemId: 'R-B', row: 'S2', selector: 'noun=lane', requirement: 'EXISTS' }),
-            item({ itemId: 'M-1', row: 'V7', selector: 'condition.type=region AND condition.referents=RA', requirement: 'EXISTS' }),
-            item({ itemId: 'M-2', row: 'V7', selector: 'condition.type=region AND condition.referents=RB', requirement: 'EXISTS' }),
-            item({ itemId: 'M-3', row: 'V8b', selector: 'condition.referents=RA', requirement: 'EQUALS', value: 'c:C-1:R-A' }),
-            item({ itemId: 'M-4', row: 'V8b', selector: 'condition.referents=RB', requirement: 'EQUALS', value: referentOfB }),
+            item({ itemId: 'M-1', row: 'V7', selector: 'condition.type=region AND condition.referents=c:C-1:R-A', requirement: 'EXISTS' }),
+            item({ itemId: 'M-2', row: 'V7', selector: `condition.type=region AND condition.referents=${referentOfB}`, requirement: 'EXISTS' }),
+            item({ itemId: 'M-3', row: 'V8b', selector: 'condition.referents=c:C-1:R-A', requirement: 'EQUALS', value: 'c:C-1:R-A' }),
+            item({ itemId: 'M-4', row: 'V8b', selector: `condition.referents=${referentOfB}`, requirement: 'EQUALS', value: referentOfB }),
         ]),
     ]
 }
@@ -698,6 +705,44 @@ test('SD-100: EXISTS on a field row asserts nothing and is recorded as inert', (
     assert.equal(result.forward.find((o: any) => o.item.itemId === 'F-1').result, 'INERT', 'provenance is retained and the claim is inert')
 })
 
+test('SD-102: direction is established, and the source ambiguity is preserved beside the decision', () => {
+    const result: any = runStages0to10(corpusInput())
+
+    const direction = check(result, 'GA-DIRECTION')
+    assert.equal(direction.verdict, 'PASS', 'the objective structure provides the opposing relationship')
+    assert.equal(direction.clauses.find((c: any) => /objective it attacks/.test(c.clause)).verdict, 'PASS')
+    assert.equal(result.classified.get('c:restated:GF2:GF2-08.a::J3').verdict, 'RESOLVED:ENTAILED')
+
+    // The canonical decision and the ambiguous source are two separate records, and the second is
+    // untouched: "do not rewrite that ambiguity as though the original source established this".
+    const gf2 = loadCorpusContracts().find(c => c.contractId === 'restated:GF2')!
+    const decision: any = gf2.items.find((i: any) => i.itemId === 'GF2-12.c')
+    const source: any = gf2.items.find((i: any) => i.itemId === 'GF2-12.a')
+    assert.equal(decision.basis, 'OWNER_RULING')
+    assert.equal(decision.value, 'EACH_TEAM')
+    assert.equal(source.basis, 'ASSUMED', 'the source reading is still an assumption')
+    assert.match(String(source.basisEvidence), /unreconciled/, 'and its evidence still says the original could not reconcile it')
+})
+
+/** SD-101 on the corpus: the build-out objective keeps the team its own selector defines. */
+test('SD-101: a canonical decision does not overwrite a class its selector defines otherwise', () => {
+    const result: any = runStages0to10(corpusInput())
+    const line = 'c:restated:RPC-001:RPC-001-11.a::J3'
+
+    assert.equal(result.classified.get(line).verdict, 'RESOLVED:ENTAILED')
+    assert.equal(result.derived.lines.get(line).entailing[0].value, 'BUILD_OUT_TEAM', 'the class-defining value stands')
+    const contradiction = result.derived.lines.get(line).contradicted.find((c: any) => c.item.itemId === 'GF2-12.c')
+    assert.ok(contradiction, 'and the contribution that disagreed is preserved, not discarded')
+    assert.equal(contradiction.value, 'EACH_TEAM')
+    assert.ok(
+        result.diagnostics.some((d: any) => d.code === 'CONSTITUTIVE_SELECTOR_CONTRADICTED' && d.where === line),
+        'reported by name rather than absorbed',
+    )
+
+    // Its reach is not suppressed: the same item still reaches, and settles, GF2's own objective.
+    assert.equal(result.derived.lines.get('c:restated:GF2:GF2-08.a::J3').entailing[0].item.itemId, 'GF2-12.c')
+})
+
 /** The baseline at the Phase A load boundary: all eight contracts load, none refuses. */
 test('the corpus run reproduces the reported figures exactly', () => {
     const result: any = runStages0to10(corpusInput())
@@ -707,7 +752,7 @@ test('the corpus run reproduces the reported figures exactly', () => {
     // individuates nothing: three objectives, two teams, two object classes and one objective set
     // were being asked separately for fields nobody owed.
     assert.equal(result.run.counts.lines, 125)
-    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 51)
+    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 52)
     assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 54)
     assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 0, 'cluster 3 cleared the whole population')
     assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 54)

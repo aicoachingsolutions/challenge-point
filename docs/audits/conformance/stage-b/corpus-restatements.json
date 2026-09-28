@@ -274,6 +274,27 @@
  ],
  "added": [
   {
+   "contractId": "restated:GF2",
+   "after": "GF2-12.a",
+   "ruling": "SD-102",
+   "item": {
+    "itemId": "GF2-12.c",
+    "row": "J3",
+    "selector": "role=PRIMARY_SCORING",
+    "requirement": "EQUALS",
+    "value": "EACH_TEAM",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "OWNER_RULING",
+    "basisEvidence": "Christian, 2026-09-28: \"In the Directional Possession Game, both teams attack the same shared objective at the attacking end.\" New owner-authored canonical knowledge, and explicitly NOT a restatement of the GF2 source: \"The source is genuinely ambiguous and its existing provenance should continue to say so. Do not rewrite that ambiguity as though the original source established this relationship.\"",
+    "checkability": "STRUCTURAL",
+    "structuralClause": "whole item",
+    "fitNote": "GF2-12.a is left exactly as it stands — ASSUMED, PREFERRED_DEFAULT, its evidence still recording that the original could not reconcile \"toward the target\" at \"one end\" with \"building from their own end\". This item does not replace that record and does not touch it. It stands beside it, so the ambiguity in the source and the canonical decision about it stay separately readable, and the ambiguity keeps its own provenance."
+   },
+   "why": "the load-bearing knowledge the source could not supply, authored as a canonical decision rather than as a reading of the source. Two things are deliberately kept apart: what Directional Possession's setup guidance says, which is ambiguous, and what Challenge Point has decided, which is not."
+  },
+  {
    "contractId": "blind:GF4",
    "after": "I14",
    "ruling": "SD-73",
