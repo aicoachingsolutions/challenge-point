@@ -3459,3 +3459,45 @@ Joe directed it: piece (1) of the generation-connection scope.
     date.
   - **UNMEASURED:** the guided flow also selects a **practice situation**; `A01-02` is the only one
     contracted, and I could not establish which situations a guided goal reaches. **Five is a floor.**
+
+**28 Sep (second) — FIRST REAL SELECTION ACROSS THE BOUNDARY**
+(`docs/design/bounded-pilot-first-selection.md`). 194 tests green. `npm run bounded:selection -- A05`.
+- **All five proposed pilot goals produce a shaped resolved game, and `GA-DIRECTION` PASSES on every
+  one.** Gate A fails only on `GA-NO-FAILED-LINE`; every other non-pass is NOT_EVALUABLE. **No check
+  reports any of them incoherent.**
+- **VARTARGET-05.b restated under SD-79** (5 members as an array, `offListMembers` preserving the
+  dagger, `asAuthored` beside it). **It made GA-INFORMATION stop failing — the wrong outcome.**
+  Restating turned one derived string into a permitted set and the check read only derived values, so
+  the three unregistered members went invisible. **Corrected the check, not the corpus:** a rule names
+  a registered trigger when *every* trigger it could name is registered (`registeredTrigger` reads
+  `REGION_ENTRY {arg}` as the register's own notation and nothing further).
+  - **Result: 3 of 5 were never the problem.** Remaining: `COACH_CUE` (vocabulary, with the
+    detectability argument against it), `FIRST_FORWARD_PASS` (genuine vocabulary need), and
+    **`REGION_ENTRY {attacking half} + first receiver` — NOT a vocabulary question**: an information
+    trigger has no qualifier row, while transitions do. Three separate rulings returned.
+  - **GA-INFORMATION cannot pass regardless** — its subject clause is blocked on open-text subjects
+    naming quantities/states, which SD-98 does not reach.
+- **PRACTICE SITUATIONS: `TestLibrarySelectionInput` HAS NO PRACTICE SITUATION FIELD.** It enters only
+  at assembly, as a prompt directive. **So none reaches derivation.** Measured the cost by hand:
+  adding `A01-02` to A01's selection takes lines 49→62, derived 19→25, adds the **objects** area and
+  **the goal-kick transition** with `STOP_RESUME` / `awardedTo DEFENDING_TEAM` / its qualifiers.
+  **"Play Out from the Back — From Goal Kicks" currently derives a game with no goal kick in it.**
+  **RETURNED as load-bearing.**
+- **Second returned problem:** selection commits to 8 objects for A05 — 1 game form, 4 constraints and
+  **3 affordance lenses**. Lenses have ids, are scored, shape what is rewarded, and are contracted by
+  nothing, so **3/8 of what selection commits to is invisible to derivation.**
+- **PS MAP:** A01 4 situations (A01-02 contracted) · A05 0 · A04 0 · TA01 1 · TA02 1. **A01 cannot be
+  constrained to goal kicks without narrowing the goal** — its four situations are four football
+  problems.
+- **TRUE MINIMUM:** 5 contracts if practice situations stay out of derivation · **10** if they enter
+  and A01 stays honest · 6 if they enter and A01 leaves. **Five was a floor; which replaces it is his
+  ruling.**
+- **CORPUS NOT LOCKED** — stopped per his instruction, because the PS question changes what the corpus
+  is.
+- **Realization design brief written** (§5): it may do exactly three things — choose an `open` value
+  within bounds, instantiate an `existential` claim, or refuse. Five prohibitions, each with its rule.
+  **The first test to build is "nothing closed without authority"**, because that is the one that
+  fails silently.
+- **New:** `run-bounded-selection.ts` (`npm run bounded:selection -- <goalId>`) — the minimal
+  selection→derivation bridge. It hands the engine contracts for exactly the selected objects and
+  reports the rest as missing; it substitutes nothing.

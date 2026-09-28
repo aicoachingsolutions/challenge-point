@@ -752,7 +752,7 @@ test('the corpus run reproduces the reported figures exactly', () => {
     // individuates nothing: three objectives, two teams, two object classes and one objective set
     // were being asked separately for fields nobody owed.
     assert.equal(result.run.counts.lines, 125)
-    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 52)
+    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 51)
     assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 54)
     assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 0, 'cluster 3 cleared the whole population')
     assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 54)

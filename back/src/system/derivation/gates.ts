@@ -851,6 +851,22 @@ function gaTransitionCoherence(ctx: GateContext): CheckOutcome {
     )
 }
 
+/**
+ * Is this authored trigger one the register holds?
+ *
+ * The register writes a parameterised trigger as `REGION_ENTRY {region}` and `TIME_EXPIRY {window}`,
+ * so an argument in braces is its own notation and reading past it is reading the register rather
+ * than interpreting the author. **Everything else is not.** `REGION_ENTRY {attacking half} + first
+ * receiver` is not a registered trigger with an argument — it is a region entry conjoined with a
+ * condition the trigger vocabulary has no room for, and saying otherwise would be inventing the
+ * qualifier it needs.
+ */
+function registeredTrigger(name: string, vocabulary: string[]): boolean {
+    if (vocabulary.includes(name)) return true
+    const parameterised = name.match(/^([A-Z_]+)\s*\{[^{}]*\}$/)
+    return !!parameterised && vocabulary.includes(parameterised[1])
+}
+
 /** `GA-INFORMATION` — information rules name held subjects and registered triggers. */
 function gaInformation(ctx: GateContext): CheckOutcome {
     const SUBJECT = 'every information rule names a held subject'
@@ -874,10 +890,22 @@ function gaInformation(ctx: GateContext): CheckOutcome {
             if (identity === 'DANGLING') badSubjects.push(rule.classId)
             else if (identity === 'OPEN_TEXT') probe.unestablished(subjectLine)
         }
-        const trigger = probe.cell(lineOf(rule.classId, 'V17'))
-        if (trigger.state === 'DERIVED') {
-            const name = typeof trigger.value === 'object' && trigger.value ? String((trigger.value as any).trigger) : String(trigger.value)
-            if (!vocabulary.includes(name)) badTriggers.push(`${rule.classId}:${name}`)
+        // A rule names a registered trigger when **every trigger it could name** is registered.
+        // Restating an authored alternatives set into machine-readable form (SD-79) turns one derived
+        // value into a permitted set, and reading only the derived value would then stop examining
+        // the very members the clause is about — the failure would disappear without being settled.
+        // Reading the permitted set is reading what the run established, as SD-99 requires.
+        const triggerLine = lineOf(rule.classId, 'V17')
+        const trigger = probe.cell(triggerLine)
+        const permitted =
+            trigger.state === 'DERIVED'
+                ? [trigger.value]
+                : trigger.state === 'OPEN'
+                  ? (ctx.derived.get(triggerLine)?.narrowedTo?.members ?? [])
+                  : []
+        for (const member of permitted) {
+            const name = typeof member === 'object' && member ? String((member as any).trigger) : String(member)
+            if (!registeredTrigger(name, vocabulary)) badTriggers.push(`${rule.classId}:${name}`)
         }
     }
 

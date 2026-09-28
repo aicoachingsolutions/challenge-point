@@ -89,6 +89,26 @@
    "why": "the same source sentence read a second way; removed for the same reason, and the source is preserved unchanged"
   },
   {
+   "item": "restated:VARIABLE-TARGET-CONDITION::VARTARGET-05.b",
+   "ruling": "SD-79",
+   "set": {
+    "value": [
+     "REGION_ENTRY {trigger region}",
+     "COACH_CUE",
+     "FIRST_FORWARD_PASS",
+     "REGION_ENTRY {final third}",
+     "REGION_ENTRY {attacking half} + first receiver"
+    ],
+    "offListMembers": [
+     "COACH_CUE",
+     "FIRST_FORWARD_PASS",
+     "REGION_ENTRY {attacking half} + first receiver"
+    ],
+    "asAuthored": "unordered {REGION_ENTRY {trigger region}; COACH_CUE†; FIRST_FORWARD_PASS†; REGION_ENTRY {final third}; REGION_ENTRY {attacking half} + first receiver†}; † off-list"
+   },
+   "why": "the five authored alternatives, exactly as written and unordered as the source leaves them. The distinction the restater marked with a dagger is preserved as data rather than as a footnote in a sentence: COACH_CUE and FIRST_FORWARD_PASS are off the registered trigger list, and the fifth member's REGION_ENTRY is registered while its '+ first receiver' conjunct is not. Nothing is added, nothing is dropped, and the authored sentence stays beside its typed form (SD-86's pattern)."
+  },
+  {
    "item": "restated:RPC-001::RPC-001-08.a",
    "ruling": "SD-79",
    "set": {
