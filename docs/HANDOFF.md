@@ -3420,3 +3420,42 @@ Joe directed it: piece (1) of the generation-connection scope.
   regions, performers, value, transitions — and the two things a generator would most need are the
   two that are not there: **direction** (a view, and unestablished) and **who attacks what**. That is
   the same load-bearing gap, seen from the consumer's side rather than the gate's.
+
+**28 Sep — SD-101 + SD-102; DIRECTION PASSES; CONTRACT COVERAGE MEASURED**
+(`docs/design/phase-b-boundary-passed.md`). Spec revision 25; **194 tests**; suite green.
+- **SD-101** a defining selector is **constitutive**: a contribution reaching the class may not entail
+  a contradictory value for that field. Class-defining value stands · contribution **preserved**, not
+  resolved against · **reach untouched for every other row**. Narrow exception to SD-92.
+  `derive.ts applyConstitutiveSelector`; `DerivedLine.contradicted`; diagnostic
+  `CONSTITUTIVE_SELECTOR_CONTRADICTED`; forward → UNMET/NOT_REALIZED with the reason.
+- **SD-102** the canonical decision (`GF2-12.c`, `OWNER_RULING`, `EACH_TEAM`) added via the
+  restatements `added` list. **`GF2-12.a` untouched** — still ASSUMED, evidence still saying the
+  original was *"unreconciled"*. Ambiguity and decision are two records.
+- **They meet on `RPC-001-11.a::J3` exactly as predicted**: `BUILD_OUT_TEAM` holds, `EACH_TEAM` is
+  preserved, the contradiction is named, and `GF2-12.c` still settles GF2's own objective. Tested.
+- **SD-101 fires 3× on the corpus**; two are one value written twice by the restater. One loses
+  detail (`current connected-pass count of ATTACKING_TEAM` → `connected-pass count`). Reported.
+- **`GA-DIRECTION` PASSES.** Derived 52, failed 57, open 4. Gate A fails on `GA-INFORMATION` +
+  `GA-NO-FAILED-LINE` only. **No new load-bearing dependency.**
+- **VARIABLE TARGET TRIGGER — returned, nothing added.** The failure is **not an unregistered
+  trigger**: `VARTARGET-05.b` carries an alternatives set **as prose**, read whole as one name. Of
+  its five members, three are `REGION_ENTRY` (registered); two are off-list: **`COACH_CUE`** and
+  **`FIRST_FORWARD_PASS`**. Source: *"revealed only after play crosses a trigger line, or switches on
+  a coach cue during play"* + RB-01/02/04. No registered trigger expresses a player action or an
+  external signal. **Recommended first move: restate 05.b into an array under SD-79** — that narrows
+  the question to two, and `COACH_CUE` may belong outside the boundary (VARTARGET-15.a requires the
+  trigger be *"detectable by players and causally connected"*; 14.a already marks EXTERNAL_SIGNAL
+  off-list).
+- **THE 69-CONTRACT FIGURE WAS WRONG.** The 13 guided goals reach **21 objects**, 5 already
+  contracted. **16 additional contracts cover all 13 goals.** 69 is the library, not the pathway.
+  - **5 contracts → 5 goals** (A01, A04, A05, TA01, TA02), all on **GF2, already contracted**:
+    central density · turnover reward · switch-of-play bonus · progression bonus · interception
+    reward. **The bounded pilot is attacking-only** — every D/TD goal is excluded.
+  - Tiers: 3→2 · 4→4 · **5→5** · 8→7 · 10→9 · 11→10 · 14→12 · 16→13.
+  - **Contracts can be produced incrementally**; nothing in the engine depends on which exist.
+  - **The real risk is the opposite of the one asked about**: the 8 contracts were restated
+    *together*, non-claims written against each other. A live selection picks objects never restated
+    as a set — expect **more** unauthored lines on a real run, not fewer. Run one before promising a
+    date.
+  - **UNMEASURED:** the guided flow also selects a **practice situation**; `A01-02` is the only one
+    contracted, and I could not establish which situations a guided goal reaches. **Five is a floor.**
