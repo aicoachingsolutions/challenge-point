@@ -333,9 +333,14 @@ test('SD-63: the identity rule is general — an open-text objective reference w
         contract([
             item({ itemId: 'P-A', row: 'P1', selector: 'team=A', requirement: 'EXISTS' }),
             item({ itemId: 'P-B', row: 'P1', selector: 'team=B', requirement: 'EXISTS' }),
+            // Two opposed objectives, so the opposite-ends clause has instances to examine (SD-95);
+            // both references are text, so the identity rule is what decides the outcome.
             item({ itemId: 'J-A', row: 'J1', selector: 'team=A', requirement: 'EXISTS' }),
             item({ itemId: 'JT-A', row: 'J3', selector: 'team=A', requirement: 'EQUALS', value: 'A' }),
             item({ itemId: 'JR-A', row: 'J2', selector: 'team=A', requirement: 'EQUALS', value: 'the goal at the far end' }),
+            item({ itemId: 'J-B', row: 'J1', selector: 'team=B', requirement: 'EXISTS' }),
+            item({ itemId: 'JT-B', row: 'J3', selector: 'team=B', requirement: 'EQUALS', value: 'B' }),
+            item({ itemId: 'JR-B', row: 'J2', selector: 'team=B', requirement: 'EQUALS', value: 'the goal at the near end' }),
         ]),
     ]
     const result: any = runStages0to10(input(contracts))
@@ -589,16 +594,123 @@ test('shuffled input produces an identical gate report', () => {
 // rather than produced by a script that no longer exists.
 // ---------------------------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------------------------
+// SD-95 to SD-100 — the closure rulings of 27 September.
+// ---------------------------------------------------------------------------------------------
+
+/** Two teams, and whatever objective structure the case needs. */
+const directionCase = (...objectives: any[]) =>
+    contract([
+        item({ itemId: 'P-A', row: 'P1', selector: 'team=A', requirement: 'EXISTS' }),
+        item({ itemId: 'P-B', row: 'P1', selector: 'team=B', requirement: 'EXISTS' }),
+        ...objectives,
+    ])
+
+test('SD-95: a shared target establishes the opposing relationship, and no team is consulted', () => {
+    const shared = directionCase(
+        item({ itemId: 'J-S', row: 'J1', selector: 'role=PRIMARY_SCORING', requirement: 'EXISTS' }),
+        item({ itemId: 'JT-S', row: 'J3', selector: 'role=PRIMARY_SCORING', requirement: 'EQUALS', value: 'EACH_TEAM' }),
+    )
+    const direction = check(runStages0to10(input([shared])) as any, 'GA-DIRECTION')
+    const attacks = direction.clauses.find((c: any) => /objective it attacks/.test(c.clause))
+    assert.equal(attacks.verdict, 'PASS', 'one objective both sides attack is an opposing directional relationship')
+
+    // Opposite ends has no applicable instance with a single shared target, and says so (SD-54).
+    const opposite = direction.clauses.find((c: any) => /opposite ends/.test(c.clause))
+    assert.equal(opposite.verdict, 'PASS')
+    assert.equal(opposite.instances, 0)
+
+    // The team classes carry designations here, and the check must not be using them.
+    assert.ok(!direction.subjects.some((s: string) => /::P[0-9]/.test(s)), 'no team property is read')
+})
+
+test('SD-95: every objective naming one side is a structural failure, not a gap', () => {
+    const oneSided = directionCase(
+        item({ itemId: 'J-A', row: 'J1', selector: 'team=A', requirement: 'EXISTS' }),
+        item({ itemId: 'JT-A', row: 'J3', selector: 'team=A', requirement: 'EQUALS', value: 'ATTACKING_TEAM' }),
+    )
+    const attacks = check(runStages0to10(input([oneSided])) as any, 'GA-DIRECTION').clauses.find((c: any) => /objective it attacks/.test(c.clause))
+    assert.equal(attacks.verdict, 'FAIL', 'nothing the other side attacks is established, and every objective is settled')
+})
+
+test('SD-97: an existence assertion with no selector individuates nothing and owes no fields', () => {
+    const existential = contract([item({ itemId: 'J-ANY', row: 'J1', selector: '*', requirement: 'EXISTS' })])
+    const result: any = runStages0to10(input([existential]))
+
+    assert.equal(result.classes.filter((c: any) => c.row === 'J1').length, 1, 'the existence claim still holds a class')
+    assert.deepEqual(
+        result.lines.filter((l: any) => l.elementId === 'c:C-1:J-ANY').map((l: any) => l.row),
+        [],
+        'and it enumerates no field line: nobody owes a reference, a team or a role for it',
+    )
+    assert.equal(
+        result.forward.find((o: any) => o.item.itemId === 'J-ANY').result,
+        'SATISFIED',
+        'the assertion is satisfied by the collection membership it established, without pairing',
+    )
+})
+
+test('SD-98: a typed structural reference resolves, and open text still does not', () => {
+    const typed = contract([
+        item({ itemId: 'R-1', row: 'S2', selector: 'noun=zone AND functions ∋ objective-area', requirement: 'EXISTS' }),
+        item({ itemId: 'R-P', row: 'S5', selector: 'noun=zone', requirement: 'POSITIONED', value: { lo: '0', hi: '5' } }),
+        item({ itemId: 'J-A', row: 'J1', selector: 'team=A', requirement: 'EXISTS' }),
+        item({ itemId: 'JT-A', row: 'J3', selector: 'team=A', requirement: 'EQUALS', value: 'A' }),
+        item({
+            itemId: 'JR-A',
+            row: 'J2',
+            selector: 'team=A',
+            requirement: 'EQUALS',
+            value: { structuralRef: { contractId: 'C-1', itemId: 'R-1' }, asAuthored: 'the objective-area region of R-1' },
+        }),
+    ])
+    const result: any = runStages0to10(input([typed]))
+    const integrity = check(result, 'GA-REFERENCE-INTEGRITY')
+    assert.match(integrity.why, /1 reference\(s\) resolved/, 'the typed reference names a held class')
+    assert.ok(!/1 established no structural identity/.test(integrity.why), 'and it is not withheld as open text')
+})
+
+test('SD-99: a region function clause reads established membership without the set resolving', () => {
+    const region = contract([item({ itemId: 'R-1', row: 'S2', selector: 'noun=channel AND functions ∋ access', requirement: 'EXISTS' })])
+    const result: any = runStages0to10(input([region]))
+
+    assert.equal(
+        result.classified.get('c:C-1:R-1::S4').verdict,
+        'NOT_AUTHORED',
+        'membership does not close the set: the field itself is still unauthored (SD-92)',
+    )
+    const fn = check(result, 'GA-REGION-FUNCTION')
+    assert.equal(fn.clauses.find((c: any) => /at least one function/.test(c.clause)).verdict, 'PASS')
+    assert.equal(fn.clauses.find((c: any) => /registered member/.test(c.clause)).verdict, 'PASS')
+})
+
+test('SD-100: EXISTS on a field row asserts nothing and is recorded as inert', () => {
+    const asserted = contract([
+        item({ itemId: 'R-1', row: 'S2', selector: 'noun=channel', requirement: 'EXISTS' }),
+        item({ itemId: 'F-1', row: 'S5', selector: 'noun=channel', requirement: 'EXISTS', value: 'the position field is present' }),
+    ])
+    const result: any = runStages0to10(input([asserted]))
+    const line = result.derived.lines.get('c:C-1:R-1::S5')
+
+    assert.equal(line.entailing.length, 0)
+    assert.equal(line.bounding.length, 0, 'it is not carried as a bound either — that is one of the readings he excluded')
+    assert.equal(result.classified.get('c:C-1:R-1::S5').verdict, 'NOT_AUTHORED')
+    assert.equal(result.forward.find((o: any) => o.item.itemId === 'F-1').result, 'INERT', 'provenance is retained and the claim is inert')
+})
+
 /** The baseline at the Phase A load boundary: all eight contracts load, none refuses. */
 test('the corpus run reproduces the reported figures exactly', () => {
     const result: any = runStages0to10(corpusInput())
     assert.equal(result.run.counts.contractsAdmitted, 8)
     assert.equal(result.run.counts.contractsRefused, 0)
-    assert.equal(result.run.counts.lines, 153)
+    // SD-97 removed twenty-eight lines by ruling that an existence assertion with no selector
+    // individuates nothing: three objectives, two teams, two object classes and one objective set
+    // were being asked separately for fields nobody owed.
+    assert.equal(result.run.counts.lines, 125)
     assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 51)
-    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 77)
+    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 54)
     assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 0, 'cluster 3 cleared the whole population')
-    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 77)
+    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 54)
 
     // SD-88 evaluated the sixteen conditional lines for the first time: twelve are not applicable
     // (the three CONTINUE transitions carry no placement) and four are judged.

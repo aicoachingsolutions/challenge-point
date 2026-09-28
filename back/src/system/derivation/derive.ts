@@ -299,6 +299,20 @@ function applyDisplacement(lines: ResolutionLine[], derived: Map<string, Derived
     }
 }
 
+/**
+ * **SD-100, his ruling of 27 September.** *"If the field already exists by schema, `EXISTS` asserts no
+ * additional knowledge. Retain provenance and record those contributions as inert. In particular, do
+ * not reinterpret `EXISTS` as meaning that a value exists, that a value is required, or that the
+ * field is complete."*
+ *
+ * Five corpus items say `EXISTS` on a `FIELD` row — the restater's way of noting that a field was in
+ * play. A field is there because the schema puts it there, so the claim adds nothing, and it was
+ * being carried as a bound on the line, which is one of the three readings he forbids.
+ */
+function assertsNothing(item: any, index: RegisterIndex): boolean {
+    return String(item.requirement) === 'EXISTS' && index.rows.get(String(item.row))?.kind === 'FIELD'
+}
+
 /** An item entails only when it fixes the value: an assumed item bounds but never entails (§3). */
 function entails(item: any): boolean {
     if (!isSupportCapable(item)) return false
@@ -490,6 +504,8 @@ export function deriveLines(
                 undeterminedReaches.push({ item: ref, classId: String(line.elementId) })
                 continue
             }
+
+            if (assertsNothing(item, index)) continue // SD-100 — inert, and its provenance stays on the item
 
             if (narrowsToSet(item)) {
                 record.narrowing.push({

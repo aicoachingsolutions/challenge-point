@@ -241,7 +241,10 @@ function testNoLineCarriesAValue(): void {
 
 function testConditionalRowsAreConditionalNotAuthored(): void {
     const c = contract()
-    c.items[0] = { ...c.items[0], itemId: 'TEST-1-T', row: 'T1', selector: '*', requirement: 'EXISTS', value: 'a transition' }
+    // The selector individuates the transition: under SD-97 an existence assertion with no selector
+    // establishes only that one exists and enumerates no field lines, so it would have none to be
+    // conditional.
+    c.items[0] = { ...c.items[0], itemId: 'TEST-1-T', row: 'T1', selector: 'trigger=POSSESSION_CHANGE', requirement: 'EXISTS', value: 'a transition' }
     const result = runStages0to2(input({ contracts: [c] }))
     const conditional = result.lines.filter(l => l.lineState === 'CONDITIONAL')
     assert.ok(conditional.length > 0, 'a row whose applicability depends on another line is CONDITIONAL, never NOT_AUTHORED')

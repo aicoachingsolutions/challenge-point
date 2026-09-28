@@ -241,7 +241,16 @@ class Probe {
     }
 }
 
-const classesOn = (ctx: GateContext, row: string) => ctx.classes.filter(c => c.row === row)
+/**
+ * The classes on a row that a check may read fields from.
+ *
+ * SD-97 — a class formed by an existence assertion with no selector is **existential coverage**: it
+ * says something of the kind exists and individuates nothing, so it enumerates no field lines and a
+ * check must not ask it for any. `allClassesOn` keeps the unfiltered view for the cardinality
+ * questions, where the existential claim is exactly what is being counted.
+ */
+const classesOn = (ctx: GateContext, row: string) => ctx.classes.filter(c => c.row === row && !c.constraints.any)
+const allClassesOn = (ctx: GateContext, row: string) => ctx.classes.filter(c => c.row === row)
 const lineOf = (classId: string, row: string) => `${classId}::${row}`
 
 /**
@@ -263,7 +272,40 @@ const lineOf = (classId: string, row: string) => `${classId}::${row}`
  */
 type ReferenceIdentity = 'HELD' | 'DANGLING' | 'OPEN_TEXT'
 
+/**
+ * **SD-98, his ruling of 27 September — bounded structural restatement, as a reusable rule.**
+ *
+ *   "An authored reference that unambiguously names an already-held structural class may be restated
+ *    as a structural reference to that class, provided the restatement does nothing beyond typing
+ *    the referent already named. It may not select between possible referents, infer a referent,
+ *    substitute a more convenient referent, or establish identity from textual similarity."
+ *
+ * A typed reference names the **contribution that established the class**, which is how the engine
+ * names classes, so nothing about the id scheme leaks into the corpus. SD-63 is untouched: ordinary
+ * open text still establishes no identity, and the typed form is only ever written by a restatement
+ * he has ruled on, never inferred from the prose beside it.
+ */
+export interface StructuralRef {
+    structuralRef: { contractId: string; itemId: string }
+    /** The authored sentence, kept beside its typed form exactly as SD-86 keeps a prose bound. */
+    asAuthored?: string
+}
+
+function asStructuralRef(value: unknown): StructuralRef['structuralRef'] | null {
+    const ref = value && typeof value === 'object' ? (value as any).structuralRef : null
+    return ref && typeof ref.contractId === 'string' && typeof ref.itemId === 'string' ? ref : null
+}
+
+/** The class a reference names, whether it was written as a typed reference or as a class id. */
+function referentClass(ctx: GateContext, value: unknown): ElementClass | undefined {
+    const typed = asStructuralRef(value)
+    if (typed) return ctx.classes.find(c => c.fromItem.contractId === typed.contractId && c.fromItem.itemId === typed.itemId)
+    return ctx.classes.find(c => c.classId === String(value))
+}
+
 function identityOf(ctx: GateContext, value: unknown): ReferenceIdentity {
+    const typed = asStructuralRef(value)
+    if (typed) return referentClass(ctx, value) ? 'HELD' : 'DANGLING'
     const text = String(value)
     if (ctx.classes.some(c => c.classId === text)) return 'HELD'
     return /^c:[^:]+:.+$/.test(text) ? 'DANGLING' : 'OPEN_TEXT'
@@ -369,7 +411,15 @@ function gaRosterSum(ctx: GateContext): CheckOutcome {
         terms.push(probe.cell(lineOf(team.classId, 'P3')))
     }
 
-    if (!teams.length) probe.missing.push('P1 (no team class is instantiated)')
+    // SD-97 — say which of the two it is. "No team class" and "teams are asserted to exist but none
+    // is individuated" are different facts, and reporting the second as the first would be false.
+    if (!teams.length) {
+        probe.missing.push(
+            allClassesOn(ctx, 'P1').length
+                ? 'P1 (teams are asserted to exist, and no assertion individuates one, so no roster line exists to sum)'
+                : 'P1 (no team class is instantiated)',
+        )
+    }
     if (players.state !== 'DERIVED' || probe.blocked) {
         return result('GA-ROSTER-SUM', probe, [notEvaluable(CLAUSE_TEXT)], probe.blockedWhy || 'the session player count is not derived')
     }
@@ -557,9 +607,25 @@ function gaRegionFunction(ctx: GateContext): CheckOutcome {
     let examined = 0
 
     for (const region of regions) {
-        const cell = probe.cell(lineOf(region.classId, 'S4'))
-        if (cell.state !== 'DERIVED') continue
-        const members = Array.isArray(cell.value) ? cell.value : String(cell.value ?? '').split(/\s*,\s*/).filter(Boolean)
+        const lineId = lineOf(region.classId, 'S4')
+        // **SD-99, his ruling of 27 September.** Both clauses ask only about **membership**, and
+        // SD-92 established that a `∋` selector term puts a member in a set-valued field without
+        // defining the set. "Where a clause asks only about established membership, it should read
+        // established members and must not require the entire set-valued field to resolve first."
+        // Reading the line alone made three regions with a known function report as unexamined.
+        //
+        // This does not close the set: nothing here concludes that the established members are all
+        // of them, and a region with none is still unexamined rather than functionless.
+        const established = (ctx.derived.get(lineId)?.establishedMembers || []).map(m => m.member)
+        const cell = established.length ? probe.peek(lineId) : probe.cell(lineId)
+        const members = established.length
+            ? established
+            : cell.state === 'DERIVED'
+              ? Array.isArray(cell.value)
+                  ? cell.value
+                  : String(cell.value ?? '').split(/\s*,\s*/).filter(Boolean)
+              : null
+        if (members === null) continue
         if (!members.length) functionless.push(region.classId)
         examined += members.length
         for (const member of members) if (!vocabulary.includes(String(member))) unregistered.push(`${region.classId}:${member}`)
@@ -1063,21 +1129,25 @@ function gaDirection(ctx: GateContext): CheckOutcome {
     const directional = effects.filter(e => /direction|end|attack|swap|switch/i.test(e))
     const noChangeClause = directional.length ? fail(NO_CHANGE, effects.length) : pass(NO_CHANGE, effects.length)
 
-    const teams = classesOn(ctx, 'P1')
     const objectives = classesOn(ctx, 'J1')
     probe.cell('game::S1') // the axis
     const length = probe.cell('game::E2')
 
-    if (!teams.length || !objectives.length) {
-        probe.missing.push(!teams.length ? 'P1 (no team class)' : 'J1 (no objective class)')
+    if (!objectives.length) {
+        probe.missing.push('J1 (no individuated objective class)')
         return result('GA-DIRECTION', probe, [notEvaluable(ATTACKS), notEvaluable(OPPOSITE), noChangeClause, outside(PERCEIVED)], probe.blockedWhy)
     }
 
-    // Which designation each team class carries, and which objectives name it.
-    const designationOf = (cls: ElementClass) => {
-        const term = cls.constraints.terms.find(t => t.attribute === 'team')
-        return term && 'value' in term ? String(term.value) : null
-    }
+    // **SD-95, his ruling of 27 September.** The clause used to require every concrete team class to
+    // carry a static designation in its selector, and to pair each with an objective. He ruled that
+    // out: the register evaluates a designation "at the trigger or episode it is attached to"
+    // (RC-22), so a team element does not hold one, and *"this ruling does not authorize pairing a
+    // designation with a concrete team class where derivation has not established that identity."*
+    //
+    // So the clause asks what the objective structure itself establishes: does it provide an
+    // opposing directional relationship? Either one objective both sides attack, or two objectives
+    // attacked by designations the register holds as different entries (RC-22). Team classes are not
+    // consulted at all, and nothing is paired.
     const attacked = new Map<string, string[]>()
     for (const objective of objectives) {
         const team = probe.cell(lineOf(objective.classId, 'J3'))
@@ -1085,20 +1155,19 @@ function gaDirection(ctx: GateContext): CheckOutcome {
         attacked.set(String(team.value), [...(attacked.get(String(team.value)) || []), objective.classId])
     }
 
-    const unattached: string[] = []
-    let undesignated = 0
-    for (const team of teams) {
-        const designation = designationOf(team)
-        if (!designation) {
-            undesignated++
-            probe.missing.push(`${team.classId} (the team class carries no designation)`)
-            continue
-        }
-        if (!attacked.has(designation)) unattached.push(`${team.classId} (${designation}) attacks no objective`)
-    }
-    if (objectives.length && !attacked.size) probe.missing.push('J3 (no objective names the team that attacks it)')
+    const shared = attacked.has('EACH_TEAM')
+    const opposed = [...attacked.keys()].filter(d => d !== 'EACH_TEAM')
+    const established = shared || opposed.length >= 2
+    if (!attacked.size) probe.missing.push('J3 (no objective names the team that attacks it)')
 
-    const attacksClause = unattached.length ? fail(ATTACKS, teams.length) : undesignated || probe.blocked ? notEvaluable(ATTACKS) : pass(ATTACKS, teams.length)
+    const attacksClause = established
+        ? pass(ATTACKS, attacked.size)
+        : // An objective whose team is an authorized freedom may still name the other side once the
+          // choice is made, so the clause is pending on it rather than violated by it (SD-39). Only
+          // where every objective's team is settled and they all name one side is this a failure.
+          probe.blocked || probe.pendingOn.length || !attacked.size
+          ? notEvaluable(ATTACKS)
+          : fail(ATTACKS, attacked.size)
 
     // Opposite ends: an objective's end is the end of the axis its referent sits in. `lo + hi` against
     // the area length compares the referent's midpoint with the centre without dividing.
@@ -1110,7 +1179,7 @@ function gaDirection(ctx: GateContext): CheckOutcome {
             probe.unestablished(lineOf(objectiveClassId, 'J2'))
             return null
         }
-        const referent = ctx.classes.find(c => c.classId === String(reference.value))
+        const referent = referentClass(ctx, reference.value)
         if (!referent) return null
         const alongRow = referent.row === 'S2' ? 'S5' : referent.row === 'O1' ? 'O4' : null
         if (!alongRow) return null
@@ -1123,23 +1192,25 @@ function gaDirection(ctx: GateContext): CheckOutcome {
         return side < 0 ? 'LOW' : side > 0 ? 'HIGH' : 'CENTRE'
     }
 
+    // Opposite ends applies only where two sides attack different objectives. A single shared target
+    // is a legitimate structure with no two ends to compare, so the clause has no applicable
+    // instance and says so rather than passing as though it had checked something (SD-54).
     let oppositeClause: ClauseResult
-    if (teams.length !== 2) {
-        oppositeClause = notEvaluable(OPPOSITE)
+    if (opposed.length < 2) {
+        oppositeClause = pass(OPPOSITE, 0)
     } else {
-        const ends = [...attacked.values()].map(ids => endOf(ids[0]))
-        if (ends.length !== 2 || ends.some(e => e === null)) oppositeClause = notEvaluable(OPPOSITE)
-        else if (ends[0] === 'CENTRE' || ends[1] === 'CENTRE' || ends[0] === ends[1]) oppositeClause = fail(OPPOSITE, 2)
-        else oppositeClause = pass(OPPOSITE, 2)
+        const ends = opposed.map(d => endOf(attacked.get(d)![0]))
+        if (ends.some(e => e === null)) oppositeClause = notEvaluable(OPPOSITE)
+        else if (ends.some(e => e === 'CENTRE') || new Set(ends).size < ends.length) oppositeClause = fail(OPPOSITE, ends.length)
+        else oppositeClause = pass(OPPOSITE, ends.length)
     }
 
     return result(
         'GA-DIRECTION',
         probe,
         [attacksClause, oppositeClause, noChangeClause, outside(PERCEIVED)],
-        unattached.length
-            ? unattached.join('; ')
-            : `${teams.length} team class(es), ${attacked.size} designation(s) with an objective; ${directional.length} direction-changing effect(s) in the register`,
+        `${objectives.length} individuated objective(s); ${attacked.size} designation(s) attack one` +
+            `${shared ? ', including a shared target' : ''}; ${directional.length} direction-changing effect(s) in the register`,
     )
 }
 
@@ -1153,7 +1224,15 @@ function gaObjectiveSets(ctx: GateContext): CheckOutcome {
     const probe = new Probe(ctx, 'GA-OBJECTIVE-SETS')
     const sets = classesOn(ctx, 'J5')
     if (!sets.length) {
-        return result('GA-OBJECTIVE-SETS', probe, [pass(MEMBERS, 0), pass(MINIMUM, 0), pass(NAMED, 0), pass(ASSIGNMENT, 0), outside(SCOPE)], 'no objective set is instantiated')
+        // SD-97 — an existentially asserted set is not an individuated one. The clauses have no
+        // applicable instance either way, and the reason is worth stating correctly.
+        const asserted = allClassesOn(ctx, 'J5').length
+        return result(
+            'GA-OBJECTIVE-SETS',
+            probe,
+            [pass(MEMBERS, 0), pass(MINIMUM, 0), pass(NAMED, 0), pass(ASSIGNMENT, 0), outside(SCOPE)],
+            asserted ? `${asserted} objective set(s) asserted to exist; none is individuated, so no member, cardinality or assignment is examinable` : 'no objective set is instantiated',
+        )
     }
 
     const held = new Set(ctx.classes.map(c => c.classId))

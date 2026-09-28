@@ -3348,3 +3348,45 @@ Nothing corrected; two rulings needed.
     answer. After it: one football fact, ~14 non-blocking gaps, 23 realization choices.
 - **The Wide Zone `S6` collisions DO NOT BLOCK** — they are on a channel's across-axis position,
   which is one of the 23, and no Gate A clause depends on them. Left untouched as instructed.
+
+**27 Sep (sixth) — SD-95..SD-100 IMPLEMENTED; CLOSURE RUN** (`docs/design/phase-b-closure-result.md`).
+Spec revision 24; **179 tests**; suite green; tsc clean.
+- **Lines 153→125, failed 80→57, open 10→5. Gate A failing: `GA-INFORMATION` + `GA-NO-FAILED-LINE`.**
+- **SD-95** GA-DIRECTION asks what the objective structure establishes (a shared `EACH_TEAM` target,
+  or two objectives on distinct designations at opposite ends). **No team class is consulted** — a
+  test asserts the check reads no team property. A FREE `J3` makes it *pending*, not failed (SD-39).
+- **SD-96 — THE CASE IS RETURNED.** GF2 does **not** establish which team attacks its target. Its own
+  evidence says *"the original records this as unreconciled with 'building from their own end'"*, and
+  the fit-note says `J3` carries NOT_AUTHORED for the shared-or-per-team question. **One line needs
+  it: `GF2-08.a::J3`.** Probed: authored as the designation `EACH_TEAM`, **GA-DIRECTION PASSES.**
+- **SD-97** empty-selector existence = existential coverage; **28 lines removed** (3 objectives,
+  2 teams, 2 object classes, 1 objective set). Classes kept (cardinality is real); no field lines.
+  `classesOn` now returns individuated classes only; `allClassesOn` kept for cardinality.
+- **SD-98** typed `structuralRef` on a value; `identityOf`/`referentClass` resolve it. Applied to
+  `GF2-08.b`. References resolved 0→2; GA-REGION-FUNCTION blocked 6→2.
+- **SD-99** GA-REGION-FUNCTION reads `establishedMembers`. **SD-100** `EXISTS` on a FIELD is INERT.
+- **NEW LOAD-BEARING DEPENDENCY EXPOSED (general):** *an item may entail a value that contradicts the
+  defining selector of the class it reaches, and nothing notices.* Reach is decided on selectors,
+  never on values; SD-92 makes an item beat a selector. **Does not occur today; occurs the moment
+  `J3` is authored the obvious way** — `GF2-12.a` (selector `role=PRIMARY_SCORING`) would replace
+  `BUILD_OUT_TEAM` with `EACH_TEAM` on RPC-001's objective. Verified by probe. Three treatments
+  offered, none chosen.
+- **CORRECTION OWED AND MADE: the 23 became 14.** SD-97 removed 9 — they were fields of objects
+  nobody individuated. *"Stable under mechanism corrections" held for corrections that changed
+  **reach**; SD-97 changed **enumeration**, which is what the set was counted from.* The questions
+  did not vanish; they moved into the realization layer, and **the engine no longer names them** — a
+  visibility loss that lands on the generation-connection work.
+- **BUCKETS: mechanism 21 · knowledge-for-coherence 17 · non-blocking 6 · realization 14.**
+- **PILOT BOUNDARY: not yet, by one item.** Deterministic yes; realization open yes; coherence no, on
+  two checks; direction no, by one line that **passes when authored**. The two remaining blockers are
+  a football question (`J3`) and a vocabulary question (Variable Target's unregistered information
+  trigger). **Neither is a mechanism.**
+- **GENERATION-CONNECTION SCOPE (conditional, in the doc):** five pieces — (1) a resolved-game
+  output; (2) **a realization layer, which does not exist at all**; (3) **contracts for ~69 objects
+  where 8 exist — the largest item, and authoring not engineering**; (4) selection→derivation
+  mapping; (5) generated-activity conformance. **Blocker for starting conformance now: a live goal
+  reaches objects with no contract.** Piece (1) could start in parallel and would test whether the
+  eight-area representation carries what a generator needs — a question no part of Phase B has asked.
+- **TEST NOTE:** fixtures asserting "nothing entails this line" must use a row no selector carries
+  (`S5`/`S6`), and fixtures needing field lines must give the establishing item a **selector** —
+  under SD-97 an empty selector enumerates none.

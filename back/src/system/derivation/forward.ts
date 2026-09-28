@@ -64,6 +64,11 @@ export function forwardResults(
                 outcomes.push({ item: ref, result: 'NOT_CHECKABLE_OUTSIDE_REPRESENTATION', reach: [], why: 'recorded outside the representation boundary' })
                 continue
             }
+            // SD-100 — `EXISTS` on a FIELD row asserts nothing the schema does not already say.
+            if (String(item.requirement) === 'EXISTS' && index.rows.get(String(item.row))?.kind === 'FIELD') {
+                outcomes.push({ item: ref, result: 'INERT', reach: [], why: 'EXISTS on a field row: the field exists by schema, so the item asserts no additional knowledge (SD-100)' })
+                continue
+            }
             if (item.valueStatus === 'TYPICAL_EXAMPLE' || item.basis === 'ENGINE_ONLY') {
                 outcomes.push({ item: ref, result: 'INERT', reach: [], why: item.basis === 'ENGINE_ONLY' ? 'engine wording supports nothing (SD-21)' : 'a typical example is informative only' })
                 continue

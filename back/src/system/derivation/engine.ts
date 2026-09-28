@@ -235,6 +235,18 @@ function enumerateLines(classes: ElementClass[], index: RegisterIndex, stopped: 
     }
 
     for (const cls of classes) {
+        // **SD-97, his ruling of 27 September — existential coverage only.** "An authoritative
+        // existence assertion with no selector establishes that at least one member of the collection
+        // exists. It does not establish individual identity, instantiate a separately individuated
+        // member for field derivation, or create obligations for that member's fields."
+        //
+        // Three objective classes, two team classes, two object classes and one objective set are
+        // formed by items whose selector is `*`. Each says only that something of the kind exists.
+        // Enumerating their fields asked, separately, for the reference, team and role of objectives
+        // nobody described. The class stays — its existence claim and cardinality are real — and it
+        // carries no field lines.
+        if (cls.constraints.any) continue
+
         for (const row of index.rows.values()) {
             if (row.kind !== 'FIELD') continue
             if (index.ownerRow.get(row.id) !== cls.row) continue
