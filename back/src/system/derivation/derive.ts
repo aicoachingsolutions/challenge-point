@@ -54,6 +54,13 @@ export interface DerivedLine {
      * support, they take no part in collision resolution, and their source must stay visible.
      */
     displaced: DisplacedContribution[]
+    /**
+     * SD-92 — members an establishing selector's `∋` term puts into a set-valued field. *"It
+     * establishes membership in the set-valued field; it does not by itself define the complete
+     * set."* So it is held beside the line, never as the line's value: the field stays unauthored
+     * while what is known about it stays visible.
+     */
+    establishedMembers: { item: ItemRef; member: unknown; support: SupportRef }[]
 }
 
 /**
@@ -164,6 +171,69 @@ function narrowsToSet(item: any): boolean {
     if (item.basis === 'ASSUMED') return false
     if (item.strictness === 'EXCLUSION') return false
     return item.valueStatus === 'REQUIRED_RANGE' && Array.isArray(item.value)
+}
+
+/**
+ * **SD-92, his ruling of 27 September**, ratifying RC-16 subordinately.
+ *
+ *   "Where an authoritative existence selector necessarily fixes an attribute, that selector may
+ *    supply the corresponding field value **only where no support-capable item already entails that
+ *    field**. … If an authored support-capable item already entails the field, the selector does not
+ *    compete with or override it."
+ *
+ * RC-16 was a conformance **run convention** — *"an item that entails an element also entails each
+ * attribute its selector fixes with `=` or `∋`"* — and six of the eight contracts were restated
+ * against it, leaving those rows deliberately empty. The engine was built to the specification and
+ * never adopted it, so the corpus and the engine held different rules and the difference read as
+ * missing knowledge.
+ *
+ * The operator distinction is his and each does a different thing:
+ *
+ *   `=`  fixes the value — an entailment carried by the establishing item;
+ *   `∋`  establishes **membership** in a set-valued field and does **not** define the complete set,
+ *        so it resolves nothing on its own;
+ *   `∈`  narrows the allowable set and fixes no single value — SD-78's composition.
+ *
+ * Subordination is applied uniformly, before any operator is considered: where an item already
+ * entails the line, the selector contributes nothing at all. That keeps "does not compete" literal
+ * rather than leaving it to a precedence rule, which SD-02 forbids inventing.
+ */
+function applySelectorCarry(
+    lines: ResolutionLine[],
+    derived: Map<string, DerivedLine>,
+    classes: ElementClass[],
+    index: RegisterIndex,
+): void {
+    const byClass = new Map(classes.map(c => [c.classId, c]))
+
+    for (const line of lines) {
+        if (!line.elementId || line.member !== null) continue
+        const row = index.rows.get(line.row)
+        // The correspondence is data on the row (SD-92), never recovered by matching path text — that
+        // matching is what surfaced the qualifiers/qualifier spelling in the first place.
+        if (!row || !row.selectorAttribute) continue
+
+        const cls = byClass.get(line.elementId)
+        if (!cls || row.ownerRow !== cls.row) continue
+
+        const record = derived.get(line.lineId)!
+        if (record.entailing.length) continue // an item entails it: the selector does not compete
+
+        const term = (cls.constraints?.terms || []).find(t => t.attribute === row.selectorAttribute)
+        if (!term) continue
+
+        const support: SupportRef = { kind: 'CONTRACT_ITEM', contractId: cls.fromItem.contractId, itemId: cls.fromItem.itemId, relation: 'CARRIES' }
+
+        if (term.op === '=') {
+            record.entailing.push({ item: { ...cls.fromItem }, value: term.value, support })
+        } else if (term.op === 'CONTAINS') {
+            // Membership, and only membership. The line is not resolved by it, because the complete
+            // set remains unauthored — so this is recorded beside the line rather than as its value.
+            record.establishedMembers.push({ item: { ...cls.fromItem }, member: term.value, support })
+        } else if (term.op === 'IN') {
+            record.narrowing.push({ item: { ...cls.fromItem }, members: [...term.values], support })
+        }
+    }
 }
 
 /**
@@ -391,6 +461,7 @@ export function deriveLines(
             narrowedTo: null,
             session: null,
             displaced: [],
+            establishedMembers: [],
         })
     }
 
@@ -441,6 +512,10 @@ export function deriveLines(
             }
         }
     }
+
+    // SD-92 — the establishing selector's contribution, before the narrowings are composed (an `∈`
+    // term is one of them) and before anything reads a value off the line.
+    applySelectorCarry(lines, derived, classes, index)
 
     // SD-78 — compose the narrowings. Restricted to exactly this: intersecting sets the contracts
     // already state. No ordering is consulted (RC-29 stays unresolved), no contribution outranks

@@ -483,17 +483,54 @@ test('GA-ONE-PRIMARY-EVENT separates existence, base value and referent position
     assert.equal(value.verdict, 'PASS', 'SD-25 supplies 1, so the base value clause is decidable on its own')
 })
 
-test('GA-TRIGGER-UNIQUE reports key uniqueness and collision as separate clauses', () => {
-    const shared = [
+/**
+ * SD-94 — the clause tests compatibility, not element identity. Two objects each authoring what
+ * happens at one trigger is ordinary; SD-47 keeps derivation identity-neutral, and one concrete
+ * transition may satisfy both classes.
+ */
+test('SD-94: two transition classes on one trigger pass while their requirements agree', () => {
+    const agreeing = [
         contract([
             item({ itemId: 'T-A', row: 'T1', selector: 'trigger=START', requirement: 'EXISTS' }),
             item({ itemId: 'T-B', row: 'T1', selector: 'trigger=START', requirement: 'EXISTS' }),
+            item({ itemId: 'T-M', row: 'T6', selector: 'trigger=START', requirement: 'EQUALS', value: 'CONTINUE' }),
         ]),
     ]
-    const result: any = runStages0to10(input(shared))
-    const trigger = check(result, 'GA-TRIGGER-UNIQUE')
-    assert.equal(trigger.clauses.length, 2)
-    assert.equal(trigger.clauses.find((c: any) => /share a trigger key/.test(c.clause)).verdict, 'FAIL')
+    const compatible = check(runStages0to10(input(agreeing)) as any, 'GA-TRIGGER-UNIQUE')
+    assert.equal(compatible.clauses.length, 2)
+    const clause = compatible.clauses.find((c: any) => /mutually compatible/.test(c.clause))
+    assert.equal(clause.verdict, 'PASS')
+    assert.equal(clause.instances, 1, 'one overlapping pair was compared, and it is real evidence (SD-54)')
+})
+
+test('SD-94: and fail when the same trigger is required to be two different things', () => {
+    const disagreeing = [
+        contract([
+            item({ itemId: 'T-A', row: 'T1', selector: 'trigger=START AND qualifier.lastTouch=LAST_TOUCH', requirement: 'EXISTS' }),
+            item({ itemId: 'T-B', row: 'T1', selector: 'trigger=START', requirement: 'EXISTS' }),
+            item({ itemId: 'T-M1', row: 'T6', selector: 'qualifier.lastTouch=LAST_TOUCH', requirement: 'EQUALS', value: 'STOP_RESUME' }),
+            item({ itemId: 'T-M2', row: 'T7', selector: 'trigger=START', requirement: 'EQUALS', value: 'true' }),
+        ]),
+    ]
+    const result: any = runStages0to10(input(disagreeing))
+    const clause = check(result, 'GA-TRIGGER-UNIQUE').clauses.find((c: any) => /mutually compatible/.test(c.clause))
+    assert.equal(clause.verdict, 'FAIL', 'T-A requires STOP_RESUME on a trigger T-B leaves CONTINUE-less; the two cannot both hold')
+    assert.match(check(result, 'GA-TRIGGER-UNIQUE').why, /incompatible/)
+})
+
+/** AM-15 — a trigger partitioned by qualifier is not a disagreement, so the pair is never compared. */
+test('SD-94: classes partitioned by a qualifier are not compared', () => {
+    const partitioned = [
+        contract([
+            item({ itemId: 'T-A', row: 'T1', selector: 'trigger=OUT_END_LINE AND qualifier.lastTouch=LAST_TOUCH', requirement: 'EXISTS' }),
+            item({ itemId: 'T-B', row: 'T1', selector: 'trigger=OUT_END_LINE AND qualifier.lastTouch=NOT_LAST_TOUCH', requirement: 'EXISTS' }),
+            item({ itemId: 'T-M1', row: 'T6', selector: 'qualifier.lastTouch=LAST_TOUCH', requirement: 'EQUALS', value: 'STOP_RESUME' }),
+            item({ itemId: 'T-M2', row: 'T6', selector: 'qualifier.lastTouch=NOT_LAST_TOUCH', requirement: 'EQUALS', value: 'CONTINUE' }),
+        ]),
+    ]
+    const clause = check(runStages0to10(input(partitioned)) as any, 'GA-TRIGGER-UNIQUE').clauses.find((c: any) => /mutually compatible/.test(c.clause))
+    assert.equal(clause.verdict, 'PASS')
+    assert.equal(clause.instances, 0, 'nothing was compared: the two can never apply to one transition')
 })
 
 test('GA-LAYOUT-FEASIBLE refuses a bound it cannot read rather than ignoring it', () => {
@@ -558,10 +595,10 @@ test('the corpus run reproduces the reported figures exactly', () => {
     assert.equal(result.run.counts.contractsAdmitted, 8)
     assert.equal(result.run.counts.contractsRefused, 0)
     assert.equal(result.run.counts.lines, 153)
-    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 35)
-    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 96)
+    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 51)
+    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 77)
     assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 0, 'cluster 3 cleared the whole population')
-    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 96)
+    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 77)
 
     // SD-88 evaluated the sixteen conditional lines for the first time: twelve are not applicable
     // (the three CONTINUE transitions carry no placement) and four are judged.
@@ -576,12 +613,18 @@ test('the corpus run reproduces the reported figures exactly', () => {
     // settled it: a required contribution resolves the property, the preferred default is displaced
     // rather than colliding with it. The engine claims nothing about the two designations being the
     // same team — that question stays with stage 7.
-    assert.equal(result.failures.filter((f: any) => f.kind === 'COLLISION').length, 0)
     assert.equal(result.classified.get('c:restated:A01-02:A01-02-01.a::T2').verdict, 'RESOLVED:ENTAILED')
     assert.equal(
         result.forward.find((o: any) => o.item.contractId === 'restated:GF2' && o.item.itemId === 'GF2-16.a').result,
         'ADAPTED',
     )
+
+    // SD-93 let Wide Zone's contributions reach its own channels for the first time, and the first
+    // thing they showed is that two of them state the same claim in two spellings. Recorded, not
+    // repaired: knowledge repair is held until the mechanisms are cleared.
+    const collisions = result.failures.filter((f: any) => f.kind === 'COLLISION')
+    assert.equal(collisions.length, 3)
+    for (const c of collisions) assert.match(c.locus.lineId, /WIDE-ZONE-ADVANTAGE:.*::S6$/)
 })
 
 test('Gate A fails on the corpus, and says which checks and why', () => {
@@ -592,7 +635,10 @@ test('Gate A fails on the corpus, and says which checks and why', () => {
     // membership: it used to report a STOP_RESUME transition as *violating* the clause because its
     // taker line was CONDITIONAL — a line the engine had never judged. Judged, that line is a
     // knowledge gap, and a gap blocks the clause rather than failing it (SD-28, SD-62).
-    assert.deepEqual(failing.sort(), ['GA-INFORMATION', 'GA-NO-FAILED-LINE', 'GA-TRIGGER-UNIQUE'])
+    // GA-TRIGGER-UNIQUE left the list under SD-94. It had been failing because three objects each
+    // author what happens at a turnover, which the old clause read as three transitions where a game
+    // has one. Asked the question it can establish — are their requirements compatible? — they are.
+    assert.deepEqual(failing.sort(), ['GA-INFORMATION', 'GA-NO-FAILED-LINE'])
     for (const c of gateA(result).checks) assert.ok(c.why && c.why.length > 0, `${c.checkId} gives no reason`)
 })
 

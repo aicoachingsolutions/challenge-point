@@ -203,6 +203,12 @@ export function renderDiagnostic(result: DerivationResult | StampedHalt, repairs
         ]),
     )
 
+    // SD-93 — named conditions, above the stops, because they are about knowledge that is present
+    // and cannot reach a line rather than about semantics nobody has settled.
+    out.push(section('NAMED DIAGNOSTICS (SD-93)'))
+    if (!result.diagnostics.length) out.push('  none — no named condition is holding authored knowledge off a line')
+    for (const d of result.diagnostics) out.push(`  ${d.code}  ${d.where}\n    ${d.detail}`)
+
     out.push(section('UNESTABLISHED SEMANTICS (SD-48 stops)'))
     if (!result.stopped.length) out.push('  none — every stop the implementation carried has been ruled')
     for (const stop of result.stopped) out.push(`  ${stop.where}\n    ${stop.why}`)

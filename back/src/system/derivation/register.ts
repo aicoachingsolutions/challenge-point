@@ -15,6 +15,13 @@ export interface RegisterRow {
     ownerRow?: string
     valueType?: string
     selectorAttributes?: string[]
+    /**
+     * SD-92 — on a FIELD row, the owning collection's selector attribute this row holds. Stated as
+     * data so nothing has to recover the correspondence by matching path text; `T1a`'s path reads
+     * `qualifiers.lastTouch` while `T1` registers `qualifier.lastTouch`, and both spellings stay as
+     * authored.
+     */
+    selectorAttribute?: string
     fillable?: string
     sourceKinds?: string[]
 }

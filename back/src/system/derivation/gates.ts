@@ -621,33 +621,78 @@ function gaReferenceIntegrity(ctx: GateContext): CheckOutcome {
     )
 }
 
-/** `GA-TRIGGER-UNIQUE` — no two transitions share a trigger key. */
+/**
+ * `GA-TRIGGER-UNIQUE` — classes applying to one trigger are mutually compatible, and none collides.
+ *
+ * **SD-94, his ruling of 27 September.** The first clause used to read *"no two transitions share a
+ * trigger key"*, which asserts one **element** per key. Derivation does not decide that: SD-47 keeps
+ * it identity-neutral, and a concrete transition *"may satisfy every supported class whose selectors
+ * it matches"*. Three knowledge objects each authoring what happens at a turnover is normal, not an
+ * incoherence, and the old clause could never pass a corpus in which it happened.
+ *
+ * His replacement is the structural question the gate can legitimately establish:
+ *
+ *   "Where multiple transition classes apply to the same trigger, their required structural
+ *    properties must be mutually compatible."
+ *
+ * Two classes are compared only where a single transition could satisfy both — AM-15 lets a trigger
+ * be partitioned by qualifier, and a partition is not a disagreement. Where a property is failed on
+ * either side the clause is **blocked**, not failed: gap before collision (SD-28).
+ */
 function gaTriggerUnique(ctx: GateContext): CheckOutcome {
-    const CLAUSE_TEXT = 'no two transitions share a trigger key'
+    const CLAUSE_TEXT = 'transition classes applying to one trigger are mutually compatible'
     const COLLIDES = 'no transition collides'
     const probe = new Probe(ctx, 'GA-TRIGGER-UNIQUE')
     const transitions = classesOn(ctx, 'T1')
     if (transitions.length < 2) {
-        return result('GA-TRIGGER-UNIQUE', probe, [pass(CLAUSE_TEXT, transitions.length), pass(COLLIDES, transitions.length)], `${transitions.length} transition(s): no pair can share a key`)
+        return result('GA-TRIGGER-UNIQUE', probe, [pass(CLAUSE_TEXT, transitions.length), pass(COLLIDES, transitions.length)], `${transitions.length} transition(s): no pair can overlap`)
     }
 
-    // The key is the transition's own selector: T1 is "keyed by trigger", and its registered selector
-    // attributes are the trigger and its qualifiers.
-    const seen = new Map<string, string[]>()
-    for (const transition of transitions) {
-        const key = transition.constraints.any
-            ? '*'
-            : transition.constraints.terms
-                  .map(t => `${t.attribute}${t.op}${'value' in t ? t.value : (t as any).values.join('|')}`)
-                  .sort()
-                  .join('&')
-        seen.set(key, [...(seen.get(key) || []), transition.classId])
+    const triggerOf = (cls: ElementClass) => {
+        const term = (cls.constraints?.terms || []).find(t => t.attribute === 'trigger' && t.op === '=')
+        return term && term.op === '=' ? term.value : null
     }
+    const fields = [...ctx.index.rows.values()].filter(r => r.kind === 'FIELD' && r.ownerRow === 'T1').map(r => r.id)
 
-    const shared = [...seen.entries()].filter(([, ids]) => ids.length > 1)
+    const incompatible: string[] = []
+    let comparedPairs = 0
+    let blocked = false
+
+    for (let i = 0; i < transitions.length; i++) {
+        for (let j = i + 1; j < transitions.length; j++) {
+            const a = transitions[i]
+            const b = transitions[j]
+            const trigger = triggerOf(a)
+            if (!trigger || trigger !== triggerOf(b)) continue // different triggers: they never meet
+            if (mutuallyExclusive(a, b)) continue // partitioned by qualifier (AM-15)
+            comparedPairs++
+
+            for (const row of fields) {
+                // Read without blocking: two classes that both leave a property unauthored require
+                // nothing of it, so they cannot be incompatible on it and nothing is being hidden.
+                const left = probe.peek(`${a.classId}::${row}`)
+                const right = probe.peek(`${b.classId}::${row}`)
+
+                if (left.state === 'DERIVED' && right.state === 'DERIVED') {
+                    if (JSON.stringify(left.value) !== JSON.stringify(right.value)) {
+                        incompatible.push(`${a.classId} and ${b.classId} require different ${row}`)
+                    }
+                    continue
+                }
+                // One side requires something and the other's requirement is unknown: a conflict
+                // could be hiding there, so the clause is blocked rather than passed (SD-28).
+                const unknown = (c: Cell) => c.state === 'FAILED' || c.state === 'CONDITIONAL'
+                if ((left.state === 'DERIVED' && unknown(right)) || (right.state === 'DERIVED' && unknown(left))) {
+                    blocked = true
+                    probe.cell(`${a.classId}::${row}`)
+                    probe.cell(`${b.classId}::${row}`)
+                }
+            }
+        }
+    }
 
     // The package's second clause: "none collides". A transition line that stage 6 left UNRESOLVED is a
-    // collision on that transition, and the check says so rather than reporting only key uniqueness.
+    // collision on that transition, and the check says so rather than reporting only compatibility.
     const collided = [...ctx.classified.values()].filter(
         l => l.verdict === 'UNRESOLVED' && transitions.some(t => l.lineId.startsWith(`${t.classId}::`)),
     )
@@ -657,11 +702,26 @@ function gaTriggerUnique(ctx: GateContext): CheckOutcome {
         'GA-TRIGGER-UNIQUE',
         probe,
         [
-            shared.length ? fail(CLAUSE_TEXT, transitions.length) : pass(CLAUSE_TEXT, transitions.length),
+            incompatible.length ? fail(CLAUSE_TEXT, comparedPairs) : blocked ? notEvaluable(CLAUSE_TEXT) : pass(CLAUSE_TEXT, comparedPairs),
             collided.length ? fail(COLLIDES, transitions.length) : pass(COLLIDES, transitions.length),
         ],
-        `${shared.length} trigger key(s) claimed by more than one transition; ${collided.length} transition line(s) collided`,
+        `${comparedPairs} overlapping transition pair(s) compared; ${incompatible.length} incompatible${incompatible.length ? `: ${incompatible.join('; ')}` : ''}; ` +
+            `${collided.length} transition line(s) collided`,
     )
+}
+
+/**
+ * Two transition classes are compared only when a single concrete transition could satisfy both.
+ * AM-15 lets a trigger be partitioned by qualifier, and a partition is not a disagreement: classes
+ * that fix the same qualifier to different values can never apply to the same instance.
+ */
+function mutuallyExclusive(a: ElementClass, b: ElementClass): boolean {
+    for (const left of a.constraints?.terms || []) {
+        if (left.op !== '=') continue
+        const right = (b.constraints?.terms || []).find(t => t.attribute === left.attribute && t.op === '=')
+        if (right && right.op === '=' && right.value !== left.value) return true
+    }
+    return false
 }
 
 /** `GA-TRANSITION-COHERENCE` — `CONTINUE` ⇒ no placement; `STOP_RESUME` ⇒ taker and region. */

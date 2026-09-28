@@ -23,6 +23,7 @@ import {
     Bounds,
     FailureRecord,
     ItemRef,
+    NamedDiagnostic,
     RefusalRecord,
     ResolutionLine,
     RunReport,
@@ -104,6 +105,12 @@ export interface DerivationResult {
     run: RunReport
     /** Discrepancies reported rather than resolved (SD-48). Empty is the goal, not the assumption. */
     stopped: { where: string; why: string }[]
+    /**
+     * SD-93 — named conditions the run must not report only as unrelated gaps. They are neither
+     * failures nor refusals, so they have nowhere else to go, and the whole point of the ruling is
+     * that they reach the emitted result rather than dissolving into the failed-line count.
+     */
+    diagnostics: NamedDiagnostic[]
 }
 
 /** §3.5 — a result is always returned; a failure to stamp returns a stamped halt, never nothing. */
@@ -141,6 +148,7 @@ export interface EmitInput {
     refusals: RefusalRecord[]
     run: RunReport
     stopped: { where: string; why: string }[]
+    diagnostics: NamedDiagnostic[]
 }
 
 /**
@@ -278,6 +286,7 @@ export function emit(input: EmitInput): DerivationResult | StampedHalt {
         refusals: [...input.refusals].sort((a, b) => a.refusalId.localeCompare(b.refusalId)),
         run: input.run,
         stopped: input.stopped,
+        diagnostics: [...input.diagnostics].sort((a, b) => `${a.code}:${a.where}`.localeCompare(`${b.code}:${b.where}`)),
     }
 }
 

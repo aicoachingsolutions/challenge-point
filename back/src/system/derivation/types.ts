@@ -221,6 +221,20 @@ export interface PartialResult {
     run: RunReport
     /** Discrepancies between code and specification, reported rather than resolved (SD-48). */
     stopped: { where: string; why: string }[]
+    /**
+     * SD-93 — named conditions a run must not report silently. They are neither derivation gaps nor
+     * refusals: the knowledge is present and well-formed, and something about how it is scoped or
+     * structured stops it reaching a line. Without a name of their own they surface downstream as
+     * unrelated unauthored rows, which is exactly how Wide Zone's twelve lines read for a week.
+     */
+    diagnostics: NamedDiagnostic[]
+}
+
+export interface NamedDiagnostic {
+    code: string
+    /** The contract, class or line the condition is about. */
+    where: string
+    detail: string
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -238,7 +252,10 @@ export type SelectorTerm =
 // ---------------------------------------------------------------------------------------------
 
 export type SupportRef =
-    | { kind: 'CONTRACT_ITEM'; contractId: string; itemId: string; relation: 'ENTAILS' | 'NARROWS' }
+    // `CARRIES` is SD-92's relation: the value came from the selector of the existence item that
+    // established the element, not from an item written on the row. It is still that item's support,
+    // so it is a CONTRACT_ITEM; naming the relation keeps the two visibly different in provenance.
+    | { kind: 'CONTRACT_ITEM'; contractId: string; itemId: string; relation: 'ENTAILS' | 'NARROWS' | 'CARRIES' }
     | { kind: 'STANDING_DECISION'; id: string }
     | { kind: 'SESSION'; row: string }
 

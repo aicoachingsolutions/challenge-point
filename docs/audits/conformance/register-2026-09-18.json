@@ -94,7 +94,8 @@
    "valueType": "closed list (draft): band, channel, corridor, zone, half, third",
    "sourceKinds": [
     "SELECTION"
-   ]
+   ],
+   "selectorAttribute": "noun"
   },
   {
    "id": "S4",
@@ -104,7 +105,8 @@
    "valueType": "set from closed list (draft): objective-area, value-condition, access, start-placement, trigger, perceptual-reference. One property per member",
    "sourceKinds": [
     "SELECTION"
-   ]
+   ],
+   "selectorAttribute": "functions"
   },
   {
    "id": "S5",
@@ -241,7 +243,8 @@
    "valueType": "team designation or role",
    "sourceKinds": [
     "SELECTION"
-   ]
+   ],
+   "selectorAttribute": "group"
   },
   {
    "id": "P10",
@@ -306,7 +309,8 @@
    "valueType": "closed list (draft): ball, goal, line, gate",
    "sourceKinds": [
     "SELECTION"
-   ]
+   ],
+   "selectorAttribute": "kind"
   },
   {
    "id": "O3",
@@ -378,7 +382,8 @@
    "sourceKinds": [
     "SELECTION",
     "REALIZATION"
-   ]
+   ],
+   "selectorAttribute": "team"
   },
   {
    "id": "J4",
@@ -389,7 +394,8 @@
    "sourceKinds": [
     "SELECTION",
     "SD-10"
-   ]
+   ],
+   "selectorAttribute": "role"
   },
   {
    "id": "J5",
@@ -410,7 +416,8 @@
    "valueType": "one team (which) or both",
    "sourceKinds": [
     "SELECTION"
-   ]
+   ],
+   "selectorAttribute": "scope"
   },
   {
    "id": "J7",
@@ -518,7 +525,8 @@
    "valueType": "team designation",
    "sourceKinds": [
     "SELECTION"
-   ]
+   ],
+   "selectorAttribute": "qualifier.lastTouch"
   },
   {
    "id": "T1b",
@@ -528,7 +536,8 @@
    "valueType": "whose end line (team designation)",
    "sourceKinds": [
     "SELECTION"
-   ]
+   ],
+   "selectorAttribute": "qualifier.endLine"
   },
   {
    "id": "T1c",
@@ -538,7 +547,8 @@
    "valueType": "region reference",
    "sourceKinds": [
     "SELECTION"
-   ]
+   ],
+   "selectorAttribute": "qualifier.region"
   },
   {
    "id": "T2",
@@ -655,7 +665,8 @@
    "valueType": "closed list (draft): origin, control, eligibility, progression, exclusion",
    "sourceKinds": [
     "SELECTION"
-   ]
+   ],
+   "selectorAttribute": "type"
   },
   {
    "id": "V5",
@@ -698,7 +709,8 @@
    "valueType": "closed list (draft): region, object, event",
    "sourceKinds": [
     "SELECTION"
-   ]
+   ],
+   "selectorAttribute": "condition.type"
   },
   {
    "id": "V8b",
@@ -708,7 +720,8 @@
    "valueType": "references to regions, objects or events; one property per referent",
    "sourceKinds": [
     "SELECTION"
-   ]
+   ],
+   "selectorAttribute": "condition.referents"
   },
   {
    "id": "V9",
@@ -761,7 +774,8 @@
    "valueType": "trigger (closed list, draft)",
    "sourceKinds": [
     "SELECTION"
-   ]
+   ],
+   "selectorAttribute": "trigger"
   },
   {
    "id": "V13",
@@ -771,7 +785,8 @@
    "valueType": "closed list (draft): ACCESS, COUNT_CHANGE",
    "sourceKinds": [
     "SELECTION"
-   ]
+   ],
+   "selectorAttribute": "effect"
   },
   {
    "id": "V14a",
@@ -822,7 +837,8 @@
    "valueType": "reference to what the information is about",
    "sourceKinds": [
     "SELECTION"
-   ]
+   ],
+   "selectorAttribute": "subject"
   },
   {
    "id": "V17",
@@ -903,7 +919,8 @@
    "valueType": "trigger (closed list, draft); no default (SD-R1)",
    "sourceKinds": [
     "SELECTION"
-   ]
+   ],
+   "selectorAttribute": "startsOn"
   },
   {
    "id": "V25",
@@ -946,7 +963,8 @@
    "valueType": "closed list (draft): receiver_eligibility, action_order, direction_class",
    "sourceKinds": [
     "SELECTION"
-   ]
+   ],
+   "selectorAttribute": "kind"
   },
   {
    "id": "R3",
@@ -956,7 +974,8 @@
    "valueType": "closed list: PROHIBITED (the action or target is made ineligible), REQUIRED (the action is forced)",
    "sourceKinds": [
     "SELECTION"
-   ]
+   ],
+   "selectorAttribute": "effect"
   },
   {
    "id": "R4",
@@ -1457,5 +1476,6 @@
    "dimension": "EMD-0014",
    "parameter": "EMP-0042"
   }
- }
+ },
+ "selectorAttributeNote": "Added 27 September (SD-92). A FIELD row that corresponds to one of its collection’s selectorAttributes now names it here, instead of leaving the correspondence to be recovered by matching the path tail. Membership is unchanged. It also reconciles the one spelling difference the matching exposed: rows T1a/T1b/T1c carry the path \"transitions[].qualifiers.<name>\" while T1 registers the selector attribute as \"qualifier.<name>\". Both spellings stay exactly as authored; this field states which pairs with which, so nothing has to normalise a string to find out."
 }

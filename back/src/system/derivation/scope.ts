@@ -10,7 +10,7 @@
  * invented." A declaration is therefore never stored inside its items' resolution.
  */
 
-import { ElementClass, ItemRef, LoadedContract } from './types'
+import { ElementClass, ItemRef, LoadedContract, NamedDiagnostic } from './types'
 
 export interface ApplicationSet {
     item: ItemRef
@@ -34,26 +34,35 @@ export interface ScopeOutcome {
     /** Restricted computation 1: the own-involvement set per contract, fixed once. */
     ownInvolvement: Map<string, string[]>
     divergence: { contractId: string; why: string }[]
+    /** SD-93 — conditions that must not be reported only as unrelated gaps downstream. */
+    diagnostics: NamedDiagnostic[]
 }
-
-const OTHER_SCOPES = new Set(['WHOLE_GAME', 'PER_TEAM', 'PER_OBJECTIVE_SET', 'BUILD_OUT_EPISODE'])
 
 /**
  * Restricted computation 1 (SD-42): "may establish prerequisites for full derivation, but may not
  * create additional authority or broaden the set of potentially entailed elements."
  *
- * Own involvement is "the elements entailed by the contract's other-scoped items" (AM-13). Under
- * SD-47 those elements are the classes formed from that contract's **other-scoped existence items** —
- * a strict subset of the contract's own items, computed without consulting any own-involvement item.
+ * **SD-93, his ruling of 27 September, amending AM-13.** AM-13 read own involvement as "the elements
+ * entailed by the contract's **other-scoped** items", and barred an existence item from using
+ * own-involvement scope at all. Its reason was a circularity: own involvement depended on entailment,
+ * which is stage 5, while scope is stage 3.
+ *
+ * **SD-47 dissolved that reason.** Elements are classes formed at stage 2 from authoritative
+ * selectors, before scope is resolved, so selecting among a contract's own classes reads data that
+ * already exists. His revised rule:
+ *
+ *   "Own involvement comprises the authoritative element classes established by that knowledge
+ *    object, including classes established by its own-involvement existence contributions.
+ *    Own-involvement scope may select among already-established classes but may never itself
+ *    establish authority, identity, or unsupported structure."
+ *
+ * The restriction that matters is kept and is structural rather than a rule to remember: this
+ * function only ever **selects** from `classes`, which stage 2 established. It creates no class, no
+ * identity and no authority, whatever the scope of the item that formed one.
  */
 function fixOwnInvolvement(contract: LoadedContract, classes: ElementClass[]): string[] {
-    const mine = classes.filter(c => c.fromItem.contractId === contract.contractId)
-    const byItem = new Map(contract.items.map(i => [i.itemId, i]))
-    return mine
-        .filter(c => {
-            const item = byItem.get(c.fromItem.itemId)
-            return item ? OTHER_SCOPES.has(String(item.scope)) : false
-        })
+    return classes
+        .filter(c => c.fromItem.contractId === contract.contractId)
         .map(c => c.classId)
         .sort()
 }
@@ -63,10 +72,26 @@ export function resolveScopes(contracts: LoadedContract[], classes: ElementClass
     const declarations: DeclarationReach[] = []
     const ownInvolvement = new Map<string, string[]>()
     const divergence: { contractId: string; why: string }[] = []
+    const diagnostics: NamedDiagnostic[] = []
 
     for (const contract of contracts) {
         const own = fixOwnInvolvement(contract, classes)
         ownInvolvement.set(contract.contractId, own)
+
+        // SD-93 — "If own-involvement contributions exist but no authoritative class can populate
+        // that scope, emit a named diagnostic rather than allowing the resulting fields to appear
+        // simply as unrelated knowledge gaps."
+        const waiting = (contract.items || []).filter(i => String(i.scope) === 'OWN_INVOLVEMENT')
+        if (waiting.length && !own.length) {
+            diagnostics.push({
+                code: 'OWN_INVOLVEMENT_UNPOPULATED',
+                where: contract.contractId,
+                detail:
+                    `${waiting.length} contribution(s) are scoped to this object's own involvement and it establishes no element class, ` +
+                    `so none of them reaches a line: ${waiting.map(i => i.itemId).sort().join(', ')}. ` +
+                    'The knowledge is present and well-formed; the rows it addresses will otherwise read as unauthored.',
+            })
+        }
 
         // The divergence check SD-42 requires. Under the class model the restricted computation is a
         // subset selection over the contract's own existence items, so re-running it cannot widen the
@@ -104,5 +129,6 @@ export function resolveScopes(contracts: LoadedContract[], classes: ElementClass
         declarations: declarations.sort((a, b) => `${a.contractId}:${a.row}`.localeCompare(`${b.contractId}:${b.row}`)),
         ownInvolvement,
         divergence,
+        diagnostics: diagnostics.sort((a, b) => `${a.code}:${a.where}`.localeCompare(`${b.code}:${b.where}`)),
     }
 }

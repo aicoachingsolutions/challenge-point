@@ -71,16 +71,16 @@ function testEntailedLineResolves(): void {
 
 function testUnauthoredLineIsAGapWithItsReason(): void {
     const result = runStages0to8(input([contract([item()])]))
-    const line = lineFor(result, '::S3')
+    const line = lineFor(result, '::S5')
     assert.equal(line.verdict, 'NOT_AUTHORED')
     assert.equal(line.reason, 'coverage', 'nobody examined the row, so the reason is coverage')
 }
 
 function testDeclaredGapIsDistinguishedFromCoverage(): void {
     const c = contract([item()])
-    c.declarations.push({ row: 'S3', declaration: 'NOT_AUTHORED', note: 'needs a noun it cannot author' })
+    c.declarations.push({ row: 'S5', declaration: 'NOT_AUTHORED', note: 'needs a position it cannot author' })
     const result = runStages0to8(input([c]))
-    assert.equal(lineFor(result, '::S3').reason, 'declared gap', 'an object that said it cannot author this is a declared gap')
+    assert.equal(lineFor(result, '::S5').reason, 'declared gap', 'an object that said it cannot author this is a declared gap')
 }
 
 /** SD-28 — the ordering that matters. */
@@ -91,12 +91,12 @@ function testGapBeforeCollision(): void {
         input([
             contract([
                 item(),
-                item({ itemId: 'I-2', row: 'S3', requirement: 'EQUALS', value: 'channel', basis: 'ENGINE_ONLY' }),
-                item({ itemId: 'I-3', row: 'S3', requirement: 'EQUALS', value: 'zone', basis: 'ENGINE_ONLY' }),
+                item({ itemId: 'I-2', row: 'S5', requirement: 'EQUALS', value: 'near end', basis: 'ENGINE_ONLY' }),
+                item({ itemId: 'I-3', row: 'S5', requirement: 'EQUALS', value: 'far end', basis: 'ENGINE_ONLY' }),
             ]),
         ]),
     )
-    const line = lineFor(result, '::S3')
+    const line = lineFor(result, '::S5')
     assert.equal(line.verdict, 'NOT_AUTHORED', 'an unauthored dependency is a gap first (SD-28)')
     assert.equal(line.collidingItems.length, 0)
     assert.ok(
@@ -245,10 +245,16 @@ function testNoVerdictIsInventedInDerivationMode(): void {
 
 const linesFor = (result: any, suffix: string) => [...result.classified!.values()].filter((l: any) => l.lineId.endsWith(suffix)) as any[]
 
-/** A consequence whose effect is authored, so `V13` resolves and the `V14` conditions can be read. */
+/**
+ * A consequence whose effect is authored, so `V13` resolves and the `V14` conditions can be read.
+ *
+ * The element is selected on its **trigger**, not its effect. Under SD-92 a selector on `effect`
+ * would itself carry `V13`, and then the unauthored case could not be built at all — the governing
+ * value would always be there.
+ */
 function consequenceContract(withEffect: boolean): LoadedContract {
-    const items = [item({ itemId: 'CQ-1', row: 'V11', selector: 'effect=ACCESS', requirement: 'EXISTS', value: 'a consequence changing access' })]
-    if (withEffect) items.push(item({ itemId: 'CQ-2', row: 'V13', selector: 'effect=ACCESS', requirement: 'EQUALS', value: 'ACCESS' }))
+    const items = [item({ itemId: 'CQ-1', row: 'V11', selector: 'trigger=SCORE', requirement: 'EXISTS', value: 'a consequence on a score' })]
+    if (withEffect) items.push(item({ itemId: 'CQ-2', row: 'V13', selector: 'trigger=SCORE', requirement: 'EQUALS', value: 'ACCESS' }))
     return contract(items, { declarations: [{ row: 'V13', declaration: 'CLAIMED', note: '' }] })
 }
 
@@ -265,6 +271,7 @@ function emptyRecord(overrides: Partial<DerivedLine> = {}): DerivedLine {
         narrowedTo: null,
         session: null,
         displaced: [],
+        establishedMembers: [],
         ...overrides,
     }
 }

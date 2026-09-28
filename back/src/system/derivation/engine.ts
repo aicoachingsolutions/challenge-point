@@ -295,6 +295,7 @@ function haltResult(halt: 'H1' | 'H2', message: string, input: DerivationInput):
             counts: {},
         },
         stopped: [],
+        diagnostics: [],
     }
 }
 
@@ -385,6 +386,7 @@ export function runStages0to2(input: DerivationInput): PartialResult {
             },
         },
         stopped: distinctStops,
+        diagnostics: [],
     }
 }
 
@@ -463,6 +465,7 @@ function materialiseMembers(
                 // A displacement belongs to the membership line, where it happened. Copying it onto
                 // each member would report one adaptation several times.
                 displaced: [],
+                establishedMembers: [],
             })
         }
     }
@@ -513,6 +516,7 @@ export function runDerivation(input: DerivationInput): DerivationResult | Stampe
         refusals: staged.refusals,
         run: staged.run,
         stopped: staged.stopped,
+        diagnostics: staged.diagnostics,
     })
 }
 
@@ -658,6 +662,7 @@ export function runStages0to5(input: DerivationInput): PartialResult & {
     const admitted = (input.contracts || []).filter(c => !base.failures.some(f => f.kind === 'LOAD_REFUSAL' && f.locus.contractId === c.contractId))
 
     const scope = resolveScopes(admitted, base.classes)
+    base.diagnostics.push(...scope.diagnostics) // SD-93 — carried to the emitted result, never dropped
     for (const divergence of scope.divergence) {
         base.refusals.push({
             refusalId: recordId('PASS_DIVERGENCE', divergence.contractId, 0),

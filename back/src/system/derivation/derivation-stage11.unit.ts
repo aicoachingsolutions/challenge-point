@@ -234,13 +234,15 @@ test('SD-49: an indeterminate reach derives nothing and is recorded', () => {
     const contracts = [
         contract([
             // The class fixes `noun`; the item selects on `lateral`, which the class leaves open.
+            // The subject row is `S5`, which no selector carries (SD-92), so the only thing that
+            // could put a value on it is the item whose reach is indeterminate.
             item({ itemId: 'R-1', row: 'S2', selector: 'noun=channel', requirement: 'EXISTS' }),
-            item({ itemId: 'R-2', row: 'S3', selector: 'lateral=left', requirement: 'EQUALS', value: 'channel' }),
+            item({ itemId: 'R-2', row: 'S5', selector: 'lateral=left', requirement: 'EQUALS', value: 'the attacking end' }),
         ]),
     ]
     const result: any = runStages0to10(input(contracts))
     assert.ok(result.run.counts.undeterminedReaches > 0, 'the partially overlapping case is detected')
-    const s3 = [...result.classified.values()].find((l: any) => /::S3$/.test(l.lineId)) as any
+    const s3 = [...result.classified.values()].find((l: any) => /::S5$/.test(l.lineId)) as any
     assert.notEqual(s3.verdict, 'RESOLVED:ENTAILED', 'nothing is derived from an indeterminate application')
     const record = result.derived.lines.get(s3.lineId)
     assert.equal(record.entailing.length, 0)
@@ -532,7 +534,7 @@ test('SD-90: GF2 is recorded as adapted, and no equivalence between designations
     if (isStampedHalt(result)) return assert.fail('unexpected halt')
     const T2 = 'c:restated:A01-02:A01-02-01.a::T2'
 
-    assert.equal(result.failures.filter(f => f.kind === 'COLLISION').length, 0)
+    assert.equal(result.failures.filter(f => f.kind === 'COLLISION' && f.locus.lineId === T2).length, 0)
     const line = result.resolution.find(e => e.lineId === T2)!
     assert.equal(line.verdict, 'RESOLVED:ENTAILED')
     assert.equal(line.value, 'DEFENDING_TEAM', 'the required contribution supplies the value')
@@ -607,14 +609,33 @@ test('SD-83: an assumption may still bound something whose existence is establis
     const contracts = [
         contract([
             existence('R-1', 'S2', { selector: 'noun=channel' }), // authoritative: establishes the region
-            item({ itemId: 'A-1', row: 'S3', selector: 'noun=channel', requirement: 'EQUALS', value: 'channel', basis: 'ASSUMED' }),
+            // `S5` is deliberately not a row any selector carries (SD-92), so the assumption is the
+            // only thing addressing it.
+            item({ itemId: 'A-1', row: 'S5', selector: 'noun=channel', requirement: 'EQUALS', value: 'the attacking end', basis: 'ASSUMED' }),
         ]),
     ]
     const result: any = runStages0to10(input(contracts))
     assert.equal(result.classes.filter((c: any) => c.row === 'S2').length, 1, 'the authoritative item still establishes it')
-    const line = [...result.derived.lines.values()].find((l: any) => l.lineId.endsWith('::S3')) as any
+    const line = [...result.derived.lines.values()].find((l: any) => l.lineId.endsWith('::S5')) as any
     assert.ok(line.bounding.length > 0, 'and the assumption still bounds its value — it constrains, it does not establish')
     assert.equal(line.entailing.length, 0, 'while never entailing one')
+})
+
+/** SD-93 — the named diagnostic has to reach the emitted result, or it is still silent. */
+test('SD-93: an unpopulated own-involvement scope is emitted by name, not only computed', () => {
+    const orphaned = contract([item({ itemId: 'I-FIELD', row: 'S5', requirement: 'EQUALS', value: 'the far end', scope: 'OWN_INVOLVEMENT' })])
+    const result = runDerivation(input([orphaned]))
+    if (isStampedHalt(result)) return assert.fail('unexpected halt')
+
+    const named = result.diagnostics.find(d => d.code === 'OWN_INVOLVEMENT_UNPOPULATED')
+    assert.ok(named, 'the condition survives to the emitted result')
+    assert.equal(named!.where, 'C-1')
+    assert.match(named!.detail, /I-FIELD/)
+
+    // And the corpus no longer raises it: SD-93 populated both contracts that used the scope.
+    const corpus = runDerivation(corpusInput())
+    if (isStampedHalt(corpus)) return assert.fail('unexpected halt')
+    assert.deepEqual(corpus.diagnostics, [], 'nothing in the corpus is holding authored knowledge off a line this way any more')
 })
 
 test('SD-84: several contributions to a singleton collection support one element, not several', () => {
