@@ -3390,3 +3390,33 @@ Spec revision 24; **179 tests**; suite green; tsc clean.
 - **TEST NOTE:** fixtures asserting "nothing entails this line" must use a row no selector carries
   (`S5`/`S6`), and fixtures needing field lines must give the establishing item a **selector** —
   under SD-97 an empty selector enumerates none.
+
+**28 Sep — THE RESOLVED-GAME OUTPUT** (`back/src/system/derivation/resolved-game.ts`,
+`run-resolved-game.ts`, `resolved-game.unit.ts`). **190 tests**; suite green; tsc clean.
+Joe directed it: piece (1) of the generation-connection scope.
+- **It computes NOTHING**, like `diagnostic.ts`. A test asserts one entry per derived line, with the
+  value and support **carried, not recomputed**. *"A renderer that adds semantics is a second engine
+  that will eventually disagree with the first"* — which is how `game::V1` was reported two ways.
+- **Assembles by the register's own paths**, so nothing is hardcoded per area: `space.regions[].noun`
+  → `space.regions[<elementId>].noun`. Dotted leaves nest (`position.along` → `position: {along}`).
+- **Four lists a realization layer needs, and the last three are the point:**
+  - `game` — derived values only, nested.
+  - `open` (5) — SD-39 freedoms with authority and bounds. **Never filled here.**
+  - `existential` (8) — **SD-97 assertions, which appear in NO line.** This is the visibility loss I
+    flagged after SD-97, recovered: a realized game must satisfy them and nothing can say which
+    element does. Read from `classes`, the only place they survive.
+  - `notEstablished` (57) — **absence is never a decision.** Withdrawn lines are in neither list:
+    not applicable is not a gap.
+- `coherence` carries Gate A **verbatim**; `mayRealize = gateA === 'PASS'` is a restatement of Gate
+  A's own claim (*"this game can be coherently laid out and played as specified"*), not a new
+  judgement.
+- **A LATENT SD-84/SD-97 INTERACTION FOUND AND FIXED.** The V0 primary-event singleton has an empty
+  selector, so SD-97's rule classed it as "exists, not individuated" — **false**: SD-84 says identity
+  there *"follows from the authoritative schema invariant itself"*. Singletons are now excluded from
+  the SD-97 skip in `enumerateLines`, from `classesOn`, and from `existential`. No corpus line moved
+  (V0's fields are game-level rows), but it would have bitten the first singleton with owned fields.
+- **Run it:** `npm run corpus:game` (rendered) or `-- --json`.
+- **What it already shows about the eight-area question:** the game reads as a game — envelope,
+  regions, performers, value, transitions — and the two things a generator would most need are the
+  two that are not there: **direction** (a view, and unestablished) and **who attacks what**. That is
+  the same load-bearing gap, seen from the consumer's side rather than the gate's.

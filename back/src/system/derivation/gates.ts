@@ -249,7 +249,7 @@ class Probe {
  * check must not ask it for any. `allClassesOn` keeps the unfiltered view for the cardinality
  * questions, where the existential claim is exactly what is being counted.
  */
-const classesOn = (ctx: GateContext, row: string) => ctx.classes.filter(c => c.row === row && !c.constraints.any)
+const classesOn = (ctx: GateContext, row: string) => ctx.classes.filter(c => c.row === row && (!c.constraints.any || !!c.singletonBy))
 const allClassesOn = (ctx: GateContext, row: string) => ctx.classes.filter(c => c.row === row)
 const lineOf = (classId: string, row: string) => `${classId}::${row}`
 

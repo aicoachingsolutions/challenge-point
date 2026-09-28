@@ -245,7 +245,12 @@ function enumerateLines(classes: ElementClass[], index: RegisterIndex, stopped: 
         // Enumerating their fields asked, separately, for the reference, team and role of objectives
         // nobody described. The class stays — its existence claim and cardinality are real — and it
         // carries no field lines.
-        if (cls.constraints.any) continue
+        //
+        // A singleton is the exception, and SD-84 is why: identity there "follows from the
+        // authoritative schema invariant itself", so a selectorless assertion on a cardinality-one
+        // collection individuates the only member there can be. That is the individuation SD-97 says
+        // an empty selector lacks, supplied by the schema rather than by a selector.
+        if (cls.constraints.any && !cls.singletonBy) continue
 
         for (const row of index.rows.values()) {
             if (row.kind !== 'FIELD') continue
