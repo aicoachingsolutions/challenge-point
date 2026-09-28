@@ -3250,3 +3250,46 @@ Nothing corrected; two rulings needed.
 - **Warned him the reclassification will move a lot**: 19 of the lines cluster 6 resolves were
   classified yesterday as knowledge-authoring or realization-sensitive (e.g. RPC-001's four condition
   types). They are not missing knowledge; they are written in a selector.
+
+**27 Sep (fourth) — SD-92/93/94 IMPLEMENTED; POPULATION RECLASSIFIED FROM SCRATCH**
+(`docs/design/phase-b-reclassification.md`). Spec revision 23; **173 tests**; suite green; tsc clean.
+- **SD-92** ratifies RC-16 **subordinately**: an establishing selector supplies the field only where
+  no support-capable item entails it. `=` fixes · `∋` establishes **membership without defining the
+  set** (new `establishedMembers` on the derived line) · `∈` narrows (SD-78). New support relation
+  **`CARRIES`**. **Subordination held — the 3 predicted collisions did not happen.**
+- **The register now carries `selectorAttribute` on all 19 affected FIELD rows** — the correspondence
+  is data, not path-tail matching, which also reconciles `qualifiers.lastTouch` vs
+  `qualifier.lastTouch` without touching either spelling.
+- **SD-93** amends AM-13: own involvement = the classes the object established, **including from its
+  own-involvement existence items**. `fixOwnInvolvement` now only *selects* from stage-2 classes,
+  which is the structural form of "may never establish authority". Plus a **named diagnostic**
+  channel (`PartialResult.diagnostics` → emitted, rendered): `OWN_INVOLVEMENT_UNPOPULATED`.
+- **SD-94** replaces the trigger clause with *"classes applying to one trigger must be mutually
+  compatible"*. Partitioned-by-qualifier pairs are not compared (AM-15); one side derived + the other
+  failed **blocks** rather than fails (SD-28). Nothing merged, no `keyedBy`.
+- **Corpus: derived 35→51, failed 96→80, Gate A failures 3→2** (only GA-INFORMATION and
+  GA-NO-FAILED-LINE). **3 collisions appeared**, all Wide Zone `S6`: `WIDEZONE-04.a`
+  *"touchline-adjacent"* vs `WIDEZONE-05.a` *"touchline-adjacent (outer edge on a touchline)"* —
+  **one authored sentence restated twice**, invisible until its items could reach. Not repaired.
+- **RECLASSIFIED: internal 32 · knowledge 25 · realization 23 · outside 0.**
+  - **REALIZATION-SENSITIVE HELD AT EXACTLY 23, and the 10 placement lines are the same 10.** Two
+    mechanisms cleared, 16 lines gone, 5 re-sorted, and the coach-informed set did not move. First
+    evidence it is **stable under mechanism corrections** rather than an artefact of them.
+  - 3 lines moved internal → knowledge: Wide Zone's `S5` axis extent is `ASSUMED`, which only became
+    visible once SD-93 let it arrive.
+- **Two general mechanisms remain, both sharper than before:**
+  1. **A set-/list-valued row cannot resolve from membership** (9 lines: `S4` ×6, `J7`, `J11b`,
+     `J12`). Knowledge states members one at a time; several items only assert the field is present
+     (`EXISTS` on a `FIELD`). **How does a set become complete?**
+  2. **Transition qualifiers the trigger makes inapplicable** (10 lines). SD-88's mechanism one step
+     along — conditional on the **element's own trigger** rather than another line — and SD-92 just
+     made selector values readable. The `applicability` block exists; these rows are not in it.
+- **PILOT BOUNDARY against his new formulation — 2 of his 5 prerequisites settled.** Identity
+  settled (SD-84/SD-94/SD-47, no line waits on it); reach mostly settled. **Direction is the sharpest
+  open one**: `GA-DIRECTION` is blocked on `RPC-001-11.a::J2`, and SD-07 is an invariant. Objective
+  structure open (11 lines). **Direction → objective reference → objective role are one cluster, not
+  three.** Recommended next: the objective area, because the set-completion question sits inside it.
+- **TEST FIXTURES: many moved from `S3` to `S5`.** `S3` is a selector attribute, so under SD-92 it
+  resolves from the class selector; any fixture asserting "nothing entails this line" must use a row
+  no selector carries. Same for the SD-91 fixture (now governs on `S6`) and the SD-88 consequence
+  fixture (now selected on `trigger`, not `effect`).
