@@ -2695,4 +2695,728 @@ coach running Wide Zone Advantage is told to go wide and paid to go central.
   values with nothing authored, and set-valued member expansion.
 - **Corpus today:** 1 contract admitted / 7 refused; 15 lines → 2 resolved, 13 gaps, 0 collisions;
   forward 7 unmet / 6 inert / 2 satisfied. Every refusal traces to a task-register defect.
-- **Next:** stage 10 gates (10 structural checks ready; 4 need SD-43 clause reporting; F2 blocking).
+  *(Corrected by increment 4 — see below. The real figures are 6 resolved / 9 gaps.)*
+
+**22 Sep — INCREMENT 4: STAGE 10, THE GATES.** 33 further tests, **88 across the four increments**; full
+project suite passes. Report: `docs/design/implementation-increment-4.md`. Code adds
+`{gates,rational,corpus}.ts`.
+- **Gate A:** fifteen checks, the §7.2 catalogue exactly — ten fully structural, four split under SD-43,
+  `GA-MODIFIER-OVERLAP` refusing with `CHECK_NOT_EXECUTABLE` for object/event (F2, still open).
+  `GA-RESIDUAL-SPACE` is absent and a test keeps it absent (SD-45). Gate B reverse is `NOT_APPLICABLE`.
+- **The gate rule that matters:** a clause whose subject line is a **gap** blocks and names the line; it
+  never reports that the game failed. SD-28 carried into the gate. A test asserts **no check ever returns
+  `PASS` while naming a line it was blocked on**, across fixtures and the real corpus.
+- **Three defects found, all mine:**
+  1. **the session's four envelope values were being dropped** — §1.2 makes the envelope the `SESSION`
+     source and §1.4 makes `SESSION` a way a line is *derived*, but stage 5 consulted it only to decide
+     openness. `E1`–`E4` were `NOT_AUTHORED` in every run. **This is why the increment 3 corpus figures
+     were wrong.**
+  2. a line resolved by a **standing decision carried no value** (SD-25 states `V2 = 1`; the record held
+     nothing), though §1.4 requires a value wherever a line is derived;
+  3. a **qualitative range became a `COUNT` bound with null endpoints** — constraining nothing while
+     looking numeric, which `GA-LAYOUT-FEASIBLE` would have ignored while certifying feasibility.
+- **Also fixed:** the `GAP` failure record §3.2 raises at stage 6, which increment 3 omitted entirely.
+- **Four clause texts asserted more than their code checked** — the fused-claim defect he found in
+  `GA-RESIDUAL-SPACE`, recurring in `GA-DIRECTION`, `GA-ONE-PRIMARY-EVENT`, `GA-TRIGGER-UNIQUE` and
+  `GA-EFFECT-TYPED`. Each split; each part executed.
+- **One reading surfaced to him:** §7 does not say what a clause does when the line it needs is a gap.
+  The engine reads it as `NOT_EVALUABLE` per §8's rule for a gapped dependency. Both readings block, so
+  it cannot manufacture a `PASS` — recorded as a stop, not buried.
+- **Corpus, stages 0–10:** 1 admitted / 7 refused; 15 lines → **6 resolved, 9 gaps**, 0 collisions;
+  failures 7 `LOAD_REFUSAL` + 8 `REFERENCE_DEFECT` + 9 `GAP`. **Gate A: FAIL** (9 pass, 4 not evaluable,
+  2 fail). Seven of the nine passes are *emptiness, not verification* — nothing of that kind is
+  instantiated, because seven of eight contracts were refused at load.
+- **The corpus is now a committed input** (`corpus.ts`) and its figures are asserted in tests, so numbers
+  quoted in any report are reproducible from the repository.
+- **Next:** stage 11 (emit) — assemble and stamp the full `DerivationResult`. That is the last stage.
+
+**23 Sep — INCREMENT 5: HIS RULINGS (SD-49..SD-56) AND STAGE 11.** Pipeline complete. 103 tests across
+five increments; suite green. Report: `docs/design/implementation-increment-5.md`. Spec now **revision 12**.
+- **Every SD-48 stop is closed; a run reports zero stops.** SD-49 reach against a class (three-valued —
+  `reaches()` already matched it exactly, so no change); SD-50 unsupported choice space is a **GAP**;
+  SD-51 member lines only from authoritatively resolved membership; SD-52 confirmed the gap-blocks
+  reading.
+- **SD-53 applied generally**, not as four exceptions: every executable gate clause is atomic, guarded by
+  a test that no clause text fuses claims. `GA-REGION-FUNCTION`, `GA-EFFECT-TYPED`, `GA-TIME-WINDOWS`,
+  `GA-OBJECTIVE-SETS` decomposed.
+- **SD-54 — and it paid for itself immediately.** Of 24 passing clauses on the corpus, **2 evaluated
+  anything and 22 are vacuous**. Never report an aggregate pass count without this split.
+- **Fourth defect, found by §8 itself:** `run.inputDigest` was taken over the input as given, so shuffling
+  item order changed the emitted result. Now taken over a canonical form — contracts/items/selection and
+  object keys ordered, **array values left as authored** (AM-11). Found only because the stage 11 test
+  compared the *whole* record, not the parts expected to vary.
+- **Stage 11 enforces rather than assumes:** an unstamped result is emitted as a stamped halt (SD-30);
+  every §1.4 field appears only where its condition licenses it, asserted both directions over the corpus.
+- **Corpus, complete pipeline:** 15 entries (6 derived — 4 SESSION, 2 STANDING_DECISION — 9 failed);
+  audit 15/15, 0 collisions, 8 reference defects, 0 tensions; **Gate A FAIL**; Gate B forward PASS,
+  reverse NOT_APPLICABLE; **0 stops**.
+- **Open with Christian:** `GA-MODIFIER-OVERLAP` semantics. Evidence delivered in
+  `docs/design/modifier-overlap-evidence.md` — **four** items across two contracts, all `event`; **no
+  corpus item uses `object` at all** (the package's "two items, object and event" was wrong on both
+  halves). Neither case reaches the gate today: GF4 is refused whole over an unrelated `row: "NONE"`
+  item, and A01-02's item is `ENGINE_ONLY` so it is inert.
+- **Deferred with his confirmation:** stage 7 (no canonical comparative) and stage 9 (no legitimate
+  candidate representation until the downstream governed-choice process exists).
+
+**23 Sep — INCREMENT 6: SD-57..SD-61. MODIFIER OVERLAP IS NO LONGER A BLOCKER.** Spec **revision 13**;
+106 tests; suite green. Report: `docs/design/implementation-increment-6.md`.
+- **His verdict on the evidence:** it *"does not establish a current reachable modifier-overlap problem."*
+  GF4 is refused whole at load over an unrelated `row: "NONE"` item; `A01-02-12.b` is `ENGINE_ONLY` and
+  inert. The gate sees **zero** modifiers. F2 and the package entry both corrected — the "two corpus
+  items" claim was wrong twice (four items, all `event`, none reachable).
+- **SD-57 identity:** a referent resolves only through a registered structural reference. Open text
+  establishes none, and is **not** compared as a token — that would promote open-text equality into
+  identity. Applied to region referents too (flagged to him): the code had been comparing raw strings.
+- **SD-58 — and it caught a real fault.** `GA-REFERENCE-INTEGRITY` was **failing** on any derived
+  reference naming no held element, open text included: the engine asserting a violation it had no
+  authority to establish. Now blocks and names the line. Gap-before-collision untouched.
+- **SD-59** no alternatives mechanism → task register **C7**; **SD-60** no object-condition semantics
+  → its own refusing clause; **C8** added (events have no first-class identity).
+- **One new stop, record-keeping not semantics:** §3.2 raises `GAP` at stages 2/5/6/7 only, and the line
+  in an unestablishable-relationship case is usually *derived*, so nothing in `failures` marks it. Did
+  **not** extend §3.2 unilaterally. Blocks either way, so it cannot cause a wrong pass. Fires only where
+  the case arises — corpus reports zero stops.
+- **`npm run corpus:diagnostic`** renders the emitted result and **adds no semantics** — if a figure is
+  wrong, the engine is wrong. Headline: **2 clauses evaluated against real instances, 24 vacuous.**
+- **Not done, on his instruction:** stages 7/9 not reopened for coverage; **no corpus repair begun**;
+  generation still frozen.
+
+**24 Sep — SD-62..SD-66, AND CORPUS REPAIR PHASE A.** Spec **revision 14**; 113 tests; suite green.
+Ledger: `docs/design/corpus-repair-ledger.md`.
+- **SD-62** a blocked gate clause carries its own structured record (clause · dependency · reason) and is
+  **not** a derivation GAP. *"Both prevent an unearned PASS, but they describe different failures of
+  knowledge."* Built in `result()` so no blocked clause escapes without one, and a block can never name
+  nothing — if a check can't point to a line it names what it examined.
+- **SD-63 generalized the identity rule — and it found five more of the same bug.** Information subjects,
+  consequence referents, objective-set members, objective references, primary-event referents were all
+  still inferring identity from matching text and **failing** when it didn't match. All now withhold.
+- **SD-66 phase A — encoding repair only.** Corpus was UTF-8 read as CP1252. Repair is the **exact
+  inverse** (char → CP1252 byte → decode UTF-8), no character special-cased, non-round-tripping strings
+  left untouched. Original artefact **not modified**; applied on load, counted, reported every run.
+  **339 strings, 680 chars recovered.**
+- **Effect: contracts admitted 1 → 3, lines 15 → 95, derived 6 → 15, outcome kinds 3 → 5.** RPC-001 and
+  VARIABLE-TARGET-CONDITION now load clean.
+- **Stopped at his line.** 28 remaining load defects, none mine: **25 restatement** (row names no register
+  row — and they split **20 outside-boundary vs 5 structural-in-kind**, which is the real question) and
+  **3 new authoring** (V9 magnitude with no V9a operation, SD-30).
+- **Phase A exposed two genuine gate failures, recorded not repaired:** three primary events where SD-06
+  requires one; an information rule naming an unregistered trigger. 77 failed lines (52 coverage, 23
+  declared gap) = the shape of phase B. **Do not optimize toward green.**
+- **Also fixed:** SD-51 member lines were `RESOLVED` while carrying no value — caught by the §1.4
+  invariant added in increment 5.
+- **Next:** await his ruling on the 25 + 3. Phases B/C/D not started.
+
+**24 Sep — PHASE A COMPLETE (NO_ROW applied; 9-case evidence packet sent).** Register **version 3**;
+119 tests; suite green. Packet: `docs/design/phase-a-evidence-packet.md`.
+- **`NO_ROW` is a contract-level sentinel, NOT a row** — creates no property, line, class or element.
+  **The guard is the point:** the three conditions are enforced in `load.ts` (not trusted), a sentinel
+  colliding with a row id halts the register (H1), and three tests hold it. The 20 items are named one by
+  one in `corpus-restatement.ts` *and* re-checked against the conditions before applying — **20 applied,
+  0 withheld**. The 5 structural items are deliberately absent, guarded by a test.
+- **Phase A meets his boundary: no contract refuses for a mechanical reason.** 3 load clean
+  (RPC-001, A01-02, VARIABLE-TARGET-CONDITION); 5 refuse for a specific named semantic issue.
+- **A 9th case surfaced that he didn't ask for:** `PASS-COMBINATION-GATE` has **64 declarations with an
+  em-dash `scope`**, every one a `NON_CLAIMED`. Hidden until now because the loader stops at the first
+  defect and its six row items came first. Two readings differ (`null` vs `WHOLE_GAME` as its 6 peers
+  use) — left alone.
+- **The 5 structural cases split three ways, and the packet says so:** GF2-01 may be derivable by
+  construction; GF2-02 + GF2-22 are the same representation gap from two directions; GF2-15 is `ASSUMED`
+  so it could never entail regardless of row (likely mistyped); NEUTRAL-05.a belongs to knowledge-core
+  Participant State — a layer boundary.
+- **The 3 modifiers split too:** WIDEZONE-13.a/b are **one source sentence read twice** (source offers
+  three alternatives, states no operation — the contract's own declaration says so). **GF4 I14 is
+  different: "double points" IS operation-bearing language.** Reported separately, not flattened.
+- **Diagnostic now reports repair provenance**, counting encoding and restatement separately.
+- **Untouched:** 77 failed lines, 3 primary events, unregistered trigger, 17 gate blocks. **Phase B not
+  begun** and must not begin until these nine are ruled or retained as justified refusals.
+
+**24 Sep — SD-67..SD-74: THE PHASE A LOAD BOUNDARY IS REACHED.** Spec **revision 15**, register
+**version 4**; 123 tests; suite green. **All 8 contracts load; 0 refusals** (was 1/7 two days ago).
+- **Two bounded refinements, eight areas unchanged:** `R1`–`R4` **Action Restriction** in the Rules area
+  (receiver eligibility · action order · direction class; authored legal eligibility only), and
+  `P11`–`P13` **Performer Participation State** *bound* to knowledge-core EM-0007/EMD-0014/EMP-0040/42 via
+  `register.boundVocabularies` — referenced, not re-authored.
+- **`BY_CONSTRUCTION` (SD-67) executes its invariant at load, never trusts it.** Absent, unregistered,
+  untestable or false → refused. Four tests. *"By construction" is otherwise the shape of an excuse.*
+- **BOTH REFINEMENTS EXPOSE A DEPENDENCY — the answer he asked for:**
+  1. Action Restriction holds a restriction, but GF2-22 asserts **none exists**, and `NOT_EXISTS` on a
+     COLLECTION has no existence treatment in stage 8 (`isExistence` covers EXISTS/COUNT/RANGE only) → it
+     reads `UNMET`. 2 structural NOT_EXISTS items corpus-wide; both hit it.
+  2. Participation State holds the value, but NEUTRAL-05.a states a state with **nothing asserting the
+     participation entry exists**. P8/S2/J1 all carry existence items; this contract predates the row.
+     Authoring it is new knowledge. **Neither repaired.**
+- **Flagged to him:** Action Restriction sits in area §5.8, titled *"Rules of value"* — it is the first
+  rule there that is not about value. Placed as directed; title left alone; naming is his call.
+- **SD-49 reclassified:** an indeterminate reach is no longer a `stopped` entry — the semantics are
+  established, so following them is not stopping. Count stays in `run.counts.undeterminedReaches`.
+- **Bug my own invariant caught** once transitions reached the corpus: `GA-TRANSITION-COHERENCE` passed
+  while naming blocked lines. An unauthored placement *confirms* "a CONTINUE transition carries no
+  placement". Added `Probe.peek` for that one case only.
+- **Corpus now:** 194 lines · 33 derived (27 entailment, 4 session, 2 SD) · 137 failed · 12 open · 220
+  item outcomes. **First collision ever:** `game::V1`, three contracts disagree on the primary event kind.
+  Gate A FAIL — **4 clauses evaluated vs 4 vacuous** (was 2 vs 24).
+- **Untouched, on his order:** 5 primary events, unregistered trigger, 137 failed lines, 20 gate blocks.
+  **Phase B awaits his word on the two exposed dependencies.**
+
+**24 Sep — SD-75..SD-77: PHASE A CLOSED. PHASE B CLUSTER 1 ANALYSED.** Spec **revision 16**; 126 tests;
+suite green. All four of his closure conditions hold.
+- **SD-75 negative existence**, general for collections. Tested against **all nine** corpus cases: the
+  **7 outside-the-representation ones all stayed outside** (the treatment sits after the boundary guard;
+  a test asserts the count of 7 rather than trusting order). GF2-22 → `SATISFIED`, NEUTRAL-17.a →
+  `NOT_EVALUABLE`.
+- **SD-76 traced, and the answer was yes.** `NEUTRAL-01.a` (P5 count `>= 1`, REQUIRED/AUTHORED/STRUCTURAL,
+  *"One or more neutral players join…"*) entails the group **independently** of the participation
+  property, so it is restated as `NEUTRAL-01.b` on P11 — traced to `NEUTRAL-01`, **not** to NEUTRAL-05,
+  with a test on that provenance. A property never establishes its own element.
+- **SD-77** §5.8 renamed **Interaction Rules**. Descriptive only. No ninth area.
+- **The sport-coupling ratchet caught a real thing**: my evidence string named a soccer module file in
+  *engine* source. Provenance now carried by reference; ratchet back to baseline 35.
+- **Corpus at the closed boundary:** 8 admitted / 0 refused · 196 lines · 34 derived · 137 failed ·
+  221 item outcomes. Gate A FAIL, **4 clauses evaluated vs 4 vacuous**.
+
+**PHASE B CLUSTER 1 — `docs/design/phase-b-cluster-1-primary-event.md`. THE COLLISION IS NOT A
+DISAGREEMENT.**
+- Three contributions (GF4 `I01`, GF2 `GF2-19`, RPC-001 `RPC-001-08.a`), all REQUIRED/AUTHORED/
+  REQUIRED_RANGE/WHOLE_GAME. **None states a value** — each states a permitted *set*. The three
+  intersect to exactly **`{line_crossed}`**. Independent objects **converging**, not conflicting.
+- **Cause: derivation semantics.** `entails()` reads `EQUALS` as fixing a value and ignores
+  `valueStatus: REQUIRED_RANGE`. **Spec §5.8 already says the right thing** ("SELECTION narrows to a
+  valid set … the kind is FREE under SD-39 and is chosen downstream") — unimplemented.
+- **The worse, quiet half:** where *one* set-valued item reaches a line, it is reported
+  `RESOLVED:ENTAILED` **holding the set as its value**. Two lines do this today (`GF2-03.a::S3` holds
+  the literal `"{zone, line} — set of alternatives, unordered"`). A wrong answer labelled right.
+- **Correction (NOT applied):** REQUIRED_RANGE set narrows; narrowings intersect; singleton → resolved,
+  many → `FREE(choice)`, empty → genuine collision. Resolves the only collision, both silent lines, and
+  part of 2 gate checks. **Knowledge-side prerequisite is his**: the set values are prose-wrapped and
+  SD-32 forbids reading meaning out of text — 5 items would need restating.
+- **Must stay unresolved:** the approved order (RC-29 keeps but does not apply it — *the singleton here
+  is luck, not resolution*); the prose sets; and whether narrowings from different objects may be
+  intersected at all (a composition rule, his to confirm).
+- **Implication for the rest:** the corpus's only collision was an artefact. Some of the 137 failed lines
+  will be the same defect relabelled — which is why counting failed lines points the wrong way.
+
+**24 Sep — SD-78..SD-82: CLUSTER 1 CORRECTED.** Spec **revision 17**; 133 tests; suite green.
+- **SD-78 composition by intersection.** Independently authored `REQUIRED_RANGE` narrowings on one
+  property are intersected — the engine determines what they *jointly permit* and chooses nothing.
+  1 member → `RESOLVED` with **all** contributors as support; >1 → `FREE(choice)`; 0 → genuine
+  `UNRESOLVED`. **Authored order may not narrow a multi-member intersection (RC-29 stays unresolved).**
+- **`game::V1` → `RESOLVED:ENTAILED` = `line_crossed`, support 3. Corpus collisions 1 → 0.**
+- **Both silent set-as-value lines corrected** → `FREE(choice)`. `RPC-001-18.a::V5` now agrees with its
+  own contract fit-note ("Which placement applies is undecided") — the engine had been contradicting the
+  contract, and the contract was right.
+- **SD-80 regression, wider than asked:** besides the specific one-contribution case, a **corpus-wide
+  invariant that no derived line may hold an array as its value**. Also asserted: a `REQUIRED_RANGE`
+  carrying a *scalar* still fixes what it states (trigger is the set, not the status).
+- **The failed-line count did not move: 137 → 137.** Cleanest illustration of SD-81 — a wrong value
+  fixed, a false conflict removed, two silent errors made honest, and the headline number unchanged.
+- **Sport-coupling ratchet caught me again, and was right again.** An authored member reads *"the
+  goalkeeper's START/restart placement"* and SD-79 forbids paraphrase. The real fault: **corpus data in
+  engine source.** Restatements now live at `docs/audits/conformance/stage-b/corpus-restatements.json`;
+  only mechanism + conditions stay in code. Better provenance — the ledger is now a reviewable diff.
+- **SD-81 reach classification (required of every cluster from now on):** cluster 1 is **a general
+  derivation/composition rule** — one correction touched 5 items, 3 rows, 3 contracts, no football
+  knowledge.
+- **SD-82 pilot boundary** is a *criterion*, not a date (~5–6 weeks of season left, explicitly not a
+  deadline): keep diagnosing internally while failures are what engine/contracts/controlled tests can
+  establish; pilot when unresolved questions need observation of real coach–learner–environment
+  interaction. Cluster 1 is evidence we are still firmly on the internal side — no coach could have
+  found it.
+- **V0 untouched.** Five primary events, Gate A still FAIL on the same six checks. **Cluster 2 = the
+  primary-event existence/cardinality problem.**
+
+**25 Sep — THE `game::V1` DISCREPANCY, TRACED AND RECONCILED.** 135 tests; suite green; stops back to 0.
+- **He caught an inconsistency between two things I sent him** — the cluster report said `game::V1` =
+  `line_crossed`, the diagnostic said "RESOLVED but carries no value". He was right to hold cluster 2.
+- **The value was never lost.** It reached final assembly correctly throughout. **The gate's own
+  valueless invariant was wrong** — the check whose entire job is catching that fault had the fault.
+- **Root cause: four sites each had their own copy of "how a derived line gets its value"** (the verdict,
+  emitted value, emitted support, and the invariant). SD-78 added a route; three were updated, the
+  invariant was not.
+- **Fix: `resolvedValue()` in `derive.ts` is now the single answer**, called by all four. Nothing left
+  to keep in step. *Patching the fourth copy would have left three more chances to repeat it.*
+- **Tests, two:** (1) `game::V1` carries `line_crossed` **through final assembly**, with the resolution,
+  audit and gate views all agreeing; (2) **the general cross-check** — no line may be derived-with-a-value
+  in one view and valueless in another, asserted corpus-wide. That is the one that would have caught it.
+- **Diagnostic now prints `DERIVED VALUES`** (line · route · value · support count). Counts alone let two
+  views drift without either looking wrong. `game::V1` now reads `ENTAILMENT  line_crossed / supported by
+  3 contributions` **in the diagnostic itself**, so it agrees visibly, not by absence of complaint.
+- **Reach (SD-81):** general, but about **engine internal consistency**, not knowledge — one fact, one
+  place that computes it. Changes no count; makes two reports agree. Counted as part of cluster 1.
+- **Cluster 1 CLOSED** (he confirmed 25 Sep). Next: cluster 2.
+
+**25 Sep — PHASE B CLUSTER 2 ANALYSED (nothing corrected; awaits his ruling).**
+`docs/design/phase-b-cluster-2-primary-event-existence.md`.
+- **The five primary events are not five events.** Two are **exclusions forbidding a second primary
+  event** (`VARTARGET-12.a`, `WIDEZONE-16.b`) — and **both report `SATISFIED`, because they formed a
+  class.** The engine discharged "there must not be more than one" *by instantiating one*, then failed
+  the game for having too many. A third (`RPC-001-08.b`) is an `ASSUMED` restatement of SD-06 and says so
+  in its own evidence. **Only two are genuine authored existence assertions** (`PCG-01`, `VARTARGET-11.a`).
+- **Cause: `formClasses()` never calls the support rules.** §3 (EXCLUSION never supports · ASSUMED a
+  bound only · ENGINE_ONLY and OUTSIDE_BOUNDARY inert) and SD-47 ("**authoritative** selectors") are
+  already enforced by `isSupportCapable()`/`entails()` wherever a *value* is derived. `formClasses` forms
+  a class from any COLLECTION row with an existence-shaped requirement, whatever its strictness or basis.
+  **Same shape as the `game::V1` follow-up: one rule, written down, applied inconsistently.**
+- **Not about the primary event. 19 of 53 element classes (36%) were manufactured from contributions
+  that cannot support anything**, accounting for **47 of the 137 failed lines**.
+  | from | classes | failed lines |
+  |---|---|---|
+  | `ASSUMED` | 9 | 21 |
+  | `EXCLUSION` | 5 | 17 |
+  | `ENGINE_ONLY` | 3 | 4 |
+  | `OUTSIDE_BOUNDARY` | 2 | 5 |
+- **Correction splits:** (a) EXCLUSION/ENGINE_ONLY/OUTSIDE_BOUNDARY are unambiguous and already enforced
+  a few lines away — 10 classes, 26 lines; (b) **`ASSUMED` needs his ruling** — whether an assumption may
+  establish *existence* (as distinct from entailing a value) is stated nowhere — 9 classes, 21 lines.
+- **The 47 lines are NOT progress.** They are fields of elements never established. Flagged hard per
+  SD-81: a 34% drop in the failure count would badly misrepresent it.
+- **Residual, his:** after both corrections **two** legitimate authored assertions remain on `V0`, the
+  only row whose `valueType` fixes its own cardinality ("exactly one element (SD-06)"). SD-47 forbids the
+  engine merging them or deciding whether SD-06 is violated or merely restated twice. Same territory as
+  SD-67 (by construction). Also open: an EXCLUSION existence item probably belongs in SD-75's negative-
+  existence path, not the existence path.
+- **Reach (SD-81): a general derivation rule** — which contributions may *establish* anything at all
+  (cluster 1 was how they *compose*). 7 rows, 5 contracts, 6 areas, no football knowledge.
+
+**25 Sep — SD-83..SD-85: CLUSTER 2 CORRECTED.** Spec **revision 18**; 144 tests; suite green. All eight
+closure conditions hold.
+- **SD-83 establishment boundary**, one shared definition (`establishesExistence` in `derive.ts`): only
+  support-capable *authoritative* contributions establish an element. **Classes 53 → 33**; nothing
+  anywhere is now established by an EXCLUSION/ASSUMED/ENGINE_ONLY/OUTSIDE_BOUNDARY item, asserted
+  corpus-wide.
+- **SD-84 singleton identity**, read from the invariant **as data** — a citable decision stating
+  `COUNT = 1` on a COLLECTION row (`register.singletonRows`), **never** from the row's prose.
+  `c:singleton:V0`, `supportedBy` = PCG-01 + VARTARGET-11.a, `singletonBy` = SD-06.
+  **A test asserts it is NOT a relaxation of SD-47** — identical selectors on a *non*-singleton row still
+  form two classes.
+- **SD-85** exclusions route through SD-75's negative-existence path; no new mechanism.
+- **Failed lines 137 → 90. None of it is progress** — those 47 were fields of elements never established.
+  Recorded that way in the cluster report, the commit and the email.
+- **Gate A by cause, not counts.** `GA-ONE-PRIMARY-EVENT` first clause **PASSES (1 primary event)**;
+  `GA-DIRECTION` stopped failing **because the teams causing the failure were themselves illegitimate**;
+  `GA-EFFECT-TYPED` passes because its only consequence had been created by an exclusion forbidding one.
+  **Vacuous passes 4 → 10 — the gate reads better partly because there is less to check** (not evidence,
+  SD-54).
+- **DEPENDENCY EXPOSED, STOPPED AT (his instruction):** both exclusions report `NOT_EVALUABLE` — their
+  forbidden cardinality is prose (*"more than 1 (…)"*, *"2 or more (forbidden)"*). Reading a bound out of
+  that is interpreting text (SD-32); it is **the same restatement question as the five prose sets
+  (SD-79)** and is his. Both are almost certainly satisfied — which is exactly the reasoning we refuse.
+- **Reach (SD-81): a general derivation rule.** Two clusters, both general mechanisms; between them a
+  false conflict, two silent wrong values, 19 phantom elements and 47 unreal failures — **no knowledge
+  repair at all**.
+- **Next: cluster 3**, unless the exclusion bounds reorder it.
+
+**26 Sep — SD-86 CLOSES CLUSTER 2; CLUSTER 3 ANALYSED.** Spec **revision 19**; 147 tests; suite green.
+- **SD-86 bounded restatement of the two exclusion bounds.** Both now `SATISFIED` against their **own**
+  authored bound. **The relation is carried across as written, not converted:** `"more than 1"` → `> 1`
+  (not `>= 2`); `"2 or more"` → `>= 2` (not `> 1`). Same set for an integer count, but rewriting the
+  author's comparison is not typing it. Prose `value` left in place as the source.
+- **Three guards:** a bound is never read out of prose; **a bound is never borrowed from the schema
+  invariant** (an exclusion on the singleton row with no authored bound stays `NOT_EVALUABLE` rather than
+  taking SD-06's) — that was his explicit prohibition and is now tested.
+- **Classified by cause:** the *only* change is two item outcomes `NOT_EVALUABLE` → `SATISFIED`.
+  Structure untouched — 33 classes, 144 lines, 90 gaps, same 4 failing checks, 0 stops.
+
+**CLUSTER 3 — `docs/design/phase-b-cluster-3-goal-kick-selection.md` (analysed, nothing corrected).**
+- **All 8 reference defects — the oldest unexplained finding in the project — are ONE cause in ONE
+  contract.** Every selector in `restated:A01-02` is `restart=GOAL_KICK`; `T1` has no `restart`
+  attribute (it keys on `trigger` + qualifiers).
+- **The restater knew:** every selector carries an `[L1]` marker, and the fit-note says it outright —
+  *"T1 selects only by trigger and qualifiers. The goal kick has to be picked out by its procedure
+  because its trigger is not authored."*
+- **Cause: missing knowledge, not a representation gap.** The source authors a restart *procedure* and
+  **no trigger**; the representation keys transitions by trigger. Authoring the trigger turns all eight
+  selectors into ordinary ones — **no new row, attribute or register change**.
+- **Did not guess the trigger.** `OUT_END_LINE` is the obvious candidate; the restater had the same
+  candidate and declined, enumerating six. "Obvious" is the reasoning we refuse.
+- **Resolves:** 8 → 0 reference defects, the `GA-REFERENCE-INTEGRITY` clause, and 9 authored `A01-02`
+  transition items that currently establish and reach nothing.
+- **Also recorded, not pursued:** `T5.method` (`STATIONARY_BALL`/`SERVED`/`IN_HAND`) is too coarse to
+  distinguish a goal kick from a free kick, corner or kick-off.
+- **Reach (SD-81): LOCAL to that knowledge — the first cluster that is not a general mechanism.**
+  Clusters 1–2 were general rules taking the large populations; what remains is beginning to look like
+  ordinary knowledge work. Still clearly internal on the SD-82 criterion.
+
+**26 Sep — SD-87: CLUSTER 3 CLOSED.** Spec **revision 20**; 149 tests; suite green.
+- **He authored the trigger**: *"the ball leaves play over the defending team's goal line, having last
+  been touched by an attacking player, without a goal being scored."* Maps through the **existing**
+  structure, **no schema change**: `trigger=OUT_END_LINE` · `qualifier.endLine=DEFENDING_TEAM` ·
+  `qualifier.lastTouch=ATTACKING_TEAM`.
+- *"Without a goal being scored"* is carried by `OUT_END_LINE` ≠ `SCORE` in a closed list on a row keyed
+  by one trigger — **flagged explicitly** as the one component with no qualifier of its own.
+- **Not reduced to `OUT_END_LINE` alone** (his warning): a corner shares trigger *and* end line, so
+  `qualifier.lastTouch` is the discriminator. **A test asserts a corner does not reach the element.**
+- **Closure: 8 → 0 reference defects, no new mechanism, no representation dependency.** Only the
+  selector key changed on each item.
+- **A CORRECTION FROM TWO CLUSTERS AGO PAID FOR ITSELF.** Three of the eight are `T1` existence items
+  with now-identical selectors — on a non-singleton row that would have formed **three** transitions
+  where there is one goal kick, reintroducing exactly the cluster-2 fault. It didn't: two are
+  `ENGINE_ONLY` and the SD-83 establishment boundary refuses them. First time the general rules have
+  protected each other.
+- **Failures went UP, 90 → 93, and that is correct.** A real transition now exists and its fields are
+  enumerated. Same accounting as the 47-line drop, in the other direction.
+- **CLUSTER 4 identified, not started:** `GA-TRANSITION-COHERENCE` fails — the goal kick is
+  `STOP_RESUME`, needing a taker and region; both authored but with **off-list team designations**
+  (`A01-02-11.a`, `A01-02-07.a`), each marked `[L2]` by the restater exactly as `[L1]` marked cluster 3.
+  **The ledger is pointing at the next gap.** Bounded knowledge work, same contract.
+- **Reach pattern now:** 2 general mechanisms, then 2 local knowledge gaps. Still internal on SD-82 —
+  no coach could tell us a designation is unregistered — but the character of the work has changed.
+
+**26 Sep — PHASE B CLUSTER 4 ANALYSED** (`docs/design/phase-b-cluster-4-restart-team-identity.md`).
+Nothing corrected; two rulings needed.
+- **A GENERAL MECHANISM SITS UPSTREAM OF HIS FIVE QUESTIONS.** `T2`/`T3`/`T4`/`T5` are **conditional**
+  rows (apply only when the same element's `T6` = `STOP_RESUME`). All four corpus transitions now have
+  `T6` derived as `STOP_RESUME` — and **all 16 conditional lines in the corpus have a resolved governing
+  line and NOT ONE has been evaluated.**
+- **The cause is a comment I wrote in increment 3 that has lapsed:** *"increment 3 derives no transition
+  values, so the governing value is not available to compare."* True then; transition values are derived
+  now. So asking why `T2` doesn't resolve is asking about a line never judged. **Not changed — removing
+  that SD-48 stop is his.**
+- **The five answers:** (1) the source authors **nothing** — its only text is the name + *"Restart from
+  goal kicks."*; all three items are `ASSUMED`, evidence *"Laws meaning (assumption 1)"*, one calling its
+  own reading *an inference*. (2) `DEFENDING_TEAM` and `NOT_LAST_TOUCH` now fit — **cluster 3 removed the
+  blocker the restater named**: *"with the trigger unauthored, T2 cannot be written as LAST_TOUCH or
+  NOT_LAST_TOUCH."* (3) the **phrases** restate; the **claims** don't — restating never changes `basis`,
+  and an assumption bounds without entailing. **What's missing is authoritative knowledge, not
+  vocabulary.** (4) `T3`/`T4` are derivative — both say *"the team in this element's T2"*; `T2` is the
+  only root and is `ASSUMED`. (5) **L2 is one fact, three faces; L3 is genuinely separate** (T4 takes a
+  region reference and *"own end"* is not one — `SV1` gives halves/thirds, not ends).
+- **The narrow ruling needed:** does the goal kick's team **follow from the trigger he already authored**,
+  or is *"awarded to the defending team"* a separate fact? Either way no designation is added and no
+  identity inferred. Can't choose — one reading treats his trigger as carrying the award, the other not.
+- **Reach, not to be conflated:** conditional-line evaluation = **general**; the goal kick's team =
+  **local**.
+- **PILOT BOUNDARY — first thing leaning the other way.** L3 (placing a restart by an *end* vs a *half*)
+  is a question about what a coach actually does setting up a goal kick; watching one would answer it
+  faster than reasoning about the register. One item, so not moving on it — but **flagged early rather
+  than discovered late**, as he asked.
+
+**27 Sep — SD-88 + SD-89: CLUSTER 4 REDERIVED** (`docs/design/phase-b-cluster-4-rederived.md`). Spec
+**revision 21**; 154 tests; suite green; `npx tsc --noEmit` clean.
+- **SD-88 removes the increment-3 stop.** A conditional line whose governing property is
+  authoritatively resolved now has its condition evaluated: true keeps the line **and the verdict its
+  own contributions earn**, false **WITHDRAWS** it (never `NOT_AUTHORED`). Conditional 16 → **0**;
+  withdrawn 0 → **12** (T2–T5 on the three CONTINUE transitions). `classify.ts` `resolveConditional`.
+- **The read/supply distinction is in the code, not just the comment.** A governing line that is FREE,
+  failed, or **derived-but-valueless** is not evaluated; the valueless case pushes an SD-48 stop.
+  `classifyLines` now takes the `stopped` channel.
+- **Four regression tests, none of them on a transition** — three on consequences (`V11`/`V13`/`V14a-c`)
+  and one on a Space row given a **synthetic** applicability entry, plus an assertion that
+  `classify.ts` names no register row at all. **All four bite-proved.**
+- **`GA-TRANSITION-COHERENCE` stopped failing, and that is the same lapse from the other side:** it had
+  been reporting a *violation* on lines never judged. Judged, they are gaps, and a gap blocks a clause
+  rather than failing it. Also fixed: **one `blockedAny` flag served two clauses**, so a blocked resume
+  clause made the CONTINUE clause report not-evaluable after it had passed on 3 real instances.
+- **THE REAL FINDING — THE CORPUS'S FIRST GENUINE COLLISION.** SD-89 authored `T2 = DEFENDING_TEAM`.
+  It collides with **`restated:GF2::GF2-16.a`** (`NOT_LAST_TOUCH`, AUTHORED, from GF2 setup guidance
+  *"ball out of play restarts from the team that didn't touch it last"*), whose selector is
+  `trigger ∈ {OUT_END_LINE, OUT_TOUCHLINE}`. **Cluster 3's trigger is what routed GF2 onto this
+  element.** Before SD-89, `T2` RESOLVED to `NOT_LAST_TOUCH`; now it is `UNRESOLVED`.
+- **Why it will not reconcile:** RC-22 — *"two designations are equal only if they map to one entry"*;
+  SD-02 — no universal precedence hierarchy; stage 7 deferred. Both denote the same team *here*, since
+  the trigger makes last touch `ATTACKING_TEAM`. Agreement in fact, difference in expression.
+- **§3 already half-answers it and the engine never implemented it:** *"Adaptation is not support …
+  the displacement is recorded as an `ADAPTED` disposition on that contribution in Gate B, citing
+  SD-08."* `ADAPTED` is in the closed vocabulary and **has never been produced** — no corpus case had
+  displaced a default before. NOT implemented: what "displaced" means is unestablished, and reading
+  SD-08 as precedence is what SD-02 forbids. **Stopped and reported, per his standing instruction.**
+- **Three routes out, deliberately not chosen: A** implement `ADAPTED` (**general**); **B** author an
+  equality between the two designations (**area-reusable**, needs stage 7); **C** withdraw the
+  ownership fact since GF2 already answers `T2` (**local**). C is live — before SD-89 the line resolved.
+- **`T3`/`T4` NOT restated**: his permission was conditional on `T2` being established, and it is not.
+  **L3 untouched and open** — no `end` region added, no half substituted; the rederivation revealed no
+  existing authoritative answer for it.
+- **A SECOND LAPSED STOP OF THE SAME SHAPE, reported not fixed.** `derive.ts` `applies()` refuses any
+  citable standing decision whose condition reads another line's derived value, because *"increment 2
+  derives no transition values"*. Only SD-13 has one, its firing condition is stated exactly in the
+  register, and the corpus holds **no START element** — so nothing changes either way today. A calm
+  one to rule on. It is a standing decision's condition, not a line's applicability, so SD-88 does not
+  reach it.
+- **Figures:** lines 153; enumerated/conditional/withdrawn 141/0/12; derived 34; **failed 93 → 97**;
+  open 10; **collisions 0 → 1**; reference defects 0. The rise is the accounting, as in cluster 3.
+- **A SILENT-OVERWRITE TRAP CAUGHT AND GUARDED.** `corpus-restatement.ts` keyed **one ruling per item**
+  in a `Map`, so SD-89's entry for `A01-02-05.a` would have silently replaced SD-87's selector. Now
+  multiple rulings per item apply in order, each counted, with a test asserting both survive.
+- **HIS QUESTION ABOUT THE REMAINING POPULATION, answered with a census not an impression.** Of 97
+  failed lines: **declared gap 64 · coverage 31 · unresolved 1 · excluded 1** — **95 of 97 are missing
+  authored knowledge, not mechanism.** And **20 of them are one question twenty times over**: `S5`
+  `S6` `O4` `O5`, *where a region or object sits along/across the axis* — the same question as L3.
+  `T1a`/`T1b`/`T1c` add 12 (three transitions carry no qualifiers).
+- **PILOT BOUNDARY:** not recommending it opens. Recording that the door is further open than last
+  week, and that the placement rows give it a **named, countable region — twenty lines** — rather than
+  a single item. Caveat stated plainly: two of the last four clusters looked local and turned out
+  general, and this round found two lapsed stops and an unimplemented disposition.
+
+**27 Sep (second) — SD-90 + SD-91; THE POPULATION CLASSIFIED**
+(`docs/design/phase-b-population-classification.md`). Spec **revision 22**; 164 tests; suite green.
+- **SD-90 implements `ADAPTED`**, which §3 specified from the start and no run had ever produced. A
+  `PREFERRED_DEFAULT` displaced by an applicable `REQUIRED_RANGE` contribution leaves `entailing`,
+  takes no part in collision resolution, keeps provenance in `audit.dispositions`, and **supplies no
+  support**. `T2` → `DEFENDING_TEAM`; `GF2-16.a` → `ADAPTED`; **collisions 1 → 0**; derived 34 → 35;
+  failed 97 → **96**.
+- **His two bullets kept distinct:** a default whose value **differs** is `ADAPTED`; one that
+  **matches** adapted to nothing and stays `SATISFIED`. Both leave `entailing`, so neither is a second
+  support. Three `T6` lines drop from 2 contributions to 1.
+- **"Required" read as `valueStatus: REQUIRED_RANGE`** (the axis SD-08 governs). Real choice — the
+  corpus has 2 `PREFERRED_DEFAULT`/`REQUIRED` and 9 `REQUIRED_RANGE`/`SUPPORTING` items — but both
+  readings coincide today. A test pins it.
+- **No equivalence claimed** between `DEFENDING_TEAM` and `NOT_LAST_TOUCH`, per his instruction.
+  Corpus-wide test: no displaced contribution appears in any line's support.
+- **DISPLACEMENT BROKE `reach`, caught by reading output not by a test.** Removing the default from
+  `entailing` removed it from the forward stage's reach computation, so `GF2-17` — satisfied, adapted
+  to nothing — reported *"its realization conditions are not satisfied"*. A displaced contribution
+  still reached the line. Same family as [[silent-loss-of-authored-knowledge]].
+- **SD-91** evaluates a citable standing decision's authored condition when the governing property is
+  resolved; separate mechanism from SD-88. Tested on a synthetic decision over Space rows, including a
+  *derived-but-valueless* governing line. **Corpus unchanged**, as he expected.
+- **THE 96 REMAINING LINES, IN HIS FOUR CATEGORIES:** internal deterministic **53** ·
+  knowledge-authoring **20** · realization-sensitive **23** · outside boundary **0** (structural: the
+  boundary is enforced at item level — 34 `NOT_CHECKABLE` items produce no lines at all).
+- **TWO MECHANISMS ACCOUNT FOR 28 OF THE 53:**
+  1. **Wide Zone Advantage's own-involvement set is EMPTY (12 lines).** Own involvement = classes the
+     contract formed *from items in the OTHER scopes*. All its channel classes come from
+     `OWN_INVOLVEMENT` items, so the set is empty and all 11 of its own-involvement items reach
+     nothing — **including `WIDEZONE-02.a`, the existence item that forms the channels.**
+     *An `OWN_INVOLVEMENT` existence item cannot seed the involvement its own contract is scoped to.*
+     Variable Target escapes only because its object-existence items are `WHOLE_GAME`.
+  2. **A selector-fixed attribute does not reach its own line (16 lines).** `c:blind:GF4:I03` is
+     formed by `noun=half` and its `S3` line is unauthored. The contracts say so repeatedly —
+     *"fixed only through the S2 selector (RC-16)"*. General derivation-composition question.
+- **THE CORRECTION I OWED HIM ON THE 20 PLACEMENT LINES: half are not realization questions.** 10
+  realization-sensitive, **10 blocked internally** (Wide Zone's 6 + the 4 ball-position lines, which
+  A01-02 says moved to `T4`). Last week's "20 lean outward" was wrong by half.
+- **The one Gate A failure that genuinely blocks a coherent game: THREE transitions claim
+  `POSSESSION_CHANGE`** (`GF4:I06`, `GF2-07.a`, `NEUTRAL-12.a`). Three contracts each authored the
+  turnover; SD-47 forms one class per existence item. **Same shape as SD-84 one level along** — `T1`
+  is keyed by trigger, so the trigger key is the identity. Not acted on; extending SD-84 to a keyed
+  collection is his.
+- **Also reported, not corrected:** the register spells the qualifier rows `qualifiers.lastTouch` in
+  `path` and `qualifier.lastTouch` in `selectorAttributes`.
+- **PILOT BOUNDARY, revised DOWN from last week and stated as such.** 55% of the remainder is internal
+  deterministic. Reason last week read differently: *a "declared gap" reason code says some object
+  could not author the row — it says nothing about whether another object authored it and failed to
+  reach.* Wide Zone's 12 are declared gaps with the knowledge in the same contract. **Recommendation:
+  the next cluster should be one of the two mechanisms, not a knowledge cluster.**
+
+**27 Sep (third) — THREE MECHANISMS ANALYSED, NOTHING IMPLEMENTED**
+(`docs/design/phase-b-three-mechanisms.md`). No code changes; suite unchanged at 164.
+- **HIS INSTRUCTION: analyse, don't implement where more than one valid reading remains.** All three
+  have two or more, so all three come back for ruling. Nothing merged, nothing authored, no
+  enforcement added, no register change.
+- **CLUSTER 5 — own involvement. THE RULE ALREADY EXISTS AND WIDE ZONE BREAKS IT.** AM-13, adopted
+  19 Sep: *"An item that entails a collection element may not use own-involvement; it uses a selector
+  attribute at whole-game scope instead (AM-17)."* Three Wide Zone items do exactly that. The
+  20 Sep derivation note already concluded *"the remedy is authoring — restating the contract — not
+  derivation"*, and SD-31 ruled the declaration survives the empty scope. **What was never ruled is
+  that the engine should let the violation through silently** — class formation uses the item, scope
+  resolution excludes it, no report.
+  - Reach: **5 violating items in 2 contracts**. Variable Target violates it too (`VARTARGET-08.a/.b`
+    on `J11a`) but is **symptomless** — it has 8 other-scoped existence items, and no own-involvement
+    item targets a `J11a` field row. *A silent class of authoring defect, not a one-off.*
+  - **R1** enforce AM-13 + restate Wide Zone's 3 scopes (authoring, his). **R2** drop AM-13's
+    prohibition — **its stated reason is a fossil of the pre-class model**: the circularity was about
+    stage-5 entailment, and SD-47 made elements classes fixed at stage 2, so seeding from all own
+    classes is now a subset selection, not circular. Both resolve the same 12 lines.
+- **CLUSTER 6 — RC-16, AND THE CORPUS AND ENGINE WERE BUILT TO DIFFERENT RULES.** His question has an
+  exact answer: **RC-16**, a *run convention*, never ratified — *"an item that entails an element also
+  entails each attribute its selector fixes with `=` or `∋`. An attribute given with `∈` is only
+  narrowed."* The derivation-rules doc says plainly that every RC *"goes beyond the specification's
+  text"*. **Six of eight contracts cite RC-16 and omitted items on those rows because of it.** The
+  engine never adopted it. That is why the lines read as coverage gaps.
+  - Reach: **19 FIELD rows are selector attributes** (every area but Envelope and Direction); 24
+    instances today. Applying RC-16 literally: **19 failed lines resolve**, 0 agree, **3 collide**,
+    **1 closes an SD-39 freedom** (`RPC-001-11.a::J3`), 1 narrows only (`∈`).
+  - **The three collisions are the same thing written twice** — selector `"connected-pass count"` vs
+    item `"current connected-pass count of ATTACKING_TEAM"`. Same shape as DEFENDING_TEAM /
+    NOT_LAST_TOUCH. **S2 (ratify subordinately — the selector supplies a value only where no item
+    entails) avoids all three**, and has a precedent: `applies()` already requires
+    `entailing.length === 0` for standing decisions.
+- **CLUSTER 7 — THE SD-84 ANALOGY FAILS, ON SD-84'S OWN TERMS.** (a) SD-84 requires *cardinality
+  exactly one*; `T1` has no bound. (b) SD-84 says identity follows from the schema invariant *"rather
+  than from interpretation of selectors"* — the trigger key IS a selector attribute. (c) SD-84 reads
+  singletons *as data*, **"never from the row's prose"** — `T1`'s key is prose only.
+  - **The three turnover classes are indistinguishable in every derived property** (T6 CONTINUE and
+    T7 true, both from the same items; T2–T5 withdrawn). Merging would create no collision.
+  - **The prior question is whether the gate is asking the right thing.** Gate A's spec says *"one
+    value per atomic transition property per trigger"* — satisfied. The implemented clause asserts one
+    **element** per key. SD-47 says derivation holds classes, not individuals, and a candidate *"may
+    satisfy every supported class whose selectors it matches"*.
+  - **T1** fix the gate clause (no lines change). **T2** rule that a canonical key establishes
+    identity — a NEW decision; **must be scoped to declared keys**, because six class groups share
+    identical selectors and only one is on a keyed row, and an "identical selectors" rule would merge
+    13 classes against SD-47. Needs `keyedBy` **as data** to meet SD-84's own standard. Removes 18
+    lines (6 failed).
+- **Union if all three resolve maximally: failed 96 → 63.** Recommended order: **6, then 5, then 7** —
+  6 is largest and until it is settled we cannot tell which "coverage" gaps are real.
+- **Warned him the reclassification will move a lot**: 19 of the lines cluster 6 resolves were
+  classified yesterday as knowledge-authoring or realization-sensitive (e.g. RPC-001's four condition
+  types). They are not missing knowledge; they are written in a selector.
+
+**27 Sep (fourth) — SD-92/93/94 IMPLEMENTED; POPULATION RECLASSIFIED FROM SCRATCH**
+(`docs/design/phase-b-reclassification.md`). Spec revision 23; **173 tests**; suite green; tsc clean.
+- **SD-92** ratifies RC-16 **subordinately**: an establishing selector supplies the field only where
+  no support-capable item entails it. `=` fixes · `∋` establishes **membership without defining the
+  set** (new `establishedMembers` on the derived line) · `∈` narrows (SD-78). New support relation
+  **`CARRIES`**. **Subordination held — the 3 predicted collisions did not happen.**
+- **The register now carries `selectorAttribute` on all 19 affected FIELD rows** — the correspondence
+  is data, not path-tail matching, which also reconciles `qualifiers.lastTouch` vs
+  `qualifier.lastTouch` without touching either spelling.
+- **SD-93** amends AM-13: own involvement = the classes the object established, **including from its
+  own-involvement existence items**. `fixOwnInvolvement` now only *selects* from stage-2 classes,
+  which is the structural form of "may never establish authority". Plus a **named diagnostic**
+  channel (`PartialResult.diagnostics` → emitted, rendered): `OWN_INVOLVEMENT_UNPOPULATED`.
+- **SD-94** replaces the trigger clause with *"classes applying to one trigger must be mutually
+  compatible"*. Partitioned-by-qualifier pairs are not compared (AM-15); one side derived + the other
+  failed **blocks** rather than fails (SD-28). Nothing merged, no `keyedBy`.
+- **Corpus: derived 35→51, failed 96→80, Gate A failures 3→2** (only GA-INFORMATION and
+  GA-NO-FAILED-LINE). **3 collisions appeared**, all Wide Zone `S6`: `WIDEZONE-04.a`
+  *"touchline-adjacent"* vs `WIDEZONE-05.a` *"touchline-adjacent (outer edge on a touchline)"* —
+  **one authored sentence restated twice**, invisible until its items could reach. Not repaired.
+- **RECLASSIFIED: internal 32 · knowledge 25 · realization 23 · outside 0.**
+  - **REALIZATION-SENSITIVE HELD AT EXACTLY 23, and the 10 placement lines are the same 10.** Two
+    mechanisms cleared, 16 lines gone, 5 re-sorted, and the coach-informed set did not move. First
+    evidence it is **stable under mechanism corrections** rather than an artefact of them.
+  - 3 lines moved internal → knowledge: Wide Zone's `S5` axis extent is `ASSUMED`, which only became
+    visible once SD-93 let it arrive.
+- **Two general mechanisms remain, both sharper than before:**
+  1. **A set-/list-valued row cannot resolve from membership** (9 lines: `S4` ×6, `J7`, `J11b`,
+     `J12`). Knowledge states members one at a time; several items only assert the field is present
+     (`EXISTS` on a `FIELD`). **How does a set become complete?**
+  2. **Transition qualifiers the trigger makes inapplicable** (10 lines). SD-88's mechanism one step
+     along — conditional on the **element's own trigger** rather than another line — and SD-92 just
+     made selector values readable. The `applicability` block exists; these rows are not in it.
+- **PILOT BOUNDARY against his new formulation — 2 of his 5 prerequisites settled.** Identity
+  settled (SD-84/SD-94/SD-47, no line waits on it); reach mostly settled. **Direction is the sharpest
+  open one**: `GA-DIRECTION` is blocked on `RPC-001-11.a::J2`, and SD-07 is an invariant. Objective
+  structure open (11 lines). **Direction → objective reference → objective role are one cluster, not
+  three.** Recommended next: the objective area, because the set-completion question sits inside it.
+- **TEST FIXTURES: many moved from `S3` to `S5`.** `S3` is a selector attribute, so under SD-92 it
+  resolves from the class selector; any fixture asserting "nothing entails this line" must use a row
+  no selector carries. Same for the SD-91 fixture (now governs on `S6`) and the SD-88 consequence
+  fixture (now selected on `trigger`, not `effect`).
+
+**27 Sep (fifth) — OBJECTIVE/DIRECTION CLUSTER: ANALYSED, DOES NOT CLOSE**
+(`docs/design/phase-b-objective-direction-closure.md`). No code changes; suite unchanged at 173.
+- **He reframed the pass**: not the next failure cluster but a **pilot-boundary closure pass**, with
+  four buckets (general mechanism / knowledge required for coherence / knowledge non-blocking /
+  realization-sensitive) and "stop and return anything needing a new semantic ruling".
+- **THE CLUSTER DOES NOT CLOSE. Three rulings and one authored fact are needed.**
+- **F1 — A TEAM CANNOT CARRY A DESIGNATION.** `P1.selectorAttributes = ["team"]` and **no FIELD row
+  corresponds**, so a designation is expressible only as a class selector, never authored. Both team
+  classes have **empty selectors**. `GA-DIRECTION` reads `designationOf` off the selector because
+  there is nowhere else. *May not be a defect* — RC-22 says a designation is evaluated at the trigger
+  or episode, so a team plausibly should not carry one statically. **D1** add a designation field ·
+  **D2** ask what derivation can establish (the SD-94 pattern) — recommended · **D3** direction moves
+  to the realization layer.
+- **F2 — `J3` IS UNAUTHORED ON 4 OF 5 OBJECTIVES.** The corpus has **one** `J3` item: `GF2-12.a`
+  *"EACH_TEAM: one shared target attacked by both teams"*, ASSUMED/PREFERRED_DEFAULT → bounds, never
+  entails (SD-83). **D2 does not rescue direction** — a designation-only check still needs to know
+  which designation attacks which objective. **Bucket 2, load-bearing, held not authored.**
+- **F3 — the primary objective's reference is authored AS PROSE.** `GF2-08.b` = *"the target feature:
+  the objective-area region of GF2-03.a (line or zone)"*. `c:restated:GF2:GF2-03.a` **is a held
+  class**; SD-63 withholds because it is open text, blocking GA-DIRECTION clause 2. Same shape as
+  SD-79's bounded restatement. Reach: reusable — 6 references establish no structural identity.
+- **F4 — THREE OBJECTIVE CLASSES HAVE EMPTY SELECTORS** (`GF2-09.a`, `RPC-001-14.a`,
+  `VARTARGET-06.b`). **9 of the 80 failed lines are fields of objectives nobody described.** Mirror
+  of SD-94: there identity-neutrality was harmless, here it *multiplies the line population*.
+  **Does an undescribed existence assertion owe field values?** Returned, not acted on — resolving it
+  would remove 9 lines with nothing authored, which is exactly why not to.
+- **F5 — SET COMPLETION, TRACED. ONE READING SURVIVES.** RC-15 (per member) · SD-51 (resolve the set
+  first) · SD-78/79/80 (a set is an authored array) · SD-92 (`∋` does not define the set) · AM-04
+  (silence licenses nothing). **A set-valued row resolves only from an authored array.** Both
+  closed-world readings die on AM-04 *and* on the corpus — `S4` carries two `UNDECLARED` declarations
+  (*"Functions not examined as a field"*), so completeness would be read out of an admission that
+  nobody looked. **Answered, not returned.**
+  - **BUT completeness is needed less often than the count suggests.** `GA-REGION-FUNCTION` asks
+    "serves at least one function" and "every function is registered" — **both satisfiable from
+    `establishedMembers`**, which SD-92 now records for three regions. The check reads only the line
+    and blocks. *A consequence of SD-92 nothing has implemented; the only item here needing no
+    ruling.* Not done, because it belongs to the returned cluster.
+- **F6 — FIVE ITEMS USE `EXISTS` ON A `FIELD` ROW** (`J6`,`J7`,`J10`,`J11b`,`J12`). A field exists by
+  schema, so they assert nothing. **What does `EXISTS` mean on a FIELD row?** General grammar
+  question. The knowledge underneath is bucket 3 — Variable Target's set is optional machinery.
+- **PILOT-READINESS ACCOUNTING (his six questions):**
+  - *Deterministic generation:* nothing in engine behaviour prevents it; the engine **is not wired to
+    the generation pipeline at all**, which is unscoped work and not a knowledge question.
+  - *Structural coherence:* **one thing — direction.** GA-NO-FAILED-LINE is a count; GA-INFORMATION
+    is bucket 3.
+  - *Representative validity:* **unmeasured by design** — he kept it out of Gate A on 16 Sep. Not
+    blocked by a defect; the pilot is the instrument.
+  - *Safely open:* the 23, presumed legitimate-open.
+  - *Non-blocking gaps:* ~14.
+  - *Would another cluster teach us what coaches cannot?* **This one would, and it is the last of
+    which that is clearly true.** Three of its findings are representation semantics no coach could
+    answer. After it: one football fact, ~14 non-blocking gaps, 23 realization choices.
+- **The Wide Zone `S6` collisions DO NOT BLOCK** — they are on a channel's across-axis position,
+  which is one of the 23, and no Gate A clause depends on them. Left untouched as instructed.
+
+**27 Sep (sixth) — SD-95..SD-100 IMPLEMENTED; CLOSURE RUN** (`docs/design/phase-b-closure-result.md`).
+Spec revision 24; **179 tests**; suite green; tsc clean.
+- **Lines 153→125, failed 80→57, open 10→5. Gate A failing: `GA-INFORMATION` + `GA-NO-FAILED-LINE`.**
+- **SD-95** GA-DIRECTION asks what the objective structure establishes (a shared `EACH_TEAM` target,
+  or two objectives on distinct designations at opposite ends). **No team class is consulted** — a
+  test asserts the check reads no team property. A FREE `J3` makes it *pending*, not failed (SD-39).
+- **SD-96 — THE CASE IS RETURNED.** GF2 does **not** establish which team attacks its target. Its own
+  evidence says *"the original records this as unreconciled with 'building from their own end'"*, and
+  the fit-note says `J3` carries NOT_AUTHORED for the shared-or-per-team question. **One line needs
+  it: `GF2-08.a::J3`.** Probed: authored as the designation `EACH_TEAM`, **GA-DIRECTION PASSES.**
+- **SD-97** empty-selector existence = existential coverage; **28 lines removed** (3 objectives,
+  2 teams, 2 object classes, 1 objective set). Classes kept (cardinality is real); no field lines.
+  `classesOn` now returns individuated classes only; `allClassesOn` kept for cardinality.
+- **SD-98** typed `structuralRef` on a value; `identityOf`/`referentClass` resolve it. Applied to
+  `GF2-08.b`. References resolved 0→2; GA-REGION-FUNCTION blocked 6→2.
+- **SD-99** GA-REGION-FUNCTION reads `establishedMembers`. **SD-100** `EXISTS` on a FIELD is INERT.
+- **NEW LOAD-BEARING DEPENDENCY EXPOSED (general):** *an item may entail a value that contradicts the
+  defining selector of the class it reaches, and nothing notices.* Reach is decided on selectors,
+  never on values; SD-92 makes an item beat a selector. **Does not occur today; occurs the moment
+  `J3` is authored the obvious way** — `GF2-12.a` (selector `role=PRIMARY_SCORING`) would replace
+  `BUILD_OUT_TEAM` with `EACH_TEAM` on RPC-001's objective. Verified by probe. Three treatments
+  offered, none chosen.
+- **CORRECTION OWED AND MADE: the 23 became 14.** SD-97 removed 9 — they were fields of objects
+  nobody individuated. *"Stable under mechanism corrections" held for corrections that changed
+  **reach**; SD-97 changed **enumeration**, which is what the set was counted from.* The questions
+  did not vanish; they moved into the realization layer, and **the engine no longer names them** — a
+  visibility loss that lands on the generation-connection work.
+- **BUCKETS: mechanism 21 · knowledge-for-coherence 17 · non-blocking 6 · realization 14.**
+- **PILOT BOUNDARY: not yet, by one item.** Deterministic yes; realization open yes; coherence no, on
+  two checks; direction no, by one line that **passes when authored**. The two remaining blockers are
+  a football question (`J3`) and a vocabulary question (Variable Target's unregistered information
+  trigger). **Neither is a mechanism.**
+- **GENERATION-CONNECTION SCOPE (conditional, in the doc):** five pieces — (1) a resolved-game
+  output; (2) **a realization layer, which does not exist at all**; (3) **contracts for ~69 objects
+  where 8 exist — the largest item, and authoring not engineering**; (4) selection→derivation
+  mapping; (5) generated-activity conformance. **Blocker for starting conformance now: a live goal
+  reaches objects with no contract.** Piece (1) could start in parallel and would test whether the
+  eight-area representation carries what a generator needs — a question no part of Phase B has asked.
+- **TEST NOTE:** fixtures asserting "nothing entails this line" must use a row no selector carries
+  (`S5`/`S6`), and fixtures needing field lines must give the establishing item a **selector** —
+  under SD-97 an empty selector enumerates none.
+
+**28 Sep — THE RESOLVED-GAME OUTPUT** (`back/src/system/derivation/resolved-game.ts`,
+`run-resolved-game.ts`, `resolved-game.unit.ts`). **190 tests**; suite green; tsc clean.
+Joe directed it: piece (1) of the generation-connection scope.
+- **It computes NOTHING**, like `diagnostic.ts`. A test asserts one entry per derived line, with the
+  value and support **carried, not recomputed**. *"A renderer that adds semantics is a second engine
+  that will eventually disagree with the first"* — which is how `game::V1` was reported two ways.
+- **Assembles by the register's own paths**, so nothing is hardcoded per area: `space.regions[].noun`
+  → `space.regions[<elementId>].noun`. Dotted leaves nest (`position.along` → `position: {along}`).
+- **Four lists a realization layer needs, and the last three are the point:**
+  - `game` — derived values only, nested.
+  - `open` (5) — SD-39 freedoms with authority and bounds. **Never filled here.**
+  - `existential` (8) — **SD-97 assertions, which appear in NO line.** This is the visibility loss I
+    flagged after SD-97, recovered: a realized game must satisfy them and nothing can say which
+    element does. Read from `classes`, the only place they survive.
+  - `notEstablished` (57) — **absence is never a decision.** Withdrawn lines are in neither list:
+    not applicable is not a gap.
+- `coherence` carries Gate A **verbatim**; `mayRealize = gateA === 'PASS'` is a restatement of Gate
+  A's own claim (*"this game can be coherently laid out and played as specified"*), not a new
+  judgement.
+- **A LATENT SD-84/SD-97 INTERACTION FOUND AND FIXED.** The V0 primary-event singleton has an empty
+  selector, so SD-97's rule classed it as "exists, not individuated" — **false**: SD-84 says identity
+  there *"follows from the authoritative schema invariant itself"*. Singletons are now excluded from
+  the SD-97 skip in `enumerateLines`, from `classesOn`, and from `existential`. No corpus line moved
+  (V0's fields are game-level rows), but it would have bitten the first singleton with owned fields.
+- **Run it:** `npm run corpus:game` (rendered) or `-- --json`.
+- **What it already shows about the eight-area question:** the game reads as a game — envelope,
+  regions, performers, value, transitions — and the two things a generator would most need are the
+  two that are not there: **direction** (a view, and unestablished) and **who attacks what**. That is
+  the same load-bearing gap, seen from the consumer's side rather than the gate's.

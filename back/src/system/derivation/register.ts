@@ -15,6 +15,13 @@ export interface RegisterRow {
     ownerRow?: string
     valueType?: string
     selectorAttributes?: string[]
+    /**
+     * SD-92 — on a FIELD row, the owning collection's selector attribute this row holds. Stated as
+     * data so nothing has to recover the correspondence by matching path text; `T1a`'s path reads
+     * `qualifiers.lastTouch` while `T1` registers `qualifier.lastTouch`, and both spellings stay as
+     * authored.
+     */
+    selectorAttribute?: string
     fillable?: string
     sourceKinds?: string[]
 }
@@ -39,6 +46,17 @@ export interface RegisterIndex {
     vocabularies: Map<string, string[]>
     vocabularyVersions: Record<string, string>
     contractEnums: Record<string, string[]>
+    /**
+     * **SD-84 — singleton collections.** Rows the authoritative schema fixes at cardinality exactly one.
+     *
+     * Read from the schema invariant itself, as data: a citable standing decision whose item states
+     * `COUNT = 1` on a `COLLECTION` row. Never from the row's prose `valueType`, because identity here
+     * *"follows from the authoritative schema invariant itself rather than from interpretation of
+     * selectors, wording, or presumed equivalence"*.
+     */
+    singletonRows: Map<string, string>
+    /** Contract-level sentinels for an item's `row`. A sentinel is never a row and creates no property. */
+    contractSentinels: Record<string, any>
     citableStandingDecisions: Set<string>
     /** The citable entries themselves, as the register states them. */
     standingDecisions: any[]
@@ -100,6 +118,24 @@ export function indexRegister(register: any): RegisterIndex {
     }
     const contractEnums: Record<string, string[]> = (vocabBlock.contractEnums as any) || {}
 
+    // A sentinel may never collide with a row id: that is what keeps it outside the representation.
+    const sentinels: Record<string, any> = {}
+    for (const [key, entry] of Object.entries(register.contractSentinels || {})) {
+        if (key === 'note' || !entry || typeof entry !== 'object') continue
+        if (rows.has(key)) throw new HaltError('H1', `contract sentinel ${key} collides with a register row id`)
+        sentinels[key] = entry
+    }
+
+    // SD-84 — row id → the standing decision that fixes it at exactly one.
+    const singletonRows = new Map<string, string>()
+    for (const decision of register.citableStandingDecisions || []) {
+        const claim = decision && decision.item
+        if (!claim || claim.requirement !== 'COUNT' || claim.value !== 1) continue
+        const row = rows.get(String(claim.row))
+        if (!row || row.kind !== 'COLLECTION') continue
+        singletonRows.set(row.id, decision.id)
+    }
+
     const citable = new Set<string>((register.citableStandingDecisions || []).map((d: any) => d.id).filter(Boolean))
 
     return {
@@ -111,6 +147,8 @@ export function indexRegister(register: any): RegisterIndex {
         vocabularies,
         vocabularyVersions: (vocabBlock.versions as any) || {},
         contractEnums,
+        singletonRows,
+        contractSentinels: sentinels,
         citableStandingDecisions: citable,
         standingDecisions: (register.citableStandingDecisions || []).filter((d: any) => d && d.id),
         registerVersion: register.version,

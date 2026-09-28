@@ -12,6 +12,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 
+import { corpusInput } from './corpus'
 import { runStages0to5 } from './engine'
 import { DerivationInput, LoadedContract, ContractItem } from './types'
 
@@ -69,9 +70,9 @@ function testAuthoredEqualsEntails(): void {
 
 function testAssumedItemBoundsButNeverEntails(): void {
     const result = runStages0to5(
-        input([contract([item(), item({ itemId: 'I-2', row: 'S3', requirement: 'EQUALS', value: 'channel', basis: 'ASSUMED' })])]),
+        input([contract([item(), item({ itemId: 'I-2', row: 'S5', requirement: 'EQUALS', value: 'the attacking end', basis: 'ASSUMED' })])]),
     )
-    const line = [...result.derived!.lines.values()].find(l => l.lineId.endsWith('::S3'))!
+    const line = [...result.derived!.lines.values()].find(l => l.lineId.endsWith('::S5'))!
     assert.equal(line.entailing.length, 0, 'an assumed item never entails (§3)')
     assert.equal(line.bounding.length, 1, 'it bounds instead')
     assert.equal((line.bounding[0].support as any).relation, 'NARROWS')
@@ -79,17 +80,17 @@ function testAssumedItemBoundsButNeverEntails(): void {
 
 function testEngineWordingSupportsNothing(): void {
     const result = runStages0to5(
-        input([contract([item(), item({ itemId: 'I-2', row: 'S3', requirement: 'EQUALS', value: 'channel', basis: 'ENGINE_ONLY' })])]),
+        input([contract([item(), item({ itemId: 'I-2', row: 'S5', requirement: 'EQUALS', value: 'the attacking end', basis: 'ENGINE_ONLY' })])]),
     )
-    const line = [...result.derived!.lines.values()].find(l => l.lineId.endsWith('::S3'))!
+    const line = [...result.derived!.lines.values()].find(l => l.lineId.endsWith('::S5'))!
     assert.equal(line.entailing.length + line.bounding.length, 0, 'SD-21: engine wording supports nothing')
 }
 
 function testTypicalExampleIsInert(): void {
     const result = runStages0to5(
-        input([contract([item(), item({ itemId: 'I-2', row: 'S3', requirement: 'EQUALS', value: 'channel', valueStatus: 'TYPICAL_EXAMPLE' })])]),
+        input([contract([item(), item({ itemId: 'I-2', row: 'S5', requirement: 'EQUALS', value: 'the attacking end', valueStatus: 'TYPICAL_EXAMPLE' })])]),
     )
-    const line = [...result.derived!.lines.values()].find(l => l.lineId.endsWith('::S3'))!
+    const line = [...result.derived!.lines.values()].find(l => l.lineId.endsWith('::S5'))!
     assert.equal(line.entailing.length + line.bounding.length, 0, 'a typical example is inert')
 }
 
@@ -123,9 +124,13 @@ function testAbsenceOfKnowledgeDoesNotProduceOpen(): void {
 
     const position = lines.find(l => l.lineId.endsWith('::S5'))!
     assert.equal(position.open, null, 'the register bounds this choice space by authored values, and none is authored')
-    assert.ok(
-        result.stopped.some(s => /stage 5, row S5/.test(s.where)),
-        'and whether such a row should instead refuse is reported, not decided here',
+    // SD-50 settled what increment 2 had to leave open: "If a required property must be resolved, its
+    // existence is supported, but the legitimate choice space/bounds required to make it OPEN are
+    // unsupported, report a GAP." Not a refusal, and no longer an unresolved question.
+    assert.equal(
+        result.stopped.filter(s => /should instead refuse/.test(s.why)).length,
+        0,
+        'SD-50 settled it: an unsupported choice space is a GAP',
     )
 
     for (const line of lines.filter(l => l.lineId.endsWith('::S3'))) {
@@ -176,17 +181,21 @@ function testUndeterminedReachDerivesNothingAndReports(): void {
     const line = [...result.derived!.lines.values()].find(l => l.lineId.endsWith('::S5'))!
     assert.equal(line.entailing.length, 0, 'nothing is derived from an undetermined reach')
     assert.ok(line.undetermined.length > 0, 'it is recorded against the line')
-    assert.ok(
-        result.stopped.some(s => /stage 4, reach/.test(s.where)),
-        'and reported as a stop under SD-48 rather than resolved here',
+    // SD-49 established the semantics — "applicability is unresolved; derive nothing from that
+    // application … record the indeterminate case rather than resolving it by interpretation" — so the
+    // engine follows a rule here rather than stopping on an open question.
+    assert.equal(
+        result.stopped.filter(s => /stage 4, reach/.test(s.where)).length,
+        0,
+        'SD-49 settled it; the indeterminate case is recorded, not reported as unestablished',
     )
 }
 
 function testContradictedSelectorDoesNotReach(): void {
     const result = runStages0to5(
-        input([contract([item(), item({ itemId: 'I-2', row: 'S3', selector: 'noun=zone', requirement: 'EQUALS', value: 'zone' })])]),
+        input([contract([item(), item({ itemId: 'I-2', row: 'S5', selector: 'noun=zone', requirement: 'EQUALS', value: 'the far end' })])]),
     )
-    const line = [...result.derived!.lines.values()].find(l => l.lineId.endsWith('::S3'))!
+    const line = [...result.derived!.lines.values()].find(l => l.lineId.endsWith('::S5'))!
     assert.equal(line.entailing.length, 0, 'a class fixed to another value is definitely not reached')
     assert.equal(line.undetermined.length, 0, 'and that is a definite false, not an undetermined')
 }
@@ -195,25 +204,64 @@ function testContradictedSelectorDoesNotReach(): void {
 // SD-31 — a declaration survives an empty scope.
 // ---------------------------------------------------------------------------------------------
 
+/**
+ * SD-31 still holds, but the case that exercises it has changed under SD-93. An own-involvement
+ * existence item now populates the scope, so an empty set means the contract establishes no class at
+ * all — a contract of field items only.
+ */
 function testOwnInvolvementEmptyKeepsTheDeclaration(): void {
-    const c = contract([item({ scope: 'OWN_INVOLVEMENT' })])
+    const c = contract([item({ itemId: 'I-FIELD', row: 'S5', requirement: 'EQUALS', value: 'the far end', scope: 'OWN_INVOLVEMENT' })])
     c.declarations = [{ row: 'S2', declaration: 'NOT_AUTHORED', scope: 'OWN_INVOLVEMENT', note: 'needs channels' }]
     const result = runStages0to5(input([c]))
     const own = result.scope!.ownInvolvement.get('C-1')!
-    assert.equal(own.length, 0, 'no other-scoped existence item, so the own-involvement set is empty')
+    assert.equal(own.length, 0, 'the contract establishes no element class, so its own involvement is empty')
     const preserved = result.scope!.declarations.find(d => d.row === 'S2')
     assert.ok(preserved, 'SD-31: the empty scope empties the item application set, not the declaration')
     assert.equal(preserved!.declaration, 'NOT_AUTHORED')
+
+    // SD-93 — and it is no longer silent.
+    const named = result.scope!.diagnostics.find(d => d.code === 'OWN_INVOLVEMENT_UNPOPULATED')
+    assert.ok(named, 'an own-involvement contribution with nothing to reach is reported by name')
+    assert.equal(named!.where, 'C-1')
+    assert.match(named!.detail, /I-FIELD/, 'and it names the contributions that reach nothing')
 }
 
-function testOwnInvolvementUsesOnlyOtherScopedItems(): void {
+/**
+ * SD-93 — the amendment to AM-13. Own involvement is *"the authoritative element classes established
+ * by that knowledge object, including classes established by its own-involvement existence
+ * contributions"*. The restriction that replaces the prohibition is that own-involvement scope only
+ * ever **selects**: it establishes no class of its own.
+ */
+function testOwnInvolvementIncludesItsOwnEstablishedClasses(): void {
     const c = contract([
         item({ itemId: 'I-WHOLE', scope: 'WHOLE_GAME' }),
         item({ itemId: 'I-OWN', scope: 'OWN_INVOLVEMENT', selector: 'noun=zone' }),
     ])
     const result = runStages0to5(input([c]))
-    const own = result.scope!.ownInvolvement.get('C-1')!
-    assert.deepEqual(own, ['c:C-1:I-WHOLE'], 'the restricted computation sees only other-scoped items, and cannot broaden (SD-42)')
+    assert.deepEqual(
+        result.scope!.ownInvolvement.get('C-1')!,
+        ['c:C-1:I-OWN', 'c:C-1:I-WHOLE'],
+        'a class established at own-involvement scope now populates the scope it defines',
+    )
+    assert.deepEqual(result.scope!.diagnostics, [], 'and nothing is reported, because nothing is unreachable')
+
+    // It selects, it does not establish: every class in the set was formed at stage 2, and the set
+    // never contains a class another contract established.
+    const formed = new Set(result.classes.map(k => k.classId))
+    for (const id of result.scope!.ownInvolvement.get('C-1')!) {
+        assert.ok(formed.has(id), `${id} is a class stage 2 established, not one this scope created`)
+        assert.equal(result.classes.find(k => k.classId === id)!.fromItem.contractId, 'C-1')
+    }
+}
+
+/** A contract's own-involvement items still reach no other contract's elements. */
+function testOwnInvolvementDoesNotReachAnotherContract(): void {
+    const mine = contract([item({ itemId: 'I-OWN', scope: 'OWN_INVOLVEMENT' })], { contractId: 'C-1', objectId: 'O-1' })
+    const theirs = contract([item({ itemId: 'I-THEIRS', selector: 'noun=zone' })], { contractId: 'C-2', objectId: 'O-2' })
+    const result = runStages0to5(input([mine, theirs]))
+    assert.deepEqual(result.scope!.ownInvolvement.get('C-1')!, ['c:C-1:I-OWN'])
+    const application = result.scope!.applicationSets.find(a => a.item.itemId === 'I-OWN')!
+    assert.ok(!application.classIds.includes('c:C-2:I-THEIRS'), 'own involvement is this object’s elements, and only those')
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -247,9 +295,177 @@ function testNoDivergenceIsClaimedFalsely(): void {
 }
 
 // ---------------------------------------------------------------------------------------------
+// SD-91 — a citable standing decision whose condition reads another property's value.
+//
+// His ruling of 27 September, authorized "as a separate mechanism from SD-88": where the condition is
+// explicitly authored and the governing property is authoritatively resolved, evaluate it. "Evaluation
+// may read the governing value but may not supply, infer or modify it. If the governing value is
+// unresolved, free, failed or valueless, do not infer the condition's result."
+//
+// He asked for this to be tested generally rather than only against SD-13, so every case below uses a
+// standing decision that does not exist in the canonical register, on Space rows, with no transition
+// anywhere near it.
+// ---------------------------------------------------------------------------------------------
+
+/**
+ * A register carrying one extra citable decision: `S5` takes a value, but only where `S6` is the
+ * full width. The governing row is deliberately **not** a selector attribute — under SD-92 a
+ * selector would carry it, and then the unresolved case could not be constructed at all.
+ */
+function registerWithConditionalDecision(extra: any[] = []): any {
+    const register = JSON.parse(JSON.stringify(REGISTER))
+    register.citableStandingDecisions.push({
+        id: 'SD-TEST',
+        item: { row: 'S5', selector: '*', requirement: 'EQUALS', value: 'end line to end line' },
+        condition: { row: 'S6', sameElement: true, state: 'derived', equals: 'the full width' },
+    })
+    register.citableStandingDecisions.push(...extra)
+    return register
+}
+
+/** Two regions, each naming its own noun, so one satisfies the condition and one does not. */
+function twoRegions(channelNoun: ContractItem | null, zoneNoun: ContractItem | null): LoadedContract {
+    const items = [
+        item({ itemId: 'R-CH', selector: 'noun=channel', requirement: 'COUNT', value: 1 }),
+        item({ itemId: 'R-ZN', selector: 'noun=zone', requirement: 'COUNT', value: 1 }),
+    ]
+    if (channelNoun) items.push(channelNoun)
+    if (zoneNoun) items.push(zoneNoun)
+    return contract(items, {
+        declarations: [
+            { row: 'S2', declaration: 'CLAIMED', note: '' },
+            { row: 'S3', declaration: 'CLAIMED', note: '' },
+            { row: 'S6', declaration: 'CLAIMED', note: '' },
+        ],
+    })
+}
+
+const nounItem = (itemId: string, selectorNoun: string, value: string, overrides: Partial<ContractItem> = {}) =>
+    item({ itemId, row: 'S6', selector: 'noun=' + selectorNoun, requirement: 'EQUALS', value, ...overrides })
+
+const bothWidths = () => twoRegions(nounItem('W-CH', 'channel', 'the full width'), nounItem('W-ZN', 'zone', 'a narrow band'))
+
+function testConditionalDecisionFiresOnAResolvedGoverningValue(): void {
+    const register = registerWithConditionalDecision()
+    const result: any = runStages0to5({ ...input([bothWidths()]), register })
+
+    const channel = result.derived.lines.get('c:C-1:R-CH::S5')
+    const zone = result.derived.lines.get('c:C-1:R-ZN::S5')
+    assert.ok(channel && zone, 'both regions enumerate the governed row')
+
+    assert.deepEqual(channel.standingDecisions, ['SD-TEST'], 'the condition held, so the decision applies')
+    assert.deepEqual(channel.standingValue, { id: 'SD-TEST', value: 'end line to end line' })
+    assert.deepEqual(zone.standingDecisions, [], 'the condition failed on the other element, so it does not')
+    assert.equal(zone.standingValue, null)
+}
+
+function testConditionalDecisionDoesNotFireWithoutAGoverningValue(): void {
+    const register = registerWithConditionalDecision()
+
+    // (a) unresolved / failed: nothing authors the width at all.
+    const unauthored: any = runStages0to5({ ...input([twoRegions(null, null)]), register })
+    assert.deepEqual(unauthored.derived.lines.get('c:C-1:R-CH::S5').standingDecisions, [], 'no governing value, so no result is inferred')
+
+    // (b) valueless: the governing line is resolved by a route that carries no value. A second
+    //     decision claims S6 and states none, so the line has a standing decision and no value.
+    const valueless: any = runStages0to5({
+        ...input([twoRegions(null, null)]),
+        register: registerWithConditionalDecision([{ id: 'SD-TEST-SILENT', item: { row: 'S6', selector: '*', requirement: 'EQUALS' } }]),
+    })
+    const governing = valueless.derived.lines.get('c:C-1:R-CH::S6')
+    assert.deepEqual(governing.standingDecisions, ['SD-TEST-SILENT'], 'the governing line is resolved by a route')
+    assert.equal(governing.standingValue, null, 'but that route carries no value')
+    assert.deepEqual(
+        valueless.derived.lines.get('c:C-1:R-CH::S5').standingDecisions,
+        [],
+        'derived but valueless is one of his four cases: the condition is not evaluated',
+    )
+}
+
+function testConditionalEvaluationDoesNotTouchTheGoverningValue(): void {
+    const register = registerWithConditionalDecision()
+    const result: any = runStages0to5({ ...input([bothWidths()]), register })
+
+    for (const [lineId, expected] of [
+        ['c:C-1:R-CH::S6', 'the full width'],
+        ['c:C-1:R-ZN::S6', 'a narrow band'],
+    ] as [string, string][]) {
+        const governing = result.derived.lines.get(lineId)
+        assert.equal(governing.entailing.length, 1, `${lineId}: the governing line keeps exactly its own contribution`)
+        assert.equal(governing.entailing[0].value, expected)
+        assert.deepEqual(governing.standingDecisions, [], `${lineId}: reading a value never writes one back to it`)
+        assert.equal(governing.standingValue, null)
+    }
+}
+
+/** His expectation, asserted rather than assumed: this mechanism moves nothing in today's corpus. */
+function testConditionalDecisionsChangeNothingInTheCorpus(): void {
+    const result: any = runStages0to5(corpusInput())
+    const firing = [...result.derived.lines.entries()].filter(([, r]: any) => r.standingDecisions.includes('SD-13'))
+    assert.deepEqual(firing, [], 'SD-13 is the corpus’s only conditional decision and the corpus holds no START element')
+}
+
+// ---------------------------------------------------------------------------------------------
+// SD-92 — the establishing selector carries its attribute, subordinately, per operator.
+// ---------------------------------------------------------------------------------------------
+
+const lineOf = (result: any, suffix: string) => [...(result.derived!.lines as Map<string, any>).entries()].find(([id]) => id.endsWith(suffix))![1]
+
+function testSelectorFixesTheValueWhereNothingEntails(): void {
+    // The class is established by a selector reading `noun=channel`; nothing is written on S3.
+    const result = runStages0to5(input([contract([item()])]))
+    const line = lineOf(result, '::S3')
+    assert.equal(line.entailing.length, 1, 'the establishing selector supplies the value')
+    assert.equal(line.entailing[0].value, 'channel')
+    assert.equal(line.entailing[0].support.relation, 'CARRIES', 'and provenance says it came from the selector, not from an item on the row')
+    assert.equal(line.entailing[0].support.itemId, 'I-1', 'the support is the establishing item')
+}
+
+function testAnItemOnTheRowIsNotCompetedWith(): void {
+    const result = runStages0to5(input([contract([item(), item({ itemId: 'I-2', row: 'S3', requirement: 'EQUALS', value: 'band' })])]))
+    const line = lineOf(result, '::S3')
+    assert.equal(line.entailing.length, 1, 'the selector does not compete with an item that entails the field')
+    assert.equal(line.entailing[0].item.itemId, 'I-2')
+    assert.equal(line.entailing[0].value, 'band', 'and it does not override it either — no collision is manufactured')
+}
+
+function testMembershipDoesNotDefineTheSet(): void {
+    const result = runStages0to5(input([contract([item({ selector: 'noun=channel AND functions ∋ access' })])]))
+    const noun = lineOf(result, '::S3')
+    const functions = lineOf(result, '::S4')
+    assert.equal(noun.entailing.length, 1, 'the = term still fixes its value')
+    assert.equal(functions.entailing.length, 0, '∋ establishes membership and does not define the complete set')
+    assert.equal(functions.establishedMembers.length, 1)
+    assert.equal(functions.establishedMembers[0].member, 'access')
+    assert.equal(functions.establishedMembers[0].support.relation, 'CARRIES')
+}
+
+function testInNarrowsAndFixesNothing(): void {
+    const result = runStages0to5(input([contract([item({ selector: 'noun IN {channel, corridor}' })])]))
+    const line = lineOf(result, '::S3')
+    assert.equal(line.entailing.length, 0, '∈ fixes no single value')
+    assert.deepEqual(line.narrowedTo.members, ['channel', 'corridor'], 'it narrows the allowable set (SD-78)')
+}
+
+function testTheCarryReachesOnlyItsOwnElement(): void {
+    const c = contract([
+        item({ itemId: 'I-CH', selector: 'noun=channel', requirement: 'COUNT', value: 1 }),
+        item({ itemId: 'I-ZN', selector: 'noun=zone', requirement: 'COUNT', value: 1 }),
+    ])
+    const result: any = runStages0to5(input([c]))
+    assert.equal(result.derived.lines.get('c:C-1:I-CH::S3').entailing[0].value, 'channel')
+    assert.equal(result.derived.lines.get('c:C-1:I-ZN::S3').entailing[0].value, 'zone', 'each element carries its own selector, never the other’s')
+}
+
+// ---------------------------------------------------------------------------------------------
 
 const TESTS: [string, () => void][] = [
     ['an authored EQUALS item entails', testAuthoredEqualsEntails],
+    ['SD-92: an establishing selector fixes the value where nothing entails', testSelectorFixesTheValueWhereNothingEntails],
+    ['SD-92: it does not compete with an item that entails the field', testAnItemOnTheRowIsNotCompetedWith],
+    ['SD-92: ∋ establishes membership without defining the set', testMembershipDoesNotDefineTheSet],
+    ['SD-92: ∈ narrows and fixes nothing', testInNarrowsAndFixesNothing],
+    ['SD-92: the carry reaches only its own element', testTheCarryReachesOnlyItsOwnElement],
     ['an assumed item bounds but never entails', testAssumedItemBoundsButNeverEntails],
     ['engine wording supports nothing', testEngineWordingSupportsNothing],
     ['a typical example is inert', testTypicalExampleIsInert],
@@ -261,10 +477,15 @@ const TESTS: [string, () => void][] = [
     ['an undetermined reach derives nothing and reports', testUndeterminedReachDerivesNothingAndReports],
     ['a contradicted selector does not reach', testContradictedSelectorDoesNotReach],
     ['an empty own-involvement scope keeps the declaration', testOwnInvolvementEmptyKeepsTheDeclaration],
-    ['own involvement uses only other-scoped items', testOwnInvolvementUsesOnlyOtherScopedItems],
+    ['SD-93: own involvement includes its own established classes', testOwnInvolvementIncludesItsOwnEstablishedClasses],
+    ['SD-93: own involvement still reaches no other contract', testOwnInvolvementDoesNotReachAnotherContract],
     ['deterministic across stages 3-5', testDeterministicAcrossStages345],
     ['a refused contract derives nothing', testRefusedContractDerivesNothing],
     ['no divergence is claimed falsely', testNoDivergenceIsClaimedFalsely],
+    ['SD-91: a conditional standing decision fires on a resolved governing value', testConditionalDecisionFiresOnAResolvedGoverningValue],
+    ['SD-91: and does not fire without one', testConditionalDecisionDoesNotFireWithoutAGoverningValue],
+    ['SD-91: evaluation never supplies or modifies the governing value', testConditionalEvaluationDoesNotTouchTheGoverningValue],
+    ['SD-91: the corpus result is unchanged', testConditionalDecisionsChangeNothingInTheCorpus],
 ]
 
 let failed = 0

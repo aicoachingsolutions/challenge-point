@@ -259,16 +259,22 @@ test('every clause of every check carries a verdict from the closed list', () =>
 // GA-MODIFIER-OVERLAP — the specification gap (F2). Its semantics are not invented here.
 // ---------------------------------------------------------------------------------------------
 
-test('the region case executes: two modifiers claiming one referent overlap and fail', () => {
-    const contracts = [
+/** Two region modifiers, each naming a held region class by its structural id (SD-57). */
+function regionModifiers(referentOfB: string): LoadedContract[] {
+    return [
         contract([
+            item({ itemId: 'R-A', row: 'S2', selector: 'noun=channel', requirement: 'EXISTS' }),
+            item({ itemId: 'R-B', row: 'S2', selector: 'noun=lane', requirement: 'EXISTS' }),
             item({ itemId: 'M-1', row: 'V7', selector: 'condition.type=region AND condition.referents=RA', requirement: 'EXISTS' }),
             item({ itemId: 'M-2', row: 'V7', selector: 'condition.type=region AND condition.referents=RB', requirement: 'EXISTS' }),
-            item({ itemId: 'M-3', row: 'V8b', selector: 'condition.referents=RA', requirement: 'EQUALS', value: 'R-1' }),
-            item({ itemId: 'M-4', row: 'V8b', selector: 'condition.referents=RB', requirement: 'EQUALS', value: 'R-1' }),
+            item({ itemId: 'M-3', row: 'V8b', selector: 'condition.referents=RA', requirement: 'EQUALS', value: 'c:C-1:R-A' }),
+            item({ itemId: 'M-4', row: 'V8b', selector: 'condition.referents=RB', requirement: 'EQUALS', value: referentOfB }),
         ]),
     ]
-    const result: any = runStages0to10(input(contracts))
+}
+
+test('the region case executes: two modifiers claiming one held referent overlap and fail', () => {
+    const result: any = runStages0to10(input(regionModifiers('c:C-1:R-A')))
     const overlap = check(result, 'GA-MODIFIER-OVERLAP')
     const regionClause = overlap.clauses.find((c: any) => /region conditions/.test(c.clause))
     assert.ok(regionClause, 'the region clause is executed rather than withheld')
@@ -276,20 +282,94 @@ test('the region case executes: two modifiers claiming one referent overlap and 
     assert.equal(overlap.verdict, 'FAIL')
 })
 
-test('two region modifiers on distinct referents do not overlap', () => {
-    const contracts = [
-        contract([
-            item({ itemId: 'M-1', row: 'V7', selector: 'condition.type=region AND condition.referents=RA', requirement: 'EXISTS' }),
-            item({ itemId: 'M-2', row: 'V7', selector: 'condition.type=region AND condition.referents=RB', requirement: 'EXISTS' }),
-            item({ itemId: 'M-3', row: 'V8b', selector: 'condition.referents=RA', requirement: 'EQUALS', value: 'R-1' }),
-            item({ itemId: 'M-4', row: 'V8b', selector: 'condition.referents=RB', requirement: 'EQUALS', value: 'R-2' }),
-        ]),
-    ]
-    const result: any = runStages0to10(input(contracts))
+test('two region modifiers on distinct held referents do not overlap', () => {
+    const result: any = runStages0to10(input(regionModifiers('c:C-1:R-B')))
     assert.equal(check(result, 'GA-MODIFIER-OVERLAP').verdict, 'PASS')
 })
 
-test('an object or event condition refuses with CHECK_NOT_EXECUTABLE and blocks only those cases', () => {
+test('SD-57: an open-text referent is not compared as a token — it blocks instead', () => {
+    const result: any = runStages0to10(input(regionModifiers('the wide channel on the far side')))
+    const overlap = check(result, 'GA-MODIFIER-OVERLAP')
+    const regionClause = overlap.clauses.find((c: any) => /region conditions/.test(c.clause))
+    assert.equal(regionClause.verdict, 'NOT_EVALUABLE', 'open text establishes no structural identity')
+    assert.ok(overlap.blockedBy.length > 0, 'and the dependency is named')
+    assert.notEqual(overlap.verdict, 'FAIL', 'SD-58: not representable is a gap, never a violation')
+})
+
+test('SD-62: a blocked clause carries a structured block record, and creates no derivation GAP', () => {
+    const result: any = runStages0to10(input(regionModifiers('the wide channel on the far side')))
+    const blocks = gateA(result).blocks
+    const block = blocks.find((b: any) => b.checkId === 'GA-MODIFIER-OVERLAP')
+    assert.ok(block, 'the blocked clause has a record of its own')
+    assert.ok(block.clause, 'it identifies the clause')
+    assert.ok(block.dependency.lineIds.length > 0, 'it identifies the unresolved dependency')
+    assert.ok(block.reason, 'it says why evaluation could not be completed')
+    assert.equal(block.kind, 'NOT_REPRESENTABLE')
+
+    // It does not create a derivation GAP, nor turn the derived line into a failed one.
+    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP' && f.stage === 10).length, 0)
+    for (const lineId of block.dependency.lineIds) {
+        const line = result.classified.get(lineId)
+        if (line) assert.notEqual(line.verdict, 'NOT_AUTHORED', 'a gate block never re-states a derived line as failed')
+    }
+    assert.equal(result.stopped.length, 0, 'SD-62 settled this; it is no longer an open question')
+})
+
+test('SD-62: every NOT_EVALUABLE clause anywhere carries a block record', () => {
+    for (const source of [corpusInput(), input(regionModifiers('open text'))]) {
+        const result: any = runStages0to10(source)
+        const blocked = gateA(result).checks.flatMap((c: any) => c.clauses.filter((l: any) => l.verdict === 'NOT_EVALUABLE').map((l: any) => `${c.checkId}|${l.clause}`))
+        const recorded = gateA(result).blocks.map((b: any) => `${b.checkId}|${b.clause}`)
+        assert.deepEqual(blocked.sort(), recorded.sort(), 'no blocked clause escapes without a record')
+        for (const b of gateA(result).blocks) {
+            assert.ok(['KNOWLEDGE_GAP', 'NOT_REPRESENTABLE', 'SPECIFICATION_GAP'].includes(b.kind))
+            assert.ok(b.dependency.lineIds.length + b.dependency.rows.length > 0 || b.kind === 'SPECIFICATION_GAP')
+        }
+    }
+})
+
+test('SD-63: the identity rule is general — an open-text objective reference withholds, not fails', () => {
+    const contracts = [
+        contract([
+            item({ itemId: 'P-A', row: 'P1', selector: 'team=A', requirement: 'EXISTS' }),
+            item({ itemId: 'P-B', row: 'P1', selector: 'team=B', requirement: 'EXISTS' }),
+            // Two opposed objectives, so the opposite-ends clause has instances to examine (SD-95);
+            // both references are text, so the identity rule is what decides the outcome.
+            item({ itemId: 'J-A', row: 'J1', selector: 'team=A', requirement: 'EXISTS' }),
+            item({ itemId: 'JT-A', row: 'J3', selector: 'team=A', requirement: 'EQUALS', value: 'A' }),
+            item({ itemId: 'JR-A', row: 'J2', selector: 'team=A', requirement: 'EQUALS', value: 'the goal at the far end' }),
+            item({ itemId: 'J-B', row: 'J1', selector: 'team=B', requirement: 'EXISTS' }),
+            item({ itemId: 'JT-B', row: 'J3', selector: 'team=B', requirement: 'EQUALS', value: 'B' }),
+            item({ itemId: 'JR-B', row: 'J2', selector: 'team=B', requirement: 'EQUALS', value: 'the goal at the near end' }),
+        ]),
+    ]
+    const result: any = runStages0to10(input(contracts))
+    const direction = check(result, 'GA-DIRECTION')
+    const opposite = direction.clauses.find((c: any) => /opposite ends/.test(c.clause))
+    assert.equal(opposite.verdict, 'NOT_EVALUABLE', 'no end is inferred from a text description')
+    assert.notEqual(opposite.verdict, 'FAIL', 'withhold the verdict rather than infer identity from text')
+})
+
+test('SD-58: event conditions whose referents are open text block as a gap, with no refusal', () => {
+    const contracts = [
+        contract([
+            item({ itemId: 'M-1', row: 'V7', selector: 'condition.type=event AND condition.referents=RA', requirement: 'EXISTS' }),
+            item({ itemId: 'M-2', row: 'V8b', selector: 'condition.referents=RA', requirement: 'EQUALS', value: '{regain, shot}' }),
+        ]),
+    ]
+    const result: any = runStages0to10(input(contracts))
+    const overlap = check(result, 'GA-MODIFIER-OVERLAP')
+    const eventClause = overlap.clauses.find((c: any) => /event conditions/.test(c.clause))
+    assert.equal(eventClause.verdict, 'NOT_EVALUABLE')
+    assert.equal(eventClause.refusalId, undefined, 'not representable is a gap, not a specification defect')
+    assert.equal(
+        result.refusals.filter((r: any) => r.kind === 'CHECK_NOT_EXECUTABLE').length,
+        0,
+        'no event-identity system is invented, and no specification defect is claimed',
+    )
+})
+
+test('SD-60: an object condition refuses, invents no semantics, and blocks only that clause', () => {
     const contracts = [
         contract([
             item({ itemId: 'M-1', row: 'V7', selector: 'condition.type=object', requirement: 'EXISTS' }),
@@ -300,13 +380,16 @@ test('an object or event condition refuses with CHECK_NOT_EXECUTABLE and blocks 
     const overlap = check(result, 'GA-MODIFIER-OVERLAP')
     assert.equal(overlap.verdict, 'NOT_EVALUABLE')
 
-    const refusal = result.refusals.find((r: any) => r.kind === 'CHECK_NOT_EXECUTABLE')
-    assert.ok(refusal, 'the gap refuses rather than passing or inventing a test')
+    const objectClause = overlap.clauses.find((c: any) => /object conditions/.test(c.clause))
+    assert.equal(objectClause.verdict, 'NOT_EVALUABLE')
+    const refusal = result.refusals.find((r: any) => r.refusalId === objectClause.refusalId)
+    assert.ok(refusal, 'the clause names the refusal that withheld it')
     assert.ok(refusal.affects.lineIds.length > 0, 'the refusal names the affected cases only')
-    assert.ok(refusal.openQuestion, 'the refusal carries the open question back to him')
+    assert.ok(/no canonical item exercises this case/i.test(refusal.cause))
 
-    // The region clause still executed: a game with no such modifier is unaffected.
+    // The region and event clauses are untouched: a game with no such modifier is unaffected.
     assert.ok(overlap.clauses.some((c: any) => /region conditions/.test(c.clause) && c.verdict === 'PASS'))
+    assert.ok(overlap.clauses.some((c: any) => /event conditions/.test(c.clause) && c.verdict === 'PASS'))
 })
 
 test('a game with no value modifier at all is unaffected by the gap', () => {
@@ -405,17 +488,54 @@ test('GA-ONE-PRIMARY-EVENT separates existence, base value and referent position
     assert.equal(value.verdict, 'PASS', 'SD-25 supplies 1, so the base value clause is decidable on its own')
 })
 
-test('GA-TRIGGER-UNIQUE reports key uniqueness and collision as separate clauses', () => {
-    const shared = [
+/**
+ * SD-94 — the clause tests compatibility, not element identity. Two objects each authoring what
+ * happens at one trigger is ordinary; SD-47 keeps derivation identity-neutral, and one concrete
+ * transition may satisfy both classes.
+ */
+test('SD-94: two transition classes on one trigger pass while their requirements agree', () => {
+    const agreeing = [
         contract([
             item({ itemId: 'T-A', row: 'T1', selector: 'trigger=START', requirement: 'EXISTS' }),
             item({ itemId: 'T-B', row: 'T1', selector: 'trigger=START', requirement: 'EXISTS' }),
+            item({ itemId: 'T-M', row: 'T6', selector: 'trigger=START', requirement: 'EQUALS', value: 'CONTINUE' }),
         ]),
     ]
-    const result: any = runStages0to10(input(shared))
-    const trigger = check(result, 'GA-TRIGGER-UNIQUE')
-    assert.equal(trigger.clauses.length, 2)
-    assert.equal(trigger.clauses.find((c: any) => /share a trigger key/.test(c.clause)).verdict, 'FAIL')
+    const compatible = check(runStages0to10(input(agreeing)) as any, 'GA-TRIGGER-UNIQUE')
+    assert.equal(compatible.clauses.length, 2)
+    const clause = compatible.clauses.find((c: any) => /mutually compatible/.test(c.clause))
+    assert.equal(clause.verdict, 'PASS')
+    assert.equal(clause.instances, 1, 'one overlapping pair was compared, and it is real evidence (SD-54)')
+})
+
+test('SD-94: and fail when the same trigger is required to be two different things', () => {
+    const disagreeing = [
+        contract([
+            item({ itemId: 'T-A', row: 'T1', selector: 'trigger=START AND qualifier.lastTouch=LAST_TOUCH', requirement: 'EXISTS' }),
+            item({ itemId: 'T-B', row: 'T1', selector: 'trigger=START', requirement: 'EXISTS' }),
+            item({ itemId: 'T-M1', row: 'T6', selector: 'qualifier.lastTouch=LAST_TOUCH', requirement: 'EQUALS', value: 'STOP_RESUME' }),
+            item({ itemId: 'T-M2', row: 'T7', selector: 'trigger=START', requirement: 'EQUALS', value: 'true' }),
+        ]),
+    ]
+    const result: any = runStages0to10(input(disagreeing))
+    const clause = check(result, 'GA-TRIGGER-UNIQUE').clauses.find((c: any) => /mutually compatible/.test(c.clause))
+    assert.equal(clause.verdict, 'FAIL', 'T-A requires STOP_RESUME on a trigger T-B leaves CONTINUE-less; the two cannot both hold')
+    assert.match(check(result, 'GA-TRIGGER-UNIQUE').why, /incompatible/)
+})
+
+/** AM-15 — a trigger partitioned by qualifier is not a disagreement, so the pair is never compared. */
+test('SD-94: classes partitioned by a qualifier are not compared', () => {
+    const partitioned = [
+        contract([
+            item({ itemId: 'T-A', row: 'T1', selector: 'trigger=OUT_END_LINE AND qualifier.lastTouch=LAST_TOUCH', requirement: 'EXISTS' }),
+            item({ itemId: 'T-B', row: 'T1', selector: 'trigger=OUT_END_LINE AND qualifier.lastTouch=NOT_LAST_TOUCH', requirement: 'EXISTS' }),
+            item({ itemId: 'T-M1', row: 'T6', selector: 'qualifier.lastTouch=LAST_TOUCH', requirement: 'EQUALS', value: 'STOP_RESUME' }),
+            item({ itemId: 'T-M2', row: 'T6', selector: 'qualifier.lastTouch=NOT_LAST_TOUCH', requirement: 'EQUALS', value: 'CONTINUE' }),
+        ]),
+    ]
+    const clause = check(runStages0to10(input(partitioned)) as any, 'GA-TRIGGER-UNIQUE').clauses.find((c: any) => /mutually compatible/.test(c.clause))
+    assert.equal(clause.verdict, 'PASS')
+    assert.equal(clause.instances, 0, 'nothing was compared: the two can never apply to one transition')
 })
 
 test('GA-LAYOUT-FEASIBLE refuses a bound it cannot read rather than ignoring it', () => {
@@ -474,24 +594,198 @@ test('shuffled input produces an identical gate report', () => {
 // rather than produced by a script that no longer exists.
 // ---------------------------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------------------------
+// SD-95 to SD-100 — the closure rulings of 27 September.
+// ---------------------------------------------------------------------------------------------
+
+/** Two teams, and whatever objective structure the case needs. */
+const directionCase = (...objectives: any[]) =>
+    contract([
+        item({ itemId: 'P-A', row: 'P1', selector: 'team=A', requirement: 'EXISTS' }),
+        item({ itemId: 'P-B', row: 'P1', selector: 'team=B', requirement: 'EXISTS' }),
+        ...objectives,
+    ])
+
+test('SD-95: a shared target establishes the opposing relationship, and no team is consulted', () => {
+    const shared = directionCase(
+        item({ itemId: 'J-S', row: 'J1', selector: 'role=PRIMARY_SCORING', requirement: 'EXISTS' }),
+        item({ itemId: 'JT-S', row: 'J3', selector: 'role=PRIMARY_SCORING', requirement: 'EQUALS', value: 'EACH_TEAM' }),
+    )
+    const direction = check(runStages0to10(input([shared])) as any, 'GA-DIRECTION')
+    const attacks = direction.clauses.find((c: any) => /objective it attacks/.test(c.clause))
+    assert.equal(attacks.verdict, 'PASS', 'one objective both sides attack is an opposing directional relationship')
+
+    // Opposite ends has no applicable instance with a single shared target, and says so (SD-54).
+    const opposite = direction.clauses.find((c: any) => /opposite ends/.test(c.clause))
+    assert.equal(opposite.verdict, 'PASS')
+    assert.equal(opposite.instances, 0)
+
+    // The team classes carry designations here, and the check must not be using them.
+    assert.ok(!direction.subjects.some((s: string) => /::P[0-9]/.test(s)), 'no team property is read')
+})
+
+test('SD-95: every objective naming one side is a structural failure, not a gap', () => {
+    const oneSided = directionCase(
+        item({ itemId: 'J-A', row: 'J1', selector: 'team=A', requirement: 'EXISTS' }),
+        item({ itemId: 'JT-A', row: 'J3', selector: 'team=A', requirement: 'EQUALS', value: 'ATTACKING_TEAM' }),
+    )
+    const attacks = check(runStages0to10(input([oneSided])) as any, 'GA-DIRECTION').clauses.find((c: any) => /objective it attacks/.test(c.clause))
+    assert.equal(attacks.verdict, 'FAIL', 'nothing the other side attacks is established, and every objective is settled')
+})
+
+test('SD-97: an existence assertion with no selector individuates nothing and owes no fields', () => {
+    const existential = contract([item({ itemId: 'J-ANY', row: 'J1', selector: '*', requirement: 'EXISTS' })])
+    const result: any = runStages0to10(input([existential]))
+
+    assert.equal(result.classes.filter((c: any) => c.row === 'J1').length, 1, 'the existence claim still holds a class')
+    assert.deepEqual(
+        result.lines.filter((l: any) => l.elementId === 'c:C-1:J-ANY').map((l: any) => l.row),
+        [],
+        'and it enumerates no field line: nobody owes a reference, a team or a role for it',
+    )
+    assert.equal(
+        result.forward.find((o: any) => o.item.itemId === 'J-ANY').result,
+        'SATISFIED',
+        'the assertion is satisfied by the collection membership it established, without pairing',
+    )
+})
+
+test('SD-98: a typed structural reference resolves, and open text still does not', () => {
+    const typed = contract([
+        item({ itemId: 'R-1', row: 'S2', selector: 'noun=zone AND functions ∋ objective-area', requirement: 'EXISTS' }),
+        item({ itemId: 'R-P', row: 'S5', selector: 'noun=zone', requirement: 'POSITIONED', value: { lo: '0', hi: '5' } }),
+        item({ itemId: 'J-A', row: 'J1', selector: 'team=A', requirement: 'EXISTS' }),
+        item({ itemId: 'JT-A', row: 'J3', selector: 'team=A', requirement: 'EQUALS', value: 'A' }),
+        item({
+            itemId: 'JR-A',
+            row: 'J2',
+            selector: 'team=A',
+            requirement: 'EQUALS',
+            value: { structuralRef: { contractId: 'C-1', itemId: 'R-1' }, asAuthored: 'the objective-area region of R-1' },
+        }),
+    ])
+    const result: any = runStages0to10(input([typed]))
+    const integrity = check(result, 'GA-REFERENCE-INTEGRITY')
+    assert.match(integrity.why, /1 reference\(s\) resolved/, 'the typed reference names a held class')
+    assert.ok(!/1 established no structural identity/.test(integrity.why), 'and it is not withheld as open text')
+})
+
+test('SD-99: a region function clause reads established membership without the set resolving', () => {
+    const region = contract([item({ itemId: 'R-1', row: 'S2', selector: 'noun=channel AND functions ∋ access', requirement: 'EXISTS' })])
+    const result: any = runStages0to10(input([region]))
+
+    assert.equal(
+        result.classified.get('c:C-1:R-1::S4').verdict,
+        'NOT_AUTHORED',
+        'membership does not close the set: the field itself is still unauthored (SD-92)',
+    )
+    const fn = check(result, 'GA-REGION-FUNCTION')
+    assert.equal(fn.clauses.find((c: any) => /at least one function/.test(c.clause)).verdict, 'PASS')
+    assert.equal(fn.clauses.find((c: any) => /registered member/.test(c.clause)).verdict, 'PASS')
+})
+
+test('SD-100: EXISTS on a field row asserts nothing and is recorded as inert', () => {
+    const asserted = contract([
+        item({ itemId: 'R-1', row: 'S2', selector: 'noun=channel', requirement: 'EXISTS' }),
+        item({ itemId: 'F-1', row: 'S5', selector: 'noun=channel', requirement: 'EXISTS', value: 'the position field is present' }),
+    ])
+    const result: any = runStages0to10(input([asserted]))
+    const line = result.derived.lines.get('c:C-1:R-1::S5')
+
+    assert.equal(line.entailing.length, 0)
+    assert.equal(line.bounding.length, 0, 'it is not carried as a bound either — that is one of the readings he excluded')
+    assert.equal(result.classified.get('c:C-1:R-1::S5').verdict, 'NOT_AUTHORED')
+    assert.equal(result.forward.find((o: any) => o.item.itemId === 'F-1').result, 'INERT', 'provenance is retained and the claim is inert')
+})
+
+/** The baseline at the Phase A load boundary: all eight contracts load, none refuses. */
 test('the corpus run reproduces the reported figures exactly', () => {
     const result: any = runStages0to10(corpusInput())
-    assert.equal(result.run.counts.contractsAdmitted, 1)
-    assert.equal(result.run.counts.contractsRefused, 7)
-    assert.equal(result.run.counts.lines, 15)
-    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 6)
-    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 9)
-    assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 8)
-    assert.equal(result.failures.filter((f: any) => f.kind === 'COLLISION').length, 0)
-    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 9)
+    assert.equal(result.run.counts.contractsAdmitted, 8)
+    assert.equal(result.run.counts.contractsRefused, 0)
+    // SD-97 removed twenty-eight lines by ruling that an existence assertion with no selector
+    // individuates nothing: three objectives, two teams, two object classes and one objective set
+    // were being asked separately for fields nobody owed.
+    assert.equal(result.run.counts.lines, 125)
+    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 51)
+    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 54)
+    assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 0, 'cluster 3 cleared the whole population')
+    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 54)
+
+    // SD-88 evaluated the sixteen conditional lines for the first time: twelve are not applicable
+    // (the three CONTINUE transitions carry no placement) and four are judged.
+    assert.equal(
+        result.lines.filter((l: any) => (result.classified.get(l.lineId)?.lineState ?? l.lineState) === 'CONDITIONAL').length,
+        0,
+        'no line is left unjudged behind a governing value that has resolved',
+    )
+    assert.equal(result.lines.filter((l: any) => result.classified.get(l.lineId)?.lineState === 'WITHDRAWN').length, 12)
+
+    // SD-89's authored restart ownership met GF2's authored restart default on one line, and SD-90
+    // settled it: a required contribution resolves the property, the preferred default is displaced
+    // rather than colliding with it. The engine claims nothing about the two designations being the
+    // same team — that question stays with stage 7.
+    assert.equal(result.classified.get('c:restated:A01-02:A01-02-01.a::T2').verdict, 'RESOLVED:ENTAILED')
+    assert.equal(
+        result.forward.find((o: any) => o.item.contractId === 'restated:GF2' && o.item.itemId === 'GF2-16.a').result,
+        'ADAPTED',
+    )
+
+    // SD-93 let Wide Zone's contributions reach its own channels for the first time, and the first
+    // thing they showed is that two of them state the same claim in two spellings. Recorded, not
+    // repaired: knowledge repair is held until the mechanisms are cleared.
+    const collisions = result.failures.filter((f: any) => f.kind === 'COLLISION')
+    assert.equal(collisions.length, 3)
+    for (const c of collisions) assert.match(c.locus.lineId, /WIDE-ZONE-ADVANTAGE:.*::S6$/)
 })
 
 test('Gate A fails on the corpus, and says which checks and why', () => {
     const result: any = runStages0to10(corpusInput())
     assert.equal(gateA(result).verdict, 'FAIL')
     const failing = gateA(result).checks.filter((c: any) => c.verdict === 'FAIL').map((c: any) => c.checkId)
-    assert.deepEqual(failing.sort(), ['GA-NO-FAILED-LINE', 'GA-REFERENCE-INTEGRITY'])
+    // GA-TRANSITION-COHERENCE left this list under SD-88, and the reason matters more than the
+    // membership: it used to report a STOP_RESUME transition as *violating* the clause because its
+    // taker line was CONDITIONAL — a line the engine had never judged. Judged, that line is a
+    // knowledge gap, and a gap blocks the clause rather than failing it (SD-28, SD-62).
+    // GA-TRIGGER-UNIQUE left the list under SD-94. It had been failing because three objects each
+    // author what happens at a turnover, which the old clause read as three transitions where a game
+    // has one. Asked the question it can establish — are their requirements compatible? — they are.
+    assert.deepEqual(failing.sort(), ['GA-INFORMATION', 'GA-NO-FAILED-LINE'])
     for (const c of gateA(result).checks) assert.ok(c.why && c.why.length > 0, `${c.checkId} gives no reason`)
+})
+
+test('SD-49: an indeterminate reach is recorded, and is no longer an open question', () => {
+    const result: any = runStages0to10(corpusInput())
+    assert.ok(result.run.counts.undeterminedReaches > 0, 'the corpus does exercise the case')
+    assert.equal(
+        result.stopped.filter((s: any) => s.where === 'stage 4, reach').length,
+        0,
+        'SD-49 established the semantics; the engine is following them, not stopping on them',
+    )
+})
+
+/**
+ * Where the two closed clusters left the corpus, and what remains genuinely open.
+ *
+ * Cluster 1 (composition) resolved the primary-event **kind**; cluster 2 (establishment) resolved its
+ * **count**. Neither was a knowledge defect. What still fails is recorded, not repaired.
+ */
+test('the two closed clusters hold, and what remains is what is genuinely unresolved', () => {
+    const result: any = runStages0to10(corpusInput())
+
+    // Cluster 1 — the kind, by composition. The convergence it settled still holds: three narrowings
+    // intersect to one member, and no collision is raised on that line.
+    assert.equal(result.classified.get('game::V1').verdict, 'RESOLVED:ENTAILED')
+    assert.equal(result.failures.filter((f: any) => f.kind === 'COLLISION' && f.locus.lineId === 'game::V1').length, 0)
+
+    // Cluster 2 — the count, by the establishment boundary and the singleton rule.
+    const primary = check(result, 'GA-ONE-PRIMARY-EVENT')
+    assert.equal(primary.clauses[0].verdict, 'PASS', 'exactly one primary event')
+    assert.ok(/^1 primary event/.test(primary.why))
+
+    // Still open, and untouched: an information rule names an unregistered trigger.
+    const information = check(result, 'GA-INFORMATION')
+    assert.equal(information.clauses.find((c: any) => /registered trigger/.test(c.clause)).verdict, 'FAIL')
 })
 
 test('the fifteen Gate A checks are all present, and GA-RESIDUAL-SPACE is gone (SD-45)', () => {
@@ -502,11 +796,52 @@ test('the fifteen Gate A checks are all present, and GA-RESIDUAL-SPACE is gone (
     assert.ok(ids.includes('GA-MODIFIER-OVERLAP'))
 })
 
-test('the gate records the one reading §7 does not state, rather than burying it', () => {
+test('SD-52: a blocked clause is NOT_EVALUABLE and cannot contribute to a gate PASS', () => {
     const result: any = runStages0to10(corpusInput())
-    const stop = result.stopped.find((s: any) => s.where === 'stage 10, Gate A')
-    assert.ok(stop, 'the blocked-by-a-gap reading is surfaced')
-    assert.ok(/NOT_EVALUABLE/.test(stop.why) && /his to confirm/.test(stop.why))
+    // The reading is ruled, so it is no longer carried as an open question.
+    assert.equal(
+        result.stopped.filter((s: any) => s.where === 'stage 10, Gate A' && /his to confirm/.test(s.why)).length,
+        0,
+        'SD-52 settled this; it should no longer be reported as unresolved',
+    )
+    for (const c of gateA(result).checks) {
+        for (const clause of c.clauses) {
+            if (clause.verdict !== 'NOT_EVALUABLE') continue
+            assert.notEqual(c.verdict, 'PASS', `${c.checkId} passed while carrying a blocked clause`)
+        }
+    }
+    assert.notEqual(gateA(result).verdict, 'PASS')
+})
+
+test('SD-54: every passing clause states whether it evaluated instances or found none', () => {
+    const result: any = runStages0to10(corpusInput())
+    for (const c of gateA(result).checks) {
+        for (const clause of c.clauses) {
+            if (clause.verdict !== 'PASS') continue
+            assert.ok(clause.basis, `${c.checkId}: a pass with no stated basis`)
+            assert.equal(clause.basis === 'NO_APPLICABLE_INSTANCES', clause.instances === 0)
+        }
+    }
+    const evidence = gateA(result).evidence
+    assert.ok(evidence, 'the report carries the vacuous/evaluated split')
+    assert.ok(evidence.clausesVacuous > 0, 'this corpus does have vacuous passes, and they are counted as such')
+    assert.equal(
+        evidence.clausesEvaluated + evidence.clausesVacuous,
+        gateA(result).checks.flatMap((c: any) => c.clauses).filter((c: any) => c.verdict === 'PASS').length,
+    )
+})
+
+test('SD-53: no executable clause fuses independently testable claims', () => {
+    const result: any = runStages0to10(corpusInput())
+    for (const c of gateA(result).checks) {
+        for (const clause of c.clauses) {
+            if (clause.verdict === 'NOT_CHECKABLE_OUTSIDE_REPRESENTATION') continue // human wording may stay compound
+            assert.ok(
+                !/;/.test(clause.clause),
+                `${c.checkId} still carries a fused executable clause: "${clause.clause}"`,
+            )
+        }
+    }
 })
 
 console.log(`\n${passed} assertions passed — increment 4\n`)

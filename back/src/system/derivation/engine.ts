@@ -11,10 +11,12 @@
 import { HaltError, indexRegister, buildVersions, RegisterIndex } from './register'
 import { loadContracts } from './load'
 import { resolveScopes } from './scope'
-import { deriveLines } from './derive'
-import { classifyLines } from './classify'
+import { deriveLines, DerivedLine, establishesExistence } from './derive'
+import { classifyLines, ClassifiedLine } from './classify'
 import { forwardResults } from './forward'
 import { runGates } from './gates'
+import { reaches } from './reach'
+import { emit, DerivationResult, StampedHalt } from './emit'
 import { parseSelector, predicateKey } from './selector'
 import {
     ContractItem,
@@ -36,6 +38,41 @@ const CLAUSE = (section: string): SpecClause => ({ document: 'derivation-engine-
 /** Content-derived ids: an unrelated record must never renumber the rest (package §3.1). */
 function recordId(kind: string, locus: string, ordinal: number): string {
     return `${kind}#${locus}#${ordinal}`
+}
+
+/**
+ * §8 requires "byte-identical output on repeat **and under shuffled input**", and the digest is part of
+ * the output. So it is taken over a canonical form: contracts, their items and the selection are ordered
+ * by id, and object keys are ordered, before hashing.
+ *
+ * **Array values are left exactly as authored.** AM-11 keeps the member order inside a value set as the
+ * author wrote it, so sorting values would both violate that and make two genuinely different inputs
+ * hash alike. Only the collections whose order carries no meaning are ordered.
+ */
+function canonical(value: unknown): unknown {
+    if (Array.isArray(value)) return value.map(canonical)
+    if (!value || typeof value !== 'object') return value
+    const source = value as Record<string, unknown>
+    const out: Record<string, unknown> = {}
+    for (const key of Object.keys(source).sort()) out[key] = canonical(source[key])
+    return out
+}
+
+function byId(list: any[] | undefined, key: string): any[] {
+    return [...(list || [])].sort((a, b) => String(a?.[key] ?? '').localeCompare(String(b?.[key] ?? '')))
+}
+
+function canonicalInput(input: DerivationInput): unknown {
+    return canonical({
+        selection: byId(input.selection as any[], 'objectId'),
+        contracts: byId(input.contracts as any[], 'contractId').map(contract => ({
+            ...contract,
+            items: byId(contract.items, 'itemId'),
+        })),
+        envelope: input.envelope,
+        registerVersion: input.register?.version,
+        derivationRules: input.derivationRules,
+    })
 }
 
 function digest(value: unknown): string {
@@ -68,30 +105,78 @@ function cardinalityOf(item: ContractItem): { min: number | null; max: number | 
  * "Existence requirements establish supported classes defined by authoritative selectors. Derivation
  * does not manufacture individual identity or equivalence between classes."
  */
-function formClasses(contracts: LoadedContract[], index: RegisterIndex): ElementClass[] {
+function formClasses(contracts: LoadedContract[], index: RegisterIndex, stopped: PartialResult['stopped']): ElementClass[] {
     const classes: ElementClass[] = []
+    const singletons = new Map<string, ElementClass>()
 
     for (const contract of contracts) {
         for (const item of contract.items || []) {
             const row = index.rows.get(String(item.row))
             if (!row || row.kind !== 'COLLECTION') continue
-            if (!EXISTENCE_REQUIREMENTS.has(String(item.requirement))) continue
+
+            // SD-83 — the establishment boundary. An exclusion, an assumption, engine wording or an
+            // out-of-boundary note may constrain what exists; none of them brings it into existence.
+            if (!establishesExistence(item)) continue
 
             const parsed = parseSelector(item.selector, String(item.row), index)
             // A selector that will not normalise was already recorded once, at stage 1. One defect,
             // one id: an item that cannot be normalised simply forms no class.
             if (!parsed.predicate) continue
 
+            const ref: ItemRef = { contractId: contract.contractId, itemId: item.itemId }
+            const singletonRule = index.singletonRows.get(row.id)
+
+            // SD-84 — a collection the schema fixes at exactly one holds one element, so several
+            // support-capable contributions support **the same** singleton rather than instantiating
+            // several. This is not a relaxation of SD-47: identity here comes from the schema invariant,
+            // not from comparing selectors or presuming equivalence.
+            if (singletonRule) {
+                const existing = singletons.get(row.id)
+                if (!existing) {
+                    const singleton: ElementClass = {
+                        classId: `c:singleton:${row.id}`,
+                        row: row.id,
+                        fromItem: ref,
+                        supportedBy: [ref],
+                        constraints: parsed.predicate,
+                        cardinality: { min: 1, max: 1 },
+                        singletonBy: singletonRule,
+                    }
+                    singletons.set(row.id, singleton)
+                    classes.push(singleton)
+                    continue
+                }
+
+                // "unless authoritative knowledge explicitly establishes incompatibility" — the one
+                // exception he named. Incompatibility is not decided here: it is recorded.
+                if (reaches(parsed.predicate, existing) === 'FALSE') {
+                    stopped.push({
+                        where: `stage 2, row ${row.id}`,
+                        why:
+                            `${ref.contractId}::${ref.itemId} and ${existing.fromItem.contractId}::${existing.fromItem.itemId} both establish the ` +
+                            `${row.id} singleton, but their authoritative selectors contradict each other. SD-84 makes them the same element ` +
+                            '"unless authoritative knowledge explicitly establishes incompatibility", and this is that case. Nothing is merged or split here.',
+                    })
+                    continue
+                }
+                existing.supportedBy.push(ref)
+                continue
+            }
+
             classes.push({
                 classId: `c:${contract.contractId}:${item.itemId}`,
                 row: String(item.row),
-                fromItem: { contractId: contract.contractId, itemId: item.itemId },
+                fromItem: ref,
+                supportedBy: [ref],
                 constraints: parsed.predicate,
                 cardinality: cardinalityOf(item),
             })
         }
     }
 
+    for (const singleton of singletons.values()) {
+        singleton.supportedBy.sort((a, b) => `${a.contractId}:${a.itemId}`.localeCompare(`${b.contractId}:${b.itemId}`))
+    }
     return classes.sort((a, b) => a.classId.localeCompare(b.classId))
 }
 
@@ -150,6 +235,23 @@ function enumerateLines(classes: ElementClass[], index: RegisterIndex, stopped: 
     }
 
     for (const cls of classes) {
+        // **SD-97, his ruling of 27 September — existential coverage only.** "An authoritative
+        // existence assertion with no selector establishes that at least one member of the collection
+        // exists. It does not establish individual identity, instantiate a separately individuated
+        // member for field derivation, or create obligations for that member's fields."
+        //
+        // Three objective classes, two team classes, two object classes and one objective set are
+        // formed by items whose selector is `*`. Each says only that something of the kind exists.
+        // Enumerating their fields asked, separately, for the reference, team and role of objectives
+        // nobody described. The class stays — its existence claim and cardinality are real — and it
+        // carries no field lines.
+        //
+        // A singleton is the exception, and SD-84 is why: identity there "follows from the
+        // authoritative schema invariant itself", so a selectorless assertion on a cardinality-one
+        // collection individuates the only member there can be. That is the individuation SD-97 says
+        // an empty selector lacks, supplied by the schema rather than by a selector.
+        if (cls.constraints.any && !cls.singletonBy) continue
+
         for (const row of index.rows.values()) {
             if (row.kind !== 'FIELD') continue
             if (index.ownerRow.get(row.id) !== cls.row) continue
@@ -165,14 +267,13 @@ function enumerateLines(classes: ElementClass[], index: RegisterIndex, stopped: 
             if (condition) line.conditionalOn = `${cls.classId}::${condition.row}`
             lines.push(line)
 
-            if (/one property per (member|referent)/i.test(row.valueType || '')) {
-                stopped.push({
-                    where: `stage 2, row ${row.id}`,
-                    why:
-                        'the package enumerates "one line per member for set-valued rows", but the member set is not known until values are derived at stage 5. ' +
-                        'Increment 1 enumerates the row once with member null and does not expand it. The expansion point needs stating in the package.',
-                })
-            }
+            // SD-51, his ruling of 23 September: "Do not enumerate member lines before membership is
+            // authoritatively resolved. Resolve the set/collection membership first. Materialize member
+            // lines only from an authoritative resolved member set. OPEN, failed or gapped membership
+            // does not authorize creation of member identities."
+            //
+            // So stage 2 enumerates the membership line and nothing else. Member lines are materialized
+            // after stage 6, and only where the membership line is RESOLVED — see `materialiseMembers`.
         }
     }
 
@@ -207,10 +308,11 @@ function haltResult(halt: 'H1' | 'H2', message: string, input: DerivationInput):
             mode: input.candidate ? 'CHECKING' : 'DERIVATION',
             halted: true,
             divergent: false,
-            inputDigest: digest(input),
+            inputDigest: digest(canonicalInput(input)),
             counts: {},
         },
         stopped: [],
+        diagnostics: [],
     }
 }
 
@@ -271,7 +373,7 @@ export function runStages0to2(input: DerivationInput): PartialResult {
     normaliseSelectors(loaded.admitted, index, failures)
 
     // Stage 2 — classes, triggers, lines.
-    const classes = formClasses(loaded.admitted, index)
+    const classes = formClasses(loaded.admitted, index, stopped)
     const triggers = constructTriggers(classes, index, input.envelope)
     const lines = enumerateLines(classes, index, stopped)
 
@@ -289,7 +391,7 @@ export function runStages0to2(input: DerivationInput): PartialResult {
             mode: input.candidate ? 'CHECKING' : 'DERIVATION',
             halted: false,
             divergent: false,
-            inputDigest: digest(input),
+            inputDigest: digest(canonicalInput(input)),
             counts: {
                 contractsAdmitted: loaded.admitted.length,
                 contractsRefused: loaded.refusals.length,
@@ -301,10 +403,139 @@ export function runStages0to2(input: DerivationInput): PartialResult {
             },
         },
         stopped: distinctStops,
+        diagnostics: [],
     }
 }
 
+/**
+ * SD-51 — materialize one line per member of a set-valued row, **only** from a member set that has been
+ * authoritatively resolved.
+ *
+ * "OPEN, failed or gapped membership does not authorize creation of member identities." A membership
+ * line that is open, unauthored or unresolved yields no member lines at all: the engine holds no
+ * identity for a member it cannot establish. Each materialized line carries the member's own value and
+ * inherits the membership line's support, creating no new authority.
+ */
+function materialiseMembers(
+    lines: ResolutionLine[],
+    classified: Map<string, ClassifiedLine>,
+    derived: Map<string, DerivedLine>,
+    index: RegisterIndex,
+): { lines: ResolutionLine[]; classified: Map<string, ClassifiedLine>; derived: Map<string, DerivedLine>; withheld: number } {
+    const produced: ResolutionLine[] = []
+    const verdicts = new Map<string, ClassifiedLine>()
+    const records = new Map<string, DerivedLine>()
+    let withheld = 0
+
+    for (const line of lines) {
+        if (line.member !== null) continue
+        const row = index.rows.get(line.row)
+        if (!row || !/one property per (member|referent|trigger)/i.test(row.valueType || '')) continue
+
+        const membership = classified.get(line.lineId)
+        if (!membership || membership.verdict !== 'RESOLVED:ENTAILED') {
+            withheld++
+            continue
+        }
+
+        const record = derived.get(line.lineId)
+        const value = record?.session ? record.session.value : record?.entailing.length ? record.entailing[0].value : record?.standingValue?.value
+        const memberValues = Array.isArray(value) ? value : typeof value === 'string' ? parseMemberSet(value) : null
+        if (!memberValues || !memberValues.length) {
+            // Resolved, but the value is not a set this stage can enumerate. No member identity is
+            // invented from it; the membership line stands alone and the case is counted.
+            withheld++
+            continue
+        }
+
+        for (const member of [...new Set(memberValues.map(String))].sort()) {
+            const memberLine: ResolutionLine = {
+                lineId: `${line.lineId}::${member}`,
+                elementId: line.elementId,
+                row: line.row,
+                member,
+                lineState: 'ENUMERATED',
+            }
+            produced.push(memberLine)
+            verdicts.set(memberLine.lineId, {
+                lineId: memberLine.lineId,
+                lineState: 'ENUMERATED',
+                verdict: 'RESOLVED:ENTAILED',
+                reason: null,
+                collidingItems: [],
+                resolvedBy: membership.resolvedBy,
+            })
+
+            // §1.4 requires a value wherever a line is derived. A member line's value is the member,
+            // and its support is the membership line's — inherited, never newly minted.
+            records.set(memberLine.lineId, {
+                lineId: memberLine.lineId,
+                entailing: record && record.entailing.length ? record.entailing.map(e => ({ ...e, value: member })) : [],
+                bounding: [],
+                undetermined: [],
+                open: null,
+                standingDecisions: record ? [...record.standingDecisions] : [],
+                narrowing: [],
+                narrowedTo: null,
+                standingValue: record && record.standingValue && !record.entailing.length && !record.session ? { id: record.standingValue.id, value: member } : null,
+                session: record && record.session ? { row: record.session.row, value: member } : null,
+                // A displacement belongs to the membership line, where it happened. Copying it onto
+                // each member would report one adaptation several times.
+                displaced: [],
+                establishedMembers: [],
+            })
+        }
+    }
+
+    return { lines: produced, classified: verdicts, derived: records, withheld }
+}
+
+/**
+ * A set written as authored text. Only the two unambiguous spellings are read — a braced or
+ * comma-separated list of bare tokens. Anything carrying prose is not a member set this stage can
+ * enumerate, and yields no members rather than a guess (SD-32 forbids meaning matching).
+ */
+function parseMemberSet(text: string): string[] | null {
+    const trimmed = text.trim()
+    const braced = trimmed.match(/^\{([^{}]*)\}$/)
+    const body = braced ? braced[1] : trimmed
+    if (!body.trim()) return null
+    const parts = body.split(',').map(p => p.trim())
+    if (!parts.length || parts.some(p => !p || /\s/.test(p))) return null
+    return parts
+}
+
 export { predicateKey }
+
+/**
+ * Increment 5 — stage 11, Emit. The complete pipeline: load through gates, assembled and stamped.
+ *
+ * Stages 7 and 9 remain deliberately unbuilt, and he has confirmed both (23 September): comparative
+ * execution is not built against invented cases, and no candidate-game input is fabricated merely to
+ * exercise checking mode. So `candidate` is null and Gate B reverse is `NOT_APPLICABLE` — neither is an
+ * empty result standing in for a check that did not happen.
+ */
+export function runDerivation(input: DerivationInput): DerivationResult | StampedHalt {
+    const staged = runStages0to10(input)
+
+    return emit({
+        versions: staged.versions,
+        lines: staged.lines,
+        classified: staged.classified ?? new Map(),
+        derived: staged.derived?.lines ?? new Map(),
+        forward: staged.forward ?? [],
+        gates: staged.gates ?? {
+            gateA: { verdict: 'NOT_EVALUABLE', checks: [], notEstablished: [] },
+            gateBForward: { verdict: 'NOT_EVALUABLE', checks: [], notEstablished: [] },
+            gateBReverse: { verdict: 'NOT_APPLICABLE', checks: [], notEstablished: [] },
+        },
+        failures: staged.failures,
+        refusals: staged.refusals,
+        run: staged.run,
+        stopped: staged.stopped,
+        diagnostics: staged.diagnostics,
+    })
+}
 
 /**
  * Increment 4 — stage 10, the gates, on top of 0–8.
@@ -366,8 +597,16 @@ export function runStages0to8(input: DerivationInput) {
     const index = indexRegister(input.register)
     const admitted = (input.contracts || []).filter(c => !base.failures.some(f => f.kind === 'LOAD_REFUSAL' && f.locus.contractId === c.contractId))
 
-    const classified = classifyLines(base.lines, base.derived.lines, base.scope.declarations, index)
-    const forward = forwardResults(admitted, base.lines, base.derived.lines, classified, base.scope.applicationSets, index)
+    const classified = classifyLines(base.lines, base.derived.lines, base.scope.declarations, index, base.stopped)
+    const forward = forwardResults(admitted, base.lines, base.derived.lines, classified, base.scope.applicationSets, index, base.classes)
+
+    // SD-51 — member lines, materialized only from an authoritatively resolved member set.
+    const members = materialiseMembers(base.lines, classified, base.derived.lines, index)
+    base.lines.push(...members.lines)
+    for (const [lineId, line] of members.classified) classified.set(lineId, line)
+    for (const [lineId, record] of members.derived) base.derived.lines.set(lineId, record)
+    base.run.counts.memberLines = members.lines.length
+    base.run.counts.memberSetsUnresolved = members.withheld
 
     // §1.4: "`failed` is `NOT_AUTHORED` or `UNRESOLVED`", and §3.2 raises a `GAP` at stage 6, one gap
     // one id. Increment 3 raised none, so a run could report thirteen unauthored lines with no failure
@@ -440,6 +679,7 @@ export function runStages0to5(input: DerivationInput): PartialResult & {
     const admitted = (input.contracts || []).filter(c => !base.failures.some(f => f.kind === 'LOAD_REFUSAL' && f.locus.contractId === c.contractId))
 
     const scope = resolveScopes(admitted, base.classes)
+    base.diagnostics.push(...scope.diagnostics) // SD-93 — carried to the emitted result, never dropped
     for (const divergence of scope.divergence) {
         base.refusals.push({
             refusalId: recordId('PASS_DIVERGENCE', divergence.contractId, 0),
@@ -455,20 +695,11 @@ export function runStages0to5(input: DerivationInput): PartialResult & {
     const derived = deriveLines(admitted, base.classes, base.lines, scope.applicationSets, scope.declarations, index, input.envelope || {})
     base.stopped.push(...derived.stopped)
 
-    // SD-48 — an item whose reach a class neither entails nor contradicts. The package's reach rule is
-    // written for an element; under SD-47 an element is a class, and a selector the class leaves open
-    // would constrain some of its elements and not others. Nothing establishes what that means, so the
-    // engine records it, derives nothing from it, and reports it rather than choosing a reading.
-    if (derived.undeterminedReaches.length) {
-        base.stopped.push({
-            where: 'stage 4, reach',
-            why:
-                `${derived.undeterminedReaches.length} item-to-class reaches are undetermined: the class's authoritative selector ` +
-                'neither entails nor contradicts the item\'s selector, so the item would constrain some elements of the class and ' +
-                'not others. The package\'s reach rule is written for an element, and SD-47 makes an element a class. Nothing is ' +
-                'derived from these, and no reading is chosen here.',
-        })
-    }
+    // SD-49 settled this: an item whose reach a class neither entails nor contradicts has "applicability
+    // unresolved; derive nothing from that application", and the indeterminate case is recorded rather
+    // than resolved by interpretation. So it is **not** a stop — the semantics are established, and the
+    // engine is doing what they say. The count stays in `run.counts.undeterminedReaches`, where it is
+    // diagnostic rather than an open question.
 
     const openCount = [...derived.lines.values()].filter(l => l.open).length
     base.run.counts.applicationSets = scope.applicationSets.length

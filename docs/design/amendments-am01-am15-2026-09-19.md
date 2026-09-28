@@ -255,6 +255,16 @@ in AM-17.
 
 ## AM-13 — Own-involvement scope
 
+> **AMENDED 27 September by SD-93.** The prohibition below — *"an item that entails a collection
+> element may not use own-involvement"* — is retired. Its reason was a circularity that depended on
+> own involvement resolving through **entailment**, which is stage 5; SD-47 made elements classes
+> formed at stage 2 from authoritative selectors, before scope is resolved, so selecting among a
+> contract's own classes creates no authority and reproduces no circularity. The rule now reads:
+> *"Own involvement comprises the authoritative element classes established by that knowledge object,
+> including classes established by its own-involvement existence contributions. Own-involvement scope
+> may select among already-established classes but may never itself establish authority, identity, or
+> unsupported structure."* The text below is left as adopted, and is superseded rather than edited.
+
 **Ambiguity observed.** "The elements the same contract entails" is circular for an item that is itself
 what entails the element.
 

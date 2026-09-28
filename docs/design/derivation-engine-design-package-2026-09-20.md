@@ -537,7 +537,7 @@ established.** "Can fire" in these clauses is read through SD-44: a structurally
 
 | Check | Why it is a gap, not outside the representation |
 |---|---|
-| `GA-MODIFIER-OVERLAP` for `object` and `event` conditions | the information **is** represented; the test is incomplete. The `region` case executes. **Blocking for the affected cases only** (SD-45's companion ruling): a game with no such modifier is unaffected, and stages that do not depend on it are unaffected. Two corpus items use these types, so it must eventually be specified, never reclassified as outside the representation. Its semantics are not invented during implementation |
+| `GA-MODIFIER-OVERLAP` for `object` and `event` conditions | **Not a current implementation blocker** (SD-61, 23 Sep): *"underspecified for future reachable authoritative cases; no currently admitted authoritative corpus item requires it."* The `region` case executes, comparing referents **by structural identity only** (SD-57) — open text establishes no identity and blocks instead of being compared as a token. A relationship that cannot be established is a **gap, never a collision** (SD-58). `object` semantics are not specified, and none are invented from constructed examples (SD-60). *The earlier entry here — "two corpus items use these types" — was wrong twice: there are four items, all `event`, no `object` anywhere, and none reaches the gate* |
 
 **`GA-RESIDUAL-SPACE` is removed** (SD-45). He ruled the check was two claims fused, and neither belongs
 here. *"Absence does not need to become an object in order to remain absent"*: the space between or
@@ -662,7 +662,7 @@ the register, rather than to Gate A. Until he rules it stays a blocking specific
 | Gap | Kind | Effect today |
 |---|---|---|
 | `GA-RESIDUAL-SPACE` has no machine-testable definition | specification | blocks Gate A for every game |
-| `GA-MODIFIER-OVERLAP` has no test for `object` and `event` conditions | specification | blocks Gate A where those types occur — two corpus items |
+| `GA-MODIFIER-OVERLAP` execution is underspecified for `object` and `event` | specification | **not a current blocker** (SD-61): the gate sees zero modifiers in the corpus |
 | No aggregate function for a comparison over several matched elements | specification | comparison refused; none in the corpus |
 | No authored order for combining two modifiers on one referent | specification | effective value not computable; none in the corpus |
 | A failed supporting cardinality check has no ruled label | specification | `UNLABELLED`, one refusal naming every case |

@@ -1,0 +1,328 @@
+{
+ "note": "The corpus restatements Christian has ruled, as data. The application logic — and the conditions each restatement must satisfy before it is applied — stay in corpus-restatement.ts. Authored member text lives here because it is knowledge, not engine logic: the derivation engine is sport-neutral.",
+ "noRow": [
+  "restated:GF2::GF2-13",
+  "restated:GF2::GF2-18",
+  "restated:GF2::GF2-21",
+  "restated:GF2::GF2-23",
+  "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-07.a",
+  "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-12.b",
+  "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-16.b",
+  "blind:PASS-COMBINATION-GATE::PCG-14",
+  "blind:PASS-COMBINATION-GATE::PCG-15",
+  "blind:PASS-COMBINATION-GATE::PCG-16",
+  "blind:PASS-COMBINATION-GATE::PCG-17",
+  "blind:PASS-COMBINATION-GATE::PCG-18",
+  "blind:PASS-COMBINATION-GATE::PCG-19",
+  "blind:GF4::OB1",
+  "blind:GF4::OB2",
+  "blind:GF4::OB3",
+  "blind:GF4::OB4",
+  "blind:GF4::OB5",
+  "blind:GF4::OB6",
+  "blind:GF4::OB7"
+ ],
+ "items": [
+  {
+   "item": "restated:GF2::GF2-01",
+   "ruling": "SD-67",
+   "set": {
+    "row": "BY_CONSTRUCTION",
+    "satisfiedBy": "SINGLE_RECTANGULAR_PLAYING_AREA",
+    "structuralClause": "satisfied by the named schema invariant"
+   },
+   "why": "the schema represents the area as two scalar dimensions and enumerates no areas, so exactly one rectangular area holds by construction"
+  },
+  {
+   "item": "restated:GF2::GF2-02",
+   "ruling": "SD-68",
+   "set": {
+    "row": "NO_ROW",
+    "checkability": "OUTSIDE_BOUNDARY",
+    "structuralClause": "none",
+    "value": "participants share an adaptive opportunity space"
+   },
+   "why": "restated back to what its source supports. The stronger no-team-partition clause was one interpretation of \"Participants share an adaptive opportunity space\", not something the source entails; it is recorded as unsupported contract interpretation (task register C9)"
+  },
+  {
+   "item": "restated:GF2::GF2-15",
+   "ruling": "SD-69",
+   "set": {
+    "row": "NO_ROW",
+    "checkability": "OUTSIDE_BOUNDARY",
+    "structuralClause": "none"
+   },
+   "why": "its typing as a structural Game Representation claim is retired. It is ASSUMED and mixes structure with play; it is preserved as a diagnostic/boundary condition outside structural entailment (task register C10)"
+  },
+  {
+   "item": "restated:GF2::GF2-22",
+   "ruling": "SD-70",
+   "set": {
+    "row": "R1",
+    "selector": "*",
+    "checkability": "STRUCTURAL",
+    "structuralClause": "whole item"
+   },
+   "why": "the Rules area now holds action restriction, so the exclusion is representable: no action restriction exists in this game"
+  },
+  {
+   "item": "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-05.a",
+   "ruling": "SD-71",
+   "set": {
+    "row": "P12",
+    "selector": "group=neutral",
+    "value": "ACTIVE",
+    "structuralClause": "whole item"
+   },
+   "why": "Performer Participation State now holds the realized value; the concept stays owned by knowledge core EM-0007"
+  },
+  {
+   "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-13.a",
+   "ruling": "SD-72",
+   "remove": true,
+   "why": "removed as a structural modifier claim: the source offers alternative realization examples — bonus point, free restart or scoring multiplier — without selecting one or authoring its parameters. The source is preserved as typical realization alternatives outside structural derivation (task register C11)"
+  },
+  {
+   "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-13.b",
+   "ruling": "SD-72",
+   "remove": true,
+   "why": "the same source sentence read a second way; removed for the same reason, and the source is preserved unchanged"
+  },
+  {
+   "item": "restated:RPC-001::RPC-001-08.a",
+   "ruling": "SD-79",
+   "set": {
+    "value": [
+     "line_crossed",
+     "target_zone_entered",
+     "gate",
+     "target_player"
+    ],
+    "authoredOrder": true
+   },
+   "why": "the four authored members, exactly as written. The source orders them 1-4; the order is preserved as provenance and applied by nothing (RC-29)"
+  },
+  {
+   "item": "restated:RPC-001::RPC-001-18.b",
+   "ruling": "SD-79",
+   "set": {
+    "value": [
+     "the goalkeeper's START/restart placement",
+     "a controlled defensive restart placement"
+    ]
+   },
+   "why": "the two authored placement referents, preserved verbatim as members; which applies stays undecided"
+  },
+  {
+   "item": "restated:GF2::GF2-03.b",
+   "ruling": "SD-79",
+   "set": {
+    "value": [
+     "zone",
+     "line"
+    ]
+   },
+   "why": "the two authored alternatives, unordered as the source leaves them"
+  },
+  {
+   "item": "restated:GF2::GF2-19",
+   "ruling": "SD-79",
+   "set": {
+    "value": [
+     "line_crossed",
+     "target_zone_entered"
+    ]
+   },
+   "why": "the two authored alternatives, unordered as the source leaves them"
+  },
+  {
+   "item": "blind:GF4::I01",
+   "ruling": "SD-79",
+   "set": {
+    "value": [
+     "goal",
+     "line_crossed"
+    ]
+   },
+   "why": "the two authored alternatives, unordered as the source leaves them"
+  },
+  {
+   "item": "blind:GF4::I14",
+   "ruling": "SD-73",
+   "set": {
+    "value": 2
+   },
+   "why": "\"double\" entails both the operation and the magnitude, so the magnitude is recorded as 2. Its TYPICAL_EXAMPLE status is unchanged: encoding what the example says does not make it authoritative"
+  },
+  {
+   "item": "restated:VARIABLE-TARGET-CONDITION::VARTARGET-12.a",
+   "ruling": "SD-86",
+   "set": {
+    "forbiddenCardinality": {
+     "operator": ">",
+     "value": 1
+    }
+   },
+   "why": "the authored bound is \"more than 1\": the number 1 and the relation \"more than\", typed as > 1. The relation is carried across as written rather than converted to >= 2, and the prose value is left in place as its source."
+  },
+  {
+   "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-16.b",
+   "ruling": "SD-86",
+   "set": {
+    "forbiddenCardinality": {
+     "operator": ">=",
+     "value": 2
+    }
+   },
+   "why": "the authored bound is \"2 or more\": the number 2 and the relation \"or more\", typed as >= 2. Not rewritten as > 1, and the prose value is left in place as its source."
+  },
+  {
+   "item": "restated:A01-02::A01-02-01.a",
+   "ruling": "SD-87",
+   "set": {
+    "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
+    "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
+   },
+   "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
+  },
+  {
+   "item": "restated:A01-02::A01-02-02.a",
+   "ruling": "SD-87",
+   "set": {
+    "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
+    "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
+   },
+   "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
+  },
+  {
+   "item": "restated:A01-02::A01-02-03.a",
+   "ruling": "SD-87",
+   "set": {
+    "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
+    "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
+   },
+   "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
+  },
+  {
+   "item": "restated:A01-02::A01-02-04.a",
+   "ruling": "SD-87",
+   "set": {
+    "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
+    "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
+   },
+   "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
+  },
+  {
+   "item": "restated:A01-02::A01-02-04.b",
+   "ruling": "SD-87",
+   "set": {
+    "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
+    "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
+   },
+   "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
+  },
+  {
+   "item": "restated:A01-02::A01-02-05.a",
+   "ruling": "SD-87",
+   "set": {
+    "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
+    "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
+   },
+   "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
+  },
+  {
+   "item": "restated:A01-02::A01-02-07.a",
+   "ruling": "SD-87",
+   "set": {
+    "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
+    "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
+   },
+   "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
+  },
+  {
+   "item": "restated:A01-02::A01-02-11.a",
+   "ruling": "SD-87",
+   "set": {
+    "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
+    "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
+   },
+   "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
+  },
+  {
+   "item": "restated:A01-02::A01-02-05.a",
+   "ruling": "SD-89",
+   "set": {
+    "value": "DEFENDING_TEAM",
+    "basis": "AUTHORED",
+    "basisEvidence": "Christian, 2026-09-27: \"When a goal kick is triggered, the restart is awarded to the defending team.\" Authored as a football fact in its own right, not read off the trigger: \"The trigger identifies the state that produces the restart; it does not by itself establish who owns the resulting restart.\" It replaces the original's assumption 1 and the inference the original drew from the word \"from\".",
+    "restartOwnershipSource": "Christian, 2026-09-27: \"When a goal kick is triggered, the restart is awarded to the defending team.\"",
+    "fitNote": "DEFENDING_TEAM is an already-registered team designation; nothing is added to the vocabulary. The off-list phrase \"the team defending the end where the goal kick is placed\" is retired with the L2 marker it carried, because the authored fact states the designation directly. Ownership and trigger are kept separate as he required: the selector still carries SD-87's trigger, and this item carries the award."
+   },
+   "why": "restart ownership is authored as its own football fact. Until it was, T2 rested on assumption 1, and an assumption bounds without ever entailing (SD-83)."
+  },
+  {
+   "item": "restated:GF2::GF2-08.b",
+   "ruling": "SD-98",
+   "set": {
+    "value": {
+     "structuralRef": { "contractId": "restated:GF2", "itemId": "GF2-03.a" },
+     "asAuthored": "the target feature: the objective-area region of GF2-03.a (line or zone)"
+    }
+   },
+   "why": "the authored sentence names GF2-03.a, and the class that item establishes is held in the run. Only the referent already named is typed: no referent is selected between, inferred or substituted, and the authored sentence is kept beside the typed form. SD-63 is untouched for ordinary open text."
+  }
+ ],
+ "added": [
+  {
+   "contractId": "blind:GF4",
+   "after": "I14",
+   "ruling": "SD-73",
+   "item": {
+    "itemId": "I14.op",
+    "row": "V9a",
+    "selector": "condition.type=event",
+    "requirement": "EQUALS",
+    "value": "multiply",
+    "strictness": "SUPPORTING",
+    "valueStatus": "TYPICAL_EXAMPLE",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "basisEvidence": "\"double points for quick goal\" (game_forms[GF4].example_incentive_patterns) — \"double\" entails multiply",
+    "checkability": "STRUCTURAL",
+    "structuralClause": "whole item",
+    "fitNote": "Recovered from the source per SD-73. TYPICAL_EXAMPLE, so inert: the recovered operation does not promote the item into derivation."
+   },
+   "why": "the operation is recoverable from \"double\"; recording it keeps the magnitude computable without making the example authoritative"
+  },
+  {
+   "contractId": "restated:NEUTRAL-PLAYER-CONDITION",
+   "after": "NEUTRAL-05.a",
+   "ruling": "SD-76",
+   "item": {
+    "itemId": "NEUTRAL-01.b",
+    "origId": "NEUTRAL-01",
+    "row": "P11",
+    "selector": "group=neutral",
+    "requirement": "EXISTS",
+    "value": "a neutral participant group takes part in the activity",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "AUTHORED",
+    "basisEvidence": "\"One or more neutral players join the team in possession creating a live numerical overload\" (tl-v0-constraint-neutral-player-condition, description — full source reference as carried by NEUTRAL-01.a)",
+    "checkability": "STRUCTURAL",
+    "structuralClause": "whole item",
+    "fitNote": "SD-76. The entailment, made visible: the same source already carried as NEUTRAL-01.a (P5 count >= 1) entails that a neutral participant group is present, independently of the participation-state property NEUTRAL-05.a. Restated onto P11 so that state has an element to belong to. No existence is authored here."
+   },
+   "why": "the existing source independently entails the neutral group, so its existence is restated rather than left a gap"
+  }
+ ],
+ "declarationScope": {
+  "contractId": "blind:PASS-COMBINATION-GATE",
+  "ruling": "SD-74",
+  "onlyDeclaration": "NON_CLAIMED",
+  "from": "—",
+  "to": "WHOLE_GAME",
+  "why": "this contract makes no claim on the row anywhere in the game. The rest of the corpus consistently scopes NON_CLAIMED declarations, and `null` is deliberately not introduced as a second treatment"
+ }
+}
