@@ -3568,3 +3568,42 @@ Joe directed it: piece (1) of the generation-connection scope.
 - **Five Practice Situation contracts NOT started** — Patterns 1 and 2 are both about applicability
   and typing, so authoring now would inherit both open questions.
 - **Generation remains frozen. No status or gate semantics changed.**
+
+## 29 September (later) — two rulings applied, Pattern 2 returned
+
+- **Pattern 1 IMPLEMENTED.** Applicability grammar gains `selectorAttribute` beside `row`: a trigger
+  is fixed at stage 2, so the line is **withdrawn at enumeration** rather than left CONDITIONAL on a
+  governing line that can never move. Safeguard: where the selector does not fix the attribute the
+  condition is UNDECIDABLE and the line is **kept** — the rule can only remove a line it can
+  positively show does not belong.
+  - **The second half mattered:** withdrawing was not enough. The lines still carried a
+    `NOT_AUTHORED` verdict and still emitted GAP records, so they were reported inapplicable *and*
+    counted as missing knowledge. `classify` now skips WITHDRAWN lines entirely. **Caught because two
+    views disagreed** — notEstablished fell 57→48 while `verdict:NOT_AUTHORED` stayed at 54.
+  - Sweep result: one other combination, **T1c on the OUT_END_LINE goal kick**, left failing on
+    purpose. T1c's rule was written *wider* than necessary so it could not make a line vanish.
+- **Wide Zone CORRECTED** in the restatement (ruling C29a), not the engine. 04.a and 05.a share one
+  `basisEvidence` and 04.a's fitNote already said "(same as 05.a)". Parenthetical is now a `gloss`.
+  **Collisions 3 → 0, and the three channel placements now derive** (51 → 54 resolved).
+- **Corpus: unestablished 57 → 45, derived 51 → 54, collisions 3 → 0.** Gate A still FAIL on
+  GA-INFORMATION + GA-NO-FAILED-LINE. **GA-NO-FAILED-LINE untouched.**
+- **Pattern 2 TESTED, NOT IMPLEMENTED** (`npm run corpus:placement`). Not all 13 survive:
+  - `space.regions[GF2-03.a].position.across` is **referenced by two objectives** — choosing it
+    decides what the teams score at. Returned.
+  - 3 object lines carry a **joint** constraint across candidates ("each candidate's position differs
+    from every other"), flattened onto individual lines. A per-line authority cannot honour it.
+  - **The mechanism already exists** — rows are `fillable`, `mayBeOpen` would free them. Two of his
+    own rules block it: **SD-50** (choice space says "inside authored bounds", none authored) and
+    **AM-04** (one `UNDECLARED` on the row bars openness for every element — Variable Target on
+    S5/S6, A01-02 on O4/O5). One object's silence overrides another's authored bound. Returned.
+- **The 12 genuine gaps are 3 knowledge decisions:** how the pass count is revealed (5 lines, one
+  information rule); which IE composition governs the variable target (4 lines, IE-C006/IE-D006
+  unreconciled); the goal-kick restart procedure (3 lines) — whose "from where" is a placement
+  problem that lands back in Pattern 2.
+- **Affordance vocabulary: there are FOUR, not three** — the game form library also has A1–A10 in
+  `typical_affordances`. 12 semantic terms, only 4 shared by all three. Four decisions returned:
+  `fast_attack`↔`attack_quickly`, `regain`↔`regain_possession`, the A-codes, and **a flaw I owned**:
+  my trace keyed on lens `category`, and both Space Creation and Space Exploitation carry
+  "Create Space", so some of the 33 "realized" may have matched on the wrong key.
+- **Neutral scoring:** recorded as a representational limitation; not load-bearing today.
+- **Generation remains frozen.**

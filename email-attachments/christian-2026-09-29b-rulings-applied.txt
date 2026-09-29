@@ -1,0 +1,245 @@
+Subject: Pattern 1 and Wide Zone done — Pattern 2 stopped, because not all thirteen survive
+
+Christian,
+
+Two of your rulings are implemented and the corpus has moved. Pattern 2 I have
+tested and not implemented, because you said to return anything that needs more
+than placement, and one line does.
+
+Generation remains frozen.
+
+
+1. PATTERN 1 — DONE
+
+Adopted as a general applicability rule, not a special case. POSSESSION_CHANGE
+is named nowhere in it; it simply fails every out-of-play condition.
+
+The existing applicability mechanism could only condition on a governing LINE,
+which is resolved at stage 6. A trigger is fixed by the selector when stage 2
+individuates the class, so the grammar now also accepts a selector attribute,
+and such a line is withdrawn at enumeration rather than left conditional on
+something that can never move.
+
+One design point I want to flag because it is the safeguard. Where the selector
+does not fix the attribute, the condition is UNDECIDABLE and the line is KEPT.
+So this rule can only ever remove a line it can positively show does not belong.
+It cannot hide a real gap behind an applicability rule.
+
+Implementing the invariant took a second correction. Withdrawing the lines was
+not enough — they were still carrying a NOT_AUTHORED verdict and still emitting
+a GAP record, so they were reported as inapplicable and counted as missing
+knowledge at the same time. A withdrawn line now carries no verdict and emits no
+GAP.
+
+  unestablished lines      57 -> 45
+  NOT_AUTHORED             54 -> 45
+  GAP records              54 -> 45
+  withdrawn                12 -> 21
+
+You asked whether any other transition/property combination exposes the same
+issue. The sweep found one, and I have left it failing rather than deciding it:
+
+T1c (qualifiers.region) on the goal kick, which is OUT_END_LINE. I deliberately
+wrote T1c's rule wider than strictly necessary — it applies to OUT_END_LINE,
+OUT_TOUCHLINE and REGION_ENTRY — because the register's own triggerQualifiers
+block says REGION_ENTRY takes a region reference, and a ball that leaves the
+field leaves it somewhere. So the goal kick keeps the line and it still fails.
+Whether an OUT_END_LINE transition needs a region qualifier when T1b already
+says whose end line, and T4 already holds "where the ball went out", is a
+question I did not want to answer by narrowing my own rule to make a line
+disappear.
+
+No other combination on the corpus shows the pattern.
+
+
+2. WIDE ZONE — DONE, AND IT DERIVED THREE PLACEMENTS
+
+Corrected in the restatement, not the engine, as you said.
+
+The evidence was stronger than I had reported: 04.a and 05.a carry the SAME
+basisEvidence — the same setup_guidance quote — and 04.a's own fitNote already
+recorded "Holds only the contact in 'runs along its touchline' (same as 05.a)".
+The restatement had already noticed they were one claim.
+
+The parenthetical is now a gloss beside the value rather than a second
+REQUIRED_RANGE contribution. Both items, both sources and both fitNotes are
+preserved. Collisions 3 -> 0.
+
+And the three channel placements they were both describing now derive, which I
+had not anticipated: resolved lines went 51 -> 54.
+
+
+3. PATTERN 2 — TESTED, NOT IMPLEMENTED
+
+You said to test the rule against all thirteen first, and to return separately
+anything that needs more than placement rather than letting the rule swallow it.
+It does not clear all thirteen.
+
+THE ONE THAT NEEDS MORE THAN PLACEMENT
+
+  space.regions[GF2-03.a].position.across
+
+This is the target region, and two objectives reference it. Choosing where it
+sits across the axis would settle what those objectives point at — so this is
+not only a placement, it determines what the teams are scoring at. Returned.
+
+THREE THAT CARRY A RELATIONSHIP, NOT A BOUND
+
+  objects[GF4:I02].position.along
+  objects[A01-02-08.a].position.along
+  objects[RPC-001-10.a].position.along
+
+Each carries this "bound":
+
+  "each candidate's (along, across) position differs from every other
+   candidate's in the same set; no separation distance"
+
+That is not a bound on one element's placement. It is a joint constraint across
+a set of candidates, flattened onto each line individually. Choosing one
+candidate's position constrains where the others may go, and the representation
+currently gives a per-line authority no way to see that. I would not want the
+placement rule to swallow these, because a realizer honouring each line
+separately could satisfy all three and still violate the actual constraint.
+
+THE REMAINING NINE ARE PLACEMENT ONLY
+
+Three Wide Zone lines carry a genuine geometric bound ("the full axis extent,
+end line to end line"). Six carry no bound at all.
+
+BUT: THE MECHANISM ALREADY EXISTS, AND TWO RULES BLOCK IT
+
+This is the part I think matters most, and it changes what Pattern 2 actually
+is. The engine already has the machinery your rule describes — the register
+marks all four rows fillable, and mayBeOpen would make them free. Two existing
+rules stop it:
+
+  SD-50 blocks the six with no bound. The register's choice space for these rows
+  literally says "inside authored bounds", and with nothing authored the space
+  itself is unsupported. Your ruling says the session envelope supplies the outer
+  boundary — which would satisfy SD-50 if the envelope counts as the authored
+  bound. That is a ruling, not a reading, so I have not made it.
+
+  AM-04 blocks ALL thirteen, including the bounded ones. "Unexamined silence
+  cannot license a free choice": one UNDECLARED declaration on the row bars
+  openness for every element on it. On these four rows it is a single object each
+  time — Variable Target Condition leaves S5 and S6 undeclared, A01-02 leaves O4
+  and O5 undeclared. By contrast the neutral count has no UNDECLARED reaching it,
+  which is exactly why that one line IS free today.
+
+So one object's silence currently overrides another object's authored bound. I
+do not think that is what AM-04 was for, but it is your amendment and I am not
+going to reinterpret it to make Gate A pass.
+
+What I need from you: whether the envelope satisfies SD-50's "authored bounds",
+and whether AM-04's bar should be per-row as it is now. With both settled, nine
+of the thirteen close immediately.
+
+
+4. THE TWELVE GENUINE GAPS, GROUPED AS KNOWLEDGE DECISIONS
+
+You asked whether nine Information Expression lines are nine decisions. They are
+two.
+
+  PASS COMBINATION GATE — five lines, one decision.
+  V18 trigger type, V19 reveal timing, V20 reveal progression, V21 state
+  dependency, V22 access holder. The object authored that the connected-pass
+  count is revealed, and none of how. These are five dimensions of one
+  information rule: how is the count revealed to the players? Answer it once —
+  by what trigger, when, progressively or not, to whom — and all five close.
+
+  VARIABLE TARGET CONDITION — four lines, one decision.
+  Its notes name the same source twice: "IE-C006/IE-D006 unreconciled" and
+  "IE-C006 composes no REVEAL_TIMING (SD-19)". The underlying decision is which
+  Information Expression composition governs the variable target and whether it
+  composes the dimensions the object needs. That is one reconciliation, not four
+  facts.
+
+  THE GOAL-KICK RESTART — three lines, one knowledge unit, as you asked.
+  Who restarts, from where, by what method. RPC-001 declares all three
+  ("who restarts", "from where inside the own half", "the restart procedure
+  itself"); GF4 adds that "chain into immediate live play" hints at a method but
+  does not choose one. One caution: the "from where" carries A01-02's note that
+  "no goal-area equivalent is authored, and no rule for scaling one to a
+  40 x 30 m area" — so that third of the unit is a placement problem wearing a
+  restart's clothes, and it will land back in Pattern 2.
+
+So the twelve are three knowledge decisions, not twelve.
+
+
+5. NEUTRAL SCORING
+
+Recorded as a representational limitation, not forced. V5 cannot reference a
+performer group, so the question cannot be recorded even if you answered it.
+
+It is not load-bearing today: no bounded-pilot selection requires the neutral's
+scoring eligibility to be established. I will tell you the moment that changes —
+the most likely trigger is a pilot game that selects the Neutral Player Condition
+alongside a scoring constraint.
+
+
+6. AFFORDANCE VOCABULARY — PROPOSAL, AND FOUR DECISIONS FOR YOU
+
+There are not three vocabularies. There are four: the game form library uses one
+set in primaryAffordances and a completely separate coded set (A1 through A10) in
+typical_affordances.
+
+Excluding those codes, twelve semantic terms exist across the libraries and only
+four are shared by all three:
+
+  term                   lens  constraint  gameForm
+  break_lines             x        x          x
+  create_space            x        x          x
+  delay_or_deny           x        x          x
+  recover_shape           x        x          x
+  attack_quickly          x        x          .
+  regain_possession       x        x          .
+  exploit_space           .        x          x
+  finish                  x        .          x
+  maintain_possession     x        .          x
+  protect_space           x        .          x
+  fast_attack             .        .          x
+  regain                  .        .          x
+
+PROPOSED CANONICAL SET: the ten terms the lenses name, since a lens is the thing
+that names an opportunity, with exploit_space kept distinct from create_space
+because both the constraint and game form libraries already distinguish them.
+The mapping is lossless for every term except the four decisions below.
+
+FOUR DECISIONS I WILL NOT MAKE FOR YOU
+
+  (a) fast_attack (game form) and attack_quickly (lens, constraint). They are in
+      complementary distribution — no library uses both — which is strong
+      evidence of one concept spelled twice, but that is evidence, not a ruling.
+
+  (b) regain (game form) and regain_possession (lens, constraint). Same pattern.
+
+  (c) A real problem in my own measurement, which I should disclose. Two lenses,
+      "Space Creation Opportunity" and "Space Exploitation Opportunity", both
+      carry the category "Create Space". I keyed on category, so both mapped to
+      create_space — while the constraint and game form libraries distinguish
+      create_space from exploit_space. Either the Space Exploitation lens is
+      miscategorised, or the lens layer deliberately treats them as one. If it is
+      a miscategorisation, some of yesterday's 33 "realized" were matched on the
+      wrong key and that figure needs rerunning.
+
+  (d) The A1-A10 codes in typical_affordances: map them into the canonical set,
+      or retire the field.
+
+I have not changed any vocabulary, and I have not enforced the invariant. Once
+(a) through (d) are settled I will reconcile the terms and rerun the causal test
+properly, and only then will we know whether any selected lens is genuinely
+unrealized.
+
+Practice Situations stay outside this question, as you said.
+
+
+WHERE THE CORPUS STANDS
+
+  unestablished   57 -> 45      derived   51 -> 54      collisions  3 -> 0
+  Gate A still FAIL on GA-INFORMATION and GA-NO-FAILED-LINE
+
+GA-NO-FAILED-LINE has not been relaxed and I have not touched gate semantics.
+Suite green.
+
+Joe
+
