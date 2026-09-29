@@ -37,6 +37,8 @@ export interface OpenChoice {
     elementId: string | null
     /** SD-39's authority and the choice space it authorizes. */
     permittedBy: { authority: string; choiceSpace: string } | null
+    /** Where the freedom is a choice among stated alternatives, the alternatives (SD-78). */
+    permitted: unknown[] | null
     /** Whatever the knowledge bounded it to, carried verbatim. */
     bounds: unknown[]
     /** `FREE(a)`, `FREE(b)` or `FREE(choice)` — which kind of freedom this is. */
@@ -52,6 +54,13 @@ export interface NotEstablished {
     verdict: string
     /** AM-23's reason code, where the run gave one. */
     reason: string | null
+    /**
+     * What the knowledge actually declared on this row — the whole reaching set, not the one code
+     * AM-23 could express. `['NON_CLAIMED']` and `['UNDECLARED']` both report as *coverage*, and they
+     * are not the same thing: the first is an object saying it does not constrain the row, the
+     * second is nobody having looked. Carried so the difference survives to whoever rules on it.
+     */
+    declared: string[]
 }
 
 /**
@@ -85,7 +94,12 @@ export interface ResolvedGame {
         /** True only where Gate A passed — a restatement of Gate A's claim, not a new one. */
         mayRealize: boolean
     }
-    /** The game, nested by the register's paths. Only derived values appear. */
+    /**
+     * The game, nested by the register's paths. Only derived *values* appear — but every element the
+     * enumeration individuated appears, even one with no derived value, carrying its identity alone.
+     * Omitting those elements made the game claim they did not exist rather than that nothing about
+     * them was established, which is the one confusion this object exists to prevent.
+     */
     game: Record<string, unknown>
     /** Every derived value again, flat, with its support — so nothing has to be re-derived to trace it. */
     derived: { path: string; lineId: string; value: unknown; resolvedBy: string; support: SupportRef[] }[]
@@ -152,21 +166,43 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
         return `${container ?? row.path}[${entry.elementId}]${leaf ? `.${leaf}` : ''}${member}`
     }
 
+    /**
+     * Make sure an element the enumeration individuated is *in* the game, whether or not anything
+     * about it was derived.
+     *
+     * Found by the realization layer, which is the first thing to consume this object: an element
+     * whose every line was open or failed appeared in `open` and `notEstablished` and **nowhere in
+     * `game`**, because entries were only ever created while placing a derived value. On the corpus
+     * that silently dropped two elements the knowledge individuates — an object, and the region the
+     * Variable Target condition establishes — so the game said there was no such region at all
+     * rather than that nothing about it was established.
+     *
+     * The entry carries its identity and whatever was derived, and nothing else. An element with no
+     * properties is the honest statement: this exists, and what it is like is in the other lists.
+     */
+    const ensureElement = (elementId: string, row: { path: string }): Record<string, unknown> => {
+        const { container } = splitPath(row.path)
+        const key = container ?? row.path
+        if (!elements.has(key)) elements.set(key, { container: key, entries: new Map() })
+        const bucket = elements.get(key)!
+        if (!bucket.entries.has(elementId)) bucket.entries.set(elementId, { elementId })
+        return bucket.entries.get(elementId)!
+    }
+
     for (const entry of result.resolution) {
         const row = rows.get(entry.row)
         const path = pathOf(entry)
+
+        // A withdrawn or conditional line is not owed anything (SD-88), so it establishes no element.
+        if (entry.elementId && row && entry.lineState === 'ENUMERATED') ensureElement(entry.elementId, row)
 
         if (entry.state === 'derived') {
             derived.push({ path, lineId: entry.lineId, value: entry.value, resolvedBy: String(entry.resolvedBy ?? ''), support: entry.support })
             if (!entry.elementId) {
                 if (row) place(game, row.path, entry.value)
             } else if (row) {
-                const { container, leaf } = splitPath(row.path)
-                const key = container ?? row.path
-                if (!elements.has(key)) elements.set(key, { container: key, entries: new Map() })
-                const bucket = elements.get(key)!
-                if (!bucket.entries.has(entry.elementId)) bucket.entries.set(entry.elementId, { elementId: entry.elementId })
-                const element = bucket.entries.get(entry.elementId)!
+                const { leaf } = splitPath(row.path)
+                const element = ensureElement(entry.elementId, row)
                 // A member line carries one member of a set-valued row; they accumulate in order.
                 // The leaf may itself be dotted — `position.along` — and is nested, not used as a key
                 // with a dot in it, so a consumer reads the register's own shape.
@@ -186,6 +222,7 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
                 lineId: entry.lineId,
                 elementId: entry.elementId,
                 permittedBy: entry.permittedBy ? { authority: entry.permittedBy.authority, choiceSpace: String(entry.permittedBy.choiceSpace) } : null,
+                permitted: entry.permitted ? [...entry.permitted] : null,
                 bounds: entry.bounds ?? [],
                 kind: String(entry.verdict ?? ''),
             })
@@ -197,7 +234,14 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
         if (entry.lineState !== 'ENUMERATED') continue
 
         if (entry.state === 'failed') {
-            notEstablished.push({ path, lineId: entry.lineId, elementId: entry.elementId, verdict: String(entry.verdict ?? ''), reason: entry.reason ?? null })
+            notEstablished.push({
+                path,
+                lineId: entry.lineId,
+                elementId: entry.elementId,
+                verdict: String(entry.verdict ?? ''),
+                reason: entry.reason ?? null,
+                declared: entry.declared ? [...entry.declared] : [],
+            })
         }
     }
 
@@ -242,6 +286,13 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
             open: open.length,
             existential: existential.length,
             notEstablished: notEstablished.length,
+            elements: [...elements.values()].reduce((n, b) => n + b.entries.size, 0),
+            // An element that is in the game and carries no property at all. Counted so that the
+            // drop this fixed cannot come back unnoticed as a quietly shrinking game.
+            elementsWithNothingEstablished: [...elements.values()].reduce(
+                (n, b) => n + [...b.entries.values()].filter(e => Object.keys(e).length === 1).length,
+                0,
+            ),
         },
     }
 }

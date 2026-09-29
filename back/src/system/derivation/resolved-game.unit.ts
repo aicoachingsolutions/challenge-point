@@ -180,6 +180,40 @@ test('the same input assembles the same game, byte for byte', () => {
     assert.equal(one, two)
 })
 
+test('an element the enumeration individuated is in the game even when nothing about it was derived', () => {
+    // Found by the realization layer: an element whose every line was open or failed appeared in
+    // `open` and `notEstablished` and in no part of `game`, so the game said the element did not
+    // exist rather than that nothing about it was established.
+    const game = assemble(corpusInput())
+    const inGame = new Set<string>()
+    const walk = (node: any): void => {
+        if (Array.isArray(node)) return node.forEach(walk)
+        if (node && typeof node === 'object') {
+            if (typeof node.elementId === 'string') inGame.add(node.elementId)
+            Object.values(node).forEach(walk)
+        }
+    }
+    walk(game.game)
+
+    const referenced = new Set([...game.open, ...game.notEstablished].map(e => e.elementId).filter(Boolean) as string[])
+    const missing = [...referenced].filter(id => !inGame.has(id))
+    assert.deepEqual(missing, [], 'every element an open or unestablished line names is present in the game')
+    assert.ok(game.counts.elementsWithNothingEstablished >= 1, 'and the count makes a silent drop visible')
+})
+
+test('the declarations reaching a row travel with the line, because three reason codes cannot express five declarations', () => {
+    const game = assemble(corpusInput())
+    const unestablished = game.notEstablished.filter(e => e.verdict === 'NOT_AUTHORED')
+    assert.ok(unestablished.every(e => Array.isArray(e.declared)))
+
+    // The case that motivated it: AM-23 reports `coverage` — nobody looked — on rows where an object
+    // did look and declared either NON_CLAIMED or EXCLUDED. The code is unchanged; the evidence is
+    // no longer lost behind it.
+    const misreported = unestablished.filter(e => e.reason === 'coverage' && (e.declared.includes('NON_CLAIMED') || e.declared.includes('EXCLUDED')))
+    assert.ok(misreported.length > 0, 'the corpus still contains the case')
+    assert.ok(misreported.every(e => e.declared.length > 0))
+})
+
 test('provenance names the run it came from', () => {
     const derivationInput = corpusInput()
     const result = runDerivation(derivationInput)

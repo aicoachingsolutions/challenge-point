@@ -41,9 +41,38 @@ export interface BoundedSelection {
     contracted: string[]
     missing: string[]
     practiceSituations: { id: string; name: string }[]
+    /** The situation the coach chose, resolved to its canonical identity (never to prose). */
+    chosenSituation: { id: string; name: string } | null
 }
 
-export function selectFor(goalId: string): BoundedSelection {
+/**
+ * **The Practice Situation bridge.** A coach who chooses *Play Out from the Back → From Goal Kicks*
+ * has made a planning choice that changes the game: the situation carries a transition, the restart's
+ * team and the Objects area. Until now it reached generation as a sentence in a prompt and reached
+ * derivation not at all, so that game had no goal kick in it.
+ *
+ * The bridge is deliberately the smallest shape that fixes it, and it is the one he asked to be
+ * tested first:
+ *
+ *     coach choice → canonical Practice Situation identity → selected contracted knowledge → derivation
+ *
+ * **Derivation learns nothing about the Session Planning Model.** The planning side resolves the
+ * choice to a canonical id; that id names a knowledge object like any other; and the engine receives
+ * it through the contract mechanism it already has. No prose crosses the boundary, and nothing
+ * interprets the situation's definition text.
+ *
+ * A situation the coach did not choose contributes nothing, and a chosen one with no contract is
+ * reported missing rather than dropped — the same rule as every other selected object.
+ */
+function resolveSituation(goalId: string, situationId: string | null): { id: string; name: string } | null {
+    if (!situationId) return null
+    const offered = sessionPlanningModel.practiceSituationsFor(goalId) as any[]
+    const match = offered.find(p => String(p.ID) === situationId)
+    if (!match) throw new Error(`${situationId} is not a practice situation of ${goalId}: the planning model offers ${offered.map(p => p.ID).join(', ') || 'none'}`)
+    return { id: String(match.ID), name: String(match['Practice Situation']) }
+}
+
+export function selectFor(goalId: string, situationId: string | null = null): BoundedSelection {
     const goal: any = sessionPlanningModel.learningGoal(goalId)
     if (!goal) throw new Error(`no such learning goal: ${goalId}`)
     const text = `${goal['Learning Goal']}. ${goal['Coach Definition']}`
@@ -61,6 +90,10 @@ export function selectFor(goalId: string): BoundedSelection {
     // listed so the account of what was selected is complete, and excluded from what is derived.
     ;(result.affordanceLenses ?? []).forEach((l: any) => add(l?.id, 'affordance lens (not contracted knowledge)'))
 
+    // The coach's situation, as a canonical knowledge object among the others.
+    const chosenSituation = resolveSituation(goalId, situationId)
+    if (chosenSituation) selected.push({ id: chosenSituation.id, role: 'practice situation' })
+
     const available = new Map(loadCorpusContracts().map(c => [key(c.contractId), c.contractId]))
     const knowledge = selected.filter(s => !s.role.startsWith('affordance lens'))
     return {
@@ -70,6 +103,7 @@ export function selectFor(goalId: string): BoundedSelection {
         contracted: knowledge.filter(s => available.has(key(s.id))).map(s => s.id),
         missing: knowledge.filter(s => !available.has(key(s.id))).map(s => s.id),
         practiceSituations: (sessionPlanningModel.practiceSituationsFor(goalId) as any[]).map(p => ({ id: p.ID, name: p['Practice Situation'] })),
+        chosenSituation,
     }
 }
 
@@ -88,7 +122,8 @@ export function derivationInputFor(selection: BoundedSelection): DerivationInput
 
 if (require.main === module) {
     const goalId = process.argv.find(a => /^[A-Z]+[0-9]+$/.test(a)) ?? 'A05'
-    const selection = selectFor(goalId)
+    const situationId = process.argv.find(a => /^[A-Z]+[0-9]+-[0-9]+$/.test(a)) ?? null
+    const selection = selectFor(goalId, situationId)
 
     console.log(`SELECTION — ${selection.goalId}  ${selection.goalName}`)
     console.log('-'.repeat(60))
@@ -96,7 +131,11 @@ if (require.main === module) {
     console.log(`\n  contracted  ${selection.contracted.length}/${selection.selected.length}: ${selection.contracted.join(', ') || 'none'}`)
     console.log(`  MISSING     ${selection.missing.length}: ${selection.missing.join(', ') || 'none'}`)
     console.log(`  practice situations offered: ${selection.practiceSituations.map(p => `${p.id} ${p.name}`).join(' · ') || 'none'}`)
-    console.log('  note: selection carries no practice situation, so none reaches derivation.')
+    console.log(
+        selection.chosenSituation
+            ? `  chosen situation: ${selection.chosenSituation.id} ${selection.chosenSituation.name} — resolved to its canonical identity and selected as knowledge`
+            : '  chosen situation: none',
+    )
 
     const input = derivationInputFor(selection)
     const result = runDerivation(input)

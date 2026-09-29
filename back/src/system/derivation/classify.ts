@@ -25,6 +25,11 @@ export interface ClassifiedLine {
     resolvedBy?: 'ENTAILMENT' | 'STANDING_DECISION' | 'SESSION'
     /** The governing line, where applicability left this one conditional. */
     conditionalOn?: string
+    /**
+     * Every declaration reaching the row, iff NOT_AUTHORED. AM-23's three reason codes cannot
+     * express the five-declaration vocabulary, so this is what the knowledge actually said.
+     */
+    declared?: string[]
 }
 
 /** Two entailing items collide when no single value satisfies both (§6). */
@@ -48,6 +53,23 @@ function reasonFor(row: string, declarations: DeclarationReach[]): ReasonCode {
     if (reaching.some(d => d.declaration === 'UNDECLARED')) return 'coverage'
     if (reaching.some(d => d.declaration === 'EXCLUDED')) return 'excluded'
     return 'coverage'
+}
+
+/**
+ * Every declaration that reaches the row, kept beside the reason code.
+ *
+ * AM-23 gives three reason codes and the vocabulary has five declarations, so two of them have
+ * nowhere to land: `NON_CLAIMED` falls through `reasonFor` to `coverage`, and `EXCLUDED` loses to
+ * `UNDECLARED` on precedence. On the corpus that makes **12 of 57** unestablished lines report
+ * *"nobody looked"* when an object did look and declared either that it does not constrain the row
+ * or that it excludes it.
+ *
+ * The reason codes are his and the precedence between a declaration and a silence is a semantic
+ * question, so neither is changed here. What is fixed is the loss: the declarations travel with the
+ * line, so the reason code can never be the only surviving account of what the knowledge said.
+ */
+function declaredOn(row: string, declarations: DeclarationReach[]): string[] {
+    return [...new Set(declarations.filter(d => d.row === row).map(d => d.declaration))].sort()
 }
 
 /**
@@ -151,6 +173,7 @@ export function classifyLines(
         if (noDependency) {
             result.verdict = 'NOT_AUTHORED'
             result.reason = reasonFor(line.row, declarations)
+            result.declared = declaredOn(line.row, declarations)
             classified.set(line.lineId, result)
             continue
         }
