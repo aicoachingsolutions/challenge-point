@@ -61,7 +61,15 @@ export const FORWARD_RESULTS = [
 export type Verdict = (typeof VERDICTS)[number]
 export type ForwardResult = (typeof FORWARD_RESULTS)[number]
 /** AM-23's codes, in his order. Increment 3 distinguishes the three it can decide. */
-export type ReasonCode = 'declared gap' | 'coverage' | 'excluded'
+/**
+ * AM-23 as extended 29 September: one code per declaration, in a precedence where a **statement always
+ * outranks a silence**. Three codes could not express a five-declaration vocabulary, so an explicit
+ * exclusion and a declared non-claim were both reported as `coverage` — *nobody looked* — when an
+ * object had looked and said otherwise.
+ *
+ * **Diagnostic only.** Which code a line carries does not change whether it blocks realization.
+ */
+export type ReasonCode = 'declared gap' | 'excluded' | 'not constrained' | 'claimed but unresolved' | 'coverage' | 'no coverage'
 
 export type Requirement = (typeof REQUIREMENTS)[number]
 export type Scope = (typeof SCOPES)[number]
@@ -266,6 +274,13 @@ export interface Bounds {
     members?: unknown[]
     /** The authored words, for a qualitative bound. SD-15 forbids inventing a number here. */
     term?: string
+    /**
+     * The bound states a PREFERRED_DEFAULT, not a requirement. It is carried so a consumer can offer
+     * it and record departures from it, and it must never be enforced as though it were required -
+     * intersecting a preference with a requirement turns the preference into a ceiling the knowledge
+     * does not state (SD-90 governs the relationship).
+     */
+    preferred?: boolean
 }
 
 export interface SelectorPredicate {

@@ -69,18 +69,41 @@ function testEntailedLineResolves(): void {
     assert.equal(lineFor(result, '::S3').verdict, 'RESOLVED:ENTAILED')
 }
 
+// These use `S4`, not `S5`. Since the 29 September rulings `S5` is a metric placement the session
+// envelope bounds, so it is a bounded freedom rather than a gap — which makes it useless as a
+// stand-in for "a line nothing authored". `S4` has no registered choice space and remains one.
 function testUnauthoredLineIsAGapWithItsReason(): void {
     const result = runStages0to8(input([contract([item()])]))
-    const line = lineFor(result, '::S5')
+    const line = lineFor(result, '::S4')
     assert.equal(line.verdict, 'NOT_AUTHORED')
-    assert.equal(line.reason, 'coverage', 'nobody examined the row, so the reason is coverage')
+    assert.equal(line.reason, 'no coverage', 'no declaration reaches the row at all, which is not the same as one that said nothing')
 }
 
 function testDeclaredGapIsDistinguishedFromCoverage(): void {
     const c = contract([item()])
-    c.declarations.push({ row: 'S5', declaration: 'NOT_AUTHORED', note: 'needs a position it cannot author' })
+    c.declarations.push({ row: 'S4', declaration: 'NOT_AUTHORED', note: 'needs a function it cannot author' })
     const result = runStages0to8(input([c]))
-    assert.equal(lineFor(result, '::S5').reason, 'declared gap', 'an object that said it cannot author this is a declared gap')
+    assert.equal(lineFor(result, '::S4').reason, 'declared gap', 'an object that said it cannot author this is a declared gap')
+
+    // The six-way distinction, adopted 29 September: a statement always outranks a silence, and each
+    // declaration gets its own code. Before this, an explicit exclusion and a declared non-claim both
+    // reported as `coverage` — nobody looked — when an object had looked and said otherwise.
+    const cases: [string, string][] = [
+        ['EXCLUDED', 'excluded'],
+        ['NON_CLAIMED', 'not constrained'],
+        ['UNDECLARED', 'coverage'],
+    ]
+    for (const [declaration, expected] of cases) {
+        const one = contract([item()])
+        one.declarations.push({ row: 'S4', declaration, note: '' })
+        assert.equal(lineFor(runStages0to8(input([one])), '::S4').reason, expected, `${declaration} must report as ${expected}`)
+    }
+
+    // And precedence: a silence beside an exclusion does not outrank it.
+    const both = contract([item()])
+    both.declarations.push({ row: 'S4', declaration: 'UNDECLARED', note: '' })
+    both.declarations.push({ row: 'S4', declaration: 'EXCLUDED', note: '' })
+    assert.equal(lineFor(runStages0to8(input([both])), '::S4').reason, 'excluded', 'an explicit exclusion outranks a silence')
 }
 
 /** SD-28 — the ordering that matters. */
@@ -91,12 +114,12 @@ function testGapBeforeCollision(): void {
         input([
             contract([
                 item(),
-                item({ itemId: 'I-2', row: 'S5', requirement: 'EQUALS', value: 'near end', basis: 'ENGINE_ONLY' }),
-                item({ itemId: 'I-3', row: 'S5', requirement: 'EQUALS', value: 'far end', basis: 'ENGINE_ONLY' }),
+                item({ itemId: 'I-2', row: 'S4', requirement: 'EQUALS', value: 'access', basis: 'ENGINE_ONLY' }),
+                item({ itemId: 'I-3', row: 'S4', requirement: 'EQUALS', value: 'trigger', basis: 'ENGINE_ONLY' }),
             ]),
         ]),
     )
-    const line = lineFor(result, '::S5')
+    const line = lineFor(result, '::S4')
     assert.equal(line.verdict, 'NOT_AUTHORED', 'an unauthored dependency is a gap first (SD-28)')
     assert.equal(line.collidingItems.length, 0)
     assert.ok(

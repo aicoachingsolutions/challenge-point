@@ -23,6 +23,7 @@ export interface RegisterRow {
      */
     selectorAttribute?: string
     fillable?: string
+    outerBound?: string
     sourceKinds?: string[]
 }
 
@@ -58,6 +59,8 @@ export interface RegisterIndex {
     ownerRow: Map<string, string>
     /** Row id → its `fillable` text. Exhaustive: a row absent here has no structurally defined choice space. */
     fillable: Map<string, string>
+    /** Row id -> the authoritative structure that supplies its OUTER bound, where one does. */
+    outerBound: Map<string, string>
     /** Row id → the condition under which the row applies at all. */
     applicability: Map<string, ApplicabilityCondition>
     /** Vocabulary name → its closed member list. */
@@ -98,6 +101,7 @@ export function indexRegister(register: any): RegisterIndex {
     const rowOrdinal = new Map<string, number>()
     const ownerRow = new Map<string, string>()
     const fillable = new Map<string, string>()
+    const outerBound = new Map<string, string>()
 
     register.rows.forEach((row: RegisterRow, i: number) => {
         if (!row || !row.id || !row.path || !row.kind) throw new HaltError('H1', `row ${i} lacks id, path or kind`)
@@ -108,6 +112,11 @@ export function indexRegister(register: any): RegisterIndex {
         if (row.fillable) {
             if (row.kind === 'VIEW') throw new HaltError('H1', `fillable entry on VIEW row ${row.id}`)
             fillable.set(row.id, row.fillable)
+        }
+        if (row.outerBound) {
+            // An outer bound is only meaningful for a row that has a choice space to bound.
+            if (!row.fillable) throw new HaltError('H1', `outerBound on ${row.id}, which has no fillable choice space`)
+            outerBound.set(row.id, row.outerBound)
         }
     })
 
@@ -168,6 +177,7 @@ export function indexRegister(register: any): RegisterIndex {
         rowOrdinal,
         ownerRow,
         fillable,
+        outerBound,
         applicability,
         vocabularies,
         vocabularyVersions: (vocabBlock.versions as any) || {},

@@ -57,8 +57,8 @@ function render(game: ResolvedGame): string {
 
     rule(`NOT ESTABLISHED (${game.notEstablished.length})`)
     out.push('  Neither derived nor open. Absence is not a decision, so each is named.')
-    out.push('  The reason code is AM-23\'s; the declarations beside it are what the knowledge actually said,')
-    out.push('  because three codes cannot express a five-declaration vocabulary.')
+    out.push('  One reason code per declaration (AM-23, extended 29 September), in a precedence where a')
+    out.push('  statement outranks a silence. The declarations are kept beside the code as the evidence.')
     const byReason = new Map<string, number>()
     for (const entry of game.notEstablished) {
         const key = `${entry.reason ?? entry.verdict}${entry.declared.length ? `   declared: ${entry.declared.join('+')}` : '   declared: nothing reaches this row'}`

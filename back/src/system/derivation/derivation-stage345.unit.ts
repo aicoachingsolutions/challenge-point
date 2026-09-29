@@ -123,8 +123,17 @@ function testAbsenceOfKnowledgeDoesNotProduceOpen(): void {
     const neutrals = lines.find(l => l.lineId === 'game::P5')!
     assert.equal(neutrals.open, null, 'no contract mentions neutrals, so their count is not an authorized freedom')
 
+    // **Amended 29 September.** `S5` no longer demonstrates this rule, because the register now marks
+    // it `outerBound: SESSION_ENVELOPE` and the envelope supplies the bound its choice space asks for.
+    // It is a metric placement inside an authoritative structure, which is a bounded freedom.
     const position = lines.find(l => l.lineId.endsWith('::S5'))!
-    assert.equal(position.open, null, 'the register bounds this choice space by authored values, and none is authored')
+    assert.ok(position.open, 'the session envelope supplies the outer geometric bound (ruling 2)')
+
+    // The rule itself is unchanged and still bites, on a fillable row the envelope does NOT bound:
+    // `P2` team size asks for "a count inside an authored COUNT/RANGE", nothing authors one, and no
+    // outer bound stands in for it. Silence still supplies no choice space.
+    const roster = lines.find(l => l.lineId.endsWith('::P2'))
+    if (roster) assert.equal(roster.open, null, 'a fillable row with neither an authored bound nor an outer bound is a GAP, not a freedom')
     // SD-50 settled what increment 2 had to leave open: "If a required property must be resolved, its
     // existence is supported, but the legitimate choice space/bounds required to make it OPEN are
     // unsupported, report a GAP." Not a refusal, and no longer an unresolved question.
@@ -148,12 +157,26 @@ function testEntailmentClosesOpenness(): void {
     assert.equal(line.open, null, 'selected knowledge that determines the value closes the freedom')
 }
 
+/**
+ * AM-04 as he narrowed it on 29 September: *"silence supplies no authority. It does not negate
+ * authority supplied elsewhere."*
+ *
+ * Both halves are tested, because the narrowing is only safe if the first half survives it.
+ */
 function testUndeclaredSilenceBarsOpenness(): void {
+    // It still bars openness where nothing else reaches the property. `P2` is fillable, nothing
+    // authors a bound, and no outer bound stands in for one — so silence leaves it a gap.
+    const bare = contract([item()])
+    bare.declarations.push({ row: 'P2', declaration: 'UNDECLARED', note: 'never examined' })
+    const barred = [...runStages0to5(input([bare])).derived!.lines.values()].find(l => l.lineId.endsWith('::P2'))
+    if (barred) assert.equal(barred.open, null, 'AM-04 still holds: unexamined silence cannot license a free choice')
+
+    // It no longer *destroys* a choice space another authority supplied. This is the corpus case: one
+    // object left the row undeclared and thereby blocked every element on it, overriding the envelope.
     const c = contract([item()])
     c.declarations.push({ row: 'S5', declaration: 'UNDECLARED', note: 'never examined' })
-    const result = runStages0to5(input([c]))
-    const line = [...result.derived!.lines.values()].find(l => l.lineId.endsWith('::S5'))!
-    assert.equal(line.open, null, 'AM-04: unexamined silence cannot license a free choice')
+    const line = [...runStages0to5(input([c])).derived!.lines.values()].find(l => l.lineId.endsWith('::S5'))!
+    assert.ok(line.open, 'silence does not negate the outer bound the session envelope supplies (ruling 3)')
 }
 
 function testNoOpenLineCarriesAValue(): void {

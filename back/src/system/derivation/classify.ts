@@ -49,9 +49,11 @@ function collides(line: DerivedLine): ItemRef[] {
  */
 function reasonFor(row: string, declarations: DeclarationReach[]): ReasonCode {
     const reaching = declarations.filter(d => d.row === row)
+    if (!reaching.length) return 'no coverage'
     if (reaching.some(d => d.declaration === 'NOT_AUTHORED')) return 'declared gap'
-    if (reaching.some(d => d.declaration === 'UNDECLARED')) return 'coverage'
     if (reaching.some(d => d.declaration === 'EXCLUDED')) return 'excluded'
+    if (reaching.some(d => d.declaration === 'NON_CLAIMED')) return 'not constrained'
+    if (reaching.some(d => d.declaration === 'CLAIMED')) return 'claimed but unresolved'
     return 'coverage'
 }
 

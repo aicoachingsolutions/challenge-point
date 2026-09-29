@@ -407,6 +407,15 @@ function entails(item: any): boolean {
  * which is how "beyond the first defenders" came to be silently ignored by a feasibility check.
  */
 function boundsOf(item: any): Bounds {
+    // **A typed bound moved out of the prose by an authored restatement**, on the SD-86 precedent:
+    // the restatement "may move an explicitly authored numerical bound from the existing prose into
+    // the typed field", and may not infer one. `">= 1 (no authored maximum)"` states a number this
+    // parser cannot read, and guessing at it in code would be interpretation. The authored text is
+    // carried alongside so the source stays visible beside its typed form.
+    if (item.typedBound && typeof item.typedBound === 'object') {
+        const { min = null, max = null } = item.typedBound
+        return { kind: 'COUNT', min, max, term: String(item.value ?? ''), preferred: item.valueStatus === 'PREFERRED_DEFAULT' }
+    }
     if (item.requirement !== 'RANGE' && item.requirement !== 'COUNT') return { kind: 'SET', members: [item.value] as any }
 
     if (typeof item.value === 'number') return { kind: 'COUNT', min: item.value, max: item.requirement === 'COUNT' ? item.value : null }
@@ -433,6 +442,31 @@ function boundsOf(item: any): Bounds {
  * AM-04 as he ruled it: "Unexamined silence cannot license a free choice." An `UNDECLARED` declaration
  * reaching the row bars openness.
  */
+/**
+ * Every element some other authored contribution points at.
+ *
+ * His sixth ruling, and the reason this exists: *"If choosing its location determines the objective
+ * referent or scoring relationship, realization does not have authority to make that structural
+ * decision merely because it is geometric."*
+ *
+ * The target region is the case. Two objectives reference it, so where it sits across the axis is not
+ * a free piece of geometry — it decides what the teams are scoring at. A referenced element is
+ * therefore excluded from envelope-bounded placement freedom **by rule rather than by name**, so the
+ * next referenced element is excluded too without anyone remembering to add it.
+ */
+function referencedElements(contracts: LoadedContract[]): Set<string> {
+    const referenced = new Set<string>()
+    const walk = (node: unknown): void => {
+        if (Array.isArray(node)) return node.forEach(walk)
+        if (!node || typeof node !== 'object') return
+        const ref = (node as any).structuralRef
+        if (ref && ref.contractId && ref.itemId) referenced.add(`${ref.contractId}::${ref.itemId}`)
+        Object.values(node as Record<string, unknown>).forEach(walk)
+    }
+    for (const contract of contracts) for (const item of contract.items ?? []) walk(item.value)
+    return referenced
+}
+
 function mayBeOpen(
     line: ResolutionLine,
     index: RegisterIndex,
@@ -440,6 +474,9 @@ function mayBeOpen(
     declarations: DeclarationReach[],
     envelope: { [k: string]: unknown },
     stopped: { where: string; why: string }[],
+    cls: ElementClass | undefined,
+    referenced: Set<string>,
+    relational: Set<string>,
 ): { authority: string; choiceSpace: string } | null {
     const row = line.row
     const choiceSpace = index.fillable.get(row)
@@ -447,7 +484,45 @@ function mayBeOpen(
     if (record.session) return null // the session resolved it; a resolved line is not a free one
     if (record.entailing.length > 0) return null
     if (record.standingDecisions.length > 0) return null
-    if (declarations.some(d => d.row === row && d.declaration === 'UNDECLARED')) return null // AM-04
+
+    // **AM-04, narrowed on his ruling of 29 September.** It had been a per-row veto: one `UNDECLARED`
+    // declaration anywhere on the row barred openness for every element on it, which let one object's
+    // silence override another object's positive authority over the same property. On the corpus a
+    // single undeclared row from one object was blocking all thirteen placement lines.
+    //
+    // His principle, and the whole of the change: *"silence supplies no authority. It does not negate
+    // authority supplied elsewhere."* So silence still cannot **create** a choice space — that is the
+    // rest of this function — but it no longer **destroys** one that an authoritative source supplied.
+    // `NOT_AUTHORED` and `EXCLUDED` keep their own semantics; only bare silence is narrowed.
+    const silence = declarations.some(d => d.row === row && d.declaration === 'UNDECLARED')
+    const authorityReaches = record.bounding.length > 0 || index.outerBound.has(row)
+    if (silence && !authorityReaches) return null
+
+    // **A geometric choice that settles a structural relationship is not realization's to make.**
+    // His sixth ruling: realization "does not have authority to make that structural decision merely
+    // because it is geometric". The target region is referenced by two objectives, so where it sits
+    // decides what the teams score at — and that stays a returned gap rather than a placement
+    // freedom, whether or not anything authored a bound for it.
+    if (index.outerBound.has(row) && cls && referenced.has(`${cls.fromItem.contractId}::${cls.fromItem.itemId}`)) {
+        stopped.push({
+            where: line.lineId,
+            why: 'another authored contribution references this element, so choosing its placement would settle a structural relationship (C29, ruling 6)',
+        })
+        return null
+    }
+
+    // **A joint constraint is not a per-line bound.** Where a contribution constrains members of a set
+    // against each other — "each candidate's position differs from every other candidate's" — three
+    // independently valid placements can still be jointly invalid, and a per-line freedom has no way
+    // to see that. Until the relationship itself is representable the line is not open.
+    const relationalBound = record.bounding.find(b => relational.has(`${b.item.contractId}::${b.item.itemId}`))
+    if (relationalBound) {
+        stopped.push({
+            where: line.lineId,
+            why: `${relationalBound.item.itemId} constrains this element against others in its set, so this line carries no independent choice space (C29b)`,
+        })
+        return null
+    }
 
     // SD-39: "OPEN is not produced by absence of knowledge. The property's existence and legitimate
     // choice space must already be supported."
@@ -471,7 +546,15 @@ function mayBeOpen(
     // report a GAP. OPEN requires both: supported existence + supported legitimate choice space.
     // Silence supplies neither." So the line is not open, and stage 6 classifies it NOT_AUTHORED, which
     // raises the GAP. It is not a refusal.
-    if (/authored/i.test(choiceSpace) && record.bounding.length === 0) return null
+    //
+    // **Amended 29 September.** The session envelope is authoritative structure, and for a row the
+    // register marks `outerBound: SESSION_ENVELOPE` it supplies the outer geometric limit SD-50 asks
+    // for. That is what makes a metric placement a bounded freedom rather than a gap: the element
+    // exists, its function is established, and the only thing nobody authored is where inside the
+    // pitch it sits. It authorizes no arbitrary geometry — the bound is the envelope, and the
+    // realization layer still records the value as a choice rather than as derived knowledge.
+    const envelopeBounds = index.outerBound.get(row) === 'SESSION_ENVELOPE' && !!envelope && Object.keys(envelope).length > 0
+    if (/authored/i.test(choiceSpace) && record.bounding.length === 0 && !envelopeBounds) return null
 
     return { authority: 'SD-39', choiceSpace }
 }
@@ -532,6 +615,10 @@ export function deriveLines(
     envelope: any = {},
 ): DeriveOutcome {
     const byClass = new Map(classes.map(c => [c.classId, c]))
+    const referenced = referencedElements(contracts)
+    const relational = new Set(
+        contracts.flatMap(c => (c.items ?? []).filter(i => (i as any).relational).map(i => `${c.contractId}::${i.itemId}`)),
+    )
     const itemsById = new Map<string, any>()
     for (const contract of contracts) {
         for (const item of contract.items || []) itemsById.set(`${contract.contractId}:${item.itemId}`, { ...item, contractId: contract.contractId })
@@ -670,7 +757,7 @@ export function deriveLines(
         record.entailing.sort((a, b) => `${a.item.contractId}:${a.item.itemId}`.localeCompare(`${b.item.contractId}:${b.item.itemId}`))
         record.bounding.sort((a, b) => `${a.item.contractId}:${a.item.itemId}`.localeCompare(`${b.item.contractId}:${b.item.itemId}`))
         record.standingDecisions.sort()
-        record.open = mayBeOpen(line, index, record, declarations, envelope, stopped)
+        record.open = mayBeOpen(line, index, record, declarations, envelope, stopped, line.elementId ? byClass.get(line.elementId) : undefined, referenced, relational)
     }
 
     return {

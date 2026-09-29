@@ -303,6 +303,39 @@
     "fitNote": "RESTATEMENT CORRECTION, 29 September (Christian). 04.a and 05.a carry the SAME basisEvidence — setup_guidance \"Mark wide channels along both touchlines\" — and 04.a's own fitNote already recorded \"Holds only the contact in ‘runs along its touchline’ (same as 05.a)\". They were two representations of one authored placement, not two competing authored values, and they collided on three channel elements by string inequality alone. The parenthetical is now a gloss beside the value rather than a second REQUIRED_RANGE contribution. Source, strictness, valueStatus and provenance are unchanged, and no engine semantics changed. \"One channel on each lateral side\" remains NOT held: touchline-adjacent does not say which touchline, and S2 has no side attribute (ledger)."
    },
    "why": "two spellings of one authored placement were entailing two different values on S6, producing three collisions that were never a knowledge conflict. Making the parenthetical a gloss leaves one value, preserves both items and their shared source, and changes no engine semantics"
+  },
+  {
+   "item": "restated:VARIABLE-TARGET-CONDITION::VARTARGET-03.a",
+   "ruling": "C29b",
+   "set": {
+    "relational": true,
+    "fitNote": "MARKED RELATIONAL, 29 September (Christian): \"Do not flatten ‘each candidate’s position differs from every other candidate’s position’ into independent per-element bounds. That is a relationship across a set.\" The restatement had written one joint constraint as a per-element bound on O4, so it reached three separate object classes as three independent bounds — and three independently valid placements can still violate it. It is therefore NOT a bound on any one line. Until the relationship itself is representable the contribution bounds nothing and bars per-line placement freedom on the lines it reaches, rather than licensing a freedom the engine could not keep. Value, source and provenance are unchanged."
+   },
+   "why": "a joint constraint over a set of candidates was flattened into a per-element bound, which both misstates the knowledge and would license a per-line realization freedom that cannot honour it. Marked relational pending the smallest representation that preserves it"
+  },
+  {
+   "item": "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-01.a",
+   "ruling": "C29c",
+   "set": {
+    "typedBound": {
+     "min": 1,
+     "max": null
+    },
+    "fitNote": "TYPED, 29 September (Christian). The authored value \">= 1 (no authored maximum)\" already carries requirement RANGE, so the requirement kind was always quantitative; only the value string defeated the parser, which typed it QUALITATIVE and left the realization layer unable to check any value against a range it can plainly read. The number is MOVED from the prose into the typed field on the SD-86 precedent, not inferred: floor 1, and no maximum, exactly as authored. The prose value is unchanged so the source stays visible beside its typed form."
+   },
+   "why": "an explicitly authored numerical floor was sitting unreadable in prose; typing it changes no authored content and makes the bound checkable"
+  },
+  {
+   "item": "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-02.a",
+   "ruling": "C29c",
+   "set": {
+    "typedBound": {
+     "min": 1,
+     "max": 2
+    },
+    "fitNote": "TYPED, 29 September (Christian). \"1-2 (one or two)\" typed as min 1, max 2. It remains SUPPORTING / PREFERRED_DEFAULT and is NOT converted into a required range: NEUTRAL-01.a states there is no authored maximum, so intersecting the two to [1,2] would turn a preference into a hard ceiling the knowledge never states. SD-90 already expresses the real relationship between a required bound and a preferred default; nothing new is needed and nothing is intersected here."
+   },
+   "why": "the preferred default is typed so it can be read, and deliberately left SUPPORTING so it cannot be mistaken for a required maximum"
   }
  ],
  "added": [

@@ -694,14 +694,17 @@ test('SD-99: a region function clause reads established membership without the s
 test('SD-100: EXISTS on a field row asserts nothing and is recorded as inert', () => {
     const asserted = contract([
         item({ itemId: 'R-1', row: 'S2', selector: 'noun=channel', requirement: 'EXISTS' }),
-        item({ itemId: 'F-1', row: 'S5', selector: 'noun=channel', requirement: 'EXISTS', value: 'the position field is present' }),
+        // `S4`, not `S5`: since the 29 September rulings `S5` is bounded by the session envelope and is
+        // therefore a freedom, which would mask the thing under test — that an inert claim leaves the
+        // line exactly as it found it. `S4` has no registered choice space and stays a gap.
+        item({ itemId: 'F-1', row: 'S4', selector: 'noun=channel', requirement: 'EXISTS', value: 'the functions field is present' }),
     ])
     const result: any = runStages0to10(input([asserted]))
-    const line = result.derived.lines.get('c:C-1:R-1::S5')
+    const line = result.derived.lines.get('c:C-1:R-1::S4')
 
     assert.equal(line.entailing.length, 0)
     assert.equal(line.bounding.length, 0, 'it is not carried as a bound either — that is one of the readings he excluded')
-    assert.equal(result.classified.get('c:C-1:R-1::S5').verdict, 'NOT_AUTHORED')
+    assert.equal(result.classified.get('c:C-1:R-1::S4').verdict, 'NOT_AUTHORED')
     assert.equal(result.forward.find((o: any) => o.item.itemId === 'F-1').result, 'INERT', 'provenance is retained and the claim is inert')
 })
 
@@ -753,14 +756,18 @@ test('the corpus run reproduces the reported figures exactly', () => {
     // were being asked separately for fields nobody owed.
     assert.equal(result.run.counts.lines, 125)
     assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 54)
-    // 54 before the 29 September applicability ruling. The nine that left were not authored after
-    // the fact: T1a/T1b/T1c were being demanded of three POSSESSION_CHANGE transitions, and a
-    // turnover has no last touch over a line, no end line and no out-of-play region. They are now
-    // withdrawn as inapplicable, and — the part that matters — they carry no verdict and emit no GAP,
-    // because the absence of an inapplicable property must never be reported as missing knowledge.
-    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 45)
+    // **54 → 45 → 36 across the 29 September rulings, and not one line was authored to get there.**
+    //   −9  T1a/T1b/T1c demanded of three POSSESSION_CHANGE transitions. A turnover has no last touch
+    //       over a line, no end line and no out-of-play region, so they are withdrawn as inapplicable
+    //       — carrying no verdict and emitting no GAP, because the absence of an inapplicable
+    //       property must never be reported as missing knowledge.
+    //   −9  metric placements on S5/S6/O4/O5, where the session envelope supplies the outer bound
+    //       SD-50 asks for and AM-04 no longer lets one object's silence veto another's authority.
+    //       They are bounded freedoms now, not gaps.
+    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 36)
     assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 0, 'cluster 3 cleared the whole population')
-    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 45, 'one GAP per unauthored line, and none for a withdrawn one')
+    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 36, 'one GAP per unauthored line, and none for a withdrawn one')
+    assert.equal([...result.derived.lines.values()].filter((l: any) => l.open).length, 14, 'five open lines became fourteen')
 
     // SD-88 evaluated the conditional lines; the selector-based rule settles its own at enumeration.
     // Twelve withdrawals come from the governing-line path (the three CONTINUE transitions carry no

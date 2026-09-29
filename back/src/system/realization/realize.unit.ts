@@ -165,6 +165,35 @@ test('a qualitative bound is recorded as unverified rather than silently treated
     assert.equal(result.record.choices[0].boundCheck, 'UNVERIFIABLE_QUALITATIVE_BOUND')
 })
 
+test('a preferred default is offered, never enforced as a ceiling', () => {
+    // The neutral count: one item states a REQUIRED floor of 1 with no authored maximum, another a
+    // PREFERRED_DEFAULT of 1-2. Enforcing both would intersect them and turn the preference into a
+    // hard limit the knowledge never states — the same shape as a schema default quietly overriding
+    // an engine default. 4 is outside the preference and inside the requirement, so it is accepted.
+    const resolved = eligible({
+        open: [
+            {
+                path: 'performers.neutrals.count',
+                lineId: 'L-neutrals',
+                elementId: null,
+                permittedBy: null,
+                permitted: null,
+                bounds: [
+                    { kind: 'COUNT', min: 1, max: null, term: '>= 1 (no authored maximum)' },
+                    { kind: 'COUNT', min: 1, max: 2, term: '1-2 (one or two)', preferred: true },
+                ],
+                kind: 'FREE(a)',
+            },
+        ],
+    })
+    const result = realize(resolved, [{ lineId: 'L-neutrals', value: 4, because: 'above the preference, inside the requirement' }]) as Realized
+    assert.equal(result.outcome, 'REALIZED')
+    assert.equal((result.game as any).performers.neutrals.count, 4)
+
+    // The required floor still bites.
+    assert.ok(isRefused(realize(resolved, [{ lineId: 'L-neutrals', value: 0, because: 'below the required floor' }])))
+})
+
 // ---------------------------------------------------------------------------------------------
 // Refusals that keep a concrete game concrete.
 // ---------------------------------------------------------------------------------------------

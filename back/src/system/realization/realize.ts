@@ -124,7 +124,11 @@ function checkBound(choice: OpenChoice, value: unknown): { ok: boolean; how: Rec
             : { ok: false, how: 'WITHIN_PERMITTED_SET', why: `${choice.lineId}: ${JSON.stringify(value)} is not one of the permitted alternatives ${JSON.stringify(choice.permitted)}` }
     }
 
-    const counts = (choice.bounds as Bounds[]).filter(b => b?.kind === 'COUNT')
+    // **A preferred default is not a ceiling.** Enforcing every count bound would silently intersect
+    // them, and where one item states a required floor with *no authored maximum* while another
+    // states a preferred 1–2, that intersection turns a preference into a hard limit the knowledge
+    // never states. SD-90 governs the relationship; here the preferred bounds are simply not enforced.
+    const counts = (choice.bounds as Bounds[]).filter(b => b?.kind === 'COUNT' && !b.preferred)
     if (counts.length) {
         if (typeof value !== 'number') {
             return { ok: false, how: 'WITHIN_COUNT', why: `${choice.lineId}: the bound is a count and ${JSON.stringify(value)} is not a number` }
