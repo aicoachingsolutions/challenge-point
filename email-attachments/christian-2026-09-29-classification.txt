@@ -1,0 +1,244 @@
+Subject: They collapse — 22 of the 40 are not missing knowledge
+
+Christian,
+
+You asked whether these are forty-three missing pieces of knowledge or a much
+smaller number of unresolved rules about what a game needs to know. They are the
+second, and more strongly than I expected.
+
+Two corrections first, because both change the shape of the question.
+
+Generation remains frozen. Nothing has been authored and no status or gate
+semantics have been changed.
+
+
+FIRST CORRECTION: IT IS 40, NOT 43
+
+My earlier figure counted lines whose row carried a "cannot author" declaration,
+which swept the three internal failures into the knowledge bucket. They are
+separate. The set to classify is 40.
+
+
+SECOND CORRECTION: THE THREE INTERNAL FAILURES ARE NOT IMPLEMENTATION DEFECTS
+
+You asked me to correct them separately as implementation defects. They are not,
+and I should not have called them internal.
+
+All three are the same two items from Wide Zone Advantage, colliding on three
+different channel elements. One says "touchline-adjacent". The other says
+"touchline-adjacent (outer edge on a touchline)". Both are POSITIONED, both
+REQUIRED, both REQUIRED_RANGE, same selector, same row. They collide by string
+inequality.
+
+The second is plainly a refinement of the first, not a contradiction — but the
+engine cannot know that without interpreting prose, which SD-15 forbids. SD-02
+is behaving exactly as written. This is one restatement issue: the same
+placement stated twice, once with a parenthetical gloss, as two required items
+rather than one. The correction belongs in the restatement, not the engine.
+
+So there is no separate implementation defect stream to run. If you would like
+the restatement corrected, that is a knowledge edit and I will wait for you.
+
+
+THE ANSWER: FIVE PATTERNS, AND TWO OF THEM ARE NOT MISSING KNOWLEDGE
+
+    9   transition qualifiers demanded of a transition whose trigger has none
+   13   placement on rows the register already marks fillable
+    9   Information Expression dimensions
+    3   restart procedure for the one stop-resume transition
+    6   six singletons, each different
+
+The first two are 22 lines — 55% — and neither is a gap to fill.
+
+
+PATTERN 1 — NINE LINES ASK A TURNOVER WHOSE END LINE THE BALL CROSSED
+
+The corpus has four transitions. Three are POSSESSION_CHANGE. For all three, the
+line trace is identical: T2, T3, T4 and T5 are WITHDRAWN, and T1a, T1b, T1c
+fail.
+
+That is the whole finding. The mechanism that recognises an inapplicable
+transition property already exists and already works — a CONTINUE transition has
+no restart, so "who restarts" and "from where" are correctly withdrawn on
+exactly these elements. T1a/T1b/T1c are simply not covered by it, so a turnover
+is asked whose last touch put the ball out, whose end line it crossed, and in
+which region. A turnover has none of those.
+
+The knowledge objects say so themselves. GF4: "No last-touch qualifier is
+authored." A01-02: "every other out-of-play case is free." Wide Zone: "start and
+restarts after score, out of play and turnover free." Pass Combination Gate: "No
+transition is authored."
+
+And the only "cannot author" declaration reaching those rows is A01-02's, which
+is about its own goal kick — a transition A01-02 in fact resolved. Declarations
+reach by row, so a gap declared about one element is charged to every element on
+that row.
+
+One unresolved rule — which qualifier rows apply to which trigger — not nine
+knowledge gaps. The register already expresses the same idea in prose for the
+neighbouring rows: T3, T4 and T5 carry "N/A when CONTINUE" in their valueType.
+Nothing equivalent exists for T1a, T1b, T1c.
+
+
+PATTERN 2 — THIRTEEN LINES ON ROWS THE REGISTER ALREADY CALLS FILLABLE
+
+S5, S6, O4, O5 — position along and across, for regions and objects. All four
+carry a fillable entry in the register: "metres and position inside authored
+bounds", "inside authored bounds".
+
+They fail because no object authored a bound, and SD-39 makes openness a freedom
+within an already-supported property. The register agrees: "a fillable entry
+states the space; it does not by itself authorize a choice, and silence never
+creates one." So the current behaviour is defensible.
+
+The difficulty is that no knowledge object authors metric positions, and each
+says so explicitly. GF4: "Direction needs one goal/target at each end, but the
+knowledge does not author positions." Variable Target: "no distance, proportion
+or width rule." Wide Zone: "no scaling rule for width; 'depending on field size'
+gives no function." GF2: "extent of the target (depth of a zone)."
+
+Meanwhile GA-LAYOUT-FEASIBLE is NOT_EVALUABLE — "a geometric bound is not a
+constraint this check can read" — so layout is already a separate, unbuilt
+concern.
+
+If these must be authored, every object has to gain a metric vocabulary it
+currently disclaims. If they are realization freedoms, they should not block
+Gate A. One rule, thirteen lines.
+
+I note these two rules are not about soccer. They are about what a game needs to
+know.
+
+
+THE GENUINE GAPS: TWELVE LINES
+
+Nine Information Expression dimensions, and they name specific unreconciled
+sources rather than general absence — "IE-C006/IE-D006 unreconciled", "IE-C006
+composes no REVEAL_TIMING (SD-19)", "the trigger type for revealing the count is
+unauthored: a completed pass or the coach's call".
+
+Three restart-procedure lines on the goal kick: who restarts, from where, by
+what method. Required for play, genuinely unauthored. The "from where" is
+arguably a position, and so shares Pattern 2's problem.
+
+Of the six singletons, four are typed by the authoring object itself as
+realization-side — one names SD-15 explicitly, one says "realization parameters
+null", one says "GF2 states no preference". One is a representation limit rather
+than a gap: "whether a neutral may score. V5 cannot reference a performer
+group." So only that last question is really a knowledge question, and it cannot
+currently be recorded even if you answered it.
+
+So the honest minimum, on this corpus: twelve lines of genuinely unauthored
+knowledge, plus the neutral-scoring question. Not forty.
+
+
+AFFORDANCE LENSES — YOUR BROADER TEST CHANGES THE ANSWER, AND I WAS WRONG
+
+                                        constraints only    your test
+  causally realized                          20 of 39       33 of 39
+  selected but causally unrealized           19 of 39              0
+  cannot currently be determined                    —              6
+
+Seventeen lens selections are realized only by the game form. You were right not
+to assume only constraints can realize a lens, and my 19-of-39 overstated the
+problem by a factor of three.
+
+The link is exact rather than interpreted: all three libraries already write the
+same snake_case affordance key, so a lens's category normalises to what a
+constraint writes in targetAffordancePrimary and a game form writes in
+primaryAffordances.
+
+The six undetermined cases are all one defect: the vocabularies have drifted. A
+game form holds "fast_attack" and "regain"; lenses produce "attack_quickly" and
+"regain_possession". Calling those unrealized would assert that fast_attack is
+not attack_quickly, which is a semantic claim I am not entitled to make in
+either direction.
+
+That drift is the real selection-integrity finding. Five of the nine affordances
+a lens can ask for cannot be named by one of the two libraries at all — no
+constraint can name finish, maintain_possession or protect_space; no game form
+can name attack_quickly or regain_possession.
+
+So: adopt the invariant, but reconcile the three vocabularies to one closed list
+first. Otherwise it measures vocabulary drift rather than causal integrity.
+
+Practice Situations cannot participate at all — the record carries ID, parent,
+display order, name and a prose Definition, and no field in which a causal
+contribution to a lens could be recorded.
+
+
+REASON CODES — A PROPOSAL THAT CHANGES NO BLOCKING BEHAVIOUR
+
+One code per declaration, and a precedence in which a statement always outranks
+a silence:
+
+  1  NOT_AUTHORED            declared gap            needs it, cannot author it
+  2  EXCLUDED                excluded                states it must not exist
+  3  NON_CLAIMED             not constrained         looked, imposes no requirement
+  4  CLAIMED, still failed   claimed but unresolved  claimed, no value survived
+  5  UNDECLARED              coverage                looked and said nothing
+  6  nothing reaches it      no coverage             nobody looked
+
+An explicit exclusion is never reported as though nobody considered the
+property, and a non-claim is never represented as missing authorship by that
+object. Every line that fails today still fails with the same verdict; only the
+reported reason changes. Whether "not constrained" or "excluded" should stop
+blocking realization is the separate decision you reserved.
+
+
+VARIABLE TARGET
+
+FIRST_FORWARD_PASS is in, with the boundary recorded beside it in the register:
+event in play, forward relative to the established attacking direction, first
+per episode, no implication about success, receiver, distance or intent.
+Regression evidence: unregistered triggers went 3 to 2, and a test asserts
+exactly two remain, so neither held member can be quietly admitted later.
+
+REGION_ENTRY + first receiver is recorded as presently unrepresentable and stays
+in the permitted set as evidence. No compound trigger, no performer-role
+vocabulary.
+
+VARTARGET-08.a — the ownership trace only. Every FIELD row in the objective-set
+family owns its immediate collection: J2/J3/J4 own J1, and J6 through J10 and
+J12 own J5. J11b is the only one that points past its immediate collection to
+the grandparent — it owns J5 rather than J11a. J11a and J11b are also the only
+rows in the whole register with a bracketed selector segment mid-path.
+
+Two consequences, stated without a recommendation: a class individuated on J11a
+produces zero lines, because no field row resolves to it; and under the
+register's own ownerRowNote, a selector on J11b is validated against J5's
+attributes (scope) rather than J11a's (on), so an item writing a yields keyed by
+trigger would be refused as unnormalisable under SD-32. Both rows entered in the
+commit that applied stage A's reading rules before any contract was restated.
+
+Neutral count — the answer is no, and I am glad you asked before converting.
+Both bounds come from the same object but from items with different statuses:
+">= 1 (no authored maximum)" is REQUIRED and REQUIRED_RANGE; "1-2 (one or two)"
+is SUPPORTING and PREFERRED_DEFAULT. Both already carry requirement RANGE, so
+the kind is already quantitative — only the value string defeated parsing.
+
+Treating them as count bounds is faithful. Intersecting them to [1,2] is not: it
+would convert a preferred default into a required maximum, when the required
+item says explicitly that there is no authored maximum. The faithful restatement
+is a required floor of 1 with no ceiling, plus a preferred default of 1-2 —
+which is exactly the relationship SD-90's displacement machinery already
+expresses, so no new mechanism is needed. Not converted.
+
+COACH_CUE remains held. The open-text subject issue remains recorded and off the
+critical path.
+
+
+WHAT I HAVE NOT DONE
+
+No status changed, no gate semantics touched, GA-NO-FAILED-LINE untouched. No
+knowledge authored. The five Practice Situation contracts are not started, since
+you tied them to what this classification says about contract semantics — and it
+does say something: Pattern 1 and Pattern 2 are both about applicability and
+typing rather than content, so I would want your rulings on them before
+authoring contracts that would inherit the same two questions.
+
+The full evidence, with the authored wording on both sides of every line, is in
+the audit note; the two tools that produce it are committed so you can rerun
+either.
+
+Joe
+

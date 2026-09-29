@@ -3534,3 +3534,37 @@ Joe directed it: piece (1) of the generation-connection scope.
   changes the game form (0/13) and changes constraints in 7/13; **19 of 39 selected lenses are
   realized by no selected constraint.** Proposed invariant rather than a contract.
 - **Generation remains frozen.**
+
+## 29 September — the 40 collapse to five patterns
+
+- **It is 40, not 43.** The earlier count bucketed by row and swept the three internal failures into
+  the knowledge pile. Corrected to Christian.
+- **The "three internal defects" are not defects.** All three are one pair of Wide Zone items —
+  `"touchline-adjacent"` vs `"touchline-adjacent (outer edge on a touchline)"` — colliding by string
+  inequality on three channel elements. SD-02 is working correctly; SD-15 forbids the prose
+  interpretation that would reconcile them. The fix is a restatement edit, and it is his.
+- **Pattern 1 (9 lines):** T1a/T1b/T1c demanded of POSSESSION_CHANGE transitions. **T2–T5 are
+  WITHDRAWN on exactly those elements** — the applicability mechanism already exists and works;
+  these rows are not covered by it. One missing rule, not nine gaps.
+- **Pattern 2 (13 lines):** S5/S6/O4/O5 placement, on rows the register itself marks **`fillable`**.
+  No object authors metric positions and every one says so. `GA-LAYOUT-FEASIBLE` is already
+  NOT_EVALUABLE. One rule: is a fillable row with no authored bound a freedom or a gap?
+- **Genuinely unauthored: 12** (9 Information Expression dimensions naming unreconciled IE sources;
+  3 restart-procedure lines on the goal kick) plus the neutral-scoring question behind `V5`, which
+  **cannot be recorded even if answered** — `V5` cannot reference a performer group.
+- **Lens re-test against his broader test: 33 realized / 0 unrealized / 6 undetermined.** My earlier
+  19-of-39 was constraint-only and overstated it 3×. **17 are realized only by the game form.** The
+  6 undetermined are vocabulary drift (`fast_attack` vs `attack_quickly`) — deliberately NOT called
+  unrealized, because that is a semantic claim. **5 of 9 affordances cannot be named by one of the
+  two libraries**, so the invariant needs one closed vocabulary first.
+- **`FIRST_FORWARD_PASS` registered** (trigger v1 → v2) with its boundary in the register.
+  Unregistered triggers **3 → 2**; a test asserts exactly two remain.
+- **Neutral count: do NOT intersect to [1,2].** `>= 1` is REQUIRED with explicitly no maximum;
+  `1-2` is SUPPORTING/PREFERRED_DEFAULT. Intersecting turns a preference into a hard ceiling —
+  the sessionEmphasis failure shape. SD-90 already expresses the real relationship.
+- **`VARTARGET-08.a`:** `J11b` is the only FIELD row in the register that owns its *grandparent*
+  (`J5`) rather than its immediate collection (`J11a`). Trace returned; no recommendation made.
+- New tools: `npm run corpus:unestablished`, `npm run lens:trace`. Suite green, tsc clean.
+- **Five Practice Situation contracts NOT started** — Patterns 1 and 2 are both about applicability
+  and typing, so authoring now would inherit both open questions.
+- **Generation remains frozen. No status or gate semantics changed.**
