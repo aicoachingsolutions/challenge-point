@@ -1,0 +1,223 @@
+Subject: All thirteen applied — and the search can stop, the blockers are your three decisions
+
+Christian,
+
+Everything is implemented or returned. The headline is the last item: I reran
+the pilot boundary and the remaining blockers really are the three knowledge
+decisions we identified, with nothing else hiding behind them.
+
+Generation remains frozen. GA-NO-FAILED-LINE untouched.
+
+  unestablished   57 -> 36        open for realization   5 -> 14
+  derived         51 -> 54        collisions             3 -> 0
+
+220 tests, suite green.
+
+
+PATTERN 2 — EXACTLY THE NINE
+
+The envelope bound is marked as data on the four rows, so the engine stays
+sport-neutral and no row id is written into it. AM-04 is narrowed to your
+principle: silence supplies no authority, and no longer negates authority
+supplied elsewhere.
+
+Nine lines became open. The other four are kept out BY RULE rather than by
+name, which matters because the next referenced element will be excluded too
+without anyone remembering:
+
+  - an element another authored contribution references is excluded, since
+    choosing its placement would settle what points at it;
+  - a contribution marked relational bars per-line openness on the lines it
+    reaches.
+
+
+THE RELATIONAL CASE — THE EXISTING MECHANISM CANNOT EXPRESS IT
+
+I checked before proposing, as you asked. relationshipRules is a precedence
+mechanism — "decides X against Y, outcome Z". COMPARES is closer, and has the
+right shape (it takes no line and lives in the reconciliation record), but its
+form is two operands, and pairwise distinctness across a set whose members are
+not individuated cannot be written as a fixed pair.
+
+Smallest proposal: one assertion on the collection row, DISTINCT_ON — over a
+named set, members must differ pairwise on a stated list of field rows. No line,
+no metric, no relational geometry. Realization reads it as a joint validity
+condition. For our case that is one assertion: candidates must differ pairwise
+on O4 and O5.
+
+Meanwhile VARTARGET-03.a is marked relational: it bounds nothing and bars
+per-line freedom on the three lines it reaches. The flattening is undone without
+my asserting a replacement.
+
+
+THE TARGET REGION — THE DECISION IS EXTENT, NOT LOCATION
+
+Traced as asked. What is established: the region's along-position is DERIVED
+("attacking end ... touches an end line, not the interior"); its noun is an open
+choice between zone and line; its functions row fails with reason EXCLUDED,
+because RC-16 fixes the objective-area function through GF2-03's own selector;
+and its across-position is bounded by GF2-05.b, "extends across the axis".
+
+Both objectives reference it by typed structural reference, both with role
+PRIMARY_SCORING, teams EACH_TEAM and BUILD_OUT_TEAM. Direction is established
+through J3.
+
+So the relationship is not in doubt and the position is largely derived. The
+smallest unresolved structural decision is not where the region is — it is how
+far it extends. GF2 says so itself: "length of a target line; whether a line or
+zone spans the full width". It is structural because it changes what scoring
+requires, and it is partly downstream of the still-open zone/line choice, since
+a line has no depth and a zone does.
+
+
+PASS COMBINATION GATE — ONE SENTENCE OF SOURCE, ONE QUESTION
+
+Everything rests on: "Coach tracks the count visibly (count out loud or use a
+counter)."
+
+What the players need is authored — the current connected-pass count of the
+attacking team. Who has access was ASSUMED as ALL and flagged: "The knowledge
+names no holder." The trigger was ASSUMED as STANDING and flagged, with the
+alternative stated: "Counting out loud could instead be read as a reveal on each
+completed pass."
+
+And no, you do not need a new mechanism. Every value already exists in the
+library — D006 offers TEAMMATE_ACTION and EXTERNAL_SIGNAL, D007 offers
+IMMEDIATE_AFTER_TRIGGER and INTERMITTENT, D008 offers GRADUAL and REVERSIBLE.
+
+So the five lines are one question: is the count a standing display or an
+event-driven reveal? D006, D007, D008 and D011 all follow from it; only the
+access holder needs a second, smaller answer.
+
+One snag worth your eye: the declared reason for D008 is "the count rises
+gradually, then resets", which is GRADUAL and REVERSIBLE — two values on a
+single-valued field.
+
+
+IE-C006 AND IE-D006 — WHY THE OBJECT CANNOT CHOOSE
+
+They are not alternatives. IE-C006 is a NONCANONICAL_PRESET that composes
+dimensions; IE-D006 is a canonical dimension definition with seven allowed
+values and an integrity condition ("the trigger must be detectable and causally
+connected to the revealed information; external signals require additional
+scrutiny").
+
+IE-C006 in full: "Revelation state dependency: objective dependent; trigger:
+state transition or opponent action; reveal progression: immediate or staged."
+
+So it settles ONE of the five dimensions the object needs (state dependency),
+NARROWS two without choosing (trigger, progression), and is silent on two
+(reveal timing — which is exactly what the restatement recorded — and access
+holder). And it is non-canonical.
+
+The underlying decision is therefore not "C006 or D006". It is: is IE-C006
+promoted to canonical and made to state values for every revelation dimension
+the representation requires, or must a Variable Target object state each
+IE-D0xx dimension individually?
+
+
+GOAL-KICK RESTART — ONE UNIT
+
+Already established: trigger OUT_END_LINE, last touch ATTACKING_TEAM, end line
+DEFENDING_TEAM, awarded to DEFENDING_TEAM, play state STOP_RESUME, starts
+episode true.
+
+Genuinely unauthored: who takes it, where, how — plus the T1c question.
+
+On T1c the evidence now points one way and I have not acted on it. T4's own
+valueType is "region reference, or 'where the ball went out'". For OUT_TOUCHLINE
+the restart place IS where the ball crossed, so a region qualifier does work.
+For OUT_END_LINE it is not — T1b already names whose line, and T4 names the
+restart place independently. That suggests T1c does not apply to OUT_END_LINE.
+The rule stays wider than that until you rule, because narrowing it would make a
+failing line disappear by my own hand.
+
+No scaled goal area inferred, no legacy convention assumed.
+
+
+AFFORDANCE VOCABULARY — AND A CORRECTION TO MY OWN FIRST PASS
+
+(a), (b), (c) applied. But I first renamed only archetypes.ts and
+affordanceLenses.ts, which are PROJECTIONS of soccer-module.rc1-v3.json. The
+module round-trip test failed and was right to — the source still said
+fast_attack, regain and "Create Space". Fixing the source moved the figures
+again, because selection is affordance-weighted and correcting the vocabulary
+changed which constraints score highest.
+
+The figures after source and projections agree:
+
+  causally realized by selected structural knowledge   33
+  selected but causally unrealized                      6
+  cannot currently be determined                        0
+
+19 of the 33 are realized only by the game form. Yesterday's "33 of 39" counted
+33 realized with 6 UNDETERMINED — a different statement — and should not be
+carried forward.
+
+The six unrealized are all defensive or defensive-transition (D01, D03, TD02),
+wanting protect_space, delay_or_deny and recover_shape. The cause is library
+coverage, not selection quality: no constraint in the library can name
+protect_space or maintain_possession at all.
+
+(d) A1-A10: I cannot tell you whether they map losslessly, because they are not
+defined anywhere. They appear in archetypes.csv as "A1|A2|A6" and in the soccer
+module as "A1; A2; A6", and there is no legend in the repository — not in the
+test library, the soccer module, the ATM workbook or the knowledge core. The ATM
+workbook uses a different scheme entirely (FOI, OP, SA, CIO against GP-001 to
+GP-017). The definitions have to come from the source workbook or from you.
+Nothing mapped, field not retired.
+
+
+REASON CODES AND NEUTRAL COUNT
+
+Six-way codes adopted exactly as proposed, diagnostic only. Eleven lines that
+said "nobody looked" now say what the knowledge actually said.
+
+The neutral count is typed on the SD-86 precedent — the number moved out of the
+prose, not inferred. Floor 1, no maximum, REQUIRED; 1-2 kept SUPPORTING and
+PREFERRED_DEFAULT.
+
+That exposed a real fault in the realization layer I should flag. It enforced
+EVERY count bound, which would have intersected these two and turned the
+preferred default into a hard ceiling — precisely the conversion you forbade,
+arrived at by a different route. Preferred bounds are now offered and never
+enforced. A test pins it: a neutral count of 4 is accepted, 0 is refused.
+
+
+PILOT BOUNDARY — AND WHY I THINK THE SEARCH IS OVER
+
+Nearest bounded-pilot resolved game: A01 + A01-02, four contracts, 62 lines, 28
+derived, 7 open, 20 not established, 0 collisions. Gate A fails on
+GA-NO-FAILED-LINE only; every other check passes or is not evaluable.
+
+All twenty blockers, by underlying decision:
+
+   4   declared gap      how the connected-pass count is revealed
+   4   declared gap      the goal-kick restart unit
+   1   declared gap      the target's extent
+   4   EXCLUDED          region functions - RC-16 fixes it through the selector
+   7   NOT CONSTRAINED   V17, V22, O3, P5, P6a, P6b, P7
+
+The nine declared-gap lines are exactly the three knowledge decisions we already
+identified. Nothing else is hiding in this game.
+
+The other eleven are lines where the knowledge explicitly excluded the property
+or declared it imposes no requirement — the separate ruling you reserved. Four
+of them are the neutral rows in a game that selects no neutral-player knowledge
+at all, where GF2 declares "performers outside the two teams are neither
+authored nor forbidden". A game with no neutrals is not an incomplete game.
+
+So: three knowledge decisions, one ruling on what excluded and not constrained
+mean for realization, and the DISTINCT_ON question. I do not think further
+searching of the failure population will find anything.
+
+One note on test hygiene, since it bears on trusting these numbers. Six tests
+changed, and four of them had been using S5 as their stand-in for "a line
+nothing authored" — which it no longer is. I moved each to a row that is still a
+gap so it keeps testing its principle rather than deleting the assertion, and
+the AM-04 test now asserts both halves: silence still bars openness where
+nothing else reaches, and no longer destroys a choice space another authority
+supplied.
+
+Joe
+

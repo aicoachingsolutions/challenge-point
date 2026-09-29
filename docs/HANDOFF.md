@@ -3607,3 +3607,33 @@ Joe directed it: piece (1) of the generation-connection scope.
   "Create Space", so some of the 33 "realized" may have matched on the wrong key.
 - **Neutral scoring:** recorded as a representational limitation; not load-bearing today.
 - **Generation remains frozen.**
+
+## 29 September (final) — all thirteen rulings applied; the search can stop
+
+- **Corpus: unestablished 57 → 36, open 5 → 14, derived 51 → 54, collisions 3 → 0.** 220 tests green.
+- **Pattern 2 in.** Envelope bound marked as DATA (`outerBound: SESSION_ENVELOPE` on S5/S6/O4/O5).
+  AM-04 narrowed: silence supplies no authority but no longer negates authority supplied elsewhere.
+  **Exactly the nine** placement-only lines opened; the other four kept out **by rule** — a
+  referenced element is excluded, and a `relational` contribution bars per-line openness.
+- **`VARTARGET-03.a` marked relational** (C29b) rather than flattened. `DISTINCT_ON` returned as the
+  smallest proposal; `relationshipRules` is precedence-only and `COMPARES` takes two fixed operands,
+  so neither can express pairwise distinctness over a non-individuated set.
+- **PILOT BOUNDARY RERUN — A01 + A01-02, 20 blockers: 9 `declared gap` = EXACTLY the three knowledge
+  decisions; 4 `excluded`; 7 `not constrained`.** Nothing else is hiding. The six-way codes made
+  this visible in one run — before them all 11 read as "coverage".
+- **Vocabulary trap:** `archetypes.ts` / `affordanceLenses.ts` are PROJECTIONS of
+  `soccer-module.rc1-v3.json`. Renaming only the projections passed my eye and failed the module
+  round-trip test. Fixing the source moved the figures again (34/5 → **33/6/0**) because selection
+  is affordance-weighted. **Yesterday's 33-of-39 counted 6 UNDETERMINED — a different statement.**
+- **Realization fault found by ruling 12:** it enforced *every* count bound, which would have
+  intersected "floor 1, no max" with "preferred 1–2" into a ceiling of 2 — the conversion he forbade,
+  by another route. Preferred bounds are now offered, never enforced.
+- **Six tests changed**, four because they used `S5` as "a line nothing authored" and it is now an
+  envelope-bounded freedom. Each moved to a row that is still a gap; the AM-04 test asserts **both**
+  halves of the narrowed rule.
+- **PROCESS:** `npm test | tail` reports **tail's** exit code. Only `npm test > file 2>&1; echo $?`
+  is trustworthy. It read green twice while the suite was red.
+- Returned, not acted on: `T1c` on `OUT_END_LINE` (evidence now points at inapplicable, but
+  narrowing it would make a failing line vanish by my own hand); A1–A10, which are **undefined
+  anywhere in the repo**.
+- **Generation remains frozen. GA-NO-FAILED-LINE untouched.**
