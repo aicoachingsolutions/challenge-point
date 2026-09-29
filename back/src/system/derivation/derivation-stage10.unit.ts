@@ -833,6 +833,23 @@ test('the two closed clusters hold, and what remains is what is genuinely unreso
     assert.equal(information.clauses.find((c: any) => /registered trigger/.test(c.clause)).verdict, 'FAIL')
 })
 
+test('FIRST_FORWARD_PASS is registered, and it is the only trigger the 29 September ruling admitted', () => {
+    // He accepted one bounded vocabulary addition and explicitly held the other two members of
+    // VARTARGET-05.b: COACH_CUE, and the compound `REGION_ENTRY {attacking half} + first receiver`
+    // which stays recorded as presently unrepresentable rather than being removed or hidden behind a
+    // compound trigger. So exactly two unregistered triggers must remain — no more, and no fewer.
+    const result: any = runStages0to10(corpusInput())
+    assert.match(check(result, 'GA-INFORMATION').why, /2 unregistered trigger\(s\)/, 'FIRST_FORWARD_PASS registered; COACH_CUE and the compound still held')
+
+    const vocabulary: string[] = (corpusInput().register as any).vocabularies.trigger
+    assert.ok(vocabulary.includes('FIRST_FORWARD_PASS'))
+    assert.ok(!vocabulary.includes('COACH_CUE'), 'COACH_CUE remains held')
+    assert.ok(
+        !vocabulary.some(t => t.includes('first receiver')),
+        'no compound trigger was added to hide the missing qualifier capability',
+    )
+})
+
 test('the fifteen Gate A checks are all present, and GA-RESIDUAL-SPACE is gone (SD-45)', () => {
     const result: any = runStages0to10(corpusInput())
     const ids = gateA(result).checks.map((c: any) => c.checkId).sort()

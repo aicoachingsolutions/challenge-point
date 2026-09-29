@@ -1017,7 +1017,7 @@
    "S3.noun": "1 (2026-09-18, draft)",
    "S4.functions": "1 (2026-09-18, draft)",
    "O2.kind": "1 (2026-09-18, draft)",
-   "trigger": "1 (2026-09-18, draft)",
+   "trigger": "2 (2026-09-29, draft) - adds FIRST_FORWARD_PASS under the boundary Christian accepted on 29 September",
    "T5.method": "1 (2026-09-18, draft)",
    "T6.playState": "1 (2026-09-18)",
    "V4.conditionType": "1 (2026-09-18, draft)",
@@ -1070,7 +1070,8 @@
    "POSSESSION_CHANGE",
    "REGION_ENTRY",
    "TIME_EXPIRY",
-   "STANDING"
+   "STANDING",
+   "FIRST_FORWARD_PASS"
   ],
   "triggerQualifiers": {
    "REGION_ENTRY": "a region reference (T1c)",
@@ -1204,7 +1205,10 @@
   "P13.persistence": [
    "TEMPORARY",
    "PERSISTENT"
-  ]
+  ],
+  "triggerSemantics": {
+   "FIRST_FORWARD_PASS": "An EVENT IN PLAY, like POSSESSION_CHANGE, never a restart like START. Forward is relative to the passing team attacking direction, which the representation establishes (SD-95); where that direction is FREE the trigger is NOT EVALUABLE and its line is CONDITIONAL, never failed. First is per episode, using the episode boundary transitions already carry (startsEpisode). It implies NOTHING about pass success, receiver, distance or intent, and must not be read as doing so. Added 2026-09-29 on Christian ruling; bounded addition only, no qualifier capability is implied."
+  }
  },
  "applicability": {
   "note": "Added 20 September. Some FIELD rows do not apply to every element of their collection, and the register stated that ONLY inside valueType prose. Without this as data, line enumeration creates lines no author can ever close and Gate A can never pass. A row listed here yields NO line for an element whose condition fails; it is not NOT_AUTHORED, it is not applicable.",
