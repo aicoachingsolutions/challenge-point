@@ -3501,3 +3501,36 @@ Joe directed it: piece (1) of the generation-connection scope.
 - **New:** `run-bounded-selection.ts` (`npm run bounded:selection -- <goalId>`) — the minimal
   selection→derivation bridge. It hands the engine contracts for exactly the selected objects and
   reports the rest as missing; it substitutes nothing.
+
+## 28 September — the realization layer exists, and it found two losses
+
+- **`back/src/system/realization/realize.ts`** — resolved game → concrete game + realization record.
+  Three permitted acts (choose an `open` value in bounds · instantiate an `existential` claim ·
+  refuse), six refusals, three acceptance checks that read the **finished game** rather than trust
+  the writer. `npm run realize`. 22 tests; **216 in the suite, green, tsc clean.**
+- **No resolved game is eligible.** Exhaustive: every single contract and every pair fails
+  `GA-NO-FAILED-LINE`. Corpus 57 unestablished = **54 NOT_AUTHORED / 3 internal**; by declaration,
+  **43 sit on a row an object says it needs and cannot author.** The distance to a first realizable
+  game is authoring, not engine.
+- **Loss 1 (fixed):** elements were only created while placing a *derived* value, so an element whose
+  every line was open or failed appeared in `open`/`notEstablished` and **nowhere in `game`** —
+  dropping `GF4:I02` and **the Variable Target's own region**. Now seeded from every enumerated line;
+  `counts.elements` and `counts.elementsWithNothingEstablished` make a recurrence visible.
+- **Loss 2 (exposed, not reinterpreted):** AM-23 has three reason codes, the vocabulary has five.
+  `NON_CLAIMED` falls through to `coverage`; `EXCLUDED` loses to `UNDECLARED`. **11 of 57** lines
+  report "nobody looked" when an object looked. Codes and precedence unchanged — both are his — but
+  `NotEstablished.declared` now carries the reaching declarations so the code is not the only record.
+- **Contract recalculation confirmed independently** (`npm run corpus:coverage`): bounded family
+  **5 without the situation choice, 10 with it**, and the extra five are exactly the uncontracted
+  Practice Situations (A01-01, A01-03, A01-04, TA01-01, TA02-01). A04/A05 offer none. All guided
+  goals: 41 objects, 6 contracted, 35 to author.
+- **Returned for ruling** (`docs/audits/realization-first-pass-2026-09-28.md`): `FIRST_FORWARD_PASS`
+  as one vocabulary member with a stated boundary · the compound member, where **a qualifier slot
+  alone will not fix it** because *"first receiver"* names a performer role with no vocabulary ·
+  `VARTARGET-08.a` individuates a class on `J11a` that can hold nothing (its only field `J11b` is
+  owned by `J5`) · `performers.neutrals.count` carries two bounds that both state numbers and are
+  both typed `QUALITATIVE`, so neither can be checked.
+- **Affordance lenses:** keep outside the Game Representation. Zeroing all three lens weights never
+  changes the game form (0/13) and changes constraints in 7/13; **19 of 39 selected lenses are
+  realized by no selected constraint.** Proposed invariant rather than a contract.
+- **Generation remains frozen.**
