@@ -1286,7 +1286,42 @@
    "text": "applies only when V13 effect is COUNT_CHANGE"
   },
   "whyItMatters": "Under SD-20 turnovers continue play, so a POSSESSION_CHANGE transition has playState CONTINUE and T2 to T5 do not apply to it. Enumerating them anyway would give every such transition four permanently unclosable NOT_AUTHORED lines.",
-  "flagged": "These conditions are read from the register prose as it stands; none is a new rule. Made machine-readable 21 September: they were prose sentences, which an engine cannot read without parsing prose. The governingLineRule is a design decision recorded in the engine package, section 2.1."
+  "flagged": "These conditions are read from the register prose as it stands; none is a new rule. Made machine-readable 21 September: they were prose sentences, which an engine cannot read without parsing prose. The governingLineRule is a design decision recorded in the engine package, section 2.1.",
+  "T1a": {
+   "when": {
+    "selectorAttribute": "trigger",
+    "sameElement": true,
+    "in": [
+     "OUT_END_LINE",
+     "OUT_TOUCHLINE"
+    ]
+   },
+   "text": "lastTouch is an out-of-play qualifier: whose touch last played the ball before it left the field. Applies only to a trigger that puts the ball out."
+  },
+  "T1b": {
+   "when": {
+    "selectorAttribute": "trigger",
+    "sameElement": true,
+    "in": [
+     "OUT_END_LINE"
+    ]
+   },
+   "text": "endLine names WHOSE end line the ball crossed, so it applies only where an end line was crossed. A touchline is not an end line."
+  },
+  "T1c": {
+   "when": {
+    "selectorAttribute": "trigger",
+    "sameElement": true,
+    "in": [
+     "OUT_END_LINE",
+     "OUT_TOUCHLINE",
+     "REGION_ENTRY"
+    ]
+   },
+   "text": "region is the region qualifier. triggerQualifiers already states REGION_ENTRY takes a region reference (T1c); the out-of-play triggers are included because a ball that leaves the field leaves it somewhere. Deliberately WIDER than strictly necessary - this rule may only remove a line it can positively show does not belong."
+  },
+  "generalRule": "Adopted 29 September on Christian ruling: a transition qualifier applies only where the transition trigger semantics make that qualifier structurally applicable. An inapplicable qualifier is WITHDRAWN; its absence is never a knowledge gap. Expressed as an applicability rule over the trigger, not as a special case for turnover - POSSESSION_CHANGE is named nowhere, it simply fails every out-of-play condition.",
+  "selectorGrammar": "Added 29 September. An entry may condition on selectorAttribute instead of row. A selector attribute is fixed by stage 2 when the class is individuated, so the condition is decided at enumeration and the line is WITHDRAWN there rather than left CONDITIONAL on a governing line that can never move. Where the selector does not fix the attribute the condition is UNDECIDABLE and the line is KEPT, so an applicability rule can never hide a real gap."
  },
  "teamDesignations": {
   "note": "Canonical list for this run (RC-22). Two designations are equal only if they map to one entry. A designation is evaluated at the trigger or episode it is attached to.",

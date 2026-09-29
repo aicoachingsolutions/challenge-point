@@ -224,6 +224,34 @@ function constructTriggers(classes: ElementClass[], index: RegisterIndex, envelo
 }
 
 /** Stage 2 — the line inventory: one line per (class, row), and one per game-level row. */
+/**
+ * Does a selector-based applicability condition hold for this class?
+ *
+ * `null` means the element's own selector does not fix the attribute at all, so the condition cannot
+ * be decided from identity. That is deliberately **not** treated as "inapplicable": an element whose
+ * trigger is unknown might well need the qualifier, and withdrawing its line would hide a real gap
+ * behind an applicability rule. Undecidable keeps the line, so the only thing this rule can ever do
+ * is remove a line it can positively show does not belong.
+ *
+ * `IN` is decidable only when every value the selector permits agrees, because a class that may be
+ * either an out-of-play trigger or a turnover is genuinely undetermined here.
+ */
+function selectorApplies(cls: ElementClass, attribute: string, permitted: string[]): boolean | null {
+    const terms = cls.constraints.terms.filter(t => t.attribute === attribute)
+    if (!terms.length) return null
+    for (const term of terms) {
+        if (term.op === '=') return permitted.includes(term.value)
+        if (term.op === 'CONTAINS') return permitted.includes(term.value)
+        if (term.op === 'IN') {
+            const inside = term.values.filter(v => permitted.includes(v)).length
+            if (inside === term.values.length) return true
+            if (inside === 0) return false
+            return null // the selector straddles the boundary; identity does not decide it
+        }
+    }
+    return null
+}
+
 function enumerateLines(classes: ElementClass[], index: RegisterIndex, stopped: PartialResult['stopped']): ResolutionLine[] {
     const lines: ResolutionLine[] = []
 
@@ -257,14 +285,19 @@ function enumerateLines(classes: ElementClass[], index: RegisterIndex, stopped: 
             if (index.ownerRow.get(row.id) !== cls.row) continue
 
             const condition = index.applicability.get(row.id)
+            // A selector condition is already decided: stage 2 fixed the element's identity, and no
+            // later line can move it. So it is settled here rather than left CONDITIONAL on a
+            // governing line that will never change — a transition keyed `trigger=POSSESSION_CHANGE`
+            // is a turnover, and asking whose end line it crossed is not a gap in the knowledge.
+            const bySelector = condition?.selectorAttribute ? selectorApplies(cls, condition.selectorAttribute, condition.in) : null
             const line: ResolutionLine = {
                 lineId: `${cls.classId}::${row.id}`,
                 elementId: cls.classId,
                 row: row.id,
                 member: null,
-                lineState: condition ? 'CONDITIONAL' : 'ENUMERATED',
+                lineState: bySelector === false ? 'WITHDRAWN' : bySelector === true ? 'ENUMERATED' : condition ? 'CONDITIONAL' : 'ENUMERATED',
             }
-            if (condition) line.conditionalOn = `${cls.classId}::${condition.row}`
+            if (condition?.row) line.conditionalOn = `${cls.classId}::${condition.row}`
             lines.push(line)
 
             // SD-51, his ruling of 23 September: "Do not enumerate member lines before membership is

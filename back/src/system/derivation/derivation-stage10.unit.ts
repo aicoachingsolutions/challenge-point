@@ -752,19 +752,29 @@ test('the corpus run reproduces the reported figures exactly', () => {
     // individuates nothing: three objectives, two teams, two object classes and one objective set
     // were being asked separately for fields nobody owed.
     assert.equal(result.run.counts.lines, 125)
-    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 51)
-    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 54)
+    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 54)
+    // 54 before the 29 September applicability ruling. The nine that left were not authored after
+    // the fact: T1a/T1b/T1c were being demanded of three POSSESSION_CHANGE transitions, and a
+    // turnover has no last touch over a line, no end line and no out-of-play region. They are now
+    // withdrawn as inapplicable, and — the part that matters — they carry no verdict and emit no GAP,
+    // because the absence of an inapplicable property must never be reported as missing knowledge.
+    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 45)
     assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 0, 'cluster 3 cleared the whole population')
-    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 54)
+    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 45, 'one GAP per unauthored line, and none for a withdrawn one')
 
-    // SD-88 evaluated the sixteen conditional lines for the first time: twelve are not applicable
-    // (the three CONTINUE transitions carry no placement) and four are judged.
+    // SD-88 evaluated the conditional lines; the selector-based rule settles its own at enumeration.
+    // Twelve withdrawals come from the governing-line path (the three CONTINUE transitions carry no
+    // placement), nine from the trigger rule.
     assert.equal(
         result.lines.filter((l: any) => (result.classified.get(l.lineId)?.lineState ?? l.lineState) === 'CONDITIONAL').length,
         0,
         'no line is left unjudged behind a governing value that has resolved',
     )
-    assert.equal(result.lines.filter((l: any) => result.classified.get(l.lineId)?.lineState === 'WITHDRAWN').length, 12)
+    const withdrawn = result.lines.filter((l: any) => (result.classified.get(l.lineId)?.lineState ?? l.lineState) === 'WITHDRAWN')
+    assert.equal(withdrawn.length, 21)
+    for (const line of withdrawn) {
+        assert.equal(result.classified.get(line.lineId)?.verdict ?? null, null, `${line.lineId} is withdrawn and must carry no verdict`)
+    }
 
     // SD-89's authored restart ownership met GF2's authored restart default on one line, and SD-90
     // settled it: a required contribution resolves the property, the preferred default is displaced
@@ -777,11 +787,17 @@ test('the corpus run reproduces the reported figures exactly', () => {
     )
 
     // SD-93 let Wide Zone's contributions reach its own channels for the first time, and the first
-    // thing they showed is that two of them state the same claim in two spellings. Recorded, not
-    // repaired: knowledge repair is held until the mechanisms are cleared.
-    const collisions = result.failures.filter((f: any) => f.kind === 'COLLISION')
-    assert.equal(collisions.length, 3)
-    for (const c of collisions) assert.match(c.locus.lineId, /WIDE-ZONE-ADVANTAGE:.*::S6$/)
+    // thing they showed is that two of them state the same claim in two spellings. Repaired on his
+    // 29 September ruling, in the restatement rather than the engine: 04.a and 05.a share one
+    // basisEvidence, so the parenthetical is now a gloss beside the value instead of a second
+    // REQUIRED_RANGE contribution. They agree, so nothing collides — and the three channel
+    // placements they were both describing now derive.
+    assert.equal(result.failures.filter((f: any) => f.kind === 'COLLISION').length, 0)
+    for (const line of ['WIDEZONE-02.a', 'WIDEZONE-03', 'WIDEZONE-08.d']) {
+        const verdict = result.classified.get(`c:restated:WIDE-ZONE-ADVANTAGE:${line}::S6`)
+        assert.equal(verdict.verdict, 'RESOLVED:ENTAILED', `${line} placement resolves once the two spellings agree`)
+        assert.deepEqual(verdict.collidingItems, [])
+    }
 })
 
 test('Gate A fails on the corpus, and says which checks and why', () => {

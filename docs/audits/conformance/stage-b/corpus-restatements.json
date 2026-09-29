@@ -285,11 +285,24 @@
    "ruling": "SD-98",
    "set": {
     "value": {
-     "structuralRef": { "contractId": "restated:GF2", "itemId": "GF2-03.a" },
+     "structuralRef": {
+      "contractId": "restated:GF2",
+      "itemId": "GF2-03.a"
+     },
      "asAuthored": "the target feature: the objective-area region of GF2-03.a (line or zone)"
     }
    },
    "why": "the authored sentence names GF2-03.a, and the class that item establishes is held in the run. Only the referent already named is typed: no referent is selected between, inferred or substituted, and the authored sentence is kept beside the typed form. SD-63 is untouched for ordinary open text."
+  },
+  {
+   "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-05.a",
+   "ruling": "C29a",
+   "set": {
+    "value": "touchline-adjacent",
+    "gloss": "outer edge on a touchline",
+    "fitNote": "RESTATEMENT CORRECTION, 29 September (Christian). 04.a and 05.a carry the SAME basisEvidence — setup_guidance \"Mark wide channels along both touchlines\" — and 04.a's own fitNote already recorded \"Holds only the contact in ‘runs along its touchline’ (same as 05.a)\". They were two representations of one authored placement, not two competing authored values, and they collided on three channel elements by string inequality alone. The parenthetical is now a gloss beside the value rather than a second REQUIRED_RANGE contribution. Source, strictness, valueStatus and provenance are unchanged, and no engine semantics changed. \"One channel on each lateral side\" remains NOT held: touchline-adjacent does not say which touchline, and S2 has no side attribute (ledger)."
+   },
+   "why": "two spellings of one authored placement were entailing two different values on S6, producing three collisions that were never a knowledge conflict. Making the parenthetical a gloss leaves one value, preserves both items and their shared source, and changes no engine semantics"
   }
  ],
  "added": [

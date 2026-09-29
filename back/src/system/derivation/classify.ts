@@ -160,6 +160,16 @@ export function classifyLines(
         }
         if (line.conditionalOn) result.conditionalOn = line.conditionalOn
 
+        // A line already withdrawn at enumeration is **not judged at all**. Stage 2 settled it from
+        // the element's own identity, and giving it a verdict here would report the absence of an
+        // inapplicable property as missing knowledge — which is the one thing the applicability rule
+        // exists to prevent. The governing-line path reaches the same state later by clearing the
+        // verdict it had provisionally assigned; this path never assigns one.
+        if (line.lineState === 'WITHDRAWN') {
+            classified.set(line.lineId, result)
+            continue
+        }
+
         if (!record) {
             classified.set(line.lineId, result)
             continue

@@ -26,8 +26,26 @@ export interface RegisterRow {
     sourceKinds?: string[]
 }
 
+/**
+ * A row does not apply to every element of its collection. Two kinds of condition express that, and
+ * the difference is *when the answer is knowable*.
+ *
+ * **Governing-line conditions** (`row`) read another line's derived value, so they cannot be settled
+ * until stage 6 — the line is enumerated CONDITIONAL and resolved later.
+ *
+ * **Selector conditions** (`selectorAttribute`) read the element's own identity, which stage 2 fixed
+ * when it individuated the class. A transition keyed `trigger=POSSESSION_CHANGE` *is* a turnover; no
+ * later line can change that. So the answer is already known at enumeration and the line is withdrawn
+ * there, never left conditional on something that will never move.
+ *
+ * Both express the same invariant, which is his: **the absence of an inapplicable property must never
+ * be reported as missing knowledge.**
+ */
 export interface ApplicabilityCondition {
-    row: string
+    /** A governing line on the same element, resolved at stage 6. Mutually exclusive with `selectorAttribute`. */
+    row?: string
+    /** An attribute the element's own selector fixes, knowable at enumeration. */
+    selectorAttribute?: string
     sameElement: boolean
     in: string[]
 }
@@ -106,8 +124,15 @@ export function indexRegister(register: any): RegisterIndex {
         if (!entry || typeof entry !== 'object' || !entry.when) continue // prose notes in the same block
         if (!rows.has(key)) throw new HaltError('H1', `applicability keyed on unknown row ${key}`)
         const when = entry.when
-        if (!when.row || !Array.isArray(when.in)) throw new HaltError('H1', `applicability for ${key} has no usable condition`)
-        applicability.set(key, { row: when.row, sameElement: !!when.sameElement, in: when.in })
+        if (!Array.isArray(when.in)) throw new HaltError('H1', `applicability for ${key} has no usable condition`)
+        if (!when.row && !when.selectorAttribute) throw new HaltError('H1', `applicability for ${key} names neither a governing row nor a selector attribute`)
+        if (when.row && when.selectorAttribute) throw new HaltError('H1', `applicability for ${key} names both a governing row and a selector attribute; they are alternatives`)
+        if (when.row && !rows.has(String(when.row))) throw new HaltError('H1', `applicability for ${key} governs on unknown row ${when.row}`)
+        applicability.set(key, {
+            ...(when.row ? { row: String(when.row) } : { selectorAttribute: String(when.selectorAttribute) }),
+            sameElement: !!when.sameElement,
+            in: when.in,
+        })
     }
 
     const vocabularies = new Map<string, string[]>()
