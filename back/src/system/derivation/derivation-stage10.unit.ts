@@ -291,13 +291,27 @@ test('a NOT_CHECKABLE_OUTSIDE_REPRESENTATION clause is not counted as a PASS for
 })
 
 test('every clause of every check carries a verdict from the closed list', () => {
-    const allowed = new Set(['PASS', 'FAIL', 'NOT_CHECKABLE_OUTSIDE_REPRESENTATION', 'NOT_EVALUABLE'])
+    // DEFERRED_TO_REALIZATION joined the list on 30 September: a clause that cannot be answered until
+    // realization has chosen or instantiated something. It is a fifth verdict, not a synonym for any
+    // of the four — and every one that is used must say what it is owed.
+    const allowed = new Set(['PASS', 'FAIL', 'NOT_CHECKABLE_OUTSIDE_REPRESENTATION', 'NOT_EVALUABLE', 'DEFERRED_TO_REALIZATION'])
     const result: any = runStages0to10(corpusInput())
     for (const c of gateA(result).checks) {
         assert.ok(allowed.has(c.verdict), `${c.checkId} verdict ${c.verdict}`)
         assert.ok(c.clauses.length > 0, `${c.checkId} reports no clause`)
-        for (const clause of c.clauses) assert.ok(allowed.has(clause.verdict))
+        for (const clause of c.clauses) {
+            assert.ok(allowed.has(clause.verdict))
+            if (clause.verdict === 'DEFERRED_TO_REALIZATION') {
+                assert.ok(clause.owes && clause.owes.length > 0, `${c.checkId} defers "${clause.clause}" without saying what it is owed`)
+            }
+        }
     }
+
+    // And a deferred clause never reads as a pass, at either level.
+    for (const c of gateA(result).checks) {
+        if (c.clauses.some((l: any) => l.verdict === 'DEFERRED_TO_REALIZATION')) assert.notEqual(c.verdict, 'PASS', c.checkId)
+    }
+    if (gateA(result).deferred.length) assert.notEqual(gateA(result).verdict, 'PASS', 'the overall verdict is never PASS while anything is owed')
 })
 
 // ---------------------------------------------------------------------------------------------

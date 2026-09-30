@@ -101,6 +101,16 @@ function place(root: Record<string, unknown>, path: string, value: unknown): voi
     node[parts[parts.length - 1]] = value
 }
 
+/**
+ * A collection's own path, without the register's `[]` marker.
+ *
+ * Without this an instantiated member was placed at the literal key `"objectives[]"`, beside the
+ * derived `objectives` — **two collections where the game has one**, so anything reading `objectives`
+ * would have silently missed every member realization supplied. The concrete game must have one
+ * collection per collection.
+ */
+const collectionPath = (path: string): string => path.replace(/\[\]$/, '')
+
 /** `space.regions[c:x:y].position.along` → the element bucket and the leaf inside it. */
 function splitElementPath(path: string): { container: string; elementId: string; leaf: string } | null {
     const match = path.match(/^(.+?)\[([^\]]+)\](?:\.(.*))?$/)
@@ -218,9 +228,17 @@ export function realize(resolved: ResolvedGame, choices: Choice[], instantiation
         recordedInstantiations.push({ ...instantiation, path: claim.path })
     }
     for (const claim of resolved.existential) {
-        if (!recordedInstantiations.some(i => i.classId === claim.classId)) {
+        const made = recordedInstantiations.filter(i => i.classId === claim.classId).length
+        if (!made) {
             because.push(`${claim.classId}: ${claim.path} is asserted to exist and nothing was instantiated to satisfy it`)
+            continue
         }
+        // **The claim's cardinality is part of the claim.** "Two teams exist" is not satisfied by one
+        // team, and a layer that accepted one would have quietly dropped an authored fact — which is
+        // the failure this whole discipline is built around.
+        const { min, max } = claim.cardinality
+        if (min !== null && made < min) because.push(`${claim.classId}: ${claim.path} asserts at least ${min}, and ${made} was instantiated`)
+        if (max !== null && made > max) because.push(`${claim.classId}: ${claim.path} asserts at most ${max}, and ${made} were instantiated`)
     }
 
     if (because.length) return { outcome: 'REFUSED', because }
@@ -278,9 +296,10 @@ export function realize(resolved: ResolvedGame, choices: Choice[], instantiation
         if (parts.leaf) place(element, parts.leaf, choice.value)
     }
     for (const instantiation of recordedInstantiations) {
-        const bucket = readAt(game, instantiation.path)
+        const path = collectionPath(instantiation.path)
+        const bucket = readAt(game, path)
         const list = Array.isArray(bucket) ? (bucket as unknown[]) : []
-        place(game, instantiation.path, [...list, { ...instantiation.member, satisfies: instantiation.classId }])
+        place(game, path, [...list, { ...instantiation.member, satisfies: instantiation.classId }])
     }
 
     return {
@@ -347,10 +366,16 @@ export function nothingInvented(resolved: ResolvedGame, realized: Realized): str
     const accounted = new Set<string>()
     for (const entry of resolved.derived) accounted.add(entry.path)
     for (const choice of realized.record.choices) accounted.add(choice.path)
-    const instantiated = new Set(realized.record.instantiations.map(i => i.path))
+    const instantiated = new Set(realized.record.instantiations.map(i => collectionPath(i.path)))
 
     const problems: string[] = []
     const walk = (node: unknown, path: string, insideInstantiation: boolean) => {
+        // **Stop at an accounted path.** A derived value may itself be a structured object — a typed
+        // structural reference is `{structuralRef: {contractId, itemId}, asAuthored}` — and its
+        // internal shape is part of that one value, not three separate unaccounted ones. Descending
+        // into it reported the contents of derived knowledge as inventions, which is how this check
+        // first ran: three violations, every one of them a value the run had derived.
+        if (path && accounted.has(path)) return
         if (Array.isArray(node)) {
             const here = instantiated.has(path)
             node.forEach(entry => {

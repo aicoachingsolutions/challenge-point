@@ -18,6 +18,7 @@ import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame, ResolvedGame } from '../derivation/resolved-game'
+import { derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
 import { checkRealization, Choice, isRefused, realize, Realized } from './realize'
 
 const DOCS = path.resolve(__dirname, '../../../../docs/audits/conformance')
@@ -29,7 +30,7 @@ const DOCS = path.resolve(__dirname, '../../../../docs/audits/conformance')
 function eligible(overrides: Partial<ResolvedGame> = {}): ResolvedGame {
     return {
         provenance: { inputDigest: 'digest-1', engineVersion: 'e', registerVersion: 'r', derivationRulesVersion: 'd' },
-        coherence: { gateA: 'PASS', failingChecks: [], mayRealize: true },
+        coherence: { gateA: 'PASS', failingChecks: [], mayRealize: true, deferred: [] },
         game: { envelope: { players: 12 } },
         derived: [{ path: 'envelope.players', lineId: 'L-players', value: 12, resolvedBy: 'SESSION', support: [] }],
         open: [
@@ -266,7 +267,7 @@ test('DISTINCT_ON: the joint check runs only after every individual bound has pa
 // ---------------------------------------------------------------------------------------------
 
 test('a game Gate A did not pass may not be realized at all', () => {
-    const resolved = eligible({ coherence: { gateA: 'FAIL', failingChecks: ['GA-NO-FAILED-LINE'], mayRealize: false } })
+    const resolved = eligible({ coherence: { gateA: 'FAIL', failingChecks: ['GA-NO-FAILED-LINE'], mayRealize: false, deferred: [] } })
     const result = realize(resolved, chooseScoring)
     assert.ok(isRefused(result))
     assert.match(result.because[0], /may not be realized: Gate A is FAIL \(GA-NO-FAILED-LINE\)/)
@@ -280,7 +281,7 @@ test('an open line left unchosen is refused — a concrete game has no remaining
 
 test('every reason is reported, not just the first', () => {
     const resolved = eligible({
-        coherence: { gateA: 'FAIL', failingChecks: [], mayRealize: false },
+        coherence: { gateA: 'FAIL', failingChecks: [], mayRealize: false, deferred: [] },
         open: [...eligible().open, { path: 'space.shape', lineId: 'L-shape', elementId: null, permittedBy: null, permitted: null, bounds: [], kind: 'FREE(a)' }],
     })
     const result = realize(resolved, [])
@@ -309,7 +310,7 @@ test('an unsatisfied existential claim refuses the realization', () => {
 
 test('an instantiation satisfies the claim and is recorded as instantiated, not derived', () => {
     const resolved = eligible({
-        existential: [{ path: 'performers.teams', classId: 'K-teams', from: { contractId: 'C', itemId: 'I' }, cardinality: { min: 2, max: 2 } }],
+        existential: [{ path: 'performers.teams', classId: 'K-teams', from: { contractId: 'C', itemId: 'I' }, cardinality: { min: 1, max: null } }],
     })
     const result = realize(resolved, chooseScoring, [{ classId: 'K-teams', member: { designation: 'ATTACKING_TEAM' }, because: 'the claim needs a member' }]) as Realized
     assert.equal(result.outcome, 'REALIZED')
@@ -318,6 +319,33 @@ test('an instantiation satisfies the claim and is recorded as instantiated, not 
     // The instantiated member is authorized by the claim and recorded, so it is not an invention —
     // but it is also not derived, and the record is the only place that distinction survives.
     assert.deepEqual(checkRealization(resolved, result).nothingInvented, [])
+})
+
+test("a claim's cardinality is part of the claim", () => {
+    // "Two teams exist" is not satisfied by one team. A layer that accepted one would have quietly
+    // dropped an authored fact while reporting success, which is the failure mode this whole
+    // discipline exists to prevent.
+    const resolved = eligible({
+        existential: [{ path: 'performers.teams', classId: 'K-teams', from: { contractId: 'C', itemId: 'I' }, cardinality: { min: 2, max: 2 } }],
+    })
+    const one = realize(resolved, chooseScoring, [{ classId: 'K-teams', member: { designation: 'ATTACKING_TEAM' }, because: 'only one' }])
+    assert.ok(isRefused(one))
+    assert.match(one.because[0], /asserts at least 2, and 1 was instantiated/)
+
+    const three = realize(resolved, chooseScoring, [
+        { classId: 'K-teams', member: { designation: 'A' }, because: '' },
+        { classId: 'K-teams', member: { designation: 'B' }, because: '' },
+        { classId: 'K-teams', member: { designation: 'C' }, because: '' },
+    ])
+    assert.ok(isRefused(three))
+    assert.match(three.because[0], /asserts at most 2, and 3 were instantiated/)
+
+    const two = realize(resolved, chooseScoring, [
+        { classId: 'K-teams', member: { designation: 'ATTACKING_TEAM' }, because: 'first' },
+        { classId: 'K-teams', member: { designation: 'DEFENDING_TEAM' }, because: 'second' },
+    ]) as Realized
+    assert.equal(two.outcome, 'REALIZED')
+    assert.equal((two.game as any).performers.teams.length, 2)
 })
 
 test('instantiating where no claim exists is refused', () => {
@@ -377,6 +405,62 @@ test('the live corpus resolved game is refused, and the refusal names Gate A', (
     const realized = realize(resolved, [])
     assert.ok(isRefused(realized))
     assert.match(realized.because[0], /may not be realized: Gate A is FAIL/)
+})
+
+test('A04 is NOT yet eligible, and the three clauses blocking it are a representation limitation', () => {
+    // Stated as a test so it cannot be mistaken for progress it is not. Gate A's knowledge verdict
+    // does NOT pass on A04. Two clauses are genuinely deferred — realization chooses the primary-event
+    // kind and instantiates the teams — but three are blocked because **geometry is authored as
+    // prose**: "touchline-adjacent", "the full axis extent, end line to end line". A realized value
+    // drawn from such a bound is the same prose, so §1.9 can no more compare it after realization than
+    // before. That is a representation question, not a sequencing one, and deferring it would have
+    // promised a later check that cannot run.
+    const resolved = a04()
+    assert.equal(resolved.coherence.mayRealize, false)
+    assert.equal(resolved.coherence.deferred.length, 2)
+    assert.deepEqual(
+        resolved.coherence.deferred.map(d => d.checkId).sort(),
+        ['GA-ONE-PRIMARY-EVENT', 'GA-ROSTER-SUM'],
+        'only the clauses realization actually settles are deferred',
+    )
+})
+
+/** A04's resolved game, assembled from the live selection. */
+function a04(): ResolvedGame {
+    const input = derivationInputFor(selectFor('A04', null))
+    const result = runDerivation(input)
+    if (isStampedHalt(result)) throw new Error('unexpected halt')
+    return assembleResolvedGame(result, (runStages0to10(input) as any).classes, indexRegister(input.register), input.contracts)
+}
+
+test('DRY RUN past the gate: A04 produces a concrete game and all three conditions hold', () => {
+    // **This is a dry run, not an acceptance pass.** A04 is not eligible (above), so the gate is
+    // stepped over here deliberately and only to answer a different question: if the gate were
+    // satisfied, would the pathway produce a faithful concrete game from real selected knowledge?
+    // It does, and the three conditions hold on it — which is worth knowing while the representation
+    // question is open, and worth keeping honest about.
+    const resolved = a04()
+    const stepped: ResolvedGame = { ...resolved, coherence: { ...resolved.coherence, mayRealize: true } }
+
+    const supplied = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../../../docs/audits/a04-realization-choices.json'), 'utf8'))
+    const realized = realize(stepped, supplied.choices, supplied.instantiations)
+    if (isRefused(realized)) return assert.fail(`refused: ${realized.because.join('; ')}`)
+    const resolvedForChecks = stepped
+
+    assert.deepEqual(checkRealization(resolvedForChecks, realized), {
+        nothingClosedWithoutAuthority: [],
+        nothingLost: [],
+        nothingInvented: [],
+    })
+
+    // One collection per collection: the instantiated teams are IN `performers.teams`, not beside it.
+    const teams = (realized.game as any).performers.teams
+    assert.equal(teams.length, 2, "the claim asserts two teams and the concrete game has two, in the game's own collection")
+    assert.ok(teams.every((t: any) => t.satisfies === 'c:restated:GF2:GF2-14.a'), 'each records the claim it satisfies')
+
+    // Every choice is recorded with what bounded it, so none can later read as derived knowledge.
+    assert.equal(realized.record.choices.length, supplied.choices.length)
+    assert.ok(realized.record.choices.every(c => c.boundCheck === 'WITHIN_PERMITTED_SET'), 'each value came from inside an authored set')
 })
 
 test('the docs directory the corpus reads from is the one under audit', () => {

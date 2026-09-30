@@ -36,8 +36,21 @@ import { RegisterIndex } from './register'
 import { add, compare, Interval, lt, lte, Rational, toInterval, toRational, ZERO } from './rational'
 import { ElementClass, Envelope, FailureRecord, ItemRef, LoadedContract, RefusalRecord, ResolutionLine, SpecClause } from './types'
 
-export type ClauseVerdict = 'PASS' | 'FAIL' | 'NOT_CHECKABLE_OUTSIDE_REPRESENTATION' | 'NOT_EVALUABLE'
-export type GateVerdict = 'PASS' | 'FAIL' | 'NOT_EVALUABLE' | 'NOT_APPLICABLE'
+/**
+ * `DEFERRED_TO_REALIZATION` is the clause verdict added on 30 September, and it is a different
+ * statement from `NOT_EVALUABLE`.
+ *
+ * `NOT_EVALUABLE` means *something is missing and I cannot tell*. Four Gate A clauses were reporting
+ * that when the truth was *this cannot be answered yet, by anyone*: they read concrete geometry or an
+ * instantiated roster, which **realization** supplies. Gate A was asking whether a game's layout is
+ * feasible before the game had a layout, and its own verdict gated the step that would produce one.
+ *
+ * A deferred clause therefore does not block realization — and it is not forgiven either. It is
+ * carried as an obligation the concrete game still owes, so nothing claims to have been checked that
+ * has not been.
+ */
+export type ClauseVerdict = 'PASS' | 'FAIL' | 'NOT_CHECKABLE_OUTSIDE_REPRESENTATION' | 'NOT_EVALUABLE' | 'DEFERRED_TO_REALIZATION'
+export type GateVerdict = 'PASS' | 'FAIL' | 'NOT_EVALUABLE' | 'NOT_APPLICABLE' | 'DEFERRED_TO_REALIZATION'
 
 /**
  * SD-54, his ruling of 23 September: "A universally stated structural check with zero applicable
@@ -54,6 +67,8 @@ export interface ClauseResult {
     /** How many applicable instances the clause ranged over. Zero is what makes a pass vacuous. */
     instances?: number
     refusalId?: string
+    /** On a deferred clause: what realization must supply before it can be answered. */
+    owes?: string
 }
 
 export interface CheckResult {
@@ -99,7 +114,15 @@ export interface GateBlock {
 }
 
 export interface GateReport {
+    /** Over every clause. Never PASS while anything is still owed, so the split loses nothing. */
     verdict: GateVerdict
+    /**
+     * Over the clauses knowledge alone can answer. **This is the verdict that gates realization**: a
+     * resolved game may be realized once nothing knowledge could settle is left unsettled.
+     */
+    knowledgeVerdict?: GateVerdict
+    /** Clauses a concrete game still owes, each naming what realization must supply. */
+    deferred?: { checkId: string; clause: string; owes: string }[]
     checks: CheckResult[]
     notEstablished: { checkId: string; clause: string }[]
     /** SD-62 — one record per blocked clause. Never empty while any clause is NOT_EVALUABLE. */
@@ -331,6 +354,11 @@ function referentsOf(cell: Cell): unknown[] {
 function combine(clauses: ClauseResult[]): ClauseVerdict {
     if (clauses.some(c => c.verdict === 'FAIL')) return 'FAIL'
     if (clauses.some(c => c.verdict === 'NOT_EVALUABLE')) return 'NOT_EVALUABLE'
+    // A check with anything still owed is not a check that passed. Without this it read as PASS
+    // while naming the lines it was blocked on — which the "no check passes while blocked" invariant
+    // caught immediately, and rightly: a deferred obligation reported as a pass is the one outcome
+    // the split must never produce.
+    if (clauses.some(c => c.verdict === 'DEFERRED_TO_REALIZATION')) return 'DEFERRED_TO_REALIZATION'
     return 'PASS'
 }
 
@@ -397,6 +425,12 @@ const fail = (clause: string, instances?: number): ClauseResult => ({ clause, ve
 const notEvaluable = (clause: string, refusalId?: string): ClauseResult => ({ clause, verdict: 'NOT_EVALUABLE', refusalId })
 const outside = (clause: string): ClauseResult => ({ clause, verdict: 'NOT_CHECKABLE_OUTSIDE_REPRESENTATION' })
 
+/**
+ * A clause that cannot be answered until realization has chosen or instantiated something. `owes`
+ * states what it will need, so the obligation travels with the game rather than living in a comment.
+ */
+const deferred = (clause: string, owes: string): ClauseResult => ({ clause, verdict: 'DEFERRED_TO_REALIZATION', owes })
+
 // =================================================================================================
 // The ten fully structural checks.
 // =================================================================================================
@@ -430,6 +464,17 @@ function gaRosterSum(ctx: GateContext): CheckOutcome {
         )
     }
     if (players.state !== 'DERIVED' || probe.blocked) {
+        // SD-97: teams are asserted to exist and nothing individuates one, so there is no roster line
+        // to sum. Realization instantiates the teams; until it has, the sum has no terms — which is a
+        // different thing from a roster that does not add up.
+        if (!teams.length && allClassesOn(ctx, 'P1').length) {
+            return result(
+                'GA-ROSTER-SUM',
+                probe,
+                [deferred(CLAUSE_TEXT, 'the instantiated teams, whose existence is asserted and whose members nothing individuates')],
+                'teams are asserted to exist and none is individuated, so the sum has no terms until realization instantiates them',
+            )
+        }
         return result('GA-ROSTER-SUM', probe, [notEvaluable(CLAUSE_TEXT)], probe.blockedWhy || 'the session player count is not derived')
     }
 
@@ -520,6 +565,12 @@ function gaEnvelopeFit(ctx: GateContext): CheckOutcome {
     }
 
     if (refused) {
+        // **NOT deferred, and the distinction matters.** A placement here is unreadable because the
+        // corpus authors placements as prose — "touchline-adjacent", "the full axis extent, end line
+        // to end line". Realization choosing one of those does not make it a value §1.9 can compare,
+        // so waiting for realization would not answer this clause. It is a representation limitation,
+        // not a sequencing one, and calling it deferred would have claimed a check was owed later
+        // when in fact it cannot be run at either stage.
         return result('GA-ENVELOPE-FIT', probe, [notEvaluable(INSIDE, probe.refusals[0]?.refusalId), notEvaluable(NON_EMPTY)], 'a placement is not a value §1.9 can compare')
     }
     if (!along || !across || probe.blocked) {
@@ -586,6 +637,10 @@ function gaLayoutFeasible(ctx: GateContext): CheckOutcome {
                     `a ${bound.bound.kind} bound on ${line.lineId} is not a linear constraint over exact rationals; feasibility is not decided by ignoring it`,
                     [line.lineId],
                 )
+                // **NOT deferred.** A realized value drawn from this bound is the same prose the bound
+                // states, so feasibility is no more computable after realization than before. The
+                // blocker is that geometry is authored qualitatively, which is a representation
+                // question — deferring it would have quietly promised a later check that cannot run.
                 return result('GA-LAYOUT-FEASIBLE', probe, [notEvaluable(CLAUSE_TEXT, probe.refusals[0].refusalId)], 'a geometric bound is not a constraint this check can read')
             }
             if (min && compare(min, lo) > 0) lo = min
@@ -1131,6 +1186,13 @@ function gaOnePrimaryEvent(ctx: GateContext): CheckOutcome {
     else if (kind.state === 'DERIVED') {
         const kinds = ctx.index.vocabularies.get('V1.kind') || []
         oneClause = kinds.length && !kinds.includes(String(kind.value)) ? fail(ONE, eventCount) : pass(ONE, eventCount)
+    } else if (kind.state === 'OPEN') {
+        // The count is established — it is the *kind* that is an open choice among the members the
+        // selection narrowed to. Both halves of this clause are reported in `why`, so nothing hides
+        // behind the deferral: the "exactly one" half holds, and "of a registered kind" waits on the
+        // choice. Realization can only choose inside the permitted set, so the answer is bounded
+        // before it is made — which is why deferring it is safe rather than hopeful.
+        oneClause = deferred(ONE, 'the chosen primary-event kind, from the set the selection narrowed')
     } else oneClause = notEvaluable(ONE)
 
     const valueClause = value.state === 'DERIVED' ? (toRational(value.value) ? pass(VALUE, 1) : fail(VALUE, 1)) : notEvaluable(VALUE)
@@ -1168,7 +1230,14 @@ function gaOnePrimaryEvent(ctx: GateContext): CheckOutcome {
             else positionBlocked = true
         }
     }
-    const positionClause = unpositioned.length ? fail(POSITION, positioned.length + unpositioned.length) : positionBlocked ? notEvaluable(POSITION) : pass(POSITION, positioned.length)
+    // **Not deferred either**, for the same reason as GA-ENVELOPE-FIT: a chosen position that is prose
+    // is no more a position this clause can read than an open one. What blocks it is how geometry is
+    // authored, not when the value arrives.
+    const positionClause = unpositioned.length
+        ? fail(POSITION, positioned.length + unpositioned.length)
+        : positionBlocked
+          ? notEvaluable(POSITION)
+          : pass(POSITION, positioned.length)
 
     return result(
         'GA-ONE-PRIMARY-EVENT',
@@ -1543,8 +1612,42 @@ export function runGates(ctx: GateContext): GateOutcome {
     // SD-54 — a summary may not present a vacuous pass and an evaluated one as equivalent evidence, so
     // the report carries the split rather than leaving a reader to compute "N checks passed".
     const passedClauses = checks.flatMap(c => c.clauses).filter(c => c.verdict === 'PASS')
+    const allClauses = checks.flatMap(c => c.clauses.map(l => ({ ...l, checkId: c.checkId })))
+
+    /**
+     * **The split, adopted 30 September.** Gate A now reports two verdicts over the same checks.
+     *
+     * `knowledgeVerdict` ranges over every clause that can be answered from knowledge alone, and it is
+     * the one that gates realization: a resolved game may be realized when nothing knowledge could
+     * settle is left unsettled. `verdict` ranges over all of them and is therefore never PASS while
+     * anything is still owed, so the deferred clauses cannot be lost by the split.
+     *
+     * Nothing is relaxed. The same clauses must still pass; they are asked at the point where they
+     * have something to read.
+     */
+    const knowledgeClauses = allClauses.filter(l => l.verdict !== 'DEFERRED_TO_REALIZATION')
+    const deferredClauses = allClauses
+        .filter(l => l.verdict === 'DEFERRED_TO_REALIZATION')
+        .map(l => ({ checkId: l.checkId, clause: l.clause, owes: l.owes ?? '' }))
+        .sort((a, b) => `${a.checkId}|${a.clause}`.localeCompare(`${b.checkId}|${b.clause}`))
+
+    const knowledgeVerdict: GateVerdict = knowledgeClauses.some(l => l.verdict === 'FAIL')
+        ? 'FAIL'
+        : knowledgeClauses.some(l => l.verdict === 'NOT_EVALUABLE')
+          ? 'NOT_EVALUABLE'
+          : 'PASS'
+
     const gateA: GateReport = {
-        verdict: checks.some(c => c.verdict === 'FAIL') ? 'FAIL' : checks.some(c => c.verdict === 'NOT_EVALUABLE') ? 'NOT_EVALUABLE' : 'PASS',
+        verdict:
+            checks.some(c => c.verdict === 'FAIL')
+                ? 'FAIL'
+                : checks.some(c => c.verdict === 'NOT_EVALUABLE')
+                  ? 'NOT_EVALUABLE'
+                  : deferredClauses.length
+                    ? 'DEFERRED_TO_REALIZATION'
+                    : 'PASS',
+        knowledgeVerdict,
+        deferred: deferredClauses,
         checks,
         notEstablished,
         blocks,

@@ -114,8 +114,14 @@ export interface ResolvedGame {
     coherence: {
         gateA: string
         failingChecks: string[]
-        /** True only where Gate A passed — a restatement of Gate A's claim, not a new one. */
+        /**
+         * **Gate A's knowledge verdict, restated.** Not a new judgement: a resolved game may be
+         * realized once every clause knowledge alone can answer is answered. The clauses that need a
+         * concrete game are listed in `deferred` and are still owed — they are deferred, not waived.
+         */
         mayRealize: boolean
+        /** What the concrete game must still be checked against, each naming what realization supplies. */
+        deferred: { checkId: string; clause: string; owes: string }[]
     }
     /**
      * The game, nested by the register's paths. Only derived *values* appear — but every element the
@@ -316,7 +322,8 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
         coherence: {
             gateA: result.gates.gateA.verdict,
             failingChecks,
-            mayRealize: result.gates.gateA.verdict === 'PASS',
+            mayRealize: (result.gates.gateA.knowledgeVerdict ?? result.gates.gateA.verdict) === 'PASS',
+            deferred: [...(result.gates.gateA.deferred ?? [])],
         },
         game,
         derived: derived.sort((a, b) => a.lineId.localeCompare(b.lineId)),
