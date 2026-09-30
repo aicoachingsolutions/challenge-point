@@ -1,0 +1,158 @@
+Subject: A04 reran — acceptance passes, and the four remaining blockers reduce to two unauthored facts
+
+Christian,
+
+All three general corrections are in and A04 has been rerun. Acceptance passes.
+Post-realization Gate A still does not, but the remaining causes have collapsed
+from four separate problems into two unauthored facts — and neither is a
+representation problem any more.
+
+So I am not treating this as the closure point, and I am giving you the
+three-part report anyway, because your ruling on instantiated properties answered
+the question I was waiting on.
+
+Generation remains frozen. 236 tests, suite green. Full trace attached.
+
+
+1 · EXISTENTIAL SATISFACTION — YES, IT CHANGES A04
+
+You were right to have it tested. GF2-09.a asserts at least one objective exists;
+GF2-08.a IS an established objective on that same collection; so the claim was
+already satisfied and my instantiation produced a second objective carrying
+nothing the first did not.
+
+A claim now reports what already satisfies it and what shortfall remains.
+Realization refuses to instantiate for a satisfied claim, and where a claim is
+partly met only the difference is owed. A04 drops from three instantiations to
+two, and the concrete game has one objective instead of two.
+
+The principle generalizes cleanly, and the reason is structural rather than
+lucky: SD-97 makes an existential claim exactly one whose selector individuates
+nothing, so every established member of the row matches it. Satisfaction is
+membership, not resemblance. A claim carrying a real selector would need
+subsumption, and there is none in this corpus.
+
+
+2 · PROPERTY SCHEMA ON INSTANTIATION — IMPLEMENTED GENERALLY
+
+An instantiated member now acquires a line for every field row its collection
+owns. A location, never a value: where the member carries a value the line
+resolves, and where it does not the line exists and is unresolved.
+
+GA-ROSTER-SUM moved from "no line exists for these teams" to "4 subject lines
+failed". That is the difference between unaskable and unanswered, and it is the
+whole point of your ruling. The roster is now a question the system can put;
+nothing authors a per-team count, so it has no answer yet.
+
+Applied to every existentially instantiated class, not as a roster exception, so
+objectives, performers, regions and objects cannot drift into different
+semantics.
+
+
+3 · REALIZED GEOMETRY — THE MECHANISM WORKS, AND IT TELLS US SOMETHING
+
+A register block says what an authored relational phrase ENTAILS about the
+envelope. It lives in data, so the engine compiles in no phrase. Two kinds, and
+the distinction is where the honesty is:
+
+  INTERVAL — the phrase states both ends. "the full axis extent, end line to end
+  line" becomes [0, 40] on a 40 m axis. That is what the words mean, not a number
+  chosen for them.
+
+  ANCHOR — the phrase states one coordinate and no extent. "touchline-adjacent"
+  fixes an edge on the touchline. Wide Zone records "no scaling rule for width",
+  so the width stays UNRESOLVED and nothing is invented for it.
+
+The phrase remains the value in the concrete game; the metres sit beside it with
+the phrase as their authority. The post-realization gate substitutes full
+intervals only — never an anchor, because handing a check a made-up interval is
+precisely what you ruled against.
+
+Of A04's eight placements, four yield full intervals and four yield anchors.
+
+GA-LAYOUT-FEASIBLE is rewritten and the vacuous pass is gone. It had ranged over
+OPEN lines, so realization emptied its own subject and it passed having examined
+nothing. It now ranges over every geometric extent, open or realized — and after
+realization it correctly reports that the target's along-placement is an anchor
+it cannot compare. Same invariant, wider subject, and it can no longer be
+satisfied by the absence of its own subject. I changed the clause wording too,
+since "over open lines" was the phrasing that made the emptying possible.
+
+
+THE RESULT
+
+  realization acceptance      PASSED
+  post-realization Gate A     NOT PASSED
+  render-eligible             NO
+
+And this is the part worth your attention. The four remaining blockers now reduce
+to TWO unauthored facts:
+
+  GA-ENVELOPE-FIT x2  }  the extent of the channels and of the target. Wide Zone
+  GA-LAYOUT-FEASIBLE  }  says "no scaling rule for width"; GF2 says the target's
+                         depth is unauthored. Four of eight placements are
+                         therefore anchors, and no spatial check can close.
+
+  GA-ROSTER-SUM          per-team outfield count. Nothing authors one, and
+                         GF2-14.b's "equal outfield counts" is ASSUMED, so it
+                         bounds without entailing.
+
+Both are knowledge. The architecture now carries realized geometry and property
+locations; what it lacks is authored extent and authored team size. I have not
+invented either, and I do not think I should.
+
+
+ITEM 8 — THE THREE-PART REPORT
+
+(1) REQUIRED BEFORE ONE INTERNALLY RENDERED ACTIVITY
+
+Two authored facts, and nothing else I can find:
+
+  - an extent for the wide channels and for the target feature. Not a metre value
+    necessarily — a relation that states both ends would do, e.g. a channel width
+    as a fraction of the across dimension, or a target depth as one. The
+    mechanism will instantiate either.
+  - a per-team outfield count, or a rule from which one follows. E1 gives 12
+    session players and GF2-14.b assumes equal counts; if that assumption were
+    promoted, six each would follow arithmetically rather than by invention.
+
+With those, A04 should pass post-realization Gate A and be render-eligible. I
+would not promise it until it does.
+
+(2) REQUIRED FOR THE USEFUL BOUNDED PILOT
+
+  - the five uncontracted Practice Situations (A01-01, A01-03, A01-04, TA01-01,
+    TA02-01) and the five uncontracted constraints — ten objects, as measured.
+  - the goal-kick unit: a ruling on promoting three ASSUMED values, and on T3
+    against a source that says "not necessarily a goalkeeper".
+  - the four Variable Target dimensions.
+  - the connected-pass V17 question, which COMPLETED_PASS may close.
+  - A05's two pre-realization blockers, GA-INFORMATION and
+    GA-REFERENCE-INTEGRITY, which A04 does not have.
+
+(3) REQUIRED ONLY FOR BROADER COVERAGE
+
+  - the 25 further objects for all guided goals beyond the bounded family.
+  - the six causally unrealized defensive and defensive-transition lenses, which
+    is library coverage.
+  - A1-A10, still undefined.
+  - the Wide Zone S6 task-register items.
+
+The honest shape of it: list (1) is two facts, list (2) is about a dozen items,
+and list (3) is the long tail. The architecture questions are now off all three
+lists, which is what this phase was for.
+
+
+ITEM 5 — COMPLETED_PASS
+
+I have not tested it yet; it is the one thing from your note I have not done, and
+it does not block anything above. I will report the overlap and dependency check
+separately rather than bundle a rushed answer with this.
+
+Everything else held as instructed: the four Variable Target dimensions
+untouched, IE-C006 establishing nothing, affordance at 33 / 6 / 0, T1c narrowed,
+T3 unresolved, no goal-area analogue, no new region, defensive lens coverage not
+worked.
+
+Joe
+

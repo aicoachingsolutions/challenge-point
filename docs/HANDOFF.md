@@ -3735,3 +3735,35 @@ Joe directed it: piece (1) of the generation-connection scope.
   legitimately absent there.
 - **Item 8 breakdown deliberately NOT sent** — the roster-properties ruling materially changes list (1).
 - 229 tests, suite green. **Generation remains frozen.**
+
+## 30 September (rerun) — four blockers collapse to two unauthored facts
+
+- **236 tests green.** `realization acceptance PASSED · post-realization Gate A NOT PASSED ·
+  render-eligible NO`. Trace: `docs/audits/first-game-trace-2026-09-30b.md`.
+- **Existential satisfaction (his ruling 2) DOES change A04.** `GF2-09.a` was already satisfied by the
+  established `GF2-08.a`, so the instantiation was adding a second objective carrying nothing. A claim
+  now reports `satisfiedBy` / `shortfall`; realization refuses to instantiate for a satisfied claim and
+  only the shortfall is owed. **Generalizes because SD-97 makes an existential claim exactly one with no
+  individuating selector — satisfaction is membership, not resemblance.**
+- **Property schema on instantiation (ruling 1):** an instantiated member gets a line for every FIELD row
+  its collection owns — a *location*, never a value. `GA-ROSTER-SUM` moved from *"no line exists"* to
+  *"4 subject lines failed"*: **unaskable → unanswered.** Applied to every existentially instantiated
+  class, not as a roster exception.
+- **Realized geometry (ruling 3):** register block `spatialRelations`, as data. **interval** where the
+  phrase states both ends (`"end line to end line"` → `[0,40]`); **anchor** where it states one
+  coordinate and no extent (`"touchline-adjacent"` — Wide Zone says *"no scaling rule for width"*), and
+  the extent stays unresolved with no number invented. The phrase stays the value; metres sit beside it
+  as `realizedGeometry`. The gate substitutes **full intervals only, never anchors**.
+- **`GA-LAYOUT-FEASIBLE` rewritten — the vacuous pass is gone.** It ranged over *open* lines, so
+  realization emptied its own subject. Now ranges over every geometric extent, open or realized, and
+  correctly reports the anchor it cannot compare. Clause wording changed with it.
+- **THE REMAINING BLOCKERS ARE TWO AUTHORED FACTS, not four architecture problems:**
+  1. **extent** — channel width and target depth. 4 of 8 placements are anchors, so no spatial check
+     can close.
+  2. **per-team outfield count** — nothing authors one; `GF2-14.b`'s "equal outfield counts" is
+     `ASSUMED`, so it bounds without entailing.
+- **Three-part report sent.** List (1) is those two facts; list (2) ~12 items (10 contracts, goal-kick
+  unit, 4 VT dimensions, V17, A05's two pre-realization blockers); list (3) the long tail. **The
+  architecture questions are off all three lists.**
+- **Not done:** the `COMPLETED_PASS` overlap test (ruling 5) — flagged to him rather than rushed.
+- **Generation remains frozen.**

@@ -1,0 +1,56 @@
+Joe — A04 reran; four blockers collapsed to two unauthored facts
+
+236 tests green, pushed. Trace captured.
+
+  realization acceptance   PASSED
+  post-realization Gate A  NOT PASSED
+  render-eligible          NO
+
+Still not closed, but the shape changed completely: the remaining causes are two
+KNOWLEDGE gaps, not four architecture problems.
+
+  channel width + target depth   — Wide Zone says "no scaling rule for width",
+                                   GF2 says target depth unauthored. 4 of 8
+                                   placements are anchors, so no spatial check
+                                   can close.
+  per-team outfield count        — nothing authors one; GF2-14.b's "equal
+                                   counts" is ASSUMED so it bounds without
+                                   entailing.
+
+WHAT THE THREE RULINGS DELIVERED
+
+Existential satisfaction: he was right to make me test it. GF2-09.a was already
+satisfied by the established GF2-08.a, so my instantiation had been adding a
+second objective that carried nothing. A04 drops to two instantiations and the
+concrete game has one objective. Generalizes cleanly because SD-97 makes an
+existential claim exactly one with no individuating selector — satisfaction is
+membership, not resemblance.
+
+Property schema: GA-ROSTER-SUM moved from "no line exists" to "4 subject lines
+failed". Unaskable -> unanswered. That's the entire value of the ruling and it
+showed up immediately.
+
+Geometry: the mechanism works and it's honest. Phrases that state both ends give
+intervals ("end line to end line" -> [0,40]); phrases that state one coordinate
+give anchors and leave extent unresolved, with the register's own reason attached.
+No number invented anywhere. Terms live in register data so the engine compiles in
+no phrase.
+
+GA-LAYOUT-FEASIBLE rewrite killed the vacuous pass. It had ranged over OPEN
+lines, so realization emptied its own subject. Now ranges over every geometric
+extent and correctly reports the anchor it can't compare.
+
+WHAT I SENT THAT I'D HELD BACK
+
+The three-part report. His property-schema ruling answered the question I was
+waiting on, so list (1) is now just two authored facts. Said plainly that I won't
+promise A04 passes until it does.
+
+ONE THING NOT DONE
+
+COMPLETED_PASS overlap test. Told him rather than bundling a rushed answer — it
+blocks nothing on the critical path and it deserves the same treatment the other
+vocabulary questions got.
+
+Joe
+
