@@ -1,0 +1,68 @@
+Joe — first game is through, but not validated
+
+229 tests green, pushed. Full trace captured as a doc.
+
+  realization acceptance   PASSED
+  post-realization Gate A  NOT PASSED
+  render-eligible          NO
+
+WHAT WORKS
+
+A04 goes selection -> resolved game -> realization -> concrete game and passes all
+three acceptance conditions on real selected knowledge. Six choices each from
+inside an authored set, three instantiations, every decision recorded with what
+bounded it. A05 is correctly NOT authorized and says why — so the gate
+discriminates.
+
+The post-realization gate re-runs the SAME fifteen check functions against a
+context with the realization decisions folded in. No second implementation, which
+matters given the game::V1-reported-two-ways history.
+
+THE THREE THINGS BLOCKING VALIDATION
+
+1. GA-LAYOUT-FEASIBLE passes VACUOUSLY. Its clause is phrased over "open lines",
+   and realization closes them — so at the later stage it examines nothing.
+   Labelled PASS_VACUOUS per SD-54 rather than counted as a pass. Needs rephrasing
+   to "the chosen placements are jointly satisfiable" to mean anything.
+
+2. Geometry is still prose. Moving GA-ENVELOPE-FIT downstream was right — the
+   dependency IS a realization value — but the value is the same phrase the bound
+   states. Labelled STILL_NOT_EVALUABLE at the final stage, because there's no
+   further stage to defer to.
+
+3. The one I'd flag hardest: AN INSTANTIATED MEMBER ARRIVES WITH NO PROPERTIES.
+   GA-ROSTER-SUM can't run even with both teams instantiated, because SD-97
+   enumerates no lines for a non-individuated class — so no outfieldCount line
+   exists and realization was never ASKED for team sizes. Existential realization
+   supplies members with no mechanism to supply their properties. That's
+   structural, not a gap in the knowledge.
+
+THE ITEM 6 REVERSAL
+
+I started authoring his three goal-kick values and stopped. A01-02 already has all
+three — and all three are basis=ASSUMED, which by §3 bounds but never entails.
+That's exactly why they read as unauthored gaps. Nobody was silent; what was said
+is an assumption.
+
+T5 is already STATIONARY_BALL, his value exactly. T3 says "any role, NOT
+NECESSARILY A GOALKEEPER" — the opposite of his direction. I added two items, then
+removed them: one duplicated, one would have overwritten a source that disagrees
+with him. Told him plainly that it's his call to rule against his own restatement.
+
+Also confirmed the goalkeeper evidence he predicted: RPC-001 is the only object
+claiming P3 and the goal-kick game doesn't select it.
+
+WHAT I HELD BACK
+
+Didn't send the item-8 three-part breakdown. The roster-properties answer changes
+list (1) materially — if an instantiated member can't be given properties, "what
+remains before an activity can be rendered" is a lot bigger than it otherwise
+looks. Said I'd send it after he rules rather than give him a list I'd have to
+retract.
+
+Also didn't implement the V17 read I proposed (V17 = event instance, V18 = event
+type; V17 legitimately absent where the event has no represented identity). It's a
+ruling about what an empty V17 means.
+
+Joe
+

@@ -3699,3 +3699,39 @@ Joe directed it: piece (1) of the generation-connection scope.
   boundary** so the checks reason over relations rather than metres. The second looks smaller and more
   faithful to how the knowledge is written.
 - 228 tests, suite green. **Generation remains frozen.**
+
+## 30 September (final) — first game through; acceptance PASSED, post-realization Gate A NOT passed
+
+- **`npm run first:game`** prints the whole trace: selection → resolved game → realization request →
+  decisions → concrete game → post-realization Gate A. Captured at
+  `docs/audits/first-game-trace-2026-09-30.md`.
+- **Three states kept apart** (his ruling 2): `preRealization` = `PRE_REALIZATION_SATISFIED` (never
+  `PASS`), `realizationAuthorized` (all three of his conditions, checked), `postRealizationRequired`.
+  **A04 authorized; A05 not**, and it names the unsatisfied invariant. Both are tests.
+- **`runPostRealizationGates` re-runs the SAME fifteen functions** over a context with realization
+  decisions folded in. No second implementation — the `game::V1` two-ways history is why.
+- **RESULT: acceptance PASSED (nothing lost / invented / closed without authority); post-realization
+  Gate A NOT PASSED; render-eligible NO.**
+- **Three blockers, and the third is structural:**
+  1. `GA-LAYOUT-FEASIBLE` **passes vacuously** — its clause is phrased over *open* lines and
+     realization closes them, so it examines nothing. Labelled `PASS_VACUOUS` per SD-54. Needs
+     rephrasing to "the chosen placements are jointly satisfiable".
+  2. `GA-ENVELOPE-FIT` **still not evaluable** — geometry is prose, so the chosen value is the same
+     phrase. Labelled `STILL_NOT_EVALUABLE` at the final stage; there is no further stage to defer to.
+  3. **AN INSTANTIATED MEMBER ARRIVES WITH NO PROPERTIES.** `GA-ROSTER-SUM` cannot run with both teams
+     instantiated, because SD-97 enumerates no lines for a non-individuated class — so no
+     `outfieldCount` line exists and realization **was never asked** for team sizes. Existential
+     realization supplies members with no mechanism to supply their properties.
+- **ITEM 6 REVERSED: the goal-kick values are ALREADY AUTHORED.** `A01-02-04.b` T5 = `STATIONARY_BALL`
+  (his value exactly), `A01-02-07.a` T4 = `own end (of the team in this element's T2)`, `A01-02-11.a`
+  T3 = *"any role, **not necessarily a goalkeeper**"* — which **contradicts his direction**. All three
+  are **`basis = ASSUMED`**, and by §3 an assumed item bounds but never entails: that is why they read
+  as unauthored gaps. I added two items on his direction and **removed them** — one duplicated, one
+  would have overwritten a source that disagrees with him.
+- **Goalkeeper evidence confirmed:** `RPC-001` is the only object claiming `P3`, and the goal-kick game
+  does not select it.
+- **V17 vs V18 returned:** V17 names the event *instance*, V18 its *type*. They overlap only where the
+  event has no represented identity — the Pass Combination case. Proposed (not implemented) that V17 be
+  legitimately absent there.
+- **Item 8 breakdown deliberately NOT sent** — the roster-properties ruling materially changes list (1).
+- 229 tests, suite green. **Generation remains frozen.**
