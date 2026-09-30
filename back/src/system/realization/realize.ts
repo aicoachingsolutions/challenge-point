@@ -338,9 +338,17 @@ export function realize(
     // `realizedGeometry`, carrying the phrase as their own authority.
     const geometry: RealizationRecord['geometry'] = []
     if (index) {
+        // A COUNT bound on the same line is an authored EXTENT, and an anchor composed with one is an
+        // interval. The bound is read from wherever the resolved game carries it — a derived line's own
+        // bounds, or an open line's — so the composition works the same whether the position was
+        // derived or chosen.
+        const extentOf = (lineId: string): { min?: number | null; max?: number | null } | undefined => {
+            const bounds = [...(resolved.open.find(o => o.lineId === lineId)?.bounds ?? []), ...(resolved.extentBounds?.[lineId] ?? [])] as Bounds[]
+            return bounds.find(b => b?.kind === 'COUNT' && (b.min !== null || b.max !== null))
+        }
         const spatial = [...resolved.derived.map(d => ({ lineId: d.lineId, path: d.path, value: d.value })), ...recorded.map(c => ({ lineId: c.lineId, path: c.path, value: c.value }))]
         for (const entry of spatial) {
-            const realizedGeometry = realizeSpatialRelation(entry.value, envelope ?? {}, index)
+            const realizedGeometry = realizeSpatialRelation(entry.value, envelope ?? {}, index, extentOf(entry.lineId))
             if (!realizedGeometry) continue
             geometry.push({ lineId: entry.lineId, path: entry.path, geometry: realizedGeometry })
             const parts = splitElementPath(entry.path)

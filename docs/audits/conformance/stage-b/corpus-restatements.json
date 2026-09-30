@@ -342,6 +342,18 @@
     "fitNote": "TYPED, 29 September (Christian). \"1-2 (one or two)\" typed as min 1, max 2. It remains SUPPORTING / PREFERRED_DEFAULT and is NOT converted into a required range: NEUTRAL-01.a states there is no authored maximum, so intersecting the two to [1,2] would turn a preference into a hard ceiling the knowledge never states. SD-90 already expresses the real relationship between a required bound and a preferred default; nothing new is needed and nothing is intersected here."
    },
    "why": "the preferred default is typed so it can be read, and deliberately left SUPPORTING so it cannot be mistaken for a required maximum"
+  },
+  {
+   "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-06",
+   "ruling": "C30b",
+   "set": {
+    "typedBound": {
+     "min": 6,
+     "max": 10
+    },
+    "fitNote": "TYPED, 30 September, on the SD-86 precedent and exactly as the neutral count was (C29c). The channel width was AUTHORED all along — requirement RANGE, basis AUTHORED, value \"across-interval width about 6-10 m\", from setup_guidance \"(~6-10m wide depending on field size)\". Only the value STRING defeated the parser, which typed it QUALITATIVE and left it bounding nothing a check could read. The numbers are MOVED out of the prose, not inferred: 6 and 10 are explicitly authored. The prose is unchanged beside the typed form, so \"about\" and the unauthored scaling both keep their own record. WHAT THIS DOES NOT DO: it does not supply a scaling rule. S6 still records \"no scaling rule for width; depending on field size gives no function\", and that remains true — 6-10 m is a fixed range, not a proportion of the envelope. On a 40 x 30 m session it fits inside the 30 m across dimension, so it yields concrete geometry here; on an envelope where it would not, the proportional question is still open and is the owner decision returned rather than guessed at."
+   },
+   "why": "an explicitly authored numerical range was sitting unreadable in prose, so the channel width bounded nothing a spatial check could use. Typing it changes no authored content and makes the bound checkable; the absent SCALING rule is returned separately and not invented"
   }
  ],
  "added": [

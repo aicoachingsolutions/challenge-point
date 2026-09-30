@@ -36,6 +36,8 @@ export interface RealizedGeometry {
     /** One coordinate, in metres, where the phrase entails only that. */
     anchor?: number
     /** True where the phrase fixes a position but not an extent. */
+    /** Where an authored extent composed with the anchor, the bound it came from. */
+    extentBound?: { min?: number | null; max?: number | null; preferred?: boolean }
     extentUnresolved: boolean
     /** Why this and nothing more — the register's own reason, carried so the limit is visible. */
     why: string
@@ -66,6 +68,7 @@ export function realizeSpatialRelation(
     value: unknown,
     envelope: { lengthM?: number; widthM?: number },
     index: RegisterIndex,
+    extentBound?: { min?: number | null; max?: number | null; preferred?: boolean },
 ): RealizedGeometry | null {
     if (typeof value !== 'string') return null
     const terms = (index.spatialRelations ?? {}) as Record<string, TermDefinition>
@@ -86,10 +89,46 @@ export function realizeSpatialRelation(
         }
     }
     if (definition.kind === 'anchor' && definition.at !== undefined) {
+        const anchor = definition.at * extent
+        // **An anchor composed with an authored extent is an interval.** "Touchline-adjacent" fixes the
+        // outer edge; Wide Zone's own `WIDEZONE-06` authors the width as 6–10 m. Neither alone gives a
+        // region, and together they do — which is the whole point of composing them rather than asking
+        // anyone to supply a number. Containment is checked at the WIDEST permitted extent, because that
+        // is the case that could leave the area; the range itself is carried so nothing reads as a
+        // single chosen width.
+        // **A PREFERRED extent may not become a required interval.** `WIDEZONE-06` authors the channel
+        // width as 6–10 m — `SUPPORTING`, `PREFERRED_DEFAULT`, and its own note says "PREFERRED_DEFAULT
+        // carries the adaptation". Composing that into the interval a containment check then treats as
+        // established would turn a preference into a requirement, which is the exact conversion forbidden
+        // on the neutral count, reached by a different route. A preference is carried and offered; only a
+        // REQUIRED extent composes.
+        if (extentBound && extentBound.preferred) {
+            return {
+                asAuthored: value,
+                axis: definition.axis,
+                anchor,
+                extentBound,
+                extentUnresolved: true,
+                why: `${definition.why ?? ''} An extent IS authored (${JSON.stringify({ min: extentBound.min, max: extentBound.max })}) but as a PREFERRED_DEFAULT, so it is offered and not composed: the required extent remains unauthored.`,
+            }
+        }
+        if (extentBound && Number.isFinite(extentBound.max)) {
+            const outward = anchor === 0 ? 1 : -1
+            const far = anchor + outward * (extentBound.max as number)
+            return {
+                asAuthored: value,
+                axis: definition.axis,
+                interval: { from: Math.min(anchor, far), to: Math.max(anchor, far) },
+                anchor,
+                extentBound,
+                extentUnresolved: false,
+                why: `${definition.why ?? ''} Extent composed from the authored bound ${JSON.stringify(extentBound)}; containment is checked at the widest permitted extent.`,
+            }
+        }
         return {
             asAuthored: value,
             axis: definition.axis,
-            anchor: definition.at * extent,
+            anchor,
             extentUnresolved: true,
             why: definition.why ?? '',
         }

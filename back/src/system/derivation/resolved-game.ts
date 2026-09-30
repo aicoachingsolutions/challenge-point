@@ -170,6 +170,12 @@ export interface ResolvedGame {
     open: OpenChoice[]
     existential: ExistentialClaim[]
     notEstablished: NotEstablished[]
+    /**
+     * Bounds carried on a line that already has a derived value — an authored EXTENT beside an authored
+     * POSITION. Neither is the other: "touchline-adjacent" says where the edge is, and 6-10 m says how
+     * wide, and a region needs both. Kept so realization can compose them without re-deriving anything.
+     */
+    extentBounds: Record<string, unknown[]>
     /** Conditions over a set of members, which no single line can carry. */
     jointConditions: JointCondition[]
     counts: Record<string, number>
@@ -403,6 +409,14 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
         })
         .sort((a, b) => a.classId.localeCompare(b.classId))
 
+    // Bounds on a line that also carries a derived value. The derivation keeps position and extent on
+    // one row, so a bound there is the extent beside the position rather than a competing placement.
+    const extentBounds: Record<string, unknown[]> = {}
+    for (const entry of result.resolution) {
+        if (entry.state !== 'derived' || !entry.extentBounds?.length) continue
+        extentBounds[entry.lineId] = [...entry.extentBounds]
+    }
+
     // DISTINCT_ON assertions, read from the contracts rather than from any line — they take none.
     const jointConditions: JointCondition[] = []
     for (const contract of contracts) {
@@ -438,6 +452,7 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
         derived: derived.sort((a, b) => a.lineId.localeCompare(b.lineId)),
         open: open.sort((a, b) => a.lineId.localeCompare(b.lineId)),
         existential,
+        extentBounds,
         jointConditions,
         notEstablished: notEstablished.sort((a, b) => a.lineId.localeCompare(b.lineId)),
         counts: {

@@ -55,6 +55,7 @@ function eligible(overrides: Partial<ResolvedGame> = {}): ResolvedGame {
         ],
         existential: [],
         notEstablished: [],
+        extentBounds: {},
         jointConditions: [],
         counts: { derived: 1, open: 1, existential: 0, notEstablished: 0 },
         ...overrides,
