@@ -45,9 +45,38 @@ function concreteContext(ctx: GateContext, realized: Realized): GateContext {
     const classified = new Map<string, ClassifiedLine>(ctx.classified)
     const derived = new Map<string, DerivedLine>(ctx.derived)
 
+    // **The geometric checks read the realized geometry, not the prose.** An authored relation that
+    // entails both ends becomes the interval it entails, in the `{axis, lo, hi}` form §1.9 compares —
+    // so `"end line to end line"` arrives as `[0, 40]` on a 40 m axis. A relation that entails only an
+    // anchor is deliberately NOT substituted: its extent is unauthored, and handing the check a made-up
+    // interval is exactly what his ruling forbids. Those lines keep their phrase and the check still
+    // refuses them, which is the honest answer.
+    for (const entry of realized.record.geometry) {
+        if (!entry.geometry.interval) continue
+        const record = derived.get(entry.lineId)
+        const before = classified.get(entry.lineId)
+        if (!record || !before) continue
+        const interval = { axis: entry.geometry.axis, lo: entry.geometry.interval.from, hi: entry.geometry.interval.to }
+        classified.set(entry.lineId, { ...before, verdict: 'RESOLVED:ENTAILED', resolvedBy: 'ENTAILMENT', reason: null })
+        derived.set(entry.lineId, {
+            ...record,
+            open: null,
+            entailing: [
+                {
+                    item: { contractId: 'realization', itemId: entry.lineId },
+                    value: interval,
+                    support: { kind: 'CONTRACT_ITEM', contractId: 'realization', itemId: entry.lineId, relation: 'ENTAILS' },
+                },
+            ],
+        } as DerivedLine)
+    }
+
     for (const choice of realized.record.choices) {
         const before = classified.get(choice.lineId)
         if (!before) continue
+        // A choice whose value the geometry already instantiated must not be written back as prose over
+        // the interval — the geometric substitution above is the one the checks need.
+        if (realized.record.geometry.some(g => g.lineId === choice.lineId && g.geometry.interval)) continue
         classified.set(choice.lineId, { ...before, verdict: 'RESOLVED:ENTAILED', resolvedBy: 'ENTAILMENT', reason: null })
         const record = derived.get(choice.lineId)
         if (record) {
@@ -68,20 +97,62 @@ function concreteContext(ctx: GateContext, realized: Realized): GateContext {
         }
     }
 
-    // An instantiated member is an element of its claim's collection. The class is synthesised from the
-    // claim so that a check counting members finds them; it carries no property the member does not
-    // have, so nothing is invented by making it visible.
+    // **An instantiated member acquires the applicable property schema** — his ruling of 30 September:
+    //
+    //   > *When realization instantiates an authorized member of a represented class, it must also
+    //   > instantiate the applicable property schema for that member. It does not thereby supply the
+    //   > values of those properties. Creating a property location is not authoring its value.*
+    //
+    // Before this, `GA-ROSTER-SUM` could not run even with both teams instantiated, because SD-97
+    // enumerates no lines for a class nothing individuates — so no `outfieldCount` line existed and
+    // realization had never been asked for one. The property was not unauthored; it was **unaskable**.
+    //
+    // So each member gets a line for every FIELD row its collection owns, and each such line is
+    // **unresolved unless the member itself carries a value**. A location is created; no value is
+    // invented. The rule is general and applies to every existentially instantiated class — objectives,
+    // performers, regions, objects alike — so none of them can acquire different semantics by accident.
     const classes: ElementClass[] = [...ctx.classes]
     const lines: ResolutionLine[] = [...ctx.lines]
+
     realized.record.instantiations.forEach((instantiation, i) => {
         const claim = ctx.classes.find(c => c.classId === instantiation.classId)
         if (!claim) return
-        classes.push({
-            ...claim,
-            classId: `realized:${instantiation.classId}:${i}`,
-            constraints: { any: false, terms: [] },
-            cardinality: { min: null, max: null },
-        })
+        const classId = `realized:${instantiation.classId}:${i}`
+        classes.push({ ...claim, classId, constraints: { any: false, terms: [] }, cardinality: { min: null, max: null } })
+
+        for (const row of ctx.index.rows.values()) {
+            if (row.kind !== 'FIELD' || ctx.index.ownerRow.get(row.id) !== claim.row) continue
+            const lineId = `${classId}::${row.id}`
+            lines.push({ lineId, elementId: classId, row: row.id, member: null, lineState: 'ENUMERATED' })
+
+            // The member may carry a value for this property; the register's own leaf name is how it
+            // says so. Where it does, the line is resolved by the realization decision. Where it does
+            // not, the line exists and is unresolved — which is the honest state, and the one that lets
+            // a check say "the outfield count is unresolved" instead of "no such line exists".
+            const leaf = String(row.path).split('.').pop() ?? row.id
+            const supplied = (instantiation.member as Record<string, unknown>)[leaf]
+            if (supplied === undefined) {
+                classified.set(lineId, { lineId, lineState: 'ENUMERATED', verdict: 'NOT_AUTHORED', reason: 'coverage', collidingItems: [] })
+                derived.set(lineId, { lineId, entailing: [], bounding: [], narrowing: [], standingDecisions: [], undetermined: [], open: null } as unknown as DerivedLine)
+                continue
+            }
+            classified.set(lineId, { lineId, lineState: 'ENUMERATED', verdict: 'RESOLVED:ENTAILED', resolvedBy: 'ENTAILMENT', reason: null, collidingItems: [] })
+            derived.set(lineId, {
+                lineId,
+                entailing: [
+                    {
+                        item: { contractId: 'realization', itemId: lineId },
+                        value: supplied,
+                        support: { kind: 'CONTRACT_ITEM', contractId: 'realization', itemId: lineId, relation: 'ENTAILS' },
+                    },
+                ],
+                bounding: [],
+                narrowing: [],
+                standingDecisions: [],
+                undetermined: [],
+                open: null,
+            } as unknown as DerivedLine)
+        }
     })
 
     return { ...ctx, classes, lines, classified, derived }

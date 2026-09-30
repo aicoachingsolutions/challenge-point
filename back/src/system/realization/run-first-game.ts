@@ -71,7 +71,10 @@ for (const choice of resolved.open) {
 }
 for (const claim of resolved.existential) {
     const card = claim.cardinality.min === null && claim.cardinality.max === null ? 'at least one' : `min ${claim.cardinality.min ?? '-'}, max ${claim.cardinality.max ?? '-'}`
-    console.log(`  INSTANTIATE  ${claim.path}  (${card})  from ${claim.from.contractId}::${claim.from.itemId}`)
+    const verb = claim.shortfall === 0 ? 'SATISFIED  ' : 'INSTANTIATE'
+    console.log(`  ${verb}  ${claim.path}  (${card})  from ${claim.from.contractId}::${claim.from.itemId}`)
+    if (claim.satisfiedBy.length) console.log(`               already established: ${claim.satisfiedBy.join(', ')}`)
+    console.log(`               ${claim.shortfall === 0 ? 'nothing owed — no member may be instantiated for it' : `${claim.shortfall} member(s) owed`}`)
 }
 for (const condition of resolved.jointConditions) {
     console.log(`  JOINTLY      ${condition.kind} over ${condition.path} on ${condition.rows.join('/')}  —  "${condition.asAuthored}"`)
@@ -80,7 +83,7 @@ for (const condition of resolved.jointConditions) {
 // ---------------------------------------------------------------------------------------------
 rule('4 · REALIZATION DECISIONS')
 const supplied = JSON.parse(fs.readFileSync(CHOICES, 'utf8'))
-const realizationResult = realize(resolved, supplied.choices, supplied.instantiations)
+const realizationResult = realize(resolved, supplied.choices, supplied.instantiations, indexRegister(input.register), input.envelope)
 if (isRefused(realizationResult)) {
     console.log(`  REFUSED — ${realizationResult.because.length} reason(s):`)
     for (const because of realizationResult.because) console.log(`      · ${because}`)

@@ -26,7 +26,9 @@
  */
 
 import { ExistentialClaim, OpenChoice, ResolvedGame } from '../derivation/resolved-game'
+import { RegisterIndex } from '../derivation/register'
 import { Bounds } from '../derivation/types'
+import { realizeSpatialRelation, RealizedGeometry } from './spatial'
 
 /** A value the realizer chooses for one open line. */
 export interface Choice {
@@ -54,6 +56,13 @@ export interface RecordedChoice extends Choice {
 
 export interface RealizationRecord {
     fromDigest: string
+    /**
+     * Authored spatial relations instantiated against the envelope. The phrase remains the value in the
+     * concrete game; this is what it entails in metres, recorded beside it with its own reason. Where a
+     * phrase fixes a position but not an extent, `extentUnresolved` says so and no number is invented
+     * for the missing part.
+     */
+    geometry: { lineId: string; path: string; geometry: RealizedGeometry }[]
     choices: RecordedChoice[]
     instantiations: (Instantiation & { path: string })[]
     /**
@@ -177,7 +186,13 @@ function checkBound(choice: OpenChoice, value: unknown): { ok: boolean; how: Rec
  * governing rule); an unlisted line has no authority behind it; an unclosed freedom is not a
  * concrete game.
  */
-export function realize(resolved: ResolvedGame, choices: Choice[], instantiations: Instantiation[] = []): RealizationResult {
+export function realize(
+    resolved: ResolvedGame,
+    choices: Choice[],
+    instantiations: Instantiation[] = [],
+    index?: RegisterIndex,
+    envelope?: { lengthM?: number; widthM?: number },
+): RealizationResult {
     const because: string[] = []
 
     if (!resolved.coherence.mayRealize) {
@@ -229,16 +244,32 @@ export function realize(resolved: ResolvedGame, choices: Choice[], instantiation
     }
     for (const claim of resolved.existential) {
         const made = recordedInstantiations.filter(i => i.classId === claim.classId).length
-        if (!made) {
-            because.push(`${claim.classId}: ${claim.path} is asserted to exist and nothing was instantiated to satisfy it`)
+
+        // **A claim already met by an established member authorizes nothing.** Instantiating anyway
+        // would add a member the knowledge never asked for — an invention with a claim's name on it.
+        if (claim.shortfall === 0) {
+            if (made) {
+                because.push(
+                    `${claim.classId}: ${claim.path} is already satisfied by ${claim.satisfiedBy.join(', ')}, so instantiating ${made} more is not authorized`,
+                )
+            }
             continue
         }
-        // **The claim's cardinality is part of the claim.** "Two teams exist" is not satisfied by one
-        // team, and a layer that accepted one would have quietly dropped an authored fact — which is
-        // the failure this whole discipline is built around.
-        const { min, max } = claim.cardinality
-        if (min !== null && made < min) because.push(`${claim.classId}: ${claim.path} asserts at least ${min}, and ${made} was instantiated`)
-        if (max !== null && made > max) because.push(`${claim.classId}: ${claim.path} asserts at most ${max}, and ${made} were instantiated`)
+
+        if (!made) {
+            because.push(
+                `${claim.classId}: ${claim.path} is asserted to exist and nothing was instantiated to satisfy it` +
+                    (claim.satisfiedBy.length ? ` (${claim.satisfiedBy.length} established, ${claim.shortfall} still owed)` : ''),
+            )
+            continue
+        }
+        // **The claim's cardinality is part of the claim** — but only the shortfall is owed, since an
+        // established member counts towards it as much as an instantiated one.
+        if (made < claim.shortfall) because.push(`${claim.classId}: ${claim.path} still owes ${claim.shortfall} member(s), and ${made} was instantiated`)
+        const { max } = claim.cardinality
+        if (max !== null && made + claim.satisfiedBy.length > max) {
+            because.push(`${claim.classId}: ${claim.path} asserts at most ${max}, and ${made + claim.satisfiedBy.length} would exist`)
+        }
     }
 
     if (because.length) return { outcome: 'REFUSED', because }
@@ -302,11 +333,30 @@ export function realize(resolved: ResolvedGame, choices: Choice[], instantiation
         place(game, path, [...list, { ...instantiation.member, satisfies: instantiation.classId }])
     }
 
+    // Instantiate every authored spatial relation the concrete game now holds, derived AND chosen
+    // alike, against the envelope. The prose stays as the value; the metres sit beside it as
+    // `realizedGeometry`, carrying the phrase as their own authority.
+    const geometry: RealizationRecord['geometry'] = []
+    if (index) {
+        const spatial = [...resolved.derived.map(d => ({ lineId: d.lineId, path: d.path, value: d.value })), ...recorded.map(c => ({ lineId: c.lineId, path: c.path, value: c.value }))]
+        for (const entry of spatial) {
+            const realizedGeometry = realizeSpatialRelation(entry.value, envelope ?? {}, index)
+            if (!realizedGeometry) continue
+            geometry.push({ lineId: entry.lineId, path: entry.path, geometry: realizedGeometry })
+            const parts = splitElementPath(entry.path)
+            if (!parts) continue
+            const bucket = readAt(game, parts.container)
+            const element = Array.isArray(bucket) ? (bucket as any[]).find(e => e?.elementId === parts.elementId) : null
+            if (element && parts.leaf) place(element, `realizedGeometry.${parts.leaf}`, realizedGeometry)
+        }
+    }
+
     return {
         outcome: 'REALIZED',
         game,
         record: {
             fromDigest: resolved.provenance.inputDigest,
+            geometry,
             choices: recorded,
             instantiations: recordedInstantiations,
             unverified: recorded.filter(c => c.boundCheck === 'UNVERIFIABLE_QUALITATIVE_BOUND').map(c => c.lineId),
@@ -366,6 +416,13 @@ export function nothingInvented(resolved: ResolvedGame, realized: Realized): str
     const accounted = new Set<string>()
     for (const entry of resolved.derived) accounted.add(entry.path)
     for (const choice of realized.record.choices) accounted.add(choice.path)
+    // Realized geometry traces to the authored phrase it instantiates — it IS that value, in metres,
+    // and the record names the line it came from. Accounting for it here is not a loophole: a geometry
+    // block with no entry in `record.geometry` would still be reported.
+    for (const entry of realized.record.geometry) {
+        const parts = splitElementPath(entry.path)
+        if (parts) accounted.add(`${parts.container}[${parts.elementId}].realizedGeometry.${parts.leaf}`)
+    }
     const instantiated = new Set(realized.record.instantiations.map(i => collectionPath(i.path)))
 
     const problems: string[] = []

@@ -24,14 +24,17 @@ import { assembleResolvedGame, ResolvedGame } from '../derivation/resolved-game'
 import { derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
 import { Choice, checkRealization, Instantiation, isRefused, realize, Realized } from './realize'
 
-function resolvedGameFor(goalId: string | null, situationId: string | null): { label: string; game: ResolvedGame } {
+function resolvedGameFor(goalId: string | null, situationId: string | null) {
     const input = goalId ? derivationInputFor(selectFor(goalId, situationId)) : corpusInput()
     const result = runDerivation(input)
     if (isStampedHalt(result)) throw new Error('the run halted; there is no game to realize')
     const staged: any = runStages0to10(input)
+    const index = indexRegister(input.register)
     return {
         label: goalId ? `${goalId}${situationId ? ` · ${situationId}` : ''}` : 'conformance corpus',
-        game: assembleResolvedGame(result, staged.classes, indexRegister(input.register), input.contracts),
+        game: assembleResolvedGame(result, staged.classes, index, input.contracts) as ResolvedGame,
+        index,
+        envelope: input.envelope ?? {},
     }
 }
 
@@ -41,7 +44,7 @@ const choicesArg = process.argv[process.argv.indexOf('--choices') + 1]
 const supplied: { choices: Choice[]; instantiations: Instantiation[] } =
     process.argv.includes('--choices') && choicesArg ? JSON.parse(fs.readFileSync(choicesArg, 'utf8')) : { choices: [], instantiations: [] }
 
-const { label, game: resolved } = resolvedGameFor(goalId, situationId)
+const { label, game: resolved, index: derivationIndex, envelope: derivationEnvelope } = resolvedGameFor(goalId, situationId)
 
 console.log(`REALIZATION — ${label}`)
 console.log('='.repeat(72))
@@ -66,7 +69,7 @@ for (const claim of resolved.existential) {
     console.log(`  INSTANTIATE ${claim.path}  (${card})  claim ${claim.classId} from ${claim.from.contractId}::${claim.from.itemId}`)
 }
 
-const result = realize(resolved, supplied.choices, supplied.instantiations)
+const result = realize(resolved, supplied.choices, supplied.instantiations, derivationIndex, derivationEnvelope)
 
 console.log(`\nOUTCOME — ${result.outcome}`)
 console.log('-'.repeat(72))

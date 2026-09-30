@@ -73,6 +73,23 @@ export interface ExistentialClaim {
     classId: string
     from: ItemRef
     cardinality: { min: number | null; max: number | null }
+    /**
+     * **Established members that already satisfy this claim**, and the shortfall realization must make
+     * up — his ruling of 30 September: *"An existential realization request should instantiate a new
+     * member only when no already-established member satisfies the claim."*
+     *
+     * On A04 this is the difference between a game with two objectives and a game with one. `GF2-09.a`
+     * asserts at least one objective exists; `GF2-08.a` **is** an established objective on the same
+     * row; so the claim was already met, and asking realization to instantiate another produced a
+     * second objective carrying nothing the first did not.
+     *
+     * Satisfaction is decided by membership, not by resemblance: SD-97 makes an existential claim
+     * exactly one whose selector individuates nothing, so every established member of the row matches
+     * it. A claim carrying a real selector would need subsumption, and there is none in this corpus.
+     */
+    satisfiedBy: string[]
+    /** How many members realization must instantiate. Zero where the claim is already satisfied. */
+    shortfall: number
 }
 
 /**
@@ -368,12 +385,22 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
         // A singleton is individuated by the schema invariant (SD-84), so it is a described element
         // and not an existential claim, even though its assertion carries no selector.
         .filter(cls => cls.constraints.any && !cls.singletonBy)
-        .map(cls => ({
-            path: rows.get(cls.row)?.path ?? cls.row,
-            classId: cls.classId,
-            from: cls.fromItem,
-            cardinality: { min: cls.cardinality?.min ?? null, max: cls.cardinality?.max ?? null },
-        }))
+        .map(cls => {
+            // Established members of the same collection. An individuated class IS a member of the row
+            // the claim ranges over, so it satisfies a claim that individuates nothing.
+            const established = classes.filter(c => c.row === cls.row && (!c.constraints.any || !!c.singletonBy)).map(c => c.classId).sort()
+            const min = cls.cardinality?.min ?? null
+            return {
+                path: rows.get(cls.row)?.path ?? cls.row,
+                classId: cls.classId,
+                from: cls.fromItem,
+                cardinality: { min, max: cls.cardinality?.max ?? null },
+                satisfiedBy: established,
+                // A claim with no stated minimum is met by any one member. Where there is a minimum,
+                // only the difference is owed — never the whole claim again.
+                shortfall: Math.max(0, (min ?? 1) - established.length),
+            }
+        })
         .sort((a, b) => a.classId.localeCompare(b.classId))
 
     // DISTINCT_ON assertions, read from the contracts rather than from any line — they take none.

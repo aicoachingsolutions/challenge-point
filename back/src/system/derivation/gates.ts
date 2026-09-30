@@ -610,7 +610,9 @@ function gaEnvelopeFit(ctx: GateContext): CheckOutcome {
  * the check refuses rather than pretending to a general solver.
  */
 function gaLayoutFeasible(ctx: GateContext): CheckOutcome {
-    const CLAUSE_TEXT = 'the geometric constraints over open lines are jointly satisfiable'
+    // The wording is part of the correction. "over open lines" was what made the clause empty itself
+    // the moment realization closed them; it now says what it actually examines, at either stage.
+    const CLAUSE_TEXT = 'every geometric extent, open or realized, admits a joint assignment inside the area'
     const probe = new Probe(ctx, 'GA-LAYOUT-FEASIBLE')
 
     const length = probe.cell('game::E2')
@@ -621,13 +623,52 @@ function gaLayoutFeasible(ctx: GateContext): CheckOutcome {
     const geometricRows = new Set(['S5', 'S6', 'O4', 'O5'])
     const open = ctx.lines.filter(l => geometricRows.has(l.row) && ctx.classified.get(l.lineId)?.verdict?.startsWith('FREE'))
 
-    if (!open.length) return result('GA-LAYOUT-FEASIBLE', probe, [pass(CLAUSE_TEXT, 0)], 'no geometric line is open, so the constraint set is trivially satisfiable')
-    for (const line of open) probe.cell(line.lineId)
+    // **Rewritten 30 September, on his ruling: "so that its post-realization form actually tests the
+    // realized placements rather than passing vacuously because no OPEN geometry remains. This is a
+    // correction to what the invariant examines, not a relaxation of it."**
+    //
+    // The clause used to range over OPEN geometry. Realization closes those lines, so afterwards there
+    // were none and it passed having examined nothing — a vacuous pass reported as evidence. It now
+    // ranges over **every geometric line**, open or settled: before realization it checks that the open
+    // extents admit a joint assignment, and after it checks that the chosen ones actually do. Same
+    // invariant, wider subject, and it can no longer be satisfied by the absence of its own subject.
+    const settled = ctx.lines.filter(l => {
+        if (!geometricRows.has(l.row)) return false
+        const verdict = ctx.classified.get(l.lineId)?.verdict
+        return !!verdict && !verdict.startsWith('FREE') && verdict.startsWith('RESOLVED')
+    })
+    const subject = [...open, ...settled]
+
+    if (!subject.length) return result('GA-LAYOUT-FEASIBLE', probe, [pass(CLAUSE_TEXT, 0)], 'the game has no geometric line at all, so there is no constraint set')
+    for (const line of subject) probe.cell(line.lineId)
     if (!along || !across) return result('GA-LAYOUT-FEASIBLE', probe, [notEvaluable(CLAUSE_TEXT)], 'the area dimensions are not derived')
 
     const infeasible: string[] = []
-    for (const line of open) {
+    for (const line of subject) {
         const limit = line.row === 'S5' || line.row === 'O4' ? along : across
+
+        // A SETTLED line carries its own placement, so feasibility is a question about that value:
+        // does the realized interval lie inside the area and is it non-empty? This is the half that
+        // was missing, and it is why the clause is no longer vacuous once realization has run.
+        const verdict = ctx.classified.get(line.lineId)?.verdict
+        if (verdict && verdict.startsWith('RESOLVED')) {
+            const read = intervalOf(probe, line.lineId)
+            if (!read.interval) {
+                if (!read.blocked) {
+                    return result(
+                        'GA-LAYOUT-FEASIBLE',
+                        probe,
+                        [notEvaluable(CLAUSE_TEXT, probe.refusals[0]?.refusalId)],
+                        `a realized placement on ${line.lineId} is not an interval this check can compare`,
+                    )
+                }
+                continue
+            }
+            if (compare(read.interval.lo, read.interval.hi) >= 0) infeasible.push(`${line.lineId} (empty)`)
+            else if (compare(read.interval.hi, limit) > 0) infeasible.push(`${line.lineId} (outside the area)`)
+            continue
+        }
+
         const bounds = ctx.derived.get(line.lineId)?.bounding || []
         let lo = ZERO
         let hi = limit
@@ -664,8 +705,10 @@ function gaLayoutFeasible(ctx: GateContext): CheckOutcome {
     return result(
         'GA-LAYOUT-FEASIBLE',
         probe,
-        [infeasible.length ? fail(CLAUSE_TEXT, open.length) : pass(CLAUSE_TEXT, open.length)],
-        infeasible.length ? `${infeasible.length} open extent(s) have no feasible value: ${infeasible.join(', ')}` : `${open.length} open extent(s) admit a joint assignment inside the area`,
+        [infeasible.length ? fail(CLAUSE_TEXT, subject.length) : pass(CLAUSE_TEXT, subject.length)],
+        infeasible.length
+            ? `${infeasible.length} of ${subject.length} extent(s) are infeasible: ${infeasible.join(', ')}`
+            : `${subject.length} extent(s) examined (${open.length} open, ${settled.length} realized) and all admit a joint assignment inside the area`,
     )
 }
 

@@ -330,7 +330,7 @@ test('one line cannot be chosen twice', () => {
 
 test('an unsatisfied existential claim refuses the realization', () => {
     const resolved = eligible({
-        existential: [{ path: 'performers.teams', classId: 'K-teams', from: { contractId: 'C', itemId: 'I' }, cardinality: { min: 2, max: 2 } }],
+        existential: [{ path: 'performers.teams', classId: 'K-teams', from: { contractId: 'C', itemId: 'I' }, cardinality: { min: 2, max: 2 }, satisfiedBy: [], shortfall: 2 }],
     })
     const result = realize(resolved, chooseScoring)
     assert.ok(isRefused(result))
@@ -339,7 +339,7 @@ test('an unsatisfied existential claim refuses the realization', () => {
 
 test('an instantiation satisfies the claim and is recorded as instantiated, not derived', () => {
     const resolved = eligible({
-        existential: [{ path: 'performers.teams', classId: 'K-teams', from: { contractId: 'C', itemId: 'I' }, cardinality: { min: 1, max: null } }],
+        existential: [{ path: 'performers.teams', classId: 'K-teams', from: { contractId: 'C', itemId: 'I' }, cardinality: { min: 1, max: null }, satisfiedBy: [], shortfall: 1 }],
     })
     const result = realize(resolved, chooseScoring, [{ classId: 'K-teams', member: { designation: 'ATTACKING_TEAM' }, because: 'the claim needs a member' }]) as Realized
     assert.equal(result.outcome, 'REALIZED')
@@ -350,16 +350,59 @@ test('an instantiation satisfies the claim and is recorded as instantiated, not 
     assert.deepEqual(checkRealization(resolved, result).nothingInvented, [])
 })
 
+test('a claim already satisfied by an established member authorizes no instantiation', () => {
+    // His ruling of 30 September. On A04 this was the difference between a game with two objectives and
+    // a game with one: GF2-09.a asserts at least one objective exists, GF2-08.a IS an established
+    // objective on that collection, so the claim was met and the second objective carried nothing.
+    const resolved = eligible({
+        existential: [
+            {
+                path: 'objectives',
+                classId: 'K-objectives',
+                from: { contractId: 'C', itemId: 'I' },
+                cardinality: { min: 1, max: null },
+                satisfiedBy: ['established-objective'],
+                shortfall: 0,
+            },
+        ],
+    })
+    // Satisfied, so nothing is owed and no instantiation is required.
+    assert.equal(realize(resolved, chooseScoring).outcome, 'REALIZED')
+
+    // And instantiating anyway is refused, naming what already satisfied it.
+    const extra = realize(resolved, chooseScoring, [{ classId: 'K-objectives', member: {}, because: 'one more' }])
+    assert.ok(isRefused(extra))
+    assert.match(extra.because[0], /already satisfied by established-objective/)
+})
+
+test('only the SHORTFALL is owed, not the whole claim again', () => {
+    // Two teams asserted, one already established: one instantiation, not two.
+    const resolved = eligible({
+        existential: [
+            {
+                path: 'performers.teams',
+                classId: 'K-teams',
+                from: { contractId: 'C', itemId: 'I' },
+                cardinality: { min: 2, max: null },
+                satisfiedBy: ['established-team'],
+                shortfall: 1,
+            },
+        ],
+    })
+    assert.equal(realize(resolved, chooseScoring, [{ classId: 'K-teams', member: { designation: 'B' }, because: 'the shortfall' }]).outcome, 'REALIZED')
+    assert.ok(isRefused(realize(resolved, chooseScoring)), 'and the shortfall is still owed if nothing is supplied')
+})
+
 test("a claim's cardinality is part of the claim", () => {
     // "Two teams exist" is not satisfied by one team. A layer that accepted one would have quietly
     // dropped an authored fact while reporting success, which is the failure mode this whole
     // discipline exists to prevent.
     const resolved = eligible({
-        existential: [{ path: 'performers.teams', classId: 'K-teams', from: { contractId: 'C', itemId: 'I' }, cardinality: { min: 2, max: 2 } }],
+        existential: [{ path: 'performers.teams', classId: 'K-teams', from: { contractId: 'C', itemId: 'I' }, cardinality: { min: 2, max: 2 }, satisfiedBy: [], shortfall: 2 }],
     })
     const one = realize(resolved, chooseScoring, [{ classId: 'K-teams', member: { designation: 'ATTACKING_TEAM' }, because: 'only one' }])
     assert.ok(isRefused(one))
-    assert.match(one.because[0], /asserts at least 2, and 1 was instantiated/)
+    assert.match(one.because[0], /still owes 2 member\(s\), and 1 was instantiated/)
 
     const three = realize(resolved, chooseScoring, [
         { classId: 'K-teams', member: { designation: 'A' }, because: '' },
@@ -367,7 +410,7 @@ test("a claim's cardinality is part of the claim", () => {
         { classId: 'K-teams', member: { designation: 'C' }, because: '' },
     ])
     assert.ok(isRefused(three))
-    assert.match(three.because[0], /asserts at most 2, and 3 were instantiated/)
+    assert.match(three.because[0], /asserts at most 2, and 3 would exist/)
 
     const two = realize(resolved, chooseScoring, [
         { classId: 'K-teams', member: { designation: 'ATTACKING_TEAM' }, because: 'first' },

@@ -1,5 +1,5 @@
 {
-  "note": "The realization request A04's resolved game implies, answered. Every value here is either a member of the permitted set the knowledge narrowed to, or the single member of the authored bound. Nothing invents a quantity, and each `because` says why this value rather than another. This file is a REALIZER's input, not knowledge: none of it is authored, and the realization record keeps it separate from what was derived.",
+  "note": "The realization request A04's resolved game implies, answered. Every value here is either a member of the permitted set the knowledge narrowed to, or the single member of the authored bound. Nothing invents a quantity, and each `because` says why this value rather than another. This file is a REALIZER's input, not knowledge: none of it is authored, and the realization record keeps it separate from what was derived. UPDATED 30 September: the instantiation for GF2-09.a was removed. That claim asserts at least one objective exists, and GF2-08.a is an established objective on the same collection — so the claim was already satisfied and instantiating another produced a second objective carrying nothing the first did not. Realization now records it as satisfied by the established member instead.",
   "choices": [
     {
       "lineId": "c:restated:GF2:GF2-03.a::S3",
@@ -34,18 +34,17 @@
   ],
   "instantiations": [
     {
-      "classId": "c:restated:GF2:GF2-09.a",
-      "member": { "role": "PRIMARY_SCORING" },
-      "because": "GF2-09.a asserts at least one objective exists and individuates none, so realization supplies one carrying only what the claim implies."
-    },
-    {
       "classId": "c:restated:GF2:GF2-14.a",
-      "member": { "designation": "ATTACKING_TEAM" },
+      "member": {
+        "designation": "ATTACKING_TEAM"
+      },
       "because": "GF2-14.a asserts at least two teams exist and individuates none. First of the two."
     },
     {
       "classId": "c:restated:GF2:GF2-14.a",
-      "member": { "designation": "DEFENDING_TEAM" },
+      "member": {
+        "designation": "DEFENDING_TEAM"
+      },
       "because": "second of the two the claim asserts. Two instantiations, because the claim's cardinality is part of the claim."
     }
   ]
