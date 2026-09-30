@@ -3767,3 +3767,33 @@ Joe directed it: piece (1) of the generation-connection scope.
   architecture questions are off all three lists.**
 - **Not done:** the `COMPLETED_PASS` overlap test (ruling 5) — flagged to him rather than rushed.
 - **Generation remains frozen.**
+
+## 30 September (spatial + roster) — the width was authored all along, as a PREFERENCE
+
+- **236 tests green.** A04 still `NOT PASSED`; both remaining items are single owner decisions.
+- **`WIDEZONE-06` authors the channel width** — `row S6, RANGE, AUTHORED, "across-interval width about
+  6-10 m"`. It was never missing, only **untyped**, so the parser made it QUALITATIVE. Typed on the
+  SD-86 precedent (C30b).
+- **BUT it is `SUPPORTING` / `PREFERRED_DEFAULT`** — its own fitNote says *"PREFERRED_DEFAULT carries
+  the adaptation"*. **So the width is a PREFERENCE and the required extent is genuinely unauthored.**
+  I had already built the anchor+extent composition, which for a preferred bound **would have turned a
+  preference into a requirement** — the conversion he forbade on the neutral count, from the other
+  side, and A04 would have passed on something nobody required. Now only a **REQUIRED** extent
+  composes. **Check `valueStatus` before trusting a bound.**
+- **The owner decision:** promote 6–10 m to required (concrete, doesn't scale), or author a proportion
+  of the across dimension (the scaling he asked for; the source gestures at it and never states it).
+  The mechanism instantiates either without change. Target depth doesn't arise — `line` has no depth.
+- **THIRD SILENT LOSS.** `bounds` was emitted **only on open lines**, and Wide Zone authors the width on
+  the *same row* as `"touchline-adjacent"` — so a derived position dropped its authored extent
+  entirely. Now emitted as **`extentBounds`**, separate name, so the "bounds only on open lines"
+  invariant survives. **All three instances were found by something downstream trying to USE the value,
+  never by a test.**
+- **ROSTER — nothing to build.** The representation carries all three distinctions: `E1` total,
+  **`P4 roles[]`** (*"named roles; the list is open for this run"* — sport-neutral) for specialized
+  availability, **`P11/P12` participation state** (EM-0007: ACTIVE/INACTIVE/WAITING/RESTING/OBSERVING)
+  for involvement. `P3 goalkeeper` already exists as the soccer-named convenience. **What's missing is a
+  SESSION input** — the envelope states `players: 12` and nothing about role composition. "Equal
+  outfield counts" NOT promoted. `GF2`'s `P3 NON_CLAIMED` means *imposes no requirement*, not *there
+  are none*, so it stays unresolved rather than defaulting to 0.
+- **Still outstanding: the `COMPLETED_PASS` overlap check.** Flagged a third time rather than rushed.
+- **Generation remains frozen.**
