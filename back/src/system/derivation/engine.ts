@@ -585,7 +585,10 @@ export function runStages0to10(input: DerivationInput) {
     const index = indexRegister(input.register)
     const admitted = (input.contracts || []).filter(c => !base.failures.some(f => f.kind === 'LOAD_REFUSAL' && f.locus.contractId === c.contractId))
 
-    const gates = runGates({
+    // Built once and returned, so the post-realization gate can re-run the SAME invariants over the
+    // concrete game rather than a reconstruction of them. A second construction here would be a second
+    // engine, which is how `game::V1` once came to be reported two ways.
+    const gateContext = {
         classes: base.classes,
         lines: base.lines,
         classified: base.classified,
@@ -596,7 +599,8 @@ export function runStages0to10(input: DerivationInput) {
         failures: base.failures,
         forward: base.forward || [],
         contracts: admitted,
-    })
+    }
+    const gates = runGates(gateContext)
 
     base.refusals.push(...gates.refusals)
     base.stopped.push(...gates.stopped)
@@ -615,6 +619,7 @@ export function runStages0to10(input: DerivationInput) {
         refusals: base.refusals.sort((a, b) => a.refusalId.localeCompare(b.refusalId)),
         stopped: [...new Map(base.stopped.map(s => [`${s.where}|${s.why}`, s])).values()].sort((a, b) => a.where.localeCompare(b.where)),
         gates,
+        gateContext,
     }
 }
 

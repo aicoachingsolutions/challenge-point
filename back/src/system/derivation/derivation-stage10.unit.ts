@@ -484,7 +484,12 @@ test('a dynamic location used geometrically is refused as VALUE_NOT_COMPARABLE',
     const result: any = runStages0to10(input(contracts))
     const refusal = result.refusals.find((r: any) => r.kind === 'VALUE_NOT_COMPARABLE')
     assert.ok(refusal, '§1.9: any geometric use of a dynamic location is refused')
-    assert.equal(check(result, 'GA-ENVELOPE-FIT').verdict, 'NOT_EVALUABLE')
+    // Since the 30 September split a placement this check cannot read is a value realization supplies,
+    // so the invariant moves downstream rather than being abandoned. What must never happen either way
+    // is a PASS reached over a placement it could not compare.
+    const envelope = check(result, 'GA-ENVELOPE-FIT').verdict
+    assert.notEqual(envelope, 'PASS')
+    assert.ok(['NOT_EVALUABLE', 'DEFERRED_TO_REALIZATION'].includes(envelope), envelope)
 })
 
 test('a placement outside the area fails, and one inside it passes', () => {
@@ -619,7 +624,7 @@ test('GA-LAYOUT-FEASIBLE refuses a bound it cannot read rather than ignoring it'
     if (feasible.verdict === 'PASS') {
         assert.ok(/no geometric line is open/.test(feasible.why), `PASS must be because nothing was open, not because a bound was dropped: ${feasible.why}`)
     } else {
-        assert.equal(feasible.verdict, 'NOT_EVALUABLE')
+        assert.ok(['NOT_EVALUABLE', 'DEFERRED_TO_REALIZATION'].includes(feasible.verdict), feasible.verdict)
     }
 })
 

@@ -565,13 +565,20 @@ function gaEnvelopeFit(ctx: GateContext): CheckOutcome {
     }
 
     if (refused) {
-        // **NOT deferred, and the distinction matters.** A placement here is unreadable because the
-        // corpus authors placements as prose — "touchline-adjacent", "the full axis extent, end line
-        // to end line". Realization choosing one of those does not make it a value §1.9 can compare,
-        // so waiting for realization would not answer this clause. It is a representation limitation,
-        // not a sequencing one, and calling it deferred would have claimed a check was owed later
-        // when in fact it cannot be run at either stage.
-        return result('GA-ENVELOPE-FIT', probe, [notEvaluable(INSIDE, probe.refusals[0]?.refusalId), notEvaluable(NON_EMPTY)], 'a placement is not a value §1.9 can compare')
+        // **Post-realization, on his ruling of 30 September**: the unresolved dependency is a placement,
+        // and placement is a value realization is authorized to supply. So the stage is settled, and the
+        // invariant is not weakened — it is asked once its subject exists.
+        //
+        // What that does not fix, and I have said so rather than let the move imply otherwise: this
+        // corpus authors placements as PROSE ("touchline-adjacent"), so at the later stage the clause
+        // is blocked again for a different reason — §1.9 still has nothing to compare. Moving it is
+        // right; it is not sufficient.
+        return result(
+            'GA-ENVELOPE-FIT',
+            probe,
+            [deferred(INSIDE, 'the chosen placement of every region and object'), deferred(NON_EMPTY, 'the chosen extent of every region and object')],
+            'every placement it would compare is a value realization supplies',
+        )
     }
     if (!along || !across || probe.blocked) {
         return result('GA-ENVELOPE-FIT', probe, [notEvaluable(INSIDE), notEvaluable(NON_EMPTY)], probe.blockedWhy || 'the area dimensions are not derived')
@@ -637,11 +644,16 @@ function gaLayoutFeasible(ctx: GateContext): CheckOutcome {
                     `a ${bound.bound.kind} bound on ${line.lineId} is not a linear constraint over exact rationals; feasibility is not decided by ignoring it`,
                     [line.lineId],
                 )
-                // **NOT deferred.** A realized value drawn from this bound is the same prose the bound
-                // states, so feasibility is no more computable after realization than before. The
-                // blocker is that geometry is authored qualitatively, which is a representation
-                // question — deferring it would have quietly promised a later check that cannot run.
-                return result('GA-LAYOUT-FEASIBLE', probe, [notEvaluable(CLAUSE_TEXT, probe.refusals[0].refusalId)], 'a geometric bound is not a constraint this check can read')
+                // Post-realization, on his ruling: feasibility is over values realization supplies. The
+                // caveat is reported rather than hidden — a value drawn from a qualitative bound is
+                // itself qualitative, so at the later stage this is blocked again until geometry is
+                // represented as something arithmetic can read.
+                return result(
+                    'GA-LAYOUT-FEASIBLE',
+                    probe,
+                    [deferred(CLAUSE_TEXT, `the chosen value for ${line.lineId}, whose ${bound.bound.kind} bound is not itself a linear constraint`)],
+                    'feasibility is over values realization supplies',
+                )
             }
             if (min && compare(min, lo) > 0) lo = min
             if (max && compare(max, hi) < 0) hi = max
@@ -1230,13 +1242,16 @@ function gaOnePrimaryEvent(ctx: GateContext): CheckOutcome {
             else positionBlocked = true
         }
     }
-    // **Not deferred either**, for the same reason as GA-ENVELOPE-FIT: a chosen position that is prose
-    // is no more a position this clause can read than an open one. What blocks it is how geometry is
-    // authored, not when the value arrives.
+    // Post-realization **where position is the unresolved dependency** — his wording, and the condition
+    // matters. A referent that names no held element still FAILS here, and one blocked for any reason
+    // other than an open position still blocks; only a position realization is authorized to supply
+    // moves the clause downstream.
     const positionClause = unpositioned.length
         ? fail(POSITION, positioned.length + unpositioned.length)
         : positionBlocked
-          ? notEvaluable(POSITION)
+          ? probe.pendingOn.length
+              ? deferred(POSITION, 'the chosen position of every referent of the primary event')
+              : notEvaluable(POSITION)
           : pass(POSITION, positioned.length)
 
     return result(

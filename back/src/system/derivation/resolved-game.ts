@@ -111,16 +111,34 @@ export interface ResolvedGame {
      * verdict is the answer to whether a realization layer may proceed. It is carried verbatim and
      * no second judgement is formed here.
      */
+    /**
+     * **Three states, deliberately not collapsed into one.** His ruling of 30 September: *"This keeps
+     * 'may realize' distinct from 'game is validated.'"*
+     *
+     * `preRealization` is a verdict over the invariants the resolved game can answer, and it is
+     * reported as `PRE_REALIZATION_SATISFIED` rather than `PASS` precisely so it cannot be read as
+     * full Gate A having passed. `realizationAuthorized` is the answer to whether realization may
+     * proceed, and it requires all three of his conditions. `postRealizationRequired` is what the
+     * concrete game still owes before it is validated — a game that realizes is not a game that has
+     * been checked.
+     */
     coherence: {
         gateA: string
         failingChecks: string[]
+        /** `PRE_REALIZATION_SATISFIED`, `FAIL` or `NOT_EVALUABLE` over the pre-realization invariants. */
+        preRealization: string
+        /** All three of his conditions hold. This is what gates realization. */
+        realizationAuthorized: boolean
+        /** Where realization is not authorized, every reason. */
+        notAuthorizedBecause: string[]
+        /** Invariants whose subject does not exist until realization supplies it. Owed, not waived. */
+        postRealizationRequired: { checkId: string; clause: string; owes: string }[]
         /**
-         * **Gate A's knowledge verdict, restated.** Not a new judgement: a resolved game may be
-         * realized once every clause knowledge alone can answer is answered. The clauses that need a
-         * concrete game are listed in `deferred` and are still owed — they are deferred, not waived.
+         * Kept as the name the realization layer reads, and now meaning exactly
+         * `realizationAuthorized` — never "the game is valid".
          */
         mayRealize: boolean
-        /** What the concrete game must still be checked against, each naming what realization supplies. */
+        /** @deprecated use `postRealizationRequired`; retained so no reader silently gets `undefined`. */
         deferred: { checkId: string; clause: string; owes: string }[]
     }
     /**
@@ -178,6 +196,71 @@ function place(root: Record<string, unknown>, path: string, value: unknown): voi
  * SD-97 stopped those assertions enumerating lines and they therefore appear nowhere in `resolution`.
  * Leaving them out would hide, from the layer that has to satisfy them, that they exist at all.
  */
+/**
+ * His three conditions for entering realization, each checked rather than assumed:
+ *
+ *   1. every pre-realization Gate A invariant passes;
+ *   2. every unresolved property is either an authorized OPEN choice or an authorized existential claim;
+ *   3. no blocking knowledge gap, collision or unresolved structural relationship remains.
+ *
+ * Condition 2 is the one that needs care. A row the knowledge **excluded** or declared it does not
+ * constrain is not an unresolved property — it is an established absence, and requiring it to be open
+ * or existential would make every game ineligible for having decided something. What condition 2
+ * forbids is a property that is *owed* and is neither a choice nor a claim.
+ */
+function authorization(
+    result: DerivationResult,
+    notEstablished: NotEstablished[],
+    open: OpenChoice[],
+    existential: ExistentialClaim[],
+): Pick<
+    ResolvedGame['coherence'],
+    'preRealization' | 'realizationAuthorized' | 'notAuthorizedBecause' | 'postRealizationRequired' | 'mayRealize' | 'deferred'
+> {
+    const gateA = result.gates.gateA
+    const knowledge = gateA.knowledgeVerdict ?? gateA.verdict
+    const postRealizationRequired = [...(gateA.deferred ?? [])]
+    const because: string[] = []
+
+    // (1)
+    if (knowledge === 'FAIL') {
+        because.push(`a pre-realization Gate A invariant fails: ${(gateA.checks ?? []).filter(c => c.verdict === 'FAIL').map(c => c.checkId).join(', ')}`)
+    } else if (knowledge !== 'PASS') {
+        const blocked = (gateA.checks ?? [])
+            .filter(c => c.verdict === 'NOT_EVALUABLE')
+            .map(c => c.checkId)
+            .join(', ')
+        because.push(`a pre-realization Gate A invariant cannot be evaluated, so it is not satisfied: ${blocked}`)
+    }
+
+    // (2) — a property that is owed, and is neither an open choice nor an existential claim.
+    const owed = notEstablished.filter(e => e.reason === 'declared gap' || e.reason === 'claimed but unresolved')
+    if (owed.length) {
+        because.push(
+            `${owed.length} unresolved propert${owed.length === 1 ? 'y is' : 'ies are'} neither an authorized choice nor an authorized claim: ` +
+                owed.slice(0, 4).map(e => e.lineId).join(', ') + (owed.length > 4 ? ', …' : ''),
+        )
+    }
+
+    // (3)
+    const collisions = result.failures.filter(f => f.kind === 'COLLISION')
+    if (collisions.length) because.push(`${collisions.length} collision(s) remain`)
+    const unresolved = notEstablished.filter(e => e.verdict === 'UNRESOLVED')
+    if (unresolved.length) because.push(`${unresolved.length} unresolved structural relationship(s) remain: ${unresolved.map(e => e.lineId).join(', ')}`)
+
+    const authorized = because.length === 0
+    return {
+        // Never `PASS`: the state is "the pre-realization requirements are satisfied", which does not
+        // say that Gate A has passed, because the deferred invariants have not been evaluated at all.
+        preRealization: authorized ? 'PRE_REALIZATION_SATISFIED' : knowledge,
+        realizationAuthorized: authorized,
+        notAuthorizedBecause: because,
+        postRealizationRequired,
+        mayRealize: authorized,
+        deferred: postRealizationRequired,
+    }
+}
+
 export function assembleResolvedGame(result: DerivationResult, classes: ElementClass[], index: RegisterIndex, contracts: LoadedContract[] = []): ResolvedGame {
     const rows = index.rows
     const game: Record<string, unknown> = {}
@@ -322,8 +405,7 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
         coherence: {
             gateA: result.gates.gateA.verdict,
             failingChecks,
-            mayRealize: (result.gates.gateA.knowledgeVerdict ?? result.gates.gateA.verdict) === 'PASS',
-            deferred: [...(result.gates.gateA.deferred ?? [])],
+            ...authorization(result, notEstablished, open, existential),
         },
         game,
         derived: derived.sort((a, b) => a.lineId.localeCompare(b.lineId)),

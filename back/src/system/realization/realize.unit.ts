@@ -30,7 +30,16 @@ const DOCS = path.resolve(__dirname, '../../../../docs/audits/conformance')
 function eligible(overrides: Partial<ResolvedGame> = {}): ResolvedGame {
     return {
         provenance: { inputDigest: 'digest-1', engineVersion: 'e', registerVersion: 'r', derivationRulesVersion: 'd' },
-        coherence: { gateA: 'PASS', failingChecks: [], mayRealize: true, deferred: [] },
+        coherence: {
+            gateA: 'PASS',
+            failingChecks: [],
+            preRealization: 'PRE_REALIZATION_SATISFIED',
+            realizationAuthorized: true,
+            notAuthorizedBecause: [],
+            postRealizationRequired: [],
+            mayRealize: true,
+            deferred: [],
+        },
         game: { envelope: { players: 12 } },
         derived: [{ path: 'envelope.players', lineId: 'L-players', value: 12, resolvedBy: 'SESSION', support: [] }],
         open: [
@@ -267,7 +276,18 @@ test('DISTINCT_ON: the joint check runs only after every individual bound has pa
 // ---------------------------------------------------------------------------------------------
 
 test('a game Gate A did not pass may not be realized at all', () => {
-    const resolved = eligible({ coherence: { gateA: 'FAIL', failingChecks: ['GA-NO-FAILED-LINE'], mayRealize: false, deferred: [] } })
+    const resolved = eligible({
+        coherence: {
+            gateA: 'FAIL',
+            failingChecks: ['GA-NO-FAILED-LINE'],
+            preRealization: 'FAIL',
+            realizationAuthorized: false,
+            notAuthorizedBecause: ['a pre-realization Gate A invariant fails'],
+            postRealizationRequired: [],
+            mayRealize: false,
+            deferred: [],
+        },
+    })
     const result = realize(resolved, chooseScoring)
     assert.ok(isRefused(result))
     assert.match(result.because[0], /may not be realized: Gate A is FAIL \(GA-NO-FAILED-LINE\)/)
@@ -281,7 +301,16 @@ test('an open line left unchosen is refused — a concrete game has no remaining
 
 test('every reason is reported, not just the first', () => {
     const resolved = eligible({
-        coherence: { gateA: 'FAIL', failingChecks: [], mayRealize: false, deferred: [] },
+        coherence: {
+            gateA: 'FAIL',
+            failingChecks: [],
+            preRealization: 'FAIL',
+            realizationAuthorized: false,
+            notAuthorizedBecause: ['a pre-realization Gate A invariant fails'],
+            postRealizationRequired: [],
+            mayRealize: false,
+            deferred: [],
+        },
         open: [...eligible().open, { path: 'space.shape', lineId: 'L-shape', elementId: null, permittedBy: null, permitted: null, bounds: [], kind: 'FREE(a)' }],
     })
     const result = realize(resolved, [])
@@ -407,22 +436,38 @@ test('the live corpus resolved game is refused, and the refusal names Gate A', (
     assert.match(realized.because[0], /may not be realized: Gate A is FAIL/)
 })
 
-test('A04 is NOT yet eligible, and the three clauses blocking it are a representation limitation', () => {
-    // Stated as a test so it cannot be mistaken for progress it is not. Gate A's knowledge verdict
-    // does NOT pass on A04. Two clauses are genuinely deferred — realization chooses the primary-event
-    // kind and instantiates the teams — but three are blocked because **geometry is authored as
-    // prose**: "touchline-adjacent", "the full axis extent, end line to end line". A realized value
-    // drawn from such a bound is the same prose, so §1.9 can no more compare it after realization than
-    // before. That is a representation question, not a sequencing one, and deferring it would have
-    // promised a later check that cannot run.
+test('A04 is authorized for realization, and the three states stay distinct', () => {
+    // His ruling of 30 September split Gate A by evaluability, so the four invariants whose subject
+    // realization supplies are evaluated after it. The state is deliberately NOT reported as `PASS`:
+    // "this keeps 'may realize' distinct from 'game is validated'."
     const resolved = a04()
-    assert.equal(resolved.coherence.mayRealize, false)
-    assert.equal(resolved.coherence.deferred.length, 2)
+    assert.equal(resolved.coherence.preRealization, 'PRE_REALIZATION_SATISFIED')
+    assert.notEqual(resolved.coherence.preRealization, 'PASS', 'the pre-realization state must not read as full Gate A passing')
+    assert.equal(resolved.coherence.realizationAuthorized, true)
+    assert.deepEqual(resolved.coherence.notAuthorizedBecause, [])
+
+    // And what a concrete game still owes is carried, naming what realization must supply for each.
+    assert.ok(resolved.coherence.postRealizationRequired.length > 0)
     assert.deepEqual(
-        resolved.coherence.deferred.map(d => d.checkId).sort(),
-        ['GA-ONE-PRIMARY-EVENT', 'GA-ROSTER-SUM'],
-        'only the clauses realization actually settles are deferred',
+        [...new Set(resolved.coherence.postRealizationRequired.map(d => d.checkId))].sort(),
+        ['GA-ENVELOPE-FIT', 'GA-LAYOUT-FEASIBLE', 'GA-ONE-PRIMARY-EVENT', 'GA-ROSTER-SUM'],
+        'exactly the four he ruled post-realization',
     )
+    for (const owed of resolved.coherence.postRealizationRequired) assert.ok(owed.owes.length > 0, `${owed.checkId} owes nothing stated`)
+})
+
+test('A05 is NOT authorized, and says which pre-realization invariant is unsatisfied', () => {
+    // The counterpart, so the authorization is shown to discriminate rather than to wave things
+    // through: A05's GA-INFORMATION and GA-REFERENCE-INTEGRITY are pre-realization and unevaluable, so
+    // realization does not proceed.
+    const input = derivationInputFor(selectFor('A05', null))
+    const result = runDerivation(input)
+    if (isStampedHalt(result)) return assert.fail('unexpected halt')
+    const resolved = assembleResolvedGame(result, (runStages0to10(input) as any).classes, indexRegister(input.register), input.contracts)
+
+    assert.equal(resolved.coherence.realizationAuthorized, false)
+    assert.equal(resolved.coherence.notAuthorizedBecause.length, 1)
+    assert.match(resolved.coherence.notAuthorizedBecause[0], /cannot be evaluated/)
 })
 
 /** A04's resolved game, assembled from the live selection. */
@@ -433,19 +478,17 @@ function a04(): ResolvedGame {
     return assembleResolvedGame(result, (runStages0to10(input) as any).classes, indexRegister(input.register), input.contracts)
 }
 
-test('DRY RUN past the gate: A04 produces a concrete game and all three conditions hold', () => {
-    // **This is a dry run, not an acceptance pass.** A04 is not eligible (above), so the gate is
-    // stepped over here deliberately and only to answer a different question: if the gate were
-    // satisfied, would the pathway produce a faithful concrete game from real selected knowledge?
-    // It does, and the three conditions hold on it — which is worth knowing while the representation
-    // question is open, and worth keeping honest about.
+test('THE ACCEPTANCE TEST: A04 realizes, and all three conditions hold on the concrete game', () => {
+    // The first game through the pathway, on real selected knowledge and through the gate rather than
+    // around it. The three conditions are his and unchanged: nothing lost, nothing invented, nothing
+    // closed without authority.
     const resolved = a04()
-    const stepped: ResolvedGame = { ...resolved, coherence: { ...resolved.coherence, mayRealize: true } }
+    assert.equal(resolved.coherence.realizationAuthorized, true, 'through the gate, not around it')
 
     const supplied = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../../../docs/audits/a04-realization-choices.json'), 'utf8'))
-    const realized = realize(stepped, supplied.choices, supplied.instantiations)
+    const realized = realize(resolved, supplied.choices, supplied.instantiations)
     if (isRefused(realized)) return assert.fail(`refused: ${realized.because.join('; ')}`)
-    const resolvedForChecks = stepped
+    const resolvedForChecks = resolved
 
     assert.deepEqual(checkRealization(resolvedForChecks, realized), {
         nothingClosedWithoutAuthority: [],

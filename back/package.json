@@ -19,7 +19,8 @@
         "bounded:selection": "ts-node --files -r tsconfig-paths/register ./src/system/derivation/run-bounded-selection.ts",
         "corpus:unestablished": "ts-node --files -r tsconfig-paths/register ./src/system/derivation/run-unestablished-evidence.ts",
         "lens:trace": "ts-node --files -r tsconfig-paths/register ./src/system/test-library/run-lens-causal-trace.ts",
-        "corpus:placement": "ts-node --files -r tsconfig-paths/register ./src/system/derivation/run-placement-test.ts"
+        "corpus:placement": "ts-node --files -r tsconfig-paths/register ./src/system/derivation/run-placement-test.ts",
+        "first:game": "ts-node --files -r tsconfig-paths/register ./src/system/realization/run-first-game.ts"
     },
     "nodemonConfig": {
         "env": {
