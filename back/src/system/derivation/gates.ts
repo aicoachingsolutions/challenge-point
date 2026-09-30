@@ -164,6 +164,15 @@ class Probe {
             return { state: 'ABSENT' }
         }
         if (line.lineState === 'WITHDRAWN') return { state: 'ABSENT' }
+        // **An established absence is an answer, not an obstruction** — his governing distinction of
+        // 29 September, applied here as well as in GA-NO-FAILED-LINE. A row the knowledge EXCLUDED is
+        // stated not to be part of this structure; a row it declared it does not constrain imposes no
+        // requirement. Either way the property legitimately has no value, and a check that treats
+        // that as "I cannot tell" reports itself unevaluable over a question that is in fact settled.
+        // Only a required-but-unestablished line still blocks.
+        if (line.verdict === 'NOT_AUTHORED' && (line.reason === 'excluded' || line.reason === 'not constrained')) {
+            return { state: 'ABSENT' }
+        }
         if (line.lineState === 'CONDITIONAL' && !line.verdict) {
             if (!this.blockedBy.includes(lineId)) this.blockedBy.push(lineId)
             if (!this.blockKind.has(lineId)) this.blockKind.set(lineId, 'KNOWLEDGE_GAP')
@@ -979,21 +988,54 @@ function gaTimeWindows(ctx: GateContext): CheckOutcome {
  * check that owns incompleteness. The others block on the lines they need; this one states plainly that
  * the game is not complete, and names every line.
  */
+/**
+ * `GA-NO-FAILED-LINE`, under his governing distinction of 29 September:
+ *
+ *   > *A line is a realization-blocking gap only when the resolved game **requires** that property to
+ *   > be established and no authority establishes it.*
+ *
+ * A line with no value is therefore not automatically a failure, and the four cases are kept apart
+ * rather than collapsed into one count:
+ *
+ *   | | |
+ *   |---|---|
+ *   | **required but unestablished** | an object declares it needs the row, or claims it and nothing resolved — **blocks** |
+ *   | **explicitly excluded** | the knowledge establishes the property is not part of this structure — an *established absence*, not a missing value |
+ *   | **not constrained** | the object looked and imposes no requirement — no value and no realization authority, but no failure either |
+ *   | **open with authority** | a realization choice; never in this check |
+ *
+ * **The obvious danger is that this becomes a way of not failing.** Two things hold it: requiredness
+ * is read from what an object *declared about the row*, never from the mere absence of a value; and
+ * every non-blocking line is still counted and named in the reason, so nothing leaves the report. A
+ * property nobody requires and nobody excludes is simply not part of this game — and a realization
+ * layer may not fill it either, because it never appears as `open`.
+ */
 function gaNoFailedLine(ctx: GateContext): CheckOutcome {
-    const CLAUSE_TEXT = 'no enumerated line is failed'
+    const CLAUSE_TEXT = 'every property the resolved game requires is established'
     const probe = new Probe(ctx, 'GA-NO-FAILED-LINE')
-    const enumerated = [...ctx.classified.values()].filter(l => l.lineState === 'ENUMERATED').length
-    const failed = [...ctx.classified.values()]
-        .filter(l => l.lineState === 'ENUMERATED' && (l.verdict === 'NOT_AUTHORED' || l.verdict === 'UNRESOLVED' || l.verdict === 'INVENTED'))
+    const lines = [...ctx.classified.values()].filter(l => l.lineState === 'ENUMERATED')
+    const enumerated = lines.length
+    const withoutValue = lines.filter(l => l.verdict === 'NOT_AUTHORED' || l.verdict === 'UNRESOLVED' || l.verdict === 'INVENTED')
+
+    // `UNRESOLVED` and `INVENTED` always block: something did establish a value and it is unusable,
+    // which is a different failure from nobody establishing one.
+    const blocking = withoutValue
+        .filter(l => l.verdict !== 'NOT_AUTHORED' || l.reason === 'declared gap' || l.reason === 'claimed but unresolved')
         .map(l => l.lineId)
         .sort()
+    const excluded = withoutValue.filter(l => l.reason === 'excluded').length
+    const notConstrained = withoutValue.filter(l => l.reason === 'not constrained').length
+    const unspoken = withoutValue.filter(l => l.reason === 'coverage' || l.reason === 'no coverage').length
 
-    for (const lineId of failed) if (!probe.subjects.includes(lineId)) probe.subjects.push(lineId)
+    for (const lineId of blocking) if (!probe.subjects.includes(lineId)) probe.subjects.push(lineId)
+    const aside = `${excluded} excluded, ${notConstrained} not constrained, ${unspoken} unspoken — established absences and non-requirements, not missing values`
     return result(
         'GA-NO-FAILED-LINE',
         probe,
-        [failed.length ? fail(CLAUSE_TEXT, enumerated) : pass(CLAUSE_TEXT, enumerated)],
-        failed.length ? `${failed.length} enumerated line(s) are failed: ${failed.slice(0, 6).join(', ')}${failed.length > 6 ? ', …' : ''}` : 'every enumerated line is derived or open',
+        [blocking.length ? fail(CLAUSE_TEXT, enumerated) : pass(CLAUSE_TEXT, enumerated)],
+        blocking.length
+            ? `${blocking.length} required line(s) are unestablished: ${blocking.slice(0, 6).join(', ')}${blocking.length > 6 ? ', …' : ''}. Beside them, ${aside}`
+            : `every required property is established. Beside them, ${aside}`,
     )
 }
 

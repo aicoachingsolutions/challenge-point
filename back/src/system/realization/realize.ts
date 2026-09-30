@@ -225,6 +225,45 @@ export function realize(resolved: ResolvedGame, choices: Choice[], instantiation
 
     if (because.length) return { outcome: 'REFUSED', because }
 
+    // **DISTINCT_ON — the joint check, after every individual bound has already passed.**
+    // This is the case the condition exists for: each placement can sit inside its own authored
+    // bound and the *set* still be invalid, because two members ended up in the same place. Nothing
+    // is repaired here; the realization is refused and the offending pair is named.
+    const jointFailures: string[] = []
+    for (const condition of resolved.jointConditions ?? []) {
+        if (condition.kind !== 'DISTINCT_ON') continue
+        // One tuple per element, over the rows the condition names, taking each value from the
+        // recorded choice where realization made one and from the derived value otherwise.
+        const tuples = new Map<string, string>()
+        for (const entry of [...resolved.derived, ...recorded.map(c => ({ path: c.path, lineId: c.lineId, value: c.value }))]) {
+            const parts = splitElementPath(entry.path)
+            if (!parts || !parts.container.startsWith(condition.path.replace(/\[\]$/, ''))) continue
+            const row = entry.lineId.split('::').pop()!
+            if (!condition.rows.includes(row)) continue
+            tuples.set(`${parts.elementId}|${row}`, JSON.stringify(entry.value))
+        }
+        const byElement = new Map<string, string[]>()
+        for (const [key, value] of tuples) {
+            const elementId = key.split('|')[0]
+            byElement.set(elementId, [...(byElement.get(elementId) ?? []), `${key.split('|')[1]}=${value}`])
+        }
+        const seen = new Map<string, string>()
+        for (const [elementId, fields] of [...byElement.entries()].sort()) {
+            if (fields.length !== condition.rows.length) continue // not fully placed; nothing to compare yet
+            const signature = fields.sort().join(', ')
+            const clash = seen.get(signature)
+            if (clash) {
+                jointFailures.push(
+                    `${condition.from.itemId}: ${clash} and ${elementId} occupy the same ${condition.rows.join('/')} (${signature}). ` +
+                        `Each placement is inside its own bound; the set is not — "${condition.asAuthored}"`,
+                )
+            } else {
+                seen.set(signature, elementId)
+            }
+        }
+    }
+    if (jointFailures.length) return { outcome: 'REFUSED', because: jointFailures }
+
     // Nothing above failed, so the concrete game is the derived one plus the authorized additions.
     const game: Record<string, unknown> = JSON.parse(JSON.stringify(resolved.game))
     for (const choice of recorded) {

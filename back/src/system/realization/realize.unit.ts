@@ -18,7 +18,7 @@ import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame, ResolvedGame } from '../derivation/resolved-game'
-import { checkRealization, isRefused, realize, Realized } from './realize'
+import { checkRealization, Choice, isRefused, realize, Realized } from './realize'
 
 const DOCS = path.resolve(__dirname, '../../../../docs/audits/conformance')
 
@@ -45,6 +45,7 @@ function eligible(overrides: Partial<ResolvedGame> = {}): ResolvedGame {
         ],
         existential: [],
         notEstablished: [],
+        jointConditions: [],
         counts: { derived: 1, open: 1, existential: 0, notEstablished: 0 },
         ...overrides,
     }
@@ -192,6 +193,72 @@ test('a preferred default is offered, never enforced as a ceiling', () => {
 
     // The required floor still bites.
     assert.ok(isRefused(realize(resolved, [{ lineId: 'L-neutrals', value: 0, because: 'below the required floor' }])))
+})
+
+// ---------------------------------------------------------------------------------------------
+// DISTINCT_ON — the case the whole condition exists for.
+// ---------------------------------------------------------------------------------------------
+
+/** Two candidate objects, each placeable anywhere inside the same authored bound. */
+function twoCandidates(): ResolvedGame {
+    return eligible({
+        game: { objects: [{ elementId: 'cand-a', kind: 'goal' }, { elementId: 'cand-b', kind: 'goal' }] },
+        derived: [
+            { path: 'objects[cand-a].kind', lineId: 'L-a-kind', value: 'goal', resolvedBy: 'CONTRACT', support: [] },
+            { path: 'objects[cand-b].kind', lineId: 'L-b-kind', value: 'goal', resolvedBy: 'CONTRACT', support: [] },
+        ],
+        open: [
+            { path: 'objects[cand-a].position.along', lineId: 'c:X:a::O4', elementId: 'cand-a', permittedBy: null, permitted: null, bounds: [{ kind: 'COUNT', min: 0, max: 40 }], kind: 'FREE(a)' },
+            { path: 'objects[cand-a].position.across', lineId: 'c:X:a::O5', elementId: 'cand-a', permittedBy: null, permitted: null, bounds: [{ kind: 'COUNT', min: 0, max: 30 }], kind: 'FREE(a)' },
+            { path: 'objects[cand-b].position.along', lineId: 'c:X:b::O4', elementId: 'cand-b', permittedBy: null, permitted: null, bounds: [{ kind: 'COUNT', min: 0, max: 40 }], kind: 'FREE(a)' },
+            { path: 'objects[cand-b].position.across', lineId: 'c:X:b::O5', elementId: 'cand-b', permittedBy: null, permitted: null, bounds: [{ kind: 'COUNT', min: 0, max: 30 }], kind: 'FREE(a)' },
+        ],
+        jointConditions: [
+            {
+                kind: 'DISTINCT_ON',
+                path: 'objects[]',
+                rows: ['O4', 'O5'],
+                asAuthored: "each candidate's (along, across) position differs from every other candidate's in the same set; no separation distance",
+                from: { contractId: 'restated:VARIABLE-TARGET-CONDITION', itemId: 'VARTARGET-03.a' },
+            },
+        ],
+    })
+}
+
+const place = (a: [number, number], b: [number, number]): Choice[] => [
+    { lineId: 'c:X:a::O4', value: a[0], because: 'inside its bound' },
+    { lineId: 'c:X:a::O5', value: a[1], because: 'inside its bound' },
+    { lineId: 'c:X:b::O4', value: b[0], because: 'inside its bound' },
+    { lineId: 'c:X:b::O5', value: b[1], because: 'inside its bound' },
+]
+
+test('DISTINCT_ON: every individual bound is satisfied and the SET is still refused', () => {
+    // This is the whole point of the condition, and the thing a per-element bound could never say.
+    // Both candidates sit at (10, 15): inside 0-40 along and 0-30 across, every individual bound
+    // honoured, and the set invalid because they are in the same place.
+    const resolved = twoCandidates()
+    const result = realize(resolved, place([10, 15], [10, 15]))
+    assert.ok(isRefused(result), 'independently valid placements can be jointly invalid')
+    assert.equal(result.because.length, 1)
+    assert.match(result.because[0], /VARTARGET-03\.a/)
+    assert.match(result.because[0], /cand-a and cand-b occupy the same O4\/O5/)
+    assert.match(result.because[0], /Each placement is inside its own bound; the set is not/)
+})
+
+test('DISTINCT_ON: distinct placements pass, and differing on one row is enough', () => {
+    assert.equal(realize(twoCandidates(), place([10, 15], [20, 25])).outcome, 'REALIZED')
+    // Pairwise distinctness over the tuple, not over each row separately: sharing `along` is fine
+    // so long as the pair differs somewhere. No minimum separation is implied or required.
+    assert.equal(realize(twoCandidates(), place([10, 15], [10, 16])).outcome, 'REALIZED')
+})
+
+test('DISTINCT_ON: the joint check runs only after every individual bound has passed', () => {
+    // A value outside its own bound is refused for THAT reason, and the joint condition is not
+    // reported on top of it — a realizer should fix the bound violation first.
+    const result = realize(twoCandidates(), place([10, 15], [99, 15]))
+    assert.ok(isRefused(result))
+    assert.equal(result.because.length, 1)
+    assert.match(result.because[0], /above the authored maximum 40/)
 })
 
 // ---------------------------------------------------------------------------------------------

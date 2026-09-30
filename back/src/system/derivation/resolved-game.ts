@@ -26,7 +26,7 @@
 
 import { DerivationResult, ResolutionEntry } from './emit'
 import { RegisterIndex } from './register'
-import { ElementClass, ItemRef, SupportRef } from './types'
+import { ElementClass, ItemRef, LoadedContract, SupportRef } from './types'
 
 /** A line an authority left open, and everything the realization layer needs to close it. */
 export interface OpenChoice {
@@ -75,6 +75,29 @@ export interface ExistentialClaim {
     cardinality: { min: number | null; max: number | null }
 }
 
+/**
+ * **`DISTINCT_ON`** — a joint realization-validity condition, adopted 29 September.
+ *
+ * Over a named set, the members must differ pairwise on the stated field rows. No metric, no minimum
+ * separation, no inferred geometry, and **no line of its own** — it is not a placement value and
+ * nothing derives from it. It exists because three independently valid placements can still be
+ * jointly invalid, and before this the constraint was flattened into a per-element bound that could
+ * not express that.
+ *
+ * Realization chooses each placement against its own bound as usual, and is then refused if the
+ * resulting set violates this.
+ */
+export interface JointCondition {
+    kind: 'DISTINCT_ON'
+    /** The collection whose members are constrained, by register path. */
+    path: string
+    /** The field rows the members must differ on, as register row ids. */
+    rows: string[]
+    /** The authored words, kept beside the typed form. */
+    asAuthored: string
+    from: ItemRef
+}
+
 export interface ResolvedGame {
     /** §8 — what this game was assembled from. Two runs of one input give two identical objects. */
     provenance: {
@@ -106,6 +129,8 @@ export interface ResolvedGame {
     open: OpenChoice[]
     existential: ExistentialClaim[]
     notEstablished: NotEstablished[]
+    /** Conditions over a set of members, which no single line can carry. */
+    jointConditions: JointCondition[]
     counts: Record<string, number>
 }
 
@@ -147,7 +172,7 @@ function place(root: Record<string, unknown>, path: string, value: unknown): voi
  * SD-97 stopped those assertions enumerating lines and they therefore appear nowhere in `resolution`.
  * Leaving them out would hide, from the layer that has to satisfy them, that they exist at all.
  */
-export function assembleResolvedGame(result: DerivationResult, classes: ElementClass[], index: RegisterIndex): ResolvedGame {
+export function assembleResolvedGame(result: DerivationResult, classes: ElementClass[], index: RegisterIndex, contracts: LoadedContract[] = []): ResolvedGame {
     const rows = index.rows
     const game: Record<string, unknown> = {}
     const derived: ResolvedGame['derived'] = []
@@ -262,6 +287,23 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
         }))
         .sort((a, b) => a.classId.localeCompare(b.classId))
 
+    // DISTINCT_ON assertions, read from the contracts rather than from any line — they take none.
+    const jointConditions: JointCondition[] = []
+    for (const contract of contracts) {
+        for (const item of contract.items ?? []) {
+            const distinctOn = (item as any).distinctOn
+            if (!distinctOn || !Array.isArray(distinctOn.rows)) continue
+            jointConditions.push({
+                kind: 'DISTINCT_ON',
+                path: rows.get(String(item.row))?.path ?? String(item.row),
+                rows: distinctOn.rows.map(String),
+                asAuthored: String(item.value ?? ''),
+                from: { contractId: contract.contractId, itemId: item.itemId },
+            })
+        }
+    }
+    jointConditions.sort((a, b) => `${a.from.contractId}::${a.from.itemId}`.localeCompare(`${b.from.contractId}::${b.from.itemId}`))
+
     const failingChecks = result.gates.gateA.checks.filter(c => c.verdict === 'FAIL').map(c => c.checkId).sort()
 
     return {
@@ -280,6 +322,7 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
         derived: derived.sort((a, b) => a.lineId.localeCompare(b.lineId)),
         open: open.sort((a, b) => a.lineId.localeCompare(b.lineId)),
         existential,
+        jointConditions,
         notEstablished: notEstablished.sort((a, b) => a.lineId.localeCompare(b.lineId)),
         counts: {
             derived: derived.length,

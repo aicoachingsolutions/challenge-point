@@ -306,12 +306,18 @@
   },
   {
    "item": "restated:VARIABLE-TARGET-CONDITION::VARTARGET-03.a",
-   "ruling": "C29b",
+   "ruling": "C29b/C29e",
    "set": {
     "relational": true,
-    "fitNote": "MARKED RELATIONAL, 29 September (Christian): \"Do not flatten ‘each candidate’s position differs from every other candidate’s position’ into independent per-element bounds. That is a relationship across a set.\" The restatement had written one joint constraint as a per-element bound on O4, so it reached three separate object classes as three independent bounds — and three independently valid placements can still violate it. It is therefore NOT a bound on any one line. Until the relationship itself is representable the contribution bounds nothing and bars per-line placement freedom on the lines it reaches, rather than licensing a freedom the engine could not keep. Value, source and provenance are unchanged."
+    "fitNote": "MARKED RELATIONAL 29 September, then TYPED AS DISTINCT_ON the same day once Christian adopted the assertion. The restatement had written one joint constraint as a per-element bound on O4, so it reached three separate object classes as three independent bounds — and three independently valid placements can still violate it. It is therefore NOT a bound on any one line, and contributes none. It is carried instead as a DISTINCT_ON assertion over the object collection: members differ pairwise on O4 and O5. No metric, no minimum separation — the source says explicitly \"no separation distance\" — no inferred geometry, and no line of its own. Realization chooses each placement against its own bound and is refused if the resulting SET violates it. Value, source and provenance are unchanged.",
+    "distinctOn": {
+     "rows": [
+      "O4",
+      "O5"
+     ]
+    }
    },
-   "why": "a joint constraint over a set of candidates was flattened into a per-element bound, which both misstates the knowledge and would license a per-line realization freedom that cannot honour it. Marked relational pending the smallest representation that preserves it"
+   "why": "a joint constraint over a set of candidates had been flattened into a per-element bound, which both misstates the knowledge and would license a per-line realization freedom that cannot honour it. Typed as DISTINCT_ON so each placement stays freely choosable within its own bound while the set is checked jointly"
   },
   {
    "item": "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-01.a",
@@ -402,6 +408,111 @@
     "fitNote": "SD-76. The entailment, made visible: the same source already carried as NEUTRAL-01.a (P5 count >= 1) entails that a neutral participant group is present, independently of the participation-state property NEUTRAL-05.a. Restated onto P11 so that state has an element to belong to. No existence is authored here."
    },
    "why": "the existing source independently entails the neutral group, so its existence is restated rather than left a gap"
+  },
+  {
+   "contractId": "blind:PASS-COMBINATION-GATE",
+   "after": "PCG-13",
+   "ruling": "C29d",
+   "item": {
+    "itemId": "PCG-14.a",
+    "row": "V18",
+    "selector": "subject=connected-pass count",
+    "requirement": "EQUALS",
+    "value": "TEAMMATE_ACTION",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "OWNER_RULING",
+    "basisEvidence": "Christian, 2026-09-29: \"The current connected-pass count is revealed immediately following each qualifying pass and updates progressively as the count changes. The current count is available to all players. When the count resets, the revealed state resets with it.\" Owner-authored canonical intent, stated as such. It is NOT a reading of the source sentence (\"Coach tracks the count visibly (count out loud or use a counter)\"), which could not choose between a standing display and an event-driven reveal — and that ambiguity keeps its own provenance on PCG-12.",
+    "checkability": "STRUCTURAL",
+    "structuralClause": "whole item",
+    "fitNote": "IE-D006 TRIGGER_TYPE. \"Immediately following each qualifying pass\" — a pass is a teammate action, which is a registered IE-D006 value. IE-D006’s integrity condition is met: a completed pass is detectable and is causally connected to the count it changes."
+   },
+   "why": "the connected-pass information rule authored as one coherent decision across the canonical IE dimensions, rather than five fields filled independently"
+  },
+  {
+   "contractId": "blind:PASS-COMBINATION-GATE",
+   "after": "PCG-13",
+   "ruling": "C29d",
+   "item": {
+    "itemId": "PCG-14.b",
+    "row": "V19",
+    "selector": "subject=connected-pass count",
+    "requirement": "EQUALS",
+    "value": "IMMEDIATE_AFTER_TRIGGER",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "OWNER_RULING",
+    "basisEvidence": "Christian, 2026-09-29: \"The current connected-pass count is revealed immediately following each qualifying pass and updates progressively as the count changes. The current count is available to all players. When the count resets, the revealed state resets with it.\" Owner-authored canonical intent, stated as such. It is NOT a reading of the source sentence (\"Coach tracks the count visibly (count out loud or use a counter)\"), which could not choose between a standing display and an event-driven reveal — and that ambiguity keeps its own provenance on PCG-12.",
+    "checkability": "STRUCTURAL",
+    "structuralClause": "whole item",
+    "fitNote": "IE-D007 REVEAL_TIMING. \"Revealed immediately following\" is the registered value verbatim."
+   },
+   "why": "the connected-pass information rule authored as one coherent decision across the canonical IE dimensions, rather than five fields filled independently"
+  },
+  {
+   "contractId": "blind:PASS-COMBINATION-GATE",
+   "after": "PCG-13",
+   "ruling": "C29d",
+   "item": {
+    "itemId": "PCG-14.c",
+    "row": "V20",
+    "selector": "subject=connected-pass count",
+    "requirement": "EQUALS",
+    "value": "GRADUAL",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "OWNER_RULING",
+    "basisEvidence": "Christian, 2026-09-29: \"The current connected-pass count is revealed immediately following each qualifying pass and updates progressively as the count changes. The current count is available to all players. When the count resets, the revealed state resets with it.\" Owner-authored canonical intent, stated as such. It is NOT a reading of the source sentence (\"Coach tracks the count visibly (count out loud or use a counter)\"), which could not choose between a standing display and an event-driven reveal — and that ambiguity keeps its own provenance on PCG-12.",
+    "checkability": "STRUCTURAL",
+    "structuralClause": "whole item",
+    "fitNote": "IE-D008 REVEAL_PROGRESSION, whose question is \"does information appear all at once or become increasingly specified through unfolding interaction?\". \"Updates progressively as the count changes\" is the second. The reset is deliberately NOT recorded here as REVERSIBLE — see PCG-14.d."
+   },
+   "why": "the connected-pass information rule authored as one coherent decision across the canonical IE dimensions, rather than five fields filled independently"
+  },
+  {
+   "contractId": "blind:PASS-COMBINATION-GATE",
+   "after": "PCG-13",
+   "ruling": "C29d",
+   "item": {
+    "itemId": "PCG-14.d",
+    "row": "V21",
+    "selector": "subject=connected-pass count",
+    "requirement": "EQUALS",
+    "value": "TRANSITION_DEPENDENT",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "OWNER_RULING",
+    "basisEvidence": "Christian, 2026-09-29: \"The current connected-pass count is revealed immediately following each qualifying pass and updates progressively as the count changes. The current count is available to all players. When the count resets, the revealed state resets with it.\" Owner-authored canonical intent, stated as such. It is NOT a reading of the source sentence (\"Coach tracks the count visibly (count out loud or use a counter)\"), which could not choose between a standing display and an event-driven reveal — and that ambiguity keeps its own provenance on PCG-12.",
+    "checkability": "STRUCTURAL",
+    "structuralClause": "whole item",
+    "fitNote": "IE-D011 STATE_DEPENDENCY, whose question is \"is the meaning or availability of information dependent upon the current functional state?\". \"When the count resets, the revealed state resets with it\" is exactly that, and the reset is a detectable transition that changes what is worth doing — IE-D011’s integrity condition. THE APPARENT GRADUAL-vs-REVERSIBLE CONFLICT IS NOT REAL: they are one value each on two different dimensions, not two values on one field. Recording the reset as IE-D008 REVERSIBLE would in fact VIOLATE IE-D008’s own integrity condition, which requires later information to \"refine rather than arbitrarily overturn the task\"."
+   },
+   "why": "the connected-pass information rule authored as one coherent decision across the canonical IE dimensions, rather than five fields filled independently"
+  },
+  {
+   "contractId": "blind:PASS-COMBINATION-GATE",
+   "after": "PCG-13",
+   "ruling": "C29d",
+   "item": {
+    "itemId": "PCG-14.e",
+    "row": "V22",
+    "selector": "subject=connected-pass count",
+    "requirement": "EQUALS",
+    "value": "ALL",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "OWNER_RULING",
+    "basisEvidence": "Christian, 2026-09-29: \"The current connected-pass count is revealed immediately following each qualifying pass and updates progressively as the count changes. The current count is available to all players. When the count resets, the revealed state resets with it.\" Owner-authored canonical intent, stated as such. It is NOT a reading of the source sentence (\"Coach tracks the count visibly (count out loud or use a counter)\"), which could not choose between a standing display and an event-driven reveal — and that ambiguity keeps its own provenance on PCG-12.",
+    "checkability": "STRUCTURAL",
+    "structuralClause": "whole item",
+    "fitNote": "IE-D013 ACCESS_HOLDER. PCG-13 already held ALL but as an ASSUMED reading of \"visibly\" and \"out loud\", with the gap recorded: \"The knowledge names no holder.\" This states the same value as AUTHORED knowledge. PCG-13 is left exactly as it stands so the assumption and the decision remain separately readable."
+   },
+   "why": "the connected-pass information rule authored as one coherent decision across the canonical IE dimensions, rather than five fields filled independently"
   }
  ],
  "declarationScope": {

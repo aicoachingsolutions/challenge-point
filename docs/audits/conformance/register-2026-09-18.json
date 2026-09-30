@@ -1317,12 +1317,11 @@
     "selectorAttribute": "trigger",
     "sameElement": true,
     "in": [
-     "OUT_END_LINE",
      "OUT_TOUCHLINE",
      "REGION_ENTRY"
     ]
    },
-   "text": "region is the region qualifier. triggerQualifiers already states REGION_ENTRY takes a region reference (T1c); the out-of-play triggers are included because a ball that leaves the field leaves it somewhere. Deliberately WIDER than strictly necessary - this rule may only remove a line it can positively show does not belong."
+   "text": "NARROWED 29 September on Christian’s ruling: \"T1c does not apply to OUT_END_LINE merely because the ball exits somewhere along the end line. T1b establishes whose end line. T4 owns restart placement. Do not duplicate placement semantics through T1c.\" It remains for REGION_ENTRY, where triggerQualifiers already states the trigger takes a region reference, and for OUT_TOUCHLINE, where the restart place genuinely is where the ball crossed."
   },
   "generalRule": "Adopted 29 September on Christian ruling: a transition qualifier applies only where the transition trigger semantics make that qualifier structurally applicable. An inapplicable qualifier is WITHDRAWN; its absence is never a knowledge gap. Expressed as an applicability rule over the trigger, not as a special case for turnover - POSSESSION_CHANGE is named nowhere, it simply fails every out-of-play condition.",
   "selectorGrammar": "Added 29 September. An entry may condition on selectorAttribute instead of row. A selector attribute is fixed by stage 2 when the class is individuated, so the condition is decided at enumeration and the line is WITHDRAWN there rather than left CONDITIONAL on a governing line that can never move. Where the selector does not fix the attribute the condition is UNDECIDABLE and the line is KEPT, so an applicability rule can never hide a real gap."

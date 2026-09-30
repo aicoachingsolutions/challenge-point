@@ -144,7 +144,7 @@ if (require.main === module) {
         process.exit(1)
     }
     const staged: any = runStages0to10(input)
-    const game = assembleResolvedGame(result, staged.classes, indexRegister(input.register))
+    const game = assembleResolvedGame(result, staged.classes, indexRegister(input.register), input.contracts)
 
     console.log(`\nDERIVATION — ${input.contracts.length} contract(s)`)
     console.log('-'.repeat(60))

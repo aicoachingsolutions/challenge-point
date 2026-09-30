@@ -443,16 +443,26 @@ function boundsOf(item: any): Bounds {
  * reaching the row bars openness.
  */
 /**
- * Every element some other authored contribution points at.
+ * Elements whose placement would **settle a reference that is not otherwise settled**.
  *
- * His sixth ruling, and the reason this exists: *"If choosing its location determines the objective
- * referent or scoring relationship, realization does not have authority to make that structural
- * decision merely because it is geometric."*
+ * The rule it enforces is his: *"If choosing its location determines the objective referent or
+ * scoring relationship, realization does not have authority to make that structural decision merely
+ * because it is geometric."*
  *
- * The target region is the case. Two objectives reference it, so where it sits across the axis is not
- * a free piece of geometry — it decides what the teams are scoring at. A referenced element is
- * therefore excluded from envelope-bounded placement freedom **by rule rather than by name**, so the
- * next referenced element is excluded too without anyone remembering to add it.
+ * **Narrowed 29 September, after tracing the case that motivated it.** The target region is
+ * referenced by two objectives — but through a **typed structural reference** (SD-98), which resolves
+ * by contract and item identity. Geometry cannot change what such a reference points at, so moving
+ * the region settles nothing: the referent, the role and the team are all already derived. What is
+ * unresolved there is the target's *extent*, and he has ruled that bounded realization inside the
+ * authored bound and the envelope.
+ *
+ * So a typed reference does **not** bar placement. What would is a reference that resolves by
+ * position rather than identity — *"the region at the attacking end"* — because then where the
+ * region sits decides which region is meant. `GA-REFERENCE-INTEGRITY` already separates the two, and
+ * only the second kind is collected here.
+ *
+ * On the present corpus that set is empty, and saying so is better than a guard that looks protective
+ * and fires on the wrong thing.
  */
 function referencedElements(contracts: LoadedContract[]): Set<string> {
     const referenced = new Set<string>()
@@ -460,7 +470,9 @@ function referencedElements(contracts: LoadedContract[]): Set<string> {
         if (Array.isArray(node)) return node.forEach(walk)
         if (!node || typeof node !== 'object') return
         const ref = (node as any).structuralRef
-        if (ref && ref.contractId && ref.itemId) referenced.add(`${ref.contractId}::${ref.itemId}`)
+        // A typed reference names its target; nothing geometric can redirect it. It is skipped, and
+        // its subtree is not walked, so an `asAuthored` gloss beside it is not mistaken for one.
+        if (ref && ref.contractId && ref.itemId) return
         Object.values(node as Record<string, unknown>).forEach(walk)
     }
     for (const contract of contracts) for (const item of contract.items ?? []) walk(item.value)
@@ -515,14 +527,11 @@ function mayBeOpen(
     // against each other — "each candidate's position differs from every other candidate's" — three
     // independently valid placements can still be jointly invalid, and a per-line freedom has no way
     // to see that. Until the relationship itself is representable the line is not open.
-    const relationalBound = record.bounding.find(b => relational.has(`${b.item.contractId}::${b.item.itemId}`))
-    if (relationalBound) {
-        stopped.push({
-            where: line.lineId,
-            why: `${relationalBound.item.itemId} constrains this element against others in its set, so this line carries no independent choice space (C29b)`,
-        })
-        return null
-    }
+    // A relational contribution no longer bars the line. Since `DISTINCT_ON` was adopted the joint
+    // constraint has somewhere of its own to live, so each placement may be chosen on its own bound
+    // and the *set* is checked afterwards — which is the point of it: independently valid placements
+    // can still be jointly invalid, and now something can say so.
+    void relational
 
     // SD-39: "OPEN is not produced by absence of knowledge. The property's existence and legitimate
     // choice space must already be supported."
@@ -688,7 +697,10 @@ export function deriveLines(
                     value: item.value,
                     support: { kind: 'CONTRACT_ITEM', contractId: ref.contractId, itemId: ref.itemId, relation: 'ENTAILS' },
                 })
-            } else if (isSupportCapable(item)) {
+            } else if (isSupportCapable(item) && !(item as any).relational) {
+                // A relational contribution constrains members of a set against each other, so it
+                // bounds no single line — that was the flattening. It is carried instead as a joint
+                // condition (DISTINCT_ON) and checked over the realized set.
                 record.bounding.push({
                     item: ref,
                     bound: boundsOf(item),

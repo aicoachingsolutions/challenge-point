@@ -17,6 +17,7 @@ import { runStages0to10 } from './engine'
 import { compare, toRational } from './rational'
 import { ContractItem, DerivationInput, LoadedContract } from './types'
 import { loadCorpusContracts, loadRegister } from './corpus'
+import { derivationInputFor, selectFor } from './run-bounded-selection'
 
 const REGISTER = loadRegister()
 
@@ -187,12 +188,56 @@ test('no Gate A check ever returns PASS while naming a line it was blocked on', 
 // GA-NO-FAILED-LINE — the check that owns incompleteness (§1.4).
 // ---------------------------------------------------------------------------------------------
 
-test('GA-NO-FAILED-LINE fails on a gapped line and names it', () => {
-    const result: any = runStages0to10(input([contract([item()])]))
-    const noFailed = check(result, 'GA-NO-FAILED-LINE')
+test('GA-NO-FAILED-LINE fails on a REQUIRED gapped line and names it', () => {
+    // Required, because an object declares it needs the row and cannot author it. His governing
+    // distinction of 29 September: "a line is a realization-blocking gap only when the resolved game
+    // requires that property to be established and no authority establishes it."
+    const c = contract([item()])
+    c.declarations.push({ row: 'S4', declaration: 'NOT_AUTHORED', note: 'needs a function it cannot author' })
+    const noFailed = check(runStages0to10(input([c])), 'GA-NO-FAILED-LINE')
     assert.equal(noFailed.verdict, 'FAIL')
     assert.ok(noFailed.subjects.length > 0, 'the failed lines are named, not merely counted')
-    assert.ok(/enumerated line\(s\) are failed/.test(noFailed.why))
+    assert.match(noFailed.why, /required line\(s\) are unestablished/)
+})
+
+test('GA-NO-FAILED-LINE distinguishes the four cases, and counts what it did not block on', () => {
+    // Each of the three non-blocking cases on its own, then all together. None may fail the check,
+    // and every one must still be reported — the danger here is a check that stops failing.
+    for (const declaration of ['EXCLUDED', 'NON_CLAIMED', 'UNDECLARED']) {
+        const c = contract([item()])
+        c.declarations.push({ row: 'S4', declaration, note: '' })
+        const outcome = check(runStages0to10(input([c])), 'GA-NO-FAILED-LINE')
+        assert.equal(outcome.verdict, 'PASS', `${declaration} is an established absence or a non-requirement, not a missing value`)
+        assert.match(outcome.why, /excluded, .* not constrained, .* unspoken/, 'the non-blocking lines are still counted in the reason')
+    }
+
+    // And a required line beside them still blocks: this must not become a way of never failing.
+    const mixed = contract([item()])
+    mixed.declarations.push({ row: 'S3', declaration: 'NON_CLAIMED', note: '' })
+    mixed.declarations.push({ row: 'S4', declaration: 'NOT_AUTHORED', note: 'needs it, cannot author it' })
+    const outcome = check(runStages0to10(input([mixed])), 'GA-NO-FAILED-LINE')
+    assert.equal(outcome.verdict, 'FAIL')
+    assert.ok(outcome.subjects.some((s: string) => s.endsWith('::S4')), 'the required line is named')
+    assert.ok(!outcome.subjects.some((s: string) => s.endsWith('::S3')), 'the non-constrained line is not blamed for it')
+})
+
+test('a game selecting no neutral-player knowledge is not incomplete for lacking neutral properties', () => {
+    // His explicit test. GF2 declares "performers outside the two teams are neither authored nor
+    // forbidden", so P5/P6a/P6b/P7 have no values — and that is a game with no neutrals, not an
+    // unfinished one. The second half matters as much: realization gets no authority from this.
+    const result: any = runStages0to10(derivationInputFor(selectFor('A01', 'A01-02')))
+    const neutralRows = ['P5', 'P6a', 'P6b', 'P7']
+    const neutralLines = [...result.classified.values()].filter((l: any) => neutralRows.includes(String(l.lineId).split('::').pop()))
+    assert.ok(neutralLines.length > 0, 'the rows are enumerated')
+    for (const line of neutralLines) {
+        assert.equal(line.reason, 'not constrained', `${line.lineId} is a non-requirement`)
+    }
+    assert.ok(
+        !check(result, 'GA-NO-FAILED-LINE').subjects.some((s: string) => neutralRows.includes(s.split('::').pop()!)),
+        'no neutral row blocks the gate',
+    )
+    // And none of them is open, so a realization layer is never handed authority to invent a neutral.
+    for (const line of neutralLines) assert.ok(!String(line.verdict ?? '').startsWith('FREE'), `${line.lineId} is not a realization choice`)
 })
 
 test('GA-NO-FAILED-LINE counts an UNRESOLVED line as failed, not only a gap', () => {
@@ -755,8 +800,9 @@ test('the corpus run reproduces the reported figures exactly', () => {
     // individuates nothing: three objectives, two teams, two object classes and one objective set
     // were being asked separately for fields nobody owed.
     assert.equal(result.run.counts.lines, 125)
-    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 54)
-    // **54 → 45 → 36 across the 29 September rulings, and not one line was authored to get there.**
+    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 59)
+    // **NOT_AUTHORED fell 54 → 26 across the 29 September rulings, and only five of those twenty-eight
+    // were closed by authoring anything.**
     //   −9  T1a/T1b/T1c demanded of three POSSESSION_CHANGE transitions. A turnover has no last touch
     //       over a line, no end line and no out-of-play region, so they are withdrawn as inapplicable
     //       — carrying no verdict and emitting no GAP, because the absence of an inapplicable
@@ -764,10 +810,15 @@ test('the corpus run reproduces the reported figures exactly', () => {
     //   −9  metric placements on S5/S6/O4/O5, where the session envelope supplies the outer bound
     //       SD-50 asks for and AM-04 no longer lets one object's silence veto another's authority.
     //       They are bounded freedoms now, not gaps.
-    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 36)
+    //   −5  the connected-pass information rule, authored as ONE decision across the canonical IE
+    //       dimensions rather than five fields filled independently.
+    //   −4  T1c on the goal kick, and three lines whose relational constraint became DISTINCT_ON.
+    //   −1  the target's across-extent, once a typed structural reference was seen to be immune to
+    //       geometry: moving the region cannot change what the objectives point at.
+    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 26)
     assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 0, 'cluster 3 cleared the whole population')
-    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 36, 'one GAP per unauthored line, and none for a withdrawn one')
-    assert.equal([...result.derived.lines.values()].filter((l: any) => l.open).length, 14, 'five open lines became fourteen')
+    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 26, 'one GAP per unauthored line, and none for a withdrawn one')
+    assert.equal([...result.derived.lines.values()].filter((l: any) => l.open).length, 18, 'five open lines became eighteen')
 
     // SD-88 evaluated the conditional lines; the selector-based rule settles its own at enumeration.
     // Twelve withdrawals come from the governing-line path (the three CONTINUE transitions carry no
@@ -778,7 +829,7 @@ test('the corpus run reproduces the reported figures exactly', () => {
         'no line is left unjudged behind a governing value that has resolved',
     )
     const withdrawn = result.lines.filter((l: any) => (result.classified.get(l.lineId)?.lineState ?? l.lineState) === 'WITHDRAWN')
-    assert.equal(withdrawn.length, 21)
+    assert.equal(withdrawn.length, 22)
     for (const line of withdrawn) {
         assert.equal(result.classified.get(line.lineId)?.verdict ?? null, null, `${line.lineId} is withdrawn and must carry no verdict`)
     }

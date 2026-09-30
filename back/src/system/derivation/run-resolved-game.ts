@@ -76,5 +76,5 @@ if (isStampedHalt(result)) {
     process.exit(1)
 }
 const staged: any = runStages0to10(input)
-const game = assembleResolvedGame(result, staged.classes, indexRegister(input.register))
+const game = assembleResolvedGame(result, staged.classes, indexRegister(input.register), input.contracts)
 console.log(process.argv.includes('--json') ? JSON.stringify(game, null, 1) : render(game))

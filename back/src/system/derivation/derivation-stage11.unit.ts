@@ -303,10 +303,14 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
         restatementTally.itemsRestated,
         28,
         'six Phase A rulings, six sets (SD-79), two exclusion bounds (SD-86), eight goal-kick selectors (SD-87), one restart ownership (SD-89), ' +
-            'one typed reference (SD-98), one Wide Zone gloss (C29a), one relational mark (C29b), two typed neutral bounds (C29c)',
+            'one typed reference (SD-98), one Wide Zone gloss (C29a), one DISTINCT_ON mark (C29b/C29e), two typed neutral bounds (C29c)',
     )
     assert.equal(restatementTally.itemsRemoved, 2, 'WIDEZONE-13.a and 13.b')
-    assert.equal(restatementTally.itemsAdded, 3, 'the recovered GF4 operation, the traced neutral existence, and SD-1022019s canonical shared objective')
+    assert.equal(
+        restatementTally.itemsAdded,
+        8,
+        'the recovered GF4 operation, the traced neutral existence, SD-102’s canonical shared objective, and the five connected-pass IE dimensions (C29d)',
+    )
     assert.equal(restatementTally.declarationScopes, 64)
     assert.deepEqual(restatementTally.notFound, [], 'every item a ruling names was found')
 

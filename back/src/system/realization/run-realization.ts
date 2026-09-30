@@ -31,7 +31,7 @@ function resolvedGameFor(goalId: string | null, situationId: string | null): { l
     const staged: any = runStages0to10(input)
     return {
         label: goalId ? `${goalId}${situationId ? ` · ${situationId}` : ''}` : 'conformance corpus',
-        game: assembleResolvedGame(result, staged.classes, indexRegister(input.register)),
+        game: assembleResolvedGame(result, staged.classes, indexRegister(input.register), input.contracts),
     }
 }
 
