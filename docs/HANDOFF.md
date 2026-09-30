@@ -3637,3 +3637,36 @@ Joe directed it: piece (1) of the generation-connection scope.
   narrowing it would make a failing line vanish by my own hand); A1–A10, which are **undefined
   anywhere in the repo**.
 - **Generation remains frozen. GA-NO-FAILED-LINE untouched.**
+
+## 30 September — every pilot goal passes the failed-line gate; one sequencing question remains
+
+- **Corpus: NOT_AUTHORED 54 → 26, open 5 → 18, derived 51 → 59, collisions 0. 225 tests green.**
+- **`GA-NO-FAILED-LINE` PASSES on A01, A04, A05, TA01, TA02.** A01 + A01-02 is down to **T3/T4/T5**,
+  the goal-kick values Christian is authoring.
+- **THE REMAINING BLOCKER IS NOT A KNOWLEDGE GAP.** Gate A returns `NOT_EVALUABLE`, and all four
+  unevaluable checks need values **realization** supplies: `GA-ENVELOPE-FIT`, `GA-LAYOUT-FEASIBLE`,
+  `GA-ONE-PRIMARY-EVENT` (positioned referents) want concrete geometry; `GA-ROSTER-SUM` wants
+  instantiated teams. Gate A asks layout questions of a game with no layout, and its verdict gates
+  the step that would give it one. **Proposed (NOT implemented): split Gate A into knowledge-time and
+  concrete-game-time checks.** That changes what `mayRealize` means, so it is his.
+- **Ruling 6 implemented.** Requiredness read from what an object *declared* about the row, never from
+  absence of a value. Same distinction applied inside `Probe.cell` — several checks were
+  `NOT_EVALUABLE` because they were blocked on established absences; `GA-REGION-FUNCTION` and
+  `GA-ROSTER-SUM`(region part) clear. His neutral-player test is in as a test, including the half
+  that matters: none of P5/P6a/P6b/P7 is `open`, so realization can never invent a neutral.
+- **`DISTINCT_ON` adopted.** A relational contribution bounds nothing and no longer bars openness;
+  each placement is chosen against its own bound and the **set** is checked after. Three tests,
+  including his: both candidates at (10,15), every individual bound satisfied, realization refused.
+- **Target region = legitimate bounded realization.** The objectives reference it by **typed**
+  structural reference, which resolves by identity — geometry cannot change what they point at. The
+  reference guard was firing on typed refs, i.e. backwards; narrowed to position-resolved references,
+  of which this corpus has none.
+- **GRADUAL/REVERSIBLE was not a representation issue.** They are one value each on two dimensions
+  (D008 progression, D011 state dependency), and putting the reset on D008 as `REVERSIBLE` would
+  **violate D008's own integrity condition** ("refine rather than arbitrarily overturn").
+- **Returned:** `V17` has no vocabulary member for "a completed pass", so PCG-12's assumed `STANDING`
+  is now contradicted with nothing to replace it — two options given, neither taken, not blocking.
+  Variable Target needs **four** dimensions (V18/V19/V20/V22); **V21 was already authored** by
+  `VARTARGET-13.d`, not by IE-C006. Goal-kick minimum choices for who/where/how, with no scaled goal
+  area invented.
+- **Generation remains frozen.**

@@ -1,0 +1,217 @@
+Subject: Every pilot game now passes the failed-line gate — one structural question stands between us and realization
+
+Christian,
+
+All eight applied or returned. The boundary rerun has a clear result and one
+finding I did not expect, which is the only thing now standing between a resolved
+game and realization. It is not a knowledge gap.
+
+Generation remains frozen.
+
+  corpus: NOT_AUTHORED 54 -> 26,  open 5 -> 18,  derived 51 -> 59,  collisions 0
+  225 tests, suite green.
+
+
+THE RESULT: NO BOUNDED-PILOT GAME HAS A BLOCKING FAILURE ANY MORE
+
+GA-NO-FAILED-LINE now PASSES on A01, A04, A05, TA01 and TA02. On A01 + A01-02 it
+is down to three lines — T3, T4, T5, the goal-kick restart unit you are going to
+author. Nothing else.
+
+But none of them is eligible for realization, and the reason is not a missing
+value. Gate A returns NOT_EVALUABLE, and every check that cannot be evaluated is
+one that cannot be evaluated BEFORE realization. On A04, the cleanest game:
+
+  GA-ENVELOPE-FIT        "a placement is not a value §1.9 can compare"
+  GA-LAYOUT-FEASIBLE     "a geometric bound is not a constraint this check can read"
+  GA-ONE-PRIMARY-EVENT   "1 primary event; 0 positioned referents"
+  GA-ROSTER-SUM          "no line exists for P1 — teams are asserted to exist and
+                          no assertion individuates one"
+
+All four read values realization supplies. The first three want concrete
+geometry, which realization chooses. The fourth wants a roster, and the teams are
+an existential claim that realization instantiates.
+
+So Gate A is asking layout-feasibility questions of a game that has no layout
+yet, and its verdict gates the step that would give it one. I do not think that
+is a knowledge problem or a defect in any check — it is a sequencing question
+about where those four checks belong, and it is yours.
+
+What I would propose, and have NOT implemented: split Gate A into the checks that
+can be answered from knowledge alone and the checks that need a concrete game. A
+resolved game may realize when the first set passes; the second set then runs on
+the concrete game, where GA-LAYOUT-FEASIBLE can finally do the job its name
+describes. Nothing is relaxed by this — the same checks still have to pass, just
+at the point where they have something to read.
+
+I could not run the one-game acceptance test, because mayRealize requires PASS.
+What I can show you is that the game is ready. This is A04's realization request
+in full:
+
+  CHOOSE  target region noun               one of [zone, line]
+  CHOOSE  target region position.across    bounded by "extends across the axis:
+                                           the target lies across the direction
+                                           of progression"
+  CHOOSE  three wide-channel positions     each bounded by "the full axis extent,
+                                           end line to end line"
+  CHOOSE  primary event kind               one of [line_crossed, target_zone_entered]
+  INSTANTIATE  objectives[]                min 1, claim GF2-09.a
+  INSTANTIATE  performers.teams[]          min 2, claim GF2-14.a
+
+Six choices, every one with an authority and a bound. Two instantiations, both
+with a claim behind them. No invention anywhere in it.
+
+
+THE GATE DISTINCTION
+
+Implemented as you framed it. Requiredness is read from what an object declared
+about the row — NOT_AUTHORED, or a CLAIMED that did not resolve — and never from
+the mere absence of a value, which is what stops it becoming a way of not
+failing. Every non-blocking line is still counted and named in the reason, and
+none of them ever appears as `open`, so realization is handed no authority by
+them.
+
+Applying it exposed a second place the same confusion lived: several checks were
+reporting themselves NOT_EVALUABLE because they were blocked on lines that are
+established absences. A check blocked on a row the knowledge explicitly excluded
+is blocked on a settled question. GA-REGION-FUNCTION and GA-ROSTER-SUM clear once
+that is fixed.
+
+Your neutral-player test is in as a test. A01 + A01-02 selects no neutral-player
+knowledge; P5, P6a, P6b and P7 all report `not constrained`; none blocks the gate;
+and — the half that matters — none is `open`, so realization can never treat their
+emptiness as licence to invent a neutral.
+
+
+DISTINCT_ON
+
+Adopted exactly as narrow as proposed. A relational contribution now bounds
+nothing and no longer bars per-line openness: each placement is chosen against its
+own bound and the set is checked afterwards.
+
+The test you asked for passes. Two candidates, both placed at (10, 15) — inside
+0-40 along and 0-30 across, every individual bound honoured — and the realization
+is refused, naming the pair and quoting the authored words. Two more tests: a
+pair differing on only one row passes, because it is pairwise distinctness over
+the tuple and no minimum separation is implied; and a value outside its own bound
+is refused for that reason alone, without the joint condition piling on.
+
+
+TARGET REGION — LEGITIMATE BOUNDED REALIZATION, NOT A STRUCTURAL DECISION
+
+My determination, with the trace behind it. Both objectives reference the region
+by TYPED structural reference, which resolves by contract and item identity. So
+geometry cannot change what they point at — the referent, the role and the team
+are all derived. Moving the region settles nothing structural.
+
+Your conditional treatment then lands cleanly: the along-position is already
+derived ("attacking end ... touches an end line, not the interior"), so depth is
+not separately open; the across-extent has an authored bound and the envelope
+outside it; and the line/zone choice stays open exactly as you asked.
+
+So no structural decision remains there. I narrowed the reference guard to match:
+only a reference that resolves by POSITION could be settled by placement, and on
+this corpus there are none. I would rather say that than keep a guard that looks
+protective and fires on the wrong thing.
+
+
+PASS COMBINATION — AND THE GRADUAL/REVERSIBLE QUESTION ANSWERS ITSELF
+
+Authored from your canonical intent across the existing dimensions:
+TEAMMATE_ACTION, IMMEDIATE_AFTER_TRIGGER, GRADUAL, TRANSITION_DEPENDENT, ALL.
+
+The conflict is not real, and the model is not forcing anything. They are one
+value each on two different dimensions. "Updates progressively" is IE-D008
+REVEAL_PROGRESSION, whose question is whether information becomes increasingly
+specified through unfolding interaction. "When the count resets, the revealed
+state resets with it" is IE-D011 STATE_DEPENDENCY, whose question is whether
+availability depends on the current functional state — and a reset is a
+detectable transition that changes what is worth doing, which is IE-D011's own
+integrity condition.
+
+Recording the reset as IE-D008 REVERSIBLE would in fact VIOLATE IE-D008's
+integrity condition, which requires later information to "refine rather than
+arbitrarily overturn the task". A reset overturns it. So no representation change
+is needed, and REVERSIBLE would have been the wrong home.
+
+One thing I could not author: V17, the register's own trigger row. Its vocabulary
+is the game-event list, which has no member for "a completed pass" — PCG-12's
+assumed STANDING is now contradicted by your ruling, so that value needs
+replacing and there is nothing to replace it with. Two options, and I have taken
+neither: add one bounded vocabulary member the way FIRST_FORWARD_PASS was added,
+or rule that for an event-driven information rule the IE trigger type on V18
+carries it and V17 is withdrawn. On the bounded pilot game this is not blocking.
+
+
+VARIABLE TARGET — FOUR DIMENSIONS NEED YOU, NOT FIVE
+
+Reconciled against the canonical dimensions, and IE-C006 was never needed. V21
+state dependency is ALREADY established — OBJECTIVE_DEPENDENT, from the object's
+own item VARTARGET-13.d, not from the preset. V16 subject is derived and V17 is a
+free choice among its permitted set.
+
+Still requiring owner-authored knowledge:
+
+  V18  D006 trigger type       IE-C006 narrows it to "state transition or
+                               opponent action" but chooses neither, and the open
+                               question is whether EXTERNAL_SIGNAL (coach cue) is
+                               admissible at all
+  V19  D007 reveal timing      IE-C006 is silent
+  V20  D008 reveal progression IE-C006 narrows to "immediate or staged", chooses
+                               neither
+  V22  D013 access holder      whether the live target is knowable to both teams
+                               or only the attacker
+
+Per your ruling I have treated IE-C006 as establishing nothing, including where
+it narrows.
+
+
+GOAL-KICK RESTART — THE MINIMUM CHOICES AVAILABLE
+
+T1c is out, per your ruling: narrowed to OUT_TOUCHLINE and REGION_ENTRY only.
+
+What the representation actually offers for the three:
+
+  T3  WHO     "a team role, goalkeeper, or COACH". No closed vocabulary. The
+              representative question is whether the taker is the goalkeeper —
+              which is the build-out's whole origin, and RPC-001 is the
+              Goalkeeper Build-Out object — or any member of the awarded team.
+              Note GF2 declares no goalkeeper for either team, so if the taker is
+              a goalkeeper, something must establish one.
+
+  T4  WHERE   "region reference, or 'where the ball went out'". The second is
+              wrong for a goal kick. The first needs a region, and the only
+              regions this game has are the target at the attacking end and the
+              wide channels. So the minimum choice is: does the restart need a
+              region of its own, or is the defending half sufficient as the place?
+              I flag that answering "a region of its own" adds structure, so it is
+              the larger of the two answers.
+
+  T5  HOW     closed list: STATIONARY_BALL, SERVED, IN_HAND. All three available.
+              The representative question is whether the restart must be from a
+              stationary ball — which is what creates the moment of pressure the
+              build-out problem is about — or may be served.
+
+I have deliberately not proposed a scaled goal area, a six-yard equivalent, or
+any distance. None of those has a representative function in a 40 x 30 m game,
+and inventing one would encode soccer law rather than the problem.
+
+
+AFFORDANCE VOCABULARY
+
+Canonical vocabulary and the revised measurement kept: 33 realized, 6 unrealized,
+0 undetermined. A1-A10 recorded as unresolved legacy codes, unmapped and not
+retired, and kept out of canonical reasoning. The six defensive and
+defensive-transition lenses are noted as a separate library-coverage task and not
+touched here.
+
+
+WHAT I THINK HAPPENS NEXT
+
+One ruling on where the four realization-dependent Gate A checks belong. Then
+A04 or A05 realizes, and we run the acceptance test on a real game the same day.
+The goal-kick unit and the four Variable Target dimensions are authoring, and
+neither blocks that first game.
+
+Joe
+
