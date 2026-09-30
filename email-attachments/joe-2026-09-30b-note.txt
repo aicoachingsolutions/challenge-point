@@ -1,0 +1,60 @@
+Joe — Gate A split, and a correction you should know about
+
+Done, pushed, 228 tests green. But the short version is: the split is right and
+it does NOT unblock a game. I nearly told Christian it did.
+
+WHAT HAPPENED
+
+I split Gate A as proposed, deferred the four checks that couldn't be evaluated,
+A04 went eligible, I ran the acceptance test, all three conditions passed. Was
+about to report a first realized game.
+
+Then the existing "no check passes while blocked" invariant failed, and chasing
+it made me look properly at what I'd deferred. Two of the four don't survive:
+
+GA-ENVELOPE-FIT and GA-LAYOUT-FEASIBLE can't compare placements because the corpus
+authors them as PROSE — "touchline-adjacent", "the full axis extent, end line to
+end line". Realization choosing one of those hands back the same prose. §1.9 can't
+compare it after realization any more than before. So deferring them promised a
+later check that cannot run — the same shape as suppressing a required property,
+just from the other side.
+
+Reverted those. Only two clauses are genuinely realization-settled: the
+primary-event kind, and the roster sum (whose terms don't exist until teams are
+instantiated).
+
+So A04 is not eligible, and I wrote a test that says so and names the three
+blocked clauses, so it can't drift back into looking like progress.
+
+WHAT I KEPT, LABELLED
+
+I did keep the run, as an explicit DRY RUN that steps over the gate on purpose.
+It answers a different question — would the pathway produce a faithful concrete
+game from real knowledge — and it does, with all three conditions holding. Named
+as a dry run in the test so nobody reads it as an acceptance pass later.
+
+THREE DEFECTS THE REAL RUN FOUND
+
+Fixtures would never have caught these:
+
+1. nothingInvented descended INTO derived values — the three fields of a typed
+   structural reference each reported as an invention. Three violations, all of
+   them values the run had derived.
+2. Instantiated members landed at the literal key "objectives[]", beside the
+   derived "objectives". Two collections where the game has one. Anything reading
+   "objectives" would have missed every instantiated member. That's the
+   systemTrace shape again, and it was in output I nearly sent.
+3. Cardinality wasn't checked. "Two teams exist" was satisfied by one team.
+
+THE ACTUAL BLOCKER NOW
+
+Geometry is authored qualitatively; every spatial check wants it numerically.
+Gave Christian two options — author metric bounds (which he's repeatedly declined
+to invent), or represent qualitative placement as a typed relation to a boundary
+so the checks reason over relations instead of metres. I said (b) looks smaller
+and more faithful but didn't choose.
+
+Not knowledge, not sequencing. Representation.
+
+Joe
+

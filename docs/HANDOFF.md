@@ -3670,3 +3670,32 @@ Joe directed it: piece (1) of the generation-connection scope.
   `VARTARGET-13.d`, not by IE-C006. Goal-kick minimum choices for who/where/how, with no scaled goal
   area invented.
 - **Generation remains frozen.**
+
+## 30 September (later) — Gate A split, and the real blocker is representation
+
+- **Split done.** `gateA.knowledgeVerdict` gates realization; `gateA.verdict` covers all clauses and is
+  **never PASS while anything is owed**. New clause verdict `DEFERRED_TO_REALIZATION` carries an
+  `owes`; `resolved.coherence.deferred` carries the list. A test asserts no deferred clause reads as a
+  pass at either level.
+- **CORRECTION — the split does NOT unblock a game.** I first deferred four clauses, A04 went eligible,
+  and the acceptance test passed. Two of the four do not survive: **`GA-ENVELOPE-FIT`,
+  `GA-LAYOUT-FEASIBLE` and the primary-event position clause cannot compare placements because the
+  corpus authors them as PROSE** ("touchline-adjacent", "the full axis extent, end line to end line").
+  A realized value drawn from such a bound is the same prose. Deferring them promised a later check
+  that **cannot run** — the suppression failure from the other side. Reverted to `NOT_EVALUABLE`.
+- **Only 2 clauses are genuinely realization-settled:** the primary-event kind (chosen from the
+  narrowed set) and `GA-ROSTER-SUM` (terms don't exist until teams are instantiated).
+- **A04 is NOT eligible**, and a test says so by name so it cannot drift into looking like progress.
+  A second test is an explicit **DRY RUN** that steps over the gate to answer a different question —
+  the pathway does produce a faithful concrete game from real knowledge, all three conditions holding.
+- **Three defects the real run found that fixtures never would:** `nothingInvented` descended INTO
+  derived values (the three fields of a typed structural ref each reported as an invention);
+  instantiated members landed at the literal key `"objectives[]"` **beside** the derived `objectives`
+  — two collections where the game has one; and **a claim's cardinality was unchecked** — "two teams
+  exist" was satisfied by one.
+- **THE REAL BLOCKER: geometry is authored qualitatively and every spatial check wants it numerically.**
+  Not knowledge, not sequencing. Two options returned, neither chosen: author metric bounds (which he
+  has repeatedly declined to invent), or represent qualitative placement as a **typed relation to a
+  boundary** so the checks reason over relations rather than metres. The second looks smaller and more
+  faithful to how the knowledge is written.
+- 228 tests, suite green. **Generation remains frozen.**
