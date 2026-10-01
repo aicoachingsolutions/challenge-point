@@ -137,6 +137,22 @@ export interface Envelope {
     lengthM?: number
     widthM?: number
     durationMin?: number
+    /**
+     * **Specialized-role availability, as session context** — adopted 30 September. Role name to
+     * count. The role names themselves are sport knowledge and this layer knows none of them; it
+     * carries whatever the session states.
+     *
+     * It exists because `players: 12` says how many people are there and nothing about what they are,
+     * so a roster could not derive without implicitly treating every one of them as an outfield player.
+     * Stating availability is not stating involvement: a role available in the session is instantiated
+     * into a particular game only where the selected knowledge establishes it, and only an instantiated
+     * group has a participation state at all.
+     *
+     * The pathway is deliberately shaped so a Team Profile can supply defaults and a session override
+     * them — both upstream. The engine reads whatever it is given and infers nothing from silence: an
+     * absent entry means *not stated*, never *none available*.
+     */
+    roles?: Record<string, number>
 }
 
 export interface DerivationInput {
