@@ -1,0 +1,133 @@
+Subject: The four corrections are in — here are the two owner values, in the exact form the representation needs
+
+Christian,
+
+All four corrections are implemented and A04 is down to the two values you have to
+supply. They are below in the precise machine-readable form, with nothing inferred
+on your behalf.
+
+Generation remains frozen. 246 tests, suite green. Trace attached.
+
+
+WHAT IS IN
+
+REGISTER GUARD (your item 1). A realization choice must now satisfy the authored
+permitted set AND the row's canonical vocabulary. Where they disagree the refusal
+names both sides, because the disagreement is the knowledge defect rather than the
+realizer's choice. General, with regression coverage.
+
+`line` (item 4). Added to S3.noun as an owner-authorized extension, version 2 —
+not admitted because GF2's set contained it.
+
+Its semantics are general and NAME NO AXIS. A new `nounSemantics` block gives each
+noun an extent-dimension count, and the rule is: a one-dimensional noun has extent
+on exactly one axis, and whichever axis carries that extent is its length, so its
+extent on the other is zero. Orientation is read off the geometry already
+established, never from the noun.
+
+I tested it in both orientations specifically so "line = end line" could not be
+encoded by accident. An end-line target comes out zero-extent along; a
+touchline-parallel line comes out zero-extent across; same rule, no special case.
+That closed GF2-03.a's geometry — GA-LAYOUT-FEASIBLE now names the channel instead
+of the target.
+
+RC-21 FOLD (items 2b and 5). `spatialRelations` is gone. Before folding I checked
+each term for a legitimate home, as you asked:
+
+  touchline-adjacent            already there — "touches a touchline"
+  attacking end (of team T)     already there — "touches the end line T attacks"
+  own end (of team T)           already there in prose; machine form added
+  full extent (of an axis)      NO HOME. The block had no predicate for an element
+                                spanning a whole axis, which is what both "end line
+                                to end line" and "extends across the axis" state.
+
+So one genuinely new predicate was needed rather than forced across. It is
+axis-free, so a single term serves both uses. I have added it to the canonical
+block and flagged it, because a term name is vocabulary and that is yours to
+confirm.
+
+A phrase index maps authored phrases to canonical terms, so recognition is by term
+and the vocabulary is not keyed on prose. And your lesson is kept as a test rather
+than a comment: a regression asserts the parallel block cannot come back and that
+every indexed phrase resolves to a term the same block defines.
+
+
+THE TWO OWNER VALUES
+
+
+1 · CHANNEL WIDTH — TWO FRACTIONS, AND WHY NOT THREE
+
+Your functional statement has three claims in it: wide enough to establish the
+affordance; a bounded minority individually; meaningful non-wide space preserved
+collectively.
+
+The smallest machine-readable form needs only TWO numbers, because the third
+follows. Expressed as a term in `relativeTerms.machineReadable`, in the block's own
+shape:
+
+  "bounded minority (of an axis)": {
+      "kind": "interval",
+      "from": <MIN fraction of the named axis>,
+      "to":   <MAX fraction of the named axis>
+  }
+
+Both are fractions of the across dimension, so the rule scales and no metre value
+appears in the knowledge. Applied to a touchline anchor it yields a concrete
+interval; on a 30 m width, 0.2 would give a 6 m channel.
+
+The collective claim follows from the per-channel maximum and the authored channel
+count. WIDEZONE-03 authors COUNT 2, so two channels each at most `to` leave at
+least 1 − 2·`to` of the width non-wide. You do not need to author that separately.
+
+ONE CAVEAT, because it is the kind of thing that stops being true quietly: that
+derivation holds only while the channel count is bounded. If a game ever authored
+an unbounded number of channels, the collective constraint would no longer follow
+and would need stating in its own right. I can add a check that the collective
+share cannot exceed a stated limit if you would rather have it explicit now.
+
+The authored 6–10 m stays exactly where it is, as preferred realization guidance,
+and is offered rather than enforced.
+
+I have not chosen the two fractions.
+
+
+2 · A04 ROSTER — ONE SESSION STATEMENT AND ONE PROMOTION
+
+The session statement, using the approved pathway:
+
+  envelope.roles = { "goalkeeper": 0 }
+
+An explicit zero, not an omission — absent means NOT STATED, so an empty map does
+not help. With it, the twelve players are all outfield BY STATEMENT rather than by
+implication, which is the condition you set.
+
+That alone does not finish it. The roster still has to split twelve across two
+teams, and nothing authors a per-team count. GF2-14.b authors "equal outfield
+counts" but as ASSUMED, so it bounds without entailing. So the second value is:
+
+  promote GF2-14.b from ASSUMED to authored knowledge
+
+With both, the chain derives honestly: 12 session players, 0 goalkeepers
+available, 0 neutrals, 2 teams, equal counts — 6 outfield each, every step from a
+stated fact.
+
+If you would rather not promote GF2-14.b, the alternative is a session statement
+of the per-team split, which pushes a knowledge question into session input. I
+think the promotion is the better of the two, but it is an assumption becoming
+knowledge and that is yours.
+
+
+WHERE A04 STANDS
+
+  realization acceptance      PASSED
+  post-realization Gate A     NOT PASSED
+  render-eligible             NO
+
+Remaining: GA-ENVELOPE-FIT and GA-LAYOUT-FEASIBLE on the channel width, and
+GA-ROSTER-SUM on the roster. Both are the values above. No new load-bearing
+dependency appeared in this round.
+
+COMPLETED_PASS still outstanding and still non-blocking.
+
+Joe
+

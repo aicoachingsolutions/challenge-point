@@ -3829,3 +3829,31 @@ Joe directed it: piece (1) of the generation-connection scope.
   this game · whether a realized `line` entails zero extent along · whether `line` may be a permitted
   S3 value at all.
 - `COMPLETED_PASS` still outstanding, still not blocking. **Generation remains frozen.**
+
+## 1 October (corrections) — A04 down to two owner values, no new dependency
+
+- **246 tests green.** `acceptance PASSED · post-realization Gate A NOT PASSED · render-eligible NO`.
+  Trace: `docs/audits/first-game-trace-2026-10-01.md`. **First round with no new load-bearing
+  dependency.**
+- **Register guard (his item 1):** a realization choice must satisfy the authored permitted set **AND**
+  the row's canonical vocabulary. The refusal names both sides — the disagreement is the knowledge
+  defect, not the choice. General, with regression.
+- **`line` registered** in `S3.noun` (v2) as an owner-authorized extension. Semantics are **general and
+  name no axis**: a new `nounSemantics` block gives each noun an `extentDimensions` count, and a
+  one-dimensional noun has extent on exactly one axis — whichever carries it is the **length**, so the
+  other is **zero**. Orientation is read off the geometry. **Tested in both orientations** so
+  "line = end line" cannot be encoded by accident. This closed `GF2-03.a`'s geometry.
+- **RC-21 fold (items 2b, 5): `spatialRelations` is GONE.** Each term checked for a home first — three
+  had one (`touchline-adjacent`, `attacking end`, `own end`); **one genuinely did not**
+  (`full extent (of an axis)` — the block had no spanning predicate), so it was added to the canonical
+  block rather than the others being forced across, and flagged as needing owner confirmation. A
+  `phraseIndex` maps phrases → terms so the vocabulary is not keyed on prose. **His lesson is a test:**
+  the parallel block cannot return and every indexed phrase must resolve to a defined term.
+- **RETURNED — channel width: TWO fractions, not three.** `"bounded minority (of an axis)"` with
+  `from`/`to` as fractions of the named axis. The collective claim **follows** from the per-channel max
+  plus the authored channel count (`WIDEZONE-03` = 2). **Caveat flagged:** that derivation holds only
+  while the count is bounded.
+- **RETURNED — A04 roster: one session statement + one promotion.** `envelope.roles = {goalkeeper: 0}`
+  (explicit zero; absent means NOT STATED) **plus** promoting `GF2-14.b` "equal outfield counts" from
+  `ASSUMED` to authored. Alternative offered (session statement of the split) with a preference stated.
+- `COMPLETED_PASS` still outstanding, still non-blocking. **Generation remains frozen.**
