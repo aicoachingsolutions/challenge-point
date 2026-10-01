@@ -18,7 +18,7 @@
  */
 
 import { ClassifiedLine } from '../derivation/classify'
-import { DerivedLine } from '../derivation/derive'
+import { DerivedLine, resolvedValue } from '../derivation/derive'
 import { GateContext, GateReport, runGates } from '../derivation/gates'
 import { ElementClass, ResolutionLine } from '../derivation/types'
 import { Realized } from './realize'
@@ -155,7 +155,97 @@ function concreteContext(ctx: GateContext, realized: Realized): GateContext {
         }
     })
 
+    deriveRosterFromSession(ctx, classes, classified, derived)
     return { ...ctx, classes, lines, classified, derived }
+}
+
+/**
+ * The roster, derived from the session and the authored knowledge — never chosen, and never assumed.
+ *
+ * His stated chain of 1 October: *"12 available performers → 0 specialized roles available → 0 neutrals
+ * → 2 teams → equal outfield counts → 6 outfield players per team."* Every step of that comes from a
+ * legitimate source, which is the whole condition:
+ *
+ *   - **12** from the session envelope (`players`);
+ *   - **0 specialized-role performers** from the session envelope's stated `roles`, as an explicit zero. An absent entry
+ *     means NOT STATED and derives nothing — which is what stops this from treating every available
+ *     performer as an outfield player whenever nobody mentioned a specialized role;
+ *   - **0 neutrals** because no neutral is instantiated in this game. Nothing is inferred from `P5`
+ *     being unconstrained: a game with no neutrals in it has none;
+ *   - **2 teams** from the instantiated members of the authored claim;
+ *   - **equality** from `GF2-14.b`, now owner-authored, and read from the knowledge rather than assumed
+ *     here. **Equality is not an engine rule**: this derivation fires only where an authored item states
+ *     it, so a game form authoring asymmetry simply does not reach this path.
+ *
+ * It refuses on anything missing. A division that does not come out whole derives nothing rather than
+ * rounding, because a rounded roster is an invented one.
+ */
+function deriveRosterFromSession(
+    ctx: GateContext,
+    classes: ElementClass[],
+    classified: Map<string, ClassifiedLine>,
+    derived: Map<string, DerivedLine>,
+): void {
+    const players = Number((ctx.envelope as any)?.players)
+    const roles = (ctx.envelope as any)?.roles as Record<string, number> | undefined
+    if (!Number.isFinite(players) || !roles) return
+
+    const teams = classes.filter(c => c.row === 'P1' && c.classId.startsWith('realized:'))
+    if (!teams.length) return
+
+    // Equality must be AUTHORED. Without an item stating it, nothing here divides anything.
+    const equality = ctx.contracts.some(contract =>
+        (contract.items ?? []).some(
+            item =>
+                String(item.row) === 'P2' &&
+                String((item as any).basis) !== 'ASSUMED' &&
+                /equal/i.test(String(item.value ?? '')),
+        ),
+    )
+    if (!equality) return
+
+    // Specialized roles the session states, per team. A stated zero is a fact; an absent role is not.
+    const specialized = Object.values(roles).reduce((sum, count) => sum + (Number.isFinite(count) ? Number(count) : NaN), 0)
+    if (!Number.isFinite(specialized)) return
+
+    // Neutrals: however many the game actually instantiated, which for a game with none is zero.
+    const neutrals = classes.filter(c => c.row === 'P5' && c.classId.startsWith('realized:')).length
+
+    const outfieldTotal = players - specialized * teams.length - neutrals
+    if (outfieldTotal < 0 || outfieldTotal % teams.length !== 0) return // does not come out whole; derive nothing
+    const perTeam = outfieldTotal / teams.length
+
+    const support = [
+        { kind: 'SESSION' as const, row: 'E1' },
+        { kind: 'SESSION' as const, row: 'roles' },
+    ]
+
+    // The specialized-role rows come from the register, which carries the role NAME; this layer knows
+    // none of them. A role the session has not stated derives nothing, because absent means NOT STATED.
+    const specializedRows: [string, number][] = []
+    for (const [rowId, roleName] of ctx.index.specializedRoleRows) {
+        if (ctx.index.ownerRow.get(rowId) !== 'P1') continue
+        const stated = roles[roleName]
+        if (!Number.isFinite(stated)) return
+        specializedRows.push([rowId, Number(stated)])
+    }
+
+    for (const team of teams) {
+        for (const [row, value] of [['P2', perTeam] as [string, number], ...specializedRows]) {
+            const lineId = `${team.classId}::${row}`
+            if (resolvedValue(derived.get(lineId))?.value !== undefined) continue
+            classified.set(lineId, { lineId, lineState: 'ENUMERATED', verdict: 'RESOLVED:ENTAILED', resolvedBy: 'SESSION', reason: null, collidingItems: [] })
+            derived.set(lineId, {
+                lineId,
+                entailing: [{ item: { contractId: 'session', itemId: row }, value, support: support[0] }],
+                bounding: [],
+                narrowing: [],
+                standingDecisions: [],
+                undetermined: [],
+                open: null,
+            } as unknown as DerivedLine)
+        }
+    }
 }
 
 export function runPostRealizationGates(ctx: GateContext, resolvedOwed: { checkId: string; clause: string }[], realized: Realized): PostRealizationResult {

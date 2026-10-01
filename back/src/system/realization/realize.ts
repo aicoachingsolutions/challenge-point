@@ -151,6 +151,38 @@ function splitElementPath(path: string): { container: string; elementId: string;
  * The refusal names both sides, because the useful information is the **disagreement**: an authored set
  * offering a member the register does not have is a knowledge defect, not a bad choice by a realizer.
  */
+/**
+ * A preferred extent, expressed inside the required one — never beside it and never over it.
+ *
+ * Both are brought to metres first, because one may be a fraction of the axis and the other absolute:
+ * the channel's requirement is 0.15–0.25 of the width and its preference is 6–10 m, and on a 30 m
+ * width those are 4.5–7.5 m and 6–10 m. The overlap, 6–7.5 m, is where a realizer may legitimately
+ * follow the guidance. Where they do not overlap at all the preference is reported incompatible and the
+ * requirement stands — his words: the preference "must never override or widen the requirement".
+ */
+function intersect(required: Bounds, preference: Bounds, envelope: { lengthM?: number; widthM?: number }): unknown {
+    const across = Math.min(Number(envelope.lengthM), Number(envelope.widthM))
+    const along = Math.max(Number(envelope.lengthM), Number(envelope.widthM))
+    const metres = (bound: Bounds, which: 'min' | 'max'): number | null => {
+        const raw = bound[which]
+        if (raw === null || raw === undefined || !Number.isFinite(Number(raw))) return null
+        // A fraction is of the axis the bound belongs to; the across dimension is the one a channel
+        // width is measured on, and `along` is carried so the helper is not silently across-only.
+        return bound.fractionOfAxis ? Number(raw) * (bound.axis === 'along' ? along : across) : Number(raw)
+    }
+    const lo = Math.max(metres(required, 'min') ?? 0, metres(preference, 'min') ?? 0)
+    const hiCandidates = [metres(required, 'max'), metres(preference, 'max')].filter((n): n is number => n !== null)
+    const hi = hiCandidates.length ? Math.min(...hiCandidates) : null
+    if (hi === null) return { min: lo, max: null, note: 'the preference has no upper limit inside the requirement' }
+    if (lo > hi) {
+        return {
+            compatible: false,
+            note: `the preferred extent lies wholly outside the required interval, so it is not offered and the requirement stands`,
+        }
+    }
+    return { min: lo, max: hi, compatible: true, note: 'the preference, expressed inside the requirement, in metres' }
+}
+
 function checkVocabulary(choice: OpenChoice, value: unknown, index?: RegisterIndex): string | null {
     if (!index) return null
     const row = choice.lineId.split('::').pop() ?? ''
@@ -379,9 +411,24 @@ export function realize(
         // interval. The bound is read from wherever the resolved game carries it — a derived line's own
         // bounds, or an open line's — so the composition works the same whether the position was
         // derived or chosen.
-        const extentOf = (lineId: string): { min?: number | null; max?: number | null } | undefined => {
+        /**
+         * The extent to resolve against the envelope, and **the requirement wins.**
+         *
+         * A line may carry both a required extent and a preferred one — the channel carries the
+         * authored `bounded minority` requirement and the 6–10 m preference together. His rule of
+         * 1 October: *"Where preferred guidance and required bounds both apply, the preference may
+         * operate only inside the required feasible interval; it must never override or widen the
+         * requirement."* So the required bound is what composes, and the preference is carried beside
+         * it **intersected into** the requirement, offered and never enforced. Picking whichever bound
+         * came first — which is what this did — let a preference decide the geometry.
+         */
+        const extentOf = (lineId: string): (Bounds & { preferenceWithin?: unknown }) | undefined => {
             const bounds = [...(resolved.open.find(o => o.lineId === lineId)?.bounds ?? []), ...(resolved.extentBounds?.[lineId] ?? [])] as Bounds[]
-            return bounds.find(b => b?.kind === 'COUNT' && (b.min !== null || b.max !== null))
+            const counts = bounds.filter(b => b?.kind === 'COUNT' && (b.min !== null || b.max !== null))
+            const required = counts.find(b => !b.preferred)
+            if (!required) return counts[0]
+            const preference = counts.find(b => b.preferred)
+            return preference ? { ...required, preferenceWithin: intersect(required, preference, envelope ?? {}) } : required
         }
         const spatial = [...resolved.derived.map(d => ({ lineId: d.lineId, path: d.path, value: d.value })), ...recorded.map(c => ({ lineId: c.lineId, path: c.path, value: c.value }))]
 

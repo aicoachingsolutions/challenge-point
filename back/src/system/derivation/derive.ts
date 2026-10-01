@@ -406,7 +406,17 @@ function entails(item: any): boolean {
  * here, and a `COUNT` with null endpoints bounds nothing while still looking numeric to a consumer,
  * which is how "beyond the first defenders" came to be silently ignored by a feasibility check.
  */
-function boundsOf(item: any): Bounds {
+function boundsOf(item: any, index?: RegisterIndex): Bounds {
+    // **A value that IS a canonical relative term carries that term's bound.** The fractions live once,
+    // in RC-21, and a contract item names the relation rather than restating a number — which is what
+    // keeps a proportional rule from being copied into every object that uses it. The term is resolved
+    // here rather than parsed, so no prose is interpreted.
+    if (index && typeof item.value === 'string') {
+        const term = ((index.relativeTerms as any)?.machineReadable?.terms ?? {})[item.value]
+        if (term && term.kind === 'interval' && typeof term.from === 'number' && typeof term.to === 'number') {
+            return { kind: 'COUNT', min: term.from, max: term.to, term: item.value, fractionOfAxis: true, preferred: item.valueStatus === 'PREFERRED_DEFAULT' } as Bounds
+        }
+    }
     // **A typed bound moved out of the prose by an authored restatement**, on the SD-86 precedent:
     // the restatement "may move an explicitly authored numerical bound from the existing prose into
     // the typed field", and may not infer one. `">= 1 (no authored maximum)"` states a number this
@@ -703,7 +713,7 @@ export function deriveLines(
                 // condition (DISTINCT_ON) and checked over the realized set.
                 record.bounding.push({
                     item: ref,
-                    bound: boundsOf(item),
+                    bound: boundsOf(item, index),
                     support: { kind: 'CONTRACT_ITEM', contractId: ref.contractId, itemId: ref.itemId, relation: 'NARROWS' },
                 })
             }

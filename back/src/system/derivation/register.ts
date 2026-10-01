@@ -65,6 +65,8 @@ export interface RegisterIndex {
     relativeTerms: Record<string, unknown>
     /** S3 noun semantics: how many dimensions a noun gives extent in. Never which axis. */
     nounSemantics: Record<string, unknown>
+    /** Rows counting a specialized performer role -> the role name, which the register carries and the engine does not. */
+    specializedRoleRows: Map<string, string>
     /** Row id → the condition under which the row applies at all. */
     applicability: Map<string, ApplicabilityCondition>
     /** Vocabulary name → its closed member list. */
@@ -184,6 +186,11 @@ export function indexRegister(register: any): RegisterIndex {
         outerBound,
         relativeTerms: register.relativeTerms || {},
         nounSemantics: (register.vocabularies && register.vocabularies.nounSemantics) || {},
+        specializedRoleRows: new Map(
+            (register.rows || [])
+                .filter((row) => row && row.specializedRole)
+                .map((row) => [String(row.id), String(row.path).split(".").pop()]),
+        ),
         applicability,
         vocabularies,
         vocabularyVersions: (vocabBlock.versions as any) || {},

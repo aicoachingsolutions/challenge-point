@@ -354,6 +354,16 @@
     "fitNote": "TYPED, 30 September, on the SD-86 precedent and exactly as the neutral count was (C29c). The channel width was AUTHORED all along — requirement RANGE, basis AUTHORED, value \"across-interval width about 6-10 m\", from setup_guidance \"(~6-10m wide depending on field size)\". Only the value STRING defeated the parser, which typed it QUALITATIVE and left it bounding nothing a check could read. The numbers are MOVED out of the prose, not inferred: 6 and 10 are explicitly authored. The prose is unchanged beside the typed form, so \"about\" and the unauthored scaling both keep their own record. WHAT THIS DOES NOT DO: it does not supply a scaling rule. S6 still records \"no scaling rule for width; depending on field size gives no function\", and that remains true — 6-10 m is a fixed range, not a proportion of the envelope. On a 40 x 30 m session it fits inside the 30 m across dimension, so it yields concrete geometry here; on an envelope where it would not, the proportional question is still open and is the owner decision returned rather than guessed at."
    },
    "why": "an explicitly authored numerical range was sitting unreadable in prose, so the channel width bounded nothing a spatial check could use. Typing it changes no authored content and makes the bound checkable; the absent SCALING rule is returned separately and not invented"
+  },
+  {
+   "item": "restated:GF2::GF2-14.b",
+   "ruling": "C31b",
+   "set": {
+    "basis": "OWNER_RULING",
+    "basisEvidence": "Christian, 2026-10-01: \"Promote GF2-14.b, equal outfield counts, from ASSUMED to owner-authored canonical knowledge.\" With the caution attached to it: \"Please preserve the ability for other selected authoritative knowledge to establish numerical asymmetry where the learning problem requires it. Equal team numbers should not become an engine-level universal assumption.\"",
+    "fitNote": "PROMOTED 1 October. It was ASSUMED, and by §3 an assumed item bounds but never entails — which is why the roster could not derive. It is now owner-authored and entails. IT REMAINS AN ITEM OF GF2, not an engine rule: a game form that authors asymmetry displaces it through the ordinary displacement mechanism (SD-90), so equality is knowledge about THIS game form and never a universal."
+   },
+   "why": "the roster could not derive because equality bounded without entailing; promoting it closes that without making equal team numbers an engine-level assumption"
   }
  ],
  "added": [
@@ -525,6 +535,27 @@
     "fitNote": "IE-D013 ACCESS_HOLDER. PCG-13 already held ALL but as an ASSUMED reading of \"visibly\" and \"out loud\", with the gap recorded: \"The knowledge names no holder.\" This states the same value as AUTHORED knowledge. PCG-13 is left exactly as it stands so the assumption and the decision remain separately readable."
    },
    "why": "the connected-pass information rule authored as one coherent decision across the canonical IE dimensions, rather than five fields filled independently"
+  },
+  {
+   "contractId": "restated:WIDE-ZONE-ADVANTAGE",
+   "after": "WIDEZONE-06",
+   "ruling": "C31a",
+   "item": {
+    "itemId": "WIDEZONE-06.b",
+    "row": "S6",
+    "selector": "noun=channel",
+    "requirement": "RANGE",
+    "value": "bounded minority (of an axis)",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "OWNER_RULING",
+    "basisEvidence": "Christian, 2026-10-01: \"Author the required width of each wide channel as: minimum 0.15 of the available across dimension, maximum 0.25 of the available across dimension.\" Owner-authored canonical knowledge, stated as such, and explicitly NOT derived from the existing 6-10 m guidance: \"This is owner-authored canonical knowledge, not derived from the existing 6-10 m guidance.\" WIDEZONE-06 is untouched and keeps its own record as PREFERRED guidance.",
+    "checkability": "STRUCTURAL",
+    "structuralClause": "whole item",
+    "fitNote": "The value is the CANONICAL RELATION NAME, not a number: the fractions live once in RC-21’s `relativeTerms`, and this item states which relation holds of a channel. So the knowledge describes the functional spatial relationship and realization produces the concrete geometry from the envelope, which is what he asked for. WIDEZONE-06 stands beside it unchanged, PREFERRED_DEFAULT, 6-10 m — and per the preferenceRule a preference may operate only INSIDE the requirement and may never widen it."
+   },
+   "why": "the required channel extent as a proportion of the available width, so the relationship scales and no A04-specific metre value enters canonical knowledge"
   }
  ],
  "declarationScope": {

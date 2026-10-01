@@ -301,16 +301,17 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
     assert.deepEqual(restatementTally.withheld, [], 'none was named but disqualified')
     assert.equal(
         restatementTally.itemsRestated,
-        29,
+        30,
         'six Phase A rulings, six sets (SD-79), two exclusion bounds (SD-86), eight goal-kick selectors (SD-87), one restart ownership (SD-89), ' +
             'one typed reference (SD-98), one Wide Zone gloss (C29a), one DISTINCT_ON mark (C29b/C29e), two typed neutral bounds (C29c), ' +
-            'one typed channel width (C30b)',
+            'one typed channel width (C30b), one equal-outfield promotion (C31b)',
     )
     assert.equal(restatementTally.itemsRemoved, 2, 'WIDEZONE-13.a and 13.b')
     assert.equal(
         restatementTally.itemsAdded,
-        8,
-        'the recovered GF4 operation, the traced neutral existence, SD-102’s canonical shared objective, and the five connected-pass IE dimensions (C29d)',
+        9,
+        'the recovered GF4 operation, the traced neutral existence, SD-102’s canonical shared objective, the five connected-pass IE dimensions (C29d), ' +
+            'and the required channel extent as a proportion (C31a)',
     )
     assert.equal(restatementTally.declarationScopes, 64)
     assert.deepEqual(restatementTally.notFound, [], 'every item a ruling names was found')

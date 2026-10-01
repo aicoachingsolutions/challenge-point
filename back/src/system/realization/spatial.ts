@@ -41,7 +41,7 @@ export interface RealizedGeometry {
     /** One coordinate, in metres, where the predicate entails only that. */
     anchor?: number
     /** Where an authored extent was available, the bound it came from. */
-    extentBound?: { min?: number | null; max?: number | null; preferred?: boolean }
+    extentBound?: { min?: number | null; max?: number | null; preferred?: boolean; fractionOfAxis?: boolean; term?: string }
     /** True where the position is fixed and the extent is not. */
     extentUnresolved: boolean
     why: string
@@ -69,7 +69,7 @@ export interface SpatialContext {
     /** The row this value sits on, so an axis-free term knows which axis it is being read for. */
     axis: 'along' | 'across'
     /** A REQUIRED extent authored elsewhere on the line, where one exists. */
-    extentBound?: { min?: number | null; max?: number | null; preferred?: boolean }
+    extentBound?: { min?: number | null; max?: number | null; preferred?: boolean; fractionOfAxis?: boolean; term?: string }
     /**
      * How many dimensions the element's noun gives it extent in. **1 means a line**: it has extent on
      * one axis and none on the other, so an anchor on the axis that is *not* carrying its extent closes
@@ -130,8 +130,12 @@ export function realizeSpatialRelation(value: unknown, index: RegisterIndex, ctx
     }
 
     if (extentBound && Number.isFinite(extentBound.max)) {
+        // A FRACTIONAL extent is resolved against this axis of the envelope, which is the whole point of
+        // authoring the relationship rather than a metre value: the same knowledge gives 7.5 m on a 30 m
+        // width and 10 m on a 40 m one. Containment is still checked at the widest permitted extent.
+        const scale = extentBound.fractionOfAxis ? extent : 1
         const outward = anchor === 0 ? 1 : -1
-        const far = anchor + outward * (extentBound.max as number)
+        const far = anchor + outward * (extentBound.max as number) * scale
         return {
             ...base,
             interval: { from: Math.min(anchor, far), to: Math.max(anchor, far) },

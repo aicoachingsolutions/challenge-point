@@ -297,6 +297,10 @@ export interface Bounds {
      * does not state (SD-90 governs the relationship).
      */
     preferred?: boolean
+    /** min/max are FRACTIONS of the named axis, not metres - a proportional rule, resolved at realization. */
+    fractionOfAxis?: boolean
+    /** Which axis a fractional bound is of, where the bound itself knows. */
+    axis?: string
 }
 
 export interface SelectorPredicate {

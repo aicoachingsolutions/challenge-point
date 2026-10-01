@@ -174,7 +174,9 @@
    "valueType": "integer (0 or 1)",
    "sourceKinds": [
     "SELECTION"
-   ]
+   ],
+   "specializedRole": true,
+   "specializedRoleNote": "Marked 1 October. This row counts a SPECIALIZED PERFORMER ROLE per team, and its path leaf is the role name the session states availability for. The flag exists so the engine can find such a row without knowing any role name: the sport names the role, the register carries the name, and the engine reads the flag. An absent entry in the session roles is NOT STATED and derives nothing."
   },
   {
    "id": "P4",
@@ -1394,8 +1396,13 @@
      "kind": "interval",
      "from": 0,
      "to": 1,
-     "added": "2026-10-01",
-     "why": "NEW TERM, prompted by the reconciliation: the block had no predicate for an element spanning the whole of an axis, which is what \"end line to end line\" and \"extends across the axis\" both state. Axis-free, so one term serves both. A term name is vocabulary, so this needs the owner’s confirmation."
+     "why": "An element spanning the whole of an axis, which is what \"end line to end line\" and \"extends across the axis\" both state. Axis-free, so one term serves both. APPROVED by Christian 1 October as a canonical addition to RC-21; no parallel spatial representation is kept beside it."
+    },
+    "bounded minority (of an axis)": {
+     "kind": "interval",
+     "from": 0.15,
+     "to": 0.25,
+     "why": "OWNER-AUTHORED canonical knowledge, Christian 1 October: the required extent of a wide channel is a minimum of 0.15 and a maximum of 0.25 of the available across dimension. Explicitly NOT derived from the existing 6-10 m guidance, which remains PREFERRED realization guidance only. Fractions of the named axis, so the relationship scales with the envelope and no metre value enters the knowledge. Axis-free: the row being read supplies the axis."
     }
    }
   },
@@ -1407,6 +1414,12 @@
     "extends across the axis: the target lies across the direction of progression": "full extent (of an axis)",
     "attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior": "attacking end (of team T)"
    }
+  },
+  "preferenceRule": "Added 1 October on Christian’s ruling: \"Where preferred guidance and required bounds both apply, the preference may operate only inside the required feasible interval; it must never override or widen the requirement.\" So a PREFERRED_DEFAULT extent is intersected with the required interval and offered within it; where the preference falls wholly outside the requirement it is reported as incompatible and the requirement stands.",
+  "collectiveShareRule": {
+   "note": "Added 1 October on Christian’s ruling. Protection against future knowledge changes: if element cardinality on a row grows, the per-element bounded minority must not collectively consume the axis. Checked as cardinality x maximum share, so it needs no per-game rule and no A04 special case.",
+   "maxCollectiveShare": 0.6,
+   "why": "A bounded minority that collectively dominated the axis would no longer preserve \"meaningful non-wide space\", which is the functional relationship the knowledge is there to state. 0.6 leaves at least two fifths of the axis outside the channels at the worst permitted case. With the authored cardinality of 2 and a 0.25 maximum the present corpus sits at 0.5 and passes; the check exists so a later change to either number cannot pass silently."
   }
  },
  "citableStandingDecisions": [

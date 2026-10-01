@@ -538,6 +538,34 @@ function intervalOf(probe: Probe, lineId: string): { interval: Interval | null; 
     return { interval, blocked: false }
 }
 
+/**
+ * Is a degenerate extent on this axis **legitimate** for this element, rather than an empty region?
+ *
+ * His ruling of 1 October: *"If a realized line legitimately has no depth, Gate A should not require a
+ * zone-like interval merely to certify its geometry."* A one-dimensional noun has extent on one axis
+ * and none on the other, so a zero extent on its thickness axis is the element being what it is — not
+ * a region that collapsed.
+ *
+ * Read from the register's `nounSemantics`, which names no axis: the element is degenerate on this axis
+ * only where its OTHER axis carries a real extent, so a line with no extent anywhere is still empty and
+ * still fails. That is what keeps this from becoming a way for any region to be zero-sized.
+ */
+function degenerateIsLegitimate(ctx: GateContext, classId: string, axis: 'along' | 'across'): boolean {
+    const nounRow = [...ctx.index.rows.values()].find(r => String(r.path).endsWith('.noun') && ctx.index.ownerRow.get(r.id) === ctx.classes.find(c => c.classId === classId)?.row)
+    if (!nounRow) return false
+    const noun = resolvedValue(ctx.derived.get(`${classId}::${nounRow.id}`))?.value
+    if (typeof noun !== 'string') return false
+    if (Number((ctx.index.nounSemantics as any)?.extentDimensions?.[noun]) !== 1) return false
+
+    // The other axis must carry a real extent, or nothing establishes which axis is the length.
+    const otherRow = [...ctx.index.rows.values()].find(
+        r => String(r.path).endsWith(axis === 'along' ? '.across' : '.along') && ctx.index.ownerRow.get(r.id) === ctx.classes.find(c => c.classId === classId)?.row,
+    )
+    if (!otherRow) return false
+    const other = toInterval(resolvedValue(ctx.derived.get(`${classId}::${otherRow.id}`))?.value)
+    return !!other && compare(other.lo, other.hi) < 0
+}
+
 /** `GA-ENVELOPE-FIT` — every region and object inside the area, non-empty. */
 function gaEnvelopeFit(ctx: GateContext): CheckOutcome {
     const INSIDE = 'every region and object lies inside the area'
@@ -584,7 +612,12 @@ function gaEnvelopeFit(ctx: GateContext): CheckOutcome {
         return result('GA-ENVELOPE-FIT', probe, [notEvaluable(INSIDE), notEvaluable(NON_EMPTY)], probe.blockedWhy || 'the area dimensions are not derived')
     }
 
-    const empty = placed.filter(p => compare(p.interval.lo, p.interval.hi) >= 0)
+    // A zero extent is only empty where the element is not legitimately degenerate on that axis.
+    const empty = placed.filter(p => {
+        if (compare(p.interval.lo, p.interval.hi) < 0) return false
+        const classId = p.lineId.split('::')[0]
+        return !degenerateIsLegitimate(ctx, classId, p.interval.axis)
+    })
     const outsideArea = placed.filter(p => {
         const limit = p.interval.axis === 'along' ? along : across
         return lt(p.interval.lo, ZERO) || !lte(p.interval.hi, limit)
@@ -664,7 +697,8 @@ function gaLayoutFeasible(ctx: GateContext): CheckOutcome {
                 }
                 continue
             }
-            if (compare(read.interval.lo, read.interval.hi) >= 0) infeasible.push(`${line.lineId} (empty)`)
+            const degenerate = compare(read.interval.lo, read.interval.hi) >= 0
+            if (degenerate && !degenerateIsLegitimate(ctx, String(line.elementId), read.interval.axis)) infeasible.push(`${line.lineId} (empty)`)
             else if (compare(read.interval.hi, limit) > 0) infeasible.push(`${line.lineId} (outside the area)`)
             continue
         }
