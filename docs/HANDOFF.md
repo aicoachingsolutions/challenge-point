@@ -3857,3 +3857,41 @@ Joe directed it: piece (1) of the generation-connection scope.
   (explicit zero; absent means NOT STATED) **plus** promoting `GF2-14.b` "equal outfield counts" from
   `ASSUMED` to authored. Alternative offered (session statement of the split) with a preference stated.
 - `COMPLETED_PASS` still outstanding, still non-blocking. **Generation remains frozen.**
+
+## 1 October — **A04 CLOSES. The deterministic Game Representation → Realization boundary is closed.**
+
+```
+realization acceptance   PASSED
+post-realization Gate A  PASSED
+render-eligible          YES
+```
+246 tests green, tsc clean. Trace: `docs/audits/first-game-closure-2026-10-01.md`.
+**All five owed invariants PASS** — `GA-ENVELOPE-FIT` (both clauses), `GA-LAYOUT-FEASIBLE`,
+`GA-ONE-PRIMARY-EVENT`, `GA-ROSTER-SUM`.
+
+**The concrete game:** target line at the end line it touches — along `[40,40]`, across `[0,30]`;
+three touchline channels along `[0,40]`, across `[0,7.5]`; `line_crossed` worth 1; two teams of six;
+one objective both teams attack.
+
+- **Width authored as the canonical RELATION**, not a number: `WIDEZONE-06.b`'s value is
+  `"bounded minority (of an axis)"` and the fractions (0.15–0.25) live once in RC-21. 0.25 of 30 m is
+  7.5 m here; the same knowledge gives 10 m on a 40 m width untouched.
+- **A FAULT CAUGHT — third instance of the same shape.** The channel carries both the required
+  proportion and the 6–10 m preference, and `extentOf` was taking **whichever bound came first** — the
+  preference. A preference was deciding the geometry. Now the requirement composes and the preference is
+  **intersected into** it (4.5–7.5 ∩ 6–10 = 6–7.5 m). **Any time a requirement and a preference sit on
+  one line, check which one the code actually reads.**
+- **Degenerate extent is legitimate for a one-dimensional noun.** Both emptiness tests read
+  `nounSemantics`, which names no axis; a line is degenerate only where its OTHER axis carries real
+  extent, so a region with no extent anywhere still fails.
+- **Roster derived, not chosen:** 12 session performers, 0 specialized-role from stated `roles`, 0
+  neutrals (none instantiated), 2 teams, equality from the promoted `GF2-14.b` → 6 each. Refuses on
+  anything missing; derives nothing from a division that is not whole. **Equality is read from an
+  AUTHORED item, so a game form stating asymmetry never reaches that path** — not an engine rule.
+- **The sport ratchet failed 3× and was right each time**, including on a doc comment and on
+  `roles.goalkeeper` in engine code. Fixed by a `specializedRole` flag on the register row, so the engine
+  reads the role name from the register and knows none itself.
+- **NOT claimed:** one internally *rendered* activity. The width proportion and roster equality are now
+  authored knowledge, not architecture — change either and the game changes. A04 is one game; **A05 is
+  still unauthorized** on two pre-realization invariants it does not share.
+- `COMPLETED_PASS` remains the separate non-blocking investigation. **Generation remains frozen.**
