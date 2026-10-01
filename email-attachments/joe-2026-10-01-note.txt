@@ -1,0 +1,60 @@
+Joe — he caught a real gap by asking about S5
+
+236 tests green, pushed. A04 NOT rerun for closure — the reconciliation turned
+two decisions into four, and I told him so.
+
+HE WAS RIGHT TO ASK
+
+My "target depth doesn't arise because realization chose line" conflated "no depth
+decision needed" with "the geometry resolves". It doesn't. Two things behind it:
+
+1. "A line has no depth" is represented NOWHERE. GF2-03.a's along-placement is an
+   anchor and nothing lets the engine conclude a `line` has zero extent along. A
+   human reads it instantly. GA-LAYOUT-FEASIBLE is right to refuse.
+
+2. Worse: `line` ISN'T A REGISTERED S3 NOUN. S3.noun is [band, channel, corridor,
+   zone, half, third]. The choice came from GF2-03.b's narrowing [zone, line] — a
+   permitted set offering a member the row's closed list doesn't contain. SD-18
+   says a draft list is still closed. And my realization layer checks a choice
+   against the PERMITTED SET and never against the row vocabulary, so the concrete
+   game holds an unregistered value and nothing objected.
+
+That second one is a genuine hole in the acceptance discipline and I wouldn't have
+found it if he hadn't asked me to reconcile the trace instead of accepting the
+summary.
+
+THE ONE I SHOULD HAVE FOUND FIRST
+
+The register already has `relativeTerms` (RC-21) defining these spatial
+relationships as predicates — "attacking end (of team T)": "touches the end line T
+attacks", "touchline-adjacent": "touches a touchline", plus "central" and
+"lengthwise". That's the canonical home for exactly what I built as
+`spatialRelations`.
+
+So I created a parallel representation of something one block away in the same
+file — the precise thing he warned about over V17/V18. Told him plainly. Haven't
+folded it yet because it's working code on the eve of a closure attempt; flagged
+rather than quietly left.
+
+Answer to his actual question: no proportional rule exists. Closest is SV1
+`space.fractions` (halves and thirds ALONG the axis) — proportional, but wrong
+axis and nothing about width.
+
+ROSTER — HE WAS RIGHT ABOUT OBSERVING
+
+P11 is "the realized participation state of a performer GROUP", so it only exists
+for a group in the game. An available-but-not-established role is simply NOT
+INSTANTIATED — no P4 member, no P11 entry. OBSERVING is for a group that IS here
+and isn't playing. Using it the other way conflates "not here" with "here and
+resting".
+
+Added `Envelope.roles` as the session pathway. The sport-coupling ratchet failed my
+first draft of the comment for writing the sport and role names into engine code —
+correctly. Told him that too.
+
+NET
+
+Four decisions now, not two. I'd rather hand him the real number than a tidy one.
+
+Joe
+

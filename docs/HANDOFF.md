@@ -3797,3 +3797,35 @@ Joe directed it: piece (1) of the generation-connection scope.
   are none*, so it stays unresolved rather than defaulting to 0.
 - **Still outstanding: the `COMPLETED_PASS` overlap check.** Flagged a third time rather than rushed.
 - **Generation remains frozen.**
+
+## 1 October — the S5 reconciliation: two decisions were really four
+
+- **236 tests green. A04 NOT rerun for closure** — two of three reconciliations produce owner decisions.
+- **THE TRACE WAS NOT STALE; I UNDER-REPORTED.** "Target depth doesn't arise because realization chose
+  `line`" conflated *no depth decision needed* with *the geometry resolves*. It does not:
+  1. **"A line has no depth" is represented nowhere.** `GF2-03.a::S5` is an anchor and nothing lets the
+     engine conclude a region whose noun is `line` has zero extent along. `GA-LAYOUT-FEASIBLE` is right
+     to refuse it.
+  2. **`line` IS NOT A REGISTERED S3 NOUN** — `S3.noun` is `[band, channel, corridor, zone, half,
+     third]`. The choice came from `GF2-03.b`'s narrowing `[zone, line]`, which offers a member the
+     row's closed list lacks; SD-18 says a draft list is still closed. **And realization checks a
+     choice against the PERMITTED SET and never against the row vocabulary** — so the concrete game
+     holds an unregistered value and nothing objected. A real hole in the acceptance discipline.
+- **`relativeTerms` (RC-21) ALREADY EXISTS** in the register, defining these relationships as
+  predicates — *"attacking end (of team T)": "touches the end line T attacks"*, `"touchline-adjacent"`,
+  `"central"`, `"lengthwise"`. **My `spatialRelations` block is a parallel representation of it**, keyed
+  on whole phrases instead of canonical term names — the V17/V18 mistake, which I made. Flagged, not
+  yet folded (working code on the eve of a closure attempt).
+- **No proportional rule exists.** Closest is **`SV1 space.fractions`** — halves and thirds *along* the
+  axis, per team. Proportional, wrong axis, nothing about width.
+- **Roster: he was right about OBSERVING.** `P11` is *"the realized participation state of a performer
+  GROUP"*, so it exists only for a group **in the game**. An available-but-not-established role is
+  simply **not instantiated** — no `P4` member, no `P11` entry. OBSERVING is for a group that IS here
+  and isn't playing. Three levels: session availability (**`Envelope.roles` added**) → instantiation
+  (`P4`/`P3`) → participation (`P11`/`P12`). No Team Profile concept exists anywhere yet.
+- **The sport-coupling ratchet failed my first draft** of that field's comment for naming the sport and
+  the role in engine code. Correctly.
+- **FOUR decisions now, not two:** channel across-extent proportion · session role availability for
+  this game · whether a realized `line` entails zero extent along · whether `line` may be a permitted
+  S3 value at all.
+- `COMPLETED_PASS` still outstanding, still not blocking. **Generation remains frozen.**

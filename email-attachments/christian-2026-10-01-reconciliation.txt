@@ -1,0 +1,133 @@
+Subject: You were right to ask about S5 — the trace is not stale, and my two-decision summary was hiding something
+
+Christian,
+
+Taking your item 3 first, because the answer is that I under-reported and the
+summary did hide something.
+
+Generation remains frozen. 236 tests, suite green. A04 is not rerun for closure:
+two of the three reconciliations produce decisions that are yours.
+
+
+3 · THE S5 TRACE IS NOT STALE
+
+My last note said target depth "does not arise" because realization chose `line`.
+That conflated two different things. No depth DECISION is needed — correct. But
+the geometry still does not RESOLVE, and GA-LAYOUT-FEASIBLE is right to refuse
+it. Two findings behind that.
+
+FIRST: "a line has no depth" is represented nowhere. GF2-03.a's along-placement
+is an anchor — "touches an end line" — and nothing in the representation lets the
+engine conclude that a region whose noun is `line` has zero extent along. A human
+reads it instantly; the engine has no rule for it. So the anchor stays an anchor.
+
+That is a genuine third decision, small and separable: is a region realized as a
+line entailed to have zero extent on the axis it is placed against? I think it is
+— that is what a line is — but it is a semantic claim about the noun vocabulary
+and I have not made it.
+
+SECOND, and worse: `line` IS NOT A REGISTERED S3 NOUN. The S3.noun vocabulary is
+[band, channel, corridor, zone, half, third]. The choice came from GF2-03.b's
+narrowing, which offers [zone, line] — a permitted set containing a member the
+row's own closed list does not have. SD-18 is explicit that a draft list is still
+closed: "a value outside it is refused, not admitted as an extension."
+
+And my realization layer checked that choice against the PERMITTED SET and never
+against the row's vocabulary. So the concrete game holds an unregistered value
+and nothing objected. That is a real gap in the acceptance discipline — a
+realization choice should have to satisfy both the narrowing and the register —
+and I would not have found it if you had not asked me to reconcile the trace.
+
+So the two-decision summary was wrong. There are more, and they are above.
+
+
+1 · NO PROPORTIONAL RULE EXISTS — AND I SHOULD HAVE FOUND SOMETHING SOONER
+
+The answer to your question is no. Nothing in the canonical knowledge supports a
+proportional channel width.
+
+The only proportional mechanism in the representation is SV1, `space.fractions` —
+"halves and thirds along the axis, per team (own/attacking)", a VIEW under SD-12.
+It is proportional, and it is along the axis, not across it, and it says nothing
+about channel width. So it does not answer the question, though it does show the
+shape such a rule would take if you author one.
+
+The thing I should have found first: the register ALREADY has a relative-terms
+block, RC-21, defining these spatial relationships as PREDICATES.
+
+  "attacking end (of team T)"  : "touches the end line T attacks"
+  "touchline-adjacent"         : "touches a touchline"
+  "central"                    : "contains the axis midline across the width,
+                                  and touches neither touchline"
+  "lengthwise"                 : "the element's extent along the axis is at least
+                                  its extent across it"
+
+That is the canonical home for exactly what I built. My `spatialRelations` block
+is a second representation of the same concept, keyed on whole authored phrases
+instead of on the canonical term names. It is the parallel representation you
+warned about over V17 and V18, and I introduced it while looking for a mechanism
+that already existed one block away.
+
+It should be folded into `relativeTerms` rather than sitting beside it. I have
+not done that yet because it touches working code on the eve of a closure
+attempt, and I would rather you knew it was there than find it later. Note that
+`relativeTerms` defines the tests in prose, so the machine-readable form still
+has to be added — but to that block, under those names, not as a rival.
+
+I have not inferred a percentage from your wording, and I have not promoted the
+6-10 m preference.
+
+
+2 · THE THREE-WAY DISTINCTION IS ALREADY IN THE MODEL, AND YOU ARE RIGHT ABOUT
+    OBSERVING
+
+Verified against the existing representation, nothing added.
+
+P11 is "the realized participation state of a performer GROUP". A participation
+state therefore exists only for a group that is in the game. So a role available
+in the session but not established by the selected knowledge is simply NOT
+INSTANTIATED — no P4 roles[] member, no P11 entry — rather than instantiated and
+marked OBSERVING. Your expectation is what the model already says.
+
+OBSERVING is for a group that IS in the game and is not currently participating.
+Using it for an unavailable or uninstantiated role would have conflated "not
+here" with "here and resting", which are different facts about the game.
+
+So the three levels are:
+
+  available in the session     session context — DID NOT EXIST, now added
+  instantiated into this game  P4 performers.teams[].roles[], P3 for the count
+  participation state          P11/P12, only for an instantiated group
+
+`Envelope` now carries `roles?: Record<string, number>`, sport-neutrally — the
+role names are sport knowledge and the engine knows none of them. There is no
+Team Profile concept anywhere today; this is the pathway one would populate, with
+a session override, both upstream of the engine. An absent entry means NOT
+STATED, never none available.
+
+One thing worth telling you: the sport-coupling ratchet failed my first draft of
+that field's comment, because I had written the sport's name and the role's name
+into engine code. It was right to.
+
+Equal outfield counts still not promoted.
+
+
+WHERE THIS LEAVES A04
+
+Four decisions now, not two, and I would rather give you the real number:
+
+  1. the channel's required across-extent — a proportion, which nothing in the
+     knowledge supplies
+  2. session role availability for this game — the pathway exists, the statement
+     does not
+  3. whether a region realized as a line is entailed to have zero extent along
+  4. whether `line` may be a permitted S3 value at all, given it is not in the
+     row's closed list
+
+(3) and (4) are small and they are the ones the trace reconciliation exposed.
+Neither was visible until you asked.
+
+COMPLETED_PASS still outstanding, still not blocking.
+
+Joe
+
