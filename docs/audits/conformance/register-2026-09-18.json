@@ -1018,7 +1018,7 @@
   "draft": "Lists marked (draft) in valueType are drafts here too. A draft list is still closed for checking: a value outside it is refused, not admitted as an extension.",
   "versions": {
    "note": "Data-model section 2 requires each closed vocabulary to be versioned separately, so SD-18 review can replace contents without touching code. Added 20 September after a design review found the block had none - without them a stored result cannot be known stale when a list membership changes.",
-   "S3.noun": "1 (2026-09-18, draft)",
+   "S3.noun": "2 (2026-10-01, draft) - adds `line` on Christian’s ruling, prompted by the inconsistency the A04 trace exposed",
    "S4.functions": "1 (2026-09-18, draft)",
    "O2.kind": "1 (2026-09-18, draft)",
    "trigger": "2 (2026-09-29, draft) - adds FIRST_FORWARD_PASS under the boundary Christian accepted on 29 September",
@@ -1050,7 +1050,8 @@
    "corridor",
    "zone",
    "half",
-   "third"
+   "third",
+   "line"
   ],
   "S4.functions": [
    "objective-area",
@@ -1212,6 +1213,19 @@
   ],
   "triggerSemantics": {
    "FIRST_FORWARD_PASS": "An EVENT IN PLAY, like POSSESSION_CHANGE, never a restart like START. Forward is relative to the passing team attacking direction, which the representation establishes (SD-95); where that direction is FREE the trigger is NOT EVALUABLE and its line is CONDITIONAL, never failed. First is per episode, using the episode boundary transitions already carry (startsEpisode). It implies NOTHING about pass success, receiver, distance or intent, and must not be read as doing so. Added 2026-09-29 on Christian ruling; bounded addition only, no qualifier capability is implied."
+  },
+  "nounSemantics": {
+   "note": "Added 1 October on Christian’s ruling. A noun states the element’s DIMENSIONALITY and nothing about orientation: \"zero extent in its thickness dimension and extent in its length dimension\", with which axis is which following from the element’s own orientation. Deliberately general - the same noun must describe a line across the playing area and one along it, so no entry here may name an axis.",
+   "extentDimensions": {
+    "line": 1,
+    "band": 2,
+    "channel": 2,
+    "corridor": 2,
+    "zone": 2,
+    "half": 2,
+    "third": 2
+   },
+   "oneDimensionalRule": "For a noun with extentDimensions 1, the element has extent on exactly one axis. Whichever axis carries its extent is its LENGTH; its extent on the other axis is ZERO. Orientation is therefore read off the geometry already established and is never inferred from the noun."
   }
  },
  "applicability": {
@@ -1351,7 +1365,49 @@
   "central": "contains the axis midline across the width, and touches neither touchline",
   "touchline-adjacent": "touches a touchline",
   "lengthwise": "the element's extent along the axis is at least its extent across it (AM-22; renamed from 'longitudinal' to avoid colliding with the lateral selector attribute)",
-  "crosswise": "the reverse of lengthwise (AM-22)"
+  "crosswise": "the reverse of lengthwise (AM-22)",
+  "machineReadable": {
+   "note": "Added 1 October. RC-21 already owned these relative spatial predicates in prose; the machine-readable form now lives HERE rather than in a second block beside it. A term states only what its prose test states - an anchor where the test fixes one edge, an interval where it fixes both - and fractions are of the named axis of the session envelope. Nothing here invents an extent the prose does not state.",
+   "terms": {
+    "touchline-adjacent": {
+     "kind": "anchor",
+     "axis": "across",
+     "at": 0,
+     "of": "the across extent",
+     "why": "the prose test is \"touches a touchline\", which fixes one edge and states no width"
+    },
+    "attacking end (of team T)": {
+     "kind": "anchor",
+     "axis": "along",
+     "at": 1,
+     "of": "the along extent",
+     "why": "the prose test is \"touches the end line T attacks\", which fixes one edge and states no depth"
+    },
+    "own end (of team T)": {
+     "kind": "anchor",
+     "axis": "along",
+     "at": 0,
+     "of": "the along extent",
+     "why": "the prose test is \"touches the end line T defends\""
+    },
+    "full extent (of an axis)": {
+     "kind": "interval",
+     "from": 0,
+     "to": 1,
+     "added": "2026-10-01",
+     "why": "NEW TERM, prompted by the reconciliation: the block had no predicate for an element spanning the whole of an axis, which is what \"end line to end line\" and \"extends across the axis\" both state. Axis-free, so one term serves both. A term name is vocabulary, so this needs the owner’s confirmation."
+    }
+   }
+  },
+  "phraseIndex": {
+   "note": "Authored values are phrases, not bare terms. This maps each phrase to the canonical term it instantiates, so recognition is by term and the prose keeps its own provenance. A phrase absent here is simply not recognised, and nothing is guessed from it.",
+   "map": {
+    "touchline-adjacent": "touchline-adjacent",
+    "the full axis extent, end line to end line": "full extent (of an axis)",
+    "extends across the axis: the target lies across the direction of progression": "full extent (of an axis)",
+    "attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior": "attacking end (of team T)"
+   }
+  }
  },
  "citableStandingDecisions": [
   {
@@ -1520,37 +1576,5 @@
   }
  },
  "selectorAttributeNote": "Added 27 September (SD-92). A FIELD row that corresponds to one of its collection’s selectorAttributes now names it here, instead of leaving the correspondence to be recovered by matching the path tail. Membership is unchanged. It also reconciles the one spelling difference the matching exposed: rows T1a/T1b/T1c carry the path \"transitions[].qualifiers.<name>\" while T1 registers the selector attribute as \"qualifier.<name>\". Both spellings stay exactly as authored; this field states which pairs with which, so nothing has to normalise a string to find out.",
- "outerBoundNote": "Added 29 September on Christian’s ruling. A row marked outerBound: SESSION_ENVELOPE has a fillable choice space whose outer geometric limit the session envelope supplies, so SD-50’s requirement for a supported choice space is met by the envelope where the element’s existence and relevant structural relationships are already established and no selected knowledge authors a narrower bound. It does NOT authorize arbitrary geometry: realization may choose only inside the envelope, preserving every authored spatial relationship and the element’s established function, never determining a previously unauthored structural relationship, and always recorded as a realization choice rather than derived knowledge.",
- "spatialRelations": {
-  "note": "Added 30 September on Christian’s ruling: \"I do not want ecological/spatial relationships ... replaced in the knowledge layer by arbitrary metre values merely to make validation executable. Instead ... the minimum general mechanism by which realization can instantiate an authored relational spatial bound against the concrete session envelope.\" The authored phrase remains the authority and the provenance; this block says only what the phrase ENTAILS about the envelope. A term whose extent the phrase does not state yields an anchor, not an interval, and the extent stays unresolved. No distance is invented anywhere in it.",
-  "form": "interval: { axis, from, to } as fractions of that axis of the envelope, both ends entailed by the phrase. anchor: { axis, at } as a fraction, one coordinate entailed and the extent NOT stated by the phrase.",
-  "terms": {
-   "the full axis extent, end line to end line": {
-    "kind": "interval",
-    "axis": "along",
-    "from": 0,
-    "to": 1,
-    "why": "end line to end line is the whole axis; the phrase states both ends"
-   },
-   "extends across the axis: the target lies across the direction of progression": {
-    "kind": "interval",
-    "axis": "across",
-    "from": 0,
-    "to": 1,
-    "why": "extending across the axis spans the across dimension; the phrase states both ends"
-   },
-   "touchline-adjacent": {
-    "kind": "anchor",
-    "axis": "across",
-    "at": 0,
-    "why": "the outer edge lies on a touchline. WIDTH IS NOT STATED - Wide Zone records \"no scaling rule for width\" - so this is an anchor and the extent remains unresolved"
-   },
-   "attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior": {
-    "kind": "anchor",
-    "axis": "along",
-    "at": 1,
-    "why": "it touches an end line, which fixes one coordinate. DEPTH IS NOT STATED - GF2 records \"extent of the target feature (depth of a zone)\" as unauthored - so the extent remains unresolved"
-   }
-  }
- }
+ "outerBoundNote": "Added 29 September on Christian’s ruling. A row marked outerBound: SESSION_ENVELOPE has a fillable choice space whose outer geometric limit the session envelope supplies, so SD-50’s requirement for a supported choice space is met by the envelope where the element’s existence and relevant structural relationships are already established and no selected knowledge authors a narrower bound. It does NOT authorize arbitrary geometry: realization may choose only inside the envelope, preserving every authored spatial relationship and the element’s established function, never determining a previously unauthored structural relationship, and always recorded as a realization choice rather than derived knowledge."
 }

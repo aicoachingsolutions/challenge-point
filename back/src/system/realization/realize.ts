@@ -135,6 +135,37 @@ function splitElementPath(path: string): { container: string; elementId: string;
  * The realizer neither rejects the value nor pretends to have checked it: the choice is recorded as
  * unverified, and the record says which ones.
  */
+/**
+ * **A choice must satisfy the canonical register as well as the authored narrowing** — his ruling of
+ * 1 October, and it is general rather than a fix for the case that exposed it:
+ *
+ *   > *A permitted set cannot extend a closed canonical vocabulary merely by containing an additional
+ *   > member. If those disagree, realization must refuse and expose the inconsistency.*
+ *
+ * The case: `GF2-03.b` narrowed the target's noun to `[zone, line]`, and `line` was not in `S3.noun`.
+ * Realization checked the permitted set, found `line` in it, and wrote an unregistered value into the
+ * concrete game while every check reported success. SD-18 is explicit that a draft list is still closed
+ * — *"a value outside it is refused, not admitted as an extension"* — and nothing was enforcing it at
+ * this boundary.
+ *
+ * The refusal names both sides, because the useful information is the **disagreement**: an authored set
+ * offering a member the register does not have is a knowledge defect, not a bad choice by a realizer.
+ */
+function checkVocabulary(choice: OpenChoice, value: unknown, index?: RegisterIndex): string | null {
+    if (!index) return null
+    const row = choice.lineId.split('::').pop() ?? ''
+    // The register names its closed lists `<row>.<leaf>`; a row with no closed list constrains nothing.
+    const vocabularyName = [...index.vocabularies.keys()].find(name => name.startsWith(`${row}.`))
+    if (!vocabularyName) return null
+    const members = index.vocabularies.get(vocabularyName) ?? []
+    if (!members.length || typeof value !== 'string' || members.includes(value)) return null
+    return (
+        `${choice.lineId}: ${JSON.stringify(value)} is not a member of the canonical vocabulary ${vocabularyName} ` +
+        `(${members.join(', ')}). The authored permitted set offers it, and a permitted set cannot extend a closed ` +
+        `vocabulary — so the knowledge and the register disagree, and that is what needs resolving, not the choice.`
+    )
+}
+
 function checkBound(choice: OpenChoice, value: unknown): { ok: boolean; how: RecordedChoice['boundCheck']; why?: string } {
     if (choice.permitted) {
         const ok = choice.permitted.some(m => JSON.stringify(m) === JSON.stringify(value))
@@ -224,6 +255,12 @@ export function realize(
         const bound = checkBound(open, choice.value)
         if (!bound.ok) {
             because.push(bound.why!)
+            continue
+        }
+        // Both, not either: the authored bound AND the canonical vocabulary.
+        const unregistered = checkVocabulary(open, choice.value, index)
+        if (unregistered) {
+            because.push(unregistered)
             continue
         }
         recorded.push({ ...choice, path: open.path, authority: open.permittedBy?.authority ?? null, boundCheck: bound.how })
@@ -347,8 +384,43 @@ export function realize(
             return bounds.find(b => b?.kind === 'COUNT' && (b.min !== null || b.max !== null))
         }
         const spatial = [...resolved.derived.map(d => ({ lineId: d.lineId, path: d.path, value: d.value })), ...recorded.map(c => ({ lineId: c.lineId, path: c.path, value: c.value }))]
+
+        /** Which axis a row is about, read from the register's own path rather than from a row-id list. */
+        const axisOf = (lineId: string): 'along' | 'across' | null => {
+            const path = String(index.rows.get(lineId.split('::').pop() ?? '')?.path ?? '')
+            return path.endsWith('.along') ? 'along' : path.endsWith('.across') ? 'across' : null
+        }
+        /** The noun realized or derived for this element, if any — the realization choice wins. */
+        const nounOf = (elementId: string): string | undefined => {
+            const nounRow = (id: string) => String(index.rows.get(id.split('::').pop() ?? '')?.path ?? '').endsWith('.noun')
+            const chosen = recorded.find(c => nounRow(c.lineId) && c.lineId.startsWith(elementId))
+            if (chosen) return String(chosen.value)
+            const derivedNoun = resolved.derived.find(d => nounRow(d.lineId) && d.lineId.startsWith(elementId))
+            return derivedNoun ? String(derivedNoun.value) : undefined
+        }
+
         for (const entry of spatial) {
-            const realizedGeometry = realizeSpatialRelation(entry.value, envelope ?? {}, index, extentOf(entry.lineId))
+            const axis = axisOf(entry.lineId)
+            if (!axis) continue
+            const elementId = splitElementPath(entry.path)?.elementId ?? ''
+            const noun = nounOf(elementId)
+            const dimensions = noun ? Number((index.nounSemantics as any)?.extentDimensions?.[noun]) : undefined
+
+            // Does the element's OTHER axis carry an extent? For a one-dimensional noun that is what
+            // makes this axis the thickness rather than the length — orientation from the geometry, not
+            // from the noun.
+            const other = axis === 'along' ? 'across' : 'along'
+            const otherAxisHasExtent = spatial.some(
+                o => (splitElementPath(o.path)?.elementId ?? '') === elementId && axisOf(o.lineId) === other && typeof o.value === 'string' && !!(index.relativeTerms as any)?.phraseIndex?.map?.[o.value],
+            )
+
+            const realizedGeometry = realizeSpatialRelation(entry.value, index, {
+                envelope: envelope ?? {},
+                axis,
+                extentBound: extentOf(entry.lineId) as any,
+                nounExtentDimensions: Number.isFinite(dimensions) ? dimensions : undefined,
+                otherAxisHasExtent,
+            })
             if (!realizedGeometry) continue
             geometry.push({ lineId: entry.lineId, path: entry.path, geometry: realizedGeometry })
             const parts = splitElementPath(entry.path)

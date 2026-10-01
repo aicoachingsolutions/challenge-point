@@ -13,7 +13,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 
-import { corpusInput } from '../derivation/corpus'
+import { corpusInput, loadRegister } from '../derivation/corpus'
 import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { indexRegister } from '../derivation/register'
@@ -204,6 +204,35 @@ test('a preferred default is offered, never enforced as a ceiling', () => {
 
     // The required floor still bites.
     assert.ok(isRefused(realize(resolved, [{ lineId: 'L-neutrals', value: 0, because: 'below the required floor' }])))
+})
+
+test('a choice must satisfy the canonical register as well as the authored narrowing', () => {
+    // His ruling of 1 October, and the case that exposed it: GF2-03.b narrowed the noun to
+    // [zone, line] while `line` was not in S3.noun, and realization wrote an unregistered value into
+    // the concrete game with every check reporting success. A permitted set cannot extend a closed
+    // vocabulary, so the two disagreeing is the thing to report.
+    const resolved = eligible({
+        game: { envelope: { players: 12 }, space: { regions: [{ elementId: 'r1' }] } },
+        open: [
+            {
+                path: 'space.regions[r1].noun',
+                lineId: 'c:X:r1::S3',
+                elementId: 'r1',
+                permittedBy: null,
+                permitted: ['zone', 'invented-noun'],
+                bounds: [],
+                kind: 'FREE(choice)',
+            },
+        ],
+    })
+    const registerIndex = indexRegister(loadRegister())
+    const refused = realize(resolved, [{ lineId: 'c:X:r1::S3', value: 'invented-noun', because: 'the permitted set offers it' }], [], registerIndex)
+    assert.ok(isRefused(refused))
+    assert.match(refused.because[0], /not a member of the canonical vocabulary S3\.noun/)
+    assert.match(refused.because[0], /a permitted set cannot extend a closed vocabulary/)
+
+    // A member of BOTH is accepted, and `line` is now in both since the owner-authorized extension.
+    assert.equal(realize(resolved, [{ lineId: 'c:X:r1::S3', value: 'zone', because: 'in both' }], [], registerIndex).outcome, 'REALIZED')
 })
 
 // ---------------------------------------------------------------------------------------------

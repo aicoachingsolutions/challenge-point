@@ -61,8 +61,10 @@ export interface RegisterIndex {
     fillable: Map<string, string>
     /** Row id -> the authoritative structure that supplies its OUTER bound, where one does. */
     outerBound: Map<string, string>
-    /** Authored relational spatial terms, as data, so the engine compiles in no phrase. */
-    spatialRelations: Record<string, unknown>
+    /** RC-21 relative spatial terms: prose test, machine-readable form and phrase index, all canonical. */
+    relativeTerms: Record<string, unknown>
+    /** S3 noun semantics: how many dimensions a noun gives extent in. Never which axis. */
+    nounSemantics: Record<string, unknown>
     /** Row id → the condition under which the row applies at all. */
     applicability: Map<string, ApplicabilityCondition>
     /** Vocabulary name → its closed member list. */
@@ -180,7 +182,8 @@ export function indexRegister(register: any): RegisterIndex {
         ownerRow,
         fillable,
         outerBound,
-        spatialRelations: (register.spatialRelations && register.spatialRelations.terms) || {},
+        relativeTerms: register.relativeTerms || {},
+        nounSemantics: (register.vocabularies && register.vocabularies.nounSemantics) || {},
         applicability,
         vocabularies,
         vocabularyVersions: (vocabBlock.versions as any) || {},
