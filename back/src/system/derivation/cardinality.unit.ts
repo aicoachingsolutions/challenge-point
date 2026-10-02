@@ -100,7 +100,9 @@ import { derivationInputFor, selectFor } from './run-bounded-selection'
     assert.ok(resolved.collectionCardinality.length > 0, 'a report over nothing would be vacuous')
 
     // Since ruling C33 each lateral channel item authors exactly ONE region, and the pair makes two.
-    const channels = resolved.collectionCardinality.filter((b: any) => b.classId.includes('WIDEZONE'))
+    // Scoped to S2: since ruling C34 the Wide Zone also carries a value-modifier class on V7, which has a
+    // cardinality of its own and is not a channel.
+    const channels = resolved.collectionCardinality.filter((b: any) => b.classId.includes('WIDEZONE') && b.row === 'S2')
     assert.equal(channels.length, 2, 'two channel items, one per side')
     for (const bound of channels) {
         assert.equal(bound.min, 1, 'exactly one of its own side')

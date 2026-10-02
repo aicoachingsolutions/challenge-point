@@ -17,7 +17,7 @@ import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame } from '../derivation/resolved-game'
-import { derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
+import { derivationInputFor, derivationInputWithoutWideZoneModifier, selectFor } from '../derivation/run-bounded-selection'
 import { completeConcreteGame } from '../realization/assemble-concrete-game'
 import { runPostRealizationGates } from '../realization/post-realization-gate'
 import { checkRealization, isRefused, realize, Realized } from '../realization/realize'
@@ -26,7 +26,8 @@ const CHOICES = path.resolve(__dirname, '../../../../docs/audits/a04-realization
 const OUT = path.resolve(__dirname, '../../../../docs/audits/a04-concrete-game-fixture.json')
 
 const selection = selectFor('A04', null)
-const input = derivationInputFor(selection)
+// Modifier-free, pending the referent question — see derivationInputWithoutWideZoneModifier.
+    const input = derivationInputWithoutWideZoneModifier(selection)
 const result = runDerivation(input)
 if (isStampedHalt(result)) throw new Error('the run halted')
 

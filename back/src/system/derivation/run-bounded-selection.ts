@@ -108,6 +108,37 @@ export function selectFor(goalId: string, situationId: string | null = null): Bo
 }
 
 /** The derivation input a selection implies: the contracts for the objects it chose, and nothing else. */
+/**
+ * **TEMPORARY, and named so it cannot be lost: a run without the Wide Zone value modifier.**
+ *
+ * Ruling C34 authored the advantage as a value modifier on the existing primary event. The modifier is
+ * correct knowledge and it cannot be EVALUATED: its referents are the authored prose *"both wide channels of
+ * this contract, each a referent"*, and SD-58 forbids comparing open text as identity, so
+ * `GA-MODIFIER-OVERLAP` is NOT_EVALUABLE and realization is not authorized.
+ *
+ * Typing those referents is the canonical remedy (the SD-98 precedent) and **it has no working form today**:
+ * an array of two typed references is read as a permitted SET, so the line becomes a choice between the two
+ * channels and inverts the authored "both"; two items each typing one referent COLLIDE under SD-02. V8b's
+ * registered valueType says "one property per referent", and neither route implements that.
+ *
+ * So this drops the modifier's items **from a caller's own copy of the input, never from the corpus**, to keep
+ * realization's acceptance conditions and the rendering pathway under test while that representational
+ * question is with him. The blocker itself is pinned in `realize.unit.ts`.
+ *
+ * **Delete this function once a condition on two referents is representable.** Every user is a call site, so
+ * removing it will not compile until each is revisited.
+ */
+export function derivationInputWithoutWideZoneModifier(selection: BoundedSelection): DerivationInput {
+    const input = derivationInputFor(selection)
+    return {
+        ...input,
+        contracts: input.contracts.map(contract => ({
+            ...contract,
+            items: (contract.items ?? []).filter(item => !String((item as { itemId?: unknown }).itemId ?? '').startsWith('WIDEZONE-18')),
+        })),
+    }
+}
+
 export function derivationInputFor(selection: BoundedSelection): DerivationInput {
     const wanted = new Set(selection.selected.map(s => key(s.id)))
     const contracts: LoadedContract[] = loadCorpusContracts().filter(c => wanted.has(key(c.contractId)))

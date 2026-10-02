@@ -309,8 +309,9 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
     assert.equal(restatementTally.itemsRemoved, 2, 'WIDEZONE-13.a and 13.b')
     assert.equal(
         restatementTally.itemsAdded,
-        9,
+        12,
         'the recovered GF4 operation, the traced neutral existence, SD-102’s canonical shared objective, the five connected-pass IE dimensions (C29d), ' +
+            'the three Wide Zone value-modifier items — existence, magnitude 2 and MULTIPLY (C34), ' +
             'and the required channel extent as a proportion (C31a)',
     )
     assert.equal(restatementTally.declarationScopes, 64)

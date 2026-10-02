@@ -825,13 +825,20 @@ test('the corpus run reproduces the reported figures exactly', () => {
      * lines it owned (S3/S4/S5/S6) — 125 − 4 = 121. His distinction: *"A statement that a property applies
      * to N existing members does not thereby assert the existence of N additional members."*
      */
-    assert.equal(result.run.counts.lines, 121)
+    /**
+     * **126 since ruling C34 of 2 October.** The Wide Zone advantage is now authored as a value modifier, so
+     * V7 carries an existence item for the first time and its five owned field rows enumerate (V8a, V8b, V9,
+     * V9a, V10): 121 + 5 = 126. Before this, every claim the object made about the advantage reached no line
+     * at all and appeared in neither the game, `open` nor `notEstablished`.
+     */
+    assert.equal(result.run.counts.lines, 126)
     /**
      * **61, up from 59.** The same restatement establishes `perceptual-reference` on BOTH channels rather
      * than on a third region of its own, so two S4 lines now resolve where none did. The functions rows
      * were previously reported as excluded and reaching no artifact.
      */
-    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 61)
+    // 65: the modifier's condition type, referents, magnitude and operation now resolve.
+    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 65)
     // **NOT_AUTHORED fell 54 → 26 across the 29 September rulings, and only five of those twenty-eight
     // were closed by authoring anything.**
     //   −9  T1a/T1b/T1c demanded of three POSSESSION_CHANGE transitions. A turnover has no last touch
@@ -852,9 +859,11 @@ test('the corpus run reproduces the reported figures exactly', () => {
      * establishes the member on. **Nothing was authored to close them** — the member was already authored;
      * it was being asserted of a third region instead of the two that exist.
      */
-    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 23)
+    // 24: V10, the modifier's combination rule, is enumerated and unauthored — the contract's own
+    // declaration says "Combination with an overlapping modifier never addressed".
+    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 24)
     assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 0, 'cluster 3 cleared the whole population')
-    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 23, 'one GAP per unauthored line, and none for a withdrawn one')
+    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 24, 'one GAP per unauthored line, and none for a withdrawn one')
     // 17 since C33: the removed third region took its one open S5 line (a channel's along-extent) with it.
     assert.equal([...result.derived.lines.values()].filter((l: any) => l.open).length, 17, 'five open lines became seventeen')
 

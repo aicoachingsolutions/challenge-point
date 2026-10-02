@@ -593,6 +593,69 @@
     "fitNote": "The value is the CANONICAL RELATION NAME, not a number: the fractions live once in RC-21’s `relativeTerms`, and this item states which relation holds of a channel. So the knowledge describes the functional spatial relationship and realization produces the concrete geometry from the envelope, which is what he asked for. WIDEZONE-06 stands beside it unchanged, PREFERRED_DEFAULT, 6-10 m — and per the preferenceRule a preference may operate only INSIDE the requirement and may never widen it."
    },
    "why": "the required channel extent as a proportion of the available width, so the relationship scales and no A04-specific metre value enters canonical knowledge"
+  },
+  {
+   "contractId": "restated:WIDE-ZONE-ADVANTAGE",
+   "after": "WIDEZONE-11.a",
+   "ruling": "C34",
+   "item": {
+    "itemId": "WIDEZONE-18.a",
+    "row": "V7",
+    "selector": "condition.type=region",
+    "requirement": "EXISTS",
+    "value": "N/A",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "OWNER_RULING",
+    "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"Actions starting in or moving through the wide channel earn an advantage (bonus point, free restart, or scoring multiplier).\" Christian, 2026-10-02 selects the third of those three alternatives: \"let's authorize the remaining effect as a value modifier on the existing primary scoring event, not as a second scoring event, objective, or access mechanism. ... For the value operation, authorize: MULTIPLY x2.\"",
+    "fitNote": "AUTHORED 2 October. The Wide Zone advantage exists as a VALUE MODIFIER on the existing primary scoring event. V7 previously carried NO item -- its V8a declaration recorded why: \"no item, since V7 cannot select this object's modifier\" -- so every claim the object made about the advantage reached no line at all and vanished from the game, from `open` and from `notEstablished` alike. The selector is `condition.type=region`, one of V7's two registered selector attributes; the referents are already authored on V8b (\"both wide channels of this contract, each a referent\"). Not a consequence and not an objective: his ruling is explicit that this must not become a second scoring event, and the object already excludes the channel as an objective reference and as an ACCESS region. Scope is WHOLE_GAME, matching its sibling WIDEZONE-11.a on V8b. That item's own note recorded the tension -- \"V7 cannot select this object's modifier, so WHOLE_GAME is over-broad\" -- which this resolves: V7 now carries an item, so the referent selector has a modifier of this object's to identify.",
+    "origId": "WIDEZONE-13",
+    "checkability": "STRUCTURAL",
+    "structuralClause": "whole item"
+   }
+  },
+  {
+   "contractId": "restated:WIDE-ZONE-ADVANTAGE",
+   "after": "WIDEZONE-18.a",
+   "ruling": "C34",
+   "item": {
+    "itemId": "WIDEZONE-18.b",
+    "row": "V9",
+    "selector": "condition.type=region",
+    "requirement": "EQUALS",
+    "value": 2,
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "OWNER_RULING",
+    "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"Actions starting in or moving through the wide channel earn an advantage (bonus point, free restart, or scoring multiplier).\" Christian, 2026-10-02 selects the third of those three alternatives: \"let's authorize the remaining effect as a value modifier on the existing primary scoring event, not as a second scoring event, objective, or access mechanism. ... For the value operation, authorize: MULTIPLY x2.\"",
+    "fitNote": "AUTHORED 2 October: the magnitude is 2. V9 previously carried only two TYPICAL_EXAMPLE items (\"a multiplier on the primary event value (size not authored)\", \"added point(s) on the primary event (number not authored)\") declared NOT_AUTHORED in the same breath -- \"no multiplier size or bonus points; realization parameters null\". The magnitude is a number whose MEANING is fixed by V9a and never inferred (SD-24), which is why the operation is authored beside it rather than left to be read off the word 'multiplier'. Scope is WHOLE_GAME, matching its sibling WIDEZONE-11.a on V8b. That item's own note recorded the tension -- \"V7 cannot select this object's modifier, so WHOLE_GAME is over-broad\" -- which this resolves: V7 now carries an item, so the referent selector has a modifier of this object's to identify.",
+    "origId": "WIDEZONE-13",
+    "checkability": "STRUCTURAL",
+    "structuralClause": "whole item"
+   }
+  },
+  {
+   "contractId": "restated:WIDE-ZONE-ADVANTAGE",
+   "after": "WIDEZONE-18.b",
+   "ruling": "C34",
+   "item": {
+    "itemId": "WIDEZONE-18.c",
+    "row": "V9a",
+    "selector": "condition.type=region",
+    "requirement": "EQUALS",
+    "value": "MULTIPLY",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "OWNER_RULING",
+    "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"Actions starting in or moving through the wide channel earn an advantage (bonus point, free restart, or scoring multiplier).\" Christian, 2026-10-02 selects the third of those three alternatives: \"let's authorize the remaining effect as a value modifier on the existing primary scoring event, not as a second scoring event, objective, or access mechanism. ... For the value operation, authorize: MULTIPLY x2.\"",
+    "fitNote": "AUTHORED 2 October: MULTIPLY, from V9a's closed list (MULTIPLY, ADD, REPLACE -- SD-30). With magnitude 2 this is x2. SD-30 is explicit that an authored magnitude with no authored operation is INCOMPLETE and the effective value is not computable, so the pair is authored together. The ordinary route is untouched: the modifier applies only where its condition is satisfied, so a line crossing that does not satisfy it remains worth the base value of 1. Scope is WHOLE_GAME, matching its sibling WIDEZONE-11.a on V8b. That item's own note recorded the tension -- \"V7 cannot select this object's modifier, so WHOLE_GAME is over-broad\" -- which this resolves: V7 now carries an item, so the referent selector has a modifier of this object's to identify.",
+    "origId": "WIDEZONE-13",
+    "checkability": "STRUCTURAL",
+    "structuralClause": "whole item"
+   }
   }
  ],
  "declarationScope": {
