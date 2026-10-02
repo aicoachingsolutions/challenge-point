@@ -837,8 +837,12 @@ test('the corpus run reproduces the reported figures exactly', () => {
      * than on a third region of its own, so two S4 lines now resolve where none did. The functions rows
      * were previously reported as excluded and reaching no artifact.
      */
-    // 65: the modifier's condition type, referents, magnitude and operation now resolve.
-    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 65)
+    /**
+     * **67 since ruling C35.** The modifier's condition type, magnitude and operation resolve, and so do its
+     * referents — now as a SET of two members rather than a collision, which also adds the two per-member
+     * lines. `multiplicity: SET` types what V8b's own valueType already said.
+     */
+    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 67)
     // **NOT_AUTHORED fell 54 → 26 across the 29 September rulings, and only five of those twenty-eight
     // were closed by authoring anything.**
     //   −9  T1a/T1b/T1c demanded of three POSSESSION_CHANGE transitions. A turnover has no last touch

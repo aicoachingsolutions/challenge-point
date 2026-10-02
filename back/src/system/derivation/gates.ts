@@ -1582,7 +1582,22 @@ function gaModifierOverlap(ctx: GateContext): CheckOutcome {
     // The region case executes. Two modifiers overlap when their referent sets intersect **by
     // structural identity** — SD-57. A referent that establishes no identity is not compared as a text
     // token, because that would promote open-text equality into identity; it blocks instead (SD-58).
-    const claimed = new Map<string, string[]>()
+    /**
+     * **Two corrections, both general, both found the first time typed referents reached this check.**
+     *
+     *   - **The key was `String(referent)`**, which is `"[object Object]"` for every typed structural
+     *     reference — so ALL typed referents collapsed into one key and any two of them read as the same
+     *     region. The referent's resolved class is its identity, and `referentClass` already computes it;
+     *     SD-57 asks for structural identity and this is what that means.
+     *   - **A modifier cannot overlap itself.** The claimants were collected as a list, so one modifier
+     *     naming two referents appeared twice under the collapsed key and was reported as an overlap with
+     *     itself. The question is whether TWO modifiers claim one region, so the claimants are a set.
+     *
+     * Together these made a single modifier with two authored referents fail a check about pairs of
+     * modifiers — which is exactly what his "each channel is independently a qualifying referent" requires
+     * not to happen.
+     */
+    const claimed = new Map<string, Set<string>>()
     let comparable = 0
     for (const modifier of regions) {
         const cell = probe.cell(lineOf(modifier.classId, 'V8b'))
@@ -1592,10 +1607,12 @@ function gaModifierOverlap(ctx: GateContext): CheckOutcome {
                 continue
             }
             comparable++
-            claimed.set(String(referent), [...(claimed.get(String(referent)) || []), modifier.classId])
+            const key = referentClass(ctx, referent)?.classId ?? String(referent)
+            if (!claimed.has(key)) claimed.set(key, new Set())
+            claimed.get(key)!.add(modifier.classId)
         }
     }
-    const overlapping = [...claimed.entries()].filter(([, ids]) => ids.length > 1)
+    const overlapping = [...claimed.entries()].filter(([, ids]) => ids.size > 1)
     const regionClause = overlapping.length
         ? fail(REGION, regions.length)
         : probe.blockedBy.length

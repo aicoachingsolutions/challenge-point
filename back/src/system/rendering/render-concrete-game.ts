@@ -298,6 +298,53 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
         }
     }
 
+    /**
+     * **The value modifier, carried without inventing what satisfies it.**
+     *
+     * The game establishes the whole effect — a region condition over two named channels, operation MULTIPLY,
+     * magnitude 2 — so a coach is told the scoring consequence exactly. What it does NOT establish is what
+     * counts as a qualifying interaction with a channel: `REGION_ENTRY` has no registered semantics, and the
+     * authoring note records the gap in its own words ("no rule for what counts as 'moving through' (ball,
+     * player, touch)"). That is the owner decision being held, so the rendering states the effect and says
+     * plainly that the trigger is not settled, rather than choosing ball, player or touch for him.
+     */
+    for (const modifier of game.value?.valueModifiers ?? []) {
+        const base = `value.valueModifiers[${modifier.elementId}]`
+        const referents = (modifier.condition?.referents ?? []) as { structuralRef?: { contractId: string; itemId: string } }[]
+        const regionsNamed = referents
+            .map(r => (game.space?.regions ?? []).find((s: any) => String(s.elementId).endsWith(`:${r.structuralRef?.itemId}`)))
+            .filter(Boolean)
+        const noun = regionsNamed[0]?.noun ?? 'region'
+        const operation = String(modifier.operation)
+        const magnitude = Number(modifier.magnitude)
+        const primary = game.value?.primaryEvent
+
+        if (operation === 'MULTIPLY' && Number.isFinite(magnitude) && Number.isFinite(primary?.value)) {
+            say(
+                'How to score',
+                'DERIVED',
+                `When the ${noun} condition is met, that same score is worth ${primary.value * magnitude} instead of ${primary.value}`,
+                [`${base}.operation`, `${base}.magnitude`, 'value.primaryEvent.value'],
+                [primary.value * magnitude, primary.value],
+            )
+        }
+        say(
+            'How to score',
+            'DERIVED',
+            `The condition is about the ${regionsNamed.length === 2 ? `two ${noun}s` : noun} you marked — it applies to either of them`,
+            [`${base}.condition.type`, `${base}.condition.referents`, ...referents.map(r => `${base}.condition.referents[${r.structuralRef?.contractId}::${r.structuralRef?.itemId}`.concat(']'))],
+            [],
+        )
+
+        observations.push(
+            `The game now establishes WHAT the wide channels do — a line crossing is worth ${Number.isFinite(magnitude) && Number.isFinite(primary?.value) ? primary.value * magnitude : 'more'} ` +
+                `instead of ${primary?.value} when the condition is met — but NOT what counts as meeting it. The authored source is "actions starting in or ` +
+                `moving through the wide channel", \`REGION_ENTRY\` carries no registered semantics, and the authoring note states the gap itself: ` +
+                `"no rule for what counts as 'moving through' (ball, player, touch)". So a coach is told the consequence and cannot be told the ` +
+                `trigger. Nothing is chosen here on the engine's behalf.`,
+        )
+    }
+
     // ── Observations about the game, not fixes to it ─────────────────────────────────────────────
     const channels = (game.space?.regions ?? []).filter((r: any) => r.noun === 'channel')
     if (channels.length > 2) {

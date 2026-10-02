@@ -18,7 +18,7 @@ import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame, splitPath } from '../derivation/resolved-game'
-import { derivationInputFor, derivationInputWithoutWideZoneModifier, selectFor } from '../derivation/run-bounded-selection'
+import { derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
 import { completeConcreteGame } from './assemble-concrete-game'
 import { runPostRealizationGates } from './post-realization-gate'
 import { checkRealization, isRefused, nothingInvented, realize, Realized } from './realize'
@@ -38,8 +38,7 @@ const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value))
  */
 function chain(override?: (envelope: Record<string, unknown>) => void) {
     const selection = selectFor('A04', null)
-    // Modifier-free, pending the referent question — see derivationInputWithoutWideZoneModifier.
-    const input = derivationInputWithoutWideZoneModifier(selection)
+    const input = derivationInputFor(selection)
     const supplied = copy(SUPPLIED)
     if (override) override(input.envelope as Record<string, unknown>)
     const result = runDerivation(input)

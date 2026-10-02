@@ -88,6 +88,19 @@ function digest(value: unknown): string {
 const EXISTENCE_REQUIREMENTS = new Set(['EXISTS', 'COUNT', 'RANGE'])
 
 /**
+ * **A member's stable identity, for a line id and for comparison.**
+ *
+ * A member authored as text is that text. A member authored as a typed structural reference is the item it
+ * names — `contractId::itemId` — because that is what gives it identity; `String()` on it is
+ * `"[object Object]"`, which is the same for every reference and therefore no identity at all.
+ */
+function memberKey(member: unknown): string {
+    const ref = member && typeof member === 'object' ? (member as { structuralRef?: { contractId?: unknown; itemId?: unknown } }).structuralRef : undefined
+    if (ref && ref.contractId !== undefined && ref.itemId !== undefined) return `${String(ref.contractId)}::${String(ref.itemId)}`
+    return String(member)
+}
+
+/**
  * An element class's cardinality, read by **the one canonical count reader** (`countBounds` in derive.ts).
  *
  * This used to have its own copy of that parse, written earlier and never brought forward. The copy could
@@ -485,12 +498,27 @@ function materialiseMembers(
             continue
         }
 
-        for (const member of [...new Set(memberValues.map(String))].sort()) {
+        /**
+         * **A member's identity is a stable key, not `String(member)`.**
+         *
+         * `String` is correct for a member authored as text and wrong for one authored as a typed structural
+         * reference: every such member became the literal `"[object Object]"`, so two distinct referents
+         * collapsed to one line and that string was then placed into the concrete game as if it were the
+         * member. The identity of a typed reference is the item it names.
+         */
+        const identified = new Map<string, unknown>()
+        for (const member of memberValues) {
+            const key = memberKey(member)
+            if (!identified.has(key)) identified.set(key, member)
+        }
+
+        for (const key of [...identified.keys()].sort()) {
+            const member = identified.get(key)
             const memberLine: ResolutionLine = {
-                lineId: `${line.lineId}::${member}`,
+                lineId: `${line.lineId}::${key}`,
                 elementId: line.elementId,
                 row: line.row,
-                member,
+                member: key,
                 lineState: 'ENUMERATED',
             }
             produced.push(memberLine)

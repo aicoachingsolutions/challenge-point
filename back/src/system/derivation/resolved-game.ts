@@ -401,8 +401,12 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
                 // The leaf may itself be dotted — `position.along` — and is nested, not used as a key
                 // with a dot in it, so a consumer reads the register's own shape.
                 if (entry.member !== null) {
+                    // **A set holds each member once.** Where the field line itself carries the set — which a
+                    // SET-multiplicity row's accumulated items now do — the member lines would otherwise
+                    // append every member a second time, and the game would show each referent twice.
                     const existing = Array.isArray(readAt(element, leaf)) ? (readAt(element, leaf) as unknown[]) : []
-                    place(element, leaf, [...existing, entry.value])
+                    const already = existing.some(m => JSON.stringify(m) === JSON.stringify(entry.value))
+                    if (!already) place(element, leaf, [...existing, entry.value])
                 } else {
                     place(element, leaf, entry.value)
                 }

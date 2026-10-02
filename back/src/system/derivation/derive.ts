@@ -180,6 +180,49 @@ function narrowsToSet(item: any): boolean {
 }
 
 /**
+ * **Two items on a SET-multiplicity row are two members, not two competing values.**
+ *
+ * His ruling of 2 October, and the semantics are his: *"Each established wide channel is independently a
+ * qualifying referent for the same modifier condition. This does not mean choose one of the channels, nor
+ * does it mean both channels must be involved before the modifier can apply."*
+ *
+ * Before this, two items each naming one referent **collided** under SD-02 — two support-capable items on one
+ * line that no single value satisfies — and one item naming both as an array was read as a permitted SET, so
+ * the line became a choice between them and inverted the authored "both". Neither expressed the row's own
+ * stated semantics.
+ *
+ * **It introduces no new concept.** `establishedMembers` already means exactly "this item puts this member
+ * here", and the `CONTAINS` selector path has always used it; this makes the same semantics reachable from
+ * items as well as from selectors. The line's value becomes the set, so anything already reading a set of
+ * referents or members needs no change, and per-member provenance survives on `establishedMembers` rather
+ * than being collapsed away with the individual contributions.
+ *
+ * Deliberately narrow: it fires only on a row the register marks `SET`, and only where more than one item
+ * contributed. A single contribution is left exactly as it was, so no line that works today changes.
+ */
+function applySetMultiplicity(lines: ResolutionLine[], derived: Map<string, DerivedLine>, index: RegisterIndex): void {
+    for (const line of lines) {
+        if (index.rows.get(line.row)?.multiplicity !== 'SET') continue
+        const record = derived.get(line.lineId)
+        if (!record || record.entailing.length < 2) continue
+
+        const members: unknown[] = []
+        for (const contribution of record.entailing) {
+            record.establishedMembers.push({
+                item: contribution.item,
+                member: contribution.value,
+                support: { ...contribution.support, relation: 'CARRIES' } as SupportRef,
+            })
+            if (!members.some(m => JSON.stringify(m) === JSON.stringify(contribution.value))) members.push(contribution.value)
+        }
+
+        // One contribution carrying the set. Its support names the first contributor; every contributor is
+        // on `establishedMembers`, which is where a reader asks which item put a given member here.
+        record.entailing = [{ item: record.entailing[0].item, value: members, support: record.entailing[0].support }]
+    }
+}
+
+/**
  * **SD-101, his ruling of 28 September — a defining selector is constitutive of class identity.**
  *
  *   "Where a selector attribute participates in establishing the identity of a class, a contribution
@@ -745,6 +788,9 @@ export function deriveLines(
             }
         }
     }
+
+    // **A SET-multiplicity row accumulates its members rather than colliding.** His ruling of 2 October.
+    applySetMultiplicity(lines, derived, index)
 
     // SD-101 — a contribution contradicting a constitutive selector attribute leaves the line before
     // SD-92 looks, so the class-defining value is what the selector then carries.

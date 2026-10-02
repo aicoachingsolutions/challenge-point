@@ -18,7 +18,7 @@ import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame, ResolvedGame } from '../derivation/resolved-game'
-import { derivationInputFor, derivationInputWithoutWideZoneModifier, selectFor } from '../derivation/run-bounded-selection'
+import { derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
 import { checkRealization, Choice, isRefused, realize, Realized } from './realize'
 
 const DOCS = path.resolve(__dirname, '../../../../docs/audits/conformance')
@@ -515,20 +515,11 @@ test('A04 is authorized for realization, and the three states stay distinct', ()
     // realization supplies are evaluated after it. The state is deliberately NOT reported as `PASS`:
     // "this keeps 'may realize' distinct from 'game is validated'."
     /**
-     * **As authored today A04 is NOT authorized, and the reason is pinned here.** Ruling C34 authored the Wide
-     * Zone advantage as a value modifier; its referents are prose, SD-58 forbids comparing open text as
-     * identity, so `GA-MODIFIER-OVERLAP` cannot be evaluated. A representational question, with him.
+     * **A04 is authorized as authored.** Ruling C35 made V8b's "one property per referent" operational, so the
+     * modifier's two typed referents accumulate as members instead of colliding, `GA-MODIFIER-OVERLAP` can
+     * evaluate identity, and nothing is left unevaluable before realization.
      */
-    const asAuthored = a04()
-    assert.equal(asAuthored.coherence.preRealization, 'NOT_EVALUABLE')
-    assert.equal(asAuthored.coherence.realizationAuthorized, false)
-    assert.ok(
-        asAuthored.coherence.notAuthorizedBecause.some(w => w.includes('GA-MODIFIER-OVERLAP')),
-        `the blocker must be named; got ${JSON.stringify(asAuthored.coherence.notAuthorizedBecause)}`,
-    )
-
-    // With the modifier set aside, the three states behave as his 30 September split requires.
-    const resolved = a04({ withoutModifier: true })
+    const resolved = a04()
     assert.equal(resolved.coherence.preRealization, 'PRE_REALIZATION_SATISFIED')
     assert.notEqual(resolved.coherence.preRealization, 'PASS', 'the pre-realization state must not read as full Gate A passing')
     assert.equal(resolved.coherence.realizationAuthorized, true)
@@ -559,10 +550,8 @@ test('A05 is NOT authorized, and says which pre-realization invariant is unsatis
 })
 
 /** A04's resolved game, assembled from the live selection. */
-function a04(opts: { withoutModifier?: boolean } = {}): ResolvedGame {
-    const input = opts.withoutModifier
-        ? derivationInputWithoutWideZoneModifier(selectFor('A04', null))
-        : derivationInputFor(selectFor('A04', null))
+function a04(): ResolvedGame {
+    const input = derivationInputFor(selectFor('A04', null))
     const result = runDerivation(input)
     if (isStampedHalt(result)) throw new Error('unexpected halt')
     return assembleResolvedGame(result, (runStages0to10(input) as any).classes, indexRegister(input.register), input.contracts)
@@ -607,8 +596,7 @@ test('THE ACCEPTANCE TEST: with the authored count satisfied, A04 realizes and a
     // around it. The three conditions are his and unchanged: nothing lost, nothing invented, nothing
     // closed without authority.
     //
-    // Modifier-free, pending the referent question — see derivationInputWithoutWideZoneModifier.
-    const resolved = a04({ withoutModifier: true })
+    const resolved = a04()
     assert.equal(resolved.coherence.realizationAuthorized, true, 'through the gate, not around it')
 
     const supplied = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../../../docs/audits/a04-realization-choices.json'), 'utf8'))

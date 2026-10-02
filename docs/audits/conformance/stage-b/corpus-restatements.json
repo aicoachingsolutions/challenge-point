@@ -401,6 +401,21 @@
     "valueStatus": "REQUIRED_RANGE"
    },
    "why": "it was asserting existence on the collection row while its content was a property of the channels already established; moving it to the functions row keeps element existence and properties of established elements distinct"
+  },
+  {
+   "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-11.a",
+   "ruling": "C35",
+   "set": {
+    "value": {
+     "structuralRef": {
+      "contractId": "restated:WIDE-ZONE-ADVANTAGE",
+      "itemId": "WIDEZONE-02.a"
+     },
+     "asAuthored": "both wide channels of this contract, each a referent"
+    },
+    "fitNote": "TYPED 2 October on the SD-98 precedent. The referents were the prose \"both wide channels of this contract, each a referent\", and SD-58 forbids comparing open text as identity, so GA-MODIFIER-OVERLAP could not evaluate the modifier at all. This item types the FIRST referent; WIDEZONE-11.c carries the second. Two items rather than one array because V8b's registered valueType is \"one property per referent\" and that semantics is now operational (register `multiplicity: SET`): the two are MEMBERS and accumulate, where an array value would be read as a permitted set and make the line a choice between the channels. DETERMINACY COMES FROM RULING C33: before it, \"both wide channels of this contract\" answered to three classes and typing it would have required selecting between them. Since C33 the contract establishes exactly two -- WIDEZONE-02.a (wide-left) and WIDEZONE-03 (wide-right) -- so \"both\" names them and nothing is selected between, inferred or substituted. SD-63 is untouched for ordinary open text."
+   },
+   "why": "the modifier's referents were prose, so the overlap invariant could not establish identity; the sentence names both channels and C33 made 'both' exactly two, so typing changes no authored content"
   }
  ],
  "added": [
@@ -655,6 +670,33 @@
     "origId": "WIDEZONE-13",
     "checkability": "STRUCTURAL",
     "structuralClause": "whole item"
+   }
+  },
+  {
+   "contractId": "restated:WIDE-ZONE-ADVANTAGE",
+   "after": "WIDEZONE-11.a",
+   "ruling": "C35",
+   "item": {
+    "itemId": "WIDEZONE-11.c",
+    "origId": "WIDEZONE-11",
+    "row": "V8b",
+    "selector": "condition.type=region",
+    "requirement": "EQUALS",
+    "value": {
+     "structuralRef": {
+      "contractId": "restated:WIDE-ZONE-ADVANTAGE",
+      "itemId": "WIDEZONE-03"
+     },
+     "asAuthored": "both wide channels of this contract, each a referent"
+    },
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "OWNER_RULING",
+    "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"Actions starting in or moving through the wide channel earn an advantage (bonus point, free restart, or scoring multiplier).\" Christian, 2026-10-02 selects the third of those three alternatives: \"let's authorize the remaining effect as a value modifier on the existing primary scoring event, not as a second scoring event, objective, or access mechanism. ... For the value operation, authorize: MULTIPLY x2.\"",
+    "checkability": "STRUCTURAL",
+    "structuralClause": "whole item",
+    "fitNote": "AUTHORED 2 October: the second of the two referents \"both wide channels of this contract, each a referent\" names, as its own item because V8b carries one property per referent. His semantics: \"Each established wide channel is independently a qualifying referent for the same modifier condition\" -- not a choice between them, and not a requirement that both be involved before the modifier applies. Nothing new is referenced: 11.a types the wide-left channel and this types the wide-right one, which together are \"both\"."
    }
   }
  ],

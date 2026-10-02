@@ -9,6 +9,13 @@
 import { Versions } from './types'
 
 export interface RegisterRow {
+    /**
+     * **`SET` where the row holds a set of members rather than one value.** It types what these rows'
+     * `valueType` prose already states ("one property per referent/member/trigger"), so two support-capable
+     * items on such a row are two MEMBERS and accumulate, instead of colliding under SD-02 as two competing
+     * values. Only rows whose own valueType already says so carry it.
+     */
+    multiplicity?: 'SET'
     id: string
     path: string
     kind: 'COLLECTION' | 'FIELD' | 'VIEW'
