@@ -3870,8 +3870,11 @@ render-eligible          YES
 `GA-ONE-PRIMARY-EVENT`, `GA-ROSTER-SUM`.
 
 **The concrete game:** target line at the end line it touches — along `[40,40]`, across `[0,30]`;
-three touchline channels along `[0,40]`, across `[0,7.5]`; `line_crossed` worth 1; two teams of six;
-one objective both teams attack.
+three touchline channels along `[0,40]`, across `[0,7.5]`; `line_crossed` worth 1; two teams;
+one objective both teams attack. (An earlier draft of this line said "two teams of six". **The game
+does not contain that** — see the rendering section below. The six was derived inside the gate and
+never written back, and writing it here as if the game held it is exactly the slip the rendering
+test caught.)
 
 - **Width authored as the canonical RELATION**, not a number: `WIDEZONE-06.b`'s value is
   `"bounded minority (of an axis)"` and the fractions (0.15–0.25) live once in RC-21. 0.25 of 30 m is
@@ -3895,3 +3898,75 @@ one objective both teams attack.
   authored knowledge, not architecture — change either and the game changes. A04 is one game; **A05 is
   still unauthorized** on two pre-realization invariants it does not share.
 - `COMPLETED_PASS` remains the separate non-blocking investigation. **Generation remains frozen.**
+
+---
+
+## 2026-10-01 — Controlled rendering of the frozen A04 game (`npm run render:a04`)
+
+**Fidelity PASSES all five of his questions.** 15 coach-facing instructions, 5 observations returned
+as evidence. 246 tests green, exit code verified directly (not through a pipe).
+
+Reads `docs/audits/a04-concrete-game-fixture.json` **and nothing else** — no selection, derivation or
+realization — because he asked to isolate the rendering boundary, *"not test the entire chain again at
+once."* The fixture is frozen closure output.
+
+**Wording is generated FROM status, not chosen and then checked.** `DERIVED`/`INSTANTIATED` get the
+imperative; `REALIZATION_CHOICE` gets *"For this activity, …"*; `PREFERENCE` gets *"if it suits your
+group"*. **A preference has no route to imperative wording because that wording is unreachable from
+`PREFERENCE`.** Every instruction carries its source property paths; citing nothing is a defect.
+
+### THE LOAD-BEARING FINDING — a render-eligible game that a coach cannot pick sides from
+`outfieldCount` **is nowhere in the concrete game.** `deriveRosterFromSession` worked out 6 a side from
+the session total plus authored equality, `GA-ROSTER-SUM` passed on it — and the value lived only in
+the **post-realization gate's evaluation context**. It was never written back. So the artifact marked
+render-eligible lacks a number a coach needs.
+
+**NOT repaired.** 12 ÷ 2 in the renderer is a one-liner and is precisely the forbidden invention: the
+game does not establish the number, so rendering producing it would assert a quantity on its own
+authority. It is also realization work, outside what he unfroze.
+
+**The shape to remember: a gate derived a value in order to check itself, passed, and the value did not
+persist.** Same family as every earlier silent loss — established at one stage, absent from the next —
+in a place we had not looked. `render-eligible` is therefore a *weaker* claim than *renderable into
+something a coach can run*; the closure stands, its terms were narrower than they sounded. **Ask of any
+gate that derives a value: does the artifact keep it?**
+
+### Three genuine rendering defects, fixed
+- `envelope.players = 12` established and never reached the coach — a real loss.
+- `objectives[].role = PRIMARY_SCORING` uncited by the scoring sentence it justifies.
+- **The renderer labelled envelope facts `SESSION` while the fixture records them `DERIVED`.** The
+  provenance trace is the deliverable, so status is now read from the fixture, never assumed.
+
+### Two over-strict checks, narrowed
+- A cited collection's **cardinality** supports `"2 teams"`. Counting the members of a cited collection
+  is the **only** arithmetic rendering may do — kept that narrow so the roster gap could not be smuggled.
+- Properties governing **event accounting** rather than play (`startsEpisode`, `space.axis`) are
+  reported as NOTEs **naming the reason**, never silently filtered. Both are with him for ruling.
+
+### The negative tests are the point
+A fidelity checker that only ever passes is not evidence. An invented number, an **undeclared** one
+(fails even when the game contains it), a dropped property, a softened requirement, a hardened
+preference and a choice stated as necessity are each proved to be caught. **Writing them found a real
+hole:** the region check accepted *any* instruction citing a region, so a preference about a channel's
+width counted as an instruction to mark it. A marking instruction must carry the region's `noun`.
+
+**Sport ratchet fired a 4th time** on `football` in the new module — correct again. Term removed rather
+than declaring the file sport-specific, since rendering sits above the sport layer.
+
+### Four things the GAME produces that a coach would question (evidence, not repaired)
+1. **Three channels all anchored at `across = 0`** — the same touchline, from three separate Wide Zone
+   contributions. A coach following the output marks one strip three times. Three regions or one
+   described three times is a **knowledge** question.
+2. **Zero-depth scoring line sitting exactly on the end line.** What the knowledge entails for a `line`,
+   and markable — but a coach may expect a scoring zone with depth.
+3. **Both teams score at the same line** (`EACH_TEAM`). Canonical and deliberate; unusual enough that a
+   coach sets up two targets out of habit unless told plainly.
+4. **No region carries a stated function** (4 `functions` rows EXCLUDED). Nothing says what the channels
+   are FOR. Faithful, and the first thing a coach would ask.
+
+### With him for ruling
+Roster write-back and at which stage · the two deliberate non-carriages · three channels or one ·
+whether a region needs a stated function before a coach is told to mark it.
+
+Scope held: one game, one rendering. **No** activity-set logic, variation, slots, or broader generation.
+`COMPLETED_PASS` still the separate non-blocking investigation.

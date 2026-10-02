@@ -1,0 +1,64 @@
+Joe,
+
+A04 rendering is done and the email to Christian is attached. Short version.
+
+WHAT RAN
+`npm run render:a04` reads docs/audits/a04-concrete-game-fixture.json and nothing else — no
+selection, no derivation, no realization. That was his explicit instruction, so the fixture is
+frozen output from the closure run and the rendering test cannot accidentally re-prove the
+chain underneath it.
+
+RESULT
+Fidelity passes all five of his questions. 15 coach-facing instructions. Full suite green,
+exit 0 verified properly (not through a pipe). Committed and pushed.
+
+THE ONE THING THAT MATTERS
+The concrete game has no team size. The post-realization gate derived six a side and passed
+GA-ROSTER-SUM on it, then threw the value away — it only ever existed in the gate's evaluation
+context, never in the game. So A04 was marked render-eligible while missing a number a coach
+needs to pick sides.
+
+I did not fix it. Dividing 12 by 2 in the renderer is a one-liner and it is exactly the
+invention we have spent the whole project preventing. It is also realization work, not
+rendering work, so it is outside what he unfroze. It is the headline of his email and I have
+asked him to rule on where the write-back belongs.
+
+Worth noting the shape: a gate derived a value in order to check itself, passed, and the value
+did not persist. That is the same failure we have hit repeatedly — knowledge established at one
+stage not surviving into the next — just in a place we had not looked. The rendering test found
+it on the first run, which is a reasonable argument that the boundary test was worth doing
+before building anything on top of the closure.
+
+THREE REAL FIXES FROM THE FIRST RUN
+- envelope.players = 12 was established and never reached the coach. Genuine loss, now carried.
+- objectives[].role = PRIMARY_SCORING was uncited by the scoring sentence it justifies.
+- My renderer labelled envelope facts SESSION while the fixture records them DERIVED. The
+  provenance trace is the deliverable, so it now reports the recorded status rather than my
+  assumption.
+
+Two findings were my checker being over-strict, corrected narrowly: a cited collection's
+cardinality supports "2 teams", and event-accounting properties are reported as notes naming
+the reason instead of being filtered out silently.
+
+ON THE TESTS
+The negative cases are the point. I fed the checker an invented number, an undeclared one, a
+dropped property, a softened requirement and a hardened preference, and asserted each is
+caught — a fidelity checker that only ever passes is worthless. Writing them found a genuine
+hole: the region check accepted any instruction citing a region, so a preference about a
+channel's width counted as marking it.
+
+The sport-coupling ratchet fired again, on "football" in the new module. Correct again. I
+removed the term rather than declaring the file sport-specific, since rendering sits above the
+sport layer.
+
+FOUR THINGS THE GAME ITSELF PRODUCES
+All returned to him as evidence, none repaired: three channels all anchored to the same
+touchline (a coach would mark one strip three times), a zero-depth scoring line sitting on the
+end line, both teams scoring at the same line, and no region carrying any stated function so
+nothing says what the channels are for.
+
+NEXT
+Waiting on his four rulings. Nothing further started — no activity-set logic, no variation, no
+slots, broader generation still frozen.
+
+Joe

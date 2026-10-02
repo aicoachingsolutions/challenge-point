@@ -1,0 +1,186 @@
+Christian,
+
+I ran the controlled rendering against the exact A04 concrete game from the closure run —
+read from a frozen fixture, not reselected and not re-realized, so this tests only the
+rendering boundary.
+
+Rendering passes all five fidelity questions. It also found one defect in the closure
+itself, and four things the concrete game produces that a coach would question. Both sets
+are below as evidence rather than as repairs.
+
+
+THE ACTIVITY, AS A COACH WOULD READ IT
+
+  Set up
+    Mark out an area 40 m long by 30 m wide
+    For this activity, mark a line across one end of the area, 30 m long, on the end line
+      itself
+    Mark a channel along the touchline, 40 m long and up to 7.5 m wide        (x3)
+    Around 6 m to 7.5 m wide works well, if it suits your group               (x3)
+
+  Players
+    12 players in total
+    2 teams
+    No goalkeepers — everyone is an outfield player
+
+  How it works
+    Play for 20 minutes
+    Play continues when possession changes — there is no stoppage
+
+  How to score
+    For this activity, a team scores 1 point by getting the ball across the marked line
+    Both teams attack the same line — the one you marked at the end of the area
+
+Fifteen instructions. Nothing else was written.
+
+
+1 — WHICH PROPERTIES PRODUCED EACH LOAD-BEARING INSTRUCTION
+
+Every instruction carries the property paths that produced it; an instruction citing
+nothing is treated as a defect, not a style choice. The load-bearing ones:
+
+  "Mark out an area 40 m long by 30 m wide"
+      envelope.area.length_m, envelope.area.width_m
+
+  "mark a line across one end of the area, 30 m long, on the end line itself"
+      space.regions[GF2-03.a].noun — the realization choice "line"
+      its across geometry (the 30 m extent) and its along geometry (the degenerate axis,
+      fixed at 40, which is what puts it on the end line)
+
+  "Mark a channel ... 40 m long and up to 7.5 m wide"   (once per channel)
+      space.regions[WIDEZONE-02.a | -03 | -08.d].noun = "channel"
+      .position.along — the full-axis realization choice
+      .position.across — "touchline-adjacent", with the authored width bound
+
+  "Around 6 m to 7.5 m wide works well, if it suits your group"
+      the preferred bound carried inside the required one, same across row
+
+  "12 players in total"                 envelope.players
+  "2 teams"                             performers.teams (two instantiated members)
+  "No goalkeepers"                      envelope.roles — the session fact for this run
+  "Play for 20 minutes"                 envelope.duration_min
+  "Play continues ... no stoppage"      transitions[GF2-07.a].playState = CONTINUE
+  "a team scores 1 point by ..."        value.primaryEvent.kind = line_crossed,
+                                        .value = 1, objectives[GF2-08.a].role
+  "Both teams attack the same line"     objectives[GF2-08.a].team = EACH_TEAM,
+                                        .reference
+
+
+2 — ANYTHING IN THE RENDERING LACKING SUPPORT
+
+No violation.
+
+The mechanism, because it is the half that fails quietly: every instruction must declare
+the numbers in its own text, and each declared number must match a value in the game. A
+number present in the prose but not declared fails on that ground alone, even when the game
+happens to contain it — otherwise a quantity could reach a coach without ever being checked.
+
+One judgment call I want on the record. The first run flagged "2 teams", because 2 is the
+cardinality of a collection rather than a stored value. The game does contain two team
+members, so the statement is true, and I widened the rule to admit the size of a collection
+the instruction cites. That is the only arithmetic rendering is permitted to do. I kept it
+that narrow deliberately, and it is why the roster finding below could not be papered over.
+
+
+3 — ANYTHING REQUIRED BY THE GAME THAT DISAPPEARED
+
+No violation now. One real loss in the first run: envelope.players = 12 was established and
+the rendering never told the coach. It is carried now.
+
+Two properties are established and deliberately not carried, and I would like these ruled
+rather than assumed:
+
+  transitions[GF2-07.a].startsEpisode = true — an event-accounting property. It tells the
+    system when to begin attributing events; a coach does nothing differently because of it.
+    The coach-facing half of the same transition, that play continues, IS carried.
+
+  space.axis = "the longer envelope dimension" — an internal orientation convention. The
+    rendered geometry is already in metres along and across.
+
+Both are reported in the output with their reasons attached, so the exclusion list is
+visible rather than a silent filter. If you would rather nothing be excluded, that is a
+one-line change.
+
+
+4 — WHETHER WORDING CHANGED THE STATUS OF ANYTHING
+
+No violation, and the reason is structural rather than careful. Wording is generated from
+the status of the source, not chosen and then checked afterwards. DERIVED gets the
+imperative. A realization choice gets "For this activity, ...", which states the fact
+without claiming the knowledge demanded it. A preference gets "if it suits your group".
+There is no path by which a preference reaches imperative wording, because the imperative
+wording is not reachable from PREFERENCE.
+
+All three of your directions are tested, and tested by trying to break them: a requirement
+written as optional, a preference written as compulsory, and a realization choice written as
+a necessity are each caught. I think that matters more than the pass, because a fidelity
+check that only ever passes is not evidence. Writing those cases also found a real weakness
+— the region check had been accepting any instruction that mentioned a region, so a
+preference about a channel's width counted as an instruction to mark it.
+
+
+5 — COULD A COACH LAY IT OUT AND PLAY IT FROM THIS ALONE
+
+Not quite, and the reason is the most important thing in this note.
+
+They can mark everything, and they know the duration, how scoring works, and that play
+continues on a turnover. They cannot pick sides. No team carries a size.
+
+The number is derivable, and in fact was derived: the post-realization gate worked out six a
+side from the session total of twelve plus the authored equality, and passed its roster check
+on that. But it derived the value into its own evaluation context and never wrote it back
+into the concrete game, so the game that was marked render-eligible does not contain it.
+
+I did not have rendering recompute it. Twelve divided by two is the obvious repair and it is
+exactly the forbidden move — the game does not establish the number, so a renderer producing
+it would be asserting a quantity on its own authority.
+
+What I think this means, stated precisely: the invariant genuinely passed, and the roster
+genuinely derives. What failed is that the artifact does not carry what the invariant used to
+check it. So "render-eligible" is currently a weaker claim than "renderable into something a
+coach can actually run", and the gap between the two is a value that exists only inside a
+gate. It is the same shape as the losses we have chased before — knowledge established at one
+stage and not surviving into the next — appearing in a new place, and the rendering test found
+it immediately. The closure stands on its own terms; this says the terms were narrower than
+they sounded.
+
+Fixing it means writing the derived roster back into the game, which is realization work
+rather than rendering work, so I have left it alone pending your view.
+
+
+WHAT THE GAME PRODUCES THAT A COACH WOULD QUESTION
+
+Returned as evidence, per your instruction, and not repaired in prose.
+
+  Three channels, all on the same touchline. Every one is anchored at across = 0, from three
+  separate Wide Zone contributions. A coach following the output literally marks one strip
+  three times. Whether this is three regions or one region described three times is a
+  knowledge question, and I do not think rendering should resolve it.
+
+  The scoring line has zero depth and sits exactly on the end line. That is what the
+  knowledge entails for a line, and it is markable — but a coach may well expect a scoring
+  zone with some depth, and the game does not provide one.
+
+  Both teams score at the same line. Canonical and deliberate, but unusual enough that a
+  coach will set up two targets out of habit unless it is said plainly, which is why it has
+  its own sentence.
+
+  No region carries a stated function. Four `functions` rows are excluded, so nothing in the
+  game says what the channels are FOR. The rendering therefore tells a coach to mark three
+  channels and cannot tell them why. That is faithful, and I suspect it is the first thing a
+  coach would ask about.
+
+
+WHAT I WOULD LIKE RULED
+
+  1. The roster write-back — whether the derived team size should become part of the concrete
+     game, and if so at which stage.
+  2. The two deliberate non-carriages in (3).
+  3. The three channels — three regions, or one region contributed three times.
+  4. Whether a region should need a stated function before a rendering is allowed to tell a
+     coach to mark it.
+
+Scope held where you set it: one game, one rendering. No activity-set logic, no three-activity
+variation, no slot system, nothing touched in broader coach-facing generation.
+
+Joe
