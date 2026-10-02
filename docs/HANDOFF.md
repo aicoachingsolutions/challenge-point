@@ -4212,3 +4212,66 @@ Datum passed to him: the only authored/required/support-capable items in the clu
 genuinely open, and his direction (modify the existing primary event, not a second scoring event) matches
 what the contract already excludes (a second primary event; channel as objective reference; channel as
 ACCESS region).
+
+---
+
+## 2026-10-02 (rulings a + b) — TWO channels, ONE PER TOUCHLINE. A04 realizes. Q5 fails on the effect alone.
+
+His predicted result, reached exactly:
+`exactly two channels → one per touchline → A04 realization proceeds → Q5 still fails because the channels
+have an authored trigger but no authored effect`
+
+Channels at across **[0, 7.5]** and **[22.5, 30]** on a 30 m width, each citing **AM-17** in its own `why`.
+**Q2/Q3/Q4 PASS · Q5 2 violations** (both the effect gap). 247 cases green, tsc clean.
+
+### (a) `WIDEZONE-08.d`: S2 → S4, ruled option (i)
+On S2 an existence requirement **mints an element**; on S4 a **member is asserted** of whichever regions the
+selector reaches. Its own note always said so: *"COUNT 2 (from WIDEZONE-03) so both channels carry the
+member"* — the 2 referenced the established population. Form is `EQUALS`, matching the corpus's only other
+S4 item, and `EQUALS` is outside `EXISTENCE_REQUIREMENTS` so it cannot mint an element by either route.
+**His distinction to preserve: a statement that a property applies to N existing members does not thereby
+assert the existence of N additional members.**
+
+**SIDE EFFECT WORTH HAVING: the region-function defect of 1 October is CLOSED by this restatement.**
+`perceptual-reference` now reaches the artifact on both channels; 3 of the 4 unauthored `functions` rows are
+gone and **nothing was authored to close them**. The member was always authored — it was being asserted of a
+third region instead of the two that exist.
+
+### (b) Selector preservation — GENERAL, not a lateral transport path
+**Every element now carries its own authored selector verbatim.** An element used to arrive with its id and
+whatever was derived, so the attributes saying WHICH element this is were parsed onto the class and dropped.
+`spatial.ts` reads `lateral` from that selector and takes the far edge for `wide-right`, from **AM-17's own
+registered interval test**. **Consumed only from an authored selector — a count of two channels does not
+make one of them wide-right.**
+
+### Three things the restatement surfaced — all fixed, two of them defects in the CHECKS
+- **A FALSE LOSS.** `nothingLost` compared a set-valued field's member against the array holding it, so
+  `perceptual-reference` arriving correctly as `["perceptual-reference"]` was reported lost. **A false loss
+  is as damaging as a missed one — it teaches you to disbelieve the check.**
+- **An unreadable path.** The per-member entry is at `functions[member]` — a **subscript**, not a dotted
+  path — so splitting on `.` resolved nothing.
+- **A GUARD I NEARLY BLINDED.** Adding `selector` to every element made every element look established,
+  defeating `elementsWithNothingEstablished` — **the guard for the exact class of defect the selector was
+  added to fix.** Caught by an existing test. Identity (`elementId`, `selector`) is now excluded from it.
+  → **When you add a field to every element, check what counts elements by their emptiness.**
+
+### The temporary override is gone, as designed
+`withAuthoredRegionCountSetAside` set the authored count aside **in callers only** while the ruling was
+pending, arranged so deleting it would not compile until every call site was revisited. The restatement
+landed → deleted, all three revisited. **The over-population refusal stays under test synthetically — a
+capability should outlive the defect that motivated it.**
+
+### Corpus figures moved, with the reason recorded at each assertion
+lines **125 → 121** (one element class's four field lines) · entailed **59 → 61** · NOT_AUTHORED **26 → 23**
+· open **18 → 17** · restatements **30 → 33** (ruling **C33**).
+
+### Rendering
+Says *"along one touchline"* / *"along the opposite touchline"* — **never left/right**, which the authored
+axis edges do not establish. Carries the established function near-literally; the system-term→coach-language
+mapping is flagged as a vocabulary question, not guessed.
+
+### ONLY ONE THING REMAINS
+**The Wide Zone effect** — held on his instruction, nothing authored. Datum passed to him: the only
+authored/required/support-capable items in the cluster are a **trigger** and its **referents**, and the
+contract already excludes a second primary event, the channel as objective reference, and the channel as
+ACCESS region — so *modify the existing primary event* is the one candidate the knowledge has not closed off.
