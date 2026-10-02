@@ -1,0 +1,120 @@
+Christian,
+
+(a) is done, A04 now runs the whole chain, and Q5 fails on exactly one thing — the trigger semantics you
+are holding. The chain stops precisely where you chose to stop it, which I think is the cleanest result
+we have had.
+
+On the episode scope I have hit the condition you named and I am stopping. Detail at the end.
+
+
+THE CHAIN
+
+    resolved game          YES
+    authorized realization YES
+    acceptance             PASSED
+    runnable representation YES
+    post-realization       PASSED
+    faithful rendering     Q2 PASS · Q3 PASS · Q4 PASS · Q5 one violation
+
+Collisions 0. 247 cases green. What a coach now reads under scoring:
+
+    For this activity, a team scores 1 point by getting the ball across the marked line
+    Both teams attack the same line — the one you marked at the end of the area
+    When the channel condition is met, that same score is worth 2 instead of 1
+    The condition is about the two channels you marked — it applies to either of them
+
+The last line is your semantics stated to a coach: either channel qualifies, and both do not have to be
+involved.
+
+
+(a) — WHAT I CHANGED, AND HOW NARROW IT IS
+
+`multiplicity: "SET"` types what the rows' own valueType prose already states. Five rows carry it — the
+region functions, objective-set members and persistence triggers, and the two referent rows — because
+those are the five whose valueType already says "one property per referent/member/trigger". I left J11b
+out: "member, or procedure over members" does not state that the field holds a set, and reading it as one
+would be interpretation rather than typing.
+
+It introduces no concept. `establishedMembers` already means "this item puts this member here", and the
+CONTAINS selector path has always used it; this makes the same semantics reachable from items as well as
+from selectors. Two items on such a row are two members and accumulate, where before they collided.
+
+**Three further defects, every one general, every one surfaced the first time a typed reference reached
+code that had never seen one:**
+
+  The overlap invariant keyed referents by `String(referent)`, which is `"[object Object]"` for every
+  typed structural reference — so all typed referents collapsed into one key and any two of them read as
+  the same region. It also collected claimants as a list, so a single modifier naming two referents was
+  reported as overlapping *itself*. A modifier cannot overlap itself; claimants are a set now, keyed by
+  resolved class.
+
+  Member identity was also `String(member)`, so a typed reference became the literal `"[object Object]"`
+  as a line id, and that string was then placed into the concrete game as though it were the member.
+
+  And a set held each member twice, once the field line carried the set and the member lines appended
+  again.
+
+**SD-80 I scoped rather than relaxed, and it came out stronger.** It guards against a *narrowing*
+becoming a value — your "wrong answer wearing the label of a right one". A row the register declares
+set-valued is a different thing: membership, not alternatives. The test now asserts both halves — no line
+holds a set unless the register declares that row set-valued, *and* no narrowing ever becomes a value —
+where before it asserted only that no derived line holds an array. I want to flag that I touched it,
+because weakening an invariant to let a change through is exactly the move I should not be allowed to
+make quietly.
+
+
+WHAT Q5 STILL FAILS ON — and it is your held decision, not a new problem
+
+    a coach is told that meeting the region condition changes the score, and nothing in the game
+    establishes what MEETS it — no registered trigger semantics and no authored criterion. The scoring
+    rule is complete and unusable.
+
+This is the fourth failure mode in your original question for this pass — operationally obscured — and
+the only one that passes every other test. Nothing is lost, nothing invented, the channels participate
+operationally, and a coach still cannot award the bonus. Rendering states the consequence and declines to
+choose ball, player or touch to make the output look runnable.
+
+
+EPISODE SCOPE — I AM STOPPING AND RETURNING IT, PER YOUR CONDITION
+
+I found the smallest general extension, and then found that it turns on a question that is yours.
+
+**The mechanism already exists.** `scope` is an enum on a contract item:
+`WHOLE_GAME, PER_TEAM, PER_OBJECTIVE_SET, OWN_INVOLVEMENT, BUILD_OUT_EPISODE`. You added the last of
+those on 20 September under SD-36, and the register records your reasoning in your own words: "a
+vocabulary addition making an already-authored distinction executable, not a new Game Representation
+area." So scoping an item to an attacking episode is a precedented vocabulary addition, not a new field
+and not a new area. That is the smallest general extension, and it is not Wide-Zone-specific.
+
+**But I do not think I can define the value without a ruling from you.** `BUILD_OUT_EPISODE` is defined
+by reference to a specific begin condition — "the attacking episode whose beginning satisfies the
+resolved RPC-001 build-out begin condition" — with an explicit note that it does not extend to
+subsequent attacking episodes. A general "the current attacking episode" needs two things that one does
+not: which episode is current, and which team is attacking within it. Episode boundaries exist
+(`startsEpisode`, and the four triggers that end one). Possession attribution — which team is attacking
+in a given episode, so that "the same attacking episode" is determinate — is the part I cannot find
+established.
+
+And the register already records a live concern about this exact mechanism: of the six existing uses of
+`BUILD_OUT_EPISODE`, the conformance check you asked for on 20 September found **four do not conform**,
+because they are keyed on the triggers that *end* an episode. So defining a general attacking-episode
+scope would also bear on those four.
+
+That is a question about the episode model rather than a straightforward extension of it, so I have
+stopped. I have not removed your requirement and I have not invented a field for it: the modifier
+currently carries `scope: WHOLE_GAME`, which is wrong, and I would rather it be visibly wrong and
+reported than quietly made to look right.
+
+
+ON THE ASSURANCE CRITERIA
+
+I agree, and I would rather you set them before I touch the trigger. I will draft the criteria as a
+short document — objective, legible, opposition-robust, affordance-preserving, proportionate — stated as
+questions that an authoring decision has to answer, with this case worked through as the first example,
+since we now have a real decision with three candidate readings (ball, player, touch) and a reason to
+care which one wins. You would approve the criteria, not me. Say if you would rather shape them yourself
+first and have me apply them.
+
+Zero-depth line and same-line scoring unchanged. Generation still frozen. A04 still open.
+
+Joe

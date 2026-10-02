@@ -1,0 +1,51 @@
+Joe,
+
+(a) done. A04 now runs the entire chain and Q5 fails on exactly one thing — the trigger semantics
+Christian is holding. His email attached. 247 cases green, pushed.
+
+    resolved game YES -> authorized YES -> acceptance PASSED -> runnable YES -> post-realization PASSED
+    -> rendering Q2/Q3/Q4 PASS, Q5 one violation
+
+A coach now reads: "When the channel condition is met, that same score is worth 2 instead of 1" and "The
+condition is about the two channels you marked — it applies to either of them".
+
+WHAT THE FIX WAS
+`multiplicity: "SET"` types what five rows' valueType prose already says ("one property per
+referent/member/trigger"), so two items on such a row accumulate as members instead of colliding. No new
+concept — establishedMembers already meant exactly that, and the CONTAINS selector path always used it.
+Left J11b out because its prose doesn't actually say the field holds a set.
+
+THREE MORE GENERAL DEFECTS, all from typed references reaching code that had never seen one
+- GA-MODIFIER-OVERLAP keyed referents by String(referent) = "[object Object]" for EVERY typed ref, so all
+  typed referents collapsed to one key. It also collected claimants as a list, so one modifier naming two
+  referents was reported as overlapping itself.
+- Member identity was String(member), so a typed ref became the literal "[object Object]" as a line id and
+  was then written into the concrete game as if it were the member.
+- A set held each member twice once the field line carried the set and member lines appended again.
+
+I FLAGGED THAT I TOUCHED AN INVARIANT
+SD-80 ("no resolved line holds a set") had to be scoped, because a SET row's value IS legitimately a set.
+I scoped it to what it's actually about — a NARROWING must never become a value — and asserted both halves,
+so it's stronger than before. I told him explicitly that I'd changed it, because quietly weakening an
+invariant to let my own change through is the thing I should never be able to do unnoticed.
+
+EPISODE SCOPE — STOPPED, per his own condition
+Found the smallest extension: `scope` is already a contract-item enum and he already added
+BUILD_OUT_EPISODE to it under SD-36, describing it as "a vocabulary addition making an already-authored
+distinction executable, not a new Game Representation area". So it's a precedented vocabulary addition,
+no new field.
+
+BUT defining a general "current attacking episode" needs possession attribution — which team is attacking
+in an episode — and I can't find that established. Worse, the register records that 4 of the 6 existing
+BUILD_OUT_EPISODE uses DON'T conform (they're keyed on the triggers that END an episode), so defining the
+general form would bear on those too. That's a question about the episode model, not an extension of it,
+so I stopped and returned it. The modifier currently carries scope WHOLE_GAME, which is wrong — I left it
+visibly wrong and reported rather than quietly made to look right.
+
+ON THE CRITERIA
+I offered to draft the ecological/incentive criteria as a short document (objective, legible,
+opposition-robust, affordance-preserving, proportionate) stated as questions an authoring decision must
+answer, with the ball/player/touch choice worked as the first example — for him to approve, not me. Asked
+whether he'd rather shape them himself first.
+
+Joe
