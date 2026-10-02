@@ -1,0 +1,53 @@
+Joe,
+
+His predicted result is what happened. Email attached. 247 cases green, tsc clean, pushed.
+
+    exactly two channels -> one per touchline -> A04 realizes -> Q5 still fails on the effect gap
+
+Channels at 0-7.5 m and 22.5-30 m across a 30 m width, each citing AM-17's own interval test in its why.
+Q2/Q3/Q4 clean; Q5 has two violations, both "nothing establishes what changes when players interact with
+this channel". So the structural problem is cleanly separated from the incentive decision, which is
+exactly what he asked for.
+
+WHAT I DID
+(a) WIDEZONE-08.d moved S2 -> S4, per his option (i). On S2 an existence requirement mints an element; on
+S4 a member is asserted of whichever regions the selector reaches. Used EQUALS, matching the only other
+S4 item in the corpus, which also sits outside the existence requirements so it can't mint an element by
+either route. Didn't touch the class model.
+
+(b) Selector preservation done generally — every element carries its own authored selector verbatim, not
+a lateral-specific path. Realization reads `lateral` from that and nothing else, so nothing is inferred
+from COUNT 2.
+
+A GOOD SIDE EFFECT
+The functions rows are no longer unestablished — `perceptual-reference` now reaches both channels. So the
+region-function defect I reported to him on 1 October is closed by this restatement, and nothing was
+authored to close it. The member was always authored; it was being asserted of a third region instead of
+the two that exist. Three of the four unauthored functions rows are simply gone.
+
+THREE THINGS THE RESTATEMENT SURFACED, ALL FIXED
+- `nothingLost` compared a set-valued field's member to the array holding it, so a correct value reported
+  as lost. A false loss is as bad as a missed one — it teaches you to distrust the check.
+- It also couldn't read a member-subscripted path (`functions[member]` is a subscript, not dotted).
+- And adding the selector to every element would have BLINDED `elementsWithNothingEstablished` — the
+  count that exists to make a silently dropped element visible, i.e. the guard for the exact class of
+  defect the selector was added to fix. Caught by an existing test. Identity is now excluded from it.
+
+THE OVERRIDE IS GONE
+I'd set the authored region count aside in callers while his ruling was pending, arranged so deleting it
+wouldn't compile until every call site was revisited. The restatement landed, so it's deleted and all
+three were. The over-population refusal stays under test synthetically — the capability should outlive
+the defect that motivated it.
+
+ALSO UPDATED, with reasons recorded in the tests
+Corpus figures moved as a consequence: lines 125 -> 121 (one element class's four field lines), entailed
+59 -> 61, NOT_AUTHORED 26 -> 23, open 18 -> 17, restatements 30 -> 33.
+
+NEXT
+The Wide Zone effect is now the only thing between this and a runnable activity. Held on his instruction.
+I passed him one useful datum: the only authored required items in the cluster are a trigger and its
+referents, and the contract already excludes a second primary event, the channel as objective reference,
+and the channel as ACCESS region — so "modify the existing primary event" is the one candidate the
+knowledge hasn't closed off. That should help when he evaluates it against the incentive requirements.
+
+Joe
