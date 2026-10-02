@@ -1,0 +1,55 @@
+Joe,
+
+Modifier authored as he specified. Chain does NOT pass. His email attached. 247 cases green, pushed.
+
+THE SHORT VERSION
+The blocker isn't a knowledge gap — it's representational, and it's new. His authored modifier is correct;
+the engine can't evaluate it, because the modifier's referents are prose ("both wide channels of this
+contract") and SD-58 forbids reading open text as identity. So GA-MODIFIER-OVERLAP can't evaluate and
+realization isn't authorized.
+
+Typing the referents is the canonical fix (his own SD-98 precedent) AND IT HAS NO WORKING FORM:
+- one item with an array of two typed refs -> the array reads as a permitted SET, so the line becomes
+  "choose one channel", inverting the authored "both";
+- two items each typing one referent -> they COLLIDE under SD-02.
+V8b's registered valueType literally says "one property per referent" and neither route implements it.
+I reverted both attempts — the collision was mine, not the knowledge's, and I won't leave one in the corpus.
+
+Worth noting: his C33 restatement is what made the reference well-defined in the first place. Before it,
+"both wide channels" answered to three classes. So the knowledge is now precise and the representation
+can't carry it.
+
+THE TRIGGER CHECK HE ASKED FOR
+He was right to ask. The knowledge does NOT establish what enters, and says so itself: "no rule for what
+counts as 'moving through' (ball, player, touch). The last is play-level, outside the boundary." And
+REGION_ENTRY has no triggerSemantics entry at all — FIRST_FORWARD_PASS is the only trigger that does.
+Also, the source sentence is "Actions STARTING IN OR MOVING THROUGH the wide channel", so there are two
+qualifying modes authored and neither is resolved. Nothing inferred.
+
+Second gap beside it: "within the same attacking episode" has no home. A value modifier has condition
+type, referents, magnitude, operation, combination — no episode scope. The episode mechanism exists
+(startsEpisode) but nothing ties a modifier to it. I didn't invent a field.
+
+WHAT'S IN
+V7 existence + magnitude 2 + MULTIPLY, all from the registered closed lists. Base value untouched so the
+ordinary route still scores 1. First time V7 has ever carried an item — so the object's claims about the
+advantage now reach lines instead of vanishing, which was my 1 October finding.
+
+HOW I KEPT THE SUITE HONEST
+One named function drops the modifier from a caller's own copy of the input, never from the corpus, so
+acceptance / post-realization / rendering stay under test. The blocker has its own test asserting
+NOT_EVALUABLE and naming GA-MODIFIER-OVERLAP. Deleting the function won't compile until every call site is
+revisited — same discipline as the cardinality one, which came out cleanly yesterday.
+
+Corpus figures moved again, reasons recorded at each assertion: lines 121->126 (V7's five owned rows now
+enumerate), entailed 61->65, NOT_AUTHORED 23->24 (V10 combination, which the contract says was never
+addressed), added items 9->12.
+
+WHAT I TOLD HIM
+Two ways forward, both his: make a condition on two referents representable (smallest version: make V8b's
+"one property per referent" accumulate the way `functions` already does), or rule the condition names one
+referent — which would change what he authored. I said I wouldn't guess between them.
+
+Also confirmed the three check defects are preserved as regression cases per his request.
+
+Joe
