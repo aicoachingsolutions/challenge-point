@@ -4154,3 +4154,61 @@ advantage actually does. Rendering scope frozen; generation not broadened.
 An agent reported an injection result I could not reproduce at first — my attempt used a `*` selector and
 hit the SD-97 path, so nothing changed. Redone with the selectors the declarations actually name, it
 reproduced exactly. **I would have reported a false negative had I stopped at my own first run.**
+
+---
+
+## 2026-10-02 — Both cardinality defects fixed. **A04 IS NOW REFUSED, and that is correct.**
+
+247 cases green, tsc clean. Rendering pathway still runs; Q5 still fails on participation.
+
+### A04 was never legitimately realizing
+The Wide Zone authors **exactly two** channels; the run establishes **three**. The authored count was dead
+data, so nothing objected. Realization now refuses, naming the item and both numbers. **Not relaxed** —
+the refusal has its own test in `realize.unit.ts`.
+
+Everything downstream stays testable through ONE named override, **`withAuthoredRegionCountSetAside`**
+(resolved-game.ts) — **in callers only, never in the engine**. Deleting it when the restatement lands will
+not compile until every call site is revisited. That is deliberate.
+
+### 1 · An exact COUNT is exact — one reader, not two
+`cardinalityOf` had its own copy of the count parse, written earlier and never brought forward: the
+bare-digit match was **unanchored** and it never consulted `item.requirement`, so authored `COUNT "2"` and
+prose `"2 or more"` parsed alike. Now both use **`countBounds`** (derive.ts). **Exactly 5 corpus items
+change**, all authored `COUNT "2"` → exactly 2 (teams included). **Nothing loses a cardinality it had** —
+measured before changing anything.
+
+**The asymmetry dissolves with it.** The exclusion side refuses a prose count citing SD-32 (*guessing
+"would decide the item's meaning"*) while the establishing side guessed. The single reader's bare-digit
+match is **anchored at both ends**, so both sides read a number that IS the value and both refuse a number
+embedded in prose. Pinned from both directions in `cardinality.unit.ts`.
+
+### 2 · The count constrains — it was dead data
+Consumed only via `existential`, and a **selectored class never becomes an existential claim** (SD-97), so
+a COLLECTION row gets no line, the class forms no claim, and the number was read by nothing.
+`resolved.collectionCardinality` now reports every authored cardinality beside what was established, and
+realization **refuses** a population exceeding an authored maximum. Scoped to **individuated** classes, so
+it fills exactly the gap and does not double-count `existential`.
+
+**A correction to my own first version:** it counted EVERY region, so the Wide Zone's "exactly two" was
+violated by GF2's target line — a region it says nothing about. The authoring note guards against exactly
+that (*"counted over this contract's own channels so another object's channel cannot break it"*). **The
+population is the one the item's own `scope` names.** I would have shipped a bound meaning the wrong thing.
+
+### 3 · The restatement is AUTHORIZED, drafted, and blocked on two things (both with him)
+- **The third S2 item.** `WIDEZONE-08.d` (`noun=channel & functions ∋ perceptual-reference`, COUNT 2,
+  SUPPORTING) — its own note says *"COUNT 2 (from WIDEZONE-03) so both channels carry the member"*, so it
+  is **not a third channel** but a statement about the two. As an existence assertion on S2 it mints a
+  third region, and merging is ruled out. Three readings listed for him; **AM-13 does not settle it** (it
+  is "selection does not entail existence").
+- **A lateral selector would VANISH.** An element's selector **never reaches the resolved game** — a region
+  arrives with `elementId`, `noun`, `position` only. `lateral: wide-left` would parse, attach to the class
+  and be dropped before realization; both channels would still anchor to the same touchline. **Fourth
+  instance of the shape.** `spatial.ts` already grows an interval inward from a non-zero anchor, so the
+  missing piece is carrying the selector through + reading AM-17's authored interval test.
+
+### 4 · Wide Zone effect — HELD, nothing authored
+Datum passed to him: the only authored/required/support-capable items in the cluster are a **trigger**
+(region entry) and its **referents** (both channels) — nothing about what follows. So the mechanism is
+genuinely open, and his direction (modify the existing primary event, not a second scoring event) matches
+what the contract already excludes (a second primary event; channel as objective reference; channel as
+ACCESS region).
