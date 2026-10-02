@@ -4335,3 +4335,62 @@ lines **121 → 126** (V7's five owned rows enumerate) · entailed **61 → 65**
 combination, *"never addressed"* per the contract) · added items **9 → 12**.
 
 The three check defects are preserved as regression cases at his request.
+
+---
+
+## 2026-10-02 (C35) — A04 runs the WHOLE chain. Q5 fails on ONE thing: the held trigger decision.
+
+    resolved game YES → authorized YES → acceptance PASSED → runnable YES → post-realization PASSED
+    → rendering Q2 PASS · Q3 PASS · Q4 PASS · Q5 ONE violation
+
+Collisions 0. 247 cases green, tsc clean. Coach-facing: *"When the channel condition is met, that same score
+is worth 2 instead of 1"* · *"The condition is about the two channels you marked — it applies to either of
+them"* (his semantics, stated to a coach).
+
+### `multiplicity: "SET"` — the narrowest general form of ruling (a)
+**Types what five rows' valueType prose ALREADY states** — *"one property per referent/member/trigger"* —
+so two support-capable items on such a row are two **MEMBERS** and accumulate instead of colliding (SD-02).
+Rows: **S4, J7, J10, V5, V8b**. **J11b deliberately excluded** (*"member, or procedure over members"* does
+not state the field holds a set; reading it as one would be interpretation).
+**No new concept:** `establishedMembers` already meant "this item puts this member here" and the `CONTAINS`
+selector path always used it — this makes it reachable from items too.
+
+### Three further defects, all GENERAL, all from typed references reaching code that had never seen one
+- **`GA-MODIFIER-OVERLAP` keyed referents by `String(referent)`** = `"[object Object]"` for EVERY typed
+  structural reference, so all typed referents collapsed to one key and any two read as the same region.
+  **And claimants were a list, so one modifier naming two referents overlapped ITSELF.** Keyed by resolved
+  class; claimants are a set.
+- **Member identity was `String(member)`** — a typed ref became the literal `"[object Object]"` as a line id
+  and was then placed into the concrete game as if it were the member. Identity is the item it names.
+- **A set held each member twice** once the field line carried the set and member lines appended again.
+
+### SD-80 SCOPED, and strengthened — flagged to him because I touched an invariant
+It guards a **NARROWING** becoming a value (*"a wrong answer wearing the label of a right one"*). A
+register-declared set-valued row is different: **membership, not alternatives.** The test now asserts BOTH
+halves — no line holds a set unless the register declares that row set-valued, AND no narrowing ever becomes
+a value — stronger than the blanket form it replaced. **Weakening an invariant to let your own change
+through is the move that must never pass unnoticed: say so explicitly.**
+
+### What Q5 still fails on — HIS HELD DECISION, not a new problem
+*"a coach is told that meeting the region condition changes the score, and nothing in the game establishes
+what MEETS it."* The **fourth** failure mode in his original question — **operationally obscured** — and the
+only one that passes every other test: nothing lost, nothing invented, channels participate, and a coach
+still cannot award the bonus. Rendering declines to pick ball/player/touch to look runnable.
+
+### EPISODE SCOPE — STOPPED and returned, per his own condition
+**The mechanism exists:** `scope` is a contract-item enum (`WHOLE_GAME, PER_TEAM, PER_OBJECTIVE_SET,
+OWN_INVOLVEMENT, BUILD_OUT_EPISODE`) and **he added the episode value himself under SD-36**, recorded as *"a
+vocabulary addition making an already-authored distinction executable, not a new Game Representation area."*
+So the smallest extension is a precedented enum addition — **no new field, not Wide-Zone-specific.**
+**But defining a general "current attacking episode" needs POSSESSION ATTRIBUTION** (which team is attacking
+in an episode) and I cannot find that established. And the register records that **4 of the 6 existing
+`BUILD_OUT_EPISODE` uses do NOT conform** (keyed on the triggers that END an episode), so a general
+definition bears on those too. **A question about the episode model, not an extension of it.**
+The modifier carries `scope: WHOLE_GAME`, which is **wrong and left visibly wrong** rather than quietly
+made to look right.
+
+### Next
+His ruling on the trigger semantics, preceded by the ecological/incentive **criteria** he wants formalized
+first (objective · legible · opposition-robust · affordance-preserving · proportionate). Offered as a short
+document stating them as questions an authoring decision must answer, with ball/player/touch worked as the
+first example — **for him to approve**. Asked whether he would rather shape them himself first.
