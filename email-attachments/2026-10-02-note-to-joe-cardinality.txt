@@ -1,0 +1,53 @@
+Joe,
+
+Both cardinality defects fixed and regression-tested. Christian's email is attached. Two things you
+should know up front.
+
+A04 IS NOW REFUSED — and it's correct
+Making the authored count constrain revealed A04 was never legitimately realizing: the Wide Zone
+authors exactly two channels, the run establishes three, and until today nothing checked. Realization
+now refuses, naming the item and both numbers.
+
+I did not relax it. The refusal has its own test. Everything downstream (acceptance conditions,
+post-realization gate, rendering) stays testable through ONE named override,
+`withAuthoredRegionCountSetAside`, which lives in callers only and never in the engine. Deleting it
+when the restatement lands won't compile until every call site is revisited — that's on purpose.
+
+THE RESTATEMENT IS DRAFTED BUT NOT APPLIED
+Two blockers, both things I'd be guessing at, both returned to him:
+
+1. The third S2 item (WIDEZONE-08.d, "noun=channel & functions ∋ perceptual-reference", COUNT 2). Its
+   own note says "COUNT 2 (from WIDEZONE-03) so both channels carry the member" — so it's not a third
+   channel, it's a statement ABOUT the two. But as an existence assertion on S2 it mints a third
+   region, and he's ruled out merging. Three readings, none obviously his intent, so I listed them
+   rather than picking. I checked whether AM-13 settles it — it doesn't, that's about selection not
+   entailing existence.
+
+2. A lateral selector would currently VANISH. An element's selector never reaches the resolved game —
+   regions arrive with id, noun and position only. So `lateral: wide-left` would parse, attach to the
+   class, and be dropped before realization. Both channels would still sit on the same touchline and
+   the restatement would be geometrically inert. Fourth instance of the same shape. The spatial layer
+   already handles a far-side anchor correctly, so the missing piece is just carrying the selector
+   through plus reading the interval test AM-17 already authors.
+
+WHAT'S DONE
+- One count reader instead of two. Exactly 5 corpus items change, all authored COUNT "2" -> exactly 2,
+  teams included. Nothing loses a cardinality it had — I measured before changing anything.
+- The asymmetry dissolves: the exclusion side refused prose counts citing SD-32 while the establishing
+  side guessed. Single anchored reader, so both read a bare number and both refuse prose. Pinned from
+  both directions.
+- Cardinality reaches the artifact and refuses an over-populated collection.
+
+One correction to my own work worth noting: my first version counted every region, so the Wide Zone's
+"exactly two" was broken by GF2's target line — a region it says nothing about. Its authoring note
+explicitly guards against that ("so another object's channel cannot break it"), so the count now ranges
+over the population the item's own scope names. I'd have shipped a bound that meant the wrong thing.
+
+WIDE ZONE EFFECT: held, nothing authored. I did pass him one useful datum — the only authored required
+items in the cluster are a trigger and its referents, nothing about what follows — so the mechanism is
+genuinely open rather than half-specified, and his instinct (modify the existing primary event, don't
+add a second) matches what the contract already excludes.
+
+247 cases green, tsc clean. Waiting on his decision on the third item.
+
+Joe
