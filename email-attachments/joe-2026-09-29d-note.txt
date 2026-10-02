@@ -1,0 +1,63 @@
+Joe — note on the thirteen rulings
+
+All applied or returned. Suite green, 220 tests, pushed.
+
+  unestablished 57 -> 36    open 5 -> 14    derived 51 -> 54    collisions 3 -> 0
+
+THE RESULT THAT MATTERS
+
+Reran the pilot boundary. A01 + A01-02 has 20 blockers, and they split cleanly:
+9 declared gaps, which are EXACTLY the three knowledge decisions we already
+found, and 11 that are "excluded" or "not constrained" — the knowledge saying it
+imposes no requirement. Nothing else is hiding.
+
+The six-way reason codes Christian approved made this visible in one run. Before
+them, all 11 would have read as "coverage" and looked like missing knowledge.
+
+TWO THINGS I GOT WRONG AND CAUGHT
+
+1. Renamed the affordance vocabulary in archetypes.ts and affordanceLenses.ts
+   and thought I was done. Those are PROJECTIONS of soccer-module.rc1-v3.json.
+   The module round-trip test failed — correctly. Fixing the source moved the
+   lens figures again (34/5 -> 33/6), because selection is affordance-weighted
+   so the vocabulary change altered which constraints win. Told Christian the
+   post-fix numbers and flagged that yesterday's figure is a different
+   statement, not a smaller version of the same one.
+
+2. Typing the neutral bounds as counts exposed that my own realization layer
+   enforced EVERY count bound — which would have intersected "floor 1, no max"
+   with "preferred 1-2" and produced a hard ceiling of 2. Exactly the conversion
+   Christian forbade, reached by a different route than the one he was guarding.
+   Preferred bounds are now offered, never enforced, with a test.
+
+A PROCESS NOTE WORTH KEEPING
+
+I twice read "exit=0" from a command like `npm test | tail` — that's tail's exit
+code, not the suite's. The suite was actually red both times. Only
+`npm test > file 2>&1; echo $?` is trustworthy here. Nothing wrong reached
+Christian, but it could have.
+
+SIX TESTS CHANGED
+
+Four had been using S5 as their stand-in for "a line nothing authored", and S5
+is now an envelope-bounded freedom. I moved each to a row that's still a gap
+rather than deleting the assertion, so they keep testing their principle. The
+AM-04 test now asserts both halves — silence still bars openness where nothing
+else reaches, and no longer destroys a choice space someone else supplied. Said
+so explicitly in the email, because "six tests changed" is exactly the sentence
+that should make someone suspicious.
+
+WHAT I DIDN'T DO
+
+Didn't implement DISTINCT_ON — returned it as a proposal and marked
+VARTARGET-03.a relational in the meantime, so the flattening is undone without
+me asserting a replacement.
+
+Didn't narrow the T1c rule even though the evidence now points clearly at
+"doesn't apply to OUT_END_LINE" — Christian said not to narrow it to make a line
+disappear, and that's still what it would be.
+
+A1-A10 are undefined anywhere in the repo. Not a judgement call, just absent.
+
+Joe
+

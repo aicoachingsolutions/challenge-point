@@ -61,7 +61,15 @@ export const FORWARD_RESULTS = [
 export type Verdict = (typeof VERDICTS)[number]
 export type ForwardResult = (typeof FORWARD_RESULTS)[number]
 /** AM-23's codes, in his order. Increment 3 distinguishes the three it can decide. */
-export type ReasonCode = 'declared gap' | 'coverage' | 'excluded'
+/**
+ * AM-23 as extended 29 September: one code per declaration, in a precedence where a **statement always
+ * outranks a silence**. Three codes could not express a five-declaration vocabulary, so an explicit
+ * exclusion and a declared non-claim were both reported as `coverage` — *nobody looked* — when an
+ * object had looked and said otherwise.
+ *
+ * **Diagnostic only.** Which code a line carries does not change whether it blocks realization.
+ */
+export type ReasonCode = 'declared gap' | 'excluded' | 'not constrained' | 'claimed but unresolved' | 'coverage' | 'no coverage'
 
 export type Requirement = (typeof REQUIREMENTS)[number]
 export type Scope = (typeof SCOPES)[number]
@@ -129,6 +137,22 @@ export interface Envelope {
     lengthM?: number
     widthM?: number
     durationMin?: number
+    /**
+     * **Specialized-role availability, as session context** — adopted 30 September. Role name to
+     * count. The role names themselves are sport knowledge and this layer knows none of them; it
+     * carries whatever the session states.
+     *
+     * It exists because `players: 12` says how many people are there and nothing about what they are,
+     * so a roster could not derive without implicitly treating every one of them as an outfield player.
+     * Stating availability is not stating involvement: a role available in the session is instantiated
+     * into a particular game only where the selected knowledge establishes it, and only an instantiated
+     * group has a participation state at all.
+     *
+     * The pathway is deliberately shaped so a Team Profile can supply defaults and a session override
+     * them — both upstream. The engine reads whatever it is given and infers nothing from silence: an
+     * absent entry means *not stated*, never *none available*.
+     */
+    roles?: Record<string, number>
 }
 
 export interface DerivationInput {
@@ -266,6 +290,17 @@ export interface Bounds {
     members?: unknown[]
     /** The authored words, for a qualitative bound. SD-15 forbids inventing a number here. */
     term?: string
+    /**
+     * The bound states a PREFERRED_DEFAULT, not a requirement. It is carried so a consumer can offer
+     * it and record departures from it, and it must never be enforced as though it were required -
+     * intersecting a preference with a requirement turns the preference into a ceiling the knowledge
+     * does not state (SD-90 governs the relationship).
+     */
+    preferred?: boolean
+    /** min/max are FRACTIONS of the named axis, not metres - a proportional rule, resolved at realization. */
+    fractionOfAxis?: boolean
+    /** Which axis a fractional bound is of, where the bound itself knows. */
+    axis?: string
 }
 
 export interface SelectorPredicate {

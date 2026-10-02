@@ -1,0 +1,150 @@
+/**
+ * Instantiating an authored relational spatial bound against the concrete session envelope.
+ *
+ * **This reads the canonical mechanism, not a second one.** `relativeTerms` (RC-21) already owned these
+ * relative spatial predicates in prose — *"attacking end (of team T): touches the end line T attacks"*,
+ * *"touchline-adjacent: touches a touchline"*. An earlier version of this file carried its own
+ * `spatialRelations` block keyed on whole authored phrases, which was a parallel representation of
+ * something that already existed one block away in the same file. Folded on his ruling of 1 October,
+ * with the lesson kept:
+ *
+ *   > **A new representational mechanism must not be introduced where an existing canonical mechanism
+ *   > already owns the same semantic concept.**
+ *
+ * Three things come out of the register and none out of this file: the prose test, its machine-readable
+ * form, and the phrase-to-term index. A phrase the index does not name is simply not recognised.
+ *
+ * Two kinds of term, and the distinction is where the honesty is:
+ *
+ *   **interval** — the test fixes both ends. *"full extent (of an axis)"* is the whole axis, so on a
+ *   40 m axis it is `[0, 40]`. That is what the predicate means, not a number chosen for it.
+ *
+ *   **anchor** — the test fixes one edge and states no extent. *"touches a touchline"* fixes the outer
+ *   edge; how wide the element is, the predicate does not say.
+ *
+ * An anchor becomes an interval in exactly two ways, both entailed rather than assumed: a **required**
+ * extent authored elsewhere, or a **one-dimensional noun**, where the element has extent on the other
+ * axis and therefore none on this one. A *preferred* extent never closes it — that would turn a
+ * preference into a requirement.
+ */
+
+import { RegisterIndex } from '../derivation/register'
+
+export interface RealizedGeometry {
+    /** The authored phrase, unchanged — the authority for everything else here. */
+    asAuthored: string
+    /** The canonical term the phrase instantiates, so the provenance names the register and not prose. */
+    term: string
+    axis: 'along' | 'across'
+    /** Both ends, in metres, where the predicate entails them. */
+    interval?: { from: number; to: number }
+    /** One coordinate, in metres, where the predicate entails only that. */
+    anchor?: number
+    /** Where an authored extent was available, the bound it came from. */
+    extentBound?: { min?: number | null; max?: number | null; preferred?: boolean; fractionOfAxis?: boolean; term?: string }
+    /** True where the position is fixed and the extent is not. */
+    extentUnresolved: boolean
+    why: string
+}
+
+interface TermDefinition {
+    kind: 'interval' | 'anchor'
+    axis?: 'along' | 'across'
+    from?: number
+    to?: number
+    at?: number
+    why?: string
+}
+
+/** The axis lengths a session envelope supplies. `along` is the longer dimension (S1). */
+function axisLengths(envelope: { lengthM?: number; widthM?: number }): { along: number; across: number } | null {
+    const length = Number(envelope.lengthM)
+    const width = Number(envelope.widthM)
+    if (!Number.isFinite(length) || !Number.isFinite(width)) return null
+    return { along: Math.max(length, width), across: Math.min(length, width) }
+}
+
+export interface SpatialContext {
+    envelope: { lengthM?: number; widthM?: number }
+    /** The row this value sits on, so an axis-free term knows which axis it is being read for. */
+    axis: 'along' | 'across'
+    /** A REQUIRED extent authored elsewhere on the line, where one exists. */
+    extentBound?: { min?: number | null; max?: number | null; preferred?: boolean; fractionOfAxis?: boolean; term?: string }
+    /**
+     * How many dimensions the element's noun gives it extent in. **1 means a line**: it has extent on
+     * one axis and none on the other, so an anchor on the axis that is *not* carrying its extent closes
+     * to zero. Which axis that is comes from the geometry, never from the noun — so this works the same
+     * for a line across the playing area and one along it.
+     */
+    nounExtentDimensions?: number
+    /** True where the element's OTHER axis already carries an interval, i.e. that axis is its length. */
+    otherAxisHasExtent?: boolean
+}
+
+export function realizeSpatialRelation(value: unknown, index: RegisterIndex, ctx: SpatialContext): RealizedGeometry | null {
+    if (typeof value !== 'string') return null
+    const relative = (index.relativeTerms ?? {}) as any
+    const term = relative.phraseIndex?.map?.[value]
+    if (!term) return null
+    const definition = relative.machineReadable?.terms?.[term] as TermDefinition | undefined
+    if (!definition) return null
+
+    const axes = axisLengths(ctx.envelope)
+    if (!axes) return null
+    // A term may name its own axis; an axis-free one (like full extent) takes the row's.
+    const axis = definition.axis ?? ctx.axis
+    const extent = axes[axis]
+    const base = { asAuthored: value, term, axis }
+
+    if (definition.kind === 'interval' && definition.from !== undefined && definition.to !== undefined) {
+        return { ...base, interval: { from: definition.from * extent, to: definition.to * extent }, extentUnresolved: false, why: definition.why ?? '' }
+    }
+    if (definition.kind !== 'anchor' || definition.at === undefined) return null
+
+    const anchor = definition.at * extent
+    const { extentBound, nounExtentDimensions, otherAxisHasExtent } = ctx
+
+    // **A one-dimensional noun closes the anchor to zero on its thickness axis.** This is entailment,
+    // not assumption: a line has extent on one axis, so on the other it has none. Orientation is read
+    // from where the extent actually is, so nothing here encodes "line = end line".
+    if (nounExtentDimensions === 1 && otherAxisHasExtent) {
+        return {
+            ...base,
+            interval: { from: anchor, to: anchor },
+            anchor,
+            extentUnresolved: false,
+            why: `${definition.why ?? ''} The element's noun gives it extent in one dimension and its other axis carries that extent, so its extent on this axis is zero.`,
+        }
+    }
+
+    // **A PREFERRED extent may not become a required interval.** Carrying it as though established would
+    // turn a preference into a requirement, which is the conversion forbidden on the neutral count.
+    if (extentBound?.preferred) {
+        return {
+            ...base,
+            anchor,
+            extentBound,
+            extentUnresolved: true,
+            why: `${definition.why ?? ''} An extent IS authored (${JSON.stringify({ min: extentBound.min, max: extentBound.max })}) but as a PREFERRED_DEFAULT, so it is offered and not composed: the required extent remains unauthored.`,
+        }
+    }
+
+    if (extentBound && Number.isFinite(extentBound.max)) {
+        // A FRACTIONAL extent is resolved against this axis of the envelope, which is the whole point of
+        // authoring the relationship rather than a metre value: the same knowledge gives 7.5 m on a 30 m
+        // width and 10 m on a 40 m one. Containment is still checked at the widest permitted extent.
+        const scale = extentBound.fractionOfAxis ? extent : 1
+        const outward = anchor === 0 ? 1 : -1
+        const far = anchor + outward * (extentBound.max as number) * scale
+        return {
+            ...base,
+            interval: { from: Math.min(anchor, far), to: Math.max(anchor, far) },
+            anchor,
+            extentBound,
+            extentUnresolved: false,
+            why: `${definition.why ?? ''} Extent composed from the authored required bound ${JSON.stringify(extentBound)}; containment is checked at the widest permitted extent.`,
+        }
+    }
+
+    return { ...base, anchor, extentBound, extentUnresolved: true, why: definition.why ?? '' }
+}

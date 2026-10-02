@@ -1,0 +1,62 @@
+Joe — note on today
+
+You asked me to start the resolved-game output. That went in, and then the
+realization layer on top of it, which is where the interesting part happened.
+
+WHAT'S DONE
+
+- Realization layer: resolved game -> concrete game + realization record.
+  `npm run realize`. 22 tests, suite 216, green, tsc clean.
+- Contract coverage recalculated: `npm run corpus:coverage`.
+- Everything committed and pushed on the working branch.
+
+THE THING WORTH KNOWING
+
+Building a consumer for the resolved game immediately found two bugs in the
+resolved game that nothing had caught, because until today nothing read it.
+
+The worse one: elements with no derived value were being dropped from the game
+object entirely. Not reported as empty — absent. On the corpus that silently
+lost two elements, one of them the region the Variable Target condition
+establishes. Every test was green the whole time, because the tests read the
+lists, and the lists were fine. Only the assembled game was wrong.
+
+This is the same failure shape as the validator dropping systemTrace back in
+September: a projection with an implicit allowlist, losing authored content,
+invisible because the harness looked somewhere else. I've added counts so a
+recurrence shows up as a number rather than an absence.
+
+THE HONEST STATUS
+
+No resolved game is eligible for realization yet. I checked every single
+contract and every pair — none passes Gate A. 43 of the 57 unestablished lines
+are rows a knowledge object explicitly says it needs and cannot author. That's
+Christian's to write, not ours to engineer around, and I've said so plainly.
+
+Three of the 57 are internal and mine.
+
+ONE JUDGEMENT CALL
+
+Christian asked for the smallest possible test on "one resolved game that is
+eligible". None is. I did not manufacture one by supplying fabricated knowledge
+to get a green end-to-end run — it would have demonstrated the pathway and
+misrepresented the state. The layer is proven on fixtures, the refusal is proven
+on the live corpus, and the email says which is which.
+
+WHAT I DIDN'T DO
+
+Didn't change the AM-23 reason codes or their precedence even though 11 lines
+currently misreport, because the precedence between a declaration and a silence
+is a semantic call. Made the evidence visible instead and returned the question.
+
+Didn't add the information-trigger qualifier slot, though it's small — it
+wouldn't actually fix the member that motivated it, and shipping it would look
+like progress that isn't.
+
+Contract count for the bounded pilot is 10, and the extra 5 are exactly the
+Practice Situations — which is the trade Christian already said he'd take.
+
+Email to Christian is attached separately.
+
+Joe
+

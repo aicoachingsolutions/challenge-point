@@ -15,7 +15,7 @@ import { RegisterIndex } from './register'
 import { reaches, Reach } from './reach'
 import { parseSelector } from './selector'
 import { ApplicationSet, DeclarationReach } from './scope'
-import { Bounds, ElementClass, ItemRef, LoadedContract, ResolutionLine, SupportRef } from './types'
+import { Bounds, ElementClass, ItemRef, LoadedContract, NamedDiagnostic, ResolutionLine, SupportRef } from './types'
 
 export interface DerivedLine {
     lineId: string
@@ -61,6 +61,12 @@ export interface DerivedLine {
      * while what is known about it stays visible.
      */
     establishedMembers: { item: ItemRef; member: unknown; support: SupportRef }[]
+    /**
+     * SD-101 — contributions that entail a value contradicting a **constitutive** selector attribute
+     * of the class they reach. They are held here, not in `entailing`: the class-defining value
+     * stands and the contradiction is preserved rather than resolved either way.
+     */
+    contradicted: { item: ItemRef; value: unknown; constitutive: { attribute: string; value: unknown }; support: SupportRef }[]
 }
 
 /**
@@ -171,6 +177,78 @@ function narrowsToSet(item: any): boolean {
     if (item.basis === 'ASSUMED') return false
     if (item.strictness === 'EXCLUSION') return false
     return item.valueStatus === 'REQUIRED_RANGE' && Array.isArray(item.value)
+}
+
+/**
+ * **SD-101, his ruling of 28 September — a defining selector is constitutive of class identity.**
+ *
+ *   "Where a selector attribute participates in establishing the identity of a class, a contribution
+ *    reaching that class may not entail a contradictory value for the corresponding field. … Do not
+ *    simply suppress the contribution's reach, since it may legitimately reach the class for other
+ *    properties. And do not treat the defining selector as an ordinary competing contribution. If an
+ *    authored item contradicts a constitutive selector attribute, **preserve and report that
+ *    contradiction** rather than allowing the item's value to replace the class-defining value."
+ *
+ * A class *is* its selector: `c:restated:RPC-001:RPC-001-11.a` is "the PRIMARY_SCORING objective of
+ * the build-out team". An item reaching it and entailing some other team for its `J3` would leave a
+ * class whose identity says one thing and whose line says another, and under SD-92 the item would
+ * win because an item always beats a selector.
+ *
+ * **This is a narrow exception to that subordination and nothing more.** It fires only on the
+ * attribute the selector fixed, only where the entailed value contradicts it, and only on that one
+ * line. The contribution keeps its reach: every other row of that class is untouched, because a rule
+ * about one property is not a reason to stop reading the rest of a contract.
+ */
+function applyConstitutiveSelector(
+    lines: ResolutionLine[],
+    derived: Map<string, DerivedLine>,
+    classes: ElementClass[],
+    index: RegisterIndex,
+    diagnostics: NamedDiagnostic[],
+): void {
+    const byClass = new Map(classes.map(c => [c.classId, c]))
+
+    for (const line of lines) {
+        if (!line.elementId) continue
+        const row = index.rows.get(line.row)
+        if (!row || !row.selectorAttribute) continue
+        const cls = byClass.get(line.elementId)
+        if (!cls || row.ownerRow !== cls.row) continue
+        const term = (cls.constraints?.terms || []).find(t => t.attribute === row.selectorAttribute)
+        if (!term) continue
+
+        const record = derived.get(line.lineId)!
+        const contradicts = (value: unknown): boolean => {
+            if (term.op === '=') return typeof value === 'string' && value !== term.value
+            if (term.op === 'IN') return typeof value === 'string' && !term.values.includes(value)
+            // A `∋` term says the set holds this member. Only an explicit set that leaves it out
+            // contradicts it; anything else is not something this can decide.
+            if (term.op === 'CONTAINS') return Array.isArray(value) && !value.map(String).includes(term.value)
+            return false
+        }
+
+        const offending = record.entailing.filter(e => contradicts(e.value))
+        if (!offending.length) continue
+
+        record.entailing = record.entailing.filter(e => !contradicts(e.value))
+        for (const entry of offending) {
+            record.contradicted.push({
+                item: entry.item,
+                value: entry.value,
+                constitutive: { attribute: String(row.selectorAttribute), value: 'value' in term ? term.value : term.values },
+                support: entry.support,
+            })
+            diagnostics.push({
+                code: 'CONSTITUTIVE_SELECTOR_CONTRADICTED',
+                where: line.lineId,
+                detail:
+                    `${entry.item.contractId}::${entry.item.itemId} entails ${JSON.stringify(entry.value)} on a property the class's own selector fixes as ` +
+                    `${JSON.stringify('value' in term ? term.value : term.values)}. The class-defining value stands and the contribution is preserved, ` +
+                    'not resolved against it (SD-101). Its reach to this element is unchanged for every other row.',
+            })
+        }
+        record.contradicted.sort((a, b) => `${a.item.contractId}:${a.item.itemId}`.localeCompare(`${b.item.contractId}:${b.item.itemId}`))
+    }
 }
 
 /**
@@ -328,7 +406,26 @@ function entails(item: any): boolean {
  * here, and a `COUNT` with null endpoints bounds nothing while still looking numeric to a consumer,
  * which is how "beyond the first defenders" came to be silently ignored by a feasibility check.
  */
-function boundsOf(item: any): Bounds {
+function boundsOf(item: any, index?: RegisterIndex): Bounds {
+    // **A value that IS a canonical relative term carries that term's bound.** The fractions live once,
+    // in RC-21, and a contract item names the relation rather than restating a number — which is what
+    // keeps a proportional rule from being copied into every object that uses it. The term is resolved
+    // here rather than parsed, so no prose is interpreted.
+    if (index && typeof item.value === 'string') {
+        const term = ((index.relativeTerms as any)?.machineReadable?.terms ?? {})[item.value]
+        if (term && term.kind === 'interval' && typeof term.from === 'number' && typeof term.to === 'number') {
+            return { kind: 'COUNT', min: term.from, max: term.to, term: item.value, fractionOfAxis: true, preferred: item.valueStatus === 'PREFERRED_DEFAULT' } as Bounds
+        }
+    }
+    // **A typed bound moved out of the prose by an authored restatement**, on the SD-86 precedent:
+    // the restatement "may move an explicitly authored numerical bound from the existing prose into
+    // the typed field", and may not infer one. `">= 1 (no authored maximum)"` states a number this
+    // parser cannot read, and guessing at it in code would be interpretation. The authored text is
+    // carried alongside so the source stays visible beside its typed form.
+    if (item.typedBound && typeof item.typedBound === 'object') {
+        const { min = null, max = null } = item.typedBound
+        return { kind: 'COUNT', min, max, term: String(item.value ?? ''), preferred: item.valueStatus === 'PREFERRED_DEFAULT' }
+    }
     if (item.requirement !== 'RANGE' && item.requirement !== 'COUNT') return { kind: 'SET', members: [item.value] as any }
 
     if (typeof item.value === 'number') return { kind: 'COUNT', min: item.value, max: item.requirement === 'COUNT' ? item.value : null }
@@ -355,6 +452,43 @@ function boundsOf(item: any): Bounds {
  * AM-04 as he ruled it: "Unexamined silence cannot license a free choice." An `UNDECLARED` declaration
  * reaching the row bars openness.
  */
+/**
+ * Elements whose placement would **settle a reference that is not otherwise settled**.
+ *
+ * The rule it enforces is his: *"If choosing its location determines the objective referent or
+ * scoring relationship, realization does not have authority to make that structural decision merely
+ * because it is geometric."*
+ *
+ * **Narrowed 29 September, after tracing the case that motivated it.** The target region is
+ * referenced by two objectives — but through a **typed structural reference** (SD-98), which resolves
+ * by contract and item identity. Geometry cannot change what such a reference points at, so moving
+ * the region settles nothing: the referent, the role and the team are all already derived. What is
+ * unresolved there is the target's *extent*, and he has ruled that bounded realization inside the
+ * authored bound and the envelope.
+ *
+ * So a typed reference does **not** bar placement. What would is a reference that resolves by
+ * position rather than identity — *"the region at the attacking end"* — because then where the
+ * region sits decides which region is meant. `GA-REFERENCE-INTEGRITY` already separates the two, and
+ * only the second kind is collected here.
+ *
+ * On the present corpus that set is empty, and saying so is better than a guard that looks protective
+ * and fires on the wrong thing.
+ */
+function referencedElements(contracts: LoadedContract[]): Set<string> {
+    const referenced = new Set<string>()
+    const walk = (node: unknown): void => {
+        if (Array.isArray(node)) return node.forEach(walk)
+        if (!node || typeof node !== 'object') return
+        const ref = (node as any).structuralRef
+        // A typed reference names its target; nothing geometric can redirect it. It is skipped, and
+        // its subtree is not walked, so an `asAuthored` gloss beside it is not mistaken for one.
+        if (ref && ref.contractId && ref.itemId) return
+        Object.values(node as Record<string, unknown>).forEach(walk)
+    }
+    for (const contract of contracts) for (const item of contract.items ?? []) walk(item.value)
+    return referenced
+}
+
 function mayBeOpen(
     line: ResolutionLine,
     index: RegisterIndex,
@@ -362,6 +496,9 @@ function mayBeOpen(
     declarations: DeclarationReach[],
     envelope: { [k: string]: unknown },
     stopped: { where: string; why: string }[],
+    cls: ElementClass | undefined,
+    referenced: Set<string>,
+    relational: Set<string>,
 ): { authority: string; choiceSpace: string } | null {
     const row = line.row
     const choiceSpace = index.fillable.get(row)
@@ -369,7 +506,42 @@ function mayBeOpen(
     if (record.session) return null // the session resolved it; a resolved line is not a free one
     if (record.entailing.length > 0) return null
     if (record.standingDecisions.length > 0) return null
-    if (declarations.some(d => d.row === row && d.declaration === 'UNDECLARED')) return null // AM-04
+
+    // **AM-04, narrowed on his ruling of 29 September.** It had been a per-row veto: one `UNDECLARED`
+    // declaration anywhere on the row barred openness for every element on it, which let one object's
+    // silence override another object's positive authority over the same property. On the corpus a
+    // single undeclared row from one object was blocking all thirteen placement lines.
+    //
+    // His principle, and the whole of the change: *"silence supplies no authority. It does not negate
+    // authority supplied elsewhere."* So silence still cannot **create** a choice space — that is the
+    // rest of this function — but it no longer **destroys** one that an authoritative source supplied.
+    // `NOT_AUTHORED` and `EXCLUDED` keep their own semantics; only bare silence is narrowed.
+    const silence = declarations.some(d => d.row === row && d.declaration === 'UNDECLARED')
+    const authorityReaches = record.bounding.length > 0 || index.outerBound.has(row)
+    if (silence && !authorityReaches) return null
+
+    // **A geometric choice that settles a structural relationship is not realization's to make.**
+    // His sixth ruling: realization "does not have authority to make that structural decision merely
+    // because it is geometric". The target region is referenced by two objectives, so where it sits
+    // decides what the teams score at — and that stays a returned gap rather than a placement
+    // freedom, whether or not anything authored a bound for it.
+    if (index.outerBound.has(row) && cls && referenced.has(`${cls.fromItem.contractId}::${cls.fromItem.itemId}`)) {
+        stopped.push({
+            where: line.lineId,
+            why: 'another authored contribution references this element, so choosing its placement would settle a structural relationship (C29, ruling 6)',
+        })
+        return null
+    }
+
+    // **A joint constraint is not a per-line bound.** Where a contribution constrains members of a set
+    // against each other — "each candidate's position differs from every other candidate's" — three
+    // independently valid placements can still be jointly invalid, and a per-line freedom has no way
+    // to see that. Until the relationship itself is representable the line is not open.
+    // A relational contribution no longer bars the line. Since `DISTINCT_ON` was adopted the joint
+    // constraint has somewhere of its own to live, so each placement may be chosen on its own bound
+    // and the *set* is checked afterwards — which is the point of it: independently valid placements
+    // can still be jointly invalid, and now something can say so.
+    void relational
 
     // SD-39: "OPEN is not produced by absence of knowledge. The property's existence and legitimate
     // choice space must already be supported."
@@ -393,7 +565,15 @@ function mayBeOpen(
     // report a GAP. OPEN requires both: supported existence + supported legitimate choice space.
     // Silence supplies neither." So the line is not open, and stage 6 classifies it NOT_AUTHORED, which
     // raises the GAP. It is not a refusal.
-    if (/authored/i.test(choiceSpace) && record.bounding.length === 0) return null
+    //
+    // **Amended 29 September.** The session envelope is authoritative structure, and for a row the
+    // register marks `outerBound: SESSION_ENVELOPE` it supplies the outer geometric limit SD-50 asks
+    // for. That is what makes a metric placement a bounded freedom rather than a gap: the element
+    // exists, its function is established, and the only thing nobody authored is where inside the
+    // pitch it sits. It authorizes no arbitrary geometry — the bound is the envelope, and the
+    // realization layer still records the value as a choice rather than as derived knowledge.
+    const envelopeBounds = index.outerBound.get(row) === 'SESSION_ENVELOPE' && !!envelope && Object.keys(envelope).length > 0
+    if (/authored/i.test(choiceSpace) && record.bounding.length === 0 && !envelopeBounds) return null
 
     return { authority: 'SD-39', choiceSpace }
 }
@@ -440,6 +620,8 @@ export interface DeriveOutcome {
     lines: Map<string, DerivedLine>
     undeterminedReaches: { item: ItemRef; classId: string }[]
     stopped: { where: string; why: string }[]
+    /** SD-93's channel — named conditions this stage must not leave to be inferred downstream. */
+    diagnostics: NamedDiagnostic[]
 }
 
 export function deriveLines(
@@ -452,6 +634,10 @@ export function deriveLines(
     envelope: any = {},
 ): DeriveOutcome {
     const byClass = new Map(classes.map(c => [c.classId, c]))
+    const referenced = referencedElements(contracts)
+    const relational = new Set(
+        contracts.flatMap(c => (c.items ?? []).filter(i => (i as any).relational).map(i => `${c.contractId}::${i.itemId}`)),
+    )
     const itemsById = new Map<string, any>()
     for (const contract of contracts) {
         for (const item of contract.items || []) itemsById.set(`${contract.contractId}:${item.itemId}`, { ...item, contractId: contract.contractId })
@@ -460,6 +646,7 @@ export function deriveLines(
 
     const derived = new Map<string, DerivedLine>()
     const stopped: { where: string; why: string }[] = []
+    const diagnostics: NamedDiagnostic[] = []
     const undeterminedReaches: { item: ItemRef; classId: string }[] = []
 
     for (const line of lines) {
@@ -476,6 +663,7 @@ export function deriveLines(
             session: null,
             displaced: [],
             establishedMembers: [],
+            contradicted: [],
         })
     }
 
@@ -519,15 +707,22 @@ export function deriveLines(
                     value: item.value,
                     support: { kind: 'CONTRACT_ITEM', contractId: ref.contractId, itemId: ref.itemId, relation: 'ENTAILS' },
                 })
-            } else if (isSupportCapable(item)) {
+            } else if (isSupportCapable(item) && !(item as any).relational) {
+                // A relational contribution constrains members of a set against each other, so it
+                // bounds no single line — that was the flattening. It is carried instead as a joint
+                // condition (DISTINCT_ON) and checked over the realized set.
                 record.bounding.push({
                     item: ref,
-                    bound: boundsOf(item),
+                    bound: boundsOf(item, index),
                     support: { kind: 'CONTRACT_ITEM', contractId: ref.contractId, itemId: ref.itemId, relation: 'NARROWS' },
                 })
             }
         }
     }
+
+    // SD-101 — a contribution contradicting a constitutive selector attribute leaves the line before
+    // SD-92 looks, so the class-defining value is what the selector then carries.
+    applyConstitutiveSelector(lines, derived, classes, index, diagnostics)
 
     // SD-92 — the establishing selector's contribution, before the narrowings are composed (an `∈`
     // term is one of them) and before anything reads a value off the line.
@@ -584,13 +779,14 @@ export function deriveLines(
         record.entailing.sort((a, b) => `${a.item.contractId}:${a.item.itemId}`.localeCompare(`${b.item.contractId}:${b.item.itemId}`))
         record.bounding.sort((a, b) => `${a.item.contractId}:${a.item.itemId}`.localeCompare(`${b.item.contractId}:${b.item.itemId}`))
         record.standingDecisions.sort()
-        record.open = mayBeOpen(line, index, record, declarations, envelope, stopped)
+        record.open = mayBeOpen(line, index, record, declarations, envelope, stopped, line.elementId ? byClass.get(line.elementId) : undefined, referenced, relational)
     }
 
     return {
         lines: derived,
         undeterminedReaches: undeterminedReaches.sort((a, b) => a.classId.localeCompare(b.classId)),
         stopped: [...new Map(stopped.map(s => [s.where + s.why, s])).values()].sort((a, b) => a.where.localeCompare(b.where)),
+        diagnostics: diagnostics.sort((a, b) => `:`.localeCompare(`:`)),
     }
 }
 

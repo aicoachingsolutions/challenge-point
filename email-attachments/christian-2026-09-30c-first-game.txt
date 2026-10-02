@@ -1,0 +1,177 @@
+Subject: The first game realized and passed acceptance; post-realization Gate A did not pass
+
+Christian,
+
+The split is in and the first game has been through end to end. Realization
+acceptance passed. Post-realization Gate A did not, and what blocks it is
+specific and worth your attention. The full trace is attached separately as a
+document.
+
+Generation remains frozen. 229 tests, suite green.
+
+
+THE RESULT
+
+  realization acceptance      PASSED
+  post-realization Gate A     NOT PASSED
+  render-eligible             NO
+
+A04 is authorized; A05 is not, and says which pre-realization invariant is
+unsatisfied. Both are now tests, so the authorization discriminates rather than
+waves things through.
+
+The three states are kept apart as you asked. The pre-realization state reports
+PRE_REALIZATION_SATISFIED, never PASS, so it cannot be read as full Gate A having
+passed. Realization authorization requires all three of your conditions, checked
+rather than assumed. And what the concrete game still owes travels with it.
+
+On the same-invariant point: the post-realization gate does not re-implement
+anything. It folds the realization decisions into the derivation context and runs
+the same fifteen functions, so anything it reports is that invariant's verdict and
+not a weaker cousin.
+
+
+WHAT THE CONCRETE GAME IS
+
+Six choices, each from inside an authored set; three instantiations, two of them
+the teams the claim asserts. A target line across the attacking end, three
+touchline channels running the full length, a line_crossed primary event worth 1,
+two teams, and an objective both teams attack. Every choice records what bounded
+it and why it was made, so none of it can later read as derived knowledge.
+
+Nothing lost, nothing invented, nothing closed without authority.
+
+
+WHY POST-REALIZATION GATE A DID NOT PASS
+
+Of the five owed invariants: one passes, one passes vacuously, three are blocked.
+
+  PASS            GA-ONE-PRIMARY-EVENT   the kind, chosen and registered
+  PASS_VACUOUS    GA-LAYOUT-FEASIBLE     "no geometric line is open"
+  STILL blocked   GA-ENVELOPE-FIT  x2    a placement is not a value §1.9 compares
+  NOT_EVALUABLE   GA-ROSTER-SUM          no roster line exists for the teams
+
+Three findings, and I think the third is the important one.
+
+FIRST — the vacuous pass. GA-LAYOUT-FEASIBLE's clause is phrased over OPEN lines:
+"the geometric constraints over open lines are jointly satisfiable". Realization
+closes those lines, so at the later stage there are none and the clause passes
+having examined nothing. SD-54 forbids presenting that as evidence, so it is
+labelled PASS_VACUOUS rather than PASS. To have any post-realization content the
+clause needs rephrasing to something like "the chosen placements are jointly
+satisfiable". That is a wording defect the split exposed rather than created.
+
+SECOND — geometry as prose, which I flagged before your ruling and which the
+ruling correctly does not fix. Moving GA-ENVELOPE-FIT downstream is right: its
+dependency genuinely is a value realization supplies. But a value drawn from a
+bound that reads "the full axis extent, end line to end line" is that same
+phrase, so §1.9 still has nothing to compare. I have labelled it
+STILL_NOT_EVALUABLE at the final stage rather than letting it re-report as
+deferred, because there is no further stage to defer to.
+
+THIRD, and the one I would want you to look at — AN INSTANTIATED MEMBER ARRIVES
+WITH NO PROPERTIES.
+
+GA-ROSTER-SUM cannot run even after realization instantiated both teams, because
+there is no outfieldCount line for either of them. SD-97 enumerates no lines for
+a class nothing individuates, so no P2 or P3 line was ever created — which means
+realization was never ASKED for team sizes, and could not have supplied them if
+it wanted to.
+
+So authorized existential realization currently supplies members and has no
+mechanism to supply their properties. The roster is not unauthored and not
+miscounted; it is unaskable. I do not think that is a small gap, and I have not
+tried to close it by inventing a way to ask.
+
+
+THE GOAL-KICK VALUES ARE ALREADY AUTHORED — WHICH CHANGES ITEM 6
+
+I started to author your three canonical values and stopped, because A01-02
+already holds all three:
+
+  T5   A01-02-04.b   "STATIONARY_BALL"                    — your value exactly
+  T4   A01-02-07.a   "own end (of the team in this element's T2)"
+  T3   A01-02-11.a   "a player of the team in this element's T2:
+                      any role, NOT NECESSARILY A GOALKEEPER"
+
+All three have basis = ASSUMED. By §3 an assumed item bounds but never entails —
+which is precisely why they read as unauthored gaps. Nobody was silent; what was
+said is an assumption rather than knowledge.
+
+So the decision in front of you is not to author three values. It is whether to
+promote three assumptions to authored knowledge — and for T3, whether to rule
+against what the restatement assumed, because A01-02-11.a says explicitly that
+the taker is NOT necessarily a goalkeeper and your direction says it is.
+
+I added two items on your direction and then removed them again: T5 would have
+duplicated a value already there, and T3 would have overwritten a source that
+says the opposite. Neither felt like mine to do silently.
+
+And the evidence you anticipated on the goalkeeper: RPC-001 is the ONLY object in
+the corpus that CLAIMS P3, every other declares it NON_CLAIMED, and the A01 +
+A01-02 selection is A01-02, GF2, WIDE-ZONE-ADVANTAGE and PASS-COMBINATION-GATE —
+RPC-001 is not among them. So T3 = goalkeeper would name a performer this game
+does not establish.
+
+On T4: "own end of the restarting team" is close to your "defending half", and it
+is marked off-list (L2) because T4 takes a region reference and this is a
+per-team relation. I have not added a region. The smallest issue is that T4
+cannot express a per-team spatial relation, though S5 already carries exactly
+that kind of value ("attacking end (of the team J3 names ...)"). I am returning
+that rather than acting on it.
+
+
+V17 AND V18 — THE SEMANTIC DISTINCTION
+
+  V17  value.informationRules[].trigger              "trigger (closed list), or STANDING"
+  V18  value.informationRules[].dimensions.D006      IE-D006 values
+
+V17 names the GAME EVENT on which information becomes available, from the same
+closed list transitions draw on. V18 names the IE CLASSIFICATION of that event —
+whether it is a teammate action, an opponent action, an environmental event, an
+external signal, and so on — and carries IE-D006's integrity condition, that the
+trigger be detectable and causally connected to the information it reveals.
+
+In the Pass Combination case: V18 = TEAMMATE_ACTION says the count changes on
+something a teammate does. V17 would say WHICH event — and here is the substance:
+the register's trigger list has no member for a completed pass, so V17 cannot
+name it. Its current value is STANDING, an assumption your ruling contradicts.
+
+Would withdrawing V17 lose anything? For this object, no: TEAMMATE_ACTION plus
+IMMEDIATE_AFTER_TRIGGER already says the count updates on each pass, and no
+consequence or gate reads V17 for this rule. But for an information rule whose
+trigger IS a represented game event — a score, a turnover, a region entry — V17
+carries the identity of that specific event, and V18 only its category. Two
+different rules triggered by two different region entries would be
+indistinguishable on V18 alone.
+
+So my reading: V17 and V18 are not parallel representations of the same thing —
+one names the instance, the other its type. They overlap only where the event has
+no represented identity, which is exactly the Pass Combination case. The narrow
+option that avoids both a new vocabulary member and a parallel representation is
+to let V17 be legitimately absent where the triggering event is not itself a
+represented game event, with V18 carrying the classification. I have not
+implemented that; it is a ruling about what V17 means when empty.
+
+
+HELD AS INSTRUCTED
+
+The four Variable Target dimensions are untouched and unresolved from IE-C006.
+The affordance result stands at 33 / 6 / 0. T1c stays narrowed. The six defensive
+lens gaps are not being worked.
+
+
+ITEM 8
+
+The closure condition is not met — post-realization Gate A did not pass — so I
+have not treated this as the closure point. The three findings above are what
+stands between here and it, and only one of them is authoring.
+
+I will send the three-part remaining-work breakdown you asked for once you have
+ruled on the roster-properties question, because the answer materially changes
+list (1): if an instantiated member cannot be given properties, then what remains
+before an activity can be rendered internally is larger than the rest of this
+note would suggest.
+
+Joe
+

@@ -1,0 +1,61 @@
+Joe — the width was authored all along, as a preference
+
+236 tests green, pushed. A04 still not closed, but both remaining items are now
+single decisions for Christian, not architecture.
+
+THE FIND
+
+WIDEZONE-06 authors the channel width: RANGE, AUTHORED, "across-interval width
+about 6-10 m". It was never missing — it was untyped, so the parser made it
+QUALITATIVE and it bounded nothing readable. Typed it on the same SD-86 precedent
+as the neutral count.
+
+Then: it's SUPPORTING / PREFERRED_DEFAULT. Its own fitNote says "PREFERRED_DEFAULT
+carries the adaptation". So the width is a PREFERENCE and the required extent is
+genuinely unauthored.
+
+I'D ALREADY BUILT THE THING THAT WOULD HAVE GOT THIS WRONG
+
+I had the anchor-plus-extent composition working and it would have turned that
+preference into a required interval — making A04 pass on the strength of something
+nobody required. Same conversion Christian forbade on the neutral count, arrived at
+from the other side. Caught it by checking valueStatus before trusting my own
+mechanism. Now only a REQUIRED extent composes; a preferred one is offered and
+reported as leaving the requirement open.
+
+Told him plainly that I nearly got it wrong, because the mechanism looked right and
+the output looked like progress.
+
+THIRD SILENT LOSS
+
+The width had been authored and was never leaving the engine: `bounds` was emitted
+only on OPEN lines, and Wide Zone puts the width on the same row as
+"touchline-adjacent". So a line with a derived position silently dropped its
+authored extent. Now emitted as `extentBounds` — separate name, so the "bounds only
+on open lines" invariant survives intact.
+
+Three instances of this shape now, all three found by something downstream trying
+to USE the value rather than by a test.
+
+ROSTER — NOTHING TO BUILD
+
+The representation already carries all three of his distinctions: E1 for total,
+P4 roles[] ("the list is open for this run" — sport-neutral, as he wanted) for
+specialized availability, P11/P12 participation state (EM-0007) for involvement.
+P3 goalkeeper already exists as the soccer-named convenience.
+
+What's missing is a SESSION input — the envelope says players:12 and nothing about
+role composition. So the roster can't derive honestly. That's his distinction
+exactly, and it's an envelope addition, not knowledge and not a mechanism.
+
+Didn't promote "equal outfield counts". He was right that it implies all 12 are
+outfield. Also noted GF2's P3 NON_CLAIMED means "imposes no requirement", not
+"there are none" — so it stays unresolved rather than defaulting to 0.
+
+STILL OUTSTANDING
+
+COMPLETED_PASS. Third note running where I've flagged it rather than rushed it. It
+blocks nothing; next turn.
+
+Joe
+

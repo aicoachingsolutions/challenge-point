@@ -1,0 +1,71 @@
+Joe — note on the boundary result
+
+All eight applied or returned. Suite green, 225 tests, pushed.
+
+  corpus: NOT_AUTHORED 54 -> 26, open 5 -> 18, derived 51 -> 59, collisions 0
+
+THE HEADLINE
+
+GA-NO-FAILED-LINE now PASSES on all five pilot goals. A01 + A01-02 is down to
+three lines, and those are the goal-kick values Christian is authoring himself.
+
+But no game is eligible, and the reason is worth understanding: Gate A returns
+NOT_EVALUABLE, and all four checks that can't be evaluated need values that
+REALIZATION supplies — concrete geometry for the envelope/layout checks, and
+instantiated teams for the roster sum. Gate A is asking layout-feasibility
+questions of a game with no layout, and its verdict gates the step that would
+give it one.
+
+That's a sequencing question, not a knowledge gap. I proposed splitting Gate A
+into knowledge-time and concrete-game-time checks and did NOT implement it —
+it changes what mayRealize means, which is his.
+
+So I couldn't run the acceptance test. What I did instead was show him A04's full
+realization request: six choices, each with an authority and a bound, two
+instantiations each with a claim. The game is ready; the gate isn't.
+
+THE ONE THAT ANSWERED ITSELF
+
+The GRADUAL vs REVERSIBLE problem he asked me to return a representation issue
+for turned out not to be one. They're different dimensions — D008 progression and
+D011 state dependency — so both fit without conflict. Better than that: putting
+the reset on D008 as REVERSIBLE would violate D008's own integrity condition,
+which requires later information to "refine rather than arbitrarily overturn the
+task". A reset overturns it. So the model was right and the apparent conflict was
+mine.
+
+Worth noting because he'd pre-authorised a representation change and it wasn't
+needed.
+
+WHAT I NARROWED, AND WHY I SAID SO
+
+The reference guard I built yesterday to keep the target region out of placement
+freedom was firing on TYPED structural references — which resolve by identity and
+are therefore immune to geometry. Exactly backwards. Narrowed it to
+position-resolved references, of which this corpus has none, and told him the
+guard is now inert here rather than leaving something that looks protective and
+isn't.
+
+WHAT I DIDN'T DO
+
+Didn't add a trigger vocabulary member for "a completed pass" even though V17 now
+needs one — PCG-12's assumed STANDING is contradicted by his ruling and there's
+nothing in the vocabulary to replace it with. Returned both options. Not blocking
+on the pilot game.
+
+Didn't propose a scaled goal area or any six-yard equivalent for T4. He said
+explicitly not to encode soccer law with no representative function, and a
+distance in a 40x30 game is exactly that.
+
+Didn't touch the six defensive lenses — he parked them as a library-coverage task.
+
+ONE PROCESS THING THAT KEEPS BITING
+
+Five snapshot tests moved this turn because the corpus figures moved. Each time I
+updated the expected number AND the comment explaining why, rather than just the
+number — those comments are the only record of what each ruling actually changed.
+
+Email to Christian attached separately.
+
+Joe
+

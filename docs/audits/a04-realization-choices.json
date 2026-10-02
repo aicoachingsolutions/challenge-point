@@ -1,0 +1,51 @@
+{
+  "note": "The realization request A04's resolved game implies, answered. Every value here is either a member of the permitted set the knowledge narrowed to, or the single member of the authored bound. Nothing invents a quantity, and each `because` says why this value rather than another. This file is a REALIZER's input, not knowledge: none of it is authored, and the realization record keeps it separate from what was derived. UPDATED 30 September: the instantiation for GF2-09.a was removed. That claim asserts at least one objective exists, and GF2-08.a is an established objective on the same collection — so the claim was already satisfied and instantiating another produced a second objective carrying nothing the first did not. Realization now records it as satisfied by the established member instead.",
+  "choices": [
+    {
+      "lineId": "c:restated:GF2:GF2-03.a::S3",
+      "value": "line",
+      "because": "one of the two alternatives GF2 permits (zone or line). A line is chosen because GF2 authors no depth for the target and a line needs none - a zone would leave an extent question the knowledge does not answer."
+    },
+    {
+      "lineId": "c:restated:GF2:GF2-03.a::S6",
+      "value": "extends across the axis: the target lies across the direction of progression",
+      "because": "the single member of the authored bound GF2-05.b. Adopting it is the only value inside the bound; no metre value is invented for it."
+    },
+    {
+      "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S5",
+      "value": "the full axis extent, end line to end line",
+      "because": "the single member of Wide Zone's authored bound for a channel's along-extent."
+    },
+    {
+      "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S5",
+      "value": "the full axis extent, end line to end line",
+      "because": "the same authored bound, on the second channel."
+    },
+    {
+      "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-08.d::S5",
+      "value": "the full axis extent, end line to end line",
+      "because": "the same authored bound, on the third channel."
+    },
+    {
+      "lineId": "game::V1",
+      "value": "line_crossed",
+      "because": "one of the two kinds the selection narrowed to. line_crossed is consistent with the target realized as a line; target_zone_entered would contradict the S3 choice."
+    }
+  ],
+  "instantiations": [
+    {
+      "classId": "c:restated:GF2:GF2-14.a",
+      "member": {
+        "designation": "ATTACKING_TEAM"
+      },
+      "because": "GF2-14.a asserts at least two teams exist and individuates none. First of the two."
+    },
+    {
+      "classId": "c:restated:GF2:GF2-14.a",
+      "member": {
+        "designation": "DEFENDING_TEAM"
+      },
+      "because": "second of the two the claim asserts. Two instantiations, because the claim's cardinality is part of the claim."
+    }
+  ]
+}

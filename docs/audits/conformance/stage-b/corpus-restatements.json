@@ -89,6 +89,26 @@
    "why": "the same source sentence read a second way; removed for the same reason, and the source is preserved unchanged"
   },
   {
+   "item": "restated:VARIABLE-TARGET-CONDITION::VARTARGET-05.b",
+   "ruling": "SD-79",
+   "set": {
+    "value": [
+     "REGION_ENTRY {trigger region}",
+     "COACH_CUE",
+     "FIRST_FORWARD_PASS",
+     "REGION_ENTRY {final third}",
+     "REGION_ENTRY {attacking half} + first receiver"
+    ],
+    "offListMembers": [
+     "COACH_CUE",
+     "FIRST_FORWARD_PASS",
+     "REGION_ENTRY {attacking half} + first receiver"
+    ],
+    "asAuthored": "unordered {REGION_ENTRY {trigger region}; COACH_CUE†; FIRST_FORWARD_PASS†; REGION_ENTRY {final third}; REGION_ENTRY {attacking half} + first receiver†}; † off-list"
+   },
+   "why": "the five authored alternatives, exactly as written and unordered as the source leaves them. The distinction the restater marked with a dagger is preserved as data rather than as a footnote in a sentence: COACH_CUE and FIRST_FORWARD_PASS are off the registered trigger list, and the fifth member's REGION_ENTRY is registered while its '+ first receiver' conjunct is not. Nothing is added, nothing is dropped, and the authored sentence stays beside its typed form (SD-86's pattern)."
+  },
+  {
    "item": "restated:RPC-001::RPC-001-08.a",
    "ruling": "SD-79",
    "set": {
@@ -265,14 +285,109 @@
    "ruling": "SD-98",
    "set": {
     "value": {
-     "structuralRef": { "contractId": "restated:GF2", "itemId": "GF2-03.a" },
+     "structuralRef": {
+      "contractId": "restated:GF2",
+      "itemId": "GF2-03.a"
+     },
      "asAuthored": "the target feature: the objective-area region of GF2-03.a (line or zone)"
     }
    },
    "why": "the authored sentence names GF2-03.a, and the class that item establishes is held in the run. Only the referent already named is typed: no referent is selected between, inferred or substituted, and the authored sentence is kept beside the typed form. SD-63 is untouched for ordinary open text."
+  },
+  {
+   "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-05.a",
+   "ruling": "C29a",
+   "set": {
+    "value": "touchline-adjacent",
+    "gloss": "outer edge on a touchline",
+    "fitNote": "RESTATEMENT CORRECTION, 29 September (Christian). 04.a and 05.a carry the SAME basisEvidence — setup_guidance \"Mark wide channels along both touchlines\" — and 04.a's own fitNote already recorded \"Holds only the contact in ‘runs along its touchline’ (same as 05.a)\". They were two representations of one authored placement, not two competing authored values, and they collided on three channel elements by string inequality alone. The parenthetical is now a gloss beside the value rather than a second REQUIRED_RANGE contribution. Source, strictness, valueStatus and provenance are unchanged, and no engine semantics changed. \"One channel on each lateral side\" remains NOT held: touchline-adjacent does not say which touchline, and S2 has no side attribute (ledger)."
+   },
+   "why": "two spellings of one authored placement were entailing two different values on S6, producing three collisions that were never a knowledge conflict. Making the parenthetical a gloss leaves one value, preserves both items and their shared source, and changes no engine semantics"
+  },
+  {
+   "item": "restated:VARIABLE-TARGET-CONDITION::VARTARGET-03.a",
+   "ruling": "C29b/C29e",
+   "set": {
+    "relational": true,
+    "fitNote": "MARKED RELATIONAL 29 September, then TYPED AS DISTINCT_ON the same day once Christian adopted the assertion. The restatement had written one joint constraint as a per-element bound on O4, so it reached three separate object classes as three independent bounds — and three independently valid placements can still violate it. It is therefore NOT a bound on any one line, and contributes none. It is carried instead as a DISTINCT_ON assertion over the object collection: members differ pairwise on O4 and O5. No metric, no minimum separation — the source says explicitly \"no separation distance\" — no inferred geometry, and no line of its own. Realization chooses each placement against its own bound and is refused if the resulting SET violates it. Value, source and provenance are unchanged.",
+    "distinctOn": {
+     "rows": [
+      "O4",
+      "O5"
+     ]
+    }
+   },
+   "why": "a joint constraint over a set of candidates had been flattened into a per-element bound, which both misstates the knowledge and would license a per-line realization freedom that cannot honour it. Typed as DISTINCT_ON so each placement stays freely choosable within its own bound while the set is checked jointly"
+  },
+  {
+   "item": "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-01.a",
+   "ruling": "C29c",
+   "set": {
+    "typedBound": {
+     "min": 1,
+     "max": null
+    },
+    "fitNote": "TYPED, 29 September (Christian). The authored value \">= 1 (no authored maximum)\" already carries requirement RANGE, so the requirement kind was always quantitative; only the value string defeated the parser, which typed it QUALITATIVE and left the realization layer unable to check any value against a range it can plainly read. The number is MOVED from the prose into the typed field on the SD-86 precedent, not inferred: floor 1, and no maximum, exactly as authored. The prose value is unchanged so the source stays visible beside its typed form."
+   },
+   "why": "an explicitly authored numerical floor was sitting unreadable in prose; typing it changes no authored content and makes the bound checkable"
+  },
+  {
+   "item": "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-02.a",
+   "ruling": "C29c",
+   "set": {
+    "typedBound": {
+     "min": 1,
+     "max": 2
+    },
+    "fitNote": "TYPED, 29 September (Christian). \"1-2 (one or two)\" typed as min 1, max 2. It remains SUPPORTING / PREFERRED_DEFAULT and is NOT converted into a required range: NEUTRAL-01.a states there is no authored maximum, so intersecting the two to [1,2] would turn a preference into a hard ceiling the knowledge never states. SD-90 already expresses the real relationship between a required bound and a preferred default; nothing new is needed and nothing is intersected here."
+   },
+   "why": "the preferred default is typed so it can be read, and deliberately left SUPPORTING so it cannot be mistaken for a required maximum"
+  },
+  {
+   "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-06",
+   "ruling": "C30b",
+   "set": {
+    "typedBound": {
+     "min": 6,
+     "max": 10
+    },
+    "fitNote": "TYPED, 30 September, on the SD-86 precedent and exactly as the neutral count was (C29c). The channel width was AUTHORED all along — requirement RANGE, basis AUTHORED, value \"across-interval width about 6-10 m\", from setup_guidance \"(~6-10m wide depending on field size)\". Only the value STRING defeated the parser, which typed it QUALITATIVE and left it bounding nothing a check could read. The numbers are MOVED out of the prose, not inferred: 6 and 10 are explicitly authored. The prose is unchanged beside the typed form, so \"about\" and the unauthored scaling both keep their own record. WHAT THIS DOES NOT DO: it does not supply a scaling rule. S6 still records \"no scaling rule for width; depending on field size gives no function\", and that remains true — 6-10 m is a fixed range, not a proportion of the envelope. On a 40 x 30 m session it fits inside the 30 m across dimension, so it yields concrete geometry here; on an envelope where it would not, the proportional question is still open and is the owner decision returned rather than guessed at."
+   },
+   "why": "an explicitly authored numerical range was sitting unreadable in prose, so the channel width bounded nothing a spatial check could use. Typing it changes no authored content and makes the bound checkable; the absent SCALING rule is returned separately and not invented"
+  },
+  {
+   "item": "restated:GF2::GF2-14.b",
+   "ruling": "C31b",
+   "set": {
+    "basis": "OWNER_RULING",
+    "basisEvidence": "Christian, 2026-10-01: \"Promote GF2-14.b, equal outfield counts, from ASSUMED to owner-authored canonical knowledge.\" With the caution attached to it: \"Please preserve the ability for other selected authoritative knowledge to establish numerical asymmetry where the learning problem requires it. Equal team numbers should not become an engine-level universal assumption.\"",
+    "fitNote": "PROMOTED 1 October. It was ASSUMED, and by §3 an assumed item bounds but never entails — which is why the roster could not derive. It is now owner-authored and entails. IT REMAINS AN ITEM OF GF2, not an engine rule: a game form that authors asymmetry displaces it through the ordinary displacement mechanism (SD-90), so equality is knowledge about THIS game form and never a universal."
+   },
+   "why": "the roster could not derive because equality bounded without entailing; promoting it closes that without making equal team numbers an engine-level assumption"
   }
  ],
  "added": [
+  {
+   "contractId": "restated:GF2",
+   "after": "GF2-12.a",
+   "ruling": "SD-102",
+   "item": {
+    "itemId": "GF2-12.c",
+    "row": "J3",
+    "selector": "role=PRIMARY_SCORING",
+    "requirement": "EQUALS",
+    "value": "EACH_TEAM",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "OWNER_RULING",
+    "basisEvidence": "Christian, 2026-09-28: \"In the Directional Possession Game, both teams attack the same shared objective at the attacking end.\" New owner-authored canonical knowledge, and explicitly NOT a restatement of the GF2 source: \"The source is genuinely ambiguous and its existing provenance should continue to say so. Do not rewrite that ambiguity as though the original source established this relationship.\"",
+    "checkability": "STRUCTURAL",
+    "structuralClause": "whole item",
+    "fitNote": "GF2-12.a is left exactly as it stands — ASSUMED, PREFERRED_DEFAULT, its evidence still recording that the original could not reconcile \"toward the target\" at \"one end\" with \"building from their own end\". This item does not replace that record and does not touch it. It stands beside it, so the ambiguity in the source and the canonical decision about it stay separately readable, and the ambiguity keeps its own provenance."
+   },
+   "why": "the load-bearing knowledge the source could not supply, authored as a canonical decision rather than as a reading of the source. Two things are deliberately kept apart: what Directional Possession's setup guidance says, which is ambiguous, and what Challenge Point has decided, which is not."
+  },
   {
    "contractId": "blind:GF4",
    "after": "I14",
@@ -315,6 +430,132 @@
     "fitNote": "SD-76. The entailment, made visible: the same source already carried as NEUTRAL-01.a (P5 count >= 1) entails that a neutral participant group is present, independently of the participation-state property NEUTRAL-05.a. Restated onto P11 so that state has an element to belong to. No existence is authored here."
    },
    "why": "the existing source independently entails the neutral group, so its existence is restated rather than left a gap"
+  },
+  {
+   "contractId": "blind:PASS-COMBINATION-GATE",
+   "after": "PCG-13",
+   "ruling": "C29d",
+   "item": {
+    "itemId": "PCG-14.a",
+    "row": "V18",
+    "selector": "subject=connected-pass count",
+    "requirement": "EQUALS",
+    "value": "TEAMMATE_ACTION",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "OWNER_RULING",
+    "basisEvidence": "Christian, 2026-09-29: \"The current connected-pass count is revealed immediately following each qualifying pass and updates progressively as the count changes. The current count is available to all players. When the count resets, the revealed state resets with it.\" Owner-authored canonical intent, stated as such. It is NOT a reading of the source sentence (\"Coach tracks the count visibly (count out loud or use a counter)\"), which could not choose between a standing display and an event-driven reveal — and that ambiguity keeps its own provenance on PCG-12.",
+    "checkability": "STRUCTURAL",
+    "structuralClause": "whole item",
+    "fitNote": "IE-D006 TRIGGER_TYPE. \"Immediately following each qualifying pass\" — a pass is a teammate action, which is a registered IE-D006 value. IE-D006’s integrity condition is met: a completed pass is detectable and is causally connected to the count it changes."
+   },
+   "why": "the connected-pass information rule authored as one coherent decision across the canonical IE dimensions, rather than five fields filled independently"
+  },
+  {
+   "contractId": "blind:PASS-COMBINATION-GATE",
+   "after": "PCG-13",
+   "ruling": "C29d",
+   "item": {
+    "itemId": "PCG-14.b",
+    "row": "V19",
+    "selector": "subject=connected-pass count",
+    "requirement": "EQUALS",
+    "value": "IMMEDIATE_AFTER_TRIGGER",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "OWNER_RULING",
+    "basisEvidence": "Christian, 2026-09-29: \"The current connected-pass count is revealed immediately following each qualifying pass and updates progressively as the count changes. The current count is available to all players. When the count resets, the revealed state resets with it.\" Owner-authored canonical intent, stated as such. It is NOT a reading of the source sentence (\"Coach tracks the count visibly (count out loud or use a counter)\"), which could not choose between a standing display and an event-driven reveal — and that ambiguity keeps its own provenance on PCG-12.",
+    "checkability": "STRUCTURAL",
+    "structuralClause": "whole item",
+    "fitNote": "IE-D007 REVEAL_TIMING. \"Revealed immediately following\" is the registered value verbatim."
+   },
+   "why": "the connected-pass information rule authored as one coherent decision across the canonical IE dimensions, rather than five fields filled independently"
+  },
+  {
+   "contractId": "blind:PASS-COMBINATION-GATE",
+   "after": "PCG-13",
+   "ruling": "C29d",
+   "item": {
+    "itemId": "PCG-14.c",
+    "row": "V20",
+    "selector": "subject=connected-pass count",
+    "requirement": "EQUALS",
+    "value": "GRADUAL",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "OWNER_RULING",
+    "basisEvidence": "Christian, 2026-09-29: \"The current connected-pass count is revealed immediately following each qualifying pass and updates progressively as the count changes. The current count is available to all players. When the count resets, the revealed state resets with it.\" Owner-authored canonical intent, stated as such. It is NOT a reading of the source sentence (\"Coach tracks the count visibly (count out loud or use a counter)\"), which could not choose between a standing display and an event-driven reveal — and that ambiguity keeps its own provenance on PCG-12.",
+    "checkability": "STRUCTURAL",
+    "structuralClause": "whole item",
+    "fitNote": "IE-D008 REVEAL_PROGRESSION, whose question is \"does information appear all at once or become increasingly specified through unfolding interaction?\". \"Updates progressively as the count changes\" is the second. The reset is deliberately NOT recorded here as REVERSIBLE — see PCG-14.d."
+   },
+   "why": "the connected-pass information rule authored as one coherent decision across the canonical IE dimensions, rather than five fields filled independently"
+  },
+  {
+   "contractId": "blind:PASS-COMBINATION-GATE",
+   "after": "PCG-13",
+   "ruling": "C29d",
+   "item": {
+    "itemId": "PCG-14.d",
+    "row": "V21",
+    "selector": "subject=connected-pass count",
+    "requirement": "EQUALS",
+    "value": "TRANSITION_DEPENDENT",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "OWNER_RULING",
+    "basisEvidence": "Christian, 2026-09-29: \"The current connected-pass count is revealed immediately following each qualifying pass and updates progressively as the count changes. The current count is available to all players. When the count resets, the revealed state resets with it.\" Owner-authored canonical intent, stated as such. It is NOT a reading of the source sentence (\"Coach tracks the count visibly (count out loud or use a counter)\"), which could not choose between a standing display and an event-driven reveal — and that ambiguity keeps its own provenance on PCG-12.",
+    "checkability": "STRUCTURAL",
+    "structuralClause": "whole item",
+    "fitNote": "IE-D011 STATE_DEPENDENCY, whose question is \"is the meaning or availability of information dependent upon the current functional state?\". \"When the count resets, the revealed state resets with it\" is exactly that, and the reset is a detectable transition that changes what is worth doing — IE-D011’s integrity condition. THE APPARENT GRADUAL-vs-REVERSIBLE CONFLICT IS NOT REAL: they are one value each on two different dimensions, not two values on one field. Recording the reset as IE-D008 REVERSIBLE would in fact VIOLATE IE-D008’s own integrity condition, which requires later information to \"refine rather than arbitrarily overturn the task\"."
+   },
+   "why": "the connected-pass information rule authored as one coherent decision across the canonical IE dimensions, rather than five fields filled independently"
+  },
+  {
+   "contractId": "blind:PASS-COMBINATION-GATE",
+   "after": "PCG-13",
+   "ruling": "C29d",
+   "item": {
+    "itemId": "PCG-14.e",
+    "row": "V22",
+    "selector": "subject=connected-pass count",
+    "requirement": "EQUALS",
+    "value": "ALL",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "OWNER_RULING",
+    "basisEvidence": "Christian, 2026-09-29: \"The current connected-pass count is revealed immediately following each qualifying pass and updates progressively as the count changes. The current count is available to all players. When the count resets, the revealed state resets with it.\" Owner-authored canonical intent, stated as such. It is NOT a reading of the source sentence (\"Coach tracks the count visibly (count out loud or use a counter)\"), which could not choose between a standing display and an event-driven reveal — and that ambiguity keeps its own provenance on PCG-12.",
+    "checkability": "STRUCTURAL",
+    "structuralClause": "whole item",
+    "fitNote": "IE-D013 ACCESS_HOLDER. PCG-13 already held ALL but as an ASSUMED reading of \"visibly\" and \"out loud\", with the gap recorded: \"The knowledge names no holder.\" This states the same value as AUTHORED knowledge. PCG-13 is left exactly as it stands so the assumption and the decision remain separately readable."
+   },
+   "why": "the connected-pass information rule authored as one coherent decision across the canonical IE dimensions, rather than five fields filled independently"
+  },
+  {
+   "contractId": "restated:WIDE-ZONE-ADVANTAGE",
+   "after": "WIDEZONE-06",
+   "ruling": "C31a",
+   "item": {
+    "itemId": "WIDEZONE-06.b",
+    "row": "S6",
+    "selector": "noun=channel",
+    "requirement": "RANGE",
+    "value": "bounded minority (of an axis)",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "OWN_INVOLVEMENT",
+    "basis": "OWNER_RULING",
+    "basisEvidence": "Christian, 2026-10-01: \"Author the required width of each wide channel as: minimum 0.15 of the available across dimension, maximum 0.25 of the available across dimension.\" Owner-authored canonical knowledge, stated as such, and explicitly NOT derived from the existing 6-10 m guidance: \"This is owner-authored canonical knowledge, not derived from the existing 6-10 m guidance.\" WIDEZONE-06 is untouched and keeps its own record as PREFERRED guidance.",
+    "checkability": "STRUCTURAL",
+    "structuralClause": "whole item",
+    "fitNote": "The value is the CANONICAL RELATION NAME, not a number: the fractions live once in RC-21’s `relativeTerms`, and this item states which relation holds of a channel. So the knowledge describes the functional spatial relationship and realization produces the concrete geometry from the envelope, which is what he asked for. WIDEZONE-06 stands beside it unchanged, PREFERRED_DEFAULT, 6-10 m — and per the preferenceRule a preference may operate only INSIDE the requirement and may never widen it."
+   },
+   "why": "the required channel extent as a proportion of the available width, so the relationship scales and no A04-specific metre value enters canonical knowledge"
   }
  ],
  "declarationScope": {

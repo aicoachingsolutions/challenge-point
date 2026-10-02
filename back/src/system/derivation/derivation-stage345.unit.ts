@@ -13,6 +13,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import { corpusInput } from './corpus'
+import { resolvedValue } from './derive'
 import { runStages0to5 } from './engine'
 import { DerivationInput, LoadedContract, ContractItem } from './types'
 
@@ -122,8 +123,17 @@ function testAbsenceOfKnowledgeDoesNotProduceOpen(): void {
     const neutrals = lines.find(l => l.lineId === 'game::P5')!
     assert.equal(neutrals.open, null, 'no contract mentions neutrals, so their count is not an authorized freedom')
 
+    // **Amended 29 September.** `S5` no longer demonstrates this rule, because the register now marks
+    // it `outerBound: SESSION_ENVELOPE` and the envelope supplies the bound its choice space asks for.
+    // It is a metric placement inside an authoritative structure, which is a bounded freedom.
     const position = lines.find(l => l.lineId.endsWith('::S5'))!
-    assert.equal(position.open, null, 'the register bounds this choice space by authored values, and none is authored')
+    assert.ok(position.open, 'the session envelope supplies the outer geometric bound (ruling 2)')
+
+    // The rule itself is unchanged and still bites, on a fillable row the envelope does NOT bound:
+    // `P2` team size asks for "a count inside an authored COUNT/RANGE", nothing authors one, and no
+    // outer bound stands in for it. Silence still supplies no choice space.
+    const roster = lines.find(l => l.lineId.endsWith('::P2'))
+    if (roster) assert.equal(roster.open, null, 'a fillable row with neither an authored bound nor an outer bound is a GAP, not a freedom')
     // SD-50 settled what increment 2 had to leave open: "If a required property must be resolved, its
     // existence is supported, but the legitimate choice space/bounds required to make it OPEN are
     // unsupported, report a GAP." Not a refusal, and no longer an unresolved question.
@@ -147,12 +157,26 @@ function testEntailmentClosesOpenness(): void {
     assert.equal(line.open, null, 'selected knowledge that determines the value closes the freedom')
 }
 
+/**
+ * AM-04 as he narrowed it on 29 September: *"silence supplies no authority. It does not negate
+ * authority supplied elsewhere."*
+ *
+ * Both halves are tested, because the narrowing is only safe if the first half survives it.
+ */
 function testUndeclaredSilenceBarsOpenness(): void {
+    // It still bars openness where nothing else reaches the property. `P2` is fillable, nothing
+    // authors a bound, and no outer bound stands in for one — so silence leaves it a gap.
+    const bare = contract([item()])
+    bare.declarations.push({ row: 'P2', declaration: 'UNDECLARED', note: 'never examined' })
+    const barred = [...runStages0to5(input([bare])).derived!.lines.values()].find(l => l.lineId.endsWith('::P2'))
+    if (barred) assert.equal(barred.open, null, 'AM-04 still holds: unexamined silence cannot license a free choice')
+
+    // It no longer *destroys* a choice space another authority supplied. This is the corpus case: one
+    // object left the row undeclared and thereby blocked every element on it, overriding the envelope.
     const c = contract([item()])
     c.declarations.push({ row: 'S5', declaration: 'UNDECLARED', note: 'never examined' })
-    const result = runStages0to5(input([c]))
-    const line = [...result.derived!.lines.values()].find(l => l.lineId.endsWith('::S5'))!
-    assert.equal(line.open, null, 'AM-04: unexamined silence cannot license a free choice')
+    const line = [...runStages0to5(input([c])).derived!.lines.values()].find(l => l.lineId.endsWith('::S5'))!
+    assert.ok(line.open, 'silence does not negate the outer bound the session envelope supplies (ruling 3)')
 }
 
 function testNoOpenLineCarriesAValue(): void {
@@ -422,11 +446,61 @@ function testSelectorFixesTheValueWhereNothingEntails(): void {
 }
 
 function testAnItemOnTheRowIsNotCompetedWith(): void {
-    const result = runStages0to5(input([contract([item(), item({ itemId: 'I-2', row: 'S3', requirement: 'EQUALS', value: 'band' })])]))
+    // The item agrees with the selector, so SD-101 is not in play and subordination is what is
+    // visible: the support says the item entailed it, not that the selector carried it.
+    const result = runStages0to5(input([contract([item(), item({ itemId: 'I-2', row: 'S3', requirement: 'EQUALS', value: 'channel' })])]))
     const line = lineOf(result, '::S3')
     assert.equal(line.entailing.length, 1, 'the selector does not compete with an item that entails the field')
     assert.equal(line.entailing[0].item.itemId, 'I-2')
-    assert.equal(line.entailing[0].value, 'band', 'and it does not override it either — no collision is manufactured')
+    assert.equal(line.entailing[0].support.relation, 'ENTAILS', 'the item supplied it; the selector stayed out')
+}
+
+/**
+ * SD-101 — a contribution may not entail a value contradicting the selector that defines the class.
+ * The class-defining value stands, the contribution is preserved rather than resolved against, and
+ * its reach to the element is untouched for every other row.
+ */
+function testAContradictedConstitutiveSelectorStands(): void {
+    const result: any = runStages0to5(
+        input([
+            contract([
+                item(),
+                item({ itemId: 'I-BAD', row: 'S3', requirement: 'EQUALS', value: 'band' }),
+                item({ itemId: 'I-OK', row: 'S5', requirement: 'EQUALS', value: 'the near end' }),
+            ]),
+        ]),
+    )
+    const noun = lineOf(result, '::S3')
+    assert.ok(
+        !noun.entailing.some((e: any) => e.item.itemId === 'I-BAD'),
+        'the contradicting contribution does not entail the line',
+    )
+    assert.equal(noun.entailing[0].support.relation, 'CARRIES', 'what stands is the class-defining value, carried by its own selector')
+    assert.equal(noun.contradicted.length, 1)
+    assert.equal(noun.contradicted[0].item.itemId, 'I-BAD')
+    assert.equal(noun.contradicted[0].value, 'band', 'what it required is preserved, not discarded')
+    assert.deepEqual(noun.contradicted[0].constitutive, { attribute: 'noun', value: 'channel' })
+
+    // The class-defining value stands, carried by the selector (SD-92) now that nothing entails it.
+    assert.equal(resolvedValue(noun)!.value, 'channel')
+
+    // "Do not simply suppress the contribution's reach": the same contract still reaches the element
+    // on every other row.
+    assert.equal(lineOf(result, '::S5').entailing[0].item.itemId, 'I-OK')
+
+    const named = result.derived.diagnostics.find((d: any) => d.code === 'CONSTITUTIVE_SELECTOR_CONTRADICTED')
+    assert.ok(named, 'and the contradiction is reported rather than absorbed')
+    assert.match(named.where, /::S3$/)
+}
+
+/** The exception is narrow: an attribute the selector does not fix is untouched by it. */
+function testConstitutiveOnlyAppliesToTheDefiningAttribute(): void {
+    const result: any = runStages0to5(
+        input([contract([item({ selector: 'noun=channel' }), item({ itemId: 'I-2', row: 'S4', requirement: 'EQUALS', value: ['access'] })])]),
+    )
+    const functions = lineOf(result, '::S4')
+    assert.deepEqual(functions.contradicted, [], 'the class fixes noun, not functions, so nothing here is constitutive')
+    assert.equal(functions.narrowing.length, 1, 'and the item contributes as it always did')
 }
 
 function testMembershipDoesNotDefineTheSet(): void {
@@ -463,6 +537,8 @@ const TESTS: [string, () => void][] = [
     ['an authored EQUALS item entails', testAuthoredEqualsEntails],
     ['SD-92: an establishing selector fixes the value where nothing entails', testSelectorFixesTheValueWhereNothingEntails],
     ['SD-92: it does not compete with an item that entails the field', testAnItemOnTheRowIsNotCompetedWith],
+    ['SD-101: a contradicted constitutive selector stands, and the contribution is preserved', testAContradictedConstitutiveSelectorStands],
+    ['SD-101: only the defining attribute is constitutive', testConstitutiveOnlyAppliesToTheDefiningAttribute],
     ['SD-92: ∋ establishes membership without defining the set', testMembershipDoesNotDefineTheSet],
     ['SD-92: ∈ narrows and fixes nothing', testInNarrowsAndFixesNothing],
     ['SD-92: the carry reaches only its own element', testTheCarryReachesOnlyItsOwnElement],

@@ -180,6 +180,49 @@ test('the same input assembles the same game, byte for byte', () => {
     assert.equal(one, two)
 })
 
+test('an element the enumeration individuated is in the game even when nothing about it was derived', () => {
+    // Found by the realization layer: an element whose every line was open or failed appeared in
+    // `open` and `notEstablished` and in no part of `game`, so the game said the element did not
+    // exist rather than that nothing about it was established.
+    const game = assemble(corpusInput())
+    const inGame = new Set<string>()
+    const walk = (node: any): void => {
+        if (Array.isArray(node)) return node.forEach(walk)
+        if (node && typeof node === 'object') {
+            if (typeof node.elementId === 'string') inGame.add(node.elementId)
+            Object.values(node).forEach(walk)
+        }
+    }
+    walk(game.game)
+
+    const referenced = new Set([...game.open, ...game.notEstablished].map(e => e.elementId).filter(Boolean) as string[])
+    const missing = [...referenced].filter(id => !inGame.has(id))
+    assert.deepEqual(missing, [], 'every element an open or unestablished line names is present in the game')
+    assert.ok(game.counts.elementsWithNothingEstablished >= 1, 'and the count makes a silent drop visible')
+})
+
+test('the declarations reaching a row travel with the line, because a reason code alone cannot express five declarations', () => {
+    const game = assemble(corpusInput())
+    const unestablished = game.notEstablished.filter(e => e.verdict === 'NOT_AUTHORED')
+    assert.ok(unestablished.every(e => Array.isArray(e.declared)))
+
+    // The case that motivated it is now **fixed rather than merely visible**: the six-way codes
+    // adopted on 29 September mean a row an object excluded or declared it does not constrain is no
+    // longer reported as `coverage` — nobody looked. This asserted the defect yesterday; today it
+    // asserts its absence, and the declarations still travel so the code can never again be the only
+    // surviving account.
+    const misreported = unestablished.filter(e => e.reason === 'coverage' && (e.declared.includes('NON_CLAIMED') || e.declared.includes('EXCLUDED')))
+    assert.deepEqual(misreported, [], 'a statement outranks a silence, so no stronger declaration hides behind `coverage`')
+
+    // And each code still means exactly what the declarations say.
+    for (const entry of unestablished) {
+        if (entry.declared.includes('NOT_AUTHORED')) assert.equal(entry.reason, 'declared gap', entry.lineId)
+        else if (entry.declared.includes('EXCLUDED')) assert.equal(entry.reason, 'excluded', entry.lineId)
+        else if (entry.declared.includes('NON_CLAIMED')) assert.equal(entry.reason, 'not constrained', entry.lineId)
+        else if (!entry.declared.length) assert.equal(entry.reason, 'no coverage', entry.lineId)
+    }
+})
+
 test('provenance names the run it came from', () => {
     const derivationInput = corpusInput()
     const result = runDerivation(derivationInput)

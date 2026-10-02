@@ -1,0 +1,71 @@
+Joe — note on applying the rulings
+
+Pattern 1 and Wide Zone are in. Pattern 2 I stopped on purpose.
+
+WHAT MOVED
+
+  unestablished  57 -> 45
+  derived        51 -> 54
+  collisions      3 -> 0
+
+Gate A still fails. I did not touch GA-NO-FAILED-LINE.
+
+THE BIT THAT NEARLY WENT WRONG
+
+Withdrawing the nine turnover-qualifier lines wasn't enough on its own. They
+were still carrying a NOT_AUTHORED verdict and still emitting a GAP record — so
+the corpus would have reported them as "not applicable" and counted them as
+missing knowledge at the same time. The resolved-game view hid it, because that
+view filters withdrawn lines out; only the raw verdict counts showed it.
+
+I caught it because the totals didn't move when they should have: 57 dropped to
+48 in one view while NOT_AUTHORED stayed at 54 in another. Two views of the same
+run disagreeing is the tell.
+
+WHY I STOPPED ON PATTERN 2
+
+Christian said implement it if all thirteen survive the test, return separately
+if any don't. They don't:
+
+- one is the target region, referenced by two objectives — choosing where it
+  sits decides what the teams score at
+- three carry a "bound" that's actually a joint constraint across candidates
+  ("each candidate's position differs from every other"), flattened onto
+  individual lines. A per-line authority literally cannot honour it.
+
+More important, the mechanism he's describing already exists — the rows are
+marked fillable and mayBeOpen would free them. Two of his own existing rules
+block it: SD-50 (choice space says "inside authored bounds", nothing authored)
+and AM-04 (one UNDECLARED declaration on the row bars openness for every element
+on it). On S5/S6 that's a single object — Variable Target — leaving the row
+undeclared. One object's silence currently overrides another object's authored
+bound.
+
+That's his amendment, so I returned it rather than reading around it. With both
+settled, nine of the thirteen close immediately.
+
+ONE I HAD TO OWN
+
+My lens trace keyed on the lens `category` field. Two lenses — Space Creation
+and Space Exploitation — both have category "Create Space", while the constraint
+and game form libraries distinguish create_space from exploit_space. So some of
+yesterday's 33 "realized" may have matched on the wrong key. Told him, and said
+the figure needs rerunning if it turns out to be a miscategorisation rather than
+deliberate.
+
+Better to surface that than let a number I quoted him yesterday quietly stand.
+
+ALSO WORTH KNOWING
+
+There are four affordance vocabularies, not three. The game form library has a
+second one — A1 through A10 — hiding in typical_affordances.
+
+The twelve genuine gaps are three knowledge decisions, not twelve: how the pass
+count is revealed (5 lines), which IE composition governs the variable target
+(4 lines), and the goal-kick restart procedure (3 lines). The third has a sting
+— its "from where" is a placement problem, so it lands back in Pattern 2.
+
+Email to Christian attached separately. Suite green, tsc clean, all pushed.
+
+Joe
+

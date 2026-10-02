@@ -23,11 +23,30 @@ export interface RegisterRow {
      */
     selectorAttribute?: string
     fillable?: string
+    outerBound?: string
     sourceKinds?: string[]
 }
 
+/**
+ * A row does not apply to every element of its collection. Two kinds of condition express that, and
+ * the difference is *when the answer is knowable*.
+ *
+ * **Governing-line conditions** (`row`) read another line's derived value, so they cannot be settled
+ * until stage 6 — the line is enumerated CONDITIONAL and resolved later.
+ *
+ * **Selector conditions** (`selectorAttribute`) read the element's own identity, which stage 2 fixed
+ * when it individuated the class. A transition keyed `trigger=POSSESSION_CHANGE` *is* a turnover; no
+ * later line can change that. So the answer is already known at enumeration and the line is withdrawn
+ * there, never left conditional on something that will never move.
+ *
+ * Both express the same invariant, which is his: **the absence of an inapplicable property must never
+ * be reported as missing knowledge.**
+ */
 export interface ApplicabilityCondition {
-    row: string
+    /** A governing line on the same element, resolved at stage 6. Mutually exclusive with `selectorAttribute`. */
+    row?: string
+    /** An attribute the element's own selector fixes, knowable at enumeration. */
+    selectorAttribute?: string
     sameElement: boolean
     in: string[]
 }
@@ -40,6 +59,14 @@ export interface RegisterIndex {
     ownerRow: Map<string, string>
     /** Row id → its `fillable` text. Exhaustive: a row absent here has no structurally defined choice space. */
     fillable: Map<string, string>
+    /** Row id -> the authoritative structure that supplies its OUTER bound, where one does. */
+    outerBound: Map<string, string>
+    /** RC-21 relative spatial terms: prose test, machine-readable form and phrase index, all canonical. */
+    relativeTerms: Record<string, unknown>
+    /** S3 noun semantics: how many dimensions a noun gives extent in. Never which axis. */
+    nounSemantics: Record<string, unknown>
+    /** Rows counting a specialized performer role -> the role name, which the register carries and the engine does not. */
+    specializedRoleRows: Map<string, string>
     /** Row id → the condition under which the row applies at all. */
     applicability: Map<string, ApplicabilityCondition>
     /** Vocabulary name → its closed member list. */
@@ -80,6 +107,7 @@ export function indexRegister(register: any): RegisterIndex {
     const rowOrdinal = new Map<string, number>()
     const ownerRow = new Map<string, string>()
     const fillable = new Map<string, string>()
+    const outerBound = new Map<string, string>()
 
     register.rows.forEach((row: RegisterRow, i: number) => {
         if (!row || !row.id || !row.path || !row.kind) throw new HaltError('H1', `row ${i} lacks id, path or kind`)
@@ -90,6 +118,11 @@ export function indexRegister(register: any): RegisterIndex {
         if (row.fillable) {
             if (row.kind === 'VIEW') throw new HaltError('H1', `fillable entry on VIEW row ${row.id}`)
             fillable.set(row.id, row.fillable)
+        }
+        if (row.outerBound) {
+            // An outer bound is only meaningful for a row that has a choice space to bound.
+            if (!row.fillable) throw new HaltError('H1', `outerBound on ${row.id}, which has no fillable choice space`)
+            outerBound.set(row.id, row.outerBound)
         }
     })
 
@@ -106,8 +139,15 @@ export function indexRegister(register: any): RegisterIndex {
         if (!entry || typeof entry !== 'object' || !entry.when) continue // prose notes in the same block
         if (!rows.has(key)) throw new HaltError('H1', `applicability keyed on unknown row ${key}`)
         const when = entry.when
-        if (!when.row || !Array.isArray(when.in)) throw new HaltError('H1', `applicability for ${key} has no usable condition`)
-        applicability.set(key, { row: when.row, sameElement: !!when.sameElement, in: when.in })
+        if (!Array.isArray(when.in)) throw new HaltError('H1', `applicability for ${key} has no usable condition`)
+        if (!when.row && !when.selectorAttribute) throw new HaltError('H1', `applicability for ${key} names neither a governing row nor a selector attribute`)
+        if (when.row && when.selectorAttribute) throw new HaltError('H1', `applicability for ${key} names both a governing row and a selector attribute; they are alternatives`)
+        if (when.row && !rows.has(String(when.row))) throw new HaltError('H1', `applicability for ${key} governs on unknown row ${when.row}`)
+        applicability.set(key, {
+            ...(when.row ? { row: String(when.row) } : { selectorAttribute: String(when.selectorAttribute) }),
+            sameElement: !!when.sameElement,
+            in: when.in,
+        })
     }
 
     const vocabularies = new Map<string, string[]>()
@@ -143,6 +183,14 @@ export function indexRegister(register: any): RegisterIndex {
         rowOrdinal,
         ownerRow,
         fillable,
+        outerBound,
+        relativeTerms: register.relativeTerms || {},
+        nounSemantics: (register.vocabularies && register.vocabularies.nounSemantics) || {},
+        specializedRoleRows: new Map(
+            (register.rows || [])
+                .filter((row) => row && row.specializedRole)
+                .map((row) => [String(row.id), String(row.path).split(".").pop()]),
+        ),
         applicability,
         vocabularies,
         vocabularyVersions: (vocabBlock.versions as any) || {},

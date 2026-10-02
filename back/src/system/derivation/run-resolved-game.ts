@@ -43,6 +43,7 @@ function render(game: ResolvedGame): string {
     for (const choice of game.open) {
         out.push(`  ${choice.kind.padEnd(13)} ${choice.path}`)
         if (choice.permittedBy) out.push(`                ${choice.permittedBy.authority}: ${choice.permittedBy.choiceSpace}`)
+        if (choice.permitted) out.push(`                choose one of ${JSON.stringify(choice.permitted)}`)
         for (const bound of choice.bounds) out.push(`                bounded by ${JSON.stringify(bound)}`)
     }
 
@@ -56,8 +57,13 @@ function render(game: ResolvedGame): string {
 
     rule(`NOT ESTABLISHED (${game.notEstablished.length})`)
     out.push('  Neither derived nor open. Absence is not a decision, so each is named.')
+    out.push('  One reason code per declaration (AM-23, extended 29 September), in a precedence where a')
+    out.push('  statement outranks a silence. The declarations are kept beside the code as the evidence.')
     const byReason = new Map<string, number>()
-    for (const entry of game.notEstablished) byReason.set(entry.reason ?? entry.verdict, (byReason.get(entry.reason ?? entry.verdict) ?? 0) + 1)
+    for (const entry of game.notEstablished) {
+        const key = `${entry.reason ?? entry.verdict}${entry.declared.length ? `   declared: ${entry.declared.join('+')}` : '   declared: nothing reaches this row'}`
+        byReason.set(key, (byReason.get(key) ?? 0) + 1)
+    }
     for (const [reason, count] of [...byReason.entries()].sort()) out.push(`  ${String(count).padStart(4)}  ${reason}`)
 
     return out.join('\n')
@@ -70,5 +76,5 @@ if (isStampedHalt(result)) {
     process.exit(1)
 }
 const staged: any = runStages0to10(input)
-const game = assembleResolvedGame(result, staged.classes, indexRegister(input.register))
+const game = assembleResolvedGame(result, staged.classes, indexRegister(input.register), input.contracts)
 console.log(process.argv.includes('--json') ? JSON.stringify(game, null, 1) : render(game))

@@ -35,7 +35,21 @@ export function loadRegister(): any {
  * The envelope the stage-B derivations worked to. It is a session input, not knowledge: no contract
  * authors it, and SD-33 makes the session the authority for these four rows.
  */
-export const CORPUS_ENVELOPE = { players: 12, lengthM: 40, widthM: 30, durationMin: 20 }
+/**
+ * `roles` added 1 October on his ruling, and the wording of it matters: *"This is a session fact for
+ * this run, not a default assumption that Challenge Point sessions contain no goalkeepers."*
+ *
+ * An explicit zero, not an omission — an absent entry means NOT STATED, so only a stated zero lets the
+ * roster derive without implying that every available performer is an outfield player.
+ */
+function statedRoles(): Record<string, number> {
+    // Keyed by whatever the register names as a specialized role, so no role name is written here.
+    // Zero for each, which is a stated fact about this run rather than a default about sessions.
+    const rows = (loadRegister().rows || []) as any[]
+    return Object.fromEntries(rows.filter(r => r?.specializedRole).map(r => [String(r.path).split('.').pop() as string, 0]))
+}
+
+export const CORPUS_ENVELOPE = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: statedRoles() }
 
 /**
  * The corpus names objects in prose, sometimes carrying the library code in brackets. Ids reach the

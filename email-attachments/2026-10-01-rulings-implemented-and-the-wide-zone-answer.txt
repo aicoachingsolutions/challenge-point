@@ -1,0 +1,150 @@
+Christian,
+
+All five rulings are addressed. Two implemented, two answered with evidence rather than code, one
+left alone as you asked.
+
+The rerun is the headline: Q2, Q3 and Q4 pass, and **Q5 fails**. A04 is not a runnable coach
+activity, for the reason your fourth ruling anticipated. I think that is the right answer and not a
+disappointing one — the rendering is faithful to a game that is still insufficient, and the two are
+now distinguishable.
+
+
+1 — ROSTER WRITE-BACK: DONE, at the assembly boundary
+
+Six outfield players per team are written into the finished concrete game with their derivation
+attached. Rendering does not recompute it — strip the value out of the game and the output falls
+back to "2 teams" and reports the gap, which is tested.
+
+It sits in a new module that owns the final assembly, between realization and anything that reads
+the game. Two consequences of putting it there rather than in the gate, both worth noting:
+
+  The gate is read-only again. My first version had it doing the write, which contradicted its own
+  documented contract, and also made the guard vacuous — the write repaired the absence the guard
+  existed to detect, so the guard could no longer fail.
+
+  **The invariant now reads the persisted game.** This is the part of your ruling I want to confirm
+  explicitly, because it is a real change rather than a restatement: the checks take each team's
+  properties out of the concrete game, not out of the realization record. Strip the roster from the
+  game and GA-ROSTER-SUM now reports NOT_EVALUABLE. Before, it reported PASS — satisfied by a figure
+  only it could see. There is no longer a representation in which that can happen, so the defect is
+  removed rather than guarded against.
+
+A coach now reads: 12 players in total · 2 teams of 6 · no goalkeepers.
+
+
+2 — startsEpisode AND space.axis: NOT RENDERED, with your rule encoded
+
+Your rule is in the code as two conditions, not one, because the second is the one that does the
+work. Claiming a property is accounting metadata is cheap; proving its operational consequences
+reached the coach is not. So each exclusion names the paths carrying its consequences and the checker
+verifies that an instruction actually cites them. startsEpisode discharges its one consequence —
+that play continues on a turnover — via the playState instruction. space.axis declares none, which
+is only defensible because the rendered geometry is already in metres.
+
+Tested by breaking it: remove the "play continues" instruction and the startsEpisode exclusion stops
+being permitted and becomes a violation. So the list cannot be used to quietly drop something
+load-bearing.
+
+Both exclusions are printed in the output with their reason and their discharge, as you asked.
+
+
+3 — THE THREE CHANNELS: your first case, and the contract already told us what it needs
+
+They are co-referential. Nothing authored differentiates them: all three derive the identical
+position values, and the one authored item that fixes the number states "**both** wide channels of
+this contract". The authored count on S2 is 2, stated twice as a requirement.
+
+So the intent is two channels, one per touchline — and the contract knew it could not say so. Its
+own ledger entry reads:
+
+    "touchline-adjacent does not name which touchline and S2 has no side attribute, so 'one on each
+     lateral side' is unheld; COUNT 2 alone allows both channels on one side. Needs a side selector
+     attribute or per-touchline relative terms."
+
+**The register now has that attribute.** S2 carries a `lateral` selector attribute whose draft closed
+list under AM-17 includes `wide-left` ("touches the 0 touchline and does not contain the midline")
+and `wide-right` ("touches the W touchline"). And AM-12 is explicit that derivation never rewrites an
+authored selector to use them, so the contract gains nothing from AM-17 until it is restated.
+
+So the distinction is authorable and not authored. It does not need inventing, and I have not
+invented it. What it needs is a restatement of the Wide Zone S2 contributions to carry
+`lateral: wide-left` and `lateral: wide-right` — which is canonical knowledge, and therefore yours.
+
+That route also resolves three-into-two without touching the class model. I would avoid an
+engine-side merge: the current behaviour is ruled, not accidental. One element class is minted per
+contributing item, and there is a test asserting "classes are never merged, even where their
+selectors coincide", citing SD-47. Merging would overturn that, so it would need its own ruling.
+Restating the contract needs neither.
+
+Two engine defects found alongside, which do not block the channels but are real:
+
+  The authored count of 2 arrives as "at least 2". The cardinality parser short-circuits on EXISTS
+  without reading the value, and for a string value falls to a prose path that never consults whether
+  the requirement was COUNT or RANGE — so an exact 2 and "2 or more" parse identically. The corrected
+  version of that same parse already exists elsewhere in the engine and is never reached for a
+  collection row.
+
+  And that cardinality is then dead data. Nothing reads it: a collection row gets no resolution
+  line, and a class carrying a selector forms no existential claim. The authored "2" currently
+  constrains nothing at all.
+
+  Worth one more line because it is the same clause read two ways: on the exclusion side the engine
+  refuses to read a prose count, saying in terms that SD-32 forbids it and guessing would decide the
+  item's meaning. On the establishing side it guesses, and guesses wrong.
+
+
+4 — OPERATIONAL PARTICIPATION: implemented, and the answer is BOTH
+
+The requirement is in as you framed it, and deliberately does not read the `functions` row — a
+region can be fully realized by being a scoring target, modifying value, triggering a transition or
+being an information subject, and a decorative function string would realize nothing.
+
+On A04: the scoring line participates, via the objective's reference. The three channels participate
+in nothing. Hence Q5 fails with three violations and the output is not a runnable coach activity.
+
+Your question was whether the Wide Zone already establishes the relationship somewhere that is
+failing to survive, or whether the knowledge genuinely lacks it. It is both, and the split is clean.
+
+**Failing to survive.** The Wide Zone authors a trigger, referents, and four information rules about
+the channels. None of them reaches a line at all — they appear in the concrete game, in `open`, and
+in `notEstablished` exactly nowhere. A line on a collection-owned property exists only if an element
+class exists on the owning collection row, and the object authors no support-capable existence item
+on the value-modifier or consequence rows; its information-rule item is ASSUMED, which §3 and SD-83
+bar from establishing an element. The contract records the hole itself: "no item, since V7 cannot
+select this object's modifier."
+
+I verified the consequence by injecting the missing existence and rerunning: lines go from 39 to 56,
+unestablished rows from 8 to 17, and Gate A's knowledge verdict flips from PASS to FAIL — on the
+modifier's magnitude, reported as a declared gap. **So A04's current knowledge pass is partly bought
+by those claims vanishing.** That is the same shape as the roster and the region functions, now three
+times.
+
+**Genuinely lacking.** Even with the enumeration fixed, the relationship could not be established.
+Your own declarations say so: the modifier row is NOT_AUTHORED with the note "whether the advantage
+is a modifier (no default among three), frequency or cap, team or side symmetry", and the magnitude
+row is CLAIMED and NOT_AUTHORED in the same breath — "no multiplier size or bonus points". The two
+authored, required, support-capable items in the whole cluster are a trigger (region entry into a
+wide channel) and its referents (both wide channels).
+
+Put plainly: **the channel has an authored trigger and no authored effect.** Something happens when a
+player enters it, and nothing says what. That is the authoring decision, and it is not one the engine
+can take — the knowledge states there is no default among the three candidates.
+
+
+5 — ZERO-DEPTH LINE AND SAME-LINE SCORING: unchanged
+
+Both still reported as observations, neither repaired.
+
+
+WHERE THAT LEAVES THE CHAIN
+
+    validated concrete game  ->  complete runnable representation  ->  faithful rendering
+            yes                          NO                                   yes
+
+The middle step is what is missing, and it is missing for one reason: three features a coach is told
+to mark do nothing. Two decisions would close it, and both are yours — restating the Wide Zone S2
+contributions with the lateral attribute, and deciding what the channel advantage actually does.
+
+I have not broadened generation, and the rendering scope stays frozen.
+
+Joe

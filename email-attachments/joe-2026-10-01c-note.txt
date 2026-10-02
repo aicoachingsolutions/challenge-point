@@ -1,0 +1,44 @@
+Joe — A04 closes
+
+  realization acceptance   PASSED
+  post-realization Gate A  PASSED
+  render-eligible          YES
+
+246 tests green, pushed. Trace captured. Boundary marked closed in the email, with
+the evidence laid out rather than asserted.
+
+THE FAULT THIS ROUND CAUGHT
+
+Christian's width decision gave the channel BOTH a required proportion (0.15-0.25)
+and the existing 6-10 m preference. My extent lookup was taking whichever bound came
+first — which was the preference. So a preference was deciding the geometry, which is
+the third time this project has nearly let a PREFERRED_DEFAULT act as a requirement.
+
+Fixed properly: the requirement composes, and the preference is intersected INTO it
+and offered. On a 30 m width the requirement is 4.5-7.5 m, the preference is 6-10 m,
+so 6-7.5 m is where guidance can legitimately sit. A preference wholly outside the
+requirement is reported incompatible and the requirement wins.
+
+Worth noting that pattern is now three-for-three: neutral count, channel width, and
+the earlier anchor composition. Any time both a requirement and a preference sit on
+one line, check which one the code actually reads.
+
+THE SPORT RATCHET EARNED ITS KEEP
+
+Failed three times this round — including on a doc comment, and on `roles.goalkeeper`
+in engine code. Right every time. Fixed properly by marking the row in the register
+with a `specializedRole` flag, so the engine reads the role NAME from the register and
+knows none itself. That's better than the version that failed.
+
+WHAT I DIDN'T CLAIM
+
+The boundary is closed; one internally rendered activity is not. Said so explicitly.
+Also flagged that the width proportion and roster equality are now authored knowledge
+rather than architecture — change either and the game changes — and that A04 is one
+game while A05 is still unauthorized on two invariants it doesn't share.
+
+Didn't touch COMPLETED_PASS. Fourth note running. It genuinely blocks nothing and
+it's the next thing.
+
+Joe
+

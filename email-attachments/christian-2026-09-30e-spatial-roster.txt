@@ -1,0 +1,140 @@
+Subject: The channel width was authored all along — as a preference, which is the decision you need to make
+
+Christian,
+
+Both investigations are done. Neither needed new architecture, and both changed
+my answer from the last note. A04 has not closed and I can now tell you exactly
+what the remaining decisions are.
+
+Generation remains frozen. 236 tests, suite green. Trace attached.
+
+
+1 · SPATIAL EXTENT — THE WIDTH IS AUTHORED, AND IT IS A PREFERENCE
+
+You asked me to use a canonical rule if the knowledge supports one and return the
+smallest owner decision if it does not. The knowledge supports more than I
+reported last time and less than it first appears.
+
+WIDEZONE-06 exists: row S6, requirement RANGE, basis AUTHORED, value
+"across-interval width about 6-10 m", from setup_guidance "(~6-10m wide depending
+on field size)". So the width is not missing. I typed it on the SD-86 precedent,
+exactly as the neutral count was typed — the numbers moved out of the prose, never
+inferred, and the prose kept beside the typed form.
+
+But it is SUPPORTING and PREFERRED_DEFAULT, and its own note says
+"PREFERRED_DEFAULT carries the adaptation".
+
+So the channel width is a PREFERENCE. The REQUIRED extent is genuinely
+unauthored.
+
+I want to be plain that I nearly got this wrong. I had already built the
+mechanism to compose an anchor with an authored extent into an interval — which
+for a preferred bound would have turned a preference into a requirement. That is
+the exact conversion you forbade on the neutral count, reached from a different
+direction, and it would have made A04 pass on the strength of something nobody
+required. It now refuses: only a REQUIRED extent composes, and a preferred one is
+carried, offered, and reported as leaving the required extent unauthored.
+
+THE SMALLEST OWNER DECISION, and there is only one:
+
+  Is the channel's required across-extent
+
+    (a) the authored 6-10 m, promoted from preference to requirement — concrete,
+        but fixed, and it does not scale: on a 20 m-wide envelope two 10 m
+        channels would consume the whole width; or
+
+    (b) a proportion of the across dimension, which is the scaling you asked for,
+        and which the source gestures at ("depending on field size") without ever
+        stating. The mechanism will instantiate either form without further
+        change.
+
+I have not chosen. (b) is what you asked for wherever possible, and the source
+does not supply it, so it is an owner-authored decision rather than a reading.
+
+ON THE TARGET DEPTH: it does not arise for A04. The realization chose `line`, and
+a line has no depth. GF2's "extent of the target feature (depth of a zone)"
+becomes load-bearing only when a zone is chosen, so the same decision is owed
+there but is not blocking now. And I have not made "prefer the alternative with
+least unresolved knowledge" into any rule — the choice is recorded as a
+realization decision and nothing generalizes from it.
+
+
+A THIRD SILENT LOSS, FOUND ON THE WAY
+
+The width had been authored and was never leaving the engine. `bounds` was
+emitted only on an open line, and Wide Zone authors the channel width on the SAME
+ROW as "touchline-adjacent" — so a line with a derived position dropped its
+authored extent entirely. Position and extent are two authored facts on one row.
+
+Now emitted under its own name, `extentBounds`, so the invariant that `bounds`
+appear only on an open line survives: a bound there is a choice space, this is an
+extent beside a settled position. Different things, different names.
+
+That is the third instance of this shape in this work, and all three were found by
+something downstream trying to use the value rather than by a test.
+
+
+2 · ROSTER — THE REPRESENTATION ALREADY CARRIES ALL THREE DISTINCTIONS
+
+You asked me to test the existing Performer / Participant State representation
+before adding anything. It carries all three, and no goalkeeper-specific engine
+mechanism is needed:
+
+  total performers available     E1  envelope.players
+  specialized role availability  P4  performers.teams[].roles[] — "named roles;
+                                     the list is open for this run", which is the
+                                     sport-neutral form you wanted. P3
+                                     performers.teams[].goalkeeper, "integer
+                                     (0 or 1)", already exists as the
+                                     soccer-named convenience.
+  functional involvement         P11/P12 participation state — the canonical
+                                     Participant State from EM-0007: ACTIVE,
+                                     INACTIVE, WAITING, RESTING, OBSERVING. Plus
+                                     P13 persistence.
+
+Your three-way distinction maps onto it directly: availability is a role existing
+on the team, and involvement is that role's participation state. "Available but
+not involved" is OBSERVING; "functionally required" is ACTIVE with the selected
+knowledge claiming it; "unnecessary" is the role not being established at all.
+
+WHAT IS ACTUALLY MISSING IS A SESSION INPUT, not knowledge and not a mechanism.
+The envelope states `players: 12` and says nothing about role composition. So the
+roster cannot derive honestly, because nothing says whether any of the twelve are
+designated goalkeepers — which is precisely the distinction you drew.
+
+THE SMALLEST RULE: the session states specialized-role availability alongside the
+player count, sport-neutrally as role name to count. Then the roster sums
+outfield + specialized roles + neutrals = session players, and derives without
+implying anything.
+
+I have NOT promoted "equal outfield counts". You were right that it would have
+classified all twelve as outfield players by implication. And note GF2 declares P3
+NON_CLAIMED — which under your own earlier ruling means "imposes no requirement",
+not "there are none". So P3 stays unresolved rather than defaulting to zero.
+
+
+WHERE A04 STANDS
+
+  realization acceptance      PASSED
+  post-realization Gate A     NOT PASSED
+  render-eligible             NO
+
+Two decisions, both yours, neither of them architecture:
+
+  1. the channel's required across-extent — promote 6-10 m, or author a proportion
+  2. session role availability — the smallest envelope addition above
+
+With those, I expect A04 to close. I will not say it does until it does.
+
+Everything else held: T3 unresolved pending the goalkeeper question, which your
+item 2 has now largely answered — a goalkeeper restart performer needs the game to
+establish goalkeeper participation, and nothing in A04/A01-02 does. The four
+Variable Target dimensions untouched, IE-C006 establishing nothing, affordance at
+33 / 6 / 0, no goal-area analogue, no new region.
+
+COMPLETED_PASS I have still not tested. It is the one thing outstanding from your
+last two notes and it blocks nothing; I would rather report it properly than
+attach a rushed answer to this.
+
+Joe
+

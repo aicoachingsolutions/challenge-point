@@ -1,0 +1,56 @@
+Joe — four corrections in; A04 down to two owner values
+
+246 tests green, pushed. Trace captured.
+
+  realization acceptance   PASSED
+  post-realization Gate A  NOT PASSED
+  render-eligible          NO
+
+Remaining blockers are exactly the two values Christian has to supply. No new
+load-bearing dependency this round, which is the first time I've been able to say
+that.
+
+WHAT WENT IN
+
+Register guard: a realization choice must satisfy the permitted set AND the row's
+canonical vocabulary. The refusal names both sides, because the disagreement is the
+knowledge defect, not the choice.
+
+`line` registered with GENERAL semantics — a `nounSemantics` block giving each noun
+an extent-dimension count and naming NO axis. The rule: a one-dimensional noun has
+extent on one axis, and whichever axis carries it is the length, so the other is
+zero. Tested in both orientations deliberately, so "line = end line" can't creep in.
+That closed the target's geometry.
+
+RC-21 fold: `spatialRelations` is gone. Checked each term for a home first, as he
+asked — three had one, one genuinely didn't ("full extent of an axis"; the block had
+no spanning predicate). Added that one to the canonical block rather than forcing
+the others across, and flagged it as a vocabulary addition needing his nod.
+
+His lesson is a test now, not a comment: a regression asserts the parallel block
+can't come back and every indexed phrase resolves to a defined term.
+
+THE TWO VALUES I RETURNED
+
+Channel width: two fractions, not three numbers. His functional statement has three
+claims but the collective one FOLLOWS from the per-channel max plus the authored
+channel count (WIDEZONE-03 = 2). Flagged the caveat — that derivation only holds
+while the count is bounded — because that's exactly the kind of thing that stops
+being true quietly.
+
+Roster: one session statement (`roles: {goalkeeper: 0}`, explicit zero since absent
+means not stated) plus one promotion (GF2-14.b "equal outfield counts" from ASSUMED
+to authored). Gave him the alternative too — a session statement of the split — and
+said which I prefer and why, while noting the promotion is his.
+
+TWO PROCESS THINGS
+
+The sport-coupling ratchet caught a doc comment last round for naming the sport in
+engine code. Worth remembering that prose couples too.
+
+A Python heredoc threw `SyntaxWarning: invalid escape sequence` while inserting a
+test — the stop signal from my notes. Verified the bytes and the written regex
+before trusting it rather than assuming it was fine. It was, this time.
+
+Joe
+

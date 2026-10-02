@@ -26,7 +26,7 @@
 
 import { DerivationResult, ResolutionEntry } from './emit'
 import { RegisterIndex } from './register'
-import { ElementClass, ItemRef, SupportRef } from './types'
+import { ElementClass, ItemRef, LoadedContract, SupportRef } from './types'
 
 /** A line an authority left open, and everything the realization layer needs to close it. */
 export interface OpenChoice {
@@ -37,6 +37,8 @@ export interface OpenChoice {
     elementId: string | null
     /** SD-39's authority and the choice space it authorizes. */
     permittedBy: { authority: string; choiceSpace: string } | null
+    /** Where the freedom is a choice among stated alternatives, the alternatives (SD-78). */
+    permitted: unknown[] | null
     /** Whatever the knowledge bounded it to, carried verbatim. */
     bounds: unknown[]
     /** `FREE(a)`, `FREE(b)` or `FREE(choice)` — which kind of freedom this is. */
@@ -52,6 +54,13 @@ export interface NotEstablished {
     verdict: string
     /** AM-23's reason code, where the run gave one. */
     reason: string | null
+    /**
+     * What the knowledge actually declared on this row — the whole reaching set, not the one code
+     * AM-23 could express. `['NON_CLAIMED']` and `['UNDECLARED']` both report as *coverage*, and they
+     * are not the same thing: the first is an object saying it does not constrain the row, the
+     * second is nobody having looked. Carried so the difference survives to whoever rules on it.
+     */
+    declared: string[]
 }
 
 /**
@@ -64,6 +73,46 @@ export interface ExistentialClaim {
     classId: string
     from: ItemRef
     cardinality: { min: number | null; max: number | null }
+    /**
+     * **Established members that already satisfy this claim**, and the shortfall realization must make
+     * up — his ruling of 30 September: *"An existential realization request should instantiate a new
+     * member only when no already-established member satisfies the claim."*
+     *
+     * On A04 this is the difference between a game with two objectives and a game with one. `GF2-09.a`
+     * asserts at least one objective exists; `GF2-08.a` **is** an established objective on the same
+     * row; so the claim was already met, and asking realization to instantiate another produced a
+     * second objective carrying nothing the first did not.
+     *
+     * Satisfaction is decided by membership, not by resemblance: SD-97 makes an existential claim
+     * exactly one whose selector individuates nothing, so every established member of the row matches
+     * it. A claim carrying a real selector would need subsumption, and there is none in this corpus.
+     */
+    satisfiedBy: string[]
+    /** How many members realization must instantiate. Zero where the claim is already satisfied. */
+    shortfall: number
+}
+
+/**
+ * **`DISTINCT_ON`** — a joint realization-validity condition, adopted 29 September.
+ *
+ * Over a named set, the members must differ pairwise on the stated field rows. No metric, no minimum
+ * separation, no inferred geometry, and **no line of its own** — it is not a placement value and
+ * nothing derives from it. It exists because three independently valid placements can still be
+ * jointly invalid, and before this the constraint was flattened into a per-element bound that could
+ * not express that.
+ *
+ * Realization chooses each placement against its own bound as usual, and is then refused if the
+ * resulting set violates this.
+ */
+export interface JointCondition {
+    kind: 'DISTINCT_ON'
+    /** The collection whose members are constrained, by register path. */
+    path: string
+    /** The field rows the members must differ on, as register row ids. */
+    rows: string[]
+    /** The authored words, kept beside the typed form. */
+    asAuthored: string
+    from: ItemRef
 }
 
 export interface ResolvedGame {
@@ -79,24 +128,69 @@ export interface ResolvedGame {
      * verdict is the answer to whether a realization layer may proceed. It is carried verbatim and
      * no second judgement is formed here.
      */
+    /**
+     * **Three states, deliberately not collapsed into one.** His ruling of 30 September: *"This keeps
+     * 'may realize' distinct from 'game is validated.'"*
+     *
+     * `preRealization` is a verdict over the invariants the resolved game can answer, and it is
+     * reported as `PRE_REALIZATION_SATISFIED` rather than `PASS` precisely so it cannot be read as
+     * full Gate A having passed. `realizationAuthorized` is the answer to whether realization may
+     * proceed, and it requires all three of his conditions. `postRealizationRequired` is what the
+     * concrete game still owes before it is validated — a game that realizes is not a game that has
+     * been checked.
+     */
     coherence: {
         gateA: string
         failingChecks: string[]
-        /** True only where Gate A passed — a restatement of Gate A's claim, not a new one. */
+        /** `PRE_REALIZATION_SATISFIED`, `FAIL` or `NOT_EVALUABLE` over the pre-realization invariants. */
+        preRealization: string
+        /** All three of his conditions hold. This is what gates realization. */
+        realizationAuthorized: boolean
+        /** Where realization is not authorized, every reason. */
+        notAuthorizedBecause: string[]
+        /** Invariants whose subject does not exist until realization supplies it. Owed, not waived. */
+        postRealizationRequired: { checkId: string; clause: string; owes: string }[]
+        /**
+         * Kept as the name the realization layer reads, and now meaning exactly
+         * `realizationAuthorized` — never "the game is valid".
+         */
         mayRealize: boolean
+        /** @deprecated use `postRealizationRequired`; retained so no reader silently gets `undefined`. */
+        deferred: { checkId: string; clause: string; owes: string }[]
     }
-    /** The game, nested by the register's paths. Only derived values appear. */
+    /**
+     * The game, nested by the register's paths. Only derived *values* appear — but every element the
+     * enumeration individuated appears, even one with no derived value, carrying its identity alone.
+     * Omitting those elements made the game claim they did not exist rather than that nothing about
+     * them was established, which is the one confusion this object exists to prevent.
+     */
     game: Record<string, unknown>
     /** Every derived value again, flat, with its support — so nothing has to be re-derived to trace it. */
     derived: { path: string; lineId: string; value: unknown; resolvedBy: string; support: SupportRef[] }[]
     open: OpenChoice[]
     existential: ExistentialClaim[]
     notEstablished: NotEstablished[]
+    /**
+     * Bounds carried on a line that already has a derived value — an authored EXTENT beside an authored
+     * POSITION. Neither is the other: "touchline-adjacent" says where the edge is, and 6-10 m says how
+     * wide, and a region needs both. Kept so realization can compose them without re-deriving anything.
+     */
+    extentBounds: Record<string, unknown[]>
+    /** Conditions over a set of members, which no single line can carry. */
+    jointConditions: JointCondition[]
     counts: Record<string, number>
 }
 
-/** `space.regions[].noun` → `{ container: 'space.regions', leaf: 'noun' }`; a game-level row has no container. */
-function splitPath(path: string): { container: string | null; leaf: string } {
+/**
+ * `space.regions[].noun` → `{ container: 'space.regions', leaf: 'noun' }`; a game-level row has no container.
+ *
+ * **The leaf is the WHOLE remainder after `[]`, not the last dotted segment.** 20 of the register's 61
+ * member-property rows are nested — `space.regions[].position.along`, `transitions[].placement.actor` — and
+ * last-segment-only addressing both writes to the wrong place and COLLIDES: `transitions[].qualifiers.region`
+ * and `transitions[].placement.region` would share the address `region`. This is the one canonical
+ * row-path-to-member-address rule; anything addressing a member property must use it.
+ */
+export function splitPath(path: string): { container: string | null; leaf: string } {
     const at = path.indexOf('[]')
     if (at === -1) {
         const dot = path.lastIndexOf('.')
@@ -133,7 +227,72 @@ function place(root: Record<string, unknown>, path: string, value: unknown): voi
  * SD-97 stopped those assertions enumerating lines and they therefore appear nowhere in `resolution`.
  * Leaving them out would hide, from the layer that has to satisfy them, that they exist at all.
  */
-export function assembleResolvedGame(result: DerivationResult, classes: ElementClass[], index: RegisterIndex): ResolvedGame {
+/**
+ * His three conditions for entering realization, each checked rather than assumed:
+ *
+ *   1. every pre-realization Gate A invariant passes;
+ *   2. every unresolved property is either an authorized OPEN choice or an authorized existential claim;
+ *   3. no blocking knowledge gap, collision or unresolved structural relationship remains.
+ *
+ * Condition 2 is the one that needs care. A row the knowledge **excluded** or declared it does not
+ * constrain is not an unresolved property — it is an established absence, and requiring it to be open
+ * or existential would make every game ineligible for having decided something. What condition 2
+ * forbids is a property that is *owed* and is neither a choice nor a claim.
+ */
+function authorization(
+    result: DerivationResult,
+    notEstablished: NotEstablished[],
+    open: OpenChoice[],
+    existential: ExistentialClaim[],
+): Pick<
+    ResolvedGame['coherence'],
+    'preRealization' | 'realizationAuthorized' | 'notAuthorizedBecause' | 'postRealizationRequired' | 'mayRealize' | 'deferred'
+> {
+    const gateA = result.gates.gateA
+    const knowledge = gateA.knowledgeVerdict ?? gateA.verdict
+    const postRealizationRequired = [...(gateA.deferred ?? [])]
+    const because: string[] = []
+
+    // (1)
+    if (knowledge === 'FAIL') {
+        because.push(`a pre-realization Gate A invariant fails: ${(gateA.checks ?? []).filter(c => c.verdict === 'FAIL').map(c => c.checkId).join(', ')}`)
+    } else if (knowledge !== 'PASS') {
+        const blocked = (gateA.checks ?? [])
+            .filter(c => c.verdict === 'NOT_EVALUABLE')
+            .map(c => c.checkId)
+            .join(', ')
+        because.push(`a pre-realization Gate A invariant cannot be evaluated, so it is not satisfied: ${blocked}`)
+    }
+
+    // (2) — a property that is owed, and is neither an open choice nor an existential claim.
+    const owed = notEstablished.filter(e => e.reason === 'declared gap' || e.reason === 'claimed but unresolved')
+    if (owed.length) {
+        because.push(
+            `${owed.length} unresolved propert${owed.length === 1 ? 'y is' : 'ies are'} neither an authorized choice nor an authorized claim: ` +
+                owed.slice(0, 4).map(e => e.lineId).join(', ') + (owed.length > 4 ? ', …' : ''),
+        )
+    }
+
+    // (3)
+    const collisions = result.failures.filter(f => f.kind === 'COLLISION')
+    if (collisions.length) because.push(`${collisions.length} collision(s) remain`)
+    const unresolved = notEstablished.filter(e => e.verdict === 'UNRESOLVED')
+    if (unresolved.length) because.push(`${unresolved.length} unresolved structural relationship(s) remain: ${unresolved.map(e => e.lineId).join(', ')}`)
+
+    const authorized = because.length === 0
+    return {
+        // Never `PASS`: the state is "the pre-realization requirements are satisfied", which does not
+        // say that Gate A has passed, because the deferred invariants have not been evaluated at all.
+        preRealization: authorized ? 'PRE_REALIZATION_SATISFIED' : knowledge,
+        realizationAuthorized: authorized,
+        notAuthorizedBecause: because,
+        postRealizationRequired,
+        mayRealize: authorized,
+        deferred: postRealizationRequired,
+    }
+}
+
+export function assembleResolvedGame(result: DerivationResult, classes: ElementClass[], index: RegisterIndex, contracts: LoadedContract[] = []): ResolvedGame {
     const rows = index.rows
     const game: Record<string, unknown> = {}
     const derived: ResolvedGame['derived'] = []
@@ -152,21 +311,43 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
         return `${container ?? row.path}[${entry.elementId}]${leaf ? `.${leaf}` : ''}${member}`
     }
 
+    /**
+     * Make sure an element the enumeration individuated is *in* the game, whether or not anything
+     * about it was derived.
+     *
+     * Found by the realization layer, which is the first thing to consume this object: an element
+     * whose every line was open or failed appeared in `open` and `notEstablished` and **nowhere in
+     * `game`**, because entries were only ever created while placing a derived value. On the corpus
+     * that silently dropped two elements the knowledge individuates — an object, and the region the
+     * Variable Target condition establishes — so the game said there was no such region at all
+     * rather than that nothing about it was established.
+     *
+     * The entry carries its identity and whatever was derived, and nothing else. An element with no
+     * properties is the honest statement: this exists, and what it is like is in the other lists.
+     */
+    const ensureElement = (elementId: string, row: { path: string }): Record<string, unknown> => {
+        const { container } = splitPath(row.path)
+        const key = container ?? row.path
+        if (!elements.has(key)) elements.set(key, { container: key, entries: new Map() })
+        const bucket = elements.get(key)!
+        if (!bucket.entries.has(elementId)) bucket.entries.set(elementId, { elementId })
+        return bucket.entries.get(elementId)!
+    }
+
     for (const entry of result.resolution) {
         const row = rows.get(entry.row)
         const path = pathOf(entry)
+
+        // A withdrawn or conditional line is not owed anything (SD-88), so it establishes no element.
+        if (entry.elementId && row && entry.lineState === 'ENUMERATED') ensureElement(entry.elementId, row)
 
         if (entry.state === 'derived') {
             derived.push({ path, lineId: entry.lineId, value: entry.value, resolvedBy: String(entry.resolvedBy ?? ''), support: entry.support })
             if (!entry.elementId) {
                 if (row) place(game, row.path, entry.value)
             } else if (row) {
-                const { container, leaf } = splitPath(row.path)
-                const key = container ?? row.path
-                if (!elements.has(key)) elements.set(key, { container: key, entries: new Map() })
-                const bucket = elements.get(key)!
-                if (!bucket.entries.has(entry.elementId)) bucket.entries.set(entry.elementId, { elementId: entry.elementId })
-                const element = bucket.entries.get(entry.elementId)!
+                const { leaf } = splitPath(row.path)
+                const element = ensureElement(entry.elementId, row)
                 // A member line carries one member of a set-valued row; they accumulate in order.
                 // The leaf may itself be dotted — `position.along` — and is nested, not used as a key
                 // with a dot in it, so a consumer reads the register's own shape.
@@ -186,6 +367,7 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
                 lineId: entry.lineId,
                 elementId: entry.elementId,
                 permittedBy: entry.permittedBy ? { authority: entry.permittedBy.authority, choiceSpace: String(entry.permittedBy.choiceSpace) } : null,
+                permitted: entry.permitted ? [...entry.permitted] : null,
                 bounds: entry.bounds ?? [],
                 kind: String(entry.verdict ?? ''),
             })
@@ -197,7 +379,14 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
         if (entry.lineState !== 'ENUMERATED') continue
 
         if (entry.state === 'failed') {
-            notEstablished.push({ path, lineId: entry.lineId, elementId: entry.elementId, verdict: String(entry.verdict ?? ''), reason: entry.reason ?? null })
+            notEstablished.push({
+                path,
+                lineId: entry.lineId,
+                elementId: entry.elementId,
+                verdict: String(entry.verdict ?? ''),
+                reason: entry.reason ?? null,
+                declared: entry.declared ? [...entry.declared] : [],
+            })
         }
     }
 
@@ -210,13 +399,48 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
         // A singleton is individuated by the schema invariant (SD-84), so it is a described element
         // and not an existential claim, even though its assertion carries no selector.
         .filter(cls => cls.constraints.any && !cls.singletonBy)
-        .map(cls => ({
-            path: rows.get(cls.row)?.path ?? cls.row,
-            classId: cls.classId,
-            from: cls.fromItem,
-            cardinality: { min: cls.cardinality?.min ?? null, max: cls.cardinality?.max ?? null },
-        }))
+        .map(cls => {
+            // Established members of the same collection. An individuated class IS a member of the row
+            // the claim ranges over, so it satisfies a claim that individuates nothing.
+            const established = classes.filter(c => c.row === cls.row && (!c.constraints.any || !!c.singletonBy)).map(c => c.classId).sort()
+            const min = cls.cardinality?.min ?? null
+            return {
+                path: rows.get(cls.row)?.path ?? cls.row,
+                classId: cls.classId,
+                from: cls.fromItem,
+                cardinality: { min, max: cls.cardinality?.max ?? null },
+                satisfiedBy: established,
+                // A claim with no stated minimum is met by any one member. Where there is a minimum,
+                // only the difference is owed — never the whole claim again.
+                shortfall: Math.max(0, (min ?? 1) - established.length),
+            }
+        })
         .sort((a, b) => a.classId.localeCompare(b.classId))
+
+    // Bounds on a line that also carries a derived value. The derivation keeps position and extent on
+    // one row, so a bound there is the extent beside the position rather than a competing placement.
+    const extentBounds: Record<string, unknown[]> = {}
+    for (const entry of result.resolution) {
+        if (entry.state !== 'derived' || !entry.extentBounds?.length) continue
+        extentBounds[entry.lineId] = [...entry.extentBounds]
+    }
+
+    // DISTINCT_ON assertions, read from the contracts rather than from any line — they take none.
+    const jointConditions: JointCondition[] = []
+    for (const contract of contracts) {
+        for (const item of contract.items ?? []) {
+            const distinctOn = (item as any).distinctOn
+            if (!distinctOn || !Array.isArray(distinctOn.rows)) continue
+            jointConditions.push({
+                kind: 'DISTINCT_ON',
+                path: rows.get(String(item.row))?.path ?? String(item.row),
+                rows: distinctOn.rows.map(String),
+                asAuthored: String(item.value ?? ''),
+                from: { contractId: contract.contractId, itemId: item.itemId },
+            })
+        }
+    }
+    jointConditions.sort((a, b) => `${a.from.contractId}::${a.from.itemId}`.localeCompare(`${b.from.contractId}::${b.from.itemId}`))
 
     const failingChecks = result.gates.gateA.checks.filter(c => c.verdict === 'FAIL').map(c => c.checkId).sort()
 
@@ -230,18 +454,27 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
         coherence: {
             gateA: result.gates.gateA.verdict,
             failingChecks,
-            mayRealize: result.gates.gateA.verdict === 'PASS',
+            ...authorization(result, notEstablished, open, existential),
         },
         game,
         derived: derived.sort((a, b) => a.lineId.localeCompare(b.lineId)),
         open: open.sort((a, b) => a.lineId.localeCompare(b.lineId)),
         existential,
+        extentBounds,
+        jointConditions,
         notEstablished: notEstablished.sort((a, b) => a.lineId.localeCompare(b.lineId)),
         counts: {
             derived: derived.length,
             open: open.length,
             existential: existential.length,
             notEstablished: notEstablished.length,
+            elements: [...elements.values()].reduce((n, b) => n + b.entries.size, 0),
+            // An element that is in the game and carries no property at all. Counted so that the
+            // drop this fixed cannot come back unnoticed as a quietly shrinking game.
+            elementsWithNothingEstablished: [...elements.values()].reduce(
+                (n, b) => n + [...b.entries.values()].filter(e => Object.keys(e).length === 1).length,
+                0,
+            ),
         },
     }
 }

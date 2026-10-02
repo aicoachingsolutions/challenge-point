@@ -37,7 +37,7 @@ export const TEST_LIBRARY_V0_AFFORDANCE_LENSES: TestLibraryV0AffordanceLens[] = 
     notes: "Encourages spatial awareness and adaptability",
     contextualAudit: "Avoid rigid positioning or fixed zone occupation",
     suggestedConstraintPrompt: "Use spatial incentives and defensive imbalance to invite space recognition",
-    category: "Create Space",
+    category: "Exploit Space",
     gameTemplateAnchor: ["build_up","transition"],
     designIntent: "Use width and depth effectively",
     constraintSupport: ["structural","consequence"],

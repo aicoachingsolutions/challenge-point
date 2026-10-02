@@ -1,0 +1,124 @@
+Subject: A04 closes — the deterministic Game Representation → Realization boundary is closed, with evidence
+
+Christian,
+
+A04 passes the whole sequence. I am marking the boundary closed and the evidence is
+below. The full unedited trace is attached.
+
+  selection → resolved game → authorized realization → realization acceptance
+            → post-realization Gate A → render-eligible
+
+  realization acceptance      PASSED
+  post-realization Gate A     PASSED
+  render-eligible             YES
+
+246 tests, suite green, tsc clean. Generation remains frozen pending your word.
+
+
+THE CLOSURE EVIDENCE
+
+PRE-REALIZATION. A04's resolved game reports PRE_REALIZATION_SATISFIED — never
+PASS, so it cannot read as full Gate A having passed. Realization was authorized on
+all three of your conditions, checked rather than assumed: every pre-realization
+invariant satisfied, every unresolved property either an authorized open choice or
+an authorized existential claim, and no blocking gap, collision or unresolved
+structural relationship. A05 is still correctly NOT authorized and names which
+invariant is unsatisfied, so the gate discriminates rather than waving things
+through.
+
+REALIZATION. Six choices, each from inside an authored set and each also checked
+against the row's canonical vocabulary. Two instantiations — the two teams the claim
+asserts — and the objectives claim recorded as already satisfied by the established
+GF2-08.a rather than instantiated again.
+
+ACCEPTANCE. Nothing derived is lost, nothing is invented, nothing is closed without
+authority. All three checked against the finished game rather than trusted from the
+writer above it.
+
+POST-REALIZATION GATE A. All five owed invariants pass, evaluated by the same
+fifteen check functions over a context with the realization decisions folded in —
+not a second, weaker implementation.
+
+  GA-ENVELOPE-FIT        every region and object is non-empty              PASS
+  GA-ENVELOPE-FIT        every region and object lies inside the area      PASS
+  GA-LAYOUT-FEASIBLE     every geometric extent admits a joint assignment  PASS
+  GA-ONE-PRIMARY-EVENT   exactly one primary event, of a registered kind   PASS
+  GA-ROSTER-SUM          outfield + specialized + neutrals = session       PASS
+
+THE CONCRETE GAME, in numbers rather than prose: a target line at the end line it
+touches — along [40, 40], across [0, 30]; three touchline channels each along
+[0, 40] and across [0, 7.5]; a line_crossed primary event worth 1; two teams of six
+outfield players; one objective both teams attack.
+
+
+YOUR THREE DECISIONS, AS IMPLEMENTED
+
+The full-extent predicate is confirmed in RC-21 with the provisional flag removed.
+No parallel spatial representation survives, and a regression asserts it cannot
+come back.
+
+The channel width is authored as 0.15 to 0.25 of the available across dimension —
+and authored as the canonical RELATION, not as a number in the contract.
+WIDEZONE-06.b's value is the relation name and the fractions live once in RC-21. So
+the knowledge states the functional relationship and realization produces the
+geometry: 0.25 of this 30 m width is 7.5 m, and the same knowledge would give 10 m
+on a 40 m width without being touched.
+
+ON PREFERENCE INSIDE REQUIREMENT — this caught a real fault of mine. The channel
+carries both the required proportion and the 6-10 m preference, and my extent
+lookup had been taking whichever bound came first, which let the preference decide
+the geometry. The requirement now composes and the preference is intersected INTO
+it: 0.15-0.25 of 30 m is 4.5-7.5 m, the preference is 6-10 m, so 6-7.5 m is where
+guidance may legitimately operate. A preference wholly outside the requirement is
+reported incompatible and the requirement stands.
+
+The collective-share guard is in as protection against future change rather than an
+A04 rule: cardinality times maximum share, capped at 0.6. The present corpus sits
+at 0.5 and passes; the check exists so a later change to the cardinality or the
+maximum cannot pass silently.
+
+The session states roles for this run, keyed by whatever the register names as a
+specialized role — an explicit zero, and recorded as a session fact for this run
+rather than a default about Challenge Point sessions.
+
+GF2-14.b is promoted to owner-authored, and deliberately stays an item OF GF2
+rather than becoming an engine rule. The roster derivation reads equality from an
+authored item, so a game form that states asymmetry never reaches that path. Equal
+team numbers are not a universal.
+
+The roster derives rather than being chosen: 12 session performers, 0
+specialized-role performers from the stated roles, 0 neutrals because none is
+instantiated, 2 teams, equality from GF2-14.b — six outfield each. It refuses on
+anything missing, and derives nothing from a division that does not come out whole,
+because a rounded roster is an invented one.
+
+
+ONE MORE THING THE CLOSURE NEEDED, which your item 4 anticipated
+
+"If a realized line legitimately has no depth, Gate A should not require a zone-like
+interval merely to certify its geometry." Both emptiness tests are now noun-aware,
+reading the register's nounSemantics, which names no axis. A line is degenerate on
+an axis only where its OTHER axis carries a real extent — so a region with no extent
+anywhere is still empty and still fails. That is what stops it becoming a way for
+any region to be zero-sized.
+
+
+WHAT I WOULD NOT CLAIM
+
+The boundary is closed. One internally RENDERED activity is not the same thing, and
+I have not built or claimed any of it: this is a validated concrete game, not coach
+language, not an activity, not a variation.
+
+Two things are deliberately outside the closure and I would not want them read as
+part of it. The channel width proportion and the roster equality are now authored
+knowledge rather than architecture — if you later change either, the game changes,
+and the collective-share guard exists precisely because of that. And A04 is one
+game; A05 remains unauthorized on two pre-realization invariants it does not share
+with A04.
+
+No new load-bearing dependency appeared in this round.
+
+COMPLETED_PASS remains the separate non-blocking investigation.
+
+Joe
+

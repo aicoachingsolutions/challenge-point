@@ -1,0 +1,68 @@
+Joe — note on the classification pass
+
+Short version: the 40 collapse to five patterns, 22 of them aren't missing
+knowledge at all, and I had to correct two of my own numbers to Christian.
+
+THE TWO CORRECTIONS
+
+It's 40, not 43. My earlier count bucketed by row, which swept the three
+internal failures into the knowledge pile — the exact thing Christian then asked
+me to keep separate. Told him plainly.
+
+The "three internal defects" aren't defects. All three are one pair of Wide Zone
+items — "touchline-adjacent" vs "touchline-adjacent (outer edge on a
+touchline)" — colliding by string inequality on three channel elements. The
+second is a refinement of the first, but the engine can't know that without
+interpreting prose, which SD-15 forbids. SD-02 is working correctly. So item 6
+of his email has no work in it; the fix is a restatement edit that's his.
+
+THE FINDING WORTH THE DAY
+
+Pattern 1: nine lines ask a POSSESSION_CHANGE transition whose end line the ball
+crossed. The clincher is that T2-T5 are WITHDRAWN on exactly those same
+elements — the applicability mechanism already exists and works, T1a/T1b/T1c
+just aren't covered by it. That took one trace to see and it turns nine "missing
+facts" into one missing rule.
+
+Pattern 2: thirteen placement lines sit on rows the register itself marks
+fillable. Nobody authors metric positions and every object says so explicitly.
+
+Neither rule is about soccer. That's the part I think lands with him.
+
+THE LENS RESULT — I WAS WRONG BY 3x
+
+My "19 of 39 unrealized" was constraint-only. Against his broader test it's 33
+realized, 0 unrealized, 6 undetermined. Seventeen are realized only by the game
+form. He specifically said not to assume only constraints can realize a lens,
+and he was right.
+
+The 6 undetermined are a vocabulary drift — game forms say "fast_attack",
+lenses say "attack_quickly". I deliberately did NOT call those unrealized,
+because that would assert the two aren't the same thing, and that's a semantic
+claim I don't get to make. Reported as undetermined with the reason.
+
+Underneath it: five of nine affordances can't be named by one of the two
+libraries at all. That's the actual integrity problem, and it means his invariant
+would currently fail for reasons unrelated to selection quality. Said so.
+
+THE ONE I'M GLAD HE ASKED ABOUT
+
+The neutral count. Converting the two bounds to a [1,2] intersection would have
+been wrong — one is REQUIRED with explicitly no maximum, the other is a
+SUPPORTING preferred default. Intersecting them turns a preference into a hard
+ceiling. That's the same shape as the sessionEmphasis schema default that ate
+the engine default for months. He told me not to convert until provenance was
+established; the provenance says don't.
+
+WHAT'S NOT DONE
+
+The five Practice Situation contracts. He tied them to what the classification
+says about contract semantics, and it says something real — Patterns 1 and 2 are
+both about applicability and typing, so authoring five more contracts now would
+just inherit the same two open questions. Flagged that rather than starting.
+
+Tools committed: npm run corpus:unestablished, npm run lens:trace. Suite green,
+tsc clean. Email to Christian attached separately.
+
+Joe
+

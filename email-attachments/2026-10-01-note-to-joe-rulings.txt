@@ -1,0 +1,67 @@
+Joe,
+
+All five of Christian's rulings addressed, pushed, suite green. His email is attached.
+
+THE RESULT
+Q2, Q3, Q4 pass. **Q5 fails** — and that is the correct outcome, not a setback. Three channels a
+coach is told to mark do nothing in the game, so by his own ruling 4 the output is not a runnable
+coach activity. The rendering is faithful; the game is insufficient. Those are now separable, which is
+what the whole controlled test was for.
+
+      validated concrete game -> complete runnable representation -> faithful rendering
+              yes                          NO                              yes
+
+IMPLEMENTED
+- Roster write-back moved to a new assembly-boundary module, where he asked for it. Side effect worth
+  knowing: the gate is read-only again, and the invariant now reads the PERSISTED game. Strip the
+  roster and GA-ROSTER-SUM reports NOT_EVALUABLE where it used to report PASS on its own scratch. That
+  removes the defect class rather than guarding it.
+- His accounting-metadata rule, encoded as two conditions. The second one — that the property's
+  operational consequences actually reached the coach — is verified, not asserted. Remove the "play
+  continues" line and the startsEpisode exclusion becomes a violation.
+- Operational participation as a Q5 requirement. Does not read the functions row, per his explicit
+  steer that prose saying what a region is "for" is not what he wants.
+
+THE WIDE ZONE ANSWER — the good part
+The three channels are co-referential, the authored count is 2, and **the contract's own ledger already
+says what it needs**: "touchline-adjacent does not name which touchline and S2 has no side attribute,
+so 'one on each lateral side' is unheld... Needs a side selector attribute or per-touchline relative
+terms."
+
+The register NOW HAS that attribute — S2 carries a `lateral` selector with wide-left / wide-right under
+AM-17 — and AM-12 forbids derivation applying it unasked. So the distinction is authorable and not
+authored, and nothing needs inventing. The fix is a restatement of the Wide Zone contributions, which
+is his. I recommended against an engine-side merge because a test asserts classes are never merged
+even when selectors coincide, citing SD-47 — that would need its own ruling, and the restatement
+needs none.
+
+AND THE PART HE WILL CARE ABOUT MOST
+The Wide Zone authors a trigger, referents and four information rules about the channels, and **none of
+them reaches a line at all** — absent from the game, from open, and from notEstablished. I verified the
+consequence by injecting the missing existence item: lines 39 to 56, unestablished 8 to 17, and Gate
+A's knowledge verdict flips PASS to FAIL on the modifier's unauthored magnitude. So A04's current pass
+is partly bought by those claims vanishing. Third instance of the same shape now.
+
+But even fixed, it could not be established: his own declarations say "no default among three" for what
+the advantage even IS, and "no multiplier size or bonus points" for its size. The channel has an
+authored trigger and no authored effect. That is a decision only he can take.
+
+ON THE AGENT WORK
+I ran two multi-agent traces and verified every load-bearing claim myself. Worth recording that it
+mattered: one agent reported an injection result I could not reproduce on my first attempt — my
+version used a wildcard selector and hit the SD-97 path, so nothing changed. Redone with the selectors
+the declarations actually name, it reproduced exactly. I would have reported a false negative if I had
+stopped at my first run.
+
+Two findings I checked and kept: the cardinality parser cannot tell an exact COUNT from a lower bound
+when the value is a string, so the authored "2" became "at least 2" — and that cardinality is then
+dead data, read by nothing. Also an inconsistency worth his eye: the engine refuses to read a prose
+count on the exclusion side, citing SD-32 and saying guessing would decide the item's meaning, while
+the establishing side guesses.
+
+NEXT
+Two decisions with him: restate the Wide Zone S2 contributions with the lateral attribute, and decide
+what the channel advantage does. Nothing else started; rendering scope frozen, generation not
+broadened.
+
+Joe

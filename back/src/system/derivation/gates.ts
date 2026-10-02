@@ -36,8 +36,21 @@ import { RegisterIndex } from './register'
 import { add, compare, Interval, lt, lte, Rational, toInterval, toRational, ZERO } from './rational'
 import { ElementClass, Envelope, FailureRecord, ItemRef, LoadedContract, RefusalRecord, ResolutionLine, SpecClause } from './types'
 
-export type ClauseVerdict = 'PASS' | 'FAIL' | 'NOT_CHECKABLE_OUTSIDE_REPRESENTATION' | 'NOT_EVALUABLE'
-export type GateVerdict = 'PASS' | 'FAIL' | 'NOT_EVALUABLE' | 'NOT_APPLICABLE'
+/**
+ * `DEFERRED_TO_REALIZATION` is the clause verdict added on 30 September, and it is a different
+ * statement from `NOT_EVALUABLE`.
+ *
+ * `NOT_EVALUABLE` means *something is missing and I cannot tell*. Four Gate A clauses were reporting
+ * that when the truth was *this cannot be answered yet, by anyone*: they read concrete geometry or an
+ * instantiated roster, which **realization** supplies. Gate A was asking whether a game's layout is
+ * feasible before the game had a layout, and its own verdict gated the step that would produce one.
+ *
+ * A deferred clause therefore does not block realization — and it is not forgiven either. It is
+ * carried as an obligation the concrete game still owes, so nothing claims to have been checked that
+ * has not been.
+ */
+export type ClauseVerdict = 'PASS' | 'FAIL' | 'NOT_CHECKABLE_OUTSIDE_REPRESENTATION' | 'NOT_EVALUABLE' | 'DEFERRED_TO_REALIZATION'
+export type GateVerdict = 'PASS' | 'FAIL' | 'NOT_EVALUABLE' | 'NOT_APPLICABLE' | 'DEFERRED_TO_REALIZATION'
 
 /**
  * SD-54, his ruling of 23 September: "A universally stated structural check with zero applicable
@@ -54,6 +67,8 @@ export interface ClauseResult {
     /** How many applicable instances the clause ranged over. Zero is what makes a pass vacuous. */
     instances?: number
     refusalId?: string
+    /** On a deferred clause: what realization must supply before it can be answered. */
+    owes?: string
 }
 
 export interface CheckResult {
@@ -99,7 +114,15 @@ export interface GateBlock {
 }
 
 export interface GateReport {
+    /** Over every clause. Never PASS while anything is still owed, so the split loses nothing. */
     verdict: GateVerdict
+    /**
+     * Over the clauses knowledge alone can answer. **This is the verdict that gates realization**: a
+     * resolved game may be realized once nothing knowledge could settle is left unsettled.
+     */
+    knowledgeVerdict?: GateVerdict
+    /** Clauses a concrete game still owes, each naming what realization must supply. */
+    deferred?: { checkId: string; clause: string; owes: string }[]
     checks: CheckResult[]
     notEstablished: { checkId: string; clause: string }[]
     /** SD-62 — one record per blocked clause. Never empty while any clause is NOT_EVALUABLE. */
@@ -164,6 +187,15 @@ class Probe {
             return { state: 'ABSENT' }
         }
         if (line.lineState === 'WITHDRAWN') return { state: 'ABSENT' }
+        // **An established absence is an answer, not an obstruction** — his governing distinction of
+        // 29 September, applied here as well as in GA-NO-FAILED-LINE. A row the knowledge EXCLUDED is
+        // stated not to be part of this structure; a row it declared it does not constrain imposes no
+        // requirement. Either way the property legitimately has no value, and a check that treats
+        // that as "I cannot tell" reports itself unevaluable over a question that is in fact settled.
+        // Only a required-but-unestablished line still blocks.
+        if (line.verdict === 'NOT_AUTHORED' && (line.reason === 'excluded' || line.reason === 'not constrained')) {
+            return { state: 'ABSENT' }
+        }
         if (line.lineState === 'CONDITIONAL' && !line.verdict) {
             if (!this.blockedBy.includes(lineId)) this.blockedBy.push(lineId)
             if (!this.blockKind.has(lineId)) this.blockKind.set(lineId, 'KNOWLEDGE_GAP')
@@ -322,6 +354,11 @@ function referentsOf(cell: Cell): unknown[] {
 function combine(clauses: ClauseResult[]): ClauseVerdict {
     if (clauses.some(c => c.verdict === 'FAIL')) return 'FAIL'
     if (clauses.some(c => c.verdict === 'NOT_EVALUABLE')) return 'NOT_EVALUABLE'
+    // A check with anything still owed is not a check that passed. Without this it read as PASS
+    // while naming the lines it was blocked on — which the "no check passes while blocked" invariant
+    // caught immediately, and rightly: a deferred obligation reported as a pass is the one outcome
+    // the split must never produce.
+    if (clauses.some(c => c.verdict === 'DEFERRED_TO_REALIZATION')) return 'DEFERRED_TO_REALIZATION'
     return 'PASS'
 }
 
@@ -388,6 +425,12 @@ const fail = (clause: string, instances?: number): ClauseResult => ({ clause, ve
 const notEvaluable = (clause: string, refusalId?: string): ClauseResult => ({ clause, verdict: 'NOT_EVALUABLE', refusalId })
 const outside = (clause: string): ClauseResult => ({ clause, verdict: 'NOT_CHECKABLE_OUTSIDE_REPRESENTATION' })
 
+/**
+ * A clause that cannot be answered until realization has chosen or instantiated something. `owes`
+ * states what it will need, so the obligation travels with the game rather than living in a comment.
+ */
+const deferred = (clause: string, owes: string): ClauseResult => ({ clause, verdict: 'DEFERRED_TO_REALIZATION', owes })
+
 // =================================================================================================
 // The ten fully structural checks.
 // =================================================================================================
@@ -421,6 +464,17 @@ function gaRosterSum(ctx: GateContext): CheckOutcome {
         )
     }
     if (players.state !== 'DERIVED' || probe.blocked) {
+        // SD-97: teams are asserted to exist and nothing individuates one, so there is no roster line
+        // to sum. Realization instantiates the teams; until it has, the sum has no terms — which is a
+        // different thing from a roster that does not add up.
+        if (!teams.length && allClassesOn(ctx, 'P1').length) {
+            return result(
+                'GA-ROSTER-SUM',
+                probe,
+                [deferred(CLAUSE_TEXT, 'the instantiated teams, whose existence is asserted and whose members nothing individuates')],
+                'teams are asserted to exist and none is individuated, so the sum has no terms until realization instantiates them',
+            )
+        }
         return result('GA-ROSTER-SUM', probe, [notEvaluable(CLAUSE_TEXT)], probe.blockedWhy || 'the session player count is not derived')
     }
 
@@ -484,6 +538,34 @@ function intervalOf(probe: Probe, lineId: string): { interval: Interval | null; 
     return { interval, blocked: false }
 }
 
+/**
+ * Is a degenerate extent on this axis **legitimate** for this element, rather than an empty region?
+ *
+ * His ruling of 1 October: *"If a realized line legitimately has no depth, Gate A should not require a
+ * zone-like interval merely to certify its geometry."* A one-dimensional noun has extent on one axis
+ * and none on the other, so a zero extent on its thickness axis is the element being what it is — not
+ * a region that collapsed.
+ *
+ * Read from the register's `nounSemantics`, which names no axis: the element is degenerate on this axis
+ * only where its OTHER axis carries a real extent, so a line with no extent anywhere is still empty and
+ * still fails. That is what keeps this from becoming a way for any region to be zero-sized.
+ */
+function degenerateIsLegitimate(ctx: GateContext, classId: string, axis: 'along' | 'across'): boolean {
+    const nounRow = [...ctx.index.rows.values()].find(r => String(r.path).endsWith('.noun') && ctx.index.ownerRow.get(r.id) === ctx.classes.find(c => c.classId === classId)?.row)
+    if (!nounRow) return false
+    const noun = resolvedValue(ctx.derived.get(`${classId}::${nounRow.id}`))?.value
+    if (typeof noun !== 'string') return false
+    if (Number((ctx.index.nounSemantics as any)?.extentDimensions?.[noun]) !== 1) return false
+
+    // The other axis must carry a real extent, or nothing establishes which axis is the length.
+    const otherRow = [...ctx.index.rows.values()].find(
+        r => String(r.path).endsWith(axis === 'along' ? '.across' : '.along') && ctx.index.ownerRow.get(r.id) === ctx.classes.find(c => c.classId === classId)?.row,
+    )
+    if (!otherRow) return false
+    const other = toInterval(resolvedValue(ctx.derived.get(`${classId}::${otherRow.id}`))?.value)
+    return !!other && compare(other.lo, other.hi) < 0
+}
+
 /** `GA-ENVELOPE-FIT` — every region and object inside the area, non-empty. */
 function gaEnvelopeFit(ctx: GateContext): CheckOutcome {
     const INSIDE = 'every region and object lies inside the area'
@@ -511,13 +593,31 @@ function gaEnvelopeFit(ctx: GateContext): CheckOutcome {
     }
 
     if (refused) {
-        return result('GA-ENVELOPE-FIT', probe, [notEvaluable(INSIDE, probe.refusals[0]?.refusalId), notEvaluable(NON_EMPTY)], 'a placement is not a value §1.9 can compare')
+        // **Post-realization, on his ruling of 30 September**: the unresolved dependency is a placement,
+        // and placement is a value realization is authorized to supply. So the stage is settled, and the
+        // invariant is not weakened — it is asked once its subject exists.
+        //
+        // What that does not fix, and I have said so rather than let the move imply otherwise: this
+        // corpus authors placements as PROSE ("touchline-adjacent"), so at the later stage the clause
+        // is blocked again for a different reason — §1.9 still has nothing to compare. Moving it is
+        // right; it is not sufficient.
+        return result(
+            'GA-ENVELOPE-FIT',
+            probe,
+            [deferred(INSIDE, 'the chosen placement of every region and object'), deferred(NON_EMPTY, 'the chosen extent of every region and object')],
+            'every placement it would compare is a value realization supplies',
+        )
     }
     if (!along || !across || probe.blocked) {
         return result('GA-ENVELOPE-FIT', probe, [notEvaluable(INSIDE), notEvaluable(NON_EMPTY)], probe.blockedWhy || 'the area dimensions are not derived')
     }
 
-    const empty = placed.filter(p => compare(p.interval.lo, p.interval.hi) >= 0)
+    // A zero extent is only empty where the element is not legitimately degenerate on that axis.
+    const empty = placed.filter(p => {
+        if (compare(p.interval.lo, p.interval.hi) < 0) return false
+        const classId = p.lineId.split('::')[0]
+        return !degenerateIsLegitimate(ctx, classId, p.interval.axis)
+    })
     const outsideArea = placed.filter(p => {
         const limit = p.interval.axis === 'along' ? along : across
         return lt(p.interval.lo, ZERO) || !lte(p.interval.hi, limit)
@@ -543,7 +643,9 @@ function gaEnvelopeFit(ctx: GateContext): CheckOutcome {
  * the check refuses rather than pretending to a general solver.
  */
 function gaLayoutFeasible(ctx: GateContext): CheckOutcome {
-    const CLAUSE_TEXT = 'the geometric constraints over open lines are jointly satisfiable'
+    // The wording is part of the correction. "over open lines" was what made the clause empty itself
+    // the moment realization closed them; it now says what it actually examines, at either stage.
+    const CLAUSE_TEXT = 'every geometric extent, open or realized, admits a joint assignment inside the area'
     const probe = new Probe(ctx, 'GA-LAYOUT-FEASIBLE')
 
     const length = probe.cell('game::E2')
@@ -554,13 +656,53 @@ function gaLayoutFeasible(ctx: GateContext): CheckOutcome {
     const geometricRows = new Set(['S5', 'S6', 'O4', 'O5'])
     const open = ctx.lines.filter(l => geometricRows.has(l.row) && ctx.classified.get(l.lineId)?.verdict?.startsWith('FREE'))
 
-    if (!open.length) return result('GA-LAYOUT-FEASIBLE', probe, [pass(CLAUSE_TEXT, 0)], 'no geometric line is open, so the constraint set is trivially satisfiable')
-    for (const line of open) probe.cell(line.lineId)
+    // **Rewritten 30 September, on his ruling: "so that its post-realization form actually tests the
+    // realized placements rather than passing vacuously because no OPEN geometry remains. This is a
+    // correction to what the invariant examines, not a relaxation of it."**
+    //
+    // The clause used to range over OPEN geometry. Realization closes those lines, so afterwards there
+    // were none and it passed having examined nothing — a vacuous pass reported as evidence. It now
+    // ranges over **every geometric line**, open or settled: before realization it checks that the open
+    // extents admit a joint assignment, and after it checks that the chosen ones actually do. Same
+    // invariant, wider subject, and it can no longer be satisfied by the absence of its own subject.
+    const settled = ctx.lines.filter(l => {
+        if (!geometricRows.has(l.row)) return false
+        const verdict = ctx.classified.get(l.lineId)?.verdict
+        return !!verdict && !verdict.startsWith('FREE') && verdict.startsWith('RESOLVED')
+    })
+    const subject = [...open, ...settled]
+
+    if (!subject.length) return result('GA-LAYOUT-FEASIBLE', probe, [pass(CLAUSE_TEXT, 0)], 'the game has no geometric line at all, so there is no constraint set')
+    for (const line of subject) probe.cell(line.lineId)
     if (!along || !across) return result('GA-LAYOUT-FEASIBLE', probe, [notEvaluable(CLAUSE_TEXT)], 'the area dimensions are not derived')
 
     const infeasible: string[] = []
-    for (const line of open) {
+    for (const line of subject) {
         const limit = line.row === 'S5' || line.row === 'O4' ? along : across
+
+        // A SETTLED line carries its own placement, so feasibility is a question about that value:
+        // does the realized interval lie inside the area and is it non-empty? This is the half that
+        // was missing, and it is why the clause is no longer vacuous once realization has run.
+        const verdict = ctx.classified.get(line.lineId)?.verdict
+        if (verdict && verdict.startsWith('RESOLVED')) {
+            const read = intervalOf(probe, line.lineId)
+            if (!read.interval) {
+                if (!read.blocked) {
+                    return result(
+                        'GA-LAYOUT-FEASIBLE',
+                        probe,
+                        [notEvaluable(CLAUSE_TEXT, probe.refusals[0]?.refusalId)],
+                        `a realized placement on ${line.lineId} is not an interval this check can compare`,
+                    )
+                }
+                continue
+            }
+            const degenerate = compare(read.interval.lo, read.interval.hi) >= 0
+            if (degenerate && !degenerateIsLegitimate(ctx, String(line.elementId), read.interval.axis)) infeasible.push(`${line.lineId} (empty)`)
+            else if (compare(read.interval.hi, limit) > 0) infeasible.push(`${line.lineId} (outside the area)`)
+            continue
+        }
+
         const bounds = ctx.derived.get(line.lineId)?.bounding || []
         let lo = ZERO
         let hi = limit
@@ -577,7 +719,16 @@ function gaLayoutFeasible(ctx: GateContext): CheckOutcome {
                     `a ${bound.bound.kind} bound on ${line.lineId} is not a linear constraint over exact rationals; feasibility is not decided by ignoring it`,
                     [line.lineId],
                 )
-                return result('GA-LAYOUT-FEASIBLE', probe, [notEvaluable(CLAUSE_TEXT, probe.refusals[0].refusalId)], 'a geometric bound is not a constraint this check can read')
+                // Post-realization, on his ruling: feasibility is over values realization supplies. The
+                // caveat is reported rather than hidden — a value drawn from a qualitative bound is
+                // itself qualitative, so at the later stage this is blocked again until geometry is
+                // represented as something arithmetic can read.
+                return result(
+                    'GA-LAYOUT-FEASIBLE',
+                    probe,
+                    [deferred(CLAUSE_TEXT, `the chosen value for ${line.lineId}, whose ${bound.bound.kind} bound is not itself a linear constraint`)],
+                    'feasibility is over values realization supplies',
+                )
             }
             if (min && compare(min, lo) > 0) lo = min
             if (max && compare(max, hi) < 0) hi = max
@@ -588,8 +739,10 @@ function gaLayoutFeasible(ctx: GateContext): CheckOutcome {
     return result(
         'GA-LAYOUT-FEASIBLE',
         probe,
-        [infeasible.length ? fail(CLAUSE_TEXT, open.length) : pass(CLAUSE_TEXT, open.length)],
-        infeasible.length ? `${infeasible.length} open extent(s) have no feasible value: ${infeasible.join(', ')}` : `${open.length} open extent(s) admit a joint assignment inside the area`,
+        [infeasible.length ? fail(CLAUSE_TEXT, subject.length) : pass(CLAUSE_TEXT, subject.length)],
+        infeasible.length
+            ? `${infeasible.length} of ${subject.length} extent(s) are infeasible: ${infeasible.join(', ')}`
+            : `${subject.length} extent(s) examined (${open.length} open, ${settled.length} realized) and all admit a joint assignment inside the area`,
     )
 }
 
@@ -851,6 +1004,22 @@ function gaTransitionCoherence(ctx: GateContext): CheckOutcome {
     )
 }
 
+/**
+ * Is this authored trigger one the register holds?
+ *
+ * The register writes a parameterised trigger as `REGION_ENTRY {region}` and `TIME_EXPIRY {window}`,
+ * so an argument in braces is its own notation and reading past it is reading the register rather
+ * than interpreting the author. **Everything else is not.** `REGION_ENTRY {attacking half} + first
+ * receiver` is not a registered trigger with an argument — it is a region entry conjoined with a
+ * condition the trigger vocabulary has no room for, and saying otherwise would be inventing the
+ * qualifier it needs.
+ */
+function registeredTrigger(name: string, vocabulary: string[]): boolean {
+    if (vocabulary.includes(name)) return true
+    const parameterised = name.match(/^([A-Z_]+)\s*\{[^{}]*\}$/)
+    return !!parameterised && vocabulary.includes(parameterised[1])
+}
+
 /** `GA-INFORMATION` — information rules name held subjects and registered triggers. */
 function gaInformation(ctx: GateContext): CheckOutcome {
     const SUBJECT = 'every information rule names a held subject'
@@ -874,10 +1043,22 @@ function gaInformation(ctx: GateContext): CheckOutcome {
             if (identity === 'DANGLING') badSubjects.push(rule.classId)
             else if (identity === 'OPEN_TEXT') probe.unestablished(subjectLine)
         }
-        const trigger = probe.cell(lineOf(rule.classId, 'V17'))
-        if (trigger.state === 'DERIVED') {
-            const name = typeof trigger.value === 'object' && trigger.value ? String((trigger.value as any).trigger) : String(trigger.value)
-            if (!vocabulary.includes(name)) badTriggers.push(`${rule.classId}:${name}`)
+        // A rule names a registered trigger when **every trigger it could name** is registered.
+        // Restating an authored alternatives set into machine-readable form (SD-79) turns one derived
+        // value into a permitted set, and reading only the derived value would then stop examining
+        // the very members the clause is about — the failure would disappear without being settled.
+        // Reading the permitted set is reading what the run established, as SD-99 requires.
+        const triggerLine = lineOf(rule.classId, 'V17')
+        const trigger = probe.cell(triggerLine)
+        const permitted =
+            trigger.state === 'DERIVED'
+                ? [trigger.value]
+                : trigger.state === 'OPEN'
+                  ? (ctx.derived.get(triggerLine)?.narrowedTo?.members ?? [])
+                  : []
+        for (const member of permitted) {
+            const name = typeof member === 'object' && member ? String((member as any).trigger) : String(member)
+            if (!registeredTrigger(name, vocabulary)) badTriggers.push(`${rule.classId}:${name}`)
         }
     }
 
@@ -951,21 +1132,54 @@ function gaTimeWindows(ctx: GateContext): CheckOutcome {
  * check that owns incompleteness. The others block on the lines they need; this one states plainly that
  * the game is not complete, and names every line.
  */
+/**
+ * `GA-NO-FAILED-LINE`, under his governing distinction of 29 September:
+ *
+ *   > *A line is a realization-blocking gap only when the resolved game **requires** that property to
+ *   > be established and no authority establishes it.*
+ *
+ * A line with no value is therefore not automatically a failure, and the four cases are kept apart
+ * rather than collapsed into one count:
+ *
+ *   | | |
+ *   |---|---|
+ *   | **required but unestablished** | an object declares it needs the row, or claims it and nothing resolved — **blocks** |
+ *   | **explicitly excluded** | the knowledge establishes the property is not part of this structure — an *established absence*, not a missing value |
+ *   | **not constrained** | the object looked and imposes no requirement — no value and no realization authority, but no failure either |
+ *   | **open with authority** | a realization choice; never in this check |
+ *
+ * **The obvious danger is that this becomes a way of not failing.** Two things hold it: requiredness
+ * is read from what an object *declared about the row*, never from the mere absence of a value; and
+ * every non-blocking line is still counted and named in the reason, so nothing leaves the report. A
+ * property nobody requires and nobody excludes is simply not part of this game — and a realization
+ * layer may not fill it either, because it never appears as `open`.
+ */
 function gaNoFailedLine(ctx: GateContext): CheckOutcome {
-    const CLAUSE_TEXT = 'no enumerated line is failed'
+    const CLAUSE_TEXT = 'every property the resolved game requires is established'
     const probe = new Probe(ctx, 'GA-NO-FAILED-LINE')
-    const enumerated = [...ctx.classified.values()].filter(l => l.lineState === 'ENUMERATED').length
-    const failed = [...ctx.classified.values()]
-        .filter(l => l.lineState === 'ENUMERATED' && (l.verdict === 'NOT_AUTHORED' || l.verdict === 'UNRESOLVED' || l.verdict === 'INVENTED'))
+    const lines = [...ctx.classified.values()].filter(l => l.lineState === 'ENUMERATED')
+    const enumerated = lines.length
+    const withoutValue = lines.filter(l => l.verdict === 'NOT_AUTHORED' || l.verdict === 'UNRESOLVED' || l.verdict === 'INVENTED')
+
+    // `UNRESOLVED` and `INVENTED` always block: something did establish a value and it is unusable,
+    // which is a different failure from nobody establishing one.
+    const blocking = withoutValue
+        .filter(l => l.verdict !== 'NOT_AUTHORED' || l.reason === 'declared gap' || l.reason === 'claimed but unresolved')
         .map(l => l.lineId)
         .sort()
+    const excluded = withoutValue.filter(l => l.reason === 'excluded').length
+    const notConstrained = withoutValue.filter(l => l.reason === 'not constrained').length
+    const unspoken = withoutValue.filter(l => l.reason === 'coverage' || l.reason === 'no coverage').length
 
-    for (const lineId of failed) if (!probe.subjects.includes(lineId)) probe.subjects.push(lineId)
+    for (const lineId of blocking) if (!probe.subjects.includes(lineId)) probe.subjects.push(lineId)
+    const aside = `${excluded} excluded, ${notConstrained} not constrained, ${unspoken} unspoken — established absences and non-requirements, not missing values`
     return result(
         'GA-NO-FAILED-LINE',
         probe,
-        [failed.length ? fail(CLAUSE_TEXT, enumerated) : pass(CLAUSE_TEXT, enumerated)],
-        failed.length ? `${failed.length} enumerated line(s) are failed: ${failed.slice(0, 6).join(', ')}${failed.length > 6 ? ', …' : ''}` : 'every enumerated line is derived or open',
+        [blocking.length ? fail(CLAUSE_TEXT, enumerated) : pass(CLAUSE_TEXT, enumerated)],
+        blocking.length
+            ? `${blocking.length} required line(s) are unestablished: ${blocking.slice(0, 6).join(', ')}${blocking.length > 6 ? ', …' : ''}. Beside them, ${aside}`
+            : `every required property is established. Beside them, ${aside}`,
     )
 }
 
@@ -1061,6 +1275,13 @@ function gaOnePrimaryEvent(ctx: GateContext): CheckOutcome {
     else if (kind.state === 'DERIVED') {
         const kinds = ctx.index.vocabularies.get('V1.kind') || []
         oneClause = kinds.length && !kinds.includes(String(kind.value)) ? fail(ONE, eventCount) : pass(ONE, eventCount)
+    } else if (kind.state === 'OPEN') {
+        // The count is established — it is the *kind* that is an open choice among the members the
+        // selection narrowed to. Both halves of this clause are reported in `why`, so nothing hides
+        // behind the deferral: the "exactly one" half holds, and "of a registered kind" waits on the
+        // choice. Realization can only choose inside the permitted set, so the answer is bounded
+        // before it is made — which is why deferring it is safe rather than hopeful.
+        oneClause = deferred(ONE, 'the chosen primary-event kind, from the set the selection narrowed')
     } else oneClause = notEvaluable(ONE)
 
     const valueClause = value.state === 'DERIVED' ? (toRational(value.value) ? pass(VALUE, 1) : fail(VALUE, 1)) : notEvaluable(VALUE)
@@ -1098,7 +1319,17 @@ function gaOnePrimaryEvent(ctx: GateContext): CheckOutcome {
             else positionBlocked = true
         }
     }
-    const positionClause = unpositioned.length ? fail(POSITION, positioned.length + unpositioned.length) : positionBlocked ? notEvaluable(POSITION) : pass(POSITION, positioned.length)
+    // Post-realization **where position is the unresolved dependency** — his wording, and the condition
+    // matters. A referent that names no held element still FAILS here, and one blocked for any reason
+    // other than an open position still blocks; only a position realization is authorized to supply
+    // moves the clause downstream.
+    const positionClause = unpositioned.length
+        ? fail(POSITION, positioned.length + unpositioned.length)
+        : positionBlocked
+          ? probe.pendingOn.length
+              ? deferred(POSITION, 'the chosen position of every referent of the primary event')
+              : notEvaluable(POSITION)
+          : pass(POSITION, positioned.length)
 
     return result(
         'GA-ONE-PRIMARY-EVENT',
@@ -1473,8 +1704,42 @@ export function runGates(ctx: GateContext): GateOutcome {
     // SD-54 — a summary may not present a vacuous pass and an evaluated one as equivalent evidence, so
     // the report carries the split rather than leaving a reader to compute "N checks passed".
     const passedClauses = checks.flatMap(c => c.clauses).filter(c => c.verdict === 'PASS')
+    const allClauses = checks.flatMap(c => c.clauses.map(l => ({ ...l, checkId: c.checkId })))
+
+    /**
+     * **The split, adopted 30 September.** Gate A now reports two verdicts over the same checks.
+     *
+     * `knowledgeVerdict` ranges over every clause that can be answered from knowledge alone, and it is
+     * the one that gates realization: a resolved game may be realized when nothing knowledge could
+     * settle is left unsettled. `verdict` ranges over all of them and is therefore never PASS while
+     * anything is still owed, so the deferred clauses cannot be lost by the split.
+     *
+     * Nothing is relaxed. The same clauses must still pass; they are asked at the point where they
+     * have something to read.
+     */
+    const knowledgeClauses = allClauses.filter(l => l.verdict !== 'DEFERRED_TO_REALIZATION')
+    const deferredClauses = allClauses
+        .filter(l => l.verdict === 'DEFERRED_TO_REALIZATION')
+        .map(l => ({ checkId: l.checkId, clause: l.clause, owes: l.owes ?? '' }))
+        .sort((a, b) => `${a.checkId}|${a.clause}`.localeCompare(`${b.checkId}|${b.clause}`))
+
+    const knowledgeVerdict: GateVerdict = knowledgeClauses.some(l => l.verdict === 'FAIL')
+        ? 'FAIL'
+        : knowledgeClauses.some(l => l.verdict === 'NOT_EVALUABLE')
+          ? 'NOT_EVALUABLE'
+          : 'PASS'
+
     const gateA: GateReport = {
-        verdict: checks.some(c => c.verdict === 'FAIL') ? 'FAIL' : checks.some(c => c.verdict === 'NOT_EVALUABLE') ? 'NOT_EVALUABLE' : 'PASS',
+        verdict:
+            checks.some(c => c.verdict === 'FAIL')
+                ? 'FAIL'
+                : checks.some(c => c.verdict === 'NOT_EVALUABLE')
+                  ? 'NOT_EVALUABLE'
+                  : deferredClauses.length
+                    ? 'DEFERRED_TO_REALIZATION'
+                    : 'PASS',
+        knowledgeVerdict,
+        deferred: deferredClauses,
         checks,
         notEstablished,
         blocks,

@@ -69,18 +69,41 @@ function testEntailedLineResolves(): void {
     assert.equal(lineFor(result, '::S3').verdict, 'RESOLVED:ENTAILED')
 }
 
+// These use `S4`, not `S5`. Since the 29 September rulings `S5` is a metric placement the session
+// envelope bounds, so it is a bounded freedom rather than a gap — which makes it useless as a
+// stand-in for "a line nothing authored". `S4` has no registered choice space and remains one.
 function testUnauthoredLineIsAGapWithItsReason(): void {
     const result = runStages0to8(input([contract([item()])]))
-    const line = lineFor(result, '::S5')
+    const line = lineFor(result, '::S4')
     assert.equal(line.verdict, 'NOT_AUTHORED')
-    assert.equal(line.reason, 'coverage', 'nobody examined the row, so the reason is coverage')
+    assert.equal(line.reason, 'no coverage', 'no declaration reaches the row at all, which is not the same as one that said nothing')
 }
 
 function testDeclaredGapIsDistinguishedFromCoverage(): void {
     const c = contract([item()])
-    c.declarations.push({ row: 'S5', declaration: 'NOT_AUTHORED', note: 'needs a position it cannot author' })
+    c.declarations.push({ row: 'S4', declaration: 'NOT_AUTHORED', note: 'needs a function it cannot author' })
     const result = runStages0to8(input([c]))
-    assert.equal(lineFor(result, '::S5').reason, 'declared gap', 'an object that said it cannot author this is a declared gap')
+    assert.equal(lineFor(result, '::S4').reason, 'declared gap', 'an object that said it cannot author this is a declared gap')
+
+    // The six-way distinction, adopted 29 September: a statement always outranks a silence, and each
+    // declaration gets its own code. Before this, an explicit exclusion and a declared non-claim both
+    // reported as `coverage` — nobody looked — when an object had looked and said otherwise.
+    const cases: [string, string][] = [
+        ['EXCLUDED', 'excluded'],
+        ['NON_CLAIMED', 'not constrained'],
+        ['UNDECLARED', 'coverage'],
+    ]
+    for (const [declaration, expected] of cases) {
+        const one = contract([item()])
+        one.declarations.push({ row: 'S4', declaration, note: '' })
+        assert.equal(lineFor(runStages0to8(input([one])), '::S4').reason, expected, `${declaration} must report as ${expected}`)
+    }
+
+    // And precedence: a silence beside an exclusion does not outrank it.
+    const both = contract([item()])
+    both.declarations.push({ row: 'S4', declaration: 'UNDECLARED', note: '' })
+    both.declarations.push({ row: 'S4', declaration: 'EXCLUDED', note: '' })
+    assert.equal(lineFor(runStages0to8(input([both])), '::S4').reason, 'excluded', 'an explicit exclusion outranks a silence')
 }
 
 /** SD-28 — the ordering that matters. */
@@ -91,12 +114,12 @@ function testGapBeforeCollision(): void {
         input([
             contract([
                 item(),
-                item({ itemId: 'I-2', row: 'S5', requirement: 'EQUALS', value: 'near end', basis: 'ENGINE_ONLY' }),
-                item({ itemId: 'I-3', row: 'S5', requirement: 'EQUALS', value: 'far end', basis: 'ENGINE_ONLY' }),
+                item({ itemId: 'I-2', row: 'S4', requirement: 'EQUALS', value: 'access', basis: 'ENGINE_ONLY' }),
+                item({ itemId: 'I-3', row: 'S4', requirement: 'EQUALS', value: 'trigger', basis: 'ENGINE_ONLY' }),
             ]),
         ]),
     )
-    const line = lineFor(result, '::S5')
+    const line = lineFor(result, '::S4')
     assert.equal(line.verdict, 'NOT_AUTHORED', 'an unauthored dependency is a gap first (SD-28)')
     assert.equal(line.collidingItems.length, 0)
     assert.ok(
@@ -110,12 +133,12 @@ function testTwoEntailingItemsThatDisagreeCollide(): void {
         input([
             contract([
                 item(),
-                item({ itemId: 'I-2', row: 'S3', requirement: 'EQUALS', value: 'channel' }),
-                item({ itemId: 'I-3', row: 'S3', requirement: 'EQUALS', value: 'zone' }),
+                item({ itemId: 'I-2', row: 'S5', requirement: 'EQUALS', value: 'the near end' }),
+                item({ itemId: 'I-3', row: 'S5', requirement: 'EQUALS', value: 'the far end' }),
             ]),
         ]),
     )
-    const line = lineFor(result, '::S3')
+    const line = lineFor(result, '::S5')
     assert.equal(line.verdict, 'UNRESOLVED', 'two support-capable items no single value satisfies')
     assert.equal(line.collidingItems.length, 2)
     const collision = result.failures.find((f: any) => f.kind === 'COLLISION')
@@ -128,12 +151,12 @@ function testAgreeingItemsDoNotCollide(): void {
         input([
             contract([
                 item(),
-                item({ itemId: 'I-2', row: 'S3', requirement: 'EQUALS', value: 'channel' }),
-                item({ itemId: 'I-3', row: 'S3', requirement: 'EQUALS', value: 'channel' }),
+                item({ itemId: 'I-2', row: 'S5', requirement: 'EQUALS', value: 'the near end' }),
+                item({ itemId: 'I-3', row: 'S5', requirement: 'EQUALS', value: 'the near end' }),
             ]),
         ]),
     )
-    assert.equal(lineFor(result, '::S3').verdict, 'RESOLVED:ENTAILED', 'overlapping bounds intersect and do not collide')
+    assert.equal(lineFor(result, '::S5').verdict, 'RESOLVED:ENTAILED', 'overlapping bounds intersect and do not collide')
 }
 
 function testOpenLineTakesAFreeVerdict(): void {
@@ -272,6 +295,7 @@ function emptyRecord(overrides: Partial<DerivedLine> = {}): DerivedLine {
         session: null,
         displaced: [],
         establishedMembers: [],
+        contradicted: [],
         ...overrides,
     }
 }
@@ -399,8 +423,10 @@ function regionWith(...noun: ContractItem[]): LoadedContract {
     })
 }
 
+// The subject row is deliberately NOT a selector attribute: under SD-92 a selector would carry it
+// and under SD-101 a differing value would be a contradiction, and neither is what these test.
 const noun = (itemId: string, value: string, valueStatus: string, overrides: Partial<ContractItem> = {}): ContractItem =>
-    item({ itemId, row: 'S3', requirement: 'EQUALS', value, valueStatus: valueStatus as any, strictness: 'SUPPORTING', ...overrides })
+    item({ itemId, row: 'S5', requirement: 'EQUALS', value, valueStatus: valueStatus as any, strictness: 'SUPPORTING', ...overrides })
 
 const required = (itemId: string, value: string) => noun(itemId, value, 'REQUIRED_RANGE', { strictness: 'REQUIRED' })
 const preferred = (itemId: string, value: string, overrides: Partial<ContractItem> = {}) => noun(itemId, value, 'PREFERRED_DEFAULT', overrides)
@@ -412,8 +438,8 @@ const outcomeFor = (result: any, itemId: string) => result.forward!.find((o: any
 
 function testDisplacedDifferingDefaultIsAdapted(): void {
     const result = runStages0to8(input([regionWith(required('R', 'channel'), preferred('P', 'zone'))]))
-    const line = linesFor(result, '::S3')[0]
-    const record = recordFor(result, '::S3')
+    const line = linesFor(result, '::S5')[0]
+    const record = recordFor(result, '::S5')
 
     assert.equal(line.verdict, 'RESOLVED:ENTAILED', 'the required contribution resolves the property')
     assert.equal(resolvedValue(record)!.value, 'channel', 'and supplies its own value, not the default')
@@ -437,7 +463,7 @@ function testDisplacedDifferingDefaultIsAdapted(): void {
 
 function testDisplacedMatchingDefaultAddsNoSupport(): void {
     const result = runStages0to8(input([regionWith(required('R', 'channel'), preferred('P', 'channel'))]))
-    const record = recordFor(result, '::S3')
+    const record = recordFor(result, '::S5')
 
     assert.equal(resolvedValue(record)!.value, 'channel')
     assert.deepEqual(record.entailing.map(e => e.item.itemId), ['R'], 'the matching default adds no second support')
@@ -453,9 +479,9 @@ function testDisplacedMatchingDefaultAddsNoSupport(): void {
 
 function testPreferredDefaultAloneIsUnchanged(): void {
     const result = runStages0to8(input([regionWith(preferred('P', 'zone'))]))
-    const record = recordFor(result, '::S3')
+    const record = recordFor(result, '::S5')
 
-    assert.equal(linesFor(result, '::S3')[0].verdict, 'RESOLVED:ENTAILED', 'with nothing required on the line, the default keeps its existing behaviour')
+    assert.equal(linesFor(result, '::S5')[0].verdict, 'RESOLVED:ENTAILED', 'with nothing required on the line, the default keeps its existing behaviour')
     assert.equal(resolvedValue(record)!.value, 'zone')
     assert.deepEqual(record.entailing.map(e => e.item.itemId), ['P'])
     assert.deepEqual(record.displaced, [], 'nothing displaced it, so nothing is recorded')
@@ -464,17 +490,17 @@ function testPreferredDefaultAloneIsUnchanged(): void {
 
 function testTwoRequiredContributionsStillCollide(): void {
     const plain = runStages0to8(input([regionWith(required('R1', 'channel'), required('R2', 'zone'))]))
-    const collided = linesFor(plain, '::S3')[0]
+    const collided = linesFor(plain, '::S5')[0]
     assert.equal(collided.verdict, 'UNRESOLVED', 'displacement is not a precedence hierarchy: two required contributions still collide')
     assert.deepEqual(collided.collidingItems.map((i: any) => i.itemId).sort(), ['R1', 'R2'])
 
     // And with a preferred default alongside them: it is displaced, and it is **not** one of the
     // colliding items. "The PREFERRED_DEFAULT does not participate in collision resolution."
     const withDefault = runStages0to8(input([regionWith(required('R1', 'channel'), required('R2', 'zone'), preferred('P', 'band'))]))
-    const line = linesFor(withDefault, '::S3')[0]
+    const line = linesFor(withDefault, '::S5')[0]
     assert.equal(line.verdict, 'UNRESOLVED')
     assert.deepEqual(line.collidingItems.map((i: any) => i.itemId).sort(), ['R1', 'R2'], 'the default is absent from the collision')
-    assert.deepEqual(recordFor(withDefault, '::S3').displaced.map(d => d.item.itemId), ['P'])
+    assert.deepEqual(recordFor(withDefault, '::S5').displaced.map(d => d.item.itemId), ['P'])
 }
 
 function testAdaptationCannotCreateSupport(): void {
@@ -489,7 +515,7 @@ function testAdaptationCannotCreateSupport(): void {
             ),
         ]),
     )
-    const record = recordFor(result, '::S3')
+    const record = recordFor(result, '::S5')
 
     assert.deepEqual(record.entailing.map(e => e.item.itemId), ['R'], 'nothing unsupported became support')
     assert.deepEqual(record.displaced, [], 'and nothing unsupported was displaced: it never contributed a value to displace')

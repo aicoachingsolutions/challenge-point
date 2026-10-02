@@ -43,9 +43,19 @@ export interface ResolutionEntry {
     state?: LineState2
     verdict?: string
     reason?: string
+    /**
+     * The declarations reaching the row, where the line is NOT_AUTHORED. AM-23's three reason codes
+     * cannot express the five-declaration vocabulary, so the code alone is not a faithful account of
+     * what the knowledge said about this row.
+     */
+    declared?: string[]
     value?: unknown
     bounds?: Bounds[]
+    /** An authored EXTENT on a line whose POSITION is derived. Not `bounds`: that is a choice space. */
+    extentBounds?: Bounds[]
     permittedBy?: { authority: string; choiceSpace: unknown }
+    /** SD-78's jointly permitted set, where the freedom is a choice among stated alternatives. */
+    permitted?: unknown[]
     resolvedBy?: 'ENTAILMENT' | 'STANDING_DECISION' | 'SESSION'
     support: SupportRef[]
     conditionalOn?: string
@@ -203,7 +213,17 @@ export function emit(input: EmitInput): DerivationResult | StampedHalt {
             entry.state = state
             entry.verdict = classified.verdict
         }
+        // **A bound on a line that ALSO carries a derived value is emitted.** Previously `bounds` was
+        // set only on the open branch, so an authored extent sitting beside an authored position never
+        // left the engine: Wide Zone authors the channel width on the same row as "touchline-adjacent",
+        // and the width was simply absent from the result. Position and extent are two authored facts on
+        // one row, and dropping either is the loss this project keeps finding.
+        // Under its own name, not `bounds` — §'s invariant is that `bounds` appear only on an open line,
+        // and that is worth keeping: a bound there is the choice space, whereas this is an extent beside
+        // a settled position. Same row, two authored facts, and neither is the other.
+        if (entry.state === 'derived' && record?.bounding?.length) entry.extentBounds = record.bounding.map(b => b.bound)
         if (classified?.verdict === 'NOT_AUTHORED' && classified.reason) entry.reason = classified.reason
+        if (classified?.verdict === 'NOT_AUTHORED' && classified.declared?.length) entry.declared = [...classified.declared]
 
         if (entry.state === 'derived') {
             entry.value = valueOf(record)
@@ -212,6 +232,11 @@ export function emit(input: EmitInput): DerivationResult | StampedHalt {
         if (entry.state === 'open') {
             entry.bounds = (record?.bounding || []).map(b => b.bound)
             if (record?.open) entry.permittedBy = { authority: record.open.authority, choiceSpace: record.open.choiceSpace }
+            // A `FREE(choice)` line is free *within the set the contributions jointly permit* (SD-78),
+            // and that set lives in the composition rather than in any bound. Without it the line says
+            // "choose" and does not say from what, so a realization layer could only invent the choice
+            // space — which is the one thing it must never do. Carried, not recomputed.
+            if (record?.narrowedTo) entry.permitted = [...record.narrowedTo.members]
         }
         if (entry.lineState === 'CONDITIONAL' && (classified?.conditionalOn || line.conditionalOn)) {
             entry.conditionalOn = classified?.conditionalOn ?? line.conditionalOn

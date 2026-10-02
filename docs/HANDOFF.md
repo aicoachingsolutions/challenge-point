@@ -3420,3 +3420,737 @@ Joe directed it: piece (1) of the generation-connection scope.
   regions, performers, value, transitions — and the two things a generator would most need are the
   two that are not there: **direction** (a view, and unestablished) and **who attacks what**. That is
   the same load-bearing gap, seen from the consumer's side rather than the gate's.
+
+**28 Sep — SD-101 + SD-102; DIRECTION PASSES; CONTRACT COVERAGE MEASURED**
+(`docs/design/phase-b-boundary-passed.md`). Spec revision 25; **194 tests**; suite green.
+- **SD-101** a defining selector is **constitutive**: a contribution reaching the class may not entail
+  a contradictory value for that field. Class-defining value stands · contribution **preserved**, not
+  resolved against · **reach untouched for every other row**. Narrow exception to SD-92.
+  `derive.ts applyConstitutiveSelector`; `DerivedLine.contradicted`; diagnostic
+  `CONSTITUTIVE_SELECTOR_CONTRADICTED`; forward → UNMET/NOT_REALIZED with the reason.
+- **SD-102** the canonical decision (`GF2-12.c`, `OWNER_RULING`, `EACH_TEAM`) added via the
+  restatements `added` list. **`GF2-12.a` untouched** — still ASSUMED, evidence still saying the
+  original was *"unreconciled"*. Ambiguity and decision are two records.
+- **They meet on `RPC-001-11.a::J3` exactly as predicted**: `BUILD_OUT_TEAM` holds, `EACH_TEAM` is
+  preserved, the contradiction is named, and `GF2-12.c` still settles GF2's own objective. Tested.
+- **SD-101 fires 3× on the corpus**; two are one value written twice by the restater. One loses
+  detail (`current connected-pass count of ATTACKING_TEAM` → `connected-pass count`). Reported.
+- **`GA-DIRECTION` PASSES.** Derived 52, failed 57, open 4. Gate A fails on `GA-INFORMATION` +
+  `GA-NO-FAILED-LINE` only. **No new load-bearing dependency.**
+- **VARIABLE TARGET TRIGGER — returned, nothing added.** The failure is **not an unregistered
+  trigger**: `VARTARGET-05.b` carries an alternatives set **as prose**, read whole as one name. Of
+  its five members, three are `REGION_ENTRY` (registered); two are off-list: **`COACH_CUE`** and
+  **`FIRST_FORWARD_PASS`**. Source: *"revealed only after play crosses a trigger line, or switches on
+  a coach cue during play"* + RB-01/02/04. No registered trigger expresses a player action or an
+  external signal. **Recommended first move: restate 05.b into an array under SD-79** — that narrows
+  the question to two, and `COACH_CUE` may belong outside the boundary (VARTARGET-15.a requires the
+  trigger be *"detectable by players and causally connected"*; 14.a already marks EXTERNAL_SIGNAL
+  off-list).
+- **THE 69-CONTRACT FIGURE WAS WRONG.** The 13 guided goals reach **21 objects**, 5 already
+  contracted. **16 additional contracts cover all 13 goals.** 69 is the library, not the pathway.
+  - **5 contracts → 5 goals** (A01, A04, A05, TA01, TA02), all on **GF2, already contracted**:
+    central density · turnover reward · switch-of-play bonus · progression bonus · interception
+    reward. **The bounded pilot is attacking-only** — every D/TD goal is excluded.
+  - Tiers: 3→2 · 4→4 · **5→5** · 8→7 · 10→9 · 11→10 · 14→12 · 16→13.
+  - **Contracts can be produced incrementally**; nothing in the engine depends on which exist.
+  - **The real risk is the opposite of the one asked about**: the 8 contracts were restated
+    *together*, non-claims written against each other. A live selection picks objects never restated
+    as a set — expect **more** unauthored lines on a real run, not fewer. Run one before promising a
+    date.
+  - **UNMEASURED:** the guided flow also selects a **practice situation**; `A01-02` is the only one
+    contracted, and I could not establish which situations a guided goal reaches. **Five is a floor.**
+
+**28 Sep (second) — FIRST REAL SELECTION ACROSS THE BOUNDARY**
+(`docs/design/bounded-pilot-first-selection.md`). 194 tests green. `npm run bounded:selection -- A05`.
+- **All five proposed pilot goals produce a shaped resolved game, and `GA-DIRECTION` PASSES on every
+  one.** Gate A fails only on `GA-NO-FAILED-LINE`; every other non-pass is NOT_EVALUABLE. **No check
+  reports any of them incoherent.**
+- **VARTARGET-05.b restated under SD-79** (5 members as an array, `offListMembers` preserving the
+  dagger, `asAuthored` beside it). **It made GA-INFORMATION stop failing — the wrong outcome.**
+  Restating turned one derived string into a permitted set and the check read only derived values, so
+  the three unregistered members went invisible. **Corrected the check, not the corpus:** a rule names
+  a registered trigger when *every* trigger it could name is registered (`registeredTrigger` reads
+  `REGION_ENTRY {arg}` as the register's own notation and nothing further).
+  - **Result: 3 of 5 were never the problem.** Remaining: `COACH_CUE` (vocabulary, with the
+    detectability argument against it), `FIRST_FORWARD_PASS` (genuine vocabulary need), and
+    **`REGION_ENTRY {attacking half} + first receiver` — NOT a vocabulary question**: an information
+    trigger has no qualifier row, while transitions do. Three separate rulings returned.
+  - **GA-INFORMATION cannot pass regardless** — its subject clause is blocked on open-text subjects
+    naming quantities/states, which SD-98 does not reach.
+- **PRACTICE SITUATIONS: `TestLibrarySelectionInput` HAS NO PRACTICE SITUATION FIELD.** It enters only
+  at assembly, as a prompt directive. **So none reaches derivation.** Measured the cost by hand:
+  adding `A01-02` to A01's selection takes lines 49→62, derived 19→25, adds the **objects** area and
+  **the goal-kick transition** with `STOP_RESUME` / `awardedTo DEFENDING_TEAM` / its qualifiers.
+  **"Play Out from the Back — From Goal Kicks" currently derives a game with no goal kick in it.**
+  **RETURNED as load-bearing.**
+- **Second returned problem:** selection commits to 8 objects for A05 — 1 game form, 4 constraints and
+  **3 affordance lenses**. Lenses have ids, are scored, shape what is rewarded, and are contracted by
+  nothing, so **3/8 of what selection commits to is invisible to derivation.**
+- **PS MAP:** A01 4 situations (A01-02 contracted) · A05 0 · A04 0 · TA01 1 · TA02 1. **A01 cannot be
+  constrained to goal kicks without narrowing the goal** — its four situations are four football
+  problems.
+- **TRUE MINIMUM:** 5 contracts if practice situations stay out of derivation · **10** if they enter
+  and A01 stays honest · 6 if they enter and A01 leaves. **Five was a floor; which replaces it is his
+  ruling.**
+- **CORPUS NOT LOCKED** — stopped per his instruction, because the PS question changes what the corpus
+  is.
+- **Realization design brief written** (§5): it may do exactly three things — choose an `open` value
+  within bounds, instantiate an `existential` claim, or refuse. Five prohibitions, each with its rule.
+  **The first test to build is "nothing closed without authority"**, because that is the one that
+  fails silently.
+- **New:** `run-bounded-selection.ts` (`npm run bounded:selection -- <goalId>`) — the minimal
+  selection→derivation bridge. It hands the engine contracts for exactly the selected objects and
+  reports the rest as missing; it substitutes nothing.
+
+## 28 September — the realization layer exists, and it found two losses
+
+- **`back/src/system/realization/realize.ts`** — resolved game → concrete game + realization record.
+  Three permitted acts (choose an `open` value in bounds · instantiate an `existential` claim ·
+  refuse), six refusals, three acceptance checks that read the **finished game** rather than trust
+  the writer. `npm run realize`. 22 tests; **216 in the suite, green, tsc clean.**
+- **No resolved game is eligible.** Exhaustive: every single contract and every pair fails
+  `GA-NO-FAILED-LINE`. Corpus 57 unestablished = **54 NOT_AUTHORED / 3 internal**; by declaration,
+  **43 sit on a row an object says it needs and cannot author.** The distance to a first realizable
+  game is authoring, not engine.
+- **Loss 1 (fixed):** elements were only created while placing a *derived* value, so an element whose
+  every line was open or failed appeared in `open`/`notEstablished` and **nowhere in `game`** —
+  dropping `GF4:I02` and **the Variable Target's own region**. Now seeded from every enumerated line;
+  `counts.elements` and `counts.elementsWithNothingEstablished` make a recurrence visible.
+- **Loss 2 (exposed, not reinterpreted):** AM-23 has three reason codes, the vocabulary has five.
+  `NON_CLAIMED` falls through to `coverage`; `EXCLUDED` loses to `UNDECLARED`. **11 of 57** lines
+  report "nobody looked" when an object looked. Codes and precedence unchanged — both are his — but
+  `NotEstablished.declared` now carries the reaching declarations so the code is not the only record.
+- **Contract recalculation confirmed independently** (`npm run corpus:coverage`): bounded family
+  **5 without the situation choice, 10 with it**, and the extra five are exactly the uncontracted
+  Practice Situations (A01-01, A01-03, A01-04, TA01-01, TA02-01). A04/A05 offer none. All guided
+  goals: 41 objects, 6 contracted, 35 to author.
+- **Returned for ruling** (`docs/audits/realization-first-pass-2026-09-28.md`): `FIRST_FORWARD_PASS`
+  as one vocabulary member with a stated boundary · the compound member, where **a qualifier slot
+  alone will not fix it** because *"first receiver"* names a performer role with no vocabulary ·
+  `VARTARGET-08.a` individuates a class on `J11a` that can hold nothing (its only field `J11b` is
+  owned by `J5`) · `performers.neutrals.count` carries two bounds that both state numbers and are
+  both typed `QUALITATIVE`, so neither can be checked.
+- **Affordance lenses:** keep outside the Game Representation. Zeroing all three lens weights never
+  changes the game form (0/13) and changes constraints in 7/13; **19 of 39 selected lenses are
+  realized by no selected constraint.** Proposed invariant rather than a contract.
+- **Generation remains frozen.**
+
+## 29 September — the 40 collapse to five patterns
+
+- **It is 40, not 43.** The earlier count bucketed by row and swept the three internal failures into
+  the knowledge pile. Corrected to Christian.
+- **The "three internal defects" are not defects.** All three are one pair of Wide Zone items —
+  `"touchline-adjacent"` vs `"touchline-adjacent (outer edge on a touchline)"` — colliding by string
+  inequality on three channel elements. SD-02 is working correctly; SD-15 forbids the prose
+  interpretation that would reconcile them. The fix is a restatement edit, and it is his.
+- **Pattern 1 (9 lines):** T1a/T1b/T1c demanded of POSSESSION_CHANGE transitions. **T2–T5 are
+  WITHDRAWN on exactly those elements** — the applicability mechanism already exists and works;
+  these rows are not covered by it. One missing rule, not nine gaps.
+- **Pattern 2 (13 lines):** S5/S6/O4/O5 placement, on rows the register itself marks **`fillable`**.
+  No object authors metric positions and every one says so. `GA-LAYOUT-FEASIBLE` is already
+  NOT_EVALUABLE. One rule: is a fillable row with no authored bound a freedom or a gap?
+- **Genuinely unauthored: 12** (9 Information Expression dimensions naming unreconciled IE sources;
+  3 restart-procedure lines on the goal kick) plus the neutral-scoring question behind `V5`, which
+  **cannot be recorded even if answered** — `V5` cannot reference a performer group.
+- **Lens re-test against his broader test: 33 realized / 0 unrealized / 6 undetermined.** My earlier
+  19-of-39 was constraint-only and overstated it 3×. **17 are realized only by the game form.** The
+  6 undetermined are vocabulary drift (`fast_attack` vs `attack_quickly`) — deliberately NOT called
+  unrealized, because that is a semantic claim. **5 of 9 affordances cannot be named by one of the
+  two libraries**, so the invariant needs one closed vocabulary first.
+- **`FIRST_FORWARD_PASS` registered** (trigger v1 → v2) with its boundary in the register.
+  Unregistered triggers **3 → 2**; a test asserts exactly two remain.
+- **Neutral count: do NOT intersect to [1,2].** `>= 1` is REQUIRED with explicitly no maximum;
+  `1-2` is SUPPORTING/PREFERRED_DEFAULT. Intersecting turns a preference into a hard ceiling —
+  the sessionEmphasis failure shape. SD-90 already expresses the real relationship.
+- **`VARTARGET-08.a`:** `J11b` is the only FIELD row in the register that owns its *grandparent*
+  (`J5`) rather than its immediate collection (`J11a`). Trace returned; no recommendation made.
+- New tools: `npm run corpus:unestablished`, `npm run lens:trace`. Suite green, tsc clean.
+- **Five Practice Situation contracts NOT started** — Patterns 1 and 2 are both about applicability
+  and typing, so authoring now would inherit both open questions.
+- **Generation remains frozen. No status or gate semantics changed.**
+
+## 29 September (later) — two rulings applied, Pattern 2 returned
+
+- **Pattern 1 IMPLEMENTED.** Applicability grammar gains `selectorAttribute` beside `row`: a trigger
+  is fixed at stage 2, so the line is **withdrawn at enumeration** rather than left CONDITIONAL on a
+  governing line that can never move. Safeguard: where the selector does not fix the attribute the
+  condition is UNDECIDABLE and the line is **kept** — the rule can only remove a line it can
+  positively show does not belong.
+  - **The second half mattered:** withdrawing was not enough. The lines still carried a
+    `NOT_AUTHORED` verdict and still emitted GAP records, so they were reported inapplicable *and*
+    counted as missing knowledge. `classify` now skips WITHDRAWN lines entirely. **Caught because two
+    views disagreed** — notEstablished fell 57→48 while `verdict:NOT_AUTHORED` stayed at 54.
+  - Sweep result: one other combination, **T1c on the OUT_END_LINE goal kick**, left failing on
+    purpose. T1c's rule was written *wider* than necessary so it could not make a line vanish.
+- **Wide Zone CORRECTED** in the restatement (ruling C29a), not the engine. 04.a and 05.a share one
+  `basisEvidence` and 04.a's fitNote already said "(same as 05.a)". Parenthetical is now a `gloss`.
+  **Collisions 3 → 0, and the three channel placements now derive** (51 → 54 resolved).
+- **Corpus: unestablished 57 → 45, derived 51 → 54, collisions 3 → 0.** Gate A still FAIL on
+  GA-INFORMATION + GA-NO-FAILED-LINE. **GA-NO-FAILED-LINE untouched.**
+- **Pattern 2 TESTED, NOT IMPLEMENTED** (`npm run corpus:placement`). Not all 13 survive:
+  - `space.regions[GF2-03.a].position.across` is **referenced by two objectives** — choosing it
+    decides what the teams score at. Returned.
+  - 3 object lines carry a **joint** constraint across candidates ("each candidate's position differs
+    from every other"), flattened onto individual lines. A per-line authority cannot honour it.
+  - **The mechanism already exists** — rows are `fillable`, `mayBeOpen` would free them. Two of his
+    own rules block it: **SD-50** (choice space says "inside authored bounds", none authored) and
+    **AM-04** (one `UNDECLARED` on the row bars openness for every element — Variable Target on
+    S5/S6, A01-02 on O4/O5). One object's silence overrides another's authored bound. Returned.
+- **The 12 genuine gaps are 3 knowledge decisions:** how the pass count is revealed (5 lines, one
+  information rule); which IE composition governs the variable target (4 lines, IE-C006/IE-D006
+  unreconciled); the goal-kick restart procedure (3 lines) — whose "from where" is a placement
+  problem that lands back in Pattern 2.
+- **Affordance vocabulary: there are FOUR, not three** — the game form library also has A1–A10 in
+  `typical_affordances`. 12 semantic terms, only 4 shared by all three. Four decisions returned:
+  `fast_attack`↔`attack_quickly`, `regain`↔`regain_possession`, the A-codes, and **a flaw I owned**:
+  my trace keyed on lens `category`, and both Space Creation and Space Exploitation carry
+  "Create Space", so some of the 33 "realized" may have matched on the wrong key.
+- **Neutral scoring:** recorded as a representational limitation; not load-bearing today.
+- **Generation remains frozen.**
+
+## 29 September (final) — all thirteen rulings applied; the search can stop
+
+- **Corpus: unestablished 57 → 36, open 5 → 14, derived 51 → 54, collisions 3 → 0.** 220 tests green.
+- **Pattern 2 in.** Envelope bound marked as DATA (`outerBound: SESSION_ENVELOPE` on S5/S6/O4/O5).
+  AM-04 narrowed: silence supplies no authority but no longer negates authority supplied elsewhere.
+  **Exactly the nine** placement-only lines opened; the other four kept out **by rule** — a
+  referenced element is excluded, and a `relational` contribution bars per-line openness.
+- **`VARTARGET-03.a` marked relational** (C29b) rather than flattened. `DISTINCT_ON` returned as the
+  smallest proposal; `relationshipRules` is precedence-only and `COMPARES` takes two fixed operands,
+  so neither can express pairwise distinctness over a non-individuated set.
+- **PILOT BOUNDARY RERUN — A01 + A01-02, 20 blockers: 9 `declared gap` = EXACTLY the three knowledge
+  decisions; 4 `excluded`; 7 `not constrained`.** Nothing else is hiding. The six-way codes made
+  this visible in one run — before them all 11 read as "coverage".
+- **Vocabulary trap:** `archetypes.ts` / `affordanceLenses.ts` are PROJECTIONS of
+  `soccer-module.rc1-v3.json`. Renaming only the projections passed my eye and failed the module
+  round-trip test. Fixing the source moved the figures again (34/5 → **33/6/0**) because selection
+  is affordance-weighted. **Yesterday's 33-of-39 counted 6 UNDETERMINED — a different statement.**
+- **Realization fault found by ruling 12:** it enforced *every* count bound, which would have
+  intersected "floor 1, no max" with "preferred 1–2" into a ceiling of 2 — the conversion he forbade,
+  by another route. Preferred bounds are now offered, never enforced.
+- **Six tests changed**, four because they used `S5` as "a line nothing authored" and it is now an
+  envelope-bounded freedom. Each moved to a row that is still a gap; the AM-04 test asserts **both**
+  halves of the narrowed rule.
+- **PROCESS:** `npm test | tail` reports **tail's** exit code. Only `npm test > file 2>&1; echo $?`
+  is trustworthy. It read green twice while the suite was red.
+- Returned, not acted on: `T1c` on `OUT_END_LINE` (evidence now points at inapplicable, but
+  narrowing it would make a failing line vanish by my own hand); A1–A10, which are **undefined
+  anywhere in the repo**.
+- **Generation remains frozen. GA-NO-FAILED-LINE untouched.**
+
+## 30 September — every pilot goal passes the failed-line gate; one sequencing question remains
+
+- **Corpus: NOT_AUTHORED 54 → 26, open 5 → 18, derived 51 → 59, collisions 0. 225 tests green.**
+- **`GA-NO-FAILED-LINE` PASSES on A01, A04, A05, TA01, TA02.** A01 + A01-02 is down to **T3/T4/T5**,
+  the goal-kick values Christian is authoring.
+- **THE REMAINING BLOCKER IS NOT A KNOWLEDGE GAP.** Gate A returns `NOT_EVALUABLE`, and all four
+  unevaluable checks need values **realization** supplies: `GA-ENVELOPE-FIT`, `GA-LAYOUT-FEASIBLE`,
+  `GA-ONE-PRIMARY-EVENT` (positioned referents) want concrete geometry; `GA-ROSTER-SUM` wants
+  instantiated teams. Gate A asks layout questions of a game with no layout, and its verdict gates
+  the step that would give it one. **Proposed (NOT implemented): split Gate A into knowledge-time and
+  concrete-game-time checks.** That changes what `mayRealize` means, so it is his.
+- **Ruling 6 implemented.** Requiredness read from what an object *declared* about the row, never from
+  absence of a value. Same distinction applied inside `Probe.cell` — several checks were
+  `NOT_EVALUABLE` because they were blocked on established absences; `GA-REGION-FUNCTION` and
+  `GA-ROSTER-SUM`(region part) clear. His neutral-player test is in as a test, including the half
+  that matters: none of P5/P6a/P6b/P7 is `open`, so realization can never invent a neutral.
+- **`DISTINCT_ON` adopted.** A relational contribution bounds nothing and no longer bars openness;
+  each placement is chosen against its own bound and the **set** is checked after. Three tests,
+  including his: both candidates at (10,15), every individual bound satisfied, realization refused.
+- **Target region = legitimate bounded realization.** The objectives reference it by **typed**
+  structural reference, which resolves by identity — geometry cannot change what they point at. The
+  reference guard was firing on typed refs, i.e. backwards; narrowed to position-resolved references,
+  of which this corpus has none.
+- **GRADUAL/REVERSIBLE was not a representation issue.** They are one value each on two dimensions
+  (D008 progression, D011 state dependency), and putting the reset on D008 as `REVERSIBLE` would
+  **violate D008's own integrity condition** ("refine rather than arbitrarily overturn").
+- **Returned:** `V17` has no vocabulary member for "a completed pass", so PCG-12's assumed `STANDING`
+  is now contradicted with nothing to replace it — two options given, neither taken, not blocking.
+  Variable Target needs **four** dimensions (V18/V19/V20/V22); **V21 was already authored** by
+  `VARTARGET-13.d`, not by IE-C006. Goal-kick minimum choices for who/where/how, with no scaled goal
+  area invented.
+- **Generation remains frozen.**
+
+## 30 September (later) — Gate A split, and the real blocker is representation
+
+- **Split done.** `gateA.knowledgeVerdict` gates realization; `gateA.verdict` covers all clauses and is
+  **never PASS while anything is owed**. New clause verdict `DEFERRED_TO_REALIZATION` carries an
+  `owes`; `resolved.coherence.deferred` carries the list. A test asserts no deferred clause reads as a
+  pass at either level.
+- **CORRECTION — the split does NOT unblock a game.** I first deferred four clauses, A04 went eligible,
+  and the acceptance test passed. Two of the four do not survive: **`GA-ENVELOPE-FIT`,
+  `GA-LAYOUT-FEASIBLE` and the primary-event position clause cannot compare placements because the
+  corpus authors them as PROSE** ("touchline-adjacent", "the full axis extent, end line to end line").
+  A realized value drawn from such a bound is the same prose. Deferring them promised a later check
+  that **cannot run** — the suppression failure from the other side. Reverted to `NOT_EVALUABLE`.
+- **Only 2 clauses are genuinely realization-settled:** the primary-event kind (chosen from the
+  narrowed set) and `GA-ROSTER-SUM` (terms don't exist until teams are instantiated).
+- **A04 is NOT eligible**, and a test says so by name so it cannot drift into looking like progress.
+  A second test is an explicit **DRY RUN** that steps over the gate to answer a different question —
+  the pathway does produce a faithful concrete game from real knowledge, all three conditions holding.
+- **Three defects the real run found that fixtures never would:** `nothingInvented` descended INTO
+  derived values (the three fields of a typed structural ref each reported as an invention);
+  instantiated members landed at the literal key `"objectives[]"` **beside** the derived `objectives`
+  — two collections where the game has one; and **a claim's cardinality was unchecked** — "two teams
+  exist" was satisfied by one.
+- **THE REAL BLOCKER: geometry is authored qualitatively and every spatial check wants it numerically.**
+  Not knowledge, not sequencing. Two options returned, neither chosen: author metric bounds (which he
+  has repeatedly declined to invent), or represent qualitative placement as a **typed relation to a
+  boundary** so the checks reason over relations rather than metres. The second looks smaller and more
+  faithful to how the knowledge is written.
+- 228 tests, suite green. **Generation remains frozen.**
+
+## 30 September (final) — first game through; acceptance PASSED, post-realization Gate A NOT passed
+
+- **`npm run first:game`** prints the whole trace: selection → resolved game → realization request →
+  decisions → concrete game → post-realization Gate A. Captured at
+  `docs/audits/first-game-trace-2026-09-30.md`.
+- **Three states kept apart** (his ruling 2): `preRealization` = `PRE_REALIZATION_SATISFIED` (never
+  `PASS`), `realizationAuthorized` (all three of his conditions, checked), `postRealizationRequired`.
+  **A04 authorized; A05 not**, and it names the unsatisfied invariant. Both are tests.
+- **`runPostRealizationGates` re-runs the SAME fifteen functions** over a context with realization
+  decisions folded in. No second implementation — the `game::V1` two-ways history is why.
+- **RESULT: acceptance PASSED (nothing lost / invented / closed without authority); post-realization
+  Gate A NOT PASSED; render-eligible NO.**
+- **Three blockers, and the third is structural:**
+  1. `GA-LAYOUT-FEASIBLE` **passes vacuously** — its clause is phrased over *open* lines and
+     realization closes them, so it examines nothing. Labelled `PASS_VACUOUS` per SD-54. Needs
+     rephrasing to "the chosen placements are jointly satisfiable".
+  2. `GA-ENVELOPE-FIT` **still not evaluable** — geometry is prose, so the chosen value is the same
+     phrase. Labelled `STILL_NOT_EVALUABLE` at the final stage; there is no further stage to defer to.
+  3. **AN INSTANTIATED MEMBER ARRIVES WITH NO PROPERTIES.** `GA-ROSTER-SUM` cannot run with both teams
+     instantiated, because SD-97 enumerates no lines for a non-individuated class — so no
+     `outfieldCount` line exists and realization **was never asked** for team sizes. Existential
+     realization supplies members with no mechanism to supply their properties.
+- **ITEM 6 REVERSED: the goal-kick values are ALREADY AUTHORED.** `A01-02-04.b` T5 = `STATIONARY_BALL`
+  (his value exactly), `A01-02-07.a` T4 = `own end (of the team in this element's T2)`, `A01-02-11.a`
+  T3 = *"any role, **not necessarily a goalkeeper**"* — which **contradicts his direction**. All three
+  are **`basis = ASSUMED`**, and by §3 an assumed item bounds but never entails: that is why they read
+  as unauthored gaps. I added two items on his direction and **removed them** — one duplicated, one
+  would have overwritten a source that disagrees with him.
+- **Goalkeeper evidence confirmed:** `RPC-001` is the only object claiming `P3`, and the goal-kick game
+  does not select it.
+- **V17 vs V18 returned:** V17 names the event *instance*, V18 its *type*. They overlap only where the
+  event has no represented identity — the Pass Combination case. Proposed (not implemented) that V17 be
+  legitimately absent there.
+- **Item 8 breakdown deliberately NOT sent** — the roster-properties ruling materially changes list (1).
+- 229 tests, suite green. **Generation remains frozen.**
+
+## 30 September (rerun) — four blockers collapse to two unauthored facts
+
+- **236 tests green.** `realization acceptance PASSED · post-realization Gate A NOT PASSED ·
+  render-eligible NO`. Trace: `docs/audits/first-game-trace-2026-09-30b.md`.
+- **Existential satisfaction (his ruling 2) DOES change A04.** `GF2-09.a` was already satisfied by the
+  established `GF2-08.a`, so the instantiation was adding a second objective carrying nothing. A claim
+  now reports `satisfiedBy` / `shortfall`; realization refuses to instantiate for a satisfied claim and
+  only the shortfall is owed. **Generalizes because SD-97 makes an existential claim exactly one with no
+  individuating selector — satisfaction is membership, not resemblance.**
+- **Property schema on instantiation (ruling 1):** an instantiated member gets a line for every FIELD row
+  its collection owns — a *location*, never a value. `GA-ROSTER-SUM` moved from *"no line exists"* to
+  *"4 subject lines failed"*: **unaskable → unanswered.** Applied to every existentially instantiated
+  class, not as a roster exception.
+- **Realized geometry (ruling 3):** register block `spatialRelations`, as data. **interval** where the
+  phrase states both ends (`"end line to end line"` → `[0,40]`); **anchor** where it states one
+  coordinate and no extent (`"touchline-adjacent"` — Wide Zone says *"no scaling rule for width"*), and
+  the extent stays unresolved with no number invented. The phrase stays the value; metres sit beside it
+  as `realizedGeometry`. The gate substitutes **full intervals only, never anchors**.
+- **`GA-LAYOUT-FEASIBLE` rewritten — the vacuous pass is gone.** It ranged over *open* lines, so
+  realization emptied its own subject. Now ranges over every geometric extent, open or realized, and
+  correctly reports the anchor it cannot compare. Clause wording changed with it.
+- **THE REMAINING BLOCKERS ARE TWO AUTHORED FACTS, not four architecture problems:**
+  1. **extent** — channel width and target depth. 4 of 8 placements are anchors, so no spatial check
+     can close.
+  2. **per-team outfield count** — nothing authors one; `GF2-14.b`'s "equal outfield counts" is
+     `ASSUMED`, so it bounds without entailing.
+- **Three-part report sent.** List (1) is those two facts; list (2) ~12 items (10 contracts, goal-kick
+  unit, 4 VT dimensions, V17, A05's two pre-realization blockers); list (3) the long tail. **The
+  architecture questions are off all three lists.**
+- **Not done:** the `COMPLETED_PASS` overlap test (ruling 5) — flagged to him rather than rushed.
+- **Generation remains frozen.**
+
+## 30 September (spatial + roster) — the width was authored all along, as a PREFERENCE
+
+- **236 tests green.** A04 still `NOT PASSED`; both remaining items are single owner decisions.
+- **`WIDEZONE-06` authors the channel width** — `row S6, RANGE, AUTHORED, "across-interval width about
+  6-10 m"`. It was never missing, only **untyped**, so the parser made it QUALITATIVE. Typed on the
+  SD-86 precedent (C30b).
+- **BUT it is `SUPPORTING` / `PREFERRED_DEFAULT`** — its own fitNote says *"PREFERRED_DEFAULT carries
+  the adaptation"*. **So the width is a PREFERENCE and the required extent is genuinely unauthored.**
+  I had already built the anchor+extent composition, which for a preferred bound **would have turned a
+  preference into a requirement** — the conversion he forbade on the neutral count, from the other
+  side, and A04 would have passed on something nobody required. Now only a **REQUIRED** extent
+  composes. **Check `valueStatus` before trusting a bound.**
+- **The owner decision:** promote 6–10 m to required (concrete, doesn't scale), or author a proportion
+  of the across dimension (the scaling he asked for; the source gestures at it and never states it).
+  The mechanism instantiates either without change. Target depth doesn't arise — `line` has no depth.
+- **THIRD SILENT LOSS.** `bounds` was emitted **only on open lines**, and Wide Zone authors the width on
+  the *same row* as `"touchline-adjacent"` — so a derived position dropped its authored extent
+  entirely. Now emitted as **`extentBounds`**, separate name, so the "bounds only on open lines"
+  invariant survives. **All three instances were found by something downstream trying to USE the value,
+  never by a test.**
+- **ROSTER — nothing to build.** The representation carries all three distinctions: `E1` total,
+  **`P4 roles[]`** (*"named roles; the list is open for this run"* — sport-neutral) for specialized
+  availability, **`P11/P12` participation state** (EM-0007: ACTIVE/INACTIVE/WAITING/RESTING/OBSERVING)
+  for involvement. `P3 goalkeeper` already exists as the soccer-named convenience. **What's missing is a
+  SESSION input** — the envelope states `players: 12` and nothing about role composition. "Equal
+  outfield counts" NOT promoted. `GF2`'s `P3 NON_CLAIMED` means *imposes no requirement*, not *there
+  are none*, so it stays unresolved rather than defaulting to 0.
+- **Still outstanding: the `COMPLETED_PASS` overlap check.** Flagged a third time rather than rushed.
+- **Generation remains frozen.**
+
+## 1 October — the S5 reconciliation: two decisions were really four
+
+- **236 tests green. A04 NOT rerun for closure** — two of three reconciliations produce owner decisions.
+- **THE TRACE WAS NOT STALE; I UNDER-REPORTED.** "Target depth doesn't arise because realization chose
+  `line`" conflated *no depth decision needed* with *the geometry resolves*. It does not:
+  1. **"A line has no depth" is represented nowhere.** `GF2-03.a::S5` is an anchor and nothing lets the
+     engine conclude a region whose noun is `line` has zero extent along. `GA-LAYOUT-FEASIBLE` is right
+     to refuse it.
+  2. **`line` IS NOT A REGISTERED S3 NOUN** — `S3.noun` is `[band, channel, corridor, zone, half,
+     third]`. The choice came from `GF2-03.b`'s narrowing `[zone, line]`, which offers a member the
+     row's closed list lacks; SD-18 says a draft list is still closed. **And realization checks a
+     choice against the PERMITTED SET and never against the row vocabulary** — so the concrete game
+     holds an unregistered value and nothing objected. A real hole in the acceptance discipline.
+- **`relativeTerms` (RC-21) ALREADY EXISTS** in the register, defining these relationships as
+  predicates — *"attacking end (of team T)": "touches the end line T attacks"*, `"touchline-adjacent"`,
+  `"central"`, `"lengthwise"`. **My `spatialRelations` block is a parallel representation of it**, keyed
+  on whole phrases instead of canonical term names — the V17/V18 mistake, which I made. Flagged, not
+  yet folded (working code on the eve of a closure attempt).
+- **No proportional rule exists.** Closest is **`SV1 space.fractions`** — halves and thirds *along* the
+  axis, per team. Proportional, wrong axis, nothing about width.
+- **Roster: he was right about OBSERVING.** `P11` is *"the realized participation state of a performer
+  GROUP"*, so it exists only for a group **in the game**. An available-but-not-established role is
+  simply **not instantiated** — no `P4` member, no `P11` entry. OBSERVING is for a group that IS here
+  and isn't playing. Three levels: session availability (**`Envelope.roles` added**) → instantiation
+  (`P4`/`P3`) → participation (`P11`/`P12`). No Team Profile concept exists anywhere yet.
+- **The sport-coupling ratchet failed my first draft** of that field's comment for naming the sport and
+  the role in engine code. Correctly.
+- **FOUR decisions now, not two:** channel across-extent proportion · session role availability for
+  this game · whether a realized `line` entails zero extent along · whether `line` may be a permitted
+  S3 value at all.
+- `COMPLETED_PASS` still outstanding, still not blocking. **Generation remains frozen.**
+
+## 1 October (corrections) — A04 down to two owner values, no new dependency
+
+- **246 tests green.** `acceptance PASSED · post-realization Gate A NOT PASSED · render-eligible NO`.
+  Trace: `docs/audits/first-game-trace-2026-10-01.md`. **First round with no new load-bearing
+  dependency.**
+- **Register guard (his item 1):** a realization choice must satisfy the authored permitted set **AND**
+  the row's canonical vocabulary. The refusal names both sides — the disagreement is the knowledge
+  defect, not the choice. General, with regression.
+- **`line` registered** in `S3.noun` (v2) as an owner-authorized extension. Semantics are **general and
+  name no axis**: a new `nounSemantics` block gives each noun an `extentDimensions` count, and a
+  one-dimensional noun has extent on exactly one axis — whichever carries it is the **length**, so the
+  other is **zero**. Orientation is read off the geometry. **Tested in both orientations** so
+  "line = end line" cannot be encoded by accident. This closed `GF2-03.a`'s geometry.
+- **RC-21 fold (items 2b, 5): `spatialRelations` is GONE.** Each term checked for a home first — three
+  had one (`touchline-adjacent`, `attacking end`, `own end`); **one genuinely did not**
+  (`full extent (of an axis)` — the block had no spanning predicate), so it was added to the canonical
+  block rather than the others being forced across, and flagged as needing owner confirmation. A
+  `phraseIndex` maps phrases → terms so the vocabulary is not keyed on prose. **His lesson is a test:**
+  the parallel block cannot return and every indexed phrase must resolve to a defined term.
+- **RETURNED — channel width: TWO fractions, not three.** `"bounded minority (of an axis)"` with
+  `from`/`to` as fractions of the named axis. The collective claim **follows** from the per-channel max
+  plus the authored channel count (`WIDEZONE-03` = 2). **Caveat flagged:** that derivation holds only
+  while the count is bounded.
+- **RETURNED — A04 roster: one session statement + one promotion.** `envelope.roles = {goalkeeper: 0}`
+  (explicit zero; absent means NOT STATED) **plus** promoting `GF2-14.b` "equal outfield counts" from
+  `ASSUMED` to authored. Alternative offered (session statement of the split) with a preference stated.
+- `COMPLETED_PASS` still outstanding, still non-blocking. **Generation remains frozen.**
+
+## 1 October — **A04 CLOSES. The deterministic Game Representation → Realization boundary is closed.**
+
+```
+realization acceptance   PASSED
+post-realization Gate A  PASSED
+render-eligible          YES
+```
+246 tests green, tsc clean. Trace: `docs/audits/first-game-closure-2026-10-01.md`.
+**All five owed invariants PASS** — `GA-ENVELOPE-FIT` (both clauses), `GA-LAYOUT-FEASIBLE`,
+`GA-ONE-PRIMARY-EVENT`, `GA-ROSTER-SUM`.
+
+**The concrete game:** target line at the end line it touches — along `[40,40]`, across `[0,30]`;
+three touchline channels along `[0,40]`, across `[0,7.5]`; `line_crossed` worth 1; two teams;
+one objective both teams attack. (An earlier draft of this line said "two teams of six". **The game
+does not contain that** — see the rendering section below. The six was derived inside the gate and
+never written back, and writing it here as if the game held it is exactly the slip the rendering
+test caught.)
+
+- **Width authored as the canonical RELATION**, not a number: `WIDEZONE-06.b`'s value is
+  `"bounded minority (of an axis)"` and the fractions (0.15–0.25) live once in RC-21. 0.25 of 30 m is
+  7.5 m here; the same knowledge gives 10 m on a 40 m width untouched.
+- **A FAULT CAUGHT — third instance of the same shape.** The channel carries both the required
+  proportion and the 6–10 m preference, and `extentOf` was taking **whichever bound came first** — the
+  preference. A preference was deciding the geometry. Now the requirement composes and the preference is
+  **intersected into** it (4.5–7.5 ∩ 6–10 = 6–7.5 m). **Any time a requirement and a preference sit on
+  one line, check which one the code actually reads.**
+- **Degenerate extent is legitimate for a one-dimensional noun.** Both emptiness tests read
+  `nounSemantics`, which names no axis; a line is degenerate only where its OTHER axis carries real
+  extent, so a region with no extent anywhere still fails.
+- **Roster derived, not chosen:** 12 session performers, 0 specialized-role from stated `roles`, 0
+  neutrals (none instantiated), 2 teams, equality from the promoted `GF2-14.b` → 6 each. Refuses on
+  anything missing; derives nothing from a division that is not whole. **Equality is read from an
+  AUTHORED item, so a game form stating asymmetry never reaches that path** — not an engine rule.
+- **The sport ratchet failed 3× and was right each time**, including on a doc comment and on
+  `roles.goalkeeper` in engine code. Fixed by a `specializedRole` flag on the register row, so the engine
+  reads the role name from the register and knows none itself.
+- **NOT claimed:** one internally *rendered* activity. The width proportion and roster equality are now
+  authored knowledge, not architecture — change either and the game changes. A04 is one game; **A05 is
+  still unauthorized** on two pre-realization invariants it does not share.
+- `COMPLETED_PASS` remains the separate non-blocking investigation. **Generation remains frozen.**
+
+---
+
+## 2026-10-01 — Controlled rendering of the frozen A04 game (`npm run render:a04`)
+
+**Fidelity PASSES all five of his questions.** 15 coach-facing instructions, 5 observations returned
+as evidence. 246 tests green, exit code verified directly (not through a pipe).
+
+Reads `docs/audits/a04-concrete-game-fixture.json` **and nothing else** — no selection, derivation or
+realization — because he asked to isolate the rendering boundary, *"not test the entire chain again at
+once."* The fixture is frozen closure output.
+
+**Wording is generated FROM status, not chosen and then checked.** `DERIVED`/`INSTANTIATED` get the
+imperative; `REALIZATION_CHOICE` gets *"For this activity, …"*; `PREFERENCE` gets *"if it suits your
+group"*. **A preference has no route to imperative wording because that wording is unreachable from
+`PREFERENCE`.** Every instruction carries its source property paths; citing nothing is a defect.
+
+### THE LOAD-BEARING FINDING — a render-eligible game that a coach cannot pick sides from
+`outfieldCount` **is nowhere in the concrete game.** `deriveRosterFromSession` worked out 6 a side from
+the session total plus authored equality, `GA-ROSTER-SUM` passed on it — and the value lived only in
+the **post-realization gate's evaluation context**. It was never written back. So the artifact marked
+render-eligible lacks a number a coach needs.
+
+**NOT repaired.** 12 ÷ 2 in the renderer is a one-liner and is precisely the forbidden invention: the
+game does not establish the number, so rendering producing it would assert a quantity on its own
+authority. It is also realization work, outside what he unfroze.
+
+**The shape to remember: a gate derived a value in order to check itself, passed, and the value did not
+persist.** Same family as every earlier silent loss — established at one stage, absent from the next —
+in a place we had not looked. `render-eligible` is therefore a *weaker* claim than *renderable into
+something a coach can run*; the closure stands, its terms were narrower than they sounded. **Ask of any
+gate that derives a value: does the artifact keep it?**
+
+### Three genuine rendering defects, fixed
+- `envelope.players = 12` established and never reached the coach — a real loss.
+- `objectives[].role = PRIMARY_SCORING` uncited by the scoring sentence it justifies.
+- **The renderer labelled envelope facts `SESSION` while the fixture records them `DERIVED`.** The
+  provenance trace is the deliverable, so status is now read from the fixture, never assumed.
+
+### Two over-strict checks, narrowed
+- A cited collection's **cardinality** supports `"2 teams"`. Counting the members of a cited collection
+  is the **only** arithmetic rendering may do — kept that narrow so the roster gap could not be smuggled.
+- Properties governing **event accounting** rather than play (`startsEpisode`, `space.axis`) are
+  reported as NOTEs **naming the reason**, never silently filtered. Both are with him for ruling.
+
+### The negative tests are the point
+A fidelity checker that only ever passes is not evidence. An invented number, an **undeclared** one
+(fails even when the game contains it), a dropped property, a softened requirement, a hardened
+preference and a choice stated as necessity are each proved to be caught. **Writing them found a real
+hole:** the region check accepted *any* instruction citing a region, so a preference about a channel's
+width counted as an instruction to mark it. A marking instruction must carry the region's `noun`.
+
+**Sport ratchet fired a 4th time** on `football` in the new module — correct again. Term removed rather
+than declaring the file sport-specific, since rendering sits above the sport layer.
+
+### Four things the GAME produces that a coach would question (evidence, not repaired)
+1. **Three channels all anchored at `across = 0`** — the same touchline, from three separate Wide Zone
+   contributions. A coach following the output marks one strip three times. Three regions or one
+   described three times is a **knowledge** question.
+2. **Zero-depth scoring line sitting exactly on the end line.** What the knowledge entails for a `line`,
+   and markable — but a coach may expect a scoring zone with depth.
+3. **Both teams score at the same line** (`EACH_TEAM`). Canonical and deliberate; unusual enough that a
+   coach sets up two targets out of habit unless told plainly.
+4. **No region carries a stated function** (4 `functions` rows EXCLUDED). Nothing says what the channels
+   are FOR. Faithful, and the first thing a coach would ask.
+
+### With him for ruling
+Roster write-back and at which stage · the two deliberate non-carriages · three channels or one ·
+whether a region needs a stated function before a coach is told to mark it.
+
+Scope held: one game, one rendering. **No** activity-set logic, variation, slots, or broader generation.
+`COMPLETED_PASS` still the separate non-blocking investigation.
+
+---
+
+## 2026-10-01 (later) — The roster defect FIXED, and the class guarded
+
+`npm run first:game` now writes **`performers.teams[0..1].outfieldCount = 6`** into the concrete game, and
+rendering tells a coach **"2 teams of 6"**. Q5 is clean: a coach can lay out and play A04 from the output
+alone. Acceptance PASSED · post-realization Gate A PASSED · render-eligible YES · fidelity PASSED.
+246 cases plus `post-realization.unit.ts` and `rendering.unit.ts` green, exit code verified. tsc clean.
+
+### The fix is a named stage, not a patch
+**`entailOverConcreteGame(ctx, realized)`** (post-realization-gate.ts) runs **between realization and the
+acceptance conditions** — so the game the conditions read is the finished one. It writes back every member
+property this stage resolves and records each under `record.entailed` with the line that entails it.
+
+**It is deliberately NOT roster-specific**: it asks the general question *"which member-property lines did
+this stage resolve that the member does not carry?"* — and the generic pass immediately also carried
+**`goalkeeper: 0`**, equally stranded, which nobody had noticed. **The defect was wider than the one
+property that exposed it.** Any future property derived once its subject exists rides the same route.
+
+### `entailmentsPersist` — the guard for the whole class
+Any value this stage derives must be readable from the game at the member's own address. A failure goes
+into `outstanding`, so it **blocks render-eligibility** rather than merely reporting — the alternative is
+exactly what A04 did. **The rule to carry: a value a check derives in order to pass must end up in the
+artifact. A check's working is not the artifact's content.**
+
+### Tightening `nothingInvented` was NOT optional
+It returned early for **any** value inside an instantiated member (`if (insideInstantiation) return`), so
+anything written into a member afterwards **escaped the invention check entirely** — the exact blind spot
+this fix would have landed in. A member's value is now accounted only if the member genuinely carries the
+leaf **or** a recorded entailment names it. Hence the entailed values are **not** written into the recorded
+member: the check would then be confirming our own write instead of an entailment. `memberIndex` was added
+because both teams share one `satisfies`, so a path cannot tell them apart.
+
+### The tests are destructive on purpose
+A guard that verifies a write made two lines earlier in the same process is exactly the kind that may be
+unable to fail. Each is proved by breaking what it guards:
+- strip `outfieldCount` → **not render-eligible**, and `GA-ROSTER-SUM` **still PASSES** — both facts visible
+  at once, which is the honest picture of what the original defect was;
+- contradict it (5 vs 6) → caught, naming what the game holds;
+- smuggle `maxTouches` into a member → reported as an invention;
+- a structured member field is **one** value, not three inventions (the old false-positive shape);
+- **13 players across 2 teams entails NOTHING** — no rounding to 6.5, and the game is then correctly not
+  render-eligible.
+
+### A separate latent trap, found by writing those tests
+**`derivationInputFor` returned the module-level `CORPUS_ENVELOPE` itself.** One run setting `players = 13`
+silently changed **every later run in the process** — the failure presented as a bug in the code under
+test. A session envelope is session input; two runs do not share one. Fixed at the source, with a test
+asserting isolation. **Watch for any factory returning a module constant by reference.**
+
+### The fixture is generated, not transcribed
+**`npm run freeze:a04`** runs the real chain and refuses to write a run that is not render-eligible. The
+first fixture was hand-copied from printed output — which keeps testing the old game while claiming to be
+the current one, the same shape as the harness that reproduced a pipeline *approximately*.
+
+Four coaching observations stand unchanged and remain with him: three channels on one touchline, the
+zero-depth line, both teams at one line, no region carrying a function.
+
+### What auditing the fix found — six more defects in the path it depends on
+All fixed, each with a test that fails without it. **Three bear directly on his rulings.**
+1. **`/equal/i` MATCHED ITS OWN NEGATION.** An AUTHORED P2 item valued *"unequal between the teams, e.g. 4
+   and 6 (4v6)"* satisfied the test licensing **equal** division — the exact thing he ruled must not become
+   an engine assumption. `\bequal` requires the boundary "unequal" lacks.
+2. **An EXAMPLE licensed a universal rule.** That item is `TYPICAL_EXAMPLE`; only `REQUIRED_RANGE` licenses
+   the division now (what GF2-14.b was promoted to be). **`valueStatus` is part of what an item SAYS** —
+   fourth time this shape has bitten.
+3. **`neutrals` was structurally ALWAYS 0.** It counted classes with row `P5`, but P5 is a FIELD and
+   `realized:` classes exist only for COLLECTION rows — the filter **could never match**. Right for A04 by
+   accident; a game with neutrals would have had them ignored. Now reads the P5 line per his 29-Sept
+   distinction: resolved value used · established absence contributes nothing · required-but-unestablished
+   **refuses**. **Ask of any filter: can it match anything at all?**
+4. **Member addressing used `split('.').pop()`.** Canonical is the whole remainder after `[]`. **20 of 61
+   member rows are nested, and two pairs COLLIDE** (`transitions[].qualifiers.region` /
+   `.placement.region` → both `region`). A04's rows are flat so A04 could never catch it — **the test ranges
+   over the register, not the fixture**, and asserts the broken rule demonstrably collides.
+5. **Fabricated provenance** — contract `session` and item `session::P2` do not exist, and `support[1]` was
+   dead so every line cited the player count, including the goalkeeper lines.
+6. **The invention check licensed a leaf NAME, not a value** — `outfieldCount: 99` beside an entailment of 6
+   reported nothing. It also failed to advance the leaf across an array index (a team can own `roles[]`).
+
+### A DESIGN REVERSAL WORTH REMEMBERING: repairing a defect can make its guard vacuous
+Making `runPostRealizationGates` run the entailment pass stopped a caller forgetting it — **and destroyed
+the guard**, because the pass repaired the absence the guard exists to detect. **Refuse, don't repair.** A
+skipped stage fails loudly; `run-realization.ts` (which DID skip it, printing a different game from
+identical inputs) now calls it explicitly.
+
+### THE SAME SHAPE, FOUND A SECOND TIME — and it CORRECTS what I told Christian
+**`GA-REGION-FUNCTION` passes both clauses on `DerivedLine.establishedMembers`** — written at
+`derive.ts:310`, read ONLY by `gates.ts:772`, in **no projection**. Live: the target region is established
+as `"objective-area"` and a channel as `"perceptual-reference"`; the check reports **4 evaluated
+instances**; the artifact carries **ZERO** functions (all four rows `notEstablished`, `reason=excluded`).
+**I had reported "nothing says what the channels are FOR" to him as an AUTHORING GAP. It is substantially
+our defect.** → **Before calling something a gap in his knowledge, check whether the knowledge establishes
+it and a projection drops it.** NOT fixed: each row arrives declared `["CLAIMED","EXCLUDED","NON_CLAIMED"]`
+at once and the engine collapses it to `excluded`. Which wins is his ruling.
+
+### `GA-ROSTER-SUM` DOES NOT PIN THE ROSTER
+Forced per-team 4, 5, 6 and **7** — **PASS every time**, reason *"the roster sums to the session count"*; at
+7 it sums to 14 against 12 players. An ABSENT term sets the upper bound `null`, so any low-enough sum
+passes. **Do not call a check validated until you have forced a wrong value through it.** Left alone: a
+frozen Gate A check, corpus-wide effect, and "absent" vs "unbounded" are two readings of one ruling.
+
+### Latent trap found while writing the tests
+**`derivationInputFor` returned the module-level `CORPUS_ENVELOPE` BY REFERENCE** — one run varying
+`players` changed every later run in the process, and the symptom looked like a bug in the code under test.
+Fixed with an isolation test. **Watch any factory that returns a module constant.**
+
+### With him, not started
+Region functions · the manufactured `goalkeeper: 0` (engine-built from register rows, contradicting
+*"a session fact for this run, not a default assumption"*) · `GA-ROSTER-SUM` · whether he wants the wider
+sweep inventory (a dead placement guard, a standing decision applying outside its selector, preference
+bounds enforced as requirements on most paths, 860 authored justifications dropped — **only the two above
+are verified by me**). Freeze stands.
+
+---
+
+## 2026-10-01 (his five rulings) — Q5 FAILS, and that is the CORRECT result
+
+    validated concrete game  ->  complete runnable representation  ->  faithful rendering
+            YES                            NO                                 YES
+
+Q2/Q3/Q4 **PASS**, Q5 **FAILS** with three violations. **The rendering is faithful to a game that is
+insufficient, and the two are now separable** — which is what the controlled test existed to establish.
+246 cases green, tsc clean, closure still render-eligible.
+
+### 1 · Roster write-back — at the ASSEMBLY boundary (`assemble-concrete-game.ts`)
+`completeConcreteGame()` runs between realization and anything that reads the game. Two consequences, both
+intended and both his point:
+- **the gate is read-only again** (it had become a writer against its own documented contract);
+- **the invariant reads the PERSISTED GAME.** `concreteContext` takes member properties out of
+  `realized.game`, not the record. **Strip the roster → `GA-ROSTER-SUM` = NOT_EVALUABLE where it used to
+  report PASS** on a figure only it could see. **The defect class is removed, not guarded.**
+
+### 2 · His metadata rule, encoded as TWO conditions
+*"exclusively computational/accounting metadata AND all of its operational consequences are already
+faithfully represented."* The second clause is **checked**: each exclusion names the paths carrying its
+consequences and the checker verifies an instruction cites them. Remove the "play continues" instruction
+and `startsEpisode` may no longer be excluded. Every exclusion is printed with reason + discharge — no
+silent filtering.
+
+### 3 · The three channels — AUTHORABLE AND NOT AUTHORED
+Co-referential (identical derived positions; the authored count is **2**; an authored item says
+"**both** wide channels"). **The contract's own ledger already asked for the fix:** *"touchline-adjacent
+does not name which touchline and S2 has no side attribute, so 'one on each lateral side' is unheld…
+Needs a side selector attribute or per-touchline relative terms."* **The register NOW HAS it** — S2's
+`lateral` attribute with `wide-left`/`wide-right` (AM-17) — and **AM-12 forbids derivation applying it
+unasked.** So: restatement (his), nothing invented. **Avoid an engine merge** — a test asserts *"classes
+are never merged, even where their selectors coincide (SD-47)"*.
+→ **Before concluding the knowledge cannot express something, check the register AND check whether the
+contract already recorded the request.**
+
+Engine defects found alongside (do not block): `cardinalityOf` cannot tell an exact COUNT from a lower
+bound for a **string** value, so authored "2" → "at least 2"; and that cardinality is **dead data** —
+a COLLECTION row gets no line and a selectored class forms no existential claim, so nothing reads it.
+Also: the engine **refuses** to read a prose count on the EXCLUSION side citing SD-32, while **guessing**
+on the establishing side.
+
+### 4 · Operational participation — A04 FAILS, correctly
+Implemented as a Q5 requirement; deliberately does **not** read `functions` (his explicit steer). The
+scoring line participates via the objective's reference; **the three channels participate in nothing.**
+
+His question answered — **BOTH**:
+- **Failing to survive:** the Wide Zone's trigger, referents and four information rules **reach no line
+  at all** — absent from the game, from `open` AND from `notEstablished`. A collection-owned field line
+  requires an element class on the owning COLLECTION row; no support-capable existence item is authored
+  there, and the information-rule item is `ASSUMED` → barred by §3/SD-83. The contract records the hole:
+  *"no item, since V7 cannot select this object's modifier."* **Verified by injection: lines 39→56,
+  unestablished 8→17, `knowledgeVerdict` PASS→FAIL on the unauthored magnitude. A04's pass is partly
+  bought by the claims vanishing.** Third instance of the shape.
+- **Genuinely lacking:** even fixed, it could not be ESTABLISHED. *"no default among three"* for what the
+  advantage IS; *"no multiplier size or bonus points"* for its size. **The channel has an authored TRIGGER
+  and NO authored EFFECT.**
+
+### 5 · Zero-depth line and same-line scoring — unchanged, still reported as observations
+
+### Two decisions with him
+Restate the Wide Zone S2 contributions with `lateral: wide-left` / `wide-right` · decide what the channel
+advantage actually does. Rendering scope frozen; generation not broadened.
+
+### Method note worth keeping
+An agent reported an injection result I could not reproduce at first — my attempt used a `*` selector and
+hit the SD-97 path, so nothing changed. Redone with the selectors the declarations actually name, it
+reproduced exactly. **I would have reported a false negative had I stopped at my own first run.**

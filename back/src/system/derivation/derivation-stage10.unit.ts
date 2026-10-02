@@ -16,7 +16,8 @@ import { corpusInput } from './corpus'
 import { runStages0to10 } from './engine'
 import { compare, toRational } from './rational'
 import { ContractItem, DerivationInput, LoadedContract } from './types'
-import { loadRegister } from './corpus'
+import { loadCorpusContracts, loadRegister } from './corpus'
+import { derivationInputFor, selectFor } from './run-bounded-selection'
 
 const REGISTER = loadRegister()
 
@@ -187,12 +188,56 @@ test('no Gate A check ever returns PASS while naming a line it was blocked on', 
 // GA-NO-FAILED-LINE — the check that owns incompleteness (§1.4).
 // ---------------------------------------------------------------------------------------------
 
-test('GA-NO-FAILED-LINE fails on a gapped line and names it', () => {
-    const result: any = runStages0to10(input([contract([item()])]))
-    const noFailed = check(result, 'GA-NO-FAILED-LINE')
+test('GA-NO-FAILED-LINE fails on a REQUIRED gapped line and names it', () => {
+    // Required, because an object declares it needs the row and cannot author it. His governing
+    // distinction of 29 September: "a line is a realization-blocking gap only when the resolved game
+    // requires that property to be established and no authority establishes it."
+    const c = contract([item()])
+    c.declarations.push({ row: 'S4', declaration: 'NOT_AUTHORED', note: 'needs a function it cannot author' })
+    const noFailed = check(runStages0to10(input([c])), 'GA-NO-FAILED-LINE')
     assert.equal(noFailed.verdict, 'FAIL')
     assert.ok(noFailed.subjects.length > 0, 'the failed lines are named, not merely counted')
-    assert.ok(/enumerated line\(s\) are failed/.test(noFailed.why))
+    assert.match(noFailed.why, /required line\(s\) are unestablished/)
+})
+
+test('GA-NO-FAILED-LINE distinguishes the four cases, and counts what it did not block on', () => {
+    // Each of the three non-blocking cases on its own, then all together. None may fail the check,
+    // and every one must still be reported — the danger here is a check that stops failing.
+    for (const declaration of ['EXCLUDED', 'NON_CLAIMED', 'UNDECLARED']) {
+        const c = contract([item()])
+        c.declarations.push({ row: 'S4', declaration, note: '' })
+        const outcome = check(runStages0to10(input([c])), 'GA-NO-FAILED-LINE')
+        assert.equal(outcome.verdict, 'PASS', `${declaration} is an established absence or a non-requirement, not a missing value`)
+        assert.match(outcome.why, /excluded, .* not constrained, .* unspoken/, 'the non-blocking lines are still counted in the reason')
+    }
+
+    // And a required line beside them still blocks: this must not become a way of never failing.
+    const mixed = contract([item()])
+    mixed.declarations.push({ row: 'S3', declaration: 'NON_CLAIMED', note: '' })
+    mixed.declarations.push({ row: 'S4', declaration: 'NOT_AUTHORED', note: 'needs it, cannot author it' })
+    const outcome = check(runStages0to10(input([mixed])), 'GA-NO-FAILED-LINE')
+    assert.equal(outcome.verdict, 'FAIL')
+    assert.ok(outcome.subjects.some((s: string) => s.endsWith('::S4')), 'the required line is named')
+    assert.ok(!outcome.subjects.some((s: string) => s.endsWith('::S3')), 'the non-constrained line is not blamed for it')
+})
+
+test('a game selecting no neutral-player knowledge is not incomplete for lacking neutral properties', () => {
+    // His explicit test. GF2 declares "performers outside the two teams are neither authored nor
+    // forbidden", so P5/P6a/P6b/P7 have no values — and that is a game with no neutrals, not an
+    // unfinished one. The second half matters as much: realization gets no authority from this.
+    const result: any = runStages0to10(derivationInputFor(selectFor('A01', 'A01-02')))
+    const neutralRows = ['P5', 'P6a', 'P6b', 'P7']
+    const neutralLines = [...result.classified.values()].filter((l: any) => neutralRows.includes(String(l.lineId).split('::').pop()))
+    assert.ok(neutralLines.length > 0, 'the rows are enumerated')
+    for (const line of neutralLines) {
+        assert.equal(line.reason, 'not constrained', `${line.lineId} is a non-requirement`)
+    }
+    assert.ok(
+        !check(result, 'GA-NO-FAILED-LINE').subjects.some((s: string) => neutralRows.includes(s.split('::').pop()!)),
+        'no neutral row blocks the gate',
+    )
+    // And none of them is open, so a realization layer is never handed authority to invent a neutral.
+    for (const line of neutralLines) assert.ok(!String(line.verdict ?? '').startsWith('FREE'), `${line.lineId} is not a realization choice`)
 })
 
 test('GA-NO-FAILED-LINE counts an UNRESOLVED line as failed, not only a gap', () => {
@@ -200,14 +245,14 @@ test('GA-NO-FAILED-LINE counts an UNRESOLVED line as failed, not only a gap', ()
         contract(
             [
                 item({ itemId: 'A-1', row: 'S2', selector: 'noun=channel', requirement: 'EXISTS' }),
-                item({ itemId: 'A-2', row: 'S3', selector: 'noun=channel', requirement: 'EQUALS', value: 'channel' }),
+                item({ itemId: 'A-2', row: 'S5', selector: 'noun=channel', requirement: 'EQUALS', value: 'the near end' }),
             ],
             { contractId: 'C-A', objectId: 'O-A' },
         ),
         contract(
             [
                 item({ itemId: 'B-1', row: 'S2', selector: 'noun=channel', requirement: 'EXISTS' }),
-                item({ itemId: 'B-2', row: 'S3', selector: 'noun=channel', requirement: 'EQUALS', value: 'lane' }),
+                item({ itemId: 'B-2', row: 'S5', selector: 'noun=channel', requirement: 'EQUALS', value: 'the far end' }),
             ],
             { contractId: 'C-B', objectId: 'O-B' },
         ),
@@ -246,29 +291,50 @@ test('a NOT_CHECKABLE_OUTSIDE_REPRESENTATION clause is not counted as a PASS for
 })
 
 test('every clause of every check carries a verdict from the closed list', () => {
-    const allowed = new Set(['PASS', 'FAIL', 'NOT_CHECKABLE_OUTSIDE_REPRESENTATION', 'NOT_EVALUABLE'])
+    // DEFERRED_TO_REALIZATION joined the list on 30 September: a clause that cannot be answered until
+    // realization has chosen or instantiated something. It is a fifth verdict, not a synonym for any
+    // of the four — and every one that is used must say what it is owed.
+    const allowed = new Set(['PASS', 'FAIL', 'NOT_CHECKABLE_OUTSIDE_REPRESENTATION', 'NOT_EVALUABLE', 'DEFERRED_TO_REALIZATION'])
     const result: any = runStages0to10(corpusInput())
     for (const c of gateA(result).checks) {
         assert.ok(allowed.has(c.verdict), `${c.checkId} verdict ${c.verdict}`)
         assert.ok(c.clauses.length > 0, `${c.checkId} reports no clause`)
-        for (const clause of c.clauses) assert.ok(allowed.has(clause.verdict))
+        for (const clause of c.clauses) {
+            assert.ok(allowed.has(clause.verdict))
+            if (clause.verdict === 'DEFERRED_TO_REALIZATION') {
+                assert.ok(clause.owes && clause.owes.length > 0, `${c.checkId} defers "${clause.clause}" without saying what it is owed`)
+            }
+        }
     }
+
+    // And a deferred clause never reads as a pass, at either level.
+    for (const c of gateA(result).checks) {
+        if (c.clauses.some((l: any) => l.verdict === 'DEFERRED_TO_REALIZATION')) assert.notEqual(c.verdict, 'PASS', c.checkId)
+    }
+    if (gateA(result).deferred.length) assert.notEqual(gateA(result).verdict, 'PASS', 'the overall verdict is never PASS while anything is owed')
 })
 
 // ---------------------------------------------------------------------------------------------
 // GA-MODIFIER-OVERLAP — the specification gap (F2). Its semantics are not invented here.
 // ---------------------------------------------------------------------------------------------
 
-/** Two region modifiers, each naming a held region class by its structural id (SD-57). */
+/**
+ * Two region modifiers, each naming a held region class by its structural id (SD-57).
+ *
+ * The selector names the referent itself rather than a label for it. `condition.referents` is a
+ * registered selector attribute of `V7`, so under SD-101 it is constitutive of the modifier it
+ * establishes: selecting on a handle and then authoring a different referent for the same property
+ * would be the modifier's identity disagreeing with its own field.
+ */
 function regionModifiers(referentOfB: string): LoadedContract[] {
     return [
         contract([
             item({ itemId: 'R-A', row: 'S2', selector: 'noun=channel', requirement: 'EXISTS' }),
             item({ itemId: 'R-B', row: 'S2', selector: 'noun=lane', requirement: 'EXISTS' }),
-            item({ itemId: 'M-1', row: 'V7', selector: 'condition.type=region AND condition.referents=RA', requirement: 'EXISTS' }),
-            item({ itemId: 'M-2', row: 'V7', selector: 'condition.type=region AND condition.referents=RB', requirement: 'EXISTS' }),
-            item({ itemId: 'M-3', row: 'V8b', selector: 'condition.referents=RA', requirement: 'EQUALS', value: 'c:C-1:R-A' }),
-            item({ itemId: 'M-4', row: 'V8b', selector: 'condition.referents=RB', requirement: 'EQUALS', value: referentOfB }),
+            item({ itemId: 'M-1', row: 'V7', selector: 'condition.type=region AND condition.referents=c:C-1:R-A', requirement: 'EXISTS' }),
+            item({ itemId: 'M-2', row: 'V7', selector: `condition.type=region AND condition.referents=${referentOfB}`, requirement: 'EXISTS' }),
+            item({ itemId: 'M-3', row: 'V8b', selector: 'condition.referents=c:C-1:R-A', requirement: 'EQUALS', value: 'c:C-1:R-A' }),
+            item({ itemId: 'M-4', row: 'V8b', selector: `condition.referents=${referentOfB}`, requirement: 'EQUALS', value: referentOfB }),
         ]),
     ]
 }
@@ -418,7 +484,12 @@ test('a dynamic location used geometrically is refused as VALUE_NOT_COMPARABLE',
     const result: any = runStages0to10(input(contracts))
     const refusal = result.refusals.find((r: any) => r.kind === 'VALUE_NOT_COMPARABLE')
     assert.ok(refusal, '§1.9: any geometric use of a dynamic location is refused')
-    assert.equal(check(result, 'GA-ENVELOPE-FIT').verdict, 'NOT_EVALUABLE')
+    // Since the 30 September split a placement this check cannot read is a value realization supplies,
+    // so the invariant moves downstream rather than being abandoned. What must never happen either way
+    // is a PASS reached over a placement it could not compare.
+    const envelope = check(result, 'GA-ENVELOPE-FIT').verdict
+    assert.notEqual(envelope, 'PASS')
+    assert.ok(['NOT_EVALUABLE', 'DEFERRED_TO_REALIZATION'].includes(envelope), envelope)
 })
 
 test('a placement outside the area fails, and one inside it passes', () => {
@@ -553,7 +624,7 @@ test('GA-LAYOUT-FEASIBLE refuses a bound it cannot read rather than ignoring it'
     if (feasible.verdict === 'PASS') {
         assert.ok(/no geometric line is open/.test(feasible.why), `PASS must be because nothing was open, not because a bound was dropped: ${feasible.why}`)
     } else {
-        assert.equal(feasible.verdict, 'NOT_EVALUABLE')
+        assert.ok(['NOT_EVALUABLE', 'DEFERRED_TO_REALIZATION'].includes(feasible.verdict), feasible.verdict)
     }
 })
 
@@ -687,15 +758,56 @@ test('SD-99: a region function clause reads established membership without the s
 test('SD-100: EXISTS on a field row asserts nothing and is recorded as inert', () => {
     const asserted = contract([
         item({ itemId: 'R-1', row: 'S2', selector: 'noun=channel', requirement: 'EXISTS' }),
-        item({ itemId: 'F-1', row: 'S5', selector: 'noun=channel', requirement: 'EXISTS', value: 'the position field is present' }),
+        // `S4`, not `S5`: since the 29 September rulings `S5` is bounded by the session envelope and is
+        // therefore a freedom, which would mask the thing under test — that an inert claim leaves the
+        // line exactly as it found it. `S4` has no registered choice space and stays a gap.
+        item({ itemId: 'F-1', row: 'S4', selector: 'noun=channel', requirement: 'EXISTS', value: 'the functions field is present' }),
     ])
     const result: any = runStages0to10(input([asserted]))
-    const line = result.derived.lines.get('c:C-1:R-1::S5')
+    const line = result.derived.lines.get('c:C-1:R-1::S4')
 
     assert.equal(line.entailing.length, 0)
     assert.equal(line.bounding.length, 0, 'it is not carried as a bound either — that is one of the readings he excluded')
-    assert.equal(result.classified.get('c:C-1:R-1::S5').verdict, 'NOT_AUTHORED')
+    assert.equal(result.classified.get('c:C-1:R-1::S4').verdict, 'NOT_AUTHORED')
     assert.equal(result.forward.find((o: any) => o.item.itemId === 'F-1').result, 'INERT', 'provenance is retained and the claim is inert')
+})
+
+test('SD-102: direction is established, and the source ambiguity is preserved beside the decision', () => {
+    const result: any = runStages0to10(corpusInput())
+
+    const direction = check(result, 'GA-DIRECTION')
+    assert.equal(direction.verdict, 'PASS', 'the objective structure provides the opposing relationship')
+    assert.equal(direction.clauses.find((c: any) => /objective it attacks/.test(c.clause)).verdict, 'PASS')
+    assert.equal(result.classified.get('c:restated:GF2:GF2-08.a::J3').verdict, 'RESOLVED:ENTAILED')
+
+    // The canonical decision and the ambiguous source are two separate records, and the second is
+    // untouched: "do not rewrite that ambiguity as though the original source established this".
+    const gf2 = loadCorpusContracts().find(c => c.contractId === 'restated:GF2')!
+    const decision: any = gf2.items.find((i: any) => i.itemId === 'GF2-12.c')
+    const source: any = gf2.items.find((i: any) => i.itemId === 'GF2-12.a')
+    assert.equal(decision.basis, 'OWNER_RULING')
+    assert.equal(decision.value, 'EACH_TEAM')
+    assert.equal(source.basis, 'ASSUMED', 'the source reading is still an assumption')
+    assert.match(String(source.basisEvidence), /unreconciled/, 'and its evidence still says the original could not reconcile it')
+})
+
+/** SD-101 on the corpus: the build-out objective keeps the team its own selector defines. */
+test('SD-101: a canonical decision does not overwrite a class its selector defines otherwise', () => {
+    const result: any = runStages0to10(corpusInput())
+    const line = 'c:restated:RPC-001:RPC-001-11.a::J3'
+
+    assert.equal(result.classified.get(line).verdict, 'RESOLVED:ENTAILED')
+    assert.equal(result.derived.lines.get(line).entailing[0].value, 'BUILD_OUT_TEAM', 'the class-defining value stands')
+    const contradiction = result.derived.lines.get(line).contradicted.find((c: any) => c.item.itemId === 'GF2-12.c')
+    assert.ok(contradiction, 'and the contribution that disagreed is preserved, not discarded')
+    assert.equal(contradiction.value, 'EACH_TEAM')
+    assert.ok(
+        result.diagnostics.some((d: any) => d.code === 'CONSTITUTIVE_SELECTOR_CONTRADICTED' && d.where === line),
+        'reported by name rather than absorbed',
+    )
+
+    // Its reach is not suppressed: the same item still reaches, and settles, GF2's own objective.
+    assert.equal(result.derived.lines.get('c:restated:GF2:GF2-08.a::J3').entailing[0].item.itemId, 'GF2-12.c')
 })
 
 /** The baseline at the Phase A load boundary: all eight contracts load, none refuses. */
@@ -707,19 +819,39 @@ test('the corpus run reproduces the reported figures exactly', () => {
     // individuates nothing: three objectives, two teams, two object classes and one objective set
     // were being asked separately for fields nobody owed.
     assert.equal(result.run.counts.lines, 125)
-    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 51)
-    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 54)
+    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 59)
+    // **NOT_AUTHORED fell 54 → 26 across the 29 September rulings, and only five of those twenty-eight
+    // were closed by authoring anything.**
+    //   −9  T1a/T1b/T1c demanded of three POSSESSION_CHANGE transitions. A turnover has no last touch
+    //       over a line, no end line and no out-of-play region, so they are withdrawn as inapplicable
+    //       — carrying no verdict and emitting no GAP, because the absence of an inapplicable
+    //       property must never be reported as missing knowledge.
+    //   −9  metric placements on S5/S6/O4/O5, where the session envelope supplies the outer bound
+    //       SD-50 asks for and AM-04 no longer lets one object's silence veto another's authority.
+    //       They are bounded freedoms now, not gaps.
+    //   −5  the connected-pass information rule, authored as ONE decision across the canonical IE
+    //       dimensions rather than five fields filled independently.
+    //   −4  T1c on the goal kick, and three lines whose relational constraint became DISTINCT_ON.
+    //   −1  the target's across-extent, once a typed structural reference was seen to be immune to
+    //       geometry: moving the region cannot change what the objectives point at.
+    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 26)
     assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 0, 'cluster 3 cleared the whole population')
-    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 54)
+    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 26, 'one GAP per unauthored line, and none for a withdrawn one')
+    assert.equal([...result.derived.lines.values()].filter((l: any) => l.open).length, 18, 'five open lines became eighteen')
 
-    // SD-88 evaluated the sixteen conditional lines for the first time: twelve are not applicable
-    // (the three CONTINUE transitions carry no placement) and four are judged.
+    // SD-88 evaluated the conditional lines; the selector-based rule settles its own at enumeration.
+    // Twelve withdrawals come from the governing-line path (the three CONTINUE transitions carry no
+    // placement), nine from the trigger rule.
     assert.equal(
         result.lines.filter((l: any) => (result.classified.get(l.lineId)?.lineState ?? l.lineState) === 'CONDITIONAL').length,
         0,
         'no line is left unjudged behind a governing value that has resolved',
     )
-    assert.equal(result.lines.filter((l: any) => result.classified.get(l.lineId)?.lineState === 'WITHDRAWN').length, 12)
+    const withdrawn = result.lines.filter((l: any) => (result.classified.get(l.lineId)?.lineState ?? l.lineState) === 'WITHDRAWN')
+    assert.equal(withdrawn.length, 22)
+    for (const line of withdrawn) {
+        assert.equal(result.classified.get(line.lineId)?.verdict ?? null, null, `${line.lineId} is withdrawn and must carry no verdict`)
+    }
 
     // SD-89's authored restart ownership met GF2's authored restart default on one line, and SD-90
     // settled it: a required contribution resolves the property, the preferred default is displaced
@@ -732,11 +864,17 @@ test('the corpus run reproduces the reported figures exactly', () => {
     )
 
     // SD-93 let Wide Zone's contributions reach its own channels for the first time, and the first
-    // thing they showed is that two of them state the same claim in two spellings. Recorded, not
-    // repaired: knowledge repair is held until the mechanisms are cleared.
-    const collisions = result.failures.filter((f: any) => f.kind === 'COLLISION')
-    assert.equal(collisions.length, 3)
-    for (const c of collisions) assert.match(c.locus.lineId, /WIDE-ZONE-ADVANTAGE:.*::S6$/)
+    // thing they showed is that two of them state the same claim in two spellings. Repaired on his
+    // 29 September ruling, in the restatement rather than the engine: 04.a and 05.a share one
+    // basisEvidence, so the parenthetical is now a gloss beside the value instead of a second
+    // REQUIRED_RANGE contribution. They agree, so nothing collides — and the three channel
+    // placements they were both describing now derive.
+    assert.equal(result.failures.filter((f: any) => f.kind === 'COLLISION').length, 0)
+    for (const line of ['WIDEZONE-02.a', 'WIDEZONE-03', 'WIDEZONE-08.d']) {
+        const verdict = result.classified.get(`c:restated:WIDE-ZONE-ADVANTAGE:${line}::S6`)
+        assert.equal(verdict.verdict, 'RESOLVED:ENTAILED', `${line} placement resolves once the two spellings agree`)
+        assert.deepEqual(verdict.collidingItems, [])
+    }
 })
 
 test('Gate A fails on the corpus, and says which checks and why', () => {
@@ -786,6 +924,23 @@ test('the two closed clusters hold, and what remains is what is genuinely unreso
     // Still open, and untouched: an information rule names an unregistered trigger.
     const information = check(result, 'GA-INFORMATION')
     assert.equal(information.clauses.find((c: any) => /registered trigger/.test(c.clause)).verdict, 'FAIL')
+})
+
+test('FIRST_FORWARD_PASS is registered, and it is the only trigger the 29 September ruling admitted', () => {
+    // He accepted one bounded vocabulary addition and explicitly held the other two members of
+    // VARTARGET-05.b: COACH_CUE, and the compound `REGION_ENTRY {attacking half} + first receiver`
+    // which stays recorded as presently unrepresentable rather than being removed or hidden behind a
+    // compound trigger. So exactly two unregistered triggers must remain — no more, and no fewer.
+    const result: any = runStages0to10(corpusInput())
+    assert.match(check(result, 'GA-INFORMATION').why, /2 unregistered trigger\(s\)/, 'FIRST_FORWARD_PASS registered; COACH_CUE and the compound still held')
+
+    const vocabulary: string[] = (corpusInput().register as any).vocabularies.trigger
+    assert.ok(vocabulary.includes('FIRST_FORWARD_PASS'))
+    assert.ok(!vocabulary.includes('COACH_CUE'), 'COACH_CUE remains held')
+    assert.ok(
+        !vocabulary.some(t => t.includes('first receiver')),
+        'no compound trigger was added to hide the missing qualifier capability',
+    )
 })
 
 test('the fifteen Gate A checks are all present, and GA-RESIDUAL-SPACE is gone (SD-45)', () => {

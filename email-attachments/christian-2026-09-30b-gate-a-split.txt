@@ -1,0 +1,122 @@
+Subject: Gate A is split — and it does not unblock a game, which corrects what I told you this morning
+
+Christian,
+
+I have implemented the split. It was the right thing to do and it does less than
+I said it would. The correction is the substance of this note.
+
+Generation remains frozen. 228 tests, suite green.
+
+
+WHAT THE SPLIT IS
+
+Gate A now reports two verdicts over the same checks. The knowledge verdict
+ranges over every clause knowledge alone can answer, and it is what gates
+realization. The overall verdict ranges over all of them and is never PASS while
+anything is still owed, so a deferred clause cannot be lost by the split. Each
+deferred clause names what realization must supply, and the resolved game carries
+that list — deferred, not waived.
+
+
+THE CORRECTION
+
+This morning I told you four Gate A checks could not be evaluated before
+realization, and proposed deferring them. I implemented that, A04 became
+eligible, and I was about to report a first realized game.
+
+Two of the four do not survive scrutiny.
+
+GA-ENVELOPE-FIT cannot compare a placement because the corpus authors placements
+as PROSE: "touchline-adjacent", "the full axis extent, end line to end line",
+"attacking end ... touches an end line, not the interior". A realized value drawn
+from such a bound is the same prose. §1.9 can no more compare it after
+realization than before. The same is true of GA-ONE-PRIMARY-EVENT's referent
+position clause, and of GA-LAYOUT-FEASIBLE, which cannot read a qualitative bound
+and will not be able to read the value chosen from it either.
+
+So those three clauses are blocked by a REPRESENTATION limitation, not a
+sequencing one. Deferring them would have promised a later check that cannot run
+— which is the same shape as suppressing a required property, arrived at from the
+other direction. I reverted them to NOT_EVALUABLE with the reason stated in
+place.
+
+Only two clauses are genuinely settled by realization:
+
+  GA-ONE-PRIMARY-EVENT   the primary-event kind, which realization chooses from
+                         the set the selection narrowed to
+  GA-ROSTER-SUM          whose terms do not exist until realization instantiates
+                         the teams SD-97 says are asserted and individuated by
+                         nothing
+
+A04 is therefore NOT eligible, and there is now a test saying so and naming the
+three blocked clauses, so this cannot quietly read as progress it is not.
+
+
+WHAT I CAN TELL YOU, HONESTLY LABELLED
+
+I ran the pathway anyway as an explicit dry run — stepping over the gate on
+purpose, to answer a different question: if the gate were satisfied, would this
+produce a faithful concrete game from real selected knowledge?
+
+It does. Six choices, each from inside an authored set; three instantiations, two
+of them the teams the claim asserts; and all three acceptance conditions hold —
+nothing lost, nothing invented, nothing closed without authority. The concrete
+game has a target line across the attacking end, three touchline channels running
+the full length, a line_crossed primary event worth 1, two teams and an objective
+both teams attack.
+
+That is a real result about the pathway. It is not an acceptance pass, and the
+test is named as a dry run so nobody later reads it as one.
+
+
+THREE DEFECTS THE RUN FOUND
+
+Running it on a real game found three things the fixtures never would have:
+
+  - `nothingInvented` descended INTO derived values, so the three fields of a
+    typed structural reference were each reported as an invention. Three
+    violations, every one of them a value the run had derived. It now stops at an
+    accounted path — a derived value's internal shape is part of that value.
+
+  - instantiated members were placed at the literal key "objectives[]", beside
+    the derived `objectives`. Two collections where the game has one, so anything
+    reading `objectives` would have missed every member realization supplied.
+    That is the silent-loss shape exactly, and it was in the output I nearly sent
+    you.
+
+  - a claim's cardinality was not checked at all. "Two teams exist" was satisfied
+    by instantiating one. Now refused, with a test.
+
+And one caught by an invariant that already existed: a check with a deferred
+clause was reading as PASS while naming the lines it was blocked on. The "no check
+passes while blocked" test caught it immediately.
+
+
+THE REAL REMAINING BLOCKER
+
+Geometry is authored qualitatively, and every spatial check needs it numerically.
+That is what stands between us and a first eligible game — not knowledge, and not
+sequencing.
+
+Two ways I can see, and I am not choosing between them:
+
+  (a) Authored metric bounds where geometry matters, so §1.9 has numbers to
+      compare. That is authoring, and it is the thing you have consistently
+      declined to invent — "no scaling rule for width", "no distance, proportion
+      or width rule".
+
+  (b) A representation for qualitative placement that the spatial checks can
+      reason over — "touchline-adjacent" as a typed relation to a boundary rather
+      than a phrase. Then the checks answer a different question ("is this
+      relation satisfiable in the envelope?") and never need a metre value.
+
+(b) looks to me like the smaller change and the one more faithful to how the
+knowledge is actually written, but it is a representation decision and it is
+yours. (a) would need you to author numbers you have said the sources do not
+supply.
+
+Everything else stands where the last note left it: the goal-kick unit and the
+four Variable Target dimensions are yours to author, and neither blocks this.
+
+Joe
+

@@ -219,7 +219,10 @@ export function forwardResults(
                     // SD-90 — a displaced contribution still **reached** this line; reaching it is why
                     // it could be displaced. Leaving it out here reported a displaced default as
                     // having satisfied no realization condition, which is a different and false claim.
-                    (record.displaced || []).some(d => d.item.itemId === ref.itemId && d.item.contractId === ref.contractId)
+                    (record.displaced || []).some(d => d.item.itemId === ref.itemId && d.item.contractId === ref.contractId) ||
+                    // SD-101 — a contradicted contribution reached the line too; that is how the
+                    // contradiction was found, and its reach to the element is unchanged.
+                    (record.contradicted || []).some(c => c.item.itemId === ref.itemId && c.item.contractId === ref.contractId)
                 )
             })
 
@@ -255,6 +258,22 @@ export function forwardResults(
                     result: 'ADAPTED',
                     reach: reachIds,
                     why: `its preferred value was displaced by an authoritative required value (SD-90), from ${[...new Set(by)].sort().join(', ')}`,
+                })
+                continue
+            }
+
+            // SD-101 — checked before SATISFIED, because the line *is* entailed: by the class's own
+            // defining selector, with this contribution's value set aside rather than adopted. The
+            // game does not hold what the item requires, so the item is not satisfied by it.
+            const contradictions = reached
+                .flatMap(l => derived.get(l.lineId)?.contradicted || [])
+                .filter(c => c.item.contractId === ref.contractId && c.item.itemId === ref.itemId)
+            if (contradictions.length) {
+                outcomes.push({
+                    item: ref,
+                    result: supporting ? 'NOT_REALIZED' : 'UNMET',
+                    reach: reachIds,
+                    why: `it requires ${JSON.stringify(contradictions[0].value)} on a property the class's own selector fixes as ${JSON.stringify(contradictions[0].constitutive.value)} (SD-101)`,
                 })
                 continue
             }

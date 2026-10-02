@@ -1,0 +1,192 @@
+Subject: The realization layer is built — and no game is eligible for it yet
+
+Christian,
+
+The realization layer exists and does what you specified. The honest headline is
+that nothing can currently go through it, and the reason is authoring rather
+than engine work. Detail below.
+
+Coach-facing generation remains frozen. Everything here is internal realization
+against resolved-game outputs.
+
+
+1. THE LAYER
+
+Resolved game -> concrete game + realization record. No coach language, no
+variation, no activity slots.
+
+It may do exactly three things: choose a value for a line the resolved game
+lists as open, inside the bounds carried with it, recording the authority
+behind it; instantiate a member satisfying an existential claim; or refuse,
+naming every reason rather than the first. It may not fill an unestablished
+line, choose outside bounds, add structure, alter a derived value, or proceed
+when the game is not eligible.
+
+I built the nothing-closed-without-authority check first, as you asked. All
+three acceptance conditions are in, and they read the FINISHED game rather than
+trusting the layer that wrote it — so a gap filled by any route, including a
+future bug of mine, is caught rather than trusted away. Twenty-two tests cover
+it; the suite is 216 and green.
+
+One decision inside it you should know about. A qualitative bound cannot be
+checked — SD-15 forbids inventing a number for "a long kick", so there is
+nothing to compare a value against. The layer neither rejects the value nor
+pretends to have verified it: the choice is recorded as unverified, and the
+record says which ones. I would rather it say "I could not check this" than
+imply it did.
+
+
+2. NO RESOLVED GAME IS ELIGIBLE
+
+All five bounded-pilot goals fail Gate A. So does the corpus. So does every
+single contract on its own, and every pair of contracts — I searched both
+exhaustively rather than sampling.
+
+The blocking check is uniformly GA-NO-FAILED-LINE. Of the 57 unestablished
+lines on the corpus, 54 are NOT_AUTHORED and 3 are internal. Broken down by
+what the knowledge actually declared on the row:
+
+    43   an object says it needs this row and cannot author it
+     8   an object explicitly excludes it
+     4   an object looked and declared it does not constrain the row
+     2   no declaration reaches the row at all
+
+So the distance to a first realizable game is authoring. Even if a declared
+exclusion and a declared non-claim were both ruled not to be failures, 45 lines
+would remain, and 43 of those are rows knowledge objects themselves say they
+need and cannot supply.
+
+I want to be careful not to overclaim the other direction: 3 of the 57 are
+internal and they are mine.
+
+
+3. TWO THINGS THE LAYER FOUND THE MOMENT IT CONSUMED THE RESOLVED GAME
+
+Both were invisible until something actually read the object.
+
+First: elements with nothing derived were being dropped from the game
+altogether. Entries were only ever created while placing a derived value, so an
+element whose every line was open or failed appeared in the open and
+not-established lists and NOWHERE in the game itself. On the corpus that
+dropped two elements the knowledge individuates — an object whose kind is an
+open choice between goal and target, and the region the Variable Target
+condition establishes. The game was not saying "nothing about this region is
+established". It was saying there is no such region.
+
+That is fixed, and two counts now make a recurrence visible rather than silent.
+
+Second: AM-23 gives three reason codes and the declaration vocabulary has five.
+NON_CLAIMED has no code and falls through to "coverage"; EXCLUDED is tested
+after UNDECLARED, so a silence outranks an explicit exclusion. Eleven of the 57
+lines therefore report "nobody looked" when an object did look and declared
+either that it does not constrain the row or that it excludes it.
+
+I have not changed the codes or the precedence. Both are semantic and both are
+yours. What I fixed is the loss: the declarations reaching a row now travel with
+the line, so a reason code can never again be the only surviving account of what
+the knowledge said. You can rule on it with the evidence in front of you.
+
+
+4. THE CONTRACT REQUIREMENT, RECALCULATED
+
+You asked me not to choose between five, six and ten in advance. The
+recalculation gives a clean answer and it happens to match what you said you
+would prefer.
+
+Bounded attacking family, 14 distinct objects, 4 already contracted:
+
+    ignoring the coach's situation choice        5 to author
+    with every situation a coach can pick       10 to author
+
+The five additional objects are exactly the uncontracted Practice Situations.
+That is precisely the trade you described — five additional contracts, in
+exchange for the coach no longer making a meaningful choice the deterministic
+system cannot see. A04 and A05 offer no Practice Situations at all, so for those
+two goals the bridge costs nothing.
+
+Across all guided goals: 41 distinct objects, 6 contracted, 35 to author, of
+which 19 are Practice Situations.
+
+
+5. RETURNED FOR RULING, NOT RESOLVED BY INTERPRETATION
+
+(a) FIRST_FORWARD_PASS. Minimal proposal: one member added to the trigger
+vocabulary, taking it from eight to nine. Nothing else changes. The boundary,
+stated so it cannot quietly widen: it is an event in play, like
+POSSESSION_CHANGE, not a restart; "forward" is relative to the passing team's
+attacking direction, which the representation now establishes, and where
+direction is free the trigger is not evaluable rather than failed; "first" is
+per episode, using the episode boundary transitions already carry; and it says
+nothing about pass success, receiver, distance or intent.
+
+(b) The compound member, REGION_ENTRY {attacking half} + first receiver. You
+told me not to create a compound trigger to hide the missing qualifier
+capability. Applying that one level further is why I am NOT proposing the
+obvious refinement on its own.
+
+The structural half is genuinely small: information-rule triggers have no
+qualifier rows, transitions already do, and giving the former the shape the
+latter has is mechanical. But it would not fix this member. "First receiver"
+names a performer role, and the representation has no performer-role
+vocabulary — team roles are explicitly free. Even with the qualifier slot in
+place, this member still could not be represented.
+
+So adding the slot would look like progress while leaving the member exactly as
+unrepresentable as it is today. That is the same concealment the compound
+trigger would have performed, one layer down, and I would rather not do it.
+My recommendation is to rule first on whether a performer-role vocabulary is in
+scope at all. If it is not, this member should be withdrawn from the permitted
+set rather than carried as an alternative nothing can realize.
+
+(c) A third Variable Target edge. VARTARGET-08.a individuates an element class
+for an objective-set assignment rule and produces zero lines, because that row
+has no field of its own — its only child field is recorded as owned by a
+different row. So the assignment rule exists as a class and can carry no value.
+Whether the ownership is wrong is a register question I have not answered.
+
+(d) The neutrals count is open and carries two bounds: ">= 1 (no authored
+maximum)" and "1-2 (one or two)". Both state numbers, and both are typed
+qualitative — so the layer records any chosen value as unverified rather than
+checking it against a range it can plainly read. Whether these should be count
+bounds, and whether their intersection is the operative one, is a ruling rather
+than a parse.
+
+COACH_CUE is held, as you instructed. The open-text subject issue is recorded
+and untouched.
+
+
+6. AFFORDANCE LENSES
+
+My recommendation is to keep them outside the Game Representation. The fields
+carry no structural claim — they are about what a player perceives — and
+contracting them would have the deterministic representation manufacturing an
+affordance, which is the thing you said you did not want.
+
+The measurements, so this is not just a preference. Zeroing all three lens
+weights never changes the selected game form — nought out of thirteen — and
+changes the constraints in seven of thirteen. And 19 of 39 selected lenses are
+realized by no selected constraint at all; only two goals are fully realized,
+and two have none.
+
+Rather than a contract, I would propose an invariant: a selected lens must be
+realized by at least one selected constraint, or it is not selected. It fails
+on 19 of 39 today, which is the honest measure of how far the lens layer is from
+meaning anything causally.
+
+
+7. WHAT I THINK IS NEXT
+
+The 43 lines that knowledge objects declare they need and cannot author are the
+only thing standing between us and a first realizable game. That is yours, and
+it is a much more concrete list than "the knowledge is incomplete" — each one
+names a row and the object that says it needs it. I can put that list in front
+of you grouped by object if that is the useful shape.
+
+After that, a ruling on the four items in section 5, and on the reason-code
+question in section 3.
+
+Wide Zone collisions remain on the task register, not pursued. Attack and
+defence stay parked.
+
+Joe
+
