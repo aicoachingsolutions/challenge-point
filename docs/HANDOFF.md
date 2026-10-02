@@ -3970,3 +3970,117 @@ whether a region needs a stated function before a coach is told to mark it.
 
 Scope held: one game, one rendering. **No** activity-set logic, variation, slots, or broader generation.
 `COMPLETED_PASS` still the separate non-blocking investigation.
+
+---
+
+## 2026-10-01 (later) — The roster defect FIXED, and the class guarded
+
+`npm run first:game` now writes **`performers.teams[0..1].outfieldCount = 6`** into the concrete game, and
+rendering tells a coach **"2 teams of 6"**. Q5 is clean: a coach can lay out and play A04 from the output
+alone. Acceptance PASSED · post-realization Gate A PASSED · render-eligible YES · fidelity PASSED.
+246 cases plus `post-realization.unit.ts` and `rendering.unit.ts` green, exit code verified. tsc clean.
+
+### The fix is a named stage, not a patch
+**`entailOverConcreteGame(ctx, realized)`** (post-realization-gate.ts) runs **between realization and the
+acceptance conditions** — so the game the conditions read is the finished one. It writes back every member
+property this stage resolves and records each under `record.entailed` with the line that entails it.
+
+**It is deliberately NOT roster-specific**: it asks the general question *"which member-property lines did
+this stage resolve that the member does not carry?"* — and the generic pass immediately also carried
+**`goalkeeper: 0`**, equally stranded, which nobody had noticed. **The defect was wider than the one
+property that exposed it.** Any future property derived once its subject exists rides the same route.
+
+### `entailmentsPersist` — the guard for the whole class
+Any value this stage derives must be readable from the game at the member's own address. A failure goes
+into `outstanding`, so it **blocks render-eligibility** rather than merely reporting — the alternative is
+exactly what A04 did. **The rule to carry: a value a check derives in order to pass must end up in the
+artifact. A check's working is not the artifact's content.**
+
+### Tightening `nothingInvented` was NOT optional
+It returned early for **any** value inside an instantiated member (`if (insideInstantiation) return`), so
+anything written into a member afterwards **escaped the invention check entirely** — the exact blind spot
+this fix would have landed in. A member's value is now accounted only if the member genuinely carries the
+leaf **or** a recorded entailment names it. Hence the entailed values are **not** written into the recorded
+member: the check would then be confirming our own write instead of an entailment. `memberIndex` was added
+because both teams share one `satisfies`, so a path cannot tell them apart.
+
+### The tests are destructive on purpose
+A guard that verifies a write made two lines earlier in the same process is exactly the kind that may be
+unable to fail. Each is proved by breaking what it guards:
+- strip `outfieldCount` → **not render-eligible**, and `GA-ROSTER-SUM` **still PASSES** — both facts visible
+  at once, which is the honest picture of what the original defect was;
+- contradict it (5 vs 6) → caught, naming what the game holds;
+- smuggle `maxTouches` into a member → reported as an invention;
+- a structured member field is **one** value, not three inventions (the old false-positive shape);
+- **13 players across 2 teams entails NOTHING** — no rounding to 6.5, and the game is then correctly not
+  render-eligible.
+
+### A separate latent trap, found by writing those tests
+**`derivationInputFor` returned the module-level `CORPUS_ENVELOPE` itself.** One run setting `players = 13`
+silently changed **every later run in the process** — the failure presented as a bug in the code under
+test. A session envelope is session input; two runs do not share one. Fixed at the source, with a test
+asserting isolation. **Watch for any factory returning a module constant by reference.**
+
+### The fixture is generated, not transcribed
+**`npm run freeze:a04`** runs the real chain and refuses to write a run that is not render-eligible. The
+first fixture was hand-copied from printed output — which keeps testing the old game while claiming to be
+the current one, the same shape as the harness that reproduced a pipeline *approximately*.
+
+Four coaching observations stand unchanged and remain with him: three channels on one touchline, the
+zero-depth line, both teams at one line, no region carrying a function.
+
+### What auditing the fix found — six more defects in the path it depends on
+All fixed, each with a test that fails without it. **Three bear directly on his rulings.**
+1. **`/equal/i` MATCHED ITS OWN NEGATION.** An AUTHORED P2 item valued *"unequal between the teams, e.g. 4
+   and 6 (4v6)"* satisfied the test licensing **equal** division — the exact thing he ruled must not become
+   an engine assumption. `\bequal` requires the boundary "unequal" lacks.
+2. **An EXAMPLE licensed a universal rule.** That item is `TYPICAL_EXAMPLE`; only `REQUIRED_RANGE` licenses
+   the division now (what GF2-14.b was promoted to be). **`valueStatus` is part of what an item SAYS** —
+   fourth time this shape has bitten.
+3. **`neutrals` was structurally ALWAYS 0.** It counted classes with row `P5`, but P5 is a FIELD and
+   `realized:` classes exist only for COLLECTION rows — the filter **could never match**. Right for A04 by
+   accident; a game with neutrals would have had them ignored. Now reads the P5 line per his 29-Sept
+   distinction: resolved value used · established absence contributes nothing · required-but-unestablished
+   **refuses**. **Ask of any filter: can it match anything at all?**
+4. **Member addressing used `split('.').pop()`.** Canonical is the whole remainder after `[]`. **20 of 61
+   member rows are nested, and two pairs COLLIDE** (`transitions[].qualifiers.region` /
+   `.placement.region` → both `region`). A04's rows are flat so A04 could never catch it — **the test ranges
+   over the register, not the fixture**, and asserts the broken rule demonstrably collides.
+5. **Fabricated provenance** — contract `session` and item `session::P2` do not exist, and `support[1]` was
+   dead so every line cited the player count, including the goalkeeper lines.
+6. **The invention check licensed a leaf NAME, not a value** — `outfieldCount: 99` beside an entailment of 6
+   reported nothing. It also failed to advance the leaf across an array index (a team can own `roles[]`).
+
+### A DESIGN REVERSAL WORTH REMEMBERING: repairing a defect can make its guard vacuous
+Making `runPostRealizationGates` run the entailment pass stopped a caller forgetting it — **and destroyed
+the guard**, because the pass repaired the absence the guard exists to detect. **Refuse, don't repair.** A
+skipped stage fails loudly; `run-realization.ts` (which DID skip it, printing a different game from
+identical inputs) now calls it explicitly.
+
+### THE SAME SHAPE, FOUND A SECOND TIME — and it CORRECTS what I told Christian
+**`GA-REGION-FUNCTION` passes both clauses on `DerivedLine.establishedMembers`** — written at
+`derive.ts:310`, read ONLY by `gates.ts:772`, in **no projection**. Live: the target region is established
+as `"objective-area"` and a channel as `"perceptual-reference"`; the check reports **4 evaluated
+instances**; the artifact carries **ZERO** functions (all four rows `notEstablished`, `reason=excluded`).
+**I had reported "nothing says what the channels are FOR" to him as an AUTHORING GAP. It is substantially
+our defect.** → **Before calling something a gap in his knowledge, check whether the knowledge establishes
+it and a projection drops it.** NOT fixed: each row arrives declared `["CLAIMED","EXCLUDED","NON_CLAIMED"]`
+at once and the engine collapses it to `excluded`. Which wins is his ruling.
+
+### `GA-ROSTER-SUM` DOES NOT PIN THE ROSTER
+Forced per-team 4, 5, 6 and **7** — **PASS every time**, reason *"the roster sums to the session count"*; at
+7 it sums to 14 against 12 players. An ABSENT term sets the upper bound `null`, so any low-enough sum
+passes. **Do not call a check validated until you have forced a wrong value through it.** Left alone: a
+frozen Gate A check, corpus-wide effect, and "absent" vs "unbounded" are two readings of one ruling.
+
+### Latent trap found while writing the tests
+**`derivationInputFor` returned the module-level `CORPUS_ENVELOPE` BY REFERENCE** — one run varying
+`players` changed every later run in the process, and the symptom looked like a bug in the code under test.
+Fixed with an isolation test. **Watch any factory that returns a module constant.**
+
+### With him, not started
+Region functions · the manufactured `goalkeeper: 0` (engine-built from register rows, contradicting
+*"a session fact for this run, not a default assumption"*) · `GA-ROSTER-SUM` · whether he wants the wider
+sweep inventory (a dead placement guard, a standing decision applying outside its selector, preference
+bounds enforced as requirements on most paths, 860 authored justifications dropped — **only the two above
+are verified by me**). Freeze stands.

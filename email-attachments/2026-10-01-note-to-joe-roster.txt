@@ -1,0 +1,77 @@
+Joe,
+
+Roster fixed, pushed, suite green. Christian's email is attached. The short version, plus the one
+thing you should know I got wrong.
+
+WHAT NOW WORKS
+The concrete game carries `performers.teams[].outfieldCount = 6` and the rendered activity says
+"2 teams of 6". Fidelity passes all five questions and Q5 is clean — a coach can actually run A04
+from the output now. Acceptance PASSED, Gate A PASSED, render-eligible YES, tsc clean, exit codes
+checked properly.
+
+The fix is a named stage between realization and the acceptance checks, plus a guard that blocks
+render-eligibility if any value a check derives is missing from the game. Written generically, which
+paid off immediately — it also carried `goalkeeper: 0`, which was equally stranded and which I had
+not spotted.
+
+I HAD IT WRONG ABOUT THE REGION FUNCTIONS
+In the last email I told Christian that nothing in the game says what the channels are for, and
+called it the gap a coach would notice first — framing it as his authoring gap. Two functions are in
+fact established: the target region as "objective-area", a channel as "perceptual-reference".
+GA-REGION-FUNCTION reads them straight out of the derivation record, passes both clauses claiming
+four evaluated instances, and zero functions reach the artifact.
+
+So it is the same defect as the roster, in a second place, and I reported it to him as an authoring
+problem. That correction leads the email. I did not fix it, because each of those rows arrives
+declared CLAIMED, EXCLUDED and NON_CLAIMED simultaneously and which wins is his ruling, not ours.
+
+THE AUDIT OF MY OWN FIX WAS WORTH IT
+I ran a multi-agent adversarial audit over the fix before reporting it, then verified every claim
+myself. It found six real defects in the roster path. Three touch his rulings directly:
+
+- `/equal/i` matched "unequal" — and there is an AUTHORED corpus item valued "unequal between the
+  teams, e.g. 4 and 6". So an item stating asymmetry was licensing the engine to divide equally,
+  which is the exact thing he told us must not become an engine assumption.
+- that same item is a TYPICAL_EXAMPLE, so an illustration was licensing a universal rule. Only
+  REQUIRED_RANGE does now.
+- neutrals were structurally always zero: P5 is a FIELD and the code counted element classes with
+  row P5, which can never exist. Right for A04 by accident, wrong for any game with neutrals.
+
+Plus: member addressing used the last path segment, which is wrong for 20 of 61 rows and makes two
+pairs collide on one address; the provenance cited a contract that does not exist; and the invention
+check licensed a leaf name rather than a value.
+
+Also found while testing: the input factory returned the module-level envelope object itself, so one
+test varying the player count silently changed every later test in the process. The failure looked
+like a bug in the code under test. Fixed with a test.
+
+TWO I DELIBERATELY DID NOT FIX
+- `goalkeeper: 0` is manufactured by the engine from register rows, not stated by the session. That
+  contradicts his "session fact for this run, not a default assumption" ruling, and it is now
+  written into the game. His call.
+- GA-ROSTER-SUM does not pin the roster. I forced 4, 5, 6 and 7 per team and it passed every time,
+  saying "the roster sums to the session count" — at 7 the roster sums to 14 against 12 players. So
+  my earlier line about the invariant passing on the derived figure was too generous to the check.
+  Fixing it would strengthen it and A04 would still pass, but it is a frozen Gate A check and
+  changes the whole corpus, so it is his.
+
+ONE DESIGN REVERSAL
+I first made the gate run the entailment pass itself so a caller could not skip it. That made the
+gate a writer against its own documented contract AND made the guard vacuous — the pass repaired the
+absence the guard exists to detect, so it could no longer fail. Backed it out: the gate refuses
+instead, and run-realization.ts (which did skip the pass, and so printed a different game from
+identical inputs) calls it explicitly.
+
+THE WIDER SWEEP
+Having found the same shape twice, I swept for it. It came back with a lot — a dead placement guard,
+a standing decision applying outside its authored selector, preference bounds enforced as hard
+requirements on most of the paths that produce them, 860 authored justifications dropped before any
+consumer sees them. I verified the two in the email and none of the rest, and I am not acting on
+any of it: freeze stands, several turn on rulings. I offered him a prioritised inventory with
+evidence and said I would hold off unless he wants it.
+
+NEXT
+Nothing started beyond this. Waiting on his rulings — region functions, the manufactured goalkeeper
+zero, GA-ROSTER-SUM, and whether he wants the sweep inventory.
+
+Joe

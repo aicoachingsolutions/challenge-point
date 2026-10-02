@@ -1,0 +1,161 @@
+Christian,
+
+The roster is fixed. A coach can now lay out and play A04 from the rendered output alone.
+
+Before the detail, a correction I owe you from my last note, because it changes one of the four
+coaching observations I sent you.
+
+
+THE CORRECTION — the region functions are not an authoring gap
+
+I told you that no region carries a stated function, that four `functions` rows are excluded, and
+that "nothing in the game says what the channels are FOR ... that is faithful, and is also the gap
+a coach would notice first."
+
+The first half is true of the artifact. The conclusion was wrong. Two region functions ARE
+established by the knowledge:
+
+    the target region       "objective-area"        from GF2-03.a
+    one Wide Zone channel   "perceptual-reference"  from WIDEZONE-08.d
+
+They are established in the derivation record and they reach no artifact. `GA-REGION-FUNCTION`
+reads them directly out of that record, PASSES both its clauses, and reports four evaluated
+instances — while the resolved game carries zero functions and all four rows land in
+`notEstablished`.
+
+So that is the same defect as the roster, in a second place: a check passing on something only it
+can see. I presented it to you as a gap in the authored knowledge. It is substantially our defect,
+and the knowledge says more than I credited it with.
+
+I have NOT fixed it, for a reason I want you to rule on rather than guess at. Each of those four
+rows arrives declared three ways at once — `["CLAIMED", "EXCLUDED", "NON_CLAIMED"]` — and the
+engine collapses that to `reason: excluded`. Which declaration wins is a ruling, not an
+implementation detail, and you have told me before not to let a reason code decide a precedence.
+Two further points for the same ruling: the clause claiming four instances examined two, and a
+region may legitimately serve no function at all.
+
+
+WHAT THE COACH NOW SEES
+
+  Players
+    12 players in total
+    2 teams of 6
+    No goalkeepers — everyone is an outfield player
+
+Everything else is as before. Fidelity still passes all five questions, and question five — whether
+a coach could lay it out and play it — is now clean rather than carrying the team-size note.
+
+The number is the game's, not the renderer's. Rendering still refuses to compute it: strip the
+sizes out of the game and the output falls back to "2 teams" and reports the gap, which is tested.
+
+
+HOW IT IS FIXED
+
+A named stage, `entailOverConcreteGame`, runs between realization and the acceptance conditions, so
+the game the conditions read is the finished one. It writes back every member property the stage
+resolves and records each with the line that entails it.
+
+It is deliberately not roster-specific — it asks which member properties resolved that the member
+does not carry — and the generic form immediately also carried `goalkeeper: 0`, equally stranded,
+which I had not noticed. The defect was wider than the property that exposed it.
+
+The guard for the class: any value the stage derives must be readable from the game at the member's
+own address, and a failure blocks render-eligibility rather than merely reporting it. The rule I
+would ask you to hold us to is: **a value a check derives in order to pass must end up in the
+artifact. A check's working is not the artifact's content.**
+
+One reversal worth recording, because the first version was wrong in an instructive way. I made the
+gate run the entailment pass itself, so a forgetful caller could not skip it. That broke two things
+at once: the gate became a writer, and the guard went vacuous — the pass repaired the very absence
+the guard exists to detect, so it could no longer fail. Refusing is better than repairing. A runner
+that skips the pass now gets a loud failure instead of a quietly different game.
+
+
+THEN I AUDITED MY OWN FIX, AND IT FOUND SIX MORE THINGS
+
+All six are fixed, each with a test that fails without the fix. Three of them bear directly on
+rulings of yours.
+
+  1. An item stating ASYMMETRY licensed equal division. The test was `/equal/i`, which matches
+     "unequal" — and the corpus contains an AUTHORED P2 item valued "unequal between the teams,
+     e.g. 4 and 6 (4v6)". So an item saying the teams differ satisfied the condition that licenses
+     dividing them equally. This is precisely what you guarded against when you said equal team
+     numbers must not become an engine-level assumption, and the engine was doing it from an item
+     that says the opposite.
+
+  2. An EXAMPLE licensed a universal rule. That same item is a `TYPICAL_EXAMPLE`. Only
+     `REQUIRED_RANGE` may license the division now, which is what you promoted GF2-14.b to be. A
+     `PREFERRED_DEFAULT` cannot either.
+
+  3. Neutrals were structurally always zero. P5 is `performers.neutrals.count`, a FIELD, and the
+     code counted element classes carrying row P5 — but such a class only ever exists for an
+     existential claim on a COLLECTION row, so the filter could never match. The subtrahend was not
+     read from the game at all; it was an accident that happened to be right for A04. A game that
+     did establish neutrals would have had them ignored and its outfield pool overstated. It now
+     reads the P5 line, following your 29 September distinction: a resolved value is used, an
+     established absence contributes nothing, and required-but-unestablished refuses rather than
+     assuming zero.
+
+  4. Member addressing used the last segment of a row path. The canonical rule keeps the whole
+     remainder after `[]`, and 20 of the register's 61 member-property rows are nested. Two pairs
+     collapse onto one address under the broken rule — `transitions[].qualifiers.region` and
+     `transitions[].placement.region` both become `region`. A04's own rows are flat, so A04 could
+     never have caught this; the test is now general.
+
+  5. The provenance was partly fabricated. The lines cited a contract `session` and an item
+     `session::P2`, neither of which exists, and only the first support entry was ever read — so
+     the specialized-role lines cited the session PLAYER COUNT as the source of a value that comes
+     from the stated roles.
+
+  6. The invention check licensed a leaf NAME rather than a value, so a team carrying
+     `outfieldCount: 99` beside an entailment recording 6 reported nothing.
+
+
+TWO THINGS I HAVE NOT TOUCHED, AND WOULD LIKE RULED
+
+**`goalkeeper: 0` is manufactured by the engine, not stated by the session.** You asked for
+`envelope.roles = { "goalkeeper": 0 }` as "a session fact for this run, not a default assumption
+that Challenge Point sessions contain no goalkeepers." The implementation builds that map by
+walking the register for rows flagged as specialized roles and writing a literal zero for each. So
+it is produced for every run from the register — which is definitionally a default about sessions,
+the thing you excluded. The safeguard that an absent entry means NOT STATED is unreachable, because
+no entry is ever absent. This now matters more than it did, because that manufactured zero is
+written into the concrete game and read by the renderer.
+
+**`GA-ROSTER-SUM` does not pin the roster.** I told you it "derived six a side and passed its
+roster check on it". The derivation is sound. The check is not: I forced the per-team count to 4, 5,
+6 and 7 in turn and it returned PASS every time, with the reason "the roster sums to the session
+count" — including at 7, where the roster sums to 14 against a session of 12. The cause is that the
+absent neutral term makes the upper bound unconstrained, so any low-enough sum passes.
+
+I think the honest reading is that an established absence should contribute zero to a sum rather
+than removing the bound, and that fixing it would strengthen the check while leaving A04 passing.
+But "absent" and "unbounded" are two different readings of the same ruling, it is a Gate A check
+under the freeze, and it changes what every other game in the corpus does. So I have left it.
+
+
+ONE MORE THING THE AUDIT FOUND, WHICH IS NOT A ROSTER PROBLEM
+
+A latent trap worth naming: the function that builds a run's inputs returned the module-level
+session envelope object itself, so any run that varied the player count silently changed every
+later run in the same process. I hit it while writing these tests — the symptom looked like a bug
+in the code under test. Fixed, with a test asserting two runs cannot share an envelope.
+
+
+WHERE THAT LEAVES THE SWEEP
+
+Having found two instances of the same shape, I ran a wider sweep for it across the derivation and
+realization layers. It returned a substantial list — a dead placement guard, a standing decision
+applying outside its authored selector, preference bounds enforced as requirements on most of the
+paths that produce them, and 860 authored justifications dropped before they reach any consumer.
+
+I have verified the two reported above personally and I have NOT verified the rest. I am not acting
+on any of it: it is a work programme rather than a fix, several items turn on rulings, and the
+implementation freeze stands. I will write it up as a prioritised inventory with the evidence for
+each, for you to decide what matters, unless you would rather I leave it.
+
+The four coaching observations from the rendering stand, less the roster note and with the region
+functions corrected above: three channels all anchored to the same touchline, the zero-depth
+scoring line sitting on the end line, and both teams scoring at the same line.
+
+Joe
