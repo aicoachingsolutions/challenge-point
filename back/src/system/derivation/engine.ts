@@ -11,7 +11,7 @@
 import { HaltError, indexRegister, buildVersions, RegisterIndex } from './register'
 import { loadContracts } from './load'
 import { resolveScopes } from './scope'
-import { deriveLines, DerivedLine, establishesExistence } from './derive'
+import { countBounds, deriveLines, DerivedLine, establishesExistence } from './derive'
 import { classifyLines, ClassifiedLine } from './classify'
 import { forwardResults } from './forward'
 import { runGates } from './gates'
@@ -87,17 +87,21 @@ function digest(value: unknown): string {
 
 const EXISTENCE_REQUIREMENTS = new Set(['EXISTS', 'COUNT', 'RANGE'])
 
+/**
+ * An element class's cardinality, read by **the one canonical count reader** (`countBounds` in derive.ts).
+ *
+ * This used to have its own copy of that parse, written earlier and never brought forward. The copy could
+ * not tell an exact `COUNT` from a lower bound — its bare-digit match was unanchored and it never consulted
+ * `item.requirement` — so the Wide Zone's authored *exactly two channels* reached the engine as *at least
+ * two*, and `"2"` and `"2 or more"` were indistinguishable. Five items across the corpus were affected,
+ * every one of them an authored `COUNT "2"`.
+ *
+ * `EXISTS` still short-circuits, because the requirement states existence and the value is not a count.
+ */
 function cardinalityOf(item: ContractItem): { min: number | null; max: number | null } {
+    if ((item as any).typedBound) return countBounds(item) ?? { min: null, max: null }
     if (item.requirement === 'EXISTS') return { min: 1, max: null }
-    const value = item.value
-    if (typeof value === 'number') return { min: value, max: item.requirement === 'COUNT' ? value : null }
-    const text = String(value ?? '')
-    const min = text.match(/min(?:imum)?\s*:?\s*(\d+)/i) || text.match(/^(\d+)/)
-    const max = text.match(/max(?:imum)?\s*:?\s*(\d+)/i)
-    return {
-        min: min ? Number(min[1]) : null,
-        max: max ? Number(max[1]) : null,
-    }
+    return countBounds(item) ?? { min: null, max: null }
 }
 
 /**

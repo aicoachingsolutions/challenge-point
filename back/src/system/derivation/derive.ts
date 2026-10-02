@@ -428,20 +428,46 @@ function boundsOf(item: any, index?: RegisterIndex): Bounds {
     }
     if (item.requirement !== 'RANGE' && item.requirement !== 'COUNT') return { kind: 'SET', members: [item.value] as any }
 
-    if (typeof item.value === 'number') return { kind: 'COUNT', min: item.value, max: item.requirement === 'COUNT' ? item.value : null }
+    const count = countBounds(item)
+    if (count) return { kind: 'COUNT', min: count.min, max: count.max }
+    return { kind: 'QUALITATIVE', term: String(item.value ?? '').trim() }
+}
 
+/**
+ * **The one place a numerical count is read from an item.** `null` where the item states no count.
+ *
+ * It exists because there were two readers and they disagreed. `cardinalityOf` in engine.ts had its own
+ * copy, written earlier and never brought forward, which **could not tell an exact COUNT from a lower
+ * bound**: its bare-digit match was unanchored and it never consulted `item.requirement`, so an authored
+ * `COUNT "2"` and a prose `"2 or more"` parsed identically and the Wide Zone's *exactly two channels*
+ * reached the engine as *at least two*. One reader, used by both.
+ *
+ * Two properties worth stating, because they are what make this not prose interpretation:
+ *
+ *   - **a typed bound wins** (SD-86): a restatement may MOVE an explicitly authored number from prose into
+ *     a typed field, and may not infer one;
+ *   - **the bare-digit match is anchored at both ends.** A value that IS a number is read; a number
+ *     embedded in prose is not. That is the line SD-32 draws, and it is why `"2 or more (forbidden)"`
+ *     reads as no count at all rather than as a minimum of two. The exclusion side of the engine already
+ *     refuses such a value for exactly this reason; with one reader, both sides now refuse it alike.
+ */
+export function countBounds(item: any): { min: number | null; max: number | null } | null {
+    if (item.typedBound && typeof item.typedBound === 'object') {
+        const { min = null, max = null } = item.typedBound
+        return { min, max }
+    }
+    if (typeof item.value === 'number') {
+        return { min: item.value, max: item.requirement === 'COUNT' ? item.value : null }
+    }
     const text = String(item.value ?? '').trim()
     const explicitMin = text.match(/min(?:imum)?\s*:?\s*(\d+)/i)
     const explicitMax = text.match(/max(?:imum)?\s*:?\s*(\d+)/i)
     const bare = /^(\d+)\s*$/.exec(text)
-    if (explicitMin || explicitMax || bare) {
-        return {
-            kind: 'COUNT',
-            min: explicitMin ? Number(explicitMin[1]) : bare ? Number(bare[1]) : null,
-            max: explicitMax ? Number(explicitMax[1]) : bare && item.requirement === 'COUNT' ? Number(bare[1]) : null,
-        }
+    if (!explicitMin && !explicitMax && !bare) return null
+    return {
+        min: explicitMin ? Number(explicitMin[1]) : bare ? Number(bare[1]) : null,
+        max: explicitMax ? Number(explicitMax[1]) : bare && item.requirement === 'COUNT' ? Number(bare[1]) : null,
     }
-    return { kind: 'QUALITATIVE', term: text }
 }
 
 /**

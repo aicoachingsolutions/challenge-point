@@ -370,6 +370,27 @@ export function realize(
         }
     }
 
+    /**
+     * **An authored collection cardinality constrains realization, not only an existential claim.**
+     *
+     * His direction of 1 October: *"an authored collection cardinality must actually constrain resolution
+     * rather than becoming dead data."* It was dead: the number was consumed only through `existential`,
+     * and a class carrying a selector never becomes an existential claim — so the Wide Zone's authored
+     * *exactly two channels* constrained nothing while the run produced three.
+     *
+     * Checked against what the resolved game ESTABLISHED, before any member is instantiated, because a
+     * population that already exceeds its authored maximum is not something realization can fix by
+     * choosing well. Refusing is the existing mechanism for that, so no new one is introduced.
+     */
+    for (const bound of resolved.collectionCardinality ?? []) {
+        if (bound.max !== null && bound.established > bound.max) {
+            because.push(
+                `${bound.classId}: ${bound.path} is authored with at most ${bound.max} element(s)` +
+                    `${bound.min === bound.max ? ` (exactly ${bound.max})` : ''}, and the resolved game establishes ${bound.established}`,
+            )
+        }
+    }
+
     if (because.length) return { outcome: 'REFUSED', because }
 
     // **DISTINCT_ON — the joint check, after every individual bound has already passed.**

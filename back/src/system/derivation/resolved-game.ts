@@ -115,6 +115,25 @@ export interface JointCondition {
     from: ItemRef
 }
 
+/**
+ * **TEMPORARY, and named so it is impossible to lose: set aside the authored region count.**
+ *
+ * The authored *exactly two channels* now constrains realization, and A04 establishes three — so A04 is
+ * refused, correctly. He has authorized the restatement that fixes it (two distinct lateral regions,
+ * `wide-left` and `wide-right`) and ruled out engine-side merging, so the knowledge must establish the
+ * distinction before A04 can realize again.
+ *
+ * Until it does, everything downstream of realization would be untestable. This sets the bound aside **in
+ * callers only** — never in the engine — so the acceptance conditions, the post-realization gate and the
+ * rendering pathway all stay under test, while `realize.unit.ts` separately pins the refusal itself.
+ *
+ * **Delete this function when the Wide Zone S2 restatement lands.** Every user is a call site of it, so
+ * removing it will not compile until they are all revisited.
+ */
+export function withAuthoredRegionCountSetAside<T extends { collectionCardinality: unknown[] }>(resolved: T): T {
+    return { ...resolved, collectionCardinality: [] }
+}
+
 export interface ResolvedGame {
     /** §8 — what this game was assembled from. Two runs of one input give two identical objects. */
     provenance: {
@@ -169,6 +188,30 @@ export interface ResolvedGame {
     derived: { path: string; lineId: string; value: unknown; resolvedBy: string; support: SupportRef[] }[]
     open: OpenChoice[]
     existential: ExistentialClaim[]
+    /**
+     * **Every authored cardinality on a collection row, with what the game actually established.**
+     *
+     * It is here because it was otherwise dead data. An authored cardinality was consumed only through
+     * `existential`, and a class carrying a selector never becomes an existential claim (SD-97), so the
+     * Wide Zone's authored *exactly two channels* was read by nothing at all: a COLLECTION row gets no
+     * resolution line, and a selectored class forms no claim. The number was parsed, attached to a class,
+     * and then dropped.
+     *
+     * Reporting it makes it live: realization reads it and refuses to proceed where the established count
+     * already exceeds an authored maximum, and a consumer can see the authored count beside the real one.
+     */
+    collectionCardinality: {
+        path: string
+        row: string
+        classId: string
+        from: ItemRef
+        min: number | null
+        max: number | null
+        /** Which population the authored count ranges over, as the item's own scope states. */
+        scope: 'OWN_INVOLVEMENT' | 'WHOLE_GAME'
+        /** Elements in that population — the count the authored bound actually applies to. */
+        established: number
+    }[]
     notEstablished: NotEstablished[]
     /**
      * Bounds carried on a line that already has a derived value — an authored EXTENT beside an authored
@@ -394,6 +437,58 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
         place(game, key, [...bucket.entries.values()])
     }
 
+    /**
+     * **The authored cardinality of every collection, beside what was actually established.**
+     *
+     * `established` counts the elements the game holds on that collection, which is the population an
+     * authored count is a statement about. Before this the number was parsed onto the class and then read
+     * by nothing: only `existential` consumed it, and a selectored class never becomes one.
+     */
+    const collectionCardinality = classes
+        .filter(cls => rows.get(cls.row)?.kind === 'COLLECTION')
+        .filter(cls => cls.cardinality?.min != null || cls.cardinality?.max != null)
+        // **Only INDIVIDUATED classes** — the complement of `existential` below. An existential claim's
+        // cardinality was never dead: it is carried on the claim and enforced against the members
+        // realization instantiates. What was dead is the cardinality of a class carrying a selector, which
+        // becomes no claim and so reached nothing. This fills exactly that gap and does not double-count:
+        // `established` counts established classes, which for an individuated class is its element.
+        .filter(cls => !cls.constraints.any || !!cls.singletonBy)
+        .map(cls => {
+            const rowPath = rows.get(cls.row)?.path ?? cls.row
+
+            /**
+             * **The population an authored count is a statement about is the one the item's SCOPE names.**
+             *
+             * Counting the whole collection was wrong, and the authoring note says why: the Wide Zone's
+             * "exactly two" is *"counted over this contract's own channels so another object's channel
+             * cannot break it"*. Under a whole-collection count its bound was violated by GF2's target
+             * line — a region it says nothing about — which would make the author's guard meaningless.
+             *
+             * So an `OWN_INVOLVEMENT` count ranges over the elements this contract established on this
+             * row; a whole-game count ranges over the collection. Each class yields one element, so the
+             * population is counted in classes.
+             */
+            const item = (contracts.find(c => c.contractId === cls.fromItem.contractId)?.items ?? []).find(
+                (i: any) => String(i.itemId) === String(cls.fromItem.itemId),
+            ) as { scope?: unknown } | undefined
+            const ownOnly = String(item?.scope ?? '') === 'OWN_INVOLVEMENT'
+            const population = classes.filter(
+                other => other.row === cls.row && (!ownOnly || other.fromItem.contractId === cls.fromItem.contractId),
+            )
+
+            return {
+                path: rowPath,
+                row: cls.row,
+                classId: cls.classId,
+                from: cls.fromItem,
+                min: cls.cardinality?.min ?? null,
+                max: cls.cardinality?.max ?? null,
+                scope: ownOnly ? ('OWN_INVOLVEMENT' as const) : ('WHOLE_GAME' as const),
+                established: population.length,
+            }
+        })
+        .sort((a, b) => a.classId.localeCompare(b.classId))
+
     // SD-97 — the assertions that individuate nothing, and therefore appear in no line.
     const existential: ExistentialClaim[] = classes
         // A singleton is individuated by the schema invariant (SD-84), so it is a described element
@@ -460,6 +555,7 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
         derived: derived.sort((a, b) => a.lineId.localeCompare(b.lineId)),
         open: open.sort((a, b) => a.lineId.localeCompare(b.lineId)),
         existential,
+        collectionCardinality,
         extentBounds,
         jointConditions,
         notEstablished: notEstablished.sort((a, b) => a.lineId.localeCompare(b.lineId)),
