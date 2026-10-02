@@ -22,6 +22,7 @@ import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame, ResolvedGame } from '../derivation/resolved-game'
 import { derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
+import { entailOverConcreteGame } from './post-realization-gate'
 import { Choice, checkRealization, Instantiation, isRefused, realize, Realized } from './realize'
 
 function resolvedGameFor(goalId: string | null, situationId: string | null) {
@@ -35,6 +36,9 @@ function resolvedGameFor(goalId: string | null, situationId: string | null) {
         game: assembleResolvedGame(result, staged.classes, index, input.contracts) as ResolvedGame,
         index,
         envelope: input.envelope ?? {},
+        // Carried so this runner can entail over the concrete game too. Without it this runner printed a
+        // DIFFERENT game from `first:game` on identical inputs — teams with no size, and nothing owed.
+        gateContext: { ...staged.gateContext, contracts: input.contracts },
     }
 }
 
@@ -44,7 +48,7 @@ const choicesArg = process.argv[process.argv.indexOf('--choices') + 1]
 const supplied: { choices: Choice[]; instantiations: Instantiation[] } =
     process.argv.includes('--choices') && choicesArg ? JSON.parse(fs.readFileSync(choicesArg, 'utf8')) : { choices: [], instantiations: [] }
 
-const { label, game: resolved, index: derivationIndex, envelope: derivationEnvelope } = resolvedGameFor(goalId, situationId)
+const { label, game: resolved, index: derivationIndex, envelope: derivationEnvelope, gateContext } = resolvedGameFor(goalId, situationId)
 
 console.log(`REALIZATION — ${label}`)
 console.log('='.repeat(72))
@@ -70,6 +74,7 @@ for (const claim of resolved.existential) {
 }
 
 const result = realize(resolved, supplied.choices, supplied.instantiations, derivationIndex, derivationEnvelope)
+if (!isRefused(result)) entailOverConcreteGame(gateContext, result as Realized)
 
 console.log(`\nOUTCOME — ${result.outcome}`)
 console.log('-'.repeat(72))

@@ -598,20 +598,25 @@ export function nothingInvented(resolved: ResolvedGame, realized: Realized): str
      * entailment names it. Anything else is an invention, member or not.
      */
     const memberOf = new Map<string, Record<string, unknown>>()
-    const entailedLeaves = new Map<string, Set<string>>()
+    /**
+     * Keyed by member AND leaf, holding the entailed VALUE — not just the leaf name.
+     *
+     * Name-only accounting was a hole: a member carrying `outfieldCount: 99` beside an entailment recording
+     * `outfieldCount` reported nothing, because the set said only that *some* value at that leaf was
+     * licensed. An entailment licenses the value it entails and no other.
+     */
+    const entailedValues = new Map<string, unknown>()
     const key = (collection: string, index: number) => `${collection}#${index}`
     for (const instantiation of realized.record.instantiations) {
         memberOf.set(key(collectionPath(instantiation.path), instantiation.memberIndex), instantiation.member)
     }
     for (const entry of realized.record.entailed) {
-        const k = key(entry.collection, entry.memberIndex)
-        if (!entailedLeaves.has(k)) entailedLeaves.set(k, new Set())
-        entailedLeaves.get(k)!.add(entry.leaf)
+        entailedValues.set(`${key(entry.collection, entry.memberIndex)}#${entry.leaf}`, entry.value)
     }
 
     const problems: string[] = []
     /** The member a value sits inside, and the leaf path it has reached within that member. */
-    type Within = { member: Record<string, unknown>; entailed: Set<string>; leaf: string; label: string } | null
+    type Within = { member: Record<string, unknown>; memberKey: string; leaf: string; label: string } | null
     const walk = (node: unknown, path: string, within: Within) => {
         // **Stop at an accounted path.** A derived value may itself be a structured object — a typed
         // structural reference is `{structuralRef: {contractId, itemId}, asAuthored}` — and its
@@ -624,9 +629,15 @@ export function nothingInvented(resolved: ResolvedGame, realized: Realized): str
             node.forEach((entry, i) => {
                 const id = entry && typeof entry === 'object' ? (entry as any).elementId ?? (entry as any).satisfies : null
                 const member = here && (entry as any)?.satisfies ? memberOf.get(key(path, i)) : undefined
+                // **An array INSIDE a member advances the leaf by its index**, or `readAt` would be handed
+                // `roles.name` for `roles[0].name` and resolve nothing — reporting a value the member
+                // genuinely carries as an invention. A team may own a `roles[]` collection, so this is
+                // reachable, not hypothetical.
                 const next: Within = member
-                    ? { member, entailed: entailedLeaves.get(key(path, i)) ?? new Set(), leaf: '', label: `${path}[${i}]` }
+                    ? { member, memberKey: key(path, i), leaf: '', label: `${path}[${i}]` }
                     : within
+                    ? { ...within, leaf: within.leaf ? `${within.leaf}.${i}` : String(i) }
+                    : null
                 walk(entry, id ? `${path}[${id}]` : path, next)
             })
             return
@@ -640,9 +651,16 @@ export function nothingInvented(resolved: ResolvedGame, realized: Realized): str
         }
         if (node === undefined) return
         if (within) {
-            // Carried by the member the existential claim authorized, or named by a recorded entailment.
+            // Carried by the member the existential claim authorized...
             if (readAt(within.member, within.leaf) !== undefined) return
-            if (within.entailed.has(within.leaf)) return
+            // ...or entailed — and the entailment must account for THIS value, not merely this leaf.
+            const entailedKey = `${within.memberKey}#${within.leaf}`
+            if (entailedValues.has(entailedKey)) {
+                const expected = entailedValues.get(entailedKey)
+                if (JSON.stringify(expected) === JSON.stringify(node)) return
+                problems.push(`${within.label}.${within.leaf}: the game holds ${JSON.stringify(node)} but the entailment records ${JSON.stringify(expected)}`)
+                return
+            }
             problems.push(`${within.label}.${within.leaf}: ${JSON.stringify(node)} is inside an instantiated member that does not carry it, and no entailment accounts for it`)
             return
         }

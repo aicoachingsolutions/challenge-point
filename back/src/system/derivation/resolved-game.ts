@@ -181,8 +181,16 @@ export interface ResolvedGame {
     counts: Record<string, number>
 }
 
-/** `space.regions[].noun` → `{ container: 'space.regions', leaf: 'noun' }`; a game-level row has no container. */
-function splitPath(path: string): { container: string | null; leaf: string } {
+/**
+ * `space.regions[].noun` → `{ container: 'space.regions', leaf: 'noun' }`; a game-level row has no container.
+ *
+ * **The leaf is the WHOLE remainder after `[]`, not the last dotted segment.** 20 of the register's 61
+ * member-property rows are nested — `space.regions[].position.along`, `transitions[].placement.actor` — and
+ * last-segment-only addressing both writes to the wrong place and COLLIDES: `transitions[].qualifiers.region`
+ * and `transitions[].placement.region` would share the address `region`. This is the one canonical
+ * row-path-to-member-address rule; anything addressing a member property must use it.
+ */
+export function splitPath(path: string): { container: string | null; leaf: string } {
     const at = path.indexOf('[]')
     if (at === -1) {
         const dot = path.lastIndexOf('.')

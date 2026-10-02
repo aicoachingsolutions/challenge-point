@@ -20,6 +20,7 @@
 import { ClassifiedLine } from '../derivation/classify'
 import { DerivedLine, resolvedValue } from '../derivation/derive'
 import { GateContext, GateReport, runGates } from '../derivation/gates'
+import { splitPath } from '../derivation/resolved-game'
 import { ElementClass, ResolutionLine } from '../derivation/types'
 import { collectionPath, place, readAt, Realized, RealizationRecord } from './realize'
 
@@ -134,7 +135,7 @@ function concreteContext(ctx: GateContext, realized: Realized): GateContext {
             // says so. Where it does, the line is resolved by the realization decision. Where it does
             // not, the line exists and is unresolved — which is the honest state, and the one that lets
             // a check say "the outfield count is unresolved" instead of "no such line exists".
-            const leaf = String(row.path).split('.').pop() ?? row.id
+            const leaf = splitPath(String(row.path)).leaf || row.id
             const supplied = (instantiation.member as Record<string, unknown>)[leaf]
             if (supplied === undefined) {
                 classified.set(lineId, { lineId, lineState: 'ENUMERATED', verdict: 'NOT_AUTHORED', reason: 'coverage', collidingItems: [] })
@@ -198,32 +199,86 @@ function deriveRosterFromSession(
     const teams = classes.filter(c => c.row === 'P1' && c.classId.startsWith('realized:'))
     if (!teams.length) return
 
-    // Equality must be AUTHORED. Without an item stating it, nothing here divides anything.
+    /**
+     * **Equality must be AUTHORED, and it must be REQUIRED.** Without such an item nothing here divides.
+     *
+     * Two hardenings, both found by adversarially auditing this function:
+     *
+     *   - `/equal/i` **matched its own negation.** The corpus contains an AUTHORED P2 item whose value is
+     *     *"unequal between the teams, e.g. 4 and 6 (4v6)"* — so an item stating asymmetry licensed the
+     *     engine to divide equally. `\bequal` requires a word boundary, which "unequal" does not provide.
+     *   - **An example is not a requirement.** That same item is a `TYPICAL_EXAMPLE`, and a preference is
+     *     a `PREFERRED_DEFAULT`; neither may license a universal division. Only `REQUIRED_RANGE` does.
+     *     `GF2-14.b`, the item he promoted for exactly this purpose, is `REQUIRED_RANGE`.
+     *
+     * This is the standing lesson about `valueStatus` applied here: the status is part of what an item
+     * says, and reading the value without it treats an illustration as a rule.
+     */
     const equality = ctx.contracts.some(contract =>
         (contract.items ?? []).some(
             item =>
                 String(item.row) === 'P2' &&
                 String((item as any).basis) !== 'ASSUMED' &&
-                /equal/i.test(String(item.value ?? '')),
+                String((item as any).valueStatus) === 'REQUIRED_RANGE' &&
+                /\bequal/i.test(String(item.value ?? '')),
         ),
     )
     if (!equality) return
 
     // Specialized roles the session states, per team. A stated zero is a fact; an absent role is not.
-    const specialized = Object.values(roles).reduce((sum, count) => sum + (Number.isFinite(count) ? Number(count) : NaN), 0)
-    if (!Number.isFinite(specialized)) return
+    // A count must be a whole number of people and cannot be negative — without this a stated `-1`
+    // *increases* the outfield pool and still divides whole, deriving a larger roster than the session has.
+    const stated = Object.values(roles)
+    if (!stated.every(count => Number.isInteger(count) && Number(count) >= 0)) return
+    const specialized = stated.reduce((sum, count) => sum + Number(count), 0)
 
-    // Neutrals: however many the game actually instantiated, which for a game with none is zero.
-    const neutrals = classes.filter(c => c.row === 'P5' && c.classId.startsWith('realized:')).length
+    /**
+     * **Neutrals, read from the P5 line rather than counted from instantiated members.**
+     *
+     * This was `classes.filter(c => c.row === 'P5' && c.classId.startsWith('realized:')).length`, which is
+     * **structurally always zero**: `P5` is `performers.neutrals.count`, a FIELD, and a `realized:` class
+     * exists only for an existential claim on a COLLECTION row. No class can ever carry row `P5`. So the
+     * subtrahend was not derived from the game at all — it was a filter that could not match, and a game
+     * that *did* establish neutrals would have had them silently ignored and its outfield pool overstated.
+     *
+     * The three cases, following his governing distinction of 29 September — *"an established absence is
+     * an answer, not an obstruction"*:
+     *   - a resolved value → use it;
+     *   - an established absence (`excluded`, `not constrained`, withdrawn) → the property legitimately has
+     *     no value, so there are no neutrals to subtract;
+     *   - required but unestablished, or no line at all → **refuse**. Nothing is assumed about a count the
+     *     knowledge has not settled.
+     */
+    const neutralLines = ctx.lines.filter(line => String(line.row) === 'P5')
+    if (!neutralLines.length) return
+    let neutrals = 0
+    for (const line of neutralLines) {
+        const value = resolvedValue(derived.get(line.lineId))?.value
+        if (typeof value === 'number' && Number.isFinite(value)) {
+            neutrals += value
+            continue
+        }
+        if (value !== undefined) return // a non-numeric neutral count is not something to arithmetic over
+        const entry = classified.get(line.lineId)
+        const absent =
+            line.lineState === 'WITHDRAWN' ||
+            (entry?.verdict === 'NOT_AUTHORED' && (entry.reason === 'excluded' || entry.reason === 'not constrained'))
+        if (!absent) return // required and unestablished — derive nothing
+    }
 
     const outfieldTotal = players - specialized * teams.length - neutrals
     if (outfieldTotal < 0 || outfieldTotal % teams.length !== 0) return // does not come out whole; derive nothing
     const perTeam = outfieldTotal / teams.length
 
-    const support = [
-        { kind: 'SESSION' as const, row: 'E1' },
-        { kind: 'SESSION' as const, row: 'roles' },
-    ]
+    /**
+     * **Each line cites the session row that actually supplies it.**
+     *
+     * This was a two-element array of which only `support[0]` was ever read, so every line recorded its
+     * support as `E1` — the session player count. The specialized-role lines therefore cited the player
+     * count as the source of a value that comes from the stated `roles`, which is a false provenance on a
+     * value that is otherwise correct. A trace that names the wrong source is worse than no trace.
+     */
+    const supportFor = (row: string) => (row === 'P2' ? { kind: 'SESSION' as const, row: 'E1' } : { kind: 'SESSION' as const, row: 'roles' })
 
     // The specialized-role rows come from the register, which carries the role NAME; this layer knows
     // none of them. A role the session has not stated derives nothing, because absent means NOT STATED.
@@ -242,7 +297,10 @@ function deriveRosterFromSession(
             classified.set(lineId, { lineId, lineState: 'ENUMERATED', verdict: 'RESOLVED:ENTAILED', resolvedBy: 'SESSION', reason: null, collidingItems: [] })
             derived.set(lineId, {
                 lineId,
-                entailing: [{ item: { contractId: 'session', itemId: row }, value, support: support[0] }],
+                // The item names the SESSION as the source, not a contract that does not exist. There is no
+                // contract `session` and no item `session::P2`; the session states a total, and the per-team
+                // figure is what that total plus the authored equality entails.
+                entailing: [{ item: { contractId: 'SESSION', itemId: `${row}@${team.classId}` }, value, support: supportFor(row) }],
                 bounding: [],
                 narrowing: [],
                 standingDecisions: [],
@@ -290,9 +348,19 @@ export function entailOverConcreteGame(ctx: GateContext, realized: Realized): En
             const resolved = resolvedValue(concrete.derived.get(lineId))
             if (resolved?.value === undefined) continue
 
-            const leaf = String(row.path).split('.').pop() as string
+            /**
+             * **Only an entailment may be written back as one.** `resolvedValue` resolves by four routes,
+             * and two of them are not entailments: a `COMPOSITION` survivor is the result of narrowing, and
+             * a `STANDING_DECISION` value is a decision. Writing either into the game labelled `entailed`
+             * would quietly promote a narrowing or a decision to knowledge — the exact collapse of the
+             * derived/chosen distinction this stage exists to preserve. Left alone, they stay visible as
+             * what they are.
+             */
+            if (resolved.route !== 'ENTAILMENT' && resolved.route !== 'SESSION') continue
+
+            const leaf = splitPath(String(row.path)).leaf
             // Already carried by the member realization supplied — nothing owed, and nothing to write.
-            if ((instantiation.member as Record<string, unknown>)[leaf] !== undefined) continue
+            if (readAt(instantiation.member as Record<string, unknown>, leaf) !== undefined) continue
 
             const collection = collectionPath(instantiation.path)
             const support = concrete.derived.get(lineId)?.entailing?.[0]?.support as { kind?: string } | undefined
@@ -325,9 +393,17 @@ export function entailOverConcreteGame(ctx: GateContext, realized: Realized): En
  * **Did the artifact keep what the checks derived?** The guard for the whole class of defect above.
  *
  * Any member-property line this stage resolves must be readable from the concrete game at the member's
- * own address. A value that is present in the evaluation context and absent from the game is reported,
- * and it blocks render-eligibility — because a game that passes an invariant on a value it does not
- * contain is not a game anything can render.
+ * own address. A value present in the evaluation context and absent from the game is reported, and it
+ * blocks render-eligibility — a game that passes an invariant on a value it does not contain is not a
+ * game anything can render.
+ *
+ * **This gate does not write.** The module's contract is that nothing here mutates the run, and an earlier
+ * version of this fix had `runPostRealizationGates` call the entailment pass itself so a forgetful caller
+ * could not skip it. That broke two things at once: it made the gate a writer, and it made this guard
+ * vacuous — the pass repaired the very absence the guard exists to detect, so the guard could no longer
+ * fail. Refusing is the better answer than repairing: a runner that skips the pass now gets a loud
+ * failure instead of a quietly different game, and the guard keeps its teeth. It catches both cases — the
+ * pass never ran, and the pass ran but a write did not land.
  */
 function entailmentsPersist(ctx: GateContext, realized: Realized): string[] {
     const concrete = concreteContext(ctx, realized)
@@ -345,11 +421,26 @@ function entailmentsPersist(ctx: GateContext, realized: Realized): string[] {
             const resolved = resolvedValue(concrete.derived.get(lineId))
             if (resolved?.value === undefined) continue
 
-            const leaf = String(row.path).split('.').pop() as string
+            const leaf = splitPath(String(row.path)).leaf
             const collection = collectionPath(instantiation.path)
             const bucket = readAt(realized.game, collection)
             const member = Array.isArray(bucket) ? (bucket as Record<string, unknown>[])[instantiation.memberIndex] : null
             const inGame = member ? readAt(member, leaf) : undefined
+
+            /**
+             * **This guard deliberately does NOT share the writer's route filter.** If it did, every line
+             * the writer declines would be excluded from both, and a value present in this stage's context
+             * but absent from the artifact would be invisible on both sides — which is the defect, not the
+             * guard. A line resolved by a route that may not be written back is reported as exactly that.
+             */
+            if (inGame === undefined && resolved.route !== 'ENTAILMENT' && resolved.route !== 'SESSION') {
+                problems.push(
+                    `${lineId} resolves to ${JSON.stringify(resolved.value)} by ${resolved.route}, which is a narrowing or a ` +
+                        `decision rather than an entailment, so it is not written back — and the concrete game therefore lacks ` +
+                        `${collection}[${instantiation.memberIndex}].${leaf}. Whether this stage may establish such a value is not the engine's to decide.`,
+                )
+                continue
+            }
 
             if (inGame === undefined) {
                 problems.push(
