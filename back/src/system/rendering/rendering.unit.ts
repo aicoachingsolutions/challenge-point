@@ -23,11 +23,26 @@ const wrap = (instructions: Instruction[]): RenderedActivity => ({ instructions,
 assert.equal(fixture.closure.renderEligible, true, 'the fixture must be the render-eligible closure output')
 assert.equal(fixture.game.envelope.players, 12)
 
-// ── The real rendering passes all five questions ─────────────────────────────────────────────────
+// ── The rendering is faithful; the GAME is not yet runnable ──────────────────────────────────────
+//
+// Q2, Q3 and Q4 pass — nothing is invented, nothing load-bearing is lost, no status is changed by wording.
+// **Q5 fails, and it is supposed to.** His operational-participation requirement of 1 October: a physical
+// feature a coach is told to create must participate in at least one established operational relationship.
+// A04's three channels participate in none, so the output is not a runnable coach activity. Asserting that
+// explicitly keeps the distinction honest: rendering is faithful to a game that is still insufficient.
 const rendered = renderConcreteGame(fixture)
 const report = checkFidelity(fixture, rendered)
-assert.equal(report.passed, true, `the frozen A04 rendering must be faithful; got ${JSON.stringify(report.findings.filter(f => f.severity === 'VIOLATION'))}`)
-assert.ok(rendered.instructions.length > 0, 'a passing report over zero instructions would be vacuous')
+const violationsOn = (q: number) => report.findings.filter(f => f.question === q && f.severity === 'VIOLATION')
+for (const q of [2, 3, 4] as const) {
+    assert.deepEqual(violationsOn(q), [], `Q${q} must pass: ${JSON.stringify(violationsOn(q))}`)
+}
+assert.equal(violationsOn(5).length, 3, 'the three channels must each be reported as not functionally realized')
+for (const finding of violationsOn(5)) {
+    assert.match(finding.what, /structurally present but not functionally realized/)
+    assert.match(finding.what, /WIDE-ZONE/)
+}
+assert.equal(report.passed, false, 'a game whose features do nothing is not a runnable activity')
+assert.ok(rendered.instructions.length > 0, 'a report over zero instructions would be vacuous')
 assert.ok(
     rendered.instructions.every(i => i.from.length > 0),
     'every instruction must cite at least one concrete-game property',
@@ -154,6 +169,53 @@ for (const instruction of rendered.instructions.filter(i => i.status === 'REALIZ
 assert.ok(rendered.coachingObservations.length >= 4, 'the A04 game produces several things a coach would question')
 for (const observation of rendered.coachingObservations) {
     assert.ok(!rendered.instructions.some(i => i.text === observation), 'an observation must not be issued as an instruction')
+}
+
+// ── Operational participation: the scoring line DOES participate, so the check is not blanket-failing ──
+{
+    const target = fixture.game.space.regions.find((r: any) => String(r.elementId).includes('GF2-03.a'))
+    assert.ok(target, 'the target region must exist')
+    const notes = report.findings.filter(f => f.question === 5 && f.severity === 'NOTE')
+    assert.ok(
+        notes.some(n => n.what.includes(target.elementId) && n.what.includes('participates operationally')),
+        `the scoring line participates via the objective, and must be reported as doing so; got ${JSON.stringify(notes)}`,
+    )
+    // It participates because the OBJECTIVE references it — not because it carries a function string. His
+    // ruling is explicit that a prose description is not what is required.
+    assert.equal(
+        fixture.status.notEstablished.filter((n: any) => n.path.includes('GF2-03.a') && n.path.endsWith('.functions')).length,
+        1,
+        'and its own functions row is excluded, which must not prevent it participating',
+    )
+
+    // TEETH: remove the objective's reference and the target stops participating.
+    const stripped = JSON.parse(JSON.stringify(fixture))
+    stripped.game.objectives.forEach((o: any) => delete o.reference)
+    const after = checkFidelity(stripped, renderConcreteGame(stripped))
+    assert.equal(
+        after.findings.filter(f => f.question === 5 && f.severity === 'VIOLATION').length,
+        4,
+        'with nothing referencing it, every region including the target is unrealized',
+    )
+}
+
+// ── An exclusion must discharge its operational consequences, or it is not permitted ──────────────
+//
+// The second half of his metadata rule is the half that does the work: claiming a property is accounting
+// metadata is cheap, proving its consequences reached the coach is not. Remove the instruction that carries
+// `startsEpisode`'s one consequence and the exclusion must stop being honoured.
+{
+    const withoutContinuity = wrap(rendered.instructions.filter(i => !i.text.includes('Play continues')))
+    const after = checkFidelity(fixture, withoutContinuity)
+    const q3 = after.findings.filter(f => f.question === 3 && f.severity === 'VIOLATION')
+    assert.ok(
+        q3.some(f => f.what.includes('startsEpisode') && f.what.includes('reached no instruction')),
+        `an undischarged exclusion must be a violation; got ${JSON.stringify(q3)}`,
+    )
+    // And with the instruction present it is a NOTE naming what discharges it — auditable, not silent.
+    const note = report.findings.find(f => f.question === 3 && f.what.includes('startsEpisode'))
+    assert.equal(note?.severity, 'NOTE')
+    assert.match(note!.what, /Its operational consequence\(s\) are carried by .*playState/)
 }
 
 console.log('rendering.unit.ts — ok')

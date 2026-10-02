@@ -19,7 +19,8 @@ import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame, splitPath } from '../derivation/resolved-game'
 import { derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
-import { entailOverConcreteGame, runPostRealizationGates } from './post-realization-gate'
+import { completeConcreteGame } from './assemble-concrete-game'
+import { runPostRealizationGates } from './post-realization-gate'
 import { checkRealization, isRefused, nothingInvented, realize, Realized } from './realize'
 
 const CHOICES = path.resolve(__dirname, '../../../../docs/audits/a04-realization-choices.json')
@@ -123,7 +124,7 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
 // ── The roster is entailed, and it lands in the game ─────────────────────────────────────────────
 {
     const { resolved, realized, ctx, owed } = chain()
-    const entailed = entailOverConcreteGame(ctx, realized)
+    const entailed = completeConcreteGame(ctx, realized)
 
     assert.ok(entailed.length > 0, 'the pass must entail something — a vacuous pass proves nothing')
     const outfield = entailed.filter(e => e.leaf === 'outfieldCount')
@@ -135,11 +136,18 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
         assert.equal(team.outfieldCount, 6, 'the CONCRETE GAME must carry the size')
     }
 
-    // Every entailment names an exact member address and a reason.
+    // Every entailment names an exact member address, and carries its derivation — his ruling asks for the
+    // value to survive "with its derivation/provenance intact", so the reason must say what entails it
+    // rather than merely that something did.
     for (const entry of entailed) {
         assert.ok(entry.collection.length > 0 && entry.memberIndex >= 0 && entry.leaf.length > 0, 'an entailment must address a member exactly')
-        assert.ok(entry.because.includes(entry.lineId), 'an entailment must carry the line that entails it')
+        assert.ok(entry.lineId.length > 0 && entry.path.includes(entry.leaf), 'an entailment must be identifiable and addressable')
+        assert.match(entry.because, /session|authored|register/i, `the provenance must name its source: "${entry.because}"`)
     }
+    const perTeam = entailed.find(e => e.leaf === 'outfieldCount')!
+    assert.match(perTeam.because, /12 session performers/, `the roster must carry its chain: "${perTeam.because}"`)
+    assert.match(perTeam.because, /2 teams/, perTeam.because)
+    assert.match(perTeam.because, /equality authored on P2/, perTeam.because)
 
     // The recorded member is deliberately NOT mutated: if the entailed value were written into it,
     // `nothingInvented` would account for it as something the member "carries" and would be confirming
@@ -163,7 +171,7 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
 // The exact defect, reconstructed. Without this assertion the guard is decorative.
 {
     const { realized, ctx, owed } = chain()
-    entailOverConcreteGame(ctx, realized)
+    completeConcreteGame(ctx, realized)
     assert.equal(runPostRealizationGates(ctx, owed, realized).validated, true, 'baseline')
 
     // Strip the value the gate derives, leaving the game exactly as it was before the fix.
@@ -172,19 +180,29 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
     const post = runPostRealizationGates(ctx, owed, realized)
     assert.equal(post.validated, false, 'a game whose teams lack a derived size must NOT be render-eligible')
     assert.ok(
-        post.outstanding.some(o => o.includes('does not survive into the concrete game') && o.includes('outfieldCount')),
+        post.outstanding.some(o => o.includes('did not survive into the concrete game') && o.includes('outfieldCount')),
         `the reason must name the property; got ${JSON.stringify(post.outstanding)}`,
     )
-    // And the invariant itself still passes — which is the point. GA-ROSTER-SUM was never wrong; it was
-    // passing on a value the artifact did not keep. Both facts must be visible at once.
+
+    /**
+     * **And the invariant can no longer pass on a value the artifact lacks.** This is the substance of his
+     * ruling of 1 October — *"the invariant should be checking the same persisted game state that rendering
+     * receives"* — so it is asserted rather than described.
+     *
+     * Before the relocation this same mutation left `GA-ROSTER-SUM` reporting **PASS**: the check read the
+     * gate's own derived lines, so the roster was satisfied by a figure the game did not contain, and only
+     * a separate persistence guard noticed. Now the check reads the game, so removing the value makes the
+     * invariant unevaluable. The defect is structurally impossible rather than detected after the fact.
+     */
     const roster = post.gateA.checks.find(c => c.checkId === 'GA-ROSTER-SUM')
-    assert.equal(roster?.verdict, 'PASS', 'the invariant passes; persistence is a separate failure')
+    assert.notEqual(roster?.verdict, 'PASS', 'the invariant must NOT pass on a value absent from the game')
+    assert.equal(roster?.verdict, 'NOT_EVALUABLE', `got ${roster?.verdict}: ${roster?.why}`)
 }
 
 // ── TEETH: a value that disagrees with the derivation is caught, not just an absent one ───────────
 {
     const { realized, ctx, owed } = chain()
-    entailOverConcreteGame(ctx, realized)
+    completeConcreteGame(ctx, realized)
     teamsOf(realized)[0].outfieldCount = 5
 
     const post = runPostRealizationGates(ctx, owed, realized)
@@ -198,7 +216,7 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
 // into a member escaped it. That blind spot is where the roster fix would have landed.
 {
     const { resolved, realized, ctx } = chain()
-    entailOverConcreteGame(ctx, realized)
+    completeConcreteGame(ctx, realized)
     assert.deepEqual(nothingInvented(resolved, realized), [], 'baseline')
 
     teamsOf(realized)[1].maxTouches = 3
@@ -212,7 +230,7 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
 // The tightening must not turn legitimate member content into false violations.
 {
     const { resolved, realized, ctx } = chain()
-    entailOverConcreteGame(ctx, realized)
+    completeConcreteGame(ctx, realized)
     for (const team of teamsOf(realized)) {
         assert.ok(team.designation !== undefined, 'the member carries its designation')
     }
@@ -231,7 +249,7 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
     const { realized, ctx, owed } = chain(envelope => {
         ;(envelope as any).players = 13
     })
-    const entailed = entailOverConcreteGame(ctx, realized)
+    const entailed = completeConcreteGame(ctx, realized)
     assert.equal(
         entailed.filter(e => e.leaf === 'outfieldCount').length,
         0,
@@ -260,7 +278,7 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
     assert.deepEqual([...new Set(indices)].sort(), indices.slice().sort(), 'every member has a distinct index')
     for (const i of indices) assert.ok(i >= 0, 'memberIndex must be assigned, not left at -1')
 
-    const entailed = entailOverConcreteGame(ctx, realized)
+    const entailed = completeConcreteGame(ctx, realized)
     const addressed = new Set(entailed.filter(e => e.leaf === 'outfieldCount').map(e => e.memberIndex))
     assert.equal(addressed.size, 2, 'the two entailments must address two different members')
 }
@@ -277,7 +295,7 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
             ...contract,
             items: (contract.items ?? []).map((item: any) => (String(item.row) === 'P2' ? { ...item, value, basis, valueStatus } : item)),
         }))
-        return entailOverConcreteGame(ctx, realized).filter(e => e.leaf === 'outfieldCount')
+        return completeConcreteGame(ctx, realized).filter(e => e.leaf === 'outfieldCount')
     }
 
     assert.equal(
@@ -311,7 +329,7 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
         const { realized, ctx } = chain()
         ;(ctx.envelope as any) = { ...(ctx.envelope as any), roles: { goalkeeper: bad } }
         assert.equal(
-            entailOverConcreteGame(ctx, realized).filter(e => e.leaf === 'outfieldCount').length,
+            completeConcreteGame(ctx, realized).filter(e => e.leaf === 'outfieldCount').length,
             0,
             `a stated role count of ${bad} must derive nothing — a negative one would ENLARGE the outfield pool`,
         )
@@ -340,7 +358,7 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
             c2.classified.set(line.lineId, { lineId: line.lineId, lineState: 'ENUMERATED', verdict: 'RESOLVED:ENTAILED', resolvedBy: 'SESSION', reason: null, collidingItems: [] } as any)
             c2.derived.set(line.lineId, { lineId: line.lineId, session: { value: 2, row: 'P5' }, entailing: [], bounding: [], narrowing: [], standingDecisions: [], undetermined: [], open: null } as any)
         }
-        const sizes = entailOverConcreteGame(c2, realized).filter(e => e.leaf === 'outfieldCount')
+        const sizes = completeConcreteGame(c2, realized).filter(e => e.leaf === 'outfieldCount')
         assert.equal(sizes.length, 2)
         for (const s of sizes) assert.equal(s.value, 5, '12 - 2 neutrals over 2 teams is 5 a side, not 6')
     }
@@ -353,7 +371,7 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
             c3.derived.set(line.lineId, { lineId: line.lineId, entailing: [], bounding: [], narrowing: [], standingDecisions: [], undetermined: [], open: null } as any)
         }
         assert.equal(
-            entailOverConcreteGame(c3, realized).filter(e => e.leaf === 'outfieldCount').length,
+            completeConcreteGame(c3, realized).filter(e => e.leaf === 'outfieldCount').length,
             0,
             'an unestablished neutral count must not be assumed to be zero',
         )
@@ -363,7 +381,7 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
 // ── An entailment licenses the VALUE it entails, not merely the leaf ──────────────────────────────
 {
     const { resolved, realized, ctx } = chain()
-    entailOverConcreteGame(ctx, realized)
+    completeConcreteGame(ctx, realized)
     assert.deepEqual(nothingInvented(resolved, realized), [], 'baseline')
 
     teamsOf(realized)[0].outfieldCount = 99
@@ -377,7 +395,7 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
 // and a value the member genuinely carried was reported as invented. A team can own a `roles[]` collection.
 {
     const { resolved, realized, ctx } = chain()
-    entailOverConcreteGame(ctx, realized)
+    completeConcreteGame(ctx, realized)
     const member = realized.record.instantiations[0].member as any
     member.roles = [{ name: 'PIVOT' }, { name: 'WIDE' }]
     ;(teamsOf(realized)[0] as any).roles = [{ name: 'PIVOT' }, { name: 'WIDE' }]
@@ -401,10 +419,14 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
     assert.equal(realized.record.entailed.length, 0, 'the pass has not run')
     const post = runPostRealizationGates(ctx, owed, realized)
     assert.equal(post.validated, false, 'a game the pass never ran over must not be render-eligible')
-    assert.ok(
-        post.outstanding.some(o => o.includes('does not survive into the concrete game') && o.includes('outfieldCount')),
-        `the refusal must name the property; got ${JSON.stringify(post.outstanding)}`,
-    )
+    // The refusal comes from the invariant itself, not from a bespoke guard: the roster properties are
+    // absent from the game, so the check that needs them cannot be evaluated and says which lines it
+    // wanted. That is a better failure than a guard reporting a missing write, because it needs no
+    // separate mechanism to notice.
+    const roster = post.gateA.checks.find(c => c.checkId === 'GA-ROSTER-SUM')
+    assert.equal(roster?.verdict, 'NOT_EVALUABLE', `got ${roster?.verdict}`)
+    assert.ok(String(roster?.why).includes('::P2'), `the refusal must name the lines it wanted; got ${roster?.why}`)
+    assert.ok(post.outstanding.some(o => o.includes('GA-ROSTER-SUM')), JSON.stringify(post.outstanding))
 }
 
 // ── TEETH: a write that silently does not land is caught ──────────────────────────────────────────
@@ -418,14 +440,14 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
     realized.record.instantiations.forEach(i => {
         i.memberIndex = 99 // a member that is not there
     })
-    const entailed = entailOverConcreteGame(ctx, realized)
+    const entailed = completeConcreteGame(ctx, realized)
     assert.ok(entailed.length > 0, 'the values are still derived')
     for (const team of teamsOf(realized)) {
         assert.equal(team.outfieldCount, undefined, 'and the write silently did not land')
     }
     const post = runPostRealizationGates(ctx, owed, realized)
     assert.equal(post.validated, false, 'a write that did not land must block render-eligibility')
-    assert.ok(post.outstanding.some(o => o.includes('does not survive into the concrete game')), JSON.stringify(post.outstanding))
+    assert.ok(post.outstanding.some(o => o.includes('did not survive into the concrete game')), JSON.stringify(post.outstanding))
 }
 
 console.log('post-realization.unit.ts — ok')

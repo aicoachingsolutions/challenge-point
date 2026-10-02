@@ -503,40 +503,40 @@
   ],
   "entailed": [
    {
-    "lineId": "realized:c:restated:GF2:GF2-14.a:0::P2",
+    "lineId": "assembly:performers.teams[0]::P2",
     "collection": "performers.teams",
     "memberIndex": 0,
     "leaf": "outfieldCount",
     "path": "performers.teams[0].outfieldCount",
     "value": 6,
-    "because": "entailed over the concrete game once performers.teams existed; resolved by SESSION on line realized:c:restated:GF2:GF2-14.a:0::P2"
+    "because": "entailed from the session and the authored equality: 12 session performers over 2 teams, with equality authored on P2"
    },
    {
-    "lineId": "realized:c:restated:GF2:GF2-14.a:0::P3",
+    "lineId": "assembly:performers.teams[0]::P3",
     "collection": "performers.teams",
     "memberIndex": 0,
     "leaf": "goalkeeper",
     "path": "performers.teams[0].goalkeeper",
     "value": 0,
-    "because": "entailed over the concrete game once performers.teams existed; resolved by SESSION on line realized:c:restated:GF2:GF2-14.a:0::P3"
+    "because": "the session states goalkeeper = 0 for this run, and the register declares P3 a specialized role"
    },
    {
-    "lineId": "realized:c:restated:GF2:GF2-14.a:1::P2",
+    "lineId": "assembly:performers.teams[1]::P2",
     "collection": "performers.teams",
     "memberIndex": 1,
     "leaf": "outfieldCount",
     "path": "performers.teams[1].outfieldCount",
     "value": 6,
-    "because": "entailed over the concrete game once performers.teams existed; resolved by SESSION on line realized:c:restated:GF2:GF2-14.a:1::P2"
+    "because": "entailed from the session and the authored equality: 12 session performers over 2 teams, with equality authored on P2"
    },
    {
-    "lineId": "realized:c:restated:GF2:GF2-14.a:1::P3",
+    "lineId": "assembly:performers.teams[1]::P3",
     "collection": "performers.teams",
     "memberIndex": 1,
     "leaf": "goalkeeper",
     "path": "performers.teams[1].goalkeeper",
     "value": 0,
-    "because": "entailed over the concrete game once performers.teams existed; resolved by SESSION on line realized:c:restated:GF2:GF2-14.a:1::P3"
+    "because": "the session states goalkeeper = 0 for this run, and the register declares P3 a specialized role"
    }
   ],
   "unverified": []
@@ -692,40 +692,40 @@
   ],
   "entailed": [
    {
-    "lineId": "realized:c:restated:GF2:GF2-14.a:0::P2",
+    "lineId": "assembly:performers.teams[0]::P2",
     "collection": "performers.teams",
     "memberIndex": 0,
     "leaf": "outfieldCount",
     "path": "performers.teams[0].outfieldCount",
     "value": 6,
-    "because": "entailed over the concrete game once performers.teams existed; resolved by SESSION on line realized:c:restated:GF2:GF2-14.a:0::P2"
+    "because": "entailed from the session and the authored equality: 12 session performers over 2 teams, with equality authored on P2"
    },
    {
-    "lineId": "realized:c:restated:GF2:GF2-14.a:0::P3",
+    "lineId": "assembly:performers.teams[0]::P3",
     "collection": "performers.teams",
     "memberIndex": 0,
     "leaf": "goalkeeper",
     "path": "performers.teams[0].goalkeeper",
     "value": 0,
-    "because": "entailed over the concrete game once performers.teams existed; resolved by SESSION on line realized:c:restated:GF2:GF2-14.a:0::P3"
+    "because": "the session states goalkeeper = 0 for this run, and the register declares P3 a specialized role"
    },
    {
-    "lineId": "realized:c:restated:GF2:GF2-14.a:1::P2",
+    "lineId": "assembly:performers.teams[1]::P2",
     "collection": "performers.teams",
     "memberIndex": 1,
     "leaf": "outfieldCount",
     "path": "performers.teams[1].outfieldCount",
     "value": 6,
-    "because": "entailed over the concrete game once performers.teams existed; resolved by SESSION on line realized:c:restated:GF2:GF2-14.a:1::P2"
+    "because": "entailed from the session and the authored equality: 12 session performers over 2 teams, with equality authored on P2"
    },
    {
-    "lineId": "realized:c:restated:GF2:GF2-14.a:1::P3",
+    "lineId": "assembly:performers.teams[1]::P3",
     "collection": "performers.teams",
     "memberIndex": 1,
     "leaf": "goalkeeper",
     "path": "performers.teams[1].goalkeeper",
     "value": 0,
-    "because": "entailed over the concrete game once performers.teams existed; resolved by SESSION on line realized:c:restated:GF2:GF2-14.a:1::P3"
+    "because": "the session states goalkeeper = 0 for this run, and the register declares P3 a specialized role"
    }
   ],
   "geometry": [

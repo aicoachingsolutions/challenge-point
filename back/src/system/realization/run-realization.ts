@@ -22,7 +22,7 @@ import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame, ResolvedGame } from '../derivation/resolved-game'
 import { derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
-import { entailOverConcreteGame } from './post-realization-gate'
+import { completeConcreteGame } from './assemble-concrete-game'
 import { Choice, checkRealization, Instantiation, isRefused, realize, Realized } from './realize'
 
 function resolvedGameFor(goalId: string | null, situationId: string | null) {
@@ -74,7 +74,7 @@ for (const claim of resolved.existential) {
 }
 
 const result = realize(resolved, supplied.choices, supplied.instantiations, derivationIndex, derivationEnvelope)
-if (!isRefused(result)) entailOverConcreteGame(gateContext, result as Realized)
+if (!isRefused(result)) completeConcreteGame(gateContext, result as Realized)
 
 console.log(`\nOUTCOME — ${result.outcome}`)
 console.log('-'.repeat(72))

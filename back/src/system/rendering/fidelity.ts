@@ -67,34 +67,55 @@ function quantitiesInGame(fixture: any): Set<string> {
 }
 
 /**
- * Properties established by the game that a coach does NOT act on, with the reason in each case.
+ * Properties established by the game that need no coach-facing expression.
  *
- * This list is the one place where I decide something established need not reach a coach, so it is
- * explicit, narrow and reported in the output rather than silently filtered. A path qualifies only if
- * it governs how the SYSTEM accounts for events, not how the game is laid out or played. Anything a
- * coach would have to do, say, mark, count or decide differently stays load-bearing.
+ * **His rule of 1 October, which this encodes rather than paraphrases:**
+ *
+ *   > *An established property does not require coach-facing expression when it is exclusively
+ *   > computational/accounting metadata and all of its operational consequences are already faithfully
+ *   > represented in coach-facing instructions.*
+ *
+ * It has two conditions, and the second is the one that does the work. Claiming a property is metadata is
+ * cheap; proving that its operational consequences reached the coach is not. So each exclusion must name
+ * the property paths that carry its consequences, and the checker **verifies that an instruction actually
+ * cites each of them**. An exclusion whose consequences are not in the rendering is reported as a loss,
+ * not honoured — which means this list cannot be used to quietly drop something load-bearing.
+ *
+ * `consequences: []` asserts there are none to represent, and is only defensible for a property that
+ * changes nothing a coach does — an internal convention rather than a rule of the game.
+ *
+ * He also asked that exclusions stay explicit and auditable: *"I do not want silent filtering."* Every
+ * entry is reported in the output with its reason and its discharge, whether or not it passes.
  */
-const NOT_COACH_FACING: { suffix: string; because: string }[] = [
+const NO_COACH_FACING_EXPRESSION: { suffix: string; because: string; consequences: string[] }[] = [
     {
         suffix: '.startsEpisode',
         because:
-            'an episode boundary is an event-accounting property: it tells the system when to start attributing ' +
-            'events, and a coach does nothing differently because of it. The coach-facing half of the same ' +
-            'transition — that play continues — IS carried.',
+            'an episode boundary is event-accounting metadata: it tells the system when to begin attributing ' +
+            'events, and a coach does nothing differently because of it',
+        // Its one operational consequence — that a turnover does not stop play — is carried by the
+        // playState instruction, so the second condition of his rule is discharged by naming it.
+        consequences: ['transitions[c:restated:GF2:GF2-07.a].playState'],
     },
     {
         suffix: 'space.axis',
-        because: 'an internal orientation convention naming which envelope dimension is the axis; the rendered geometry is already in metres along and across.',
+        because:
+            'an internal orientation convention naming which envelope dimension is the axis; it has no ' +
+            'operational consequence of its own because the rendered geometry is already in metres along and across',
+        consequences: [],
     },
 ]
 
 /** Game properties a coach must be told about. Absence from the rendering is a loss. */
-function loadBearingPaths(fixture: any): { coachFacing: string[]; excluded: { path: string; because: string }[] } {
+function loadBearingPaths(fixture: any): {
+    coachFacing: string[]
+    excluded: { path: string; because: string; consequences: string[] }[]
+} {
     const coachFacing: string[] = []
-    const excluded: { path: string; because: string }[] = []
+    const excluded: { path: string; because: string; consequences: string[] }[] = []
     for (const entry of [...fixture.status.derived, ...fixture.status.choices]) {
-        const rule = NOT_COACH_FACING.find(r => entry.path.endsWith(r.suffix) || entry.path === r.suffix)
-        if (rule) excluded.push({ path: entry.path, because: rule.because })
+        const rule = NO_COACH_FACING_EXPRESSION.find(r => entry.path.endsWith(r.suffix) || entry.path === r.suffix)
+        if (rule) excluded.push({ path: entry.path, because: rule.because, consequences: rule.consequences })
         else coachFacing.push(entry.path)
     }
     return { coachFacing, excluded }
@@ -113,6 +134,52 @@ function supportedQuantity(fixture: any, instruction: Instruction, quantity: num
         if (Array.isArray(collection) && collection.length === quantity) return true
     }
     return false
+}
+
+/**
+ * **Does this physical feature do anything in the game?** His ruling of 1 October, in his words:
+ *
+ *   > *Every physical game feature that a coach is instructed to create must participate in at least one
+ *   > established operational relationship in the game. That could be scoring, eligibility/access, value
+ *   > modification, transition behavior, information, or another represented game relationship. It does not
+ *   > necessarily require a prose description saying what the region is "for."*
+ *
+ * So this deliberately does NOT look at the `functions` row. A region whose `functions` is excluded may
+ * still be fully realized operationally — by being a scoring target, by modifying value, by triggering a
+ * transition, by being the subject of an information rule. And a region carrying a decorative function
+ * string would still not be realized if nothing in the game changes when players interact with it.
+ *
+ *   > *If the game establishes a channel geometrically but nothing establishes what changes when
+ *   > players/ball interact with it, then the channel is structurally present but not functionally
+ *   > realized. Rendering should not invent its purpose, and I don't think we should call the resulting
+ *   > output a runnable coach activity.*
+ *
+ * Hence a VIOLATION rather than a note: the rendering is faithful, and the activity is not runnable.
+ *
+ * A reference may name the region by its element id or by the authored item id the element id ends with —
+ * `objectives[].reference` carries `{structuralRef: {contractId, itemId}}`, and the itemId is the authored
+ * `GF2-03.a` while the element is `c:restated:GF2:GF2-03.a`. Both forms count.
+ */
+function operationalRelationships(fixture: any, elementId: string): string[] {
+    const itemId = String(elementId).split(':').pop() ?? elementId
+    const found: string[] = []
+
+    const walk = (node: unknown, path: string) => {
+        // A region's own entry describes it; it cannot be the relationship that gives it a purpose.
+        if (path.startsWith('space.regions')) return
+        if (typeof node === 'string') {
+            if (node === elementId || node === itemId) found.push(path)
+            return
+        }
+        if (Array.isArray(node)) return node.forEach((entry, i) => walk(entry, `${path}[${i}]`))
+        if (node && typeof node === 'object') {
+            for (const [key, value] of Object.entries(node as Record<string, unknown>)) {
+                walk(value, path ? `${path}.${key}` : key)
+            }
+        }
+    }
+    walk(fixture.game, '')
+    return found
 }
 
 export function checkFidelity(fixture: any, rendered: RenderedActivity): FidelityReport {
@@ -154,13 +221,33 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
             findings.push({ question: 3, severity: 'VIOLATION', what: `${path} is established by the game and no instruction carries it` })
         }
     }
-    // Reported, not hidden: every property I judged not to need carrying, and why.
+    /**
+     * Every exclusion is reported — he asked for no silent filtering — and **each one must discharge the
+     * second half of his rule**: the operational consequences it names must actually be cited by some
+     * instruction. An exclusion whose consequences did not reach the coach is a VIOLATION, because then the
+     * property was not merely accounting metadata, and dropping it lost something a coach needed.
+     */
     for (const entry of excluded) {
         if (cited.has(entry.path)) continue
+        const undischarged = entry.consequences.filter(path => !cited.has(path))
+        if (undischarged.length) {
+            findings.push({
+                question: 3,
+                severity: 'VIOLATION',
+                what:
+                    `${entry.path} was excluded as accounting metadata, but its operational consequence(s) ` +
+                    `${undischarged.join(', ')} reached no instruction — so the exclusion is not permitted`,
+            })
+            continue
+        }
         findings.push({
             question: 3,
             severity: 'NOTE',
-            what: `${entry.path} is established and deliberately not carried to the coach — ${entry.because}`,
+            what:
+                `${entry.path} is established and deliberately given no coach-facing expression — ${entry.because}. ` +
+                (entry.consequences.length
+                    ? `Its operational consequence(s) are carried by ${entry.consequences.join(', ')}.`
+                    : 'It has no operational consequence to carry.'),
         })
     }
     // An instantiated member is load-bearing too: a coach cannot field a team the rendering omits.
@@ -212,6 +299,26 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
         )
         if (!marked) {
             findings.push({ question: 5, severity: 'VIOLATION', what: `region ${region.elementId} exists in the game and has no marking instruction` })
+            continue
+        }
+        // Marked, therefore a physical feature the coach is instructed to create — so it must do something.
+        const relationships = operationalRelationships(fixture, region.elementId)
+        if (!relationships.length) {
+            findings.push({
+                question: 5,
+                severity: 'VIOLATION',
+                what:
+                    `a coach is instructed to mark ${region.elementId}, and nothing in the concrete game establishes what ` +
+                    `changes when players or the ball interact with it — no scoring, access, value modification, transition ` +
+                    `or information relationship references it. It is structurally present but not functionally realized, ` +
+                    `so this output is not a runnable coach activity.`,
+            })
+        } else {
+            findings.push({
+                question: 5,
+                severity: 'NOTE',
+                what: `${region.elementId} participates operationally via ${relationships.join(', ')}`,
+            })
         }
     }
     // A coach needs team sizes to pick sides. This is a NOTE and not a VIOLATION because the rendering is

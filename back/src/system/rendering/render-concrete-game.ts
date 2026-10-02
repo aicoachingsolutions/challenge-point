@@ -273,10 +273,17 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
 
     const excludedFunctions = (fixture.status.notEstablished ?? []).filter((n: any) => n.path.endsWith('.functions'))
     if (excludedFunctions.length) {
+        // Corrected after tracing the authored knowledge. The earlier wording called this a gap a coach
+        // would notice — framing it as unauthored. It is not: the `functions` rows are excluded *by an
+        // authored item* that names `access` as a forbidden member, and the Wide Zone separately CLAIMS a
+        // value-modification and information relationship for the channel which reaches no line at all. So
+        // the absence of a function string is not the finding; what the channel DOES is, and that is
+        // reported against his operational-participation requirement rather than here.
         observations.push(
-            `No region carries a stated function (${excludedFunctions.length} \`functions\` rows are EXCLUDED). So nothing in the game says ` +
-                `what the channels are FOR. The rendering therefore tells a coach to mark them and cannot tell them why — which is faithful, ` +
-                `and is also the gap a coach would notice first.`,
+            `${excludedFunctions.length} \`functions\` rows are excluded, and that exclusion is AUTHORED rather than missing — the Wide Zone ` +
+                `item names \`access\` as a forbidden member of \`functions\`. So a coach being told nothing about what a region is "for" is ` +
+                `not by itself the defect. The defect is that nothing in the game establishes what CHANGES when players interact with the ` +
+                `channels, which the operational-participation check reports separately.`,
         )
     }
 

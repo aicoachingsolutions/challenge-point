@@ -18,7 +18,8 @@ import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame } from '../derivation/resolved-game'
 import { derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
-import { entailOverConcreteGame, runPostRealizationGates } from '../realization/post-realization-gate'
+import { completeConcreteGame } from '../realization/assemble-concrete-game'
+import { runPostRealizationGates } from '../realization/post-realization-gate'
 import { checkRealization, isRefused, realize, Realized } from '../realization/realize'
 
 const CHOICES = path.resolve(__dirname, '../../../../docs/audits/a04-realization-choices.json')
@@ -41,7 +42,7 @@ const realized = realizationResult as Realized
 
 // Same order as the closure run: entail over the concrete game, THEN check it, THEN gate it.
 const gateContext = { ...staged.gateContext, contracts: input.contracts }
-const entailed = entailOverConcreteGame(gateContext, realized)
+const entailed = completeConcreteGame(gateContext, realized)
 
 const checks = checkRealization(resolved, realized)
 const accepted = !checks.nothingClosedWithoutAuthority.length && !checks.nothingLost.length && !checks.nothingInvented.length
