@@ -1,0 +1,897 @@
+{
+  "note": "THE CANONICAL A04 RENDERING FIXTURE, frozen from the closure run of 1 October 2026. Christian: \"use the exact A04 concrete game from this closure run as the canonical rendering fixture. For this first test, do not reselect or re-realize it.\" So rendering reads THIS artifact and never a fresh run - which is what isolates the rendering boundary from the chain that produced it. If a later run would produce a different game, that is a separate finding and this file does not move.",
+  "provenance": {
+    "inputDigest": "be719059",
+    "engineVersion": "0.1.0-increment-1",
+    "registerVersion": "4, adds BY_CONSTRUCTION, the Rules-area Action Restriction, and Performer Participation State (Christian, 2026-09-24)",
+    "derivationRulesVersion": "rev-5"
+  },
+  "closure": {
+    "preRealization": "PRE_REALIZATION_SATISFIED",
+    "realizationAuthorized": true,
+    "postRealizationValidated": true,
+    "renderEligible": true
+  },
+  "envelope": {
+    "players": 12,
+    "lengthM": 40,
+    "widthM": 30,
+    "durationMin": 20,
+    "roles": {
+      "goalkeeper": 0
+    }
+  },
+  "game": {
+    "envelope": {
+      "players": 12,
+      "area": {
+        "length_m": 40,
+        "width_m": 30
+      },
+      "duration_min": 20
+    },
+    "space": {
+      "axis": "the longer envelope dimension",
+      "regions": [
+        {
+          "elementId": "c:restated:GF2:GF2-03.a",
+          "position": {
+            "along": "attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior",
+            "across": "extends across the axis: the target lies across the direction of progression"
+          },
+          "noun": "line",
+          "realizedGeometry": {
+            "position": {
+              "along": {
+                "asAuthored": "attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior",
+                "term": "attacking end (of team T)",
+                "axis": "along",
+                "interval": {
+                  "from": 40,
+                  "to": 40
+                },
+                "anchor": 40,
+                "extentUnresolved": false,
+                "why": "the prose test is \"touches the end line T attacks\", which fixes one edge and states no depth The element's noun gives it extent in one dimension and its other axis carries that extent, so its extent on this axis is zero."
+              },
+              "across": {
+                "asAuthored": "extends across the axis: the target lies across the direction of progression",
+                "term": "full extent (of an axis)",
+                "axis": "across",
+                "interval": {
+                  "from": 0,
+                  "to": 30
+                },
+                "extentUnresolved": false,
+                "why": "An element spanning the whole of an axis, which is what \"end line to end line\" and \"extends across the axis\" both state. Axis-free, so one term serves both. APPROVED by Christian 1 October as a canonical addition to RC-21; no parallel spatial representation is kept beside it."
+              }
+            }
+          }
+        },
+        {
+          "elementId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a",
+          "noun": "channel",
+          "position": {
+            "across": "touchline-adjacent",
+            "along": "the full axis extent, end line to end line"
+          },
+          "realizedGeometry": {
+            "position": {
+              "across": {
+                "asAuthored": "touchline-adjacent",
+                "term": "touchline-adjacent",
+                "axis": "across",
+                "interval": {
+                  "from": 0,
+                  "to": 7.5
+                },
+                "anchor": 0,
+                "extentBound": {
+                  "kind": "COUNT",
+                  "min": 0.15,
+                  "max": 0.25,
+                  "term": "bounded minority (of an axis)",
+                  "fractionOfAxis": true,
+                  "preferred": false,
+                  "preferenceWithin": {
+                    "min": 6,
+                    "max": 7.5,
+                    "compatible": true,
+                    "note": "the preference, expressed inside the requirement, in metres"
+                  }
+                },
+                "extentUnresolved": false,
+                "why": "the prose test is \"touches a touchline\", which fixes one edge and states no width Extent composed from the authored required bound {\"kind\":\"COUNT\",\"min\":0.15,\"max\":0.25,\"term\":\"bounded minority (of an axis)\",\"fractionOfAxis\":true,\"preferred\":false,\"preferenceWithin\":{\"min\":6,\"max\":7.5,\"compatible\":true,\"note\":\"the preference, expressed inside the requirement, in metres\"}}; containment is checked at the widest permitted extent."
+              },
+              "along": {
+                "asAuthored": "the full axis extent, end line to end line",
+                "term": "full extent (of an axis)",
+                "axis": "along",
+                "interval": {
+                  "from": 0,
+                  "to": 40
+                },
+                "extentUnresolved": false,
+                "why": "An element spanning the whole of an axis, which is what \"end line to end line\" and \"extends across the axis\" both state. Axis-free, so one term serves both. APPROVED by Christian 1 October as a canonical addition to RC-21; no parallel spatial representation is kept beside it."
+              }
+            }
+          }
+        },
+        {
+          "elementId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03",
+          "noun": "channel",
+          "position": {
+            "across": "touchline-adjacent",
+            "along": "the full axis extent, end line to end line"
+          },
+          "realizedGeometry": {
+            "position": {
+              "across": {
+                "asAuthored": "touchline-adjacent",
+                "term": "touchline-adjacent",
+                "axis": "across",
+                "interval": {
+                  "from": 0,
+                  "to": 7.5
+                },
+                "anchor": 0,
+                "extentBound": {
+                  "kind": "COUNT",
+                  "min": 0.15,
+                  "max": 0.25,
+                  "term": "bounded minority (of an axis)",
+                  "fractionOfAxis": true,
+                  "preferred": false,
+                  "preferenceWithin": {
+                    "min": 6,
+                    "max": 7.5,
+                    "compatible": true,
+                    "note": "the preference, expressed inside the requirement, in metres"
+                  }
+                },
+                "extentUnresolved": false,
+                "why": "the prose test is \"touches a touchline\", which fixes one edge and states no width Extent composed from the authored required bound {\"kind\":\"COUNT\",\"min\":0.15,\"max\":0.25,\"term\":\"bounded minority (of an axis)\",\"fractionOfAxis\":true,\"preferred\":false,\"preferenceWithin\":{\"min\":6,\"max\":7.5,\"compatible\":true,\"note\":\"the preference, expressed inside the requirement, in metres\"}}; containment is checked at the widest permitted extent."
+              },
+              "along": {
+                "asAuthored": "the full axis extent, end line to end line",
+                "term": "full extent (of an axis)",
+                "axis": "along",
+                "interval": {
+                  "from": 0,
+                  "to": 40
+                },
+                "extentUnresolved": false,
+                "why": "An element spanning the whole of an axis, which is what \"end line to end line\" and \"extends across the axis\" both state. Axis-free, so one term serves both. APPROVED by Christian 1 October as a canonical addition to RC-21; no parallel spatial representation is kept beside it."
+              }
+            }
+          }
+        },
+        {
+          "elementId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-08.d",
+          "noun": "channel",
+          "position": {
+            "across": "touchline-adjacent",
+            "along": "the full axis extent, end line to end line"
+          },
+          "realizedGeometry": {
+            "position": {
+              "across": {
+                "asAuthored": "touchline-adjacent",
+                "term": "touchline-adjacent",
+                "axis": "across",
+                "interval": {
+                  "from": 0,
+                  "to": 7.5
+                },
+                "anchor": 0,
+                "extentBound": {
+                  "kind": "COUNT",
+                  "min": 0.15,
+                  "max": 0.25,
+                  "term": "bounded minority (of an axis)",
+                  "fractionOfAxis": true,
+                  "preferred": false,
+                  "preferenceWithin": {
+                    "min": 6,
+                    "max": 7.5,
+                    "compatible": true,
+                    "note": "the preference, expressed inside the requirement, in metres"
+                  }
+                },
+                "extentUnresolved": false,
+                "why": "the prose test is \"touches a touchline\", which fixes one edge and states no width Extent composed from the authored required bound {\"kind\":\"COUNT\",\"min\":0.15,\"max\":0.25,\"term\":\"bounded minority (of an axis)\",\"fractionOfAxis\":true,\"preferred\":false,\"preferenceWithin\":{\"min\":6,\"max\":7.5,\"compatible\":true,\"note\":\"the preference, expressed inside the requirement, in metres\"}}; containment is checked at the widest permitted extent."
+              },
+              "along": {
+                "asAuthored": "the full axis extent, end line to end line",
+                "term": "full extent (of an axis)",
+                "axis": "along",
+                "interval": {
+                  "from": 0,
+                  "to": 40
+                },
+                "extentUnresolved": false,
+                "why": "An element spanning the whole of an axis, which is what \"end line to end line\" and \"extends across the axis\" both state. Axis-free, so one term serves both. APPROVED by Christian 1 October as a canonical addition to RC-21; no parallel spatial representation is kept beside it."
+              }
+            }
+          }
+        }
+      ]
+    },
+    "value": {
+      "primaryEvent": {
+        "value": 1,
+        "kind": "line_crossed"
+      }
+    },
+    "objectives": [
+      {
+        "elementId": "c:restated:GF2:GF2-08.a",
+        "reference": {
+          "structuralRef": {
+            "contractId": "restated:GF2",
+            "itemId": "GF2-03.a"
+          },
+          "asAuthored": "the target feature: the objective-area region of GF2-03.a (line or zone)"
+        },
+        "team": "EACH_TEAM",
+        "role": "PRIMARY_SCORING"
+      }
+    ],
+    "transitions": [
+      {
+        "elementId": "c:restated:GF2:GF2-07.a",
+        "playState": "CONTINUE",
+        "startsEpisode": true
+      }
+    ],
+    "performers": {
+      "teams": [
+        {
+          "designation": "ATTACKING_TEAM",
+          "satisfies": "c:restated:GF2:GF2-14.a"
+        },
+        {
+          "designation": "DEFENDING_TEAM",
+          "satisfies": "c:restated:GF2:GF2-14.a"
+        }
+      ]
+    }
+  },
+  "record": {
+    "fromDigest": "be719059",
+    "geometry": [
+      {
+        "lineId": "c:restated:GF2:GF2-03.a::S5",
+        "path": "space.regions[c:restated:GF2:GF2-03.a].position.along",
+        "geometry": {
+          "asAuthored": "attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior",
+          "term": "attacking end (of team T)",
+          "axis": "along",
+          "interval": {
+            "from": 40,
+            "to": 40
+          },
+          "anchor": 40,
+          "extentUnresolved": false,
+          "why": "the prose test is \"touches the end line T attacks\", which fixes one edge and states no depth The element's noun gives it extent in one dimension and its other axis carries that extent, so its extent on this axis is zero."
+        }
+      },
+      {
+        "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S6",
+        "path": "space.regions[c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a].position.across",
+        "geometry": {
+          "asAuthored": "touchline-adjacent",
+          "term": "touchline-adjacent",
+          "axis": "across",
+          "interval": {
+            "from": 0,
+            "to": 7.5
+          },
+          "anchor": 0,
+          "extentBound": {
+            "kind": "COUNT",
+            "min": 0.15,
+            "max": 0.25,
+            "term": "bounded minority (of an axis)",
+            "fractionOfAxis": true,
+            "preferred": false,
+            "preferenceWithin": {
+              "min": 6,
+              "max": 7.5,
+              "compatible": true,
+              "note": "the preference, expressed inside the requirement, in metres"
+            }
+          },
+          "extentUnresolved": false,
+          "why": "the prose test is \"touches a touchline\", which fixes one edge and states no width Extent composed from the authored required bound {\"kind\":\"COUNT\",\"min\":0.15,\"max\":0.25,\"term\":\"bounded minority (of an axis)\",\"fractionOfAxis\":true,\"preferred\":false,\"preferenceWithin\":{\"min\":6,\"max\":7.5,\"compatible\":true,\"note\":\"the preference, expressed inside the requirement, in metres\"}}; containment is checked at the widest permitted extent."
+        }
+      },
+      {
+        "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S6",
+        "path": "space.regions[c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03].position.across",
+        "geometry": {
+          "asAuthored": "touchline-adjacent",
+          "term": "touchline-adjacent",
+          "axis": "across",
+          "interval": {
+            "from": 0,
+            "to": 7.5
+          },
+          "anchor": 0,
+          "extentBound": {
+            "kind": "COUNT",
+            "min": 0.15,
+            "max": 0.25,
+            "term": "bounded minority (of an axis)",
+            "fractionOfAxis": true,
+            "preferred": false,
+            "preferenceWithin": {
+              "min": 6,
+              "max": 7.5,
+              "compatible": true,
+              "note": "the preference, expressed inside the requirement, in metres"
+            }
+          },
+          "extentUnresolved": false,
+          "why": "the prose test is \"touches a touchline\", which fixes one edge and states no width Extent composed from the authored required bound {\"kind\":\"COUNT\",\"min\":0.15,\"max\":0.25,\"term\":\"bounded minority (of an axis)\",\"fractionOfAxis\":true,\"preferred\":false,\"preferenceWithin\":{\"min\":6,\"max\":7.5,\"compatible\":true,\"note\":\"the preference, expressed inside the requirement, in metres\"}}; containment is checked at the widest permitted extent."
+        }
+      },
+      {
+        "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-08.d::S6",
+        "path": "space.regions[c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-08.d].position.across",
+        "geometry": {
+          "asAuthored": "touchline-adjacent",
+          "term": "touchline-adjacent",
+          "axis": "across",
+          "interval": {
+            "from": 0,
+            "to": 7.5
+          },
+          "anchor": 0,
+          "extentBound": {
+            "kind": "COUNT",
+            "min": 0.15,
+            "max": 0.25,
+            "term": "bounded minority (of an axis)",
+            "fractionOfAxis": true,
+            "preferred": false,
+            "preferenceWithin": {
+              "min": 6,
+              "max": 7.5,
+              "compatible": true,
+              "note": "the preference, expressed inside the requirement, in metres"
+            }
+          },
+          "extentUnresolved": false,
+          "why": "the prose test is \"touches a touchline\", which fixes one edge and states no width Extent composed from the authored required bound {\"kind\":\"COUNT\",\"min\":0.15,\"max\":0.25,\"term\":\"bounded minority (of an axis)\",\"fractionOfAxis\":true,\"preferred\":false,\"preferenceWithin\":{\"min\":6,\"max\":7.5,\"compatible\":true,\"note\":\"the preference, expressed inside the requirement, in metres\"}}; containment is checked at the widest permitted extent."
+        }
+      },
+      {
+        "lineId": "c:restated:GF2:GF2-03.a::S6",
+        "path": "space.regions[c:restated:GF2:GF2-03.a].position.across",
+        "geometry": {
+          "asAuthored": "extends across the axis: the target lies across the direction of progression",
+          "term": "full extent (of an axis)",
+          "axis": "across",
+          "interval": {
+            "from": 0,
+            "to": 30
+          },
+          "extentUnresolved": false,
+          "why": "An element spanning the whole of an axis, which is what \"end line to end line\" and \"extends across the axis\" both state. Axis-free, so one term serves both. APPROVED by Christian 1 October as a canonical addition to RC-21; no parallel spatial representation is kept beside it."
+        }
+      },
+      {
+        "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S5",
+        "path": "space.regions[c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a].position.along",
+        "geometry": {
+          "asAuthored": "the full axis extent, end line to end line",
+          "term": "full extent (of an axis)",
+          "axis": "along",
+          "interval": {
+            "from": 0,
+            "to": 40
+          },
+          "extentUnresolved": false,
+          "why": "An element spanning the whole of an axis, which is what \"end line to end line\" and \"extends across the axis\" both state. Axis-free, so one term serves both. APPROVED by Christian 1 October as a canonical addition to RC-21; no parallel spatial representation is kept beside it."
+        }
+      },
+      {
+        "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S5",
+        "path": "space.regions[c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03].position.along",
+        "geometry": {
+          "asAuthored": "the full axis extent, end line to end line",
+          "term": "full extent (of an axis)",
+          "axis": "along",
+          "interval": {
+            "from": 0,
+            "to": 40
+          },
+          "extentUnresolved": false,
+          "why": "An element spanning the whole of an axis, which is what \"end line to end line\" and \"extends across the axis\" both state. Axis-free, so one term serves both. APPROVED by Christian 1 October as a canonical addition to RC-21; no parallel spatial representation is kept beside it."
+        }
+      },
+      {
+        "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-08.d::S5",
+        "path": "space.regions[c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-08.d].position.along",
+        "geometry": {
+          "asAuthored": "the full axis extent, end line to end line",
+          "term": "full extent (of an axis)",
+          "axis": "along",
+          "interval": {
+            "from": 0,
+            "to": 40
+          },
+          "extentUnresolved": false,
+          "why": "An element spanning the whole of an axis, which is what \"end line to end line\" and \"extends across the axis\" both state. Axis-free, so one term serves both. APPROVED by Christian 1 October as a canonical addition to RC-21; no parallel spatial representation is kept beside it."
+        }
+      }
+    ],
+    "choices": [
+      {
+        "lineId": "c:restated:GF2:GF2-03.a::S3",
+        "value": "line",
+        "because": "one of the two alternatives GF2 permits (zone or line). A line is chosen because GF2 authors no depth for the target and a line needs none - a zone would leave an extent question the knowledge does not answer.",
+        "path": "space.regions[c:restated:GF2:GF2-03.a].noun",
+        "authority": null,
+        "boundCheck": "WITHIN_PERMITTED_SET"
+      },
+      {
+        "lineId": "c:restated:GF2:GF2-03.a::S6",
+        "value": "extends across the axis: the target lies across the direction of progression",
+        "because": "the single member of the authored bound GF2-05.b. Adopting it is the only value inside the bound; no metre value is invented for it.",
+        "path": "space.regions[c:restated:GF2:GF2-03.a].position.across",
+        "authority": "SD-39",
+        "boundCheck": "WITHIN_PERMITTED_SET"
+      },
+      {
+        "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S5",
+        "value": "the full axis extent, end line to end line",
+        "because": "the single member of Wide Zone's authored bound for a channel's along-extent.",
+        "path": "space.regions[c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a].position.along",
+        "authority": "SD-39",
+        "boundCheck": "WITHIN_PERMITTED_SET"
+      },
+      {
+        "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S5",
+        "value": "the full axis extent, end line to end line",
+        "because": "the same authored bound, on the second channel.",
+        "path": "space.regions[c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03].position.along",
+        "authority": "SD-39",
+        "boundCheck": "WITHIN_PERMITTED_SET"
+      },
+      {
+        "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-08.d::S5",
+        "value": "the full axis extent, end line to end line",
+        "because": "the same authored bound, on the third channel.",
+        "path": "space.regions[c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-08.d].position.along",
+        "authority": "SD-39",
+        "boundCheck": "WITHIN_PERMITTED_SET"
+      },
+      {
+        "lineId": "game::V1",
+        "value": "line_crossed",
+        "because": "one of the two kinds the selection narrowed to. line_crossed is consistent with the target realized as a line; target_zone_entered would contradict the S3 choice.",
+        "path": "value.primaryEvent.kind",
+        "authority": "SD-39",
+        "boundCheck": "WITHIN_PERMITTED_SET"
+      }
+    ],
+    "instantiations": [
+      {
+        "classId": "c:restated:GF2:GF2-14.a",
+        "member": {
+          "designation": "ATTACKING_TEAM"
+        },
+        "because": "GF2-14.a asserts at least two teams exist and individuates none. First of the two.",
+        "path": "performers.teams[]"
+      },
+      {
+        "classId": "c:restated:GF2:GF2-14.a",
+        "member": {
+          "designation": "DEFENDING_TEAM"
+        },
+        "because": "second of the two the claim asserts. Two instantiations, because the claim's cardinality is part of the claim.",
+        "path": "performers.teams[]"
+      }
+    ],
+    "unverified": []
+  },
+  "status": {
+    "derived": [
+      {
+        "lineId": "c:restated:GF2:GF2-03.a::S5",
+        "path": "space.regions[c:restated:GF2:GF2-03.a].position.along",
+        "value": "attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior",
+        "resolvedBy": "ENTAILMENT"
+      },
+      {
+        "lineId": "c:restated:GF2:GF2-07.a::T6",
+        "path": "transitions[c:restated:GF2:GF2-07.a].playState",
+        "value": "CONTINUE",
+        "resolvedBy": "ENTAILMENT"
+      },
+      {
+        "lineId": "c:restated:GF2:GF2-07.a::T7",
+        "path": "transitions[c:restated:GF2:GF2-07.a].startsEpisode",
+        "value": true,
+        "resolvedBy": "STANDING_DECISION"
+      },
+      {
+        "lineId": "c:restated:GF2:GF2-08.a::J2",
+        "path": "objectives[c:restated:GF2:GF2-08.a].reference",
+        "value": {
+          "structuralRef": {
+            "contractId": "restated:GF2",
+            "itemId": "GF2-03.a"
+          },
+          "asAuthored": "the target feature: the objective-area region of GF2-03.a (line or zone)"
+        },
+        "resolvedBy": "ENTAILMENT"
+      },
+      {
+        "lineId": "c:restated:GF2:GF2-08.a::J3",
+        "path": "objectives[c:restated:GF2:GF2-08.a].team",
+        "value": "EACH_TEAM",
+        "resolvedBy": "ENTAILMENT"
+      },
+      {
+        "lineId": "c:restated:GF2:GF2-08.a::J4",
+        "path": "objectives[c:restated:GF2:GF2-08.a].role",
+        "value": "PRIMARY_SCORING",
+        "resolvedBy": "ENTAILMENT"
+      },
+      {
+        "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S3",
+        "path": "space.regions[c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a].noun",
+        "value": "channel",
+        "resolvedBy": "ENTAILMENT"
+      },
+      {
+        "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S6",
+        "path": "space.regions[c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a].position.across",
+        "value": "touchline-adjacent",
+        "resolvedBy": "ENTAILMENT"
+      },
+      {
+        "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S3",
+        "path": "space.regions[c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03].noun",
+        "value": "channel",
+        "resolvedBy": "ENTAILMENT"
+      },
+      {
+        "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S6",
+        "path": "space.regions[c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03].position.across",
+        "value": "touchline-adjacent",
+        "resolvedBy": "ENTAILMENT"
+      },
+      {
+        "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-08.d::S3",
+        "path": "space.regions[c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-08.d].noun",
+        "value": "channel",
+        "resolvedBy": "ENTAILMENT"
+      },
+      {
+        "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-08.d::S6",
+        "path": "space.regions[c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-08.d].position.across",
+        "value": "touchline-adjacent",
+        "resolvedBy": "ENTAILMENT"
+      },
+      {
+        "lineId": "game::E1",
+        "path": "envelope.players",
+        "value": 12,
+        "resolvedBy": "SESSION"
+      },
+      {
+        "lineId": "game::E2",
+        "path": "envelope.area.length_m",
+        "value": 40,
+        "resolvedBy": "SESSION"
+      },
+      {
+        "lineId": "game::E3",
+        "path": "envelope.area.width_m",
+        "value": 30,
+        "resolvedBy": "SESSION"
+      },
+      {
+        "lineId": "game::E4",
+        "path": "envelope.duration_min",
+        "value": 20,
+        "resolvedBy": "SESSION"
+      },
+      {
+        "lineId": "game::S1",
+        "path": "space.axis",
+        "value": "the longer envelope dimension",
+        "resolvedBy": "STANDING_DECISION"
+      },
+      {
+        "lineId": "game::V2",
+        "path": "value.primaryEvent.value",
+        "value": 1,
+        "resolvedBy": "STANDING_DECISION"
+      }
+    ],
+    "choices": [
+      {
+        "lineId": "c:restated:GF2:GF2-03.a::S3",
+        "path": "space.regions[c:restated:GF2:GF2-03.a].noun",
+        "value": "line",
+        "boundCheck": "WITHIN_PERMITTED_SET",
+        "authority": null,
+        "because": "one of the two alternatives GF2 permits (zone or line). A line is chosen because GF2 authors no depth for the target and a line needs none - a zone would leave an extent question the knowledge does not answer."
+      },
+      {
+        "lineId": "c:restated:GF2:GF2-03.a::S6",
+        "path": "space.regions[c:restated:GF2:GF2-03.a].position.across",
+        "value": "extends across the axis: the target lies across the direction of progression",
+        "boundCheck": "WITHIN_PERMITTED_SET",
+        "authority": "SD-39",
+        "because": "the single member of the authored bound GF2-05.b. Adopting it is the only value inside the bound; no metre value is invented for it."
+      },
+      {
+        "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S5",
+        "path": "space.regions[c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a].position.along",
+        "value": "the full axis extent, end line to end line",
+        "boundCheck": "WITHIN_PERMITTED_SET",
+        "authority": "SD-39",
+        "because": "the single member of Wide Zone's authored bound for a channel's along-extent."
+      },
+      {
+        "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S5",
+        "path": "space.regions[c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03].position.along",
+        "value": "the full axis extent, end line to end line",
+        "boundCheck": "WITHIN_PERMITTED_SET",
+        "authority": "SD-39",
+        "because": "the same authored bound, on the second channel."
+      },
+      {
+        "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-08.d::S5",
+        "path": "space.regions[c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-08.d].position.along",
+        "value": "the full axis extent, end line to end line",
+        "boundCheck": "WITHIN_PERMITTED_SET",
+        "authority": "SD-39",
+        "because": "the same authored bound, on the third channel."
+      },
+      {
+        "lineId": "game::V1",
+        "path": "value.primaryEvent.kind",
+        "value": "line_crossed",
+        "boundCheck": "WITHIN_PERMITTED_SET",
+        "authority": "SD-39",
+        "because": "one of the two kinds the selection narrowed to. line_crossed is consistent with the target realized as a line; target_zone_entered would contradict the S3 choice."
+      }
+    ],
+    "instantiations": [
+      {
+        "classId": "c:restated:GF2:GF2-14.a",
+        "member": {
+          "designation": "ATTACKING_TEAM"
+        },
+        "because": "GF2-14.a asserts at least two teams exist and individuates none. First of the two.",
+        "path": "performers.teams[]"
+      },
+      {
+        "classId": "c:restated:GF2:GF2-14.a",
+        "member": {
+          "designation": "DEFENDING_TEAM"
+        },
+        "because": "second of the two the claim asserts. Two instantiations, because the claim's cardinality is part of the claim.",
+        "path": "performers.teams[]"
+      }
+    ],
+    "geometry": [
+      {
+        "lineId": "c:restated:GF2:GF2-03.a::S5",
+        "path": "space.regions[c:restated:GF2:GF2-03.a].position.along",
+        "geometry": {
+          "asAuthored": "attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior",
+          "term": "attacking end (of team T)",
+          "axis": "along",
+          "interval": {
+            "from": 40,
+            "to": 40
+          },
+          "anchor": 40,
+          "extentUnresolved": false,
+          "why": "the prose test is \"touches the end line T attacks\", which fixes one edge and states no depth The element's noun gives it extent in one dimension and its other axis carries that extent, so its extent on this axis is zero."
+        }
+      },
+      {
+        "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S6",
+        "path": "space.regions[c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a].position.across",
+        "geometry": {
+          "asAuthored": "touchline-adjacent",
+          "term": "touchline-adjacent",
+          "axis": "across",
+          "interval": {
+            "from": 0,
+            "to": 7.5
+          },
+          "anchor": 0,
+          "extentBound": {
+            "kind": "COUNT",
+            "min": 0.15,
+            "max": 0.25,
+            "term": "bounded minority (of an axis)",
+            "fractionOfAxis": true,
+            "preferred": false,
+            "preferenceWithin": {
+              "min": 6,
+              "max": 7.5,
+              "compatible": true,
+              "note": "the preference, expressed inside the requirement, in metres"
+            }
+          },
+          "extentUnresolved": false,
+          "why": "the prose test is \"touches a touchline\", which fixes one edge and states no width Extent composed from the authored required bound {\"kind\":\"COUNT\",\"min\":0.15,\"max\":0.25,\"term\":\"bounded minority (of an axis)\",\"fractionOfAxis\":true,\"preferred\":false,\"preferenceWithin\":{\"min\":6,\"max\":7.5,\"compatible\":true,\"note\":\"the preference, expressed inside the requirement, in metres\"}}; containment is checked at the widest permitted extent."
+        }
+      },
+      {
+        "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S6",
+        "path": "space.regions[c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03].position.across",
+        "geometry": {
+          "asAuthored": "touchline-adjacent",
+          "term": "touchline-adjacent",
+          "axis": "across",
+          "interval": {
+            "from": 0,
+            "to": 7.5
+          },
+          "anchor": 0,
+          "extentBound": {
+            "kind": "COUNT",
+            "min": 0.15,
+            "max": 0.25,
+            "term": "bounded minority (of an axis)",
+            "fractionOfAxis": true,
+            "preferred": false,
+            "preferenceWithin": {
+              "min": 6,
+              "max": 7.5,
+              "compatible": true,
+              "note": "the preference, expressed inside the requirement, in metres"
+            }
+          },
+          "extentUnresolved": false,
+          "why": "the prose test is \"touches a touchline\", which fixes one edge and states no width Extent composed from the authored required bound {\"kind\":\"COUNT\",\"min\":0.15,\"max\":0.25,\"term\":\"bounded minority (of an axis)\",\"fractionOfAxis\":true,\"preferred\":false,\"preferenceWithin\":{\"min\":6,\"max\":7.5,\"compatible\":true,\"note\":\"the preference, expressed inside the requirement, in metres\"}}; containment is checked at the widest permitted extent."
+        }
+      },
+      {
+        "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-08.d::S6",
+        "path": "space.regions[c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-08.d].position.across",
+        "geometry": {
+          "asAuthored": "touchline-adjacent",
+          "term": "touchline-adjacent",
+          "axis": "across",
+          "interval": {
+            "from": 0,
+            "to": 7.5
+          },
+          "anchor": 0,
+          "extentBound": {
+            "kind": "COUNT",
+            "min": 0.15,
+            "max": 0.25,
+            "term": "bounded minority (of an axis)",
+            "fractionOfAxis": true,
+            "preferred": false,
+            "preferenceWithin": {
+              "min": 6,
+              "max": 7.5,
+              "compatible": true,
+              "note": "the preference, expressed inside the requirement, in metres"
+            }
+          },
+          "extentUnresolved": false,
+          "why": "the prose test is \"touches a touchline\", which fixes one edge and states no width Extent composed from the authored required bound {\"kind\":\"COUNT\",\"min\":0.15,\"max\":0.25,\"term\":\"bounded minority (of an axis)\",\"fractionOfAxis\":true,\"preferred\":false,\"preferenceWithin\":{\"min\":6,\"max\":7.5,\"compatible\":true,\"note\":\"the preference, expressed inside the requirement, in metres\"}}; containment is checked at the widest permitted extent."
+        }
+      },
+      {
+        "lineId": "c:restated:GF2:GF2-03.a::S6",
+        "path": "space.regions[c:restated:GF2:GF2-03.a].position.across",
+        "geometry": {
+          "asAuthored": "extends across the axis: the target lies across the direction of progression",
+          "term": "full extent (of an axis)",
+          "axis": "across",
+          "interval": {
+            "from": 0,
+            "to": 30
+          },
+          "extentUnresolved": false,
+          "why": "An element spanning the whole of an axis, which is what \"end line to end line\" and \"extends across the axis\" both state. Axis-free, so one term serves both. APPROVED by Christian 1 October as a canonical addition to RC-21; no parallel spatial representation is kept beside it."
+        }
+      },
+      {
+        "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S5",
+        "path": "space.regions[c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a].position.along",
+        "geometry": {
+          "asAuthored": "the full axis extent, end line to end line",
+          "term": "full extent (of an axis)",
+          "axis": "along",
+          "interval": {
+            "from": 0,
+            "to": 40
+          },
+          "extentUnresolved": false,
+          "why": "An element spanning the whole of an axis, which is what \"end line to end line\" and \"extends across the axis\" both state. Axis-free, so one term serves both. APPROVED by Christian 1 October as a canonical addition to RC-21; no parallel spatial representation is kept beside it."
+        }
+      },
+      {
+        "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S5",
+        "path": "space.regions[c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03].position.along",
+        "geometry": {
+          "asAuthored": "the full axis extent, end line to end line",
+          "term": "full extent (of an axis)",
+          "axis": "along",
+          "interval": {
+            "from": 0,
+            "to": 40
+          },
+          "extentUnresolved": false,
+          "why": "An element spanning the whole of an axis, which is what \"end line to end line\" and \"extends across the axis\" both state. Axis-free, so one term serves both. APPROVED by Christian 1 October as a canonical addition to RC-21; no parallel spatial representation is kept beside it."
+        }
+      },
+      {
+        "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-08.d::S5",
+        "path": "space.regions[c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-08.d].position.along",
+        "geometry": {
+          "asAuthored": "the full axis extent, end line to end line",
+          "term": "full extent (of an axis)",
+          "axis": "along",
+          "interval": {
+            "from": 0,
+            "to": 40
+          },
+          "extentUnresolved": false,
+          "why": "An element spanning the whole of an axis, which is what \"end line to end line\" and \"extends across the axis\" both state. Axis-free, so one term serves both. APPROVED by Christian 1 October as a canonical addition to RC-21; no parallel spatial representation is kept beside it."
+        }
+      }
+    ],
+    "jointConditions": [],
+    "notEstablished": [
+      {
+        "lineId": "c:restated:GF2:GF2-03.a::S4",
+        "path": "space.regions[c:restated:GF2:GF2-03.a].functions",
+        "reason": "excluded"
+      },
+      {
+        "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S4",
+        "path": "space.regions[c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a].functions",
+        "reason": "excluded"
+      },
+      {
+        "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S4",
+        "path": "space.regions[c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03].functions",
+        "reason": "excluded"
+      },
+      {
+        "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-08.d::S4",
+        "path": "space.regions[c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-08.d].functions",
+        "reason": "excluded"
+      },
+      {
+        "lineId": "game::P5",
+        "path": "performers.neutrals.count",
+        "reason": "not constrained"
+      },
+      {
+        "lineId": "game::P6a",
+        "path": "performers.neutrals.affiliation.on",
+        "reason": "not constrained"
+      },
+      {
+        "lineId": "game::P6b",
+        "path": "performers.neutrals.affiliation.joins",
+        "reason": "not constrained"
+      },
+      {
+        "lineId": "game::P7",
+        "path": "performers.neutrals.distinguishable",
+        "reason": "not constrained"
+      }
+    ]
+  }
+}
