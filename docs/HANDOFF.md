@@ -4275,3 +4275,63 @@ mapping is flagged as a vocabulary question, not guessed.
 authored/required/support-capable items in the cluster are a **trigger** and its **referents**, and the
 contract already excludes a second primary event, the channel as objective reference, and the channel as
 ACCESS region — so *modify the existing primary event* is the one candidate the knowledge has not closed off.
+
+---
+
+## 2026-10-02 (C34) — Modifier AUTHORED. Chain does NOT pass: the blocker is REPRESENTATIONAL.
+
+247 cases green, tsc clean. **Not the closure** — a new load-bearing dependency appeared, and it is not a
+knowledge gap.
+
+### The trigger check he asked for — ANSWERED: the knowledge does not establish what enters
+The contract says it itself: *"no rule for what counts as 'moving through' (ball, player, touch). The last
+is play-level, outside the boundary."* And **`REGION_ENTRY` has NO `triggerSemantics` entry** —
+`FIRST_FORWARD_PASS` is the only trigger that does (his 29 Sept ruling). The source sentence is wider than
+entry: *"Actions **starting in or moving through** the wide channel earn an advantage (bonus point, free
+restart, or scoring multiplier)"* — **two qualifying modes, neither resolved.** His MULTIPLY ×2 picks the
+third of those three advantages, which is the part the sentence does settle. **Nothing inferred.**
+
+**Second unhoused thing:** *"within the same attacking episode"*. A value modifier carries
+`condition.type`/`condition.referents`/`magnitude`/`operation`/`combination` — **no episode scope.** The
+canonical mechanism exists (`startsEpisode`, used by `FIRST_FORWARD_PASS`'s semantics) but nothing ties a
+modifier to an episode. No field invented.
+
+### Authored (ruling C34)
+V7 existence (`condition.type=region`) · V9 magnitude **2** · V9a **MULTIPLY** — both from registered closed
+lists; SD-30 says a magnitude without an operation is incomplete, so the pair is authored together. **Base
+value untouched**, so a line crossing not satisfying the condition is still worth 1. **First time V7 has
+ever carried an item**, so the object's claims about the advantage now reach lines instead of vanishing —
+the 1 October finding, closed.
+
+### WHY IT STILL CANNOT BE EVALUATED — and this is the finding
+`GA-MODIFIER-OVERLAP` is **NOT_EVALUABLE**, so realization is not authorized. The referents are the prose
+*"both wide channels of this contract, each a referent"*, and **SD-58 forbids comparing open text as
+identity**. Typing them is the canonical remedy (SD-98 precedent, same operation as C29c/C30b) and **it has
+no working form:**
+- **one item, array of two typed refs** → the array is read as a **permitted SET**, so the line becomes
+  *choose one of the two channels* — inverting the authored "both";
+- **two items, one referent each** → they **COLLIDE** (SD-02).
+
+V8b's registered valueType says *"references to regions, objects or events; **one property per referent**"*
+and **neither route implements that**. Both attempts REVERTED — the collision was mine, not the knowledge's.
+→ **His C33 restatement is what made the reference well-defined** (before it, "both wide channels" answered
+to three classes). **The knowledge is now precise and the representation cannot carry it.**
+
+### Closure condition
+`resolved game YES → authorized realization NO → … ` — stops at step two.
+**`derivationInputWithoutWideZoneModifier`** (run-bounded-selection.ts) drops the modifier from **a caller's
+own copy of the input, never from the corpus**, keeping acceptance / post-realization / rendering under
+test. The blocker has its own test asserting `NOT_EVALUABLE` and naming the check. **Deleting the function
+will not compile until every call site is revisited.** Modifier-free the pathway is unchanged: acceptance
+PASSED · Gate A PASSED · render-eligible · Q2/Q3/Q4 pass · Q5 fails on the two channels.
+
+### With him — two ways forward, both his
+(a) make **a condition on two referents** representable — smallest version: make V8b's *one property per
+referent* **accumulate** the way `functions` already does; or (b) rule that the condition names **one**
+referent, which changes what he authored. Not guessed between.
+
+### Corpus figures (reasons recorded at each assertion)
+lines **121 → 126** (V7's five owned rows enumerate) · entailed **61 → 65** · NOT_AUTHORED **23 → 24** (V10
+combination, *"never addressed"* per the contract) · added items **9 → 12**.
+
+The three check defects are preserved as regression cases at his request.
