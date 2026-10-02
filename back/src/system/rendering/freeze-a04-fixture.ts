@@ -16,7 +16,7 @@ import path from 'node:path'
 import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { indexRegister } from '../derivation/register'
-import { assembleResolvedGame, withAuthoredRegionCountSetAside } from '../derivation/resolved-game'
+import { assembleResolvedGame } from '../derivation/resolved-game'
 import { derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
 import { completeConcreteGame } from '../realization/assemble-concrete-game'
 import { runPostRealizationGates } from '../realization/post-realization-gate'
@@ -36,10 +36,7 @@ const resolved = assembleResolvedGame(result, staged.classes, index, input.contr
 if (!resolved.coherence.realizationAuthorized) throw new Error('A04 is not realization-authorized; nothing to freeze')
 
 const supplied = JSON.parse(fs.readFileSync(CHOICES, 'utf8'))
-// PENDING the authorized Wide Zone restatement — see withAuthoredRegionCountSetAside. The authored
-// "exactly two channels" now refuses A04, correctly; setting it aside here keeps the rendering pathway
-// testable on the same game until the restatement lands.
-const realizationResult = realize(withAuthoredRegionCountSetAside(resolved), supplied.choices, supplied.instantiations, index, input.envelope)
+const realizationResult = realize(resolved, supplied.choices, supplied.instantiations, index, input.envelope)
 if (isRefused(realizationResult)) throw new Error(`realization refused: ${realizationResult.because.join('; ')}`)
 const realized = realizationResult as Realized
 

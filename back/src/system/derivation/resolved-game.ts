@@ -115,25 +115,6 @@ export interface JointCondition {
     from: ItemRef
 }
 
-/**
- * **TEMPORARY, and named so it is impossible to lose: set aside the authored region count.**
- *
- * The authored *exactly two channels* now constrains realization, and A04 establishes three — so A04 is
- * refused, correctly. He has authorized the restatement that fixes it (two distinct lateral regions,
- * `wide-left` and `wide-right`) and ruled out engine-side merging, so the knowledge must establish the
- * distinction before A04 can realize again.
- *
- * Until it does, everything downstream of realization would be untestable. This sets the bound aside **in
- * callers only** — never in the engine — so the acceptance conditions, the post-realization gate and the
- * rendering pathway all stay under test, while `realize.unit.ts` separately pins the refusal itself.
- *
- * **Delete this function when the Wide Zone S2 restatement lands.** Every user is a call site of it, so
- * removing it will not compile until they are all revisited.
- */
-export function withAuthoredRegionCountSetAside<T extends { collectionCardinality: unknown[] }>(resolved: T): T {
-    return { ...resolved, collectionCardinality: [] }
-}
-
 export interface ResolvedGame {
     /** §8 — what this game was assembled from. Two runs of one input give two identical objects. */
     provenance: {
@@ -368,12 +349,37 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
      * The entry carries its identity and whatever was derived, and nothing else. An element with no
      * properties is the honest statement: this exists, and what it is like is in the other lists.
      */
+    /**
+     * **An element carries the authored selector that identifies it.** His ruling of 2 October:
+     *
+     *   > *If an authored selector is operationally required downstream, it should not disappear between
+     *   > the class and the resolved game.*
+     *
+     * It did disappear. An element arrived carrying its id, and whatever was derived about it, and nothing
+     * else — so the attributes the knowledge used to say *which* element this is were parsed onto the class
+     * and then dropped. An authored `lateral: wide-right` would have reached realization as nothing at all,
+     * and the two channels it distinguishes would both have anchored to the same touchline.
+     *
+     * This is deliberately **general** and not a transport path for one attribute: every element carries
+     * its own selector terms verbatim, whatever they constrain. `selector` is identity, not a derived
+     * value — it says which element this is, not what was established about it — so it sits beside
+     * `elementId` and the acceptance conditions treat it the same way.
+     */
+    const selectorOf = (elementId: string): { attribute: string; op: string; value?: unknown; values?: unknown }[] | undefined => {
+        const cls = classes.find(c => c.classId === elementId)
+        const terms = cls?.constraints?.terms ?? []
+        return terms.length ? terms.map(t => ({ ...t })) : undefined
+    }
+
     const ensureElement = (elementId: string, row: { path: string }): Record<string, unknown> => {
         const { container } = splitPath(row.path)
         const key = container ?? row.path
         if (!elements.has(key)) elements.set(key, { container: key, entries: new Map() })
         const bucket = elements.get(key)!
-        if (!bucket.entries.has(elementId)) bucket.entries.set(elementId, { elementId })
+        if (!bucket.entries.has(elementId)) {
+            const selector = selectorOf(elementId)
+            bucket.entries.set(elementId, selector ? { elementId, selector } : { elementId })
+        }
         return bucket.entries.get(elementId)!
     }
 
@@ -472,8 +478,35 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
                 (i: any) => String(i.itemId) === String(cls.fromItem.itemId),
             ) as { scope?: unknown } | undefined
             const ownOnly = String(item?.scope ?? '') === 'OWN_INVOLVEMENT'
+
+            /**
+             * **And the population is the one the item's SELECTOR reaches**, which scope alone does not give.
+             *
+             * Found by the restatement: two items each authoring exactly ONE channel, one `lateral=wide-left`
+             * and one `lateral=wide-right`, both on this row and this contract. Counting by scope alone gave
+             * each a population of two and refused both — the wide-right channel was being counted against
+             * the wide-left item's bound.
+             *
+             * An element counts towards an item's bound when it satisfies that item's selector, which for a
+             * conjunction of constraints means its own terms SUBSUME the item's. So `noun=channel` is
+             * satisfied by every channel however further narrowed, while `noun=channel & lateral=wide-left`
+             * is satisfied only by the left one. That keeps the earlier case working — three channels all
+             * answering to `noun=channel` still exceed an authored two — and it is why selector equality
+             * would not do.
+             */
+            const key = (t: { attribute: string; op: string; value?: unknown; values?: unknown }) =>
+                `${t.attribute}|${t.op}|${JSON.stringify('value' in t ? t.value : t.values)}`
+            const required = new Set((cls.constraints?.terms ?? []).map(key))
+            const satisfies = (other: typeof cls) => {
+                const theirs = new Set((other.constraints?.terms ?? []).map(key))
+                return [...required].every(term => theirs.has(term))
+            }
+
             const population = classes.filter(
-                other => other.row === cls.row && (!ownOnly || other.fromItem.contractId === cls.fromItem.contractId),
+                other =>
+                    other.row === cls.row &&
+                    (!ownOnly || other.fromItem.contractId === cls.fromItem.contractId) &&
+                    satisfies(other),
             )
 
             return {
@@ -567,8 +600,17 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
             elements: [...elements.values()].reduce((n, b) => n + b.entries.size, 0),
             // An element that is in the game and carries no property at all. Counted so that the
             // drop this fixed cannot come back unnoticed as a quietly shrinking game.
+            /**
+             * **Identity does not count as something established.** This counts elements the game names and
+             * knows nothing about, which is the count that makes a silent drop visible — so it must ignore
+             * the fields that say WHICH element this is rather than what is true of it.
+             *
+             * It was `Object.keys(e).length === 1`, i.e. `elementId` alone. Adding the authored `selector`
+             * to every element would have made every element look established and **blinded this guard** —
+             * the guard that exists for exactly the class of defect the selector was added to fix.
+             */
             elementsWithNothingEstablished: [...elements.values()].reduce(
-                (n, b) => n + [...b.entries.values()].filter(e => Object.keys(e).length === 1).length,
+                (n, b) => n + [...b.entries.values()].filter(e => Object.keys(e).every(k => k === 'elementId' || k === 'selector')).length,
                 0,
             ),
         },

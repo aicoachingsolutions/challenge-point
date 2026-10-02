@@ -364,6 +364,43 @@
     "fitNote": "PROMOTED 1 October. It was ASSUMED, and by §3 an assumed item bounds but never entails — which is why the roster could not derive. It is now owner-authored and entails. IT REMAINS AN ITEM OF GF2, not an engine rule: a game form that authors asymmetry displaces it through the ordinary displacement mechanism (SD-90), so equality is knowledge about THIS game form and never a universal."
    },
    "why": "the roster could not derive because equality bounded without entailing; promoting it closes that without making equal team numbers an engine-level assumption"
+  },
+  {
+   "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-02.a",
+   "ruling": "C33",
+   "set": {
+    "selector": "noun=channel & lateral=wide-left",
+    "requirement": "COUNT",
+    "value": "1",
+    "fitNote": "RESTATED 2 October (Christian), authorizing \"the canonical Wide Zone S2 restatement as two distinct lateral regions\". This item becomes the wide-left channel. The side is AUTHORED here, via the `lateral` selector attribute the register offers on S2 under AM-17; it is not inferred from the count, and AM-12 is why the contract gains nothing from AM-17 until it is restated like this. The original fitNote recorded the gap this closes: \"OWN_INVOLVEMENT because the selector cannot tell wide channels from other channels\", and the ledger asked outright for \"a side selector attribute or per-touchline relative terms\". COUNT 1 because this item now establishes exactly one region, the pair establishing exactly two."
+   },
+   "why": "the authored intent was one channel on each lateral side; the register now carries the attribute that says which side, so the knowledge states it explicitly rather than leaving two channels on one touchline"
+  },
+  {
+   "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-03",
+   "ruling": "C33",
+   "set": {
+    "selector": "noun=channel & lateral=wide-right",
+    "requirement": "COUNT",
+    "value": "1",
+    "fitNote": "RESTATED 2 October (Christian). This item becomes the wide-right channel, the other half of the pair. Its original value was COUNT 2 with the note \"Exactly two, counted over this contract's own channels so another object's channel cannot break it. The one-per-touchline split is not held (see WIDEZONE-05).\" The exactly-two is PRESERVED as two items of exactly one each, and the split the note says is not held is now held by the authored lateral values. The count is not what places it: AM-17's registered test for wide-right -- \"touches the W touchline and does not contain the midline\" -- is."
+   },
+   "why": "the authored exactly-two is preserved as two single lateral regions, so the one-per-touchline split the original note recorded as unheld is now authored rather than left to the engine"
+  },
+  {
+   "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-08.d",
+   "ruling": "C33",
+   "set": {
+    "row": "S4",
+    "selector": "noun=channel",
+    "requirement": "EQUALS",
+    "value": "perceptual-reference",
+    "strictness": "SUPPORTING",
+    "scope": "OWN_INVOLVEMENT",
+    "fitNote": "RESTATED 2 October (Christian), ruling option (i): \"WIDEZONE-08.d should not establish a third S2 region. Based on its authored meaning and its own note, its claim is that the existing Wide Zone channel population carries the perceptual-reference function/member. The COUNT 2 comes from the already-established channel population; it does not entail two additional regions or a third region. So please restate it as a property statement over the two established lateral channels, rather than an S2 existence assertion.\" Its own original note already said as much: \"COUNT 2 (from WIDEZONE-03) so both channels carry the member (RC-16)\" -- the 2 was a reference to the established population, not a second assertion of it. It therefore moves from S2 (the collection, where an existence requirement mints an element) to S4 (space.regions[].functions, where a member is asserted of whichever regions the selector reaches). NOT authorized and NOT done: making it one specific side (nothing authored establishes that perceptual-reference belongs to wide-left rather than wide-right), and identity-by-narrowing. The distinction preserved: a statement that a property applies to N existing members does not thereby assert the existence of N additional members. Form follows the only other S4 item in the corpus, which is an EQUALS naming a member (\"access (forbidden as a member of functions)\", strictness EXCLUSION); this is its positive counterpart, so EQUALS with strictness SUPPORTING. EQUALS is outside EXISTENCE_REQUIREMENTS and S4 is a FIELD, so it cannot mint an element by either route -- which is the point of the ruling.",
+    "valueStatus": "REQUIRED_RANGE"
+   },
+   "why": "it was asserting existence on the collection row while its content was a property of the channels already established; moving it to the functions row keeps element existence and properties of established elements distinct"
   }
  ],
  "added": [

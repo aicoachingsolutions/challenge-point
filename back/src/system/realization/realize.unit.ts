@@ -17,7 +17,7 @@ import { corpusInput, loadRegister } from '../derivation/corpus'
 import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { indexRegister } from '../derivation/register'
-import { assembleResolvedGame, ResolvedGame, withAuthoredRegionCountSetAside } from '../derivation/resolved-game'
+import { assembleResolvedGame, ResolvedGame } from '../derivation/resolved-game'
 import { derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
 import { checkRealization, Choice, isRefused, realize, Realized } from './realize'
 
@@ -553,27 +553,35 @@ function a04(): ResolvedGame {
 }
 
 /**
- * **A04 is REFUSED on its authored region count, and that is correct.** Pending the restatement.
+ * **An authored collection cardinality refuses an over-populated game.** Synthetic, deliberately.
  *
- * The Wide Zone authors *exactly two* channels and the run establishes three — three contributions on one
- * collection row, each minting its own element. Until 1 October that authored count was dead data: it was
- * consumed only through `existential`, and a class carrying a selector never becomes an existential claim,
- * so the number was parsed onto the class and read by nothing. A04 realized because nothing was checking.
- *
- * Making it constrain reveals that A04 was never legitimately realizing. He has authorized the restatement
- * that fixes it — two distinct lateral regions, `wide-left` and `wide-right` — and explicitly ruled out
- * engine-side merging, so the knowledge must establish the distinction. This test asserts the honest
- * current state rather than being relaxed to let A04 through.
+ * A04 WAS this test until ruling C33 of 2 October: its knowledge authored exactly two channels and three
+ * contributions each minted their own region. The restatement fixed the knowledge, so the live corpus no
+ * longer exhibits it — which is why the case is kept here by construction. The capability must stay under
+ * test after the defect that motivated it is gone.
  */
-test('A04 is refused: its knowledge authors exactly two channels and the run establishes three', () => {
+test('a collection holding more elements than its knowledge authors is refused', () => {
     const resolved = a04()
-    assert.equal(resolved.coherence.realizationAuthorized, true, 'the refusal is realization\'s, not the gate\'s')
-
-    const supplied = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../../../docs/audits/a04-realization-choices.json'), 'utf8'))
-    const refused = realize(resolved, supplied.choices, supplied.instantiations)
+    const regions = (resolved.game as any).space.regions as { elementId: string }[]
+    const over = {
+        ...resolved,
+        collectionCardinality: [
+            {
+                path: 'space.regions[]',
+                row: 'S2',
+                classId: 'synthetic:exactly-one',
+                from: { contractId: 'X', itemId: 'I' },
+                min: 1,
+                max: 1,
+                scope: 'WHOLE_GAME' as const,
+                established: regions.length,
+            },
+        ],
+    }
+    const refused = realize(over as typeof resolved, [], [])
     assert.equal(isRefused(refused), true, 'an over-produced collection is refused, not silently realized')
     assert.ok(
-        (refused as any).because.some((r: string) => r.includes('at most 2') && r.includes('establishes 3')),
+        (refused as any).because.some((r: string) => r.includes('at most 1') && r.includes(`establishes ${regions.length}`)),
         `the refusal must name the authored bound and the real count; got ${JSON.stringify((refused as any).because)}`,
     )
 })
@@ -583,10 +591,7 @@ test('THE ACCEPTANCE TEST: with the authored count satisfied, A04 realizes and a
     // around it. The three conditions are his and unchanged: nothing lost, nothing invented, nothing
     // closed without authority.
     //
-    // The cardinality bound is set aside HERE ONLY, so that the acceptance conditions stay under test while
-    // the authorized restatement is pending. It is not relaxed in the engine, and the test above pins the
-    // refusal. Once the Wide Zone S2 restatement lands this override comes out.
-    const resolved = withAuthoredRegionCountSetAside(a04())
+    const resolved = a04()
     assert.equal(resolved.coherence.realizationAuthorized, true, 'through the gate, not around it')
 
     const supplied = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../../../docs/audits/a04-realization-choices.json'), 'utf8'))

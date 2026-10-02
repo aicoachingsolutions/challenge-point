@@ -17,7 +17,7 @@ import path from 'node:path'
 import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { indexRegister } from '../derivation/register'
-import { assembleResolvedGame, splitPath, withAuthoredRegionCountSetAside } from '../derivation/resolved-game'
+import { assembleResolvedGame, splitPath } from '../derivation/resolved-game'
 import { derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
 import { completeConcreteGame } from './assemble-concrete-game'
 import { runPostRealizationGates } from './post-realization-gate'
@@ -46,8 +46,7 @@ function chain(override?: (envelope: Record<string, unknown>) => void) {
     const staged: any = runStages0to10(input)
     const index = indexRegister(input.register)
     const resolved = assembleResolvedGame(result, staged.classes, index, input.contracts)
-    // PENDING the authorized Wide Zone restatement — see withAuthoredRegionCountSetAside.
-    const realizationResult = realize(withAuthoredRegionCountSetAside(resolved), supplied.choices, supplied.instantiations, index, input.envelope)
+    const realizationResult = realize(resolved, supplied.choices, supplied.instantiations, index, input.envelope)
     if (isRefused(realizationResult)) throw new Error(`refused: ${realizationResult.because.join('; ')}`)
     return {
         resolved,

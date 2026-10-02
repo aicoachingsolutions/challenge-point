@@ -818,8 +818,20 @@ test('the corpus run reproduces the reported figures exactly', () => {
     // SD-97 removed twenty-eight lines by ruling that an existence assertion with no selector
     // individuates nothing: three objectives, two teams, two object classes and one objective set
     // were being asked separately for fields nobody owed.
-    assert.equal(result.run.counts.lines, 125)
-    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 59)
+    /**
+     * **121, not 125, since ruling C33 of 2 October.** `WIDEZONE-08.d` moved from S2 to S4: it was
+     * asserting existence on the collection row while its content was a property of channels already
+     * established, so it minted a third region. Moving it removes that element class and the four field
+     * lines it owned (S3/S4/S5/S6) — 125 − 4 = 121. His distinction: *"A statement that a property applies
+     * to N existing members does not thereby assert the existence of N additional members."*
+     */
+    assert.equal(result.run.counts.lines, 121)
+    /**
+     * **61, up from 59.** The same restatement establishes `perceptual-reference` on BOTH channels rather
+     * than on a third region of its own, so two S4 lines now resolve where none did. The functions rows
+     * were previously reported as excluded and reaching no artifact.
+     */
+    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 61)
     // **NOT_AUTHORED fell 54 → 26 across the 29 September rulings, and only five of those twenty-eight
     // were closed by authoring anything.**
     //   −9  T1a/T1b/T1c demanded of three POSSESSION_CHANGE transitions. A turnover has no last touch
@@ -834,10 +846,17 @@ test('the corpus run reproduces the reported figures exactly', () => {
     //   −4  T1c on the goal kick, and three lines whose relational constraint became DISTINCT_ON.
     //   −1  the target's across-extent, once a typed structural reference was seen to be immune to
     //       geometry: moving the region cannot change what the objectives point at.
-    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 26)
+    /**
+     * **23, down from 26, under ruling C33.** Three of the four `functions` rows previously reported as
+     * unauthored belonged to a region the restatement removed or to channels the restatement now
+     * establishes the member on. **Nothing was authored to close them** — the member was already authored;
+     * it was being asserted of a third region instead of the two that exist.
+     */
+    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 23)
     assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 0, 'cluster 3 cleared the whole population')
-    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 26, 'one GAP per unauthored line, and none for a withdrawn one')
-    assert.equal([...result.derived.lines.values()].filter((l: any) => l.open).length, 18, 'five open lines became eighteen')
+    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 23, 'one GAP per unauthored line, and none for a withdrawn one')
+    // 17 since C33: the removed third region took its one open S5 line (a channel's along-extent) with it.
+    assert.equal([...result.derived.lines.values()].filter((l: any) => l.open).length, 17, 'five open lines became seventeen')
 
     // SD-88 evaluated the conditional lines; the selector-based rule settles its own at enumeration.
     // Twelve withdrawals come from the governing-line path (the three CONTINUE transitions carry no
@@ -870,11 +889,18 @@ test('the corpus run reproduces the reported figures exactly', () => {
     // REQUIRED_RANGE contribution. They agree, so nothing collides — and the three channel
     // placements they were both describing now derive.
     assert.equal(result.failures.filter((f: any) => f.kind === 'COLLISION').length, 0)
-    for (const line of ['WIDEZONE-02.a', 'WIDEZONE-03', 'WIDEZONE-08.d']) {
+    // TWO channels since ruling C33, not three: WIDEZONE-08.d is a property statement on S4 and establishes
+    // no region, so it has no S6 placement line to resolve.
+    for (const line of ['WIDEZONE-02.a', 'WIDEZONE-03']) {
         const verdict = result.classified.get(`c:restated:WIDE-ZONE-ADVANTAGE:${line}::S6`)
         assert.equal(verdict.verdict, 'RESOLVED:ENTAILED', `${line} placement resolves once the two spellings agree`)
         assert.deepEqual(verdict.collidingItems, [])
     }
+    assert.equal(
+        result.classified.get('c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-08.d::S6'),
+        undefined,
+        'the property statement mints no element, so it owns no placement line',
+    )
 })
 
 test('Gate A fails on the corpus, and says which checks and why', () => {

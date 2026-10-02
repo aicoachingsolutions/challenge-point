@@ -71,7 +71,7 @@ import { derivationInputFor, selectFor } from './run-bounded-selection'
     assert.equal(countBounds(forbidden), null, 'and its prose count is unreadable from either direction')
 }
 
-// ── 3 · THE CORPUS EFFECT IS EXACTLY THE FIVE AUTHORED COUNT-2 ITEMS ──────────────────────────────
+// ── 3 · THE CORPUS EFFECT IS CONFINED TO AUTHORED EXACT COUNTS ────────────────────────────────────
 // Scoped so a later change to the parse cannot quietly alter other items' cardinality.
 {
     const index = indexRegister(derivationInputFor(selectFor('A04', null)).register)
@@ -84,9 +84,9 @@ import { derivationInputFor, selectFor } from './run-bounded-selection'
             if (bounds && bounds.min === bounds.max && bounds.min !== null) exact.push(`${contract.contractId}::${item.itemId}`)
         }
     }
-    assert.equal(exact.length, 5, `exactly five authored COUNT items state an exact cardinality; got ${JSON.stringify(exact)}`)
+    assert.equal(exact.length, 5, `five authored COUNT items state an exact cardinality; got ${JSON.stringify(exact)}`)
     assert.ok(exact.some(id => id.includes('GF2-14.a')), 'including the two teams')
-    assert.ok(exact.filter(id => id.includes('WIDEZONE')).length === 2, 'and the two Wide Zone channel counts')
+    assert.equal(exact.filter(id => id.includes('WIDEZONE')).length, 2, 'and the two lateral channels, one each')
 }
 
 // ── 4 · THE CARDINALITY IS NO LONGER DEAD DATA ────────────────────────────────────────────────────
@@ -99,55 +99,63 @@ import { derivationInputFor, selectFor } from './run-bounded-selection'
     assert.ok(Array.isArray(resolved.collectionCardinality), 'the resolved game must report it')
     assert.ok(resolved.collectionCardinality.length > 0, 'a report over nothing would be vacuous')
 
+    // Since ruling C33 each lateral channel item authors exactly ONE region, and the pair makes two.
     const channels = resolved.collectionCardinality.filter((b: any) => b.classId.includes('WIDEZONE'))
-    assert.ok(channels.length >= 2, 'the Wide Zone channel counts must be reported')
-    for (const bound of channels.filter((b: any) => b.max !== null)) {
-        assert.equal(bound.max, 2, 'authored exactly two')
-        assert.equal(bound.min, 2)
+    assert.equal(channels.length, 2, 'two channel items, one per side')
+    for (const bound of channels) {
+        assert.equal(bound.min, 1, 'exactly one of its own side')
+        assert.equal(bound.max, 1)
         assert.equal(bound.scope, 'OWN_INVOLVEMENT', 'the item scopes its count to its own channels')
+        assert.equal(bound.established, 1, 'and exactly one element satisfies its selector')
     }
-
-    /**
-     * **The population is the one the item's scope names, not the whole collection.**
-     *
-     * My first implementation counted every region, so the Wide Zone's "exactly two" was violated by GF2's
-     * target line — a region it says nothing about. The authoring note is explicit that the count is
-     * "counted over this contract's own channels so another object's channel cannot break it", so an
-     * OWN_INVOLVEMENT count that implicated another object would make the author's guard meaningless.
-     */
-    const wideZoneCount = channels.find((b: any) => b.max === 2)
-    assert.equal(wideZoneCount.established, 3, 'three channel classes from this contract, not four regions in the game')
-    const regionsInGame = resolved.game.space.regions.length
-    assert.equal(regionsInGame, 4, 'the collection really does hold four regions, which is why the scoping matters')
+    assert.equal(resolved.game.space.regions.length, 3, 'two channels and the target line')
 }
 
-// ── 5 · AND IT CONSTRAINS: A04 IS REFUSED WHERE THE AUTHORED COUNT IS EXCEEDED ────────────────────
+// ── 5 · THE POPULATION IS THE ONE THE SELECTOR REACHES, BY SUBSUMPTION ────────────────────────────
 //
-// The whole point of the second fix. Three channel regions against an authored exactly-two is a population
-// realization cannot fix by choosing well, so it refuses — naming the item and both numbers.
+// Two properties at once, pulling in opposite directions — which is why selector EQUALITY would not do and
+// neither would counting the whole collection:
+//   · three channels all answering to `noun=channel` DO exceed an authored two;
+//   · one `lateral=wide-left` channel does NOT exceed the OTHER side's authored one.
+// The first is the pre-restatement defect, kept under test so the restatement cannot hide it. Both go
+// through the real `assembleResolvedGame`, with synthetic classes — not through a copy of its logic here.
 {
     const input = derivationInputFor(selectFor('A04', null))
     const result: any = runDerivation(input)
-    const staged: any = runStages0to10(input)
     const index = indexRegister(input.register)
-    const resolved: any = assembleResolvedGame(result, staged.classes, index, input.contracts)
+    const noun = { attribute: 'noun', op: '=', value: 'channel' }
+    const fn = { attribute: 'functions', op: 'CONTAINS', value: 'perceptual-reference' }
+    const side = (value: string) => ({ attribute: 'lateral', op: '=', value })
+    const cls = (classId: string, terms: unknown[], min: number | null, max: number | null) => ({
+        classId,
+        row: 'S2',
+        fromItem: { contractId: 'restated:WIDE-ZONE-ADVANTAGE', itemId: classId },
+        supportedBy: [{ contractId: 'restated:WIDE-ZONE-ADVANTAGE', itemId: classId }],
+        constraints: { any: false, terms },
+        cardinality: { min, max },
+    })
+    const boundsFor = (classes: unknown[]) =>
+        (assembleResolvedGame(result, classes as any, index, input.contracts) as any).collectionCardinality as {
+            classId: string
+            max: number | null
+            established: number
+        }[]
 
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { realize, isRefused } = require('../realization/realize')
-    const outcome = realize(resolved, [], [], index, input.envelope)
-    assert.equal(isRefused(outcome), true, 'a game establishing more elements than its knowledge authors must be refused')
-    assert.ok(
-        outcome.because.some((r: string) => r.includes('at most 2') && r.includes('establishes 3')),
-        `the refusal must name the authored bound and the real count; got ${JSON.stringify(outcome.because)}`,
-    )
+    // Pre-restatement shape: three classes, all `noun=channel`, one authoring exactly two.
+    const over = boundsFor([cls('a', [noun], 1, null), cls('b', [noun], 2, 2), cls('c', [noun, fn], 2, 2)]).find(b => b.classId === 'b')!
+    assert.equal(over.established, 3, 'all three channels answer to `noun=channel`')
+    assert.ok(over.established > (over.max as number), 'so the authored exactly-two is exceeded, as it was before the restatement')
 
-    // TEETH: with the bound removed, that refusal disappears — so it is the bound doing the work.
-    const without = { ...resolved, collectionCardinality: [] }
-    const permissive = realize(without, [], [], index, input.envelope)
-    const stillCardinality = isRefused(permissive)
-        ? (permissive.because as string[]).filter(r => r.includes('at most'))
-        : []
-    assert.deepEqual(stillCardinality, [], 'with no authored cardinality there is no cardinality refusal')
+    // Post-restatement shape: two classes, distinct lateral values, each authoring exactly one.
+    const pair = [cls('L', [noun, side('wide-left')], 1, 1), cls('R', [noun, side('wide-right')], 1, 1)]
+    for (const bound of boundsFor(pair)) {
+        assert.equal(bound.established, 1, `${bound.classId}: the other side must not count against this item's bound`)
+        assert.ok(bound.established <= (bound.max as number), 'so neither side refuses the other')
+    }
+
+    // A broader item still sees both, so the pair genuinely satisfies an authored two.
+    const total = boundsFor([...pair, cls('T', [noun], 2, 2)]).find(b => b.classId === 'T')!
+    assert.equal(total.established, 3, 'the total item is satisfied by both sides and by itself')
 }
 
 console.log('cardinality.unit.ts — ok')

@@ -146,13 +146,52 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
         } else {
             const width = across?.geometry.interval
             const len = along?.geometry.interval
+
+            /**
+             * **Which touchline, where the game says which.** The authored `lateral` selector now reaches
+             * the artifact and the geometry places the two channels on opposite sides (0–7.5 m and
+             * 22.5–30 m on a 30 m width). Rendering both as "along the touchline" dropped that and a coach
+             * would mark one strip twice.
+             *
+             * It says "one" and "the opposite" rather than left and right: the authored values name the 0
+             * and far edges of an axis, which is an axis convention and not a coach's left. The pairing is
+             * established; which one a coach starts from is not, so it is not stated.
+             */
+            const lateral = (region.selector ?? []).find((t: any) => t.attribute === 'lateral')?.value
+            const sides = (game.space?.regions ?? [])
+                .map((r: any) => (r.selector ?? []).find((t: any) => t.attribute === 'lateral')?.value)
+                .filter(Boolean)
+            const paired = sides.length === 2 && new Set(sides).size === 2
+            const where = !paired || !lateral ? 'along the touchline' : lateral === sides[0] ? 'along one touchline' : 'along the opposite touchline'
+
             say(
                 'Set up',
                 status,
-                `Mark a ${noun} along the touchline, ${metres((len?.to ?? 0) - (len?.from ?? 0))} long and up to ${metres((width?.to ?? 0) - (width?.from ?? 0))} wide`,
-                [nounPath, along?.path, across?.path].filter(Boolean) as string[],
+                `Mark a ${noun} ${where}, ${metres((len?.to ?? 0) - (len?.from ?? 0))} long and up to ${metres((width?.to ?? 0) - (width?.from ?? 0))} wide`,
+                [nounPath, along?.path, across?.path, ...(paired && lateral ? [`space.regions[${region.elementId}].selector`] : [])].filter(Boolean) as string[],
                 [(len?.to ?? 0) - (len?.from ?? 0), (width?.to ?? 0) - (width?.from ?? 0)],
             )
+
+            /**
+             * **An established function is established knowledge, so it is carried.** His ruling is that a
+             * function string is not what makes a region operationally realized — and that is a separate
+             * question from whether it may be dropped. It may not: the game establishes it.
+             *
+             * Rendered close to the term rather than interpreted into a coaching purpose. Turning
+             * `perceptual-reference` into advice about what players should look at would be inventing a
+             * purpose the knowledge does not state. The system-term-to-coach-language mapping is a
+             * vocabulary question and is reported rather than guessed.
+             */
+            const functions: string[] = Array.isArray((region as any).functions) ? (region as any).functions : []
+            for (const member of functions) {
+                say(
+                    'Set up',
+                    'DERIVED',
+                    `This ${noun} is established as a ${String(member).replace(/-/g, ' ')}`,
+                    [`space.regions[${region.elementId}].functions`, `space.regions[${region.elementId}].functions[${member}]`],
+                    [],
+                )
+            }
             const preference = across?.geometry.extentBound?.preferenceWithin
             if (preference && preference.compatible && typeof preference.min === 'number') {
                 say(
