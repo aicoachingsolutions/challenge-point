@@ -4084,3 +4084,73 @@ Region functions · the manufactured `goalkeeper: 0` (engine-built from register
 sweep inventory (a dead placement guard, a standing decision applying outside its selector, preference
 bounds enforced as requirements on most paths, 860 authored justifications dropped — **only the two above
 are verified by me**). Freeze stands.
+
+---
+
+## 2026-10-01 (his five rulings) — Q5 FAILS, and that is the CORRECT result
+
+    validated concrete game  ->  complete runnable representation  ->  faithful rendering
+            YES                            NO                                 YES
+
+Q2/Q3/Q4 **PASS**, Q5 **FAILS** with three violations. **The rendering is faithful to a game that is
+insufficient, and the two are now separable** — which is what the controlled test existed to establish.
+246 cases green, tsc clean, closure still render-eligible.
+
+### 1 · Roster write-back — at the ASSEMBLY boundary (`assemble-concrete-game.ts`)
+`completeConcreteGame()` runs between realization and anything that reads the game. Two consequences, both
+intended and both his point:
+- **the gate is read-only again** (it had become a writer against its own documented contract);
+- **the invariant reads the PERSISTED GAME.** `concreteContext` takes member properties out of
+  `realized.game`, not the record. **Strip the roster → `GA-ROSTER-SUM` = NOT_EVALUABLE where it used to
+  report PASS** on a figure only it could see. **The defect class is removed, not guarded.**
+
+### 2 · His metadata rule, encoded as TWO conditions
+*"exclusively computational/accounting metadata AND all of its operational consequences are already
+faithfully represented."* The second clause is **checked**: each exclusion names the paths carrying its
+consequences and the checker verifies an instruction cites them. Remove the "play continues" instruction
+and `startsEpisode` may no longer be excluded. Every exclusion is printed with reason + discharge — no
+silent filtering.
+
+### 3 · The three channels — AUTHORABLE AND NOT AUTHORED
+Co-referential (identical derived positions; the authored count is **2**; an authored item says
+"**both** wide channels"). **The contract's own ledger already asked for the fix:** *"touchline-adjacent
+does not name which touchline and S2 has no side attribute, so 'one on each lateral side' is unheld…
+Needs a side selector attribute or per-touchline relative terms."* **The register NOW HAS it** — S2's
+`lateral` attribute with `wide-left`/`wide-right` (AM-17) — and **AM-12 forbids derivation applying it
+unasked.** So: restatement (his), nothing invented. **Avoid an engine merge** — a test asserts *"classes
+are never merged, even where their selectors coincide (SD-47)"*.
+→ **Before concluding the knowledge cannot express something, check the register AND check whether the
+contract already recorded the request.**
+
+Engine defects found alongside (do not block): `cardinalityOf` cannot tell an exact COUNT from a lower
+bound for a **string** value, so authored "2" → "at least 2"; and that cardinality is **dead data** —
+a COLLECTION row gets no line and a selectored class forms no existential claim, so nothing reads it.
+Also: the engine **refuses** to read a prose count on the EXCLUSION side citing SD-32, while **guessing**
+on the establishing side.
+
+### 4 · Operational participation — A04 FAILS, correctly
+Implemented as a Q5 requirement; deliberately does **not** read `functions` (his explicit steer). The
+scoring line participates via the objective's reference; **the three channels participate in nothing.**
+
+His question answered — **BOTH**:
+- **Failing to survive:** the Wide Zone's trigger, referents and four information rules **reach no line
+  at all** — absent from the game, from `open` AND from `notEstablished`. A collection-owned field line
+  requires an element class on the owning COLLECTION row; no support-capable existence item is authored
+  there, and the information-rule item is `ASSUMED` → barred by §3/SD-83. The contract records the hole:
+  *"no item, since V7 cannot select this object's modifier."* **Verified by injection: lines 39→56,
+  unestablished 8→17, `knowledgeVerdict` PASS→FAIL on the unauthored magnitude. A04's pass is partly
+  bought by the claims vanishing.** Third instance of the shape.
+- **Genuinely lacking:** even fixed, it could not be ESTABLISHED. *"no default among three"* for what the
+  advantage IS; *"no multiplier size or bonus points"* for its size. **The channel has an authored TRIGGER
+  and NO authored EFFECT.**
+
+### 5 · Zero-depth line and same-line scoring — unchanged, still reported as observations
+
+### Two decisions with him
+Restate the Wide Zone S2 contributions with `lateral: wide-left` / `wide-right` · decide what the channel
+advantage actually does. Rendering scope frozen; generation not broadened.
+
+### Method note worth keeping
+An agent reported an injection result I could not reproduce at first — my attempt used a `*` selector and
+hit the SD-97 path, so nothing changed. Redone with the selectors the declarations actually name, it
+reproduced exactly. **I would have reported a false negative had I stopped at my own first run.**
