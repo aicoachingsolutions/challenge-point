@@ -21,7 +21,10 @@ import { ClassifiedLine } from '../derivation/classify'
 import { DerivedLine, resolvedValue } from '../derivation/derive'
 import { GateContext, GateReport, runGates } from '../derivation/gates'
 import { ElementClass, ResolutionLine } from '../derivation/types'
-import { Realized } from './realize'
+import { collectionPath, place, readAt, Realized, RealizationRecord } from './realize'
+
+/** A value entailed once the concrete game exists, with the member address it belongs at. */
+export type Entailment = RealizationRecord['entailed'][number]
 
 export interface PostRealizationResult {
     /** The rerun report. Compare its checks against what the resolved game said was owed. */
@@ -32,6 +35,8 @@ export interface PostRealizationResult {
     validated: boolean
     /** Where it is not validated, every reason — including an invariant still not evaluable. */
     outstanding: string[]
+    /** Values this stage derived for instantiated members and wrote back into the concrete game. */
+    entailed: Entailment[]
 }
 
 /**
@@ -248,6 +253,120 @@ function deriveRosterFromSession(
     }
 }
 
+/**
+ * **Every value this stage derives for an instantiated member, and where it belongs in the game.**
+ *
+ * This exists because of a defect the rendering layer found, and the defect is worth stating because the
+ * shape recurs: `GA-ROSTER-SUM` derived six outfield players a side, passed on that figure, and **the
+ * figure was never written anywhere.** It lived in the gate's own evaluation context and died with it.
+ * So A04 was marked render-eligible while its teams carried no size at all, and a coach reading the
+ * output could not pick sides. The invariant genuinely passed; what it passed on was its own working.
+ *
+ * The rule now: **a value a check derives in order to pass must end up in the artifact.** `render-eligible`
+ * otherwise means less than it sounds — the game satisfies a property whose value nothing downstream can
+ * read.
+ *
+ * It is deliberately NOT roster-specific. It asks the general question — which member-property lines did
+ * this stage resolve that the recorded member does not carry? — so any future property derived once its
+ * subject exists is carried on the same route, rather than each one needing to remember to persist itself.
+ *
+ * What it is not: these are not realization choices. Nothing is selected and nothing bounded. The value
+ * is entailed, it is recorded under its own name with the chain that entails it, and `nothingInvented`
+ * accounts for it by that name rather than by the blanket permission membership used to confer.
+ */
+export function entailOverConcreteGame(ctx: GateContext, realized: Realized): Entailment[] {
+    const concrete = concreteContext(ctx, realized)
+    const entailments: Entailment[] = []
+
+    for (const cls of concrete.classes) {
+        const match = /^realized:(.+):(\d+)$/.exec(cls.classId)
+        if (!match) continue
+        const instantiation = realized.record.instantiations[Number(match[2])]
+        if (!instantiation || instantiation.memberIndex < 0) continue
+
+        for (const row of ctx.index.rows.values()) {
+            if (row.kind !== 'FIELD' || ctx.index.ownerRow.get(row.id) !== cls.row) continue
+            const lineId = `${cls.classId}::${row.id}`
+            const resolved = resolvedValue(concrete.derived.get(lineId))
+            if (resolved?.value === undefined) continue
+
+            const leaf = String(row.path).split('.').pop() as string
+            // Already carried by the member realization supplied — nothing owed, and nothing to write.
+            if ((instantiation.member as Record<string, unknown>)[leaf] !== undefined) continue
+
+            const collection = collectionPath(instantiation.path)
+            const support = concrete.derived.get(lineId)?.entailing?.[0]?.support as { kind?: string } | undefined
+            entailments.push({
+                lineId,
+                collection,
+                memberIndex: instantiation.memberIndex,
+                leaf,
+                path: `${collection}[${instantiation.memberIndex}].${leaf}`,
+                value: resolved.value,
+                because: `entailed over the concrete game once ${collection} existed; resolved by ${support?.kind ?? 'the derivation'} on line ${lineId}`,
+            })
+        }
+    }
+
+    // Written into the game, and recorded. The recorded member is deliberately left alone: if the
+    // entailed value were written into it, `nothingInvented` would account for it as something the
+    // member "carries", and the check would be confirming my own write rather than an entailment.
+    for (const entailment of entailments) {
+        const bucket = readAt(realized.game, entailment.collection)
+        const member = Array.isArray(bucket) ? (bucket as Record<string, unknown>[])[entailment.memberIndex] : null
+        if (!member) continue
+        place(member, entailment.leaf, entailment.value)
+    }
+    realized.record.entailed = entailments
+    return entailments
+}
+
+/**
+ * **Did the artifact keep what the checks derived?** The guard for the whole class of defect above.
+ *
+ * Any member-property line this stage resolves must be readable from the concrete game at the member's
+ * own address. A value that is present in the evaluation context and absent from the game is reported,
+ * and it blocks render-eligibility — because a game that passes an invariant on a value it does not
+ * contain is not a game anything can render.
+ */
+function entailmentsPersist(ctx: GateContext, realized: Realized): string[] {
+    const concrete = concreteContext(ctx, realized)
+    const problems: string[] = []
+
+    for (const cls of concrete.classes) {
+        const match = /^realized:(.+):(\d+)$/.exec(cls.classId)
+        if (!match) continue
+        const instantiation = realized.record.instantiations[Number(match[2])]
+        if (!instantiation || instantiation.memberIndex < 0) continue
+
+        for (const row of ctx.index.rows.values()) {
+            if (row.kind !== 'FIELD' || ctx.index.ownerRow.get(row.id) !== cls.row) continue
+            const lineId = `${cls.classId}::${row.id}`
+            const resolved = resolvedValue(concrete.derived.get(lineId))
+            if (resolved?.value === undefined) continue
+
+            const leaf = String(row.path).split('.').pop() as string
+            const collection = collectionPath(instantiation.path)
+            const bucket = readAt(realized.game, collection)
+            const member = Array.isArray(bucket) ? (bucket as Record<string, unknown>[])[instantiation.memberIndex] : null
+            const inGame = member ? readAt(member, leaf) : undefined
+
+            if (inGame === undefined) {
+                problems.push(
+                    `${lineId} resolves to ${JSON.stringify(resolved.value)} in this stage's context, and ` +
+                        `${collection}[${instantiation.memberIndex}].${leaf} is absent from the concrete game — the check would pass on a value nothing can read`,
+                )
+            } else if (JSON.stringify(inGame) !== JSON.stringify(resolved.value)) {
+                problems.push(
+                    `${lineId} resolves to ${JSON.stringify(resolved.value)} but the concrete game holds ${JSON.stringify(inGame)} at ` +
+                        `${collection}[${instantiation.memberIndex}].${leaf}`,
+                )
+            }
+        }
+    }
+    return problems
+}
+
 export function runPostRealizationGates(ctx: GateContext, resolvedOwed: { checkId: string; clause: string }[], realized: Realized): PostRealizationResult {
     const gateA = runGates(concreteContext(ctx, realized)).gateA
 
@@ -283,5 +402,13 @@ export function runPostRealizationGates(ctx: GateContext, resolvedOwed: { checkI
         outstanding.push(`${check.checkId} FAILS on the concrete game though it did not on the resolved game: ${check.why}`)
     }
 
-    return { gateA, owed, validated: outstanding.length === 0, outstanding }
+    // **And a value a check derived must be in the game.** This blocks render-eligibility rather than
+    // merely reporting, because the alternative is what A04 did: pass every invariant while missing a
+    // property a coach needs. An invariant satisfied by the gate's own scratch space has proved nothing
+    // about the artifact.
+    for (const problem of entailmentsPersist(ctx, realized)) {
+        outstanding.push(`a derived value does not survive into the concrete game: ${problem}`)
+    }
+
+    return { gateA, owed, validated: outstanding.length === 0, outstanding, entailed: realized.record.entailed }
 }

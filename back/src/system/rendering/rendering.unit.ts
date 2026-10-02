@@ -109,18 +109,44 @@ for (const instruction of rendered.instructions.filter(i => i.status === 'REALIZ
     assert.ok(violations(r, 5).length >= 3, 'each unmarked region must be reported')
 }
 
-// ── The team-size gap is reported, and NOT repaired ───────────────────────────────────────────────
+// ── The team size reaches the coach, BECAUSE the game now establishes it ──────────────────────────
+//
+// This block previously asserted the opposite — that 6 must appear nowhere — because the game did not
+// carry a team size and a renderer producing one would have been inventing it. The fix is upstream: the
+// roster is now entailed into the concrete game, so rendering carries it like any other property. The
+// assertion that matters has not changed, only what satisfies it: **the number in the text must come
+// from the game.**
 {
-    const sizeNote = report.findings.find(f => f.question === 5 && f.what.includes('outfieldCount'))
-    assert.ok(sizeNote, 'the missing team size must be reported')
-    assert.equal(sizeNote!.severity, 'NOTE', 'the rendering is faithful; the game is what lacks the number')
-    // The forbidden repair: 6 must appear nowhere in the coach-facing text.
-    for (const instruction of rendered.instructions) {
-        assert.doesNotMatch(instruction.text, /\bteams? of 6\b|\b6-a-side\b/, 'rendering must not invent the team size')
+    const teams = fixture.game.performers.teams
+    assert.ok(teams.length > 0, 'the fixture must contain teams')
+    for (const team of teams) {
+        assert.equal(typeof team.outfieldCount, 'number', 'every team must carry its size in the game')
+    }
+    const players = rendered.instructions.filter(i => i.section === 'Players')
+    assert.ok(
+        players.some(i => /\b2 teams of 6\b/.test(i.text)),
+        `a coach must be told the team size; got ${JSON.stringify(players.map(i => i.text))}`,
+    )
+    assert.equal(report.findings.filter(f => f.question === 5 && f.what.includes('outfieldCount')).length, 0, 'the Q5 gap is closed')
+    assert.ok(
+        !rendered.coachingObservations.some(o => o.includes('neither team a size')),
+        'the roster observation must not fire once the game carries the size',
+    )
+    // And it is the GAME's number, not arithmetic the renderer did: strip the game of team sizes and the
+    // rendering must fall back to the count alone rather than recomputing 12 / 2.
+    const stripped = JSON.parse(JSON.stringify(fixture))
+    stripped.game.performers.teams.forEach((t: any) => delete t.outfieldCount)
+    const withoutSizes = renderConcreteGame(stripped)
+    assert.ok(
+        withoutSizes.instructions.some(i => i.section === 'Players' && /^2 teams$/.test(i.text)),
+        'with no size in the game the rendering must state the count only',
+    )
+    for (const instruction of withoutSizes.instructions) {
+        assert.doesNotMatch(instruction.text, /\bteams? of 6\b|\b6-a-side\b/, 'rendering must never derive the team size itself')
     }
     assert.ok(
-        rendered.coachingObservations.some(o => o.includes('outfieldCount') || o.includes('neither team a size')),
-        'the gap must be returned as evidence',
+        withoutSizes.coachingObservations.some(o => o.includes('neither team a size')),
+        'and it must report the gap rather than closing it',
     )
 }
 

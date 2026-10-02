@@ -64,7 +64,36 @@ export interface RealizationRecord {
      */
     geometry: { lineId: string; path: string; geometry: RealizedGeometry }[]
     choices: RecordedChoice[]
-    instantiations: (Instantiation & { path: string })[]
+    /**
+     * `memberIndex` is the member's position in the collection it was placed into. Two members of the
+     * same class carry the same `satisfies`, so a path cannot tell them apart — the index is the only
+     * exact identity, and `nothingInvented` needs it to know which recorded member a value belongs to.
+     */
+    instantiations: (Instantiation & { path: string; memberIndex: number })[]
+    /**
+     * **Values entailed once the concrete game exists**, written back into it.
+     *
+     * Some properties cannot be derived until realization has created their subject. The roster is the
+     * case that exposed this: the outfield count per team follows necessarily from the session total,
+     * the stated specialized roles, the instantiated team count and an authored equality item — but
+     * none of that can be evaluated until the teams exist, which is after realization.
+     *
+     * These are **not realization choices.** Nothing is selected and nothing is bounded; the value is
+     * entailed, and the entry carries the chain that entails it. They are recorded separately precisely
+     * so they cannot be mistaken for choices, and so `nothingInvented` can account for them by name
+     * rather than by the blanket permission that membership of an instantiation used to confer.
+     */
+    entailed: {
+        lineId: string
+        /** The collection, the member's index in it, and the leaf — the only exact address of a member's property. */
+        collection: string
+        memberIndex: number
+        leaf: string
+        /** Display form, for traces and provenance: `performers.teams[1].outfieldCount`. */
+        path: string
+        value: unknown
+        because: string
+    }[]
     /**
      * Choices whose bound is a qualitative term. SD-15 forbids inventing a number for one, so the
      * realizer cannot check the value against it and says so rather than implying it verified.
@@ -91,7 +120,7 @@ export const isRefused = (result: RealizationResult): result is Refused => resul
 
 // ---------------------------------------------------------------------------------------------
 
-function readAt(root: Record<string, unknown>, path: string): unknown {
+export function readAt(root: Record<string, unknown>, path: string): unknown {
     let node: any = root
     for (const part of path.split('.')) {
         if (typeof node !== 'object' || node === null) return undefined
@@ -100,7 +129,7 @@ function readAt(root: Record<string, unknown>, path: string): unknown {
     return node
 }
 
-function place(root: Record<string, unknown>, path: string, value: unknown): void {
+export function place(root: Record<string, unknown>, path: string, value: unknown): void {
     const parts = path.split('.')
     let node: any = root
     for (const part of parts.slice(0, -1)) {
@@ -118,7 +147,7 @@ function place(root: Record<string, unknown>, path: string, value: unknown): voi
  * would have silently missed every member realization supplied. The concrete game must have one
  * collection per collection.
  */
-const collectionPath = (path: string): string => path.replace(/\[\]$/, '')
+export const collectionPath = (path: string): string => path.replace(/\[\]$/, '')
 
 /** `space.regions[c:x:y].position.along` → the element bucket and the leaf inside it. */
 function splitElementPath(path: string): { container: string; elementId: string; leaf: string } | null {
@@ -302,14 +331,14 @@ export function realize(
         if (!seen.has(open.lineId)) because.push(`${open.lineId} is open and was not chosen: a concrete game leaves no freedom unclosed`)
     }
 
-    const recordedInstantiations: (Instantiation & { path: string })[] = []
+    const recordedInstantiations: (Instantiation & { path: string; memberIndex: number })[] = []
     for (const instantiation of instantiations) {
         const claim = existentialById.get(instantiation.classId)
         if (!claim) {
             because.push(`${instantiation.classId}: no existential claim authorizes instantiating a member here`)
             continue
         }
-        recordedInstantiations.push({ ...instantiation, path: claim.path })
+        recordedInstantiations.push({ ...instantiation, path: claim.path, memberIndex: -1 })
     }
     for (const claim of resolved.existential) {
         const made = recordedInstantiations.filter(i => i.classId === claim.classId).length
@@ -399,6 +428,7 @@ export function realize(
         const path = collectionPath(instantiation.path)
         const bucket = readAt(game, path)
         const list = Array.isArray(bucket) ? (bucket as unknown[]) : []
+        instantiation.memberIndex = list.length
         place(game, path, [...list, { ...instantiation.member, satisfies: instantiation.classId }])
     }
 
@@ -486,6 +516,9 @@ export function realize(
             geometry,
             choices: recorded,
             instantiations: recordedInstantiations,
+            // Empty here by construction: nothing is entailed over the concrete game until the concrete
+            // game exists. The post-realization entailment pass fills this.
+            entailed: [],
             unverified: recorded.filter(c => c.boundCheck === 'UNVERIFIABLE_QUALITATIVE_BOUND').map(c => c.lineId),
         },
     }
@@ -552,34 +585,70 @@ export function nothingInvented(resolved: ResolvedGame, realized: Realized): str
     }
     const instantiated = new Set(realized.record.instantiations.map(i => collectionPath(i.path)))
 
+    /**
+     * **Membership of an instantiation is no longer a blanket permission.**
+     *
+     * This check used to return as soon as it was inside an instantiated member, on the grounds that
+     * the existential claim authorized it and the record held it. That was true of the fields the member
+     * actually arrived with — and it meant **any value written into a member afterwards escaped the
+     * invention check entirely.** Writing the derived roster into a team would have landed in exactly
+     * that blind spot, which is how a fix for one silent loss creates the next.
+     *
+     * So a value inside a member is accounted only if the member genuinely carries it, or a recorded
+     * entailment names it. Anything else is an invention, member or not.
+     */
+    const memberOf = new Map<string, Record<string, unknown>>()
+    const entailedLeaves = new Map<string, Set<string>>()
+    const key = (collection: string, index: number) => `${collection}#${index}`
+    for (const instantiation of realized.record.instantiations) {
+        memberOf.set(key(collectionPath(instantiation.path), instantiation.memberIndex), instantiation.member)
+    }
+    for (const entry of realized.record.entailed) {
+        const k = key(entry.collection, entry.memberIndex)
+        if (!entailedLeaves.has(k)) entailedLeaves.set(k, new Set())
+        entailedLeaves.get(k)!.add(entry.leaf)
+    }
+
     const problems: string[] = []
-    const walk = (node: unknown, path: string, insideInstantiation: boolean) => {
+    /** The member a value sits inside, and the leaf path it has reached within that member. */
+    type Within = { member: Record<string, unknown>; entailed: Set<string>; leaf: string; label: string } | null
+    const walk = (node: unknown, path: string, within: Within) => {
         // **Stop at an accounted path.** A derived value may itself be a structured object — a typed
         // structural reference is `{structuralRef: {contractId, itemId}, asAuthored}` — and its
         // internal shape is part of that one value, not three separate unaccounted ones. Descending
         // into it reported the contents of derived knowledge as inventions, which is how this check
         // first ran: three violations, every one of them a value the run had derived.
-        if (path && accounted.has(path)) return
+        if (path && accounted.has(path) && !within) return
         if (Array.isArray(node)) {
             const here = instantiated.has(path)
-            node.forEach(entry => {
+            node.forEach((entry, i) => {
                 const id = entry && typeof entry === 'object' ? (entry as any).elementId ?? (entry as any).satisfies : null
-                walk(entry, id ? `${path}[${id}]` : path, insideInstantiation || (here && !!(entry as any)?.satisfies))
+                const member = here && (entry as any)?.satisfies ? memberOf.get(key(path, i)) : undefined
+                const next: Within = member
+                    ? { member, entailed: entailedLeaves.get(key(path, i)) ?? new Set(), leaf: '', label: `${path}[${i}]` }
+                    : within
+                walk(entry, id ? `${path}[${id}]` : path, next)
             })
             return
         }
         if (node && typeof node === 'object') {
             for (const [k, v] of Object.entries(node)) {
                 if (k === 'elementId' || k === 'satisfies') continue
-                walk(v, path ? `${path}.${k}` : k, insideInstantiation)
+                walk(v, path ? `${path}.${k}` : k, within ? { ...within, leaf: within.leaf ? `${within.leaf}.${k}` : k } : null)
             }
             return
         }
         if (node === undefined) return
-        if (insideInstantiation) return // authorized by the existential claim, and recorded
+        if (within) {
+            // Carried by the member the existential claim authorized, or named by a recorded entailment.
+            if (readAt(within.member, within.leaf) !== undefined) return
+            if (within.entailed.has(within.leaf)) return
+            problems.push(`${within.label}.${within.leaf}: ${JSON.stringify(node)} is inside an instantiated member that does not carry it, and no entailment accounts for it`)
+            return
+        }
         if (!accounted.has(path)) problems.push(`${path}: ${JSON.stringify(node)} traces to nothing derived, chosen or instantiated`)
     }
-    walk(realized.game, '', false)
+    walk(realized.game, '', null)
     return problems
 }
 

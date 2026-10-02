@@ -20,7 +20,7 @@ import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame } from '../derivation/resolved-game'
 import { derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
-import { runPostRealizationGates } from './post-realization-gate'
+import { entailOverConcreteGame, runPostRealizationGates } from './post-realization-gate'
 import { checkRealization, isRefused, realize, Realized } from './realize'
 
 const goalId = process.argv.find(a => /^[A-Z]+[0-9]+$/.test(a)) ?? 'A04'
@@ -102,6 +102,20 @@ for (const instantiation of realized.record.instantiations) {
 }
 if (realized.record.unverified.length) console.log(`  unverified against a qualitative bound (SD-15): ${realized.record.unverified.join(', ')}`)
 
+// ---------------------------------------------------------------------------------------------
+// **Entailment over the concrete game, before anything checks it.** Some properties cannot be derived
+// until realization has created their subject — the roster is the case that proved it. This runs here,
+// between realization and the acceptance conditions, so the game the conditions read is the finished
+// one and the entailed values are checked like any other.
+rule('4b · ENTAILED OVER THE CONCRETE GAME — derived once its subject existed')
+const gateContext = { ...staged.gateContext, contracts: input.contracts }
+const entailed = entailOverConcreteGame(gateContext, realized)
+if (!entailed.length) console.log('  nothing — no member property became derivable once the members existed')
+for (const entry of entailed) {
+    console.log(`  ${entry.path} -> ${JSON.stringify(entry.value)}`)
+    console.log(`      ${entry.because}`)
+}
+
 rule('5 · ACCEPTANCE — nothing lost, nothing invented, nothing closed without authority')
 const checks = checkRealization(resolved, realized)
 const report = (label: string, problems: string[]) => {
@@ -125,7 +139,7 @@ console.log(
 // ---------------------------------------------------------------------------------------------
 rule('7 · POST-REALIZATION GATE A — the same invariants, now that their subjects exist')
 const post = runPostRealizationGates(
-    { ...staged.gateContext, contracts: input.contracts },
+    gateContext,
     resolved.coherence.postRealizationRequired.map(o => ({ checkId: o.checkId, clause: o.clause })),
     realized,
 )

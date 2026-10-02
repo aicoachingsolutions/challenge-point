@@ -114,7 +114,11 @@ export function derivationInputFor(selection: BoundedSelection): DerivationInput
     return {
         selection: contracts.map(c => ({ objectId: c.objectId, knowledgeVersion: 'stage-b' })),
         contracts,
-        envelope: CORPUS_ENVELOPE,
+        // **A fresh copy per call.** `CORPUS_ENVELOPE` is a module constant, so returning it directly
+        // handed every caller the SAME object: anything that varied the envelope — a test exercising a
+        // different player count, a script trying a second area — silently changed every later run in
+        // the process. A session envelope is session input; two runs do not share one.
+        envelope: JSON.parse(JSON.stringify(CORPUS_ENVELOPE)),
         register: loadRegister(),
         derivationRules: { version: 'rev-5' },
     }
