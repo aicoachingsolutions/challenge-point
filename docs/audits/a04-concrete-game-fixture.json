@@ -283,11 +283,13 @@
    "teams": [
     {
      "satisfies": "c:restated:GF2:GF2-14.a",
+     "elementId": "c:restated:GF2:GF2-14.a#1",
      "outfieldCount": 6,
      "goalkeeper": 0
     },
     {
      "satisfies": "c:restated:GF2:GF2-14.a",
+     "elementId": "c:restated:GF2:GF2-14.a#2",
      "outfieldCount": 6,
      "goalkeeper": 0
     }
@@ -467,6 +469,7 @@
     "member": {},
     "because": "GF2-14.a asserts at least two teams exist and individuates none, so two members are instantiated to meet its cardinality. NO PROPERTY IS SUPPLIED: the previous `designation` values ATTACKING_TEAM / DEFENDING_TEAM were removed on Christian's ruling of 2 October as unsupported and unregistered content -- there is no register row for performers.teams[].designation, the stated reasons were positional (\"first of the two\"), and ATTACKING_TEAM is defined by canonical knowledge as the team CURRENTLY IN POSSESSION, which a static label cannot carry. No replacement is inferred.",
     "path": "performers.teams[]",
+    "handle": "c:restated:GF2:GF2-14.a#1",
     "memberIndex": 0
    },
    {
@@ -474,48 +477,50 @@
     "member": {},
     "because": "GF2-14.a asserts at least two teams exist and individuates none, so two members are instantiated to meet its cardinality. NO PROPERTY IS SUPPLIED: the previous `designation` values ATTACKING_TEAM / DEFENDING_TEAM were removed on Christian's ruling of 2 October as unsupported and unregistered content -- there is no register row for performers.teams[].designation, the stated reasons were positional (\"first of the two\"), and ATTACKING_TEAM is defined by canonical knowledge as the team CURRENTLY IN POSSESSION, which a static label cannot carry. No replacement is inferred.",
     "path": "performers.teams[]",
+    "handle": "c:restated:GF2:GF2-14.a#2",
     "memberIndex": 1
    }
   ],
   "entailed": [
    {
-    "lineId": "assembly:performers.teams[0]::P2",
+    "lineId": "assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P2",
     "collection": "performers.teams",
-    "memberIndex": 0,
+    "handle": "c:restated:GF2:GF2-14.a#1",
     "leaf": "outfieldCount",
-    "path": "performers.teams[0].outfieldCount",
+    "path": "performers.teams[c:restated:GF2:GF2-14.a#1].outfieldCount",
     "value": 6,
     "because": "entailed from the session and the authored equality: 12 session performers over 2 teams, with equality authored on P2"
    },
    {
-    "lineId": "assembly:performers.teams[0]::P3",
+    "lineId": "assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P3",
     "collection": "performers.teams",
-    "memberIndex": 0,
+    "handle": "c:restated:GF2:GF2-14.a#1",
     "leaf": "goalkeeper",
-    "path": "performers.teams[0].goalkeeper",
+    "path": "performers.teams[c:restated:GF2:GF2-14.a#1].goalkeeper",
     "value": 0,
     "because": "the session states goalkeeper = 0 for this run, and the register declares P3 a specialized role"
    },
    {
-    "lineId": "assembly:performers.teams[1]::P2",
+    "lineId": "assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P2",
     "collection": "performers.teams",
-    "memberIndex": 1,
+    "handle": "c:restated:GF2:GF2-14.a#2",
     "leaf": "outfieldCount",
-    "path": "performers.teams[1].outfieldCount",
+    "path": "performers.teams[c:restated:GF2:GF2-14.a#2].outfieldCount",
     "value": 6,
     "because": "entailed from the session and the authored equality: 12 session performers over 2 teams, with equality authored on P2"
    },
    {
-    "lineId": "assembly:performers.teams[1]::P3",
+    "lineId": "assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P3",
     "collection": "performers.teams",
-    "memberIndex": 1,
+    "handle": "c:restated:GF2:GF2-14.a#2",
     "leaf": "goalkeeper",
-    "path": "performers.teams[1].goalkeeper",
+    "path": "performers.teams[c:restated:GF2:GF2-14.a#2].goalkeeper",
     "value": 0,
     "because": "the session states goalkeeper = 0 for this run, and the register declares P3 a specialized role"
    }
   ],
-  "unverified": []
+  "unverified": [],
+  "jointConditionsNotEvaluated": []
  },
  "status": {
   "derived": [
@@ -714,50 +719,52 @@
    {
     "path": "performers.teams[]",
     "classId": "c:restated:GF2:GF2-14.a",
+    "handle": "c:restated:GF2:GF2-14.a#1",
     "memberIndex": 0,
     "member": {}
    },
    {
     "path": "performers.teams[]",
     "classId": "c:restated:GF2:GF2-14.a",
+    "handle": "c:restated:GF2:GF2-14.a#2",
     "memberIndex": 1,
     "member": {}
    }
   ],
   "entailed": [
    {
-    "lineId": "assembly:performers.teams[0]::P2",
+    "lineId": "assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P2",
     "collection": "performers.teams",
-    "memberIndex": 0,
+    "handle": "c:restated:GF2:GF2-14.a#1",
     "leaf": "outfieldCount",
-    "path": "performers.teams[0].outfieldCount",
+    "path": "performers.teams[c:restated:GF2:GF2-14.a#1].outfieldCount",
     "value": 6,
     "because": "entailed from the session and the authored equality: 12 session performers over 2 teams, with equality authored on P2"
    },
    {
-    "lineId": "assembly:performers.teams[0]::P3",
+    "lineId": "assembly:performers.teams[c:restated:GF2:GF2-14.a#1]::P3",
     "collection": "performers.teams",
-    "memberIndex": 0,
+    "handle": "c:restated:GF2:GF2-14.a#1",
     "leaf": "goalkeeper",
-    "path": "performers.teams[0].goalkeeper",
+    "path": "performers.teams[c:restated:GF2:GF2-14.a#1].goalkeeper",
     "value": 0,
     "because": "the session states goalkeeper = 0 for this run, and the register declares P3 a specialized role"
    },
    {
-    "lineId": "assembly:performers.teams[1]::P2",
+    "lineId": "assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P2",
     "collection": "performers.teams",
-    "memberIndex": 1,
+    "handle": "c:restated:GF2:GF2-14.a#2",
     "leaf": "outfieldCount",
-    "path": "performers.teams[1].outfieldCount",
+    "path": "performers.teams[c:restated:GF2:GF2-14.a#2].outfieldCount",
     "value": 6,
     "because": "entailed from the session and the authored equality: 12 session performers over 2 teams, with equality authored on P2"
    },
    {
-    "lineId": "assembly:performers.teams[1]::P3",
+    "lineId": "assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P3",
     "collection": "performers.teams",
-    "memberIndex": 1,
+    "handle": "c:restated:GF2:GF2-14.a#2",
     "leaf": "goalkeeper",
-    "path": "performers.teams[1].goalkeeper",
+    "path": "performers.teams[c:restated:GF2:GF2-14.a#2].goalkeeper",
     "value": 0,
     "because": "the session states goalkeeper = 0 for this run, and the register declares P3 a specialized role"
    }

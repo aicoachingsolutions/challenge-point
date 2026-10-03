@@ -254,6 +254,78 @@ test('no source reads a handle for anything but equality', () => {
     assert.deepEqual(offences, [], `a handle may only be compared for equality:\n${offences.join('\n')}`)
 })
 
+// ── THE HANDLE MUST BE A STRING, and this is not a style preference ───────────────────────────────
+//
+// `quantitiesInGame` in the fidelity layer walks the whole game and treats every finite NUMBER it finds as a
+// quantity the game supports. A numeric handle would therefore license any rendered quantity equal to it —
+// silently defeating the invention check for that number. Proven by probe during the 3 October trace: with a
+// numeric handle of 777 on a team, an instruction claiming the quantity 777 passed as supported.
+test('a handle is a string, so it cannot enter the game as a supported quantity', () => {
+    const { realized } = chain()
+    for (const i of realized.record.instantiations) {
+        assert.equal(typeof i.handle, 'string', 'a numeric handle would be read as a supported quantity')
+        assert.ok(Number.isNaN(Number(i.handle)), `and must not even be numeric-coercible: ${i.handle}`)
+    }
+})
+
+// ── ADDITIVE ONLY: a derived element's elementId is untouched ──────────────────────────────────────
+//
+// The handle extends the mechanism for instantiated members; it must not re-mint a derived element's id. The
+// provenance join between `status.derived` and the game is keyed on that id, and suffixing derived element
+// ids was measured during the trace to produce 17 fidelity violations as the join collapsed.
+test('the handle is additive — no derived element id is altered', () => {
+    const { resolved, realized } = chain()
+    const derivedIds = new Set(
+        (resolved.derived as any[]).map(d => String(d.path).match(/\[([^\]]+)\]/)?.[1]).filter((id): id is string => !!id),
+    )
+    assert.ok(derivedIds.size > 0, 'A04 has derived elements')
+    for (const id of derivedIds) {
+        assert.ok(!id.includes('#'), `a derived element id must carry no ordinal: ${id}`)
+    }
+    // And every derived element is still findable in the game by its own id.
+    const walk = (node: unknown, found: Set<string>): Set<string> => {
+        if (Array.isArray(node)) node.forEach(e => walk(e, found))
+        else if (node && typeof node === 'object') {
+            const id = (node as any).elementId
+            if (typeof id === 'string') found.add(id)
+            for (const v of Object.values(node)) walk(v, found)
+        }
+        return found
+    }
+    const inGame = walk(realized.game, new Set<string>())
+    for (const id of derivedIds) assert.ok(inGame.has(id), `derived element ${id} must still be addressable in the game`)
+})
+
+// ── THE DISCRIMINATOR IS UNCONDITIONAL ────────────────────────────────────────────────────────────
+//
+// Even where a claim owes a single member. A mint that yielded the bare `classId` would make the member
+// findable by the element lookups driven from `resolved.derived`, so a member's leaf could stand in for a
+// derived element's in the acceptance checks — a false PASS rather than a failure.
+test('a handle never equals the bare claim id, even for a claim owing one member', () => {
+    assert.equal(memberHandle('c:X:Y', 1), 'c:X:Y#1', 'the ordinal is appended unconditionally')
+    const { realized } = chain()
+    for (const i of realized.record.instantiations) {
+        assert.notEqual(i.handle, i.classId, 'a bare claim id would collide with the claim class itself')
+        assert.ok(i.handle.length > i.classId.length, 'the handle is strictly the claim id plus a discriminator')
+    }
+})
+
+// ── NOT AN ORDERING KEY where a handle bridges into a line id ─────────────────────────────────────
+//
+// The post-realization gate is the one place a member identity becomes a line's `elementId`, and the
+// derivation sorts lines by `String(elementId).localeCompare(...)`. The gate concatenates rather than
+// re-sorting, so the handle is not an ordering key only by omission — asserted here so it stays that way.
+// It also keeps the `realized:` prefix, which matters: a handle used verbatim as a class id would make an
+// authored string equal to a handle grade HELD, breaking "no knowledge item may target the handle".
+test('a handle bridged into a line id keeps its prefix and does not order the lines', () => {
+    const { realized, ctx, owed } = chain()
+    runPostRealizationGates(ctx, owed, realized)
+    const handles = realized.record.instantiations.map(i => i.handle)
+    for (const handle of handles) {
+        assert.ok(!ctx.classes.some((c: any) => c.classId === handle), 'a handle must never be a class id verbatim')
+    }
+})
+
 // ── STABLE for the lifetime of the concrete game ──────────────────────────────────────────────────
 test('a handle is stable across assembly, the gate and rendering', () => {
     const { realized, ctx, owed, fixture } = chain()

@@ -134,6 +134,15 @@ export interface RealizationRecord {
      * realizer cannot check the value against it and says so rather than implying it verified.
      */
     unverified: string[]
+    /**
+     * Joint conditions that were NOT evaluated, and why — because their scope cannot be partitioned here,
+     * because their set is unidentifiable, or because a violation was found under a non-authoritative basis
+     * that SD-27 forbids refusing on.
+     *
+     * Recorded rather than dropped: a condition silently not evaluated is indistinguishable from one that
+     * passed, which is exactly how the corpus's only joint condition went unnoticed.
+     */
+    jointConditionsNotEvaluated: string[]
 }
 
 export interface Realized {
@@ -376,15 +385,48 @@ export function realize(
         // `handle` and `memberIndex` are both filled when the member is actually placed, below.
         recordedInstantiations.push({ ...instantiation, path: claim.path, handle: '', memberIndex: -1 })
     }
+    /**
+     * **Claims on ONE collection are evaluated against ONE population** — his instruction of 3 October to
+     * repair *"the collection/co-reference/cardinality hole exposed across A01/A02/A05"*.
+     *
+     * Each claim used to own a private population: `made` counted only that claim's own instantiations, and
+     * the maximum was checked against that count alone. So two claims on `performers.teams[]` — `PCG-08`
+     * asserting teams exist, and `GF2-14.a` authoring exactly two — were satisfied by **three teams**, one
+     * attributed to the first claim and two to the second, with no objection from either. Two teams were
+     * refused whichever way they were attributed. The collection-level cardinality check could not cover for
+     * it: it is restricted to individuated classes and is empty for `performers.teams[]` corpus-wide.
+     *
+     * Five goals carry that shape — A01, A02, A05, TA01 and TA02 — all of them GF2 beside the Pass
+     * Combination Gate.
+     *
+     * **This decides no co-reference question.** It does not rule that the two claims are about the same
+     * teams; it stops each claim behaving as though the collection were its own. His own ruling governs the
+     * semantics: *"multiple source rows do not by themselves entail multiple physical elements."* So the owed
+     * count is the greatest any single claim requires rather than the sum, and every claim's maximum binds the
+     * whole population.
+     */
+    const claimsByCollection = new Map<string, typeof resolved.existential>()
     for (const claim of resolved.existential) {
-        const made = recordedInstantiations.filter(i => i.classId === claim.classId).length
+        const path = collectionPath(claim.path)
+        claimsByCollection.set(path, [...(claimsByCollection.get(path) ?? []), claim])
+    }
+    for (const [path, claims] of claimsByCollection) {
+        const classIds = new Set(claims.map(c => c.classId))
+        const made = recordedInstantiations.filter(i => classIds.has(i.classId)).length
+        // `satisfiedBy` is computed from the ROW, so claims on one collection hold the same established
+        // classes. The union is taken so grouping can never double-count them.
+        const established = new Set(claims.flatMap(c => c.satisfiedBy))
+        const population = established.size + made
+        // The greatest shortfall any one claim has, not the sum — one population serves them all.
+        const owed = Math.max(...claims.map(c => c.shortfall))
+        const describe = claims.map(c => c.classId).join(', ')
 
-        // **A claim already met by an established member authorizes nothing.** Instantiating anyway
+        // **A collection already met by established members authorizes nothing.** Instantiating anyway
         // would add a member the knowledge never asked for — an invention with a claim's name on it.
-        if (claim.shortfall === 0) {
+        if (owed === 0) {
             if (made) {
                 because.push(
-                    `${claim.classId}: ${claim.path} is already satisfied by ${claim.satisfiedBy.join(', ')}, so instantiating ${made} more is not authorized`,
+                    `${describe}: ${path} is already satisfied by ${[...established].join(', ')}, so instantiating ${made} more is not authorized`,
                 )
             }
             continue
@@ -392,17 +434,24 @@ export function realize(
 
         if (!made) {
             because.push(
-                `${claim.classId}: ${claim.path} is asserted to exist and nothing was instantiated to satisfy it` +
-                    (claim.satisfiedBy.length ? ` (${claim.satisfiedBy.length} established, ${claim.shortfall} still owed)` : ''),
+                `${describe}: ${path} is asserted to exist and nothing was instantiated to satisfy it` +
+                    (established.size ? ` (${established.size} established, ${owed} still owed)` : ''),
             )
             continue
         }
-        // **The claim's cardinality is part of the claim** — but only the shortfall is owed, since an
-        // established member counts towards it as much as an instantiated one.
-        if (made < claim.shortfall) because.push(`${claim.classId}: ${claim.path} still owes ${claim.shortfall} member(s), and ${made} was instantiated`)
-        const { max } = claim.cardinality
-        if (max !== null && made + claim.satisfiedBy.length > max) {
-            because.push(`${claim.classId}: ${claim.path} asserts at most ${max}, and ${made + claim.satisfiedBy.length} would exist`)
+
+        if (made < owed) {
+            because.push(`${describe}: ${path} still owes ${owed} member(s), and ${made} was instantiated`)
+        }
+        // **Every claim's maximum binds the whole population**, whichever claim a member was attributed to.
+        for (const claim of claims) {
+            const { max } = claim.cardinality
+            if (max !== null && population > max) {
+                because.push(
+                    `${claim.classId}: ${path} asserts at most ${max}, and ${population} would exist` +
+                        (claims.length > 1 ? ` (counting every claim on this collection: ${describe})` : ''),
+                )
+            }
         }
     }
 
@@ -434,14 +483,36 @@ export function realize(
     // bound and the *set* still be invalid, because two members ended up in the same place. Nothing
     // is repaired here; the realization is refused and the offending pair is named.
     const jointFailures: string[] = []
+    const jointNotEvaluable: string[] = []
     for (const condition of resolved.jointConditions ?? []) {
         if (condition.kind !== 'DISTINCT_ON') continue
+        if (condition.notEvaluable) {
+            jointNotEvaluable.push(`${condition.from.itemId}: ${condition.notEvaluable}`)
+            continue
+        }
+        /**
+         * **A scope this layer cannot evaluate makes the condition NOT EVALUABLE, never satisfied.**
+         *
+         * The corpus's one condition is authored `PER_OBJECTIVE_SET` — *"differs from every other candidate's
+         * in the same set"*. Comparing every member of `objects[]` against every other would be a different
+         * and stronger claim than the author made, so the honest result is to report that the condition cannot
+         * be evaluated rather than to pass it or to over-reach with it.
+         */
+        if (condition.scope && condition.scope !== 'WHOLE_GAME') {
+            jointNotEvaluable.push(
+                `${condition.from.itemId}: authored scope ${condition.scope}, and this layer cannot partition ` +
+                    `${condition.path} by it — the set the condition ranges over is not identified, so it is ` +
+                    `reported rather than evaluated: "${condition.asAuthored}"`,
+            )
+            continue
+        }
         // One tuple per element, over the rows the condition names, taking each value from the
         // recorded choice where realization made one and from the derived value otherwise.
         const tuples = new Map<string, string>()
+        const prefix = collectionPath(condition.path)
         for (const entry of [...resolved.derived, ...recorded.map(c => ({ path: c.path, lineId: c.lineId, value: c.value }))]) {
             const parts = splitElementPath(entry.path)
-            if (!parts || !parts.container.startsWith(condition.path.replace(/\[\]$/, ''))) continue
+            if (!parts || parts.container !== prefix) continue
             const row = entry.lineId.split('::').pop()!
             if (!condition.rows.includes(row)) continue
             tuples.set(`${parts.elementId}|${row}`, JSON.stringify(entry.value))
@@ -457,10 +528,13 @@ export function realize(
             const signature = fields.sort().join(', ')
             const clash = seen.get(signature)
             if (clash) {
-                jointFailures.push(
+                const report =
                     `${condition.from.itemId}: ${clash} and ${elementId} occupy the same ${condition.rows.join('/')} (${signature}). ` +
-                        `Each placement is inside its own bound; the set is not — "${condition.asAuthored}"`,
-                )
+                    `Each placement is inside its own bound; the set is not — "${condition.asAuthored}"`
+                // **SD-27: an assumed item may not create an authoritative collision.** It bounds and never
+                // entails, so a violation of it is reported and may not refuse the realization.
+                if (condition.authoritative) jointFailures.push(report)
+                else jointNotEvaluable.push(`${report} (reported only: the condition's basis is not authoritative)`)
             } else {
                 seen.set(signature, elementId)
             }
@@ -470,24 +544,23 @@ export function realize(
 
     // Nothing above failed, so the concrete game is the derived one plus the authorized additions.
     const game: Record<string, unknown> = JSON.parse(JSON.stringify(resolved.game))
-    for (const choice of recorded) {
-        const parts = splitElementPath(choice.path)
-        if (!parts) {
-            place(game, choice.path, choice.value)
-            continue
-        }
-        const bucket = readAt(game, parts.container)
-        const element = Array.isArray(bucket) ? (bucket as any[]).find(e => e?.elementId === parts.elementId) : null
-        if (!element) return { outcome: 'REFUSED', because: [`${choice.lineId}: the element ${parts.elementId} is not in the resolved game`] }
-        if (parts.leaf) place(element, parts.leaf, choice.value)
-    }
+
     /**
      * **Mint each instantiated member its opaque handle, and place it under that identity.**
      *
      * The ordinal counts within the claim, so sibling members of one claim differ and members of different
-     * claims cannot collide (their claim ids already differ). `satisfies` stays exactly as it was — it says
-     * which claim authorized this member, which is a different question from which member this is, and some
-     * consumers legitimately want the claim.
+     * claims cannot collide (their claim ids already differ). It is appended unconditionally, even where a
+     * claim owes only one member: a mint that yielded the bare `classId` would make a member findable by the
+     * element lookups driven from `resolved.derived`, and a member's leaf could then stand in for a derived
+     * element's in the acceptance checks — a silent false pass.
+     *
+     * `satisfies` stays exactly as it was. It says which claim authorized this member, which is a different
+     * question from which member this is, and some consumers legitimately want the claim.
+     *
+     * **Members are placed BEFORE choices are applied.** The order used to be the other way round, which made
+     * a realization choice about an instantiated member's property impossible: the choice loop below refuses
+     * on an element the game does not yet hold, so such a choice was rejected as naming a missing element
+     * before any accounting could see it. Instantiation must precede a choice about the thing instantiated.
      */
     const ordinalWithinClaim = new Map<string, number>()
     for (const instantiation of recordedInstantiations) {
@@ -499,6 +572,18 @@ export function realize(
         instantiation.handle = memberHandle(instantiation.classId, ordinal)
         instantiation.memberIndex = list.length
         place(game, path, [...list, { ...instantiation.member, satisfies: instantiation.classId, elementId: instantiation.handle }])
+    }
+
+    for (const choice of recorded) {
+        const parts = splitElementPath(choice.path)
+        if (!parts) {
+            place(game, choice.path, choice.value)
+            continue
+        }
+        const bucket = readAt(game, parts.container)
+        const element = Array.isArray(bucket) ? (bucket as any[]).find(e => e?.elementId === parts.elementId) : null
+        if (!element) return { outcome: 'REFUSED', because: [`${choice.lineId}: the element ${parts.elementId} is not in the resolved game`] }
+        if (parts.leaf) place(element, parts.leaf, choice.value)
     }
 
     // Instantiate every authored spatial relation the concrete game now holds, derived AND chosen
@@ -604,6 +689,7 @@ export function realize(
             // game exists. The post-realization entailment pass fills this.
             entailed: [],
             unverified: recorded.filter(c => c.boundCheck === 'UNVERIFIABLE_QUALITATIVE_BOUND').map(c => c.lineId),
+            jointConditionsNotEvaluated: jointNotEvaluable,
         },
     }
 }

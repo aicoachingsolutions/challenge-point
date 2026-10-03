@@ -110,6 +110,25 @@ export interface JointCondition {
     path: string
     /** The field rows the members must differ on, as register row ids. */
     rows: string[]
+    /**
+     * The authored scope, carried rather than dropped.
+     *
+     * Without it a condition authored *"differs from every other candidate's **in the same set**"* reaches
+     * every member of the collection, so repairing the path alone would trade a check that evaluates nothing
+     * for one that over-reaches. A scope this layer cannot evaluate makes the condition NOT EVALUABLE — never
+     * quietly satisfied.
+     */
+    scope: string | null
+    /** Why this condition cannot be evaluated at all, where that is so. Null when it is well formed. */
+    notEvaluable: string | null
+    /**
+     * Whether the condition may REFUSE a realization, or only report.
+     *
+     * SD-27: *"An assumed item may not create an authoritative collision with authored knowledge."* The one
+     * DISTINCT_ON the corpus holds is `basis: ASSUMED`, so it bounds and never entails, and a refusal driven
+     * by it would be precisely the collision SD-27 forbids.
+     */
+    authoritative: boolean
     /** The authored words, kept beside the typed form. */
     asAuthored: string
     from: ItemRef
@@ -557,16 +576,40 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
         extentBounds[entry.lineId] = [...entry.extentBounds]
     }
 
-    // DISTINCT_ON assertions, read from the contracts rather than from any line — they take none.
+    /**
+     * DISTINCT_ON assertions, read from the contracts rather than from any line — they take none.
+     *
+     * **The path is the COLLECTION the members belong to, not the row the item sits on.** This read
+     * `rows.get(item.row).path` directly, and the item sits on a FIELD row: the corpus's one condition is
+     * authored on `O4`, whose path is `objects[].position.along`. The consumer then filters element paths with
+     * `container.startsWith(path)` after stripping a TRAILING `[]` — which strips nothing from a path whose
+     * `[]` is in the middle — so `objects` never matched `objects[].position.along`, no tuple was ever
+     * collected, and **the only joint condition in the corpus passed having compared nothing.** The interface
+     * had said "by register path" of the collection all along; the builder took the wrong row's.
+     *
+     * `index.ownerRow` is the canonical row → owning-collection mapping, and the register validates every
+     * entry to be of kind COLLECTION (halt H1 otherwise), so the owner is a collection by construction.
+     */
     const jointConditions: JointCondition[] = []
     for (const contract of contracts) {
         for (const item of contract.items ?? []) {
             const distinctOn = (item as any).distinctOn
             if (!distinctOn || !Array.isArray(distinctOn.rows)) continue
+            const ownerRow = index.ownerRow.get(String(item.row))
+            const ownerPath = ownerRow ? rows.get(ownerRow)?.path : undefined
+            const collection = ownerPath ? splitPath(String(ownerPath)).container ?? String(ownerPath) : null
             jointConditions.push({
                 kind: 'DISTINCT_ON',
-                path: rows.get(String(item.row))?.path ?? String(item.row),
+                path: collection ?? '',
+                // Visible rather than dropped. A condition emitted with a path nothing matches is exactly how
+                // this one came to pass having compared nothing, so an unidentifiable set says so out loud.
+                notEvaluable: collection
+                    ? null
+                    : `a DISTINCT_ON on ${item.row} names no owning collection in the register, so the set it constrains cannot be identified`,
                 rows: distinctOn.rows.map(String),
+                scope: item.scope === undefined || item.scope === null ? null : String(item.scope),
+                // SD-27: an assumed item bounds and never entails, so it may report but never refuse.
+                authoritative: ['AUTHORED', 'OWNER_RULING'].includes(String((item as any).basis)),
                 asAuthored: String(item.value ?? ''),
                 from: { contractId: contract.contractId, itemId: item.itemId },
             })

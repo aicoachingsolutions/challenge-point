@@ -259,6 +259,13 @@ function twoCandidates(): ResolvedGame {
                 kind: 'DISTINCT_ON',
                 path: 'objects[]',
                 rows: ['O4', 'O5'],
+                // WHOLE_GAME and authoritative so this fixture exercises the comparison itself. The corpus's
+                // real condition is neither, and `distinct-on-wiring.unit.ts` builds it from the register
+                // rather than by hand — which is what this fixture could not do, and why it passed while the
+                // real condition evaluated no tuples at all.
+                scope: 'WHOLE_GAME',
+                notEvaluable: null,
+                authoritative: true,
                 asAuthored: "each candidate's (along, across) position differs from every other candidate's in the same set; no separation distance",
                 from: { contractId: 'restated:VARIABLE-TARGET-CONDITION', itemId: 'VARTARGET-03.a' },
             },
