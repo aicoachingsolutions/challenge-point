@@ -4509,3 +4509,62 @@ knowledge already states the link. Nothing designed, neither mechanism implement
 Treat it as one general relationship or two mechanisms · what to do about A04's unregistered `designation` (in
 the frozen fixture, untouched) · whether `nothingInvented` should stop blanket-authorising a member's own fields
 (wide blast radius, so not proposed unilaterally). **Magnitude still open. A04 and generation frozen.**
+
+---
+
+## 2026-10-03 — Possession relationship proposed; designations removed; member authorization narrowed
+248 cases green, tsc clean. A04: acceptance PASSED · Gate A PASSED · render-eligible · Q2/Q3/Q4 pass · Q5 one
+violation (the held trigger decision). **Proposal in `docs/POSSESSION_RELATIONSHIP_PROPOSAL.md`.**
+
+### The answer: the corpus establishes the STRUCTURE; nothing HOLDS it
+**Established, cited:** initial value is a realization freedom (**SD-R2**, "which team starts can remain a
+permitted free choice") · it changes at the registered `POSSESSION_CHANGE` trigger · **SD-14: "START, SCORE and
+POSSESSION_CHANGE each begin a new attacking episode"** (THREE events) · a change continues play by default
+(**SD-20**) · `ATTACKING_TEAM` denotes its current value and a fixed-team reading is **prohibited** (Neutral
+Player Condition) · a designation may be "evaluated at the trigger" (T2).
+
+**NOT established: any field.** `objects[]` = kind/count/position — **no owner**. `performers.teams[]` =
+outfieldCount/goalkeeper/roles. `participation[].state` = ACTIVE/INACTIVE/WAITING/RESTING/OBSERVING. **So the
+representation can say possession CHANGED and cannot say who HAS it.**
+
+### The strongest evidence for his exact phrase "existing SELECTED knowledge"
+**GF2 — selected by A04 — authors two `awardedTo` prohibitions:** `GF2-07.b` *"LOST_BALL (forbidden: a rule
+returning a won ball to the team that lost it)"* and `GF2-16.a` *"NOT_LAST_TOUCH"*. Neither is evaluable without
+knowing who lost or last touched the ball. **Independent of Wide Zone.**
+Qualified honestly: those lines are **N/A in A04** (its transition is CONTINUE, RC-20), and the **Neutral Player
+Condition is contracted but NOT currently selected** by any of A01–A10. One settles *"already authored"*, the
+other settles *"existing selected knowledge"*.
+
+### His concept warning — A04 already PROVES it, rather than leaving it open
+GF2 authors `J3 = EACH_TEAM: one shared target attacked by both`, so in A04: **objective association** =
+neither/both · **scoring eligibility** = both continuously · **possession** = one at a time, the only
+discriminator. **The identity is already false here** — which is the cleanest reason the unsupported
+`designation` had to go. His single-goal check-out diagnostic **survives the proposal**, because the proposal is
+silent on scoring eligibility. No machinery added for it.
+
+### Rulings 2 and 3 — evidence BEFORE repair, as instructed
+- **Removing `designation`: NO consequence.** Acceptance/Gate A/render-eligible/rendering all unchanged. One
+  test failed and it was mine asserting the removed property existed. **Nothing depended on it — the evidence
+  that it was never doing representational work.** Members are now empty, which is the honest state.
+- **Narrowing the member authorization: production blast radius ZERO.** Three test assertions failed, **all three
+  his second category** (downstream assumptions on the blanket permission), none missing knowledge. One said
+  outright *"the instantiated member is authorized by the claim and recorded, so it is not an invention"* — the
+  reasoning that let `designation` through. All inverted to assert the new principle.
+- **One real defect in the check, fixed** (not a knowledge gap): member accounting matched the **exact leaf
+  only**, so a structured ENTAILED value split into one false invention per field — *the same mistake that
+  function's own comment records making once before*. Fixed by mirroring its own short-circuit.
+
+### EXPOSED, independent of Wide Zone — the finding worth his attention
+**`ATTACKING_TEAM` is UNDEFINED immediately after a score.** SD-14 says a SCORE begins a new attacking episode;
+**SD-R3** leaves the post-score procedure with *"no universal realization"*; so post-score possession is
+unauthored. Live consequence: **neutral affiliation is `ATTACKING_TEAM` re-decided at every episode boundary, and
+a score is one** — so for any game selecting that condition, affiliation after a score is undetermined.
+Also: the neutral condition's fitNote cites SD-14 but **omits SCORE** from its three events — narrower than the
+decision it cites.
+
+### With him
+Is one relation the right size · rule or record the post-score gap · where the relation lives (the ball is the
+intuitive home and has **no owner field**; a game-level relation needs no new collection — **not chosen, it is a
+representational decision the corpus does not settle**). Magnitude still held. A04 and generation frozen.
+*(The wider mechanism-family sweep was stopped when the previous session ended; not relaunched — the evidence
+above is all primary-source and verified directly.)*
