@@ -340,9 +340,13 @@ decision rather than a defect, and it is open.
 Not evaluated, as directed: *"magnitude as still open; proportionality should be evaluated against the actual
 condition rather than inherited from the example."* Worth recording what changes, so the later evaluation
 starts from the right place: the BALL candidate's CONCERN was that the two channels are 50% of A04's realized
-width, so mere ball presence is satisfied incidentally. A **controlled touch by the attacking team** is a
-deliberate act, not an incidental one, so that specific objection largely dissolves and ×2 is materially more
-defensible than it was against ball-presence. It is not thereby established.
+width, so mere ball presence is satisfied incidentally. A **qualifying touch by the attacking team** is a more
+discriminating condition than mere ball presence, so that specific objection largely dissolves and ×2 is
+materially more defensible than it was against ball-presence. It is not thereby established.
+
+*(Corrected on his reading of 2 October: this sentence had said "a deliberate act", which contradicted the
+Objective section immediately above, where deliberate is excluded as an intent judgement. No semantic change —
+the point was always discrimination, not intent.)*
 
 ### 6 · Learning-Relevant — **Pass, with a CONCERN worth his attention**
 
@@ -382,16 +386,49 @@ This does not make his direction wrong. The restriction is well-reasoned and the
 defensive clearance should not arm the attack's bonus. It means the condition cannot be fully authored until
 one of those two is settled, and that the separation he intended may not be available.
 
+### Settled on his rulings of 2 October
+
+**1 · "Controlled" means retained possession, observably.** Not deliberate intent. His condition, exactly:
+
+> *A touch within the channel after which the touching player's team retains possession.*
+
+And his preference about where it lives: *"I would prefer the canonical representation to carry that
+observable relationship rather than rely on the qualitative word controlled. Coach-facing language may
+eventually translate it naturally."* So the authored condition is the observable relationship — a touch
+followed by retained possession — and "controlled" becomes a rendering of it rather than the thing itself.
+**No intent judgement is required**, which is criterion 1 satisfied by construction rather than by argument.
+
+**2 · Traversal alone does not qualify.** A ball merely moving through the channel, with no qualifying touch,
+does not activate the modifier. His reasoning, and it is the assurance process paying for itself:
+
+> *"I recognize that the source authors 'starting in or moving through,' but the assurance process has now
+> given us evidence the source itself did not resolve: mere ball traversal admits incidental entries,
+> clearances and deflections and weakens the relationship to actually exploiting the space."*
+
+So the authored source's second mode is deliberately **not** adopted, on evidence the source did not have.
+Two things remain true and are worth stating together, because they are easy to confuse: **traversal is not
+required**, and **traversal is not by itself sufficient**. Movement through the channel stays entirely
+available as play; it simply does not activate the incentive on its own.
+
+This is the first case of the criteria producing a ruling *against* authored source material rather than
+merely selecting among readings of it — which is the point of recording the evidence beside the decision.
+
+**3 · The attacking-team implementation is held** pending a bounded representation check, reported separately:
+whether existing selected knowledge independently requires the representation to know which team possesses
+the ball. Neither mechanism is to be implemented before that evidence is returned.
+
+**Magnitude remains open**, to be evaluated against the settled condition rather than inherited.
+
 ### Status of this application
 
 Evaluated, not authored. Nothing has been written into canonical knowledge. Outstanding for him, in the order
 they block:
 
-1. **"Controlled"** — retained possession, or deliberate. The second fails criterion 1.
-2. **How "attacking team" is established** — live possession attribution, or episode-tied to the scorer.
-   Either way, the dependency above.
-3. **Whether a traversal with no controlled touch also qualifies** — the authored source's second mode.
-4. **Magnitude**, after 1–3, as he directed.
+1. ~~**"Controlled"**~~ — **SETTLED**: a touch after which the touching player's team retains possession.
+2. **How "attacking team" is established** — held pending the bounded representation check. The dependency
+   above is why this is the one that blocks.
+3. ~~**Traversal**~~ — **SETTLED**: not required, and not sufficient on its own.
+4. **Magnitude**, after 2, as he directed.
 
 ---
 
