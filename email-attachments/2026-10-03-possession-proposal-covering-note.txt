@@ -1,0 +1,128 @@
+Christian,
+
+All five items are done. The proposal is attached as a document; this covers the six things you asked for,
+with the one finding I think most deserves your attention flagged at the end.
+
+The short version: **the corpus already establishes almost the whole structure of the relation. What it does
+not establish is anything that holds it.** There is no field, on any row, for which team has the ball. So the
+new representation required is one relation, and the rest is already authored.
+
+
+WHICH EXISTING CANONICAL ITEMS REQUIRE IT
+
+Your reading of the Neutral Player Condition is the decisive one for *meaning*, and I found a second case
+that is stronger on your exact phrase "existing **selected** knowledge".
+
+**GF2 — the game form A04 itself selects — authors two prohibitions on `awardedTo`:**
+
+    GF2-07.b   "LOST_BALL (forbidden: a rule returning a won ball to the team that lost it)"
+    GF2-16.a   "NOT_LAST_TOUCH"
+
+Neither is evaluable without knowing which team lost the ball, or who touched it last. Selected knowledge,
+nothing to do with Wide Zone.
+
+Two qualifications I want on the record rather than buried. Those lines are **not evaluated in A04**, because
+its transition continues play and the register makes `awardedTo` N/A when playState is CONTINUE. And the
+Neutral Player Condition is **contracted but not currently selected** by any of A01–A10. So for "already
+authored" the neutral condition settles the meaning; for "existing selected knowledge" GF2's two prohibitions
+are the instance. Neither qualification weakens the conclusion — they just locate it precisely.
+
+Seven register rows consume a team designation. Five of them want a value **at a moment** (neutral
+affiliation, awardedTo, the two transition qualifiers, the consequence referent). One needs only the initial
+value (start placement). One is a different concept, which is the next section.
+
+
+WHICH EXISTING FIELDS CAN ALREADY CARRY PART OF IT
+
+More than I expected, which is why the proposal is small:
+
+- **Its initial value is already a realization freedom.** SD-R2: "which team starts can remain a permitted
+  free choice unless selected knowledge requires otherwise". So the representation must carry a governed
+  choice here, not compute one — and the realization layer already carries governed choices.
+- **Its change already has an event.** POSSESSION_CHANGE is a registered trigger, and a transition carrying
+  it is how the corpus says a change happened.
+- **The episode relationship needs nothing new.** SD-14 already names the events that begin an attacking
+  episode, and `startsEpisode` already marks them. Worth noting SD-14 names **three** — START, SCORE and
+  POSSESSION_CHANGE.
+- **`ATTACKING_TEAM` already means the current value.** It simply resolves against nothing today.
+
+
+WHAT GENUINELY NEW REPRESENTATION IS REQUIRED
+
+One game-level relation: which team currently holds the ball. Initial value a governed choice, change bound
+to the existing trigger, and `ATTACKING_TEAM` resolving against it instead of against nothing.
+
+What it must **not** include, so it stays the size the corpus supports: no scoring eligibility, no objective
+association, no account of how possession is gained or lost, no post-score rule, and no attacking/defending
+label on a team.
+
+
+THE THREE CONCEPTS — and A04 already proves your point
+
+You asked me not to assume team-in-possession, team-eligible-to-score and team-associated-with-an-objective
+are the same. They are not, and in A04 **the identity is already false** rather than merely unestablished.
+GF2 authors J3 as "EACH_TEAM: one shared target attacked by both", so in the game we have been closing:
+
+    team associated with the objective   neither, or both — one target, attacked by both
+    team eligible to score              both, continuously
+    team in possession                  one at a time, and the only one that discriminates
+
+Which is also the clearest statement of why the unsupported `designation` had to go: collapsing the three
+would have forced us to call one of A04's two teams "the defending team" in a game where both attack the same
+line.
+
+Your single-goal check-out example survives the proposal, because the proposal says nothing about scoring
+eligibility — so it does not foreclose a structure where possession and scoring eligibility separate in time.
+I added no machinery for it and used it only as the diagnostic you offered it as.
+
+
+CONSEQUENCES OF REMOVING THE DESIGNATIONS
+
+**None.** Acceptance passed, Gate A passed, render-eligible, and the rendering is unchanged — a coach still
+reads 12 players, 2 teams of 6, no goalkeepers. One test failed and it was mine, asserting the removed
+property existed.
+
+Nothing depended on it, which is itself the evidence that it was never doing representational work. The
+members are now empty, which is the honest state: the claim establishes that two teams exist, and nothing
+establishes anything else about them.
+
+
+BLAST RADIUS FROM NARROWING THE AUTHORIZATION
+
+**Production: zero.** A04 passes all three acceptance conditions under the narrowed rule.
+
+**Tests: three assertions, and all three are your second category** — downstream assumptions that depended on
+the blanket permission, not missing knowledge. One said outright "the instantiated member is authorized by
+the claim and recorded, so it is not an invention", which is exactly the reasoning that let `designation`
+through. All three now assert the new principle instead.
+
+The change did expose one real defect in the check itself, which I fixed because it is not a knowledge gap:
+member accounting matched on the exact leaf only, so a structured *entailed* value was split into one false
+invention per field — the same mistake that function's own comment records making once before. 248 cases
+green.
+
+
+THE ONE THING I MOST WANT YOU TO SEE
+
+This check exposed an unresolved authoring decision in existing knowledge, with nothing to do with Wide Zone.
+
+**SD-14 says a SCORE begins a new attacking episode. SD-R3 says the post-score procedure has no universal
+realization. So who is in possession at the start of a post-score episode is unauthored — which means
+`ATTACKING_TEAM` is undefined immediately after a score.**
+
+That has a live consequence: neutral affiliation is `ATTACKING_TEAM`, re-decided at every episode boundary,
+and a score is an episode boundary. So in any game selecting the Neutral Player Condition, neutral
+affiliation after a score is undetermined by the knowledge.
+
+Relatedly, the neutral condition's own fitNote says "START and POSSESSION_CHANGE begin one (SD-14)" and omits
+SCORE, which SD-14 names. The fitNote is narrower than the standing decision it cites — the same gap seen
+from the other side.
+
+Three things I would ask, all in the document: whether one relation is the right size; whether to rule the
+post-score gap now or record it; and where the relation should live, since the ball is the intuitive home and
+has no owner field while a game-level relation needs no new collection. I have not chosen that, because it is
+a representational decision and the corpus does not settle it.
+
+Nothing implemented beyond your rulings 2 and 3. A04 and generation frozen.
+
+Joe
