@@ -1,0 +1,132 @@
+Christian,
+
+Implemented, rerun, and it closes cleanly in the sense that matters: nothing is invented anywhere. Your five
+questions answered in order, then the one gap it exposed — which is the thing I most want your eye on.
+
+248 cases green, tsc clean. A04 unchanged: acceptance PASSED, Gate A PASSED, render-eligible, Q2/Q3/Q4 pass,
+Q5's single violation still the held trigger decision.
+
+
+WHAT I ADDED
+
+One game-level row, `possession.team`. Team-valued current state, at game level as you directed — no owner
+field on the ball. Its choice space is registered as "one of the teams the game establishes", which is what
+makes the initial value a governed realization choice rather than a gap: the engine already reads a row's
+`fillable` entry as its structurally defined choice space under SD-39, so no new mechanism was needed for that.
+
+The row records your exclusions verbatim — no scoring eligibility, no objective association, no invented
+mechanism for gaining or losing possession, no universal post-score procedure, no static labels — and it
+records the boundary ruling: an episode boundary does not by itself establish or change possession. That turned
+out to be consistent with SD-14's own registered note, which already says "Defines boundaries only".
+
+
+1 · IS POSSESSION NOW ESTABLISHED WITHOUT INVENTION?
+
+Yes, and the honest form of that answer is worth stating plainly: **on A04 the relation is UNESTABLISHED, and
+nothing is invented.**
+
+The line is `NOT_AUTHORED` with reason "no coverage" — nobody looked. Nothing in A04's selected knowledge
+addresses possession, so SD-39's existence condition is unmet and the line is a gap rather than a freedom. No
+holder is guessed, no default, no fallback.
+
+I did not want to leave that looking like the relation might be inert, so there is a test that proves it live:
+add an item addressing the row and the line resolves. Its being unestablished on A04 is a fact about A04's
+knowledge, not about the representation.
+
+
+2 · DOES `ATTACKING_TEAM` RESOLVE CORRECTLY WHERE EVALUABLE?
+
+It resolves against the relation, which is your ruling, and where the relation is unestablished it resolves to
+nothing rather than inferring a team. On A04 that means it is unresolved — correctly.
+
+**One thing I corrected beyond the fitNote, and I want to flag that I did.** The register's own
+`teamDesignations` block glossed `ATTACKING_TEAM` as *"in possession for the episode"* — the same conflation of
+episode re-evaluation with possession reassignment that you identified in the Neutral Player Condition's note.
+So the gloss carried the defect too, not just the fitNote. I corrected both to resolve against the relation. If
+you would rather the register gloss had stayed and only the fitNote changed, it is one line back.
+
+The Neutral Player Condition's note is revised on your reading rather than patched: affiliation follows the
+possession relation, not the episode counter, and where possession is unestablished — including after a score
+until the selected post-score realization establishes it — affiliation is unresolved. It does not fall back to a
+previous holder and does not infer a team.
+
+Worth noting what the designation vocabulary already contained: `WON_BALL (team that won possession at the
+trigger)`, `LOST_BALL`, `LAST_TOUCH`. The corpus had named the states of this relation before anything could
+hold one. That is the clearest evidence it was a missing relation rather than a new concept.
+
+
+3 · ANY EXISTING CONSUMERS NEWLY BECOMING EVALUABLE?
+
+**None on A04, and none anywhere yet.** Honestly: the relation gives the consumers something to resolve
+against, and nothing in the current selections exercises it.
+
+- The two `awardedTo` prohibitions in GF2 — "the team that lost it", "NOT_LAST_TOUCH" — are N/A in A04, because
+  its transition continues play and the register makes `awardedTo` N/A when playState is CONTINUE.
+- Neutral affiliation is the consumer that would benefit most, and no goal in A01–A10 selects that condition.
+- Corpus-wide there is exactly one possession line and it is unaddressed everywhere.
+
+So the capability is in place and untested by live knowledge. I would rather say that than imply more.
+
+
+4 · ANY GAPS EXPOSED BY THE POST-SCORE DISTINCTION?
+
+The distinction itself is now machine-visible rather than implicit: post-score possession is representable as
+*unestablished* instead of being silently assumed, which is what it was before — the earlier fitNote would have
+had affiliation re-decided at a score with nothing to re-decide it from.
+
+**And it exposed a bigger one, which is the next section.**
+
+
+5 · CAN THE WIDE ZONE CONDITION NOW BE EXPRESSED WITHOUT ADDITIONAL REPRESENTATION?
+
+Partly, and precisely:
+
+- **"the touching player's team retains possession"** — expressible with what now exists. `POSSESSION_CHANGE` is
+  the only thing that changes the relation, so "retains" is "no possession change between the touch and the
+  relevant moment". No new representation.
+- **"attacking-team"** — expressible. The designation now has a referent.
+- **"a touch within the channel"** — **not yet.** There is no touch event in the trigger vocabulary (START,
+  SCORE, OUT_END_LINE, OUT_TOUCHLINE, POSSESSION_CHANGE, REGION_ENTRY, TIME_EXPIRY, STANDING,
+  FIRST_FORWARD_PASS). `LAST_TOUCH` exists only as a team designation. So what counts as the qualifying
+  interaction is still the trigger-semantics decision you are holding — the possession relation did not and
+  could not settle that.
+
+So two of the three halves are now expressible, and the third is the decision you deliberately held. That seems
+to me the right place to have arrived.
+
+
+THE GAP THIS EXPOSED — and it blocks assignment, not just Wide Zone
+
+**The established teams have no identity to refer to.**
+
+The choice space is "one of the teams the game establishes", and two things are true at once. Before
+realization the teams do not exist — the existential claim has a shortfall of two, and `performers.teams` is
+absent from the resolved game. After realization they exist and are **indistinguishable**: both are
+`{satisfies, outfieldCount: 6, goalkeeper: 0}`. Nothing tells them apart but their position in the collection,
+which is an engine artifact rather than knowledge.
+
+So possession cannot be *assigned* even where it is established, because there is nothing to assign it to.
+`teamDesignations` contemplates `TEAM_<id> (a named team)` and no contracted item authors a name.
+
+I think this is a direct and correct consequence of removing the designations, and it clarifies what they were
+doing: **they were standing in for team identity as well as for possession, without authority for either.**
+Removing them was right, and it left the identity question visible where it had been hidden.
+
+Two further consequences worth naming. The possession choice cannot be a pre-realization freedom at all, because
+its choice space is empty until realization instantiates the members — the same shape as the roster, which
+became a post-realization entailment. And identity is a different question from possession: a team needs to be
+referrable before anything can say which one holds the ball.
+
+I have not designed anything for it, per your instruction to report rather than repair. It is the obvious next
+question, and it is smaller than this one was.
+
+
+WHAT I DID NOT TOUCH
+
+No unrelated gaps repaired. The designation removal and the narrowed instantiated-member authorization both
+stand. No machinery added for the single-goal structure. Magnitude still held. A04 and generation frozen.
+
+If you rule on team identity, I think Wide Zone's condition and then A04 closure follow directly, which is the
+order you wanted.
+
+Joe

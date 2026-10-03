@@ -1,0 +1,53 @@
+Joe,
+
+Possession relation implemented, rerun done, Christian's five questions answered. Email attached. 248 cases
+green, tsc clean, pushed. A04 unchanged: acceptance PASSED, Gate A PASSED, render-eligible, Q2/Q3/Q4 pass, Q5's
+one violation still the held trigger decision.
+
+WHAT WENT IN
+One game-level row, possession.team (PS1), at game level as he directed — no owner field on the ball. Its choice
+space is registered as "one of the teams the game establishes", and that was enough: the engine already reads a
+row's `fillable` entry as its structural choice space under SD-39, so no new mechanism was needed. The row
+records his exclusions verbatim and the boundary ruling.
+
+Nice confirmation: SD-14's own registered note already says "Defines boundaries only", so his ruling that an
+episode boundary doesn't itself establish possession is consistent with what SD-14 says about itself.
+
+HIS FIVE ANSWERS, SHORT
+1. Possession established without invention? YES — and the honest form is that on A04 it's UNESTABLISHED, reason
+   "no coverage". Nothing addresses possession, so SD-39's existence condition is unmet and it's a gap, not a
+   guess. I added a test proving the relation is LIVE (add an item addressing the row and it resolves) so nobody
+   mistakes "unestablished" for "inert".
+2. ATTACKING_TEAM resolves against the relation; unresolved where the relation is. Matches his ruling.
+3. Consumers newly evaluable: NONE, anywhere. Said plainly rather than implying more — GF2's two awardedTo
+   prohibitions are N/A in A04 (CONTINUE), and no goal selects the neutral condition.
+4. Post-score: the distinction is now machine-visible — post-score possession is representable as unestablished
+   rather than silently assumed.
+5. Wide Zone: two of three halves now expressible ("retains possession" via POSSESSION_CHANGE being the only
+   thing that changes the relation; "attacking-team" via the designation having a referent). The third — "a
+   touch" — is NOT, because there's no touch event in the trigger vocabulary at all; LAST_TOUCH exists only as a
+   team designation. That's exactly the trigger-semantics decision he's holding.
+
+ONE THING I DID BEYOND THE FITNOTE, AND FLAGGED
+The register's own teamDesignations glossed ATTACKING_TEAM as "in possession for the episode" — the same
+conflation he spotted in the fitNote. So the defect was in the register too, not just the restatement. I
+corrected both and told him explicitly, offering to revert the register half if he'd rather.
+
+THE GAP IT EXPOSED — the real finding
+The established teams have NO IDENTITY. Before realization they don't exist (shortfall 2); after realization
+both are {satisfies, outfieldCount: 6, goalkeeper: 0} and indistinguishable. So possession can't be ASSIGNED
+even where established — there's nothing to assign it to. teamDesignations contemplates TEAM_<id> and no
+contracted item authors a name.
+
+The useful framing: this is a direct consequence of removing the designations, and it clarifies what they were
+doing — standing in for team IDENTITY as well as for possession, with authority for neither. Removing them was
+right and it made the identity question visible where it had been hidden.
+
+Also worth knowing: the possession choice can't be a pre-realization freedom at all, because its choice space is
+empty until realization instantiates the teams — same shape as the roster, which became a post-realization
+entailment.
+
+I designed nothing for it, per his instruction to report rather than repair. Told him it's the obvious next
+question and smaller than this one was.
+
+Joe
