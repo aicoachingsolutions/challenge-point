@@ -120,10 +120,13 @@ function concreteContext(ctx: GateContext, realized: Realized): GateContext {
     const classes: ElementClass[] = [...ctx.classes]
     const lines: ResolutionLine[] = [...ctx.lines]
 
-    realized.record.instantiations.forEach((instantiation, i) => {
+    for (const instantiation of realized.record.instantiations) {
         const claim = ctx.classes.find(c => c.classId === instantiation.classId)
-        if (!claim) return
-        const classId = `realized:${instantiation.classId}:${i}`
+        if (!claim) continue
+        // **The class id is the member's own handle**, so a verdict about a member can be traced back to that
+        // member. It was `realized:<claimId>:<i>` — an index, which named nothing the game holds, so the only
+        // way to map a verdict to a member was to re-derive the same instantiation order.
+        const classId = `realized:${instantiation.handle}`
         classes.push({ ...claim, classId, constraints: { any: false, terms: [] }, cardinality: { min: null, max: null } })
 
         for (const row of ctx.index.rows.values()) {
@@ -141,7 +144,7 @@ function concreteContext(ctx: GateContext, realized: Realized): GateContext {
             // rendering receives."* Reading the record instead left two representations that could disagree,
             // and the roster defect WAS that disagreement — a check satisfied by a value the artifact
             // lacked. Assembly has already written everything entailed, so the game is the whole truth here.
-            const gameMember = memberInGame(realized, collectionPath(instantiation.path), instantiation.memberIndex)
+            const gameMember = memberInGame(realized, collectionPath(instantiation.path), instantiation.handle)
             const supplied = gameMember ? readAt(gameMember, leaf) : undefined
             if (supplied === undefined) {
                 classified.set(lineId, { lineId, lineState: 'ENUMERATED', verdict: 'NOT_AUTHORED', reason: 'coverage', collidingItems: [] })
@@ -165,7 +168,7 @@ function concreteContext(ctx: GateContext, realized: Realized): GateContext {
                 open: null,
             } as unknown as DerivedLine)
         }
-    })
+    }
 
     return { ...ctx, classes, lines, classified, derived }
 }

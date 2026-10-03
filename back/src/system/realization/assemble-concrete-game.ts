@@ -37,11 +37,17 @@ import { collectionPath, place, readAt, RealizationRecord, Realized } from './re
 /** A value entailed once the concrete game exists, with the member address it belongs at. */
 export type Entailment = RealizationRecord['entailed'][number]
 
-/** The member as it sits in the concrete game — the thing a consumer will actually read. */
-export function memberInGame(realized: Realized, collection: string, memberIndex: number): Record<string, unknown> | null {
+/**
+ * The member as it sits in the concrete game — the thing a consumer will actually read.
+ *
+ * **Addressed by its opaque handle, not by its position.** It used to index the array, which was the only
+ * way to tell two members of one claim apart before handles existed and which meant every per-member
+ * address in this module depended on the order realization happened to place them in.
+ */
+export function memberInGame(realized: Realized, collection: string, handle: string): Record<string, unknown> | null {
     const bucket = readAt(realized.game, collection)
     if (!Array.isArray(bucket)) return null
-    const member = (bucket as unknown[])[memberIndex]
+    const member = (bucket as unknown[]).find(entry => entry && typeof entry === 'object' && (entry as Record<string, unknown>).elementId === handle)
     return member && typeof member === 'object' ? (member as Record<string, unknown>) : null
 }
 
@@ -58,7 +64,7 @@ export function completeConcreteGame(ctx: GateContext, realized: Realized): Enta
     for (const rule of RULES) rule(ctx, realized, entailments)
 
     for (const entailment of entailments) {
-        const member = memberInGame(realized, entailment.collection, entailment.memberIndex)
+        const member = memberInGame(realized, entailment.collection, entailment.handle)
         if (!member) continue
         place(member, entailment.leaf, entailment.value)
     }
@@ -98,7 +104,7 @@ const deriveRoster: EntailmentRule = (ctx, realized, into) => {
     // The instantiated members of the teams collection, with their addresses in the game.
     const teams = realized.record.instantiations
         .map((instantiation, i) => ({ instantiation, i, claim: ctx.classes.find(c => c.classId === instantiation.classId) }))
-        .filter(entry => entry.claim?.row === 'P1' && entry.instantiation.memberIndex >= 0)
+        .filter(entry => entry.claim?.row === 'P1' && !!entry.instantiation.handle)
     if (!teams.length) return
 
     /**
@@ -188,14 +194,14 @@ const deriveRoster: EntailmentRule = (ctx, realized, into) => {
             if (!leaf) continue
             // Already carried by the member realization supplied — nothing owed, and nothing to write.
             if (readAt(instantiation.member as Record<string, unknown>, leaf) !== undefined) continue
-            const existing = memberInGame(realized, collection, instantiation.memberIndex)
+            const existing = memberInGame(realized, collection, instantiation.handle)
             if (existing && readAt(existing, leaf) !== undefined) continue
             into.push({
-                lineId: `assembly:${collection}[${instantiation.memberIndex}]::${rowId}`,
+                lineId: `assembly:${collection}[${instantiation.handle}]::${rowId}`,
                 collection,
-                memberIndex: instantiation.memberIndex,
+                handle: instantiation.handle,
                 leaf,
-                path: `${collection}[${instantiation.memberIndex}].${leaf}`,
+                path: `${collection}[${instantiation.handle}].${leaf}`,
                 value,
                 because:
                     rowId === 'P2'
@@ -220,7 +226,7 @@ const RULES: EntailmentRule[] = [deriveRoster]
 export function entailmentsLanded(realized: Realized): string[] {
     const problems: string[] = []
     for (const entailment of realized.record.entailed) {
-        const member = memberInGame(realized, entailment.collection, entailment.memberIndex)
+        const member = memberInGame(realized, entailment.collection, entailment.handle)
         const inGame = member ? readAt(member, entailment.leaf) : undefined
         if (inGame === undefined) {
             problems.push(

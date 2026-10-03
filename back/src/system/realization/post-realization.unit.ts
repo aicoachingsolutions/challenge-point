@@ -140,7 +140,7 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
     // value to survive "with its derivation/provenance intact", so the reason must say what entails it
     // rather than merely that something did.
     for (const entry of entailed) {
-        assert.ok(entry.collection.length > 0 && entry.memberIndex >= 0 && entry.leaf.length > 0, 'an entailment must address a member exactly')
+        assert.ok(entry.collection.length > 0 && entry.handle.length > 0 && entry.leaf.length > 0, 'an entailment must address a member exactly, by its handle')
         assert.ok(entry.lineId.length > 0 && entry.path.includes(entry.leaf), 'an entailment must be identifiable and addressable')
         assert.match(entry.because, /session|authored|register/i, `the provenance must name its source: "${entry.because}"`)
     }
@@ -274,8 +274,8 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
     assert.ok(first, 'the pass must entail something for this to mean anything')
 
     const structured = { kind: 'TEAM', note: 'structured' }
-    realized.record.entailed.push({ ...first, leaf: 'shape', path: `${first.collection}[${first.memberIndex}].shape`, value: structured })
-    const member = teamsOf(realized)[first.memberIndex] as Record<string, unknown>
+    realized.record.entailed.push({ ...first, leaf: 'shape', path: `${first.collection}[${first.handle}].shape`, value: structured })
+    const member = teamsOf(realized).find(t => (t as Record<string, unknown>).elementId === first.handle) as Record<string, unknown>
     member.shape = structured
     assert.deepEqual(nothingInvented(resolved, realized), [], 'a structured entailed value is one value, not two inventions')
 }
@@ -303,19 +303,19 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
     )
 }
 
-// ── memberIndex is the exact address, where `satisfies` is not ────────────────────────────────────
-// Both teams satisfy the SAME existential claim, so `satisfies` cannot tell them apart. If memberIndex
+// ── The HANDLE is the exact address, where `satisfies` is not ─────────────────────────────────────
+// Both teams satisfy the SAME existential claim, so `satisfies` cannot tell them apart. If the handle
 // were wrong, both entailments would address one member and the other would silently keep nothing.
 {
     const { realized, ctx } = chain()
     const claims = new Set(realized.record.instantiations.map(i => i.classId))
     assert.equal(claims.size, 1, 'both teams come from one claim — so a path keyed on `satisfies` is ambiguous')
-    const indices = realized.record.instantiations.map(i => i.memberIndex)
-    assert.deepEqual([...new Set(indices)].sort(), indices.slice().sort(), 'every member has a distinct index')
-    for (const i of indices) assert.ok(i >= 0, 'memberIndex must be assigned, not left at -1')
+    const handles = realized.record.instantiations.map(i => i.handle)
+    assert.equal(new Set(handles).size, handles.length, 'every member has a distinct handle')
+    for (const handle of handles) assert.ok(handle.length > 0, 'a handle must be minted, not left empty')
 
     const entailed = completeConcreteGame(ctx, realized)
-    const addressed = new Set(entailed.filter(e => e.leaf === 'outfieldCount').map(e => e.memberIndex))
+    const addressed = new Set(entailed.filter(e => e.leaf === 'outfieldCount').map(e => e.handle))
     assert.equal(addressed.size, 2, 'the two entailments must address two different members')
 }
 
@@ -448,7 +448,7 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
 
     // Entailed instead: one value, not one invention per element.
     const first = realized.record.entailed[0]
-    realized.record.entailed.push({ ...first, leaf: 'roles', path: `${first.collection}[${first.memberIndex}].roles`, value: roles })
+    realized.record.entailed.push({ ...first, leaf: 'roles', path: `${first.collection}[${first.handle}].roles`, value: roles })
     assert.deepEqual(
         nothingInvented(resolved, realized).filter(p => p.includes('roles')),
         [],
@@ -481,12 +481,12 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
 //
 // Now that the pass always runs before the gate in every runner, the absence the guard catches is a write
 // that did not land — a wrong member address, which is exactly what the leaf-addressing defect produced.
-// Both the writer and the guard reach a member by index; skew it and the write is skipped by a bare
-// `continue`, leaving the line resolved and the game without it.
+// Both the writer and the guard reach a member by its handle; point it at a member that is not there and
+// the write is skipped by a bare `continue`, leaving the line resolved and the game without it.
 {
     const { realized, ctx, owed } = chain()
     realized.record.instantiations.forEach(i => {
-        i.memberIndex = 99 // a member that is not there
+        i.handle = 'c:no-such-claim#99' // a handle no member in the game carries
     })
     const entailed = completeConcreteGame(ctx, realized)
     assert.ok(entailed.length > 0, 'the values are still derived')

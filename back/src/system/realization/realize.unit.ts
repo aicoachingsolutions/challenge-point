@@ -374,8 +374,12 @@ test('an instantiation satisfies the claim and is recorded as instantiated, not 
     })
     const result = realize(resolved, chooseScoring, [{ classId: 'K-teams', member: {}, because: 'the claim needs a member' }]) as Realized
     assert.equal(result.outcome, 'REALIZED')
-    assert.deepEqual((result.game as any).performers.teams, [{ satisfies: 'K-teams' }])
+    // The member carries its opaque handle as `elementId` — the same field a derived element is addressed by —
+    // beside `satisfies`, which says which claim authorized it. Identity and authorization are both recorded
+    // and are different questions.
+    assert.deepEqual((result.game as any).performers.teams, [{ satisfies: 'K-teams', elementId: 'K-teams#1' }])
     assert.equal(result.record.instantiations.length, 1)
+    assert.equal(result.record.instantiations[0].handle, 'K-teams#1', 'the record carries the handle it minted')
     // The member is authorized by the claim and recorded, so it is not an invention — but it is also not
     // derived, and the record is the only place that distinction survives.
     assert.deepEqual(checkRealization(resolved, result).nothingInvented, [])

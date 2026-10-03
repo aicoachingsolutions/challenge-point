@@ -89,7 +89,7 @@ const fixture = {
     status: {
         derived: resolved.derived.map(d => ({ path: d.path, lineId: d.lineId, value: d.value })),
         choices: realized.record.choices.map(c => ({ path: c.path, lineId: c.lineId, value: c.value })),
-        instantiations: realized.record.instantiations.map(i => ({ path: i.path, classId: i.classId, memberIndex: i.memberIndex, member: i.member })),
+        instantiations: realized.record.instantiations.map(i => ({ path: i.path, classId: i.classId, handle: i.handle, memberIndex: i.memberIndex, member: i.member })),
         entailed,
         geometry: realized.record.geometry,
         jointConditions: resolved.jointConditions,

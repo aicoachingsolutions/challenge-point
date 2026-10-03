@@ -1,0 +1,12 @@
+GOAL: "Switch the point of attack"  |  16 players  |  one planning selection, three activities
+
+--- ACTIVITY 1: Wide Channel Progression Game
+SCORING: Scoring and advantage must be tied to genuine channel exploitation — reading the imbalance before coverage recovers. Support lane requirement creates a visible spatial game problem — bonus points on top of the normal way of scoring. Effective use of wide areas during play — bonus points on top of the normal way of scoring. The field is treated as three value zones: regains in the central zone count higher than regains in the wide zones, and regains in the wide zones count higher than regains deep.
+
+--- ACTIVITY 2: Dynamic Transition Channel Game
+SCORING: Scoring and advantage must be tied to genuine channel exploitation — reading the imbalance before coverage recovers. Support lane requirement creates a visible spatial game problem — bonus points on top of the normal way of scoring. Effective use of wide areas during play — bonus points on top of the normal way of scoring. Space usage, spacing, or lane access must shape the next action.
+
+--- ACTIVITY 3: Overload Scoring Channel Game
+SCORING: Scoring and advantage must be tied to genuine channel exploitation — reading the imbalance before coverage recovers. Support lane requirement creates a visible spatial game problem — bonus points on top of the normal way of scoring. Effective use of wide areas during play — bonus points on top of the normal way of scoring. When a numerical advantage is held in the zone where pressure is applied, regains in that zone carry higher value: the scoring weight scales with the overload that produced the regain, and balanced-number regains keep the base value. Score is weighted by where possession changes hands: regains in a forward zone count higher than regains in a defensive zone, and the same weighting applies in every live contest.
+
+generic "A point or live advantage counts" occurrences: 0

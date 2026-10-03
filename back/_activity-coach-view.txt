@@ -1,0 +1,571 @@
+Local Create Activity Coach View
+
+Case 1
+Input: work on touches with pressure and spacing
+packageValidationStatus: PASS
+aiCalled: true
+outputValidationStatus: PASS
+generatedActivitiesCount: 3
+
+Activity 1
+--------------------------------
+Title:
+Central Corridor Positional Play
+
+Setup:
+- Field setup: Organize the field into a central corridor with wide channels on either side. Teams maintain positional structure to create advantages. Restarts occur from the central zone after a goal or turnover
+- Player count: Two teams compete in a structured positional game; one team maintains positional shape and creates advantages through spacing and relationships while the other disrupts structure, fills spaces, and blocks lines of progression. Player structure logic: Even or overload
+- Restart rule: Restart quickly from the spot of the turnover, score, or coach stoppage
+
+Objective:
+Players choose to maintain spatial relationships and exploit positional advantages within the central corridor, focusing on possession stability. If possession is lost, the opponent gains an opportunity to counter.
+
+Rules:
+1. Positional advantages remain live while the defensive structure is stretched. Forward play can continue through the open lane, and any ball forced into a covered zone gives the opponent immediate access to the disorganized shape with play continuing live
+2. Positional structure — teams maintain spatial relationships and distances to create advantages in defined areas
+3. Live opposition contests the positional structure — defenders fill spaces and close lines of progression
+4. Two-sided contest: the team in possession finds a positional advantage — numerical superiority or a free player in a zone — and exploits it before the defensive shape recovers or disrupts the structure
+
+Scoring:
+- Main scoring rule: Teams score by keeping possession under pressure and progressing toward the target
+- Optional bonus rule: Award bonus points when players use the listed constraints successfully: Central pressure Use wide areas
+
+Constraints:
+- Central pressure Use wide areas
+
+Coaching Points:
+- Observe how players maintain structure while creating advantages
+- Encourage players to recognize and exploit numerical superiority or free players in the central corridor
+- Monitor how teams react to opponent counters and regain possession
+- Coach observation: focus on the live decisions — how players read pressure, space, and support, and how they adapt when the picture changes
+
+Teams:
+Two teams compete in a structured positional game; one team maintains positional shape and creates advantages through spacing and relationships while the other disrupts structure, fills spaces, and blocks lines of progression. Player structure logic: Even or overload
+
+Activity 2
+--------------------------------
+Title:
+Live Transition Positional Play
+
+Setup:
+- Field setup: Divide the field into three horizontal zones with live restarts. When possession changes, play immediately continues without interruption, emphasizing quick adaptation
+- Player count: Two teams compete in a structured positional game; one team maintains positional shape and creates advantages through spacing and relationships while the other disrupts structure, fills spaces, and blocks lines of progression. Player structure logic: Even or overload
+- Restart rule: Restart quickly from the spot of the turnover, score, or coach stoppage
+
+Objective:
+Players decide how to maintain positional structure and create advantages during continuous play, focusing on possession stability. Losing possession allows the opponent to immediately counter.
+
+Rules:
+1. Positional advantages remain live while the defensive structure is stretched. Forward play can continue through the open lane, and any ball forced into a covered zone gives the opponent immediate access to the disorganized shape with play continuing live
+2. Positional structure — teams maintain spatial relationships and distances to create advantages in defined areas
+3. Live opposition contests the positional structure — defenders fill spaces and close lines of progression
+4. Two-sided contest: the team in possession finds a positional advantage — numerical superiority or a free player in a zone — and exploits it before the defensive shape recovers or disrupts the structure
+
+Scoring:
+- Main scoring rule: Teams score by keeping possession under pressure and progressing toward the target
+- Optional bonus rule: Award bonus points when players use the listed constraints successfully: Central pressure Use wide areas
+
+Constraints:
+- Central pressure Use wide areas
+
+Coaching Points:
+- Watch for players' ability to maintain structure during live transitions
+- Guide players to quickly adapt and exploit open lanes or free players
+- Assess how teams handle immediate opponent counters and regain control
+- Coach observation: focus on the live decisions — how players read pressure, space, and support, and how they adapt when the picture changes
+
+Teams:
+Two teams compete in a structured positional game; one team maintains positional shape and creates advantages through spacing and relationships while the other disrupts structure, fills spaces, and blocks lines of progression. Player structure logic: Even or overload
+
+Activity 3
+--------------------------------
+Title:
+Overload Scoring Positional Play
+
+Setup:
+- Field setup: Set up a field with asymmetric zones, creating a numerical overload in one area. Scoring is weighted based on successful exploitation of the overload and reaching target zones
+- Player count: Two teams compete in a structured positional game; one team maintains positional shape and creates advantages through spacing and relationships while the other disrupts structure, fills spaces, and blocks lines of progression. Player structure logic: Even or overload
+- Restart rule: Restart quickly from the spot of the turnover, score, or coach stoppage
+
+Objective:
+Players read the overload situation and decide how to leverage it for scoring, focusing on positional advantages. A lost possession gives the opponent a chance to counterattack.
+
+Rules:
+1. Positional advantages remain live while the defensive structure is stretched. Forward play can continue through the open lane, and any ball forced into a covered zone gives the opponent immediate access to the disorganized shape with play continuing live
+2. Positional structure — teams maintain spatial relationships and distances to create advantages in defined areas
+3. Live opposition contests the positional structure — defenders fill spaces and close lines of progression
+4. Two-sided contest: the team in possession finds a positional advantage — numerical superiority or a free player in a zone — and exploits it before the defensive shape recovers or disrupts the structure
+
+Scoring:
+- Main scoring rule: Teams score by keeping possession under pressure and progressing toward the target
+- Optional bonus rule: Award bonus points when players use the listed constraints successfully: Central pressure Use wide areas
+
+Constraints:
+- Central pressure Use wide areas
+
+Coaching Points:
+- Focus on players' use of numerical overloads to create scoring opportunities
+- Encourage players to balance maintaining structure with exploiting scoring nuances
+- Evaluate how effectively teams counter opponent transitions and regain possession
+- Coach observation: focus on the live decisions — how players read pressure, space, and support, and how they adapt when the picture changes
+
+Teams:
+Two teams compete in a structured positional game; one team maintains positional shape and creates advantages through spacing and relationships while the other disrupts structure, fills spaces, and blocks lines of progression. Player structure logic: Even or overload
+
+---
+
+Case 2
+Input: improve first touch under pressure
+packageValidationStatus: PASS
+aiCalled: true
+outputValidationStatus: PASS
+generatedActivitiesCount: 3
+
+Activity 1
+--------------------------------
+Title:
+Central Corridor Possession Game
+
+Setup:
+- Field setup: Set up a field with a central corridor and wide channels. Restarts occur from the central zone after a turnover
+- Player count: Teams play 6v6 with a focus on maintaining possession and progressing through the central area
+- Restart rule: Restart quickly from the spot of the turnover, score, or coach stoppage
+
+Objective:
+Players decide how to maintain possession and create space by disorganizing the defensive shape, progressing through the central corridor to reach the target zone. Session focus: Maintain possession with forward intent.
+
+Rules:
+1. Play stays live as possession is secured and progressed toward the target under pressure. A forced ball or turnover flips the immediate attacking advantage to the opponent with no reset
+2. Directional target or progression (attack toward a defined goal or end)
+3. Maintain possession under pressure as a live game condition
+4. Support options and spacing must shape available passes and outlets
+
+Scoring:
+- Main scoring rule: Teams score by keeping possession under pressure and progressing toward the target
+- Optional bonus rule: Award bonus points when players use the listed constraints successfully: Central pressure Use wide areas
+
+Constraints:
+- Central pressure Use wide areas
+
+Coaching Points:
+- Observe how players create space and disorganize the defense by exploiting the central corridor
+- Encourage anticipation and reward defensive interceptions to regain possession
+- Focus on continuous directional circulation and support options
+- Coach observation: focus on the live decisions — how players read pressure, space, and support, and how they adapt when the picture changes
+
+Teams:
+Use two even teams. One team keeps and progresses possession while the other pressures, wins it back, and attacks the other way.
+
+Activity 2
+--------------------------------
+Title:
+Dynamic Transition Possession Game
+
+Setup:
+- Field setup: Create a field with neutral zones at each end. The focus is on quick transitions and maintaining possession under pressure
+- Player count: Play 7v7 with live restarts triggered by turnovers
+- Restart rule: Restart quickly from the spot of the turnover, score, or coach stoppage
+
+Objective:
+Players adapt to live restart conditions, deciding when to secure possession and disorganize the opponent's defensive shape to progress toward the target zone. Session focus: Maintain possession with forward intent.
+
+Rules:
+1. Play stays live as possession is secured and progressed toward the target under pressure. A forced ball or turnover flips the immediate attacking advantage to the opponent with no reset
+2. Directional target or progression (attack toward a defined goal or end)
+3. Maintain possession under pressure as a live game condition
+4. Support options and spacing must shape available passes and outlets
+
+Scoring:
+- Main scoring rule: Teams score by keeping possession under pressure and progressing toward the target
+- Optional bonus rule: Award bonus points when players use the listed constraints successfully: Central pressure Use wide areas
+
+Constraints:
+- Central pressure Use wide areas
+
+Coaching Points:
+- Monitor how players adapt to live restarts and create space by disorganizing the defense
+- Encourage anticipation and reward defensive interceptions to regain possession
+- Focus on players' ability to switch play and exploit available space
+- Coach observation: focus on the live decisions — how players read pressure, space, and support, and how they adapt when the picture changes
+
+Teams:
+Use two even teams. One team keeps and progresses possession while the other pressures, wins it back, and attacks the other way.
+
+Activity 3
+--------------------------------
+Title:
+Overload Scoring Possession Game
+
+Setup:
+- Field setup: Set up a field with a numerical overload in the attacking half
+- Player count: Play 8v8 with weighted scoring for successful possessions in the overload zone
+- Restart rule: Restart quickly from the spot of the turnover, score, or coach stoppage
+
+Objective:
+Players choose how to use numerical overloads to maintain possession, disorganize the defense, and progress toward the target with scoring nuances in mind. Session focus: Maintain possession with forward intent.
+
+Rules:
+1. Play stays live as possession is secured and progressed toward the target under pressure. A forced ball or turnover flips the immediate attacking advantage to the opponent with no reset
+2. Directional target or progression (attack toward a defined goal or end)
+3. Maintain possession under pressure as a live game condition
+4. Support options and spacing must shape available passes and outlets
+
+Scoring:
+- Main scoring rule: Teams score by keeping possession under pressure and progressing toward the target
+- Optional bonus rule: Award bonus points when players use the listed constraints successfully: Central pressure Use wide areas
+
+Constraints:
+- Central pressure Use wide areas
+
+Coaching Points:
+- Observe how players utilize numerical overloads to create space and disorganize the defense
+- Encourage strategic decision-making with scoring nuances and reward defensive interceptions
+- Focus on players' ability to recognize and exploit positional advantages
+- Coach observation: focus on the live decisions — how players read pressure, space, and support, and how they adapt when the picture changes
+
+Teams:
+Use two even teams. One team keeps and progresses possession while the other pressures, wins it back, and attacks the other way.
+
+---
+
+Case 3
+Input: help players keep possession under pressure
+packageValidationStatus: PASS
+aiCalled: true
+outputValidationStatus: PASS
+generatedActivitiesCount: 3
+
+Activity 1
+--------------------------------
+Title:
+Central Corridor Possession Game
+
+Setup:
+- Field setup: Set up a central corridor with defined end zones. Teams aim to maintain possession while progressing toward the opponent's end zone. Play begins with a neutral pass from the coach
+- Player count: Use two even teams. One team keeps and progresses possession while the other pressures, wins it back, and attacks the other way
+- Restart rule: Restart quickly from the spot of the turnover, score, or coach stoppage
+
+Objective:
+Players decide to decide when to secure possession, progress forward, or switch play based on space and pressure within the central corridor. Session focus: Maintain possession with forward intent.
+
+Rules:
+1. Play stays live as possession is secured and progressed toward the target under pressure. A forced ball or turnover flips the immediate attacking advantage to the opponent with no reset
+2. Directional target or progression (attack toward a defined goal or end)
+3. Maintain possession under pressure as a live game condition
+4. Support options and spacing must shape available passes and outlets
+
+Scoring:
+- Main scoring rule: Teams score by keeping possession under pressure and progressing toward the target
+- Optional bonus rule: Award bonus points when players use the listed constraints successfully: Central pressure Combination gate creates a live possession problem under opponent pressure; defending teams read the passing rhythm and choose whether to press early or delay and force the ball wide; attacking teams adapt support structure
+
+Constraints:
+- Central pressure Combination gate creates a live possession problem under opponent pressure; defending teams read the passing rhythm and choose whether to press early or delay and force the ball wide; attacking teams adapt support structure
+
+Coaching Points:
+- Observe how players maintain possession under pressure
+- Encourage players to recognize and exploit space for forward progression
+- Focus on decision-making in tight spaces within the corridor
+- Coach observation: focus on the live decisions — how players read pressure, space, and support, and how they adapt when the picture changes
+
+Teams:
+Use two even teams. One team keeps and progresses possession while the other pressures, wins it back, and attacks the other way.
+
+Activity 2
+--------------------------------
+Title:
+Live Transition Possession Game
+
+Setup:
+- Field setup: Create a playing area with end zones. Play restarts immediately with a new ball from the coach after a turnover, emphasizing quick transitions
+- Player count: Use two even teams. One team keeps and progresses possession while the other pressures, wins it back, and attacks the other way
+- Restart rule: Restart quickly from the spot of the turnover, score, or coach stoppage
+
+Objective:
+Players choose when to secure possession and progress toward the end zone, adapting quickly to live transitions after turnovers. Session focus: Maintain possession with forward intent.
+
+Rules:
+1. Play stays live as possession is secured and progressed toward the target under pressure. A forced ball or turnover flips the immediate attacking advantage to the opponent with no reset
+2. Directional target or progression (attack toward a defined goal or end)
+3. Maintain possession under pressure as a live game condition
+4. Support options and spacing must shape available passes and outlets
+
+Scoring:
+- Main scoring rule: Teams score by keeping possession under pressure and progressing toward the target
+- Optional bonus rule: Award bonus points when players use the listed constraints successfully: Central pressure Combination gate creates a live possession problem under opponent pressure; defending teams read the passing rhythm and choose whether to press early or delay and force the ball wide; attacking teams adapt support structure
+
+Constraints:
+- Central pressure Combination gate creates a live possession problem under opponent pressure; defending teams read the passing rhythm and choose whether to press early or delay and force the ball wide; attacking teams adapt support structure
+
+Coaching Points:
+- Watch how players handle immediate transitions
+- Encourage quick decision-making to maintain possession
+- Focus on players' ability to adapt to rapid changes in possession
+- Coach observation: focus on the live decisions — how players read pressure, space, and support, and how they adapt when the picture changes
+
+Teams:
+Use two even teams. One team keeps and progresses possession while the other pressures, wins it back, and attacks the other way.
+
+Activity 3
+--------------------------------
+Title:
+Overload Scoring Possession Game
+
+Setup:
+- Field setup: Set up a field with defined end zones and introduce a numerical overload in favor of the attacking team. Scoring is weighted, with extra points for maintaining possession through multiple passes
+- Player count: Use two even teams. One team keeps and progresses possession while the other pressures, wins it back, and attacks the other way
+- Restart rule: Restart quickly from the spot of the turnover, score, or coach stoppage
+
+Objective:
+Players decide how to use the numerical overload to maintain possession and progress toward scoring opportunities. Session focus: Maintain possession with forward intent.
+
+Rules:
+1. Play stays live as possession is secured and progressed toward the target under pressure. A forced ball or turnover flips the immediate attacking advantage to the opponent with no reset
+2. Directional target or progression (attack toward a defined goal or end)
+3. Maintain possession under pressure as a live game condition
+4. Support options and spacing must shape available passes and outlets
+
+Scoring:
+- Main scoring rule: Teams score by keeping possession under pressure and progressing toward the target
+- Optional bonus rule: Award bonus points when players use the listed constraints successfully: Central pressure Combination gate creates a live possession problem under opponent pressure; defending teams read the passing rhythm and choose whether to press early or delay and force the ball wide; attacking teams adapt support structure
+
+Constraints:
+- Central pressure Combination gate creates a live possession problem under opponent pressure; defending teams read the passing rhythm and choose whether to press early or delay and force the ball wide; attacking teams adapt support structure
+
+Coaching Points:
+- Observe how players utilize the overload to maintain possession
+- Encourage strategic use of overloads to create scoring chances
+- Focus on decision-making related to scoring and possession stability
+- Coach observation: focus on the live decisions — how players read pressure, space, and support, and how they adapt when the picture changes
+
+Teams:
+Use two even teams. One team keeps and progresses possession while the other pressures, wins it back, and attacks the other way.
+
+---
+
+Case 4
+Input: help players create better support angles
+packageValidationStatus: PASS
+aiCalled: true
+outputValidationStatus: PASS
+generatedActivitiesCount: 3
+
+Activity 1
+--------------------------------
+Title:
+Central Corridor Positional Play
+
+Setup:
+- Field setup: Create a playing area with a central corridor and wide channels. Teams of equal numbers compete to maintain possession and exploit space within the central corridor. Restarts occur from designated zones after the ball goes out of play
+- Player count: Two teams compete in a structured positional game; one team maintains positional shape and creates advantages through spacing and relationships while the other disrupts structure, fills spaces, and blocks lines of progression. Player structure logic: Even or overload
+- Restart rule: Restart quickly from the spot of the turnover, score, or coach stoppage
+
+Objective:
+Players decide how to maintain their positional structure while creating advantages in the central corridor. They must choose when to exploit open lanes or numerical superiority.
+
+Rules:
+1. Positional advantages remain live while the defensive structure is stretched. Forward play can continue through the open lane, and any ball forced into a covered zone gives the opponent immediate access to the disorganized shape with play continuing live
+2. Positional structure — teams maintain spatial relationships and distances to create advantages in defined areas
+3. Live opposition contests the positional structure — defenders fill spaces and close lines of progression
+4. Two-sided contest: the team in possession finds a positional advantage — numerical superiority or a free player in a zone — and exploits it before the defensive shape recovers or disrupts the structure
+
+Scoring:
+- Main scoring rule: Teams score by keeping possession under pressure and progressing toward the target
+- Optional bonus rule: Award bonus points when players use the listed constraints successfully: Central pressure Support lane requirement creates a visible spatial game problem; the free player decides when to enter the lane based on defensive coverage; the ball carrier adapts timing of the forward pass based on lane occupation and pr
+
+Constraints:
+- Central pressure Support lane requirement creates a visible spatial game problem; the free player decides when to enter the lane based on defensive coverage; the ball carrier adapts timing of the forward pass based on lane occupation and pr
+
+Coaching Points:
+- Observe how players maintain structure while creating advantages
+- Focus on the use of the central corridor to exploit space
+- Encourage players to recognize and utilize numerical superiority
+- Highlight the consequence of losing possession leading to opponent restarts
+
+Teams:
+Two teams compete in a structured positional game; one team maintains positional shape and creates advantages through spacing and relationships while the other disrupts structure, fills spaces, and blocks lines of progression. Player structure logic: Even or overload
+
+Activity 2
+--------------------------------
+Title:
+Live Transition Positional Game
+
+Setup:
+- Field setup: Set up a grid with defined zones. The game features live restarts, where possession changes immediately upon a turnover. Teams work to maintain positional structure and create advantages during these transitions
+- Player count: Two teams compete in a structured positional game; one team maintains positional shape and creates advantages through spacing and relationships while the other disrupts structure, fills spaces, and blocks lines of progression. Player structure logic: Even or overload
+- Restart rule: Restart quickly from the spot of the turnover, score, or coach stoppage
+
+Objective:
+Players need to adapt quickly to possession changes, maintaining their structure while deciding when to press forward or hold position. A turnover results in an immediate opportunity for the opponent to counter, emphasiz.
+
+Rules:
+1. Positional advantages remain live while the defensive structure is stretched. Forward play can continue through the open lane, and any ball forced into a covered zone gives the opponent immediate access to the disorganized shape with play continuing live
+2. Positional structure — teams maintain spatial relationships and distances to create advantages in defined areas
+3. Live opposition contests the positional structure — defenders fill spaces and close lines of progression
+4. Two-sided contest: the team in possession finds a positional advantage — numerical superiority or a free player in a zone — and exploits it before the defensive shape recovers or disrupts the structure
+
+Scoring:
+- Main scoring rule: Teams score by keeping possession under pressure and progressing toward the target
+- Optional bonus rule: Award bonus points when players use the listed constraints successfully: Central pressure Support lane requirement creates a visible spatial game problem; the free player decides when to enter the lane based on defensive coverage; the ball carrier adapts timing of the forward pass based on lane occupation and pr
+
+Constraints:
+- Central pressure Support lane requirement creates a visible spatial game problem; the free player decides when to enter the lane based on defensive coverage; the ball carrier adapts timing of the forward pass based on lane occupation and pr
+
+Coaching Points:
+- Monitor how players adapt to live transitions
+- Focus on maintaining structure during quick possession changes
+- Encourage immediate decisions on pressing or holding position
+- Emphasize the opponent's counter opportunity following turnovers
+
+Teams:
+Two teams compete in a structured positional game; one team maintains positional shape and creates advantages through spacing and relationships while the other disrupts structure, fills spaces, and blocks lines of progression. Player structure logic: Even or overload
+
+Activity 3
+--------------------------------
+Title:
+Overload Scoring Positional Challenge
+
+Setup:
+- Field setup: Organize the field with asymmetric zones to create numerical overloads. Scoring is weighted, with additional points for successful plays originating from overload situations
+- Player count: Two teams compete in a structured positional game; one team maintains positional shape and creates advantages through spacing and relationships while the other disrupts structure, fills spaces, and blocks lines of progression. Player structure logic: Even or overload
+- Restart rule: Restart quickly from the spot of the turnover, score, or coach stoppage
+
+Objective:
+Players decide how to use numerical overloads to create scoring opportunities, balancing between exploiting overloads and maintaining defensive structure. Opponents can regain possession and counter quickly, requiring co.
+
+Rules:
+1. Positional advantages remain live while the defensive structure is stretched. Forward play can continue through the open lane, and any ball forced into a covered zone gives the opponent immediate access to the disorganized shape with play continuing live
+2. Positional structure — teams maintain spatial relationships and distances to create advantages in defined areas
+3. Live opposition contests the positional structure — defenders fill spaces and close lines of progression
+4. Two-sided contest: the team in possession finds a positional advantage — numerical superiority or a free player in a zone — and exploits it before the defensive shape recovers or disrupts the structure
+
+Scoring:
+- Main scoring rule: Teams score by keeping possession under pressure and progressing toward the target
+- Optional bonus rule: Award bonus points when players use the listed constraints successfully: Central pressure Support lane requirement creates a visible spatial game problem; the free player decides when to enter the lane based on defensive coverage; the ball carrier adapts timing of the forward pass based on lane occupation and pr
+
+Constraints:
+- Central pressure Support lane requirement creates a visible spatial game problem; the free player decides when to enter the lane based on defensive coverage; the ball carrier adapts timing of the forward pass based on lane occupation and pr
+
+Coaching Points:
+- Evaluate the use of numerical overloads in creating scoring chances
+- Focus on decision-making in exploiting overloads while maintaining structure
+- Encourage awareness of scoring nuances tied to overload situations
+- Highlight the opponent's ability to counter from regained possession
+
+Teams:
+Two teams compete in a structured positional game; one team maintains positional shape and creates advantages through spacing and relationships while the other disrupts structure, fills spaces, and blocks lines of progression. Player structure logic: Even or overload
+
+---
+
+Case 5
+Input: help players break defensive lines
+packageValidationStatus: PASS
+aiCalled: true
+outputValidationStatus: PASS
+generatedActivitiesCount: 3
+
+Activity 1
+--------------------------------
+Title:
+Central Corridor Possession Game
+
+Setup:
+- Field setup: Set up a field with a central corridor and wide channels. Teams aim to progress the ball through the central corridor to reach a target area. Play restarts from the central zone after a goal or turnover
+- Player count: Use two even teams. One team keeps and progresses possession while the other pressures, wins it back, and attacks the other way
+- Restart rule: Restart quickly from the spot of the turnover, score, or coach stoppage
+
+Objective:
+Players decide to choose when to exploit central spaces to progress toward the target while maintaining possession under pressure. Session focus: Maintain possession with forward intent.
+
+Rules:
+1. Play stays live as possession is secured and progressed toward the target under pressure. A forced ball or turnover flips the immediate attacking advantage to the opponent with no reset
+2. Directional target or progression (attack toward a defined goal or end)
+3. Maintain possession under pressure as a live game condition
+4. Support options and spacing must shape available passes and outlets
+
+Scoring:
+- Main scoring rule: Teams score by keeping possession under pressure and progressing toward the target
+- Optional bonus rule: Award bonus points when players use the listed constraints successfully: Central pressure Use wide areas
+
+Constraints:
+- Central pressure Use wide areas
+
+Coaching Points:
+- Observe how players maintain possession with forward intent
+- Encourage players to decide when to switch play to wide channels
+- Focus on players' ability to read and use open spaces
+- Coach observation: focus on the live decisions — how players read pressure, space, and support, and how they adapt when the picture changes
+
+Teams:
+Use two even teams. One team keeps and progresses possession while the other pressures, wins it back, and attacks the other way.
+
+Activity 2
+--------------------------------
+Title:
+Live Transition Possession Game
+
+Setup:
+- Field setup: Divide the field into thirds with live transition zones. Teams restart play immediately after a turnover, maintaining directional possession toward a target goal
+- Player count: Use two even teams. One team keeps and progresses possession while the other pressures, wins it back, and attacks the other way
+- Restart rule: Restart quickly from the spot of the turnover, score, or coach stoppage
+
+Objective:
+Players decide how to react quickly to transition opportunities, maintaining possession and progressing toward the target. Session focus: Maintain possession with forward intent.
+
+Rules:
+1. Play stays live as possession is secured and progressed toward the target under pressure. A forced ball or turnover flips the immediate attacking advantage to the opponent with no reset
+2. Directional target or progression (attack toward a defined goal or end)
+3. Maintain possession under pressure as a live game condition
+4. Support options and spacing must shape available passes and outlets
+
+Scoring:
+- Main scoring rule: Teams score by keeping possession under pressure and progressing toward the target
+- Optional bonus rule: Award bonus points when players use the listed constraints successfully: Central pressure Use wide areas
+
+Constraints:
+- Central pressure Use wide areas
+
+Coaching Points:
+- Watch for quick decisions in transition moments
+- Encourage players to maintain forward intent under pressure
+- Focus on players' ability to adapt to live restart conditions
+- Coach observation: focus on the live decisions — how players read pressure, space, and support, and how they adapt when the picture changes
+
+Teams:
+Use two even teams. One team keeps and progresses possession while the other pressures, wins it back, and attacks the other way.
+
+Activity 3
+--------------------------------
+Title:
+Overload Scoring Possession Game
+
+Setup:
+- Field setup: Create a field with numerical overloads in specific zones and a weighted scoring system. Teams score by progressing through overloaded areas and reaching the target zone
+- Player count: Use two even teams. One team keeps and progresses possession while the other pressures, wins it back, and attacks the other way
+- Restart rule: Restart quickly from the spot of the turnover, score, or coach stoppage
+
+Objective:
+Players choose how to use numerical advantages to progress and score, considering the weighted scoring opportunities. Session focus: Maintain possession with forward intent.
+
+Rules:
+1. Play stays live as possession is secured and progressed toward the target under pressure. A forced ball or turnover flips the immediate attacking advantage to the opponent with no reset
+2. Directional target or progression (attack toward a defined goal or end)
+3. Maintain possession under pressure as a live game condition
+4. Support options and spacing must shape available passes and outlets
+
+Scoring:
+- Main scoring rule: Teams score by keeping possession under pressure and progressing toward the target
+- Optional bonus rule: Award bonus points when players use the listed constraints successfully: Central pressure Use wide areas
+
+Constraints:
+- Central pressure Use wide areas
+
+Coaching Points:
+- Observe players' use of overloads to maintain possession
+- Encourage strategic decisions to exploit scoring nuances
+- Focus on players' ability to balance possession stability with scoring intent
+- Coach observation: focus on the live decisions — how players read pressure, space, and support, and how they adapt when the picture changes
+
+Teams:
+Use two even teams. One team keeps and progresses possession while the other pressures, wins it back, and attacks the other way.
+
+---
