@@ -1,0 +1,106 @@
+Christian,
+
+I authored the modifier exactly as you specified. The chain does not pass, and I think the reason is
+worth your attention because it is not the one either of us expected: it is representational, not a
+knowledge gap.
+
+Three things, in order of how much they bear on the closure.
+
+
+1 — THE TRIGGER CHECK YOU ASKED FOR, ANSWERED FIRST
+
+You asked me to use the existing authored meaning exactly and to flag it rather than infer if the
+knowledge does not establish what enters the region. It does not, and the contract says so itself:
+
+    "no field size, no channel or team ownership, and no rule for what counts as 'moving through'
+     (ball, player, touch). The last is play-level, outside the boundary."
+
+So the knowledge names the three candidates and records that it does not choose between them. The
+register is silent too: `REGION_ENTRY` has no `triggerSemantics` entry at all — `FIRST_FORWARD_PASS` is
+the only trigger that has one, from your ruling of 29 September.
+
+And the source sentence is wider than "entry". It reads "Actions **starting in or moving through** the
+wide channel earn an advantage (bonus point, free restart, or scoring multiplier)". So there are two
+qualifying modes authored, not one, and neither is resolved. Your MULTIPLY ×2 picks the third of those
+three advantages, which is the part the sentence does settle.
+
+Nothing inferred. This is the final owner value, as you anticipated.
+
+A second one sits beside it. "Within the same attacking episode" has no representational home: a value
+modifier carries a condition type, referents, magnitude, operation and combination, and no episode
+scope. The canonical episode mechanism does exist — `startsEpisode`, which `FIRST_FORWARD_PASS`'s
+registered semantics use — but nothing ties a modifier to an episode. I did not invent a field for it.
+
+
+2 — WHAT I AUTHORED, AND WHY IT STILL CANNOT BE EVALUATED
+
+Authored: the modifier exists on V7 with a region condition, magnitude 2, operation MULTIPLY. Both
+values come from the registered closed lists, and SD-30 is explicit that a magnitude without an
+operation is incomplete, so the pair is authored together. The base value is untouched, so the ordinary
+route is preserved exactly as you required: a line crossing that does not satisfy the condition is
+worth 1.
+
+This is the first time V7 has carried an item. The consequence is immediate and good — the object's
+claims about the advantage now reach lines instead of vanishing, which is what my 1 October note said
+was happening to all of them.
+
+But realization is now refused, and the refusal is correct:
+
+    not, because: a pre-realization Gate A invariant cannot be evaluated, so it is not satisfied:
+    GA-MODIFIER-OVERLAP
+
+The modifier's referents are the authored prose "both wide channels of this contract, each a referent".
+SD-58 forbids comparing open text as identity, because that would promote text equality into identity.
+So the overlap invariant cannot evaluate, and a game whose invariant cannot be evaluated is not
+authorized.
+
+Typing the referents is the canonical remedy — your SD-98 precedent, same operation as the typed bounds
+in C29c and C30b. **It has no working form today, and that is the finding.** I tried both:
+
+  · one item whose value is an array of two typed references — the array is read as a permitted SET, so
+    the line became "choose one of the two channels", which inverts the authored "both";
+  · two items, each typing one referent — they collide under SD-02, two support-capable items on one
+    line with nothing authored to decide between them.
+
+V8b's registered valueType says "references to regions, objects or events; **one property per
+referent**". Neither route implements that. So "a condition on two referents" is currently not
+representable, and I reverted both attempts rather than leave a collision in the corpus that I had
+created rather than found.
+
+Worth noting what made me confident the typing itself was legitimate: after your C33 restatement, "both
+wide channels of this contract" names exactly two items determinately. Before it, the same sentence
+answered to three classes and typing it would have required choosing between them. Your ruling is what
+made the reference well-defined — the representation is what cannot carry it.
+
+
+3 — THE CLOSURE CONDITION
+
+    resolved game → authorized realization → acceptance → runnable representation → validation → rendering
+         YES              NO                     —              —                      —            —
+
+As authored, the chain stops at the second step. I have kept everything downstream under test through a
+single named function that drops the modifier from a caller's own copy of the input — never from the
+corpus — so the acceptance conditions, the post-realization gate and the rendering pathway stay
+exercised while this is with you. The blocker has its own test. Deleting that function will not compile
+until every call site is revisited, which is how the last one came out cleanly.
+
+Modifier-free, the pathway is exactly as it was yesterday: acceptance passed, Gate A passed,
+render-eligible, Q2/Q3/Q4 pass, Q5 fails on the two channels.
+
+So I do not think the vertical slice is closed, and the dependency is not the one you were expecting to
+rule on. Two ways forward, and both are yours:
+
+  (a) make a condition on two referents representable — which is engine and possibly register work, and
+      the smallest version is making V8b's "one property per referent" actually accumulate rather than
+      collide, the way `functions` already does;
+  (b) or rule that the modifier's condition names one referent, which would change what you authored.
+
+I would not want to guess between those.
+
+The three check defects are preserved as regression cases, as you asked — the false `nothingLost`, the
+unreadable member path, and selector identity contaminating the establishment count — each with the
+evidence attached and no further work around them.
+
+Zero-depth line and same-line scoring unchanged. Generation still frozen. 247 cases green.
+
+Joe

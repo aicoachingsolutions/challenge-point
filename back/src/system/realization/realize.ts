@@ -370,6 +370,27 @@ export function realize(
         }
     }
 
+    /**
+     * **An authored collection cardinality constrains realization, not only an existential claim.**
+     *
+     * His direction of 1 October: *"an authored collection cardinality must actually constrain resolution
+     * rather than becoming dead data."* It was dead: the number was consumed only through `existential`,
+     * and a class carrying a selector never becomes an existential claim — so the Wide Zone's authored
+     * *exactly two channels* constrained nothing while the run produced three.
+     *
+     * Checked against what the resolved game ESTABLISHED, before any member is instantiated, because a
+     * population that already exceeds its authored maximum is not something realization can fix by
+     * choosing well. Refusing is the existing mechanism for that, so no new one is introduced.
+     */
+    for (const bound of resolved.collectionCardinality ?? []) {
+        if (bound.max !== null && bound.established > bound.max) {
+            because.push(
+                `${bound.classId}: ${bound.path} is authored with at most ${bound.max} element(s)` +
+                    `${bound.min === bound.max ? ` (exactly ${bound.max})` : ''}, and the resolved game establishes ${bound.established}`,
+            )
+        }
+    }
+
     if (because.length) return { outcome: 'REFUSED', because }
 
     // **DISTINCT_ON — the joint check, after every individual bound has already passed.**
@@ -491,12 +512,27 @@ export function realize(
                 o => (splitElementPath(o.path)?.elementId ?? '') === elementId && axisOf(o.lineId) === other && typeof o.value === 'string' && !!(index.relativeTerms as any)?.phraseIndex?.map?.[o.value],
             )
 
+            /**
+             * **The element's own authored `lateral` value, read from the selector the game now carries.**
+             *
+             * His boundary of 2 October: *"realization may consume those authored selectors; it may not
+             * infer wide-left/wide-right merely from COUNT 2."* So this reads the element's authored
+             * selector and nothing else — no count, no ordering, no position of the element in its
+             * collection. An element whose knowledge names no side gets none, and its term's own anchor
+             * stands.
+             */
+            const selectorTerms = (readAt(game, `${splitElementPath(entry.path)?.container}`) as unknown[] | undefined)?.find?.(
+                (e: any) => e?.elementId === elementId,
+            ) as { selector?: { attribute: string; value?: unknown }[] } | undefined
+            const lateral = selectorTerms?.selector?.find(t => t.attribute === 'lateral')?.value
+
             const realizedGeometry = realizeSpatialRelation(entry.value, index, {
                 envelope: envelope ?? {},
                 axis,
                 extentBound: extentOf(entry.lineId) as any,
                 nounExtentDimensions: Number.isFinite(dimensions) ? dimensions : undefined,
                 otherAxisHasExtent,
+                lateral: typeof lateral === 'string' ? lateral : undefined,
             })
             if (!realizedGeometry) continue
             geometry.push({ lineId: entry.lineId, path: entry.path, geometry: realizedGeometry })
@@ -560,8 +596,42 @@ export function nothingLost(resolved: ResolvedGame, realized: Realized): string[
                   return element && parts.leaf ? readAt(element, parts.leaf) : undefined
               })()
             : readAt(realized.game, entry.path)
-        if (JSON.stringify(value) !== JSON.stringify(entry.value)) {
-            problems.push(`${entry.lineId}: derived ${JSON.stringify(entry.value)}, concrete ${JSON.stringify(value)}`)
+
+        /**
+         * **A set-valued field holds its members in an array, so a member survives by being IN it.**
+         *
+         * Found by the Wide Zone restatement: `functions` is set-valued (RC-16), and an item establishing
+         * `perceptual-reference` derives the member itself while the concrete game holds
+         * `["perceptual-reference"]`. Comparing the two directly reported a loss on a value that had
+         * arrived intact — and reporting a false loss on a correct game is as damaging as missing a real
+         * one, because it trains you to disbelieve the check.
+         *
+         * Containment is checked, not shape: an array that does NOT contain the derived member is still a
+         * loss, and so is a scalar that differs. The member is never assumed present because the field
+         * exists.
+         */
+        /**
+         * **A member-subscripted path names one member of a set-valued field**, and must be read as such.
+         *
+         * The derivation emits two entries for an established member: the field
+         * (`…functions` = `"perceptual-reference"`) and the member
+         * (`…functions[perceptual-reference]`). The second is a subscript, not a dotted path, so reading it
+         * by splitting on `.` resolved nothing and reported a loss on a value sitting correctly in the game.
+         */
+        const subscript = parts?.leaf.match(/^(.+)\[([^\]]+)\]$/)
+        const resolvedValue = (() => {
+            if (!subscript || !parts) return value
+            const bucket = readAt(realized.game, parts.container)
+            const element = Array.isArray(bucket) ? (bucket as any[]).find(e => e?.elementId === parts.elementId) : null
+            return element ? readAt(element, subscript[1]) : undefined
+        })()
+
+        const survived = Array.isArray(resolvedValue) && !Array.isArray(entry.value)
+            ? (resolvedValue as unknown[]).some(member => JSON.stringify(member) === JSON.stringify(entry.value))
+            : JSON.stringify(resolvedValue) === JSON.stringify(entry.value)
+
+        if (!survived) {
+            problems.push(`${entry.lineId}: derived ${JSON.stringify(entry.value)}, concrete ${JSON.stringify(resolvedValue)}`)
         }
     }
     return problems
@@ -644,7 +714,10 @@ export function nothingInvented(resolved: ResolvedGame, realized: Realized): str
         }
         if (node && typeof node === 'object') {
             for (const [k, v] of Object.entries(node)) {
-                if (k === 'elementId' || k === 'satisfies') continue
+                // `elementId`, `satisfies` and `selector` are an element's IDENTITY — which element this
+                // is, and which claim or authored selector picks it out. They are not values established
+                // about it, so they are not candidates for invention.
+                if (k === 'elementId' || k === 'satisfies' || k === 'selector') continue
                 walk(v, path ? `${path}.${k}` : k, within ? { ...within, leaf: within.leaf ? `${within.leaf}.${k}` : k } : null)
             }
             return

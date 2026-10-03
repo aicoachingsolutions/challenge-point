@@ -4154,3 +4154,358 @@ advantage actually does. Rendering scope frozen; generation not broadened.
 An agent reported an injection result I could not reproduce at first — my attempt used a `*` selector and
 hit the SD-97 path, so nothing changed. Redone with the selectors the declarations actually name, it
 reproduced exactly. **I would have reported a false negative had I stopped at my own first run.**
+
+---
+
+## 2026-10-02 — Both cardinality defects fixed. **A04 IS NOW REFUSED, and that is correct.**
+
+247 cases green, tsc clean. Rendering pathway still runs; Q5 still fails on participation.
+
+### A04 was never legitimately realizing
+The Wide Zone authors **exactly two** channels; the run establishes **three**. The authored count was dead
+data, so nothing objected. Realization now refuses, naming the item and both numbers. **Not relaxed** —
+the refusal has its own test in `realize.unit.ts`.
+
+Everything downstream stays testable through ONE named override, **`withAuthoredRegionCountSetAside`**
+(resolved-game.ts) — **in callers only, never in the engine**. Deleting it when the restatement lands will
+not compile until every call site is revisited. That is deliberate.
+
+### 1 · An exact COUNT is exact — one reader, not two
+`cardinalityOf` had its own copy of the count parse, written earlier and never brought forward: the
+bare-digit match was **unanchored** and it never consulted `item.requirement`, so authored `COUNT "2"` and
+prose `"2 or more"` parsed alike. Now both use **`countBounds`** (derive.ts). **Exactly 5 corpus items
+change**, all authored `COUNT "2"` → exactly 2 (teams included). **Nothing loses a cardinality it had** —
+measured before changing anything.
+
+**The asymmetry dissolves with it.** The exclusion side refuses a prose count citing SD-32 (*guessing
+"would decide the item's meaning"*) while the establishing side guessed. The single reader's bare-digit
+match is **anchored at both ends**, so both sides read a number that IS the value and both refuse a number
+embedded in prose. Pinned from both directions in `cardinality.unit.ts`.
+
+### 2 · The count constrains — it was dead data
+Consumed only via `existential`, and a **selectored class never becomes an existential claim** (SD-97), so
+a COLLECTION row gets no line, the class forms no claim, and the number was read by nothing.
+`resolved.collectionCardinality` now reports every authored cardinality beside what was established, and
+realization **refuses** a population exceeding an authored maximum. Scoped to **individuated** classes, so
+it fills exactly the gap and does not double-count `existential`.
+
+**A correction to my own first version:** it counted EVERY region, so the Wide Zone's "exactly two" was
+violated by GF2's target line — a region it says nothing about. The authoring note guards against exactly
+that (*"counted over this contract's own channels so another object's channel cannot break it"*). **The
+population is the one the item's own `scope` names.** I would have shipped a bound meaning the wrong thing.
+
+### 3 · The restatement is AUTHORIZED, drafted, and blocked on two things (both with him)
+- **The third S2 item.** `WIDEZONE-08.d` (`noun=channel & functions ∋ perceptual-reference`, COUNT 2,
+  SUPPORTING) — its own note says *"COUNT 2 (from WIDEZONE-03) so both channels carry the member"*, so it
+  is **not a third channel** but a statement about the two. As an existence assertion on S2 it mints a
+  third region, and merging is ruled out. Three readings listed for him; **AM-13 does not settle it** (it
+  is "selection does not entail existence").
+- **A lateral selector would VANISH.** An element's selector **never reaches the resolved game** — a region
+  arrives with `elementId`, `noun`, `position` only. `lateral: wide-left` would parse, attach to the class
+  and be dropped before realization; both channels would still anchor to the same touchline. **Fourth
+  instance of the shape.** `spatial.ts` already grows an interval inward from a non-zero anchor, so the
+  missing piece is carrying the selector through + reading AM-17's authored interval test.
+
+### 4 · Wide Zone effect — HELD, nothing authored
+Datum passed to him: the only authored/required/support-capable items in the cluster are a **trigger**
+(region entry) and its **referents** (both channels) — nothing about what follows. So the mechanism is
+genuinely open, and his direction (modify the existing primary event, not a second scoring event) matches
+what the contract already excludes (a second primary event; channel as objective reference; channel as
+ACCESS region).
+
+---
+
+## 2026-10-02 (rulings a + b) — TWO channels, ONE PER TOUCHLINE. A04 realizes. Q5 fails on the effect alone.
+
+His predicted result, reached exactly:
+`exactly two channels → one per touchline → A04 realization proceeds → Q5 still fails because the channels
+have an authored trigger but no authored effect`
+
+Channels at across **[0, 7.5]** and **[22.5, 30]** on a 30 m width, each citing **AM-17** in its own `why`.
+**Q2/Q3/Q4 PASS · Q5 2 violations** (both the effect gap). 247 cases green, tsc clean.
+
+### (a) `WIDEZONE-08.d`: S2 → S4, ruled option (i)
+On S2 an existence requirement **mints an element**; on S4 a **member is asserted** of whichever regions the
+selector reaches. Its own note always said so: *"COUNT 2 (from WIDEZONE-03) so both channels carry the
+member"* — the 2 referenced the established population. Form is `EQUALS`, matching the corpus's only other
+S4 item, and `EQUALS` is outside `EXISTENCE_REQUIREMENTS` so it cannot mint an element by either route.
+**His distinction to preserve: a statement that a property applies to N existing members does not thereby
+assert the existence of N additional members.**
+
+**SIDE EFFECT WORTH HAVING: the region-function defect of 1 October is CLOSED by this restatement.**
+`perceptual-reference` now reaches the artifact on both channels; 3 of the 4 unauthored `functions` rows are
+gone and **nothing was authored to close them**. The member was always authored — it was being asserted of a
+third region instead of the two that exist.
+
+### (b) Selector preservation — GENERAL, not a lateral transport path
+**Every element now carries its own authored selector verbatim.** An element used to arrive with its id and
+whatever was derived, so the attributes saying WHICH element this is were parsed onto the class and dropped.
+`spatial.ts` reads `lateral` from that selector and takes the far edge for `wide-right`, from **AM-17's own
+registered interval test**. **Consumed only from an authored selector — a count of two channels does not
+make one of them wide-right.**
+
+### Three things the restatement surfaced — all fixed, two of them defects in the CHECKS
+- **A FALSE LOSS.** `nothingLost` compared a set-valued field's member against the array holding it, so
+  `perceptual-reference` arriving correctly as `["perceptual-reference"]` was reported lost. **A false loss
+  is as damaging as a missed one — it teaches you to disbelieve the check.**
+- **An unreadable path.** The per-member entry is at `functions[member]` — a **subscript**, not a dotted
+  path — so splitting on `.` resolved nothing.
+- **A GUARD I NEARLY BLINDED.** Adding `selector` to every element made every element look established,
+  defeating `elementsWithNothingEstablished` — **the guard for the exact class of defect the selector was
+  added to fix.** Caught by an existing test. Identity (`elementId`, `selector`) is now excluded from it.
+  → **When you add a field to every element, check what counts elements by their emptiness.**
+
+### The temporary override is gone, as designed
+`withAuthoredRegionCountSetAside` set the authored count aside **in callers only** while the ruling was
+pending, arranged so deleting it would not compile until every call site was revisited. The restatement
+landed → deleted, all three revisited. **The over-population refusal stays under test synthetically — a
+capability should outlive the defect that motivated it.**
+
+### Corpus figures moved, with the reason recorded at each assertion
+lines **125 → 121** (one element class's four field lines) · entailed **59 → 61** · NOT_AUTHORED **26 → 23**
+· open **18 → 17** · restatements **30 → 33** (ruling **C33**).
+
+### Rendering
+Says *"along one touchline"* / *"along the opposite touchline"* — **never left/right**, which the authored
+axis edges do not establish. Carries the established function near-literally; the system-term→coach-language
+mapping is flagged as a vocabulary question, not guessed.
+
+### ONLY ONE THING REMAINS
+**The Wide Zone effect** — held on his instruction, nothing authored. Datum passed to him: the only
+authored/required/support-capable items in the cluster are a **trigger** and its **referents**, and the
+contract already excludes a second primary event, the channel as objective reference, and the channel as
+ACCESS region — so *modify the existing primary event* is the one candidate the knowledge has not closed off.
+
+---
+
+## 2026-10-02 (C34) — Modifier AUTHORED. Chain does NOT pass: the blocker is REPRESENTATIONAL.
+
+247 cases green, tsc clean. **Not the closure** — a new load-bearing dependency appeared, and it is not a
+knowledge gap.
+
+### The trigger check he asked for — ANSWERED: the knowledge does not establish what enters
+The contract says it itself: *"no rule for what counts as 'moving through' (ball, player, touch). The last
+is play-level, outside the boundary."* And **`REGION_ENTRY` has NO `triggerSemantics` entry** —
+`FIRST_FORWARD_PASS` is the only trigger that does (his 29 Sept ruling). The source sentence is wider than
+entry: *"Actions **starting in or moving through** the wide channel earn an advantage (bonus point, free
+restart, or scoring multiplier)"* — **two qualifying modes, neither resolved.** His MULTIPLY ×2 picks the
+third of those three advantages, which is the part the sentence does settle. **Nothing inferred.**
+
+**Second unhoused thing:** *"within the same attacking episode"*. A value modifier carries
+`condition.type`/`condition.referents`/`magnitude`/`operation`/`combination` — **no episode scope.** The
+canonical mechanism exists (`startsEpisode`, used by `FIRST_FORWARD_PASS`'s semantics) but nothing ties a
+modifier to an episode. No field invented.
+
+### Authored (ruling C34)
+V7 existence (`condition.type=region`) · V9 magnitude **2** · V9a **MULTIPLY** — both from registered closed
+lists; SD-30 says a magnitude without an operation is incomplete, so the pair is authored together. **Base
+value untouched**, so a line crossing not satisfying the condition is still worth 1. **First time V7 has
+ever carried an item**, so the object's claims about the advantage now reach lines instead of vanishing —
+the 1 October finding, closed.
+
+### WHY IT STILL CANNOT BE EVALUATED — and this is the finding
+`GA-MODIFIER-OVERLAP` is **NOT_EVALUABLE**, so realization is not authorized. The referents are the prose
+*"both wide channels of this contract, each a referent"*, and **SD-58 forbids comparing open text as
+identity**. Typing them is the canonical remedy (SD-98 precedent, same operation as C29c/C30b) and **it has
+no working form:**
+- **one item, array of two typed refs** → the array is read as a **permitted SET**, so the line becomes
+  *choose one of the two channels* — inverting the authored "both";
+- **two items, one referent each** → they **COLLIDE** (SD-02).
+
+V8b's registered valueType says *"references to regions, objects or events; **one property per referent**"*
+and **neither route implements that**. Both attempts REVERTED — the collision was mine, not the knowledge's.
+→ **His C33 restatement is what made the reference well-defined** (before it, "both wide channels" answered
+to three classes). **The knowledge is now precise and the representation cannot carry it.**
+
+### Closure condition
+`resolved game YES → authorized realization NO → … ` — stops at step two.
+**`derivationInputWithoutWideZoneModifier`** (run-bounded-selection.ts) drops the modifier from **a caller's
+own copy of the input, never from the corpus**, keeping acceptance / post-realization / rendering under
+test. The blocker has its own test asserting `NOT_EVALUABLE` and naming the check. **Deleting the function
+will not compile until every call site is revisited.** Modifier-free the pathway is unchanged: acceptance
+PASSED · Gate A PASSED · render-eligible · Q2/Q3/Q4 pass · Q5 fails on the two channels.
+
+### With him — two ways forward, both his
+(a) make **a condition on two referents** representable — smallest version: make V8b's *one property per
+referent* **accumulate** the way `functions` already does; or (b) rule that the condition names **one**
+referent, which changes what he authored. Not guessed between.
+
+### Corpus figures (reasons recorded at each assertion)
+lines **121 → 126** (V7's five owned rows enumerate) · entailed **61 → 65** · NOT_AUTHORED **23 → 24** (V10
+combination, *"never addressed"* per the contract) · added items **9 → 12**.
+
+The three check defects are preserved as regression cases at his request.
+
+---
+
+## 2026-10-02 (C35) — A04 runs the WHOLE chain. Q5 fails on ONE thing: the held trigger decision.
+
+    resolved game YES → authorized YES → acceptance PASSED → runnable YES → post-realization PASSED
+    → rendering Q2 PASS · Q3 PASS · Q4 PASS · Q5 ONE violation
+
+Collisions 0. 247 cases green, tsc clean. Coach-facing: *"When the channel condition is met, that same score
+is worth 2 instead of 1"* · *"The condition is about the two channels you marked — it applies to either of
+them"* (his semantics, stated to a coach).
+
+### `multiplicity: "SET"` — the narrowest general form of ruling (a)
+**Types what five rows' valueType prose ALREADY states** — *"one property per referent/member/trigger"* —
+so two support-capable items on such a row are two **MEMBERS** and accumulate instead of colliding (SD-02).
+Rows: **S4, J7, J10, V5, V8b**. **J11b deliberately excluded** (*"member, or procedure over members"* does
+not state the field holds a set; reading it as one would be interpretation).
+**No new concept:** `establishedMembers` already meant "this item puts this member here" and the `CONTAINS`
+selector path always used it — this makes it reachable from items too.
+
+### Three further defects, all GENERAL, all from typed references reaching code that had never seen one
+- **`GA-MODIFIER-OVERLAP` keyed referents by `String(referent)`** = `"[object Object]"` for EVERY typed
+  structural reference, so all typed referents collapsed to one key and any two read as the same region.
+  **And claimants were a list, so one modifier naming two referents overlapped ITSELF.** Keyed by resolved
+  class; claimants are a set.
+- **Member identity was `String(member)`** — a typed ref became the literal `"[object Object]"` as a line id
+  and was then placed into the concrete game as if it were the member. Identity is the item it names.
+- **A set held each member twice** once the field line carried the set and member lines appended again.
+
+### SD-80 SCOPED, and strengthened — flagged to him because I touched an invariant
+It guards a **NARROWING** becoming a value (*"a wrong answer wearing the label of a right one"*). A
+register-declared set-valued row is different: **membership, not alternatives.** The test now asserts BOTH
+halves — no line holds a set unless the register declares that row set-valued, AND no narrowing ever becomes
+a value — stronger than the blanket form it replaced. **Weakening an invariant to let your own change
+through is the move that must never pass unnoticed: say so explicitly.**
+
+### What Q5 still fails on — HIS HELD DECISION, not a new problem
+*"a coach is told that meeting the region condition changes the score, and nothing in the game establishes
+what MEETS it."* The **fourth** failure mode in his original question — **operationally obscured** — and the
+only one that passes every other test: nothing lost, nothing invented, channels participate, and a coach
+still cannot award the bonus. Rendering declines to pick ball/player/touch to look runnable.
+
+### EPISODE SCOPE — STOPPED and returned, per his own condition
+**The mechanism exists:** `scope` is a contract-item enum (`WHOLE_GAME, PER_TEAM, PER_OBJECTIVE_SET,
+OWN_INVOLVEMENT, BUILD_OUT_EPISODE`) and **he added the episode value himself under SD-36**, recorded as *"a
+vocabulary addition making an already-authored distinction executable, not a new Game Representation area."*
+So the smallest extension is a precedented enum addition — **no new field, not Wide-Zone-specific.**
+**But defining a general "current attacking episode" needs POSSESSION ATTRIBUTION** (which team is attacking
+in an episode) and I cannot find that established. And the register records that **4 of the 6 existing
+`BUILD_OUT_EPISODE` uses do NOT conform** (keyed on the triggers that END an episode), so a general
+definition bears on those too. **A question about the episode model, not an extension of it.**
+The modifier carries `scope: WHOLE_GAME`, which is **wrong and left visibly wrong** rather than quietly
+made to look right.
+
+### Next
+His ruling on the trigger semantics, preceded by the ecological/incentive **criteria** he wants formalized
+first (objective · legible · opposition-robust · affordance-preserving · proportionate). Offered as a short
+document stating them as questions an authoring decision must answer, with ball/player/touch worked as the
+first example — **for him to approve**. Asked whether he would rather shape them himself first.
+
+### 2026-10-02 — Ecological/incentive assurance criteria DRAFTED (`docs/INCENTIVE_ASSURANCE_CRITERIA.md`)
+**Draft for his approval; nothing in the engine reads it.** Five questions an authoring decision must answer
+before a new incentive meaning enters canonical knowledge — **objective · legible · opposition-robust ·
+affordance-preserving · proportionate** — each with the question, pass/fail shape, the evidence that answers
+it, and **WHO** can answer it (machine / coaching judgement / owner). *Recording which is which is about half
+the value.*
+
+**Grounded, not invented:** the incentive invariant (*"incentives raise the value, attention and visibility
+of an opportunity — they must not script the behavior"*), *"invite, not force"*, GF11's compactness-emergent
+finding, the scoring-ownership rule, the five influence dimensions. **The gap it fills:** the guardrail today
+lives as library-row prose and as WORDING checks in `incentive-expression.ts` — those stop us *phrasing* an
+incentive as an instruction and say nothing about whether its meaning is sound.
+
+**The worked example (ball / player / touch) is what earns it, and no decision was made:**
+- **PLAYER fails three criteria, two against AUTHORED knowledge** — park a player in each channel and the
+  condition is permanently satisfied, contradicting the row's own audit **"Zones optional"** and the
+  contract's **"Entering must not be compulsory"**. Unavailable, not merely unattractive.
+- **BALL is weak on proportionality, checkably**: the two channels are **50% of A04's realized width** (7.5 m
+  each on 30 m), so mere ball presence is satisfied incidentally and ×2 makes the base value decorative.
+- **TOUCH is strongest on the ecological criteria and weakest on the one the engine cares about.**
+→ **His worry confirmed: the easiest reading to evaluate deterministically is not the one the criteria
+favour.** Optimising for convenience would have chosen ball.
+
+**Criterion 4 already has a waiting case:** the Round 7.4 question on whether an explicit attacker-side
+`Transition Bonus` over-scripts the race, which the framework itself says should not be settled as a one-off.
+
+**Returned to him:** are these the five (a **learning-goal** criterion may be missing — none asks whether the
+reward points at what the session is for) · is a failure a veto or a finding · where the answers are recorded
+(`fitNote`/`basisEvidence` beside the authored value, or a separate ruling record).
+
+### 2026-10-02 — Criteria APPROVED (six), and applied to the Wide Zone condition
+`docs/INCENTIVE_ASSURANCE_CRITERIA.md` is **approved for use** (Christian, 2 Oct). His three rulings in:
+- **6 · Learning-Relevant** added in his wording — *"does the incentive increase the value, attention, or
+  visibility of an opportunity meaningfully related to the intended learning problem?"* Pass = biases
+  exploration toward relevant opportunities **while leaving the learner's solution open**. **Deliberately not
+  phrased as requiring a target behaviour** — *"the Learning Goal establishes the problem/opportunity
+  landscape; it does not specify the player's solution."* A criterion demanding an action would be the
+  invariant violated under another name.
+- **CONTRADICTION vs CONCERN.** Contradiction = conflicts with canonical authored knowledge or a governing
+  invariant → **unavailable**. Concern = a recorded finding to weigh. **Criterion 4 is NOT a veto for being
+  criterion 4** — the test is the nature of the conflict. (Player reading = CONTRADICTION against *"Zones
+  optional"* + *"Entering must not be compulsory"*; ball reading's proportionality = CONCERN.)
+- **Answers live in the authored item's `fitNote` / `basisEvidence`.**
+
+**FIRST CANONICAL APPLICATION — *"a controlled attacking-team touch within the wide channel"* PASSES ALL SIX.**
+Evaluated against the real selection, which mattered: **Beat Defenders 1v1** · Central Density Condition as
+foundation (`protect_space`) · Wide Zone as **shaping** (`exploit_space`) · lens **Line-Breaking Opportunity**.
+Two of his intentions actively improve the result — no-traversal secures affordance-preserving, and
+attacking-team secures opposition-robust (a defensive clearance would otherwise arm the attack's bonus).
+
+**Two findings:**
+1. **Learning-Relevant passes WITH A CONCERN.** The chain holds (central density → opportunity moves wide →
+   channel makes it legible → defender comes out → 1v1 available), but the condition is satisfied by
+   **controlling the ball in the space**, not by engaging a defender. A team could circulate in and out, never
+   attempt the 1v1, and bank the bonus. **Not** a contradiction — requiring the 1v1 would be the more
+   dangerous design and `exploit_space` is the authored target — but it is the gap between what is rewarded
+   and what the session is for, and it bears on magnitude.
+2. **STRUCTURAL: "attacking team" needs what the representation lacks.** Either **live possession
+   attribution** (not established) or **a window tying the touch to the scorer** — which is the **episode
+   scope** he asked to keep separate. **The two are not independent**: his qualifier makes that scope
+   load-bearing for this condition. Neither mechanism invented; reported.
+
+**Returned:** is *"controlled"* retained-possession (observable, passes) or deliberate (intent — criterion 1
+excludes it)? · how *"attacking team"* is established · whether a traversal with **no** controlled touch also
+qualifies (the source authors *"starting in OR moving through"*; his formulation reaches only the first) ·
+then **magnitude**, after those. **Nothing authored into canonical knowledge.** A04 and generation frozen.
+
+### 2026-10-02 — POSSESSION ATTRIBUTION IS ALREADY REQUIRED BY AUTHORED KNOWLEDGE
+His bounded representation check, answered: **YES, decisively, in a CONTRACTED object independent of Wide Zone.**
+**Wide Zone did not create the requirement — it exposed that a relationship the corpus already depends on has no
+representation.** All verified against the authored text directly.
+
+**The decisive case — Neutral Player Condition** (contracted). It authors `P6b = ATTACKING_TEAM`, and the
+restatement's own fitNote defines the token: *"ATTACKING_TEAM ('in possession for the episode') is re-evaluated
+each episode; START and POSSESSION_CHANGE begin one (SD-14), so it holds 'currently in possession'."* A second
+item: *"All neutrals become teammates of the team now in possession."* `P6a = STANDING`: *"a standing affiliation
+to ATTACKING_TEAM changes at every POSSESSION_CHANGE."*
+→ **What makes it decisive rather than arguable: the same object FORBIDS the static reading.** P6b excludes
+`DEFENDING_TEAM` (*"forbids the team out of possession"*) and excludes `TEAM_<id>` (*"No neutral is fixed to one
+team"*). **We are not inferring that a fixed designation is inadequate; the knowledge prohibits it.**
+
+**The concept is GENERAL:** seven rows carry "team designation" as their valueType — **P6b, P9, J3, T1a, T1b, T2,
+V14a** — and **T2's own valueType says "team designation EVALUATED AT THE TRIGGER"**. `POSSESSION_CHANGE` is in
+the trigger vocabulary, so *detecting* it needs attribution before anything is awarded. **One general
+relationship, seven rows leaning on it, defined in exactly one place: a fitNote.**
+
+### A DEFECT FOUND IN A04'S OWN ARTIFACT while checking
+`performers.teams[].designation = ATTACKING_TEAM / DEFENDING_TEAM` in the concrete game, and:
+- **there is NO register row for `designation`** (only P2 `outfieldCount` and P3 `goalkeeper` are owned by P1);
+- **no authority** — it came from the choices file with the reasons *"First of the two"* / *"second of the two"*;
+- **it sits against GF2's own `J3 = EACH_TEAM: one shared target attacked by both`** — if both teams attack the
+  same target, statically labelling one "defending" is not a description of this game.
+
+**It survived because an instantiated member's own fields are blanket-authorised by the existential claim** — the
+one permission left in place when `nothingInvented` was tightened, and exactly where this got through. **So the
+only thing in A04 resembling possession attribution is an unregistered, authority-free static label.**
+
+### The structural point worth keeping
+**SD-14 already ties episodes to possession** (*"START and POSSESSION_CHANGE begin an episode"*) and
+`ATTACKING_TEAM` is already *"in possession for the episode"*. So his two options — live possession attribution
+vs scorer-linked episode scope — **are not alternatives but two views of one missing relationship**, and the
+knowledge already states the link. Nothing designed, neither mechanism implemented.
+
+### Also settled (his rulings), recorded in the assurance document
+- **"Controlled" = a touch after which the touching player's team retains possession** — observable, no intent.
+- **Traversal neither required NOR sufficient.** The source's second mode deliberately not adopted, *"on evidence
+  the source itself did not resolve"* — **the first time the criteria ruled AGAINST authored source material**.
+- **Wording correction applied**: Proportionate said *"a deliberate act"*, contradicting Objective where
+  deliberate is excluded; now *"a more discriminating condition than mere ball presence"*.
+
+### Returned to him
+Treat it as one general relationship or two mechanisms · what to do about A04's unregistered `designation` (in
+the frozen fixture, untouched) · whether `nothingInvented` should stop blanket-authorising a member's own fields
+(wide blast radius, so not proposed unilaterally). **Magnitude still open. A04 and generation frozen.**

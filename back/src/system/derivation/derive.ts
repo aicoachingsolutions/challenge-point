@@ -180,6 +180,49 @@ function narrowsToSet(item: any): boolean {
 }
 
 /**
+ * **Two items on a SET-multiplicity row are two members, not two competing values.**
+ *
+ * His ruling of 2 October, and the semantics are his: *"Each established wide channel is independently a
+ * qualifying referent for the same modifier condition. This does not mean choose one of the channels, nor
+ * does it mean both channels must be involved before the modifier can apply."*
+ *
+ * Before this, two items each naming one referent **collided** under SD-02 — two support-capable items on one
+ * line that no single value satisfies — and one item naming both as an array was read as a permitted SET, so
+ * the line became a choice between them and inverted the authored "both". Neither expressed the row's own
+ * stated semantics.
+ *
+ * **It introduces no new concept.** `establishedMembers` already means exactly "this item puts this member
+ * here", and the `CONTAINS` selector path has always used it; this makes the same semantics reachable from
+ * items as well as from selectors. The line's value becomes the set, so anything already reading a set of
+ * referents or members needs no change, and per-member provenance survives on `establishedMembers` rather
+ * than being collapsed away with the individual contributions.
+ *
+ * Deliberately narrow: it fires only on a row the register marks `SET`, and only where more than one item
+ * contributed. A single contribution is left exactly as it was, so no line that works today changes.
+ */
+function applySetMultiplicity(lines: ResolutionLine[], derived: Map<string, DerivedLine>, index: RegisterIndex): void {
+    for (const line of lines) {
+        if (index.rows.get(line.row)?.multiplicity !== 'SET') continue
+        const record = derived.get(line.lineId)
+        if (!record || record.entailing.length < 2) continue
+
+        const members: unknown[] = []
+        for (const contribution of record.entailing) {
+            record.establishedMembers.push({
+                item: contribution.item,
+                member: contribution.value,
+                support: { ...contribution.support, relation: 'CARRIES' } as SupportRef,
+            })
+            if (!members.some(m => JSON.stringify(m) === JSON.stringify(contribution.value))) members.push(contribution.value)
+        }
+
+        // One contribution carrying the set. Its support names the first contributor; every contributor is
+        // on `establishedMembers`, which is where a reader asks which item put a given member here.
+        record.entailing = [{ item: record.entailing[0].item, value: members, support: record.entailing[0].support }]
+    }
+}
+
+/**
  * **SD-101, his ruling of 28 September — a defining selector is constitutive of class identity.**
  *
  *   "Where a selector attribute participates in establishing the identity of a class, a contribution
@@ -428,20 +471,46 @@ function boundsOf(item: any, index?: RegisterIndex): Bounds {
     }
     if (item.requirement !== 'RANGE' && item.requirement !== 'COUNT') return { kind: 'SET', members: [item.value] as any }
 
-    if (typeof item.value === 'number') return { kind: 'COUNT', min: item.value, max: item.requirement === 'COUNT' ? item.value : null }
+    const count = countBounds(item)
+    if (count) return { kind: 'COUNT', min: count.min, max: count.max }
+    return { kind: 'QUALITATIVE', term: String(item.value ?? '').trim() }
+}
 
+/**
+ * **The one place a numerical count is read from an item.** `null` where the item states no count.
+ *
+ * It exists because there were two readers and they disagreed. `cardinalityOf` in engine.ts had its own
+ * copy, written earlier and never brought forward, which **could not tell an exact COUNT from a lower
+ * bound**: its bare-digit match was unanchored and it never consulted `item.requirement`, so an authored
+ * `COUNT "2"` and a prose `"2 or more"` parsed identically and the Wide Zone's *exactly two channels*
+ * reached the engine as *at least two*. One reader, used by both.
+ *
+ * Two properties worth stating, because they are what make this not prose interpretation:
+ *
+ *   - **a typed bound wins** (SD-86): a restatement may MOVE an explicitly authored number from prose into
+ *     a typed field, and may not infer one;
+ *   - **the bare-digit match is anchored at both ends.** A value that IS a number is read; a number
+ *     embedded in prose is not. That is the line SD-32 draws, and it is why `"2 or more (forbidden)"`
+ *     reads as no count at all rather than as a minimum of two. The exclusion side of the engine already
+ *     refuses such a value for exactly this reason; with one reader, both sides now refuse it alike.
+ */
+export function countBounds(item: any): { min: number | null; max: number | null } | null {
+    if (item.typedBound && typeof item.typedBound === 'object') {
+        const { min = null, max = null } = item.typedBound
+        return { min, max }
+    }
+    if (typeof item.value === 'number') {
+        return { min: item.value, max: item.requirement === 'COUNT' ? item.value : null }
+    }
     const text = String(item.value ?? '').trim()
     const explicitMin = text.match(/min(?:imum)?\s*:?\s*(\d+)/i)
     const explicitMax = text.match(/max(?:imum)?\s*:?\s*(\d+)/i)
     const bare = /^(\d+)\s*$/.exec(text)
-    if (explicitMin || explicitMax || bare) {
-        return {
-            kind: 'COUNT',
-            min: explicitMin ? Number(explicitMin[1]) : bare ? Number(bare[1]) : null,
-            max: explicitMax ? Number(explicitMax[1]) : bare && item.requirement === 'COUNT' ? Number(bare[1]) : null,
-        }
+    if (!explicitMin && !explicitMax && !bare) return null
+    return {
+        min: explicitMin ? Number(explicitMin[1]) : bare ? Number(bare[1]) : null,
+        max: explicitMax ? Number(explicitMax[1]) : bare && item.requirement === 'COUNT' ? Number(bare[1]) : null,
     }
-    return { kind: 'QUALITATIVE', term: text }
 }
 
 /**
@@ -719,6 +788,9 @@ export function deriveLines(
             }
         }
     }
+
+    // **A SET-multiplicity row accumulates its members rather than colliding.** His ruling of 2 October.
+    applySetMultiplicity(lines, derived, index)
 
     // SD-101 — a contribution contradicting a constitutive selector attribute leaves the line before
     // SD-92 looks, so the class-defining value is what the selector then carries.

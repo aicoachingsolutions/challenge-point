@@ -1,0 +1,113 @@
+Christian,
+
+Your predicted result is what happened, almost exactly:
+
+    exactly two channels → one per touchline → A04 realization proceeds → Q5 still fails because the
+    channels have an authored trigger but no authored effect
+
+Q2, Q3 and Q4 pass. Q5 fails on two violations, both the effect gap. 247 cases green.
+
+The geometry, from the run: the two channels are at 0–7.5 m and 22.5–30 m across a 30 m width. Each
+carries its own reason naming AM-17 — "the authored selector states wide-right, which AM-17 tests as
+touching the far touchline, so the anchor is that edge rather than the other."
+
+What a coach now reads:
+
+  Set up
+    Mark out an area 40 m long by 30 m wide
+    For this activity, mark a line across one end of the area, 30 m long, on the end line itself
+    Mark a channel along one touchline, 40 m long and up to 7.5 m wide
+    This channel is established as a perceptual reference
+    Around 6 m to 7.5 m wide works well, if it suits your group
+    Mark a channel along the opposite touchline, 40 m long and up to 7.5 m wide
+    This channel is established as a perceptual reference
+    Around 6 m to 7.5 m wide works well, if it suits your group
+
+  Players
+    12 players in total · 2 teams of 6 · No goalkeepers — everyone is an outfield player
+
+"One" and "the opposite" rather than left and right: the authored values name the 0 and far edges of an
+axis, which is an axis convention and not a coach's left. The pairing is established; which one a coach
+starts from is not, so the rendering does not say.
+
+
+(a) — WIDEZONE-08.d, ruled option (i)
+
+It moves from S2 to S4. On S2 an existence requirement mints an element; on S4 a member is asserted of
+whichever regions the selector reaches. So it is now a property statement over the two established
+channels, exactly as you ruled, and the member lands on both of them.
+
+Its own note had said as much all along — "COUNT 2 (from WIDEZONE-03) so both channels carry the member"
+— so the 2 was a reference to the established population, not a second assertion of it.
+
+Form follows the only other S4 item in the corpus, which is an EQUALS naming a member. EQUALS also sits
+outside the existence requirements, so it cannot mint an element by either route. I did not make it one
+specific side, and did not touch the class model.
+
+**A side effect worth having**: the `functions` rows are no longer unestablished. `perceptual-reference`
+now reaches the artifact on both channels, where before it reached nothing — so the region-function
+defect I reported on 1 October is closed by this restatement rather than needing its own fix. Three of
+the four previously-unauthored functions rows are gone, and nothing was authored to close them. The
+member was always authored; it was being asserted of a third region instead of the two that exist.
+
+
+(b) — selector preservation, done generally
+
+Every element now carries its own authored selector verbatim, whatever it constrains — not a transport
+path for `lateral`. The realization layer reads `lateral` from that selector and nothing else: no count,
+no ordering, no position in a collection. An element whose knowledge names no side gets none and its
+term's own anchor stands, so nothing is inferred from COUNT 2.
+
+The register already authored the test — wide-right "touches the W touchline and does not contain the
+midline" — so reading it is propagation rather than invention, and the spatial layer already grew an
+interval inward from a far anchor. The missing piece really was only the selector surviving the trip.
+
+
+THREE THINGS THE RESTATEMENT SURFACED
+
+All fixed rather than worked around, and the first two are the same kind of defect in the checks
+themselves.
+
+  **A false loss.** `nothingLost` compared a set-valued field's member against the array holding it, so
+  `perceptual-reference` arriving correctly as `["perceptual-reference"]` was reported as lost. A false
+  loss on a correct game is as damaging as a missed real one, because it teaches you to disbelieve the
+  check.
+
+  **An unreadable path.** The derivation emits a per-member entry at `functions[member]`, which is a
+  subscript rather than a dotted path, so reading it by splitting on "." resolved nothing.
+
+  **And a guard I nearly blinded.** Adding the selector to every element made every element look
+  established, which would have defeated the count that exists to make a silently dropped element
+  visible — the guard for exactly the class of defect the selector was added to fix. Identity is now
+  excluded from that count explicitly.
+
+The temporary override is gone, as designed. I had set the authored region count aside in callers so the
+pathway stayed testable while your ruling was pending, arranged so that deleting it would not compile
+until every call site was revisited. The restatement landed, so it is deleted and all three were. The
+over-population refusal stays under test synthetically, because the capability should outlive the defect
+that motivated it.
+
+
+WHAT REMAINS, AND IT IS ONLY THE ONE THING
+
+    validated concrete game  →  complete runnable representation  →  faithful rendering
+            YES                          NO                                YES
+
+The two Q5 violations are both the same sentence: a coach is instructed to mark a channel, and nothing
+in the concrete game establishes what changes when players or the ball interact with it. The structural
+identity and placement problem is cleanly separated from the incentive-design decision, which is what
+you asked for.
+
+So the Wide Zone effect is now the only thing between this and a runnable activity. Held, as you
+directed — nothing authored.
+
+One datum for that decision, since it bears on the mechanism you named. The only authored, required,
+support-capable items in the whole cluster are the trigger (region entry into a wide channel) and its
+referents (both wide channels). Everything else is NOT_AUTHORED, an inert TYPICAL_EXAMPLE, or ASSUMED.
+And the contract has already closed off the alternatives you are ruling against: it excludes a second
+primary event, the channel as an objective reference, and the channel as an ACCESS region. So "modify
+the value of the existing primary scoring event" is the one candidate the knowledge has not excluded.
+
+Zero-depth line and same-line scoring unchanged. Generation still frozen.
+
+Joe

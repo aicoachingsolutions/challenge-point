@@ -1,0 +1,98 @@
+Christian,
+
+All three rulings are in, the criteria are adopted, and your formulation has been through all six. The
+document is attached with both sections.
+
+Short answer on the formulation: **it passes all six.** Two findings are worth your time, and one of them
+touches the thing you asked to keep separate.
+
+
+THE THREE RULINGS
+
+Learning-Relevant is in as the sixth, in your wording, with your pass condition — biases exploration toward
+relevant opportunities while leaving the learner's solution open. I was careful with the phrasing you
+flagged: it asks whether the reward points at the right landscape, never whether it produces a particular
+action, because a criterion demanding a target behaviour would be the invariant violated under another name.
+
+CONTRADICTION versus CONCERN is in, and it does real work immediately. I relabelled the candidate comparison
+with it: the player reading's failures are contradictions against the row's own "Zones optional" audit and
+the contract's "Entering must not be compulsory", so unavailable; the ball reading's proportionality result
+contradicts nothing authored, so it is a concern. And criterion 4 is explicitly not a veto for being
+criterion 4 — the test is the nature of the conflict.
+
+fitNote / basisEvidence as the home: recorded.
+
+
+YOUR FORMULATION, THROUGH THE SIX
+
+I evaluated it against the selection it is actually being authored into, which turned out to matter: Learning
+Goal "Beat Defenders 1v1", Central Density Condition as foundation ("increase defensive pressure in central
+areas"), Wide Zone as the shaping constraint (exploit_space), lens Line-Breaking Opportunity.
+
+  Objective          pass, with one word to settle
+  Legible            pass
+  Opposition-robust  pass, and your attacking-team restriction strengthens it
+  Affordance-preserving  pass, and the no-traversal decision is what secures it
+  Proportionate      deferred, as directed
+  Learning-Relevant  pass, with a concern
+
+Opposition-robust and affordance-preserving both improve *because* of your two intentions. Declining to
+require traversal is precisely what keeps several solutions open — already wide, moving there, receiving,
+carrying, combining — so nothing prescribes a movement and "Zones optional" holds. And without the
+attacking-team restriction a defensive clearance from the channel would arm the attack's bonus, which is a
+reward with no opposition involvement at all.
+
+
+THE LEARNING-RELEVANT CONCERN
+
+The chain holds, and it is the reason Wide Zone is the shaping constraint here: central density makes the
+centre scarce, the penetration opportunity moves wide, the channel makes it legible and valuable, a defender
+has to come out, and that is where the 1v1 becomes available. The reward points at the right landscape and
+leaves the solution entirely open.
+
+But the condition is satisfied by **controlling the ball in the space** — not by engaging a defender and not
+by penetrating. A team could circulate into the channel and back out, never attempt the 1v1, and still take
+the bonus. The incentive rewards *finding* the space rather than *using it against someone*.
+
+I do not think that is a contradiction. An incentive that *required* a 1v1 engagement would be the more
+dangerous design, and exploit_space is this constraint's authored target rather than "beat a defender". But
+it is a real gap between what is rewarded and what the session is for, and it bears directly on magnitude —
+an argument for a multiplier that biases attention rather than one large enough to pay for circulation.
+Which is a second reason your deferral of magnitude was right.
+
+
+THE STRUCTURAL FINDING — and it reaches the issue you separated
+
+"Attacking team" cannot be evaluated without something the representation does not establish. To know a touch
+was the attacking team's, the game must establish either:
+
+  - which team is attacking at the moment of the touch — live possession attribution, which I cannot find
+    established; or
+  - that the touch belongs to the team that subsequently scored — determinate at scoring time without
+    possession attribution, but it needs a window tying the touch to the score, which is the episode scope.
+
+So the two are not independent. You asked me to keep the episode-scope issue separate and not to invent an
+attacking-episode representation to support this incentive, and I have invented neither. But the
+attacking-team qualifier makes that scope load-bearing for THIS condition rather than merely desirable.
+
+Your restriction is well-reasoned and the criteria support it — a defensive clearance should not arm the
+attack's bonus. What I am reporting is that the separation you intended may not be available: the condition
+cannot be fully authored until one of those two is settled.
+
+
+THREE THINGS OUTSTANDING, in the order they block
+
+1. "Controlled" — retained possession, or deliberate? The first is observable and passes criterion 1. The
+   second is an intent judgement, which criterion 1 excludes by construction. Your formulation does not yet
+   say, and I have not assumed. I would ask for the first.
+2. How "attacking team" is established — the dependency above.
+3. Whether a traversal with no controlled touch also qualifies. The source authors two modes, "starting in
+   OR moving through". Your formulation satisfies the first. Declining to REQUIRE traversal is not the same
+   as deciding whether a ball played through the channel with no controlled touch also qualifies — and if it
+   does not, that half of the authored source goes unexpressed.
+
+Then magnitude, after those, as you directed.
+
+Nothing authored into canonical knowledge. A04 and generation still frozen.
+
+Joe

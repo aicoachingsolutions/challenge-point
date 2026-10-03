@@ -54,6 +54,7 @@ function eligible(overrides: Partial<ResolvedGame> = {}): ResolvedGame {
             },
         ],
         existential: [],
+        collectionCardinality: [],
         notEstablished: [],
         extentBounds: {},
         jointConditions: [],
@@ -513,6 +514,11 @@ test('A04 is authorized for realization, and the three states stay distinct', ()
     // His ruling of 30 September split Gate A by evaluability, so the four invariants whose subject
     // realization supplies are evaluated after it. The state is deliberately NOT reported as `PASS`:
     // "this keeps 'may realize' distinct from 'game is validated'."
+    /**
+     * **A04 is authorized as authored.** Ruling C35 made V8b's "one property per referent" operational, so the
+     * modifier's two typed referents accumulate as members instead of colliding, `GA-MODIFIER-OVERLAP` can
+     * evaluate identity, and nothing is left unevaluable before realization.
+     */
     const resolved = a04()
     assert.equal(resolved.coherence.preRealization, 'PRE_REALIZATION_SATISFIED')
     assert.notEqual(resolved.coherence.preRealization, 'PASS', 'the pre-realization state must not read as full Gate A passing')
@@ -551,10 +557,45 @@ function a04(): ResolvedGame {
     return assembleResolvedGame(result, (runStages0to10(input) as any).classes, indexRegister(input.register), input.contracts)
 }
 
-test('THE ACCEPTANCE TEST: A04 realizes, and all three conditions hold on the concrete game', () => {
+/**
+ * **An authored collection cardinality refuses an over-populated game.** Synthetic, deliberately.
+ *
+ * A04 WAS this test until ruling C33 of 2 October: its knowledge authored exactly two channels and three
+ * contributions each minted their own region. The restatement fixed the knowledge, so the live corpus no
+ * longer exhibits it — which is why the case is kept here by construction. The capability must stay under
+ * test after the defect that motivated it is gone.
+ */
+test('a collection holding more elements than its knowledge authors is refused', () => {
+    const resolved = a04()
+    const regions = (resolved.game as any).space.regions as { elementId: string }[]
+    const over = {
+        ...resolved,
+        collectionCardinality: [
+            {
+                path: 'space.regions[]',
+                row: 'S2',
+                classId: 'synthetic:exactly-one',
+                from: { contractId: 'X', itemId: 'I' },
+                min: 1,
+                max: 1,
+                scope: 'WHOLE_GAME' as const,
+                established: regions.length,
+            },
+        ],
+    }
+    const refused = realize(over as typeof resolved, [], [])
+    assert.equal(isRefused(refused), true, 'an over-produced collection is refused, not silently realized')
+    assert.ok(
+        (refused as any).because.some((r: string) => r.includes('at most 1') && r.includes(`establishes ${regions.length}`)),
+        `the refusal must name the authored bound and the real count; got ${JSON.stringify((refused as any).because)}`,
+    )
+})
+
+test('THE ACCEPTANCE TEST: with the authored count satisfied, A04 realizes and all three conditions hold', () => {
     // The first game through the pathway, on real selected knowledge and through the gate rather than
     // around it. The three conditions are his and unchanged: nothing lost, nothing invented, nothing
     // closed without authority.
+    //
     const resolved = a04()
     assert.equal(resolved.coherence.realizationAuthorized, true, 'through the gate, not around it')
 

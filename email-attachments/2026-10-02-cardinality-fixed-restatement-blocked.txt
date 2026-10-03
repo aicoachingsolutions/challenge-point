@@ -1,0 +1,120 @@
+Christian,
+
+Both cardinality defects are corrected and regression-tested, including the asymmetry. The restatement
+is drafted but not applied, for two reasons I want you to see before I author anything. And the
+cardinality fix has had a consequence worth leading with.
+
+
+A04 IS NOW REFUSED, AND I THINK THAT IS THE RIGHT ANSWER
+
+Making the authored count constrain revealed that A04 was never legitimately realizing. The Wide Zone
+authors exactly two channels; the run establishes three. Until today that count was dead data, so
+nothing objected. Now realization refuses:
+
+    WIDEZONE-03: space.regions[] is authored with at most 2 element(s) (exactly 2),
+                 and the resolved game establishes 3
+
+So the three-channel problem is no longer something the rendering layer notices at the far end of the
+chain — it is caught where the knowledge is violated. I have not relaxed it to keep A04 moving. The
+refusal has its own test, and everything downstream stays under test through a single named override
+that exists in callers only and never in the engine. Deleting that function when the restatement lands
+will not compile until every call site has been revisited, which is deliberate.
+
+
+1 — AN EXACT COUNT IS NOW EXACT
+
+There were two count parsers and they disagreed. The one the class model used was written earlier and
+never brought forward: its bare-digit match was unanchored and it never consulted whether the
+requirement was COUNT or RANGE. So an authored COUNT "2" and a prose "2 or more" parsed identically.
+
+One reader now serves both. Exactly five items across the corpus change, every one an authored
+COUNT "2" becoming exactly 2 — the two teams among them. Nothing loses a cardinality it had, which I
+checked before changing anything.
+
+**The asymmetry dissolves with it**, and that is why I treated this as a defect rather than a
+preference. The exclusion side refuses to read a prose count, saying in terms that SD-32 forbids it and
+that guessing would decide the item's meaning. The establishing side guessed. The single reader's
+bare-digit match is anchored at both ends, so both sides now read a number that IS the value and both
+refuse a number embedded in prose. The test pins it from both directions, including on the real corpus
+item ("2 or more (forbidden)") that exposed it.
+
+
+2 — THE COUNT NOW CONSTRAINS RATHER THAN BEING DEAD DATA
+
+It was consumed only through the existential-claim path, and a class carrying a selector never becomes
+an existential claim — so a collection row gets no resolution line, the class forms no claim, and the
+number was parsed onto the class and read by nothing at all.
+
+The resolved game now reports every authored collection cardinality beside what was actually
+established, and realization refuses a population that already exceeds an authored maximum. Scoped to
+individuated classes, so it fills exactly the gap and does not double-count what the existential path
+already enforces.
+
+One correction I made to my own first attempt, because it matters for what the bound means. I counted
+every region, so the Wide Zone's "exactly two" was violated by GF2's target line — a region it says
+nothing about. Your authoring note is explicit: "counted over this contract's own channels so another
+object's channel cannot break it." The count now ranges over the population the item's own scope names.
+
+
+3 — THE RESTATEMENT: AUTHORIZED, DRAFTED, AND BLOCKED ON TWO THINGS
+
+I have not applied it. Both blockers are things I would be guessing at.
+
+**(a) The third S2 item.** There are three existence-establishing items on S2, and one element class is
+minted per item — which is the ruled behaviour, and you have excluded merging. Two of them become the
+lateral pair cleanly. The third is WIDEZONE-08.d, selector "noun=channel & functions ∋
+perceptual-reference", COUNT 2, SUPPORTING, whose own note reads "COUNT 2 (from WIDEZONE-03) so both
+channels carry the member". It is not a third channel — it is a statement that both channels carry a
+functions member. But as an existence assertion on S2 it mints a third region, so while it stands the
+count stays at three and A04 stays refused.
+
+Three readings, and I do not think it is mine to choose:
+  (i) it retires its S2 existence assertion and becomes a property statement about the two lateral
+      regions — its content is about functions, which is a different row;
+  (ii) it becomes one of the two lateral regions, i.e. the perceptual-reference channel is specifically
+       one side;
+  (iii) a narrowing selector identifies rather than creates — which I read your no-merging ruling as
+        excluding, but it is the third option and I would rather name it than quietly drop it.
+
+I checked whether AM-13 already settles this. It does not: AM-13 is "selection does not entail
+existence", which is a different question.
+
+**(b) A lateral selector would currently vanish.** This is the part I most want flagged. An element's
+selector does not reach the resolved game at all — a region arrives carrying only its id, its noun and
+its position. So authoring `lateral: wide-left` would parse correctly, attach to the class, and then be
+dropped before realization ever sees it. Both channels would still anchor to the same touchline and the
+restatement would be geometrically inert.
+
+That is the same shape as the roster, the region functions and the channel's own operational claims:
+authored, parsed, and lost before the consumer. Fourth instance. The spatial layer already places a
+region from a far-side anchor correctly — it grows the interval inward from a non-zero anchor — so what
+is missing is only the selector reaching it, plus reading the interval test the register already
+authors for wide-left and wide-right under AM-17. I have not built that yet because it should land with
+the restatement rather than ahead of it, and because (a) has to be settled first.
+
+
+4 — WIDE ZONE EFFECT: HELD, AS YOU DIRECTED
+
+Nothing authored. I agree it is a knowledge decision, and I would not want the engine to pick among
+modifier, frequency and cap either — your own declaration says there is no default among the three.
+
+One thing from my trace that may be useful when you evaluate the mechanism against those requirements,
+since it bears directly on the one you named: the only authored, required, support-capable items in the
+whole cluster are a trigger (region entry into a wide channel) and its referents (both wide channels).
+There is nothing authored about what follows. So the mechanism is genuinely open, not half-specified —
+and your direction that it should modify the value of the existing primary scoring event rather than
+become a second scoring event is consistent with what is already there: the contract separately excludes
+a second primary event, and excludes the channel as an objective reference and as an ACCESS region. The
+knowledge has been closing off the alternatives you are now ruling against.
+
+
+WHAT I WOULD DO NEXT, ON YOUR WORD
+
+Settle (a), and I will apply the restatement, carry the selector through to realization so lateral
+actually places the two channels on opposite touchlines, and rerun. That should give two channels, one
+per side, and A04 realizing again — with Q5 still failing on the effect until you rule on it, which is
+the honest state rather than a regression.
+
+Zero-depth line and same-line scoring unchanged. Generation still frozen. 247 cases green.
+
+Joe

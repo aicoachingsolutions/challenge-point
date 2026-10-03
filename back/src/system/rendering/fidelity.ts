@@ -321,6 +321,39 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
             })
         }
     }
+    /**
+     * **A scoring rule a coach cannot tell they have satisfied is operationally obscured.**
+     *
+     * His original question for this pass was whether the rendering loses, invents, contradicts **or
+     * operationally obscures** anything established. This is the fourth of those, and it is the one that
+     * passes every other test: the game establishes the whole consequence — a region condition over two named
+     * channels, MULTIPLY, magnitude 2 — so nothing is lost and nothing invented, and the channels do
+     * participate operationally, so the participation requirement is satisfied. And a coach still cannot
+     * award the bonus, because nothing establishes what counts as a qualifying interaction with a channel.
+     *
+     * `REGION_ENTRY` carries no registered `triggerSemantics`, and the authoring note states the gap in its
+     * own words: *"no rule for what counts as 'moving through' (ball, player, touch)"*. So the criterion is
+     * an owner value, deliberately held, and rendering must not choose ball, player or touch to make the
+     * output look runnable.
+     */
+    for (const modifier of fixture.game.value?.valueModifiers ?? []) {
+        const carried = rendered.instructions.some(i => i.from.some(f => f.includes(String(modifier.elementId))))
+        if (!carried) continue
+        const criterion = (fixture.register?.vocabularies?.triggerSemantics ?? {}) as Record<string, unknown>
+        const satisfied = Object.keys(criterion).length > 0 && modifier.condition?.satisfiedBy !== undefined
+        if (!satisfied) {
+            findings.push({
+                question: 5,
+                severity: 'VIOLATION',
+                what:
+                    `a coach is told that meeting the ${modifier.condition?.type ?? 'region'} condition changes the score, and nothing in the ` +
+                    `game establishes what MEETS it — no registered trigger semantics and no authored criterion. The scoring rule is ` +
+                    `complete and unusable: the consequence is established, the qualifying interaction is not, so a coach cannot tell ` +
+                    `when to award it. Rendering will not choose one.`,
+            })
+        }
+    }
+
     // A coach needs team sizes to pick sides. This is a NOTE and not a VIOLATION because the rendering is
     // faithful — the number is absent from the GAME. Q5 is the question it fails, and it fails it honestly.
     const teams = fixture.game.performers?.teams ?? []

@@ -146,13 +146,52 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
         } else {
             const width = across?.geometry.interval
             const len = along?.geometry.interval
+
+            /**
+             * **Which touchline, where the game says which.** The authored `lateral` selector now reaches
+             * the artifact and the geometry places the two channels on opposite sides (0–7.5 m and
+             * 22.5–30 m on a 30 m width). Rendering both as "along the touchline" dropped that and a coach
+             * would mark one strip twice.
+             *
+             * It says "one" and "the opposite" rather than left and right: the authored values name the 0
+             * and far edges of an axis, which is an axis convention and not a coach's left. The pairing is
+             * established; which one a coach starts from is not, so it is not stated.
+             */
+            const lateral = (region.selector ?? []).find((t: any) => t.attribute === 'lateral')?.value
+            const sides = (game.space?.regions ?? [])
+                .map((r: any) => (r.selector ?? []).find((t: any) => t.attribute === 'lateral')?.value)
+                .filter(Boolean)
+            const paired = sides.length === 2 && new Set(sides).size === 2
+            const where = !paired || !lateral ? 'along the touchline' : lateral === sides[0] ? 'along one touchline' : 'along the opposite touchline'
+
             say(
                 'Set up',
                 status,
-                `Mark a ${noun} along the touchline, ${metres((len?.to ?? 0) - (len?.from ?? 0))} long and up to ${metres((width?.to ?? 0) - (width?.from ?? 0))} wide`,
-                [nounPath, along?.path, across?.path].filter(Boolean) as string[],
+                `Mark a ${noun} ${where}, ${metres((len?.to ?? 0) - (len?.from ?? 0))} long and up to ${metres((width?.to ?? 0) - (width?.from ?? 0))} wide`,
+                [nounPath, along?.path, across?.path, ...(paired && lateral ? [`space.regions[${region.elementId}].selector`] : [])].filter(Boolean) as string[],
                 [(len?.to ?? 0) - (len?.from ?? 0), (width?.to ?? 0) - (width?.from ?? 0)],
             )
+
+            /**
+             * **An established function is established knowledge, so it is carried.** His ruling is that a
+             * function string is not what makes a region operationally realized — and that is a separate
+             * question from whether it may be dropped. It may not: the game establishes it.
+             *
+             * Rendered close to the term rather than interpreted into a coaching purpose. Turning
+             * `perceptual-reference` into advice about what players should look at would be inventing a
+             * purpose the knowledge does not state. The system-term-to-coach-language mapping is a
+             * vocabulary question and is reported rather than guessed.
+             */
+            const functions: string[] = Array.isArray((region as any).functions) ? (region as any).functions : []
+            for (const member of functions) {
+                say(
+                    'Set up',
+                    'DERIVED',
+                    `This ${noun} is established as a ${String(member).replace(/-/g, ' ')}`,
+                    [`space.regions[${region.elementId}].functions`, `space.regions[${region.elementId}].functions[${member}]`],
+                    [],
+                )
+            }
             const preference = across?.geometry.extentBound?.preferenceWithin
             if (preference && preference.compatible && typeof preference.min === 'number') {
                 say(
@@ -257,6 +296,53 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
                 )
             }
         }
+    }
+
+    /**
+     * **The value modifier, carried without inventing what satisfies it.**
+     *
+     * The game establishes the whole effect — a region condition over two named channels, operation MULTIPLY,
+     * magnitude 2 — so a coach is told the scoring consequence exactly. What it does NOT establish is what
+     * counts as a qualifying interaction with a channel: `REGION_ENTRY` has no registered semantics, and the
+     * authoring note records the gap in its own words ("no rule for what counts as 'moving through' (ball,
+     * player, touch)"). That is the owner decision being held, so the rendering states the effect and says
+     * plainly that the trigger is not settled, rather than choosing ball, player or touch for him.
+     */
+    for (const modifier of game.value?.valueModifiers ?? []) {
+        const base = `value.valueModifiers[${modifier.elementId}]`
+        const referents = (modifier.condition?.referents ?? []) as { structuralRef?: { contractId: string; itemId: string } }[]
+        const regionsNamed = referents
+            .map(r => (game.space?.regions ?? []).find((s: any) => String(s.elementId).endsWith(`:${r.structuralRef?.itemId}`)))
+            .filter(Boolean)
+        const noun = regionsNamed[0]?.noun ?? 'region'
+        const operation = String(modifier.operation)
+        const magnitude = Number(modifier.magnitude)
+        const primary = game.value?.primaryEvent
+
+        if (operation === 'MULTIPLY' && Number.isFinite(magnitude) && Number.isFinite(primary?.value)) {
+            say(
+                'How to score',
+                'DERIVED',
+                `When the ${noun} condition is met, that same score is worth ${primary.value * magnitude} instead of ${primary.value}`,
+                [`${base}.operation`, `${base}.magnitude`, 'value.primaryEvent.value'],
+                [primary.value * magnitude, primary.value],
+            )
+        }
+        say(
+            'How to score',
+            'DERIVED',
+            `The condition is about the ${regionsNamed.length === 2 ? `two ${noun}s` : noun} you marked — it applies to either of them`,
+            [`${base}.condition.type`, `${base}.condition.referents`, ...referents.map(r => `${base}.condition.referents[${r.structuralRef?.contractId}::${r.structuralRef?.itemId}`.concat(']'))],
+            [],
+        )
+
+        observations.push(
+            `The game now establishes WHAT the wide channels do — a line crossing is worth ${Number.isFinite(magnitude) && Number.isFinite(primary?.value) ? primary.value * magnitude : 'more'} ` +
+                `instead of ${primary?.value} when the condition is met — but NOT what counts as meeting it. The authored source is "actions starting in or ` +
+                `moving through the wide channel", \`REGION_ENTRY\` carries no registered semantics, and the authoring note states the gap itself: ` +
+                `"no rule for what counts as 'moving through' (ball, player, touch)". So a coach is told the consequence and cannot be told the ` +
+                `trigger. Nothing is chosen here on the engine's behalf.`,
+        )
     }
 
     // ── Observations about the game, not fixes to it ─────────────────────────────────────────────

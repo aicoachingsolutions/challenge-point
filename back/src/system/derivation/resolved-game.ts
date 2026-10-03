@@ -169,6 +169,30 @@ export interface ResolvedGame {
     derived: { path: string; lineId: string; value: unknown; resolvedBy: string; support: SupportRef[] }[]
     open: OpenChoice[]
     existential: ExistentialClaim[]
+    /**
+     * **Every authored cardinality on a collection row, with what the game actually established.**
+     *
+     * It is here because it was otherwise dead data. An authored cardinality was consumed only through
+     * `existential`, and a class carrying a selector never becomes an existential claim (SD-97), so the
+     * Wide Zone's authored *exactly two channels* was read by nothing at all: a COLLECTION row gets no
+     * resolution line, and a selectored class forms no claim. The number was parsed, attached to a class,
+     * and then dropped.
+     *
+     * Reporting it makes it live: realization reads it and refuses to proceed where the established count
+     * already exceeds an authored maximum, and a consumer can see the authored count beside the real one.
+     */
+    collectionCardinality: {
+        path: string
+        row: string
+        classId: string
+        from: ItemRef
+        min: number | null
+        max: number | null
+        /** Which population the authored count ranges over, as the item's own scope states. */
+        scope: 'OWN_INVOLVEMENT' | 'WHOLE_GAME'
+        /** Elements in that population — the count the authored bound actually applies to. */
+        established: number
+    }[]
     notEstablished: NotEstablished[]
     /**
      * Bounds carried on a line that already has a derived value — an authored EXTENT beside an authored
@@ -325,12 +349,37 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
      * The entry carries its identity and whatever was derived, and nothing else. An element with no
      * properties is the honest statement: this exists, and what it is like is in the other lists.
      */
+    /**
+     * **An element carries the authored selector that identifies it.** His ruling of 2 October:
+     *
+     *   > *If an authored selector is operationally required downstream, it should not disappear between
+     *   > the class and the resolved game.*
+     *
+     * It did disappear. An element arrived carrying its id, and whatever was derived about it, and nothing
+     * else — so the attributes the knowledge used to say *which* element this is were parsed onto the class
+     * and then dropped. An authored `lateral: wide-right` would have reached realization as nothing at all,
+     * and the two channels it distinguishes would both have anchored to the same touchline.
+     *
+     * This is deliberately **general** and not a transport path for one attribute: every element carries
+     * its own selector terms verbatim, whatever they constrain. `selector` is identity, not a derived
+     * value — it says which element this is, not what was established about it — so it sits beside
+     * `elementId` and the acceptance conditions treat it the same way.
+     */
+    const selectorOf = (elementId: string): { attribute: string; op: string; value?: unknown; values?: unknown }[] | undefined => {
+        const cls = classes.find(c => c.classId === elementId)
+        const terms = cls?.constraints?.terms ?? []
+        return terms.length ? terms.map(t => ({ ...t })) : undefined
+    }
+
     const ensureElement = (elementId: string, row: { path: string }): Record<string, unknown> => {
         const { container } = splitPath(row.path)
         const key = container ?? row.path
         if (!elements.has(key)) elements.set(key, { container: key, entries: new Map() })
         const bucket = elements.get(key)!
-        if (!bucket.entries.has(elementId)) bucket.entries.set(elementId, { elementId })
+        if (!bucket.entries.has(elementId)) {
+            const selector = selectorOf(elementId)
+            bucket.entries.set(elementId, selector ? { elementId, selector } : { elementId })
+        }
         return bucket.entries.get(elementId)!
     }
 
@@ -352,8 +401,12 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
                 // The leaf may itself be dotted — `position.along` — and is nested, not used as a key
                 // with a dot in it, so a consumer reads the register's own shape.
                 if (entry.member !== null) {
+                    // **A set holds each member once.** Where the field line itself carries the set — which a
+                    // SET-multiplicity row's accumulated items now do — the member lines would otherwise
+                    // append every member a second time, and the game would show each referent twice.
                     const existing = Array.isArray(readAt(element, leaf)) ? (readAt(element, leaf) as unknown[]) : []
-                    place(element, leaf, [...existing, entry.value])
+                    const already = existing.some(m => JSON.stringify(m) === JSON.stringify(entry.value))
+                    if (!already) place(element, leaf, [...existing, entry.value])
                 } else {
                     place(element, leaf, entry.value)
                 }
@@ -393,6 +446,85 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
     for (const [key, bucket] of [...elements.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
         place(game, key, [...bucket.entries.values()])
     }
+
+    /**
+     * **The authored cardinality of every collection, beside what was actually established.**
+     *
+     * `established` counts the elements the game holds on that collection, which is the population an
+     * authored count is a statement about. Before this the number was parsed onto the class and then read
+     * by nothing: only `existential` consumed it, and a selectored class never becomes one.
+     */
+    const collectionCardinality = classes
+        .filter(cls => rows.get(cls.row)?.kind === 'COLLECTION')
+        .filter(cls => cls.cardinality?.min != null || cls.cardinality?.max != null)
+        // **Only INDIVIDUATED classes** — the complement of `existential` below. An existential claim's
+        // cardinality was never dead: it is carried on the claim and enforced against the members
+        // realization instantiates. What was dead is the cardinality of a class carrying a selector, which
+        // becomes no claim and so reached nothing. This fills exactly that gap and does not double-count:
+        // `established` counts established classes, which for an individuated class is its element.
+        .filter(cls => !cls.constraints.any || !!cls.singletonBy)
+        .map(cls => {
+            const rowPath = rows.get(cls.row)?.path ?? cls.row
+
+            /**
+             * **The population an authored count is a statement about is the one the item's SCOPE names.**
+             *
+             * Counting the whole collection was wrong, and the authoring note says why: the Wide Zone's
+             * "exactly two" is *"counted over this contract's own channels so another object's channel
+             * cannot break it"*. Under a whole-collection count its bound was violated by GF2's target
+             * line — a region it says nothing about — which would make the author's guard meaningless.
+             *
+             * So an `OWN_INVOLVEMENT` count ranges over the elements this contract established on this
+             * row; a whole-game count ranges over the collection. Each class yields one element, so the
+             * population is counted in classes.
+             */
+            const item = (contracts.find(c => c.contractId === cls.fromItem.contractId)?.items ?? []).find(
+                (i: any) => String(i.itemId) === String(cls.fromItem.itemId),
+            ) as { scope?: unknown } | undefined
+            const ownOnly = String(item?.scope ?? '') === 'OWN_INVOLVEMENT'
+
+            /**
+             * **And the population is the one the item's SELECTOR reaches**, which scope alone does not give.
+             *
+             * Found by the restatement: two items each authoring exactly ONE channel, one `lateral=wide-left`
+             * and one `lateral=wide-right`, both on this row and this contract. Counting by scope alone gave
+             * each a population of two and refused both — the wide-right channel was being counted against
+             * the wide-left item's bound.
+             *
+             * An element counts towards an item's bound when it satisfies that item's selector, which for a
+             * conjunction of constraints means its own terms SUBSUME the item's. So `noun=channel` is
+             * satisfied by every channel however further narrowed, while `noun=channel & lateral=wide-left`
+             * is satisfied only by the left one. That keeps the earlier case working — three channels all
+             * answering to `noun=channel` still exceed an authored two — and it is why selector equality
+             * would not do.
+             */
+            const key = (t: { attribute: string; op: string; value?: unknown; values?: unknown }) =>
+                `${t.attribute}|${t.op}|${JSON.stringify('value' in t ? t.value : t.values)}`
+            const required = new Set((cls.constraints?.terms ?? []).map(key))
+            const satisfies = (other: typeof cls) => {
+                const theirs = new Set((other.constraints?.terms ?? []).map(key))
+                return [...required].every(term => theirs.has(term))
+            }
+
+            const population = classes.filter(
+                other =>
+                    other.row === cls.row &&
+                    (!ownOnly || other.fromItem.contractId === cls.fromItem.contractId) &&
+                    satisfies(other),
+            )
+
+            return {
+                path: rowPath,
+                row: cls.row,
+                classId: cls.classId,
+                from: cls.fromItem,
+                min: cls.cardinality?.min ?? null,
+                max: cls.cardinality?.max ?? null,
+                scope: ownOnly ? ('OWN_INVOLVEMENT' as const) : ('WHOLE_GAME' as const),
+                established: population.length,
+            }
+        })
+        .sort((a, b) => a.classId.localeCompare(b.classId))
 
     // SD-97 — the assertions that individuate nothing, and therefore appear in no line.
     const existential: ExistentialClaim[] = classes
@@ -460,6 +592,7 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
         derived: derived.sort((a, b) => a.lineId.localeCompare(b.lineId)),
         open: open.sort((a, b) => a.lineId.localeCompare(b.lineId)),
         existential,
+        collectionCardinality,
         extentBounds,
         jointConditions,
         notEstablished: notEstablished.sort((a, b) => a.lineId.localeCompare(b.lineId)),
@@ -471,8 +604,17 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
             elements: [...elements.values()].reduce((n, b) => n + b.entries.size, 0),
             // An element that is in the game and carries no property at all. Counted so that the
             // drop this fixed cannot come back unnoticed as a quietly shrinking game.
+            /**
+             * **Identity does not count as something established.** This counts elements the game names and
+             * knows nothing about, which is the count that makes a silent drop visible — so it must ignore
+             * the fields that say WHICH element this is rather than what is true of it.
+             *
+             * It was `Object.keys(e).length === 1`, i.e. `elementId` alone. Adding the authored `selector`
+             * to every element would have made every element look established and **blinded this guard** —
+             * the guard that exists for exactly the class of defect the selector was added to fix.
+             */
             elementsWithNothingEstablished: [...elements.values()].reduce(
-                (n, b) => n + [...b.entries.values()].filter(e => Object.keys(e).length === 1).length,
+                (n, b) => n + [...b.entries.values()].filter(e => Object.keys(e).every(k => k === 'elementId' || k === 'selector')).length,
                 0,
             ),
         },

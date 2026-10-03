@@ -1,0 +1,56 @@
+Joe,
+
+Criteria drafted. Christian's covering note plus the document itself are attached. Committed and pushed as
+docs/INCENTIVE_ASSURANCE_CRITERIA.md — a repo doc, since it's meant to be kept and amended rather than read
+once.
+
+WHAT I DID
+Five questions an authoring decision has to answer before a new incentive meaning goes into canonical
+knowledge — his five names: objective, legible, opposition-robust, affordance-preserving, proportionate.
+Each one states the question, what passing and failing look like, what evidence answers it, and WHO can
+answer it. That last column was the most useful thing to write: some are machine-checkable, some are
+coaching judgement, some are only his. Knowing which is which is about half the value.
+
+I kept it to a checklist for a conversation. No tooling, no gate, nothing in the engine reads it. He said he
+didn't mean the broader Change Assurance System yet and I took that literally.
+
+I GROUNDED IT RATHER THAN INVENTING IT
+Everything traces to material already in the repo — the incentive invariant from
+CONSTRAINT_INCENTIVE_FRAMEWORK.md, "invite not force", GF11's compactness-emergent finding, his
+scoring-ownership rule, the five influence dimensions. The only new thing is that they're asked as
+questions, at authoring time, about a specific decision.
+
+Worth knowing: the guardrail currently exists as prose on library rows and as wording checks in
+incentive-expression.ts. Those stop us PHRASING an incentive as an instruction. They say nothing about
+whether its meaning is ecologically sound. That's the actual hole.
+
+THE WORKED EXAMPLE IS THE PART THAT EARNS IT
+I ran ball / player / touch through all five and did not pick. The criteria separate them cleanly:
+
+- PLAYER fails three, and two failures are against AUTHORED knowledge, not taste — park a player in each
+  channel and the condition is permanently satisfied, which contradicts the library row's own audit "Zones
+  optional" and the contract's own "Entering must not be compulsory". So it reads as unavailable, not just
+  unattractive. That's the strongest kind of finding these criteria can produce.
+- BALL is weak on proportionality for a number I checked: the two channels are 50% of A04's realized width
+  (7.5 m each on 30 m), so mere ball presence is satisfied incidentally and ×2 makes the base value
+  decorative.
+- TOUCH is strongest on the three criteria carrying the ecological intent, weakest on the one the engine
+  cares about.
+
+So his worry is confirmed rather than theoretical: the easiest reading to evaluate deterministically is not
+the one the criteria favour. Had we optimised for convenience we'd have picked ball.
+
+I also found that criterion 4 already has a case waiting — the Round 7.4 question about whether an explicit
+attacker-side Transition Bonus over-scripts the race, which the framework itself says shouldn't be settled
+as a one-off. Good argument for adopting them.
+
+THREE THINGS I ASKED HIM
+1. Are these the five? If one's missing I think it's a LEARNING-GOAL question — none of the five asks
+   whether the reward points at what the session is actually for.
+2. Is a failure a veto or a finding? I wrote findings, because the player reading's failures look decisive
+   while ball's look like a trade-off. Criterion 4 is the invariant, so he may want it absolute.
+3. Where do the answers live — the restatement's fitNote/basisEvidence, or a separate ruling record?
+
+Nothing else started. A04 still open, generation frozen.
+
+Joe

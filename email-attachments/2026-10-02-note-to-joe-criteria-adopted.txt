@@ -1,0 +1,51 @@
+Joe,
+
+Criteria adopted, his formulation evaluated through all six. Email and the document attached. Pushed.
+Nothing authored into canonical knowledge — this was an evaluation, as he asked.
+
+THE THREE RULINGS ARE IN
+- Learning-Relevant added as the sixth, his wording, his pass condition. Took care with the phrasing he
+  flagged: it asks whether the reward points at the right LANDSCAPE, never whether it produces a particular
+  action — a criterion demanding a target behaviour would be the invariant violated under another name.
+- CONTRADICTION vs CONCERN, and it earns its keep immediately: the player reading's failures are
+  contradictions (against the row's own "Zones optional" audit and the contract's "Entering must not be
+  compulsory") so it's unavailable; the ball reading's proportionality is a concern. Criterion 4 is explicitly
+  not a veto for being criterion 4.
+- fitNote/basisEvidence as the home, recorded.
+
+HIS FORMULATION PASSES ALL SIX
+"A controlled attacking-team touch within the wide channel". And two of his intentions actively improve the
+result — declining to require traversal is what secures affordance-preserving, and the attacking-team
+restriction is what secures opposition-robust (without it a defensive clearance arms the attack's bonus).
+
+Evaluating against the actual selection mattered. I looked up what A04 is: Learning Goal "Beat Defenders
+1v1", Central Density as foundation, Wide Zone as the SHAPING constraint, lens Line-Breaking Opportunity.
+Without that, criterion 6 would have been hand-waving.
+
+TWO FINDINGS WORTH HIS TIME
+
+1. Learning-Relevant passes WITH A CONCERN. The ecological chain genuinely holds — central density makes the
+   centre scarce, the opportunity moves wide, the channel makes it legible, a defender comes out, 1v1 becomes
+   available. But the condition is satisfied by controlling the ball in the space, not by engaging anyone. A
+   team could circulate into the channel and out, never attempt the 1v1, and bank the bonus. I argued this is
+   NOT a contradiction (requiring a 1v1 would be the more dangerous design, and exploit_space is the
+   constraint's authored target) but it is the gap between what's rewarded and what the session is for — and
+   it's a second reason his magnitude deferral was right.
+
+2. THE STRUCTURAL ONE: "attacking team" can't be evaluated without either live possession attribution (not
+   established) or a window tying the touch to the scorer — which is the episode scope he told me to keep
+   separate. So the two aren't independent: his qualifier makes the episode scope load-bearing for this
+   condition rather than merely desirable. I invented neither mechanism and said plainly that the separation
+   he intended may not be available. His restriction is still right; it just has a dependency.
+
+THREE THINGS RETURNED
+- "Controlled" — retained possession (observable, passes) or deliberate (intent, which criterion 1 excludes)?
+  He hasn't said and I didn't assume.
+- How "attacking team" gets established — the dependency above.
+- Whether a traversal with no controlled touch also qualifies. The source authors "starting in OR moving
+  through"; his formulation satisfies the first. Declining to REQUIRE traversal isn't the same as excluding
+  it, and if it is excluded then half the authored source goes unexpressed.
+
+Then magnitude, after those.
+
+Joe

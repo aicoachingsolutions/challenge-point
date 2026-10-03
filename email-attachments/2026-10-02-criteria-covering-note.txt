@@ -1,0 +1,81 @@
+Christian,
+
+The criteria are drafted — attached as a document rather than inline, since it is meant to be a thing we
+keep and amend rather than a message. It is short on purpose.
+
+A few notes on how I approached it, and three questions at the end that I think are genuinely yours.
+
+
+WHAT IT IS
+
+Five questions an authoring decision must answer before a new incentive meaning goes into canonical
+knowledge: objective, legible, opposition-robust, affordance-preserving, proportionate. Each one gives the
+question, what a pass and a failure look like, what evidence answers it, and — the part I found most useful
+to write down — WHO can answer it. Some are machine-checkable, some are coaching judgement, and some are
+yours alone. Recording which is which turned out to be about half the value.
+
+I deliberately kept it to a checklist for a conversation. No tooling, no gate, nothing in the engine reads
+it. You said you did not mean the broader Change Assurance System yet and I have taken that literally.
+
+
+IT FORMALISES WHAT WE ALREADY HOLD
+
+I did not import anything. The five are grounded in the incentive invariant from the framework doc
+("incentives raise the value, attention and visibility of an opportunity — they must not script the
+behavior"), in "invite, not force", in GF11's compactness-emergent finding, and in your scoring-ownership
+rule. What is new is only that they are asked as questions, at authoring time, of a specific decision.
+
+Worth naming the gap that makes this necessary: the guardrail currently lives as prose on library rows and
+as wording checks in the communication layer. Those stop us PHRASING an incentive as an instruction. They
+say nothing about whether its meaning is ecologically sound. That is the hole the criteria fill.
+
+
+THE WORKED EXAMPLE, AND WHAT IT PRODUCED
+
+I ran ball / player / touch through all five. I have not made the decision.
+
+The criteria separate them clearly, and the separation is not what machine convenience would have chosen:
+
+- PLAYER fails three criteria, and two of those failures are against AUTHORED knowledge rather than taste.
+  A team can station a player in each channel and the condition is permanently satisfied — which
+  contradicts the library's own audit for this row, "Zones optional", and the contract's own "Entering must
+  not be compulsory". So it looks unavailable rather than merely unattractive.
+- BALL passes the floor and is weak on proportionality for a reason that is quantitative: on A04's realized
+  geometry the two channels are 50% of the pitch width, so mere ball presence is satisfied incidentally.
+  ×2 on that makes the bonus the default and the base value close to decorative.
+- TOUCH is strongest on the three criteria carrying the ecological intent, and its weakness is precisely
+  the one the engine cares about most — a touch is a finer observation than a position.
+
+Which is the tension you named, confirmed: the easiest reading to evaluate deterministically is not the one
+the criteria favour. Had we chosen for convenience we would have chosen ball.
+
+Four things the criteria do NOT settle and I have left to you: whose touch; "starting in" versus "moving
+through" (the source authors two modes, and ruling on a subject does not resolve the mode); the episode
+scope already returned separately; and whether ×2 is right once the condition is fixed.
+
+
+ONE THING IT WOULD ALREADY HAVE CAUGHT
+
+The framework carries an open question from Round 7.4 — whether an explicit attacker-side Transition Bonus
+improves representativeness or over-scripts the race — with a note that it "should be resolved as part of
+the incentive framework, not as a one-off". That is criterion 4 asked of a different decision. If the
+criteria are adopted it has a procedure rather than a note.
+
+
+THREE QUESTIONS FOR YOU
+
+1. Are these the five? They are your names read against the existing framework. If something is missing, I
+   think the candidate is a question about the LEARNING GOAL the incentive serves — none of the five asks
+   whether the reward points at the thing the session is for. Better added before use than after.
+
+2. Is a failure a veto or a finding? I wrote them as findings, because the player reading's failures look
+   decisive while the ball reading's look like a trade-off. If a failure on criterion 4 is meant to be
+   absolute — it is the invariant, after all — say so and I will write it that way.
+
+3. Where do the answers live? I have suggested the restatement's own fitNote/basisEvidence, so the
+   reasoning sits beside the authored value and a later reader sees both. If you would rather they went in
+   a separate ruling record, that changes what I write next.
+
+Nothing else started. A04 still open, generation still frozen.
+
+Joe

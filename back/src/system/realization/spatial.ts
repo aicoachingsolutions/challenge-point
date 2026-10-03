@@ -47,6 +47,20 @@ export interface RealizedGeometry {
     why: string
 }
 
+/**
+ * **AM-17's `lateral` values, as fractions of the across axis.** Read from the register's own interval
+ * tests, which are authored: *wide-left* "touches the 0 touchline and does not contain the midline",
+ * *wide-right* "touches the W touchline and does not contain the midline". `wide` is either, so it names
+ * no side and places nothing; `central` and `full-width` are not anchors and are left to their own terms.
+ *
+ * The numbers here are 0 and 1 — the two edges of the axis — not a width or a proportion. No extent is
+ * implied by a side.
+ */
+const LATERAL_ANCHORS: Record<string, number | undefined> = {
+    'wide-left': 0,
+    'wide-right': 1,
+}
+
 interface TermDefinition {
     kind: 'interval' | 'anchor'
     axis?: 'along' | 'across'
@@ -65,6 +79,19 @@ function axisLengths(envelope: { lengthM?: number; widthM?: number }): { along: 
 }
 
 export interface SpatialContext {
+    /**
+     * **The `lateral` value the element's own authored selector carries**, where it has one.
+     *
+     * `touchline-adjacent`'s prose test is *"touches a touchline"* — indefinite about which. Its canonical
+     * anchor is one touchline, so two regions both carrying the term resolve to the same strip. AM-17's
+     * `lateral` values are what make it definite: *wide-left* "touches the 0 touchline", *wide-right*
+     * "touches the W touchline". Those tests are authored in the register, so reading them is propagation.
+     *
+     * **It is consumed only from an authored selector, never inferred.** A count of two channels does not
+     * make one of them wide-right; only an item saying so does.
+     */
+    lateral?: string
+
     envelope: { lengthM?: number; widthM?: number }
     /** The row this value sits on, so an axis-free term knows which axis it is being read for. */
     axis: 'along' | 'across'
@@ -101,8 +128,20 @@ export function realizeSpatialRelation(value: unknown, index: RegisterIndex, ctx
     }
     if (definition.kind !== 'anchor' || definition.at === undefined) return null
 
-    const anchor = definition.at * extent
     const { extentBound, nounExtentDimensions, otherAxisHasExtent } = ctx
+
+    /**
+     * **An authored `lateral` value fixes WHICH edge an across anchor sits on.**
+     *
+     * Without it both channels anchored at the same touchline, because the term fixes *an* edge and names
+     * no side. `wide-left` keeps the 0 edge; `wide-right` takes the far edge, and the interval then grows
+     * inward from it — machinery that already existed for a non-zero anchor. Nothing is inferred: with no
+     * authored lateral value the term's own anchor stands exactly as before.
+     */
+    const lateralAt = axis === 'across' && ctx.lateral ? LATERAL_ANCHORS[ctx.lateral] : undefined
+    const at = lateralAt ?? definition.at
+    const anchor = at * extent
+    const lateralWhy = lateralAt === undefined ? '' : ` The authored selector states ${ctx.lateral}, which AM-17 tests as touching the ${lateralAt === 0 ? '0' : 'far'} touchline, so the anchor is that edge rather than the other.`
 
     // **A one-dimensional noun closes the anchor to zero on its thickness axis.** This is entailment,
     // not assumption: a line has extent on one axis, so on the other it has none. Orientation is read
@@ -113,7 +152,7 @@ export function realizeSpatialRelation(value: unknown, index: RegisterIndex, ctx
             interval: { from: anchor, to: anchor },
             anchor,
             extentUnresolved: false,
-            why: `${definition.why ?? ''} The element's noun gives it extent in one dimension and its other axis carries that extent, so its extent on this axis is zero.`,
+            why: `${definition.why ?? ''}${lateralWhy} The element's noun gives it extent in one dimension and its other axis carries that extent, so its extent on this axis is zero.`,
         }
     }
 
@@ -142,7 +181,7 @@ export function realizeSpatialRelation(value: unknown, index: RegisterIndex, ctx
             anchor,
             extentBound,
             extentUnresolved: false,
-            why: `${definition.why ?? ''} Extent composed from the authored required bound ${JSON.stringify(extentBound)}; containment is checked at the widest permitted extent.`,
+            why: `${definition.why ?? ''}${lateralWhy} Extent composed from the authored required bound ${JSON.stringify(extentBound)}; containment is checked at the widest permitted extent.`,
         }
     }
 

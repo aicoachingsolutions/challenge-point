@@ -364,6 +364,58 @@
     "fitNote": "PROMOTED 1 October. It was ASSUMED, and by §3 an assumed item bounds but never entails — which is why the roster could not derive. It is now owner-authored and entails. IT REMAINS AN ITEM OF GF2, not an engine rule: a game form that authors asymmetry displaces it through the ordinary displacement mechanism (SD-90), so equality is knowledge about THIS game form and never a universal."
    },
    "why": "the roster could not derive because equality bounded without entailing; promoting it closes that without making equal team numbers an engine-level assumption"
+  },
+  {
+   "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-02.a",
+   "ruling": "C33",
+   "set": {
+    "selector": "noun=channel & lateral=wide-left",
+    "requirement": "COUNT",
+    "value": "1",
+    "fitNote": "RESTATED 2 October (Christian), authorizing \"the canonical Wide Zone S2 restatement as two distinct lateral regions\". This item becomes the wide-left channel. The side is AUTHORED here, via the `lateral` selector attribute the register offers on S2 under AM-17; it is not inferred from the count, and AM-12 is why the contract gains nothing from AM-17 until it is restated like this. The original fitNote recorded the gap this closes: \"OWN_INVOLVEMENT because the selector cannot tell wide channels from other channels\", and the ledger asked outright for \"a side selector attribute or per-touchline relative terms\". COUNT 1 because this item now establishes exactly one region, the pair establishing exactly two."
+   },
+   "why": "the authored intent was one channel on each lateral side; the register now carries the attribute that says which side, so the knowledge states it explicitly rather than leaving two channels on one touchline"
+  },
+  {
+   "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-03",
+   "ruling": "C33",
+   "set": {
+    "selector": "noun=channel & lateral=wide-right",
+    "requirement": "COUNT",
+    "value": "1",
+    "fitNote": "RESTATED 2 October (Christian). This item becomes the wide-right channel, the other half of the pair. Its original value was COUNT 2 with the note \"Exactly two, counted over this contract's own channels so another object's channel cannot break it. The one-per-touchline split is not held (see WIDEZONE-05).\" The exactly-two is PRESERVED as two items of exactly one each, and the split the note says is not held is now held by the authored lateral values. The count is not what places it: AM-17's registered test for wide-right -- \"touches the W touchline and does not contain the midline\" -- is."
+   },
+   "why": "the authored exactly-two is preserved as two single lateral regions, so the one-per-touchline split the original note recorded as unheld is now authored rather than left to the engine"
+  },
+  {
+   "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-08.d",
+   "ruling": "C33",
+   "set": {
+    "row": "S4",
+    "selector": "noun=channel",
+    "requirement": "EQUALS",
+    "value": "perceptual-reference",
+    "strictness": "SUPPORTING",
+    "scope": "OWN_INVOLVEMENT",
+    "fitNote": "RESTATED 2 October (Christian), ruling option (i): \"WIDEZONE-08.d should not establish a third S2 region. Based on its authored meaning and its own note, its claim is that the existing Wide Zone channel population carries the perceptual-reference function/member. The COUNT 2 comes from the already-established channel population; it does not entail two additional regions or a third region. So please restate it as a property statement over the two established lateral channels, rather than an S2 existence assertion.\" Its own original note already said as much: \"COUNT 2 (from WIDEZONE-03) so both channels carry the member (RC-16)\" -- the 2 was a reference to the established population, not a second assertion of it. It therefore moves from S2 (the collection, where an existence requirement mints an element) to S4 (space.regions[].functions, where a member is asserted of whichever regions the selector reaches). NOT authorized and NOT done: making it one specific side (nothing authored establishes that perceptual-reference belongs to wide-left rather than wide-right), and identity-by-narrowing. The distinction preserved: a statement that a property applies to N existing members does not thereby assert the existence of N additional members. Form follows the only other S4 item in the corpus, which is an EQUALS naming a member (\"access (forbidden as a member of functions)\", strictness EXCLUSION); this is its positive counterpart, so EQUALS with strictness SUPPORTING. EQUALS is outside EXISTENCE_REQUIREMENTS and S4 is a FIELD, so it cannot mint an element by either route -- which is the point of the ruling.",
+    "valueStatus": "REQUIRED_RANGE"
+   },
+   "why": "it was asserting existence on the collection row while its content was a property of the channels already established; moving it to the functions row keeps element existence and properties of established elements distinct"
+  },
+  {
+   "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-11.a",
+   "ruling": "C35",
+   "set": {
+    "value": {
+     "structuralRef": {
+      "contractId": "restated:WIDE-ZONE-ADVANTAGE",
+      "itemId": "WIDEZONE-02.a"
+     },
+     "asAuthored": "both wide channels of this contract, each a referent"
+    },
+    "fitNote": "TYPED 2 October on the SD-98 precedent. The referents were the prose \"both wide channels of this contract, each a referent\", and SD-58 forbids comparing open text as identity, so GA-MODIFIER-OVERLAP could not evaluate the modifier at all. This item types the FIRST referent; WIDEZONE-11.c carries the second. Two items rather than one array because V8b's registered valueType is \"one property per referent\" and that semantics is now operational (register `multiplicity: SET`): the two are MEMBERS and accumulate, where an array value would be read as a permitted set and make the line a choice between the channels. DETERMINACY COMES FROM RULING C33: before it, \"both wide channels of this contract\" answered to three classes and typing it would have required selecting between them. Since C33 the contract establishes exactly two -- WIDEZONE-02.a (wide-left) and WIDEZONE-03 (wide-right) -- so \"both\" names them and nothing is selected between, inferred or substituted. SD-63 is untouched for ordinary open text."
+   },
+   "why": "the modifier's referents were prose, so the overlap invariant could not establish identity; the sentence names both channels and C33 made 'both' exactly two, so typing changes no authored content"
   }
  ],
  "added": [
@@ -556,6 +608,96 @@
     "fitNote": "The value is the CANONICAL RELATION NAME, not a number: the fractions live once in RC-21’s `relativeTerms`, and this item states which relation holds of a channel. So the knowledge describes the functional spatial relationship and realization produces the concrete geometry from the envelope, which is what he asked for. WIDEZONE-06 stands beside it unchanged, PREFERRED_DEFAULT, 6-10 m — and per the preferenceRule a preference may operate only INSIDE the requirement and may never widen it."
    },
    "why": "the required channel extent as a proportion of the available width, so the relationship scales and no A04-specific metre value enters canonical knowledge"
+  },
+  {
+   "contractId": "restated:WIDE-ZONE-ADVANTAGE",
+   "after": "WIDEZONE-11.a",
+   "ruling": "C34",
+   "item": {
+    "itemId": "WIDEZONE-18.a",
+    "row": "V7",
+    "selector": "condition.type=region",
+    "requirement": "EXISTS",
+    "value": "N/A",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "OWNER_RULING",
+    "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"Actions starting in or moving through the wide channel earn an advantage (bonus point, free restart, or scoring multiplier).\" Christian, 2026-10-02 selects the third of those three alternatives: \"let's authorize the remaining effect as a value modifier on the existing primary scoring event, not as a second scoring event, objective, or access mechanism. ... For the value operation, authorize: MULTIPLY x2.\"",
+    "fitNote": "AUTHORED 2 October. The Wide Zone advantage exists as a VALUE MODIFIER on the existing primary scoring event. V7 previously carried NO item -- its V8a declaration recorded why: \"no item, since V7 cannot select this object's modifier\" -- so every claim the object made about the advantage reached no line at all and vanished from the game, from `open` and from `notEstablished` alike. The selector is `condition.type=region`, one of V7's two registered selector attributes; the referents are already authored on V8b (\"both wide channels of this contract, each a referent\"). Not a consequence and not an objective: his ruling is explicit that this must not become a second scoring event, and the object already excludes the channel as an objective reference and as an ACCESS region. Scope is WHOLE_GAME, matching its sibling WIDEZONE-11.a on V8b. That item's own note recorded the tension -- \"V7 cannot select this object's modifier, so WHOLE_GAME is over-broad\" -- which this resolves: V7 now carries an item, so the referent selector has a modifier of this object's to identify.",
+    "origId": "WIDEZONE-13",
+    "checkability": "STRUCTURAL",
+    "structuralClause": "whole item"
+   }
+  },
+  {
+   "contractId": "restated:WIDE-ZONE-ADVANTAGE",
+   "after": "WIDEZONE-18.a",
+   "ruling": "C34",
+   "item": {
+    "itemId": "WIDEZONE-18.b",
+    "row": "V9",
+    "selector": "condition.type=region",
+    "requirement": "EQUALS",
+    "value": 2,
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "OWNER_RULING",
+    "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"Actions starting in or moving through the wide channel earn an advantage (bonus point, free restart, or scoring multiplier).\" Christian, 2026-10-02 selects the third of those three alternatives: \"let's authorize the remaining effect as a value modifier on the existing primary scoring event, not as a second scoring event, objective, or access mechanism. ... For the value operation, authorize: MULTIPLY x2.\"",
+    "fitNote": "AUTHORED 2 October: the magnitude is 2. V9 previously carried only two TYPICAL_EXAMPLE items (\"a multiplier on the primary event value (size not authored)\", \"added point(s) on the primary event (number not authored)\") declared NOT_AUTHORED in the same breath -- \"no multiplier size or bonus points; realization parameters null\". The magnitude is a number whose MEANING is fixed by V9a and never inferred (SD-24), which is why the operation is authored beside it rather than left to be read off the word 'multiplier'. Scope is WHOLE_GAME, matching its sibling WIDEZONE-11.a on V8b. That item's own note recorded the tension -- \"V7 cannot select this object's modifier, so WHOLE_GAME is over-broad\" -- which this resolves: V7 now carries an item, so the referent selector has a modifier of this object's to identify.",
+    "origId": "WIDEZONE-13",
+    "checkability": "STRUCTURAL",
+    "structuralClause": "whole item"
+   }
+  },
+  {
+   "contractId": "restated:WIDE-ZONE-ADVANTAGE",
+   "after": "WIDEZONE-18.b",
+   "ruling": "C34",
+   "item": {
+    "itemId": "WIDEZONE-18.c",
+    "row": "V9a",
+    "selector": "condition.type=region",
+    "requirement": "EQUALS",
+    "value": "MULTIPLY",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "OWNER_RULING",
+    "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"Actions starting in or moving through the wide channel earn an advantage (bonus point, free restart, or scoring multiplier).\" Christian, 2026-10-02 selects the third of those three alternatives: \"let's authorize the remaining effect as a value modifier on the existing primary scoring event, not as a second scoring event, objective, or access mechanism. ... For the value operation, authorize: MULTIPLY x2.\"",
+    "fitNote": "AUTHORED 2 October: MULTIPLY, from V9a's closed list (MULTIPLY, ADD, REPLACE -- SD-30). With magnitude 2 this is x2. SD-30 is explicit that an authored magnitude with no authored operation is INCOMPLETE and the effective value is not computable, so the pair is authored together. The ordinary route is untouched: the modifier applies only where its condition is satisfied, so a line crossing that does not satisfy it remains worth the base value of 1. Scope is WHOLE_GAME, matching its sibling WIDEZONE-11.a on V8b. That item's own note recorded the tension -- \"V7 cannot select this object's modifier, so WHOLE_GAME is over-broad\" -- which this resolves: V7 now carries an item, so the referent selector has a modifier of this object's to identify.",
+    "origId": "WIDEZONE-13",
+    "checkability": "STRUCTURAL",
+    "structuralClause": "whole item"
+   }
+  },
+  {
+   "contractId": "restated:WIDE-ZONE-ADVANTAGE",
+   "after": "WIDEZONE-11.a",
+   "ruling": "C35",
+   "item": {
+    "itemId": "WIDEZONE-11.c",
+    "origId": "WIDEZONE-11",
+    "row": "V8b",
+    "selector": "condition.type=region",
+    "requirement": "EQUALS",
+    "value": {
+     "structuralRef": {
+      "contractId": "restated:WIDE-ZONE-ADVANTAGE",
+      "itemId": "WIDEZONE-03"
+     },
+     "asAuthored": "both wide channels of this contract, each a referent"
+    },
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "OWNER_RULING",
+    "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"Actions starting in or moving through the wide channel earn an advantage (bonus point, free restart, or scoring multiplier).\" Christian, 2026-10-02 selects the third of those three alternatives: \"let's authorize the remaining effect as a value modifier on the existing primary scoring event, not as a second scoring event, objective, or access mechanism. ... For the value operation, authorize: MULTIPLY x2.\"",
+    "checkability": "STRUCTURAL",
+    "structuralClause": "whole item",
+    "fitNote": "AUTHORED 2 October: the second of the two referents \"both wide channels of this contract, each a referent\" names, as its own item because V8b carries one property per referent. His semantics: \"Each established wide channel is independently a qualifying referent for the same modifier condition\" -- not a choice between them, and not a requirement that both be involved before the modifier applies. Nothing new is referenced: 11.a types the wide-left channel and this types the wide-right one, which together are \"both\"."
+   }
   }
  ],
  "declarationScope": {

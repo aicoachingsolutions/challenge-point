@@ -36,11 +36,22 @@ const violationsOn = (q: number) => report.findings.filter(f => f.question === q
 for (const q of [2, 3, 4] as const) {
     assert.deepEqual(violationsOn(q), [], `Q${q} must pass: ${JSON.stringify(violationsOn(q))}`)
 }
-assert.equal(violationsOn(5).length, 3, 'the three channels must each be reported as not functionally realized')
-for (const finding of violationsOn(5)) {
-    assert.match(finding.what, /structurally present but not functionally realized/)
-    assert.match(finding.what, /WIDE-ZONE/)
-}
+/**
+ * **Q5 now fails on exactly one thing, and it is the owner decision he is holding.**
+ *
+ * The channels participate operationally — the value modifier conditions on both of them — so the
+ * participation violations are gone. What remains is that a coach is told the consequence (a line crossing
+ * is worth 2 instead of 1 when the condition is met) and cannot be told what MEETS it: `REGION_ENTRY` has no
+ * registered trigger semantics and the authoring note records the gap. That is the fourth failure mode in
+ * his original question — operationally obscured — and the one that passes every other test.
+ */
+assert.equal(violationsOn(5).length, 1, `Q5 must fail only on the unestablished criterion; got ${JSON.stringify(violationsOn(5))}`)
+assert.match(violationsOn(5)[0].what, /nothing in the game establishes what MEETS it/)
+assert.match(violationsOn(5)[0].what, /complete and unusable/)
+assert.ok(
+    !violationsOn(5).some(f => /not functionally realized/.test(f.what)),
+    'the participation violations must be gone now that the modifier conditions on the channels',
+)
 assert.equal(report.passed, false, 'a game whose features do nothing is not a runnable activity')
 assert.ok(rendered.instructions.length > 0, 'a report over zero instructions would be vacuous')
 assert.ok(
@@ -73,7 +84,9 @@ assert.equal(report.provenance.length, rendered.instructions.length)
 {
     const cardinality: Instruction = { section: 'Players', text: '2 teams', status: 'INSTANTIATED', from: ['performers.teams'], quantities: [2] }
     assert.equal(violations(checkFidelity(fixture, wrap([cardinality])), 2).length, 0, 'counting a cited collection is supported')
-    const uncited: Instruction = { ...cardinality, from: ['envelope.players'], text: '2 groups' }
+    // A number that is NOT a value in the game and NOT the size of the cited collection. (2 can no longer
+    // serve: it is the modifier's authored magnitude, so it is legitimately in the game.)
+    const uncited: Instruction = { ...cardinality, from: ['envelope.players'], text: '7 groups', quantities: [7] }
     assert.equal(violations(checkFidelity(fixture, wrap([uncited])), 2).length, 1, 'a count must cite the collection it counts')
 }
 
@@ -121,7 +134,7 @@ for (const instruction of rendered.instructions.filter(i => i.status === 'REALIZ
 {
     const withoutChannels = rendered.instructions.filter(i => !i.text.includes('channel'))
     const r = checkFidelity(fixture, wrap(withoutChannels))
-    assert.ok(violations(r, 5).length >= 3, 'each unmarked region must be reported')
+    assert.ok(violations(r, 5).length >= 2, 'each unmarked region must be reported')
 }
 
 // ── The team size reaches the coach, BECAUSE the game now establishes it ──────────────────────────
@@ -166,7 +179,13 @@ for (const instruction of rendered.instructions.filter(i => i.status === 'REALIZ
 }
 
 // ── Observations are evidence, never instructions ────────────────────────────────────────────────
-assert.ok(rendered.coachingObservations.length >= 4, 'the A04 game produces several things a coach would question')
+// The coincident-channel observation is GONE: the restatement put one channel on each touchline, so the
+// thing a coach would have questioned no longer exists in the game. The remaining three stand.
+assert.ok(
+    !rendered.coachingObservations.some(o => /same touchline|one strip/i.test(o)),
+    'the coincident-channel observation must not fire once the channels are on opposite sides',
+)
+assert.ok(rendered.coachingObservations.length >= 3, 'the A04 game still produces several things a coach would question')
 for (const observation of rendered.coachingObservations) {
     assert.ok(!rendered.instructions.some(i => i.text === observation), 'an observation must not be issued as an instruction')
 }
@@ -191,11 +210,12 @@ for (const observation of rendered.coachingObservations) {
     // TEETH: remove the objective's reference and the target stops participating.
     const stripped = JSON.parse(JSON.stringify(fixture))
     stripped.game.objectives.forEach((o: any) => delete o.reference)
+    stripped.game.value.valueModifiers = []
     const after = checkFidelity(stripped, renderConcreteGame(stripped))
     assert.equal(
         after.findings.filter(f => f.question === 5 && f.severity === 'VIOLATION').length,
-        4,
-        'with nothing referencing it, every region including the target is unrealized',
+        3,
+        'with nothing referencing them, every region including the target is unrealized',
     )
 }
 
@@ -216,6 +236,43 @@ for (const observation of rendered.coachingObservations) {
     const note = report.findings.find(f => f.question === 3 && f.what.includes('startsEpisode'))
     assert.equal(note?.severity, 'NOTE')
     assert.match(note!.what, /Its operational consequence\(s\) are carried by .*playState/)
+}
+
+// ── The two channels are on OPPOSITE touchlines, and the rendering says so ────────────────────────
+//
+// The authored `lateral` selector now reaches the artifact and the geometry places them at opposite edges.
+// Rendering both as "along the touchline" dropped that, and a coach would mark one strip twice.
+{
+    const channels = fixture.game.space.regions.filter((r: any) => r.noun === 'channel')
+    assert.equal(channels.length, 2, 'the restatement establishes exactly two channels')
+    const sides = channels.map((r: any) => (r.selector ?? []).find((t: any) => t.attribute === 'lateral')?.value)
+    assert.deepEqual([...sides].sort(), ['wide-left', 'wide-right'], 'each carries its authored side')
+
+    // Opposite edges of the 30 m across axis, from AM-17's registered test rather than from any ordering.
+    const across = channels.map((r: any) => r.realizedGeometry?.position?.across?.interval)
+    assert.ok(across.every(Boolean), 'both have realized across geometry')
+    const lows = across.map((i: any) => i.from).sort((a: number, b: number) => a - b)
+    assert.equal(lows[0], 0, 'one touches the 0 touchline')
+    assert.ok(lows[1] > 0, `the other does NOT — got ${JSON.stringify(across)}`)
+    assert.equal(Math.max(...across.map((i: any) => i.to)), 30, 'and reaches the far touchline')
+
+    const setup = rendered.instructions.filter(i => i.section === 'Set up').map(i => i.text)
+    assert.ok(setup.some(t => /along one touchline/.test(t)), JSON.stringify(setup))
+    assert.ok(setup.some(t => /along the opposite touchline/.test(t)), JSON.stringify(setup))
+    // Not left/right: the authored values name axis edges, not a coach's orientation.
+    assert.ok(!setup.some(t => /(left|right)/i.test(t)), 'the rendering must not invent an orientation')
+}
+
+// ── An established function is carried, not dropped ───────────────────────────────────────────────
+// It is not what makes a region operationally realized — that is a separate question — but the game
+// establishes it, so it may not disappear.
+{
+    const withFunctions = fixture.game.space.regions.filter((r: any) => Array.isArray(r.functions) && r.functions.length)
+    assert.equal(withFunctions.length, 2, 'both channels carry the established member')
+    assert.ok(
+        rendered.instructions.some(i => /perceptual reference/.test(i.text)),
+        'and the rendering carries it',
+    )
 }
 
 console.log('rendering.unit.ts — ok')

@@ -16,6 +16,7 @@ import { corpusInput, loadRegister, loadCorpusContracts, repairTally, restatemen
 import { repairEncoding } from './corpus-repair'
 import { NO_ROW_RESTATEMENTS } from './corpus-restatement'
 import { reaches } from './reach'
+import { indexRegister } from './register'
 import { runDerivation, runStages0to10 } from './engine'
 import { isStampedHalt } from './emit'
 import { ContractItem, DerivationInput, LoadedContract } from './types'
@@ -301,16 +302,17 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
     assert.deepEqual(restatementTally.withheld, [], 'none was named but disqualified')
     assert.equal(
         restatementTally.itemsRestated,
-        30,
+        34,
         'six Phase A rulings, six sets (SD-79), two exclusion bounds (SD-86), eight goal-kick selectors (SD-87), one restart ownership (SD-89), ' +
             'one typed reference (SD-98), one Wide Zone gloss (C29a), one DISTINCT_ON mark (C29b/C29e), two typed neutral bounds (C29c), ' +
-            'one typed channel width (C30b), one equal-outfield promotion (C31b)',
+            'one typed channel width (C30b), one equal-outfield promotion (C31b), three Wide Zone lateral restatements (C33)',
     )
     assert.equal(restatementTally.itemsRemoved, 2, 'WIDEZONE-13.a and 13.b')
     assert.equal(
         restatementTally.itemsAdded,
-        9,
+        13,
         'the recovered GF4 operation, the traced neutral existence, SD-102’s canonical shared objective, the five connected-pass IE dimensions (C29d), ' +
+            'the three Wide Zone value-modifier items — existence, magnitude 2 and MULTIPLY (C34) — and its second typed referent (C35), ' +
             'and the required channel extent as a proportion (C31a)',
     )
     assert.equal(restatementTally.declarationScopes, 64)
@@ -408,13 +410,46 @@ test('SD-80: one set-valued contribution does NOT resolve the line to the set', 
     assert.notDeepEqual(line.value, ['zone', 'line'], 'the permitted set is never the value')
 })
 
-test('SD-80: no resolved line anywhere ever holds a set as its value', () => {
-    for (const source of [corpusInput(), input([contract([narrowing('N-1', ['a', 'b'])])])]) {
+/**
+ * **SD-80, scoped to what it is actually about — and strengthened in the process.**
+ *
+ * The invariant guards against a NARROWING becoming a value: a composition that leaves more than one member
+ * is a downstream choice, and emitting the permitted set as the resolved value is "a wrong answer wearing the
+ * label of a right one".
+ *
+ * A row the register marks `multiplicity: SET` is a different thing. Its value IS a set, because its own
+ * valueType says so — "one property per referent" — and his ruling of 2 October is explicit that this "does
+ * not mean choose one of the channels". Membership, not alternatives.
+ *
+ * So the test now asserts BOTH halves, which is stronger than the blanket form it replaces: no line holds a
+ * set unless the register declares that row set-valued, AND no narrowing ever becomes a value regardless.
+ */
+test('SD-80: a set is the value of a line only where the register declares the row set-valued, and never from a narrowing', () => {
+    for (const { label, source } of [
+        { label: 'corpus', source: corpusInput() },
+        { label: 'narrowing', source: input([contract([narrowing('N-1', ['a', 'b'])])]) },
+    ]) {
         const result = runDerivation(source)
         if (isStampedHalt(result)) continue
+        const index = indexRegister(source.register)
+        let setValued = 0
         for (const entry of result.resolution) {
             if (entry.state !== 'derived') continue
-            assert.ok(!Array.isArray(entry.value), `${entry.lineId} is derived while holding a set: ${JSON.stringify(entry.value)}`)
+            const row = index.rows.get(String(entry.row))
+            if (!Array.isArray(entry.value)) continue
+            assert.equal(
+                row?.multiplicity,
+                'SET',
+                `${entry.lineId} is derived while holding a set on a row the register does not declare set-valued: ${JSON.stringify(entry.value)}`,
+            )
+            // And it is membership, not a surviving choice space: a narrowing never becomes the value.
+            assert.equal(result.resolution.find(e => e.lineId === entry.lineId)?.permitted, undefined, `${entry.lineId}: a permitted set is not a value`)
+            setValued++
+        }
+        if (label === 'narrowing') {
+            assert.equal(setValued, 0, 'a narrowing must produce no set-valued line at all')
+        } else {
+            assert.ok(setValued > 0, 'the corpus must exercise the set-valued case, or this proves nothing')
         }
     }
 })
