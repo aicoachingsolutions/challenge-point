@@ -938,6 +938,12 @@
      "NON_CLAIMED",
      "UNDECLARED"
     ]
+   },
+   {
+    "path": "possession.team",
+    "lineId": "game::PS1",
+    "reason": "no coverage",
+    "declared": []
    }
   ]
  }

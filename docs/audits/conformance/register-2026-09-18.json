@@ -294,6 +294,19 @@
    ]
   },
   {
+   "id": "PS1",
+   "path": "possession.team",
+   "kind": "FIELD",
+   "valueType": "a reference to one of the teams the game establishes: the team that currently possesses the ball",
+   "fillable": "one of the teams the game establishes",
+   "fillableFrom": "performers.teams[]",
+   "sourceKinds": [
+    "SELECTION",
+    "REALIZATION"
+   ],
+   "note": "AUTHORIZED 2 October (Christian) as the one missing general relationship, after a corpus check established that dynamic possession attribution is independently required rather than introduced for Wide Zone Advantage. GAME LEVEL, not a field on the ball: his wording is \"this is game-state relational meaning: which established team currently possesses the ball. Game level seems the cleaner semantic home and requires no new collection.\" WHAT IT IS: a team-valued current state. Its INITIAL value is a governed realization choice over the established teams unless selected knowledge says otherwise (SD-R2: \"which team starts can remain a permitted free choice\"). POSSESSION_CHANGE changes that state. ATTACKING_TEAM resolves against it. WHAT IT IS NOT, explicitly excluded from this relation: scoring eligibility; objective association; any invented mechanism for how possession is gained or lost; a universal post-score procedure; static ATTACKING/DEFENDING labels on teams. AN EPISODE BOUNDARY DOES NOT BY ITSELF ESTABLISH OR CHANGE POSSESSION -- his ruling of 2 October, and it is consistent with SD-14's own registered note, \"Defines boundaries only\". START begins an episode and requires the initial-possession choice. POSSESSION_CHANGE begins an episode AND changes this state. SCORE begins an episode under SD-14 but does NOT determine this state for the resulting episode: the selected post-score realization must establish it where possession is required, and SD-R3 leaves that procedure to realization. So ATTACKING_TEAM resolves against this relation and is never independently recalculated merely because a boundary occurred; where this relation is unestablished, anything requiring ATTACKING_TEAM stays UNRESOLVED rather than inferring a team."
+  },
+  {
    "id": "O1",
    "path": "objects[]",
    "kind": "COLLECTION",
@@ -1348,12 +1361,12 @@
   "selectorGrammar": "Added 29 September. An entry may condition on selectorAttribute instead of row. A selector attribute is fixed by stage 2 when the class is individuated, so the condition is decided at enumeration and the line is WITHDRAWN there rather than left CONDITIONAL on a governing line that can never move. Where the selector does not fix the attribute the condition is UNDECIDABLE and the line is KEPT, so an applicability rule can never hide a real gap."
  },
  "teamDesignations": {
-  "note": "Canonical list for this run (RC-22). Two designations are equal only if they map to one entry. A designation is evaluated at the trigger or episode it is attached to.",
+  "note": "Canonical list for this run (RC-22). Two designations are equal only if they map to one entry. A designation is evaluated at the trigger or episode it is attached to. REVISED 2 October on his ruling: ATTACKING_TEAM resolves against the possession relation (PS1) and is NOT independently recalculated merely because an episode boundary occurred. The previous gloss \"in possession for the episode\" carried the same conflation of episode re-evaluation with possession reassignment that the Neutral Player Condition's note did. Where PS1 is unestablished, a designation resolving against it is UNRESOLVED rather than inferred.",
   "list": [
    "TEAM_<id> (a named team)",
    "EACH_TEAM",
    "STARTING_TEAM",
-   "ATTACKING_TEAM (in possession for the episode)",
+   "ATTACKING_TEAM (the team the possession relation PS1 currently holds)",
    "DEFENDING_TEAM",
    "SCORING_TEAM",
    "CONCEDING_TEAM",
@@ -1595,5 +1608,6 @@
  },
  "selectorAttributeNote": "Added 27 September (SD-92). A FIELD row that corresponds to one of its collection’s selectorAttributes now names it here, instead of leaving the correspondence to be recovered by matching the path tail. Membership is unchanged. It also reconciles the one spelling difference the matching exposed: rows T1a/T1b/T1c carry the path \"transitions[].qualifiers.<name>\" while T1 registers the selector attribute as \"qualifier.<name>\". Both spellings stay exactly as authored; this field states which pairs with which, so nothing has to normalise a string to find out.",
  "outerBoundNote": "Added 29 September on Christian’s ruling. A row marked outerBound: SESSION_ENVELOPE has a fillable choice space whose outer geometric limit the session envelope supplies, so SD-50’s requirement for a supported choice space is met by the envelope where the element’s existence and relevant structural relationships are already established and no selected knowledge authors a narrower bound. It does NOT authorize arbitrary geometry: realization may choose only inside the envelope, preserving every authored spatial relationship and the element’s established function, never determining a previously unauthored structural relationship, and always recorded as a realization choice rather than derived knowledge.",
- "multiplicityNote": "Added 2 October on Christian's ruling. `multiplicity: \"SET\"` TYPES what these five rows' own valueType prose already states -- \"one property per referent\", \"one property per member\", \"one property per trigger\" -- so the engine can act on it instead of only a reader. It is the SD-86 pattern applied to a structural fact rather than a number: nothing new is asserted about any row, and no row gains it whose valueType did not already say so. J11b is deliberately EXCLUDED: \"member, or procedure over members\" does not state that the field holds a set, and reading it as one would be interpretation. WHAT IT MEANS: two support-capable items on such a row are two MEMBERS, not two competing values, so they accumulate rather than colliding under SD-02. His words: \"Each established wide channel is independently a qualifying referent for the same modifier condition. This does not mean choose one of the channels, nor does it mean both channels must be involved before the modifier can apply.\""
+ "multiplicityNote": "Added 2 October on Christian's ruling. `multiplicity: \"SET\"` TYPES what these five rows' own valueType prose already states -- \"one property per referent\", \"one property per member\", \"one property per trigger\" -- so the engine can act on it instead of only a reader. It is the SD-86 pattern applied to a structural fact rather than a number: nothing new is asserted about any row, and no row gains it whose valueType did not already say so. J11b is deliberately EXCLUDED: \"member, or procedure over members\" does not state that the field holds a set, and reading it as one would be interpretation. WHAT IT MEANS: two support-capable items on such a row are two MEMBERS, not two competing values, so they accumulate rather than colliding under SD-02. His words: \"Each established wide channel is independently a qualifying referent for the same modifier condition. This does not mean choose one of the channels, nor does it mean both channels must be involved before the modifier can apply.\"",
+ "possessionNote": "PS1 is the possession relation authorized 2 October. The designation vocabulary in `teamDesignations` already glossed ATTACKING_TEAM as \"in possession for the episode\" and listed WON_BALL, LOST_BALL and LAST_TOUCH -- so the corpus named the states of this relation before anything could hold one. PS1 is what holds it."
 }
