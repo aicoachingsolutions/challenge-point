@@ -4424,3 +4424,40 @@ favour.** Optimising for convenience would have chosen ball.
 **Returned to him:** are these the five (a **learning-goal** criterion may be missing — none asks whether the
 reward points at what the session is for) · is a failure a veto or a finding · where the answers are recorded
 (`fitNote`/`basisEvidence` beside the authored value, or a separate ruling record).
+
+### 2026-10-02 — Criteria APPROVED (six), and applied to the Wide Zone condition
+`docs/INCENTIVE_ASSURANCE_CRITERIA.md` is **approved for use** (Christian, 2 Oct). His three rulings in:
+- **6 · Learning-Relevant** added in his wording — *"does the incentive increase the value, attention, or
+  visibility of an opportunity meaningfully related to the intended learning problem?"* Pass = biases
+  exploration toward relevant opportunities **while leaving the learner's solution open**. **Deliberately not
+  phrased as requiring a target behaviour** — *"the Learning Goal establishes the problem/opportunity
+  landscape; it does not specify the player's solution."* A criterion demanding an action would be the
+  invariant violated under another name.
+- **CONTRADICTION vs CONCERN.** Contradiction = conflicts with canonical authored knowledge or a governing
+  invariant → **unavailable**. Concern = a recorded finding to weigh. **Criterion 4 is NOT a veto for being
+  criterion 4** — the test is the nature of the conflict. (Player reading = CONTRADICTION against *"Zones
+  optional"* + *"Entering must not be compulsory"*; ball reading's proportionality = CONCERN.)
+- **Answers live in the authored item's `fitNote` / `basisEvidence`.**
+
+**FIRST CANONICAL APPLICATION — *"a controlled attacking-team touch within the wide channel"* PASSES ALL SIX.**
+Evaluated against the real selection, which mattered: **Beat Defenders 1v1** · Central Density Condition as
+foundation (`protect_space`) · Wide Zone as **shaping** (`exploit_space`) · lens **Line-Breaking Opportunity**.
+Two of his intentions actively improve the result — no-traversal secures affordance-preserving, and
+attacking-team secures opposition-robust (a defensive clearance would otherwise arm the attack's bonus).
+
+**Two findings:**
+1. **Learning-Relevant passes WITH A CONCERN.** The chain holds (central density → opportunity moves wide →
+   channel makes it legible → defender comes out → 1v1 available), but the condition is satisfied by
+   **controlling the ball in the space**, not by engaging a defender. A team could circulate in and out, never
+   attempt the 1v1, and bank the bonus. **Not** a contradiction — requiring the 1v1 would be the more
+   dangerous design and `exploit_space` is the authored target — but it is the gap between what is rewarded
+   and what the session is for, and it bears on magnitude.
+2. **STRUCTURAL: "attacking team" needs what the representation lacks.** Either **live possession
+   attribution** (not established) or **a window tying the touch to the scorer** — which is the **episode
+   scope** he asked to keep separate. **The two are not independent**: his qualifier makes that scope
+   load-bearing for this condition. Neither mechanism invented; reported.
+
+**Returned:** is *"controlled"* retained-possession (observable, passes) or deliberate (intent — criterion 1
+excludes it)? · how *"attacking team"* is established · whether a traversal with **no** controlled touch also
+qualifies (the source authors *"starting in OR moving through"*; his formulation reaches only the first) ·
+then **magnitude**, after those. **Nothing authored into canonical knowledge.** A04 and generation frozen.
