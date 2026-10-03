@@ -4711,20 +4711,29 @@ since no handle may reach a coach.
    identity guard: the safety is incidental.**
 
 **Check-degradation class:**
-3. **`DISTINCT_ON` degenerates silently** — keys tuples by the path's element segment, which is the shared
-   `satisfies`, so the second member **overwrites** the first and pairwise distinctness passes having compared
-   nothing. Latent (the one authored DISTINCT_ON hits three separately-authored object classes). **Sharpest
-   evidence identity is general: the check exists to prove two members differ and is disabled for the population
-   with no identity.**
+3. **`DISTINCT_ON` NEVER EXECUTES AT ALL** — worse than the identity degradation, and independent of it. The one
+   authored condition (`VARTARGET-03.a`) sits on row **O4**, so `condition.path` is taken as the FIELD path
+   `objects[].position.along`; `realize.ts:408` filters on
+   `parts.container.startsWith(condition.path.replace(/\[\]$/, ''))` and **`/\[\]$/` strips only a TRAILING
+   `[]`**, while `parts.container` is just `objects`. Nothing matches, `tuples` stays empty, the check passes
+   having compared nothing. **The corpus's only joint condition is dead for everyone.** The identity degradation
+   (two members of one claim share a path segment, so the second overwrites the first in `tuples`) sits behind it.
 4. **`memberKey` dedupe drops a twin** — `String(member)` for non-typed members, first wins. Same assumption a
    layer down.
 5. **`realize.ts:738` `elementId ?? satisfies` reports a colliding path.** Accounting underneath uses
    `key(path, i)`, so **no value is mis-attributed** — cosmetic, but it names one path for two members in a failure.
 6. **Three unrelated spellings of member identity** (`contractId::itemId`, `key(path,i)`, `realized:<classId>:<i>`).
 
-**Determinism: member order IS stable across two runs** (A01/A04/A05). Stated plainly because "it's deterministic"
-is the wrong consolation — **the problem is not that the index changes, it is that nothing the game holds explains
-it.**
+**CORRECTION — member order is NOT deterministic, and I measured the wrong thing first.** My first pass checked the
+order of `resolved.existential` (derived, and sorted at `engine.ts:197/330` and `resolved-game.ts:446`) and reported
+"member order is stable". For **instantiated members**: `grep` for a sort over `instantiations` across `src/`
+returns **nothing**; `realize.ts:452` assigns `memberIndex` from `list.length`, i.e. the caller's array order; for
+A04 the only thing fixing that order is the array order in `a04-realization-choices.json`, whose two entries are
+byte-identical; and `record.fromDigest` is `resolved.provenance.inputDigest` (`realize.ts:551`), the **resolved
+game's** digest, so it does not cover realization's own order-dependent decisions. **Two members of one claim have
+no content-derived ordering key at all** — the index is not merely meaningless, it is not even anchored.
+→ **Lesson: when checking determinism, check the artifact you actually care about.** Derived-element order is
+guaranteed; instantiated-member order is guaranteed by nothing, and the two live in the same object.
 
 ### THE RULING ASKED FOR
 Two of his rulings meet at the discriminator: *position is an implementation artifact, not authored football
@@ -4737,3 +4746,96 @@ genuinely indiscernible, and GF4's asymmetry and possession assignment are block
 than an engine extension.** Both coherent; the second is more conservative and may be right. Not chosen.
 
 Touch trigger and magnitude untouched — neither reading affects either. A04 and generation frozen.
+
+### Second pass — what the first pass of the identity check MISSED or got wrong
+
+Three parallel traces plus my own verification. **I caught two agent overstatements; both are recorded below as
+what the evidence actually supports.** Everything here was re-verified against source by running it.
+
+#### THE MECHANISM WE ALREADY HAVE AND HAVE NEVER USED — `COMPARES`
+**`COMPARES` is a registered requirement kind**, added by **AM-16 on 2026-09-20** with a full form
+(`{left, operator, right}`, operators `= != < <= > >=`) and operand forms under SD-23 (a represented game property
+`{row, selector}`, or a deterministically derived quantity over SUPPORTED properties). The register versions it:
+`"contractEnums.requirement": "2 (2026-09-20, COMPARES added by AM-16)"`. **ZERO corpus items use it.**
+→ **The four P2 fitNotes saying "No requirement kind compares two elements … (SCHEMA LOCAL)" are STALE** — true
+when written, and AM-16 added exactly that kind. Four items are declared blocked on a limitation that is gone.
+→ His rule *"a new mechanism must not be introduced where an existing canonical mechanism already owns the same
+semantic concept"* points at COMPARES before anything new.
+→ **It localizes what identity is FOR**: a symmetric comparison needs two operands ranging over the pair; an
+**asymmetric** one needs a selector that picks out ONE team — and a selector picking one of two indiscernible
+members is precisely the missing handle. It would also replace `deriveRoster`'s `/\bequal/i` prose sniff, which is
+how the "unequal between the teams" near-miss arose.
+→ **So the answer is not "mint a handle" alone: the comparison kind exists, is unused, and is what a handle is for.**
+
+#### Q3's REAL authority is his own ruling, not an item
+**C31b (1 October) promoted GF2-14.b from ASSUMED to OWNER_RULING** so the roster could derive, with the caution:
+> *"Please preserve the ability for other selected authoritative knowledge to establish numerical asymmetry where
+> the learning problem requires it. Equal team numbers should not become an engine-level universal assumption."*
+and its fitNote: a game form authoring asymmetry **displaces** GF2-14.b through SD-90, so equality is knowledge
+about THIS game form and never a universal. **A displacing game form must say which team gets which number.**
+→ **Asymmetry is a DIRECTED capability, not a hypothetical** — that is stronger evidence than any corpus item.
+→ **Strict answer to Q3: among knowledge that actually ENTAILS anything today, possession assignment is the ONLY
+consumer.** GF4's "unequal … e.g. 4 and 6" is TYPICAL_EXAMPLE (bounds, never entails) and GF4 is
+contracted-not-selected; the Variable Target asymmetry rests on an ASSUMED item while its row is NOT_AUTHORED.
+**So identity is a PREREQUISITE, not an unmet existing requirement** — weaker than my first pass claimed, and right.
+→ Two latent shapes to watch: **PCG's SV1 is registered as a view KEYED BY TEAM** ("halves and thirds along the
+axis, per team (own/attacking)") — possession can pick the key but cannot supply the mapping, because per-team
+halves must stay stable while possession alternates; and the Variable Target asymmetry. Both blocked on authority.
+→ `TEAM_<id>` is used 3×; **no authoritative item REQUIRES a named team.** The clearest use is an AUTHORED
+**exclusion** (no neutral fixed to a named team), which needs the form to be EXPRESSIBLE so the prohibition is not
+vacuous — a far weaker demand, and exactly the vocabulary-vs-item asymmetry he suspected.
+
+#### THE WORST FINDING — `chosenMemberLeaves` is wrong in BOTH directions (realize.ts:691–704)
+```
+const index = realized.record.instantiations.findIndex(
+    i => collectionPath(i.path) === collection && String(i.classId) === String(parts.elementId))
+...
+chosenMemberLeaves.get(k)!.add(parts.leaf)
+```
+`findIndex` returns the **FIRST** instantiation with a matching classId — and two members of one claim share it, so
+a choice about **either** member always resolves to member[0]. And it stores only the leaf **NAME**, not the value.
+→ member[0]'s leaf is marked licensed so **any** value there passes unchallenged; member[1]'s **correct** value is
+reported as an invention. **Wrong in both directions at once.**
+→ **The adjacent map was EXPLICITLY hardened against exactly this** (`realize.ts:671–677`: *"Name-only accounting
+was a hole: a member carrying outfieldCount: 99 beside an entailment recording outfieldCount reported nothing"*).
+`entailedValues` got value-based accounting; `chosenMemberLeaves` never did. **The correct shape is ten lines above
+it.** Latent — no choice in A04's file has a path into a member.
+→ **This is a hole in the check everything else is trusted against, and it is the THIRD appearance of this shape.**
+
+#### GA-ROSTER-SUM cannot see asymmetry — but something else catches it (agent overstated)
+Forced **0 v 12** into A04's realized game and reran the gate. `GA-ROSTER-SUM` **PASSES** ("the roster sums to the
+session count") — correctly in its own terms, 0+12=12. **It cannot see that the equality which LICENSED the
+division was violated.** An agent reported `post.validated: true`; **that is wrong.** Render-eligibility comes back
+**NO**, caught by `entailmentsLanded`: *"performers.teams[0].outfieldCount was entailed as 6 but the concrete game
+holds 0"*. **No wrong game reaches a coach.**
+→ Two lessons: the invariant is weaker than it looks, and **the check that caught it is the VALUE-based one** — the
+same shape `chosenMemberLeaves` is missing. The fix shape is already demonstrated in the codebase.
+
+#### The three-team case is LATENT, not live (agent overstated)
+An agent reported it renders "3 teams of 4" to a coach. **Verified: A01, A02 and A05 all have `mayRealize: false`
+(Gate A NOT_EVALUABLE), and with that gate synthetically lifted the realization is STILL refused — for five
+UNRELATED reasons (open lines not chosen).** So it cannot reach a coach today. **What IS true and verified: the
+cardinality guard raises zero team-related objections to three teams**, and `collectionCardinality` is **empty for
+`performers.teams[]` corpus-wide** (it is restricted to individuated classes), so it cannot cover either.
+→ **Report the guard's silence, not a coach-facing wrong answer.** Distinguish "the guard is silent" from "the
+output is wrong" — a harness bypass proves the former, never the latter.
+
+#### Smaller, verified
+- **`fillableFrom` is DEAD DATA — on the PS1 row I added.** No engine code reads `fillableFrom` anywhere. The prose
+  `fillable` string IS read (so the choice space is registered as I said), but the structural pointer to
+  `performers.teams[]` is inert. Correcting my own last note.
+- **`objectiveSets[]` is a SECOND existential claim** (`VARTARGET-06.a` on row J5). So "teams are the only
+  collection with instantiated members" is true of **selected** knowledge, not the corpus. Harder case: J7
+  (`objectiveSets[].members`) is a list of references pointing OUT of an instantiated member.
+- `engine.ts:298` **skips field-line enumeration entirely for an existential class** (SD-97) — which is the
+  mechanism behind "no P2 line is enumerated anywhere".
+
+#### Third blocker, found last and it changes the ruling's shape
+**`P1` declares `selectorAttributes: ["team"]`, and NEITHER `P2` NOR `P3` declares a `selectorAttribute`.** So
+`team` is wholly unbacked by any FIELD row, and the SD-92 `CARRIES` relation that turns a selector term into a
+property value requires one (`derive.ts:343`: `if (!row || !row.selectorAttribute) continue`).
+→ **The authored-selector route — the very mechanism that tells the two wide channels apart — is STRUCTURALLY
+UNAVAILABLE for a team**, independently of the instantiation problem.
+→ **Consequence for the ruling: the conservative reading ("no ordinal, so author a distinguishing property
+instead") is an authoring decision PLUS a register addition, not an authoring decision alone.** Check that the
+escape hatch you offer an owner is actually open before offering it.
