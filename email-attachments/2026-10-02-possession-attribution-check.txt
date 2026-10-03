@@ -1,0 +1,127 @@
+Christian,
+
+The wording correction is made and your two semantic rulings are recorded. The representation check has an
+answer, and it is the one you framed as the better outcome.
+
+**Yes. Existing selected knowledge already requires the representation to know which team currently
+possesses the ball — in a contracted object, independent of Wide Zone Advantage.** Wide Zone did not create
+the requirement. It exposed that a relationship the corpus already depends on has no representation.
+
+Everything below I verified against the authored text myself. A wider sweep of the remaining mechanism
+families is still running; I will follow up if it changes the picture, but it cannot unmake the evidence
+below.
+
+
+THE DECISIVE CASE — the Neutral Player Condition
+
+A contracted object in the canonical corpus, nothing to do with Wide Zone. It authors on P6b, the row the
+register defines as "team designation the neutral joins":
+
+    P6b = ATTACKING_TEAM
+
+and the restatement's own fitNote says what that means:
+
+    "ATTACKING_TEAM ('in possession for the episode') is re-evaluated each episode; START and
+     POSSESSION_CHANGE begin one (SD-14), so it holds 'currently in possession'."
+
+A second P6b item puts it in plainer words still:
+
+    "All neutrals become teammates of the team now in possession."
+
+And P6a, the trigger on which affiliation is decided, is authored STANDING with:
+
+    "a standing affiliation to ATTACKING_TEAM changes at every POSSESSION_CHANGE, which begins an episode."
+
+So three things are settled by authored knowledge rather than by my reading of it:
+
+1. **ATTACKING_TEAM is dynamic.** The restatement defines the token as "currently in possession". That
+   settles the static-versus-dynamic question for the designation itself, not merely for neutrals.
+2. **It is re-evaluated continuously**, at every possession change — not decided once at setup.
+3. **A static assignment is not merely insufficient, it is forbidden.** The same object authors P6b
+   excluding DEFENDING_TEAM ("forbids the team out of possession") and excluding TEAM_<id> with the reason
+   "No neutral is fixed to one team."
+
+That third point is what makes this decisive rather than arguable. We are not inferring that a fixed
+designation would be inadequate; the knowledge says a fixed team is prohibited.
+
+
+THE CONCEPT IS GENERAL, NOT LOCAL TO NEUTRALS
+
+Seven register rows carry "team designation" as their value type: P6b (neutral affiliation), P9 (start
+placement group), J3 (objective team), T1a and T1b (transition qualifiers), T2 (awardedTo) and V14a (value
+consequence referents).
+
+T2 is the sharpest of those after the neutrals, because the register states its evaluation time outright:
+
+    T2 — "team designation evaluated at the trigger. N/A when playState is CONTINUE."
+
+"Evaluated at the trigger" is dynamic by construction. A restart awarded at a POSSESSION_CHANGE cannot be
+worked out in advance.
+
+And POSSESSION_CHANGE is in the trigger vocabulary, used on the T1 row. Detecting that trigger at all
+requires possession attribution, before anything is awarded on it.
+
+So this is one general relationship that seven rows lean on, and it is currently defined in exactly one
+place — a fitNote on a neutral-affiliation restatement.
+
+
+SOMETHING I FOUND IN A04'S OWN ARTIFACT WHILE CHECKING
+
+This bears on the question and I think you should see it.
+
+A04's concrete game carries, on each instantiated team:
+
+    designation: ATTACKING_TEAM        designation: DEFENDING_TEAM
+
+Three problems with it:
+
+- **There is no register row for `designation`.** The only rows the register owns under performers.teams[]
+  are P2 (outfieldCount) and P3 (goalkeeper). So it is an unregistered property.
+- **It has no authority.** It came from the realization choices file, and the stated reasons are purely
+  positional: "First of the two" and "second of the two the claim asserts."
+- **It sits against GF2's own authored objective.** GF2 authors J3 as "EACH_TEAM: one shared target attacked
+  by both". If both teams attack the same target, statically labelling one of them the defending team is not
+  a description of this game.
+
+It passed the invention check because an instantiated member's own fields are authorised by the existential
+claim that created it — the one blanket permission I left in place when I tightened that check, and it is
+exactly where this slipped through.
+
+So the only thing in A04 that resembles possession attribution today is an unregistered, authority-free,
+static label. The requirement is not new; it is currently being met by an invention.
+
+
+WHAT THIS MEANS FOR YOUR TWO OPTIONS
+
+You wanted to avoid choosing between live possession attribution and a scorer-linked episode scope merely
+because Wide Zone needs one. On the evidence, the choice is not Wide Zone's to force — and the two options
+may not be as separate as they looked:
+
+**SD-14 already ties episodes to possession.** The neutral restatement cites it for the proposition that
+"START and POSSESSION_CHANGE begin an episode". So an episode boundary is already defined partly by a
+possession change, and "the attacking team" is already defined as "in possession for the episode". The
+episode concept and the possession concept are not two independent gaps. They are one relationship seen
+twice, and the knowledge already states the link.
+
+That suggests a single general relationship — the team in possession, per episode — would serve the neutral
+affiliation, T2's awardedTo, the POSSESSION_CHANGE trigger, your Wide Zone condition and the episode scope
+together. **I have not designed it and I have not implemented either mechanism**, as you instructed. I am
+reporting that the narrower episode-scoped alternative and the possession-attribution option appear to be
+two views of the same missing thing rather than genuine alternatives.
+
+
+WHAT I WOULD ASK
+
+1. Whether to treat this as one general relationship rather than two candidate mechanisms, given SD-14
+   already links them. If so it is a representational decision of some size, and yours.
+2. What to do about A04's `designation` field in the meantime. It is unregistered and unauthorised, and
+   removing it may be cleaner than leaving a static label that contradicts the shared objective — but it is
+   in the frozen fixture, so I have not touched it.
+3. Whether the invention check should stop treating an instantiated member's own fields as blanket
+   authorised. That permission is how `designation` survived, and narrowing it is a small change with a
+   wide blast radius, so I would rather you knew before I proposed it.
+
+The two settled rulings are in the assurance document, with your wording correction. Nothing authored into
+canonical knowledge, neither mechanism implemented, magnitude untouched. A04 and generation frozen.
+
+Joe

@@ -1,0 +1,58 @@
+Joe,
+
+Representation check answered. The answer is YES, and it's decisive — Christian's email attached. Nothing
+implemented, as he instructed.
+
+THE ANSWER
+Existing selected knowledge already requires the representation to know which team possesses the ball, in a
+CONTRACTED object with nothing to do with Wide Zone. So Wide Zone didn't create the requirement — it exposed
+that a relationship the corpus already depends on has no representation. That's the outcome he said would be
+the better one.
+
+THE EVIDENCE (all verified by me against the authored text, not taken from an agent)
+The Neutral Player Condition authors P6b = ATTACKING_TEAM, and its own restatement fitNote says:
+"ATTACKING_TEAM ('in possession for the episode') is re-evaluated each episode; START and POSSESSION_CHANGE
+begin one (SD-14), so it holds 'currently in possession'." A second item: "All neutrals become teammates of
+the team now in possession." And P6a: "a standing affiliation to ATTACKING_TEAM changes at every
+POSSESSION_CHANGE."
+
+What makes it decisive rather than arguable: the same object FORBIDS the static reading — P6b excludes
+DEFENDING_TEAM ("forbids the team out of possession") and excludes TEAM_<id> because "No neutral is fixed to
+one team." So we're not inferring that a fixed designation would be inadequate. The knowledge prohibits it.
+
+Also: seven register rows carry "team designation" as their valueType (P6b, P9, J3, T1a, T1b, T2, V14a), and
+T2's own valueType says "team designation EVALUATED AT THE TRIGGER". So the concept is general and currently
+defined in exactly one place — a fitNote on a neutral-affiliation restatement.
+
+A DEFECT I FOUND IN A04 WHILE CHECKING
+A04's concrete game carries designation: ATTACKING_TEAM / DEFENDING_TEAM on the two teams. There is NO
+register row for `designation` — the only rows under performers.teams[] are outfieldCount and goalkeeper. It
+came from the choices file with the reasons "First of the two" and "second of the two". And GF2 authors J3 as
+"EACH_TEAM: one shared target attacked by both", so statically labelling one team defending contradicts the
+game's own objective.
+
+It survived because an instantiated member's own fields are blanket-authorised by the existential claim —
+the one permission I left in place when I tightened nothingInvented, and precisely where this got through. So
+the only thing in A04 resembling possession attribution is an unregistered, authority-free static label.
+
+THE USEFUL STRUCTURAL POINT
+SD-14 already ties episodes to possession ("START and POSSESSION_CHANGE begin an episode") and ATTACKING_TEAM
+is already defined as "in possession for the episode". So his two options — live possession attribution vs
+scorer-linked episode scope — aren't really alternatives. They're two views of the same missing relationship,
+and the knowledge already states the link. I said so and designed nothing.
+
+THREE THINGS I ASKED HIM
+1. Whether to treat it as one general relationship rather than two candidate mechanisms.
+2. What to do about A04's unregistered `designation` field — it's in the frozen fixture so I didn't touch it.
+3. Whether the invention check should stop blanket-authorising an instantiated member's own fields. That's how
+   `designation` survived; narrowing it has a wide blast radius so I wanted him to know before proposing it.
+
+Also done: his wording correction (the Proportionate section said "a deliberate act", contradicting the
+Objective section — now "a more discriminating condition than mere ball presence"), and both semantic rulings
+recorded — "controlled" = a touch after which the touching player's team retains possession, and traversal
+neither required nor sufficient.
+
+A wider corpus sweep over the remaining mechanism families is still running. It can add instances but can't
+unmake the above, so I didn't hold the report for it.
+
+Joe
