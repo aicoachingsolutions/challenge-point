@@ -1,0 +1,230 @@
+Christian,
+
+All six done. 288 cases green, tsc clean, and A04 closes exactly as it did: authorized, acceptance passed,
+render-eligible, with the single fidelity violation still the held trigger decision and nothing else.
+
+Your six reports in order, then the two decisions the work turned up, then the question you asked me to
+answer about reproducibility.
+
+
+1 · THE OPAQUE-HANDLE / PERMUTATION RESULT
+
+The handle is minted at instantiation as the claim that authorized the member plus an ordinal, and it is
+carried in the **existing** field: a member's `elementId`. So `container[handle].leaf` now addresses a member
+exactly as it already addressed a derived element, and nothing new was introduced. A member's entailment
+address is for the first time a real element path rather than a display string, because an index was never
+resolvable.
+
+The falsification case passes, and I made sure it is not passing vacuously. Part one permutes the two
+indiscernible teams and **asserts the vacuity** rather than reporting a pass: with all represented values
+equal the members differ only by handle, so exchanging them is the identity operation and proves nothing.
+Part two is the one with teeth — it forces genuinely asymmetric per-member values in, 4 against one handle
+and 8 against the other, then exchanges handles and values together. Every value follows its handle, every
+verdict is identical, and **the coach-facing text is literally identical**.
+
+Fourteen guards hold the boundary. Four of them exist because tracing found attack paths I would not have
+predicted:
+
+- **The handle must be a string.** The fidelity layer walks the game and treats every finite number it finds
+  as a quantity the game supports. A numeric handle of 777 made an instruction claiming the quantity 777 pass
+  as supported — it silently defeats the invention check for that number.
+- **It must be additive.** Re-minting derived element ids instead of only member ids produced 17 fidelity
+  violations as the provenance join between the status record and the game collapsed.
+- **The discriminator must be unconditional**, even where a claim owes one member. A mint yielding the bare
+  claim id would make a member findable by the element lookups driven from the derived record, so a member's
+  leaf could stand in for a derived element's in the acceptance checks — a false PASS rather than a failure.
+- **It must stay out of class-id space.** Reference identity grades a string HELD if it equals a class id, so
+  a handle used verbatim as one would let an authored string target a handle. Keeping the `realized:` prefix
+  preserves your guard; a handle string instead grades DANGLING, which is the right answer.
+
+And a guard against an ordering that nothing enforced: no source may sort by a handle, parse it, or recover
+the ordinal from it. That is checked across every file rather than trusted.
+
+
+2 · CAN POSSESSION NOW REFERENCE AN INSTANTIATED TEAM?
+
+**Yes, and on A04 it still does not — correctly.** Two things are now true at once and both are asserted.
+
+The referents exist: two handles, each resolving to exactly one team, and each with a single-valued
+complement. That last part is what "the other team" needs, and it is the thing that did not exist before.
+
+And `possession.team` is still `NOT_AUTHORED`, reason "no coverage" — nothing in A04's selected knowledge
+addresses it, so no holder is invented. What changed is that the choice space is no longer empty: a value for
+it now has something to be.
+
+A test asserts the separation you drew, by checking that identity establishes nothing about possession — the
+game holds no possession at all while holding two referable teams. Existence, then referential identity, then
+represented relationships, and identity does not reach the third.
+
+
+3 · THE REPAIRED INTEGRITY CHECKS
+
+**The invention check's first-member collision and name-only licensing — repaired.** It located the member a
+recorded choice belonged to by searching for the first instantiation with a matching class id, and two
+members of one claim share that id, so a choice about either resolved to the first. It then stored only the
+leaf name. Wrong in both directions: the first member accepted any value at that leaf, the second member's
+correct value was called an invention. Now a choice is matched to the member whose handle its path names, and
+the value is held rather than the name — the hardening its neighbour already had.
+
+Both halves are asserted separately, because a test on the symmetric case cannot see either.
+
+I also found, and fixed, the reason that repair would otherwise have been unreachable: **choices were applied
+before members were instantiated**, so a choice naming a member was refused as naming an element the game did
+not hold, before any accounting saw it. Instantiation now precedes it.
+
+**The joint-distinctness condition — repaired, and it was worse than it looked.** Its path came from the row
+the item sits on, which is a field row, so the prefix was `objects[].position.along` while every real
+container was `objects`. Nothing matched, no tuple was collected, and it passed having compared nothing. The
+path is now the owning collection.
+
+But fixing the path alone would have traded a dead check for an over-reaching one, so two authored facts are
+now carried rather than dropped — and **both are about the knowledge, not the engine**, so I have reported
+rather than repaired them, per your instruction:
+
+- its scope is **PER_OBJECTIVE_SET** — "differs from every other candidate's *in the same set*". Comparing
+  every member of the objects collection would be a stronger claim than the author made, so the condition is
+  reported NOT EVALUABLE rather than passed or over-reached;
+- its basis is **ASSUMED**, and SD-27 forbids an assumed item creating an authoritative collision. So it may
+  report and may never refuse.
+
+A condition that was not evaluated now says so on the record, instead of being indistinguishable from one
+that passed. That indistinguishability is exactly how this went unnoticed.
+
+Worth adding: the set it is scoped to is never instantiated in any goal, and no object in the corpus carries
+an authored bound on either row it names. So even repaired, it constrains nothing an author has stated. That
+is a third knowledge fact rather than a defect.
+
+**Why the existing test could not catch it:** its fixture hand-wrote the collection path, so it exercised the
+comparison with a path the builder never produced. The new test builds the condition from the live register
+and reproduces the old path to show it matched nothing.
+
+**The collection / co-reference / cardinality hole — repaired.** Every claim owned a private population, so
+two claims on the teams collection were satisfied by three teams — and **the correct population of two was
+refused whichever claim its members were attributed to**, which is the half I had not reported. The owed count
+is now the greatest any single claim requires rather than the sum, and every claim's maximum binds the whole
+population.
+
+**This decides no co-reference question.** It does not rule that the two claims are about the same teams; it
+stops each claim behaving as though the collection were its own, which is your own ruling that multiple source
+rows do not by themselves entail multiple physical elements.
+
+**Correction: the shape is in five goals, not three.** There are 13 learning goals, not the six I checked —
+A01, D01, TA01, TD01, A02, D02, TA02, TD02, A03, D03, A04, A05, A06 — and the two-claim shape is in A01,
+TA01, A02, TA02 and A05. My earlier report said three because I enumerated A01–A06 and assumed that was the
+set. The regression test asserts all five.
+
+**Per-team addressing by index — replaced.** The entailment address, the member lookup, the gate's class ids
+and the invention check's keyspace all use the handle. The index survives only as positional provenance, and
+a test asserts nothing reads it to decide which member it is looking at.
+
+**GA-ROSTER-SUM — left as a sum check, as you said.** The separate equality obligation is now checked through
+COMPARES, which is section 4 — with one honest limit, also there.
+
+
+4 · WHAT ACTIVATING COMPARES ACTUALLY CHANGED
+
+`comparison.ts` implements the register's own thirteen-key block rather than deciding anything: the form and
+its six operators, the two operand forms, the rule that a comparison takes no line and never entails a value,
+evaluability that is never quietly true, and the limit that an assumed comparison may report but never fail
+authoritatively. Comparisons are evaluated at post-realization — the earliest stage where a per-member
+operand has a subject — and reported as their own kind rather than as a gate clause, because the register
+says a comparison takes no line.
+
+**What became expressible.** A comparison whose operands each resolve to exactly one element is now
+evaluated, in both directions, and that is new: before the handles there was no way for an operand to pick out
+one instantiated member.
+
+**Prose matching is gone.** GF2-14.b carries its equality as a typed comparison, and the roster reads the
+declared relationship. That removes the defect class rather than the symptom — prose is no longer consulted
+at all, so an item reading "unequal between the teams" cannot license an equal division by matching a
+substring. The roster still derives 6 and 6. A regression test asserts the "unequal" item declares no
+comparison.
+
+**What stayed authoring-limited, and the reason is the register's own.** Both operands of that equality name
+P2, a row owned by the teams collection, so each matches **both** members. And `comparison.stillOpen` says:
+
+    "No aggregate function is named (each, some, the sum, the greatest) for a comparison ranging over
+    several matched elements. An engine refuses such a comparison rather than choosing one"
+
+So the equality is **declared and REFUSED** — reported, never counted as holding. Naming the two members
+individually is not open either, because no knowledge item may target a handle, which is your guard. **This
+corrects something I told you**: I said symmetric per-team claims need no identity because a set-level
+comparison expresses them. Under the canonical mechanism that is not available — the set-level form is
+exactly what `stillOpen` refuses. So the mechanism you told me to use requires the identity you authorized.
+The two rulings fit together more tightly than I realised.
+
+**The four stale fitNotes are corrected**, each citing AM-16 and each naming the real residual blocker instead
+of a limitation that no longer exists: for two of them an aggregate that is unnamed, for one a derived rule
+that no register entry names. **Nothing was promoted.** The item that lacks authority stays ASSUMED and
+PREFERRED_DEFAULT, per your limit. And a companion test asserts that genuine missing-ROW limitations were not
+swept up with them — those are real and still say so.
+
+**The one thing this does not yet do** is check the equality obligation you had in mind. A 0v12 realization is
+still refused, but by the check that an entailed value survived into the game — "entailed as 6 but the
+concrete game holds 0" — rather than by the equality itself. Closing `stillOpen` is what would change that,
+and it is a decision rather than an implementation.
+
+
+5 · NEWLY EXPOSED GAPS AND COLLISIONS
+
+No collisions. Three knowledge decisions, none of them patched:
+
+**An authored number sitting in prose.** PCG-08 reads "at least 2 teams (an attacking team and a defending
+team)". The count reader correctly refuses to read a number out of prose, so the engine takes the claim as "at
+least one, no maximum". SD-86 exists for exactly this — moving an explicitly authored number into a typed
+field, never inferring one. It matters here because it is the premise of the repair I just made: with the
+2 unreadable, the joint owed count comes from the other claim alone. **Do you authorize typing it?**
+
+**A substitution I would rather report than keep.** Where a claim's cardinality cannot be read, the engine
+substitutes a minimum of one rather than recording that it is unreadable. That is how an authored "2" becomes
+a silently weaker claim. I have left it exactly as it was, because changing it would change what every
+unreadable claim means.
+
+**The joint condition's three reasons for constraining nothing**, in section 3 — the assumed basis, the
+unpartitionable scope, and the set that is never instantiated.
+
+And one thing of mine to own: the possession row I added carries a pointer from its choice space to the teams
+collection, and **no engine code reads that field.** The prose choice space is read, as I said; the structural
+pointer was inert. Found by tracing my own work.
+
+
+6 · THE REPRODUCIBILITY QUESTION YOU ASKED ME TO ANSWER
+
+You asked whether there is a technical reason an internal deterministic enumeration is insufficient, before
+introducing a content-derived distinction between indiscernible members.
+
+**There is not, and I have not introduced one.** The ordinal is reproducible from the realization input: the
+order members are placed in is the order the input lists them, and that order is part of the input's bytes.
+Same input, same handles.
+
+What is **not** sufficient is the audit trail, and this is a real finding rather than a quibble. The
+realization record stamps itself with the *resolved game's* input digest, so it does not cover realization's
+own order-dependent decisions — two different realizations of one resolved game carry the same stamp. The fix
+for that is to extend the digest to cover the realization input, which is a separate and smaller thing than
+distinguishing the members. I have not done it, because it is outside what you authorized today.
+
+So: the handle is minted from the ordinal and is deliberately **readable** rather than hashed. Hashing would
+have obscured the audit trail to buy opacity that the guards and the permutation test already enforce.
+
+I should also flag the one place the boundary is weaker than I would like. The ordinal is textually present in
+the handle, so opacity is enforced by test rather than by construction. I think that is the right trade given
+what you said about not introducing a content-derived distinction, but it is a convention backed by a check
+rather than an impossibility, and you should know that is what you have.
+
+
+A04 STATUS
+
+Unchanged where it matters and better where it counts. Resolved game yes, realization authorized yes,
+acceptance passed, post-realization validated, render-eligible yes, nothing outstanding. A coach still reads
+"12 players in total · 2 teams of 6 · no goalkeepers". The one fidelity violation is the held trigger
+decision, verbatim as before.
+
+Corpus: 131 lines, 17 open, 37 items restated by an individual ruling, none named-but-missing, none withheld.
+
+Boundaries kept. No new team semantics, no scoring eligibility, no check-out machinery, no touch-trigger
+ruling, no Wide Zone magnitude. Generation frozen.
+
+Ready for the Wide Zone qualifying-interaction question whenever you are. The three things above that need
+your ruling are all small, and none of them blocks it.
+
+Joe

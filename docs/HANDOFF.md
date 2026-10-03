@@ -4839,3 +4839,100 @@ UNAVAILABLE for a team**, independently of the instantiation problem.
 → **Consequence for the ruling: the conservative reading ("no ordinal, so author a distinguishing property
 instead") is an authoring decision PLUS a register addition, not an authoring decision alone.** Check that the
 escape hatch you offer an owner is actually open before offering it.
+
+---
+
+## 3 October — identity AUTHORIZED and implemented, plus the four integrity repairs and COMPARES
+
+He ruled on all six points of the bounded identity check. **288 cases green, tsc clean. A04 unchanged:
+authorized, acceptance passed, render-eligible, single fidelity violation still the held trigger decision.**
+
+### The handle
+`memberHandle(classId, ordinal) => `${classId}#${ordinal}``, minted at instantiation, carried in the
+**existing** field — a member's `elementId`. So `container[handle].leaf` addresses a member exactly as it
+already addressed a derived element; no second mechanism. The entailment address is now a real element path
+rather than a display string (an index was never resolvable). `satisfies` is unchanged — which claim authorized
+a member is a different question from which member it is.
+
+**Readable, not hashed.** He asked not to introduce a content-derived distinction without a technical reason,
+and there is none. Trade-off owned in the email: the ordinal is textually present, so opacity is enforced by
+test rather than by construction.
+
+### Four guards that exist because tracing found attack paths I would not have predicted
+1. **The handle MUST be a string** — `quantitiesInGame` walks the game and treats every finite number as a
+   supported quantity. A numeric handle 777 made an instruction claiming 777 pass. **A numeric identity field
+   silently defeats the invention check for that number.**
+2. **It must be ADDITIVE** — re-minting *derived* element ids produced **17 fidelity violations** as the
+   status↔game provenance join collapsed.
+3. **The discriminator must be UNCONDITIONAL**, even for a claim owing one member — a bare claim id would make
+   a member findable by the derived-record element lookups, so a member's leaf could stand in for a derived
+   element's in the acceptance checks: **a false PASS, not a failure.**
+4. **It must stay OUT of class-id space** — `identityOf` grades a string HELD if it equals a class id, so a
+   handle used verbatim as one would let an authored string target a handle. Keeping the `realized:` prefix
+   preserves the guard; a handle string grades DANGLING instead, which is correct.
+Plus: **no source may sort by, parse, or recover the ordinal from a handle** — checked across every file.
+
+### The falsification case, built so it cannot pass vacuously
+Part 1 permutes the two indiscernible teams and **ASSERTS THE VACUITY** rather than reporting a pass. Part 2
+forces asymmetric per-member values (4 vs 8), exchanges handles and values together, and checks every value
+follows its handle, every verdict is identical, and **the coach text is LITERALLY identical.**
+
+### The four repairs
+- **Invention check (worst one): repaired.** `findIndex` on classId returned the first member of the claim, and
+  the map stored the leaf NAME. Now matched on the handle, value held. **Both halves asserted separately** — a
+  test on the symmetric case cannot see either.
+- **And the fix would have been UNREACHABLE:** choices were applied BEFORE members were instantiated, so a
+  choice naming a member was refused as naming a missing element before any accounting saw it. Reordered.
+- **Joint condition: repaired, and it was worse than reported.** Path now the owning collection (via
+  `index.ownerRow`, register-validated to be a COLLECTION). **Fixing the path alone would have traded a dead
+  check for an OVER-REACHING one**, so `scope` and `basis` are now carried: scope PER_OBJECTIVE_SET cannot be
+  partitioned here → NOT EVALUABLE; basis ASSUMED → may report, never refuse (SD-27). A condition not
+  evaluated now SAYS SO on the record. **Three reasons it constrains nothing, only one an engine defect** —
+  the other two are knowledge facts, reported not repaired. Its set is never instantiated and no object carries
+  an authored bound on either row it names.
+- **Collection/cardinality: repaired.** Owed = **max** of the claims' shortfalls, not the sum; every claim's
+  max binds the whole population. **The half I had missed: the CORRECT population of two was REFUSED** whichever
+  claim its members were attributed to. Decides no co-reference question.
+- **Index addressing: replaced** everywhere individual reference is required; index survives as positional
+  provenance only.
+
+### CORRECTION: five goals, not three — and 13 goals, not six
+There are **13 learning goals** (A01 D01 TA01 TD01 A02 D02 TA02 TD02 A03 D03 A04 A05 A06). The two-claim shape
+is in **A01, TA01, A02, TA02, A05**. My earlier report said three because I enumerated A01–A06 and assumed that
+was the set. **Never infer the goal list from a naming pattern — ask the planning model.**
+
+### COMPARES activated — and `stillOpen` CORRECTED MY OWN CONCLUSION
+`comparison.ts` implements the register's 13-key block verbatim: form, 6 operators, SD-23 operand forms,
+SD-26 (**takes NO LINE**, NARROWS, **never entails a value**), evaluability (**never quietly true**), SD-27
+(assumed may report, never fail authoritatively). Evaluated at post-realization — earliest stage a per-member
+operand has a subject — and reported as its own kind, not a gate clause.
+- **Prose matching GONE.** GF2-14.b carries a typed comparison; the roster reads the declared relationship.
+  Removes the class, not the symptom. Roster still 6 and 6.
+- **`comparison.stillOpen` refuses a comparison ranging over several matched elements** ("an engine refuses
+  such a comparison rather than choosing one"). Both operands of the equality name P2, owned by the teams
+  collection, so each matches BOTH members → **DECLARED and REFUSED.**
+- **This CORRECTS what I told him**: I said symmetric per-team claims need no identity because a set-level
+  comparison expresses them. **The canonical mechanism REFUSES the set-level form.** So the mechanism he told
+  me to use REQUIRES the identity he authorized — the two rulings fit tighter than I saw.
+- **Four stale fitNotes corrected** (GF2-14.b, NEUTRAL-08.a/09.a/10.a), each citing AM-16 and naming the real
+  residual blocker. **Nothing promoted** — NEUTRAL-09.a stays ASSUMED/PREFERRED_DEFAULT. A companion test
+  asserts genuine missing-ROW limitations were NOT swept up.
+- **Still not done:** the equality obligation itself. 0v12 is refused, but by `entailmentsLanded` ("entailed as
+  6 but the game holds 0"), not by the equality. Closing `stillOpen` is his decision.
+
+### Three knowledge decisions returned, none patched
+1. **PCG-08's "at least 2 teams" sits in PROSE**, so the count reader refuses it and the claim reads as "at
+   least 1, no max". SD-86 is the mechanism. **It is the PREMISE of the cardinality repair** — authorize typing?
+2. **`(min ?? 1)` substitutes a minimum of 1 for an UNREADABLE cardinality** rather than recording it as
+   unreadable. Left exactly as it was; changing it changes what every unreadable claim means.
+3. The joint condition's three reasons (assumed basis, unpartitionable scope, uninstantiated set).
+Plus mine to own: **`fillableFrom` on the PS1 row I added is read by NO engine code** — the prose choice space
+is read, the structural pointer was inert.
+
+### Reproducibility question he asked me to answer
+**No technical reason to introduce a content-derived distinction.** The ordinal is reproducible from the
+realization input (member order is the input's array order, which is input bytes). **What IS insufficient is
+the AUDIT trail:** the record stamps itself with the RESOLVED game's input digest, so it does not cover
+realization's own order-dependent decisions — two different realizations of one resolved game carry the same
+stamp. Fix is to extend the digest, which is separate and smaller than distinguishing members. Not done:
+outside today's authorization.
