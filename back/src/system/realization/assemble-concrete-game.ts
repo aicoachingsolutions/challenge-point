@@ -29,10 +29,15 @@
  */
 
 import { ClassifiedLine } from '../derivation/classify'
+import { Comparison, comparisonOf } from '../derivation/comparison'
 import { DerivedLine, resolvedValue } from '../derivation/derive'
 import { GateContext } from '../derivation/gates'
 import { splitPath } from '../derivation/resolved-game'
 import { collectionPath, place, readAt, RealizationRecord, Realized } from './realize'
+
+/** Both sides of the comparison name the given row — i.e. it is a statement about that property. */
+const sameRow = (comparison: Comparison, row: string): boolean =>
+    'row' in comparison.left && 'row' in comparison.right && comparison.left.row === row && comparison.right.row === row
 
 /** A value entailed once the concrete game exists, with the member address it belongs at. */
 export type Entailment = RealizationRecord['entailed'][number]
@@ -108,24 +113,35 @@ const deriveRoster: EntailmentRule = (ctx, realized, into) => {
     if (!teams.length) return
 
     /**
-     * **Equality must be AUTHORED, and it must be REQUIRED.**
+     * **Equality must be DECLARED, authoritative, and REQUIRED.**
      *
-     * Two hardenings, both found by adversarially auditing this derivation:
-     *   - `/equal/i` **matched its own negation.** The corpus contains an AUTHORED P2 item valued
-     *     *"unequal between the teams, e.g. 4 and 6 (4v6)"*, so an item stating asymmetry licensed the
-     *     engine to divide equally. `\bequal` requires a word boundary "unequal" does not provide.
-     *   - **An example is not a requirement.** That item is a `TYPICAL_EXAMPLE` and a preference is a
-     *     `PREFERRED_DEFAULT`; neither may license a universal division. `GF2-14.b`, the item he promoted
-     *     for this purpose, is `REQUIRED_RANGE`.
+     * His instruction of 3 October: *"please don't introduce another mechanism or continue relying on prose
+     * matching for `"equal"`"*. So the equality is now read from a typed `COMPARES` relationship on the item —
+     * the kind AM-16 registered on 20 September and that nothing had used — rather than by matching the word
+     * in the item's prose.
+     *
+     * That retires the sharper of two defects this derivation has already had:
+     *   - `/equal/i` **matched its own negation.** An AUTHORED P2 item reads *"unequal between the teams, e.g.
+     *     4 and 6 (4v6)"*, so an item stating asymmetry licensed an equal division. `\bequal` patched the
+     *     symptom; reading a declared relation removes the class — prose is no longer consulted at all.
+     *   - **An example is not a requirement.** That item is a `TYPICAL_EXAMPLE`; neither it nor a
+     *     `PREFERRED_DEFAULT` may license a universal division. `GF2-14.b`, the item he promoted for this
+     *     purpose, is `REQUIRED_RANGE`.
+     *
+     * **Reading that equality is asserted is not the same as evaluating the comparison.** Per `relation:
+     * NARROWS`, a comparison *"never entails a value"*, so it does not produce the roster: it narrows the
+     * space to equal counts, and the session total then fixes the number. Evaluating the comparison against
+     * the finished game is a separate obligation, and `comparison.stillOpen` currently refuses it — see
+     * `comparison.ts`.
      */
     const equality = ctx.contracts.some(contract =>
-        (contract.items ?? []).some(
-            item =>
-                String(item.row) === 'P2' &&
-                String((item as { basis?: unknown }).basis) !== 'ASSUMED' &&
-                String((item as { valueStatus?: unknown }).valueStatus) === 'REQUIRED_RANGE' &&
-                /\bequal/i.test(String(item.value ?? '')),
-        ),
+        (contract.items ?? []).some(item => {
+            if (String(item.row) !== 'P2') return false
+            if (String((item as { valueStatus?: unknown }).valueStatus) !== 'REQUIRED_RANGE') return false
+            const comparison = comparisonOf(String(contract.contractId), item as unknown as Record<string, unknown>)
+            // An assumed comparison bounds and never entails (SD-27 / §3), so it may not license a division.
+            return !!comparison && comparison.authoritative && comparison.operator === '=' && sameRow(comparison, 'P2')
+        }),
     )
     if (!equality) return
 

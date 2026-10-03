@@ -361,9 +361,38 @@
    "set": {
     "basis": "OWNER_RULING",
     "basisEvidence": "Christian, 2026-10-01: \"Promote GF2-14.b, equal outfield counts, from ASSUMED to owner-authored canonical knowledge.\" With the caution attached to it: \"Please preserve the ability for other selected authoritative knowledge to establish numerical asymmetry where the learning problem requires it. Equal team numbers should not become an engine-level universal assumption.\"",
-    "fitNote": "PROMOTED 1 October. It was ASSUMED, and by §3 an assumed item bounds but never entails — which is why the roster could not derive. It is now owner-authored and entails. IT REMAINS AN ITEM OF GF2, not an engine rule: a game form that authors asymmetry displaces it through the ordinary displacement mechanism (SD-90), so equality is knowledge about THIS game form and never a universal."
+    "comparison": {
+     "left": { "row": "P2", "selector": "*" },
+     "operator": "=",
+     "right": { "row": "P2", "selector": "*" }
+    },
+    "fitNote": "PROMOTED 1 October. It was ASSUMED, and by §3 an assumed item bounds but never entails — which is why the roster could not derive. It is now owner-authored and entails. IT REMAINS AN ITEM OF GF2, not an engine rule: a game form that authors asymmetry displaces it through the ordinary displacement mechanism (SD-90), so equality is knowledge about THIS game form and never a universal. TYPED AS A COMPARISON 3 October (Christian): \"AM-16 already introduced COMPARES for comparison between represented properties, so please don't introduce another mechanism or continue relying on prose matching for 'equal'.\" The equality is now DECLARED structurally rather than detected by matching the word in this item's prose — that was how an AUTHORED item reading 'unequal between the teams' once licensed an equal division. The authored value, basis, status and provenance are unchanged. NOT YET EVALUABLE, and the reason is the register's own: both operands name P2, a row owned by performers.teams[], so each matches BOTH members, and comparison.stillOpen says 'No aggregate function is named (each, some, the sum, the greatest) for a comparison ranging over several matched elements. An engine refuses such a comparison rather than choosing one.' Naming the members individually is not open either, because no knowledge item may target a member's opaque handle. So the equality is readable and refused, which is reported rather than worked around."
    },
-   "why": "the roster could not derive because equality bounded without entailing; promoting it closes that without making equal team numbers an engine-level assumption"
+   "why": "the roster could not derive because equality bounded without entailing; promoting it closes that without making equal team numbers an engine-level assumption. Typed as a comparison on 3 October so the engine reads a declared relationship instead of matching prose, which is where the 'unequal' near-miss came from"
+  },
+  {
+   "item": "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-08.a",
+   "ruling": "C36a",
+   "set": {
+    "fitNote": "STALE CLAIM CORRECTED, 3 October (Christian): \"Please trace the four stale P2 fitNotes and correct the claim that no comparison requirement exists.\" This note read \"the bound is read from other elements and rows, which no requirement kind holds (SCHEMA LOCAL)\". That was true when written and has been obsolete since 20 September: AM-16 registered the requirement kind COMPARES for exactly this shape, and SD-23 gives it an operand form for a quantity derived from other rows. The authored value is unchanged, and so is its AUTHORED basis and REQUIRED_RANGE status. It is NOT typed as a comparison here, because two things the register leaves open would have to be chosen to do so, and neither is mine: the right-hand side 'P2(other team) - P5' is a derived quantity and no named derived rule is registered for it (operandForms requires '{ derived: <named rule>, args }'); and both sides name P2, a row owned by performers.teams[], so each matches every member, which comparison.stillOpen says an engine must refuse rather than resolve by choosing an aggregate. So the honest state is: expressible in FORM, not yet evaluable, for two named and reportable reasons rather than for the absence of a requirement kind. Counting outfield players only remains the original's reading (KNOWLEDGE)."
+   },
+   "why": "the note declared a schema limitation that AM-16 removed on 20 September, so it misreported the reason this item cannot be checked. Correcting it names the two real blockers — an unregistered derived rule and the unnamed aggregate — without typing the item or touching its authority"
+  },
+  {
+   "item": "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-09.a",
+   "ruling": "C36b",
+   "set": {
+    "fitNote": "STALE CLAIM CORRECTED, 3 October (Christian). This note read \"Equality across elements is not a value any requirement kind holds (SCHEMA LOCAL)\". AM-16 registered COMPARES on 20 September and its own examples include 'count(A) = count(B)', so equality across elements IS a relationship the grammar holds — it is simply not a VALUE, which is the part the note had right: comparison.relation says NARROWS and 'It never entails a value and never entails existence'. NOT PROMOTED, on his instruction: \"Where an item is only a TYPICAL_EXAMPLE or otherwise lacks authority, don't promote it merely because COMPARES now exists.\" The basis stays ASSUMED and the status stays PREFERRED_DEFAULT — the only evidence remains text the original itself marks TYPICAL_EXAMPLE (NEUTRAL-11) — so by SD-27 it bounds, never entails, and could not create an authoritative collision even once typed."
+   },
+   "why": "the note gave a schema reason that no longer exists for something that is in fact an authority limitation. Separating the two keeps the real constraint visible and avoids the item being promoted merely because the mechanism arrived"
+  },
+  {
+   "item": "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-10.a",
+   "ruling": "C36c",
+   "set": {
+    "fitNote": "STALE CLAIM CORRECTED, 3 October (Christian). This note read \"A sum across rows has no requirement kind (SCHEMA LOCAL)\". AM-16's second operand form is precisely a sum across rows — SD-23: 'a deterministically derived quantity whose inputs are SUPPORTED represented game properties: { derived: <named rule>, args }'. So the kind exists. What does not exist is a NAMED derived rule for this sum, and comparison.inputsMustBeSupported adds that 'A derived operand whose input the game states but nothing supports is not computable'. Naming such a rule is an authoring act, not an engine one, so it is reported rather than invented. Basis stays ASSUMED and nothing is promoted. The generalisation of '= 12' to E1 and the observation that the explicit rule exists only as engine wording (not a source) are unchanged."
+   },
+   "why": "the note blamed the absence of a requirement kind for what is actually the absence of a named derived rule. The distinction matters because the first is closed and the second is an open authoring decision"
   },
   {
    "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-02.a",

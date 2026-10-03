@@ -409,5 +409,34 @@ test('a choice licenses the member it names, at the value it names — not the f
     )
 })
 
+// ── HIS QUESTION 2: can possession now reference an instantiated team? ─────────────────────────────
+//
+//   > *Once the teams are instantiated and independently referable, `possession.team` may refer to one of
+//   > those handles where possession itself is established.*
+//
+// On A04 possession stays UNESTABLISHED — nothing in its selected knowledge addresses PS1, so there is no
+// holder and none is invented. What the handles change is that the choice space is no longer empty: a value
+// for PS1 now has something to BE. That is what this asserts, and it asserts the separation he drew —
+// existence, then referential identity, then represented relationships — by checking that identity alone
+// establishes nothing about possession.
+test('possession can reference an instantiated team, and identity alone establishes no possession', () => {
+    const { realized } = chain()
+    const teams = teamsOf(realized)
+    const handles = teams.map(t => String(t.elementId))
+    assert.equal(handles.length, 2, 'two referable teams exist')
+
+    // Identity does not establish the relationship: the game holds no possession at all.
+    assert.equal((realized.game as any).possession, undefined, 'identity establishes no possession — the third step is separate')
+
+    // And a reference, once established, resolves to exactly ONE team. This is the capability that did not
+    // exist before: the choice space for PS1 was empty because nothing individuated a team to choose.
+    for (const handle of handles) {
+        const matched = teams.filter(t => t.elementId === handle)
+        assert.equal(matched.length, 1, `the handle ${handle} resolves to exactly one team`)
+        const other = teams.filter(t => t.elementId !== handle)
+        assert.equal(other.length, 1, 'and its complement is single-valued, which is what "the other team" needs')
+    }
+})
+
 console.log(`identity: ${passed} passed`)
 if (process.exitCode) console.log('identity: FAILURES ABOVE')

@@ -19,6 +19,7 @@
 
 import { ClassifiedLine } from '../derivation/classify'
 import { DerivedLine, resolvedValue } from '../derivation/derive'
+import { authoritativeViolations, ComparisonResult, evaluateComparisons } from '../derivation/comparison'
 import { GateContext, GateReport, runGates } from '../derivation/gates'
 import { splitPath } from '../derivation/resolved-game'
 import { ElementClass, ResolutionLine } from '../derivation/types'
@@ -38,6 +39,18 @@ export interface PostRealizationResult {
     outstanding: string[]
     /** Values this stage derived for instantiated members and wrote back into the concrete game. */
     entailed: import('./assemble-concrete-game').Entailment[]
+    /**
+     * **Every `COMPARES` relationship the selected knowledge states, evaluated against the concrete game.**
+     *
+     * Reported as its own kind rather than as a gate clause, because the register says so: SD-26,
+     * *"A comparison takes NO LINE … held in the contribution and reconciliation record, outside the eight
+     * stored areas. It never takes a property's verdict and never changes a line's status."*
+     *
+     * Carried whole — holding, violated, refused and not-evaluable alike — so a comparison that was never
+     * evaluated stays distinguishable from one that passed. An AUTHORITATIVE violation blocks
+     * render-eligibility; an assumed one may not (SD-27).
+     */
+    comparisons: ComparisonResult[]
 }
 
 /**
@@ -217,5 +230,24 @@ export function runPostRealizationGates(ctx: GateContext, resolvedOwed: { checkI
         outstanding.push(`a value entailed at assembly did not survive into the concrete game: ${problem}`)
     }
 
-    return { gateA, owed, validated: outstanding.length === 0, outstanding, entailed: realized.record.entailed }
+    /**
+     * **The stated comparisons, evaluated here because this is the earliest stage where both operands exist.**
+     *
+     * His principle: *"A structural invariant should be evaluated at the earliest stage at which all
+     * information required to evaluate it exists."* A comparison over a per-member property has no subject
+     * until realization instantiates the members and assembly writes their values, so this is that stage.
+     *
+     * An AUTHORITATIVE violation blocks render-eligibility. An assumed one may not create an authoritative
+     * collision (SD-27), and a refused or not-evaluable comparison is reported without being counted as a
+     * pass — `evaluability` requires that it is *"never quietly true"*.
+     */
+    const comparisons = evaluateComparisons(ctx.contracts as any, realized.game as Record<string, unknown>, ctx.index)
+    for (const result of authoritativeViolations(comparisons)) {
+        outstanding.push(
+            `an authored comparison does not hold of the concrete game: ${result.comparison.from.contractId}::` +
+                `${result.comparison.from.itemId} requires "${result.comparison.asAuthored}" and the game has ${result.detail}`,
+        )
+    }
+
+    return { gateA, owed, validated: outstanding.length === 0, outstanding, entailed: realized.record.entailed, comparisons }
 }
