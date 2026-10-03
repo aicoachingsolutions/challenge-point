@@ -4394,3 +4394,33 @@ His ruling on the trigger semantics, preceded by the ecological/incentive **crit
 first (objective · legible · opposition-robust · affordance-preserving · proportionate). Offered as a short
 document stating them as questions an authoring decision must answer, with ball/player/touch worked as the
 first example — **for him to approve**. Asked whether he would rather shape them himself first.
+
+### 2026-10-02 — Ecological/incentive assurance criteria DRAFTED (`docs/INCENTIVE_ASSURANCE_CRITERIA.md`)
+**Draft for his approval; nothing in the engine reads it.** Five questions an authoring decision must answer
+before a new incentive meaning enters canonical knowledge — **objective · legible · opposition-robust ·
+affordance-preserving · proportionate** — each with the question, pass/fail shape, the evidence that answers
+it, and **WHO** can answer it (machine / coaching judgement / owner). *Recording which is which is about half
+the value.*
+
+**Grounded, not invented:** the incentive invariant (*"incentives raise the value, attention and visibility
+of an opportunity — they must not script the behavior"*), *"invite, not force"*, GF11's compactness-emergent
+finding, the scoring-ownership rule, the five influence dimensions. **The gap it fills:** the guardrail today
+lives as library-row prose and as WORDING checks in `incentive-expression.ts` — those stop us *phrasing* an
+incentive as an instruction and say nothing about whether its meaning is sound.
+
+**The worked example (ball / player / touch) is what earns it, and no decision was made:**
+- **PLAYER fails three criteria, two against AUTHORED knowledge** — park a player in each channel and the
+  condition is permanently satisfied, contradicting the row's own audit **"Zones optional"** and the
+  contract's **"Entering must not be compulsory"**. Unavailable, not merely unattractive.
+- **BALL is weak on proportionality, checkably**: the two channels are **50% of A04's realized width** (7.5 m
+  each on 30 m), so mere ball presence is satisfied incidentally and ×2 makes the base value decorative.
+- **TOUCH is strongest on the ecological criteria and weakest on the one the engine cares about.**
+→ **His worry confirmed: the easiest reading to evaluate deterministically is not the one the criteria
+favour.** Optimising for convenience would have chosen ball.
+
+**Criterion 4 already has a waiting case:** the Round 7.4 question on whether an explicit attacker-side
+`Transition Bonus` over-scripts the race, which the framework itself says should not be settled as a one-off.
+
+**Returned to him:** are these the five (a **learning-goal** criterion may be missing — none asks whether the
+reward points at what the session is for) · is a failure a veto or a finding · where the answers are recorded
+(`fitNote`/`basisEvidence` beside the authored value, or a separate ruling record).
