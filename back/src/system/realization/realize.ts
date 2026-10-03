@@ -684,6 +684,25 @@ export function nothingInvented(resolved: ResolvedGame, realized: Realized): str
         entailedValues.set(`${key(entry.collection, entry.memberIndex)}#${entry.leaf}`, entry.value)
     }
 
+    /**
+     * Member properties a recorded realization CHOICE governs — the second legitimate route. A choice carries
+     * its own path, its authority and the bound that was checked, so it supports the value in its own right.
+     */
+    const chosenMemberLeaves = new Map<string, Set<string>>()
+    for (const choice of realized.record.choices) {
+        const parts = splitElementPath(choice.path)
+        if (!parts) continue
+        const collection = parts.container
+        const index = realized.record.instantiations.findIndex(
+            i => collectionPath(i.path) === collection && String(i.classId) === String(parts.elementId),
+        )
+        if (index < 0) continue
+        const member = realized.record.instantiations[index]
+        const k = key(collection, member.memberIndex)
+        if (!chosenMemberLeaves.has(k)) chosenMemberLeaves.set(k, new Set())
+        chosenMemberLeaves.get(k)!.add(parts.leaf)
+    }
+
     const problems: string[] = []
     /** The member a value sits inside, and the leaf path it has reached within that member. */
     type Within = { member: Record<string, unknown>; memberKey: string; leaf: string; label: string } | null
@@ -694,6 +713,25 @@ export function nothingInvented(resolved: ResolvedGame, realized: Realized): str
         // into it reported the contents of derived knowledge as inventions, which is how this check
         // first ran: three violations, every one of them a value the run had derived.
         if (path && accounted.has(path) && !within) return
+
+        /**
+         * **Stop at an accounted MEMBER property too, before descending into it.**
+         *
+         * The mirror of the short-circuit above, and it exists for the same reason: an entailed value may itself
+         * be structured, and its shape is part of that one value rather than several unaccounted ones. Checking
+         * only at the leaves split a structured entailed value into one false invention per field — the exact
+         * mistake the comment above records this check making once before.
+         */
+        if (within && within.leaf) {
+            const k = `${within.memberKey}#${within.leaf}`
+            if (entailedValues.has(k)) {
+                const expected = entailedValues.get(k)
+                if (JSON.stringify(expected) === JSON.stringify(node)) return
+                problems.push(`${within.label}.${within.leaf}: the game holds ${JSON.stringify(node)} but the entailment records ${JSON.stringify(expected)}`)
+                return
+            }
+            if (chosenMemberLeaves.get(within.memberKey)?.has(within.leaf)) return
+        }
         if (Array.isArray(node)) {
             const here = instantiated.has(path)
             node.forEach((entry, i) => {
@@ -724,9 +762,23 @@ export function nothingInvented(resolved: ResolvedGame, realized: Realized): str
         }
         if (node === undefined) return
         if (within) {
-            // Carried by the member the existential claim authorized...
-            if (readAt(within.member, within.leaf) !== undefined) return
-            // ...or entailed — and the entailment must account for THIS value, not merely this leaf.
+            /**
+             * **Authority to instantiate an element does not entail authority to populate its properties.**
+             *
+             * His ruling of 2 October, and it closes the last blanket permission in this check. The existential
+             * support that establishes a team, a region or an objective establishes **that element**. A property
+             * ON that element still needs its own support: an entailment, or a governed realization choice whose
+             * permissible choice space is itself supported.
+             *
+             * Until now a value the instantiation simply asserted was accepted because the member carried it —
+             * which made "the claim authorized this member" do duty for "something authorizes this value". That is
+             * how `performers.teams[].designation` reached the concrete game: an unregistered property, supplied
+             * with the positional reason "first of the two", carrying a token canonical knowledge defines as the
+             * team CURRENTLY IN POSSESSION.
+             *
+             * Two routes remain, and both carry their support in the record rather than in the instantiation:
+             * a recorded ENTAILMENT, or a recorded CHOICE whose bound was checked.
+             */
             const entailedKey = `${within.memberKey}#${within.leaf}`
             if (entailedValues.has(entailedKey)) {
                 const expected = entailedValues.get(entailedKey)
@@ -734,7 +786,13 @@ export function nothingInvented(resolved: ResolvedGame, realized: Realized): str
                 problems.push(`${within.label}.${within.leaf}: the game holds ${JSON.stringify(node)} but the entailment records ${JSON.stringify(expected)}`)
                 return
             }
-            problems.push(`${within.label}.${within.leaf}: ${JSON.stringify(node)} is inside an instantiated member that does not carry it, and no entailment accounts for it`)
+            if (chosenMemberLeaves.get(within.memberKey)?.has(within.leaf)) return
+
+            problems.push(
+                `${within.label}.${within.leaf}: ${JSON.stringify(node)} is a property of an instantiated member with no ` +
+                    `support of its own — the claim establishes the element, not its properties, and nothing entails or ` +
+                    `governs this value`,
+            )
             return
         }
         if (!accounted.has(path)) problems.push(`${path}: ${JSON.stringify(node)} traces to nothing derived, chosen or instantiated`)

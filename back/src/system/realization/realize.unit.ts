@@ -372,13 +372,38 @@ test('an instantiation satisfies the claim and is recorded as instantiated, not 
     const resolved = eligible({
         existential: [{ path: 'performers.teams', classId: 'K-teams', from: { contractId: 'C', itemId: 'I' }, cardinality: { min: 1, max: null }, satisfiedBy: [], shortfall: 1 }],
     })
-    const result = realize(resolved, chooseScoring, [{ classId: 'K-teams', member: { designation: 'ATTACKING_TEAM' }, because: 'the claim needs a member' }]) as Realized
+    const result = realize(resolved, chooseScoring, [{ classId: 'K-teams', member: {}, because: 'the claim needs a member' }]) as Realized
     assert.equal(result.outcome, 'REALIZED')
-    assert.deepEqual((result.game as any).performers.teams, [{ designation: 'ATTACKING_TEAM', satisfies: 'K-teams' }])
+    assert.deepEqual((result.game as any).performers.teams, [{ satisfies: 'K-teams' }])
     assert.equal(result.record.instantiations.length, 1)
-    // The instantiated member is authorized by the claim and recorded, so it is not an invention —
-    // but it is also not derived, and the record is the only place that distinction survives.
+    // The member is authorized by the claim and recorded, so it is not an invention — but it is also not
+    // derived, and the record is the only place that distinction survives.
     assert.deepEqual(checkRealization(resolved, result).nothingInvented, [])
+})
+
+/**
+ * **Authority to instantiate an element does not entail authority to populate its properties.** His ruling of
+ * 2 October, asserted here because this test previously encoded the opposite.
+ *
+ * It used to instantiate `member: { designation: 'ATTACKING_TEAM' }` and assert that nothing was invented, on
+ * the reasoning that the claim authorized the member. That reasoning is what let an unregistered `designation`
+ * carrying a token canonical knowledge defines as "the team currently in possession" into A04's concrete game
+ * with the positional reason "first of the two".
+ */
+test('a property the instantiation simply asserts is an invention, however well-formed the member is', () => {
+    const resolved = eligible({
+        existential: [{ path: 'performers.teams', classId: 'K-teams', from: { contractId: 'C', itemId: 'I' }, cardinality: { min: 1, max: null }, satisfiedBy: [], shortfall: 1 }],
+    })
+    const result = realize(resolved, chooseScoring, [
+        { classId: 'K-teams', member: { designation: 'ATTACKING_TEAM' }, because: 'the claim needs a member' },
+    ]) as Realized
+    assert.equal(result.outcome, 'REALIZED', 'the instantiation itself is still authorized by the claim')
+
+    const problems = checkRealization(resolved, result).nothingInvented
+    assert.equal(problems.length, 1, `the unsupported property must be reported; got ${JSON.stringify(problems)}`)
+    assert.ok(problems[0].includes('designation'), problems[0])
+    assert.ok(problems[0].includes('no support of its own'), problems[0])
+    assert.ok(problems[0].includes('the claim establishes the element, not its properties'), problems[0])
 })
 
 test('a claim already satisfied by an established member authorizes no instantiation', () => {

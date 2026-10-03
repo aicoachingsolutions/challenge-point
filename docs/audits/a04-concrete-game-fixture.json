@@ -282,13 +282,11 @@
   "performers": {
    "teams": [
     {
-     "designation": "ATTACKING_TEAM",
      "satisfies": "c:restated:GF2:GF2-14.a",
      "outfieldCount": 6,
      "goalkeeper": 0
     },
     {
-     "designation": "DEFENDING_TEAM",
      "satisfies": "c:restated:GF2:GF2-14.a",
      "outfieldCount": 6,
      "goalkeeper": 0
@@ -466,19 +464,15 @@
   "instantiations": [
    {
     "classId": "c:restated:GF2:GF2-14.a",
-    "member": {
-     "designation": "ATTACKING_TEAM"
-    },
-    "because": "GF2-14.a asserts at least two teams exist and individuates none. First of the two.",
+    "member": {},
+    "because": "GF2-14.a asserts at least two teams exist and individuates none, so two members are instantiated to meet its cardinality. NO PROPERTY IS SUPPLIED: the previous `designation` values ATTACKING_TEAM / DEFENDING_TEAM were removed on Christian's ruling of 2 October as unsupported and unregistered content -- there is no register row for performers.teams[].designation, the stated reasons were positional (\"first of the two\"), and ATTACKING_TEAM is defined by canonical knowledge as the team CURRENTLY IN POSSESSION, which a static label cannot carry. No replacement is inferred.",
     "path": "performers.teams[]",
     "memberIndex": 0
    },
    {
     "classId": "c:restated:GF2:GF2-14.a",
-    "member": {
-     "designation": "DEFENDING_TEAM"
-    },
-    "because": "second of the two the claim asserts. Two instantiations, because the claim's cardinality is part of the claim.",
+    "member": {},
+    "because": "GF2-14.a asserts at least two teams exist and individuates none, so two members are instantiated to meet its cardinality. NO PROPERTY IS SUPPLIED: the previous `designation` values ATTACKING_TEAM / DEFENDING_TEAM were removed on Christian's ruling of 2 October as unsupported and unregistered content -- there is no register row for performers.teams[].designation, the stated reasons were positional (\"first of the two\"), and ATTACKING_TEAM is defined by canonical knowledge as the team CURRENTLY IN POSSESSION, which a static label cannot carry. No replacement is inferred.",
     "path": "performers.teams[]",
     "memberIndex": 1
    }
@@ -721,17 +715,13 @@
     "path": "performers.teams[]",
     "classId": "c:restated:GF2:GF2-14.a",
     "memberIndex": 0,
-    "member": {
-     "designation": "ATTACKING_TEAM"
-    }
+    "member": {}
    },
    {
     "path": "performers.teams[]",
     "classId": "c:restated:GF2:GF2-14.a",
     "memberIndex": 1,
-    "member": {
-     "designation": "DEFENDING_TEAM"
-    }
+    "member": {}
    }
   ],
   "entailed": [
