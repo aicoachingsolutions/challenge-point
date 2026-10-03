@@ -4461,3 +4461,51 @@ attacking-team secures opposition-robust (a defensive clearance would otherwise 
 excludes it)? · how *"attacking team"* is established · whether a traversal with **no** controlled touch also
 qualifies (the source authors *"starting in OR moving through"*; his formulation reaches only the first) ·
 then **magnitude**, after those. **Nothing authored into canonical knowledge.** A04 and generation frozen.
+
+### 2026-10-02 — POSSESSION ATTRIBUTION IS ALREADY REQUIRED BY AUTHORED KNOWLEDGE
+His bounded representation check, answered: **YES, decisively, in a CONTRACTED object independent of Wide Zone.**
+**Wide Zone did not create the requirement — it exposed that a relationship the corpus already depends on has no
+representation.** All verified against the authored text directly.
+
+**The decisive case — Neutral Player Condition** (contracted). It authors `P6b = ATTACKING_TEAM`, and the
+restatement's own fitNote defines the token: *"ATTACKING_TEAM ('in possession for the episode') is re-evaluated
+each episode; START and POSSESSION_CHANGE begin one (SD-14), so it holds 'currently in possession'."* A second
+item: *"All neutrals become teammates of the team now in possession."* `P6a = STANDING`: *"a standing affiliation
+to ATTACKING_TEAM changes at every POSSESSION_CHANGE."*
+→ **What makes it decisive rather than arguable: the same object FORBIDS the static reading.** P6b excludes
+`DEFENDING_TEAM` (*"forbids the team out of possession"*) and excludes `TEAM_<id>` (*"No neutral is fixed to one
+team"*). **We are not inferring that a fixed designation is inadequate; the knowledge prohibits it.**
+
+**The concept is GENERAL:** seven rows carry "team designation" as their valueType — **P6b, P9, J3, T1a, T1b, T2,
+V14a** — and **T2's own valueType says "team designation EVALUATED AT THE TRIGGER"**. `POSSESSION_CHANGE` is in
+the trigger vocabulary, so *detecting* it needs attribution before anything is awarded. **One general
+relationship, seven rows leaning on it, defined in exactly one place: a fitNote.**
+
+### A DEFECT FOUND IN A04'S OWN ARTIFACT while checking
+`performers.teams[].designation = ATTACKING_TEAM / DEFENDING_TEAM` in the concrete game, and:
+- **there is NO register row for `designation`** (only P2 `outfieldCount` and P3 `goalkeeper` are owned by P1);
+- **no authority** — it came from the choices file with the reasons *"First of the two"* / *"second of the two"*;
+- **it sits against GF2's own `J3 = EACH_TEAM: one shared target attacked by both`** — if both teams attack the
+  same target, statically labelling one "defending" is not a description of this game.
+
+**It survived because an instantiated member's own fields are blanket-authorised by the existential claim** — the
+one permission left in place when `nothingInvented` was tightened, and exactly where this got through. **So the
+only thing in A04 resembling possession attribution is an unregistered, authority-free static label.**
+
+### The structural point worth keeping
+**SD-14 already ties episodes to possession** (*"START and POSSESSION_CHANGE begin an episode"*) and
+`ATTACKING_TEAM` is already *"in possession for the episode"*. So his two options — live possession attribution
+vs scorer-linked episode scope — **are not alternatives but two views of one missing relationship**, and the
+knowledge already states the link. Nothing designed, neither mechanism implemented.
+
+### Also settled (his rulings), recorded in the assurance document
+- **"Controlled" = a touch after which the touching player's team retains possession** — observable, no intent.
+- **Traversal neither required NOR sufficient.** The source's second mode deliberately not adopted, *"on evidence
+  the source itself did not resolve"* — **the first time the criteria ruled AGAINST authored source material**.
+- **Wording correction applied**: Proportionate said *"a deliberate act"*, contradicting Objective where
+  deliberate is excluded; now *"a more discriminating condition than mere ball presence"*.
+
+### Returned to him
+Treat it as one general relationship or two mechanisms · what to do about A04's unregistered `designation` (in
+the frozen fixture, untouched) · whether `nothingInvented` should stop blanket-authorising a member's own fields
+(wide blast radius, so not proposed unilaterally). **Magnitude still open. A04 and generation frozen.**
