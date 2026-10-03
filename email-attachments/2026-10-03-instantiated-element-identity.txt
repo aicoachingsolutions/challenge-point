@@ -1,0 +1,223 @@
+Christian,
+
+You were right to make me check this before proposing anything. It is a general instantiated-element
+reference question, not a team-specific gap — and checking it corrected the case I went in believing.
+Nothing implemented.
+
+
+THE SHORT VERSION
+
+The representation already has a canonical, general identity mechanism that carries no domain meaning:
+`elementId`, the class id, minted from the item that authored an element. It is exactly what your
+principle describes, and it would apply to teams with no new semantics.
+
+It cannot mint more than one handle per authoring item, because the handle IS the item. An existential
+claim of cardinality 2 is one authoring act, so two teams arrive with one name.
+
+
+1 · WHAT ALREADY EXISTS
+
+Three identity mechanisms, one quantifier, and two things that look like identity and are not.
+
+Identity: the class id `c:<contract>:<item>`; the typed structural reference that resolves to it
+(SD-98, already graded HELD / DANGLING / OPEN_TEXT); and the authored selector, which is what tells
+A04's two wide channels apart.
+
+Quantification: `scope: PER_TEAM`. This is the existing way to say something about every team, and it
+needs no identity. Its limit turns out to be the whole question — it gives quantification, not
+co-reference. "Each team" needs no identity. "The other team" does.
+
+Not identity: `satisfies`, which every member of one claim shares; and the index, which is the only
+thing that actually discriminates two teams today.
+
+One structural fact that bounds all of it: no register row anywhere names an id, name, label, key or
+identity leaf. `performers.teams[]` has exactly four rows — the collection, outfieldCount, goalkeeper,
+roles. The register gives a team no identifying property at all, so authored knowledge has nowhere to
+put one. Identity lives entirely outside the register, as engine-minted provenance.
+
+
+2 · IS ANY OF IT GENERAL ENOUGH FOR TEAMS?
+
+Yes in kind, no in cardinality. All three identity mechanisms identify an element by **what authored
+it**. None can identify an element that nothing individuates.
+
+So it is general, and teams are the only collection that currently exercises it — because teams are the
+only collection whose members are created by a claim with cardinality above one rather than authored one
+item at a time. Across A01–A06 the only claim with a shortfall anywhere is the teams claim. A04's
+objective claim has shortfall zero; the regions, transition and value modifier are all authored elements
+with their own ids.
+
+The regions are the near-miss worth naming, because they look like the case and are not. Two channels,
+structurally similar, independently referable — but each has its own authoring item, hence its own id,
+plus a distinguishing authored selector. **The corpus has never yet had to refer to one of N
+indiscernible instances.** Teams are the first.
+
+
+3 · DOES EXISTING KNOWLEDGE REQUIRE IT — and the correction I owe you
+
+**The case I went in believing does not require identity.** GF2's P2 — "equal to the other team's
+outfieldCount" — reaches for "the other team", but the claim is **symmetric**: it asserts the two counts
+are equal. A set-level comparison expresses that exactly, with no identity. And the engine already does
+it — the roster entailment reads the authored equality and divides the session total.
+
+So the one selected consumer is already served without identity, which is why nothing has been blocked
+until now. I had this the wrong way round in my last note, where I implied P2 was the strongest case.
+
+The requirement splits, and the split is the useful finding:
+
+  - symmetric per-team claims — `scope` plus a set-level comparison. No identity.
+  - asymmetric per-team claims, and possession assignment — identity required.
+
+What genuinely requires it:
+
+**GF4 authors an asymmetry.** Its P2 reads "unequal between the teams, e.g. 4 and 6 (4v6)", PER_TEAM,
+AUTHORED. A static structural asymmetry with nothing to do with possession — "4 and 6" cannot be stated
+unless the representation can say which team has 4. Two qualifications: the status is TYPICAL_EXAMPLE, so
+the numbers are an example rather than a bound, though the asymmetry itself is the authored claim either
+way; and GF4 is contracted but not selected by any current goal. The roster entailment refuses on it, so
+a GF4 game today gets no roster rather than a wrong one.
+
+**The Neutral Player Condition quantifies with a complement** — "for each team T: P2(T) > P2(other team)
+− P5". A bound variable and its complement, explicitly, and asymmetric. Contracted, not selected.
+
+**Possession assignment** is the live consumer, and chronologically the third rather than the first.
+
+The pattern underneath: three different authors reached for a complement or an asymmetry, and all three
+were recorded SCHEMA LOCAL. The restatements have been reporting this gap for some time without naming
+it.
+
+
+4 · THE MINIMUM DISTINCTION
+
+One criterion, and it is testable: **can swapping it between two members make the representation false?**
+
+If yes it is a value — a claim that can be true or false, needing a row, a basis, a status and support.
+`designation` was this, and appears zero times in the register: there was no row to hold it and no line
+to carry a verdict.
+
+If no it is an address — it makes no claim and cannot be wrong. It needs only to be unique among its
+siblings and stable. The class id is this.
+
+So a handle must be unique among its collection, stable across stages and across two runs, opaque
+(equality and complement the only operations — no ordering, no arithmetic, no string matching, no
+recovering the instantiation order), unauthored (no row, no line, no verdict, no status, and no item may
+target it), and unrendered.
+
+A name, a colour and an attacking/defending designation each fail the first test: swap them and the
+representation says something different. Each is a value needing support that does not exist.
+
+
+5 · AT WHAT STAGE — tested, not assumed
+
+Your suspicion was right, and testing it sharpened it to **instantiation**, inside realization.
+
+It cannot be earlier: before realization the teams are absent from the game and the claim's shortfall is
+two, so there is nothing to carry a handle. And it is not needed earlier: no line referring to an
+individual team is enumerated before realization. Member lines come from established members, and A04's
+only established members are an "objective-area" string and a typed reference to a channel — neither is
+a team. No P2 line is enumerated in any of A01–A06.
+
+The refinement worth having tested for: **instantiation rather than final assembly**, even though
+assembly is where the first per-team value gets written. The invention check already has to address
+members individually during realization, and uses the index to do it. Mint at assembly and the index
+stays the operative identity for the whole of realization, so the two notions coexist. Mint at
+instantiation and consume at assembly, and there is one.
+
+
+6 · THE FALSIFICATION CASE
+
+Two structurally identical teams — A04 already is this, both members identical.
+
+(a) Referability: there are handles h1 ≠ h2, each resolving to exactly one member, and for each one "the
+other team" resolves to the other member and nothing else. That is the whole of what an asymmetric
+per-team claim needs.
+
+(b) Permutation invariance: build the game twice with the handles exchanged. Modulo renaming the
+handles, every artifact must be identical — resolved game, realization record, post-realization
+verdicts, fidelity verdicts. The rendered coach text must be identical **literally**, not modulo
+renaming, because no handle may reach a coach.
+
+A failure of (a) means the mechanism is not identity. A failure of (b) modulo renaming means the handle
+carries meaning. A failure of (b) literally in the render means the handle leaked to a coach.
+
+**And the case diagnoses today exactly: A04 fails (a) outright and passes (b) vacuously** — because the
+two members are identical objects, so exchanging them is the identity operation. There is nothing to
+permute. That is why no check has caught this: the game is currently perfectly symmetric, and the index
+is harmless precisely because nothing yet distinguishes the members. The first asymmetric per-team value
+breaks the symmetry.
+
+So the test has to be run with a distinguishing value forced in, or it passes without proving anything.
+
+
+WHERE THE SAME PROBLEM IS HIDDEN — blast radius, not repaired
+
+Can produce a wrong answer:
+
+**A01, A02 and A05 carry two separate claims on the teams collection**, and nothing can see that they
+refer to the same teams. A01's are one team (no maximum) and two teams (maximum two). I ran the
+authorization: two teams are refused whichever claim they are attributed to, and **three teams draw no
+team-related objection at all.** The per-claim maximum counts only that claim's own instantiations, and
+the collection-level cardinality check runs before instantiation, so nothing sees the third team. This
+is the same error class as the three Wide Zone channels — multiple source rows not entailing multiple
+physical elements — and the reason the engine cannot apply your ruling here is exactly the missing
+identity. Latent only because A01's Gate A is not evaluable, so it is not realized today.
+
+**Per-team values are addressed by index** at final assembly. Safe today only because the roster
+entailment refuses unless equality is authored — so it writes a per-index number only where the index
+cannot matter. That guard is an equality requirement, not an identity requirement: the safety is
+incidental. GF4 authors unequal teams.
+
+Degrades a check rather than the game:
+
+**DISTINCT_ON degenerates silently.** It keys its tuples by the element's path segment, which is the
+shared `satisfies` for two members of one claim — so the second overwrites the first and the
+pairwise-distinctness check passes having compared nothing. The one authored DISTINCT_ON applies to three
+separately-authored object classes with real ids, so this is latent. It is the sharpest evidence that
+identity is general: the check exists to prove two members are in different places, and it is disabled
+for exactly the population that has no identity.
+
+**The derivation-layer dedupe drops a twin** — two structurally identical members both key to the same
+string, and the first is kept. Latent for teams, same assumption one layer down.
+
+**One reported path collides** for two members of one claim. The accounting underneath uses the index, so
+no value is mis-attributed; what collides is the path printed in a failure message. Cosmetic, but it
+would name one path for two members to whoever reads it.
+
+**And there are three unrelated spellings of member identity** across the layers, none general — the
+signature of a concept that exists and is unowned.
+
+On determinism: member order *is* stable across two runs of one input. Worth saying plainly, because
+"it's fine, it's deterministic" is the wrong consolation — the problem is not that the index changes, it
+is that nothing the game holds explains it.
+
+
+THE ONE RULING THIS NEEDS
+
+The mechanism exists; what is missing is a mint for an element that no item individuates. The smallest
+general addition is to make the existing handle total — derived from the claim that authorized the
+member, plus a discriminator.
+
+**The discriminator is yours, because two of your rulings meet there.** That position is an
+implementation artifact and not authored football meaning; and identity may be required without carrying
+domain meaning. Those are compatible only if minting is separated from interpreting: an ordinal may be an
+*input* to minting an opaque handle, provided nothing afterwards can read it, order by it, or recover it
+— which is what the opacity requirement and the permutation test exist to enforce.
+
+So: is an ordinal permissible as an input to minting an opaque handle, with those two as the guards? If
+yes, the addition is small, general and testable, and it uses the canonical mechanism rather than
+creating a team concept.
+
+Or must the handle's derivation contain no ordinal at all? Then the evidence says identity cannot be
+established from the corpus — the only remaining sources are an authored distinguishing property, which
+does not exist and which you forbade inventing, or an opaque counter, which is an ordinal wearing a hat.
+On that reading **the two teams are genuinely indiscernible and the representation is right to refuse to
+tell them apart**, and GF4's asymmetry and possession assignment are blocked on an authoring decision
+rather than an engine extension.
+
+Both are coherent. The second is more conservative and may well be the right answer; it would make this
+an authoring question rather than a representational one. I have not chosen between them.
+
+Nothing implemented. The touch trigger and the magnitude are untouched, and neither reading affects
+either.
+
+Joe
