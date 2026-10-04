@@ -119,9 +119,14 @@ test('owed is the greatest single claim requirement, never the sum', () => {
     const { resolved } = resolvedFor('A01')
     const claims = (resolved.existential as any[]).filter(e => /teams/.test(e.path))
     const shortfalls = claims.map(c => c.shortfall).sort()
-    assert.deepEqual(shortfalls, [1, 2], `the two claims owe 1 and 2 separately, got ${shortfalls.join(',')}`)
-    // Summing would owe three, which is exactly the wrong answer the old reading produced.
-    assert.deepEqual(authorize('A01', { pcg: 0, gf2: 2 }), [], 'two satisfies max(1,2), not 1+2')
+    // Both claims owe two since PCG-08's authored "at least 2 teams" was typed under SD-86 (C37). Before that
+    // its 2 sat unreadable in prose and the claim owed one, so the joint figure depended on which claim the
+    // parser happened to be able to read — which is why typing it mattered beyond the item itself.
+    assert.deepEqual(shortfalls, [2, 2], `both claims owe two once PCG-08's authored 2 is typed, got ${shortfalls.join(',')}`)
+    assert.equal(claims.find(c => /PCG-08/.test(c.classId))!.cardinality.min, 2, 'PCG-08 contributes its authored minimum')
+    assert.equal(claims.find(c => /PCG-08/.test(c.classId))!.cardinality.max, null, 'and no maximum, because none is authored there')
+    // Summing would owe FOUR, which is the wrong answer the old per-claim reading produced.
+    assert.deepEqual(authorize('A01', { pcg: 0, gf2: 2 }), [], 'two satisfies max(2,2), not 2+2')
 })
 
 // ── A04 is unaffected: one claim, and it still behaves exactly as before ───────────────────────────

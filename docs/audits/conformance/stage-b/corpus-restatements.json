@@ -371,6 +371,18 @@
    "why": "the roster could not derive because equality bounded without entailing; promoting it closes that without making equal team numbers an engine-level assumption. Typed as a comparison on 3 October so the engine reads a declared relationship instead of matching prose, which is where the 'unequal' near-miss came from"
   },
   {
+   "item": "blind:PASS-COMBINATION-GATE::PCG-08",
+   "ruling": "C37",
+   "set": {
+    "typedBound": {
+     "min": 2,
+     "max": null
+    },
+    "fitNote": "The structural shadow of 'not a technique exercise'. The rest of that clause is PCG-17. TYPED 3 October (Christian): \"Please move the explicitly authored 'at least 2 teams' into the appropriate typed cardinality field under SD-86. This is normalization of authored knowledge, not inference. Preserve the meaning exactly: minimum 2, with no additional maximum unless independently authored.\" The number 2 is VERBATIM in the authored value and the parser could not read it: countBounds anchors a bare-digit match and finds no 'min 2' form in 'at least 2 teams (an attacking team and a defending team)', so the claim reached the engine as 'at least one, no maximum' — an authored number silently weakened. Minimum 2, maximum null, exactly as authored; no maximum is introduced, because none is authored here. The prose value is unchanged so the source stays visible beside its typed form. This matters beyond the item: PCG-08 shares performers.teams[] with GF2-14.a, and the shared-collection population is the greatest minimum any claim on it requires — so with the 2 unreadable, this claim contributed nothing to that figure."
+   },
+   "why": "an explicitly authored 'at least 2' was sitting unreadable in prose, so a REQUIRED claim about team count reached the engine as a minimum of one. Typing it changes no authored content and restores the number the author wrote; it also removes the dependence of the shared-collection population on which claim happened to be readable"
+  },
+  {
    "item": "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-08.a",
    "ruling": "C36a",
    "set": {

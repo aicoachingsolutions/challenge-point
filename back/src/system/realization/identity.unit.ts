@@ -438,5 +438,53 @@ test('possession can reference an instantiated team, and identity alone establis
     }
 })
 
+// ── THE AUDIT STAMP COVERS THE REALIZATION INPUT ──────────────────────────────────────────────────
+//
+//   > *Please extend the realization record's digest/audit identity so that it covers the realization input as
+//   > well as the resolved-game input. Two distinct realizations of the same resolved game should not carry an
+//   > audit stamp that makes them appear identical.*
+//
+// Found while answering whether the handle's ordinal is reproducible. It is — from the realization input — and
+// the gap was that the record's only stamp was the RESOLVED game's input digest, which says which knowledge
+// was used and nothing about which decisions were made.
+test('two distinct realizations of one resolved game carry different audit stamps', () => {
+    const a = chain()
+    const b = chain()
+
+    // Same input twice: same stamp. Reproducibility must survive the change.
+    assert.equal(a.realized.record.auditDigest, b.realized.record.auditDigest, 'one input, one stamp')
+    assert.equal(a.realized.record.fromDigest, b.realized.record.fromDigest, 'and the same resolved-game digest')
+
+    // A DIFFERENT realization of the SAME resolved game: the resolved digest is unchanged, and the audit
+    // stamp must move. Reversing the instantiation order is the case that matters, because that order is what
+    // fixes which handle each member receives.
+    const supplied = JSON.parse(fs.readFileSync(CHOICES, 'utf8'))
+    const input = derivationInputFor(selectFor('A04', null))
+    const result: any = runDerivation(input)
+    const staged: any = runStages0to10(input)
+    const index = indexRegister(input.register)
+    const resolved: any = assembleResolvedGame(result, staged.classes, index, input.contracts)
+    const reordered = realize(
+        resolved,
+        [...supplied.choices].reverse(),
+        [...supplied.instantiations].reverse(),
+        index,
+        input.envelope,
+    ) as Realized
+    assert.equal((reordered as any).outcome, 'REALIZED', JSON.stringify((reordered as any).because))
+
+    assert.equal(reordered.record.fromDigest, a.realized.record.fromDigest, 'the same resolved game, so the same knowledge digest')
+    assert.notEqual(
+        reordered.record.realizationDigest,
+        a.realized.record.realizationDigest,
+        'a different realization input must carry a different realization digest',
+    )
+    assert.notEqual(
+        reordered.record.auditDigest,
+        a.realized.record.auditDigest,
+        'and the audit stamp must distinguish them — this is the defect the ruling closes',
+    )
+})
+
 console.log(`identity: ${passed} passed`)
 if (process.exitCode) console.log('identity: FAILURES ABOVE')

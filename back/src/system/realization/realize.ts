@@ -25,6 +25,7 @@
  * was built to prevent.
  */
 
+import { canonical, digest } from '../derivation/engine'
 import { ExistentialClaim, OpenChoice, ResolvedGame } from '../derivation/resolved-game'
 import { RegisterIndex } from '../derivation/register'
 import { Bounds } from '../derivation/types'
@@ -79,7 +80,31 @@ export interface RecordedChoice extends Choice {
 }
 
 export interface RealizationRecord {
+    /** The digest of the input the RESOLVED GAME was derived from. Says which knowledge, not which realization. */
     fromDigest: string
+    /**
+     * **The digest of the realization input** — the choices and instantiations as supplied, in the order
+     * supplied.
+     *
+     * His ruling of 3 October: *"Please extend the realization record's digest/audit identity so that it covers
+     * the realization input as well as the resolved-game input. Two distinct realizations of the same resolved
+     * game should not carry an audit stamp that makes them appear identical."*
+     *
+     * The record used to carry only `fromDigest`, which is the resolved game's own input digest, so it said
+     * nothing about the decisions realization made — two different realizations of one resolved game stamped
+     * identically. That was found while answering whether the handle's ordinal is reproducible: it is, from the
+     * realization input, and the gap was that the stamp did not cover that input.
+     *
+     * **Order is preserved deliberately, not canonicalised away.** The instantiation order determines which
+     * handle each member receives, so sorting the list before hashing would make two genuinely different
+     * realizations hash alike — the exact defect this closes. Choices are order-insensitive in effect but are
+     * hashed as given for the same reason: the stamp describes the input, not a normalisation of it.
+     *
+     * This is provenance only. Nothing reads it to decide anything about the game.
+     */
+    realizationDigest: string
+    /** The single stamp to compare: the resolved-game input and the realization input together. */
+    auditDigest: string
     /**
      * Authored spatial relations instantiated against the envelope. The phrase remains the value in the
      * concrete game; this is what it entails in metres, recorded beside it with its own reason. Where a
@@ -330,6 +355,14 @@ export function realize(
     envelope?: { lengthM?: number; widthM?: number },
 ): RealizationResult {
     const because: string[] = []
+
+    /**
+     * The realization input's own digest, taken from the arguments as given and BEFORE anything is applied,
+     * so it describes what was supplied rather than what the realizer made of it. Order is preserved: the
+     * instantiation order fixes which handle each member gets, so normalising it away would stamp two
+     * genuinely different realizations alike.
+     */
+    const realizationDigest = digest(canonical({ choices, instantiations }))
 
     if (!resolved.coherence.mayRealize) {
         because.push(`the resolved game may not be realized: Gate A is ${resolved.coherence.gateA}${resolved.coherence.failingChecks.length ? ` (${resolved.coherence.failingChecks.join(', ')})` : ''}`)
@@ -682,6 +715,8 @@ export function realize(
         game,
         record: {
             fromDigest: resolved.provenance.inputDigest,
+            realizationDigest,
+            auditDigest: digest([resolved.provenance.inputDigest, realizationDigest]),
             geometry,
             choices: recorded,
             instantiations: recordedInstantiations,

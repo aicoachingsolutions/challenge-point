@@ -298,6 +298,8 @@
  },
  "record": {
   "fromDigest": "a9d16e5c",
+  "realizationDigest": "3e7e60fa",
+  "auditDigest": "b7f665da",
   "geometry": [
    {
     "lineId": "c:restated:GF2:GF2-03.a::S5",

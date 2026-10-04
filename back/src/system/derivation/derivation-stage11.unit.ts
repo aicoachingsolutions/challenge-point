@@ -302,12 +302,13 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
     assert.deepEqual(restatementTally.withheld, [], 'none was named but disqualified')
     assert.equal(
         restatementTally.itemsRestated,
-        37,
+        38,
         'six Phase A rulings, six sets (SD-79), two exclusion bounds (SD-86), eight goal-kick selectors (SD-87), one restart ownership (SD-89), ' +
             'one typed reference (SD-98), one Wide Zone gloss (C29a), one DISTINCT_ON mark (C29b/C29e), two typed neutral bounds (C29c), ' +
             'one typed channel width (C30b), one equal-outfield promotion (C31b), three Wide Zone lateral restatements (C33), ' +
-            'and three stale comparison claims corrected (C36a/b/c) — the fitNotes that still said no requirement kind compares two ' +
-            'elements, which AM-16 made obsolete on 20 September. C31b carries the fourth, on the item it also types as a COMPARES',
+            'three stale comparison claims corrected (C36a/b/c) — the fitNotes that still said no requirement kind compares two ' +
+            'elements, which AM-16 made obsolete on 20 September; C31b carries the fourth, on the item it also types as a COMPARES — ' +
+            "and one typed team cardinality (C37), moving PCG-08's authored \"at least 2 teams\" out of prose under SD-86",
     )
     assert.equal(restatementTally.itemsRemoved, 2, 'WIDEZONE-13.a and 13.b')
     assert.equal(
