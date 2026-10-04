@@ -446,12 +446,34 @@ export function realize(
     for (const [path, claims] of claimsByCollection) {
         const classIds = new Set(claims.map(c => c.classId))
         const made = recordedInstantiations.filter(i => classIds.has(i.classId)).length
+
+        /**
+         * **A claim whose cardinality could not be read refuses the realization — fail rather than infer.**
+         *
+         * His ruling of 3 October. The engine used to substitute a minimum of one for an unreadable count, so
+         * such a claim looked satisfied by whatever happened to exist. It cannot be: nobody knows how many the
+         * author asked for. `UNBOUNDED_COUNT_FILL` is the refusal kind the closed list already reserves for
+         * filling a count that is not bounded, and it had never been raised.
+         */
+        const unreadable = claims.filter(c => c.cardinalityUnreadable)
+        if (unreadable.length) {
+            for (const claim of unreadable) {
+                because.push(
+                    `UNBOUNDED_COUNT_FILL — ${claim.classId}: ${path} asserts a count whose value states no readable ` +
+                        `number ("${claim.from.contractId}::${claim.from.itemId}"), so how many members it owes is unknown. ` +
+                        `The engine will not fill an unreadable count with a minimum of one; the authored number must be ` +
+                        `typed under SD-86 before this claim can be satisfied`,
+                )
+            }
+            continue
+        }
         // `satisfiedBy` is computed from the ROW, so claims on one collection hold the same established
         // classes. The union is taken so grouping can never double-count them.
         const established = new Set(claims.flatMap(c => c.satisfiedBy))
         const population = established.size + made
-        // The greatest shortfall any one claim has, not the sum — one population serves them all.
-        const owed = Math.max(...claims.map(c => c.shortfall))
+        // The greatest shortfall any one claim has, not the sum — one population serves them all. Every claim
+        // here has a readable cardinality, because an unreadable one refused above.
+        const owed = Math.max(...claims.map(c => c.shortfall ?? 0))
         const describe = claims.map(c => c.classId).join(', ')
 
         // **A collection already met by established members authorizes nothing.** Instantiating anyway

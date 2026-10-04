@@ -88,8 +88,31 @@ export interface ExistentialClaim {
      * it. A claim carrying a real selector would need subsumption, and there is none in this corpus.
      */
     satisfiedBy: string[]
-    /** How many members realization must instantiate. Zero where the claim is already satisfied. */
-    shortfall: number
+    /**
+     * **The claim asserts a count its value does not state readably.** His ruling of 3 October:
+     *
+     *   > *If knowledge establishes that a cardinality claim exists but its value cannot be read/established,
+     *   > the engine should not silently weaken it to a minimum of one. The governing principle remains: Fail
+     *   > rather than infer.*
+     *
+     * `shortfall` used to be `Math.max(0, (min ?? 1) - established.length)`, and that `?? 1` was the inference:
+     * a `COUNT` or `RANGE` requirement whose number the parser could not read became *"at least one"*, which is
+     * a weaker claim than any author wrote. The corpus attests the damage — `PCG-08` authored *"at least 2
+     * teams"* and reached the engine as a minimum of one, which is why it needed typing under SD-86.
+     *
+     * **A null minimum is not by itself unreadable**, and the two are distinguishable. A class is only formed
+     * for a requirement in `EXISTS | COUNT | RANGE`; `EXISTS` is given `{min: 1}` outright; so `min === null`
+     * with a `max` is an authored **ceiling with no floor**, which is a complete claim. Only
+     * `min === null && max === null` is a count requirement whose value stated nothing readable, and that is
+     * what this marks. Where it is set, `shortfall` is `null` — unknown rather than zero — because a claim
+     * whose minimum nobody can read cannot be known to be satisfied by the members that happen to exist.
+     */
+    cardinalityUnreadable: boolean
+    /**
+     * How many members realization must instantiate. Zero where the claim is already satisfied, and **null
+     * where the claim's minimum could not be read** — see `cardinalityUnreadable`.
+     */
+    shortfall: number | null
 }
 
 /**
@@ -555,15 +578,26 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
             // the claim ranges over, so it satisfies a claim that individuates nothing.
             const established = classes.filter(c => c.row === cls.row && (!c.constraints.any || !!c.singletonBy)).map(c => c.classId).sort()
             const min = cls.cardinality?.min ?? null
+            const max = cls.cardinality?.max ?? null
+            /**
+             * **A count requirement whose value states no readable number — fail rather than infer.**
+             *
+             * `min === null` alone does not mean unreadable: an authored ceiling with no floor is a complete
+             * claim, and an `EXISTS` requirement is given a floor of one outright. Only a `COUNT`/`RANGE` item
+             * that yielded neither bound said nothing this layer can act on.
+             */
+            const cardinalityUnreadable = min === null && max === null
             return {
                 path: rows.get(cls.row)?.path ?? cls.row,
                 classId: cls.classId,
                 from: cls.fromItem,
-                cardinality: { min, max: cls.cardinality?.max ?? null },
+                cardinality: { min, max },
                 satisfiedBy: established,
-                // A claim with no stated minimum is met by any one member. Where there is a minimum,
-                // only the difference is owed — never the whole claim again.
-                shortfall: Math.max(0, (min ?? 1) - established.length),
+                cardinalityUnreadable,
+                // Where there is a minimum, only the difference is owed — never the whole claim again. Where
+                // the minimum could not be read, the owed count is UNKNOWN: substituting one here is what
+                // turned an authored "at least 2" into "at least 1" and is the inference his ruling removes.
+                shortfall: cardinalityUnreadable ? null : Math.max(0, (min ?? 1) - established.length),
             }
         })
         .sort((a, b) => a.classId.localeCompare(b.classId))

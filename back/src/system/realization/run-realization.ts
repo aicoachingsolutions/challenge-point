@@ -69,7 +69,7 @@ for (const choice of resolved.open) {
     else console.log(`              no bound is carried — a realizer has nothing to check a value against`)
 }
 for (const claim of resolved.existential) {
-    const card = claim.cardinality.min === null && claim.cardinality.max === null ? 'at least one' : `min ${claim.cardinality.min ?? '-'}, max ${claim.cardinality.max ?? '-'}`
+    const card = claim.cardinalityUnreadable ? 'UNREADABLE COUNT (no number the parser can read; not an inferred minimum of one)' : `min ${claim.cardinality.min ?? '-'}, max ${claim.cardinality.max ?? '-'}`
     console.log(`  INSTANTIATE ${claim.path}  (${card})  claim ${claim.classId} from ${claim.from.contractId}::${claim.from.itemId}`)
 }
 

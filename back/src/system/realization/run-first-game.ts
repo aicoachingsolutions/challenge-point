@@ -71,7 +71,7 @@ for (const choice of resolved.open) {
     if (choice.permittedBy) console.log(`               authority ${choice.permittedBy.authority}`)
 }
 for (const claim of resolved.existential) {
-    const card = claim.cardinality.min === null && claim.cardinality.max === null ? 'at least one' : `min ${claim.cardinality.min ?? '-'}, max ${claim.cardinality.max ?? '-'}`
+    const card = claim.cardinalityUnreadable ? 'UNREADABLE COUNT (no number the parser can read; not an inferred minimum of one)' : `min ${claim.cardinality.min ?? '-'}, max ${claim.cardinality.max ?? '-'}`
     const verb = claim.shortfall === 0 ? 'SATISFIED  ' : 'INSTANTIATE'
     console.log(`  ${verb}  ${claim.path}  (${card})  from ${claim.from.contractId}::${claim.from.itemId}`)
     if (claim.satisfiedBy.length) console.log(`               already established: ${claim.satisfiedBy.join(', ')}`)
