@@ -1020,6 +1020,19 @@ function registeredTrigger(name: string, vocabulary: string[]): boolean {
     return !!parameterised && vocabulary.includes(parameterised[1])
 }
 
+/**
+ * The line a trigger's registered semantics say its evaluability depends on, or null where it names none.
+ *
+ * Keyed on the bare trigger name, so a parameterised form like `REGION_ENTRY {a wide channel}` consults the
+ * same entry as the token itself — the parameter narrows which instance, not what the kind means.
+ */
+function triggerDependency(ctx: GateContext, name: string): string | null {
+    const bare = name.match(/^([A-Z_]+)\s*\{[^{}]*\}$/)?.[1] ?? name
+    const entry = ctx.index.triggerSemantics?.[bare]
+    const row = entry && typeof entry === 'object' ? entry.evaluabilityDependsOn : undefined
+    return row ? `game::${String(row)}` : null
+}
+
 /** `GA-INFORMATION` — information rules name held subjects and registered triggers. */
 function gaInformation(ctx: GateContext): CheckOutcome {
     const SUBJECT = 'every information rule names a held subject'
@@ -1058,7 +1071,29 @@ function gaInformation(ctx: GateContext): CheckOutcome {
                   : []
         for (const member of permitted) {
             const name = typeof member === 'object' && member ? String((member as any).trigger) : String(member)
-            if (!registeredTrigger(name, vocabulary)) badTriggers.push(`${rule.classId}:${name}`)
+            if (!registeredTrigger(name, vocabulary)) {
+                badTriggers.push(`${rule.classId}:${name}`)
+                continue
+            }
+            /**
+             * **A registered trigger's own semantics are consulted, not just its membership of the list.**
+             *
+             * His ruling of 4 October, as a bounded integrity correction: *"It makes an already-authored
+             * semantic dependency enforceable rather than leaving it in prose."*
+             *
+             * `FIRST_FORWARD_PASS` states its own precondition — *"Forward is relative to the passing team
+             * attacking direction, which the representation establishes (SD-95); where that direction is FREE
+             * the trigger is NOT EVALUABLE and its line is CONDITIONAL, never failed"* — and nothing enforced
+             * it. This check tested list membership alone, so the trigger passed on membership regardless of
+             * whether the direction it is defined against existed at all.
+             *
+             * Only the machine-readable `evaluabilityDependsOn` is acted on; the prose stays prose, because
+             * reading a precondition out of prose is what SD-32 forbids. And the consequence is the one the
+             * note already asked for: the clause is **blocked**, so the check reports NOT_EVALUABLE rather
+             * than failing — a trigger whose definition cannot be evaluated is not a violation.
+             */
+            const dependsOn = triggerDependency(ctx, name)
+            if (dependsOn && probe.cell(dependsOn).state !== 'DERIVED') probe.unestablished(dependsOn)
         }
     }
 

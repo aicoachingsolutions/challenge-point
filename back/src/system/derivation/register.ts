@@ -72,6 +72,20 @@ export interface RegisterIndex {
     relativeTerms: Record<string, unknown>
     /** S3 noun semantics: how many dimensions a noun gives extent in. Never which axis. */
     nounSemantics: Record<string, unknown>
+    /**
+     * Per-trigger semantics, indexed so a check can consult the entry for the trigger in front of it.
+     *
+     * His ruling of 4 October authorized this as a bounded integrity correction: a registered trigger's
+     * semantics must be **consulted** where its evaluability depends on them, rather than left in prose that
+     * nothing reads. `FIRST_FORWARD_PASS` states its own precondition — *"where that direction is FREE the
+     * trigger is NOT EVALUABLE and its line is CONDITIONAL, never failed"* — and nothing enforced it: the
+     * admitting check tested list membership alone, so the trigger passed on membership regardless.
+     *
+     * Only the machine-readable part is acted on. `evaluabilityDependsOn` names the row whose establishment
+     * the trigger's evaluability requires; the prose stays prose, because reading a precondition out of prose
+     * is what SD-32 forbids. Indexed exactly as `nounSemantics` is, rather than by a second mechanism.
+     */
+    triggerSemantics: Record<string, { evaluabilityDependsOn?: string; [key: string]: unknown } | string>
     /** Rows counting a specialized performer role -> the role name, which the register carries and the engine does not. */
     specializedRoleRows: Map<string, string>
     /** Row id → the condition under which the row applies at all. */
@@ -193,6 +207,7 @@ export function indexRegister(register: any): RegisterIndex {
         outerBound,
         relativeTerms: register.relativeTerms || {},
         nounSemantics: (register.vocabularies && register.vocabularies.nounSemantics) || {},
+        triggerSemantics: (register.vocabularies && register.vocabularies.triggerSemantics) || {},
         specializedRoleRows: new Map(
             (register.rows || [])
                 .filter((row) => row && row.specializedRole)

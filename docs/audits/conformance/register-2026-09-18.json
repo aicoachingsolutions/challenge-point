@@ -1232,7 +1232,11 @@
    "PERSISTENT"
   ],
   "triggerSemantics": {
-   "FIRST_FORWARD_PASS": "An EVENT IN PLAY, like POSSESSION_CHANGE, never a restart like START. Forward is relative to the passing team attacking direction, which the representation establishes (SD-95); where that direction is FREE the trigger is NOT EVALUABLE and its line is CONDITIONAL, never failed. First is per episode, using the episode boundary transitions already carry (startsEpisode). It implies NOTHING about pass success, receiver, distance or intent, and must not be read as doing so. Added 2026-09-29 on Christian ruling; bounded addition only, no qualifier capability is implied."
+   "FIRST_FORWARD_PASS": {
+    "note": "An EVENT IN PLAY, like POSSESSION_CHANGE, never a restart like START. Forward is relative to the passing team attacking direction, which the representation establishes (SD-95); where that direction is FREE the trigger is NOT EVALUABLE and its line is CONDITIONAL, never failed. First is per episode, using the episode boundary transitions already carry (startsEpisode). It implies NOTHING about pass success, receiver, distance or intent, and must not be read as doing so. Added 2026-09-29 on Christian ruling; bounded addition only, no qualifier capability is implied.",
+    "evaluabilityDependsOn": "DV1",
+    "typedOn": "Christian, 2026-10-04: \"Please implement the machine-readable evaluability dependency you proposed for trigger semantics and have the admitting check consult it. I do not consider that an architectural expansion. It makes an already-authored semantic dependency enforceable rather than leaving it in prose.\" The prose above is unchanged and remains the authored reading; evaluabilityDependsOn names the row it already cites. DV1 is `direction`, which holds the attacking direction per team - the thing the note says \"forward\" is relative to and that the representation establishes (SD-95). Where DV1 is not established, a trigger naming this kind is NOT EVALUABLE rather than admitted on vocabulary membership, which is what the note asked for and nothing enforced."
+   }
   },
   "nounSemantics": {
    "note": "Added 1 October on Christian’s ruling. A noun states the element’s DIMENSIONALITY and nothing about orientation: \"zero extent in its thickness dimension and extent in its length dimension\", with which axis is which following from the element’s own orientation. Deliberately general - the same noun must describe a line across the playing area and one along it, so no entry here may name an axis.",
