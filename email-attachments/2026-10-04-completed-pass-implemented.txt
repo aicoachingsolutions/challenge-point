@@ -1,0 +1,98 @@
+Christian,
+
+`COMPLETED_PASS` is registered, bounded to the meaning your 29 September ruling requires and nothing further.
+**312 cases green, exit code 0. A04 authorized, acceptance passed, render-eligible.**
+
+The short version: it changed nothing, which is what a correct minimum addition should do. The one thing it
+does change is proved by forcing the negative. And there is one direct consequence you should decide on.
+
+
+WHAT WAS ADDED
+
+One vocabulary member and one semantics entry. The trigger vocabulary version is bumped to 3, so a stored
+result can be known stale.
+
+The semantics entry carries your ruling verbatim as its evidence, and states that **completion is constitutive
+and is the whole of it** — a pass that connects, reaching a player of the passing team. What "qualifying" means
+is not my reading: it is fixed by the authored count item, *"counts ATTACKING_TEAM's connected passes"*.
+
+It then denies, by name, every implication you excluded: region, direction, receiver identity, distance,
+intent, possession, possession change, scoring eligibility, transition, episode boundary. It carries forward
+the *"no qualifier capability is implied"* fence from the September addition. And it records that the
+representation names a **kind** of occurrence and does not record occurrences — so it is not an event history
+by construction rather than by promise.
+
+**It is not ordered against `FIRST_FORWARD_PASS` in either direction**, and I was able to make that a fact
+rather than a policy. That entry's own text says it *"implies NOTHING about pass success"*, so a forward pass
+need not connect: an intercepted forward pass is a `FIRST_FORWARD_PASS` and is not a `COMPLETED_PASS`, and a
+completed square pass is the reverse. The vocabulary is not a hierarchy, and the entry says so and says why.
+
+It registers **no** evaluability dependency, because completion is measured against nothing the game holds —
+whether a pass reached a teammate is an in-play judgement. So this morning's integrity correction imposes
+nothing on it, and exactly one trigger still declares a dependency.
+
+
+WHAT IT CHANGED — nothing, measured across all thirteen goals
+
+Failed-line counts and Gate A verdicts are unchanged in every one of the thirteen goals, and all thirteen are
+now pinned by a test so a later change cannot move them unnoticed. A04 is untouched: still 7 failed lines,
+still deferred to realization pre-realization, still authorized and render-eligible, and a coach still reads
+"12 players in total · 2 teams of 6".
+
+**The one thing it does change, proved by forcing the negative.** I authored the token onto the information
+rule's trigger row and ran it twice — with the vocabulary member and with it removed. With the member the item
+is admitted; without it the same item fails the information gate as an unregistered trigger. So the addition is
+exactly and only what such an item needs, and nothing more.
+
+
+THE DIRECT CONSEQUENCE YOU SHOULD DECIDE ON
+
+**The trigger row your 29 September ruling needs is still unauthored.** In all five goals that select the Pass
+Combination Gate, that line is still `NOT_AUTHORED`, reason "not constrained". The vocabulary member alone
+closes nothing.
+
+I did not author it, and I want to be explicit about why rather than leave it looking like an oversight. You
+wrote *"proceed with only the independently supported `COMPLETED_PASS` trigger and its semantics entry"*. An
+item on the Pass Combination Gate is an **authoring** act on that contract, not a representational one, and you
+have been drawing exactly that line all week — most recently on Wide Zone. So I stopped at the representational
+half.
+
+If you want the line closed, what it takes is one item: that contract's trigger row, valued `COMPLETED_PASS`,
+basis OWNER_RULING, strictness REQUIRED, status REQUIRED_RANGE, with your 29 September words as its evidence.
+The measurement I already have says it would close that failed line and add none: eight failed lines become
+seven on the goal I tested, no other gate verdict moves. The competing item on that row is ASSUMED and
+PREFERRED_DEFAULT, so it bounds and never entails and would not contest it.
+
+
+ONE LIMIT, RECORDED AND NOT REPAIRED
+
+**The token is not structurally reachable.** The set of triggers the engine treats as able to occur is built by
+a hardcoded function that never reads the trigger vocabulary — it derives its members from the envelope, the
+region classes, the team and ball classes and so on. So a new token is never in it.
+
+This matters for one reason and I would rather you heard it from me: the consequence gate enforces reachability
+on its trigger row, and the information gate does **not**. So an item authoring `COMPLETED_PASS` on the
+information rule would be admitted on registration alone and never asked whether the occurrence can arise.
+
+I am not proposing to change that. It is pre-existing — `FIRST_FORWARD_PASS` has been in the vocabulary since 29
+September and has never been reachable either — so it is a property of the architecture rather than anything
+this addition introduced, and touching it would be the broader trigger work you have held. It is pinned by a
+test so it stays visible.
+
+
+EVERYTHING ELSE UNCHANGED
+
+The trigger-semantics integrity correction stands as implemented. No Wide Zone representational changes. The
+settled wording is preserved as *"a touch within the channel after which the touching player's team retains
+possession"*, with your later "attributable to the team in possession" recorded as a distinct and looser form
+that should not replace it by accident.
+
+Magnitude held. No player representation, no event history, no scoring eligibility, no broader trigger cleanup.
+A04 and generation frozen while you make the Wide Zone authoring decision.
+
+The standing-decision selector defect from this afternoon's addendum is still open and still unrepaired — it is
+the only thing I would call trust-critical, because it is the route by which any trigger carried by a transition
+silently acquires a play state and an episode boundary. It does not touch `COMPLETED_PASS`, which no item
+authors onto a transition.
+
+Joe

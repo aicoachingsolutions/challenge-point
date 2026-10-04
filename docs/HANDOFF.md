@@ -5275,3 +5275,61 @@ small — read the selector where the row is read and decline to apply on a mism
 machine-readable selector grammar rather than a new mechanism. **The decision that is his: the line then becomes
 a GAP rather than a different value**, so A01-02's goal kick would hold an unestablished `startsEpisode` instead
 of an unsourced `true` — the honest state, but a verdict change in a real goal.
+
+---
+
+## 4 October (close) — COMPLETED_PASS registered, bounded. Qualifying-interaction investigation CLOSED by him.
+
+**312 cases green, EXIT CODE 0 (verified properly, not via `| tail`). A04 authorized, acceptance passed,
+render-eligible, coach still reads "12 players in total · 2 teams of 6".**
+
+He accepted every falsification finding and did NOT force the three-part proposal forward. He also accepted my
+wording correction and is **reconsidering the Wide Zone qualifying condition himself**, against the Incentive
+Assurance criteria, with the added constraint that it be deterministically representable without event history.
+**Magnitude held; Wide Zone is now an AUTHORING question with him.**
+
+### What was added — the representational half only
+- `COMPLETED_PASS` added to `vocabularies.trigger`; **version bumped to 3** (so a stored result can be known stale).
+- `vocabularies.triggerSemantics.COMPLETED_PASS`: **completion is constitutive and is the whole of it** — a pass
+  that connects, reaching a player of the passing team. What "qualifying" means is NOT my reading: it is fixed by
+  `PCG-05`'s *"counts ATTACKING_TEAM's connected passes"*.
+- Denies by name every implication he excluded (region, direction, receiver identity, distance, intent,
+  possession, possession change, scoring eligibility, transition, episode boundary); carries the *"no qualifier
+  capability is implied"* fence; and records that the representation **names a kind of occurrence and does not
+  record occurrences** — not an event history by construction rather than by promise.
+- **NOT ordered against FIRST_FORWARD_PASS in either direction, and that is a FACT not a policy:** its own entry
+  says it *"implies NOTHING about pass success"*, so an intercepted forward pass is a FIRST_FORWARD_PASS and is
+  not a COMPLETED_PASS; a completed square pass is the reverse. The vocabulary is not a hierarchy.
+- **No `evaluabilityDependsOn`** — completion is measured against nothing the game holds, so this morning's
+  integrity correction imposes nothing on it. Exactly one trigger still declares a dependency.
+
+### Containment — measured, and it is what the tests mainly assert
+**Registering the member changed NO verdict anywhere.** Failed-line counts and Gate A verdicts are now **pinned
+for all thirteen goals** (A01 8/NOT_EVALUABLE … A04 7/DEFERRED_TO_REALIZATION … TD02 11/FAIL …) so a later change
+cannot move them unnoticed. A04 untouched.
+**THE FORCED NEGATIVE:** authored the token onto V17 and ran twice — with the vocabulary member the item is
+ADMITTED; with the member removed the same item FAILS GA-INFORMATION as an unregistered trigger. So the addition
+is exactly and only what such an item needs.
+
+### THE DIRECT CONSEQUENCE RETURNED TO HIM
+**V17 is still `NOT_AUTHORED` / "not constrained" in all five goals that select PCG.** The member alone closes
+nothing. **I did NOT author the item**, because he wrote *"only the … trigger and its semantics entry"* and an
+item on PCG is an **authoring** act on that contract — the same line he drew on Wide Zone. Told him exactly what
+it would take (one V17 item, OWNER_RULING, REQUIRED, REQUIRED_RANGE, his 29 Sept words as evidence) and that the
+measurement says it closes that line and adds none (8 → 7 failed on A05, no other gate verdict moves); the
+competing PCG-12 is ASSUMED/PREFERRED_DEFAULT so it bounds and would not contest it.
+
+### Limit recorded, not repaired
+**The token is not structurally reachable** — `constructTriggers` builds the reachable set from a hardcoded
+function that never reads `vocabularies.trigger` (A05's set is OUT_END_LINE, OUT_TOUCHLINE, 3× REGION_ENTRY{…},
+SCORE, STANDING, START). **GA-EFFECT-TYPED enforces reachability on V12; GA-INFORMATION does NOT on V17**, so an
+item authoring the token would be admitted on registration alone and never asked whether the occurrence can
+arise. **Pre-existing** — FIRST_FORWARD_PASS has never been reachable either — so a property of the architecture,
+not something this introduced. Pinned by a test so it stays visible. Touching it would be the broader trigger
+work he has held.
+
+### Still open and still the only thing I would call trust-critical
+**The standing-decision selector defect** from the afternoon addendum: `applies()` matches by row only, so SD-14
+reaches `A01-02-01.a::T7` (trigger OUT_END_LINE) and SD-20 would supply a play state to any transition. It does
+NOT touch COMPLETED_PASS, which no item authors onto a transition — but it is the route by which any
+transition-carried trigger silently acquires a play state and an episode boundary.
