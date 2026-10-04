@@ -1,0 +1,175 @@
+Christian,
+
+The trigger-semantics correction is implemented at the scope you set — 303 cases green, A04 unchanged.
+
+The three-part shape **did not survive as a package.** One part turns out to already exist, one is supported at
+exactly one token on one row, and one is not supported at all. The net is much smaller than what you ruled on,
+and it does not unblock Wide Zone — which I would rather say plainly than hand back an agreement that reads
+like progress.
+
+Your seven return criteria are answered at the end.
+
+
+1 · QUALIFIERS OUTSIDE TRANSITIONS — settled, and in your favour
+
+**Qualifier semantics are trigger-owned, not transition-owned, and qualification outside transitions already
+exists in running code.** This is the question you most wanted answered and it is settled by precedent rather
+than by argument.
+
+The register separates the two itself. The transitions collection declares its selector attributes as
+`trigger`, `trigger.region`, `trigger.window`, `qualifier.lastTouch`, `qualifier.endLine`, `qualifier.region` —
+**`trigger.region` is part of the trigger; `qualifier.region` is a transition's own field.** And the row's value
+type reads "keyed by trigger (… `REGION_ENTRY {region}` …) **plus qualifiers**". The braces are the trigger. The
+qualifiers are additional.
+
+Three more pieces of evidence, each independently sufficient:
+
+- `triggerQualifiers` is **keyed by trigger**, and one of its two entries names no row at all — there is no
+  fourth qualifier row for time windows. A transitions-scoped block could not be keyed that way.
+- You wrote *"no qualifier capability is implied"* **on a trigger**, which only makes sense if qualifier
+  capability is a property a trigger can have.
+- And decisively, measured in code: the engine builds its trigger set game-wide as `REGION_ENTRY{<region class>}`
+  **from the regions**, and its only consumer is a **consequence**. A region-qualified trigger survives to a
+  resolved line and the gate validates the argument. That is qualification outside transitions, today, end to
+  end.
+
+So the carrier for qualification is **the parameterised trigger value itself** — `NAME {argument}` — which the
+engine already parses. **No new field is needed anywhere**, and adding a referent field to consequences or
+information rules would introduce a second mechanism for a concept the trigger notation already owns, which the
+ownership rule forbids.
+
+One honest caveat: `triggerQualifiers` is read by **no engine code** — it is a prose gloss. So nothing is being
+generalised, because nothing consumed it in the first place.
+
+And one limit I will not generalise past: the applicability rule you adopted on 29 September really is
+transitions-local — it governs when a transition's own qualifier rows are enumerated. It is not where ownership
+lives, and it does not claim to be.
+
+
+2 · THE MINIMUM TRIGGER ADDITION — one token, not three
+
+**Your three-candidate framing does not survive, and the honest minimum is one token on one row.**
+
+**A generic contact is not supported, because Wide Zone does not require it.** Three independent reasons:
+
+- Wide Zone's **only** authored trigger-row item is `REGION_ENTRY {a wide channel of this contract}`, and its
+  own fitNote says *"For the free-restart alternative… Reads UNMET if a modifier is chosen."* **A modifier was
+  chosen on 2 October.** So the one trigger Wide Zone authors sits on the branch not taken.
+- The advantage as actually authored lives on the value modifier, whose entire subtree contains **no trigger
+  row at all**.
+- **No item in any of the eight contracts names a touch or a contact as an event.** I checked every item whose
+  value mentions touch or contact: there are six, and every one is *touchline* adjacency or "touches one end
+  line" — spatial, not interactional. **Zero items entail a contact.**
+
+And the ruled condition itself has never been written down: the criteria document says *"Evaluated, not
+authored. Nothing has been written into canonical knowledge."*
+
+**The grain is also wrong, and this is the part I want you to see.** The settled condition is *"a touch within
+the channel **after which** the touching player's team retains possession."* Retention is the absence of a
+possession change **across an interval** — a relation between two events. Your own containment forbids a
+contact from implying possession or possession change, and forbids an event-history system. So a generic contact
+token cannot carry the condition even in principle. Measured: adding a contact token to the vocabulary changed
+nothing whatsoever on A04.
+
+**What IS independently supported is a completed pass, on the information rule's trigger row** — the failed line
+your own 29 September ruling left behind. That is one vocabulary member, one semantics entry in the
+`FIRST_FORWARD_PASS` pattern, and one authored item. It is supported because a ruling of yours requires it, not
+because Wide Zone wants it.
+
+**And `FIRST_FORWARD_PASS` is not a specialization of it.** Its own semantics say it implies *nothing* about
+pass success. A forward pass that does not imply completion is not a special case of a completed pass, so the
+vocabulary is **not a hierarchy** — they are independent kinds. Which means your instruction not to assume one
+token serves all three was right, and the conclusion is stronger: two of the three are not supported at all.
+
+
+3 · THE LATEST-CONTACT RELATION — breaks, and the minimum is zero
+
+This is the part I had proposed and it does not hold up.
+
+**The break you asked for.** One relation cannot serve the three consumers, because they do not want three
+readings of one state — they want three **different qualification predicates** over contacts:
+
+- the out-of-play qualifier wants the last contact **before the ball left the field**;
+- Wide Zone wants the team **performing the qualifying action, at the occurrence**;
+- your pass-count ruling wants the last **completed pass**.
+
+A relation whose update rule varies by reader is not a state at all — it is a query over a history, which is
+exactly the event-history system you forbade. A relation with one update rule answers at most one of the three
+and answers the other two wrongly **without saying so**.
+
+**And the sharper answer is that the one-versus-two question never arises: the minimum is zero.** Nothing
+authored entails any member of the last-touch family anywhere in the corpus — the qualifier row carries zero
+items against twenty declarations of its absence — and the one slot the corpus does use is structurally closed
+to it, because the recency is already carried by the slot rather than by the designation.
+
+So I am not proposing the relation. If you want the capability later, what must be authored first is: what
+counts as a contact; its update semantics stated **consumer-independently**, since a per-consumer rule is a
+history; and whether it may carry a team qualifier, which the `FIRST_FORWARD_PASS` note refused in advance for
+trigger additions.
+
+
+4 · TEAM ATTRIBUTION — your preference holds, and a wording correction you need
+
+**Team attribution does not belong on the trigger.** Your separation is not merely acceptable, it is the pattern
+the register already implements. And the simplification I floated — that the team might come from possession, so
+the relation would be unnecessary — is **falsified**: I established possession on A04 in memory and re-ran
+everything. Nothing about the Wide Zone modifier changed. Establishing possession supplies the modifier with
+nothing, because the modifier has no slot it could reach. There is no coupling to simplify.
+
+**But your restatement of the condition changed its meaning, and the difference is exactly what this question
+turns on.** You wrote it this time as *"a touch within the channel, **attributable to the team in possession**,
+after which that team retains possession."* The settled form, approved 2 October, is *"a touch within the
+channel after which **the touching player's team** retains possession."* The word "attributable" appears nowhere
+in the corpus or the docs.
+
+In the settled form the team comes **from the contact**, and possession is only interrogated afterwards. Your
+restatement reverses that: the team comes from possession, and the contact merely has to be attributable to it.
+Those are different conditions. The second is easier to represent and I do not think you meant to loosen it, so
+I have not acted on either.
+
+**The gap that remains is not about where the team lives.** It is that nothing in the representation records
+that the qualifying occurrence happened — so the step you leave to "a consumer may then relate the two" is the
+step Wide Zone cannot take, whichever way the team is supplied.
+
+
+YOUR SEVEN RETURN CRITERIA
+
+1. **Does the three-part shape survive?** No, not as a package. The qualifier limb survives and needs nothing
+   built. The trigger limb survives at one token for one consumer. The latest-contact limb breaks.
+2. **Can trigger qualifiers legitimately operate outside transitions?** **Yes** — already, in code, validated
+   by a gate, via the parameterised trigger value. No new field, and a new field would violate the ownership
+   rule.
+3. **Is latest-contact sufficient for team attribution where Wide Zone needs it?** **No** — and it is not
+   insufficient by a margin that more design would close. Wide Zone needs the team at a specific occurrence; a
+   latest-value relation holds the team of the most recent one, and with no history the representation cannot
+   tell when those differ.
+4. **Minimum trigger vocabulary additions independently supported?** **One**: a completed pass, for the
+   information-rule trigger your 29 September ruling left failed. Not a generic contact, and
+   `FIRST_FORWARD_PASS` is independent of it rather than a specialization.
+5. **Trigger-semantics integrity correction?** Implemented at your scope. The dependency now appears in the
+   check's blocked list as the direction row, which it could not before because nothing read the entry. Eight of
+   the nine triggers declare no dependency and are asserted unaffected. The trigger clause on the corpus still
+   reports FAIL, correctly — two triggers there are genuinely absent from the vocabulary, and an established
+   violation outranks an unevaluable one.
+6. **New gaps.** Wide Zone's qualifying condition is **not authored at all** — it exists only as your evaluated
+   ruling, so there is no authored requirement for a contact anywhere in the corpus. Your 29 September
+   pass-reveal ruling still leaves the information rule's own trigger failed. And `triggerQualifiers` is a prose
+   gloss no code reads.
+7. **A04.** Authorized, acceptance passed, render-eligible, 303 cases green, and the single fidelity violation
+   is still the held trigger decision.
+
+
+WHAT I WOULD DO NEXT, IF YOU AGREE
+
+Implement **only** the completed-pass trigger and its semantics entry, because only that is independently
+required — by your own ruling, not by Wide Zone.
+
+And return Wide Zone's qualifying condition to you as an **authoring** decision rather than a representational
+one. The falsification's clearest result is that nothing in canonical knowledge asks for a contact, and the
+condition as settled requires a two-event relation your containment rules out. That is a question about what the
+Wide Zone knowledge should say, and it is yours.
+
+Magnitude held. No player representation, no event history, no scoring eligibility, no broader trigger cleanup.
+A04 and generation frozen.
+
+Joe

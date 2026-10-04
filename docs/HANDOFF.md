@@ -5145,3 +5145,95 @@ My falsification workflow's judge step received the literal string `[object]` �
 without `.join('\n')`. **It correctly refused to invent a subject and grade its own invention**, citing this
 project's own two prior instances of that failure. Consolidation was done by hand instead. **Join your prompt
 arrays.**
+
+---
+
+## 4 October (late) — trigger-semantics correction IMPLEMENTED, and the THREE-PART SHAPE FALSIFIED
+
+**303 cases green, tsc clean, A04 unchanged.**
+
+### Item 5 implemented at his exact scope
+`vocabularies.triggerSemantics.FIRST_FORWARD_PASS` became an object: the authored prose preserved verbatim as
+`note`, plus `evaluabilityDependsOn: "DV1"` (the row holding attacking direction) and a `typedOn` provenance
+field. **Indexed exactly as `nounSemantics` already is** (register.ts) rather than by a second mechanism —
+`index.vocabularies` only stores ARRAYS, which is why the object block needed the nounSemantics precedent.
+`gaInformation` now consults it per trigger via `triggerDependency()`, which keys on the BARE name so a
+parameterised `NAME {arg}` reads the same entry. An unestablished dependency calls `probe.unestablished()`, the
+existing idiom, so the clause blocks.
+- **Verified observable:** `game::DV1` now appears in GA-INFORMATION's `blockedBy`, which it could not before.
+  DV1 is a VIEW row that enumerates NO line, so the dependency is genuinely unestablished.
+- **The trigger clause still reports FAIL on the corpus, and that is CORRECT** — two triggers there (COACH_CUE
+  and a compound) are genuinely absent from the vocabulary, and `badTriggers.length ? fail : blocked ?
+  notEvaluable : pass` means an ESTABLISHED violation outranks an unevaluable one. The sibling SUBJECT clause
+  shows blocked→NOT_EVALUABLE works on this very check. **My first test asserted the wrong thing; the code was
+  right.**
+- Eight of nine triggers declare no dependency and are asserted unaffected (not a general redesign).
+- Also corrected, as permitted and no further: `fidelity.ts` read the semantics block and tested
+  `Object.keys(...).length > 0` — true merely because one entry exists, so it NAMED a consultation it never
+  made. A per-trigger lookup is undefined there (a modifier condition names no trigger), so the conjunct is
+  removed and the comment says so. **Changes no verdict.**
+
+### THE THREE-PART SHAPE DID NOT SURVIVE AS A PACKAGE
+**Q3 qualifiers — SETTLED IN HIS FAVOUR, and bigger than expected: qualifier semantics are TRIGGER-owned, and
+qualification outside transitions ALREADY EXISTS IN RUNNING CODE.**
+- `T1.selectorAttributes` = `[trigger, trigger.region, trigger.window, qualifier.lastTouch, qualifier.endLine,
+  qualifier.region]` — **the register itself separates `trigger.*` from `qualifier.*`.** T1's valueType: "keyed
+  by trigger (… `REGION_ENTRY {region}` …) **plus qualifiers**" — braces are TRIGGER.
+- `triggerQualifiers` is keyed by TRIGGER and one of its two entries (TIME_EXPIRY) names **no row at all** —
+  fatal to a transitions-scoped reading.
+- He wrote *"no qualifier capability is implied"* **ON A TRIGGER**, which only makes sense if qualifier
+  capability is a property triggers can have.
+- **DECISIVE, in code: `engine.ts:237` builds `ctx.triggers` game-wide as `REGION_ENTRY{<S2 classId>}` FROM THE
+  REGIONS, and its only consumer is a CONSEQUENCE (`gates.ts:1267`).** Measured end to end: a region-qualified
+  consequence trigger reaches a RESOLVED:ENTAILED line and GA-EFFECT-TYPED passes.
+- **So the carrier is the PARAMETERISED TRIGGER VALUE `NAME {argument}` — no new field anywhere**, and adding a
+  referent field to V11/V15 would be a second mechanism for a concept the trigger notation owns (ownership rule).
+- Caveat: **`triggerQualifiers` is read by NO engine code** — a prose gloss. Nothing is being generalized because
+  nothing consumed it. And `applicability.generalRule` IS transitions-local (restrictive reading) — it governs
+  when a transition's own qualifier rows enumerate, and is not where ownership lives.
+
+**Q1 trigger kinds — BREAKS the three-candidate premise. Minimum is ONE token on ONE row.**
+- **A generic contact is NOT supported; Wide Zone does not require it.** Its ONLY authored trigger-row item is
+  `WIDEZONE-11.b` @ V12 = `REGION_ENTRY {a wide channel of this contract}`, AUTHORED/REQUIRED_RANGE — and its
+  fitNote says *"For the free-restart alternative… **Reads UNMET if a modifier is chosen**."* **A modifier WAS
+  chosen 2 Oct**, so Wide Zone's only authored trigger is on the branch not taken. The advantage lives on V7,
+  whose whole subtree has **no trigger row**.
+- **ZERO items in the eight contracts name a touch or contact as an EVENT.** Verified: six items' values mention
+  touch/contact and every one is *touchline* adjacency or "touches one end line" — spatial, not interactional.
+- The ruled condition is **not authored at all**: `INCENTIVE_ASSURANCE_CRITERIA.md:424` — *"Evaluated, not
+  authored. Nothing has been written into canonical knowledge."*
+- **THE GRAIN IS WRONG:** the settled condition (`:393`) is *"a touch within the channel **after which** the
+  touching player's team retains possession"*. Retention is the absence of a possession change ACROSS AN
+  INTERVAL — a two-event relation. **His own containment forbids a contact implying possession/possession change
+  and forbids an event history.** So a contact token cannot carry it even in principle. Measured: adding CONTACT
+  to the vocabulary changed NOTHING on A04.
+- **`FIRST_FORWARD_PASS` is NOT a specialization of completed-pass** — its semantics say it implies *nothing*
+  about pass success, so the vocabulary is **not a hierarchy**; they are independent kinds.
+- **What IS supported: a COMPLETED PASS on V17** — the failed line his own 29 Sept ruling left behind. One
+  vocabulary member + one semantics entry + one authored item.
+
+**Q2 latest-contact — BREAKS, and the minimum is ZERO.**
+- **The asked-for break: one relation cannot serve three.** The out-of-play qualifier wants the last contact
+  BEFORE the ball left; Wide Zone wants the team performing the qualifying action AT the occurrence; PCG wants
+  the last COMPLETED PASS. **Three different qualification predicates over contacts, not three readings of one
+  state. A relation whose update rule varies by reader is a QUERY OVER A HISTORY — the event-history system he
+  forbade.** One update rule answers at most one and answers the others wrongly without saying so.
+- **Minimum is ZERO**: nothing authored entails any member of the LAST_TOUCH family (the qualifier row has zero
+  items against twenty declarations of absence), and the one slot the corpus uses is structurally closed because
+  the recency lives in the SLOT.
+
+**Q4 team attribution — his preference HOLDS, plus a wording correction he needs.**
+- Team belongs in a separately-held relation, not on the trigger. And **my floated simplification was
+  FALSIFIED**: establishing PS1 on A04 in memory changed NOTHING about the Wide Zone modifier — the modifier has
+  no slot possession could reach, so there is no coupling to simplify.
+- **HIS RESTATEMENT CHANGED THE CONDITION'S MEANING.** He wrote *"attributable to the team in possession"*; the
+  settled form (:393) is *"the touching player's team"*. "Attributable" appears NOWHERE in corpus or docs. In the
+  settled form the team comes FROM THE CONTACT and possession is only interrogated afterwards; his restatement
+  reverses the dependency and is the easier condition. Flagged, acted on neither.
+- The remaining gap is not where the team lives — **nothing records that the qualifying occurrence happened**, so
+  "a consumer may then relate the two" is the step Wide Zone cannot take either way.
+
+### RECOMMENDATION RETURNED
+Implement **only** the completed-pass trigger + semantics entry (independently required by his own ruling), and
+return Wide Zone's qualifying condition to him as an **AUTHORING** decision — nothing in canonical knowledge asks
+for a contact, and the condition as settled needs a two-event relation his containment rules out.
