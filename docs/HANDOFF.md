@@ -5043,3 +5043,105 @@ rather than the act. Both times the smallest sufficient thing was not an event. 
 answer here is also smaller than it looks, and the reason nothing was implemented.
 Everything else fails the strict test (GF2's default bounds; GF4's ordering SUPPORTING with order and shot not
 held; RPC-001's "controlled on arrival" spec-declared FREE; the neutral items outside the boundary).
+
+---
+
+## 4 October (later) — RPC-001 typed, and MY CARRIER CANDIDATE WAS FALSIFIED
+
+**297 green, A04 unchanged. No existential claim in the corpus has an unreadable cardinality any more.**
+
+### Item 6 done (C38)
+RPC-001-14.a's authored `">=1"` typed under SD-86 — the one claim the 10-03 removal of the minimum-of-one
+substitution exposed. Regression test moved to assert the end state (none unreadable) and **keeps its teeth by
+stripping the typed field back off** to prove the prose really is unreadable without it.
+
+### THE CANDIDATE I WOULD HAVE PROPOSED BROKE — four reasons, three of which I had WRONG
+I proposed putting the qualifying interaction on the value-modifier condition (interaction-kind vocabulary named
+through `condition.type = event`, team + region as qualifiers).
+1. **`condition.type` is the modifier's IDENTITY, not a retypeable field.** On A04 no item authors it; `region`
+   is DERIVED from the class's defining selector, and **SD-101 makes that selector CONSTITUTIVE of class
+   identity** — an item entailing a different value is reported as a contradicted constitutive selector, never
+   resolved against. Retyping contradicts the modifier rather than reconfiguring it.
+2. **It is single-valued.** Exactly five rows carry SET multiplicity and the register's note says *"no row gains
+   it whose valueType did not already say so"* — so it cannot carry a kind AND a region. The referent SET *can*
+   hold mixed members (forced through; reference integrity passed) but a kind token there establishes no
+   identity, and **SD-57 forbids promoting open text into event identity**.
+3. **`event` is NOT unused, and it is empty FOR A REASON.** GF4 carries four event-typed modifier items and
+   A01-02 authors one; on the two goals selecting GF4, modifier-overlap is ALREADY NOT_EVALUABLE and Gate A
+   ALREADY FAILS. **The slot is empty of entailments because it is REFUSED, not because it is free.**
+4. **Forcing it DESTROYS A04** — measured: modifier-overlap PASS → NOT_EVALUABLE, Gate A → NOT_EVALUABLE,
+   `realizationAuthorized` **true → false**. A partial retype is worse: it leaves his MULTIPLY ×2 reported as a
+   *declared gap* with two TYPICAL_EXAMPLE items standing in for his own entailment (the §3 trap).
++ **A silent loss the repair would have INTRODUCED:** modifier-overlap routes entirely on `condition.type`, so
+  retyping takes its region clause from "2 region referents compared" to "0 compared" **and still reports PASS.**
++ Also: **no team row exists anywhere under `value.valueModifiers`** (the six rows are V7, V8a, V8b, V9, V9a,
+  V10), and a designation is evaluated *"at the trigger or episode it is attached to"* — a modifier condition is
+  neither.
+
+### WHAT THE FALSIFICATION SETTLED — register data, not argument
+**`vocabularies.triggerRows` = ["T1", "V12", "V17", "V24"].** The trigger vocabulary is consumed by transitions,
+consequences' trigger, information rules' trigger and time windows' startsOn. **THREE OF FOUR ARE NOT
+TRANSITIONS.** So registering a contact as a trigger does NOT give it play state, episode behaviour or award
+possibilities — those live on the transition's OTHER rows. **His item-2 concern is already solved by the
+architecture.**
+
+### IT ALSO CORRECTED HIS OWN REQUIREMENT (6)
+**The recency in `LAST_TOUCH` is carried by the SLOT, not the designation.** `applicability.T1a.text` = *"whose
+touch last played the ball before it left the field"* — the ROW means "last"; the designation only answers WHICH
+TEAM. So filling that slot with `LAST_TOUCH` is a **TAUTOLOGY**, and filling it with `ATTACKING_TEAM` is
+informative, which is what the corpus actually does. **The temporal burden exists whatever designation fills the
+slot and does not arise from the designation** — so his requirement (6) asked the carrier to defend the wrong
+thing.
+What LAST_TOUCH actually needs: a **game-level, team-valued LATEST-VALUE relation** (most recent registered
+contact), with an initial state, a named change event and an explicit unresolved rule — **the possession
+relation's exact shape**. My candidate supplied nothing of the kind.
+
+### THE FIVE CONSUMERS
+- **Wide Zone** — BREAKS. Of four parts, the LOCATION is *already* carried (two typed channel referents under
+  AM-17) and is the part a retype would DESTROY; contact, team attribution and retention are not carried at all.
+- **LAST_TOUCH** — BREAKS; needs the latest-value relation.
+- **A01/A02 goal kick** — SURVIVES_WITH_GAP, and **his containment is CONFIRMED**: the team reading suffices and
+  the player reading is *inexpressible* in the register. And the requirement is thin — of the eight items scoped
+  by a last-touch attribution **only TWO entail**; the other six bound or are inert.
+- **Pass Combination Gate** — the STRONGEST independent requirement, and it is HIS OWN ruling.
+  `TEAMMATE_ACTION` needs **nothing** from the carrier (a closed IE-layer classification, complete in itself;
+  V18 resolves and reaches the game; GA-INFORMATION's trigger clause reads V17, not V18). **BUT the same 29 Sept
+  ruling was applied to the five IE dimensions and NOT to V17**, the information rule's own structural trigger —
+  which comes back **failed / NOT_AUTHORED / "not constrained"**. The only item that could resolve it is ASSUMED
+  + PREFERRED_DEFAULT so it bounds and never entails, and **its own basisEvidence names the gap the ruling walked
+  into**: *"Counting out loud could instead be read as a reveal on each completed pass, which is not a listed
+  trigger."* He chose that reading; the trigger it needs is not in the vocabulary.
+- **FIRST_FORWARD_PASS** — SURVIVES_WITH_GAP; stays undefined either way, because "forward" needs a per-contact
+  direction, which is trajectory and forbidden. The TEAM's attacking direction is established; the contact's is not.
+
+### WHERE THE EVIDENCE POINTS (reported as NOT yet falsified)
+(1) the interaction kind is a member of the existing **trigger** vocabulary — because V17 is what actually needs
+filling and a trigger demonstrably drags no transition semantics; (2) a **game-level latest-contact relation** of
+PS1's shape for team attribution; (3) **region attribution through the existing per-trigger qualifier
+mechanism**, precedent being the region reference already declared for REGION_ENTRY, authorized by his in-play
+location ruling.
+**Two things not yet known and worth falsifying first:** how a qualifier attaches to a trigger carried by
+something OTHER than a transition (every existing qualifier row hangs off T1), and whether team attribution needs
+a team projected OUT as a value rather than used as a filter (T2 `awardedTo` and V14a do; a condition does not).
+
+### ITEM 5 — bounded repair, and I had UNDERSTATED what already exists
+The structural half of trigger semantics IS consulted and IS governed by his own ruling:
+`applicability.generalRule` (29 Sept) — *"a transition qualifier applies only where the transition trigger
+semantics make that qualifier structurally applicable… Expressed as an applicability rule over the trigger"* —
+and `governingLineRule` already specifies that a dependent line whose governing line is FREE(choice) is
+**CONDITIONAL**, takes no value and is **not failed**, which is exactly what the FIRST_FORWARD_PASS gloss
+promises. **`CONDITIONAL` is already a registered LineState** the classifier implements (classify.ts:105, :251).
+Missing: the dependency is in PROSE, and the admitting check (`registeredTrigger`, gates.ts:1017-1021) tests
+LIST MEMBERSHIP ONLY. **Proposed:** one machine-readable field on the semantics entry naming the row its
+evaluability depends on + one consultation at the admitting check; line status needs nothing new.
+**The limit, stated so he can judge:** `applicability` tests a governing line's VALUE MEMBERSHIP against a closed
+list, and this dependency is about whether a line is ESTABLISHED AT ALL — and DV1's value is "per team {attacks,
+defends}", not a list to enumerate. Hence one field rather than reusing that form.
+Also: the single site that reads the semantics block only tests that it is NON-EMPTY (true merely because one
+entry exists) — not a per-trigger lookup either.
+
+### Harness note
+My falsification workflow's judge step received the literal string `[object]` — I passed an array to `agent()`
+without `.join('\n')`. **It correctly refused to invent a subject and grade its own invention**, citing this
+project's own two prior instances of that failure. Consolidation was done by hand instead. **Join your prompt
+arrays.**
