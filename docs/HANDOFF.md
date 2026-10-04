@@ -5410,3 +5410,40 @@ in-play judgement, which §7 deliberately does not hold.
 **Should the Wide Zone advantage be a way of SCORING, or a multiplier on a different score?** As a scoring event
 the meaning is owned, defined, approved and already excludes traversal. As a modifier condition it needs a state
 the spec deliberately does not hold. Structural question, not representational.
+
+### CORRECTION, same day — I OVERSTATED what `target_zone_entered` owns, and had to write to him again
+
+The last leg of the check landed after the email went. It is right and I was wrong on the part I had called the
+most interesting, and the part my closing question rested on.
+
+**Four overstatements, all refuted by text I had already quoted or should have checked:**
+1. **"means unrestricted" — FALSE. It ENUMERATES TWO MEANS.** *"A player **dribbles into** a marked zone, **or
+   receives and controls** the ball inside it."* So it **privileges a dribble and a reception — two items on his
+   own non-claims list** — and excludes cases his meaning admits (a loose ball won inside the zone, a deflection,
+   the ball already being there).
+2. **"owns control" — FALSE. "controls" is only in the SECOND DISJUNCT.** "Dribbles into a marked zone" carries no
+   control requirement, so the event does not uniformly require control — the one term his meaning is built on.
+3. **The corpus had ALREADY GRADED the ceiling.** `RPC-001-08.c` (J2, EXISTS, AUTHORED) cites this exact
+   vocabulary family as its basisEvidence and its fitNote caps it: **"Only 'a reference is present' can be
+   held."** Not control, not means, not a team.
+4. **I CITED GENERATED COACH TEXT AS EVIDENCE.** My "its activity text even excludes traversal — 'a long kick into
+   the target zone does not count'" came from generated activity prose. `RPC-001-10.b`'s fitNote closes that route
+   pre-emptively: **"The COACH_RULES wording 'controls it' is engine-only and is not relied on."** **Generation is
+   not a source — a discipline already in memory, violated anyway.**
+
+**So `target_zone_entered` is ADJACENT PRECEDENT, not ownership — the clearest trap in the set, because its
+English reads like his sentence while its semantics do something else.** Its subject is a PLAYER; "a marked zone"
+is physical marking not a represented region; and the representation consumes it only as V1 primaryEvent.kind.
+
+**Consequence: my closing question was MIS-POSED.** I asked whether the advantage should be a way of scoring or a
+multiplier, presenting the scoring-event route as "owned, defined, approved". **It is not owned**, and choosing it
+would adopt a definition privileging two means from his forbidden list.
+**The finding underneath HARDENS: there is no owner anywhere for a means-unrestricted, how-agnostic control
+state** — not at the strategic layer (GP-006 forward-looking), not in the Game Representation (§7 refuses both
+relata), not in the sport module (two enumerated means, conditional control).
+
+Everything else in the falsification stands and was re-checked: the logical form passes; the three breaks; Wide
+Zone's authored exclusions; the Q5/nothingInvented contradiction; the criterion-field carrier and its limit; A04.
+
+**Process lesson, twice in one day: do not send a report while a background trace is still running.** The
+afternoon addendum had the same cause.
