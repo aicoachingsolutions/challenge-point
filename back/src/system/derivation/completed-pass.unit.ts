@@ -116,20 +116,26 @@ test('registering the member changed no verdict in any of the thirteen goals', (
     const goals: string[] = ((sessionPlanningModel as any).learningGoals?.() ?? []).map((g: any) => g.ID ?? g.id).filter(Boolean)
     assert.equal(goals.length, 13)
 
-    // Baselines taken before the addition, recorded here so a future change cannot move them unnoticed.
+    /**
+     * **These baselines moved once, deliberately, and the reason is recorded here.** Registering the vocabulary
+     * member changed nothing — that was measured and is still proved below by removing it. What changed these
+     * numbers is the separate authoring act of 4 October (C39), which put the token on the Pass Combination
+     * Gate's information-rule trigger and closed one failed line in each of the five goals that select that
+     * contract: A01 and A05 from eight to seven, TA01, A02 and TA02 from seven to six. A04 never moved.
+     */
     const expected: Record<string, { failed: number; gateA: string }> = {
-        A01: { failed: 8, gateA: 'NOT_EVALUABLE' },
+        A01: { failed: 7, gateA: 'NOT_EVALUABLE' },
         D01: { failed: 6, gateA: 'NOT_EVALUABLE' },
-        TA01: { failed: 7, gateA: 'NOT_EVALUABLE' },
+        TA01: { failed: 6, gateA: 'NOT_EVALUABLE' },
         TD01: { failed: 6, gateA: 'NOT_EVALUABLE' },
-        A02: { failed: 7, gateA: 'NOT_EVALUABLE' },
+        A02: { failed: 6, gateA: 'NOT_EVALUABLE' },
         D02: { failed: 7, gateA: 'NOT_EVALUABLE' },
-        TA02: { failed: 7, gateA: 'NOT_EVALUABLE' },
+        TA02: { failed: 6, gateA: 'NOT_EVALUABLE' },
         TD02: { failed: 11, gateA: 'FAIL' },
         A03: { failed: 7, gateA: 'NOT_EVALUABLE' },
         D03: { failed: 11, gateA: 'FAIL' },
         A04: { failed: 7, gateA: 'DEFERRED_TO_REALIZATION' },
-        A05: { failed: 8, gateA: 'NOT_EVALUABLE' },
+        A05: { failed: 7, gateA: 'NOT_EVALUABLE' },
         A06: { failed: 7, gateA: 'NOT_EVALUABLE' },
     }
     for (const goal of goals) {
@@ -142,16 +148,31 @@ test('registering the member changed no verdict in any of the thirteen goals', (
     }
 })
 
-test('the trigger row the ruling needs is still unauthored — the member alone closes nothing', () => {
-    // The honest consequence, pinned so it cannot be mistaken for progress. Five goals select the Pass
-    // Combination Gate and in every one the information rule's trigger is still NOT_AUTHORED: closing it is an
-    // authoring act on that contract, which he has not authorized.
+test('the member alone closed nothing — it took a separate authoring act', () => {
+    /**
+     * The sequence matters and is pinned here. Registering the token left the information rule's trigger
+     * NOT_AUTHORED in all five goals that select the Pass Combination Gate, because a vocabulary member makes a
+     * value *sayable* and does not say it. The line closed only when he authorized the item on 4 October (C39),
+     * which is an authoring act on that contract rather than a representational one.
+     *
+     * So this now asserts the authored outcome, and the member's own inertness is proved by the forced negative
+     * below rather than by a current-state baseline — which is the stronger evidence anyway.
+     */
     for (const goal of ['A01', 'TA01', 'A02', 'TA02', 'A05']) {
         const result: any = runDerivation(derivationInputFor(selectFor(goal, null)))
         const v17 = (result.resolution ?? []).filter((e: any) => /::V17$/.test(String(e.lineId)))
         assert.equal(v17.length, 1, `${goal}: one information-rule trigger line`)
-        assert.equal(v17[0].verdict, 'NOT_AUTHORED', `${goal}: still unauthored`)
-        assert.equal(v17[0].reason, 'not constrained', `${goal}: and the reason is unchanged`)
+        assert.equal(v17[0].verdict, 'RESOLVED:ENTAILED', `${goal}: closed by the authored item, not by the vocabulary`)
+        assert.equal(v17[0].value, 'COMPLETED_PASS', `${goal}: with the token the 29 September ruling requires`)
+    }
+    // And the goals that do NOT select that contract have no such line at all, so nothing was created for them.
+    for (const goal of ['A04', 'A03', 'A06']) {
+        const result: any = runDerivation(derivationInputFor(selectFor(goal, null)))
+        assert.deepEqual(
+            (result.resolution ?? []).filter((e: any) => /::V17$/.test(String(e.lineId))),
+            [],
+            `${goal}: selects no information rule, so the authoring reaches it not at all`,
+        )
     }
 })
 

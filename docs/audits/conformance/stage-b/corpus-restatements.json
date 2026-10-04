@@ -362,9 +362,15 @@
     "basis": "OWNER_RULING",
     "basisEvidence": "Christian, 2026-10-01: \"Promote GF2-14.b, equal outfield counts, from ASSUMED to owner-authored canonical knowledge.\" With the caution attached to it: \"Please preserve the ability for other selected authoritative knowledge to establish numerical asymmetry where the learning problem requires it. Equal team numbers should not become an engine-level universal assumption.\"",
     "comparison": {
-     "left": { "row": "P2", "selector": "*" },
+     "left": {
+      "row": "P2",
+      "selector": "*"
+     },
      "operator": "=",
-     "right": { "row": "P2", "selector": "*" }
+     "right": {
+      "row": "P2",
+      "selector": "*"
+     }
     },
     "fitNote": "PROMOTED 1 October. It was ASSUMED, and by §3 an assumed item bounds but never entails — which is why the roster could not derive. It is now owner-authored and entails. IT REMAINS AN ITEM OF GF2, not an engine rule: a game form that authors asymmetry displaces it through the ordinary displacement mechanism (SD-90), so equality is knowledge about THIS game form and never a universal. TYPED AS A COMPARISON 3 October (Christian): \"AM-16 already introduced COMPARES for comparison between represented properties, so please don't introduce another mechanism or continue relying on prose matching for 'equal'.\" The equality is now DECLARED structurally rather than detected by matching the word in this item's prose — that was how an AUTHORED item reading 'unequal between the teams' once licensed an equal division. The authored value, basis, status and provenance are unchanged. NOT YET EVALUABLE, and the reason is the register's own: both operands name P2, a row owned by performers.teams[], so each matches BOTH members, and comparison.stillOpen says 'No aggregate function is named (each, some, the sum, the greatest) for a comparison ranging over several matched elements. An engine refuses such a comparison rather than choosing one.' Naming the members individually is not open either, because no knowledge item may target a member's opaque handle. So the equality is readable and refused, which is reported rather than worked around."
    },
@@ -751,6 +757,27 @@
     "structuralClause": "whole item",
     "fitNote": "AUTHORED 2 October: the second of the two referents \"both wide channels of this contract, each a referent\" names, as its own item because V8b carries one property per referent. His semantics: \"Each established wide channel is independently a qualifying referent for the same modifier condition\" -- not a choice between them, and not a requirement that both be involved before the modifier applies. Nothing new is referenced: 11.a types the wide-left channel and this types the wide-right one, which together are \"both\"."
    }
+  },
+  {
+   "contractId": "blind:PASS-COMBINATION-GATE",
+   "after": "PCG-14.a",
+   "ruling": "C39",
+   "item": {
+    "itemId": "PCG-14.f",
+    "row": "V17",
+    "selector": "subject=connected-pass count",
+    "requirement": "EQUALS",
+    "value": "COMPLETED_PASS",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "OWNER_RULING",
+    "basisEvidence": "Christian, 2026-09-29: \"The current connected-pass count is revealed immediately following each qualifying pass and updates progressively as the count changes.\" Authorized as an item 2026-10-04: \"Please author the Pass Combination Gate trigger item exactly as proposed: COMPLETED_PASS, basis OWNER_RULING, strictness REQUIRED, status REQUIRED_RANGE, evidence from the 29 September ruling.\" The 29 September ruling was applied to the five information DIMENSIONS (PCG-14.a-e) and not to V17, the information rule’s own structural trigger, which has reported failed / NOT_AUTHORED / \"not constrained\" in all five goals that select this contract ever since. PCG-14.b (V19 = IMMEDIATE_AFTER_TRIGGER) is what makes this row load-bearing by construction: \"immediately after the trigger\" denotes nothing unless a trigger is named.",
+    "checkability": "STRUCTURAL",
+    "structuralClause": "whole item",
+    "fitNote": "What \"qualifying\" means is not read here: it is fixed by PCG-05 (AUTHORED, REQUIRED, REQUIRED_RANGE), \"counts ATTACKING_TEAM’s connected passes\", so the trigger is a pass that CONNECTS and nothing further. COMPLETED_PASS is a registered member of vocabularies.trigger (version 3, added 2026-10-04) whose semantics entry makes completion constitutive and denies implying region, direction, receiver identity, distance, intent, possession, possession change, scoring eligibility, transition or episode boundary. It is NOT ordered against FIRST_FORWARD_PASS in either direction. This item DISPLACES nothing: PCG-12 (V17 = STANDING) is ASSUMED and PREFERRED_DEFAULT, so by §3 it bounds and never entails and could not resolve this row; its own basisEvidence already conceded \"a reveal on each completed pass, which is not a listed trigger\". KNOWN LIMIT, recorded and deliberately not repaired on his instruction: constructTriggers builds the reachable-trigger set from a hardcoded function that never reads vocabularies.trigger, and GA-INFORMATION does not test reachability on V17 the way GA-EFFECT-TYPED does on V12 - so this item is admitted on registration alone and is never asked whether the occurrence can arise. The same has been true of FIRST_FORWARD_PASS since 29 September, so it is a property of the architecture rather than of this item."
+   },
+   "why": "the 29 September ruling filled the five information dimensions and left the information rule’s own structural trigger unauthored, so the reveal mechanism carried five dimensions and no trigger. Authoring it closes that line with the token the ruling requires; correct canonical authoring is not withheld because structural reachability is separately incomplete"
   }
  ],
  "declarationScope": {

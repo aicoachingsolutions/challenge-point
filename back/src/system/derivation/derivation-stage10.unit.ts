@@ -579,18 +579,30 @@ test('SD-94: two transition classes on one trigger pass while their requirements
     assert.equal(clause.instances, 1, 'one overlapping pair was compared, and it is real evidence (SD-54)')
 })
 
+/**
+ * **This fixture was passing for the wrong reason, and the standing-decision selector repair of 4 October
+ * exposed it.** It used to author a stoppage for `T-A` only, and the conflicting `CONTINUE` on `T-B` arrived
+ * from **SD-20** — whose registered selector is `trigger=POSSESSION_CHANGE`, which neither class has. The
+ * engine was applying a standing decision through a narrowing it never read, so the incompatibility the clause
+ * reported rested on a value SD-20 had no authority to supply here.
+ *
+ * The invariant is real and still worth testing, so the conflict is now **authored on both sides**: each class
+ * carries a distinguishing qualifier, and each has its own `T6` item. The clause then compares two genuinely
+ * authored play states on one trigger, which is what SD-94 is about.
+ */
 test('SD-94: and fail when the same trigger is required to be two different things', () => {
     const disagreeing = [
         contract([
             item({ itemId: 'T-A', row: 'T1', selector: 'trigger=START AND qualifier.lastTouch=LAST_TOUCH', requirement: 'EXISTS' }),
-            item({ itemId: 'T-B', row: 'T1', selector: 'trigger=START', requirement: 'EXISTS' }),
+            item({ itemId: 'T-B', row: 'T1', selector: 'trigger=START AND qualifier.endLine=DEFENDING_TEAM', requirement: 'EXISTS' }),
             item({ itemId: 'T-M1', row: 'T6', selector: 'qualifier.lastTouch=LAST_TOUCH', requirement: 'EQUALS', value: 'STOP_RESUME' }),
+            item({ itemId: 'T-M3', row: 'T6', selector: 'qualifier.endLine=DEFENDING_TEAM', requirement: 'EQUALS', value: 'CONTINUE' }),
             item({ itemId: 'T-M2', row: 'T7', selector: 'trigger=START', requirement: 'EQUALS', value: 'true' }),
         ]),
     ]
     const result: any = runStages0to10(input(disagreeing))
     const clause = check(result, 'GA-TRIGGER-UNIQUE').clauses.find((c: any) => /mutually compatible/.test(c.clause))
-    assert.equal(clause.verdict, 'FAIL', 'T-A requires STOP_RESUME on a trigger T-B leaves CONTINUE-less; the two cannot both hold')
+    assert.equal(clause.verdict, 'FAIL', 'one START transition is authored STOP_RESUME and the other CONTINUE; the two cannot both hold')
     assert.match(check(result, 'GA-TRIGGER-UNIQUE').why, /incompatible/)
 })
 

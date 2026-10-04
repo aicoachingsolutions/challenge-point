@@ -13,7 +13,7 @@
 
 import { RegisterIndex } from './register'
 import { reaches, Reach } from './reach'
-import { parseSelector } from './selector'
+import { parseSelector, selectorApplies } from './selector'
 import { ApplicationSet, DeclarationReach } from './scope'
 import { Bounds, ElementClass, ItemRef, LoadedContract, NamedDiagnostic, ResolutionLine, SupportRef } from './types'
 
@@ -835,7 +835,7 @@ export function deriveLines(
             for (const line of lines) {
                 const record = derived.get(line.lineId)!
                 if (record.standingDecisions.includes(decision)) continue
-                if (!applies(decision, line, index, record, derived, stopped)) continue
+                if (!applies(decision, line, index, record, derived, stopped, byClass)) continue
                 record.standingDecisions.push(decision)
                 const entry: any = index.standingDecisions.find(d => d.id === decision)
                 if (!record.standingValue && entry && entry.item && entry.item.value !== undefined) {
@@ -878,6 +878,71 @@ export function deriveLines(
  * SD-40 is untouched: the governing value is read from the derived record, and a candidate value never
  * reaches it.
  */
+/**
+ * **A standing decision's registered selector must admit the line's element.** His ruling of 4 October, and
+ * he classified the defect it repairs as trust-critical:
+ *
+ *   > *We have now explicitly established that a trigger does not entail transition semantics. A selector path
+ *   > that can silently cause a trigger carried by a transition to acquire `playState` and an episode boundary
+ *   > therefore risks introducing unsupported meaning into the resolved game.*
+ *
+ * **The defect.** `applies` matched a decision to a line by **row alone**. Three citable standing decisions
+ * register a selector — SD-13 `trigger=START` on T3, SD-14 `trigger ∈ {START, SCORE, POSSESSION_CHANGE}` on T7,
+ * SD-20 `trigger=POSSESSION_CHANGE` on T6 — and all three were ignored. Measured across all thirteen goals and
+ * every practice situation, SD-14 reached `A01-02-01.a::T7`, whose trigger is `OUT_END_LINE`, and gave it
+ * `startsEpisode = true`. SD-14 names three triggers and that is not one of them.
+ *
+ * The claim is not that such a restart fails to begin an attacking episode — it may well, as a matter of the
+ * sport's own meaning, which is not this layer's to decide. It is that the representation had **no authority**
+ * for saying so: SD-14 was the only source, its selector excluded the trigger, and its own registered note says
+ * *"Defines boundaries only; entails no T1 element."* A value with no
+ * source is the defect whether or not it happens to be right.
+ *
+ * **Undecidable declines.** Where the element's own selector does not fix the attribute, this returns false and
+ * the decision does not apply. The applicability rule makes the opposite choice on the same question and both
+ * are right: an applicability rule may only ever *remove* a line it can positively disqualify, whereas a
+ * standing decision *supplies a value*, and supplying one through a narrowing nobody can read is inferring the
+ * narrowing away. Fail rather than infer.
+ *
+ * **A malformed selector refuses rather than passes.** If the registered selector will not parse, the decision
+ * is declined and the defect recorded — the alternative is a narrowing that silently admits everything, which
+ * is the bug being fixed.
+ */
+function selectorAdmits(
+    decisionId: string,
+    entry: any,
+    line: ResolutionLine,
+    index: RegisterIndex,
+    byClass: Map<string, ElementClass>,
+    stopped: { where: string; why: string }[],
+): boolean {
+    const selector = entry.item.selector
+    if (selector === undefined || selector === null) return true // no narrowing registered; the row is the whole test
+
+    const parsed = parseSelector(selector, line.row, index)
+    if ('defect' in parsed || !parsed.predicate) {
+        stopped.push({
+            where: `${decisionId} -> ${line.lineId}`,
+            why:
+                `the standing decision's registered selector ${JSON.stringify(selector)} will not parse ` +
+                `(${'defect' in parsed ? parsed.defect : 'no predicate'}), so it cannot be shown to admit this line; ` +
+                `the decision is declined rather than applied through an unreadable narrowing`,
+        })
+        return false
+    }
+    if (parsed.predicate.any) return true
+
+    // A game-level line has no element, so an element selector cannot admit it.
+    const cls = line.elementId ? byClass.get(line.elementId) : undefined
+    if (!cls) return false
+
+    for (const term of parsed.predicate.terms) {
+        const permitted = term.op === 'IN' ? [...term.values] : [String((term as any).value)]
+        if (selectorApplies(cls, term.attribute, permitted) !== true) return false
+    }
+    return true
+}
+
 function applies(
     decisionId: string,
     line: ResolutionLine,
@@ -885,6 +950,7 @@ function applies(
     record: DerivedLine,
     derived: Map<string, DerivedLine>,
     stopped: { where: string; why: string }[],
+    byClass: Map<string, ElementClass>,
 ): boolean {
     const entry: any = index.standingDecisions.find(d => d.id === decisionId)
     if (!entry || !entry.item || !entry.item.row) return false
@@ -892,6 +958,7 @@ function applies(
     if (!rows.includes(line.row)) return false
     if (record.session) return false // the session already resolved it
     if (record.entailing.length > 0) return false
+    if (!selectorAdmits(decisionId, entry, line, index, byClass, stopped)) return false
     if (entry.condition && typeof entry.condition === 'object' && !conditionHolds(decisionId, entry.condition, line, derived, stopped)) return false
     return true
 }
