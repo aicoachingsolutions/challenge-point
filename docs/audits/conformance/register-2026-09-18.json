@@ -1041,7 +1041,7 @@
    "S3.noun": "2 (2026-10-01, draft) - adds `line` on Christian’s ruling, prompted by the inconsistency the A04 trace exposed",
    "S4.functions": "1 (2026-09-18, draft)",
    "O2.kind": "1 (2026-09-18, draft)",
-   "trigger": "2 (2026-09-29, draft) - adds FIRST_FORWARD_PASS under the boundary Christian accepted on 29 September",
+   "trigger": "3 (2026-10-04, draft) - adds COMPLETED_PASS on Christian ruling, for the reveal trigger his 29 September Pass Combination Gate ruling requires. Bounded exactly to that: not a generalization of FIRST_FORWARD_PASS and not a contact or pass ontology",
    "T5.method": "1 (2026-09-18, draft)",
    "T6.playState": "1 (2026-09-18)",
    "V4.conditionType": "1 (2026-09-18, draft)",
@@ -1096,7 +1096,8 @@
    "REGION_ENTRY",
    "TIME_EXPIRY",
    "STANDING",
-   "FIRST_FORWARD_PASS"
+   "FIRST_FORWARD_PASS",
+   "COMPLETED_PASS"
   ],
   "triggerQualifiers": {
    "REGION_ENTRY": "a region reference (T1c)",
@@ -1236,6 +1237,13 @@
     "note": "An EVENT IN PLAY, like POSSESSION_CHANGE, never a restart like START. Forward is relative to the passing team attacking direction, which the representation establishes (SD-95); where that direction is FREE the trigger is NOT EVALUABLE and its line is CONDITIONAL, never failed. First is per episode, using the episode boundary transitions already carry (startsEpisode). It implies NOTHING about pass success, receiver, distance or intent, and must not be read as doing so. Added 2026-09-29 on Christian ruling; bounded addition only, no qualifier capability is implied.",
     "evaluabilityDependsOn": "DV1",
     "typedOn": "Christian, 2026-10-04: \"Please implement the machine-readable evaluability dependency you proposed for trigger semantics and have the admitting check consult it. I do not consider that an architectural expansion. It makes an already-authored semantic dependency enforceable rather than leaving it in prose.\" The prose above is unchanged and remains the authored reading; evaluabilityDependsOn names the row it already cites. DV1 is `direction`, which holds the attacking direction per team - the thing the note says \"forward\" is relative to and that the representation establishes (SD-95). Where DV1 is not established, a trigger naming this kind is NOT EVALUABLE rather than admitted on vocabulary membership, which is what the note asked for and nothing enforced."
+   },
+   "COMPLETED_PASS": {
+    "note": "An EVENT IN PLAY, like POSSESSION_CHANGE, never a restart like START. COMPLETION IS CONSTITUTIVE AND IS THE WHOLE OF IT: a pass that connects, reaching a player of the passing team. It implies NOTHING about region, direction, receiver identity, distance, intent, control quality, possession, possession change, scoring eligibility, transition or episode boundary, and must not be read as doing so. Whether a pass connected is a judgement made in play; the representation names the kind of occurrence and does not record occurrences. Added 2026-10-04 on Christian ruling; bounded addition only, no qualifier capability is implied.",
+    "independentOf": "NOT a generalization of FIRST_FORWARD_PASS and not its specialization either - the two are INDEPENDENT kinds, on his explicit instruction. FIRST_FORWARD_PASS’s own entry says it \"implies NOTHING about pass success\", so a forward pass need not connect: an intercepted forward pass is a FIRST_FORWARD_PASS and is not a COMPLETED_PASS, and a completed square pass is the reverse. The trigger vocabulary is therefore not a hierarchy, and no ordering between these two members may be inferred.",
+    "basisEvidence": "Christian, 2026-09-29, the ruling that requires it: \"The current connected-pass count is revealed immediately following each qualifying pass and updates progressively as the count changes.\" What \"qualifying\" means is fixed by PCG-05 (AUTHORED, REQUIRED, REQUIRED_RANGE): \"counts ATTACKING_TEAM’s connected passes; the count resets on {POSSESSION_CHANGE, OUT_END_LINE, OUT_TOUCHLINE}\". So the kind is a pass that CONNECTS, and nothing further. PCG-14.b (V19 = IMMEDIATE_AFTER_TRIGGER, OWNER_RULING) is what makes V17 load-bearing by construction: \"immediately after the trigger\" denotes nothing unless a trigger is named.",
+    "evaluabilityDependsOn": null,
+    "whyNoDependency": "Unlike FIRST_FORWARD_PASS, which depends on DV1 because \"forward\" is measured against an attacking direction the representation establishes, completion is measured against nothing the representation holds - whether a pass reached a teammate is an in-play judgement. So this kind registers NO row dependency, and a check has nothing to consult for it. Note the consequence, reported rather than repaired: constructTriggers never reads vocabularies.trigger, so a new token is never structurally reachable, and GA-INFORMATION does not test reachability on V17 the way GA-EFFECT-TYPED does on V12. An item authoring this token on V17 is therefore admitted on registration alone and is never asked whether the occurrence can arise."
    }
   },
   "nounSemantics": {
