@@ -5237,3 +5237,41 @@ qualification outside transitions ALREADY EXISTS IN RUNNING CODE.**
 Implement **only** the completed-pass trigger + semantics entry (independently required by his own ruling), and
 return Wide Zone's qualifying condition to him as an **AUTHORING** decision — nothing in canonical knowledge asks
 for a contact, and the condition as settled needs a two-event relation his containment rules out.
+
+### ADDENDUM, same day — a LIVE DEFECT the last trace leg found: a standing decision's SELECTOR is never read
+
+`applies()` (derive.ts:881-897) decides whether a citable standing decision reaches a line by matching the
+**row only**: it reads `entry.item.row`, splits it, checks `rows.includes(line.row)`, then guards on
+`record.session`, `record.entailing.length` and an optional `entry.condition`. **It never reads
+`entry.item.selector`.**
+
+Three citable standing decisions register a selector, and all three are ignored:
+- `SD-13` row T3 selector `trigger=START`
+- `SD-14` row T7 selector `trigger ∈ {START, SCORE, POSSESSION_CHANGE}`
+- `SD-20` row T6 selector `trigger=POSSESSION_CHANGE`
+
+**Measured across all 13 goals x every practice situation: SD-13 and SD-20 never apply** (an authored item
+pre-empts them and the entailment guard holds). **SD-14 applies exactly three times:**
+| line | its trigger | verdict |
+|---|---|---|
+| `GF2-07.a::T7` | POSSESSION_CHANGE | correct |
+| `GF4 I06::T7` | POSSESSION_CHANGE | correct |
+| `A01-02-01.a::T7` | **OUT_END_LINE** | **WRONG — one live wrong value** |
+
+So the goal-kick transition in A01/A01-02 carries `startsEpisode = true` sourced from SD-14, which names only
+START, SCORE and POSSESSION_CHANGE. **The claim is NOT that a goal kick does not begin an episode** — it is that
+the representation has no authority for it: SD-14 is the only source, its selector excludes this trigger, and its
+own note says *"Defines boundaries only; entails no T1 element."* **A value with no source is the defect whether
+or not it happens to be right.**
+
+**Why it matters beyond the one line:** this is the route by which a new trigger token would acquire semantics it
+was never given. Measured — an authored transition on a contact trigger would receive `playState=CONTINUE` from
+SD-20 and `startsEpisode=true` from SD-14, which are **two of the implications his containment list explicitly
+forbids**, arriving silently with a standing decision's name on them. **So his containment is currently
+unenforceable for any trigger carried by a transition, today rather than after a change.**
+
+**Reported, not repaired** (returned as a newly exposed gap per his established pattern). The correction looks
+small — read the selector where the row is read and decline to apply on a mismatch, using the existing
+machine-readable selector grammar rather than a new mechanism. **The decision that is his: the line then becomes
+a GAP rather than a different value**, so A01-02's goal kick would hold an unestablished `startsEpisode` instead
+of an unsourced `true` — the honest state, but a verdict change in a real goal.

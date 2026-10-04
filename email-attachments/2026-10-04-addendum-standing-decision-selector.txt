@@ -1,0 +1,76 @@
+Christian,
+
+One addendum to the falsification I just sent. Its "new gaps" section was incomplete: the last part of the
+trace landed after I wrote it, and it found **a live defect producing a wrong value in a real goal today.** It is
+small, it is measured, and I have not touched it.
+
+It also happens to be the mechanism by which adding a contact trigger would have silently dragged an episode
+boundary — one of the implications your containment list forbids. So it is worth settling before any trigger is
+added, independently of whether you add one.
+
+
+THE DEFECT
+
+**A citable standing decision's registered selector is never read.** The function that decides whether a
+standing decision applies to a line matches on the **row only**. It reads the decision's row, splits it, checks
+the line's row is among them, then checks three guards — the session, an existing entailment, and an optional
+condition. It never looks at the decision's `selector`.
+
+Three citable standing decisions register a selector:
+
+    SD-13   row T3   selector  trigger=START
+    SD-14   row T7   selector  trigger ∈ {START, SCORE, POSSESSION_CHANGE}
+    SD-20   row T6   selector  trigger=POSSESSION_CHANGE
+
+All three selectors are ignored.
+
+
+WHAT IT ACTUALLY COSTS — one wrong value, and I checked all thirteen goals and every practice situation
+
+SD-13 and SD-20 never apply anywhere, because an authored item pre-empts them and the entailment guard holds.
+So the cost is confined to SD-14, which applies exactly three times:
+
+    GF2-07.a        trigger = POSSESSION_CHANGE        correct
+    GF4 I06         trigger = POSSESSION_CHANGE        correct
+    A01-02-01.a     trigger = OUT_END_LINE             WRONG
+
+**The goal-kick transition receives `startsEpisode = true` from SD-14, and SD-14 names only START, SCORE and
+POSSESSION_CHANGE.** `OUT_END_LINE` is not among them. So the engine is asserting something SD-14 does not say,
+on a real transition, in A01 under practice situation A01-02.
+
+I want to be careful about what I am and am not claiming. I am **not** claiming a goal kick does not begin an
+attacking episode — that may well be true of football. I am claiming the representation has no authority for it
+here: SD-14 is the only source, SD-14's selector excludes this trigger, and SD-14's own registered note says
+*"Defines boundaries only; entails no T1 element."* A value with no source is the defect, whether or not it
+happens to be right.
+
+
+WHY IT MATTERS BEYOND THE ONE LINE
+
+This is the route by which a new trigger token would acquire semantics it was never given. Your containment list
+forbids a contact from implying possession change or an episode boundary. Measured: an authored transition on a
+contact trigger would receive `playState = CONTINUE` from SD-20 and `startsEpisode = true` from SD-14, because
+neither selector is consulted — exactly two of the implications you excluded, arriving silently and with a
+standing decision's name on them.
+
+So the containment you specified is currently unenforceable for any trigger carried by a transition, and that is
+true today rather than after a change.
+
+
+WHAT I HAVE NOT DONE
+
+I have not repaired it. It is a standing-decision application defect rather than trigger cleanup, so I do not
+read it as covered by what you have held — but it is also not in what you authorized, and the pattern you have
+set is that I return a newly exposed gap rather than close it.
+
+If you want it repaired, the correction looks small: read the selector in the same place the row is read, and
+decline to apply where it does not match. The selector grammar is already machine-readable and already evaluated
+elsewhere for element individuation, so this would consult an existing mechanism rather than add one. The thing
+to decide is what happens to the line that loses its standing-decision value — on the evidence it becomes a gap
+rather than a different value, and A01-02's goal kick would then have an unestablished `startsEpisode` instead of
+an unsourced `true`. That is the honest state, but it is a verdict change in a real goal and therefore yours.
+
+Nothing else changes from the note I sent. 303 cases green, A04 authorized and render-eligible, magnitude held,
+generation frozen.
+
+Joe
