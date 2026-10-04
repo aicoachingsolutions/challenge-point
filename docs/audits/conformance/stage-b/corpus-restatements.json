@@ -371,6 +371,18 @@
    "why": "the roster could not derive because equality bounded without entailing; promoting it closes that without making equal team numbers an engine-level assumption. Typed as a comparison on 3 October so the engine reads a declared relationship instead of matching prose, which is where the 'unequal' near-miss came from"
   },
   {
+   "item": "restated:RPC-001::RPC-001-14.a",
+   "ruling": "C38",
+   "set": {
+    "typedBound": {
+     "min": 1,
+     "max": null
+    },
+    "fitNote": "EXISTS per team becomes RANGE >=1 PER_TEAM. The clause 'not mirrored or identical in kind' is a non-claim, declared on DV1. TYPED 4 October (Christian): \"Please type the explicitly authored '>=1' objective count into its proper structured field under the same SD-86 principle we've already applied. This is the same normalization class as the previous explicit cardinalities, not new knowledge.\" The 1 is verbatim in the authored value and countBounds could not read it: its minimum pattern wants a 'min 1' form and its bare-digit match is anchored, so '>=1' matched neither and the claim arrived with no cardinality at all. That is the same shape as NEUTRAL-01.a's '>= 1 (no authored maximum)' (C29c) and PCG-08's 'at least 2 teams' (C37), both already typed. Minimum 1, maximum null, exactly as authored; no maximum is introduced because none is authored. The prose value is unchanged so the source stays visible beside its typed form. This is the one claim the 3 October removal of the minimum-of-one substitution newly exposed: before typing, it was the only existential claim in the corpus whose cardinality was unreadable, and it is reached only through the corpus-wide run - no learning goal selects RPC-001."
+   },
+   "why": "an explicitly authored '>=1' was sitting unreadable in prose, so the claim carried no cardinality and, once the engine stopped substituting a minimum of one, became the single unreadable claim in the corpus. Typing it restores the number the author wrote and changes no authored content"
+  },
+  {
    "item": "blind:PASS-COMBINATION-GATE::PCG-08",
    "ruling": "C37",
    "set": {

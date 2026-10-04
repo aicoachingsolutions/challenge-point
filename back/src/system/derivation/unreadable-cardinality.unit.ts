@@ -54,26 +54,38 @@ function resolvedFor(input: any) {
 
 const corpus = resolvedFor(corpusInput())
 
-// ── The one unreadable claim, and it is reported as unknown rather than as satisfied ───────────────
-test('an unreadable cardinality yields shortfall null, not zero and not one', () => {
+// ── NO unreadable claim remains, because the one this exposed has since been typed ─────────────────
+//
+// The 3 October correction exposed exactly one: `restated:RPC-001:RPC-001-14.a`, authored `">=1"`, which the
+// count reader could not read. It was reported as a gap and deliberately left untyped, because he asked for the
+// gaps rather than a corpus-cleanup exercise. He then ruled it typed on 4 October (C38) as the same
+// normalization class as PCG-08 and NEUTRAL-01.a. So the end state is a corpus with no unreadable cardinality
+// at all — and the mechanism is still exercised below, by forcing one through.
+test('no existential claim in the corpus has an unreadable cardinality', () => {
     const unreadable = (corpus.resolved.existential as any[]).filter(c => c.cardinalityUnreadable)
-    assert.equal(unreadable.length, 1, `exactly one corpus-wide, got ${unreadable.map(u => u.classId).join(', ')}`)
-    const claim = unreadable[0]
-    assert.equal(claim.classId, 'c:restated:RPC-001:RPC-001-14.a')
-    assert.equal(claim.cardinality.min, null)
-    assert.equal(claim.cardinality.max, null)
-    assert.equal(claim.shortfall, null, 'the owed count is UNKNOWN — substituting one is the inference removed')
+    assert.deepEqual(
+        unreadable.map(u => u.classId),
+        [],
+        'every authored count is now readable; an unreadable one would mean a number is sitting in prose again',
+    )
+    for (const claim of corpus.resolved.existential as any[]) {
+        assert.equal(typeof claim.shortfall, 'number', `${claim.classId}: a readable claim owes a number`)
+    }
 })
 
-test('the authored value really is unreadable, so the flag is not mislabelling a readable claim', () => {
+test('the item this exposed is typed, and its authored prose is still unreadable without the typed field', () => {
     const item = (loadCorpusContracts() as any[])
         .flatMap(c => (c.items ?? []).map((i: any) => ({ contractId: c.contractId, ...i })))
         .find(i => String(i.itemId) === 'RPC-001-14.a')
     assert.ok(item, 'the item is loaded')
-    assert.equal(String(item.value), '>=1', 'the authored value')
+    assert.equal(String(item.value), '>=1', 'the authored prose is unchanged beside the typed form')
     assert.equal(String(item.requirement), 'RANGE', 'a count requirement, so a claim genuinely exists')
-    assert.equal(countBounds(item), null, 'and the one canonical count reader reads nothing from it')
-    assert.equal(item.typedBound, undefined, 'deliberately NOT typed — the gap is reported, not repaired')
+    assert.deepEqual(item.typedBound, { min: 1, max: null }, 'typed under SD-86: the authored 1, and no invented maximum')
+
+    // The teeth: without the typed field the prose really is unreadable, so the typing is carrying the number
+    // rather than the parser having learned to read it.
+    const { typedBound, ...withoutTyped } = item
+    assert.equal(countBounds(withoutTyped), null, 'the canonical count reader still reads nothing from ">=1"')
 })
 
 // ── THE DISTINCTION: a ceiling with no floor is a COMPLETE claim and must keep working ─────────────
