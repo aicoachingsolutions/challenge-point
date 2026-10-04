@@ -1,0 +1,102 @@
+Christian,
+
+Both done. **321 cases green, exit code 0. A04 authorized, acceptance passed, render-eligible.**
+
+
+THE TRUST-CRITICAL REPAIR
+
+The selector is now read where the row is read, and nothing else changed.
+
+**Scope.** I reused the canonical selector matcher the applicability rule already uses rather than writing a
+second one — it moved from the engine to the selector module, which is where selector semantics live, and this
+codebase has already paid once for two count readers that disagreed. No trigger architecture touched.
+
+**One decision had to be made inside the repair and I want it visible.** Where the element's own selector does
+not fix the attribute at all, the decision now **declines**. The applicability rule makes the opposite choice on
+the same question, and both are right: an applicability rule may only ever *remove* a line it can positively
+disqualify, so undecidable keeps the line. A standing decision *supplies a value*, and supplying one through a
+narrowing nobody can read is inferring the narrowing away. Fail rather than infer.
+
+**Measured effect: exactly one application removed**, across all thirteen goals and every practice situation.
+
+    GF2-07.a::T7      POSSESSION_CHANGE     still applies   (SD-14 names it)
+    GF4 I06::T7       POSSESSION_CHANGE     still applies   (SD-14 names it)
+    A01-02-01.a::T7   OUT_END_LINE          REMOVED         (SD-14 does not)
+
+The goal-kick line now reads `failed / NOT_AUTHORED` — an honest gap rather than an unsourced `true`, which is
+the verdict change I flagged when I reported the defect. A04 is untouched, its only transition being a turnover.
+
+
+YOUR FALSIFICATION, BOTH DIRECTIONS
+
+You asked for a case where the trigger is present through a transition but has no independent authority for
+`playState` or the episode boundary, and for confirmation that neither survives merely because the trigger
+matched.
+
+**The corpus case:** the goal-kick transition. Trigger present, carried by a transition, named by neither
+selector. The episode boundary is now absent and the decision is not recorded against the line, so nothing
+downstream can read it as a source.
+
+**A synthetic case for both properties together**, because the corpus goal kick has an *authored* play state and
+so cannot test that half alone. A transition keyed on a touchline trigger, with no authored episode boundary:
+
+- the episode boundary is **not supplied at all** — nothing authors it and SD-14 no longer reaches it;
+- no standing decision is recorded against either line;
+- **the play state that is present comes from an authored item**, not from SD-20.
+
+So the test asserts **provenance rather than absence** on that half, which is the stronger statement: the repair
+removes standing-decision propagation and leaves authored knowledge exactly where it was.
+
+**And the control, in the other direction:** the same synthetic transition keyed on `POSSESSION_CHANGE` still
+receives both, from the same two decisions. The repair is not a blanket refusal.
+
+
+ONE EXISTING TEST WAS PASSING FOR THE WRONG REASON
+
+Worth telling you because it is the clearest evidence the defect was load-bearing. A test asserts that two
+transition classes on one trigger required to be two different things must fail. Its expected failure rested on
+**SD-20 supplying `CONTINUE` to a `START` transition** — a trigger SD-20 does not name. With the repair in, that
+value is gone and the check could no longer see a conflict.
+
+The invariant is real, so the conflict is now **authored on both sides**: each class carries its own
+distinguishing qualifier and its own play-state item. The test still exercises the invariant and no longer
+depends on the defect. I have recorded in the file what it used to rest on.
+
+
+THE AUTHORED ITEM
+
+The Pass Combination Gate's information-rule trigger now carries `COMPLETED_PASS`, basis `OWNER_RULING`,
+strictness `REQUIRED`, status `REQUIRED_RANGE`, with your 29 September ruling quoted as its evidence. It
+resolves in all five goals that select that contract, closing one failed line in each.
+
+**It displaces nothing.** The competing item on that row is `ASSUMED` and `PREFERRED_DEFAULT`, so by §3 it bounds
+and never entails and could not have resolved the row — and its own evidence already conceded *"a reveal on each
+completed pass, which is not a listed trigger."* It is left exactly as it stands.
+
+**What "qualifying" means is not my reading.** It is fixed by the authored count item, *"counts ATTACKING_TEAM's
+connected passes"*, so the trigger is a pass that connects and nothing further. The item's own note records
+that, and records that the token is not ordered against `FIRST_FORWARD_PASS` in either direction.
+
+**And the sequence is pinned, because it matters.** Registering the vocabulary member closed nothing — the row
+stayed unauthored in all five goals. The line closed only when you authorized the item. A vocabulary member
+makes a value sayable; it does not say it. The member's own inertness is now proved by removing it rather than by
+a current-state baseline, which is the better evidence anyway.
+
+**The reachability limit is recorded on the item and pinned by a test, not repaired**, as you directed: the
+reachable-trigger set is built by a function that never reads the vocabulary, and the information gate does not
+test reachability the way the consequence gate does. So this item is admitted on registration alone. The same has
+been true of `FIRST_FORWARD_PASS` since September.
+
+
+EVERYTHING ELSE AS HELD
+
+Structural trigger reachability recorded and pinned, not repaired. Wide Zone representation unchanged. Magnitude
+held. No generic contact, no latest-contact relation, no event history, no scoring-eligibility work, no broader
+trigger cleanup. A04 and generation frozen.
+
+Corpus after both: 131 lines, 17 open, 39 items restated by an individual ruling, 14 added from what a ruling
+entails, none named-but-missing.
+
+The Controlled Wide Access falsification and its correction are with you separately.
+
+Joe

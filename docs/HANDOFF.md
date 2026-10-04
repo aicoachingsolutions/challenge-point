@@ -5447,3 +5447,60 @@ Zone's authored exclusions; the Q5/nothingInvented contradiction; the criterion-
 
 **Process lesson, twice in one day: do not send a report while a background trace is still running.** The
 afternoon addendum had the same cause.
+
+---
+
+## 4 October (close of day) — selector repair + PCG trigger item authored. 321 green, EXIT 0.
+
+### The trust-critical repair (he classified it so)
+`applies()` matched a standing decision to a line by **ROW ONLY** and never read `entry.item.selector`. Now it
+reads it, via the **canonical matcher the applicability rule already uses** — `selectorApplies` **MOVED from
+engine.ts to selector.ts** (where selector semantics belong) rather than duplicated, because this codebase has
+already paid for two count readers that disagreed. engine.ts and derive.ts both already imported selector.ts, so
+no cycle.
+- **The one judgement inside the repair, made visible: UNDECIDABLE DECLINES.** Where the element's selector does
+  not fix the attribute, the decision does not apply. **The applicability rule makes the OPPOSITE choice on the
+  same question and both are right** — an applicability rule may only ever REMOVE a line it can positively
+  disqualify (so undecidable keeps it), whereas a standing decision SUPPLIES a value, and supplying one through
+  an unreadable narrowing is inferring the narrowing away. Documented on `selectorApplies` for both callers.
+- **Measured: exactly ONE application removed** across 13 goals × every practice situation. `GF2-07.a::T7` and
+  `GF4 I06::T7` (both POSSESSION_CHANGE) still apply; `A01-02-01.a::T7` (OUT_END_LINE) removed. That line is now
+  `failed / NOT_AUTHORED` — the verdict change I flagged when reporting the defect. **A04 untouched.**
+
+### His falsification, implemented BOTH directions
+- Corpus case (goal kick): episode boundary absent, and **no standing decision recorded against the line**, so
+  nothing downstream can read it as a source.
+- **Synthetic case for both properties**, because the corpus goal kick has an AUTHORED play state and cannot test
+  that half alone: a transition on OUT_TOUCHLINE gets **no episode boundary and no SD on either line**, while the
+  play state that IS present comes from the authored `GF2-16.b`. **So the test asserts PROVENANCE, not absence** —
+  the repair removes SD propagation and leaves authored knowledge alone. (My first version asserted absence and
+  failed; the expectation was wrong, not the code.)
+- Control: the same transition on POSSESSION_CHANGE still receives BOTH. Not a blanket refusal.
+
+### AN EXISTING TEST WAS PASSING FOR THE WRONG REASON — clearest evidence the defect was load-bearing
+`derivation-stage10.unit.ts` SD-94 "fail when the same trigger is required to be two different things": its
+expected FAIL rested on **SD-20 supplying CONTINUE to a START transition** — a trigger SD-20 does not name. With
+the repair the value vanished and the check could no longer see a conflict. **Fixture corrected so the conflict is
+AUTHORED ON BOTH SIDES** (each class gets a distinguishing qualifier and its own T6 item); the invariant is still
+tested and no longer depends on the defect. What it used to rest on is recorded in the file.
+
+### The authored PCG item (C39)
+`PCG-14.f`, row V17, `COMPLETED_PASS`, basis OWNER_RULING, REQUIRED, REQUIRED_RANGE, 29 Sept ruling as evidence,
+added via the restatements `added` array after PCG-14.a. **Resolves in all five goals that select PCG**, closing
+one failed line each (A01 8→7, TA01/A02/TA02 7→6, A05 8→7). A04 unchanged at 7.
+- **Displaces nothing**: PCG-12 is ASSUMED/PREFERRED_DEFAULT so it bounds and never entails, and its own evidence
+  already conceded *"a reveal on each completed pass, which is not a listed trigger"*. Left exactly as it stands.
+- **"Qualifying" is not my reading** — fixed by PCG-05's *"counts ATTACKING_TEAM's connected passes"*, so the
+  trigger is a pass that CONNECTS and nothing further.
+- **THE SEQUENCE IS PINNED: the vocabulary member closed NOTHING; the line closed only on the authoring act.** A
+  vocabulary member makes a value SAYABLE, it does not say it. The member's inertness is now proved by REMOVING it
+  rather than by a current-state baseline — better evidence, and it survived the baselines moving.
+- Reachability limit recorded on the item and pinned by a test, not repaired, per his instruction.
+
+### Two self-inflicted stumbles worth remembering
+1. **The sport-coupling ratchet caught my own doc comment** — I wrote "in football" in the sport-NEUTRAL
+   derivation layer, taking occurrences 35→36. Reworded (not ratchet-raised, not SPORT_LAYER_FILES'd). **The
+   derivation layer is sport-neutral including in its prose.**
+2. **A `python - <<EOF` heredoc hung on stdin** (python is absent here) and had to be killed. Use the Edit tool.
+
+Corpus after both: 131 lines, 17 open, 39 restated, 14 added, none named-but-missing.
