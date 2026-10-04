@@ -5333,3 +5333,80 @@ work he has held.
 reaches `A01-02-01.a::T7` (trigger OUT_END_LINE) and SD-20 would supply a play state to any transition. It does
 NOT touch COMPLETED_PASS, which no item authors onto a transition — but it is the route by which any
 transition-carried trigger silently acquires a play state and an episode boundary.
+
+---
+
+## 4 October (final) — CONTROLLED WIDE ACCESS falsified. Breaks on HIS OWN 2 Oct ruling + spec §7.
+
+Nothing implemented for it (his guardrail). A04 unchanged, 312 green.
+
+### THE PART THAT PASSES — tell him plainly
+**His logical form is sound and genuinely different from the touch condition.** "Team T has functional control of
+the ball within Region R" is a conjunction of three predicates over **ONE INSTANT**. Tested each of his four:
+needs **no** prior touch, **no** completed pass, **no** possession before/after, **no** event history. **The
+containment objection that killed the touch condition DOES NOT APPLY.** He removed the two-moment relation and
+the removal worked.
+
+### BREAK 1 — his own 2 October ruling, which this wording undoes
+`INCENTIVE_ASSURANCE_CRITERIA.md:389-396` records BOTH halves, verbatim:
+> *"Controlled" means retained possession, observably. Not deliberate intent. His condition, exactly: A touch
+> within the channel after which the touching player's team retains possession.* And: *"I would prefer the
+> canonical representation to carry that observable relationship **rather than rely on the qualitative word
+> controlled**."*
+**Controlled Wide Access relies on exactly that word**, and asks it to be how-agnostic AND after-agnostic — the
+opposite of the observable relationship he settled (constitutively a how-claim + an after-claim). **Not a state
+restatement of the settled condition; a DIFFERENT concept, and the one he declined.**
+
+### BREAK 2 — spec §7 "Deliberately not held" refuses BOTH relata by name
+`game-representation-spec-2026-09-18.md:759-764`, verbatim:
+> *"The state of a game in progress: which target is live now, **who has the ball now**."*
+> *"The coach's in-play judgement of a `FREE` condition (SD-15)."*
+**His candidate asks for precisely those two, conjoined.** §1: *"It describes the rules that govern state, never
+the state itself."* MEASURED on the frozen render-eligible A04 game: **no `possession` key at all**, **no
+`objects` collection at all — there is no ball in the render-eligible game**, and the teams carry no identity
+(his own 2 Oct designation removal). Two of three relata absent BY DESIGN.
+
+### BREAK 3 — GP-006 cannot own a state indifferent to what follows
+Canonical definition: *"Create a functional performer–task object relationship that **enables meaningful
+subsequent action**."* **Forward-looking by construction**, and a *performer*–object relation (player
+representation excluded). GP-005 Gain Access: *"…performer, object, target, pathway, or environmental feature"* —
+**a region is not in that list**; reading a channel in as an environmental feature is composing on English
+compatibility. Both live at the STRATEGIC layer: `gp-library.rc1.json` carries **no definitions at all** (only
+Type/ID/Name/Relationship Domain/Operation/Status); definitions live in the ATM workbook (Stage 3, selection-side).
+**Functional Object Control and Access are SEPARATE canonical relationship domains, and possession is separate
+again** — so his composition genuinely IS a composition of two concepts, as he suspected.
+
+### THE OWNERSHIP ANSWER, and the one that will interest him most
+`target_zone_entered`, RPC library `controlled_vocabulary`, `vocabulary: scoring_event`:
+> *"A player dribbles into a marked zone, or receives and controls the ball inside it."*
+**That is Controlled Wide Access almost verbatim** — means unrestricted, a region, control — approved by him
+13 Sept as one of four valid primary scoring events, and its activity text even excludes traversal (*"a long kick
+into the target zone does not count"*), matching his 2 Oct ruling. **BUT it owns the meaning as a SCORING EVENT at
+the sport-module layer.** A04's primary event is `line_crossed` and the spec says a modifier *"changes only the
+primary event's value, never adds a second way to score."* **So the thing that owns his meaning owns it in the one
+role Wide Zone's modifier may not take.**
+
+### HIS OWN CONTRACT FORBIDS THE WORD IN THE NAME
+Three of four routes by which an element could co-hold a team AND a region are closed by Wide Zone's own AUTHORED
+exclusions: `WIDEZONE-08.a` S4 — **"access (forbidden as a member of functions)"**; `08.b` V14b — wide channel a
+forbidden region referent; `08.c` V5 — wide channel a forbidden referent. The candidate is named Controlled Wide
+**Access**. **The composition is not merely unauthorized, it is authored against.**
+
+### THE SMALLEST CARRIER, with independent motivation and an honest limit
+**One FIELD row: a criterion on the modifier condition.** The primary-event condition has THREE parts (type /
+referents / criterion holding "a threshold, a count, or a qualitative term"); the modifier condition has only TWO
+(V8a type / V8b referents). **No row holds what counts as MEETING a modifier's condition** — a structural
+asymmetry inside one area, with its precedent one area over.
+**MEASURED CONTRADICTION that motivates it independently of Wide Zone:** fidelity Q5 reports a violation unless
+`modifier.condition.satisfiedBy` is present. That field has **no register row**, is set by **no item**, and its
+name is already used twice (the BY_CONSTRUCTION schema-invariant pointer; the existential claim's established
+list). **I wrote it in: Q5 CLEARS and `nothingInvented` REJECTS it** as tracing to nothing derived, chosen or
+entailed. **A04 today passes acceptance and fails Q5, and the only fix for Q5 breaks acceptance — there is no
+state in which both pass.**
+**Limit:** the carrier would let the criterion be STATED, not EVALUATED — a qualitative control criterion stays an
+in-play judgement, which §7 deliberately does not hold.
+
+### What I put to him
+**Should the Wide Zone advantage be a way of SCORING, or a multiplier on a different score?** As a scoring event
+the meaning is owned, defined, approved and already excludes traversal. As a modifier condition it needs a state
+the spec deliberately does not hold. Structural question, not representational.
