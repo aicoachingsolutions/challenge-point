@@ -4936,3 +4936,110 @@ the AUDIT trail:** the record stamps itself with the RESOLVED game's input diges
 realization's own order-dependent decisions — two different realizations of one resolved game carry the same
 stamp. Fix is to extend the digest, which is separate and smaller than distinguishing members. Not done:
 outside today's authorization.
+
+---
+
+## 4 October — his four bounded corrections DONE, and the touch-ownership check REPORTED (not implemented)
+
+**297 cases green, tsc clean. A04 unchanged.** Identity investigation closed by his ruling.
+
+### The four corrections
+1. **PCG-08 typed (C37)** — authored *"at least 2 teams"* → `typedBound {min: 2, max: null}` under SD-86. **It
+   mattered beyond the item:** PCG-08 shares `performers.teams[]` with GF2-14.a, and while the 2 was unreadable
+   the joint population depended on which claim the parser could read. Both now contribute 2.
+2. **The `(min ?? 1)` substitution REMOVED — fail rather than infer.** Blast radius traced FIRST, as he
+   required: **one claim corpus-wide (`restated:RPC-001:RPC-001-14.a`, `objectives[]`, authored `">=1"`),
+   selected by NO goal, no goal's authorization changes, A04 untouched.** (Verified independently and by a
+   trace that also ran all 13 goals × 24 practice situations = 33 runs: nullMin 0 in every one.)
+   - **The distinction that makes it safe:** a null min is NOT by itself unreadable. A class forms only for
+     EXISTS | COUNT | RANGE; EXISTS gets `{min:1}` outright; so `min===null && max!==null` is an authored
+     **ceiling with no floor** — a complete claim that must keep working. Only `min===null && max===null` is a
+     count requirement that stated nothing readable. **Both directions tested** — failing on the wrong one
+     would be a new defect.
+   - **Used `UNBOUNDED_COUNT_FILL`** — already in the CLOSED refusal list (types.ts, package §3.3, "Adding one
+     is a design change") and **never once raised**. No kind added. **Look for a reserved-but-unemitted
+     mechanism before inventing one.**
+   - **Three reporter scripts each independently re-derived "at least one"** from a null cardinality — a display
+     layer reproducing an inference the engine refused. Fixed, with a test that stops any of them saying it again.
+   - **GAP REPORTED NOT REPAIRED:** RPC-001-14.a's `">=1"` is the same unreadable-number shape as PCG-08 and
+     NEUTRAL-01.a. Left untyped — he asked for gaps, not a cleanup exercise.
+   - Latent, noted: the `typedBound` branch runs BEFORE the EXISTS short-circuit, so an EXISTS item carrying
+     `typedBound:{max:N}` would get min null. And a future RANGE item with a QUALITATIVE value on a collection
+     row would be misclassified "unreadable count" when the author made no count claim.
+3. **Audit stamp now covers the realization input** — `realizationDigest` + `auditDigest`. **Order hashed as
+   SUPPLIED, not canonicalised**, because instantiation order fixes which handle each member gets; sorting
+   would have reintroduced the collision being closed. Test reverses the input and asserts the resolved digest
+   holds while the audit stamp moves.
+4. **Joint distinctness left unresolved; handle left as implemented; `stillOpen` NOT closed** — all per his ruling.
+
+### THE TOUCH OWNERSHIP CHECK — reported, nothing implemented (it needs a new concept)
+
+**(a) No row anywhere represents an OCCURRENCE of a player contacting the ball.** Seven mechanisms own
+different adjacent facts: GP-006/GP-007 owns the *semantic concept* but in the knowledge core as a PROBLEM
+CLASS; PS1 owns the resulting STATE and **forbids** a gain/loss mechanism (so possession cannot supply the
+touch — the dependency runs the wrong way); `primaryEvent.kind` owns the CONSEQUENCE with an RPC vocabulary
+whose definitions ARE player-ball acts but whose token is opaque; `qualifiers.lastTouch` owns TEAM ATTRIBUTION
+at an out-of-play trigger; restart actor+method own the one represented performer-on-ball act, only at a
+stoppage; `rules.actionRestrictions[]` owns an authored ACTION's legal eligibility (closed kinds
+`receiver_eligibility, action_order, direction_class` — pass-centric) but only as the subject of a legality
+rule; and `primaryEvent.conditions[]` already admits a condition typed **`control`**.
+
+> **DECISIVE STRUCTURAL FACT: there is NO individual performer in the representation at all.** Every performers
+> row is a collection, count, role list, placement group or participation state. There is no player to be the
+> subject of a touch.
+
+**(b) No trigger owns it.** `triggerSemantics` has **exactly ONE entry** (FIRST_FORWARD_PASS), and it **defines
+the two ADVERBS and leaves the VERB undefined** — it never says what a pass is. Two flags: it ends *"bounded
+addition only, no qualifier capability is implied"*, so a trigger token does NOT bring qualifiers
+(`triggerQualifiers` covers 2 of 9); and **nothing implements the NOT_EVALUABLE/CONDITIONAL rule its own gloss
+states** — `triggerSemantics` is read at only two sites, both in fidelity.ts, neither a per-trigger lookup, so
+FIRST_FORWARD_PASS is admitted by LIST MEMBERSHIP ALONE. Flagged, not touched. Only POSSESSION_CHANGE and
+FIRST_FORWARD_PASS presuppose a contact and neither is defined; the four crossing triggers presuppose ball
+MOTION, not contact.
+
+**(c) `LAST_TOUCH` is evidence, not ownership.** Gloss is four words. For it to denote, three things must
+already be true: contacts occur; they are team-attributable; they are time-ordered ("last" is a maximum over an
+order). **So the representation already ASSUMES a team-attributed, temporally ordered contact history** — the
+same shape as the possession relation. It cannot name a player (codomain is a team, and no player exists), a
+when, or a where. **And it is unexercised: the last-touch row carries ZERO items against TWENTY declarations of
+absence.** The one authored touch-derived value (GF2's "didn't touch it last") is SUPPORTING/PREFERRED_DEFAULT
+so it bounds and never entails, and **no goal instantiates an out-of-play transition at all**, so it reaches no
+consumer. **A01-02: EIGHT of fifteen items are scoped by a last-touch attribution in their SELECTOR, each
+carrying HIS OWN 26 Sept definition naming "an attacking player" — and the same object declares that qualifier
+NOT_AUTHORED.** It selects elements by a property no contract establishes.
+
+**(d) The smallest representation is SMALLER than a touch event, and most slots already exist.**
+- "retains possession" → needs NOTHING new (POSSESSION_CHANGE is the only mutator).
+- "the touching player's team" → needs NO PLAYER. The condition's content only ever uses the TEAM, so a
+  team-attributed contact suffices. **Careful: this is the mirror image of the P2 mistake — the wording reaches
+  for an individual and the claim does not need one.** (His goal-kick wording DOES name a player, so other
+  knowledge may want more.)
+- "a touch within the channel" → **`valueModifiers[].condition.type` is a closed list reading `region, object,
+  event` — it ALREADY admits an event-typed condition**, and `condition.referents` already reads *"references
+  to regions, objects or events"*. And a **transition is already the in-play event occurrence**, carrying a
+  team-designation qualifier AND a region qualifier AND a play state AND an episode boundary.
+- **So what is genuinely missing is narrow: a trigger token for a contact + a `triggerSemantics` entry + a
+  `triggerQualifiers` entry** (the last explicitly required by the FIRST_FORWARD_PASS precedent).
+- **TWO BLOCKERS THAT ARE HIS:** (i) the spec states *"Each condition refers to existing regions, objects or
+  placements, and is attached to the primary event. **No condition refers to a player's position during
+  play.**"* Whether a TEAM-attributed contact located in a region falls inside that commitment is a reading of
+  his own boundary. (ii) `condition.type` admits `event` and `referents` admits event references, but **there
+  is NO event element to reference** — no events collection exists; the only event-shaped things are
+  `transitions[]` and `value.primaryEvent`. Either a transition is the referent (overloading a concept about
+  play stopping/continuing/possession changing) or something new holds it. More than one valid reading → brought
+  to him.
+
+**(e) Independently required, and the strongest case is HIS OWN ruling.** On 29 Sept he ruled the Pass
+Combination Gate's reveal trigger: *"revealed immediately following each qualifying pass"* → `PCG-14.a`, basis
+**OWNER_RULING**, REQUIRED, REQUIRED_RANGE, value `TEAMMATE_ACTION` — and the gap it replaced recorded the
+choice as *"a completed pass (TEAMMATE_ACTION) or the coach's call (EXTERNAL_SIGNAL)"*. **He chose the pass.**
+The rest of PCG authors a pass count, a reset and a chain and hands the touch-dependent half to play in its own
+words (*"Whether the passes were made is play"*, *"No field holds reset triggers or the counting team"*); in a
+derived game the whole mechanism is two blocks of free text plus an information rule **whose trigger comes back
+failed**.
+**COUNTER-PRECEDENT, weighed explicitly:** twice a pass-adjacent authored need was met with a BOUNDED, NON-EVENT
+addition — FIRST_FORWARD_PASS as a fenced trigger token, and the reveal trigger as a CLASSIFICATION of an act
+rather than the act. Both times the smallest sufficient thing was not an event. That is the best argument the
+answer here is also smaller than it looks, and the reason nothing was implemented.
+Everything else fails the strict test (GF2's default bounds; GF4's ordering SUPPORTING with order and shot not
+held; RPC-001's "controlled on arrival" spec-declared FREE; the neutral items outside the boundary).
