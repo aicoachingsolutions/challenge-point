@@ -140,7 +140,7 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
     // value to survive "with its derivation/provenance intact", so the reason must say what entails it
     // rather than merely that something did.
     for (const entry of entailed) {
-        assert.ok(entry.collection.length > 0 && entry.memberIndex >= 0 && entry.leaf.length > 0, 'an entailment must address a member exactly')
+        assert.ok(entry.collection.length > 0 && entry.handle.length > 0 && entry.leaf.length > 0, 'an entailment must address a member exactly, by its handle')
         assert.ok(entry.lineId.length > 0 && entry.path.includes(entry.leaf), 'an entailment must be identifiable and addressable')
         assert.match(entry.because, /session|authored|register/i, `the provenance must name its source: "${entry.because}"`)
     }
@@ -223,25 +223,61 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
     const problems = nothingInvented(resolved, realized)
     assert.equal(problems.length, 1, `a value inside a member with no authority must be reported; got ${JSON.stringify(problems)}`)
     assert.ok(problems[0].includes('maxTouches'), problems[0])
-    assert.ok(problems[0].includes('does not carry it'), problems[0])
+    assert.ok(problems[0].includes('no support of its own'), problems[0])
+    assert.ok(problems[0].includes('the claim establishes the element, not its properties'), problems[0])
 }
 
-// ── A member's own authored fields are still accounted ────────────────────────────────────────────
-// The tightening must not turn legitimate member content into false violations.
+/**
+ * **An instantiated member with NO properties is the honest state, and it is accounted.**
+ *
+ * This block asserted that the member carried a `designation`. It does not any more: on his ruling of 2 October
+ * those values were removed as unsupported and unregistered — there is no register row for
+ * `performers.teams[].designation`, the stated reasons were positional ("first of the two"), and canonical
+ * knowledge defines `ATTACKING_TEAM` as the team CURRENTLY IN POSSESSION, which a static label cannot carry.
+ * **The member is now empty, and the acceptance conditions still hold** — which is the evidence that nothing
+ * depended on it.
+ */
 {
     const { resolved, realized, ctx } = chain()
     completeConcreteGame(ctx, realized)
-    for (const team of teamsOf(realized)) {
-        assert.ok(team.designation !== undefined, 'the member carries its designation')
+    for (const instantiation of realized.record.instantiations) {
+        assert.deepEqual(instantiation.member, {}, 'the instantiation supplies no property of its own')
     }
-    assert.deepEqual(nothingInvented(resolved, realized), [], 'authored member fields are not inventions')
+    for (const team of teamsOf(realized)) {
+        assert.equal(team.designation, undefined, 'and no designation reaches the concrete game')
+    }
+    assert.deepEqual(nothingInvented(resolved, realized), [], 'an empty member invents nothing')
 
-    // Including a structured one: a member field whose value is an object must not be walked into and
-    // reported field by field.
+    /**
+     * **A structured property the instantiation asserts is now reported too**, which is the ruling working: the
+     * member carrying it is no longer a reason to accept it. This block previously asserted the opposite.
+     *
+     * The original concern it was written for — that one structured value must not be reported as several — has
+     * moved to ENTAILED values, since those are now the only member properties that can be accounted. That case
+     * is asserted immediately below, where it belongs.
+     */
     const instantiation = realized.record.instantiations[0]
     ;(instantiation.member as any).shape = { kind: 'TEAM', note: 'structured' }
     ;(teamsOf(realized)[0] as any).shape = { kind: 'TEAM', note: 'structured' }
-    assert.deepEqual(nothingInvented(resolved, realized), [], 'a structured member field is one value, not three inventions')
+    const asserted = nothingInvented(resolved, realized)
+    assert.ok(asserted.length > 0, 'a property the instantiation asserts has no support, structured or not')
+    for (const problem of asserted) assert.ok(problem.includes('no support of its own'), problem)
+}
+
+// ── A structured ENTAILED value is one value, not several ─────────────────────────────────────────
+// The surviving half of the concern above. An entailment whose value is an object must not have its fields
+// reported individually — the shape is part of the one value the entailment carries.
+{
+    const { resolved, realized, ctx } = chain()
+    completeConcreteGame(ctx, realized)
+    const first = realized.record.entailed[0]
+    assert.ok(first, 'the pass must entail something for this to mean anything')
+
+    const structured = { kind: 'TEAM', note: 'structured' }
+    realized.record.entailed.push({ ...first, leaf: 'shape', path: `${first.collection}[${first.handle}].shape`, value: structured })
+    const member = teamsOf(realized).find(t => (t as Record<string, unknown>).elementId === first.handle) as Record<string, unknown>
+    member.shape = structured
+    assert.deepEqual(nothingInvented(resolved, realized), [], 'a structured entailed value is one value, not two inventions')
 }
 
 // ── A division that does not come out whole derives NOTHING, rather than rounding ─────────────────
@@ -267,19 +303,19 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
     )
 }
 
-// ── memberIndex is the exact address, where `satisfies` is not ────────────────────────────────────
-// Both teams satisfy the SAME existential claim, so `satisfies` cannot tell them apart. If memberIndex
+// ── The HANDLE is the exact address, where `satisfies` is not ─────────────────────────────────────
+// Both teams satisfy the SAME existential claim, so `satisfies` cannot tell them apart. If the handle
 // were wrong, both entailments would address one member and the other would silently keep nothing.
 {
     const { realized, ctx } = chain()
     const claims = new Set(realized.record.instantiations.map(i => i.classId))
     assert.equal(claims.size, 1, 'both teams come from one claim — so a path keyed on `satisfies` is ambiguous')
-    const indices = realized.record.instantiations.map(i => i.memberIndex)
-    assert.deepEqual([...new Set(indices)].sort(), indices.slice().sort(), 'every member has a distinct index')
-    for (const i of indices) assert.ok(i >= 0, 'memberIndex must be assigned, not left at -1')
+    const handles = realized.record.instantiations.map(i => i.handle)
+    assert.equal(new Set(handles).size, handles.length, 'every member has a distinct handle')
+    for (const handle of handles) assert.ok(handle.length > 0, 'a handle must be minted, not left empty')
 
     const entailed = completeConcreteGame(ctx, realized)
-    const addressed = new Set(entailed.filter(e => e.leaf === 'outfieldCount').map(e => e.memberIndex))
+    const addressed = new Set(entailed.filter(e => e.leaf === 'outfieldCount').map(e => e.handle))
     assert.equal(addressed.size, 2, 'the two entailments must address two different members')
 }
 
@@ -390,22 +426,34 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
     assert.ok(problems[0].includes('99') && problems[0].includes('entailment records 6'), problems[0])
 }
 
-// ── A member field that is an array of objects is not reported as an invention ────────────────────
-// `within.leaf` was not advanced across an array index, so `readAt(member, 'roles.name')` resolved nothing
-// and a value the member genuinely carried was reported as invented. A team can own a `roles[]` collection.
+/**
+ * **An ENTAILED array is one value; a member-asserted array is unsupported.** Both halves asserted together,
+ * because this block used to assert the second was fine.
+ *
+ * The array-index handling still matters — `within.leaf` must advance across an index or `readAt` is handed
+ * `roles.name` for `roles[0].name` and resolves nothing — but it now matters for entailed values, which are the
+ * only member properties that can be accounted.
+ */
 {
     const { resolved, realized, ctx } = chain()
     completeConcreteGame(ctx, realized)
-    const member = realized.record.instantiations[0].member as any
-    member.roles = [{ name: 'PIVOT' }, { name: 'WIDE' }]
-    ;(teamsOf(realized)[0] as any).roles = [{ name: 'PIVOT' }, { name: 'WIDE' }]
-    assert.deepEqual(nothingInvented(resolved, realized), [], 'an array the member carries is not an invention')
+    const roles = [{ name: 'PIVOT' }, { name: 'WIDE' }]
 
-    // And a value NOT in the member is still caught inside that array.
-    ;(teamsOf(realized)[0] as any).roles[1].smuggled = true
-    const problems = nothingInvented(resolved, realized)
-    assert.equal(problems.length, 1, `got ${JSON.stringify(problems)}`)
-    assert.ok(problems[0].includes('smuggled'), problems[0])
+    // Asserted by the instantiation: unsupported, so reported — the claim establishes the team, not its roles.
+    ;(realized.record.instantiations[0].member as any).roles = roles
+    ;(teamsOf(realized)[0] as any).roles = roles
+    const asserted = nothingInvented(resolved, realized)
+    assert.ok(asserted.length > 0, 'an array the instantiation asserts has no support of its own')
+    for (const problem of asserted) assert.ok(problem.includes('no support of its own'), problem)
+
+    // Entailed instead: one value, not one invention per element.
+    const first = realized.record.entailed[0]
+    realized.record.entailed.push({ ...first, leaf: 'roles', path: `${first.collection}[${first.handle}].roles`, value: roles })
+    assert.deepEqual(
+        nothingInvented(resolved, realized).filter(p => p.includes('roles')),
+        [],
+        'an entailed array is one value, however many elements it has',
+    )
 }
 
 // ── A runner that SKIPS the entailment pass is refused, not quietly given a different game ────────
@@ -433,12 +481,12 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
 //
 // Now that the pass always runs before the gate in every runner, the absence the guard catches is a write
 // that did not land — a wrong member address, which is exactly what the leaf-addressing defect produced.
-// Both the writer and the guard reach a member by index; skew it and the write is skipped by a bare
-// `continue`, leaving the line resolved and the game without it.
+// Both the writer and the guard reach a member by its handle; point it at a member that is not there and
+// the write is skipped by a bare `continue`, leaving the line resolved and the game without it.
 {
     const { realized, ctx, owed } = chain()
     realized.record.instantiations.forEach(i => {
-        i.memberIndex = 99 // a member that is not there
+        i.handle = 'c:no-such-claim#99' // a handle no member in the game carries
     })
     const entailed = completeConcreteGame(ctx, realized)
     assert.ok(entailed.length > 0, 'the values are still derived')

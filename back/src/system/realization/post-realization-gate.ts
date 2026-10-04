@@ -19,6 +19,7 @@
 
 import { ClassifiedLine } from '../derivation/classify'
 import { DerivedLine, resolvedValue } from '../derivation/derive'
+import { authoritativeViolations, ComparisonResult, evaluateComparisons } from '../derivation/comparison'
 import { GateContext, GateReport, runGates } from '../derivation/gates'
 import { splitPath } from '../derivation/resolved-game'
 import { ElementClass, ResolutionLine } from '../derivation/types'
@@ -38,6 +39,18 @@ export interface PostRealizationResult {
     outstanding: string[]
     /** Values this stage derived for instantiated members and wrote back into the concrete game. */
     entailed: import('./assemble-concrete-game').Entailment[]
+    /**
+     * **Every `COMPARES` relationship the selected knowledge states, evaluated against the concrete game.**
+     *
+     * Reported as its own kind rather than as a gate clause, because the register says so: SD-26,
+     * *"A comparison takes NO LINE … held in the contribution and reconciliation record, outside the eight
+     * stored areas. It never takes a property's verdict and never changes a line's status."*
+     *
+     * Carried whole — holding, violated, refused and not-evaluable alike — so a comparison that was never
+     * evaluated stays distinguishable from one that passed. An AUTHORITATIVE violation blocks
+     * render-eligibility; an assumed one may not (SD-27).
+     */
+    comparisons: ComparisonResult[]
 }
 
 /**
@@ -120,10 +133,13 @@ function concreteContext(ctx: GateContext, realized: Realized): GateContext {
     const classes: ElementClass[] = [...ctx.classes]
     const lines: ResolutionLine[] = [...ctx.lines]
 
-    realized.record.instantiations.forEach((instantiation, i) => {
+    for (const instantiation of realized.record.instantiations) {
         const claim = ctx.classes.find(c => c.classId === instantiation.classId)
-        if (!claim) return
-        const classId = `realized:${instantiation.classId}:${i}`
+        if (!claim) continue
+        // **The class id is the member's own handle**, so a verdict about a member can be traced back to that
+        // member. It was `realized:<claimId>:<i>` — an index, which named nothing the game holds, so the only
+        // way to map a verdict to a member was to re-derive the same instantiation order.
+        const classId = `realized:${instantiation.handle}`
         classes.push({ ...claim, classId, constraints: { any: false, terms: [] }, cardinality: { min: null, max: null } })
 
         for (const row of ctx.index.rows.values()) {
@@ -141,7 +157,7 @@ function concreteContext(ctx: GateContext, realized: Realized): GateContext {
             // rendering receives."* Reading the record instead left two representations that could disagree,
             // and the roster defect WAS that disagreement — a check satisfied by a value the artifact
             // lacked. Assembly has already written everything entailed, so the game is the whole truth here.
-            const gameMember = memberInGame(realized, collectionPath(instantiation.path), instantiation.memberIndex)
+            const gameMember = memberInGame(realized, collectionPath(instantiation.path), instantiation.handle)
             const supplied = gameMember ? readAt(gameMember, leaf) : undefined
             if (supplied === undefined) {
                 classified.set(lineId, { lineId, lineState: 'ENUMERATED', verdict: 'NOT_AUTHORED', reason: 'coverage', collidingItems: [] })
@@ -165,7 +181,7 @@ function concreteContext(ctx: GateContext, realized: Realized): GateContext {
                 open: null,
             } as unknown as DerivedLine)
         }
-    })
+    }
 
     return { ...ctx, classes, lines, classified, derived }
 }
@@ -214,5 +230,24 @@ export function runPostRealizationGates(ctx: GateContext, resolvedOwed: { checkI
         outstanding.push(`a value entailed at assembly did not survive into the concrete game: ${problem}`)
     }
 
-    return { gateA, owed, validated: outstanding.length === 0, outstanding, entailed: realized.record.entailed }
+    /**
+     * **The stated comparisons, evaluated here because this is the earliest stage where both operands exist.**
+     *
+     * His principle: *"A structural invariant should be evaluated at the earliest stage at which all
+     * information required to evaluate it exists."* A comparison over a per-member property has no subject
+     * until realization instantiates the members and assembly writes their values, so this is that stage.
+     *
+     * An AUTHORITATIVE violation blocks render-eligibility. An assumed one may not create an authoritative
+     * collision (SD-27), and a refused or not-evaluable comparison is reported without being counted as a
+     * pass — `evaluability` requires that it is *"never quietly true"*.
+     */
+    const comparisons = evaluateComparisons(ctx.contracts as any, realized.game as Record<string, unknown>, ctx.index)
+    for (const result of authoritativeViolations(comparisons)) {
+        outstanding.push(
+            `an authored comparison does not hold of the concrete game: ${result.comparison.from.contractId}::` +
+                `${result.comparison.from.itemId} requires "${result.comparison.asAuthored}" and the game has ${result.detail}`,
+        )
+    }
+
+    return { gateA, owed, validated: outstanding.length === 0, outstanding, entailed: realized.record.entailed, comparisons }
 }

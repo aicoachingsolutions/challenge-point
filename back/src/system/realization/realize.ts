@@ -25,6 +25,7 @@
  * was built to prevent.
  */
 
+import { canonical, digest } from '../derivation/engine'
 import { ExistentialClaim, OpenChoice, ResolvedGame } from '../derivation/resolved-game'
 import { RegisterIndex } from '../derivation/register'
 import { Bounds } from '../derivation/types'
@@ -46,6 +47,30 @@ export interface Instantiation {
     because: string
 }
 
+/**
+ * **The opaque referential handle for an instantiated member** — his ruling of 3 October:
+ *
+ *   > *Every instantiated member may receive a unique, stable, opaque referential handle. The handle
+ *   > establishes identity only; it carries no domain meaning.*
+ *
+ * It is minted as an `elementId`, extending the one canonical addressing mechanism rather than adding a
+ * second: a derived element's `elementId` is the item that authored it, and a member's is the claim that
+ * authorized it plus an ordinal distinguishing it from its siblings. So `container[handle].leaf` addresses
+ * a member exactly as it already addresses a derived element, and a typed structural reference resolves
+ * against the same field.
+ *
+ * **The ordinal is beneath the semantic boundary.** It exists only to make siblings distinguishable, per
+ * his ruling that *"an ordinal may be used internally to mint the opaque handle"* while *"that ordering
+ * must remain beneath the semantic boundary and must never become evidence for a represented property"*.
+ * Nothing may order by it, parse it, compare it other than for equality, or recover instantiation order
+ * from it; `identity.unit.ts` holds that boundary, including the permutation test.
+ *
+ * It is deliberately **readable** rather than hashed. He asked not to introduce a content-derived
+ * distinction between indiscernible members without a technical reason, and there is none — the ordinal is
+ * already reproducible from the realization input. A legible handle keeps the audit trail legible.
+ */
+export const memberHandle = (classId: string, ordinal: number): string => `${classId}#${ordinal}`
+
 export interface RecordedChoice extends Choice {
     path: string
     /** What authorized it, carried from the resolved game. */
@@ -55,7 +80,31 @@ export interface RecordedChoice extends Choice {
 }
 
 export interface RealizationRecord {
+    /** The digest of the input the RESOLVED GAME was derived from. Says which knowledge, not which realization. */
     fromDigest: string
+    /**
+     * **The digest of the realization input** — the choices and instantiations as supplied, in the order
+     * supplied.
+     *
+     * His ruling of 3 October: *"Please extend the realization record's digest/audit identity so that it covers
+     * the realization input as well as the resolved-game input. Two distinct realizations of the same resolved
+     * game should not carry an audit stamp that makes them appear identical."*
+     *
+     * The record used to carry only `fromDigest`, which is the resolved game's own input digest, so it said
+     * nothing about the decisions realization made — two different realizations of one resolved game stamped
+     * identically. That was found while answering whether the handle's ordinal is reproducible: it is, from the
+     * realization input, and the gap was that the stamp did not cover that input.
+     *
+     * **Order is preserved deliberately, not canonicalised away.** The instantiation order determines which
+     * handle each member receives, so sorting the list before hashing would make two genuinely different
+     * realizations hash alike — the exact defect this closes. Choices are order-insensitive in effect but are
+     * hashed as given for the same reason: the stamp describes the input, not a normalisation of it.
+     *
+     * This is provenance only. Nothing reads it to decide anything about the game.
+     */
+    realizationDigest: string
+    /** The single stamp to compare: the resolved-game input and the realization input together. */
+    auditDigest: string
     /**
      * Authored spatial relations instantiated against the envelope. The phrase remains the value in the
      * concrete game; this is what it entails in metres, recorded beside it with its own reason. Where a
@@ -65,11 +114,16 @@ export interface RealizationRecord {
     geometry: { lineId: string; path: string; geometry: RealizedGeometry }[]
     choices: RecordedChoice[]
     /**
-     * `memberIndex` is the member's position in the collection it was placed into. Two members of the
-     * same class carry the same `satisfies`, so a path cannot tell them apart — the index is the only
-     * exact identity, and `nothingInvented` needs it to know which recorded member a value belongs to.
+     * `handle` is the member's **identity** — the opaque referential handle minted at instantiation (see
+     * `memberHandle`). Everything that needs to say *which member* uses it.
+     *
+     * `memberIndex` is the member's **position** in the collection it was placed into, and nothing more.
+     * It used to be the identity, because two members of one claim share a `satisfies` and so could not be
+     * told apart by any path. That is what the handle fixes. The index is kept as positional provenance —
+     * where in the array this member landed — and `identity.unit.ts` asserts that no check reads it to
+     * decide which member it is looking at.
      */
-    instantiations: (Instantiation & { path: string; memberIndex: number })[]
+    instantiations: (Instantiation & { path: string; handle: string; memberIndex: number })[]
     /**
      * **Values entailed once the concrete game exists**, written back into it.
      *
@@ -85,11 +139,17 @@ export interface RealizationRecord {
      */
     entailed: {
         lineId: string
-        /** The collection, the member's index in it, and the leaf — the only exact address of a member's property. */
+        /** The collection, the member's HANDLE, and the leaf — the exact address of a member's property. */
         collection: string
-        memberIndex: number
+        handle: string
         leaf: string
-        /** Display form, for traces and provenance: `performers.teams[1].outfieldCount`. */
+        /**
+         * The canonical element path: `performers.teams[c:restated:GF2:GF2-14.a#1].outfieldCount`.
+         *
+         * This used to be subscripted by the member's index, which made it a display string only — nothing
+         * could resolve it, because an index is not an `elementId`. Addressed by the handle it is an
+         * ordinary element path, so `splitElementPath` parses it and `nothingLost` can read it.
+         */
         path: string
         value: unknown
         because: string
@@ -99,6 +159,15 @@ export interface RealizationRecord {
      * realizer cannot check the value against it and says so rather than implying it verified.
      */
     unverified: string[]
+    /**
+     * Joint conditions that were NOT evaluated, and why — because their scope cannot be partitioned here,
+     * because their set is unidentifiable, or because a violation was found under a non-authoritative basis
+     * that SD-27 forbids refusing on.
+     *
+     * Recorded rather than dropped: a condition silently not evaluated is indistinguishable from one that
+     * passed, which is exactly how the corpus's only joint condition went unnoticed.
+     */
+    jointConditionsNotEvaluated: string[]
 }
 
 export interface Realized {
@@ -287,6 +356,14 @@ export function realize(
 ): RealizationResult {
     const because: string[] = []
 
+    /**
+     * The realization input's own digest, taken from the arguments as given and BEFORE anything is applied,
+     * so it describes what was supplied rather than what the realizer made of it. Order is preserved: the
+     * instantiation order fixes which handle each member gets, so normalising it away would stamp two
+     * genuinely different realizations alike.
+     */
+    const realizationDigest = digest(canonical({ choices, instantiations }))
+
     if (!resolved.coherence.mayRealize) {
         because.push(`the resolved game may not be realized: Gate A is ${resolved.coherence.gateA}${resolved.coherence.failingChecks.length ? ` (${resolved.coherence.failingChecks.join(', ')})` : ''}`)
     }
@@ -331,24 +408,80 @@ export function realize(
         if (!seen.has(open.lineId)) because.push(`${open.lineId} is open and was not chosen: a concrete game leaves no freedom unclosed`)
     }
 
-    const recordedInstantiations: (Instantiation & { path: string; memberIndex: number })[] = []
+    const recordedInstantiations: (Instantiation & { path: string; handle: string; memberIndex: number })[] = []
     for (const instantiation of instantiations) {
         const claim = existentialById.get(instantiation.classId)
         if (!claim) {
             because.push(`${instantiation.classId}: no existential claim authorizes instantiating a member here`)
             continue
         }
-        recordedInstantiations.push({ ...instantiation, path: claim.path, memberIndex: -1 })
+        // `handle` and `memberIndex` are both filled when the member is actually placed, below.
+        recordedInstantiations.push({ ...instantiation, path: claim.path, handle: '', memberIndex: -1 })
     }
+    /**
+     * **Claims on ONE collection are evaluated against ONE population** — his instruction of 3 October to
+     * repair *"the collection/co-reference/cardinality hole exposed across A01/A02/A05"*.
+     *
+     * Each claim used to own a private population: `made` counted only that claim's own instantiations, and
+     * the maximum was checked against that count alone. So two claims on `performers.teams[]` — `PCG-08`
+     * asserting teams exist, and `GF2-14.a` authoring exactly two — were satisfied by **three teams**, one
+     * attributed to the first claim and two to the second, with no objection from either. Two teams were
+     * refused whichever way they were attributed. The collection-level cardinality check could not cover for
+     * it: it is restricted to individuated classes and is empty for `performers.teams[]` corpus-wide.
+     *
+     * Five goals carry that shape — A01, A02, A05, TA01 and TA02 — all of them GF2 beside the Pass
+     * Combination Gate.
+     *
+     * **This decides no co-reference question.** It does not rule that the two claims are about the same
+     * teams; it stops each claim behaving as though the collection were its own. His own ruling governs the
+     * semantics: *"multiple source rows do not by themselves entail multiple physical elements."* So the owed
+     * count is the greatest any single claim requires rather than the sum, and every claim's maximum binds the
+     * whole population.
+     */
+    const claimsByCollection = new Map<string, typeof resolved.existential>()
     for (const claim of resolved.existential) {
-        const made = recordedInstantiations.filter(i => i.classId === claim.classId).length
+        const path = collectionPath(claim.path)
+        claimsByCollection.set(path, [...(claimsByCollection.get(path) ?? []), claim])
+    }
+    for (const [path, claims] of claimsByCollection) {
+        const classIds = new Set(claims.map(c => c.classId))
+        const made = recordedInstantiations.filter(i => classIds.has(i.classId)).length
 
-        // **A claim already met by an established member authorizes nothing.** Instantiating anyway
+        /**
+         * **A claim whose cardinality could not be read refuses the realization — fail rather than infer.**
+         *
+         * His ruling of 3 October. The engine used to substitute a minimum of one for an unreadable count, so
+         * such a claim looked satisfied by whatever happened to exist. It cannot be: nobody knows how many the
+         * author asked for. `UNBOUNDED_COUNT_FILL` is the refusal kind the closed list already reserves for
+         * filling a count that is not bounded, and it had never been raised.
+         */
+        const unreadable = claims.filter(c => c.cardinalityUnreadable)
+        if (unreadable.length) {
+            for (const claim of unreadable) {
+                because.push(
+                    `UNBOUNDED_COUNT_FILL — ${claim.classId}: ${path} asserts a count whose value states no readable ` +
+                        `number ("${claim.from.contractId}::${claim.from.itemId}"), so how many members it owes is unknown. ` +
+                        `The engine will not fill an unreadable count with a minimum of one; the authored number must be ` +
+                        `typed under SD-86 before this claim can be satisfied`,
+                )
+            }
+            continue
+        }
+        // `satisfiedBy` is computed from the ROW, so claims on one collection hold the same established
+        // classes. The union is taken so grouping can never double-count them.
+        const established = new Set(claims.flatMap(c => c.satisfiedBy))
+        const population = established.size + made
+        // The greatest shortfall any one claim has, not the sum — one population serves them all. Every claim
+        // here has a readable cardinality, because an unreadable one refused above.
+        const owed = Math.max(...claims.map(c => c.shortfall ?? 0))
+        const describe = claims.map(c => c.classId).join(', ')
+
+        // **A collection already met by established members authorizes nothing.** Instantiating anyway
         // would add a member the knowledge never asked for — an invention with a claim's name on it.
-        if (claim.shortfall === 0) {
+        if (owed === 0) {
             if (made) {
                 because.push(
-                    `${claim.classId}: ${claim.path} is already satisfied by ${claim.satisfiedBy.join(', ')}, so instantiating ${made} more is not authorized`,
+                    `${describe}: ${path} is already satisfied by ${[...established].join(', ')}, so instantiating ${made} more is not authorized`,
                 )
             }
             continue
@@ -356,17 +489,24 @@ export function realize(
 
         if (!made) {
             because.push(
-                `${claim.classId}: ${claim.path} is asserted to exist and nothing was instantiated to satisfy it` +
-                    (claim.satisfiedBy.length ? ` (${claim.satisfiedBy.length} established, ${claim.shortfall} still owed)` : ''),
+                `${describe}: ${path} is asserted to exist and nothing was instantiated to satisfy it` +
+                    (established.size ? ` (${established.size} established, ${owed} still owed)` : ''),
             )
             continue
         }
-        // **The claim's cardinality is part of the claim** — but only the shortfall is owed, since an
-        // established member counts towards it as much as an instantiated one.
-        if (made < claim.shortfall) because.push(`${claim.classId}: ${claim.path} still owes ${claim.shortfall} member(s), and ${made} was instantiated`)
-        const { max } = claim.cardinality
-        if (max !== null && made + claim.satisfiedBy.length > max) {
-            because.push(`${claim.classId}: ${claim.path} asserts at most ${max}, and ${made + claim.satisfiedBy.length} would exist`)
+
+        if (made < owed) {
+            because.push(`${describe}: ${path} still owes ${owed} member(s), and ${made} was instantiated`)
+        }
+        // **Every claim's maximum binds the whole population**, whichever claim a member was attributed to.
+        for (const claim of claims) {
+            const { max } = claim.cardinality
+            if (max !== null && population > max) {
+                because.push(
+                    `${claim.classId}: ${path} asserts at most ${max}, and ${population} would exist` +
+                        (claims.length > 1 ? ` (counting every claim on this collection: ${describe})` : ''),
+                )
+            }
         }
     }
 
@@ -398,14 +538,36 @@ export function realize(
     // bound and the *set* still be invalid, because two members ended up in the same place. Nothing
     // is repaired here; the realization is refused and the offending pair is named.
     const jointFailures: string[] = []
+    const jointNotEvaluable: string[] = []
     for (const condition of resolved.jointConditions ?? []) {
         if (condition.kind !== 'DISTINCT_ON') continue
+        if (condition.notEvaluable) {
+            jointNotEvaluable.push(`${condition.from.itemId}: ${condition.notEvaluable}`)
+            continue
+        }
+        /**
+         * **A scope this layer cannot evaluate makes the condition NOT EVALUABLE, never satisfied.**
+         *
+         * The corpus's one condition is authored `PER_OBJECTIVE_SET` — *"differs from every other candidate's
+         * in the same set"*. Comparing every member of `objects[]` against every other would be a different
+         * and stronger claim than the author made, so the honest result is to report that the condition cannot
+         * be evaluated rather than to pass it or to over-reach with it.
+         */
+        if (condition.scope && condition.scope !== 'WHOLE_GAME') {
+            jointNotEvaluable.push(
+                `${condition.from.itemId}: authored scope ${condition.scope}, and this layer cannot partition ` +
+                    `${condition.path} by it — the set the condition ranges over is not identified, so it is ` +
+                    `reported rather than evaluated: "${condition.asAuthored}"`,
+            )
+            continue
+        }
         // One tuple per element, over the rows the condition names, taking each value from the
         // recorded choice where realization made one and from the derived value otherwise.
         const tuples = new Map<string, string>()
+        const prefix = collectionPath(condition.path)
         for (const entry of [...resolved.derived, ...recorded.map(c => ({ path: c.path, lineId: c.lineId, value: c.value }))]) {
             const parts = splitElementPath(entry.path)
-            if (!parts || !parts.container.startsWith(condition.path.replace(/\[\]$/, ''))) continue
+            if (!parts || parts.container !== prefix) continue
             const row = entry.lineId.split('::').pop()!
             if (!condition.rows.includes(row)) continue
             tuples.set(`${parts.elementId}|${row}`, JSON.stringify(entry.value))
@@ -421,10 +583,13 @@ export function realize(
             const signature = fields.sort().join(', ')
             const clash = seen.get(signature)
             if (clash) {
-                jointFailures.push(
+                const report =
                     `${condition.from.itemId}: ${clash} and ${elementId} occupy the same ${condition.rows.join('/')} (${signature}). ` +
-                        `Each placement is inside its own bound; the set is not — "${condition.asAuthored}"`,
-                )
+                    `Each placement is inside its own bound; the set is not — "${condition.asAuthored}"`
+                // **SD-27: an assumed item may not create an authoritative collision.** It bounds and never
+                // entails, so a violation of it is reported and may not refuse the realization.
+                if (condition.authoritative) jointFailures.push(report)
+                else jointNotEvaluable.push(`${report} (reported only: the condition's basis is not authoritative)`)
             } else {
                 seen.set(signature, elementId)
             }
@@ -434,6 +599,36 @@ export function realize(
 
     // Nothing above failed, so the concrete game is the derived one plus the authorized additions.
     const game: Record<string, unknown> = JSON.parse(JSON.stringify(resolved.game))
+
+    /**
+     * **Mint each instantiated member its opaque handle, and place it under that identity.**
+     *
+     * The ordinal counts within the claim, so sibling members of one claim differ and members of different
+     * claims cannot collide (their claim ids already differ). It is appended unconditionally, even where a
+     * claim owes only one member: a mint that yielded the bare `classId` would make a member findable by the
+     * element lookups driven from `resolved.derived`, and a member's leaf could then stand in for a derived
+     * element's in the acceptance checks — a silent false pass.
+     *
+     * `satisfies` stays exactly as it was. It says which claim authorized this member, which is a different
+     * question from which member this is, and some consumers legitimately want the claim.
+     *
+     * **Members are placed BEFORE choices are applied.** The order used to be the other way round, which made
+     * a realization choice about an instantiated member's property impossible: the choice loop below refuses
+     * on an element the game does not yet hold, so such a choice was rejected as naming a missing element
+     * before any accounting could see it. Instantiation must precede a choice about the thing instantiated.
+     */
+    const ordinalWithinClaim = new Map<string, number>()
+    for (const instantiation of recordedInstantiations) {
+        const path = collectionPath(instantiation.path)
+        const bucket = readAt(game, path)
+        const list = Array.isArray(bucket) ? (bucket as unknown[]) : []
+        const ordinal = (ordinalWithinClaim.get(instantiation.classId) ?? 0) + 1
+        ordinalWithinClaim.set(instantiation.classId, ordinal)
+        instantiation.handle = memberHandle(instantiation.classId, ordinal)
+        instantiation.memberIndex = list.length
+        place(game, path, [...list, { ...instantiation.member, satisfies: instantiation.classId, elementId: instantiation.handle }])
+    }
+
     for (const choice of recorded) {
         const parts = splitElementPath(choice.path)
         if (!parts) {
@@ -444,13 +639,6 @@ export function realize(
         const element = Array.isArray(bucket) ? (bucket as any[]).find(e => e?.elementId === parts.elementId) : null
         if (!element) return { outcome: 'REFUSED', because: [`${choice.lineId}: the element ${parts.elementId} is not in the resolved game`] }
         if (parts.leaf) place(element, parts.leaf, choice.value)
-    }
-    for (const instantiation of recordedInstantiations) {
-        const path = collectionPath(instantiation.path)
-        const bucket = readAt(game, path)
-        const list = Array.isArray(bucket) ? (bucket as unknown[]) : []
-        instantiation.memberIndex = list.length
-        place(game, path, [...list, { ...instantiation.member, satisfies: instantiation.classId }])
     }
 
     // Instantiate every authored spatial relation the concrete game now holds, derived AND chosen
@@ -549,6 +737,8 @@ export function realize(
         game,
         record: {
             fromDigest: resolved.provenance.inputDigest,
+            realizationDigest,
+            auditDigest: digest([resolved.provenance.inputDigest, realizationDigest]),
             geometry,
             choices: recorded,
             instantiations: recordedInstantiations,
@@ -556,6 +746,7 @@ export function realize(
             // game exists. The post-realization entailment pass fills this.
             entailed: [],
             unverified: recorded.filter(c => c.boundCheck === 'UNVERIFIABLE_QUALITATIVE_BOUND').map(c => c.lineId),
+            jointConditionsNotEvaluated: jointNotEvaluable,
         },
     }
 }
@@ -676,12 +867,38 @@ export function nothingInvented(resolved: ResolvedGame, realized: Realized): str
      * licensed. An entailment licenses the value it entails and no other.
      */
     const entailedValues = new Map<string, unknown>()
-    const key = (collection: string, index: number) => `${collection}#${index}`
+    /** A member's property is addressed by its HANDLE and its leaf — never by its position. */
+    const key = (handle: string, leaf: string) => `${handle}#${leaf}`
     for (const instantiation of realized.record.instantiations) {
-        memberOf.set(key(collectionPath(instantiation.path), instantiation.memberIndex), instantiation.member)
+        if (instantiation.handle) memberOf.set(instantiation.handle, instantiation.member)
     }
     for (const entry of realized.record.entailed) {
-        entailedValues.set(`${key(entry.collection, entry.memberIndex)}#${entry.leaf}`, entry.value)
+        entailedValues.set(key(entry.handle, entry.leaf), entry.value)
+    }
+
+    /**
+     * Member properties a recorded realization CHOICE governs — the second legitimate route. A choice carries
+     * its own path, its authority and the bound that was checked, so it supports the value in its own right.
+     *
+     * **Two defects his 3 October audit found here, and both are fixed by the handle.**
+     *
+     * It used to locate the member with `instantiations.findIndex(i => i.classId === parts.elementId)` —
+     * *the first* instantiation of a matching claim. Two members of one claim share that claim id, so a
+     * choice about **either** member always resolved to the first one. And it stored only the leaf NAME in a
+     * `Set<string>`, so the entry licensed *any* value at that leaf rather than the one chosen.
+     *
+     * Together they were wrong in both directions at once: the first member accepted a value nothing had
+     * chosen, and the second member's correct value was reported as an invention. The map immediately above
+     * had already been hardened against the name-only half — *"an entailment licenses the value it entails
+     * and no other"* — and this one had not been brought with it.
+     *
+     * Now a choice is matched to the member whose handle its path names, and the value is held, not the name.
+     */
+    const chosenValues = new Map<string, unknown>()
+    for (const choice of realized.record.choices) {
+        const parts = splitElementPath(choice.path)
+        if (!parts || !parts.leaf || !memberOf.has(parts.elementId)) continue
+        chosenValues.set(key(parts.elementId, parts.leaf), choice.value)
     }
 
     const problems: string[] = []
@@ -694,17 +911,45 @@ export function nothingInvented(resolved: ResolvedGame, realized: Realized): str
         // into it reported the contents of derived knowledge as inventions, which is how this check
         // first ran: three violations, every one of them a value the run had derived.
         if (path && accounted.has(path) && !within) return
+
+        /**
+         * **Stop at an accounted MEMBER property too, before descending into it.**
+         *
+         * The mirror of the short-circuit above, and it exists for the same reason: an entailed value may itself
+         * be structured, and its shape is part of that one value rather than several unaccounted ones. Checking
+         * only at the leaves split a structured entailed value into one false invention per field — the exact
+         * mistake the comment above records this check making once before.
+         */
+        if (within && within.leaf) {
+            const k = key(within.memberKey, within.leaf)
+            for (const [licensed, source] of [
+                [entailedValues, 'the entailment records'] as const,
+                [chosenValues, 'the recorded choice is'] as const,
+            ]) {
+                if (!licensed.has(k)) continue
+                const expected = licensed.get(k)
+                if (JSON.stringify(expected) === JSON.stringify(node)) return
+                problems.push(`${within.label}.${within.leaf}: the game holds ${JSON.stringify(node)} but ${source} ${JSON.stringify(expected)}`)
+                return
+            }
+        }
         if (Array.isArray(node)) {
             const here = instantiated.has(path)
             node.forEach((entry, i) => {
+                // **An instantiated member is addressed by its own handle**, which it carries as `elementId`
+                // exactly as a derived element does. Before the handle existed this fell back to `satisfies`,
+                // which is the CLAIM's id and therefore the same for every member of that claim — so two
+                // members collapsed to one path and a failure named a path matching both.
                 const id = entry && typeof entry === 'object' ? (entry as any).elementId ?? (entry as any).satisfies : null
-                const member = here && (entry as any)?.satisfies ? memberOf.get(key(path, i)) : undefined
+                const handle = entry && typeof entry === 'object' ? (entry as any).elementId : null
+                const member = here && handle ? memberOf.get(String(handle)) : undefined
                 // **An array INSIDE a member advances the leaf by its index**, or `readAt` would be handed
                 // `roles.name` for `roles[0].name` and resolve nothing — reporting a value the member
                 // genuinely carries as an invention. A team may own a `roles[]` collection, so this is
-                // reachable, not hypothetical.
+                // reachable, not hypothetical. The index here is a position within one member's own list,
+                // not an answer to which member this is.
                 const next: Within = member
-                    ? { member, memberKey: key(path, i), leaf: '', label: `${path}[${i}]` }
+                    ? { member, memberKey: String(handle), leaf: '', label: `${path}[${String(handle)}]` }
                     : within
                     ? { ...within, leaf: within.leaf ? `${within.leaf}.${i}` : String(i) }
                     : null
@@ -724,17 +969,40 @@ export function nothingInvented(resolved: ResolvedGame, realized: Realized): str
         }
         if (node === undefined) return
         if (within) {
-            // Carried by the member the existential claim authorized...
-            if (readAt(within.member, within.leaf) !== undefined) return
-            // ...or entailed — and the entailment must account for THIS value, not merely this leaf.
-            const entailedKey = `${within.memberKey}#${within.leaf}`
-            if (entailedValues.has(entailedKey)) {
-                const expected = entailedValues.get(entailedKey)
+            /**
+             * **Authority to instantiate an element does not entail authority to populate its properties.**
+             *
+             * His ruling of 2 October, and it closes the last blanket permission in this check. The existential
+             * support that establishes a team, a region or an objective establishes **that element**. A property
+             * ON that element still needs its own support: an entailment, or a governed realization choice whose
+             * permissible choice space is itself supported.
+             *
+             * Until now a value the instantiation simply asserted was accepted because the member carried it —
+             * which made "the claim authorized this member" do duty for "something authorizes this value". That is
+             * how `performers.teams[].designation` reached the concrete game: an unregistered property, supplied
+             * with the positional reason "first of the two", carrying a token canonical knowledge defines as the
+             * team CURRENTLY IN POSSESSION.
+             *
+             * Two routes remain, and both carry their support in the record rather than in the instantiation:
+             * a recorded ENTAILMENT, or a recorded CHOICE whose bound was checked.
+             */
+            const licensedKey = key(within.memberKey, within.leaf)
+            for (const [licensed, source] of [
+                [entailedValues, 'the entailment records'] as const,
+                [chosenValues, 'the recorded choice is'] as const,
+            ]) {
+                if (!licensed.has(licensedKey)) continue
+                const expected = licensed.get(licensedKey)
                 if (JSON.stringify(expected) === JSON.stringify(node)) return
-                problems.push(`${within.label}.${within.leaf}: the game holds ${JSON.stringify(node)} but the entailment records ${JSON.stringify(expected)}`)
+                problems.push(`${within.label}.${within.leaf}: the game holds ${JSON.stringify(node)} but ${source} ${JSON.stringify(expected)}`)
                 return
             }
-            problems.push(`${within.label}.${within.leaf}: ${JSON.stringify(node)} is inside an instantiated member that does not carry it, and no entailment accounts for it`)
+
+            problems.push(
+                `${within.label}.${within.leaf}: ${JSON.stringify(node)} is a property of an instantiated member with no ` +
+                    `support of its own — the claim establishes the element, not its properties, and nothing entails or ` +
+                    `governs this value`,
+            )
             return
         }
         if (!accounted.has(path)) problems.push(`${path}: ${JSON.stringify(node)} traces to nothing derived, chosen or instantiated`)

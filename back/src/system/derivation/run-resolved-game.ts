@@ -51,7 +51,7 @@ function render(game: ResolvedGame): string {
     out.push('  SD-97 — something says a member of this collection exists and individuates none.')
     out.push('  A realized game must satisfy these; nothing here can say which element does.')
     for (const claim of game.existential) {
-        const card = claim.cardinality.min === null && claim.cardinality.max === null ? 'at least one' : `min ${claim.cardinality.min ?? '-'}, max ${claim.cardinality.max ?? '-'}`
+        const card = claim.cardinalityUnreadable ? 'UNREADABLE COUNT (no number the parser can read; not an inferred minimum of one)' : `min ${claim.cardinality.min ?? '-'}, max ${claim.cardinality.max ?? '-'}`
         out.push(`  ${claim.path.padEnd(22)} ${card.padEnd(18)} ${claim.from.contractId}::${claim.from.itemId}`)
     }
 

@@ -29,19 +29,30 @@
  */
 
 import { ClassifiedLine } from '../derivation/classify'
+import { Comparison, comparisonOf } from '../derivation/comparison'
 import { DerivedLine, resolvedValue } from '../derivation/derive'
 import { GateContext } from '../derivation/gates'
 import { splitPath } from '../derivation/resolved-game'
 import { collectionPath, place, readAt, RealizationRecord, Realized } from './realize'
 
+/** Both sides of the comparison name the given row — i.e. it is a statement about that property. */
+const sameRow = (comparison: Comparison, row: string): boolean =>
+    'row' in comparison.left && 'row' in comparison.right && comparison.left.row === row && comparison.right.row === row
+
 /** A value entailed once the concrete game exists, with the member address it belongs at. */
 export type Entailment = RealizationRecord['entailed'][number]
 
-/** The member as it sits in the concrete game — the thing a consumer will actually read. */
-export function memberInGame(realized: Realized, collection: string, memberIndex: number): Record<string, unknown> | null {
+/**
+ * The member as it sits in the concrete game — the thing a consumer will actually read.
+ *
+ * **Addressed by its opaque handle, not by its position.** It used to index the array, which was the only
+ * way to tell two members of one claim apart before handles existed and which meant every per-member
+ * address in this module depended on the order realization happened to place them in.
+ */
+export function memberInGame(realized: Realized, collection: string, handle: string): Record<string, unknown> | null {
     const bucket = readAt(realized.game, collection)
     if (!Array.isArray(bucket)) return null
-    const member = (bucket as unknown[])[memberIndex]
+    const member = (bucket as unknown[]).find(entry => entry && typeof entry === 'object' && (entry as Record<string, unknown>).elementId === handle)
     return member && typeof member === 'object' ? (member as Record<string, unknown>) : null
 }
 
@@ -58,7 +69,7 @@ export function completeConcreteGame(ctx: GateContext, realized: Realized): Enta
     for (const rule of RULES) rule(ctx, realized, entailments)
 
     for (const entailment of entailments) {
-        const member = memberInGame(realized, entailment.collection, entailment.memberIndex)
+        const member = memberInGame(realized, entailment.collection, entailment.handle)
         if (!member) continue
         place(member, entailment.leaf, entailment.value)
     }
@@ -98,28 +109,39 @@ const deriveRoster: EntailmentRule = (ctx, realized, into) => {
     // The instantiated members of the teams collection, with their addresses in the game.
     const teams = realized.record.instantiations
         .map((instantiation, i) => ({ instantiation, i, claim: ctx.classes.find(c => c.classId === instantiation.classId) }))
-        .filter(entry => entry.claim?.row === 'P1' && entry.instantiation.memberIndex >= 0)
+        .filter(entry => entry.claim?.row === 'P1' && !!entry.instantiation.handle)
     if (!teams.length) return
 
     /**
-     * **Equality must be AUTHORED, and it must be REQUIRED.**
+     * **Equality must be DECLARED, authoritative, and REQUIRED.**
      *
-     * Two hardenings, both found by adversarially auditing this derivation:
-     *   - `/equal/i` **matched its own negation.** The corpus contains an AUTHORED P2 item valued
-     *     *"unequal between the teams, e.g. 4 and 6 (4v6)"*, so an item stating asymmetry licensed the
-     *     engine to divide equally. `\bequal` requires a word boundary "unequal" does not provide.
-     *   - **An example is not a requirement.** That item is a `TYPICAL_EXAMPLE` and a preference is a
-     *     `PREFERRED_DEFAULT`; neither may license a universal division. `GF2-14.b`, the item he promoted
-     *     for this purpose, is `REQUIRED_RANGE`.
+     * His instruction of 3 October: *"please don't introduce another mechanism or continue relying on prose
+     * matching for `"equal"`"*. So the equality is now read from a typed `COMPARES` relationship on the item —
+     * the kind AM-16 registered on 20 September and that nothing had used — rather than by matching the word
+     * in the item's prose.
+     *
+     * That retires the sharper of two defects this derivation has already had:
+     *   - `/equal/i` **matched its own negation.** An AUTHORED P2 item reads *"unequal between the teams, e.g.
+     *     4 and 6 (4v6)"*, so an item stating asymmetry licensed an equal division. `\bequal` patched the
+     *     symptom; reading a declared relation removes the class — prose is no longer consulted at all.
+     *   - **An example is not a requirement.** That item is a `TYPICAL_EXAMPLE`; neither it nor a
+     *     `PREFERRED_DEFAULT` may license a universal division. `GF2-14.b`, the item he promoted for this
+     *     purpose, is `REQUIRED_RANGE`.
+     *
+     * **Reading that equality is asserted is not the same as evaluating the comparison.** Per `relation:
+     * NARROWS`, a comparison *"never entails a value"*, so it does not produce the roster: it narrows the
+     * space to equal counts, and the session total then fixes the number. Evaluating the comparison against
+     * the finished game is a separate obligation, and `comparison.stillOpen` currently refuses it — see
+     * `comparison.ts`.
      */
     const equality = ctx.contracts.some(contract =>
-        (contract.items ?? []).some(
-            item =>
-                String(item.row) === 'P2' &&
-                String((item as { basis?: unknown }).basis) !== 'ASSUMED' &&
-                String((item as { valueStatus?: unknown }).valueStatus) === 'REQUIRED_RANGE' &&
-                /\bequal/i.test(String(item.value ?? '')),
-        ),
+        (contract.items ?? []).some(item => {
+            if (String(item.row) !== 'P2') return false
+            if (String((item as { valueStatus?: unknown }).valueStatus) !== 'REQUIRED_RANGE') return false
+            const comparison = comparisonOf(String(contract.contractId), item as unknown as Record<string, unknown>)
+            // An assumed comparison bounds and never entails (SD-27 / §3), so it may not license a division.
+            return !!comparison && comparison.authoritative && comparison.operator === '=' && sameRow(comparison, 'P2')
+        }),
     )
     if (!equality) return
 
@@ -188,14 +210,14 @@ const deriveRoster: EntailmentRule = (ctx, realized, into) => {
             if (!leaf) continue
             // Already carried by the member realization supplied — nothing owed, and nothing to write.
             if (readAt(instantiation.member as Record<string, unknown>, leaf) !== undefined) continue
-            const existing = memberInGame(realized, collection, instantiation.memberIndex)
+            const existing = memberInGame(realized, collection, instantiation.handle)
             if (existing && readAt(existing, leaf) !== undefined) continue
             into.push({
-                lineId: `assembly:${collection}[${instantiation.memberIndex}]::${rowId}`,
+                lineId: `assembly:${collection}[${instantiation.handle}]::${rowId}`,
                 collection,
-                memberIndex: instantiation.memberIndex,
+                handle: instantiation.handle,
                 leaf,
-                path: `${collection}[${instantiation.memberIndex}].${leaf}`,
+                path: `${collection}[${instantiation.handle}].${leaf}`,
                 value,
                 because:
                     rowId === 'P2'
@@ -220,7 +242,7 @@ const RULES: EntailmentRule[] = [deriveRoster]
 export function entailmentsLanded(realized: Realized): string[] {
     const problems: string[] = []
     for (const entailment of realized.record.entailed) {
-        const member = memberInGame(realized, entailment.collection, entailment.memberIndex)
+        const member = memberInGame(realized, entailment.collection, entailment.handle)
         const inGame = member ? readAt(member, entailment.leaf) : undefined
         if (inGame === undefined) {
             problems.push(

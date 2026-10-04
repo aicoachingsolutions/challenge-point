@@ -1,0 +1,183 @@
+Christian,
+
+RPC-001's `">=1"` is typed, and with it **no existential claim anywhere in the corpus has an unreadable
+cardinality.** 297 cases green, A04 unchanged.
+
+On the carrier: I built the candidate, falsified it against your five consumers, and **it broke.** I am
+reporting that rather than a design, because the breakage is informative and because handing you a proposal
+that has only survived my own reasoning is exactly what you asked the falsification to prevent.
+
+The good news is that the falsification settled your biggest concern with register data, and what is left is
+smaller and better located than what I started with.
+
+
+THE CANDIDATE, AND HOW IT BROKE
+
+I proposed putting the qualifying interaction on the value-modifier condition: a closed interaction-kind
+vocabulary, named through the existing `condition.type` value `event`, with team and region as qualifiers.
+Four things killed it, three of which I had simply wrong.
+
+**1. `condition.type` is not a field I may retype — it is the modifier's identity.** On A04 no item authors it
+at all. The value `region` is *derived* from the class's own defining selector, and SD-101 makes that selector
+**constitutive of class identity**: an item entailing a different value is preserved and reported as a
+contradicted constitutive selector, never resolved against. So retyping it does not reconfigure the modifier,
+it contradicts it.
+
+**2. It is a single-valued field.** Exactly five rows carry set multiplicity, and the register's own note says
+*"no row gains it whose valueType did not already say so."* So the condition cannot carry a kind **and** a
+region. The referent set *can* hold mixed members — I had that forced through and reference integrity still
+passed — but a kind token there establishes no identity, and SD-57 forbids promoting open text into event
+identity. So the kind has no home on either field.
+
+**3. `event` is not unused, and it is empty for a reason.** GF4 already carries four event-typed modifier
+items, and A01-02 authors one too. On the two goals that select GF4, the modifier-overlap invariant is
+**already** not evaluable and Gate A **already** fails. The slot is empty of entailments because it is
+refused, not because it is free.
+
+**4. Forcing it destroys A04.** Measured, not predicted: retyping the Wide Zone modifier to `event` takes
+modifier-overlap from PASS to NOT_EVALUABLE, Gate A to NOT_EVALUABLE, and **realization-authorized from true
+to false.** The closure we spent three weeks reaching is gone. And a partial retype is worse — it leaves your
+MULTIPLY ×2 reported as a *declared gap*, with two TYPICAL_EXAMPLE items standing in for your own entailment.
+
+**And one silent loss worth recording on its own.** The overlap check routes entirely on `condition.type`.
+Retyping takes its region clause from "2 region referents compared" to "0 compared" — and it still reports
+**PASS**. Nothing says the comparison stopped happening. That is the project's oldest failure shape, and it
+would have been introduced by the repair.
+
+Two further structural refusals, for completeness: there is **no team row anywhere** under the value modifiers
+— the six rows are the modifier, its condition type, its referents, magnitude, operation and combination — and
+a designation is evaluated *"at the trigger or episode it is attached to"*, which a modifier condition is
+neither.
+
+
+WHAT THE FALSIFICATION SETTLED — and it answers your item 2 directly
+
+**A trigger is not a transition.** The register makes this explicit data rather than a judgement: the rows that
+consume the trigger vocabulary are `transitions[]`, `consequences[].trigger`, `informationRules[].trigger` and
+`timeWindows[].startsOn`. **Three of the four are not transitions.** So registering a contact as a trigger does
+*not* give it play state, episode behaviour or award possibilities — those live on other rows of the
+transition, which a trigger carried by an information rule or a consequence never touches.
+
+That is the thing you were right to be wary of, and it turns out to be already solved by the architecture.
+
+
+AND IT CORRECTED YOUR REQUIREMENT (6)
+
+This is the finding I would most want you to see, because it says your own list asks the carrier to defend the
+wrong thing.
+
+**The recency in `LAST_TOUCH` is carried by the slot, not by the designation.** The applicability rule for the
+last-touch qualifier reads *"whose touch last played the ball before it left the field."* The **row** means
+"last"; the designation only answers *which team*. Which has a sharp consequence:
+
+- filling that slot with `LAST_TOUCH` is a **tautology** — the team that touched last is the team that touched
+  last;
+- filling it with `ATTACKING_TEAM` is informative — and that is exactly what the corpus does.
+
+So the temporal burden exists whatever designation fills the slot, and it does not arise from the designation.
+Asking the carrier for "temporal ordering sufficient for `LAST_TOUCH`" asks it for something the designation
+never needed.
+
+What `LAST_TOUCH` **does** need is a **game-level, team-valued latest-value relation** — the team of the most
+recent registered contact, with an initial state, a named change event and an explicit unresolved rule. That is
+the shape of the possession relation you approved on 2 October, and nothing else in the candidate supplied it.
+
+
+THE FIVE CONSUMERS
+
+**Wide Zone** — breaks the candidate, as above. Of the condition's four parts, the location is *already*
+carried (two typed channel referents under AM-17) and is the part a retype would destroy; the contact, the team
+attribution and the retention are not carried at all.
+
+**`LAST_TOUCH`** — breaks it, as above. It needs a latest-value relation, not an occurrence carrier.
+
+**A01/A02 goal kick** — survives with a gap, and **your containment is confirmed**: the team reading is
+sufficient to decide the restart, and the player reading is not merely unnecessary but inexpressible in the
+register. Worth knowing precisely how thin the requirement is: of the eight items scoped by a last-touch
+attribution, only **two entail** — the one establishing the element and the one awarding the restart. The other
+six bound or are inert.
+
+**Pass Combination Gate** — and this is the strongest independent requirement of all five, from your own
+ruling.
+
+`TEAMMATE_ACTION` turns out to need **nothing** from the carrier: it is a closed Information-Expression
+classification, complete in itself, and the Game Representation never decomposes it. Verified in a run — that
+line resolves and the dimension reaches the game.
+
+**But the same 29 September ruling left a hole one row away.** It was applied to the five information
+dimensions and **not** to the information rule's own structural trigger. That line comes back **failed**,
+NOT_AUTHORED, "not constrained". The only item that could resolve it is ASSUMED and PREFERRED_DEFAULT, so it
+bounds and never entails — and its own evidence names the gap the ruling then walked into: *"Counting out loud
+could instead be read as a reveal on each completed pass, which is not a listed trigger."* **You chose that
+reading, and the trigger it needs is not in the vocabulary.** The resolved game carries five dimensions and no
+trigger at all.
+
+So the clearest live consequence is not Wide Zone's. It is that your pass-count reveal has a failed trigger
+line, and what would fill it is a trigger for a completed pass.
+
+**`FIRST_FORWARD_PASS`** — survives with a gap. It stays undefined either way, because "forward" needs a
+direction the carrier is forbidden to give a contact. The team's attacking direction is established; the
+contact's is not, and that is trajectory.
+
+
+WHERE THE EVIDENCE NOW POINTS — not yet falsified, and I would rather test it first
+
+Three parts, and none of them is an occurrence record or a new collection:
+
+1. **The interaction kind is a member of the existing `trigger` vocabulary** — because the information rule's
+   trigger row is what actually needs filling, and because a trigger demonstrably does not drag transition
+   semantics with it.
+2. **A game-level latest-contact relation**, of the possession relation's exact shape, for the team attribution
+   that `LAST_TOUCH` and Wide Zone both want. This is the part I had missing entirely.
+3. **Region attribution through the existing per-trigger qualifier mechanism** — the register already declares
+   a region reference as a qualifier for one trigger, which is the precedent, and your in-play location ruling
+   authorizes it.
+
+**The two things I do not yet know, and would want to falsify before proposing implementation:** how a qualifier
+attaches to a trigger carried by something other than a transition, since every existing qualifier row hangs off
+the transition; and whether team attribution needs a team projected *out* as a value rather than used as a
+filter, which the award and consequence rows do and a condition does not.
+
+I would rather run that falsification than hand you a second candidate on my own reasoning, given what happened
+to the first.
+
+
+ITEM 5 — THE TRIGGER-SEMANTICS INTEGRITY CORRECTION
+
+**It is a bounded repair, and most of it already exists.** My earlier report understated this: I said trigger
+semantics are never consulted, and the structural half of them is both consulted and already governed by your
+own ruling.
+
+The applicability rule you adopted on 29 September reads: *"a transition qualifier applies only where the
+transition trigger semantics make that qualifier structurally applicable… Expressed as an applicability rule
+over the trigger."* And the governing-line rule already specifies exactly what the `FIRST_FORWARD_PASS` gloss
+promises — a dependent line whose governing line is a free choice is **CONDITIONAL**, takes no value, and is not
+failed. `CONDITIONAL` is already a registered line state the classifier implements.
+
+So what is missing is narrow: the trigger's evaluability dependency is stated in **prose** in the semantics
+block, and the check that admits a trigger tests **list membership only**. The prose can never be the fix —
+reading a precondition out of prose is what SD-32 forbids.
+
+**Proposed implementation.** One machine-readable field on a trigger's semantics entry naming the row its
+evaluability depends on, and one consultation at the admitting check: a trigger whose named row is not
+established yields NOT_EVALUABLE instead of passing. The line status then needs nothing new, because
+`CONDITIONAL` and the governing-line rule already do it.
+
+**The limit, so you can judge rather than take my word.** The existing applicability form tests a governing
+line's *value membership* against a closed list, and this dependency is about whether a line is **established
+at all** — and the direction row's value is "per team, attacks and defends", which is not a list to enumerate.
+That is why the dependency cannot simply be an applicability entry, and why I am proposing one field rather
+than reusing that form. One field plus one consultation is where I would stop; if you read that as expansion,
+say so and I will leave trigger semantics alone until the carrier is settled.
+
+A second, smaller point in the same place: the one site that does read the semantics block only tests that the
+block is non-empty, which is true merely because one entry exists. It is not a per-trigger lookup either.
+
+
+STILL HELD
+
+Magnitude. No individual-player representation — and the goal-kick result confirms none is needed. No generic
+event history. No scoring eligibility. No broader trigger cleanup. No carrier implementation. A04 and generation
+frozen.
+
+Joe

@@ -4509,3 +4509,731 @@ knowledge already states the link. Nothing designed, neither mechanism implement
 Treat it as one general relationship or two mechanisms · what to do about A04's unregistered `designation` (in
 the frozen fixture, untouched) · whether `nothingInvented` should stop blanket-authorising a member's own fields
 (wide blast radius, so not proposed unilaterally). **Magnitude still open. A04 and generation frozen.**
+
+---
+
+## 2026-10-03 — Possession relationship proposed; designations removed; member authorization narrowed
+248 cases green, tsc clean. A04: acceptance PASSED · Gate A PASSED · render-eligible · Q2/Q3/Q4 pass · Q5 one
+violation (the held trigger decision). **Proposal in `docs/POSSESSION_RELATIONSHIP_PROPOSAL.md`.**
+
+### The answer: the corpus establishes the STRUCTURE; nothing HOLDS it
+**Established, cited:** initial value is a realization freedom (**SD-R2**, "which team starts can remain a
+permitted free choice") · it changes at the registered `POSSESSION_CHANGE` trigger · **SD-14: "START, SCORE and
+POSSESSION_CHANGE each begin a new attacking episode"** (THREE events) · a change continues play by default
+(**SD-20**) · `ATTACKING_TEAM` denotes its current value and a fixed-team reading is **prohibited** (Neutral
+Player Condition) · a designation may be "evaluated at the trigger" (T2).
+
+**NOT established: any field.** `objects[]` = kind/count/position — **no owner**. `performers.teams[]` =
+outfieldCount/goalkeeper/roles. `participation[].state` = ACTIVE/INACTIVE/WAITING/RESTING/OBSERVING. **So the
+representation can say possession CHANGED and cannot say who HAS it.**
+
+### The strongest evidence for his exact phrase "existing SELECTED knowledge"
+**GF2 — selected by A04 — authors two `awardedTo` prohibitions:** `GF2-07.b` *"LOST_BALL (forbidden: a rule
+returning a won ball to the team that lost it)"* and `GF2-16.a` *"NOT_LAST_TOUCH"*. Neither is evaluable without
+knowing who lost or last touched the ball. **Independent of Wide Zone.**
+Qualified honestly: those lines are **N/A in A04** (its transition is CONTINUE, RC-20), and the **Neutral Player
+Condition is contracted but NOT currently selected** by any of A01–A10. One settles *"already authored"*, the
+other settles *"existing selected knowledge"*.
+
+### His concept warning — A04 already PROVES it, rather than leaving it open
+GF2 authors `J3 = EACH_TEAM: one shared target attacked by both`, so in A04: **objective association** =
+neither/both · **scoring eligibility** = both continuously · **possession** = one at a time, the only
+discriminator. **The identity is already false here** — which is the cleanest reason the unsupported
+`designation` had to go. His single-goal check-out diagnostic **survives the proposal**, because the proposal is
+silent on scoring eligibility. No machinery added for it.
+
+### Rulings 2 and 3 — evidence BEFORE repair, as instructed
+- **Removing `designation`: NO consequence.** Acceptance/Gate A/render-eligible/rendering all unchanged. One
+  test failed and it was mine asserting the removed property existed. **Nothing depended on it — the evidence
+  that it was never doing representational work.** Members are now empty, which is the honest state.
+- **Narrowing the member authorization: production blast radius ZERO.** Three test assertions failed, **all three
+  his second category** (downstream assumptions on the blanket permission), none missing knowledge. One said
+  outright *"the instantiated member is authorized by the claim and recorded, so it is not an invention"* — the
+  reasoning that let `designation` through. All inverted to assert the new principle.
+- **One real defect in the check, fixed** (not a knowledge gap): member accounting matched the **exact leaf
+  only**, so a structured ENTAILED value split into one false invention per field — *the same mistake that
+  function's own comment records making once before*. Fixed by mirroring its own short-circuit.
+
+### EXPOSED, independent of Wide Zone — the finding worth his attention
+**`ATTACKING_TEAM` is UNDEFINED immediately after a score.** SD-14 says a SCORE begins a new attacking episode;
+**SD-R3** leaves the post-score procedure with *"no universal realization"*; so post-score possession is
+unauthored. Live consequence: **neutral affiliation is `ATTACKING_TEAM` re-decided at every episode boundary, and
+a score is one** — so for any game selecting that condition, affiliation after a score is undetermined.
+Also: the neutral condition's fitNote cites SD-14 but **omits SCORE** from its three events — narrower than the
+decision it cites.
+
+### With him
+Is one relation the right size · rule or record the post-score gap · where the relation lives (the ball is the
+intuitive home and has **no owner field**; a game-level relation needs no new collection — **not chosen, it is a
+representational decision the corpus does not settle**). Magnitude still held. A04 and generation frozen.
+*(The wider mechanism-family sweep was stopped when the previous session ended; not relaunched — the evidence
+above is all primary-source and verified directly.)*
+
+### 2026-10-03 — POSSESSION RELATION (PS1) IMPLEMENTED. A04 unchanged; one gap exposed.
+248 cases green, tsc clean. A04: acceptance PASSED · Gate A PASSED · render-eligible · Q2/Q3/Q4 pass · Q5 one
+violation (the held trigger decision). Tests: `back/src/system/derivation/possession.unit.ts`.
+
+### What went in
+**One game-level row, `possession.team` (PS1)** — **game level, NOT an owner field on the ball**, per his ruling.
+Its choice space is registered as `fillable: "one of the teams the game establishes"`, and **that was enough**:
+`mayBeOpen` already reads a row's `fillable` as its structurally defined choice space under SD-39, so **no new
+mechanism was needed**. The row records his exclusions verbatim (no scoring eligibility · no objective
+association · no invented gain/loss mechanism · no universal post-score procedure · no static ATTACKING/DEFENDING
+labels) and the boundary ruling.
+→ **Confirmation worth keeping: SD-14's own registered note already says *"Defines boundaries only"***, so his
+ruling that an episode boundary does not itself establish possession is consistent with SD-14's self-description.
+
+### His five questions
+1. **Possession established without invention? YES** — and the honest form is that on A04 it is **UNESTABLISHED,
+   reason "no coverage"**. Nothing addresses possession → SD-39's existence condition unmet → a gap, not a guess.
+   **A test proves the relation is LIVE** (add an item addressing the row and it resolves) so "unestablished" is
+   not mistaken for "inert".
+2. **`ATTACKING_TEAM` resolves against the relation**, and is unresolved where the relation is.
+3. **Consumers newly evaluable: NONE, anywhere.** GF2's two `awardedTo` prohibitions are N/A in A04 (CONTINUE);
+   no goal in A01–A10 selects the neutral condition. Said plainly rather than implying more.
+4. **Post-score:** the distinction is now **machine-visible** — post-score possession is representable as
+   unestablished instead of silently assumed.
+5. **Wide Zone: two of three halves now expressible.** "retains possession" (POSSESSION_CHANGE is the only thing
+   that changes the relation) and "attacking-team" (the designation has a referent). **"a touch" is NOT** — there
+   is **no touch event in the trigger vocabulary at all**; `LAST_TOUCH` exists only as a team designation. That is
+   exactly the trigger-semantics decision he is holding.
+
+### Done beyond the fitNote, and flagged to him
+**The register's own `teamDesignations` glossed `ATTACKING_TEAM` as "in possession for the episode"** — the same
+conflation he identified in the Neutral Player Condition's note. **The defect was in the register too.** Corrected
+both to resolve against PS1; offered to revert the register half. The neutral fitNote is **revised on his reading
+rather than patched**: affiliation follows the possession relation, not the episode counter, and is **UNRESOLVED**
+where possession is unestablished — no fallback to a previous holder, no inferred team.
+→ The designation vocabulary already held `WON_BALL (team that won possession at the trigger)`, `LOST_BALL`,
+`LAST_TOUCH`. **The corpus named the states of this relation before anything could hold one** — the clearest
+evidence it was a missing relation rather than a new concept.
+
+### THE GAP EXPOSED — reported, not repaired
+**The established teams have NO IDENTITY.** Before realization they do not exist (existential shortfall 2,
+`performers.teams` absent from the resolved game); after realization both are
+`{satisfies, outfieldCount: 6, goalkeeper: 0}` and **indistinguishable** but for collection position, which is an
+engine artifact. **So possession cannot be ASSIGNED even where established — there is nothing to assign it to.**
+`teamDesignations` contemplates `TEAM_<id> (a named team)` and no contracted item authors a name.
+
+→ **The framing that matters: this is a direct consequence of removing the designations, and it clarifies what
+they were doing — standing in for team IDENTITY as well as for possession, with authority for neither.** Removing
+them was right; it made the identity question visible where it had been hidden.
+→ Also: **the possession choice cannot be a pre-realization freedom at all**, because its choice space is empty
+until realization instantiates the teams — the same shape as the roster, which became a post-realization
+entailment.
+
+Corpus: lines 126 → 127, NOT_AUTHORED 24 → 25, both PS1. Designation removal and the narrowed member
+authorization both stand. Magnitude still held. **A04 and generation frozen.**
+
+---
+
+## 3 October — the bounded instantiated-element identity check (EVIDENCE ONLY, nothing implemented)
+
+He held the team-identity proposal for one bounded check: **is this a team-specific gap or a general
+instantiated-element reference question?** Six questions + blast radius. Full evidence in
+`docs/INSTANTIATED_ELEMENT_IDENTITY.md`. **No code changed — two new docs only.**
+
+**Answer: general, and teams are the only collection that currently exercises it.**
+
+### The mechanism already exists and is already meaning-free
+`elementId` — the class id `c:<contract>:<item>`, minted from the authoring item, addressed as
+`container[elementId].leaf`. Reached as a typed structural reference (SD-98), already graded
+HELD/DANGLING/OPEN_TEXT. It is exactly what his principle describes. **It cannot mint more than one handle per
+authoring item, because the handle IS the item** — and one existential claim of cardinality 2 is one authoring act.
+
+> **The general statement: all three identity mechanisms (class id, typed reference, authored selector) identify
+> an element by WHAT AUTHORED IT. None can identify an element that nothing individuates.**
+
+Teams are the only case because teams are the only collection whose members come from a claim with cardinality
+above 1 rather than authored one item at a time. Verified across A01–A06: the only claim with a shortfall anywhere
+is `performers.teams[]`. **The two wide channels are the near-miss** — they look like the case and are not: each
+has its own item, hence its own id, plus a distinguishing authored selector. The corpus has never had to refer to
+one of N indiscernible instances.
+
+**Structural bound: no register row anywhere names an id/name/label/key/identity leaf.** `performers.teams[]` has
+exactly four rows (collection, outfieldCount, goalkeeper, roles[]). Identity lives entirely outside the register.
+`designation` appears **zero** times in it — no row, so no line and no verdict. That is the anatomy of the defect.
+
+### THE CORRECTION I OWED HIM — GF2's P2 does NOT require identity
+I went in believing it did and said so in the possession note. **It is symmetric** ("equal to the other team's
+outfieldCount") — a set-level comparison expresses it exactly, and `deriveRoster` already does it. So **the one
+selected consumer was already served without identity, which is why nothing had been blocked.**
+
+**The requirement splits — this is the useful finding:**
+- **symmetric** per-team claims → `scope: PER_TEAM` plus a set-level comparison. **No identity.**
+- **asymmetric** per-team claims, and possession assignment → **identity required.**
+
+`scope: PER_TEAM` gives universal quantification but **not co-reference or complement**. "Each team" needs no
+identity; "the other team" does. Three authors reached for a complement/asymmetry and **all three were recorded
+SCHEMA LOCAL** — the restatements have been reporting this gap without naming it.
+
+What genuinely requires it: **GF4's P2 "unequal between the teams, e.g. 4 and 6 (4v6)"** (PER_TEAM, AUTHORED, but
+TYPICAL_EXAMPLE, and GF4 is contracted-not-selected — `deriveRoster` refuses on it, so a GF4 game gets no roster
+rather than a wrong one); the Neutral Player Condition's `P2(T) > P2(other team) − P5`; and possession assignment,
+which is the **third** consumer chronologically, not the first.
+
+### The criterion for identity vs property (Q4) — one testable question
+> **Can swapping it between two members make the representation false?**
+> Yes → a **value**: needs a row, basis, status, support. (`designation` had none.)
+> No → an **address**: needs only to be unique among siblings and stable.
+
+A handle must be unique, stable, **opaque** (equality and complement only — no ordering, arithmetic, string
+matching, or recovering the instantiation order), **unauthored** (no row/line/verdict/status; no item targets it)
+and **unrendered**. A name, colour or attacking/defending designation each fail the swap test, so each is a value.
+
+### Stage (Q5) — TESTED, not assumed: instantiation, inside realization
+Cannot be earlier (pre-realization the teams are absent, shortfall 2 — nothing to carry a handle). Not needed
+earlier (**no line referring to an individual team is enumerated pre-realization**; member lines come from
+`establishedMembers`, and A04's only two are an "objective-area" string and a typed ref to a channel — no P2 line
+is enumerated in A01–A06). **Refinement worth the test: instantiation NOT final assembly** — `nothingInvented`
+already addresses members individually during realization via `key(path, i)`, so minting at assembly would leave
+the index operative for all of realization and the two notions would coexist.
+
+### Falsification case (Q6) — permutation invariance
+(a) handles h1 and h2 distinct, each resolving to one member, with `complement(h1)=h2` single-valued. (b) exchange
+the handles and every artifact is identical modulo renaming — and the **rendered coach text identical LITERALLY**,
+since no handle may reach a coach.
+> **A04 fails (a) outright and passes (b) VACUOUSLY** — the two members are identical objects, so exchanging them
+> is the identity operation. **That is why no check caught this: the game is perfectly symmetric, and the index is
+> harmless precisely because nothing yet distinguishes the members.** The first asymmetric per-team value breaks it.
+> The test must be run with a distinguishing value forced in or it proves nothing (cf. GA-ROSTER-SUM passing for
+> 4, 5, 6 AND 7).
+
+### BLAST RADIUS (reported, not repaired)
+**Wrong-answer class:**
+1. **A01/A02/A05 carry TWO claims on `performers.teams[]`** and nothing can see they co-refer. A01: PCG-08
+   (shortfall 1, no max) plus GF2-14.a (shortfall 2, max 2). **Ran the authorization: 2 teams refused either
+   attribution; 3 teams draw NO team-related objection.** The per-claim max counts only that claim's own
+   instantiations, and the collection cardinality check runs *before* instantiation. Same error class as the three
+   Wide Zone channels; latent only because A01's Gate A is NOT_EVALUABLE.
+2. **Per-team values addressed by index** at assembly. Safe **only because** `deriveRoster` refuses unless equality
+   is authored — it writes a per-index number only where the index cannot matter. **An equality guard, not an
+   identity guard: the safety is incidental.**
+
+**Check-degradation class:**
+3. **`DISTINCT_ON` NEVER EXECUTES AT ALL** — worse than the identity degradation, and independent of it. The one
+   authored condition (`VARTARGET-03.a`) sits on row **O4**, so `condition.path` is taken as the FIELD path
+   `objects[].position.along`; `realize.ts:408` filters on
+   `parts.container.startsWith(condition.path.replace(/\[\]$/, ''))` and **`/\[\]$/` strips only a TRAILING
+   `[]`**, while `parts.container` is just `objects`. Nothing matches, `tuples` stays empty, the check passes
+   having compared nothing. **The corpus's only joint condition is dead for everyone.** The identity degradation
+   (two members of one claim share a path segment, so the second overwrites the first in `tuples`) sits behind it.
+4. **`memberKey` dedupe drops a twin** — `String(member)` for non-typed members, first wins. Same assumption a
+   layer down.
+5. **`realize.ts:738` `elementId ?? satisfies` reports a colliding path.** Accounting underneath uses
+   `key(path, i)`, so **no value is mis-attributed** — cosmetic, but it names one path for two members in a failure.
+6. **Three unrelated spellings of member identity** (`contractId::itemId`, `key(path,i)`, `realized:<classId>:<i>`).
+
+**CORRECTION — member order is NOT deterministic, and I measured the wrong thing first.** My first pass checked the
+order of `resolved.existential` (derived, and sorted at `engine.ts:197/330` and `resolved-game.ts:446`) and reported
+"member order is stable". For **instantiated members**: `grep` for a sort over `instantiations` across `src/`
+returns **nothing**; `realize.ts:452` assigns `memberIndex` from `list.length`, i.e. the caller's array order; for
+A04 the only thing fixing that order is the array order in `a04-realization-choices.json`, whose two entries are
+byte-identical; and `record.fromDigest` is `resolved.provenance.inputDigest` (`realize.ts:551`), the **resolved
+game's** digest, so it does not cover realization's own order-dependent decisions. **Two members of one claim have
+no content-derived ordering key at all** — the index is not merely meaningless, it is not even anchored.
+→ **Lesson: when checking determinism, check the artifact you actually care about.** Derived-element order is
+guaranteed; instantiated-member order is guaranteed by nothing, and the two live in the same object.
+
+### THE RULING ASKED FOR
+Two of his rulings meet at the discriminator: *position is an implementation artifact, not authored football
+meaning*, and *identity may be required without carrying domain meaning*. **Compatible only if MINTING is separated
+from INTERPRETING.** So: is an ordinal permissible as an **input** to minting an opaque handle, with opacity and the
+permutation test as guards? Or must the derivation contain no ordinal — in which case **identity cannot be
+established from the corpus at all** (the alternatives are an authored distinguishing property, which does not
+exist and which he forbade inventing, or an opaque counter, which is an ordinal wearing a hat), **the two teams are
+genuinely indiscernible, and GF4's asymmetry and possession assignment are blocked on an AUTHORING decision rather
+than an engine extension.** Both coherent; the second is more conservative and may be right. Not chosen.
+
+Touch trigger and magnitude untouched — neither reading affects either. A04 and generation frozen.
+
+### Second pass — what the first pass of the identity check MISSED or got wrong
+
+Three parallel traces plus my own verification. **I caught two agent overstatements; both are recorded below as
+what the evidence actually supports.** Everything here was re-verified against source by running it.
+
+#### THE MECHANISM WE ALREADY HAVE AND HAVE NEVER USED — `COMPARES`
+**`COMPARES` is a registered requirement kind**, added by **AM-16 on 2026-09-20** with a full form
+(`{left, operator, right}`, operators `= != < <= > >=`) and operand forms under SD-23 (a represented game property
+`{row, selector}`, or a deterministically derived quantity over SUPPORTED properties). The register versions it:
+`"contractEnums.requirement": "2 (2026-09-20, COMPARES added by AM-16)"`. **ZERO corpus items use it.**
+→ **The four P2 fitNotes saying "No requirement kind compares two elements … (SCHEMA LOCAL)" are STALE** — true
+when written, and AM-16 added exactly that kind. Four items are declared blocked on a limitation that is gone.
+→ His rule *"a new mechanism must not be introduced where an existing canonical mechanism already owns the same
+semantic concept"* points at COMPARES before anything new.
+→ **It localizes what identity is FOR**: a symmetric comparison needs two operands ranging over the pair; an
+**asymmetric** one needs a selector that picks out ONE team — and a selector picking one of two indiscernible
+members is precisely the missing handle. It would also replace `deriveRoster`'s `/\bequal/i` prose sniff, which is
+how the "unequal between the teams" near-miss arose.
+→ **So the answer is not "mint a handle" alone: the comparison kind exists, is unused, and is what a handle is for.**
+
+#### Q3's REAL authority is his own ruling, not an item
+**C31b (1 October) promoted GF2-14.b from ASSUMED to OWNER_RULING** so the roster could derive, with the caution:
+> *"Please preserve the ability for other selected authoritative knowledge to establish numerical asymmetry where
+> the learning problem requires it. Equal team numbers should not become an engine-level universal assumption."*
+and its fitNote: a game form authoring asymmetry **displaces** GF2-14.b through SD-90, so equality is knowledge
+about THIS game form and never a universal. **A displacing game form must say which team gets which number.**
+→ **Asymmetry is a DIRECTED capability, not a hypothetical** — that is stronger evidence than any corpus item.
+→ **Strict answer to Q3: among knowledge that actually ENTAILS anything today, possession assignment is the ONLY
+consumer.** GF4's "unequal … e.g. 4 and 6" is TYPICAL_EXAMPLE (bounds, never entails) and GF4 is
+contracted-not-selected; the Variable Target asymmetry rests on an ASSUMED item while its row is NOT_AUTHORED.
+**So identity is a PREREQUISITE, not an unmet existing requirement** — weaker than my first pass claimed, and right.
+→ Two latent shapes to watch: **PCG's SV1 is registered as a view KEYED BY TEAM** ("halves and thirds along the
+axis, per team (own/attacking)") — possession can pick the key but cannot supply the mapping, because per-team
+halves must stay stable while possession alternates; and the Variable Target asymmetry. Both blocked on authority.
+→ `TEAM_<id>` is used 3×; **no authoritative item REQUIRES a named team.** The clearest use is an AUTHORED
+**exclusion** (no neutral fixed to a named team), which needs the form to be EXPRESSIBLE so the prohibition is not
+vacuous — a far weaker demand, and exactly the vocabulary-vs-item asymmetry he suspected.
+
+#### THE WORST FINDING — `chosenMemberLeaves` is wrong in BOTH directions (realize.ts:691–704)
+```
+const index = realized.record.instantiations.findIndex(
+    i => collectionPath(i.path) === collection && String(i.classId) === String(parts.elementId))
+...
+chosenMemberLeaves.get(k)!.add(parts.leaf)
+```
+`findIndex` returns the **FIRST** instantiation with a matching classId — and two members of one claim share it, so
+a choice about **either** member always resolves to member[0]. And it stores only the leaf **NAME**, not the value.
+→ member[0]'s leaf is marked licensed so **any** value there passes unchallenged; member[1]'s **correct** value is
+reported as an invention. **Wrong in both directions at once.**
+→ **The adjacent map was EXPLICITLY hardened against exactly this** (`realize.ts:671–677`: *"Name-only accounting
+was a hole: a member carrying outfieldCount: 99 beside an entailment recording outfieldCount reported nothing"*).
+`entailedValues` got value-based accounting; `chosenMemberLeaves` never did. **The correct shape is ten lines above
+it.** Latent — no choice in A04's file has a path into a member.
+→ **This is a hole in the check everything else is trusted against, and it is the THIRD appearance of this shape.**
+
+#### GA-ROSTER-SUM cannot see asymmetry — but something else catches it (agent overstated)
+Forced **0 v 12** into A04's realized game and reran the gate. `GA-ROSTER-SUM` **PASSES** ("the roster sums to the
+session count") — correctly in its own terms, 0+12=12. **It cannot see that the equality which LICENSED the
+division was violated.** An agent reported `post.validated: true`; **that is wrong.** Render-eligibility comes back
+**NO**, caught by `entailmentsLanded`: *"performers.teams[0].outfieldCount was entailed as 6 but the concrete game
+holds 0"*. **No wrong game reaches a coach.**
+→ Two lessons: the invariant is weaker than it looks, and **the check that caught it is the VALUE-based one** — the
+same shape `chosenMemberLeaves` is missing. The fix shape is already demonstrated in the codebase.
+
+#### The three-team case is LATENT, not live (agent overstated)
+An agent reported it renders "3 teams of 4" to a coach. **Verified: A01, A02 and A05 all have `mayRealize: false`
+(Gate A NOT_EVALUABLE), and with that gate synthetically lifted the realization is STILL refused — for five
+UNRELATED reasons (open lines not chosen).** So it cannot reach a coach today. **What IS true and verified: the
+cardinality guard raises zero team-related objections to three teams**, and `collectionCardinality` is **empty for
+`performers.teams[]` corpus-wide** (it is restricted to individuated classes), so it cannot cover either.
+→ **Report the guard's silence, not a coach-facing wrong answer.** Distinguish "the guard is silent" from "the
+output is wrong" — a harness bypass proves the former, never the latter.
+
+#### Smaller, verified
+- **`fillableFrom` is DEAD DATA — on the PS1 row I added.** No engine code reads `fillableFrom` anywhere. The prose
+  `fillable` string IS read (so the choice space is registered as I said), but the structural pointer to
+  `performers.teams[]` is inert. Correcting my own last note.
+- **`objectiveSets[]` is a SECOND existential claim** (`VARTARGET-06.a` on row J5). So "teams are the only
+  collection with instantiated members" is true of **selected** knowledge, not the corpus. Harder case: J7
+  (`objectiveSets[].members`) is a list of references pointing OUT of an instantiated member.
+- `engine.ts:298` **skips field-line enumeration entirely for an existential class** (SD-97) — which is the
+  mechanism behind "no P2 line is enumerated anywhere".
+
+#### Third blocker, found last and it changes the ruling's shape
+**`P1` declares `selectorAttributes: ["team"]`, and NEITHER `P2` NOR `P3` declares a `selectorAttribute`.** So
+`team` is wholly unbacked by any FIELD row, and the SD-92 `CARRIES` relation that turns a selector term into a
+property value requires one (`derive.ts:343`: `if (!row || !row.selectorAttribute) continue`).
+→ **The authored-selector route — the very mechanism that tells the two wide channels apart — is STRUCTURALLY
+UNAVAILABLE for a team**, independently of the instantiation problem.
+→ **Consequence for the ruling: the conservative reading ("no ordinal, so author a distinguishing property
+instead") is an authoring decision PLUS a register addition, not an authoring decision alone.** Check that the
+escape hatch you offer an owner is actually open before offering it.
+
+---
+
+## 3 October — identity AUTHORIZED and implemented, plus the four integrity repairs and COMPARES
+
+He ruled on all six points of the bounded identity check. **288 cases green, tsc clean. A04 unchanged:
+authorized, acceptance passed, render-eligible, single fidelity violation still the held trigger decision.**
+
+### The handle
+`memberHandle(classId, ordinal) => `${classId}#${ordinal}``, minted at instantiation, carried in the
+**existing** field — a member's `elementId`. So `container[handle].leaf` addresses a member exactly as it
+already addressed a derived element; no second mechanism. The entailment address is now a real element path
+rather than a display string (an index was never resolvable). `satisfies` is unchanged — which claim authorized
+a member is a different question from which member it is.
+
+**Readable, not hashed.** He asked not to introduce a content-derived distinction without a technical reason,
+and there is none. Trade-off owned in the email: the ordinal is textually present, so opacity is enforced by
+test rather than by construction.
+
+### Four guards that exist because tracing found attack paths I would not have predicted
+1. **The handle MUST be a string** — `quantitiesInGame` walks the game and treats every finite number as a
+   supported quantity. A numeric handle 777 made an instruction claiming 777 pass. **A numeric identity field
+   silently defeats the invention check for that number.**
+2. **It must be ADDITIVE** — re-minting *derived* element ids produced **17 fidelity violations** as the
+   status↔game provenance join collapsed.
+3. **The discriminator must be UNCONDITIONAL**, even for a claim owing one member — a bare claim id would make
+   a member findable by the derived-record element lookups, so a member's leaf could stand in for a derived
+   element's in the acceptance checks: **a false PASS, not a failure.**
+4. **It must stay OUT of class-id space** — `identityOf` grades a string HELD if it equals a class id, so a
+   handle used verbatim as one would let an authored string target a handle. Keeping the `realized:` prefix
+   preserves the guard; a handle string grades DANGLING instead, which is correct.
+Plus: **no source may sort by, parse, or recover the ordinal from a handle** — checked across every file.
+
+### The falsification case, built so it cannot pass vacuously
+Part 1 permutes the two indiscernible teams and **ASSERTS THE VACUITY** rather than reporting a pass. Part 2
+forces asymmetric per-member values (4 vs 8), exchanges handles and values together, and checks every value
+follows its handle, every verdict is identical, and **the coach text is LITERALLY identical.**
+
+### The four repairs
+- **Invention check (worst one): repaired.** `findIndex` on classId returned the first member of the claim, and
+  the map stored the leaf NAME. Now matched on the handle, value held. **Both halves asserted separately** — a
+  test on the symmetric case cannot see either.
+- **And the fix would have been UNREACHABLE:** choices were applied BEFORE members were instantiated, so a
+  choice naming a member was refused as naming a missing element before any accounting saw it. Reordered.
+- **Joint condition: repaired, and it was worse than reported.** Path now the owning collection (via
+  `index.ownerRow`, register-validated to be a COLLECTION). **Fixing the path alone would have traded a dead
+  check for an OVER-REACHING one**, so `scope` and `basis` are now carried: scope PER_OBJECTIVE_SET cannot be
+  partitioned here → NOT EVALUABLE; basis ASSUMED → may report, never refuse (SD-27). A condition not
+  evaluated now SAYS SO on the record. **Three reasons it constrains nothing, only one an engine defect** —
+  the other two are knowledge facts, reported not repaired. Its set is never instantiated and no object carries
+  an authored bound on either row it names.
+- **Collection/cardinality: repaired.** Owed = **max** of the claims' shortfalls, not the sum; every claim's
+  max binds the whole population. **The half I had missed: the CORRECT population of two was REFUSED** whichever
+  claim its members were attributed to. Decides no co-reference question.
+- **Index addressing: replaced** everywhere individual reference is required; index survives as positional
+  provenance only.
+
+### CORRECTION: five goals, not three — and 13 goals, not six
+There are **13 learning goals** (A01 D01 TA01 TD01 A02 D02 TA02 TD02 A03 D03 A04 A05 A06). The two-claim shape
+is in **A01, TA01, A02, TA02, A05**. My earlier report said three because I enumerated A01–A06 and assumed that
+was the set. **Never infer the goal list from a naming pattern — ask the planning model.**
+
+### COMPARES activated — and `stillOpen` CORRECTED MY OWN CONCLUSION
+`comparison.ts` implements the register's 13-key block verbatim: form, 6 operators, SD-23 operand forms,
+SD-26 (**takes NO LINE**, NARROWS, **never entails a value**), evaluability (**never quietly true**), SD-27
+(assumed may report, never fail authoritatively). Evaluated at post-realization — earliest stage a per-member
+operand has a subject — and reported as its own kind, not a gate clause.
+- **Prose matching GONE.** GF2-14.b carries a typed comparison; the roster reads the declared relationship.
+  Removes the class, not the symptom. Roster still 6 and 6.
+- **`comparison.stillOpen` refuses a comparison ranging over several matched elements** ("an engine refuses
+  such a comparison rather than choosing one"). Both operands of the equality name P2, owned by the teams
+  collection, so each matches BOTH members → **DECLARED and REFUSED.**
+- **This CORRECTS what I told him**: I said symmetric per-team claims need no identity because a set-level
+  comparison expresses them. **The canonical mechanism REFUSES the set-level form.** So the mechanism he told
+  me to use REQUIRES the identity he authorized — the two rulings fit tighter than I saw.
+- **Four stale fitNotes corrected** (GF2-14.b, NEUTRAL-08.a/09.a/10.a), each citing AM-16 and naming the real
+  residual blocker. **Nothing promoted** — NEUTRAL-09.a stays ASSUMED/PREFERRED_DEFAULT. A companion test
+  asserts genuine missing-ROW limitations were NOT swept up.
+- **Still not done:** the equality obligation itself. 0v12 is refused, but by `entailmentsLanded` ("entailed as
+  6 but the game holds 0"), not by the equality. Closing `stillOpen` is his decision.
+
+### Three knowledge decisions returned, none patched
+1. **PCG-08's "at least 2 teams" sits in PROSE**, so the count reader refuses it and the claim reads as "at
+   least 1, no max". SD-86 is the mechanism. **It is the PREMISE of the cardinality repair** — authorize typing?
+2. **`(min ?? 1)` substitutes a minimum of 1 for an UNREADABLE cardinality** rather than recording it as
+   unreadable. Left exactly as it was; changing it changes what every unreadable claim means.
+3. The joint condition's three reasons (assumed basis, unpartitionable scope, uninstantiated set).
+Plus mine to own: **`fillableFrom` on the PS1 row I added is read by NO engine code** — the prose choice space
+is read, the structural pointer was inert.
+
+### Reproducibility question he asked me to answer
+**No technical reason to introduce a content-derived distinction.** The ordinal is reproducible from the
+realization input (member order is the input's array order, which is input bytes). **What IS insufficient is
+the AUDIT trail:** the record stamps itself with the RESOLVED game's input digest, so it does not cover
+realization's own order-dependent decisions — two different realizations of one resolved game carry the same
+stamp. Fix is to extend the digest, which is separate and smaller than distinguishing members. Not done:
+outside today's authorization.
+
+---
+
+## 4 October — his four bounded corrections DONE, and the touch-ownership check REPORTED (not implemented)
+
+**297 cases green, tsc clean. A04 unchanged.** Identity investigation closed by his ruling.
+
+### The four corrections
+1. **PCG-08 typed (C37)** — authored *"at least 2 teams"* → `typedBound {min: 2, max: null}` under SD-86. **It
+   mattered beyond the item:** PCG-08 shares `performers.teams[]` with GF2-14.a, and while the 2 was unreadable
+   the joint population depended on which claim the parser could read. Both now contribute 2.
+2. **The `(min ?? 1)` substitution REMOVED — fail rather than infer.** Blast radius traced FIRST, as he
+   required: **one claim corpus-wide (`restated:RPC-001:RPC-001-14.a`, `objectives[]`, authored `">=1"`),
+   selected by NO goal, no goal's authorization changes, A04 untouched.** (Verified independently and by a
+   trace that also ran all 13 goals × 24 practice situations = 33 runs: nullMin 0 in every one.)
+   - **The distinction that makes it safe:** a null min is NOT by itself unreadable. A class forms only for
+     EXISTS | COUNT | RANGE; EXISTS gets `{min:1}` outright; so `min===null && max!==null` is an authored
+     **ceiling with no floor** — a complete claim that must keep working. Only `min===null && max===null` is a
+     count requirement that stated nothing readable. **Both directions tested** — failing on the wrong one
+     would be a new defect.
+   - **Used `UNBOUNDED_COUNT_FILL`** — already in the CLOSED refusal list (types.ts, package §3.3, "Adding one
+     is a design change") and **never once raised**. No kind added. **Look for a reserved-but-unemitted
+     mechanism before inventing one.**
+   - **Three reporter scripts each independently re-derived "at least one"** from a null cardinality — a display
+     layer reproducing an inference the engine refused. Fixed, with a test that stops any of them saying it again.
+   - **GAP REPORTED NOT REPAIRED:** RPC-001-14.a's `">=1"` is the same unreadable-number shape as PCG-08 and
+     NEUTRAL-01.a. Left untyped — he asked for gaps, not a cleanup exercise.
+   - Latent, noted: the `typedBound` branch runs BEFORE the EXISTS short-circuit, so an EXISTS item carrying
+     `typedBound:{max:N}` would get min null. And a future RANGE item with a QUALITATIVE value on a collection
+     row would be misclassified "unreadable count" when the author made no count claim.
+3. **Audit stamp now covers the realization input** — `realizationDigest` + `auditDigest`. **Order hashed as
+   SUPPLIED, not canonicalised**, because instantiation order fixes which handle each member gets; sorting
+   would have reintroduced the collision being closed. Test reverses the input and asserts the resolved digest
+   holds while the audit stamp moves.
+4. **Joint distinctness left unresolved; handle left as implemented; `stillOpen` NOT closed** — all per his ruling.
+
+### THE TOUCH OWNERSHIP CHECK — reported, nothing implemented (it needs a new concept)
+
+**(a) No row anywhere represents an OCCURRENCE of a player contacting the ball.** Seven mechanisms own
+different adjacent facts: GP-006/GP-007 owns the *semantic concept* but in the knowledge core as a PROBLEM
+CLASS; PS1 owns the resulting STATE and **forbids** a gain/loss mechanism (so possession cannot supply the
+touch — the dependency runs the wrong way); `primaryEvent.kind` owns the CONSEQUENCE with an RPC vocabulary
+whose definitions ARE player-ball acts but whose token is opaque; `qualifiers.lastTouch` owns TEAM ATTRIBUTION
+at an out-of-play trigger; restart actor+method own the one represented performer-on-ball act, only at a
+stoppage; `rules.actionRestrictions[]` owns an authored ACTION's legal eligibility (closed kinds
+`receiver_eligibility, action_order, direction_class` — pass-centric) but only as the subject of a legality
+rule; and `primaryEvent.conditions[]` already admits a condition typed **`control`**.
+
+> **DECISIVE STRUCTURAL FACT: there is NO individual performer in the representation at all.** Every performers
+> row is a collection, count, role list, placement group or participation state. There is no player to be the
+> subject of a touch.
+
+**(b) No trigger owns it.** `triggerSemantics` has **exactly ONE entry** (FIRST_FORWARD_PASS), and it **defines
+the two ADVERBS and leaves the VERB undefined** — it never says what a pass is. Two flags: it ends *"bounded
+addition only, no qualifier capability is implied"*, so a trigger token does NOT bring qualifiers
+(`triggerQualifiers` covers 2 of 9); and **nothing implements the NOT_EVALUABLE/CONDITIONAL rule its own gloss
+states** — `triggerSemantics` is read at only two sites, both in fidelity.ts, neither a per-trigger lookup, so
+FIRST_FORWARD_PASS is admitted by LIST MEMBERSHIP ALONE. Flagged, not touched. Only POSSESSION_CHANGE and
+FIRST_FORWARD_PASS presuppose a contact and neither is defined; the four crossing triggers presuppose ball
+MOTION, not contact.
+
+**(c) `LAST_TOUCH` is evidence, not ownership.** Gloss is four words. For it to denote, three things must
+already be true: contacts occur; they are team-attributable; they are time-ordered ("last" is a maximum over an
+order). **So the representation already ASSUMES a team-attributed, temporally ordered contact history** — the
+same shape as the possession relation. It cannot name a player (codomain is a team, and no player exists), a
+when, or a where. **And it is unexercised: the last-touch row carries ZERO items against TWENTY declarations of
+absence.** The one authored touch-derived value (GF2's "didn't touch it last") is SUPPORTING/PREFERRED_DEFAULT
+so it bounds and never entails, and **no goal instantiates an out-of-play transition at all**, so it reaches no
+consumer. **A01-02: EIGHT of fifteen items are scoped by a last-touch attribution in their SELECTOR, each
+carrying HIS OWN 26 Sept definition naming "an attacking player" — and the same object declares that qualifier
+NOT_AUTHORED.** It selects elements by a property no contract establishes.
+
+**(d) The smallest representation is SMALLER than a touch event, and most slots already exist.**
+- "retains possession" → needs NOTHING new (POSSESSION_CHANGE is the only mutator).
+- "the touching player's team" → needs NO PLAYER. The condition's content only ever uses the TEAM, so a
+  team-attributed contact suffices. **Careful: this is the mirror image of the P2 mistake — the wording reaches
+  for an individual and the claim does not need one.** (His goal-kick wording DOES name a player, so other
+  knowledge may want more.)
+- "a touch within the channel" → **`valueModifiers[].condition.type` is a closed list reading `region, object,
+  event` — it ALREADY admits an event-typed condition**, and `condition.referents` already reads *"references
+  to regions, objects or events"*. And a **transition is already the in-play event occurrence**, carrying a
+  team-designation qualifier AND a region qualifier AND a play state AND an episode boundary.
+- **So what is genuinely missing is narrow: a trigger token for a contact + a `triggerSemantics` entry + a
+  `triggerQualifiers` entry** (the last explicitly required by the FIRST_FORWARD_PASS precedent).
+- **TWO BLOCKERS THAT ARE HIS:** (i) the spec states *"Each condition refers to existing regions, objects or
+  placements, and is attached to the primary event. **No condition refers to a player's position during
+  play.**"* Whether a TEAM-attributed contact located in a region falls inside that commitment is a reading of
+  his own boundary. (ii) `condition.type` admits `event` and `referents` admits event references, but **there
+  is NO event element to reference** — no events collection exists; the only event-shaped things are
+  `transitions[]` and `value.primaryEvent`. Either a transition is the referent (overloading a concept about
+  play stopping/continuing/possession changing) or something new holds it. More than one valid reading → brought
+  to him.
+
+**(e) Independently required, and the strongest case is HIS OWN ruling.** On 29 Sept he ruled the Pass
+Combination Gate's reveal trigger: *"revealed immediately following each qualifying pass"* → `PCG-14.a`, basis
+**OWNER_RULING**, REQUIRED, REQUIRED_RANGE, value `TEAMMATE_ACTION` — and the gap it replaced recorded the
+choice as *"a completed pass (TEAMMATE_ACTION) or the coach's call (EXTERNAL_SIGNAL)"*. **He chose the pass.**
+The rest of PCG authors a pass count, a reset and a chain and hands the touch-dependent half to play in its own
+words (*"Whether the passes were made is play"*, *"No field holds reset triggers or the counting team"*); in a
+derived game the whole mechanism is two blocks of free text plus an information rule **whose trigger comes back
+failed**.
+**COUNTER-PRECEDENT, weighed explicitly:** twice a pass-adjacent authored need was met with a BOUNDED, NON-EVENT
+addition — FIRST_FORWARD_PASS as a fenced trigger token, and the reveal trigger as a CLASSIFICATION of an act
+rather than the act. Both times the smallest sufficient thing was not an event. That is the best argument the
+answer here is also smaller than it looks, and the reason nothing was implemented.
+Everything else fails the strict test (GF2's default bounds; GF4's ordering SUPPORTING with order and shot not
+held; RPC-001's "controlled on arrival" spec-declared FREE; the neutral items outside the boundary).
+
+---
+
+## 4 October (later) — RPC-001 typed, and MY CARRIER CANDIDATE WAS FALSIFIED
+
+**297 green, A04 unchanged. No existential claim in the corpus has an unreadable cardinality any more.**
+
+### Item 6 done (C38)
+RPC-001-14.a's authored `">=1"` typed under SD-86 — the one claim the 10-03 removal of the minimum-of-one
+substitution exposed. Regression test moved to assert the end state (none unreadable) and **keeps its teeth by
+stripping the typed field back off** to prove the prose really is unreadable without it.
+
+### THE CANDIDATE I WOULD HAVE PROPOSED BROKE — four reasons, three of which I had WRONG
+I proposed putting the qualifying interaction on the value-modifier condition (interaction-kind vocabulary named
+through `condition.type = event`, team + region as qualifiers).
+1. **`condition.type` is the modifier's IDENTITY, not a retypeable field.** On A04 no item authors it; `region`
+   is DERIVED from the class's defining selector, and **SD-101 makes that selector CONSTITUTIVE of class
+   identity** — an item entailing a different value is reported as a contradicted constitutive selector, never
+   resolved against. Retyping contradicts the modifier rather than reconfiguring it.
+2. **It is single-valued.** Exactly five rows carry SET multiplicity and the register's note says *"no row gains
+   it whose valueType did not already say so"* — so it cannot carry a kind AND a region. The referent SET *can*
+   hold mixed members (forced through; reference integrity passed) but a kind token there establishes no
+   identity, and **SD-57 forbids promoting open text into event identity**.
+3. **`event` is NOT unused, and it is empty FOR A REASON.** GF4 carries four event-typed modifier items and
+   A01-02 authors one; on the two goals selecting GF4, modifier-overlap is ALREADY NOT_EVALUABLE and Gate A
+   ALREADY FAILS. **The slot is empty of entailments because it is REFUSED, not because it is free.**
+4. **Forcing it DESTROYS A04** — measured: modifier-overlap PASS → NOT_EVALUABLE, Gate A → NOT_EVALUABLE,
+   `realizationAuthorized` **true → false**. A partial retype is worse: it leaves his MULTIPLY ×2 reported as a
+   *declared gap* with two TYPICAL_EXAMPLE items standing in for his own entailment (the §3 trap).
++ **A silent loss the repair would have INTRODUCED:** modifier-overlap routes entirely on `condition.type`, so
+  retyping takes its region clause from "2 region referents compared" to "0 compared" **and still reports PASS.**
++ Also: **no team row exists anywhere under `value.valueModifiers`** (the six rows are V7, V8a, V8b, V9, V9a,
+  V10), and a designation is evaluated *"at the trigger or episode it is attached to"* — a modifier condition is
+  neither.
+
+### WHAT THE FALSIFICATION SETTLED — register data, not argument
+**`vocabularies.triggerRows` = ["T1", "V12", "V17", "V24"].** The trigger vocabulary is consumed by transitions,
+consequences' trigger, information rules' trigger and time windows' startsOn. **THREE OF FOUR ARE NOT
+TRANSITIONS.** So registering a contact as a trigger does NOT give it play state, episode behaviour or award
+possibilities — those live on the transition's OTHER rows. **His item-2 concern is already solved by the
+architecture.**
+
+### IT ALSO CORRECTED HIS OWN REQUIREMENT (6)
+**The recency in `LAST_TOUCH` is carried by the SLOT, not the designation.** `applicability.T1a.text` = *"whose
+touch last played the ball before it left the field"* — the ROW means "last"; the designation only answers WHICH
+TEAM. So filling that slot with `LAST_TOUCH` is a **TAUTOLOGY**, and filling it with `ATTACKING_TEAM` is
+informative, which is what the corpus actually does. **The temporal burden exists whatever designation fills the
+slot and does not arise from the designation** — so his requirement (6) asked the carrier to defend the wrong
+thing.
+What LAST_TOUCH actually needs: a **game-level, team-valued LATEST-VALUE relation** (most recent registered
+contact), with an initial state, a named change event and an explicit unresolved rule — **the possession
+relation's exact shape**. My candidate supplied nothing of the kind.
+
+### THE FIVE CONSUMERS
+- **Wide Zone** — BREAKS. Of four parts, the LOCATION is *already* carried (two typed channel referents under
+  AM-17) and is the part a retype would DESTROY; contact, team attribution and retention are not carried at all.
+- **LAST_TOUCH** — BREAKS; needs the latest-value relation.
+- **A01/A02 goal kick** — SURVIVES_WITH_GAP, and **his containment is CONFIRMED**: the team reading suffices and
+  the player reading is *inexpressible* in the register. And the requirement is thin — of the eight items scoped
+  by a last-touch attribution **only TWO entail**; the other six bound or are inert.
+- **Pass Combination Gate** — the STRONGEST independent requirement, and it is HIS OWN ruling.
+  `TEAMMATE_ACTION` needs **nothing** from the carrier (a closed IE-layer classification, complete in itself;
+  V18 resolves and reaches the game; GA-INFORMATION's trigger clause reads V17, not V18). **BUT the same 29 Sept
+  ruling was applied to the five IE dimensions and NOT to V17**, the information rule's own structural trigger —
+  which comes back **failed / NOT_AUTHORED / "not constrained"**. The only item that could resolve it is ASSUMED
+  + PREFERRED_DEFAULT so it bounds and never entails, and **its own basisEvidence names the gap the ruling walked
+  into**: *"Counting out loud could instead be read as a reveal on each completed pass, which is not a listed
+  trigger."* He chose that reading; the trigger it needs is not in the vocabulary.
+- **FIRST_FORWARD_PASS** — SURVIVES_WITH_GAP; stays undefined either way, because "forward" needs a per-contact
+  direction, which is trajectory and forbidden. The TEAM's attacking direction is established; the contact's is not.
+
+### WHERE THE EVIDENCE POINTS (reported as NOT yet falsified)
+(1) the interaction kind is a member of the existing **trigger** vocabulary — because V17 is what actually needs
+filling and a trigger demonstrably drags no transition semantics; (2) a **game-level latest-contact relation** of
+PS1's shape for team attribution; (3) **region attribution through the existing per-trigger qualifier
+mechanism**, precedent being the region reference already declared for REGION_ENTRY, authorized by his in-play
+location ruling.
+**Two things not yet known and worth falsifying first:** how a qualifier attaches to a trigger carried by
+something OTHER than a transition (every existing qualifier row hangs off T1), and whether team attribution needs
+a team projected OUT as a value rather than used as a filter (T2 `awardedTo` and V14a do; a condition does not).
+
+### ITEM 5 — bounded repair, and I had UNDERSTATED what already exists
+The structural half of trigger semantics IS consulted and IS governed by his own ruling:
+`applicability.generalRule` (29 Sept) — *"a transition qualifier applies only where the transition trigger
+semantics make that qualifier structurally applicable… Expressed as an applicability rule over the trigger"* —
+and `governingLineRule` already specifies that a dependent line whose governing line is FREE(choice) is
+**CONDITIONAL**, takes no value and is **not failed**, which is exactly what the FIRST_FORWARD_PASS gloss
+promises. **`CONDITIONAL` is already a registered LineState** the classifier implements (classify.ts:105, :251).
+Missing: the dependency is in PROSE, and the admitting check (`registeredTrigger`, gates.ts:1017-1021) tests
+LIST MEMBERSHIP ONLY. **Proposed:** one machine-readable field on the semantics entry naming the row its
+evaluability depends on + one consultation at the admitting check; line status needs nothing new.
+**The limit, stated so he can judge:** `applicability` tests a governing line's VALUE MEMBERSHIP against a closed
+list, and this dependency is about whether a line is ESTABLISHED AT ALL — and DV1's value is "per team {attacks,
+defends}", not a list to enumerate. Hence one field rather than reusing that form.
+Also: the single site that reads the semantics block only tests that it is NON-EMPTY (true merely because one
+entry exists) — not a per-trigger lookup either.
+
+### Harness note
+My falsification workflow's judge step received the literal string `[object]` — I passed an array to `agent()`
+without `.join('\n')`. **It correctly refused to invent a subject and grade its own invention**, citing this
+project's own two prior instances of that failure. Consolidation was done by hand instead. **Join your prompt
+arrays.**
+
+---
+
+## 4 October (late) — trigger-semantics correction IMPLEMENTED, and the THREE-PART SHAPE FALSIFIED
+
+**303 cases green, tsc clean, A04 unchanged.**
+
+### Item 5 implemented at his exact scope
+`vocabularies.triggerSemantics.FIRST_FORWARD_PASS` became an object: the authored prose preserved verbatim as
+`note`, plus `evaluabilityDependsOn: "DV1"` (the row holding attacking direction) and a `typedOn` provenance
+field. **Indexed exactly as `nounSemantics` already is** (register.ts) rather than by a second mechanism —
+`index.vocabularies` only stores ARRAYS, which is why the object block needed the nounSemantics precedent.
+`gaInformation` now consults it per trigger via `triggerDependency()`, which keys on the BARE name so a
+parameterised `NAME {arg}` reads the same entry. An unestablished dependency calls `probe.unestablished()`, the
+existing idiom, so the clause blocks.
+- **Verified observable:** `game::DV1` now appears in GA-INFORMATION's `blockedBy`, which it could not before.
+  DV1 is a VIEW row that enumerates NO line, so the dependency is genuinely unestablished.
+- **The trigger clause still reports FAIL on the corpus, and that is CORRECT** — two triggers there (COACH_CUE
+  and a compound) are genuinely absent from the vocabulary, and `badTriggers.length ? fail : blocked ?
+  notEvaluable : pass` means an ESTABLISHED violation outranks an unevaluable one. The sibling SUBJECT clause
+  shows blocked→NOT_EVALUABLE works on this very check. **My first test asserted the wrong thing; the code was
+  right.**
+- Eight of nine triggers declare no dependency and are asserted unaffected (not a general redesign).
+- Also corrected, as permitted and no further: `fidelity.ts` read the semantics block and tested
+  `Object.keys(...).length > 0` — true merely because one entry exists, so it NAMED a consultation it never
+  made. A per-trigger lookup is undefined there (a modifier condition names no trigger), so the conjunct is
+  removed and the comment says so. **Changes no verdict.**
+
+### THE THREE-PART SHAPE DID NOT SURVIVE AS A PACKAGE
+**Q3 qualifiers — SETTLED IN HIS FAVOUR, and bigger than expected: qualifier semantics are TRIGGER-owned, and
+qualification outside transitions ALREADY EXISTS IN RUNNING CODE.**
+- `T1.selectorAttributes` = `[trigger, trigger.region, trigger.window, qualifier.lastTouch, qualifier.endLine,
+  qualifier.region]` — **the register itself separates `trigger.*` from `qualifier.*`.** T1's valueType: "keyed
+  by trigger (… `REGION_ENTRY {region}` …) **plus qualifiers**" — braces are TRIGGER.
+- `triggerQualifiers` is keyed by TRIGGER and one of its two entries (TIME_EXPIRY) names **no row at all** —
+  fatal to a transitions-scoped reading.
+- He wrote *"no qualifier capability is implied"* **ON A TRIGGER**, which only makes sense if qualifier
+  capability is a property triggers can have.
+- **DECISIVE, in code: `engine.ts:237` builds `ctx.triggers` game-wide as `REGION_ENTRY{<S2 classId>}` FROM THE
+  REGIONS, and its only consumer is a CONSEQUENCE (`gates.ts:1267`).** Measured end to end: a region-qualified
+  consequence trigger reaches a RESOLVED:ENTAILED line and GA-EFFECT-TYPED passes.
+- **So the carrier is the PARAMETERISED TRIGGER VALUE `NAME {argument}` — no new field anywhere**, and adding a
+  referent field to V11/V15 would be a second mechanism for a concept the trigger notation owns (ownership rule).
+- Caveat: **`triggerQualifiers` is read by NO engine code** — a prose gloss. Nothing is being generalized because
+  nothing consumed it. And `applicability.generalRule` IS transitions-local (restrictive reading) — it governs
+  when a transition's own qualifier rows enumerate, and is not where ownership lives.
+
+**Q1 trigger kinds — BREAKS the three-candidate premise. Minimum is ONE token on ONE row.**
+- **A generic contact is NOT supported; Wide Zone does not require it.** Its ONLY authored trigger-row item is
+  `WIDEZONE-11.b` @ V12 = `REGION_ENTRY {a wide channel of this contract}`, AUTHORED/REQUIRED_RANGE — and its
+  fitNote says *"For the free-restart alternative… **Reads UNMET if a modifier is chosen**."* **A modifier WAS
+  chosen 2 Oct**, so Wide Zone's only authored trigger is on the branch not taken. The advantage lives on V7,
+  whose whole subtree has **no trigger row**.
+- **ZERO items in the eight contracts name a touch or contact as an EVENT.** Verified: six items' values mention
+  touch/contact and every one is *touchline* adjacency or "touches one end line" — spatial, not interactional.
+- The ruled condition is **not authored at all**: `INCENTIVE_ASSURANCE_CRITERIA.md:424` — *"Evaluated, not
+  authored. Nothing has been written into canonical knowledge."*
+- **THE GRAIN IS WRONG:** the settled condition (`:393`) is *"a touch within the channel **after which** the
+  touching player's team retains possession"*. Retention is the absence of a possession change ACROSS AN
+  INTERVAL — a two-event relation. **His own containment forbids a contact implying possession/possession change
+  and forbids an event history.** So a contact token cannot carry it even in principle. Measured: adding CONTACT
+  to the vocabulary changed NOTHING on A04.
+- **`FIRST_FORWARD_PASS` is NOT a specialization of completed-pass** — its semantics say it implies *nothing*
+  about pass success, so the vocabulary is **not a hierarchy**; they are independent kinds.
+- **What IS supported: a COMPLETED PASS on V17** — the failed line his own 29 Sept ruling left behind. One
+  vocabulary member + one semantics entry + one authored item.
+
+**Q2 latest-contact — BREAKS, and the minimum is ZERO.**
+- **The asked-for break: one relation cannot serve three.** The out-of-play qualifier wants the last contact
+  BEFORE the ball left; Wide Zone wants the team performing the qualifying action AT the occurrence; PCG wants
+  the last COMPLETED PASS. **Three different qualification predicates over contacts, not three readings of one
+  state. A relation whose update rule varies by reader is a QUERY OVER A HISTORY — the event-history system he
+  forbade.** One update rule answers at most one and answers the others wrongly without saying so.
+- **Minimum is ZERO**: nothing authored entails any member of the LAST_TOUCH family (the qualifier row has zero
+  items against twenty declarations of absence), and the one slot the corpus uses is structurally closed because
+  the recency lives in the SLOT.
+
+**Q4 team attribution — his preference HOLDS, plus a wording correction he needs.**
+- Team belongs in a separately-held relation, not on the trigger. And **my floated simplification was
+  FALSIFIED**: establishing PS1 on A04 in memory changed NOTHING about the Wide Zone modifier — the modifier has
+  no slot possession could reach, so there is no coupling to simplify.
+- **HIS RESTATEMENT CHANGED THE CONDITION'S MEANING.** He wrote *"attributable to the team in possession"*; the
+  settled form (:393) is *"the touching player's team"*. "Attributable" appears NOWHERE in corpus or docs. In the
+  settled form the team comes FROM THE CONTACT and possession is only interrogated afterwards; his restatement
+  reverses the dependency and is the easier condition. Flagged, acted on neither.
+- The remaining gap is not where the team lives — **nothing records that the qualifying occurrence happened**, so
+  "a consumer may then relate the two" is the step Wide Zone cannot take either way.
+
+### RECOMMENDATION RETURNED
+Implement **only** the completed-pass trigger + semantics entry (independently required by his own ruling), and
+return Wide Zone's qualifying condition to him as an **AUTHORING** decision — nothing in canonical knowledge asks
+for a contact, and the condition as settled needs a two-event relation his containment rules out.

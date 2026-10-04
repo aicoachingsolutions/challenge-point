@@ -49,7 +49,7 @@ function recordId(kind: string, locus: string, ordinal: number): string {
  * author wrote it, so sorting values would both violate that and make two genuinely different inputs
  * hash alike. Only the collections whose order carries no meaning are ordered.
  */
-function canonical(value: unknown): unknown {
+export function canonical(value: unknown): unknown {
     if (Array.isArray(value)) return value.map(canonical)
     if (!value || typeof value !== 'object') return value
     const source = value as Record<string, unknown>
@@ -75,7 +75,7 @@ function canonicalInput(input: DerivationInput): unknown {
     })
 }
 
-function digest(value: unknown): string {
+export function digest(value: unknown): string {
     const text = JSON.stringify(value)
     let h1 = 0x811c9dc5
     for (let i = 0; i < text.length; i++) {

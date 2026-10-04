@@ -339,8 +339,18 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
     for (const modifier of fixture.game.value?.valueModifiers ?? []) {
         const carried = rendered.instructions.some(i => i.from.some(f => f.includes(String(modifier.elementId))))
         if (!carried) continue
-        const criterion = (fixture.register?.vocabularies?.triggerSemantics ?? {}) as Record<string, unknown>
-        const satisfied = Object.keys(criterion).length > 0 && modifier.condition?.satisfiedBy !== undefined
+        /**
+         * **This no longer pretends to consult trigger semantics.** It used to read the semantics block and
+         * test `Object.keys(...).length > 0`, which is true merely because one entry exists — so the block was
+         * named but never consulted, and the check really only tested `satisfiedBy`. Corrected on his ruling of
+         * 4 October, scoped exactly as he asked and no further.
+         *
+         * A per-trigger lookup is not available here and saying so is the honest state: a value modifier's
+         * condition names no trigger at all — Wide Zone's is typed `region` — so there is no trigger whose
+         * semantics could be looked up. What the condition lacks is a criterion for what MEETS it, which is the
+         * held owner decision. This changes no verdict; it stops the check claiming a consultation it never made.
+         */
+        const satisfied = modifier.condition?.satisfiedBy !== undefined
         if (!satisfied) {
             findings.push({
                 question: 5,

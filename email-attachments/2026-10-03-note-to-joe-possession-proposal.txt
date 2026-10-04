@@ -1,0 +1,56 @@
+Joe,
+
+All five of Christian's items done. Document + covering note attached. 248 cases green, pushed.
+
+THE HEADLINE
+The corpus already establishes almost the whole structure of the possession relation — initial value is a free
+choice (SD-R2), it changes at a registered trigger, each change begins an attacking episode (SD-14),
+ATTACKING_TEAM means its current value. What it does NOT establish is anything that HOLDS it. No field on any
+row: objects have kind/count/position and no owner; teams have outfieldCount/goalkeeper/roles; participation
+states are ACTIVE/INACTIVE/WAITING/RESTING/OBSERVING. So the representation can say possession CHANGED but not
+who HAS it. One relation needed; the rest is authored.
+
+THE BEST NEW EVIDENCE
+I found a case stronger than the Neutral Player Condition on his exact phrase "existing SELECTED knowledge".
+GF2 — the game form A04 itself selects — authors two awardedTo prohibitions: "LOST_BALL (forbidden: a rule
+returning a won ball to the team that lost it)" and "NOT_LAST_TOUCH". Neither is evaluable without knowing who
+lost or last touched the ball. Nothing to do with Wide Zone.
+
+I qualified it honestly rather than overselling: those lines are N/A in A04 because its transition continues
+play (RC-20), and the Neutral Player Condition is contracted but NOT currently selected by any of A01-A10. So
+one case settles "already authored", the other settles "existing selected knowledge".
+
+HIS CONCEPT WARNING — A04 already proves it
+He asked me not to assume team-in-possession = team-eligible-to-score = team-associated-with-an-objective. In
+A04 the identity is already FALSE, not merely unestablished: GF2 authors J3 as "EACH_TEAM: one shared target
+attacked by both", so the objective associates with neither-or-both, scoring eligibility is both continuously,
+and only possession discriminates. That's also the cleanest reason the unsupported designation had to go —
+collapsing the three would force us to call one of two teams "defending" in a game where both attack the same
+line. His single-goal example survives the proposal, since the proposal is silent on scoring eligibility.
+
+RULINGS 2 AND 3 — evidence as he asked, before any repair
+Removing designation: NO consequence. Acceptance, Gate A, render-eligible, rendering all unchanged. One test
+failed and it was mine asserting the removed property existed. Nothing depended on it — which is the evidence
+it was never doing representational work.
+
+Narrowing the authorization: production blast radius ZERO. Three test assertions failed, and all three were
+his second category (downstream assumptions on the blanket permission), not missing knowledge. One literally
+said "the instantiated member is authorized by the claim and recorded, so it is not an invention" — the exact
+reasoning that let designation through. All inverted to assert the new principle.
+
+It did expose one real defect in the check, which I fixed because it's not a knowledge gap: member accounting
+matched exact leaf only, so a structured ENTAILED value was split into one false invention per field — the same
+mistake that function's own comment records making once before.
+
+THE FINDING I FLAGGED HARDEST
+Independent of Wide Zone: SD-14 says a SCORE begins a new attacking episode, SD-R3 leaves the post-score
+procedure to realization, so who is in possession after a score is unauthored — meaning ATTACKING_TEAM is
+UNDEFINED immediately after a score. Live consequence: neutral affiliation is ATTACKING_TEAM re-decided at
+every episode boundary, and a score is one. Also the neutral fitNote cites SD-14 but omits SCORE from its three
+events, so it's narrower than the decision it cites.
+
+Also worth knowing: the wider mechanism-family sweep I'd launched was stopped when the previous session ended.
+I didn't relaunch it — my own verification covered the question, and the evidence above is all from primary
+sources I read myself.
+
+Joe

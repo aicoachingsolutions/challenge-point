@@ -259,6 +259,13 @@ function twoCandidates(): ResolvedGame {
                 kind: 'DISTINCT_ON',
                 path: 'objects[]',
                 rows: ['O4', 'O5'],
+                // WHOLE_GAME and authoritative so this fixture exercises the comparison itself. The corpus's
+                // real condition is neither, and `distinct-on-wiring.unit.ts` builds it from the register
+                // rather than by hand — which is what this fixture could not do, and why it passed while the
+                // real condition evaluated no tuples at all.
+                scope: 'WHOLE_GAME',
+                notEvaluable: null,
+                authoritative: true,
                 asAuthored: "each candidate's (along, across) position differs from every other candidate's in the same set; no separation distance",
                 from: { contractId: 'restated:VARIABLE-TARGET-CONDITION', itemId: 'VARTARGET-03.a' },
             },
@@ -361,7 +368,7 @@ test('one line cannot be chosen twice', () => {
 
 test('an unsatisfied existential claim refuses the realization', () => {
     const resolved = eligible({
-        existential: [{ path: 'performers.teams', classId: 'K-teams', from: { contractId: 'C', itemId: 'I' }, cardinality: { min: 2, max: 2 }, satisfiedBy: [], shortfall: 2 }],
+        existential: [{ path: 'performers.teams', classId: 'K-teams', from: { contractId: 'C', itemId: 'I' }, cardinality: { min: 2, max: 2 }, satisfiedBy: [], cardinalityUnreadable: false, shortfall: 2 }],
     })
     const result = realize(resolved, chooseScoring)
     assert.ok(isRefused(result))
@@ -370,15 +377,44 @@ test('an unsatisfied existential claim refuses the realization', () => {
 
 test('an instantiation satisfies the claim and is recorded as instantiated, not derived', () => {
     const resolved = eligible({
-        existential: [{ path: 'performers.teams', classId: 'K-teams', from: { contractId: 'C', itemId: 'I' }, cardinality: { min: 1, max: null }, satisfiedBy: [], shortfall: 1 }],
+        existential: [{ path: 'performers.teams', classId: 'K-teams', from: { contractId: 'C', itemId: 'I' }, cardinality: { min: 1, max: null }, satisfiedBy: [], cardinalityUnreadable: false, shortfall: 1 }],
     })
-    const result = realize(resolved, chooseScoring, [{ classId: 'K-teams', member: { designation: 'ATTACKING_TEAM' }, because: 'the claim needs a member' }]) as Realized
+    const result = realize(resolved, chooseScoring, [{ classId: 'K-teams', member: {}, because: 'the claim needs a member' }]) as Realized
     assert.equal(result.outcome, 'REALIZED')
-    assert.deepEqual((result.game as any).performers.teams, [{ designation: 'ATTACKING_TEAM', satisfies: 'K-teams' }])
+    // The member carries its opaque handle as `elementId` — the same field a derived element is addressed by —
+    // beside `satisfies`, which says which claim authorized it. Identity and authorization are both recorded
+    // and are different questions.
+    assert.deepEqual((result.game as any).performers.teams, [{ satisfies: 'K-teams', elementId: 'K-teams#1' }])
     assert.equal(result.record.instantiations.length, 1)
-    // The instantiated member is authorized by the claim and recorded, so it is not an invention —
-    // but it is also not derived, and the record is the only place that distinction survives.
+    assert.equal(result.record.instantiations[0].handle, 'K-teams#1', 'the record carries the handle it minted')
+    // The member is authorized by the claim and recorded, so it is not an invention — but it is also not
+    // derived, and the record is the only place that distinction survives.
     assert.deepEqual(checkRealization(resolved, result).nothingInvented, [])
+})
+
+/**
+ * **Authority to instantiate an element does not entail authority to populate its properties.** His ruling of
+ * 2 October, asserted here because this test previously encoded the opposite.
+ *
+ * It used to instantiate `member: { designation: 'ATTACKING_TEAM' }` and assert that nothing was invented, on
+ * the reasoning that the claim authorized the member. That reasoning is what let an unregistered `designation`
+ * carrying a token canonical knowledge defines as "the team currently in possession" into A04's concrete game
+ * with the positional reason "first of the two".
+ */
+test('a property the instantiation simply asserts is an invention, however well-formed the member is', () => {
+    const resolved = eligible({
+        existential: [{ path: 'performers.teams', classId: 'K-teams', from: { contractId: 'C', itemId: 'I' }, cardinality: { min: 1, max: null }, satisfiedBy: [], cardinalityUnreadable: false, shortfall: 1 }],
+    })
+    const result = realize(resolved, chooseScoring, [
+        { classId: 'K-teams', member: { designation: 'ATTACKING_TEAM' }, because: 'the claim needs a member' },
+    ]) as Realized
+    assert.equal(result.outcome, 'REALIZED', 'the instantiation itself is still authorized by the claim')
+
+    const problems = checkRealization(resolved, result).nothingInvented
+    assert.equal(problems.length, 1, `the unsupported property must be reported; got ${JSON.stringify(problems)}`)
+    assert.ok(problems[0].includes('designation'), problems[0])
+    assert.ok(problems[0].includes('no support of its own'), problems[0])
+    assert.ok(problems[0].includes('the claim establishes the element, not its properties'), problems[0])
 })
 
 test('a claim already satisfied by an established member authorizes no instantiation', () => {
@@ -393,6 +429,7 @@ test('a claim already satisfied by an established member authorizes no instantia
                 from: { contractId: 'C', itemId: 'I' },
                 cardinality: { min: 1, max: null },
                 satisfiedBy: ['established-objective'],
+                cardinalityUnreadable: false,
                 shortfall: 0,
             },
         ],
@@ -416,6 +453,7 @@ test('only the SHORTFALL is owed, not the whole claim again', () => {
                 from: { contractId: 'C', itemId: 'I' },
                 cardinality: { min: 2, max: null },
                 satisfiedBy: ['established-team'],
+                cardinalityUnreadable: false,
                 shortfall: 1,
             },
         ],
@@ -429,7 +467,7 @@ test("a claim's cardinality is part of the claim", () => {
     // dropped an authored fact while reporting success, which is the failure mode this whole
     // discipline exists to prevent.
     const resolved = eligible({
-        existential: [{ path: 'performers.teams', classId: 'K-teams', from: { contractId: 'C', itemId: 'I' }, cardinality: { min: 2, max: 2 }, satisfiedBy: [], shortfall: 2 }],
+        existential: [{ path: 'performers.teams', classId: 'K-teams', from: { contractId: 'C', itemId: 'I' }, cardinality: { min: 2, max: 2 }, satisfiedBy: [], cardinalityUnreadable: false, shortfall: 2 }],
     })
     const one = realize(resolved, chooseScoring, [{ classId: 'K-teams', member: { designation: 'ATTACKING_TEAM' }, because: 'only one' }])
     assert.ok(isRefused(one))

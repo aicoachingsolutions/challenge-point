@@ -831,7 +831,13 @@ test('the corpus run reproduces the reported figures exactly', () => {
      * V9a, V10): 121 + 5 = 126. Before this, every claim the object made about the advantage reached no line
      * at all and appeared in neither the game, `open` nor `notEstablished`.
      */
-    assert.equal(result.run.counts.lines, 126)
+    /**
+     * **127 since the possession relation (PS1) was authorized on 2 October.** One game-level row, one line.
+     * It is `NOT_AUTHORED / no coverage` on this corpus — nothing in the selected knowledge addresses possession,
+     * so SD-39's existence condition is unmet and the line is honestly a gap rather than a freedom. That is the
+     * representation declining to invent, not a defect.
+     */
+    assert.equal(result.run.counts.lines, 127)
     /**
      * **61, up from 59.** The same restatement establishes `perceptual-reference` on BOTH channels rather
      * than on a third region of its own, so two S4 lines now resolve where none did. The functions rows
@@ -865,9 +871,10 @@ test('the corpus run reproduces the reported figures exactly', () => {
      */
     // 24: V10, the modifier's combination rule, is enumerated and unauthored — the contract's own
     // declaration says "Combination with an overlapping modifier never addressed".
-    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 24)
+    // 25: PS1 joins them — nobody addresses possession, so its reason is 'no coverage', an established absence.
+    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 25)
     assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 0, 'cluster 3 cleared the whole population')
-    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 24, 'one GAP per unauthored line, and none for a withdrawn one')
+    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 25, 'one GAP per unauthored line, and none for a withdrawn one')
     // 17 since C33: the removed third region took its one open S5 line (a channel's along-extent) with it.
     assert.equal([...result.derived.lines.values()].filter((l: any) => l.open).length, 17, 'five open lines became seventeen')
 
