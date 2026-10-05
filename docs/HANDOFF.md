@@ -5857,3 +5857,135 @@ transition. A01+A01-02 still fails on GA-NO-FAILED-LINE + 3 unresolved T3/T4/T5 
   (post-realization, since bare blocks give no per-check hook), plus a `suspended()` reporter in realize.unit.ts.
   **Bodies retained, nothing deleted, nothing rewritten around the gap, no ball or position invented anywhere.**
   Every run prints the suspension with the blocking decision named. Suite green with suspensions visible.
+
+---
+
+## 5 October (later still) — his DYNAMIC-OBJECT ruling, sequenced. Hazard closed, applicability applied, opposing teams aligned.
+
+**HIS SEMANTIC RULING, recorded verbatim because everything below implements it:**
+> *A dynamic game object may exist without a fixed layout position when its location is state-dependent. A fixed
+> layout position is required only when authoritative knowledge establishes one as part of the game setup.
+> Placement associated with a restart or transition belongs to the existing transition-placement mechanism rather
+> than the object's static layout position.* For soccer, the ball is the immediate case.
+
+**Timing constraint now in force: ~3 weeks of soccer season, go/no-go wanted within 7 days, target is a
+Christian-only BOUNDED live pilot, not library coverage. Prioritize systemic pilot blockers over cleanup.**
+
+### 1 · THE CONDITIONAL-VISIBILITY HAZARD — closed first, as he sequenced it
+**And the register had ALREADY PROMISED this would not happen.** `applicability.selectorGrammar`: *"Where the
+selector does not fix the attribute the condition is UNDECIDABLE and the line is KEPT, so an applicability rule
+can never hide a real gap."* The line WAS kept — and `resolved-game.ts` then dropped every CONDITIONAL entry from
+all three lists. **Seventh registered-but-unenforced construct, and the first where the register itself stated the
+guarantee.**
+- **I had to correct my own earlier report:** post-classification there are **ZERO** surviving CONDITIONAL lines
+  in the corpus or any goal. Every stage-2 CONDITIONAL resolves to ENUMERATED or WITHDRAWN. The 22 silent lines
+  are all WITHDRAWN, which is legitimate. So the hazard was **latent**, not live — I had implied otherwise.
+- **But it fires on the very change he authorized.** `selectorApplies` returns `null` when a selector STRADDLES
+  the applicability list ("identity does not decide it"). GF4's `I02` is `kind ∈ {goal, target}`; against a list
+  naming `goal` and not `target` it straddles → CONDITIONAL → silent. Measured: silent lines 22 → 28.
+- **Fix: `resolved-game.ts` reports CONDITIONAL into `notEstablished`** with reason *"applicability unresolved"*,
+  distinguishing it from WITHDRAWN (condition FALSE, nothing owed, stays silent). **That closes the closure half
+  for free**, because `nothingClosedWithoutAuthority` ranges over `notEstablished` — so a concrete game that
+  fills a conditional line is now refused.
+- **Tested against a FORCED straddle, not the corpus**, because the corpus produces none. A fix whose only
+  evidence is "nothing changed" is not evidence.
+
+### 2 · THE APPLICABILITY ENTRY — applied, and his counterfactual verified
+`applicability.O4` and `.O5`, keyed on `selectorAttribute: kind`, `in: [goal, line, gate, zone, target]` — the
+static kinds. **A ball is absent, so its position rows are WITHDRAWN.**
+- **MEASURED, exactly his three conditions.** A01 + From Goal Kicks: ball present in `game.objects` as
+  `{kind:"ball"}` with **no position key**; O4/O5 **WITHDRAWN**; **open freedoms on objects: `[]`**;
+  POSSESSION_CHANGE reachable. Corpus: both balls withdrawn, **GF4's static target KEEPS its position and stays
+  an open choice** (the rule is about state-dependence, not about objects). **A04 untouched** — no ball, no
+  object, no position lines. **Zero CONDITIONAL survivors** (including `target` in the list avoids the straddle).
+- **Two unregistered kind values are in live corpus selectors: `zone` (GF2-06.a/.b) and `target` (I02).** O2's
+  draft list is `ball, goal, line, gate`. Both are in the entry because the corpus uses them. Reported.
+- **The `in` form is positive-only, so static kinds must be enumerated** and a new kind would straddle. That is
+  no longer silent — it is reported by (1) — but it is a maintenance edge, recorded in the entry's own text.
+
+### 3 · OPPOSING TEAMS — aligned
+`constructTriggers` required `teamClasses.length >= 1`. **Counting CLASSES is the wrong test, and it is the old
+defect's shape in miniature:** A04 has **ONE** P1 class establishing `min 2, max 2`; A01+A01-02 has **TWO**
+classes claiming the same two teams. Now reads the established **cardinality**:
+`classes.some(c => c.row === 'P1' && (c.cardinality?.min ?? 0) >= 2)`.
+- **NOT implemented, recorded in the code and in RC-19:** the design package also names *"distinct team
+  designations"* and *"opposed objectives"*. Neither is reachable at stage 2 — the team classes fix no
+  designation (empty selectors), and opposition is established by the objective structure under SD-95 ("a shared
+  target establishes the opposing relationship, and no team is consulted"), which `constructTriggers` cannot see.
+  Two teams is strictly stronger than one and weaker than the full prerequisite.
+- Forced both directions in a test: one team + ball → not reachable; two teams + ball → reachable.
+
+New test file `back/src/system/derivation/dynamic-object-placement.unit.ts`, **11 cases**, registered.
+
+### 4 · BALL OWNERSHIP — answer: NO LEGITIMATE OWNER. Returned as the gap, as he asked.
+- **DECISIVE EVIDENCE is the spec's own Owner column.** `game-representation-spec-2026-09-18.md:585` (§5.4
+  Objects): Owner = *"SELECTION; REALIZATION for position within bounds"*. **No sport/module/game-level owner
+  appears in §5's ownership column.** And the spec CAN express co-ownership when it means to — §5.3:572 gives
+  `teams[]` *"SELECTION, reconciled against SESSION"*. For Objects it does not.
+- **HIS OWN ADJACENT RULING ENDORSES THE CURRENT FAILURE. KR-04** (spec:406): *"RPC-001 does not own or
+  instantiate the physical carrier of its scoring event ... The resolved game must independently contain a
+  supported compatible carrier ... If selection produces an RPC-compatible scoring event for which no supported
+  physical carrier exists, **reconciliation fails/returns to selection**. RPC-001 does not manufacture the carrier
+  conditionally."* That is this case one carrier over, and it points at SELECTION, not a new layer.
+- **For EXISTENCE there is exactly one channel: a contract item.** `formClasses` iterates contract items and gates
+  solely on `establishesExistence`; SD-83 names the boundary. **So a citable standing decision CANNOT establish a
+  ball** — it supplies values to elements something else created. The session carries only E1-E4.
+- **Why A04 specifically has none:** it routes to RPC-004 Chance Creation, **RPC-004 has NO contract in the
+  corpus**, and GF2 + Wide Zone both declare O1 NON_CLAIMED.
+- **FEASIBILITY PROVEN (probe, deleted, nothing authored):** a 9th knowledge object with ONE item
+  (`O1, kind=ball, EXISTS, AUTHORED, REQUIRED`) → POSSESSION_CHANGE reachable, ball present with NO position,
+  **zero open freedoms on objects**, Gate A DEFERRED_TO_REALIZATION/mayRealize, realization PROCEEDED,
+  acceptance **0/0/0**. **The go/no-go path is one authoring decision.**
+- **Operational trap:** a contract in `contracts` but absent from `selection` still forms its elements and lines;
+  it loses its entry in `versions.objects`, the staleness stamp. **Put it in BOTH lists.**
+- **CORRECTED my own draft:** I had written "the sport module has no import path into the derivation layer at
+  all". **False** — `run-bounded-selection.ts` sits in that directory and imports the library the sport module
+  docks into. What IS true (verified by module-graph walk, not by name search): the derivation and realization
+  CORES are decoupled, and nothing the sport module knows becomes AUTHORITATIVE SUPPORT. It reaches selection,
+  not establishment.
+
+### TWO MORE FINDINGS, both reported not repaired
+1. **AN AUTHORED ITEM ON A WITHDRAWN LINE IS SILENTLY DISCARDED — general and PRE-EXISTING.** Measured: the same
+   item resolves `RESOLVED:ENTAILED` on a non-withdrawn row and resolves to NOTHING on a withdrawn one. True of
+   T1a (an applicability entry predating me) exactly as of O4/O5. **Caution: `forward` was empty in BOTH the test
+   and the CONTROL, so its emptiness proves nothing about reporting — I nearly read that absence as proof.** No
+   corpus knowledge authors a ball position, so nothing is lost today. **This is the half of his ruling the
+   applicability mechanism cannot express:** "a position IS required where knowledge establishes one" needs a
+   DEFEASIBLE withdrawal, and `applicability` is selector-based and absolute. His decision.
+   - Consequence handled honestly: `derivation-stage10`'s §1.9 dynamic-location test moved from `kind=ball` to
+     `kind=gate`. **Verified the invariant still fires there** (refusal RAISED for gate, none for ball). A
+     dynamic location on a STATIC object's layout row is the genuinely pathological case anyway.
+2. **THE SPORT-COUPLING GUARD HAS A HOLE EXACTLY WHERE THE REAL COUPLING IS.** `SPORT_TERMS` lists soccer,
+   football, goalkeeper, dribble, throw-in, corner kick, penalty kick, free kick, final third, midfielder … and
+   **NOT `ball`**. The single sport literal in the sport-neutral derivation layer is `'ball'` at `engine.ts:252`.
+   The ratchet caught my doc-comment "in football" last week, so it works for the terms it knows.
+3. **§5.4's Claim column now partly superseded by his ruling:** *"Every object referenced by a rule, transition or
+   objective exists **and is positioned** inside `area`"*. A dynamic object exists and is NOT positioned. Flagged
+   to him while cheap — this is the RC-19 pattern starting over.
+
+**Verification scorecard: 18 agents, 15 load-bearing claims checked, 12 REFUTED** — almost all overstatements of
+mechanism whose conclusions survived, and one caught a real error in my draft (the import-path claim above).
+
+### THE POLARITY FLAW IN MY OWN ENTRY — caught by an existing test, and the fix is a grammar addition
+**My first entry used a POSITIVE list (`in: [goal, line, gate, zone, target]`) and it was WRONG.**
+`derivation-stage10`'s GA-DIRECTION fixture uses kinds `goalA`/`goalB` — unenumerated — so `selectorApplies`
+returned FALSE and **their authored layout positions were WITHDRAWN**, making the direction clause NOT_EVALUABLE.
+Measured directly: `kind=goalA` O4 → WITHDRAWN with a positive list.
+- **The structural reason: a positive list cannot obey this mechanism's OWN rule.** `selector.ts:109` and
+  `derive.ts:902` both state it — an applicability condition *"may only ever remove a line it can positively
+  disqualify"*, so an undecided condition keeps the line and a rule can never hide a gap. That holds for a CLOSED
+  attribute (trigger). **`kind` is OPEN-ENDED** — `zone` and `target` are already in live selectors and absent
+  from O2's draft list — so a positive list makes **static the exception and dynamic the default**, the reverse of
+  his ruling.
+- **FIX: added `notIn` as an alternative to `in`** on the applicability condition (`register.ts` type + validation:
+  mutually exclusive with `in`, selectorAttribute-only; `engine.ts` negates while **preserving `null`** so an
+  undecided condition stays undecided). Entry is now `notIn: ["ball"]`.
+- **VERIFIED after: `goalA` ENUMERATED, `gate` ENUMERATED, `ball` WITHDRAWN.** Corpus: GF4's target keeps its
+  positions, both balls withdrawn, **0 CONDITIONAL survivors**. A01+A01-02: no open freedoms on objects.
+  **Sport-ball path: POSSESSION_CHANGE reachable, no open freedoms, realization PROCEEDED, acceptance 0/0/0.**
+- **This IS a concept addition to the grammar, which he praised the route for avoiding.** Reported prominently and
+  offered for reversal. It is one key, data not code, and it makes the mechanism obey its own rule.
+- Side effect: with `notIn: ["ball"]` the GF4 straddle no longer occurs, so the CONDITIONAL hazard is **latent
+  again**. The visibility fix stays — he required it, and its test FORCES a straddle rather than observing the
+  corpus, so it is not vacuous.
+- `dynamic-object-placement.unit.ts` now **13 cases**, including the polarity test and the `notIn` validation.

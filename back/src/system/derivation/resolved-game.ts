@@ -469,8 +469,44 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
             continue
         }
 
-        // Withdrawn and conditional lines are not failures: SD-88 withdrew them because the condition
-        // they depend on is false, so nothing is owed on them and nothing is reported.
+        /**
+         * **`WITHDRAWN` and `CONDITIONAL` are opposite cases and were being treated the same. His ruling of
+         * 5 October: a conditional line must not disappear silently, and must not silently satisfy closure.**
+         *
+         * `WITHDRAWN` is settled: SD-88 withdrew the line because the condition it depends on is **false**, so
+         * nothing is owed and nothing needs saying. That stays silent, and 22 lines in the corpus rely on it.
+         *
+         * `CONDITIONAL` is the opposite: the condition is **unresolved**, so whether anything is owed is itself
+         * undecided. Dropping it reported the line in none of the three lists — not derived, not open, not a
+         * gap — and because it was no longer open, realization stopped demanding it be closed. A property
+         * nobody had decided became a property nobody had to decide.
+         *
+         * It is reported as not established, which is what it is: neither derived nor an authorized choice.
+         * That also closes the second half of his ruling for free, because `nothingClosedWithoutAuthority`
+         * ranges over exactly this list — so a concrete game that fills a conditional line is now refused
+         * rather than accepted.
+         *
+         * Measured: no input produces a surviving conditional line today, so this changes nothing on its own —
+         * which is exactly why its test forces one rather than observing the corpus. A conditional line arises
+         * when an element's selector STRADDLES an applicability list, some values inside and some outside, so that
+         * identity cannot decide it. The dynamic-object entry was first written as a positive list over `kind` and
+         * would have produced one; it is now a negative list naming only the ball, which produces none. The hazard
+         * is latent again, and the protection stays because the next entry may not be so lucky.
+         */
+        if (entry.lineState === 'CONDITIONAL') {
+            notEstablished.push({
+                path,
+                lineId: entry.lineId,
+                elementId: entry.elementId,
+                verdict: String(entry.verdict ?? 'CONDITION_UNRESOLVED'),
+                reason: entry.conditionalOn
+                    ? `applicability unresolved: it depends on ${entry.conditionalOn}, which settled nothing`
+                    : "applicability unresolved: the element's own selector does not decide whether this row applies to it",
+                declared: entry.declared ? [...entry.declared] : [],
+            })
+            continue
+        }
+
         if (entry.lineState !== 'ENUMERATED') continue
 
         if (entry.state === 'failed') {

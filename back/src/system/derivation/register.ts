@@ -55,7 +55,21 @@ export interface ApplicabilityCondition {
     /** An attribute the element's own selector fixes, knowable at enumeration. */
     selectorAttribute?: string
     sameElement: boolean
-    in: string[]
+    /** The values for which the row DOES apply. Mutually exclusive with `notIn`. */
+    in?: string[]
+    /**
+     * The values for which the row does NOT apply; anything else keeps its line. Added 5 October.
+     *
+     * **It exists because a positive list cannot obey this mechanism's own rule on an open-ended attribute.**
+     * The rule, stated in `selector.ts` and again in `derive.ts`, is that an applicability condition "may only
+     * ever *remove* a line it can positively disqualify" — an undecided condition keeps the line, so a rule can
+     * never hide a gap. For a closed attribute like `trigger` a positive list satisfies that. For `kind`, whose
+     * values are open-ended and already include two the register's own draft list does not name (`zone`,
+     * `target`), a positive list silently disqualifies every kind nobody thought to enumerate: measured, an
+     * object selected `kind=goalA` lost its authored layout position. `notIn` disqualifies exactly the values
+     * named and keeps everything else, which is what the rule asks for.
+     */
+    notIn?: string[]
 }
 
 export interface RegisterIndex {
@@ -160,14 +174,16 @@ export function indexRegister(register: any): RegisterIndex {
         if (!entry || typeof entry !== 'object' || !entry.when) continue // prose notes in the same block
         if (!rows.has(key)) throw new HaltError('H1', `applicability keyed on unknown row ${key}`)
         const when = entry.when
-        if (!Array.isArray(when.in)) throw new HaltError('H1', `applicability for ${key} has no usable condition`)
+        if (!Array.isArray(when.in) && !Array.isArray(when.notIn)) throw new HaltError('H1', `applicability for ${key} has no usable condition`)
+        if (Array.isArray(when.in) && Array.isArray(when.notIn)) throw new HaltError('H1', `applicability for ${key} names both in and notIn; they are alternatives`)
+        if (Array.isArray(when.notIn) && when.row) throw new HaltError('H1', `applicability for ${key} uses notIn on a governing row; the negative form is defined for a selector attribute only`)
         if (!when.row && !when.selectorAttribute) throw new HaltError('H1', `applicability for ${key} names neither a governing row nor a selector attribute`)
         if (when.row && when.selectorAttribute) throw new HaltError('H1', `applicability for ${key} names both a governing row and a selector attribute; they are alternatives`)
         if (when.row && !rows.has(String(when.row))) throw new HaltError('H1', `applicability for ${key} governs on unknown row ${when.row}`)
         applicability.set(key, {
             ...(when.row ? { row: String(when.row) } : { selectorAttribute: String(when.selectorAttribute) }),
             sameElement: !!when.sameElement,
-            in: when.in,
+            ...(Array.isArray(when.notIn) ? { notIn: when.notIn } : { in: when.in }),
         })
     }
 

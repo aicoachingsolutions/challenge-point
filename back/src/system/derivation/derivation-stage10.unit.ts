@@ -473,12 +473,28 @@ test('a game with no value modifier at all is unaffected by the gap', () => {
 // Values §1.9 cannot compare are refused, not coerced.
 // ---------------------------------------------------------------------------------------------
 
+/**
+ * **The fixture moved from a ball to a gate on 5 October, and the reason is a finding rather than a tidy-up.**
+ *
+ * His dynamic-object ruling withdraws the layout-position rows for a ball, so a position authored for a ball no
+ * longer reaches the geometric check at all — the line is withdrawn before anything compares it, and this
+ * invariant had nothing to fire on. A gate is a static object, keeps its layout rows, and is the better subject
+ * anyway: a dynamic location authored onto a STATIC object's position is the genuinely pathological case, and
+ * the one the refusal exists for.
+ *
+ * **What moving it does NOT fix, and is reported to him rather than papered over here:** an authored item whose
+ * line is withdrawn has its value silently discarded. Verified general and pre-existing, not introduced by the
+ * new entry — an authored `qualifiers.lastTouch` on a POSSESSION_CHANGE transition, withdrawn by an applicability
+ * entry that predates it, behaves identically. Measured: on a non-withdrawn row the same item resolves
+ * `RESOLVED:ENTAILED`; on a withdrawn row it resolves to nothing. No corpus knowledge authors a ball position, so
+ * nothing is lost today; the decision about whether a withdrawal should report what it discards is his.
+ */
 test('a dynamic location used geometrically is refused as VALUE_NOT_COMPARABLE', () => {
     const contracts = [
         contract([
-            item({ itemId: 'O-1', row: 'O1', selector: 'kind=ball', requirement: 'EXISTS' }),
-            item({ itemId: 'O-2', row: 'O4', selector: 'kind=ball', requirement: 'EQUALS', value: { dynamic: 'BALL_EXIT_POINT' } }),
-            item({ itemId: 'O-3', row: 'O5', selector: 'kind=ball', requirement: 'EQUALS', value: { axis: 'across', lo: 0, hi: 10 } }),
+            item({ itemId: 'O-1', row: 'O1', selector: 'kind=gate', requirement: 'EXISTS' }),
+            item({ itemId: 'O-2', row: 'O4', selector: 'kind=gate', requirement: 'EQUALS', value: { dynamic: 'BALL_EXIT_POINT' } }),
+            item({ itemId: 'O-3', row: 'O5', selector: 'kind=gate', requirement: 'EQUALS', value: { axis: 'across', lo: 0, hi: 10 } }),
         ]),
     ]
     const result: any = runStages0to10(input(contracts))
@@ -893,13 +909,21 @@ test('the corpus run reproduces the reported figures exactly', () => {
     // SD-88 evaluated the conditional lines; the selector-based rule settles its own at enumeration.
     // Twelve withdrawals come from the governing-line path (the three CONTINUE transitions carry no
     // placement), nine from the trigger rule.
+    //
+    // **26 since 5 October, from 22.** His dynamic-object ruling withdraws the two layout-position rows for an
+    // object whose location is state-dependent, and the corpus authors two balls — A01-02-08.a and
+    // RPC-001-10.a — so four position lines joined the list. Nothing else moved: the conditional count below is
+    // still zero, and GF4's static target keeps both of its position lines.
     assert.equal(
         result.lines.filter((l: any) => (result.classified.get(l.lineId)?.lineState ?? l.lineState) === 'CONDITIONAL').length,
         0,
         'no line is left unjudged behind a governing value that has resolved',
     )
     const withdrawn = result.lines.filter((l: any) => (result.classified.get(l.lineId)?.lineState ?? l.lineState) === 'WITHDRAWN')
-    assert.equal(withdrawn.length, 22)
+    assert.equal(withdrawn.length, 26)
+    // And the four new ones are the balls' positions specifically, not an accidental widening.
+    const ballPositions = withdrawn.filter((l: any) => /::O[45]$/.test(l.lineId))
+    assert.equal(ballPositions.length, 4, 'two authored balls, two position rows each')
     for (const line of withdrawn) {
         assert.equal(result.classified.get(line.lineId)?.verdict ?? null, null, `${line.lineId} is withdrawn and must carry no verdict`)
     }

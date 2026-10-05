@@ -1369,6 +1369,27 @@
    },
    "text": "NARROWED 29 September on Christian’s ruling: \"T1c does not apply to OUT_END_LINE merely because the ball exits somewhere along the end line. T1b establishes whose end line. T4 owns restart placement. Do not duplicate placement semantics through T1c.\" It remains for REGION_ENTRY, where triggerQualifiers already states the trigger takes a region reference, and for OUT_TOUCHLINE, where the restart place genuinely is where the ball crossed."
   },
+  "O4": {
+   "when": {
+    "selectorAttribute": "kind",
+    "sameElement": true,
+    "notIn": [
+     "ball"
+    ]
+   },
+   "text": "ADDED 5 October on Christian's ruling: \"A dynamic game object may exist without a fixed layout position when its location is state-dependent. A fixed layout position is required only when authoritative knowledge establishes one as part of the game setup. Placement associated with a restart or transition belongs to the existing transition-placement mechanism rather than the object's static layout position.\" A layout position is therefore a property of a STATIC setup object, and the condition names the one kind whose location is state-dependent rather than enumerating the kinds that are not. WHY THE NEGATIVE FORM: a positive list cannot obey this mechanism's own rule, which is that an applicability condition may only ever remove a line it can positively disqualify. For a closed attribute like trigger a positive list satisfies that. For kind it does not - the values are open-ended, two in live corpus selectors (zone, target) are absent from O2's draft list, and an object selected kind=goalA was measured LOSING its authored layout position to a positive list. notIn disqualifies exactly the ball and keeps every other kind, including kinds nobody has named yet. Where a restart does fix where the ball goes, that belongs to T4 (transitions[].placement.region), which A01-02-07.a already uses.",
+   "sport": "For soccer the ball is the immediate case; the rule is stated over state-dependence, not over football."
+  },
+  "O5": {
+   "when": {
+    "selectorAttribute": "kind",
+    "sameElement": true,
+    "notIn": [
+     "ball"
+    ]
+   },
+   "text": "As O4, for the across-axis position. The two rows are one decision: an object whose location is state-dependent has neither a static along-position nor a static across-position."
+  },
   "generalRule": "Adopted 29 September on Christian ruling: a transition qualifier applies only where the transition trigger semantics make that qualifier structurally applicable. An inapplicable qualifier is WITHDRAWN; its absence is never a knowledge gap. Expressed as an applicability rule over the trigger, not as a special case for turnover - POSSESSION_CHANGE is named nowhere, it simply fails every out-of-play condition.",
   "selectorGrammar": "Added 29 September. An entry may condition on selectorAttribute instead of row. A selector attribute is fixed by stage 2 when the class is individuated, so the condition is decided at enumeration and the line is WITHDRAWN there rather than left CONDITIONAL on a governing line that can never move. Where the selector does not fix the attribute the condition is UNDECIDABLE and the line is KEPT, so an applicability rule can never hide a real gap."
  },
