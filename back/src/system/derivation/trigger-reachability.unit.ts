@@ -76,14 +76,20 @@ const input = (contracts: LoadedContract[]): DerivationInput => ({
 const check = (result: any, checkId: string) => result.gates.gateA.checks.find((c: any) => c.checkId === checkId)
 const clauseOf = (result: any, checkId: string) => check(result, checkId).clauses[0]
 /**
- * A team and a ball: the structural prerequisites SD-44 requires for a possession change.
+ * **OPPOSING teams and a ball: the structural prerequisites SD-44 requires for a possession change.**
  *
- * P1's only registered selector attribute is `team` — my first version of this fixture used
- * `designation`, which formed no class at all and raised nothing, so the test failed and was right to.
- * Worth keeping the note: a selector naming an unregistered attribute is dropped silently here.
+ * Two corrections live in this fixture, both of which it earned by failing.
+ *
+ * P1's only registered selector attribute is `team` — the first version used `designation`, which formed no
+ * class at all and raised nothing. A selector naming an unregistered attribute is dropped silently here.
+ *
+ * And the team item must **establish two teams**, not merely assert that a team exists. The second version used
+ * a bare `EXISTS`, which satisfied the old "at least one team class" test and stopped satisfying the prerequisite
+ * the moment it was aligned with *opposing* teams on 5 October. The fixture was understated rather than the
+ * alignment wrong, and this is the shape the alignment exists to catch.
  */
 const TEAM_AND_BALL = [
-    item({ itemId: 'P-1', row: 'P1', selector: 'team=ATTACKING_TEAM', value: 'a team' }),
+    item({ itemId: 'P-1', row: 'P1', selector: 'team=ATTACKING_TEAM', requirement: 'COUNT', value: '2', valueStatus: 'REQUIRED_RANGE' }),
     item({ itemId: 'O-B', row: 'O1', selector: 'kind=ball', requirement: 'COUNT', value: '1', valueStatus: 'REQUIRED_RANGE' }),
 ]
 
@@ -114,10 +120,10 @@ test("SD-44: a POSSESSION_CHANGE transition FAILS where no ball establishes poss
  * supply the contrast on its own: with no practice situation selected, every transition in every one of the
  * thirteen goals is on an unreachable trigger, so there is no passing case to compare against.
  */
-test('SD-44: and the SAME transition PASSES once a team and a ball are established', () => {
+test('SD-44: and the SAME transition PASSES once OPPOSING teams and a ball are established', () => {
     const result: any = runStages0to10(input([contract([item({ itemId: 'T-A', selector: 'trigger=POSSESSION_CHANGE' }), ...TEAM_AND_BALL])]))
     const clause = clauseOf(result, 'GA-TRIGGER-REACHABLE')
-    assert.equal(clause.verdict, 'PASS', 'a team and a ball are the prerequisites SD-44 names')
+    assert.equal(clause.verdict, 'PASS', 'two opposing teams and a ball are the prerequisites SD-44 names')
     assert.equal(clause.basis, 'EVALUATED')
     assert.equal(clause.instances, 1)
 })

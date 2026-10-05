@@ -5989,3 +5989,20 @@ Measured directly: `kind=goalA` O4 → WITHDRAWN with a positive list.
   again**. The visibility fix stays — he required it, and its test FORCES a straddle rather than observing the
   corpus, so it is not vacuous.
 - `dynamic-object-placement.unit.ts` now **13 cases**, including the polarity test and the `notIn` validation.
+
+### FIFTH knock-on — and the best one: the opposing-teams alignment broke MY OWN earlier test
+`trigger-reachability.unit.ts`'s `TEAM_AND_BALL` fixture asserted that "a team and a ball" makes POSSESSION_CHANGE
+reachable, and its team item was a bare `EXISTS` — **establishing ONE team**. That satisfied the old
+`teamClasses.length >= 1` test and correctly stopped satisfying the prerequisite once it was aligned with
+*opposing* teams. **The fixture was understated; the alignment was right.** Fixed to `COUNT 2`, renamed to say
+OPPOSING teams so the test states the ruling rather than a weaker version, and both corrections this fixture has
+earned by failing are now recorded in it (the earlier one being an unregistered selector attribute that formed no
+class silently).
+
+### FINAL STATE OF THIS ROUND — suite GREEN end to end
+**REAL_EXIT=0, 333 passing, 0 failures, 19 suspensions, last file (`rendering.unit.ts`) ran.**
+`trigger-reachability: 13` · `dynamic-object-placement: 13` · sixteen Gate A checks present.
+**Five knock-on failures across this round, EVERY ONE a test correctly detecting a real consequence** — and two
+of them found genuine defects in my own work (the positive-list polarity, and this understated fixture). None was
+a stale test. Each is updated with its reason in the file, and two assertions are now strictly stronger than what
+they replaced.
