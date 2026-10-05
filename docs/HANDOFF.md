@@ -5687,3 +5687,31 @@ measured, including the reachable one** — the enforcement gap, measured.
 Registration is evidence a concept is **sayable**, not that its semantics are **implemented or enforced**.
 Ownership checks now separate semantic registration from runtime consumption. **RC-19 makes SIX — and the first
 where the unconsumed thing is an INVARIANT rather than a field.** No work opened on the five as a group.
+
+### CORRECTIONS sent an hour after the 5 Oct report — and the cause was sending with a leg outstanding
+**I sent while one verification leg was still running. I flagged it, which is not the same as waiting, and that
+leg produced two of these three.** The rule is the simpler one: don't send until it finishes.
+
+1. **WITHDREW the GA-TRIGGER-UNIQUE early-return bullet as a CAUSE.** Both facts are true (it returns early at
+   `transitions.length < 2`; `triggerOf` is defined after it) but the implication is false and dangerous: it reads
+   as "remove the guard and the check works." **`triggerOf`'s value is used at `gates.ts:885` ONLY to compare one
+   T1 class's trigger to ANOTHER'S, and `gaTriggerUnique` never reads `ctx.triggers` at all** (verified by awk over
+   861-935). With two transitions the guard would not fire, the code would run, and reachability would STILL not be
+   tested. **The structural cause stands: no FIELD row for `transitions[].trigger`.**
+2. **CORRECTED "the object carries into the concrete game".** I had only measured to the RESOLVED game. Measured
+   through realization: basis->AUTHORED => **REFUSED**, *"is open and was not chosen: a concrete game leaves no
+   freedom unclosed"* — **two new FREE choices open (`::O2` kind, `::O5` position.across); with the selector fixed
+   to `kind = ball` ONE still opens (`::O5`)**. The refusal is CORRECT, not a loss, so the conclusion (authoring
+   gap, not projection loss) is unchanged and better supported. **And it quantifies his "do not simply add a ball":
+   authoring one opens a realization choice the frozen choice set does not answer.**
+3. **NEW BOUNDED DEFECT, reported not repaired.** `GA-TRIGGER-UNIQUE`'s first clause's unit is **PAIRS** — the
+   normal path correctly reports `comparedPairs` — but **the early-return path reports `transitions.length`**. With
+   exactly one transition that is 1, and `pass()` maps `instances > 0` to basis `EVALUATED`, so **the clause
+   declares `EVALUATED, instances: 1` having compared NOTHING.** Correct by accident at 0 transitions; **wrong at
+   exactly 1 — i.e. in all eight affected goals.** And the gate report's `clausesVacuous` tally
+   (`gates.ts:1799`) exists to count exactly this — **reporting the wrong unit is what keeps the clause out of
+   it.** One-argument fix; the precedent is fifteen lines below. Left for him: it changes gate evidence for eight
+   goals on a frozen surface.
+
+**Agent scorecard, final: 28 agents, 19 load-bearing claims verified adversarially, 8 REFUTED — and one refutation
+was of MY OWN measurement (the "no control case" universal).** The verification stage paid for itself twice.
