@@ -117,34 +117,49 @@ test('registering the member changed no verdict in any of the thirteen goals', (
     assert.equal(goals.length, 13)
 
     /**
-     * **These baselines moved once, deliberately, and the reason is recorded here.** Registering the vocabulary
-     * member changed nothing — that was measured and is still proved below by removing it. What changed these
-     * numbers is the separate authoring act of 4 October (C39), which put the token on the Pass Combination
-     * Gate's information-rule trigger and closed one failed line in each of the five goals that select that
-     * contract: A01 and A05 from eight to seven, TA01, A02 and TA02 from seven to six. A04 never moved.
+     * **These baselines have moved twice, both times deliberately, and both reasons are recorded here.**
+     *
+     * 1. **4 October (C39).** Registering the vocabulary member changed nothing — measured then, and still
+     *    proved below by removing it. What moved the FAILED counts was the separate authoring act that put the
+     *    token on the Pass Combination Gate's information-rule trigger, closing one failed line in each of the
+     *    five goals selecting that contract: A01 and A05 eight to seven, TA01, A02 and TA02 seven to six.
+     * 2. **5 October — `GA-TRIGGER-REACHABLE`.** On his ruling that SD-44 supersedes RC-19 and that a
+     *    possession change needs a ball, Gate A now FAILS wherever a transition is keyed on an unreachable
+     *    trigger. Six verdicts moved: A01, TA01, A02, TA02 and A05 from NOT_EVALUABLE, and **A04 from
+     *    DEFERRED_TO_REALIZATION** — he directed that A04's failure stay visible and not be patched. TD02 and
+     *    D03 were already FAIL and merely gained a second failing check.
+     *
+     * **Not one FAILED count moved with it**, which is the containment fact worth having: the new check adds a
+     * failed *clause*, never a failed *line*. The assertions below pin that, and pin GA-TRIGGER-REACHABLE as the
+     * cause wherever the verdict is FAIL — so a future change that fails these goals for some other reason
+     * cannot hide behind a verdict that already reads FAIL.
      */
-    const expected: Record<string, { failed: number; gateA: string }> = {
-        A01: { failed: 7, gateA: 'NOT_EVALUABLE' },
-        D01: { failed: 6, gateA: 'NOT_EVALUABLE' },
-        TA01: { failed: 6, gateA: 'NOT_EVALUABLE' },
-        TD01: { failed: 6, gateA: 'NOT_EVALUABLE' },
-        A02: { failed: 6, gateA: 'NOT_EVALUABLE' },
-        D02: { failed: 7, gateA: 'NOT_EVALUABLE' },
-        TA02: { failed: 6, gateA: 'NOT_EVALUABLE' },
-        TD02: { failed: 11, gateA: 'FAIL' },
-        A03: { failed: 7, gateA: 'NOT_EVALUABLE' },
-        D03: { failed: 11, gateA: 'FAIL' },
-        A04: { failed: 7, gateA: 'DEFERRED_TO_REALIZATION' },
-        A05: { failed: 7, gateA: 'NOT_EVALUABLE' },
-        A06: { failed: 7, gateA: 'NOT_EVALUABLE' },
+    const expected: Record<string, { failed: number; gateA: string; reachable: boolean }> = {
+        A01: { failed: 7, gateA: 'FAIL', reachable: false },
+        D01: { failed: 6, gateA: 'NOT_EVALUABLE', reachable: true },
+        TA01: { failed: 6, gateA: 'FAIL', reachable: false },
+        TD01: { failed: 6, gateA: 'NOT_EVALUABLE', reachable: true },
+        A02: { failed: 6, gateA: 'FAIL', reachable: false },
+        D02: { failed: 7, gateA: 'NOT_EVALUABLE', reachable: true },
+        TA02: { failed: 6, gateA: 'FAIL', reachable: false },
+        TD02: { failed: 11, gateA: 'FAIL', reachable: false },
+        A03: { failed: 7, gateA: 'NOT_EVALUABLE', reachable: true },
+        D03: { failed: 11, gateA: 'FAIL', reachable: false },
+        A04: { failed: 7, gateA: 'FAIL', reachable: false },
+        A05: { failed: 7, gateA: 'FAIL', reachable: false },
+        A06: { failed: 7, gateA: 'NOT_EVALUABLE', reachable: true },
     }
     for (const goal of goals) {
         const input = derivationInputFor(selectFor(goal, null))
         const result: any = runDerivation(input)
         const staged: any = runStages0to10(input)
         const failed = (result.resolution ?? []).filter((e: any) => e.state === 'failed').length
-        assert.equal(failed, expected[goal].failed, `${goal}: failed lines must not move`)
+        assert.equal(failed, expected[goal].failed, `${goal}: failed LINES must not move — the new check adds a clause, not a line`)
         assert.equal(String(staged.gates?.gateA?.verdict), expected[goal].gateA, `${goal}: Gate A must not move`)
+
+        const reach = (staged.gates?.gateA?.checks ?? []).find((c: any) => c.checkId === 'GA-TRIGGER-REACHABLE')
+        const passes = !reach.clauses.some((l: any) => l.verdict === 'FAIL')
+        assert.equal(passes, expected[goal].reachable, `${goal}: reachability verdict must be the one his ruling implies`)
     }
 })
 

@@ -49,7 +49,9 @@ function resolvedFor(input: any) {
     const result: any = runDerivation(input)
     const staged: any = runStages0to10(input)
     const index = indexRegister(input.register)
-    return { resolved: assembleResolvedGame(result, staged.classes, index, input.contracts) as any, index }
+    // `result` is returned too: the gate report is the only place a check's verdict can be read, and one
+    // test below needs to say WHICH check withholds authorization rather than merely that something does.
+    return { resolved: assembleResolvedGame(result, staged.classes, index, input.contracts) as any, index, result }
 }
 
 const corpus = resolvedFor(corpusInput())
@@ -167,13 +169,29 @@ test('no learning goal carries an unreadable claim, so no goal outcome changes',
     assert.deepEqual(affected, [], `the correction must touch no goal, and touches ${affected.join(', ') || 'none'}`)
 })
 
-test('A04 still authorizes realization, and every claim it carries has a readable count', () => {
-    const { resolved } = resolvedFor(derivationInputFor(selectFor('A04', null)))
-    assert.equal(resolved.coherence.realizationAuthorized, true, 'A04 is unaffected')
+/**
+ * **This used to assert `realizationAuthorized === true` as its proxy for "A04 is unaffected", and that
+ * assertion is now false for a reason that has nothing to do with cardinality.** On his ruling of 5 October
+ * A04 fails `GA-TRIGGER-REACHABLE`: its only transition is keyed on POSSESSION_CHANGE and the game establishes
+ * no ball, so the trigger is not structurally reachable and realization is correctly withheld. He directed that
+ * the failure stay visible and that A04 not be patched to recover eligibility.
+ *
+ * The subject of this test is cardinality, so it keeps the claims that are actually about cardinality and
+ * replaces the proxy with something stronger: authorization is withheld **only** by the reachability check.
+ * If a cardinality change ever breaks A04, that list grows and this still catches it — which the old
+ * blanket assertion would no longer have been able to do.
+ */
+test('A04 carries only readable counts, and nothing cardinality-related is what blocks it', () => {
+    const { resolved, result } = resolvedFor(derivationInputFor(selectFor('A04', null)))
     for (const claim of resolved.existential as any[]) {
         assert.equal(claim.cardinalityUnreadable, false, `${claim.classId} must have a readable count`)
         assert.equal(typeof claim.shortfall, 'number', `${claim.classId}: a readable claim owes a number`)
     }
+    const failing = (result as any).gates.gateA.checks
+        .filter((c: any) => c.clauses.some((l: any) => l.verdict === 'FAIL'))
+        .map((c: any) => c.checkId)
+        .sort()
+    assert.deepEqual(failing, ['GA-TRIGGER-REACHABLE'], `only the reachability ruling may block A04; got ${failing.join(', ') || 'nothing'}`)
 })
 
 // ── And the display layer must not re-derive the inference the engine refused ──────────────────────

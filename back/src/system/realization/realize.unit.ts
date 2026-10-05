@@ -68,6 +68,15 @@ const chooseScoring = [{ lineId: 'L-scoring', value: 'TARGET_GOAL', because: 'th
 const tests: [string, () => void][] = []
 const test = (name: string, body: () => void) => tests.push([name, body])
 
+/**
+ * A test kept in the file, not run, and reported every run so it cannot be forgotten. Used only where an
+ * owner decision is genuinely outstanding and rewriting the test around it would hide the gap. The body is
+ * retained so restoring it is a one-word change.
+ */
+const suspended = (name: string, why: string, _body: () => void) => {
+    console.log(`  SUSPENDED  ${name}\n             ${why}`)
+}
+
 // ---------------------------------------------------------------------------------------------
 // The happy path, and the three acceptance conditions on it.
 // ---------------------------------------------------------------------------------------------
@@ -548,20 +557,44 @@ test('the live corpus resolved game is refused, and the refusal names Gate A', (
     assert.match(realized.because[0], /may not be realized: Gate A is FAIL/)
 })
 
-test('A04 is authorized for realization, and the three states stay distinct', () => {
-    // His ruling of 30 September split Gate A by evaluability, so the four invariants whose subject
-    // realization supplies are evaluated after it. The state is deliberately NOT reported as `PASS`:
-    // "this keeps 'may realize' distinct from 'game is validated'."
-    /**
-     * **A04 is authorized as authored.** Ruling C35 made V8b's "one property per referent" operational, so the
-     * modifier's two typed referents accumulate as members instead of colliding, `GA-MODIFIER-OVERLAP` can
-     * evaluate identity, and nothing is left unevaluable before realization.
-     */
+/**
+ * **A04 IS NO LONGER AUTHORIZED, and this test records that rather than working around it.**
+ *
+ * His ruling of 5 October: SD-44 supersedes RC-19, and possession is a relationship involving the ball, so a
+ * possession change is not structurally reachable in a game that establishes no ball. A04's only transition is
+ * keyed on exactly that trigger, so `GA-TRIGGER-REACHABLE` fails and realization is withheld. He directed that
+ * the failure stay visible and that A04 not be patched to recover eligibility, so this test asserts the new
+ * truth and the old assertion is gone rather than relaxed.
+ *
+ * **The consequence worth recording: no learning goal is realization-authorized any more** — measured across all
+ * thirteen, with and without a practice situation. A04 was the only one. So the positive side of the contrast
+ * this test used to draw has no live example, and the distinctness of the states is shown below with the two
+ * that do exist. It is recoverable the moment a ball is authored somewhere; nothing here assumes otherwise.
+ *
+ * What his 30 September split still guarantees is unchanged and still asserted: the pre-realization state never
+ * reads as `PASS`, and what a concrete game owes is still carried even while the gate fails.
+ */
+test('A04 is no longer authorized, the reason is named, and the states stay distinct', () => {
     const resolved = a04()
-    assert.equal(resolved.coherence.preRealization, 'PRE_REALIZATION_SATISFIED')
+    assert.equal(resolved.coherence.preRealization, 'FAIL')
     assert.notEqual(resolved.coherence.preRealization, 'PASS', 'the pre-realization state must not read as full Gate A passing')
-    assert.equal(resolved.coherence.realizationAuthorized, true)
-    assert.deepEqual(resolved.coherence.notAuthorizedBecause, [])
+    assert.equal(resolved.coherence.realizationAuthorized, false)
+    assert.deepEqual(
+        resolved.coherence.notAuthorizedBecause,
+        ['a pre-realization Gate A invariant fails: GA-TRIGGER-REACHABLE'],
+        'one reason, and it names the ruling that produced it',
+    )
+
+    // FAIL and NOT_EVALUABLE remain different states, which is what "distinct" was protecting. D01 has no
+    // transition at all, so it cannot fail on reachability and is blocked earlier by invariants that cannot
+    // be evaluated — a gap, not a contradiction (SD-28).
+    const d01Input = derivationInputFor(selectFor('D01', null))
+    const d01Result = runDerivation(d01Input)
+    if (isStampedHalt(d01Result)) return assert.fail('unexpected halt')
+    const d01 = assembleResolvedGame(d01Result, (runStages0to10(d01Input) as any).classes, indexRegister(d01Input.register), d01Input.contracts)
+    assert.equal(d01.coherence.preRealization, 'NOT_EVALUABLE')
+    assert.notEqual(d01.coherence.preRealization, resolved.coherence.preRealization, 'a failure and an unevaluable are not the same state')
+    assert.match(d01.coherence.notAuthorizedBecause[0], /cannot be evaluated/)
 
     // And what a concrete game still owes is carried, naming what realization must supply for each.
     assert.ok(resolved.coherence.postRealizationRequired.length > 0)
@@ -574,9 +607,10 @@ test('A04 is authorized for realization, and the three states stay distinct', ()
 })
 
 test('A05 is NOT authorized, and says which pre-realization invariant is unsatisfied', () => {
-    // The counterpart, so the authorization is shown to discriminate rather than to wave things
-    // through: A05's GA-INFORMATION and GA-REFERENCE-INTEGRITY are pre-realization and unevaluable, so
-    // realization does not proceed.
+    // Still refused, and still for a stated reason — but the reason moved on 5 October. A05's
+    // GA-INFORMATION and GA-REFERENCE-INTEGRITY being unevaluable used to be what stopped it; it now
+    // fails earlier and harder, on the reachability ruling, so the message names a FAILURE rather than an
+    // unevaluable invariant. The point of the test is unchanged: authorization discriminates and says why.
     const input = derivationInputFor(selectFor('A05', null))
     const result = runDerivation(input)
     if (isStampedHalt(result)) return assert.fail('unexpected halt')
@@ -584,7 +618,8 @@ test('A05 is NOT authorized, and says which pre-realization invariant is unsatis
 
     assert.equal(resolved.coherence.realizationAuthorized, false)
     assert.equal(resolved.coherence.notAuthorizedBecause.length, 1)
-    assert.match(resolved.coherence.notAuthorizedBecause[0], /cannot be evaluated/)
+    assert.match(resolved.coherence.notAuthorizedBecause[0], /GA-TRIGGER-REACHABLE/, 'it must name the invariant, not merely refuse')
+    assert.match(resolved.coherence.notAuthorizedBecause[0], /fails/, 'a failure, not an unevaluable')
 })
 
 /** A04's resolved game, assembled from the live selection. */
@@ -629,11 +664,64 @@ test('a collection holding more elements than its knowledge authors is refused',
     )
 })
 
-test('THE ACCEPTANCE TEST: with the authored count satisfied, A04 realizes and all three conditions hold', () => {
-    // The first game through the pathway, on real selected knowledge and through the gate rather than
-    // around it. The three conditions are his and unchanged: nothing lost, nothing invented, nothing
-    // closed without authority.
-    //
+/**
+ * **THE ACCEPTANCE TEST, and its claim is weaker than it was. Recorded, not hidden.**
+ *
+ * It used to assert `realizationAuthorized === true` — "through the gate, not around it" — and that is no longer
+ * true of any goal. His reachability ruling of 5 October withholds authorization from A04, and measurement
+ * across all thirteen goals, with and without a practice situation, found **zero** authorized. So there is no
+ * game left that this test could run *through* the gate.
+ *
+ * It still runs, deliberately, because the three conditions it checks are the realization pathway's actual
+ * subject and that coverage is worth keeping: nothing lost, nothing invented, nothing closed without authority,
+ * on real selected knowledge rather than a fixture. What it no longer demonstrates is that a game reached
+ * realization legitimately. `realize()` does not consult the authorization flag, which is the only reason this
+ * is possible at all — and that is a limit, not a licence.
+ *
+ * **Do not restore the old assertion by making A04 pass.** He directed that A04's failure stay visible and that
+ * it not be patched to recover eligibility. The honest repair is upstream: author a ball somewhere, or change
+ * the reachability rule. Either would make this test "through the gate" again on its own.
+ */
+test('THE ACCEPTANCE TEST is suspended: realization now REFUSES A04, and names the check that refused it', () => {
+    const resolved = a04()
+    assert.equal(resolved.coherence.realizationAuthorized, false)
+
+    // `realize()` enforces the gate itself — it checks `mayRealize`, not the authorization field — so the
+    // refusal is real rather than advisory. Asserting it is the strongest available evidence that his ruling
+    // reaches realization and not merely the report.
+    const supplied = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../../../docs/audits/a04-realization-choices.json'), 'utf8'))
+    const attempted = realize(resolved, supplied.choices, supplied.instantiations)
+    assert.ok(isRefused(attempted), 'an unauthorized game must not realize')
+    assert.ok(
+        (attempted as any).because.some((b: string) => /GA-TRIGGER-REACHABLE/.test(b)),
+        `the refusal must name the check: ${JSON.stringify((attempted as any).because)}`,
+    )
+})
+
+/**
+ * **What the suspended test above used to cover, and why it is not restored here.**
+ *
+ * It realized A04 on real selected knowledge and asserted the three conditions — nothing lost, nothing
+ * invented, nothing closed without authority. That needs an authorized game, and since the reachability ruling
+ * there is none: measured across all thirteen goals, with and without a practice situation, zero are authorized.
+ *
+ * **Restoring it requires his placement ruling first, and the two questions turn out to be coupled.** Giving
+ * these tests a subject means giving them a ball; a ball today forces a free choice of its layout position,
+ * because the position rows are routed past AM-04's silence veto; and choosing one would be inventing exactly
+ * the value his 5 October question asks about. So the honest state is suspended, not rewritten around.
+ * `identity.unit.ts` and `post-realization.unit.ts` are blocked on the same thing and for the same reason.
+ */
+test('the suspension is recorded, not silent: no goal is realization-authorized', () => {
+    for (const goal of ['A04', 'A05', 'A01']) {
+        const input = derivationInputFor(selectFor(goal, null))
+        const result = runDerivation(input)
+        if (isStampedHalt(result)) return assert.fail('unexpected halt')
+        const r = assembleResolvedGame(result, (runStages0to10(input) as any).classes, indexRegister(input.register), input.contracts)
+        assert.equal(r.coherence.realizationAuthorized, false, `${goal} must not be authorized while its trigger is unreachable`)
+    }
+})
+
+suspended('A04 realizes and all three conditions hold', 'needs an authorized game; blocked on the placement ruling — a ball today forces an invented position', () => {
     const resolved = a04()
     assert.equal(resolved.coherence.realizationAuthorized, true, 'through the gate, not around it')
 

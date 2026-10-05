@@ -1,0 +1,229 @@
+Christian,
+
+All three done. The early-return explanation is withdrawn, as you asked.
+
+The short version: the authority is corrected and reachability is now enforced, A04 fails by name and stays
+failed, the evidence defect is repaired along with a latent failure it was hiding — and your representational
+question has a clean answer that costs no new concept and no code.
+
+
+1 · RC-19 / SD-44 — AUTHORITY CORRECTED, ENFORCEMENT ADDED
+
+**The authority.** RC-19's text now records that it was wrong, quotes SD-44 as governing, and carries the
+per-trigger prerequisites with your ruling written into the possession row: *possession is a relationship
+involving the ball, so a game that establishes no ball does not reach POSSESSION_CHANGE.* I also corrected
+register row T1, which was the other place still asserting "Reachable triggers exist by construction (RC-19)";
+it now says a trigger exists by construction **only where it is structurally reachable**, and that appearing in
+the vocabulary is not reachability.
+
+**I did not touch GF2-07.a.** Its structural clause still discharges onto RC-19, and under the corrected rule
+RC-19 no longer supports it. That is exactly why A04 fails, and you said the failure should remain visible, so
+the item stands as authored. Changing it would be an authoring act on your knowledge, not a repair.
+
+**The enforcement is a check of its own: `GA-TRIGGER-REACHABLE`.** It had to be, and the reason is worth a
+line: `failingChecks` is a list of check ids, so only a named check can make this failure legible. Folded into
+the transition-coherence check, the same failure would have surfaced as a coherence problem and never named the
+trigger — which is the condition you were objecting to.
+
+It also reads something no other Gate A check reads. Every other check interrogates a line; **a transition's
+trigger is not a line** — it is a selector attribute of the transition collection, so it has no cell to probe.
+This check reads the class's own selector, because that is the only place the value exists. That is the whole
+reason nothing caught this before.
+
+**Measured, and general as you required:**
+
+    A04              GA-TRIGGER-REACHABLE  FAIL   gateA FAIL, mayRealize NO   failingChecks: GA-TRIGGER-REACHABLE
+    A01 (no situation) FAIL                        same item, same cause
+    A05              FAIL                          GF2 knowledge
+    D03, TD02        FAIL                          GF4 knowledge — a different authored item
+    A01 + From Goal Kicks  PASS, 2 instances       the positive control: both transitions reachable
+    D01 (no transitions)   PASS, no applicable instances
+
+**A04's status: it now fails Gate A and is no longer render-eligible.** `GA-TRIGGER-REACHABLE` is its *only*
+failing check, so the failure is cleanly attributable rather than tangled in anything else. The frozen A04
+fixture is untouched as an artifact; what changed is that the live pipeline now stops at the gate. Nothing was
+patched to recover eligibility.
+
+**And the enforcement is real, not advisory.** Realization refuses an unauthorized game itself — it checks the
+may-realize state directly — so A04 cannot be realized by any caller, not merely skipped by the pipeline
+script. I had this wrong for an hour: I searched for the authorization field by name, found nothing, and was
+about to tell you the weaker thing. The refusal names the check: *"the resolved game may not be realized: Gate A
+is FAIL (GA-TRIGGER-REACHABLE)"*. That is a token-search mistake of exactly the kind this investigation has been
+finding all week, made by me, and caught only because a test failed.
+
+**The control passes and is not collateral damage** — A01 + From Goal Kicks still fails only on
+GA-NO-FAILED-LINE, as it did before, and the new check passes there with two real instances.
+
+**One divergence recorded rather than repaired, because it is yours.** The engine's team-side test for
+POSSESSION_CHANGE requires *at least one* team class, where the prerequisite says *opposing* teams. The code is
+weaker than the rule it implements. No corpus case currently turns on it. I wrote it into RC-19's text so it is
+visible rather than waiting to be rediscovered — which is the failure mode we just spent two days on.
+
+
+2 · THE GA-TRIGGER-UNIQUE EVIDENCE DEFECT — REPAIRED
+
+The compatibility clause's unit is pairs, and the early-return path reported the transition count. Fixed by
+deleting the early return: with fewer than two transitions the pair loops simply do not run, so the clause
+reports zero and surfaces as `NO_APPLICABLE_INSTANCES`, counted in `clausesVacuous`. Measured on a
+single-transition game: `PASS / NO_APPLICABLE_INSTANCES / instances 0`, where it previously read
+`EVALUATED / 1`.
+
+**The early return was also hiding a real failure, and that is the part worth your attention.** The collision
+clause is computed per transition *line*, not per pair, so it is perfectly well defined for a single
+transition — and the early return returned a PASS for it **without ever computing it**. No corpus case has an
+unresolved line on a transition class today, so it was latent rather than live. A regression case forces one,
+and the clause now fails where it used to pass unexamined.
+
+**Your correction is preserved in both the code and a test.** A test asserts that on a fixture whose only
+transition is on an unreachable trigger, GA-TRIGGER-UNIQUE passes and GA-TRIGGER-REACHABLE fails — and that
+GA-TRIGGER-UNIQUE's output never mentions reachability. Removing the guard gave no reachability enforcement,
+and now it cannot be mistaken for having done so.
+
+Thirteen regression cases, including the one-transition condition you asked to be preserved.
+
+
+3 · OBJECT EXISTENCE vs FIXED PLACEMENT — your answer is (b), and it is better than that
+
+**A current invariant incorrectly prevents your distinction.** Not a gap in the object model, and nothing new
+is needed.
+
+**First, and this is the sharpest part: the rule that should have handled this is yours, and one register key
+routes around it.** A01-02 authors a ball's existence and places no item on either position row. Its
+declaration there is `UNDECLARED`, with this note:
+
+    "The ball's layout position was never examined. Its position at the restart moved to T4 (07.a)."
+
+I want to be careful about what that is and is not, because I first read it too generously. `UNDECLARED` does
+**not** mean "deliberately unconstrained" — the vocabulary has a separate code for that, `NON_CLAIMED`, and the
+very same two rows use it for other object kinds. `UNDECLARED` means **nobody looked**. So this is not an
+authored statement that a ball needs no layout position; it is an acknowledged gap, with a note explaining
+where the restater thought placement actually belonged — T4, `transitions[].placement.region`, the
+placement-by-restart row, which is where your own "necessary only where a restart establishes one" would live.
+
+**And that makes the defect worse rather than milder, because AM-04 is exactly about this case.** Your ruling,
+as the engine records it: *"Unexamined silence cannot license a free choice. An `UNDECLARED` declaration
+reaching the row bars openness."* That is precisely the situation — and it does not bar openness here, because
+`outerBound` satisfies the authority test that AM-04's veto checks. **Your rule is right, it is implemented,
+and these two rows are routed past it.**
+
+**Second: the representation already draws your distinction, on separate rows, and a restater has already moved
+an item across that boundary for your reason.** `A01-02-07.a`'s own note:
+
+    "The original row was Objects[].position. O4/O5 hold layout, not placement at the moment of a restart,
+     so the item moves to T4."
+
+So "layout" and "placement established by a restart" are already distinct rows, and the corpus already treats
+them as distinct. What it does **not** have is any authority on the placement row: across the whole corpus T4
+carries three items and not one of them can establish anything — two are engine-only and the third is assumed.
+**So nothing in the corpus establishes a position by a placement rule either.** Your distinction is recognised
+by the structure and empty of authority, which is a different and more tractable problem than a missing concept.
+
+**What overrides it. The requiredness is structural — no item asks for it anywhere.** Three things compose:
+
+1. **Fan-out.** Enumeration creates a line for *every* field row owned by the class's row, so an object gets
+   kind, count, along and across automatically. The `applicability` block is the only brake, and it has no
+   object entry.
+2. **`outerBound: SESSION_ENVELOPE` on those two rows, doing double duty.** It defeats the silence veto that
+   would otherwise stop "never examined" becoming a choice; and separately it is the only reason a row whose
+   bounds are "inside authored bounds" with *no authored bound* becomes an open choice at all. Remove that one
+   key and neither route fires.
+3. **Closure.** Realization then refuses to leave any open choice unclosed, with **no exemptions of any kind**.
+
+Worth being exact, because it bears on where a fix belongs: **nothing in any contract item requires a ball's
+position.** `requirement` is the predicate kind and `strictness` is evidentiary force; neither can say a field
+must be filled. The requiredness is produced entirely by row-level keys and the closure invariant.
+
+**And the invariant is not blanket — it bites precisely on the case you are asking about.** Where a contract
+*does* author a position, the line resolves as derived knowledge and never becomes a choice at all: in my
+earlier experiment the flipped GF2 target came back with its along-position **entailed** from GF2-06.b, and the
+refusal named only its kind and its across-position. So objects whose placement someone authored are fine. What
+gets forced is exactly an object whose location nobody authored because its location is state-dependent — a
+ball. The invariant singles out the dynamic case, which is the opposite of what you would want it to do.
+
+**The decisive contrast, and it is one key wide.** Only four rows in the whole register carry `outerBound`:
+the two space rows, and object position along and across. **Object *count* carries none** — so under
+*identical* silence, the same ball's count lands `NOT_AUTHORED`, an honest returned gap, while its position is
+forced into a choice. Same object, same silence, opposite outcome, and the only difference is that one key.
+
+**And the compelled choice is not even checked.** Its bounds are empty and its permitted set is null, so the
+bound check returns `UNBOUNDED`. The invariant is not protecting a spatial constraint here; it is compelling an
+uncheckable invention.
+
+**The mechanism you need already exists, is general, and is already in production.** The part that decides a
+line's state is plain register data: the enumerator and the stage-6 classifier both read the `applicability`
+entry generically and name **no row id at all**, and it already conditions on an element's own selector
+attribute for the transition qualifiers. That is precisely the half your question turns on.
+
+One honest qualification, because I nearly overstated this. RC-20's *semantics* **are** separately hardcoded —
+the transition-coherence gate reads T6/T3/T4/T5 with the literals CONTINUE and STOP_RESUME directly, without
+consulting `applicability`. So "nothing is special-cased" would be wrong. What is generic is the line-state
+machinery, not every consequence drawn from it; and the practical implication for you is that an entry on the
+position rows would withdraw the lines correctly, while **no gate would then assert anything about object
+placement** — which is the right outcome here, but it should be a decision rather than a surprise.
+For an object that attribute is `kind`, which is exactly what distinguishes a ball from a goal.
+
+**I proved the counterfactual rather than arguing it.** With an `applicability` entry on the two position rows
+— **register data only, no code change** — a ball's position lines become WITHDRAWN, leave the open list, are
+**not** reported as a gap either, the ball remains fully present in the game as `{kind: "ball"}`, and the
+position refusals disappear. That is your third state, and it is already running for transition qualifiers.
+
+**One hazard before you authorize anything.** Where an element's `kind` is *not* fixed by its selector, the
+line goes CONDITIONAL instead of WITHDRAWN, and a conditional line appears in **none** of the resolved game's
+three lists — so it would vanish silently rather than be reported. Two corpus objects use an open selector. I
+would want that closed, or explicitly accepted, before an entry goes in.
+
+Nothing authored, nothing in the object model altered, no position written, as you instructed.
+
+
+4 · THE CONSEQUENCE I DID NOT EXPECT, AND THE TWO RULINGS TURN OUT TO BE COUPLED
+
+This is the item I most want you to see, and it is the reason the enforcement cost more than a verdict change.
+
+**No learning goal is realization-authorized any more.** Measured across all thirteen, with and without a
+practice situation: zero. A04 was the only one, and the reachability check withholds it. That is the correct
+consequence of your ruling — nothing establishes a ball — and it is the holding state you asked for.
+
+**But it leaves the realization test corpus without a subject.** Those tests realize A04 because A04 was the one
+realizable game, and realization now refuses it. Measured: fifteen of sixteen identity checks, and the whole
+post-realization file, which cannot even start.
+
+**And here is the coupling.** Giving those tests a subject means giving them a ball. A ball today **forces a free
+choice of its layout position**, for exactly the reason in part 3 — the position rows are routed past AM-04's
+silence veto. So restoring them would mean inventing a ball position, which is precisely the value your
+placement question asks about and which you told me not to author yet.
+
+**So I stopped rather than choose for you.** The checks are kept, not rewritten, and they announce themselves as
+SUSPENDED on every run with the reason and the blocking decision named. Nothing is quietly deleted, nothing is
+rewritten around the gap, and no ball or position has been invented anywhere. The suite is green with those
+suspensions visible.
+
+**Your placement ruling unblocks this directly.** If a ball may exist without a layout position, the obstacle
+disappears: a ball becomes authorable, the trigger becomes reachable, and the suspended checks come back on real
+knowledge rather than a fixture. That is a stronger reason to settle part 3 than the question had on its own.
+
+The one thing I will not do without you is make A04 pass again, in the tests or anywhere else.
+
+
+5 · THE GOVERNANCE POINT
+
+Recorded explicitly, in your words: **presence in the grammar or register establishes that a concept is
+expressible; it does not establish that its semantics are consumed or enforced at runtime.**
+
+Worth saying plainly: **there is no Change Assurance artifact to put it in yet.** The incentive criteria
+document states in terms that it is "not the Change Assurance System — no tooling, no automation, no gate", so
+filing it there would have buried it in something that disclaims the role. It is recorded in the handoff as a
+standing item instead, with this investigation as its worked example: six constructs now, and RC-19 is the
+first where the thing nothing consumed was an *invariant* rather than a field.
+
+
+STATUS
+
+A04 open and failing, not patched. Generation frozen. Magnitude held. Successful Region Access representation
+expansion still parked. No object model change, no authored position, no ball added.
+
+Tests: 320 passing, exit code 0, and **19 checks reported SUSPENDED** — the realization and identity checks
+whose subject your ruling removed. The suspensions are the honest count, not a green number hiding a gap: each
+one prints its reason and the decision it waits on, every run. They return when the placement question is
+settled.
+
+Joe

@@ -1001,12 +1001,16 @@ test('FIRST_FORWARD_PASS is registered, and it is the only trigger the 29 Septem
     )
 })
 
-test('the fifteen Gate A checks are all present, and GA-RESIDUAL-SPACE is gone (SD-45)', () => {
+test('the sixteen Gate A checks are all present, and GA-RESIDUAL-SPACE is gone (SD-45)', () => {
     const result: any = runStages0to10(corpusInput())
     const ids = gateA(result).checks.map((c: any) => c.checkId).sort()
-    assert.equal(ids.length, 15)
+    assert.equal(ids.length, 16)
     assert.ok(!ids.includes('GA-RESIDUAL-SPACE'), 'SD-45 removed it; no machine-testable concept is created')
     assert.ok(ids.includes('GA-MODIFIER-OVERLAP'))
+    // Sixteenth, added 5 October on his ruling that SD-44 supersedes RC-19: a transition must be keyed on
+    // a structurally reachable trigger. It is a check of its own because `failingChecks` carries checkIds,
+    // so only a named check can make that failure legible. See trigger-reachability.unit.ts.
+    assert.ok(ids.includes('GA-TRIGGER-REACHABLE'))
 })
 
 test('SD-52: a blocked clause is NOT_EVALUABLE and cannot contribute to a gate PASS', () => {

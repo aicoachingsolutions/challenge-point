@@ -534,7 +534,7 @@
     "qualifier.endLine",
     "qualifier.region"
    ],
-   "valueType": "keyed by trigger (closed list, draft: START, SCORE, OUT_END_LINE, OUT_TOUCHLINE, POSSESSION_CHANGE, REGION_ENTRY {region}, TIME_EXPIRY {window}, STANDING) plus qualifiers. Reachable triggers exist by construction (RC-19)",
+   "valueType": "keyed by trigger (closed list, draft: START, SCORE, OUT_END_LINE, OUT_TOUCHLINE, POSSESSION_CHANGE, REGION_ENTRY {region}, TIME_EXPIRY {window}, STANDING) plus qualifiers. A trigger exists by construction only where it is STRUCTURALLY REACHABLE: the game must contain the resolved structural prerequisites necessary for that trigger to occur (SD-44, 22 September, which supersedes RC-19's flat list wherever they conflict). Appearing in the vocabulary above is not reachability. Enforced by GA-TRIGGER-REACHABLE, which reads this selector attribute because no FIELD row carries a transition's trigger",
    "sourceKinds": [
     "SELECTION"
    ]

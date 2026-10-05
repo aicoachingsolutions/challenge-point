@@ -863,10 +863,34 @@ function gaTriggerUnique(ctx: GateContext): CheckOutcome {
     const COLLIDES = 'no transition collides'
     const probe = new Probe(ctx, 'GA-TRIGGER-UNIQUE')
     const transitions = classesOn(ctx, 'T1')
-    if (transitions.length < 2) {
-        return result('GA-TRIGGER-UNIQUE', probe, [pass(CLAUSE_TEXT, transitions.length), pass(COLLIDES, transitions.length)], `${transitions.length} transition(s): no pair can overlap`)
-    }
 
+    /**
+     * **The early return is gone, on his ruling of 5 October — and the reason is worth keeping.**
+     *
+     * It used to short-circuit at `transitions.length < 2` and report BOTH clauses as
+     * `pass(clause, transitions.length)`. With exactly one transition that is `pass(clause, 1)`, and
+     * `pass` reads `instances > 0` as basis `EVALUATED` — so the compatibility clause **claimed it had
+     * evaluated an instance while comparing no pair at all.** Its unit is PAIRS: fifteen lines below, the
+     * same clause correctly reports `comparedPairs`. Reporting transitions there was the wrong unit, and
+     * it is what kept the clause out of the `clausesVacuous` tally that exists to surface exactly this
+     * (SD-54: a summary may not present a vacuous pass and an evaluated one as equivalent evidence). At
+     * zero transitions it was right by accident, because 0 maps to the correct basis.
+     *
+     * **It also skipped the collision clause.** `collided` is computed per transition LINE, not per pair,
+     * so it is perfectly well defined for a single transition — and the early return returned a PASS for
+     * it without ever computing it. No corpus case currently has an `UNRESOLVED` line on a transition
+     * class, so that was latent rather than live; a synthetic case in the tests proves it would now fail.
+     *
+     * Deleting the early return needs no replacement guard: with fewer than two transitions the pair
+     * loops simply do not execute, `comparedPairs` stays 0, and the clause reports
+     * `NO_APPLICABLE_INSTANCES` honestly.
+     *
+     * **What this does NOT do, recorded because an earlier report of mine implied otherwise and he asked
+     * that the correction be preserved: it gives no trigger-reachability enforcement.** `triggerOf`'s
+     * value is compared only to another transition's trigger, to decide whether a pair could meet; this
+     * check never reads `ctx.triggers` at all. Removing the guard would not have caught a transition on
+     * an unreachable trigger. That obligation is `GA-TRIGGER-REACHABLE`, which is its own check.
+     */
     const triggerOf = (cls: ElementClass) => {
         const term = (cls.constraints?.terms || []).find(t => t.attribute === 'trigger' && t.op === '=')
         return term && term.op === '=' ? term.value : null
@@ -941,6 +965,80 @@ function mutuallyExclusive(a: ElementClass, b: ElementClass): boolean {
         if (right && right.op === '=' && right.value !== left.value) return true
     }
     return false
+}
+
+/**
+ * `GA-TRIGGER-REACHABLE` — a transition must be keyed on a structurally reachable trigger (SD-44).
+ *
+ * **His ruling of 5 October, and it settles an authority conflict rather than adding a preference.**
+ * `RC-19` — a run convention of 18 September, ours rather than his — said the T1 elements for START,
+ * POSSESSION_CHANGE, OUT_TOUCHLINE and OUT_END_LINE "exist by construction", flatly. **SD-44, four days
+ * later, is his:** *"A trigger is structurally reachable when the Game Representation contains the
+ * resolved structural prerequisites necessary for that trigger to occur."* He has now ruled that SD-44
+ * supersedes RC-19 wherever they conflict, and that possession is a relationship involving the ball — so
+ * POSSESSION_CHANGE is **not** reachable in a game that establishes no ball.
+ *
+ * **Why this is a check of its own and not a clause on a neighbour.** `failingChecks` is a list of
+ * checkIds, so only a dedicated checkId can make this failure legible in the report; folded into
+ * GA-TRANSITION-COHERENCE the same failure would surface as a coherence problem and never name the
+ * trigger. He asked for reachability "actually checked rather than merely registered/cited", and being
+ * nameable is part of that.
+ *
+ * **It is deliberately general.** It ranges over every T1 class in any game form. The same defect was
+ * measured on two unrelated authored items — GF2's turnover and GF4's — so a repair scoped to either, or
+ * to the one goal where it currently reaches a rendered game, would have left the other standing.
+ *
+ * **This check reads no cell, and that is the finding it enforces.** The register gives a transition's
+ * trigger no FIELD row: `trigger` is a selectorAttribute of the T1 COLLECTION, so it is part of which
+ * element this is and never becomes a line, a verdict or a probeable cell. Every other Gate A check
+ * interrogates lines; this one interrogates the class's own selector, because that is the only place the
+ * value exists. That is also why nothing caught this for so long.
+ *
+ * **Two limits, recorded rather than silently relied on.**
+ * 1. A class whose trigger is not fixed by an `=` term (an `IN` over several triggers, say) is not
+ *    decided here. The clause reports NOT_EVALUABLE rather than failing it — gap before collision
+ *    (SD-28). Nothing in the corpus does this today.
+ * 2. `ctx.triggers` is constructed at stage 2 and is **not** recomputed after realization, so the
+ *    post-realization pass re-checks against the pre-realization set. If realization ever instantiated a
+ *    member that newly satisfied a prerequisite, this check would not see it. The two existing readers of
+ *    the set share that limit; it is not introduced here.
+ */
+function gaTriggerReachable(ctx: GateContext): CheckOutcome {
+    const CLAUSE = 'every transition is keyed on a structurally reachable trigger'
+    const probe = new Probe(ctx, 'GA-TRIGGER-REACHABLE')
+    const transitions = classesOn(ctx, 'T1')
+    if (!transitions.length) return result('GA-TRIGGER-REACHABLE', probe, [pass(CLAUSE, 0)], 'no transition is instantiated')
+
+    const unreachable: string[] = []
+    const undecided: string[] = []
+    let seen = 0
+
+    for (const transition of transitions) {
+        const term = (transition.constraints?.terms || []).find(t => t.attribute === 'trigger' && t.op === '=')
+        const name = term && term.op === '=' ? String(term.value) : null
+        if (name === null) {
+            undecided.push(transition.classId)
+            continue
+        }
+        seen++
+        // The parameterised form is `NAME{argument}`: REGION_ENTRY{r} is reachable for the region it names.
+        if (!ctx.triggers.some(t => t === name || t.startsWith(`${name}{`))) unreachable.push(`${transition.classId}: ${name}`)
+    }
+
+    const clause = unreachable.length
+        ? fail(CLAUSE, seen)
+        : undecided.length
+          ? notEvaluable(CLAUSE)
+          : pass(CLAUSE, seen)
+
+    return result(
+        'GA-TRIGGER-REACHABLE',
+        probe,
+        [clause],
+        `${seen} transition trigger(s) checked against ${ctx.triggers.length} reachable trigger(s); ` +
+            `${unreachable.length} not reachable${unreachable.length ? `: ${unreachable.join('; ')}` : ''}` +
+            `${undecided.length ? `; ${undecided.length} trigger(s) not fixed by an = term and not decided: ${undecided.join('; ')}` : ''}`,
+    )
 }
 
 /** `GA-TRANSITION-COHERENCE` — `CONTINUE` ⇒ no placement; `STOP_RESUME` ⇒ taker and region. */
@@ -1716,6 +1814,7 @@ const GATE_A_CHECKS: ((ctx: GateContext) => CheckOutcome)[] = [
     gaRegionFunction,
     gaReferenceIntegrity,
     gaTriggerUnique,
+    gaTriggerReachable,
     gaTransitionCoherence,
     gaInformation,
     gaTimeWindows,

@@ -1,0 +1,63 @@
+Joe,
+
+All three of Christian's rulings are done. Two implemented, one answered. Read the second item below before he
+replies, because it changes A04's status and that is the kind of thing he will ask you about.
+
+WHAT LANDED
+RC-19 is corrected and reachability is now actually enforced, as a new named Gate A check. The register row
+that carried the same stale claim is fixed too. I did NOT touch the contract item whose structural clause
+leaned on RC-19 — that item is his authored knowledge, and the fact that it no longer has a rule to lean on is
+precisely why A04 fails. He asked for the failure to stay visible.
+
+A04 NOW FAILS AND IS NO LONGER RENDER-ELIGIBLE
+That is the intended outcome, in his words, and he said explicitly not to patch it back. The new check is its
+only failing check, so the cause is clean rather than tangled. The frozen fixture is untouched as an artifact;
+what changed is that the live pipeline stops at the gate. If anyone asks why the showcase game stopped
+working, that is the answer, and it is a correction rather than a regression: it was only ever eligible
+because nothing checked.
+
+THE THIRD QUESTION HAS A GOOD ANSWER
+He asked whether the representation wrongly demands a fixed position just for a ball to exist. It does, and the
+fix needs no new concept and no code — an entry in a register block that already runs in production for
+transition qualifiers. I proved that by adding one in memory and watching the position lines go withdrawn, the
+ball stay present, and the refusals disappear. The decision is his; I changed nothing.
+
+THE PART WORTH YOUR ATTENTION
+Five of fifteen load-bearing claims were refuted by the adversarial stage, and three of those refutations
+corrected things I had already written into the draft:
+- I had called the corpus note "already authored". It is not — the declaration code means "nobody looked", and
+  the vocabulary has a different code for deliberate non-constraint which the same rows use elsewhere. The
+  corrected version is actually stronger: his own AM-04 rule says unexamined silence must not become a free
+  choice, and one register key routes around it.
+- I had written that individuation forces the position open. It does not — where a position is authored the
+  line is derived. The invariant bites precisely on objects whose location is state-dependent. My own earlier
+  probe already showed this and I had missed what it meant.
+- I had leaned on a grep to claim nothing was special-cased. The string was absent and the behaviour was
+  present in a sibling function.
+
+I waited for every verification leg and the full suite this time before sending. The two previous rounds each
+cost a correction email because I did not.
+
+One test failed for the right reason and is rewritten rather than loosened: a cardinality test used "A04 still
+authorizes realization" as shorthand for "my change was bounded". It now asserts that the reachability check is
+the only thing blocking A04, which is a stronger guard than the one it replaced.
+
+THE THING THAT WILL COME BACK AT YOU
+Enforcing his ruling leaves ZERO goals realization-authorized. A04 was the only one. That is correct and it is
+what he asked for, but it also strips the realization test corpus of its subject: 15 of 16 identity checks and the
+whole post-realization file now have nothing to run against, because realization refuses an unauthorized game.
+
+I did NOT fix that by giving the tests a ball, because a ball today forces an invented layout position - which is
+exactly the open question in his third ruling. So the two rulings are coupled, and his placement answer unblocks
+the test corpus directly. The checks are suspended and announce themselves every run with the blocking decision
+named; nothing is deleted or rewritten around the gap, and no position has been invented anywhere.
+
+Also: I told him in an earlier draft that realization did not enforce authorization. It does - I grepped one field
+name, got nothing, and was wrong. Corrected before sending.
+
+STATE
+Branch claude/serene-dewdney-c78e18. New check plus a 13-case regression file, two corrected documents, two
+updated tests. Suite green, exit code read from a file. Everything still held: generation frozen, magnitude
+held, Successful Region Access parked, no ball added, no object model change, no authored position.
+
+Joe

@@ -5715,3 +5715,145 @@ leg produced two of these three.** The rule is the simpler one: don't send until
 
 **Agent scorecard, final: 28 agents, 19 load-bearing claims verified adversarially, 8 REFUTED — and one refutation
 was of MY OWN measurement (the "no control case" universal).** The verification stage paid for itself twice.
+
+---
+
+## 5 October (later) — his three rulings: RC-19 corrected + reachability ENFORCED, evidence defect repaired, placement question answered
+
+### 1 · RC-19 / SD-44 — authority corrected AND enforcement added (both authorized)
+He ruled: **SD-44 supersedes RC-19 wherever they conflict**; a trigger is reachable only when the resolved game
+contains the structural prerequisites; **possession is a relationship involving the ball**, so POSSESSION_CHANGE
+is not reachable without one. Not to be scoped to GF2-07.a or A04.
+- **`derivation-rules-2026-09-18.md`**: RC-19 rewritten — records that it was wrong and cited as authority for
+  four months, quotes SD-44 as governing, carries the per-trigger prerequisite table with his ball ruling, and
+  names `GA-TRIGGER-REACHABLE` as the enforcement.
+- **`register-2026-09-18.json` row T1**: the valueType's stale "Reachable triggers exist by construction (RC-19)"
+  replaced. Safe: `valueType` is read by exactly one regex (`engine.ts:455`, `/one property per (member|referent|
+  trigger)/i`) which T1 does not match.
+- **`GF2-07.a` NOT touched.** Its structuralClause still discharges onto RC-19, which no longer supports it —
+  that is *why* A04 fails, and he wants the failure visible. Editing it would be an authoring act.
+- **NEW CHECK `GA-TRIGGER-REACHABLE`** (Gate A is now **16** checks; the inventory test updated 15→16).
+  **Why its own check and not a clause:** `failingChecks` is a list of checkIds, so only a named check makes the
+  failure legible — folded into GA-TRANSITION-COHERENCE it would never name the trigger.
+  **It reads no cell** — a transition's trigger has no FIELD row, so it reads the class's own selector. It is the
+  only Gate A check that does, and that is why nothing caught this.
+- **Measured:** A04 FAIL (gateA FAIL, mayRealize NO, **GA-TRIGGER-REACHABLE its ONLY failing check**); A01-no-
+  situation, A05 FAIL on GF2; **D03, TD02 FAIL on GF4's `c:blind:GF4:I06`** (so it is general across game forms);
+  **control A01+A01-02 PASS with 2 instances** and still fails only GA-NO-FAILED-LINE as before; D01 passes
+  vacuously. **A04 is no longer render-eligible; the frozen fixture is untouched as an artifact.**
+- **Divergence RECORDED not repaired** (written into RC-19's text so it cannot be rediscovered): the engine's
+  team-side test wants **>= 1** P1 class where the prerequisite says *opposing* teams. No corpus case turns on it.
+
+### 2 · GA-TRIGGER-UNIQUE evidence defect — repaired (authorized)
+The early return is **deleted**: with <2 transitions the pair loops do not run, `comparedPairs` stays 0, and the
+compatibility clause reports `PASS / NO_APPLICABLE_INSTANCES / 0` where it read `EVALUATED / 1`. Now counted in
+`clausesVacuous`.
+- **It was ALSO hiding a real failure:** `collided` is per transition LINE, not per pair, so it is well defined
+  for one transition — and the early return PASSed it **without computing it**. Latent (no corpus case has an
+  UNRESOLVED transition line); a regression case forces one and it now FAILS.
+- **His correction preserved in code AND test:** on an unreachable-trigger fixture GA-TRIGGER-UNIQUE PASSES while
+  GA-TRIGGER-REACHABLE FAILS, and GA-TRIGGER-UNIQUE's output must never mention reachability.
+- New file `back/src/system/derivation/trigger-reachability.unit.ts`, **13 cases**, registered in package.json.
+- **My own fixture was wrong first and the test caught it:** P1's only selector attribute is `team`, not
+  `designation`. A selector naming an unregistered attribute **forms no class and raises nothing** — silent.
+
+### 3 · Object existence vs fixed placement — ANSWER: (b) AN INVARIANT WRONGLY PREVENTS IT
+Investigated only; nothing altered, no position authored.
+- **CORRECTED by a verifier, and the corrected version is stronger.** I first called this "already authored".
+  It is not: `UNDECLARED` means **nobody looked** (`resolved-game.ts:59-62`), and the vocabulary has a separate
+  code for deliberate non-constraint — `NON_CLAIMED` — which the SAME two rows use for other object kinds. So
+  `A01-02` row O4/O5 `UNDECLARED` on `kind=ball`, note *"The ball's layout position was never examined. Its
+  position at the restart moved to T4 (07.a)"*, is an ACKNOWLEDGED GAP with a pointer at
+  `transitions[].placement.region`, not an authored claim that placement does not apply.
+- **And that makes it worse: AM-04 is exactly this case.** `derive.ts:521` — his ruling, *"Unexamined silence
+  cannot license a free choice. An `UNDECLARED` declaration reaching the row bars openness."* **It does not bar
+  it here, because `outerBound` satisfies the very authority test AM-04's veto consults.** His rule is right,
+  implemented, and these two rows are routed past it.
+- **Two rules override it:** (1) enumeration creates both position lines for every individuated object because
+  the register's `applicability` block has **no O-row entry**; (2) `derive.ts:588-590` —
+  `authorityReaches = record.bounding.length > 0 || index.outerBound.has(row)` — so a row's own
+  `outerBound: SESSION_ENVELOPE` **defeats the silence veto**. Then `realize.ts:407-409` refuses any unclosed
+  open choice with **no exemptions of any kind**.
+- **THE DECISIVE CONTRAST IS ONE KEY WIDE:** only S5, S6, O4, O5 carry `outerBound`. **O3 (count) carries none**,
+  so under *identical* silence the same ball's count lands `NOT_AUTHORED` (honest gap) while its position is
+  forced into a choice.
+- **The compelled choice is not even checked:** bounds `[]`, permitted `null` -> `checkBound` returns
+  `UNBOUNDED`. It compels an uncheckable invention rather than protecting a constraint.
+- **COUNTERFACTUAL PROVEN, register data only, NO code change:** adding `applicability.O4/.O5` conditioned on
+  `selectorAttribute: kind` (the shape T1a already uses in production) makes a ball's position lines
+  **WITHDRAWN**, removes them from `resolved.open`, leaves them **out of `notEstablished` too**, keeps the ball
+  fully present as `{kind:"ball"}`, and **the position refusals disappear**. `RC-20` appears in **no source
+  file** — the block is generic data.
+- **HAZARD reported before he authorizes:** where `kind` is NOT fixed by the selector the line goes
+  **CONDITIONAL**, and a conditional line appears in **none** of the three lists — it would vanish silently. Two
+  corpus objects use an open selector.
+
+### 4 · Governance point recorded — and there is nowhere to file it yet
+"Presence in the grammar/register establishes that a concept is expressible; it does not establish that its
+semantics are consumed or enforced at runtime." **There is no Change Assurance artifact**:
+`INCENTIVE_ASSURANCE_CRITERIA.md` states it is "not the Change Assurance System — no tooling, no automation, no
+gate", so filing it there would bury it. Standing item here instead. **RC-19 makes six, and is the first where
+the unconsumed thing is an INVARIANT rather than a field.**
+
+### Two more corrections from the verification stage, caught BEFORE sending this time
+- **"Individuation FORCES O4/O5 open" is false, and my own earlier probe already showed it.** When GF2-06.a/.b
+  is flipped to AUTHORED, the resulting O1 class's **O4 comes back `RESOLVED:ENTAILED`** from GF2-06.b
+  (*"attacking end, as GF2-04..."*) and only `::O2` and `::O5` refuse. I had that refusal list in hand and
+  missed its significance. **So the invariant is NOT blanket: where a position is authored the line is DERIVED,
+  never a choice. It bites precisely on an object whose location nobody authored because it is state-dependent
+  — a ball.** The invariant singles out the dynamic case.
+- **"RC-20 is not special-cased anywhere" was a vacuous grep.** The string appears in no source file, but
+  `gaTransitionCoherence` (`gates.ts:1045-1084`) hardcodes T6/T3/T4/T5 with the literals CONTINUE and
+  STOP_RESUME without reading `applicability`. **What IS generic is the LINE-STATE machinery** (`engine.ts:276-287`,
+  `classify.ts:253` — both name no row id), which is the half the counterfactual exercised. Practical
+  consequence for him: an entry on O4/O5 would withdraw the lines correctly, and **no gate would then assert
+  anything about object placement** — right outcome, but a decision rather than a surprise.
+- **Also fixed a test that failed for the RIGHT reason:** `unreadable-cardinality.unit.ts` asserted
+  `realizationAuthorized === true` for A04 as its proxy for "the cardinality work is bounded". A04 now fails
+  GA-TRIGGER-REACHABLE by design. Rewritten to keep its real subject (readable counts, numeric shortfalls) and
+  to assert `failingChecks === ['GA-TRIGGER-REACHABLE']` — **stronger than the old blanket assertion**, because a
+  future cardinality regression would grow that list and still be caught. `resolvedFor` now also returns
+  `result` (additive) so a test can say WHICH check withholds authorization.
+
+**Verification scorecard for this round: 18 agents, 15 load-bearing claims checked adversarially, 5 REFUTED —
+and I waited for all of them before sending.** The two prior rounds each cost a correction email for not waiting.
+
+### A SECOND knock-on test, and the reason the first run hid it
+`completed-pass.unit.ts` pins `{failed, gateA}` for all 13 goals. **Six Gate A verdicts legitimately moved**
+(A01, TA01, A02, TA02, A05 from NOT_EVALUABLE; **A04 from DEFERRED_TO_REALIZATION**); TD02/D03 were already FAIL
+and gained a second failing check. **NOT ONE `failed` LINE COUNT MOVED** — the new check adds a failed *clause*,
+never a failed *line*, which is the containment fact worth having.
+- Baselines updated **with both reasons recorded in the comment**, and the test **strengthened**: it now also
+  pins `GA-TRIGGER-REACHABLE`'s own verdict per goal, so a future change that fails these goals for a different
+  reason cannot hide behind a verdict that already reads FAIL.
+- **WHY THE FIRST RUN DID NOT SHOW IT: `npm test` chains with `&&`, so it HALTS at the first failing file.**
+  The cardinality failure stopped the run before completed-pass, and before every realization and rendering file.
+  **A green-after-one-fix assumption is unsafe here — re-run the whole suite after each fix, and expect serial
+  discoveries.**
+- Pre-checked the files that had not yet run rather than waiting for a third round: `realize()` **does not
+  consult `realizationAuthorized`** (grep: zero hits), so the A04 realization tests still execute. **That is also
+  a limit worth knowing — A04's Gate A failure is reported and the pipeline script honours it, but realization
+  is not barred from running if called directly.** Reported to him; pre-existing, not changed.
+- Also confirmed the corpus-level Gate A test is unaffected: the conformance corpus includes A01-02's AUTHORED
+  ball, so POSSESSION_CHANGE is reachable there and its failing-check list stays `['GA-INFORMATION',
+  'GA-NO-FAILED-LINE']`.
+
+### THE BIG CONSEQUENCE: enforcing reachability leaves ZERO authorized goals, and the two rulings are COUPLED
+**Measured: 0 of 13 goals realization-authorized, with and without a practice situation.** A04 was the only one.
+`preRealization` is now FAIL for A01/TA01/A02/TA02/TD02/D03/A04/A05 and NOT_EVALUABLE for the five with no
+transition. A01+A01-02 still fails on GA-NO-FAILED-LINE + 3 unresolved T3/T4/T5 lines.
+- **`realize()` ENFORCES it — I had this wrong for an hour.** I grepped `realizationAuthorized` in realize.ts,
+  got zero hits, and nearly told him realization was unguarded. **The guard is `realize.ts:367`
+  `if (!resolved.coherence.mayRealize)`** — a different field name. **Same token-search failure a verifier had
+  caught me on earlier the same day.** Caught only because a test failed.
+- **BLAST RADIUS ON TESTS: identity 15 of 16 lose their subject; post-realization THROWS AT MODULE LOAD** (its
+  checks are bare top-level blocks, not registered tests, so `chain()` throwing kills the file);
+  realize.unit.ts's acceptance test cannot run. collection-population and rendering unaffected (the latter reads
+  the frozen fixture).
+- **THE COUPLING, and it is the finding worth keeping: restoring those tests needs a ball, and a ball today
+  FORCES an invented layout position** — the very value his placement question asks about and told me not to
+  author. **So Job 1's consequence is blocked on Job 2's ruling.** His placement ruling unblocks it directly.
+- **DID NOT CHOOSE FOR HIM.** Added a `Suspended` sentinel (identity) and a whole-file suspension guard
+  (post-realization, since bare blocks give no per-check hook), plus a `suspended()` reporter in realize.unit.ts.
+  **Bodies retained, nothing deleted, nothing rewritten around the gap, no ball or position invented anywhere.**
+  Every run prints the suspension with the blocking decision named. Suite green with suspensions visible.
