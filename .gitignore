@@ -20,3 +20,14 @@ node_modules/
 !.env.example
 !front/.env.production
 !front/.env.example
+
+# Claude Code session state. NEVER tracked: `.claude/settings*.json` are permission allowlists
+# carrying absolute paths into one machine's user profile, and in the main checkout `.claude/worktrees/`
+# holds the worktrees themselves — committing that would nest the repo inside itself.
+.claude/
+
+# Scratch dumps from generation and probe runs (`back/_coach-view.txt`, `_probe_*.ts`, and friends).
+# Evidence while a question is open, noise afterwards; the findings live in docs/HANDOFF.md instead.
+# Named so a `git add -A` cannot sweep 100KB+ of generated coach text into a commit — the same way
+# the `.env` rule above exists because a live key once sat one `git add -A` from being pushed.
+back/_*
