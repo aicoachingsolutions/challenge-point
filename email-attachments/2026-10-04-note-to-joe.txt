@@ -1,0 +1,49 @@
+Joe,
+
+Falsification finished and Christian's report is with you to send. Summary of where things actually stand.
+
+RESULT: it survives as football, breaks on representation, and the breaks are mostly HIS OWN authored
+knowledge rather than engine limits. That makes them decidable by him rather than needing new machinery.
+
+THE ONE THING I WANT HIM TO SEE FIRST
+His rewording silently reverses his own 2 October traversal ruling. A ball crossing the channel and collected
+beyond it now qualifies; on 2 October he excluded exactly that because nothing touched the ball inside. It may
+be what he wants, but he should choose it rather than inherit it from a rewrite. Everything else in the report
+is downstream of that.
+
+WHAT I VERIFIED MYSELF RATHER THAN TAKING FROM THE AGENTS
+I ran the falsification as a workflow and then re-checked every load-bearing claim against the corpus, because
+the agents were wrong in both directions last time. Three of their conclusions changed under checking:
+- One line claimed REGION_ENTRY owns "access" outright. It does not: an authored item already records it holds
+  "moves through" only, so it is adjacent precedent, not ownership.
+- One line proposed the same-episode reading as safe. It is circular: the end of the episode IS the possession
+  change being asked about, so the predicate is vacuously true. The agent had not noticed.
+- One line called WIDEZONE-08.a a conflict. It is not: it forbids access as a region FUNCTION, meaning a
+  restricted or entry-prohibited zone, which is access control and the opposite concept.
+
+NOTHING IMPLEMENTED. He said return the ownership result first, so this round is read-only: no code, no
+register change, no corpus change. The only commit is the report itself and the handoff.
+
+ONE THING I WOULD LIKE TO DO NEXT, AND IT NEEDS NOTHING FROM HIM
+The fidelity/invention contradiction is still live: fidelity demands a satisfaction criterion on the modifier
+condition, the field has no register row, writing it makes the invention check reject it. I have proposed
+repairing the CHECK rather than adding the field, because the finding is true (a coach genuinely cannot tell
+what satisfies that condition) and only its clearing condition is impossible. That needs no authoring decision.
+I will hold until he answers unless you tell me to go.
+
+NEW DEFECT, REPORTED NOT REPAIRED
+A04 carries a possession-change transition on a trigger the engine's own reachability construction says cannot
+arise in that game, and Gate A still reports PASS. No gate checks a transition's trigger for reachability. It
+joins the reachability issue he has already held, so I did not touch it.
+
+THE PATTERN IS NOW FIVE
+fillableFrom, triggerQualifiers, condition.satisfiedBy, the standing-decision selectors I repaired this
+morning, and BUILD_OUT_EPISODE: all in the register or grammar, none read by any code. That is the fifth in two
+days, and it matters for how we argue ownership — "it already exists in the grammar" is weak evidence here.
+
+STATE
+Everything on branch claude/serene-dewdney-c78e18 in the worktree. Tests green, exit code verified properly
+rather than through a pipe. A04 authorized, acceptance passed, render-eligible. Magnitude, generation and the
+rest of the held list unchanged.
+
+Joe

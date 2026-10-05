@@ -5504,3 +5504,101 @@ one failed line each (A01 8→7, TA01/A02/TA02 7→6, A05 8→7). A04 unchanged 
 2. **A `python - <<EOF` heredoc hung on stdin** (python is absent here) and had to be killed. Use the Edit tool.
 
 Corpus after both: 131 lines, 17 open, 39 restated, 14 added, none named-but-missing.
+
+---
+
+## 4 October — Successful Region Access: ownership falsification. READ-ONLY round, nothing implemented.
+
+He revised the meaning to *"value access to a represented region when the attacking possession survives the
+access"*, **withdrew the single-instant requirement** ("that was allowing representational simplicity to alter
+the football meaning"), added the guardrail **"no temporal relationship without canonical authority"**, and
+asked for nine return items with "Do not implement or add a carrier."
+
+### THE HEADLINE IS A FOOTBALL DECISION, NOT A REPRESENTATIONAL ONE
+**The rewording silently reverses his own 2 October traversal ruling.** A ball crossing the channel and
+collected by a teammate beyond it now satisfies the meaning (access occurred, possession survived) and was
+excluded on 2 October (nothing touched it inside). Reported as the first item, before any ownership analysis,
+because everything else is downstream of it.
+
+### Verdict: survives as football, breaks on representation — and best-founded candidate so far
+**The good part is real.** His authored source sentence is *"**Actions** starting in or moving through the wide
+channel earn an advantage"* — subject is "Actions", so none of his five means needs any broadening. And
+`REGION_ENTRY` is genuinely means-neutral, **verified not assumed**: no `triggerSemantics` entry at all,
+constructed purely from region classes, both parsers of its parameterised form discard the argument.
+
+### What is owned, what is not
+- **Owned outright**: the region; the value effect; a region-parameterised occurrence kind as a constructed value.
+- **`REGION_ENTRY` is ADJACENT PRECEDENT, not ownership** — `WIDEZONE-11.b` already records it holds *"moves
+  through"* only, so of his five means a **recovery of a ball already inside** is uncovered. An authored item had
+  already graded the token against a proper subset. (An agent line claimed outright ownership; wrong.)
+- **The team conjunct is VACUOUS, not merely unowned.** `ATTACKING_TEAM` is glossed as *"the team the possession
+  relation currently holds"*, so "while the attacking team possesses" is true at EVERY access by construction.
+  And the value modifier has no team field — the beneficiary field was deliberately removed.
+- **Non-occurrence is owned by nothing and cannot be.** Selector operators are `[=, IN, CONTAINS, AND, *]` — no
+  negation — and `NOT_EXISTS`/`EXCLUSION` range over what the game CONTAINS, never over what HAPPENS. Probed
+  three ways on the live game.
+
+### THE SUCCESS HALF IS BLOCKED THREE WAYS AND THE FIRST IS HIS OWN AUTHORING
+1. **`GF4 I07`** (T1c, AUTHORED, EXCLUSION): *"any region qualifier (forbidden: the transition moment is not tied
+   to a region)"*. So "took over **through that access**" cannot be a region-qualified possession change. **No
+   resolution-timing decision clears this** — it is authored against.
+2. **`T2 awardedTo`** applies only when play STOPS; every authored possession change CONTINUEs. "The defending
+   team takes over" has no field.
+3. `POSSESSION_CHANGE` is **not structurally reachable in any of the 13 goals.**
+
+### THE ELEGANT CANDIDATE IS CIRCULAR — and an agent missed it
+"Access and attack in the same episode" looked free (the boundary would be the possession change itself, which
+he said not to invent). **It is circular: the end of the episode IS that possession change**, so the predicate is
+vacuously true of every access and his case B gets the bonus. The score-anchored variant fails differently —
+**PS1's own note says SCORE begins an episode under SD-14**, so access-then-goal falls outside "the same
+episode" and scoring would VOID the bonus. Only repair is "a required subsequent action" = one of his non-claims.
+
+### Inherently temporal: YES, and the single-instant reading is VACUOUS not merely wrong
+Possession moves only at a possession change, so at the instant the ball crosses, possession is still the
+attacker's in **both** his cases. They are indistinguishable at a single instant. His own wording carried the
+temporality throughout ("survives the access", "through that attempted access", 2 Oct's "after which") — the
+revision removed player grain, control judgement and remain-in-region, **not** the time relation.
+**Canonical authority for A temporal relation exists** (the 29 Sept pass-reveal ruling: point-succession of one
+reveal on one named trigger). **For THIS relation it exists nowhere.**
+
+### Smallest gap — better located than the field he declined
+**A modifier condition can NAME an occurrence but cannot RELATE two.** V8b's valueType is already *"references to
+regions, objects **or events**"* and `V8a.conditionType` already contains `event`, so the slot exists. `GF4 I15`
+authors an event-typed condition with *"{regain, shot}, in the order regain then shot"* — but it is
+SUPPORTING/TYPICAL_EXAMPLE and **its own structuralClause says "The order ... is not held."** Precedent for
+naming, explicitly not for relating. Then second: nothing can say two occurrences share an episode (episode is a
+boolean on a transition; SD-14 *"defines boundaries only; entails no T1 element"*).
+
+### Exclusions: NO conflict, and an agent got this wrong too
+`WIDEZONE-08.a` forbids `access` as a region **FUNCTION** — its own fitNote: *"Restricted, exclusive or
+entry-prohibited zone"*. That is access **control**, the opposite concept. Evidence: *"Channels are reference
+markers — players can choose to use them or not."* The other two forbid the channel as a referent on the
+consequence row and the primary-event condition row; the advantage lives on the value modifier, where his 2
+October ruling put it. **The meaning belongs where it already is; what is missing is a ROW, not a permission.**
+
+### Still open / carried
+- **The fidelity-vs-invention contradiction is unchanged and I proposed repairing the CHECK, not adding the
+  field** — the finding is true (a coach cannot tell what satisfies the condition); only its sole clearing
+  condition is unauthorable. Needs no authoring decision from him. Held pending his answer.
+- **NEW DEFECT, probed not reasoned** (`back/_probe_reach.ts`, deleted after use): A04's game has **exactly one
+  transition** and it is keyed on `POSSESSION_CHANGE`, which is **NOT in its reachable set** — because
+  `constructTriggers` pushes it only when `O1` ball classes exist and **A04 has `O1` classes: 0** (the
+  already-known "there is no ball in the render-eligible game"). Measured: reachable =
+  `[OUT_END_LINE, OUT_TOUCHLINE, REGION_ENTRY{GF2-03.a}, REGION_ENTRY{WIDEZONE-02.a}, REGION_ENTRY{WIDEZONE-03},
+  SCORE, STANDING, START]`; `gateA = DEFERRED_TO_REALIZATION`, `failingChecks: none`, `mayRealize: true`; and
+  post-realization Gate A passes (10-01). **So the only transition in the authorized game cannot fire.**
+  The reachable set has **exactly two readers** and they do OPPOSITE things with it: `gates.ts:1276` raises
+  `trigger X is not structurally reachable` for a **consequence**; `gates.ts:1550` `continue`s to EXCUSE an
+  objective-set persistence demand (SD-44: "A trigger the game cannot reach places no demand on the
+  assignment"). **A transition's own trigger is read by neither.** Reported, not repaired.
+
+### THE PATTERN IS NOW FIVE
+`fillableFrom`, `triggerQualifiers`, `condition.satisfiedBy`, the standing-decision selectors (repaired this
+morning), `BUILD_OUT_EPISODE` scope — all in the register or grammar, **none read by any code**. Four items carry
+the episode scope and `scope` has behaviour for exactly one value, which is not that one. **"It already exists in
+the grammar" is weak evidence of ownership in this codebase.**
+
+### Method note
+Ran as a workflow, then re-verified every load-bearing claim against the corpus myself. **Three agent
+conclusions changed under checking** (REGION_ENTRY ownership, the same-episode reading, the 08.a "conflict").
+Consistent with the standing rule: never take agent findings at face value.
