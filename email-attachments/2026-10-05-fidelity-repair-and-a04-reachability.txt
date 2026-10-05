@@ -1,0 +1,221 @@
+Christian,
+
+Both done. The fidelity repair is in and confirmed. The A04 investigation returns without a repair, for a
+reason I want to put plainly: **the defect is mostly a stale rule rather than a missing check**, and the two
+candidate repairs point in opposite directions, so which one is correct is a knowledge decision rather than a
+code one.
+
+Your football decisions are recorded as settled. Nothing was implemented from them, and the Successful Region
+Access representation work is parked as you asked.
+
+
+PART 1 — THE FIDELITY/INVENTION REPAIR
+
+**Done, and the contradiction is gone.** The check no longer reads `condition.satisfiedBy`.
+
+**Why it was unsatisfiable, verified rather than assumed.** The value-modifier rows are V7 (the collection),
+V8a (`condition.type`), V8b (`condition.referents`), V9 (`magnitude`), V9a (`operation`) and V10
+(`combination`). None carries a criterion, and **no row anywhere in the register is named `satisfiedBy`** — I
+enumerated all ninety. So the only state that cleared the violation was one the invention check must reject.
+
+**The finding is kept in full, and its severity is what changed.** It is now a NOTE on exactly the ground the
+missing team size is already a NOTE in the same check: **the rendering is faithful.** It refuses to choose
+ball, player or touch, and the gap is in the GAME. The note now also says why it cannot be closed by authoring,
+so it no longer implies a clearing condition that does not exist.
+
+**The confirmation you asked for, measured on one legitimate state:**
+
+    nothingInvented                 PASS (no problems)
+    nothingLost                     PASS (no problems)
+    nothingClosedWithoutAuthority   PASS (no problems)
+    fidelity                        passed: true
+    Q5 NOTE  "a coach is told that meeting the region condition changes the score, and nothing
+              in the game establishes what MEETS it ... cannot be closed by authoring"
+
+And the decoupling is proved in both directions rather than asserted: injecting
+`condition.satisfiedBy` into the fixture changes **no Q5 finding and not the verdict**. A test pins that
+independence, so if anyone reintroduces the dependency it fails rather than passing quietly.
+
+**One consequence you should see.** Fidelity now reports PASSED for A04 where it reported FAILED. That is a
+claim about the rendering only, never that the game is coachable — and Q5 can still fail: the
+unmarked-region path still raises violations, so the check is not now incapable of failing.
+
+**And one stale thing found on the way.** The assertion that fidelity failed gave its reason as *"a game whose
+features do nothing is not a runnable activity"* — but the features do something now; all three channels
+participate. So that assertion had been passing for a reason that stopped being true when the channels were
+wired up. Corrected, with what it used to rest on recorded in the file.
+
+
+PART 2 — A04 TRANSITION REACHABILITY
+
+**1 · OWNERSHIP TRACE — NO, and the knowledge says so positively rather than by silence.**
+
+A04 contracts exactly two knowledge objects: GF2 and Wide Zone Advantage.
+
+- GF2's only object items are GF2-06.a and GF2-06.b, both **basis ASSUMED** — bounds only, never entails. The
+  engine implements precisely that rule and says so: *"§3: a bound only; SD-83: never establishes an element"*.
+  And they describe **a target line or zone, not a ball.**
+- Wide Zone Advantage carries **zero** object items.
+- Both go further than silence. Each **positively declares objects NON_CLAIMED** — GF2: *"number of balls
+  unauthored; no goal, gate or other object required or excluded"*; Wide Zone: *"objects free (ball kind,
+  count, owner and position)"*. So A04's authoritative knowledge records that it does not constrain whether a
+  ball exists.
+- **No restatement or owner ruling adds one.** The 41 ruled restatements touch no object row, and the 14 added
+  items land on none.
+- Two contracts in the corpus **do** entail a ball — RPC-001, and A01-02 with *"none (at least one ball)"*,
+  AUTHORED and REQUIRED. **A04 selects neither.**
+
+So: reported explicitly as NO. Nothing is inferred, and there is no owner to name.
+
+One thing I will **not** report as a defect, because it is by design: there is no `objects[].owner` row, and
+there should not be. PS1 is the authorized home for possession, game-level, in your words *"not a field on the
+ball"*. GF2-07.a's note that the claim moved off `objects[].owner` is consistent with that, not evidence of
+loss.
+
+**1b · NOT A PROJECTION LOSS — and this is the first time the answer to "where was it lost" is "nowhere".**
+
+Measured, not read. I flipped GF2-06.a/.b's basis from ASSUMED to AUTHORED in memory only: an object class
+forms, an `objects` key appears in the resolved game, and the object carries into the concrete game with its
+selector and position intact. **Nothing drops it.** The refusal is documented and correct, so the repair is an
+authoring decision, not a projection fix.
+
+**A detail that matters for any repair: fixing the basis alone would not help.** Even authored, GF2-06.a is a
+line or zone. Only when I *also* widened its kind to a ball did the trigger become reachable. **Two things are
+missing, not one** — that an object is entailed, and that its kind is a ball.
+
+**2 · THE EXACT FAILURE PATH**
+
+**The register declares no row for a transition's trigger.** It is a *selector attribute* of the T1
+collection — part of which element this is, not of what was established about it. The code states the
+consequence itself: *"`selector` is identity, not a derived value ... so it sits beside `elementId` and the
+acceptance conditions treat it the same way."*
+
+From that, everything follows mechanically:
+
+- the trigger never becomes a resolution line, so it has no verdict and appears in neither the derived list
+  nor the not-established list;
+- the three acceptance conditions therefore cannot see it — two range over line-keyed lists it has no entry
+  in, and the third skips `selector` by name;
+- the two readers of the reachable trigger set are scoped to consequences and to objective-set persistence,
+  rows A04 has no instances of;
+- **the one check named for triggers passes vacuously.** `GA-TRIGGER-UNIQUE` returns **two passes** when there
+  are fewer than two transitions — *"1 transition(s): no pair can overlap"* — and the code that reads a
+  transition's trigger is defined *after* that early return. A04 has one transition, so it never runs;
+- the reachable set and the line inventory are built on **consecutive lines of the same function** and never
+  compared;
+- the post-realization gate adds no transition check; it reruns the same fifteen functions, inheriting every
+  blind spot.
+
+**3 · THE SMALLEST INVARIANT MISSING — both of yours independently, plus a third that explains why neither was
+noticed**
+
+(a) **Object existence is genuinely unauthored** for A04, as above.
+(b) **No transition-trigger reachability validation exists anywhere.**
+(c) **And RC-19 is stale.** This is the root.
+
+RC-19 is a **run convention** — the conformance rules define one as *"a rule that goes beyond the
+specification's text"*, ours rather than yours, each *"reported to Christian with whether it changed a
+verdict"*. It is dated 18 September. **Your SD-44 ruling came four days later, on 22 September**, and defines
+reachability as requiring *"the resolved structural prerequisites necessary for that trigger to occur"*.
+RC-19 predates that and says the opposite. Nothing updated it, and two places still cite it:
+
+                   RC-19, 18 Sept (cited by register row T1)   SD-44, 22 Sept, as operationalised
+    START          by construction                             by construction                      agree
+    POSSESSION_..  by construction, UNCONDITIONAL               opposing teams, the possession
+                                                                relationship, and a ball object     CONFLICT
+    OUT_END_LINE   by construction, UNCONDITIONAL               a bounded playing area exists       conflict
+    OUT_TOUCHLINE  by construction, UNCONDITIONAL               a bounded playing area exists       conflict
+    SCORE          exists if V0 does                            SD-06 entails one primary event     agree
+    STANDING       only where authored                          always constructed                  conflict
+    REGION_ENTRY   only where authored                          region exists and is accessible     agree
+    TIME_EXPIRY    only where authored                          time window exists                  agree
+
+**And GF2-07.a discharges its own structural checkability onto RC-19** — its clause reads *"a T1 element with
+trigger POSSESSION_CHANGE exists (by construction, RC-19)"*. That is why nobody authored the prerequisites and
+why nobody wrote the check: **the corpus had a rule it could cite saying neither was needed.** Fixing only the
+code leaves the knowledge still saying the check is unnecessary; fixing only RC-19 leaves no enforcement.
+
+One honest qualification. The ball precondition is **our** operationalisation of SD-44, not your words — the
+design package's table adds *"and a ball object"*, and SD-44 itself says only "the resolved structural
+prerequisites". Whether a ball is one is a football judgement. PS1's own registered type supports it: *"the
+team that currently possesses **the ball**"*.
+
+**4 · FALSIFICATION — and it refuted my own first result**
+
+My first measurement swept all thirteen goals and concluded **no control case existed anywhere** — that every
+transition in the system was on an unreachable trigger, which would have made the repair unvalidatable. **That
+was wrong, and an adversarial check caught it.** I had measured every goal with *no practice situation
+selected*, and then stated a universal.
+
+**With practice situations there is exactly one control: A01 with "From Goal Kicks".** There A01-02's authored
+*"at least one ball"* enters the input, a ball class forms, POSSESSION_CHANGE becomes reachable, and **both**
+its transitions are legitimate. So the architecture can reach the trigger, and a repair is validatable against
+a real passing case. Corrected matrix, 33 goal-by-situation cases:
+
+    18 cases carry a transition on an unreachable trigger
+     1 case is a control — A01 + A01-02, two transitions, both reachable
+    14 cases have no transition at all
+
+**A04 offers no practice situations at all**, so it can never acquire a ball that way.
+
+So the falsification result is:
+
+- **The repair is testable** — against A01+A01-02, and I can force a wrong value through it.
+- **It would fail 18 of 33 cases, including A04, which costs A04 its render-eligibility.** That is a status
+  change to an artifact you have frozen, so I stopped rather than make it.
+- **And the direction is not mine to choose.** If RC-19 stands, the correct repair is the *opposite* one:
+  relax the engine so POSSESSION_CHANGE is unconditional, and A04's transition becomes legitimate with no
+  ball required. The two repairs are mutually exclusive, and the choice between them is the knowledge
+  decision in (c).
+
+That is why I have implemented nothing here. Either repair is ready to make once you rule on RC-19.
+
+**5 · EFFECT ACROSS ALL THIRTEEN GOALS**
+
+Selected with no practice situation, which is how A04 runs:
+
+    A01   tx 1  unreachable   NOT_EVALUABLE             A03   tx 0                NOT_EVALUABLE
+    D01   tx 0               NOT_EVALUABLE             D03   tx 1  unreachable   FAIL (GA-NO-FAILED-LINE)
+    TA01  tx 1  unreachable   NOT_EVALUABLE             A04   tx 1  unreachable   DEFERRED_TO_REALIZATION, may realize
+    TD01  tx 0               NOT_EVALUABLE             A05   tx 1  unreachable   NOT_EVALUABLE
+    A02   tx 1  unreachable   NOT_EVALUABLE             A06   tx 0                NOT_EVALUABLE
+    D02   tx 0               NOT_EVALUABLE
+    TA02  tx 1  unreachable   NOT_EVALUABLE
+    TD02  tx 1  unreachable   FAIL (GA-NO-FAILED-LINE)
+
+**Eight of thirteen carry the defect; no gate names the trigger in any of them.** A04 is not special except
+that it is the only one currently authorized, so it is the only one where the defect reaches a rendered game.
+The other seven are blocked for unrelated reasons, and lifting any of those blocks exposes the same thing.
+
+The transition comes from **two different game forms**, not one bad row — GF2-07.a in six goals and GF4's I06
+in two — so a repair scoped to one contract row would leave the other standing.
+
+Adding or removing the object **changes no gate verdict** in any of the three states I measured, including the
+one where the trigger is reachable. That is the enforcement gap, measured rather than argued.
+
+**A04 STATUS:** unchanged by me. Acceptance passed, post-realization Gate A passed, render-eligible; fidelity
+now passes as a statement about the rendering. Generation frozen, magnitude held.
+
+
+PART 3 — THE GOVERNANCE NOTE, RECORDED NOT REPAIRED
+
+Recorded as you framed it: **presence in the grammar or register is evidence a concept is sayable, not that
+its semantics are implemented or enforced at runtime**, and ownership checks from here on separate semantic
+registration from runtime consumption. No work opened on `fillableFrom`, `triggerQualifiers`,
+`condition.satisfiedBy`, `BUILD_OUT_EPISODE` or the others as a group.
+
+**RC-19 makes six — and it is the first where the unconsumed thing is an invariant rather than a field.**
+`RC-19` appears in no source file at all, while register row T1 and at least eight corpus notes rely on it.
+That is a sharper version of the same pattern: a rule can be cited as authority by the knowledge and be
+absent from the engine entirely.
+
+
+HOLDS, AS YOU SET THEM
+
+Successful Region Access representation expansion: held, parked. Wide Zone magnitude: held. General trigger
+architecture cleanup: held — I touched none of `FIRST_FORWARD_PASS`, `COMPLETED_PASS`, information-rule
+reachability, or the two inconsistent readers of the reachable set. A04 generation: frozen.
+
+Tests: 321 assertions, exit code 0.
+
+Joe

@@ -23,13 +23,18 @@ const wrap = (instructions: Instruction[]): RenderedActivity => ({ instructions,
 assert.equal(fixture.closure.renderEligible, true, 'the fixture must be the render-eligible closure output')
 assert.equal(fixture.game.envelope.players, 12)
 
-// ── The rendering is faithful; the GAME is not yet runnable ──────────────────────────────────────
+// ── The rendering is faithful; the GAME is still not coachable ───────────────────────────────────
 //
 // Q2, Q3 and Q4 pass — nothing is invented, nothing load-bearing is lost, no status is changed by wording.
-// **Q5 fails, and it is supposed to.** His operational-participation requirement of 1 October: a physical
-// feature a coach is told to create must participate in at least one established operational relationship.
-// A04's three channels participate in none, so the output is not a runnable coach activity. Asserting that
-// explicitly keeps the distinction honest: rendering is faithful to a game that is still insufficient.
+// **Q5 reports, and no longer grades.** Two things moved under this comment and both are recorded here
+// because each was once asserted as the reason the report failed:
+//
+//  1. The operational-participation requirement of 1 October is SATISFIED now — all three channels
+//     participate, because the value modifier conditions on two of them and the objective references the
+//     third. The participation violations are gone, and an assertion below pins that they stay gone.
+//  2. What remained was the unestablished criterion, and on his ruling of 5 October that is a NOTE rather
+//     than a VIOLATION: the rendering is faithful — it refuses to choose ball, player or touch — and the
+//     gap is in the GAME. `passed` is a claim about the RENDERING, never a claim that the game is coachable.
 const rendered = renderConcreteGame(fixture)
 const report = checkFidelity(fixture, rendered)
 const violationsOn = (q: number) => report.findings.filter(f => f.question === q && f.severity === 'VIOLATION')
@@ -37,22 +42,46 @@ for (const q of [2, 3, 4] as const) {
     assert.deepEqual(violationsOn(q), [], `Q${q} must pass: ${JSON.stringify(violationsOn(q))}`)
 }
 /**
- * **Q5 now fails on exactly one thing, and it is the owner decision he is holding.**
+ * **The unestablished criterion is reported and no longer graded, and the finding survives in full.**
  *
- * The channels participate operationally — the value modifier conditions on both of them — so the
- * participation violations are gone. What remains is that a coach is told the consequence (a line crossing
- * is worth 2 instead of 1 when the condition is met) and cannot be told what MEETS it: `REGION_ENTRY` has no
- * registered trigger semantics and the authoring note records the gap. That is the fourth failure mode in
- * his original question — operationally obscured — and the one that passes every other test.
+ * A coach is told the consequence — a line crossing is worth 2 instead of 1 when the condition is met — and
+ * cannot be told what MEETS it. That is the fourth failure mode in his original question, operationally
+ * obscured, and the one that passes every other test. It is kept, as a NOTE.
  */
-assert.equal(violationsOn(5).length, 1, `Q5 must fail only on the unestablished criterion; got ${JSON.stringify(violationsOn(5))}`)
-assert.match(violationsOn(5)[0].what, /nothing in the game establishes what MEETS it/)
-assert.match(violationsOn(5)[0].what, /complete and unusable/)
+const notesOn = (q: number) => report.findings.filter(f => f.question === q && f.severity === 'NOTE')
+assert.deepEqual(violationsOn(5), [], `Q5 must raise no VIOLATION; got ${JSON.stringify(violationsOn(5))}`)
+const criterion = notesOn(5).filter(f => /nothing in the game establishes what MEETS it/.test(f.what))
+assert.equal(criterion.length, 1, 'the criterion finding must still be reported, exactly once')
+assert.match(criterion[0].what, /complete and unusable/)
+assert.match(criterion[0].what, /cannot be closed by authoring/, 'the note must say why there is no clearing condition')
 assert.ok(
-    !violationsOn(5).some(f => /not functionally realized/.test(f.what)),
-    'the participation violations must be gone now that the modifier conditions on the channels',
+    !violationsOn(5).some(f => /not functionally realized/.test(f.what)) && !notesOn(5).some(f => /not functionally realized/.test(f.what)),
+    'the participation violations must stay gone now that the modifier conditions on the channels',
 )
-assert.equal(report.passed, false, 'a game whose features do nothing is not a runnable activity')
+assert.equal(report.passed, true, 'the RENDERING is faithful — this is not a claim that the game is coachable')
+
+/**
+ * **THE CONTRADICTION HE ASKED ME TO CONFIRM IS GONE, and this is the test that keeps it gone.**
+ *
+ * The old check raised its VIOLATION unless `modifier.condition.satisfiedBy` was defined. That field has no
+ * register row — V7, V8a, V8b, V9, V9a and V10 are the value-modifier rows and none carries a criterion — so
+ * the only state that satisfied the fidelity check was one the invention check must reject. No legitimate
+ * representation satisfied both.
+ *
+ * The property that fixes it is INDEPENDENCE: injecting the unauthorable field must change the report by
+ * nothing at all. If someone reintroduces the dependency, this fails rather than passing quietly.
+ */
+const withPhantomField = JSON.parse(JSON.stringify(fixture))
+for (const m of withPhantomField.game.value?.valueModifiers ?? []) {
+    if (m.condition) m.condition.satisfiedBy = 'ANY_VALUE_AT_ALL'
+}
+const phantomReport = checkFidelity(withPhantomField, renderConcreteGame(withPhantomField))
+assert.deepEqual(
+    phantomReport.findings.filter(f => f.question === 5),
+    report.findings.filter(f => f.question === 5),
+    'authoring `condition.satisfiedBy` must change nothing — the check must not read a field with no register row',
+)
+assert.equal(phantomReport.passed, report.passed, 'and it must not change the verdict either')
 assert.ok(rendered.instructions.length > 0, 'a report over zero instructions would be vacuous')
 assert.ok(
     rendered.instructions.every(i => i.from.length > 0),

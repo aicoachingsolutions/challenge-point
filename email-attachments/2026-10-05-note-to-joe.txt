@@ -1,0 +1,49 @@
+Joe,
+
+Both of Christian's jobs are done. One is implemented, one deliberately is not, and I want you to know why
+before he asks.
+
+JOB 1 — FIDELITY REPAIR: IMPLEMENTED
+The check stopped reading a field that has no register row, and the finding it used to gate on that field is
+kept as a note instead. I verified the premise rather than trusting my earlier summary: there is no row named
+satisfiedBy anywhere in the register, and the value-modifier rows carry type, referents, magnitude, operation
+and combination, no criterion. His "confirm afterward" is measured, not argued — invention, loss and authority
+all clean AND fidelity passing on the same state, with a test pinning that injecting the field changes nothing.
+
+One consequence he needs to see and I put it in plain sight: fidelity now reports PASSED for A04 where it
+reported FAILED. That is a claim about the rendering, not about the game being coachable, and the check can
+still fail. If he dislikes the flip he can say so; it is a one-line severity decision.
+
+JOB 2 — A04 REACHABILITY: INVESTIGATED, NOTHING IMPLEMENTED, AND THAT IS THE RIGHT ANSWER
+The finding is better than "a check is missing". RC-19, the rule the register row and the contract item both
+cite as licence for not authoring the trigger's prerequisites, is a RUN CONVENTION dated 18 September — ours,
+not his — and his own SD-44 ruling superseded it four days later with the opposite content. Nobody updated it.
+So the corpus has been citing a stale rule to excuse the very thing that is now broken.
+
+That is why I did not repair it. The two candidate fixes point in opposite directions: enforce reachability and
+A04 loses render-eligibility, or honour RC-19 and A04's transition is fine with no ball needed. Which one is
+correct is a knowledge decision, and A04's status is frozen. He asked me to return the evidence before any
+expansion, so I did exactly that, with both repairs specified and ready.
+
+THE PART I GOT WRONG, AND IT MATTERS
+My first sweep concluded that no control case existed anywhere — that every transition in the system was on an
+unreachable trigger, which would have meant the repair could never be validated. An adversarial check refuted
+it and was right. I had measured every goal with no practice situation selected and then stated a universal.
+With situations there is exactly one control: A01 with "From Goal Kicks", where an authored ball enters and
+both transitions become legitimate. I had the correct number of goals and the wrong quantifier.
+
+I caught it before sending, but only because the verification stage exists. Worth remembering: 8 of 19
+load-bearing agent claims were refuted this round, and one of the refutations was of MY measurement, not an
+agent's.
+
+Two other overstatements I dropped after checking: the missing objects[].owner row is by design, not a defect,
+because PS1 is the authorized home for possession and his own wording was "not a field on the ball"; and the
+reason the trigger has no line is that the register declares no row for it at all, not the collection-skip I
+first blamed.
+
+STATE
+Branch claude/serene-dewdney-c78e18. Fidelity repair plus its tests committed; no engine change. Tests green,
+exit code read from a file rather than through a pipe. A04 unchanged. All his holds respected: no trigger
+cleanup, no carrier, magnitude held, generation frozen.
+
+Joe

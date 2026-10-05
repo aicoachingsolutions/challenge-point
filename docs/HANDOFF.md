@@ -5602,3 +5602,88 @@ the grammar" is weak evidence of ownership in this codebase.**
 Ran as a workflow, then re-verified every load-bearing claim against the corpus myself. **Three agent
 conclusions changed under checking** (REGION_ENTRY ownership, the same-episode reading, the 08.a "conflict").
 Consistent with the standing rule: never take agent findings at face value.
+
+---
+
+## 5 October — fidelity/invention repair IMPLEMENTED; A04 reachability INVESTIGATED, nothing implemented. 321 green, EXIT 0.
+
+He settled the football decisions (traversal-with-retention now QUALIFIES — he deliberately reversed 2 Oct;
+"starting in" may qualify; REGION_ENTRY stays adjacent precedent; possession-survival accepted as inherently
+temporal), **parked the representation expansion** (no event-referent identity, no same-episode relation, no
+`criterion` field, no carrier), and directed two bounded jobs.
+
+### JOB 1 — the fidelity/invention contradiction: REPAIRED
+`fidelity.ts` raised a Q5 VIOLATION unless `modifier.condition.satisfiedBy` was defined. **Verified the premise
+rather than trusting the earlier summary: NO register row is named `satisfiedBy`** (enumerated all 90), and the
+value-modifier rows are exactly V7/V8a/V8b/V9/V9a/V10 — type, referents, magnitude, operation, combination, **no
+criterion**. So the only state clearing fidelity was one `nothingInvented` must reject.
+- **The fix is a severity + basis change, not new machinery.** The finding is kept, unconditional, as a **NOTE**
+  on the SAME ground the missing `outfieldCount` is already a NOTE in that function: *the rendering is faithful*
+  — it refuses to choose ball/player/touch — and the gap is in the GAME. `passed` is a claim about the
+  RENDERING. The note now states that it cannot be closed by authoring.
+- **His "confirm afterward" is MEASURED**: nothingInvented / nothingLost / nothingClosedWithoutAuthority all
+  clean AND `fidelity.passed === true` on the same A04 state. Injecting `condition.satisfiedBy` changes **no Q5
+  finding and not the verdict** — pinned by a test, so reintroducing the dependency FAILS rather than passing.
+- **Consequence reported to him: fidelity flips FAILED -> PASSED for A04.** Q5 can still fail (the
+  unmarked-region path), so the check is not now incapable of failing.
+- **A STALE ASSERTION MESSAGE found en route:** `assert.equal(report.passed, false, 'a game whose features do
+  nothing is not a runnable activity')` — the features DO something now (all three channels participate), so that
+  assertion had been passing for a reason that stopped being true. Same class as the four stale fitNotes.
+
+### JOB 2 — A04 transition reachability: INVESTIGATED, NOT REPAIRED, deliberately
+**THE ROOT IS A STALE RUN CONVENTION, not a missing check.** `RC-19` ("The T1 elements for START,
+POSSESSION_CHANGE, OUT_TOUCHLINE and OUT_END_LINE exist by construction") is dated **18 September** and the
+conformance doc defines an RC as *"a rule that goes beyond the specification's text"* — **ours, not his**. His
+**SD-44 ruling of 22 September** superseded it with the opposite content (*"the resolved structural prerequisites
+necessary for that trigger to occur"*). **Nothing updated RC-19**, and register row T1 **and `GF2-07.a`'s
+structuralClause** both still cite it: *"a T1 element with trigger POSSESSION_CHANGE exists (by construction,
+RC-19)"*. **That is why nobody authored the ball AND nobody wrote the check.**
+- RC-19 vs the SD-44 operationalisation **conflicts on four triggers**: POSSESSION_CHANGE, OUT_END_LINE,
+  OUT_TOUCHLINE (RC-19 unconditional, package conditional) and STANDING (RC-19 conditional, package
+  unconditional). `RC-19` appears in **NO source file**.
+- Honest qualification: the ball precondition is **OUR** operationalisation in the design package ("and a ball
+  object"), not his words. PS1's registered valueType supports it — *"the team that currently possesses the ball"*.
+
+**Q1 ownership — NO, positively rather than by silence.** A04 contracts only GF2 + Wide Zone. GF2's only object
+items (GF2-06.a/.b) are **basis ASSUMED** (bounds only — `derive.ts`: *"§3: a bound only; SD-83: never
+establishes an element"*) and describe **a line/zone target, not a ball**. Wide Zone has **zero** object items.
+Both **positively declare O1 NON_CLAIMED** ("number of balls unauthored" / "objects free"). **No restatement or
+ruling adds one** (41 restatements touch no O row; the 14 added items land on none). RPC-001 and A01-02 DO entail
+a ball ("none (at least one ball)", AUTHORED/REQUIRED) — **A04 selects neither**.
+- **NOT a defect, by design:** no `objects[].owner` row — PS1 is the authorized home, *"not a field on the ball"*.
+  I nearly reported this as a loss; it is consistent with the register.
+
+**Q1b NOT a projection loss — the first time the answer is "nowhere".** MEASURED by flipping GF2-06.a/.b
+ASSUMED->AUTHORED in memory: an O1 class forms, an `objects` key appears, the object reaches the concrete game
+intact. **And fixing the basis alone would NOT help** — only also widening its kind to `ball` made
+POSSESSION_CHANGE reachable. **Two things missing, not one.**
+
+**Q2 failure path.** **The register declares NO ROW for a transition's trigger** — it is a selectorAttribute of
+the T1 COLLECTION. `resolved-game.ts`: *"`selector` is identity, not a derived value ... the acceptance
+conditions treat it the same way."* So: no line, no verdict, absent from derived AND notEstablished; the three
+acceptance conditions can't see it (two are line-keyed, the third skips `selector` by name); the two
+reachable-set readers are scoped to consequences and objective-set persistence. **And `GA-TRIGGER-UNIQUE`
+returns TWO PASSES when `transitions.length < 2`, with `triggerOf` defined AFTER the early return** — A04 has
+one transition, so the only code that reads a transition's trigger never runs. `constructTriggers` and
+`enumerateLines` are called on **consecutive lines** and never compared.
+
+**Q4 FALSIFICATION — IT REFUTED MY OWN MEASUREMENT.** My first sweep concluded **no control case existed**
+anywhere. **WRONG, and an adversarial verifier caught it: I measured every goal with `selectFor(goal, null)` —
+no practice situation — then stated a universal.** Corrected matrix over **33 goal x situation cases**: 18 carry
+an unreachable-trigger transition, **1 CONTROL — `A01 + A01-02` ("From Goal Kicks"), where A01-02-08.a's
+authored ball enters, POSSESSION_CHANGE becomes REACHABLE and BOTH transitions are legitimate**, 14 have no
+transition. **A04 offers no practice situations at all.**
+- So the repair IS validatable — but it fails 18/33 including A04, **costing A04 its render-eligibility**, a
+  status change to a frozen artifact. **And the direction is not mine: if RC-19 stands, the correct repair is the
+  OPPOSITE** (make POSSESSION_CHANGE unconditional). Mutually exclusive; his knowledge decision. **So: nothing
+  implemented, both repairs specified and ready.**
+
+**Q5 blast radius (no situation):** 8 of 13 goals carry the defect — A01, TA01, A02, TA02, TD02, D03, A04, A05 —
+from **two** game forms (`GF2-07.a` x6, `c:blind:GF4:I06` x2), so a one-row repair leaves the other standing. No
+gate names the trigger in any of them. **Adding or removing the object changes NO gate verdict in any state
+measured, including the reachable one** — the enforcement gap, measured.
+
+### Governance note recorded, not repaired
+Registration is evidence a concept is **sayable**, not that its semantics are **implemented or enforced**.
+Ownership checks now separate semantic registration from runtime consumption. **RC-19 makes SIX — and the first
+where the unconsumed thing is an INVARIANT rather than a field.** No work opened on the five as a group.
