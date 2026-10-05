@@ -5237,3 +5237,481 @@ qualification outside transitions ALREADY EXISTS IN RUNNING CODE.**
 Implement **only** the completed-pass trigger + semantics entry (independently required by his own ruling), and
 return Wide Zone's qualifying condition to him as an **AUTHORING** decision — nothing in canonical knowledge asks
 for a contact, and the condition as settled needs a two-event relation his containment rules out.
+
+### ADDENDUM, same day — a LIVE DEFECT the last trace leg found: a standing decision's SELECTOR is never read
+
+`applies()` (derive.ts:881-897) decides whether a citable standing decision reaches a line by matching the
+**row only**: it reads `entry.item.row`, splits it, checks `rows.includes(line.row)`, then guards on
+`record.session`, `record.entailing.length` and an optional `entry.condition`. **It never reads
+`entry.item.selector`.**
+
+Three citable standing decisions register a selector, and all three are ignored:
+- `SD-13` row T3 selector `trigger=START`
+- `SD-14` row T7 selector `trigger ∈ {START, SCORE, POSSESSION_CHANGE}`
+- `SD-20` row T6 selector `trigger=POSSESSION_CHANGE`
+
+**Measured across all 13 goals x every practice situation: SD-13 and SD-20 never apply** (an authored item
+pre-empts them and the entailment guard holds). **SD-14 applies exactly three times:**
+| line | its trigger | verdict |
+|---|---|---|
+| `GF2-07.a::T7` | POSSESSION_CHANGE | correct |
+| `GF4 I06::T7` | POSSESSION_CHANGE | correct |
+| `A01-02-01.a::T7` | **OUT_END_LINE** | **WRONG — one live wrong value** |
+
+So the goal-kick transition in A01/A01-02 carries `startsEpisode = true` sourced from SD-14, which names only
+START, SCORE and POSSESSION_CHANGE. **The claim is NOT that a goal kick does not begin an episode** — it is that
+the representation has no authority for it: SD-14 is the only source, its selector excludes this trigger, and its
+own note says *"Defines boundaries only; entails no T1 element."* **A value with no source is the defect whether
+or not it happens to be right.**
+
+**Why it matters beyond the one line:** this is the route by which a new trigger token would acquire semantics it
+was never given. Measured — an authored transition on a contact trigger would receive `playState=CONTINUE` from
+SD-20 and `startsEpisode=true` from SD-14, which are **two of the implications his containment list explicitly
+forbids**, arriving silently with a standing decision's name on them. **So his containment is currently
+unenforceable for any trigger carried by a transition, today rather than after a change.**
+
+**Reported, not repaired** (returned as a newly exposed gap per his established pattern). The correction looks
+small — read the selector where the row is read and decline to apply on a mismatch, using the existing
+machine-readable selector grammar rather than a new mechanism. **The decision that is his: the line then becomes
+a GAP rather than a different value**, so A01-02's goal kick would hold an unestablished `startsEpisode` instead
+of an unsourced `true` — the honest state, but a verdict change in a real goal.
+
+---
+
+## 4 October (close) — COMPLETED_PASS registered, bounded. Qualifying-interaction investigation CLOSED by him.
+
+**312 cases green, EXIT CODE 0 (verified properly, not via `| tail`). A04 authorized, acceptance passed,
+render-eligible, coach still reads "12 players in total · 2 teams of 6".**
+
+He accepted every falsification finding and did NOT force the three-part proposal forward. He also accepted my
+wording correction and is **reconsidering the Wide Zone qualifying condition himself**, against the Incentive
+Assurance criteria, with the added constraint that it be deterministically representable without event history.
+**Magnitude held; Wide Zone is now an AUTHORING question with him.**
+
+### What was added — the representational half only
+- `COMPLETED_PASS` added to `vocabularies.trigger`; **version bumped to 3** (so a stored result can be known stale).
+- `vocabularies.triggerSemantics.COMPLETED_PASS`: **completion is constitutive and is the whole of it** — a pass
+  that connects, reaching a player of the passing team. What "qualifying" means is NOT my reading: it is fixed by
+  `PCG-05`'s *"counts ATTACKING_TEAM's connected passes"*.
+- Denies by name every implication he excluded (region, direction, receiver identity, distance, intent,
+  possession, possession change, scoring eligibility, transition, episode boundary); carries the *"no qualifier
+  capability is implied"* fence; and records that the representation **names a kind of occurrence and does not
+  record occurrences** — not an event history by construction rather than by promise.
+- **NOT ordered against FIRST_FORWARD_PASS in either direction, and that is a FACT not a policy:** its own entry
+  says it *"implies NOTHING about pass success"*, so an intercepted forward pass is a FIRST_FORWARD_PASS and is
+  not a COMPLETED_PASS; a completed square pass is the reverse. The vocabulary is not a hierarchy.
+- **No `evaluabilityDependsOn`** — completion is measured against nothing the game holds, so this morning's
+  integrity correction imposes nothing on it. Exactly one trigger still declares a dependency.
+
+### Containment — measured, and it is what the tests mainly assert
+**Registering the member changed NO verdict anywhere.** Failed-line counts and Gate A verdicts are now **pinned
+for all thirteen goals** (A01 8/NOT_EVALUABLE … A04 7/DEFERRED_TO_REALIZATION … TD02 11/FAIL …) so a later change
+cannot move them unnoticed. A04 untouched.
+**THE FORCED NEGATIVE:** authored the token onto V17 and ran twice — with the vocabulary member the item is
+ADMITTED; with the member removed the same item FAILS GA-INFORMATION as an unregistered trigger. So the addition
+is exactly and only what such an item needs.
+
+### THE DIRECT CONSEQUENCE RETURNED TO HIM
+**V17 is still `NOT_AUTHORED` / "not constrained" in all five goals that select PCG.** The member alone closes
+nothing. **I did NOT author the item**, because he wrote *"only the … trigger and its semantics entry"* and an
+item on PCG is an **authoring** act on that contract — the same line he drew on Wide Zone. Told him exactly what
+it would take (one V17 item, OWNER_RULING, REQUIRED, REQUIRED_RANGE, his 29 Sept words as evidence) and that the
+measurement says it closes that line and adds none (8 → 7 failed on A05, no other gate verdict moves); the
+competing PCG-12 is ASSUMED/PREFERRED_DEFAULT so it bounds and would not contest it.
+
+### Limit recorded, not repaired
+**The token is not structurally reachable** — `constructTriggers` builds the reachable set from a hardcoded
+function that never reads `vocabularies.trigger` (A05's set is OUT_END_LINE, OUT_TOUCHLINE, 3× REGION_ENTRY{…},
+SCORE, STANDING, START). **GA-EFFECT-TYPED enforces reachability on V12; GA-INFORMATION does NOT on V17**, so an
+item authoring the token would be admitted on registration alone and never asked whether the occurrence can
+arise. **Pre-existing** — FIRST_FORWARD_PASS has never been reachable either — so a property of the architecture,
+not something this introduced. Pinned by a test so it stays visible. Touching it would be the broader trigger
+work he has held.
+
+### Still open and still the only thing I would call trust-critical
+**The standing-decision selector defect** from the afternoon addendum: `applies()` matches by row only, so SD-14
+reaches `A01-02-01.a::T7` (trigger OUT_END_LINE) and SD-20 would supply a play state to any transition. It does
+NOT touch COMPLETED_PASS, which no item authors onto a transition — but it is the route by which any
+transition-carried trigger silently acquires a play state and an episode boundary.
+
+---
+
+## 4 October (final) — CONTROLLED WIDE ACCESS falsified. Breaks on HIS OWN 2 Oct ruling + spec §7.
+
+Nothing implemented for it (his guardrail). A04 unchanged, 312 green.
+
+### THE PART THAT PASSES — tell him plainly
+**His logical form is sound and genuinely different from the touch condition.** "Team T has functional control of
+the ball within Region R" is a conjunction of three predicates over **ONE INSTANT**. Tested each of his four:
+needs **no** prior touch, **no** completed pass, **no** possession before/after, **no** event history. **The
+containment objection that killed the touch condition DOES NOT APPLY.** He removed the two-moment relation and
+the removal worked.
+
+### BREAK 1 — his own 2 October ruling, which this wording undoes
+`INCENTIVE_ASSURANCE_CRITERIA.md:389-396` records BOTH halves, verbatim:
+> *"Controlled" means retained possession, observably. Not deliberate intent. His condition, exactly: A touch
+> within the channel after which the touching player's team retains possession.* And: *"I would prefer the
+> canonical representation to carry that observable relationship **rather than rely on the qualitative word
+> controlled**."*
+**Controlled Wide Access relies on exactly that word**, and asks it to be how-agnostic AND after-agnostic — the
+opposite of the observable relationship he settled (constitutively a how-claim + an after-claim). **Not a state
+restatement of the settled condition; a DIFFERENT concept, and the one he declined.**
+
+### BREAK 2 — spec §7 "Deliberately not held" refuses BOTH relata by name
+`game-representation-spec-2026-09-18.md:759-764`, verbatim:
+> *"The state of a game in progress: which target is live now, **who has the ball now**."*
+> *"The coach's in-play judgement of a `FREE` condition (SD-15)."*
+**His candidate asks for precisely those two, conjoined.** §1: *"It describes the rules that govern state, never
+the state itself."* MEASURED on the frozen render-eligible A04 game: **no `possession` key at all**, **no
+`objects` collection at all — there is no ball in the render-eligible game**, and the teams carry no identity
+(his own 2 Oct designation removal). Two of three relata absent BY DESIGN.
+
+### BREAK 3 — GP-006 cannot own a state indifferent to what follows
+Canonical definition: *"Create a functional performer–task object relationship that **enables meaningful
+subsequent action**."* **Forward-looking by construction**, and a *performer*–object relation (player
+representation excluded). GP-005 Gain Access: *"…performer, object, target, pathway, or environmental feature"* —
+**a region is not in that list**; reading a channel in as an environmental feature is composing on English
+compatibility. Both live at the STRATEGIC layer: `gp-library.rc1.json` carries **no definitions at all** (only
+Type/ID/Name/Relationship Domain/Operation/Status); definitions live in the ATM workbook (Stage 3, selection-side).
+**Functional Object Control and Access are SEPARATE canonical relationship domains, and possession is separate
+again** — so his composition genuinely IS a composition of two concepts, as he suspected.
+
+### THE OWNERSHIP ANSWER, and the one that will interest him most
+`target_zone_entered`, RPC library `controlled_vocabulary`, `vocabulary: scoring_event`:
+> *"A player dribbles into a marked zone, or receives and controls the ball inside it."*
+**That is Controlled Wide Access almost verbatim** — means unrestricted, a region, control — approved by him
+13 Sept as one of four valid primary scoring events, and its activity text even excludes traversal (*"a long kick
+into the target zone does not count"*), matching his 2 Oct ruling. **BUT it owns the meaning as a SCORING EVENT at
+the sport-module layer.** A04's primary event is `line_crossed` and the spec says a modifier *"changes only the
+primary event's value, never adds a second way to score."* **So the thing that owns his meaning owns it in the one
+role Wide Zone's modifier may not take.**
+
+### HIS OWN CONTRACT FORBIDS THE WORD IN THE NAME
+Three of four routes by which an element could co-hold a team AND a region are closed by Wide Zone's own AUTHORED
+exclusions: `WIDEZONE-08.a` S4 — **"access (forbidden as a member of functions)"**; `08.b` V14b — wide channel a
+forbidden region referent; `08.c` V5 — wide channel a forbidden referent. The candidate is named Controlled Wide
+**Access**. **The composition is not merely unauthorized, it is authored against.**
+
+### THE SMALLEST CARRIER, with independent motivation and an honest limit
+**One FIELD row: a criterion on the modifier condition.** The primary-event condition has THREE parts (type /
+referents / criterion holding "a threshold, a count, or a qualitative term"); the modifier condition has only TWO
+(V8a type / V8b referents). **No row holds what counts as MEETING a modifier's condition** — a structural
+asymmetry inside one area, with its precedent one area over.
+**MEASURED CONTRADICTION that motivates it independently of Wide Zone:** fidelity Q5 reports a violation unless
+`modifier.condition.satisfiedBy` is present. That field has **no register row**, is set by **no item**, and its
+name is already used twice (the BY_CONSTRUCTION schema-invariant pointer; the existential claim's established
+list). **I wrote it in: Q5 CLEARS and `nothingInvented` REJECTS it** as tracing to nothing derived, chosen or
+entailed. **A04 today passes acceptance and fails Q5, and the only fix for Q5 breaks acceptance — there is no
+state in which both pass.**
+**Limit:** the carrier would let the criterion be STATED, not EVALUATED — a qualitative control criterion stays an
+in-play judgement, which §7 deliberately does not hold.
+
+### What I put to him
+**Should the Wide Zone advantage be a way of SCORING, or a multiplier on a different score?** As a scoring event
+the meaning is owned, defined, approved and already excludes traversal. As a modifier condition it needs a state
+the spec deliberately does not hold. Structural question, not representational.
+
+### CORRECTION, same day — I OVERSTATED what `target_zone_entered` owns, and had to write to him again
+
+The last leg of the check landed after the email went. It is right and I was wrong on the part I had called the
+most interesting, and the part my closing question rested on.
+
+**Four overstatements, all refuted by text I had already quoted or should have checked:**
+1. **"means unrestricted" — FALSE. It ENUMERATES TWO MEANS.** *"A player **dribbles into** a marked zone, **or
+   receives and controls** the ball inside it."* So it **privileges a dribble and a reception — two items on his
+   own non-claims list** — and excludes cases his meaning admits (a loose ball won inside the zone, a deflection,
+   the ball already being there).
+2. **"owns control" — FALSE. "controls" is only in the SECOND DISJUNCT.** "Dribbles into a marked zone" carries no
+   control requirement, so the event does not uniformly require control — the one term his meaning is built on.
+3. **The corpus had ALREADY GRADED the ceiling.** `RPC-001-08.c` (J2, EXISTS, AUTHORED) cites this exact
+   vocabulary family as its basisEvidence and its fitNote caps it: **"Only 'a reference is present' can be
+   held."** Not control, not means, not a team.
+4. **I CITED GENERATED COACH TEXT AS EVIDENCE.** My "its activity text even excludes traversal — 'a long kick into
+   the target zone does not count'" came from generated activity prose. `RPC-001-10.b`'s fitNote closes that route
+   pre-emptively: **"The COACH_RULES wording 'controls it' is engine-only and is not relied on."** **Generation is
+   not a source — a discipline already in memory, violated anyway.**
+
+**So `target_zone_entered` is ADJACENT PRECEDENT, not ownership — the clearest trap in the set, because its
+English reads like his sentence while its semantics do something else.** Its subject is a PLAYER; "a marked zone"
+is physical marking not a represented region; and the representation consumes it only as V1 primaryEvent.kind.
+
+**Consequence: my closing question was MIS-POSED.** I asked whether the advantage should be a way of scoring or a
+multiplier, presenting the scoring-event route as "owned, defined, approved". **It is not owned**, and choosing it
+would adopt a definition privileging two means from his forbidden list.
+**The finding underneath HARDENS: there is no owner anywhere for a means-unrestricted, how-agnostic control
+state** — not at the strategic layer (GP-006 forward-looking), not in the Game Representation (§7 refuses both
+relata), not in the sport module (two enumerated means, conditional control).
+
+Everything else in the falsification stands and was re-checked: the logical form passes; the three breaks; Wide
+Zone's authored exclusions; the Q5/nothingInvented contradiction; the criterion-field carrier and its limit; A04.
+
+**Process lesson, twice in one day: do not send a report while a background trace is still running.** The
+afternoon addendum had the same cause.
+
+---
+
+## 4 October (close of day) — selector repair + PCG trigger item authored. 321 green, EXIT 0.
+
+### The trust-critical repair (he classified it so)
+`applies()` matched a standing decision to a line by **ROW ONLY** and never read `entry.item.selector`. Now it
+reads it, via the **canonical matcher the applicability rule already uses** — `selectorApplies` **MOVED from
+engine.ts to selector.ts** (where selector semantics belong) rather than duplicated, because this codebase has
+already paid for two count readers that disagreed. engine.ts and derive.ts both already imported selector.ts, so
+no cycle.
+- **The one judgement inside the repair, made visible: UNDECIDABLE DECLINES.** Where the element's selector does
+  not fix the attribute, the decision does not apply. **The applicability rule makes the OPPOSITE choice on the
+  same question and both are right** — an applicability rule may only ever REMOVE a line it can positively
+  disqualify (so undecidable keeps it), whereas a standing decision SUPPLIES a value, and supplying one through
+  an unreadable narrowing is inferring the narrowing away. Documented on `selectorApplies` for both callers.
+- **Measured: exactly ONE application removed** across 13 goals × every practice situation. `GF2-07.a::T7` and
+  `GF4 I06::T7` (both POSSESSION_CHANGE) still apply; `A01-02-01.a::T7` (OUT_END_LINE) removed. That line is now
+  `failed / NOT_AUTHORED` — the verdict change I flagged when reporting the defect. **A04 untouched.**
+
+### His falsification, implemented BOTH directions
+- Corpus case (goal kick): episode boundary absent, and **no standing decision recorded against the line**, so
+  nothing downstream can read it as a source.
+- **Synthetic case for both properties**, because the corpus goal kick has an AUTHORED play state and cannot test
+  that half alone: a transition on OUT_TOUCHLINE gets **no episode boundary and no SD on either line**, while the
+  play state that IS present comes from the authored `GF2-16.b`. **So the test asserts PROVENANCE, not absence** —
+  the repair removes SD propagation and leaves authored knowledge alone. (My first version asserted absence and
+  failed; the expectation was wrong, not the code.)
+- Control: the same transition on POSSESSION_CHANGE still receives BOTH. Not a blanket refusal.
+
+### AN EXISTING TEST WAS PASSING FOR THE WRONG REASON — clearest evidence the defect was load-bearing
+`derivation-stage10.unit.ts` SD-94 "fail when the same trigger is required to be two different things": its
+expected FAIL rested on **SD-20 supplying CONTINUE to a START transition** — a trigger SD-20 does not name. With
+the repair the value vanished and the check could no longer see a conflict. **Fixture corrected so the conflict is
+AUTHORED ON BOTH SIDES** (each class gets a distinguishing qualifier and its own T6 item); the invariant is still
+tested and no longer depends on the defect. What it used to rest on is recorded in the file.
+
+### The authored PCG item (C39)
+`PCG-14.f`, row V17, `COMPLETED_PASS`, basis OWNER_RULING, REQUIRED, REQUIRED_RANGE, 29 Sept ruling as evidence,
+added via the restatements `added` array after PCG-14.a. **Resolves in all five goals that select PCG**, closing
+one failed line each (A01 8→7, TA01/A02/TA02 7→6, A05 8→7). A04 unchanged at 7.
+- **Displaces nothing**: PCG-12 is ASSUMED/PREFERRED_DEFAULT so it bounds and never entails, and its own evidence
+  already conceded *"a reveal on each completed pass, which is not a listed trigger"*. Left exactly as it stands.
+- **"Qualifying" is not my reading** — fixed by PCG-05's *"counts ATTACKING_TEAM's connected passes"*, so the
+  trigger is a pass that CONNECTS and nothing further.
+- **THE SEQUENCE IS PINNED: the vocabulary member closed NOTHING; the line closed only on the authoring act.** A
+  vocabulary member makes a value SAYABLE, it does not say it. The member's inertness is now proved by REMOVING it
+  rather than by a current-state baseline — better evidence, and it survived the baselines moving.
+- Reachability limit recorded on the item and pinned by a test, not repaired, per his instruction.
+
+### Two self-inflicted stumbles worth remembering
+1. **The sport-coupling ratchet caught my own doc comment** — I wrote "in football" in the sport-NEUTRAL
+   derivation layer, taking occurrences 35→36. Reworded (not ratchet-raised, not SPORT_LAYER_FILES'd). **The
+   derivation layer is sport-neutral including in its prose.**
+2. **A `python - <<EOF` heredoc hung on stdin** (python is absent here) and had to be killed. Use the Edit tool.
+
+Corpus after both: 131 lines, 17 open, 39 restated, 14 added, none named-but-missing.
+
+---
+
+## 4 October — Successful Region Access: ownership falsification. READ-ONLY round, nothing implemented.
+
+He revised the meaning to *"value access to a represented region when the attacking possession survives the
+access"*, **withdrew the single-instant requirement** ("that was allowing representational simplicity to alter
+the football meaning"), added the guardrail **"no temporal relationship without canonical authority"**, and
+asked for nine return items with "Do not implement or add a carrier."
+
+### THE HEADLINE IS A FOOTBALL DECISION, NOT A REPRESENTATIONAL ONE
+**The rewording silently reverses his own 2 October traversal ruling.** A ball crossing the channel and
+collected by a teammate beyond it now satisfies the meaning (access occurred, possession survived) and was
+excluded on 2 October (nothing touched it inside). Reported as the first item, before any ownership analysis,
+because everything else is downstream of it.
+
+### Verdict: survives as football, breaks on representation — and best-founded candidate so far
+**The good part is real.** His authored source sentence is *"**Actions** starting in or moving through the wide
+channel earn an advantage"* — subject is "Actions", so none of his five means needs any broadening. And
+`REGION_ENTRY` is genuinely means-neutral, **verified not assumed**: no `triggerSemantics` entry at all,
+constructed purely from region classes, both parsers of its parameterised form discard the argument.
+
+### What is owned, what is not
+- **Owned outright**: the region; the value effect; a region-parameterised occurrence kind as a constructed value.
+- **`REGION_ENTRY` is ADJACENT PRECEDENT, not ownership** — `WIDEZONE-11.b` already records it holds *"moves
+  through"* only, so of his five means a **recovery of a ball already inside** is uncovered. An authored item had
+  already graded the token against a proper subset. (An agent line claimed outright ownership; wrong.)
+- **The team conjunct is VACUOUS, not merely unowned.** `ATTACKING_TEAM` is glossed as *"the team the possession
+  relation currently holds"*, so "while the attacking team possesses" is true at EVERY access by construction.
+  And the value modifier has no team field — the beneficiary field was deliberately removed.
+- **Non-occurrence is owned by nothing and cannot be.** Selector operators are `[=, IN, CONTAINS, AND, *]` — no
+  negation — and `NOT_EXISTS`/`EXCLUSION` range over what the game CONTAINS, never over what HAPPENS. Probed
+  three ways on the live game.
+
+### THE SUCCESS HALF IS BLOCKED THREE WAYS AND THE FIRST IS HIS OWN AUTHORING
+1. **`GF4 I07`** (T1c, AUTHORED, EXCLUSION): *"any region qualifier (forbidden: the transition moment is not tied
+   to a region)"*. So "took over **through that access**" cannot be a region-qualified possession change. **No
+   resolution-timing decision clears this** — it is authored against.
+2. **`T2 awardedTo`** applies only when play STOPS; every authored possession change CONTINUEs. "The defending
+   team takes over" has no field.
+3. `POSSESSION_CHANGE` is **not structurally reachable in any of the 13 goals.**
+
+### THE ELEGANT CANDIDATE IS CIRCULAR — and an agent missed it
+"Access and attack in the same episode" looked free (the boundary would be the possession change itself, which
+he said not to invent). **It is circular: the end of the episode IS that possession change**, so the predicate is
+vacuously true of every access and his case B gets the bonus. The score-anchored variant fails differently —
+**PS1's own note says SCORE begins an episode under SD-14**, so access-then-goal falls outside "the same
+episode" and scoring would VOID the bonus. Only repair is "a required subsequent action" = one of his non-claims.
+
+### Inherently temporal: YES, and the single-instant reading is VACUOUS not merely wrong
+Possession moves only at a possession change, so at the instant the ball crosses, possession is still the
+attacker's in **both** his cases. They are indistinguishable at a single instant. His own wording carried the
+temporality throughout ("survives the access", "through that attempted access", 2 Oct's "after which") — the
+revision removed player grain, control judgement and remain-in-region, **not** the time relation.
+**Canonical authority for A temporal relation exists** (the 29 Sept pass-reveal ruling: point-succession of one
+reveal on one named trigger). **For THIS relation it exists nowhere.**
+
+### Smallest gap — better located than the field he declined
+**A modifier condition can NAME an occurrence but cannot RELATE two.** V8b's valueType is already *"references to
+regions, objects **or events**"* and `V8a.conditionType` already contains `event`, so the slot exists. `GF4 I15`
+authors an event-typed condition with *"{regain, shot}, in the order regain then shot"* — but it is
+SUPPORTING/TYPICAL_EXAMPLE and **its own structuralClause says "The order ... is not held."** Precedent for
+naming, explicitly not for relating. Then second: nothing can say two occurrences share an episode (episode is a
+boolean on a transition; SD-14 *"defines boundaries only; entails no T1 element"*).
+
+### Exclusions: NO conflict, and an agent got this wrong too
+`WIDEZONE-08.a` forbids `access` as a region **FUNCTION** — its own fitNote: *"Restricted, exclusive or
+entry-prohibited zone"*. That is access **control**, the opposite concept. Evidence: *"Channels are reference
+markers — players can choose to use them or not."* The other two forbid the channel as a referent on the
+consequence row and the primary-event condition row; the advantage lives on the value modifier, where his 2
+October ruling put it. **The meaning belongs where it already is; what is missing is a ROW, not a permission.**
+
+### Still open / carried
+- **The fidelity-vs-invention contradiction is unchanged and I proposed repairing the CHECK, not adding the
+  field** — the finding is true (a coach cannot tell what satisfies the condition); only its sole clearing
+  condition is unauthorable. Needs no authoring decision from him. Held pending his answer.
+- **NEW DEFECT, probed not reasoned** (`back/_probe_reach.ts`, deleted after use): A04's game has **exactly one
+  transition** and it is keyed on `POSSESSION_CHANGE`, which is **NOT in its reachable set** — because
+  `constructTriggers` pushes it only when `O1` ball classes exist and **A04 has `O1` classes: 0** (the
+  already-known "there is no ball in the render-eligible game"). Measured: reachable =
+  `[OUT_END_LINE, OUT_TOUCHLINE, REGION_ENTRY{GF2-03.a}, REGION_ENTRY{WIDEZONE-02.a}, REGION_ENTRY{WIDEZONE-03},
+  SCORE, STANDING, START]`; `gateA = DEFERRED_TO_REALIZATION`, `failingChecks: none`, `mayRealize: true`; and
+  post-realization Gate A passes (10-01). **So the only transition in the authorized game cannot fire.**
+  The reachable set has **exactly two readers** and they do OPPOSITE things with it: `gates.ts:1276` raises
+  `trigger X is not structurally reachable` for a **consequence**; `gates.ts:1550` `continue`s to EXCUSE an
+  objective-set persistence demand (SD-44: "A trigger the game cannot reach places no demand on the
+  assignment"). **A transition's own trigger is read by neither.** Reported, not repaired.
+
+### THE PATTERN IS NOW FIVE
+`fillableFrom`, `triggerQualifiers`, `condition.satisfiedBy`, the standing-decision selectors (repaired this
+morning), `BUILD_OUT_EPISODE` scope — all in the register or grammar, **none read by any code**. Four items carry
+the episode scope and `scope` has behaviour for exactly one value, which is not that one. **"It already exists in
+the grammar" is weak evidence of ownership in this codebase.**
+
+### Method note
+Ran as a workflow, then re-verified every load-bearing claim against the corpus myself. **Three agent
+conclusions changed under checking** (REGION_ENTRY ownership, the same-episode reading, the 08.a "conflict").
+Consistent with the standing rule: never take agent findings at face value.
+
+---
+
+## 5 October — fidelity/invention repair IMPLEMENTED; A04 reachability INVESTIGATED, nothing implemented. 321 green, EXIT 0.
+
+He settled the football decisions (traversal-with-retention now QUALIFIES — he deliberately reversed 2 Oct;
+"starting in" may qualify; REGION_ENTRY stays adjacent precedent; possession-survival accepted as inherently
+temporal), **parked the representation expansion** (no event-referent identity, no same-episode relation, no
+`criterion` field, no carrier), and directed two bounded jobs.
+
+### JOB 1 — the fidelity/invention contradiction: REPAIRED
+`fidelity.ts` raised a Q5 VIOLATION unless `modifier.condition.satisfiedBy` was defined. **Verified the premise
+rather than trusting the earlier summary: NO register row is named `satisfiedBy`** (enumerated all 90), and the
+value-modifier rows are exactly V7/V8a/V8b/V9/V9a/V10 — type, referents, magnitude, operation, combination, **no
+criterion**. So the only state clearing fidelity was one `nothingInvented` must reject.
+- **The fix is a severity + basis change, not new machinery.** The finding is kept, unconditional, as a **NOTE**
+  on the SAME ground the missing `outfieldCount` is already a NOTE in that function: *the rendering is faithful*
+  — it refuses to choose ball/player/touch — and the gap is in the GAME. `passed` is a claim about the
+  RENDERING. The note now states that it cannot be closed by authoring.
+- **His "confirm afterward" is MEASURED**: nothingInvented / nothingLost / nothingClosedWithoutAuthority all
+  clean AND `fidelity.passed === true` on the same A04 state. Injecting `condition.satisfiedBy` changes **no Q5
+  finding and not the verdict** — pinned by a test, so reintroducing the dependency FAILS rather than passing.
+- **Consequence reported to him: fidelity flips FAILED -> PASSED for A04.** Q5 can still fail (the
+  unmarked-region path), so the check is not now incapable of failing.
+- **A STALE ASSERTION MESSAGE found en route:** `assert.equal(report.passed, false, 'a game whose features do
+  nothing is not a runnable activity')` — the features DO something now (all three channels participate), so that
+  assertion had been passing for a reason that stopped being true. Same class as the four stale fitNotes.
+
+### JOB 2 — A04 transition reachability: INVESTIGATED, NOT REPAIRED, deliberately
+**THE ROOT IS A STALE RUN CONVENTION, not a missing check.** `RC-19` ("The T1 elements for START,
+POSSESSION_CHANGE, OUT_TOUCHLINE and OUT_END_LINE exist by construction") is dated **18 September** and the
+conformance doc defines an RC as *"a rule that goes beyond the specification's text"* — **ours, not his**. His
+**SD-44 ruling of 22 September** superseded it with the opposite content (*"the resolved structural prerequisites
+necessary for that trigger to occur"*). **Nothing updated RC-19**, and register row T1 **and `GF2-07.a`'s
+structuralClause** both still cite it: *"a T1 element with trigger POSSESSION_CHANGE exists (by construction,
+RC-19)"*. **That is why nobody authored the ball AND nobody wrote the check.**
+- RC-19 vs the SD-44 operationalisation **conflicts on four triggers**: POSSESSION_CHANGE, OUT_END_LINE,
+  OUT_TOUCHLINE (RC-19 unconditional, package conditional) and STANDING (RC-19 conditional, package
+  unconditional). `RC-19` appears in **NO source file**.
+- Honest qualification: the ball precondition is **OUR** operationalisation in the design package ("and a ball
+  object"), not his words. PS1's registered valueType supports it — *"the team that currently possesses the ball"*.
+
+**Q1 ownership — NO, positively rather than by silence.** A04 contracts only GF2 + Wide Zone. GF2's only object
+items (GF2-06.a/.b) are **basis ASSUMED** (bounds only — `derive.ts`: *"§3: a bound only; SD-83: never
+establishes an element"*) and describe **a line/zone target, not a ball**. Wide Zone has **zero** object items.
+Both **positively declare O1 NON_CLAIMED** ("number of balls unauthored" / "objects free"). **No restatement or
+ruling adds one** (41 restatements touch no O row; the 14 added items land on none). RPC-001 and A01-02 DO entail
+a ball ("none (at least one ball)", AUTHORED/REQUIRED) — **A04 selects neither**.
+- **NOT a defect, by design:** no `objects[].owner` row — PS1 is the authorized home, *"not a field on the ball"*.
+  I nearly reported this as a loss; it is consistent with the register.
+
+**Q1b NOT a projection loss — the first time the answer is "nowhere".** MEASURED by flipping GF2-06.a/.b
+ASSUMED->AUTHORED in memory: an O1 class forms, an `objects` key appears, the object reaches the concrete game
+intact. **And fixing the basis alone would NOT help** — only also widening its kind to `ball` made
+POSSESSION_CHANGE reachable. **Two things missing, not one.**
+
+**Q2 failure path.** **The register declares NO ROW for a transition's trigger** — it is a selectorAttribute of
+the T1 COLLECTION. `resolved-game.ts`: *"`selector` is identity, not a derived value ... the acceptance
+conditions treat it the same way."* So: no line, no verdict, absent from derived AND notEstablished; the three
+acceptance conditions can't see it (two are line-keyed, the third skips `selector` by name); the two
+reachable-set readers are scoped to consequences and objective-set persistence. **And `GA-TRIGGER-UNIQUE`
+returns TWO PASSES when `transitions.length < 2`, with `triggerOf` defined AFTER the early return** — A04 has
+one transition, so the only code that reads a transition's trigger never runs. `constructTriggers` and
+`enumerateLines` are called on **consecutive lines** and never compared.
+
+**Q4 FALSIFICATION — IT REFUTED MY OWN MEASUREMENT.** My first sweep concluded **no control case existed**
+anywhere. **WRONG, and an adversarial verifier caught it: I measured every goal with `selectFor(goal, null)` —
+no practice situation — then stated a universal.** Corrected matrix over **33 goal x situation cases**: 18 carry
+an unreachable-trigger transition, **1 CONTROL — `A01 + A01-02` ("From Goal Kicks"), where A01-02-08.a's
+authored ball enters, POSSESSION_CHANGE becomes REACHABLE and BOTH transitions are legitimate**, 14 have no
+transition. **A04 offers no practice situations at all.**
+- So the repair IS validatable — but it fails 18/33 including A04, **costing A04 its render-eligibility**, a
+  status change to a frozen artifact. **And the direction is not mine: if RC-19 stands, the correct repair is the
+  OPPOSITE** (make POSSESSION_CHANGE unconditional). Mutually exclusive; his knowledge decision. **So: nothing
+  implemented, both repairs specified and ready.**
+
+**Q5 blast radius (no situation):** 8 of 13 goals carry the defect — A01, TA01, A02, TA02, TD02, D03, A04, A05 —
+from **two** game forms (`GF2-07.a` x6, `c:blind:GF4:I06` x2), so a one-row repair leaves the other standing. No
+gate names the trigger in any of them. **Adding or removing the object changes NO gate verdict in any state
+measured, including the reachable one** — the enforcement gap, measured.
+
+### Governance note recorded, not repaired
+Registration is evidence a concept is **sayable**, not that its semantics are **implemented or enforced**.
+Ownership checks now separate semantic registration from runtime consumption. **RC-19 makes SIX — and the first
+where the unconsumed thing is an INVARIANT rather than a field.** No work opened on the five as a group.
+
+### CORRECTIONS sent an hour after the 5 Oct report — and the cause was sending with a leg outstanding
+**I sent while one verification leg was still running. I flagged it, which is not the same as waiting, and that
+leg produced two of these three.** The rule is the simpler one: don't send until it finishes.
+
+1. **WITHDREW the GA-TRIGGER-UNIQUE early-return bullet as a CAUSE.** Both facts are true (it returns early at
+   `transitions.length < 2`; `triggerOf` is defined after it) but the implication is false and dangerous: it reads
+   as "remove the guard and the check works." **`triggerOf`'s value is used at `gates.ts:885` ONLY to compare one
+   T1 class's trigger to ANOTHER'S, and `gaTriggerUnique` never reads `ctx.triggers` at all** (verified by awk over
+   861-935). With two transitions the guard would not fire, the code would run, and reachability would STILL not be
+   tested. **The structural cause stands: no FIELD row for `transitions[].trigger`.**
+2. **CORRECTED "the object carries into the concrete game".** I had only measured to the RESOLVED game. Measured
+   through realization: basis->AUTHORED => **REFUSED**, *"is open and was not chosen: a concrete game leaves no
+   freedom unclosed"* — **two new FREE choices open (`::O2` kind, `::O5` position.across); with the selector fixed
+   to `kind = ball` ONE still opens (`::O5`)**. The refusal is CORRECT, not a loss, so the conclusion (authoring
+   gap, not projection loss) is unchanged and better supported. **And it quantifies his "do not simply add a ball":
+   authoring one opens a realization choice the frozen choice set does not answer.**
+3. **NEW BOUNDED DEFECT, reported not repaired.** `GA-TRIGGER-UNIQUE`'s first clause's unit is **PAIRS** — the
+   normal path correctly reports `comparedPairs` — but **the early-return path reports `transitions.length`**. With
+   exactly one transition that is 1, and `pass()` maps `instances > 0` to basis `EVALUATED`, so **the clause
+   declares `EVALUATED, instances: 1` having compared NOTHING.** Correct by accident at 0 transitions; **wrong at
+   exactly 1 — i.e. in all eight affected goals.** And the gate report's `clausesVacuous` tally
+   (`gates.ts:1799`) exists to count exactly this — **reporting the wrong unit is what keeps the clause out of
+   it.** One-argument fix; the precedent is fifteen lines below. Left for him: it changes gate evidence for eight
+   goals on a frozen surface.
+
+**Agent scorecard, final: 28 agents, 19 load-bearing claims verified adversarially, 8 REFUTED — and one refutation
+was of MY OWN measurement (the "no control case" universal).** The verification stage paid for itself twice.

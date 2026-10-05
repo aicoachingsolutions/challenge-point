@@ -340,28 +340,43 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
         const carried = rendered.instructions.some(i => i.from.some(f => f.includes(String(modifier.elementId))))
         if (!carried) continue
         /**
-         * **This no longer pretends to consult trigger semantics.** It used to read the semantics block and
-         * test `Object.keys(...).length > 0`, which is true merely because one entry exists — so the block was
-         * named but never consulted, and the check really only tested `satisfiedBy`. Corrected on his ruling of
-         * 4 October, scoped exactly as he asked and no further.
+         * **This no longer gates the finding on a field that cannot be authored.** On his ruling of 5 October,
+         * scoped to exactly that and no further.
          *
-         * A per-trigger lookup is not available here and saying so is the honest state: a value modifier's
-         * condition names no trigger at all — Wide Zone's is typed `region` — so there is no trigger whose
-         * semantics could be looked up. What the condition lacks is a criterion for what MEETS it, which is the
-         * held owner decision. This changes no verdict; it stops the check claiming a consultation it never made.
+         * It used to raise a VIOLATION whenever `modifier.condition.satisfiedBy` was `undefined`. Two things
+         * were wrong with that, and together they made the check unsatisfiable:
+         *
+         * 1. **`condition.satisfiedBy` has no register row.** The value-modifier rows are V7 (the collection),
+         *    V8a (`condition.type`), V8b (`condition.referents`), V9 (`magnitude`), V9a (`operation`) and V10
+         *    (`combination`). None carries a criterion, and no row anywhere in the register is named
+         *    `satisfiedBy`. So the only state that cleared this violation was one the invention check must
+         *    reject — it traces to nothing derived, chosen or instantiated. **No legitimate representation
+         *    satisfied both checks at once.**
+         * 2. Reading the field at all implied it would resolve the finding, which is the thing he asked to
+         *    stop. Presence in a grammar is evidence a concept is *sayable*, not that it is authorable here.
+         *
+         * **The finding itself is true and is preserved** — a coach genuinely cannot tell what meets the
+         * condition. What changes is its severity and its basis. It is a NOTE on exactly the ground the missing
+         * team size below is a NOTE: **the rendering is faithful.** It refuses to choose ball, player or touch,
+         * and the gap is in the GAME, which this checker reports rather than grades. `passed` tracks whether the
+         * rendering lost, invented, contradicted or obscured something of its own; it is not a claim that the
+         * game is coachable.
+         *
+         * **It is unconditional, and that is a statement about the representation rather than a missing test:**
+         * no row can carry a criterion for meeting a value-modifier condition, so no concrete game can
+         * establish one. The moment a register row exists for it, this must become conditional again — the test
+         * for this block pins that, so the next person is told rather than left to notice.
          */
-        const satisfied = modifier.condition?.satisfiedBy !== undefined
-        if (!satisfied) {
-            findings.push({
-                question: 5,
-                severity: 'VIOLATION',
-                what:
-                    `a coach is told that meeting the ${modifier.condition?.type ?? 'region'} condition changes the score, and nothing in the ` +
-                    `game establishes what MEETS it — no registered trigger semantics and no authored criterion. The scoring rule is ` +
-                    `complete and unusable: the consequence is established, the qualifying interaction is not, so a coach cannot tell ` +
-                    `when to award it. Rendering will not choose one.`,
-            })
-        }
+        findings.push({
+            question: 5,
+            severity: 'NOTE',
+            what:
+                `a coach is told that meeting the ${modifier.condition?.type ?? 'region'} condition changes the score, and nothing in the ` +
+                `game establishes what MEETS it. The scoring rule is complete and unusable: the consequence is established, the ` +
+                `qualifying interaction is not, so a coach cannot tell when to award it. Rendering will not choose one. No register ` +
+                `row carries a criterion for meeting a condition, so this cannot be closed by authoring — it needs a representational ` +
+                `decision the owner holds, and the rendering is faithful to the game as it stands.`,
+        })
     }
 
     // A coach needs team sizes to pick sides. This is a NOTE and not a VIOLATION because the rendering is

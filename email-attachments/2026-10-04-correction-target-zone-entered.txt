@@ -1,0 +1,79 @@
+Christian,
+
+A correction to the note I sent an hour ago, and it matters because it was the part I said would interest you
+most and the part my closing question rested on.
+
+**I overstated what `target_zone_entered` owns.** The last leg of the check landed after I had written to you,
+and it is right and I was wrong. The conclusion does not soften — it hardens — but the option I pointed you
+toward is not the clean one I implied.
+
+
+WHAT I GOT WRONG
+
+I told you the canonical definition is Controlled Wide Access "almost verbatim", and called it means
+unrestricted. Here it is again, and it refutes me on its own face:
+
+    "A player dribbles into a marked zone, or receives and controls the ball inside it."
+
+**It enumerates two means.** It does not leave means unrestricted — it names a dribble and a reception. Those
+are two items on your own non-claims list, so the definition *privileges* exactly what you said must not be
+privileged. And it excludes cases your meaning would admit: a loose ball won inside the zone, a deflection, the
+ball simply already being there.
+
+**And "controls" appears only in the second disjunct.** "Dribbles into a marked zone" carries no control
+requirement at all. So the event does not uniformly require control — which is the one term your meaning is
+built on.
+
+Two further things I should have checked before sending:
+
+- **The corpus has already graded what these definitions can carry into the representation.** An authored item
+  cites this exact vocabulary family as its basis, and its fitNote caps it: *"Only 'a reference is present' can
+  be held."* So the canonical ceiling on a scoring-event definition is the presence of a reference — not
+  control, not means, not a team.
+- **I cited generated coach text as evidence, which I should not have.** My line that it "even excludes
+  traversal — a long kick into the target zone does not count" came from generated activity prose. An authored
+  fitNote closes that route pre-emptively: *"The COACH_RULES wording 'controls it' is engine-only and is not
+  relied on."* Generation is not a source, and I know that.
+
+Also, as I noted but underweighted: its subject is **a player**, not a team; "a marked zone" is physical
+marking, not a represented region; and the representation consumes it only as the primary event's kind.
+
+
+WHAT THIS CHANGES
+
+**`target_zone_entered` is adjacent precedent, not ownership.** It is the clearest trap in the set, because its
+English reads like your sentence while its semantics do something else.
+
+So my closing question was mis-posed. I asked whether the Wide Zone advantage should be a way of scoring or a
+multiplier on a different score, and presented the scoring-event route as already owned, defined and approved.
+**It is not owned.** Choosing it would mean adopting a definition that privileges a dribble and a reception and
+requires control in only one of its two branches.
+
+**And the finding underneath gets stronger, not weaker: there is no owner anywhere for a means-unrestricted,
+how-agnostic control state.** Not at the strategic layer, where GP-006 is forward-looking by construction. Not
+in the Game Representation, where section 7 refuses both relata by name. And not in the sport module, where the
+one adjacent definition enumerates two means and only conditionally requires control.
+
+
+WHAT STANDS UNCHANGED
+
+Everything else in that note, and I have re-checked each one:
+
+- **Your logical form still passes.** A single-instant conjunction, no history, none of your four reconstructions
+  required. That remains real progress over the touch condition.
+- The three breaks stand: your own 2 October settlement of "controlled" and your stated preference not to rely
+  on the qualitative word; section 7's refusal to hold who has the ball now and in-play judgements, with the
+  measured absence of any possession key and any objects collection in the render-eligible game; and GP-006
+  being forward-looking.
+- Wide Zone's own authored exclusions still close three of the four team-and-region routes, including forbidding
+  access as a region function.
+- The measured contradiction between the fidelity check and the invention check still stands, and is still the
+  thing I would fix first.
+- The smallest carrier is still one criterion field on the modifier condition, with the same honest limit: it
+  would let a criterion be stated, not evaluated.
+- A04 unchanged: authorized, acceptance passed, render-eligible, 312 cases green.
+
+I would rather hand you this correction than let you weigh an authoring decision against a claim of mine that
+does not hold. Nothing implemented, magnitude held, A04 and generation frozen.
+
+Joe

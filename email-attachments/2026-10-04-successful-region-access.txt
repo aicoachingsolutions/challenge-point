@@ -1,0 +1,187 @@
+Christian,
+
+**Successful Region Access survives as a coherent football meaning, and it is the best-founded candidate yet.**
+It then breaks on the representation — but the breaks are mostly in your own authored knowledge rather than in
+engine limits, which makes them decidable rather than mysterious.
+
+One thing I want in front of you before anything else, because it is a football decision and not a
+representational one.
+
+Your nine return items are answered at the end.
+
+
+THE THING TO SETTLE FIRST: THIS REVERSES YOUR 2 OCTOBER TRAVERSAL RULING
+
+A ball that crosses the channel and is collected by a teammate beyond it satisfies the new meaning exactly —
+access occurred, the defending team did not take over. Your 2 October settled definition excludes it, because
+nothing touched the ball *inside* the channel.
+
+So the revision has not only removed the player grain, the control judgement and the remain-in-region
+requirement. **It has also made pure traversal-with-retention qualify**, which you previously ruled out. That
+may be what you intend — your danger-area example is about the attack reaching consequential space, and a ball
+played through to a teammate arguably does that. But it is a change, and I would rather you made it
+deliberately than inherited it from a rewording.
+
+
+WHAT IS GENUINELY GOOD ABOUT THIS VERSION
+
+**Your own authored source is already means-neutral, so none of your non-claims requires broadening anything.**
+The Wide Zone setup sentence reads *"Actions starting in or moving through the wide channel earn an
+advantage"*. The subject is **"Actions"** — not a pass, not a player, not a team. Nothing has to be stretched
+to accommodate a dribble, a recovery or a deflection.
+
+And `REGION_ENTRY` is genuinely means-neutral, verified rather than assumed: it has **no trigger-semantics
+entry at all**, the engine constructs it purely from the region classes, and the only two places that parse its
+parameterised form discard the argument. It is also subject-silent. So nothing in it privileges a means.
+
+That is a real improvement on the last two candidates, and it serves the ecological intent you stated.
+
+
+WHERE IT BREAKS
+
+**1. The access half is nearly owned, and falls short by one disjunct.** Your authored sentence has two —
+*"starting in or moving through"* — and an authored item has already graded what the token covers:
+`WIDEZONE-11.b` records that *"REGION_ENTRY holds 'moves through' only; 'starts in' has no trigger
+(VOCABULARY)"*. So of your five enumerated means, a **recovery of a ball already inside the area** is the one
+not covered: nothing crosses in during that possession. Small, but it is one of your own five, and it is yours
+to rule rather than the token's to decide by silence.
+
+I therefore grade `REGION_ENTRY` as **adjacent precedent, not ownership** — on the discipline you set, because
+an authored item has already said the token covers a proper subset of the knowledge.
+
+**2. The team conjunct is not merely unsupported — it is vacuous.** `ATTACKING_TEAM` is glossed as *"the team
+the possession relation currently holds"*. So "the access happens while the attacking team possesses" is true
+at **every** access, by construction. And the value modifier has no team field at all — the beneficiary field
+was deliberately removed. The conjunct carries no information and nothing could carry it.
+
+**3. The success half is blocked three ways, and the first is your own authored knowledge.**
+
+- **A possession change may not be tied to a region.** `GF4 / I07`, row T1c, AUTHORED, EXCLUSION: *"any region
+  qualifier (forbidden: the transition moment is not tied to a region)"*, from *"possession change at any
+  point"*. So "the defending team took over **through that access**" cannot be written as a region-qualified
+  possession change. No decision about when access resolves clears this; it is authored against.
+- **"The defending team takes over" has no field.** `awardedTo` is applicable only when play stops, and every
+  authored possession change in the corpus continues play — so that row is withdrawn as inapplicable.
+- **The representation cannot state the absence of an event at all.** The selector language has no negation,
+  and the negative constructs that exist — `NOT_EXISTS` and `EXCLUSION` — are evaluated over the element
+  classes a game **contains**, never over what **happens**. Probed three ways on the live game and it behaves
+  exactly as that description implies.
+
+**4. The elegant candidate is circular.** I tested "the access and the attack fall in the same episode", because
+it looked like it needed no new boundary decision — the boundary would be the possession change itself, which
+is precisely what you said not to invent.
+
+It does not work. *"Within the same episode"* asks whether a possession change occurred between the access and
+the end of the episode — but **the end of the episode is that possession change.** The predicate is vacuously
+true of every access, and your second case would be awarded the bonus. The variant that anchors on the score
+instead fails for a different reason: **a score itself begins a new episode**, so an access followed by a goal
+would fall outside "the same episode" and scoring would void the bonus.
+
+The only repair is to require something *after* the access and *before* the boundary — which is "a required
+subsequent action", explicitly one of your non-claims.
+
+
+SO: IS IT INHERENTLY TEMPORAL? YES
+
+The strongest non-temporal reading is that the access and the possession state are evaluated at the same
+moment. It fails your second case, and fails it for a reason internal to the representation rather than to
+football: possession moves **only** at a possession change, so at the instant the ball crosses, possession is
+still the attacking team's in **both** your cases. They are indistinguishable at a single instant and differ
+only in what follows.
+
+Your own wording carried the temporality all along and did not lose it in the revision — *"survives the
+access"*, *"through that attempted access"*, and 2 October's *"after which"*. What the revision removed was the
+player grain, the control judgement and the remain-in-region requirement. Not the time relation.
+
+**Canonical authority for *a* temporal relation exists**: exactly one entailing item, your 29 September
+pass-reveal ruling, which owns point-succession of an information reveal anchored to one named trigger. No
+interval, no second event, no non-occurrence. **Authority for *this* relation does not exist anywhere.**
+
+
+THE SMALLEST GAP — and it is smaller and better-located than the field you declined
+
+**A value modifier's condition cannot name an occurrence.** The referent row's registered type is already
+*"references to regions, objects **or events**"*, and the condition-type vocabulary already contains `event`.
+So the slot exists.
+
+What is missing is **identity for an event referent** — and the corpus shows exactly where the line falls.
+`GF4 / I15` authors an event-typed condition with the referents *"{regain, shot}, in the order regain then
+shot"*. Its own structural clause says: *"The referent set is structural. **The order … is not held.**"* So the
+representation can already **name** events in a modifier condition; it cannot **relate** them. Relating them is
+the whole of what Successful Region Access needs.
+
+And then, second, nothing can say two occurrences fall in the same episode: an episode exists only as a boolean
+on a transition, and the standing decision that defines episode boundaries says in terms that it *"defines
+boundaries only; entails no T1 element."*
+
+I am not proposing either. You asked for the gap and that is the gap, in the representation's own vocabulary.
+
+
+YOUR WIDE ZONE EXCLUSIONS DO NOT CONFLICT
+
+**None of the three contradicts the revised meaning, and none needs revising.** The one that looked dangerous is
+not: `WIDEZONE-08.a` forbids `access` as a member of a region's **functions** — and its own fitNote says what
+that means: *"Restricted, exclusive or entry-prohibited zone = an access function on the channel; forbidden."*
+That is access **control** — a zone players may be kept out of — which is the opposite of your meaning. Its
+evidence is *"Channels are reference markers — players can choose to use them or not."*
+
+The other two forbid a wide channel as a referent on the consequence row and on the primary-event condition row.
+The advantage lives on the value modifier instead, which is where your 2 October ruling put it, so neither is
+touched. **The meaning belongs exactly where it already is; what is missing is a row, not a permission.**
+
+
+THE CONTRADICTION YOU ASKED ABOUT — still present, and repairable without the field you declined
+
+Re-measured today, unchanged: the fidelity check reports a violation unless the modifier's condition carries a
+satisfaction criterion; that field has no register row; writing it in clears the violation and makes the
+invention check reject it. A04 passes acceptance and fails fidelity, and nothing satisfies both.
+
+**It should be repaired regardless, and it does not need the `criterion` field.** The finding itself is true and
+worth keeping — a coach genuinely cannot tell what meets that condition. The defect is only that its sole
+clearing condition is a field that can never be authored. So either the field gets a row, or the check stops
+implying one would close it. The second needs no authoring decision from you at all, and I would take it unless
+you say otherwise.
+
+
+ONE NEW DEFECT, AND ONE PATTERN
+
+**New defect, measured today rather than reasoned.** A04 — the one authorized, render-eligible game — contains
+exactly one transition, and it is keyed on a **possession change**. The engine's own reachability construction
+does not admit that trigger for this game, **because the game has no object in it at all, so there is no ball for
+possession to move between.** The triggers it does admit are the two touchlines, three region entries, a score,
+a standing state and the start. So the only transition in the game cannot fire.
+
+Neither gate notices: no failing check before realization, and it passes after. **No gate checks a transition's
+trigger for reachability at all** — the reachable set has exactly two readers, one on consequences and one on
+objective-set persistence, and they do opposite things with it (raise a problem; excuse a demand). A transition
+is checked by neither. Reported, not repaired; it joins the reachability issue you already hold.
+
+**And a pattern worth naming, because it is now five.** `fillableFrom`, `triggerQualifiers`,
+`condition.satisfiedBy`, the standing-decision selectors I repaired this morning, and the `BUILD_OUT_EPISODE`
+scope — all present in the register or the grammar, none read by any code. The episode scope is the newest: four
+items carry it and `scope` has behaviour for exactly one value, which is not that one. **That bears on how much
+weight "it already exists in the grammar" should carry as evidence of ownership — in this codebase, less than it
+looks.**
+
+
+THE NINE
+
+1. **Survives as a coherent canonical meaning?** Yes, and better-founded than its predecessors — but it reverses
+   your 2 October traversal ruling, which should be settled first.
+2. **Legitimate owners?** The region, outright. The value effect, outright. A region-parameterised occurrence
+   kind, as a constructed value. Not the acting team, and not the non-occurrence.
+3. **Genuinely new authoring?** The possession-survival clause itself; whether "starting in" counts; and whether
+   traversal-with-retention now qualifies.
+4. **Inherently temporal?** Yes. The single-instant reading is vacuous, not merely wrong.
+5. **Can the representation express that relation?** No. It can name events in a modifier condition and cannot
+   relate them, and it has no episode anything can refer to.
+6. **Do the exclusions conflict?** No, none, and none needs revising.
+7. **Smallest gap?** Identity for an event referent on the modifier condition, and then a way to say two
+   occurrences share an episode.
+8. **The contradiction?** Still present and unchanged; should be repaired regardless; does not need the field
+   you declined.
+9. **A04 and tests.** Authorized, acceptance passed, render-eligible. 321 cases green, exit code 0.
+
+Nothing implemented. Magnitude held, and the full held list unchanged. A04 and generation frozen.
+
+Joe

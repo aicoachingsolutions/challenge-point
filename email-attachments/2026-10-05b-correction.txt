@@ -1,0 +1,88 @@
+Christian,
+
+Three corrections to what I sent an hour ago. **None changes a conclusion or a recommendation**, but two of them
+were overstated in ways that could have pointed you at the wrong repair, and the third is a new defect that fell
+out of checking them.
+
+I owe you the cause as well: **I sent while one verification leg was still running.** I said so at the time, but
+saying so is not the same as waiting, and that leg is what produced corrections 1 and 2. The rule I should keep
+is the simpler one — don't send until it's finished.
+
+
+1 · THE EARLY RETURN IS INCIDENTAL, NOT CAUSAL — withdraw that bullet
+
+I wrote that `GA-TRIGGER-UNIQUE` *"passes vacuously"* because it returns early when there are fewer than two
+transitions, and that the code reading a transition's trigger sits after that return. Both facts are true. **The
+implication is not, and it is the dangerous part:** read as I wrote it, that bullet suggests removing the guard
+would restore the check. **It would not.**
+
+The value that code extracts is used in exactly one place — comparing **one transition's trigger to another
+transition's**, to decide whether a pair can meet. **`GA-TRIGGER-UNIQUE` never reads the reachable trigger set at
+all.** So if A04 had two transitions, the guard would not fire, that code would run, and POSSESSION_CHANGE would
+*still* not be tested for reachability.
+
+**The structural cause is the one I gave elsewhere in the report, and it stands unchanged:** the register declares
+no field row for a transition's trigger, so it never becomes a line, is never a checkable cell, and no gate could
+consult it even with every early return removed. Please read that as the whole explanation, and ignore the
+early-return bullet.
+
+
+2 · THE OBJECT DOES NOT REACH THE CONCRETE GAME — my sentence claimed more than I measured
+
+I wrote that flipping the basis made the object *"carry into the concrete game with its selector and position
+intact."* **I had only measured it as far as the resolved game.** Measured properly, through realization:
+
+    baseline, as authored          no object            realization proceeds
+    basis -> AUTHORED              objects key appears  realization REFUSED
+    basis AUTHORED + kind = ball   trigger REACHABLE    realization REFUSED
+
+**And the refusal is correct behaviour, not a loss.** Authoring the object opens new realization freedoms that
+nothing closes, and realization says so in terms: *"is open and was not chosen: a concrete game leaves no freedom
+unclosed."* Two freedoms open if the kind is left free — the object's kind and its across-position — and **one
+still opens when the selector fixes the kind to a ball**, because the across-position remains free.
+
+**The conclusion is unchanged and is actually better supported:** nothing *drops* the object. The pipeline forms
+it, assembles it, and then correctly refuses to realize an unclosed freedom. It is an authoring gap, not a
+projection loss.
+
+**And it sharpens your own instruction with a number.** You said not to simply add a ball. Adding one is not a
+one-line authoring act: it opens at least one realization choice that must also be closed, and the frozen choice
+set does not answer it. So the real cost of "author a ball" is an object item *plus* a position decision — on top
+of the knowledge decision about RC-19.
+
+
+3 · A NEW BOUNDED DEFECT, REPORTED NOT REPAIRED — a clause reports the wrong unit, and it defeats the one
+    counter that exists to catch it
+
+Found while checking correction 1, and it is a trust defect in gate evidence rather than trigger architecture.
+
+`GA-TRIGGER-UNIQUE`'s first clause is *"transition classes applying to one trigger are mutually compatible"* — its
+unit is **pairs**. On the normal path it correctly reports the number of pairs actually compared, so two
+transitions with different triggers yield zero and the clause honestly records that it found no applicable
+instance. **On the early-return path it reports the number of transitions instead.** With exactly one transition
+that is 1, and the basis rule is `instances > 0 ? EVALUATED : NO_APPLICABLE_INSTANCES`.
+
+**So the clause declares `EVALUATED, instances: 1` having compared nothing.** With zero transitions it happens to
+be right, because 0 maps to the correct basis. **It is wrong precisely when there is exactly one transition —
+which is every one of the eight affected goals.**
+
+The part that makes it worth your attention: the gate report carries a `clausesVacuous` tally that counts clauses
+passing on no applicable instance. **That tally exists to surface exactly this, and reporting the wrong unit is
+what keeps this clause out of it.** The correct value is a one-argument change, and the same function already does
+it correctly fifteen lines later.
+
+Not repaired. It is small and the precedent is in the same file, but it changes gate evidence for eight goals and
+you have that surface frozen, so it is yours to release.
+
+
+WHAT IS UNAFFECTED
+
+Everything else in the report holds as sent. The ownership trace (no ball entailed, declared NON_CLAIMED by both
+of A04's contracts), RC-19 being a stale run convention superseded by your SD-44 four days later while register
+row T1 and GF2-07.a still cite it, the single control case at A01 with "From Goal Kicks", the 18-of-33 blast
+radius, the two mutually exclusive repair directions, and the fidelity repair with its measured confirmation —
+all unchanged.
+
+Tests still 321, exit code 0. A04 untouched. Every hold respected.
+
+Joe

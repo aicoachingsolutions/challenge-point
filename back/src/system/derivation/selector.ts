@@ -99,6 +99,43 @@ export function parseSelector(selector: unknown, rowId: string, index: RegisterI
     return { predicate: { any: false, terms } }
 }
 
+/**
+ * Does a selector attribute hold of this class's own identity?
+ *
+ * `null` means the element's own selector does not fix the attribute at all, so the question cannot be
+ * decided from identity. Each caller decides what undecidable means for it, because the two callers want
+ * opposite things and both are right:
+ *
+ *   - **an applicability condition keeps the line.** An element whose trigger is unknown might well need the
+ *     qualifier, and withdrawing its line would hide a real gap behind an applicability rule. So the only
+ *     thing that rule can ever do is remove a line it can positively show does not belong.
+ *   - **a standing decision declines to apply.** A decision registered for `trigger=POSSESSION_CHANGE` must
+ *     not supply a value to an element whose trigger nobody can read — that would be inferring the narrowing
+ *     away. Fail rather than infer.
+ *
+ * `IN` is decidable only when every value the selector permits agrees, because a class that may be either an
+ * out-of-play trigger or a turnover is genuinely undetermined here.
+ *
+ * **Moved here from the engine on 4 October**, when the standing-decision repair needed the same question
+ * answered. It is selector semantics and belongs beside the parser; duplicating it in two layers is how this
+ * codebase previously ended up with two count readers that disagreed.
+ */
+export function selectorApplies(cls: { constraints: SelectorPredicate }, attribute: string, permitted: string[]): boolean | null {
+    const terms = cls.constraints.terms.filter(t => t.attribute === attribute)
+    if (!terms.length) return null
+    for (const term of terms) {
+        if (term.op === '=') return permitted.includes(term.value)
+        if (term.op === 'CONTAINS') return permitted.includes(term.value)
+        if (term.op === 'IN') {
+            const inside = term.values.filter(v => permitted.includes(v)).length
+            if (inside === term.values.length) return true
+            if (inside === 0) return false
+            return null // the selector straddles the boundary; identity does not decide it
+        }
+    }
+    return null
+}
+
 /** Canonical text for a predicate, so two identical selectors produce one class id. */
 export function predicateKey(predicate: SelectorPredicate): string {
     if (predicate.any) return '*'

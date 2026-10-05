@@ -1,0 +1,188 @@
+Christian,
+
+`COMPLETED_PASS` is implemented and reported separately — 312 cases green, exit code 0, A04 unchanged.
+
+**Controlled Wide Access does not survive**, and I am reporting the break rather than rescuing it, as you asked.
+But the break is informative in a way the last one was not: **the part you were most worried about actually
+passes**, and what kills it is your own settled definition plus two lines of the specification. One of those is
+your own contract forbidding the word in the name.
+
+Your seven return items are answered throughout and summarised at the end.
+
+
+FIRST, THE PART THAT PASSES — and you deserve to be told plainly
+
+**Your logical form is genuinely different from the touch condition, and it is sound.** "Team T has functional
+control of the ball within Region R" is a conjunction of three predicates over **one instant**. I tested each of
+the four things you listed and the state reading needs **none** of them: no prior touch, no completed pass, no
+possession before-or-after, no event sequence or history.
+
+**So the containment objection that killed the touch condition does not apply here.** You removed the
+two-moment relation and the removal worked. That is real progress and it narrows what remains.
+
+
+THE FIRST BREAK — your own ruling of 2 October, which this wording undoes
+
+On 2 October you settled what "controlled" means, and the criteria document records both halves:
+
+    "Controlled" means retained possession, observably. Not deliberate intent. His condition, exactly:
+        A touch within the channel after which the touching player's team retains possession.
+
+    And his preference about where it lives: "I would prefer the canonical representation to carry that
+    observable relationship rather than rely on the qualitative word controlled."
+
+**Controlled Wide Access relies on exactly that qualitative word**, and asks for it to be indifferent to how
+control arose and to what follows. Your settled definition is the opposite: it is constitutively a how-claim (a
+touch) and an after-claim (possession retained). So the new wording is not a restatement of the settled
+condition in state form — **it is a different concept, and it is the one you declined to rely on.**
+
+That matters more than any engine fact, so I want it first rather than buried.
+
+
+THE SECOND BREAK — the specification already refuses both relata, by name
+
+Section 7 of the Game Representation specification is headed **"Deliberately not held"**, and two of its entries
+are, verbatim:
+
+    - The state of a game in progress: which target is live now, who has the ball now.
+    - The coach's in-play judgement of a `FREE` condition (SD-15).
+
+**Your candidate asks for precisely those two, conjoined.** "Who has the ball now" is the possession half;
+"functional control" with the means unrestricted is an in-play judgement, which is why the one adjacent authored
+item — "controlled on arrival" — is `FREE` under SD-15 rather than structural. And section 1 states the boundary
+the whole representation is built on: *it describes the rules that govern state, never the state itself.*
+
+Measured on the frozen, render-eligible A04 game rather than argued: it carries **no `possession` key at all**,
+it carries **no `objects` collection at all** — there is no ball in the render-eligible game — and the two
+instantiated teams carry no identity, by your own 2 October removal of the static designations. So none of the
+three relata is available, and two of them are absent by design rather than by omission.
+
+
+THE THIRD BREAK — GP-006 cannot own a state indifferent to what follows
+
+Your reading of ownership was mostly right and I could not break it. But GP-006 fails one specific clause of
+your own candidate. Its canonical definition is:
+
+    "Create a functional performer–task object relationship that enables meaningful subsequent action."
+
+**It is forward-looking by construction.** A concept defined by what it enables next cannot own a state defined
+as indifferent to what happens afterward. And it is a *performer*–object relationship, not a team one, which is
+the representation you have excluded.
+
+So "functional control" has no owner that fits the meaning you want: the strategic layer owns a forward-looking
+performer relation, and the representation owns possession, which the ontology keeps separate.
+
+
+WHAT ACTUALLY OWNS EACH PART
+
+- **Region** — **OWNED, and already working.** Both channels are established, geometrically resolved
+  (`[0, 7.5]` and `[22.5, 30]` across, full length along), carried as typed referents on the modifier, and
+  measured as operationally participating on A04. This part needs nothing.
+- **Team** — **owned only at game level, with no second argument.** `possession.team` is the single possession
+  row among ninety, a game-level field with one value and nowhere to hang a region.
+- **Functional control** — **not owned anywhere that fits.** GP-006 owns it at the strategic layer, in the ATM
+  workbook, whose own metadata places it at affordance-target resolution — a selection-side resource. The
+  canonical Game Problem register carries no definitions at all, only ids and domains. The three-layer rule
+  therefore forbids reading it as representational authority.
+- **GP-005 Gain Access** — **does not own region access.** Its definition is *"Establish a functional
+  opportunity to interact with a task-relevant performer, object, target, pathway, or environmental feature"*. A
+  region is not in that list, and reading a wide channel in as an "environmental feature" is composing on
+  English compatibility, which you told me not to do. An opportunity to interact is also not
+  presence-with-the-ball-inside.
+- **`target_zone_entered`** — and this is the one that will interest you most. The canonical scoring-event
+  vocabulary defines it as:
+
+      "A player dribbles into a marked zone, or receives and controls the ball inside it."
+
+  **That is Controlled Wide Access, almost verbatim** — means unrestricted, a region, and control — and you
+  approved it on 13 September as one of four valid primary scoring events. Its activity text even excludes mere
+  traversal: *"a long kick into the target zone does not count"*, matching your 2 October ruling.
+
+  **But it owns the meaning as a SCORING EVENT, at the sport-module layer.** A04's primary event is
+  `line_crossed`, and the specification says a modifier *"changes only the primary event's value, never adds a
+  second way to score."* So the thing that owns your meaning owns it in the one role Wide Zone's modifier may
+  not take. That is the cleanest statement of the mismatch, and it is a structural fact rather than a judgement.
+- **The ontology keeps control and possession apart** at its own top level: Functional Object Control and Access
+  are separate canonical relationship domains, with separate Game Problems, and possession is separate again.
+  So your composition really is a composition of two concepts, as you suspected.
+
+
+AND YOUR OWN CONTRACT FORBIDS THE WORD IN THE NAME
+
+Three of the four routes by which an existing element could co-hold a team and a region are closed by Wide
+Zone's **own authored exclusions**:
+
+    WIDEZONE-08.a   S4    EXCLUSION, AUTHORED   "access (forbidden as a member of functions)"
+    WIDEZONE-08.b   V14b  EXCLUSION, AUTHORED   "a wide channel of this contract (forbidden region referent)"
+    WIDEZONE-08.c   V5    EXCLUSION, AUTHORED   "a wide channel of this contract (forbidden referent)"
+
+So the contract forbids `access` as a region function, and forbids a wide channel as a consequence referent and
+as a primary-event-condition referent. I note without pressing it that the candidate is named **Controlled Wide
+Access**. These are the strongest evidence for your own classification: the composition is not merely
+unauthorized, it is authored against.
+
+
+THE SMALLEST CARRIER, IF YOU WANT ONE — and it has motivation independent of Wide Zone
+
+If you do proceed, the missing piece is **one field row**, and it closes a structural asymmetry rather than
+adding a concept.
+
+The primary-event condition has **three** parts — type, referents, and a criterion holding "a threshold, a
+count, or a qualitative term". The modifier condition has only **two** — type and referents. **There is no row
+for what counts as meeting a modifier's condition.** That is the gap, and its precedent is the criterion row
+that already exists one area over.
+
+**It has independent motivation, and I measured it: two live checks currently contradict each other.** The
+rendering-fidelity Q5 check reports a violation unless the modifier's condition carries a satisfaction
+criterion — "nothing in the game establishes what MEETS it". That field has no register row, is set by no item,
+and its name is already used for two unrelated mechanisms. I wrote it in: **Q5 clears, and the invention check
+then rejects it as tracing to nothing derived, chosen or entailed.** So A04 today passes acceptance and fails
+Q5, and the only thing that fixes Q5 breaks acceptance. **There is no state in which both pass.**
+
+**The honest limit on that carrier:** it would let the criterion be *stated*. It would not make it
+*evaluable* — a qualitative control criterion remains an in-play judgement, which section 7 deliberately does
+not hold. So the carrier closes the check contradiction and does not, by itself, make Controlled Wide Access
+determinable.
+
+
+NEW GAPS
+
+1. **The Q5 / invention-check contradiction above.** Independent of Wide Zone, and I would call it the more
+   urgent of the two open defects because it means a passing A04 and a passing fidelity report are currently
+   mutually exclusive.
+2. **There is no ball in the render-eligible A04 game** — no `objects` collection at all. Any condition
+   mentioning the ball is unevaluable for that reason alone, before control is considered.
+3. The standing-decision selector defect from this afternoon remains open and unrepaired.
+
+
+YOUR SEVEN RETURN ITEMS
+
+1. **`COMPLETED_PASS`** — implemented, bounded, 312 green, exit 0; registering it changed no verdict anywhere,
+   proved by removing it; the trigger row your 29 September ruling needs is still unauthored and closing it is
+   an authoring act.
+2. **Does Controlled Wide Access survive?** **No.** Its logical form passes — single instant, no history — and
+   it breaks on your settled definition of "controlled", on section 7's refusal to hold who has the ball and
+   in-play judgements, and on GP-006 being forward-looking.
+3. **What owns each part** — region: owned and working. Team: owned at game level, no second argument.
+   Functional control: strategic layer only, and by a definition that does not fit. Region access: not owned by
+   GP-005. The whole meaning: owned by `target_zone_entered`, as a scoring event.
+4. **Can the representation express it?** No — and two of the three relata are absent by design.
+5. **Smallest carrier** — one criterion field on the modifier condition, mirroring the primary-event condition's
+   third part. Independently motivated by the check contradiction. Does not make the condition evaluable.
+6. **New gaps** — the three above.
+7. **A04** — resolved game yes, authorized yes, acceptance passed, render-eligible yes, 312 cases green, and the
+   single fidelity violation is the one described above.
+
+
+WHAT I WOULD PUT TO YOU
+
+The meaning you want is already canonical — as a **scoring event**. The question that now looks decisive is
+structural rather than representational: **should the Wide Zone advantage be a way of scoring, or a multiplier on
+a different score?** As a scoring event it is owned, defined, approved, and excludes traversal already. As a
+modifier condition it needs a state the specification deliberately does not hold.
+
+I have implemented nothing for it, per your guardrail. Magnitude held, no generic contact, no latest-contact
+relation, no player representation, no event history, no scoring-eligibility work, no broader trigger cleanup.
+A04 and generation frozen.
+
+Joe
