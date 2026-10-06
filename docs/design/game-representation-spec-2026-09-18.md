@@ -225,8 +225,20 @@ coach language can describe that game but cannot create additional structure."
 
 ## 1. Governing rules
 
-**The boundary.** The representation holds what a coach lays out and what the rules key on. It holds
-nothing about:
+**The boundary — RATIFIED as an owner ruling, Christian, 6 October 2026.** Until now this paragraph was the
+specification's own prose: it carried no evidence key and no standing-decision id, and it had been relied on and
+cited as the boundary for weeks without ever having been ruled. It is now his, in his words:
+
+> The Game Representation contains what a coach lays out and what the rules key on. It represents the rules
+> governing game state, not the evolving state of the game itself.
+>
+> Accordingly: the ball belongs in the resolved representation when game rules key on it. Its live position does
+> not, because that position is game state rather than game structure.
+
+He asked that this formulation be used in preference to his earlier "dynamic object" language, so it is the one
+cited from here on.
+
+The representation therefore holds nothing about:
 - player movement, tactics, or positions during play;
 - pressure, opportunity, affordance, uncertainty or representativeness;
 - the state of a game in progress.
@@ -582,7 +594,7 @@ MP-COACH-SERVER).
 
 | Field | Why | Owner | Claim |
 |---|---|---|---|
-| `objects[] {id, kind, count, position}` — kinds: ball, goal, line, gate (draft) | [CA] 0 of 60 activities contain a goal while goalkeepers remain; [VS] RPC-001-08 requires exactly one scoring reference; RPC-001-10 a contested ball; VARTARGET-02 requires inactive candidates to stay present | SELECTION; REALIZATION for position within bounds | Every object referenced by a rule, transition or objective exists and is positioned inside `area`; every scoring reference (zone, line, gate) has a Space position and extent that fit |
+| `objects[] {id, kind, count, position}` — kinds: ball, goal, line, gate (draft) | [CA] 0 of 60 activities contain a goal while goalkeepers remain; [VS] RPC-001-08 requires exactly one scoring reference; RPC-001-10 a contested ball; VARTARGET-02 requires inactive candidates to stay present | SELECTION; REALIZATION for position within bounds | Every object referenced by a rule, transition or objective exists. An object whose location is a feature of the layout is positioned inside `area`. Every scoring reference (zone, line, gate) has a Space position and extent that fit. **Amended 6 October on his owner ruling** (§1): a position is game structure only where the layout fixes it, so an object whose live location is game state carries none, and its absence is not a gap. Stated generally over layout-versus-state; there is no exception for any one kind. Traced before amending: the previous clause was **not** load-bearing — `GA-ENVELOPE-FIT`, `GA-LAYOUT-FEASIBLE` and `GA-ONE-PRIMARY-EVENT` return byte-identical verdicts with the position withdrawn and with it open, because all three already defer while this corpus authors placements as prose. The dependency is masked rather than absent: `GA-ENVELOPE-FIT` does treat an unreadable placement as a reason to defer, so it will respond to a withdrawn position once prose placements are resolved |
 
 ### 5.5 Objectives
 

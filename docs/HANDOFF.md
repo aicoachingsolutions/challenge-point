@@ -6104,3 +6104,80 @@ because SD-44 turned a tolerated silence into an unmet prerequisite.**
 
 **Audit scorecard: 30 agents, 25 load-bearing claims checked, 24 REFUTED.** Highest rate yet — mostly agents
 over-reading design prose as governing rule, which is the same error I made. The stage earned its cost twice.
+
+---
+
+## 6 October (later) — his 4-item order: ruling recorded, carrier sweep, §5.4 amended, PS1 traced
+
+### 0 · I MIS-STATED SD-44 IN WRITING, and his suspicion was right
+My RC-19 rewrite of 5 October put the possession-change prerequisite as *"opposing teams and a ball object"*.
+**SD-44's own row (`spec:336`, evidence key [C22]) says: *"turnover when opposing teams and the relevant possession
+relationship exist"*.* The RELATIONSHIP is the prerequisite; the ball is a prerequisite OF the relationship. His
+5 Oct wording agrees — *"the prerequisites for that relationship"*. **Chain: trigger -> relationship -> ball. I
+collapsed it to trigger -> ball.** Consequence: the engine checks the deepest term and never checks the named one.
+
+### 1 · THE BOUNDARY RULING RECORDED
+Spec §1 now carries it as his, attributed and dated, replacing the unattributed prose — with a note that it had
+been cited as the boundary for weeks unratified. The `applicability.O4/O5` text restated to cite this formulation
+instead of the withdrawn "dynamic object" language.
+
+### 2 · BOUNDED CARRIER SWEEP — 33 goal x situation cases. The ball is the ONLY required sport-level carrier.
+    ALREADY SUPPLIED: START/STANDING (by construction) · OUT_END_LINE/OUT_TOUCHLINE (SESSION envelope, 19 cases)
+                      REGION_ENTRY (SELECTION, 16) · POSSESSION_CHANGE satisfied in 1 case (the authored ball)
+    NEEDS A CARRIER:  POSSESSION_CHANGE — 18 cases
+    NOT CONSTRUCTIBLE AT ALL (held): COMPLETED_PASS — 15 cases
+SCORE, TIME_EXPIRY, FIRST_FORWARD_PASS are keyed on by **nothing** in the operative form.
+- **THE SCANNER SCARE THAT WAS A FINDING: the loader REWRITES selectors.** A01-02's authored
+  `restart=GOAL_KICK & trigger ∈ {SCORE, OUT_END_LINE, …}` loads as the concrete
+  `trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM`, carrying
+  `goalKickTriggerSource`: *"Christian, 2026-09-26: the goal kick is 'the state in which the ball leaves play over
+  the defending team's goal line, having last been touched by an attacking player, without a goal being scored'."*
+  **A constitutive soccer fact supplied as an OWNER RULING to make an activity's rule expressible — the same move
+  now under discussion, already made once.** And `BASES` includes `OWNER_RULING`, which `establishesExistence`
+  admits, so an owner ruling CAN establish an element **provided it arrives as an item on a contract** (17 uses).
+
+### 3 · §5.4 — NOT load-bearing (MEASURED), amended with the dependencies recorded
+With the ball position withdrawn vs the entry stripped in memory, **GA-ENVELOPE-FIT, GA-LAYOUT-FEASIBLE and
+GA-ONE-PRIMARY-EVENT return IDENTICAL verdicts** on the corpus and on A01+A01-02. Only GA-NO-FAILED-LINE's
+denominator moves, 58 -> 60. Adopted his wording, third conjunct preserved, **no exception for any kind**.
+- **BUT TWO GATES DO REQUIRE A POSITION, and that is now in the amended cell:**
+  - `GA-ONE-PRIMARY-EVENT` position clause: `unpositioned.length ? fail(POSITION, …)` — **FAILS** on an
+    unpositioned referent. Would bite if a ball were ever a primary-event referent.
+  - `GA-DIRECTION` needs a DERIVED along-interval to decide an object's end. **Known first-hand: my positive-list
+    polarity bug withdrew `goalA`'s position and GA-DIRECTION went NOT_EVALUABLE.** That is how it was caught.
+  - `GA-ENVELOPE-FIT` treats an unreadable placement as a reason to DEFER, so it will respond to a withdrawn
+    position once this corpus stops authoring placements as prose. **Masked, not absent.**
+- **DEFECT found in passing, reported not repaired:** GA-ONE-PRIMARY-EVENT tests a referent's identity one way
+  (accepting a typed structural reference) and resolves it another (by class id, which a typed reference is not).
+  **A typed reference passes identity then fails to resolve.** Same shape as the filter that could never match.
+
+### 4 · PS1 TRACE — and a ball alone is NOT sufficient
+- **Intended as the HOLDER of a relation the corpus already named.** `possessionNote`: *"the corpus named the
+  states of this relation before anything could hold one. PS1 is what holds it."* The proposal:
+  *"There is no field, on any row, for which team has the ball."*
+- **Nothing was in a position to establish it.** PS1 was added 3 October, AFTER all eight contracts were restated
+  against a register without that row. 860 declaration reaches over 81 distinct rows, **zero on PS1**; zero items.
+  Reason "no coverage" = the engine's term for *nobody looked*. The adding commit recorded the cost:
+  *"NOT_AUTHORED 24 -> 25, both PS1."*
+- **AND IT IS NOT SPECIAL TO PS1 — this is the bigger finding.** All eight contracts declare one identical FROZEN
+  roster of **81 rows**; the register now carries **90**. **So some rows structurally cannot be covered.** PS1 is
+  one of them, not a one-off.
+- **Does POSSESSION_CHANGE require it? YES, by SD-44's own text** (see item 0).
+- **Why the ball and not the relation?** `constructTriggers` keys on opposing teams + a ball-kinded object and
+  **never reads PS1**. So a game can hold the carrier, reach the trigger, realize cleanly, and still not hold the
+  relation the trigger exists to change — which is exactly what A01+A01-02 does.
+- **MEASURED why PS1 is not even OPEN:** it fails the game-level existence gate in `derive.ts` — a game-level row
+  is openable only if the session sources it or something has *addressed* it; PS1 is neither. **So the obstacle is
+  unaddressed EXISTENCE, not a missing choice space.** Threshold worth knowing: **a single BOUNDS-ONLY
+  contribution would make the line OPEN** (SD-R2's "which team starts can remain a permitted free choice" becomes
+  expressible); an AUTHORED+REQUIRED one would resolve it.
+- **PROVENANCE DEFECT: PS1's note cites SD-R2, a RETIRED non-authority** (explicitly "not citable"). The
+  structurally identical row T2 was corrected away from that exact citation and carries `fillableAuthority: SD-39`.
+  **PS1 carries no authority field at all.** No code reads it; same stale citation, newer row.
+- **RECOMMENDATION, not implemented:** a second named clause on `GA-TRIGGER-REACHABLE` — where a transition is
+  keyed POSSESSION_CHANGE, the possession relation must be RESOLVED or OPEN. Not in `constructTriggers` (the
+  trigger set is built before anything resolves). **Not made because it fails a currently-green check and would
+  mean a ball alone no longer makes A04 realizable** — right if SD-44 means what it says, and his call.
+
+**Verification: 14 agents, 12 load-bearing claims checked, 9 REFUTED.** Including one that corrected my own
+"nothing could have established PS1" into the sharper frozen-roster finding.
