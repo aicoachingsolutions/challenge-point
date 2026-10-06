@@ -6006,3 +6006,101 @@ class silently).
 of them found genuine defects in my own work (the positive-list polarity, and this understated fixture). None was
 a stale test. Each is updated with its reason in the file, and two assertions are now strictly stronger than what
 they replaced.
+
+---
+
+## 6 October — THE SPORT-ENVIRONMENT BOUNDARY AUDIT. Investigation only; nothing implemented.
+
+He HELD the sport-level ball authoring and asked a question one level up: what is the intended relationship
+between the inherent performance environment of soccer and the resolved Game Representation? Seven questions, nine
+return items, explicit "do not fix / do not amend / do not create a layer".
+
+### THE SPEC STATES ITS OWN BOUNDARY — at §1, in the words he remembered
+`game-representation-spec-2026-09-18.md:228` under the heading **"The boundary"**:
+> *"The representation holds **what a coach lays out and what the rules key on**. It holds nothing about: player
+> movement, tactics, or positions during play; pressure, opportunity, affordance, uncertainty or
+> representativeness; **the state of a game in progress**. **It describes the rules that govern state, never the
+> state itself.**"*
+And §7 "Deliberately not held" names our case: *"The state of a game in progress: which target is live now,
+**who has the ball now**."*
+
+### SO "DYNAMICALLY STATEFUL" IS THE WRONG JUSTIFICATION — his hypothesis needed correcting, not confirming
+Arguing for the ball because *its state changes* argues from the EXCLUDED side of the boundary. **The distinction
+the architecture actually holds is `initial value + the rule that governs it`, and PS1 is the precedent — his
+own, 2 October:** *"WHAT IT IS: a team-valued current state. Its **INITIAL** value is a governed realization
+choice ... POSSESSION_CHANGE changes that state."* That is §1 applied exactly. Read that way **his
+`notIn:["ball"]` ruling IS the boundary, not an exception to it** — the ball is present because rules key on it,
+its position is absent because position during play is state. §1.9's refusal of a dynamic location is the same
+principle a third time.
+
+### THE ENVIRONMENT OWNER EXISTED, IT WAS RC-19, AND MY OWN SD-44 ENFORCEMENT REMOVED IT
+**Five contracts explicitly decline to author trigger existence, citing RC-19 by name:** GF2 (*"Existence of other
+transitions never examined (START, SCORE and out-of-play exist by construction, RC-19)"*), GF4 (*"Out-of-play
+elements exist by construction"*), RPC-001 (*"No item is on the trigger collection"*), PCG (*"Reset triggers exist
+by construction"*), Neutral (*"Exists by construction"*). **And NO corpus item authors an out-of-play trigger's
+existence** — the 8 items mentioning OUT_END_LINE/OUT_TOUCHLINE are all about FIELDS of such a transition, three
+of them ENGINE_ONLY.
+**So RC-19 was the de facto owner of constitutive sport semantics for triggers** — a run convention of ours, not
+his ruling. SD-44 superseded it. For out-of-play the prerequisite is a bounded area and the SESSION supplies it;
+for POSSESSION_CHANGE the prerequisite is an OBJECT and nothing but selection can supply one. **The ball failure
+is the first visible casualty of removing the environment mechanism without replacing it.**
+
+### §6 / SD-17 IS THE PRECEDENT FOR WHAT TO DO INSTEAD — and the asymmetry is DELIBERATE
+`spec:740`, §6 "The contribution contract — outside the representation": *"every structural property that a
+session emphasis or slot template requires: it enters as a **SELECTION item under its own contract (SD-17), with
+no separate route into the game or its language**."* Same shape as ours, already ruled for an analogous source.
+**So the absence of a channel by which the sport can push a fact into a game is the design, not a gap.**
+
+### THE CORPUS ALREADY DRAWS HIS BOUNDARY — every T1 existence claim is on POSSESSION_CHANGE
+`GF2-07.a`, `NEUTRAL-12.a`, GF4's `I06` (+ `A01-02-01.a` on a `restart=GOAL_KICK` selector the ledger flags as
+unregistered). **Nothing authors START, SCORE or out-of-play.** The activities establish the transition their
+rules key on and leave the environmental ones to the sport. **So the slippery slope does not follow, and the test
+is already in use: "do the rules key on it?"**
+
+### SECOND-ORDER FINDING: THE POSSESSION RELATION IS ESTABLISHED NOWHERE
+**PS1 is `NOT_AUTHORED` / "no coverage" in A04, in the A01+A01-02 control that HAS a ball and a reachable trigger,
+and in the full corpus. NO contract declares or claims PS1 at all.** Its `fillableFrom: performers.teams[]` is one
+of the registered-but-unconsumed constructs. **So a ball restores the trigger's reachability but leaves the
+relation that trigger governs unestablished — and nothing blocks on it**, which is why the probe realized with
+acceptance 0/0/0. **"A04 is realizable" and "possession is coherently represented" are different states.**
+
+### A04 CLASSIFICATION (his five options)
+**Failure to propagate an inherent sport invariant**, caused by **an overly narrow support model** — both, in that
+order. NOT missing canonical knowledge (five contracts' own notes show the corpus deliberately not authoring facts
+of that kind). NOT an incorrect reachability prerequisite (a possession change genuinely presupposes a ball; and
+the PS1 alternative does not rescue the check, because PS1 is unestablished everywhere too).
+
+### THREE CORRECTIONS the verification stage forced, two of them to my own draft
+1. **I called §1's "what a coach lays out and what the rules key on" the specification's authoritative boundary.
+   IT IS OUR PROSE.** It appears once, with **no [C..] evidence key, no SD id, no attribution**. His recorded
+   statement is a different sentence at `spec:185-187`, explicitly *"The boundary, in Christian's words (18
+   September)"*: *"the authoritative game contains supported resolved facts in the eight areas; Gate A and both
+   directions of Gate B pass before rendering; and coach language can describe that game but cannot create
+   additional structure."* That is **support and closure — it says nothing about the sport or about scope.**
+   **So the boundary everyone has been citing is unratified, and this is the SECOND instance in one audit of our
+   own prose being treated as his authority. RC-19 was the first.**
+2. **AN INTENDED OWNER IS NAMED IN AUTHORED KNOWLEDGE AND WAS NEVER BUILT.**
+   `game-archetype-workbook.rc1.1.json:32` — `"Sport_Profile_Rule": "Detailed sport-specific logic is excluded and
+   must inherit through separate Sport Profile resources."` **That phrase occurs in exactly ONE file in the repo.**
+   Not absent-and-unnamed but **named-and-unbuilt**, a different situation and his to rule on.
+   - **And the same workbook authors the other half:** GF2-07.a's basisEvidence is GA-001
+     *"Shared, adaptive, generally simultaneous access with reciprocal influence."* **One artefact authors the
+     interaction structure and disclaims the sport-specific carrier. The ball is precisely the half it hands off.**
+3. **PSD-03: HE ALREADY ASKED THIS AND DEFERRED IT.** `spec:391-400`, his words: *"I don't think its proper owner
+   is a Game Form or a founder-created Game Representation default. Treat the missing source as visible for now
+   rather than solving its ontology during this check"*, *"Game Forms shouldn't have to duplicate ordinary
+   soccer-state behavior simply to produce a playable game"*, *"Please don't turn that observation into a new
+   library or architectural layer during this step."* §11 still lists it open. **His present instinct is the same
+   instinct.** The marker `OUT_OF_PLAY_SOURCE_MISSING` exists in the conformance artefacts and in **zero source
+   files** — the 8th registered-and-unconsumed construct.
+
+### A CLASSIFICATION I TESTED AND REJECTED rather than adopting
+A verifier proposed "a lost structural presupposition in a restatement": GF2-07.a's fitNote says it re-expressed
+`CHANGES_ON objects[].owner` *"without loss"*, so the object looked like it went out with the row. **Checked GF2's
+ORIGINAL source in the soccer module workbook: ZERO GF2-related objects mention a ball.** Nothing was lost — the
+ball was never in GF2's knowledge. **The note is accurate.** Sharper accusations still have to be true.
+**Final classification stands: PSD-03's deferred ownership question becoming load-bearing for the first time,
+because SD-44 turned a tolerated silence into an unmet prerequisite.**
+
+**Audit scorecard: 30 agents, 25 load-bearing claims checked, 24 REFUTED.** Highest rate yet — mostly agents
+over-reading design prose as governing rule, which is the same error I made. The stage earned its cost twice.
