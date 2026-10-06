@@ -170,18 +170,19 @@ test('no learning goal carries an unreadable claim, so no goal outcome changes',
 })
 
 /**
- * **This used to assert `realizationAuthorized === true` as its proxy for "A04 is unaffected", and that
- * assertion is now false for a reason that has nothing to do with cardinality.** On his ruling of 5 October
- * A04 fails `GA-TRIGGER-REACHABLE`: its only transition is keyed on POSSESSION_CHANGE and the game establishes
- * no ball, so the trigger is not structurally reachable and realization is correctly withheld. He directed that
- * the failure stay visible and that A04 not be patched to recover eligibility.
+ * **The assertion here has moved twice, and the current form is the strongest of the three.**
  *
- * The subject of this test is cardinality, so it keeps the claims that are actually about cardinality and
- * replaces the proxy with something stronger: authorization is withheld **only** by the reachability check.
- * If a cardinality change ever breaks A04, that list grows and this still catches it — which the old
- * blanket assertion would no longer have been able to do.
+ * It began as `realizationAuthorized === true`, used as a proxy for "A04 is unaffected by the cardinality
+ * work". The 5 October reachability ruling made that proxy false for a reason with nothing to do with
+ * cardinality, so it was replaced by a tighter claim: reachability is the ONLY check with a failing clause.
+ * The Soccer Sport Profile of 6 October satisfies reachability, so A04 now has no failing clause at all.
+ *
+ * Asserting the empty list keeps the property this test actually exists to protect — if a cardinality change
+ * ever breaks A04, a check appears in that list and this fails naming it — while no longer carrying a
+ * permitted exception that would have to be maintained every time an unrelated ruling lands. An empty list
+ * is also the only form that cannot quietly grow a second entry.
  */
-test('A04 carries only readable counts, and nothing cardinality-related is what blocks it', () => {
+test('A04 carries only readable counts, and nothing blocks it', () => {
     const { resolved, result } = resolvedFor(derivationInputFor(selectFor('A04', null)))
     for (const claim of resolved.existential as any[]) {
         assert.equal(claim.cardinalityUnreadable, false, `${claim.classId} must have a readable count`)
@@ -191,7 +192,7 @@ test('A04 carries only readable counts, and nothing cardinality-related is what 
         .filter((c: any) => c.clauses.some((l: any) => l.verdict === 'FAIL'))
         .map((c: any) => c.checkId)
         .sort()
-    assert.deepEqual(failing, ['GA-TRIGGER-REACHABLE'], `only the reachability ruling may block A04; got ${failing.join(', ') || 'nothing'}`)
+    assert.deepEqual(failing, [], `no check may block A04; ${failing.join(', ') || 'none'} does`)
 })
 
 // ── And the display layer must not re-derive the inference the engine refused ──────────────────────

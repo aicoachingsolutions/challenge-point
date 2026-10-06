@@ -437,22 +437,40 @@ test('a choice licenses the member it names, at the value it names — not the f
 //   > *Once the teams are instantiated and independently referable, `possession.team` may refer to one of
 //   > those handles where possession itself is established.*
 //
-// On A04 possession stays UNESTABLISHED — nothing in its selected knowledge addresses PS1, so there is no
-// holder and none is invented. What the handles change is that the choice space is no longer empty: a value
-// for PS1 now has something to BE. That is what this asserts, and it asserts the separation he drew —
-// existence, then referential identity, then represented relationships — by checking that identity alone
-// establishes nothing about possession.
-test('possession can reference an instantiated team, and identity alone establishes no possession', () => {
+// Written while A04's possession was UNESTABLISHED, and asserted then that the game held no possession at all.
+// The Soccer Sport Profile of 6 October establishes the relationship — as a bounds-only contribution, so PS1 is
+// an authorized open choice — and realization now supplies a holder. The answer to his question is therefore
+// yes, and the test asserts the separation he drew rather than the state it happened to find:
+//
+//   existence (the claim) → referential identity (the handles) → the represented relationship (PS1)
+//
+// Each step is a different source, and that is what makes the third one checkable. Identity contributes the
+// REFERENTS and nothing else: the reference itself comes from authorized knowledge establishing the relation
+// and a recorded realization choice filling it. So the assertion is no longer "there is no possession" but
+// "nothing identity produced claims any".
+test('possession references an instantiated team, and identity alone establishes none of it', () => {
     const { realized } = chain()
     const teams = teamsOf(realized)
     const handles = teams.map(t => String(t.elementId))
     assert.equal(handles.length, 2, 'two referable teams exist')
 
-    // Identity does not establish the relationship: the game holds no possession at all.
-    assert.equal((realized.game as any).possession, undefined, 'identity establishes no possession — the third step is separate')
+    // The relationship IS established now, and its value is one of the handles identity minted.
+    const holder = (realized.game as any).possession?.team
+    assert.ok(handles.includes(holder), `the holder must be one of this game's own teams; got ${JSON.stringify(holder)}`)
 
-    // And a reference, once established, resolves to exactly ONE team. This is the capability that did not
-    // exist before: the choice space for PS1 was empty because nothing individuated a team to choose.
+    // But identity did not put it there. It arrived as a recorded CHOICE against PS1, under SD-39's authority,
+    // and no instantiation record says anything about possession — which is the separation his three steps draw.
+    const choice = realized.record.choices.find(c => c.lineId === 'game::PS1')
+    assert.ok(choice, 'the holder is a realization choice, not a derived value')
+    assert.equal(choice!.value, holder, 'and the game carries exactly what was chosen')
+    assert.equal(choice!.authority, 'SD-39', 'on the authority for an open property, not on the handle')
+    assert.ok(
+        !JSON.stringify(realized.record.instantiations).includes('possession'),
+        'instantiating a team must assert nothing about who holds the ball',
+    )
+
+    // And a reference resolves to exactly ONE team. This is the capability that did not exist before: the
+    // choice space for PS1 was empty because nothing individuated a team to choose.
     for (const handle of handles) {
         const matched = teams.filter(t => t.elementId === handle)
         assert.equal(matched.length, 1, `the handle ${handle} resolves to exactly one team`)

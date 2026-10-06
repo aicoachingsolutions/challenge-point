@@ -641,6 +641,41 @@ export function realize(
         if (parts.leaf) place(element, parts.leaf, choice.value)
     }
 
+    /**
+     * **The same refusal, on the VALUE side — added 6 October after it caught a live defect.**
+     *
+     * The loop above refuses a choice whose *path* names an element the game does not hold. A choice whose
+     * *value* names one was unchecked, and that gap was not hypothetical: the initial possession holder had been
+     * recorded as `…GF2-14.a#0` while this function mints handles from 1, so the one realized game on the pilot
+     * path carried a reference to a team that does not exist. Three things had to line up for it to pass —
+     * PS1's bound is qualitative, so `boundCheck` is `UNVERIFIABLE_QUALITATIVE_BOUND` and nothing compared the
+     * value to anything; no consumer reads `possession.team` yet, so nothing downstream tripped over it; and the
+     * acceptance account reported nothing lost and nothing invented, because a dangling reference is neither.
+     *
+     * **An unverifiable bound means the TERM cannot be checked. It does not mean any string will do.**
+     *
+     * The test is deliberately narrow, so that it guesses at nothing. It fires only where the value is
+     * `<classId>#<digits>` for a class *this realization instantiated* — which is `memberHandle`'s own output
+     * for a claim whose members were just minted here — and that exact handle is not among the ones minted.
+     * Ordinary prose containing a hash is untouched, and a reference to an established element is untouched,
+     * because neither names a class whose members this run produced.
+     */
+    const mintedHandles = new Set(recordedInstantiations.map(i => String(i.handle)).filter(Boolean))
+    const mintedClasses = new Set(recordedInstantiations.map(i => String(i.classId)))
+    for (const choice of recorded) {
+        const value = choice.value
+        if (typeof value !== 'string' || mintedHandles.has(value)) continue
+        const hash = value.lastIndexOf('#')
+        if (hash < 1 || !/^\d+$/.test(value.slice(hash + 1)) || !mintedClasses.has(value.slice(0, hash))) continue
+        return {
+            outcome: 'REFUSED',
+            because: [
+                `${choice.lineId}: the chosen value ${value} names no member of this game. ` +
+                    `${value.slice(0, hash)} holds ${[...mintedHandles].sort().join(', ') || 'no members'}`,
+            ],
+        }
+    }
+
     // Instantiate every authored spatial relation the concrete game now holds, derived AND chosen
     // alike, against the envelope. The prose stays as the value; the metres sit beside it as
     // `realizedGeometry`, carrying the phrase as their own authority.

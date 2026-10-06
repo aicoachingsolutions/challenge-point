@@ -98,11 +98,19 @@ test('GA-TRIGGER-REACHABLE is one of the Gate A checks, and it is named in faili
     const result: any = runStages0to10(corpusInput())
     const ids = result.gates.gateA.checks.map((c: any) => c.checkId)
     assert.ok(ids.includes('GA-TRIGGER-REACHABLE'), 'the obligation must be a named check, not a clause folded into a neighbour')
-    // Why a check of its own: failingChecks is a list of checkIds, so only a dedicated id can make this
-    // failure legible. Folded into GA-TRANSITION-COHERENCE it would never name the trigger.
-    const a04: any = runDerivation(derivationInputFor(selectFor('A04', null)))
-    const failing = a04.gates.gateA.checks.filter((c: any) => c.clauses.some((l: any) => l.verdict === 'FAIL')).map((c: any) => c.checkId)
-    assert.ok(failing.includes('GA-TRIGGER-REACHABLE'), 'A04 must fail by name')
+    /**
+     * Why a check of its own: `failingChecks` is a list of checkIds, so only a dedicated id can make this
+     * failure legible. Folded into GA-TRANSITION-COHERENCE it would never name the trigger.
+     *
+     * **The failing subject is now the CORPUS, not A04.** A04 was the example until 6 October, when the Sport
+     * Profile gave it the ball and the possession relationship it lacked. The corpus is the better subject
+     * anyway: three of its transitions are keyed on a possession change, two of its objects establish a ball
+     * so the first clause passes, and `game::PS1` is unestablished — so it is the RELATION clause that fails,
+     * on knowledge nobody wrote for this test.
+     */
+    const failing = result.gates.gateA.checks.filter((c: any) => c.clauses.some((l: any) => l.verdict === 'FAIL')).map((c: any) => c.checkId)
+    assert.ok(failing.includes('GA-TRIGGER-REACHABLE'), 'the corpus must fail by name')
+    assert.deepEqual(check(result, 'GA-TRIGGER-REACHABLE').subjects, ['game::PS1'], 'and the report must name the line, so the failure is actionable')
 })
 
 // ── HIS RULING: a possession change needs the ball ─────────────────────────────────────────────────
@@ -166,22 +174,44 @@ test('POSITIVE CONTROL: A01 + From Goal Kicks establishes a ball, and every tran
     assert.ok(!failing.includes('GA-TRIGGER-REACHABLE'), 'the control must not be collateral damage')
 })
 
-// ── The same goal WITHOUT the situation fails: the defect is the knowledge, not the goal ───────────
-test('A01 without a practice situation has no ball, and the same transition is then unreachable', () => {
-    const clause = clauseOf(runDerivation(derivationInputFor(selectFor('A01', null))) as any, 'GA-TRIGGER-REACHABLE')
-    assert.equal(clause.verdict, 'FAIL', 'the goal is the same; only the established knowledge differs')
+/**
+ * **The carrier no longer depends on the coach's planning choice, and that is the point of a Sport Profile.**
+ *
+ * Until 6 October this test asserted the opposite: A01 WITHOUT the goal-kick situation had no ball, so the
+ * same transition was unreachable, and the only thing supplying the carrier was an authored line inside one
+ * practice situation. A coach choosing a different situation got a game whose turnover could not occur.
+ *
+ * The Sport Profile establishes the ball for every derivation, so both forms of A01 now reach the trigger.
+ * The situation's own authored ball is no longer load-bearing for reachability — it is still authored, still
+ * admitted, and now redundant for this purpose, which is the right relationship between a sport fact and a
+ * practice situation.
+ */
+test('A01 reaches the trigger WITH or WITHOUT the practice situation, now that the carrier is sport-level', () => {
+    const withSituation = clauseOf(runDerivation(derivationInputFor(selectFor('A01', 'A01-02'))) as any, 'GA-TRIGGER-REACHABLE')
+    const without = clauseOf(runDerivation(derivationInputFor(selectFor('A01', null))) as any, 'GA-TRIGGER-REACHABLE')
+    assert.equal(withSituation.verdict, 'PASS')
+    assert.equal(without.verdict, 'PASS', 'the carrier must not depend on which situation a coach picked')
+    assert.equal(without.basis, 'EVALUATED', 'and it is evaluated, not vacuous — there is a transition to check')
 })
 
-/** Not scoped to one row: the same defect was authored in two unrelated game forms. */
-test('the check is general — it catches the defect in GF4 as well as GF2', () => {
-    for (const goal of ['A04', 'A05', 'D03', 'TD02']) {
+/**
+ * Not scoped to one row, and the proof has changed shape rather than weakened. The check used to catch the
+ * same defect in two unrelated game forms; the Sport Profile has now supplied the missing carrier, so the GF2
+ * instances (A04, A05) pass. What remains is the case **no sport-level carrier can fix**: D03 and TD02 key a
+ * transition on a trigger their own game cannot construct at all, and that is still caught, still on GF4
+ * knowledge, still named in the report. A one-row repair would have missed it then and would miss it now.
+ */
+test('the check is general — it still catches the GF4 defect, which no carrier fixes', () => {
+    for (const goal of ['D03', 'TD02']) {
         const result: any = runDerivation(derivationInputFor(selectFor(goal, null)))
         assert.equal(clauseOf(result, 'GA-TRIGGER-REACHABLE').verdict, 'FAIL', `${goal} must fail`)
+        assert.match(check(result, 'GA-TRIGGER-REACHABLE').why, /GF4/, `${goal} fails on GF4 knowledge, and the report says so`)
     }
-    const a04: any = runDerivation(derivationInputFor(selectFor('A04', null)))
-    const d03: any = runDerivation(derivationInputFor(selectFor('D03', null)))
-    assert.match(check(a04, 'GA-TRIGGER-REACHABLE').why, /GF2/, 'A04 fails on GF2 knowledge')
-    assert.match(check(d03, 'GA-TRIGGER-REACHABLE').why, /GF4/, 'D03 fails on GF4 knowledge — a one-row repair would have missed it')
+    // And the GF2 instances pass now — by gaining the carrier, not by the check loosening.
+    for (const goal of ['A04', 'A05']) {
+        const result: any = runDerivation(derivationInputFor(selectFor(goal, null)))
+        assert.equal(clauseOf(result, 'GA-TRIGGER-REACHABLE').verdict, 'PASS', `${goal} must pass now that a ball is established`)
+    }
 })
 
 // =================================================================================================

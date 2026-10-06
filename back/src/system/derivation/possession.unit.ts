@@ -70,11 +70,17 @@ const index = indexRegister(register)
     }
 }
 
-// ── On A04 the relation is UNESTABLISHED, honestly, and nothing is invented ────────────────────────
+// ── On A04 the relation is ESTABLISHED and OPEN, and the holder is still not invented ──────────────
 //
-// SD-39's existence condition: a game-level line's existence must be supported by something that addresses it.
-// Nothing in A04's selected knowledge addresses possession, so the line is a gap with reason "no coverage" —
-// the representation declining to invent a holder. This is the result, not a defect.
+// This block asserted a gap until 6 October: nothing in A04's selected knowledge addressed possession, so the
+// line carried reason "no coverage" — the representation declining to invent a holder. The Soccer Sport Profile
+// now addresses the row with a bounds-only contribution, which satisfies SD-39's existence condition (the
+// property and its choice space are supported) without fixing a value.
+//
+// **The thing the block exists to protect is unchanged and is now shown in its stronger form.** Then: no holder,
+// because nothing established the relation. Now: the relation IS established, and STILL no holder — because the
+// contribution bounds the choice space and deliberately does not pick from it. An authorized freedom rather than
+// a gap is a better state, and it is the one his "do not arbitrarily author an initial team" asks for.
 {
     const input = derivationInputFor(selectFor('A04', null))
     const result: any = runDerivation(input)
@@ -83,12 +89,18 @@ const index = indexRegister(register)
 
     const line = result.resolution.find((e: any) => String(e.row) === 'PS1')
     assert.ok(line, 'the line is enumerated')
-    assert.equal(line.verdict, 'NOT_AUTHORED')
-    assert.equal(line.reason, 'no coverage', 'nobody addressed it — not a declared gap, and not a freedom')
+    assert.ok(String(line.verdict).startsWith('FREE'), `an authorized freedom, not a gap and not a value; got ${line.verdict}`)
     assert.equal(line.value, undefined, 'and above all: no holder is invented')
 
-    assert.equal(resolved.open.filter((o: any) => /PS1/.test(o.lineId)).length, 0, 'unsupported existence is not a freedom (SD-39)')
-    assert.equal(resolved.notEstablished.filter((n: any) => /PS1/.test(n.lineId)).length, 1, 'it is reported as unestablished')
+    const open = resolved.open.filter((o: any) => /PS1/.test(o.lineId))
+    assert.equal(open.length, 1, 'exactly one freedom is offered, on the row the contribution bounds')
+    assert.equal(open[0].permittedBy.authority, 'SD-39', 'on the authority for OPEN, not on the retired default')
+    assert.equal(open[0].permitted, null, 'the choice space is a term, not an enumerated set — so there is nothing to pick from mechanically')
+    assert.equal(
+        resolved.notEstablished.filter((n: any) => /PS1/.test(n.lineId)).length,
+        0,
+        'and it is no longer reported as unestablished, because it is established and open',
+    )
 }
 
 // ── It is LIVE: once selected knowledge addresses it, the line resolves ──────────────────────────
@@ -123,9 +135,14 @@ const index = indexRegister(register)
 //
 // Reported rather than repaired, on his instruction. The choice space is "one of the teams the game establishes",
 // and two things are true at once: at resolved-game time the teams do not exist yet (realization instantiates
-// them), and once they do they are indistinguishable from each other. So possession cannot be ASSIGNED even
-// where it is established, because nothing in the corpus authors team identity. `teamDesignations` contemplates
+// them), and once they do they are indistinguishable from each other. `teamDesignations` contemplates
 // `TEAM_<id> (a named team)` and nothing authors a name.
+//
+// **UPDATE 6 October — the conclusion this block used to draw has been answered, and the gap it measures has
+// not.** It used to end "so possession cannot be ASSIGNED even where it is established". It can now: the opaque
+// member handle gives realization something to refer to, and A04's realized game carries a holder. What is
+// still missing is what the handle deliberately is not — a team IDENTITY that any knowledge authors. So the
+// assertions below are unchanged and still measure a real absence; only the inference drawn from it was wrong.
 {
     const input = derivationInputFor(selectFor('A04', null))
     const result: any = runDerivation(input)

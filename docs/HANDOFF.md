@@ -6181,3 +6181,181 @@ denominator moves, 58 -> 60. Adopted his wording, third conjunct preserved, **no
 
 **Verification: 14 agents, 12 load-bearing claims checked, 9 REFUTED.** Including one that corrected my own
 "nothing could have established PS1" into the sharper frozen-roster finding.
+
+---
+
+## 6 OCTOBER (later) — HIS FOUR AUTHORIZATIONS CARRIED OUT, AND A04 IS REALIZABLE AGAIN
+
+His order, in his words: correct the implementation to reflect the chain `trigger -> relationship -> ball`;
+authorize a bounds-only possession contribution leaving the initial holder a governed choice; authorize the
+minimal Soccer Sport Profile; and classify the nine post-freeze register rows by pilot impact. Done in the
+sequence Joe approved: Sport Profile + PS1 first, then the reachability clause, then the audit, then the 19.
+
+### 1 · THE SPORT PROFILE — a new knowledge SOURCE, no new mechanism
+`docs/audits/conformance/stage-b/sport-profile-soccer.json`. Two items only:
+- `SPORT-SOCCER-01` — row `O1`, selector `kind=ball`, `EXISTS`, `REQUIRED`, basis **OWNER_RULING**. Establishes
+  the element because `establishesExistence` admits OWNER_RULING, not because the file is special.
+- `SPORT-SOCCER-02` — row `PS1`, `RANGE`, qualitative value, `REQUIRED_RANGE`, basis **OWNER_RULING**.
+  **Bounds-only BY CONSTRUCTION:** `RANGE` is outside `entails()`'s set `{EQUALS, POSITIONED, ORIENTED}`, and the
+  value is a term rather than an array so `narrowsToSet()` declines it. It can only land in `bounding`.
+  `EXISTS` was unusable — SD-100 makes it inert on a FIELD row.
+
+**Loaded separately from `contracts.json`, and the reason is structural.** That file holds the eight restated
+objects a goal SELECTS from, each frozen against the 81-row roster of its restatement. A Sport Profile is
+selected by nobody, so `loadSportProfile()` is its own loader and `derivationInputFor` appends it
+unconditionally — **into both `contracts` and `selection`**, because a contract absent from `selection` still
+forms its elements but loses its entry in `versions.objects`, the staleness stamp.
+
+**The engine names no sport.** The first version wrote `stage-b/sport-profile-soccer.json` into `corpus.ts` and
+**the sport-coupling ratchet caught it on the first run** (`soccer` x2 in corpus.ts, x1 in gates.ts; baseline 35
+across 23 rows). Rewritten to discover the profile by pattern, so the sport's identity lives in the artefact.
+Absence and plurality both THROW rather than resolve quietly — an empty directory must not hand back an empty
+list and let the ball disappear.
+
+### 2 · THE SECOND CLAUSE ON `GA-TRIGGER-REACHABLE` — and the chain proved from BOTH ends
+`gates.ts` `gaTriggerReachable` now emits two clauses on every path (`RELATION_CLAUSE` hoisted beside `CLAUSE`
+so the early return reports both). Where a transition is keyed `POSSESSION_CHANGE`, `game::PS1` must be
+established or legitimately open.
+
+**Both controls fail, each on its own clause** (`sport-profile.unit.ts`, 9 cases):
+- ball kept, `SPORT-SOCCER-02` stripped -> clause 1 **PASS**, clause 2 **FAIL**, Gate A FAIL. *His sentence
+  satisfied: the ball alone no longer makes a possession change reachable.*
+- relation kept, `SPORT-SOCCER-01` stripped -> clause 1 **FAIL** (`POSSESSION_CHANGE` is never constructed),
+  clause 2 **PASS**. **Neither test alone is SD-44; together they are the chain.**
+
+**A defect of my own in that clause, found by the audit and fixed:** it read `ctx.classified` directly and
+probed only on failure, so a PASSING report named no subject and there was no way to tell the clause had run.
+The Probe's own contract says every line a check consults is recorded as a subject. Now read through
+`probe.cell`, with `DERIVED` or `OPEN` as the two admitted states. Pinned by a test.
+
+### 3 · THE CLAUSE'S FIRST REAL SUBJECT IS THE CORPUS ITSELF
+Full stage-B corpus: **three** transitions keyed on a possession change, `game::PS1` `NOT_AUTHORED`/`no coverage`,
+and A01-02 and RPC-001 both establish a ball so clause 1 passes with four instances. **The corpus has been
+declaring turnovers with nothing holding the relation a turnover changes.** Baseline in
+`derivation-stage10.unit.ts` moved from `[GA-INFORMATION, GA-NO-FAILED-LINE]` to include
+`GA-TRIGGER-REACHABLE`, with the reason recorded beside it.
+
+**And `GA-NO-FAILED-LINE` would never have caught it.** Measured four ways: PS1 unestablished AND unclaimed ->
+reason `no coverage` -> counted under `unspoken` -> **PASS**; PS1 unestablished but CLAIMED -> reason
+`claimed but unresolved` -> **FAIL**. A row no contract claims is invisible to the failed-line check. That is
+why the obligation had to be a reachability clause and not a tightening of that check.
+
+### 4 · PS1's STALE SD-R2 PROVENANCE — CORRECTED
+`fillableAuthority` added to PS1, mirroring T2's existing correction: **SD-39**, with the note that SD-39's own
+qualification is met independently because the Sport Profile supports the property and its choice space. The
+parenthetical citing SD-R2 — a REJECTED default — is gone from the note; its substance survives, as his own
+spec text already says: *"a rejected default cannot be cited as one."*
+
+### 5 · THE NINE POST-FREEZE ROWS — PS1 is the only one that can fail a gate, and V9a is a second blocker
+12 agents, 10 load-bearing claims verified, 4 of 10 refuted on the first pass.
+- **pilot-load-bearing: PS1 only.** The only one of the nine any Gate A clause reads. A game-level FIELD row
+  gets its line unconditionally, so no missing class can make it inert.
+- **currently exercised but nonblocking: V9a.** One line, `RESOLVED:ENTAILED` = `MULTIPLY`, support
+  WIDEZONE-18.c. Reaches the coach as *"worth 2 instead of 1"*.
+- **not exercised by the bounded pilot: P11, P12, P13, R1, R2, R3, R4** (seven). Zero classes, zero lines, named
+  by no check. R1 is an AUTHORED **EXCLUSION** from A04's own game form (GF2-22, `NOT_EXISTS`), which is why
+  R2/R3/R4 get no line at all — an established absence, not an unexamined row.
+- **THE SECOND BLOCKER, verified first-hand in `load.ts:163-178`:** `checkModifierOperations` refuses the
+  **WHOLE contract** where a `V9` magnitude has no selector-matched `V9a` item (SD-30). A refusal of
+  `restated:WIDE-ZONE-ADVANTAGE` would strip A04's shaping constraint *before any gate ran*. As authored the
+  pair exists, so it does not fire. **So "PS1 is the only row capable of blocking" is true only if blocking
+  means failing a Gate A clause.**
+- **COMPLETED_PASS: pilot impact NIL, not repaired.** A04 carries zero lines on V15/V16/V17, so GA-INFORMATION
+  returns a vacuous PASS (both clauses `NO_APPLICABLE_INSTANCES`). The gap is deferred for **15 of 33**
+  goal-by-situation cases and passes silently in every one. Proved by isolation that establishing PS1 changes
+  nothing about it: PS1 established, PS1 dropped, ball dropped — unreachable in all three.
+
+### 6 · THE 19 SUSPENDED CHECKS — RESTORED, and one dangling reference found doing it
+- `identity.unit.ts`: **16 passed** (the 15 `chain()`-based checks had been suspended; the conditional
+  suspension lifted itself once `mayRealize` came back true). The `Suspended` sentinel is now unreachable.
+- `post-realization.unit.ts`: whole-file guard lifts; **ok**.
+- `realize.unit.ts`: **39 passed**. The acceptance test is a real test again and asserts
+  `realizationAuthorized === true` first — through the gate, not around it. The `suspended()` reporter is
+  REMOVED rather than left as scaffolding.
+- Two tests that had been rewritten to assert A04's failure are restated on live measurement: A04 is
+  `PRE_REALIZATION_SATISFIED`, D03 is `FAIL`, D01 is `NOT_EVALUABLE` — three distinct states, each with a live
+  example for the first time. A05 is waiting on GA-INFORMATION and GA-REFERENCE-INTEGRITY again, as it was
+  before 5 October.
+
+**MY OWN DEFECT, found by reading the realized record rather than the test result.** The PS1 realization choice
+was recorded as `...GF2-14.a#0`; `memberHandle` mints ordinals from **1**. So the one realized game on the pilot
+path carried a reference to a team **that does not exist**. Three things had to line up for it to pass: the bound
+is qualitative so `boundCheck` is `UNVERIFIABLE_QUALITATIVE_BOUND` and nothing compared the value to anything;
+**no consumer reads `possession.team`**, so nothing downstream tripped over it; and the acceptance account
+reported nothing lost and nothing invented, because a dangling reference is neither. A test for each of those
+three would still have passed.
+- Choice corrected to `#1`.
+- `realize()` now REFUSES a chosen value of the form `<classId>#<digits>` for a class this realization
+  instantiated where that exact handle was not minted. Narrow on purpose: prose containing a hash is untouched,
+  and a reference to an established element is untouched. **An unverifiable bound means the TERM cannot be
+  checked; it does not mean any string will do.**
+
+### 7 · WHERE A04 STANDS, MEASURED
+`gateA DEFERRED_TO_REALIZATION`, `mayRealize true`, `realizationAuthorized true`, `notAuthorizedBecause []`.
+PS1 `FREE(a)`, `permittedBy.authority SD-39`. Ball `{kind:"ball"}` with **no position** — the key set is exactly
+`elementId, kind, selector`. Realization PROCEEDED; acceptance **0/0/0**; post-realization Gate A **PASS**;
+`unverified: ["game::PS1"]`.
+
+**A04 is the ONLY authorized goal of 13.** Two (D03, TD02) reach a verdict and FAIL; ten reach no verdict, in two groups
+of five: GA-INFORMATION + GA-REFERENCE-INTEGRITY unevaluable (A01, TA01, A02, TA02, A05), and
+GA-DIRECTION + GA-ONE-PRIMARY-EVENT + GA-ROSTER-SUM unevaluable (D01, TD01, D02, A03, A06).
+**NOT for want of a restated contract, which was my first answer and is wrong** — A04 has only 2 of its
+5 selected objects contracted and is authorized anyway. **The pilot path is one goal wide**, and
+`realize.unit.ts` now asserts that rather than leaving it in a report.
+
+### 8 · REPORTED, NOT REPAIRED
+- **PS1's realized value reaches no coach-facing output.** `render:a04` contains `possession.team` zero times,
+  and fidelity PASSES without listing it among the deliberately-unexpressed. Flagged because it is the exact
+  shape of this project's recurring silent-loss failure; whether a game-level realized value should be expressed
+  is his.
+- GA-ONE-PRIMARY-EVENT's typed-reference defect (identity accepts, resolution rejects) — not pilot-load-bearing.
+- Wide Zone trigger semantics and magnitude: **HELD**. Successful Region Access: **PARKED**. Generation: **FROZEN**.
+
+### 9 · THE RENDERING FIXTURE IS STALE — MEASURED, DELIBERATELY NOT REFRESHED
+`npm run render:a04` reads `docs/audits/a04-concrete-game-fixture.json`, a FROZEN concrete game, on his
+instruction to isolate the communication boundary. Today's run still prints **fidelity PASSED** — about a
+game that no longer exists. Old digest `a9d16e5c`, live digest `12dbd433`; the frozen `game.objects` is
+**`[]`** and `status.choices` has five entries, not six.
+
+**Measured what a refresh produces, without writing the file.** The chain still closes — acceptance 0/0/0,
+post-realization gate validated — and `checkFidelity` raises **exactly two Q3 violations, both new**:
+- `objects[c:sport-profile:soccer:SPORT-SOCCER-01].kind is established by the game and no instruction carries it`
+- `possession.team is established by the game and no instruction carries it`
+
+**The two things the Sport Profile establishes are the two things a coach is never told.** Not a derivation
+failure and not a fidelity failure — fidelity is the check that caught it. `loadBearingPaths` walks
+`status.derived` + `status.choices` and excludes only `.startsEpisode` and `space.axis`, so PS1 and the ball
+land in `coachFacing` and nothing cites them.
+
+**NOT REFRESHED, on purpose.** Refreshing turns the suite red at `rendering.unit.ts:41` (`Q2/Q3/Q4` must
+raise no violation), and the only way to make it green again is either to author coach-facing text for the
+ball and the holder, or to add them to `NO_COACH_FACING_EXPRESSION` as deliberate non-expressions. **Both
+are authoring decisions that are his.** Changing the test to expect two violations would bake "the coach is
+not told there is a ball" into the suite as the expected state.
+
+**AND NOTHING WOULD HAVE TOLD US.** No assertion compares the frozen fixture's `provenance.inputDigest` to a
+live run — the harness-verifies-a-fork shape again. A guard belongs there; it is not added because it fails
+immediately and would force the refresh decision rather than present it.
+
+### 10 · A COUNT-ONLY BASELINE NEARLY REPORTED PERFECT CONTAINMENT OVER A SWAP
+`completed-pass.unit.ts` pins, per goal, the number of failed resolution lines. After the Sport Profile
+**all thirteen counts are byte-identical** to the 5 October baseline. The membership is not:
+
+    gone : game::PS1
+    new  : c:sport-profile:soccer:SPORT-SOCCER-01::O3
+
+in **every** goal. PS1 left because it is now bounded; the ball's COUNT arrived because the profile
+deliberately leaves it unconstrained and declares O3 NON_CLAIMED, so it reports as a declared
+non-requirement. The exchange is legitimate; a baseline that cannot see it is not. The test now asserts
+both lines **by name** in every goal, in addition to the count.
+
+**The generalisation:** a conserved total is not evidence of a conserved set. Where a baseline counts,
+also name the one thing that must leave and the one thing that must arrive.
+
+### 11 · A CONSEQUENCE NOT ANTICIPATED: the carrier no longer depends on the coach's planning choice
+Until 6 October the ONLY thing supplying a ball to a real game was `A01-02-08.a`, authored inside ONE
+practice situation (A01 + From Goal Kicks). So `A01 + A01-02` reached POSSESSION_CHANGE and `A01` alone
+did not — whether a game's turnover was possible depended on which situation a coach had picked. With the
+Sport Profile both forms pass. The situation's authored ball is still admitted and is now **redundant for
+reachability**, which is the right relationship between a sport fact and a practice situation.
+`trigger-reachability.unit.ts` asserts both forms, replacing the test that pinned the asymmetry.

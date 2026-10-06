@@ -128,7 +128,7 @@ qualifier values still need support. The prerequisites, per trigger:
 | `START` | by construction, for a playable game |
 | `SCORE` | a resolved primary scoring event exists (SD-06 entails exactly one) |
 | `OUT_END_LINE`, `OUT_TOUCHLINE` | a bounded playing area exists |
-| `POSSESSION_CHANGE` | opposing teams **and the possession relationship** exist — and **possession is a relationship involving the ball**, so a game that establishes no ball does not reach it (his ruling, 5 October) |
+| `POSSESSION_CHANGE` | opposing teams **and the relevant possession relationship** exist — SD-44's own words. **Corrected 6 October:** this table previously read "opposing teams and a ball object", which collapsed the chain. The relation is the prerequisite; the ball is a prerequisite *of the relation*. Tested in two places because no one stage can test both: stage 2 checks the relation's material prerequisites (opposing teams, and a ball for them to contest), and `GA-TRIGGER-REACHABLE`'s second clause checks that the relation itself is established or legitimately open. **A ball alone does not make a turnover reachable** (his ruling, 6 October) |
 | `REGION_ENTRY {r}` | region `r` exists and is structurally accessible |
 | `TIME_EXPIRY {w}` | time window `w` exists |
 | `STANDING` | a standing condition rather than an event; always constructed |

@@ -1,0 +1,93 @@
+{
+ "kind": "sport-profile",
+ "name": "Soccer Sport Profile",
+ "sportId": "sport.soccer",
+ "authority": "Christian, owner ruling of 6 October 2026. Authorized after the bounded carrier sweep established that the ball is the only sport-level carrier any currently selected game rule requires.",
+ "ownershipRule": "Sport Profile does not contribute everything that is true of soccer. It contributes constitutive sport structure when the selected game rules require that structure and no existing authoritative source supplies it. — Christian, 6 October 2026.",
+ "intendedOwnerEvidence": "game-archetype-workbook.rc1.1.json Sport_Profile_Rule: \"Detailed sport-specific logic is excluded and must inherit through separate Sport Profile resources.\" The owner named this layer before it existed; this is its first contribution.",
+ "whyItIsNotSelected": "A Sport Profile is constitutive rather than selected: it is the environment every activity of this sport operates in, so it reaches every derivation rather than being chosen per goal. It enters through the ordinary contribution-contract pathway (SD-17's shape: a source outside the representation that needs a structural property inside it enters as an item under its own contract, with no separate route), and it carries no new mechanism.",
+ "boundaryObserved": "The Game Representation contains what a coach lays out and what the rules key on. It represents the rules governing game state, not the evolving state of the game itself. — Christian, 6 October 2026. Accordingly this profile establishes that the ball EXISTS and that the possession relationship is a valid team-valued relationship over the participating opposing teams. It establishes neither the ball's live position nor the current holder of possession; both are game state.",
+ "deliberatelyNotContributed": [
+  "Ordinary Laws of the Game: out-of-play behaviour, restarts, offside, legal actions. Out-of-play triggers already reach a resolved game from the session envelope, and the corpus declines to author them citing by-construction; nothing is blocked on them.",
+  "Field dimensions and player counts, which the session envelope owns (rows E1-E4).",
+  "A starting holder of possession. PS1's initial value is a governed realization choice; this profile bounds the choice space and does not pick a team.",
+  "A static layout position for the ball, which the applicability entry on O4/O5 withdraws because a ball's location is game state."
+ ],
+ "result": {
+  "object": "sport-profile:soccer",
+  "items": [
+   {
+    "id": "SPORT-SOCCER-01",
+    "row": "O1",
+    "selector": "kind=ball",
+    "requirement": "EXISTS",
+    "value": "the game's functional object is a ball",
+    "strictness": "REQUIRED",
+    "valueStatus": "N/A",
+    "scope": "WHOLE_GAME",
+    "basis": "OWNER_RULING",
+    "basisEvidence": {
+     "quote": "For this pilot scope it should establish only constitutive sport structure now demonstrated to be required: the game's functional object is a ball.",
+     "sourceId": "Christian, 2026-10-06"
+    },
+    "checkability": "STRUCTURAL",
+    "structuralClause": "whole item",
+    "fitNote": "EXISTS on a COLLECTION row establishes the element (SD-83 permits it; `establishesExistence` admits OWNER_RULING). valueStatus is N/A because EXISTS carries no value to range over (RC-6). The ball's count is deliberately unconstrained: no selected rule depends on how many there are, and GF2 and Wide Zone both declare the number of balls NON_CLAIMED. Its layout position is withdrawn by the applicability entry on O4/O5, so this item establishes a ball that exists and is nowhere in the static representation, which is the boundary applied rather than an omission."
+   },
+   {
+    "id": "SPORT-SOCCER-02",
+    "row": "PS1",
+    "requirement": "RANGE",
+    "value": "one of the participating opposing teams the game establishes; the relationship holds between those teams and the ball of SPORT-SOCCER-01",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "OWNER_RULING",
+    "basisEvidence": {
+     "quote": "Authorize a bounds-only contribution establishing the possession relationship as a legitimate game structure over the participating opposing teams, while leaving its initial holder as a governed realization choice unless more specific authoritative knowledge constrains it.",
+     "sourceId": "Christian, 2026-10-06"
+    },
+    "checkability": "STRUCTURAL",
+    "structuralClause": "whole item",
+    "fitNote": "BOUNDS-ONLY BY CONSTRUCTION, AND DELIBERATELY SO. `requirement: RANGE` is outside the entailing set {EQUALS, POSITIONED, ORIENTED}, and the value is a qualitative term rather than an array, so this contribution lands in `bounding` and never in `entailing` or `narrowing`. That is what makes PS1 an authorized choice rather than a resolved value: the representation establishes the relationship and its permitted participants, and realization chooses the initial holder. EXISTS could not be used — SD-100 makes EXISTS inert on a FIELD row. No team is named here; naming one would author game state the boundary excludes. The sport level says the relationship is valid and over whom; which team starts with the ball is not a fact about soccer."
+   }
+  ],
+  "declarations": [
+   {
+    "row": "O1",
+    "selector": "kind=ball",
+    "scope": "WHOLE_GAME",
+    "declaration": "CLAIMED",
+    "note": "SPORT-SOCCER-01 establishes the functional object."
+   },
+   {
+    "row": "O3",
+    "selector": "kind=ball",
+    "scope": "WHOLE_GAME",
+    "declaration": "NON_CLAIMED",
+    "note": "doesNotConstrain: how many balls. No selected rule depends on the count, and two game forms already declare it unauthored."
+   },
+   {
+    "row": "O4",
+    "selector": "kind=ball",
+    "scope": "WHOLE_GAME",
+    "declaration": "NON_CLAIMED",
+    "note": "doesNotConstrain: a ball's location is game state, not layout. The applicability entry on O4 withdraws the row for this kind; this declaration records that the silence is deliberate rather than unexamined."
+   },
+   {
+    "row": "O5",
+    "selector": "kind=ball",
+    "scope": "WHOLE_GAME",
+    "declaration": "NON_CLAIMED",
+    "note": "As O4."
+   },
+   {
+    "row": "PS1",
+    "scope": "WHOLE_GAME",
+    "declaration": "CLAIMED",
+    "note": "SPORT-SOCCER-02 bounds the relationship over the participating opposing teams. The initial holder is left to realization under SD-39; the evolving holder is game state and is governed by POSSESSION_CHANGE rather than represented."
+   }
+  ],
+  "relationshipRules": []
+ }
+}

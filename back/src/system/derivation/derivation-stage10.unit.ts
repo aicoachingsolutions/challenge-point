@@ -970,7 +970,29 @@ test('Gate A fails on the corpus, and says which checks and why', () => {
     // GA-TRIGGER-UNIQUE left the list under SD-94. It had been failing because three objects each
     // author what happens at a turnover, which the old clause read as three transitions where a game
     // has one. Asked the question it can establish — are their requirements compatible? — they are.
-    assert.deepEqual(failing.sort(), ['GA-INFORMATION', 'GA-NO-FAILED-LINE'])
+    //
+    // GA-TRIGGER-REACHABLE JOINED the list on 6 October, on his ruling that the ball alone must no
+    // longer make a possession change reachable. The corpus is the clause's first real subject and it
+    // fails on knowledge nobody wrote for the occasion: **three** transitions are keyed on a possession
+    // change, A01-02 and RPC-001 both establish a ball so the first clause passes with four instances,
+    // and `game::PS1` is NOT_AUTHORED with reason "no coverage". The corpus has been declaring
+    // turnovers with nothing holding the relation a turnover changes.
+    //
+    // **GA-NO-FAILED-LINE does not and would not catch that**, which is the part worth keeping. Its
+    // blocking filter admits an unestablished line only where the reason is a declared gap or a claim
+    // left unresolved; "no coverage" is counted under `unspoken` and passes. A row no contract claims
+    // is invisible to it. That is why the obligation had to be a reachability clause and not a
+    // tightening of the failed-line check.
+    assert.deepEqual(failing.sort(), ['GA-INFORMATION', 'GA-NO-FAILED-LINE', 'GA-TRIGGER-REACHABLE'])
+    const reach = gateA(result).checks.find((c: any) => c.checkId === 'GA-TRIGGER-REACHABLE')
+    assert.equal(reach.clauses[0].verdict, 'PASS', 'the corpus does establish a ball, so the prerequisites are there')
+    assert.equal(reach.clauses[1].verdict, 'FAIL', 'and the relation they are prerequisites of is not')
+    assert.deepEqual(reach.subjects, ['game::PS1'], 'the report names the line, so the failure is actionable')
+    assert.equal(
+        gateA(result).checks.find((c: any) => c.checkId === 'GA-NO-FAILED-LINE').subjects.includes('game::PS1'),
+        false,
+        'the failed-line check excuses an unclaimed row; if it ever stops doing so, this comment is stale',
+    )
     for (const c of gateA(result).checks) assert.ok(c.why && c.why.length > 0, `${c.checkId} gives no reason`)
 })
 

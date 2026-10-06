@@ -231,6 +231,20 @@ function constructTriggers(classes: ElementClass[], index: RegisterIndex, envelo
     if (envelope && envelope.lengthM && envelope.widthM) triggers.push('OUT_END_LINE', 'OUT_TOUCHLINE')
 
     /**
+     * **SD-44's prerequisite is a RELATION, and these two tests are only half of it. Corrected 6 October.**
+     *
+     * SD-44's own row reads *"turnover when opposing teams and **the relevant possession relationship** exist"*.
+     * For a week this function, and the RC-19 table I rewrote from it, said "opposing teams and a ball object" —
+     * collapsing trigger → relation → ball into trigger → ball. The ball is what the relation is made of, not
+     * the prerequisite the ruling names.
+     *
+     * **What this function can and cannot do.** It runs at stage 2, before any line is derived, so it cannot ask
+     * whether the possession relation resolved or opened. What it can test is the relation's material
+     * prerequisites: opposing teams, and a ball for them to contest. That is a NECESSARY condition, not the
+     * named one. The named one is tested by `GA-TRIGGER-REACHABLE`'s second clause, which refuses a turnover
+     * whose relation is neither established nor open. **Neither test alone is SD-44; together they are the
+     * chain.** Do not re-collapse them: a ball alone must not make a possession change reachable.
+     *
      * **`POSSESSION_CHANGE` needs OPPOSING teams, not merely a team.** His ruling of 5 October, aligning this
      * with the authored prerequisite rather than leaving it weaker than the rule it implements.
      *

@@ -144,10 +144,35 @@ test('a STATIC object keeps its layout position — the rule is about state-depe
     )
 })
 
-test('A04 is untouched: no ball, so no object and no position question at all', () => {
+/**
+ * **A04 is now the rule's best subject rather than a bystander.**
+ *
+ * This asserted that A04 had no object at all, which was true while nothing established a ball for it and which
+ * made it evidence of nothing. The Sport Profile of 6 October gives it one, so the ruling can be checked where
+ * it matters most: on the goal that actually reaches realization. A ball exists, both of its layout-position
+ * rows are WITHDRAWN by the applicability entry, and no realization freedom is offered for them — so the
+ * position question is not deferred or defaulted, it is absent, which is what "its location is state-dependent"
+ * has to mean in the artifact.
+ */
+test('A04 establishes a ball, and the ball raises no position question at all', () => {
     const { result, game } = resolve(derivationInputFor(selectFor('A04', null)))
-    assert.equal(game.game.objects, undefined, 'A04 still establishes no object — nothing was authored into it')
-    assert.deepEqual([...lineState(result, '::O4'), ...lineState(result, '::O5')], [], 'and so there are no position lines')
+    const objects = game.game.objects ?? []
+    assert.equal(objects.length, 1, 'exactly the ball the Sport Profile establishes')
+    assert.equal(objects[0].kind, 'ball')
+    assert.ok(!('position' in objects[0]), 'and it holds no position')
+
+    const positionLines = [...lineState(result, '::O4'), ...lineState(result, '::O5')]
+    assert.ok(positionLines.length > 0, 'the rows are reached — an absent line would prove nothing about withdrawal')
+    assert.deepEqual(
+        positionLines.filter(l => l.lineState !== 'WITHDRAWN'),
+        [],
+        'every ball position line is WITHDRAWN, not open and not failed',
+    )
+    assert.deepEqual(
+        game.open.filter((o: any) => /objects/.test(o.path)).map((o: any) => o.lineId),
+        [],
+        'and nothing is offered as a choice, so no position can be invented to close the game',
+    )
 })
 
 // ── THE HAZARD, FORCED — because the corpus produces no conditional line to observe ────────────────
