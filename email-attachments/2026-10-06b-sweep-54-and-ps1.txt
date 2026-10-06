@@ -116,8 +116,8 @@ exactly why its verdict reason is "no coverage", the engine's term for *nobody l
 **And this is not special to PS1, which I think matters more than the PS1 case itself.** All eight contracts
 declare one identical frozen roster of 81 rows. The register now carries 90. **So there are rows the corpus
 structurally cannot cover, because it was frozen against an older register** — PS1 is one of them, not a one-off.
-The commit that added PS1 recorded the consequence in its own message: *"NOT_AUTHORED 24 → 25, both PS1."* It was
-a known cost, not an oversight.
+And whoever added PS1 recorded the consequence at the time — *"NOT_AUTHORED 24 → 25, both PS1"* — so it was a
+known cost rather than an oversight.
 
 **Does POSSESSION_CHANGE require it?** Yes, and by your own ruling rather than by inference — SD-44 names *"the
 relevant possession relationship"*, as in item 0.
