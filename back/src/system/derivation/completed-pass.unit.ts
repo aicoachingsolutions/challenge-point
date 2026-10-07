@@ -140,20 +140,38 @@ test('registering the member changed no verdict in any of the thirteen goals', (
      * goal. That is a legitimate exchange and it is also exactly the shape a real regression would hide in,
      * so the assertions below now pin the two lines by name instead of trusting the total.
      */
+    /**
+     * **4 · 7 October — V8d, and a defect in three goals that nothing could previously see.**
+     *
+     * The modifier termination row made Gate A FAIL in **D02, A03 and A06**, all three from NOT_EVALUABLE,
+     * and it is a real finding rather than a baseline drifting. Each of those three loads only
+     * `restated:WIDE-ZONE-ADVANTAGE` plus the Sport Profile — their game form has no contract — so they
+     * establish **no P1 class at all**, no opposing teams, and therefore no POSSESSION_CHANGE. Wide Zone's
+     * authored termination names exactly that trigger, so in those three games **the value modification can
+     * never end**: the indefinite stored entitlement his Coupled criterion exists to forbid, invisible until
+     * a clause asked the question.
+     *
+     * Reported, NOT repaired — the other twelve goals are outside the evidence claim and he instructed that
+     * they not be repaired. The cause is that those goals have no game form, not that the Wide Zone authoring
+     * is wrong; a game with no teams cannot end a possession.
+     *
+     * TD02 and D03 move 11 → 13 failed lines: GF4's modifier gains the two new rows and authors neither.
+     * A04 stays at 7, because its two resolve.
+     */
     const expected: Record<string, { failed: number; gateA: string; reachable: boolean }> = {
         A01: { failed: 7, gateA: 'NOT_EVALUABLE', reachable: true },
         D01: { failed: 6, gateA: 'NOT_EVALUABLE', reachable: true },
         TA01: { failed: 6, gateA: 'NOT_EVALUABLE', reachable: true },
         TD01: { failed: 6, gateA: 'NOT_EVALUABLE', reachable: true },
         A02: { failed: 6, gateA: 'NOT_EVALUABLE', reachable: true },
-        D02: { failed: 7, gateA: 'NOT_EVALUABLE', reachable: true },
+        D02: { failed: 7, gateA: 'FAIL', reachable: true },
         TA02: { failed: 6, gateA: 'NOT_EVALUABLE', reachable: true },
-        TD02: { failed: 11, gateA: 'FAIL', reachable: false },
-        A03: { failed: 7, gateA: 'NOT_EVALUABLE', reachable: true },
-        D03: { failed: 11, gateA: 'FAIL', reachable: false },
+        TD02: { failed: 13, gateA: 'FAIL', reachable: false },
+        A03: { failed: 7, gateA: 'FAIL', reachable: true },
+        D03: { failed: 13, gateA: 'FAIL', reachable: false },
         A04: { failed: 7, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
         A05: { failed: 7, gateA: 'NOT_EVALUABLE', reachable: true },
-        A06: { failed: 7, gateA: 'NOT_EVALUABLE', reachable: true },
+        A06: { failed: 7, gateA: 'FAIL', reachable: true },
     }
     for (const goal of goals) {
         const input = derivationInputFor(selectFor(goal, null))

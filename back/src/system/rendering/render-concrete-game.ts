@@ -247,6 +247,54 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
                 say('Players', 'SESSION', `No ${role}s — everyone is an outfield player`, ['envelope.roles'], [])
             }
         }
+
+        /**
+         * **WHO STARTS WITH THE BALL — his ruling of 7 October, and the awkward truth it exposes.**
+         *
+         *   > *Once an established rule reads possession, the initial holder becomes activity-design
+         *   > information under SD-104. Therefore the rendered activity must faithfully communicate which team
+         *   > starts in possession.*
+         *
+         * The value is established and a coach genuinely needs it: the Wide Zone condition now reads
+         * possession, so who starts decides whose touch can qualify in the first phase of play.
+         *
+         * **But "which team" is not expressible, and saying so IS the faithful rendering.** The holder is a
+         * member handle, and `identity.unit.ts` pins that no handle may reach coach-facing output — deliberately,
+         * because a handle is identity and not a property. More to the point, the two teams carry no
+         * distinguishing property at all: they are identical but for that handle, which is why swapping the
+         * holder leaves the whole game unchanged. So there is no fact of the form "the BLUE team starts" for
+         * rendering to lose; there is only "one of the two does, and the game does not say which".
+         *
+         * That is what this says, and it cites both halves: `possession.team` for the relationship being
+         * established and filled, `performers.teams` for there being two indiscernible teams to choose between.
+         * A coach can act on it — they assign the ball before kick-off — and nothing is invented. The
+         * observation below records what the activity therefore cannot tell them.
+         */
+        const holder = game.possession?.team
+        if (holder) {
+            const held = teams.some((t: any) => String(t.elementId) === String(holder))
+            if (held) {
+                say(
+                    'Players',
+                    'REALIZATION_CHOICE',
+                    `One team starts with the ball — the game does not fix which, so pick one and tell both teams before you start`,
+                    ['possession.team', 'performers.teams'],
+                    [],
+                )
+                observations.push(
+                    `The game DOES establish an initial holder of possession, and the activity cannot tell a coach which team it is. ` +
+                        `The two teams are indiscernible — identical but for an internal handle that must not reach coach-facing text — so ` +
+                        `the holder identifies a member without describing one. That matters now rather than before, because the wide-channel ` +
+                        `condition reads possession, so who starts decides whose touch can qualify first. It is a knowledge gap and not a ` +
+                        `rendering one: nothing authors anything that tells the two teams apart.`,
+                )
+            } else {
+                observations.push(
+                    `\`possession.team\` names ${String(holder)}, which is not one of the game's own teams, so the activity says nothing ` +
+                        `about who starts with the ball rather than naming something a coach cannot find.`,
+                )
+            }
+        }
         if (size === null) {
             // NOT repaired. The renderer could divide 12 by 2 and write "two teams of six" — and that is
             // exactly the forbidden move. The post-realization gate did derive 6-a-side legitimately, from
@@ -429,13 +477,64 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
             [],
         )
 
-        observations.push(
-            `The game now establishes WHAT the wide channels do — a line crossing is worth ${Number.isFinite(magnitude) && Number.isFinite(primary?.value) ? primary.value * magnitude : 'more'} ` +
-                `instead of ${primary?.value} when the condition is met — but NOT what counts as meeting it. The authored source is "actions starting in or ` +
-                `moving through the wide channel", \`REGION_ENTRY\` carries no registered semantics, and the authoring note states the gap itself: ` +
-                `"no rule for what counts as 'moving through' (ball, player, touch)". So a coach is told the consequence and cannot be told the ` +
-                `trigger. Nothing is chosen here on the engine's behalf.`,
-        )
+        /**
+         * **WHAT MEETS THE CONDITION, and WHEN IT ENDS — the two halves authored on 7 October.**
+         *
+         * The criterion is a qualitative term, so this is a translation of it and not a restatement of the
+         * engine's own words. He authorized exactly that when he settled it: *"I would prefer the canonical
+         * representation to carry that observable relationship rather than rely on the qualitative word
+         * controlled. Coach-facing language may eventually translate it naturally."* The translation introduces
+         * no fact the term does not carry — a touch, inside a referent region, by the attacking team, after
+         * which that team still has the ball — and `condition.value` is cited, so SD-103 is satisfied by
+         * provenance rather than by assertion.
+         *
+         * Both sentences are gated on the fields being present. Where a modifier carries no criterion the
+         * observation below reports that gap exactly as it did before, which is the state every modifier
+         * authored before today is still in.
+         */
+        const criterion = modifier.condition?.value
+        if (criterion) {
+            say(
+                'How to score',
+                'DERIVED',
+                `It is met when the attacking team touches the ball inside one of them and still has the ball after that touch`,
+                [`${base}.condition.value`],
+                [],
+            )
+        }
+        if (modifier.endsOn === 'POSSESSION_CHANGE') {
+            say(
+                'How to score',
+                'DERIVED',
+                `Once met it stays live while that team keeps the ball, and a change of possession ends it`,
+                [`${base}.endsOn`],
+                [],
+            )
+        } else if (modifier.endsOn) {
+            // A termination this renderer has no coach wording for is reported, never paraphrased.
+            observations.push(
+                `${modifier.elementId} ends on ${String(modifier.endsOn)}, and rendering has no coach-facing wording for that ` +
+                    `occurrence, so the activity says nothing about when the modification ends. The game establishes it; the ` +
+                    `translation is missing, which is a rendering gap rather than a knowledge one.`,
+            )
+        }
+
+        if (!criterion) {
+            observations.push(
+                `The game establishes WHAT the wide channels do — a line crossing is worth ${Number.isFinite(magnitude) && Number.isFinite(primary?.value) ? primary.value * magnitude : 'more'} ` +
+                    `instead of ${primary?.value} when the condition is met — but NOT what counts as meeting it. The authored source is "actions starting in or ` +
+                    `moving through the wide channel", \`REGION_ENTRY\` carries no registered semantics, and the authoring note states the gap itself: ` +
+                    `"no rule for what counts as 'moving through' (ball, player, touch)". So a coach is told the consequence and cannot be told the ` +
+                    `trigger. Nothing is chosen here on the engine's behalf.`,
+            )
+        }
+        if (criterion && !modifier.endsOn) {
+            observations.push(
+                `${modifier.elementId} states what satisfies its condition and nothing about when the modification ends, so on the ` +
+                    `representation it does not persist beyond the event it is evaluated at. That is the row's stated reading of an absent ` +
+                    `termination and not an oversight — but if the intent was a persisting advantage, the termination is what is missing.`,
+            )
+        }
     }
 
     // ── Observations about the game, not fixes to it ─────────────────────────────────────────────

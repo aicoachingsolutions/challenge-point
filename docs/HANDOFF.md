@@ -6721,3 +6721,169 @@ Zero string-literal hits for `'V4'` does not mean nothing reads V4 — it means 
 Three generic consumers read it without naming it. **Before concluding a row or field is dead, trace the
 generic consumers (the row loop, the index, the gate that iterates `classesOn`), not just the string.**
 Same family as the token-search failures already recorded in memory.
+
+---
+
+## 7 OCTOBER (implementation) — V8c, V8d, THE AUTHORED CONDITION, AND AN EXCLUSION THAT CAN NOW BE VIOLATED
+
+His order: preserve the settled condition, add Coupled as a seventh criterion, retire the attacking-episode
+requirement, implement the smallest GENERAL representation for a modifier to carry its criterion and its
+persistence, accept the SD-104 consequence for the initial holder, keep magnitude held, and repair the
+unenforced exclusion with a regression case.
+
+### 1 · TWO NEW REGISTER ROWS, general and deliberately NOT one row
+- **`V8c` = `value.valueModifiers[].condition.value`** — the criterion that satisfies the condition, as a
+  qualitative term or threshold (RC-5, exactly as `V6` carries the primary event's condition parameter). It
+  names a KIND of occurrence and never records one, so SD-15 applies. **Pre-scoped**: the stage-E schema
+  check had already identified this row independently, for the GF4 case "regain leading to shot".
+- **`V8d` = `value.valueModifiers[].endsOn`** — the trigger that ENDS the modification once its condition is
+  satisfied. **No default; an ABSENT value means the modification does not persist beyond the event it is
+  evaluated at**, never that it persists indefinitely. Added to `vocabularies.triggerRows`.
+- **WHY TWO AND NOT ONE**, on his instruction: one names an occurrence kind nothing can check, the other names
+  a registered trigger the engine CAN check for reachability. A single field would have to be typed as the
+  weaker of the two and would discard the only enforcement available on the persistence half — and that
+  enforcement is the point, because a modification whose terminating trigger cannot occur never ends.
+- **Register version bumped to 5.** It had not moved across three content edits, so `inputDigest` had stopped
+  seeing register changes. A row addition is exactly what that stamp is for.
+
+### 2 · THE AUTHORED CONDITION (ruling C40, via `corpus-restatements.json`)
+- **`WIDEZONE-18.d`** on V8c, OWNER_RULING: *"a controlled attacking-team touch within a referent wide
+  channel, where controlled means a touch after which the touching player's team retains possession"*.
+  `checkability: PARTLY_STRUCTURAL` — the referent and the team are structural; whether the touch happened
+  and possession was retained are in-play judgements.
+- **`WIDEZONE-18.e`** on V8d, OWNER_RULING: `POSSESSION_CHANGE`.
+- Both derive `RESOLVED:ENTAILED` and reach the resolved game: the modifier now carries
+  `condition.value`, `magnitude 2`, `operation MULTIPLY`, `endsOn POSSESSION_CHANGE`.
+- **The 2 October blocker is gone without a ruling.** That analysis named two routes to "attacking team" —
+  live possession attribution, "which I could not find established", or an episode scope. The Sport Profile
+  established the first, so the route that never needed an episode model was open; he retired the other.
+
+### 3 · A MODIFICATION THAT PERSISTS MUST BE ABLE TO END
+New clause on `GA-MODIFIER-OVERLAP`: *every value modifier that states a termination names a structurally
+reachable trigger*, the same shape as `GA-EFFECT-TYPED`'s consequence-trigger clause and on the same
+authority (SD-44). Verified both ways — PASS on `POSSESSION_CHANGE`, **FAIL** on `COMPLETED_PASS`, which is in
+the vocabulary and which `constructTriggers` never emits. An absent `endsOn` is not a failure, so every
+modifier authored before today is untouched.
+- **A test caught a flaw in my first version.** Probing `V8d` on every modifier made an ABSENT termination a
+  recorded BLOCKER, so SD-62's block record named a line nobody had claimed. Fixed by reading membership from
+  `ctx.derived` (did any item address the row?) before probing, so the Probe contract still holds for every
+  line actually consulted.
+
+### 4 · THE UNENFORCED EXCLUSION — repaired generally, with the three-way regression he asked for
+**The defect, reproduced before repairing:** an EXCLUSION carrying a VALUE requirement on a FIELD row fell
+through to the generic path, which reports SATISFIED as soon as a line it reaches is entailed — and the line
+is entailed by whoever authored the value, never by the exclusion, which cannot entail at all. Measured on
+A04 with a primary-event condition spliced in: naming a forbidden wide channel reported **SATISFIED**, and
+naming the permitted scoring line reported **SATISFIED**, both with `why` "the line it reaches is entailed".
+**An exclusion that reports a compliance it never checked is worse than an absent one.**
+
+**The repair** is SD-85's sibling in `forward.ts`: an exclusion with a value requirement is a
+FORBIDDEN-VALUE claim, evaluated against the lines on its row within its scope. Nothing is read out of prose
+(SD-32); the forbidden value must be typed, as SD-86 already requires for a forbidden CARDINALITY. Where it
+is not typed the item is NOT_EVALUABLE and stays so.
+
+**The typed value** for `WIDEZONE-08.c` is its own two channels, `["WIDEZONE-02.a", "WIDEZONE-03"]`, set via
+the restatement mechanism under C40 — the same route `WIDEZONE-16.b` used for its forbidden cardinality.
+
+**Three verdicts, three cases** (`modifier-criterion.unit.ts`, 9 cases): forbidden channel → **UNMET**,
+naming what it forbids and the breaching line; permitted line → **SATISFIED**; nothing in scope →
+**NOT_EVALUABLE**. The regression asserts the first two are DIFFERENT, because a two-case test would have
+passed against the defect.
+
+### 5 · THE INITIAL HOLDER IS NOW EXPRESSED — and "which team" turns out to be unsayable
+He accepted the consequence: once a rule reads possession the holder is activity-design information, and Q3
+must stop exempting its omission. The modifier now terminates on a possession change, so a rule does read it.
+- The activity says **"One team starts with the ball — the game does not fix which, so pick one and tell both
+  teams before you start"**, citing `possession.team` and `performers.teams`.
+- **That is the faithful rendering, not a dodge.** The holder is a member handle; `identity.unit.ts` pins that
+  no handle may reach coach-facing text, and the two teams carry no distinguishing property at all — which is
+  why swapping the holder leaves the whole game unchanged. There is no fact of the form "the blue team starts"
+  to lose. The observation records that the activity therefore cannot tell a coach which, and that this is a
+  knowledge gap: nothing authors anything that tells the two teams apart.
+- **Q3 is back to zero and `report.passed` is TRUE**, for the first time since the Sport Profile landed —
+  and by the route the superseded assertion's own exit condition named: the holder is expressed.
+
+### 6 · WHAT THE COACH NOW READS — 19 instructions, every one cited, ZERO fidelity violations
+New lines: *"It is met when the attacking team touches the ball inside one of them and still has the ball
+after that touch"* (cites `condition.value`); *"Once met it stays live while that team keeps the ball, and a
+change of possession ends it"* (cites `endsOn`); and the initial-holder line above. The old observation —
+a coach is told the consequence and cannot be told what meets it — is **gone**, gated on the criterion being
+present rather than deleted, so every modifier that still lacks one still reports it.
+
+### 7 · A CONSEQUENCE OF PERSISTENCE THAT NO CRITERION HAD TO CONSIDER BEFORE
+**A04 establishes nothing about what happens after a score.** Measured: `SCORE` is a reachable trigger
+(SD-06 is citable) but **no SCORE transition class exists** — A04's only transition is the possession change
+— and SD-R3 left the post-score procedure to realization, which authored none. Before today the modifier
+applied at the event, so this was irrelevant to it. Now the modification lasts a possession, so **whether a
+second score in the same possession is also doubled has no answer in the game.** That makes the reward per
+qualifying touch bounded in time and unbounded in value, which is a magnitude input as much as a semantics
+one. Not a repair — it is an authoring gap, and for a Christian-only pilot he will settle it on the field in
+the ordinary way, but he should know it before he runs it.
+
+### 8 · BASELINES THAT MOVED, each with its reason recorded
+- Corpus lines **127 → 131**: two new rows × two V7 classes. Wide Zone's two RESOLVE; GF4's two are
+  `no coverage`, because GF4 authors a modifier and says nothing about what meets it or when it ends. That
+  asymmetry is the point of the rows.
+- `verdict:NOT_AUTHORED` **25 → 27**; GAPs **25 → 27**; `RESOLVED:ENTAILED` **67 → 69**.
+- `itemsRestated` **39 → 40** (the typed forbidden value); `itemsAdded` **14 → 16** (the two halves).
+- `rendering.unit.ts`: the one-violation pin removed; Q3 back to `[]`, `passed === true`, plus new assertions
+  pinning the criterion, the termination and the initial holder BY PROVENANCE rather than by wording.
+
+### 9 · THE CRITERIA DOCUMENT
+`Coupled` added as **criterion 7**, not replacing Learning-Relevant, with his wording and a note on why it is
+seventh: his numbered list ran to six and would have displaced Learning-Relevant silently, and that criterion
+carries the standing CONCERN that the condition rewards *finding* the space rather than *using it against
+someone* — which he instructed be preserved into the magnitude evaluation and which argues for **less** than
+x2. The application status is rewritten from "Evaluated, not authored" to AUTHORED, with all four outstanding
+items resolved except magnitude.
+
+### 10 · THE PILOT DECISION, and the two findings that stopped question 3 being a yes
+Suite GREEN end to end: **369 checks, REAL_EXIT=0**, `modifier-criterion: 9 passed`,
+`fixture-currency — CURRENT (3542dc64)`, `rendering.unit.ts — ok`. A04's coach view is **19 instructions,
+every one citing at least one property, ZERO fidelity violations on every question** — the first time that
+has been zero.
+
+**HIS FIVE QUESTIONS: 1 YES · 2 YES · 3 NO · 4 YES (for what the game establishes) · 5 no failures are.**
+
+**FINDING A — THE CHANNELS CONTAIN PART OF THE SCORING LINE.** Measured: the channels are authored as "the
+full axis extent, end line to end line" (along `[0,40]`), the scoring line sits at along `[40,40]` across
+`[0,30]`, and the channels' across intervals are `[0,7.5]` and `[22.5,30]`. So **15 m of the 30 m scoring
+line is inside a channel** at the widest permitted extent — 12 m at the preferred 6 m, 9 m at the authored
+minimum, i.e. **30–50% of the target line**.
+`line_crossed` is *"A player dribbles the ball over a marked line, or receives and controls it beyond the
+line."* Dribble over the wide part of the line and the last touches are inside the channel, by the attacking
+team, which has the ball. **So the qualifying condition is satisfied BY THE ACT OF SCORING on a third to a
+half of the line, with no wide play beforehand.** That is a Proportionate failure in his own terms and **no
+magnitude repairs it**. It is not an engine or rendering defect: it is two authored objects — the channels'
+along-extent and the objective's position — that never had to agree.
+
+**FINDING B — NOTHING SAYS WHAT HAPPENS AFTER A SCORE.** `SCORE` is a reachable trigger (SD-06 citable) but
+**no SCORE transition class exists**; SD-R3 left the post-score procedure to realization and none was
+authored. Irrelevant while the modifier applied to one event; now the modification lasts a possession, so it
+decides whether a second score in the same possession also doubles. **The reward per qualifying touch is
+bounded in time and unbounded in value.**
+
+**FINDING C — A04'S FOUNDATION CONSTRAINT CONTRIBUTES NOTHING.** `selectFor('A04')` returns 5 knowledge
+objects and **2 contracted**: missing are `central-density-condition`, `progression-bonus` and
+`turnover-reward`. The Learning-Relevant chain the criteria document passed on begins *"central density
+makes the centre scarce, which moves the penetration opportunity wide"* — and the first clause is not in the
+game. What goes on the field is 6v6 to a shared line with two wide channels worth double, **without the
+central congestion that was supposed to create the wide opportunity**.
+
+**FINDING D — THE NEW CLAUSE CAUGHT THREE GOALS WITHIN THE HOUR.** D02, A03 and A06 moved from
+NOT_EVALUABLE to **FAIL**: each loads only Wide Zone + the Sport Profile (no game form contract), so no P1
+class forms, so no POSSESSION_CHANGE, so Wide Zone's authored termination names a trigger those games cannot
+construct and **the modification can never end**. Exactly the indefinite entitlement Coupled forbids,
+invisible until something asked whether a stated termination can occur. Reported, not repaired — outside the
+evidence claim and he instructed the other twelve be left alone. `realize.unit.ts` now asserts five failing
+goals, not two, with the reason recorded.
+
+**MAGNITUDE — the conclusion, and why it is not ratified.** x2 is the right number and the number is not the
+question: it is the smallest value that makes going wide worth the detour in a congested 6v6, and the
+standing Learning-Relevant concern argues for the smallest such. Below x2 is unavailable in practice —
+**with base 1 the scoreable multipliers are the integers**, and rescaling the base to allow x1.5 is blocked
+downstream by the fidelity quantity check. Not recommended for ratification, because the Proportionate
+assessment it would rest on is the one Finding A invalidates.
+- **One agent claim I checked and corrected:** that A04's base value of 1 is a non-authored
+  `ENGINE_ONLY` / `PREFERRED_DEFAULT`. True of RPC-001-20, which A04 **does not select**. A04's `game::V2`
+  resolves `RESOLVED:ENTAILED` by **STANDING_DECISION SD-25**. The base is properly supported in A04.

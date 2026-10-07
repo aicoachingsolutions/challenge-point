@@ -1,0 +1,79 @@
+Joe — note alongside the A04 pilot-decision email
+
+
+THE SHORT VERSION
+
+Everything he ordered is implemented and the suite is green: 369 checks, zero failures. A04's coach view is
+19 instructions, every one traceable to the game, and zero fidelity violations on every question — the
+first time that has been zero.
+
+Four of his five pilot questions are yes. I said no to the third and I want to flag that I thought hard
+about whether to, because it is the one standing between him and the field this week.
+
+
+WHY I SAID NO TO QUESTION 3
+
+Two measured things, neither of which magnitude can fix:
+
+  1. The channels are authored "end line to end line", and the scoring line sits on the end line. So the
+     channels CONTAIN part of the scoring line — 15 m of 30 m at the widest permitted width, 9 m at the
+     authored minimum. A line crossing is defined as dribbling the ball over the line, so dribbling over
+     the WIDE part of the line satisfies the qualifying condition in the act of scoring. The incentive is
+     collectable by finishing wide, with no wide play at any point. That is a Proportionate failure on his
+     own criteria and no multiplier repairs it.
+
+  2. The game says nothing about what happens after a score — no post-score transition, no restart, no
+     possession procedure. That did not matter while the modifier applied to one event. Now it lasts a
+     possession, so it decides whether a second score in the same possession also doubles.
+
+Both are decisions he would settle in the first five minutes on the pitch. Neither is a blocker for a pilot
+he runs himself. But telling him the incentive is "objectively executable" while a third of the scoring line
+sits inside the thing that doubles it would have been exactly the kind of green light this whole process
+exists to prevent, so I said no and explained why rather than hedging it into a yes.
+
+
+THE THING I'D WANT HIM TO SEE EVEN IF HE SKIMS
+
+A04's foundation constraint — Central Density Condition, the one that makes the centre scarce — has no
+contract and contributes nothing. The Learning-Relevant chain his own criteria passed on starts "central
+density makes the centre scarce, which moves the penetration opportunity wide", and that first clause is
+not in the game. What he takes onto the field is 6v6 to a shared line with two wide channels worth double,
+without the congestion that was supposed to make width valuable.
+
+That is not a defect anyone introduced — the object was selected and never restated as a contract — but it
+changes what the session actually tests.
+
+
+THE CLAUSE EARNED ITS KEEP IMMEDIATELY
+
+Adding the termination row made three other goals fail Gate A within the hour: D02, A03 and A06 each have
+no game form contract, so no teams, so no possession change — and Wide Zone's termination names exactly
+that trigger, so in those games the modification can never end. That is the indefinite entitlement his
+seventh criterion forbids, and nothing could see it before. Reported, not repaired; they are outside the
+claim and he said not to touch the other twelve.
+
+It also caught a flaw in my own first version of the clause — probing the termination row on every modifier
+made an ABSENT termination look like a blocked dependency. An existing test found it. Fixed by reading
+whether anything addressed the row before consulting it.
+
+
+ONE AGENT CLAIM I CORRECTED BEFORE SENDING
+
+An agent reported that A04's base point value of 1 is a non-authored engine default. True of the item it
+cited — but that item belongs to an object A04 does not select. A04's base resolves by standing decision
+SD-25 and is properly supported. If I had passed that through, the magnitude section would have rested on a
+false premise.
+
+Twelve agents on the magnitude question, most load-bearing claims refuted or narrowed. The recurring fault
+was the same as last time: conflating what the source supports, what the representation can express, and
+what is good coaching design.
+
+
+WHAT'S QUEUED BEHIND HIS ANSWER
+
+  - the channel geometry decision (his) — do the channels stop short of the scoring line
+  - magnitude, which becomes answerable once that is settled
+  - the post-score procedure, if he wants it in the representation rather than in his own head
+  - nothing else; holds all still in force, other twelve untouched
+
+— Claude

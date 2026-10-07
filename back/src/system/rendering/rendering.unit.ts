@@ -38,35 +38,27 @@ assert.equal(fixture.game.envelope.players, 12)
 const rendered = renderConcreteGame(fixture)
 const report = checkFidelity(fixture, rendered)
 const violationsOn = (q: number) => report.findings.filter(f => f.question === q && f.severity === 'VIOLATION')
-for (const q of [2, 4] as const) {
+/**
+ * **Q3 IS BACK TO ZERO, and the exemption is gone because the fact now reaches the coach.**
+ *
+ * From 7 October this assertion was pinned to exactly one permitted violation — `possession.team` established
+ * and carried by no instruction — because SD-104 exempted the initial holder while nothing read it. His later
+ * ruling the same day closed that:
+ *
+ *   > *I accept the consequence you identified. Once an established rule reads possession, the initial holder
+ *   > becomes activity-design information under SD-104. Therefore the rendered activity must faithfully
+ *   > communicate which team starts in possession. Q3 should no longer exempt its omission once the modifier
+ *   > depends on that relationship.*
+ *
+ * The Wide Zone modifier now terminates on a possession change (`V8d`), so a rule does read it. The activity
+ * states that one team starts with the ball and cites `possession.team`, so there is no omission left to
+ * exempt — **the violation cleared by the fact being communicated, not by the assertion being relaxed.** Which
+ * team it is remains uncommunicable, because the two teams carry no distinguishing property; that is reported
+ * as an observation and is a knowledge gap, not a lost value.
+ */
+for (const q of [2, 3, 4] as const) {
     assert.deepEqual(violationsOn(q), [], `Q${q} must pass: ${JSON.stringify(violationsOn(q))}`)
 }
-/**
- * **Q3 carries EXACTLY ONE violation, and it is a ruling of his awaiting a mechanism he deferred.**
- *
- * `possession.team` is established by the game and no instruction carries it. On his ruling of 7 October that
- * is correct and not a loss:
- *
- *   > *An initial state value is activity-design information when an established rule or relationship reads
- *   > that value. Otherwise it is runtime initialization rather than something the coach-facing activity must
- *   > communicate. For A04, the initial possession holder therefore does not need coach-facing expression.*
- *
- * In the same message he held the mechanism that would RECORD that exemption — *"Do not repair the
- * empty-consequences/suffix mechanism unless it becomes independently pilot-load-bearing"*, and *"Do not build
- * a new expression mechanism around this ruling yet"*. So the checker has no way to express a legitimate
- * non-expression, and reports it as a loss. The ruling and the report disagree, deliberately and on his
- * instruction.
- *
- * It is pinned BY NAME rather than by relaxing the assertion to a count, so any OTHER Q3 violation still
- * fails. **The exit condition is explicit: when the exemption mechanism lands, or when the holder is
- * expressed, this becomes `[]` again.** Until then a bare `[]` would be false and a bare "some violations
- * are fine" would be worse.
- */
-assert.deepEqual(
-    violationsOn(3).map(f => f.what),
-    ['possession.team is established by the game and no instruction carries it'],
-    `Q3 must carry exactly the one violation his ruling exempts; got ${JSON.stringify(violationsOn(3).map(f => f.what))}`,
-)
 /**
  * **The unestablished criterion is reported and no longer graded, and the finding survives in full.**
  *
@@ -85,25 +77,40 @@ assert.ok(
     'the participation violations must stay gone now that the modifier conditions on the channels',
 )
 /**
- * **`report.passed` is FALSE, and its sole cause is the one violation SD-104 exempts.** Asserted as two
- * halves so neither can drift.
+ * **`report.passed` is TRUE again**, which it has not been since the Sport Profile gave A04 a ball and a
+ * possession relationship that nothing yet expressed. Both halves of the two-part assertion that stood here
+ * for a day have collapsed back into the original one-liner, exactly as its own exit condition said they
+ * would — and by the route it named: the holder is expressed.
  *
- * `passed` is `!findings.some(f => f.severity === 'VIOLATION')` (fidelity.ts:395) — a single boolean over every
- * question. So the one Q3 violation above pulls it down, and under his 7 October ruling that violation is not
- * a fidelity failure: an initial state value no rule reads is runtime initialization and the activity need not
- * communicate it. He also held the mechanism that would let the checker say so. **The honest form of the old
- * assertion is therefore not `passed === true` and not `passed === false`, but: `passed` would be true were it
- * not for the exempt path, and nothing else.**
- *
- * When the exemption mechanism lands, both halves collapse back to the original one-line `passed === true`.
+ * It remains a claim about the RENDERING and never a claim that the game is coachable. The four observations
+ * are what the game still cannot tell a coach.
  */
-const exempt = 'possession.team is established by the game and no instruction carries it'
-assert.equal(report.passed, false, 'one violation remains, so the single boolean is down')
+assert.equal(report.passed, true, 'the RENDERING is faithful — this is not a claim that the game is coachable')
 assert.deepEqual(
-    report.findings.filter(f => f.severity === 'VIOLATION').map(f => f.what),
-    [exempt],
-    'and it is the ONLY one: apart from the path SD-104 exempts, the rendering is faithful — which is not a claim that the game is coachable',
+    report.findings.filter(f => f.severity === 'VIOLATION'),
+    [],
+    'and nothing is excepted to get there',
 )
+
+/**
+ * **The two authored halves reach the coach, each citing the row that carries it.** Pinned by provenance
+ * rather than by wording, so rephrasing the sentences is free and dropping either citation is not.
+ */
+{
+    const cited = (suffix: string) => rendered.instructions.filter(i => i.from.some(p => p.endsWith(suffix)))
+    const criterion = cited('.condition.value')
+    assert.equal(criterion.length, 1, 'the criterion that satisfies the condition reaches exactly one instruction')
+    assert.match(criterion[0].text, /touches the ball inside one of them/, 'and it says what the touch is')
+    const ends = cited('.endsOn')
+    assert.equal(ends.length, 1, 'the termination reaches exactly one instruction')
+    assert.match(ends[0].text, /change of possession ends it/, 'and it says what ends it')
+    const starts = rendered.instructions.filter(i => i.from.includes('possession.team'))
+    assert.equal(starts.length, 1, 'who starts with the ball reaches exactly one instruction')
+    assert.ok(
+        !rendered.instructions.some(i => /#\d/.test(i.text)),
+        'and no member handle reaches coach-facing text while doing it',
+    )
+}
 
 /**
  * **THE CONTRADICTION HE ASKED ME TO CONFIRM IS GONE, and this is the test that keeps it gone.**

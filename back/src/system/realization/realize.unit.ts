@@ -734,8 +734,19 @@ test('exactly one goal is realization-authorized, and the other twelve are accou
         else notEvaluable.push(goal)
     }
     assert.deepEqual(authorized, ['A04'], 'the pilot path is one goal wide')
-    assert.deepEqual(failed.sort(), ['D03', 'TD02'], 'and two goals reach a verdict and fail it')
-    assert.equal(notEvaluable.length, 10, `the rest have no contracted knowledge to judge; got ${notEvaluable.join(', ')}`)
+    /**
+     * **FIVE goals now reach a verdict and fail it, up from two on 7 October — and the three new ones are a
+     * finding rather than a drift.** D02, A03 and A06 each load only the Wide Zone object plus the Sport
+     * Profile, their game form having no contract, so they establish no team class at all and therefore no
+     * POSSESSION_CHANGE. Wide Zone's authored termination (V8d) names exactly that trigger, so in those three
+     * games the value modification can never end — the indefinite stored entitlement Coupled forbids, which
+     * nothing could see until GA-MODIFIER-OVERLAP asked whether a stated termination can occur.
+     *
+     * Reported and NOT repaired: those goals are outside the pilot evidence claim and he instructed that the
+     * other twelve not be repaired. The cause is the absent game form, not the Wide Zone authoring.
+     */
+    assert.deepEqual(failed.sort(), ['A03', 'A06', 'D02', 'D03', 'TD02'], 'five goals reach a verdict and fail it')
+    assert.equal(notEvaluable.length, 7, `the rest have no contracted knowledge to judge; got ${notEvaluable.join(', ')}`)
 })
 
 /**
