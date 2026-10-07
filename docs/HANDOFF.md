@@ -6585,3 +6585,106 @@ assumed.
 **Between here and Christian-only pilot use:** (1) the fixture refresh, his; (2) the exempt-report
 decision — leave it, or lift the hold on the exemption mechanism; (3) the one question a coach would ask
 that the game cannot answer — what counts as MEETING the channel condition, reported and not papered over.
+
+---
+
+## 7 OCTOBER (later) — FIXTURE REFRESHED, AND THE WIDE ZONE COMPARISON ALREADY EXISTED
+
+### 1 · ITEMS 1 AND 2 — done, suite GREEN
+`npm run freeze:a04` on his authorization ("the current frozen fixture ... represents a game the current
+architecture would not authorize"). No acknowledgement written, as instructed. Guard now reports
+**CURRENT (a1c46e8e)**; `rendering.unit.ts — ok`; **360 checks, REAL_EXIT=0**. The Q3 possession-holder
+report stays visible under SD-104 with the regression assertion pinned BY NAME, so any additional Q3 loss
+fails independently — which is what he asked to preserve.
+
+### 2 · THE WIDE ZONE COMPARISON IS ALREADY APPROVED — `docs/INCENTIVE_ASSURANCE_CRITERIA.md`
+Header: *"APPROVED for use in authoring decisions — Christian, 2 October 2026."* It contains the
+three-candidate ball/player/touch comparison he asked for today, the per-criterion verdicts, his chosen
+formulation and his settled rulings. **It was NOT re-run** — re-running it would have put a fresh
+conclusion over his own recorded reasoning, which is what the document exists to prevent.
+
+**Settled there, on his 2 October rulings:**
+- **"Controlled" = retained possession, observably.** His condition verbatim: *"A touch within the channel
+  after which the touching player's team retains possession."*
+- **Traversal alone does not qualify** — *"mere ball traversal admits incidental entries, clearances and
+  deflections and weakens the relationship to actually exploiting the space."* Neither required nor
+  sufficient. Recorded as the first case of the criteria ruling AGAINST authored source material.
+- **Attacking-team HELD** pending a bounded representation check; **magnitude open**.
+- Verdicts: **player UNAVAILABLE** (two CONTRADICTIONS vs authored knowledge — "Zones optional",
+  "Entering must not be compulsory"); **ball** passes the floor, weak on Proportionate (channels are 50%
+  of width at the widest permitted extent, 40% at the preferred 6 m); **touch** strongest on the
+  ecological criteria. Its own summary: *"If we had chosen for machine convenience we would have chosen A."*
+
+### 3 · TWO DIVERGENCES IN TODAY'S MESSAGE, both raised rather than smoothed
+- **His hypothesis today is the reading he ruled against.** "A ball-based interaction will perform best"
+  is candidate A. Asked whether he is reopening it; did not assume either way.
+- **Today's sixth criterion is Coupled; the approved sixth is Learning-Relevant.** "Coupled" appears
+  **zero** times in the approved document (checked). Recommended adopting it as a **seventh**, because
+  Learning-Relevant already carries a live CONCERN against his own formulation: the condition is satisfied
+  by *controlling the ball in the space*, not by engaging a defender — *"rewards finding the space rather
+  than using it against someone"* — which argues for a multiplier **smaller** than x2.
+
+### 4 · WHAT ACTUALLY CHANGED — the 2 October blocker is cleared
+That analysis named one blocker and two routes past it: **live possession attribution, "which I could not
+find established"**, or an episode scope. **The Sport Profile established the first on 6 October.** So the
+route that never needed an episode model is open — which satisfies his constraint today ("without
+requiring a general attacking-episode model") out of work already done.
+
+**And the smallest bound is inside his own condition.** It already reads possession ("after which the
+touching player's team retains possession"), so bounding the advantage by that same possession costs **no
+new dependency**: no episode model, no time window, and nothing A04 does not hold (the possession relation
+plus one POSSESSION_CHANGE transition). It is also what `incentive-expression.ts` has said in unratified
+wording all along — *"your team keeps it until the next change of possession"* — which could not rest on
+anything until now.
+
+### 5 · THREE COSTS FLAGGED
+- **IT FLIPS SD-104.** His ruling of 7 October exempts A04's initial holder because no established rule
+  reads it. This condition would read it, so the holder becomes activity-design information, the coach
+  must be told who starts, and the Q3 report becomes a genuine loss. A consequence of his two rulings read
+  together.
+- **Nothing can carry it.** A modifier has exactly five fields (condition.type, condition.referents,
+  magnitude, operation, combination); **no row in the register has a criterion, parameter or satisfied-by
+  field** (probe over all 90 rows). Smallest addition: a new field on the existing V7 collection — the
+  same size of act as V9a under SD-30, which the register itself calls *"a new field on an existing
+  collection, so LOCAL by the grammar sheet's own test"*.
+- **A window is not the answer.** `V24 startsOn` IS an event by construction, but a window **closes on
+  time only** — `V26 expiryEffect` is what happens WHEN it expires, not what ends it. So "until the next
+  change of possession" is not expressible as a window, and a modifier cannot reference one anyway.
+
+### 6 · THE ZERO-ADDITION FALLBACK, and why it is not recommended
+Read the condition as satisfied when the **scoring event itself occurs inside a channel**: Coupled cannot
+fail, because the qualifying interaction and the score are the same occurrence, and it needs no new field.
+Not recommended — it is the least faithful reading (scoring in a channel is neither "starting in" nor
+"moving through"), and **it is not as free as it looks**: the channel widths in the artifact are an UPPER
+BOUND, not a marked width, so "the score happened inside a channel" is not determinate on the ground until
+the coach fixes the width. Kept as the fallback if the new field is judged too much before field use.
+
+### 7 · CORRECTIONS THE REFUTERS FORCED (28 agents; 16 of 18 load-bearing claims refuted or narrowed)
+Almost all for one reason — conflating what the SOURCE supports with what the REPRESENTATION can express
+with what is good COACHING design. Three changed the report:
+- **"Half the pitch is channel" is the WIDEST PERMITTED extent, not a realized width.** `spatial.ts`
+  composes the interval from `extentBound.max` and says so (*"containment is checked at the widest
+  permitted extent"*); the coach view says *"up to 7.5 m"* and recommends 6-7.5. His approved document
+  already had it right, so it is quoted rather than restated.
+- **The source names two MODES and NO SUBJECT.** Both participles predicate of "Actions"; the sentence
+  names neither ball nor player nor touch. So it does not favour touch over ball — one agent and my own
+  first instinct both had that wrong. His 2 October ruling chose touch **on the criteria**, and the source
+  neither supports nor contradicts it.
+- **The player reading is unavailable on REPRESENTATION grounds, not source grounds:** `V8b` referents are
+  *"references to regions, objects or events"* and `O2` closes objects to {ball, goal, line, gate} — a
+  player is none — plus spec section 7 "Deliberately not held" lists *"triggers keyed on player
+  positioning"*.
+
+### 8 · DEFECT, reported not repaired
+**`WIDEZONE-08.c`'s authored exclusion is never evaluated as an exclusion.** Row V5, AUTHORED, EXCLUSION,
+structuralClause *"No primary-event condition names a wide channel as referent (such a condition would
+compel or penalise channel use to score)"* — derived from the source's own third sentence. Measured, it
+reads SATISFIED whether a channel is named on V5 or not, and UNMET only when no V5 line exists. The
+prohibition is in the knowledge and is enforced by nothing. Harmless today, since nothing names a channel
+there; the same shape as everything else found this week.
+
+### 9 · ALSO WORTH HIS RESOLUTION
+Spec section 7, "Deliberately not held", includes *"The state of a game in progress: which target is live
+now, who has the ball now."* PS1, authorized 2 October, is a team-valued current state for exactly that,
+and the Wide Zone condition reads it. Not raised as a blocker; recorded as a tension between section 7 and
+PS1 that his later rulings have overtaken.

@@ -1,0 +1,188 @@
+Subject: Wide Zone — the comparison you asked for already exists and you approved it. What has changed is the blocker.
+
+Christian,
+
+Items 1 and 2 are done: the Golden Case is refreshed, the drift guard reports CURRENT against a1c46e8e,
+rendering now runs against the game the architecture authorizes, and the suite is green end to end — 360
+checks, no failures. The Q3 possession-holder report stays visible with the regression assertion pinned by
+name, so any additional Q3 loss still fails on its own.
+
+Item 3 needs a different answer from the one you asked for, and I want to put the reason first.
+
+
+THE COMPARISON EXISTS, AND IT IS APPROVED
+
+docs/INCENTIVE_ASSURANCE_CRITERIA.md carries the header "APPROVED for use in authoring decisions —
+Christian, 2 October 2026". It contains the three-candidate ball/player/touch comparison, your settled
+rulings on it, and your chosen formulation. Its own framing of the risk is the one you wrote: that you
+wanted criteria "so machine convenience doesn't inadvertently determine ecological design".
+
+So I have not re-run it. Re-running it would discard your own recorded reasoning and hand you a fresh
+conclusion as if it were new, which is the opposite of what that document is for. What follows is: what
+it already settled, two places where today's instruction differs from it, and the one thing that has
+genuinely changed since — which is the thing that unblocks the decision.
+
+
+WHAT IT ALREADY SETTLED
+
+Your chosen formulation, in your words: "a controlled attacking-team touch within the wide channel".
+
+  1. "Controlled" means retained possession, observably. Your condition, exactly: "A touch within the
+     channel after which the touching player's team retains possession." And your preference about where
+     it lives: "I would prefer the canonical representation to carry that observable relationship rather
+     than rely on the qualitative word controlled." SETTLED.
+
+  2. Traversal alone does not qualify, and your reasoning was that the assurance process had found
+     evidence the source itself did not resolve: "mere ball traversal admits incidental entries,
+     clearances and deflections and weakens the relationship to actually exploiting the space." Traversal
+     is neither required nor sufficient. SETTLED — and recorded at the time as the first case of the
+     criteria ruling against authored source material rather than merely choosing among readings of it.
+
+  3. The attacking-team restriction was HELD, pending a bounded representation check: whether existing
+     selected knowledge independently requires the representation to know which team possesses the ball.
+     Your instruction then was that neither mechanism be implemented before that evidence returned.
+
+  4. Magnitude remained open, to be evaluated against the settled condition rather than inherited.
+
+The candidate verdicts, briefly, because they are what produced the ruling. Player: UNAVAILABLE, not
+merely unattractive — two CONTRADICTIONS against authored knowledge, "Zones optional" and "Entering must
+not be compulsory", because a team can station a player in each channel and the condition is permanently
+satisfied. Ball: passes the floor, weak on Proportionate, and the figure is checkable — at the widest
+permitted extent the two channels are 50% of the pitch width, 40% at the preferred 6 m, so a condition on
+mere ball presence is satisfied incidentally. Touch: strongest on the three criteria carrying the
+ecological intent, weakest on the one the engine cares about most. The document's own summary of that:
+"If we had chosen for machine convenience we would have chosen A."
+
+
+TWO PLACES WHERE TODAY'S INSTRUCTION DIFFERS, BOTH WORTH YOUR ATTENTION
+
+FIRST — your hypothesis today is the reading you ruled against. "My current hypothesis is that a
+ball-based interaction will perform best" is candidate A, and A is what the 2 October ruling set aside,
+on reasoning I think is better than the hypothesis: incidental entries, clearances and deflections. You
+may be reopening it deliberately and that is entirely yours to do. But I am not going to quietly re-rank
+A first when your own record says otherwise, so I am asking rather than assuming.
+
+One correction to the ground of that question, because the earlier analysis and my own first instinct
+both got it slightly wrong. The source sentence names two MODES and no SUBJECT at all. "Actions starting
+in or moving through the wide channel" — both participles predicate of "actions", and the sentence names
+neither a ball nor a player nor a touch. So the source does not favour any of the three; choosing a
+subject is a decision it leaves open, which is exactly why the criteria had to do the work. Your 2 October
+ruling chose touch, and the source does not contradict it.
+
+SECOND — your sixth criterion today is not the approved sixth. The approved six end with
+Learning-Relevant, added on your own ruling on 2 October. Coupled appears nowhere in that document; I
+checked. I think Coupled is a real addition and a well-aimed one — it names a failure the approved set
+genuinely misses — and I would recommend adopting it as a SEVENTH rather than in place of
+Learning-Relevant, because Learning-Relevant has already produced a live CONCERN against your chosen
+formulation and that concern bears on the magnitude question you left open:
+
+  the condition is satisfied by controlling the ball in the space, not by engaging a defender and not by
+  penetrating. A team could circulate into the channel and back out, never attempt the 1v1, and still
+  take x2. So the incentive rewards finding the space rather than using it against someone.
+
+Recorded conclusion at the time, which I still think is right: not a contradiction, because an incentive
+that REQUIRED a 1v1 engagement would be the more dangerous design — but an argument for a multiplier that
+biases attention rather than one large enough to pay for circulation.
+
+
+WHAT HAS ACTUALLY CHANGED — AND IT IS THE THING THAT UNBLOCKS YOU
+
+The 2 October analysis found exactly one structural blocker, and named the only two ways past it:
+
+  "Attacking-team" cannot be evaluated without something the representation does not establish. To know a
+  touch was the attacking team's, the game must establish either which team is attacking at the moment of
+  the touch — live possession attribution, which I could not find established; or that the touch belongs
+  to the team that subsequently scored — which needs a window tying the touch to the score, which is the
+  episode scope.
+
+The first of those is now established. The Soccer Sport Profile of 6 October puts the possession
+relationship into the representation as legitimate game structure, and A04 holds it. So the route that
+does NOT need an episode scope is open, and it was not open five days ago.
+
+That is also the direct answer to the constraint you set today. You asked for the smallest operational
+relationship "without requiring a general attacking-episode model". You do not need one, because the
+episode route was only ever the fallback for the possession route, and the possession route now exists.
+
+
+THE SMALLEST COUPLING, AND WHY IT COSTS NOTHING EXTRA
+
+Your entitlement test, applied to the settled formulation rather than to the bare reading: the
+formulation itself does not create an entitlement. "A touch within the channel after which the touching
+team retains possession" is grained to one action. What creates the indefinite entitlement is that
+nothing in A04 bounds the advantage once earned — the modifier is a bare region predicate with no scope
+at all. So the unbounded reading is an artifact of our representation, not of your condition.
+
+And the smallest bound is already inside your condition. It reads possession — "after which the touching
+player's team retains possession". The same relation bounds the advantage: it applies while that team
+still has the ball, and a possession change ends it. That needs
+
+  - no episode model, general or otherwise;
+  - no time window;
+  - no new dependency, because the condition already reads the relation that would bound it;
+  - and nothing A04 does not already hold: it has the possession relationship and one transition, keyed
+    on the possession change.
+
+I will note without leaning on it that this is also what our own generator has been saying in unratified
+wording for months: "your team keeps it until the next change of possession." That sentence was filed as
+a ratification candidate and could not rest on anything. It can now.
+
+Three things you should weigh against it.
+
+  1. IT FLIPS THE SD-104 EXEMPTION. Your ruling two days ago was that an initial state value is
+     activity-design information when an established rule reads it, and that A04's initial possession
+     holder is exempt because none does. Author this condition and one does. The holder would become
+     activity-design information, the coach would have to be told who starts, and the Q3 report we just
+     agreed to leave visible would become a genuine loss rather than an exempt one. That is a consequence
+     of your two rulings read together, not a new question.
+
+  2. NOTHING CAN CARRY IT TODAY. A value modifier has exactly five fields — condition type, condition
+     referents, magnitude, operation, combination — and not one of them can say what meets the condition
+     or name a scope. I checked every row in the register: none has a criterion, a parameter or a
+     satisfied-by field. The smallest addition is a new field on the existing modifier collection, which
+     is the same size of act as the operation field you ruled in under SD-30, and the register's own note
+     calls that "a new field on an existing collection, so LOCAL by the grammar sheet's own test".
+
+  3. A WINDOW IS NOT THE ANSWER, AND I CHECKED. A time window opens on an event by construction, but it
+     CLOSES on time only — the expiry field says what happens when it expires, not what ends it. So
+     "until the next change of possession" is not expressible as a window, and a modifier cannot
+     reference a window in any case.
+
+The one alternative that needs no new field at all: read the condition as satisfied when the scoring
+event itself occurs inside a channel. Coupled cannot fail, because the qualifying interaction and the
+score are the same occurrence. I am not recommending it, for two reasons. It is the least faithful of the
+candidates — scoring in a channel is neither starting in nor moving through — and it is not as free as it
+looks, because the channel widths in the artifact are an upper bound rather than a marked width, so "the
+score happened inside a channel" is not determinate on the ground without the coach fixing the width
+first. It is worth having as the fallback if you decide the new field is too much before field use.
+
+
+MY RECOMMENDATION
+
+Keep your 2 October ruling. Author the condition you already chose — a controlled attacking-team touch
+within the wide channel, with "controlled" as the observable relationship you specified — and bound the
+advantage by the possession it was earned in, which costs nothing because the condition already reads
+that relation. Adopt Coupled as a seventh criterion. Decide magnitude last, and I would put the
+Learning-Relevant concern in front of you when you do, because the argument there is for less than x2
+rather than more.
+
+What I would NOT do: re-rank the ball reading first on today's hypothesis without you saying you are
+reopening it; build a time-window mechanism; or author anything before you rule.
+
+One defect found while checking, reported and not repaired: the authored exclusion that forbids a
+primary-event condition naming a wide channel — the one derived from "players can choose to use them or
+not" — is never actually evaluated as an exclusion. Measured, it reads satisfied whether a channel is
+named or not. The prohibition is in the knowledge and is enforced by nothing. It does not block anything
+today, because nothing names a channel there, but it is the same shape as the losses we have been finding
+all week.
+
+
+ON THE PILOT QUESTION
+
+Everything else is ready. The chain closes, the activity is seventeen instructions all traceable to the
+game, and the one line a coach cannot execute as written is the channel condition — which is this
+decision. Settle it and A04 is runnable as written.
+
+Successful Region Access stays parked, general COMPLETED_PASS reachability stays deferred, and I have not
+touched the Sport Profile, the other twelve goals, or any assurance tooling.
+
+Joe
