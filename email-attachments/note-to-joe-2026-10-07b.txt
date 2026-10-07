@@ -1,0 +1,75 @@
+Joe — note alongside the Wide Zone email
+
+
+THE HEADLINE: HE ASKED FOR WORK HE ALREADY APPROVED
+
+docs/INCENTIVE_ASSURANCE_CRITERIA.md is his, approved 2 October, and it already contains the exact
+three-candidate ball/player/touch comparison he asked for today, the per-criterion verdicts, and his
+settled rulings. I did not re-run it. Re-running it would have handed him a fresh conclusion over the
+top of his own recorded reasoning, which is precisely what that document exists to prevent.
+
+Two things in today's message differ from it and I raised both rather than smoothing them over:
+
+  1. His hypothesis today — "a ball-based interaction will perform best" — is candidate A, the reading
+     he ruled AGAINST on 2 October, with better reasoning than the hypothesis (incidental entries,
+     clearances, deflections). I asked whether he is reopening it rather than assuming either way.
+  2. His sixth criterion today is Coupled. The approved sixth is Learning-Relevant. Coupled appears zero
+     times in the approved document — I checked rather than asserted. I recommended adopting it as a
+     seventh, because Learning-Relevant already produced a live concern against his own chosen
+     formulation and that concern argues for a SMALLER multiplier than x2.
+
+Neither is a gotcha and I tried hard not to make it read as one. He may simply not have had the document
+in front of him.
+
+
+THE THING THAT MAKES THIS DECIDABLE NOW
+
+The 2 October analysis named one blocker and two ways past it: live possession attribution, "which I
+could not find established", or an episode scope. The Sport Profile established the first on 6 October.
+So the route that never needed an episode model is open, and his constraint today ("without requiring a
+general attacking-episode model") is satisfied by what we already built rather than by a new design.
+
+Better still, the bound is free: his settled condition already reads possession ("after which the
+touching player's team retains possession"), so bounding the advantage by that same possession costs no
+new dependency. The coupling he asked me to find was inside his own condition.
+
+
+THE CONSEQUENCE HE NEEDS TO SEE
+
+Authoring that condition FLIPS SD-104. His ruling two days ago exempted A04's initial possession holder
+because no established rule reads it. This condition would read it. So the holder becomes
+activity-design information, the coach must be told who starts, and the Q3 report we just agreed to
+leave visible becomes a genuine loss. That follows from his two rulings read together — it is not a new
+question, and he should get to see it before he rules rather than after.
+
+
+ON THE AGENT WORK
+
+28 agents. 18 load-bearing claims adversarially checked, 16 refuted or narrowed — almost all for the
+same reason: conflating what the SOURCE supports with what the REPRESENTATION can express with what is
+good COACHING design. I had warned them about exactly that and they still did it, which is a useful
+calibration on how strong that pull is. Three corrections changed what I sent:
+
+  - the "half the pitch is channel" figure is the WIDEST PERMITTED extent, not a realized width; the
+    coach view says "up to 7.5 m" and recommends 6–7.5. The approved document already had it right as
+    "50% ... or 40% at the preferred 6 m", so I quoted his document rather than restating it.
+  - the source names two MODES and no SUBJECT — so it does not favour touch over ball, which one agent
+    (and my own first instinct) had claimed. His 2 October ruling chose touch on the criteria, and the
+    source neither supports nor contradicts that. Cleaner and more honest.
+  - the "zero addition" fallback is not as free as it looks: the channel width in the artifact is an
+    upper bound, so "the score happened inside a channel" is not determinate on the ground. I kept it as
+    a fallback and said why I am not recommending it.
+
+
+WHAT'S LEFT
+
+Nothing is implemented and nothing is authored — he said not to. Everything else for the pilot is ready:
+the chain closes, 17 instructions all traceable, and the single line a coach cannot execute as written is
+the channel condition. That is this decision. Once he rules, it is a small field plus the authoring, and
+A04 is runnable as written.
+
+One defect flagged and not repaired: the authored exclusion forbidding a primary-event condition from
+naming a wide channel is never evaluated as an exclusion — measured, it reads satisfied either way. Same
+shape as everything else we found this week. Harmless today; worth knowing.
+
+— Claude
