@@ -6688,3 +6688,36 @@ Spec section 7, "Deliberately not held", includes *"The state of a game in progr
 now, who has the ball now."* PS1, authorized 2 October, is a team-valued current state for exactly that,
 and the Wide Zone condition reads it. Not raised as a blocker; recorded as a tension between section 7 and
 PS1 that his later rulings have overtaken.
+
+### 10 · REFINEMENT to section 8, from the last refuter verdicts (24 verdicts total, 21 refuted)
+The defect stands; its PROVENANCE was overstated in the email, and the distinction changes what the right
+repair would be.
+
+- **What stands, verified:** `WIDEZONE-08.c` exists in the restated corpus with `basis: AUTHORED`,
+  `strictness: EXCLUSION`, `row: V5`, structuralClause *"No primary-event condition names a wide channel as
+  referent (such a condition would compel or penalise channel use to score)"* — and it is **never evaluated
+  as an exclusion**: measured, SATISFIED whether a channel is named on V5 or not, UNMET only when no V5
+  line exists.
+- **What was overstated:** calling it "the authored exclusion ... derived from 'players can choose to use
+  them or not'" reads as though the SOURCE forbids the primary-event route. It does not. The item's **own
+  fitNote already records the tension**: *"'Entering must not be compulsory' read structurally; the
+  player-choice remainder is outside the boundary. **In tension with the original non-claim that the
+  primary event condition is free (ledger).**"* And of the three exclusions citing sentence 3, only
+  **08.a** (row S4, `access` forbidden in a channel's `functions`) is unambiguously binding — it resolves
+  SATISFIED against both channels, whose functions are exactly `['perceptual-reference']`.
+- **Consequence for the repair:** if he acts on the defect, enforcing `08.c` would enforce a RESTATEMENT
+  READING the restatement itself flagged as in tension with the source. The right first move is to
+  **ratify or retire the reading**, not to wire up its enforcement. Naming a channel on V5 is better
+  described as UNRULED than as forbidden.
+- **Unaffected:** the recommendation. `08.c` appears in the email only in the defect paragraph and nothing
+  in the recommendation rests on it; the primary-event route is argued against on Proportionate grounds
+  (one primary event under SD-06, so any condition on it is universal and would make channel use
+  compulsory), which stands on its own.
+
+### 11 · A METHOD TRAP WORTH KEEPING — grepping row ids understates consumption
+One verdict refuted "V4 and V6 are read by no code at all", and the reasoning generalises:
+`register.ts` says *"The register is versioned data, never code"*, so **rows are consumed GENERICALLY**.
+Zero string-literal hits for `'V4'` does not mean nothing reads V4 — it means nothing SPECIAL-CASES it.
+Three generic consumers read it without naming it. **Before concluding a row or field is dead, trace the
+generic consumers (the row loop, the index, the gate that iterates `classesOn`), not just the string.**
+Same family as the token-search failures already recorded in memory.
