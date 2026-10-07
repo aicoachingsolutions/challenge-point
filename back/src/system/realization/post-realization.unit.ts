@@ -56,6 +56,35 @@ function chain(override?: (envelope: Record<string, unknown>) => void) {
     }
 }
 
+/**
+ * **SUSPENSION GUARD — his reachability ruling of 5 October removed this file's subject.**
+ *
+ * Every check below runs the post-realization gates over a realized A04. A04 is no longer authorized —
+ * `GA-TRIGGER-REACHABLE` fails because its only transition is keyed on a possession change and the game
+ * establishes no ball — and `realize()` enforces that itself, so `chain()` cannot produce a realized game.
+ *
+ * The checks are kept rather than rewritten, because restoring them needs a ball, and a ball today forces a
+ * free choice of its layout position: exactly the representational question he has open. Rewriting around that
+ * would hide the coupling between the two rulings. So the file announces the suspension, loudly, every run.
+ *
+ * This is deliberately a whole-file guard: the checks below are bare module-level blocks rather than registered
+ * tests, so there is no per-check hook to suspend them individually.
+ */
+{
+    const probe = derivationInputFor(selectFor('A04', null))
+    const probeResult = runDerivation(probe)
+    if (!isStampedHalt(probeResult)) {
+        const resolved = assembleResolvedGame(probeResult, (runStages0to10(probe) as any).classes, indexRegister(probe.register), probe.contracts)
+        if (!resolved.coherence.mayRealize) {
+            console.log('  SUSPENDED  post-realization.unit.ts — every check here realizes A04, and A04 is no longer realizable')
+            console.log(`             Gate A is ${resolved.coherence.gateA} (${resolved.coherence.failingChecks.join(', ')})`)
+            console.log('             Blocked on the placement ruling: giving this file a ball would force an invented position.')
+            console.log('post-realization.unit.ts — SUSPENDED')
+            process.exit(0)
+        }
+    }
+}
+
 const teamsOf = (realized: Realized) => (realized.game as any).performers.teams as Record<string, unknown>[]
 
 // ── A member property's address is the WHOLE remainder after `[]`, and addresses never collide ─────

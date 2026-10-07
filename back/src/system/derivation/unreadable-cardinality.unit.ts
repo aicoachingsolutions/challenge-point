@@ -49,7 +49,9 @@ function resolvedFor(input: any) {
     const result: any = runDerivation(input)
     const staged: any = runStages0to10(input)
     const index = indexRegister(input.register)
-    return { resolved: assembleResolvedGame(result, staged.classes, index, input.contracts) as any, index }
+    // `result` is returned too: the gate report is the only place a check's verdict can be read, and one
+    // test below needs to say WHICH check withholds authorization rather than merely that something does.
+    return { resolved: assembleResolvedGame(result, staged.classes, index, input.contracts) as any, index, result }
 }
 
 const corpus = resolvedFor(corpusInput())
@@ -167,13 +169,30 @@ test('no learning goal carries an unreadable claim, so no goal outcome changes',
     assert.deepEqual(affected, [], `the correction must touch no goal, and touches ${affected.join(', ') || 'none'}`)
 })
 
-test('A04 still authorizes realization, and every claim it carries has a readable count', () => {
-    const { resolved } = resolvedFor(derivationInputFor(selectFor('A04', null)))
-    assert.equal(resolved.coherence.realizationAuthorized, true, 'A04 is unaffected')
+/**
+ * **The assertion here has moved twice, and the current form is the strongest of the three.**
+ *
+ * It began as `realizationAuthorized === true`, used as a proxy for "A04 is unaffected by the cardinality
+ * work". The 5 October reachability ruling made that proxy false for a reason with nothing to do with
+ * cardinality, so it was replaced by a tighter claim: reachability is the ONLY check with a failing clause.
+ * The Soccer Sport Profile of 6 October satisfies reachability, so A04 now has no failing clause at all.
+ *
+ * Asserting the empty list keeps the property this test actually exists to protect — if a cardinality change
+ * ever breaks A04, a check appears in that list and this fails naming it — while no longer carrying a
+ * permitted exception that would have to be maintained every time an unrelated ruling lands. An empty list
+ * is also the only form that cannot quietly grow a second entry.
+ */
+test('A04 carries only readable counts, and nothing blocks it', () => {
+    const { resolved, result } = resolvedFor(derivationInputFor(selectFor('A04', null)))
     for (const claim of resolved.existential as any[]) {
         assert.equal(claim.cardinalityUnreadable, false, `${claim.classId} must have a readable count`)
         assert.equal(typeof claim.shortfall, 'number', `${claim.classId}: a readable claim owes a number`)
     }
+    const failing = (result as any).gates.gateA.checks
+        .filter((c: any) => c.clauses.some((l: any) => l.verdict === 'FAIL'))
+        .map((c: any) => c.checkId)
+        .sort()
+    assert.deepEqual(failing, [], `no check may block A04; ${failing.join(', ') || 'none'} does`)
 })
 
 // ── And the display layer must not re-derive the inference the engine refused ──────────────────────

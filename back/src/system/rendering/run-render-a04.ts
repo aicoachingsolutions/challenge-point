@@ -11,6 +11,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import { checkFidelity } from './fidelity'
+import { goldenCaseDigest } from './freeze-a04-fixture'
 import { renderConcreteGame } from './render-concrete-game'
 
 const FIXTURE = path.resolve(__dirname, '../../../../docs/audits/a04-concrete-game-fixture.json')
@@ -23,6 +24,15 @@ console.log('='.repeat(72))
 console.log(`  fixture        ${path.basename(FIXTURE)}`)
 console.log(`  input digest   ${fixture.provenance.inputDigest}`)
 console.log(`  render-eligible ${fixture.closure.renderEligible ? 'yes' : 'no'}  (from the closure run; not recomputed)`)
+/**
+ * **Which Golden Case this is, stated — but NOT compared here.** Printing the frozen game's own digest costs
+ * nothing and lets a reader of this output say which game they are looking at. Recomputing the live game to
+ * compare against it would turn this script from a pure fixture read into a run of the whole chain, and his
+ * instruction for this script is the opposite: *"do not reselect or re-realize it. I want to isolate the
+ * rendering/communication boundary."* The comparison is `fixture-currency.unit.ts`, which runs in the suite
+ * immediately before the rendering tests.
+ */
+console.log(`  golden case    ${goldenCaseDigest(fixture)}  (compared against a live run by fixture-currency.unit.ts, not here)`)
 
 const rendered = renderConcreteGame(fixture)
 

@@ -1,0 +1,161 @@
+Christian,
+
+All four done. The sweep confirms your expectation, §5.4 is amended, and the PS1 trace found something that
+changes what "a coherent A04" means — in the direction you suspected when you said a ball should not become our
+definition of success.
+
+**And it begins with a correction to my own work.** You were right to be suspicious, and the evidence is SD-44's
+own text.
+
+
+0 · SD-44 NAMES THE RELATIONSHIP, NOT THE BALL — and I mis-stated it in writing
+
+When I rewrote RC-19 on 5 October I put the prerequisite for a possession change as *"opposing teams and a ball
+object"*. SD-44's own row says something different:
+
+    "turnover when opposing teams and the relevant possession relationship exist"        (SD-44, evidence key C22)
+
+**The relationship is the prerequisite. The ball is a prerequisite of the relationship.** Your ruling of 5 October
+is consistent with that — *"possession is a relationship involving the ball ... cannot be considered structurally
+reachable when the resolved game does not establish the prerequisites for that relationship"* — the prerequisites
+*for the relationship*. So the chain is trigger → relationship → ball, and I collapsed it to trigger → ball when
+I wrote the table.
+
+The consequence is item 4 below: **the engine checks the deepest term and never checks the named one.**
+
+
+1 · THE BOUNDARY RULING — RECORDED
+
+Recorded as yours, in your words, in two places: §1 of the specification, where it replaces the unattributed prose
+I flagged last time, with a note that it had been cited as the boundary for weeks without ever having been ruled;
+and on the applicability entry, restated so the register cites this formulation rather than the "dynamic object"
+language you have withdrawn. Suite green afterwards: 333 passing, 19 suspensions, nothing else moved.
+
+
+2 · THE BOUNDED CARRIER SWEEP — your expectation is confirmed
+
+Over all 33 goal-by-situation cases, for every trigger the selected knowledge actually keys a rule on:
+
+    ALREADY SUPPLIED
+      START, STANDING          a playable game / a standing condition      by construction
+      OUT_END_LINE, OUT_TOUCH  a bounded playing area                      SESSION envelope      19 cases each
+      REGION_ENTRY             the region exists and is accessible         SELECTION             16 cases
+      POSSESSION_CHANGE        opposing teams and the possession relation   satisfied in 1 case
+
+    NEEDS SOMETHING NOTHING SUPPLIES
+      POSSESSION_CHANGE        the carrier of that relation                 nothing              18 cases
+
+    REFERENCED BUT NOT CONSTRUCTIBLE AT ALL — a different gap, and held
+      COMPLETED_PASS           nothing constructs it; the trigger set is    nothing              15 cases
+                               built without reading the vocabulary
+
+**The ball is the only presently required sport-level carrier.** SCORE, TIME_EXPIRY and FIRST_FORWARD_PASS are
+keyed on by nothing in the operative form. So the sweep supports instantiating the smallest Soccer Sport Profile
+contribution, and does not open a population project.
+
+**One precedent worth having before you author it, because it is yours.** The sweep initially showed no reference
+to SCORE, which looked like a scanner fault since SCORE appears in A01-02's authored selector text. It is not a
+fault: the loader *rewrites* that selector. The authored `restart=GOAL_KICK & trigger ∈ {SCORE, OUT_END_LINE, …}`
+becomes the concrete `trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=…`, and
+the items carry the reason:
+
+    "Christian, 2026-09-26: the goal kick is 'the state in which the ball leaves play over the defending team's
+     goal line, having last been touched by an attacking player, without a goal being scored'."
+
+**That is a constitutive soccer fact you supplied as an owner ruling, to make an activity's rule expressible in
+registered terms.** It is the same move now under discussion, already made once. And `OWNER_RULING` is a
+first-class basis that can establish an element, provided it arrives as an item on a contract — the corpus uses
+that route seventeen times already. So nothing needs inventing; only the contract it sits on, which you have
+chosen.
+
+
+3 · §5.4 — TRACED, NOT LOAD-BEARING, AMENDED
+
+**Measured rather than read.** With the ball's position withdrawn and with the withdrawal stripped in memory,
+GA-ENVELOPE-FIT, GA-LAYOUT-FEASIBLE and GA-ONE-PRIMARY-EVENT return **identical verdicts** — on the corpus and on
+A01 with From Goal Kicks. One clause differs and only in its denominator: GA-NO-FAILED-LINE counts 58 lines rather
+than 60, the two extra being the ball's position rows. No verdict moves.
+
+So I adopted your wording, with the third conjunct about scoring references preserved and **no exception for any
+one kind** — it reads over layout-versus-state, as you asked.
+
+**But the dependency is masked rather than absent, and you should have it on record.** Two gates genuinely require
+an object position rather than merely checking one when present:
+
+- **GA-ONE-PRIMARY-EVENT's position clause FAILS on an unpositioned referent** — `unpositioned.length ?
+  fail(POSITION, …)`. If a ball were ever a referent of the primary scoring event, withdrawing its position would
+  fail that clause outright.
+- **GA-DIRECTION needs a derived interval on an object's along-row** to decide which end it is at. I know this
+  first-hand rather than by reading: my first version of the applicability entry used a positive list, which
+  withdrew the position of an object kind nobody had enumerated, and GA-DIRECTION went NOT_EVALUABLE. That is how
+  the polarity bug was caught.
+
+Neither bites today, because no ball is a primary-event referent or an objective's target. Both would bite the
+moment one were. And GA-ENVELOPE-FIT does treat an unreadable placement as a reason to defer, so it will respond
+to a withdrawn position once this corpus stops authoring placements as prose. All of that is now written into the
+amended cell rather than left in correspondence.
+
+**One defect found in passing, reported not repaired.** GA-ONE-PRIMARY-EVENT's position clause tests a referent's
+identity one way and then resolves it another: the identity test accepts a typed structural reference, and the
+resolution step then looks the referent up by class id, which a typed reference is not. **A typed reference passes
+the identity test and then fails to resolve.** Same shape as the filter that could never match. Not touched.
+
+
+4 · PS1 — THE TRACE, AND WHY A BALL IS NOT SUFFICIENT
+
+**What was it intended to represent?** The *holder* of a relation the corpus was already naming. The register's own
+note is unambiguous: *"the corpus named the states of this relation before anything could hold one. PS1 is what
+holds it."* And the proposal that preceded it put the gap the same way: *"There is no field, on any row, for which
+team has the ball."* Under your ruling of today that is squarely game structure — the rules key on it.
+
+**What was supposed to establish it?** Nothing was in a position to. PS1 was added to the register on 3 October,
+*after* all eight contracts had been restated against a register that had no such row. Measured: 860 declaration
+reaches across 81 distinct rows, **zero of them on PS1**, and zero items anywhere carry that row — which is
+exactly why its verdict reason is "no coverage", the engine's term for *nobody looked*.
+
+**And this is not special to PS1, which I think matters more than the PS1 case itself.** All eight contracts
+declare one identical frozen roster of 81 rows. The register now carries 90. **So there are rows the corpus
+structurally cannot cover, because it was frozen against an older register** — PS1 is one of them, not a one-off.
+And whoever added PS1 recorded the consequence at the time — *"NOT_AUTHORED 24 → 25, both PS1"* — so it was a
+known cost rather than an oversight.
+
+**Does POSSESSION_CHANGE require it?** Yes, and by your own ruling rather than by inference — SD-44 names *"the
+relevant possession relationship"*, as in item 0.
+
+**Why does reachability require a ball but not the relationship?** Because the engine checks a presupposition of
+the prerequisite instead of the prerequisite. The trigger construction keys on two things, opposing teams and a
+ball-kinded object, and **never reads PS1 at all.** A ball is what the relationship presupposes; the relationship
+is what SD-44 names. So today a game can have the carrier, reach the trigger, realize cleanly — and still not hold
+the relation the trigger exists to change. That is precisely what A01 with From Goal Kicks does.
+
+**Why PS1 is not even offered as a choice, measured.** I traced the gate. PS1 fails the game-level existence gate:
+a game-level row is only openable if the session sources it or something has *addressed* it, and PS1 is neither.
+**So the obstacle is that its existence is unaddressed, not that its choice space is missing** — the choice space
+is registered and fine. The threshold is low and worth knowing: *a single bounds-only contribution* would make the
+line open, at which point SD-R2's "which team starts can remain a permitted free choice" becomes expressible; an
+authored required contribution would resolve it outright.
+
+**One provenance defect.** PS1's note cites **SD-R2, which is a retired non-authority** — explicitly listed as not
+citable. The structurally identical row T2 was corrected away from exactly that citation and carries a
+`fillableAuthority` naming SD-39 instead; PS1 carries no authority field at all. No code reads it, so nothing
+behaves differently — but it is the same stale citation, left standing on the newer row.
+
+**Recommendation, not implemented.** The smallest correction is a second named clause on GA-TRIGGER-REACHABLE:
+where a transition is keyed on a possession change, the possession relation must be resolved or open. Not in the
+trigger construction, because the trigger set is built before anything is resolved. I am not making it, for a
+reason you should weigh: **it would fail a check that is green today, and it would mean a ball alone no longer
+makes A04 realizable.** That is the right outcome if SD-44 means what it says, and it is a status change to a
+frozen artifact, so it is yours.
+
+**Which gives you a choice worth seeing plainly.** A ball alone restores reachability under the current
+implementation and leaves the relation unestablished. A ball plus a bounds-only contribution on the possession
+relation would satisfy SD-44 as written and let realization choose the starting team. The second is one item
+larger and is the one I would take, but it is a knowledge decision and not mine.
+
+Holds unchanged: Wide Zone trigger semantics and magnitude held, Successful Region Access parked, generation
+frozen, the 19 checks visibly suspended with no fixtures or exceptions invented to green them. No ball authored, no
+position authored, no Sport Profile populated, no cleanup done.
+
+Suite: 333 passing, exit code 0, 19 suspensions.
+
+Joe

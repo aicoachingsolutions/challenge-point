@@ -5715,3 +5715,873 @@ leg produced two of these three.** The rule is the simpler one: don't send until
 
 **Agent scorecard, final: 28 agents, 19 load-bearing claims verified adversarially, 8 REFUTED — and one refutation
 was of MY OWN measurement (the "no control case" universal).** The verification stage paid for itself twice.
+
+---
+
+## 5 October (later) — his three rulings: RC-19 corrected + reachability ENFORCED, evidence defect repaired, placement question answered
+
+### 1 · RC-19 / SD-44 — authority corrected AND enforcement added (both authorized)
+He ruled: **SD-44 supersedes RC-19 wherever they conflict**; a trigger is reachable only when the resolved game
+contains the structural prerequisites; **possession is a relationship involving the ball**, so POSSESSION_CHANGE
+is not reachable without one. Not to be scoped to GF2-07.a or A04.
+- **`derivation-rules-2026-09-18.md`**: RC-19 rewritten — records that it was wrong and cited as authority for
+  four months, quotes SD-44 as governing, carries the per-trigger prerequisite table with his ball ruling, and
+  names `GA-TRIGGER-REACHABLE` as the enforcement.
+- **`register-2026-09-18.json` row T1**: the valueType's stale "Reachable triggers exist by construction (RC-19)"
+  replaced. Safe: `valueType` is read by exactly one regex (`engine.ts:455`, `/one property per (member|referent|
+  trigger)/i`) which T1 does not match.
+- **`GF2-07.a` NOT touched.** Its structuralClause still discharges onto RC-19, which no longer supports it —
+  that is *why* A04 fails, and he wants the failure visible. Editing it would be an authoring act.
+- **NEW CHECK `GA-TRIGGER-REACHABLE`** (Gate A is now **16** checks; the inventory test updated 15→16).
+  **Why its own check and not a clause:** `failingChecks` is a list of checkIds, so only a named check makes the
+  failure legible — folded into GA-TRANSITION-COHERENCE it would never name the trigger.
+  **It reads no cell** — a transition's trigger has no FIELD row, so it reads the class's own selector. It is the
+  only Gate A check that does, and that is why nothing caught this.
+- **Measured:** A04 FAIL (gateA FAIL, mayRealize NO, **GA-TRIGGER-REACHABLE its ONLY failing check**); A01-no-
+  situation, A05 FAIL on GF2; **D03, TD02 FAIL on GF4's `c:blind:GF4:I06`** (so it is general across game forms);
+  **control A01+A01-02 PASS with 2 instances** and still fails only GA-NO-FAILED-LINE as before; D01 passes
+  vacuously. **A04 is no longer render-eligible; the frozen fixture is untouched as an artifact.**
+- **Divergence RECORDED not repaired** (written into RC-19's text so it cannot be rediscovered): the engine's
+  team-side test wants **>= 1** P1 class where the prerequisite says *opposing* teams. No corpus case turns on it.
+
+### 2 · GA-TRIGGER-UNIQUE evidence defect — repaired (authorized)
+The early return is **deleted**: with <2 transitions the pair loops do not run, `comparedPairs` stays 0, and the
+compatibility clause reports `PASS / NO_APPLICABLE_INSTANCES / 0` where it read `EVALUATED / 1`. Now counted in
+`clausesVacuous`.
+- **It was ALSO hiding a real failure:** `collided` is per transition LINE, not per pair, so it is well defined
+  for one transition — and the early return PASSed it **without computing it**. Latent (no corpus case has an
+  UNRESOLVED transition line); a regression case forces one and it now FAILS.
+- **His correction preserved in code AND test:** on an unreachable-trigger fixture GA-TRIGGER-UNIQUE PASSES while
+  GA-TRIGGER-REACHABLE FAILS, and GA-TRIGGER-UNIQUE's output must never mention reachability.
+- New file `back/src/system/derivation/trigger-reachability.unit.ts`, **13 cases**, registered in package.json.
+- **My own fixture was wrong first and the test caught it:** P1's only selector attribute is `team`, not
+  `designation`. A selector naming an unregistered attribute **forms no class and raises nothing** — silent.
+
+### 3 · Object existence vs fixed placement — ANSWER: (b) AN INVARIANT WRONGLY PREVENTS IT
+Investigated only; nothing altered, no position authored.
+- **CORRECTED by a verifier, and the corrected version is stronger.** I first called this "already authored".
+  It is not: `UNDECLARED` means **nobody looked** (`resolved-game.ts:59-62`), and the vocabulary has a separate
+  code for deliberate non-constraint — `NON_CLAIMED` — which the SAME two rows use for other object kinds. So
+  `A01-02` row O4/O5 `UNDECLARED` on `kind=ball`, note *"The ball's layout position was never examined. Its
+  position at the restart moved to T4 (07.a)"*, is an ACKNOWLEDGED GAP with a pointer at
+  `transitions[].placement.region`, not an authored claim that placement does not apply.
+- **And that makes it worse: AM-04 is exactly this case.** `derive.ts:521` — his ruling, *"Unexamined silence
+  cannot license a free choice. An `UNDECLARED` declaration reaching the row bars openness."* **It does not bar
+  it here, because `outerBound` satisfies the very authority test AM-04's veto consults.** His rule is right,
+  implemented, and these two rows are routed past it.
+- **Two rules override it:** (1) enumeration creates both position lines for every individuated object because
+  the register's `applicability` block has **no O-row entry**; (2) `derive.ts:588-590` —
+  `authorityReaches = record.bounding.length > 0 || index.outerBound.has(row)` — so a row's own
+  `outerBound: SESSION_ENVELOPE` **defeats the silence veto**. Then `realize.ts:407-409` refuses any unclosed
+  open choice with **no exemptions of any kind**.
+- **THE DECISIVE CONTRAST IS ONE KEY WIDE:** only S5, S6, O4, O5 carry `outerBound`. **O3 (count) carries none**,
+  so under *identical* silence the same ball's count lands `NOT_AUTHORED` (honest gap) while its position is
+  forced into a choice.
+- **The compelled choice is not even checked:** bounds `[]`, permitted `null` -> `checkBound` returns
+  `UNBOUNDED`. It compels an uncheckable invention rather than protecting a constraint.
+- **COUNTERFACTUAL PROVEN, register data only, NO code change:** adding `applicability.O4/.O5` conditioned on
+  `selectorAttribute: kind` (the shape T1a already uses in production) makes a ball's position lines
+  **WITHDRAWN**, removes them from `resolved.open`, leaves them **out of `notEstablished` too**, keeps the ball
+  fully present as `{kind:"ball"}`, and **the position refusals disappear**. `RC-20` appears in **no source
+  file** — the block is generic data.
+- **HAZARD reported before he authorizes:** where `kind` is NOT fixed by the selector the line goes
+  **CONDITIONAL**, and a conditional line appears in **none** of the three lists — it would vanish silently. Two
+  corpus objects use an open selector.
+
+### 4 · Governance point recorded — and there is nowhere to file it yet
+"Presence in the grammar/register establishes that a concept is expressible; it does not establish that its
+semantics are consumed or enforced at runtime." **There is no Change Assurance artifact**:
+`INCENTIVE_ASSURANCE_CRITERIA.md` states it is "not the Change Assurance System — no tooling, no automation, no
+gate", so filing it there would bury it. Standing item here instead. **RC-19 makes six, and is the first where
+the unconsumed thing is an INVARIANT rather than a field.**
+
+### Two more corrections from the verification stage, caught BEFORE sending this time
+- **"Individuation FORCES O4/O5 open" is false, and my own earlier probe already showed it.** When GF2-06.a/.b
+  is flipped to AUTHORED, the resulting O1 class's **O4 comes back `RESOLVED:ENTAILED`** from GF2-06.b
+  (*"attacking end, as GF2-04..."*) and only `::O2` and `::O5` refuse. I had that refusal list in hand and
+  missed its significance. **So the invariant is NOT blanket: where a position is authored the line is DERIVED,
+  never a choice. It bites precisely on an object whose location nobody authored because it is state-dependent
+  — a ball.** The invariant singles out the dynamic case.
+- **"RC-20 is not special-cased anywhere" was a vacuous grep.** The string appears in no source file, but
+  `gaTransitionCoherence` (`gates.ts:1045-1084`) hardcodes T6/T3/T4/T5 with the literals CONTINUE and
+  STOP_RESUME without reading `applicability`. **What IS generic is the LINE-STATE machinery** (`engine.ts:276-287`,
+  `classify.ts:253` — both name no row id), which is the half the counterfactual exercised. Practical
+  consequence for him: an entry on O4/O5 would withdraw the lines correctly, and **no gate would then assert
+  anything about object placement** — right outcome, but a decision rather than a surprise.
+- **Also fixed a test that failed for the RIGHT reason:** `unreadable-cardinality.unit.ts` asserted
+  `realizationAuthorized === true` for A04 as its proxy for "the cardinality work is bounded". A04 now fails
+  GA-TRIGGER-REACHABLE by design. Rewritten to keep its real subject (readable counts, numeric shortfalls) and
+  to assert `failingChecks === ['GA-TRIGGER-REACHABLE']` — **stronger than the old blanket assertion**, because a
+  future cardinality regression would grow that list and still be caught. `resolvedFor` now also returns
+  `result` (additive) so a test can say WHICH check withholds authorization.
+
+**Verification scorecard for this round: 18 agents, 15 load-bearing claims checked adversarially, 5 REFUTED —
+and I waited for all of them before sending.** The two prior rounds each cost a correction email for not waiting.
+
+### A SECOND knock-on test, and the reason the first run hid it
+`completed-pass.unit.ts` pins `{failed, gateA}` for all 13 goals. **Six Gate A verdicts legitimately moved**
+(A01, TA01, A02, TA02, A05 from NOT_EVALUABLE; **A04 from DEFERRED_TO_REALIZATION**); TD02/D03 were already FAIL
+and gained a second failing check. **NOT ONE `failed` LINE COUNT MOVED** — the new check adds a failed *clause*,
+never a failed *line*, which is the containment fact worth having.
+- Baselines updated **with both reasons recorded in the comment**, and the test **strengthened**: it now also
+  pins `GA-TRIGGER-REACHABLE`'s own verdict per goal, so a future change that fails these goals for a different
+  reason cannot hide behind a verdict that already reads FAIL.
+- **WHY THE FIRST RUN DID NOT SHOW IT: `npm test` chains with `&&`, so it HALTS at the first failing file.**
+  The cardinality failure stopped the run before completed-pass, and before every realization and rendering file.
+  **A green-after-one-fix assumption is unsafe here — re-run the whole suite after each fix, and expect serial
+  discoveries.**
+- Pre-checked the files that had not yet run rather than waiting for a third round: `realize()` **does not
+  consult `realizationAuthorized`** (grep: zero hits), so the A04 realization tests still execute. **That is also
+  a limit worth knowing — A04's Gate A failure is reported and the pipeline script honours it, but realization
+  is not barred from running if called directly.** Reported to him; pre-existing, not changed.
+- Also confirmed the corpus-level Gate A test is unaffected: the conformance corpus includes A01-02's AUTHORED
+  ball, so POSSESSION_CHANGE is reachable there and its failing-check list stays `['GA-INFORMATION',
+  'GA-NO-FAILED-LINE']`.
+
+### THE BIG CONSEQUENCE: enforcing reachability leaves ZERO authorized goals, and the two rulings are COUPLED
+**Measured: 0 of 13 goals realization-authorized, with and without a practice situation.** A04 was the only one.
+`preRealization` is now FAIL for A01/TA01/A02/TA02/TD02/D03/A04/A05 and NOT_EVALUABLE for the five with no
+transition. A01+A01-02 still fails on GA-NO-FAILED-LINE + 3 unresolved T3/T4/T5 lines.
+- **`realize()` ENFORCES it — I had this wrong for an hour.** I grepped `realizationAuthorized` in realize.ts,
+  got zero hits, and nearly told him realization was unguarded. **The guard is `realize.ts:367`
+  `if (!resolved.coherence.mayRealize)`** — a different field name. **Same token-search failure a verifier had
+  caught me on earlier the same day.** Caught only because a test failed.
+- **BLAST RADIUS ON TESTS: identity 15 of 16 lose their subject; post-realization THROWS AT MODULE LOAD** (its
+  checks are bare top-level blocks, not registered tests, so `chain()` throwing kills the file);
+  realize.unit.ts's acceptance test cannot run. collection-population and rendering unaffected (the latter reads
+  the frozen fixture).
+- **THE COUPLING, and it is the finding worth keeping: restoring those tests needs a ball, and a ball today
+  FORCES an invented layout position** — the very value his placement question asks about and told me not to
+  author. **So Job 1's consequence is blocked on Job 2's ruling.** His placement ruling unblocks it directly.
+- **DID NOT CHOOSE FOR HIM.** Added a `Suspended` sentinel (identity) and a whole-file suspension guard
+  (post-realization, since bare blocks give no per-check hook), plus a `suspended()` reporter in realize.unit.ts.
+  **Bodies retained, nothing deleted, nothing rewritten around the gap, no ball or position invented anywhere.**
+  Every run prints the suspension with the blocking decision named. Suite green with suspensions visible.
+
+---
+
+## 5 October (later still) — his DYNAMIC-OBJECT ruling, sequenced. Hazard closed, applicability applied, opposing teams aligned.
+
+**HIS SEMANTIC RULING, recorded verbatim because everything below implements it:**
+> *A dynamic game object may exist without a fixed layout position when its location is state-dependent. A fixed
+> layout position is required only when authoritative knowledge establishes one as part of the game setup.
+> Placement associated with a restart or transition belongs to the existing transition-placement mechanism rather
+> than the object's static layout position.* For soccer, the ball is the immediate case.
+
+**Timing constraint now in force: ~3 weeks of soccer season, go/no-go wanted within 7 days, target is a
+Christian-only BOUNDED live pilot, not library coverage. Prioritize systemic pilot blockers over cleanup.**
+
+### 1 · THE CONDITIONAL-VISIBILITY HAZARD — closed first, as he sequenced it
+**And the register had ALREADY PROMISED this would not happen.** `applicability.selectorGrammar`: *"Where the
+selector does not fix the attribute the condition is UNDECIDABLE and the line is KEPT, so an applicability rule
+can never hide a real gap."* The line WAS kept — and `resolved-game.ts` then dropped every CONDITIONAL entry from
+all three lists. **Seventh registered-but-unenforced construct, and the first where the register itself stated the
+guarantee.**
+- **I had to correct my own earlier report:** post-classification there are **ZERO** surviving CONDITIONAL lines
+  in the corpus or any goal. Every stage-2 CONDITIONAL resolves to ENUMERATED or WITHDRAWN. The 22 silent lines
+  are all WITHDRAWN, which is legitimate. So the hazard was **latent**, not live — I had implied otherwise.
+- **But it fires on the very change he authorized.** `selectorApplies` returns `null` when a selector STRADDLES
+  the applicability list ("identity does not decide it"). GF4's `I02` is `kind ∈ {goal, target}`; against a list
+  naming `goal` and not `target` it straddles → CONDITIONAL → silent. Measured: silent lines 22 → 28.
+- **Fix: `resolved-game.ts` reports CONDITIONAL into `notEstablished`** with reason *"applicability unresolved"*,
+  distinguishing it from WITHDRAWN (condition FALSE, nothing owed, stays silent). **That closes the closure half
+  for free**, because `nothingClosedWithoutAuthority` ranges over `notEstablished` — so a concrete game that
+  fills a conditional line is now refused.
+- **Tested against a FORCED straddle, not the corpus**, because the corpus produces none. A fix whose only
+  evidence is "nothing changed" is not evidence.
+
+### 2 · THE APPLICABILITY ENTRY — applied, and his counterfactual verified
+`applicability.O4` and `.O5`, keyed on `selectorAttribute: kind`, `in: [goal, line, gate, zone, target]` — the
+static kinds. **A ball is absent, so its position rows are WITHDRAWN.**
+- **MEASURED, exactly his three conditions.** A01 + From Goal Kicks: ball present in `game.objects` as
+  `{kind:"ball"}` with **no position key**; O4/O5 **WITHDRAWN**; **open freedoms on objects: `[]`**;
+  POSSESSION_CHANGE reachable. Corpus: both balls withdrawn, **GF4's static target KEEPS its position and stays
+  an open choice** (the rule is about state-dependence, not about objects). **A04 untouched** — no ball, no
+  object, no position lines. **Zero CONDITIONAL survivors** (including `target` in the list avoids the straddle).
+- **Two unregistered kind values are in live corpus selectors: `zone` (GF2-06.a/.b) and `target` (I02).** O2's
+  draft list is `ball, goal, line, gate`. Both are in the entry because the corpus uses them. Reported.
+- **The `in` form is positive-only, so static kinds must be enumerated** and a new kind would straddle. That is
+  no longer silent — it is reported by (1) — but it is a maintenance edge, recorded in the entry's own text.
+
+### 3 · OPPOSING TEAMS — aligned
+`constructTriggers` required `teamClasses.length >= 1`. **Counting CLASSES is the wrong test, and it is the old
+defect's shape in miniature:** A04 has **ONE** P1 class establishing `min 2, max 2`; A01+A01-02 has **TWO**
+classes claiming the same two teams. Now reads the established **cardinality**:
+`classes.some(c => c.row === 'P1' && (c.cardinality?.min ?? 0) >= 2)`.
+- **NOT implemented, recorded in the code and in RC-19:** the design package also names *"distinct team
+  designations"* and *"opposed objectives"*. Neither is reachable at stage 2 — the team classes fix no
+  designation (empty selectors), and opposition is established by the objective structure under SD-95 ("a shared
+  target establishes the opposing relationship, and no team is consulted"), which `constructTriggers` cannot see.
+  Two teams is strictly stronger than one and weaker than the full prerequisite.
+- Forced both directions in a test: one team + ball → not reachable; two teams + ball → reachable.
+
+New test file `back/src/system/derivation/dynamic-object-placement.unit.ts`, **11 cases**, registered.
+
+### 4 · BALL OWNERSHIP — answer: NO LEGITIMATE OWNER. Returned as the gap, as he asked.
+- **DECISIVE EVIDENCE is the spec's own Owner column.** `game-representation-spec-2026-09-18.md:585` (§5.4
+  Objects): Owner = *"SELECTION; REALIZATION for position within bounds"*. **No sport/module/game-level owner
+  appears in §5's ownership column.** And the spec CAN express co-ownership when it means to — §5.3:572 gives
+  `teams[]` *"SELECTION, reconciled against SESSION"*. For Objects it does not.
+- **HIS OWN ADJACENT RULING ENDORSES THE CURRENT FAILURE. KR-04** (spec:406): *"RPC-001 does not own or
+  instantiate the physical carrier of its scoring event ... The resolved game must independently contain a
+  supported compatible carrier ... If selection produces an RPC-compatible scoring event for which no supported
+  physical carrier exists, **reconciliation fails/returns to selection**. RPC-001 does not manufacture the carrier
+  conditionally."* That is this case one carrier over, and it points at SELECTION, not a new layer.
+- **For EXISTENCE there is exactly one channel: a contract item.** `formClasses` iterates contract items and gates
+  solely on `establishesExistence`; SD-83 names the boundary. **So a citable standing decision CANNOT establish a
+  ball** — it supplies values to elements something else created. The session carries only E1-E4.
+- **Why A04 specifically has none:** it routes to RPC-004 Chance Creation, **RPC-004 has NO contract in the
+  corpus**, and GF2 + Wide Zone both declare O1 NON_CLAIMED.
+- **FEASIBILITY PROVEN (probe, deleted, nothing authored):** a 9th knowledge object with ONE item
+  (`O1, kind=ball, EXISTS, AUTHORED, REQUIRED`) → POSSESSION_CHANGE reachable, ball present with NO position,
+  **zero open freedoms on objects**, Gate A DEFERRED_TO_REALIZATION/mayRealize, realization PROCEEDED,
+  acceptance **0/0/0**. **The go/no-go path is one authoring decision.**
+- **Operational trap:** a contract in `contracts` but absent from `selection` still forms its elements and lines;
+  it loses its entry in `versions.objects`, the staleness stamp. **Put it in BOTH lists.**
+- **CORRECTED my own draft:** I had written "the sport module has no import path into the derivation layer at
+  all". **False** — `run-bounded-selection.ts` sits in that directory and imports the library the sport module
+  docks into. What IS true (verified by module-graph walk, not by name search): the derivation and realization
+  CORES are decoupled, and nothing the sport module knows becomes AUTHORITATIVE SUPPORT. It reaches selection,
+  not establishment.
+
+### TWO MORE FINDINGS, both reported not repaired
+1. **AN AUTHORED ITEM ON A WITHDRAWN LINE IS SILENTLY DISCARDED — general and PRE-EXISTING.** Measured: the same
+   item resolves `RESOLVED:ENTAILED` on a non-withdrawn row and resolves to NOTHING on a withdrawn one. True of
+   T1a (an applicability entry predating me) exactly as of O4/O5. **Caution: `forward` was empty in BOTH the test
+   and the CONTROL, so its emptiness proves nothing about reporting — I nearly read that absence as proof.** No
+   corpus knowledge authors a ball position, so nothing is lost today. **This is the half of his ruling the
+   applicability mechanism cannot express:** "a position IS required where knowledge establishes one" needs a
+   DEFEASIBLE withdrawal, and `applicability` is selector-based and absolute. His decision.
+   - Consequence handled honestly: `derivation-stage10`'s §1.9 dynamic-location test moved from `kind=ball` to
+     `kind=gate`. **Verified the invariant still fires there** (refusal RAISED for gate, none for ball). A
+     dynamic location on a STATIC object's layout row is the genuinely pathological case anyway.
+2. **THE SPORT-COUPLING GUARD HAS A HOLE EXACTLY WHERE THE REAL COUPLING IS.** `SPORT_TERMS` lists soccer,
+   football, goalkeeper, dribble, throw-in, corner kick, penalty kick, free kick, final third, midfielder … and
+   **NOT `ball`**. The single sport literal in the sport-neutral derivation layer is `'ball'` at `engine.ts:252`.
+   The ratchet caught my doc-comment "in football" last week, so it works for the terms it knows.
+3. **§5.4's Claim column now partly superseded by his ruling:** *"Every object referenced by a rule, transition or
+   objective exists **and is positioned** inside `area`"*. A dynamic object exists and is NOT positioned. Flagged
+   to him while cheap — this is the RC-19 pattern starting over.
+
+**Verification scorecard: 18 agents, 15 load-bearing claims checked, 12 REFUTED** — almost all overstatements of
+mechanism whose conclusions survived, and one caught a real error in my draft (the import-path claim above).
+
+### THE POLARITY FLAW IN MY OWN ENTRY — caught by an existing test, and the fix is a grammar addition
+**My first entry used a POSITIVE list (`in: [goal, line, gate, zone, target]`) and it was WRONG.**
+`derivation-stage10`'s GA-DIRECTION fixture uses kinds `goalA`/`goalB` — unenumerated — so `selectorApplies`
+returned FALSE and **their authored layout positions were WITHDRAWN**, making the direction clause NOT_EVALUABLE.
+Measured directly: `kind=goalA` O4 → WITHDRAWN with a positive list.
+- **The structural reason: a positive list cannot obey this mechanism's OWN rule.** `selector.ts:109` and
+  `derive.ts:902` both state it — an applicability condition *"may only ever remove a line it can positively
+  disqualify"*, so an undecided condition keeps the line and a rule can never hide a gap. That holds for a CLOSED
+  attribute (trigger). **`kind` is OPEN-ENDED** — `zone` and `target` are already in live selectors and absent
+  from O2's draft list — so a positive list makes **static the exception and dynamic the default**, the reverse of
+  his ruling.
+- **FIX: added `notIn` as an alternative to `in`** on the applicability condition (`register.ts` type + validation:
+  mutually exclusive with `in`, selectorAttribute-only; `engine.ts` negates while **preserving `null`** so an
+  undecided condition stays undecided). Entry is now `notIn: ["ball"]`.
+- **VERIFIED after: `goalA` ENUMERATED, `gate` ENUMERATED, `ball` WITHDRAWN.** Corpus: GF4's target keeps its
+  positions, both balls withdrawn, **0 CONDITIONAL survivors**. A01+A01-02: no open freedoms on objects.
+  **Sport-ball path: POSSESSION_CHANGE reachable, no open freedoms, realization PROCEEDED, acceptance 0/0/0.**
+- **This IS a concept addition to the grammar, which he praised the route for avoiding.** Reported prominently and
+  offered for reversal. It is one key, data not code, and it makes the mechanism obey its own rule.
+- Side effect: with `notIn: ["ball"]` the GF4 straddle no longer occurs, so the CONDITIONAL hazard is **latent
+  again**. The visibility fix stays — he required it, and its test FORCES a straddle rather than observing the
+  corpus, so it is not vacuous.
+- `dynamic-object-placement.unit.ts` now **13 cases**, including the polarity test and the `notIn` validation.
+
+### FIFTH knock-on — and the best one: the opposing-teams alignment broke MY OWN earlier test
+`trigger-reachability.unit.ts`'s `TEAM_AND_BALL` fixture asserted that "a team and a ball" makes POSSESSION_CHANGE
+reachable, and its team item was a bare `EXISTS` — **establishing ONE team**. That satisfied the old
+`teamClasses.length >= 1` test and correctly stopped satisfying the prerequisite once it was aligned with
+*opposing* teams. **The fixture was understated; the alignment was right.** Fixed to `COUNT 2`, renamed to say
+OPPOSING teams so the test states the ruling rather than a weaker version, and both corrections this fixture has
+earned by failing are now recorded in it (the earlier one being an unregistered selector attribute that formed no
+class silently).
+
+### FINAL STATE OF THIS ROUND — suite GREEN end to end
+**REAL_EXIT=0, 333 passing, 0 failures, 19 suspensions, last file (`rendering.unit.ts`) ran.**
+`trigger-reachability: 13` · `dynamic-object-placement: 13` · sixteen Gate A checks present.
+**Five knock-on failures across this round, EVERY ONE a test correctly detecting a real consequence** — and two
+of them found genuine defects in my own work (the positive-list polarity, and this understated fixture). None was
+a stale test. Each is updated with its reason in the file, and two assertions are now strictly stronger than what
+they replaced.
+
+---
+
+## 6 October — THE SPORT-ENVIRONMENT BOUNDARY AUDIT. Investigation only; nothing implemented.
+
+He HELD the sport-level ball authoring and asked a question one level up: what is the intended relationship
+between the inherent performance environment of soccer and the resolved Game Representation? Seven questions, nine
+return items, explicit "do not fix / do not amend / do not create a layer".
+
+### THE SPEC STATES ITS OWN BOUNDARY — at §1, in the words he remembered
+`game-representation-spec-2026-09-18.md:228` under the heading **"The boundary"**:
+> *"The representation holds **what a coach lays out and what the rules key on**. It holds nothing about: player
+> movement, tactics, or positions during play; pressure, opportunity, affordance, uncertainty or
+> representativeness; **the state of a game in progress**. **It describes the rules that govern state, never the
+> state itself.**"*
+And §7 "Deliberately not held" names our case: *"The state of a game in progress: which target is live now,
+**who has the ball now**."*
+
+### SO "DYNAMICALLY STATEFUL" IS THE WRONG JUSTIFICATION — his hypothesis needed correcting, not confirming
+Arguing for the ball because *its state changes* argues from the EXCLUDED side of the boundary. **The distinction
+the architecture actually holds is `initial value + the rule that governs it`, and PS1 is the precedent — his
+own, 2 October:** *"WHAT IT IS: a team-valued current state. Its **INITIAL** value is a governed realization
+choice ... POSSESSION_CHANGE changes that state."* That is §1 applied exactly. Read that way **his
+`notIn:["ball"]` ruling IS the boundary, not an exception to it** — the ball is present because rules key on it,
+its position is absent because position during play is state. §1.9's refusal of a dynamic location is the same
+principle a third time.
+
+### THE ENVIRONMENT OWNER EXISTED, IT WAS RC-19, AND MY OWN SD-44 ENFORCEMENT REMOVED IT
+**Five contracts explicitly decline to author trigger existence, citing RC-19 by name:** GF2 (*"Existence of other
+transitions never examined (START, SCORE and out-of-play exist by construction, RC-19)"*), GF4 (*"Out-of-play
+elements exist by construction"*), RPC-001 (*"No item is on the trigger collection"*), PCG (*"Reset triggers exist
+by construction"*), Neutral (*"Exists by construction"*). **And NO corpus item authors an out-of-play trigger's
+existence** — the 8 items mentioning OUT_END_LINE/OUT_TOUCHLINE are all about FIELDS of such a transition, three
+of them ENGINE_ONLY.
+**So RC-19 was the de facto owner of constitutive sport semantics for triggers** — a run convention of ours, not
+his ruling. SD-44 superseded it. For out-of-play the prerequisite is a bounded area and the SESSION supplies it;
+for POSSESSION_CHANGE the prerequisite is an OBJECT and nothing but selection can supply one. **The ball failure
+is the first visible casualty of removing the environment mechanism without replacing it.**
+
+### §6 / SD-17 IS THE PRECEDENT FOR WHAT TO DO INSTEAD — and the asymmetry is DELIBERATE
+`spec:740`, §6 "The contribution contract — outside the representation": *"every structural property that a
+session emphasis or slot template requires: it enters as a **SELECTION item under its own contract (SD-17), with
+no separate route into the game or its language**."* Same shape as ours, already ruled for an analogous source.
+**So the absence of a channel by which the sport can push a fact into a game is the design, not a gap.**
+
+### THE CORPUS ALREADY DRAWS HIS BOUNDARY — every T1 existence claim is on POSSESSION_CHANGE
+`GF2-07.a`, `NEUTRAL-12.a`, GF4's `I06` (+ `A01-02-01.a` on a `restart=GOAL_KICK` selector the ledger flags as
+unregistered). **Nothing authors START, SCORE or out-of-play.** The activities establish the transition their
+rules key on and leave the environmental ones to the sport. **So the slippery slope does not follow, and the test
+is already in use: "do the rules key on it?"**
+
+### SECOND-ORDER FINDING: THE POSSESSION RELATION IS ESTABLISHED NOWHERE
+**PS1 is `NOT_AUTHORED` / "no coverage" in A04, in the A01+A01-02 control that HAS a ball and a reachable trigger,
+and in the full corpus. NO contract declares or claims PS1 at all.** Its `fillableFrom: performers.teams[]` is one
+of the registered-but-unconsumed constructs. **So a ball restores the trigger's reachability but leaves the
+relation that trigger governs unestablished — and nothing blocks on it**, which is why the probe realized with
+acceptance 0/0/0. **"A04 is realizable" and "possession is coherently represented" are different states.**
+
+### A04 CLASSIFICATION (his five options)
+**Failure to propagate an inherent sport invariant**, caused by **an overly narrow support model** — both, in that
+order. NOT missing canonical knowledge (five contracts' own notes show the corpus deliberately not authoring facts
+of that kind). NOT an incorrect reachability prerequisite (a possession change genuinely presupposes a ball; and
+the PS1 alternative does not rescue the check, because PS1 is unestablished everywhere too).
+
+### THREE CORRECTIONS the verification stage forced, two of them to my own draft
+1. **I called §1's "what a coach lays out and what the rules key on" the specification's authoritative boundary.
+   IT IS OUR PROSE.** It appears once, with **no [C..] evidence key, no SD id, no attribution**. His recorded
+   statement is a different sentence at `spec:185-187`, explicitly *"The boundary, in Christian's words (18
+   September)"*: *"the authoritative game contains supported resolved facts in the eight areas; Gate A and both
+   directions of Gate B pass before rendering; and coach language can describe that game but cannot create
+   additional structure."* That is **support and closure — it says nothing about the sport or about scope.**
+   **So the boundary everyone has been citing is unratified, and this is the SECOND instance in one audit of our
+   own prose being treated as his authority. RC-19 was the first.**
+2. **AN INTENDED OWNER IS NAMED IN AUTHORED KNOWLEDGE AND WAS NEVER BUILT.**
+   `game-archetype-workbook.rc1.1.json:32` — `"Sport_Profile_Rule": "Detailed sport-specific logic is excluded and
+   must inherit through separate Sport Profile resources."` **That phrase occurs in exactly ONE file in the repo.**
+   Not absent-and-unnamed but **named-and-unbuilt**, a different situation and his to rule on.
+   - **And the same workbook authors the other half:** GF2-07.a's basisEvidence is GA-001
+     *"Shared, adaptive, generally simultaneous access with reciprocal influence."* **One artefact authors the
+     interaction structure and disclaims the sport-specific carrier. The ball is precisely the half it hands off.**
+3. **PSD-03: HE ALREADY ASKED THIS AND DEFERRED IT.** `spec:391-400`, his words: *"I don't think its proper owner
+   is a Game Form or a founder-created Game Representation default. Treat the missing source as visible for now
+   rather than solving its ontology during this check"*, *"Game Forms shouldn't have to duplicate ordinary
+   soccer-state behavior simply to produce a playable game"*, *"Please don't turn that observation into a new
+   library or architectural layer during this step."* §11 still lists it open. **His present instinct is the same
+   instinct.** The marker `OUT_OF_PLAY_SOURCE_MISSING` exists in the conformance artefacts and in **zero source
+   files** — the 8th registered-and-unconsumed construct.
+
+### A CLASSIFICATION I TESTED AND REJECTED rather than adopting
+A verifier proposed "a lost structural presupposition in a restatement": GF2-07.a's fitNote says it re-expressed
+`CHANGES_ON objects[].owner` *"without loss"*, so the object looked like it went out with the row. **Checked GF2's
+ORIGINAL source in the soccer module workbook: ZERO GF2-related objects mention a ball.** Nothing was lost — the
+ball was never in GF2's knowledge. **The note is accurate.** Sharper accusations still have to be true.
+**Final classification stands: PSD-03's deferred ownership question becoming load-bearing for the first time,
+because SD-44 turned a tolerated silence into an unmet prerequisite.**
+
+**Audit scorecard: 30 agents, 25 load-bearing claims checked, 24 REFUTED.** Highest rate yet — mostly agents
+over-reading design prose as governing rule, which is the same error I made. The stage earned its cost twice.
+
+---
+
+## 6 October (later) — his 4-item order: ruling recorded, carrier sweep, §5.4 amended, PS1 traced
+
+### 0 · I MIS-STATED SD-44 IN WRITING, and his suspicion was right
+My RC-19 rewrite of 5 October put the possession-change prerequisite as *"opposing teams and a ball object"*.
+**SD-44's own row (`spec:336`, evidence key [C22]) says: *"turnover when opposing teams and the relevant possession
+relationship exist"*.* The RELATIONSHIP is the prerequisite; the ball is a prerequisite OF the relationship. His
+5 Oct wording agrees — *"the prerequisites for that relationship"*. **Chain: trigger -> relationship -> ball. I
+collapsed it to trigger -> ball.** Consequence: the engine checks the deepest term and never checks the named one.
+
+### 1 · THE BOUNDARY RULING RECORDED
+Spec §1 now carries it as his, attributed and dated, replacing the unattributed prose — with a note that it had
+been cited as the boundary for weeks unratified. The `applicability.O4/O5` text restated to cite this formulation
+instead of the withdrawn "dynamic object" language.
+
+### 2 · BOUNDED CARRIER SWEEP — 33 goal x situation cases. The ball is the ONLY required sport-level carrier.
+    ALREADY SUPPLIED: START/STANDING (by construction) · OUT_END_LINE/OUT_TOUCHLINE (SESSION envelope, 19 cases)
+                      REGION_ENTRY (SELECTION, 16) · POSSESSION_CHANGE satisfied in 1 case (the authored ball)
+    NEEDS A CARRIER:  POSSESSION_CHANGE — 18 cases
+    NOT CONSTRUCTIBLE AT ALL (held): COMPLETED_PASS — 15 cases
+SCORE, TIME_EXPIRY, FIRST_FORWARD_PASS are keyed on by **nothing** in the operative form.
+- **THE SCANNER SCARE THAT WAS A FINDING: the loader REWRITES selectors.** A01-02's authored
+  `restart=GOAL_KICK & trigger ∈ {SCORE, OUT_END_LINE, …}` loads as the concrete
+  `trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM`, carrying
+  `goalKickTriggerSource`: *"Christian, 2026-09-26: the goal kick is 'the state in which the ball leaves play over
+  the defending team's goal line, having last been touched by an attacking player, without a goal being scored'."*
+  **A constitutive soccer fact supplied as an OWNER RULING to make an activity's rule expressible — the same move
+  now under discussion, already made once.** And `BASES` includes `OWNER_RULING`, which `establishesExistence`
+  admits, so an owner ruling CAN establish an element **provided it arrives as an item on a contract** (17 uses).
+
+### 3 · §5.4 — NOT load-bearing (MEASURED), amended with the dependencies recorded
+With the ball position withdrawn vs the entry stripped in memory, **GA-ENVELOPE-FIT, GA-LAYOUT-FEASIBLE and
+GA-ONE-PRIMARY-EVENT return IDENTICAL verdicts** on the corpus and on A01+A01-02. Only GA-NO-FAILED-LINE's
+denominator moves, 58 -> 60. Adopted his wording, third conjunct preserved, **no exception for any kind**.
+- **BUT TWO GATES DO REQUIRE A POSITION, and that is now in the amended cell:**
+  - `GA-ONE-PRIMARY-EVENT` position clause: `unpositioned.length ? fail(POSITION, …)` — **FAILS** on an
+    unpositioned referent. Would bite if a ball were ever a primary-event referent.
+  - `GA-DIRECTION` needs a DERIVED along-interval to decide an object's end. **Known first-hand: my positive-list
+    polarity bug withdrew `goalA`'s position and GA-DIRECTION went NOT_EVALUABLE.** That is how it was caught.
+  - `GA-ENVELOPE-FIT` treats an unreadable placement as a reason to DEFER, so it will respond to a withdrawn
+    position once this corpus stops authoring placements as prose. **Masked, not absent.**
+- **DEFECT found in passing, reported not repaired:** GA-ONE-PRIMARY-EVENT tests a referent's identity one way
+  (accepting a typed structural reference) and resolves it another (by class id, which a typed reference is not).
+  **A typed reference passes identity then fails to resolve.** Same shape as the filter that could never match.
+
+### 4 · PS1 TRACE — and a ball alone is NOT sufficient
+- **Intended as the HOLDER of a relation the corpus already named.** `possessionNote`: *"the corpus named the
+  states of this relation before anything could hold one. PS1 is what holds it."* The proposal:
+  *"There is no field, on any row, for which team has the ball."*
+- **Nothing was in a position to establish it.** PS1 was added 3 October, AFTER all eight contracts were restated
+  against a register without that row. 860 declaration reaches over 81 distinct rows, **zero on PS1**; zero items.
+  Reason "no coverage" = the engine's term for *nobody looked*. The adding commit recorded the cost:
+  *"NOT_AUTHORED 24 -> 25, both PS1."*
+- **AND IT IS NOT SPECIAL TO PS1 — this is the bigger finding.** All eight contracts declare one identical FROZEN
+  roster of **81 rows**; the register now carries **90**. **So some rows structurally cannot be covered.** PS1 is
+  one of them, not a one-off.
+- **Does POSSESSION_CHANGE require it? YES, by SD-44's own text** (see item 0).
+- **Why the ball and not the relation?** `constructTriggers` keys on opposing teams + a ball-kinded object and
+  **never reads PS1**. So a game can hold the carrier, reach the trigger, realize cleanly, and still not hold the
+  relation the trigger exists to change — which is exactly what A01+A01-02 does.
+- **MEASURED why PS1 is not even OPEN:** it fails the game-level existence gate in `derive.ts` — a game-level row
+  is openable only if the session sources it or something has *addressed* it; PS1 is neither. **So the obstacle is
+  unaddressed EXISTENCE, not a missing choice space.** Threshold worth knowing: **a single BOUNDS-ONLY
+  contribution would make the line OPEN** (SD-R2's "which team starts can remain a permitted free choice" becomes
+  expressible); an AUTHORED+REQUIRED one would resolve it.
+- **PROVENANCE DEFECT: PS1's note cites SD-R2, a RETIRED non-authority** (explicitly "not citable"). The
+  structurally identical row T2 was corrected away from that exact citation and carries `fillableAuthority: SD-39`.
+  **PS1 carries no authority field at all.** No code reads it; same stale citation, newer row.
+- **RECOMMENDATION, not implemented:** a second named clause on `GA-TRIGGER-REACHABLE` — where a transition is
+  keyed POSSESSION_CHANGE, the possession relation must be RESOLVED or OPEN. Not in `constructTriggers` (the
+  trigger set is built before anything resolves). **Not made because it fails a currently-green check and would
+  mean a ball alone no longer makes A04 realizable** — right if SD-44 means what it says, and his call.
+
+**Verification: 14 agents, 12 load-bearing claims checked, 9 REFUTED.** Including one that corrected my own
+"nothing could have established PS1" into the sharper frozen-roster finding.
+
+---
+
+## 6 OCTOBER (later) — HIS FOUR AUTHORIZATIONS CARRIED OUT, AND A04 IS REALIZABLE AGAIN
+
+His order, in his words: correct the implementation to reflect the chain `trigger -> relationship -> ball`;
+authorize a bounds-only possession contribution leaving the initial holder a governed choice; authorize the
+minimal Soccer Sport Profile; and classify the nine post-freeze register rows by pilot impact. Done in the
+sequence Joe approved: Sport Profile + PS1 first, then the reachability clause, then the audit, then the 19.
+
+### 1 · THE SPORT PROFILE — a new knowledge SOURCE, no new mechanism
+`docs/audits/conformance/stage-b/sport-profile-soccer.json`. Two items only:
+- `SPORT-SOCCER-01` — row `O1`, selector `kind=ball`, `EXISTS`, `REQUIRED`, basis **OWNER_RULING**. Establishes
+  the element because `establishesExistence` admits OWNER_RULING, not because the file is special.
+- `SPORT-SOCCER-02` — row `PS1`, `RANGE`, qualitative value, `REQUIRED_RANGE`, basis **OWNER_RULING**.
+  **Bounds-only BY CONSTRUCTION:** `RANGE` is outside `entails()`'s set `{EQUALS, POSITIONED, ORIENTED}`, and the
+  value is a term rather than an array so `narrowsToSet()` declines it. It can only land in `bounding`.
+  `EXISTS` was unusable — SD-100 makes it inert on a FIELD row.
+
+**Loaded separately from `contracts.json`, and the reason is structural.** That file holds the eight restated
+objects a goal SELECTS from, each frozen against the 81-row roster of its restatement. A Sport Profile is
+selected by nobody, so `loadSportProfile()` is its own loader and `derivationInputFor` appends it
+unconditionally — **into both `contracts` and `selection`**, because a contract absent from `selection` still
+forms its elements but loses its entry in `versions.objects`, the staleness stamp.
+
+**The engine names no sport.** The first version wrote `stage-b/sport-profile-soccer.json` into `corpus.ts` and
+**the sport-coupling ratchet caught it on the first run** (`soccer` x2 in corpus.ts, x1 in gates.ts; baseline 35
+across 23 rows). Rewritten to discover the profile by pattern, so the sport's identity lives in the artefact.
+Absence and plurality both THROW rather than resolve quietly — an empty directory must not hand back an empty
+list and let the ball disappear.
+
+### 2 · THE SECOND CLAUSE ON `GA-TRIGGER-REACHABLE` — and the chain proved from BOTH ends
+`gates.ts` `gaTriggerReachable` now emits two clauses on every path (`RELATION_CLAUSE` hoisted beside `CLAUSE`
+so the early return reports both). Where a transition is keyed `POSSESSION_CHANGE`, `game::PS1` must be
+established or legitimately open.
+
+**Both controls fail, each on its own clause** (`sport-profile.unit.ts`, 9 cases):
+- ball kept, `SPORT-SOCCER-02` stripped -> clause 1 **PASS**, clause 2 **FAIL**, Gate A FAIL. *His sentence
+  satisfied: the ball alone no longer makes a possession change reachable.*
+- relation kept, `SPORT-SOCCER-01` stripped -> clause 1 **FAIL** (`POSSESSION_CHANGE` is never constructed),
+  clause 2 **PASS**. **Neither test alone is SD-44; together they are the chain.**
+
+**A defect of my own in that clause, found by the audit and fixed:** it read `ctx.classified` directly and
+probed only on failure, so a PASSING report named no subject and there was no way to tell the clause had run.
+The Probe's own contract says every line a check consults is recorded as a subject. Now read through
+`probe.cell`, with `DERIVED` or `OPEN` as the two admitted states. Pinned by a test.
+
+### 3 · THE CLAUSE'S FIRST REAL SUBJECT IS THE CORPUS ITSELF
+Full stage-B corpus: **three** transitions keyed on a possession change, `game::PS1` `NOT_AUTHORED`/`no coverage`,
+and A01-02 and RPC-001 both establish a ball so clause 1 passes with four instances. **The corpus has been
+declaring turnovers with nothing holding the relation a turnover changes.** Baseline in
+`derivation-stage10.unit.ts` moved from `[GA-INFORMATION, GA-NO-FAILED-LINE]` to include
+`GA-TRIGGER-REACHABLE`, with the reason recorded beside it.
+
+**And `GA-NO-FAILED-LINE` would never have caught it.** Measured four ways: PS1 unestablished AND unclaimed ->
+reason `no coverage` -> counted under `unspoken` -> **PASS**; PS1 unestablished but CLAIMED -> reason
+`claimed but unresolved` -> **FAIL**. A row no contract claims is invisible to the failed-line check. That is
+why the obligation had to be a reachability clause and not a tightening of that check.
+
+### 4 · PS1's STALE SD-R2 PROVENANCE — CORRECTED
+`fillableAuthority` added to PS1, mirroring T2's existing correction: **SD-39**, with the note that SD-39's own
+qualification is met independently because the Sport Profile supports the property and its choice space. The
+parenthetical citing SD-R2 — a REJECTED default — is gone from the note; its substance survives, as his own
+spec text already says: *"a rejected default cannot be cited as one."*
+
+### 5 · THE NINE POST-FREEZE ROWS — PS1 is the only one that can fail a gate, and V9a is a second blocker
+12 agents, 10 load-bearing claims verified, 4 of 10 refuted on the first pass.
+- **pilot-load-bearing: PS1 only.** The only one of the nine any Gate A clause reads. A game-level FIELD row
+  gets its line unconditionally, so no missing class can make it inert.
+- **currently exercised but nonblocking: V9a.** One line, `RESOLVED:ENTAILED` = `MULTIPLY`, support
+  WIDEZONE-18.c. Reaches the coach as *"worth 2 instead of 1"*.
+- **not exercised by the bounded pilot: P11, P12, P13, R1, R2, R3, R4** (seven). Zero classes, zero lines, named
+  by no check. R1 is an AUTHORED **EXCLUSION** from A04's own game form (GF2-22, `NOT_EXISTS`), which is why
+  R2/R3/R4 get no line at all — an established absence, not an unexamined row.
+- **THE SECOND BLOCKER, verified first-hand in `load.ts:163-178`:** `checkModifierOperations` refuses the
+  **WHOLE contract** where a `V9` magnitude has no selector-matched `V9a` item (SD-30). A refusal of
+  `restated:WIDE-ZONE-ADVANTAGE` would strip A04's shaping constraint *before any gate ran*. As authored the
+  pair exists, so it does not fire. **So "PS1 is the only row capable of blocking" is true only if blocking
+  means failing a Gate A clause.**
+- **COMPLETED_PASS: pilot impact NIL, not repaired.** A04 carries zero lines on V15/V16/V17, so GA-INFORMATION
+  returns a vacuous PASS (both clauses `NO_APPLICABLE_INSTANCES`). The gap is deferred for **15 of 33**
+  goal-by-situation cases and passes silently in every one. Proved by isolation that establishing PS1 changes
+  nothing about it: PS1 established, PS1 dropped, ball dropped — unreachable in all three.
+
+### 6 · THE 19 SUSPENDED CHECKS — RESTORED, and one dangling reference found doing it
+- `identity.unit.ts`: **16 passed** (the 15 `chain()`-based checks had been suspended; the conditional
+  suspension lifted itself once `mayRealize` came back true). The `Suspended` sentinel is now unreachable.
+- `post-realization.unit.ts`: whole-file guard lifts; **ok**.
+- `realize.unit.ts`: **39 passed**. The acceptance test is a real test again and asserts
+  `realizationAuthorized === true` first — through the gate, not around it. The `suspended()` reporter is
+  REMOVED rather than left as scaffolding.
+- Two tests that had been rewritten to assert A04's failure are restated on live measurement: A04 is
+  `PRE_REALIZATION_SATISFIED`, D03 is `FAIL`, D01 is `NOT_EVALUABLE` — three distinct states, each with a live
+  example for the first time. A05 is waiting on GA-INFORMATION and GA-REFERENCE-INTEGRITY again, as it was
+  before 5 October.
+
+**MY OWN DEFECT, found by reading the realized record rather than the test result.** The PS1 realization choice
+was recorded as `...GF2-14.a#0`; `memberHandle` mints ordinals from **1**. So the one realized game on the pilot
+path carried a reference to a team **that does not exist**. Three things had to line up for it to pass: the bound
+is qualitative so `boundCheck` is `UNVERIFIABLE_QUALITATIVE_BOUND` and nothing compared the value to anything;
+**no consumer reads `possession.team`**, so nothing downstream tripped over it; and the acceptance account
+reported nothing lost and nothing invented, because a dangling reference is neither. A test for each of those
+three would still have passed.
+- Choice corrected to `#1`.
+- `realize()` now REFUSES a chosen value of the form `<classId>#<digits>` for a class this realization
+  instantiated where that exact handle was not minted. Narrow on purpose: prose containing a hash is untouched,
+  and a reference to an established element is untouched. **An unverifiable bound means the TERM cannot be
+  checked; it does not mean any string will do.**
+
+### 7 · WHERE A04 STANDS, MEASURED
+`gateA DEFERRED_TO_REALIZATION`, `mayRealize true`, `realizationAuthorized true`, `notAuthorizedBecause []`.
+PS1 `FREE(a)`, `permittedBy.authority SD-39`. Ball `{kind:"ball"}` with **no position** — the key set is exactly
+`elementId, kind, selector`. Realization PROCEEDED; acceptance **0/0/0**; post-realization Gate A **PASS**;
+`unverified: ["game::PS1"]`.
+
+**A04 is the ONLY authorized goal of 13.** Two (D03, TD02) reach a verdict and FAIL; ten reach no verdict, in two groups
+of five: GA-INFORMATION + GA-REFERENCE-INTEGRITY unevaluable (A01, TA01, A02, TA02, A05), and
+GA-DIRECTION + GA-ONE-PRIMARY-EVENT + GA-ROSTER-SUM unevaluable (D01, TD01, D02, A03, A06).
+**NOT for want of a restated contract, which was my first answer and is wrong** — A04 has only 2 of its
+5 selected objects contracted and is authorized anyway. **The pilot path is one goal wide**, and
+`realize.unit.ts` now asserts that rather than leaving it in a report.
+
+### 8 · REPORTED, NOT REPAIRED
+- **PS1's realized value reaches no coach-facing output.** `render:a04` contains `possession.team` zero times,
+  and fidelity PASSES without listing it among the deliberately-unexpressed. Flagged because it is the exact
+  shape of this project's recurring silent-loss failure; whether a game-level realized value should be expressed
+  is his.
+- GA-ONE-PRIMARY-EVENT's typed-reference defect (identity accepts, resolution rejects) — not pilot-load-bearing.
+- Wide Zone trigger semantics and magnitude: **HELD**. Successful Region Access: **PARKED**. Generation: **FROZEN**.
+
+### 9 · THE RENDERING FIXTURE IS STALE — MEASURED, DELIBERATELY NOT REFRESHED
+`npm run render:a04` reads `docs/audits/a04-concrete-game-fixture.json`, a FROZEN concrete game, on his
+instruction to isolate the communication boundary. Today's run still prints **fidelity PASSED** — about a
+game that no longer exists. Old digest `a9d16e5c`, live digest `12dbd433`; the frozen `game.objects` is
+**`[]`** and `status.choices` has five entries, not six.
+
+**Measured what a refresh produces, without writing the file.** The chain still closes — acceptance 0/0/0,
+post-realization gate validated — and `checkFidelity` raises **exactly two Q3 violations, both new**:
+- `objects[c:sport-profile:soccer:SPORT-SOCCER-01].kind is established by the game and no instruction carries it`
+- `possession.team is established by the game and no instruction carries it`
+
+**The two things the Sport Profile establishes are the two things a coach is never told.** Not a derivation
+failure and not a fidelity failure — fidelity is the check that caught it. `loadBearingPaths` walks
+`status.derived` + `status.choices` and excludes only `.startsEpisode` and `space.axis`, so PS1 and the ball
+land in `coachFacing` and nothing cites them.
+
+**NOT REFRESHED, on purpose.** Refreshing turns the suite red at `rendering.unit.ts:41` (`Q2/Q3/Q4` must
+raise no violation), and the only way to make it green again is either to author coach-facing text for the
+ball and the holder, or to add them to `NO_COACH_FACING_EXPRESSION` as deliberate non-expressions. **Both
+are authoring decisions that are his.** Changing the test to expect two violations would bake "the coach is
+not told there is a ball" into the suite as the expected state.
+
+**AND NOTHING WOULD HAVE TOLD US.** No assertion compares the frozen fixture's `provenance.inputDigest` to a
+live run — the harness-verifies-a-fork shape again. A guard belongs there; it is not added because it fails
+immediately and would force the refresh decision rather than present it.
+
+### 10 · A COUNT-ONLY BASELINE NEARLY REPORTED PERFECT CONTAINMENT OVER A SWAP
+`completed-pass.unit.ts` pins, per goal, the number of failed resolution lines. After the Sport Profile
+**all thirteen counts are byte-identical** to the 5 October baseline. The membership is not:
+
+    gone : game::PS1
+    new  : c:sport-profile:soccer:SPORT-SOCCER-01::O3
+
+in **every** goal. PS1 left because it is now bounded; the ball's COUNT arrived because the profile
+deliberately leaves it unconstrained and declares O3 NON_CLAIMED, so it reports as a declared
+non-requirement. The exchange is legitimate; a baseline that cannot see it is not. The test now asserts
+both lines **by name** in every goal, in addition to the count.
+
+**The generalisation:** a conserved total is not evidence of a conserved set. Where a baseline counts,
+also name the one thing that must leave and the one thing that must arrive.
+
+### 11 · A CONSEQUENCE NOT ANTICIPATED: the carrier no longer depends on the coach's planning choice
+Until 6 October the ONLY thing supplying a ball to a real game was `A01-02-08.a`, authored inside ONE
+practice situation (A01 + From Goal Kicks). So `A01 + A01-02` reached POSSESSION_CHANGE and `A01` alone
+did not — whether a game's turnover was possible depended on which situation a coach had picked. With the
+Sport Profile both forms pass. The situation's authored ball is still admitted and is now **redundant for
+reachability**, which is the right relationship between a sport fact and a practice situation.
+`trigger-reachability.unit.ts` asserts both forms, replacing the test that pinned the asymmetry.
+
+---
+
+## 6 OCTOBER (later still) — HIS FOUR BOUNDED ITEMS. READ-ONLY; NOTHING CHANGED.
+
+He accepted the Sport Profile provisionally, asked that the two-sided removal test be preserved, and
+set four bounded items to resolve **before** the fixture is refreshed or a pilot decision is made.
+28 agents, 24 load-bearing claims adversarially verified, **19 of 24 refuted or narrowed** — including
+two of my own conclusions, both corrected before anything went out.
+
+### 0 · THE FINDING THAT CUTS ACROSS ITEMS 1 AND 2
+**The renderer already asserts both facts, from hardcoded English, citing something else.**
+- `render-concrete-game.ts:277` — *"a team scores N point by getting **the ball** across the marked
+  line"*, cited to `value.primaryEvent.kind`, `value.primaryEvent.value` and `objectives[].role`.
+  **None of those is an object.** It has said this since long before any ball existed.
+- `render-concrete-game.ts:253-262` — *"Play continues when **possession changes**"* fires on
+  `transition.playState === 'CONTINUE'` and **never checks the trigger**. Verified: it survives
+  changing the trigger and survives deleting `game.possession` outright.
+- `possession` occurs **once** in the whole renderer, inside that string. `objects` occurs **zero**
+  times. Neither the renderer nor `fidelity.ts` reads `game.objects`.
+- `checkFidelity` Q2 validates **numeric quantities only** (`/\b(\d+(?:\.\d+)?)\b/`), so an invented
+  NOUN passes unchecked.
+
+### 1 · BALL NON-EXPRESSION — his candidate wording is a licence, not a rule
+- **The existing rule is THREE-way, not two.** `fidelity.ts:230-252`: (0) if the excluded path is
+  itself cited → `continue`, **no finding at all** — silent, in a file whose own requirement at :87-88
+  is no silent filtering; (1) else VIOLATION if any named consequence is uncited; (2) else NOTE.
+- The `because` string is **read by no check** (concatenated into the NOTE text only). An **empty**
+  `consequences` list discharges vacuously — and `space.axis` already uses one.
+- **Neither of his predicates is decidable.** No coach model exists anywhere; nothing flags a fact as
+  constitutive (`loadSportProfile` drops the file's own `kind: "sport-profile"`, corpus.ts:148-163).
+- **MEASURED PROOF that it is a licence:** under his wording an entry for `objectives[...].team` =
+  `EACH_TEAM` also discharges as a NOTE — the one fact the renderer itself warns about
+  (*"they will set up two targets out of habit"*, render-concrete-game.ts:292-297).
+- **The matcher is a SUFFIX test.** Exactly two A04 paths end in `.kind`: the ball and
+  **`value.primaryEvent.kind`, the scoring event**. A `.team` entry would swallow the shared-objective
+  decision and `possession.team` together. Measured.
+- **What the ball participates in:** textually nothing in the concrete game — but it is the structural
+  prerequisite that makes `POSSESSION_CHANGE` constructible (engine.ts:267), so it is the precondition
+  of A04's only transition and of authorization. It does its work one stage upstream of the artifact.
+- Consequence: the only HONEST entry names no consequences, which the rule's own prose (fidelity.ts:84-85)
+  permits only for an internal convention; the entry that fits the prose (`['value.primaryEvent.kind']`)
+  is unverifiable. One option is dishonest, the other forbidden by the comment above it.
+- **CORRECTION:** there is no separate "ball exists" row. The single status row is `objects[...].kind`
+  and it is **produced by the O1 EXISTS item** (support `SPORT-SOCCER-01`, relation CARRIES).
+- **Smallest principle proposed to him:** two COMPUTED conjuncts — (i) nothing established depends on
+  it, derived not declared; (ii) contributed by a constitutive non-selected source at WHOLE_GAME scope.
+  Admits the ball; rejects EACH_TEAM (fails i) and `possession.team` (fails ii).
+- **Recommended sequence:** fix the empty-consequences hole first (code, not authoring); consider
+  CITING the ball on the instruction that already names it rather than excluding it; and rule on the
+  ball only AFTER possession, because the ball's whole argument rests on "participates in nothing",
+  which holds only while possession stays team-only.
+
+### 2 · THE POSSESSION SWAP — the result is real and it is NOT evidence
+- Measured: swapping only `game::PS1` changes **five leaves**, all the record of the choice —
+  `game.possession.team`, `record.choices[5].value`, `status.choices[5].value`,
+  `record.realizationDigest`, `record.auditDigest`. Concrete game, entailments, acceptance,
+  post-realization gates, rendered activity and fidelity report otherwise byte-identical.
+- **THE TEST CANNOT FAIL.** Deleting `game.possession` outright also leaves the rendered activity
+  byte-identical, because nothing in the rendering or fidelity path reads it. The counterfactual
+  measures our wiring, not the holder's meaning. **I was about to report it as though it were
+  evidence.**
+- Secondary reason: A04's teams are interchangeable. A team handle appears in exactly **three** places
+  in the whole concrete game (two member ids + the holder) and the members are identical but for id,
+  so a literal `#1↔#2` relabel differs on three lines and the swap is an isomorphism up to member
+  ordering. Any team-valued property would have survived, including a starting-team award.
+- **The classification stands, argued from the register instead:** PS1's registered definition is "a
+  team-valued current state" that POSSESSION_CHANGE changes; §1 says the representation holds the
+  rules governing state, not the state. A04 has one transition (on the change itself, no `awardedTo`),
+  a shared `EACH_TEAM` objective, and a modifier accruing to the scoring team. Nothing reads the holder.
+- **THE BOUNDARY IS NOT "A04 as resolved"** — it is *"a game in which no established rule reads the
+  possession relation"*. **A01 + A01-02 is on the other side of it, derivable today:**
+  `A01-02-01.a` resolves `awardedTo = DEFENDING_TEAM`, `qualifiers.endLine = DEFENDING_TEAM`,
+  `qualifiers.lastTouch = ATTACKING_TEAM`; `PCG-02::V5` = *"own half of ATTACKING_TEAM"*; `PCG-02::V6`
+  = *"counts ATTACKING_TEAM's connected passes"*. That game fails Gate A only on three unauthored
+  restart-placement rows (T3/T4/T5) and **passes** GA-TRIGGER-REACHABLE.
+- Non-expression is **not yet licensed** — not because the holder might matter but because the thing
+  that would carry it is unwired.
+
+### 3 · WHAT `objects[]` COUNTS — nothing entails one ball, and the SEMANTICS ARE NOT SETTLED
+- **Zero items author O3 anywhere in the corpus.** SIX of the eight objects declare it NON_CLAIMED,
+  four naming balls: GF2 `kind=ball` *"number of balls unauthored"*; Wide Zone *"objects free (ball
+  kind, count, owner and position reference)"*; PCG *"The number of balls is not constrained"*;
+  VARTARGET *"doesNotConstrain: number of balls"*. GF2's non-claim list: *"That exactly one ball is in
+  play. GF2 authors no ball count."* Strongest authored statement anywhere: `A01-02-08.a` **"none (at
+  least one ball)"** — a floor.
+- Every entailment candidate rejected: class cardinality `{min:1,max:null}` (and **inert** in A04 — a
+  selector keeps it out of `resolved.existential`, resolved-game.ts:611); PS1's singularity (about
+  where the relation lives); SPORT-SOCCER-02's definite article (prose creates no structure, P5/SD-05);
+  `constructTriggers` (`ballClasses.length >= 1`).
+- Two places in our files DO assert one ball — `procedures-2026-09-17.json:65` and ledger
+  `MP-ONE-BALL` — **both are exactly the inference he forbade**, heuristics for reading 60 prose
+  activities, not representation knowledge.
+- **MY CORRECTION, a quantifier inversion.** §5.4's claim is *"Every object referenced by a rule,
+  transition or objective exists"* = `referenced → present`, a **floor**. The converse is nowhere
+  stated. And `VARTARGET-02.a` (O1, AUTHORED, REQUIRED) authors the opposite: *"every candidate target
+  object is present in objects[]"*, evidenced *"All targets stay physically available so the choice
+  remains open; only the LIVE one scores."* objects[] also holds goals, lines and gates with authored
+  layout positions. **His own boundary has both limbs: "what a coach lays out AND what the rules key
+  on."** The question is live and his; cones/bibs are UNAUTHORED (O2.kind is a four-member **draft**
+  list), not structurally excluded.
+- **Does not block:** Gate A deferred, authorized, accepted, post-gates validated, rendering unchanged.
+  **Does not weaken:** Set up is regions and dimensions; no check and no instruction consumes a count.
+- O3's classification is **correct**: reason `not constrained`, declared `["NON_CLAIMED"]`, counted
+  among the 6 established absences, GA-NO-FAILED-LINE PASS.
+- **`objects[]` LENGTH DOES NOT COUNT BALLS.** The register says an O1 COUNT/RANGE "adds up O3 over
+  matching elements" and **no code implements it** — nothing reads O3 at all. Length tracks how many
+  contracts assert a ball: the full corpus has **two** ball classes and `phase-b-closure-result.md:96`
+  calls them *"the two balls"*.
+- Reported not repaired: `types.ts:70` says reason codes are "Diagnostic only … does not change
+  whether it blocks realization". **False** as of `gates.ts`, which reads the reason code to decide
+  exactly that.
+
+### 4 · THE FIXTURE GUARD — the provenance block cannot be its basis
+- `engineVersion` = the literal `'0.1.0-increment-1'`, edited **once**, when the file was created;
+  **56** later changes have touched derivation and realization.
+- `registerVersion` = a hand-written sentence, unmoved across **three** register edits this week.
+- `derivationRulesVersion` = the literal `'rev-5'`, written out in **thirteen** places; it names a real
+  document and nothing checks they agree.
+- `inputDigest` = `digest(canonicalInput(input))` and hashes the INPUT only. **Proved by experiment:**
+  with the engine made to emit three fewer resolution lines (49→46, 19852→18357 bytes) the provenance
+  block came back **byte-identical**.
+  - Narrowing: 89 of the register's 90 rows are invisible to it; the 90th, **P3
+    `performers.teams[].goalkeeper`**, moves it through `statedRoles()` → `CORPUS_ENVELOPE.roles` →
+    `canonicalInput.envelope`.
+- **Determinism verified**: identical content digest across 3 runs in-process and across processes,
+  through derivation, realization and entailment. No clock or RNG in the path.
+- **PROPOSED (not implemented):** one digest over the recomputed canonical game vs the same digest over
+  the frozen fixture; on mismatch the suite FAILS unless a two-field sidecar names the **exact live
+  digest** and says why the older game is still right to render against.
+  - Sidecar, not a field in the fixture: the fixture's header says it is **never hand-edited** and the
+    freezer rewrites the whole file.
+  - Never regenerates; cannot be satisfied by doing nothing; the acknowledgement names ONE digest and
+    expires at the next drift; an overtaken acknowledgement must be deleted, not left to excuse the next.
+  - Cost: the first change that alters A04's game turns the suite red until someone refreshes or
+    acknowledges. Fires on the GAME changing, not on code changing. ~15 s. The realization choices file
+    comes under the same guard — say that out loud.
+- **Today's numbers:** frozen `50c3ab8ee05f9d2c`, live `c71fe996653a3ff9`.
+
+### 5 · PILOT FRAMING, accepted
+A04 **Golden Case / vertical slice**, NOT evidence that Challenge Point supports thirteen learning
+goals. The other twelve stay unrepaired. FAILED vs NOT_EVALUABLE preserved and asserted. His go/no-go
+question is whether A04 is *deterministic, representative, runnable and faithfully communicated*
+enough that external use teaches us something internal testing cannot — and the weak clause is the
+last one, for the reasons in §0.
+
+---
+
+## 7 OCTOBER — HIS SIX RULINGS CARRIED OUT: two narrow repairs, two standing decisions, one live guard
+
+### 1 · SD-103 AND SD-104, RECORDED (spec revision 25)
+- **SD-103** — *"Coach-facing language must be entailed by the resolved game and the rules it
+  communicates. A renderer may compress or combine supported facts, but it may not introduce an
+  unsupported game fact merely because that fact is obvious in the sport."* Quoted at the top of
+  `render-concrete-game.ts`, where it is enforced, with the note that it was ruled because that file
+  broke it twice.
+- **SD-104** — *"An initial state value is activity-design information when an established rule or
+  relationship reads that value. Otherwise it is runtime initialization rather than something the
+  coach-facing activity must communicate. For A04, the initial possession holder therefore does not need
+  coach-facing expression."* Recorded in the spec and appended to PS1's register note, with his
+  qualification verbatim and the A01 + A01-02 counterexample named so it cannot be read as general.
+- **HELD, on his instruction:** no deliberate-non-expression entry for the ball; no repair to the
+  empty-consequences or suffix defects in that mechanism; no expression mechanism around SD-104.
+
+### 2 · REPAIR ONE — the scoring instruction's carrier
+`render-concrete-game.ts` no longer contains the noun. It finds an object with a `kind`, writes
+`the ${carrier.kind}`, and **cites `objects[<id>].kind`**. No object → the carrier is not named
+(*"when the marked line is crossed"*) and an observation reports the gap.
+- Measured, one renderer, two games: live → *"…by getting the ball across the marked line"* with the
+  object cited; frozen → *"…when the marked line is crossed"* plus the observation.
+- **The renderer now states no sport vocabulary of its own anywhere.** Every noun comes from the game or
+  the session: the object kind, the region nouns, the specialized role name (`envelope.roles` keys),
+  the per-side count (`performers.teams[].outfieldCount`, never `players / teams`).
+
+### 3 · REPAIR TWO — the possession-change instruction
+Now requires BOTH a selector fixing `trigger = POSSESSION_CHANGE` AND an established
+`possession.team`. Otherwise withheld, with an observation naming which half is missing.
+- **`possession.team` is deliberately NOT cited.** The relation's establishment is a PRECONDITION for
+  emitting the sentence, not a source of its content. Citing it would make fidelity read the holder as
+  carried to a coach when nothing reads it — the unverifiable citation the item-1 findings warned about —
+  and would make the remaining report vanish for the wrong reason.
+
+### 4 · THE A04 FIDELITY RERUN — one report remains, and it is the exempt one
+Live Golden Case: **17 instructions, every one citing ≥1 property.** Q2 0 · **Q3 1** · Q4 0 · Q5 0
+violations (4 notes). The one Q3 is `possession.team is established by the game and no instruction
+carries it` — SD-104's exempt case, reported as a loss only because he held the mechanism that would say
+"exempt". **No unsupported coach-facing fact remains**, checked across every instruction rather than
+assumed.
+
+### 5 · THE GOLDEN CASE GUARD — `fixture-currency.unit.ts`, ACTIVE AND FAILING
+- `freeze-a04-fixture.ts` refactored: `buildGoldenCase()` and `goldenCaseDigest()` exported, the write
+  moved under `require.main === module`. **One definition, two callers** — a guard with its own replica
+  of the stages would be the second harness this file's own header warns about.
+- Digest = the engine's own `canonical` + `digest` over the whole body minus the owner's `note`. The
+  realization choices are inside the guarded Golden Case, on his ruling.
+- Drift FAILS unless `docs/audits/a04-fixture-currency.json` names the exact live digest and says why.
+  Regenerates nothing. An acknowledgement expires at the next change, and an **overtaken** acknowledgement
+  on a current fixture is also a failure.
+- Registered immediately BEFORE `rendering.unit.ts`, so a known-stale fixture does not produce a cascade
+  of confusing downstream failures.
+- **Current state: frozen `1d4e4f3a`, live `a1c46e8e`. The suite is green for 360 checks and stops here.**
+- **The frozen game is not merely stale — it is unauthorizable.** It carries a transition keyed on a
+  possession change and establishes no possession relation: the exact condition Gate A now refuses. An
+  acknowledgement could not be written honestly for it.
+- **VERIFIED, then reverted:** refreshed the fixture, ran both rendering files (guard CURRENT, rendering
+  ok), restored the file byte-for-byte (digest back to `1d4e4f3a`, zero diff). So `npm run freeze:a04`
+  turns the suite green — stated as a measurement, not a prediction. **Not done: his act.**
+
+### 6 · TWO ASSERTIONS RESTATED IN `rendering.unit.ts`
+- Q3 is pinned BY NAME to the single SD-104-exempt path, so any other loss still fails.
+- `report.passed === true` became `=== false` **plus** "and the exempt path is the only violation". The
+  flag is a single boolean over every question, so one ruled-exempt report pulls it down; two halves is
+  the only form that is neither false nor a licence. Both collapse back the day the mechanism lands.
+
+### 7 · A04 AGAINST HIS FIVE LINKS
+| link | status |
+|---|---|
+| resolved | **holds** — 49 lines, 27 derived / 6 open / 2 existential / 7 not established, 0 collisions, no halt. All seven absences are established (1 excluded, 6 declared unconstrained). 4 refusals, all `VALUE_NOT_COMPARABLE` on prose placements — declining to guess, not failing |
+| realized | **holds** — acceptance 0/0/0, 6 choices (5 `WITHIN_PERMITTED_SET`, 1 `UNVERIFIABLE_QUALITATIVE_BOUND`), 2 instantiations, 4 entailments |
+| Gate A / Gate B | **holds** — Gate A `DEFERRED_TO_REALIZATION`, knowledge verdict PASS, the four deferred are the four he ruled post-realization and all validate. Gate B forward PASS; reverse `NOT_APPLICABLE` in derivation mode |
+| faithfully rendered | **holds on the live game; NOT YET ASSERTED by the suite**, because the suite renders the frozen fixture and the guard refuses to let that count. One command closes it |
+| ecologically operable | **not assessable by any check we could write** — the representation deliberately holds nothing about pressure, opportunity, affordance availability or representativeness. Which is his own go/no-go criterion restated: it is what external use teaches and internal testing cannot |
+
+**Between here and Christian-only pilot use:** (1) the fixture refresh, his; (2) the exempt-report
+decision — leave it, or lift the hold on the exemption mechanism; (3) the one question a coach would ask
+that the game cannot answer — what counts as MEETING the channel condition, reported and not papered over.

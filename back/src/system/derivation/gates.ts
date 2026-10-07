@@ -863,10 +863,34 @@ function gaTriggerUnique(ctx: GateContext): CheckOutcome {
     const COLLIDES = 'no transition collides'
     const probe = new Probe(ctx, 'GA-TRIGGER-UNIQUE')
     const transitions = classesOn(ctx, 'T1')
-    if (transitions.length < 2) {
-        return result('GA-TRIGGER-UNIQUE', probe, [pass(CLAUSE_TEXT, transitions.length), pass(COLLIDES, transitions.length)], `${transitions.length} transition(s): no pair can overlap`)
-    }
 
+    /**
+     * **The early return is gone, on his ruling of 5 October — and the reason is worth keeping.**
+     *
+     * It used to short-circuit at `transitions.length < 2` and report BOTH clauses as
+     * `pass(clause, transitions.length)`. With exactly one transition that is `pass(clause, 1)`, and
+     * `pass` reads `instances > 0` as basis `EVALUATED` — so the compatibility clause **claimed it had
+     * evaluated an instance while comparing no pair at all.** Its unit is PAIRS: fifteen lines below, the
+     * same clause correctly reports `comparedPairs`. Reporting transitions there was the wrong unit, and
+     * it is what kept the clause out of the `clausesVacuous` tally that exists to surface exactly this
+     * (SD-54: a summary may not present a vacuous pass and an evaluated one as equivalent evidence). At
+     * zero transitions it was right by accident, because 0 maps to the correct basis.
+     *
+     * **It also skipped the collision clause.** `collided` is computed per transition LINE, not per pair,
+     * so it is perfectly well defined for a single transition — and the early return returned a PASS for
+     * it without ever computing it. No corpus case currently has an `UNRESOLVED` line on a transition
+     * class, so that was latent rather than live; a synthetic case in the tests proves it would now fail.
+     *
+     * Deleting the early return needs no replacement guard: with fewer than two transitions the pair
+     * loops simply do not execute, `comparedPairs` stays 0, and the clause reports
+     * `NO_APPLICABLE_INSTANCES` honestly.
+     *
+     * **What this does NOT do, recorded because an earlier report of mine implied otherwise and he asked
+     * that the correction be preserved: it gives no trigger-reachability enforcement.** `triggerOf`'s
+     * value is compared only to another transition's trigger, to decide whether a pair could meet; this
+     * check never reads `ctx.triggers` at all. Removing the guard would not have caught a transition on
+     * an unreachable trigger. That obligation is `GA-TRIGGER-REACHABLE`, which is its own check.
+     */
     const triggerOf = (cls: ElementClass) => {
         const term = (cls.constraints?.terms || []).find(t => t.attribute === 'trigger' && t.op === '=')
         return term && term.op === '=' ? term.value : null
@@ -941,6 +965,138 @@ function mutuallyExclusive(a: ElementClass, b: ElementClass): boolean {
         if (right && right.op === '=' && right.value !== left.value) return true
     }
     return false
+}
+
+/**
+ * `GA-TRIGGER-REACHABLE` — a transition must be keyed on a structurally reachable trigger (SD-44).
+ *
+ * **His ruling of 5 October, and it settles an authority conflict rather than adding a preference.**
+ * `RC-19` — a run convention of 18 September, ours rather than his — said the T1 elements for START,
+ * POSSESSION_CHANGE, OUT_TOUCHLINE and OUT_END_LINE "exist by construction", flatly. **SD-44, four days
+ * later, is his:** *"A trigger is structurally reachable when the Game Representation contains the
+ * resolved structural prerequisites necessary for that trigger to occur."* He has now ruled that SD-44
+ * supersedes RC-19 wherever they conflict, and that possession is a relationship involving the ball — so
+ * POSSESSION_CHANGE is **not** reachable in a game that establishes no ball.
+ *
+ * **Why this is a check of its own and not a clause on a neighbour.** `failingChecks` is a list of
+ * checkIds, so only a dedicated checkId can make this failure legible in the report; folded into
+ * GA-TRANSITION-COHERENCE the same failure would surface as a coherence problem and never name the
+ * trigger. He asked for reachability "actually checked rather than merely registered/cited", and being
+ * nameable is part of that.
+ *
+ * **It is deliberately general.** It ranges over every T1 class in any game form. The same defect was
+ * measured on two unrelated authored items — GF2's turnover and GF4's — so a repair scoped to either, or
+ * to the one goal where it currently reaches a rendered game, would have left the other standing.
+ *
+ * **This check reads no cell, and that is the finding it enforces.** The register gives a transition's
+ * trigger no FIELD row: `trigger` is a selectorAttribute of the T1 COLLECTION, so it is part of which
+ * element this is and never becomes a line, a verdict or a probeable cell. Every other Gate A check
+ * interrogates lines; this one interrogates the class's own selector, because that is the only place the
+ * value exists. That is also why nothing caught this for so long.
+ *
+ * **Two limits, recorded rather than silently relied on.**
+ * 1. A class whose trigger is not fixed by an `=` term (an `IN` over several triggers, say) is not
+ *    decided here. The clause reports NOT_EVALUABLE rather than failing it — gap before collision
+ *    (SD-28). Nothing in the corpus does this today.
+ * 2. `ctx.triggers` is constructed at stage 2 and is **not** recomputed after realization, so the
+ *    post-realization pass re-checks against the pre-realization set. If realization ever instantiated a
+ *    member that newly satisfied a prerequisite, this check would not see it. The two existing readers of
+ *    the set share that limit; it is not introduced here.
+ */
+function gaTriggerReachable(ctx: GateContext): CheckOutcome {
+    const CLAUSE = 'every transition is keyed on a structurally reachable trigger'
+    const RELATION_CLAUSE = 'a transition keyed on a possession change has the possession relation established or open'
+    const probe = new Probe(ctx, 'GA-TRIGGER-REACHABLE')
+    const transitions = classesOn(ctx, 'T1')
+    // Both clauses are emitted on every path, including this one. A check whose clause SET varies with its input
+    // is a check whose report cannot be compared across games, and SD-53 asks for one clause to one verdict —
+    // not for a clause to disappear when it has nothing to range over. With no transition both are vacuous, and
+    // `pass(_, 0)` says so in its basis rather than by omission (SD-54).
+    if (!transitions.length) {
+        return result('GA-TRIGGER-REACHABLE', probe, [pass(CLAUSE, 0), pass(RELATION_CLAUSE, 0)], 'no transition is instantiated')
+    }
+
+    const unreachable: string[] = []
+    const undecided: string[] = []
+    let seen = 0
+    let turnovers = 0
+
+    for (const transition of transitions) {
+        const term = (transition.constraints?.terms || []).find(t => t.attribute === 'trigger' && t.op === '=')
+        const name = term && term.op === '=' ? String(term.value) : null
+        if (name === null) {
+            undecided.push(transition.classId)
+            continue
+        }
+        seen++
+        if (name === 'POSSESSION_CHANGE') turnovers++
+        // The parameterised form is `NAME{argument}`: REGION_ENTRY{r} is reachable for the region it names.
+        if (!ctx.triggers.some(t => t === name || t.startsWith(`${name}{`))) unreachable.push(`${transition.classId}: ${name}`)
+    }
+
+    const clause = unreachable.length
+        ? fail(CLAUSE, seen)
+        : undecided.length
+          ? notEvaluable(CLAUSE)
+          : pass(CLAUSE, seen)
+
+    /**
+     * **The second clause, on his ruling of 6 October: a turnover needs the relation it changes.**
+     *
+     * SD-44's own row names two conjuncts — *"turnover when opposing teams and **the relevant possession
+     * relationship** exist"* — and the implementation had only ever tested a presupposition of the second one.
+     * `constructTriggers` keys POSSESSION_CHANGE on opposing teams and a ball, which are what the relationship
+     * is made of; it never asked whether the relationship itself is in the game. So a game could hold the
+     * carrier, reach the trigger, realize with nothing lost or invented, and still not hold the relation the
+     * trigger exists to change. A01 with its goal-kick situation did exactly that for a week.
+     *
+     * **His ruling: the ball alone must no longer make a possession change reachable.** The relation must be
+     * established or legitimately open — open counts, because a bounds-only contribution makes the initial
+     * holder an authorized realization choice, which is the shape the Sport Profile contribution uses.
+     *
+     * **Why here and not in `constructTriggers`.** That function runs at stage 2, before any line is derived, so
+     * it cannot know whether PS1 resolved or opened. The two places together implement the chain: stage 2 tests
+     * the material prerequisites the relation needs, and this clause tests the relation SD-44 actually names.
+     *
+     * Reported as its own clause rather than folded into the one above, so a failure says which half failed
+     * (SD-53: one executable clause, one independently reported verdict).
+     */
+    let relationClause: ClauseResult
+    if (!turnovers) {
+        relationClause = pass(RELATION_CLAUSE, 0)
+    } else {
+        /**
+         * **Read THROUGH the probe, so the line is a recorded subject whether the clause passes or fails.**
+         *
+         * The first version of this clause read `ctx.classified` directly and probed only on failure. The
+         * verdicts were right and the report was not: a passing run could not show that the clause had ranged
+         * over PS1 at all, which is a quiet breach of the Probe's own contract a few hundred lines up —
+         * *"Every line a check consults is recorded as a subject, so the report shows what the verdict ranged
+         * over rather than only what it concluded."* A check that leaves no trace when it passes is a check
+         * nobody can confirm is still running, which is how an enforcement quietly stops enforcing.
+         *
+         * `DERIVED` is established and `OPEN` is legitimately open — exactly the two states his ruling admits.
+         * Everything else, including an established absence, is a game that does not hold the relation its own
+         * turnover would change.
+         */
+        const cell = probe.cell('game::PS1')
+        const held = cell.state === 'DERIVED' || cell.state === 'OPEN'
+        relationClause = held ? pass(RELATION_CLAUSE, turnovers) : fail(RELATION_CLAUSE, turnovers)
+    }
+
+    const relationWhy = turnovers
+        ? `; ${turnovers} turnover transition(s): possession relation ${String(ctx.classified.get('game::PS1')?.verdict ?? 'NOT ENUMERATED')}`
+        : ''
+
+    return result(
+        'GA-TRIGGER-REACHABLE',
+        probe,
+        [clause, relationClause],
+        `${seen} transition trigger(s) checked against ${ctx.triggers.length} reachable trigger(s); ` +
+            `${unreachable.length} not reachable${unreachable.length ? `: ${unreachable.join('; ')}` : ''}` +
+            `${undecided.length ? `; ${undecided.length} trigger(s) not fixed by an = term and not decided: ${undecided.join('; ')}` : ''}` +
+            relationWhy,
+    )
 }
 
 /** `GA-TRANSITION-COHERENCE` — `CONTINUE` ⇒ no placement; `STOP_RESUME` ⇒ taker and region. */
@@ -1716,6 +1872,7 @@ const GATE_A_CHECKS: ((ctx: GateContext) => CheckOutcome)[] = [
     gaRegionFunction,
     gaReferenceIntegrity,
     gaTriggerUnique,
+    gaTriggerReachable,
     gaTransitionCoherence,
     gaInformation,
     gaTimeWindows,

@@ -105,6 +105,63 @@ export function loadCorpusContracts(): LoadedContract[] {
     return applyNoRowRestatement(adapted, restatementTally)
 }
 
+/**
+ * **The Sport Profile — constitutive sport structure, not selected knowledge.**
+ *
+ * Authorized by Christian on 6 October, after the bounded carrier sweep established that the ball is the only
+ * sport-level carrier any currently selected game rule requires. The layer was named before it existed: the game
+ * archetype workbook's own `Sport_Profile_Rule` says *"Detailed sport-specific logic is excluded and must inherit
+ * through separate Sport Profile resources."*
+ *
+ * **Why it is loaded separately from the corpus rather than added to it.** `contracts.json` holds the eight
+ * restated knowledge objects a goal SELECTS from, each frozen against the 81-row roster of its restatement. A
+ * Sport Profile is selected by nobody — it is the environment every activity of this sport runs in — so it reaches
+ * every derivation unconditionally. Putting it in the corpus file would make it look selectable and would put a
+ * post-freeze contribution inside a frozen set.
+ *
+ * **It uses no new mechanism.** It is an ordinary contribution contract, and §6 already rules that shape for a
+ * source outside the representation needing a structural property inside it: *"it enters as a `SELECTION` item
+ * under its own contract (SD-17), with no separate route into the game or its language."* Its items are graded by
+ * exactly the same rules as any other, which is the point — `OWNER_RULING` establishes an element because
+ * `establishesExistence` admits it, not because this file is special.
+ *
+ * **The engine does not name the sport, and the discovery rule is the reason.** The profile is found by pattern in
+ * the knowledge directory, so the sport's identity lives in the artefact — in its filename and its own `sportId`
+ * field — and never in this sport-neutral module. Writing the filename here would have put a sport inside the
+ * engine, which is the coupling the sport-coupling ratchet exists to catch; it did catch it, on the first run.
+ *
+ * Absence and plurality both raise rather than resolve quietly. A derivation with no sport is not a game, so an
+ * empty directory must not hand back an empty list and let the ball disappear silently. Two profiles are a choice
+ * of sport, and the engine is not entitled to make it by sort order.
+ */
+function sportProfileFiles(): string[] {
+    const dir = path.join(CONFORMANCE_DIR, 'stage-b')
+    const found = fs
+        .readdirSync(dir)
+        .filter(name => /^sport-profile-.+\.json$/.test(name))
+        .sort()
+    if (!found.length) throw new Error(`no Sport Profile in ${dir}: the sport a game is played in is constitutive, so there is nothing to derive`)
+    if (found.length > 1) throw new Error(`${found.length} Sport Profiles in ${dir} (${found.join(', ')}): which sport a game is played in is a decision, not a sort order`)
+    return found.map(name => `stage-b/${name}`)
+}
+
+export function loadSportProfile(): LoadedContract[] {
+    return sportProfileFiles().map(file => {
+        const result = readJson(file).result || {}
+        return {
+            contractId: String(result.object),
+            objectId: String(result.object),
+            knowledgeVersion: 'stage-b',
+            items: (result.items || []).map((item: any) => {
+                const { id, ...rest } = item
+                return { itemId: String(id), ...rest } as ContractItem
+            }),
+            declarations: result.declarations || [],
+            relationshipRules: result.relationshipRules || [],
+        }
+    })
+}
+
 export function corpusInput(): DerivationInput {
     const contracts = loadCorpusContracts()
     return {

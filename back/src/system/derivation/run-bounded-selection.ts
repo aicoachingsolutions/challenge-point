@@ -19,7 +19,7 @@
 import { deriveInputConstraints } from '../input-constraints/deriveInputConstraints'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { generateSelection } from '../test-library'
-import { CORPUS_ENVELOPE, loadCorpusContracts, loadRegister } from './corpus'
+import { CORPUS_ENVELOPE, loadCorpusContracts, loadRegister, loadSportProfile } from './corpus'
 import { isStampedHalt } from './emit'
 import { runDerivation, runStages0to10 } from './engine'
 import { indexRegister } from './register'
@@ -110,7 +110,22 @@ export function selectFor(goalId: string, situationId: string | null = null): Bo
 /** The derivation input a selection implies: the contracts for the objects it chose, and nothing else. */
 export function derivationInputFor(selection: BoundedSelection): DerivationInput {
     const wanted = new Set(selection.selected.map(s => key(s.id)))
-    const contracts: LoadedContract[] = loadCorpusContracts().filter(c => wanted.has(key(c.contractId)))
+    const selected: LoadedContract[] = loadCorpusContracts().filter(c => wanted.has(key(c.contractId)))
+
+    /**
+     * **The Sport Profile is added unconditionally, because it is constitutive rather than selected.**
+     *
+     * Authorized 6 October. Every other contract here was chosen for this goal; this one is the environment the
+     * goal runs in, so filtering it by the selection would be asking an activity to select the sport it is played
+     * in — which is the thing his boundary ruling says an activity should not have to do.
+     *
+     * **It goes into BOTH lists, and that is not incidental.** A contract present in `contracts` but absent from
+     * `selection` still forms its elements and contributes its lines — it only loses its entry in
+     * `versions.objects`, the stamp that exists so a stored result can be known stale when a list's membership
+     * changes. Omitting it there would have left the provenance stamp silent about the thing the game most
+     * depends on.
+     */
+    const contracts: LoadedContract[] = [...selected, ...loadSportProfile()]
     return {
         selection: contracts.map(c => ({ objectId: c.objectId, knowledgeVersion: 'stage-b' })),
         contracts,

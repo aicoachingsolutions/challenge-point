@@ -230,9 +230,41 @@ function constructTriggers(classes: ElementClass[], index: RegisterIndex, envelo
     if (index.citableStandingDecisions.has('SD-06')) triggers.push('SCORE')
     if (envelope && envelope.lengthM && envelope.widthM) triggers.push('OUT_END_LINE', 'OUT_TOUCHLINE')
 
-    const teamClasses = classes.filter(c => c.row === 'P1')
+    /**
+     * **SD-44's prerequisite is a RELATION, and these two tests are only half of it. Corrected 6 October.**
+     *
+     * SD-44's own row reads *"turnover when opposing teams and **the relevant possession relationship** exist"*.
+     * For a week this function, and the RC-19 table I rewrote from it, said "opposing teams and a ball object" —
+     * collapsing trigger → relation → ball into trigger → ball. The ball is what the relation is made of, not
+     * the prerequisite the ruling names.
+     *
+     * **What this function can and cannot do.** It runs at stage 2, before any line is derived, so it cannot ask
+     * whether the possession relation resolved or opened. What it can test is the relation's material
+     * prerequisites: opposing teams, and a ball for them to contest. That is a NECESSARY condition, not the
+     * named one. The named one is tested by `GA-TRIGGER-REACHABLE`'s second clause, which refuses a turnover
+     * whose relation is neither established nor open. **Neither test alone is SD-44; together they are the
+     * chain.** Do not re-collapse them: a ball alone must not make a possession change reachable.
+     *
+     * **`POSSESSION_CHANGE` needs OPPOSING teams, not merely a team.** His ruling of 5 October, aligning this
+     * with the authored prerequisite rather than leaving it weaker than the rule it implements.
+     *
+     * **Counting team CLASSES is the wrong test and was the old defect's shape in miniature.** A class count
+     * reflects how many contracts happen to mention teams, not how many teams the game has: A04 has ONE team
+     * class establishing `min 2, max 2`, while A01 with its goal-kick situation has TWO classes that both claim
+     * the same two teams. So the question is asked of the established team CARDINALITY, which is where "how
+     * many teams are there" actually lives.
+     *
+     * **What this does NOT implement, recorded rather than left to be rediscovered.** The design package's
+     * prerequisite also names "distinct team designations" and "opposed objectives". Neither is implemented
+     * here, and neither can be at stage 2: the team classes fix no designation at all (their selectors are
+     * empty), and opposition is established by the objective structure under SD-95 — "a shared target
+     * establishes the opposing relationship, and no team is consulted" — which this function cannot see,
+     * having only classes. Two teams is strictly stronger than the one it replaces and weaker than the full
+     * prerequisite; the remaining distance is noted in RC-19's own text.
+     */
+    const opposingTeams = classes.some(c => c.row === 'P1' && (c.cardinality?.min ?? 0) >= 2)
     const ballClasses = classes.filter(c => c.row === 'O1' && c.constraints.terms.some(t => t.op === '=' && t.value === 'ball'))
-    if (teamClasses.length >= 1 && ballClasses.length >= 1) triggers.push('POSSESSION_CHANGE')
+    if (opposingTeams && ballClasses.length >= 1) triggers.push('POSSESSION_CHANGE')
 
     for (const region of classes.filter(c => c.row === 'S2')) triggers.push(`REGION_ENTRY{${region.classId}}`)
     for (const window of classes.filter(c => c.row === 'V23')) triggers.push(`TIME_EXPIRY{${window.classId}}`)
@@ -278,7 +310,16 @@ function enumerateLines(classes: ElementClass[], index: RegisterIndex, stopped: 
             // later line can move it. So it is settled here rather than left CONDITIONAL on a
             // governing line that will never change — a transition keyed `trigger=POSSESSION_CHANGE`
             // is a turnover, and asking whose end line it crossed is not a gap in the knowledge.
-            const bySelector = condition?.selectorAttribute ? selectorApplies(cls, condition.selectorAttribute, condition.in) : null
+            /**
+             * `in` names the values the row applies to; `notIn` names the ones it does not, and anything else
+             * keeps its line. The negation preserves `null` deliberately: an undecided condition must stay
+             * undecided, because this mechanism may only ever remove a line it can positively disqualify.
+             */
+            const bySelector = condition?.selectorAttribute
+                ? condition.notIn
+                  ? (v => (v === null ? null : !v))(selectorApplies(cls, condition.selectorAttribute, condition.notIn))
+                  : selectorApplies(cls, condition.selectorAttribute, condition.in ?? [])
+                : null
             const line: ResolutionLine = {
                 lineId: `${cls.classId}::${row.id}`,
                 elementId: cls.classId,

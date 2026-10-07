@@ -1,0 +1,239 @@
+Christian,
+
+Leading with the thing that bears on your seven days.
+
+
+THE PATH TO A BOUNDED PILOT IS NOW ONE AUTHORING DECISION, AND I HAVE MEASURED IT END TO END
+
+Your dynamic-object ruling is applied. With it in, **a single sport-level knowledge object carrying one item —
+"the game is played with a ball" — makes A04 realizable again, and the three acceptance conditions still hold.**
+
+                                    A04 as it stands        A04 with a sport-level ball
+    possession change reachable     no                      YES
+    the ball in the game            absent                  present, and carries NO position
+    realization freedoms on objects none                    NONE — no position is demanded
+    Gate A                          FAIL                    DEFERRED_TO_REALIZATION, may realize
+    realization                     withheld                PROCEEDED
+    nothing lost / invented / closed —                      0 / 0 / 0
+
+I authored nothing to get that: it is a probe with its own contract id, now deleted. But it means the remaining
+distance between here and a realizable A04 is **one decision by you about where ball existence lives**, not any
+further engineering. That is the answer I would build a go/no-go on.
+
+And it settles the 19 suspended checks too — they were blocked on exactly this, and they come back with it.
+
+
+1 · THE HAZARD — closed first, and the register had already promised it
+
+Done before the applicability change, as you sequenced it.
+
+**Two things I should correct about my own earlier report.** First, the hazard was **latent, not live**: after
+classification there are **zero** surviving conditional lines anywhere in the corpus or any goal — every one
+resolves to enumerated or withdrawn. I implied otherwise. Second, and more to the point:
+
+**The register had already promised this protection, in writing, and the implementation dropped it.** From the
+applicability block's own grammar note: *"Where the selector does not fix the attribute the condition is
+UNDECIDABLE and the line is KEPT, so an applicability rule can never hide a real gap."* The line **was** kept.
+And then the assembly step dropped every conditional entry from all three lists, so it was kept and invisible.
+**That is the seventh registered-but-unenforced construct this week, and the first where the register itself
+stated the guarantee it did not get.**
+
+**It fires on precisely the change you authorized**, which is why your sequencing was right. The selector matcher
+returns undecided when a selector *straddles* the applicability list, and GF4's target object is selected
+`kind ∈ {goal, target}` — so against a list naming `goal` and not `target` it straddles, goes conditional, and
+vanished. Silent lines went 22 to 28 in the corpus.
+
+**The fix.** A conditional line is now reported as not established, with the reason *"applicability unresolved"*,
+and withdrawn stays silent — because those are opposite cases: withdrawn means the condition is **false** so
+nothing is owed, conditional means it is **undecided** so whether anything is owed is itself undecided. **The
+closure half comes for free**, because the acceptance condition that checks nothing was closed without authority
+ranges over exactly that list: a concrete game that fills a conditional line is now refused.
+
+**Tested against a forced straddle, not against the corpus.** The corpus produces no conditional line, so a fix
+whose only evidence is "nothing changed" would be no evidence at all.
+
+
+2 · THE APPLICABILITY ENTRY — applied, and your counterfactual verified
+
+Both position rows now carry an entry conditioned on the element's own kind, listing the static kinds. A ball is
+absent from that list, so its position rows are withdrawn.
+
+Your three conditions, measured on real authored knowledge — A01 with From Goal Kicks, which authors a ball:
+**ball present** in the game as `{kind: "ball"}` with no position key; **no invented static layout position**, the
+rows are withdrawn rather than gapped; **no false realization freedom**, nothing on objects is open.
+
+And the rule is about state-dependence rather than about objects: **GF4's static target keeps its layout position
+and is still offered as a choice.** A04 is untouched — no ball, so no object and no position question at all.
+
+**I had to add one word to the applicability grammar, and I want that in front of you rather than buried,
+because you liked this route specifically for adding no concept.**
+
+My first version wrote the entry as a positive list — the row applies to `goal`, `line`, `gate`, `zone`,
+`target`. It was wrong, and an existing test caught it: an object selected `kind=goalA` **lost its authored
+layout position**, because anything not on the list is treated as not applying.
+
+The reason is structural rather than a missing entry. This mechanism's own rule, stated in two places in the
+code, is that an applicability condition *"may only ever remove a line it can positively disqualify"* — an
+undecided condition keeps the line, so a rule can never hide a gap. A positive list satisfies that for a closed
+attribute like a trigger. It cannot for `kind`, which is open-ended: two kinds in live corpus selectors (`zone`,
+`target`) are already absent from the register's own draft list, and any kind nobody enumerates is silently
+disqualified. **A positive list makes "static" the exception and "dynamic" the default, which is the reverse of
+what you ruled.**
+
+So the condition now names the ball and nothing else — `notIn: ["ball"]` — which disqualifies exactly the kind
+whose location is state-dependent and keeps every other kind, including kinds nobody has named yet. That needed
+one alternative key in the grammar's condition form, validated as mutually exclusive with the positive one.
+Measured after the change: an unenumerated kind keeps its position, a registered static kind keeps its position,
+and only a ball is withdrawn.
+
+It is one key, it is data rather than special-case code, and it makes the mechanism obey its own stated rule for
+this attribute. But it is a concept addition and it is reversible, so say the word if you would rather have it
+back out and the rule placed elsewhere.
+
+**One smaller thing while we are here.** `zone` and `target` appear in live corpus selectors and not in the
+register's draft kind list. Either the list needs extending or those selectors are non-conformant. Not urgent,
+and the negative form means nothing now depends on resolving it.
+
+
+3 · OPPOSING TEAMS — aligned, and the old test was wrong in an instructive way
+
+**Counting team *classes* was the wrong test**, and it is the same mistake as the one we have been chasing all
+week in miniature. A class count reflects how many contracts happen to mention teams, not how many teams exist:
+A04 has **one** team class establishing two teams, while A01 with its situation has **two** classes claiming the
+same two teams. The prerequisite is now read off the established team **cardinality**. Forced both directions:
+one team and a ball is not a possession change; two teams and a ball is.
+
+**What I did not implement, recorded rather than left to be found again.** The design package's prerequisite also
+names *"distinct team designations"* and *"opposed objectives"*. Neither is reachable where this is decided: the
+team classes fix no designation at all, and opposition is established by the objective structure under SD-95 —
+*"a shared target establishes the opposing relationship, and no team is consulted"* — which that function cannot
+see. Two teams is strictly stronger than one and weaker than the full prerequisite, and the gap is written into
+RC-19's text.
+
+
+4 · THE OWNERSHIP QUESTION — your hypothesis is right, and the gap is real
+
+**Where does the architecture establish the sport is soccer?** Nowhere, as a fact a derivation can use.
+
+The soccer module does carry a sport identity — it declares itself `sport.soccer`, and every row of the
+performance-context registry is tagged with it. But the sport of a *run* is fixed by a **build-time import**, not
+by any knowledge layer: there is no runtime sport dispatch anywhere, and the coach's own sport text is
+concatenated into a keyword-matching blob. So the sport is a property of which library is compiled in, not a fact
+a game is told.
+
+**Does an existing authoritative layer own that the functional object is a ball?** **No — and the option you
+would most naturally reach for is closed.** The engine has three support channels: an entailing item, a citable
+standing decision, and the session. For a *value* all three work. For **existence** there is exactly one:
+elements are formed from contract items and nothing else, and the boundary is named — SD-83, *"an exclusion, an
+assumption, engine wording or an out-of-boundary note may constrain what exists; none of them brings it into
+existence."* So **a standing decision cannot establish a ball**, however plainly it says one exists; it can only
+supply values to elements something else created. The session carries four envelope numbers and nothing else.
+
+As for the sport module: **the derivation and realization cores are genuinely decoupled from it** — verified by
+walking the module graph, not by a search for its name. I should be exact rather than sweeping, because my first
+draft said there was no path at all and that is wrong: the selection step lives in the derivation directory and
+does import the library the sport module docks into. What is true is narrower and still decisive — nothing the
+sport module knows ever becomes **authoritative support** for an element. It reaches selection; it does not reach
+establishment.
+
+**The decisive evidence is the specification's own Owner column.** §5.4 Objects names the owner as *"SELECTION;
+REALIZATION for position within bounds"* — so object existence and kind are owned by selection, with realization
+co-owning only position within bounds. **No sport, module or game-level owner appears in section 5's ownership
+column at all.** And the spec demonstrably *can* express a second co-owner when it means to: §5.3 gives `teams[]`
+the owner *"SELECTION, reconciled against SESSION"*. For Objects it does not.
+
+So, in your terms: **this is the ownership gap, and I am returning it rather than filling it.** The two existing
+items that do establish a ball — in the goalkeeper build-out and the goal-kicks situations — are both
+object-scoped, neither sport-level. Nothing owns it as an invariant.
+
+**You have already ruled on the adjacent case, and it endorses what is happening now.** KR-04, in your words:
+*"RPC-001 does not own or instantiate the physical carrier of its scoring event ... The resolved game must
+independently contain a supported compatible carrier — line, zone, gates, target player — and the gates must
+establish that the chosen event can operate through it. If selection produces an RPC-compatible scoring event for
+which no supported physical carrier exists, reconciliation fails/returns to selection. RPC-001 does not
+manufacture the carrier conditionally."*
+
+That is this situation exactly, one carrier over. It says a context must not own the carrier, that the game must
+independently contain one, and that when it does not, **the right outcome is a failure that returns to
+selection** — which is precisely what A04 now does. Your prior ruling predicted the failure we are looking at,
+and it points the answer at selection rather than at a new layer.
+
+**And a precise answer to why A04 in particular has none:** it routes to RPC-004 Chance Creation, **RPC-004 has no
+contract in the corpus at all**, and its two contracted objects both declare objects NON_CLAIMED. So A04's gap is
+not an oversight in GF2 or Wide Zone — it is a context with no contracted knowledge behind it.
+
+**One thing to flag before it becomes another RC-19.** §5.4's Claim column reads *"Every object referenced by a
+rule, transition or objective exists **and is positioned** inside `area`"*. Your ruling today amends that: a
+dynamic object exists and is **not** positioned. The spec sentence is now partly superseded, and we have just
+spent a day on what happens when a superseded rule stays cited. Worth correcting while it is cheap.
+
+**But your hypothesis needs no new layer to act on.** A knowledge object *is* the existing ownership mechanism,
+and a sport-level one would be the ninth alongside the eight we have. That is what the measurement at the top of
+this note used. So the choice in front of you is where that object sits and what authorizes it — not whether a
+place exists for it.
+
+I have not authored it, into GF2, A04, Wide Zone or anywhere else.
+
+**One implementation detail to carry into that decision, found while checking the above.** A knowledge object
+reaches a game through two lists — the selection and the contracts — and they fail asymmetrically. A contract
+present in the contracts list but missing from the selection **still forms its elements and still contributes its
+lines**; what it loses is its entry in the object-version stamp, which exists so a stored result can be known
+stale when a list's membership changes. My measurement above went in through the contracts list alone, which is
+why it worked. When the real object is authored it needs to be in both, or the provenance stamp will quietly not
+mention the thing the game most depends on.
+
+
+5 · THE 19 SUSPENDED CHECKS
+
+Still suspended, and still announcing themselves every run. They need an authorized game, which needs the
+decision in part 4. The moment that lands they come back on real knowledge, which is what you asked for — and I
+would do that in the same sitting rather than as separate work.
+
+
+WHAT I WOULD PRIORITIZE FOR YOUR SEVEN DAYS
+
+On your instruction to put systemic pilot blockers ahead of cleanup, the chain is short and I think it is fully
+visible now:
+
+  1. **Your decision on where ball existence lives.** Everything else waits on it, and nothing else does.
+  2. Then A04 is realizable, the 19 checks come back, and the deterministic path is whole again.
+  3. Then the Wide Zone trigger decision, which is the last thing between that and a bounded pilot.
+
+Nothing in 1 or 2 is engineering I have not already measured. If you rule on the ball, I do not currently see
+another systemic blocker between here and a go/no-go — and I would rather say that plainly and be corrected than
+discover a fourth thing late.
+
+A04 open and failing, not patched. Generation frozen. Magnitude held. Successful Region Access still parked. No
+ball authored, no position authored, no object model change.
+
+
+TWO THINGS I FOUND ON THE WAY, BOTH REPORTED RATHER THAN REPAIRED
+
+**1. The applicability mechanism can only express half your ruling, and the other half needs you.** Your sentence
+has two parts: a dynamic object *may* exist without a position, and a position *is* required where authoritative
+knowledge establishes one. The entry delivers the first. It cannot deliver the second, because an applicability
+withdrawal is absolute — and worse, **an authored value on a withdrawn line is silently discarded.** So a ball
+whose starting position your knowledge *did* fix would have that position quietly ignored.
+
+Two things keep this from being urgent. It is **general and pre-existing**, not something the new entry
+introduced — an authored qualifier on a transition that withdraws it behaves identically, under an entry that
+predates this by a week. And **no corpus knowledge authors a ball position**, so nothing is lost today. But the
+second half of your ruling is not implemented, and implementing it needs either a defeasible withdrawal or a
+decision that an authored ball position is a knowledge error to be reported rather than honoured. That is yours.
+
+A consequence I did handle: one existing test asserted that a dynamic location used geometrically is refused, and
+it used a ball to do it. With the ball's position rows withdrawn, the refusal had nothing to fire on. I moved the
+fixture to a gate and **verified the refusal still fires there** — a dynamic location on a *static* object's
+layout row is the genuinely pathological case, so the invariant is better tested than before, not weaker.
+
+**2. The guard that keeps the derivation layer sport-neutral has a hole exactly where the real coupling is.** Its
+term list covers soccer, football, goalkeeper, dribble, throw-in, corner kick, penalty kick, final third,
+midfielder — and **not `ball`**. The single sport-specific literal in that layer is `'ball'`, in the line your
+possession-change prerequisite is implemented on. The guard does work: it caught the phrase "in football" in a
+doc comment of mine last week. It simply does not know the one word that matters here.
+
+That bears on your ownership question more than it looks. The engine currently recognises a ball by a hardcoded
+string in sport-neutral code, which is the strongest practical argument that ball existence belongs in knowledge
+rather than in the engine — and the guard would not have told us.
+
+Joe

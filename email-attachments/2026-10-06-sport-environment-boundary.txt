@@ -1,0 +1,302 @@
+Christian,
+
+Your hypothesis survives, but not for the reason you gave it — and the reason matters, because the one you
+offered argues from the thing the specification deliberately excludes.
+
+The audit also turned up something I did not expect: **the owner of constitutive sport semantics existed, and my
+own work removed it.** That reclassifies the A04 failure.
+
+
+THE SHORT VERSION
+
+The specification already states your boundary, in its own words, at §1. It is not "dynamically stateful" — it
+is **"the rules that govern state, never the state itself"**. Under that principle the ball belongs in the
+resolved game because *the rules key on it*, not because its state changes; and its position stays out because
+the state is exactly what is excluded. Your `notIn: ["ball"]` ruling turns out to be the boundary applied
+correctly rather than an exception to it.
+
+The slippery slope does not follow, and the corpus already proves it rather than my arguing it.
+
+
+1 · THE OWNER — you already asked this, you already ruled out two candidates, and an intended owner is named
+    in authored knowledge but was never built
+
+Three answers, and I would rather give you all three than pick one.
+
+**(a) You asked this question before and deferred it deliberately. It is a recorded open item.** PSD-03, in your
+words:
+
+    "Team that didn't put it out restarts where it went out: YES in substance as ordinary soccer behavior,
+     but I don't think its proper owner is a Game Form or a founder-created Game Representation default.
+     Treat the missing source as visible for now rather than solving its ontology during this check."
+    "Game Forms shouldn't have to duplicate ordinary soccer-state behavior simply to produce a playable game."
+    "Please don't turn that observation into a new library or architectural layer during this step."
+
+And §11 still lists it: *"**Ordinary sport-state knowledge.** Where out-of-play restarts, and perhaps other
+ordinary soccer behaviour, should be authored. Christian: not in Game Forms, not as a founder-created default, and
+no new library or layer during the check."*
+
+**Your present instinct is the same instinct**, almost word for word — you did not want Game Forms duplicating
+ordinary soccer behaviour then, and you do not want A04 reconstructing the sport now. What was deferred was only
+the ontology. The sanctioned interim behaviour was to **make the missing source visible rather than fill it**, and
+there is a reason code for exactly that, `OUT_OF_PLAY_SOURCE_MISSING`. It appears in the conformance artefacts and
+in **no source file**, which is the eighth registered-and-unconsumed construct this week.
+
+**(b) An intended owner IS named, in authored knowledge, and was never built.** The Game Archetype workbook
+carries a rule of its own:
+
+    "Sport_Profile_Rule": "Detailed sport-specific logic is excluded and must inherit through separate
+                           Sport Profile resources."
+
+That phrase occurs in **exactly one file in the repository**. So the architecture does not merely lack a sport
+owner by oversight — the knowledge names one, calls it a Sport Profile, and assumes inheritance through it. You
+told me not to create a layer merely because one appears absent; this is not absent-and-unnamed, it is
+**named-and-unbuilt**, which I think is a materially different situation and yours to rule on.
+
+**(c) And in practice the load was carried by RC-19 until five days ago.** This is the part I least expected.
+
+**Five contracts across the corpus explicitly decline to author trigger existence, citing RC-19 by name:**
+
+    GF2          "Existence of other transitions never examined (START, SCORE and out-of-play exist by
+                  construction, RC-19)."
+    GF4          "No further trigger elements are authored. Out-of-play elements exist by construction (RC-19)."
+    RPC-001      "No item is on the trigger collection. Triggers exist by construction (RC-19)."
+    PCG          "Reset triggers exist by construction (RC-19)."
+    Neutral      "Exists by construction (RC-19)."
+
+And **no corpus item authors the existence of an out-of-play trigger at all.** The eight items that mention
+OUT_END_LINE or OUT_TOUCHLINE are all items about *fields* of such a transition — who the restart is awarded to,
+whether play stops, where it is taken — presupposing the transition exists. Three of those are engine-only and
+support nothing.
+
+**So RC-19 was, in practice, the owner of constitutive sport semantics for triggers.** Not by design and not by
+your ruling — it was a run convention of ours — but it is what let five independent knowledge objects rely on
+the sport supplying out-of-play, start and score without re-establishing them. That is exactly the relationship
+you are asking me to find, and it was already there.
+
+**SD-44 superseded it, and I enforced SD-44 yesterday.** Where RC-19 said "these exist by construction", SD-44
+says "only where the resolved game contains the prerequisites". For out-of-play the prerequisite is a bounded
+area, and the session supplies that. For a possession change the prerequisite is an **object**, and there is no
+channel by which the sport or the session can supply an object. So the ball failure is not a missing knowledge
+item. **It is the first visible casualty of removing the environment mechanism without replacing it** — and the
+replacement was never designed, because nobody had noticed RC-19 was carrying that load.
+
+Beyond RC-19 and the session envelope's four dimensional facts, I found no layer that owns constitutive sport
+semantics. The sport module declares itself soccer and cannot reach a derivation. I am not proposing a new layer.
+
+**And the specification has already ruled how a non-activity source reaches the game, which turns out to settle
+most of your question.** §6, "The contribution contract — outside the representation":
+
+    "every structural property that a session emphasis or slot template requires: it enters as a SELECTION
+     item under its own contract (SD-17), with no separate route into the game or its language."
+
+That is the same shape as ours, already decided for an analogous case. Session emphasis sits outside the
+representation, needs a structural property inside it, and the ruling is that it **enters as selected knowledge
+under its own contract** — explicitly *with no separate route*. So the absence of a channel by which the sport
+can push a fact into a game is not an oversight. It is deliberate, and SD-17 is the precedent for what to do
+instead.
+
+
+2 · THE INTENDED BOUNDARY — your remembered phrasing is the specification's own, at §1
+
+Answer: **neither as you worded them, and much closer to (b).** The spec says so under the heading "The
+boundary":
+
+    "The representation holds what a coach lays out and what the rules key on. It holds nothing about:
+     player movement, tactics, or positions during play; pressure, opportunity, affordance, uncertainty or
+     representativeness; the state of a game in progress.
+     It describes the rules that govern state, never the state itself."
+
+§7 "Deliberately not held" repeats it and names our case explicitly: *"The state of a game in progress: which
+target is live now, **who has the ball now**."*
+
+**But I have to correct myself on its standing, and the correction matters.** That sentence appears once, carries
+**no evidence key, no standing-decision id and no attribution to you**. It is the specification's own prose — ours.
+Your recorded boundary statement is a different sentence, at §1 just above it, and it is explicitly labelled:
+
+    "The boundary, in Christian's words (18 September): the authoritative game contains supported resolved
+     facts in the eight areas; Gate A and both directions of Gate B pass before rendering; and coach language
+     can describe that game but cannot create additional structure."
+
+That is about support and closure. **It says nothing about the sport, and nothing about scope in the sense you are
+asking.** So the boundary you remember settling is one we wrote down and have been relying on for weeks without
+your ratification — which is the second time in this audit that our own prose turns out to be the authority
+everyone was citing. RC-19 was the first. **I would rather tell you that than let a sentence of ours answer a
+question you asked.**
+
+**Why it is not quite your (b), and the gap is the point.** (b) describes an activity "operating within an
+already-established sport environment" — and the spec grants that environment **no standing at all**. It states
+what it holds and what it does not, and names no counterpart that holds the rest. There is no sentence saying
+"the sport supplies the following and we represent the following". The boundary is drawn from one side only.
+
+That single omission explains everything else in this audit. It is why RC-19 could carry the environment
+informally for months, why removing RC-19 broke something nobody expected, and why your question had to be asked
+at all. **The spec is not wrong about its own scope — it is silent about what lies on the other side of it.**
+
+
+3 · DYNAMIC STATE IS NOT THE DISTINCTION — and something better already is
+
+Here is where I think your hypothesis needs correcting rather than confirming.
+
+**"Represent it because its state and relationships change" argues from the excluded side of the boundary.** The
+spec holds nothing about the state of a game in progress, and names "who has the ball now" as the example. If the
+ball earned its place by being dynamically stateful, the same reasoning would admit the thing §7 was written to
+keep out.
+
+**The distinction the architecture actually holds is `initial value + the rule that governs it`, and PS1 is the
+precedent — yours, from 2 October.** Its own note:
+
+    "WHAT IT IS: a team-valued current state. Its INITIAL value is a governed realization choice over the
+     established teams ... POSSESSION_CHANGE changes that state."
+
+That is §1 applied exactly: the representation carries an initial value and the rule that changes it, and does
+not carry the live state. Read that way, your `notIn: ["ball"]` ruling is not an exception to the boundary — **it
+is the boundary.** The ball is present because rules key on it; its position is absent because position during
+play is state.
+
+And §1.9 already refuses any geometric use of a dynamic location, which is the same principle a third time.
+
+So: the architecture supports your distinction, it has a precedent, and the operative words are better than the
+ones in the hypothesis. I would adopt the spec's own formulation rather than "dynamically stateful".
+
+
+4 · WHY THE BALL MUST APPEAR, WITHOUT APPEALING TO A04
+
+Because the rules key on it, and three independent knowledge objects do the keying.
+
+**Every single transition-element claim in the corpus is on `trigger=POSSESSION_CHANGE`** — GF2-07.a,
+NEUTRAL-12.a and GF4's I06 — plus one on a goal-kick selector the ledger flags as unregistered. Nothing authors
+START, SCORE or out-of-play. **The corpus already draws your boundary in practice:** it establishes the
+transition its rules key on and leaves the environmental ones to the sport.
+
+A possession change is a rule about the ball. So the ball is the carrier of a relationship the activity
+explicitly keys on — which is KR-04's logic one carrier over: *"The resolved game must independently contain a
+supported compatible carrier."*
+
+That justification does not mention A04 and does not depend on it.
+
+**And your knowledge already states the division, in one file, in two sentences.** GF2-07.a — the item that
+authors the possession-change transition — rests on this, from the Game Archetype workbook:
+
+    "Shared, adaptive, generally simultaneous access with reciprocal influence." — GA-001
+
+The same workbook carries the Sport Profile rule quoted in part 1: *"Detailed sport-specific logic is excluded and
+must inherit through separate Sport Profile resources."* **So one artefact authors the interaction structure —
+access changes reciprocally — and in the same breath disclaims the sport-specific detail of what is being
+accessed.** The ball is precisely the half it hands off. That is the principled boundary you asked for, and
+neither of us wrote it: it is in the archetype knowledge, and the resource it hands off to was never built.
+
+**One classification I tested and rejected**, because it would have been a sharper accusation and it is not true.
+GF2-07.a's note says it re-expressed a claim about `objects[].owner` "without loss", which looks like a lost
+presupposition — the object going out with the row. I checked GF2's original source in the soccer module: **no
+GF2 knowledge there mentions a ball at all.** Nothing was lost in restatement; the ball was never in GF2's
+knowledge to lose. The note is accurate.
+
+
+5 · EXISTENCE VERSUS STATE
+
+Existence can be sport-inherent. What the resolved game needs is not the ball's *state* but the ball as a
+**carrier the rules can key on**. The two statements you asked me to separate hold, and the middle one should be
+narrower than you wrote it: the resolved game carries the object because rules key on it; that its relationships
+change is *why* rules key on it, not itself the licence.
+
+Measured, and this is the part that already behaves correctly: when a ball exists it appears as `{kind: "ball"}`
+with no position and creates no realization freedom. That is now an architectural consequence rather than a
+happy accident — the applicability entry implements the boundary, and the boundary is stated in §1.
+
+
+6 · THE SLIPPERY SLOPE DOES NOT FOLLOW, AND THE CORPUS PROVES IT
+
+The test is **"do the rules key on it?"**, and it is already the test in use:
+
+    boundaries, field dimensions    the SESSION envelope supplies them; no activity authors them
+    out-of-play behaviour           constructed from the envelope; five contracts decline to author it
+    start, score                    left to by-construction; nothing authors their existence
+    number of players               the session
+    possession change               AUTHORED by three independent contracts — the rules key on it
+    the ball                        the carrier that the authored possession rule presupposes
+    offside, ordinary legal actions nothing keys on them anywhere, and nothing establishes them
+
+So authorizing a ball does **not** commit us to authoring the Laws of the Game. It commits us to authoring the
+carriers of relationships our activities explicitly key on — which is one object today, and would be one more
+only when an activity keys a rule on something new.
+
+**The real asymmetry, and §6 says it is deliberate:** the session can supply a *dimension* but nothing can supply
+an *object*. §5.4 assigns object existence to SELECTION and the session owns only four rows, and §6 states the
+general rule — a source outside the representation that needs a structural property inside it enters as a
+selection item under its own contract, *with no separate route*. So the asymmetry is the design, not a gap in it.
+That is why the ball is the odd case: its prerequisite is the one kind of thing that has only the selection route,
+and out-of-play's prerequisite happens to be a dimension, which the session already owns.
+
+
+7 · THE A04 CLASSIFICATION
+
+Of your five options: **failure to propagate an inherent sport invariant into the resolved representation**,
+caused by **an overly narrow support model**. Both, and in that order.
+
+But the sharpest statement is not on your list, and I think it is the true one: **this is PSD-03's deferred
+ownership question becoming load-bearing for the first time.** Out-of-play restarts were its first instance and
+cost nothing, because an unauthored restart is simply `NOT_AUTHORED` and no gate cares. The ball is its second
+instance, and it costs a gate failure — because SD-44 turned "the sport supplies this" from a tolerated silence
+into an unmet prerequisite. **The open item did not change; what changed is that something finally depends on it.**
+That is also why it surfaced in my work rather than yours: enforcing your reachability ruling is what made the
+deferral expensive.
+
+Against the alternatives:
+- **Not missing canonical knowledge.** "Soccer is played with a ball" was never meant to be activity knowledge,
+  and five contracts' own notes show the corpus deliberately not authoring facts of that kind.
+- **Not an incorrect reachability prerequisite.** A possession change genuinely presupposes a ball; SD-44 is
+  right. I tested the alternative you implied — that the real prerequisite is PS1 rather than an object — and it
+  does not rescue the check, for a reason worth reporting on its own, below.
+
+**The second-order finding: the possession relation is established nowhere.** PS1 is `NOT_AUTHORED` with reason
+"no coverage" in A04, in the control that *does* have a ball, and in the full corpus. **No contract declares or
+claims PS1 at all.** So a ball restores the trigger's reachability but leaves the relation that trigger governs
+unestablished — and nothing blocks on that, which is why my probe realized cleanly with acceptance 0/0/0.
+
+That means **"A04 is realizable" and "possession is coherently represented" are different states**, and only the
+first is one decision away. I would want you to know that before treating a ball as the finish line.
+
+
+8 · WHAT §5.4 SHOULD MEAN — not changed, as you asked
+
+Its Claim currently reads *"Every object referenced by a rule, transition or objective exists **and is positioned
+inside `area`**"*. Under the ownership model above it should say that every such object **exists**, and that an
+object **whose location is a feature of the layout** is positioned inside the area — leaving an object whose
+location is state to carry none. The Owner column needs no change: selection still owns existence and kind.
+
+One thing to check before any edit: the clause may be load-bearing for the envelope-fit and layout-feasibility
+gates. I have not traced that, and I would rather say so than guess.
+
+
+9 · THE SMALLEST CORRECTION I RECOMMEND — not implemented
+
+A sport-level knowledge object remains the smallest legitimate solution, and the audit makes the case properly
+rather than by elimination: §5.4 assigns object existence to selection, §6 rules that a source outside the
+representation enters as a selection item under its own contract with no separate route, and **SD-17 is the
+precedent — session emphasis is already handled exactly this way.** So this is not a new pattern. It is an
+existing one applied to a source we had not needed it for yet.
+
+**And it may be the first instance of the thing the archetype rule already anticipates.** If a Sport Profile is
+what "detailed sport-specific logic must inherit through", then a sport-level knowledge object establishing the
+ball is a Sport Profile with one item in it. That framing costs nothing now, commits nothing, and means the
+decision you make for the ball is the same decision that will answer out-of-play restarts when they next matter.
+I am not proposing we build a Sport Profile layer — only noting that the name already exists in your knowledge
+and that one knowledge object is the smallest thing consistent with both §6 and that rule.
+
+Two things I would settle alongside it rather than after it.
+
+**The §5.4 wording**, because it currently contradicts your dynamic-position ruling, and we have just spent two
+days on what a superseded sentence costs when it stays cited.
+
+**And whether the ball is the only carrier of this kind.** RC-19's removal was invisible because exactly one
+trigger needed what it carried. The test I would apply before calling this finished is the one from part 6 — for
+each trigger our activities key rules on, is its prerequisite a dimension the session owns, or an object only
+selection can supply? Today the answer is one object. I would rather confirm that by running it than assume it,
+and I can do that without authoring anything if you want it before you decide.
+
+Everything you asked held is held: the probe stays evidence, the 19 checks stay suspended, no ball or position is
+authored, the applicability mechanism stays as implemented, §5.4 is unchanged, the hardcoded `'ball'` and the
+guard gap are unrepaired, Successful Region Access is parked, magnitude is held, generation is frozen.
+
+Joe

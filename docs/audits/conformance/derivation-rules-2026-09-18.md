@@ -97,12 +97,52 @@ attribute its selector fixes with `=` or `∋`. An attribute given with `∈` is
 SD's condition is met only by a value whose own verdict is `ENTAILED` or `NARROWED_CHOICE` (RC-24).
 The session supports E1–E4 only.
 
-**Reachable triggers (RC-19):**
-- The T1 elements for START, POSSESSION_CHANGE, OUT_TOUCHLINE and OUT_END_LINE exist by construction.
-  SCORE exists if V0 does. REGION_ENTRY, TIME_EXPIRY and STANDING exist only where authored.
+**Reachable triggers (RC-19 — SUPERSEDED BY SD-44; corrected 5 October 2026):**
+
+> **This convention was wrong and was cited as authority for four months.** As written on 18 September it
+> said: *"The T1 elements for START, POSSESSION_CHANGE, OUT_TOUCHLINE and OUT_END_LINE exist by
+> construction. SCORE exists if V0 does. REGION_ENTRY, TIME_EXPIRY and STANDING exist only where
+> authored."* That is a flat list, and it dropped the condition that is the whole point. **SD-44, his
+> ruling of 22 September, supersedes it wherever the two conflict** — and they conflict on four triggers.
+> A run convention is ours, not his (see the preamble); an SD is his. **A conflict between an RC and an SD
+> is resolved by the SD.**
+>
+> The staleness mattered: register row T1 still carried "Reachable triggers exist by construction
+> (RC-19)", and at least eight corpus items discharge their own structural checkability onto it — so the
+> corpus held a licence saying neither the prerequisite nor any check was needed. Nothing enforced
+> reachability on a transition until `GA-TRIGGER-REACHABLE` was added on 5 October.
+
+**The governing rule is SD-44, in his words:**
+
+> "A trigger is structurally reachable when the Game Representation contains the resolved structural
+> prerequisites necessary for that trigger to occur. Structural reachability does not assert that the
+> trigger will occur, is likely to occur, or is reachable through simulation of player behavior or game
+> state."
+
+So a trigger is **not** reachable merely because it appears in the grammar's trigger vocabulary. Per AM-15,
+reachable triggers — and the elements partitioning them by qualifier — exist by construction; the
+qualifier values still need support. The prerequisites, per trigger:
+
+| Trigger | Structurally reachable when |
+|---|---|
+| `START` | by construction, for a playable game |
+| `SCORE` | a resolved primary scoring event exists (SD-06 entails exactly one) |
+| `OUT_END_LINE`, `OUT_TOUCHLINE` | a bounded playing area exists |
+| `POSSESSION_CHANGE` | opposing teams **and the relevant possession relationship** exist — SD-44's own words. **Corrected 6 October:** this table previously read "opposing teams and a ball object", which collapsed the chain. The relation is the prerequisite; the ball is a prerequisite *of the relation*. Tested in two places because no one stage can test both: stage 2 checks the relation's material prerequisites (opposing teams, and a ball for them to contest), and `GA-TRIGGER-REACHABLE`'s second clause checks that the relation itself is established or legitimately open. **A ball alone does not make a turnover reachable** (his ruling, 6 October) |
+| `REGION_ENTRY {r}` | region `r` exists and is structurally accessible |
+| `TIME_EXPIRY {w}` | time window `w` exists |
+| `STANDING` | a standing condition rather than an event; always constructed |
+
 - Their fields still need support.
 - Where RC-9, SD-R3 or PSD-03 applies, an unsupported field (T2–T6) is `NOT_AUTHORED` with that reason,
   never `INVENTED`.
+- **Enforcement.** `GA-TRIGGER-REACHABLE` checks every T1 class's trigger against the constructed set. A
+  transition's trigger has no FIELD row — `trigger` is a selectorAttribute of the T1 COLLECTION — so the
+  check reads the class's selector rather than a line, which is why no line-based gate ever caught it.
+- **One divergence recorded, not repaired:** the engine's team-side test for `POSSESSION_CHANGE` requires
+  at least **one** P1 class, where the prerequisite above says *opposing* teams. It is weaker than the
+  rule it implements. Recorded here so the gap is visible rather than discovered again later; no corpus
+  case currently turns on it.
 
 **Continuing play (RC-20):** when `playState` is `CONTINUE`, T2–T5 are `N/A`, and no lines are listed
 for them.

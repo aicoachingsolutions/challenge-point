@@ -117,34 +117,62 @@ test('registering the member changed no verdict in any of the thirteen goals', (
     assert.equal(goals.length, 13)
 
     /**
-     * **These baselines moved once, deliberately, and the reason is recorded here.** Registering the vocabulary
-     * member changed nothing — that was measured and is still proved below by removing it. What changed these
-     * numbers is the separate authoring act of 4 October (C39), which put the token on the Pass Combination
-     * Gate's information-rule trigger and closed one failed line in each of the five goals that select that
-     * contract: A01 and A05 from eight to seven, TA01, A02 and TA02 from seven to six. A04 never moved.
+     * **These baselines have moved twice, both times deliberately, and both reasons are recorded here.**
+     *
+     * 1. **4 October (C39).** Registering the vocabulary member changed nothing — measured then, and still
+     *    proved below by removing it. What moved the FAILED counts was the separate authoring act that put the
+     *    token on the Pass Combination Gate's information-rule trigger, closing one failed line in each of the
+     *    five goals selecting that contract: A01 and A05 eight to seven, TA01, A02 and TA02 seven to six.
+     * 2. **5 October — `GA-TRIGGER-REACHABLE`.** On his ruling that SD-44 supersedes RC-19 and that a
+     *    possession change needs a ball, Gate A FAILED wherever a transition was keyed on an unreachable
+     *    trigger. Six verdicts moved: A01, TA01, A02, TA02 and A05 from NOT_EVALUABLE, and **A04 from
+     *    DEFERRED_TO_REALIZATION**. TD02 and D03 were already FAIL and merely gained a second failing check.
+     * 3. **6 October — the Soccer Sport Profile.** It reaches every derivation, so it establishes a ball and
+     *    bounds the possession relationship for all thirteen goals, and the six verdicts from (2) move back:
+     *    **A04 to DEFERRED_TO_REALIZATION, the other five to NOT_EVALUABLE.** Only TD02 and D03 still fail
+     *    reachability, and on the FIRST clause — their transition is keyed on a trigger their own game cannot
+     *    construct, which no sport-level carrier fixes.
+     *
+     * **AND THE FAILED COUNTS DID NOT MOVE — WHICH WAS VERY NEARLY A LIE.** Every count below is byte-identical
+     * to the 5 October baseline, so a count-only assertion would have reported perfect containment. The
+     * membership changed underneath it: `game::PS1` LEFT the failed set, and `…SPORT-SOCCER-01::O3` — the
+     * ball's count, deliberately unconstrained and declared NON_CLAIMED — ARRIVED. One out, one in, in every
+     * goal. That is a legitimate exchange and it is also exactly the shape a real regression would hide in,
+     * so the assertions below now pin the two lines by name instead of trusting the total.
      */
-    const expected: Record<string, { failed: number; gateA: string }> = {
-        A01: { failed: 7, gateA: 'NOT_EVALUABLE' },
-        D01: { failed: 6, gateA: 'NOT_EVALUABLE' },
-        TA01: { failed: 6, gateA: 'NOT_EVALUABLE' },
-        TD01: { failed: 6, gateA: 'NOT_EVALUABLE' },
-        A02: { failed: 6, gateA: 'NOT_EVALUABLE' },
-        D02: { failed: 7, gateA: 'NOT_EVALUABLE' },
-        TA02: { failed: 6, gateA: 'NOT_EVALUABLE' },
-        TD02: { failed: 11, gateA: 'FAIL' },
-        A03: { failed: 7, gateA: 'NOT_EVALUABLE' },
-        D03: { failed: 11, gateA: 'FAIL' },
-        A04: { failed: 7, gateA: 'DEFERRED_TO_REALIZATION' },
-        A05: { failed: 7, gateA: 'NOT_EVALUABLE' },
-        A06: { failed: 7, gateA: 'NOT_EVALUABLE' },
+    const expected: Record<string, { failed: number; gateA: string; reachable: boolean }> = {
+        A01: { failed: 7, gateA: 'NOT_EVALUABLE', reachable: true },
+        D01: { failed: 6, gateA: 'NOT_EVALUABLE', reachable: true },
+        TA01: { failed: 6, gateA: 'NOT_EVALUABLE', reachable: true },
+        TD01: { failed: 6, gateA: 'NOT_EVALUABLE', reachable: true },
+        A02: { failed: 6, gateA: 'NOT_EVALUABLE', reachable: true },
+        D02: { failed: 7, gateA: 'NOT_EVALUABLE', reachable: true },
+        TA02: { failed: 6, gateA: 'NOT_EVALUABLE', reachable: true },
+        TD02: { failed: 11, gateA: 'FAIL', reachable: false },
+        A03: { failed: 7, gateA: 'NOT_EVALUABLE', reachable: true },
+        D03: { failed: 11, gateA: 'FAIL', reachable: false },
+        A04: { failed: 7, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
+        A05: { failed: 7, gateA: 'NOT_EVALUABLE', reachable: true },
+        A06: { failed: 7, gateA: 'NOT_EVALUABLE', reachable: true },
     }
     for (const goal of goals) {
         const input = derivationInputFor(selectFor(goal, null))
         const result: any = runDerivation(input)
         const staged: any = runStages0to10(input)
-        const failed = (result.resolution ?? []).filter((e: any) => e.state === 'failed').length
-        assert.equal(failed, expected[goal].failed, `${goal}: failed lines must not move`)
+        const failedLines = (result.resolution ?? []).filter((e: any) => e.state === 'failed').map((e: any) => String(e.lineId))
+        assert.equal(failedLines.length, expected[goal].failed, `${goal}: failed LINE count must not move`)
         assert.equal(String(staged.gates?.gateA?.verdict), expected[goal].gateA, `${goal}: Gate A must not move`)
+
+        // The two halves of the exchange, by name, because the count conceals it.
+        assert.ok(!failedLines.includes('game::PS1'), `${goal}: the possession relation is bounded now, so it must not be a failed line`)
+        assert.ok(
+            failedLines.includes('c:sport-profile:soccer:SPORT-SOCCER-01::O3'),
+            `${goal}: the ball's count is deliberately unconstrained, so it stays a declared non-requirement and keeps the total steady`,
+        )
+
+        const reach = (staged.gates?.gateA?.checks ?? []).find((c: any) => c.checkId === 'GA-TRIGGER-REACHABLE')
+        const passes = !reach.clauses.some((l: any) => l.verdict === 'FAIL')
+        assert.equal(passes, expected[goal].reachable, `${goal}: reachability verdict must be the one his ruling implies`)
     }
 })
 

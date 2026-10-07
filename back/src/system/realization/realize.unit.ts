@@ -19,6 +19,7 @@ import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame, ResolvedGame } from '../derivation/resolved-game'
 import { derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
+import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { checkRealization, Choice, isRefused, realize, Realized } from './realize'
 
 const DOCS = path.resolve(__dirname, '../../../../docs/audits/conformance')
@@ -67,6 +68,13 @@ const chooseScoring = [{ lineId: 'L-scoring', value: 'TARGET_GOAL', because: 'th
 
 const tests: [string, () => void][] = []
 const test = (name: string, body: () => void) => tests.push([name, body])
+
+/**
+ * **Nothing in this file is suspended as of 6 October.** A `suspended()` reporter stood here from 5 October,
+ * holding the acceptance test open while A04 had no authorized subject. The Sport Profile restored the subject,
+ * so the reporter has no job and is removed rather than left as scaffolding — a suspension mechanism sitting
+ * unused in a test file is an invitation to suspend the next inconvenient failure instead of reading it.
+ */
 
 // ---------------------------------------------------------------------------------------------
 // The happy path, and the three acceptance conditions on it.
@@ -548,20 +556,58 @@ test('the live corpus resolved game is refused, and the refusal names Gate A', (
     assert.match(realized.because[0], /may not be realized: Gate A is FAIL/)
 })
 
-test('A04 is authorized for realization, and the three states stay distinct', () => {
-    // His ruling of 30 September split Gate A by evaluability, so the four invariants whose subject
-    // realization supplies are evaluated after it. The state is deliberately NOT reported as `PASS`:
-    // "this keeps 'may realize' distinct from 'game is validated'."
-    /**
-     * **A04 is authorized as authored.** Ruling C35 made V8b's "one property per referent" operational, so the
-     * modifier's two typed referents accumulate as members instead of colliding, `GA-MODIFIER-OVERLAP` can
-     * evaluate identity, and nothing is left unevaluable before realization.
-     */
+/**
+ * **A04 IS AUTHORIZED AGAIN, and the three coherence states remain distinct.**
+ *
+ * From 5 October to 6 October this test asserted the opposite. His reachability ruling withheld authorization
+ * from A04 — possession is a relationship involving the ball, and A04's game established no ball — and he
+ * directed that the failure stay visible rather than be patched away. It was not patched away: the Soccer Sport
+ * Profile supplies the ball and bounds the possession relationship from authorized knowledge, so A04 passes the
+ * invariant instead of being excused from it.
+ *
+ * The contrast this test exists to protect is between three different things, and all three now have a live
+ * example, which they did not while everything failed at once:
+ *
+ *   - **A04** — `PRE_REALIZATION_SATISFIED`: every pre-realization invariant holds, the rest is deferred.
+ *   - **D03** — `FAIL`: an invariant is contradicted, and the reason names it.
+ *   - **D01** — `NOT_EVALUABLE`: an invariant cannot be judged at all. A gap, not a contradiction (SD-28).
+ *
+ * What his 30 September split guarantees is unchanged and still asserted: the pre-realization state never reads
+ * as a full `PASS`, and what a concrete game owes is carried whichever of the three states it is in.
+ */
+test('A04 is authorized again, the reason is stated, and the three states stay distinct', () => {
     const resolved = a04()
     assert.equal(resolved.coherence.preRealization, 'PRE_REALIZATION_SATISFIED')
-    assert.notEqual(resolved.coherence.preRealization, 'PASS', 'the pre-realization state must not read as full Gate A passing')
+    assert.notEqual(resolved.coherence.preRealization, 'PASS', 'satisfied pre-realization is not full Gate A passing')
     assert.equal(resolved.coherence.realizationAuthorized, true)
-    assert.deepEqual(resolved.coherence.notAuthorizedBecause, [])
+    assert.deepEqual(resolved.coherence.notAuthorizedBecause, [], 'nothing is withheld, so nothing is owed a reason')
+    assert.equal(resolved.coherence.gateA, 'DEFERRED_TO_REALIZATION', 'the remaining checks are deferred, not passed')
+
+    // A contradicted invariant. D03 selects the blind GF4 restatement, whose POSSESSION_CHANGE transition is
+    // keyed on a trigger the game cannot construct — so reachability fails on the FIRST clause, and the
+    // failure is named rather than merely reported as a refusal.
+    const d03Input = derivationInputFor(selectFor('D03', null))
+    const d03Result = runDerivation(d03Input)
+    if (isStampedHalt(d03Result)) return assert.fail('unexpected halt')
+    const d03 = assembleResolvedGame(d03Result, (runStages0to10(d03Input) as any).classes, indexRegister(d03Input.register), d03Input.contracts)
+    assert.equal(d03.coherence.preRealization, 'FAIL')
+    assert.equal(d03.coherence.realizationAuthorized, false)
+    assert.match(d03.coherence.notAuthorizedBecause[0], /fails:.*GA-TRIGGER-REACHABLE/, 'it must name the invariant, not merely refuse')
+
+    // An unevaluable one. D01 has no transition at all, so it cannot fail on reachability; it is blocked
+    // earlier by invariants there is nothing to judge.
+    const d01Input = derivationInputFor(selectFor('D01', null))
+    const d01Result = runDerivation(d01Input)
+    if (isStampedHalt(d01Result)) return assert.fail('unexpected halt')
+    const d01 = assembleResolvedGame(d01Result, (runStages0to10(d01Input) as any).classes, indexRegister(d01Input.register), d01Input.contracts)
+    assert.equal(d01.coherence.preRealization, 'NOT_EVALUABLE')
+    assert.match(d01.coherence.notAuthorizedBecause[0], /cannot be evaluated/)
+
+    assert.equal(
+        new Set([resolved.coherence.preRealization, d03.coherence.preRealization, d01.coherence.preRealization]).size,
+        3,
+        'satisfied, failed and unevaluable are three states, not two with a shared spelling',
+    )
 
     // And what a concrete game still owes is carried, naming what realization must supply for each.
     assert.ok(resolved.coherence.postRealizationRequired.length > 0)
@@ -574,9 +620,11 @@ test('A04 is authorized for realization, and the three states stay distinct', ()
 })
 
 test('A05 is NOT authorized, and says which pre-realization invariant is unsatisfied', () => {
-    // The counterpart, so the authorization is shown to discriminate rather than to wave things
-    // through: A05's GA-INFORMATION and GA-REFERENCE-INTEGRITY are pre-realization and unevaluable, so
-    // realization does not proceed.
+    // Still refused, and still for a stated reason — but the reason has moved twice. GA-INFORMATION and
+    // GA-REFERENCE-INTEGRITY being unevaluable was what stopped A05 originally; on 5 October the reachability
+    // ruling made it fail earlier and harder; and on 6 October the Sport Profile satisfied reachability, so the
+    // original two are once again what it is waiting on. The point of the test never moved: authorization
+    // discriminates, and it says which invariant and in which of the two ways.
     const input = derivationInputFor(selectFor('A05', null))
     const result = runDerivation(input)
     if (isStampedHalt(result)) return assert.fail('unexpected halt')
@@ -584,7 +632,12 @@ test('A05 is NOT authorized, and says which pre-realization invariant is unsatis
 
     assert.equal(resolved.coherence.realizationAuthorized, false)
     assert.equal(resolved.coherence.notAuthorizedBecause.length, 1)
-    assert.match(resolved.coherence.notAuthorizedBecause[0], /cannot be evaluated/)
+    assert.match(resolved.coherence.notAuthorizedBecause[0], /GA-INFORMATION, GA-REFERENCE-INTEGRITY/, 'it must name the invariants, not merely refuse')
+    assert.match(resolved.coherence.notAuthorizedBecause[0], /cannot be evaluated/, 'an unevaluable, not a failure')
+    assert.ok(
+        !/GA-TRIGGER-REACHABLE/.test(resolved.coherence.notAuthorizedBecause[0]),
+        'and reachability is no longer among them — A05 gets the ball from the Sport Profile like every other goal',
+    )
 })
 
 /** A04's resolved game, assembled from the live selection. */
@@ -629,11 +682,72 @@ test('a collection holding more elements than its knowledge authors is refused',
     )
 })
 
-test('THE ACCEPTANCE TEST: with the authored count satisfied, A04 realizes and all three conditions hold', () => {
-    // The first game through the pathway, on real selected knowledge and through the gate rather than
-    // around it. The three conditions are his and unchanged: nothing lost, nothing invented, nothing
-    // closed without authority.
-    //
+/**
+ * **`realize()` enforces Gate A itself, and the subject of that test had to change.**
+ *
+ * It used to run on A04, which the 5 October reachability ruling had made unauthorized. The Sport Profile of
+ * 6 October gives A04 the ball and the possession relationship it was missing, so A04 is authorized again and
+ * is no longer a specimen of refusal. The capability is unchanged and still worth pinning, so it is pinned on
+ * a goal that genuinely fails: D03 selects the blind GF4 restatement, whose POSSESSION_CHANGE transition is
+ * keyed on a trigger the game cannot construct.
+ *
+ * `realize()` checks `mayRealize` rather than the authorization field, so the refusal is real rather than
+ * advisory — which is the whole point of asserting it here instead of reading the report.
+ */
+test('realization REFUSES a game whose Gate A fails, and names the check that refused it', () => {
+    const input = derivationInputFor(selectFor('D03', null))
+    const result = runDerivation(input)
+    if (isStampedHalt(result)) return assert.fail('unexpected halt')
+    const resolved = assembleResolvedGame(result, (runStages0to10(input) as any).classes, indexRegister(input.register), input.contracts)
+    assert.equal(resolved.coherence.realizationAuthorized, false, 'D03 must still be an unauthorized game for this test to have a subject')
+
+    const attempted = realize(resolved, [], [])
+    assert.ok(isRefused(attempted), 'an unauthorized game must not realize')
+    assert.ok(
+        (attempted as any).because.some((b: string) => /GA-TRIGGER-REACHABLE/.test(b)),
+        `the refusal must name the check: ${JSON.stringify((attempted as any).because)}`,
+    )
+})
+
+/**
+ * **What authorization measures today, stated rather than assumed.**
+ *
+ * The old form of this test asserted that NO goal is authorized, which was true from 5 October until the Sport
+ * Profile landed. Exactly one is authorized now, and saying "A04 works" without saying what the other twelve do
+ * would be the kind of selective report that made the previous state look healthier than it was.
+ *
+ * Eleven are `NOT_EVALUABLE`, which is not a reachability problem: their selections resolve to knowledge objects
+ * with no restated contract, so there is no game to judge. Two — D03 and TD02 — reach a verdict and FAIL. So the
+ * pilot path is one goal wide, and this test is where that stops being a claim in a report.
+ */
+test('exactly one goal is realization-authorized, and the other twelve are accounted for', () => {
+    const authorized: string[] = []
+    const failed: string[] = []
+    const notEvaluable: string[] = []
+    for (const goal of (sessionPlanningModel.learningGoals() as any[]).map(g => String(g.ID))) {
+        const input = derivationInputFor(selectFor(goal, null))
+        const result = runDerivation(input)
+        if (isStampedHalt(result)) return assert.fail(`unexpected halt on ${goal}`)
+        const r = assembleResolvedGame(result, (runStages0to10(input) as any).classes, indexRegister(input.register), input.contracts)
+        if (r.coherence.realizationAuthorized) authorized.push(goal)
+        else if (r.coherence.gateA === 'FAIL') failed.push(goal)
+        else notEvaluable.push(goal)
+    }
+    assert.deepEqual(authorized, ['A04'], 'the pilot path is one goal wide')
+    assert.deepEqual(failed.sort(), ['D03', 'TD02'], 'and two goals reach a verdict and fail it')
+    assert.equal(notEvaluable.length, 10, `the rest have no contracted knowledge to judge; got ${notEvaluable.join(', ')}`)
+})
+
+/**
+ * **THE ACCEPTANCE TEST, restored 6 October.** Suspended on 5 October when his reachability ruling removed its
+ * subject, and restored by the Sport Profile rather than by relaxing anything: A04 now holds a ball and a
+ * possession relationship from legitimate knowledge, so it passes Gate A on the way through instead of around.
+ * `realizationAuthorized === true` is asserted first for exactly that reason.
+ *
+ * The three conditions it checks — nothing lost, nothing invented, nothing closed without authority — are the
+ * realization pathway's actual subject, on real selected knowledge rather than a fixture.
+ */
+test('A04 realizes and all three conditions hold', () => {
     const resolved = a04()
     assert.equal(resolved.coherence.realizationAuthorized, true, 'through the gate, not around it')
 
@@ -655,7 +769,91 @@ test('THE ACCEPTANCE TEST: with the authored count satisfied, A04 realizes and a
 
     // Every choice is recorded with what bounded it, so none can later read as derived knowledge.
     assert.equal(realized.record.choices.length, supplied.choices.length)
-    assert.ok(realized.record.choices.every(c => c.boundCheck === 'WITHIN_PERMITTED_SET'), 'each value came from inside an authored set')
+    /**
+     * **One choice is reported as unverified, and that is the honest grading rather than a weakening.**
+     *
+     * PS1's bound is a qualitative term — the Sport Profile says "one of the participating opposing teams", not
+     * an enumerated set — so there is nothing for the realizer to compare a value against and `boundCheck` says
+     * so. Asserting the SET rather than "every choice is WITHIN_PERMITTED_SET" keeps the stronger claim for the
+     * five choices that earn it, and stops a future unverifiable choice from appearing quietly beside them.
+     */
+    const grading = new Map(realized.record.choices.map(c => [c.lineId, c.boundCheck]))
+    assert.equal(grading.get('game::PS1'), 'UNVERIFIABLE_QUALITATIVE_BOUND', 'the initial holder is bounded qualitatively (SD-15)')
+    assert.deepEqual(
+        realized.record.choices.filter(c => c.lineId !== 'game::PS1').map(c => c.boundCheck),
+        Array(supplied.choices.length - 1).fill('WITHIN_PERMITTED_SET'),
+        'every other value came from inside an authored set',
+    )
+    /**
+     * And the unverifiable one still names something real. `#0` sat here until 6 October: the realizer mints
+     * handles from 1, so the chosen initial holder named no team, and a qualitative bound meant nothing
+     * compared it to anything. `realize()` refuses that shape now; this asserts the game it produced agrees.
+     */
+    assert.ok(
+        teams.some((t: any) => t.elementId === (realized.game as any).possession.team),
+        `the initial holder must be one of the game's own teams; it is ${(realized.game as any).possession.team}`,
+    )
+})
+
+/**
+ * **A chosen value that names a member the game does not hold is refused — and this one escaped for a day.**
+ *
+ * The initial possession holder was recorded as `…#0` while `memberHandle` mints ordinals from 1, so the one
+ * realized game on the pilot path carried a reference to a team that does not exist. Three independent things
+ * had to be true for it to pass: PS1's bound is qualitative so `boundCheck` is `UNVERIFIABLE_QUALITATIVE_BOUND`
+ * and nothing compared the value to anything; no consumer reads `possession.team`, so nothing downstream
+ * tripped over it; and the acceptance account reported nothing lost and nothing invented, because a dangling
+ * reference is neither. A test for each of those three would still have passed.
+ *
+ * So the check is on the one thing that cannot be argued with: a handle either names a member this realization
+ * produced, or it names nothing. An unverifiable bound means the TERM cannot be checked, not that any string
+ * will do.
+ */
+/** PS1's live shape, as a fixture: an unenumerated choice space bounded only by a qualitative term. */
+const qualitativelyBounded = () =>
+    eligible({
+        open: [
+            {
+                path: 'possession.team',
+                lineId: 'game::PS1',
+                elementId: null,
+                permittedBy: { authority: 'SD-39', choiceSpace: 'one of the teams the game establishes' },
+                permitted: null,
+                bounds: [{ kind: 'QUALITATIVE', term: 'one of the participating opposing teams' }],
+                kind: 'FREE(a)',
+            },
+        ],
+        existential: [
+            { path: 'performers.teams', classId: 'K-teams', from: { contractId: 'C', itemId: 'I' }, cardinality: { min: 2, max: 2 }, satisfiedBy: [], cardinalityUnreadable: false, shortfall: 2 },
+        ],
+    } as any)
+
+const twoTeams = () => [1, 2].map(() => ({ classId: 'K-teams', member: {}, because: 'the claim asserts two and individuates neither' })) as any[]
+
+test('a chosen member handle that names no member is refused, even under an unverifiable bound', () => {
+    const refused = realize(qualitativelyBounded(), [{ lineId: 'game::PS1', value: 'K-teams#0', because: 'off by one' }], twoTeams())
+    assert.ok(isRefused(refused), 'a value naming no member must not realize')
+    assert.ok(
+        (refused as any).because.some((b: string) => b.includes('K-teams#0') && b.includes('names no member')),
+        `the refusal must name the dangling handle: ${JSON.stringify((refused as any).because)}`,
+    )
+
+    // The same choice, one ordinal later, names a member that was actually minted — and realizes.
+    const ok = realize(qualitativelyBounded(), [{ lineId: 'game::PS1', value: 'K-teams#1', because: 'the first of two indiscernible teams' }], twoTeams())
+    if (isRefused(ok)) return assert.fail(`refused: ${ok.because.join('; ')}`)
+    assert.equal((ok.game as any).possession.team, 'K-teams#1')
+    assert.equal(ok.record.choices[0].boundCheck, 'UNVERIFIABLE_QUALITATIVE_BOUND', 'the bound is still unverifiable; the reference is not')
+})
+
+/**
+ * A value that merely contains a `#` is not a handle, and must not be dragged into the check. The guard is on
+ * the shape `memberHandle` mints — a `c:`-prefixed class id, a hash, and digits to the end — so ordinary prose
+ * passes through a qualitatively bounded line untouched.
+ */
+test('an ordinary value containing a hash is not treated as a member handle', () => {
+    const result = realize(qualitativelyBounded(), [{ lineId: 'game::PS1', value: 'the team starting in zone #2', because: 'prose' }], twoTeams())
+    if (isRefused(result)) return assert.fail(`refused: ${result.because.join('; ')}`)
+    assert.equal((result.game as any).possession.team, 'the team starting in zone #2')
 })
 
 test('the docs directory the corpus reads from is the one under audit', () => {
