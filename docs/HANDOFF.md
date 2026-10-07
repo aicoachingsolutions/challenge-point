@@ -6359,3 +6359,148 @@ did not — whether a game's turnover was possible depended on which situation a
 Sport Profile both forms pass. The situation's authored ball is still admitted and is now **redundant for
 reachability**, which is the right relationship between a sport fact and a practice situation.
 `trigger-reachability.unit.ts` asserts both forms, replacing the test that pinned the asymmetry.
+
+---
+
+## 6 OCTOBER (later still) — HIS FOUR BOUNDED ITEMS. READ-ONLY; NOTHING CHANGED.
+
+He accepted the Sport Profile provisionally, asked that the two-sided removal test be preserved, and
+set four bounded items to resolve **before** the fixture is refreshed or a pilot decision is made.
+28 agents, 24 load-bearing claims adversarially verified, **19 of 24 refuted or narrowed** — including
+two of my own conclusions, both corrected before anything went out.
+
+### 0 · THE FINDING THAT CUTS ACROSS ITEMS 1 AND 2
+**The renderer already asserts both facts, from hardcoded English, citing something else.**
+- `render-concrete-game.ts:277` — *"a team scores N point by getting **the ball** across the marked
+  line"*, cited to `value.primaryEvent.kind`, `value.primaryEvent.value` and `objectives[].role`.
+  **None of those is an object.** It has said this since long before any ball existed.
+- `render-concrete-game.ts:253-262` — *"Play continues when **possession changes**"* fires on
+  `transition.playState === 'CONTINUE'` and **never checks the trigger**. Verified: it survives
+  changing the trigger and survives deleting `game.possession` outright.
+- `possession` occurs **once** in the whole renderer, inside that string. `objects` occurs **zero**
+  times. Neither the renderer nor `fidelity.ts` reads `game.objects`.
+- `checkFidelity` Q2 validates **numeric quantities only** (`/\b(\d+(?:\.\d+)?)\b/`), so an invented
+  NOUN passes unchecked.
+
+### 1 · BALL NON-EXPRESSION — his candidate wording is a licence, not a rule
+- **The existing rule is THREE-way, not two.** `fidelity.ts:230-252`: (0) if the excluded path is
+  itself cited → `continue`, **no finding at all** — silent, in a file whose own requirement at :87-88
+  is no silent filtering; (1) else VIOLATION if any named consequence is uncited; (2) else NOTE.
+- The `because` string is **read by no check** (concatenated into the NOTE text only). An **empty**
+  `consequences` list discharges vacuously — and `space.axis` already uses one.
+- **Neither of his predicates is decidable.** No coach model exists anywhere; nothing flags a fact as
+  constitutive (`loadSportProfile` drops the file's own `kind: "sport-profile"`, corpus.ts:148-163).
+- **MEASURED PROOF that it is a licence:** under his wording an entry for `objectives[...].team` =
+  `EACH_TEAM` also discharges as a NOTE — the one fact the renderer itself warns about
+  (*"they will set up two targets out of habit"*, render-concrete-game.ts:292-297).
+- **The matcher is a SUFFIX test.** Exactly two A04 paths end in `.kind`: the ball and
+  **`value.primaryEvent.kind`, the scoring event**. A `.team` entry would swallow the shared-objective
+  decision and `possession.team` together. Measured.
+- **What the ball participates in:** textually nothing in the concrete game — but it is the structural
+  prerequisite that makes `POSSESSION_CHANGE` constructible (engine.ts:267), so it is the precondition
+  of A04's only transition and of authorization. It does its work one stage upstream of the artifact.
+- Consequence: the only HONEST entry names no consequences, which the rule's own prose (fidelity.ts:84-85)
+  permits only for an internal convention; the entry that fits the prose (`['value.primaryEvent.kind']`)
+  is unverifiable. One option is dishonest, the other forbidden by the comment above it.
+- **CORRECTION:** there is no separate "ball exists" row. The single status row is `objects[...].kind`
+  and it is **produced by the O1 EXISTS item** (support `SPORT-SOCCER-01`, relation CARRIES).
+- **Smallest principle proposed to him:** two COMPUTED conjuncts — (i) nothing established depends on
+  it, derived not declared; (ii) contributed by a constitutive non-selected source at WHOLE_GAME scope.
+  Admits the ball; rejects EACH_TEAM (fails i) and `possession.team` (fails ii).
+- **Recommended sequence:** fix the empty-consequences hole first (code, not authoring); consider
+  CITING the ball on the instruction that already names it rather than excluding it; and rule on the
+  ball only AFTER possession, because the ball's whole argument rests on "participates in nothing",
+  which holds only while possession stays team-only.
+
+### 2 · THE POSSESSION SWAP — the result is real and it is NOT evidence
+- Measured: swapping only `game::PS1` changes **five leaves**, all the record of the choice —
+  `game.possession.team`, `record.choices[5].value`, `status.choices[5].value`,
+  `record.realizationDigest`, `record.auditDigest`. Concrete game, entailments, acceptance,
+  post-realization gates, rendered activity and fidelity report otherwise byte-identical.
+- **THE TEST CANNOT FAIL.** Deleting `game.possession` outright also leaves the rendered activity
+  byte-identical, because nothing in the rendering or fidelity path reads it. The counterfactual
+  measures our wiring, not the holder's meaning. **I was about to report it as though it were
+  evidence.**
+- Secondary reason: A04's teams are interchangeable. A team handle appears in exactly **three** places
+  in the whole concrete game (two member ids + the holder) and the members are identical but for id,
+  so a literal `#1↔#2` relabel differs on three lines and the swap is an isomorphism up to member
+  ordering. Any team-valued property would have survived, including a starting-team award.
+- **The classification stands, argued from the register instead:** PS1's registered definition is "a
+  team-valued current state" that POSSESSION_CHANGE changes; §1 says the representation holds the
+  rules governing state, not the state. A04 has one transition (on the change itself, no `awardedTo`),
+  a shared `EACH_TEAM` objective, and a modifier accruing to the scoring team. Nothing reads the holder.
+- **THE BOUNDARY IS NOT "A04 as resolved"** — it is *"a game in which no established rule reads the
+  possession relation"*. **A01 + A01-02 is on the other side of it, derivable today:**
+  `A01-02-01.a` resolves `awardedTo = DEFENDING_TEAM`, `qualifiers.endLine = DEFENDING_TEAM`,
+  `qualifiers.lastTouch = ATTACKING_TEAM`; `PCG-02::V5` = *"own half of ATTACKING_TEAM"*; `PCG-02::V6`
+  = *"counts ATTACKING_TEAM's connected passes"*. That game fails Gate A only on three unauthored
+  restart-placement rows (T3/T4/T5) and **passes** GA-TRIGGER-REACHABLE.
+- Non-expression is **not yet licensed** — not because the holder might matter but because the thing
+  that would carry it is unwired.
+
+### 3 · WHAT `objects[]` COUNTS — nothing entails one ball, and the SEMANTICS ARE NOT SETTLED
+- **Zero items author O3 anywhere in the corpus.** SIX of the eight objects declare it NON_CLAIMED,
+  four naming balls: GF2 `kind=ball` *"number of balls unauthored"*; Wide Zone *"objects free (ball
+  kind, count, owner and position reference)"*; PCG *"The number of balls is not constrained"*;
+  VARTARGET *"doesNotConstrain: number of balls"*. GF2's non-claim list: *"That exactly one ball is in
+  play. GF2 authors no ball count."* Strongest authored statement anywhere: `A01-02-08.a` **"none (at
+  least one ball)"** — a floor.
+- Every entailment candidate rejected: class cardinality `{min:1,max:null}` (and **inert** in A04 — a
+  selector keeps it out of `resolved.existential`, resolved-game.ts:611); PS1's singularity (about
+  where the relation lives); SPORT-SOCCER-02's definite article (prose creates no structure, P5/SD-05);
+  `constructTriggers` (`ballClasses.length >= 1`).
+- Two places in our files DO assert one ball — `procedures-2026-09-17.json:65` and ledger
+  `MP-ONE-BALL` — **both are exactly the inference he forbade**, heuristics for reading 60 prose
+  activities, not representation knowledge.
+- **MY CORRECTION, a quantifier inversion.** §5.4's claim is *"Every object referenced by a rule,
+  transition or objective exists"* = `referenced → present`, a **floor**. The converse is nowhere
+  stated. And `VARTARGET-02.a` (O1, AUTHORED, REQUIRED) authors the opposite: *"every candidate target
+  object is present in objects[]"*, evidenced *"All targets stay physically available so the choice
+  remains open; only the LIVE one scores."* objects[] also holds goals, lines and gates with authored
+  layout positions. **His own boundary has both limbs: "what a coach lays out AND what the rules key
+  on."** The question is live and his; cones/bibs are UNAUTHORED (O2.kind is a four-member **draft**
+  list), not structurally excluded.
+- **Does not block:** Gate A deferred, authorized, accepted, post-gates validated, rendering unchanged.
+  **Does not weaken:** Set up is regions and dimensions; no check and no instruction consumes a count.
+- O3's classification is **correct**: reason `not constrained`, declared `["NON_CLAIMED"]`, counted
+  among the 6 established absences, GA-NO-FAILED-LINE PASS.
+- **`objects[]` LENGTH DOES NOT COUNT BALLS.** The register says an O1 COUNT/RANGE "adds up O3 over
+  matching elements" and **no code implements it** — nothing reads O3 at all. Length tracks how many
+  contracts assert a ball: the full corpus has **two** ball classes and `phase-b-closure-result.md:96`
+  calls them *"the two balls"*.
+- Reported not repaired: `types.ts:70` says reason codes are "Diagnostic only … does not change
+  whether it blocks realization". **False** as of `gates.ts`, which reads the reason code to decide
+  exactly that.
+
+### 4 · THE FIXTURE GUARD — the provenance block cannot be its basis
+- `engineVersion` = the literal `'0.1.0-increment-1'`, edited **once**, when the file was created;
+  **56** later changes have touched derivation and realization.
+- `registerVersion` = a hand-written sentence, unmoved across **three** register edits this week.
+- `derivationRulesVersion` = the literal `'rev-5'`, written out in **thirteen** places; it names a real
+  document and nothing checks they agree.
+- `inputDigest` = `digest(canonicalInput(input))` and hashes the INPUT only. **Proved by experiment:**
+  with the engine made to emit three fewer resolution lines (49→46, 19852→18357 bytes) the provenance
+  block came back **byte-identical**.
+  - Narrowing: 89 of the register's 90 rows are invisible to it; the 90th, **P3
+    `performers.teams[].goalkeeper`**, moves it through `statedRoles()` → `CORPUS_ENVELOPE.roles` →
+    `canonicalInput.envelope`.
+- **Determinism verified**: identical content digest across 3 runs in-process and across processes,
+  through derivation, realization and entailment. No clock or RNG in the path.
+- **PROPOSED (not implemented):** one digest over the recomputed canonical game vs the same digest over
+  the frozen fixture; on mismatch the suite FAILS unless a two-field sidecar names the **exact live
+  digest** and says why the older game is still right to render against.
+  - Sidecar, not a field in the fixture: the fixture's header says it is **never hand-edited** and the
+    freezer rewrites the whole file.
+  - Never regenerates; cannot be satisfied by doing nothing; the acknowledgement names ONE digest and
+    expires at the next drift; an overtaken acknowledgement must be deleted, not left to excuse the next.
+  - Cost: the first change that alters A04's game turns the suite red until someone refreshes or
+    acknowledges. Fires on the GAME changing, not on code changing. ~15 s. The realization choices file
+    comes under the same guard — say that out loud.
+- **Today's numbers:** frozen `50c3ab8ee05f9d2c`, live `c71fe996653a3ff9`.
+
+### 5 · PILOT FRAMING, accepted
+A04 **Golden Case / vertical slice**, NOT evidence that Challenge Point supports thirteen learning
+goals. The other twelve stay unrepaired. FAILED vs NOT_EVALUABLE preserved and asserted. His go/no-go
+question is whether A04 is *deterministic, representative, runnable and faithfully communicated*
+enough that external use teaches us something internal testing cannot — and the weak clause is the
+last one, for the reasons in §0.

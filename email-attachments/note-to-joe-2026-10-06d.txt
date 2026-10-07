@@ -1,0 +1,65 @@
+Joe — note alongside the four-findings email
+
+
+NOTHING WAS CHANGED
+
+He asked for findings before the fixture refresh, so this was a read-only pass. No code, no
+knowledge, no fixture, no tests. The tree is exactly as it was when the last work went out.
+
+
+THE HEADLINE I DIDN'T EXPECT
+
+The renderer asserts both of the facts in question from hardcoded English, citing something else:
+"getting the ball across the marked line" cites the scoring event, not any object; "play continues
+when possession changes" fires on a transition's play state alone and never checks the trigger is a
+possession change. I confirmed the second survives changing the trigger AND deleting the possession
+relation outright. The word "possession" appears exactly once in the renderer — inside that string —
+and the renderer never reads the possession relation or the objects list at all.
+
+Fidelity can't catch either, because it validates numbers in prose and never nouns.
+
+So his item 1 is not "do we tell a coach about a ball". We do. It's whether what we already say has
+any provenance. That reframing is the most useful thing in the email and I put it before the four
+items rather than inside one.
+
+
+TWO PLACES I CORRECTED MYSELF, BOTH BEFORE SENDING
+
+1. The possession swap. I ran it, got the clean result, and was about to report it as evidence. It
+   isn't: the test cannot fail on A04, because nothing in the rendering or fidelity path reads
+   possession at all — deleting the relation entirely gives a byte-identical activity. So the
+   counterfactual measures our wiring, not the holder's meaning. The classification he asked about is
+   still right, but it has to be argued from the register's own definition of the relation as state,
+   not from the experiment. I said that plainly rather than burying it.
+
+2. What objects[] counts. I was going to tell him the evidence settles on "functional objects". It
+   doesn't, and the error was a quantifier: the spec says every object a rule REFERENCES exists,
+   which is a floor, not a ceiling. And the Variable Target Condition authors the opposite outright —
+   candidate targets the live rule does not key on must still be present, "so the choice remains
+   open". His own ratified boundary has both limbs in it. The question is genuinely open and it's his;
+   the useful part is that it doesn't need settling to leave the count alone.
+
+Both corrections came out of running an adversarial pass over my own conclusions rather than only
+over the agents'. That was worth the time — the first one would have been a real misreport.
+
+
+WHAT I'D FLAG FOR THE DECISION
+
+The go/no-go clause "faithfully communicated" is the weak one right now, and not for a knowledge
+reason. The chain is sound: derivation, gates, realization, acceptance, post-gates all clean. It's
+the last hop that's thin — two hardcoded sentences carrying domain content with no provenance, and a
+fidelity check that can't see nouns. That's a small, bounded piece of work, not a redesign, but it is
+between here and a yes and I said so.
+
+
+WHAT'S QUEUED BEHIND HIS RULINGS
+
+  - the empty-consequences hole in the exclusion rule (a code fix, not authoring — I flagged it as
+    something that should land before any exclusion is ruled on, not after)
+  - the ball's provenance on the scoring instruction, if he prefers citation over omission
+  - the fixture guard, which he said to build only after the three representation questions settle
+  - the fixture refresh itself, still his call
+
+Nothing is started. Say the word on any of them.
+
+— Claude

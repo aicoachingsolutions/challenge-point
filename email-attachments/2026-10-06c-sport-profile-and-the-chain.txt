@@ -1,0 +1,284 @@
+Subject: Sport Profile in, the chain enforced from both ends, and the nine rows classified
+
+Christian,
+
+All four authorizations are done, in the order you set them. A04 is realizable again — not by being
+patched, but because it now holds a ball and a possession relationship from authorized knowledge and
+passes the invariant instead of being excused from it.
+
+
+1. THE MINIMAL SOCCER SPORT PROFILE
+
+Two items, nothing else:
+
+  - the game's functional object is a ball (row O1, selector kind=ball, EXISTS, REQUIRED)
+  - the possession relationship is a valid team-valued relationship over the participating opposing
+    teams and that ball (row PS1, RANGE, REQUIRED_RANGE)
+
+Both carry your owner ruling as their basis. No Laws of the Game, no field dimensions, no player
+counts, no starting holder, no layout position for the ball. Each omission is written into the profile
+as a deliberate non-contribution with its reason, so a later reader can tell silence from oversight.
+
+It enters through the existing contribution-contract pathway and uses no new mechanism. Its items are
+graded by exactly the same rules as any other item: the ball establishes an element because the
+grading admits an owner ruling, not because the file is special.
+
+It is loaded separately from the eight restated objects, and that is structural rather than tidiness.
+Those eight are what a goal SELECTS from, and each is frozen against the 81-row roster of its own
+restatement. A Sport Profile is selected by nobody — it is the environment every activity of this
+sport runs in — so it reaches every derivation unconditionally. Putting it in the same file would have
+made it look selectable and would have put a new contribution inside a frozen set.
+
+One thing I want to flag because it caught me: the first version of the loader had the word "soccer"
+written into the engine, and the project's sport-coupling guard failed the build on the first run.
+Neither of the two remedies that guard offers was right — declaring the engine a sport layer, or moving
+a knowledge-directory read into the sport module. The right answer was a third one: the engine does not
+name the sport at all. It finds the profile by pattern in the knowledge directory, so the sport's
+identity lives in the artefact. Absence and plurality both stop the run rather than resolve quietly —
+an empty directory must not hand back nothing and let the ball disappear, and two profiles is a choice
+of sport the engine is not entitled to make by sort order.
+
+
+2. THE POSSESSION CONTRIBUTION IS BOUNDS-ONLY BY CONSTRUCTION, NOT BY INTENTION
+
+This is the part I checked hardest, because "bounds-only" is the sort of claim that is true on the day
+it is written and quietly stops being true later.
+
+It cannot entail. The requirement form it uses is outside the set the engine treats as entailing, and
+its value is a qualitative term rather than an enumerated set, so the narrowing path declines it too.
+There is exactly one place left for it to land, and that is the bounding channel. I also checked the
+obvious alternative: a bare existence assertion is inert on a field row, so it was never available.
+
+The consequence is the one you asked for. The relationship is established; who holds it is not. PS1
+comes out as an authorized free choice, and realization supplies an initial holder as a recorded
+decision rather than as knowledge. No team is named anywhere in the profile — I checked for that
+explicitly, because it is the one line in your authorization I was most likely to cross by accident.
+
+The chosen holder is reported as UNVERIFIED rather than as checked, because a qualitative bound cannot
+be compared to a value. That grading is now asserted by name, so a future unverifiable choice cannot
+appear quietly alongside the ones that were genuinely checked.
+
+
+3. THE CHAIN, ENFORCED AND PROVED FROM BOTH ENDS
+
+GA-TRIGGER-REACHABLE now carries your second clause: where a transition is keyed on a possession
+change, the relevant possession relationship must be established or legitimately open.
+
+I did not want to report that as working on the strength of a run where everything is present, because
+a chain that only ever runs intact is indistinguishable from the collapsed version it replaced. So both
+halves are tested by removal:
+
+  - ball kept, relationship removed  ->  first clause PASSES, second clause FAILS, the gate fails.
+    Your sentence holds: the ball alone no longer makes a possession change reachable.
+
+  - relationship kept, ball removed  ->  first clause FAILS, because the trigger is never constructed
+    at all. Second clause passes.
+
+Neither test alone is your ruling. Together they are the chain, and the comment in the code says so, so
+the next person to simplify it has to argue with it first.
+
+One consequence I did not anticipate and think is worth having. Until today the only thing supplying a
+ball to any real game was a line authored inside ONE practice situation — A01's goal kicks. So A01 with
+that situation could reach a turnover and A01 without it could not: whether the game's turnover was
+possible depended on which situation a coach had picked. That is now gone. Both forms of A01 reach the
+trigger, because the carrier is a fact about the sport rather than a fact about a planning choice. The
+situation's own authored ball is still there and still admitted; it is simply no longer load-bearing,
+which is the right relationship between a sport fact and a practice situation.
+
+
+4. THE CLAUSE'S FIRST REAL SUBJECT IS YOUR OWN CORPUS, AND IT FAILS
+
+I ran it against the full stage-B corpus — all eight restated objects together, not a bounded
+selection. THREE transitions there are keyed on a possession change, two of the objects already
+establish a ball so the first clause passes, and the possession relationship is unestablished with the
+reason "no coverage".
+
+So the corpus has been declaring turnovers with nothing holding the relation a turnover changes. Not
+A04's bounded selection — the whole restated body of knowledge. The new clause reports it; I have
+recorded that as the expected state rather than repairing anything, because what to do about it is a
+knowledge question.
+
+And one finding that answers a question you did not ask but would have:
+
+GA-NO-FAILED-LINE would never have caught this, and could not. Its blocking filter admits an
+unestablished line only where the reason is a declared gap or a claim left unresolved. "No coverage"
+is counted among the established absences and passes. I measured it four ways to be sure: with the
+relationship unestablished AND unclaimed it passes and counts the row as unspoken; with the row
+claimed but unestablished it fails. A row that no object claims is invisible to that check. That is
+why this obligation had to be a reachability clause rather than a tightening of the failed-line check,
+and it is worth knowing in general: our strongest check against missing values says nothing about a
+row nobody has looked at.
+
+
+5. PS1's PROVENANCE, CORRECTED
+
+PS1 now carries an explicit authority field naming SD-39, with the reasoning recorded beside it: SD-39
+applies here only because its own qualification is independently met — the property's existence and its
+legitimate choice space are supported by the Sport Profile's bounds, so the freedom sits inside a
+supported property rather than standing in for absent knowledge.
+
+The retired citation is gone from the note. Its substance survives, as your own specification text
+already puts it: a rejected default cannot be cited as one. Row T2 had carried exactly this correction
+for weeks; PS1 kept the stale citation because it was added later and nobody re-read the older fix.
+
+
+6. THE NINE POST-FREEZE ROWS — classification only, nothing authored
+
+  pilot-load-bearing (1)
+    PS1. The only one of the nine that any Gate A clause reads, and therefore the only one that can
+    fail a gate on the pilot path. Being a game-level field row it gets its line in every run, so no
+    missing class can make it inert.
+
+  currently exercised but nonblocking (1)
+    V9a. One line, resolved by entailment to MULTIPLY on an owner-ruled support. It reaches a coach as
+    "worth 2 instead of 1", so it is genuinely on the path, and it resolves.
+
+  not exercised by the bounded pilot (7)
+    P11, P12, P13, R1, R2, R3, R4. No element classes, no lines, named by no check. Worth one note:
+    R1 is not an unexamined row. A04's own game form AUTHORS an exclusion on it — no action restriction
+    exists in this game — and because an exclusion establishes no element, R2, R3 and R4 get no line at
+    all. That is an established absence working as designed, not a hole.
+
+ON YOUR ACTUAL QUESTION — is PS1 the only post-freeze row capable of blocking the intended pilot path?
+
+For gate failures: yes. For stopping the pilot path: no, and the second one is V9a, by a different
+route. A value-modifier magnitude with no matching operation refuses the WHOLE object at load, before
+any gate runs. If that ever happened to the Wide Zone object, A04 would lose its shaping constraint
+entirely — a harder stop than a gate failure. As authored the pair exists, so it does not fire. I read
+that code myself rather than taking it on report.
+
+I would answer your question as: PS1 is the only post-freeze row that can fail a gate, and V9a is the
+only other one that can stop the path at all.
+
+COMPLETED_PASS, assessed and not repaired: its pilot impact is nil. A04 carries no lines on the three
+information-rule rows, so the information check returns a pass with no applicable instances and never
+appears among A04's failures. The gap itself is confirmed exactly as described, and it is deferred in
+15 of the 33 goal-and-situation combinations, passing silently in every one of them. Establishing the
+possession relationship changes nothing about it — I proved that by isolation rather than inference:
+relationship established, relationship removed, ball removed, unreachable in all three.
+
+
+7. THE 19 SUSPENDED CHECKS ARE RUNNING AGAIN
+
+All of them, against the new knowledge rather than against a relaxed assertion. The identity checks
+suspended themselves on a condition that lifted itself the moment realization became authorized; the
+post-realization file's guard lifts the same way; and the acceptance test is a real test again, now
+asserting that realization was authorized BEFORE it realizes — through the gate, not around it.
+
+I removed the suspension reporter rather than leaving it in place. A mechanism for suspending tests,
+sitting idle in a test file, is an invitation to suspend the next inconvenient failure instead of
+reading it.
+
+Three tests that had been rewritten to assert A04's failure are restated on live measurement, and they
+now distinguish three states that for the last day all looked the same: satisfied, failed, and not
+evaluable. Each has a live example for the first time.
+
+
+8. TWO DEFECTS OF MY OWN, FOUND AND FIXED
+
+Both are the project's recurring failure in miniature, so I would rather you had them than not.
+
+The first: my new clause read the possession line directly and only recorded it when the clause FAILED.
+So a passing report named nothing, and there was no way to tell from it whether the clause had run at
+all. A check that leaves no trace when it passes is a check nobody can confirm is still working. It now
+reads the line through the same mechanism every other check uses, and a test asserts the line is named
+on a PASSING run.
+
+The second is worse and I want to be plain about it. The initial possession holder was recorded against
+an ordinal that does not exist — the realizer numbers members from one, and the choice named zero. So
+the one realized game on the pilot path carried a reference to a team that is not in it. Three
+independent things had to line up for that to pass, and all three did: the bound is qualitative, so
+nothing compared the value to anything; nothing yet reads the possession value, so nothing downstream
+tripped over it; and the acceptance account correctly reported nothing lost and nothing invented,
+because a dangling reference is neither. A test for each of those three would still have passed.
+
+Fixed, and more usefully: realization now refuses a chosen value that has the shape of a member
+reference and names no member of the game. An unverifiable bound means the TERM cannot be checked. It
+does not mean any string will do.
+
+A third one, which I mention because the near-miss is instructive rather than because anything broke.
+One of our baselines records, for each of the thirteen goals, how many required properties are left
+unestablished. After today's change every one of those thirteen numbers is unchanged — which reads as
+perfect containment, and I was about to report it that way. The membership had swapped underneath:
+the possession relationship left the unestablished set, and the ball's COUNT arrived in it, because
+the profile deliberately does not say how many balls there are. One out, one in, in every goal, with
+the total steady. The exchange is legitimate. The baseline that could not see it was not, and it now
+names both lines instead of trusting the total.
+
+
+9. THE RENDERING FIXTURE IS STALE, AND REFRESHING IT RAISES EXACTLY TWO QUESTIONS — BOTH YOURS
+
+I went looking for whether the possession value reaches a coach, and found something more useful.
+
+The rendering test reads a FROZEN concrete game, on your instruction to isolate the communication
+boundary rather than re-run the chain. That frozen game is now out of date: its A04 contains NO OBJECTS
+AT ALL and no possession choice, because it was frozen before today. So the rendering run still reports
+"fidelity PASSED" — about a game that no longer exists. I did not change it. The regeneration step is a
+deliberate act by design, and what it exposes is yours to decide, so I measured what it would produce
+instead of doing it.
+
+Refreshed, the chain still closes cleanly — acceptance clean on all three conditions, post-realization
+gate passing — and fidelity reports exactly TWO violations, both of the same kind, both new:
+
+    the ball          is established by the game and no instruction carries it
+    possession.team   is established by the game and no instruction carries it
+
+Which is to say: THE TWO THINGS THE SPORT PROFILE ESTABLISHES ARE THE TWO THINGS A COACH IS NEVER TOLD.
+The activity we would hand someone does not mention that the game is played with a ball, or who starts
+with it.
+
+I want to be careful about what that does and does not mean. It is not a derivation failure — the ball
+and the relationship are properly established, the gates pass, and realization is clean. It is not a
+fidelity failure either; the check is working exactly as intended and is the thing that caught it. It
+is the boundary doing its job: the game now holds two facts that nothing has been authored to say.
+
+Two decisions follow and both are yours:
+
+  - Whether a coach should be told there is a ball, and in what words. My instinct is that this is so
+    obvious to a coach that saying it would read as noise — which, if right, makes it the same kind of
+    deliberate non-expression as the episode boundary, and needs recording as one rather than ignoring.
+  - Whether the initial holder of possession should be told at all. It is a realization choice reported
+    as unverified, and telling a coach "blue start with the ball" may be exactly right or may be stating
+    a decision the game does not actually care about.
+
+One more thing worth having: nothing in the suite would have told us the frozen game had drifted from
+the live one. That is the harness-verifies-a-fork shape we have been caught by before. I have not added
+a guard for it, because adding one fails the build immediately and forces the refresh decision, which
+is the decision I am handing you.
+
+Also still open and still unrepaired, as you directed: the primary-event check tests a referent's
+identity one way and resolves it another, so a typed reference passes identity and then fails to
+resolve. Not pilot-load-bearing.
+
+Wide Zone trigger semantics and magnitude remain held. Successful Region Access remains parked.
+Generation remains frozen.
+
+
+10. WHERE THAT LEAVES THE PILOT
+
+A04 passes the whole path: gate A deferred to realization with every pre-realization invariant
+satisfied, realization authorized, acceptance clean on all three conditions, post-realization gate
+passing, and the one open value reported as unverified rather than as checked.
+
+The thing I want you to have before the go/no-go, stated plainly: A04 is the only one of the thirteen
+goals that is realization-authorized. Two reach a verdict and fail it, both for the same two reasons:
+two required properties unestablished, and a possession change keyed on a trigger their game cannot
+construct. Ten reach no verdict at all, and they split cleanly
+into two groups of five: five cannot evaluate information and reference integrity, five cannot evaluate
+direction, the primary event and the roster sum.
+
+That split is worth more than the headline number, because it says the ten are not failing — they are
+unjudgeable, and for two specific and different reasons. I checked the obvious explanation and it is
+wrong: it is not simply that their selections include objects with no restated contract. Every goal is
+in that position, A04 included — A04 selects five knowledge objects and only two of them are
+contracted. So the difference is not coverage in the aggregate; it is whether the knowledge that IS
+contracted happens to make those particular invariants judgable.
+
+The pilot path is one goal wide, and that is now asserted in the tests rather than sitting in a report,
+so it cannot drift without failing the build.
+
+That is a real pilot path and it is narrow. Whether one goal is enough to put in front of a coach is
+your call, and with the rendering question in section 9 it is one of the two things I think stand
+between here and the decision.
+
+Joe

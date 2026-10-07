@@ -1,0 +1,310 @@
+Subject: The four bounded findings — and one thing that cuts across two of them
+
+Christian,
+
+Four findings, in your order. Nothing was changed: no code, no knowledge, no fixture. Two of the
+four correct something I would otherwise have told you with more confidence than it deserved, and I
+have said where.
+
+Before the four, one thing I found while answering items 1 and 2 that I think reframes both.
+
+
+THE COACH IS ALREADY TOLD BOTH FACTS, WITHOUT AUTHORITY
+
+The rendered activity already says "a team scores 1 point by getting THE BALL across the marked
+line". That sentence is a hardcoded English template. Its cited provenance is the scoring event kind,
+the point value and the objective's role — not any object. It has been saying "the ball" since long
+before anything in the representation established a ball, and nothing caught that, because the
+fidelity check validates numbers in prose and never nouns.
+
+The same is true of possession. The rendered activity says "Play continues when possession changes —
+there is no stoppage". That sentence fires on one condition: a transition whose play state is
+CONTINUE. It never checks that the transition's trigger is a possession change. I confirmed it
+survives changing the trigger to something unrelated, and it survives deleting the possession
+relation from the game entirely. The word "possession" occurs exactly once in the whole renderer,
+inside that string, and the renderer never reads the possession relation at all. It never reads the
+objects list either — zero occurrences of each.
+
+So item 1 is not a choice between telling a coach there is a ball and not telling them. We tell them.
+It is a choice about whether what we already tell them has any provenance. I think that is a
+different and more uncomfortable question than the one on the table, and you should have it before
+ruling on either.
+
+
+1. BALL EXISTENCE AS DELIBERATE NON-EXPRESSION
+
+WHAT THE EXISTING RULE ACTUALLY REQUIRES. It is narrower than it reads. An excluded property has
+three outcomes, not two:
+
+  - if the excluded path happens to be cited by some instruction anyway, the exclusion produces NO
+    finding at all. Not a note. Silently dropped — in a file whose own requirement is no silent
+    filtering.
+  - otherwise it is a VIOLATION if any consequence it names is uncited;
+  - otherwise a NOTE.
+
+That is the whole machine-checkable content. The "because" sentence on each entry — the part that
+states why the omission is legitimate — is read by no check at any point. It is concatenated into the
+note text and nothing else. And an entry that names an EMPTY list of consequences discharges
+vacuously, every time, because the filter has nothing to filter. One of the two existing entries
+already names an empty list.
+
+YOUR CANDIDATE WORDING IS NOT DECIDABLE BY ANYTHING THE SYSTEM CAN READ. There is no coach model
+anywhere, so "cannot change how a competent coach lays out or runs the activity" is not a predicate
+the checker can evaluate — it cannot even be approximated. And nothing marks a fact as constitutive:
+the Sport Profile file does declare itself as a sport profile, but the loader drops that field, so
+the only machine-visible trace is a naming convention in an id string.
+
+As written it is a licence rather than a rule, and I would not have been confident saying so without
+testing it, so I tested it. Under your wording, an entry excluding the shared-objective decision —
+both teams attack the same line — also discharges, as a passing note. That is the one fact in A04
+whose loss the renderer itself warns about, in its own words: a coach "will need it said plainly or
+they will set up two targets out of habit". A principle that lets that through is not protecting
+anything.
+
+The mechanism makes it worse. Entries match by SUFFIX. Exactly two paths in A04 end in ".kind": the
+ball, and the scoring event. A ".kind" entry would silently remove the scoring event from the
+load-bearing set. A ".team" entry would remove the shared-objective decision and the possession
+holder together. This is not hypothetical; I measured the paths.
+
+WHAT THE BALL ACTUALLY PARTICIPATES IN. Nothing, textually: outside its own entry, no property of the
+concrete game contains the ball's id or the word. But it is not inert, and this is where I want to be
+precise rather than convenient. The ball is the structural prerequisite that makes the possession-change
+trigger constructible at all. It is therefore the precondition of A04's only transition and of the
+game's authorization. It does its work one stage upstream of the artifact, which is exactly why a scan
+of the artifact finds nothing.
+
+The consequence for your question: the only HONEST entry for the ball is one naming no consequences —
+which is the form the rule's own prose says is defensible only for an internal convention rather than
+a rule of the game. A ball is not an internal convention. The entry that fits the prose would name the
+scoring event as the ball's consequence, which sounds right and is unverifiable: the checker asks only
+whether that path is cited, never whether it carries the ball's consequence. One of the two available
+entries is dishonest and the other is forbidden by the comment above it.
+
+A correction worth having: there is no separate "ball exists" row. The single status row about the
+ball is its KIND, and that row is produced BY the existence item. Excluding the kind is excluding the
+existence claim's only trace, not some lesser property of it.
+
+THE SMALLEST PRINCIPLE. If you want one stated, I would put this to you rather than your current
+wording — two conjuncts, both computed rather than asserted:
+
+  (i)  nothing established depends on it — no other line's value, selector, referent or geometry
+       references this property, derived by the checker rather than declared by an author; AND
+  (ii) it was contributed by a constitutive, non-selected source at whole-game scope, so it is
+       identical in every activity of this sport and therefore carries no information about THIS one.
+
+Both are measurable. Together they admit the ball and reject the shared-objective decision — which
+fails (i), since the target line's own position names it — and reject the possession holder, which
+fails (ii).
+
+But I do not think you should rule on that yet, for three reasons:
+
+  - The enabling fix is to the empty-consequences hole, not to the entry list. "There are no
+    consequences" should stop being something an author writes and become something the checker
+    concludes. That is a code change, not authoring, and it is what separates the ball from the
+    shared-objective decision.
+  - Given what the renderer already says, the smaller repair may not be an omission rule at all. The
+    instruction that needs a ball already names one. Giving that sentence its provenance would carry
+    the fact to the coach through the rule that depends on it, with no "use a ball" sentence added,
+    and the reported loss would disappear for the right reason rather than by exemption. I have not
+    done it; it is a rendering change and you asked for findings first.
+  - The ball's whole argument rests on "it participates in nothing", and that holds only while the
+    possession relation stays team-only in the concrete game. Either direction of your possession
+    ruling moves it. The ball ruling should follow the possession ruling, not precede it.
+
+Not blocked by the ball-count question. But it scopes any eventual entry: it must key on the ball's
+kind specifically, never element-wide, because how many balls there are IS a layout fact if anything
+ever constrains it.
+
+
+2. INITIAL POSSESSION HOLDER — I RAN THE COUNTERFACTUAL, AND IT CANNOT FAIL
+
+I held the entire realized A04 constant and swapped only the initially selected holder between the
+two teams, then compared every leaf of the concrete game, the entailments, the acceptance account,
+the post-realization gates, the rendered activity and the fidelity report.
+
+Five leaves change, and all five are the record of the choice itself: the holder, the choice as
+recorded in two places, and the two realization digests — which SHOULD move, because they stamp a
+different decision. Everything else is byte-identical, including the full gate object and the full
+fidelity report.
+
+AND THAT RESULT IS NOT EVIDENCE FOR WHAT YOU ASKED. I would have reported it as though it were, so I
+want to be plain. The test cannot fail on this game. Deleting the possession relation from A04
+outright also leaves the rendered activity byte-identical. The reason is the one above: nothing in
+the rendering or fidelity path reads possession at all. So the counterfactual measures how the
+renderer is wired, not whether the holder means anything.
+
+(There is a second reason, smaller: A04's two teams are interchangeable. A team handle appears in
+exactly three places in the whole concrete game — the two team ids and the holder — and the two teams
+are identical apart from their ids. Any team-valued property whatsoever would have survived this test,
+including a starting-team award, which is unambiguously coach-operational.)
+
+SO THE CLASSIFICATION HAS TO BE ARGUED, AND IT CAN BE. The register's own definition of the relation
+is "a team-valued current state", and the possession-change transition is what changes it. Your
+boundary ruling says the representation holds the rules governing state, not the state. The initial
+value of a state variable is initialization, unless some rule reads it. In A04, nothing does — and
+that is a measured property of the game, not of the renderer: A04 has one transition, keyed on the
+possession change itself, with no awarded team; its objective is shared by both teams; and the value
+modifier accrues to the scoring team. There is no represented relationship that resolves against the
+holder.
+
+So yes: in A04 the initial holder is runtime initialization rather than activity-design meaning.
+
+THE BOUNDARY, AND I WOULD STATE IT DIFFERENTLY FROM HOW I PLANNED TO. Not "A04 as resolved" — the
+right boundary is "a game in which no established rule reads the possession relation". That is a
+narrower claim and a more useful one, because the corpus already contains a game on the other side of
+it, derivable today with nothing new authored:
+
+  A01 with the From Goal Kicks situation resolves a restart transition awarded to the DEFENDING team,
+  qualified by which end line it went out over (the defending team's) and who touched it last (the
+  attacking team); and the Pass Combination Gate counts "ATTACKING_TEAM's connected passes" inside
+  "own half of ATTACKING_TEAM". All of those designations resolve against the possession relation.
+
+In that game the initial holder determines, from kick-off, which half the passing count is scored in
+and whose passes count. That game derives now; it fails Gate A only on three unauthored restart
+placement rows, which is a different matter.
+
+DOES THE FINDING LICENSE NON-EXPRESSION OF THE HOLDER? Not yet, and not for the reason I expected.
+The obstacle is not that the holder might matter — in A04 it demonstrably does not. It is that the
+thing that would carry it, or decline to carry it, is not wired: no instruction cites possession, and
+the one sentence mentioning the word is keyed on something else. Ruling that we deliberately do not
+express the holder would be ruling about a mechanism that does not yet read it.
+
+
+3. WHAT objects[] COUNTS
+
+NOTHING ENTAILS EXACTLY ONE BALL, and the evidence is unanimous rather than merely absent.
+
+Zero items author the object count anywhere in the corpus. Six of the eight restated objects declare
+it explicitly unconstrained, four of them naming balls: "doesNotConstrain: number of balls unauthored"
+(GF2 — A04's own game form); "objects free (ball kind, count, owner and position reference)" (Wide
+Zone — A04's other selected object); "the number of balls is not constrained"; "doesNotConstrain:
+number of balls". GF2's own non-claim list puts it in your terms: "That exactly one ball is in play.
+GF2 authors no ball count." The strongest authored statement anywhere in the corpus is "none (at least
+one ball)" — a floor.
+
+I checked every candidate for an entailment and rejected each: the class cardinality is a minimum of
+one with no maximum, and in A04 that value is inert; the possession relation's singularity is a fact
+about where the relation lives, not about objects; the Sport Profile's "the ball of SPORT-SOCCER-01"
+is a definite article inside a qualitative term, and prose creates no structure; the trigger
+construction tests only that at least one ball class exists. Two places in our own files DO assert
+one ball, and both are exactly the inference you forbade: a Gate A reading procedure and a ledger
+pattern, both heuristics for reading sixty prose activities, neither representation knowledge.
+
+ON YOUR ACTUAL SEMANTIC QUESTION — AND HERE I HAVE TO CORRECT MYSELF. I was going to tell you the
+evidence settles on the functional reading. It does not, and the error is a quantifier.
+
+The specification's claim about objects is "every object referenced by a rule, transition or objective
+exists". That is a floor in one direction — nothing a rule names may be missing. The converse, that
+only what rules reference is in there, is nowhere stated. And the corpus authors the opposite: the
+Variable Target Condition requires that "every candidate target object is present in objects[]", on
+the authored evidence "All targets stay physically available so the choice remains open; only the LIVE
+one scores". Those are objects the live rule does NOT key on, required to be present. The list also
+holds goals, lines and gates — laid-out physical equipment, one of them with an authored layout
+position.
+
+Your own ratified boundary has both limbs in it: the representation contains what a coach lays out AND
+what the rules key on. objects[] today is serving both. What it does not hold is cones, bibs and
+markers — and that is because the kind vocabulary has four draft members and nobody has authored more,
+not because the structure excludes them.
+
+So the honest answer is that neither of your two readings is established, the question is live, and it
+is yours. The reason I am not asking you to settle it now is that it does not need settling for the
+count: the count is unestablished under either reading, for reasons that do not depend on which one is
+right.
+
+DOES LEAVING IT UNESTABLISHED BLOCK THE GOLDEN CASE? No — measured end to end: Gate A deferred,
+realization authorized and accepted, post-realization gates validated, rendering unchanged, the same
+two reported losses. The check that would catch a missing required value excuses this one correctly:
+the line reads "not constrained", declared non-claimed, and is counted among the established absences
+rather than the gaps. That classification is right.
+
+DOES IT WEAKEN IT? Not on the count. The Set up section is regions and dimensions; a coach needs no
+number to lay A04 out, and no check and no instruction consumes one. The weakness in this area is at
+the kind level — whether a ball is involved at all — and authoring a count would not touch it.
+
+ONE CORRECTION TO SOMETHING I SAID YESTERDAY. I described the ball count arriving in the unestablished
+set as the counterpart of possession leaving it. That was right, but I also need to tell you that the
+LENGTH of the objects list does not count balls. The register says a count on the collection "adds up"
+the per-element counts over matching elements — and no code implements that; nothing reads the
+per-element count at all. The list length tracks how many contracts assert a ball. The full corpus has
+two ball classes, and our own closure report calls them "the two balls". A04 showing one object means
+one contract asserted one, not that there is one ball.
+
+A stale contract comment found in passing, reported not repaired: the types file states that reason
+codes are "diagnostic only" and do not change whether a line blocks realization. That is no longer
+true — the failed-line check reads the reason code to decide exactly that. The behaviour is right; the
+comment above it would mislead anyone reasoning about whether a reason code is load-bearing.
+
+
+4. THE FIXTURE GUARD
+
+FIRST, THE PROVENANCE BLOCK CANNOT BE THE BASIS OF IT, and I think this is the finding that matters
+most in item 4. All four of its fields are weaker than they look:
+
+  - the engine version is a string literal. It has been edited exactly once, when the file was
+    created. Everything it claims to version has been rewritten many times over since — derivation
+    and realization both, including the clause we added yesterday.
+  - the register version is a hand-written sentence. It has not moved across three separate edits to
+    the register this week, including two of mine.
+  - the derivation-rules version is the literal "rev-5", written out in thirteen places. It names a
+    real document, and nothing checks that the two agree.
+  - the input digest hashes the input only. With the engine made to return three fewer resolution
+    lines — a materially different game — the provenance block came back byte-identical.
+
+One narrowing, because it is nearly true rather than true: eighty-nine of the register's ninety rows
+are invisible to the input digest, but the ninetieth is not. The goalkeeper row feeds the session
+envelope's role list, and editing it does move the digest. The rule of thumb stands; the absolute
+statement does not.
+
+SECOND, DETERMINISM HOLDS. Identical digest across three runs in one process and across separate
+processes, through derivation, realization and entailment. There is no clock or randomness in the
+path. So a content comparison is sound.
+
+THE PROPOSAL, not implemented:
+
+  One digest taken over the recomputed canonical game, compared against the same digest taken over the
+  frozen fixture. If they differ, the suite fails UNLESS a small two-field file records the drift by
+  naming the exact live digest and saying why the older game is still the right thing to render
+  against.
+
+Four things about it:
+
+  - The acknowledgement lives in its own file, not in the fixture. The fixture's own header says it is
+    never hand-edited and the generator rewrites the whole file, so a field inside it would be
+    destroyed on every refresh.
+  - It never regenerates anything. Refresh stays the deliberate act it is.
+  - It cannot be satisfied by doing nothing. With the fixture as it stands and no acknowledgement, it
+    fails immediately.
+  - The acknowledgement names ONE digest and expires at the next change, so "known stale, forever" is
+    not expressible. And if the fixture later becomes current again, an overtaken acknowledgement must
+    be deleted rather than left behind to excuse the next drift.
+
+What it costs: the first unrelated change that alters A04's game turns the suite red until someone
+either refreshes or writes the acknowledgement with a reason. That is the whole point, and it is the
+main cost. It fires on the GAME changing, not on code changing — a refactor or a comment that leaves
+the game identical produces nothing. About fifteen seconds added to the suite. One thing to say out
+loud rather than discover: the realization choices file comes under the same guard, because
+realization is part of the rebuild. That is correct — those choices are part of what defines the
+Golden Case — but it should be stated.
+
+Today's two numbers, so the staleness is on the record as one line rather than as a description:
+the frozen fixture is 50c3ab8ee05f9d2c and the live canonical game is c71fe996653a3ff9.
+
+
+PILOT FRAMING
+
+Accepted, and I think it is the right correction. A04 Golden Case and vertical slice, not evidence
+that Challenge Point supports thirteen learning goals. The other twelve stay unrepaired. The
+distinction between failing and not evaluable is preserved and is now asserted in the tests rather
+than described in a report, so it cannot quietly collapse.
+
+Your go/no-go question is the right one, and on the evidence above I would say the honest status of
+its last clause — faithfully communicated — is that we do not know yet, because the two facts that
+would have to be communicated are currently communicated by hardcoded sentences that cite something
+else. That is a smaller problem than it sounds and it is not a knowledge problem, but it is not
+nothing, and it sits between here and a yes.
+
+Successful Region Access stays parked, Wide Zone trigger semantics and magnitude stay held, general
+COMPLETED_PASS reachability stays deferred, and generation stays frozen. The fixture is untouched.
+
+Joe
