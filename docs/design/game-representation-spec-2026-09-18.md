@@ -1,4 +1,19 @@
-# Game Representation Specification — revision 24, with Christian's ownership decisions
+# Game Representation Specification — revision 25, with Christian's ownership decisions
+
+> **Revision 25 (7 October) — THE COACH-FACING BOUNDARY.** Adds SD-103 and SD-104, and both were ruled
+> after a measurement rather than before one. **SD-103**: coach-facing language must be **entailed by the
+> resolved game**; a renderer may compress or combine supported facts but may not introduce an unsupported
+> game fact *"merely because that fact is obvious in the sport"*. Two breaches were measured and repaired
+> narrowly — the scoring instruction hardcoded the word for the carrier and cited the scoring event for it,
+> and the possession-change instruction was gated on a transition's play state alone, so it fired for any
+> transition that continued play and survived deleting the possession relation outright. **He held the
+> alternative**: no deliberate-non-expression entry for the ball, and no repair to the empty-consequences
+> or suffix defects in that mechanism, neither being pilot-load-bearing. **SD-104**: an initial state value
+> is activity-design information **only where an established rule or relationship reads it**; otherwise it
+> is runtime initialization and the coach-facing activity need not communicate it. For A04 the initial
+> possession holder is therefore exempt — **and the exemption is not general**, since A01 + From Goal Kicks
+> resolves `awardedTo` and two qualifiers against that same relation. No expression mechanism is authorized
+> around SD-104 yet, so the holder is still reported as uncarried and that report is expected.
 
 > **Revision 24 (27 September) — THE INTERNAL CLOSURE RUN.** Adds SD-95 to SD-100. **SD-95**: Gate A
 > asks whether the **objective structure** provides an opposing directional relationship, never
@@ -391,6 +406,8 @@ writes the field is proposal P-9.
 | SD-99 | **A membership clause reads established membership.** *"Where a clause asks only about established membership, it should read established members and must not require the entire set-valued field to resolve first. This does not authorize membership to close the set."* The traced conclusion is accepted with it: **membership does not imply completeness, and a complete set must be authored where completeness is required** | `gates.ts` `gaRegionFunction` | [C36] |
 | SD-100 | **`EXISTS` on a `FIELD` row is inert.** *"If the field already exists by schema, `EXISTS` asserts no additional knowledge. Retain provenance and record those contributions as inert. In particular, do not reinterpret `EXISTS` as meaning that a value exists, that a value is required, or that the field is complete."* Five corpus items; they were being carried as bounds on their lines, which is one of the three readings excluded | `derive.ts` `assertsNothing`; `forward.ts` | [C36] |
 | SD-21 | Wording held in code (formerly P-8): "Code, prompts, tests, templates and coach-rule sentences do not count as authored knowledge merely because they exist. They may be evidence of previous design intent and candidates for ratification, but they cannot support a resolved property until deliberately authored into an appropriate knowledge source or standing decision." The coach-rule sentences are not audited wholesale; those a check depends on are surfaced, to be classed later as ratify, standing decision or retire | every contract item's `basis` | [C18b] |
+| SD-103 | **Coach-facing language must be entailed by the game, and the renderer may not supply what the sport makes obvious.** *"Coach-facing language must be entailed by the resolved game and the rules it communicates. A renderer may compress or combine supported facts, but it may not introduce an unsupported game fact merely because that fact is obvious in the sport."* So a scoring instruction may say *"the ball"* with no separate "use a ball" sentence — **but only where the represented game establishes the object and the instruction's provenance supports the reference.** Ruled after two measured breaches of exactly this: a hardcoded noun cited to the scoring event, and a possession sentence gated on a play state. **No exemption list is authorized** — he held the deliberate-non-expression entry for the ball, and the empty-consequences and suffix defects in that mechanism, as not pilot-load-bearing | `render-concrete-game.ts`; `fidelity.ts` Q2/Q3 | Christian, 2026-10-07 |
+| SD-104 | **An initial state value is activity-design information only where a rule reads it.** *"An initial state value is activity-design information when an established rule or relationship reads that value. Otherwise it is runtime initialization rather than something the coach-facing activity must communicate. For A04, the initial possession holder therefore does not need coach-facing expression."* **Not a general possession omission rule:** his own qualification is that the holder *"can become activity-design information when ATTACKING_TEAM/DEFENDING_TEAM relationships actually depend on it"* — which A01 + From Goal Kicks already demonstrates, resolving `awardedTo` and two qualifiers against the relation. **No expression mechanism is authorized around this yet**, so `possession.team` is still reported as uncarried on A04 and that report is expected rather than a defect | `PS1`; `fidelity.ts` Q3; `rendering.unit.ts` | Christian, 2026-10-07 |
 
 ### Rejected, recorded so it is not reintroduced
 

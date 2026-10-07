@@ -1,0 +1,182 @@
+Subject: Both repairs in, the Golden Case guard active — and A04's status against your five links
+
+Christian,
+
+Both rendering repairs are made, the drift guard is in and already failing on the current mismatch, and
+your two rulings are recorded as standing decisions. The A04 status against your five links is at the
+end, with the one act that remains.
+
+
+1. THE TWO RULINGS, RECORDED
+
+SD-103 — coach-facing language must be entailed by the resolved game; a renderer may compress or combine
+supported facts but may not introduce an unsupported game fact merely because it is obvious in the sport.
+It is recorded in the specification and quoted at the top of the renderer itself, where it is enforced,
+with the note that it was ruled because that file broke it twice.
+
+SD-104 — an initial state value is activity-design information only where an established rule or
+relationship reads it; otherwise it is runtime initialization and the coach-facing activity need not
+communicate it. Recorded in the specification and against the possession row, with your qualification
+carried verbatim and the A01 + From Goal Kicks counterexample named, so the exemption cannot later be
+read as a general possession rule.
+
+I did not add a deliberate non-expression entry for the ball, and I did not touch the
+empty-consequences or suffix defects in that mechanism. Both are recorded as held and not
+pilot-load-bearing.
+
+
+2. THE SCORING INSTRUCTION — the noun now comes from the game
+
+The sentence no longer contains the word at all. It reads the object's own `kind` from the game and
+cites that path, so the carrier is named only when the game establishes one and the reference has
+provenance rather than being true by coincidence. Where no object is established the carrier is not
+named and the gap is reported as an observation rather than filled in.
+
+Measured, same renderer, two games:
+
+  the live Golden Case  →  "a team scores 1 point by getting the ball across the marked line"
+                           provenance now includes objects[…SPORT-SOCCER-01].kind
+  the frozen fixture    →  "a team scores 1 point when the marked line is crossed"
+                           plus an observation that the game holds no object, so what crosses the line
+                           is not established and a coach would have to decide it themselves
+
+That second output is the repair working. The old renderer said "the ball" for both.
+
+A consequence worth noting: the renderer now states no sport vocabulary of its own anywhere. Every noun
+in the activity comes from the game or the session — the object's kind, the region nouns, the specialized
+role name. That was nearly true before; it is true now.
+
+
+3. THE POSSESSION-CHANGE INSTRUCTION — gated on the trigger and on the relation
+
+It now requires both: a transition whose selector fixes the trigger to a possession change, AND an
+established possession relationship. Otherwise the sentence is withheld and an observation says which of
+the two is missing.
+
+I deliberately did NOT cite the holder on that sentence. The relation's establishment is a precondition
+for emitting it, not a source of its content — what the sentence says comes from the trigger and the play
+state. Citing the holder would have made the fidelity check read it as carried to a coach when no coach
+reads it anywhere, which is exactly the unverifiable citation your item-1 question was about. It also
+would have made the remaining report disappear for the wrong reason.
+
+Against the frozen fixture the sentence is now withheld, and the observation reads: that transition is
+keyed on a possession change and continues play, but the game establishes no possession relationship, so
+a coach cannot be told that a possession change does not stop play. Which is a fair description of a game
+that would not pass Gate A today — see section 5.
+
+
+4. THE A04 FIDELITY CHECKS, RERUN — one report remains and it is yours, by your own ruling
+
+On the live Golden Case: 17 instructions, every one of them citing at least one property of the game.
+
+  Q2  nothing unsupported            0 violations
+  Q3  nothing lost                   1 violation
+  Q4  no status changed by wording   0 violations
+  Q5  could a coach run it           0 violations, 4 notes
+
+The single Q3 violation is `possession.team is established by the game and no instruction carries it`.
+
+That is not an unsupported coach-facing fact. It is the opposite: an established fact deliberately not
+expressed, which SD-104 says is correct for A04 — and the checker reports it as a loss because you held
+the mechanism that would let it say "exempt". So the ruling and the report disagree, deliberately, on
+your instruction. I have pinned it by name in the rendering tests with the exit condition stated, so any
+OTHER loss still fails and this one cannot quietly become a licence.
+
+**To answer your question directly: no unsupported coach-facing fact remains.** I checked the rest of the
+activity rather than assuming, because the two you named were found by reading the code and not by any
+check. Every other instruction's content traces to its cited paths — the area dimensions, the three
+region nouns and positions, the squad total, the per-side count (which comes from the teams' own
+`outfieldCount`, not from dividing twelve by two), the absent specialized role, the duration, the shared
+objective, the scoring value, and the modifier and its condition. The two defects you named were the only
+two of their kind.
+
+What remains in the rendered activity is not unsupported — it is incomplete, and the notes say where: the
+game still does not establish what counts as MEETING the channel condition, and that note is unchanged.
+
+
+5. THE GOLDEN CASE DRIFT GUARD — active, and failing right now
+
+Implemented as proposed. It recomputes the canonical A04 game through the same builder that writes the
+fixture — one definition, two callers, so the guard cannot be a second harness free to drift from the
+generator — takes one digest over the whole body, and compares it with the same digest over the frozen
+file. The realization choices are inside the guarded Golden Case, as you directed.
+
+It is failing, which is the point:
+
+    frozen fixture    1d4e4f3a   (input digest a9d16e5c)
+    live Golden Case  a1c46e8e   (input digest 12dbd433)
+
+The failure names both digests and the two deliberate acts that clear it: refresh, or record an
+acknowledgement naming the live digest and why the older game intentionally remains the reference. It
+regenerates nothing. An acknowledgement names ONE digest and expires the moment anything moves again, and
+if the fixture ever becomes current while an acknowledgement is still present, that is also a failure —
+an overtaken acknowledgement must be deleted rather than left behind to excuse the next drift.
+
+Two things about the frozen game that bear on which act you choose. It is not only out of date: it
+establishes no ball and no possession relationship, while carrying a transition keyed on a possession
+change. That is the exact condition Gate A now refuses, so **the game rendering has been tested against
+for the last week is one the system would not authorize today.** And I do not think an acknowledgement
+could be written honestly for it — the "because" would have to say why an unauthorizable game is the right
+rendering reference.
+
+I did not refresh it. You have reserved that twice and I have taken it as yours. But I did verify the
+outcome so the decision needs no guesswork: I refreshed it, ran both rendering files, and restored the
+file exactly. With a refreshed fixture the currency guard reports CURRENT and the rendering tests pass,
+so
+
+    npm run freeze:a04
+
+is the single act that turns the suite green and makes the rendering tests assert the current Golden Case
+instead of an obsolete one. Everything else in the suite is green: 360 checks pass and the run stops at
+the guard and nowhere else.
+
+
+6. A04 STATUS AGAINST YOUR FIVE LINKS
+
+RESOLVED — holds. 49 lines from three objects (the game form, the shaping constraint, and the Sport
+Profile): 27 derived, 6 open, 2 existential claims, 7 not established. Zero collisions. No halt. All
+seven not-established entries are established absences rather than gaps — one excluded, six declared
+unconstrained, including the ball count. Four refusals, all of one kind and all honest: three placements
+and one feasibility bound are authored as prose rather than as intervals, so the geometry checks decline
+to compare them instead of guessing.
+
+REALIZED — holds. Realization proceeded, acceptance clean on all three of your conditions: nothing
+derived lost, nothing invented, nothing closed without authority. Six choices, five checked against
+authored sets, one reported as unverified because its bound is a qualitative term. Two team members
+instantiated, four entailments completed.
+
+GATE A / GATE B — holds. Gate A is DEFERRED_TO_REALIZATION with its knowledge verdict PASS; the four
+deferred checks are the four you ruled post-realization, and the post-realization run validates all of
+them. Gate B forward passes. Gate B reverse is NOT_APPLICABLE in derivation mode, which is correct rather
+than a pass it has not earned.
+
+FAITHFULLY RENDERED — holds on the live Golden Case, as measured in section 4, and is NOT YET ASSERTED by
+the suite, because the suite renders the frozen fixture and the guard correctly refuses to let that count.
+This is the one link where the gap between "measured" and "guaranteed" is real, and one command closes it.
+
+ECOLOGICALLY OPERABLE — not assessable here, and I do not think that is a gap in the work. The
+representation deliberately holds nothing about pressure, opportunity, affordance availability or
+representativeness; your own boundary excludes them. So whether the activity produces the experience it
+is designed to produce cannot be established by any check we could write. That is the same thing your
+go/no-go question says: it is what external use would teach us and internal architecture testing cannot.
+
+WHAT REMAINS BETWEEN THAT STATE AND CHRISTIAN-ONLY PILOT USE
+
+  1. The fixture refresh. Yours. One command, verified outcome.
+  2. The exempt-report decision. The activity is faithful apart from one path your own ruling exempts, and
+     the checker cannot say so because you held the mechanism. Nothing is wrong; the report is simply
+     louder than the ruling. Leave it, or lift the hold on that mechanism.
+  3. One thing a coach would ask that the game cannot answer: what counts as meeting the channel
+     condition. A coach is told the consequence — that crossing is worth 2 instead of 1 when the condition
+     is met — and cannot be told what meets it. That is a knowledge gap, it is reported rather than
+     papered over, and for your own use it may well be acceptable; for anyone else's it is the first
+     question they would ask.
+
+Nothing else. The chain closes, the activity is seventeen instructions all traceable to the game, and the
+things that are missing are each named in the output rather than hidden by it.
+
+Successful Region Access stays parked, general COMPLETED_PASS reachability stays deferred, Wide Zone
+trigger semantics and magnitude stay held, and A04 remains the Golden Case rather than evidence about the
+other twelve.
+
+Joe

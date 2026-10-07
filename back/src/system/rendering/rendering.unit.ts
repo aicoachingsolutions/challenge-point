@@ -38,9 +38,35 @@ assert.equal(fixture.game.envelope.players, 12)
 const rendered = renderConcreteGame(fixture)
 const report = checkFidelity(fixture, rendered)
 const violationsOn = (q: number) => report.findings.filter(f => f.question === q && f.severity === 'VIOLATION')
-for (const q of [2, 3, 4] as const) {
+for (const q of [2, 4] as const) {
     assert.deepEqual(violationsOn(q), [], `Q${q} must pass: ${JSON.stringify(violationsOn(q))}`)
 }
+/**
+ * **Q3 carries EXACTLY ONE violation, and it is a ruling of his awaiting a mechanism he deferred.**
+ *
+ * `possession.team` is established by the game and no instruction carries it. On his ruling of 7 October that
+ * is correct and not a loss:
+ *
+ *   > *An initial state value is activity-design information when an established rule or relationship reads
+ *   > that value. Otherwise it is runtime initialization rather than something the coach-facing activity must
+ *   > communicate. For A04, the initial possession holder therefore does not need coach-facing expression.*
+ *
+ * In the same message he held the mechanism that would RECORD that exemption — *"Do not repair the
+ * empty-consequences/suffix mechanism unless it becomes independently pilot-load-bearing"*, and *"Do not build
+ * a new expression mechanism around this ruling yet"*. So the checker has no way to express a legitimate
+ * non-expression, and reports it as a loss. The ruling and the report disagree, deliberately and on his
+ * instruction.
+ *
+ * It is pinned BY NAME rather than by relaxing the assertion to a count, so any OTHER Q3 violation still
+ * fails. **The exit condition is explicit: when the exemption mechanism lands, or when the holder is
+ * expressed, this becomes `[]` again.** Until then a bare `[]` would be false and a bare "some violations
+ * are fine" would be worse.
+ */
+assert.deepEqual(
+    violationsOn(3).map(f => f.what),
+    ['possession.team is established by the game and no instruction carries it'],
+    `Q3 must carry exactly the one violation his ruling exempts; got ${JSON.stringify(violationsOn(3).map(f => f.what))}`,
+)
 /**
  * **The unestablished criterion is reported and no longer graded, and the finding survives in full.**
  *
@@ -58,7 +84,26 @@ assert.ok(
     !violationsOn(5).some(f => /not functionally realized/.test(f.what)) && !notesOn(5).some(f => /not functionally realized/.test(f.what)),
     'the participation violations must stay gone now that the modifier conditions on the channels',
 )
-assert.equal(report.passed, true, 'the RENDERING is faithful — this is not a claim that the game is coachable')
+/**
+ * **`report.passed` is FALSE, and its sole cause is the one violation SD-104 exempts.** Asserted as two
+ * halves so neither can drift.
+ *
+ * `passed` is `!findings.some(f => f.severity === 'VIOLATION')` (fidelity.ts:395) — a single boolean over every
+ * question. So the one Q3 violation above pulls it down, and under his 7 October ruling that violation is not
+ * a fidelity failure: an initial state value no rule reads is runtime initialization and the activity need not
+ * communicate it. He also held the mechanism that would let the checker say so. **The honest form of the old
+ * assertion is therefore not `passed === true` and not `passed === false`, but: `passed` would be true were it
+ * not for the exempt path, and nothing else.**
+ *
+ * When the exemption mechanism lands, both halves collapse back to the original one-line `passed === true`.
+ */
+const exempt = 'possession.team is established by the game and no instruction carries it'
+assert.equal(report.passed, false, 'one violation remains, so the single boolean is down')
+assert.deepEqual(
+    report.findings.filter(f => f.severity === 'VIOLATION').map(f => f.what),
+    [exempt],
+    'and it is the ONLY one: apart from the path SD-104 exempts, the rendering is faithful — which is not a claim that the game is coachable',
+)
 
 /**
  * **THE CONTRADICTION HE ASKED ME TO CONFIRM IS GONE, and this is the test that keeps it gone.**

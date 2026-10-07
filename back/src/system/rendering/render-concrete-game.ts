@@ -25,6 +25,25 @@
  * is more important than making the activity look better."* A renderer that tidied the game would hide
  * the one thing this pass is for. (The sport he named is bracketed out only because this module sits above
  * the sport layer and the coupling ratchet correctly refuses to let a sport be named here.)
+ *
+ * **SD-103, ruled 7 October, is the governing rule for everything below — and it was ruled because this
+ * file broke it twice.**
+ *
+ *   > *Coach-facing language must be entailed by the resolved game and the rules it communicates. A
+ *   > renderer may compress or combine supported facts, but it may not introduce an unsupported game fact
+ *   > merely because that fact is obvious in the sport.*
+ *
+ * The two breaches were measured, not suspected. The scoring instruction hardcoded the English word for
+ * whatever crosses the line and cited the scoring event for it, so it told coaches about a ball for weeks
+ * while the representation established none. The possession-change instruction was gated on a transition's
+ * play state alone, so it fired for ANY transition that continued play and asserted that possession was
+ * what changed — it survived changing the trigger, and it survived deleting the possession relation from
+ * the game outright. Neither was caught, because the fidelity check validates numbers appearing in prose
+ * and never nouns: **an invented NOUN passes unchecked.** Both are repaired in place below, each by reading
+ * its noun or its precondition from the game and citing it.
+ *
+ * The standing rule that follows from that: **if a sentence here names something in the game, the name
+ * comes from the game and the path is cited.** "Obvious in the sport" is not a source.
  */
 
 /** Where a rendered instruction's authority comes from, and what wording that permits. */
@@ -250,16 +269,52 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
     if (game.envelope?.duration_min) {
         say('How it works', recorded('envelope.duration_min', 'SESSION'), `Play for ${game.envelope.duration_min} minutes`, ['envelope.duration_min'], [game.envelope.duration_min])
     }
+    /**
+     * **A possession-change sentence requires a possession-change transition AND the relation it changes.**
+     * His ruling of 7 October, the second of two narrow repairs:
+     *
+     *   > *A rendered possession-change instruction may appear only when the represented transition is
+     *   > actually keyed on `POSSESSION_CHANGE` and the required possession relationship is established.*
+     *
+     * This read `playState === 'CONTINUE'` and nothing else. So the sentence fired for ANY transition that
+     * continues play, on any trigger whatever, and asserted to a coach that it was possession that changed.
+     * Measured before the repair: it survived changing the trigger to something unrelated, and it survived
+     * deleting the possession relation from the game outright. The word "possession" occurs in this file only
+     * inside that string, so there was nothing else to notice.
+     *
+     * **`possession.team` is deliberately NOT cited.** The relation's establishment is a PRECONDITION for
+     * emitting the sentence, not a source of its content: what the sentence says — a possession change does
+     * not stop play — comes entirely from the trigger and the play state. Citing the holder would make the
+     * fidelity check read it as carried to the coach when no coach reads it anywhere, which is exactly the
+     * unverifiable citation his item-1 findings warn about. Under his item-2 ruling the holder needs no
+     * coach-facing expression, and the honest way to say so is to leave it uncited and let it be reported.
+     */
     for (const transition of game.transitions ?? []) {
-        if (transition.playState === 'CONTINUE') {
+        if (transition.playState !== 'CONTINUE') continue
+        const keyedOnPossessionChange = (transition.selector ?? []).some(
+            (term: any) => term?.attribute === 'trigger' && term?.op === '=' && term?.value === 'POSSESSION_CHANGE',
+        )
+        const relationEstablished = (game as any).possession?.team !== undefined
+        if (keyedOnPossessionChange && relationEstablished) {
             say(
                 'How it works',
                 'DERIVED',
                 `Play continues when possession changes — there is no stoppage`,
-                [`transitions[${transition.elementId}].playState`],
+                [`transitions[${transition.elementId}].playState`, `transitions[${transition.elementId}].selector`],
                 [],
             )
+            continue
         }
+        // Reported, not repaired — his standing instruction for anything the game itself makes unsayable.
+        observations.push(
+            keyedOnPossessionChange
+                ? `${transition.elementId} is keyed on a possession change and continues play, but the game establishes no possession ` +
+                  `relationship (\`possession.team\` is absent). A coach cannot be told that a possession change does not stop play ` +
+                  `when nothing in the game holds the relation that would change. The sentence is withheld rather than asserted.`
+                : `${transition.elementId} continues play rather than stopping it, and its trigger is not a possession change. ` +
+                  `Rendering has no coach-facing wording for that trigger, so it says nothing rather than reusing the ` +
+                  `possession-change sentence, which is what it used to do for any CONTINUE transition.`,
+        )
     }
 
     // ── How to score ────────────────────────────────────────────────────────────────────────────
@@ -271,13 +326,51 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
         // `objectives[].role = PRIMARY_SCORING` is what makes this the way to score at all, so it is cited
         // here rather than being given a sentence of its own that would only restate it.
         const objectiveRole = (game.objectives ?? [])[0]
+        /**
+         * **The thing that crosses the line is named only when the game establishes one, and the noun comes
+         * from the game.** His ruling of 7 October, the first of two narrow repairs:
+         *
+         *   > *A rendered scoring instruction may mention the ball only when the represented game establishes
+         *   > the ball and the instruction's provenance legitimately supports that reference.*
+         *
+         * And the governing principle he set above it: *"Coach-facing language must be entailed by the resolved
+         * game and the rules it communicates. A renderer may compress or combine supported facts, but it may not
+         * introduce an unsupported game fact merely because that fact is obvious in the sport."*
+         *
+         * This sentence used to hardcode the English word, cited to the scoring event, the point value and the
+         * objective's role — none of which is an object. It therefore told coaches about a ball for weeks while
+         * the representation established none, and nothing caught it: the fidelity check validates numbers in
+         * prose and never nouns, so an invented NOUN passes unchecked.
+         *
+         * Two things make the repair rather than a patch. The noun is read from `objects[].kind` instead of
+         * written here, so the renderer states no sport vocabulary of its own; and that path is CITED, so the
+         * reference has provenance rather than being true by coincidence. Where no object is established the
+         * carrier is not named at all and the gap is reported — the same treatment the unsettled
+         * channel-condition trigger already gets below.
+         */
+        const carrier = (game.objects ?? []).find((object: any) => typeof object?.kind === 'string')
         say(
             'How to score',
             statusOf.get(kindPath) ?? 'DERIVED',
-            `A team scores ${primary.value} point by getting the ball across the marked line`,
-            [kindPath, 'value.primaryEvent.value', ...(objectiveRole ? [`objectives[${objectiveRole.elementId}].role`] : [])],
+            carrier
+                ? `A team scores ${primary.value} point by getting the ${carrier.kind} across the marked line`
+                : `A team scores ${primary.value} point when the marked line is crossed`,
+            [
+                kindPath,
+                'value.primaryEvent.value',
+                ...(carrier ? [`objects[${carrier.elementId}].kind`] : []),
+                ...(objectiveRole ? [`objectives[${objectiveRole.elementId}].role`] : []),
+            ],
             [primary.value],
         )
+        if (!carrier) {
+            observations.push(
+                `The scoring event is established and what crosses the line is not: the game holds no object, so the ` +
+                    `instruction says the line is crossed without saying by what. A coach can run that only by deciding ` +
+                    `for themselves whether a player, a pass or a carried object counts, which is a rule of the game and ` +
+                    `not theirs to set. Withheld rather than filled in.`,
+            )
+        }
         if (objective) {
             say(
                 'How to score',

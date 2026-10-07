@@ -6504,3 +6504,84 @@ goals. The other twelve stay unrepaired. FAILED vs NOT_EVALUABLE preserved and a
 question is whether A04 is *deterministic, representative, runnable and faithfully communicated*
 enough that external use teaches us something internal testing cannot — and the weak clause is the
 last one, for the reasons in §0.
+
+---
+
+## 7 OCTOBER — HIS SIX RULINGS CARRIED OUT: two narrow repairs, two standing decisions, one live guard
+
+### 1 · SD-103 AND SD-104, RECORDED (spec revision 25)
+- **SD-103** — *"Coach-facing language must be entailed by the resolved game and the rules it
+  communicates. A renderer may compress or combine supported facts, but it may not introduce an
+  unsupported game fact merely because that fact is obvious in the sport."* Quoted at the top of
+  `render-concrete-game.ts`, where it is enforced, with the note that it was ruled because that file
+  broke it twice.
+- **SD-104** — *"An initial state value is activity-design information when an established rule or
+  relationship reads that value. Otherwise it is runtime initialization rather than something the
+  coach-facing activity must communicate. For A04, the initial possession holder therefore does not need
+  coach-facing expression."* Recorded in the spec and appended to PS1's register note, with his
+  qualification verbatim and the A01 + A01-02 counterexample named so it cannot be read as general.
+- **HELD, on his instruction:** no deliberate-non-expression entry for the ball; no repair to the
+  empty-consequences or suffix defects in that mechanism; no expression mechanism around SD-104.
+
+### 2 · REPAIR ONE — the scoring instruction's carrier
+`render-concrete-game.ts` no longer contains the noun. It finds an object with a `kind`, writes
+`the ${carrier.kind}`, and **cites `objects[<id>].kind`**. No object → the carrier is not named
+(*"when the marked line is crossed"*) and an observation reports the gap.
+- Measured, one renderer, two games: live → *"…by getting the ball across the marked line"* with the
+  object cited; frozen → *"…when the marked line is crossed"* plus the observation.
+- **The renderer now states no sport vocabulary of its own anywhere.** Every noun comes from the game or
+  the session: the object kind, the region nouns, the specialized role name (`envelope.roles` keys),
+  the per-side count (`performers.teams[].outfieldCount`, never `players / teams`).
+
+### 3 · REPAIR TWO — the possession-change instruction
+Now requires BOTH a selector fixing `trigger = POSSESSION_CHANGE` AND an established
+`possession.team`. Otherwise withheld, with an observation naming which half is missing.
+- **`possession.team` is deliberately NOT cited.** The relation's establishment is a PRECONDITION for
+  emitting the sentence, not a source of its content. Citing it would make fidelity read the holder as
+  carried to a coach when nothing reads it — the unverifiable citation the item-1 findings warned about —
+  and would make the remaining report vanish for the wrong reason.
+
+### 4 · THE A04 FIDELITY RERUN — one report remains, and it is the exempt one
+Live Golden Case: **17 instructions, every one citing ≥1 property.** Q2 0 · **Q3 1** · Q4 0 · Q5 0
+violations (4 notes). The one Q3 is `possession.team is established by the game and no instruction
+carries it` — SD-104's exempt case, reported as a loss only because he held the mechanism that would say
+"exempt". **No unsupported coach-facing fact remains**, checked across every instruction rather than
+assumed.
+
+### 5 · THE GOLDEN CASE GUARD — `fixture-currency.unit.ts`, ACTIVE AND FAILING
+- `freeze-a04-fixture.ts` refactored: `buildGoldenCase()` and `goldenCaseDigest()` exported, the write
+  moved under `require.main === module`. **One definition, two callers** — a guard with its own replica
+  of the stages would be the second harness this file's own header warns about.
+- Digest = the engine's own `canonical` + `digest` over the whole body minus the owner's `note`. The
+  realization choices are inside the guarded Golden Case, on his ruling.
+- Drift FAILS unless `docs/audits/a04-fixture-currency.json` names the exact live digest and says why.
+  Regenerates nothing. An acknowledgement expires at the next change, and an **overtaken** acknowledgement
+  on a current fixture is also a failure.
+- Registered immediately BEFORE `rendering.unit.ts`, so a known-stale fixture does not produce a cascade
+  of confusing downstream failures.
+- **Current state: frozen `1d4e4f3a`, live `a1c46e8e`. The suite is green for 360 checks and stops here.**
+- **The frozen game is not merely stale — it is unauthorizable.** It carries a transition keyed on a
+  possession change and establishes no possession relation: the exact condition Gate A now refuses. An
+  acknowledgement could not be written honestly for it.
+- **VERIFIED, then reverted:** refreshed the fixture, ran both rendering files (guard CURRENT, rendering
+  ok), restored the file byte-for-byte (digest back to `1d4e4f3a`, zero diff). So `npm run freeze:a04`
+  turns the suite green — stated as a measurement, not a prediction. **Not done: his act.**
+
+### 6 · TWO ASSERTIONS RESTATED IN `rendering.unit.ts`
+- Q3 is pinned BY NAME to the single SD-104-exempt path, so any other loss still fails.
+- `report.passed === true` became `=== false` **plus** "and the exempt path is the only violation". The
+  flag is a single boolean over every question, so one ruled-exempt report pulls it down; two halves is
+  the only form that is neither false nor a licence. Both collapse back the day the mechanism lands.
+
+### 7 · A04 AGAINST HIS FIVE LINKS
+| link | status |
+|---|---|
+| resolved | **holds** — 49 lines, 27 derived / 6 open / 2 existential / 7 not established, 0 collisions, no halt. All seven absences are established (1 excluded, 6 declared unconstrained). 4 refusals, all `VALUE_NOT_COMPARABLE` on prose placements — declining to guess, not failing |
+| realized | **holds** — acceptance 0/0/0, 6 choices (5 `WITHIN_PERMITTED_SET`, 1 `UNVERIFIABLE_QUALITATIVE_BOUND`), 2 instantiations, 4 entailments |
+| Gate A / Gate B | **holds** — Gate A `DEFERRED_TO_REALIZATION`, knowledge verdict PASS, the four deferred are the four he ruled post-realization and all validate. Gate B forward PASS; reverse `NOT_APPLICABLE` in derivation mode |
+| faithfully rendered | **holds on the live game; NOT YET ASSERTED by the suite**, because the suite renders the frozen fixture and the guard refuses to let that count. One command closes it |
+| ecologically operable | **not assessable by any check we could write** — the representation deliberately holds nothing about pressure, opportunity, affordance availability or representativeness. Which is his own go/no-go criterion restated: it is what external use teaches and internal testing cannot |
+
+**Between here and Christian-only pilot use:** (1) the fixture refresh, his; (2) the exempt-report
+decision — leave it, or lift the hold on the exemption mechanism; (3) the one question a coach would ask
+that the game cannot answer — what counts as MEETING the channel condition, reported and not papered over.
