@@ -7072,3 +7072,28 @@ contracted.
 violations, duel-dense envelope working, contracted game form, free lenses. Missing: **one** EM contract
 (Small Area). To implement: the `selectFor` refusal + the attacking-1v1 group. Blockers: none
 structural; two decisions (Golden Case price, envelope bound).
+
+**REVISION to §12 item 1, after a parallel reader found the route (verified myself).** THE REFUSAL
+ALREADY EXISTS. `back/src/routes/app.routes.ts:803-816` already computes `reachedOnlyFallback` (his
+exact test) and already answers with a graceful **400 + `resolutionStatus: 'unresolved'`** plus five
+real supported-goal suggestions; the comment there states his invariant verbatim. And
+`isKnownUnsupportedGoal` is **computed, not hand-kept** — `goalSupport()` returns
+`unsupported = {Play Out from the Back, Beat Defenders 1v1}`, so **a coach TYPING A04 is already
+refused today.**
+- **The gap is the GUIDED path, and it is one conjunct: `!routedRpcId`.** A04 routes to **RPC-004**
+  (`rpcRouting()`), so the refusal is skipped. The exemption's stated premise is that routing to a
+  context makes the selection specific — true for A01 (→ RPC-001, which IS contracted). **Measured
+  false for A04:** gating to RPC-004 via `gateCandidateGameFormsToContext` leaves signals
+  `Z_soccer_general`, resolution **`fallback`**, archetype GF2 and the same four constraints. RPC-004 is
+  **not** among the 8 contracts.
+- **Smallest change: tighten that conjunct** so a routed goal is exempt only when routing actually
+  resolves it. Measured consequence: refuses exactly A04 of the 13 (A01 routes too but is `matched`, so
+  `reachedOnlyFallback` is already false for it). **Does NOT invalidate the Golden Case** — the fixture
+  chain calls `selectFor` directly (`freeze-a04-fixture.ts:59`), never the route.
+- **So the two boundaries separate:** (1a) the route conjunct — coach-facing, mechanism exists, graceful,
+  Golden Case untouched; (1b) the `selectFor` throw — the internal chain that produced every A04
+  artifact, and **this is where the Golden Case price lands.** 1a is a defect; 1b is the owner decision.
+- **Corrected my own claim:** I was about to report that a presentable refusal would be a larger
+  deliberate change. It already exists. Lesson: "the only boundary that CAN enforce this" is a claim
+  about the whole program, not about the subsystem being read — I reasoned along the engine's data path
+  and never looked at its caller.

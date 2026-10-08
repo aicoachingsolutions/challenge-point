@@ -10,8 +10,81 @@ Every number below is a measurement I ran against the live code, not an inferenc
 
 ## 1 · Selection integrity — the smallest existing boundary
 
-**The answer is `selectFor` (`back/src/system/derivation/run-bounded-selection.ts`), and it is the only
-candidate.** Not the smallest of several — the only one.
+**The mechanism already exists, it already refuses A04 on the free-text path, and one conjunct
+suppresses it on the guided path.** There are two boundaries, serving two different paths, and they
+have very different costs. This section was revised after a parallel reader found the coach-facing
+route, which I had missed; every claim below I then measured myself.
+
+### 1a · The coach-facing path — already built, one conjunct from correct
+
+`back/src/routes/app.routes.ts:803-816` already computes the exact test the order asks for:
+
+```ts
+const reachedOnlyFallback = inputConstraints.matchedSignals.every(
+    (signal) => !signal.startsWith('signalGroup:') || signal === 'signalGroup:Z_soccer_general'
+)
+const knownGap = !routedRpcId && reachedOnlyFallback && isKnownUnsupportedGoal(goalText)
+
+if (inputConstraints.matchedSignals.length === 0 || knownGap) { … return res.status(400).json({ … resolutionStatus: 'unresolved', … }) }
+```
+
+and the comment above it states the invariant in the order's own terms:
+
+> *"A Learning Goal like 'Play Out from the Back' reaches only the general fallback, so it would
+> otherwise proceed and produce a generic activity that does not address what was asked — worse than a
+> refusal, because the coach cannot tell it went wrong."*
+
+The refusal is already graceful rather than a crash: a 400 with `resolutionStatus: 'unresolved'`, a
+coach-facing message, and five real supported goals as suggestions. So the "typed refusal a tool can
+present" is not a larger change to build — **it is already there.**
+
+Measured, `isKnownUnsupportedGoal` is computed rather than a hardcoded list, and **A04 is already in
+it**:
+
+```
+SUPPORTED   : Stay Organized | Attack Quickly | Recover Organization | Play Through Pressure |
+              Win the Ball Back | Secure Possession | Delay the Attack | Create Scoring Chances |
+              Defend 1v1 | Progress the Attack | Finish Attacks
+UNSUPPORTED : Play Out from the Back | Beat Defenders 1v1
+isKnownUnsupportedGoal("Beat Defenders 1v1. Eliminate individual defenders.") = true
+```
+
+So a coach **typing** "Beat Defenders 1v1" is already refused. The gap is the **guided** path, and it is
+one conjunct: `!routedRpcId`. Measured, A04 routes to a context:
+
+```
+A04 → RPC-004          (and only RPC-001 is contracted, of the eight contracts)
+```
+
+so `routedRpcId` is set, `knownGap` is false, and the refusal is skipped. The exemption's stated
+premise is that routing to a context makes the selection specific — *"selects within Goalkeeper
+Build-Out and scores on that context's event, so the activity addresses exactly what was asked."*
+
+**For A04 that premise is false.** I ran the selection the way the route does, gated to RPC-004:
+
+| | ungated | gated to RPC-004 |
+|---|---|---|
+| matched signals | `Z_soccer_general` | `Z_soccer_general` |
+| resolution status | **fallback** | **fallback** |
+| archetype | GF2 | GF2 |
+| constraints | central-density, wide-zone, progression-bonus, turnover-reward | *identical* |
+
+Gating changes nothing. The context A04 routes to is not contracted, the resolution stays `fallback`,
+and the exemption buys nothing while suppressing the refusal.
+
+**The smallest change is that one conjunct**: exempt a routed goal only when routing actually resolves
+it — test the post-gating resolution rather than the mere existence of a route. Measured consequence
+across the thirteen: it refuses exactly A04. A01 also routes (to RPC-001, which *is* contracted) but
+its selection is `matched`, so `reachedOnlyFallback` is already false for it and it is untouched.
+
+**This change does not invalidate the Golden Case**, because the fixture chain never goes through the
+route.
+
+### 1b · The internal path — `selectFor`, and the only candidate there
+
+Everything this project has ever built for A04 was produced by the bounded chain, not the route:
+`freeze-a04-fixture.ts:59` calls `derivationInputFor(selectFor('A04', null))` directly. That path has
+no refusal at all, and for it `selectFor` is the only possible boundary.
 
 ### Why nothing downstream can enforce the invariant
 
@@ -68,19 +141,33 @@ unresolved`. `fallback` says *"Coach intent was not specifically resolved — tr
 confidence."* `unresolved` is worse: *"The Design Commitment is not traceable to resolved coach
 intent."* The invariant is `status !== 'matched'`.
 
-### The cost, stated plainly
+### The cost, stated plainly — and it falls only on 1b
 
-A04 is the only one of the thirteen goals that falls back, so this refuses exactly one goal and leaves
-twelve untouched. But A04 is the Golden Case, so the refusal invalidates the vertical slice and
-everything built on it. That is the trade the order already anticipates — *"rejecting an unsupported
-goal is preferable to producing a plausible but misidentified activity"* — but it should be made with
-the blast radius visible, which is why it is counted in §4.
+A04 is the only one of the thirteen goals that falls back, so the refusal takes exactly one goal and
+leaves twelve untouched either way. The difference between the two boundaries is what else it takes:
 
-**One judgement I would flag rather than decide.** A throw is a crash, not a refusal a tool can
-present. The minimal change matches the existing precedent, which is a throw. If the pilot needs to
-*say* "this goal is not supported yet" rather than fail, that is a typed refusal — a slightly larger
-change, and a deliberate one. The minimal answer is the throw; the better product answer may be the
-refusal.
+| | 1a · the route conjunct | 1b · the `selectFor` throw |
+|---|---|---|
+| Protects | the coach-facing guided path | the internal bounded chain |
+| Mechanism | already exists — one conjunct tightened | a third throw |
+| Refusal shape | graceful 400, already written, with suggestions | a crash |
+| Golden Case | **untouched** | **invalidated, with the frozen fixture** |
+
+**So the two decisions separate cleanly.** 1a secures the path a coach actually uses, costs almost
+nothing, and leaves the Golden Case alone. 1b closes the path that produced every A04 artifact in this
+project, and that is where the Golden Case price lands.
+
+My read: 1a should happen because it is a defect — an exemption firing on a premise that is measurably
+false. 1b is the real decision, and the order already anticipates its trade: *"rejecting an unsupported
+goal is preferable to producing a plausible but misidentified activity."* I think that is the right
+price, because the Golden Case's value was always that it was honest, and a slice resting on an
+unresolved selection is not. But it is an owner call and I have not taken it.
+
+**A correction to something I would otherwise have told you.** I was going to flag that a throw is a
+crash and that a presentable refusal would be a larger, deliberate change. That is wrong: the
+presentable refusal already exists at the route, with `resolutionStatus: 'unresolved'`, a coach-facing
+message and real suggestions. Only the internal chain would get a throw, and nothing but our own
+harness reads it.
 
 ---
 
@@ -297,8 +384,8 @@ its goal **fail** rather than pass, on three placement properties.
 |---|---|
 | **Exists** | The game is authorized and renders clean today, with and without Wide Zone, at 40 × 30 and at 30 × 25 / 4v4: Gate A deferring, acceptance 0/0/0, post-realization gates validating, 10 instructions, **zero fidelity violations**. GF2 is contracted. Lenses need no contracts. A duel-dense envelope already works. |
 | **Missing authored knowledge** | One environmental manipulation contract — **Small Area Condition**, restated from the existing library object, no incentive layer, items on `E2`/`E3` in the pattern GF2 already uses. |
-| **Implementation** | (a) the selection-integrity refusal at `selectFor` — one throw; (b) an attacking-1v1 signal group — one predicate plus one block, the shape of ten precedents, landing on GF2. |
-| **Genuine integrity blockers** | None structural. Two things to decide: the Golden Case is invalidated by the refusal in (a) (§1), and no gate compares the session envelope against a game form's authored bound (§2). |
+| **Implementation** | (a) tighten one conjunct at `app.routes.ts:805` so the context exemption requires routing to actually resolve the goal — the refusal itself already exists; (b) an attacking-1v1 signal group — one predicate plus one block, the shape of ten precedents, landing on GF2; (c) optionally the `selectFor` throw for the internal chain. |
+| **Genuine integrity blockers** | None structural. Two things to decide: whether to close the internal chain too, which invalidates the Golden Case (§1b), and that no gate compares the session envelope against a game form's authored bound (§2). |
 
 ### Route B — another already-matched goal
 
@@ -316,6 +403,8 @@ faithfully, and it is duel-dense at a smaller envelope today. What is missing is
 (1) A04 resolving specifically instead of by fallback, and (2) one contracted object that justifies the
 small area without re-opening anything on hold.
 
-The decision that gates it is §1's: enforcing selection integrity invalidates the Golden Case. That
-seems to me the right price, because the Golden Case's value was always that it was honest, and a
-vertical slice resting on an unresolved selection is not.
+And the integrity invariant is cheaper than I first reported. The coach-facing refusal already exists
+and already classifies A04 as a known gap; it is suppressed on the guided path by an exemption whose
+premise is measurably false for A04. Tightening that conjunct costs almost nothing and leaves the
+Golden Case alone. Only closing the internal chain carries the Golden Case price, and that is a
+separate decision you can take on its own timing.
