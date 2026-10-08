@@ -156,7 +156,12 @@ test('registering the member changed no verdict in any of the thirteen goals', (
      * is wrong; a game with no teams cannot end a possession.
      *
      * TD02 and D03 move 11 → 13 failed lines: GF4's modifier gains the two new rows and authors neither.
-     * A04 stays at 7, because its two resolve.
+     *
+     * **A04 moved 7 → 6 on 8 October, and not because anything here changed.** The attacking-duel
+     * signal group resolves A04 to a matched package that no longer includes Wide Zone Advantage, so
+     * the one failed line that object contributed went with it. A04 had stayed at 7 while Wide Zone
+     * was still selected, because its two new rows resolved; now there is no Wide Zone modifier in
+     * A04 at all. Its gate verdict is unchanged.
      */
     const expected: Record<string, { failed: number; gateA: string; reachable: boolean }> = {
         A01: { failed: 7, gateA: 'NOT_EVALUABLE', reachable: true },
@@ -169,7 +174,7 @@ test('registering the member changed no verdict in any of the thirteen goals', (
         TD02: { failed: 13, gateA: 'FAIL', reachable: false },
         A03: { failed: 7, gateA: 'FAIL', reachable: true },
         D03: { failed: 13, gateA: 'FAIL', reachable: false },
-        A04: { failed: 7, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
+        A04: { failed: 6, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
         A05: { failed: 7, gateA: 'NOT_EVALUABLE', reachable: true },
         A06: { failed: 7, gateA: 'FAIL', reachable: true },
     }

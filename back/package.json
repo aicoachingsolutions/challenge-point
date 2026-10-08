@@ -22,7 +22,8 @@
         "corpus:placement": "ts-node --files -r tsconfig-paths/register ./src/system/derivation/run-placement-test.ts",
         "first:game": "ts-node --files -r tsconfig-paths/register ./src/system/realization/run-first-game.ts",
         "freeze:a04": "ts-node --files -r tsconfig-paths/register ./src/system/rendering/freeze-a04-fixture.ts",
-        "render:a04": "ts-node --files -r tsconfig-paths/register ./src/system/rendering/run-render-a04.ts"
+        "render:a04": "ts-node --files -r tsconfig-paths/register ./src/system/rendering/run-render-a04.ts",
+        "pilot:a04": "ts-node --files -r tsconfig-paths/register ./src/system/rendering/run-pilot-a04.ts"
     },
     "nodemonConfig": {
         "env": {

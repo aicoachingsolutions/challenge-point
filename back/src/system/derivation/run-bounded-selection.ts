@@ -78,6 +78,33 @@ export function selectFor(goalId: string, situationId: string | null = null): Bo
     const text = `${goal['Learning Goal']}. ${goal['Coach Definition']}`
     const result: any = generateSelection({ learningGoals: [text], learningGoalId: goalId } as any, deriveInputConstraints(text))
 
+    /**
+     * **A selection that did not resolve must not proceed as a successful Learning Goal selection.**
+     * Owner ruling, 8 October: *"fallback and unresolved selections must not proceed as successful
+     * Learning Goal selections."*
+     *
+     * This is the only boundary that can enforce it. The status and the goal identity coexist here
+     * and nowhere downstream — `BoundedSelection` carries no resolution, `DerivationInput` carries no
+     * goal, and the resolved game's provenance carries neither — so every later stage operates on
+     * knowledge objects with no idea which goal asked for them. Refusing anywhere else would mean
+     * adding a field for the sole purpose of carrying the bad news.
+     *
+     * It is a throw because that is already what this boundary does for the other two ways a
+     * goal/selection relationship can be invalid, and because nothing but our own harness reads it:
+     * the coach-facing route refuses earlier, in its own register, with suggestions.
+     *
+     * `fallback` means a general default package was committed; `unresolved` means the commitment is
+     * not traceable to coach intent at all. Both are "not matched", and neither may be presented as
+     * the goal having been satisfied.
+     */
+    const resolutionStatus = String(result.resolution?.status ?? 'unresolved')
+    if (resolutionStatus !== 'matched') {
+        throw new Error(
+            `${goalId} did not resolve: selection status is ${resolutionStatus}, so no package may be presented as satisfying this Learning Goal. ` +
+                `${String(result.resolution?.reason ?? '').trim()}`
+        )
+    }
+
     const selected: { id: string; role: string }[] = []
     const add = (id: unknown, role: string) => {
         if (id) selected.push({ id: String(id), role })

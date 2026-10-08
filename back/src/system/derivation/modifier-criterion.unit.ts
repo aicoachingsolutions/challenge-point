@@ -24,6 +24,7 @@
 import assert from 'node:assert/strict'
 
 import { runDerivation, runStages0to10 } from './engine'
+import { loadCorpusContracts } from './corpus'
 import { derivationInputFor, selectFor } from './run-bounded-selection'
 import { ContractItem, DerivationInput } from './types'
 
@@ -39,7 +40,34 @@ const test = (name: string, fn: () => void) => {
     }
 }
 
-const base = derivationInputFor(selectFor('A04', null))
+/**
+ * **Loaded from the Wide Zone contract by name, not through A04's selection.**
+ *
+ * This read `derivationInputFor(selectFor('A04', null))` until 8 October, which worked only because
+ * A04's selection had not resolved and the general default package happened to include Wide Zone
+ * Advantage. Once the attacking-duel signal group made A04 resolve specifically, A04 stopped selecting
+ * Wide Zone — and every case below went quietly vacuous, because the modifier and channel class ids it
+ * names were simply absent. The file still reported success: nine cases became one.
+ *
+ * That is the regression case Christian asked to be preserved — *"a regression case demonstrating that
+ * the exclusion actually changes the verdict when violated"* — so it losing its subject without
+ * failing is the exact shape of loss this project keeps paying for. Naming the contract makes the
+ * evidence depend on the object it is about rather than on which Learning Goal happens to select it.
+ */
+const forWideZone = (): DerivationInput => {
+    const a04 = derivationInputFor(selectFor('A04', null))
+    const contracts = [
+        ...loadCorpusContracts().filter(c => /GF2|WIDE-ZONE/.test(String(c.contractId))),
+        ...a04.contracts.filter(c => /sport-profile/.test(String(c.contractId))),
+    ]
+    return {
+        ...a04,
+        contracts,
+        selection: contracts.map((c: any) => ({ objectId: c.objectId, knowledgeVersion: 'stage-b' })),
+    } as DerivationInput
+}
+
+const base = forWideZone()
 const MODIFIER = 'c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-18.a'
 const CHANNEL = 'c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a'
 const SCORING_LINE = 'c:restated:GF2:GF2-03.a'

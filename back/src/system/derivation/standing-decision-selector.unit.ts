@@ -174,7 +174,13 @@ test('the repair removes exactly one application and leaves the rest', () => {
 // ── A04 is untouched ──────────────────────────────────────────────────────────────────────────────
 test('A04 is unaffected: its only transition is a POSSESSION_CHANGE', () => {
     const result: any = runDerivation(derivationInputFor(selectFor('A04', null)))
-    assert.equal((result.resolution ?? []).filter((e: any) => e.state === 'failed').length, 7, 'seven failed lines, as before')
+    // **Six, not the seven this asserted until 8 October.** The count moved because A04's selection
+    // changed, not because this selector did: the attacking-duel signal group resolves A04 to a
+    // matched package that no longer includes Wide Zone Advantage, so the one failed line that object
+    // contributed is gone with it. What this test is about — that the standing-decision selector
+    // leaves A04's single POSSESSION_CHANGE transition alone — is unchanged, and the clause below
+    // still checks it directly.
+    assert.equal((result.resolution ?? []).filter((e: any) => e.state === 'failed').length, 6, 'six failed lines; was seven while Wide Zone was still selected')
     const t7 = result.resolution.find((e: any) => /GF2-07\.a::T7$/.test(String(e.lineId)))
     assert.equal(t7?.value, true, 'and it still begins an episode, legitimately')
 })

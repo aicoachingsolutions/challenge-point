@@ -7097,3 +7097,84 @@ refused today.**
   deliberate change. It already exists. Lesson: "the only boundary that CAN enforce this" is a claim
   about the whole program, not about the subsystem being read — I reasoned along the engine's data path
   and never looked at its caller.
+
+### 13 · IMPLEMENTED: A04 RESOLVES, INTEGRITY ENFORCED, PILOT ACTIVITY BUILT
+His 8 Oct approval. Four pieces approved; three built, one stopped as pointless and reported instead.
+
+**THE SIGNAL GROUP — `J_attacking_duel`** (`deriveInputConstraints.ts`). `matchesAttackingDuel()` placed
+after `matchesBreakLines`, branch after the break-lines branch. Requires **an elimination verb AND its
+object in one sentence**, so "improve attacking conditions" / "win the ball back" cannot reach it; the
+numerical frame alone does not carry it (shared with the defensive side). D03 never reaches it —
+`matchesDefensive` is first and exclusive and returns on "prevent".
+- **A04 now: `resolution=matched`, archetype GF2, lenses line-breaking + space-creation +
+  possession-stability.** Possession-stability is deliberate: the supporting pass stays a live
+  alternative, which is what makes the duel a decision rather than an instruction.
+- `pickArchetypes(['Directional Possession Games'])` only — one form on purpose, so an uncontracted
+  form cannot win the tie-break and leave the goal with no game.
+- **All twelve other goals verified byte-identical** (same resolution, game form and package), diffed
+  before/after.
+- **WIDE ZONE LEFT A04 ON ITS OWN.** Nothing removed it; A04 simply stopped taking the general default
+  package. So channel geometry, magnitude and post-score are **not part of A04 any more**.
+
+**SELECTION INTEGRITY — both boundaries.**
+- `app.routes.ts`: `knownGap` dropped the `!routedRpcId` conjunct. Now `reachedOnlyFallback &&
+  isKnownUnsupportedGoal`. A goal that routes AND resolves has `reachedOnlyFallback` false and proceeds.
+- `run-bounded-selection.ts`: `selectFor` throws when `result.resolution.status !== 'matched'`, with the
+  reason string. Documented as the only boundary that can hold both goal identity and status.
+
+**GOLDEN CASE.** Old fixture preserved at
+`docs/audits/historical/a04-concrete-game-fixture-2026-10-07-wide-zone-package.json` with a retirement
+note saying it is the game from when A04's selection had **not** resolved; read by nothing, in no check.
+Regenerated: **Golden Case `30d4e56a`** (was `3542dc64`), derived 13, choices 4, instantiations 2.
+Stale Wide Zone choices pruned from `a04-realization-choices.json` (6 → 4) with the reason recorded.
+
+**PILOT ACTIVITY.** New `npm run pilot:a04` (`run-pilot-a04.ts`) runs the whole chain at a session
+envelope (`CP_PLAYERS/CP_LENGTH/CP_WIDTH/CP_DURATION`, default **8 / 30 / 25 / 20**) and writes
+`docs/audits/a04-pilot-activity.txt`. Measured: Gate A `DEFERRED_TO_REALIZATION`, authorized, acceptance
+clean on all three, post gates validated, **10 instructions, ZERO fidelity violations**. Verified at
+40×30/12 too.
+
+**BLOCKER 1 — SMALL AREA CANNOT ENTER A04'S PACKAGE, so I did NOT author the contract.**
+`build-constraint-package.ts:613-623` requires **foundation + shaping** and refuses without a shaping
+constraint. Small Area and Zone Structure are both `structure` → both foundation. Confirmed by
+experiment: relaxing `applyConstraintPoolFilter`'s shaping requirement made **six goals throw**
+(`possibilities=0`) — the fallback is load-bearing, and my earlier reading of
+`constraintComboPassesRoleMix` (that `needShaping` adapting to the pool would make two foundations
+viable) was **wrong**. Of the five hybrids: Wide Zone **held**; Support Lane Requirement and Pass
+Combination Gate are **scoring gates that compel**; Counter-Press defensive; **Variable Target** has the
+right content and is contracted but needs a **COACH_CUE trigger that is not in the vocabulary**.
+→ A04's committed package is goalkeeper-included, support-lane-requirement, final-third-value,
+progression-bonus — **all uncontracted, so all contribute nothing**; the resolved game is GF2 + profile.
+The activity is correct; the recorded package is not aligned with the intention.
+
+**BLOCKER 2 — THE VERIFIED ACTIVITY IS NOT WHAT THE APPLICATION SERVES.** `renderConcreteGame` and
+`realize` are called **only from tests and scripts**. No route runs selection → derivation →
+realization → rendering. The coach-facing `POST /generate-activities/:id` is the **generation** path,
+which is frozen. So "the application experience" and "the learning environment it generates" are two
+different systems today. Not wired — new scope, sits against the freeze.
+
+**HIS DIMENSIONAL QUESTION — ANSWERED, AND I HAD IT WRONG.** `GF2-24.a` is
+`valueStatus: "TYPICAL_EXAMPLE"`, its own `fitNote` says **"Inert (TYPICAL_EXAMPLE)"**, its
+`basisEvidence` is the parenthetical "(typical: 40-60m long...)" from setup prose, and
+**`derive.ts:159` returns false for TYPICAL_EXAMPLE — inert by construction**. So GF2's 40–60 m was
+**never an authoritative bound**: nothing needs revising, Small Area cannot "authorize" 30×25, and
+**there is no authoritative bound on the session envelope at all** (`E1-E4` are `SESSION`). My 8 Oct
+report of "silently accepting dimensions outside an authoritative bound" was right on mechanism and
+**wrong on implication** — nothing objecting is correct behaviour. Corrected to him explicitly.
+
+**TEST FALLOUT — four tests stopped being about anything and only three failed.**
+- `goal-support.unit.ts` **FAILED**: asserted A04 unsupported. Its own comment anticipated exactly this
+  ("when one starts routing, this test fails and the change gets noticed"). Updated to
+  `['Play Out from the Back']` with the reason.
+- `cardinality.unit.ts` **FAILED** (0 channels vs 2). Re-pointed at the Wide Zone contract by name.
+- `standing-decision-selector.unit.ts` **FAILED** (7 → 6 failed lines). Baseline updated with reason.
+- `completed-pass.unit.ts` **FAILED** (A04 7 → 6 in the per-goal table). Updated with reason.
+- `realize.unit.ts` **FAILED**: the synthetic over-population case needed a multi-region game; A04 now
+  holds one region. Added `multiRegionGame()` naming the Wide Zone contract.
+- **`modifier-criterion.unit.ts` DID NOT FAIL — it went from 9 cases to 1 and reported success.** Every
+  case names Wide Zone class ids and reached them through A04's selection; with Wide Zone gone the ids
+  were absent, loops ran over nothing, file printed a pass. **It holds the regression case Christian
+  specifically asked be preserved.** Fixed by `forWideZone()` naming the contract. Restored to 9.
+  → **THE LESSON: name the contract the evidence is about, never reach it through whichever Learning
+  Goal happens to select it.** No guard added for the next one; a per-file expected case count would
+  do it and should be proposed deliberately.

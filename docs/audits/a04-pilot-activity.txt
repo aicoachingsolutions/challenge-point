@@ -1,0 +1,49 @@
+A04 — BEAT DEFENDERS 1v1
+========================================================================
+Coach definition   Beat Defenders 1v1 — eliminate individual defenders.
+Session            8 players, 30 m x 25 m, 20 minutes
+
+Set up
+  · Mark out an area 30 m long by 25 m wide
+  · For this activity, mark a line across one end of the area, 25 m long, on the end line itself
+
+Players
+  · 8 players in total
+  · 2 teams of 4
+  · No goalkeepers — everyone is an outfield player
+  · For this activity, one team starts with the ball — the game does not fix which, so pick one and tell both teams before you start
+
+How it works
+  · Play for 20 minutes
+  · Play continues when possession changes — there is no stoppage
+
+How to score
+  · For this activity, a team scores 1 point by getting the ball across the marked line
+  · Both teams attack the same line — the one you marked at the end of the area
+
+
+HOW THIS ACTIVITY WAS ARRIVED AT
+========================================================================
+  learning goal resolved     matched (signal group J_attacking_duel)
+  game form                  GF2
+  affordance lenses          line-breaking-opportunity, space-creation-opportunity, possession-stability-opportunity
+  contracted knowledge       GF2
+  selected without contract  goalkeeper-included-condition, support-lane-requirement, final-third-value, progression-bonus
+
+INTEGRITY OF THIS ACTIVITY
+========================================================================
+  Gate A                     DEFERRED_TO_REALIZATION
+  realization authorized     true
+  nothing closed w/o author  clean
+  nothing lost               clean
+  nothing invented           clean
+  post-realization gates     validated
+  instructions               10, every one citing a property
+  fidelity violations        0
+
+WHAT THE ACTIVITY DOES NOT SETTLE
+========================================================================
+  · The scoring line has zero depth and sits exactly on the end line (space.regions[c:restated:GF2:GF2-03.a].position.along = 30). That is what the knowledge entails for a line, and it is physically markable — but a coach may expect a scoring zone with some depth, and the game does not give one.
+  · The game DOES establish an initial holder of possession, and the activity cannot tell a coach which team it is. The two teams are indiscernible — identical but for an internal handle that must not reach coach-facing text — so the holder identifies a member without describing one. That matters now rather than before, because the wide-channel condition reads possession, so who starts decides whose touch can qualify first. It is a knowledge gap and not a rendering one: nothing authors anything that tells the two teams apart.
+  · Both teams score at the SAME line (objectives[c:restated:GF2:GF2-08.a].team = EACH_TEAM). That is the canonical shared-objective decision, and it is deliberate — but it is an unusual arrangement for an invasion game, and a coach will need it said plainly or they will set up two targets out of habit.
+  · 1 `functions` rows are excluded, and that exclusion is AUTHORED rather than missing — the Wide Zone item names `access` as a forbidden member of `functions`. So a coach being told nothing about what a region is "for" is not by itself the defect. The defect is that nothing in the game establishes what CHANGES when players interact with the channels, which the operational-participation check reports separately.

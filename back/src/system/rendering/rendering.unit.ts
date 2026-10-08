@@ -68,13 +68,44 @@ for (const q of [2, 3, 4] as const) {
  */
 const notesOn = (q: number) => report.findings.filter(f => f.question === q && f.severity === 'NOTE')
 assert.deepEqual(violationsOn(5), [], `Q5 must raise no VIOLATION; got ${JSON.stringify(violationsOn(5))}`)
-const criterion = notesOn(5).filter(f => /nothing in the game establishes what MEETS it/.test(f.what))
+
+/**
+ * **The criterion and participation findings moved to a named specimen, because A04 stopped exhibiting
+ * them on 8 October.**
+ *
+ * Both are facts about a game carrying a VALUE MODIFIER: the criterion note says a coach is told the
+ * consequence and cannot be told what meets it, and the participation assertion pins that the
+ * violations stayed gone once the modifier conditioned on the channels. A04 no longer has a modifier
+ * — the attacking-duel signal group resolves it specifically and it selects no Wide Zone at all — so
+ * run against the live fixture these assertions measure nothing and the first of them failed.
+ *
+ * The specimen is the retired 7 October fixture, kept as historical evidence. It is the game that
+ * exhibits the condition, and using it here is not presenting it as a legitimate A04 selection: it is
+ * named as a rendering specimen for a capability the current game has no instance of. Deleting these
+ * assertions instead would have dropped the coverage quietly, which is the failure this project keeps
+ * paying for.
+ */
+const SPECIMEN = path.resolve(__dirname, '../../../../docs/audits/historical/a04-concrete-game-fixture-2026-10-07-wide-zone-package.json')
+const specimen = JSON.parse(fs.readFileSync(SPECIMEN, 'utf8'))
+const specimenRendered = renderConcreteGame(specimen)
+const specimenReport = checkFidelity(specimen, specimenRendered)
+const specimenOn = (q: number, severity: 'VIOLATION' | 'NOTE') =>
+    specimenReport.findings.filter(f => f.question === q && f.severity === severity)
+
+const criterion = specimenOn(5, 'NOTE').filter(f => /nothing in the game establishes what MEETS it/.test(f.what))
 assert.equal(criterion.length, 1, 'the criterion finding must still be reported, exactly once')
 assert.match(criterion[0].what, /complete and unusable/)
 assert.match(criterion[0].what, /cannot be closed by authoring/, 'the note must say why there is no clearing condition')
 assert.ok(
-    !violationsOn(5).some(f => /not functionally realized/.test(f.what)) && !notesOn(5).some(f => /not functionally realized/.test(f.what)),
+    !specimenOn(5, 'VIOLATION').some(f => /not functionally realized/.test(f.what)) &&
+        !specimenOn(5, 'NOTE').some(f => /not functionally realized/.test(f.what)),
     'the participation violations must stay gone now that the modifier conditions on the channels',
+)
+// And the current game has no modifier at all, which is why the findings above have no instance in it.
+assert.deepEqual(
+    notesOn(5).filter(f => /nothing in the game establishes what MEETS it/.test(f.what)),
+    [],
+    'the live A04 game carries no value modifier, so it raises no criterion note',
 )
 /**
  * **`report.passed` is TRUE again**, which it has not been since the Sport Profile gave A04 a ball and a
@@ -97,13 +128,18 @@ assert.deepEqual(
  * rather than by wording, so rephrasing the sentences is free and dropping either citation is not.
  */
 {
-    const cited = (suffix: string) => rendered.instructions.filter(i => i.from.some(p => p.endsWith(suffix)))
-    const criterion = cited('.condition.value')
-    assert.equal(criterion.length, 1, 'the criterion that satisfies the condition reaches exactly one instruction')
-    assert.match(criterion[0].text, /touches the ball inside one of them/, 'and it says what the touch is')
-    const ends = cited('.endsOn')
+    // The criterion and the termination are modifier facts, so they are pinned on the specimen for
+    // the same reason as the findings above: the live A04 game has no value modifier to carry them.
+    const citedOnSpecimen = (suffix: string) => specimenRendered.instructions.filter((i: any) => i.from.some((p: string) => p.endsWith(suffix)))
+    const criterionCited = citedOnSpecimen('.condition.value')
+    assert.equal(criterionCited.length, 1, 'the criterion that satisfies the condition reaches exactly one instruction')
+    assert.match(criterionCited[0].text, /touches the ball inside one of them/, 'and it says what the touch is')
+    const ends = citedOnSpecimen('.endsOn')
     assert.equal(ends.length, 1, 'the termination reaches exactly one instruction')
     assert.match(ends[0].text, /change of possession ends it/, 'and it says what ends it')
+
+    // Who starts with the ball is not a modifier fact — the game form's own possession-change
+    // transition reads the relationship — so it stays pinned on the live game, where it matters.
     const starts = rendered.instructions.filter(i => i.from.includes('possession.team'))
     assert.equal(starts.length, 1, 'who starts with the ball reaches exactly one instruction')
     assert.ok(
@@ -212,10 +248,22 @@ for (const instruction of rendered.instructions.filter(i => i.status === 'REALIZ
 }
 
 // ── Q5 FAILS when a region has no marking instruction ────────────────────────────────────────────
+//
+// **Both arities, because the live game only has one region now.** The multi-region case used to run
+// on A04 by stripping its two channel instructions; A04 holds a single region since 8 October, so
+// stripping channels there removes nothing and the assertion measured zero. The specimen keeps the
+// "each region is reported separately" claim, and the live game keeps the claim that a single
+// unmarked region is reported too — which is the case a one-region game can actually exhibit.
 {
-    const withoutChannels = rendered.instructions.filter(i => !i.text.includes('channel'))
-    const r = checkFidelity(fixture, wrap(withoutChannels))
+    const withoutChannels = specimenRendered.instructions.filter((i: any) => !i.text.includes('channel'))
+    const r = checkFidelity(specimen, wrap(withoutChannels))
     assert.ok(violations(r, 5).length >= 2, 'each unmarked region must be reported')
+}
+{
+    const withoutTheLine = rendered.instructions.filter(i => !/mark a line across one end/.test(i.text))
+    assert.equal(withoutTheLine.length, rendered.instructions.length - 1, 'the live game has exactly one region instruction to remove')
+    const r = checkFidelity(fixture, wrap(withoutTheLine))
+    assert.ok(violations(r, 5).length >= 1, 'a single unmarked region must be reported too')
 }
 
 // ── The team size reaches the coach, BECAUSE the game now establishes it ──────────────────────────
@@ -289,15 +337,21 @@ for (const observation of rendered.coachingObservations) {
     )
 
     // TEETH: remove the objective's reference and the target stops participating.
+    //
+    // **Counted against the game's own regions rather than against a literal.** This asserted 3 while
+    // A04 held a target line and two Wide Zone channels. A04 holds one region since 8 October, so the
+    // literal was really the region count wearing a number — and the claim it is making is "EVERY
+    // region, including the target, is unrealized", which is what the comparison now says.
     const stripped = JSON.parse(JSON.stringify(fixture))
     stripped.game.objectives.forEach((o: any) => delete o.reference)
     stripped.game.value.valueModifiers = []
     const after = checkFidelity(stripped, renderConcreteGame(stripped))
     assert.equal(
         after.findings.filter(f => f.question === 5 && f.severity === 'VIOLATION').length,
-        3,
+        stripped.game.space.regions.length,
         'with nothing referencing them, every region including the target is unrealized',
     )
+    assert.ok(stripped.game.space.regions.length >= 1, 'and there is at least one region for that to be a claim about')
 }
 
 // ── An exclusion must discharge its operational consequences, or it is not permitted ──────────────
@@ -323,8 +377,9 @@ for (const observation of rendered.coachingObservations) {
 //
 // The authored `lateral` selector now reaches the artifact and the geometry places them at opposite edges.
 // Rendering both as "along the touchline" dropped that, and a coach would mark one strip twice.
+// Pinned on the specimen: channels are Wide Zone regions, and the live A04 game holds none.
 {
-    const channels = fixture.game.space.regions.filter((r: any) => r.noun === 'channel')
+    const channels = specimen.game.space.regions.filter((r: any) => r.noun === 'channel')
     assert.equal(channels.length, 2, 'the restatement establishes exactly two channels')
     const sides = channels.map((r: any) => (r.selector ?? []).find((t: any) => t.attribute === 'lateral')?.value)
     assert.deepEqual([...sides].sort(), ['wide-left', 'wide-right'], 'each carries its authored side')
@@ -337,21 +392,21 @@ for (const observation of rendered.coachingObservations) {
     assert.ok(lows[1] > 0, `the other does NOT — got ${JSON.stringify(across)}`)
     assert.equal(Math.max(...across.map((i: any) => i.to)), 30, 'and reaches the far touchline')
 
-    const setup = rendered.instructions.filter(i => i.section === 'Set up').map(i => i.text)
-    assert.ok(setup.some(t => /along one touchline/.test(t)), JSON.stringify(setup))
-    assert.ok(setup.some(t => /along the opposite touchline/.test(t)), JSON.stringify(setup))
+    const setup = specimenRendered.instructions.filter((i: any) => i.section === 'Set up').map((i: any) => i.text)
+    assert.ok(setup.some((t: string) => /along one touchline/.test(t)), JSON.stringify(setup))
+    assert.ok(setup.some((t: string) => /along the opposite touchline/.test(t)), JSON.stringify(setup))
     // Not left/right: the authored values name axis edges, not a coach's orientation.
-    assert.ok(!setup.some(t => /(left|right)/i.test(t)), 'the rendering must not invent an orientation')
+    assert.ok(!setup.some((t: string) => /(left|right)/i.test(t)), 'the rendering must not invent an orientation')
 }
 
-// ── An established function is carried, not dropped ───────────────────────────────────────────────
+// ── An established function is carried, not dropped (specimen: the channels carry it) ─────────────
 // It is not what makes a region operationally realized — that is a separate question — but the game
 // establishes it, so it may not disappear.
 {
-    const withFunctions = fixture.game.space.regions.filter((r: any) => Array.isArray(r.functions) && r.functions.length)
+    const withFunctions = specimen.game.space.regions.filter((r: any) => Array.isArray(r.functions) && r.functions.length)
     assert.equal(withFunctions.length, 2, 'both channels carry the established member')
     assert.ok(
-        rendered.instructions.some(i => /perceptual reference/.test(i.text)),
+        specimenRendered.instructions.some((i: any) => /perceptual reference/.test(i.text)),
         'and the rendering carries it',
     )
 }
