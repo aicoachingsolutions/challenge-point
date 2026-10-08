@@ -281,12 +281,26 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
                     ['possession.team', 'performers.teams'],
                     [],
                 )
+                /**
+                 * **The reason this matters is read from the game, not asserted.** It used to say the
+                 * wide-channel condition reads possession, so who starts decided whose touch could
+                 * qualify first. That was true while a value modifier conditioned on the channels and
+                 * is false now that nothing does — so the clause names whatever actually reads the
+                 * relationship, and says plainly when nothing does.
+                 */
+                const readers: string[] = []
+                if ((game.transitions ?? []).some((t: any) => (t.selector ?? []).some((s: any) => String(s.value) === 'POSSESSION_CHANGE')))
+                    readers.push('a transition is keyed on a change of possession, so it decides which team is attacking in the first episode of play')
+                if ((game.value?.valueModifiers ?? []).some((m: any) => m.endsOn === 'POSSESSION_CHANGE' || /possession/i.test(String(m.condition?.value ?? ''))))
+                    readers.push('a value modifier reads possession, so who starts decides whose action can qualify first')
                 observations.push(
                     `The game DOES establish an initial holder of possession, and the activity cannot tell a coach which team it is. ` +
                         `The two teams are indiscernible — identical but for an internal handle that must not reach coach-facing text — so ` +
-                        `the holder identifies a member without describing one. That matters now rather than before, because the wide-channel ` +
-                        `condition reads possession, so who starts decides whose touch can qualify first. It is a knowledge gap and not a ` +
-                        `rendering one: nothing authors anything that tells the two teams apart.`,
+                        `the holder identifies a member without describing one. ` +
+                        (readers.length
+                            ? `It matters because ${readers.join('; and ')}. `
+                            : `Nothing in this game reads the relationship, so it is an initial state a coach may settle however they like. `) +
+                        `It is a knowledge gap and not a rendering one: nothing authors anything that tells the two teams apart.`,
                 )
             } else {
                 observations.push(
@@ -551,18 +565,37 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
 
     const excludedFunctions = (fixture.status.notEstablished ?? []).filter((n: any) => n.path.endsWith('.functions'))
     if (excludedFunctions.length) {
-        // Corrected after tracing the authored knowledge. The earlier wording called this a gap a coach
-        // would notice — framing it as unauthored. It is not: the `functions` rows are excluded *by an
-        // authored item* that names `access` as a forbidden member, and the Wide Zone separately CLAIMS a
-        // value-modification and information relationship for the channel which reaches no line at all. So
-        // the absence of a function string is not the finding; what the channel DOES is, and that is
-        // reported against his operational-participation requirement rather than here.
-        observations.push(
-            `${excludedFunctions.length} \`functions\` rows are excluded, and that exclusion is AUTHORED rather than missing — the Wide Zone ` +
-                `item names \`access\` as a forbidden member of \`functions\`. So a coach being told nothing about what a region is "for" is ` +
-                `not by itself the defect. The defect is that nothing in the game establishes what CHANGES when players interact with the ` +
-                `channels, which the operational-participation check reports separately.`,
-        )
+        /**
+         * **Which kind of absence this is, read from the row rather than asserted.**
+         *
+         * This used to say the exclusion is AUTHORED and name the Wide Zone item as the thing that
+         * forbids `access`. That was true of a game containing Wide Zone. It fired on the presence of
+         * an excluded `functions` row alone, without checking either that the object was present or
+         * that the row's own reason was an exclusion — so in a game with no Wide Zone, where the row is
+         * simply unconstrained, it attributed the gap to an object that is not there.
+         *
+         * A declaration of `NON_CLAIMED` is nothing having spoken; an excluded row is something having
+         * spoken against it. They are different findings and a reader acts on them differently, so the
+         * row's declaration decides which one is reported.
+         */
+        const authored = excludedFunctions.filter((n: any) => !(n.declared ?? []).includes('NON_CLAIMED'))
+        const unconstrained = excludedFunctions.filter((n: any) => (n.declared ?? []).includes('NON_CLAIMED'))
+        if (authored.length) {
+            observations.push(
+                `${authored.length} \`functions\` row(s) are EXCLUDED by an authored item rather than merely missing ` +
+                    `(${authored.map((n: any) => `${n.path} — ${n.reason}`).join('; ')}). So a coach being told nothing about what those ` +
+                    `regions are "for" is not by itself the defect; what matters is whether the game establishes what CHANGES when players ` +
+                    `interact with them, which the operational-participation check reports separately.`,
+            )
+        }
+        if (unconstrained.length) {
+            observations.push(
+                `${unconstrained.length} \`functions\` row(s) are simply NOT CONSTRAINED — nothing authored says what those regions are ` +
+                    `"for" and nothing forbids saying it either (${unconstrained.map((n: any) => n.path).join('; ')}). That is an absence of ` +
+                    `knowledge rather than an authored exclusion, and it does not stop a region participating: this game's target region ` +
+                    `participates because the objective references it, not because it carries a function string.`,
+            )
+        }
     }
 
     return { instructions, coachingObservations: observations }

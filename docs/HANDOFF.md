@@ -7178,3 +7178,60 @@ report of "silently accepting dimensions outside an authoritative bound" was rig
   → **THE LESSON: name the contract the evidence is about, never reach it through whichever Learning
   Goal happens to select it.** No guard added for the next one; a per-file expected case count would
   do it and should be proposed deliberately.
+
+### 14 · THE DIRECTIONAL GAME IS BLOCKED BY SD-102 (his own ruling), and the diagnostic notes are reconciled
+His 8 Oct coaching review: both teams attacking the same line is not a representative transition
+structure for A04; investigate a directional 4v4 with opposing targets.
+
+**MEASURED: J3 IS ENTAILED BY `GF2-12.c` — SD-102, basis OWNER_RULING, `strictness: REQUIRED`,
+`valueStatus: REQUIRED_RANGE`, `value: "EACH_TEAM"`.** Evidence line is his own words: *"In the
+Directional Possession Game, both teams attack the same shared objective at the attacking end."*
+(Christian, 2026-09-28.) `GF2-12.a` (ASSUMED / PREFERRED_DEFAULT) only **bounds** the line.
+→ **The shared target is a standing decision, not an assumption and not a gap.** It cannot be displaced
+by realization or by a new item while SD-102 stands. **This is the narrowest blocker.**
+- Worth noting: his 28 Sep ruling note said *"The source is genuinely ambiguous and its existing
+  provenance should continue to say so."* `GF2-12.a` still records the original as unreconciled between
+  *"toward the target"* at *"one end"* and *"building from their own end"* — **the exact ambiguity his
+  coaching review has now reopened.** The record kept the question open.
+
+**EVERYTHING ELSE FOR A DIRECTIONAL GAME IS ALREADY THERE.**
+1. **Which team attacks which target — READY.** `J3` is `fillable: "which team takes which end"`,
+   `fillableAuthority: SD-39` (21 Sep), `sourceKinds: ["SELECTION","REALIZATION"]`.
+2. **A second objective — READY.** `GF2-09.a` (J1, `selector: "*"`, `scope: PER_TEAM`, min 1 / no max) is
+   an **existential claim on `objectives[]`** (`satisfiedBy: ["c:restated:GF2:GF2-08.a"]`), which under
+   **SD-97** (*"an existence assertion with no selector is existential coverage"*) realization may populate.
+3. **A second target region — THE ONE AUTHORING GAP.** `GF2-03.a` carries
+   `selector: "functions ∋ objective-area"`, so under SD-97 it is **not** existential coverage and there is
+   nothing to instantiate against. **Smallest correction: one selector-free S2 existence item scoped
+   PER_TEAM, in the same shape as `GF2-09.a` two items away.** Not a new mechanism.
+4. **Direction needs nothing.** `DV1` is a VIEW *"per team {attacks, defends}, computed from
+   objectives[].team and positions on the axis"* (SD-07), and `GF2-12.b` (same sense) is only
+   SUPPORTING/PREFERRED_DEFAULT whose own fitNote says **opposite senses are the rule** and the shared
+   arrangement is the exception.
+
+**OPTIONS GIVEN HIM:** (A) scope SD-102 to the shared-target arrangement → two owner decisions, one
+authored item, rest is realization; (B) keep the shared target for this pilot as a recorded
+learning-design limitation — the only option available today; (C) another game form — GF1 End Zone is the
+natural directional form but **has no contract**; GF4 is contracted but fails its gate on `I17::V9`.
+**Recommended A, with B run this week in parallel.** Also argued that the directional version supplies
+the risk/reward information his §3 describes *from geometry alone* — with one shared target there is no
+own-goal direction, so losing the ball near the target is no riskier than far from it.
+
+**ITEM 1 — THE DISTINCTION, PRESERVED EXPLICITLY.** `run-pilot-a04.ts` now prints, before the integrity
+results: an uncontracted selection contributes nothing; the four named constraints shaped none of the
+realized game; the selection resolves specifically although the package is not aligned with the Learning
+Goal; and the checks establish authorization/coherence/faithful communication but **not** that the
+activity is well designed for what it teaches. Small Area contract and shaping-constraint work deferred;
+no dimensional constraint introduced.
+
+**ITEM 6 — DIAGNOSTIC NOTES RECONCILED AT SOURCE** (`render-concrete-game.ts`), two of four were wrong:
+- The possession note claimed *"the wide-channel condition reads possession"*. It now **reads the game**
+  and names whatever actually reads the relationship (here: the POSSESSION_CHANGE transition, so who
+  starts decides which team attacks in the first episode), and says plainly when nothing does.
+- The functions note asserted the exclusion was AUTHORED and blamed the Wide Zone item, firing on the
+  presence of an excluded row alone. It now splits on the row's own `declared`: `NON_CLAIMED` is
+  "nothing has spoken", anything else is "something has spoken against it".
+- The shared-line note is accurate and kept.
+
+**NOT DONE, deliberately:** the read-only route (he said hold until the directional structure resolves),
+the S2 item (needs his ruling), anything from his §3/§4. Suite green **369 checks**, fixture CURRENT.

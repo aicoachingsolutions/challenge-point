@@ -30,6 +30,17 @@ HOW THIS ACTIVITY WAS ARRIVED AT
   contracted knowledge       GF2
   selected without contract  goalkeeper-included-condition, support-lane-requirement, final-third-value, progression-bonus
 
+WHAT THE CONTRACTED/UNCONTRACTED SPLIT ABOVE MEANS
+========================================================================
+  A selected knowledge object with no contract contributes NOTHING to the game. So the realized
+  activity is the game form plus the sport profile, and the four constraints named above shaped
+  none of it. The selection resolves specifically to this Learning Goal, which it did not before,
+  but the constraint package is not yet aligned with the Learning Goal.
+
+  The checks below establish that the activity is authorized, internally coherent and faithfully
+  communicated. They do NOT establish that it is well designed for what it is meant to teach.
+  That is a separate question and this file does not answer it.
+
 INTEGRITY OF THIS ACTIVITY
 ========================================================================
   Gate A                     DEFERRED_TO_REALIZATION
@@ -44,6 +55,6 @@ INTEGRITY OF THIS ACTIVITY
 WHAT THE ACTIVITY DOES NOT SETTLE
 ========================================================================
   · The scoring line has zero depth and sits exactly on the end line (space.regions[c:restated:GF2:GF2-03.a].position.along = 30). That is what the knowledge entails for a line, and it is physically markable — but a coach may expect a scoring zone with some depth, and the game does not give one.
-  · The game DOES establish an initial holder of possession, and the activity cannot tell a coach which team it is. The two teams are indiscernible — identical but for an internal handle that must not reach coach-facing text — so the holder identifies a member without describing one. That matters now rather than before, because the wide-channel condition reads possession, so who starts decides whose touch can qualify first. It is a knowledge gap and not a rendering one: nothing authors anything that tells the two teams apart.
+  · The game DOES establish an initial holder of possession, and the activity cannot tell a coach which team it is. The two teams are indiscernible — identical but for an internal handle that must not reach coach-facing text — so the holder identifies a member without describing one. It matters because a transition is keyed on a change of possession, so it decides which team is attacking in the first episode of play. It is a knowledge gap and not a rendering one: nothing authors anything that tells the two teams apart.
   · Both teams score at the SAME line (objectives[c:restated:GF2:GF2-08.a].team = EACH_TEAM). That is the canonical shared-objective decision, and it is deliberate — but it is an unusual arrangement for an invasion game, and a coach will need it said plainly or they will set up two targets out of habit.
-  · 1 `functions` rows are excluded, and that exclusion is AUTHORED rather than missing — the Wide Zone item names `access` as a forbidden member of `functions`. So a coach being told nothing about what a region is "for" is not by itself the defect. The defect is that nothing in the game establishes what CHANGES when players interact with the channels, which the operational-participation check reports separately.
+  · 1 `functions` row(s) are simply NOT CONSTRAINED — nothing authored says what those regions are "for" and nothing forbids saying it either (space.regions[c:restated:GF2:GF2-03.a].functions). That is an absence of knowledge rather than an authored exclusion, and it does not stop a region participating: this game's target region participates because the objective references it, not because it carries a function string.
