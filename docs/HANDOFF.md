@@ -6721,3 +6721,517 @@ Zero string-literal hits for `'V4'` does not mean nothing reads V4 — it means 
 Three generic consumers read it without naming it. **Before concluding a row or field is dead, trace the
 generic consumers (the row loop, the index, the gate that iterates `classesOn`), not just the string.**
 Same family as the token-search failures already recorded in memory.
+
+---
+
+## 7 OCTOBER (implementation) — V8c, V8d, THE AUTHORED CONDITION, AND AN EXCLUSION THAT CAN NOW BE VIOLATED
+
+His order: preserve the settled condition, add Coupled as a seventh criterion, retire the attacking-episode
+requirement, implement the smallest GENERAL representation for a modifier to carry its criterion and its
+persistence, accept the SD-104 consequence for the initial holder, keep magnitude held, and repair the
+unenforced exclusion with a regression case.
+
+### 1 · TWO NEW REGISTER ROWS, general and deliberately NOT one row
+- **`V8c` = `value.valueModifiers[].condition.value`** — the criterion that satisfies the condition, as a
+  qualitative term or threshold (RC-5, exactly as `V6` carries the primary event's condition parameter). It
+  names a KIND of occurrence and never records one, so SD-15 applies. **Pre-scoped**: the stage-E schema
+  check had already identified this row independently, for the GF4 case "regain leading to shot".
+- **`V8d` = `value.valueModifiers[].endsOn`** — the trigger that ENDS the modification once its condition is
+  satisfied. **No default; an ABSENT value means the modification does not persist beyond the event it is
+  evaluated at**, never that it persists indefinitely. Added to `vocabularies.triggerRows`.
+- **WHY TWO AND NOT ONE**, on his instruction: one names an occurrence kind nothing can check, the other names
+  a registered trigger the engine CAN check for reachability. A single field would have to be typed as the
+  weaker of the two and would discard the only enforcement available on the persistence half — and that
+  enforcement is the point, because a modification whose terminating trigger cannot occur never ends.
+- **Register version bumped to 5.** It had not moved across three content edits, so `inputDigest` had stopped
+  seeing register changes. A row addition is exactly what that stamp is for.
+
+### 2 · THE AUTHORED CONDITION (ruling C40, via `corpus-restatements.json`)
+- **`WIDEZONE-18.d`** on V8c, OWNER_RULING: *"a controlled attacking-team touch within a referent wide
+  channel, where controlled means a touch after which the touching player's team retains possession"*.
+  `checkability: PARTLY_STRUCTURAL` — the referent and the team are structural; whether the touch happened
+  and possession was retained are in-play judgements.
+- **`WIDEZONE-18.e`** on V8d, OWNER_RULING: `POSSESSION_CHANGE`.
+- Both derive `RESOLVED:ENTAILED` and reach the resolved game: the modifier now carries
+  `condition.value`, `magnitude 2`, `operation MULTIPLY`, `endsOn POSSESSION_CHANGE`.
+- **The 2 October blocker is gone without a ruling.** That analysis named two routes to "attacking team" —
+  live possession attribution, "which I could not find established", or an episode scope. The Sport Profile
+  established the first, so the route that never needed an episode model was open; he retired the other.
+
+### 3 · A MODIFICATION THAT PERSISTS MUST BE ABLE TO END
+New clause on `GA-MODIFIER-OVERLAP`: *every value modifier that states a termination names a structurally
+reachable trigger*, the same shape as `GA-EFFECT-TYPED`'s consequence-trigger clause and on the same
+authority (SD-44). Verified both ways — PASS on `POSSESSION_CHANGE`, **FAIL** on `COMPLETED_PASS`, which is in
+the vocabulary and which `constructTriggers` never emits. An absent `endsOn` is not a failure, so every
+modifier authored before today is untouched.
+- **A test caught a flaw in my first version.** Probing `V8d` on every modifier made an ABSENT termination a
+  recorded BLOCKER, so SD-62's block record named a line nobody had claimed. Fixed by reading membership from
+  `ctx.derived` (did any item address the row?) before probing, so the Probe contract still holds for every
+  line actually consulted.
+
+### 4 · THE UNENFORCED EXCLUSION — repaired generally, with the three-way regression he asked for
+**The defect, reproduced before repairing:** an EXCLUSION carrying a VALUE requirement on a FIELD row fell
+through to the generic path, which reports SATISFIED as soon as a line it reaches is entailed — and the line
+is entailed by whoever authored the value, never by the exclusion, which cannot entail at all. Measured on
+A04 with a primary-event condition spliced in: naming a forbidden wide channel reported **SATISFIED**, and
+naming the permitted scoring line reported **SATISFIED**, both with `why` "the line it reaches is entailed".
+**An exclusion that reports a compliance it never checked is worse than an absent one.**
+
+**The repair** is SD-85's sibling in `forward.ts`: an exclusion with a value requirement is a
+FORBIDDEN-VALUE claim, evaluated against the lines on its row within its scope. Nothing is read out of prose
+(SD-32); the forbidden value must be typed, as SD-86 already requires for a forbidden CARDINALITY. Where it
+is not typed the item is NOT_EVALUABLE and stays so.
+
+**The typed value** for `WIDEZONE-08.c` is its own two channels, `["WIDEZONE-02.a", "WIDEZONE-03"]`, set via
+the restatement mechanism under C40 — the same route `WIDEZONE-16.b` used for its forbidden cardinality.
+
+**Three verdicts, three cases** (`modifier-criterion.unit.ts`, 9 cases): forbidden channel → **UNMET**,
+naming what it forbids and the breaching line; permitted line → **SATISFIED**; nothing in scope →
+**NOT_EVALUABLE**. The regression asserts the first two are DIFFERENT, because a two-case test would have
+passed against the defect.
+
+### 5 · THE INITIAL HOLDER IS NOW EXPRESSED — and "which team" turns out to be unsayable
+He accepted the consequence: once a rule reads possession the holder is activity-design information, and Q3
+must stop exempting its omission. The modifier now terminates on a possession change, so a rule does read it.
+- The activity says **"One team starts with the ball — the game does not fix which, so pick one and tell both
+  teams before you start"**, citing `possession.team` and `performers.teams`.
+- **That is the faithful rendering, not a dodge.** The holder is a member handle; `identity.unit.ts` pins that
+  no handle may reach coach-facing text, and the two teams carry no distinguishing property at all — which is
+  why swapping the holder leaves the whole game unchanged. There is no fact of the form "the blue team starts"
+  to lose. The observation records that the activity therefore cannot tell a coach which, and that this is a
+  knowledge gap: nothing authors anything that tells the two teams apart.
+- **Q3 is back to zero and `report.passed` is TRUE**, for the first time since the Sport Profile landed —
+  and by the route the superseded assertion's own exit condition named: the holder is expressed.
+
+### 6 · WHAT THE COACH NOW READS — 19 instructions, every one cited, ZERO fidelity violations
+New lines: *"It is met when the attacking team touches the ball inside one of them and still has the ball
+after that touch"* (cites `condition.value`); *"Once met it stays live while that team keeps the ball, and a
+change of possession ends it"* (cites `endsOn`); and the initial-holder line above. The old observation —
+a coach is told the consequence and cannot be told what meets it — is **gone**, gated on the criterion being
+present rather than deleted, so every modifier that still lacks one still reports it.
+
+### 7 · A CONSEQUENCE OF PERSISTENCE THAT NO CRITERION HAD TO CONSIDER BEFORE
+**A04 establishes nothing about what happens after a score.** Measured: `SCORE` is a reachable trigger
+(SD-06 is citable) but **no SCORE transition class exists** — A04's only transition is the possession change
+— and SD-R3 left the post-score procedure to realization, which authored none. Before today the modifier
+applied at the event, so this was irrelevant to it. Now the modification lasts a possession, so **whether a
+second score in the same possession is also doubled has no answer in the game.** That makes the reward per
+qualifying touch bounded in time and unbounded in value, which is a magnitude input as much as a semantics
+one. Not a repair — it is an authoring gap, and for a Christian-only pilot he will settle it on the field in
+the ordinary way, but he should know it before he runs it.
+
+### 8 · BASELINES THAT MOVED, each with its reason recorded
+- Corpus lines **127 → 131**: two new rows × two V7 classes. Wide Zone's two RESOLVE; GF4's two are
+  `no coverage`, because GF4 authors a modifier and says nothing about what meets it or when it ends. That
+  asymmetry is the point of the rows.
+- `verdict:NOT_AUTHORED` **25 → 27**; GAPs **25 → 27**; `RESOLVED:ENTAILED` **67 → 69**.
+- `itemsRestated` **39 → 40** (the typed forbidden value); `itemsAdded` **14 → 16** (the two halves).
+- `rendering.unit.ts`: the one-violation pin removed; Q3 back to `[]`, `passed === true`, plus new assertions
+  pinning the criterion, the termination and the initial holder BY PROVENANCE rather than by wording.
+
+### 9 · THE CRITERIA DOCUMENT
+`Coupled` added as **criterion 7**, not replacing Learning-Relevant, with his wording and a note on why it is
+seventh: his numbered list ran to six and would have displaced Learning-Relevant silently, and that criterion
+carries the standing CONCERN that the condition rewards *finding* the space rather than *using it against
+someone* — which he instructed be preserved into the magnitude evaluation and which argues for **less** than
+x2. The application status is rewritten from "Evaluated, not authored" to AUTHORED, with all four outstanding
+items resolved except magnitude.
+
+### 10 · THE PILOT DECISION, and the two findings that stopped question 3 being a yes
+Suite GREEN end to end: **369 checks, REAL_EXIT=0**, `modifier-criterion: 9 passed`,
+`fixture-currency — CURRENT (3542dc64)`, `rendering.unit.ts — ok`. A04's coach view is **19 instructions,
+every one citing at least one property, ZERO fidelity violations on every question** — the first time that
+has been zero.
+
+**HIS FIVE QUESTIONS: 1 YES · 2 YES · 3 NO · 4 YES (for what the game establishes) · 5 no failures are.**
+
+**FINDING A — THE CHANNELS CONTAIN PART OF THE SCORING LINE.** Measured: the channels are authored as "the
+full axis extent, end line to end line" (along `[0,40]`), the scoring line sits at along `[40,40]` across
+`[0,30]`, and the channels' across intervals are `[0,7.5]` and `[22.5,30]`. So **15 m of the 30 m scoring
+line is inside a channel** at the widest permitted extent — 12 m at the preferred 6 m, 9 m at the authored
+minimum, i.e. **30–50% of the target line**.
+`line_crossed` is *"A player dribbles the ball over a marked line, or receives and controls it beyond the
+line."* Dribble over the wide part of the line and the last touches are inside the channel, by the attacking
+team, which has the ball. **So the qualifying condition is satisfied BY THE ACT OF SCORING on a third to a
+half of the line, with no wide play beforehand.** That is a Proportionate failure in his own terms and **no
+magnitude repairs it**. It is not an engine or rendering defect: it is two authored objects — the channels'
+along-extent and the objective's position — that never had to agree.
+
+**FINDING B — NOTHING SAYS WHAT HAPPENS AFTER A SCORE.** `SCORE` is a reachable trigger (SD-06 citable) but
+**no SCORE transition class exists**; SD-R3 left the post-score procedure to realization and none was
+authored. Irrelevant while the modifier applied to one event; now the modification lasts a possession, so it
+decides whether a second score in the same possession also doubles. **The reward per qualifying touch is
+bounded in time and unbounded in value.**
+
+**FINDING C — A04'S FOUNDATION CONSTRAINT CONTRIBUTES NOTHING.** `selectFor('A04')` returns 5 knowledge
+objects and **2 contracted**: missing are `central-density-condition`, `progression-bonus` and
+`turnover-reward`. The Learning-Relevant chain the criteria document passed on begins *"central density
+makes the centre scarce, which moves the penetration opportunity wide"* — and the first clause is not in the
+game. What goes on the field is 6v6 to a shared line with two wide channels worth double, **without the
+central congestion that was supposed to create the wide opportunity**.
+
+**FINDING D — THE NEW CLAUSE CAUGHT THREE GOALS WITHIN THE HOUR.** D02, A03 and A06 moved from
+NOT_EVALUABLE to **FAIL**: each loads only Wide Zone + the Sport Profile (no game form contract), so no P1
+class forms, so no POSSESSION_CHANGE, so Wide Zone's authored termination names a trigger those games cannot
+construct and **the modification can never end**. Exactly the indefinite entitlement Coupled forbids,
+invisible until something asked whether a stated termination can occur. Reported, not repaired — outside the
+evidence claim and he instructed the other twelve be left alone. `realize.unit.ts` now asserts five failing
+goals, not two, with the reason recorded.
+
+**MAGNITUDE — the conclusion, and why it is not ratified.** x2 is the right number and the number is not the
+question: it is the smallest value that makes going wide worth the detour in a congested 6v6, and the
+standing Learning-Relevant concern argues for the smallest such. Below x2 is unavailable in practice —
+**with base 1 the scoreable multipliers are the integers**, and rescaling the base to allow x1.5 is blocked
+downstream by the fidelity quantity check. Not recommended for ratification, because the Proportionate
+assessment it would rest on is the one Finding A invalidates.
+- **One agent claim I checked and corrected:** that A04's base value of 1 is a non-authored
+  `ENGINE_ONLY` / `PREFERRED_DEFAULT`. True of RPC-001-20, which A04 **does not select**. A04's `game::V2`
+  resolves `RESOLVED:ENTAILED` by **STANDING_DECISION SD-25**. The base is properly supported in A04.
+
+### 11 · THE NARROWEST A04 CONFIGURATION, and the finding that reframes the Wide Zone work
+Investigation only (his 7 Oct order): nothing implemented, no knowledge authored, generation frozen,
+other twelve goals measured but untouched. Full detail in
+`docs/audits/a04-narrowest-configuration-2026-10-08.md`.
+
+**ANSWER — YES, AND IT IS ALREADY AUTHORIZED.** Configuration B (GF2 + Sport Profile, Wide Zone
+removed) measured end to end: **32 lines** (vs 51), `{derived:13, open:4, existential:2,
+notEstablished:6, elements:4}`, Gate A `DEFERRED_TO_REALIZATION` with knowledge verdict **PASS**,
+realization **authorized** with `notAuthorizedBecause: []`, acceptance **0/0/0**, post-realization
+gates **validated**, **10 instructions, ZERO fidelity violations**. `value` is
+`{primaryEvent:{value:1,kind:line_crossed}}` alone — `valueModifiers`, `consequences`, `timeWindows`
+all `null`. One region (the line), one transition (POSSESSION_CHANGE/CONTINUE/startsEpisode).
+**Nothing was removed to force a pass** — configuration A passed too; the removal tests whether the
+incentive is load-bearing. Removing it also dissolves BOTH 7 Oct question-3 blockers (no channels → no
+channel-contains-scoring-line; no persisting modifier → nothing for the post-score gap to decide).
+- **Supported but NOT REACHABLE.** `derivationInputFor` takes the selection as given (`wanted = new
+  Set(selection.selected...)`); nothing permits dropping a committed object. B was produced by
+  filtering the selection in a probe. Reaching it for real = changing what A04 selects.
+- **Initial possession survives the removal** — GF2's own POSSESSION_CHANGE transition reads the
+  relationship, so SD-104's "an established rule reads it" is met without the modifier.
+
+**FINDING 1 (THE HEADLINE) — A04 IS THE ONLY ONE OF THE 13 GOALS WHOSE SELECTION DOES NOT RESOLVE.**
+`resolution.status = "fallback"`, reason *"No specific signal group matched; committed the general
+soccer default package (Z_soccer_general). Coach intent was not specifically resolved — treat as
+reduced confidence."* All twelve others are `MATCHED`. **So A04's entire package — GF2, Central
+Density, Wide Zone, progression-bonus, turnover-reward, all three lenses — is the generic soccer
+default**, not knowledge selected for beating defenders 1v1. Three weeks of Wide Zone work rests on an
+object that is in A04 by default, not by design. (The work itself is general and sound; the premise was
+never checked.)
+- Corroborated everywhere: GF2 = *Directional Possession Games* / "maintain possession with forward
+  intent" / `phase_of_play: "Build-up"`; lenses = Break Lines, Create Space, Maintain Possession; CD =
+  `category: "Protect Space"`, WZ = `"Exploit Space"`; **every selected object anchors to `build_up`**.
+- **The library has NO knowledge for the attacking individual duel** — none of the 11 game forms, none
+  of the 10 lens categories, none of the 11 signal groups. D03 "Defend 1v1" resolves only via
+  `I_defensive_protect` (because it is *defensive*). Only "1v1" string in the test library is
+  `normalizeCoachingInput.ts:102`, as a *residual skill-ish token*.
+- **The package preserves the behaviour A04 exists to change.** A04 `Choose This When: "Players avoid
+  taking defenders on."` vs GF2 *"encourage progression without restricting passing options"*,
+  Possession Stability *"avoid pass limits or restrictive rules"*, Line-Breaking *"avoid forcing
+  forward passes"*.
+- The turnover/space problem Christian sensed has a home: **GF4 Transition Games** ("exploit moments
+  after turnover"), already contracted as `blind:GF4`. A04 is not that goal.
+
+**FINDING 2 — THE REDUCED-CONFIDENCE FLAG IS DROPPED AT THE SELECTION BOUNDARY.** `generateSelection`
+produces `resolution`; `BoundedSelection` (`run-bounded-selection.ts:36-47`) **has no `resolution`
+field**, and `Z_soccer_general` appears nowhere in `derivation/`, `realization/`, `rendering/`. Every
+green signal ever produced for A04 was computed downstream of a discarded "reduced confidence" flag.
+**Same failure class as the recurring one** — a projection dropping an authored field, invisible
+because no consumer reads it.
+
+**CENTRAL DENSITY — NOT REQUIRED, NOT OPTIONAL: NO SUCH FIELD EXISTS.**
+- It is an **Environmental Manipulation** (`environmental-manipulations.ts`), not a Constraint
+  (`constraints.ts`) — two separate pools. Authored `constraintRole: "structure"`; WZ's is `"hybrid"`.
+- **"foundation constraint" is POSITIONAL**: `run-bounded-selection.ts:87-89` assigns `buckets[i]` by
+  list index and **nothing reads `constraintRole`**. The word that made it look load-bearing is an
+  artifact of position.
+- Its only function in A04 was to make WZ worth collecting (`notes: "Encourages wide play
+  indirectly"`). **Remove WZ and its absence costs nothing — they are a pair.**
+- **Inexpressible as authored.** Needs a standing per-region occupancy cap ("cap: 2-3 defenders"). A
+  consequence carries `V14b referents.region` *(ACCESS)* **or** `V14c referents.delta`
+  *(COUNT_CHANGE)*, never both, and `gates.ts:1409-1411` enforces the split
+  (`referentRow = effect === 'ACCESS' ? 'V14b' : 'V14c'`) — a COUNT_CHANGE's region would be silently
+  ignored. `R1-R4` have **no region referent** and `R2 kind` is non-spatial. EM-0007 Participant State
+  owns participation *status*. So it would need a **new register row** — moot once WZ goes.
+- **Its authored text contradicts itself** (owner question): `description` "Increase defensive pressure
+  in central areas" vs `setupGuidance` "Restrict defenders allowed inside the central zone (cap 2-3)"
+  vs `contextualAudit` "Do not restrict movement". A cap *reduces* density. Two readings, opposite
+  effects.
+
+**POST-SCORE — NO LONGER A BLOCKER IN B.** No contracted object holds a SCORE transition; SD-R3 left it
+to realization and none was authored. Measured on B: no valueModifiers, consequences or timeWindows,
+one transition. **Nothing in B reads a post-score state**, so the gap has nothing to decide and
+fidelity passes without it. No restart default introduced.
+
+**MINOR DEFECT, REPORTED NOT REPAIRED.** `render-concrete-game.ts:555-566` attributes any excluded
+`.functions` row to *"the Wide Zone item names `access` as a forbidden member"* without checking WZ is
+present or that the row's reason is an exclusion. In B the row is `reason: "not constrained"`,
+`declared: ["NON_CLAIMED"]` (a gap) with no WZ object at all, and the observation still asserted the
+authored exclusion. One condition. Live A04 claim is accurate, so it misleads only in the
+counterfactual.
+
+**PILOT READINESS in his three categories.** (1) *Structural integrity* — B **PASSES**. (2) *Learning
+design* — **FAILS for A04 in both configurations**, because no authorized knowledge targets A04's
+problem and the selected knowledge preserves the behaviour the goal exists to change; an authoring
+decision, his. (3) *Pilot observation* — field. His standard *"the environment being tested is actually
+the one the system claims to have constructed"* is the one that fails: it claims a 1v1 game and
+constructs a directional build-up possession game.
+
+**RECOMMENDED TO HIM:** park channel geometry and magnitude rather than settle them — both only matter
+if WZ stays in A04, and the case for it staying rests on a selection that never resolved.
+
+### 12 · SELECTION INTEGRITY, the A04 authoring addition, and ROUTE A vs ROUTE B
+His 8 Oct order. Investigation only; nothing implemented; generation frozen; Wide Zone, Central
+Density, post-score and general COMPLETED_PASS all left on hold. Full detail in
+`docs/audits/selection-integrity-and-pilot-routes-2026-10-08.md`.
+
+**MY OWN CORRECTION, which he caught.** I had claimed A04's package "actively preserves the behaviour
+the coach chose A04 to change", citing *"avoid pass limits"* / *"avoid forcing forward passes"* /
+*"encourage progression without restricting passing options"*. **Overstated.** Those are
+representative-design guardrails and they are REQUIRED for A04 — remove the pass and the duel becomes a
+compulsion, not a choice. The accurate claim is narrower: **nothing in A04's package makes the duel
+visible or valuable.** The absence is the defect; the preserved pass is a requirement.
+
+**ITEM 1 — THE BOUNDARY IS `selectFor`, AND IT IS THE ONLY CANDIDATE.** Enforcing his invariant needs
+goal identity AND resolution status in one place. Measured: **`DerivationInput` has NO goal field**
+(keys: `selection, contracts, envelope, register, derivationRules`; entries are `{objectId,
+knowledgeVersion}`), and **`resolved.provenance` has none** (`inputDigest, engineVersion,
+registerVersion, derivationRulesVersion`). I checked every field for the literal `A04`: it appears
+**only in prose notes** on contract items and register rows. So **goal identity stops at `selectFor`** —
+nothing downstream knows the game was ever about A04, so no downstream check can enforce the invariant
+without a new field. `derivationInputFor` still has goalId but NOT the resolution status
+(`BoundedSelection` has no such field — the 7 Oct dropped flag), so refusing there also needs a field.
+- The change: a **third throw** in a function that already throws twice for this class
+  (`run-bounded-selection.ts:71` practice-situation mismatch, `:77` unknown goal). No new type, field or
+  vocabulary; nothing downstream changes.
+- Refuse **both** non-matched states: `computeResolution` returns `matched | fallback | unresolved`;
+  invariant is `status !== 'matched'`.
+- **Two decisions left to him:** (a) the price — A04 is the only faller, so this refuses one goal and
+  leaves twelve, but **invalidates the Golden Case and the frozen fixture**; (b) the shape — a throw is a
+  crash, a typed refusal is what a tool can present, and that is slightly larger and deliberate.
+
+**ITEM 2 — THE ADDITION, costed.** Routing: every signal group has ONE shape (text test → group name →
+`pickLenses` → `pickConstraints` → archetype family); A04 needs an eleventh — **~15 lines, ten
+precedents, no new mechanism**. `matchesDefensive` already has an **ATTACKING-AGAINST-A-DEFENCE
+OVERRIDE** firing false for `beat|break down|play through … compact|low block|organised`; A04 falls
+through only because `defenders` is not in that noun list. So A04 is **correctly not routed defensively**
+and a new attacking group would not be pre-empted by the exclusive defensive branch.
+- **Lenses cost ZERO** — not contracted knowledge, excluded from derivation. Best fit **Line-Breaking
+  Opportunity** (its `coachVocabulary` already has `"dribble through"`, `"dribble past line"`,
+  `"split defenders"`). **Game form costs ZERO** — GF2 already contracted and already where A04 lands.
+- **Packages built from contracted knowledge only** (all + Sport Profile): GF2 alone → AUTHORIZED
+  (derived 13); **GF2 + NEUTRAL-PLAYER → AUTHORIZED (derived 19, notEstablished only 3)**; GF2 +
+  VARIABLE-TARGET → **FAIL** (4 unestablished: `VARTARGET-05.a::S3`, `13.a::V18/V19/V22` + 2 unregistered
+  info triggers); GF4 + NEUTRAL → FAIL (`I17::V9` magnitude).
+- **NEUTRAL-PLAYER is the TEMPLATE, not the content.** Contracted, selected by NO goal, works today —
+  but its opportunity is *using a numerical overload*, which makes the PASS more attractive: right
+  shape, wrong content. Its value is that **his distinction is already authored into it**:
+  `NEUTRAL-16.a` EXCLUSION *"neutral involvement required for the primary event to count"*,
+  `NEUTRAL-16.b` EXCLUSION *"…the only or dominant route…"*, `NEUTRAL-15.a` EXCLUSION on V8b (may not
+  even be a modifier's condition), `contextualAudit` *"not a coaching script"*. **Any attacking-1v1
+  object should be built in that shape.**
+- **SMALLEST ADDITION: contract SMALL AREA CONDITION** — already in the EM library, so a restatement,
+  not a new mechanism or library. `includesIncentiveLayer: false`, `incentiveMechanism: "none"` → **no
+  modifier, so no magnitude/criterion/persistence/geometry: it cannot re-open anything on hold.** Its
+  mechanism is `E2`/`E3`, and **GF2 already carries that exact item pattern** (`GF2-24.a E2 AUTHORED
+  SUPPORTING "40-60 m"`, `GF2-24.b E3 … "25-40 m"`).
+- **HONEST LIMIT + THE USEFUL RESULT:** `E1-E4` are `sourceKinds: ["SESSION"]`, so at 40×30 a small-area
+  bound is already satisfied and changes nothing visible. The real lever is the session envelope — and
+  **the Wide-Zone-less A04 runs clean at 40×30/12, 30×25/12 and 30×25/8 (4v4): every one
+  DEFERRED_TO_REALIZATION, acceptance 0/0/0, post validated, 10 instructions, ZERO fidelity
+  violations**, re-rendering correctly ("30 m long by 25 m wide", "line … 25 m long", "2 teams of 4").
+  A duel-dense A04 is reachable TODAY from existing knowledge.
+- **NEW INTEGRITY FINDING: the envelope can sit outside the authored range silently.** 30 m is outside
+  GF2's authored 40–60 m; gate deferred, acceptance clean, zero violations, no observation. `GF2-24.a` is
+  SUPPORTING and **grep of `gates.ts` + `fidelity.ts` for `SUPPORTING` returns NO hits** — nothing
+  compares the session area to a game form's authored bound.
+
+**ITEM 3 — ROUTE B IS NOT SHORTER. A04 IS THE ONLY REALIZATION-AUTHORIZED GOAL OF THE 13.** Measured all
+thirteen: A04 `DEFERRED_TO_REALIZATION`/authorized; **A01, A05, A02, TA01, TA02 `NOT_EVALUABLE`**;
+**A01+From-Goal-Kicks FAILs** (`A01-02-01.a::T3/T4/T5` = placement actor/region/method); **D03, TD02
+FAIL** (`GF4 I17::V9`); A03/A06/D02 have **no contracted game form** (GF9/GF8); D01/TD01 nothing
+contracted.
+- **The near misses are UNEVALUABLE, NOT BROKEN** — `GA-INFORMATION` *"0 unheld subject(s); 0
+  unregistered trigger(s)"* and `GA-REFERENCE-INTEGRITY` *"0 reference defect(s) … 2 established no
+  structural identity"*. Cause: **two PROSE references in `blind:PASS-COMBINATION-GATE`** —
+  `PCG-02::V5` = *"own half of ATTACKING_TEAM (per-team half from SV1)"* (REQUIRED) and `PCG-10::V16` =
+  *"connected-pass count"* (SUPPORTING). Both DERIVE; neither is open. `gates.ts:799-841` runs each
+  referent through `identityOf`; prose is neither HELD nor DANGLING, so SD-57/SD-58 →
+  `probe.unestablished(line)` → the gate blocks itself. **The gate is right; the restatement is the
+  defect.**
+- `PCG-10::V16` also carries **1 CONTRADICTION** (`PCG-11` *"current connected-pass count of
+  ATTACKING_TEAM"* vs `PCG-10` *"connected-pass count"*), and `PCG-10::V17` derives to **COMPLETED_PASS
+  by OWNER_RULING/REQUIRED** — so route B touches the held COMPLETED_PASS object even though
+  GA-TRIGGER-REACHABLE passes.
+- **Split repair:** V5 plausibly small (V5 admits *"references to regions, objects or placements"*, SV1
+  per-team halves exist from SD-12, PCG already carries an SV1 item). **V16 is an OWNER QUESTION, not
+  obviously small** — V16's registered valueType is *"reference to what the information is about"*,
+  which does not require a held element, yet GA-REFERENCE-INTEGRITY lists V16 as a reference row and
+  requires HELD. Either the restatement names an element or the gate over-requires.
+
+**RECOMMENDED: ROUTE A, and most of it is already done.** Exists: authorized game, faithful render, zero
+violations, duel-dense envelope working, contracted game form, free lenses. Missing: **one** EM contract
+(Small Area). To implement: the `selectFor` refusal + the attacking-1v1 group. Blockers: none
+structural; two decisions (Golden Case price, envelope bound).
+
+**REVISION to §12 item 1, after a parallel reader found the route (verified myself).** THE REFUSAL
+ALREADY EXISTS. `back/src/routes/app.routes.ts:803-816` already computes `reachedOnlyFallback` (his
+exact test) and already answers with a graceful **400 + `resolutionStatus: 'unresolved'`** plus five
+real supported-goal suggestions; the comment there states his invariant verbatim. And
+`isKnownUnsupportedGoal` is **computed, not hand-kept** — `goalSupport()` returns
+`unsupported = {Play Out from the Back, Beat Defenders 1v1}`, so **a coach TYPING A04 is already
+refused today.**
+- **The gap is the GUIDED path, and it is one conjunct: `!routedRpcId`.** A04 routes to **RPC-004**
+  (`rpcRouting()`), so the refusal is skipped. The exemption's stated premise is that routing to a
+  context makes the selection specific — true for A01 (→ RPC-001, which IS contracted). **Measured
+  false for A04:** gating to RPC-004 via `gateCandidateGameFormsToContext` leaves signals
+  `Z_soccer_general`, resolution **`fallback`**, archetype GF2 and the same four constraints. RPC-004 is
+  **not** among the 8 contracts.
+- **Smallest change: tighten that conjunct** so a routed goal is exempt only when routing actually
+  resolves it. Measured consequence: refuses exactly A04 of the 13 (A01 routes too but is `matched`, so
+  `reachedOnlyFallback` is already false for it). **Does NOT invalidate the Golden Case** — the fixture
+  chain calls `selectFor` directly (`freeze-a04-fixture.ts:59`), never the route.
+- **So the two boundaries separate:** (1a) the route conjunct — coach-facing, mechanism exists, graceful,
+  Golden Case untouched; (1b) the `selectFor` throw — the internal chain that produced every A04
+  artifact, and **this is where the Golden Case price lands.** 1a is a defect; 1b is the owner decision.
+- **Corrected my own claim:** I was about to report that a presentable refusal would be a larger
+  deliberate change. It already exists. Lesson: "the only boundary that CAN enforce this" is a claim
+  about the whole program, not about the subsystem being read — I reasoned along the engine's data path
+  and never looked at its caller.
+
+### 13 · IMPLEMENTED: A04 RESOLVES, INTEGRITY ENFORCED, PILOT ACTIVITY BUILT
+His 8 Oct approval. Four pieces approved; three built, one stopped as pointless and reported instead.
+
+**THE SIGNAL GROUP — `J_attacking_duel`** (`deriveInputConstraints.ts`). `matchesAttackingDuel()` placed
+after `matchesBreakLines`, branch after the break-lines branch. Requires **an elimination verb AND its
+object in one sentence**, so "improve attacking conditions" / "win the ball back" cannot reach it; the
+numerical frame alone does not carry it (shared with the defensive side). D03 never reaches it —
+`matchesDefensive` is first and exclusive and returns on "prevent".
+- **A04 now: `resolution=matched`, archetype GF2, lenses line-breaking + space-creation +
+  possession-stability.** Possession-stability is deliberate: the supporting pass stays a live
+  alternative, which is what makes the duel a decision rather than an instruction.
+- `pickArchetypes(['Directional Possession Games'])` only — one form on purpose, so an uncontracted
+  form cannot win the tie-break and leave the goal with no game.
+- **All twelve other goals verified byte-identical** (same resolution, game form and package), diffed
+  before/after.
+- **WIDE ZONE LEFT A04 ON ITS OWN.** Nothing removed it; A04 simply stopped taking the general default
+  package. So channel geometry, magnitude and post-score are **not part of A04 any more**.
+
+**SELECTION INTEGRITY — both boundaries.**
+- `app.routes.ts`: `knownGap` dropped the `!routedRpcId` conjunct. Now `reachedOnlyFallback &&
+  isKnownUnsupportedGoal`. A goal that routes AND resolves has `reachedOnlyFallback` false and proceeds.
+- `run-bounded-selection.ts`: `selectFor` throws when `result.resolution.status !== 'matched'`, with the
+  reason string. Documented as the only boundary that can hold both goal identity and status.
+
+**GOLDEN CASE.** Old fixture preserved at
+`docs/audits/historical/a04-concrete-game-fixture-2026-10-07-wide-zone-package.json` with a retirement
+note saying it is the game from when A04's selection had **not** resolved; read by nothing, in no check.
+Regenerated: **Golden Case `30d4e56a`** (was `3542dc64`), derived 13, choices 4, instantiations 2.
+Stale Wide Zone choices pruned from `a04-realization-choices.json` (6 → 4) with the reason recorded.
+
+**PILOT ACTIVITY.** New `npm run pilot:a04` (`run-pilot-a04.ts`) runs the whole chain at a session
+envelope (`CP_PLAYERS/CP_LENGTH/CP_WIDTH/CP_DURATION`, default **8 / 30 / 25 / 20**) and writes
+`docs/audits/a04-pilot-activity.txt`. Measured: Gate A `DEFERRED_TO_REALIZATION`, authorized, acceptance
+clean on all three, post gates validated, **10 instructions, ZERO fidelity violations**. Verified at
+40×30/12 too.
+
+**BLOCKER 1 — SMALL AREA CANNOT ENTER A04'S PACKAGE, so I did NOT author the contract.**
+`build-constraint-package.ts:613-623` requires **foundation + shaping** and refuses without a shaping
+constraint. Small Area and Zone Structure are both `structure` → both foundation. Confirmed by
+experiment: relaxing `applyConstraintPoolFilter`'s shaping requirement made **six goals throw**
+(`possibilities=0`) — the fallback is load-bearing, and my earlier reading of
+`constraintComboPassesRoleMix` (that `needShaping` adapting to the pool would make two foundations
+viable) was **wrong**. Of the five hybrids: Wide Zone **held**; Support Lane Requirement and Pass
+Combination Gate are **scoring gates that compel**; Counter-Press defensive; **Variable Target** has the
+right content and is contracted but needs a **COACH_CUE trigger that is not in the vocabulary**.
+→ A04's committed package is goalkeeper-included, support-lane-requirement, final-third-value,
+progression-bonus — **all uncontracted, so all contribute nothing**; the resolved game is GF2 + profile.
+The activity is correct; the recorded package is not aligned with the intention.
+
+**BLOCKER 2 — THE VERIFIED ACTIVITY IS NOT WHAT THE APPLICATION SERVES.** `renderConcreteGame` and
+`realize` are called **only from tests and scripts**. No route runs selection → derivation →
+realization → rendering. The coach-facing `POST /generate-activities/:id` is the **generation** path,
+which is frozen. So "the application experience" and "the learning environment it generates" are two
+different systems today. Not wired — new scope, sits against the freeze.
+
+**HIS DIMENSIONAL QUESTION — ANSWERED, AND I HAD IT WRONG.** `GF2-24.a` is
+`valueStatus: "TYPICAL_EXAMPLE"`, its own `fitNote` says **"Inert (TYPICAL_EXAMPLE)"**, its
+`basisEvidence` is the parenthetical "(typical: 40-60m long...)" from setup prose, and
+**`derive.ts:159` returns false for TYPICAL_EXAMPLE — inert by construction**. So GF2's 40–60 m was
+**never an authoritative bound**: nothing needs revising, Small Area cannot "authorize" 30×25, and
+**there is no authoritative bound on the session envelope at all** (`E1-E4` are `SESSION`). My 8 Oct
+report of "silently accepting dimensions outside an authoritative bound" was right on mechanism and
+**wrong on implication** — nothing objecting is correct behaviour. Corrected to him explicitly.
+
+**TEST FALLOUT — four tests stopped being about anything and only three failed.**
+- `goal-support.unit.ts` **FAILED**: asserted A04 unsupported. Its own comment anticipated exactly this
+  ("when one starts routing, this test fails and the change gets noticed"). Updated to
+  `['Play Out from the Back']` with the reason.
+- `cardinality.unit.ts` **FAILED** (0 channels vs 2). Re-pointed at the Wide Zone contract by name.
+- `standing-decision-selector.unit.ts` **FAILED** (7 → 6 failed lines). Baseline updated with reason.
+- `completed-pass.unit.ts` **FAILED** (A04 7 → 6 in the per-goal table). Updated with reason.
+- `realize.unit.ts` **FAILED**: the synthetic over-population case needed a multi-region game; A04 now
+  holds one region. Added `multiRegionGame()` naming the Wide Zone contract.
+- **`modifier-criterion.unit.ts` DID NOT FAIL — it went from 9 cases to 1 and reported success.** Every
+  case names Wide Zone class ids and reached them through A04's selection; with Wide Zone gone the ids
+  were absent, loops ran over nothing, file printed a pass. **It holds the regression case Christian
+  specifically asked be preserved.** Fixed by `forWideZone()` naming the contract. Restored to 9.
+  → **THE LESSON: name the contract the evidence is about, never reach it through whichever Learning
+  Goal happens to select it.** No guard added for the next one; a per-file expected case count would
+  do it and should be proposed deliberately.
+
+### 14 · THE DIRECTIONAL GAME IS BLOCKED BY SD-102 (his own ruling), and the diagnostic notes are reconciled
+His 8 Oct coaching review: both teams attacking the same line is not a representative transition
+structure for A04; investigate a directional 4v4 with opposing targets.
+
+**MEASURED: J3 IS ENTAILED BY `GF2-12.c` — SD-102, basis OWNER_RULING, `strictness: REQUIRED`,
+`valueStatus: REQUIRED_RANGE`, `value: "EACH_TEAM"`.** Evidence line is his own words: *"In the
+Directional Possession Game, both teams attack the same shared objective at the attacking end."*
+(Christian, 2026-09-28.) `GF2-12.a` (ASSUMED / PREFERRED_DEFAULT) only **bounds** the line.
+→ **The shared target is a standing decision, not an assumption and not a gap.** It cannot be displaced
+by realization or by a new item while SD-102 stands. **This is the narrowest blocker.**
+- Worth noting: his 28 Sep ruling note said *"The source is genuinely ambiguous and its existing
+  provenance should continue to say so."* `GF2-12.a` still records the original as unreconciled between
+  *"toward the target"* at *"one end"* and *"building from their own end"* — **the exact ambiguity his
+  coaching review has now reopened.** The record kept the question open.
+
+**EVERYTHING ELSE FOR A DIRECTIONAL GAME IS ALREADY THERE.**
+1. **Which team attacks which target — READY.** `J3` is `fillable: "which team takes which end"`,
+   `fillableAuthority: SD-39` (21 Sep), `sourceKinds: ["SELECTION","REALIZATION"]`.
+2. **A second objective — READY.** `GF2-09.a` (J1, `selector: "*"`, `scope: PER_TEAM`, min 1 / no max) is
+   an **existential claim on `objectives[]`** (`satisfiedBy: ["c:restated:GF2:GF2-08.a"]`), which under
+   **SD-97** (*"an existence assertion with no selector is existential coverage"*) realization may populate.
+3. **A second target region — THE ONE AUTHORING GAP.** `GF2-03.a` carries
+   `selector: "functions ∋ objective-area"`, so under SD-97 it is **not** existential coverage and there is
+   nothing to instantiate against. **Smallest correction: one selector-free S2 existence item scoped
+   PER_TEAM, in the same shape as `GF2-09.a` two items away.** Not a new mechanism.
+4. **Direction needs nothing.** `DV1` is a VIEW *"per team {attacks, defends}, computed from
+   objectives[].team and positions on the axis"* (SD-07), and `GF2-12.b` (same sense) is only
+   SUPPORTING/PREFERRED_DEFAULT whose own fitNote says **opposite senses are the rule** and the shared
+   arrangement is the exception.
+
+**OPTIONS GIVEN HIM:** (A) scope SD-102 to the shared-target arrangement → two owner decisions, one
+authored item, rest is realization; (B) keep the shared target for this pilot as a recorded
+learning-design limitation — the only option available today; (C) another game form — GF1 End Zone is the
+natural directional form but **has no contract**; GF4 is contracted but fails its gate on `I17::V9`.
+**Recommended A, with B run this week in parallel.** Also argued that the directional version supplies
+the risk/reward information his §3 describes *from geometry alone* — with one shared target there is no
+own-goal direction, so losing the ball near the target is no riskier than far from it.
+
+**ITEM 1 — THE DISTINCTION, PRESERVED EXPLICITLY.** `run-pilot-a04.ts` now prints, before the integrity
+results: an uncontracted selection contributes nothing; the four named constraints shaped none of the
+realized game; the selection resolves specifically although the package is not aligned with the Learning
+Goal; and the checks establish authorization/coherence/faithful communication but **not** that the
+activity is well designed for what it teaches. Small Area contract and shaping-constraint work deferred;
+no dimensional constraint introduced.
+
+**ITEM 6 — DIAGNOSTIC NOTES RECONCILED AT SOURCE** (`render-concrete-game.ts`), two of four were wrong:
+- The possession note claimed *"the wide-channel condition reads possession"*. It now **reads the game**
+  and names whatever actually reads the relationship (here: the POSSESSION_CHANGE transition, so who
+  starts decides which team attacks in the first episode), and says plainly when nothing does.
+- The functions note asserted the exclusion was AUTHORED and blamed the Wide Zone item, firing on the
+  presence of an excluded row alone. It now splits on the row's own `declared`: `NON_CLAIMED` is
+  "nothing has spoken", anything else is "something has spoken against it".
+- The shared-line note is accurate and kept.
+
+**NOT DONE, deliberately:** the read-only route (he said hold until the directional structure resolves),
+the S2 item (needs his ruling), anything from his §3/§4. Suite green **369 checks**, fixture CURRENT.

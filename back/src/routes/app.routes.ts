@@ -802,7 +802,16 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         const reachedOnlyFallback = inputConstraints.matchedSignals.every(
             (signal) => !signal.startsWith('signalGroup:') || signal === 'signalGroup:Z_soccer_general'
         )
-        const knownGap = !routedRpcId && reachedOnlyFallback && isKnownUnsupportedGoal(goalText)
+        // **Routing to a context earns the exemption only by resolving the goal.** The exemption used
+        // to read `!routedRpcId` — any goal that routed to a performance context bypassed the refusal
+        // — on the reasoning above: it selects within that context and scores on its event, so the
+        // activity addresses what was asked. That holds for a goal whose selection then resolves.
+        // It did not hold for "Beat Defenders 1v1", which routes to RPC-004 and, gated to it, still
+        // committed the general soccer default: identical signals, the same game form, the same four
+        // constraints. A route that changes nothing cannot license a refusal being skipped, so the
+        // test is now whether selection actually resolved, which is what `reachedOnlyFallback`
+        // already measures. A goal that routes AND resolves has it false and proceeds as before.
+        const knownGap = reachedOnlyFallback && isKnownUnsupportedGoal(goalText)
 
         if (inputConstraints.matchedSignals.length === 0 || knownGap) {
             // MVP field evidence: rejected goals ARE the vocabulary-gap dataset. A known gap is

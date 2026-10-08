@@ -1,0 +1,177 @@
+Subject: A04 end to end — four of your five questions are yes, and I will not pretend the third one is
+
+Christian,
+
+Everything you ordered is done. The condition and its persistence are authored and executable, the
+exclusion can now be violated, Coupled is the seventh criterion, the initial holder is communicated, and
+magnitude stays held. Suite green end to end.
+
+Your five questions are at the end. Four are yes. The third is not, and the reason is worth more than the
+answer, so I have put it before the summary rather than after.
+
+
+WHAT IS NOW IN THE REPRESENTATION
+
+Two new rows, general, and deliberately two rather than one:
+
+  - the CRITERION that satisfies a value modifier's condition — a qualitative term, exactly as the primary
+    event's own condition parameter already was;
+  - the TRIGGER that ENDS the modification once satisfied, with no default. An absent value means the
+    modification does not persist beyond the event it is evaluated at — never that it persists for ever,
+    which is the reading that must not be available by omission.
+
+I kept them separate on your instruction and I want to say why it was the right instruction rather than a
+preference. The criterion names a kind of occurrence that nothing can check — whether a touch happened and
+possession was kept is a judgement made in play. The termination names a registered trigger, which the
+engine CAN check. One field would have had to be typed as the weaker of the two, and that would have thrown
+away the only enforcement available on the persistence half. That enforcement turned out to matter within
+the hour: see the three goals below.
+
+Neither row is specific to Wide Zone. The criterion row had already been identified independently, months
+before this, as the missing home for a GF4 condition. Any modifier can carry either.
+
+Your condition is authored into canonical knowledge as you settled it, with "controlled" as the observable
+relationship rather than the word: a touch within the channel after which the touching player's team retains
+possession. The persistence is a possession change. Both derive and both reach the resolved game.
+
+And the blocker from 2 October is gone without anyone ruling on it. That analysis named two routes to
+"attacking team" — live possession attribution, which it could not find established, or an attacking-episode
+scope. The Sport Profile established the first on 6 October, so the route that never needed an episode model
+was already open when you retired the other.
+
+
+THE EXCLUSION, AND WHY THE REGRESSION CASE HAS THREE CASES
+
+Before the repair, naming a forbidden wide channel and naming a permitted scoring line produced the same
+verdict: SATISFIED, with the reason "the line it reaches is entailed". The exclusion's own forbidden value
+was never compared with anything, because an exclusion cannot entail a line and the generic path reports
+satisfaction as soon as a line it touches resolves. An exclusion that reports a compliance it never checked
+is worse than an absent one, because the report gets read as evidence.
+
+The repair is general: an exclusion carrying a value requirement is a forbidden-value claim, compared
+against the lines on its row within its scope. Nothing is read out of prose, so the forbidden value has to
+be stated in typed form — the same treatment your SD-86 already required for a forbidden cardinality, and I
+used the same route to supply it. Where it is not typed the item is reported as not evaluable and stays
+there, which is the honest state rather than a silent pass.
+
+Three cases, three verdicts: forbidden channel named → UNMET, naming what it forbids and the line that
+breached it; permitted line named → SATISFIED; nothing in scope → not evaluable. The test asserts the first
+two differ, because a two-case test would have passed against the defect.
+
+
+THE INITIAL HOLDER IS COMMUNICATED, AND "WHICH TEAM" TURNS OUT TO BE UNSAYABLE
+
+You accepted the consequence and it has landed: the modifier now terminates on a possession change, so a
+rule reads the relationship, and the fidelity check no longer exempts the omission. The activity says it.
+
+But it cannot say which team, and I think that is the faithful rendering rather than a dodge. The holder is
+an internal member handle, which must not reach coach-facing text, and more to the point the two teams carry
+no distinguishing property at all — they are identical but for that handle, which is exactly why swapping
+the holder leaves the whole game byte-identical. There is no fact of the form "the blue team starts" for
+rendering to lose. So the coach is told that one team starts with the ball and that the game does not fix
+which, which they can act on, and the report records that nothing authors anything that tells the two teams
+apart.
+
+The consequence you asked for is discharged either way: the reported loss is gone, and it went because the
+fact reached the coach rather than because the check stopped asking.
+
+
+THE THREE GOALS THE NEW CLAUSE CAUGHT WITHIN THE HOUR
+
+Authoring a termination made Gate A fail in D02, A03 and A06 — three goals that had previously been merely
+unevaluable. Each loads only the Wide Zone object and the Sport Profile, because their game form has no
+contract, so they establish no team class at all and therefore no possession change. Wide Zone's termination
+names exactly that trigger. So in those three games the value modification can never end: precisely the
+indefinite stored entitlement your seventh criterion exists to forbid, and invisible until something asked
+whether a stated termination can actually occur.
+
+Reported, not repaired — they are outside the evidence claim and you told me not to touch the other twelve.
+The cause is the missing game form rather than anything wrong with the Wide Zone authoring: a game with no
+teams cannot end a possession.
+
+
+WHY QUESTION 3 IS NOT A YES
+
+Two things, both measured, both about the incentive rather than the number — which is why magnitude is not
+the lever for either.
+
+THE FIRST: THE CHANNELS REACH THE SCORING LINE. The channels are authored as the full axis extent, end line
+to end line, and the scoring line sits on the end line across the full width. So the channels contain part
+of the scoring line itself — 15 m of 30 m at the widest permitted extent, 12 m at the preferred 6 m, 9 m at
+the authored minimum. Between 30% and 50% of your target line is inside a channel.
+
+A line crossing is defined as a player dribbling the ball over the line or receiving and controlling it
+beyond the line. Dribble over the wide part of the line and the last touches are inside the channel, by the
+attacking team, which plainly has the ball. So the qualifying condition is satisfied BY THE ACT OF SCORING,
+on a third to a half of the line, with no wide play at any point beforehand.
+
+That is a Proportionate failure in your own terms, and no magnitude repairs it: at any multiplier, finishing
+wide is simply worth more than finishing centrally, and the incentive stops being about exploiting width at
+all. It is also not a rendering or engine problem. It is the channels' authored along-extent meeting the
+objective's authored position, and the two were authored by different objects that never had to agree.
+
+THE SECOND: THE GAME SAYS NOTHING ABOUT WHAT HAPPENS AFTER A SCORE. There is no post-score transition, no
+restart and no post-score possession procedure — the rejected default left that to realization and nothing
+authored it. That did not matter while the modifier applied to a single event. Now that the modification
+lasts a possession, it decides whether a second score in the same possession also doubles, and the game has
+no answer. The reward per qualifying touch is therefore bounded in time and unbounded in value.
+
+Neither is a reason not to go on the field. You will settle both in the first five minutes of running it,
+the way a coach settles anything a rule sheet leaves open. But I am not going to tell you the incentive is
+objectively executable when a third of the scoring line is inside the thing that doubles it.
+
+
+MAGNITUDE — STILL HELD, AND THE EVALUATION IS READY WHEN THE GEOMETRY IS SETTLED
+
+On the seven criteria, the honest answer is that x2 is the right number and that the number is not the
+question. It is the smallest value that makes going wide worth the detour in a congested 6v6, and your
+standing Learning-Relevant concern argues for the smallest such rather than a larger one. Below x2 is not
+available in practice: with a base of 1 the scoreable multipliers are the integers, and I checked that
+rescaling the base to allow x1.5 is blocked downstream.
+
+I am not recommending you ratify x2 yet, because the Proportionate assessment it would rest on is the one
+the geometry finding above invalidates. Settle whether the channels stop short of the scoring line and the
+magnitude question becomes answerable; leave the geometry as it is and x2 is the wrong question.
+
+One more thing you should have before that decision. A04's foundation constraint — Central Density
+Condition, the one that makes the centre scarce — has no contract and contributes nothing to the resolved
+game. The chain your Learning-Relevant assessment passed on begins "central density makes the centre
+scarce, which moves the penetration opportunity wide", and the first clause of it is not in the game. What
+goes on the field is 6v6 to a shared line with two wide channels worth double, without the central
+congestion that was supposed to create the wide opportunity in the first place.
+
+
+YOUR FIVE QUESTIONS
+
+1. IS A04 STRUCTURALLY AUTHORIZED AND REALIZABLE? YES. Gate A defers to realization with its knowledge
+   verdict passing, realization is authorized, acceptance is clean on all three of your conditions, the
+   post-realization gates validate, and Gate B forward passes.
+
+2. IS EVERY COACH-OPERATIONAL INSTRUCTION SUPPORTED BY THE RESOLVED GAME? YES. Nineteen instructions, every
+   one of them citing at least one property of the game, and zero fidelity violations on every question.
+   That is the first time it has been zero.
+
+3. IS THE WIDE ZONE INCENTIVE OBJECTIVELY EXECUTABLE ON THE FIELD? NO, and not because of the condition.
+   The condition itself is executable: a touch in the channel, by the team in possession, which still has
+   the ball afterwards — two coaches would agree, which is what your own Objective assessment said of this
+   reading before you settled it. What is not executable is the incentive as a whole, for the two reasons
+   above: a third to a half of the scoring line is inside a channel, and nothing says what happens after a
+   score.
+
+4. DOES RENDERING FAITHFULLY COMMUNICATE EVERYTHING THE COACH NEEDS? YES for everything the game
+   establishes, and that is now a measured zero-violation claim rather than an impression. There is one
+   thing it cannot communicate — which team starts — and that is a gap in the knowledge rather than in the
+   rendering, reported in the activity's own notes along with three others.
+
+5. ARE ANY REMAINING FAILURES LOAD-BEARING FOR THIS A04-ONLY PILOT? No failures are. Nothing in A04 fails.
+   The three new Gate A failures are in goals outside the claim. The two issues in question 3 are not
+   failures — they are design decisions the representation leaves open, and for a pilot you are running
+   yourself they are the kind of thing you would settle on the pitch. I would still want your answer on the
+   channel geometry before you run it, because it is the one that changes what the activity teaches.
+
+So: ready to take onto the field, with one decision I would rather you made first.
+
+Successful Region Access stays parked, general COMPLETED_PASS reachability stays deferred, generation stays
+frozen, and I have not touched the other twelve goals.
+
+Joe

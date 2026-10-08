@@ -475,6 +475,17 @@
     "fitNote": "TYPED 2 October on the SD-98 precedent. The referents were the prose \"both wide channels of this contract, each a referent\", and SD-58 forbids comparing open text as identity, so GA-MODIFIER-OVERLAP could not evaluate the modifier at all. This item types the FIRST referent; WIDEZONE-11.c carries the second. Two items rather than one array because V8b's registered valueType is \"one property per referent\" and that semantics is now operational (register `multiplicity: SET`): the two are MEMBERS and accumulate, where an array value would be read as a permitted set and make the line a choice between the channels. DETERMINACY COMES FROM RULING C33: before it, \"both wide channels of this contract\" answered to three classes and typing it would have required selecting between them. Since C33 the contract establishes exactly two -- WIDEZONE-02.a (wide-left) and WIDEZONE-03 (wide-right) -- so \"both\" names them and nothing is selected between, inferred or substituted. SD-63 is untouched for ordinary open text."
    },
    "why": "the modifier's referents were prose, so the overlap invariant could not establish identity; the sentence names both channels and C33 made 'both' exactly two, so typing changes no authored content"
+  },
+  {
+   "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-08.c",
+   "ruling": "C40",
+   "set": {
+    "forbiddenValues": [
+     "WIDEZONE-02.a",
+     "WIDEZONE-03"
+    ]
+   },
+   "why": "His instruction of 2026-10-07: \"Please repair the bounded enforcement defect you found for the authored exclusion preventing a primary-event condition from naming a wide channel.\" The exclusion forbids \"a wide channel of this contract\" as a primary-event condition referent, and its own two channels are WIDEZONE-02.a and WIDEZONE-03, so the typed form of the authored value is those two item ids. Nothing is read out of the prose, which stays in `value` as the source — the same treatment SD-86 gave this contract’s forbidden CARDINALITY on WIDEZONE-16.b. Measured before: the exclusion reported SATISFIED whether a channel was named on V5 or not, so it asserted a compliance it had never checked."
   }
  ],
  "added": [
@@ -778,6 +789,46 @@
     "fitNote": "What \"qualifying\" means is not read here: it is fixed by PCG-05 (AUTHORED, REQUIRED, REQUIRED_RANGE), \"counts ATTACKING_TEAM’s connected passes\", so the trigger is a pass that CONNECTS and nothing further. COMPLETED_PASS is a registered member of vocabularies.trigger (version 3, added 2026-10-04) whose semantics entry makes completion constitutive and denies implying region, direction, receiver identity, distance, intent, possession, possession change, scoring eligibility, transition or episode boundary. It is NOT ordered against FIRST_FORWARD_PASS in either direction. This item DISPLACES nothing: PCG-12 (V17 = STANDING) is ASSUMED and PREFERRED_DEFAULT, so by §3 it bounds and never entails and could not resolve this row; its own basisEvidence already conceded \"a reveal on each completed pass, which is not a listed trigger\". KNOWN LIMIT, recorded and deliberately not repaired on his instruction: constructTriggers builds the reachable-trigger set from a hardcoded function that never reads vocabularies.trigger, and GA-INFORMATION does not test reachability on V17 the way GA-EFFECT-TYPED does on V12 - so this item is admitted on registration alone and is never asked whether the occurrence can arise. The same has been true of FIRST_FORWARD_PASS since 29 September, so it is a property of the architecture rather than of this item."
    },
    "why": "the 29 September ruling filled the five information dimensions and left the information rule’s own structural trigger unauthored, so the reveal mechanism carried five dimensions and no trigger. Authoring it closes that line with the token the ruling requires; correct canonical authoring is not withheld because structural reachability is separately incomplete"
+  },
+  {
+   "contractId": "restated:WIDE-ZONE-ADVANTAGE",
+   "after": "WIDEZONE-18.c",
+   "ruling": "C40",
+   "item": {
+    "itemId": "WIDEZONE-18.d",
+    "row": "V8c",
+    "selector": "condition.type=region",
+    "requirement": "EQUALS",
+    "value": "a controlled attacking-team touch within a referent wide channel, where controlled means a touch after which the touching player’s team retains possession",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "OWNER_RULING",
+    "basisEvidence": "Christian, 2026-10-02, the settled condition recorded in docs/INCENTIVE_ASSURANCE_CRITERIA.md and preserved by his instruction of 2026-10-07 (\"Please preserve the settled condition\"): the qualifying interaction is \"a controlled attacking-team touch within an established wide channel\", and \"Controlled = a touch within the channel after which the touching player's team retains possession.\" His preference for where it lives, same message: \"I would prefer the canonical representation to carry that observable relationship rather than rely on the qualitative word controlled. Coach-facing language may eventually translate it naturally.\"",
+    "checkability": "PARTLY_STRUCTURAL",
+    "structuralClause": "The referent is an established wide channel of this contract, and the touching party is a team the game establishes. Whether a touch occurred inside the channel, and whether that team then retained possession, are judgements made in play: the representation names the KIND of occurrence and does not record occurrences (the COMPLETED_PASS precedent), so SD-15 applies and no claim is made about the judgement.",
+    "fitNote": "AUTHORED 7 October onto V8c, the row added the same day for exactly this. Until then a value modifier could name WHAT its condition was about and never what MEETS it, which is the gap the A04 coach view reported in its own words: a coach was told a channel condition changes the score and could not be told what meets it. THE SUBJECT IS A TOUCH, NOT THE BALL AND NOT A PLAYER, and that was decided on the approved assurance criteria rather than on the source: the source names two MODES (\"starting in or moving through\") and no subject at all. His 2 October ruling also set traversal aside — \"mere ball traversal admits incidental entries, clearances and deflections and weakens the relationship to actually exploiting the space\" — so traversal is neither required nor sufficient here, and this item asserts none. ATTACKING-TEAM is evaluable because the possession relationship is established (PS1, from the Soccer Sport Profile of 6 October); before that it was the one blocker, and the alternative route needed an attacking-episode scope he has now retired for this case. Persistence is NOT in this value: it is WIDEZONE-18.e on V8d, kept distinct on his instruction that criterion and persistence not be compressed into one field."
+   }
+  },
+  {
+   "contractId": "restated:WIDE-ZONE-ADVANTAGE",
+   "after": "WIDEZONE-18.d",
+   "ruling": "C40",
+   "item": {
+    "itemId": "WIDEZONE-18.e",
+    "row": "V8d",
+    "selector": "condition.type=region",
+    "requirement": "EQUALS",
+    "value": "POSSESSION_CHANGE",
+    "strictness": "REQUIRED",
+    "valueStatus": "REQUIRED_RANGE",
+    "scope": "WHOLE_GAME",
+    "basis": "OWNER_RULING",
+    "basisEvidence": "Christian, 2026-10-07: \"A qualifying controlled attacking-team touch in either established wide channel activates the value modification while that team retains possession. A possession change ends that modification.\" And the scope he set on it: \"No general attacking-episode model and no time window.\"",
+    "checkability": "STRUCTURAL",
+    "structuralClause": "whole item",
+    "fitNote": "AUTHORED 7 October onto V8d. POSSESSION_CHANGE is a registered trigger and is structurally reachable in this game, which is what makes the termination executable rather than a sentence: GA-MODIFIER-OVERLAP checks it, because a modification whose terminating occurrence cannot arise never ends. NO TIME WINDOW AND NO EPISODE MODEL, on his instruction — the bound is the same relation the criterion already reads, so it costs no dependency the condition had not already taken. It also retires, by making it unnecessary, the unratified engine wording at incentive-expression.ts (\"your team keeps it until the next change of possession\") that had no row to rest on."
+   }
   }
  ],
  "declarationScope": {

@@ -865,7 +865,14 @@ test('the corpus run reproduces the reported figures exactly', () => {
      * so SD-39's existence condition is unmet and the line is honestly a gap rather than a freedom. That is the
      * representation declining to invent, not a defect.
      */
-    assert.equal(result.run.counts.lines, 127)
+    /**
+     * **131 since V8c and V8d were added on 7 October.** Two new FIELD rows under V7, and the corpus holds two
+     * value-modifier classes — Wide Zone's and GF4's — so four lines. Wide Zone's two RESOLVE (the authored
+     * criterion and its POSSESSION_CHANGE termination); GF4's two are `NOT_AUTHORED / no coverage`, because GF4
+     * authors a modifier and says nothing about what meets it or when it ends. That asymmetry is the point of the
+     * rows: the question is now askable of every modifier, and only one object has answered it.
+     */
+    assert.equal(result.run.counts.lines, 131)
     /**
      * **61, up from 59.** The same restatement establishes `perceptual-reference` on BOTH channels rather
      * than on a third region of its own, so two S4 lines now resolve where none did. The functions rows
@@ -876,7 +883,10 @@ test('the corpus run reproduces the reported figures exactly', () => {
      * referents — now as a SET of two members rather than a collision, which also adds the two per-member
      * lines. `multiplicity: SET` types what V8b's own valueType already said.
      */
-    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 67)
+    // **69 since 7 October.** Wide Zone's criterion (V8c) and its termination (V8d) both entail, from the
+    // owner rulings of 2 and 7 October. GF4's modifier gains the same two rows and resolves neither, so the
+    // count moves by two and not four.
+    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 69)
     // **NOT_AUTHORED fell 54 → 26 across the 29 September rulings, and only five of those twenty-eight
     // were closed by authoring anything.**
     //   −9  T1a/T1b/T1c demanded of three POSSESSION_CHANGE transitions. A turnover has no last touch
@@ -900,9 +910,11 @@ test('the corpus run reproduces the reported figures exactly', () => {
     // 24: V10, the modifier's combination rule, is enumerated and unauthored — the contract's own
     // declaration says "Combination with an overlapping modifier never addressed".
     // 25: PS1 joins them — nobody addresses possession, so its reason is 'no coverage', an established absence.
-    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 25)
+    // 27 since 7 October: GF4's modifier gains an unauthored criterion and an unauthored termination. Wide
+    // Zone's two resolve, so the count moves by two rather than four.
+    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 27)
     assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 0, 'cluster 3 cleared the whole population')
-    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 25, 'one GAP per unauthored line, and none for a withdrawn one')
+    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 27, 'one GAP per unauthored line, and none for a withdrawn one')
     // 17 since C33: the removed third region took its one open S5 line (a channel's along-extent) with it.
     assert.equal([...result.derived.lines.values()].filter((l: any) => l.open).length, 17, 'five open lines became seventeen')
 

@@ -8,7 +8,7 @@ this document; it governs how we decide, and a decision made under it is recorde
 
 ## What this is
 
-Six questions an authoring decision must answer before a new incentive meaning is written into canonical
+Seven questions an authoring decision must answer before a new incentive meaning is written into canonical
 knowledge. Christian's reason for wanting them, in his words:
 
 > *"I mean establishing the criteria we will use when making authoring decisions like this one, so machine
@@ -50,7 +50,7 @@ is ecologically sound. That is the gap.
 
 ---
 
-## The six criteria
+## The seven criteria
 
 Each gives the question, what a pass and a failure look like, what evidence answers it, and **who** can
 answer it. That last column matters: some of these are machine-checkable, some are coaching judgement, and
@@ -160,6 +160,46 @@ the one the session is for.
 establishes the problem/opportunity landscape we are trying to support; it does not specify the player's
 solution."* So this criterion asks whether the reward points at the right **landscape**, never whether it
 produces a particular action — which would be the invariant violated under a different name.
+
+---
+
+### 7 · Coupled
+
+> **Does the changed value remain perceptibly connected to the qualifying interaction, rather than creating
+> an indefinite stored entitlement?**
+
+Added on Christian's ruling of 7 October, as a **seventh** criterion and explicitly not in place of
+Learning-Relevant: *"Add Coupled as a seventh approved criterion rather than replacing Learning-Relevant."*
+
+It names a failure the other six do not reach. All six can pass on an incentive that is objective, legible,
+deniable, affordance-preserving, proportionate and pointed at the right landscape — and that, once earned,
+never stops applying. The qualifying interaction then carries no information: a player cannot perceive any
+connection between what they did and what the next score is worth, because everything is worth it.
+
+- **Passes** when a player can perceive the link between the qualifying interaction and the changed value —
+  because the two coincide, or because the change is bounded by something the player can see happen.
+- **Fails** when the entitlement outlives the interaction that earned it with no represented end. The
+  diagnostic question is **what ends it**, and "nothing" is a failure rather than an omission.
+- **Evidence:** the modifier's own criterion and termination (`V8c`, `V8d`), and whether the terminating
+  occurrence is structurally reachable in the game being authored. A termination naming a trigger the game
+  cannot construct fails this criterion while passing every structural check, which is why the reachability
+  of that trigger is now checked by `GA-MODIFIER-OVERLAP`.
+- **Who answers:** partly machine-checkable, which makes it unusual in this set. That a termination exists
+  and that its trigger can occur are structural; whether the remaining span is *perceptible* to a player is
+  coaching judgement.
+
+**Why it is seventh rather than a replacement.** It was proposed in a message whose numbered list ran to six
+and ended with Coupled, which would have displaced Learning-Relevant silently. Learning-Relevant is already
+load-bearing on the live application below — it produced the standing CONCERN that the Wide Zone condition
+rewards *finding* the space rather than *using it against someone*, which bears directly on the magnitude
+question still open. Dropping it to make room would have discarded that.
+
+**Measured against the Wide Zone condition as settled:** PASS. The criterion is grained to one action — a
+controlled attacking-team touch — and the modification ends on a possession change, which is a registered
+trigger this game constructs. Nothing is stored past the possession it was earned in. The unbounded reading
+his message asked about — "the ball entered the channel at some point" — fails this criterion, and separately
+could never have been stated: before `V8c` and `V8d` a modifier had no field for either a criterion or a
+termination, so neither the unbounded reading nor a bounded one was expressible.
 
 ---
 
@@ -421,14 +461,39 @@ the ball. Neither mechanism is to be implemented before that evidence is returne
 
 ### Status of this application
 
-Evaluated, not authored. Nothing has been written into canonical knowledge. Outstanding for him, in the order
-they block:
+**AUTHORED, 7 October.** The condition is in canonical knowledge, on his instruction to preserve it:
+*"Please preserve the settled condition: A controlled attacking-team touch within an established wide
+channel. And preserve the operational meaning already settled: Controlled = a touch within the channel
+after which the touching player's team retains possession."* It is `WIDEZONE-18.d` on register row `V8c`,
+basis OWNER_RULING, with the persistence as `WIDEZONE-18.e` on `V8d` (`POSSESSION_CHANGE`).
 
-1. ~~**"Controlled"**~~ — **SETTLED**: a touch after which the touching player's team retains possession.
-2. **How "attacking team" is established** — held pending the bounded representation check. The dependency
-   above is why this is the one that blocks.
-3. ~~**Traversal**~~ — **SETTLED**: not required, and not sufficient on its own.
-4. **Magnitude**, after 2, as he directed.
+Where the four outstanding items ended up:
+
+1. ~~**"Controlled"**~~ — **SETTLED and AUTHORED**: a touch after which the touching player's team retains
+   possession. That also discharges criterion 1's CONCERN above, which was only ever that the formulation
+   did not say which of the two readings it meant. It means the reading that section says passes.
+2. ~~**How "attacking team" is established**~~ — **RESOLVED, and not by a ruling.** It was held pending a
+   bounded representation check: whether existing selected knowledge independently requires the
+   representation to know which team possesses the ball. The Soccer Sport Profile of 6 October establishes
+   the possession relationship as legitimate game structure, so the live-possession route — the one of the
+   two that needed no episode scope — is open. The alternative route is retired: *"Retire the proposed
+   attacking-episode requirement for this case."*
+3. ~~**Traversal**~~ — **SETTLED**: not required, and not sufficient on its own. The authored criterion
+   asserts neither.
+4. **Magnitude** — **STILL HELD**, now as the only open item: *"Keep magnitude held until the condition and
+   persistence semantics are executable. Then evaluate plausible magnitude options against all seven
+   assurance criteria, with particular attention to Proportionate and Learning-Relevant. Do not inherit x2
+   merely because it is currently present."* The semantics are executable as of today, so the evaluation is
+   owed. The standing Learning-Relevant CONCERN above is to be preserved into it, on his instruction, and it
+   argues for less than x2 rather than more.
+
+**One thing the persistence created that no criterion had to consider before.** The modification now lasts a
+possession rather than applying to a single event, and A04 establishes nothing about what happens after a
+score — there is no SCORE transition, no restart, and no post-score possession procedure (SD-R3 left that to
+realization and nothing authored it). So whether a second score in the same possession is also doubled has
+no answer in the game. That is a magnitude question as much as a semantics one, because it makes the
+effective reward per qualifying touch unbounded in value while bounded in time, and it is recorded here
+rather than in the magnitude evaluation because it is a property of the condition, not of the number.
 
 ---
 

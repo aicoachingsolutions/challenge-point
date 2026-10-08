@@ -31,13 +31,20 @@ function testEveryGoalIsClassified(): void {
 }
 
 /**
- * THE TWO KNOWN GAPS. Pinned because they are findings, not because they should stay true — the
- * intent is to close them. When one starts routing, this test fails and the change gets noticed.
+ * THE KNOWN GAP. Pinned because it is a finding, not because it should stay true — the intent is to
+ * close it. When one starts routing, this test fails and the change gets noticed.
+ *
+ * **"Beat Defenders 1v1" came off this list on 8 October**, deliberately and on the owner's approval.
+ * It was here because it reached no signal group at all and committed the general soccer default, so
+ * its whole package was generic build-up knowledge rather than anything about duels. The
+ * attacking-duel group (`J_attacking_duel`) now routes it specifically: it resolves `matched`, to GF2,
+ * with the line-breaking, space-creation and possession-stability lenses. That is the "one now routes,
+ * that is progress" case this assertion exists to catch, and it caught it.
  */
 function testKnownGapsArePinned(): void {
     assert.deepEqual(
         goalSupport().unsupported,
-        ['Play Out from the Back', 'Beat Defenders 1v1'],
+        ['Play Out from the Back'],
         'The known unsupported goals changed. If one now routes, that is progress — update this test ' +
             'deliberately. If a new one appeared, something regressed.'
     )

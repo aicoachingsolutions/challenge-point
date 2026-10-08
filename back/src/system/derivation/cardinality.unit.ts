@@ -90,8 +90,28 @@ import { derivationInputFor, selectFor } from './run-bounded-selection'
 }
 
 // ── 4 · THE CARDINALITY IS NO LONGER DEAD DATA ────────────────────────────────────────────────────
+//
+// **This block loads Wide Zone directly rather than through A04.** It used to reach it through
+// `selectFor('A04')`, which worked only because A04's selection had not resolved and the general
+// default package happened to include Wide Zone Advantage. Since the attacking-duel signal group
+// (8 October) A04 resolves specifically and selects no Wide Zone at all, so routing this evidence
+// through A04 measured zero channels.
+//
+// What is under test here is the cardinality machinery on the Wide Zone's own channel items, which
+// is a fact about that object and not about any goal that happens to select it. Naming the contract
+// keeps the coverage identical and stops it depending on a selection outcome it never meant to
+// assert.
 {
-    const input = derivationInputFor(selectFor('A04', null))
+    const contracts = loadCorpusContracts().filter(c => /GF2|WIDE-ZONE/.test(String(c.contractId)))
+    const a04 = derivationInputFor(selectFor('A04', null))
+    const input: any = {
+        ...a04,
+        contracts: [...contracts, ...a04.contracts.filter(c => /sport-profile/.test(String(c.contractId)))],
+        selection: [...contracts, ...a04.contracts.filter(c => /sport-profile/.test(String(c.contractId)))].map((c: any) => ({
+            objectId: c.objectId,
+            knowledgeVersion: 'stage-b',
+        })),
+    }
     const result: any = runDerivation(input)
     const staged: any = runStages0to10(input)
     const resolved: any = assembleResolvedGame(result, staged.classes, indexRegister(input.register), input.contracts)

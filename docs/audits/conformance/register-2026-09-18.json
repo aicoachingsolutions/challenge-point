@@ -1,7 +1,7 @@
 {
  "title": "Atomic field-path register — Game Representation Specification revision 4",
  "date": "2026-09-18",
- "version": "4, adds BY_CONSTRUCTION, the Rules-area Action Restriction, and Performer Participation State (Christian, 2026-09-24)",
+ "version": "5, adds V8c (the criterion that satisfies a value-modifier condition) and V8d (the trigger that ends the modification), on the ruling of 2026-10-07 (Christian). Supersedes version 4, which had not moved across three content edits and so had stopped describing the register it labelled",
  "source": "docs/design/game-representation-spec-2026-09-18.md §5 (the eight areas), §3 (statuses), §6 (the contract), §2 (standing decisions)",
  "rowKinds": {
   "COLLECTION": "The existence and count of elements in a collection. Items on a COLLECTION row say that elements matching a selector exist (EXISTS), how many (COUNT/RANGE), or that none may (NOT_EXISTS).",
@@ -749,6 +749,17 @@
    "multiplicity": "SET"
   },
   {
+   "id": "V8c",
+   "path": "value.valueModifiers[].condition.value",
+   "ownerRow": "V7",
+   "kind": "FIELD",
+   "valueType": "the criterion that satisfies the condition: the kind of occurrence that activates the modification, as a qualitative term or a threshold (RC-5, exactly as V6 carries the primary event's condition parameter). It names a KIND of occurrence and never records one -- whether the occurrence happened is a judgement made in play, the COMPLETED_PASS precedent -- so SD-15 applies and no number is invented and no claim is made about that judgement",
+   "sourceKinds": [
+    "SELECTION"
+   ],
+   "note": "Added 7 October on his ruling. Without it a value modifier could name WHAT its condition is about (V8a type, V8b referents) and never what MEETS it, which is the gap the A04 coach view had been reporting in its own words for a week: a coach is told a channel condition changes the score and cannot be told what meets it. TWO FIELDS AND NOT ONE, on his instruction of 7 October: \"If criterion and persistence cannot truthfully be represented as one field, keep them distinct rather than compressing semantics merely to minimize schema.\" They cannot. V8c names a KIND OF OCCURRENCE whose happening is an in-play judgement, so it is a qualitative term under RC-5 and SD-15 and nothing checks that it occurred. V8d names a REGISTERED TRIGGER, which is a structural fact the engine can check for reachability. One field holding both would have to be typed as the weaker of the two, which would discard the only enforcement available on the persistence half -- and that enforcement is the whole point, because a modification whose terminating trigger cannot occur is the indefinite entitlement his Coupled criterion exists to forbid. GENERAL, not Wide Zone: any value modifier may carry either, and the stage-E schema check had already scoped V8c independently for the GF4 case, \"regain leading to shot\"."
+  },
+  {
    "id": "V9",
    "path": "value.valueModifiers[].magnitude",
    "ownerRow": "V7",
@@ -778,6 +789,17 @@
    "sourceKinds": [
     "SELECTION"
    ]
+  },
+  {
+   "id": "V8d",
+   "path": "value.valueModifiers[].endsOn",
+   "ownerRow": "V7",
+   "kind": "FIELD",
+   "valueType": "trigger (closed list, draft): the occurrence that ENDS the modification once its condition has been satisfied. No default. An ABSENT value means the modification does not persist beyond the event it is evaluated at -- never that it persists indefinitely, which is the reading that must not be available by omission",
+   "sourceKinds": [
+    "SELECTION"
+   ],
+   "note": "Added 7 October on his ruling, as the persistence half of the pair. It sits on the MODIFIER and not under `condition` because it governs the modification rather than what satisfies the condition, and that asymmetry is the semantics rather than a filing choice. Registered in `vocabularies.triggerRows`, so a termination trigger is a trigger like any other; `GA-MODIFIER-OVERLAP` checks that it is structurally reachable, because a modification whose terminating occurrence cannot arise never ends. TWO FIELDS AND NOT ONE, on his instruction of 7 October: \"If criterion and persistence cannot truthfully be represented as one field, keep them distinct rather than compressing semantics merely to minimize schema.\" They cannot. V8c names a KIND OF OCCURRENCE whose happening is an in-play judgement, so it is a qualitative term under RC-5 and SD-15 and nothing checks that it occurred. V8d names a REGISTERED TRIGGER, which is a structural fact the engine can check for reachability. One field holding both would have to be typed as the weaker of the two, which would discard the only enforcement available on the persistence half -- and that enforcement is the whole point, because a modification whose terminating trigger cannot occur is the indefinite entitlement his Coupled criterion exists to forbid. GENERAL, not Wide Zone: any value modifier may carry either, and the stage-E schema check had already scoped V8c independently for the GF4 case, \"regain leading to shot\"."
   },
   {
    "id": "V11",
@@ -1108,7 +1130,8 @@
    "T1",
    "V12",
    "V17",
-   "V24"
+   "V24",
+   "V8d"
   ],
   "T5.method": [
    "STATIONARY_BALL",

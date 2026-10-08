@@ -13,7 +13,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 
-import { corpusInput, loadRegister } from '../derivation/corpus'
+import { corpusInput, loadCorpusContracts, loadRegister } from '../derivation/corpus'
 import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { indexRegister } from '../derivation/register'
@@ -649,15 +649,40 @@ function a04(): ResolvedGame {
 }
 
 /**
+ * A resolved game with more than one region, for the cases that need a populated collection.
+ *
+ * It names the Wide Zone contract rather than going through a goal's selection. A04 used to serve
+ * this because the general default package it committed included Wide Zone, giving it three regions:
+ * the target line and two channels. Since the attacking-duel group of 8 October, A04 resolves
+ * specifically and holds one region, so a case that needs several has to say which knowledge supplies
+ * them.
+ */
+function multiRegionGame(): ResolvedGame {
+    const a04Input = derivationInputFor(selectFor('A04', null))
+    const contracts = [
+        ...loadCorpusContracts().filter(c => /GF2|WIDE-ZONE/.test(String(c.contractId))),
+        ...a04Input.contracts.filter(c => /sport-profile/.test(String(c.contractId))),
+    ]
+    const input: any = { ...a04Input, contracts, selection: contracts.map((c: any) => ({ objectId: c.objectId, knowledgeVersion: 'stage-b' })) }
+    const result = runDerivation(input)
+    if (isStampedHalt(result)) throw new Error('unexpected halt')
+    return assembleResolvedGame(result, (runStages0to10(input) as any).classes, indexRegister(input.register), input.contracts)
+}
+
+/**
  * **An authored collection cardinality refuses an over-populated game.** Synthetic, deliberately.
  *
  * A04 WAS this test until ruling C33 of 2 October: its knowledge authored exactly two channels and three
  * contributions each minted their own region. The restatement fixed the knowledge, so the live corpus no
  * longer exhibits it — which is why the case is kept here by construction. The capability must stay under
  * test after the defect that motivated it is gone.
+ *
+ * **It needs a game holding more than one region**, or the synthetic bound of "at most one" is not
+ * exceeded and nothing is over-populated to refuse. A04 stopped being such a game on 8 October, so the
+ * subject is now named by its knowledge.
  */
 test('a collection holding more elements than its knowledge authors is refused', () => {
-    const resolved = a04()
+    const resolved = multiRegionGame()
     const regions = (resolved.game as any).space.regions as { elementId: string }[]
     const over = {
         ...resolved,
@@ -734,8 +759,19 @@ test('exactly one goal is realization-authorized, and the other twelve are accou
         else notEvaluable.push(goal)
     }
     assert.deepEqual(authorized, ['A04'], 'the pilot path is one goal wide')
-    assert.deepEqual(failed.sort(), ['D03', 'TD02'], 'and two goals reach a verdict and fail it')
-    assert.equal(notEvaluable.length, 10, `the rest have no contracted knowledge to judge; got ${notEvaluable.join(', ')}`)
+    /**
+     * **FIVE goals now reach a verdict and fail it, up from two on 7 October — and the three new ones are a
+     * finding rather than a drift.** D02, A03 and A06 each load only the Wide Zone object plus the Sport
+     * Profile, their game form having no contract, so they establish no team class at all and therefore no
+     * POSSESSION_CHANGE. Wide Zone's authored termination (V8d) names exactly that trigger, so in those three
+     * games the value modification can never end — the indefinite stored entitlement Coupled forbids, which
+     * nothing could see until GA-MODIFIER-OVERLAP asked whether a stated termination can occur.
+     *
+     * Reported and NOT repaired: those goals are outside the pilot evidence claim and he instructed that the
+     * other twelve not be repaired. The cause is the absent game form, not the Wide Zone authoring.
+     */
+    assert.deepEqual(failed.sort(), ['A03', 'A06', 'D02', 'D03', 'TD02'], 'five goals reach a verdict and fail it')
+    assert.equal(notEvaluable.length, 7, `the rest have no contracted knowledge to judge; got ${notEvaluable.join(', ')}`)
 })
 
 /**

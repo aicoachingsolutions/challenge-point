@@ -1852,6 +1852,61 @@ function gaModifierOverlap(ctx: GateContext): CheckOutcome {
         notes.push(`${objects.length} object-conditioned modifier(s); no overlap semantics specified`)
     }
 
+    /**
+     * **A modification that persists must be able to END.** Added 7 October with `V8d`, and it is what makes
+     * the persistence half of his ruling executable rather than a sentence:
+     *
+     *   > *A qualifying controlled attacking-team touch in either established wide channel activates the value
+     *   > modification while that team retains possession. A possession change ends that modification.*
+     *
+     * A modifier that names a terminating trigger the game cannot construct never ends, which is precisely the
+     * indefinite stored entitlement his **Coupled** criterion exists to forbid — and it would be invisible,
+     * because every other check would pass. So the clause is the same shape as `GA-EFFECT-TYPED`'s
+     * `every consequence trigger is structurally reachable`, on the same authority (SD-44), reading `V8d`
+     * where that one reads `V12`.
+     *
+     * **An absent `V8d` is not a failure.** The row's own text says so: an absent value means the modification
+     * does not persist beyond the event it is evaluated at. Only a stated termination is checked, so every
+     * modifier authored before today is unaffected.
+     */
+    const ENDS = 'every value modifier that states a termination names a structurally reachable trigger'
+    const unreachable: string[] = []
+    let endsSeen = 0
+    for (const modifier of modifiers) {
+        const lineId = lineOf(modifier.classId, 'V8d')
+        /**
+         * **Membership first, then the probe — and the order matters.**
+         *
+         * The clause's subject is modifiers that STATE a termination. Whether one does is read from whether any
+         * item addressed the row at all, not from the line's value: a modifier that states none has an
+         * unaddressed line, which is the row's documented reading and not a defect.
+         *
+         * Probing first was wrong and a test caught it. `probe.cell` records a `NOT_AUTHORED` line as a BLOCKER,
+         * so consulting V8d on every modifier reported an absent termination as an unresolved dependency of this
+         * check — and `SD-62`'s block record then named a line nobody had claimed. Reading membership from
+         * `ctx.derived` keeps the Probe contract intact in the direction that matters: every line the clause
+         * actually consults is still recorded as a subject, and the ones it declines to consult are not
+         * invented into dependencies.
+         */
+        const record = ctx.derived.get(lineId)
+        const addressed = !!record && (record.entailing.length > 0 || record.bounding.length > 0 || record.undetermined.length > 0)
+        if (!addressed) continue
+        const cell = probe.cell(lineId)
+        if (cell.state !== 'DERIVED') continue
+        endsSeen++
+        const name = String(cell.value)
+        // The parameterised form is `NAME{argument}`, as in `constructTriggers`.
+        if (!ctx.triggers.some(t => t === name || t.startsWith(`${name}{`))) unreachable.push(`${modifier.classId}: ${name}`)
+    }
+    clauses.push(unreachable.length ? fail(ENDS, endsSeen) : pass(ENDS, endsSeen))
+    if (endsSeen) {
+        notes.push(
+            unreachable.length
+                ? `${unreachable.length} modifier termination(s) name an unreachable trigger: ${unreachable.join('; ')}`
+                : `${endsSeen} modifier termination(s) name a reachable trigger`,
+        )
+    }
+
     if (!modifiers.length) return result('GA-MODIFIER-OVERLAP', probe, clauses, 'no value modifier is instantiated')
     return result(
         'GA-MODIFIER-OVERLAP',

@@ -10,7 +10,7 @@
  */
 
 import { ClassifiedLine } from './classify'
-import { DerivedLine } from './derive'
+import { DerivedLine, resolvedValue } from './derive'
 import { ApplicationSet } from './scope'
 import { ElementClass, ForwardResult, ItemRef, LoadedContract, ResolutionLine } from './types'
 import { RegisterIndex } from './register'
@@ -185,6 +185,102 @@ export function forwardResults(
                                 : inScope.length
                                   ? `no element of ${String(item.row)} in scope matches the excluded selector`
                                   : `no element of ${String(item.row)} is represented at all, so none matches`,
+                    })
+                }
+                continue
+            }
+
+            /**
+             * **SD-85's sibling: an exclusion that forbids a VALUE rather than an existence.**
+             *
+             * Repaired 7 October on his instruction: *"Please repair the bounded enforcement defect you found
+             * for the authored exclusion preventing a primary-event condition from naming a wide channel.
+             * Preserve a regression case demonstrating that the exclusion actually changes the verdict when
+             * violated."*
+             *
+             * **What it did before.** An exclusion carrying a value requirement on a FIELD row fell through to
+             * the generic path below, which reports `SATISFIED` as soon as any line it reaches is entailed —
+             * and the line is entailed by whoever authored the value, never by the exclusion, which cannot
+             * entail at all. So the exclusion's own forbidden value was never compared with anything.
+             * Measured on A04 with a primary-event condition added: naming a wide channel on `V5` — the exact
+             * thing `WIDEZONE-08.c` forbids — reported SATISFIED, with `why` "the line it reaches is entailed",
+             * and naming the permitted scoring line reported SATISFIED for the same reason. **An exclusion that
+             * reports compliance it never checked is worse than an absent one**, because the report is read as
+             * evidence.
+             *
+             * **Why it is handled here rather than by the reach bookkeeping.** This mirrors SD-75/SD-85's shape
+             * deliberately: scope, then the lines on the item's row, then a comparison, then one of three
+             * outcomes. An exclusion establishes nothing, so asking whether it "reached" a line is asking the
+             * wrong question — the question is whether the game holds a value it forbids.
+             *
+             * **Nothing is read out of prose (SD-32, and SD-86's precedent for the cardinality case).** The
+             * forbidden value must be stated in typed form, in `forbiddenValues`; the authored sentence stays in
+             * `value` as the source. Where no typed form exists the item is NOT_EVALUABLE and stays so, which
+             * is the honest report — an exclusion nobody can evaluate must not read as one that passed.
+             */
+            const isExclusionOfValue =
+                item.strictness === 'EXCLUSION' && !isExclusionOfExistence && String(item.requirement) !== 'NOT_EXISTS'
+
+            if (isExclusionOfValue) {
+                const application = applicationByItem.get(key)
+                const inScope = lines.filter(
+                    line =>
+                        line.row === String(item.row) &&
+                        (!application || !application.classIds.length || application.classIds.some(id => line.lineId.startsWith(id))),
+                )
+                const forbidden = ((item as any).forbiddenValues as unknown[] | undefined) ?? []
+
+                if (!Array.isArray(forbidden) || !forbidden.length) {
+                    outcomes.push({
+                        item: ref,
+                        result: 'NOT_EVALUABLE',
+                        reach: inScope.map(l => l.lineId),
+                        why: `the value this item forbids is stated in prose (${JSON.stringify(String(item.value))}), so what it excludes cannot be compared without interpreting it`,
+                    })
+                    continue
+                }
+
+                const forbiddenKeys = new Set(forbidden.map(f => String(f)))
+                /**
+                 * A referent reaches a line either as a class id or as a structural reference, so both forms are
+                 * normalised to the tokens an author could have written: the whole string, its trailing segment
+                 * after the last colon, and a structural reference's `itemId`. No prose is parsed — these are the
+                 * identities the register and the contracts already use to name the same thing.
+                 */
+                const tokensOf = (value: unknown): string[] => {
+                    if (typeof value === 'string') return [value, value.split(':').pop() as string]
+                    const ref = value && typeof value === 'object' ? (value as any).structuralRef : null
+                    return ref && ref.itemId ? [String(ref.itemId), `${String(ref.contractId)}::${String(ref.itemId)}`] : []
+                }
+
+                const held = inScope.map(line => ({ lineId: line.lineId, value: resolvedValue(derived.get(line.lineId))?.value }))
+                const withValue = held.filter(h => h.value !== undefined)
+                const breaching = withValue.filter(h =>
+                    (Array.isArray(h.value) ? h.value : [h.value]).some(v => tokensOf(v).some(t => forbiddenKeys.has(t))),
+                )
+
+                if (breaching.length) {
+                    outcomes.push({
+                        item: ref,
+                        result: 'UNMET',
+                        reach: breaching.map(b => b.lineId),
+                        why: `${breaching.length} line(s) carry a value this item forbids (${[...forbiddenKeys].sort().join(', ')}): ${breaching.map(b => b.lineId).join(', ')}`,
+                    })
+                } else if (!withValue.length) {
+                    outcomes.push({
+                        item: ref,
+                        result: 'NOT_EVALUABLE',
+                        reach: inScope.map(l => l.lineId),
+                        why: inScope.length
+                            ? `${inScope.length} line(s) of ${String(item.row)} are in scope and none carries a value, so there is nothing to compare with what this item forbids`
+                            : `no line of ${String(item.row)} is in scope, so nothing can carry a forbidden value`,
+                    })
+                } else {
+                    outcomes.push({
+                        item: ref,
+                        result: 'SATISFIED',
+                        reach: withValue.map(h => h.lineId),
+                        why: `${withValue.length} line(s) carry a value and none is among the ${forbiddenKeys.size} this item forbids`,
                     })
                 }
                 continue

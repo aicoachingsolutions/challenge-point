@@ -247,6 +247,68 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
                 say('Players', 'SESSION', `No ${role}s — everyone is an outfield player`, ['envelope.roles'], [])
             }
         }
+
+        /**
+         * **WHO STARTS WITH THE BALL — his ruling of 7 October, and the awkward truth it exposes.**
+         *
+         *   > *Once an established rule reads possession, the initial holder becomes activity-design
+         *   > information under SD-104. Therefore the rendered activity must faithfully communicate which team
+         *   > starts in possession.*
+         *
+         * The value is established and a coach genuinely needs it: the Wide Zone condition now reads
+         * possession, so who starts decides whose touch can qualify in the first phase of play.
+         *
+         * **But "which team" is not expressible, and saying so IS the faithful rendering.** The holder is a
+         * member handle, and `identity.unit.ts` pins that no handle may reach coach-facing output — deliberately,
+         * because a handle is identity and not a property. More to the point, the two teams carry no
+         * distinguishing property at all: they are identical but for that handle, which is why swapping the
+         * holder leaves the whole game unchanged. So there is no fact of the form "the BLUE team starts" for
+         * rendering to lose; there is only "one of the two does, and the game does not say which".
+         *
+         * That is what this says, and it cites both halves: `possession.team` for the relationship being
+         * established and filled, `performers.teams` for there being two indiscernible teams to choose between.
+         * A coach can act on it — they assign the ball before kick-off — and nothing is invented. The
+         * observation below records what the activity therefore cannot tell them.
+         */
+        const holder = game.possession?.team
+        if (holder) {
+            const held = teams.some((t: any) => String(t.elementId) === String(holder))
+            if (held) {
+                say(
+                    'Players',
+                    'REALIZATION_CHOICE',
+                    `One team starts with the ball — the game does not fix which, so pick one and tell both teams before you start`,
+                    ['possession.team', 'performers.teams'],
+                    [],
+                )
+                /**
+                 * **The reason this matters is read from the game, not asserted.** It used to say the
+                 * wide-channel condition reads possession, so who starts decided whose touch could
+                 * qualify first. That was true while a value modifier conditioned on the channels and
+                 * is false now that nothing does — so the clause names whatever actually reads the
+                 * relationship, and says plainly when nothing does.
+                 */
+                const readers: string[] = []
+                if ((game.transitions ?? []).some((t: any) => (t.selector ?? []).some((s: any) => String(s.value) === 'POSSESSION_CHANGE')))
+                    readers.push('a transition is keyed on a change of possession, so it decides which team is attacking in the first episode of play')
+                if ((game.value?.valueModifiers ?? []).some((m: any) => m.endsOn === 'POSSESSION_CHANGE' || /possession/i.test(String(m.condition?.value ?? ''))))
+                    readers.push('a value modifier reads possession, so who starts decides whose action can qualify first')
+                observations.push(
+                    `The game DOES establish an initial holder of possession, and the activity cannot tell a coach which team it is. ` +
+                        `The two teams are indiscernible — identical but for an internal handle that must not reach coach-facing text — so ` +
+                        `the holder identifies a member without describing one. ` +
+                        (readers.length
+                            ? `It matters because ${readers.join('; and ')}. `
+                            : `Nothing in this game reads the relationship, so it is an initial state a coach may settle however they like. `) +
+                        `It is a knowledge gap and not a rendering one: nothing authors anything that tells the two teams apart.`,
+                )
+            } else {
+                observations.push(
+                    `\`possession.team\` names ${String(holder)}, which is not one of the game's own teams, so the activity says nothing ` +
+                        `about who starts with the ball rather than naming something a coach cannot find.`,
+                )
+            }
+        }
         if (size === null) {
             // NOT repaired. The renderer could divide 12 by 2 and write "two teams of six" — and that is
             // exactly the forbidden move. The post-realization gate did derive 6-a-side legitimately, from
@@ -429,13 +491,64 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
             [],
         )
 
-        observations.push(
-            `The game now establishes WHAT the wide channels do — a line crossing is worth ${Number.isFinite(magnitude) && Number.isFinite(primary?.value) ? primary.value * magnitude : 'more'} ` +
-                `instead of ${primary?.value} when the condition is met — but NOT what counts as meeting it. The authored source is "actions starting in or ` +
-                `moving through the wide channel", \`REGION_ENTRY\` carries no registered semantics, and the authoring note states the gap itself: ` +
-                `"no rule for what counts as 'moving through' (ball, player, touch)". So a coach is told the consequence and cannot be told the ` +
-                `trigger. Nothing is chosen here on the engine's behalf.`,
-        )
+        /**
+         * **WHAT MEETS THE CONDITION, and WHEN IT ENDS — the two halves authored on 7 October.**
+         *
+         * The criterion is a qualitative term, so this is a translation of it and not a restatement of the
+         * engine's own words. He authorized exactly that when he settled it: *"I would prefer the canonical
+         * representation to carry that observable relationship rather than rely on the qualitative word
+         * controlled. Coach-facing language may eventually translate it naturally."* The translation introduces
+         * no fact the term does not carry — a touch, inside a referent region, by the attacking team, after
+         * which that team still has the ball — and `condition.value` is cited, so SD-103 is satisfied by
+         * provenance rather than by assertion.
+         *
+         * Both sentences are gated on the fields being present. Where a modifier carries no criterion the
+         * observation below reports that gap exactly as it did before, which is the state every modifier
+         * authored before today is still in.
+         */
+        const criterion = modifier.condition?.value
+        if (criterion) {
+            say(
+                'How to score',
+                'DERIVED',
+                `It is met when the attacking team touches the ball inside one of them and still has the ball after that touch`,
+                [`${base}.condition.value`],
+                [],
+            )
+        }
+        if (modifier.endsOn === 'POSSESSION_CHANGE') {
+            say(
+                'How to score',
+                'DERIVED',
+                `Once met it stays live while that team keeps the ball, and a change of possession ends it`,
+                [`${base}.endsOn`],
+                [],
+            )
+        } else if (modifier.endsOn) {
+            // A termination this renderer has no coach wording for is reported, never paraphrased.
+            observations.push(
+                `${modifier.elementId} ends on ${String(modifier.endsOn)}, and rendering has no coach-facing wording for that ` +
+                    `occurrence, so the activity says nothing about when the modification ends. The game establishes it; the ` +
+                    `translation is missing, which is a rendering gap rather than a knowledge one.`,
+            )
+        }
+
+        if (!criterion) {
+            observations.push(
+                `The game establishes WHAT the wide channels do — a line crossing is worth ${Number.isFinite(magnitude) && Number.isFinite(primary?.value) ? primary.value * magnitude : 'more'} ` +
+                    `instead of ${primary?.value} when the condition is met — but NOT what counts as meeting it. The authored source is "actions starting in or ` +
+                    `moving through the wide channel", \`REGION_ENTRY\` carries no registered semantics, and the authoring note states the gap itself: ` +
+                    `"no rule for what counts as 'moving through' (ball, player, touch)". So a coach is told the consequence and cannot be told the ` +
+                    `trigger. Nothing is chosen here on the engine's behalf.`,
+            )
+        }
+        if (criterion && !modifier.endsOn) {
+            observations.push(
+                `${modifier.elementId} states what satisfies its condition and nothing about when the modification ends, so on the ` +
+                    `representation it does not persist beyond the event it is evaluated at. That is the row's stated reading of an absent ` +
+                    `termination and not an oversight — but if the intent was a persisting advantage, the termination is what is missing.`,
+            )
+        }
     }
 
     // ── Observations about the game, not fixes to it ─────────────────────────────────────────────
@@ -452,18 +565,37 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
 
     const excludedFunctions = (fixture.status.notEstablished ?? []).filter((n: any) => n.path.endsWith('.functions'))
     if (excludedFunctions.length) {
-        // Corrected after tracing the authored knowledge. The earlier wording called this a gap a coach
-        // would notice — framing it as unauthored. It is not: the `functions` rows are excluded *by an
-        // authored item* that names `access` as a forbidden member, and the Wide Zone separately CLAIMS a
-        // value-modification and information relationship for the channel which reaches no line at all. So
-        // the absence of a function string is not the finding; what the channel DOES is, and that is
-        // reported against his operational-participation requirement rather than here.
-        observations.push(
-            `${excludedFunctions.length} \`functions\` rows are excluded, and that exclusion is AUTHORED rather than missing — the Wide Zone ` +
-                `item names \`access\` as a forbidden member of \`functions\`. So a coach being told nothing about what a region is "for" is ` +
-                `not by itself the defect. The defect is that nothing in the game establishes what CHANGES when players interact with the ` +
-                `channels, which the operational-participation check reports separately.`,
-        )
+        /**
+         * **Which kind of absence this is, read from the row rather than asserted.**
+         *
+         * This used to say the exclusion is AUTHORED and name the Wide Zone item as the thing that
+         * forbids `access`. That was true of a game containing Wide Zone. It fired on the presence of
+         * an excluded `functions` row alone, without checking either that the object was present or
+         * that the row's own reason was an exclusion — so in a game with no Wide Zone, where the row is
+         * simply unconstrained, it attributed the gap to an object that is not there.
+         *
+         * A declaration of `NON_CLAIMED` is nothing having spoken; an excluded row is something having
+         * spoken against it. They are different findings and a reader acts on them differently, so the
+         * row's declaration decides which one is reported.
+         */
+        const authored = excludedFunctions.filter((n: any) => !(n.declared ?? []).includes('NON_CLAIMED'))
+        const unconstrained = excludedFunctions.filter((n: any) => (n.declared ?? []).includes('NON_CLAIMED'))
+        if (authored.length) {
+            observations.push(
+                `${authored.length} \`functions\` row(s) are EXCLUDED by an authored item rather than merely missing ` +
+                    `(${authored.map((n: any) => `${n.path} — ${n.reason}`).join('; ')}). So a coach being told nothing about what those ` +
+                    `regions are "for" is not by itself the defect; what matters is whether the game establishes what CHANGES when players ` +
+                    `interact with them, which the operational-participation check reports separately.`,
+            )
+        }
+        if (unconstrained.length) {
+            observations.push(
+                `${unconstrained.length} \`functions\` row(s) are simply NOT CONSTRAINED — nothing authored says what those regions are ` +
+                    `"for" and nothing forbids saying it either (${unconstrained.map((n: any) => n.path).join('; ')}). That is an absence of ` +
+                    `knowledge rather than an authored exclusion, and it does not stop a region participating: this game's target region ` +
+                    `participates because the objective references it, not because it carries a function string.`,
+            )
+        }
     }
 
     return { instructions, coachingObservations: observations }

@@ -139,6 +139,44 @@ function matchesBreakLines(text: string): boolean {
 }
 
 /**
+ * Group J — the attacking individual duel: beating a defender one against one.
+ *
+ * A04 "Beat Defenders 1v1" was the only Learning Goal of the thirteen that matched no group at all
+ * and committed the general soccer default instead, which is why its whole package was generic
+ * build-up knowledge rather than anything about duels. Nothing downstream could know that, because
+ * the resolution status never crosses the selection boundary.
+ *
+ * **An elimination verb and its object are both required.** "Improve attacking conditions" and "win
+ * the ball back" carry the nouns without the act, and matching on either half alone pulled in goals
+ * that belong to other groups. The numerical frame ("1v1") only carries a match when dribbling
+ * intent arrives beside it, because the frame itself is shared with the defensive side of the same
+ * problem.
+ *
+ * Defensive duels never reach here: `matchesDefensive` is checked first and returns, so D03
+ * "Defend 1v1. Prevent attackers progressing in duels." routes defensively on "prevent".
+ */
+function matchesAttackingDuel(text: string): boolean {
+    const t = text.toLowerCase()
+    // The act and what it is done to, in one sentence.
+    if (
+        /\b(?:beat|beating|beats|eliminat\w*|get(?:ting|s)?\s+past|go(?:ing|es)?\s+past|dribbl\w*\s+past|run(?:ning|s)?\s+past|take\s+on|taking\s+on|takes\s+on)\b[^.]*\b(?:defender|defenders|defence|defense|opponent|opponents|marker|markers|man|player|players)\b/.test(
+            t
+        )
+    )
+        return true
+    // "take your man on", "take defenders on" — the object sits before the particle.
+    if (/\b(?:take|taking|takes)\b[^.]*\b(?:defender|defenders|opponent|opponents|marker|markers|man)\b[^.]*\bon\b/.test(t))
+        return true
+    // The numerical frame, but only with dribbling intent beside it.
+    if (
+        /\b(?:1\s*v\.?\s*1|1\s*vs\.?\s*1|one[-\s]?(?:v|vs\.?|on)[-\s]?one)\b/.test(t) &&
+        /\b(?:dribbl\w*|carry\w*\s+the\s+ball|run\s+with\s+the\s+ball)\b/.test(t)
+    )
+        return true
+    return false
+}
+
+/**
  * Group F — Finishing / scoring chance / shooting.
  * Previously absent: finishing-flavored inputs (shot, scoring chance, penalty box, near opponent
  * goal) didn't trigger any group, OR triggered Group A (touch/receiving) which restricted the
@@ -633,6 +671,32 @@ export function deriveInputConstraints(input: string): InputConstraintHints {
         // WS2: lead with the line-breaking-specific forms (penetration through/between lines)
         // rather than End Zone, which previously won the tie-break and absorbed break-lines goals.
         pickArchetypes(['Directional Possession Games', 'Channel Games', 'Target Games', 'End Zone Games'])
+    }
+
+    if (matchesAttackingDuel(text)) {
+        matchedSignals.push('signalGroup:J_attacking_duel')
+        // The duel has to be VISIBLE and worth taking, and the alternatives have to stay live. The
+        // learning intention is recognising and exploiting an opportunity to beat a defender, never
+        // being required to dribble. Line-breaking leads because its own coach vocabulary already
+        // carries dribbling past an opponent and splitting defenders; possession stability stays in
+        // the pool precisely so the supporting pass remains a real option the player chooses
+        // against, which is what makes the duel a decision rather than an instruction.
+        pickLenses([
+            'Line-Breaking Opportunity',
+            'Space Exploitation Opportunity',
+            'Space Creation Opportunity',
+            'Possession Stability Opportunity',
+        ])
+        // Structural conditions only, and deliberately no incentive layer: nothing here pays a
+        // player for dribbling, because rewarding the act converts a discoverable opportunity into
+        // a compulsory one. Small Area is what makes the duel recur — less space, less time, a
+        // defender in front of you more often — and it shapes the environment rather than the
+        // response. Zone Structure shapes where the problem occurs on the same terms.
+        pickConstraints(['Small Area Condition', 'Zone Structure Condition'])
+        // Only the one form, because the directional possession game is the archetype this goal is
+        // authorized against; offering alternatives here would let an uncontracted form win the
+        // tie-break and leave the goal with no game to build.
+        pickArchetypes(['Directional Possession Games'])
     }
 
     if (matchesFinishing(text)) {
