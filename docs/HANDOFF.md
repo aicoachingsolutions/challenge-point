@@ -6887,3 +6887,94 @@ assessment it would rest on is the one Finding A invalidates.
 - **One agent claim I checked and corrected:** that A04's base value of 1 is a non-authored
   `ENGINE_ONLY` / `PREFERRED_DEFAULT`. True of RPC-001-20, which A04 **does not select**. A04's `game::V2`
   resolves `RESOLVED:ENTAILED` by **STANDING_DECISION SD-25**. The base is properly supported in A04.
+
+### 11 · THE NARROWEST A04 CONFIGURATION, and the finding that reframes the Wide Zone work
+Investigation only (his 7 Oct order): nothing implemented, no knowledge authored, generation frozen,
+other twelve goals measured but untouched. Full detail in
+`docs/audits/a04-narrowest-configuration-2026-10-08.md`.
+
+**ANSWER — YES, AND IT IS ALREADY AUTHORIZED.** Configuration B (GF2 + Sport Profile, Wide Zone
+removed) measured end to end: **32 lines** (vs 51), `{derived:13, open:4, existential:2,
+notEstablished:6, elements:4}`, Gate A `DEFERRED_TO_REALIZATION` with knowledge verdict **PASS**,
+realization **authorized** with `notAuthorizedBecause: []`, acceptance **0/0/0**, post-realization
+gates **validated**, **10 instructions, ZERO fidelity violations**. `value` is
+`{primaryEvent:{value:1,kind:line_crossed}}` alone — `valueModifiers`, `consequences`, `timeWindows`
+all `null`. One region (the line), one transition (POSSESSION_CHANGE/CONTINUE/startsEpisode).
+**Nothing was removed to force a pass** — configuration A passed too; the removal tests whether the
+incentive is load-bearing. Removing it also dissolves BOTH 7 Oct question-3 blockers (no channels → no
+channel-contains-scoring-line; no persisting modifier → nothing for the post-score gap to decide).
+- **Supported but NOT REACHABLE.** `derivationInputFor` takes the selection as given (`wanted = new
+  Set(selection.selected...)`); nothing permits dropping a committed object. B was produced by
+  filtering the selection in a probe. Reaching it for real = changing what A04 selects.
+- **Initial possession survives the removal** — GF2's own POSSESSION_CHANGE transition reads the
+  relationship, so SD-104's "an established rule reads it" is met without the modifier.
+
+**FINDING 1 (THE HEADLINE) — A04 IS THE ONLY ONE OF THE 13 GOALS WHOSE SELECTION DOES NOT RESOLVE.**
+`resolution.status = "fallback"`, reason *"No specific signal group matched; committed the general
+soccer default package (Z_soccer_general). Coach intent was not specifically resolved — treat as
+reduced confidence."* All twelve others are `MATCHED`. **So A04's entire package — GF2, Central
+Density, Wide Zone, progression-bonus, turnover-reward, all three lenses — is the generic soccer
+default**, not knowledge selected for beating defenders 1v1. Three weeks of Wide Zone work rests on an
+object that is in A04 by default, not by design. (The work itself is general and sound; the premise was
+never checked.)
+- Corroborated everywhere: GF2 = *Directional Possession Games* / "maintain possession with forward
+  intent" / `phase_of_play: "Build-up"`; lenses = Break Lines, Create Space, Maintain Possession; CD =
+  `category: "Protect Space"`, WZ = `"Exploit Space"`; **every selected object anchors to `build_up`**.
+- **The library has NO knowledge for the attacking individual duel** — none of the 11 game forms, none
+  of the 10 lens categories, none of the 11 signal groups. D03 "Defend 1v1" resolves only via
+  `I_defensive_protect` (because it is *defensive*). Only "1v1" string in the test library is
+  `normalizeCoachingInput.ts:102`, as a *residual skill-ish token*.
+- **The package preserves the behaviour A04 exists to change.** A04 `Choose This When: "Players avoid
+  taking defenders on."` vs GF2 *"encourage progression without restricting passing options"*,
+  Possession Stability *"avoid pass limits or restrictive rules"*, Line-Breaking *"avoid forcing
+  forward passes"*.
+- The turnover/space problem Christian sensed has a home: **GF4 Transition Games** ("exploit moments
+  after turnover"), already contracted as `blind:GF4`. A04 is not that goal.
+
+**FINDING 2 — THE REDUCED-CONFIDENCE FLAG IS DROPPED AT THE SELECTION BOUNDARY.** `generateSelection`
+produces `resolution`; `BoundedSelection` (`run-bounded-selection.ts:36-47`) **has no `resolution`
+field**, and `Z_soccer_general` appears nowhere in `derivation/`, `realization/`, `rendering/`. Every
+green signal ever produced for A04 was computed downstream of a discarded "reduced confidence" flag.
+**Same failure class as the recurring one** — a projection dropping an authored field, invisible
+because no consumer reads it.
+
+**CENTRAL DENSITY — NOT REQUIRED, NOT OPTIONAL: NO SUCH FIELD EXISTS.**
+- It is an **Environmental Manipulation** (`environmental-manipulations.ts`), not a Constraint
+  (`constraints.ts`) — two separate pools. Authored `constraintRole: "structure"`; WZ's is `"hybrid"`.
+- **"foundation constraint" is POSITIONAL**: `run-bounded-selection.ts:87-89` assigns `buckets[i]` by
+  list index and **nothing reads `constraintRole`**. The word that made it look load-bearing is an
+  artifact of position.
+- Its only function in A04 was to make WZ worth collecting (`notes: "Encourages wide play
+  indirectly"`). **Remove WZ and its absence costs nothing — they are a pair.**
+- **Inexpressible as authored.** Needs a standing per-region occupancy cap ("cap: 2-3 defenders"). A
+  consequence carries `V14b referents.region` *(ACCESS)* **or** `V14c referents.delta`
+  *(COUNT_CHANGE)*, never both, and `gates.ts:1409-1411` enforces the split
+  (`referentRow = effect === 'ACCESS' ? 'V14b' : 'V14c'`) — a COUNT_CHANGE's region would be silently
+  ignored. `R1-R4` have **no region referent** and `R2 kind` is non-spatial. EM-0007 Participant State
+  owns participation *status*. So it would need a **new register row** — moot once WZ goes.
+- **Its authored text contradicts itself** (owner question): `description` "Increase defensive pressure
+  in central areas" vs `setupGuidance` "Restrict defenders allowed inside the central zone (cap 2-3)"
+  vs `contextualAudit` "Do not restrict movement". A cap *reduces* density. Two readings, opposite
+  effects.
+
+**POST-SCORE — NO LONGER A BLOCKER IN B.** No contracted object holds a SCORE transition; SD-R3 left it
+to realization and none was authored. Measured on B: no valueModifiers, consequences or timeWindows,
+one transition. **Nothing in B reads a post-score state**, so the gap has nothing to decide and
+fidelity passes without it. No restart default introduced.
+
+**MINOR DEFECT, REPORTED NOT REPAIRED.** `render-concrete-game.ts:555-566` attributes any excluded
+`.functions` row to *"the Wide Zone item names `access` as a forbidden member"* without checking WZ is
+present or that the row's reason is an exclusion. In B the row is `reason: "not constrained"`,
+`declared: ["NON_CLAIMED"]` (a gap) with no WZ object at all, and the observation still asserted the
+authored exclusion. One condition. Live A04 claim is accurate, so it misleads only in the
+counterfactual.
+
+**PILOT READINESS in his three categories.** (1) *Structural integrity* — B **PASSES**. (2) *Learning
+design* — **FAILS for A04 in both configurations**, because no authorized knowledge targets A04's
+problem and the selected knowledge preserves the behaviour the goal exists to change; an authoring
+decision, his. (3) *Pilot observation* — field. His standard *"the environment being tested is actually
+the one the system claims to have constructed"* is the one that fails: it claims a 1v1 game and
+constructs a directional build-up possession game.
+
+**RECOMMENDED TO HIM:** park channel geometry and magnitude rather than settle them — both only matter
+if WZ stays in A04, and the case for it staying rests on a selection that never resolved.
