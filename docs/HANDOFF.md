@@ -6978,3 +6978,97 @@ constructs a directional build-up possession game.
 
 **RECOMMENDED TO HIM:** park channel geometry and magnitude rather than settle them — both only matter
 if WZ stays in A04, and the case for it staying rests on a selection that never resolved.
+
+### 12 · SELECTION INTEGRITY, the A04 authoring addition, and ROUTE A vs ROUTE B
+His 8 Oct order. Investigation only; nothing implemented; generation frozen; Wide Zone, Central
+Density, post-score and general COMPLETED_PASS all left on hold. Full detail in
+`docs/audits/selection-integrity-and-pilot-routes-2026-10-08.md`.
+
+**MY OWN CORRECTION, which he caught.** I had claimed A04's package "actively preserves the behaviour
+the coach chose A04 to change", citing *"avoid pass limits"* / *"avoid forcing forward passes"* /
+*"encourage progression without restricting passing options"*. **Overstated.** Those are
+representative-design guardrails and they are REQUIRED for A04 — remove the pass and the duel becomes a
+compulsion, not a choice. The accurate claim is narrower: **nothing in A04's package makes the duel
+visible or valuable.** The absence is the defect; the preserved pass is a requirement.
+
+**ITEM 1 — THE BOUNDARY IS `selectFor`, AND IT IS THE ONLY CANDIDATE.** Enforcing his invariant needs
+goal identity AND resolution status in one place. Measured: **`DerivationInput` has NO goal field**
+(keys: `selection, contracts, envelope, register, derivationRules`; entries are `{objectId,
+knowledgeVersion}`), and **`resolved.provenance` has none** (`inputDigest, engineVersion,
+registerVersion, derivationRulesVersion`). I checked every field for the literal `A04`: it appears
+**only in prose notes** on contract items and register rows. So **goal identity stops at `selectFor`** —
+nothing downstream knows the game was ever about A04, so no downstream check can enforce the invariant
+without a new field. `derivationInputFor` still has goalId but NOT the resolution status
+(`BoundedSelection` has no such field — the 7 Oct dropped flag), so refusing there also needs a field.
+- The change: a **third throw** in a function that already throws twice for this class
+  (`run-bounded-selection.ts:71` practice-situation mismatch, `:77` unknown goal). No new type, field or
+  vocabulary; nothing downstream changes.
+- Refuse **both** non-matched states: `computeResolution` returns `matched | fallback | unresolved`;
+  invariant is `status !== 'matched'`.
+- **Two decisions left to him:** (a) the price — A04 is the only faller, so this refuses one goal and
+  leaves twelve, but **invalidates the Golden Case and the frozen fixture**; (b) the shape — a throw is a
+  crash, a typed refusal is what a tool can present, and that is slightly larger and deliberate.
+
+**ITEM 2 — THE ADDITION, costed.** Routing: every signal group has ONE shape (text test → group name →
+`pickLenses` → `pickConstraints` → archetype family); A04 needs an eleventh — **~15 lines, ten
+precedents, no new mechanism**. `matchesDefensive` already has an **ATTACKING-AGAINST-A-DEFENCE
+OVERRIDE** firing false for `beat|break down|play through … compact|low block|organised`; A04 falls
+through only because `defenders` is not in that noun list. So A04 is **correctly not routed defensively**
+and a new attacking group would not be pre-empted by the exclusive defensive branch.
+- **Lenses cost ZERO** — not contracted knowledge, excluded from derivation. Best fit **Line-Breaking
+  Opportunity** (its `coachVocabulary` already has `"dribble through"`, `"dribble past line"`,
+  `"split defenders"`). **Game form costs ZERO** — GF2 already contracted and already where A04 lands.
+- **Packages built from contracted knowledge only** (all + Sport Profile): GF2 alone → AUTHORIZED
+  (derived 13); **GF2 + NEUTRAL-PLAYER → AUTHORIZED (derived 19, notEstablished only 3)**; GF2 +
+  VARIABLE-TARGET → **FAIL** (4 unestablished: `VARTARGET-05.a::S3`, `13.a::V18/V19/V22` + 2 unregistered
+  info triggers); GF4 + NEUTRAL → FAIL (`I17::V9` magnitude).
+- **NEUTRAL-PLAYER is the TEMPLATE, not the content.** Contracted, selected by NO goal, works today —
+  but its opportunity is *using a numerical overload*, which makes the PASS more attractive: right
+  shape, wrong content. Its value is that **his distinction is already authored into it**:
+  `NEUTRAL-16.a` EXCLUSION *"neutral involvement required for the primary event to count"*,
+  `NEUTRAL-16.b` EXCLUSION *"…the only or dominant route…"*, `NEUTRAL-15.a` EXCLUSION on V8b (may not
+  even be a modifier's condition), `contextualAudit` *"not a coaching script"*. **Any attacking-1v1
+  object should be built in that shape.**
+- **SMALLEST ADDITION: contract SMALL AREA CONDITION** — already in the EM library, so a restatement,
+  not a new mechanism or library. `includesIncentiveLayer: false`, `incentiveMechanism: "none"` → **no
+  modifier, so no magnitude/criterion/persistence/geometry: it cannot re-open anything on hold.** Its
+  mechanism is `E2`/`E3`, and **GF2 already carries that exact item pattern** (`GF2-24.a E2 AUTHORED
+  SUPPORTING "40-60 m"`, `GF2-24.b E3 … "25-40 m"`).
+- **HONEST LIMIT + THE USEFUL RESULT:** `E1-E4` are `sourceKinds: ["SESSION"]`, so at 40×30 a small-area
+  bound is already satisfied and changes nothing visible. The real lever is the session envelope — and
+  **the Wide-Zone-less A04 runs clean at 40×30/12, 30×25/12 and 30×25/8 (4v4): every one
+  DEFERRED_TO_REALIZATION, acceptance 0/0/0, post validated, 10 instructions, ZERO fidelity
+  violations**, re-rendering correctly ("30 m long by 25 m wide", "line … 25 m long", "2 teams of 4").
+  A duel-dense A04 is reachable TODAY from existing knowledge.
+- **NEW INTEGRITY FINDING: the envelope can sit outside the authored range silently.** 30 m is outside
+  GF2's authored 40–60 m; gate deferred, acceptance clean, zero violations, no observation. `GF2-24.a` is
+  SUPPORTING and **grep of `gates.ts` + `fidelity.ts` for `SUPPORTING` returns NO hits** — nothing
+  compares the session area to a game form's authored bound.
+
+**ITEM 3 — ROUTE B IS NOT SHORTER. A04 IS THE ONLY REALIZATION-AUTHORIZED GOAL OF THE 13.** Measured all
+thirteen: A04 `DEFERRED_TO_REALIZATION`/authorized; **A01, A05, A02, TA01, TA02 `NOT_EVALUABLE`**;
+**A01+From-Goal-Kicks FAILs** (`A01-02-01.a::T3/T4/T5` = placement actor/region/method); **D03, TD02
+FAIL** (`GF4 I17::V9`); A03/A06/D02 have **no contracted game form** (GF9/GF8); D01/TD01 nothing
+contracted.
+- **The near misses are UNEVALUABLE, NOT BROKEN** — `GA-INFORMATION` *"0 unheld subject(s); 0
+  unregistered trigger(s)"* and `GA-REFERENCE-INTEGRITY` *"0 reference defect(s) … 2 established no
+  structural identity"*. Cause: **two PROSE references in `blind:PASS-COMBINATION-GATE`** —
+  `PCG-02::V5` = *"own half of ATTACKING_TEAM (per-team half from SV1)"* (REQUIRED) and `PCG-10::V16` =
+  *"connected-pass count"* (SUPPORTING). Both DERIVE; neither is open. `gates.ts:799-841` runs each
+  referent through `identityOf`; prose is neither HELD nor DANGLING, so SD-57/SD-58 →
+  `probe.unestablished(line)` → the gate blocks itself. **The gate is right; the restatement is the
+  defect.**
+- `PCG-10::V16` also carries **1 CONTRADICTION** (`PCG-11` *"current connected-pass count of
+  ATTACKING_TEAM"* vs `PCG-10` *"connected-pass count"*), and `PCG-10::V17` derives to **COMPLETED_PASS
+  by OWNER_RULING/REQUIRED** — so route B touches the held COMPLETED_PASS object even though
+  GA-TRIGGER-REACHABLE passes.
+- **Split repair:** V5 plausibly small (V5 admits *"references to regions, objects or placements"*, SV1
+  per-team halves exist from SD-12, PCG already carries an SV1 item). **V16 is an OWNER QUESTION, not
+  obviously small** — V16's registered valueType is *"reference to what the information is about"*,
+  which does not require a held element, yet GA-REFERENCE-INTEGRITY lists V16 as a reference row and
+  requires HELD. Either the restatement names an element or the gate over-requires.
+
+**RECOMMENDED: ROUTE A, and most of it is already done.** Exists: authorized game, faithful render, zero
+violations, duel-dense envelope working, contracted game form, free lenses. Missing: **one** EM contract
+(Small Area). To implement: the `selectFor` refusal + the attacking-1v1 group. Blockers: none
+structural; two decisions (Golden Case price, envelope bound).
