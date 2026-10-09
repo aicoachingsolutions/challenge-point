@@ -7235,3 +7235,74 @@ no dimensional constraint introduced.
 
 **NOT DONE, deliberately:** the read-only route (he said hold until the directional structure resolves),
 the S2 item (needs his ruling), anything from his §3/§4. Suite green **369 checks**, fixture CURRENT.
+
+### 15 · THE APPROVED DIRECTIONAL CORRECTION IS INERT — an existence claim is not a permission
+He approved Option A on 9 Oct: scope SD-102, plus **one selector-free per-team existence assertion on
+`space.regions[]`**, on my 8 Oct analysis. **I implemented both, measured, and reverted everything.**
+Corpus and code are byte-identical to what he last approved. Nothing half-applied.
+
+**MY ERROR.** I reported that `GF2-09.a` (selector-free, `scope: PER_TEAM`, min 1/no max) was an
+existential claim *"realization may populate"*. I confirmed the claim exists; **I never checked its
+shortfall.** Measured: **`shortfall: 0`** on both it and the new region claim, because one shared target
+already satisfies "at least one per team". `realize()` refuses, verbatim:
+```
+c:restated:GF2:GF2-03.c: space.regions is already satisfied by c:restated:GF2:GF2-03.a, so instantiating 1 more is not authorized
+c:restated:GF2:GF2-09.a: objectives  is already satisfied by c:restated:GF2:GF2-08.a, so instantiating 1 more is not authorized
+```
+`realize.ts:479-484`: *"A collection already met by established members authorizes nothing. Instantiating
+anyway would add a member the knowledge never asked for — an invention with a claim's name on it."*
+**The sentence that should have told me was in `GF2-09.a`'s own fitNote, which I had quoted to him
+twice:** *"With a shared target (J3 = EACH_TEAM) one objective serves both teams' units."* I read it as
+describing the shared case; it also says the per-team assertion is **satisfied by** it.
+
+**WHAT DID WORK (tested, then reverted — reapply when he rules).**
+1. **Scoping SD-102.** In the `added` entry for `GF2-12.c`, change `value` from `"EACH_TEAM"` to the
+   array `["EACH_TEAM","PER_TEAM"]`, leaving `EQUALS`/`REQUIRED`/`REQUIRED_RANGE`/`OWNER_RULING`
+   untouched — so the requirement is **scoped (extent widened), not weakened**. `narrowsToSet()` needs
+   `REQUIRED_RANGE` + **a real array** (`derive.ts:175-180`); the precedent is `GF2-03.b`, whose value
+   loads as `["zone","line"]`. Result: **J3 became OPEN** (`objectives[GF2-08.a].team`), with `GF2-12.a`
+   still bounding EACH_TEAM as the preferred default.
+   - **NOTE: `items` restatements CANNOT restate an ADDED item.** `corpus-restatement.ts` applies
+     `items` over `contract.items` and splices `ADDED_ITEMS` **afterwards**, so my first attempt landed
+     in `tally.notFound: ["restated:GF2::GF2-12.c"]` — reported, not silent. Edit the `added` entry.
+2. **A real Gate A circularity, exposed by (1).** With J3 open, `GA-DIRECTION` returned NOT_EVALUABLE and
+   Gate A refused to authorize the realization that would have made the choice the clause waits for.
+   Cause: the gate pushes the open J3 onto `probe.missing`, and `probe.blocked` is
+   `blockedBy.length || missing.length`. The gate's own comment already says this case is *"pending on it
+   rather than violated by it (SD-39)"*, and `gates.ts:432` already has
+   `deferred(clause, owes)` — *"a clause that cannot be answered until realization has chosen"*.
+   **The two-line patch (tested → `gateA DEFERRED_TO_REALIZATION`, `authorized true`):**
+   - collect open J3 classes into a `pendingTeams[]` instead of letting them fall through, and
+     `if (!attacked.size && !pendingTeams.length) probe.missing.push(...)` — so an unmade choice is not
+     an absence;
+   - `probe.pendingOn.length && !probe.blocked ? deferred(ATTACKS, 'the chosen team for every objective,
+     which fixes which end each side attacks') : ...` before the existing notEvaluable/fail ternary.
+
+**WHAT THE CORRECTION ACTUALLY NEEDS — classes, not existence assertions.** `GA-DIRECTION` reads
+`classesOn(ctx,'J1')` and **one J3 line per CLASS**. Instantiated members are not classes (SD-97:
+existential coverage *"individuates nothing and owes no fields"*), so members cannot carry their own J3
+and the gate can never see two designations. **The working precedent is Wide Zone: two authored items,
+each individuating one region (ruling C33).** So opposing targets needs:
+(a) a second objective-area region item **with its own selector**; (b) a second objective item **with its
+own selector**; (c) **a designation on each J3** naming which side attacks which end.
+
+**(c) IS THE HARD PART AND IS HIS.** There is **no registered J3 designation vocabulary** (the register's
+`vocabularies` has no team/designation key). The relational designations the corpus uses
+(ATTACKING_TEAM / DEFENDING_TEAM, evaluated per episode) read wrong for a directional game; static
+labels were removed 2 Oct as unsupported — the same indiscernibility that still stops the activity
+naming which team starts with the ball. **SD-95** guarantees the gate *"asks whether the objective
+structure provides an opposing directional relationship, never requiring a concrete team class to carry
+a static designation"* — so the gate will not fight it. **SD-96** reserves authored J3 knowledge to cases
+the source establishes and records that **GF2's source does not** — which is why SD-102 had to be
+owner-authored, and why this would be too.
+
+**OPTIONS GIVEN HIM:** (A) author the full set — everything downstream is ready, only the designation
+pair is a real question; (B) **run the shared-target activity now, directional as the second activity** —
+recommended, it is validated and in his hands today and the route is a day's work; (C) scope only — not
+viable and advised against: it makes J3 a choice nothing can satisfy directionally, and because the
+scoping lives in GF2's contract it opens that choice for **every** GF2 goal, the global change he asked
+to avoid.
+
+**His conditions A/B/C were never reached** — the blocker is upstream — and **the read-only route is not
+built.** Everything else as delivered 8 Oct: activity, corrected diagnostic notes, retired Golden Case,
+both integrity protections.
