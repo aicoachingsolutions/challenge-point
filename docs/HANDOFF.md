@@ -7306,3 +7306,52 @@ to avoid.
 **His conditions A/B/C were never reached** — the blocker is upstream — and **the read-only route is not
 built.** Everything else as delivered 8 Oct: activity, corrected diagnostic notes, retired Golden Case,
 both integrity protections.
+
+### 16 · THE TEAM–TARGET DESIGNATION PROPOSAL (tested, awaiting his ruling)
+His 9 Oct ask: *"return only the proposed solution for expressing fixed opposing team–target
+assignments, including any owner-authored vocabulary decision you need from me."*
+
+**ANSWER: a new owner-authored designation pair IS required.** Why nothing existing works:
+- `ATTACKING_TEAM` / `DEFENDING_TEAM` (NEUTRAL-03.a/14.b, WIDEZONE-14.a) — **possession-relational**,
+  evaluated at the trigger/episode (RC-22) → the assignment would flip on every turnover.
+- `EACH_TEAM` — the shared arrangement itself.
+- `NOT_LAST_TOUCH` (GF2-16.a), `LOST_BALL` (GF2-07.b) — event-relational, restart ownership.
+- **`BUILD_OUT_TEAM` (RPC-001) — the closest precedent and a genuinely STABLE designation**, used on
+  **DV1** as REQUIRED: *"BUILD_OUT_TEAM attacks away from its own-half start area toward its
+  PRIMARY_SCORING reference"*. Defined in **no vocabulary** (consistent with: nothing validates J3).
+  But it is defined by a context function A04 has no counterpart to, and is **one** designation for an
+  **asymmetric** arrangement. A04 is symmetric and needs two.
+- A fixed named team — **already EXCLUDED**: `NEUTRAL-04.b` forbids `TEAM_<id> (any fixed named team)`.
+- **A realization handle CANNOT do it** — the decisive fact. The two objectives must be individuated by
+  their own `team` selector on **authored** items, and a handle is minted at realization, so it does not
+  exist when the item is written. (`J1 selectorAttributes: ["role","team"]`.)
+
+**TESTED (two throwaway J1 items, selector `role=PRIMARY_SCORING & team=<designation>`, then reverted):**
+1. **Two objective CLASSES formed, each with its own J3 line** — the structure `GA-DIRECTION` reads.
+2. **The selector ESTABLISHED the value by itself** — both lines resolved `derived` to their
+   designations with **no separate J3 item**. The two individuating items do both jobs.
+3. **`GA-DIRECTION` ATTACKS clause PASSED** ("3 designation(s) attack one, including a shared target").
+4. OPPOSITE clause NOT_EVALUABLE because the probe objectives referenced no region — the clause working,
+   and the same clause that **FAILS** (not defers) if two targets are not at opposite ends, which is the
+   post-realization rejection he asked for.
+
+**NOT yet run end to end:** the geometry (two target regions at opposite ends, each referenced by one
+objective). Ordinary authoring on rows already in use.
+
+**PROPOSED TO HIM:** `TEAM_AT_AXIS_START` / `TEAM_AT_AXIS_END` — "the team whose own end is the start /
+the far extreme of the long axis". A **fixed allegiance to one end**, assigned at setup, unchanged for
+the activity; neither names a role. Each objective is attacked by the team whose own end is the opposite
+one. Scope WHOLE_GAME, used only on the two per-team objective items; `EACH_TEAM` keeps the shared
+arrangement. Grounded in the axis because the two ends are the only things the game establishes that
+distinguish one target from the other.
+
+**TWO CONSEQUENCES FLAGGED (not vocabulary):**
+- Both arrangements cannot be live at once (3 objectives would coexist). **Use the existing conditional
+  mechanism (SD-88), precedent `RPC-001-05.a` — "only if V1 = target_player".** Per-team items apply when
+  the arrangement is PER_TEAM, the shared item when EACH_TEAM. This is what keeps both available.
+- The renderer special-cases `EACH_TEAM` in **two** places (`render-concrete-game.ts:387` the shared-line
+  sentence, `:448` the diagnostic note) and needs the opposing case. Coach text will not use the tokens.
+
+**AFTER HIS APPROVAL, in order:** two individuating objective items · two target-region items at opposite
+positions · the conditionality · SD-102 scoping (§15) · the two-line Gate A deferral (§15) · realization
+· his three conditions · the read-only route. No further decision identified.
