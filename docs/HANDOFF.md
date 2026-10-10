@@ -7662,3 +7662,59 @@ rendering and fidelity with nothing else touched.
 implemented, no contract altered, A04 intact.** Open for him: **what the information rule's subject
 should name.** Until he rules, the five stay blocked and A04 remains the only realization-authorized
 goal.
+
+### 2026-10-10 (§22) — §21 REPRODUCED. ITS REPAIR TARGET IS **V16, NOT V15**, AND THE RULING AS POSED UNBLOCKS NOTHING
+
+**Independent reproduction of §21 from a clean cloud checkout** (`npm install` → `tsc --noEmit` clean
+→ `npm test` **74/74** → `npm run bounded:selection` per goal → `npm run pilot:a04`). §21's figures
+hold. Its **conclusion** holds — two selectors on an existing contract, no new contract, no register
+row, no code. Three of its **addresses and mechanisms** do not, and one of them changes what the
+owner has to rule on.
+
+**GATE A, REPRODUCED:** A04 `DEFERRED_TO_REALIZATION`, 17 derived, 0 blocks — still the only
+realization-authorized goal. A01/A05 43 derived · A02/TA01/TA02 27 · A03 23 (`FAIL`) · D01 7. The
+five `NOT_EVALUABLE` goals all withhold on exactly the same two checks, `GA-INFORMATION` and
+`GA-REFERENCE-INTEGRITY`.
+
+**THE BLOCKED LINES, FROM `check.blockedBy` RATHER THAN FROM READING:**
+
+| line | blocks | derived value |
+|---|---|---|
+| `…PASS-COMBINATION-GATE:PCG-10::V16` | **`GA-INFORMATION` + `GA-REFERENCE-INTEGRITY`** | `"current connected-pass count of ATTACKING_TEAM"` |
+| `…PASS-COMBINATION-GATE:PCG-02::V5` | `GA-REFERENCE-INTEGRITY` only | `"own half of ATTACKING_TEAM (per-team half from SV1)"` |
+
+**1. §21 names `PCG-10::V15` as a repair target; the blocked line is `PCG-10::V16`.** `gates.ts:1209`
+reads the subject from `lineOf(rule.classId, 'V16')` — V15 is only what makes `GA-INFORMATION` engage
+(`classesOn(ctx, 'V15')`, `gates.ts:1197`). §21's prose has this right; the line it names for the fix
+does not. A restatement aimed at V15 would leave the gate exactly where it is.
+
+**2. BOTH DEFECTS ARE ONE KIND, NOT TWO.** §21 calls `PCG-02::V5` a referent that *"names nothing
+held"*. That is the `DANGLING` branch (`gates.ts:822`), and the gate reports **`0 named no held
+element; 2 established no structural identity`** — both lines take the `OPEN_TEXT` branch
+(`gates.ts:823-828`). Not a dangling pointer plus an identity failure: **the same prose-where-identity-
+is-required defect, twice.** So it is one ruling pattern applied to two selectors, which the test
+suite already states as general — *"SD-63: the identity rule is general — an open-text objective
+reference withholds, not fails"*.
+
+**3. THE RULING AS POSED CANNOT UNBLOCK THE FIVE GOALS.** §21 leaves open *"what the information
+rule's subject should name"* — that is **V16 alone**. `PCG-02::V5`'s referents are never asked about.
+Naming only V16 drops `GA-REFERENCE-INTEGRITY` from `openText=2` to `1`, which still sets
+`probe.blocked`, so `heldClause` stays `NOT_EVALUABLE` (`gates.ts:832`) and **Gate A stays
+`NOT_EVALUABLE` for all five.** Both selectors must be named in the same ruling or the five do not
+move. **Two names are needed, not one.**
+
+**WHAT IS NOT IN DOUBT.** The element is held: `PCG-02::V3`, selector `type=connected-pass-combination`,
+`EXISTS`, `PER_TEAM`, basis `AUTHORED`, and it is present in the resolved game as the primary event's
+condition. Both prose strings are *about* that element. The repair remains a restatement of two
+selectors against knowledge already contracted.
+
+**A04 RE-VERIFIED INTACT:** Gate A `DEFERRED_TO_REALIZATION`, realization authorized, all three
+acceptance checks clean, post-realization gates validated, 12 instructions each citing a property,
+**0 fidelity violations** — and `docs/audits/a04-pilot-activity.txt` **reproduced byte-for-byte** from
+a fresh run on a different machine, so the committed audit is determinism evidence and not just a
+record. A04's own four constraints remain uncontracted and shape none of it; the five blocked goals
+are still the only ones whose constraints contribute anything.
+
+**Nothing implemented. No contract altered. A04 intact.** Open for him, now as **two** names: what
+`informationRules[].subject` (V16) and what `primaryEvent.conditions[].referents` (V5) should each
+name, structurally, against the element `PCG-02::V3` already holds.
