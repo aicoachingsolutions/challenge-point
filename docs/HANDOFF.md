@@ -7506,3 +7506,63 @@ standing-decision failed-line count 6→7; `cardinality.unit.ts` regions 3→4.
 structure and explains why the corpus-wide direction verdict is NOT_EVALUABLE (eight contracts, no
 single arrangement) while A04's own game defers then validates; its SD-101 case became **synthetic**,
 because scoping the decision removed the cross-contract contradiction it used as a specimen.
+
+### 20 · THE CONSTRAINT–AFFORDANCE BREAK — two breaks, and the first one is shadow mode
+His push-back of 10 Oct: structural validity is not the product; the constraint→affordance→environment
+relationship is, and A04's four selected constraints contribute nothing. **He is right.** Investigation
+only; nothing implemented; A04 structural work untouched.
+
+**BREAK 1 — THE CANONICAL AFFORDANCE REQUIREMENTS ARE AUTHORED, RESOLVED, AND INERT BY DESIGN.**
+`src/system/knowledge-core/affordance-target-matrix.ts` holds the **CAR Matrix RC1.2**: 68 cells keyed by
+canonical Game Problem (GP-001..017), rating the four canonical affordances (Functional Object
+Interaction / Open Pathway / Support Availability / Competitive Interaction Opportunity)
+Essential / Supportive / Not Required, with evidence, confidence and provenance per row.
+`SIGNAL_GROUP_TO_GAME_PROBLEM` maps signal groups to Game Problems. `resolveAffordanceTargetProfile` is
+imported by `generateSelection.ts:2` and called at **`generateSelection.ts:916`** — inside
+`selectionTrace`, under the comment **"RAS RC1 Stage 3, SHADOW MODE: resolved for inspection only — no
+selection influence."** The matrix header states the live rule: *"Runtime (§10): preserve every
+Essential; include Supportive when compatible; record matrix version + profile in the trace."*
+→ **The rule is written and not running.**
+- **AND THERE ARE TWO AFFORDANCE VOCABULARIES WITH NO AUTHORED RELATION.** The canonical four, versus the
+  **ten test-library lenses** selection actually commits (Break Lines, Exploit Space, …), versus a third
+  on the constraints themselves (`targetAffordancePrimary`: `exploit_space`, `break_lines`, `perception`…).
+  A search for the canonical names outside the matrix and its workbook returns **nothing**. So switching
+  shadow mode off would connect nothing; the missing piece is **one mapping table**.
+
+**BREAK 2 — CONTRACT COVERAGE: 4 of 23 selectable constraints can change a game.** Per goal (committed
+constraints that can reach the environment): A01 2/4 · A05 2/4 · TA01/A02/D02/TA02/A03/A06 1/4 ·
+**D01, TD01, TD02, D03, A04 0/4**. Best case is half; five reach zero; **A04 is the fifth of five, not an
+isolated case.**
+**The shape is two problems in one number:**
+- **foundation (structure): 1/8 contracted, 8/8 carry authored setupGuidance** → a **restatement backlog**.
+- **shaping (hybrid): 3/5 contracted, 5/5 authored** → nearly done.
+- **consequence: 0/10 contracted, 1/10 carries setupGuidance** → an **authoring gap**: nine are a title,
+  a description and a note ("reward winning the ball back") with **no magnitude, condition or trigger**.
+  Same situation as WIDEZONE-13.a, removed for offering alternatives without selecting one — and Wide
+  Zone then took ~6 owner rulings to become usable.
+**Demand ranking of uncontracted objects:** central-density 6 goals · turnover-reward 6 · interception-
+reward 5 · small-area 4 · counter-press-window 4 · goalkeeper-included 4 · progression-bonus 4.
+**Highest demand ≠ cheapest:** central density is **inexpressible** as authored (§13).
+
+**THE CAPABILITY IS DEMONSTRABLE — measured.** GF2 + profile = 17 derived, 2 regions, value = primaryEvent.
+**+ Wide Zone = 33 derived, 4 regions, value gains valueModifiers** (adds S3 S4 S6 V8a V8b V8c V8d V9 V9a
++ `perceptual-reference`). **+ Neutral Player = 23 derived** (adds P6a P6b P7 P12). So constraint →
+environment works; **no goal yet commits a contracted constraint relevant to its own affordance targets.**
+
+**MINIMUM CORRECTIONS GIVEN HIM.**
+1. **Contribution integrity (his §1) — a check, not a system.** Assert every selected object either
+   contributed ≥1 derived property or is reported missing. Both halves exist: `selection.missing`, and
+   every derived line carries `entailing[].item.contractId`. Today the split is a *note* in the activity
+   file; make it a *check*.
+2. **The affordance link (his §2) — one authored mapping** from the operational vocabulary to the
+   canonical four. Matrix, GP mapping, resolution and runtime rule all already exist; the table is the
+   only missing piece, and it is owner-authored. Then shadow mode can come off.
+3. **Coverage** — the foundation restatement backlog moves several goals and needs no decisions; the
+   consequence bucket needs his rulings first.
+4. **For one demonstrative activity: Zone Structure Condition (foundation) + Variable Target Condition
+   (shaping).** Zone Structure: `includesIncentiveLayer: false` so no magnitude/trigger question; setup
+   guidance is an **instruction** ("divide the field into 3-4 defined zones") not a "typical", so it
+   restates as REQUIRED_RANGE where Small Area's "typical: 30-40m x 25-35m" would be TYPICAL_EXAMPLE and
+   **inert** (`derive.ts:159`); rows already proved by Wide Zone; audit note matches his standard.
+   Variable Target: already contracted, non-compulsory content, fails on 4 properties + a `COACH_CUE`
+   trigger absent from the registered vocabulary.
