@@ -7401,3 +7401,50 @@ SD-102 scoping (§15) · the two-line Gate A deferral (§15) · the renderer's o
 his six criteria · the read-only route with a link.
 
 **Engine byte-identical to what he last approved**, verified after reverting today's tests.
+
+### 18 · THE TWO TARGETS CANNOT BE INDIVIDUATED ALONG THE AXIS — one register entry short
+He approved the full package 9 Oct. Built it, hit one limit at the geometry, **reverted everything**.
+Engine byte-identical to what he last approved.
+
+**THE BLOCKER (measured).** Two S2 items with the **same selector collapse into one class** — the second
+target region (`GF2-03.d`, selector identical to `GF2-03.a`) **formed no class at all**, the objective
+referencing it dangled, and `GA-REFERENCE-INTEGRITY` **FAILED**. The way this corpus makes two regions
+of one kind is the **Wide Zone pair, individuated by `lateral`** (`wide-left` / `wide-right`) — a
+selector attribute with authored **interval tests against `position.across`** (AM-17).
+`S2.selectorAttributes = ["noun","functions","lateral"]` — **nothing for the along axis** — and
+`selector.ts:89-94` **validates** them (`attribute ... is not a selector attribute of S2`), so an
+unregistered word is a defect, not a silent pass.
+→ **Opposite touchlines are expressible; opposite ends are not.**
+
+**SMALLEST RESOLUTION (drafted, awaiting his yes):** mirror `lateral` on the along axis —
+(1) one more entry in `S2.selectorAttributes`; (2) a closed value list with interval tests against
+`position.along`, the word-for-word analogue of `S2.lateralValues` (touches the near end line and does
+not contain the midpoint / touches the far end line and does not contain the midpoint / either / the
+central and full-length analogues; SET-VALUED); (3) the matching anchors in `spatial.ts`, where
+`LATERAL_ANCHORS = {'wide-left': 0, 'wide-right': 1}`.
+**CONTAINMENT, from S2's own register text:** *"These five values are a capability offered to CONTRACT
+AUTHORS: derivation never rewrites an authored selector or scope to use them (AM-12), so an existing
+contract gains nothing from AM-17 until it is restated."* → **adding it changes no existing game**; only
+the two new target items would use it.
+
+**CORRECTION TO MY OWN PLAN, found by measuring.** I intended to scope SD-102 by narrowing
+`GF2-08.a` / `GF2-12.a` / `GF2-12.c` selectors to `team=EACH_TEAM`. **Wrong, and it does the opposite:**
+on J1 the selector **constitutes** `team`, so narrowing **created** a shared objective carrying
+EACH_TEAM beside the two per-team ones — **three objectives, three targets**, the exact coexistence he
+forbade. **Correct mechanism:** `items` **`remove: true`** (precedent: `WIDE-ZONE-ADVANTAGE::WIDEZONE-13.a`,
+ruling SD-72) on **`GF2-08.a` alone** — the J1 existence that authors the shared objective — with
+`contracts.json` preserving it verbatim. The J3 items (`GF2-12.a/.c`) are then safely scoped by selector,
+because **a FIELD item creates nothing by itself**.
+
+**DONE AND TESTED (reverted, ready to reapply):**
+- The designation pair + two objective items: **two J1 classes, each with its own J3 line; the selectors
+  establish `TEAM_AT_AXIS_START` / `TEAM_AT_AXIS_END` by themselves** (no separate J3 items);
+  `GA-DIRECTION` ATTACKS clause **PASSES**.
+- The Gate A deferral (§15): defers on an unmade realization choice, still FAILS non-opposite targets.
+- Ready: the renderer's opposing case, the realization, the read-only route.
+- A04 selection integrity is **already merged and live** (matched selection, route exemption corrected,
+  internal invariant enforced). Dimensions and Small Area **closed** (§17) with his acceptance.
+
+**CONSEQUENCE FOR THE PILOT:** without the register entry there is no second target, so his criterion 3
+cannot be met and there is no candidate. The alternative he can choose knowingly: pilot the
+shared-target activity, which is validated and in his hands.
