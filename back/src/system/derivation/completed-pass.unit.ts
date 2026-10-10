@@ -157,6 +157,12 @@ test('registering the member changed no verdict in any of the thirteen goals', (
      *
      * TD02 and D03 move 11 → 13 failed lines: GF4's modifier gains the two new rows and authors neither.
      *
+     * **The six game-form goals moved again on 9 October (ruling C42), and again not because anything
+     * here changed.** The shared target was replaced by one per team, so every goal selecting that form
+     * gained two target regions and two objectives in place of one of each. A04 returns to 7; A01 and A05
+     * reach 8; TA01, A02 and TA02 reach 7. Only the goals selecting that form move, and no gate verdict
+     * does — A04 is still the only one that reaches realization.
+     *
      * **A04 moved 7 → 6 on 8 October, and not because anything here changed.** The attacking-duel
      * signal group resolves A04 to a matched package that no longer includes Wide Zone Advantage, so
      * the one failed line that object contributed went with it. A04 had stayed at 7 while Wide Zone
@@ -164,18 +170,18 @@ test('registering the member changed no verdict in any of the thirteen goals', (
      * A04 at all. Its gate verdict is unchanged.
      */
     const expected: Record<string, { failed: number; gateA: string; reachable: boolean }> = {
-        A01: { failed: 7, gateA: 'NOT_EVALUABLE', reachable: true },
+        A01: { failed: 8, gateA: 'NOT_EVALUABLE', reachable: true },
         D01: { failed: 6, gateA: 'NOT_EVALUABLE', reachable: true },
-        TA01: { failed: 6, gateA: 'NOT_EVALUABLE', reachable: true },
+        TA01: { failed: 7, gateA: 'NOT_EVALUABLE', reachable: true },
         TD01: { failed: 6, gateA: 'NOT_EVALUABLE', reachable: true },
-        A02: { failed: 6, gateA: 'NOT_EVALUABLE', reachable: true },
+        A02: { failed: 7, gateA: 'NOT_EVALUABLE', reachable: true },
         D02: { failed: 7, gateA: 'FAIL', reachable: true },
-        TA02: { failed: 6, gateA: 'NOT_EVALUABLE', reachable: true },
+        TA02: { failed: 7, gateA: 'NOT_EVALUABLE', reachable: true },
         TD02: { failed: 13, gateA: 'FAIL', reachable: false },
         A03: { failed: 7, gateA: 'FAIL', reachable: true },
         D03: { failed: 13, gateA: 'FAIL', reachable: false },
-        A04: { failed: 6, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
-        A05: { failed: 7, gateA: 'NOT_EVALUABLE', reachable: true },
+        A04: { failed: 7, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
+        A05: { failed: 8, gateA: 'NOT_EVALUABLE', reachable: true },
         A06: { failed: 7, gateA: 'FAIL', reachable: true },
     }
     for (const goal of goals) {

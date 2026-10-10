@@ -130,7 +130,11 @@ import { derivationInputFor, selectFor } from './run-bounded-selection'
         assert.equal(bound.scope, 'OWN_INVOLVEMENT', 'the item scopes its count to its own channels')
         assert.equal(bound.established, 1, 'and exactly one element satisfies its selector')
     }
-    assert.equal(resolved.game.space.regions.length, 3, 'two channels and the target line')
+    // **4 since ruling C42 of 9 October**, which replaced the single shared target with one per team.
+    // This configuration is the game form plus Wide Zone, so it holds the two lateral channels and both
+    // target lines. What the block is about is unchanged: the two channels each resolve to exactly one
+    // region, which the per-channel bounds above assert directly.
+    assert.equal(resolved.game.space.regions.length, 4, 'two channels and the two per-team target lines')
 }
 
 // ── 5 · THE POPULATION IS THE ONE THE SELECTOR REACHES, BY SUBSUMPTION ────────────────────────────

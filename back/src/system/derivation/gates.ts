@@ -1571,8 +1571,19 @@ function gaDirection(ctx: GateContext): CheckOutcome {
     // attacked by designations the register holds as different entries (RC-22). Team classes are not
     // consulted at all, and nothing is paired.
     const attacked = new Map<string, string[]>()
+    /**
+     * **An objective whose team realization has yet to choose is not an objective with no team.**
+     * `probe.cell` already records an open line on `pendingOn`, but reporting the same line as
+     * `missing` below would make the check `blocked`, and a blocked check is unevaluable rather than
+     * deferred — so the two are kept apart here, or the deferral below can never be reached.
+     */
+    const pendingTeams: string[] = []
     for (const objective of objectives) {
         const team = probe.cell(lineOf(objective.classId, 'J3'))
+        if (team.state === 'OPEN') {
+            pendingTeams.push(objective.classId)
+            continue
+        }
         if (team.state !== 'DERIVED') continue
         attacked.set(String(team.value), [...(attacked.get(String(team.value)) || []), objective.classId])
     }
@@ -1580,16 +1591,23 @@ function gaDirection(ctx: GateContext): CheckOutcome {
     const shared = attacked.has('EACH_TEAM')
     const opposed = [...attacked.keys()].filter(d => d !== 'EACH_TEAM')
     const established = shared || opposed.length >= 2
-    if (!attacked.size) probe.missing.push('J3 (no objective names the team that attacks it)')
+    if (!attacked.size && !pendingTeams.length) probe.missing.push('J3 (no objective names the team that attacks it)')
 
     const attacksClause = established
         ? pass(ATTACKS, attacked.size)
         : // An objective whose team is an authorized freedom may still name the other side once the
           // choice is made, so the clause is pending on it rather than violated by it (SD-39). Only
           // where every objective's team is settled and they all name one side is this a failure.
-          probe.blocked || probe.pendingOn.length || !attacked.size
-          ? notEvaluable(ATTACKS)
-          : fail(ATTACKS, attacked.size)
+          // **A pending freedom is a DEFERRAL, not an unevaluable clause.** Reporting it unevaluable
+          // makes Gate A withhold the authorization realization needs in order to make the very
+          // choice the clause is waiting for. The distinction is the one the probe already draws:
+          // `pendingOn` is an authorized freedom realization will close, `blocked` is a gap nothing
+          // has established, and only the second is unevaluable.
+          probe.pendingOn.length && !probe.blocked
+          ? deferred(ATTACKS, 'the chosen team for every objective, which fixes which end each side attacks')
+          : probe.blocked || !attacked.size
+            ? notEvaluable(ATTACKS)
+            : fail(ATTACKS, attacked.size)
 
     // Opposite ends: an objective's end is the end of the axis its referent sits in. `lo + hi` against
     // the area length compares the referent's midpoint with the centre without dividing.
@@ -1622,8 +1640,30 @@ function gaDirection(ctx: GateContext): CheckOutcome {
         oppositeClause = pass(OPPOSITE, 0)
     } else {
         const ends = opposed.map(d => endOf(attacked.get(d)![0]))
-        if (ends.some(e => e === null)) oppositeClause = notEvaluable(OPPOSITE)
-        else if (ends.some(e => e === 'CENTRE') || new Set(ends).size < ends.length) oppositeClause = fail(OPPOSITE, ends.length)
+        /**
+         * **An end that only realized geometry can fix is a DEFERRAL.** A target's position is an
+         * authored relative term — "the attacking end of the team J3 names" — and a term becomes an
+         * interval when realization composes it against the envelope, not before. So with two opposed
+         * targets this clause has nothing numeric to compare until realization has run, which is the
+         * same reason GA-ENVELOPE-FIT and GA-LAYOUT-FEASIBLE defer rather than report unevaluable.
+         *
+         * It defers only where a position IS authored and merely unresolved. An objective whose
+         * referent carries no position at all is still unevaluable, and two targets that land on the
+         * same end, or in the centre, still FAIL — the deferral moves the check to where the numbers
+         * exist, it does not excuse the arrangement from it.
+         */
+        const positionsAuthored = opposed.every(d => {
+            const reference = probe.cell(lineOf(attacked.get(d)![0], 'J2'))
+            if (reference.state !== 'DERIVED') return false
+            const referent = referentClass(ctx, reference.value)
+            if (!referent) return false
+            return probe.cell(lineOf(referent.classId, referent.row === 'S2' ? 'S5' : 'O4')).state === 'DERIVED'
+        })
+        if (ends.some(e => e === null)) {
+            oppositeClause = positionsAuthored
+                ? deferred(OPPOSITE, 'the realized position of each objective target, which fixes which end of the axis each one sits at')
+                : notEvaluable(OPPOSITE)
+        } else if (ends.some(e => e === 'CENTRE') || new Set(ends).size < ends.length) oppositeClause = fail(OPPOSITE, ends.length)
         else oppositeClause = pass(OPPOSITE, ends.length)
     }
 

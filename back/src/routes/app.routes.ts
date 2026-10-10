@@ -29,6 +29,7 @@ import User from '../models/user.model'
 import Logger from '../logger'
 import LoggingService from '../services/logging.service'
 import { deriveInputConstraints } from '../system/input-constraints/deriveInputConstraints'
+import { buildPilotActivity, isPilotRefused } from '../system/rendering/build-pilot-activity'
 import { describeUnsupportedGoal, isKnownUnsupportedGoal } from '../system/session-planning/goal-support'
 import {
     buildMultipleIntentionGuidance,
@@ -1543,3 +1544,42 @@ BaseRoutes(router, {
 })
 
 export default router
+
+/**
+ * **The A04 pilot activity, read-only.**
+ *
+ * His authorization, and the whole of the scope: *"the narrow, read-only route serving the validated
+ * A04 activity"*, which must *"serve the same validated artifact without unverified transformations,
+ * leave the frozen generation pathway untouched, and remain limited to this pilot activity"*.
+ *
+ * So: one GET, no body, no parameters that change the game, nothing written. The pipeline is the one
+ * `buildPilotActivity` holds, which the pilot script also calls — one implementation, so what is
+ * served is what was validated. Generation is not reached from here.
+ *
+ * **It refuses rather than degrades.** `buildPilotActivity` returns a refusal if anything in the chain
+ * fails to authorize, fails acceptance, fails a post-realization gate, or renders with a fidelity
+ * violation. That refusal is served as a 409 naming what failed, because his standing instruction is
+ * not to substitute fallback output or present an activity that has not passed the checks. A coach
+ * seeing an error is told the truth; a coach seeing a plausible activity that failed its checks is not.
+ *
+ * The session is fixed rather than taken from the request. The envelope is session input and a coach
+ * will want to vary it, but varying it from a query string would mean serving games this route had not
+ * validated, so it stays fixed for the pilot and the variation question waits for field evidence.
+ */
+router.get(ROUTES.pilotActivity, async (_req: Request, res: Response) => {
+    try {
+        const activity = buildPilotActivity()
+        if (isPilotRefused(activity)) {
+            return res.status(409).json({
+                error: 'The pilot activity did not pass its checks, so it is not being served.',
+                because: activity.because,
+            })
+        }
+        return res.json(activity)
+    } catch (error) {
+        return res.status(500).json({
+            error: 'The pilot activity could not be built.',
+            detail: error instanceof Error ? error.message : String(error),
+        })
+    }
+})

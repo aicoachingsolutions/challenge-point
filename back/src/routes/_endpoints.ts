@@ -20,6 +20,10 @@ const endpoints = {
         session: '/session',
         generateActivities: '/generate-activities',
         testSelection: '/test-selection',
+        // The A04 pilot activity, read-only. Serves the validated, rendered concrete game and nothing
+        // else: no generation, no variants, no write path. Limited to this one activity for the
+        // Christian-only pilot.
+        pilotActivity: '/pilot-activity',
         // The Session Planning Model registry, served so the front end RENDERS the conversation
         // rather than hardcoding it. Christian's Implementation Guide: "The workbook defines the
         // conversation. The application renders it."

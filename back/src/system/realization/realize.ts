@@ -748,6 +748,7 @@ export function realize(
                 (e: any) => e?.elementId === elementId,
             ) as { selector?: { attribute: string; value?: unknown }[] } | undefined
             const lateral = selectorTerms?.selector?.find(t => t.attribute === 'lateral')?.value
+            const longitudinal = selectorTerms?.selector?.find(t => t.attribute === 'longitudinal')?.value
 
             const realizedGeometry = realizeSpatialRelation(entry.value, index, {
                 envelope: envelope ?? {},
@@ -756,6 +757,7 @@ export function realize(
                 nounExtentDimensions: Number.isFinite(dimensions) ? dimensions : undefined,
                 otherAxisHasExtent,
                 lateral: typeof lateral === 'string' ? lateral : undefined,
+                longitudinal: typeof longitudinal === 'string' ? longitudinal : undefined,
             })
             if (!realizedGeometry) continue
             geometry.push({ lineId: entry.lineId, path: entry.path, geometry: realizedGeometry })

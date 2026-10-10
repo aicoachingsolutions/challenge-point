@@ -7448,3 +7448,61 @@ because **a FIELD item creates nothing by itself**.
 **CONSEQUENCE FOR THE PILOT:** without the register entry there is no second target, so his criterion 3
 cannot be met and there is no candidate. The alternative he can choose knowingly: pilot the
 shared-target activity, which is validated and in his hands.
+
+### 19 · THE PILOT CANDIDATE — A04 directional, 4v4, served through the application
+His full approval of 9 Oct, built and validated. **Ruling C42** throughout.
+
+**THE ACTIVITY** (`npm run pilot:a04` → `docs/audits/a04-pilot-activity.txt`): 8 players, 30 × 25,
+20 min. Two lines, one at each end. *"a team scores 1 point by getting the ball across the line it is
+attacking"* · *"Each team attacks one line and defends the other — so decide which team starts at which
+end…"* · *"When possession changes the teams swap roles, not ends: whoever wins the ball attacks the
+same line they were already attacking."* **12 instructions, every one citing a property.**
+
+**MEASURED:** Gate A `DEFERRED_TO_REALIZATION`, realization **authorized**, acceptance clean on all
+three, **post-realization gates validated**, **0 fidelity violations**. Geometry: `GF2-03.e` at
+along [0,0], `GF2-03.f` at along [30,30], across [0,25] each; `TEAM_AT_AXIS_START` → `GF2-03.f` (far),
+`TEAM_AT_AXIS_END` → `GF2-03.e` (near). Golden Case **`cdcd8316`** (derived 17, choices 6).
+
+**WHAT WAS AUTHORED / CHANGED.**
+1. **Register v6** — `S2.selectorAttributes` gains **`longitudinal`** + `longitudinalValues`
+   (`end-near` / `end-far` / `end`, interval tests against `position.along`, SET-VALUED, deliberately
+   smaller than `lateralValues`). AM-12 containment quoted: nothing existing changes.
+2. **`spatial.ts`** — `LONGITUDINAL_ANCHORS = {'end-near': 0, 'end-far': 1}`, the mirror of
+   `LATERAL_ANCHORS`; `ctx.longitudinal`; `at = lateralAt ?? longitudinalAt ?? definition.at`.
+   **`realize.ts`** reads `longitudinal` off the selector and passes it.
+3. **Knowledge (C42)** — `remove` on **`GF2-08.a`** (shared objective existence) and **`GF2-03.a`**
+   (its target region); selector scoping to `team=EACH_TEAM` on **`GF2-12.a`**, **`GF2-08.b`** and
+   (edited in place, since `items` cannot reach an added item) **`GF2-12.c`**; added **`GF2-03.e/f`**
+   (the two targets, `functions CONTAINS objective-area & longitudinal=end-near|end-far`) and
+   **`GF2-08.c/d/e/f`** (two objectives + two typed references, cross-paired to the opposite end).
+4. **`gates.ts`** — `GA-DIRECTION`: open J3s collected into `pendingTeams` so an unmade choice is not
+   `missing`; ATTACKS **defers** on `pendingOn && !blocked`; OPPOSITE **defers** when every opposed
+   objective's position is authored but not yet realized, and still **FAILs** coincident/centre ends.
+5. **Renderer** — the opposing case: two marking instructions distinguished by realized along position
+   ("one end" / "the other end", no invented orientation); "across **the line it is attacting**" when
+   there is more than one objective; the roles-not-ends sentence; **every** objective cited, which is
+   what cleared the three Q3 losses.
+6. **The route** — `GET /api/app/pilot-activity` (`ROUTES.pilotActivity`), read-only, behind the app's
+   normal bearer auth. **Verified over HTTP against the real router: 200 + the validated activity.**
+   Refuses with **409** naming what failed if any check does not pass. Touches no generation path.
+7. **`build-pilot-activity.ts`** — one implementation of the chain, called by **both** the route and
+   `run-pilot-a04.ts`, so what is served is what was validated. Returns a refusal rather than anything
+   partial.
+
+**ACCESS, and it is not a clickable link.** `/app` requires a bearer token (`userMw`), so the route needs
+a signed-in session: start the API, sign in, GET the path. **I did not add an unauthenticated endpoint** —
+that is a security change, offered but not taken unilaterally.
+
+**ENCODING TRAP WORTH KEEPING.** A selector copied from `contracts.json` and written back through a
+UTF-8 round trip produced `no registered operator in: functions âˆ‹ objective-area`. **`CONTAINS_OPS =
+['∋', ' CONTAINS ']`** — use the **ASCII `CONTAINS`** in any authored selector and the encoding cannot
+bite.
+
+**BASELINES MOVED, each with its reason in the test:** corpus `lines` 131→138, `RESOLVED:ENTAILED`
+69→72, `NOT_AUTHORED` 27→29, `GAP` 27→29, open lines 17→18; `itemsRestated` 40→42, `itemsRemoved` 2→4,
+`itemsAdded` 16→22; the per-goal table (A01 8, TA01 7, A02 7, TA02 7, A04 7, A05 8); the
+standing-decision failed-line count 6→7; `cardinality.unit.ts` regions 3→4.
+**Tests re-pointed rather than deleted:** `derivation-stage10`'s SD-102 case now asserts the per-team
+structure and explains why the corpus-wide direction verdict is NOT_EVALUABLE (eight contracts, no
+single arrangement) while A04's own game defers then validates; its SD-101 case became **synthetic**,
+because scoping the decision removed the cross-contract contradiction it used as a specimen.

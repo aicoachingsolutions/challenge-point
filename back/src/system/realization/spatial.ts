@@ -61,6 +61,22 @@ const LATERAL_ANCHORS: Record<string, number | undefined> = {
     'wide-right': 1,
 }
 
+/**
+ * **The along-axis mirror of `LATERAL_ANCHORS`**, on his ruling of 9 October. Same shape, same
+ * meaning, the other axis: *end-near* "touches the 0 end line and does not contain the midpoint",
+ * *end-far* "touches the L end line and does not contain the midpoint". `end` is either, so it names
+ * no end and places nothing.
+ *
+ * It exists because two opposing target regions could not be told apart. Two region items carrying
+ * the same selector collapse into one class, and the regions collection registered no attribute for
+ * the along axis — so a game could have two channels on opposite touchlines and could not have two
+ * targets at opposite ends. The numbers are the two edges of the axis, not a length or a proportion.
+ */
+const LONGITUDINAL_ANCHORS: Record<string, number | undefined> = {
+    'end-near': 0,
+    'end-far': 1,
+}
+
 interface TermDefinition {
     kind: 'interval' | 'anchor'
     axis?: 'along' | 'across'
@@ -91,6 +107,8 @@ export interface SpatialContext {
      * make one of them wide-right; only an item saying so does.
      */
     lateral?: string
+    /** The `longitudinal` value the element own authored selector carries, where it has one. */
+    longitudinal?: string
 
     envelope: { lengthM?: number; widthM?: number }
     /** The row this value sits on, so an axis-free term knows which axis it is being read for. */
@@ -139,9 +157,15 @@ export function realizeSpatialRelation(value: unknown, index: RegisterIndex, ctx
      * authored lateral value the term's own anchor stands exactly as before.
      */
     const lateralAt = axis === 'across' && ctx.lateral ? LATERAL_ANCHORS[ctx.lateral] : undefined
-    const at = lateralAt ?? definition.at
+    const longitudinalAt = axis === 'along' && ctx.longitudinal ? LONGITUDINAL_ANCHORS[ctx.longitudinal] : undefined
+    const at = lateralAt ?? longitudinalAt ?? definition.at
     const anchor = at * extent
-    const lateralWhy = lateralAt === undefined ? '' : ` The authored selector states ${ctx.lateral}, which AM-17 tests as touching the ${lateralAt === 0 ? '0' : 'far'} touchline, so the anchor is that edge rather than the other.`
+    const lateralWhy =
+        lateralAt !== undefined
+            ? ` The authored selector states ${ctx.lateral}, which AM-17 tests as touching the ${lateralAt === 0 ? '0' : 'far'} touchline, so the anchor is that edge rather than the other.`
+            : longitudinalAt !== undefined
+              ? ` The authored selector states ${ctx.longitudinal}, which is tested as touching the ${longitudinalAt === 0 ? '0' : 'far'} end line, so the anchor is that end rather than the other.`
+              : ''
 
     // **A one-dimensional noun closes the anchor to zero on its thickness axis.** This is entailment,
     // not assumption: a line has extent on one axis, so on the other it has none. Orientation is read

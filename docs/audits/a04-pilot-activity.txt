@@ -6,6 +6,7 @@ Session            8 players, 30 m x 25 m, 20 minutes
 Set up
   · Mark out an area 30 m long by 25 m wide
   · For this activity, mark a line across one end of the area, 25 m long, on the end line itself
+  · For this activity, mark a line across the other end of the area, 25 m long, on the end line itself
 
 Players
   · 8 players in total
@@ -18,8 +19,9 @@ How it works
   · Play continues when possession changes — there is no stoppage
 
 How to score
-  · For this activity, a team scores 1 point by getting the ball across the marked line
-  · Both teams attack the same line — the one you marked at the end of the area
+  · For this activity, a team scores 1 point by getting the ball across the line it is attacking
+  · Each team attacks one line and defends the other — so decide which team starts at which end, tell them, and keep it that way for the whole game
+  · When possession changes the teams swap roles, not ends: whoever wins the ball attacks the same line they were already attacking
 
 
 HOW THIS ACTIVITY WAS ARRIVED AT
@@ -49,12 +51,12 @@ INTEGRITY OF THIS ACTIVITY
   nothing lost               clean
   nothing invented           clean
   post-realization gates     validated
-  instructions               10, every one citing a property
+  instructions               12, every one citing a property
   fidelity violations        0
 
 WHAT THE ACTIVITY DOES NOT SETTLE
 ========================================================================
-  · The scoring line has zero depth and sits exactly on the end line (space.regions[c:restated:GF2:GF2-03.a].position.along = 30). That is what the knowledge entails for a line, and it is physically markable — but a coach may expect a scoring zone with some depth, and the game does not give one.
+  · The scoring line has zero depth and sits exactly on the end line (space.regions[c:restated:GF2:GF2-03.e].position.along = 0). That is what the knowledge entails for a line, and it is physically markable — but a coach may expect a scoring zone with some depth, and the game does not give one.
+  · The scoring line has zero depth and sits exactly on the end line (space.regions[c:restated:GF2:GF2-03.f].position.along = 30). That is what the knowledge entails for a line, and it is physically markable — but a coach may expect a scoring zone with some depth, and the game does not give one.
   · The game DOES establish an initial holder of possession, and the activity cannot tell a coach which team it is. The two teams are indiscernible — identical but for an internal handle that must not reach coach-facing text — so the holder identifies a member without describing one. It matters because a transition is keyed on a change of possession, so it decides which team is attacking in the first episode of play. It is a knowledge gap and not a rendering one: nothing authors anything that tells the two teams apart.
-  · Both teams score at the SAME line (objectives[c:restated:GF2:GF2-08.a].team = EACH_TEAM). That is the canonical shared-objective decision, and it is deliberate — but it is an unusual arrangement for an invasion game, and a coach will need it said plainly or they will set up two targets out of habit.
-  · 1 `functions` row(s) are simply NOT CONSTRAINED — nothing authored says what those regions are "for" and nothing forbids saying it either (space.regions[c:restated:GF2:GF2-03.a].functions). That is an absence of knowledge rather than an authored exclusion, and it does not stop a region participating: this game's target region participates because the objective references it, not because it carries a function string.
+  · 2 `functions` row(s) are simply NOT CONSTRAINED — nothing authored says what those regions are "for" and nothing forbids saying it either (space.regions[c:restated:GF2:GF2-03.e].functions; space.regions[c:restated:GF2:GF2-03.f].functions). That is an absence of knowledge rather than an authored exclusion, and it does not stop a region participating: this game's target region participates because the objective references it, not because it carries a function string.

@@ -1,842 +1,1008 @@
 {
- "note": "The corpus restatements Christian has ruled, as data. The application logic — and the conditions each restatement must satisfy before it is applied — stay in corpus-restatement.ts. Authored member text lives here because it is knowledge, not engine logic: the derivation engine is sport-neutral.",
- "noRow": [
-  "restated:GF2::GF2-13",
-  "restated:GF2::GF2-18",
-  "restated:GF2::GF2-21",
-  "restated:GF2::GF2-23",
-  "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-07.a",
-  "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-12.b",
-  "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-16.b",
-  "blind:PASS-COMBINATION-GATE::PCG-14",
-  "blind:PASS-COMBINATION-GATE::PCG-15",
-  "blind:PASS-COMBINATION-GATE::PCG-16",
-  "blind:PASS-COMBINATION-GATE::PCG-17",
-  "blind:PASS-COMBINATION-GATE::PCG-18",
-  "blind:PASS-COMBINATION-GATE::PCG-19",
-  "blind:GF4::OB1",
-  "blind:GF4::OB2",
-  "blind:GF4::OB3",
-  "blind:GF4::OB4",
-  "blind:GF4::OB5",
-  "blind:GF4::OB6",
-  "blind:GF4::OB7"
- ],
- "items": [
-  {
-   "item": "restated:GF2::GF2-01",
-   "ruling": "SD-67",
-   "set": {
-    "row": "BY_CONSTRUCTION",
-    "satisfiedBy": "SINGLE_RECTANGULAR_PLAYING_AREA",
-    "structuralClause": "satisfied by the named schema invariant"
-   },
-   "why": "the schema represents the area as two scalar dimensions and enumerates no areas, so exactly one rectangular area holds by construction"
-  },
-  {
-   "item": "restated:GF2::GF2-02",
-   "ruling": "SD-68",
-   "set": {
-    "row": "NO_ROW",
-    "checkability": "OUTSIDE_BOUNDARY",
-    "structuralClause": "none",
-    "value": "participants share an adaptive opportunity space"
-   },
-   "why": "restated back to what its source supports. The stronger no-team-partition clause was one interpretation of \"Participants share an adaptive opportunity space\", not something the source entails; it is recorded as unsupported contract interpretation (task register C9)"
-  },
-  {
-   "item": "restated:GF2::GF2-15",
-   "ruling": "SD-69",
-   "set": {
-    "row": "NO_ROW",
-    "checkability": "OUTSIDE_BOUNDARY",
-    "structuralClause": "none"
-   },
-   "why": "its typing as a structural Game Representation claim is retired. It is ASSUMED and mixes structure with play; it is preserved as a diagnostic/boundary condition outside structural entailment (task register C10)"
-  },
-  {
-   "item": "restated:GF2::GF2-22",
-   "ruling": "SD-70",
-   "set": {
-    "row": "R1",
-    "selector": "*",
-    "checkability": "STRUCTURAL",
-    "structuralClause": "whole item"
-   },
-   "why": "the Rules area now holds action restriction, so the exclusion is representable: no action restriction exists in this game"
-  },
-  {
-   "item": "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-05.a",
-   "ruling": "SD-71",
-   "set": {
-    "row": "P12",
-    "selector": "group=neutral",
-    "value": "ACTIVE",
-    "structuralClause": "whole item"
-   },
-   "why": "Performer Participation State now holds the realized value; the concept stays owned by knowledge core EM-0007"
-  },
-  {
-   "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-13.a",
-   "ruling": "SD-72",
-   "remove": true,
-   "why": "removed as a structural modifier claim: the source offers alternative realization examples — bonus point, free restart or scoring multiplier — without selecting one or authoring its parameters. The source is preserved as typical realization alternatives outside structural derivation (task register C11)"
-  },
-  {
-   "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-13.b",
-   "ruling": "SD-72",
-   "remove": true,
-   "why": "the same source sentence read a second way; removed for the same reason, and the source is preserved unchanged"
-  },
-  {
-   "item": "restated:VARIABLE-TARGET-CONDITION::VARTARGET-05.b",
-   "ruling": "SD-79",
-   "set": {
-    "value": [
-     "REGION_ENTRY {trigger region}",
-     "COACH_CUE",
-     "FIRST_FORWARD_PASS",
-     "REGION_ENTRY {final third}",
-     "REGION_ENTRY {attacking half} + first receiver"
-    ],
-    "offListMembers": [
-     "COACH_CUE",
-     "FIRST_FORWARD_PASS",
-     "REGION_ENTRY {attacking half} + first receiver"
-    ],
-    "asAuthored": "unordered {REGION_ENTRY {trigger region}; COACH_CUE†; FIRST_FORWARD_PASS†; REGION_ENTRY {final third}; REGION_ENTRY {attacking half} + first receiver†}; † off-list"
-   },
-   "why": "the five authored alternatives, exactly as written and unordered as the source leaves them. The distinction the restater marked with a dagger is preserved as data rather than as a footnote in a sentence: COACH_CUE and FIRST_FORWARD_PASS are off the registered trigger list, and the fifth member's REGION_ENTRY is registered while its '+ first receiver' conjunct is not. Nothing is added, nothing is dropped, and the authored sentence stays beside its typed form (SD-86's pattern)."
-  },
-  {
-   "item": "restated:RPC-001::RPC-001-08.a",
-   "ruling": "SD-79",
-   "set": {
-    "value": [
-     "line_crossed",
-     "target_zone_entered",
-     "gate",
-     "target_player"
-    ],
-    "authoredOrder": true
-   },
-   "why": "the four authored members, exactly as written. The source orders them 1-4; the order is preserved as provenance and applied by nothing (RC-29)"
-  },
-  {
-   "item": "restated:RPC-001::RPC-001-18.b",
-   "ruling": "SD-79",
-   "set": {
-    "value": [
-     "the goalkeeper's START/restart placement",
-     "a controlled defensive restart placement"
-    ]
-   },
-   "why": "the two authored placement referents, preserved verbatim as members; which applies stays undecided"
-  },
-  {
-   "item": "restated:GF2::GF2-03.b",
-   "ruling": "SD-79",
-   "set": {
-    "value": [
-     "zone",
-     "line"
-    ]
-   },
-   "why": "the two authored alternatives, unordered as the source leaves them"
-  },
-  {
-   "item": "restated:GF2::GF2-19",
-   "ruling": "SD-79",
-   "set": {
-    "value": [
-     "line_crossed",
-     "target_zone_entered"
-    ]
-   },
-   "why": "the two authored alternatives, unordered as the source leaves them"
-  },
-  {
-   "item": "blind:GF4::I01",
-   "ruling": "SD-79",
-   "set": {
-    "value": [
-     "goal",
-     "line_crossed"
-    ]
-   },
-   "why": "the two authored alternatives, unordered as the source leaves them"
-  },
-  {
-   "item": "blind:GF4::I14",
-   "ruling": "SD-73",
-   "set": {
-    "value": 2
-   },
-   "why": "\"double\" entails both the operation and the magnitude, so the magnitude is recorded as 2. Its TYPICAL_EXAMPLE status is unchanged: encoding what the example says does not make it authoritative"
-  },
-  {
-   "item": "restated:VARIABLE-TARGET-CONDITION::VARTARGET-12.a",
-   "ruling": "SD-86",
-   "set": {
-    "forbiddenCardinality": {
-     "operator": ">",
-     "value": 1
+  "note": "The corpus restatements Christian has ruled, as data. The application logic — and the conditions each restatement must satisfy before it is applied — stay in corpus-restatement.ts. Authored member text lives here because it is knowledge, not engine logic: the derivation engine is sport-neutral.",
+  "noRow": [
+    "restated:GF2::GF2-13",
+    "restated:GF2::GF2-18",
+    "restated:GF2::GF2-21",
+    "restated:GF2::GF2-23",
+    "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-07.a",
+    "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-12.b",
+    "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-16.b",
+    "blind:PASS-COMBINATION-GATE::PCG-14",
+    "blind:PASS-COMBINATION-GATE::PCG-15",
+    "blind:PASS-COMBINATION-GATE::PCG-16",
+    "blind:PASS-COMBINATION-GATE::PCG-17",
+    "blind:PASS-COMBINATION-GATE::PCG-18",
+    "blind:PASS-COMBINATION-GATE::PCG-19",
+    "blind:GF4::OB1",
+    "blind:GF4::OB2",
+    "blind:GF4::OB3",
+    "blind:GF4::OB4",
+    "blind:GF4::OB5",
+    "blind:GF4::OB6",
+    "blind:GF4::OB7"
+  ],
+  "items": [
+    {
+      "item": "restated:GF2::GF2-01",
+      "ruling": "SD-67",
+      "set": {
+        "row": "BY_CONSTRUCTION",
+        "satisfiedBy": "SINGLE_RECTANGULAR_PLAYING_AREA",
+        "structuralClause": "satisfied by the named schema invariant"
+      },
+      "why": "the schema represents the area as two scalar dimensions and enumerates no areas, so exactly one rectangular area holds by construction"
+    },
+    {
+      "item": "restated:GF2::GF2-02",
+      "ruling": "SD-68",
+      "set": {
+        "row": "NO_ROW",
+        "checkability": "OUTSIDE_BOUNDARY",
+        "structuralClause": "none",
+        "value": "participants share an adaptive opportunity space"
+      },
+      "why": "restated back to what its source supports. The stronger no-team-partition clause was one interpretation of \"Participants share an adaptive opportunity space\", not something the source entails; it is recorded as unsupported contract interpretation (task register C9)"
+    },
+    {
+      "item": "restated:GF2::GF2-15",
+      "ruling": "SD-69",
+      "set": {
+        "row": "NO_ROW",
+        "checkability": "OUTSIDE_BOUNDARY",
+        "structuralClause": "none"
+      },
+      "why": "its typing as a structural Game Representation claim is retired. It is ASSUMED and mixes structure with play; it is preserved as a diagnostic/boundary condition outside structural entailment (task register C10)"
+    },
+    {
+      "item": "restated:GF2::GF2-22",
+      "ruling": "SD-70",
+      "set": {
+        "row": "R1",
+        "selector": "*",
+        "checkability": "STRUCTURAL",
+        "structuralClause": "whole item"
+      },
+      "why": "the Rules area now holds action restriction, so the exclusion is representable: no action restriction exists in this game"
+    },
+    {
+      "item": "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-05.a",
+      "ruling": "SD-71",
+      "set": {
+        "row": "P12",
+        "selector": "group=neutral",
+        "value": "ACTIVE",
+        "structuralClause": "whole item"
+      },
+      "why": "Performer Participation State now holds the realized value; the concept stays owned by knowledge core EM-0007"
+    },
+    {
+      "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-13.a",
+      "ruling": "SD-72",
+      "remove": true,
+      "why": "removed as a structural modifier claim: the source offers alternative realization examples — bonus point, free restart or scoring multiplier — without selecting one or authoring its parameters. The source is preserved as typical realization alternatives outside structural derivation (task register C11)"
+    },
+    {
+      "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-13.b",
+      "ruling": "SD-72",
+      "remove": true,
+      "why": "the same source sentence read a second way; removed for the same reason, and the source is preserved unchanged"
+    },
+    {
+      "item": "restated:VARIABLE-TARGET-CONDITION::VARTARGET-05.b",
+      "ruling": "SD-79",
+      "set": {
+        "value": [
+          "REGION_ENTRY {trigger region}",
+          "COACH_CUE",
+          "FIRST_FORWARD_PASS",
+          "REGION_ENTRY {final third}",
+          "REGION_ENTRY {attacking half} + first receiver"
+        ],
+        "offListMembers": [
+          "COACH_CUE",
+          "FIRST_FORWARD_PASS",
+          "REGION_ENTRY {attacking half} + first receiver"
+        ],
+        "asAuthored": "unordered {REGION_ENTRY {trigger region}; COACH_CUE†; FIRST_FORWARD_PASS†; REGION_ENTRY {final third}; REGION_ENTRY {attacking half} + first receiver†}; † off-list"
+      },
+      "why": "the five authored alternatives, exactly as written and unordered as the source leaves them. The distinction the restater marked with a dagger is preserved as data rather than as a footnote in a sentence: COACH_CUE and FIRST_FORWARD_PASS are off the registered trigger list, and the fifth member's REGION_ENTRY is registered while its '+ first receiver' conjunct is not. Nothing is added, nothing is dropped, and the authored sentence stays beside its typed form (SD-86's pattern)."
+    },
+    {
+      "item": "restated:RPC-001::RPC-001-08.a",
+      "ruling": "SD-79",
+      "set": {
+        "value": [
+          "line_crossed",
+          "target_zone_entered",
+          "gate",
+          "target_player"
+        ],
+        "authoredOrder": true
+      },
+      "why": "the four authored members, exactly as written. The source orders them 1-4; the order is preserved as provenance and applied by nothing (RC-29)"
+    },
+    {
+      "item": "restated:RPC-001::RPC-001-18.b",
+      "ruling": "SD-79",
+      "set": {
+        "value": [
+          "the goalkeeper's START/restart placement",
+          "a controlled defensive restart placement"
+        ]
+      },
+      "why": "the two authored placement referents, preserved verbatim as members; which applies stays undecided"
+    },
+    {
+      "item": "restated:GF2::GF2-03.b",
+      "ruling": "SD-79",
+      "set": {
+        "value": [
+          "zone",
+          "line"
+        ]
+      },
+      "why": "the two authored alternatives, unordered as the source leaves them"
+    },
+    {
+      "item": "restated:GF2::GF2-19",
+      "ruling": "SD-79",
+      "set": {
+        "value": [
+          "line_crossed",
+          "target_zone_entered"
+        ]
+      },
+      "why": "the two authored alternatives, unordered as the source leaves them"
+    },
+    {
+      "item": "blind:GF4::I01",
+      "ruling": "SD-79",
+      "set": {
+        "value": [
+          "goal",
+          "line_crossed"
+        ]
+      },
+      "why": "the two authored alternatives, unordered as the source leaves them"
+    },
+    {
+      "item": "blind:GF4::I14",
+      "ruling": "SD-73",
+      "set": {
+        "value": 2
+      },
+      "why": "\"double\" entails both the operation and the magnitude, so the magnitude is recorded as 2. Its TYPICAL_EXAMPLE status is unchanged: encoding what the example says does not make it authoritative"
+    },
+    {
+      "item": "restated:VARIABLE-TARGET-CONDITION::VARTARGET-12.a",
+      "ruling": "SD-86",
+      "set": {
+        "forbiddenCardinality": {
+          "operator": ">",
+          "value": 1
+        }
+      },
+      "why": "the authored bound is \"more than 1\": the number 1 and the relation \"more than\", typed as > 1. The relation is carried across as written rather than converted to >= 2, and the prose value is left in place as its source."
+    },
+    {
+      "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-16.b",
+      "ruling": "SD-86",
+      "set": {
+        "forbiddenCardinality": {
+          "operator": ">=",
+          "value": 2
+        }
+      },
+      "why": "the authored bound is \"2 or more\": the number 2 and the relation \"or more\", typed as >= 2. Not rewritten as > 1, and the prose value is left in place as its source."
+    },
+    {
+      "item": "restated:A01-02::A01-02-01.a",
+      "ruling": "SD-87",
+      "set": {
+        "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
+        "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
+      },
+      "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
+    },
+    {
+      "item": "restated:A01-02::A01-02-02.a",
+      "ruling": "SD-87",
+      "set": {
+        "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
+        "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
+      },
+      "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
+    },
+    {
+      "item": "restated:A01-02::A01-02-03.a",
+      "ruling": "SD-87",
+      "set": {
+        "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
+        "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
+      },
+      "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
+    },
+    {
+      "item": "restated:A01-02::A01-02-04.a",
+      "ruling": "SD-87",
+      "set": {
+        "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
+        "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
+      },
+      "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
+    },
+    {
+      "item": "restated:A01-02::A01-02-04.b",
+      "ruling": "SD-87",
+      "set": {
+        "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
+        "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
+      },
+      "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
+    },
+    {
+      "item": "restated:A01-02::A01-02-05.a",
+      "ruling": "SD-87",
+      "set": {
+        "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
+        "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
+      },
+      "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
+    },
+    {
+      "item": "restated:A01-02::A01-02-07.a",
+      "ruling": "SD-87",
+      "set": {
+        "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
+        "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
+      },
+      "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
+    },
+    {
+      "item": "restated:A01-02::A01-02-11.a",
+      "ruling": "SD-87",
+      "set": {
+        "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
+        "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
+      },
+      "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
+    },
+    {
+      "item": "restated:A01-02::A01-02-05.a",
+      "ruling": "SD-89",
+      "set": {
+        "value": "DEFENDING_TEAM",
+        "basis": "AUTHORED",
+        "basisEvidence": "Christian, 2026-09-27: \"When a goal kick is triggered, the restart is awarded to the defending team.\" Authored as a football fact in its own right, not read off the trigger: \"The trigger identifies the state that produces the restart; it does not by itself establish who owns the resulting restart.\" It replaces the original's assumption 1 and the inference the original drew from the word \"from\".",
+        "restartOwnershipSource": "Christian, 2026-09-27: \"When a goal kick is triggered, the restart is awarded to the defending team.\"",
+        "fitNote": "DEFENDING_TEAM is an already-registered team designation; nothing is added to the vocabulary. The off-list phrase \"the team defending the end where the goal kick is placed\" is retired with the L2 marker it carried, because the authored fact states the designation directly. Ownership and trigger are kept separate as he required: the selector still carries SD-87's trigger, and this item carries the award."
+      },
+      "why": "restart ownership is authored as its own football fact. Until it was, T2 rested on assumption 1, and an assumption bounds without ever entailing (SD-83)."
+    },
+    {
+      "item": "restated:GF2::GF2-08.b",
+      "ruling": "SD-98",
+      "set": {
+        "value": {
+          "structuralRef": {
+            "contractId": "restated:GF2",
+            "itemId": "GF2-03.a"
+          },
+          "asAuthored": "the target feature: the objective-area region of GF2-03.a (line or zone)"
+        }
+      },
+      "why": "the authored sentence names GF2-03.a, and the class that item establishes is held in the run. Only the referent already named is typed: no referent is selected between, inferred or substituted, and the authored sentence is kept beside the typed form. SD-63 is untouched for ordinary open text."
+    },
+    {
+      "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-05.a",
+      "ruling": "C29a",
+      "set": {
+        "value": "touchline-adjacent",
+        "gloss": "outer edge on a touchline",
+        "fitNote": "RESTATEMENT CORRECTION, 29 September (Christian). 04.a and 05.a carry the SAME basisEvidence — setup_guidance \"Mark wide channels along both touchlines\" — and 04.a's own fitNote already recorded \"Holds only the contact in ‘runs along its touchline’ (same as 05.a)\". They were two representations of one authored placement, not two competing authored values, and they collided on three channel elements by string inequality alone. The parenthetical is now a gloss beside the value rather than a second REQUIRED_RANGE contribution. Source, strictness, valueStatus and provenance are unchanged, and no engine semantics changed. \"One channel on each lateral side\" remains NOT held: touchline-adjacent does not say which touchline, and S2 has no side attribute (ledger)."
+      },
+      "why": "two spellings of one authored placement were entailing two different values on S6, producing three collisions that were never a knowledge conflict. Making the parenthetical a gloss leaves one value, preserves both items and their shared source, and changes no engine semantics"
+    },
+    {
+      "item": "restated:VARIABLE-TARGET-CONDITION::VARTARGET-03.a",
+      "ruling": "C29b/C29e",
+      "set": {
+        "relational": true,
+        "fitNote": "MARKED RELATIONAL 29 September, then TYPED AS DISTINCT_ON the same day once Christian adopted the assertion. The restatement had written one joint constraint as a per-element bound on O4, so it reached three separate object classes as three independent bounds — and three independently valid placements can still violate it. It is therefore NOT a bound on any one line, and contributes none. It is carried instead as a DISTINCT_ON assertion over the object collection: members differ pairwise on O4 and O5. No metric, no minimum separation — the source says explicitly \"no separation distance\" — no inferred geometry, and no line of its own. Realization chooses each placement against its own bound and is refused if the resulting SET violates it. Value, source and provenance are unchanged.",
+        "distinctOn": {
+          "rows": [
+            "O4",
+            "O5"
+          ]
+        }
+      },
+      "why": "a joint constraint over a set of candidates had been flattened into a per-element bound, which both misstates the knowledge and would license a per-line realization freedom that cannot honour it. Typed as DISTINCT_ON so each placement stays freely choosable within its own bound while the set is checked jointly"
+    },
+    {
+      "item": "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-01.a",
+      "ruling": "C29c",
+      "set": {
+        "typedBound": {
+          "min": 1,
+          "max": null
+        },
+        "fitNote": "TYPED, 29 September (Christian). The authored value \">= 1 (no authored maximum)\" already carries requirement RANGE, so the requirement kind was always quantitative; only the value string defeated the parser, which typed it QUALITATIVE and left the realization layer unable to check any value against a range it can plainly read. The number is MOVED from the prose into the typed field on the SD-86 precedent, not inferred: floor 1, and no maximum, exactly as authored. The prose value is unchanged so the source stays visible beside its typed form."
+      },
+      "why": "an explicitly authored numerical floor was sitting unreadable in prose; typing it changes no authored content and makes the bound checkable"
+    },
+    {
+      "item": "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-02.a",
+      "ruling": "C29c",
+      "set": {
+        "typedBound": {
+          "min": 1,
+          "max": 2
+        },
+        "fitNote": "TYPED, 29 September (Christian). \"1-2 (one or two)\" typed as min 1, max 2. It remains SUPPORTING / PREFERRED_DEFAULT and is NOT converted into a required range: NEUTRAL-01.a states there is no authored maximum, so intersecting the two to [1,2] would turn a preference into a hard ceiling the knowledge never states. SD-90 already expresses the real relationship between a required bound and a preferred default; nothing new is needed and nothing is intersected here."
+      },
+      "why": "the preferred default is typed so it can be read, and deliberately left SUPPORTING so it cannot be mistaken for a required maximum"
+    },
+    {
+      "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-06",
+      "ruling": "C30b",
+      "set": {
+        "typedBound": {
+          "min": 6,
+          "max": 10
+        },
+        "fitNote": "TYPED, 30 September, on the SD-86 precedent and exactly as the neutral count was (C29c). The channel width was AUTHORED all along — requirement RANGE, basis AUTHORED, value \"across-interval width about 6-10 m\", from setup_guidance \"(~6-10m wide depending on field size)\". Only the value STRING defeated the parser, which typed it QUALITATIVE and left it bounding nothing a check could read. The numbers are MOVED out of the prose, not inferred: 6 and 10 are explicitly authored. The prose is unchanged beside the typed form, so \"about\" and the unauthored scaling both keep their own record. WHAT THIS DOES NOT DO: it does not supply a scaling rule. S6 still records \"no scaling rule for width; depending on field size gives no function\", and that remains true — 6-10 m is a fixed range, not a proportion of the envelope. On a 40 x 30 m session it fits inside the 30 m across dimension, so it yields concrete geometry here; on an envelope where it would not, the proportional question is still open and is the owner decision returned rather than guessed at."
+      },
+      "why": "an explicitly authored numerical range was sitting unreadable in prose, so the channel width bounded nothing a spatial check could use. Typing it changes no authored content and makes the bound checkable; the absent SCALING rule is returned separately and not invented"
+    },
+    {
+      "item": "restated:GF2::GF2-14.b",
+      "ruling": "C31b",
+      "set": {
+        "basis": "OWNER_RULING",
+        "basisEvidence": "Christian, 2026-10-01: \"Promote GF2-14.b, equal outfield counts, from ASSUMED to owner-authored canonical knowledge.\" With the caution attached to it: \"Please preserve the ability for other selected authoritative knowledge to establish numerical asymmetry where the learning problem requires it. Equal team numbers should not become an engine-level universal assumption.\"",
+        "comparison": {
+          "left": {
+            "row": "P2",
+            "selector": "*"
+          },
+          "operator": "=",
+          "right": {
+            "row": "P2",
+            "selector": "*"
+          }
+        },
+        "fitNote": "PROMOTED 1 October. It was ASSUMED, and by §3 an assumed item bounds but never entails — which is why the roster could not derive. It is now owner-authored and entails. IT REMAINS AN ITEM OF GF2, not an engine rule: a game form that authors asymmetry displaces it through the ordinary displacement mechanism (SD-90), so equality is knowledge about THIS game form and never a universal. TYPED AS A COMPARISON 3 October (Christian): \"AM-16 already introduced COMPARES for comparison between represented properties, so please don't introduce another mechanism or continue relying on prose matching for 'equal'.\" The equality is now DECLARED structurally rather than detected by matching the word in this item's prose — that was how an AUTHORED item reading 'unequal between the teams' once licensed an equal division. The authored value, basis, status and provenance are unchanged. NOT YET EVALUABLE, and the reason is the register's own: both operands name P2, a row owned by performers.teams[], so each matches BOTH members, and comparison.stillOpen says 'No aggregate function is named (each, some, the sum, the greatest) for a comparison ranging over several matched elements. An engine refuses such a comparison rather than choosing one.' Naming the members individually is not open either, because no knowledge item may target a member's opaque handle. So the equality is readable and refused, which is reported rather than worked around."
+      },
+      "why": "the roster could not derive because equality bounded without entailing; promoting it closes that without making equal team numbers an engine-level assumption. Typed as a comparison on 3 October so the engine reads a declared relationship instead of matching prose, which is where the 'unequal' near-miss came from"
+    },
+    {
+      "item": "restated:RPC-001::RPC-001-14.a",
+      "ruling": "C38",
+      "set": {
+        "typedBound": {
+          "min": 1,
+          "max": null
+        },
+        "fitNote": "EXISTS per team becomes RANGE >=1 PER_TEAM. The clause 'not mirrored or identical in kind' is a non-claim, declared on DV1. TYPED 4 October (Christian): \"Please type the explicitly authored '>=1' objective count into its proper structured field under the same SD-86 principle we've already applied. This is the same normalization class as the previous explicit cardinalities, not new knowledge.\" The 1 is verbatim in the authored value and countBounds could not read it: its minimum pattern wants a 'min 1' form and its bare-digit match is anchored, so '>=1' matched neither and the claim arrived with no cardinality at all. That is the same shape as NEUTRAL-01.a's '>= 1 (no authored maximum)' (C29c) and PCG-08's 'at least 2 teams' (C37), both already typed. Minimum 1, maximum null, exactly as authored; no maximum is introduced because none is authored. The prose value is unchanged so the source stays visible beside its typed form. This is the one claim the 3 October removal of the minimum-of-one substitution newly exposed: before typing, it was the only existential claim in the corpus whose cardinality was unreadable, and it is reached only through the corpus-wide run - no learning goal selects RPC-001."
+      },
+      "why": "an explicitly authored '>=1' was sitting unreadable in prose, so the claim carried no cardinality and, once the engine stopped substituting a minimum of one, became the single unreadable claim in the corpus. Typing it restores the number the author wrote and changes no authored content"
+    },
+    {
+      "item": "blind:PASS-COMBINATION-GATE::PCG-08",
+      "ruling": "C37",
+      "set": {
+        "typedBound": {
+          "min": 2,
+          "max": null
+        },
+        "fitNote": "The structural shadow of 'not a technique exercise'. The rest of that clause is PCG-17. TYPED 3 October (Christian): \"Please move the explicitly authored 'at least 2 teams' into the appropriate typed cardinality field under SD-86. This is normalization of authored knowledge, not inference. Preserve the meaning exactly: minimum 2, with no additional maximum unless independently authored.\" The number 2 is VERBATIM in the authored value and the parser could not read it: countBounds anchors a bare-digit match and finds no 'min 2' form in 'at least 2 teams (an attacking team and a defending team)', so the claim reached the engine as 'at least one, no maximum' — an authored number silently weakened. Minimum 2, maximum null, exactly as authored; no maximum is introduced, because none is authored here. The prose value is unchanged so the source stays visible beside its typed form. This matters beyond the item: PCG-08 shares performers.teams[] with GF2-14.a, and the shared-collection population is the greatest minimum any claim on it requires — so with the 2 unreadable, this claim contributed nothing to that figure."
+      },
+      "why": "an explicitly authored 'at least 2' was sitting unreadable in prose, so a REQUIRED claim about team count reached the engine as a minimum of one. Typing it changes no authored content and restores the number the author wrote; it also removes the dependence of the shared-collection population on which claim happened to be readable"
+    },
+    {
+      "item": "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-08.a",
+      "ruling": "C36a",
+      "set": {
+        "fitNote": "STALE CLAIM CORRECTED, 3 October (Christian): \"Please trace the four stale P2 fitNotes and correct the claim that no comparison requirement exists.\" This note read \"the bound is read from other elements and rows, which no requirement kind holds (SCHEMA LOCAL)\". That was true when written and has been obsolete since 20 September: AM-16 registered the requirement kind COMPARES for exactly this shape, and SD-23 gives it an operand form for a quantity derived from other rows. The authored value is unchanged, and so is its AUTHORED basis and REQUIRED_RANGE status. It is NOT typed as a comparison here, because two things the register leaves open would have to be chosen to do so, and neither is mine: the right-hand side 'P2(other team) - P5' is a derived quantity and no named derived rule is registered for it (operandForms requires '{ derived: <named rule>, args }'); and both sides name P2, a row owned by performers.teams[], so each matches every member, which comparison.stillOpen says an engine must refuse rather than resolve by choosing an aggregate. So the honest state is: expressible in FORM, not yet evaluable, for two named and reportable reasons rather than for the absence of a requirement kind. Counting outfield players only remains the original's reading (KNOWLEDGE)."
+      },
+      "why": "the note declared a schema limitation that AM-16 removed on 20 September, so it misreported the reason this item cannot be checked. Correcting it names the two real blockers — an unregistered derived rule and the unnamed aggregate — without typing the item or touching its authority"
+    },
+    {
+      "item": "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-09.a",
+      "ruling": "C36b",
+      "set": {
+        "fitNote": "STALE CLAIM CORRECTED, 3 October (Christian). This note read \"Equality across elements is not a value any requirement kind holds (SCHEMA LOCAL)\". AM-16 registered COMPARES on 20 September and its own examples include 'count(A) = count(B)', so equality across elements IS a relationship the grammar holds — it is simply not a VALUE, which is the part the note had right: comparison.relation says NARROWS and 'It never entails a value and never entails existence'. NOT PROMOTED, on his instruction: \"Where an item is only a TYPICAL_EXAMPLE or otherwise lacks authority, don't promote it merely because COMPARES now exists.\" The basis stays ASSUMED and the status stays PREFERRED_DEFAULT — the only evidence remains text the original itself marks TYPICAL_EXAMPLE (NEUTRAL-11) — so by SD-27 it bounds, never entails, and could not create an authoritative collision even once typed."
+      },
+      "why": "the note gave a schema reason that no longer exists for something that is in fact an authority limitation. Separating the two keeps the real constraint visible and avoids the item being promoted merely because the mechanism arrived"
+    },
+    {
+      "item": "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-10.a",
+      "ruling": "C36c",
+      "set": {
+        "fitNote": "STALE CLAIM CORRECTED, 3 October (Christian). This note read \"A sum across rows has no requirement kind (SCHEMA LOCAL)\". AM-16's second operand form is precisely a sum across rows — SD-23: 'a deterministically derived quantity whose inputs are SUPPORTED represented game properties: { derived: <named rule>, args }'. So the kind exists. What does not exist is a NAMED derived rule for this sum, and comparison.inputsMustBeSupported adds that 'A derived operand whose input the game states but nothing supports is not computable'. Naming such a rule is an authoring act, not an engine one, so it is reported rather than invented. Basis stays ASSUMED and nothing is promoted. The generalisation of '= 12' to E1 and the observation that the explicit rule exists only as engine wording (not a source) are unchanged."
+      },
+      "why": "the note blamed the absence of a requirement kind for what is actually the absence of a named derived rule. The distinction matters because the first is closed and the second is an open authoring decision"
+    },
+    {
+      "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-02.a",
+      "ruling": "C33",
+      "set": {
+        "selector": "noun=channel & lateral=wide-left",
+        "requirement": "COUNT",
+        "value": "1",
+        "fitNote": "RESTATED 2 October (Christian), authorizing \"the canonical Wide Zone S2 restatement as two distinct lateral regions\". This item becomes the wide-left channel. The side is AUTHORED here, via the `lateral` selector attribute the register offers on S2 under AM-17; it is not inferred from the count, and AM-12 is why the contract gains nothing from AM-17 until it is restated like this. The original fitNote recorded the gap this closes: \"OWN_INVOLVEMENT because the selector cannot tell wide channels from other channels\", and the ledger asked outright for \"a side selector attribute or per-touchline relative terms\". COUNT 1 because this item now establishes exactly one region, the pair establishing exactly two."
+      },
+      "why": "the authored intent was one channel on each lateral side; the register now carries the attribute that says which side, so the knowledge states it explicitly rather than leaving two channels on one touchline"
+    },
+    {
+      "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-03",
+      "ruling": "C33",
+      "set": {
+        "selector": "noun=channel & lateral=wide-right",
+        "requirement": "COUNT",
+        "value": "1",
+        "fitNote": "RESTATED 2 October (Christian). This item becomes the wide-right channel, the other half of the pair. Its original value was COUNT 2 with the note \"Exactly two, counted over this contract's own channels so another object's channel cannot break it. The one-per-touchline split is not held (see WIDEZONE-05).\" The exactly-two is PRESERVED as two items of exactly one each, and the split the note says is not held is now held by the authored lateral values. The count is not what places it: AM-17's registered test for wide-right -- \"touches the W touchline and does not contain the midline\" -- is."
+      },
+      "why": "the authored exactly-two is preserved as two single lateral regions, so the one-per-touchline split the original note recorded as unheld is now authored rather than left to the engine"
+    },
+    {
+      "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-08.d",
+      "ruling": "C33",
+      "set": {
+        "row": "S4",
+        "selector": "noun=channel",
+        "requirement": "EQUALS",
+        "value": "perceptual-reference",
+        "strictness": "SUPPORTING",
+        "scope": "OWN_INVOLVEMENT",
+        "fitNote": "RESTATED 2 October (Christian), ruling option (i): \"WIDEZONE-08.d should not establish a third S2 region. Based on its authored meaning and its own note, its claim is that the existing Wide Zone channel population carries the perceptual-reference function/member. The COUNT 2 comes from the already-established channel population; it does not entail two additional regions or a third region. So please restate it as a property statement over the two established lateral channels, rather than an S2 existence assertion.\" Its own original note already said as much: \"COUNT 2 (from WIDEZONE-03) so both channels carry the member (RC-16)\" -- the 2 was a reference to the established population, not a second assertion of it. It therefore moves from S2 (the collection, where an existence requirement mints an element) to S4 (space.regions[].functions, where a member is asserted of whichever regions the selector reaches). NOT authorized and NOT done: making it one specific side (nothing authored establishes that perceptual-reference belongs to wide-left rather than wide-right), and identity-by-narrowing. The distinction preserved: a statement that a property applies to N existing members does not thereby assert the existence of N additional members. Form follows the only other S4 item in the corpus, which is an EQUALS naming a member (\"access (forbidden as a member of functions)\", strictness EXCLUSION); this is its positive counterpart, so EQUALS with strictness SUPPORTING. EQUALS is outside EXISTENCE_REQUIREMENTS and S4 is a FIELD, so it cannot mint an element by either route -- which is the point of the ruling.",
+        "valueStatus": "REQUIRED_RANGE"
+      },
+      "why": "it was asserting existence on the collection row while its content was a property of the channels already established; moving it to the functions row keeps element existence and properties of established elements distinct"
+    },
+    {
+      "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-11.a",
+      "ruling": "C35",
+      "set": {
+        "value": {
+          "structuralRef": {
+            "contractId": "restated:WIDE-ZONE-ADVANTAGE",
+            "itemId": "WIDEZONE-02.a"
+          },
+          "asAuthored": "both wide channels of this contract, each a referent"
+        },
+        "fitNote": "TYPED 2 October on the SD-98 precedent. The referents were the prose \"both wide channels of this contract, each a referent\", and SD-58 forbids comparing open text as identity, so GA-MODIFIER-OVERLAP could not evaluate the modifier at all. This item types the FIRST referent; WIDEZONE-11.c carries the second. Two items rather than one array because V8b's registered valueType is \"one property per referent\" and that semantics is now operational (register `multiplicity: SET`): the two are MEMBERS and accumulate, where an array value would be read as a permitted set and make the line a choice between the channels. DETERMINACY COMES FROM RULING C33: before it, \"both wide channels of this contract\" answered to three classes and typing it would have required selecting between them. Since C33 the contract establishes exactly two -- WIDEZONE-02.a (wide-left) and WIDEZONE-03 (wide-right) -- so \"both\" names them and nothing is selected between, inferred or substituted. SD-63 is untouched for ordinary open text."
+      },
+      "why": "the modifier's referents were prose, so the overlap invariant could not establish identity; the sentence names both channels and C33 made 'both' exactly two, so typing changes no authored content"
+    },
+    {
+      "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-08.c",
+      "ruling": "C40",
+      "set": {
+        "forbiddenValues": [
+          "WIDEZONE-02.a",
+          "WIDEZONE-03"
+        ]
+      },
+      "why": "His instruction of 2026-10-07: \"Please repair the bounded enforcement defect you found for the authored exclusion preventing a primary-event condition from naming a wide channel.\" The exclusion forbids \"a wide channel of this contract\" as a primary-event condition referent, and its own two channels are WIDEZONE-02.a and WIDEZONE-03, so the typed form of the authored value is those two item ids. Nothing is read out of the prose, which stays in `value` as the source — the same treatment SD-86 gave this contract’s forbidden CARDINALITY on WIDEZONE-16.b. Measured before: the exclusion reported SATISFIED whether a channel was named on V5 or not, so it asserted a compliance it had never checked."
+    },
+    {
+      "item": "restated:GF2::GF2-08.a",
+      "ruling": "C42",
+      "remove": true,
+      "why": "Retired as the ACTIVE objective structure on his ruling of 2026-10-09: \"approve using the existing removal mechanism to retire the shared objective active existence item, while preserving the original authored item, September decision, and supporting evidence in the contract record\". This is the only item removed, and it is removed because it is the one that AUTHORS THE EXISTENCE of the shared objective: while it stands a shared objective is established and coexists with the two per-team ones, giving a game three objectives and three targets, which is what he forbade. The item, its evidence and the 28 September decision that fixed its team value all remain in contracts.json exactly as authored. Measured before choosing this: narrowing its selector instead made things worse, because on J1 the selector CONSTITUTES the team, so a selector naming EACH_TEAM created the very objective it was meant to scope out."
+    },
+    {
+      "item": "restated:GF2::GF2-12.a",
+      "ruling": "C42",
+      "set": {
+        "selector": "role=PRIMARY_SCORING & team=EACH_TEAM"
+      },
+      "why": "Scoped, not withdrawn, on his ruling of 2026-10-09. Strictness, requirement and value are untouched: the item still says exactly what it said and now reaches only an objective whose attacking team is EACH_TEAM. No such objective is established while the directional arrangement is active, so it is preserved and inert. Narrowing is safe on this row where it was not safe on GF2-08.a, because J3 is a FIELD row and a field item establishes no element by itself, where J1 is the collection row whose selector constitutes the team."
+    },
+    {
+      "item": "restated:GF2::GF2-08.b",
+      "ruling": "C42",
+      "set": {
+        "selector": "role=PRIMARY_SCORING & team=EACH_TEAM"
+      },
+      "why": "The shared objective target reference, scoped with it. Scoped, not withdrawn, on his ruling of 2026-10-09. Strictness, requirement and value are untouched: the item still says exactly what it said and now reaches only an objective whose attacking team is EACH_TEAM. No such objective is established while the directional arrangement is active, so it is preserved and inert. Narrowing is safe on this row where it was not safe on GF2-08.a, because J3 is a FIELD row and a field item establishes no element by itself, where J1 is the collection row whose selector constitutes the team."
+    },
+    {
+      "item": "restated:GF2::GF2-03.a",
+      "ruling": "C42",
+      "remove": true,
+      "why": "Retired with the shared objective it was the target of, and for the same reason: once the two per-team targets exist, this region is an objective-area no objective references, so a game would hold three targets and a coach would mark three lines. His ruling of 2026-10-09 asks for \"exactly two active objectives and two corresponding target regions, not three\". The item and its evidence remain in contracts.json exactly as authored, together with GF2-08.a, which referenced it, and the 28 September decision that fixed its shared team value, so the whole shared-target arrangement stays readable as one piece. The positional and noun items that selected on objective-area are untouched and now reach the two new targets instead, which is why no position or noun had to be re-authored."
     }
-   },
-   "why": "the authored bound is \"more than 1\": the number 1 and the relation \"more than\", typed as > 1. The relation is carried across as written rather than converted to >= 2, and the prose value is left in place as its source."
-  },
-  {
-   "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-16.b",
-   "ruling": "SD-86",
-   "set": {
-    "forbiddenCardinality": {
-     "operator": ">=",
-     "value": 2
-    }
-   },
-   "why": "the authored bound is \"2 or more\": the number 2 and the relation \"or more\", typed as >= 2. Not rewritten as > 1, and the prose value is left in place as its source."
-  },
-  {
-   "item": "restated:A01-02::A01-02-01.a",
-   "ruling": "SD-87",
-   "set": {
-    "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
-    "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
-   },
-   "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
-  },
-  {
-   "item": "restated:A01-02::A01-02-02.a",
-   "ruling": "SD-87",
-   "set": {
-    "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
-    "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
-   },
-   "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
-  },
-  {
-   "item": "restated:A01-02::A01-02-03.a",
-   "ruling": "SD-87",
-   "set": {
-    "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
-    "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
-   },
-   "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
-  },
-  {
-   "item": "restated:A01-02::A01-02-04.a",
-   "ruling": "SD-87",
-   "set": {
-    "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
-    "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
-   },
-   "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
-  },
-  {
-   "item": "restated:A01-02::A01-02-04.b",
-   "ruling": "SD-87",
-   "set": {
-    "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
-    "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
-   },
-   "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
-  },
-  {
-   "item": "restated:A01-02::A01-02-05.a",
-   "ruling": "SD-87",
-   "set": {
-    "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
-    "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
-   },
-   "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
-  },
-  {
-   "item": "restated:A01-02::A01-02-07.a",
-   "ruling": "SD-87",
-   "set": {
-    "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
-    "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
-   },
-   "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
-  },
-  {
-   "item": "restated:A01-02::A01-02-11.a",
-   "ruling": "SD-87",
-   "set": {
-    "selector": "trigger=OUT_END_LINE AND qualifier.endLine=DEFENDING_TEAM AND qualifier.lastTouch=ATTACKING_TEAM",
-    "goalKickTriggerSource": "Christian, 2026-09-26: the goal kick is \"the state in which the ball leaves play over the defending team's goal line, having last been touched by an attacking player, without a goal being scored\"."
-   },
-   "why": "the authored trigger replaces the unregistered `restart` attribute this item invented to pick out the element. Only the selector changes; the requirement, value, basis and evidence are untouched."
-  },
-  {
-   "item": "restated:A01-02::A01-02-05.a",
-   "ruling": "SD-89",
-   "set": {
-    "value": "DEFENDING_TEAM",
-    "basis": "AUTHORED",
-    "basisEvidence": "Christian, 2026-09-27: \"When a goal kick is triggered, the restart is awarded to the defending team.\" Authored as a football fact in its own right, not read off the trigger: \"The trigger identifies the state that produces the restart; it does not by itself establish who owns the resulting restart.\" It replaces the original's assumption 1 and the inference the original drew from the word \"from\".",
-    "restartOwnershipSource": "Christian, 2026-09-27: \"When a goal kick is triggered, the restart is awarded to the defending team.\"",
-    "fitNote": "DEFENDING_TEAM is an already-registered team designation; nothing is added to the vocabulary. The off-list phrase \"the team defending the end where the goal kick is placed\" is retired with the L2 marker it carried, because the authored fact states the designation directly. Ownership and trigger are kept separate as he required: the selector still carries SD-87's trigger, and this item carries the award."
-   },
-   "why": "restart ownership is authored as its own football fact. Until it was, T2 rested on assumption 1, and an assumption bounds without ever entailing (SD-83)."
-  },
-  {
-   "item": "restated:GF2::GF2-08.b",
-   "ruling": "SD-98",
-   "set": {
-    "value": {
-     "structuralRef": {
+  ],
+  "added": [
+    {
       "contractId": "restated:GF2",
-      "itemId": "GF2-03.a"
-     },
-     "asAuthored": "the target feature: the objective-area region of GF2-03.a (line or zone)"
-    }
-   },
-   "why": "the authored sentence names GF2-03.a, and the class that item establishes is held in the run. Only the referent already named is typed: no referent is selected between, inferred or substituted, and the authored sentence is kept beside the typed form. SD-63 is untouched for ordinary open text."
-  },
-  {
-   "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-05.a",
-   "ruling": "C29a",
-   "set": {
-    "value": "touchline-adjacent",
-    "gloss": "outer edge on a touchline",
-    "fitNote": "RESTATEMENT CORRECTION, 29 September (Christian). 04.a and 05.a carry the SAME basisEvidence — setup_guidance \"Mark wide channels along both touchlines\" — and 04.a's own fitNote already recorded \"Holds only the contact in ‘runs along its touchline’ (same as 05.a)\". They were two representations of one authored placement, not two competing authored values, and they collided on three channel elements by string inequality alone. The parenthetical is now a gloss beside the value rather than a second REQUIRED_RANGE contribution. Source, strictness, valueStatus and provenance are unchanged, and no engine semantics changed. \"One channel on each lateral side\" remains NOT held: touchline-adjacent does not say which touchline, and S2 has no side attribute (ledger)."
-   },
-   "why": "two spellings of one authored placement were entailing two different values on S6, producing three collisions that were never a knowledge conflict. Making the parenthetical a gloss leaves one value, preserves both items and their shared source, and changes no engine semantics"
-  },
-  {
-   "item": "restated:VARIABLE-TARGET-CONDITION::VARTARGET-03.a",
-   "ruling": "C29b/C29e",
-   "set": {
-    "relational": true,
-    "fitNote": "MARKED RELATIONAL 29 September, then TYPED AS DISTINCT_ON the same day once Christian adopted the assertion. The restatement had written one joint constraint as a per-element bound on O4, so it reached three separate object classes as three independent bounds — and three independently valid placements can still violate it. It is therefore NOT a bound on any one line, and contributes none. It is carried instead as a DISTINCT_ON assertion over the object collection: members differ pairwise on O4 and O5. No metric, no minimum separation — the source says explicitly \"no separation distance\" — no inferred geometry, and no line of its own. Realization chooses each placement against its own bound and is refused if the resulting SET violates it. Value, source and provenance are unchanged.",
-    "distinctOn": {
-     "rows": [
-      "O4",
-      "O5"
-     ]
-    }
-   },
-   "why": "a joint constraint over a set of candidates had been flattened into a per-element bound, which both misstates the knowledge and would license a per-line realization freedom that cannot honour it. Typed as DISTINCT_ON so each placement stays freely choosable within its own bound while the set is checked jointly"
-  },
-  {
-   "item": "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-01.a",
-   "ruling": "C29c",
-   "set": {
-    "typedBound": {
-     "min": 1,
-     "max": null
+      "after": "GF2-12.a",
+      "ruling": "SD-102",
+      "item": {
+        "itemId": "GF2-12.c",
+        "row": "J3",
+        "selector": "role=PRIMARY_SCORING & team=EACH_TEAM",
+        "requirement": "EQUALS",
+        "value": "EACH_TEAM",
+        "strictness": "REQUIRED",
+        "valueStatus": "REQUIRED_RANGE",
+        "scope": "WHOLE_GAME",
+        "basis": "OWNER_RULING",
+        "basisEvidence": "Christian, 2026-09-28: \"In the Directional Possession Game, both teams attack the same shared objective at the attacking end.\" New owner-authored canonical knowledge, and explicitly NOT a restatement of the GF2 source: \"The source is genuinely ambiguous and its existing provenance should continue to say so. Do not rewrite that ambiguity as though the original source established this relationship.\"",
+        "checkability": "STRUCTURAL",
+        "structuralClause": "whole item",
+        "fitNote": "GF2-12.a is left exactly as it stands — ASSUMED, PREFERRED_DEFAULT, its evidence still recording that the original could not reconcile \"toward the target\" at \"one end\" with \"building from their own end\". This item does not replace that record and does not touch it. It stands beside it, so the ambiguity in the source and the canonical decision about it stay separately readable, and the ambiguity keeps its own provenance.\n\nSCOPED BY C42 (2026-10-09) by narrowing this selector from role=PRIMARY_SCORING to role=PRIMARY_SCORING & team=EACH_TEAM. Nothing else is touched: still EQUALS, still REQUIRED, still REQUIRED_RANGE, still EACH_TEAM, still carrying his words of 28 September. What changes is its reach, which governed GF2 universally and now governs the shared-target arrangement it was made about. It is edited here rather than restated because the restatement pass runs over the contract items before additions are spliced in, so an items entry cannot reach an added item."
+      },
+      "why": "the load-bearing knowledge the source could not supply, authored as a canonical decision rather than as a reading of the source. Two things are deliberately kept apart: what Directional Possession's setup guidance says, which is ambiguous, and what Challenge Point has decided, which is not. || SCOPED 2026-10-09 by ruling C42. Scoped, not withdrawn, on his ruling of 2026-10-09. Strictness, requirement and value are untouched: the item still says exactly what it said and now reaches only an objective whose attacking team is EACH_TEAM. No such objective is established while the directional arrangement is active, so it is preserved and inert. Narrowing is safe on this row where it was not safe on GF2-08.a, because J3 is a FIELD row and a field item establishes no element by itself, where J1 is the collection row whose selector constitutes the team."
     },
-    "fitNote": "TYPED, 29 September (Christian). The authored value \">= 1 (no authored maximum)\" already carries requirement RANGE, so the requirement kind was always quantitative; only the value string defeated the parser, which typed it QUALITATIVE and left the realization layer unable to check any value against a range it can plainly read. The number is MOVED from the prose into the typed field on the SD-86 precedent, not inferred: floor 1, and no maximum, exactly as authored. The prose value is unchanged so the source stays visible beside its typed form."
-   },
-   "why": "an explicitly authored numerical floor was sitting unreadable in prose; typing it changes no authored content and makes the bound checkable"
-  },
-  {
-   "item": "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-02.a",
-   "ruling": "C29c",
-   "set": {
-    "typedBound": {
-     "min": 1,
-     "max": 2
+    {
+      "contractId": "blind:GF4",
+      "after": "I14",
+      "ruling": "SD-73",
+      "item": {
+        "itemId": "I14.op",
+        "row": "V9a",
+        "selector": "condition.type=event",
+        "requirement": "EQUALS",
+        "value": "multiply",
+        "strictness": "SUPPORTING",
+        "valueStatus": "TYPICAL_EXAMPLE",
+        "scope": "WHOLE_GAME",
+        "basis": "AUTHORED",
+        "basisEvidence": "\"double points for quick goal\" (game_forms[GF4].example_incentive_patterns) — \"double\" entails multiply",
+        "checkability": "STRUCTURAL",
+        "structuralClause": "whole item",
+        "fitNote": "Recovered from the source per SD-73. TYPICAL_EXAMPLE, so inert: the recovered operation does not promote the item into derivation."
+      },
+      "why": "the operation is recoverable from \"double\"; recording it keeps the magnitude computable without making the example authoritative"
     },
-    "fitNote": "TYPED, 29 September (Christian). \"1-2 (one or two)\" typed as min 1, max 2. It remains SUPPORTING / PREFERRED_DEFAULT and is NOT converted into a required range: NEUTRAL-01.a states there is no authored maximum, so intersecting the two to [1,2] would turn a preference into a hard ceiling the knowledge never states. SD-90 already expresses the real relationship between a required bound and a preferred default; nothing new is needed and nothing is intersected here."
-   },
-   "why": "the preferred default is typed so it can be read, and deliberately left SUPPORTING so it cannot be mistaken for a required maximum"
-  },
-  {
-   "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-06",
-   "ruling": "C30b",
-   "set": {
-    "typedBound": {
-     "min": 6,
-     "max": 10
+    {
+      "contractId": "restated:NEUTRAL-PLAYER-CONDITION",
+      "after": "NEUTRAL-05.a",
+      "ruling": "SD-76",
+      "item": {
+        "itemId": "NEUTRAL-01.b",
+        "origId": "NEUTRAL-01",
+        "row": "P11",
+        "selector": "group=neutral",
+        "requirement": "EXISTS",
+        "value": "a neutral participant group takes part in the activity",
+        "strictness": "REQUIRED",
+        "valueStatus": "N/A",
+        "scope": "WHOLE_GAME",
+        "basis": "AUTHORED",
+        "basisEvidence": "\"One or more neutral players join the team in possession creating a live numerical overload\" (tl-v0-constraint-neutral-player-condition, description — full source reference as carried by NEUTRAL-01.a)",
+        "checkability": "STRUCTURAL",
+        "structuralClause": "whole item",
+        "fitNote": "SD-76. The entailment, made visible: the same source already carried as NEUTRAL-01.a (P5 count >= 1) entails that a neutral participant group is present, independently of the participation-state property NEUTRAL-05.a. Restated onto P11 so that state has an element to belong to. No existence is authored here."
+      },
+      "why": "the existing source independently entails the neutral group, so its existence is restated rather than left a gap"
     },
-    "fitNote": "TYPED, 30 September, on the SD-86 precedent and exactly as the neutral count was (C29c). The channel width was AUTHORED all along — requirement RANGE, basis AUTHORED, value \"across-interval width about 6-10 m\", from setup_guidance \"(~6-10m wide depending on field size)\". Only the value STRING defeated the parser, which typed it QUALITATIVE and left it bounding nothing a check could read. The numbers are MOVED out of the prose, not inferred: 6 and 10 are explicitly authored. The prose is unchanged beside the typed form, so \"about\" and the unauthored scaling both keep their own record. WHAT THIS DOES NOT DO: it does not supply a scaling rule. S6 still records \"no scaling rule for width; depending on field size gives no function\", and that remains true — 6-10 m is a fixed range, not a proportion of the envelope. On a 40 x 30 m session it fits inside the 30 m across dimension, so it yields concrete geometry here; on an envelope where it would not, the proportional question is still open and is the owner decision returned rather than guessed at."
-   },
-   "why": "an explicitly authored numerical range was sitting unreadable in prose, so the channel width bounded nothing a spatial check could use. Typing it changes no authored content and makes the bound checkable; the absent SCALING rule is returned separately and not invented"
-  },
-  {
-   "item": "restated:GF2::GF2-14.b",
-   "ruling": "C31b",
-   "set": {
-    "basis": "OWNER_RULING",
-    "basisEvidence": "Christian, 2026-10-01: \"Promote GF2-14.b, equal outfield counts, from ASSUMED to owner-authored canonical knowledge.\" With the caution attached to it: \"Please preserve the ability for other selected authoritative knowledge to establish numerical asymmetry where the learning problem requires it. Equal team numbers should not become an engine-level universal assumption.\"",
-    "comparison": {
-     "left": {
-      "row": "P2",
-      "selector": "*"
-     },
-     "operator": "=",
-     "right": {
-      "row": "P2",
-      "selector": "*"
-     }
+    {
+      "contractId": "blind:PASS-COMBINATION-GATE",
+      "after": "PCG-13",
+      "ruling": "C29d",
+      "item": {
+        "itemId": "PCG-14.a",
+        "row": "V18",
+        "selector": "subject=connected-pass count",
+        "requirement": "EQUALS",
+        "value": "TEAMMATE_ACTION",
+        "strictness": "REQUIRED",
+        "valueStatus": "REQUIRED_RANGE",
+        "scope": "WHOLE_GAME",
+        "basis": "OWNER_RULING",
+        "basisEvidence": "Christian, 2026-09-29: \"The current connected-pass count is revealed immediately following each qualifying pass and updates progressively as the count changes. The current count is available to all players. When the count resets, the revealed state resets with it.\" Owner-authored canonical intent, stated as such. It is NOT a reading of the source sentence (\"Coach tracks the count visibly (count out loud or use a counter)\"), which could not choose between a standing display and an event-driven reveal — and that ambiguity keeps its own provenance on PCG-12.",
+        "checkability": "STRUCTURAL",
+        "structuralClause": "whole item",
+        "fitNote": "IE-D006 TRIGGER_TYPE. \"Immediately following each qualifying pass\" — a pass is a teammate action, which is a registered IE-D006 value. IE-D006’s integrity condition is met: a completed pass is detectable and is causally connected to the count it changes."
+      },
+      "why": "the connected-pass information rule authored as one coherent decision across the canonical IE dimensions, rather than five fields filled independently"
     },
-    "fitNote": "PROMOTED 1 October. It was ASSUMED, and by §3 an assumed item bounds but never entails — which is why the roster could not derive. It is now owner-authored and entails. IT REMAINS AN ITEM OF GF2, not an engine rule: a game form that authors asymmetry displaces it through the ordinary displacement mechanism (SD-90), so equality is knowledge about THIS game form and never a universal. TYPED AS A COMPARISON 3 October (Christian): \"AM-16 already introduced COMPARES for comparison between represented properties, so please don't introduce another mechanism or continue relying on prose matching for 'equal'.\" The equality is now DECLARED structurally rather than detected by matching the word in this item's prose — that was how an AUTHORED item reading 'unequal between the teams' once licensed an equal division. The authored value, basis, status and provenance are unchanged. NOT YET EVALUABLE, and the reason is the register's own: both operands name P2, a row owned by performers.teams[], so each matches BOTH members, and comparison.stillOpen says 'No aggregate function is named (each, some, the sum, the greatest) for a comparison ranging over several matched elements. An engine refuses such a comparison rather than choosing one.' Naming the members individually is not open either, because no knowledge item may target a member's opaque handle. So the equality is readable and refused, which is reported rather than worked around."
-   },
-   "why": "the roster could not derive because equality bounded without entailing; promoting it closes that without making equal team numbers an engine-level assumption. Typed as a comparison on 3 October so the engine reads a declared relationship instead of matching prose, which is where the 'unequal' near-miss came from"
-  },
-  {
-   "item": "restated:RPC-001::RPC-001-14.a",
-   "ruling": "C38",
-   "set": {
-    "typedBound": {
-     "min": 1,
-     "max": null
+    {
+      "contractId": "blind:PASS-COMBINATION-GATE",
+      "after": "PCG-13",
+      "ruling": "C29d",
+      "item": {
+        "itemId": "PCG-14.b",
+        "row": "V19",
+        "selector": "subject=connected-pass count",
+        "requirement": "EQUALS",
+        "value": "IMMEDIATE_AFTER_TRIGGER",
+        "strictness": "REQUIRED",
+        "valueStatus": "REQUIRED_RANGE",
+        "scope": "WHOLE_GAME",
+        "basis": "OWNER_RULING",
+        "basisEvidence": "Christian, 2026-09-29: \"The current connected-pass count is revealed immediately following each qualifying pass and updates progressively as the count changes. The current count is available to all players. When the count resets, the revealed state resets with it.\" Owner-authored canonical intent, stated as such. It is NOT a reading of the source sentence (\"Coach tracks the count visibly (count out loud or use a counter)\"), which could not choose between a standing display and an event-driven reveal — and that ambiguity keeps its own provenance on PCG-12.",
+        "checkability": "STRUCTURAL",
+        "structuralClause": "whole item",
+        "fitNote": "IE-D007 REVEAL_TIMING. \"Revealed immediately following\" is the registered value verbatim."
+      },
+      "why": "the connected-pass information rule authored as one coherent decision across the canonical IE dimensions, rather than five fields filled independently"
     },
-    "fitNote": "EXISTS per team becomes RANGE >=1 PER_TEAM. The clause 'not mirrored or identical in kind' is a non-claim, declared on DV1. TYPED 4 October (Christian): \"Please type the explicitly authored '>=1' objective count into its proper structured field under the same SD-86 principle we've already applied. This is the same normalization class as the previous explicit cardinalities, not new knowledge.\" The 1 is verbatim in the authored value and countBounds could not read it: its minimum pattern wants a 'min 1' form and its bare-digit match is anchored, so '>=1' matched neither and the claim arrived with no cardinality at all. That is the same shape as NEUTRAL-01.a's '>= 1 (no authored maximum)' (C29c) and PCG-08's 'at least 2 teams' (C37), both already typed. Minimum 1, maximum null, exactly as authored; no maximum is introduced because none is authored. The prose value is unchanged so the source stays visible beside its typed form. This is the one claim the 3 October removal of the minimum-of-one substitution newly exposed: before typing, it was the only existential claim in the corpus whose cardinality was unreadable, and it is reached only through the corpus-wide run - no learning goal selects RPC-001."
-   },
-   "why": "an explicitly authored '>=1' was sitting unreadable in prose, so the claim carried no cardinality and, once the engine stopped substituting a minimum of one, became the single unreadable claim in the corpus. Typing it restores the number the author wrote and changes no authored content"
-  },
-  {
-   "item": "blind:PASS-COMBINATION-GATE::PCG-08",
-   "ruling": "C37",
-   "set": {
-    "typedBound": {
-     "min": 2,
-     "max": null
+    {
+      "contractId": "blind:PASS-COMBINATION-GATE",
+      "after": "PCG-13",
+      "ruling": "C29d",
+      "item": {
+        "itemId": "PCG-14.c",
+        "row": "V20",
+        "selector": "subject=connected-pass count",
+        "requirement": "EQUALS",
+        "value": "GRADUAL",
+        "strictness": "REQUIRED",
+        "valueStatus": "REQUIRED_RANGE",
+        "scope": "WHOLE_GAME",
+        "basis": "OWNER_RULING",
+        "basisEvidence": "Christian, 2026-09-29: \"The current connected-pass count is revealed immediately following each qualifying pass and updates progressively as the count changes. The current count is available to all players. When the count resets, the revealed state resets with it.\" Owner-authored canonical intent, stated as such. It is NOT a reading of the source sentence (\"Coach tracks the count visibly (count out loud or use a counter)\"), which could not choose between a standing display and an event-driven reveal — and that ambiguity keeps its own provenance on PCG-12.",
+        "checkability": "STRUCTURAL",
+        "structuralClause": "whole item",
+        "fitNote": "IE-D008 REVEAL_PROGRESSION, whose question is \"does information appear all at once or become increasingly specified through unfolding interaction?\". \"Updates progressively as the count changes\" is the second. The reset is deliberately NOT recorded here as REVERSIBLE — see PCG-14.d."
+      },
+      "why": "the connected-pass information rule authored as one coherent decision across the canonical IE dimensions, rather than five fields filled independently"
     },
-    "fitNote": "The structural shadow of 'not a technique exercise'. The rest of that clause is PCG-17. TYPED 3 October (Christian): \"Please move the explicitly authored 'at least 2 teams' into the appropriate typed cardinality field under SD-86. This is normalization of authored knowledge, not inference. Preserve the meaning exactly: minimum 2, with no additional maximum unless independently authored.\" The number 2 is VERBATIM in the authored value and the parser could not read it: countBounds anchors a bare-digit match and finds no 'min 2' form in 'at least 2 teams (an attacking team and a defending team)', so the claim reached the engine as 'at least one, no maximum' — an authored number silently weakened. Minimum 2, maximum null, exactly as authored; no maximum is introduced, because none is authored here. The prose value is unchanged so the source stays visible beside its typed form. This matters beyond the item: PCG-08 shares performers.teams[] with GF2-14.a, and the shared-collection population is the greatest minimum any claim on it requires — so with the 2 unreadable, this claim contributed nothing to that figure."
-   },
-   "why": "an explicitly authored 'at least 2' was sitting unreadable in prose, so a REQUIRED claim about team count reached the engine as a minimum of one. Typing it changes no authored content and restores the number the author wrote; it also removes the dependence of the shared-collection population on which claim happened to be readable"
-  },
-  {
-   "item": "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-08.a",
-   "ruling": "C36a",
-   "set": {
-    "fitNote": "STALE CLAIM CORRECTED, 3 October (Christian): \"Please trace the four stale P2 fitNotes and correct the claim that no comparison requirement exists.\" This note read \"the bound is read from other elements and rows, which no requirement kind holds (SCHEMA LOCAL)\". That was true when written and has been obsolete since 20 September: AM-16 registered the requirement kind COMPARES for exactly this shape, and SD-23 gives it an operand form for a quantity derived from other rows. The authored value is unchanged, and so is its AUTHORED basis and REQUIRED_RANGE status. It is NOT typed as a comparison here, because two things the register leaves open would have to be chosen to do so, and neither is mine: the right-hand side 'P2(other team) - P5' is a derived quantity and no named derived rule is registered for it (operandForms requires '{ derived: <named rule>, args }'); and both sides name P2, a row owned by performers.teams[], so each matches every member, which comparison.stillOpen says an engine must refuse rather than resolve by choosing an aggregate. So the honest state is: expressible in FORM, not yet evaluable, for two named and reportable reasons rather than for the absence of a requirement kind. Counting outfield players only remains the original's reading (KNOWLEDGE)."
-   },
-   "why": "the note declared a schema limitation that AM-16 removed on 20 September, so it misreported the reason this item cannot be checked. Correcting it names the two real blockers — an unregistered derived rule and the unnamed aggregate — without typing the item or touching its authority"
-  },
-  {
-   "item": "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-09.a",
-   "ruling": "C36b",
-   "set": {
-    "fitNote": "STALE CLAIM CORRECTED, 3 October (Christian). This note read \"Equality across elements is not a value any requirement kind holds (SCHEMA LOCAL)\". AM-16 registered COMPARES on 20 September and its own examples include 'count(A) = count(B)', so equality across elements IS a relationship the grammar holds — it is simply not a VALUE, which is the part the note had right: comparison.relation says NARROWS and 'It never entails a value and never entails existence'. NOT PROMOTED, on his instruction: \"Where an item is only a TYPICAL_EXAMPLE or otherwise lacks authority, don't promote it merely because COMPARES now exists.\" The basis stays ASSUMED and the status stays PREFERRED_DEFAULT — the only evidence remains text the original itself marks TYPICAL_EXAMPLE (NEUTRAL-11) — so by SD-27 it bounds, never entails, and could not create an authoritative collision even once typed."
-   },
-   "why": "the note gave a schema reason that no longer exists for something that is in fact an authority limitation. Separating the two keeps the real constraint visible and avoids the item being promoted merely because the mechanism arrived"
-  },
-  {
-   "item": "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-10.a",
-   "ruling": "C36c",
-   "set": {
-    "fitNote": "STALE CLAIM CORRECTED, 3 October (Christian). This note read \"A sum across rows has no requirement kind (SCHEMA LOCAL)\". AM-16's second operand form is precisely a sum across rows — SD-23: 'a deterministically derived quantity whose inputs are SUPPORTED represented game properties: { derived: <named rule>, args }'. So the kind exists. What does not exist is a NAMED derived rule for this sum, and comparison.inputsMustBeSupported adds that 'A derived operand whose input the game states but nothing supports is not computable'. Naming such a rule is an authoring act, not an engine one, so it is reported rather than invented. Basis stays ASSUMED and nothing is promoted. The generalisation of '= 12' to E1 and the observation that the explicit rule exists only as engine wording (not a source) are unchanged."
-   },
-   "why": "the note blamed the absence of a requirement kind for what is actually the absence of a named derived rule. The distinction matters because the first is closed and the second is an open authoring decision"
-  },
-  {
-   "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-02.a",
-   "ruling": "C33",
-   "set": {
-    "selector": "noun=channel & lateral=wide-left",
-    "requirement": "COUNT",
-    "value": "1",
-    "fitNote": "RESTATED 2 October (Christian), authorizing \"the canonical Wide Zone S2 restatement as two distinct lateral regions\". This item becomes the wide-left channel. The side is AUTHORED here, via the `lateral` selector attribute the register offers on S2 under AM-17; it is not inferred from the count, and AM-12 is why the contract gains nothing from AM-17 until it is restated like this. The original fitNote recorded the gap this closes: \"OWN_INVOLVEMENT because the selector cannot tell wide channels from other channels\", and the ledger asked outright for \"a side selector attribute or per-touchline relative terms\". COUNT 1 because this item now establishes exactly one region, the pair establishing exactly two."
-   },
-   "why": "the authored intent was one channel on each lateral side; the register now carries the attribute that says which side, so the knowledge states it explicitly rather than leaving two channels on one touchline"
-  },
-  {
-   "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-03",
-   "ruling": "C33",
-   "set": {
-    "selector": "noun=channel & lateral=wide-right",
-    "requirement": "COUNT",
-    "value": "1",
-    "fitNote": "RESTATED 2 October (Christian). This item becomes the wide-right channel, the other half of the pair. Its original value was COUNT 2 with the note \"Exactly two, counted over this contract's own channels so another object's channel cannot break it. The one-per-touchline split is not held (see WIDEZONE-05).\" The exactly-two is PRESERVED as two items of exactly one each, and the split the note says is not held is now held by the authored lateral values. The count is not what places it: AM-17's registered test for wide-right -- \"touches the W touchline and does not contain the midline\" -- is."
-   },
-   "why": "the authored exactly-two is preserved as two single lateral regions, so the one-per-touchline split the original note recorded as unheld is now authored rather than left to the engine"
-  },
-  {
-   "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-08.d",
-   "ruling": "C33",
-   "set": {
-    "row": "S4",
-    "selector": "noun=channel",
-    "requirement": "EQUALS",
-    "value": "perceptual-reference",
-    "strictness": "SUPPORTING",
-    "scope": "OWN_INVOLVEMENT",
-    "fitNote": "RESTATED 2 October (Christian), ruling option (i): \"WIDEZONE-08.d should not establish a third S2 region. Based on its authored meaning and its own note, its claim is that the existing Wide Zone channel population carries the perceptual-reference function/member. The COUNT 2 comes from the already-established channel population; it does not entail two additional regions or a third region. So please restate it as a property statement over the two established lateral channels, rather than an S2 existence assertion.\" Its own original note already said as much: \"COUNT 2 (from WIDEZONE-03) so both channels carry the member (RC-16)\" -- the 2 was a reference to the established population, not a second assertion of it. It therefore moves from S2 (the collection, where an existence requirement mints an element) to S4 (space.regions[].functions, where a member is asserted of whichever regions the selector reaches). NOT authorized and NOT done: making it one specific side (nothing authored establishes that perceptual-reference belongs to wide-left rather than wide-right), and identity-by-narrowing. The distinction preserved: a statement that a property applies to N existing members does not thereby assert the existence of N additional members. Form follows the only other S4 item in the corpus, which is an EQUALS naming a member (\"access (forbidden as a member of functions)\", strictness EXCLUSION); this is its positive counterpart, so EQUALS with strictness SUPPORTING. EQUALS is outside EXISTENCE_REQUIREMENTS and S4 is a FIELD, so it cannot mint an element by either route -- which is the point of the ruling.",
-    "valueStatus": "REQUIRED_RANGE"
-   },
-   "why": "it was asserting existence on the collection row while its content was a property of the channels already established; moving it to the functions row keeps element existence and properties of established elements distinct"
-  },
-  {
-   "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-11.a",
-   "ruling": "C35",
-   "set": {
-    "value": {
-     "structuralRef": {
+    {
+      "contractId": "blind:PASS-COMBINATION-GATE",
+      "after": "PCG-13",
+      "ruling": "C29d",
+      "item": {
+        "itemId": "PCG-14.d",
+        "row": "V21",
+        "selector": "subject=connected-pass count",
+        "requirement": "EQUALS",
+        "value": "TRANSITION_DEPENDENT",
+        "strictness": "REQUIRED",
+        "valueStatus": "REQUIRED_RANGE",
+        "scope": "WHOLE_GAME",
+        "basis": "OWNER_RULING",
+        "basisEvidence": "Christian, 2026-09-29: \"The current connected-pass count is revealed immediately following each qualifying pass and updates progressively as the count changes. The current count is available to all players. When the count resets, the revealed state resets with it.\" Owner-authored canonical intent, stated as such. It is NOT a reading of the source sentence (\"Coach tracks the count visibly (count out loud or use a counter)\"), which could not choose between a standing display and an event-driven reveal — and that ambiguity keeps its own provenance on PCG-12.",
+        "checkability": "STRUCTURAL",
+        "structuralClause": "whole item",
+        "fitNote": "IE-D011 STATE_DEPENDENCY, whose question is \"is the meaning or availability of information dependent upon the current functional state?\". \"When the count resets, the revealed state resets with it\" is exactly that, and the reset is a detectable transition that changes what is worth doing — IE-D011’s integrity condition. THE APPARENT GRADUAL-vs-REVERSIBLE CONFLICT IS NOT REAL: they are one value each on two different dimensions, not two values on one field. Recording the reset as IE-D008 REVERSIBLE would in fact VIOLATE IE-D008’s own integrity condition, which requires later information to \"refine rather than arbitrarily overturn the task\"."
+      },
+      "why": "the connected-pass information rule authored as one coherent decision across the canonical IE dimensions, rather than five fields filled independently"
+    },
+    {
+      "contractId": "blind:PASS-COMBINATION-GATE",
+      "after": "PCG-13",
+      "ruling": "C29d",
+      "item": {
+        "itemId": "PCG-14.e",
+        "row": "V22",
+        "selector": "subject=connected-pass count",
+        "requirement": "EQUALS",
+        "value": "ALL",
+        "strictness": "REQUIRED",
+        "valueStatus": "REQUIRED_RANGE",
+        "scope": "WHOLE_GAME",
+        "basis": "OWNER_RULING",
+        "basisEvidence": "Christian, 2026-09-29: \"The current connected-pass count is revealed immediately following each qualifying pass and updates progressively as the count changes. The current count is available to all players. When the count resets, the revealed state resets with it.\" Owner-authored canonical intent, stated as such. It is NOT a reading of the source sentence (\"Coach tracks the count visibly (count out loud or use a counter)\"), which could not choose between a standing display and an event-driven reveal — and that ambiguity keeps its own provenance on PCG-12.",
+        "checkability": "STRUCTURAL",
+        "structuralClause": "whole item",
+        "fitNote": "IE-D013 ACCESS_HOLDER. PCG-13 already held ALL but as an ASSUMED reading of \"visibly\" and \"out loud\", with the gap recorded: \"The knowledge names no holder.\" This states the same value as AUTHORED knowledge. PCG-13 is left exactly as it stands so the assumption and the decision remain separately readable."
+      },
+      "why": "the connected-pass information rule authored as one coherent decision across the canonical IE dimensions, rather than five fields filled independently"
+    },
+    {
       "contractId": "restated:WIDE-ZONE-ADVANTAGE",
-      "itemId": "WIDEZONE-02.a"
-     },
-     "asAuthored": "both wide channels of this contract, each a referent"
+      "after": "WIDEZONE-06",
+      "ruling": "C31a",
+      "item": {
+        "itemId": "WIDEZONE-06.b",
+        "row": "S6",
+        "selector": "noun=channel",
+        "requirement": "RANGE",
+        "value": "bounded minority (of an axis)",
+        "strictness": "REQUIRED",
+        "valueStatus": "REQUIRED_RANGE",
+        "scope": "OWN_INVOLVEMENT",
+        "basis": "OWNER_RULING",
+        "basisEvidence": "Christian, 2026-10-01: \"Author the required width of each wide channel as: minimum 0.15 of the available across dimension, maximum 0.25 of the available across dimension.\" Owner-authored canonical knowledge, stated as such, and explicitly NOT derived from the existing 6-10 m guidance: \"This is owner-authored canonical knowledge, not derived from the existing 6-10 m guidance.\" WIDEZONE-06 is untouched and keeps its own record as PREFERRED guidance.",
+        "checkability": "STRUCTURAL",
+        "structuralClause": "whole item",
+        "fitNote": "The value is the CANONICAL RELATION NAME, not a number: the fractions live once in RC-21’s `relativeTerms`, and this item states which relation holds of a channel. So the knowledge describes the functional spatial relationship and realization produces the concrete geometry from the envelope, which is what he asked for. WIDEZONE-06 stands beside it unchanged, PREFERRED_DEFAULT, 6-10 m — and per the preferenceRule a preference may operate only INSIDE the requirement and may never widen it."
+      },
+      "why": "the required channel extent as a proportion of the available width, so the relationship scales and no A04-specific metre value enters canonical knowledge"
     },
-    "fitNote": "TYPED 2 October on the SD-98 precedent. The referents were the prose \"both wide channels of this contract, each a referent\", and SD-58 forbids comparing open text as identity, so GA-MODIFIER-OVERLAP could not evaluate the modifier at all. This item types the FIRST referent; WIDEZONE-11.c carries the second. Two items rather than one array because V8b's registered valueType is \"one property per referent\" and that semantics is now operational (register `multiplicity: SET`): the two are MEMBERS and accumulate, where an array value would be read as a permitted set and make the line a choice between the channels. DETERMINACY COMES FROM RULING C33: before it, \"both wide channels of this contract\" answered to three classes and typing it would have required selecting between them. Since C33 the contract establishes exactly two -- WIDEZONE-02.a (wide-left) and WIDEZONE-03 (wide-right) -- so \"both\" names them and nothing is selected between, inferred or substituted. SD-63 is untouched for ordinary open text."
-   },
-   "why": "the modifier's referents were prose, so the overlap invariant could not establish identity; the sentence names both channels and C33 made 'both' exactly two, so typing changes no authored content"
-  },
-  {
-   "item": "restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-08.c",
-   "ruling": "C40",
-   "set": {
-    "forbiddenValues": [
-     "WIDEZONE-02.a",
-     "WIDEZONE-03"
-    ]
-   },
-   "why": "His instruction of 2026-10-07: \"Please repair the bounded enforcement defect you found for the authored exclusion preventing a primary-event condition from naming a wide channel.\" The exclusion forbids \"a wide channel of this contract\" as a primary-event condition referent, and its own two channels are WIDEZONE-02.a and WIDEZONE-03, so the typed form of the authored value is those two item ids. Nothing is read out of the prose, which stays in `value` as the source — the same treatment SD-86 gave this contract’s forbidden CARDINALITY on WIDEZONE-16.b. Measured before: the exclusion reported SATISFIED whether a channel was named on V5 or not, so it asserted a compliance it had never checked."
-  }
- ],
- "added": [
-  {
-   "contractId": "restated:GF2",
-   "after": "GF2-12.a",
-   "ruling": "SD-102",
-   "item": {
-    "itemId": "GF2-12.c",
-    "row": "J3",
-    "selector": "role=PRIMARY_SCORING",
-    "requirement": "EQUALS",
-    "value": "EACH_TEAM",
-    "strictness": "REQUIRED",
-    "valueStatus": "REQUIRED_RANGE",
-    "scope": "WHOLE_GAME",
-    "basis": "OWNER_RULING",
-    "basisEvidence": "Christian, 2026-09-28: \"In the Directional Possession Game, both teams attack the same shared objective at the attacking end.\" New owner-authored canonical knowledge, and explicitly NOT a restatement of the GF2 source: \"The source is genuinely ambiguous and its existing provenance should continue to say so. Do not rewrite that ambiguity as though the original source established this relationship.\"",
-    "checkability": "STRUCTURAL",
-    "structuralClause": "whole item",
-    "fitNote": "GF2-12.a is left exactly as it stands — ASSUMED, PREFERRED_DEFAULT, its evidence still recording that the original could not reconcile \"toward the target\" at \"one end\" with \"building from their own end\". This item does not replace that record and does not touch it. It stands beside it, so the ambiguity in the source and the canonical decision about it stay separately readable, and the ambiguity keeps its own provenance."
-   },
-   "why": "the load-bearing knowledge the source could not supply, authored as a canonical decision rather than as a reading of the source. Two things are deliberately kept apart: what Directional Possession's setup guidance says, which is ambiguous, and what Challenge Point has decided, which is not."
-  },
-  {
-   "contractId": "blind:GF4",
-   "after": "I14",
-   "ruling": "SD-73",
-   "item": {
-    "itemId": "I14.op",
-    "row": "V9a",
-    "selector": "condition.type=event",
-    "requirement": "EQUALS",
-    "value": "multiply",
-    "strictness": "SUPPORTING",
-    "valueStatus": "TYPICAL_EXAMPLE",
-    "scope": "WHOLE_GAME",
-    "basis": "AUTHORED",
-    "basisEvidence": "\"double points for quick goal\" (game_forms[GF4].example_incentive_patterns) — \"double\" entails multiply",
-    "checkability": "STRUCTURAL",
-    "structuralClause": "whole item",
-    "fitNote": "Recovered from the source per SD-73. TYPICAL_EXAMPLE, so inert: the recovered operation does not promote the item into derivation."
-   },
-   "why": "the operation is recoverable from \"double\"; recording it keeps the magnitude computable without making the example authoritative"
-  },
-  {
-   "contractId": "restated:NEUTRAL-PLAYER-CONDITION",
-   "after": "NEUTRAL-05.a",
-   "ruling": "SD-76",
-   "item": {
-    "itemId": "NEUTRAL-01.b",
-    "origId": "NEUTRAL-01",
-    "row": "P11",
-    "selector": "group=neutral",
-    "requirement": "EXISTS",
-    "value": "a neutral participant group takes part in the activity",
-    "strictness": "REQUIRED",
-    "valueStatus": "N/A",
-    "scope": "WHOLE_GAME",
-    "basis": "AUTHORED",
-    "basisEvidence": "\"One or more neutral players join the team in possession creating a live numerical overload\" (tl-v0-constraint-neutral-player-condition, description — full source reference as carried by NEUTRAL-01.a)",
-    "checkability": "STRUCTURAL",
-    "structuralClause": "whole item",
-    "fitNote": "SD-76. The entailment, made visible: the same source already carried as NEUTRAL-01.a (P5 count >= 1) entails that a neutral participant group is present, independently of the participation-state property NEUTRAL-05.a. Restated onto P11 so that state has an element to belong to. No existence is authored here."
-   },
-   "why": "the existing source independently entails the neutral group, so its existence is restated rather than left a gap"
-  },
-  {
-   "contractId": "blind:PASS-COMBINATION-GATE",
-   "after": "PCG-13",
-   "ruling": "C29d",
-   "item": {
-    "itemId": "PCG-14.a",
-    "row": "V18",
-    "selector": "subject=connected-pass count",
-    "requirement": "EQUALS",
-    "value": "TEAMMATE_ACTION",
-    "strictness": "REQUIRED",
-    "valueStatus": "REQUIRED_RANGE",
-    "scope": "WHOLE_GAME",
-    "basis": "OWNER_RULING",
-    "basisEvidence": "Christian, 2026-09-29: \"The current connected-pass count is revealed immediately following each qualifying pass and updates progressively as the count changes. The current count is available to all players. When the count resets, the revealed state resets with it.\" Owner-authored canonical intent, stated as such. It is NOT a reading of the source sentence (\"Coach tracks the count visibly (count out loud or use a counter)\"), which could not choose between a standing display and an event-driven reveal — and that ambiguity keeps its own provenance on PCG-12.",
-    "checkability": "STRUCTURAL",
-    "structuralClause": "whole item",
-    "fitNote": "IE-D006 TRIGGER_TYPE. \"Immediately following each qualifying pass\" — a pass is a teammate action, which is a registered IE-D006 value. IE-D006’s integrity condition is met: a completed pass is detectable and is causally connected to the count it changes."
-   },
-   "why": "the connected-pass information rule authored as one coherent decision across the canonical IE dimensions, rather than five fields filled independently"
-  },
-  {
-   "contractId": "blind:PASS-COMBINATION-GATE",
-   "after": "PCG-13",
-   "ruling": "C29d",
-   "item": {
-    "itemId": "PCG-14.b",
-    "row": "V19",
-    "selector": "subject=connected-pass count",
-    "requirement": "EQUALS",
-    "value": "IMMEDIATE_AFTER_TRIGGER",
-    "strictness": "REQUIRED",
-    "valueStatus": "REQUIRED_RANGE",
-    "scope": "WHOLE_GAME",
-    "basis": "OWNER_RULING",
-    "basisEvidence": "Christian, 2026-09-29: \"The current connected-pass count is revealed immediately following each qualifying pass and updates progressively as the count changes. The current count is available to all players. When the count resets, the revealed state resets with it.\" Owner-authored canonical intent, stated as such. It is NOT a reading of the source sentence (\"Coach tracks the count visibly (count out loud or use a counter)\"), which could not choose between a standing display and an event-driven reveal — and that ambiguity keeps its own provenance on PCG-12.",
-    "checkability": "STRUCTURAL",
-    "structuralClause": "whole item",
-    "fitNote": "IE-D007 REVEAL_TIMING. \"Revealed immediately following\" is the registered value verbatim."
-   },
-   "why": "the connected-pass information rule authored as one coherent decision across the canonical IE dimensions, rather than five fields filled independently"
-  },
-  {
-   "contractId": "blind:PASS-COMBINATION-GATE",
-   "after": "PCG-13",
-   "ruling": "C29d",
-   "item": {
-    "itemId": "PCG-14.c",
-    "row": "V20",
-    "selector": "subject=connected-pass count",
-    "requirement": "EQUALS",
-    "value": "GRADUAL",
-    "strictness": "REQUIRED",
-    "valueStatus": "REQUIRED_RANGE",
-    "scope": "WHOLE_GAME",
-    "basis": "OWNER_RULING",
-    "basisEvidence": "Christian, 2026-09-29: \"The current connected-pass count is revealed immediately following each qualifying pass and updates progressively as the count changes. The current count is available to all players. When the count resets, the revealed state resets with it.\" Owner-authored canonical intent, stated as such. It is NOT a reading of the source sentence (\"Coach tracks the count visibly (count out loud or use a counter)\"), which could not choose between a standing display and an event-driven reveal — and that ambiguity keeps its own provenance on PCG-12.",
-    "checkability": "STRUCTURAL",
-    "structuralClause": "whole item",
-    "fitNote": "IE-D008 REVEAL_PROGRESSION, whose question is \"does information appear all at once or become increasingly specified through unfolding interaction?\". \"Updates progressively as the count changes\" is the second. The reset is deliberately NOT recorded here as REVERSIBLE — see PCG-14.d."
-   },
-   "why": "the connected-pass information rule authored as one coherent decision across the canonical IE dimensions, rather than five fields filled independently"
-  },
-  {
-   "contractId": "blind:PASS-COMBINATION-GATE",
-   "after": "PCG-13",
-   "ruling": "C29d",
-   "item": {
-    "itemId": "PCG-14.d",
-    "row": "V21",
-    "selector": "subject=connected-pass count",
-    "requirement": "EQUALS",
-    "value": "TRANSITION_DEPENDENT",
-    "strictness": "REQUIRED",
-    "valueStatus": "REQUIRED_RANGE",
-    "scope": "WHOLE_GAME",
-    "basis": "OWNER_RULING",
-    "basisEvidence": "Christian, 2026-09-29: \"The current connected-pass count is revealed immediately following each qualifying pass and updates progressively as the count changes. The current count is available to all players. When the count resets, the revealed state resets with it.\" Owner-authored canonical intent, stated as such. It is NOT a reading of the source sentence (\"Coach tracks the count visibly (count out loud or use a counter)\"), which could not choose between a standing display and an event-driven reveal — and that ambiguity keeps its own provenance on PCG-12.",
-    "checkability": "STRUCTURAL",
-    "structuralClause": "whole item",
-    "fitNote": "IE-D011 STATE_DEPENDENCY, whose question is \"is the meaning or availability of information dependent upon the current functional state?\". \"When the count resets, the revealed state resets with it\" is exactly that, and the reset is a detectable transition that changes what is worth doing — IE-D011’s integrity condition. THE APPARENT GRADUAL-vs-REVERSIBLE CONFLICT IS NOT REAL: they are one value each on two different dimensions, not two values on one field. Recording the reset as IE-D008 REVERSIBLE would in fact VIOLATE IE-D008’s own integrity condition, which requires later information to \"refine rather than arbitrarily overturn the task\"."
-   },
-   "why": "the connected-pass information rule authored as one coherent decision across the canonical IE dimensions, rather than five fields filled independently"
-  },
-  {
-   "contractId": "blind:PASS-COMBINATION-GATE",
-   "after": "PCG-13",
-   "ruling": "C29d",
-   "item": {
-    "itemId": "PCG-14.e",
-    "row": "V22",
-    "selector": "subject=connected-pass count",
-    "requirement": "EQUALS",
-    "value": "ALL",
-    "strictness": "REQUIRED",
-    "valueStatus": "REQUIRED_RANGE",
-    "scope": "WHOLE_GAME",
-    "basis": "OWNER_RULING",
-    "basisEvidence": "Christian, 2026-09-29: \"The current connected-pass count is revealed immediately following each qualifying pass and updates progressively as the count changes. The current count is available to all players. When the count resets, the revealed state resets with it.\" Owner-authored canonical intent, stated as such. It is NOT a reading of the source sentence (\"Coach tracks the count visibly (count out loud or use a counter)\"), which could not choose between a standing display and an event-driven reveal — and that ambiguity keeps its own provenance on PCG-12.",
-    "checkability": "STRUCTURAL",
-    "structuralClause": "whole item",
-    "fitNote": "IE-D013 ACCESS_HOLDER. PCG-13 already held ALL but as an ASSUMED reading of \"visibly\" and \"out loud\", with the gap recorded: \"The knowledge names no holder.\" This states the same value as AUTHORED knowledge. PCG-13 is left exactly as it stands so the assumption and the decision remain separately readable."
-   },
-   "why": "the connected-pass information rule authored as one coherent decision across the canonical IE dimensions, rather than five fields filled independently"
-  },
-  {
-   "contractId": "restated:WIDE-ZONE-ADVANTAGE",
-   "after": "WIDEZONE-06",
-   "ruling": "C31a",
-   "item": {
-    "itemId": "WIDEZONE-06.b",
-    "row": "S6",
-    "selector": "noun=channel",
-    "requirement": "RANGE",
-    "value": "bounded minority (of an axis)",
-    "strictness": "REQUIRED",
-    "valueStatus": "REQUIRED_RANGE",
-    "scope": "OWN_INVOLVEMENT",
-    "basis": "OWNER_RULING",
-    "basisEvidence": "Christian, 2026-10-01: \"Author the required width of each wide channel as: minimum 0.15 of the available across dimension, maximum 0.25 of the available across dimension.\" Owner-authored canonical knowledge, stated as such, and explicitly NOT derived from the existing 6-10 m guidance: \"This is owner-authored canonical knowledge, not derived from the existing 6-10 m guidance.\" WIDEZONE-06 is untouched and keeps its own record as PREFERRED guidance.",
-    "checkability": "STRUCTURAL",
-    "structuralClause": "whole item",
-    "fitNote": "The value is the CANONICAL RELATION NAME, not a number: the fractions live once in RC-21’s `relativeTerms`, and this item states which relation holds of a channel. So the knowledge describes the functional spatial relationship and realization produces the concrete geometry from the envelope, which is what he asked for. WIDEZONE-06 stands beside it unchanged, PREFERRED_DEFAULT, 6-10 m — and per the preferenceRule a preference may operate only INSIDE the requirement and may never widen it."
-   },
-   "why": "the required channel extent as a proportion of the available width, so the relationship scales and no A04-specific metre value enters canonical knowledge"
-  },
-  {
-   "contractId": "restated:WIDE-ZONE-ADVANTAGE",
-   "after": "WIDEZONE-11.a",
-   "ruling": "C34",
-   "item": {
-    "itemId": "WIDEZONE-18.a",
-    "row": "V7",
-    "selector": "condition.type=region",
-    "requirement": "EXISTS",
-    "value": "N/A",
-    "strictness": "REQUIRED",
-    "valueStatus": "N/A",
-    "scope": "WHOLE_GAME",
-    "basis": "OWNER_RULING",
-    "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"Actions starting in or moving through the wide channel earn an advantage (bonus point, free restart, or scoring multiplier).\" Christian, 2026-10-02 selects the third of those three alternatives: \"let's authorize the remaining effect as a value modifier on the existing primary scoring event, not as a second scoring event, objective, or access mechanism. ... For the value operation, authorize: MULTIPLY x2.\"",
-    "fitNote": "AUTHORED 2 October. The Wide Zone advantage exists as a VALUE MODIFIER on the existing primary scoring event. V7 previously carried NO item -- its V8a declaration recorded why: \"no item, since V7 cannot select this object's modifier\" -- so every claim the object made about the advantage reached no line at all and vanished from the game, from `open` and from `notEstablished` alike. The selector is `condition.type=region`, one of V7's two registered selector attributes; the referents are already authored on V8b (\"both wide channels of this contract, each a referent\"). Not a consequence and not an objective: his ruling is explicit that this must not become a second scoring event, and the object already excludes the channel as an objective reference and as an ACCESS region. Scope is WHOLE_GAME, matching its sibling WIDEZONE-11.a on V8b. That item's own note recorded the tension -- \"V7 cannot select this object's modifier, so WHOLE_GAME is over-broad\" -- which this resolves: V7 now carries an item, so the referent selector has a modifier of this object's to identify.",
-    "origId": "WIDEZONE-13",
-    "checkability": "STRUCTURAL",
-    "structuralClause": "whole item"
-   }
-  },
-  {
-   "contractId": "restated:WIDE-ZONE-ADVANTAGE",
-   "after": "WIDEZONE-18.a",
-   "ruling": "C34",
-   "item": {
-    "itemId": "WIDEZONE-18.b",
-    "row": "V9",
-    "selector": "condition.type=region",
-    "requirement": "EQUALS",
-    "value": 2,
-    "strictness": "REQUIRED",
-    "valueStatus": "REQUIRED_RANGE",
-    "scope": "WHOLE_GAME",
-    "basis": "OWNER_RULING",
-    "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"Actions starting in or moving through the wide channel earn an advantage (bonus point, free restart, or scoring multiplier).\" Christian, 2026-10-02 selects the third of those three alternatives: \"let's authorize the remaining effect as a value modifier on the existing primary scoring event, not as a second scoring event, objective, or access mechanism. ... For the value operation, authorize: MULTIPLY x2.\"",
-    "fitNote": "AUTHORED 2 October: the magnitude is 2. V9 previously carried only two TYPICAL_EXAMPLE items (\"a multiplier on the primary event value (size not authored)\", \"added point(s) on the primary event (number not authored)\") declared NOT_AUTHORED in the same breath -- \"no multiplier size or bonus points; realization parameters null\". The magnitude is a number whose MEANING is fixed by V9a and never inferred (SD-24), which is why the operation is authored beside it rather than left to be read off the word 'multiplier'. Scope is WHOLE_GAME, matching its sibling WIDEZONE-11.a on V8b. That item's own note recorded the tension -- \"V7 cannot select this object's modifier, so WHOLE_GAME is over-broad\" -- which this resolves: V7 now carries an item, so the referent selector has a modifier of this object's to identify.",
-    "origId": "WIDEZONE-13",
-    "checkability": "STRUCTURAL",
-    "structuralClause": "whole item"
-   }
-  },
-  {
-   "contractId": "restated:WIDE-ZONE-ADVANTAGE",
-   "after": "WIDEZONE-18.b",
-   "ruling": "C34",
-   "item": {
-    "itemId": "WIDEZONE-18.c",
-    "row": "V9a",
-    "selector": "condition.type=region",
-    "requirement": "EQUALS",
-    "value": "MULTIPLY",
-    "strictness": "REQUIRED",
-    "valueStatus": "REQUIRED_RANGE",
-    "scope": "WHOLE_GAME",
-    "basis": "OWNER_RULING",
-    "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"Actions starting in or moving through the wide channel earn an advantage (bonus point, free restart, or scoring multiplier).\" Christian, 2026-10-02 selects the third of those three alternatives: \"let's authorize the remaining effect as a value modifier on the existing primary scoring event, not as a second scoring event, objective, or access mechanism. ... For the value operation, authorize: MULTIPLY x2.\"",
-    "fitNote": "AUTHORED 2 October: MULTIPLY, from V9a's closed list (MULTIPLY, ADD, REPLACE -- SD-30). With magnitude 2 this is x2. SD-30 is explicit that an authored magnitude with no authored operation is INCOMPLETE and the effective value is not computable, so the pair is authored together. The ordinary route is untouched: the modifier applies only where its condition is satisfied, so a line crossing that does not satisfy it remains worth the base value of 1. Scope is WHOLE_GAME, matching its sibling WIDEZONE-11.a on V8b. That item's own note recorded the tension -- \"V7 cannot select this object's modifier, so WHOLE_GAME is over-broad\" -- which this resolves: V7 now carries an item, so the referent selector has a modifier of this object's to identify.",
-    "origId": "WIDEZONE-13",
-    "checkability": "STRUCTURAL",
-    "structuralClause": "whole item"
-   }
-  },
-  {
-   "contractId": "restated:WIDE-ZONE-ADVANTAGE",
-   "after": "WIDEZONE-11.a",
-   "ruling": "C35",
-   "item": {
-    "itemId": "WIDEZONE-11.c",
-    "origId": "WIDEZONE-11",
-    "row": "V8b",
-    "selector": "condition.type=region",
-    "requirement": "EQUALS",
-    "value": {
-     "structuralRef": {
+    {
       "contractId": "restated:WIDE-ZONE-ADVANTAGE",
-      "itemId": "WIDEZONE-03"
-     },
-     "asAuthored": "both wide channels of this contract, each a referent"
+      "after": "WIDEZONE-11.a",
+      "ruling": "C34",
+      "item": {
+        "itemId": "WIDEZONE-18.a",
+        "row": "V7",
+        "selector": "condition.type=region",
+        "requirement": "EXISTS",
+        "value": "N/A",
+        "strictness": "REQUIRED",
+        "valueStatus": "N/A",
+        "scope": "WHOLE_GAME",
+        "basis": "OWNER_RULING",
+        "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"Actions starting in or moving through the wide channel earn an advantage (bonus point, free restart, or scoring multiplier).\" Christian, 2026-10-02 selects the third of those three alternatives: \"let's authorize the remaining effect as a value modifier on the existing primary scoring event, not as a second scoring event, objective, or access mechanism. ... For the value operation, authorize: MULTIPLY x2.\"",
+        "fitNote": "AUTHORED 2 October. The Wide Zone advantage exists as a VALUE MODIFIER on the existing primary scoring event. V7 previously carried NO item -- its V8a declaration recorded why: \"no item, since V7 cannot select this object's modifier\" -- so every claim the object made about the advantage reached no line at all and vanished from the game, from `open` and from `notEstablished` alike. The selector is `condition.type=region`, one of V7's two registered selector attributes; the referents are already authored on V8b (\"both wide channels of this contract, each a referent\"). Not a consequence and not an objective: his ruling is explicit that this must not become a second scoring event, and the object already excludes the channel as an objective reference and as an ACCESS region. Scope is WHOLE_GAME, matching its sibling WIDEZONE-11.a on V8b. That item's own note recorded the tension -- \"V7 cannot select this object's modifier, so WHOLE_GAME is over-broad\" -- which this resolves: V7 now carries an item, so the referent selector has a modifier of this object's to identify.",
+        "origId": "WIDEZONE-13",
+        "checkability": "STRUCTURAL",
+        "structuralClause": "whole item"
+      }
     },
-    "strictness": "REQUIRED",
-    "valueStatus": "REQUIRED_RANGE",
-    "scope": "WHOLE_GAME",
-    "basis": "OWNER_RULING",
-    "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"Actions starting in or moving through the wide channel earn an advantage (bonus point, free restart, or scoring multiplier).\" Christian, 2026-10-02 selects the third of those three alternatives: \"let's authorize the remaining effect as a value modifier on the existing primary scoring event, not as a second scoring event, objective, or access mechanism. ... For the value operation, authorize: MULTIPLY x2.\"",
-    "checkability": "STRUCTURAL",
-    "structuralClause": "whole item",
-    "fitNote": "AUTHORED 2 October: the second of the two referents \"both wide channels of this contract, each a referent\" names, as its own item because V8b carries one property per referent. His semantics: \"Each established wide channel is independently a qualifying referent for the same modifier condition\" -- not a choice between them, and not a requirement that both be involved before the modifier applies. Nothing new is referenced: 11.a types the wide-left channel and this types the wide-right one, which together are \"both\"."
-   }
-  },
-  {
-   "contractId": "blind:PASS-COMBINATION-GATE",
-   "after": "PCG-14.a",
-   "ruling": "C39",
-   "item": {
-    "itemId": "PCG-14.f",
-    "row": "V17",
-    "selector": "subject=connected-pass count",
-    "requirement": "EQUALS",
-    "value": "COMPLETED_PASS",
-    "strictness": "REQUIRED",
-    "valueStatus": "REQUIRED_RANGE",
-    "scope": "WHOLE_GAME",
-    "basis": "OWNER_RULING",
-    "basisEvidence": "Christian, 2026-09-29: \"The current connected-pass count is revealed immediately following each qualifying pass and updates progressively as the count changes.\" Authorized as an item 2026-10-04: \"Please author the Pass Combination Gate trigger item exactly as proposed: COMPLETED_PASS, basis OWNER_RULING, strictness REQUIRED, status REQUIRED_RANGE, evidence from the 29 September ruling.\" The 29 September ruling was applied to the five information DIMENSIONS (PCG-14.a-e) and not to V17, the information rule’s own structural trigger, which has reported failed / NOT_AUTHORED / \"not constrained\" in all five goals that select this contract ever since. PCG-14.b (V19 = IMMEDIATE_AFTER_TRIGGER) is what makes this row load-bearing by construction: \"immediately after the trigger\" denotes nothing unless a trigger is named.",
-    "checkability": "STRUCTURAL",
-    "structuralClause": "whole item",
-    "fitNote": "What \"qualifying\" means is not read here: it is fixed by PCG-05 (AUTHORED, REQUIRED, REQUIRED_RANGE), \"counts ATTACKING_TEAM’s connected passes\", so the trigger is a pass that CONNECTS and nothing further. COMPLETED_PASS is a registered member of vocabularies.trigger (version 3, added 2026-10-04) whose semantics entry makes completion constitutive and denies implying region, direction, receiver identity, distance, intent, possession, possession change, scoring eligibility, transition or episode boundary. It is NOT ordered against FIRST_FORWARD_PASS in either direction. This item DISPLACES nothing: PCG-12 (V17 = STANDING) is ASSUMED and PREFERRED_DEFAULT, so by §3 it bounds and never entails and could not resolve this row; its own basisEvidence already conceded \"a reveal on each completed pass, which is not a listed trigger\". KNOWN LIMIT, recorded and deliberately not repaired on his instruction: constructTriggers builds the reachable-trigger set from a hardcoded function that never reads vocabularies.trigger, and GA-INFORMATION does not test reachability on V17 the way GA-EFFECT-TYPED does on V12 - so this item is admitted on registration alone and is never asked whether the occurrence can arise. The same has been true of FIRST_FORWARD_PASS since 29 September, so it is a property of the architecture rather than of this item."
-   },
-   "why": "the 29 September ruling filled the five information dimensions and left the information rule’s own structural trigger unauthored, so the reveal mechanism carried five dimensions and no trigger. Authoring it closes that line with the token the ruling requires; correct canonical authoring is not withheld because structural reachability is separately incomplete"
-  },
-  {
-   "contractId": "restated:WIDE-ZONE-ADVANTAGE",
-   "after": "WIDEZONE-18.c",
-   "ruling": "C40",
-   "item": {
-    "itemId": "WIDEZONE-18.d",
-    "row": "V8c",
-    "selector": "condition.type=region",
-    "requirement": "EQUALS",
-    "value": "a controlled attacking-team touch within a referent wide channel, where controlled means a touch after which the touching player’s team retains possession",
-    "strictness": "REQUIRED",
-    "valueStatus": "REQUIRED_RANGE",
-    "scope": "WHOLE_GAME",
-    "basis": "OWNER_RULING",
-    "basisEvidence": "Christian, 2026-10-02, the settled condition recorded in docs/INCENTIVE_ASSURANCE_CRITERIA.md and preserved by his instruction of 2026-10-07 (\"Please preserve the settled condition\"): the qualifying interaction is \"a controlled attacking-team touch within an established wide channel\", and \"Controlled = a touch within the channel after which the touching player's team retains possession.\" His preference for where it lives, same message: \"I would prefer the canonical representation to carry that observable relationship rather than rely on the qualitative word controlled. Coach-facing language may eventually translate it naturally.\"",
-    "checkability": "PARTLY_STRUCTURAL",
-    "structuralClause": "The referent is an established wide channel of this contract, and the touching party is a team the game establishes. Whether a touch occurred inside the channel, and whether that team then retained possession, are judgements made in play: the representation names the KIND of occurrence and does not record occurrences (the COMPLETED_PASS precedent), so SD-15 applies and no claim is made about the judgement.",
-    "fitNote": "AUTHORED 7 October onto V8c, the row added the same day for exactly this. Until then a value modifier could name WHAT its condition was about and never what MEETS it, which is the gap the A04 coach view reported in its own words: a coach was told a channel condition changes the score and could not be told what meets it. THE SUBJECT IS A TOUCH, NOT THE BALL AND NOT A PLAYER, and that was decided on the approved assurance criteria rather than on the source: the source names two MODES (\"starting in or moving through\") and no subject at all. His 2 October ruling also set traversal aside — \"mere ball traversal admits incidental entries, clearances and deflections and weakens the relationship to actually exploiting the space\" — so traversal is neither required nor sufficient here, and this item asserts none. ATTACKING-TEAM is evaluable because the possession relationship is established (PS1, from the Soccer Sport Profile of 6 October); before that it was the one blocker, and the alternative route needed an attacking-episode scope he has now retired for this case. Persistence is NOT in this value: it is WIDEZONE-18.e on V8d, kept distinct on his instruction that criterion and persistence not be compressed into one field."
-   }
-  },
-  {
-   "contractId": "restated:WIDE-ZONE-ADVANTAGE",
-   "after": "WIDEZONE-18.d",
-   "ruling": "C40",
-   "item": {
-    "itemId": "WIDEZONE-18.e",
-    "row": "V8d",
-    "selector": "condition.type=region",
-    "requirement": "EQUALS",
-    "value": "POSSESSION_CHANGE",
-    "strictness": "REQUIRED",
-    "valueStatus": "REQUIRED_RANGE",
-    "scope": "WHOLE_GAME",
-    "basis": "OWNER_RULING",
-    "basisEvidence": "Christian, 2026-10-07: \"A qualifying controlled attacking-team touch in either established wide channel activates the value modification while that team retains possession. A possession change ends that modification.\" And the scope he set on it: \"No general attacking-episode model and no time window.\"",
-    "checkability": "STRUCTURAL",
-    "structuralClause": "whole item",
-    "fitNote": "AUTHORED 7 October onto V8d. POSSESSION_CHANGE is a registered trigger and is structurally reachable in this game, which is what makes the termination executable rather than a sentence: GA-MODIFIER-OVERLAP checks it, because a modification whose terminating occurrence cannot arise never ends. NO TIME WINDOW AND NO EPISODE MODEL, on his instruction — the bound is the same relation the criterion already reads, so it costs no dependency the condition had not already taken. It also retires, by making it unnecessary, the unratified engine wording at incentive-expression.ts (\"your team keeps it until the next change of possession\") that had no row to rest on."
-   }
+    {
+      "contractId": "restated:WIDE-ZONE-ADVANTAGE",
+      "after": "WIDEZONE-18.a",
+      "ruling": "C34",
+      "item": {
+        "itemId": "WIDEZONE-18.b",
+        "row": "V9",
+        "selector": "condition.type=region",
+        "requirement": "EQUALS",
+        "value": 2,
+        "strictness": "REQUIRED",
+        "valueStatus": "REQUIRED_RANGE",
+        "scope": "WHOLE_GAME",
+        "basis": "OWNER_RULING",
+        "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"Actions starting in or moving through the wide channel earn an advantage (bonus point, free restart, or scoring multiplier).\" Christian, 2026-10-02 selects the third of those three alternatives: \"let's authorize the remaining effect as a value modifier on the existing primary scoring event, not as a second scoring event, objective, or access mechanism. ... For the value operation, authorize: MULTIPLY x2.\"",
+        "fitNote": "AUTHORED 2 October: the magnitude is 2. V9 previously carried only two TYPICAL_EXAMPLE items (\"a multiplier on the primary event value (size not authored)\", \"added point(s) on the primary event (number not authored)\") declared NOT_AUTHORED in the same breath -- \"no multiplier size or bonus points; realization parameters null\". The magnitude is a number whose MEANING is fixed by V9a and never inferred (SD-24), which is why the operation is authored beside it rather than left to be read off the word 'multiplier'. Scope is WHOLE_GAME, matching its sibling WIDEZONE-11.a on V8b. That item's own note recorded the tension -- \"V7 cannot select this object's modifier, so WHOLE_GAME is over-broad\" -- which this resolves: V7 now carries an item, so the referent selector has a modifier of this object's to identify.",
+        "origId": "WIDEZONE-13",
+        "checkability": "STRUCTURAL",
+        "structuralClause": "whole item"
+      }
+    },
+    {
+      "contractId": "restated:WIDE-ZONE-ADVANTAGE",
+      "after": "WIDEZONE-18.b",
+      "ruling": "C34",
+      "item": {
+        "itemId": "WIDEZONE-18.c",
+        "row": "V9a",
+        "selector": "condition.type=region",
+        "requirement": "EQUALS",
+        "value": "MULTIPLY",
+        "strictness": "REQUIRED",
+        "valueStatus": "REQUIRED_RANGE",
+        "scope": "WHOLE_GAME",
+        "basis": "OWNER_RULING",
+        "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"Actions starting in or moving through the wide channel earn an advantage (bonus point, free restart, or scoring multiplier).\" Christian, 2026-10-02 selects the third of those three alternatives: \"let's authorize the remaining effect as a value modifier on the existing primary scoring event, not as a second scoring event, objective, or access mechanism. ... For the value operation, authorize: MULTIPLY x2.\"",
+        "fitNote": "AUTHORED 2 October: MULTIPLY, from V9a's closed list (MULTIPLY, ADD, REPLACE -- SD-30). With magnitude 2 this is x2. SD-30 is explicit that an authored magnitude with no authored operation is INCOMPLETE and the effective value is not computable, so the pair is authored together. The ordinary route is untouched: the modifier applies only where its condition is satisfied, so a line crossing that does not satisfy it remains worth the base value of 1. Scope is WHOLE_GAME, matching its sibling WIDEZONE-11.a on V8b. That item's own note recorded the tension -- \"V7 cannot select this object's modifier, so WHOLE_GAME is over-broad\" -- which this resolves: V7 now carries an item, so the referent selector has a modifier of this object's to identify.",
+        "origId": "WIDEZONE-13",
+        "checkability": "STRUCTURAL",
+        "structuralClause": "whole item"
+      }
+    },
+    {
+      "contractId": "restated:WIDE-ZONE-ADVANTAGE",
+      "after": "WIDEZONE-11.a",
+      "ruling": "C35",
+      "item": {
+        "itemId": "WIDEZONE-11.c",
+        "origId": "WIDEZONE-11",
+        "row": "V8b",
+        "selector": "condition.type=region",
+        "requirement": "EQUALS",
+        "value": {
+          "structuralRef": {
+            "contractId": "restated:WIDE-ZONE-ADVANTAGE",
+            "itemId": "WIDEZONE-03"
+          },
+          "asAuthored": "both wide channels of this contract, each a referent"
+        },
+        "strictness": "REQUIRED",
+        "valueStatus": "REQUIRED_RANGE",
+        "scope": "WHOLE_GAME",
+        "basis": "OWNER_RULING",
+        "basisEvidence": "soccer-module.rc1-v3.json#tl-v0-constraint-wide-zone-advantage setup_guidance: \"Actions starting in or moving through the wide channel earn an advantage (bonus point, free restart, or scoring multiplier).\" Christian, 2026-10-02 selects the third of those three alternatives: \"let's authorize the remaining effect as a value modifier on the existing primary scoring event, not as a second scoring event, objective, or access mechanism. ... For the value operation, authorize: MULTIPLY x2.\"",
+        "checkability": "STRUCTURAL",
+        "structuralClause": "whole item",
+        "fitNote": "AUTHORED 2 October: the second of the two referents \"both wide channels of this contract, each a referent\" names, as its own item because V8b carries one property per referent. His semantics: \"Each established wide channel is independently a qualifying referent for the same modifier condition\" -- not a choice between them, and not a requirement that both be involved before the modifier applies. Nothing new is referenced: 11.a types the wide-left channel and this types the wide-right one, which together are \"both\"."
+      }
+    },
+    {
+      "contractId": "blind:PASS-COMBINATION-GATE",
+      "after": "PCG-14.a",
+      "ruling": "C39",
+      "item": {
+        "itemId": "PCG-14.f",
+        "row": "V17",
+        "selector": "subject=connected-pass count",
+        "requirement": "EQUALS",
+        "value": "COMPLETED_PASS",
+        "strictness": "REQUIRED",
+        "valueStatus": "REQUIRED_RANGE",
+        "scope": "WHOLE_GAME",
+        "basis": "OWNER_RULING",
+        "basisEvidence": "Christian, 2026-09-29: \"The current connected-pass count is revealed immediately following each qualifying pass and updates progressively as the count changes.\" Authorized as an item 2026-10-04: \"Please author the Pass Combination Gate trigger item exactly as proposed: COMPLETED_PASS, basis OWNER_RULING, strictness REQUIRED, status REQUIRED_RANGE, evidence from the 29 September ruling.\" The 29 September ruling was applied to the five information DIMENSIONS (PCG-14.a-e) and not to V17, the information rule’s own structural trigger, which has reported failed / NOT_AUTHORED / \"not constrained\" in all five goals that select this contract ever since. PCG-14.b (V19 = IMMEDIATE_AFTER_TRIGGER) is what makes this row load-bearing by construction: \"immediately after the trigger\" denotes nothing unless a trigger is named.",
+        "checkability": "STRUCTURAL",
+        "structuralClause": "whole item",
+        "fitNote": "What \"qualifying\" means is not read here: it is fixed by PCG-05 (AUTHORED, REQUIRED, REQUIRED_RANGE), \"counts ATTACKING_TEAM’s connected passes\", so the trigger is a pass that CONNECTS and nothing further. COMPLETED_PASS is a registered member of vocabularies.trigger (version 3, added 2026-10-04) whose semantics entry makes completion constitutive and denies implying region, direction, receiver identity, distance, intent, possession, possession change, scoring eligibility, transition or episode boundary. It is NOT ordered against FIRST_FORWARD_PASS in either direction. This item DISPLACES nothing: PCG-12 (V17 = STANDING) is ASSUMED and PREFERRED_DEFAULT, so by §3 it bounds and never entails and could not resolve this row; its own basisEvidence already conceded \"a reveal on each completed pass, which is not a listed trigger\". KNOWN LIMIT, recorded and deliberately not repaired on his instruction: constructTriggers builds the reachable-trigger set from a hardcoded function that never reads vocabularies.trigger, and GA-INFORMATION does not test reachability on V17 the way GA-EFFECT-TYPED does on V12 - so this item is admitted on registration alone and is never asked whether the occurrence can arise. The same has been true of FIRST_FORWARD_PASS since 29 September, so it is a property of the architecture rather than of this item."
+      },
+      "why": "the 29 September ruling filled the five information dimensions and left the information rule’s own structural trigger unauthored, so the reveal mechanism carried five dimensions and no trigger. Authoring it closes that line with the token the ruling requires; correct canonical authoring is not withheld because structural reachability is separately incomplete"
+    },
+    {
+      "contractId": "restated:WIDE-ZONE-ADVANTAGE",
+      "after": "WIDEZONE-18.c",
+      "ruling": "C40",
+      "item": {
+        "itemId": "WIDEZONE-18.d",
+        "row": "V8c",
+        "selector": "condition.type=region",
+        "requirement": "EQUALS",
+        "value": "a controlled attacking-team touch within a referent wide channel, where controlled means a touch after which the touching player’s team retains possession",
+        "strictness": "REQUIRED",
+        "valueStatus": "REQUIRED_RANGE",
+        "scope": "WHOLE_GAME",
+        "basis": "OWNER_RULING",
+        "basisEvidence": "Christian, 2026-10-02, the settled condition recorded in docs/INCENTIVE_ASSURANCE_CRITERIA.md and preserved by his instruction of 2026-10-07 (\"Please preserve the settled condition\"): the qualifying interaction is \"a controlled attacking-team touch within an established wide channel\", and \"Controlled = a touch within the channel after which the touching player's team retains possession.\" His preference for where it lives, same message: \"I would prefer the canonical representation to carry that observable relationship rather than rely on the qualitative word controlled. Coach-facing language may eventually translate it naturally.\"",
+        "checkability": "PARTLY_STRUCTURAL",
+        "structuralClause": "The referent is an established wide channel of this contract, and the touching party is a team the game establishes. Whether a touch occurred inside the channel, and whether that team then retained possession, are judgements made in play: the representation names the KIND of occurrence and does not record occurrences (the COMPLETED_PASS precedent), so SD-15 applies and no claim is made about the judgement.",
+        "fitNote": "AUTHORED 7 October onto V8c, the row added the same day for exactly this. Until then a value modifier could name WHAT its condition was about and never what MEETS it, which is the gap the A04 coach view reported in its own words: a coach was told a channel condition changes the score and could not be told what meets it. THE SUBJECT IS A TOUCH, NOT THE BALL AND NOT A PLAYER, and that was decided on the approved assurance criteria rather than on the source: the source names two MODES (\"starting in or moving through\") and no subject at all. His 2 October ruling also set traversal aside — \"mere ball traversal admits incidental entries, clearances and deflections and weakens the relationship to actually exploiting the space\" — so traversal is neither required nor sufficient here, and this item asserts none. ATTACKING-TEAM is evaluable because the possession relationship is established (PS1, from the Soccer Sport Profile of 6 October); before that it was the one blocker, and the alternative route needed an attacking-episode scope he has now retired for this case. Persistence is NOT in this value: it is WIDEZONE-18.e on V8d, kept distinct on his instruction that criterion and persistence not be compressed into one field."
+      }
+    },
+    {
+      "contractId": "restated:WIDE-ZONE-ADVANTAGE",
+      "after": "WIDEZONE-18.d",
+      "ruling": "C40",
+      "item": {
+        "itemId": "WIDEZONE-18.e",
+        "row": "V8d",
+        "selector": "condition.type=region",
+        "requirement": "EQUALS",
+        "value": "POSSESSION_CHANGE",
+        "strictness": "REQUIRED",
+        "valueStatus": "REQUIRED_RANGE",
+        "scope": "WHOLE_GAME",
+        "basis": "OWNER_RULING",
+        "basisEvidence": "Christian, 2026-10-07: \"A qualifying controlled attacking-team touch in either established wide channel activates the value modification while that team retains possession. A possession change ends that modification.\" And the scope he set on it: \"No general attacking-episode model and no time window.\"",
+        "checkability": "STRUCTURAL",
+        "structuralClause": "whole item",
+        "fitNote": "AUTHORED 7 October onto V8d. POSSESSION_CHANGE is a registered trigger and is structurally reachable in this game, which is what makes the termination executable rather than a sentence: GA-MODIFIER-OVERLAP checks it, because a modification whose terminating occurrence cannot arise never ends. NO TIME WINDOW AND NO EPISODE MODEL, on his instruction — the bound is the same relation the criterion already reads, so it costs no dependency the condition had not already taken. It also retires, by making it unnecessary, the unratified engine wording at incentive-expression.ts (\"your team keeps it until the next change of possession\") that had no row to rest on."
+      }
+    },
+    {
+      "contractId": "restated:GF2",
+      "after": "GF2-03.b",
+      "ruling": "C42",
+      "item": {
+        "itemId": "GF2-03.e",
+        "row": "S2",
+        "selector": "functions CONTAINS objective-area & longitudinal=end-near",
+        "requirement": "EXISTS",
+        "value": "N/A",
+        "valueStatus": "N/A",
+        "strictness": "REQUIRED",
+        "scope": "WHOLE_GAME",
+        "basis": "OWNER_RULING",
+        "checkability": "STRUCTURAL",
+        "structuralClause": "whole item",
+        "basisEvidence": "Christian, 2026-10-09: \"allow the per-team directional arrangement to replace the shared-target arrangement as GF2 active objective structure\", with the designation pair approved the same day as \"distinct teams assigned to opposite ends at setup, with their assignments remaining fixed throughout the activity\" and \"each team attacks the target opposite its own assigned end, regardless of possession changes\". New owner-authored canonical knowledge, not a reading of the GF2 source, whose ambiguity on the shared-or-per-team question GF2-12.a still records.",
+        "fitNote": "The target at the near end. Individuated by longitudinal=end-near, the along-axis attribute added to S2 on his ruling of the same day: the mirror of the lateral attribute that already tells the two wide channels apart across the axis (AM-17). Without it, two region items carrying the same selector collapse into one class, which is what made a second target unreachable. The selector identifies the region and anchors its position to the 0 end line; it never creates one (AM-13). The CONTAINS operator is written in its ASCII form, which the selector parser registers alongside the set-membership symbol, so the selector carries no character that depends on the file encoding."
+      },
+      "why": "A directional arrangement needs a target per team, and the two must be distinguishable at authoring time."
+    },
+    {
+      "contractId": "restated:GF2",
+      "after": "GF2-03.e",
+      "ruling": "C42",
+      "item": {
+        "itemId": "GF2-03.f",
+        "row": "S2",
+        "selector": "functions CONTAINS objective-area & longitudinal=end-far",
+        "requirement": "EXISTS",
+        "value": "N/A",
+        "valueStatus": "N/A",
+        "strictness": "REQUIRED",
+        "scope": "WHOLE_GAME",
+        "basis": "OWNER_RULING",
+        "checkability": "STRUCTURAL",
+        "structuralClause": "whole item",
+        "basisEvidence": "Christian, 2026-10-09: \"allow the per-team directional arrangement to replace the shared-target arrangement as GF2 active objective structure\", with the designation pair approved the same day as \"distinct teams assigned to opposite ends at setup, with their assignments remaining fixed throughout the activity\" and \"each team attacks the target opposite its own assigned end, regardless of possession changes\". New owner-authored canonical knowledge, not a reading of the GF2 source, whose ambiguity on the shared-or-per-team question GF2-12.a still records.",
+        "fitNote": "The target at the far end, the mirror of GF2-03.e. The CONTAINS operator is written in its ASCII form, which the selector parser registers alongside the set-membership symbol, so the selector carries no character that depends on the file encoding."
+      },
+      "why": "The second of the two targets."
+    },
+    {
+      "contractId": "restated:GF2",
+      "after": "GF2-08.b",
+      "ruling": "C42",
+      "item": {
+        "itemId": "GF2-08.c",
+        "row": "J1",
+        "selector": "role=PRIMARY_SCORING & team=TEAM_AT_AXIS_START",
+        "requirement": "EXISTS",
+        "value": "a primary scoring objective attacked by the team assigned to the axis-start end",
+        "valueStatus": "N/A",
+        "strictness": "REQUIRED",
+        "scope": "WHOLE_GAME",
+        "basis": "OWNER_RULING",
+        "checkability": "STRUCTURAL",
+        "structuralClause": "whole item",
+        "basisEvidence": "Christian, 2026-10-09: \"allow the per-team directional arrangement to replace the shared-target arrangement as GF2 active objective structure\", with the designation pair approved the same day as \"distinct teams assigned to opposite ends at setup, with their assignments remaining fixed throughout the activity\" and \"each team attacks the target opposite its own assigned end, regardless of possession changes\". New owner-authored canonical knowledge, not a reading of the GF2 source, whose ambiguity on the shared-or-per-team question GF2-12.a still records.",
+        "fitNote": "TEAM_AT_AXIS_START is the team whose own end is the start of the long axis: a fixed allegiance to one end, assigned at setup and unchanged for the activity, naming no role. That team is the attacking team whenever it has the ball and the defending team whenever it does not, and its target does not change either way, which is the distinction between a stable team-target relationship and a possession-dependent role. J3 selectorAttribute is team, so this selector individuates the objective AND constitutes its J3; no separate J3 item is authored, and none is needed."
+      },
+      "why": "GA-DIRECTION reads one J3 line per objective CLASS, and instantiated members are not classes (SD-97), so the two objectives have to be two authored items."
+    },
+    {
+      "contractId": "restated:GF2",
+      "after": "GF2-08.c",
+      "ruling": "C42",
+      "item": {
+        "itemId": "GF2-08.d",
+        "row": "J2",
+        "selector": "role=PRIMARY_SCORING & team=TEAM_AT_AXIS_START",
+        "requirement": "EQUALS",
+        "value": {
+          "structuralRef": {
+            "contractId": "restated:GF2",
+            "itemId": "GF2-03.f"
+          },
+          "asAuthored": "the target at the opposite end from this team own end: the objective-area region of GF2-03.f"
+        },
+        "valueStatus": "REQUIRED_RANGE",
+        "strictness": "REQUIRED",
+        "scope": "WHOLE_GAME",
+        "basis": "OWNER_RULING",
+        "checkability": "STRUCTURAL",
+        "structuralClause": "whole item",
+        "basisEvidence": "Christian, 2026-10-09: \"allow the per-team directional arrangement to replace the shared-target arrangement as GF2 active objective structure\", with the designation pair approved the same day as \"distinct teams assigned to opposite ends at setup, with their assignments remaining fixed throughout the activity\" and \"each team attacks the target opposite its own assigned end, regardless of possession changes\". New owner-authored canonical knowledge, not a reading of the GF2 source, whose ambiguity on the shared-or-per-team question GF2-12.a still records.",
+        "fitNote": "Typed as a structural reference rather than prose so GA-REFERENCE-INTEGRITY can resolve it to a held element (SD-58 forbids comparing open text as identity). The team whose own end is the START attacks the target at the FAR end, the opposite one, which is what makes the arrangement directional."
+      },
+      "why": "Each objective must reference its own target, or both name the same region and the arrangement is still a shared target."
+    },
+    {
+      "contractId": "restated:GF2",
+      "after": "GF2-08.d",
+      "ruling": "C42",
+      "item": {
+        "itemId": "GF2-08.e",
+        "row": "J1",
+        "selector": "role=PRIMARY_SCORING & team=TEAM_AT_AXIS_END",
+        "requirement": "EXISTS",
+        "value": "a primary scoring objective attacked by the team assigned to the axis-far end",
+        "valueStatus": "N/A",
+        "strictness": "REQUIRED",
+        "scope": "WHOLE_GAME",
+        "basis": "OWNER_RULING",
+        "checkability": "STRUCTURAL",
+        "structuralClause": "whole item",
+        "basisEvidence": "Christian, 2026-10-09: \"allow the per-team directional arrangement to replace the shared-target arrangement as GF2 active objective structure\", with the designation pair approved the same day as \"distinct teams assigned to opposite ends at setup, with their assignments remaining fixed throughout the activity\" and \"each team attacks the target opposite its own assigned end, regardless of possession changes\". New owner-authored canonical knowledge, not a reading of the GF2 source, whose ambiguity on the shared-or-per-team question GF2-12.a still records.",
+        "fitNote": "The mirror of GF2-08.c. Its selector constitutes its J3 in the same way."
+      },
+      "why": "The second individuating objective item."
+    },
+    {
+      "contractId": "restated:GF2",
+      "after": "GF2-08.e",
+      "ruling": "C42",
+      "item": {
+        "itemId": "GF2-08.f",
+        "row": "J2",
+        "selector": "role=PRIMARY_SCORING & team=TEAM_AT_AXIS_END",
+        "requirement": "EQUALS",
+        "value": {
+          "structuralRef": {
+            "contractId": "restated:GF2",
+            "itemId": "GF2-03.e"
+          },
+          "asAuthored": "the target at the opposite end from this team own end: the objective-area region of GF2-03.e"
+        },
+        "valueStatus": "REQUIRED_RANGE",
+        "strictness": "REQUIRED",
+        "scope": "WHOLE_GAME",
+        "basis": "OWNER_RULING",
+        "checkability": "STRUCTURAL",
+        "structuralClause": "whole item",
+        "basisEvidence": "Christian, 2026-10-09: \"allow the per-team directional arrangement to replace the shared-target arrangement as GF2 active objective structure\", with the designation pair approved the same day as \"distinct teams assigned to opposite ends at setup, with their assignments remaining fixed throughout the activity\" and \"each team attacks the target opposite its own assigned end, regardless of possession changes\". New owner-authored canonical knowledge, not a reading of the GF2 source, whose ambiguity on the shared-or-per-team question GF2-12.a still records.",
+        "fitNote": "The team whose own end is the FAR end attacks the target at the NEAR end."
+      },
+      "why": "The mirror reference, so the two objectives name different targets."
+    }
+  ],
+  "declarationScope": {
+    "contractId": "blind:PASS-COMBINATION-GATE",
+    "ruling": "SD-74",
+    "onlyDeclaration": "NON_CLAIMED",
+    "from": "—",
+    "to": "WHOLE_GAME",
+    "why": "this contract makes no claim on the row anywhere in the game. The rest of the corpus consistently scopes NON_CLAIMED declarations, and `null` is deliberately not introduced as a second treatment"
   }
- ],
- "declarationScope": {
-  "contractId": "blind:PASS-COMBINATION-GATE",
-  "ruling": "SD-74",
-  "onlyDeclaration": "NON_CLAIMED",
-  "from": "—",
-  "to": "WHOLE_GAME",
-  "why": "this contract makes no claim on the row anywhere in the game. The rest of the corpus consistently scopes NON_CLAIMED declarations, and `null` is deliberately not introduced as a second treatment"
- }
 }

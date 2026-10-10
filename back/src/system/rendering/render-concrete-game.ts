@@ -134,6 +134,20 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
         )
     }
 
+    /**
+     * **Two targets at opposite ends have to be told apart, and only by where the game puts them.**
+     * Rendered alike, the two marking instructions read as the same sentence twice and a coach marks
+     * one line. The distinction is read from the realized along position: the lower is one end, the
+     * higher the other. No orientation is invented — not left or right, not north or south, nothing
+     * the game does not hold — because the only fact available is that they are at opposite ends.
+     */
+    const degenerateAlong = (game.space?.regions ?? [])
+        .map(r => geometryFor(r.elementId, 'along')?.geometry.interval)
+        .filter(i => i && i.from === i.to)
+        .map(i => i!.from as number)
+    const endsDiffer = new Set(degenerateAlong).size > 1
+    const farEnd = endsDiffer ? Math.max(...degenerateAlong) : null
+
     for (const region of game.space?.regions ?? []) {
         const noun = region.noun
         const along = geometryFor(region.elementId, 'along')
@@ -150,7 +164,9 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
             say(
                 'Set up',
                 status,
-                `Mark a line across one end of the area, ${metres((length?.to ?? 0) - (length?.from ?? 0))} long, on the end line itself`,
+                endsDiffer && at && at.from === at.to
+                    ? `Mark a line across ${at.from === farEnd ? 'the other end' : 'one end'} of the area, ${metres((length?.to ?? 0) - (length?.from ?? 0))} long, on the end line itself`
+                    : `Mark a line across one end of the area, ${metres((length?.to ?? 0) - (length?.from ?? 0))} long, on the end line itself`,
                 [nounPath, lengthAxis?.path, atAxis?.path].filter(Boolean) as string[],
                 [(length?.to ?? 0) - (length?.from ?? 0)],
             )
@@ -414,9 +430,16 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
         say(
             'How to score',
             statusOf.get(kindPath) ?? 'DERIVED',
+            // **"the marked line" is only unambiguous while there is one.** With a target per team the
+            // game holds two, and a coach reading "the marked line" cannot tell which counts. The
+            // objective each team attacks is established, so the instruction names it relationally.
             carrier
-                ? `A team scores ${primary.value} point by getting the ${carrier.kind} across the marked line`
-                : `A team scores ${primary.value} point when the marked line is crossed`,
+                ? (game.objectives ?? []).length > 1
+                  ? `A team scores ${primary.value} point by getting the ${carrier.kind} across the line it is attacking`
+                  : `A team scores ${primary.value} point by getting the ${carrier.kind} across the marked line`
+                : (game.objectives ?? []).length > 1
+                  ? `A team scores ${primary.value} point when the line it is attacking is crossed`
+                  : `A team scores ${primary.value} point when the marked line is crossed`,
             [
                 kindPath,
                 'value.primaryEvent.value',
@@ -433,7 +456,40 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
                     `not theirs to set. Withheld rather than filled in.`,
             )
         }
-        if (objective) {
+        /**
+         * **The opposing arrangement, said relationally.** Two objectives each name the team that attacks
+         * them, and those names are designations the game holds — not anything a coach could point at. So
+         * the instruction cannot say "the blue team attacks the north line"; what it can say, and what is
+         * entailed, is that each team attacks the far target and defends the near one, and that the coach
+         * assigns the ends. That is the same shape already used for who starts with the ball, and for the
+         * same reason: the fact is established, the identity is not.
+         *
+         * Every objective is cited, not just the first. Citing one left the second objective's team,
+         * reference and role established and carried by no instruction, which the fidelity check reported
+         * as three losses — correctly.
+         */
+        const objectives: any[] = game.objectives ?? []
+        if (objective && !shared && objectives.length > 1) {
+            const provenance = objectives.flatMap(o => [
+                `objectives[${o.elementId}].team`,
+                `objectives[${o.elementId}].reference`,
+                `objectives[${o.elementId}].role`,
+            ])
+            say(
+                'How to score',
+                'DERIVED',
+                `Each team attacks one line and defends the other — so decide which team starts at which end, tell them, and keep it that way for the whole game`,
+                provenance,
+                [],
+            )
+            say(
+                'How to score',
+                'DERIVED',
+                `When possession changes the teams swap roles, not ends: whoever wins the ball attacks the same line they were already attacking`,
+                [`objectives[${objectives[0].elementId}].team`, 'transitions'],
+                [],
+            )
+        } else if (objective) {
             say(
                 'How to score',
                 'DERIVED',

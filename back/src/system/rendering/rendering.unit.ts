@@ -321,20 +321,37 @@ for (const observation of rendered.coachingObservations) {
 
 // ── Operational participation: the scoring line DOES participate, so the check is not blanket-failing ──
 {
-    const target = fixture.game.space.regions.find((r: any) => String(r.elementId).includes('GF2-03.a'))
-    assert.ok(target, 'the target region must exist')
-    const notes = report.findings.filter(f => f.question === 5 && f.severity === 'NOTE')
+    /**
+     * **Read off the objectives rather than from a hardcoded region id.** This named `GF2-03.a`, the
+     * single shared target, which was retired on 9 October when the directional arrangement replaced
+     * it. The claim was never about that element though — it is that a target participates because an
+     * objective REFERENCES it, not because it carries a function string. So it now asks the game which
+     * regions its objectives point at, and makes the claim of each, which is both truer to the point
+     * and indifferent to how many targets there are.
+     */
+    const targets = (fixture.game.objectives ?? [])
+        .map((o: any) => o.reference?.structuralRef?.itemId)
+        .filter(Boolean)
+        .map((itemId: string) => fixture.game.space.regions.find((r: any) => String(r.elementId).includes(itemId)))
+    assert.ok(targets.length > 0, 'the game must hold at least one objective with a target')
     assert.ok(
-        notes.some(n => n.what.includes(target.elementId) && n.what.includes('participates operationally')),
-        `the scoring line participates via the objective, and must be reported as doing so; got ${JSON.stringify(notes)}`,
+        targets.every(Boolean),
+        `every objective's referenced target must exist as a region; got ${JSON.stringify(fixture.game.space.regions.map((r: any) => r.elementId))}`,
     )
-    // It participates because the OBJECTIVE references it — not because it carries a function string. His
-    // ruling is explicit that a prose description is not what is required.
-    assert.equal(
-        fixture.status.notEstablished.filter((n: any) => n.path.includes('GF2-03.a') && n.path.endsWith('.functions')).length,
-        1,
-        'and its own functions row is excluded, which must not prevent it participating',
-    )
+    const notes = report.findings.filter(f => f.question === 5 && f.severity === 'NOTE')
+    for (const target of targets) {
+        assert.ok(
+            notes.some(n => n.what.includes(target.elementId) && n.what.includes('participates operationally')),
+            `${target.elementId} participates via its objective and must be reported as doing so; got ${JSON.stringify(notes)}`,
+        )
+        // It participates because the OBJECTIVE references it — not because it carries a function string.
+        // His ruling is explicit that a prose description is not what is required.
+        assert.equal(
+            fixture.status.notEstablished.filter((n: any) => n.path.includes(target.elementId) && n.path.endsWith('.functions')).length,
+            1,
+            `${target.elementId}: its own functions row is unestablished, which must not prevent it participating`,
+        )
+    }
 
     // TEETH: remove the objective's reference and the target stops participating.
     //

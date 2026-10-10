@@ -180,7 +180,7 @@ test('A04 is unaffected: its only transition is a POSSESSION_CHANGE', () => {
     // contributed is gone with it. What this test is about — that the standing-decision selector
     // leaves A04's single POSSESSION_CHANGE transition alone — is unchanged, and the clause below
     // still checks it directly.
-    assert.equal((result.resolution ?? []).filter((e: any) => e.state === 'failed').length, 6, 'six failed lines; was seven while Wide Zone was still selected')
+    assert.equal((result.resolution ?? []).filter((e: any) => e.state === 'failed').length, 7, 'seven failed lines: 6 after Wide Zone left on 8 October, and 7 again since the directional arrangement of 9 October added a second target and a second objective')
     const t7 = result.resolution.find((e: any) => /GF2-07\.a::T7$/.test(String(e.lineId)))
     assert.equal(t7?.value, true, 'and it still begins an episode, legitimately')
 })

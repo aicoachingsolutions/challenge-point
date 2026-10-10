@@ -800,13 +800,57 @@ test('SD-100: EXISTS on a field row asserts nothing and is recorded as inert', (
     assert.equal(result.forward.find((o: any) => o.item.itemId === 'F-1').result, 'INERT', 'provenance is retained and the claim is inert')
 })
 
-test('SD-102: direction is established, and the source ambiguity is preserved beside the decision', () => {
+/**
+ * **The arrangement this tests changed on 9 October, and the assertions moved with it.**
+ *
+ * It asserted that the direction check PASSES on a shared target and that the shared objective's team
+ * line resolves to EACH_TEAM. Both were true of the shared arrangement, and his ruling of 9 October
+ * replaced that arrangement with a target per team: the shared objective's existence item is retired
+ * (removal C42), so there is no `GF2-08.a::J3` line to resolve, and two per-team objectives stand in
+ * its place carrying `TEAM_AT_AXIS_START` and `TEAM_AT_AXIS_END` from their own selectors.
+ *
+ * The check now **defers** rather than passing, and that is the designed behaviour, not a weakening:
+ * with two opposed targets the clause has to compare where each one sits, and a target's position is
+ * an authored relative term that becomes an interval only when realization composes it against the
+ * envelope. So it is deferred to realization and checked there — the post-realization gates validate
+ * it — while two targets landing on the same end, or in the centre, still FAIL.
+ *
+ * What this test was really for survives untouched and is still asserted below: the canonical decision
+ * and the ambiguous source remain two separate records, and the source's own "unreconciled" evidence is
+ * not rewritten. The retirement preserved all of it in `contracts.json`.
+ */
+test('SD-102: direction is established per team, and the source ambiguity is preserved beside the decision', () => {
     const result: any = runStages0to10(corpusInput())
 
     const direction = check(result, 'GA-DIRECTION')
-    assert.equal(direction.verdict, 'PASS', 'the objective structure provides the opposing relationship')
-    assert.equal(direction.clauses.find((c: any) => /objective it attacks/.test(c.clause)).verdict, 'PASS')
-    assert.equal(result.classified.get('c:restated:GF2:GF2-08.a::J3').verdict, 'RESOLVED:ENTAILED')
+    assert.equal(
+        direction.clauses.find((c: any) => /objective it attacks/.test(c.clause)).verdict,
+        'PASS',
+        'each team has an objective it attacks, which is settled before realization',
+    )
+    /**
+     * **This runs the whole corpus, which is not one game.** All eight contracts are loaded together,
+     * so the objectives of the directional possession game, the goalkeeper build-out context and GF4
+     * are all in scope at once and the ends clause has no single arrangement to range over — some of
+     * those objectives' referents carry no position here at all. So it reports unevaluable, which is
+     * the honest verdict for a mixed conformance load. It used to pass only vacuously: the shared
+     * objective made the first clause true and left fewer than two opposed designations, so the ends
+     * clause had no applicable instance.
+     *
+     * A04's own selection is where the verdict means something, and there it DEFERS and is then
+     * validated by the post-realization gates against the realized geometry — which the pilot run
+     * exercises end to end.
+     */
+    assert.equal(direction.verdict, 'NOT_EVALUABLE', 'the corpus-wide load is not one arrangement, so the ends clause has none to compare')
+
+    // The two per-team objectives carry their teams from their own selectors — no J3 item authors them.
+    for (const [line, team] of [
+        ['c:restated:GF2:GF2-08.c::J3', 'TEAM_AT_AXIS_START'],
+        ['c:restated:GF2:GF2-08.e::J3', 'TEAM_AT_AXIS_END'],
+    ] as const) {
+        assert.equal(result.classified.get(line).verdict, 'RESOLVED:ENTAILED', `${line} resolves`)
+        assert.equal(result.derived.lines.get(line).entailing[0].value, team, `${line} carries ${team}`)
+    }
 
     // The canonical decision and the ambiguous source are two separate records, and the second is
     // untouched: "do not rewrite that ambiguity as though the original source established this".
@@ -814,28 +858,46 @@ test('SD-102: direction is established, and the source ambiguity is preserved be
     const decision: any = gf2.items.find((i: any) => i.itemId === 'GF2-12.c')
     const source: any = gf2.items.find((i: any) => i.itemId === 'GF2-12.a')
     assert.equal(decision.basis, 'OWNER_RULING')
-    assert.equal(decision.value, 'EACH_TEAM')
+    assert.equal(decision.value, 'EACH_TEAM', 'the 28 September decision still says what it said')
     assert.equal(source.basis, 'ASSUMED', 'the source reading is still an assumption')
     assert.match(String(source.basisEvidence), /unreconciled/, 'and its evidence still says the original could not reconcile it')
 })
 
 /** SD-101 on the corpus: the build-out objective keeps the team its own selector defines. */
+/**
+ * **Synthetic since 9 October, because the corpus stopped exhibiting it.**
+ *
+ * This ran on the live corpus, where the shared-target decision reached across contracts and
+ * contradicted the build-out objective's own `BUILD_OUT_TEAM` selector. Scoping that decision to the
+ * shared arrangement (ruling C42) narrowed its selector to `team=EACH_TEAM`, so it no longer reaches
+ * another contract's objective and there is no cross-contract contradiction left to observe. That is
+ * an improvement — a decision about one game form had been bleeding into a different context — but it
+ * removes the specimen.
+ *
+ * The capability is what matters and it is unchanged: a contribution that disagrees with the value a
+ * class's own selector defines does not overwrite it, is kept rather than discarded, and is reported
+ * by name. So it is pinned on a constructed pair instead of waiting for the corpus to grow another one.
+ */
 test('SD-101: a canonical decision does not overwrite a class its selector defines otherwise', () => {
-    const result: any = runStages0to10(corpusInput())
-    const line = 'c:restated:RPC-001:RPC-001-11.a::J3'
+    const defining = contract([
+        item({ itemId: 'OBJ-1', row: 'J1', selector: 'role=PRIMARY_SCORING & team=BUILD_OUT_TEAM', requirement: 'EXISTS' }),
+    ])
+    const disagreeing = contract(
+        [item({ itemId: 'DEC-1', row: 'J3', selector: 'role=PRIMARY_SCORING', requirement: 'EQUALS', value: 'EACH_TEAM', basis: 'OWNER_RULING', strictness: 'REQUIRED', valueStatus: 'REQUIRED_RANGE' })],
+        { contractId: 'C-2', objectId: 'O-2' },
+    )
+    const result: any = runStages0to10(input([defining, disagreeing]))
+    const line = 'c:C-1:OBJ-1::J3'
 
     assert.equal(result.classified.get(line).verdict, 'RESOLVED:ENTAILED')
     assert.equal(result.derived.lines.get(line).entailing[0].value, 'BUILD_OUT_TEAM', 'the class-defining value stands')
-    const contradiction = result.derived.lines.get(line).contradicted.find((c: any) => c.item.itemId === 'GF2-12.c')
+    const contradiction = result.derived.lines.get(line).contradicted.find((c: any) => c.item.itemId === 'DEC-1')
     assert.ok(contradiction, 'and the contribution that disagreed is preserved, not discarded')
     assert.equal(contradiction.value, 'EACH_TEAM')
     assert.ok(
         result.diagnostics.some((d: any) => d.code === 'CONSTITUTIVE_SELECTOR_CONTRADICTED' && d.where === line),
         'reported by name rather than absorbed',
     )
-
-    // Its reach is not suppressed: the same item still reaches, and settles, GF2's own objective.
-    assert.equal(result.derived.lines.get('c:restated:GF2:GF2-08.a::J3').entailing[0].item.itemId, 'GF2-12.c')
 })
 
 /** The baseline at the Phase A load boundary: all eight contracts load, none refuses. */
@@ -872,7 +934,16 @@ test('the corpus run reproduces the reported figures exactly', () => {
      * authors a modifier and says nothing about what meets it or when it ends. That asymmetry is the point of the
      * rows: the question is now askable of every modifier, and only one object has answered it.
      */
-    assert.equal(result.run.counts.lines, 131)
+    /**
+     * **138 since ruling C42 of 9 October**, which replaced the shared target with a target per team.
+     * Two region items and four objective items are added (two existences and two typed references) and
+     * two are removed (the shared objective existence and the shared target region). The two new regions
+     * each own the four S-family field rows, the two new objectives each own their J-family rows, and the
+     * two retirements take their lines with them: 131 + 9 = 138 on balance. The arrangement is the one his
+     * ruling describes -- exactly two objectives and two targets, with the shared arrangement preserved in
+     * contracts.json and inert.
+     */
+    assert.equal(result.run.counts.lines, 138)
     /**
      * **61, up from 59.** The same restatement establishes `perceptual-reference` on BOTH channels rather
      * than on a third region of its own, so two S4 lines now resolve where none did. The functions rows
@@ -886,7 +957,11 @@ test('the corpus run reproduces the reported figures exactly', () => {
     // **69 since 7 October.** Wide Zone's criterion (V8c) and its termination (V8d) both entail, from the
     // owner rulings of 2 and 7 October. GF4's modifier gains the same two rows and resolves neither, so the
     // count moves by two and not four.
-    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 69)
+    // **72 since ruling C42.** The two per-team objectives carry their teams from their own selectors
+    // and their typed references resolve, which is three more resolutions than the single shared objective
+    // made; the retired shared objective takes its own back. The selectors doing the work is why this moves
+    // by three rather than by the six items added.
+    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 72)
     // **NOT_AUTHORED fell 54 → 26 across the 29 September rulings, and only five of those twenty-eight
     // were closed by authoring anything.**
     //   −9  T1a/T1b/T1c demanded of three POSSESSION_CHANGE transitions. A turnover has no last touch
@@ -912,11 +987,15 @@ test('the corpus run reproduces the reported figures exactly', () => {
     // 25: PS1 joins them — nobody addresses possession, so its reason is 'no coverage', an established absence.
     // 27 since 7 October: GF4's modifier gains an unauthored criterion and an unauthored termination. Wide
     // Zone's two resolve, so the count moves by two rather than four.
-    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 27)
+    // **29 since ruling C42.** The two new target regions each carry a functions row nothing constrains,
+    // which is an absence of knowledge rather than an authored exclusion and is reported as such.
+    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 29)
     assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 0, 'cluster 3 cleared the whole population')
-    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 27, 'one GAP per unauthored line, and none for a withdrawn one')
-    // 17 since C33: the removed third region took its one open S5 line (a channel's along-extent) with it.
-    assert.equal([...result.derived.lines.values()].filter((l: any) => l.open).length, 17, 'five open lines became seventeen')
+    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 29, 'one GAP per unauthored line, and none for a withdrawn one -- 29 since ruling C42, tracking the NOT_AUTHORED count above')
+    // 17 since C33: the removed third region took its one open S5 line (a channel along-extent) with it.
+    // **18 since ruling C42.** The two new target regions each bring an open across-extent and an open noun,
+    // and the retired shared target took its two with it, so the balance is one more than before.
+    assert.equal([...result.derived.lines.values()].filter((l: any) => l.open).length, 18, 'open lines, 18 since the directional arrangement')
 
     // SD-88 evaluated the conditional lines; the selector-based rule settles its own at enumeration.
     // Twelve withdrawals come from the governing-line path (the three CONTINUE transitions carry no
