@@ -7566,3 +7566,99 @@ environment works; **no goal yet commits a contracted constraint relevant to its
    **inert** (`derive.ts:159`); rows already proved by Wide Zone; audit note matches his standard.
    Variable Target: already contracted, non-compulsory content, fails on 4 properties + a `COACH_CUE`
    trigger absent from the registered vocabulary.
+
+### 2026-10-10 (§21) — THE ACTUAL BREAK IS **PASS-COMBINATION-GATE**, TWO LINES, BLOCKING FIVE GOALS
+
+**Measured through the real pathway** (`npm run bounded:selection <GOAL>` for all 13, plus a Gate A
+block probe). Everything below is primary source; the §20 figures were confirmed, the §20
+*recommendation* was **wrong**.
+
+**GATE A FOR ALL THIRTEEN:**
+
+| goals | verdict | contracts | derived | blocks |
+|---|---|---|---|---|
+| **A04** | **DEFERRED_TO_REALIZATION** | 2 | 17 | **0** |
+| A01, A05 | NOT_EVALUABLE | 4 | **43** | 3 |
+| A02, TA01, TA02 | NOT_EVALUABLE | 3 | 27 | 3 |
+| A03, A06, D02, D03, TD02 | **FAIL** | 2 | — | 4–5 |
+| D01, TD01 | NOT_EVALUABLE | 1 | 7 | 4 |
+
+A04 is confirmed the **only** goal whose Gate A authorizes realization — and now each of the other
+twelve has a *reason*, not just a status.
+
+**THE BREAK.** All three blocks on A01/A02/A05/TA01/TA02 name **two lines, both in
+`blind:PASS-COMBINATION-GATE`**:
+1. **`PCG-10`** — row **V15** (`value.informationRules[]`), selector **`subject=connected-pass count`**.
+   V16 (`informationRules[].subject`) derives to that **prose string** → `identityOf` = `OPEN_TEXT` →
+   `probe.unestablished` → **both** `GA-INFORMATION` clauses `NOT_EVALUABLE` (`gates.ts:1192-1258`,
+   the SD-63 branch). Its basis: *"Coach tracks the count visibly (count out loud or use a counter)."*
+2. **`PCG-02::V5`** — `value.primaryEvent.conditions[].referents`, names nothing held → the `openText`
+   branch of `GA-REFERENCE-INTEGRITY` (`gates.ts:799-843`) → second clause `NOT_EVALUABLE`.
+
+**`PCG-02` ITSELF ESTABLISHES THE ELEMENT** — row **V3** (`value.primaryEvent.conditions[]`), selector
+`type=connected-pass-combination`, `EXISTS`, `PER_TEAM`, basis AUTHORED. **So the element is held and
+two lines fail to refer to it.** Repair = restate two selectors on an **existing** contract: no new
+contract, no new register row, no code change. **One owner decision unblocks 5 of 13 goals.**
+
+**WHY IT MATTERS MORE THAN COVERAGE.** A01/A05 commit **two contracted constraints** (PCG + Wide Zone)
+which contribute **43 derived properties vs A04's 17** — 2 extra regions, a value modifier with
+criterion and termination, a gating condition on the primary event. **Purposeful constraint
+manipulation is already selected and already derived; Gate A is what stops it reaching a coach.**
+
+**TWO §20 CLAIMS CORRECTED:**
+- *"No goal has a contracted constraint relevant to its own affordance targets"* — **WRONG.** PCG
+  targets `create_space`, Wide Zone `exploit_space`; **A01 and A05 both select the space-creation
+  lens.** Selection already matches constraints to lenses within the operational vocabulary.
+- *"The foundation bucket is a restatement backlog / ordinary work"* — **overstated.** Only **4 of 8**
+  foundation objects are selected by any goal: central-density (6 goals, **inexpressible**),
+  goalkeeper-included (4, **contradicts the no-goalkeeper session**), small-area (4, **restates inert**,
+  he has accepted this), transition-trigger (2, **the only cleanly authored one**). Restating the other
+  four changes nothing.
+
+**THE §20 RECOMMENDATION WAS WRONG — zone-structure-condition and variable-target-condition are
+committed by NO goal.** Contracting them = knowledge with no consumer (the memory-file failure mode).
+**Two of the four contracted objects have no consumer at all:** `neutral-player-condition` and
+`variable-target-condition`.
+
+**VERIFIED LIBRARY SHAPE.** 23 selectable = **12** `TEST_LIBRARY_V0_CONSTRAINTS` + **11**
+`TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS`. **52 committed slots, 10 contracted (19%), and all ten
+are the shaping layer.** foundation 1/8 contracted → **0 slots**; shaping 3/5 → 10 slots; consequence
+0/10 → 0 slots. Demand: central-density 6 · turnover-reward 6 · PCG 5 · wide-zone 5 ·
+interception-reward 5 · goalkeeper-included 4 · progression-bonus 4 · small-area 4 ·
+counter-press-window 4.
+
+**COUNTER-PRESS WINDOW is the best *new* shared buy if he ever wants one:** hybrid, 4 goals — **D01,
+D03, TD01, TD02, i.e. four of the five goals currently at 0/4.** Costs three rulings: the window
+magnitude (*"Typical counter-press window: 5 seconds"* is `TYPICAL_EXAMPLE`, **inert** at
+`derive.ts:159`), coach-call **vs** timer, and restart-bonus **vs** free continuation — the last two
+being SD-78 unselected alternatives.
+
+**FOR A04 SPECIFICALLY: `support-lane-requirement`** is its only credible constraint (its own shaping
+constraint, targets `break_lines`, matches his A04 nuance — a *supported* forward pass without
+requiring a dribble). Costs two rulings: the lane geometry (*"typically a half-space corridor"* is
+inert) and **gate vs bonus** (`incentiveMechanism: scoring_bonus` but the guidance says *"only
+count when"*). A04's other three: goalkeeper-included (contradicts no-goalkeepers), final-third-value
+and progression-bonus (**no parameters**).
+
+**CONSEQUENCE OBJECTS HAVE NO VALUES.** `progression-bonus` and `turnover-reward` carry description,
+coach vocabulary, design intent, `incentiveMechanism` — and **no magnitude, no condition, no trigger,
+no setupGuidance**. The rows exist; the values do not. The subagent's "start with Progression Bonus,
+same already-exercised modifier rows" was **refused** after reading both.
+
+**THE CONTRACT SET IS DESCRIBED AS FROZEN** (`corpus.ts:116-120`): *"the eight restated knowledge
+objects a goal SELECTS from, each frozen against the 81-row roster of its restatement"*, and the Sport
+Profile is loaded separately to avoid *"a post-freeze contribution inside a frozen set"* — but its
+stated reason is that **a profile is selected by nobody**, which is the opposite of a constraint, so
+that is not a precedent for a selectable object. **Register is now v6 / 92 rows**, so a ninth contract
+would be restated against a larger roster than the eight were.
+
+**NO CODE CHANGE FOR A NEW CONTRACT.** Identity is manufactured from the entry's prose `name`
+(slug→uppercase, `corpus.ts:60-67`) and matched to the library id by `key()`
+(`run-bounded-selection.ts:29-34`, strips `restated:`/`blind:`/`tl-v0-constraint-`, uppercases). A
+contract named exactly as the library titles it is picked up by selection, derivation, realization,
+rendering and fidelity with nothing else touched.
+
+**DELIVERED:** `2026-10-10d-correction.txt` (the correction, sent) + note to Joe. **Nothing
+implemented, no contract altered, A04 intact.** Open for him: **what the information rule's subject
+should name.** Until he rules, the five stay blocked and A04 remains the only realization-authorized
+goal.
