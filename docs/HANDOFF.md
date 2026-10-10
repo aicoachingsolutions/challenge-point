@@ -7355,3 +7355,49 @@ distinguish one target from the other.
 **AFTER HIS APPROVAL, in order:** two individuating objective items · two target-region items at opposite
 positions · the conditionality · SD-102 scoping (§15) · the two-line Gate A deferral (§15) · realization
 · his three conditions · the read-only route. No further decision identified.
+
+### 17 · THE COEXISTENCE BLOCKER — item-level conditionality does not exist
+He approved the whole package 9 Oct and asked for a pilot candidate or a specific blocker. **One
+blocker, and it is a line of his own authorization:** *"Preserve both the existing shared-target
+arrangement and the new per-team arrangement without allowing them to coexist in a single realized
+game."* **Both halves cannot be had.**
+
+**MEASURED.**
+- **Item-level conditionality does not exist.** The precedent I had cited to him — `RPC-001-05.a`,
+  *"only if V1 = target_player"* — carries its condition as **prose inside `value`**, and its own
+  fitNote says *"The condition 'only if V1 = target_player' cannot be held (ledger L-01). The item is
+  inert, so no verdict moves."* **It has never worked.** (Fourth instance this week of citing a
+  mechanism from its appearance — see [[silent-loss-of-authored-knowledge]].)
+- The real mechanism is `register.applicability`, keyed **on a ROW** (`register.ts:170-179`,
+  `engine.ts:306-331`): it decides whether a class **carries that row** (`bySelector === false →
+  WITHDRAWN`), never whether a class **exists**. `rows declaring applicability: 0` today.
+- **Consequence:** authoring the two per-team objective items beside `GF2-08.a` gives every GF2 game
+  **three objectives and three targets**. Fails his criterion 3 as surely as the shared line does.
+
+**RECOMMENDED RESOLUTION (one owner decision):** let the per-team arrangement **replace** the shared one
+as GF2's objective structure, with `GF2-12.a` and `GF2-12.c` left **unchanged** in the record (the 28 Sep
+decision and the source's own "unreconciled" note both preserved).
+**THE MITIGATING FACT, measured:** six goals select GF2 and **only A04 can produce a game at all** —
+A04 `DEFERRED_TO_REALIZATION`/authorized; **A01, A02, A05, TA01, TA02 all `NOT_EVALUABLE`/unauthorized**
+(blocked upstream on the two prose references in `blind:PASS-COMBINATION-GATE`, §14). So the change
+affects **no activity anyone can currently produce**.
+**Alternative declined as out of scope:** author the directional arrangement as its own selectable
+object only A04 takes — a new knowledge object, more than approved, more than the window holds.
+
+**TWO ITEMS CLOSED WITHOUT HIM.**
+1. **The dimensional discrepancy does not exist** (and my earlier report of it was wrong about what it
+   was). `GF2-24.a` is `valueStatus: TYPICAL_EXAMPLE`, its fitNote says **"Inert"**, and `derive.ts:159`
+   returns false for that status. Not a bound → 30 m contradicts nothing → **no revision needed.** No
+   binding constraint on the playing area exists anywhere; `E1-E4` are `SESSION`.
+2. **The Small Area contract would be INERT and was not authored.** Every package is foundation +
+   shaping and `build-constraint-package.ts:613-623` refuses without a shaping constraint; Small Area is
+   `constraintRole: structure`. Authoring it and reporting the area as constrained would be a false
+   green light. Pilot area stays a session choice: **30 × 25 / 8 players**, already measured authorized,
+   coherent, zero fidelity violations.
+
+**READY ON HIS YES (all tested today, all reverted):** two individuating objective items (selectors
+establish the designations by themselves — no separate J3 items) · two target regions at opposite ends ·
+SD-102 scoping (§15) · the two-line Gate A deferral (§15) · the renderer's opposing case · realization ·
+his six criteria · the read-only route with a link.
+
+**Engine byte-identical to what he last approved**, verified after reverting today's tests.
