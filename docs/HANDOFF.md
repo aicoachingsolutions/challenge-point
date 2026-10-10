@@ -7235,3 +7235,216 @@ no dimensional constraint introduced.
 
 **NOT DONE, deliberately:** the read-only route (he said hold until the directional structure resolves),
 the S2 item (needs his ruling), anything from his §3/§4. Suite green **369 checks**, fixture CURRENT.
+
+### 15 · THE APPROVED DIRECTIONAL CORRECTION IS INERT — an existence claim is not a permission
+He approved Option A on 9 Oct: scope SD-102, plus **one selector-free per-team existence assertion on
+`space.regions[]`**, on my 8 Oct analysis. **I implemented both, measured, and reverted everything.**
+Corpus and code are byte-identical to what he last approved. Nothing half-applied.
+
+**MY ERROR.** I reported that `GF2-09.a` (selector-free, `scope: PER_TEAM`, min 1/no max) was an
+existential claim *"realization may populate"*. I confirmed the claim exists; **I never checked its
+shortfall.** Measured: **`shortfall: 0`** on both it and the new region claim, because one shared target
+already satisfies "at least one per team". `realize()` refuses, verbatim:
+```
+c:restated:GF2:GF2-03.c: space.regions is already satisfied by c:restated:GF2:GF2-03.a, so instantiating 1 more is not authorized
+c:restated:GF2:GF2-09.a: objectives  is already satisfied by c:restated:GF2:GF2-08.a, so instantiating 1 more is not authorized
+```
+`realize.ts:479-484`: *"A collection already met by established members authorizes nothing. Instantiating
+anyway would add a member the knowledge never asked for — an invention with a claim's name on it."*
+**The sentence that should have told me was in `GF2-09.a`'s own fitNote, which I had quoted to him
+twice:** *"With a shared target (J3 = EACH_TEAM) one objective serves both teams' units."* I read it as
+describing the shared case; it also says the per-team assertion is **satisfied by** it.
+
+**WHAT DID WORK (tested, then reverted — reapply when he rules).**
+1. **Scoping SD-102.** In the `added` entry for `GF2-12.c`, change `value` from `"EACH_TEAM"` to the
+   array `["EACH_TEAM","PER_TEAM"]`, leaving `EQUALS`/`REQUIRED`/`REQUIRED_RANGE`/`OWNER_RULING`
+   untouched — so the requirement is **scoped (extent widened), not weakened**. `narrowsToSet()` needs
+   `REQUIRED_RANGE` + **a real array** (`derive.ts:175-180`); the precedent is `GF2-03.b`, whose value
+   loads as `["zone","line"]`. Result: **J3 became OPEN** (`objectives[GF2-08.a].team`), with `GF2-12.a`
+   still bounding EACH_TEAM as the preferred default.
+   - **NOTE: `items` restatements CANNOT restate an ADDED item.** `corpus-restatement.ts` applies
+     `items` over `contract.items` and splices `ADDED_ITEMS` **afterwards**, so my first attempt landed
+     in `tally.notFound: ["restated:GF2::GF2-12.c"]` — reported, not silent. Edit the `added` entry.
+2. **A real Gate A circularity, exposed by (1).** With J3 open, `GA-DIRECTION` returned NOT_EVALUABLE and
+   Gate A refused to authorize the realization that would have made the choice the clause waits for.
+   Cause: the gate pushes the open J3 onto `probe.missing`, and `probe.blocked` is
+   `blockedBy.length || missing.length`. The gate's own comment already says this case is *"pending on it
+   rather than violated by it (SD-39)"*, and `gates.ts:432` already has
+   `deferred(clause, owes)` — *"a clause that cannot be answered until realization has chosen"*.
+   **The two-line patch (tested → `gateA DEFERRED_TO_REALIZATION`, `authorized true`):**
+   - collect open J3 classes into a `pendingTeams[]` instead of letting them fall through, and
+     `if (!attacked.size && !pendingTeams.length) probe.missing.push(...)` — so an unmade choice is not
+     an absence;
+   - `probe.pendingOn.length && !probe.blocked ? deferred(ATTACKS, 'the chosen team for every objective,
+     which fixes which end each side attacks') : ...` before the existing notEvaluable/fail ternary.
+
+**WHAT THE CORRECTION ACTUALLY NEEDS — classes, not existence assertions.** `GA-DIRECTION` reads
+`classesOn(ctx,'J1')` and **one J3 line per CLASS**. Instantiated members are not classes (SD-97:
+existential coverage *"individuates nothing and owes no fields"*), so members cannot carry their own J3
+and the gate can never see two designations. **The working precedent is Wide Zone: two authored items,
+each individuating one region (ruling C33).** So opposing targets needs:
+(a) a second objective-area region item **with its own selector**; (b) a second objective item **with its
+own selector**; (c) **a designation on each J3** naming which side attacks which end.
+
+**(c) IS THE HARD PART AND IS HIS.** There is **no registered J3 designation vocabulary** (the register's
+`vocabularies` has no team/designation key). The relational designations the corpus uses
+(ATTACKING_TEAM / DEFENDING_TEAM, evaluated per episode) read wrong for a directional game; static
+labels were removed 2 Oct as unsupported — the same indiscernibility that still stops the activity
+naming which team starts with the ball. **SD-95** guarantees the gate *"asks whether the objective
+structure provides an opposing directional relationship, never requiring a concrete team class to carry
+a static designation"* — so the gate will not fight it. **SD-96** reserves authored J3 knowledge to cases
+the source establishes and records that **GF2's source does not** — which is why SD-102 had to be
+owner-authored, and why this would be too.
+
+**OPTIONS GIVEN HIM:** (A) author the full set — everything downstream is ready, only the designation
+pair is a real question; (B) **run the shared-target activity now, directional as the second activity** —
+recommended, it is validated and in his hands today and the route is a day's work; (C) scope only — not
+viable and advised against: it makes J3 a choice nothing can satisfy directionally, and because the
+scoping lives in GF2's contract it opens that choice for **every** GF2 goal, the global change he asked
+to avoid.
+
+**His conditions A/B/C were never reached** — the blocker is upstream — and **the read-only route is not
+built.** Everything else as delivered 8 Oct: activity, corrected diagnostic notes, retired Golden Case,
+both integrity protections.
+
+### 16 · THE TEAM–TARGET DESIGNATION PROPOSAL (tested, awaiting his ruling)
+His 9 Oct ask: *"return only the proposed solution for expressing fixed opposing team–target
+assignments, including any owner-authored vocabulary decision you need from me."*
+
+**ANSWER: a new owner-authored designation pair IS required.** Why nothing existing works:
+- `ATTACKING_TEAM` / `DEFENDING_TEAM` (NEUTRAL-03.a/14.b, WIDEZONE-14.a) — **possession-relational**,
+  evaluated at the trigger/episode (RC-22) → the assignment would flip on every turnover.
+- `EACH_TEAM` — the shared arrangement itself.
+- `NOT_LAST_TOUCH` (GF2-16.a), `LOST_BALL` (GF2-07.b) — event-relational, restart ownership.
+- **`BUILD_OUT_TEAM` (RPC-001) — the closest precedent and a genuinely STABLE designation**, used on
+  **DV1** as REQUIRED: *"BUILD_OUT_TEAM attacks away from its own-half start area toward its
+  PRIMARY_SCORING reference"*. Defined in **no vocabulary** (consistent with: nothing validates J3).
+  But it is defined by a context function A04 has no counterpart to, and is **one** designation for an
+  **asymmetric** arrangement. A04 is symmetric and needs two.
+- A fixed named team — **already EXCLUDED**: `NEUTRAL-04.b` forbids `TEAM_<id> (any fixed named team)`.
+- **A realization handle CANNOT do it** — the decisive fact. The two objectives must be individuated by
+  their own `team` selector on **authored** items, and a handle is minted at realization, so it does not
+  exist when the item is written. (`J1 selectorAttributes: ["role","team"]`.)
+
+**TESTED (two throwaway J1 items, selector `role=PRIMARY_SCORING & team=<designation>`, then reverted):**
+1. **Two objective CLASSES formed, each with its own J3 line** — the structure `GA-DIRECTION` reads.
+2. **The selector ESTABLISHED the value by itself** — both lines resolved `derived` to their
+   designations with **no separate J3 item**. The two individuating items do both jobs.
+3. **`GA-DIRECTION` ATTACKS clause PASSED** ("3 designation(s) attack one, including a shared target").
+4. OPPOSITE clause NOT_EVALUABLE because the probe objectives referenced no region — the clause working,
+   and the same clause that **FAILS** (not defers) if two targets are not at opposite ends, which is the
+   post-realization rejection he asked for.
+
+**NOT yet run end to end:** the geometry (two target regions at opposite ends, each referenced by one
+objective). Ordinary authoring on rows already in use.
+
+**PROPOSED TO HIM:** `TEAM_AT_AXIS_START` / `TEAM_AT_AXIS_END` — "the team whose own end is the start /
+the far extreme of the long axis". A **fixed allegiance to one end**, assigned at setup, unchanged for
+the activity; neither names a role. Each objective is attacked by the team whose own end is the opposite
+one. Scope WHOLE_GAME, used only on the two per-team objective items; `EACH_TEAM` keeps the shared
+arrangement. Grounded in the axis because the two ends are the only things the game establishes that
+distinguish one target from the other.
+
+**TWO CONSEQUENCES FLAGGED (not vocabulary):**
+- Both arrangements cannot be live at once (3 objectives would coexist). **Use the existing conditional
+  mechanism (SD-88), precedent `RPC-001-05.a` — "only if V1 = target_player".** Per-team items apply when
+  the arrangement is PER_TEAM, the shared item when EACH_TEAM. This is what keeps both available.
+- The renderer special-cases `EACH_TEAM` in **two** places (`render-concrete-game.ts:387` the shared-line
+  sentence, `:448` the diagnostic note) and needs the opposing case. Coach text will not use the tokens.
+
+**AFTER HIS APPROVAL, in order:** two individuating objective items · two target-region items at opposite
+positions · the conditionality · SD-102 scoping (§15) · the two-line Gate A deferral (§15) · realization
+· his three conditions · the read-only route. No further decision identified.
+
+### 17 · THE COEXISTENCE BLOCKER — item-level conditionality does not exist
+He approved the whole package 9 Oct and asked for a pilot candidate or a specific blocker. **One
+blocker, and it is a line of his own authorization:** *"Preserve both the existing shared-target
+arrangement and the new per-team arrangement without allowing them to coexist in a single realized
+game."* **Both halves cannot be had.**
+
+**MEASURED.**
+- **Item-level conditionality does not exist.** The precedent I had cited to him — `RPC-001-05.a`,
+  *"only if V1 = target_player"* — carries its condition as **prose inside `value`**, and its own
+  fitNote says *"The condition 'only if V1 = target_player' cannot be held (ledger L-01). The item is
+  inert, so no verdict moves."* **It has never worked.** (Fourth instance this week of citing a
+  mechanism from its appearance — see [[silent-loss-of-authored-knowledge]].)
+- The real mechanism is `register.applicability`, keyed **on a ROW** (`register.ts:170-179`,
+  `engine.ts:306-331`): it decides whether a class **carries that row** (`bySelector === false →
+  WITHDRAWN`), never whether a class **exists**. `rows declaring applicability: 0` today.
+- **Consequence:** authoring the two per-team objective items beside `GF2-08.a` gives every GF2 game
+  **three objectives and three targets**. Fails his criterion 3 as surely as the shared line does.
+
+**RECOMMENDED RESOLUTION (one owner decision):** let the per-team arrangement **replace** the shared one
+as GF2's objective structure, with `GF2-12.a` and `GF2-12.c` left **unchanged** in the record (the 28 Sep
+decision and the source's own "unreconciled" note both preserved).
+**THE MITIGATING FACT, measured:** six goals select GF2 and **only A04 can produce a game at all** —
+A04 `DEFERRED_TO_REALIZATION`/authorized; **A01, A02, A05, TA01, TA02 all `NOT_EVALUABLE`/unauthorized**
+(blocked upstream on the two prose references in `blind:PASS-COMBINATION-GATE`, §14). So the change
+affects **no activity anyone can currently produce**.
+**Alternative declined as out of scope:** author the directional arrangement as its own selectable
+object only A04 takes — a new knowledge object, more than approved, more than the window holds.
+
+**TWO ITEMS CLOSED WITHOUT HIM.**
+1. **The dimensional discrepancy does not exist** (and my earlier report of it was wrong about what it
+   was). `GF2-24.a` is `valueStatus: TYPICAL_EXAMPLE`, its fitNote says **"Inert"**, and `derive.ts:159`
+   returns false for that status. Not a bound → 30 m contradicts nothing → **no revision needed.** No
+   binding constraint on the playing area exists anywhere; `E1-E4` are `SESSION`.
+2. **The Small Area contract would be INERT and was not authored.** Every package is foundation +
+   shaping and `build-constraint-package.ts:613-623` refuses without a shaping constraint; Small Area is
+   `constraintRole: structure`. Authoring it and reporting the area as constrained would be a false
+   green light. Pilot area stays a session choice: **30 × 25 / 8 players**, already measured authorized,
+   coherent, zero fidelity violations.
+
+**READY ON HIS YES (all tested today, all reverted):** two individuating objective items (selectors
+establish the designations by themselves — no separate J3 items) · two target regions at opposite ends ·
+SD-102 scoping (§15) · the two-line Gate A deferral (§15) · the renderer's opposing case · realization ·
+his six criteria · the read-only route with a link.
+
+**Engine byte-identical to what he last approved**, verified after reverting today's tests.
+
+### 18 · THE TWO TARGETS CANNOT BE INDIVIDUATED ALONG THE AXIS — one register entry short
+He approved the full package 9 Oct. Built it, hit one limit at the geometry, **reverted everything**.
+Engine byte-identical to what he last approved.
+
+**THE BLOCKER (measured).** Two S2 items with the **same selector collapse into one class** — the second
+target region (`GF2-03.d`, selector identical to `GF2-03.a`) **formed no class at all**, the objective
+referencing it dangled, and `GA-REFERENCE-INTEGRITY` **FAILED**. The way this corpus makes two regions
+of one kind is the **Wide Zone pair, individuated by `lateral`** (`wide-left` / `wide-right`) — a
+selector attribute with authored **interval tests against `position.across`** (AM-17).
+`S2.selectorAttributes = ["noun","functions","lateral"]` — **nothing for the along axis** — and
+`selector.ts:89-94` **validates** them (`attribute ... is not a selector attribute of S2`), so an
+unregistered word is a defect, not a silent pass.
+→ **Opposite touchlines are expressible; opposite ends are not.**
+
+**SMALLEST RESOLUTION (drafted, awaiting his yes):** mirror `lateral` on the along axis —
+(1) one more entry in `S2.selectorAttributes`; (2) a closed value list with interval tests against
+`position.along`, the word-for-word analogue of `S2.lateralValues` (touches the near end line and does
+not contain the midpoint / touches the far end line and does not contain the midpoint / either / the
+central and full-length analogues; SET-VALUED); (3) the matching anchors in `spatial.ts`, where
+`LATERAL_ANCHORS = {'wide-left': 0, 'wide-right': 1}`.
+**CONTAINMENT, from S2's own register text:** *"These five values are a capability offered to CONTRACT
+AUTHORS: derivation never rewrites an authored selector or scope to use them (AM-12), so an existing
+contract gains nothing from AM-17 until it is restated."* → **adding it changes no existing game**; only
+the two new target items would use it.
+
+**CORRECTION TO MY OWN PLAN, found by measuring.** I intended to scope SD-102 by narrowing
+`GF2-08.a` / `GF2-12.a` / `GF2-12.c` selectors to `team=EACH_TEAM`. **Wrong, and it does the opposite:**
+on J1 the selector **constitutes** `team`, so narrowing **created** a shared objective carrying
+EACH_TEAM beside the two per-team ones — **three objectives, three targets**, the exact coexistence he
+forbade. **Correct mechanism:** `items` **`remove: true`** (precedent: `WIDE-ZONE-ADVANTAGE::WIDEZONE-13.a`,
+ruling SD-72) on **`GF2-08.a` alone** — the J1 existence that authors the shared objective — with
+`contracts.json` preserving it verbatim. The J3 items (`GF2-12.a/.c`) are then safely scoped by selector,
+because **a FIELD item creates nothing by itself**.
+
+**DONE AND TESTED (reverted, ready to reapply):**
+- The designation pair + two objective items: **two J1 classes, each with its own J3 line; the selectors
+  establish `TEAM_AT_AXIS_START` / `TEAM_AT_AXIS_END` by themselves** (no separate J3 items);
+  `GA-DIRECTION` ATTACKS clause **PASSES**.
+- The Gate A deferral (§15): defers on an unmade realization choice, still FAILS non-opposite targets.
+- Ready: the renderer's opposing case, the realization, the read-only route.
+- A04 selection integrity is **already merged and live** (matched selection, route exemption corrected,
+  internal invariant enforced). Dimensions and Small Area **closed** (§17) with his acceptance.
+
+**CONSEQUENCE FOR THE PILOT:** without the register entry there is no second target, so his criterion 3
+cannot be met and there is no candidate. The alternative he can choose knowingly: pilot the
+shared-target activity, which is validated and in his hands.
