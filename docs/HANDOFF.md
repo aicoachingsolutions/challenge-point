@@ -3364,6 +3364,12 @@ Spec revision 24; **179 tests**; suite green; tsc clean.
   `classesOn` now returns individuated classes only; `allClassesOn` kept for cardinality.
 - **SD-98** typed `structuralRef` on a value; `identityOf`/`referentClass` resolve it. Applied to
   `GF2-08.b`. References resolved 0→2; GA-REGION-FUNCTION blocked 6→2.
+  **SUPERSEDED BY C42, corrected 2026-10-12.** C42 removed `GF2-03.a`, which is what the typed
+  reference on `GF2-08.b` names, so that reference is now **DANGLING**. It is latent rather than
+  live only because C42 also narrowed the same item to `team=EACH_TEAM`, which no J1 class carries,
+  so it reaches no line and the corpus reports 0 dangling cells while holding a broken reference.
+  The references that resolve HELD today are the C42 additions `GF2-08.d` and `GF2-08.f`, plus
+  `WIDEZONE-11.a`/`11.c`. Read the section 22 entry before relying on any count here.
 - **SD-99** GA-REGION-FUNCTION reads `establishedMembers`. **SD-100** `EXISTS` on a FIELD is INERT.
 - **NEW LOAD-BEARING DEPENDENCY EXPOSED (general):** *an item may entail a value that contradicts the
   defining selector of the class it reaches, and nothing notices.* Reach is decided on selectors,
@@ -7662,3 +7668,85 @@ rendering and fidelity with nothing else touched.
 implemented, no contract altered, A04 intact.** Open for him: **what the information rule's subject
 should name.** Until he rules, the five stay blocked and A04 remains the only realization-authorized
 goal.
+
+### 2026-10-12 (§22) — THE PCG REPAIR MEASURED. **The renderer, not the gate, is the binding constraint.**
+
+Christian approved the two-line PCG restatement **conditionally** ("provided both references can
+correctly identify the existing connected-pass-combination condition without changing its intended
+meaning"). **That proviso fails for one line, provably, so NOTHING WAS AUTHORED. Tree clean.**
+
+**THE TWO LINES NEED OPPOSITE FORMS.** The strangest result of the day, both measured:
+- **`PCG-10::V16`** (information rule's subject) needs the **TYPED** form — a `set` on **PCG-11** of
+  `{"structuralRef":{"contractId":"blind:PASS-COMBINATION-GATE","itemId":"PCG-02"},"asAuthored":"..."}`.
+  **ONE item.** V16 becomes HELD, `GA-INFORMATION` passes both clauses.
+  **CAVEAT:** `subject` is V15's selectorAttribute, so the selector establishes V16 and PCG-11's prose
+  is dropped (`NOT_REALIZED`). **The object form escapes that rule only because the contradiction check
+  compares strings.** It works for a reason nobody designed — disclose before relying on it.
+  *(My first route — class id in PCG-10's selector — also works but needs **ten** items moved together
+  (PCG-10..13 + PCG-14.a–f; moving only PCG-10 detaches V18–V21 → Gate A **FAIL**), and **no selector
+  in the corpus's 243 carries a class id**. Abandoned.)*
+- **`PCG-02::V5`** (the condition's referents) needs the **PLAIN CLASS-ID STRING**, because
+  **`gates.ts:1498`** resolves with `ctx.classes.find(c => c.classId === String(name))` — a typed ref
+  stringifies to `[object Object]`. **Measured: a typed ref to a genuine, registered, positioned half
+  region makes `GA-ONE-PRIMARY-EVENT` FAIL "1 unpositioned".** **ENGINE DEFECT** — `referentClass()`
+  exists at `gates.ts:332` for exactly this, and `GA-REFERENCE-INTEGRITY` uses it via `identityOf`.
+
+**WHY V5 CANNOT NAME THE CONDITION (the literal instruction).** V5 is
+`value.primaryEvent.conditions[].referents`; pointing it at PCG-02 is self-reference and a referent
+must be an element the space positions (S2→S5/S6, O1→O4/O5). **Measured: Gate A NOT_EVALUABLE → FAIL.**
+What V5 names is *"own half of ATTACKING_TEAM"*. **`SV1 space.fractions` is kind VIEW** → PCG-07 is
+`UNMET` and mints nothing; A05 mints **15 classes, none a half**. The gap is **unauthored knowledge,
+not a missing mechanism**: `half` ∈ S3's noun list, `value-condition` ∈ S4's function list, and **GF4's
+I03/I04 already author a half as an S2 region**.
+
+**VERIFIED EFFECT OF THE FULL REPAIR (in memory):**
+
+| goals | before | after |
+|---|---|---|
+| A01 A02 A05 TA01 TA02 | NOT_EVALUABLE (3 blocks) | **DEFERRED_TO_REALIZATION, 0 blocks** |
+| the other eight | — | unchanged |
+| **A04** | DEFERRED, 17 derived | **identical** |
+
+Then **realization refuses on 7 unclosed choices**, two being the WIDEZONE `::S5` channel positions —
+**the geometry Christian has HELD**.
+
+**TRAP: `derivationInputFor` RETURNS SHARED CONTRACT OBJECTS.** My first 13-goal table was contaminated
+— the repaired pass leaked into the next goal's baseline (A05 read 37 derived instead of 43). **Always
+`input.contracts = JSON.parse(JSON.stringify(base.contracts))` before mutating.** The envelope is
+already deep-copied and carries a comment about exactly this bug class; the contracts are not.
+
+**THE BINDING CONSTRAINT IS THE RENDERER.** `render-concrete-game.ts` has **no branch** for
+`value.primaryEvent.conditions[]` and **none** for `value.informationRules[]` — the strings do not
+occur in the file. Measured on A05 (realization forced, labelled as such): **22 instructions, 14
+fidelity violations — 10 × Q3** (one per PCG property, *"established by the game and no instruction
+carries it"*) **+ 4 × Q2**. The pilot builder refuses on any VIOLATION, so **the activity is unservable
+even with Gate A clean**. The 10 instructions A05 adds over A04 are **all Wide Zone**, and they render
+faithfully. **Zero sentences come from the Pass Combination Gate.**
+The 4-to-6 threshold IS in the game — as a QUALITATIVE `extentBounds` term beside PCG-05's counting
+rule on V6 — but nothing reads it and nobody has chosen between 4 and 6.
+
+**A01 ≡ A05 BYTE-IDENTICAL, AND STRUCTURALLY GUARANTEED** — `derivationInputFor`
+(`run-bounded-selection.ts:139-140`) filters the selection against the corpus, so both goals' inputs
+are identical. **A02 ≡ TA01 ≡ TA02** likewise. **Three distinct games across thirteen Learning Goals**
+(A04's, A01/A05's, A02/TA01/TA02's); the other seven produce none.
+
+**ROUNDING DEFECT:** at **30×25** the channels render *"up to 6.3 m wide"* and fidelity flags the number
+**4 times** (the game holds 6.25). At **40×30** it is 7.5 and the flags vanish. **It bites at the
+pilot's own session size.**
+
+**STALE FROM C42 (mine):** `GF2-08.b` carries a typed ref to `GF2-03.a`, which C42 **removed** →
+DANGLING. Latent (C42 also narrowed its selector to `team=EACH_TEAM`, which no class carries, so it
+reaches no line), but **`docs/HANDOFF.md:3365` still claims SD-98's reference "Applied to GF2-08.b.
+References resolved 0→2"**. Needs correcting.
+
+**RESTATEMENT — my "misses are never silent" note is WRONG.** Five silent classes; worst: **a key in
+both `noRow` and `items` makes the noRow branch win and the `items` ruling vanish unreported**. `set`
+is an **unvalidated object spread** that can overwrite any field including `itemId`. The tally is
+surfaced by **`npm run corpus:diagnostic`**, not by `run-bounded-selection`. Current assertions
+(`derivation-stage11.unit.ts`): applied 20, itemsRestated 42, itemsRemoved 4, itemsAdded 22,
+declarationScopes 64, notFound [].
+
+**DECISIONS PUT TO HIM:** author the two halves; plain class id vs fixing `gates.ts:1498`; renderer
+branches for gating conditions and information rules; lift the Wide Zone geometry hold for A01/A05.
+**RECOMMENDED:** not the gate repair first — **Wide Zone on A05** is the shortest honest path to one
+activity genuinely shaped by one contracted constraint.
