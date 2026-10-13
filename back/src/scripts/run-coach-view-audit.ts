@@ -56,6 +56,7 @@ import type {
 import { deriveInputConstraints } from '../system/input-constraints/deriveInputConstraints'
 import { sessionPlanningModel } from '../system/session-planning/session-planning-model'
 import { gateCandidateGameFormsToContext } from '../system/sport-module/context-selection'
+import { governByApprovedGameProblem } from '../system/sport-module/guided-selection'
 import { resolvePrimaryScoringDirectives } from '../system/sport-module/primary-scoring'
 import type { PrimaryScoringDirective } from '../system/types'
 import { generateSelection } from '../system/test-library/generateSelection'
@@ -238,7 +239,8 @@ async function main() {
         const routedRpcId = learningGoalId
             ? (sessionPlanningModel.rpcRouting().find((route) => route.learningGoalId === learningGoalId)?.rpcId ?? null)
             : null
-        const baseHints = deriveInputConstraints(input)
+        // A guided goal is also governed by its approved Game Problem, exactly as the live route does it.
+        const baseHints = learningGoalId ? governByApprovedGameProblem(learningGoalId, deriveInputConstraints(input)).hints : deriveInputConstraints(input)
         const hints = routedRpcId ? gateCandidateGameFormsToContext(baseHints, routedRpcId) : baseHints
         const sel = generateSelection({ learningGoals: [input], learningGoalId }, hints)
         let primaryScoring: PrimaryScoringDirective[] | undefined

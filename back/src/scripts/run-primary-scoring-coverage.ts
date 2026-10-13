@@ -19,7 +19,7 @@
  */
 import { deriveInputConstraints } from '../system/input-constraints/deriveInputConstraints'
 import { sessionPlanningModel } from '../system/session-planning/session-planning-model'
-import { gateCandidateGameFormsToContext } from '../system/sport-module/context-selection'
+import { guidedSelectionHints } from '../system/sport-module/guided-selection'
 import { resolvePrimaryScoringDirectives } from '../system/sport-module/primary-scoring'
 import { rpcLibrary } from '../system/sport-module/rpc-library'
 import { generateSelection } from '../system/test-library/generateSelection'
@@ -83,7 +83,7 @@ function main(): void {
             console.log(`  ${id.padEnd(5)} ${name.padEnd(24)} no routed context`)
             continue
         }
-        const hints = gateCandidateGameFormsToContext(deriveInputConstraints(name), rpcId)
+        const hints = guidedSelectionHints(id, name).hints
         const selection = quietly(() => generateSelection({ learningGoals: [name], learningGoalId: id }, hints))
         const formId = selection.archetype.game_form_id
         const outcome = describe(rpcId, formId)

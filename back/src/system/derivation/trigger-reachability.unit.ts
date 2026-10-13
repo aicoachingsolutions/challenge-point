@@ -202,13 +202,16 @@ test('A01 reaches the trigger WITH or WITHOUT the practice situation, now that t
  * knowledge, still named in the report. A one-row repair would have missed it then and would miss it now.
  */
 test('the check is general — it still catches the GF4 defect, which no carrier fixes', () => {
-    for (const goal of ['D03', 'TD02']) {
+    // The goals that land on Transition Games. Until 13 October this read D03 and TD02; D03 was there only
+    // because selection here ignored the context rule, which routes it to Directional Possession. D02's
+    // approved Game Problem and context put it on this form instead, so the defect is asserted where it lives.
+    for (const goal of ['D02', 'TD02']) {
         const result: any = runDerivation(derivationInputFor(selectFor(goal, null)))
         assert.equal(clauseOf(result, 'GA-TRIGGER-REACHABLE').verdict, 'FAIL', `${goal} must fail`)
         assert.match(check(result, 'GA-TRIGGER-REACHABLE').why, /GF4/, `${goal} fails on GF4 knowledge, and the report says so`)
     }
     // And the GF2 instances pass now — by gaining the carrier, not by the check loosening.
-    for (const goal of ['A04', 'A05']) {
+    for (const goal of ['A04', 'A05', 'D03']) {
         const result: any = runDerivation(derivationInputFor(selectFor(goal, null)))
         assert.equal(clauseOf(result, 'GA-TRIGGER-REACHABLE').verdict, 'PASS', `${goal} must pass now that a ball is established`)
     }

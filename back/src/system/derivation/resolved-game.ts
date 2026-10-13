@@ -345,6 +345,35 @@ function authorization(
     const unresolved = notEstablished.filter(e => e.verdict === 'UNRESOLVED')
     if (unresolved.length) because.push(`${unresolved.length} unresolved structural relationship(s) remain: ${unresolved.map(e => e.lineId).join(', ')}`)
 
+    /**
+     * **A selected contract refused at load is a blocking knowledge gap, and nothing here treated it as one.**
+     *
+     * Stage 0 refuses a whole contract when one of its items is malformed — an item with no basis evidence
+     * is enough — and records the refusal. Derivation then proceeds without it, correctly: it cannot derive
+     * from knowledge it did not admit. But every check above reads the game that results, and that game is
+     * internally coherent. So a goal that selected the Pass Combination Gate, with one item of that contract
+     * missing its evidence, was AUTHORIZED as the bare possession game — one authoring slip turning
+     * "cannot be evaluated" into "may be realized", with the selection still listing the gate as contracted.
+     * Measured on Secure Possession, 13 October.
+     *
+     * That is the outcome he ranked worst: a plausible activity presented for a goal whose selected knowledge
+     * is not in it. The record of the refusal already exists; what was missing is that it refuses.
+     */
+    // Named by contract where the refusal names one, and by the refusal itself where it does not — a load
+    // refusal that implicates nothing must still refuse, not slip through for want of a label.
+    const refusedAtLoad = [
+        ...new Set(
+            result.failures
+                .filter(f => f.kind === 'LOAD_REFUSAL')
+                .flatMap(f => (f.implicated?.contractIds?.length ? f.implicated.contractIds : [f.failureId])),
+        ),
+    ]
+    if (refusedAtLoad.length) {
+        because.push(
+            `selected knowledge was refused at load, so the game does not contain what was selected: ${refusedAtLoad.join(', ')}`,
+        )
+    }
+
     const authorized = because.length === 0
     return {
         // Never `PASS`: the state is "the pre-realization requirements are satisfied", which does not

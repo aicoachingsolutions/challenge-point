@@ -16,10 +16,10 @@ import { findCommunicationStandardViolations } from '../activity/coach-communica
 import { toCoachScoringSentence } from '../activity/coach-voice'
 import { compressActivityForCoach } from '../activity/compress-activity-output'
 import { validateActivityAgainstSkeleton, withScoringObjectInSetup } from '../activity/validate-activity-skeleton'
-import { deriveInputConstraints } from '../input-constraints/deriveInputConstraints'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { generateSelection } from '../test-library/generateSelection'
 import { gateCandidateGameFormsToContext } from './context-selection'
+import { guidedSelectionHints } from './guided-selection'
 import {
     COACH_RULES,
     PrimaryScoringResolutionError,
@@ -328,7 +328,8 @@ function testEveryGuidedGoalResolvesThroughContextGatedSelection(): void {
             const id = String(goal['ID'])
             const name = String(goal['Learning Goal'])
             const rpcId = sessionPlanningModel.rpcRouting().find((route) => route.learningGoalId === id)!.rpcId
-            const hints = gateCandidateGameFormsToContext(deriveInputConstraints(name), rpcId)
+            // The same hints the application gives selection: approved Game Problem, then context.
+            const hints = guidedSelectionHints(id, name).hints
             const selection = generateSelection({ learningGoals: [name], learningGoalId: id }, hints)
             const formId = selection.archetype.game_form_id
             assert.ok(

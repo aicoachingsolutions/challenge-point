@@ -16,8 +16,8 @@
  *
  * Run: npm run bounded:selection -- A05
  */
-import { deriveInputConstraints } from '../input-constraints/deriveInputConstraints'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
+import { GameProblemAuthority, guidedSelectionHints } from '../sport-module/guided-selection'
 import { generateSelection } from '../test-library'
 import { CORPUS_ENVELOPE, loadCorpusContracts, loadRegister, loadSportProfile } from './corpus'
 import { isStampedHalt } from './emit'
@@ -43,6 +43,13 @@ export interface BoundedSelection {
     practiceSituations: { id: string; name: string }[]
     /** The situation the coach chose, resolved to its canonical identity (never to prose). */
     chosenSituation: { id: string; name: string } | null
+    /**
+     * Whose Game Problem this selection was made for: the approved translation, or UNRESOLVED where none
+     * is approved. Carried so the account of an activity can say which, and never has to infer it.
+     */
+    gameProblem: GameProblemAuthority
+    /** The Representative Performance Context the goal routes to, which limited the game forms. */
+    contextId: string | null
 }
 
 /**
@@ -76,7 +83,16 @@ export function selectFor(goalId: string, situationId: string | null = null): Bo
     const goal: any = sessionPlanningModel.learningGoal(goalId)
     if (!goal) throw new Error(`no such learning goal: ${goalId}`)
     const text = `${goal['Learning Goal']}. ${goal['Coach Definition']}`
-    const result: any = generateSelection({ learningGoals: [text], learningGoalId: goalId } as any, deriveInputConstraints(text))
+    /**
+     * **The same hints the application gives selection, from the same function.** This used to pass the
+     * wording's hints straight through, which left out the context rule the application route applies —
+     * so seven of the thirteen goals were selected here onto a game form the application would never
+     * have chosen, and every figure reported from this pathway for a month described a selection no
+     * coach could reach. An approved rule carried by one caller and not the other is the same loss as
+     * an authored field dropped by a projection; it is closed the same way, by having one source.
+     */
+    const guided = guidedSelectionHints(goalId, text)
+    const result: any = generateSelection({ learningGoals: [text], learningGoalId: goalId } as any, guided.hints)
 
     /**
      * **A selection that did not resolve must not proceed as a successful Learning Goal selection.**
@@ -131,6 +147,8 @@ export function selectFor(goalId: string, situationId: string | null = null): Bo
         missing: knowledge.filter(s => !available.has(key(s.id))).map(s => s.id),
         practiceSituations: (sessionPlanningModel.practiceSituationsFor(goalId) as any[]).map(p => ({ id: p.ID, name: p['Practice Situation'] })),
         chosenSituation,
+        gameProblem: guided.gameProblem,
+        contextId: guided.contextId,
     }
 }
 

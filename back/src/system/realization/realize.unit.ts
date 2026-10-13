@@ -583,10 +583,11 @@ test('A04 is authorized again, the reason is stated, and the three states stay d
     assert.deepEqual(resolved.coherence.notAuthorizedBecause, [], 'nothing is withheld, so nothing is owed a reason')
     assert.equal(resolved.coherence.gateA, 'DEFERRED_TO_REALIZATION', 'the remaining checks are deferred, not passed')
 
-    // A contradicted invariant. D03 selects the blind GF4 restatement, whose POSSESSION_CHANGE transition is
+    // A contradicted invariant. TD02 selects the blind GF4 restatement, whose POSSESSION_CHANGE transition is
     // keyed on a trigger the game cannot construct — so reachability fails on the FIRST clause, and the
-    // failure is named rather than merely reported as a refusal.
-    const d03Input = derivationInputFor(selectFor('D03', null))
+    // failure is named rather than merely reported as a refusal. (This specimen was D03 until 13 October;
+    // D03 only ever reached that restatement because selection here ignored the context rule.)
+    const d03Input = derivationInputFor(selectFor('TD02', null))
     const d03Result = runDerivation(d03Input)
     if (isStampedHalt(d03Result)) return assert.fail('unexpected halt')
     const d03 = assembleResolvedGame(d03Result, (runStages0to10(d03Input) as any).classes, indexRegister(d03Input.register), d03Input.contracts)
@@ -594,9 +595,10 @@ test('A04 is authorized again, the reason is stated, and the three states stay d
     assert.equal(d03.coherence.realizationAuthorized, false)
     assert.match(d03.coherence.notAuthorizedBecause[0], /fails:.*GA-TRIGGER-REACHABLE/, 'it must name the invariant, not merely refuse')
 
-    // An unevaluable one. D01 has no transition at all, so it cannot fail on reachability; it is blocked
-    // earlier by invariants there is nothing to judge.
-    const d01Input = derivationInputFor(selectFor('D01', null))
+    // An unevaluable one. A02 lands on a game form with no contract, so it has no transition at all and
+    // cannot fail on reachability; it is blocked earlier by invariants there is nothing to judge. (D01 was
+    // this specimen until 13 October, when the context rule put it on a contracted game form.)
+    const d01Input = derivationInputFor(selectFor('A02', null))
     const d01Result = runDerivation(d01Input)
     if (isStampedHalt(d01Result)) return assert.fail('unexpected halt')
     const d01 = assembleResolvedGame(d01Result, (runStages0to10(d01Input) as any).classes, indexRegister(d01Input.register), d01Input.contracts)
@@ -723,11 +725,11 @@ test('a collection holding more elements than its knowledge authors is refused',
  * advisory — which is the whole point of asserting it here instead of reading the report.
  */
 test('realization REFUSES a game whose Gate A fails, and names the check that refused it', () => {
-    const input = derivationInputFor(selectFor('D03', null))
+    const input = derivationInputFor(selectFor('TD02', null))
     const result = runDerivation(input)
     if (isStampedHalt(result)) return assert.fail('unexpected halt')
     const resolved = assembleResolvedGame(result, (runStages0to10(input) as any).classes, indexRegister(input.register), input.contracts)
-    assert.equal(resolved.coherence.realizationAuthorized, false, 'D03 must still be an unauthorized game for this test to have a subject')
+    assert.equal(resolved.coherence.realizationAuthorized, false, 'TD02 must still be an unauthorized game for this test to have a subject')
 
     const attempted = realize(resolved, [], [])
     assert.ok(isRefused(attempted), 'an unauthorized game must not realize')
@@ -747,21 +749,33 @@ test('realization REFUSES a game whose Gate A fails, and names the check that re
  * Eleven are `NOT_EVALUABLE`, which is not a reachability problem: their selections resolve to knowledge objects
  * with no restated contract, so there is no game to judge. Two — D03 and TD02 — reach a verdict and FAIL. So the
  * pilot path is one goal wide, and this test is where that stops being a claim in a report.
+ *
+ * **13 October — THREE GOALS ARE AUTHORIZED, AND THEY ARE ONE GAME.** That paragraph described a selection
+ * the application never makes: `selectFor` had left out the context rule. With it, and with his approved Game
+ * Problem translation governing, Stay Organized and Defend 1v1 land on the contracted possession form beside
+ * Beat Defenders 1v1. None of the three commits a contracted constraint, so all three resolve to the same
+ * game — the last assertion below pins that identity, because "three goals work" would otherwise be exactly
+ * the selective report this test exists to prevent. Three goals served is one activity served three times.
  */
-test('exactly one goal is realization-authorized, and the other twelve are accounted for', () => {
+test('three goals are realization-authorized, they are one game, and the other ten are accounted for', () => {
     const authorized: string[] = []
     const failed: string[] = []
     const notEvaluable: string[] = []
+    const authorizedGames = new Set<string>()
     for (const goal of (sessionPlanningModel.learningGoals() as any[]).map(g => String(g.ID))) {
         const input = derivationInputFor(selectFor(goal, null))
         const result = runDerivation(input)
         if (isStampedHalt(result)) return assert.fail(`unexpected halt on ${goal}`)
         const r = assembleResolvedGame(result, (runStages0to10(input) as any).classes, indexRegister(input.register), input.contracts)
-        if (r.coherence.realizationAuthorized) authorized.push(goal)
+        if (r.coherence.realizationAuthorized) {
+            authorized.push(goal)
+            authorizedGames.add(JSON.stringify(r.game))
+        }
         else if (r.coherence.gateA === 'FAIL') failed.push(goal)
         else notEvaluable.push(goal)
     }
-    assert.deepEqual(authorized, ['A04'], 'the pilot path is one goal wide')
+    assert.deepEqual(authorized.sort(), ['A04', 'D01', 'D03'], 'three goals reach realization')
+    assert.equal(authorizedGames.size, 1, 'and all three resolve to the identical game: none commits a contracted constraint')
     /**
      * **FIVE goals now reach a verdict and fail it, up from two on 7 October — and the three new ones are a
      * finding rather than a drift.** D02, A03 and A06 each load only the Wide Zone object plus the Sport
@@ -772,9 +786,48 @@ test('exactly one goal is realization-authorized, and the other twelve are accou
      *
      * Reported and NOT repaired: those goals are outside the pilot evidence claim and he instructed that the
      * other twelve not be repaired. The cause is the absent game form, not the Wide Zone authoring.
+     *
+     * **Six since 13 October.** A03 and A06 fail as described. The other four — D02, TA01, TD01 and TD02 — are
+     * every goal that lands on Transition Games, and they fail on that form’s own blind restatement. D02 is no
+     * longer a Wide Zone failure at all: as a Regain Possession goal it does not select that object.
      */
-    assert.deepEqual(failed.sort(), ['A03', 'A06', 'D02', 'D03', 'TD02'], 'five goals reach a verdict and fail it')
-    assert.equal(notEvaluable.length, 7, `the rest have no contracted knowledge to judge; got ${notEvaluable.join(', ')}`)
+    assert.deepEqual(failed.sort(), ['A03', 'A06', 'D02', 'TA01', 'TD01', 'TD02'], 'six goals reach a verdict and fail it')
+    // The four that select the Pass Combination Gate, stopped by its two prose references.
+    assert.deepEqual(notEvaluable.sort(), ['A01', 'A02', 'A05', 'TA02'], 'the rest cannot be evaluated')
+})
+
+/**
+ * **A selected contract refused at load must refuse the game — 13 October.**
+ *
+ * The specimen is Secure Possession, which selects the possession game form and the Pass Combination Gate.
+ * One item of that contract loses its basis evidence, which is the smallest authoring slip stage 0 refuses a
+ * contract for. Before this rule the result was an AUTHORIZED game: derivation proceeded without the gate,
+ * every check judged the bare possession game that remained, and found it coherent. The goal went from
+ * "cannot be evaluated" to "may be realized" by losing knowledge.
+ *
+ * The second half is the control that gives the first its meaning: the refusal is the ONLY reason the game
+ * is withheld. Remove the rule and this exact input realizes.
+ */
+test('a selected contract refused at load refuses the game instead of quietly leaving it out', () => {
+    const input: any = derivationInputFor(selectFor('TA02', null))
+    // The loader hands back shared contract objects; copy before touching one.
+    input.contracts = JSON.parse(JSON.stringify(input.contracts))
+    const gate = input.contracts.find((c: any) => /PASS-COMBINATION-GATE/.test(String(c.contractId)))
+    assert.ok(gate, 'Secure Possession selects the Pass Combination Gate, or this test has no subject')
+    delete gate.items.find((i: any) => i.itemId === 'PCG-05').basisEvidence
+
+    const result = runDerivation(input)
+    if (isStampedHalt(result)) return assert.fail('unexpected halt')
+    assert.ok(result.failures.some(f => f.kind === 'LOAD_REFUSAL'), 'stage 0 refuses the contract, as it always has')
+
+    const resolved = assembleResolvedGame(result, (runStages0to10(input) as any).classes, indexRegister(input.register), input.contracts)
+    assert.equal(resolved.coherence.realizationAuthorized, false, 'a game missing knowledge it selected may not be realized')
+    assert.deepEqual(
+        resolved.coherence.notAuthorizedBecause,
+        ['selected knowledge was refused at load, so the game does not contain what was selected: blind:PASS-COMBINATION-GATE'],
+        'and that is the only thing withholding it: the bare game that remains passes every other check',
+    )
+    assert.ok(isRefused(realize(resolved, [], [])), 'so realization refuses it')
 })
 
 /**

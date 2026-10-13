@@ -168,18 +168,38 @@ test('registering the member changed no verdict in any of the thirteen goals', (
      * the one failed line that object contributed went with it. A04 had stayed at 7 while Wide Zone
      * was still selected, because its two new rows resolved; now there is no Wide Zone modifier in
      * A04 at all. Its gate verdict is unchanged.
+     *
+     * **5 · 13 October — SEVEN ROWS MOVED AT ONCE, AND THIS TIME THE CAUSE IS THAT THE TABLE HAD BEEN
+     * DESCRIBING THE WRONG SELECTION.** `selectFor` composed its own hints and left out the context
+     * rule the application applies (his ruling of 12–13 September), so every row here recorded the game
+     * form a goal would take if that rule did not exist. It now calls the one function both pathways
+     * share (`sport-module/guided-selection.ts`), which also lets his approved Game Problem translation
+     * govern where the wording implies a different one. What moved, and why:
+     *
+     *   - **The context rule:** A02 and A03 land on Positional Play (no contract), D01 and D03 on
+     *     Directional Possession, TD01 on Transition Games. D01 and D03 therefore reach
+     *     DEFERRED_TO_REALIZATION beside A04 — the same bare game, since none of the three commits a
+     *     contracted constraint. That identity is a finding about coverage, not about this table.
+     *   - **The approved Game Problem:** Win the Ball Back (D02) is a Regain Possession goal and Attack
+     *     Quickly (TA01) an Exploit Space goal; both had been selected as possession goals because their
+     *     definitions contain the word. Both now land on Transition Games, whose own restatement fails
+     *     reachability — the defect D03 and TD02 used to show, now shown by D02, TA01, TD01 and TD02.
+     *   - A01, A04, A05, A06, TA02 and TD02 select exactly what they did. Their rows are unchanged.
+     *
+     * No gate, no contract and no register row changed. Every number that moved did so because a goal
+     * now loads the contracts the application would load for it.
      */
     const expected: Record<string, { failed: number; gateA: string; reachable: boolean }> = {
         A01: { failed: 8, gateA: 'NOT_EVALUABLE', reachable: true },
-        D01: { failed: 6, gateA: 'NOT_EVALUABLE', reachable: true },
-        TA01: { failed: 7, gateA: 'NOT_EVALUABLE', reachable: true },
-        TD01: { failed: 6, gateA: 'NOT_EVALUABLE', reachable: true },
-        A02: { failed: 7, gateA: 'NOT_EVALUABLE', reachable: true },
-        D02: { failed: 7, gateA: 'FAIL', reachable: true },
+        D01: { failed: 7, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
+        TA01: { failed: 14, gateA: 'FAIL', reachable: false },
+        TD01: { failed: 13, gateA: 'FAIL', reachable: false },
+        A02: { failed: 6, gateA: 'NOT_EVALUABLE', reachable: true },
+        D02: { failed: 13, gateA: 'FAIL', reachable: false },
         TA02: { failed: 7, gateA: 'NOT_EVALUABLE', reachable: true },
         TD02: { failed: 13, gateA: 'FAIL', reachable: false },
         A03: { failed: 7, gateA: 'FAIL', reachable: true },
-        D03: { failed: 13, gateA: 'FAIL', reachable: false },
+        D03: { failed: 7, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
         A04: { failed: 7, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
         A05: { failed: 8, gateA: 'NOT_EVALUABLE', reachable: true },
         A06: { failed: 7, gateA: 'FAIL', reachable: true },
@@ -214,8 +234,12 @@ test('the member alone closed nothing — it took a separate authoring act', () 
      *
      * So this now asserts the authored outcome, and the member's own inertness is proved by the forced negative
      * below rather than by a current-state baseline — which is the stronger evidence anyway.
+     *
+     * **Four goals since 13 October, not five.** Attack Quickly selected this contract only while it was
+     * being read as a possession goal. Under its approved Game Problem it selects no information rule,
+     * so it moves to the list below, where the absence is asserted rather than left unexamined.
      */
-    for (const goal of ['A01', 'TA01', 'A02', 'TA02', 'A05']) {
+    for (const goal of ['A01', 'A02', 'TA02', 'A05']) {
         const result: any = runDerivation(derivationInputFor(selectFor(goal, null)))
         const v17 = (result.resolution ?? []).filter((e: any) => /::V17$/.test(String(e.lineId)))
         assert.equal(v17.length, 1, `${goal}: one information-rule trigger line`)
@@ -223,7 +247,7 @@ test('the member alone closed nothing — it took a separate authoring act', () 
         assert.equal(v17[0].value, 'COMPLETED_PASS', `${goal}: with the token the 29 September ruling requires`)
     }
     // And the goals that do NOT select that contract have no such line at all, so nothing was created for them.
-    for (const goal of ['A04', 'A03', 'A06']) {
+    for (const goal of ['A04', 'A03', 'A06', 'TA01']) {
         const result: any = runDerivation(derivationInputFor(selectFor(goal, null)))
         assert.deepEqual(
             (result.resolution ?? []).filter((e: any) => /::V17$/.test(String(e.lineId))),

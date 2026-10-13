@@ -50,6 +50,7 @@ import { ENDPOINTS } from './_endpoints'
 import BaseRoutes from './helper'
 import { ActivityAssemblyRequest, PrimaryScoringDirective, SystemAssemblyInput, SystemPipelineError } from '../system/types'
 import { gateCandidateGameFormsToContext } from '../system/sport-module/context-selection'
+import { governByApprovedGameProblem } from '../system/sport-module/guided-selection'
 import { resolvePrimaryScoringDirectives } from '../system/sport-module/primary-scoring'
 import { rpcLibrary } from '../system/sport-module/rpc-library'
 import { validateConstraintPackage } from '../system/validate-constraint-package'
@@ -777,7 +778,16 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
 
         const generationStart = Date.now()
         const goalText = learningGoals.join(' ')
-        const inputConstraints = deriveInputConstraints(goalText)
+        const guidedGoalId = planning?.learningGoalId
+
+        // THE APPROVED GAME PROBLEM GOVERNS A GUIDED GOAL (Christian, 13 October). The hints the wording
+        // produces stand unless the Session Planning Model holds an approved translation that names a
+        // different Game Problem, in which case the candidates are that Game Problem’s own. Applied
+        // here, before the refusal checks and the trace, so every later reader sees one set of hints
+        // — and through the same function the checked pathway calls. Free text is untouched: a Game
+        // Problem is approved for a Learning Goal, never inferred onto typed wording.
+        const gameProblemAuthority = guidedGoalId ? governByApprovedGameProblem(guidedGoalId, deriveInputConstraints(goalText)) : null
+        const inputConstraints = gameProblemAuthority?.hints ?? deriveInputConstraints(goalText)
 
         // RC1.1 — A GUIDED GOAL SELECTS WITHIN ITS CONTEXT, AND SCORES ON ITS CONTEXT'S EVENT.
         // Only once the RPC library is ACTIVE (Christian made ACTIVE conditional on these changes being
@@ -785,7 +795,6 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         // conversation: a context is never inferred from free-text wording, so free text is unchanged.
         // See sport-module/context-selection.ts for why gating is required before primary scoring can
         // resolve — ungated, Create Scoring Chances landed on a game form with no valid event.
-        const guidedGoalId = planning?.learningGoalId
         const routedRpcId =
             guidedGoalId && rpcLibrary.runtimeStatus === 'ACTIVE'
                 ? (sessionPlanningModel.rpcRouting().find((route) => route.learningGoalId === guidedGoalId)?.rpcId ?? null)
@@ -938,6 +947,7 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                     gatedToContext: routedRpcId,
                     primaryScoringEvents: primaryScoring ? primaryScoring.map((directive) => directive.eventKey) : null,
                     shadowAtpPrimary: atp?.primaryGameProblem ?? null,
+                    gameProblemAuthority: gameProblemAuthority?.gameProblem ?? null,
                     versions: selection.selectionTrace.versions ?? null,
                 },
             })

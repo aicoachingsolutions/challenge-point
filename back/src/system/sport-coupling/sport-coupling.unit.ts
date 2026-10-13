@@ -64,6 +64,11 @@ const SPORT_LAYER_FILES = [
     // context — goals, goalkeepers, pressing — so it is sport-specific by design, and it is the reason
     // the universal activity layer can consume a resolved event without knowing any sport.
     'system/sport-module/primary-scoring.ts',
+    // The one function that gives selection its hints for a guided goal (13 October). It reads the Soccer
+    // Module's Coverage row for the goal's approved Game Problem, so it names the module — and it sits in
+    // the sport layer for the same reason the context gate beside it does: the sport-neutral selector
+    // receives candidate pools and never learns where they came from.
+    'system/sport-module/guided-selection.ts',
 ]
 
 const SPORT_TERMS = [

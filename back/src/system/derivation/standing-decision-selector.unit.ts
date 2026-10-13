@@ -190,7 +190,9 @@ test('A04 is unaffected: its only transition is a POSSESSION_CHANGE', () => {
 // Authored on his instruction of 4 October, with the 29 September ruling as its evidence. Kept in this file
 // because its only live interaction is with the trigger machinery the repair above also touches.
 test('the Pass Combination Gate trigger row is now authored and resolves', () => {
-    for (const goal of ['A01', 'TA01', 'A02', 'TA02', 'A05']) {
+    // The goals that select that contract. Attack Quickly left this list on 13 October: it selected the
+    // gate only while its wording was read as a possession goal, and its approved Game Problem governs now.
+    for (const goal of ['A01', 'A02', 'TA02', 'A05']) {
         const result: any = runDerivation(derivationInputFor(selectFor(goal, null)))
         const v17 = (result.resolution ?? []).filter((e: any) => /::V17$/.test(String(e.lineId)))
         assert.equal(v17.length, 1, `${goal}: one information-rule trigger line`)

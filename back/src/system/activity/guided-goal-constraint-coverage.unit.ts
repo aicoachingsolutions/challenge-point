@@ -20,9 +20,8 @@ import type { IAffordance } from '../../models/affordance.model'
 import { ConstraintRoles, type IConstraint } from '../../models/constraint.model'
 import { SessionStatus, type ISession } from '../../models/session.model'
 import { buildConstraintPackage } from '../build-constraint-package'
-import { deriveInputConstraints } from '../input-constraints/deriveInputConstraints'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
-import { gateCandidateGameFormsToContext } from '../sport-module/context-selection'
+import { guidedSelectionHints } from '../sport-module/guided-selection'
 import { resolvePrimaryScoringDirectives } from '../sport-module/primary-scoring'
 import { generateSelection } from '../test-library/generateSelection'
 import type { TestLibrarySelectionResult } from '../test-library/types'
@@ -124,7 +123,8 @@ function testSystemTextAloneMeetsEveryConstraintRequirement(): void {
             const rpcId = sessionPlanningModel.rpcRouting().find((route) => route.learningGoalId === id)!.rpcId
             const selection = generateSelection(
                 { learningGoals: [name], learningGoalId: id },
-                gateCandidateGameFormsToContext(deriveInputConstraints(name), rpcId)
+                // The same hints the application gives selection: approved Game Problem, then context.
+                guidedSelectionHints(id, name).hints
             )
             const skeleton = buildActivitySkeleton(assemblyInput(selection, id, name, rpcId))
             const mechanics = buildActivityMechanicsFromSkeleton(skeleton)

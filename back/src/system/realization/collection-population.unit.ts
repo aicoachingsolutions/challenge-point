@@ -53,7 +53,12 @@ function resolvedFor(goal: string) {
 }
 
 // ── The shape, and its real extent ────────────────────────────────────────────────────────────────
-test('five of the thirteen goals carry two claims on one collection', () => {
+//
+// **Three since 13 October, not five.** The shape needs a goal to load BOTH the possession game form and the
+// Pass Combination Gate, each claiming teams. Play Through Pressure now lands on a game form with no
+// contract (the context rule) and Attack Quickly no longer selects the gate (its approved Game Problem),
+// so each carries one claim. The repair is asserted on every goal that still has the shape.
+test('three of the thirteen goals carry two claims on one collection', () => {
     const goals: string[] = ((sessionPlanningModel as any).learningGoals?.() ?? []).map((g: any) => g.ID ?? g.id).filter(Boolean)
     assert.equal(goals.length, 13, `the corpus has 13 learning goals, got ${goals.length}: ${goals.join(' ')}`)
 
@@ -64,7 +69,7 @@ test('five of the thirteen goals carry two claims on one collection', () => {
         for (const claim of resolved.existential as any[]) byPath.set(claim.path, (byPath.get(claim.path) ?? 0) + 1)
         if ([...byPath.values()].some(n => n > 1)) affected.push(goal)
     }
-    assert.deepEqual(affected, ['A01', 'TA01', 'A02', 'TA02', 'A05'], `the multi-claim goals, got ${affected.join(', ')}`)
+    assert.deepEqual(affected, ['A01', 'TA02', 'A05'], `the multi-claim goals, got ${affected.join(', ')}`)
 })
 
 // ── THE REPAIR, with teeth in both directions ─────────────────────────────────────────────────────
@@ -108,7 +113,7 @@ test('a maximum binds however the surplus is attributed', () => {
 })
 
 test('the repair holds on every affected goal, not just the one it was found on', () => {
-    for (const goal of ['A01', 'TA01', 'A02', 'TA02', 'A05']) {
+    for (const goal of ['A01', 'TA02', 'A05']) {
         assert.deepEqual(authorize(goal, { pcg: 0, gf2: 2 }), [], `${goal}: two teams must be authorized`)
         assert.match(authorize(goal, { pcg: 1, gf2: 2 }).join(' '), /3 would exist/, `${goal}: three teams must be refused`)
     }
