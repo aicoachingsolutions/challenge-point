@@ -20,6 +20,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import { runDerivation, runStages0to10 } from '../derivation/engine'
+import { AUDITS_DIR } from '../derivation/knowledge-root'
 import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame } from '../derivation/resolved-game'
 import { derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
@@ -29,7 +30,7 @@ import { checkRealization, isRefused, realize, Realized } from '../realization/r
 import { checkFidelity } from './fidelity'
 import { RenderedActivity, renderConcreteGame } from './render-concrete-game'
 
-const CHOICES = path.resolve(__dirname, '../../../../docs/audits/a04-realization-choices.json')
+const CHOICES = path.join(AUDITS_DIR, 'a04-realization-choices.json')
 
 export interface PilotSession {
     players: number

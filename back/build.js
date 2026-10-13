@@ -30,6 +30,27 @@ async function preBuildOperations() {
 
         await fs.copy(emailTemplatesPath, path.join(distPath, '/email-templates'))
         console.log('Copied email-templates to /dist folder.')
+
+        // The integrity-checked pathway reads its authored knowledge at runtime, one file at module load.
+        // Bundled, every module's __dirname is dist, so the files have to travel with the bundle; the
+        // reader's half of this is src/system/derivation/knowledge-root.ts. A missing file stops the build
+        // here, because a server built without them does not degrade - it fails to start.
+        const auditsPath = path.resolve(__dirname, '../docs/audits')
+        const stageB = 'conformance/stage-b'
+        const sportProfiles = (await fs.readdir(path.join(auditsPath, stageB))).filter(
+            (name) => name.startsWith('sport-profile-') && name.endsWith('.json')
+        )
+        const knowledgeFiles = [
+            'conformance/register-2026-09-18.json',
+            `${stageB}/contracts.json`,
+            `${stageB}/corpus-restatements.json`,
+            ...sportProfiles.map((name) => `${stageB}/${name}`),
+            'a04-realization-choices.json',
+        ]
+        for (const file of knowledgeFiles) {
+            await fs.copy(path.join(auditsPath, file), path.join(distPath, 'knowledge', file))
+        }
+        console.log(`Copied ${knowledgeFiles.length} knowledge files to /dist/knowledge.`)
     } catch (error) {
         console.error('Error during pre-build operations:', error)
         process.exit(1)

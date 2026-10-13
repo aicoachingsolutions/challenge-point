@@ -166,7 +166,15 @@ export function derivationInputFor(selection: BoundedSelection): DerivationInput
     }
 }
 
-if (require.main === module) {
+/**
+ * **Only when this file is the script that was run.** `require.main === module` is not enough: the deployed
+ * server is one bundle, in which every module is the main one, so that test alone made the server print this
+ * report for A05 at start-up — and exit if the run halted. The entry script's own name is what distinguishes
+ * `npm run bounded:selection` from a server that merely imports `selectFor`.
+ */
+const runAsScript = require.main === module && String(process.argv[1] ?? '').includes('run-bounded-selection')
+
+if (runAsScript) {
     const goalId = process.argv.find(a => /^[A-Z]+[0-9]+$/.test(a)) ?? 'A05'
     const situationId = process.argv.find(a => /^[A-Z]+[0-9]+-[0-9]+$/.test(a)) ?? null
     const selection = selectFor(goalId, situationId)

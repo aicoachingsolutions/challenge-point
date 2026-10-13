@@ -19,8 +19,9 @@ import path from 'node:path'
 import { ContractItem, DerivationInput, LoadedContract } from './types'
 import { repairCorpusEncoding, RepairTally } from './corpus-repair'
 import { applyNoRowRestatement, RestatementTally } from './corpus-restatement'
+import { AUDITS_DIR } from './knowledge-root'
 
-export const CONFORMANCE_DIR = path.resolve(__dirname, '../../../../docs/audits/conformance')
+export const CONFORMANCE_DIR = path.join(AUDITS_DIR, 'conformance')
 
 /** The BOM the register file carries; stripping it is a file-encoding concern, not a repair. */
 export function readJson(file: string): any {

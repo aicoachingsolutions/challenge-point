@@ -22,6 +22,8 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
+import { AUDITS_DIR } from './knowledge-root'
+
 import { ContractItem, LoadedContract } from './types'
 
 /** The spellings the corpus used for "no row holds this", neither of them registered. */
@@ -63,7 +65,7 @@ interface RestatementData {
 }
 
 const DATA: RestatementData = JSON.parse(
-    fs.readFileSync(path.resolve(__dirname, '../../../../docs/audits/conformance/stage-b/corpus-restatements.json'), 'utf8').replace(/^﻿/, ''),
+    fs.readFileSync(path.join(AUDITS_DIR, 'conformance/stage-b/corpus-restatements.json'), 'utf8').replace(/^﻿/, ''),
 )
 
 export const NO_ROW_RESTATEMENTS: ReadonlySet<string> = new Set(DATA.noRow)
