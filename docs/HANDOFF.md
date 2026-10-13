@@ -7750,3 +7750,105 @@ declarationScopes 64, notFound [].
 branches for gating conditions and information rules; lift the Wide Zone geometry hold for A01/A05.
 **RECOMMENDED:** not the gate repair first — **Wide Zone on A05** is the shortest honest path to one
 activity genuinely shaped by one contracted constraint.
+
+### 2026-10-12 (§23) — PILOT POSTPONED. New objective: **three purposeful, distinct, usable activities.**
+
+Christian postponed the coaching pilot and shifted from architecture-driven development to
+"demonstrating a minimum complete learning-design system". New acceptance test: an activity must show
+**why its constraints are relevant to the intended affordances** and **how they shape the environment**.
+Progress is measured in functional capability, not contracts authored or checks passed.
+
+**THE TRADE THAT DECIDES EVERYTHING — a three-way mismatch, measured:**
+- **Wide Zone Advantage** — contracted, **renders** (16 properties → 10 sentences, 0 violations),
+  targets **`exploit_space`**. A01/A05/TA02's lenses are possession-stability / line-breaking /
+  space-creation → **NO affordance match**. It matches **A03, A06, D02** — **whose game forms (GF9,
+  GF9, GF8) are NOT contracted.**
+- **Pass Combination Gate** — contracted, targets **`create_space`** → **matches** A01 A02 A05 TA01
+  TA02, whose **GF2 IS contracted** — and it is **unrenderable**.
+→ **Nothing is contracted + renderable + affordance-aligned + on a contracted game form.**
+*(This corrects §22/the 10-10 email: A01/A05 do have an affordance-aligned contracted constraint, but
+it is PCG, not Wide Zone.)*
+
+**TWO ACTIVITIES ARE REACHABLE NOW — both built and measured end to end:**
+1. **A05 with PCG dropped from its candidate pool** → `matched`, GF2, Gate A
+   **DEFERRED_TO_REALIZATION**, authorized, **33 derived**, realization closes all 8 open lines,
+   **22 instructions, 0 fidelity violations** at 40×30. **No code, contract or engine change.**
+   The pool is `deriveInputConstraints().candidateConstraintIds` — A05's holds 6 and includes BOTH Wide
+   Zone and PCG. Dropping PCG yields central-density, **wide-zone-advantage**, progression-bonus,
+   turnover-reward; contracts `restated:GF2` + `restated:WIDE-ZONE-ADVANTAGE`.
+2. **TA02 with pool `[neutral-player-condition, support-lane-requirement, turnover-reward,
+   switch-of-play-bonus]`** → `matched`, GF2, Gate A **DEFERRED_TO_REALIZATION**, authorized, 23
+   derived, 7 open (incl. `game::P5`). First use of a 24-item contracted object no goal has ever
+   selected. Needs 2 small code completions.
+
+**THE HONESTY PROBLEM, put to him rather than decided:** narrowing a pool is *either* learning-design
+knowledge (his steps 2–3) *or* the goal-specific workaround he forbade, depending on motive. **The test
+offered: would you author the same pool knowing nothing about which constraints the renderer can speak?**
+
+**WHAT WORKS END TO END (re-measured today):** A04 — 12 instructions, 0 violations, and the re-run
+**reproduced the committed artefact byte-for-byte** (determinism demonstrated). All 13 goals resolve
+`matched`. **The valueModifier rendering is fully GENERIC** (`for (const modifier of
+game.value?.valueModifiers`) reading only operation / magnitude / condition.referents — nothing was
+written for Wide Zone, so **any constraint in that shape renders free**. **Caveat: it assumes REGION
+referents**; an event/time modifier emits the false sentence *"The condition is about the region you
+marked"* — and **every defensive/transition constraint is event/time based.**
+
+**MISSING CONNECTIONS, in biting order:**
+1. Renderer has no branch for `value.primaryEvent.conditions[]` or `value.informationRules[]` → 10 Q3
+   violations → unservable, on 5 goals. ~120 lines in one 555-line function, modelled on the modifier
+   loop. 19 `say()` sites total; **"What to watch" can never be populated**.
+2. **V6 is a condition's ONLY parameter slot** — declared *"a threshold, a count, **or** a qualitative
+   term"*. PCG-05's counting rule holds it; PCG-04's *"4 to 6"* survives only as a QUALITATIVE
+   extentBound. **The gate's own number cannot become a fact of the game.** Representational.
+3. **Only GF2 and GF4 are contracted.** A03/A06 (GF9), D01 (GF3), D02 (GF8), TD01 (GF11) have no game.
+   D03/TD02 have GF4 but **no contracted constraint**.
+4. **The session is a module constant** — `CORPUS_ENVELOPE = {players:12, 40×30, 20min, roles: all
+   zero}`. `buildPilotActivity(session)` overrides the four numbers, **never `roles`**. No coach input
+   reaches this pathway.
+
+**COMPLETE-ONCE-AND-REUSE:** the modifier rendering (done); a conditions/information-rules pass;
+an **explanation block from evidence already recorded** — `targetMatchesSelectedLens` (+10,
+`generateSelection.ts:380-384`) fires for **34 of 52** constraint selections, so two thirds of the
+"why" is answerable with **no new knowledge**; and **default realization choices** instead of a
+per-goal file.
+
+**OWNER vs CONFIGURABLE vs COACH:** his — the candidate pools, whether a NOT_REPRESENTABLE block may
+refuse realization, translating a condition's qualitative value, Wide Zone geometry (only one permitted
+member exists, so it records rather than chooses). Configurable — the session. The coach's, already
+done well — who starts with the ball, who takes which end.
+
+**STRICT vs ECOLOGICAL.** Load-bearing: references naming held elements; roster arithmetic; one primary
+event; opposite ends after realization; no stated quantity the game lacks. **Over-strict:**
+(a) *"a concrete game leaves no freedom unclosed"* forces a single value where the knowledge authors a
+range and the coach is told a range anyway; (b) fidelity Q3 makes any property the renderer has not
+learned **fatal** rather than merely unspoken, though a sub-refusal severity exists; (c)
+**`resolved-game.ts:325-331` treats EVERY NOT_EVALUABLE clause as unsatisfied**, ignoring the
+`NOT_REPRESENTABLE` block kind the gate already computes — relaxing it authorizes **5 goals with zero
+knowledge change**, the cheapest lever in the system. **Dead strictness:** GA-DIRECTION's no-change
+clause — its regex matches nothing against the authored `V13.effect` vocabulary, so it has been a
+constant PASS on all 13.
+
+**DO NOT make the CAR matrix live** — unreachable for 5 of 13 (incl. A04, whose `J_attacking_duel` has
+no GP mapping), a no-op for 6, consequential for exactly 1: A05, where it would drop PCG — the same
+move, reached by accident instead of by decision.
+
+**GF4:** every FAIL is a defect in its own *blind* restatement (ASSUMED / TYPICAL_EXAMPLE claimants),
+~6 changes to get close — but repaired it still carries **no contracted constraint**, so it lands
+exactly where A04 is: valid, shaped by nothing.
+
+**CORRECTION TO §22:** there are **six** distinct resolved games, not three — the FAILing and
+near-empty ones are distinct too (A01≡A05 44; A02≡TA01≡TA02 28; A03≡A06≡D02 23 FAIL; A04 17; D03≡TD02
+12 FAIL; D01≡TD01 7). The conclusion is unchanged: three can become activities.
+
+**CODE ITEMS IF HE SAYS GO:** `metres` (`render-concrete-game.ts:81`) uses `toFixed(1)` and prints an
+undeclared number; `assemble-concrete-game.ts:168-182` reads P5 only from `ctx.derived` so a
+realization-supplied neutral count is invisible; five renderer sentences for the neutral paths plus
+de-duping the doubled transition sentence (GF2-07.a and NEUTRAL-12.a); the conditions /
+information-rules loops; and `gates.ts:1498` still resolving V5 referents with `String(name)`.
+
+**RECOMMENDED:** activities one and two now (they cost almost nothing and give him two real sessions to
+judge as a coach), then spend the decision on the **relevance route** for the third — complete the
+renderer for conditions and settle the two pass-gate questions, which makes A02 an activity whose
+constraint genuinely matches its goal's affordance and unblocks A01/TA01/TA02 as a side effect.
+
+**Nothing implemented. Tree clean. A04 untouched.**
