@@ -7852,3 +7852,124 @@ renderer for conditions and settle the two pass-gate questions, which makes A02 
 constraint genuinely matches its goal's affordance and unblocks A01/TA01/TA02 as a side effect.
 
 **Nothing implemented. Tree clean. A04 untouched.**
+
+### 2026-10-13 (§24) — HIS DECISIONS, TWO CORRECTIONS TO MY OWN REPORTS, AND THE FOUR-STEP SEQUENCE
+
+**Christian's standing decisions of 13 Oct** are in memory as `learning-design-development-standard`:
+three affordance-relevant activities is the bar; engineering demo ≠ learning-design demo; **candidate
+pools are preserved — never bend learning-design knowledge to make something generate**; a starting
+configuration, not a fixed one; range (knowledge) vs number (configuration); no arbitrary value; no
+wholesale relaxation; session from the coach; he reviews as a coach through the authenticated app; the
+PCG is not to be deferred; short bounded sequences, no more broad audits.
+
+**BUILD DEFECT FOUND AND FIXED (`e6e4537`) — it would have crashed the built backend at start-up.**
+The route imports the checked pathway; the pathway read knowledge from `../../../../docs/audits`
+relative to each module; in the esbuild bundle that is outside the repo and `corpus-restatement.ts`
+reads at module load. Reproduced with a bundle built as `build.js` builds. Now: `build.js` copies the
+five runtime files to `dist/knowledge/` and stops if one is missing; `derivation/knowledge-root.ts`
+chooses bundled vs source. **Second fault from the same test:** `run-bounded-selection.ts`'s
+`require.main === module` block ran inside the bundle (every module is main) — guard now also requires
+the entry script to be that file. Suite green, fixture current. **Unverified and Joe's to check:**
+Render's root directory — `docs/audits` is outside `back/`. **Only ever run a "verified over HTTP"
+claim against the BUILT bundle from now on.**
+
+**CORRECTION 1 — `selectFor` NEVER APPLIED HIS CONTEXT GATE (RC1.1, 12–13 Sept).** `app.routes.ts:879`
+does `gateCandidateGameFormsToContext(inputConstraints, routedRpcId)`; the bounded pathway does not.
+**Every per-goal game form reported since 1 October was the ungated one.** Gated (what the app selects):
+
+| goal | RPC | form | Gate A | derived | contracted constraints |
+|---|---|---|---|---|---|
+| A01 | RPC-001 | GF2* | NOT_EVALUABLE | 43 | PCG, WZ |
+| A02 | RPC-002 | **GF3** | NOT_EVALUABLE | 17 | PCG |
+| A03 | RPC-004 | **GF3** | FAIL | 23 | WZ |
+| A04 | RPC-004 | GF2* | **DEFERRED** | 17 | — |
+| A05 | RPC-003 | GF2* | NOT_EVALUABLE | 43 | PCG, WZ |
+| A06 | RPC-005 | GF9 | FAIL | 23 | WZ |
+| D01 | RPC-008 | **GF2*** | **DEFERRED** | 17 | — |
+| D02 | RPC-007 | **GF2*** | NOT_EVALUABLE | 43 | PCG, WZ |
+| D03 | RPC-008 | **GF2*** | **DEFERRED** | 17 | — |
+| TA01 | RPC-006 | **GF4*** | FAIL | 28 | WZ |
+| TA02 | RPC-003 | GF2* | NOT_EVALUABLE | 27 | PCG |
+| TD01 | RPC-007 | **GF4*** | FAIL | 12 | — |
+| TD02 | RPC-007 | GF4* | FAIL | 12 | — |
+
+(* contracted form; bold = differs from the ungated selection.) **Four game forms cover all 13** (GF2
+×7, GF3 ×2, GF4 ×3, GF9 ×1; GF8 and GF11 are never selected). **PCG goals are A01 A02 A05 D02 TA02**
+(not TA01). **A04 ≡ D01 ≡ D03 authorize today with the identical game; A01 ≡ A05 ≡ D02.** Seven
+distinct games. Fix ≈ 3 lines in `selectFor` + re-pinned baselines (`completed-pass.unit.ts` per-goal
+table at least). **Not yet applied.**
+
+**CORRECTION 2 — THE GAME PROBLEM COMES FROM WORDING, NOT FROM HIS TRANSLATION.**
+`session-planning-model.rc1.json` → `engine_translation` (his "Approved RC1", Cycle 8) vs
+`SIGNAL_GROUP_TO_GAME_PROBLEM[deriveInputConstraints(text).matchedSignals]`: agree A02 A03 D01 TA02
+TD01 TD02; **disagree D02 (his GP-016 / engine GP-015 first), D03 (GP-016 / GP-012), TA01 (GP-002 /
+GP-015)**; his table has none for A01, A04 (intentional gap) and A05, A06 (TBD) and the engine fills
+A01, A05, A06. "possession" in a definition fires `F_possession_passing`.
+**`GP-015` Maintain Possession is the ONLY Game Problem rating Support Availability Essential.**
+
+**REPRODUCED BY ME (not agent claims):**
+- **Load-refusal hole.** One PCG item without `basisEvidence` on TA02 → `LOAD_REFUSAL` +
+  `SELECTION_CONTRACT_MISMATCH` recorded, Gate A NOT_EVALUABLE → **DEFERRED, authorized=true**, 17
+  derived, selection still lists the gate as contracted. `authorization()` (`resolved-game.ts`) ignores
+  both. **Fix in step 1.**
+- **The full PCG repair under the gate, on unmodified code** (PCG-11 typed → PCG-02; two half regions
+  `noun=half & functions CONTAINS value-condition & longitudinal=end-near|end-far`, scope
+  OWN_INVOLVEMENT; S5 POSITIONED "own end (of team T)"; S5 RANGE "half (of an axis)"; S6 EQUALS "full
+  extent (of an axis)"; register term `half (of an axis)` = interval 0.5 + two phraseIndex entries;
+  PCG-06 and added PCG-06.b carrying the halves' **class-id strings**): **A01 A05 D02 → DEFERRED, 0
+  blocks, 51 derived; TA02 → DEFERRED, 35; all four realize, acceptance 0/0/0, post-realization
+  validated; A02 stays blocked (GF3); A04 unchanged.** The typed-ref form on V5 additionally needs
+  `gates.ts:1498` → `referentClass(ctx, name)`.
+- **Fidelity cannot check a range.** GF2 + Wide Zone passes "Around 12 m to 20 m", "up to 30 m" and a
+  dropped preference, and refuses the accurate "between 4.5 m and 7.5 m".
+- **GF4 + Wide Zone (TA01 gated)** reaches DEFERRED with a C42-style repair (I10 → OWNER_RULING; I11–I17
+  and I04 retired; GF2's target/objective items transplanted), then realization refuses on the halves'
+  positions and I10's COUNT form.
+
+**FROM THE WORKFLOW (35 agents; 28 checks: 5 confirmed, 23 overstated-in-scope, 0 refuted):**
+- **Threshold:** PCG-04 → `typedBound {min:4,max:6}` (the C37/C38 form) makes the range numeric. With
+  no new row the range rides as a bound and the coach sets the number; a new row `V6a
+  conditions[].threshold` (fillable) makes it a chosen starting value. Putting the threshold on V6
+  itself regressed two other contracts.
+- **A typed ref on PCG-11 wins only because `derive.ts:265` tests `typeof value === 'string'`** — make
+  the SD-101 contradiction test identity-aware (~26 lines) so it is a rule, not an accident.
+- **Rendering:** conditions + information-rules branches ≈ 200 lines + gloss tables; A02 12→18, A05
+  22→28; Q3 10→1 today (the V5 referent), 0 with typed refs. **Restricted to registered vocabulary the
+  prototype can say NOTHING today** — subject, type, referent and parameter are all open text — so an
+  **approved-translation table keyed on the exact authored term** is the safe route (precedent: the
+  Wide Zone criterion, 7 Oct). Fidelity passes a nonsense sentence if it cites the path.
+- **Neutral:** `assemble-concrete-game.ts:168-183` reads P5 only from `ctx.derived` (fix ≈ 9 lines);
+  five sentence families; say the possession-change sentence once. 13→16 instructions, 5→0 violations;
+  composes with Wide Zone (26/0). Starting count: preferred 1–2 ∩ whole roster is unique for 8–16
+  players. **In no candidate pool.** The roster fix also validates "2 teams of 0" (bound ≥1, no max).
+- **Flexibility:** the closure rule is NOT what loses ranges — the bound a choice was checked against is
+  not kept (`RecordedChoice`), bounds do not reach the fixture, fidelity is not range-aware. Proposed
+  `within` + `closure: ONLY_VALUE | CHOSEN_AMONG_ALTERNATIVES | STARTING_VALUE_IN_RANGE |
+  COACH_DECIDES`. `fillableFrom` has zero consumers: `PS1 = 'banana'` passes realization, acceptance and
+  the post gates. **Do not relax NOT_EVALUABLE or Q3 severities.**
+- **Session/coach surface:** ≈ 90 back-end lines + one ≈ 220-line page; builder goal-agnostic;
+  `sessionEnvelopeFrom`; refusals returned in a 2xx body (the front-end service strips non-2xx
+  bodies); goalkeepers > 0 render "2 teams of 5" of 12 with no mention.
+- **Third activity:** a repaired GF4 and a drafted GF9 **render word-for-word like GF2** (12, or 22 with
+  Wide Zone) — what distinguishes a game form is authored as `NONE`-row description or
+  TYPICAL_EXAMPLE. A goal + goalkeeper prototype (register `goal` noun, 8 renderer edit sites) reads
+  differently. **No constraint in the 23 targets `finish`.**
+
+**LOOSE END FROM C42 (mine):** `TEAM_AT_AXIS_START` / `TEAM_AT_AXIS_END` are used in
+`corpus-restatements.json` and are **absent from the register's canonical `teamDesignations` list**.
+Nothing enforces membership. Add them with his 9 Oct words in step 1.
+
+**THE SEQUENCE PROPOSED TO HIM:** (1) checked pathway = application pathway: context gate, session from
+the coach, review page, four integrity tightenings; (2) ranges / starting values / coach choices carried
+to the coach, range-aware fidelity, justified defaults; (3) neutral-player participation; (4) the Pass
+Combination Gate. Mechanism demonstrations run from a separate, labelled list that states its own
+knowledge set — pools untouched. **First learning-design example available after step 4: TA02 Secure
+Possession → GP-015 → GF2 → PCG.** Second and third need knowledge only he can author.
+
+**SEVEN DECISIONS PUT TO HIM:** his GP translation to govern? · review route for any goal + his session,
+and who states "no goalkeepers" · is "in their half" part of the PCG · is 4–6 preference or requirement,
+and is the number the coach's · is the information rule about the gate's own count, and may the coach
+be told how to show it · does the neutral condition belong with Secure Possession, and when does a
+neutral change sides · wording of every new sentence.
+
+**Nothing in the sequence is implemented yet. No knowledge altered. A04 serves as before.**
