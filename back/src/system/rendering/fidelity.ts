@@ -504,6 +504,14 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
      *     a requirement's sentence is a preference stated as a requirement, and is refused here.
      *
      * A sentence that cites no ranged line is untouched by this and answers to the test above, as before.
+     *
+     * **The value an activity STARTS at is a choice, and only a choice's sentence may state it — tightened
+     * in the review of 13 October.** Where realization closed a line to a starting value, the game holds
+     * that value at the line's path, so "a number the game holds at a path it cites" admitted it into ANY
+     * firm sentence citing the line. Measured on the neutral-players demonstration: *"The game needs
+     * between 1 and 2 neutral players"* passed — the preferred maximum stated as a requirement, admitted
+     * because 2 is also where this activity starts. The starting value is the activity's, not the game's,
+     * so a sentence of any other status may state it only where it is also a required limit.
      */
     for (const instruction of rendered.instructions) {
         const about = instruction.from.map(path => rangeAt.get(path)).filter((range): range is LineRange => !!range)
@@ -524,9 +532,15 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
             continue
         }
         if (!about.length) continue
-        const allowed = new Set<number>(instruction.from.flatMap(path => heldAt(fixture, path)))
+        const asChoice = instruction.status === 'REALIZATION_CHOICE'
+        const allowed = new Set<number>(
+            instruction.from.flatMap(path => {
+                const begun = rangeAt.get(path)?.starting
+                return heldAt(fixture, path).filter(n => asChoice || !stated(begun) || n !== begun)
+            }),
+        )
         for (const range of about) {
-            for (const limit of [range.required?.min, range.required?.max, range.starting]) if (stated(limit)) allowed.add(limit)
+            for (const limit of [range.required?.min, range.required?.max, asChoice ? range.starting : null]) if (stated(limit)) allowed.add(limit)
         }
         for (const n of numbers) {
             if (allowed.has(n)) continue
@@ -555,14 +569,32 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
      * A line no instruction cites at all is left to the path test below, which already reports it; saying
      * it twice would be two findings for one loss. A preference that cannot be offered here — because it
      * lies wholly outside the requirement on this session's area — is reported and not graded.
+     *
+     * **One number said once is one statement — closed in the review of 13 October.** Where the value an
+     * activity starts at EQUALS a required limit of its line, the two sentences carried each other: measured
+     * on the neutral-players demonstration with thirteen players, the count starts at 1 and the requirement
+     * is *"at least 1"*, so deleting *"For this activity, 1 of the 13 players is a neutral player …"* passed
+     * (the requirement's sentence states 1) and so did deleting *"The game needs at least 1 neutral player"*
+     * (the starting value's sentence states 1). Either way a coach lost something — how many to pick, or
+     * that fewer is not this game — and nothing was reported. With twelve players, where the two numbers
+     * differ, each deletion was caught.
+     *
+     * So each is held to the sentence of its own status. The starting value is a value realization chose, so
+     * it must be said by a REALIZATION_CHOICE sentence citing the line, which is the only wording that
+     * status has. A required limit may be said by any firm sentence citing the line — the channel's limits
+     * sit in its marking sentence — EXCEPT that a choice sentence's number is not taken as the limit it
+     * happens to equal: that number is the starting value, already accounted for.
      */
     for (const range of ranges) {
         const citing = rendered.instructions.filter(i => i.from.includes(range.path))
         if (!citing.length) continue
         const firm = citing.filter(i => i.status !== 'PREFERENCE')
         const says = (instructions: Instruction[], n: number) => instructions.some(i => numbersIn(i.text).includes(n))
+        const chosen = firm.filter(i => i.status === 'REALIZATION_CHOICE')
         for (const [end, limit] of [['minimum', range.required?.min], ['maximum', range.required?.max]] as const) {
-            if (!stated(limit) || says(firm, limit)) continue
+            if (!stated(limit)) continue
+            const asLimit = stated(range.starting) && limit === range.starting ? firm.filter(i => !chosen.includes(i)) : firm
+            if (says(asLimit, limit)) continue
             findings.push({
                 question: 3,
                 severity: 'VIOLATION',
@@ -581,11 +613,11 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
             }
         }
         if (range.notOffered) findings.push({ question: 3, severity: 'NOTE', what: range.notOffered })
-        if (stated(range.starting) && !says(firm, range.starting)) {
+        if (stated(range.starting) && !says(chosen, range.starting)) {
             findings.push({
                 question: 3,
                 severity: 'VIOLATION',
-                what: `${range.path} starts at ${range.starting} in this activity, inside an authored range, and no instruction that cites it states that value`,
+                what: `${range.path} starts at ${range.starting} in this activity, inside an authored range, and no instruction that cites it states that value as the choice it is`,
             })
         }
     }

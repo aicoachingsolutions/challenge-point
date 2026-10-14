@@ -866,7 +866,9 @@ for (const observation of rendered.coachingObservations) {
             [
                 'For this activity, 2 of the 12 players are neutral players, so the team with the ball has 2 more players than the team without it',
                 'REALIZATION_CHOICE',
-                [COUNT, 'envelope.players', JOINS, 'performers.teams', 'performers.teams[].outfieldCount', KIND],
+                // Re-pointed in the B3 review, 13 October: this cited `performers.teams[].outfieldCount` too, which
+                // it does not state, and so carried the team size for "2 teams of 5" — see the block below.
+                [COUNT, 'envelope.players', JOINS, 'performers.teams', KIND],
                 [2, 12],
             ],
             ['The game needs at least 1 neutral player', 'DERIVED', [COUNT], [1]],
@@ -930,12 +932,32 @@ for (const observation of rendered.coachingObservations) {
     assert.ok(lost(i => i.status === 'PREFERENCE').some(what => what.includes(COUNT) && what.includes('preferred range that may be offered here (1 to 2)')), 'and so is the preferred range')
     assert.ok(lost(i => i.status === 'REALIZATION_CHOICE' && i.from.includes(COUNT)).some(what => what.includes('starts at 2 in this activity')), 'and so is where this activity starts')
     /**
-     * KNOWN LIMIT, pinned so it is not rediscovered: with ONE neutral the starting sentence itself says
-     * "1", so the requirement's own sentence can be dropped and the check still finds its minimum stated.
-     * The range check holds a sentence to the set of numbers its line carries, not to which number plays
-     * which part (the same limit the channel block above pins for a width).
+     * **CLOSED in the B3 review, 13 October — it was pinned here as a KNOWN LIMIT.** With ONE neutral the
+     * starting value and the required minimum are the same number, and the two sentences carried each other:
+     * the requirement's sentence could be dropped (the starting sentence says "1") and so could the starting
+     * sentence (the requirement's says "1"), each with 0 violations. Either way a coach lost something — that
+     * fewer is not this game, or how many to pick. Each is now held to the sentence of its own status: the
+     * starting value to a REALIZATION_CHOICE sentence, and a limit equal to it to a firm sentence that is not
+     * the choice's.
      */
-    assert.deepEqual(all(checkFidelity(thirteen.game, wrap(thirteen.said.instructions.filter(i => !i.text.startsWith('The game needs'))))), [])
+    const thirteenLost = (which: (i: Instruction) => boolean) => violations(checkFidelity(thirteen.game, wrap(thirteen.said.instructions.filter(i => !which(i)))), 3).map(f => f.what)
+    assert.deepEqual(thirteenLost(i => i.text.startsWith('The game needs')), [`${COUNT} has a required minimum of 1 (required: at least 1), and no instruction that cites it states that minimum`])
+    assert.deepEqual(thirteenLost(i => i.status === 'REALIZATION_CHOICE' && i.from.includes(COUNT)), [
+        `${COUNT} starts at 1 in this activity, inside an authored range, and no instruction that cites it states that value as the choice it is`,
+    ])
+
+    /**
+     * **The team size is carried by the sentence that states it — added in the B3 review, 13 October.**
+     * The overload clause cited `performers.teams[].outfieldCount` without stating it, so deleting *"2 teams
+     * of 5"* from the neutral game passed with 0 violations, where the bare game (A04) is refused for the same
+     * loss. It cites the teams now, not their size.
+     */
+    const squads: [any, RenderedActivity, number][] = [[game, said, 5], [thirteen.game, thirteen.said, 6]]
+    for (const [g, s, size] of squads) {
+        assert.ok(s.instructions.some(i => i.text === `2 teams of ${size}`))
+        const teamless = violations(checkFidelity(g, wrap(s.instructions.filter(i => i.text !== `2 teams of ${size}`))), 3).map(f => f.what)
+        assert.ok(teamless.includes('performers.teams[].outfieldCount is established by the game and no instruction carries it'), JSON.stringify(teamless))
+    }
 
     // ── Each number altered is refused ────────────────────────────────────────────────────────────
     {
@@ -945,7 +967,13 @@ for (const observation of rendered.coachingObservations) {
         const wide = checkFidelity(game, reworded(i => i.status === 'PREFERENCE', i => ({ ...i, text: 'Around 2 to 4 neutral players works well, if it suits your group', quantities: [2, 4] })))
         assert.ok(violations(wide, 2).some(f => /offers 4 as a preference, and the preferred range of what it cites is 1 to 2/.test(f.what)), JSON.stringify(violations(wide, 2)))
         const firm = checkFidelity(game, reworded(i => i.text.startsWith('The game needs'), i => ({ ...i, text: 'The game needs between 1 and 2 neutral players', quantities: [1, 2] })))
-        assert.deepEqual(all(firm), [], 'KNOWN LIMIT again: 2 is the value the line holds, so a preferred maximum worded as a requirement passes here')
+        // CLOSED in the B3 review, 13 October — pinned here as a KNOWN LIMIT: 2 is the value the line holds,
+        // so a preferred maximum worded as a requirement passed. 2 is where this activity STARTS, a choice,
+        // and only the choice's sentence may state it unless it is also a required limit.
+        assert.ok(
+            violations(firm, 2).some(f => f.what.startsWith('"The game needs between 1 and 2 neutral players" states 2, which is neither a value the game holds at a property it cites nor a required limit of one')),
+            JSON.stringify(all(firm)),
+        )
         const hedged = checkFidelity(game, reworded(i => i.from.includes(ON), i => ({ ...i, text: `Ideally, ${i.text.charAt(0).toLowerCase()}${i.text.slice(1)}` })))
         assert.ok(violations(hedged, 4).some(f => f.what.includes('worded as optional')), 'who the neutral players play with is a requirement of the game, not a suggestion')
     }

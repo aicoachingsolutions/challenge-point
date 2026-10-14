@@ -677,6 +677,18 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
         assert.deepEqual([count.text, count.status], ['1 of the 13 players is a neutral player, so the team with the ball has 1 more player than the team without it', 'DERIVED'])
         assert.equal(fits.integrity.fidelityViolations, 0)
 
+        /**
+         * **A count authored as the STRING "2" — measured in the B3 review, 13 October, and pinned.** The
+         * roster rule reads it as two people, the way the roster gate reads its terms, so the teams come out
+         * at five. The renderer states only a number it holds as a number, so it withholds the count and the
+         * check refuses the activity as uncarried. Refused, never served with a guessed or rounded team: the
+         * honest outcome, and an inconsistency between the two readers left for the lead (the corpus authors
+         * every count as a number).
+         */
+        const quoted = refused(at(12, '2' as unknown as number), 'a neutral count authored as the string "2"')
+        assert.equal(quoted.stage, 'communication')
+        assert.ok(quoted.reasons.some(reason => reason.includes('performers.neutrals.count is established by the game and no instruction carries it')), JSON.stringify(quoted.reasons))
+
         assert.ok(!JSON.stringify(loadCorpusContracts()).includes('REVIEW-NEUTRAL-COUNT'), 'the alteration was made to a copy and to nothing else')
     }
 

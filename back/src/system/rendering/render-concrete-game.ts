@@ -535,8 +535,15 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
                 const core = (value: string, n: number) =>
                     `${value} of the ${players} players ${n === 1 ? 'is a neutral player' : 'are neutral players'}` +
                     (overload ? `, so the team with the ${carrier.kind} has ${value} more player${n === 1 ? '' : 's'} than the team without it` : '')
+                /**
+                 * The overload clause cites the teams (it rests on their being alike) and NOT each team's size,
+                 * which it does not state. Corrected in the review of 13 October: citing the size made this
+                 * sentence carry it, so with *"2 teams of 5"* deleted the neutral game still passed — a coach
+                 * not told how many play on each side — where the bare game is refused for the same loss.
+                 * A citation is a claim to have said the thing; this sentence says the difference, not the size.
+                 */
                 const also = {
-                    from: ['envelope.players', ...(overload ? [joinsPath, 'performers.teams', 'performers.teams[].outfieldCount', `objects[${carrier.elementId}].kind`] : [])],
+                    from: ['envelope.players', ...(overload ? [joinsPath, 'performers.teams', `objects[${carrier.elementId}].kind`] : [])],
                     quantities: [players],
                 }
                 const noun = (limits: Limits) => ((stated(limits.max) ? limits.max : limits.min) === 1 ? 'neutral player' : 'neutral players')
