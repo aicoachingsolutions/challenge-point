@@ -42,7 +42,7 @@ import { LoadedContract } from '../derivation/types'
 import { gpLibrary } from '../knowledge-core/gp-library'
 import { completeConcreteGame, rosterRefusal, RosterRefusal } from '../realization/assemble-concrete-game'
 import { runPostRealizationGates } from '../realization/post-realization-gate'
-import { realizeWithJustifiedDefaults } from '../realization/justified-defaults'
+import { realizeWithJustifiedDefaults, StrandedCount } from '../realization/justified-defaults'
 import { checkRealization, isRefused, Realized } from '../realization/realize'
 import { isNoSuppliedRealization, suppliedRealizationFor } from '../realization/supplied-realization'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
@@ -219,7 +219,20 @@ function accountOf(selection: KnowledgeSelection, goal: BoundedSelection | null)
 function rosterSummary(roster: RosterRefusal): { stage: ActivityStage; summary: string } | null {
     switch (roster.cause) {
         case 'DOES_NOT_DIVIDE':
-            return { stage: 'session', summary: `${roster.players} player${roster.players === 1 ? '' : 's'} cannot be split into the equal teams this game needs.` }
+            // With neutral players in the game the count that fails to divide is what is left once they are
+            // taken out, so the sentence says how many there are — or a coach with twelve players is told
+            // that twelve cannot be split in two.
+            return {
+                stage: 'session',
+                summary: roster.neutrals
+                    ? `${roster.players} player${roster.players === 1 ? '' : 's'} with ${roster.neutrals} neutral player${roster.neutrals === 1 ? '' : 's'} cannot be split into the equal teams this game needs.`
+                    : `${roster.players} player${roster.players === 1 ? '' : 's'} cannot be split into the equal teams this game needs.`,
+            }
+        case 'NO_OUTFIELD_PLAYERS':
+            return {
+                stage: 'session',
+                summary: `${roster.players} player${roster.players === 1 ? ' is' : 's are'} not enough for this game — every team needs at least one outfield player.`,
+            }
         case 'AVAILABILITY_SHORT':
             return {
                 stage: 'session',
@@ -239,6 +252,31 @@ function rosterSummary(roster: RosterRefusal): { stage: ActivityStage; summary: 
             return { stage: 'session', summary: 'This session has no player count yet — add the number of players.' }
         default:
             return null
+    }
+}
+
+/**
+ * **A count the session cannot field at ANY preferred value, as the sentence a coach can act on.**
+ *
+ * Where the knowledge prefers a range for a count and this session's roster admits none of it, no rule
+ * closes the line and realization refuses it as open and unchosen. That is the coach's numbers to change,
+ * so it is a `session` refusal and says which counts were tried. It is decided from the roster rule's typed
+ * cause for every candidate: where each fails because the players do not come out as whole teams, the
+ * sentence below; where each fails for another cause the session can cure, that cause's own sentence; and
+ * where a trial never reached the roster, nothing is concluded and the caller falls back to what it said
+ * before. The count is the neutral count, the one count the roster rule reads.
+ */
+function strandedCountSummary(stranded: StrandedCount): { stage: ActivityStage; summary: string } | null {
+    if (stranded.path !== 'performers.neutrals.count') return null
+    if (!stranded.refusals.length || stranded.refusals.length !== stranded.candidates.length) return null
+    const whole = stranded.refusals.filter((roster): roster is Extract<RosterRefusal, { cause: 'DOES_NOT_DIVIDE' | 'NO_OUTFIELD_PLAYERS' }> => roster.cause === 'DOES_NOT_DIVIDE' || roster.cause === 'NO_OUTFIELD_PLAYERS')
+    if (whole.length !== stranded.refusals.length) return rosterSummary(stranded.refusals[0])
+    const [{ players }] = whole
+    const counts = stranded.candidates.length > 1 ? `${stranded.candidates.slice(0, -1).join(', ')} or ${stranded.candidates[stranded.candidates.length - 1]}` : String(stranded.candidates[0])
+    const many = stranded.candidates[stranded.candidates.length - 1] !== 1
+    return {
+        stage: 'session',
+        summary: `${players} player${players === 1 ? '' : 's'} cannot be split into equal teams with ${counts} neutral player${many ? 's' : ''}.`,
     }
 }
 
@@ -294,8 +332,29 @@ export function buildActivityOverAlteredKnowledge(request: ActivityRequest, alte
     return build(request, alter).activity
 }
 
-function build(request: ActivityRequest, alter: ((contracts: LoadedContract[]) => void) | null): ActivityBuild & { fixture: Record<string, unknown> | null } {
-    const { kind, title, subtitle } = describeRequest(request)
+/**
+ * **For tests, and for nothing that serves a coach.** The identical pathway over a set of knowledge objects
+ * named directly — a game form and the objects composed with it — with the fixture it was rendered from.
+ *
+ * A mechanism has to be shown to COMPOSE with another before it can be called reusable, and his instruction
+ * of 13 October is that demonstrations stay few and clearly labelled: a composition is not to become a third
+ * demonstration on the page merely so that it can be tested. So the composition is constructed here, by the
+ * test that needs it, and run through this one chain rather than through a copy of it. The corpus is not
+ * altered and no goal is involved; what comes back is labelled a mechanism demonstration and titled by the
+ * ids it was made of, which no page offers.
+ */
+export function buildActivityFromKnowledge(selected: string[], session: ActivitySession): { activity: ServedActivity | RefusedActivity; fixture: Record<string, unknown> | null } {
+    const { activity, fixture } = build({ kind: 'mechanism-demonstration', demonstrationId: '', session }, null, selected)
+    return { activity, fixture }
+}
+
+function build(
+    request: ActivityRequest,
+    alter: ((contracts: LoadedContract[]) => void) | null,
+    /** Tests only (`buildActivityFromKnowledge`): the knowledge objects to compose, in place of a named demonstration's. */
+    composed: string[] | null = null,
+): ActivityBuild & { fixture: Record<string, unknown> | null } {
+    const { kind, title, subtitle } = composed ? { kind: 'mechanism-demonstration' as const, title: composed.join(' + '), subtitle: null } : describeRequest(request)
     // "This goal …" for a Learning Goal and "This demonstration …" for a demonstration: a demonstration is
     // never described to a coach as a goal, in a refusal any more than in a title.
     const subject = kind === 'learning-goal' ? 'goal' : 'demonstration'
@@ -316,7 +375,9 @@ function build(request: ActivityRequest, alter: ((contracts: LoadedContract[]) =
      * practice situation were checked to exist above, so a throw here is that invariant and nothing else.
      */
     let selection: KnowledgeSelection
-    if (request.kind === 'learning-goal') {
+    if (composed) {
+        selection = demonstrationSelection(composed)
+    } else if (request.kind === 'learning-goal') {
         try {
             goalSelection = selectFor(request.goalId, request.situationId ?? null)
         } catch (error) {
@@ -405,8 +466,19 @@ function build(request: ActivityRequest, alter: ((contracts: LoadedContract[]) =
      * rule's to make — so a game with a line of that kind and no entry is refused below, as before.
      */
     const ctx = { ...staged.gateContext, contracts: input.contracts }
-    const { realization, defaults } = realizeWithJustifiedDefaults(resolved, supplied, index, input.envelope, ctx)
+    const { realization, defaults, stranded } = realizeWithJustifiedDefaults(resolved, supplied, index, input.envelope, ctx)
     if (isRefused(realization)) {
+        // A count the session's roster admits no preferred value of is the session's to cure, and is said
+        // so before the line is reported as a decision nobody made.
+        for (const count of stranded) {
+            const said = strandedCountSummary(count)
+            if (!said) continue
+            return refuse(said.stage, said.summary, [
+                'realization refused',
+                ...(realization.because ?? []),
+                ...count.refusals.map((roster, i) => `roster with ${count.path} = ${count.candidates[i]} (${roster.cause}): ${roster.why}`),
+            ])
+        }
         // Told apart by the open lines themselves: one with neither a choice nor a default against it is a
         // decision nobody has made. Anything else is a decision that was made and that this game, in this
         // session, refuses.

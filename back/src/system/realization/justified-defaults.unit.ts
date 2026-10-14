@@ -302,10 +302,11 @@ test('on the corpus: a default handed in for a design alternative, the scoring k
 // ---------------------------------------------------------------------------------------------
 
 /** The chain for a named set of knowledge objects, as a mechanism demonstration composes one. */
-function pathway(ids: string[]) {
+function pathway(ids: string[], players?: number) {
     const entries = ids.map((id, i) => ({ id, role: i === 0 ? 'game form' : 'constraint' }))
     const selection = { selected: entries, ...contractCoverage(entries) }
     const input = derivationInputFor(selection)
+    if (players !== undefined) (input.envelope as Record<string, unknown>).players = players
     const result = runDerivation(input)
     if (isStampedHalt(result)) throw new Error('unexpected halt')
     const staged: any = runStages0to10(input)
@@ -357,26 +358,68 @@ test('possession game + Wide Zone: four lines closed by rule, four still decided
 })
 
 /**
- * **The neutral count is NOT defaulted yet, and that is deliberate — this block moves in Stage B3.**
+ * **The neutral count is the one line in the corpus rule 2 is for** — at least 1 required, 1 to 2 preferred.
  *
- * It is the one line in the corpus rule 2 is for: at least 1 required, 1 to 2 preferred. Rule 2 asks the
- * roster rule whether each candidate leaves whole equal teams, and today the roster rule cannot see a
- * neutral count that realization chose — it reads the line from the derived context, finds nothing settled,
- * and refuses every candidate alike. So no candidate is admitted and no default is produced, which is the
- * honest outcome: a count is not defaulted on the strength of a rule that could not be asked. When the
- * roster rule reads the chosen count (B3), exactly one candidate will be admitted for a given session and
- * this assertion changes to that value.
+ * **MOVED 13 October 2026 (Stage B3), as the note that stood here said it would.** Until then this block
+ * asserted that NO neutral count was defaulted, and said why: rule 2 asks the roster rule whether each
+ * candidate leaves whole equal teams, and the roster rule could not see a count realization had chosen — it
+ * read the line from the derived context, found nothing settled, and refused every candidate alike. A count
+ * was not defaulted on the strength of a rule that could not be asked. The roster rule now reads the chosen
+ * count (`assemble-concrete-game`), so it can be asked, and for a given session exactly one candidate is
+ * admitted: with equal teams required, an even squad admits 2 and not 1, an odd squad 1 and not 2.
+ *
+ * Nothing about the rule changed, and nothing about what it refuses to close: a session that admits neither
+ * candidate still gets no default.
  */
-test('possession game + neutral players: the count is put to the roster, and is not defaulted while the roster cannot answer', () => {
-    const { resolved, supplied, index, envelope, ctx } = pathway(['GF2', 'tl-v0-constraint-neutral-player-condition'])
-    const open = resolved.open.find(o => o.lineId === 'game::P5')!
-    assert.deepEqual(preferredCounts(open)?.candidates, [1, 2], 'the authored preference, inside the authored requirement')
+test('possession game + neutral players: the one preferred count the roster admits is where the activity starts', () => {
+    for (const [players, starts, other] of [[12, 2, 1], [13, 1, 2], [8, 2, 1], [15, 1, 2], [3, 1, 2]] as const) {
+        const { resolved, supplied, index, envelope, ctx } = pathway(['GF2', 'tl-v0-constraint-neutral-player-condition'], players)
+        const open = resolved.open.find(o => o.lineId === 'game::P5')!
+        assert.deepEqual(preferredCounts(open)?.candidates, [1, 2], 'the authored preference, inside the authored requirement')
 
-    const defaults = justifiedDefaultsOnPathway(resolved, supplied, index, envelope, ctx)
-    assert.ok(!defaults.some(d => d.lineId === 'game::P5'), 'no neutral count is defaulted')
-    const refused = realizeWithJustifiedDefaults(resolved, supplied, index, envelope, ctx).realization
-    assert.ok(isRefused(refused))
-    assert.deepEqual(refused.because, ['game::P5 is open and was not chosen: a concrete game leaves no freedom unclosed'])
+        const [count] = justifiedDefaultsOnPathway(resolved, supplied, index, envelope, ctx).filter(d => d.lineId === 'game::P5')
+        assert.deepEqual([count?.value, count?.rule], [starts, 'ONLY_PREFERRED_COUNT_THE_ROSTER_ADMITS'], `${players} players`)
+        assert.ok(count.because.includes(`${starts} is the only one for which this session's roster comes out whole (${other} does not)`), count.because)
+        assert.ok(count.because.includes('as a STARTING value') && count.because.includes('not where it must stay'), 'and it is recorded as where the activity starts')
+
+        const { realization, stranded } = realizeWithJustifiedDefaults(resolved, supplied, index, envelope, ctx)
+        if (isRefused(realization)) return assert.fail(`${players} players refused: ${realization.because.join('; ')}`)
+        assert.deepEqual(stranded, [])
+        assert.deepEqual(checkRealization(resolved, realization), { nothingClosedWithoutAuthority: [], nothingLost: [], nothingInvented: [] })
+        const recorded = realization.record.choices.find(c => c.lineId === 'game::P5')!
+        assert.deepEqual([recorded.value, recorded.closure, recorded.defaultedBy, recorded.boundCheck], [starts, 'STARTING_VALUE_IN_RANGE', 'ONLY_PREFERRED_COUNT_THE_ROSTER_ADMITS', 'WITHIN_COUNT'])
+        assert.deepEqual(recorded.within.bounds.map(b => [b.min, b.max, !!b.preferred]), [[1, null, false], [1, 2, true]], 'the range it was closed within stays beside it')
+    }
+})
+
+/**
+ * **A session no preferred count fits gets NO default — and the caller is told it is the session.**
+ *
+ * With two players, one neutral leaves one for two teams and two neutrals leave nobody; with one player both
+ * leave nobody. Neither candidate is admitted, so rule 2 closes nothing and the line is refused as open and
+ * unchosen, exactly as before. What is new is `stranded`: the roster rule's own cause for each candidate, so
+ * a caller can say the numbers do not fit rather than that a set-up decision is missing. An explicit choice
+ * still wins and is never second-guessed here.
+ */
+test('possession game + neutral players: a session that fits no preferred count is left open, with the roster\'s cause for each candidate', () => {
+    for (const [players, causes] of [[2, ['DOES_NOT_DIVIDE', 'NO_OUTFIELD_PLAYERS']], [1, ['NO_OUTFIELD_PLAYERS', 'NO_OUTFIELD_PLAYERS']]] as const) {
+        const { resolved, supplied, index, envelope, ctx } = pathway(['GF2', 'tl-v0-constraint-neutral-player-condition'], players)
+        assert.ok(!justifiedDefaultsOnPathway(resolved, supplied, index, envelope, ctx).some(d => d.lineId === 'game::P5'), `${players} players: no neutral count is defaulted`)
+        const { realization, stranded } = realizeWithJustifiedDefaults(resolved, supplied, index, envelope, ctx)
+        assert.ok(isRefused(realization))
+        assert.deepEqual(realization.because, ['game::P5 is open and was not chosen: a concrete game leaves no freedom unclosed'])
+        assert.deepEqual(stranded.map(s => [s.lineId, s.path, s.candidates, s.admitted]), [['game::P5', 'performers.neutrals.count', [1, 2], []]])
+        assert.deepEqual(stranded[0].refusals.map(r => r.cause), causes, `${players} players`)
+    }
+
+    // A count somebody chose is not a count rule 2 looked at, so nothing is reported as stranded for it —
+    // even where the roster then refuses it. That refusal is assembly's, with its own cause.
+    const { resolved, supplied, index, envelope, ctx } = pathway(['GF2', 'tl-v0-constraint-neutral-player-condition'], 12)
+    const chosen = { ...supplied, choices: [...supplied.choices, { lineId: 'game::P5', value: 1, because: 'a test' }] }
+    const { realization, stranded, defaults } = realizeWithJustifiedDefaults(resolved, chosen, index, envelope, ctx)
+    assert.ok(!isRefused(realization), 'one neutral is inside the authored bound, so realization takes it')
+    assert.deepEqual(stranded, [])
+    assert.ok(!defaults.some(d => d.lineId === 'game::P5'), 'and an explicit choice is never replaced by a default')
 })
 
 test('the choices files hold no entry a rule would close', () => {

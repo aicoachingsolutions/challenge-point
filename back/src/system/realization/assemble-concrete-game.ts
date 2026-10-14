@@ -117,6 +117,8 @@ export type RosterRefusal =
     | { cause: 'AVAILABILITY_SHORT'; role: string; perTeam: number | null; teams: number; needed: number; available: number; why: string }
     /** What is left for the outfield does not split into whole equal teams. */
     | { cause: 'DOES_NOT_DIVIDE'; players: number; teams: number; involved: number; neutrals: number; why: string }
+    /** Nobody is left for the outfield: every team would have fewer than one outfield player. */
+    | { cause: 'NO_OUTFIELD_PLAYERS'; players: number; teams: number; involved: number; neutrals: number; why: string }
 
 /** What the roster rule derived: a size for every instantiated team, and each team's specialized-role involvement. */
 interface Roster {
@@ -124,10 +126,25 @@ interface Roster {
     perTeam: number
     /** One entry per specialized-role row, `perTeam[i]` belonging to `teams[i]`. */
     involvement: { rowId: string; role: string; available: number; perTeam: { value: number; basis: string }[] }[]
+    /** The recorded realization choices the neutral count was read from — empty where derivation settled it. */
+    neutralChoices: Realized['record']['choices']
+    players: number
     chain: string
 }
 
+/** "Suppose this line held this count": the roster rule's own answer for a count other than the one in the game. */
+interface Supposing {
+    lineId: string
+    value: number
+}
+
 const isRosterRefusal = (outcome: Roster | RosterRefusal): outcome is RosterRefusal => 'cause' in outcome
+
+/** A whole, non-negative count, read the way the roster gate reads its terms (§1.9) — so `"1"` is 1. */
+const wholeCount = (value: unknown): number | null => {
+    const exact = toRational(value)
+    return exact && exact.d === 1n && exact.n >= 0n ? Number(exact.n) : null
+}
 
 /** His distinction of 29 September, in one place for both reads: withdrawn, excluded and not-constrained are answers. */
 const establishedAbsence = (line: { lineState: string }, entry: ClassifiedLine | undefined): boolean =>
@@ -163,8 +180,12 @@ const establishedAbsence = (line: { lineState: string }, entry: ClassifiedLine |
  *
  * It refuses on anything missing, and a division that does not come out whole derives nothing rather than
  * rounding — a rounded roster is an invented one. Each refusal names its cause.
+ *
+ * `supposing` asks the same rule about a count the game does not hold — *would the roster come out whole
+ * with three neutrals?* — so the valid alternatives are the rule's own answer and never a second statement
+ * of its arithmetic (`countsTheRosterAdmits`).
  */
-function rosterFor(ctx: GateContext, realized: Realized): Roster | RosterRefusal {
+function rosterFor(ctx: GateContext, realized: Realized, supposing?: Supposing): Roster | RosterRefusal {
     const envelope = ctx.envelope as { players?: unknown; roles?: Record<string, number> } | undefined
     const players = Number(envelope?.players)
     const roles = envelope?.roles
@@ -239,18 +260,35 @@ function rosterFor(ctx: GateContext, realized: Realized): Roster | RosterRefusal
      * answer, not an obstruction"*: a resolved value is used; an established absence contributes nothing;
      * required-but-unestablished **refuses**, because nothing may be assumed about a count the knowledge
      * has not settled.
+     *
+     * **A count realization CLOSED is a resolved value too — completed 13 October.** The knowledge may
+     * leave the count open inside an authored range (*"one or more"*), and realization then closes it. This
+     * read looked only in the derived context, where such a line is still open, so it called the count
+     * unsettled and returned: measured on the possession game with a neutral condition, realization recorded
+     * two neutrals, no team got a size, and the roster gate could not be evaluated — no neutral
+     * configuration could validate, whatever else was built. The recorded choice has already passed the
+     * authored bound, so it is read here where derivation holds no value, and the chain says that is where
+     * the number came from.
+     *
+     * **And it is read as a whole count**, the way the specialized-role read below reads one. This wanted
+     * a JavaScript number where the roster gate accepts `"1"`, and took 1.5 as a count of people.
      */
     const neutralLines = ctx.lines.filter(line => String(line.row) === 'P5')
     if (!neutralLines.length) return { cause: 'NEUTRALS_NOT_SETTLED', why: 'no P5 line exists, so the neutral count cannot be read' }
     let neutrals = 0
+    const neutralChoices: Roster['neutralChoices'] = []
     for (const line of neutralLines) {
-        const value = resolvedValue(ctx.derived.get(line.lineId))?.value
-        if (typeof value === 'number' && Number.isFinite(value)) {
-            neutrals += value
+        const derivedValue = resolvedValue(ctx.derived.get(line.lineId))?.value
+        const chosen = derivedValue === undefined ? realized.record.choices.find(choice => choice.lineId === line.lineId) : undefined
+        const value = supposing && supposing.lineId === line.lineId ? supposing.value : (derivedValue ?? chosen?.value)
+        if (value !== undefined) {
+            const count = wholeCount(value)
+            // A neutral count that is not a whole number of people is not something to do arithmetic over.
+            if (count === null) return { cause: 'NEUTRALS_NOT_SETTLED', why: `${line.lineId} holds ${JSON.stringify(value)}, which is not a whole, non-negative count` }
+            neutrals += count
+            if (chosen) neutralChoices.push(chosen)
             continue
         }
-        // A non-numeric neutral count is not something to do arithmetic over.
-        if (value !== undefined) return { cause: 'NEUTRALS_NOT_SETTLED', why: `${line.lineId} holds ${JSON.stringify(value)}, which is not a number` }
         if (!establishedAbsence(line, ctx.classified.get(line.lineId))) {
             return { cause: 'NEUTRALS_NOT_SETTLED', why: `${line.lineId} is required and unestablished, and nothing may be assumed about a count the knowledge has not settled` }
         }
@@ -278,12 +316,6 @@ function rosterFor(ctx: GateContext, realized: Realized): Roster | RosterRefusal
      */
     let scopes: ReturnType<typeof resolveScopes> | null = null
     const scoped = () => (scopes = scopes ?? resolveScopes(ctx.contracts, ctx.classes))
-
-    /** A whole, non-negative count, read the way the roster gate reads its terms (§1.9) — so `"1"` is 1. */
-    const wholeCount = (value: unknown): number | null => {
-        const exact = toRational(value)
-        return exact && exact.d === 1n && exact.n >= 0n ? Number(exact.n) : null
-    }
 
     /**
      * **What the knowledge AUTHORS about this team's count — added in review, 13 October.**
@@ -428,7 +460,31 @@ function rosterFor(ctx: GateContext, realized: Realized): Roster | RosterRefusal
 
     const involved = involvement.reduce((sum, entry) => sum + entry.perTeam.reduce((inner, team) => inner + team.value, 0), 0)
     const outfieldTotal = players - involved - neutrals
-    if (outfieldTotal < 0 || outfieldTotal % teams.length !== 0) {
+    const left = `${players} session performers − ${involved} in specialized roles − ${neutrals} neutral leaves ${outfieldTotal}`
+
+    /**
+     * **A team with fewer than one outfield player is not a team — closed 13 October, for every game.**
+     *
+     * Zero divides evenly by anything, so a roster of nobody passed: measured with this guard taken out,
+     * twelve neutrals of twelve players derived *"2 teams of 0"*, the roster gate added it up and agreed,
+     * and the activity was served (the authored bound on the count is *"one or more"* with no maximum, so
+     * realization has no ground to refuse it). By the same arithmetic so does a game whose specialized roles
+     * take the whole session, and a session of no players. The sum is right and there is no game.
+     * It is closed here, at the rule, rather than for neutrals alone: whatever used the players up, a team
+     * nobody plays in derives nothing. Its own cause, so a coach is told there are too few players and not
+     * that the players do not divide.
+     */
+    if (outfieldTotal <= 0) {
+        return {
+            cause: 'NO_OUTFIELD_PLAYERS',
+            players,
+            teams: teams.length,
+            involved,
+            neutrals,
+            why: `${left}, so each of the ${teams.length} teams would have fewer than one outfield player`,
+        }
+    }
+    if (outfieldTotal % teams.length !== 0) {
         // Does not come out whole; derive nothing.
         return {
             cause: 'DOES_NOT_DIVIDE',
@@ -436,7 +492,7 @@ function rosterFor(ctx: GateContext, realized: Realized): Roster | RosterRefusal
             teams: teams.length,
             involved,
             neutrals,
-            why: `${players} session performers − ${involved} in specialized roles − ${neutrals} neutral leaves ${outfieldTotal}, which does not split into ${teams.length} whole equal teams`,
+            why: `${left}, which does not split into ${teams.length} whole equal teams`,
         }
     }
 
@@ -444,11 +500,36 @@ function rosterFor(ctx: GateContext, realized: Realized): Roster | RosterRefusal
         teams,
         perTeam: outfieldTotal / teams.length,
         involvement,
+        neutralChoices,
+        players,
         chain:
             `${players} session performers` +
             `${involved ? ` − ${involved} in specialized roles` : ''}` +
-            `${neutrals ? ` − ${neutrals} neutral` : ''} over ${teams.length} teams, with equality authored on P2`,
+            `${neutrals ? ` − ${neutrals} neutral${neutralChoices.length ? ' (the count realization closed, inside its authored range)' : ''}` : ''}` +
+            ` over ${teams.length} teams, with equality authored on P2`,
     }
+}
+
+/**
+ * **Which other counts would this session's roster admit?** — the valid alternatives to a count realization
+ * closed, asked of the roster rule itself.
+ *
+ * Christian, 13 October 2026: *"I also want neutral-player numbers and participation conditions to remain
+ * adjustable during a session, within valid configurations. The coach may need to add or remove a neutral
+ * player to maintain an appropriate challenge."* A valid configuration is one the roster still comes out
+ * whole for, and that depends on the session: with equal teams required, twelve players admit 2, 4, 6 …
+ * neutrals and thirteen admit 1, 3, 5 …, so the next valid count is two away and never one. Nothing kept
+ * that with the choice, so nothing downstream could know which counts were open to a coach.
+ *
+ * Every whole number from `from` to `to` is put to `rosterFor` with the count supposed, so the answer is the
+ * rule's and cannot drift from it. No adjustment is made or proposed here.
+ */
+export function countsTheRosterAdmits(ctx: GateContext, realized: Realized, lineId: string, from: number, to: number): number[] {
+    const admitted: number[] = []
+    for (let value = Math.max(0, Math.ceil(from)); value <= to; value++) {
+        if (!isRosterRefusal(rosterFor(ctx, realized, { lineId, value }))) admitted.push(value)
+    }
+    return admitted
 }
 
 /**
@@ -471,6 +552,29 @@ export function rosterRefusal(ctx: GateContext, realized: Realized): RosterRefus
 const deriveRoster: EntailmentRule = (ctx, realized, into) => {
     const roster = rosterFor(ctx, realized)
     if (isRosterRefusal(roster)) return
+
+    /**
+     * **The valid alternatives are kept WITH the choice the roster read** — `within.rosterAdmits`.
+     *
+     * A count realization closed is where the activity STARTS, and the record already keeps the authored
+     * range beside it. What the range cannot say is which of its members this session can actually field:
+     * with equal teams required, that depends on the players. So the rule that read the count writes, beside
+     * it, every whole number inside the REQUIRED bounds for which it would still have derived a roster —
+     * 2, 4, 6, 8 and 10 for twelve players; 1, 3, 5, 7, 9 and 11 for thirteen. Not the preferred range
+     * only: his example of a coach adding a neutral may leave it, and the requirement is what bounds a valid
+     * configuration. The top of the search is the session's own player count, which no count of people in
+     * it can exceed.
+     *
+     * It is a record of what is valid, written at the boundary where the roster is known. Nothing reads it
+     * to change the game, and no adjustment is built.
+     */
+    for (const choice of roster.neutralChoices) {
+        const required = choice.within.bounds.filter(bound => bound && bound.kind === 'COUNT' && !bound.preferred && !bound.forbidden && !bound.fractionOfAxis)
+        const stated = (which: 'min' | 'max') => required.map(bound => bound[which]).filter((limit): limit is number => typeof limit === 'number' && Number.isFinite(limit))
+        const from = Math.max(0, ...stated('min'))
+        const to = Math.min(roster.players, ...stated('max'))
+        choice.within.rosterAdmits = countsTheRosterAdmits(ctx, realized, choice.lineId, from, to)
+    }
 
     roster.teams.forEach((instantiation, teamIndex) => {
         const collection = collectionPath(instantiation.path)

@@ -317,23 +317,32 @@ function heldAt(fixture: any, path: string): number[] {
  *
  * He also asked that exclusions stay explicit and auditable: *"I do not want silent filtering."* Every
  * entry is reported in the output with its reason and its discharge, whether or not it passes.
+ *
+ * **The consequences are named from the excluded property's OWN element — corrected 13 October.** The
+ * episode-boundary entry named one path outright: the play state of the possession game form's own
+ * transition. So every transition's boundary, whichever contract asserted it, was discharged against that
+ * one element — a second contract's transition was excused because a different transition's play state had
+ * reached the coach, and on a game form without that element no boundary could be discharged at all. It
+ * passed only because that game form was always present. The consequence of a transition's episode boundary
+ * is that same transition's play state, so the path is built from the path being excluded.
  */
-const NO_COACH_FACING_EXPRESSION: { suffix: string; because: string; consequences: string[] }[] = [
+const NO_COACH_FACING_EXPRESSION: { suffix: string; because: string; consequences: (path: string) => string[] }[] = [
     {
         suffix: '.startsEpisode',
         because:
             'an episode boundary is event-accounting metadata: it tells the system when to begin attributing ' +
             'events, and a coach does nothing differently because of it',
-        // Its one operational consequence — that a turnover does not stop play — is carried by the
-        // playState instruction, so the second condition of his rule is discharged by naming it.
-        consequences: ['transitions[c:restated:GF2:GF2-07.a].playState'],
+        // Its one operational consequence — that this occurrence does not stop play — is carried by the
+        // playState instruction for the SAME element, so the second condition of his rule is discharged by
+        // naming it.
+        consequences: path => [`${path.slice(0, path.length - '.startsEpisode'.length)}.playState`],
     },
     {
         suffix: 'space.axis',
         because:
             'an internal orientation convention naming which envelope dimension is the axis; it has no ' +
             'operational consequence of its own because the rendered geometry is already in metres along and across',
-        consequences: [],
+        consequences: () => [],
     },
 ]
 
@@ -346,7 +355,7 @@ function loadBearingPaths(fixture: any): {
     const excluded: { path: string; because: string; consequences: string[] }[] = []
     for (const entry of [...fixture.status.derived, ...fixture.status.choices]) {
         const rule = NO_COACH_FACING_EXPRESSION.find(r => entry.path.endsWith(r.suffix) || entry.path === r.suffix)
-        if (rule) excluded.push({ path: entry.path, because: rule.because, consequences: rule.consequences })
+        if (rule) excluded.push({ path: entry.path, because: rule.because, consequences: rule.consequences(entry.path) })
         else coachFacing.push(entry.path)
     }
     /**

@@ -129,8 +129,15 @@ export interface RecordedChoice extends Choice {
      * `bounds` is every bound on the line as derivation carried it — required, preferred and forbidden each
      * marked as such. `permitted` is the authored alternatives; for a row with a declared domain it is the
      * members of that domain as this game holds them.
+     *
+     * `rosterAdmits` is present only for a count the roster rule reads, and is written at the assembly
+     * boundary by that rule (`assemble-concrete-game`), never here: every whole number inside the REQUIRED
+     * bounds for which THIS session's roster still comes out whole. Christian, 13 October: *"I also want
+     * neutral-player numbers and participation conditions to remain adjustable during a session, within
+     * valid configurations."* The bounds say what the knowledge allows; this says which of it the session
+     * can field, so a later adjustment has the valid alternatives beside the value it would change.
      */
-    within: { permitted: unknown[] | null; bounds: Bounds[] }
+    within: { permitted: unknown[] | null; bounds: Bounds[]; rosterAdmits?: number[] }
     closure: Closure
     /** Present where nobody chose this value: the rule under which it was closed anyway. */
     defaultedBy?: DefaultRule

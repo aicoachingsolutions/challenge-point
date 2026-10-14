@@ -45,7 +45,7 @@
 import { GateContext } from '../derivation/gates'
 import { RegisterIndex } from '../derivation/register'
 import { ResolvedGame } from '../derivation/resolved-game'
-import { rosterRefusal } from './assemble-concrete-game'
+import { rosterRefusal, RosterRefusal } from './assemble-concrete-game'
 import { Choice, Instantiation, isRefused, JustifiedDefault, onlyPermittedMember, preferredCounts, RealizationResult, realize } from './realize'
 
 /**
@@ -69,6 +69,25 @@ export type RosterAdmits = (candidate: JustifiedDefault, alongside: JustifiedDef
  * cannot say whether the roster comes out whole is given no count on trust.
  */
 export function justifiedDefaults(resolved: ResolvedGame, choices: Choice[], rosterAdmits?: RosterAdmits): JustifiedDefault[] {
+    return decide(resolved, choices, rosterAdmits).defaults
+}
+
+/**
+ * A count rule 2 looked at and did NOT close: the candidates it had, and which of them the roster admitted.
+ *
+ * Two admitted is a decision and stays one. NONE admitted is a different thing and was indistinguishable
+ * from it: the session cannot field any count the knowledge prefers, which is the coach's numbers to change
+ * and not a set-up decision anybody failed to make. Kept so a caller can tell the two apart from structure.
+ */
+export interface UndefaultedCount {
+    lineId: string
+    path: string
+    candidates: number[]
+    admitted: number[]
+}
+
+function decide(resolved: ResolvedGame, choices: Choice[], rosterAdmits?: RosterAdmits): { defaults: JustifiedDefault[]; undefaulted: UndefaultedCount[] } {
+    const undefaulted: UndefaultedCount[] = []
     const chosen = new Set(choices.map(choice => choice.lineId))
     const unchosen = resolved.open.filter(open => !chosen.has(open.lineId))
 
@@ -97,7 +116,7 @@ export function justifiedDefaults(resolved: ResolvedGame, choices: Choice[], ros
             rule: 'ONLY_MEMBER_OF_AUTHORED_BOUND',
         })
     }
-    if (!rosterAdmits) return only
+    if (!rosterAdmits) return { defaults: only, undefaulted }
 
     const counted: JustifiedDefault[] = []
     for (const open of unchosen) {
@@ -107,7 +126,10 @@ export function justifiedDefaults(resolved: ResolvedGame, choices: Choice[], ros
         const offer = (value: number): JustifiedDefault => ({ lineId: open.lineId, value, because: '', rule: 'ONLY_PREFERRED_COUNT_THE_ROSTER_ADMITS' })
         const admitted = counts.candidates.filter(value => rosterAdmits(offer(value), only))
         // Two that fit is a decision; none that fit is a session the preference does not reach. Neither is defaulted.
-        if (admitted.length !== 1) continue
+        if (admitted.length !== 1) {
+            undefaulted.push({ lineId: open.lineId, path: open.path, candidates: counts.candidates, admitted })
+            continue
+        }
         const [value] = admitted
         const others = counts.candidates.filter(candidate => candidate !== value)
         counted.push({
@@ -120,7 +142,7 @@ export function justifiedDefaults(resolved: ResolvedGame, choices: Choice[], ros
                 `The range stays beside it; this is where the activity starts, not where it must stay.`,
         })
     }
-    return [...only, ...counted]
+    return { defaults: [...only, ...counted], undefaulted }
 }
 
 /** What somebody supplied for a game: the choices and the members to instantiate. */
@@ -144,10 +166,49 @@ export function justifiedDefaultsOnPathway(
     envelope: { lengthM?: number; widthM?: number } | undefined,
     ctx: GateContext,
 ): JustifiedDefault[] {
-    return justifiedDefaults(resolved, supplied.choices, (candidate, alongside) => {
-        const trial = realize(resolved, supplied.choices, supplied.instantiations, index, envelope, [...alongside, candidate])
-        return !isRefused(trial) && rosterRefusal(ctx, trial) === null
+    return onPathway(resolved, supplied, index, envelope, ctx).defaults
+}
+
+/**
+ * A count that has an authored preferred range, NONE of whose members this session's roster admits — with
+ * the roster rule's own cause for each candidate, in candidate order.
+ *
+ * Added 13 October with the neutral count, which is the first line rule 2 closes on the pathway. With two
+ * players, neither one neutral nor two leaves two equal teams, so the rule closes nothing, the line stays
+ * open, and the game is refused as *"open and was not chosen"* — true of the line, and to a coach a
+ * statement that somebody had a decision to make, when what is wrong is the number of players they entered.
+ * The causes are kept so the caller can say that instead, from the roster rule's typed facts.
+ * `refusals` is empty where a trial did not get as far as the roster, and then nothing is concluded from it.
+ */
+export interface StrandedCount extends UndefaultedCount {
+    refusals: RosterRefusal[]
+}
+
+function onPathway(
+    resolved: ResolvedGame,
+    supplied: Supplied,
+    index: RegisterIndex | undefined,
+    envelope: { lengthM?: number; widthM?: number } | undefined,
+    ctx: GateContext,
+): { defaults: JustifiedDefault[]; stranded: StrandedCount[] } {
+    const trial = (candidate: JustifiedDefault, alongside: JustifiedDefault[]) =>
+        realize(resolved, supplied.choices, supplied.instantiations, index, envelope, [...alongside, candidate])
+    const { defaults, undefaulted } = decide(resolved, supplied.choices, (candidate, alongside) => {
+        const realized = trial(candidate, alongside)
+        return !isRefused(realized) && rosterRefusal(ctx, realized) === null
     })
+    const only = defaults.filter(entry => entry.rule === 'ONLY_MEMBER_OF_AUTHORED_BOUND')
+    const stranded = undefaulted
+        .filter(count => !count.admitted.length)
+        .map(count => ({
+            ...count,
+            refusals: count.candidates.flatMap(value => {
+                const realized = trial({ lineId: count.lineId, value, because: '', rule: 'ONLY_PREFERRED_COUNT_THE_ROSTER_ADMITS' }, only)
+                const refusal = isRefused(realized) ? null : rosterRefusal(ctx, realized)
+                return refusal ? [refusal] : []
+            }),
+        }))
+    return { defaults, stranded }
 }
 
 /** Realize a game from what was supplied plus the justified defaults — the one call every pathway caller makes. */
@@ -157,7 +218,7 @@ export function realizeWithJustifiedDefaults(
     index: RegisterIndex | undefined,
     envelope: { lengthM?: number; widthM?: number } | undefined,
     ctx: GateContext,
-): { realization: RealizationResult; defaults: JustifiedDefault[] } {
-    const defaults = justifiedDefaultsOnPathway(resolved, supplied, index, envelope, ctx)
-    return { realization: realize(resolved, supplied.choices, supplied.instantiations, index, envelope, defaults), defaults }
+): { realization: RealizationResult; defaults: JustifiedDefault[]; stranded: StrandedCount[] } {
+    const { defaults, stranded } = onPathway(resolved, supplied, index, envelope, ctx)
+    return { realization: realize(resolved, supplied.choices, supplied.instantiations, index, envelope, defaults), defaults, stranded }
 }

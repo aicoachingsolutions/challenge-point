@@ -156,6 +156,8 @@ export interface RangeWords {
     requiredStatus?: SourceStatus
     /** Whatever else the requirement's sentence states, when it is also (say) the marking sentence. */
     requiredAlso?: { from: string[]; quantities: number[] }
+    /** Whatever else the starting value's sentence states — the total it is a part of, say. */
+    startingAlso?: { from: string[]; quantities: number[] }
 }
 
 export interface RangeSentences {
@@ -221,8 +223,68 @@ export function sayRange(section: Instruction['section'], line: BoundedLine, wor
               ])
             : null,
         preferred: around ? instruction(section, 'PREFERENCE', words.preferred!(around.text, line.preferred!), [line.path], around.quantities) : null,
-        starting: stated(line.starting) && words.starting ? instruction(section, 'REALIZATION_CHOICE', words.starting(words.number(line.starting), line.starting), [line.path], [line.starting]) : null,
+        starting:
+            stated(line.starting) && words.starting
+                ? instruction(
+                      section,
+                      'REALIZATION_CHOICE',
+                      words.starting(words.number(line.starting), line.starting),
+                      [line.path, ...(words.startingAlso?.from ?? [])].filter((p, i, all) => all.indexOf(p) === i),
+                      [line.starting, ...(words.startingAlso?.quantities ?? [])],
+                  )
+                : null,
     }
+}
+
+/**
+ * The range a COUNT line carries, read from the authored bounds that crossed the boundary with it: the
+ * bounds a choice was made `within`, and the bounds that sit beside a derived value (`status.bounds`).
+ *
+ * A count is in its own units, so nothing is scaled and nothing is worked out: every number here is one an
+ * authored bound states. Where several bounds state the same end, the binding one is taken — the greatest
+ * minimum, the least maximum — and the preference is offered only as far as it lies inside the requirement,
+ * his rule of 1 October that it *"must never override or widen the requirement"*. A bound that is a fraction
+ * of an axis is an extent and is not read here; an exclusion's bound says what a line may not be and is no
+ * part of any range.
+ */
+function countRange(fixture: Fixture, path: string): BoundedLine | null {
+    const choice = (fixture.status.choices ?? []).find((c: any) => c.path === path)
+    const beside = (fixture.status.bounds ?? []).filter((entry: any) => entry.path === path).flatMap((entry: any) => entry.bounds ?? [])
+    const counts = [...(choice?.within?.bounds ?? []), ...beside].filter((b: any) => b && b.kind === 'COUNT' && !b.forbidden && !b.fractionOfAxis)
+    const binding = (bounds: any[]): Limits | null => {
+        const mins = bounds.map(b => b.min).filter(stated)
+        const maxes = bounds.map(b => b.max).filter(stated)
+        return mins.length || maxes.length ? { min: mins.length ? Math.max(...mins) : null, max: maxes.length ? Math.min(...maxes) : null } : null
+    }
+    const required = binding(counts.filter((b: any) => !b.preferred))
+    const preference = binding(counts.filter((b: any) => b.preferred))
+    const offered = preference ? binding([...(required ? [required] : []), preference]) : null
+    const preferred = offered && !(stated(offered.min) && stated(offered.max) && offered.min > offered.max) ? offered : null
+    const starting = choice && choice.closure === 'STARTING_VALUE_IN_RANGE' && stated(choice.value) ? choice.value : null
+    return required || preferred || starting !== null ? { path, required, preferred, starting } : null
+}
+
+/**
+ * A possession-relative team designation, as a coach would say it — given the noun of what is possessed.
+ *
+ * Only the two designations the possession relation alone decides are worded. Every other designation
+ * (the team that scored, the team that touched last, a named team) needs a fact this sentence does not
+ * have, so a value outside this table is withheld and reported, never paraphrased.
+ */
+const SIDE_BY_POSSESSION: Record<string, (carrier: string) => string> = {
+    ATTACKING_TEAM: carrier => `whichever team has the ${carrier}`,
+    DEFENDING_TEAM: carrier => `whichever team does not have the ${carrier}`,
+}
+
+/**
+ * A participation state, as a coach would say it of a group. `plural` is whether the group is more than one.
+ *
+ * One wording, for the one state a game in the corpus establishes. The state is a member of a closed
+ * vocabulary, and the gloss names only what that vocabulary rules out by the state being this one. A state
+ * with no wording here is withheld and reported, so it cannot be served half-said.
+ */
+const PARTICIPATION_STATE: Record<string, (plural: boolean) => string> = {
+    ACTIVE: plural => `${plural ? 'are' : 'is'} active in the game — not waiting, resting or watching`,
 }
 
 /**
@@ -264,6 +326,13 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
 
     const geometryFor = (elementId: string, axis: 'along' | 'across') =>
         fixture.status.geometry.find((g: any) => g.path.includes(`[${elementId}]`) && g.path.endsWith(`.${axis}`))
+
+    /**
+     * The object the game establishes, read once for every sentence that names it. Its `kind` is the only
+     * source of the noun (SD-103, below at the scoring instruction, where the rule was first applied), and a
+     * sentence that uses it cites `objects[…].kind`.
+     */
+    const carrier = (game.objects ?? []).find((object: any) => typeof object?.kind === 'string')
 
     // ── Set up ──────────────────────────────────────────────────────────────────────────────────
     const area = game.envelope?.area
@@ -399,6 +468,191 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
         say('Players', recorded('envelope.players', 'SESSION'), `${game.envelope.players} players in total`, ['envelope.players'], [game.envelope.players])
     }
     const teams = game.performers?.teams ?? []
+
+    /**
+     * **NEUTRAL PLAYERS, AND A GROUP'S PARTICIPATION STATE — added 13 October 2026.**
+     *
+     * Christian, 13 October: *"Please proceed with the neutral-player participation functionality, including
+     * roster arithmetic and coach-facing communication. For the proposed neutral-player condition, my
+     * preference is that the neutral supports whichever team currently has possession and changes
+     * allegiance immediately when possession changes. That should be explicit in the activity rather than
+     * left ambiguous."*
+     *
+     * Before this the word did not occur in this file. Measured on the possession game with a neutral
+     * condition, once the roster could be derived for it: twelve players were set out as two teams of five
+     * with no word of the other two, and five established properties reached no instruction, so the
+     * activity was — correctly — refused. Each sentence below is generated from the property that holds its
+     * content, and cites it:
+     *
+     *   - **how many** — `neutrals.count`. Where realization closed the count inside an authored range it is
+     *     where this activity STARTS, said as a fact about this activity; the REQUIRED limit and the
+     *     PREFERRED range are said beside it through `sayRange`, each in the only wording its status has.
+     *     The consequence for the numbers on each side is added only where the game holds what makes it
+     *     true: two teams alike in every count they carry, and neutrals who join the team in possession;
+     *   - **who they play with** — `affiliation.joins` and `affiliation.on`, with the noun of what is
+     *     possessed read from `objects[].kind`. A standing affiliation to the team in possession is said as
+     *     *always*, which is the authored word, and the change of sides it entails is said outright rather
+     *     than left to be worked out;
+     *   - **how they are told apart** — `distinguishable`, the authored means inserted verbatim;
+     *   - **their participation state** — `participation[].state`, which belongs to any performer group and
+     *     is worded here for the one group this renderer can name.
+     *
+     * **What is NOT said, and why: that the change of sides is immediate.** His ruling says it is. The game
+     * does not hold it: the row that would (`affiliation.on`) holds one trigger and already holds the
+     * authored `STANDING`, so the ruling could not be added without a collision, and the contract's own
+     * ledger records *"whether re-affiliation on a turnover is instantaneous or takes effect at a restart"*
+     * as not authored. Under SD-103 a sentence here is entailed by the game or it is not said, so the
+     * activity says *always* and *when possession changes* — both entailed — and the word *immediately*
+     * waits for the knowledge to hold it. Reported as an observation every time, so it cannot go quiet.
+     *
+     * A value with no faithful wording — a designation the possession relation does not decide, a trigger
+     * other than a standing one, a state outside the table — is withheld and reported, never paraphrased.
+     * The fidelity check then finds the property uncarried and the activity is refused, which is right.
+     */
+    const sayNeutralPlayers = (teamSize: number | null) => {
+        const neutrals = game.performers?.neutrals
+        const count = neutrals?.count
+        const one = count === 1
+        const who = one ? 'the neutral player' : 'the neutral players'
+        const Who = `T${who.slice(1)}`
+
+        if (neutrals && typeof neutrals === 'object') {
+            const countPath = 'performers.neutrals.count'
+            const joinsPath = 'performers.neutrals.affiliation.joins'
+            const onPath = 'performers.neutrals.affiliation.on'
+            const meansPath = 'performers.neutrals.distinguishable'
+            const players = game.envelope?.players
+            const joins = neutrals.affiliation?.joins
+            const on = neutrals.affiliation?.on
+            const relationEstablished = game.possession?.team !== undefined
+            const side = carrier && typeof joins === 'string' ? SIDE_BY_POSSESSION[joins]?.(carrier.kind) : undefined
+
+            if (stated(count) && Number.isFinite(players)) {
+                // The two sides differ by exactly the neutrals only where the teams are alike in every count
+                // they carry — size and each role alike — and the neutrals join the team in possession.
+                const alike = new Set(teams.map((t: any) => JSON.stringify(Object.entries(t).filter(([, v]) => typeof v === 'number').sort()))).size === 1
+                const overload = joins === 'ATTACKING_TEAM' && !!carrier && relationEstablished && teams.length === 2 && teamSize !== null && alike
+                const core = (value: string, n: number) =>
+                    `${value} of the ${players} players ${n === 1 ? 'is a neutral player' : 'are neutral players'}` +
+                    (overload ? `, so the team with the ${carrier.kind} has ${value} more player${n === 1 ? '' : 's'} than the team without it` : '')
+                const also = {
+                    from: ['envelope.players', ...(overload ? [joinsPath, 'performers.teams', 'performers.teams[].outfieldCount', `objects[${carrier.elementId}].kind`] : [])],
+                    quantities: [players],
+                }
+                const noun = (limits: Limits) => ((stated(limits.max) ? limits.max : limits.min) === 1 ? 'neutral player' : 'neutral players')
+                const range = countRange(fixture, countPath)
+                const ranged = range
+                    ? sayRange('Players', range, {
+                          number: n => String(n),
+                          required: (limits, bound) => `The game needs ${limits} ${noun(bound)}`,
+                          preferred: (around, bound) => `${around} ${noun(bound)} works well`,
+                          starting: core,
+                          startingAlso: also,
+                      })
+                    : null
+                if (ranged?.starting) instructions.push(ranged.starting)
+                else say('Players', recorded(countPath, 'DERIVED'), core(String(count), count), [countPath, ...also.from], [count, ...also.quantities])
+                if (ranged?.required) instructions.push(ranged.required)
+                if (ranged?.preferred) instructions.push(ranged.preferred)
+
+                /**
+                 * The preferred range is offered as authored. Which of its members this session can field is
+                 * a separate fact, kept with the choice (`within.rosterAdmits`), and where they differ a coach
+                 * would want to know — so it is reported here and the sentence is left alone.
+                 */
+                const admits: unknown = (fixture.status.choices ?? []).find((c: any) => c.path === countPath)?.within?.rosterAdmits
+                if (Array.isArray(admits) && range?.preferred && stated(range.preferred.min) && stated(range.preferred.max)) {
+                    const offered: number[] = []
+                    for (let n = range.preferred.min; n <= range.preferred.max; n++) offered.push(n)
+                    const unfielded = offered.filter(n => !admits.includes(n))
+                    if (unfielded.length) {
+                        observations.push(
+                            `The preferred number of neutral players is offered as authored (${range.preferred.min} to ${range.preferred.max}). With ` +
+                                `${players} players, ${unfielded.join(' and ')} ${unfielded.length === 1 ? 'does' : 'do'} not leave whole equal teams; ` +
+                                `this session's roster admits ${admits.join(', ') || 'no count at all'}. A coach who takes another count will have ` +
+                                `unequal teams or a player over, and the activity does not say so.`,
+                        )
+                    }
+                }
+            } else {
+                observations.push(
+                    count === undefined
+                        ? `The game establishes neutral players and no count for them (\`${countPath}\` is absent), so a coach cannot be told how ` +
+                              `many to pick. Nothing is said rather than assumed.`
+                        : `The game holds ${JSON.stringify(count)} for \`${countPath}\` among ${JSON.stringify(players)} players, which is not a ` +
+                              `number of people rendering can state, so the activity does not say how many neutral players there are.`,
+                )
+            }
+
+            if (joins !== undefined || on !== undefined) {
+                if (side && relationEstablished && on === 'STANDING') {
+                    say(
+                        'Players',
+                        recorded(joinsPath, 'DERIVED'),
+                        `${Who} always play${one ? 's' : ''} with ${side}, and change${one ? 's' : ''} sides when possession changes`,
+                        [joinsPath, onPath, `objects[${carrier.elementId}].kind`],
+                        [],
+                    )
+                    observations.push(
+                        `The neutral players' side is held as a standing rule (\`${onPath}\` = STANDING) that follows the team in possession, so the ` +
+                            `activity says they ALWAYS play with that team and change sides WHEN possession changes. It does not say the change is ` +
+                            `IMMEDIATE, because the game does not hold that: the row holds one trigger, and whether the change takes effect at once ` +
+                            `or at the next restart is recorded by the knowledge itself as not authored. If that is to be explicit, the knowledge ` +
+                            `needs somewhere to hold it; rendering will not add the word on its own authority.`,
+                    )
+                } else {
+                    const missing = !carrier
+                        ? 'the game establishes no object to name as what is possessed'
+                        : !relationEstablished
+                          ? 'the game establishes no possession relationship (`possession.team` is absent) for the designation to resolve against'
+                          : !side
+                            ? `rendering has no coach-facing wording for the team designation ${JSON.stringify(joins)}`
+                            : `rendering has no coach-facing wording for an affiliation decided on ${JSON.stringify(on)}`
+                    observations.push(
+                        `The side the neutral players take is established as joins = ${JSON.stringify(joins)}, on = ${JSON.stringify(on)}, and ${missing}. ` +
+                            `The activity says nothing about who they play with rather than paraphrase it.`,
+                    )
+                }
+            }
+
+            const means = neutrals.distinguishable
+            if (typeof means === 'string' && means.trim()) {
+                const apart = teams.length === 2 ? ' from both teams' : teams.length ? ' from the teams' : ''
+                say('Players', recorded(meansPath, 'DERIVED'), `Make ${who} easy to tell apart${apart} — ${means}`, [meansPath, ...(teams.length ? ['performers.teams'] : [])], [])
+            } else if (means !== undefined) {
+                observations.push(
+                    `How the neutral players are told apart is established as ${JSON.stringify(means)}, which is not wording a coach can be given, ` +
+                        `so the activity says nothing about it rather than paraphrase it.`,
+                )
+            }
+        }
+
+        for (const group of game.performers?.participation ?? []) {
+            const base = `performers.participation[${group.elementId}]`
+            if (group.state !== undefined) {
+                const named = (group.selector ?? []).find((term: any) => term?.attribute === 'group' && term?.op === '=')?.value
+                // The one group this renderer can name: the register's own neutrals, by either spelling the corpus uses.
+                const neutral = !!neutrals && ['neutral', 'neutrals'].includes(String(named).toLowerCase())
+                const wording = typeof group.state === 'string' ? PARTICIPATION_STATE[group.state] : undefined
+                if (neutral && wording) {
+                    say('Players', recorded(`${base}.state`, 'DERIVED'), `${Who} ${wording(!one)}`, [`${base}.state`, `${base}.selector`], [])
+                } else {
+                    observations.push(
+                        `${base}.state is established as ${JSON.stringify(group.state)} for the group ${JSON.stringify(named)}, and rendering has no ` +
+                            `coach-facing wording for ${neutral ? 'that state' : 'that group'}, so the activity says nothing about it rather than paraphrase it.`,
+                    )
+                }
+            }
+            if ((fixture.status.notEstablished ?? []).some((n: any) => n.path === `${base}.persistence`)) {
+                observations.push(
+                    `Nothing establishes whether that group keeps its participation state for the whole activity or only for a period ` +
+                        `(\`${base}.persistence\` is not authored), so the activity does not say whether the same players stay in it throughout.`,
+                )
+            }
+        }
+    }
+
+    if (!teams.length) sayNeutralPlayers(null)
     if (teams.length) {
         const sizes = [...new Set(teams.map((t: any) => t.outfieldCount).filter((n: any) => Number.isFinite(n)))]
         const size = sizes.length === 1 ? Number(sizes[0]) : null
@@ -479,6 +733,9 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
             }
         }
 
+        // After the teams and their roles, so the numbers a coach reads add up in the order they are read.
+        sayNeutralPlayers(size)
+
         /**
          * **WHO STARTS WITH THE BALL — his ruling of 7 October, and the awkward truth it exposes.**
          *
@@ -524,6 +781,8 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
                     readers.push('a transition is keyed on a change of possession, so it decides which team is attacking in the first episode of play')
                 if ((game.value?.valueModifiers ?? []).some((m: any) => m.endsOn === 'POSSESSION_CHANGE' || /possession/i.test(String(m.condition?.value ?? ''))))
                     readers.push('a value modifier reads possession, so who starts decides whose action can qualify first')
+                if (typeof game.performers?.neutrals?.affiliation?.joins === 'string' && SIDE_BY_POSSESSION[game.performers.neutrals.affiliation.joins])
+                    readers.push('the neutral players take a side by who has possession, so who starts decides which team they play with first')
                 observations.push(
                     `The game DOES establish an initial holder of possession, and the activity cannot tell a coach which team it is. ` +
                         `The two teams are indiscernible — identical but for an internal handle that must not reach coach-facing text — so ` +
@@ -581,7 +840,18 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
      * fidelity check read it as carried to the coach when no coach reads it anywhere, which is exactly the
      * unverifiable citation his item-1 findings warn about. Under his item-2 ruling the holder needs no
      * coach-facing expression, and the honest way to say so is to leave it uncited and let it be reported.
+     *
+     * **It is said ONCE, however many transitions assert it — 13 October.** The sentence was issued per
+     * transition, and a second contract may assert the same transition beside the game form's own: the
+     * neutral condition does, because the side its players take depends on it. Measured: the activity then
+     * read the same sentence twice, and nothing caught it — the fidelity check has no test for repeated
+     * text. So the qualifying transitions are gathered and one sentence cites every one of them, which
+     * keeps each transition's play state carried and each one's episode boundary discharged. The merge is
+     * made HERE and nowhere else: a general collapse of identical sentences would be wrong, because two
+     * regions legitimately produce the same sentence each — the two channels' function sentences are
+     * word-for-word alike and are two facts.
      */
+    const continuingOnPossessionChange: any[] = []
     for (const transition of game.transitions ?? []) {
         if (transition.playState !== 'CONTINUE') continue
         const keyedOnPossessionChange = (transition.selector ?? []).some(
@@ -589,13 +859,7 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
         )
         const relationEstablished = (game as any).possession?.team !== undefined
         if (keyedOnPossessionChange && relationEstablished) {
-            say(
-                'How it works',
-                'DERIVED',
-                `Play continues when possession changes — there is no stoppage`,
-                [`transitions[${transition.elementId}].playState`, `transitions[${transition.elementId}].selector`],
-                [],
-            )
+            continuingOnPossessionChange.push(transition)
             continue
         }
         // Reported, not repaired — his standing instruction for anything the game itself makes unsayable.
@@ -607,6 +871,15 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
                 : `${transition.elementId} continues play rather than stopping it, and its trigger is not a possession change. ` +
                   `Rendering has no coach-facing wording for that trigger, so it says nothing rather than reusing the ` +
                   `possession-change sentence, which is what it used to do for any CONTINUE transition.`,
+        )
+    }
+    if (continuingOnPossessionChange.length) {
+        say(
+            'How it works',
+            'DERIVED',
+            `Play continues when possession changes — there is no stoppage`,
+            continuingOnPossessionChange.flatMap(transition => [`transitions[${transition.elementId}].playState`, `transitions[${transition.elementId}].selector`]),
+            [],
         )
     }
 
@@ -641,7 +914,6 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
          * carrier is not named at all and the gap is reported — the same treatment the unsettled
          * channel-condition trigger already gets below.
          */
-        const carrier = (game.objects ?? []).find((object: any) => typeof object?.kind === 'string')
         say(
             'How to score',
             statusOf.get(kindPath) ?? 'DERIVED',

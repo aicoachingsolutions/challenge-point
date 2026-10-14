@@ -24,7 +24,7 @@ import assert from 'node:assert/strict'
 import { loadCorpusContracts, loadRegister } from '../derivation/corpus'
 import { indexRegister } from '../derivation/register'
 import { ActivityReviewRequestError, activityReviewOptions, reviewActivity } from './activity-review'
-import { buildActivity, buildActivityOverAlteredKnowledge, RefusedActivity, ServedActivity, UnknownActivityRequest } from './build-activity'
+import { buildActivity, buildActivityFromKnowledge, buildActivityOverAlteredKnowledge, RefusedActivity, ServedActivity, UnknownActivityRequest } from './build-activity'
 import { buildPilotActivity, isPilotRefused, PILOT_SESSION } from './build-pilot-activity'
 import { MECHANISM_DEMONSTRATIONS } from './mechanism-demonstrations'
 import { sessionEnvelopeFrom, specializedRoleNames } from './session-envelope'
@@ -521,16 +521,243 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
     }
 
     /**
-     * **The neutral-player demonstration is REFUSED today, and that is the honest state of the mechanism.**
-     * Its contract leaves the neutral count open and nothing has chosen one, so there is no single game to
-     * show. Completing it is Stage B3; until then this must refuse rather than be made to pass. When B3
-     * lands this block is the one to change, to a served assertion.
+     * **THE NEUTRAL-PLAYERS DEMONSTRATION IS SERVED — re-pointed 13 October 2026 (Stage B3).**
+     *
+     * Until then this block asserted that it was REFUSED at `realization` with *"A set-up decision for this
+     * game has not been made yet."*, and said that was the honest state of the mechanism: its contract leaves
+     * the neutral count open and nothing chose one. Three things were missing and each is now in place, none
+     * of them a change to learning-design knowledge:
+     *
+     *   - the count is closed by the rule his 13 October instruction approved for a count with an authored
+     *     preferred range — the one member of *"one or two"* that leaves two whole equal teams in THIS
+     *     session — and is recorded as where the activity starts, with its range beside it;
+     *   - the roster rule reads a count realization closed, so the teams get a size and the roster gate can
+     *     be evaluated (it could not, for any neutral configuration);
+     *   - the renderer says who the neutral players are — it said nothing about them at all.
+     *
+     * Christian, 13 October: *"It is entirely appropriate to demonstrate the mechanism independently in the
+     * meantime"* — and of the condition and any Learning Goal, *"I am not yet approving"* it. So this remains
+     * a mechanism demonstration, labelled as one, and is associated with no goal and in no candidate pool.
+     *
+     * Twelve players and thirteen, because they are the two cases: an even squad starts with two neutrals and
+     * an odd one with one. Every sentence is a DRAFT for his wording review.
      */
-    const neutrals = refused(reviewActivity(stored(), { demonstrationId: 'neutral-players', durationMin: 20 }), 'the neutral-players demonstration')
-    assert.equal(neutrals.kind, 'mechanism-demonstration')
-    assert.equal(neutrals.stage, 'realization')
-    assert.equal(neutrals.summary, 'A set-up decision for this game has not been made yet.')
-    plain(neutrals, 'neutral-players')
+    const NEUTRAL_ACTIVITY: [number, string[]][] = [
+        [
+            12,
+            [
+                '12 players in total',
+                '2 teams of 5',
+                `No ${ROLE}s — everyone is an outfield player`,
+                'For this activity, 2 of the 12 players are neutral players, so the team with the ball has 2 more players than the team without it',
+                'The game needs at least 1 neutral player',
+                'Around 1 to 2 neutral players works well, if it suits your group',
+                'The neutral players always play with whichever team has the ball, and change sides when possession changes',
+                'Make the neutral players easy to tell apart from both teams — contrasting bibs',
+                'The neutral players are active in the game — not waiting, resting or watching',
+                'For this activity, one team starts with the ball — the game does not fix which, so pick one and tell both teams before you start',
+            ],
+        ],
+        [
+            13,
+            [
+                '13 players in total',
+                '2 teams of 6',
+                `No ${ROLE}s — everyone is an outfield player`,
+                'For this activity, 1 of the 13 players is a neutral player, so the team with the ball has 1 more player than the team without it',
+                'The game needs at least 1 neutral player',
+                'Around 1 to 2 neutral players works well, if it suits your group',
+                'The neutral player always plays with whichever team has the ball, and changes sides when possession changes',
+                'Make the neutral player easy to tell apart from both teams — contrasting bibs',
+                'The neutral player is active in the game — not waiting, resting or watching',
+                'For this activity, one team starts with the ball — the game does not fix which, so pick one and tell both teams before you start',
+            ],
+        ],
+    ]
+    const a04 = served(reviewActivity(stored(), { learningGoalId: 'A04', durationMin: 20 }), 'A04')
+    for (const [players, expectedPlayers] of NEUTRAL_ACTIVITY) {
+        const neutrals = served(reviewActivity(stored({ playerCount: players }), { demonstrationId: 'neutral-players', durationMin: 20 }), `the neutral-players demonstration with ${players} players`)
+        assert.equal(neutrals.kind, 'mechanism-demonstration')
+        assert.equal(neutrals.account.gameProblem, null, 'no Learning Goal, so no Game Problem')
+        assert.equal(neutrals.account.contextId, null)
+        assert.equal(neutrals.title, 'Neutral players')
+        assert.ok(String(neutrals.subtitle).includes('Not a Learning Goal activity'))
+        assert.deepEqual(neutrals.account.constraints.map(c => [c.title, c.contracted]), [['Neutral Player Condition', true]])
+        // Baseline of 13 October, measured: 18 instructions and 0 violations, at both sizes — the bare
+        // possession game's 12, plus the six sentences about the neutral players.
+        assert.equal(neutrals.rendered.instructions.length, 18, `${players} players`)
+        assert.equal(a04.rendered.instructions.length, 12)
+        assert.equal(neutrals.integrity.fidelityViolations, 0)
+        assert.equal(neutrals.integrity.postRealizationValidated, true)
+        assert.deepEqual(neutrals.integrity.acceptance, { nothingClosedWithoutAuthority: [], nothingLost: [], nothingInvented: [] })
+        assert.deepEqual(text(neutrals, 'Players'), expectedPlayers, `${players} players`)
+        // The neutral condition changes who plays and nothing about the pitch or the scoring: every other
+        // section is the bare possession game's, sentence for sentence. And what continues at a change of
+        // possession is said ONCE, though two contracts assert that transition here.
+        for (const section of ['Set up', 'How to score']) assert.deepEqual(text(neutrals, section), text(a04, section), `${players} players: ${section}`)
+        assert.deepEqual(text(neutrals, 'How it works'), ['Play for 20 minutes', 'Play continues when possession changes — there is no stoppage'])
+        assert.deepEqual(text(neutrals, 'How it works'), text(a04, 'How it works'))
+        for (const said of neutrals.rendered.instructions) {
+            assert.deepEqual([...said.text.matchAll(/\d+(?:\.\d+)?/g)].map(m => Number(m[0])).filter(n => !said.quantities.includes(n)), [], said.text)
+        }
+    }
+
+    // The session shapes it, as it shapes any activity: the squad decides the starting count and the sizes.
+    for (const [players, count, size] of [[8, 2, 3], [15, 1, 7], [16, 2, 7], [3, 1, 1]] as const) {
+        const activity = served(reviewActivity(stored({ playerCount: players }), { demonstrationId: 'neutral-players', durationMin: 20 }), `${players} players`)
+        assert.equal(text(activity, 'Players')[1], `2 teams of ${size}`, `${players} players`)
+        assert.ok(text(activity, 'Players')[3].startsWith(`For this activity, ${count} of the ${players} players ${count === 1 ? 'is a neutral player' : 'are neutral players'}`), text(activity, 'Players')[3])
+        assert.equal(activity.integrity.fidelityViolations, 0)
+    }
+
+    /**
+     * **A session too small for any preferred count is the SESSION's refusal.** With two players, one neutral
+     * leaves one for two teams and two leave nobody, so no count is closed and the line is still open. That
+     * used to reach a coach as *"A set-up decision for this game has not been made yet"* — true of the line,
+     * and not something they can act on. It is their numbers, so it says so.
+     */
+    for (const [players, summary] of [
+        [2, '2 players cannot be split into equal teams with 1 or 2 neutral players.'],
+        [1, '1 player cannot be split into equal teams with 1 or 2 neutral players.'],
+    ] as const) {
+        const small = refused(reviewActivity(stored({ playerCount: players }), { demonstrationId: 'neutral-players', durationMin: 20 }), `${players} players`)
+        assert.equal(small.stage, 'session', small.summary)
+        assert.equal(small.summary, summary)
+        plain(small, `${players} players`)
+        assert.ok(small.reasons.some(reason => reason.includes('game::P5 is open and was not chosen')), 'the engine\'s own reason travels beside it')
+        assert.ok(small.reasons.some(reason => reason.includes('DOES_NOT_DIVIDE') || reason.includes('NO_OUTFIELD_PLAYERS')), JSON.stringify(small.reasons))
+    }
+
+    /**
+     * **A count the KNOWLEDGE fixes, in a session that cannot field it** — on knowledge the corpus does not
+     * hold, through the tests-only entry, and never served. The neutral condition as authored leaves the
+     * count open, so the roster rule's own refusal sentences for a neutral game cannot be reached on the
+     * corpus: the rule that closes the count only ever offers one the roster admits. Given an item that
+     * FIXES the count, the session either fits it or is told, in its own numbers, why not.
+     */
+    {
+        const fixes = (value: number) => (contracts: any[]) => {
+            const condition = contracts.find(c => (c.items ?? []).some((i: any) => String(i.row) === 'P5'))
+            condition.items.push({
+                itemId: 'REVIEW-NEUTRAL-COUNT',
+                origId: 'REVIEW-NEUTRAL-COUNT',
+                row: 'P5',
+                selector: '*',
+                requirement: 'EQUALS',
+                value,
+                strictness: 'REQUIRED',
+                valueStatus: 'REQUIRED_RANGE',
+                scope: 'WHOLE_GAME',
+                basis: 'AUTHORED',
+                basisEvidence: 'a test fixture, not authored knowledge',
+                checkability: 'STRUCTURAL',
+                structuralClause: 'whole item',
+            })
+        }
+        const at = (players: number, value: number) =>
+            buildActivityOverAlteredKnowledge({ kind: 'mechanism-demonstration', demonstrationId: 'neutral-players', session: { players, lengthM: 40, widthM: 30, durationMin: 20, roles: none } }, fixes(value))
+
+        const odd = refused(at(12, 1), 'one neutral fixed, twelve players')
+        assert.equal(odd.stage, 'session')
+        assert.equal(odd.summary, '12 players with 1 neutral player cannot be split into the equal teams this game needs.')
+        plain(odd, 'one neutral, twelve players')
+        assert.ok(odd.reasons.some(reason => reason.includes('DOES_NOT_DIVIDE')))
+
+        // Twelve neutrals of twelve players was SERVED as "2 teams of 0" before the roster rule refused a team
+        // with nobody in it (measured 13 October with that guard taken out).
+        const all = refused(at(12, 12), 'twelve neutrals fixed, twelve players')
+        assert.equal(all.stage, 'session')
+        assert.equal(all.summary, '12 players are not enough for this game — every team needs at least one outfield player.')
+        plain(all, 'twelve neutrals, twelve players')
+        assert.ok(all.reasons.some(reason => reason.includes('NO_OUTFIELD_PLAYERS')))
+
+        // A count the knowledge fixes is a requirement of the game, so it is not said as a choice about this activity.
+        const fits = served(at(13, 1), 'one neutral fixed, thirteen players')
+        const count = fits.rendered.instructions.find(i => i.from.includes('performers.neutrals.count') && i.text.includes('of the 13 players'))!
+        assert.deepEqual([count.text, count.status], ['1 of the 13 players is a neutral player, so the team with the ball has 1 more player than the team without it', 'DERIVED'])
+        assert.equal(fits.integrity.fidelityViolations, 0)
+
+        assert.ok(!JSON.stringify(loadCorpusContracts()).includes('REVIEW-NEUTRAL-COUNT'), 'the alteration was made to a copy and to nothing else')
+    }
+
+    /**
+     * **THE MECHANISM COMPOSES — with the scoring modifier, by direct construction.** A mechanism that works
+     * only beside the bare game form is not yet reusable. The two are composed here by naming the three
+     * knowledge objects, through the one pathway; it is not a third demonstration and no page offers it.
+     * Baseline of 13 October, measured: 28 instructions and 0 violations at both squad sizes — the scoring
+     * modifier's 22, plus the six sentences about the neutral players, with the possession-change sentence
+     * still said once.
+     */
+    for (const [players, expectedPlayers] of NEUTRAL_ACTIVITY) {
+        const { activity } = buildActivityFromKnowledge(['GF2', 'tl-v0-constraint-wide-zone-advantage', 'tl-v0-constraint-neutral-player-condition'], { players, lengthM: 40, widthM: 30, durationMin: 20, roles: none })
+        const composed = served(activity, `the neutral condition composed with the scoring modifier, ${players} players`)
+        assert.equal(composed.kind, 'mechanism-demonstration', 'a composition is a mechanism demonstration too, and says so')
+        assert.equal(composed.account.gameProblem, null)
+        assert.deepEqual(composed.account.constraints.map(c => [c.title, c.contracted]), [['Wide Zone Advantage', true], ['Neutral Player Condition', true]])
+        assert.equal(composed.rendered.instructions.length, 28, `${players} players`)
+        assert.equal(composed.integrity.fidelityViolations, 0)
+        assert.equal(composed.integrity.postRealizationValidated, true)
+        assert.deepEqual(composed.integrity.acceptance, { nothingClosedWithoutAuthority: [], nothingLost: [], nothingInvented: [] })
+        // Each mechanism says exactly what it says alone, and neither disturbs the other.
+        assert.deepEqual(text(composed, 'Players'), expectedPlayers, `${players} players`)
+        for (const section of ['Set up', 'How it works', 'How to score']) assert.deepEqual(text(composed, section), text(modifier, section), `${players} players: ${section}`)
+    }
+
+    /**
+     * **HIS ALLEGIANCE RULING IS NOT IN THE KNOWLEDGE, AND THIS IS THE MEASUREMENT THAT STOPPED IT — pinned
+     * 13 October 2026, so it is not rediscovered and so the day it can be held this block is the one to move.**
+     *
+     * Christian, 13 October: *"my preference is that the neutral supports whichever team currently has
+     * possession and changes allegiance immediately when possession changes. That should be explicit in the
+     * activity rather than left ambiguous."*
+     *
+     * The ruling was to be authored as one item on the row that holds *"the trigger on which a neutral's
+     * affiliation is decided"*, with the value `POSSESSION_CHANGE`, required. That row holds ONE trigger, and
+     * the condition already authors it twice as `STANDING` — the standing rule that the neutral is always with
+     * the team in possession, START included, which is why a possession-change value was considered and
+     * rejected when the contract was written. So the item, exactly as specified and added to a COPY, collides
+     * with the authored value: Gate A fails and the game loses its authorization. Nothing was added to the
+     * corpus, no check was weakened to admit it, and the register was not edited.
+     *
+     * What the activity can still say truly it says — *always* with the team that has the ball, changing sides
+     * *when possession changes* — because the standing rule entails both. What it cannot say is *immediately*:
+     * nothing in the game holds when a change takes effect. That needs somewhere to live (a row of its own for
+     * when a re-affiliation takes effect, or a row that may hold more than one trigger) and is his to rule.
+     */
+    {
+        const asSpecified = (contracts: any[]) => {
+            const condition = contracts.find(c => (c.items ?? []).some((i: any) => String(i.row) === 'P6a'))
+            const held = condition.items.filter((i: any) => String(i.row) === 'P6a')
+            assert.deepEqual(held.map((i: any) => [i.value, i.strictness, i.basis]), [['STANDING', 'REQUIRED', 'AUTHORED'], ['STANDING', 'REQUIRED', 'AUTHORED']], 'what the condition authors on the row today')
+            condition.items.splice(condition.items.indexOf(held[held.length - 1]) + 1, 0, {
+                itemId: 'REVIEW-ALLEGIANCE-RULING',
+                origId: 'REVIEW-ALLEGIANCE-RULING',
+                row: 'P6a',
+                selector: '*',
+                requirement: 'EQUALS',
+                value: 'POSSESSION_CHANGE',
+                strictness: 'REQUIRED',
+                valueStatus: 'REQUIRED_RANGE',
+                scope: 'WHOLE_GAME',
+                basis: 'OWNER_RULING',
+                basisEvidence: 'the item as specified for his ruling of 13 October, on a copy, for this measurement only',
+                checkability: 'STRUCTURAL',
+                structuralClause: 'whole item',
+            })
+        }
+        const collided = refused(
+            buildActivityOverAlteredKnowledge({ kind: 'mechanism-demonstration', demonstrationId: 'neutral-players', session: { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: none } }, asSpecified),
+            'the neutral-players demonstration with the allegiance ruling added as specified',
+        )
+        assert.equal(collided.stage, 'structure', JSON.stringify(collided.reasons))
+        assert.equal(collided.summary, 'The game this demonstration selects is not yet described completely enough to be set up.')
+        assert.ok(collided.reasons.includes('Gate A is FAIL'), JSON.stringify(collided.reasons))
+        assert.ok(collided.reasons.includes('1 collision(s) remain'), JSON.stringify(collided.reasons))
+        assert.ok(collided.reasons.some(reason => reason.includes('game::P6a')), 'and the line it collides on is the affiliation trigger')
+        // The corpus is as it was: two authored items on the row, both the standing rule, and no third.
+        const onRow = loadCorpusContracts().flatMap(contract => contract.items ?? []).filter(item => String(item.row) === 'P6a')
+        assert.deepEqual(onRow.map(item => item.value), ['STANDING', 'STANDING'])
+    }
 
     // A demonstration is never described to a coach as a goal — in a refusal any more than in a title.
     const none9 = refused(reviewActivity(stored({ playerCount: 9 }), { demonstrationId: 'scoring-modifier', durationMin: 20 }), 'the demonstration with 9 players')

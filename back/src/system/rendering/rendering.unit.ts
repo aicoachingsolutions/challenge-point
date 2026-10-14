@@ -484,6 +484,13 @@ assert.equal(report.provenance.length, rendered.instructions.length)
  *
  * The three sentences are the three parts of the range and each has the status of its part. Their wording
  * here is a pattern for whoever words such a line for a coach, not coach text that anybody is served.
+ *
+ * **RE-POINTED 13 October 2026 (Stage B3).** The renderer now words this very line itself — the neutral
+ * count, in the Players section — so rendering the altered fixture already says all three parts, and the
+ * hand-built sentences below were being added to a rendering that had them. `base` is therefore the
+ * rendering with the renderer's own sentences about this line taken out, which is what it was when this
+ * block was written; every assertion after that is unchanged. The renderer's own sentences are pinned on a
+ * real game further down, in the neutral-players block.
  */
 {
     const path_ = 'performers.neutrals.count'
@@ -521,7 +528,9 @@ assert.equal(report.provenance.length, rendered.instructions.length)
         ],
         'a starting value, a requirement and a preference — never one sentence doing the work of another',
     )
-    const base = renderConcreteGame(counted).instructions
+    const own = renderConcreteGame(counted).instructions.filter(i => i.from.includes(path_))
+    assert.equal(own.length, 3, `the renderer says the three parts of this line itself now: ${JSON.stringify(own.map(i => i.text))}`)
+    const base = renderConcreteGame(counted).instructions.filter(i => !i.from.includes(path_))
     const withRange = (...extra: (Instruction | null)[]) => checkFidelity(counted, wrap([...base, ...(extra.filter(Boolean) as Instruction[])]))
     const about = (r: ReturnType<typeof checkFidelity>) => r.findings.filter(f => f.severity === 'VIOLATION' && (f.what.includes(path_) || f.what.includes('neutral')))
 
@@ -808,6 +817,242 @@ for (const observation of rendered.coachingObservations) {
     const note = report.findings.find(f => f.question === 3 && f.what.includes('startsEpisode'))
     assert.equal(note?.severity, 'NOTE')
     assert.match(note!.what, /Its operational consequence\(s\) are carried by .*playState/)
+}
+
+/**
+ * ── NEUTRAL PLAYERS: said from the game, and refused when altered — added 13 October 2026 ─────────
+ *
+ * Christian, 13 October: *"Please proceed with the neutral-player participation functionality, including
+ * roster arithmetic and coach-facing communication. For the proposed neutral-player condition, my preference
+ * is that the neutral supports whichever team currently has possession and changes allegiance immediately
+ * when possession changes. That should be explicit in the activity rather than left ambiguous."*
+ *
+ * The game is the `neutral-players` mechanism demonstration as a coach is served it — the possession game
+ * form with the neutral condition, from the builder, with the fixture it was checked from. It is a mechanism
+ * demonstration and no Learning Goal's activity: he has not approved the condition for any goal.
+ *
+ * Most of this is negative, like the rest of the file. Each sentence is taken away or altered in turn and
+ * the check must refuse the result; and each value the renderer has no faithful wording for must be WITHHELD
+ * and reported, never paraphrased — after which the check finds the property uncarried and refuses that too.
+ */
+{
+    const roles = { ...fixture.envelope.roles }
+    const built = (players: number) => {
+        const out = buildActivityWithFixture({ kind: 'mechanism-demonstration', demonstrationId: 'neutral-players', session: { players, lengthM: 40, widthM: 30, durationMin: 20, roles } })
+        assert.equal(out.activity.outcome, 'served', `the demonstration must be served with ${players} players: ${JSON.stringify((out.activity as any).reasons)}`)
+        return { game: out.fixture as any, said: (out.activity as any).rendered as RenderedActivity }
+    }
+    const { game, said } = built(12)
+    const all = (r: ReturnType<typeof checkFidelity>) => r.findings.filter(f => f.severity === 'VIOLATION')
+    const inPlayers = (activity: RenderedActivity) => activity.instructions.filter(i => i.section === 'Players')
+    const without = (which: (i: Instruction) => boolean) => wrap(said.instructions.filter(i => !which(i)))
+    const reworded = (which: (i: Instruction) => boolean, change: (i: Instruction) => Instruction) => wrap(said.instructions.map(i => (which(i) ? change(i) : i)))
+    const COUNT = 'performers.neutrals.count'
+    const JOINS = 'performers.neutrals.affiliation.joins'
+    const ON = 'performers.neutrals.affiliation.on'
+    const MEANS = 'performers.neutrals.distinguishable'
+    const [participation] = game.game.performers.participation
+    const STATE = `performers.participation[${participation.elementId}].state`
+    const [carrier] = game.game.objects
+    const KIND = `objects[${carrier.elementId}].kind`
+
+    // WHAT A COACH READS, with the status of each sentence and the properties behind it.
+    assert.deepEqual(
+        inPlayers(said).map(i => [i.text, i.status, i.from, i.quantities]),
+        [
+            ['12 players in total', 'DERIVED', ['envelope.players'], [12]],
+            ['2 teams of 5', 'INSTANTIATED', ['performers.teams', 'performers.teams[].outfieldCount'], [2, 5]],
+            [`No ${Object.keys(roles)[0]}s — everyone is an outfield player`, 'SESSION', ['envelope.roles', `performers.teams[].${Object.keys(roles)[0]}`], []],
+            [
+                'For this activity, 2 of the 12 players are neutral players, so the team with the ball has 2 more players than the team without it',
+                'REALIZATION_CHOICE',
+                [COUNT, 'envelope.players', JOINS, 'performers.teams', 'performers.teams[].outfieldCount', KIND],
+                [2, 12],
+            ],
+            ['The game needs at least 1 neutral player', 'DERIVED', [COUNT], [1]],
+            ['Around 1 to 2 neutral players works well, if it suits your group', 'PREFERENCE', [COUNT], [1, 2]],
+            ['The neutral players always play with whichever team has the ball, and change sides when possession changes', 'DERIVED', [JOINS, ON, KIND], []],
+            ['Make the neutral players easy to tell apart from both teams — contrasting bibs', 'DERIVED', [MEANS, 'performers.teams'], []],
+            ['The neutral players are active in the game — not waiting, resting or watching', 'DERIVED', [STATE, `performers.participation[${participation.elementId}].selector`], []],
+            ['For this activity, one team starts with the ball — the game does not fix which, so pick one and tell both teams before you start', 'REALIZATION_CHOICE', ['possession.team', 'performers.teams'], []],
+        ],
+        'the Players section, sentence by sentence',
+    )
+    assert.deepEqual(all(checkFidelity(game, said)), [], 'and it is faithful')
+    // The count is where the activity STARTS: the game holds it as a choice closed by rule inside a range.
+    const recorded = game.status.choices.find((c: any) => c.path === COUNT)
+    assert.deepEqual([recorded.value, recorded.closure, recorded.defaultedBy, recorded.within.rosterAdmits], [2, 'STARTING_VALUE_IN_RANGE', 'ONLY_PREFERRED_COUNT_THE_ROSTER_ADMITS', [2, 4, 6, 8, 10]])
+    // No member handle reaches a sentence or a citation.
+    for (const i of said.instructions) assert.ok(!i.text.includes('#') && !i.from.some(p => p.includes('#')), `${i.text} / ${JSON.stringify(i.from)}`)
+
+    // With one neutral every sentence about them agrees in number.
+    const thirteen = built(13)
+    assert.deepEqual(all(checkFidelity(thirteen.game, thirteen.said)), [])
+    assert.deepEqual(inPlayers(thirteen.said).slice(0, 2).map(i => i.text), ['13 players in total', '2 teams of 6'])
+    assert.deepEqual(inPlayers(thirteen.said).slice(3, 9).map(i => i.text), [
+        'For this activity, 1 of the 13 players is a neutral player, so the team with the ball has 1 more player than the team without it',
+        'The game needs at least 1 neutral player',
+        'Around 1 to 2 neutral players works well, if it suits your group',
+        'The neutral player always plays with whichever team has the ball, and changes sides when possession changes',
+        'Make the neutral player easy to tell apart from both teams — contrasting bibs',
+        'The neutral player is active in the game — not waiting, resting or watching',
+    ])
+
+    /**
+     * **WHAT IS REPORTED RATHER THAN SAID.** Three things a coach would ask that the activity cannot answer
+     * from the game, each reported as an observation and none of them worded into an instruction:
+     *
+     *   - his ruling says the change of sides is IMMEDIATE; the game holds a standing affiliation and
+     *     nothing about when a change takes effect, so the activity says *always* and *when possession
+     *     changes* and does not say *immediately*. Pinned here so that the day the knowledge can hold it,
+     *     this assertion is the one that has to move;
+     *   - the preferred range is offered as authored (1 to 2), and with twelve players 1 does not leave
+     *     equal teams;
+     *   - nothing establishes whether the same players stay neutral throughout.
+     */
+    assert.ok(!said.instructions.some(i => /immediate|at once|straight away|the moment/i.test(i.text)), 'the activity does not say the change is immediate: the game does not hold it')
+    assert.ok(said.coachingObservations.some(o => o.includes('It does not say the change is') && o.includes('IMMEDIATE') && o.includes(ON)), 'and says so, to whoever reads the observations')
+    assert.ok(said.coachingObservations.some(o => o.includes('offered as authored (1 to 2)') && o.includes('With 12 players, 1 does not leave whole equal teams') && o.includes('admits 2, 4, 6, 8, 10')))
+    assert.ok(said.coachingObservations.some(o => o.includes('.persistence` is not authored')))
+    assert.ok(said.coachingObservations.some(o => o.includes('the neutral players take a side by who has possession')), 'who starts with the ball matters to this game, and the reason is read from it')
+
+    // ── Each sentence taken away is a loss the check names ───────────────────────────────────────
+    const lost = (which: (i: Instruction) => boolean) => violations(checkFidelity(game, without(which)), 3).map(f => f.what)
+    assert.deepEqual(
+        lost(i => i.from.includes(ON)),
+        [`${ON} is established by the game and no instruction carries it`],
+        'the allegiance sentence is the only one that carries the standing rule',
+    )
+    assert.ok(lost(i => i.from.includes(JOINS)).includes(`${JOINS} is established by the game and no instruction carries it`), 'with every sentence that cites it gone, who they play with is lost')
+    assert.deepEqual(lost(i => i.from.includes(MEANS)), [`${MEANS} is established by the game and no instruction carries it`])
+    assert.deepEqual(lost(i => i.from.includes(STATE)), [`${STATE} is established by the game and no instruction carries it`])
+    assert.ok(lost(i => i.text.startsWith('The game needs')).some(what => what.includes(COUNT) && what.includes('required minimum of 1')), 'the floor of the count is part of what is authored')
+    assert.ok(lost(i => i.status === 'PREFERENCE').some(what => what.includes(COUNT) && what.includes('preferred range that may be offered here (1 to 2)')), 'and so is the preferred range')
+    assert.ok(lost(i => i.status === 'REALIZATION_CHOICE' && i.from.includes(COUNT)).some(what => what.includes('starts at 2 in this activity')), 'and so is where this activity starts')
+    /**
+     * KNOWN LIMIT, pinned so it is not rediscovered: with ONE neutral the starting sentence itself says
+     * "1", so the requirement's own sentence can be dropped and the check still finds its minimum stated.
+     * The range check holds a sentence to the set of numbers its line carries, not to which number plays
+     * which part (the same limit the channel block above pins for a width).
+     */
+    assert.deepEqual(all(checkFidelity(thirteen.game, wrap(thirteen.said.instructions.filter(i => !i.text.startsWith('The game needs'))))), [])
+
+    // ── Each number altered is refused ────────────────────────────────────────────────────────────
+    {
+        const starting = (i: Instruction) => i.status === 'REALIZATION_CHOICE' && i.from.includes(COUNT)
+        const three = checkFidelity(game, reworded(starting, i => ({ ...i, text: i.text.replace('2 of the 12', '3 of the 12'), quantities: [3, 12, 2] })))
+        assert.ok(violations(three, 2).some(f => /states 3, which is neither a value the game holds at a property it cites nor a required limit of one/.test(f.what)), JSON.stringify(violations(three, 2)))
+        const wide = checkFidelity(game, reworded(i => i.status === 'PREFERENCE', i => ({ ...i, text: 'Around 2 to 4 neutral players works well, if it suits your group', quantities: [2, 4] })))
+        assert.ok(violations(wide, 2).some(f => /offers 4 as a preference, and the preferred range of what it cites is 1 to 2/.test(f.what)), JSON.stringify(violations(wide, 2)))
+        const firm = checkFidelity(game, reworded(i => i.text.startsWith('The game needs'), i => ({ ...i, text: 'The game needs between 1 and 2 neutral players', quantities: [1, 2] })))
+        assert.deepEqual(all(firm), [], 'KNOWN LIMIT again: 2 is the value the line holds, so a preferred maximum worded as a requirement passes here')
+        const hedged = checkFidelity(game, reworded(i => i.from.includes(ON), i => ({ ...i, text: `Ideally, ${i.text.charAt(0).toLowerCase()}${i.text.slice(1)}` })))
+        assert.ok(violations(hedged, 4).some(f => f.what.includes('worded as optional')), 'who the neutral players play with is a requirement of the game, not a suggestion')
+    }
+
+    /**
+     * ── THE POSSESSION-CHANGE SENTENCE IS SAID ONCE, AND EACH EPISODE BOUNDARY IS DISCHARGED BY ITS OWN
+     *    TRANSITION ────────────────────────────────────────────────────────────────────────────────
+     *
+     * The neutral condition asserts a possession-change transition of its own beside the game form's, so
+     * this game holds two. The sentence was issued once per transition, and the check has no test for
+     * repeated text, so the activity read it twice. It is said once now and cites both.
+     *
+     * And the exemption that lets an episode boundary go unsaid named ONE path outright — the game form's
+     * own transition's play state — so the second transition's boundary was excused by the first's
+     * sentence. The TEETH below is the case that separates the two: a rendering that carries the play state
+     * of the game form's transition ONLY. The other transition's boundary must not be excused by it.
+     */
+    {
+        const continuity = said.instructions.filter(i => i.text === 'Play continues when possession changes — there is no stoppage')
+        assert.equal(continuity.length, 1, 'said once, however many transitions assert it')
+        const elements = game.game.transitions.map((t: any) => t.elementId)
+        assert.equal(elements.length, 2)
+        assert.deepEqual(continuity[0].from, elements.flatMap((id: string) => [`transitions[${id}].playState`, `transitions[${id}].selector`]), 'and it cites every one of them')
+
+        const notes = checkFidelity(game, said).findings.filter(f => f.severity === 'NOTE' && f.what.includes('.startsEpisode'))
+        assert.equal(notes.length, 2)
+        for (const id of elements) {
+            assert.ok(notes.some(n => n.what.startsWith(`transitions[${id}].startsEpisode`) && n.what.includes(`carried by transitions[${id}].playState`)), `${id}: discharged by its OWN play state`)
+        }
+
+        const [first, second] = elements
+        const onlyFirst = checkFidelity(game, reworded(i => i === continuity[0], i => ({ ...i, from: [`transitions[${first}].playState`, `transitions[${first}].selector`] })))
+        const q3 = violations(onlyFirst, 3).map(f => f.what)
+        assert.ok(q3.includes(`transitions[${second}].playState is established by the game and no instruction carries it`), JSON.stringify(q3))
+        assert.ok(
+            q3.some(what => what.startsWith(`transitions[${second}].startsEpisode was excluded as accounting metadata`) && what.includes(`transitions[${second}].playState reached no instruction`)),
+            `the second transition's boundary must not be excused by the first's sentence: ${JSON.stringify(q3)}`,
+        )
+        assert.ok(!q3.some(what => what.startsWith(`transitions[${first}].startsEpisode`)), 'and the first, whose play state IS carried, is still discharged')
+    }
+
+    // ── A value with no faithful wording is WITHHELD and reported, and the check then refuses ─────
+    const altered = (change: (copy: any) => void) => {
+        const copy = JSON.parse(JSON.stringify(game))
+        change(copy)
+        const rendered = renderConcreteGame(copy)
+        return { rendered, texts: rendered.instructions.map(i => i.text), q3: violations(checkFidelity(copy, rendered), 3).map(f => f.what), every: all(checkFidelity(copy, rendered)) }
+    }
+    const ALLEGIANCE = 'The neutral players always play with whichever team has the ball, and change sides when possession changes'
+    const BARE = 'For this activity, 2 of the 12 players are neutral players'
+    {
+        // A designation the possession relation does not decide: nothing here knows who "won the ball".
+        const won = altered(copy => (copy.game.performers.neutrals.affiliation.joins = 'WON_BALL'))
+        assert.ok(!won.texts.some(t => t.includes('play with')), 'no sentence about who they play with')
+        assert.ok(won.texts.includes(BARE), 'and the consequence for the numbers on each side is not claimed either')
+        assert.ok(won.rendered.coachingObservations.some(o => o.includes('no coach-facing wording for the team designation "WON_BALL"') && o.includes('rather than paraphrase it')))
+        assert.deepEqual([...won.q3].sort(), [`${JOINS} is established by the game and no instruction carries it`, `${ON} is established by the game and no instruction carries it`].sort())
+
+        // An affiliation decided on an event rather than standing: no wording, so none is offered.
+        const event = altered(copy => (copy.game.performers.neutrals.affiliation.on = 'SCORE'))
+        assert.ok(!event.texts.some(t => t.includes('play with')))
+        assert.ok(event.rendered.coachingObservations.some(o => o.includes('no coach-facing wording for an affiliation decided on "SCORE"')))
+        assert.ok(event.q3.includes(`${ON} is established by the game and no instruction carries it`))
+
+        // No possession relationship for the designation to resolve against.
+        const unheld = altered(copy => delete copy.game.possession)
+        assert.ok(!unheld.texts.some(t => t.includes('play with')) && unheld.texts.includes(BARE))
+        assert.ok(unheld.rendered.coachingObservations.some(o => o.includes('establishes no possession relationship')))
+
+        // Nothing established to name as what is possessed: the noun is never supplied from here.
+        const objectless = altered(copy => (copy.game.objects = []))
+        assert.ok(!objectless.texts.some(t => t.includes('play with')) && objectless.texts.includes(BARE))
+        assert.ok(objectless.rendered.coachingObservations.some(o => o.includes('establishes no object to name as what is possessed')))
+        assert.ok(!objectless.texts.some(t => /\bball\b/.test(t) && t.includes('neutral')), 'and no neutral sentence names one')
+
+        // The other possession-relative side has its wording, and no claim about who outnumbers whom.
+        const defending = altered(copy => (copy.game.performers.neutrals.affiliation.joins = 'DEFENDING_TEAM'))
+        assert.ok(defending.texts.includes('The neutral players always play with whichever team does not have the ball, and change sides when possession changes'))
+        assert.ok(defending.texts.includes(BARE))
+        assert.deepEqual(defending.every, [])
+
+        // Teams that are not alike: the two sides do not differ by exactly the neutrals, so that is not said.
+        const uneven = altered(copy => (copy.game.performers.teams[0].outfieldCount = 4))
+        assert.ok(uneven.texts.includes(BARE) && uneven.texts.includes(ALLEGIANCE))
+
+        // A participation state outside the table, and a group this renderer cannot name.
+        const waiting = altered(copy => (copy.game.performers.participation[0].state = 'WAITING'))
+        assert.ok(!waiting.texts.some(t => /waiting/i.test(t)), 'no sentence is improvised for it')
+        assert.ok(waiting.rendered.coachingObservations.some(o => o.includes('"WAITING"') && o.includes('no coach-facing wording for that state')))
+        assert.deepEqual(waiting.q3, [`${STATE} is established by the game and no instruction carries it`])
+        const bench = altered(copy => (copy.game.performers.participation[0].selector[0].value = 'bench'))
+        assert.ok(!bench.texts.some(t => t.includes('active in the game')))
+        assert.ok(bench.rendered.coachingObservations.some(o => o.includes('"bench"') && o.includes('no coach-facing wording for that group')))
+
+        // The authored means is inserted verbatim, whatever it is.
+        const means = altered(copy => (copy.game.performers.neutrals.distinguishable = 'a third bib colour'))
+        assert.ok(means.texts.includes('Make the neutral players easy to tell apart from both teams — a third bib colour'))
+        assert.deepEqual(means.every, [])
+
+        // A count nobody established: how many is not said, and is not guessed.
+        const uncounted = altered(copy => delete copy.game.performers.neutrals.count)
+        assert.ok(!uncounted.texts.some(t => t.includes('of the 12 players')))
+        assert.ok(uncounted.rendered.coachingObservations.some(o => o.includes('no count for them')))
+    }
+
+    // A game with no neutral players says nothing about them — the frozen Golden Case, unchanged.
+    assert.ok(!rendered.instructions.some(i => /neutral/i.test(i.text)) && !rendered.coachingObservations.some(o => /neutral/i.test(o)))
 }
 
 // ── The two channels are on OPPOSITE touchlines, and the rendering says so ────────────────────────
