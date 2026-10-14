@@ -1629,9 +1629,12 @@ router.get(ROUTES.pilotActivity, async (_req: Request, res: Response) => {
  * **Whose session.** The neighbouring session routes do not check ownership — the session CRUD is not
  * `userSpecific` and the generate route loads by id alone. This one does, because it is new and reading
  * someone else's session is not something the review needs; the older routes are left as they are and the
- * difference is recorded rather than quietly propagated in either direction.
+ * difference is recorded rather than quietly propagated in either direction. An administrator is let
+ * through, as everywhere else an administrator can already open a coach's session.
+ *
+ * **The path is not `/activity-review`.** That one is the coach's feedback on a generated activity, above.
  */
-router.get(ROUTES.activityReview, async (_req: Request, res: Response) => {
+router.get(ROUTES.checkedActivity, async (_req: Request, res: Response) => {
     try {
         return res.json(activityReviewOptions())
     } catch (error) {
@@ -1642,12 +1645,19 @@ router.get(ROUTES.activityReview, async (_req: Request, res: Response) => {
     }
 })
 
-router.post(`${ROUTES.activityReview}/:id`, async (req: Request, res: Response) => {
+router.post(`${ROUTES.checkedActivity}/:id`, async (req: Request, res: Response) => {
     try {
         if (!Types.ObjectId.isValid(req.params.id)) return res.status(404).json({ error: 'Session not found' })
         const session = await Session.findById(req.params.id).lean()
         if (!session) return res.status(404).json({ error: 'Session not found' })
-        if (String(session.createdBy) !== String(res.locals.sessionUser?._id)) return res.status(403).json({ error: 'Forbidden' })
+        // The coach whose session it is, or an administrator: the page that links here already shows an
+        // administrator any session, and a review that refused them would stop the one person who has to
+        // look at a coach's session when that coach reports what they were shown.
+        const viewer = res.locals.sessionUser
+        const own = String(session.createdBy) === String(viewer?._id)
+        if (!own && viewer?.permissions?.isAdmin !== true) {
+            return res.status(403).json({ error: 'This session belongs to another coach, so it cannot be reviewed from this account.' })
+        }
 
         return res.json(reviewActivity(session, req.body ?? {}))
     } catch (error) {
