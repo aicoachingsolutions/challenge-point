@@ -40,12 +40,18 @@ async function preBuildOperations() {
         const sportProfiles = (await fs.readdir(path.join(auditsPath, stageB))).filter(
             (name) => name.startsWith('sport-profile-') && name.endsWith('.json')
         )
+        // The realization choices are found through an index that says which file belongs to which
+        // knowledge object, so the files to copy are read FROM it: an entry added there travels with the
+        // bundle without this list having to be remembered as well.
+        const choicesIndex = 'realization-choices-index.json'
+        const choicesFiles = Object.values((await fs.readJson(path.join(auditsPath, choicesIndex))).byKnowledgeObject)
         const knowledgeFiles = [
             'conformance/register-2026-09-18.json',
             `${stageB}/contracts.json`,
             `${stageB}/corpus-restatements.json`,
             ...sportProfiles.map((name) => `${stageB}/${name}`),
-            'a04-realization-choices.json',
+            choicesIndex,
+            ...new Set(['a04-realization-choices.json', ...choicesFiles]),
         ]
         for (const file of knowledgeFiles) {
             await fs.copy(path.join(auditsPath, file), path.join(distPath, 'knowledge', file))

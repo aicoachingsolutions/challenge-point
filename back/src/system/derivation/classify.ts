@@ -46,8 +46,12 @@ function collides(line: DerivedLine): ItemRef[] {
  *   declared gap — a NOT_AUTHORED declaration reaches the row: an object said it needs this and
  *                  cannot author it;
  *   coverage     — only an UNDECLARED declaration reaches it: nobody looked.
+ *
+ * Exported 13 October so the roster rule can ask the same question of a row that has NO line — a
+ * per-member property of a class nothing individuates (SD-97) — and get the same answer a line on that
+ * row would have carried, rather than keeping a second copy of this precedence.
  */
-function reasonFor(row: string, declarations: DeclarationReach[]): ReasonCode {
+export function reasonFor(row: string, declarations: DeclarationReach[]): ReasonCode {
     const reaching = declarations.filter(d => d.row === row)
     if (!reaching.length) return 'no coverage'
     if (reaching.some(d => d.declaration === 'NOT_AUTHORED')) return 'declared gap'

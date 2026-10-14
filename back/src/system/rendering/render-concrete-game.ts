@@ -248,19 +248,80 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
     if (teams.length) {
         const sizes = [...new Set(teams.map((t: any) => t.outfieldCount).filter((n: any) => Number.isFinite(n)))]
         const size = sizes.length === 1 ? Number(sizes[0]) : null
+        /**
+         * **A per-team property is cited by its PROPERTY path, never by a member's address.** The size is
+         * entailed onto each team at that member's own address, which carries its handle, and a handle is
+         * identity, not a property: `identity.unit.ts` pins that none may reach coach-facing output, citations
+         * included. So a sentence that speaks for every team cites the register's own path for the
+         * property, with the member left open — which is also exactly what it claims, since it is only
+         * said where every team holds the same number.
+         *
+         * The citation is what lets the fidelity check see the size was carried. Until 13 October it was
+         * cited by nothing, so the check could not tell a stated team size from a dropped one.
+         */
         say(
             'Players',
             'INSTANTIATED',
             size === null
                 ? `${teams.length} teams`
                 : `${teams.length} teams of ${size}`,
-            ['performers.teams'],
+            size === null ? ['performers.teams'] : ['performers.teams', 'performers.teams[].outfieldCount'],
             size === null ? [teams.length] : [teams.length, size],
         )
+
+        /**
+         * **Availability is not involvement, and a coach is told which one they are looking at.** His rule
+         * of 30 September: *"Stating availability is not stating involvement: a role available in the
+         * session is instantiated into a particular game only where the selected knowledge establishes it."*
+         *
+         * This used to speak only when the session stated zero. So with one such performer available per
+         * team the roster took them off each side, the activity read "2 teams of 5" from twelve players,
+         * and nothing said where the other two had gone — eleven instructions, no violation. Now the
+         * sentence is chosen from what each TEAM holds, which assembly writes from the game:
+         *
+         *   - the game involves none and the session has none — the session's own statement, as before;
+         *   - the game involves none and the session has some — said as a fact about THIS activity, so a
+         *     coach who brought them knows they play out with everyone else rather than wondering;
+         *   - the game involves some — how many each team has.
+         *
+         * The role's NAME is data: it is the key the session stated and the leaf the register gave the
+         * row. Nothing here knows what any role is, which is also why the plural is formed and not written.
+         *
+         * Where teams hold different counts there is no sentence that says so without telling them apart,
+         * and nothing tells them apart — so it is withheld and reported, like every other fact the game
+         * holds and the renderer has no faithful wording for.
+         */
         const roles = fixture.envelope?.roles ?? {}
         for (const [role, count] of Object.entries(roles)) {
-            if (Number(count) === 0) {
-                say('Players', 'SESSION', `No ${role}s — everyone is an outfield player`, ['envelope.roles'], [])
+            const available = Number(count)
+            const held = teams.map((t: any) => t[role])
+            const carried = held.every((n: unknown) => Number.isInteger(n) && Number(n) >= 0)
+            const property = `performers.teams[].${role}`
+            if (!carried) {
+                // The game gives the teams no count for this role, so only the session's statement can be said.
+                if (available === 0) say('Players', 'SESSION', `No ${role}s — everyone is an outfield player`, ['envelope.roles'], [])
+                else {
+                    observations.push(
+                        `The session has ${available} ${role}${available === 1 ? '' : 's'} available and the game gives no team a count for that ` +
+                            `role, so the activity cannot say whether they are used. Nothing is said rather than assumed.`,
+                    )
+                }
+                continue
+            }
+            if (new Set(held).size !== 1) {
+                observations.push(
+                    `The teams hold different ${role} counts (${held.join(' and ')}), and nothing in the game tells the teams apart, so the ` +
+                        `activity cannot say which team has which. Withheld rather than averaged.`,
+                )
+                continue
+            }
+            const involved = Number(held[0])
+            if (involved === 0 && available === 0) {
+                say('Players', 'SESSION', `No ${role}s — everyone is an outfield player`, ['envelope.roles', property], [])
+            } else if (involved === 0) {
+                say('Players', 'DERIVED', `This activity does not use ${role}s — everyone plays as an outfield player`, [property], [])
+            } else {
+                say('Players', 'DERIVED', `Each team also has ${involved} ${role}${involved === 1 ? '' : 's'}`, [property], [involved])
             }
         }
 

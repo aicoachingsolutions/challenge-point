@@ -29,6 +29,8 @@ import User from '../models/user.model'
 import Logger from '../logger'
 import LoggingService from '../services/logging.service'
 import { deriveInputConstraints } from '../system/input-constraints/deriveInputConstraints'
+import { ActivityReviewRequestError, activityReviewOptions, reviewActivity } from '../system/rendering/activity-review'
+import { UnknownActivityRequest } from '../system/rendering/build-activity'
 import { buildPilotActivity, isPilotRefused } from '../system/rendering/build-pilot-activity'
 import { describeUnsupportedGoal, isKnownUnsupportedGoal } from '../system/session-planning/goal-support'
 import {
@@ -1589,6 +1591,65 @@ router.get(ROUTES.pilotActivity, async (_req: Request, res: Response) => {
     } catch (error) {
         return res.status(500).json({
             error: 'The pilot activity could not be built.',
+            detail: error instanceof Error ? error.message : String(error),
+        })
+    }
+})
+
+/**
+ * **The activity review — any Learning Goal, from the coach's own session, read-only.**
+ *
+ * Christian, 13 October 2026: *"The review page should accept any of the thirteen Learning Goals and use the
+ * coach's actual session context. … Where an activity cannot be generated, I'd prefer a brief,
+ * understandable explanation rather than a generic failure. Please keep the actual coach-facing activity
+ * primary, with its selection rationale and technical evidence available separately."*
+ *
+ * That lifts the pilot route's recorded limit for THIS route and not for that one: the pilot route above
+ * still serves one activity at one fixed session, unchanged. The reason it gave for fixing the session —
+ * that varying it *"would mean serving games this route had not validated"* — is answered here rather than
+ * waived: nothing is served that was validated beforehand, because every response is validated when it is
+ * asked for. Selection, the gates, realization, the gates again and the fidelity check all run per
+ * request, in `buildActivity`, and whatever does not pass is refused in a sentence instead of shown.
+ *
+ * **Two routes, and neither writes.** The GET says what can be asked for. The POST builds it; it is a POST
+ * only because it carries a body, and it stores nothing — not the activity, not the duration, not the
+ * coach's statement of who is available, which adjusts this review and leaves the session as saved.
+ *
+ * **A refusal is answered 200.** It is an answer a coach can act on, and the front end's service layer
+ * keeps only `error`, `message`, `stage` and `details` from a non-2xx body, so the sentence would not
+ * arrive. Non-2xx is kept for what is not an answer about an activity at all: no such session, not your
+ * session, or a request that names nothing to build.
+ *
+ * **Whose session.** The neighbouring session routes do not check ownership — the session CRUD is not
+ * `userSpecific` and the generate route loads by id alone. This one does, because it is new and reading
+ * someone else's session is not something the review needs; the older routes are left as they are and the
+ * difference is recorded rather than quietly propagated in either direction.
+ */
+router.get(ROUTES.activityReview, async (_req: Request, res: Response) => {
+    try {
+        return res.json(activityReviewOptions())
+    } catch (error) {
+        return res.status(500).json({
+            error: 'The activity review could not be prepared.',
+            detail: error instanceof Error ? error.message : String(error),
+        })
+    }
+})
+
+router.post(`${ROUTES.activityReview}/:id`, async (req: Request, res: Response) => {
+    try {
+        if (!Types.ObjectId.isValid(req.params.id)) return res.status(404).json({ error: 'Session not found' })
+        const session = await Session.findById(req.params.id).lean()
+        if (!session) return res.status(404).json({ error: 'Session not found' })
+        if (String(session.createdBy) !== String(res.locals.sessionUser?._id)) return res.status(403).json({ error: 'Forbidden' })
+
+        return res.json(reviewActivity(session, req.body ?? {}))
+    } catch (error) {
+        if (error instanceof ActivityReviewRequestError || error instanceof UnknownActivityRequest) {
+            return res.status(400).json({ error: error.message })
+        }
+        return res.status(500).json({
+            error: 'The activity could not be built.',
             detail: error instanceof Error ? error.message : String(error),
         })
     }

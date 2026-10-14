@@ -26,20 +26,54 @@ import { indexRegister } from './register'
 import { assembleResolvedGame } from './resolved-game'
 import { DerivationInput, LoadedContract } from './types'
 
-/** Library ids and contract ids spell the same object differently; neither is rewritten. */
-const key = (id: string) =>
+/**
+ * Library ids and contract ids spell the same object differently; neither is rewritten.
+ *
+ * Exported 13 October as `knowledgeKey`, because a second thing now has to ask "which knowledge object is
+ * this?" — the builder looks up a game form's realization choices by it — and a second spelling rule beside
+ * this one is how the two would come to disagree.
+ */
+export const knowledgeKey = (id: string) =>
     String(id)
         .replace(/^(restated|blind):/, '')
         .replace(/^tl-v0-constraint-/, '')
         .toUpperCase()
+const key = knowledgeKey
 
-export interface BoundedSelection {
-    goalId: string
-    goalName: string
-    /** Every knowledge object the live selection committed to. */
+/**
+ * What a set of selected knowledge objects comes to at the contract boundary: which of them have a
+ * contribution contract and which do not. Affordance lenses are a reasoning dimension and are in neither.
+ *
+ * Its own type since 13 October because a mechanism demonstration is exactly this and nothing more — it
+ * names its knowledge objects and involves no Learning Goal — so the pathway from derivation onward has to
+ * be able to run on it without a goal having been invented to carry it.
+ */
+export interface KnowledgeSelection {
+    /** Every knowledge object selected, with the part it plays. */
     selected: { id: string; role: string }[]
     contracted: string[]
     missing: string[]
+}
+
+/** Split selected knowledge into what is contracted and what is not. One rule, for a goal and for a demonstration. */
+export function contractCoverage(selected: { id: string; role: string }[]): Pick<KnowledgeSelection, 'contracted' | 'missing'> {
+    const available = new Map(loadCorpusContracts().map(c => [key(c.contractId), c.contractId]))
+    const knowledge = selected.filter(s => !s.role.startsWith('affordance lens'))
+    return {
+        contracted: knowledge.filter(s => available.has(key(s.id))).map(s => s.id),
+        missing: knowledge.filter(s => !available.has(key(s.id))).map(s => s.id),
+    }
+}
+
+export interface BoundedSelection extends KnowledgeSelection {
+    goalId: string
+    goalName: string
+    /**
+     * The signal groups the selection resolved through, as selection reported them. Carried since
+     * 13 October so the account of an activity reads them from the run instead of from a literal: the
+     * pilot's account named its group in a string constant, which stayed true only while nobody moved it.
+     */
+    matchedSignalGroups: string[]
     practiceSituations: { id: string; name: string }[]
     /** The situation the coach chose, resolved to its canonical identity (never to prose). */
     chosenSituation: { id: string; name: string } | null
@@ -137,14 +171,12 @@ export function selectFor(goalId: string, situationId: string | null = null): Bo
     const chosenSituation = resolveSituation(goalId, situationId)
     if (chosenSituation) selected.push({ id: chosenSituation.id, role: 'practice situation' })
 
-    const available = new Map(loadCorpusContracts().map(c => [key(c.contractId), c.contractId]))
-    const knowledge = selected.filter(s => !s.role.startsWith('affordance lens'))
     return {
         goalId,
         goalName: String(goal['Learning Goal']),
+        matchedSignalGroups: ((result.resolution?.matchedSignalGroups ?? []) as unknown[]).map(String),
         selected,
-        contracted: knowledge.filter(s => available.has(key(s.id))).map(s => s.id),
-        missing: knowledge.filter(s => !available.has(key(s.id))).map(s => s.id),
+        ...contractCoverage(selected),
         practiceSituations: (sessionPlanningModel.practiceSituationsFor(goalId) as any[]).map(p => ({ id: p.ID, name: p['Practice Situation'] })),
         chosenSituation,
         gameProblem: guided.gameProblem,
@@ -152,8 +184,13 @@ export function selectFor(goalId: string, situationId: string | null = null): Bo
     }
 }
 
-/** The derivation input a selection implies: the contracts for the objects it chose, and nothing else. */
-export function derivationInputFor(selection: BoundedSelection): DerivationInput {
+/**
+ * The derivation input a selection implies: the contracts for the objects it chose, and nothing else.
+ *
+ * It reads only WHICH objects were selected, so it takes exactly that — a goal's selection and a mechanism
+ * demonstration's are the same thing to derivation, which has never known what a goal is.
+ */
+export function derivationInputFor(selection: Pick<KnowledgeSelection, 'selected'>): DerivationInput {
     const wanted = new Set(selection.selected.map(s => key(s.id)))
     const selected: LoadedContract[] = loadCorpusContracts().filter(c => wanted.has(key(c.contractId)))
 

@@ -307,6 +307,95 @@ for (const instruction of rendered.instructions.filter(i => i.status === 'REALIZ
     )
 }
 
+/**
+ * **Availability is not involvement, at the rendering boundary — added 13 October.**
+ *
+ * Two things were wrong together and each hid the other. The renderer spoke about a specialized role only
+ * when the session stated zero, and fidelity question 3 built its list of what must be carried from
+ * `status.derived` and `status.choices` and never from `status.entailed`, where the roster lives. So a game
+ * whose teams each held one specialized performer rendered "2 teams of 5" from twelve players, said nothing
+ * about the other two, and passed with 0 violations.
+ *
+ * The role's name is read from the fixture's own session statement, so nothing here names one.
+ */
+{
+    const [role] = Object.keys(fixture.envelope.roles)
+    assert.ok(role, 'the fixture must state availability for a specialized role, or this block tests nothing')
+    const property = `performers.teams[].${role}`
+    const players = (r: RenderedActivity) => r.instructions.filter(i => i.section === 'Players')
+    const variant = (available: number, involved: number[]) => {
+        const copy = JSON.parse(JSON.stringify(fixture))
+        copy.envelope.roles[role] = available
+        const outfield = (12 - involved.reduce((a, b) => a + b, 0)) / 2
+        copy.game.performers.teams.forEach((team: any, i: number) => {
+            team[role] = involved[i]
+            team.outfieldCount = outfield
+        })
+        for (const entry of copy.status.entailed) {
+            const at = copy.game.performers.teams.findIndex((team: any) => team.elementId === entry.handle)
+            entry.value = entry.leaf === role ? involved[at] : outfield
+        }
+        return copy
+    }
+
+    // None available, none involved: the session's own statement, word for word as before, now CITING the property.
+    {
+        const said = players(rendered).filter(i => i.from.includes(property))
+        assert.deepEqual(said.map(i => [i.text, i.status]), [[`No ${role}s — everyone is an outfield player`, 'SESSION']])
+        assert.ok(players(rendered).some(i => i.from.includes('performers.teams[].outfieldCount')), 'and the team size cites the property it states')
+    }
+
+    // Some available, none involved: said as a fact about this activity, and nobody goes missing.
+    {
+        const game = variant(2, [0, 0])
+        const out = renderConcreteGame(game)
+        assert.ok(players(out).some(i => i.text === '2 teams of 6'), 'everyone is still in a team')
+        assert.deepEqual(
+            players(out).filter(i => i.from.includes(property)).map(i => [i.text, i.status]),
+            [[`This activity does not use ${role}s — everyone plays as an outfield player`, 'DERIVED']],
+        )
+        assert.deepEqual(checkFidelity(game, out).findings.filter(f => f.severity === 'VIOLATION'), [])
+    }
+
+    // Involved: each team's count is stated, with the number declared so question 2 checks it against the game.
+    {
+        const game = variant(2, [1, 1])
+        const out = renderConcreteGame(game)
+        assert.ok(players(out).some(i => i.text === '2 teams of 5'))
+        const said = players(out).filter(i => i.from.includes(property))
+        assert.deepEqual(said.map(i => [i.text, i.status, i.quantities]), [[`Each team also has 1 ${role}`, 'DERIVED', [1]]])
+        assert.deepEqual(checkFidelity(game, out).findings.filter(f => f.severity === 'VIOLATION'), [])
+
+        // TEETH — the defect itself. Say the teams and drop the role, as the renderer used to, and it is a loss.
+        const silent = wrap(out.instructions.filter(i => !i.from.includes(property)))
+        const lost = violations(checkFidelity(game, silent), 3)
+        assert.equal(lost.length, 1, `an unsaid specialized-role count must be a violation; got ${JSON.stringify(lost)}`)
+        assert.ok(lost[0].what.includes(property), lost[0].what)
+    }
+
+    // TEETH — a team size that stops citing its property is a loss too, however right the sentence still reads.
+    {
+        const uncited = wrap(rendered.instructions.map(i => ({ ...i, from: i.from.filter(f => f !== 'performers.teams[].outfieldCount') })))
+        const lost = violations(checkFidelity(fixture, uncited), 3)
+        assert.ok(lost.some(v => v.what.includes('performers.teams[].outfieldCount')), JSON.stringify(lost))
+    }
+
+    // Teams that differ cannot be told apart, so nothing is said — and saying nothing about an entailed
+    // count is reported by the check rather than waved through.
+    {
+        const game = variant(1, [1, 0])
+        const out = renderConcreteGame(game)
+        assert.equal(players(out).filter(i => i.from.includes(property)).length, 0, 'no sentence may average or pick a team')
+        assert.ok(out.coachingObservations.some(o => o.includes('different') && o.includes(role)), 'the gap is reported')
+        assert.ok(violations(checkFidelity(game, out), 3).some(v => v.what.includes(property)), 'and the activity is not passed')
+    }
+
+    // No handle travels with any of it: the citation is the property, with the member left open.
+    for (const instruction of rendered.instructions) {
+        for (const from of instruction.from) assert.ok(!from.includes('#'), `a citation must carry no member handle: ${from}`)
+    }
+}
+
 // ── Observations are evidence, never instructions ────────────────────────────────────────────────
 // The coincident-channel observation is GONE: the restatement put one channel on each touchline, so the
 // thing a coach would have questioned no longer exists in the game. The remaining three stand.

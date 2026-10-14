@@ -33,6 +33,18 @@
  *
  * It writes nothing. Refresh stays `npm run freeze:a04`, a deliberate act.
  *
+ * **Re-frozen 13 October 2026: `cdcd8316` → `b5f7b816`, and what moved is four sentences of provenance.**
+ * The roster rule was repaired to implement his rule of 30 September — *"Stating availability is not stating
+ * involvement"* — so the count a team holds for a specialized role is now what the GAME involves, with the
+ * session's availability only having to cover it. For the Golden Case both are zero, so the game itself did
+ * not move: every value, every instruction and every digest input is as it was. But each of the two teams'
+ * entailed specialized-role entries carried the reason *"the session states … = 0 for this run"*, and that is
+ * no longer why the value is zero — the game involves none because nothing selected establishes the role.
+ * The reason is recorded twice (`record.entailed` and `status.entailed`), hence four lines. Keeping the old
+ * sentence to hold the digest still would have left the fixture asserting a derivation the engine no longer
+ * performs, so the fixture was refreshed rather than acknowledged stale. The rendered text was diffed
+ * before and after through `npm run pilot:a04` and is identical.
+ *
  * Run: npm test
  */
 import assert from 'node:assert/strict'

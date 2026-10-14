@@ -118,6 +118,24 @@ function loadBearingPaths(fixture: any): {
         if (rule) excluded.push({ path: entry.path, because: rule.because, consequences: rule.consequences })
         else coachFacing.push(entry.path)
     }
+    /**
+     * **What assembly entailed is established too, and it was not on this list.** Added 13 October.
+     *
+     * The roster — each team's size and its count for every specialized role — is written into the game at
+     * the assembly boundary and recorded under `status.entailed`, which this function never read. So the
+     * one part of the game a coach needs in order to pick sides could go unsaid with no violation, and it
+     * did: measured before this, a session with one specialized performer available per team rendered
+     * "12 players in total / 2 teams of 5", said nothing about the other two, and passed with 0.
+     *
+     * **Each is required by its PROPERTY path, with the member left open.** An entailment is addressed to
+     * a member by handle, and a handle may not reach coach-facing output, citations included
+     * (`identity.unit.ts`). An instruction that speaks for every team cites `<collection>[].<leaf>`, so
+     * that is what is looked for — once per property, however many members hold it.
+     */
+    for (const entry of fixture.status.entailed ?? []) {
+        const property = `${entry.collection}[].${entry.leaf}`
+        if (!coachFacing.includes(property)) coachFacing.push(property)
+    }
     return { coachFacing, excluded }
 }
 

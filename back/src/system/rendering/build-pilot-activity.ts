@@ -5,7 +5,14 @@
  * *"serve the same validated, rendered activity without introducing unverified transformations"*. Two
  * copies of the pipeline — one in the script, one in the route — is exactly how that promise breaks:
  * they drift, and the thing the route serves stops being the thing the script validated. So the
- * pipeline lives here and both call it.
+ * pipeline lives in one place and both call it.
+ *
+ * **Since 13 October that place is `build-activity`, and this is a thin caller of it.** The pipeline was
+ * generalised to any Learning Goal and any stated session, and keeping a second, A04-only copy here would
+ * have been the very fork this header warns about. What is left in this file is only what is the pilot's
+ * own: which goal, which session, and the shape its route and script have always been given. That shape is
+ * unchanged — the same keys in the same order with the same values — and `activity-review.unit.ts` pins
+ * that the rendered activity is the one the general builder serves for the same goal and session.
  *
  * **It refuses rather than degrades.** If anything in the chain fails to authorize, fails acceptance,
  * fails a post-realization gate, or renders with a fidelity violation, this returns a refusal naming
@@ -16,21 +23,9 @@
  * **It does not touch generation.** Selection, derivation, the gates, realization, rendering and the
  * fidelity check — nothing here calls the frozen activity-generation path.
  */
-import fs from 'node:fs'
-import path from 'node:path'
-
-import { runDerivation, runStages0to10 } from '../derivation/engine'
-import { AUDITS_DIR } from '../derivation/knowledge-root'
-import { indexRegister } from '../derivation/register'
-import { assembleResolvedGame } from '../derivation/resolved-game'
-import { derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
-import { completeConcreteGame } from '../realization/assemble-concrete-game'
-import { runPostRealizationGates } from '../realization/post-realization-gate'
-import { checkRealization, isRefused, realize, Realized } from '../realization/realize'
-import { checkFidelity } from './fidelity'
-import { RenderedActivity, renderConcreteGame } from './render-concrete-game'
-
-const CHOICES = path.join(AUDITS_DIR, 'a04-realization-choices.json')
+import { CORPUS_ENVELOPE } from '../derivation/corpus'
+import { buildActivityWithSelection } from './build-activity'
+import { RenderedActivity } from './render-concrete-game'
 
 export interface PilotSession {
     players: number
@@ -76,102 +71,33 @@ export const isPilotRefused = (result: PilotActivity | PilotRefused): result is 
     (result as PilotRefused).refused === true
 
 export function buildPilotActivity(session: PilotSession = PILOT_SESSION): PilotActivity | PilotRefused {
-    const because: string[] = []
-
     /**
-     * **Selection first, and it must have RESOLVED.** `selectFor` throws where the status is `fallback`
-     * or `unresolved`, which is the invariant his 8 October ruling put at this boundary. Catching it
-     * here turns the throw into a refusal the route can serve as a 409 rather than a stack trace.
+     * **The pilot's specialized-role statement is made HERE, where it can be seen.** His ruling of 1 October:
+     * *"This is a session fact for this run, not a default assumption."* The pilot states zero for each
+     * specialized role the register names — the stage-B envelope's own statement — and it used to do so by
+     * inheriting that envelope under the session it was given. The general builder takes a session whole
+     * and inherits nothing, so the statement is passed explicitly, and only the pilot makes it.
      */
-    let selection
-    try {
-        selection = selectFor('A04', null)
-    } catch (error) {
-        return { refused: true, because: [`selection: ${error instanceof Error ? error.message : String(error)}`] }
-    }
+    const roles: Record<string, number> = JSON.parse(JSON.stringify(CORPUS_ENVELOPE.roles))
+    const { activity, selection } = buildActivityWithSelection({ kind: 'learning-goal', goalId: 'A04', situationId: null, session: { ...session, roles } })
 
-    const base = derivationInputFor(selection)
-    const input: any = { ...base, envelope: { ...(base.envelope as any), ...session } }
-
-    const result: any = runDerivation(input)
-    const staged: any = runStages0to10(input)
-    const index = indexRegister(input.register)
-    const resolved: any = assembleResolvedGame(result, staged.classes, index, input.contracts)
-
-    if (!resolved.coherence.realizationAuthorized) {
-        return {
-            refused: true,
-            because: [`Gate A is ${resolved.coherence.gateA}`, ...(resolved.coherence.notAuthorizedBecause ?? [])],
-        }
-    }
-
-    const supplied = JSON.parse(fs.readFileSync(CHOICES, 'utf8'))
-    const realization = realize(resolved, supplied.choices, supplied.instantiations, index, input.envelope)
-    if (isRefused(realization)) return { refused: true, because: ['realization refused', ...((realization as any).because ?? [])] }
-    const realized = realization as Realized
-
-    const ctx = { ...staged.gateContext, contracts: input.contracts }
-    const entailed = completeConcreteGame(ctx, realized)
-    const acceptance = checkRealization(resolved, realized)
-    const post = runPostRealizationGates(
-        ctx,
-        resolved.coherence.postRealizationRequired.map((o: any) => ({ checkId: o.checkId, clause: o.clause })),
-        realized
-    )
-
-    for (const [name, entries] of Object.entries(acceptance)) if ((entries as unknown[]).length) because.push(`${name}: ${JSON.stringify(entries)}`)
-    if (!post.validated) because.push('a post-realization gate did not validate')
-
-    const fixture: any = {
-        provenance: resolved.provenance,
-        closure: { renderEligible: true },
-        envelope: { ...session, roles: (input.envelope as any).roles ?? {} },
-        game: realized.game,
-        record: realized.record,
-        status: {
-            derived: resolved.derived.map((d: any) => ({ path: d.path, lineId: d.lineId, value: d.value })),
-            choices: realized.record.choices.map((c: any) => ({ path: c.path, lineId: c.lineId, value: c.value })),
-            instantiations: realized.record.instantiations.map((i: any) => ({
-                path: i.path,
-                classId: i.classId,
-                handle: i.handle,
-                memberIndex: i.memberIndex,
-                member: i.member,
-            })),
-            entailed,
-            geometry: realized.record.geometry,
-            jointConditions: resolved.jointConditions,
-            notEstablished: resolved.notEstablished.map((n: any) => ({ path: n.path, lineId: n.lineId, reason: n.reason, declared: n.declared })),
-        },
-    }
-
-    const rendered = renderConcreteGame(fixture)
-    const report = checkFidelity(fixture, rendered)
-    const violations = report.findings.filter((f: any) => f.severity === 'VIOLATION')
-    for (const v of violations) because.push(`fidelity Q${v.question}: ${v.what}`)
-
-    if (because.length) return { refused: true, because }
+    if (activity.outcome === 'refused' || !selection) return { refused: true, because: activity.outcome === 'refused' ? activity.reasons : ['selection did not resolve'] }
 
     return {
         goalId: 'A04',
-        goalName: String((selection as any).goalName),
+        goalName: activity.title,
         session,
-        rendered,
+        rendered: activity.rendered,
         provenance: {
+            // `selectFor` proceeds only where the selection matched, so a served activity is a matched one.
             resolution: 'matched',
-            signalGroup: 'J_attacking_duel',
-            gameForm: String(selection.selected.find(s => s.role === 'game form')?.id),
+            // Read from the run. It was the literal the selection happened to produce on the day it was typed.
+            signalGroup: selection.matchedSignalGroups.map(group => group.replace('signalGroup:', '')).join(', '),
+            gameForm: activity.account.gameForm.id,
             affordanceLenses: selection.selected.filter(s => s.role.startsWith('affordance lens')).map(s => s.id.replace('tl-v0-lens-', '')),
             contracted: selection.contracted,
             selectedWithoutContract: selection.missing.map(m => m.replace('tl-v0-constraint-', '')),
         },
-        integrity: {
-            gateA: String(resolved.coherence.gateA),
-            realizationAuthorized: Boolean(resolved.coherence.realizationAuthorized),
-            acceptance,
-            postRealizationValidated: Boolean(post.validated),
-            instructions: rendered.instructions.length,
-            fidelityViolations: violations.length,
-        },
+        integrity: activity.integrity,
     }
 }

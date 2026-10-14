@@ -1,0 +1,16 @@
+{
+  "note": "The realization choices the Wide Zone Advantage contract leaves open, answered. A REALIZER's input, not knowledge: nothing here is authored, and the realization record keeps it separate from what was derived. RESTORED 13 October 2026 into a file of its own. These are the two channel-extent choices that sat in `a04-realization-choices.json` until 8 October and were pruned from it when Beat Defenders 1v1 stopped selecting Wide Zone Advantage; the values and reasons are the ones recorded then, unchanged. They belong to this knowledge object rather than to any Learning Goal, which is why they are filed under it (see `realization-choices-index.json`): the builder adds them whenever the object is selected and contracted, so the 'Scoring modifier' mechanism demonstration can realize without a goal having been made to select the object. Each value is the single member of the authored bound, so nothing is chosen among alternatives; Stage B2 turns exactly this case into a justified default and this file should then be empty.",
+  "choices": [
+    {
+      "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S5",
+      "value": "the full axis extent, end line to end line",
+      "because": "the single member of Wide Zone's authored bound for a channel's along-extent."
+    },
+    {
+      "lineId": "c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S5",
+      "value": "the full axis extent, end line to end line",
+      "because": "the same authored bound, on the second channel."
+    }
+  ],
+  "instantiations": []
+}

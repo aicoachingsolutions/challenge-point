@@ -385,7 +385,7 @@
     "leaf": "goalkeeper",
     "path": "performers.teams[c:restated:GF2:GF2-14.a#1].goalkeeper",
     "value": 0,
-    "because": "the session states goalkeeper = 0 for this run, and the register declares P3 a specialized role"
+    "because": "no selected knowledge establishes goalkeeper in this game (P3 is not constrained); the session has 0 available, which covers it and is not itself instantiated into the game; the register declares P3 a specialized role"
    },
    {
     "lineId": "assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P2",
@@ -403,7 +403,7 @@
     "leaf": "goalkeeper",
     "path": "performers.teams[c:restated:GF2:GF2-14.a#2].goalkeeper",
     "value": 0,
-    "because": "the session states goalkeeper = 0 for this run, and the register declares P3 a specialized role"
+    "because": "no selected knowledge establishes goalkeeper in this game (P3 is not constrained); the session has 0 available, which covers it and is not itself instantiated into the game; the register declares P3 a specialized role"
    }
   ],
   "unverified": [
@@ -576,7 +576,7 @@
     "leaf": "goalkeeper",
     "path": "performers.teams[c:restated:GF2:GF2-14.a#1].goalkeeper",
     "value": 0,
-    "because": "the session states goalkeeper = 0 for this run, and the register declares P3 a specialized role"
+    "because": "no selected knowledge establishes goalkeeper in this game (P3 is not constrained); the session has 0 available, which covers it and is not itself instantiated into the game; the register declares P3 a specialized role"
    },
    {
     "lineId": "assembly:performers.teams[c:restated:GF2:GF2-14.a#2]::P2",
@@ -594,7 +594,7 @@
     "leaf": "goalkeeper",
     "path": "performers.teams[c:restated:GF2:GF2-14.a#2].goalkeeper",
     "value": 0,
-    "because": "the session states goalkeeper = 0 for this run, and the register declares P3 a specialized role"
+    "because": "no selected knowledge establishes goalkeeper in this game (P3 is not constrained); the session has 0 available, which covers it and is not itself instantiated into the game; the register declares P3 a specialized role"
    }
   ],
   "geometry": [

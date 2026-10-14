@@ -28,11 +28,12 @@
  * name rather than by the blanket permission that membership of an instantiation used to confer.
  */
 
-import { ClassifiedLine } from '../derivation/classify'
+import { ClassifiedLine, reasonFor } from '../derivation/classify'
 import { Comparison, comparisonOf } from '../derivation/comparison'
 import { DerivedLine, resolvedValue } from '../derivation/derive'
 import { GateContext } from '../derivation/gates'
 import { splitPath } from '../derivation/resolved-game'
+import { resolveScopes } from '../derivation/scope'
 import { collectionPath, place, readAt, RealizationRecord, Realized } from './realize'
 
 /** Both sides of the comparison name the given row — i.e. it is a statement about that property. */
@@ -81,6 +82,54 @@ export function completeConcreteGame(ctx: GateContext, realized: Realized): Enta
 type EntailmentRule = (ctx: GateContext, realized: Realized, into: Entailment[]) => void
 
 /**
+ * **Why the roster rule derived nothing — one named cause each.**
+ *
+ * The rule used to `return` from five different places, and every one of them reached a caller as the same
+ * sentence: the roster gate reporting that its subject lines had failed. Measured on 13 October before this
+ * existed — nine players, one player, seven and a half players, availability absent, availability `{}`, and
+ * more specialized performers than players all produced the identical `GA-ROSTER-SUM … NOT_EVALUABLE`. A
+ * coach with nine players and a coach who was never asked about a specialized role were told the same thing,
+ * and neither could act on it.
+ *
+ * The cause is a closed code and the facts travel beside it, so a caller builds its own sentence from the
+ * numbers and never has to read `why`. `why` is this layer's account, for the technical record.
+ */
+export type RosterRefusal =
+    /** The envelope carries no session player count. */
+    | { cause: 'PLAYERS_NOT_STATED'; why: string }
+    /** Availability of a specialized role is not stated — `role` is null where none is stated at all. */
+    | { cause: 'AVAILABILITY_NOT_STATED'; role: string | null; why: string }
+    /** A stated availability is not a whole, non-negative number of people. */
+    | { cause: 'AVAILABILITY_NOT_A_COUNT'; role: string; stated: unknown; why: string }
+    /** Realization instantiated no team, so there is no member to give a size to. */
+    | { cause: 'NO_INSTANTIATED_TEAMS'; why: string }
+    /** No authoritative REQUIRED equality on the outfield count: nothing licenses dividing the players evenly. */
+    | { cause: 'EQUALITY_NOT_AUTHORED'; why: string }
+    /** The neutral count is required and unestablished, or is not a number. */
+    | { cause: 'NEUTRALS_NOT_SETTLED'; why: string }
+    /** How many of a specialized role a team has in THIS game is required and unestablished. */
+    | { cause: 'INVOLVEMENT_NOT_SETTLED'; role: string; why: string }
+    /** The game involves more of a specialized role than the session has. `perTeam` is null where teams differ. */
+    | { cause: 'AVAILABILITY_SHORT'; role: string; perTeam: number | null; teams: number; needed: number; available: number; why: string }
+    /** What is left for the outfield does not split into whole equal teams. */
+    | { cause: 'DOES_NOT_DIVIDE'; players: number; teams: number; involved: number; neutrals: number; why: string }
+
+/** What the roster rule derived: a size for every instantiated team, and each team's specialized-role involvement. */
+interface Roster {
+    teams: Realized['record']['instantiations']
+    perTeam: number
+    /** One entry per specialized-role row, `perTeam[i]` belonging to `teams[i]`. */
+    involvement: { rowId: string; role: string; available: number; perTeam: { value: number; basis: string }[] }[]
+    chain: string
+}
+
+const isRosterRefusal = (outcome: Roster | RosterRefusal): outcome is RosterRefusal => 'cause' in outcome
+
+/** His distinction of 29 September, in one place for both reads: withdrawn, excluded and not-constrained are answers. */
+const establishedAbsence = (line: { lineState: string }, entry: ClassifiedLine | undefined): boolean =>
+    line.lineState === 'WITHDRAWN' || (entry?.verdict === 'NOT_AUTHORED' && (entry.reason === 'excluded' || entry.reason === 'not constrained'))
+
+/**
  * The roster, derived from the session and the authored knowledge — never chosen, and never assumed.
  *
  * His stated chain of 1 October: *"12 available performers → 0 specialized roles available → 0 neutrals
@@ -88,29 +137,47 @@ type EntailmentRule = (ctx: GateContext, realized: Realized, into: Entailment[])
  * source, which is the whole condition:
  *
  *   - **the session total** from the envelope (`players`);
- *   - **specialized roles** from the envelope's stated `roles`, as explicit counts. An absent entry means
- *     NOT STATED and derives nothing — which is what stops this treating every available performer as an
- *     outfield player whenever nobody mentioned a specialized role;
+ *   - **specialized-role AVAILABILITY** from the envelope's stated `roles`, as explicit counts of people. An
+ *     absent entry means NOT STATED and derives nothing — which is what stops this treating every available
+ *     performer as an outfield player whenever nobody mentioned a specialized role;
+ *   - **specialized-role INVOLVEMENT** read from the game (see `involvementOf` below), never from the session;
  *   - **neutrals** read from the `P5` line (see below);
  *   - **the team count** from the instantiated members of the authored claim;
  *   - **equality** from an authored REQUIRED item, read from the knowledge rather than assumed here.
  *     **Equality is not an engine rule**: this fires only where such an item exists, so a game form
  *     authoring asymmetry never reaches this path.
  *
+ * **Availability is not involvement — repaired 13 October.** His rule of 30 September, recorded on
+ * `Envelope.roles`: *"Stating availability is not stating involvement: a role available in the session is
+ * instantiated into a particular game only where the selected knowledge establishes it."* This rule did not
+ * implement it. It took every stated count off EVERY team's outfield and wrote the stated count onto each
+ * team, so a session with one such performer available turned a game that involves none into two teams of
+ * five from twelve players — two people gone from the activity, a specialized role the knowledge never
+ * established written into both teams, and every check green, because the sum the roster gate verifies was
+ * built from the same wrong terms. What a team holds for a specialized-role row is now what the GAME
+ * involves; the session's count only has to cover it.
+ *
  * It refuses on anything missing, and a division that does not come out whole derives nothing rather than
- * rounding — a rounded roster is an invented one.
+ * rounding — a rounded roster is an invented one. Each refusal names its cause.
  */
-const deriveRoster: EntailmentRule = (ctx, realized, into) => {
+function rosterFor(ctx: GateContext, realized: Realized): Roster | RosterRefusal {
     const envelope = ctx.envelope as { players?: unknown; roles?: Record<string, number> } | undefined
     const players = Number(envelope?.players)
     const roles = envelope?.roles
-    if (!Number.isFinite(players) || !roles) return
+    if (!Number.isFinite(players)) return { cause: 'PLAYERS_NOT_STATED', why: 'the envelope carries no session player count' }
+    if (!roles) {
+        return {
+            cause: 'AVAILABILITY_NOT_STATED',
+            role: null,
+            why: 'the session states no specialized-role availability at all, and an absent statement is NOT STATED rather than none available',
+        }
+    }
 
     // The instantiated members of the teams collection, with their addresses in the game.
-    const teams = realized.record.instantiations
-        .map((instantiation, i) => ({ instantiation, i, claim: ctx.classes.find(c => c.classId === instantiation.classId) }))
-        .filter(entry => entry.claim?.row === 'P1' && !!entry.instantiation.handle)
-    if (!teams.length) return
+    const teams = realized.record.instantiations.filter(
+        instantiation => ctx.classes.find(c => c.classId === instantiation.classId)?.row === 'P1' && !!instantiation.handle,
+    )
+    if (!teams.length) return { cause: 'NO_INSTANTIATED_TEAMS', why: 'realization instantiated no member of the teams collection' }
 
     /**
      * **Equality must be DECLARED, authoritative, and REQUIRED.**
@@ -143,13 +210,17 @@ const deriveRoster: EntailmentRule = (ctx, realized, into) => {
             return !!comparison && comparison.authoritative && comparison.operator === '=' && sameRow(comparison, 'P2')
         }),
     )
-    if (!equality) return
+    if (!equality) {
+        return { cause: 'EQUALITY_NOT_AUTHORED', why: 'no authoritative REQUIRED equality is authored on P2, so nothing licenses dividing the players evenly' }
+    }
 
-    // A count must be a whole, non-negative number of people. Without this a stated `-1` *increases* the
-    // outfield pool and still divides whole, deriving a larger roster than the session has.
-    const statedCounts = Object.values(roles)
-    if (!statedCounts.every(count => Number.isInteger(count) && Number(count) >= 0)) return
-    const specialized = statedCounts.reduce((sum, count) => sum + Number(count), 0)
+    // A count must be a whole, non-negative number of people. Without this a stated `-1` passes every
+    // comparison below as "covered", and a fractional person is not something a session can have.
+    for (const [role, stated] of Object.entries(roles)) {
+        if (!Number.isInteger(stated) || Number(stated) < 0) {
+            return { cause: 'AVAILABILITY_NOT_A_COUNT', role, stated, why: `the session states ${JSON.stringify(stated)} for ${role}, which is not a whole, non-negative number of people` }
+        }
+    }
 
     /**
      * **Neutrals, read from the P5 line.**
@@ -166,7 +237,7 @@ const deriveRoster: EntailmentRule = (ctx, realized, into) => {
      * has not settled.
      */
     const neutralLines = ctx.lines.filter(line => String(line.row) === 'P5')
-    if (!neutralLines.length) return
+    if (!neutralLines.length) return { cause: 'NEUTRALS_NOT_SETTLED', why: 'no P5 line exists, so the neutral count cannot be read' }
     let neutrals = 0
     for (const line of neutralLines) {
         const value = resolvedValue(ctx.derived.get(line.lineId))?.value
@@ -174,36 +245,160 @@ const deriveRoster: EntailmentRule = (ctx, realized, into) => {
             neutrals += value
             continue
         }
-        if (value !== undefined) return // a non-numeric neutral count is not something to do arithmetic over
-        const entry = ctx.classified.get(line.lineId)
-        const absent =
-            line.lineState === 'WITHDRAWN' ||
-            (entry?.verdict === 'NOT_AUTHORED' && (entry.reason === 'excluded' || entry.reason === 'not constrained'))
-        if (!absent) return
+        // A non-numeric neutral count is not something to do arithmetic over.
+        if (value !== undefined) return { cause: 'NEUTRALS_NOT_SETTLED', why: `${line.lineId} holds ${JSON.stringify(value)}, which is not a number` }
+        if (!establishedAbsence(line, ctx.classified.get(line.lineId))) {
+            return { cause: 'NEUTRALS_NOT_SETTLED', why: `${line.lineId} is required and unestablished, and nothing may be assumed about a count the knowledge has not settled` }
+        }
     }
 
-    const outfieldTotal = players - specialized * teams.length - neutrals
-    if (outfieldTotal < 0 || outfieldTotal % teams.length !== 0) return // does not come out whole; derive nothing
-    const perTeam = outfieldTotal / teams.length
+    /**
+     * **Involvement, per team and per specialized-role row, read from the game.** The rows come from the
+     * register, which carries the role NAME; this layer knows none of them.
+     *
+     * The same three cases as the neutral read above, for the same reason — *"an established absence is an
+     * answer, not an obstruction"*: a resolved count is used; an established absence is ZERO involvement,
+     * however many the session has available; required-but-unestablished refuses.
+     *
+     * **Where the count is looked for, in order.** (1) On the member itself, where realization supplied it.
+     * (2) On the team's own line for the row. (3) Where no such line exists — and for an instantiated team
+     * none does, because SD-97 enumerates no line for a class nothing individuates — the question is put to
+     * the row instead: what do the selected objects DECLARE about it? That is the same reading a line on
+     * the row would have carried (`reasonFor`), so an object that declares it does not constrain the role is
+     * an established absence, and a row nobody looked at is not. One guard is added on top, because that
+     * precedence lets a NON_CLAIMED from one object outrank a CLAIMED from another: if any selected object
+     * carries an ITEM on the row, the knowledge speaks about the count and nothing delivered it to this
+     * team, so this refuses rather than reading the silence as none.
+     */
+    let declarations: ReturnType<typeof resolveScopes>['declarations'] | null = null
+    const involvementOf = (instantiation: Roster['teams'][number], rowId: string, leaf: string): { value: number; basis: string } | { unsettled: string } => {
+        const inGame = memberInGame(realized, collectionPath(instantiation.path), instantiation.handle)
+        const own = readAt(instantiation.member as Record<string, unknown>, leaf) ?? (inGame ? readAt(inGame, leaf) : undefined)
+        if (own !== undefined) {
+            return Number.isInteger(own) && Number(own) >= 0
+                ? { value: Number(own), basis: `the member carries ${leaf} = ${Number(own)}` }
+                : { unsettled: `the member carries ${leaf} = ${JSON.stringify(own)}, which is not a whole, non-negative count` }
+        }
 
-    // The specialized-role rows come from the register, which carries the role NAME; this layer knows none
-    // of them. A role the session has not stated derives nothing, because absent means NOT STATED.
-    const specializedRows: [string, number][] = []
-    for (const [rowId, roleName] of ctx.index.specializedRoleRows) {
+        const line = ctx.lines.find(candidate => candidate.lineId === `${instantiation.classId}::${rowId}`)
+        if (line) {
+            const value = resolvedValue(ctx.derived.get(line.lineId))?.value
+            if (typeof value === 'number' && Number.isInteger(value) && value >= 0) return { value, basis: `${line.lineId} establishes ${leaf} = ${value}` }
+            if (value !== undefined) return { unsettled: `${line.lineId} holds ${JSON.stringify(value)}, which is not a whole, non-negative count` }
+            return establishedAbsence(line, ctx.classified.get(line.lineId))
+                ? { value: 0, basis: `${line.lineId} is an established absence` }
+                : { unsettled: `${line.lineId} is required and unestablished` }
+        }
+
+        const authored = ctx.contracts.filter(contract => (contract.items ?? []).some(item => String(item.row) === rowId)).map(contract => String(contract.contractId))
+        if (authored.length) {
+            return { unsettled: `${authored.join(', ')} author${authored.length === 1 ? 's' : ''} ${rowId} and no line carries it to this team` }
+        }
+        declarations = declarations ?? resolveScopes(ctx.contracts, ctx.classes).declarations
+        const reason = reasonFor(rowId, declarations)
+        return reason === 'excluded' || reason === 'not constrained'
+            ? { value: 0, basis: `no selected knowledge establishes ${leaf} in this game (${rowId} is ${reason})` }
+            : { unsettled: `nothing selected settles ${rowId} for this team (${reason})` }
+    }
+
+    const involvement: Roster['involvement'] = []
+    for (const [rowId, role] of ctx.index.specializedRoleRows) {
         if (ctx.index.ownerRow.get(rowId) !== 'P1') continue
-        const stated = roles[roleName]
-        if (!Number.isFinite(stated)) return
-        specializedRows.push([rowId, Number(stated)])
+        const row = ctx.index.rows.get(rowId)
+        const leaf = row ? splitPath(String(row.path)).leaf : null
+        if (!leaf) continue
+
+        // A role the session has not stated derives nothing, because absent means NOT STATED.
+        const available = roles[role]
+        if (!Number.isFinite(available)) {
+            return { cause: 'AVAILABILITY_NOT_STATED', role, why: `the session states no availability for the specialized role ${role}, and absent means NOT STATED` }
+        }
+
+        const perTeam: { value: number; basis: string }[] = []
+        for (const team of teams) {
+            const read = involvementOf(team, rowId, leaf)
+            if ('unsettled' in read) return { cause: 'INVOLVEMENT_NOT_SETTLED', role, why: read.unsettled }
+            perTeam.push(read)
+        }
+
+        // Availability has to COVER involvement, and that is the only thing it does.
+        const needed = perTeam.reduce((sum, entry) => sum + entry.value, 0)
+        if (needed > Number(available)) {
+            const uniform = perTeam.every(entry => entry.value === perTeam[0].value)
+            return {
+                cause: 'AVAILABILITY_SHORT',
+                role,
+                perTeam: uniform ? perTeam[0].value : null,
+                teams: teams.length,
+                needed,
+                available: Number(available),
+                why: `the game involves ${needed} ${role} across ${teams.length} teams and the session has ${Number(available)}`,
+            }
+        }
+        involvement.push({ rowId, role, available: Number(available), perTeam })
     }
 
-    const chain =
-        `${players} session performers` +
-        `${specialized ? ` − ${specialized} specialized per team` : ''}` +
-        `${neutrals ? ` − ${neutrals} neutral` : ''} over ${teams.length} teams, with equality authored on P2`
+    const involved = involvement.reduce((sum, entry) => sum + entry.perTeam.reduce((inner, team) => inner + team.value, 0), 0)
+    const outfieldTotal = players - involved - neutrals
+    if (outfieldTotal < 0 || outfieldTotal % teams.length !== 0) {
+        // Does not come out whole; derive nothing.
+        return {
+            cause: 'DOES_NOT_DIVIDE',
+            players,
+            teams: teams.length,
+            involved,
+            neutrals,
+            why: `${players} session performers − ${involved} in specialized roles − ${neutrals} neutral leaves ${outfieldTotal}, which does not split into ${teams.length} whole equal teams`,
+        }
+    }
 
-    for (const { instantiation } of teams) {
+    return {
+        teams,
+        perTeam: outfieldTotal / teams.length,
+        involvement,
+        chain:
+            `${players} session performers` +
+            `${involved ? ` − ${involved} in specialized roles` : ''}` +
+            `${neutrals ? ` − ${neutrals} neutral` : ''} over ${teams.length} teams, with equality authored on P2`,
+    }
+}
+
+/**
+ * **Why there is no roster, for a caller that has to tell a coach.** Null where the roster derives.
+ *
+ * It asks the rule again rather than reading something the rule left behind, so the realization record keeps
+ * its shape and a refusal is never a stored artifact that could outlive the session that caused it. The two
+ * answers cannot disagree: a refused rule wrote nothing, so the second reading sees exactly what the first did.
+ */
+export function rosterRefusal(ctx: GateContext, realized: Realized): RosterRefusal | null {
+    const outcome = rosterFor(ctx, realized)
+    return isRosterRefusal(outcome) ? outcome : null
+}
+
+/**
+ * The roster as an entailment rule: each team's size, and its count for every specialized role, written to
+ * the member that holds it. A refused roster writes nothing at all — never a size without the role counts
+ * the roster gate sums it with — and `rosterRefusal` says why.
+ */
+const deriveRoster: EntailmentRule = (ctx, realized, into) => {
+    const roster = rosterFor(ctx, realized)
+    if (isRosterRefusal(roster)) return
+
+    roster.teams.forEach((instantiation, teamIndex) => {
         const collection = collectionPath(instantiation.path)
-        for (const [rowId, value] of [['P2', perTeam] as [string, number], ...specializedRows]) {
+        const owed: { rowId: string; value: number; because: string }[] = [
+            { rowId: 'P2', value: roster.perTeam, because: `entailed from the session and the authored equality: ${roster.chain}` },
+            ...roster.involvement.map(entry => ({
+                rowId: entry.rowId,
+                value: entry.perTeam[teamIndex].value,
+                // **The value written is the INVOLVEMENT.** It was the session's stated count, which is how
+                // an available performer became a member of a team in a game that involves none.
+                because:
+                    `${entry.perTeam[teamIndex].basis}; the session has ${entry.available} available, which covers it and is not itself ` +
+                    `instantiated into the game; the register declares ${entry.rowId} a specialized role`,
+            })),
+        ]
+        for (const { rowId, value, because } of owed) {
             const row = ctx.index.rows.get(rowId)
             if (!row) continue
             const leaf = splitPath(String(row.path)).leaf
@@ -219,13 +414,10 @@ const deriveRoster: EntailmentRule = (ctx, realized, into) => {
                 leaf,
                 path: `${collection}[${instantiation.handle}].${leaf}`,
                 value,
-                because:
-                    rowId === 'P2'
-                        ? `entailed from the session and the authored equality: ${chain}`
-                        : `the session states ${leaf} = ${value} for this run, and the register declares ${rowId} a specialized role`,
+                because,
             })
         }
-    }
+    })
 }
 
 const RULES: EntailmentRule[] = [deriveRoster]
