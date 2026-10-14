@@ -18,7 +18,7 @@
 
 import { practical, PracticalKind, practicalRequirement } from '../derivation/practical'
 import { effectiveValue, scaleExactly } from '../derivation/rational'
-import { exclusionFor } from './coach-facing-exclusions'
+import { CoachFacingExclusion, exclusionFor } from './coach-facing-exclusions'
 import { ADJUSTING, Binding, combinedStatus, Instruction, RenderedActivity, SourceStatus } from './render-concrete-game'
 
 export interface FidelityFinding {
@@ -393,13 +393,13 @@ function heldAt(fixture: any, path: string): number[] {
  */
 function loadBearingPaths(fixture: any): {
     coachFacing: string[]
-    excluded: { path: string; because: string; ground: string; ruling: string; consequences: string[] }[]
+    excluded: { path: string; because: string; ground: string; ruling: string; consequences: string[]; dischargedBy?: CoachFacingExclusion['dischargedBy'] }[]
 } {
     const coachFacing: string[] = []
-    const excluded: { path: string; because: string; ground: string; ruling: string; consequences: string[] }[] = []
+    const excluded: { path: string; because: string; ground: string; ruling: string; consequences: string[]; dischargedBy?: CoachFacingExclusion['dischargedBy'] }[] = []
     for (const entry of [...fixture.status.derived, ...fixture.status.choices]) {
         const rule = exclusionFor(entry.path, fixture)
-        if (rule) excluded.push({ path: entry.path, because: rule.because, ground: rule.ground, ruling: rule.ruling, consequences: rule.consequences(entry.path) })
+        if (rule) excluded.push({ path: entry.path, because: rule.because, ground: rule.ground, ruling: rule.ruling, consequences: rule.consequences(entry.path), dischargedBy: rule.dischargedBy })
         else coachFacing.push(entry.path)
     }
     /**
@@ -538,7 +538,9 @@ function statementsOf(instruction: Instruction): { statements: Statement[]; inco
         combinedStatus(parts.map(p => p.status)) !== instruction.status ? 'its status is not the one its parts give it' : null,
     ].filter((p): p is string => !!p)
     if (problems.length) return { statements: [whole], inconsistency: problems.join('; ') }
-    return { statements: parts.map(p => ({ text: p.text, status: p.status, from: p.from, quantities: p.quantities, bindings: p.bindings })), inconsistency: null }
+    // A part is held to its bindings always: one that arrives without a bindings list binds nothing, so any number it
+    // says is refused (review of S-C2, 14 October 2026 — it fell back to the set-of-numbers check, which cannot see a swap).
+    return { statements: parts.map(p => ({ text: p.text, status: p.status, from: p.from, quantities: p.quantities, bindings: Array.isArray(p.bindings) ? p.bindings : [] })), inconsistency: null }
 }
 
 export function checkFidelity(fixture: any, rendered: RenderedActivity): FidelityReport {
@@ -607,7 +609,8 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
      * two of them — so every part names, for each number it says, the path it states.
      *
      * A binding holds where its path is cited by the part and the number is: a value the game holds AT that path (a
-     * collection's size included); a required limit of that path's line; the value the line STARTS at, said by a
+     * collection's size included); a required limit of that path's line, where the binding says it is said AS a
+     * limit (`REQUIRED_LIMIT`, since the review of S-C2 — and then only that); the value the line STARTS at, said by a
      * STARTING part only; a preferred limit as it may be offered, said by a PREFERENCE part only (and nothing else
      * is, for a preference); or a value modifier's effective value, bound to its operation, where the part cites the
      * operation, the magnitude and the base (SD-30, the same narrow arithmetic as above). The numbers the text says
@@ -620,7 +623,7 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
         if (JSON.stringify(said) !== JSON.stringify(bound)) {
             findings.push({ question: 2, severity: 'VIOLATION', what: `"${statement.text}" says ${JSON.stringify(said)} where its bindings give ${JSON.stringify(bound)}, in that order` })
         }
-        for (const { quantity, path } of statement.bindings) {
+        for (const { quantity, path, as } of statement.bindings) {
             if (!statement.from.includes(path)) {
                 findings.push({ question: 2, severity: 'VIOLATION', what: `"${statement.text}" binds ${quantity} to ${path}, which it does not cite` })
                 continue
@@ -628,11 +631,21 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
             const range = rangeAt.get(path)
             const begun = range?.starting
             const asStarting = statement.status === 'STARTING'
+            const requiredLimit = [range?.required?.min, range?.required?.max].some(limit => stated(limit) && limit === quantity)
+            /**
+             * **A limit is said as a limit, a value as a value** — review of stage S-C2, 14 October 2026, a
+             * TIGHTENING. A required limit was admitted for ANY binding, so a part could state the floor as the value:
+             * *"Divide 12 players into 2 teams of 5, with 1 neutral player"* passed this check where the game holds 2
+             * neutral players and 1 is only the least it may hold — the same "which number is which" hole this check
+             * was built to close, one level down. A binding marked `REQUIRED_LIMIT` is admitted only as a required
+             * limit; an unmarked one only as a value the property holds (or starts at, or its effective value).
+             */
             const admitted =
                 statement.status === 'PREFERENCE'
                     ? [range?.preferred?.min, range?.preferred?.max].some(limit => stated(limit) && limit === quantity)
-                    : heldAt(fixture, path).some(n => n === quantity && (asStarting || !stated(begun) || n !== begun || [range?.required?.min, range?.required?.max].includes(n))) ||
-                      [range?.required?.min, range?.required?.max].some(limit => stated(limit) && limit === quantity) ||
+                    : as === 'REQUIRED_LIMIT'
+                      ? requiredLimit
+                      : heldAt(fixture, path).some(n => n === quantity && (asStarting || !stated(begun) || n !== begun || [range?.required?.min, range?.required?.max].includes(n))) ||
                       (asStarting && stated(begun) && begun === quantity) ||
                       (fixture.game?.value?.valueModifiers ?? []).some((modifier: any) => {
                           const at = `value.valueModifiers[${modifier.elementId}]`
@@ -821,7 +834,10 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
      */
     for (const entry of excluded) {
         if (cited.has(entry.path)) continue
-        const undischarged = entry.consequences.filter(path => !cited.has(path))
+        // Where the entry names the kind of instruction that carries its consequence (a marking instruction, for the
+        // perceptual-reference exclusion — review of S-C2), only that kind discharges it.
+        const carriedBy = entry.dischargedBy ? new Set(rendered.instructions.filter(i => entry.dischargedBy!(i)).flatMap(i => i.from)) : cited
+        const undischarged = entry.consequences.filter(path => !carriedBy.has(path))
         if (undischarged.length) {
             findings.push({
                 question: 3,

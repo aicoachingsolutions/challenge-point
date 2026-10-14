@@ -25,9 +25,10 @@
  *     take."* A channel's authored function (`perceptual-reference`, from *"Channels are reference markers"*,
  *     WIDEZONE-08.d) told a coach *"It helps if this channel is established as a perceptual reference"* — engine
  *     words with no act in them. The one act the function implies, that the channel is marked so players can see
- *     it, is the marking instruction; so the consequence named is the region's noun, which only a marking
- *     instruction cites, and the checker verifies it was cited. The function stays in the GAME; only its sentence
- *     goes.
+ *     it, is the marking instruction; so the consequence named is the region's noun, and the checker verifies that
+ *     a MARKING instruction cites it (`dischargedBy` — corrected in the review of S-C2: the preference in
+ *     "Adjusting the activity" cites the noun too, and marks nothing). The function stays in the GAME; only its
+ *     sentence goes.
  *
  * An entry may carry `applies`: it then excludes a path only where that returns true. `.functions` (the whole
  * list) is excluded only where EVERY member of that region's list is itself excluded — a region that is also, say,
@@ -50,7 +51,18 @@ export interface CoachFacingExclusion {
     consequences: (path: string) => string[]
     /** Where present, the entry excludes `path` only when this holds on the fixture. */
     applies?: (path: string, fixture: any) => boolean
+    /**
+     * Where present, a consequence counts as carried only when an instruction of this kind cites it. Added in the
+     * review of stage S-C2 (14 October 2026): the perceptual-reference consequence (the region's noun) was said to be
+     * cited "only by a marking instruction", and it is not — the channel's preference in "Adjusting the activity"
+     * cites the noun too, so with the marking sentence deleted the exclusion was still honoured. The act the function
+     * implies is the MARKING, so only a marking instruction discharges it: the same test Q5 applies.
+     */
+    dischargedBy?: (instruction: { section: string; status: string }) => boolean
 }
+
+/** A marking instruction, as Q5 reads one: in "Set up", and not a preference (a width preference marks nothing). */
+const marking = (instruction: { section: string; status: string }): boolean => instruction.section === 'Set up' && instruction.status !== 'PREFERENCE'
 
 const ACCOUNTING_RULING =
     'Christian, 2026-10-01: "An established property does not require coach-facing expression when it is exclusively ' +
@@ -113,6 +125,7 @@ export const COACH_FACING_EXCLUSIONS: CoachFacingExclusion[] = [
             const base = regionBase(path)
             return base ? [`${base}.noun`] : []
         },
+        dischargedBy: marking,
     },
     {
         suffix: '.functions',
@@ -125,6 +138,7 @@ export const COACH_FACING_EXCLUSIONS: CoachFacingExclusion[] = [
             const base = regionBase(path)
             return base ? [`${base}.noun`] : []
         },
+        dischargedBy: marking,
         applies: (path, fixture) => {
             const functions = regionAt(path, fixture)?.functions
             return Array.isArray(functions) && functions.length > 0 && functions.every(memberExcluded)

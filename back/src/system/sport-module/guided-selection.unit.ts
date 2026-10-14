@@ -178,6 +178,12 @@ function testBothPathwaysGoThroughThisModule(): void {
     assert.match(application, /guidedSelectionHints\(guidedGoalId, guidedGoalText\(guidedGoalId\)\)/, 'the application asks this module, over the canonical goal text')
     assert.match(checkedPathway, /guidedGoalText\(goalId\)/, 'and the checked pathway selects from the same text')
     assert.doesNotMatch(application, /governByApprovedGameProblem\(/, 'and composes no half of the rule by hand')
+    // Review of S-C2 (14 October 2026): the HINTS were pinned and the TEXT selection scores lenses and constraints
+    // against was not — the route could go back to scoring the coach's composition and every assertion above would
+    // stay green. The canonical text is what selection is given for a guided goal; free text keeps the coach's words.
+    assert.match(application, /const selectionText = guidedGoalId \? guidedGoalText\(guidedGoalId\) : goalText/, 'the selection text is the canonical goal text for a guided goal')
+    assert.match(application, /learningGoals: guidedGoalId \? \[selectionText\] : learningGoals,/, 'and that is the text generateSelection scores')
+    assert.match(application, /isKnownUnsupportedGoal\(selectionText\)/, 'and the known-gap check reads the same text')
 }
 
 /**

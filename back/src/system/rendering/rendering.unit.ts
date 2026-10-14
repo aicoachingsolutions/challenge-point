@@ -1261,6 +1261,27 @@ for (const observation of rendered.coachingObservations) {
         // The same hedge put into the allegiance PART itself, consistently, is refused per part.
         const hedgedPart = checkFidelity(game, rewordPart(p => p.from.includes(ON), p => ({ ...p, text: `Ideally, ${p.text.charAt(0).toLowerCase()}${p.text.slice(1)}` })))
         assert.ok(violations(hedgedPart, 4).some(f => f.what.includes('worded as optional')) && !violations(hedgedPart, 1).length, JSON.stringify(all(hedgedPart)))
+
+        /**
+         * **A required limit said as the value is refused by its binding** — review of stage S-C2, 14 October 2026, a
+         * TIGHTENING. The binding admitted a required limit for ANY number, so the starting count reworded to the
+         * floor — *"with 1 neutral player"*, where the game holds 2 and 1 is only the least it may hold — passed Q2,
+         * and was caught only because nothing else said the starting value (Q3). For a count the game FIXED, nothing
+         * would have caught it. Now a binding says whether its number is a value or a limit, and each is checked as
+         * what it says it is.
+         */
+        const floorAsValue = checkFidelity(game, rewordPart(p => p.status === 'STARTING' && p.from.includes(COUNT), p => ({ ...p, text: ', with 1 neutral player', quantities: [1], bindings: [{ quantity: 1, path: COUNT }] })))
+        assert.ok(violations(floorAsValue, 2).some(f => f.what.includes(`binds 1 to ${COUNT}, and that is not a number of that property as a STARTING statement may say it`)), JSON.stringify(all(floorAsValue)))
+        // The same number bound as the limit it is, in the sentence that says it as one, passes — the served text.
+        const keep = said.instructions.find(i => i.text === 'Keep at least 1 neutral player')!
+        assert.deepEqual(keep.parts![0].bindings, [{ quantity: 1, path: COUNT, as: 'REQUIRED_LIMIT' }], 'the floor is bound as a limit')
+        // And a number marked as a limit that is not one is refused: 2 is where the count starts, not a limit of it.
+        const falseLimit = checkFidelity(game, rewordPart(p => p.text === 'Keep at least 1 neutral player', p => ({ ...p, text: 'Keep at least 2 neutral players', quantities: [2], bindings: [{ quantity: 2, path: COUNT, as: 'REQUIRED_LIMIT' }] })))
+        assert.ok(violations(falseLimit, 2).some(f => f.what.includes(`binds 2 to ${COUNT}, and that is not a number of that property`)), JSON.stringify(all(falseLimit)))
+        // A part that arrives with no bindings list binds nothing, so the numbers it says are refused (it fell back to
+        // the set-of-numbers check, which a swap passes: 2 and 5 are both numbers the roster holds).
+        const unbound = checkFidelity(game, rewordPart(p => p.status === 'INSTANTIATED' && p.from.includes('performers.teams'), p => ({ ...p, text: ' into 5 teams of 2', quantities: [5, 2], bindings: undefined as any })))
+        assert.ok(violations(unbound, 2).some(f => f.what.includes('says [5,2] where its bindings give []')), JSON.stringify(all(unbound)))
     }
 
     /**
@@ -1482,6 +1503,18 @@ for (const observation of rendered.coachingObservations) {
     const r = checkFidelity(specimen, unmarked)
     assert.ok(violations(r, 3).some(f => f.what.startsWith(`space.regions[${channel.elementId}].functions[perceptual-reference] was excluded as conveying no action a coach needs to take`)), JSON.stringify(violations(r, 3)))
     assert.ok(violations(r, 5).some(f => f.what.includes(`region ${channel.elementId} exists in the game and has no marking instruction`)))
+    /**
+     * Review of stage S-C2 (14 October 2026): take away ONLY the marking sentence. The channel's preference in
+     * "Adjusting the activity" also cites its noun, so a check that asked merely whether the noun was cited honoured
+     * the exclusion with nothing marked. The act the function implies is the marking, so only a marking instruction
+     * (as Q5 reads one) discharges it.
+     */
+    const preferenceKept = wrap(specimenRendered.instructions.filter(i => !(i.section === 'Set up' && i.from.includes(`space.regions[${channel.elementId}].noun`))))
+    assert.ok(preferenceKept.instructions.some(i => i.status === 'PREFERENCE' && i.from.includes(`space.regions[${channel.elementId}].noun`)), 'the preference that names the channel is still there')
+    assert.ok(
+        violations(checkFidelity(specimen, preferenceKept), 3).some(f => f.what.startsWith(`space.regions[${channel.elementId}].functions[perceptual-reference] was excluded as conveying no action a coach needs to take`)),
+        JSON.stringify(violations(checkFidelity(specimen, preferenceKept), 3)),
+    )
     // A region whose function list holds another member keeps the list coach-facing, and that member is still said:
     // excluding one engine term never silences another fact.
     const mixed = JSON.parse(JSON.stringify(specimen))

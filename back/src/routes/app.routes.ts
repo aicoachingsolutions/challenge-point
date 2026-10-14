@@ -796,6 +796,12 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         // of the selection text, so the same goal selected differently here and on the review page (measured in
         // the S-A review: Play Through Pressure (A02) landed on another game form, Play Out from the Back on other
         // candidates). The coach's own text still reaches generation (`learningGoals`, below), never selection.
+        //
+        // An id the registry does not hold is answered as it was before this stage (review of S-C2, 14 October 2026):
+        // a 400 with selection's own message. `guidedGoalText` throws for it, which reached the catch-all as a 500.
+        if (guidedGoalId && !sessionPlanningModel.learningGoal(guidedGoalId)) {
+            return res.status(400).json({ error: ['Unknown learningGoalId', guidedGoalId, 'in Test Library selection input.'].join(' ') })
+        }
         const guided = guidedGoalId ? guidedSelectionHints(guidedGoalId, guidedGoalText(guidedGoalId)) : null
         const selectionText = guidedGoalId ? guidedGoalText(guidedGoalId) : goalText
         const gameProblemAuthority = guided ? { gameProblem: guided.gameProblem } : null

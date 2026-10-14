@@ -99,6 +99,14 @@ export const ADJUSTING = 'Adjusting the activity'
 export interface Binding {
     quantity: number
     path: string
+    /**
+     * `REQUIRED_LIMIT` where the sentence says the number as a LIMIT of the property (*"between 4.5 m and 7.5 m
+     * wide"*, *"Keep at least 1 neutral player"*), not as the value it has. Added in the review of stage S-C2
+     * (14 October 2026), a tightening: a binding that did not say which it was let a part state a required limit
+     * as the value — *"with 1 neutral player"* passed Q2 where the game holds 2 and 1 is only the floor, because a
+     * required limit was admitted for any binding. Absent, the number is the property's value.
+     */
+    as?: 'REQUIRED_LIMIT'
 }
 
 /**
@@ -342,6 +350,8 @@ const instruction = (section: Instruction['section'], status: SourceStatus, core
 
 /** Each number bound to the one path it is of. */
 const boundTo = (path: string, quantities: number[]): Binding[] => quantities.map(quantity => ({ quantity, path }))
+/** Each number bound to the path it is a required LIMIT of — said as a limit, never as the value (review of S-C2). */
+const limitsOf = (path: string, quantities: number[]): Binding[] => quantities.map(quantity => ({ quantity, path, as: 'REQUIRED_LIMIT' as const }))
 
 /**
  * **The one way a range reaches a coach** — for a region's width today, and for any count or threshold that
@@ -371,7 +381,7 @@ export function sayRange(section: Instruction['section'], line: BoundedLine, wor
                   words.requiredStatus ?? 'DERIVED',
                   words.required!(limits.text, line.required!),
                   [...(words.requiredAlso?.from ?? []), line.path],
-                  [...(words.requiredAlso?.bindings ?? []), ...boundTo(line.path, limits.quantities)],
+                  [...(words.requiredAlso?.bindings ?? []), ...limitsOf(line.path, limits.quantities)],
               )
             : null,
         preferred: around
@@ -780,7 +790,7 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
                 const limits = limitsPhrase(first.range!.required!, metres)!
                 say('Set up', status, `Mark a ${noun} along each touchline, ${metres(length)} long and ${limits.text} wide`, [...first.markingFrom, ...second.markingFrom], [
                     ...lengthBinding,
-                    ...boundTo(first.across, limits.quantities),
+                    ...limitsOf(first.across, limits.quantities),
                 ])
                 const around = first.range!.preferred ? aroundPhrase(first.range!.preferred, metres) : null
                 if (around) {
@@ -985,7 +995,7 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
                 // within, so it is said in the adjusting part; a count the game fixes keeps its limit in Players.
                 const limits = limitsPhrase(range.required, n => String(n))!
                 const bound = stated(range.required.max) ? range.required.max : range.required.min
-                neutralAdjusting.push(instruction(stated(range.starting) ? ADJUSTING : 'Players', 'DERIVED', `Keep ${limits.text} ${neutralNoun(bound)}`, [countPath], boundTo(countPath, limits.quantities)))
+                neutralAdjusting.push(instruction(stated(range.starting) ? ADJUSTING : 'Players', 'DERIVED', `Keep ${limits.text} ${neutralNoun(bound)}`, [countPath], limitsOf(countPath, limits.quantities)))
             }
 
             /**
