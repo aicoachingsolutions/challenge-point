@@ -237,6 +237,12 @@ export interface RangeWords {
     requiredAlso?: { from: string[]; quantities: number[] }
     /** Whatever else the starting value's sentence states — the total it is a part of, say. */
     startingAlso?: { from: string[]; quantities: number[] }
+    /**
+     * What else the preference's sentence names. Added in the review of S-C1 (14 October 2026): once the
+     * preference moved to "Adjusting the activity" it no longer sat beside the sentence that said what it was
+     * about, so it must name that itself, and cite what it names.
+     */
+    preferredAlso?: { from: string[] }
 }
 
 export interface RangeSentences {
@@ -301,7 +307,15 @@ export function sayRange(section: Instruction['section'], line: BoundedLine, wor
                   ...limits.quantities,
               ])
             : null,
-        preferred: around ? instruction(words.sections?.preferred ?? section, 'PREFERENCE', words.preferred!(around.text, line.preferred!), [line.path], around.quantities) : null,
+        preferred: around
+            ? instruction(
+                  words.sections?.preferred ?? section,
+                  'PREFERENCE',
+                  words.preferred!(around.text, line.preferred!),
+                  [line.path, ...(words.preferredAlso?.from ?? [])].filter((p, i, all) => all.indexOf(p) === i),
+                  around.quantities,
+              )
+            : null,
         starting:
             stated(line.starting) && words.starting
                 ? instruction(
@@ -619,10 +633,27 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
                       required: marking,
                       requiredStatus: status,
                       requiredAlso: { from: markingFrom, quantities: [length] },
-                      preferred: around => `${around} wide works well`,
+                      // Said in the adjusting part, away from the marking sentence, so it names which strip it is
+                      // about (review of S-C1, 14 October 2026): two identical "Around 6 m to 7.5 m wide works well"
+                      // lines there named nothing. The noun and the side are the marking sentence's own, cited.
+                      preferred: around => `${around} wide works well for the ${noun} ${where}`,
+                      preferredAlso: { from: [nounPath, ...(paired && lateral ? [`space.regions[${region.elementId}].selector`] : [])] },
                       sections: { preferred: ADJUSTING },
                   })
                 : null
+            /**
+             * **A preference that does not fit is left out, and that is recorded** — the review of S-C1. His §7:
+             * *"Where the preferred range doesn't fit, explain the limitation or use an authorized alternative.
+             * Don't silently imply that the original preference remains applicable."* No approved wording explains
+             * it to a coach yet, so it is not said; realization recorded why (`preferenceWithin.note`), and until
+             * this review that reason reached only the fidelity report, which no page shows. It is observed here.
+             */
+            const unfit = across?.geometry?.extentBound?.preferenceWithin
+            if (unfit && unfit.compatible === false) {
+                observations.push(
+                    `The authored preferred width of the ${noun} ${where} is not offered to the coach: ${String(unfit.note ?? 'it does not fit the requirement on this area')}.`,
+                )
+            }
             if (ranged?.required) instructions.push(ranged.required)
             else say('Set up', status, marking(`up to ${metres(widest)}`), markingFrom, [length, widest])
 
@@ -754,32 +785,42 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
                 if (ranged?.starting) instructions.push(ranged.starting)
                 else say('Players', recorded(countPath, 'DERIVED'), core(String(count), count), [countPath, ...also.from], [count, ...also.quantities])
                 if (ranged?.required) instructions.push(ranged.required)
-                if (ranged?.preferred) instructions.push(ranged.preferred)
 
                 /**
-                 * The preferred range is offered as authored. Which of its members this session can field is
-                 * a separate fact, kept with the choice (`within.configurations`, 14 October: the roster
-                 * arithmetic, what the knowledge authorizes of it, and what the preferred range offers), and
-                 * where they differ a coach would want to know — so it is reported here and the sentence is left
-                 * alone. Offering only the fieldable part is the consolidated language's change, not this one.
+                 * **A preferred count is offered only where this session can field every count in it** — the
+                 * review of S-C1, 14 October 2026. Christian that day: *"Where a preferred count cannot be fielded
+                 * with the available players, communicate the valid option rather than presenting an impossible
+                 * alternative."* Until this review the range was offered as authored, so at 12 players the coach
+                 * read *"Around 1 to 2 neutral players works well"* although 1 leaves no whole equal teams (and at
+                 * 13, 2 does not) — measured at every player count from 6 to 22: one end was always unfieldable.
+                 *
+                 * Which counts this session can field is the roster rule's record (`within.configurations`: the
+                 * arithmetic, what the knowledge authorizes of it, and what the preferred range offers), read here
+                 * and never recomputed. Where any preferred count is not authorized the range is NOT offered: the
+                 * valid option is already the count the activity starts at (justified-default rule 2 closes exactly
+                 * `offered`), and offering part of a range as though it were the range would misstate it. The
+                 * omission is not essential (the count has a starting value and a required floor), so under his §7
+                 * ruling it is a NOTE, and the fidelity check refuses the impossible range if it is ever said. Why it
+                 * is not offered is recorded below for the technical account.
                  */
                 const configurations: any = (fixture.status.choices ?? []).find((c: any) => c.path === countPath)?.within?.configurations
                 const authorized: unknown = configurations?.authorized
-                if (Array.isArray(authorized) && range?.preferred && stated(range.preferred.min) && stated(range.preferred.max)) {
-                    const preferredCounts: number[] = []
+                const preferredCounts: number[] = []
+                if (range?.preferred && stated(range.preferred.min) && stated(range.preferred.max)) {
                     for (let n = range.preferred.min; n <= range.preferred.max; n++) preferredCounts.push(n)
-                    const unfielded = preferredCounts.filter(n => !authorized.includes(n))
-                    if (unfielded.length) {
-                        const offered: number[] = Array.isArray(configurations.offered) ? configurations.offered : []
-                        observations.push(
-                            `The preferred number of neutral players is offered as authored (${range.preferred.min} to ${range.preferred.max}). With ` +
-                                `${players} players, ${unfielded.join(' and ')} ${unfielded.length === 1 ? 'does' : 'do'} not leave whole equal teams; ` +
-                                `of the counts the knowledge authorizes, this session's roster fields ${authorized.join(', ') || 'none at all'}, and ` +
-                                `the preferred range offers ${offered.join(', ') || 'none of them'} as a normal starting configuration (ecological ` +
-                                `appropriateness: ${String(configurations.ecological ?? 'NOT_ASSESSED')}). A coach who takes another count will have ` +
-                                `unequal teams or a player over, and the activity does not say so.`,
-                        )
-                    }
+                }
+                const unfielded = Array.isArray(authorized) ? preferredCounts.filter(n => !authorized.includes(n)) : []
+                if (ranged?.preferred && !unfielded.length) instructions.push(ranged.preferred)
+                if (unfielded.length && Array.isArray(authorized) && range?.preferred) {
+                    const offered: number[] = Array.isArray(configurations.offered) ? configurations.offered : []
+                    observations.push(
+                        `The preferred number of neutral players (${range.preferred.min} to ${range.preferred.max}) is not offered to the coach. With ` +
+                            `${players} players, ${unfielded.join(' and ')} ${unfielded.length === 1 ? 'does' : 'do'} not leave whole equal teams; ` +
+                            `of the counts the knowledge authorizes, this session's roster fields ${authorized.join(', ') || 'none at all'}, and ` +
+                            `the preferred range offers ${offered.join(', ') || 'none of them'} as a normal starting configuration (ecological ` +
+                            `appropriateness: ${String(configurations.ecological ?? 'NOT_ASSESSED')}). The activity starts at ${count}; a coach who ` +
+                            `takes another count will have unequal teams or a player over, and the activity does not say so.`,
+                    )
                 }
             } else {
                 observations.push(

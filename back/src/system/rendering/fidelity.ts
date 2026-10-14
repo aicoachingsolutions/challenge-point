@@ -18,7 +18,7 @@
 
 import { practical, PracticalKind, practicalRequirement } from '../derivation/practical'
 import { effectiveValue, scaleExactly } from '../derivation/rational'
-import { Instruction, RenderedActivity, SourceStatus } from './render-concrete-game'
+import { ADJUSTING, Instruction, RenderedActivity, SourceStatus } from './render-concrete-game'
 
 export interface FidelityFinding {
     question: 1 | 2 | 3 | 4 | 5
@@ -190,6 +190,32 @@ function lineRanges(fixture: any): { ranges: LineRange[]; unreadable: string[] }
         return { preferred: onGrain, notOffered: null }
     }
 
+    /**
+     * **A preferred COUNT may be offered only where this session can field every count in it** — the review of
+     * S-C1, 14 October 2026, a TIGHTENING. Christian that day: *"Where a preferred count cannot be fielded with
+     * the available players, communicate the valid option rather than presenting an impossible alternative."*
+     * Measured before it: *"Around 1 to 2 neutral players works well"* passed at 12 players, where 1 leaves no
+     * whole equal teams, because a preference was held only to its authored range.
+     *
+     * Which counts can be fielded is read from the roster rule's own record on the choice (`within.configurations
+     * .authorized`: the counts whose teams come out whole, inside the required bounds), never from anything the
+     * renderer computed. Where any count of the preferred range is missing from it, the range may not be offered
+     * at all: a PREFERENCE stating it is refused at Q2, and its absence is a NOTE that says why. A line whose
+     * choice carries no such record is untouched.
+     */
+    const fieldable = (path: string, offer: Pick<LineRange, 'preferred' | 'notOffered'>): Pick<LineRange, 'preferred' | 'notOffered'> => {
+        const authorized: unknown = (fixture.status.choices ?? []).find((c: any) => c.path === path)?.within?.configurations?.authorized
+        const p = offer.preferred
+        if (!Array.isArray(authorized) || !p || !stated(p.min) || !stated(p.max)) return offer
+        const unfielded: number[] = []
+        for (let n = Math.ceil(p.min); n <= p.max; n++) if (!authorized.includes(n)) unfielded.push(n)
+        if (!unfielded.length) return offer
+        return {
+            preferred: null,
+            notOffered: `${path} carries an authored preferred range (${describe(p)}) that this session cannot field whole (${unfielded.join(', ')} leave${unfielded.length === 1 ? 's' : ''} no valid configuration; the roster fields ${authorized.join(', ') || 'none'}), so it is not offered`,
+        }
+    }
+
     const ranges: LineRange[] = []
     const starting = (path: string): number | null => {
         const choice = (fixture.status.choices ?? []).find((c: any) => c.path === path)
@@ -223,7 +249,7 @@ function lineRanges(fixture: any): { ranges: LineRange[]; unreadable: string[] }
         if (!required && !preference && begun === null) continue
         // A position line's range is a length; anything else here is a count. Each is held to its practical grain.
         const kind: PracticalKind = lineAxis ? 'EXTENT_METRES' : 'COUNT'
-        ranges.push({ path, required: required ? practicalRequirement(required, kind) : null, ...inside(path, required, preference, kind), starting: begun })
+        ranges.push({ path, required: required ? practicalRequirement(required, kind) : null, ...fieldable(path, inside(path, required, preference, kind)), starting: begun })
     }
 
     for (const g of fixture.status.geometry ?? []) {
@@ -749,6 +775,17 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
                 what: `a ${instruction.status === 'STARTING' ? 'starting value' : "coach's choice"} is worded as though the knowledge demanded it: "${instruction.text}"`,
             })
         }
+        /**
+         * **A starting value is stated, not hedged** — the review of S-C1, 14 October 2026, a TIGHTENING. Sentences
+         * that were DERIVED until that day (the possession game's "play continues", a preferred default) became
+         * STARTING, and DERIVED was the status that refused a hedge; nothing replaced the rule, so "Play may continue
+         * when possession changes" would have passed. The activity starts at exactly the value the game holds —
+         * his §3, *"a clear description of the starting configuration"* — and that it can be adjusted is said in
+         * "Adjusting the activity" (below), not by blurring the value itself.
+         */
+        if (instruction.status === 'STARTING' && hedged) {
+            findings.push({ question: 4, severity: 'VIOLATION', what: `a starting value is worded as optional or approximate: "${instruction.text}"` })
+        }
         if (instruction.status === 'COACH_CHOICE' && !CHOICE_WORDS.some(r => r.test(instruction.text))) {
             findings.push({ question: 4, severity: 'VIOLATION', what: `a value left to the coach is not put to the coach as a choice: "${instruction.text}"` })
         }
@@ -759,6 +796,23 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
             if (!hedged) {
                 findings.push({ question: 4, severity: 'VIOLATION', what: `an ADVISORY recommendation carries no hedge, so it reads as a rule: "${instruction.text}"` })
             }
+        }
+    }
+    /**
+     * **A value the activity only STARTS at is shown as adjustable** — the review of S-C1, 14 October 2026, a
+     * TIGHTENING. His §3: *"the coach should receive a clear description of the starting configuration, without
+     * implying that it cannot be adjusted"*; his §7: *"Alternative ranges, adjustments, and supporting explanations
+     * can be presented separately."* The "For this activity" prefix that used to mark such a value is gone, and a
+     * coach reads text, not statuses; what keeps the value from reading as fixed is that the part a coach adjusts
+     * within names it. So every line realization closed to a starting value inside a range must be cited by an
+     * instruction in "Adjusting the activity". Held today by the neutral count's required floor, which the renderer
+     * says there. (Values that start where an authored default or an alternative puts them, with no range around
+     * them, have no adjusting sentence yet: that wording waits on his review of the consolidated language.)
+     */
+    for (const choice of fixture.status.choices ?? []) {
+        if (choice?.closure !== 'STARTING_VALUE_IN_RANGE' || typeof choice.path !== 'string' || !cited.has(choice.path)) continue
+        if (!rendered.instructions.some(i => i.section === ADJUSTING && i.from.includes(choice.path))) {
+            findings.push({ question: 4, severity: 'VIOLATION', what: `${choice.path} is only where this activity starts, and nothing in "Adjusting the activity" names it, so it reads as fixed` })
         }
     }
 

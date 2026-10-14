@@ -257,6 +257,15 @@ assert.equal(report.provenance.length, rendered.instructions.length)
     // "It helps" is a hedge for every firm sentence too: a requirement worded as a recommendation is caught.
     const requirementAdvised: Instruction = { section: 'Set up', text: 'It helps if the area is 40 m long', status: 'DERIVED', from: ['envelope.area.length_m'], quantities: [40] }
     assert.equal(violations(checkFidelity(fixture, wrap([requirementAdvised])), 4).length, 1)
+
+    /**
+     * **A starting value is stated, not hedged — added in the review of S-C1, 14 October 2026.** The possession
+     * game's "play continues" (GF2-17, a preferred default) was DERIVED until that day, and DERIVED refused a hedge;
+     * re-statused STARTING it lost that rule, so this passed. What this activity starts at is exactly what the game
+     * holds; that it can be adjusted belongs in "Adjusting the activity", not in a blurred value.
+     */
+    const startingHedged: Instruction = { section: 'How it works', text: 'Play may continue when possession changes — there is no stoppage', status: 'STARTING', from: ['transitions'], quantities: [] }
+    assert.ok(violations(checkFidelity(fixture, wrap([startingHedged])), 4).some(f => f.what.includes('starting value is worded as optional or approximate')), 'a starting value may not be hedged')
 }
 
 /**
@@ -304,7 +313,19 @@ assert.equal(report.provenance.length, rendered.instructions.length)
             ],
             'the requirement is stated with BOTH its ends, as a requirement',
         )
-        assert.deepEqual(said.instructions.filter(isPreference).map(i => i.text), Array(2).fill('Around 6 m to 7.5 m wide works well, if it suits your group'))
+        // Moved in the review of S-C1, 14 October 2026: the preference now stands in "Adjusting the activity", away
+        // from the marking sentence, and two identical "Around 6 m to 7.5 m wide works well" lines there named
+        // nothing. Each now names its own channel, citing the noun and side the marking sentence cites.
+        assert.deepEqual(
+            said.instructions.filter(isPreference).map(i => [i.text, i.section]),
+            [
+                ['Around 6 m to 7.5 m wide works well for the channel along one touchline, if it suits your group', 'Adjusting the activity'],
+                ['Around 6 m to 7.5 m wide works well for the channel along the opposite touchline, if it suits your group', 'Adjusting the activity'],
+            ],
+        )
+        for (const [preference, marking] of said.instructions.filter(isPreference).map((p, n) => [p, said.instructions.filter(isMarking)[n]])) {
+            assert.ok(preference.from.every(path => marking.from.includes(path)), `the preference names only what its marking sentence names: ${JSON.stringify(preference.from)}`)
+        }
         assert.deepEqual(all(checkFidelity(game, said)), [], 'the accurate range must pass')
     }
 
@@ -564,6 +585,9 @@ assert.equal(report.provenance.length, rendered.instructions.length)
         starting: (value, n) => `${value} neutral player${plural(n)}`,
         required: (limits, range) => `Use ${limits} neutral player${plural(range.max ?? range.min)}`,
         preferred: (around, range) => `${around} neutral player${plural(range.max ?? range.min)} works well`,
+        // As the renderer says them (review of S-C1, 14 October 2026): the limits of a count the activity only starts
+        // at are what a coach adjusts within, so they stand in "Adjusting the activity", which names the count there.
+        sections: { required: 'Adjusting the activity', preferred: 'Adjusting the activity' },
     })
     assert.deepEqual(
         [sentences.starting, sentences.required, sentences.preferred].map(i => [i!.text, i!.status, i!.from, i!.quantities]),
@@ -587,8 +611,10 @@ assert.equal(report.provenance.length, rendered.instructions.length)
     // Since 14 October 2026 (his §7, "unless the information is essential") the preference left out is REPORTED as a
     // NOTE: the line has a required floor and a starting value, so it is not a coach's only guidance. The floor left
     // out is still refused.
+    // And since the review of S-C1 (14 October 2026) a second loss is named: with nothing in "Adjusting the activity"
+    // the count reads as fixed (Q4).
     const alone = about(withRange(sentences.starting))
-    assert.deepEqual(alone.map(f => f.question), [3], JSON.stringify(alone))
+    assert.deepEqual(alone.map(f => f.question), [3, 4], JSON.stringify(alone))
     assert.ok(alone.some(f => /required minimum of 1/.test(f.what)))
     assert.ok(withRange(sentences.starting).findings.some(f => f.severity === 'NOTE' && /preferred range that may be offered here \(1 to 2\), and no instruction offers it$/.test(f.what)))
 
@@ -961,14 +987,19 @@ for (const observation of rendered.coachingObservations) {
         ],
         'the Players section, sentence by sentence',
     )
+    /**
+     * **"Around 1 to 2 neutral players works well" is no longer said — moved in the review of S-C1, 14 October
+     * 2026.** Christian that day: *"Where a preferred count cannot be fielded with the available players,
+     * communicate the valid option rather than presenting an impossible alternative."* With 12 players 1 leaves no
+     * whole equal teams (the roster rule's configurations: authorized 2, 4, 6, 8, 10), so the range is not offered;
+     * the valid option is the count the activity starts at, said above. Instruction count 18 → 17.
+     */
     assert.deepEqual(
         said.instructions.filter(i => i.section === 'Adjusting the activity').map(i => [i.text, i.status, i.from, i.quantities, i.tier]),
-        [
-            ['The game needs at least 1 neutral player', 'DERIVED', [COUNT], [1], 'adjust'],
-            ['Around 1 to 2 neutral players works well, if it suits your group', 'PREFERENCE', [COUNT], [1, 2], 'adjust'],
-        ],
+        [['The game needs at least 1 neutral player', 'DERIVED', [COUNT], [1], 'adjust']],
         'what a coach may adjust, after the starting setup',
     )
+    assert.ok(!said.instructions.some(i => i.status === 'PREFERENCE'), 'the impossible alternative is not presented')
     assert.deepEqual(all(checkFidelity(game, said)), [], 'and it is faithful')
     // The count is where the activity STARTS: the game holds it as a choice closed by rule inside a range. Its
     // configurations (14 October 2026) keep structural, authorized and offered apart; rule 2's count is the one offered.
@@ -991,7 +1022,8 @@ for (const observation of rendered.coachingObservations) {
         'Make the neutral player easy to tell apart from both teams — for example, contrasting bibs',
         'The neutral player is active in the game — not waiting, resting or watching',
     ])
-    assert.deepEqual(thirteen.said.instructions.filter(i => i.tier === 'adjust').map(i => i.text), ['The game needs at least 1 neutral player', 'Around 1 to 2 neutral players works well, if it suits your group'])
+    // With 13, 2 is the count that cannot be fielded, so again only the floor (review of S-C1, 14 October 2026).
+    assert.deepEqual(thirteen.said.instructions.filter(i => i.tier === 'adjust').map(i => i.text), ['The game needs at least 1 neutral player'])
     assert.equal(thirteen.game.status.choices.find((c: any) => c.path === COUNT).within.configurations.offered.join(), '1')
 
     /**
@@ -1003,14 +1035,15 @@ for (const observation of rendered.coachingObservations) {
      *     (register row P6c; C43, his words), so the activity says it — once, citing the property — and the
      *     observation that it could not is gone. Without the item the old sentence and observation come back
      *     (`affiliation-timing.unit.ts`);
-     *   - the preferred range is offered as authored (1 to 2), and with twelve players 1 does not leave
-     *     equal teams — now read from the configurations, which also say what is offered and that ecological
-     *     appropriateness is not assessed;
+     *   - the preferred range (1 to 2) is NOT offered, because with twelve players 1 does not leave equal teams —
+     *     read from the configurations, which also say what is offered and that ecological appropriateness is
+     *     not assessed. (It said "offered as authored" until the review of S-C1, 14 October 2026, when the range
+     *     stopped being offered where one end cannot be fielded — his §6.);
      *   - nothing establishes whether the same players stay neutral throughout.
      */
     assert.deepEqual(said.instructions.filter(i => /immediate/i.test(i.text)).map(i => i.from.includes(TAKES)), [true], 'said once, and cited to the timing the game holds')
     assert.ok(!said.coachingObservations.some(o => o.includes('It does not say the change is')), 'and nothing reports it as unsaid')
-    assert.ok(said.coachingObservations.some(o => o.includes('offered as authored (1 to 2)') && o.includes('With 12 players, 1 does not leave whole equal teams') && o.includes('roster fields 2, 4, 6, 8, 10') && o.includes('offers 2 as a normal starting configuration') && o.includes('NOT_ASSESSED')))
+    assert.ok(said.coachingObservations.some(o => o.includes('neutral players (1 to 2) is not offered to the coach') && o.includes('With 12 players, 1 does not leave whole equal teams') && o.includes('roster fields 2, 4, 6, 8, 10') && o.includes('offers 2 as a normal starting configuration') && o.includes('NOT_ASSESSED')))
     assert.ok(said.coachingObservations.some(o => o.includes('.persistence` is not authored')))
     assert.ok(said.coachingObservations.some(o => o.includes('the neutral players take a side by who has possession')), 'who starts with the ball matters to this game, and the reason is read from it')
 
@@ -1026,15 +1059,45 @@ for (const observation of rendered.coachingObservations) {
     assert.deepEqual(lost(i => i.from.includes(MEANS)), [`${MEANS} is established by the game and no instruction carries it`])
     assert.deepEqual(lost(i => i.from.includes(STATE)), [`${STATE} is established by the game and no instruction carries it`])
     assert.ok(lost(i => i.text.startsWith('The game needs')).some(what => what.includes(COUNT) && what.includes('required minimum of 1')), 'the floor of the count is part of what is authored')
-    // The preferred range left out is REPORTED, as a NOTE since 14 October 2026 (his §7: "their omission shouldn't
-    // automatically invalidate an otherwise valid activity unless the information is essential") — the count has a
-    // floor and starts at a value, so the preference is not a coach's only guidance.
+    /**
+     * The preferred range not offered is REPORTED, as a NOTE that says why — re-pointed in the review of S-C1,
+     * 14 October 2026. It read "may be offered here (1 to 2), and no instruction offers it" (his §7 omission
+     * ruling); since the range can no longer be offered at 12 players at all (his §6, "communicate the valid
+     * option rather than presenting an impossible alternative"), the NOTE names the count that cannot be fielded.
+     * And the impossible range, if a renderer said it, is REFUSED: a TIGHTENING — it passed until this review.
+     */
     assert.ok(
-        checkFidelity(game, without(i => i.status === 'PREFERENCE')).findings.some(f => f.severity === 'NOTE' && f.what.includes(COUNT) && f.what.includes('preferred range that may be offered here (1 to 2)')),
-        'and so is the preferred range',
+        checkFidelity(game, said).findings.some(f => f.severity === 'NOTE' && f.what.includes(COUNT) && f.what.includes('preferred range (1 to 2) that this session cannot field whole (1 leaves no valid configuration')),
+        'and so is the preferred range, with why',
     )
     assert.ok(!lost(i => i.status === 'PREFERENCE').some(what => what.includes('preferred range')))
+    {
+        const impossible: Instruction = { section: 'Adjusting the activity', text: 'Around 1 to 2 neutral players works well, if it suits your group', status: 'PREFERENCE', from: [COUNT], quantities: [1, 2] }
+        for (const [g, s] of [[game, said], [thirteen.game, thirteen.said]] as [any, RenderedActivity][]) {
+            const r = checkFidelity(g, wrap([...s.instructions, impossible]))
+            assert.ok(violations(r, 2).some(f => /offers 1 as a preference, and nothing it cites carries a preferred range that may be offered/.test(f.what)), JSON.stringify(violations(r, 2)))
+            assert.ok(violations(r, 2).some(f => /offers 2 as a preference/.test(f.what)), 'neither end may be offered as the range')
+        }
+        // A session that CAN field the whole range is untouched: the configurations are the roster rule's record,
+        // and with every preferred count authorized the range is offered and checked exactly as before.
+        const fieldable = JSON.parse(JSON.stringify(game))
+        fieldable.status.choices.find((c: any) => c.path === COUNT).within.configurations.authorized = [1, 2, 4, 6, 8, 10]
+        const offeredWhole = checkFidelity(fieldable, wrap([...said.instructions, impossible]))
+        assert.deepEqual(violations(offeredWhole, 2), [], 'every count fieldable: the authored range may be offered')
+        assert.ok(checkFidelity(fieldable, said).findings.some(f => f.severity === 'NOTE' && f.what.includes('may be offered here (1 to 2), and no instruction offers it')), 'and leaving it out is the §7 NOTE')
+    }
     assert.ok(lost(i => i.status === 'STARTING' && i.from.includes(COUNT)).some(what => what.includes('starts at 2 in this activity')), 'and so is where this activity starts')
+    /**
+     * **A count the activity only starts at is named where a coach adjusts — added in the review of S-C1,
+     * 14 October 2026.** The "For this activity" prefix that marked a starting value is gone, and a coach reads
+     * text, not statuses (his §3: *"without implying that it cannot be adjusted"*). The floor said in "Adjusting the
+     * activity" is what names the count there; moved back into the setup, the count reads as fixed and is refused.
+     */
+    {
+        const fixed = checkFidelity(game, wrap(said.instructions.map(i => (i.section === 'Adjusting the activity' ? { ...i, section: 'Players' as const, tier: 'setup' as const } : i))))
+        assert.ok(violations(fixed, 4).some(f => f.what === `${COUNT} is only where this activity starts, and nothing in "Adjusting the activity" names it, so it reads as fixed`), JSON.stringify(violations(fixed, 4)))
+        assert.deepEqual(violations(checkFidelity(game, said), 4), [], 'as rendered, it is named there')
+    }
     /**
      * **CLOSED in the B3 review, 13 October — it was pinned here as a KNOWN LIMIT.** With ONE neutral the
      * starting value and the required minimum are the same number, and the two sentences carried each other:
@@ -1068,8 +1131,11 @@ for (const observation of rendered.coachingObservations) {
         const starting = (i: Instruction) => i.status === 'STARTING' && i.from.includes(COUNT)
         const three = checkFidelity(game, reworded(starting, i => ({ ...i, text: i.text.replace('2 of the 12', '3 of the 12'), quantities: [3, 12, 2] })))
         assert.ok(violations(three, 2).some(f => /states 3, which is neither a value the game holds at a property it cites nor a required limit of one/.test(f.what)), JSON.stringify(violations(three, 2)))
-        const wide = checkFidelity(game, reworded(i => i.status === 'PREFERENCE', i => ({ ...i, text: 'Around 2 to 4 neutral players works well, if it suits your group', quantities: [2, 4] })))
-        assert.ok(violations(wide, 2).some(f => /offers 4 as a preference, and the preferred range of what it cites is 1 to 2/.test(f.what)), JSON.stringify(violations(wide, 2)))
+        // Re-pointed in the review of S-C1, 14 October 2026: no preference is said at 12 players any more (1 cannot
+        // be fielded), so the wrong range is ADDED rather than reworded — and it is refused, number by number.
+        const wrongRange: Instruction = { section: 'Adjusting the activity', text: 'Around 2 to 4 neutral players works well, if it suits your group', status: 'PREFERENCE', from: [COUNT], quantities: [2, 4] }
+        const wide = checkFidelity(game, wrap([...said.instructions, wrongRange]))
+        assert.ok(violations(wide, 2).some(f => /offers 4 as a preference, and nothing it cites carries a preferred range that may be offered/.test(f.what)), JSON.stringify(violations(wide, 2)))
         const firm = checkFidelity(game, reworded(i => i.text.startsWith('The game needs'), i => ({ ...i, text: 'The game needs between 1 and 2 neutral players', quantities: [1, 2] })))
         // CLOSED in the B3 review, 13 October — pinned here as a KNOWN LIMIT: 2 is the value the line holds,
         // so a preferred maximum worded as a requirement passed. 2 is where this activity STARTS, a choice,

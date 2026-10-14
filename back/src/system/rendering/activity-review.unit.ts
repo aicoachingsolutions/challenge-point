@@ -533,7 +533,9 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
                 'Mark a channel along the opposite touchline, 40 m long and between 4.5 m and 7.5 m wide',
                 'It helps if this channel is established as a perceptual reference',
             ],
-            ['Around 6 m to 7.5 m wide works well, if it suits your group', 'Around 6 m to 7.5 m wide works well, if it suits your group'],
+            // Each names its channel since the review of S-C1 (14 October 2026): in the adjusting part, away from the
+            // marking sentences, two identical lines named nothing.
+            [`Around 6 m to 7.5 m wide works well for the channel along one touchline, if it suits your group`, `Around 6 m to 7.5 m wide works well for the channel along the opposite touchline, if it suits your group`],
         ],
         [
             30,
@@ -548,7 +550,7 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
                 'Mark a channel along the opposite touchline, 30 m long and between 4 m and 6 m wide',
                 'It helps if this channel is established as a perceptual reference',
             ],
-            ['Around 6 m wide works well, if it suits your group', 'Around 6 m wide works well, if it suits your group'],
+            [`Around 6 m wide works well for the channel along one touchline, if it suits your group`, `Around 6 m wide works well for the channel along the opposite touchline, if it suits your group`],
         ],
         [
             20,
@@ -606,10 +608,10 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
      * is no longer the shape of one size only. No size offers a preference outside its own requirement.
      */
     const read: [number, number, string, string | null][] = [
-        [40, 24, 'between 4 m and 6 m wide', 'Around 6 m wide works well, if it suits your group'],
+        [40, 24, 'between 4 m and 6 m wide', 'Around 6 m wide works well'],
         [33, 21, 'between 3.5 m and 5 m wide', null],
-        [45, 35, 'between 5.5 m and 8.5 m wide', 'Around 6 m to 8.5 m wide works well, if it suits your group'],
-        [100, 64, 'between 10 m and 16 m wide', 'Around 10 m wide works well, if it suits your group'],
+        [45, 35, 'between 5.5 m and 8.5 m wide', 'Around 6 m to 8.5 m wide works well'],
+        [100, 64, 'between 10 m and 16 m wide', 'Around 10 m wide works well'],
         [30.5, 22.2, 'between 3.5 m and 5.5 m wide', null],
     ]
     for (const [length, width, required, preference] of read) {
@@ -622,7 +624,8 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
             `${length} x ${width}`,
         )
         const offered = activity.rendered.instructions.filter(i => i.status === 'PREFERENCE').map(i => i.text)
-        assert.deepEqual(offered, preference ? [preference, preference] : [], `${length} x ${width}: the preference is offered only inside the requirement, and as a PREFERENCE`)
+        // Each names its own channel since the review of S-C1 (14 October 2026).
+        assert.deepEqual(offered, preference ? [`${preference} for the channel along one touchline, if it suits your group`, `${preference} for the channel along the opposite touchline, if it suits your group`] : [], `${length} x ${width}: the preference is offered only inside the requirement, and as a PREFERENCE`)
         // No number a coach reads is a float artefact: each prints as the short decimal it is.
         for (const said of activity.rendered.instructions) {
             for (const [number] of said.text.matchAll(/\d+(?:\.\d+)?/g)) assert.ok(number.length <= 6, `"${number}" in "${said.text}"`)
@@ -658,7 +661,14 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
      * floor and the preferred range moved to "Adjusting the activity" (§7). Offering only the part of the
      * preferred range a session can field is the consolidated language's change (S-C2), not this one.
      */
-    const NEUTRAL_ADJUSTING = ['The game needs at least 1 neutral player', 'Around 1 to 2 neutral players works well, if it suits your group']
+    /**
+     * **The preferred range is no longer offered at 12 or 13 players — moved in the review of S-C1, 14 October 2026.**
+     * Christian that day: *"Where a preferred count cannot be fielded with the available players, communicate the
+     * valid option rather than presenting an impossible alternative."* 1 cannot be fielded with 12 players and 2
+     * cannot with 13 (the roster rule's configurations), so *"Around 1 to 2 neutral players works well"* is not said;
+     * the valid option is the count the activity starts at. Instruction count 18 → 17 at both sizes.
+     */
+    const NEUTRAL_ADJUSTING = ['The game needs at least 1 neutral player']
     const NEUTRAL_ACTIVITY: [number, string[]][] = [
         [
             12,
@@ -700,7 +710,8 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         assert.deepEqual(neutrals.account.constraints.map(c => [c.title, c.contracted]), [['Neutral Player Condition', true]])
         // Baseline of 13 October, measured: 18 instructions and 0 violations, at both sizes — the bare
         // possession game's 12, plus the six sentences about the neutral players.
-        assert.equal(neutrals.rendered.instructions.length, 18, `${players} players`)
+        // 17 since the review of S-C1 (14 October 2026): the unfieldable preferred range is no longer offered.
+        assert.equal(neutrals.rendered.instructions.length, 17, `${players} players`)
         assert.equal(a04.rendered.instructions.length, 12)
         assert.equal(neutrals.integrity.fidelityViolations, 0)
         assert.deepEqual(neutrals.rendered.withheld, [], 'no condition or information rule in it, so nothing awaits wording (14 October)')
@@ -824,7 +835,9 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         assert.equal(composed.kind, 'mechanism-demonstration', 'a composition is a mechanism demonstration too, and says so')
         assert.equal(composed.account.gameProblem, null)
         assert.deepEqual(composed.account.constraints.map(c => [c.title, c.contracted]), [['Wide Zone Advantage', true], ['Neutral Player Condition', true]])
-        assert.equal(composed.rendered.instructions.length, 28, `${players} players`)
+        // 27 since the review of S-C1 (14 October 2026): the neutral count's unfieldable preferred range is no longer
+        // offered (his §6), one sentence fewer at both sizes; the channel preferences are still offered.
+        assert.equal(composed.rendered.instructions.length, 27, `${players} players`)
         assert.equal(composed.integrity.fidelityViolations, 0)
         assert.equal(composed.integrity.postRealizationValidated, true)
         assert.deepEqual(composed.integrity.acceptance, { nothingClosedWithoutAuthority: [], nothingLost: [], nothingInvented: [] })

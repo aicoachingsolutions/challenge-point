@@ -86,4 +86,38 @@ test('the game holds the practical number and the activity says exactly that, at
     }
 })
 
+/**
+ * **PROPERTY, end to end — added in the review of S-C1, 14 October 2026.** The lattice above proves the rule; this
+ * proves what is BUILT with it, over areas a coach might type, decimals included (41.7 × 33.3, 55.5 × 26.6): the
+ * activity is served with no violation, the game's channel is never wider than the exact authored maximum nor
+ * narrower than the exact minimum (0.15 and 0.25 of the width), it holds the practical maximum wherever the rule
+ * gives one, the requirement written beside it lies inside the exact one, and every number a coach reads about a
+ * channel below 10 m is on the half-metre grain. Measured over 254 areas in the review; a spread of them is kept.
+ */
+test('PROPERTY: over many areas the game holds a practical width inside the exact requirement, and says it', () => {
+    const sizes: [number, number][] = [
+        [12, 8], [15, 11], [20, 12.5], [22.5, 17], [25, 19.9], [27, 20], [30, 23], [33.3, 26.6], [35, 23], [40, 24],
+        [41.7, 33.3], [45, 35], [50, 45.5], [55.5, 26.6], [60, 40], [64.2, 50], [70, 33.3], [80, 50], [100, 64], [30.5, 22.2],
+    ]
+    for (const [length, width] of sizes) {
+        const { activity, fixture } = buildActivityFromKnowledge(['GF2', 'tl-v0-constraint-wide-zone-advantage'], { players: 12, lengthM: length, widthM: width, durationMin: 20, roles: none })
+        assert.equal(activity.outcome, 'served', `${length} x ${width}`)
+        assert.equal((activity as ServedActivity).integrity.fidelityViolations, 0, `${length} x ${width}`)
+        const exact = { min: 0.15 * Math.min(length, width), max: 0.25 * Math.min(length, width) }
+        const rule = practical(exact, 'EXTENT_METRES')
+        const across = (fixture as any).status.geometry.filter((g: any) => g.path.endsWith('.position.across') && g.path.includes('WIDEZONE'))
+        assert.equal(across.length, 2, `${length} x ${width}`)
+        for (const g of across) {
+            const held = Math.abs(g.geometry.interval.to - g.geometry.interval.from)
+            assert.ok(held <= exact.max + 1e-9 && held >= exact.min - 1e-9, `${length} x ${width}: ${held} m is outside the exact ${exact.min}-${exact.max} m`)
+            if (rule) assert.ok(Math.abs(held - rule.max!) < 1e-9, `${length} x ${width}: holds ${held}, the practical maximum is ${rule.max}`)
+            const within = g.geometry.extentBound.requiredWithin
+            assert.ok(within.min >= exact.min - 1e-9 && within.max <= exact.max + 1e-9 && within.max >= held - 1e-9, `${length} x ${width}: ${JSON.stringify(within)}`)
+        }
+        for (const sentence of (activity as ServedActivity).rendered.instructions.filter(i => i.text.includes('channel'))) {
+            for (const n of sentence.quantities) if (n < 10 && n !== length && n !== width) assert.ok(Number.isInteger(n * 2), `${length} x ${width}: ${n} is off the grain in "${sentence.text}"`)
+        }
+    }
+})
+
 console.log(`practical.unit.ts — ${passed} passed`)
