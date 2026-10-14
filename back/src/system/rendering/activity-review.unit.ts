@@ -126,7 +126,9 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
 {
     const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: none }
     const bare = served(buildActivityFromKnowledge(['GF2'], session).activity, 'the bare possession game')
-    assert.equal(bare.rendered.instructions.length, 12)
+    // 12 → 8 on 14 October 2026 (stage S-C2, his §7 consolidated language): the end lines in one sentence, the roster
+    // in one, the possession-change sentences in one. Nothing said was lost (0 violations, every property cited).
+    assert.equal(bare.rendered.instructions.length, 8)
     assert.equal(bare.integrity.fidelityViolations, 0)
     for (const [label, selected] of [
         ['A04\'s game form and constraints', ['GF2', 'tl-v0-constraint-small-area-condition', 'tl-v0-constraint-zone-structure-condition']],
@@ -337,12 +339,14 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
 {
     // Through the demonstration since 14 October (A04 is refused before its roster; see above).
     const activity = served(reviewActivity(stored(), { ...VEHICLE, durationMin: 20, roles: { [ROLE]: 2 } }), 'two available')
-    assert.deepEqual(text(activity, 'Players').slice(0, 3), ['12 players in total', '2 teams of 6', `This activity does not use ${ROLE}s — everyone plays as an outfield player`])
+    // The roster is one sentence since stage S-C2 (14 October 2026, his §7 consolidated language, DRAFT); the three
+    // involvement cases are kept as its last part.
+    assert.deepEqual(text(activity, 'Players').slice(0, 1), [`Divide 12 players into 2 teams of 6; ${ROLE}s play as outfield players in this activity`])
     assert.equal(activity.integrity.fidelityViolations, 0)
     assert.equal(activity.session.roles[ROLE], 2, 'the session reported back is the one the coach stated')
 
     const zero = served(reviewActivity(stored(), { ...VEHICLE, durationMin: 20 }), 'none available')
-    assert.deepEqual(text(zero, 'Players').slice(0, 3), ['12 players in total', '2 teams of 6', `No ${ROLE}s — everyone is an outfield player`])
+    assert.deepEqual(text(zero, 'Players').slice(0, 1), [`Divide 12 players into 2 teams of 6, with no ${ROLE}s`])
     // Nothing else about the activity depends on how many were available.
     assert.deepEqual(text(activity, 'Set up'), text(zero, 'Set up'))
     assert.deepEqual(text(activity, 'How to score'), text(zero, 'How to score'))
@@ -389,12 +393,13 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
 
     // Two available for a game that involves one per team: derived, RENDERED, and nothing lost or invented.
     const staffed = served(at(2), 'one per team required, two available')
-    assert.deepEqual(text(staffed, 'Players').slice(0, 3), ['12 players in total', '2 teams of 5', `Each team also has 1 ${ROLE}`])
+    assert.deepEqual(text(staffed, 'Players').slice(0, 1), [`Divide 12 players into 2 teams of 5, plus 1 ${ROLE} each`])
     assert.equal(staffed.integrity.fidelityViolations, 0)
     assert.equal(staffed.integrity.postRealizationValidated, true)
     assert.deepEqual(staffed.integrity.acceptance, { nothingClosedWithoutAuthority: [], nothingLost: [], nothingInvented: [] })
-    const said = staffed.rendered.instructions.find(i => i.text === `Each team also has 1 ${ROLE}`)!
-    assert.deepEqual([said.status, said.quantities], ['DERIVED', [1]], 'a count the knowledge requires is stated as derived, with its number declared')
+    // The role's count is a part of the roster sentence (stage S-C2), with its own status and its number bound to its property.
+    const said = (staffed.rendered.instructions.find(i => i.text.startsWith('Divide'))!.parts ?? []).find(p => p.text === `, plus 1 ${ROLE} each`)!
+    assert.deepEqual([said.status, said.quantities, said.bindings.map(b => b.path)], ['DERIVED', [1], [`performers.teams[].${ROLE}`]], 'a count the knowledge requires is stated as derived, with its number declared and bound')
 
     // More available than the game involves changes nothing a coach is told to set up.
     assert.deepEqual(text(served(at(5), 'five available'), 'Players'), text(staffed, 'Players'))
@@ -418,10 +423,7 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
 
     // The loader's contracts are shared by every caller in the process. None of the above may have reached them.
     assert.ok(!JSON.stringify(loadCorpusContracts()).includes('REVIEW-ROLE-ITEM'), 'the alteration was made to a copy and to nothing else')
-    assert.deepEqual(text(served(reviewActivity(stored(), { ...VEHICLE, durationMin: 20, roles: { [ROLE]: 2 } }), 'the demonstration itself, afterwards'), 'Players').slice(1, 3), [
-        '2 teams of 6',
-        `This activity does not use ${ROLE}s — everyone plays as an outfield player`,
-    ])
+    assert.deepEqual(text(served(reviewActivity(stored(), { ...VEHICLE, durationMin: 20, roles: { [ROLE]: 2 } }), 'the demonstration itself, afterwards'), 'Players').slice(0, 1), [`Divide 12 players into 2 teams of 6; ${ROLE}s play as outfield players in this activity`])
 }
 
 // ── The coach's own session shapes the activity ───────────────────────────────────────────────────
@@ -429,7 +431,7 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
     // Through the demonstration since 14 October (A04 is refused before its session shapes anything).
     const activity = served(reviewActivity(stored({ playerCount: 16, fieldLength: '50', fieldWidth: '35' }), { ...VEHICLE, durationMin: 15 }), '16 players, 50 x 35')
     assert.ok(text(activity, 'Set up').includes('Mark out an area 50 m long by 35 m wide'))
-    assert.ok(text(activity, 'Players').includes('2 teams of 8'))
+    assert.ok(text(activity, 'Players').includes('Divide 16 players into 2 teams of 8, with no ' + ROLE + 's'), JSON.stringify(text(activity, 'Players')))
     assert.ok(text(activity, 'How it works').includes('Play for 15 minutes'))
     assert.deepEqual(activity.session, { players: 16, lengthM: 50, widthM: 35, durationMin: 15, roles: none })
 }
@@ -448,8 +450,10 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
     assert.equal(modifier.account.contextId, null)
     assert.equal(modifier.title, 'Scoring modifier')
     assert.ok(String(modifier.subtitle).includes('Not a Learning Goal activity'), 'and it says so wherever it is shown')
-    // Baseline of 13 October, measured at this session: 22 instructions and 0 violations.
-    assert.equal(modifier.rendered.instructions.length, 22)
+    // Baseline of 13 October, measured at this session: 22 instructions and 0 violations. 22 → 11 on 14 October 2026
+    // (stage S-C2, his §7 consolidated language): end lines, channels, roster, possession change, the modifier and the
+    // channel preference each said once; the two perceptual-reference sentences excluded on his ruling of that day.
+    assert.equal(modifier.rendered.instructions.length, 11)
     assert.equal(modifier.integrity.fidelityViolations, 0)
     assert.deepEqual(modifier.account.constraints.map(c => c.contracted), [true], 'its one constraint is contracted, so it actually shapes the game')
     // Found in review: the account named it by its library id, because a name was looked up in one of the
@@ -511,62 +515,36 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         )
     /**
      * **Moved 14 October 2026, each for a ruling of that day, and measured.** The lines lost "For this activity,"
-     * (his §7) and are STARTING; each channel's established function is ADVISORY — its only support is an item
-     * the rule could stand without (OD2 awaits his ruling; rendered so he can see it); each preference moved to
-     * "Adjusting the activity" (§7, "Alternative ranges, adjustments … can be presented separately"); and the
-     * numbers are established at the practical grain, inward (§7, rounding at establishment; the grain is data
-     * and a proposal awaiting his confirmation): at 30 × 25 the channel is 4 to 6 m, not 3.75 to 6.25 m, and the
-     * 25 cm sliver of preference is offered as the one practical value, *"Around 6 m"*; at 20 × 15 it is 2.5 to
-     * 3.5 m. 40 × 30 is already on the grain and its numbers do not move. Instruction counts do not move.
+     * (his §7) and are STARTING; each preference moved to "Adjusting the activity" (§7, "Alternative ranges,
+     * adjustments … can be presented separately"); and the numbers are established at the practical grain, inward
+     * (§7, rounding at establishment; the grain is data and a proposal awaiting his confirmation): at 30 × 25 the
+     * channel is 4 to 6 m, not 3.75 to 6.25 m, and the 25 cm sliver of preference is offered as the one practical
+     * value, *"Around 6 m"*; at 20 × 15 it is 2.5 to 3.5 m. 40 × 30 is already on the grain and its numbers do not move.
+     *
+     * **Consolidated the same day (stage S-C2, his §7 language ruling; every sentence a DRAFT):** the two end lines
+     * are one sentence, the two channels one ("along each touchline"), the preference one ("for each channel"); and
+     * *"It helps if this channel is established as a perceptual reference"* is no longer said — his words: *"please
+     * remove internal engine terminology such as 'perceptual reference' from coach-facing instructions unless it
+     * conveys an actual action the coach needs to take"* (excluded through `coach-facing-exclusions.ts`, its one
+     * consequence — the channel is marked — verified cited). 22 → 11 instructions at 40 × 30 and 30 × 25, 20 → 10 at
+     * 20 × 15, 0 violations at each.
      */
     const expected: [number, number, number, string[], string[]][] = [
         [
             40,
             30,
-            22,
-            [
-                'Mark out an area 40 m long by 30 m wide',
-                'Mark a line across one end of the area, 30 m long, on the end line itself',
-                'Mark a line across the other end of the area, 30 m long, on the end line itself',
-                'Mark a channel along one touchline, 40 m long and between 4.5 m and 7.5 m wide',
-                'It helps if this channel is established as a perceptual reference',
-                'Mark a channel along the opposite touchline, 40 m long and between 4.5 m and 7.5 m wide',
-                'It helps if this channel is established as a perceptual reference',
-            ],
-            // Each names its channel since the review of S-C1 (14 October 2026): in the adjusting part, away from the
-            // marking sentences, two identical lines named nothing.
-            [`Around 6 m to 7.5 m wide works well for the channel along one touchline, if it suits your group`, `Around 6 m to 7.5 m wide works well for the channel along the opposite touchline, if it suits your group`],
+            11,
+            ['Mark out an area 40 m long by 30 m wide', 'Mark both end lines: they are the scoring lines', 'Mark a channel along each touchline, 40 m long and between 4.5 m and 7.5 m wide'],
+            ['Around 6 m to 7.5 m wide works well for each channel'],
         ],
         [
             30,
             25,
-            22,
-            [
-                'Mark out an area 30 m long by 25 m wide',
-                'Mark a line across one end of the area, 25 m long, on the end line itself',
-                'Mark a line across the other end of the area, 25 m long, on the end line itself',
-                'Mark a channel along one touchline, 30 m long and between 4 m and 6 m wide',
-                'It helps if this channel is established as a perceptual reference',
-                'Mark a channel along the opposite touchline, 30 m long and between 4 m and 6 m wide',
-                'It helps if this channel is established as a perceptual reference',
-            ],
-            [`Around 6 m wide works well for the channel along one touchline, if it suits your group`, `Around 6 m wide works well for the channel along the opposite touchline, if it suits your group`],
+            11,
+            ['Mark out an area 30 m long by 25 m wide', 'Mark both end lines: they are the scoring lines', 'Mark a channel along each touchline, 30 m long and between 4 m and 6 m wide'],
+            ['Around 6 m wide works well for each channel'],
         ],
-        [
-            20,
-            15,
-            20,
-            [
-                'Mark out an area 20 m long by 15 m wide',
-                'Mark a line across one end of the area, 15 m long, on the end line itself',
-                'Mark a line across the other end of the area, 15 m long, on the end line itself',
-                'Mark a channel along one touchline, 20 m long and between 2.5 m and 3.5 m wide',
-                'It helps if this channel is established as a perceptual reference',
-                'Mark a channel along the opposite touchline, 20 m long and between 2.5 m and 3.5 m wide',
-                'It helps if this channel is established as a perceptual reference',
-            ],
-            [],
-        ],
+        [20, 15, 10, ['Mark out an area 20 m long by 15 m wide', 'Mark both end lines: they are the scoring lines', 'Mark a channel along each touchline, 20 m long and between 2.5 m and 3.5 m wide'], []],
     ]
     for (const [length, width, instructions, setUp, adjusting] of expected) {
         const activity = at(length, width)
@@ -576,6 +554,7 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         assert.equal(activity.rendered.instructions.length, instructions, `${length} x ${width}`)
         assert.deepEqual(text(activity, 'Set up'), setUp, `${length} x ${width}`)
         assert.deepEqual(text(activity, 'Adjusting the activity'), adjusting, `${length} x ${width}`)
+        assert.ok(!activity.rendered.instructions.some(i => /perceptual reference/i.test(i.text)), 'no engine terminology reaches a coach')
         // Nothing but the area differs between them: the game is the same game on a different pitch.
         for (const section of ['Players', 'How it works', 'How to score']) assert.deepEqual(text(activity, section), text(modifier, section), `${length} x ${width}: ${section}`)
         // Every number said is declared, so every number said was checked — and none is a rounding.
@@ -588,7 +567,7 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
     // practical grain — 3.5 m, with 5.75 m becoming 5.5 m. The game holds 5.5 and the text says it.
     const awkward = at(35, 23)
     assert.equal(awkward.integrity.fidelityViolations, 0)
-    assert.ok(text(awkward, 'Set up').includes('Mark a channel along one touchline, 35 m long and between 3.5 m and 5.5 m wide'), JSON.stringify(text(awkward, 'Set up')))
+    assert.ok(text(awkward, 'Set up').includes('Mark a channel along each touchline, 35 m long and between 3.5 m and 5.5 m wide'), JSON.stringify(text(awkward, 'Set up')))
 
     /**
      * **More sizes, read sentence by sentence in the review of 13 October 2026 and pinned as read.** Each is
@@ -605,7 +584,8 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
      * grain except 40 × 24's maximum (6 m, already on it): 3.6-6 → 4-6, 3.15-5.25 → 3.5-5, 5.25-8.75 → 5.5-8.5,
      * 9.6-16 → 10-16 (the floor crosses into the 1 m grain), 3.33-5.55 → 3.5-5.5. The preferences follow: 45 × 35
      * offers 6 to 8.5 m, and 100 × 64's 9.6-10 m sliver becomes the one practical value 10 m — a "single point"
-     * is no longer the shape of one size only. No size offers a preference outside its own requirement.
+     * is no longer the shape of one size only. No size offers a preference outside its own requirement. Both
+     * channels in one sentence, and one preference for each, since stage S-C2 (same day).
      */
     const read: [number, number, string, string | null][] = [
         [40, 24, 'between 4 m and 6 m wide', 'Around 6 m wide works well'],
@@ -618,14 +598,9 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         const activity = at(length, width)
         assert.equal(activity.integrity.fidelityViolations, 0, `${length} x ${width}`)
         const setUp = text(activity, 'Set up')
-        assert.deepEqual(
-            setUp.filter(sentence => sentence.startsWith('Mark a channel')),
-            [`Mark a channel along one touchline, ${length} m long and ${required}`, `Mark a channel along the opposite touchline, ${length} m long and ${required}`],
-            `${length} x ${width}`,
-        )
+        assert.deepEqual(setUp.filter(sentence => sentence.startsWith('Mark a channel')), [`Mark a channel along each touchline, ${length} m long and ${required}`], `${length} x ${width}`)
         const offered = activity.rendered.instructions.filter(i => i.status === 'PREFERENCE').map(i => i.text)
-        // Each names its own channel since the review of S-C1 (14 October 2026).
-        assert.deepEqual(offered, preference ? [`${preference} for the channel along one touchline, if it suits your group`, `${preference} for the channel along the opposite touchline, if it suits your group`] : [], `${length} x ${width}: the preference is offered only inside the requirement, and as a PREFERENCE`)
+        assert.deepEqual(offered, preference ? [`${preference} for each channel`] : [], `${length} x ${width}: the preference is offered only inside the requirement, and as a PREFERENCE`)
         // No number a coach reads is a float artefact: each prints as the short decimal it is.
         for (const said of activity.rendered.instructions) {
             for (const [number] of said.text.matchAll(/\d+(?:\.\d+)?/g)) assert.ok(number.length <= 6, `"${number}" in "${said.text}"`)
@@ -635,72 +610,47 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
     /**
      * **THE NEUTRAL-PLAYERS DEMONSTRATION IS SERVED — re-pointed 13 October 2026 (Stage B3).**
      *
-     * Until then this block asserted that it was REFUSED at `realization` with *"A set-up decision for this
-     * game has not been made yet."*, and said that was the honest state of the mechanism: its contract leaves
-     * the neutral count open and nothing chose one. Three things were missing and each is now in place, none
-     * of them a change to learning-design knowledge:
-     *
-     *   - the count is closed by the rule his 13 October instruction approved for a count with an authored
-     *     preferred range — the one member of *"one or two"* that leaves two whole equal teams in THIS
-     *     session — and is recorded as where the activity starts, with its range beside it;
-     *   - the roster rule reads a count realization closed, so the teams get a size and the roster gate can
-     *     be evaluated (it could not, for any neutral configuration);
-     *   - the renderer says who the neutral players are — it said nothing about them at all.
-     *
-     * Christian, 13 October: *"It is entirely appropriate to demonstrate the mechanism independently in the
-     * meantime"* — and of the condition and any Learning Goal, *"I am not yet approving"* it. So this remains
-     * a mechanism demonstration, labelled as one, and is associated with no goal and in no candidate pool.
+     * The count is closed by the rule his 13 October instruction approved for a count with an authored preferred
+     * range — the one member of *"one or two"* that leaves two whole equal teams in THIS session — and recorded as
+     * where the activity starts, with its range beside it; the roster rule reads that count; the renderer says who
+     * the neutral players are. Christian, 13 October: *"It is entirely appropriate to demonstrate the mechanism
+     * independently in the meantime"* — and of the condition and any Learning Goal, *"I am not yet approving"* it.
+     * So this remains a mechanism demonstration, labelled as one, and is associated with no goal and in no pool.
      *
      * Twelve players and thirteen, because they are the two cases: an even squad starts with two neutrals and
      * an odd one with one. Every sentence is a DRAFT for his wording review.
+     *
+     * **Consolidated 14 October 2026 (stage S-C2), on his §7 and his own example** — *"Divide 12 players into two
+     * teams of five, with two neutral players. The neutrals support whichever team has possession and switch
+     * immediately when possession changes."* — eight Players sentences became three, who starts with the ball moved
+     * to "How it works", and the preferred count is offered within what the session can field (his §6: *"communicate
+     * the valid option rather than presenting an impossible alternative"*): 2 at twelve players, 1 at thirteen.
+     * 17 → 12 instructions at both sizes, 0 violations.
      */
-    /**
-     * **Moved 14 October 2026, each for a ruling of that day** (every sentence still a DRAFT for his review): no
-     * "For this activity," (§7); the allegiance says "switch immediately", from the timing the game now holds
-     * (register row P6c, C43 — §6); the authored means is offered as an example (C47, his bibs ruling); and the
-     * floor and the preferred range moved to "Adjusting the activity" (§7). Offering only the part of the
-     * preferred range a session can field is the consolidated language's change (S-C2), not this one.
-     */
-    /**
-     * **The preferred range is no longer offered at 12 or 13 players — moved in the review of S-C1, 14 October 2026.**
-     * Christian that day: *"Where a preferred count cannot be fielded with the available players, communicate the
-     * valid option rather than presenting an impossible alternative."* 1 cannot be fielded with 12 players and 2
-     * cannot with 13 (the roster rule's configurations), so *"Around 1 to 2 neutral players works well"* is not said;
-     * the valid option is the count the activity starts at. Instruction count 18 → 17 at both sizes.
-     */
-    const NEUTRAL_ADJUSTING = ['The game needs at least 1 neutral player']
-    const NEUTRAL_ACTIVITY: [number, string[]][] = [
+    const NEUTRAL_ACTIVITY: [number, string[], string[]][] = [
         [
             12,
             [
-                '12 players in total',
-                '2 teams of 5',
-                `No ${ROLE}s — everyone is an outfield player`,
-                '2 of the 12 players are neutral players, so the team with the ball has 2 more players than the team without it',
-                'The neutral players always play with whichever team has the ball and switch immediately when possession changes',
-                'Make the neutral players easy to tell apart from both teams — for example, contrasting bibs',
-                'The neutral players are active in the game — not waiting, resting or watching',
-                'One team starts with the ball — the game does not fix which, so pick one and tell both teams before you start',
+                `Divide 12 players into 2 teams of 5, with 2 neutral players and no ${ROLE}s`,
+                'The neutrals support whichever team has possession and switch immediately when possession changes. They take a full part in play — not waiting, resting or watching',
+                'Make the neutrals easy to tell apart from both teams — for example, contrasting bibs',
             ],
+            ['Keep at least 1 neutral player', '2 neutral players work well for a group this size'],
         ],
         [
             13,
             [
-                '13 players in total',
-                '2 teams of 6',
-                `No ${ROLE}s — everyone is an outfield player`,
-                '1 of the 13 players is a neutral player, so the team with the ball has 1 more player than the team without it',
-                'The neutral player always plays with whichever team has the ball and switches immediately when possession changes',
+                `Divide 13 players into 2 teams of 6, with 1 neutral player and no ${ROLE}s`,
+                'The neutral player supports whichever team has possession and switches immediately when possession changes. They take a full part in play — not waiting, resting or watching',
                 'Make the neutral player easy to tell apart from both teams — for example, contrasting bibs',
-                'The neutral player is active in the game — not waiting, resting or watching',
-                'One team starts with the ball — the game does not fix which, so pick one and tell both teams before you start',
             ],
+            ['Keep at least 1 neutral player', '1 neutral player works well for a group this size'],
         ],
     ]
     // The bare possession game, built directly since 14 October: it was A04's activity, which is now refused
     // (its context has no contract). The comparison is with the game form alone, which is what A04 was.
     const a04 = served(buildActivityFromKnowledge(['GF2'], { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: none }).activity, 'the bare possession game')
-    for (const [players, expectedPlayers] of NEUTRAL_ACTIVITY) {
+    for (const [players, expectedPlayers, expectedAdjusting] of NEUTRAL_ACTIVITY) {
         const neutrals = served(reviewActivity(stored({ playerCount: players }), { demonstrationId: 'neutral-players', durationMin: 20 }), `the neutral-players demonstration with ${players} players`)
         assert.equal(neutrals.kind, 'mechanism-demonstration')
         assert.equal(neutrals.account.gameProblem, null, 'no Learning Goal, so no Game Problem')
@@ -708,22 +658,26 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         assert.equal(neutrals.title, 'Neutral players')
         assert.ok(String(neutrals.subtitle).includes('Not a Learning Goal activity'))
         assert.deepEqual(neutrals.account.constraints.map(c => [c.title, c.contracted]), [['Neutral Player Condition', true]])
-        // Baseline of 13 October, measured: 18 instructions and 0 violations, at both sizes — the bare
-        // possession game's 12, plus the six sentences about the neutral players.
-        // 17 since the review of S-C1 (14 October 2026): the unfieldable preferred range is no longer offered.
-        assert.equal(neutrals.rendered.instructions.length, 17, `${players} players`)
-        assert.equal(a04.rendered.instructions.length, 12)
+        // Baseline of 13 October, measured: 18 instructions and 0 violations, at both sizes. 17 since the review of
+        // S-C1 (the unfieldable preferred range no longer offered); 12 since stage S-C2 (consolidated, 14 October 2026)
+        // — the bare possession game's 8, plus three Players sentences and two adjusting lines less its roster sentence.
+        assert.equal(neutrals.rendered.instructions.length, 12, `${players} players`)
+        assert.equal(a04.rendered.instructions.length, 8)
         assert.equal(neutrals.integrity.fidelityViolations, 0)
         assert.deepEqual(neutrals.rendered.withheld, [], 'no condition or information rule in it, so nothing awaits wording (14 October)')
         assert.equal(neutrals.integrity.postRealizationValidated, true)
         assert.deepEqual(neutrals.integrity.acceptance, { nothingClosedWithoutAuthority: [], nothingLost: [], nothingInvented: [] })
         assert.deepEqual(text(neutrals, 'Players'), expectedPlayers, `${players} players`)
-        assert.deepEqual(text(neutrals, 'Adjusting the activity'), NEUTRAL_ADJUSTING, `${players} players`)
+        assert.deepEqual(text(neutrals, 'Adjusting the activity'), expectedAdjusting, `${players} players`)
         // The neutral condition changes who plays and nothing about the pitch or the scoring: every other
         // section is the bare possession game's, sentence for sentence. And what continues at a change of
         // possession is said ONCE, though two contracts assert that transition here.
         for (const section of ['Set up', 'How to score']) assert.deepEqual(text(neutrals, section), text(a04, section), `${players} players: ${section}`)
-        assert.deepEqual(text(neutrals, 'How it works'), ['Play for 20 minutes', 'Play continues when possession changes — there is no stoppage'])
+        assert.deepEqual(text(neutrals, 'How it works'), [
+            'Play for 20 minutes',
+            'Pick which team starts with the ball and tell both teams before you start',
+            'When possession changes, play carries on with no stoppage, and the team that wins possession attacks the same line it was already attacking',
+        ])
         assert.deepEqual(text(neutrals, 'How it works'), text(a04, 'How it works'))
         for (const said of neutrals.rendered.instructions) {
             assert.deepEqual([...said.text.matchAll(/\d+(?:\.\d+)?/g)].map(m => Number(m[0])).filter(n => !said.quantities.includes(n)), [], said.text)
@@ -733,9 +687,8 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
     // The session shapes it, as it shapes any activity: the squad decides the starting count and the sizes.
     for (const [players, count, size] of [[8, 2, 3], [15, 1, 7], [16, 2, 7], [3, 1, 1]] as const) {
         const activity = served(reviewActivity(stored({ playerCount: players }), { demonstrationId: 'neutral-players', durationMin: 20 }), `${players} players`)
-        assert.equal(text(activity, 'Players')[1], `2 teams of ${size}`, `${players} players`)
-        // No "For this activity," since 14 October 2026 (his §7).
-        assert.ok(text(activity, 'Players')[3].startsWith(`${count} of the ${players} players ${count === 1 ? 'is a neutral player' : 'are neutral players'}`), text(activity, 'Players')[3])
+        // One roster sentence since stage S-C2 (14 October 2026).
+        assert.equal(text(activity, 'Players')[0], `Divide ${players} players into 2 teams of ${size}, with ${count} neutral player${count === 1 ? '' : 's'} and no ${ROLE}s`, `${players} players`)
         assert.equal(activity.integrity.fidelityViolations, 0)
     }
 
@@ -802,8 +755,9 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
 
         // A count the knowledge fixes is a requirement of the game, so it is not said as a choice about this activity.
         const fits = served(at(13, 1), 'one neutral fixed, thirteen players')
-        const count = fits.rendered.instructions.find(i => i.from.includes('performers.neutrals.count') && i.text.includes('of the 13 players'))!
-        assert.deepEqual([count.text, count.status], ['1 of the 13 players is a neutral player, so the team with the ball has 1 more player than the team without it', 'DERIVED'])
+        // A part of the roster sentence since stage S-C2 (14 October 2026), with the status of the property it says.
+        const count = fits.rendered.instructions.flatMap(i => i.parts ?? []).find(p => p.from.includes('performers.neutrals.count') && p.text.includes('neutral player'))!
+        assert.deepEqual([count.text, count.status], [', with 1 neutral player', 'DERIVED'])
         assert.equal(fits.integrity.fidelityViolations, 0)
 
         /**
@@ -836,8 +790,9 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         assert.equal(composed.account.gameProblem, null)
         assert.deepEqual(composed.account.constraints.map(c => [c.title, c.contracted]), [['Wide Zone Advantage', true], ['Neutral Player Condition', true]])
         // 27 since the review of S-C1 (14 October 2026): the neutral count's unfieldable preferred range is no longer
-        // offered (his §6), one sentence fewer at both sizes; the channel preferences are still offered.
-        assert.equal(composed.rendered.instructions.length, 27, `${players} players`)
+        // offered (his §6), one sentence fewer at both sizes; the channel preferences are still offered. 15 since stage
+        // S-C2 (same day, consolidated): the scoring modifier's 11, plus the allegiance, the bibs and the two adjusting lines.
+        assert.equal(composed.rendered.instructions.length, 15, `${players} players`)
         assert.equal(composed.integrity.fidelityViolations, 0)
         assert.equal(composed.integrity.postRealizationValidated, true)
         assert.deepEqual(composed.integrity.acceptance, { nothingClosedWithoutAuthority: [], nothingLost: [], nothingInvented: [] })

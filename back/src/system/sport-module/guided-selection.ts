@@ -126,6 +126,24 @@ export function governByApprovedGameProblem(
 }
 
 /**
+ * **The one text a guided Learning Goal is selected from — in BOTH pathways.** Added 14 October 2026 (stage S-C2).
+ *
+ * Christian, 13 October: one selection rule for both pathways (*"Please ensure the checked pathway and application
+ * follow the same authoritative knowledge and selection rules"*). The rule was shared and the TEXT was not: the
+ * checked pathway selected from the goal's own name and Coach Definition, while the application route selected from
+ * whatever the planning conversation composed — the goal's name, the practice situation and the coach's free note.
+ * Measured in the S-A review: Play Through Pressure (A02) landed on one game form live and another checked, and Play
+ * Out from the Back (A01) drew different candidates with the wording. A guided goal is a goal from the registry, so
+ * it is selected from the registry's words for it; the coach's situation and note still reach generation, and never
+ * selection. Free text is untouched — it has no registry entry, and nothing is inferred onto it.
+ */
+export function guidedGoalText(learningGoalId: string): string {
+    const goal: any = sessionPlanningModel.learningGoal(learningGoalId)
+    if (!goal) throw new Error(`no such learning goal: ${learningGoalId}`)
+    return `${goal['Learning Goal']}. ${goal['Coach Definition']}`
+}
+
+/**
  * Everything selection is told about a guided goal before it scores anything: the approved Game Problem
  * first, then the goal's routed context limiting the game forms.
  */

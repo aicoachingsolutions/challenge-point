@@ -47,6 +47,7 @@
  */
 import { effectiveValue } from '../derivation/rational'
 import { approvedWording, ApprovedWording, WordingMatch } from './approved-wording'
+import { exclusionFor } from './coach-facing-exclusions'
 
 /**
  * Where a rendered instruction's authority comes from, and what wording that permits.
@@ -94,6 +95,28 @@ export type SourceStatus =
  */
 export const ADJUSTING = 'Adjusting the activity'
 
+/** One number a sentence says, and the concrete-game path whose number it is. */
+export interface Binding {
+    quantity: number
+    path: string
+}
+
+/**
+ * **One property-bearing span of a sentence** — stage S-C2, 14 October 2026. His §7: *"feel free to propose
+ * consolidated, more natural language rather than preserving unnecessary sentence-by-sentence technical
+ * structure."* A consolidated sentence says several properties of several statuses at once, so it is built from
+ * parts, each with its own status, its own citations, and — for every number it says, in the order it says them —
+ * the path that number is of. The fidelity check holds each part to its own status and each number to its own path.
+ */
+export interface InstructionPart {
+    /** This span's words, punctuation included: the instruction's text is its parts' texts joined. */
+    text: string
+    status: SourceStatus
+    from: string[]
+    quantities: number[]
+    bindings: Binding[]
+}
+
 export interface Instruction {
     /** Which part of the activity this belongs to. Organisation only; carries no authority. */
     section: 'Set up' | 'Players' | 'How it works' | 'How to score' | 'What to watch' | typeof ADJUSTING
@@ -109,6 +132,12 @@ export interface Instruction {
      * one place as the renderer returns, so the two cannot disagree. Optional only for instructions built by hand.
      */
     tier?: 'setup' | 'adjust'
+    /**
+     * The spans the sentence is made of (stage S-C2). Every instruction this renderer issues carries them — one
+     * part for a plain sentence, several for a consolidated one — and its text, citations, numbers and status are
+     * theirs (`combinedStatus`). Optional only for instructions built by hand, which are checked whole, as before.
+     */
+    parts?: InstructionPart[]
 }
 
 export interface RenderedActivity {
@@ -156,8 +185,8 @@ const metres = (n: number): string => `${n} m`
  * activity, …"*, which he asked us to stop repeating (*"I would also avoid repeatedly beginning sentences with
  * 'For this activity'"*); what keeps them from reading as requirements is that no word of necessity is
  * available to them, which the fidelity check enforces (Q4). `ADVISORY` gets "It helps if …", a recommendation
- * that cannot be read as a rule. `PREFERENCE` gets "if it suits your group", which cannot be read as a
- * requirement. There is no path by which a preference or a recommendation reaches imperative wording.
+ * that cannot be read as a rule. `PREFERENCE` carries its hedge in its own template ("… works well"; until stage S-C2,
+ * 14 October 2026, ", if it suits your group" was appended here), and the check refuses one without. There is no path by which a preference or a recommendation reaches imperative wording.
  */
 function phrase(status: SourceStatus, core: string): string {
     switch (status) {
@@ -170,9 +199,42 @@ function phrase(status: SourceStatus, core: string): string {
         case 'ADVISORY':
             return `It helps if ${core.charAt(0).toLowerCase()}${core.slice(1)}`
         case 'PREFERENCE':
-            return `${core}, if it suits your group`
+            // Stage S-C2, 14 October 2026: ", if it suits your group" is no longer appended. Every preference template
+            // carries its own hedge ("works well"), and the check still refuses a preference that carries none (Q4).
+            return core
     }
 }
+
+/**
+ * **The status of a sentence built from parts** — stage S-C2. A part a coach decides makes the sentence a choice;
+ * otherwise a part the activity only starts at makes it a starting statement (it is never presented as more fixed
+ * than its weakest firm part); otherwise the strongest of the parts. A preference or a recommendation is never
+ * combined with anything else — the renderer does not, and the check refuses it (Q4).
+ */
+export function combinedStatus(statuses: SourceStatus[]): SourceStatus {
+    if (statuses.includes('COACH_CHOICE')) return 'COACH_CHOICE'
+    if (statuses.includes('STARTING')) return 'STARTING'
+    return strongest(statuses, 'DERIVED')
+}
+
+/** A part, worded by its status, with its numbers read off its bindings. */
+const part = (status: SourceStatus, text: string, from: string[], bindings: Binding[] = []): InstructionPart => ({
+    text,
+    status,
+    from: [...new Set(from)],
+    quantities: bindings.map(b => b.quantity),
+    bindings,
+})
+
+/** One instruction made of these parts: its text, citations, numbers and status are theirs. */
+const joined = (section: Instruction['section'], parts: InstructionPart[]): Instruction => ({
+    section,
+    text: parts.map(p => p.text).join(''),
+    status: combinedStatus(parts.map(p => p.status)),
+    from: [...new Set(parts.flatMap(p => p.from))],
+    quantities: parts.flatMap(p => p.quantities),
+    parts,
+})
 
 /** The status a derived value's carried strength gives its sentence. A value carrying none reads as before: required. */
 const STATUS_OF_STRENGTH: Record<string, SourceStatus> = { REQUIRED: 'DERIVED', DEFAULT: 'STARTING', ADVISORY: 'ADVISORY' }
@@ -233,10 +295,13 @@ export interface RangeWords {
     sections?: { required?: Instruction['section']; preferred?: Instruction['section'] }
     /** The status of the sentence that carries the requirement, where it is not simply derived. */
     requiredStatus?: SourceStatus
-    /** Whatever else the requirement's sentence states, when it is also (say) the marking sentence. */
-    requiredAlso?: { from: string[]; quantities: number[] }
-    /** Whatever else the starting value's sentence states — the total it is a part of, say. */
-    startingAlso?: { from: string[]; quantities: number[] }
+    /**
+     * Whatever else the requirement's sentence states, when it is also (say) the marking sentence — with the path
+     * of each number it says before the limits (stage S-C2: every number is bound to its property).
+     */
+    requiredAlso?: { from: string[]; bindings: Binding[] }
+    /** Whatever else the starting value's sentence states — the total it is a part of, say — bound the same way. */
+    startingAlso?: { from: string[]; bindings: Binding[] }
     /**
      * What else the preference's sentence names. Added in the review of S-C1 (14 October 2026): once the
      * preference moved to "Adjusting the activity" it no longer sat beside the sentence that said what it was
@@ -271,13 +336,12 @@ function aroundPhrase(limits: Limits, number: (n: number) => string): { text: st
     return null
 }
 
-const instruction = (section: Instruction['section'], status: SourceStatus, core: string, from: string[], quantities: number[]): Instruction => ({
-    section,
-    text: phrase(status, core),
-    status,
-    from,
-    quantities,
-})
+/** A plain sentence: one part, worded by its status, every number bound to its path. */
+const instruction = (section: Instruction['section'], status: SourceStatus, core: string, from: string[], bindings: Binding[]): Instruction =>
+    joined(section, [part(status, phrase(status, core), from, bindings)])
+
+/** Each number bound to the one path it is of. */
+const boundTo = (path: string, quantities: number[]): Binding[] => quantities.map(quantity => ({ quantity, path }))
 
 /**
  * **The one way a range reaches a coach** — for a region's width today, and for any count or threshold that
@@ -302,29 +366,23 @@ export function sayRange(section: Instruction['section'], line: BoundedLine, wor
     const around = line.preferred && words.preferred ? aroundPhrase(line.preferred, words.number) : null
     return {
         required: limits
-            ? instruction(words.sections?.required ?? section, words.requiredStatus ?? 'DERIVED', words.required!(limits.text, line.required!), [...(words.requiredAlso?.from ?? []), line.path].filter((p, i, all) => all.indexOf(p) === i), [
-                  ...(words.requiredAlso?.quantities ?? []),
-                  ...limits.quantities,
-              ])
+            ? instruction(
+                  words.sections?.required ?? section,
+                  words.requiredStatus ?? 'DERIVED',
+                  words.required!(limits.text, line.required!),
+                  [...(words.requiredAlso?.from ?? []), line.path],
+                  [...(words.requiredAlso?.bindings ?? []), ...boundTo(line.path, limits.quantities)],
+              )
             : null,
         preferred: around
-            ? instruction(
-                  words.sections?.preferred ?? section,
-                  'PREFERENCE',
-                  words.preferred!(around.text, line.preferred!),
-                  [line.path, ...(words.preferredAlso?.from ?? [])].filter((p, i, all) => all.indexOf(p) === i),
-                  around.quantities,
-              )
+            ? instruction(words.sections?.preferred ?? section, 'PREFERENCE', words.preferred!(around.text, line.preferred!), [line.path, ...(words.preferredAlso?.from ?? [])], boundTo(line.path, around.quantities))
             : null,
         starting:
             stated(line.starting) && words.starting
-                ? instruction(
-                      section,
-                      'STARTING',
-                      words.starting(words.number(line.starting), line.starting),
-                      [line.path, ...(words.startingAlso?.from ?? [])].filter((p, i, all) => all.indexOf(p) === i),
-                      [line.starting, ...(words.startingAlso?.quantities ?? [])],
-                  )
+                ? instruction(section, 'STARTING', words.starting(words.number(line.starting), line.starting), [line.path, ...(words.startingAlso?.from ?? [])], [
+                      { quantity: line.starting, path: line.path },
+                      ...(words.startingAlso?.bindings ?? []),
+                  ])
                 : null,
     }
 }
@@ -358,26 +416,33 @@ function countRange(fixture: Fixture, path: string): BoundedLine | null {
 }
 
 /**
- * A possession-relative team designation, as a coach would say it — given the noun of what is possessed.
+ * A possession-relative team designation, as a coach would say it.
  *
  * Only the two designations the possession relation alone decides are worded. Every other designation
  * (the team that scored, the team that touched last, a named team) needs a fact this sentence does not
  * have, so a value outside this table is withheld and reported, never paraphrased.
+ *
+ * **Said in his words since stage S-C2 (14 October 2026)**: *"The neutrals support whichever team has possession
+ * and switch immediately when possession changes."* It named the possessed object before (*"whichever team has the
+ * ball"*), read from `objects[].kind`; "possession" is the relation the designation is decided by
+ * (`possession.team`, the sentence's precondition), so no object noun is needed and none is said.
  */
-const SIDE_BY_POSSESSION: Record<string, (carrier: string) => string> = {
-    ATTACKING_TEAM: carrier => `whichever team has the ${carrier}`,
-    DEFENDING_TEAM: carrier => `whichever team does not have the ${carrier}`,
+const SIDE_BY_POSSESSION: Record<string, string> = {
+    ATTACKING_TEAM: 'whichever team has possession',
+    DEFENDING_TEAM: 'whichever team does not have possession',
 }
 
 /**
- * A participation state, as a coach would say it of a group. `plural` is whether the group is more than one.
+ * A participation state, as a coach would say it of a group already named. `plural` is whether the group is more
+ * than one.
  *
  * One wording, for the one state a game in the corpus establishes. The state is a member of a closed
  * vocabulary, and the gloss names only what that vocabulary rules out by the state being this one. A state
- * with no wording here is withheld and reported, so it cannot be served half-said.
+ * with no wording here is withheld and reported, so it cannot be served half-said. Consolidated in stage S-C2
+ * (DRAFT): *"take a full part in play"* for *"are active in the game"*.
  */
 const PARTICIPATION_STATE: Record<string, (plural: boolean) => string> = {
-    ACTIVE: plural => `${plural ? 'are' : 'is'} active in the game — not waiting, resting or watching`,
+    ACTIVE: plural => `take${plural ? '' : 's'} a full part in play — not waiting, resting or watching`,
 }
 
 /**
@@ -435,12 +500,16 @@ const WORDED_ONLY: { base: string; elements: (game: any) => unknown; fields: { f
  * approved they move to `approved-coach-wording.json` (rows V8c, V8d) and this map is deleted. Any other value
  * is withheld. The object's noun is passed in from `objects[].kind`, so no noun is written here.
  */
-const CRITERION_WORDING: Record<string, (object: string) => string> = {
-    'a controlled attacking-team touch within a referent wide channel, where controlled means a touch after which the touching player’s team retains possession': object =>
-        `It is met when the attacking team touches the ${object} inside one of them and still has the ${object} after that touch`,
+const CRITERION_WORDING: Record<string, (object: string, where: string) => string> = {
+    // Consolidated in stage S-C2 (14 October 2026, DRAFT): one clause of the modifier's sentence, where it was
+    // "It is met when the attacking team touches the ball inside one of them and still has the ball after that touch".
+    'a controlled attacking-team touch within a referent wide channel, where controlled means a touch after which the touching player’s team retains possession': (object, where) =>
+        `once the attacking team has touched the ${object} inside ${where} and kept it after that touch`,
 }
-const ENDS_ON_WORDING: Record<string, (object: string) => string> = {
-    POSSESSION_CHANGE: object => `Once met it stays live while that team keeps the ${object}, and a change of possession ends it`,
+const ENDS_ON_WORDING: Record<string, () => string> = {
+    // Was "Once met it stays live while that team keeps the ball, and a change of possession ends it" (DRAFT, S-C2).
+    // It names no object now, so it no longer needs one to be said.
+    POSSESSION_CHANGE: () => 'lasts until possession changes',
 }
 
 const fieldOf = (element: any, field: string): unknown => field.split('.').reduce<any>((node, key) => (node == null ? undefined : node[key]), element)
@@ -477,13 +546,13 @@ function sayInApprovedWords(game: any, wording: ApprovedWording[], push: (instru
                 const slots = Object.entries(entry.slots ?? {}).map(([name, slot]) => ({ name, field: slot.field, value: fieldOf(element, slot.field) }))
                 if (slots.some(slot => typeof slot.value !== 'number' && typeof slot.value !== 'string')) continue
                 const text = slots.reduce((sentence, slot) => sentence.split(`{${slot.name}}`).join(String(slot.value)), entry.sentence)
-                push({
-                    section: entry.section,
-                    text,
-                    status: 'DERIVED',
-                    from: [...new Set([...covered.map(({ field }) => pathOf(field!.field)), ...slots.map(slot => pathOf(slot.field))])],
-                    quantities: slots.filter(slot => typeof slot.value === 'number').map(slot => slot.value as number),
-                })
+                // Each numeric slot is bound to the field it was filled from, in the order the sentence says them.
+                const numeric = slots
+                    .filter(slot => typeof slot.value === 'number')
+                    .map(slot => ({ slot, at: entry.sentence.indexOf(`{${slot.name}}`) }))
+                    .sort((a, b) => a.at - b.at)
+                    .map(({ slot }) => ({ quantity: slot.value as number, path: pathOf(slot.field) }))
+                push(instruction(entry.section, 'DERIVED', text, [...covered.map(({ field }) => pathOf(field!.field)), ...slots.map(slot => pathOf(slot.field))], numeric))
                 for (const { field } of covered) said.add(field!.field)
             }
             for (const field of held) if (!said.has(field.field)) withheld.push({ path: pathOf(field.field), row: field.row, reason: 'AWAITING_APPROVED_WORDING' })
@@ -514,8 +583,9 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
     /** The status of a sentence resting on these paths: the strongest any of them carries. */
     const statusAt = (paths: string[], fallback: SourceStatus): SourceStatus => strongest(paths.map(p => statusOf.get(p)).filter((s): s is SourceStatus => !!s), fallback)
 
-    const say = (section: Instruction['section'], status: SourceStatus, core: string, from: string[], quantities: number[] = []) =>
-        instructions.push({ section, text: phrase(status, core), status, from, quantities })
+    /** A plain sentence, one part, each number it says bound to the path it is of (stage S-C2). */
+    const say = (section: Instruction['section'], status: SourceStatus, core: string, from: string[], bindings: Binding[] = []) =>
+        instructions.push(instruction(section, status, core, from, bindings))
 
     /**
      * The status of a property is whatever the fixture records, never what the renderer assumes. Envelope
@@ -542,7 +612,10 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
             recorded('envelope.area.length_m', 'SESSION'),
             `Mark out an area ${metres(area.length_m)} long by ${metres(area.width_m)} wide`,
             ['envelope.area.length_m', 'envelope.area.width_m'],
-            [area.length_m, area.width_m],
+            [
+                { quantity: area.length_m, path: 'envelope.area.length_m' },
+                { quantity: area.width_m, path: 'envelope.area.width_m' },
+            ],
         )
     }
 
@@ -560,7 +633,90 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
     const endsDiffer = new Set(degenerateAlong).size > 1
     const farEnd = endsDiffer ? Math.max(...degenerateAlong) : null
 
-    for (const region of game.space?.regions ?? []) {
+    /** A line's length is its non-degenerate axis; its position is the degenerate one. */
+    const lineGeometry = (region: any) => {
+        const along = geometryFor(region.elementId, 'along')
+        const across = geometryFor(region.elementId, 'across')
+        const lengthAxis = along?.geometry.interval && along.geometry.interval.from !== along.geometry.interval.to ? along : across
+        const atAxis = lengthAxis === along ? across : along
+        const length = lengthAxis?.geometry.interval
+        return { lengthAxis, atAxis, length: (length?.to ?? 0) - (length?.from ?? 0), at: atAxis?.geometry.interval }
+    }
+    const regions: any[] = game.space?.regions ?? []
+
+    /**
+     * **Both end lines in one sentence — stage S-C2, 14 October 2026 (DRAFT).** His §7 asked for *"a clear starting
+     * setup"* without *"unnecessary sentence-by-sentence technical structure"*; the two marking sentences read the
+     * same twice but for "one end" and "the other end". Merged only where the game holds exactly that: two lines,
+     * each with no depth, at opposite ends, of one length, of one status. Each line's noun and position stay cited, so
+     * each is still marked (Q5); the objective that references a line is cited where the sentence calls the lines the
+     * scoring lines, and that clause is said only where every line is so referenced. The zero depth is said by
+     * "end lines" (they ARE the end lines) and still observed. The length is not said: it is the width of the area,
+     * stated in the sentence before.
+     */
+    const lines = regions.filter(r => r.noun === 'line')
+    const referencedBy = (region: any) =>
+        (game.objectives ?? []).find((o: any) => {
+            const ref = o?.reference?.structuralRef
+            return ref && `c:${ref.contractId}:${ref.itemId}` === String(region.elementId)
+        })
+    const mergeLines =
+        lines.length === 2 &&
+        endsDiffer &&
+        lines.every(r => {
+            const { at } = lineGeometry(r)
+            return at && at.from === at.to
+        }) &&
+        new Set(lines.map(r => lineGeometry(r).length)).size === 1 &&
+        new Set(lines.map(r => statusOf.get(`space.regions[${r.elementId}].noun`) ?? 'DERIVED')).size === 1
+
+    /**
+     * **Which touchline, where the game says which.** The authored `lateral` selector reaches the artifact and the
+     * geometry places two channels on opposite sides (0–7.5 m and 22.5–30 m on a 30 m width). Rendering both as
+     * "along the touchline" dropped that and a coach would mark one strip twice.
+     *
+     * It says "one" and "the opposite" rather than left and right: the authored values name the 0 and far edges of
+     * an axis, which is an axis convention and not a coach's left. The pairing is established; which one a coach
+     * starts from is not, so it is not stated.
+     */
+    const lateralOf = (r: any) => (r.selector ?? []).find((t: any) => t.attribute === 'lateral')?.value
+    const sides = regions.map(lateralOf).filter(Boolean)
+    const paired = sides.length === 2 && new Set(sides).size === 2
+    /** Everything one non-line region's sentences need, read once so a merge can compare two of them. */
+    const channelPlan = (region: any) => {
+        const along = geometryFor(region.elementId, 'along')
+        const across = geometryFor(region.elementId, 'across')
+        const width = across?.geometry.interval
+        const len = along?.geometry.interval
+        const lateral = lateralOf(region)
+        const nounPath = `space.regions[${region.elementId}].noun`
+        const selector = paired && lateral ? [`space.regions[${region.elementId}].selector`] : []
+        const functions: string[] = Array.isArray(region.functions) ? region.functions : []
+        const unfit = across?.geometry?.extentBound?.preferenceWithin
+        return {
+            where: !paired || !lateral ? 'along the touchline' : lateral === sides[0] ? 'along one touchline' : 'along the opposite touchline',
+            length: (len?.to ?? 0) - (len?.from ?? 0),
+            widest: (width?.to ?? 0) - (width?.from ?? 0),
+            range: extentRange(across),
+            across: String(across?.path ?? ''),
+            markingFrom: [nounPath, along?.path, across?.path, ...selector].filter(Boolean) as string[],
+            preferredFrom: [nounPath, ...selector],
+            status: statusOf.get(nounPath) ?? 'DERIVED',
+            // A member the shared table excludes (his 14 October ruling) is not said; any other member is.
+            saidFunctions: functions.filter(member => !exclusionFor(`space.regions[${region.elementId}].functions[${member}]`, fixture)),
+            unfit: unfit && unfit.compatible === false ? unfit : null,
+        }
+    }
+    const channels2 = regions.filter(r => r.noun !== 'line')
+    const mergeChannels = (() => {
+        if (channels2.length !== 2 || !paired || !channels2.every(lateralOf) || new Set(channels2.map(r => r.noun)).size !== 1) return false
+        const [a, b] = channels2.map(channelPlan)
+        if (!a.range?.required || !b.range?.required || a.saidFunctions.length || b.saidFunctions.length || !a.across || !b.across) return false
+        const shape = (p: typeof a) => JSON.stringify([p.range!.required, p.range!.preferred, p.length, p.status, !!p.unfit])
+        return shape(a) === shape(b)
+    })()
+
+    for (const region of regions) {
         const noun = region.noun
         const along = geometryFor(region.elementId, 'along')
         const across = geometryFor(region.elementId, 'across')
@@ -568,20 +724,33 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
         const status = statusOf.get(nounPath) ?? 'DERIVED'
 
         if (noun === 'line') {
-            // A line's length is its non-degenerate axis; its position is the degenerate one.
-            const lengthAxis = along?.geometry.interval && along.geometry.interval.from !== along.geometry.interval.to ? along : across
-            const atAxis = lengthAxis === along ? across : along
-            const length = lengthAxis?.geometry.interval
-            const at = atAxis?.geometry.interval
-            say(
-                'Set up',
-                status,
-                endsDiffer && at && at.from === at.to
-                    ? `Mark a line across ${at.from === farEnd ? 'the other end' : 'one end'} of the area, ${metres((length?.to ?? 0) - (length?.from ?? 0))} long, on the end line itself`
-                    : `Mark a line across one end of the area, ${metres((length?.to ?? 0) - (length?.from ?? 0))} long, on the end line itself`,
-                [nounPath, lengthAxis?.path, atAxis?.path].filter(Boolean) as string[],
-                [(length?.to ?? 0) - (length?.from ?? 0)],
-            )
+            const { lengthAxis, atAxis, length, at } = lineGeometry(region)
+            if (mergeLines && region === lines[0]) {
+                const objectives = lines.map(referencedBy)
+                const scoring = objectives.every(Boolean)
+                say(
+                    'Set up',
+                    status,
+                    scoring ? 'Mark both end lines: they are the scoring lines' : 'Mark both end lines',
+                    [
+                        ...lines.flatMap(r => {
+                            const g = lineGeometry(r)
+                            return [`space.regions[${r.elementId}].noun`, g.lengthAxis?.path, g.atAxis?.path].filter(Boolean) as string[]
+                        }),
+                        ...(scoring ? objectives.map((o: any) => `objectives[${o.elementId}].reference`) : []),
+                    ],
+                )
+            } else if (!mergeLines) {
+                say(
+                    'Set up',
+                    status,
+                    endsDiffer && at && at.from === at.to
+                        ? `Mark a line across ${at.from === farEnd ? 'the other end' : 'one end'} of the area, ${metres(length)} long, on the end line itself`
+                        : `Mark a line across one end of the area, ${metres(length)} long, on the end line itself`,
+                    [nounPath, lengthAxis?.path, atAxis?.path].filter(Boolean) as string[],
+                    lengthAxis?.path ? [{ quantity: length, path: lengthAxis.path }] : [],
+                )
+            }
             if (at && at.from === at.to) {
                 // Stated rather than smoothed over: the game puts the line ON the end line, with no depth.
                 observations.push(
@@ -591,25 +760,37 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
                 )
             }
         } else {
-            const width = across?.geometry.interval
-            const len = along?.geometry.interval
+            const plan = channelPlan(region)
+            // The second of a merged pair was said with the first.
+            if (mergeChannels && region === channels2[1]) continue
+            const { where, length, widest, range, markingFrom, preferredFrom } = plan
+            const marking = (limits: string) => `Mark a ${noun} ${where}, ${metres(length)} long and ${limits} wide`
+            const lengthBinding: Binding[] = along?.path ? [{ quantity: length, path: along.path }] : []
 
-            /**
-             * **Which touchline, where the game says which.** The authored `lateral` selector now reaches
-             * the artifact and the geometry places the two channels on opposite sides (0–7.5 m and
-             * 22.5–30 m on a 30 m width). Rendering both as "along the touchline" dropped that and a coach
-             * would mark one strip twice.
-             *
-             * It says "one" and "the opposite" rather than left and right: the authored values name the 0
-             * and far edges of an axis, which is an axis convention and not a coach's left. The pairing is
-             * established; which one a coach starts from is not, so it is not stated.
-             */
-            const lateral = (region.selector ?? []).find((t: any) => t.attribute === 'lateral')?.value
-            const sides = (game.space?.regions ?? [])
-                .map((r: any) => (r.selector ?? []).find((t: any) => t.attribute === 'lateral')?.value)
-                .filter(Boolean)
-            const paired = sides.length === 2 && new Set(sides).size === 2
-            const where = !paired || !lateral ? 'along the touchline' : lateral === sides[0] ? 'along one touchline' : 'along the opposite touchline'
+            if (mergeChannels) {
+                /**
+                 * **Both channels in one sentence — stage S-C2, 14 October 2026 (DRAFT).** Merged only where the game
+                 * holds two of one noun on opposite sides, each with the same length, the same required width and the
+                 * same preference, of one status: then "along each touchline" says exactly what the two sentences
+                 * said. Every channel's noun, positions and side stay cited, so each is still marked (Q5) and each
+                 * line's required limits are said by a sentence citing it (Q3). Each number is bound to the first
+                 * channel's path; the second's holds the same number, which is what made the merge true.
+                 */
+                const [first, second] = channels2.map(channelPlan)
+                const limits = limitsPhrase(first.range!.required!, metres)!
+                say('Set up', status, `Mark a ${noun} along each touchline, ${metres(length)} long and ${limits.text} wide`, [...first.markingFrom, ...second.markingFrom], [
+                    ...lengthBinding,
+                    ...boundTo(first.across, limits.quantities),
+                ])
+                const around = first.range!.preferred ? aroundPhrase(first.range!.preferred, metres) : null
+                if (around) {
+                    instructions.push(
+                        instruction(ADJUSTING, 'PREFERENCE', `${around.text} wide works well for each ${noun}`, [first.across, second.across, ...first.preferredFrom, ...second.preferredFrom], boundTo(first.across, around.quantities)),
+                    )
+                }
+                if (first.unfit) observations.push(`The authored preferred width of each ${noun} is not offered to the coach: ${String(first.unfit.note ?? 'it does not fit the requirement on this area')}.`)
+                continue
+            }
 
             /**
              * **The marking sentence states the width the knowledge REQUIRES — both ends of it.** It said
@@ -622,22 +803,17 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
              * Where the game holds no requirement in metres — a fixture frozen before realization recorded
              * one — the sentence reads as it did, from the interval, and nothing is computed to fill it in.
              */
-            const length = (len?.to ?? 0) - (len?.from ?? 0)
-            const widest = (width?.to ?? 0) - (width?.from ?? 0)
-            const marking = (limits: string) => `Mark a ${noun} ${where}, ${metres(length)} long and ${limits} wide`
-            const markingFrom = [nounPath, along?.path, across?.path, ...(paired && lateral ? [`space.regions[${region.elementId}].selector`] : [])].filter(Boolean) as string[]
-            const range = extentRange(across)
             const ranged = range
                 ? sayRange('Set up', range, {
                       number: metres,
                       required: marking,
                       requiredStatus: status,
-                      requiredAlso: { from: markingFrom, quantities: [length] },
+                      requiredAlso: { from: markingFrom, bindings: lengthBinding },
                       // Said in the adjusting part, away from the marking sentence, so it names which strip it is
                       // about (review of S-C1, 14 October 2026): two identical "Around 6 m to 7.5 m wide works well"
                       // lines there named nothing. The noun and the side are the marking sentence's own, cited.
                       preferred: around => `${around} wide works well for the ${noun} ${where}`,
-                      preferredAlso: { from: [nounPath, ...(paired && lateral ? [`space.regions[${region.elementId}].selector`] : [])] },
+                      preferredAlso: { from: preferredFrom },
                       sections: { preferred: ADJUSTING },
                   })
                 : null
@@ -648,35 +824,31 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
              * it to a coach yet, so it is not said; realization recorded why (`preferenceWithin.note`), and until
              * this review that reason reached only the fidelity report, which no page shows. It is observed here.
              */
-            const unfit = across?.geometry?.extentBound?.preferenceWithin
-            if (unfit && unfit.compatible === false) {
-                observations.push(
-                    `The authored preferred width of the ${noun} ${where} is not offered to the coach: ${String(unfit.note ?? 'it does not fit the requirement on this area')}.`,
-                )
+            if (plan.unfit) {
+                observations.push(`The authored preferred width of the ${noun} ${where} is not offered to the coach: ${String(plan.unfit.note ?? 'it does not fit the requirement on this area')}.`)
             }
             if (ranged?.required) instructions.push(ranged.required)
-            else say('Set up', status, marking(`up to ${metres(widest)}`), markingFrom, [length, widest])
+            else say('Set up', status, marking(`up to ${metres(widest)}`), markingFrom, [...lengthBinding, ...(across?.path ? [{ quantity: widest, path: across.path }] : [])])
 
             /**
-             * **An established function is established knowledge, so it is carried.** His ruling is that a
-             * function string is not what makes a region operationally realized — and that is a separate
-             * question from whether it may be dropped. It may not: the game establishes it.
+             * **An established function is established knowledge, so it is carried — unless it is a term a coach has
+             * nothing to do with.** His ruling is that a function string is not what makes a region operationally
+             * realized, and that is a separate question from whether it may be dropped: the game establishes it.
              *
-             * Rendered close to the term rather than interpreted into a coaching purpose. Turning
-             * `perceptual-reference` into advice about what players should look at would be inventing a
-             * purpose the knowledge does not state. The system-term-to-coach-language mapping is a
-             * vocabulary question and is reported rather than guessed.
+             * **`perceptual-reference` is no longer said — Christian, 14 October 2026:** *"please remove internal
+             * engine terminology such as 'perceptual reference' from coach-facing instructions unless it conveys an
+             * actual action the coach needs to take."* It told a coach *"It helps if this channel is established as a
+             * perceptual reference"* — engine words with no act in them. The shared table
+             * (`coach-facing-exclusions.ts`) excludes it, and the fidelity check verifies its consequence — the
+             * channel is marked — reached the coach, and reports the exclusion with his words. Any other member is
+             * still said, close to the term, never interpreted into a coaching purpose.
              */
-            const functions: string[] = Array.isArray((region as any).functions) ? (region as any).functions : []
-            for (const member of functions) {
-                // Its status is its strength: an established function supported only by an item the rule could
-                // stand without is ADVISORY (14 October 2026; the mapping awaits his OD2 ruling).
+            for (const member of plan.saidFunctions) {
                 say(
                     'Set up',
                     statusAt([`space.regions[${region.elementId}].functions[${member}]`, `space.regions[${region.elementId}].functions`], 'DERIVED'),
-                    `This ${noun} is established as a ${String(member).replace(/-/g, ' ')}`,
+                    `This ${noun} is established as a ${String(member).split('-').join(' ')}`,
                     [`space.regions[${region.elementId}].functions`, `space.regions[${region.elementId}].functions[${member}]`],
-                    [],
                 )
             }
             if (ranged?.preferred) instructions.push(ranged.preferred)
@@ -684,315 +856,101 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
     }
 
     // ── Players ─────────────────────────────────────────────────────────────────────────────────
-    if (Number.isFinite(game.envelope?.players)) {
-        say('Players', recorded('envelope.players', 'SESSION'), `${game.envelope.players} players in total`, ['envelope.players'], [game.envelope.players])
-    }
-    const teams = game.performers?.teams ?? []
+    const teams: any[] = game.performers?.teams ?? []
+    const players = game.envelope?.players
+    const sizes = [...new Set(teams.map((t: any) => t.outfieldCount).filter((n: any) => Number.isFinite(n)))]
+    const size = sizes.length === 1 ? Number(sizes[0]) : null
 
     /**
-     * **NEUTRAL PLAYERS, AND A GROUP'S PARTICIPATION STATE — added 13 October 2026.**
+     * **NEUTRAL PLAYERS, AND A GROUP'S PARTICIPATION STATE — added 13 October 2026, consolidated 14 October.**
      *
-     * Christian, 13 October: *"Please proceed with the neutral-player participation functionality, including
-     * roster arithmetic and coach-facing communication. For the proposed neutral-player condition, my
-     * preference is that the neutral supports whichever team currently has possession and changes
-     * allegiance immediately when possession changes. That should be explicit in the activity rather than
-     * left ambiguous."*
+     * Christian, 13 October: *"For the proposed neutral-player condition, my preference is that the neutral supports
+     * whichever team currently has possession and changes allegiance immediately when possession changes. That should
+     * be explicit in the activity rather than left ambiguous."* And 14 October, §7: *"The current neutral-player
+     * demonstration is understandable but contains more explanation than a coach needs during setup … something like
+     * this would be more useful: 'Divide 12 players into two teams of five, with two neutral players. The neutrals
+     * support whichever team has possession and switch immediately when possession changes.'"*
      *
-     * Before this the word did not occur in this file. Measured on the possession game with a neutral
-     * condition, once the roster could be derived for it: twelve players were set out as two teams of five
-     * with no word of the other two, and five established properties reached no instruction, so the
-     * activity was — correctly — refused. Each sentence below is generated from the property that holds its
-     * content, and cites it:
+     * So the four Players sentences of the roster (the total, the teams, the role statement and the neutral count
+     * with its overload clause) are ONE sentence, built from parts that keep each property's status and each number's
+     * property (stage S-C2): the session total, the instantiated teams, the count the activity starts at, the role
+     * statement. The overload clause (*"so the team with the ball has 2 more players than the team without it"*) is
+     * gone, as he asked: what it cited is cited by the sentences that remain. Digits, not words: the fidelity check
+     * reads both since stage S-C2, and the renderer writes what it checks most plainly.
      *
-     *   - **how many** — `neutrals.count`. Where realization closed the count inside an authored range it is
-     *     where this activity STARTS, said as a fact about this activity; the REQUIRED limit and the
-     *     PREFERRED range are said beside it through `sayRange`, each in the only wording its status has.
-     *     The consequence for the numbers on each side is added only where the game holds what makes it
-     *     true: two teams alike in every count they carry, and neutrals who join the team in possession;
-     *   - **who they play with** — `affiliation.joins` and `affiliation.on`, with the noun of what is
-     *     possessed read from `objects[].kind`. A standing affiliation to the team in possession is said as
-     *     *always*, which is the authored word, and the change of sides it entails is said outright rather
-     *     than left to be worked out;
+     * Each property is still said from the value that holds it, and cited:
+     *
+     *   - **how many** — `neutrals.count`, a part of the roster sentence; where realization closed it inside an
+     *     authored range, its required limit and its preference are said in "Adjusting the activity";
+     *   - **who they play with** — `affiliation.joins`, `affiliation.on` and `affiliation.takesEffect`, in his words;
      *   - **how they are told apart** — `distinguishable`, the authored means inserted verbatim;
-     *   - **their participation state** — `participation[].state`, which belongs to any performer group and
-     *     is worded here for the one group this renderer can name.
+     *   - **their participation state** — `participation[].state`, said as the second sentence of the allegiance.
      *
-     * **That the change of sides is immediate — withheld on 13 October, said since 14 October 2026.** His ruling
-     * said it was; the game could not hold it: the row that would (`affiliation.on`) holds one trigger and already
-     * holds the authored `STANDING`, and the contract's own ledger records *"whether re-affiliation on a turnover
-     * is instantaneous or takes effect at a restart"* as not authored. Under SD-103 a sentence here is entailed by
-     * the game or it is not said, so the word waited. On 14 October he asked for *"the explicit property
-     * governing when a neutral player changes allegiance"*: register row P6c (`affiliation.takesEffect`) holds it
-     * and C43 fills it with IMMEDIATE, so the sentence says *"switch immediately"*, cited to that property — and
-     * only where the game holds that value (see the allegiance sentence below).
-     *
-     * A value with no faithful wording — a designation the possession relation does not decide, a trigger
-     * other than a standing one, a state outside the table — is withheld and reported, never paraphrased.
-     * The fidelity check then finds the property uncarried and the activity is refused, which is right.
+     * A value with no faithful wording — a designation the possession relation does not decide, a trigger other than
+     * a standing one, a state outside the table — is withheld and reported, never paraphrased. The fidelity check
+     * then finds the property uncarried and the activity is refused, which is right.
      */
-    const sayNeutralPlayers = (teamSize: number | null) => {
-        const neutrals = game.performers?.neutrals
-        const count = neutrals?.count
-        const one = count === 1
-        const who = one ? 'the neutral player' : 'the neutral players'
-        const Who = `T${who.slice(1)}`
+    const neutrals = game.performers?.neutrals
+    const hasNeutrals = !!neutrals && typeof neutrals === 'object'
+    const count = neutrals?.count
+    const one = count === 1
+    const theNeutrals = one ? 'the neutral player' : 'the neutrals'
+    const TheNeutrals = `T${theNeutrals.slice(1)}`
+    const countPath = 'performers.neutrals.count'
+    const joinsPath = 'performers.neutrals.affiliation.joins'
+    const onPath = 'performers.neutrals.affiliation.on'
+    const takesEffectPath = 'performers.neutrals.affiliation.takesEffect'
+    const meansPath = 'performers.neutrals.distinguishable'
+    const relationEstablished = game.possession?.team !== undefined
+    const neutralNoun = (n: number | null) => (n === 1 ? 'neutral player' : 'neutral players')
 
-        if (neutrals && typeof neutrals === 'object') {
-            const countPath = 'performers.neutrals.count'
-            const joinsPath = 'performers.neutrals.affiliation.joins'
-            const onPath = 'performers.neutrals.affiliation.on'
-            const meansPath = 'performers.neutrals.distinguishable'
-            const players = game.envelope?.players
-            const joins = neutrals.affiliation?.joins
-            const on = neutrals.affiliation?.on
-            const relationEstablished = game.possession?.team !== undefined
-            const side = carrier && typeof joins === 'string' ? SIDE_BY_POSSESSION[joins]?.(carrier.kind) : undefined
-
-            if (stated(count) && Number.isFinite(players)) {
-                // The two sides differ by exactly the neutrals only where the teams are alike in every count
-                // they carry — size and each role alike — and the neutrals join the team in possession.
-                const alike = new Set(teams.map((t: any) => JSON.stringify(Object.entries(t).filter(([, v]) => typeof v === 'number').sort()))).size === 1
-                const overload = joins === 'ATTACKING_TEAM' && !!carrier && relationEstablished && teams.length === 2 && teamSize !== null && alike
-                const core = (value: string, n: number) =>
-                    `${value} of the ${players} players ${n === 1 ? 'is a neutral player' : 'are neutral players'}` +
-                    (overload ? `, so the team with the ${carrier.kind} has ${value} more player${n === 1 ? '' : 's'} than the team without it` : '')
-                /**
-                 * The overload clause cites the teams (it rests on their being alike) and NOT each team's size,
-                 * which it does not state. Corrected in the review of 13 October: citing the size made this
-                 * sentence carry it, so with *"2 teams of 5"* deleted the neutral game still passed — a coach
-                 * not told how many play on each side — where the bare game is refused for the same loss.
-                 * A citation is a claim to have said the thing; this sentence says the difference, not the size.
-                 */
-                const also = {
-                    from: ['envelope.players', ...(overload ? [joinsPath, 'performers.teams', `objects[${carrier.elementId}].kind`] : [])],
-                    quantities: [players],
-                }
-                const noun = (limits: Limits) => ((stated(limits.max) ? limits.max : limits.min) === 1 ? 'neutral player' : 'neutral players')
-                const range = countRange(fixture, countPath)
-                const ranged = range
-                    ? sayRange('Players', range, {
-                          number: n => String(n),
-                          required: (limits, bound) => `The game needs ${limits} ${noun(bound)}`,
-                          preferred: (around, bound) => `${around} ${noun(bound)} works well`,
-                          starting: core,
-                          startingAlso: also,
-                          // Where the count is only where this activity STARTS, its required limit is what a coach
-                          // may adjust within, so it is said with the preference in the adjusting part; the
-                          // starting count stays in the setup. A count the game fixes keeps its limit beside it.
-                          sections: stated(range.starting) ? { required: ADJUSTING, preferred: ADJUSTING } : { preferred: ADJUSTING },
-                      })
-                    : null
-                if (ranged?.starting) instructions.push(ranged.starting)
-                else say('Players', recorded(countPath, 'DERIVED'), core(String(count), count), [countPath, ...also.from], [count, ...also.quantities])
-                if (ranged?.required) instructions.push(ranged.required)
-
-                /**
-                 * **A preferred count is offered only where this session can field every count in it** — the
-                 * review of S-C1, 14 October 2026. Christian that day: *"Where a preferred count cannot be fielded
-                 * with the available players, communicate the valid option rather than presenting an impossible
-                 * alternative."* Until this review the range was offered as authored, so at 12 players the coach
-                 * read *"Around 1 to 2 neutral players works well"* although 1 leaves no whole equal teams (and at
-                 * 13, 2 does not) — measured at every player count from 6 to 22: one end was always unfieldable.
-                 *
-                 * Which counts this session can field is the roster rule's record (`within.configurations`: the
-                 * arithmetic, what the knowledge authorizes of it, and what the preferred range offers), read here
-                 * and never recomputed. Where any preferred count is not authorized the range is NOT offered: the
-                 * valid option is already the count the activity starts at (justified-default rule 2 closes exactly
-                 * `offered`), and offering part of a range as though it were the range would misstate it. The
-                 * omission is not essential (the count has a starting value and a required floor), so under his §7
-                 * ruling it is a NOTE, and the fidelity check refuses the impossible range if it is ever said. Why it
-                 * is not offered is recorded below for the technical account.
-                 */
-                const configurations: any = (fixture.status.choices ?? []).find((c: any) => c.path === countPath)?.within?.configurations
-                const authorized: unknown = configurations?.authorized
-                const preferredCounts: number[] = []
-                if (range?.preferred && stated(range.preferred.min) && stated(range.preferred.max)) {
-                    for (let n = range.preferred.min; n <= range.preferred.max; n++) preferredCounts.push(n)
-                }
-                const unfielded = Array.isArray(authorized) ? preferredCounts.filter(n => !authorized.includes(n)) : []
-                if (ranged?.preferred && !unfielded.length) instructions.push(ranged.preferred)
-                if (unfielded.length && Array.isArray(authorized) && range?.preferred) {
-                    const offered: number[] = Array.isArray(configurations.offered) ? configurations.offered : []
-                    observations.push(
-                        `The preferred number of neutral players (${range.preferred.min} to ${range.preferred.max}) is not offered to the coach. With ` +
-                            `${players} players, ${unfielded.join(' and ')} ${unfielded.length === 1 ? 'does' : 'do'} not leave whole equal teams; ` +
-                            `of the counts the knowledge authorizes, this session's roster fields ${authorized.join(', ') || 'none at all'}, and ` +
-                            `the preferred range offers ${offered.join(', ') || 'none of them'} as a normal starting configuration (ecological ` +
-                            `appropriateness: ${String(configurations.ecological ?? 'NOT_ASSESSED')}). The activity starts at ${count}; a coach who ` +
-                            `takes another count will have unequal teams or a player over, and the activity does not say so.`,
-                    )
-                }
-            } else {
-                observations.push(
-                    count === undefined
-                        ? `The game establishes neutral players and no count for them (\`${countPath}\` is absent), so a coach cannot be told how ` +
-                              `many to pick. Nothing is said rather than assumed.`
-                        : `The game holds ${JSON.stringify(count)} for \`${countPath}\` among ${JSON.stringify(players)} players, which is not a ` +
-                              `number of people rendering can state, so the activity does not say how many neutral players there are.`,
-                )
-            }
-
-            if (joins !== undefined || on !== undefined) {
-                /**
-                 * **"Switch immediately" — said ONLY where the game holds it.** 14 October 2026: the knowledge now
-                 * has somewhere to hold the timing (register row P6c, `affiliation.takesEffect`), and his ruling of
-                 * that day is in it (C43, IMMEDIATE). So the word the paragraph above withheld is said, cited to the
-                 * property that holds it. The fidelity check cannot see a word, so the guarantee is here: the
-                 * adverb is emitted for the value IMMEDIATE and for nothing else. With no timing in the game the
-                 * old sentence and its observation stand; a timing this renderer has no wording for is said
-                 * without it and withheld, which refuses the activity.
-                 */
-                const takesEffect = neutrals.affiliation?.takesEffect
-                const takesEffectPath = 'performers.neutrals.affiliation.takesEffect'
-                if (side && relationEstablished && on === 'STANDING' && takesEffect === 'IMMEDIATE') {
-                    say(
-                        'Players',
-                        recorded(joinsPath, 'DERIVED'),
-                        `${Who} always play${one ? 's' : ''} with ${side} and switch${one ? 'es' : ''} immediately when possession changes`,
-                        [joinsPath, onPath, takesEffectPath, `objects[${carrier.elementId}].kind`],
-                        [],
-                    )
-                } else if (side && relationEstablished && on === 'STANDING') {
-                    say(
-                        'Players',
-                        recorded(joinsPath, 'DERIVED'),
-                        `${Who} always play${one ? 's' : ''} with ${side}, and change${one ? 's' : ''} sides when possession changes`,
-                        [joinsPath, onPath, `objects[${carrier.elementId}].kind`],
-                        [],
-                    )
-                    if (takesEffect !== undefined) withheld.push({ path: takesEffectPath, row: 'P6c', reason: 'AWAITING_APPROVED_WORDING' })
-                    else {
-                        observations.push(
-                            `The neutral players' side is held as a standing rule (\`${onPath}\` = STANDING) that follows the team in possession, so the ` +
-                                `activity says they ALWAYS play with that team and change sides WHEN possession changes. It does not say the change is ` +
-                                `IMMEDIATE, because this game holds no timing for it (\`${takesEffectPath}\` is absent). Rendering will not add the word ` +
-                                `on its own authority.`,
-                        )
-                    }
-                } else {
-                    const missing = !carrier
-                        ? 'the game establishes no object to name as what is possessed'
-                        : !relationEstablished
-                          ? 'the game establishes no possession relationship (`possession.team` is absent) for the designation to resolve against'
-                          : !side
-                            ? `rendering has no coach-facing wording for the team designation ${JSON.stringify(joins)}`
-                            : `rendering has no coach-facing wording for an affiliation decided on ${JSON.stringify(on)}`
-                    observations.push(
-                        `The side the neutral players take is established as joins = ${JSON.stringify(joins)}, on = ${JSON.stringify(on)}, and ${missing}. ` +
-                            `The activity says nothing about who they play with rather than paraphrase it.`,
-                    )
-                }
-            }
-
-            const means = neutrals.distinguishable
-            if (typeof means === 'string' && means.trim()) {
-                const apart = teams.length === 2 ? ' from both teams' : teams.length ? ' from the teams' : ''
-                /**
-                 * **The means is a recommendation where the knowledge makes it one — 14 October 2026.** Christian:
-                 * *"Contrasting bibs should be treated as a practical recommendation for distinguishing neutrals, not
-                 * a universal requirement, provided the players can readily identify their roles."* Recorded as C47
-                 * (the authored means SUPPORTING; it was already a preferred default, so its strength is DEFAULT and
-                 * its sentence STARTING). That the neutrals are told apart is required (NEUTRAL-06.a); HOW is where
-                 * the activity starts, so the authored means is offered as an example rather than as the rule. A
-                 * means the knowledge requires keeps the old wording.
-                 */
-                const status = recorded(meansPath, 'DERIVED')
-                say(
-                    'Players',
-                    status,
-                    status === 'DERIVED' ? `Make ${who} easy to tell apart${apart} — ${means}` : `Make ${who} easy to tell apart${apart} — for example, ${means}`,
-                    [meansPath, ...(teams.length ? ['performers.teams'] : [])],
-                    [],
-                )
-            } else if (means !== undefined) {
-                observations.push(
-                    `How the neutral players are told apart is established as ${JSON.stringify(means)}, which is not wording a coach can be given, ` +
-                        `so the activity says nothing about it rather than paraphrase it.`,
-                )
-            }
-        }
-
-        for (const group of game.performers?.participation ?? []) {
-            const base = `performers.participation[${group.elementId}]`
-            if (group.state !== undefined) {
-                const named = (group.selector ?? []).find((term: any) => term?.attribute === 'group' && term?.op === '=')?.value
-                // The one group this renderer can name: the register's own neutrals, by either spelling the corpus uses.
-                const neutral = !!neutrals && ['neutral', 'neutrals'].includes(String(named).toLowerCase())
-                const wording = typeof group.state === 'string' ? PARTICIPATION_STATE[group.state] : undefined
-                if (neutral && wording) {
-                    say('Players', recorded(`${base}.state`, 'DERIVED'), `${Who} ${wording(!one)}`, [`${base}.state`, `${base}.selector`], [])
-                } else {
-                    observations.push(
-                        `${base}.state is established as ${JSON.stringify(group.state)} for the group ${JSON.stringify(named)}, and rendering has no ` +
-                            `coach-facing wording for ${neutral ? 'that state' : 'that group'}, so the activity says nothing about it rather than paraphrase it.`,
-                    )
-                }
-            }
-            if ((fixture.status.notEstablished ?? []).some((n: any) => n.path === `${base}.persistence`)) {
-                observations.push(
-                    `Nothing establishes whether that group keeps its participation state for the whole activity or only for a period ` +
-                        `(\`${base}.persistence\` is not authored), so the activity does not say whether the same players stay in it throughout.`,
-                )
-            }
-        }
+    // The session total and the teams. Said as "Divide N players into K teams of S" (his wording) where there are teams.
+    const roster: InstructionPart[] = []
+    if (Number.isFinite(players)) {
+        roster.push(part(recorded('envelope.players', 'SESSION'), teams.length ? `Divide ${players} players` : `${players} players in total`, ['envelope.players'], [{ quantity: players, path: 'envelope.players' }]))
+    }
+    if (teams.length) {
+        /**
+         * **A per-team property is cited by its PROPERTY path, never by a member's address.** The size is entailed
+         * onto each team at that member's own address, which carries its handle, and a handle is identity, not a
+         * property: `identity.unit.ts` pins that none may reach coach-facing output, citations included. So the part
+         * that speaks for every team cites the register's own path for the property, with the member left open —
+         * which is also exactly what it claims, since it is only said where every team holds the same number.
+         */
+        const said = size === null ? `${teams.length} teams` : `${teams.length} teams of ${size}`
+        roster.push(
+            part('INSTANTIATED', roster.length ? ` into ${said}` : said, size === null ? ['performers.teams'] : ['performers.teams', 'performers.teams[].outfieldCount'], [
+                { quantity: teams.length, path: 'performers.teams' },
+                ...(size === null ? [] : [{ quantity: size, path: 'performers.teams[].outfieldCount' }]),
+            ]),
+        )
     }
 
-    if (!teams.length) sayNeutralPlayers(null)
+    /**
+     * **Availability is not involvement, and a coach is told which one they are looking at.** His rule of 30
+     * September: *"Stating availability is not stating involvement: a role available in the session is instantiated
+     * into a particular game only where the selected knowledge establishes it."* The role's part is chosen from what
+     * each TEAM holds, which assembly writes from the game:
+     *
+     *   - the game involves none and the session has none — the session's own statement (", with no …s");
+     *   - the game involves none and the session has some — said as a fact about THIS activity, so a coach who
+     *     brought them knows they play out with everyone else;
+     *   - the game involves some — how many each team has (", plus 1 … each").
+     *
+     * The role's NAME is data: it is the key the session stated and the leaf the register gave the row. Where teams
+     * hold different counts nothing tells them apart, so it is withheld and reported.
+     */
+    const rolesEach: InstructionPart[] = []
+    const rolesNone: { role: string; from: string[] }[] = []
+    const rolesUnused: InstructionPart[] = []
     if (teams.length) {
-        const sizes = [...new Set(teams.map((t: any) => t.outfieldCount).filter((n: any) => Number.isFinite(n)))]
-        const size = sizes.length === 1 ? Number(sizes[0]) : null
-        /**
-         * **A per-team property is cited by its PROPERTY path, never by a member's address.** The size is
-         * entailed onto each team at that member's own address, which carries its handle, and a handle is
-         * identity, not a property: `identity.unit.ts` pins that none may reach coach-facing output, citations
-         * included. So a sentence that speaks for every team cites the register's own path for the
-         * property, with the member left open — which is also exactly what it claims, since it is only
-         * said where every team holds the same number.
-         *
-         * The citation is what lets the fidelity check see the size was carried. Until 13 October it was
-         * cited by nothing, so the check could not tell a stated team size from a dropped one.
-         */
-        say(
-            'Players',
-            'INSTANTIATED',
-            size === null
-                ? `${teams.length} teams`
-                : `${teams.length} teams of ${size}`,
-            size === null ? ['performers.teams'] : ['performers.teams', 'performers.teams[].outfieldCount'],
-            size === null ? [teams.length] : [teams.length, size],
-        )
-
-        /**
-         * **Availability is not involvement, and a coach is told which one they are looking at.** His rule
-         * of 30 September: *"Stating availability is not stating involvement: a role available in the
-         * session is instantiated into a particular game only where the selected knowledge establishes it."*
-         *
-         * This used to speak only when the session stated zero. So with one such performer available per
-         * team the roster took them off each side, the activity read "2 teams of 5" from twelve players,
-         * and nothing said where the other two had gone — eleven instructions, no violation. Now the
-         * sentence is chosen from what each TEAM holds, which assembly writes from the game:
-         *
-         *   - the game involves none and the session has none — the session's own statement, as before;
-         *   - the game involves none and the session has some — said as a fact about THIS activity, so a
-         *     coach who brought them knows they play out with everyone else rather than wondering;
-         *   - the game involves some — how many each team has.
-         *
-         * The role's NAME is data: it is the key the session stated and the leaf the register gave the
-         * row. Nothing here knows what any role is, which is also why the plural is formed and not written.
-         *
-         * Where teams hold different counts there is no sentence that says so without telling them apart,
-         * and nothing tells them apart — so it is withheld and reported, like every other fact the game
-         * holds and the renderer has no faithful wording for.
-         */
-        const roles = fixture.envelope?.roles ?? {}
-        for (const [role, count] of Object.entries(roles)) {
-            const available = Number(count)
+        for (const [role, available] of Object.entries(fixture.envelope?.roles ?? {}).map(([r, c]) => [r, Number(c)] as const)) {
             const held = teams.map((t: any) => t[role])
             const carried = held.every((n: unknown) => Number.isInteger(n) && Number(n) >= 0)
             const property = `performers.teams[].${role}`
             if (!carried) {
                 // The game gives the teams no count for this role, so only the session's statement can be said.
-                if (available === 0) say('Players', 'SESSION', `No ${role}s — everyone is an outfield player`, ['envelope.roles'], [])
+                if (available === 0) rolesNone.push({ role, from: ['envelope.roles'] })
                 else {
                     observations.push(
                         `The session has ${available} ${role}${available === 1 ? '' : 's'} available and the game gives no team a count for that ` +
@@ -1009,133 +967,280 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
                 continue
             }
             const involved = Number(held[0])
-            if (involved === 0 && available === 0) {
-                say('Players', 'SESSION', `No ${role}s — everyone is an outfield player`, ['envelope.roles', property], [])
-            } else if (involved === 0) {
-                say('Players', 'DERIVED', `This activity does not use ${role}s — everyone plays as an outfield player`, [property], [])
-            } else {
-                say('Players', 'DERIVED', `Each team also has ${involved} ${role}${involved === 1 ? '' : 's'}`, [property], [involved])
-            }
+            if (involved === 0 && available === 0) rolesNone.push({ role, from: ['envelope.roles', property] })
+            else if (involved === 0) rolesUnused.push(part('DERIVED', `; ${role}s play as outfield players in this activity`, [property]))
+            else rolesEach.push(part('DERIVED', `, plus ${involved} ${role}${involved === 1 ? '' : 's'} each`, [property], [{ quantity: involved, path: property }]))
         }
+    }
 
-        // After the teams and their roles, so the numbers a coach reads add up in the order they are read.
-        sayNeutralPlayers(size)
+    // The neutral count: a part of the roster sentence, its range in the adjusting part.
+    let neutralPart: InstructionPart | null = null
+    const neutralAdjusting: Instruction[] = []
+    if (hasNeutrals) {
+        if (stated(count) && Number.isFinite(players)) {
+            neutralPart = part(recorded(countPath, 'DERIVED'), `, with ${count} ${neutralNoun(count)}`, [countPath], [{ quantity: count, path: countPath }])
+            const range = countRange(fixture, countPath)
+            if (range?.required) {
+                // Where the count is only where this activity STARTS, its required limit is what a coach may adjust
+                // within, so it is said in the adjusting part; a count the game fixes keeps its limit in Players.
+                const limits = limitsPhrase(range.required, n => String(n))!
+                const bound = stated(range.required.max) ? range.required.max : range.required.min
+                neutralAdjusting.push(instruction(stated(range.starting) ? ADJUSTING : 'Players', 'DERIVED', `Keep ${limits.text} ${neutralNoun(bound)}`, [countPath], boundTo(countPath, limits.quantities)))
+            }
 
-        /**
-         * **WHO STARTS WITH THE BALL — his ruling of 7 October, and the awkward truth it exposes.**
-         *
-         *   > *Once an established rule reads possession, the initial holder becomes activity-design
-         *   > information under SD-104. Therefore the rendered activity must faithfully communicate which team
-         *   > starts in possession.*
-         *
-         * The value is established and a coach genuinely needs it: the Wide Zone condition now reads
-         * possession, so who starts decides whose touch can qualify in the first phase of play.
-         *
-         * **But "which team" is not expressible, and saying so IS the faithful rendering.** The holder is a
-         * member handle, and `identity.unit.ts` pins that no handle may reach coach-facing output — deliberately,
-         * because a handle is identity and not a property. More to the point, the two teams carry no
-         * distinguishing property at all: they are identical but for that handle, which is why swapping the
-         * holder leaves the whole game unchanged. So there is no fact of the form "the BLUE team starts" for
-         * rendering to lose; there is only "one of the two does, and the game does not say which".
-         *
-         * That is what this says, and it cites both halves: `possession.team` for the relationship being
-         * established and filled, `performers.teams` for there being two indiscernible teams to choose between.
-         * A coach can act on it — they assign the ball before kick-off — and nothing is invented. The
-         * observation below records what the activity therefore cannot tell them.
-         */
-        const holder = game.possession?.team
-        if (holder) {
-            const held = teams.some((t: any) => String(t.elementId) === String(holder))
-            if (held) {
-                // Left to the coach (COACH_DECIDES), so a COACH_CHOICE: the sentence puts the choice to them.
-                say(
-                    'Players',
-                    statusAt(['possession.team'], 'COACH_CHOICE'),
-                    `One team starts with the ball — the game does not fix which, so pick one and tell both teams before you start`,
-                    ['possession.team', 'performers.teams'],
-                    [],
-                )
-                /**
-                 * **The reason this matters is read from the game, not asserted.** It used to say the
-                 * wide-channel condition reads possession, so who starts decided whose touch could
-                 * qualify first. That was true while a value modifier conditioned on the channels and
-                 * is false now that nothing does — so the clause names whatever actually reads the
-                 * relationship, and says plainly when nothing does.
-                 */
-                const readers: string[] = []
-                if ((game.transitions ?? []).some((t: any) => (t.selector ?? []).some((s: any) => String(s.value) === 'POSSESSION_CHANGE')))
-                    readers.push('a transition is keyed on a change of possession, so it decides which team is attacking in the first episode of play')
-                if ((game.value?.valueModifiers ?? []).some((m: any) => m.endsOn === 'POSSESSION_CHANGE' || /possession/i.test(String(m.condition?.value ?? ''))))
-                    readers.push('a value modifier reads possession, so who starts decides whose action can qualify first')
-                if (typeof game.performers?.neutrals?.affiliation?.joins === 'string' && SIDE_BY_POSSESSION[game.performers.neutrals.affiliation.joins])
-                    readers.push('the neutral players take a side by who has possession, so who starts decides which team they play with first')
-                observations.push(
-                    `The game DOES establish an initial holder of possession, and the activity cannot tell a coach which team it is. ` +
-                        `The two teams are indiscernible — identical but for an internal handle that must not reach coach-facing text — so ` +
-                        `the holder identifies a member without describing one. ` +
-                        (readers.length
-                            ? `It matters because ${readers.join('; and ')}. `
-                            : `Nothing in this game reads the relationship, so it is an initial state a coach may settle however they like. `) +
-                        `It is a knowledge gap and not a rendering one: nothing authors anything that tells the two teams apart.`,
-                )
-            } else {
-                observations.push(
-                    `\`possession.team\` names ${String(holder)}, which is not one of the game's own teams, so the activity says nothing ` +
-                        `about who starts with the ball rather than naming something a coach cannot find.`,
+            /**
+             * **The preferred count is offered within what this session can field** — stage S-C2, 14 October 2026.
+             * Christian, §6: *"Where a preferred count cannot be fielded with the available players, communicate the
+             * valid option rather than presenting an impossible alternative."* Until the review of S-C1 the authored
+             * range was offered whole (*"Around 1 to 2 neutral players works well"* at 12 players, where 1 leaves no
+             * equal teams); that review stopped offering it; this offers what the session CAN field of it — the roster
+             * rule's own record (`within.configurations.offered`: the authorized counts inside the preferred range),
+             * read here and never recomputed — and says that it is for a group this size. At 12 players that is 2, at
+             * 13 it is 1. Counts outside the preferred range are never offered as suitable (§6: *"Counts outside that
+             * range should not automatically be treated as suitable merely because the arithmetic works"*).
+             */
+            const choice = (fixture.status.choices ?? []).find((c: any) => c.path === countPath)
+            const configurations: any = choice?.within?.configurations
+            const preferredCounts: number[] = []
+            if (range?.preferred && stated(range.preferred.min) && stated(range.preferred.max)) {
+                for (let n = range.preferred.min; n <= range.preferred.max; n++) preferredCounts.push(n)
+            }
+            const recordOffered: unknown = configurations?.offered
+            const fieldable = Array.isArray(recordOffered) ? preferredCounts.filter(n => recordOffered.includes(n)) : preferredCounts
+            const unfielded = preferredCounts.filter(n => !fieldable.includes(n))
+            const unbroken = fieldable.length > 0 && fieldable[fieldable.length - 1] - fieldable[0] === fieldable.length - 1
+            if (range?.preferred && preferredCounts.length && !unfielded.length) {
+                const around = aroundPhrase(range.preferred, n => String(n))!
+                neutralAdjusting.push(instruction(ADJUSTING, 'PREFERENCE', `${around.text} ${neutralNoun(range.preferred.max)} work${range.preferred.max === 1 ? 's' : ''} well`, [countPath], boundTo(countPath, around.quantities)))
+            } else if (unfielded.length && unbroken) {
+                const [low, high] = [fieldable[0], fieldable[fieldable.length - 1]]
+                neutralAdjusting.push(
+                    low === high
+                        ? instruction(ADJUSTING, 'PREFERENCE', `${low} ${neutralNoun(low)} work${low === 1 ? 's' : ''} well for a group this size`, [countPath], [{ quantity: low, path: countPath }])
+                        : instruction(ADJUSTING, 'PREFERENCE', `${low} to ${high} neutral players work well for a group this size`, [countPath], boundTo(countPath, [low, high])),
                 )
             }
-        }
-        if (size === null) {
-            // NOT repaired. The renderer could divide 12 by 2 and write "two teams of six" — and that is
-            // exactly the forbidden move. The post-realization gate did derive 6-a-side legitimately, from
-            // the session total plus authored equality, but it derived it into its own evaluation context
-            // and the value never reached the game. So the game does not establish it, and a renderer that
-            // recomputed it would be inventing a number on its own authority.
+            if (unfielded.length && range?.preferred) {
+                const authorized: number[] = Array.isArray(configurations?.authorized) ? configurations.authorized : []
+                observations.push(
+                    `The preferred number of neutral players (${range.preferred.min} to ${range.preferred.max}) is ` +
+                        (unbroken ? `offered only as ${fieldable.join(' to ')}` : 'not offered to the coach') +
+                        `. With ${players} players, ${unfielded.join(' and ')} ${unfielded.length === 1 ? 'does' : 'do'} not leave whole equal teams; ` +
+                        `of the counts the knowledge authorizes, this session's roster fields ${authorized.join(', ') || 'none at all'}, and the ` +
+                        `preferred range offers ${fieldable.join(', ') || 'none of them'} as a normal starting configuration (ecological ` +
+                        `appropriateness: ${String(configurations?.ecological ?? 'NOT_ASSESSED')}). The activity starts at ${count}; counts outside ` +
+                        `the preferred range are not offered as suitable merely because the arithmetic works.`,
+                )
+            }
+        } else {
             observations.push(
-                `The game establishes ${game.envelope?.players} players and ${teams.length} teams but gives neither team a size: ` +
-                    `\`performers.teams[]\` members carry only \`designation\`. A coach cannot split the group from this. The team size ` +
-                    `IS derivable — the post-realization gate derived ${game.envelope.players / teams.length} per side from the session total ` +
-                    `(${game.envelope.players} ÷ ${teams.length}) plus authored equality, and passed its roster check on it — but it derived it into the gate's evaluation context, ` +
-                    `not into the concrete game, so the value does not survive into the artifact being rendered. Rendering will not ` +
-                    `recompute it: that would be a number on the renderer's own authority. This is the one finding that I think bears on ` +
-                    `the closure itself rather than on the rendering.`,
+                count === undefined
+                    ? `The game establishes neutral players and no count for them (\`${countPath}\` is absent), so a coach cannot be told how ` +
+                          `many to pick. Nothing is said rather than assumed.`
+                    : `The game holds ${JSON.stringify(count)} for \`${countPath}\` among ${JSON.stringify(players)} players, which is not a ` +
+                          `number of people rendering can state, so the activity does not say how many neutral players there are.`,
             )
         }
     }
 
+    // One roster sentence: "Divide 12 players into 2 teams of 5, with 2 neutral players and no goalkeepers".
+    const rosterParts = [...roster, ...rolesEach, ...(neutralPart ? [neutralPart] : [])]
+    rolesNone.forEach(({ role, from }, i) => rosterParts.push(part('SESSION', `${neutralPart || i > 0 ? ' and' : ', with'} no ${role}s`, from)))
+    rosterParts.push(...rolesUnused)
+    if (rosterParts.length) instructions.push(joined('Players', rosterParts))
+    for (const adjusting of neutralAdjusting.filter(i => i.section === 'Players')) instructions.push(adjusting)
+
+    /**
+     * **Who the neutrals play with, in his words, and their participation as the second sentence.** "Switch
+     * immediately" is said ONLY where the game holds it: register row P6c (`affiliation.takesEffect`) holds the
+     * timing and C43 fills it with IMMEDIATE (his 14 October ruling). The fidelity check cannot see a word, so the
+     * guarantee is here: the adverb is emitted for IMMEDIATE and for nothing else. With no timing in the game the
+     * sentence says they change sides and the observation stands; a timing with no wording is said without the adverb
+     * and withheld, which refuses the activity.
+     */
+    const allegiance: InstructionPart[] = []
+    if (hasNeutrals) {
+        const joins = neutrals.affiliation?.joins
+        const on = neutrals.affiliation?.on
+        const takesEffect = neutrals.affiliation?.takesEffect
+        const side = typeof joins === 'string' ? SIDE_BY_POSSESSION[joins] : undefined
+        const s = one ? 's' : ''
+        if (joins !== undefined || on !== undefined) {
+            if (side && relationEstablished && on === 'STANDING' && takesEffect === 'IMMEDIATE') {
+                allegiance.push(part(recorded(joinsPath, 'DERIVED'), `${TheNeutrals} support${s} ${side} and switch${one ? 'es' : ''} immediately when possession changes`, [joinsPath, onPath, takesEffectPath]))
+            } else if (side && relationEstablished && on === 'STANDING') {
+                allegiance.push(part(recorded(joinsPath, 'DERIVED'), `${TheNeutrals} support${s} ${side} and change${s} sides when possession changes`, [joinsPath, onPath]))
+                if (takesEffect !== undefined) withheld.push({ path: takesEffectPath, row: 'P6c', reason: 'AWAITING_APPROVED_WORDING' })
+                else {
+                    observations.push(
+                        `The neutral players' side is held as a standing rule (\`${onPath}\` = STANDING) that follows the team in possession, so the ` +
+                            `activity says they support that team and change sides WHEN possession changes. It does not say the change is ` +
+                            `IMMEDIATE, because this game holds no timing for it (\`${takesEffectPath}\` is absent). Rendering will not add the word ` +
+                            `on its own authority.`,
+                    )
+                }
+            } else {
+                const missing = !relationEstablished
+                    ? 'the game establishes no possession relationship (`possession.team` is absent) for the designation to resolve against'
+                    : !side
+                      ? `rendering has no coach-facing wording for the team designation ${JSON.stringify(joins)}`
+                      : `rendering has no coach-facing wording for an affiliation decided on ${JSON.stringify(on)}`
+                observations.push(
+                    `The side the neutral players take is established as joins = ${JSON.stringify(joins)}, on = ${JSON.stringify(on)}, and ${missing}. ` +
+                        `The activity says nothing about who they play with rather than paraphrase it.`,
+                )
+            }
+        }
+    }
+
+    const separately: Instruction[] = []
+    for (const group of game.performers?.participation ?? []) {
+        const base = `performers.participation[${group.elementId}]`
+        if (group.state !== undefined) {
+            const named = (group.selector ?? []).find((term: any) => term?.attribute === 'group' && term?.op === '=')?.value
+            // The one group this renderer can name: the register's own neutrals, by either spelling the corpus uses.
+            const neutral = hasNeutrals && ['neutral', 'neutrals'].includes(String(named).toLowerCase())
+            const wording = typeof group.state === 'string' ? PARTICIPATION_STATE[group.state] : undefined
+            if (neutral && wording) {
+                const from = [`${base}.state`, `${base}.selector`]
+                // The second sentence of the allegiance where there is one ("They take a full part in play …").
+                if (allegiance.length === 1) allegiance.push(part(recorded(`${base}.state`, 'DERIVED'), `. They ${wording(true)}`, from))
+                else separately.push(instruction('Players', recorded(`${base}.state`, 'DERIVED'), `${TheNeutrals} ${wording(!one)}`, from, []))
+            } else {
+                observations.push(
+                    `${base}.state is established as ${JSON.stringify(group.state)} for the group ${JSON.stringify(named)}, and rendering has no ` +
+                        `coach-facing wording for ${neutral ? 'that state' : 'that group'}, so the activity says nothing about it rather than paraphrase it.`,
+                )
+            }
+        }
+        if ((fixture.status.notEstablished ?? []).some((n: any) => n.path === `${base}.persistence`)) {
+            observations.push(
+                `Nothing establishes whether that group keeps its participation state for the whole activity or only for a period ` +
+                    `(\`${base}.persistence\` is not authored), so the activity does not say whether the same players stay in it throughout.`,
+            )
+        }
+    }
+    if (allegiance.length) instructions.push(joined('Players', allegiance))
+    instructions.push(...separately)
+
+    if (hasNeutrals) {
+        const means = neutrals.distinguishable
+        if (typeof means === 'string' && means.trim()) {
+            const apart = teams.length === 2 ? ' from both teams' : teams.length ? ' from the teams' : ''
+            /**
+             * **The means is a recommendation where the knowledge makes it one — 14 October 2026.** Christian:
+             * *"Contrasting bibs should be treated as a practical recommendation for distinguishing neutrals, not a
+             * universal requirement, provided the players can readily identify their roles."* Recorded as C47 (the
+             * authored means SUPPORTING; already a preferred default, so its strength is DEFAULT and its sentence
+             * STARTING), and offered as an example rather than the rule. A means the knowledge requires keeps the old
+             * wording. That the neutrals are told apart at all (NEUTRAL-06.a, P7 EXISTS) is inert under his SD-100
+             * (*"do not reinterpret EXISTS as meaning … that a value is required"*), so no sentence states it as a
+             * requirement of the game: the sentence says where the activity starts, and it starts with them told apart.
+             */
+            const status = recorded(meansPath, 'DERIVED')
+            say(
+                'Players',
+                status,
+                status === 'DERIVED' ? `Make ${theNeutrals} easy to tell apart${apart} — ${means}` : `Make ${theNeutrals} easy to tell apart${apart} — for example, ${means}`,
+                [meansPath, ...(teams.length ? ['performers.teams'] : [])],
+            )
+        } else if (means !== undefined) {
+            observations.push(
+                `How the neutral players are told apart is established as ${JSON.stringify(means)}, which is not wording a coach can be given, ` +
+                    `so the activity says nothing about it rather than paraphrase it.`,
+            )
+        }
+    }
+    for (const adjusting of neutralAdjusting.filter(i => i.section === ADJUSTING)) instructions.push(adjusting)
+
+    if (teams.length && size === null) {
+        // NOT repaired. The renderer could divide 12 by 2 and write "two teams of six" — and that is exactly the
+        // forbidden move. The post-realization gate derived the size into its own evaluation context and the value
+        // never reached the game, so a renderer that recomputed it would be inventing a number on its own authority.
+        observations.push(
+            `The game establishes ${game.envelope?.players} players and ${teams.length} teams but gives neither team a size: ` +
+                `\`performers.teams[]\` members carry only \`designation\`. A coach cannot split the group from this. The team size ` +
+                `IS derivable — the post-realization gate derived ${game.envelope.players / teams.length} per side from the session total ` +
+                `(${game.envelope.players} ÷ ${teams.length}) plus authored equality, and passed its roster check on it — but it derived it into the gate's evaluation context, ` +
+                `not into the concrete game, so the value does not survive into the artifact being rendered. Rendering will not ` +
+                `recompute it: that would be a number on the renderer's own authority. This is the one finding that I think bears on ` +
+                `the closure itself rather than on the rendering.`,
+        )
+    }
+
     // ── How it works ────────────────────────────────────────────────────────────────────────────
     if (game.envelope?.duration_min) {
-        say('How it works', recorded('envelope.duration_min', 'SESSION'), `Play for ${game.envelope.duration_min} minutes`, ['envelope.duration_min'], [game.envelope.duration_min])
+        say('How it works', recorded('envelope.duration_min', 'SESSION'), `Play for ${game.envelope.duration_min} minutes`, ['envelope.duration_min'], [
+            { quantity: game.envelope.duration_min, path: 'envelope.duration_min' },
+        ])
     }
+
     /**
-     * **A possession-change sentence requires a possession-change transition AND the relation it changes.**
-     * His ruling of 7 October, the second of two narrow repairs:
+     * **WHO STARTS WITH THE BALL — his ruling of 7 October.** *"Once an established rule reads possession, the
+     * initial holder becomes activity-design information under SD-104. Therefore the rendered activity must faithfully
+     * communicate which team starts in possession."* "Which team" is not expressible — the holder is a member handle,
+     * which `identity.unit.ts` keeps out of coach-facing output, and the two teams carry no distinguishing property —
+     * so the faithful rendering puts the choice to the coach, citing `possession.team` and `performers.teams`.
      *
-     *   > *A rendered possession-change instruction may appear only when the represented transition is
-     *   > actually keyed on `POSSESSION_CHANGE` and the required possession relationship is established.*
+     * **Consolidated and moved to "How it works" in stage S-C2 (14 October 2026, DRAFT):** *"Pick which team starts
+     * with the ball and tell both teams before you start"*. It was *"One team starts with the ball — the game does not
+     * fix which, so pick one …"* in Players. It names the object from `objects[].kind`, cited (SD-103); it wrote the
+     * word "ball" uncited until this stage. With no object it says "starts in possession".
+     */
+    const holder = game.possession?.team
+    if (holder && teams.length) {
+        const held = teams.some((t: any) => String(t.elementId) === String(holder))
+        if (held) {
+            say(
+                'How it works',
+                statusAt(['possession.team'], 'COACH_CHOICE'),
+                carrier ? `Pick which team starts with the ${carrier.kind} and tell both teams before you start` : 'Pick which team starts in possession and tell both teams before you start',
+                ['possession.team', 'performers.teams', ...(carrier ? [`objects[${carrier.elementId}].kind`] : [])],
+            )
+            /**
+             * **The reason this matters is read from the game, not asserted.** The clause names whatever actually
+             * reads the relationship, and says plainly when nothing does.
+             */
+            const readers: string[] = []
+            if ((game.transitions ?? []).some((t: any) => (t.selector ?? []).some((s: any) => String(s.value) === 'POSSESSION_CHANGE')))
+                readers.push('a transition is keyed on a change of possession, so it decides which team is attacking in the first episode of play')
+            if ((game.value?.valueModifiers ?? []).some((m: any) => m.endsOn === 'POSSESSION_CHANGE' || /possession/i.test(String(m.condition?.value ?? ''))))
+                readers.push('a value modifier reads possession, so who starts decides whose action can qualify first')
+            if (typeof game.performers?.neutrals?.affiliation?.joins === 'string' && SIDE_BY_POSSESSION[game.performers.neutrals.affiliation.joins])
+                readers.push('the neutral players take a side by who has possession, so who starts decides which team they play with first')
+            observations.push(
+                `The game DOES establish an initial holder of possession, and the activity cannot tell a coach which team it is. ` +
+                    `The two teams are indiscernible — identical but for an internal handle that must not reach coach-facing text — so ` +
+                    `the holder identifies a member without describing one. ` +
+                    (readers.length
+                        ? `It matters because ${readers.join('; and ')}. `
+                        : `Nothing in this game reads the relationship, so it is an initial state a coach may settle however they like. `) +
+                    `It is a knowledge gap and not a rendering one: nothing authors anything that tells the two teams apart.`,
+            )
+        } else {
+            observations.push(
+                `\`possession.team\` names ${String(holder)}, which is not one of the game's own teams, so the activity says nothing ` +
+                    `about who starts with the ball rather than naming something a coach cannot find.`,
+            )
+        }
+    }
+
+    /**
+     * **A possession-change sentence requires a possession-change transition AND the relation it changes.** His
+     * ruling of 7 October: *"A rendered possession-change instruction may appear only when the represented transition
+     * is actually keyed on `POSSESSION_CHANGE` and the required possession relationship is established."* The
+     * relation's establishment is a PRECONDITION, not a source of the content, so `possession.team` is not cited.
      *
-     * This read `playState === 'CONTINUE'` and nothing else. So the sentence fired for ANY transition that
-     * continues play, on any trigger whatever, and asserted to a coach that it was possession that changed.
-     * Measured before the repair: it survived changing the trigger to something unrelated, and it survived
-     * deleting the possession relation from the game outright. The word "possession" occurs in this file only
-     * inside that string, so there was nothing else to notice.
+     * **It is said ONCE, however many transitions assert it — 13 October.** The neutral condition asserts a
+     * possession-change transition beside the game form's own; the qualifying transitions are gathered and one
+     * sentence cites every one of them, which keeps each one's play state carried and each one's episode boundary
+     * discharged. A general collapse of identical sentences would be wrong — it is made here and nowhere else.
      *
-     * **`possession.team` is deliberately NOT cited.** The relation's establishment is a PRECONDITION for
-     * emitting the sentence, not a source of its content: what the sentence says — a possession change does
-     * not stop play — comes entirely from the trigger and the play state. Citing the holder would make the
-     * fidelity check read it as carried to the coach when no coach reads it anywhere, which is exactly the
-     * unverifiable citation his item-1 findings warn about. Under his item-2 ruling the holder needs no
-     * coach-facing expression, and the honest way to say so is to leave it uncited and let it be reported.
-     *
-     * **It is said ONCE, however many transitions assert it — 13 October.** The sentence was issued per
-     * transition, and a second contract may assert the same transition beside the game form's own: the
-     * neutral condition does, because the side its players take depends on it. Measured: the activity then
-     * read the same sentence twice, and nothing caught it — the fidelity check has no test for repeated
-     * text. So the qualifying transitions are gathered and one sentence cites every one of them, which
-     * keeps each transition's play state carried and each one's episode boundary discharged. The merge is
-     * made HERE and nowhere else: a general collapse of identical sentences would be wrong, because two
-     * regions legitimately produce the same sentence each — the two channels' function sentences are
-     * word-for-word alike and are two facts.
+     * **Consolidated in stage S-C2 (14 October 2026, DRAFT).** *"Play continues when possession changes — there is no
+     * stoppage"* (STARTING: GF2-17 authors CONTINUE as a preferred default) and *"When possession changes the teams
+     * swap roles, not ends: whoever wins the ball attacks the same line they were already attacking"* (DERIVED, from
+     * the objectives' fixed teams) are one sentence of two parts, each keeping its status. The second named "the
+     * ball" uncited; it says "possession" now, the relation it is about.
      */
     const continuingOnPossessionChange: any[] = []
     for (const transition of game.transitions ?? []) {
@@ -1143,7 +1248,6 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
         const keyedOnPossessionChange = (transition.selector ?? []).some(
             (term: any) => term?.attribute === 'trigger' && term?.op === '=' && term?.value === 'POSSESSION_CHANGE',
         )
-        const relationEstablished = (game as any).possession?.team !== undefined
         if (keyedOnPossessionChange && relationEstablished) {
             continuingOnPossessionChange.push(transition)
             continue
@@ -1159,15 +1263,27 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
                   `possession-change sentence, which is what it used to do for any CONTINUE transition.`,
         )
     }
+
+    const objectives: any[] = game.objectives ?? []
+    const objective = objectives[0]
+    const shared = objective?.team === 'EACH_TEAM'
+    const directional = !!objective && !shared && objectives.length > 1
+    // That the team winning possession keeps attacking the same line: the objectives' teams are fixed designations.
+    const sameLine = (lead: string) =>
+        part(statusAt([`objectives[${objectives[0].elementId}].team`], 'DERIVED'), `${lead}the team that wins possession attacks the same line it was already attacking`, [
+            `objectives[${objectives[0].elementId}].team`,
+            'transitions',
+        ])
     if (continuingOnPossessionChange.length) {
-        // Its status is the play state's strength. GF2-17 authors CONTINUE once, as a preferred default the rule
-        // could stand without, so this is where the activity STARTS — no longer stated as a rule (14 October 2026).
-        say(
-            'How it works',
-            statusAt(continuingOnPossessionChange.map(transition => `transitions[${transition.elementId}].playState`), 'DERIVED'),
-            `Play continues when possession changes — there is no stoppage`,
-            continuingOnPossessionChange.flatMap(transition => [`transitions[${transition.elementId}].playState`, `transitions[${transition.elementId}].selector`]),
-            [],
+        instructions.push(
+            joined('How it works', [
+                part(
+                    statusAt(continuingOnPossessionChange.map(transition => `transitions[${transition.elementId}].playState`), 'DERIVED'),
+                    'When possession changes, play carries on with no stoppage',
+                    continuingOnPossessionChange.flatMap(transition => [`transitions[${transition.elementId}].playState`, `transitions[${transition.elementId}].selector`]),
+                ),
+                ...(directional && game.value?.primaryEvent ? [sameLine(', and ')] : []),
+            ]),
         )
     }
 
@@ -1175,53 +1291,27 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
     const primary = game.value?.primaryEvent
     if (primary) {
         const kindPath = 'value.primaryEvent.kind'
-        const objective = (game.objectives ?? [])[0]
-        const shared = objective?.team === 'EACH_TEAM'
-        // `objectives[].role = PRIMARY_SCORING` is what makes this the way to score at all, so it is cited
-        // here rather than being given a sentence of its own that would only restate it.
-        const objectiveRole = (game.objectives ?? [])[0]
         /**
-         * **The thing that crosses the line is named only when the game establishes one, and the noun comes
-         * from the game.** His ruling of 7 October, the first of two narrow repairs:
-         *
-         *   > *A rendered scoring instruction may mention the ball only when the represented game establishes
-         *   > the ball and the instruction's provenance legitimately supports that reference.*
-         *
-         * And the governing principle he set above it: *"Coach-facing language must be entailed by the resolved
-         * game and the rules it communicates. A renderer may compress or combine supported facts, but it may not
-         * introduce an unsupported game fact merely because that fact is obvious in the sport."*
-         *
-         * This sentence used to hardcode the English word, cited to the scoring event, the point value and the
-         * objective's role — none of which is an object. It therefore told coaches about a ball for weeks while
-         * the representation established none, and nothing caught it: the fidelity check validates numbers in
-         * prose and never nouns, so an invented NOUN passes unchecked.
-         *
-         * Two things make the repair rather than a patch. The noun is read from `objects[].kind` instead of
-         * written here, so the renderer states no sport vocabulary of its own; and that path is CITED, so the
-         * reference has provenance rather than being true by coincidence. Where no object is established the
-         * carrier is not named at all and the gap is reported — the same treatment the unsettled
-         * channel-condition trigger already gets below.
+         * **The thing that crosses the line is named only when the game establishes one, and the noun comes from the
+         * game.** His ruling of 7 October: *"A rendered scoring instruction may mention the ball only when the
+         * represented game establishes the ball and the instruction's provenance legitimately supports that
+         * reference."* The noun is read from `objects[].kind` and that path is CITED; `objectives[].role =
+         * PRIMARY_SCORING` is what makes this the way to score at all, so it is cited here too.
          */
         say(
             'How to score',
             statusOf.get(kindPath) ?? 'DERIVED',
-            // **"the marked line" is only unambiguous while there is one.** With a target per team the
-            // game holds two, and a coach reading "the marked line" cannot tell which counts. The
-            // objective each team attacks is established, so the instruction names it relationally.
+            // "the marked line" is only unambiguous while there is one; with a target per team the objective each team
+            // attacks is named relationally.
             carrier
-                ? (game.objectives ?? []).length > 1
-                  ? `A team scores ${primary.value} point by getting the ${carrier.kind} across the line it is attacking`
-                  : `A team scores ${primary.value} point by getting the ${carrier.kind} across the marked line`
-                : (game.objectives ?? []).length > 1
+                ? objectives.length > 1
+                    ? `A team scores ${primary.value} point by getting the ${carrier.kind} across the line it is attacking`
+                    : `A team scores ${primary.value} point by getting the ${carrier.kind} across the marked line`
+                : objectives.length > 1
                   ? `A team scores ${primary.value} point when the line it is attacking is crossed`
                   : `A team scores ${primary.value} point when the marked line is crossed`,
-            [
-                kindPath,
-                'value.primaryEvent.value',
-                ...(carrier ? [`objects[${carrier.elementId}].kind`] : []),
-                ...(objectiveRole ? [`objectives[${objectiveRole.elementId}].role`] : []),
-            ],
-            [primary.value],
+            [kindPath, 'value.primaryEvent.value', ...(carrier ? [`objects[${carrier.elementId}].kind`] : []), ...(objective ? [`objectives[${objective.elementId}].role`] : [])],
+            [{ quantity: primary.value, path: 'value.primaryEvent.value' }],
         )
         if (!carrier) {
             observations.push(
@@ -1232,47 +1322,23 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
             )
         }
         /**
-         * **The opposing arrangement, said relationally.** Two objectives each name the team that attacks
-         * them, and those names are designations the game holds — not anything a coach could point at. So
-         * the instruction cannot say "the blue team attacks the north line"; what it can say, and what is
-         * entailed, is that each team attacks the far target and defends the near one, and that the coach
-         * assigns the ends. That is the same shape already used for who starts with the ball, and for the
-         * same reason: the fact is established, the identity is not.
-         *
-         * Every objective is cited, not just the first. Citing one left the second objective's team,
-         * reference and role established and carried by no instruction, which the fidelity check reported
-         * as three losses — correctly.
+         * **The opposing arrangement, said relationally.** Two objectives each name the team that attacks them, and
+         * those names are designations, not anything a coach could point at. What is entailed is that each team
+         * attacks one target and defends the other, and that the coach assigns the ends. Every objective is cited.
+         * Consolidated in stage S-C2 (DRAFT): *"Each team defends one line and attacks the other. Decide which team
+         * starts at which end; the ends stay the same for the whole game"*.
          */
-        const objectives: any[] = game.objectives ?? []
-        if (objective && !shared && objectives.length > 1) {
-            const provenance = objectives.flatMap(o => [
-                `objectives[${o.elementId}].team`,
-                `objectives[${o.elementId}].reference`,
-                `objectives[${o.elementId}].role`,
-            ])
-            say(
-                'How to score',
-                statusAt(provenance, 'DERIVED'),
-                `Each team attacks one line and defends the other — so decide which team starts at which end, tell them, and keep it that way for the whole game`,
-                provenance,
-                [],
-            )
-            say(
-                'How to score',
-                statusAt([`objectives[${objectives[0].elementId}].team`], 'DERIVED'),
-                `When possession changes the teams swap roles, not ends: whoever wins the ball attacks the same line they were already attacking`,
-                [`objectives[${objectives[0].elementId}].team`, 'transitions'],
-                [],
-            )
+        if (directional) {
+            const provenance = objectives.flatMap(o => [`objectives[${o.elementId}].team`, `objectives[${o.elementId}].reference`, `objectives[${o.elementId}].role`])
+            say('How to score', statusAt(provenance, 'DERIVED'), `Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game`, provenance)
+            // Said with the possession-change sentence where there is one; on its own otherwise.
+            if (!continuingOnPossessionChange.length) instructions.push(joined('How to score', [sameLine('When possession changes, ')]))
         } else if (objective) {
             say(
                 'How to score',
                 statusAt([`objectives[${objective.elementId}].team`, `objectives[${objective.elementId}].reference`], 'DERIVED'),
-                shared
-                    ? `Both teams attack the same line — the one you marked at the end of the area`
-                    : `Each team attacks its own line`,
+                shared ? `Both teams attack the same line — the one you marked at the end of the area` : `Each team attacks its own line`,
                 [`objectives[${objective.elementId}].team`, `objectives[${objective.elementId}].reference`],
-                [],
             )
             if (shared) {
                 observations.push(
@@ -1330,61 +1396,68 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
         const effective = effectiveValue(modifier.operation, primary?.value, modifier.magnitude)
         const withhold = (field: string, row: string) => withheld.push({ path: `${base}.${field}`, row, reason: 'AWAITING_APPROVED_WORDING' })
 
+        /**
+         * **One sentence for the whole modifier — stage S-C2, 14 October 2026 (DRAFT).** It was four: the effect, the
+         * referents, what meets the condition, and when it ends (*"When the channel condition is met, that same score
+         * is worth 2 instead of 1" / "The condition is about the two channels you marked — it applies to either of
+         * them" / "It is met when …" / "Once met it stays live …"*). His §7 asked for less explanation than that. Now
+         * one instruction of up to three parts, each built from the same fields and gated exactly as before:
+         *
+         *   - the effect (operation, magnitude, base), said only where the referents name one noun — an effect said
+         *     without its condition would read as unconditional;
+         *   - the condition: where it is met, by the referents' noun, and what meets it, in the criterion's
+         *     exact-value wording (the object named from `objects[].kind`, cited). Without criterion wording, the
+         *     condition is said by its referents alone and the criterion is withheld; without a noun, nothing of the
+         *     condition can be said and every field of it is withheld;
+         *   - when it ends, in the termination's exact-value wording.
+         *
+         * The criterion is a qualitative term, so its clause is a translation, which he authorized when he settled it
+         * (*"Coach-facing language may eventually translate it naturally"*): a touch, inside a referent region, by the
+         * attacking team, after which that team still has possession — nothing the term does not carry.
+         */
+        const criterion = modifier.condition?.value
+        const objectCited = carrier ? [`objects[${carrier.elementId}].kind`] : []
+        const referentPaths = [`${base}.condition.type`, `${base}.condition.referents`, ...referents.map(r => `${base}.condition.referents[${r.structuralRef?.contractId}::${r.structuralRef?.itemId}`.concat(']'))]
+        const parts: InstructionPart[] = []
         if (noun && effective !== null) {
-            say(
-                'How to score',
-                statusAt([`${base}.operation`, `${base}.magnitude`], 'DERIVED'),
-                `When the ${noun} condition is met, that same score is worth ${effective} instead of ${primary.value}`,
-                [`${base}.operation`, `${base}.magnitude`, 'value.primaryEvent.value'],
-                [effective, primary.value],
+            parts.push(
+                part(statusAt([`${base}.operation`, `${base}.magnitude`], 'DERIVED'), `A score is worth ${effective} instead of ${primary.value}`, [`${base}.operation`, `${base}.magnitude`, 'value.primaryEvent.value'], [
+                    { quantity: effective, path: `${base}.operation` },
+                    { quantity: primary.value, path: 'value.primaryEvent.value' },
+                ]),
             )
         } else {
             withhold('operation', 'V9a')
             withhold('magnitude', 'V9')
         }
         if (noun) {
-            say(
-                'How to score',
-                statusAt([`${base}.condition.type`, `${base}.condition.referents`], 'DERIVED'),
-                `The condition is about the ${regionsNamed.length === 2 ? `two ${noun}s` : noun} you marked — it applies to either of them`,
-                [`${base}.condition.type`, `${base}.condition.referents`, ...referents.map(r => `${base}.condition.referents[${r.structuralRef?.contractId}::${r.structuralRef?.itemId}`.concat(']'))],
-                [],
-            )
+            const where = regionsNamed.length === 2 ? `either ${noun}` : `the ${noun}`
+            const worded = criterion && carrier && typeof criterion === 'string' ? CRITERION_WORDING[criterion] : undefined
+            if (worded) {
+                const clause = worded(carrier.kind, where)
+                parts.push(
+                    part(statusAt([...referentPaths, `${base}.condition.value`], 'DERIVED'), parts.length ? ` ${clause}` : `The ${noun} condition is met ${clause}`, [...referentPaths, `${base}.condition.value`, ...objectCited]),
+                )
+            } else {
+                if (criterion) withhold('condition.value', 'V8c')
+                parts.push(
+                    part(statusAt(referentPaths, 'DERIVED'), parts.length ? ` when the ${noun} condition is met, which applies to ${where} you marked` : `The ${noun} condition applies to ${where} you marked`, referentPaths),
+                )
+            }
         } else {
             withhold('condition.type', 'V8a')
             withhold('condition.referents', 'V8b')
-        }
-
-        /**
-         * **WHAT MEETS THE CONDITION, and WHEN IT ENDS — the two halves authored on 7 October.**
-         *
-         * The criterion is a qualitative term, so this is a translation of it and not a restatement of the
-         * engine's own words. He authorized exactly that when he settled it: *"I would prefer the canonical
-         * representation to carry that observable relationship rather than rely on the qualitative word
-         * controlled. Coach-facing language may eventually translate it naturally."* The translation introduces
-         * no fact the term does not carry — a touch, inside a referent region, by the attacking team, after
-         * which that team still has the ball — and `condition.value` is cited, so SD-103 is satisfied by
-         * provenance rather than by assertion.
-         *
-         * Both sentences are gated on the fields being present. Where a modifier carries no criterion the
-         * observation below reports that gap exactly as it did before, which is the state every modifier
-         * authored before today is still in.
-         */
-        const criterion = modifier.condition?.value
-        const objectCited = carrier ? [`objects[${carrier.elementId}].kind`] : []
-        if (criterion) {
-            const worded = carrier && typeof criterion === 'string' ? CRITERION_WORDING[criterion] : undefined
-            if (worded) say('How to score', statusAt([`${base}.condition.value`], 'DERIVED'), worded(carrier.kind), [`${base}.condition.value`, ...objectCited], [])
-            else withhold('condition.value', 'V8c')
+            // Where the condition is met cannot be said without a noun for it, so neither can what meets it.
+            if (criterion) withhold('condition.value', 'V8c')
         }
         if (modifier.endsOn) {
-            const worded = carrier && typeof modifier.endsOn === 'string' ? ENDS_ON_WORDING[modifier.endsOn] : undefined
-            // A termination with no wording for its exact value is withheld, never paraphrased. (It was an
-            // observation until 14 October, so an activity could be served saying nothing about when its
-            // modification ends; a rule of the game left unsaid is a loss, and now it refuses.)
-            if (worded) say('How to score', statusAt([`${base}.endsOn`], 'DERIVED'), worded(carrier.kind), [`${base}.endsOn`, ...objectCited], [])
+            const worded = typeof modifier.endsOn === 'string' ? ENDS_ON_WORDING[modifier.endsOn] : undefined
+            // A termination with no wording for its exact value is withheld, never paraphrased; and with nothing of the
+            // modifier said it has nothing to end, so it is withheld too.
+            if (worded && parts.length) parts.push(part(statusAt([`${base}.endsOn`], 'DERIVED'), `. ${parts[0].text.startsWith('A score') ? 'The bonus' : 'It'} ${worded()}`, [`${base}.endsOn`]))
             else withhold('endsOn', 'V8d')
         }
+        if (parts.length) instructions.push(joined('How to score', parts))
 
         if (!criterion) {
             observations.push(
@@ -1456,6 +1529,30 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
      * the starting setup, so it is moved to the end with its order kept. Organisation only — no instruction is
      * added, dropped or reworded by this.
      */
+    /**
+     * **Alternatives realization did not take are reported, not offered** — stage S-C2, 14 October 2026. A line
+     * closed by choosing among authored alternatives (a line rather than a zone; scoring by crossing rather than by
+     * entering) starts where it starts, and no approved wording describes the others — they would need facts the
+     * game does not hold, such as a zone's depth. So nothing is offered to the coach, and the technical account
+     * names what was not taken. One observation per distinct choice.
+     */
+    const alternatives = new Map<string, string[]>()
+    for (const choice of fixture.status.choices ?? []) {
+        const permitted = choice?.within?.permitted
+        if (choice?.closure !== 'CHOSEN_AMONG_ALTERNATIVES' || !Array.isArray(permitted)) continue
+        const key = `${JSON.stringify(choice.value)} among ${JSON.stringify(permitted)}`
+        alternatives.set(key, [...(alternatives.get(key) ?? []), String(choice.path)])
+    }
+    for (const [key, paths] of alternatives) {
+        const choice = (fixture.status.choices ?? []).find((c: any) => c.path === paths[0])
+        const untaken = (choice.within.permitted as unknown[]).filter(v => JSON.stringify(v) !== JSON.stringify(choice.value))
+        observations.push(
+            `Realization chose ${key} for ${paths.join(', ')}. The alternative${untaken.length === 1 ? '' : 's'} not taken ` +
+                `(${untaken.map(v => JSON.stringify(v)).join(', ')}) ${untaken.length === 1 ? 'is' : 'are'} not offered to the coach: no approved ` +
+                `wording describes ${untaken.length === 1 ? 'it' : 'them'}, and saying ${untaken.length === 1 ? 'it' : 'them'} would need facts the game does not hold.`,
+        )
+    }
+
     const tiered = instructions.map(i => ({ ...i, tier: (i.section === ADJUSTING ? 'adjust' : 'setup') as 'setup' | 'adjust' }))
     return { instructions: [...tiered.filter(i => i.tier === 'setup'), ...tiered.filter(i => i.tier === 'adjust')], coachingObservations: observations, withheld }
 }

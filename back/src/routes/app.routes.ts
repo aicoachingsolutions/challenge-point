@@ -52,7 +52,7 @@ import { ENDPOINTS } from './_endpoints'
 import BaseRoutes from './helper'
 import { ActivityAssemblyRequest, PrimaryScoringDirective, SystemAssemblyInput, SystemPipelineError } from '../system/types'
 import { gateCandidateGameFormsToContext } from '../system/sport-module/context-selection'
-import { governByApprovedGameProblem } from '../system/sport-module/guided-selection'
+import { guidedGoalText, guidedSelectionHints } from '../system/sport-module/guided-selection'
 import { resolvePrimaryScoringDirectives } from '../system/sport-module/primary-scoring'
 import { rpcLibrary } from '../system/sport-module/rpc-library'
 import { validateConstraintPackage } from '../system/validate-constraint-package'
@@ -788,8 +788,18 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         // here, before the refusal checks and the trace, so every later reader sees one set of hints
         // — and through the same function the checked pathway calls. Free text is untouched: a Game
         // Problem is approved for a Learning Goal, never inferred onto typed wording.
-        const gameProblemAuthority = guidedGoalId ? governByApprovedGameProblem(guidedGoalId, deriveInputConstraints(goalText)) : null
-        const inputConstraints = gameProblemAuthority?.hints ?? deriveInputConstraints(goalText)
+        //
+        // ONE GOAL TEXT FOR BOTH PATHWAYS (14 October 2026, his 13 October "same rules" ruling). A guided goal is
+        // selected from the registry's own words for it — the same `guidedGoalText` and the same
+        // `guidedSelectionHints` (Game Problem, then the context's game forms) the checked pathway uses — not from
+        // what the planning conversation composed. Until this, the coach's practice situation and note were part
+        // of the selection text, so the same goal selected differently here and on the review page (measured in
+        // the S-A review: Play Through Pressure (A02) landed on another game form, Play Out from the Back on other
+        // candidates). The coach's own text still reaches generation (`learningGoals`, below), never selection.
+        const guided = guidedGoalId ? guidedSelectionHints(guidedGoalId, guidedGoalText(guidedGoalId)) : null
+        const selectionText = guidedGoalId ? guidedGoalText(guidedGoalId) : goalText
+        const gameProblemAuthority = guided ? { gameProblem: guided.gameProblem } : null
+        const inputConstraints = guided?.hints ?? deriveInputConstraints(goalText)
 
         // RC1.1 — A GUIDED GOAL SELECTS WITHIN ITS CONTEXT, AND SCORES ON ITS CONTEXT'S EVENT.
         // Only once the RPC library is ACTIVE (Christian made ACTIVE conditional on these changes being
@@ -823,7 +833,8 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         // constraints. A route that changes nothing cannot license a refusal being skipped, so the
         // test is now whether selection actually resolved, which is what `reachedOnlyFallback`
         // already measures. A goal that routes AND resolves has it false and proceeds as before.
-        const knownGap = reachedOnlyFallback && isKnownUnsupportedGoal(goalText)
+        // Read from the text selection reads (stage S-C2): a guided goal's own words, the coach's for free text.
+        const knownGap = reachedOnlyFallback && isKnownUnsupportedGoal(selectionText)
 
         if (inputConstraints.matchedSignals.length === 0 || knownGap) {
             // MVP field evidence: rejected goals ARE the vocabulary-gap dataset. A known gap is
@@ -887,14 +898,17 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
             },
         })
 
-        const selectionHints = routedRpcId ? gateCandidateGameFormsToContext(inputConstraints, routedRpcId) : inputConstraints
+        // A guided goal's hints are already gated to its context by `guidedSelectionHints`, as the checked pathway's are.
+        const selectionHints = guided ? guided.hints : routedRpcId ? gateCandidateGameFormsToContext(inputConstraints, routedRpcId) : inputConstraints
 
         let selection
         try {
             Logger.info(`[Activity Generation] coach learning goals (original): ${JSON.stringify(learningGoals)}`)
             selection = generateSelection(
                 {
-                    learningGoals,
+                    // The text lenses and constraints are scored against: the goal's own words for a guided goal (the
+                    // checked pathway's `selectFor` passes the same), the coach's words for free text.
+                    learningGoals: guidedGoalId ? [selectionText] : learningGoals,
                     challengeLevel,
                     learningGoalId: planning?.learningGoalId,
                 },

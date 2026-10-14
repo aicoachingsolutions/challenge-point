@@ -55,8 +55,7 @@ import type {
 } from '../system/types'
 import { deriveInputConstraints } from '../system/input-constraints/deriveInputConstraints'
 import { sessionPlanningModel } from '../system/session-planning/session-planning-model'
-import { gateCandidateGameFormsToContext } from '../system/sport-module/context-selection'
-import { governByApprovedGameProblem } from '../system/sport-module/guided-selection'
+import { guidedGoalText, guidedSelectionHints } from '../system/sport-module/guided-selection'
 import { resolvePrimaryScoringDirectives } from '../system/sport-module/primary-scoring'
 import type { PrimaryScoringDirective } from '../system/types'
 import { generateSelection, isSelectionKnowledgeGap } from '../system/test-library/generateSelection'
@@ -239,14 +238,16 @@ async function main() {
         const routedRpcId = learningGoalId
             ? (sessionPlanningModel.rpcRouting().find((route) => route.learningGoalId === learningGoalId)?.rpcId ?? null)
             : null
-        // A guided goal is also governed by its approved Game Problem, exactly as the live route does it.
-        const baseHints = learningGoalId ? governByApprovedGameProblem(learningGoalId, deriveInputConstraints(input)).hints : deriveInputConstraints(input)
-        const hints = routedRpcId ? gateCandidateGameFormsToContext(baseHints, routedRpcId) : baseHints
+        // A guided goal is selected exactly as the live route selects it since 14 October 2026 (stage S-C2): from the
+        // goal's canonical text, through guidedSelectionHints (approved Game Problem, then the context's game forms) —
+        // the same call and the same text as the checked pathway. The coach's own text (input) still reaches assembly.
+        const selectionText = learningGoalId ? guidedGoalText(learningGoalId) : input
+        const hints = learningGoalId ? guidedSelectionHints(learningGoalId, selectionText).hints : deriveInputConstraints(input)
         // A knowledge gap (14 October) is answered as the live route answers it: the coach's sentence, and no
         // model call. Printed so a reading of real generation shows the refusal a coach would see.
         let sel: TestLibrarySelectionResult
         try {
-            sel = generateSelection({ learningGoals: [input], learningGoalId }, hints)
+            sel = generateSelection({ learningGoals: [selectionText], learningGoalId }, hints)
         } catch (err) {
             if (!isSelectionKnowledgeGap(err)) throw err
             console.log('\n' + '='.repeat(90))

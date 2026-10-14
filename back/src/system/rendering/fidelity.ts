@@ -18,7 +18,8 @@
 
 import { practical, PracticalKind, practicalRequirement } from '../derivation/practical'
 import { effectiveValue, scaleExactly } from '../derivation/rational'
-import { ADJUSTING, Instruction, RenderedActivity, SourceStatus } from './render-concrete-game'
+import { exclusionFor } from './coach-facing-exclusions'
+import { ADJUSTING, Binding, combinedStatus, Instruction, RenderedActivity, SourceStatus } from './render-concrete-game'
 
 export interface FidelityFinding {
     question: 1 | 2 | 3 | 4 | 5
@@ -36,8 +37,11 @@ export interface FidelityReport {
 /**
  * Wording that would make a requirement optional. A requirement carrying any of these is downgraded. `it helps`
  * joined on 14 October 2026 with the ADVISORY status whose hedge it is — a tightening for every firm sentence.
+ * `works? well` since stage S-C2 (14 October 2026): "contrasting bibs work well" carried no hedge this list knew,
+ * so a firm sentence saying it passed and a preference saying it was refused. A tightening for firm sentences,
+ * and the same reading for a preference.
  */
-const HEDGES = [/\bif it suits\b/i, /\bif you (can|like|want|prefer)\b/i, /\btry to\b/i, /\bideally\b/i, /\baround\b/i, /\broughly\b/i, /\bor so\b/i, /\bmay\b/i, /\bcould\b/i, /\boptional\b/i, /\bworks well\b/i, /\bit helps\b/i]
+const HEDGES = [/\bif it suits\b/i, /\bif you (can|like|want|prefer)\b/i, /\btry to\b/i, /\bideally\b/i, /\baround\b/i, /\broughly\b/i, /\bor so\b/i, /\bmay\b/i, /\bcould\b/i, /\boptional\b/i, /\bworks? well\b/i, /\bit helps\b/i]
 /** Wording that would make a preference compulsory. A preference carrying any of these is upgraded. */
 const IMPERATIVES = [/\bmust\b/i, /\balways\b/i, /\bexactly\b/i, /\brequired\b/i, /\bhas to\b/i, /\bneeds to be\b/i]
 /** Wording that would present where an activity starts, or a coach's choice, as something the knowledge demanded. */
@@ -87,8 +91,25 @@ function quantitiesInGame(fixture: any): Set<string> {
 
 // ── Ranges ──────────────────────────────────────────────────────────────────────────────────────
 
-/** Every number in a sentence, as a number — the same reading question 2 takes of the prose. */
-const numbersIn = (text: string): number[] => [...text.matchAll(/\b(\d+(?:\.\d+)?)\b/g)].map(match => Number(match[1]))
+/**
+ * **Number words, read as numbers — two to twenty.** Added in stage S-C2, 14 October 2026, a TIGHTENING. This
+ * check read digits only, so his own example wording (*"Divide 12 players into two teams of five"*) would have
+ * reached a coach with two of its three numbers never checked against the game. The renderer writes digits; a
+ * number word in a sentence is now read like a digit — declared, supported and bound, or refused.
+ *
+ * **KNOWN LIMIT: "one" is not read.** It is a determiner far more often than a count ("one team starts", "one end
+ * of the area"), and a check that refused every such sentence would be refusing English. A count of one written as
+ * a word is therefore unchecked; the renderer writes "1".
+ */
+const NUMBER_WORDS: Record<string, number> = {
+    two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12,
+    thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19, twenty: 20,
+}
+const NUMBER_TOKEN = new RegExp(`\\b(\\d+(?:\\.\\d+)?|${Object.keys(NUMBER_WORDS).join('|')})\\b`, 'gi')
+
+/** Every number in a sentence, as a number, in the order it is said — digits and the words two to twenty. */
+const numbersIn = (text: string): number[] =>
+    [...text.matchAll(NUMBER_TOKEN)].map(match => (match[1].toLowerCase() in NUMBER_WORDS ? NUMBER_WORDS[match[1].toLowerCase()] : Number(match[1])))
 
 const stated = (n: unknown): n is number => typeof n === 'number' && Number.isFinite(n)
 
@@ -202,17 +223,36 @@ function lineRanges(fixture: any): { ranges: LineRange[]; unreadable: string[] }
      * renderer computed. Where any count of the preferred range is missing from it, the range may not be offered
      * at all: a PREFERENCE stating it is refused at Q2, and its absence is a NOTE that says why. A line whose
      * choice carries no such record is untouched.
+     *
+     * **Offered within what the session can field — stage S-C2, 14 October 2026.** The same ruling read the other
+     * way round: *"communicate the valid option"*. Where the counts of the preferred range this session CAN field
+     * form an unbroken run, that run is what may be offered — at 12 players the preferred 1 to 2 is offerable as 2,
+     * and only as 2 — exactly as a preference is offered only as far as it lies inside the requirement. A
+     * PREFERENCE stating a count outside the run is still refused at Q2 (1 at 12 players, as before), and the run
+     * left unsaid is the §7 NOTE. Where no count of it can be fielded, or the fieldable counts are broken by a gap
+     * (a run cannot say "2 and 4 but not 3"), nothing is offerable and the NOTE says why. The narrowing itself is
+     * also reported, so the technical account shows the authored range beside what was offered.
      */
     const fieldable = (path: string, offer: Pick<LineRange, 'preferred' | 'notOffered'>): Pick<LineRange, 'preferred' | 'notOffered'> => {
         const authorized: unknown = (fixture.status.choices ?? []).find((c: any) => c.path === path)?.within?.configurations?.authorized
         const p = offer.preferred
         if (!Array.isArray(authorized) || !p || !stated(p.min) || !stated(p.max)) return offer
         const unfielded: number[] = []
-        for (let n = Math.ceil(p.min); n <= p.max; n++) if (!authorized.includes(n)) unfielded.push(n)
+        const fielded: number[] = []
+        for (let n = Math.ceil(p.min); n <= p.max; n++) (authorized.includes(n) ? fielded : unfielded).push(n)
         if (!unfielded.length) return offer
+        const unbroken = fielded.length > 0 && fielded[fielded.length - 1] - fielded[0] === fielded.length - 1
+        const why = `${unfielded.join(', ')} leave${unfielded.length === 1 ? 's' : ''} no valid configuration; the roster fields ${authorized.join(', ') || 'none'}`
+        if (unbroken) {
+            const run = { min: fielded[0], max: fielded[fielded.length - 1] }
+            return {
+                preferred: run,
+                notOffered: `${path} carries an authored preferred range (${describe(p)}) that this session can field only as ${describe(run)} (${why}), so only that is offerable`,
+            }
+        }
         return {
             preferred: null,
-            notOffered: `${path} carries an authored preferred range (${describe(p)}) that this session cannot field whole (${unfielded.join(', ')} leave${unfielded.length === 1 ? 's' : ''} no valid configuration; the roster fields ${authorized.join(', ') || 'none'}), so it is not offered`,
+            notOffered: `${path} carries an authored preferred range (${describe(p)}) that this session cannot field whole (${why}), so it is not offered`,
         }
     }
 
@@ -344,64 +384,22 @@ function heldAt(fixture: any, path: string): number[] {
 }
 
 /**
- * Properties established by the game that need no coach-facing expression.
+ * Game properties a coach must be told about. Absence from the rendering is a loss.
  *
- * **His rule of 1 October, which this encodes rather than paraphrases:**
- *
- *   > *An established property does not require coach-facing expression when it is exclusively
- *   > computational/accounting metadata and all of its operational consequences are already faithfully
- *   > represented in coach-facing instructions.*
- *
- * It has two conditions, and the second is the one that does the work. Claiming a property is metadata is
- * cheap; proving that its operational consequences reached the coach is not. So each exclusion must name
- * the property paths that carry its consequences, and the checker **verifies that an instruction actually
- * cites each of them**. An exclusion whose consequences are not in the rendering is reported as a loss,
- * not honoured — which means this list cannot be used to quietly drop something load-bearing.
- *
- * `consequences: []` asserts there are none to represent, and is only defensible for a property that
- * changes nothing a coach does — an internal convention rather than a rule of the game.
- *
- * He also asked that exclusions stay explicit and auditable: *"I do not want silent filtering."* Every
- * entry is reported in the output with its reason and its discharge, whether or not it passes.
- *
- * **The consequences are named from the excluded property's OWN element — corrected 13 October.** The
- * episode-boundary entry named one path outright: the play state of the possession game form's own
- * transition. So every transition's boundary, whichever contract asserted it, was discharged against that
- * one element — a second contract's transition was excused because a different transition's play state had
- * reached the coach, and on a game form without that element no boundary could be discharged at all. It
- * passed only because that game form was always present. The consequence of a transition's episode boundary
- * is that same transition's play state, so the path is built from the path being excluded.
+ * Which properties need NO coach-facing expression is read from the shared table (`coach-facing-exclusions.ts`,
+ * moved there in stage S-C2 so the renderer and this check read one list). Each exclusion names the paths that
+ * carry its operational consequences, and the check below verifies an instruction cites each — his rule of
+ * 1 October, whose second condition is the one that does the work.
  */
-const NO_COACH_FACING_EXPRESSION: { suffix: string; because: string; consequences: (path: string) => string[] }[] = [
-    {
-        suffix: '.startsEpisode',
-        because:
-            'an episode boundary is event-accounting metadata: it tells the system when to begin attributing ' +
-            'events, and a coach does nothing differently because of it',
-        // Its one operational consequence — that this occurrence does not stop play — is carried by the
-        // playState instruction for the SAME element, so the second condition of his rule is discharged by
-        // naming it.
-        consequences: path => [`${path.slice(0, path.length - '.startsEpisode'.length)}.playState`],
-    },
-    {
-        suffix: 'space.axis',
-        because:
-            'an internal orientation convention naming which envelope dimension is the axis; it has no ' +
-            'operational consequence of its own because the rendered geometry is already in metres along and across',
-        consequences: () => [],
-    },
-]
-
-/** Game properties a coach must be told about. Absence from the rendering is a loss. */
 function loadBearingPaths(fixture: any): {
     coachFacing: string[]
-    excluded: { path: string; because: string; consequences: string[] }[]
+    excluded: { path: string; because: string; ground: string; ruling: string; consequences: string[] }[]
 } {
     const coachFacing: string[] = []
-    const excluded: { path: string; because: string; consequences: string[] }[] = []
+    const excluded: { path: string; because: string; ground: string; ruling: string; consequences: string[] }[] = []
     for (const entry of [...fixture.status.derived, ...fixture.status.choices]) {
-        const rule = NO_COACH_FACING_EXPRESSION.find(r => entry.path.endsWith(r.suffix) || entry.path === r.suffix)
-        if (rule) excluded.push({ path: entry.path, because: rule.because, consequences: rule.consequences(entry.path) })
+        const rule = exclusionFor(entry.path, fixture)
+        if (rule) excluded.push({ path: entry.path, because: rule.because, ground: rule.ground, ruling: rule.ruling, consequences: rule.consequences(entry.path) })
         else coachFacing.push(entry.path)
     }
     /**
@@ -431,7 +429,7 @@ function loadBearingPaths(fixture: any): {
  * cardinality rather than a stored value, so it needs its own narrow justification. Counting the members
  * of a cited collection is the only arithmetic permitted; nothing else may be computed into the prose.
  */
-function supportedQuantity(fixture: any, instruction: Instruction, quantity: number, inGame: Set<string>): boolean {
+function supportedQuantity(fixture: any, instruction: Pick<Instruction, 'from'>, quantity: number, inGame: Set<string>): boolean {
     if (inGame.has(String(quantity))) return true
     for (const path of instruction.from) {
         const collection = path.split('.').reduce<any>((node, key) => (node == null ? node : node[key]), fixture.game)
@@ -500,6 +498,49 @@ function operationalRelationships(fixture: any, elementId: string): string[] {
     return found
 }
 
+/**
+ * **One checkable statement: a part of a consolidated sentence, or a whole sentence that has no parts.**
+ *
+ * Added in stage S-C2, 14 October 2026. His §7: *"feel free to propose consolidated, more natural language rather
+ * than preserving unnecessary sentence-by-sentence technical structure."* A consolidated sentence says several
+ * properties of several statuses at once — *"Divide 12 players into 2 teams of 5, with 2 neutral players"* is a
+ * session total, an instantiated roster and a count the activity only starts at — so the status of each, and the
+ * hedge and necessity rules that go with it, are held per PART, and every number is held to the property its part
+ * BINDS it to, in the order it is said.
+ */
+interface Statement {
+    text: string
+    status: SourceStatus
+    from: string[]
+    quantities: number[]
+    /** Each number the text says, in text order, with the path it states. Absent for a sentence built without parts. */
+    bindings?: Binding[]
+}
+
+/**
+ * The statements an instruction makes — and whether its parts really are the instruction.
+ *
+ * A consolidated instruction is checked part by part, so its parts must BE it: its text the parts' texts joined,
+ * its citations their union, its numbers theirs in order, its status the one `combinedStatus` gives them. An
+ * instruction whose parts and whole disagree (a sentence rewritten without its parts, say) is a Q1 VIOLATION —
+ * the provenance offered for it does not describe what it says — and it is then checked WHOLE, as a sentence
+ * without parts always was, so disagreeing can never make anything pass that would otherwise be refused.
+ */
+function statementsOf(instruction: Instruction): { statements: Statement[]; inconsistency: string | null } {
+    const whole: Statement = { text: instruction.text, status: instruction.status, from: instruction.from, quantities: instruction.quantities }
+    const parts = instruction.parts
+    if (!Array.isArray(parts) || !parts.length) return { statements: [whole], inconsistency: null }
+    const union = [...new Set(parts.flatMap(p => p.from))]
+    const problems = [
+        parts.map(p => p.text).join('') !== instruction.text ? 'its text is not its parts joined' : null,
+        JSON.stringify(parts.flatMap(p => p.quantities)) !== JSON.stringify(instruction.quantities) ? 'its numbers are not its parts’ numbers' : null,
+        union.length !== new Set(instruction.from).size || union.some(p => !instruction.from.includes(p)) ? 'its citations are not its parts’ citations' : null,
+        combinedStatus(parts.map(p => p.status)) !== instruction.status ? 'its status is not the one its parts give it' : null,
+    ].filter((p): p is string => !!p)
+    if (problems.length) return { statements: [whole], inconsistency: problems.join('; ') }
+    return { statements: parts.map(p => ({ text: p.text, status: p.status, from: p.from, quantities: p.quantities, bindings: p.bindings })), inconsistency: null }
+}
+
 export function checkFidelity(fixture: any, rendered: RenderedActivity): FidelityReport {
     const findings: FidelityFinding[] = []
     const cited = new Set(rendered.instructions.flatMap(i => i.from))
@@ -514,34 +555,99 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
      * everywhere: the same *"any number that happens to appear elsewhere in the game"* this change set out
      * to stop, with more numbers in it. Narrowed in the review of 13 October.
      */
-    const limitOfCitedLine = (instruction: Instruction, quantity: number): boolean =>
+    const limitOfCitedLine = (instruction: Pick<Instruction, 'from'>, quantity: number): boolean =>
         instruction.from.some(path => {
             const range = rangeAt.get(path)
             return !!range && [range.required?.min, range.required?.max, range.preferred?.min, range.preferred?.max].some(limit => stated(limit) && limit === quantity)
         })
 
-    // ── Q2 — nothing unsupported ────────────────────────────────────────────────────────────────
+    // ── Q1 — every part of a consolidated sentence is the sentence ──────────────────────────────
+    const statementsByInstruction = new Map<Instruction, Statement[]>()
     for (const instruction of rendered.instructions) {
-        if (!instruction.from.length) {
-            findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" cites no concrete-game property` })
+        const { statements, inconsistency } = statementsOf(instruction)
+        statementsByInstruction.set(instruction, statements)
+        if (inconsistency) findings.push({ question: 1, severity: 'VIOLATION', what: `"${instruction.text}" does not match the parts it gives as its provenance: ${inconsistency}` })
+    }
+    const statements: Statement[] = rendered.instructions.flatMap(i => statementsByInstruction.get(i)!)
+
+    // ── Q2 — nothing unsupported ────────────────────────────────────────────────────────────────
+    for (const statement of statements) {
+        if (!statement.from.length) {
+            findings.push({ question: 2, severity: 'VIOLATION', what: `"${statement.text}" cites no concrete-game property` })
         }
-        for (const quantity of instruction.quantities) {
-            if (!supportedQuantity(fixture, instruction, quantity, inGame) && !limitOfCitedLine(instruction, quantity)) {
+        for (const quantity of statement.quantities) {
+            if (!supportedQuantity(fixture, statement, quantity, inGame) && !limitOfCitedLine(statement, quantity)) {
                 findings.push({
                     question: 2,
                     severity: 'VIOLATION',
-                    what: `"${instruction.text}" states ${quantity}, which appears nowhere in the concrete game`,
+                    what: `"${statement.text}" states ${quantity}, which appears nowhere in the concrete game`,
                 })
             }
         }
         // A number in the prose that the instruction did not declare is unchecked, which is as bad as
-        // an invented one: it means a quantity reached a coach without passing this test.
-        for (const match of instruction.text.matchAll(/\b(\d+(?:\.\d+)?)\b/g)) {
-            if (!instruction.quantities.map(String).includes(match[1])) {
+        // an invented one: it means a quantity reached a coach without passing this test. Number words two to
+        // twenty count since stage S-C2 (14 October 2026).
+        for (const n of numbersIn(statement.text)) {
+            if (!statement.quantities.includes(n)) {
                 findings.push({
                     question: 2,
                     severity: 'VIOLATION',
-                    what: `"${instruction.text}" contains the number ${match[1]} without declaring it, so it was never checked against the game`,
+                    what: `"${statement.text}" contains the number ${n} without declaring it, so it was never checked against the game`,
+                })
+            }
+        }
+    }
+
+    /**
+     * **Q2, by binding: each number is the number of the property it is bound to, in the order it is said.** Added
+     * in stage S-C2, 14 October 2026, a TIGHTENING, and it RETIRES a known limit pinned since 13 October: the range
+     * check held a sentence to the SET of numbers its cited lines carry and never knew which number played which
+     * part, so *"7.5 m long and between 4.5 m and 40 m wide"* passed for a 40 m channel 4.5 m to 7.5 m wide.
+     * Consolidation would have widened that hole — one sentence citing a total, a roster and a count could swap any
+     * two of them — so every part names, for each number it says, the path it states.
+     *
+     * A binding holds where its path is cited by the part and the number is: a value the game holds AT that path (a
+     * collection's size included); a required limit of that path's line; the value the line STARTS at, said by a
+     * STARTING part only; a preferred limit as it may be offered, said by a PREFERENCE part only (and nothing else
+     * is, for a preference); or a value modifier's effective value, bound to its operation, where the part cites the
+     * operation, the magnitude and the base (SD-30, the same narrow arithmetic as above). The numbers the text says
+     * must be the bound numbers, one for one, in order.
+     */
+    for (const statement of statements) {
+        if (!statement.bindings) continue
+        const said = numbersIn(statement.text)
+        const bound = statement.bindings.map(b => b.quantity)
+        if (JSON.stringify(said) !== JSON.stringify(bound)) {
+            findings.push({ question: 2, severity: 'VIOLATION', what: `"${statement.text}" says ${JSON.stringify(said)} where its bindings give ${JSON.stringify(bound)}, in that order` })
+        }
+        for (const { quantity, path } of statement.bindings) {
+            if (!statement.from.includes(path)) {
+                findings.push({ question: 2, severity: 'VIOLATION', what: `"${statement.text}" binds ${quantity} to ${path}, which it does not cite` })
+                continue
+            }
+            const range = rangeAt.get(path)
+            const begun = range?.starting
+            const asStarting = statement.status === 'STARTING'
+            const admitted =
+                statement.status === 'PREFERENCE'
+                    ? [range?.preferred?.min, range?.preferred?.max].some(limit => stated(limit) && limit === quantity)
+                    : heldAt(fixture, path).some(n => n === quantity && (asStarting || !stated(begun) || n !== begun || [range?.required?.min, range?.required?.max].includes(n))) ||
+                      [range?.required?.min, range?.required?.max].some(limit => stated(limit) && limit === quantity) ||
+                      (asStarting && stated(begun) && begun === quantity) ||
+                      (fixture.game?.value?.valueModifiers ?? []).some((modifier: any) => {
+                          const at = `value.valueModifiers[${modifier.elementId}]`
+                          return (
+                              path === `${at}.operation` &&
+                              statement.from.includes(`${at}.magnitude`) &&
+                              statement.from.includes('value.primaryEvent.value') &&
+                              effectiveValue(modifier.operation, fixture.game?.value?.primaryEvent?.value, modifier.magnitude) === quantity
+                          )
+                      })
+            if (!admitted) {
+                findings.push({
+                    question: 2,
+                    severity: 'VIOLATION',
+                    what: `"${statement.text}" binds ${quantity} to ${path}, and that is not a number of that property as a ${statement.status} statement may say it`,
                 })
             }
         }
@@ -572,8 +678,11 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
      * between 1 and 2 neutral players"* passed — the preferred maximum stated as a requirement, admitted
      * because 2 is also where this activity starts. The starting value is the activity's, not the game's,
      * so a sentence of any other status may state it only where it is also a required limit.
+     *
+     * Held per STATEMENT since stage S-C2 (14 October 2026): a part of a consolidated sentence answers for its own
+     * numbers under its own status, so a starting count said beside a roster stays a starting count.
      */
-    for (const instruction of rendered.instructions) {
+    for (const instruction of statements) {
         const about = instruction.from.map(path => rangeAt.get(path)).filter((range): range is LineRange => !!range)
         const numbers = [...new Set(numbersIn(instruction.text))]
         if (instruction.status === 'PREFERENCE') {
@@ -656,11 +765,12 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
      * Nothing else moves: a WRONG preference is still refused at Q2, a missing required limit or starting value
      * here, and an uncarried property below.
      */
+    // Per statement since stage S-C2: the part of a consolidated sentence that says a value is the one held to it.
     for (const range of ranges) {
-        const citing = rendered.instructions.filter(i => i.from.includes(range.path))
+        const citing = statements.filter(i => i.from.includes(range.path))
         if (!citing.length) continue
         const firm = citing.filter(i => i.status !== 'PREFERENCE')
-        const says = (instructions: Instruction[], n: number) => instructions.some(i => numbersIn(i.text).includes(n))
+        const says = (instructions: Statement[], n: number) => instructions.some(i => numbersIn(i.text).includes(n))
         const chosen = firm.filter(i => i.status === 'STARTING')
         for (const [end, limit] of [['minimum', range.required?.min], ['maximum', range.required?.max]] as const) {
             if (!stated(limit)) continue
@@ -717,11 +827,13 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
                 question: 3,
                 severity: 'VIOLATION',
                 what:
-                    `${entry.path} was excluded as accounting metadata, but its operational consequence(s) ` +
+                    `${entry.path} was excluded as ${entry.ground === 'NO_COACH_ACTION' ? 'conveying no action a coach needs to take' : 'accounting metadata'}, but its operational consequence(s) ` +
                     `${undischarged.join(', ')} reached no instruction — so the exclusion is not permitted`,
             })
             continue
         }
+        // The ground and the ruling that admits it travel with every NOTE (stage S-C2): an exclusion is auditable
+        // only if a reader can see on whose words it stands.
         findings.push({
             question: 3,
             severity: 'NOTE',
@@ -729,7 +841,8 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
                 `${entry.path} is established and deliberately given no coach-facing expression — ${entry.because}. ` +
                 (entry.consequences.length
                     ? `Its operational consequence(s) are carried by ${entry.consequences.join(', ')}.`
-                    : 'It has no operational consequence to carry.'),
+                    : 'It has no operational consequence to carry.') +
+                ` Ground: ${entry.ground}. ${entry.ruling}`,
         })
     }
     // An instantiated member is load-bearing too: a coach cannot field a team the rendering omits.
@@ -738,7 +851,21 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
     }
 
     // ── Q4 — no status changed by wording ───────────────────────────────────────────────────────
+    /**
+     * **A preference or a recommendation is never one part of a firm sentence** — stage S-C2, 14 October 2026. A
+     * consolidated sentence keeps a status per part, and the hedge that marks a preference would read across the
+     * whole sentence: *"Divide 12 players into 2 teams of 5, which works well"* would soften a roster the game
+     * requires. So a PREFERENCE or ADVISORY part shares its sentence with nothing of another status.
+     */
     for (const instruction of rendered.instructions) {
+        const own = statementsByInstruction.get(instruction)!
+        const soft = own.filter(s => s.status === 'PREFERENCE' || s.status === 'ADVISORY')
+        if (soft.length && new Set(own.map(s => s.status)).size > 1) {
+            findings.push({ question: 4, severity: 'VIOLATION', what: `"${instruction.text}" puts a ${soft[0].status} part in one sentence with parts of another status` })
+        }
+    }
+    // Every rule below is held per STATEMENT since stage S-C2: each part of a consolidated sentence against its own status.
+    for (const instruction of statements) {
         const hedged = HEDGES.some(r => r.test(instruction.text))
         if ((instruction.status === 'DERIVED' || instruction.status === 'INSTANTIATED') && hedged) {
             findings.push({

@@ -17,7 +17,7 @@
  * Run: npm run bounded:selection -- A05
  */
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
-import { GameProblemAuthority, guidedSelectionHints } from '../sport-module/guided-selection'
+import { GameProblemAuthority, guidedGoalText, guidedSelectionHints } from '../sport-module/guided-selection'
 import { constraintBalanceBucket, generateSelection, isSelectionKnowledgeGap, SelectionKnowledgeGap } from '../test-library'
 import type { ConstraintPoolAccount } from '../test-library/types'
 import { CORPUS_ENVELOPE, loadCorpusContracts, loadRegister, loadSportProfile } from './corpus'
@@ -142,7 +142,8 @@ export class GoalSelectionGap extends Error {
 export function selectFor(goalId: string, situationId: string | null = null): BoundedSelection {
     const goal: any = sessionPlanningModel.learningGoal(goalId)
     if (!goal) throw new Error(`no such learning goal: ${goalId}`)
-    const text = `${goal['Learning Goal']}. ${goal['Coach Definition']}`
+    // The one canonical text, from the same function the application route uses (stage S-C2, 14 October 2026).
+    const text = guidedGoalText(goalId)
     /**
      * **The same hints the application gives selection, from the same function.** This used to pass the
      * wording's hints straight through, which left out the context rule the application route applies —

@@ -34,6 +34,18 @@ export type ActivityStage =
     | 'validation'
     | 'communication'
 
+/**
+ * One span of a consolidated sentence (14 October 2026): its own status, sources and numbers. The account shows
+ * each part's status, so a reviewer sees that "2 neutral players" is where this activity starts while "2 teams of
+ * 5" follows from it. Never coach-facing on its own.
+ */
+export interface ReviewInstructionPart {
+    text: string
+    status: string
+    from: string[]
+    quantities?: number[]
+}
+
 /** One rendered instruction. Only `text` is coach-facing; `status` and `from` belong to the account. */
 export interface ReviewInstruction {
     section: string
@@ -42,6 +54,10 @@ export interface ReviewInstruction {
     /** Concrete-game property paths that produced the sentence. */
     from: string[]
     quantities?: number[]
+    /** `setup` for the starting setup and playing instructions; `adjust` for what a coach may change from there. */
+    tier?: 'setup' | 'adjust'
+    /** The spans the sentence is made of, where the server sent them. */
+    parts?: ReviewInstructionPart[]
 }
 
 export interface RenderedActivity {

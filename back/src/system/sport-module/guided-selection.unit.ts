@@ -22,7 +22,7 @@ import path from 'node:path'
 import { deriveInputConstraints } from '../input-constraints/deriveInputConstraints'
 import { SIGNAL_GROUP_TO_GAME_PROBLEM } from '../knowledge-core/affordance-target-matrix'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
-import { gameProblemInferredFromWording, governByApprovedGameProblem, guidedSelectionHints } from './guided-selection'
+import { gameProblemInferredFromWording, governByApprovedGameProblem, guidedGoalText, guidedSelectionHints } from './guided-selection'
 import { rpcLibrary } from './rpc-library'
 import { soccerModule } from './soccer-module'
 
@@ -167,9 +167,31 @@ function testBothPathwaysGoThroughThisModule(): void {
     assert.match(checkedPathway, /guidedSelectionHints\(/, 'the checked pathway takes its hints from here')
     assert.doesNotMatch(checkedPathway, /deriveInputConstraints\(/, 'and does not compose its own from the wording')
 
+    /**
+     * Re-pointed 14 October 2026 (stage S-C2): the application asked this module's two halves separately
+     * (`governByApprovedGameProblem`, then `gateCandidateGameFormsToContext`) over the coach's composed text. It now
+     * asks `guidedSelectionHints` — the same call the checked pathway makes — over the same canonical text
+     * (`guidedGoalText`), his 13 October "same rules" ruling applied to the text as well as the rule. The context gate
+     * stays in the route for free text's routed case only.
+     */
     const application = read('../../routes/app.routes.ts')
-    assert.match(application, /governByApprovedGameProblem\(/, 'the application applies the approved Game Problem')
-    assert.match(application, /gateCandidateGameFormsToContext\(/, 'and the context rule')
+    assert.match(application, /guidedSelectionHints\(guidedGoalId, guidedGoalText\(guidedGoalId\)\)/, 'the application asks this module, over the canonical goal text')
+    assert.match(checkedPathway, /guidedGoalText\(goalId\)/, 'and the checked pathway selects from the same text')
+    assert.doesNotMatch(application, /governByApprovedGameProblem\(/, 'and composes no half of the rule by hand')
+}
+
+/**
+ * **One goal text for both pathways — behaviourally.** For every guided goal, the hints the application route asks
+ * for are the hints `selectFor` asks for, because both ask `guidedSelectionHints` over `guidedGoalText`. Measured
+ * before stage S-C2: the route's text was the coach's composition (goal, situation, note), and A02's candidate game
+ * forms differed with it.
+ */
+function testOneGoalTextForBothPathways(): void {
+    for (const id of Object.keys(APPROVED)) {
+        const text = guidedGoalText(id)
+        assert.equal(text, goalText(id), `${id}: the canonical text is the goal's name and Coach Definition`)
+        assert.deepEqual(guidedSelectionHints(id, text).hints, guidedSelectionHints(id, goalText(id)).hints, id)
+    }
 }
 
 function runAll(): void {
@@ -179,6 +201,7 @@ function runAll(): void {
     testAnApprovedGameProblemWithNoKnowledgeBorrowsNothing()
     testTheContextStillLimitsTheGameForms()
     testBothPathwaysGoThroughThisModule()
+    testOneGoalTextForBothPathways()
     console.log('guided-selection unit tests: all cases passed.')
 }
 

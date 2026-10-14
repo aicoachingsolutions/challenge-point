@@ -55,8 +55,22 @@ import Loading from '@/components/Loading'
 
 import { DURATION_OPTIONS } from './SessionPlanningConversation'
 
+/**
+ * The section a coach reads AFTER the starting setup (14 October 2026, Christian §7: "My preference is that the
+ * main activity present a clear starting setup and playing instructions. Alternative ranges, adjustments, and
+ * supporting explanations can be presented separately when useful."). The name is the server's; it is a DRAFT.
+ */
+const ADJUSTING_SECTION = 'Adjusting the activity'
+
 /** The order a coach reads an activity in. Organisation only — the section name comes from the server. */
-const SECTION_ORDER = ['Set up', 'Players', 'How it works', 'How to score', 'What to watch']
+const SECTION_ORDER = ['Set up', 'Players', 'How it works', 'How to score', 'What to watch', ADJUSTING_SECTION]
+
+/**
+ * The one line that introduces the adjusting part. Coach wording, a DRAFT for his approval under the CCS. (The
+ * design's draft read "Change it within these limits:"; the part also holds preferred guidance, which is not a limit,
+ * so the line names both.)
+ */
+const ADJUSTING_LEAD = 'The setup above is where the activity starts. To adjust it, use these limits and guidance:'
 
 /**
  * What each instruction status means, for the account. Wording follows the renderer's own definitions.
@@ -490,14 +504,19 @@ function DemonstrationLabel() {
 
 /**
  * THE ACTIVITY, AS A COACH WOULD PRINT IT. Title, the one-line definition, then each section as plain
- * bullets — and nothing else.
+ * bullets — and nothing else. Since 14 October 2026 the activity is a starting setup with a separate adjusting
+ * part below a divider ("Adjusting the activity"), where the server puts ranges, preferences and the limits of a
+ * value the activity only starts at.
  *
  * Only `text` is read. An instruction also carries its status and the game paths it came from; those hold
  * internal handles (measured on the possession game: `space.regions[c:restated:GF2:GF2-03.e]...`) and are
  * shown in the account below, never here.
  */
 function ActivityBlock({ activity }: { activity: ServedActivity }) {
-    const sections = groupBySection(activity.rendered.instructions)
+    // The starting setup and playing instructions first; what a coach may adjust below a divider (14 October 2026).
+    const grouped = groupBySection(activity.rendered.instructions)
+    const sections = grouped.filter((group) => group.section !== ADJUSTING_SECTION)
+    const adjusting = grouped.find((group) => group.section === ADJUSTING_SECTION)
 
     return (
         <article className='bg-white border rounded-lg shadow-sm'>
@@ -533,6 +552,27 @@ function ActivityBlock({ activity }: { activity: ServedActivity }) {
                         </div>
                     ))}
                 </div>
+
+                {/*
+                  * What a coach may change from the starting setup, kept apart from it (his §7). Its heading is the
+                  * server's section name and its lead line is static coach wording — both DRAFTS for his approval.
+                  */}
+                {adjusting && (
+                    <div className='pt-4 mt-6 border-t border-gray-200'>
+                        <p className='mb-1 text-xs font-semibold tracking-wide text-gray-400 uppercase'>{adjusting.section}</p>
+                        <p className='mb-2 text-sm text-gray-500'>{ADJUSTING_LEAD}</p>
+                        <ul className='space-y-1'>
+                            {adjusting.lines.map((instruction, index) => (
+                                <li key={index} className='flex items-start gap-2 text-sm text-gray-500'>
+                                    <span aria-hidden className='text-gray-300'>
+                                        &bull;
+                                    </span>
+                                    <span className='leading-relaxed'>{instruction.text}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
             </div>
         </article>
     )
@@ -855,6 +895,17 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                                 )}
                                             </p>
                                             <p className='mt-1 text-sm text-gray-800'>{instruction.text}</p>
+                                            {/* A consolidated sentence (14 October 2026): the status of each part, so a starting value is visible as one. */}
+                                            {(instruction.parts ?? []).length > 1 && (
+                                                <ul className='mt-1 space-y-0.5'>
+                                                    {instruction.parts!.map((p, partIndex) => (
+                                                        <li key={partIndex} className='text-[11px] leading-snug text-gray-600'>
+                                                            <span className='font-semibold'>{p.status}</span>
+                                                            {STATUS_MEANING[p.status] && <span> — {STATUS_MEANING[p.status]}</span>}: “{p.text.trim()}”
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
                                             {(instruction.from ?? []).length > 0 ? (
                                                 <ul className='mt-1'>
                                                     {instruction.from.map((path, pathIndex) => (
