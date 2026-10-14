@@ -111,6 +111,18 @@
  * this fixture: the statuses of the same day (no "For this activity,"; GF2-17's default said as where the activity
  * starts), pinned in `rendering.unit.ts`.
  *
+ * **Re-frozen 14 October 2026 (C48): `1ad24bb8` → `a0d5e683`. The GAME did not move; one unestablished entry now
+ * says what the knowledge said.** The entry added above read `no coverage` with `declared: []` — nobody looked —
+ * although GF2, which the Golden Case selects, declares every other neutral property NON_CLAIMED ("performers
+ * outside the two teams are neither authored nor forbidden"). It could not have declared P6c: the row did not exist
+ * when it was written. Ruling C48 extends its P6a declaration to P6c by restatement (`declarationsAdded` in
+ * `corpus-restatements.json`; contracts.json untouched), so the entry `performers.neutrals.affiliation.takesEffect`
+ * now reads `not constrained`, `declared: ["NON_CLAIMED"]`, exactly as P5, P6a, P6b and P7 beside it. A declaration
+ * is derivation input, so `inputDigest` / `fromDigest` (712ecc78 → ea6e8ee2) and the audit digest (735eadb4 →
+ * 1d8df435) moved with it. `git diff` shows those four lines and that one entry and nothing else: `game`, every
+ * value, every choice, the geometry, the roster and the realization digest are byte-identical. `npm run render:a04`
+ * was diffed before and after: the rendered text is identical, only the two digests it prints moved.
+ *
  * Run: npm test
  */
 import assert from 'node:assert/strict'

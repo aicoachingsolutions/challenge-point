@@ -1085,6 +1085,92 @@
       "why": "The gate's SV1 declaration CLAIMED the per-team halves for PCG-07 (its note: \"PCG-07: each team's own half is needed as the gate's referent.\"). PCG-07 is removed with PCG-06 on the same ruling, so the claim would outlive the item it cited. NON_CLAIMED, scope and selector unchanged; the original stays in contracts.json."
     }
   ],
+  "declarationsAdded": [
+    {
+      "contractId": "restated:RPC-001",
+      "declaration": {
+        "row": "P6c",
+        "declaration": "NON_CLAIMED",
+        "selector": "*",
+        "scope": "WHOLE_GAME",
+        "note": "DNC: neutrals' 'plays for'."
+      },
+      "ruling": "C48",
+      "why": "Register row P6c (performers.neutrals.affiliation.takesEffect: when a neutral player's change of side takes effect) was added in register version 7 on the owner's ruling of 14 October 2026 (C43), after this contract was written, so it could not have declared the row, and every game selecting it without the Neutral Player Condition read P6c as 'no coverage' - nobody looked. It already declares the neutrals' count and both other affiliation properties NON_CLAIMED (P5, P6a, P6b; it leaves P7 UNDECLARED), its P6a note reading \"DNC: neutrals' 'plays for'.\" The new property belongs to the same performers and the same affiliation rule, so the same declaration is extended to it mechanically: kind, selector, scope and note copied from its P6a declaration. No knowledge is changed - nothing is authored or forbidden on P6c - and contracts.json is untouched."
+    },
+    {
+      "contractId": "restated:A01-02",
+      "declaration": {
+        "row": "P6c",
+        "declaration": "NON_CLAIMED",
+        "selector": "*",
+        "scope": "WHOLE_GAME",
+        "note": "\"neutrals[count, plays for] ... free\". 'Plays for' is read as the whole affiliation rule, which the register splits into P6a and P6b."
+      },
+      "ruling": "C48",
+      "why": "Register row P6c (performers.neutrals.affiliation.takesEffect: when a neutral player's change of side takes effect) was added in register version 7 on the owner's ruling of 14 October 2026 (C43), after this contract was written, so it could not have declared the row, and every game selecting it without the Neutral Player Condition read P6c as 'no coverage' - nobody looked. It already declares the neutrals' count and both other affiliation properties NON_CLAIMED (P5, P6a, P6b; it leaves P7 UNDECLARED). The new property belongs to the same performers and the same affiliation rule, so the same declaration is extended to it mechanically: kind, selector, scope and note copied from its P6a declaration. The note is copied verbatim, so it still names the two rows the register split the rule into when it was written. No knowledge is changed - nothing is authored or forbidden on P6c - and contracts.json is untouched."
+    },
+    {
+      "contractId": "restated:GF2",
+      "declaration": {
+        "row": "P6c",
+        "declaration": "NON_CLAIMED",
+        "selector": "*",
+        "scope": "WHOLE_GAME",
+        "note": "doesNotConstrain: performers outside the two teams are neither authored nor forbidden."
+      },
+      "ruling": "C48",
+      "why": "Register row P6c (performers.neutrals.affiliation.takesEffect: when a neutral player's change of side takes effect) was added in register version 7 on the owner's ruling of 14 October 2026 (C43), after this contract was written, so it could not have declared the row, and every game selecting it without the Neutral Player Condition read P6c as 'no coverage' - nobody looked. It already declares every other neutral property NON_CLAIMED (P5, P6a, P6b, P7), each with the note \"performers outside the two teams are neither authored nor forbidden\". The new property belongs to the same performers, so the same declaration is extended to it mechanically: kind, selector, scope and note copied from its P6a declaration. No knowledge is changed - nothing is authored or forbidden on P6c - and contracts.json is untouched."
+    },
+    {
+      "contractId": "restated:WIDE-ZONE-ADVANTAGE",
+      "declaration": {
+        "row": "P6c",
+        "declaration": "NON_CLAIMED",
+        "selector": "*",
+        "scope": "WHOLE_GAME",
+        "note": "doesNotConstrain #2: who neutrals play for untouched."
+      },
+      "ruling": "C48",
+      "why": "Register row P6c (performers.neutrals.affiliation.takesEffect: when a neutral player's change of side takes effect) was added in register version 7 on the owner's ruling of 14 October 2026 (C43), after this contract was written, so it could not have declared the row, and every game selecting it without the Neutral Player Condition read P6c as 'no coverage' - nobody looked. It already declares the neutrals' count and both other affiliation properties NON_CLAIMED (P5, P6a, P6b; it leaves P7 UNDECLARED), its P6a note reading \"doesNotConstrain #2: who neutrals play for untouched.\" The new property belongs to the same performers and the same affiliation rule, so the same declaration is extended to it mechanically: kind, selector, scope and note copied from its P6a declaration. No knowledge is changed - nothing is authored or forbidden on P6c - and contracts.json is untouched."
+    },
+    {
+      "contractId": "restated:VARIABLE-TARGET-CONDITION",
+      "declaration": {
+        "row": "P6c",
+        "declaration": "NON_CLAIMED",
+        "selector": "*",
+        "scope": "WHOLE_GAME",
+        "note": "doesNotConstrain: who any neutral plays for."
+      },
+      "ruling": "C48",
+      "why": "Register row P6c (performers.neutrals.affiliation.takesEffect: when a neutral player's change of side takes effect) was added in register version 7 on the owner's ruling of 14 October 2026 (C43), after this contract was written, so it could not have declared the row, and every game selecting it without the Neutral Player Condition read P6c as 'no coverage' - nobody looked. It already declares every other neutral property NON_CLAIMED (P5, P6a, P6b, P7), its P6a note reading \"doesNotConstrain: who any neutral plays for.\" The new property belongs to the same performers and the same affiliation rule, so the same declaration is extended to it mechanically: kind, selector, scope and note copied from its P6a declaration. No knowledge is changed - nothing is authored or forbidden on P6c - and contracts.json is untouched."
+    },
+    {
+      "contractId": "blind:PASS-COMBINATION-GATE",
+      "declaration": {
+        "row": "P6c",
+        "declaration": "NON_CLAIMED",
+        "selector": "*",
+        "scope": "WHOLE_GAME",
+        "note": "No neutrals are authored."
+      },
+      "ruling": "C48",
+      "why": "Register row P6c (performers.neutrals.affiliation.takesEffect: when a neutral player's change of side takes effect) was added in register version 7 on the owner's ruling of 14 October 2026 (C43), after this contract was written, so it could not have declared the row, and every game selecting it without the Neutral Player Condition read P6c as 'no coverage' - nobody looked. It already declares every other neutral property NON_CLAIMED (P5, P6a, P6b, P7), its P6a note reading \"No neutrals are authored.\" The new property belongs to the same performers, so the same declaration is extended to it mechanically: kind, selector, scope and note copied from its P6a declaration as loaded - scope WHOLE_GAME as SD-74 restated it. No knowledge is changed - nothing is authored or forbidden on P6c - and contracts.json is untouched. This does not approve the gate for any Learning Goal."
+    },
+    {
+      "contractId": "blind:GF4",
+      "declaration": {
+        "row": "P6c",
+        "declaration": "NON_CLAIMED",
+        "selector": "*",
+        "scope": "WHOLE_GAME",
+        "note": "No neutrals."
+      },
+      "ruling": "C48",
+      "why": "Register row P6c (performers.neutrals.affiliation.takesEffect: when a neutral player's change of side takes effect) was added in register version 7 on the owner's ruling of 14 October 2026 (C43), after this contract was written, so it could not have declared the row, and every game selecting it without the Neutral Player Condition read P6c as 'no coverage' - nobody looked. It already declares every other neutral property NON_CLAIMED (P5, P6a, P6b, P7), its P6a note reading \"No neutrals.\" The new property belongs to the same performers, so the same declaration is extended to it mechanically: kind, selector, scope and note copied from its P6a declaration. No knowledge is changed - nothing is authored or forbidden on P6c - and contracts.json is untouched."
+    }
+  ],
   "declarationScope": {
     "contractId": "blind:PASS-COMBINATION-GATE",
     "ruling": "SD-74",

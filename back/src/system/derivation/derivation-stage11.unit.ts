@@ -12,9 +12,9 @@
  */
 import assert from 'node:assert/strict'
 
-import { corpusInput, loadRegister, loadCorpusContracts, repairTally, restatementTally } from './corpus'
+import { corpusInput, loadRegister, loadCorpusContracts, readJson, repairTally, restatementTally } from './corpus'
 import { repairEncoding } from './corpus-repair'
-import { NO_ROW_RESTATEMENTS } from './corpus-restatement'
+import { DECLARATION_ADDITIONS, NO_ROW_RESTATEMENTS } from './corpus-restatement'
 import { reaches } from './reach'
 import { indexRegister } from './register'
 import { runDerivation, runStages0to10 } from './engine'
@@ -350,6 +350,12 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
     // on the strength of PCG-06 and PCG-07; with the items removed (C45) the claims are restated NON_CLAIMED, or
     // they would assert a place and a half that nobody now authors.
     assert.equal(restatementTally.declarationsRestated, 2, 'the gate’s V5 and SV1 claims, restated NON_CLAIMED with the items they cited (C45)')
+    // **New on 14 October 2026 (C48), counted apart from both.** Register row P6c was added that day (C43) after
+    // every contract was written, so none declared it and every game without neutrals read it as "no coverage" —
+    // nobody looked. The seven contracts that declare P6a NON_CLAIMED get the same declaration on P6c; the Neutral
+    // Player Condition, which authors P6c through C43, gets none. Which seven is checked from the data below, not
+    // pinned here.
+    assert.equal(restatementTally.declarationsAdded, 7, 'P6c NON_CLAIMED, beside P6a NON_CLAIMED, on the seven contracts that declare it (C48)')
     assert.deepEqual(restatementTally.notFound, [], 'every item a ruling names was found')
 
     // A01-02-05.a is the first item two rulings touch: SD-87 set its selector, SD-89 its value and
@@ -361,6 +367,55 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
     assert.match(goalKick.selector, /qualifier\.lastTouch=ATTACKING_TEAM/, 'SD-87 selector kept')
     assert.equal(goalKick.value, 'DEFENDING_TEAM', 'SD-89 value applied')
     assert.equal(goalKick.basis, 'AUTHORED', 'SD-89 made the ownership authoritative; it was ASSUMED')
+})
+
+/**
+ * C48, 14 October 2026 — the P6a declaration extended to the timing row added that day. Checked against the data
+ * rather than a list written here, so a contract that gains or loses its P6a declaration moves this test with it.
+ */
+test('C48: P6c is declared exactly where P6a is declared NON_CLAIMED, as the same declaration, and nowhere in contracts.json', () => {
+    const contracts = loadCorpusContracts()
+    const extended: string[] = []
+    for (const c of contracts) {
+        const p6a = (c.declarations || []).filter((d: any) => d.row === 'P6a' && d.declaration === 'NON_CLAIMED')
+        const p6c = (c.declarations || []).filter((d: any) => d.row === 'P6c')
+        if (!p6a.length) {
+            assert.deepEqual(p6c, [], `${c.contractId} does not declare P6a NON_CLAIMED, so it gains no P6c declaration`)
+            continue
+        }
+        assert.deepEqual(p6c, p6a.map((d: any) => ({ ...d, row: 'P6c' })), `${c.contractId}: the same kind, selector, scope and note as its P6a declaration`)
+        extended.push(c.contractId)
+    }
+    assert.equal(extended.length, restatementTally.declarationsAdded, 'every addition is one of these, and each is counted once')
+    const neutral = contracts.find(c => c.contractId === 'restated:NEUTRAL-PLAYER-CONDITION')!
+    assert.ok(!extended.includes(neutral.contractId) && neutral.items.some((i: any) => i.row === 'P6c'), 'the Neutral Player Condition authors P6c (C43) and is not given a declaration on it')
+    // A restatement, not an edit: the authored file still declares the row nowhere.
+    const raw = readJson('stage-b/contracts.json')
+    const entries: any[] = Array.isArray(raw) ? raw : Object.values(raw)
+    assert.ok(!entries.some(e => (e.result?.declarations || []).some((d: any) => d.row === 'P6c')), 'contracts.json is untouched')
+})
+
+test('C48: an added declaration is refused, and said, where the contract is missing or already declares the row', () => {
+    const before = DECLARATION_ADDITIONS.length
+    const declaration = { row: 'P6a', declaration: 'NON_CLAIMED', selector: '*', scope: 'WHOLE_GAME', note: 'test' }
+    DECLARATION_ADDITIONS.push(
+        { contractId: 'restated:GF2', declaration, ruling: 'TEST', why: 'GF2 already declares P6a' },
+        { contractId: 'restated:NO-SUCH-CONTRACT', declaration, ruling: 'TEST', why: 'no such contract' },
+    )
+    try {
+        const gf2 = loadCorpusContracts().find(c => c.contractId === 'restated:GF2')!
+        assert.equal(restatementTally.declarationsAdded, before, 'neither refused addition is counted')
+        assert.equal(gf2.declarations.filter((d: any) => d.row === 'P6a').length, 1, 'the authored P6a declaration is not joined by a second account of the row')
+        assert.equal(gf2.declarations.find((d: any) => d.row === 'P6a')!.note, 'doesNotConstrain: performers outside the two teams are neither authored nor forbidden.')
+        assert.deepEqual(restatementTally.notFound, [
+            'restated:GF2 undeclared row P6a (TEST): it already declares NON_CLAIMED, so nothing is added',
+            'restated:NO-SUCH-CONTRACT (declaration addition TEST)',
+        ])
+    } finally {
+        DECLARATION_ADDITIONS.splice(before)
+        loadCorpusContracts()
+    }
+    assert.deepEqual(restatementTally.notFound, [], 'restored')
 })
 
 /**

@@ -21,6 +21,12 @@
  *     declaration that CLAIMS a row on the strength of items a ruling removed would go on asserting what nobody
  *     now authors, so the ruling that removes the items restates the claim beside them. Applied per contract and
  *     row, only from the kind named, counted on their own, and never silent when the declaration is not found.
+ *   - `declarationsAdded` — declarations a ruling ADDS to a contract (added 14 October 2026, ruling C48). A register
+ *     row added after a contract was written is a row that contract could not have declared, so every game that
+ *     selects it reads the row as "no coverage" — nobody looked — even where the contract plainly did look at the
+ *     performers the row belongs to. The addition is applied only to a contract that exists and does not already
+ *     declare the row, so it can extend what a contract says and can never overwrite or contradict it; counted on
+ *     its own, and never silent when it cannot be applied.
  */
 
 import fs from 'node:fs'
@@ -71,12 +77,25 @@ export interface DeclarationRestatement {
     why: string
 }
 
+/**
+ * A declaration a ruling adds: to one contract, on a row that contract does not yet declare. The declaration is
+ * written out whole in the data, kind and note included, so what the contract now says is readable beside the
+ * ruling rather than computed from another declaration at load.
+ */
+export interface DeclarationAddition {
+    contractId: string
+    declaration: { row: string; declaration: string; selector: string; scope: string; note: string }
+    ruling: string
+    why: string
+}
+
 interface RestatementData {
     noRow: string[]
     items: ItemRestatement[]
     added: { contractId: string; after: string; ruling: string; item: Record<string, unknown>; why: string }[]
     declarationScope: { contractId: string; ruling: string; onlyDeclaration: string; from: string; to: string; why: string }
     declarations?: DeclarationRestatement[]
+    declarationsAdded?: DeclarationAddition[]
 }
 
 const DATA: RestatementData = JSON.parse(
@@ -88,6 +107,7 @@ export const ITEM_RESTATEMENTS: ItemRestatement[] = DATA.items
 export const ADDED_ITEMS = DATA.added
 export const DECLARATION_SCOPE_RESTATEMENT = DATA.declarationScope
 export const DECLARATION_RESTATEMENTS: DeclarationRestatement[] = DATA.declarations ?? []
+export const DECLARATION_ADDITIONS: DeclarationAddition[] = DATA.declarationsAdded ?? []
 
 export interface RestatementTally {
     /** Items rewritten to the NO_ROW sentinel. */
@@ -100,7 +120,13 @@ export interface RestatementTally {
     declarationScopes: number
     /** Declarations whose kind a ruling changed — tallied apart from scopes, which is a different change. */
     declarationsRestated: number
-    /** Anything named in a ruling that could not be found — never silent. */
+    /** Declarations a ruling added — tallied apart again, because adding what a contract says is not changing it. */
+    declarationsAdded: number
+    /**
+     * Anything named in a ruling that could not be found — never silent. An added declaration whose row the
+     * contract already declares is recorded here too: the place it was to fill is not there, and adding it anyway
+     * would put a second account of the row beside the authored one.
+     */
     notFound: string[]
 }
 
@@ -126,6 +152,7 @@ export function applyNoRowRestatement(contracts: LoadedContract[], tally: Restat
     tally.itemsAdded = 0
     tally.declarationScopes = 0
     tally.declarationsRestated = 0
+    tally.declarationsAdded = 0
     tally.notFound = []
 
     // An item can carry more than one ruling — A01-02-05.a carries SD-87's selector and SD-88's
@@ -206,10 +233,28 @@ export function applyNoRowRestatement(contracts: LoadedContract[], tally: Restat
             tally.declarationsRestated++
         }
 
+        // Declarations a ruling adds — last, so no scope or kind restatement can reach one, and so the
+        // already-declared check reads the contract's declarations as every earlier ruling left them.
+        for (const addition of DECLARATION_ADDITIONS) {
+            if (addition.contractId !== contract.contractId) continue
+            const row = String(addition.declaration.row)
+            const existing = declarations.filter((declaration: any) => String(declaration.row) === row)
+            if (existing.length) {
+                const kinds = existing.map((declaration: any) => String(declaration.declaration)).join(', ')
+                tally.notFound.push(`${addition.contractId} undeclared row ${row} (${addition.ruling}): it already declares ${kinds}, so nothing is added`)
+                continue
+            }
+            declarations = [...declarations, { ...addition.declaration }]
+            tally.declarationsAdded++
+        }
+
         return { ...contract, items, declarations }
     })
     for (const restatement of DECLARATION_RESTATEMENTS) {
         if (!result.some(contract => contract.contractId === restatement.contractId)) tally.notFound.push(`${restatement.contractId} (declaration restatement ${restatement.ruling})`)
+    }
+    for (const addition of DECLARATION_ADDITIONS) {
+        if (!result.some(contract => contract.contractId === addition.contractId)) tally.notFound.push(`${addition.contractId} (declaration addition ${addition.ruling})`)
     }
 
     for (const key of [...NO_ROW_RESTATEMENTS, ...byKey.keys()]) if (!seen.has(key)) tally.notFound.push(key)

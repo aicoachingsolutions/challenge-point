@@ -75,7 +75,7 @@ function objectIdOf(name: string, index: number): string {
 export const repairTally: RepairTally = { strings: 0, charactersRecovered: 0 }
 
 /** Restatement is counted separately from encoding repair: they are different kinds of change. */
-export const restatementTally: RestatementTally = { applied: 0, withheld: [], itemsRestated: 0, itemsRemoved: 0, itemsAdded: 0, declarationScopes: 0, declarationsRestated: 0, notFound: [] }
+export const restatementTally: RestatementTally = { applied: 0, withheld: [], itemsRestated: 0, itemsRemoved: 0, itemsAdded: 0, declarationScopes: 0, declarationsRestated: 0, declarationsAdded: 0, notFound: [] }
 
 export function loadCorpusContracts(): LoadedContract[] {
     repairTally.strings = 0

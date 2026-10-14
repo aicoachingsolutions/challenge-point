@@ -20,11 +20,11 @@
 import assert from 'node:assert/strict'
 
 import { loadCorpusContracts, loadRegister } from './corpus'
-import { runStages0to10 } from './engine'
+import { runDerivation, runStages0to10 } from './engine'
 import { indexRegister } from './register'
 import { derivationInputFor } from './run-bounded-selection'
 import { LoadedContract } from './types'
-import { buildActivityFromKnowledge, buildActivityOverAlteredKnowledge, RefusedActivity, ServedActivity } from '../rendering/build-activity'
+import { buildActivityFromKnowledge, buildActivityOverAlteredKnowledge, buildActivityWithFixture, RefusedActivity, ServedActivity } from '../rendering/build-activity'
 import { specializedRoleNames } from '../rendering/session-envelope'
 
 let passed = 0
@@ -134,6 +134,35 @@ test('a game with no neutrals records no blocker and no subject', () => {
     assert.ok(affiliation(result).clauses.every((c: any) => c.basis === 'NO_APPLICABLE_INSTANCES'), 'vacuous, and saying so (SD-54)')
     assert.deepEqual([affiliation(result).subjects, affiliation(result).blockedBy], [[], []])
     assert.equal(buildActivityFromKnowledge(['GF2'], session()).activity.outcome, 'served')
+})
+
+/**
+ * C48, 14 October 2026. The row was added after every contract was written, so a game without neutrals read P6c as
+ * "no coverage" — nobody looked — although the possession game form declares every other neutral property
+ * NON_CLAIMED ("performers outside the two teams are neither authored nor forbidden"). The same declaration is now
+ * extended to P6c by restatement, and the line says what the knowledge said: not constrained. It is still a failed
+ * line and still blocks nothing; what changed is only that it no longer misstates that nobody looked.
+ */
+test('C48: a game without neutrals says the timing is not constrained, not that nobody looked', () => {
+    const result: any = runDerivation(derivationInputFor({ selected: [{ id: 'GF2' }] } as any))
+    const p6c = (result.resolution ?? []).filter((e: any) => e.lineId === 'game::P6c')
+    assert.equal(p6c.length, 1, 'one game-level timing line')
+    assert.deepEqual([p6c[0].state, p6c[0].reason], ['failed', 'not constrained'], 'GF2’s P6c declaration reaches it (C48); it was "no coverage" before')
+    assert.ok(!(result.resolution ?? []).some((e: any) => e.lineId === 'game::P6c' && e.reason === 'no coverage'), 'no "no coverage" line on P6c')
+
+    // The same through the pathway that serves an activity: the technical account's unestablished entry carries
+    // the declaration that reached it, not an empty list.
+    const { activity, fixture } = buildActivityFromKnowledge(['GF2'], session())
+    assert.equal(activity.outcome, 'served')
+    const entry = (fixture as any).status.notEstablished.find((e: any) => e.lineId === 'game::P6c')
+    assert.deepEqual([entry.reason, entry.declared], ['not constrained', ['NON_CLAIMED']])
+
+    // The neutral-players demonstration is untouched: its contracts author P6c (C43) and GF2’s NON_CLAIMED sits
+    // beside that item exactly as its P6a declaration sits beside NEUTRAL-03.b — the line is entailed, not declared.
+    const demonstration = buildActivityWithFixture({ kind: 'mechanism-demonstration', demonstrationId: 'neutral-players', session: session() })
+    assert.equal(demonstration.activity.outcome, 'served')
+    assert.equal((demonstration.fixture as any).game.performers.neutrals.affiliation.takesEffect, 'IMMEDIATE')
+    assert.ok(!(demonstration.fixture as any).status.notEstablished.some((e: any) => e.lineId === 'game::P6c'), 'the timing is established there')
 })
 
 test('"switch immediately" is said where the game holds IMMEDIATE, and nowhere else', () => {
