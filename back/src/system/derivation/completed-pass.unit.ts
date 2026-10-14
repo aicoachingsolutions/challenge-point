@@ -25,7 +25,7 @@ import { corpusInput } from './corpus'
 import { runDerivation, runStages0to10 } from './engine'
 import { runGates } from './gates'
 import { indexRegister } from './register'
-import { derivationInputFor, selectFor } from './run-bounded-selection'
+import { derivationInputFor, GoalSelectionGap, selectFor } from './run-bounded-selection'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 
 let passed = 0
@@ -188,24 +188,48 @@ test('registering the member changed no verdict in any of the thirteen goals', (
      *
      * No gate, no contract and no register row changed. Every number that moved did so because a goal
      * now loads the contracts the application would load for it.
+     *
+     * **6 · 14 October — FOUR ROWS MOVED AND TWO LEFT, by his two rulings of that day; measured.**
+     *
+     *   - *"Selection should only use constraints authorized for the Learning Goal"* and *"keep the current
+     *     Pass Combination Gate as a mechanism demonstration only."* The gate is held out of every Learning
+     *     Goal's selection, so A05 and TA02 lose their only NOT_EVALUABLE contract and keep Wide Zone
+     *     Advantage, one of their own candidates: both reach DEFERRED_TO_REALIZATION with 8 failed lines (TA02
+     *     had 7 with the gate). A02 and D03 can no longer borrow and their own candidates cannot be combined:
+     *     they are knowledge gaps, select nothing, and leave the table (asserted below as the gap list).
+     *   - *"the Primary Scoring Event and qualifying condition approved for each Representative Performance
+     *     Context should govern the generated activity."* Selection now carries the goal's context, and
+     *     RPC-001 is the one context with a contract: A01 loads it, and Gate A FAILS on the lines that context
+     *     leaves unestablished (8 → 13 failed lines). The other contexts have no contract, so they load
+     *     nothing and no other row moves for this reason.
+     *
+     * Every other row is unchanged. The gate's own information rule (the V17 line) is now measured on the
+     * gate's demonstration composition, in the next test, because no goal selects the gate.
      */
     const expected: Record<string, { failed: number; gateA: string; reachable: boolean }> = {
-        A01: { failed: 8, gateA: 'NOT_EVALUABLE', reachable: true },
+        A01: { failed: 13, gateA: 'FAIL', reachable: true },
         D01: { failed: 7, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
         TA01: { failed: 14, gateA: 'FAIL', reachable: false },
         TD01: { failed: 13, gateA: 'FAIL', reachable: false },
-        A02: { failed: 6, gateA: 'NOT_EVALUABLE', reachable: true },
         D02: { failed: 13, gateA: 'FAIL', reachable: false },
-        TA02: { failed: 7, gateA: 'NOT_EVALUABLE', reachable: true },
+        TA02: { failed: 8, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
         TD02: { failed: 13, gateA: 'FAIL', reachable: false },
         A03: { failed: 7, gateA: 'FAIL', reachable: true },
-        D03: { failed: 7, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
         A04: { failed: 7, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
-        A05: { failed: 8, gateA: 'NOT_EVALUABLE', reachable: true },
+        A05: { failed: 8, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
         A06: { failed: 7, gateA: 'FAIL', reachable: true },
     }
+    const gaps: string[] = []
     for (const goal of goals) {
-        const input = derivationInputFor(selectFor(goal, null))
+        let selection
+        try {
+            selection = selectFor(goal, null)
+        } catch (error) {
+            if (!(error instanceof GoalSelectionGap)) throw error
+            gaps.push(goal)
+            continue
+        }
+        const input = derivationInputFor(selection)
         const result: any = runDerivation(input)
         const staged: any = runStages0to10(input)
         const failedLines = (result.resolution ?? []).filter((e: any) => e.state === 'failed').map((e: any) => String(e.lineId))
@@ -223,7 +247,17 @@ test('registering the member changed no verdict in any of the thirteen goals', (
         const passes = !reach.clauses.some((l: any) => l.verdict === 'FAIL')
         assert.equal(passes, expected[goal].reachable, `${goal}: reachability verdict must be the one his ruling implies`)
     }
+    assert.deepEqual(gaps, ['A02', 'D03'], 'the two knowledge gaps of 14 October, and no others')
 })
+
+/**
+ * The Pass Combination Gate as a mechanism demonstration composes it: the possession game form and the gate,
+ * named directly, through the same selection shape a demonstration uses. Since 14 October no Learning Goal
+ * selects the gate (his ruling: *"Please keep the current Pass Combination Gate as a mechanism demonstration
+ * only"*), so every test of the gate's own lines is made here rather than through a goal.
+ */
+const gateComposition = () =>
+    derivationInputFor({ selected: [{ id: 'GF2', role: 'game form' }, { id: 'tl-v0-constraint-pass-combination-gate', role: 'constraint' }] })
 
 test('the member alone closed nothing — it took a separate authoring act', () => {
     /**
@@ -238,16 +272,21 @@ test('the member alone closed nothing — it took a separate authoring act', () 
      * **Four goals since 13 October, not five.** Attack Quickly selected this contract only while it was
      * being read as a possession goal. Under its approved Game Problem it selects no information rule,
      * so it moves to the list below, where the absence is asserted rather than left unexamined.
+     *
+     * **None since 14 October: measured on the gate's demonstration composition.** The four goals that
+     * selected the gate (A01, A02, TA02, A05) no longer do — his ruling holds it out of Learning Goal
+     * selection, and A02 is now a knowledge gap — so the authored outcome is asserted where the gate now
+     * lives, and the three goals that still exist join the list of goals with no such line.
      */
-    for (const goal of ['A01', 'A02', 'TA02', 'A05']) {
-        const result: any = runDerivation(derivationInputFor(selectFor(goal, null)))
+    {
+        const result: any = runDerivation(gateComposition())
         const v17 = (result.resolution ?? []).filter((e: any) => /::V17$/.test(String(e.lineId)))
-        assert.equal(v17.length, 1, `${goal}: one information-rule trigger line`)
-        assert.equal(v17[0].verdict, 'RESOLVED:ENTAILED', `${goal}: closed by the authored item, not by the vocabulary`)
-        assert.equal(v17[0].value, 'COMPLETED_PASS', `${goal}: with the token the 29 September ruling requires`)
+        assert.equal(v17.length, 1, 'the gate composition: one information-rule trigger line')
+        assert.equal(v17[0].verdict, 'RESOLVED:ENTAILED', 'closed by the authored item, not by the vocabulary')
+        assert.equal(v17[0].value, 'COMPLETED_PASS', 'with the token the 29 September ruling requires')
     }
     // And the goals that do NOT select that contract have no such line at all, so nothing was created for them.
-    for (const goal of ['A04', 'A03', 'A06', 'TA01']) {
+    for (const goal of ['A04', 'A03', 'A06', 'TA01', 'A01', 'TA02', 'A05']) {
         const result: any = runDerivation(derivationInputFor(selectFor(goal, null)))
         assert.deepEqual(
             (result.resolution ?? []).filter((e: any) => /::V17$/.test(String(e.lineId))),
@@ -268,7 +307,8 @@ test('an item authoring the token is admitted WITH the member and rejected WITHO
         return information?.clauses.find((l: any) => /registered trigger/.test(String(l.clause)))
     }
     const withItem = (vocabulary: string[]) => {
-        const input: any = derivationInputFor(selectFor('A05', null))
+        // The gate's demonstration composition since 14 October: no goal selects the gate any more.
+        const input: any = gateComposition()
         input.register = JSON.parse(JSON.stringify(input.register))
         input.register.vocabularies.trigger = vocabulary
         const pcg: any = input.contracts.find((c: any) => /PASS-COMBINATION/.test(String(c.contractId)))
@@ -290,7 +330,8 @@ test('an item authoring the token is admitted WITH the member and rejected WITHO
 
 // ── A known limit, recorded rather than repaired ───────────────────────────────────────────────────
 test('the token is not structurally reachable, and that is reported not hidden', () => {
-    const staged: any = runStages0to10(derivationInputFor(selectFor('A05', null)))
+    // The gate's demonstration composition since 14 October: no goal selects the gate any more.
+    const staged: any = runStages0to10(gateComposition())
     const reachable = JSON.stringify([...(staged.gateContext?.triggers ?? [])])
     assert.ok(!reachable.includes('COMPLETED_PASS'), 'the reachable set is built by a hardcoded function, not from the vocabulary')
     // FIRST_FORWARD_PASS has been in the vocabulary since 29 September and is not reachable either, so this is

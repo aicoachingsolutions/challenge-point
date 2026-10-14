@@ -109,7 +109,7 @@ function buildAssemblyInput(goal: string): SystemAssemblyInput {
 function internalNames(input: SystemAssemblyInput): string[] {
     return [
         input.constraintPackage.foundation.constraint.title,
-        input.constraintPackage.shaping.constraint.title,
+        input.constraintPackage.shaping?.constraint.title,
         input.constraintPackage.consequence?.constraint.title,
     ].filter((name): name is string => typeof name === 'string' && name.trim().length > 0)
 }

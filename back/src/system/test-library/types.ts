@@ -120,6 +120,29 @@ export interface TestLibrarySelectionInput {
 
 export type ConstraintBalanceBucket = 'foundation' | 'shaping' | 'consequence'
 
+/**
+ * What selection drew its constraints from, without the constraint objects — ids, roles and rulings only, so
+ * it can travel in the selection trace and every reader READS what selection used instead of recomputing it.
+ * Computed in one place, `constraintPoolFor`; see it for the rule.
+ */
+export interface ConstraintPoolAccount {
+    /** `GOAL_CANDIDATES` for a Learning Goal, always since 14 October; `WHOLE_LIBRARY` only for free text. */
+    source: 'GOAL_CANDIDATES' | 'WHOLE_LIBRARY'
+    /** FREE TEXT ONLY: why the wording's candidates were set aside for the whole library. Null otherwise. */
+    setAsideBecause: 'FEWER_THAN_TWO' | 'NO_FOUNDATION_AND_SHAPING' | null
+    /** FREE TEXT ONLY: the roles the wording's candidates could not fill, where that is why they were set aside. */
+    missingRoles: ConstraintBalanceBucket[]
+    /** The candidate ids as stated — a held candidate stays listed here. */
+    candidateIds: string[]
+    /** Candidates left out of a Learning Goal's selection by an owner ruling, with the ruling. */
+    heldByRuling: { id: string; ruledOn: string; ruling: string }[]
+    /**
+     * LEARNING GOALS: the roles no unheld, selectable candidate fills. Each is a knowledge gap, reported and
+     * never filled from elsewhere (his ruling of 14 October). Empty for free text.
+     */
+    unfilledRoles: ConstraintBalanceBucket[]
+}
+
 export interface SelectionReasonEntry {
     id: string
     score: number
@@ -179,6 +202,8 @@ export interface TestLibrarySelectionResult {
             /** Session Planning Model "RPC Routing" for this goal. Trace only - no selection influence yet. */
             routedRpcId: string | null
         }
+        /** The pool selection drew its constraints from (`constraintPoolFor`), ids only. */
+        constraintPool?: ConstraintPoolAccount
         /**
          * RAS RC1 Stage-3 SHADOW artifact: the Resolved Affordance Target Profile for this decision
          * (canonical Game Problems + merged affordance-target ratings from the versioned Affordance

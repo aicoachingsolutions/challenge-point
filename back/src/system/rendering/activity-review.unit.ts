@@ -11,7 +11,7 @@
  * what the route calls.
  *
  * Most of it is negative, for the reason the rendering tests are: a builder that only ever serves is not
- * evidence. Ten of the thirteen goals cannot be built today and each must say so, at the stage where it
+ * evidence. None of the thirteen goals can be built today (14 October) and each must say so, at the stage where it
  * stops, in a sentence with no identifier in it. A session that states too little must be asked for what is
  * missing rather than given a number.
  *
@@ -24,10 +24,12 @@ import assert from 'node:assert/strict'
 import { loadCorpusContracts, loadRegister } from '../derivation/corpus'
 import { indexRegister } from '../derivation/register'
 import { ActivityReviewRequestError, activityReviewOptions, reviewActivity } from './activity-review'
-import { buildActivity, buildActivityFromKnowledge, buildActivityOverAlteredKnowledge, RefusedActivity, ServedActivity, UnknownActivityRequest } from './build-activity'
+import { buildActivity, buildActivityFromKnowledge, buildActivityOverAlteredKnowledge, buildActivityOverAlteredSelection, RefusedActivity, ServedActivity, UnknownActivityRequest } from './build-activity'
+import { constitutedConditionTypes, contextScoringFindings } from './context-scoring-guard'
 import { buildPilotActivity, isPilotRefused, PILOT_SESSION } from './build-pilot-activity'
 import { MECHANISM_DEMONSTRATIONS } from './mechanism-demonstrations'
 import { sessionEnvelopeFrom, specializedRoleNames } from './session-envelope'
+import { rpcLibrary } from '../sport-module/rpc-library'
 
 const ROLES = specializedRoleNames()
 assert.ok(ROLES.length > 0, 'the register must name a specialized role, or the availability question has no subject')
@@ -60,119 +62,178 @@ const plain = (activity: RefusedActivity, what: string) => {
 }
 const text = (activity: ServedActivity, section: string) => activity.rendered.instructions.filter(i => i.section === section).map(i => i.text)
 
-// ── A04 through the review is the pilot's activity, to the letter ─────────────────────────────────
+// ── The pilot is REFUSED now, and the review refuses it identically ───────────────────────────────
 //
 // His instruction for the pilot route was that it *"serve the same validated, rendered activity without
-// introducing unverified transformations"*. The pilot is now a thin caller of the general builder, so this
-// is the assertion that the generalisation moved nothing: the same goal at the same session gives the same
-// rendered activity — every instruction, status, citation and observation, not only the words.
+// introducing unverified transformations"*. The pilot is a thin caller of the general builder, and this was
+// the assertion that the two serve the same A04 activity to the letter.
+//
+// **Re-pointed 14 October 2026: the pilot route now REFUSES A04, and that is the honest state.** Christian,
+// that day: *"the Primary Scoring Event and qualifying condition approved for each Representative Performance
+// Context should govern the generated activity."* A04 was served scored on a line being crossed, which its
+// context (RPC-004) does not approve, and RPC-004 has no contribution contract, so its approved scoring cannot
+// reach the game. Nothing is served in its place. What still has to hold is that the pilot and the review
+// agree — now on the refusal, reason for reason — and the served half of this assertion moved to the bare
+// possession game below, built through the same chain.
 {
     const pilot = buildPilotActivity()
-    assert.ok(!isPilotRefused(pilot), `the pilot must still be served: ${JSON.stringify((pilot as any).because)}`)
-    const review = served(
+    assert.ok(isPilotRefused(pilot), 'the pilot is refused: its goal\'s context has no contract, so its approved scoring cannot govern the game')
+    const review = refused(
         reviewActivity(
             { playerCount: PILOT_SESSION.players, fieldLength: String(PILOT_SESSION.lengthM), fieldWidth: String(PILOT_SESSION.widthM), specializedRoles: { ...none } },
             { learningGoalId: 'A04', durationMin: PILOT_SESSION.durationMin },
         ),
         'A04 at the pilot session',
     )
-    assert.deepEqual(review.rendered, (pilot as any).rendered, 'the review must serve exactly what the pilot serves')
-    assert.deepEqual(review.integrity, (pilot as any).integrity)
-    assert.equal(review.integrity.fidelityViolations, 0)
+    assert.deepEqual(pilot.because, review.reasons, 'the pilot refuses for exactly the reasons the review does')
+    assert.equal(review.stage, 'knowledge')
+    assert.ok(review.reasons.some(reason => reason.includes('RPC-004') && reason.includes('no contribution contract')), JSON.stringify(review.reasons))
     assert.equal(review.kind, 'learning-goal')
     assert.equal(review.title, 'Beat Defenders 1v1')
-    assert.equal(review.subtitle, 'Eliminate individual defenders.')
-
-    // The pilot's own account is read from the run now, and still reads what it always did.
-    assert.equal((pilot as any).provenance.signalGroup, 'J_attacking_duel', 'the signal group comes from the selection, not from a literal')
-    assert.equal((pilot as any).provenance.gameForm, review.account.gameForm.id)
 
     /**
-     * **An UNRESOLVED Game Problem is built and is never filled in.** No translation is approved for this
-     * goal, so the account says so; nothing is substituted, and what the wording implies is not offered as
-     * the answer in its place.
+     * **An UNRESOLVED Game Problem is never filled in — and the output is PROVISIONAL.** No translation is
+     * approved for this goal, so the account says so; nothing is substituted, and what the wording implies is
+     * not offered as the answer in its place. His ruling of 14 October adds the label.
      */
-    assert.deepEqual(review.account.gameProblem, { status: 'UNRESOLVED', gameProblemId: null, name: null, inferredFromWording: null, governed: false })
-    assert.equal(review.account.gameForm.contracted, true)
-    assert.ok(review.account.constraints.length > 0 && review.account.constraints.every(c => !c.contracted), 'this goal selects constraints and none of them shapes the game yet')
-    assert.deepEqual(review.account.selectedWithoutContract, review.account.constraints.map(c => c.id))
+    const account = review.account
+    assert.deepEqual(account.gameProblem, { status: 'UNRESOLVED', gameProblemId: null, name: null, inferredFromWording: null, governed: false })
+    assert.equal(account.provisional, true)
+    assert.ok(account.provisionalReason && account.provisionalReason.includes('no Game Problem is approved'), String(account.provisionalReason))
+    assert.equal(account.gameForm!.contracted, true)
+    // Two designated constraints, both its own, neither contracted — and the context is NOT listed among what
+    // has no contract: it has its own entry in the account.
+    assert.deepEqual(account.constraints!.map(c => c.title), ['Small Area Condition', 'Zone Structure Condition'])
+    assert.ok(account.constraints!.every(c => !c.contracted && c.fromGoalCandidates === true))
+    assert.deepEqual(account.selectedWithoutContract, account.constraints!.map(c => c.id))
+    assert.equal(account.context!.id, 'RPC-004')
+    assert.equal(account.context!.inThisActivity, false)
 }
 
-// ── The two goals that select the same game form are served, from the same realization choices ────
-//
-// They were refused before the choices were looked up by game form: the file was named for A04 and read
-// because the goal was A04, though every line it closes is the game form's.
+/**
+ * ── No goal is served whose context has no contract — and the identical-game finding, kept ────────
+ *
+ * **Re-pointed 14 October 2026.** A04, D01 and D03 were served here, as one identical game. All three were
+ * scored on a line being crossed, which none of their contexts approves; D01 and D03 are defending goals, and
+ * his ruling names exactly that case: *"an activity intended to develop defensive organization should not rely
+ * exclusively on the attacking team's progression as its measure of success when the approved context
+ * specifies a defensive outcome."* So they are refused (the table below), and what this block was really about
+ * — that a game form with no contracted constraint beside it comes out the same game whatever is selected
+ * beside it — is kept on the knowledge itself, through the same chain: the bare possession game, and the same
+ * game form with A04's and D01's own (uncontracted) constraints, are one game.
+ */
 {
-    const a04 = served(reviewActivity(stored(), { learningGoalId: 'A04', durationMin: 20 }), 'A04')
-    for (const goalId of ['D01', 'D03']) {
-        const activity = served(reviewActivity(stored(), { learningGoalId: goalId, durationMin: 20 }), goalId)
-        assert.equal(activity.integrity.fidelityViolations, 0)
+    const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: none }
+    const bare = served(buildActivityFromKnowledge(['GF2'], session).activity, 'the bare possession game')
+    assert.equal(bare.rendered.instructions.length, 12)
+    assert.equal(bare.integrity.fidelityViolations, 0)
+    for (const [label, selected] of [
+        ['A04\'s game form and constraints', ['GF2', 'tl-v0-constraint-small-area-condition', 'tl-v0-constraint-zone-structure-condition']],
+        ['D01\'s game form and constraints', ['GF2', 'tl-v0-constraint-central-density-condition', 'tl-v0-constraint-small-area-condition', 'tl-v0-constraint-delay-reward']],
+    ] as const) {
+        const activity = served(buildActivityFromKnowledge([...selected], session).activity, label)
         assert.deepEqual(
             activity.rendered.instructions.map(i => i.text),
-            a04.rendered.instructions.map(i => i.text),
-            `${goalId} selects the same game form and nothing else contracted, so today it is the identical game — which is a finding about the knowledge, not a defect here`,
+            bare.rendered.instructions.map(i => i.text),
+            `${label}: nothing beside the game form is contracted, so it is the identical game — a finding about the knowledge, not a defect here`,
         )
+    }
+    // D01 and D03 keep their approved Game Problems in the account of the refusal.
+    for (const goalId of ['D01', 'D03']) {
+        const activity = refused(reviewActivity(stored(), { learningGoalId: goalId, durationMin: 20 }), goalId)
         assert.equal(activity.account.gameProblem?.status, 'APPROVED', `${goalId} has an approved Game Problem`)
         assert.ok(activity.account.gameProblem?.gameProblemId && activity.account.gameProblem.name, 'and the account names it')
+        assert.equal(activity.account.provisional, false, `${goalId}: an approved Game Problem is not provisional`)
     }
     // Where the approved translation and the wording disagree, the approved one is the goal's Game Problem.
-    const d03 = served(reviewActivity(stored(), { learningGoalId: 'D03', durationMin: 20 }), 'D03').account.gameProblem!
+    const d03 = refused(reviewActivity(stored(), { learningGoalId: 'D03', durationMin: 20 }), 'D03').account.gameProblem!
     assert.equal(d03.governed, true)
     assert.notEqual(d03.gameProblemId, d03.inferredFromWording, 'the inference is carried beside it and is not it')
 }
 
 /**
- * ── The other ten goals are refused, each at the stage where it stops ─────────────────────────────
+ * ── All thirteen goals are refused, each at the stage where it stops ──────────────────────────────
  *
- * **Baseline of 13 October 2026.** These are the goals the pathway cannot build today, and why:
+ * **Baseline of 14 October 2026, measured.** No Learning Goal is served today, and that is his two rulings of
+ * that day applied, not a regression: selection draws only from a goal's designated constraints, and a goal's
+ * context must have its approved scoring in the game. Why each stops:
  *
- *   - `knowledge` — the goal's game form has no contribution contract, so there is no game to derive;
- *   - `structure`, incomplete rule — the goal selects the Pass Combination Gate, whose references Gate A
- *     cannot yet evaluate. Out of scope for this stage and left refused deliberately;
- *   - `structure`, not described completely — the goal's game form is contracted and fails Gate A.
+ *   - `selection`, knowledge gap — the goal's own candidates cannot be combined on the game form chosen for it
+ *     (A02, D03). Found by the existing package checks, not by any shaping requirement;
+ *   - `knowledge`, game form not built — the goal's game form has no contribution contract (A03, A06);
+ *   - `knowledge`, context not built — the game form is built, and the goal's context has no contract, so its
+ *     approved scoring cannot govern the game (eight goals). Before 14 October three of these were SERVED,
+ *     scored on an event their context does not approve, and the other five stopped later;
+ *   - `structure`, not described completely — A01, the one goal whose context IS contracted: with RPC-001 in
+ *     the game, Gate A fails on three lines the context leaves unestablished (his knowledge decisions K1-K3).
+ *     It stopped at the Pass Combination Gate before; the gate is now held out of its selection by his ruling.
  *
  * A goal moving OUT of this table is the work succeeding, and the entry should then be removed with the
  * reason. A goal moving between rows, or a new one arriving, is a change in the knowledge to be explained.
  */
 {
-    const INCOMPLETE = 'This goal selects a rule whose description is still incomplete, so the activity cannot be checked yet.'
+    const GAP = "This goal's designated constraints cannot yet be combined into a game, so no activity can be built for it."
     const NOT_DESCRIBED = 'The game this goal selects is not yet described completely enough to be set up.'
     const NOT_BUILT = 'This goal uses a game form that has not been built into the activity engine yet.'
-    const expected: Record<string, [RefusedActivity['stage'], string]> = {
-        A01: ['structure', INCOMPLETE],
-        A02: ['knowledge', NOT_BUILT],
-        A03: ['knowledge', NOT_BUILT],
-        A05: ['structure', INCOMPLETE],
-        A06: ['knowledge', NOT_BUILT],
-        D02: ['structure', NOT_DESCRIBED],
-        TA01: ['structure', NOT_DESCRIBED],
-        TA02: ['structure', INCOMPLETE],
-        TD01: ['structure', NOT_DESCRIBED],
-        TD02: ['structure', NOT_DESCRIBED],
+    const CONTEXT = "The scoring this goal's context calls for has not been built into the activity engine yet, so no activity can be built for it."
+    // [stage, summary, the game form is contracted, the reason names]
+    const expected: Record<string, [RefusedActivity['stage'], string, boolean, string]> = {
+        A01: ['structure', NOT_DESCRIBED, true, 'Gate A is FAIL'],
+        A02: ['selection', GAP, false, 'NO_COMPATIBLE_COMBINATION'],
+        A03: ['knowledge', NOT_BUILT, false, 'the game form GF3 has no contribution contract'],
+        A04: ['knowledge', CONTEXT, true, 'the Representative Performance Context RPC-004 has no contribution contract'],
+        A05: ['knowledge', CONTEXT, true, 'the Representative Performance Context RPC-003 has no contribution contract'],
+        A06: ['knowledge', NOT_BUILT, false, 'the game form GF9 has no contribution contract'],
+        D01: ['knowledge', CONTEXT, true, 'the Representative Performance Context RPC-008 has no contribution contract'],
+        D02: ['knowledge', CONTEXT, true, 'the Representative Performance Context RPC-007 has no contribution contract'],
+        D03: ['selection', GAP, true, 'NO_COMPATIBLE_COMBINATION'],
+        TA01: ['knowledge', CONTEXT, true, 'the Representative Performance Context RPC-006 has no contribution contract'],
+        TA02: ['knowledge', CONTEXT, true, 'the Representative Performance Context RPC-003 has no contribution contract'],
+        TD01: ['knowledge', CONTEXT, true, 'the Representative Performance Context RPC-007 has no contribution contract'],
+        TD02: ['knowledge', CONTEXT, true, 'the Representative Performance Context RPC-007 has no contribution contract'],
     }
     const options = activityReviewOptions()
-    assert.deepEqual(
-        options.goals.map(g => g.id).filter(id => !['A04', 'D01', 'D03'].includes(id)).sort(),
-        Object.keys(expected).sort(),
-        'every goal the page offers is either served above or accounted for here',
-    )
-    for (const [goalId, [stage, summary]] of Object.entries(expected)) {
+    assert.deepEqual(options.goals.map(g => g.id).sort(), Object.keys(expected).sort(), 'every goal the page offers is accounted for here')
+    for (const [goalId, [stage, summary, formBuilt, because]] of Object.entries(expected)) {
         const activity = refused(reviewActivity(stored(), { learningGoalId: goalId, durationMin: 20 }), goalId)
         assert.equal(activity.stage, stage, `${goalId} must stop at ${stage}; it stopped at ${activity.stage}: ${JSON.stringify(activity.reasons)}`)
         assert.equal(activity.summary, summary, goalId)
         plain(activity, goalId)
+        // Told apart by the refusal's REASON, not its stage alone: two different causes now share `knowledge`.
+        assert.ok(activity.reasons.some(reason => reason.includes(because)), `${goalId}: ${JSON.stringify(activity.reasons)}`)
         assert.equal(activity.title, options.goals.find(g => g.id === goalId)!.name, 'a refusal is still titled by the goal the coach chose')
-        // What selection established before the refusal is kept, so the account can show how far it got.
+        // What selection established before the refusal is kept, so the account can show how far it got —
+        // a knowledge gap included: the game form it was found on is named.
         assert.ok(activity.account.gameForm?.id, `${goalId}: the selected game form survives into the refusal's account`)
-        assert.equal(activity.account.gameForm!.contracted, stage !== 'knowledge', `${goalId}: and says whether it is built`)
+        assert.equal(activity.account.gameForm!.contracted, formBuilt, `${goalId}: and says whether it is built`)
+        // The four goals with an unresolved Game Problem are provisional, in every outcome (his ruling, section 5).
+        assert.equal(activity.account.provisional, ['A01', 'A04', 'A05', 'A06'].includes(goalId), `${goalId}: provisional`)
+    }
+
+    // A knowledge gap's account is filled from the gap itself: the game form, the Game Problem, the context,
+    // the roles no candidate fills — and no constraints, because none was selected.
+    for (const [goalId, form] of [['A02', 'GF3'], ['D03', 'GF2']] as const) {
+        const gap = refused(reviewActivity(stored(), { learningGoalId: goalId, durationMin: 20 }), goalId)
+        assert.equal(gap.account.gameForm!.id, form)
+        assert.deepEqual(gap.account.constraintSource, { source: 'GOAL_CANDIDATES', unfilledRoles: ['shaping'], heldByRuling: [], gap: 'NO_COMPATIBLE_COMBINATION' })
+        assert.deepEqual(gap.account.constraints, [])
+        assert.ok(gap.account.gameProblem, `${goalId}: the Game Problem authority is in the account`)
+        assert.ok(gap.account.context?.id, `${goalId}: and so is the context`)
     }
 }
 
-// ── A session that does not fit the game is refused in the coach's terms ──────────────────────────
+/**
+ * ── A session that does not fit the game is refused in the coach's terms ──────────────────────────
+ *
+ * Re-pointed 14 October 2026 from A04 to the scoring-modifier demonstration, through the same route: A04 is now
+ * refused before its session reaches the roster (its context has no contract), so it can no longer carry a
+ * roster test. The demonstration is the same possession game, and the sentences do not name a goal.
+ */
+const VEHICLE = { demonstrationId: 'scoring-modifier' }
 {
     // An odd count does not split into the equal teams the game form requires. The roster rule names the
     // cause and the numbers; the sentence is built from those and not from the gate's own report.
-    const nine = refused(reviewActivity(stored({ playerCount: 9 }), { learningGoalId: 'A04', durationMin: 20 }), '9 players')
+    const nine = refused(reviewActivity(stored({ playerCount: 9 }), { ...VEHICLE, durationMin: 20 }), '9 players')
     assert.equal(nine.stage, 'session')
     assert.equal(nine.summary, '9 players cannot be split into the equal teams this game needs.')
     assert.ok(nine.reasons.some(reason => reason.includes('DOES_NOT_DIVIDE')), 'the cause travels in the reasons')
@@ -180,7 +241,7 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
 
     // The count is the coach's own number, so the sentence has to agree with it. Found in review: one
     // player was told "1 players cannot be split".
-    const one = refused(reviewActivity(stored({ playerCount: 1 }), { learningGoalId: 'A04', durationMin: 20 }), '1 player')
+    const one = refused(reviewActivity(stored({ playerCount: 1 }), { ...VEHICLE, durationMin: 20 }), '1 player')
     assert.equal(one.summary, '1 player cannot be split into the equal teams this game needs.')
 }
 
@@ -233,7 +294,8 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
     // Availability is people IN the session. A game that involves none never compares the two, so this is
     // the only place an impossible count can be caught.
     session(at(stored(), { roles: { [ROLE]: 13 } }), `This session lists more ${ROLE}s than it has players.`)
-    served(reviewActivity(stored(), { learningGoalId: 'A04', durationMin: 20, roles: { [ROLE]: 12 } }), 'every player in the role is still a session that adds up')
+    // Served through the demonstration since 14 October: A04 no longer reaches a served activity (see above).
+    served(reviewActivity(stored(), { ...VEHICLE, durationMin: 20, roles: { [ROLE]: 12 } }), 'every player in the role is still a session that adds up')
 
     // A width longer than the length is SAID, not swapped: swapping would build a different pitch silently.
     const wide = at(stored({ fieldLength: '25', fieldWidth: '30' }))
@@ -248,7 +310,7 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
     // The review's statement CONFIRMS OR ADJUSTS the stored one — for this review, and without touching it.
     const saved = stored({ specializedRoles: undefined })
     const frozen = JSON.stringify(saved)
-    served(reviewActivity(saved, { learningGoalId: 'A04', durationMin: 20, roles: { [ROLE]: 0 } }), 'a role stated only in the review')
+    served(reviewActivity(saved, { ...VEHICLE, durationMin: 20, roles: { [ROLE]: 0 } }), 'a role stated only in the review')
     assert.equal(JSON.stringify(saved), frozen, 'the stored session is read and never written')
     assert.deepEqual(
         (sessionEnvelopeFrom(stored({ specializedRoles: { [ROLE]: 1 } }), { durationMin: 20, roles: { [ROLE]: 3 } }) as any).session.roles,
@@ -272,12 +334,13 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
  * The game's knowledge involves none, so everyone plays and the activity says so.
  */
 {
-    const activity = served(reviewActivity(stored(), { learningGoalId: 'A04', durationMin: 20, roles: { [ROLE]: 2 } }), 'two available')
+    // Through the demonstration since 14 October (A04 is refused before its roster; see above).
+    const activity = served(reviewActivity(stored(), { ...VEHICLE, durationMin: 20, roles: { [ROLE]: 2 } }), 'two available')
     assert.deepEqual(text(activity, 'Players').slice(0, 3), ['12 players in total', '2 teams of 6', `This activity does not use ${ROLE}s — everyone plays as an outfield player`])
     assert.equal(activity.integrity.fidelityViolations, 0)
     assert.equal(activity.session.roles[ROLE], 2, 'the session reported back is the one the coach stated')
 
-    const zero = served(reviewActivity(stored(), { learningGoalId: 'A04', durationMin: 20 }), 'none available')
+    const zero = served(reviewActivity(stored(), { ...VEHICLE, durationMin: 20 }), 'none available')
     assert.deepEqual(text(zero, 'Players').slice(0, 3), ['12 players in total', '2 teams of 6', `No ${ROLE}s — everyone is an outfield player`])
     // Nothing else about the activity depends on how many were available.
     assert.deepEqual(text(activity, 'Set up'), text(zero, 'Set up'))
@@ -318,8 +381,10 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
         })
         form.declarations = (form.declarations ?? []).map((d: any) => (String(d.row) === rowId ? { ...d, declaration: 'CLAIMED', scope: 'PER_TEAM' } : d))
     }
+    // Over the scoring-modifier demonstration since 14 October: A04 is refused before derivation now, so an
+    // alteration of its knowledge never reaches the roster. The demonstration is the same game form.
     const at = (available: number, knowledge = requiresOne()) =>
-        buildActivityOverAlteredKnowledge({ kind: 'learning-goal', goalId: 'A04', session: { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { [ROLE]: available } } }, knowledge)
+        buildActivityOverAlteredKnowledge({ kind: 'mechanism-demonstration', demonstrationId: 'scoring-modifier', session: { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { [ROLE]: available } } }, knowledge)
 
     // Two available for a game that involves one per team: derived, RENDERED, and nothing lost or invented.
     const staffed = served(at(2), 'one per team required, two available')
@@ -352,7 +417,7 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
 
     // The loader's contracts are shared by every caller in the process. None of the above may have reached them.
     assert.ok(!JSON.stringify(loadCorpusContracts()).includes('REVIEW-ROLE-ITEM'), 'the alteration was made to a copy and to nothing else')
-    assert.deepEqual(text(served(reviewActivity(stored(), { learningGoalId: 'A04', durationMin: 20, roles: { [ROLE]: 2 } }), 'the goal itself, afterwards'), 'Players').slice(1, 3), [
+    assert.deepEqual(text(served(reviewActivity(stored(), { ...VEHICLE, durationMin: 20, roles: { [ROLE]: 2 } }), 'the demonstration itself, afterwards'), 'Players').slice(1, 3), [
         '2 teams of 6',
         `This activity does not use ${ROLE}s — everyone plays as an outfield player`,
     ])
@@ -360,7 +425,8 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
 
 // ── The coach's own session shapes the activity ───────────────────────────────────────────────────
 {
-    const activity = served(reviewActivity(stored({ playerCount: 16, fieldLength: '50', fieldWidth: '35' }), { learningGoalId: 'A04', durationMin: 15 }), '16 players, 50 x 35')
+    // Through the demonstration since 14 October (A04 is refused before its session shapes anything).
+    const activity = served(reviewActivity(stored({ playerCount: 16, fieldLength: '50', fieldWidth: '35' }), { ...VEHICLE, durationMin: 15 }), '16 players, 50 x 35')
     assert.ok(text(activity, 'Set up').includes('Mark out an area 50 m long by 35 m wide'))
     assert.ok(text(activity, 'Players').includes('2 teams of 8'))
     assert.ok(text(activity, 'How it works').includes('Play for 15 minutes'))
@@ -574,7 +640,9 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
             ],
         ],
     ]
-    const a04 = served(reviewActivity(stored(), { learningGoalId: 'A04', durationMin: 20 }), 'A04')
+    // The bare possession game, built directly since 14 October: it was A04's activity, which is now refused
+    // (its context has no contract). The comparison is with the game form alone, which is what A04 was.
+    const a04 = served(buildActivityFromKnowledge(['GF2'], { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: none }).activity, 'the bare possession game')
     for (const [players, expectedPlayers] of NEUTRAL_ACTIVITY) {
         const neutrals = served(reviewActivity(stored({ playerCount: players }), { demonstrationId: 'neutral-players', durationMin: 20 }), `the neutral-players demonstration with ${players} players`)
         assert.equal(neutrals.kind, 'mechanism-demonstration')
@@ -781,60 +849,133 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
 }
 
 /**
- * ── What the account says that selection did not take from the goal ───────────────────────────────
+ * ── What the account says about where the constraints came from, and about the context ────────────
  *
- * **Baseline of 14 October 2026, pinning two states put to him for a ruling — not states he chose.**
+ * **Re-pointed 14 October 2026, by his two rulings of that day.** This pinned two states that were put to him:
+ * seven goals BORROWED constraints from the whole library, and no goal carried its context. He ruled on both:
  *
- * 1. **Borrowed constraints.** Where a goal's candidates cannot fill the role mix, selection draws from the
- *    whole library (`constraintPoolFor`). Seven goals, every one because its candidates hold no shaping
- *    constraint. The account must say so per constraint, because a constraint never designated for a goal
- *    cannot be claimed relevant to its affordances. If he rules that selection stops borrowing, this table
- *    empties and the entries go with the reason.
- * 2. **The context's approved scoring event is not in the activity.** Every goal names its context and his
- *    approved qualifying condition, and none carries it: selection hands derivation a game form and
- *    constraints, never the context. `inThisActivity` is read from the selection, so the first selection that
- *    carries a context turns its entry true and this assertion moves with it.
+ * 1. *"Selection should only use constraints authorized for the Learning Goal … If no appropriate shaping
+ *    constraint is available, please report that as a knowledge gap … Please keep those gaps visible."* So
+ *    every goal draws from its own candidates, every constraint in an account is one of them, and the roles no
+ *    candidate fills are listed as gaps. The borrowing table emptied, as this block said it would, and became
+ *    the table of gaps. The Pass Combination Gate is shown as held for the three goals whose candidates name it.
+ * 2. *"the Primary Scoring Event and qualifying condition approved for each Representative Performance Context
+ *    should govern the generated activity."* So selection carries the context, and `inThisActivity` — read
+ *    from the selection, as it always was — turned true by itself for the one goal whose context has a
+ *    contract (A01). The other twelve stay false because their contexts have none, and they are refused.
  */
 {
-    const BORROWING: Record<string, string[]> = {
+    const UNFILLED: Record<string, string[]> = {
         A02: ['shaping'],
-        A04: ['shaping'],
+        A04: ['shaping', 'consequence'],
         D01: ['shaping'],
         D02: ['shaping'],
         D03: ['shaping'],
         TD01: ['shaping'],
         TD02: ['shaping'],
     }
+    const HELD = ['A01', 'A05', 'TA02']
+    const GAPS = ['A02', 'D03']
     for (const goal of activityReviewOptions().goals) {
         const activity = reviewActivity(stored(), { learningGoalId: goal.id, durationMin: 20 })
         const account = activity.account
         const source = account.constraintSource!
         assert.ok(source, `${goal.id}: a goal's account says where its constraints came from`)
+        assert.equal(source.source, 'GOAL_CANDIDATES', `${goal.id} draws from its own candidates, always`)
+        assert.deepEqual(source.unfilledRoles, UNFILLED[goal.id] ?? [], `${goal.id}: the roles no designated candidate fills`)
+        assert.deepEqual(
+            source.heldByRuling.map(hold => [hold.title, hold.ruledOn]),
+            HELD.includes(goal.id) ? [['Pass Combination Gate', '2026-10-14']] : [],
+            `${goal.id}: held by ruling`,
+        )
         const constraints = account.constraints ?? []
-        assert.ok(constraints.length, `${goal.id}: selection's constraints survive into the account, served or refused`)
-        if (BORROWING[goal.id]) {
-            assert.equal(source.source, 'WHOLE_LIBRARY', goal.id)
-            assert.equal(source.setAsideBecause, 'NO_FOUNDATION_AND_SHAPING', goal.id)
-            assert.deepEqual(source.missingRoles, BORROWING[goal.id], goal.id)
-            assert.ok(constraints.some(c => c.fromGoalCandidates === false), `${goal.id}: at least one constraint is marked as borrowed`)
+        if (GAPS.includes(goal.id)) {
+            assert.equal(source.gap, 'NO_COMPATIBLE_COMBINATION', goal.id)
+            assert.deepEqual(constraints, [], `${goal.id}: a knowledge gap selects no constraint`)
         } else {
-            assert.equal(source.source, 'GOAL_CANDIDATES', `${goal.id} draws from its own candidates`)
+            assert.equal(source.gap, null, goal.id)
+            assert.ok(constraints.length, `${goal.id}: selection's constraints survive into the account, served or refused`)
+            // The invariant his ruling makes, checked rather than assumed.
             assert.ok(constraints.every(c => c.fromGoalCandidates === true), `${goal.id}: every constraint is one of its candidates`)
+            assert.ok(!constraints.some(c => c.title === 'Pass Combination Gate'), `${goal.id}: no goal selects the held gate`)
         }
         const context = account.context!
         assert.ok(context?.id && context.name, `${goal.id}: the account names its context`)
         assert.ok(context.approvedScoringCondition, `${goal.id}: and carries the approved scoring condition as authored`)
-        assert.equal(context.inThisActivity, false, `${goal.id}: no selection carries its context today`)
+        assert.equal(context.inThisActivity, goal.id === 'A01', `${goal.id}: only the context with a contract is in the activity`)
+        // The context is never listed again as a raw id among what has no contract.
+        assert.ok(!(account.selectedWithoutContract ?? []).includes(context.id), `${goal.id}: the context has its own entry`)
     }
-    // Beat Defenders 1v1 is the sharpest case: two candidates, four constraints, none of them a candidate.
-    const a04 = served(reviewActivity(stored(), { learningGoalId: 'A04', durationMin: 20 }), 'A04').account
-    assert.equal(a04.constraints.length, 4)
-    assert.ok(a04.constraints.every(c => c.fromGoalCandidates === false), 'none of A04\'s constraints is among its candidates')
-    // A demonstration involves no goal, so it has no candidates to have borrowed from and no context.
+    // Beat Defenders 1v1, which used to be given four constraints none of them its own: now its two candidates.
+    const a04 = refused(reviewActivity(stored(), { learningGoalId: 'A04', durationMin: 20 }), 'A04').account
+    assert.equal(a04.constraints!.length, 2)
+    assert.ok(a04.constraints!.every(c => c.fromGoalCandidates === true), 'both of A04\'s constraints are among its candidates')
+    // A demonstration involves no goal, so it has no candidates, no context, and is never provisional.
     const demonstration = served(reviewActivity(stored(), { demonstrationId: 'scoring-modifier', durationMin: 20 }), 'scoring-modifier').account
     assert.equal(demonstration.constraintSource, null)
     assert.equal(demonstration.context, null)
+    assert.equal(demonstration.provisional, false)
     assert.ok(demonstration.constraints.every(c => c.fromGoalCandidates === null))
+}
+
+/**
+ * ── A PROVISIONAL activity is served with the label — over an altered selection ───────────────────
+ *
+ * Christian, 14 October 2026, of the goals with unresolved Game Problems: *"they should not be presented as
+ * completed learning-design examples … If a provisional output is useful for internal review, please label it
+ * explicitly as provisional."* No goal is served today, so the label could be seen only on a refusal. Here A01's
+ * real selection is taken and its context left out ON A COPY — the tests-only entry, which nothing a coach is
+ * served passes through — so the rest of it builds: the possession game with Wide Zone Advantage, the only one
+ * of its constraints with a contract. That activity is served, and it says it is provisional; an approved goal
+ * altered the same way (TA02) is served and does not.
+ */
+{
+    const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: none }
+    const withoutContext = (selection: any) => {
+        selection.selected = selection.selected.filter((entry: { role: string }) => entry.role !== 'representative performance context')
+    }
+    const a01 = served(buildActivityOverAlteredSelection({ kind: 'learning-goal', goalId: 'A01', session }, withoutContext), 'A01 with its context left out')
+    assert.equal(a01.account.provisional, true, 'an UNRESOLVED Game Problem is provisional, served or not')
+    assert.equal(a01.account.gameProblem?.status, 'UNRESOLVED')
+    assert.equal(a01.account.context!.inThisActivity, false, 'and the account says the context is not in it')
+    const modifier = served(reviewActivity(stored(), { demonstrationId: 'scoring-modifier', durationMin: 20 }), 'scoring-modifier')
+    assert.deepEqual(a01.rendered.instructions.map(i => i.text), modifier.rendered.instructions.map(i => i.text), 'it is the Wide Zone demonstration\'s game: nothing else it selects has a contract')
+
+    const ta02 = served(buildActivityOverAlteredSelection({ kind: 'learning-goal', goalId: 'TA02', session }, withoutContext), 'TA02 with its context left out')
+    assert.equal(ta02.account.gameProblem?.status, 'APPROVED')
+    assert.equal(ta02.account.provisional, false, 'an approved Game Problem is not provisional')
+    assert.equal(ta02.account.provisionalReason, null)
+}
+
+/**
+ * ── The realized game must carry the context's approved scoring — the post-realization guard ──────
+ *
+ * Christian, 14 October 2026: the approved scoring *"should govern the generated activity."* The builder reads
+ * the concrete game after realization and refuses where its primary event is not one the context approves, or
+ * a condition the context's contract constitutes is missing. No goal reaches it today — A01, the one goal whose
+ * context has a contract, stops at Gate A — so it is exercised on constructed games against RPC-001's real
+ * contract (a copy), at the paths the register gives and the served fixture shows (`value.primaryEvent`).
+ */
+{
+    const rpc = JSON.parse(JSON.stringify(loadCorpusContracts().find(contract => contract.objectId === 'RPC-001')))
+    const approved = rpcLibrary.scoringEventsForContext('RPC-001')
+    assert.deepEqual(constitutedConditionTypes(rpc).map(c => c.type), ['origin', 'progression', 'control', 'exclusion'], 'what RPC-001 constitutes on the conditions row')
+    const all = constitutedConditionTypes(rpc).map(c => ({ type: c.type }))
+    const game = (kind: string | undefined, conditions: { type: string }[] = all) => ({ value: { primaryEvent: { value: 1, kind, conditions } } })
+
+    assert.deepEqual(contextScoringFindings('RPC-001', rpc, game('line_crossed'), approved), [], 'an approved event with every condition passes')
+    const wrongEvent = contextScoringFindings('RPC-001', rpc, game('regain'), approved)
+    assert.equal(wrongEvent.length, 1)
+    assert.ok(wrongEvent[0].includes('"regain"') && wrongEvent[0].includes('does not approve'), wrongEvent[0])
+    const noControl = contextScoringFindings('RPC-001', rpc, game('line_crossed', all.filter(c => c.type !== 'control')), approved)
+    assert.deepEqual(noControl, ['the control condition RPC-001 constitutes (RPC-001-18.f) is not in the realized game\'s primary event'])
+    // The served possession game today: an event, and no conditions at all — every one is named.
+    assert.equal(contextScoringFindings('RPC-001', rpc, { value: { primaryEvent: { value: 1, kind: 'line_crossed' } } }, approved).length, 4)
+    assert.equal(contextScoringFindings('RPC-001', rpc, {}, approved).length, 5, 'no primary event at all: the event and every condition')
+    // A condition the contract does not constitute is not required.
+    rpc.items = rpc.items.filter((item: any) => item.itemId !== 'RPC-001-18.f')
+    assert.deepEqual(contextScoringFindings('RPC-001', rpc, game('line_crossed', all.filter(c => c.type !== 'control')), approved), [])
+    assert.equal(contextScoringFindings('RPC-001', undefined, game('line_crossed'), approved).length, 1, 'a contract that did not reach the build is itself a finding')
 }
 
 // ── A request that names nothing is REJECTED, not refused ─────────────────────────────────────────

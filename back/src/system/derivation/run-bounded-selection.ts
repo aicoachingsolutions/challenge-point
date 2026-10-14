@@ -18,8 +18,8 @@
  */
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { GameProblemAuthority, guidedSelectionHints } from '../sport-module/guided-selection'
-import { generateSelection } from '../test-library'
-import { ConstraintPool, constraintPoolFor } from '../test-library/generateSelection'
+import { constraintBalanceBucket, generateSelection, isSelectionKnowledgeGap, SelectionKnowledgeGap } from '../test-library'
+import type { ConstraintPoolAccount } from '../test-library/types'
 import { CORPUS_ENVELOPE, loadCorpusContracts, loadRegister, loadSportProfile } from './corpus'
 import { isStampedHalt } from './emit'
 import { runDerivation, runStages0to10 } from './engine'
@@ -86,12 +86,12 @@ export interface BoundedSelection extends KnowledgeSelection {
     /** The Representative Performance Context the goal routes to, which limited the game forms. */
     contextId: string | null
     /**
-     * Where the constraints were drawn from: the goal's own candidates, or the whole library because the
-     * candidates could not fill the role mix. Read from the rule selection itself applies
-     * (`constraintPoolFor`), so the account cannot disagree with what selection did. Carried since
-     * 14 October so a borrowed constraint is shown as borrowed; see that function for why it matters.
+     * What the constraints were drawn from: the goal's own candidates (always, since his ruling of 14
+     * October), which of them his rulings hold, and which roles none of them fills — each a knowledge gap,
+     * reported and never filled. READ from the selection trace, where `constraintPoolFor` put it, so the
+     * account cannot disagree with what selection did: there is no second computation to drift.
      */
-    constraintPool: Omit<ConstraintPool, 'constraints'>
+    constraintPool: ConstraintPoolAccount
 }
 
 /**
@@ -121,6 +121,26 @@ function resolveSituation(goalId: string, situationId: string | null): { id: str
     return { id: String(match.ID), name: String(match['Practice Situation']) }
 }
 
+/** The part a goal's Representative Performance Context plays in a selection. A role name, not a sport term. */
+export const CONTEXT_ROLE = 'representative performance context'
+
+/**
+ * A Learning Goal whose designated knowledge cannot be combined into a selection (`SelectionKnowledgeGap`),
+ * with what this boundary adds: the goal's name, its Game Problem authority and its context. Thrown by
+ * `selectFor` so the builder can refuse at `selection` with a filled account.
+ */
+export class GoalSelectionGap extends Error {
+    constructor(
+        readonly gap: SelectionKnowledgeGap,
+        readonly goalName: string,
+        readonly gameProblem: GameProblemAuthority,
+        readonly contextId: string | null,
+    ) {
+        super(gap.message)
+        this.name = 'GoalSelectionGap'
+    }
+}
+
 export function selectFor(goalId: string, situationId: string | null = null): BoundedSelection {
     const goal: any = sessionPlanningModel.learningGoal(goalId)
     if (!goal) throw new Error(`no such learning goal: ${goalId}`)
@@ -134,7 +154,15 @@ export function selectFor(goalId: string, situationId: string | null = null): Bo
      * an authored field dropped by a projection; it is closed the same way, by having one source.
      */
     const guided = guidedSelectionHints(goalId, text)
-    const result: any = generateSelection({ learningGoals: [text], learningGoalId: goalId } as any, guided.hints)
+    let result: any
+    try {
+        result = generateSelection({ learningGoals: [text], learningGoalId: goalId } as any, guided.hints)
+    } catch (error) {
+        // A knowledge gap is reported WITH what this boundary alone knows — the goal's Game Problem authority
+        // and its context — so the account of the refusal is filled from the same computation, not a second one.
+        if (isSelectionKnowledgeGap(error)) throw new GoalSelectionGap(error, String(goal['Learning Goal']), guided.gameProblem, guided.contextId)
+        throw error
+    }
 
     /**
      * **A selection that did not resolve must not proceed as a successful Learning Goal selection.**
@@ -168,9 +196,11 @@ export function selectFor(goalId: string, situationId: string | null = null): Bo
         if (id) selected.push({ id: String(id), role })
     }
     add(result.archetype?.id, 'game form')
-    // Selection returns the constraint package as a list, in its balance order.
-    const buckets = ['foundation constraint', 'shaping constraint', 'consequence constraint']
-    ;(result.constraints ?? []).forEach((c: any, i: number) => add(c?.id, buckets[i] ?? 'constraint'))
+    // Each constraint by its own balance role. These were labelled by POSITION in the list (first
+    // foundation, second shaping, third consequence), which named a second foundation constraint a shaping
+    // one — wrong for A03 before 14 October, and wrong for every goal whose candidates hold no shaping
+    // constraint once selection stopped borrowing one.
+    ;(result.constraints ?? []).forEach((c: any) => add(c?.id, `${constraintBalanceBucket(c)} constraint`))
     // Affordance lenses are a reasoning dimension, not authored knowledge with a contract. They are
     // listed so the account of what was selected is complete, and excluded from what is derived.
     ;(result.affordanceLenses ?? []).forEach((l: any) => add(l?.id, 'affordance lens (not contracted knowledge)'))
@@ -178,6 +208,22 @@ export function selectFor(goalId: string, situationId: string | null = null): Bo
     // The coach's situation, as a canonical knowledge object among the others.
     const chosenSituation = resolveSituation(goalId, situationId)
     if (chosenSituation) selected.push({ id: chosenSituation.id, role: 'practice situation' })
+
+    /**
+     * **The goal's context, as a selected knowledge object — so its approved scoring governs the game.**
+     * Christian, 14 October 2026: *"the Primary Scoring Event and qualifying condition approved for each
+     * Representative Performance Context should govern the generated activity. This is particularly
+     * important because scoring defines what constitutes success within the environment."*
+     *
+     * Selection used to hand derivation a game form and constraints and never the context, so every activity
+     * served here was scored by a set-up choice whatever the context approved — three of them (A04, D01, D03)
+     * on an event their context does not approve, D01 and D03 being exactly his counter-example of a
+     * defending goal measured by the attacking team's progression. Carried here, the context goes through the
+     * same contract rule as every other object: contracted, its contract shapes the game (RPC-001 loads by
+     * `knowledgeKey`); not contracted, it is reported missing and the builder refuses the goal before
+     * derivation rather than serve it scored some other way.
+     */
+    if (guided.contextId) selected.push({ id: guided.contextId, role: CONTEXT_ROLE })
 
     return {
         goalId,
@@ -189,7 +235,7 @@ export function selectFor(goalId: string, situationId: string | null = null): Bo
         chosenSituation,
         gameProblem: guided.gameProblem,
         contextId: guided.contextId,
-        constraintPool: (({ constraints: _drawnFrom, ...pool }) => pool)(constraintPoolFor(guided.hints)),
+        constraintPool: result.selectionTrace.constraintPool as ConstraintPoolAccount,
     }
 }
 

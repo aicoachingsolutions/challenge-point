@@ -22,7 +22,7 @@ import assert from 'node:assert/strict'
 import { corpusInput } from './corpus'
 import { runDerivation, runStages0to10 } from './engine'
 import { indexRegister } from './register'
-import { derivationInputFor, selectFor } from './run-bounded-selection'
+import { CONTEXT_ROLE, derivationInputFor, selectFor } from './run-bounded-selection'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 
 let passed = 0
@@ -75,9 +75,21 @@ test('a transition whose trigger is outside the selector does NOT acquire the ep
 //
 // The repair must not be a blanket refusal. A transition whose trigger IS named keeps its value, from the same
 // decision, on the same row.
+/**
+ * **Re-pointed 14 October 2026 to A01 + From Goal Kicks WITHOUT its context.** Since that day selection carries
+ * the goal's context (his ruling that the approved scoring governs), and A01's context, RPC-001, AUTHORS this
+ * line: item RPC-001-17.a entails the episode boundary of a POSSESSION_CHANGE transition, and an authored item
+ * takes precedence over a standing decision. So on A01's full selection the line is established by the
+ * context, not by SD-14, and no longer tests the decision. The control is about SD-14's selector, so it is
+ * made where nothing else authors the line: the same selection with the context left out. (Measured: with the
+ * context the value is RPC-001-17.a's, authored as the STRING "true", not the boolean — recorded for the lead,
+ * not changed here, since the corpus is his.)
+ */
 test('a transition whose trigger IS named still receives it, from the same decision', () => {
-    const result: any = runDerivation(derivationInputFor(selectFor('A01', 'A01-02')))
-    const staged: any = runStages0to10(derivationInputFor(selectFor('A01', 'A01-02')))
+    const selection = selectFor('A01', 'A01-02')
+    const withoutContext = { selected: selection.selected.filter(entry => entry.role !== CONTEXT_ROLE) }
+    const result: any = runDerivation(derivationInputFor(withoutContext))
+    const staged: any = runStages0to10(derivationInputFor(withoutContext))
 
     const line = result.resolution.find((e: any) => String(e.lineId) === 'c:restated:GF2:GF2-07.a::T7')
     assert.equal(line.value, true, 'a POSSESSION_CHANGE transition still begins an episode')
@@ -192,12 +204,19 @@ test('A04 is unaffected: its only transition is a POSSESSION_CHANGE', () => {
 test('the Pass Combination Gate trigger row is now authored and resolves', () => {
     // The goals that select that contract. Attack Quickly left this list on 13 October: it selected the
     // gate only while its wording was read as a possession goal, and its approved Game Problem governs now.
-    for (const goal of ['A01', 'A02', 'TA02', 'A05']) {
-        const result: any = runDerivation(derivationInputFor(selectFor(goal, null)))
-        const v17 = (result.resolution ?? []).filter((e: any) => /::V17$/.test(String(e.lineId)))
-        assert.equal(v17.length, 1, `${goal}: one information-rule trigger line`)
-        assert.equal(v17[0].verdict, 'RESOLVED:ENTAILED', `${goal}: the line the 29 September ruling left failed is closed`)
-        assert.equal(v17[0].value, 'COMPLETED_PASS', `${goal}: with the token the ruling requires`)
+    //
+    // **No goal selects it since 14 October** (his ruling: *"Please keep the current Pass Combination Gate as a
+    // mechanism demonstration only"*), so the authored line is checked on the gate's demonstration composition
+    // — the possession game form and the gate, named directly — and on no goal.
+    const composition = derivationInputFor({ selected: [{ id: 'GF2', role: 'game form' }, { id: 'tl-v0-constraint-pass-combination-gate', role: 'constraint' }] })
+    const result: any = runDerivation(composition)
+    const v17 = (result.resolution ?? []).filter((e: any) => /::V17$/.test(String(e.lineId)))
+    assert.equal(v17.length, 1, 'one information-rule trigger line')
+    assert.equal(v17[0].verdict, 'RESOLVED:ENTAILED', 'the line the 29 September ruling left failed is closed')
+    assert.equal(v17[0].value, 'COMPLETED_PASS', 'with the token the ruling requires')
+    for (const goal of ['A01', 'TA02', 'A05']) {
+        const selected: any = runDerivation(derivationInputFor(selectFor(goal, null)))
+        assert.deepEqual((selected.resolution ?? []).filter((e: any) => /::V17$/.test(String(e.lineId))), [], `${goal}: the gate is held, so no goal carries its line`)
     }
 })
 

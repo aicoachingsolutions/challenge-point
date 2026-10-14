@@ -23,7 +23,7 @@ import { buildConstraintPackage } from '../build-constraint-package'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { guidedSelectionHints } from '../sport-module/guided-selection'
 import { resolvePrimaryScoringDirectives } from '../sport-module/primary-scoring'
-import { generateSelection } from '../test-library/generateSelection'
+import { generateSelection, isSelectionKnowledgeGap } from '../test-library/generateSelection'
 import type { TestLibrarySelectionResult } from '../test-library/types'
 import type { AffordanceField, SystemAssemblyInput } from '../types'
 import { buildActivityMechanicsFromSkeleton } from './build-activity-mechanics'
@@ -114,6 +114,7 @@ function assemblyInput(selection: Selection, learningGoalId: string, learningGoa
 function testSystemTextAloneMeetsEveryConstraintRequirement(): void {
     const unmet: string[] = []
     let checked = 0
+    const gaps: string[] = []
     const originalLog = console.log
     console.log = () => undefined
     try {
@@ -121,11 +122,19 @@ function testSystemTextAloneMeetsEveryConstraintRequirement(): void {
             const id = String(goal['ID'])
             const name = String(goal['Learning Goal'])
             const rpcId = sessionPlanningModel.rpcRouting().find((route) => route.learningGoalId === id)!.rpcId
-            const selection = generateSelection(
-                { learningGoals: [name], learningGoalId: id },
-                // The same hints the application gives selection: approved Game Problem, then context.
-                guidedSelectionHints(id, name).hints
-            )
+            let selection: Selection
+            try {
+                selection = generateSelection(
+                    { learningGoals: [name], learningGoalId: id },
+                    // The same hints the application gives selection: approved Game Problem, then context.
+                    guidedSelectionHints(id, name).hints
+                )
+            } catch (error) {
+                // A knowledge gap (14 October) selects nothing, so there is no skeleton to check.
+                if (!isSelectionKnowledgeGap(error)) throw error
+                gaps.push(id)
+                continue
+            }
             const skeleton = buildActivitySkeleton(assemblyInput(selection, id, name, rpcId))
             const mechanics = buildActivityMechanicsFromSkeleton(skeleton)
             skeleton.activities.forEach((slot, index) => {
@@ -142,7 +151,16 @@ function testSystemTextAloneMeetsEveryConstraintRequirement(): void {
     } finally {
         console.log = originalLog
     }
-    assert.ok(checked > 300, `expected every slot's constraint requirements to be checked, got ${checked}`)
+    /**
+     * **Floor re-measured 14 October 2026: 279 requirements checked (it was "more than 300").** Selection now
+     * draws only from a goal's own candidates (his ruling of that day), so fewer requirements exist to check,
+     * for two reasons and no other: A02 and D03 are knowledge gaps and build no skeleton, and the goals whose
+     * candidates hold no shaping constraint (A04, D01, D02, TD01, TD02) no longer carry a borrowed one, so a
+     * shaping requirement per slot is gone. The gaps are asserted so the floor cannot drop silently for a
+     * third reason.
+     */
+    assert.deepEqual(gaps, ['A02', 'D03'], 'the two knowledge gaps of 14 October, and no others')
+    assert.ok(checked >= 279, `expected every slot's constraint requirements to be checked, got ${checked}`)
     assert.deepEqual(unmet, [], `Constraint requirements that only the model's wording could meet:\n${unmet.join('\n')}`)
 }
 

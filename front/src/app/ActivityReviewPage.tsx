@@ -455,6 +455,14 @@ function playingAreaInMetres(length?: string, width?: string): string {
     return `${l} m long by ${w} m wide`
 }
 
+/** A ruling's date as a coach reads it: "2026-10-14" is "14 October". Anything else is shown as sent. */
+function rulingDate(isoDate: string): string {
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+    const [year, month, day] = String(isoDate).split('-').map(Number)
+    if (!year || !month || !day || month > 12) return String(isoDate)
+    return `${day} ${months[month - 1]}`
+}
+
 function SessionFact({ label, value }: { label: string; value: string }) {
     return (
         <div className='p-3 bg-white border border-gray-200 rounded-lg'>
@@ -490,6 +498,16 @@ function ActivityBlock({ activity }: { activity: ServedActivity }) {
 
     return (
         <article className='bg-white border rounded-lg shadow-sm'>
+            {/*
+              * Christian, 14 October: unresolved goals "should not be presented as completed learning-design
+              * examples … If a provisional output is useful for internal review, please label it explicitly as
+              * provisional." Above the activity, so it is read before the activity is. Wording is a DRAFT.
+              */}
+            {activity.account?.provisional && (
+                <div role='note' className='px-6 py-3 text-sm font-medium border-b rounded-t-lg text-amber-900 bg-amber-100 border-amber-200'>
+                    Provisional — the Game Problem for this goal has not been decided, so this is not a completed learning-design example.
+                </div>
+            )}
             <div className='p-6'>
                 {activity.kind === 'mechanism-demonstration' && <DemonstrationLabel />}
                 <h2 className='text-xl font-bold leading-tight text-gray-800'>{activity.title}</h2>
@@ -725,17 +743,22 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                         {(account.constraints !== undefined || alsoWithoutContract.length > 0) && (
                             <AccountField label='Constraints selected'>
                                 {/*
-                                  * Where selection set the goal's own candidates aside, say so before the list:
-                                  * a constraint that was never a candidate for the goal cannot be read as
-                                  * relevant to it, and the marks below are only meaningful with that said.
+                                  * Christian, 14 October: "If no appropriate shaping constraint is available,
+                                  * please report that as a knowledge gap … keep those gaps visible rather than
+                                  * compensating through fallback selection." Each role no designated candidate
+                                  * fills is said before the list, and so is each candidate his ruling holds.
+                                  * Wording is a DRAFT.
                                   */}
-                                {account.constraintSource?.source === 'WHOLE_LIBRARY' && account.constraintSource.setAsideBecause && (
-                                    <p className='mb-2 text-xs text-amber-700'>
-                                        {account.constraintSource.setAsideBecause === 'FEWER_THAN_TWO'
-                                            ? "This goal has fewer than two candidate constraints, so selection drew from the whole library."
-                                            : `This goal's candidate constraints include no ${account.constraintSource.missingRoles.join(' or ')} constraint, so selection drew from the whole library.`}
+                                {(account.constraintSource?.unfilledRoles ?? []).map((role) => (
+                                    <p key={role} className='mb-1 text-xs text-amber-700'>
+                                        No designated {role} constraint — a knowledge gap, reported rather than filled
                                     </p>
-                                )}
+                                ))}
+                                {(account.constraintSource?.heldByRuling ?? []).map((hold) => (
+                                    <p key={hold.id} className='mb-1 text-xs text-amber-700'>
+                                        {hold.title} <span className='text-gray-500'>({hold.id})</span>: Held by ruling of {rulingDate(hold.ruledOn)} — mechanism demonstration only
+                                    </p>
+                                ))}
                                 {constraints.length + alsoWithoutContract.length > 0 ? (
                                     <ul className='space-y-1'>
                                         {constraints.map((constraint) => (

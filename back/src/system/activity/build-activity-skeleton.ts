@@ -605,7 +605,11 @@ function constraintAndGuardrailMechanics(input: SystemAssemblyInput): string[] {
     const pkg = input.constraintPackage
     const lines: string[] = []
     pushConstraintCandidate(lines, 'foundation', pkg.foundation)
-    pushConstraintCandidate(lines, 'shaping', pkg.shaping)
+    // A shaping constraint is optional (his ruling of 14 October): where the goal's candidates hold none, the
+    // model is told of none, and so is not invited to write one in.
+    if (pkg.shaping) {
+        pushConstraintCandidate(lines, 'shaping', pkg.shaping)
+    }
     if (pkg.consequence) {
         pushConstraintCandidate(lines, 'consequence', pkg.consequence)
     }
@@ -695,10 +699,10 @@ function buildCoachFacingConstraintLine(candidate: ConstraintSelectionCandidate)
 
 function buildCoachFacingConstraints(input: SystemAssemblyInput): string[] {
     const pkg = input.constraintPackage
-    const lines: string[] = [
-        buildCoachFacingConstraintLine(pkg.foundation),
-        buildCoachFacingConstraintLine(pkg.shaping),
-    ]
+    const lines: string[] = [buildCoachFacingConstraintLine(pkg.foundation)]
+    if (pkg.shaping) {
+        lines.push(buildCoachFacingConstraintLine(pkg.shaping))
+    }
     if (pkg.consequence) {
         lines.push(buildCoachFacingConstraintLine(pkg.consequence))
     }
@@ -746,10 +750,13 @@ function collectSetupGuidance(input: SystemAssemblyInput): {
             (input.constraintPackage.foundation.constraint as { _id?: unknown; id?: unknown })._id ??
                 (input.constraintPackage.foundation.constraint as { id?: unknown }).id
         ),
-        shapingGuidance: findConstraintSetup(
-            (input.constraintPackage.shaping.constraint as { _id?: unknown; id?: unknown })._id ??
-                (input.constraintPackage.shaping.constraint as { id?: unknown }).id
-        ),
+        // Optional since 14 October (his ruling): no shaping constraint, no shaping guidance.
+        shapingGuidance: input.constraintPackage.shaping
+            ? findConstraintSetup(
+                  (input.constraintPackage.shaping.constraint as { _id?: unknown; id?: unknown })._id ??
+                      (input.constraintPackage.shaping.constraint as { id?: unknown }).id
+              )
+            : [],
         consequenceGuidance: input.constraintPackage.consequence
             ? findConstraintSetup(
                   (input.constraintPackage.consequence.constraint as { _id?: unknown; id?: unknown })._id ??

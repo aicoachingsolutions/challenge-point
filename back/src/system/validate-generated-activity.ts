@@ -880,7 +880,8 @@ export function validateGeneratedActivities(rawResponse: unknown, input: SystemA
                 archetypeId: input.archetype.id,
                 archetypeName: input.archetype.name,
                 foundationConstraintId: input.constraintPackage.foundation.constraint._id,
-                shapingConstraintId: input.constraintPackage.shaping.constraint._id,
+                // Optional since 14 October (his ruling that not every activity needs a shaping constraint).
+                shapingConstraintId: input.constraintPackage.shaping?.constraint._id,
                 consequenceConstraintId: input.constraintPackage.consequence?.constraint._id,
                 // The same allowlist, the third field it silently dropped. Without these two the live
                 // route compressed every activity with no resolved scoring event and no planning

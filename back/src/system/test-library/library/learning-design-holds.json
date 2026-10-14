@@ -1,0 +1,13 @@
+{
+    "about": "Knowledge objects held out of Learning Goal selection by an owner ruling. Ids only, with the ruling verbatim. A hold is consulted at selection, in both pathways; it never edits a candidate pool, so a held object is still listed among a goal's candidates and shown as held. The mechanism demonstration named beside each hold is where the object stays usable as engineering.",
+    "holds": [
+        {
+            "knowledgeId": "tl-v0-constraint-pass-combination-gate",
+            "scope": "LEARNING_GOAL_SELECTION",
+            "ruledOn": "2026-10-14",
+            "by": "Christian",
+            "ruling": "Please keep the current Pass Combination Gate as a mechanism demonstration only. I do not want it reintroduced into learning-design examples until we've reviewed its ecological suitability.",
+            "mechanismDemonstration": "pass-combination-gate"
+        }
+    ]
+}

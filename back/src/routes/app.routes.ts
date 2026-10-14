@@ -47,7 +47,7 @@ import {
 import { emCanonical } from '../system/knowledge-core/em-canonical'
 import { reasonEnvironmentalManipulations } from '../system/knowledge-core/em-selection-metadata'
 import { recordUsageEvent, summarizeUsage } from '../services/usage-telemetry.service'
-import { generateSelection, getTestLibraryV0LoadDebug, systemAssemblyInputFromTestLibrarySelection } from '../system/test-library'
+import { generateSelection, getTestLibraryV0LoadDebug, isSelectionKnowledgeGap, systemAssemblyInputFromTestLibrarySelection } from '../system/test-library'
 import { ENDPOINTS } from './_endpoints'
 import BaseRoutes from './helper'
 import { ActivityAssemblyRequest, PrimaryScoringDirective, SystemAssemblyInput, SystemPipelineError } from '../system/types'
@@ -902,6 +902,35 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
             )
         } catch (selErr) {
             const message = selErr instanceof Error ? selErr.message : String(selErr)
+            /**
+             * **A knowledge gap is answered in a coach's words and recorded as what it is.** Christian, 14
+             * October 2026: *"If no appropriate shaping constraint is available, please report that as a
+             * knowledge gap … keep those gaps visible rather than compensating through fallback selection."*
+             * The goal's own designated constraints cannot be combined into a game, and nothing is borrowed to
+             * make one, so no model is called. The coach gets the same sentence the review page shows (a DRAFT
+             * for his approval); the engine's message goes only to debug and to the usage record, with the roles
+             * no candidate fills — the coverage evidence he asked to keep visible.
+             */
+            if (isSelectionKnowledgeGap(selErr)) {
+                Logger.warn(`[Activity Generation] Knowledge gap: ${message}`)
+                recordUsageEvent({
+                    eventType: 'generation_failed',
+                    sessionId: req.params.id,
+                    payload: {
+                        stage: 'knowledge-gap',
+                        reason: selErr.reason,
+                        learningGoalId: selErr.learningGoalId,
+                        gameForm: selErr.archetypeId,
+                        unfilledRoles: selErr.pool.unfilledRoles,
+                        heldByRuling: selErr.pool.heldByRuling.map((hold) => hold.id),
+                    },
+                })
+                return res.status(400).json({
+                    error: "This goal's designated constraints cannot yet be combined into a game, so no activity can be built for it.",
+                    resolutionStatus: 'knowledge-gap',
+                    ...(debug ? { stage: 'knowledge-gap', details: [message] } : {}),
+                })
+            }
             Logger.warn(`[Activity Generation] Test Library selection failed: ${message}`)
             recordUsageEvent({
                 eventType: 'generation_failed',
@@ -950,6 +979,10 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                     primaryScoringEvents: primaryScoring ? primaryScoring.map((directive) => directive.eventKey) : null,
                     shadowAtpPrimary: atp?.primaryGameProblem ?? null,
                     gameProblemAuthority: gameProblemAuthority?.gameProblem ?? null,
+                    // What selection could draw from (14 October): the roles no designated candidate fills,
+                    // and the candidates his rulings hold. Read from the trace, not recomputed.
+                    constraintGaps: selection.selectionTrace.constraintPool?.unfilledRoles ?? [],
+                    heldByRuling: (selection.selectionTrace.constraintPool?.heldByRuling ?? []).map((hold) => hold.id),
                     versions: selection.selectionTrace.versions ?? null,
                 },
             })
@@ -1047,10 +1080,12 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                                     id: assemblyInput.constraintPackage.foundation.constraint._id,
                                     title: assemblyInput.constraintPackage.foundation.constraint.title,
                                 },
-                                shaping: {
-                                    id: assemblyInput.constraintPackage.shaping.constraint._id,
-                                    title: assemblyInput.constraintPackage.shaping.constraint.title,
-                                },
+                                shaping: assemblyInput.constraintPackage.shaping
+                                    ? {
+                                          id: assemblyInput.constraintPackage.shaping.constraint._id,
+                                          title: assemblyInput.constraintPackage.shaping.constraint.title,
+                                      }
+                                    : null,
                                 consequence: assemblyInput.constraintPackage.consequence
                                     ? {
                                           id: assemblyInput.constraintPackage.consequence.constraint._id,
@@ -1117,10 +1152,12 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                                 id: assemblyInput.constraintPackage.foundation.constraint._id,
                                 title: assemblyInput.constraintPackage.foundation.constraint.title,
                             },
-                            shaping: {
-                                id: assemblyInput.constraintPackage.shaping.constraint._id,
-                                title: assemblyInput.constraintPackage.shaping.constraint.title,
-                            },
+                            shaping: assemblyInput.constraintPackage.shaping
+                                ? {
+                                      id: assemblyInput.constraintPackage.shaping.constraint._id,
+                                      title: assemblyInput.constraintPackage.shaping.constraint.title,
+                                  }
+                                : null,
                             consequence: assemblyInput.constraintPackage.consequence
                                 ? {
                                       id: assemblyInput.constraintPackage.consequence.constraint._id,

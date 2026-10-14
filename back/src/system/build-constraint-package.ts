@@ -347,12 +347,13 @@ function buildPackageInteractionExchange(
     affordances: AffordanceField,
     archetype: ArchetypeDefinition,
     foundation: ConstraintSelectionCandidate,
-    shaping: ConstraintSelectionCandidate,
+    shaping: ConstraintSelectionCandidate | undefined,
     consequence?: ConstraintSelectionCandidate
 ): ActivityAssemblyGuardrails {
     const sourceRole: ConstraintRole | 'package' = consequence ? 'consequence' : 'package'
     const sourceConstraintId = consequence?.constraint._id
-    const affordanceTag = consequence?.constraint.affordanceTagGroup ?? shaping.constraint.affordanceTagGroup ?? affordances.primary.affordanceTagGroup
+    // The shaping constraint is optional (his ruling of 14 October); without one the primary affordance decides.
+    const affordanceTag = consequence?.constraint.affordanceTagGroup ?? shaping?.constraint.affordanceTagGroup ?? affordances.primary.affordanceTagGroup
     const selectedCandidates = [foundation, shaping, consequence]
 
     if (affordanceTag === 'progress') {
@@ -619,18 +620,19 @@ export function buildConstraintPackage(
         )
     }
 
+    /**
+     * **A shaping constraint is included where one is compatible, and its absence is not a failure.**
+     * Christian, 14 October 2026: *"I don't want us to assume that every activity necessarily requires an
+     * additional shaping constraint. The game form and its inherent conditions may already create the
+     * relevant affordances."* This threw when none was compatible, which is what made selection borrow one
+     * from the whole library for seven goals whose candidates hold none. The foundation above stays
+     * required, and every other check in `validateConstraintPackage` is unchanged.
+     */
     const shaping = pickBestConstraint(constraints, 'shaping', affordances, archetype, [foundation.constraint._id])
-    if (!shaping) {
-        throw new SystemPipelineError(
-            'constraint-selection',
-            `No compatible shaping constraint was found for archetype "${archetype.name}".`,
-            ['Populate at least one shaping constraint aligned to the selected affordance and archetype.']
-        )
-    }
 
     const consequence = pickBestConstraint(constraints, 'consequence', affordances, archetype, [
         foundation.constraint._id,
-        shaping.constraint._id,
+        ...(shaping ? [shaping.constraint._id] : []),
     ])
     const selectedConsequence = consequence && consequence.score > 12 ? consequence : undefined
     const assemblyGuardrails = buildPackageInteractionExchange(

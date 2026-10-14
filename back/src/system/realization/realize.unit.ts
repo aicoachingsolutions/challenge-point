@@ -18,7 +18,7 @@ import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame, ResolvedGame } from '../derivation/resolved-game'
-import { derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
+import { derivationInputFor, GoalSelectionGap, selectFor } from '../derivation/run-bounded-selection'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { justifiedDefaults } from './justified-defaults'
 import { checkRealization, Choice, isRefused, realize, Realized } from './realize'
@@ -704,10 +704,12 @@ test('A04 is authorized again, the reason is stated, and the three states stay d
     assert.equal(d03.coherence.realizationAuthorized, false)
     assert.match(d03.coherence.notAuthorizedBecause[0], /fails:.*GA-TRIGGER-REACHABLE/, 'it must name the invariant, not merely refuse')
 
-    // An unevaluable one. A02 lands on a game form with no contract, so it has no transition at all and
-    // cannot fail on reachability; it is blocked earlier by invariants there is nothing to judge. (D01 was
-    // this specimen until 13 October, when the context rule put it on a contracted game form.)
-    const d01Input = derivationInputFor(selectFor('A02', null))
+    // An unevaluable one: the Pass Combination Gate's demonstration composition, the possession game form
+    // and the gate, whose prose references Gate A cannot evaluate. (D01 was this specimen until 13 October,
+    // when the context rule put it on a contracted game form; A02 until 14 October, when it became a
+    // knowledge gap — selection draws only from a goal's own candidates, his ruling of that day — and so
+    // selects nothing to derive. The composition is the object the unevaluability always came from.)
+    const d01Input = gateComposition()
     const d01Result = runDerivation(d01Input)
     if (isStampedHalt(d01Result)) return assert.fail('unexpected halt')
     const d01 = assembleResolvedGame(d01Result, (runStages0to10(d01Input) as any).classes, indexRegister(d01Input.register), d01Input.contracts)
@@ -733,13 +735,27 @@ test('A04 is authorized again, the reason is stated, and the three states stay d
     for (const owed of resolved.coherence.postRealizationRequired) assert.ok(owed.owes.length > 0, `${owed.checkId} owes nothing stated`)
 })
 
-test('A05 is NOT authorized, and says which pre-realization invariant is unsatisfied', () => {
+/**
+ * The Pass Combination Gate as its mechanism demonstration composes it: the possession game form and the gate,
+ * named directly. No Learning Goal selects the gate since 14 October (his ruling: *"Please keep the current Pass
+ * Combination Gate as a mechanism demonstration only"*), so the gate's own behaviour is tested here.
+ */
+function gateComposition() {
+    return derivationInputFor({ selected: [{ id: 'GF2', role: 'game form' }, { id: 'tl-v0-constraint-pass-combination-gate', role: 'constraint' }] })
+}
+
+test('the gate composition is NOT authorized, and says which pre-realization invariant is unsatisfied', () => {
     // Still refused, and still for a stated reason — but the reason has moved twice. GA-INFORMATION and
     // GA-REFERENCE-INTEGRITY being unevaluable was what stopped A05 originally; on 5 October the reachability
     // ruling made it fail earlier and harder; and on 6 October the Sport Profile satisfied reachability, so the
     // original two are once again what it is waiting on. The point of the test never moved: authorization
     // discriminates, and it says which invariant and in which of the two ways.
-    const input = derivationInputFor(selectFor('A05', null))
+    //
+    // **The subject moved on 14 October from A05 to the gate composition.** The two unevaluable invariants were
+    // always the gate's; A05 carried them only because it selected the gate. His ruling holds the gate out of
+    // every Learning Goal's selection, so A05 now selects Wide Zone Advantage from its own candidates and IS
+    // authorized (asserted at the end); the assertions about the gate stay on the gate.
+    const input = gateComposition()
     const result = runDerivation(input)
     if (isStampedHalt(result)) return assert.fail('unexpected halt')
     const resolved = assembleResolvedGame(result, (runStages0to10(input) as any).classes, indexRegister(input.register), input.contracts)
@@ -750,8 +766,13 @@ test('A05 is NOT authorized, and says which pre-realization invariant is unsatis
     assert.match(resolved.coherence.notAuthorizedBecause[0], /cannot be evaluated/, 'an unevaluable, not a failure')
     assert.ok(
         !/GA-TRIGGER-REACHABLE/.test(resolved.coherence.notAuthorizedBecause[0]),
-        'and reachability is no longer among them — A05 gets the ball from the Sport Profile like every other goal',
+        'and reachability is no longer among them — the game gets the ball from the Sport Profile like every other',
     )
+    const a05Input = derivationInputFor(selectFor('A05', null))
+    const a05Result = runDerivation(a05Input)
+    if (isStampedHalt(a05Result)) return assert.fail('unexpected halt')
+    const a05 = assembleResolvedGame(a05Result, (runStages0to10(a05Input) as any).classes, indexRegister(a05Input.register), a05Input.contracts)
+    assert.equal(a05.coherence.realizationAuthorized, true, 'A05 without the held gate: its own Wide Zone candidate, and authorized')
 })
 
 /** A04's resolved game, assembled from the live selection. */
@@ -905,25 +926,50 @@ test('realization REFUSES a game whose Gate A fails, and names the check that re
  * game — the last assertion below pins that identity, because "three goals work" would otherwise be exactly
  * the selective report this test exists to prevent. Three goals served is one activity served three times.
  */
-test('three goals are realization-authorized, they are one game, and the other ten are accounted for', () => {
+test('four goals are realization-authorized, they are two games, and the other nine are accounted for', () => {
     const authorized: string[] = []
     const failed: string[] = []
     const notEvaluable: string[] = []
-    const authorizedGames = new Set<string>()
+    const gaps: string[] = []
+    const authorizedGames = new Map<string, string[]>()
     for (const goal of (sessionPlanningModel.learningGoals() as any[]).map(g => String(g.ID))) {
-        const input = derivationInputFor(selectFor(goal, null))
+        let selection
+        try {
+            selection = selectFor(goal, null)
+        } catch (error) {
+            if (!(error instanceof GoalSelectionGap)) throw error
+            gaps.push(goal)
+            continue
+        }
+        const input = derivationInputFor(selection)
         const result = runDerivation(input)
         if (isStampedHalt(result)) return assert.fail(`unexpected halt on ${goal}`)
         const r = assembleResolvedGame(result, (runStages0to10(input) as any).classes, indexRegister(input.register), input.contracts)
         if (r.coherence.realizationAuthorized) {
             authorized.push(goal)
-            authorizedGames.add(JSON.stringify(r.game))
+            const key = JSON.stringify(r.game)
+            authorizedGames.set(key, [...(authorizedGames.get(key) ?? []), goal])
         }
         else if (r.coherence.gateA === 'FAIL') failed.push(goal)
         else notEvaluable.push(goal)
     }
-    assert.deepEqual(authorized.sort(), ['A04', 'D01', 'D03'], 'three goals reach realization')
-    assert.equal(authorizedGames.size, 1, 'and all three resolve to the identical game: none commits a contracted constraint')
+    /**
+     * **14 October — FOUR AUTHORIZED, TWO GAMES; measured.** His rulings of that day moved this census three
+     * ways. D03 is a knowledge gap (it can no longer borrow, and its own candidates cannot be combined), as is
+     * A02. A05 and TA02 no longer select the held Pass Combination Gate, so they select Wide Zone Advantage from
+     * their own candidates and are authorized — as the possession game with Wide Zone, which is the scoring-
+     * modifier demonstration's game. A01 now carries its contracted context, RPC-001, and FAILS Gate A on the
+     * lines that context leaves unestablished. So: two goals on the bare possession game, two on the Wide Zone
+     * game. Authorization here is derivation's; the review page still refuses all four, because none of their
+     * contexts has a contract. Four goals authorized is two activities, neither a learning-design example.
+     */
+    assert.deepEqual(authorized.sort(), ['A04', 'A05', 'D01', 'TA02'], 'four goals reach realization')
+    assert.deepEqual(
+        [...authorizedGames.values()].map(goals => goals.sort().join(',')).sort(),
+        ['A04,D01', 'A05,TA02'],
+        'and they are two games: the bare possession game, and the possession game with Wide Zone Advantage',
+    )
+    assert.deepEqual(gaps, ['A02', 'D03'], 'the two knowledge gaps of 14 October, and no others')
     /**
      * **FIVE goals now reach a verdict and fail it, up from two on 7 October — and the three new ones are a
      * finding rather than a drift.** D02, A03 and A06 each load only the Wide Zone object plus the Sport
@@ -939,9 +985,11 @@ test('three goals are realization-authorized, they are one game, and the other t
      * every goal that lands on Transition Games, and they fail on that form’s own blind restatement. D02 is no
      * longer a Wide Zone failure at all: as a Regain Possession goal it does not select that object.
      */
-    assert.deepEqual(failed.sort(), ['A03', 'A06', 'D02', 'TA01', 'TD01', 'TD02'], 'six goals reach a verdict and fail it')
-    // The four that select the Pass Combination Gate, stopped by its two prose references.
-    assert.deepEqual(notEvaluable.sort(), ['A01', 'A02', 'A05', 'TA02'], 'the rest cannot be evaluated')
+    //
+    // **Seven since 14 October:** A01 joins them, failing on its context's unestablished lines.
+    assert.deepEqual(failed.sort(), ['A01', 'A03', 'A06', 'D02', 'TA01', 'TD01', 'TD02'], 'seven goals reach a verdict and fail it')
+    // The four that selected the Pass Combination Gate were the unevaluable ones. No goal selects it now.
+    assert.deepEqual(notEvaluable.sort(), [], 'no goal is left that cannot be evaluated')
 })
 
 /**
@@ -957,11 +1005,13 @@ test('three goals are realization-authorized, they are one game, and the other t
  * is withheld. Remove the rule and this exact input realizes.
  */
 test('a selected contract refused at load refuses the game instead of quietly leaving it out', () => {
-    const input: any = derivationInputFor(selectFor('TA02', null))
+    // The gate composition since 14 October: Secure Possession no longer selects the gate (his ruling holds it
+    // out of Learning Goal selection). The specimen is the same knowledge, named directly.
+    const input: any = gateComposition()
     // The loader hands back shared contract objects; copy before touching one.
     input.contracts = JSON.parse(JSON.stringify(input.contracts))
     const gate = input.contracts.find((c: any) => /PASS-COMBINATION-GATE/.test(String(c.contractId)))
-    assert.ok(gate, 'Secure Possession selects the Pass Combination Gate, or this test has no subject')
+    assert.ok(gate, 'the composition selects the Pass Combination Gate, or this test has no subject')
     delete gate.items.find((i: any) => i.itemId === 'PCG-05').basisEvidence
 
     const result = runDerivation(input)

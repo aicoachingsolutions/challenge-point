@@ -17,7 +17,7 @@ import { toCoachScoringSentence } from '../activity/coach-voice'
 import { compressActivityForCoach } from '../activity/compress-activity-output'
 import { validateActivityAgainstSkeleton, withScoringObjectInSetup } from '../activity/validate-activity-skeleton'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
-import { generateSelection } from '../test-library/generateSelection'
+import { generateSelection, isSelectionKnowledgeGap } from '../test-library/generateSelection'
 import { gateCandidateGameFormsToContext } from './context-selection'
 import { guidedSelectionHints } from './guided-selection'
 import {
@@ -323,6 +323,13 @@ function testCompressionPinsTheResolvedRule(): void {
 function testEveryGuidedGoalResolvesThroughContextGatedSelection(): void {
     const originalLog = console.log
     console.log = () => undefined
+    /**
+     * Since 14 October two goals are KNOWLEDGE GAPS: selection draws only from a goal's own candidates (his
+     * ruling of that day), and Play Through Pressure's and Defend 1v1's cannot be combined on the game form
+     * chosen for them. They select nothing, so there is no form to check here; the list is asserted, so a goal
+     * joining or leaving it is noticed. The game form the gap was found on is still one the context declares.
+     */
+    const gaps: string[] = []
     try {
         for (const goal of sessionPlanningModel.learningGoals()) {
             const id = String(goal['ID'])
@@ -330,7 +337,15 @@ function testEveryGuidedGoalResolvesThroughContextGatedSelection(): void {
             const rpcId = sessionPlanningModel.rpcRouting().find((route) => route.learningGoalId === id)!.rpcId
             // The same hints the application gives selection: approved Game Problem, then context.
             const hints = guidedSelectionHints(id, name).hints
-            const selection = generateSelection({ learningGoals: [name], learningGoalId: id }, hints)
+            let selection: ReturnType<typeof generateSelection>
+            try {
+                selection = generateSelection({ learningGoals: [name], learningGoalId: id }, hints)
+            } catch (error) {
+                if (!isSelectionKnowledgeGap(error)) throw error
+                gaps.push(id)
+                assert.ok(rpcLibrary.gameFormsForContext(rpcId).some((form) => form.relatedId === error.archetypeId), `${id}: the gap was found on ${error.archetypeId}, which ${rpcId} does not declare.`)
+                continue
+            }
             const formId = selection.archetype.game_form_id
             assert.ok(
                 rpcLibrary.gameFormsForContext(rpcId).some((form) => form.relatedId === formId),
@@ -341,6 +356,7 @@ function testEveryGuidedGoalResolvesThroughContextGatedSelection(): void {
     } finally {
         console.log = originalLog
     }
+    assert.deepEqual(gaps, ['A02', 'D03'], 'the two knowledge gaps of 14 October, and no others')
 
     // Parser order survives among declared forms; undeclared parser candidates are dropped.
     const gated = gateCandidateGameFormsToContext(

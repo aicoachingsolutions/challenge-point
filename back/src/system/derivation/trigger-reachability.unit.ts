@@ -210,8 +210,10 @@ test('the check is general — it still catches the GF4 defect, which no carrier
         assert.equal(clauseOf(result, 'GA-TRIGGER-REACHABLE').verdict, 'FAIL', `${goal} must fail`)
         assert.match(check(result, 'GA-TRIGGER-REACHABLE').why, /GF4/, `${goal} fails on GF4 knowledge, and the report says so`)
     }
-    // And the GF2 instances pass now — by gaining the carrier, not by the check loosening.
-    for (const goal of ['A04', 'A05', 'D03']) {
+    // And the GF2 instances pass now — by gaining the carrier, not by the check loosening. D01 replaced D03 on
+    // 14 October: D03 is a knowledge gap since selection stopped borrowing (his ruling of that day) and selects
+    // no game, while D01 lands on the same game form (measured PASS).
+    for (const goal of ['A04', 'A05', 'D01']) {
         const result: any = runDerivation(derivationInputFor(selectFor(goal, null)))
         assert.equal(clauseOf(result, 'GA-TRIGGER-REACHABLE').verdict, 'PASS', `${goal} must pass now that a ball is established`)
     }

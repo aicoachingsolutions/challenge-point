@@ -75,11 +75,30 @@ export interface ActivityAccount {
     context?: { id: string; name: string | null; approvedScoringCondition: string | null; inThisActivity: boolean } | null
     gameForm: { id: string; name: string | null; contracted: boolean }
     affordanceLenses: string[]
-    /** `fromGoalCandidates`: false is a constraint borrowed from the whole library; null for a demonstration. */
+    /**
+     * `fromGoalCandidates`: whether the constraint is one of the goal's own candidates — always true for a goal
+     * since 14 October, when selection stopped borrowing from the whole library; null for a demonstration.
+     */
     constraints: { id: string; title: string; contracted: boolean; fromGoalCandidates?: boolean | null }[]
-    /** Where selection drew its constraints from, and why the goal's own candidates were set aside if they were. */
-    constraintSource?: { source: 'GOAL_CANDIDATES' | 'WHOLE_LIBRARY'; setAsideBecause: 'FEWER_THAN_TWO' | 'NO_FOUNDATION_AND_SHAPING' | null; missingRoles: string[] } | null
+    /**
+     * What selection drew its constraints from (since 14 October, always the goal's own candidates):
+     * `unfilledRoles` are roles no designated candidate fills — knowledge gaps, reported and never filled;
+     * `heldByRuling` are candidates his rulings keep out of Learning Goal selection; `gap` is set where the
+     * candidates could not be combined at all. Null for a demonstration.
+     */
+    constraintSource?: {
+        source: 'GOAL_CANDIDATES' | 'WHOLE_LIBRARY'
+        unfilledRoles: string[]
+        heldByRuling: { id: string; title: string; ruledOn: string }[]
+        gap: 'NO_COMPATIBLE_COMBINATION' | 'NO_SELECTABLE_CANDIDATES' | 'NO_LENS_CANDIDATES' | 'NO_GAME_FORM_CANDIDATES' | null
+    } | null
     selectedWithoutContract: string[]
+    /**
+     * True where the goal's Game Problem is unresolved: the activity is provisional and not a completed
+     * learning-design example (his ruling of 14 October). Optional because an older account has no such field.
+     */
+    provisional?: boolean
+    provisionalReason?: string | null
 }
 
 export interface ActivityIntegrity {

@@ -59,7 +59,7 @@ import { gateCandidateGameFormsToContext } from '../system/sport-module/context-
 import { governByApprovedGameProblem } from '../system/sport-module/guided-selection'
 import { resolvePrimaryScoringDirectives } from '../system/sport-module/primary-scoring'
 import type { PrimaryScoringDirective } from '../system/types'
-import { generateSelection } from '../system/test-library/generateSelection'
+import { generateSelection, isSelectionKnowledgeGap } from '../system/test-library/generateSelection'
 import type {
     TestLibrarySelectionResult,
     TestLibraryV0AffordanceLens,
@@ -242,7 +242,19 @@ async function main() {
         // A guided goal is also governed by its approved Game Problem, exactly as the live route does it.
         const baseHints = learningGoalId ? governByApprovedGameProblem(learningGoalId, deriveInputConstraints(input)).hints : deriveInputConstraints(input)
         const hints = routedRpcId ? gateCandidateGameFormsToContext(baseHints, routedRpcId) : baseHints
-        const sel = generateSelection({ learningGoals: [input], learningGoalId }, hints)
+        // A knowledge gap (14 October) is answered as the live route answers it: the coach's sentence, and no
+        // model call. Printed so a reading of real generation shows the refusal a coach would see.
+        let sel: TestLibrarySelectionResult
+        try {
+            sel = generateSelection({ learningGoals: [input], learningGoalId }, hints)
+        } catch (err) {
+            if (!isSelectionKnowledgeGap(err)) throw err
+            console.log('\n' + '='.repeat(90))
+            console.log(`INPUT: ${input} (${learningGoalId})  KNOWLEDGE GAP on ${err.archetypeId}: ${err.reason}; unfilled roles: ${err.pool.unfilledRoles.join(', ') || 'none'}`)
+            console.log(`COACH IS TOLD: This goal's designated constraints cannot yet be combined into a game, so no activity can be built for it.`)
+            console.log('NO MODEL CALL.')
+            continue
+        }
         let primaryScoring: PrimaryScoringDirective[] | undefined
         if (routedRpcId) {
             try {
@@ -310,6 +322,16 @@ async function main() {
             console.log('\n' + '='.repeat(90))
             console.log(`INPUT: ${input}${learningGoalId ? ` (${learningGoalId})` : ''}`)
             console.log(`ARCHETYPE: ${sel.archetype.game_form_name}  SLOT: ${slotIndex + 1} of ${compressed.length}`)
+            // The package the model was given, by role: since 14 October a shaping constraint may be absent,
+            // and whether the model then invents one is read from the activity's own constraint lines below.
+            const pkg = assemblyInput.constraintPackage
+            console.log(
+                `PACKAGE: foundation=${pkg.foundation.constraint.title}  shaping=${pkg.shaping?.constraint.title ?? '(none)'}  consequence=${pkg.consequence?.constraint.title ?? '(none)'}`,
+            )
+            // The structured activity's own constraint lines (the model's), which the persisted shape does not keep.
+            const structuredConstraints = (assembled.structuredActivities[slotIndex] as unknown as { constraints?: unknown } | undefined)?.constraints
+            console.log(`CONSTRAINT LINES (not coach-facing): ${JSON.stringify(structuredConstraints ?? null)}`)
+            console.log(`TRACE: shapingConstraintId=${legacy[slotIndex]?.systemTrace?.shapingConstraintId ?? '(none)'}`)
             const directive = primaryScoring?.[slotIndex]
             if (directive) {
                 console.log(

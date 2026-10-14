@@ -116,13 +116,18 @@ test('a trigger whose dependency is unestablished makes the clause NOT_EVALUABLE
 // The teeth in the other direction. Eight of the nine triggers declare nothing, and the correction must leave
 // them exactly as they were — otherwise it is a general trigger redesign, which he excluded.
 test('a trigger declaring no dependency is unaffected', () => {
-    const input = derivationInputFor(selectFor('A05', null))
+    // The information rule is the Pass Combination Gate's. A05 carried it only while it selected the gate; since
+    // 14 October no goal does (his ruling: *"Please keep the current Pass Combination Gate as a mechanism
+    // demonstration only"*), so the subject is the gate's demonstration composition, named directly — and the
+    // rule is asserted to be present, so this cannot pass on a game that has none.
+    const input = derivationInputFor({ selected: [{ id: 'GF2', role: 'game form' }, { id: 'tl-v0-constraint-pass-combination-gate', role: 'constraint' }] })
     const staged: any = runStages0to10(input)
     const report = runGates(staged.gateContext).gateA
     const information = report.checks.find((c: any) => c.checkId === 'GA-INFORMATION')
-    assert.ok(information, 'GA-INFORMATION runs on A05')
+    assert.ok(information, 'GA-INFORMATION runs on the gate composition')
+    assert.ok(input.contracts.some(c => String(c.contractId).includes('PASS-COMBINATION-GATE')), 'and the information rule\'s contract is in it')
 
-    // A05's information rule names STANDING, which declares no dependency. Whatever the clause's verdict is, it
+    // The gate's information rule names STANDING, which declares no dependency. Whatever the clause's verdict is, it
     // must not be blocked BY a trigger dependency — assert that no dependency line is among what blocked it.
     const why = String(information!.why ?? '')
     assert.ok(!/game::DV1/.test(why), `no dependency may be imposed on a trigger that declares none: "${why}"`)

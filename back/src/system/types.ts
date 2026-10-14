@@ -151,7 +151,14 @@ export type ActivityAssemblyGuardrails = {
 
 export type SelectedConstraintPackage = {
     foundation: ConstraintSelectionCandidate
-    shaping: ConstraintSelectionCandidate
+    /**
+     * OPTIONAL since 14 October 2026, by his ruling: *"I don't want us to assume that every activity
+     * necessarily requires an additional shaping constraint. The game form and its inherent conditions may
+     * already create the relevant affordances."* A Learning Goal whose designated candidates hold no shaping
+     * constraint is selected without one and the gap is reported; nothing is borrowed to fill the slot.
+     * The foundation stays required — that was not ruled.
+     */
+    shaping?: ConstraintSelectionCandidate
     consequence?: ConstraintSelectionCandidate
     assemblyGuardrails: ActivityAssemblyGuardrails
     validationWarnings?: string[]

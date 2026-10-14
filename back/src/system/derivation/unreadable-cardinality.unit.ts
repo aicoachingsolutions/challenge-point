@@ -29,7 +29,7 @@ import { countBounds } from './derive'
 import { runDerivation, runStages0to10 } from './engine'
 import { indexRegister } from './register'
 import { assembleResolvedGame } from './resolved-game'
-import { derivationInputFor, selectFor } from './run-bounded-selection'
+import { derivationInputFor, GoalSelectionGap, selectFor } from './run-bounded-selection'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { realize } from '../realization/realize'
 
@@ -162,10 +162,22 @@ test('no learning goal carries an unreadable claim, so no goal outcome changes',
     const goals: string[] = ((sessionPlanningModel as any).learningGoals?.() ?? []).map((g: any) => g.ID ?? g.id).filter(Boolean)
     assert.equal(goals.length, 13, 'thirteen goals')
     const affected: string[] = []
+    // Since 14 October two goals are knowledge gaps (selection draws only from a goal's own candidates, his
+    // ruling of that day): they select nothing, so there is nothing to derive. Asserted as a list.
+    const gaps: string[] = []
     for (const goal of goals) {
-        const { resolved } = resolvedFor(derivationInputFor(selectFor(goal, null)))
+        let selection
+        try {
+            selection = selectFor(goal, null)
+        } catch (error) {
+            if (!(error instanceof GoalSelectionGap)) throw error
+            gaps.push(goal)
+            continue
+        }
+        const { resolved } = resolvedFor(derivationInputFor(selection))
         if ((resolved.existential as any[]).some(c => c.cardinalityUnreadable)) affected.push(goal)
     }
+    assert.deepEqual(gaps, ['A02', 'D03'], 'the two knowledge gaps of 14 October, and no others')
     assert.deepEqual(affected, [], `the correction must touch no goal, and touches ${affected.join(', ') || 'none'}`)
 })
 

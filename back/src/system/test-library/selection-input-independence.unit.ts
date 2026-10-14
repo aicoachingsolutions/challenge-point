@@ -22,7 +22,7 @@ import assert from 'node:assert/strict'
 
 import { deriveInputConstraints } from '../input-constraints/deriveInputConstraints'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
-import { generateSelection } from './generateSelection'
+import { constraintPoolFor, generateSelection, isSelectionKnowledgeGap } from './generateSelection'
 
 function selectionFor(goal: string, options: { challengeLevel?: string; learningGoalId?: string } = {}) {
     return generateSelection(
@@ -98,31 +98,73 @@ function testUnrelatedInputValuesDoNotInfluenceSelection(): void {
     }
 }
 
+/**
+ * The goal id never reaches MATCHING — and since 14 October it scopes the constraint pool, and nothing else.
+ *
+ * Re-pointed 14 October 2026. This asserted that a selection with the id was identical to one without it,
+ * which held because the id was trace-only. His ruling of that day gives the id one job: *"Selection should
+ * only use constraints authorized for the Learning Goal, rather than silently drawing from the broader library
+ * when a suitable candidate is missing"* — and the Learning Goal is known only by its id. So the id now decides
+ * which constraints selection may draw from (`constraintPoolFor`), and the test is moved to what it was really
+ * about: the id stays out of the matching corpus, and where it changes a selection, the change is the pool's.
+ *
+ *   - The matching corpus is identical with and without the id (unchanged).
+ *   - Where the goal's own pool is what the wording alone would have drawn from — no fallback, nothing held —
+ *     the selection is identical, decision for decision (unchanged).
+ *   - Where it is not, the selection with the id draws only from the goal's candidates minus what is held, or
+ *     the goal is reported as a knowledge gap. Never anything else.
+ */
 function testLearningGoalIdDoesNotInfluenceSelection(): void {
+    let samePool = 0
     for (const goal of sessionPlanningModel.learningGoals()) {
         const id = String(goal['ID'])
         const name = String(goal['Learning Goal'] ?? '')
         const withoutId = selectionFor(name)
-        const withId = selectionFor(name, { learningGoalId: id })
+        const hints = deriveInputConstraints(name)
+        const wordingPool = constraintPoolFor(hints)
+        const goalPool = constraintPoolFor(hints, id)
+        let withId: ReturnType<typeof selectionFor> | null = null
+        try {
+            withId = selectionFor(name, { learningGoalId: id })
+        } catch (error) {
+            assert.ok(isSelectionKnowledgeGap(error), `${id} ${name}: ${(error as Error).message}`)
+            assert.notDeepEqual(goalPool.constraints.map((c) => c.id), wordingPool.constraints.map((c) => c.id), `${id}: a gap only where the goal's pool is not the wording's`)
+            continue
+        }
 
-        assert.equal(
-            decisionFingerprint(name, undefined, id),
-            decisionFingerprint(name),
-            `${id} ${name} selects differently when the chosen goal id is present. The id must stay out of matching.`
-        )
         assert.equal(
             withId.selectionTrace.queryCorpus,
             withoutId.selectionTrace.queryCorpus,
             `${id} ${name} changed selectionTrace.queryCorpus. The id has leaked into the matching corpus.`
         )
+        const poolIds = new Set(goalPool.constraints.map((c) => c.id))
+        if (wordingPool.source === 'GOAL_CANDIDATES' && goalPool.heldByRuling.length === 0) {
+            samePool++
+            assert.equal(
+                decisionFingerprint(name, undefined, id),
+                decisionFingerprint(name),
+                `${id} ${name} selects differently when the chosen goal id is present, though its pool is the same. The id must stay out of matching.`
+            )
+        }
+        for (const constraint of withId.constraints) {
+            assert.ok(poolIds.has(constraint.id), `${id} ${name}: ${constraint.id} is outside the goal's own candidates, or held`)
+        }
     }
+    assert.ok(samePool > 0, 'at least one goal draws from the same pool either way, so the identity half is exercised')
 }
 
 function testLearningGoalIdTraceRecordsRoute(): void {
     for (const goal of sessionPlanningModel.learningGoals()) {
         const id = String(goal['ID'])
         const name = String(goal['Learning Goal'] ?? '')
-        const selection = selectionFor(name, { learningGoalId: id })
+        let selection: ReturnType<typeof selectionFor>
+        try {
+            selection = selectionFor(name, { learningGoalId: id })
+        } catch (error) {
+            // A knowledge gap (14 October) has no trace to record a route in; it names the goal instead.
+            assert.ok(isSelectionKnowledgeGap(error) && error.learningGoalId === id, `${id} ${name}: ${(error as Error).message}`)
+            continue
+        }
 
         assert.deepEqual(
             selection.selectionTrace.planning,
