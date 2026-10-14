@@ -2,7 +2,8 @@ import type { InputConstraintHints } from '../input-constraints/deriveInputConst
 import { resolveAffordanceTargetProfile } from '../knowledge-core/affordance-target-matrix'
 import { emCanonical } from '../knowledge-core/em-canonical'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
-import { learningGoalSelectionHolds } from './learning-design-holds'
+import { knowledgeKey } from '../derivation/knowledge-key'
+import { LearningDesignHold, learningGoalSelectionHolds } from './learning-design-holds'
 import { testLibraryRegistry } from './library/registry'
 import { normalizeCoachingInput } from './normalizeCoachingInput'
 import { isSelectionPackageCompatible } from './selection-compatibility'
@@ -121,13 +122,19 @@ const BALANCE_ROLES: ConstraintBalanceBucket[] = ['foundation', 'shaping', 'cons
  * so whether it should stop borrowing too is his decision, pending. Measured 14 October: 4 of 10 sampled
  * free-text defensive or regain phrasings still fall back to the whole library.
  */
-export function constraintPoolFor(hints?: InputConstraintHints | null, learningGoalId?: string | null): ConstraintPool {
+export function constraintPoolFor(hints?: InputConstraintHints | null, learningGoalId?: string | null, holds: LearningDesignHold[] = learningGoalSelectionHolds()): ConstraintPool {
     const full = testLibraryRegistry.selectableConstraints()
     const ids = hints?.candidateConstraintIds ?? []
     if (learningGoalId) {
-        const held = learningGoalSelectionHolds().filter((hold) => ids.includes(hold.knowledgeId))
-        const heldIds = new Set(held.map((hold) => hold.knowledgeId))
-        const constraints = full.filter((c) => ids.includes(c.id) && !heldIds.has(c.id))
+        /**
+         * **A hold is matched by KNOWLEDGE KEY, as the builder's guard matches it** — 14 October 2026, from the
+         * S-B review. It matched as text: a hold spelled `PASS-COMBINATION-GATE` or `blind:PASS-COMBINATION-GATE`
+         * held nothing here, while the builder (which loads a contract by key) would have refused the same
+         * object. One rule, `knowledgeKey`, for both.
+         */
+        const heldKeys = new Set(holds.map((hold) => knowledgeKey(hold.knowledgeId)))
+        const held = holds.filter((hold) => ids.some((id) => knowledgeKey(id) === knowledgeKey(hold.knowledgeId)))
+        const constraints = full.filter((c) => ids.includes(c.id) && !heldKeys.has(knowledgeKey(c.id)))
         const filled = new Set(constraints.map((c) => constraintBalanceBucket(c)))
         return {
             constraints,

@@ -64,7 +64,10 @@ const SECTION_ORDER = ['Set up', 'Players', 'How it works', 'How to score', 'Wha
  */
 const STATUS_MEANING: Record<string, string> = {
     DERIVED: 'required by the game',
-    REALIZATION_CHOICE: 'chosen for this activity',
+    // 14 October 2026: three statuses replaced REALIZATION_CHOICE (Step 4, component 2, rendered).
+    STARTING: 'where this activity starts — can be adjusted',
+    ADVISORY: 'recommended, not required',
+    COACH_CHOICE: 'left to you to decide',
     PREFERENCE: 'suggested, not required',
     INSTANTIATED: 'made concrete for this activity',
     SESSION: 'from your session',

@@ -302,7 +302,7 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
     assert.deepEqual(restatementTally.withheld, [], 'none was named but disqualified')
     assert.equal(
         restatementTally.itemsRestated,
-        44,
+        45,
         'six Phase A rulings, six sets (SD-79), two exclusion bounds (SD-86), eight goal-kick selectors (SD-87), one restart ownership (SD-89), ' +
             'one typed reference (SD-98), one Wide Zone gloss (C29a), one DISTINCT_ON mark (C29b/C29e), two typed neutral bounds (C29c), ' +
             'one typed channel width (C30b), one equal-outfield promotion (C31b), three Wide Zone lateral restatements (C33), ' +
@@ -314,7 +314,9 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
             'about, so the shared target is preserved and inert while the directional one is active — ' +
             'and, from 44 on 14 October 2026, TWO of his answers about the Pass Combination Gate: PCG-11 typed to the gate’s own condition (C44, ' +
             '"the counting information refers to that gate’s own condition") and PCG-04 typed a preferred 4-6, SUPPORTING (C46, "a preferred range ' +
-            'of 4–6, not a requirement or a predetermined starting count"). Neither approves the gate for a Learning Goal',
+            'of 4–6, not a requirement or a predetermined starting count"). Neither approves the gate for a Learning Goal — ' +
+            'and, from 45 the same day, his bibs ruling (C47): NEUTRAL-06.b, the authored means, marked SUPPORTING ("Contrasting bibs should be ' +
+            'treated as a practical recommendation for distinguishing neutrals, not a universal requirement"); its value stays a preferred default',
     )
     // **4 since ruling C42.** GF2-08.a and GF2-03.a are retired — the shared objective's existence and the
     // target it referenced — so the game holds exactly two objectives and two targets rather than three of each.
@@ -327,7 +329,7 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
     assert.equal(restatementTally.itemsRemoved, 6, 'WIDEZONE-13.a and 13.b, GF2-08.a and GF2-03.a (C42), and PCG-06 and PCG-07 (C45)')
     assert.equal(
         restatementTally.itemsAdded,
-        22,
+        23,
         'the recovered GF4 operation, the traced neutral existence, SD-102’s canonical shared objective, the five connected-pass IE dimensions (C29d), ' +
             'the three Wide Zone value-modifier items — existence, magnitude 2 and MULTIPLY (C34) — and its second typed referent (C35), ' +
             'and the required channel extent as a proportion (C31a), ' +
@@ -338,7 +340,10 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
             'compressed into one field, ' +
             'and the SIX items of the directional arrangement under ruling C42 of 9 October: two target regions told apart by the new ' +
             'along-axis selector attribute, two per-team objectives whose selectors also constitute the team that attacks each, and the ' +
-            'two typed references pairing each team with the target at the opposite end',
+            'two typed references pairing each team with the target at the opposite end, ' +
+            'and, from 23 on 14 October 2026, his allegiance ruling as ONE item (C43): NEUTRAL-14.c, P6c = IMMEDIATE, on the new register row ' +
+            '(version 7) — "Please add the explicit property governing when a neutral player changes allegiance, using immediate switching ' +
+            'upon possession change as the approved behavior for the current mechanism"',
     )
     assert.equal(restatementTally.declarationScopes, 64)
     // **New on 14 October 2026, counted apart from scopes.** The gate's V5 and SV1 declarations CLAIMED those rows

@@ -1,7 +1,7 @@
 {
   "title": "Atomic field-path register — Game Representation Specification revision 4",
   "date": "2026-09-18",
-  "version": "6, adds the along-axis `longitudinal` selector attribute on S2 with its two end values and their interval tests, on the ruling of 2026-10-09 (Christian), so two opposing target regions can be told apart as AM-17 already lets two wide channels be told apart across the axis. Supersedes version 5, which added V8c and V8d. Nothing existing changes: AM-12 keeps derivation from rewriting any authored selector to use it.",
+  "version": "7, adds P6c (performers.neutrals.affiliation.takesEffect: when a neutral player's change of affiliation takes effect, IMMEDIATE or AT_NEXT_RESTART) with its vocabulary and version, on the ruling of 2026-10-14 (Christian). Supersedes version 6, which added the along-axis `longitudinal` selector attribute. Nothing existing changes: P6a keeps its one trigger.",
   "source": "docs/design/game-representation-spec-2026-09-18.md §5 (the eight areas), §3 (statuses), §6 (the contract), §2 (standing decisions)",
   "rowKinds": {
     "COLLECTION": "The existence and count of elements in a collection. Items on a COLLECTION row say that elements matching a selector exist (EXISTS), how many (COUNT/RANGE), or that none may (NOT_EXISTS).",
@@ -221,6 +221,16 @@
       "sourceKinds": [
         "SELECTION"
       ]
+    },
+    {
+      "id": "P6c",
+      "path": "performers.neutrals.affiliation.takesEffect",
+      "kind": "FIELD",
+      "valueType": "when a change of a neutral player's affiliation takes effect, once the possession relation it follows has changed (closed list, draft): IMMEDIATE (at the moment possession changes, play continuing) or AT_NEXT_RESTART (held until play next restarts). No default: an ABSENT value means the timing is not established, never that it is immediate",
+      "sourceKinds": [
+        "SELECTION"
+      ],
+      "note": "Added 14 October 2026 on his ruling: \"Please add the explicit property governing when a neutral player changes allegiance, using immediate switching upon possession change as the approved behavior for the current mechanism.\" Restating his preference of 13 October: \"the neutral supports whichever team currently has possession and changes allegiance immediately when possession changes. That should be explicit in the activity rather than left ambiguous.\" A SEPARATE ROW and not a second value on P6a: P6a holds one trigger and already holds the authored STANDING (NEUTRAL-03.b, NEUTRAL-14.a), so a second P6a item collides (Gate A FAIL, measured 13 October). The Neutral Player Condition contract's own P6a NOT_AUTHORED declaration names exactly the two alternatives this row holds (\"whether re-affiliation on a turnover is instantaneous or takes effect at a restart\"); that declaration stays verbatim for provenance, because a restatement cannot edit declarations. A timing, not a trigger, so it is NOT in `vocabularies.triggerRows`. sourceKinds holds no REALIZATION, so realization can never choose it. Read by Gate A's GA-AFFILIATION, which holds the value to its vocabulary and an immediate change to a reachable change of possession."
     },
     {
       "id": "P7",
@@ -1087,7 +1097,8 @@
       "R2.kind": "1 (2026-09-24, draft) - narrow by intent; not a general rules ontology",
       "R3.effect": "1 (2026-09-24)",
       "P12.state": "1 (2026-09-24) - bound to knowledge core EM-0007 EMD-0014 EMP-0040 \"Active / Inactive / Waiting / Resting / Observing\"; not duplicate vocabulary",
-      "P13.persistence": "1 (2026-09-24) - bound to EM-0007 EMP-0042 \"Temporary / Persistent\""
+      "P13.persistence": "1 (2026-09-24) - bound to EM-0007 EMP-0042 \"Temporary / Persistent\"",
+      "P6c.takesEffect": "1 (2026-10-14, draft) - when a neutral player's change of affiliation takes effect, on Christian's ruling of that day. AT_NEXT_RESTART is listed because the contract's own P6a NOT_AUTHORED note names it as the alternative; it cannot authorize until the register holds a machine-readable class of restarts (GA-AFFILIATION, NOT_EVALUABLE)"
     },
     "S3.noun": [
       "band",
@@ -1257,6 +1268,10 @@
     "P13.persistence": [
       "TEMPORARY",
       "PERSISTENT"
+    ],
+    "P6c.takesEffect": [
+      "IMMEDIATE",
+      "AT_NEXT_RESTART"
     ],
     "triggerSemantics": {
       "FIRST_FORWARD_PASS": {

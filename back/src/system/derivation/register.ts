@@ -134,6 +134,12 @@ export interface RegisterIndex {
     citableStandingDecisions: Set<string>
     /** The citable entries themselves, as the register states them. */
     standingDecisions: any[]
+    /**
+     * The canonical team designations (RC-22), each as the register spells it, gloss included. Read by
+     * `GA-AFFILIATION` (14 October 2026), which needs to know which designations the register defines by the
+     * possession relation; the gloss is the only place that is said.
+     */
+    teamDesignations: string[]
     registerVersion: string
 }
 
@@ -264,6 +270,7 @@ export function indexRegister(register: any): RegisterIndex {
         contractSentinels: sentinels,
         citableStandingDecisions: citable,
         standingDecisions: (register.citableStandingDecisions || []).filter((d: any) => d && d.id),
+        teamDesignations: Array.isArray(register.teamDesignations?.list) ? register.teamDesignations.list.map(String) : [],
         registerVersion: register.version,
     }
 }

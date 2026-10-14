@@ -192,7 +192,12 @@ test('A04 is unaffected: its only transition is a POSSESSION_CHANGE', () => {
     // contributed is gone with it. What this test is about — that the standing-decision selector
     // leaves A04's single POSSESSION_CHANGE transition alone — is unchanged, and the clause below
     // still checks it directly.
-    assert.equal((result.resolution ?? []).filter((e: any) => e.state === 'failed').length, 7, 'seven failed lines: 6 after Wide Zone left on 8 October, and 7 again since the directional arrangement of 9 October added a second target and a second objective')
+    // **8 since 14 October 2026**: register version 7 adds the game-level row P6c (when a neutral player's change of
+    // side takes effect, his ruling that day). A04 has no neutrals and no contract it selects speaks of the timing, so
+    // the line is `NOT_AUTHORED / no coverage` — an established absence that moves no gate verdict.
+    const failed = (result.resolution ?? []).filter((e: any) => e.state === 'failed')
+    assert.ok(failed.some((e: any) => e.lineId === 'game::P6c' && e.reason === 'no coverage'))
+    assert.equal(failed.length, 8, 'eight failed lines: 6 after Wide Zone left on 8 October, 7 since the directional arrangement of 9 October added a second target and a second objective, and 8 since P6c (14 October)')
     const t7 = result.resolution.find((e: any) => /GF2-07\.a::T7$/.test(String(e.lineId)))
     assert.equal(t7?.value, true, 'and it still begins an episode, legitimately')
 })

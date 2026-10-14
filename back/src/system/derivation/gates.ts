@@ -2011,6 +2011,124 @@ function gaModifierOverlap(ctx: GateContext): CheckOutcome {
     )
 }
 
+/**
+ * `GA-AFFILIATION` — when a neutral performer's change of side takes effect (`P6c`), held to what makes it
+ * true. Added 14 October 2026 with the row, on his ruling that day: *"Please add the explicit property
+ * governing when a neutral player changes allegiance, using immediate switching upon possession change as
+ * the approved behavior for the current mechanism."*
+ *
+ * **Why a check of its own.** A derived FIELD value is never held to its `<row>.<leaf>` vocabulary — realization
+ * checks vocabulary only for open choices — so, measured before this, an unregistered timing (`SOMETIME`) passed
+ * every gate and reached fidelity. And the value IMMEDIATE is a claim about something else: an immediate change of
+ * side presupposes a side that follows possession and a change of possession that can happen. A failure names its
+ * subject (SD-53), so the three questions are three clauses here rather than a clause bolted onto a check about
+ * something else.
+ *
+ *   1. *every neutral affiliation timing is a registered member* — the value against its vocabulary;
+ *   2. *an immediate change of side follows a reachable change of possession* — the decision is standing (or keyed
+ *      on the change itself), the side joined is one the register defines BY the possession relation, the
+ *      relation is established or open (the RELATION_CLAUSE reading of `GA-TRIGGER-REACHABLE`), and the change
+ *      of possession is a structurally reachable trigger;
+ *   3. *a change of side held until the next restart names a registered restart* — the register holds no
+ *      machine-readable class of restarts, so any timing other than an immediate one is NOT_EVALUABLE with a
+ *      refusal record: gap before collision (SD-28). Such a value cannot authorize until the class exists.
+ *
+ * **Membership before the probe**, exactly as the V8d clause of `GA-MODIFIER-OVERLAP`: a game with no neutral
+ * timing has an unaddressed line, which is the row's documented reading (ABSENT is "not established", never
+ * "immediate") and no blocker. All three clauses are emitted on every path (SD-53), vacuous ones as `pass(_, 0)`.
+ *
+ * Sport-neutral: it reads row ids, the register's vocabulary and its designation glosses — never a value written
+ * here. Which designations follow the possession relation is read from the register's own gloss (`(the team the
+ * possession relation PS1 currently holds)`), so a designation the register does not define by the relation is
+ * not decided here (NOT_EVALUABLE), and one it does not list at all fails.
+ */
+function gaAffiliation(ctx: GateContext): CheckOutcome {
+    const MEMBER = 'every neutral affiliation timing is a registered member'
+    const IMMEDIATE = 'an immediate change of side follows a reachable change of possession'
+    const RESTART = 'a change of side held until the next restart names a registered restart'
+    const probe = new Probe(ctx, 'GA-AFFILIATION')
+    const lineId = 'game::P6c'
+    const record = ctx.derived.get(lineId)
+    const addressed = !!record && (record.entailing.length > 0 || record.bounding.length > 0 || record.undetermined.length > 0)
+    if (!addressed) return result('GA-AFFILIATION', probe, [pass(MEMBER, 0), pass(IMMEDIATE, 0), pass(RESTART, 0)], 'no neutral affiliation timing is stated')
+
+    const vocabularyName = [...ctx.index.vocabularies.keys()].find(name => name.startsWith('P6c.'))
+    const members = vocabularyName ? ctx.index.vocabularies.get(vocabularyName) ?? [] : []
+    const cell = probe.cell(lineId)
+    const notes: string[] = []
+
+    // Clause 1 — the value, or every value an open line could still take, is registered.
+    let memberClause: ClauseResult
+    let value: string | null = null
+    if (cell.state === 'DERIVED') {
+        value = String(cell.value)
+        memberClause = members.includes(value) ? pass(MEMBER, 1) : fail(MEMBER, 1)
+        notes.push(`takes effect ${JSON.stringify(cell.value)}${members.includes(value) ? '' : ` — not a member of ${vocabularyName ?? 'any registered vocabulary'} [${members.join(', ')}]`}`)
+    } else if (cell.state === 'OPEN') {
+        const permitted = cell.bounds.flatMap(b => (b.bound?.kind === 'SET' && Array.isArray(b.bound.members) ? b.bound.members : []))
+        memberClause = !permitted.length ? notEvaluable(MEMBER) : permitted.every(m => members.includes(String(m))) ? pass(MEMBER, permitted.length) : fail(MEMBER, permitted.length)
+        notes.push(`takes effect is open over [${permitted.join(', ')}]`)
+    } else {
+        memberClause = notEvaluable(MEMBER)
+        notes.push(`takes effect is ${cell.state}`)
+    }
+
+    // Clause 2 — an immediate change of side has a side that follows possession and a change that can happen.
+    let immediateClause = pass(IMMEDIATE, 0)
+    if (value === 'IMMEDIATE') {
+        const on = probe.cell('game::P6a')
+        const joins = probe.cell('game::P6b')
+        const relation = probe.cell('game::PS1')
+        const designations = ctx.index.teamDesignations ?? []
+        // A line still waiting on knowledge blocks the clause; only an established answer can fail it (SD-28).
+        const pending = [on, joins].some(c => c.state !== 'DERIVED') || relation.state === 'FAILED' || relation.state === 'CONDITIONAL' || (relation.state === 'ABSENT' && !relation.established)
+        if (pending || on.state !== 'DERIVED' || joins.state !== 'DERIVED') {
+            immediateClause = notEvaluable(IMMEDIATE)
+            notes.push('the side neutrals take, when it is decided, or the possession relation it follows is not yet established')
+        } else {
+            const side = String(joins.value)
+            const entry = designations.find(d => d === side || d.startsWith(`${side} `))
+            const followsRelation = !!entry && entry.includes('PS1')
+            const standing = String(on.value) === 'STANDING' || String(on.value) === 'POSSESSION_CHANGE'
+            const relationHeld = relation.state === 'DERIVED' || relation.state === 'OPEN'
+            const reachable = ctx.triggers.some(t => t === 'POSSESSION_CHANGE' || t.startsWith('POSSESSION_CHANGE{'))
+            if (designations.length && entry && !followsRelation && standing && relationHeld && reachable) {
+                immediateClause = notEvaluable(IMMEDIATE)
+                notes.push(`the register does not define ${side} by the possession relation, so whether it changes when possession changes is not decided here`)
+            } else {
+                const held = standing && followsRelation && relationHeld && reachable
+                immediateClause = held ? pass(IMMEDIATE, 1) : fail(IMMEDIATE, 1)
+                if (!held) {
+                    notes.push(
+                        [
+                            standing ? null : `the side is decided on ${JSON.stringify(on.value)}, not standing`,
+                            entry ? (followsRelation ? null : `${side} is not defined by the possession relation`) : `${side} is not a registered team designation`,
+                            relationHeld ? null : 'the possession relation is not established or open',
+                            reachable ? null : 'a change of possession is not structurally reachable',
+                        ]
+                            .filter(Boolean)
+                            .join('; '),
+                    )
+                }
+            }
+        }
+    }
+
+    // Clause 3 — any other timing waits for a registered class of restarts.
+    let restartClause = pass(RESTART, 0)
+    if (value !== null && value !== 'IMMEDIATE' && members.includes(value)) {
+        probe.refuse(
+            'CHECK_NOT_EXECUTABLE',
+            `${lineId} holds ${JSON.stringify(value)}, and the register holds no machine-readable class of restarts for a held change of side to name, so it cannot be checked.`,
+            [lineId],
+            { clause: CLAUSE('§7.2'), quote: 'add no execution semantics from invented examples' },
+        )
+        restartClause = notEvaluable(RESTART, probe.refusals[probe.refusals.length - 1].refusalId)
+    }
+
+    return result('GA-AFFILIATION', probe, [memberClause, immediateClause, restartClause], notes.join('; '))
+}
+
 // =================================================================================================
 // The gates.
 // =================================================================================================
@@ -2032,6 +2150,8 @@ const GATE_A_CHECKS: ((ctx: GateContext) => CheckOutcome)[] = [
     gaDirection,
     gaObjectiveSets,
     gaModifierOverlap,
+    // Seventeenth, added 14 October 2026 with register row P6c, on his ruling of that day.
+    gaAffiliation,
 ]
 
 export interface GateOutcome {

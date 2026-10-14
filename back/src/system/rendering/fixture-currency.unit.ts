@@ -99,6 +99,18 @@
  * every value, every choice and every digest input other than these fields are byte-identical. The renderer
  * does not read either field yet, so the rendered text is unchanged (the rendering suite pins it).
  *
+ * **Re-frozen 14 October 2026 (stage S-C1): `504a4898` → `1ad24bb8`. The GAME did not move; the register did.**
+ * Register version 7 adds row P6c — when a neutral player's change of side takes effect — on his ruling that day:
+ * *"Please add the explicit property governing when a neutral player changes allegiance, using immediate switching
+ * upon possession change as the approved behavior for the current mechanism."* The register version is hashed into
+ * the input, so `inputDigest` / `fromDigest` (235ee36e → 712ecc78), the audit digest and the `registerVersion`
+ * sentence moved; and a game-level row is a line in every game, so `status.notEstablished` gained one entry —
+ * `performers.neutrals.affiliation.takesEffect`, `no coverage`: the Golden Case has no neutrals and no contract it
+ * selects speaks of the timing. `git diff` shows those ten lines and nothing else: `game`, every value, every
+ * choice, the geometry and the roster are byte-identical. The rendered TEXT did move, but by the renderer, not by
+ * this fixture: the statuses of the same day (no "For this activity,"; GF2-17's default said as where the activity
+ * starts), pinned in `rendering.unit.ts`.
+ *
  * Run: npm test
  */
 import assert from 'node:assert/strict'

@@ -914,14 +914,23 @@ test('a required extent is recorded in metres at both ends, exactly, with the pr
     }
     const inside = (min: number, max: number) => ({ min, max, compatible: true, note: 'the preference, expressed inside the requirement, in metres' })
 
+    /**
+     * **Moved 14 October 2026: both are recorded at the PRACTICAL grain**, rounded inward, on his §7 —
+     * *"Where practical rounding is appropriate, apply it when the configuration is established so the actual game
+     * and its instructions remain consistent"* (grain as data, a proposal awaiting his confirmation). 40 x 30 is
+     * already on the grain and does not move. On 25 m the requirement 3.75-6.25 m becomes 4-6 m and the preference
+     * left inside it, 6-6.25 m, becomes the one practical value 6 m (*"a practical starting recommendation rather
+     * than an awkwardly narrow numerical range"*); the exact overlap is kept in the note, in words.
+     */
+    const rounded = (min: number, max: number, exactly: string) => ({ ...inside(min, max), note: `the preference, expressed inside the requirement, in metres; rounded inward to the practical grain from exactly ${exactly}` })
     assert.deepEqual(widths(40, 30), Array(2).fill([{ min: 4.5, max: 7.5 }, inside(6, 7.5)]))
-    assert.deepEqual(widths(30, 25), Array(2).fill([{ min: 3.75, max: 6.25 }, inside(6, 6.25)]), 'a quarter of 25 m is 6.25 m, not 6.3')
-    // The decimal the fraction spells, where the float product is not it.
+    assert.deepEqual(widths(30, 25), Array(2).fill([{ min: 4, max: 6 }, rounded(6, 6, '6 to 6.25 m')]), 'a quarter of 25 m is exactly 6.25 m, and the practical channel is 6 m')
+    // The decimal the fraction spells, where the float product is not it — and THAT is what is rounded.
     assert.notEqual(0.15 * 23, 3.45, 'the artefact this guards against is real')
-    assert.deepEqual(widths(35, 23).map(([required]) => required), Array(2).fill({ min: 3.45, max: 5.75 }))
-    // On a 15 m width the preferred 6 to 10 m lies wholly outside 2.25 to 3.75 m: recorded as incompatible, never widened into.
+    assert.deepEqual(widths(35, 23).map(([required]) => required), Array(2).fill({ min: 3.5, max: 5.5 }), 'exactly 3.45-5.75 m, practically 3.5-5.5 m')
+    // On a 15 m width the preferred 6 to 10 m lies wholly outside 2.5 to 3.5 m: recorded as incompatible, never widened into.
     for (const [required, preference] of widths(20, 15)) {
-        assert.deepEqual(required, { min: 2.25, max: 3.75 })
+        assert.deepEqual(required, { min: 2.5, max: 3.5 })
         assert.equal((preference as any).compatible, false)
     }
 })

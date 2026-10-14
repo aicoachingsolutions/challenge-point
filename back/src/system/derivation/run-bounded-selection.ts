@@ -23,6 +23,7 @@ import type { ConstraintPoolAccount } from '../test-library/types'
 import { CORPUS_ENVELOPE, loadCorpusContracts, loadRegister, loadSportProfile } from './corpus'
 import { isStampedHalt } from './emit'
 import { runDerivation, runStages0to10 } from './engine'
+import { knowledgeKey } from './knowledge-key'
 import { indexRegister } from './register'
 import { assembleResolvedGame } from './resolved-game'
 import { DerivationInput, LoadedContract } from './types'
@@ -32,13 +33,10 @@ import { DerivationInput, LoadedContract } from './types'
  *
  * Exported 13 October as `knowledgeKey`, because a second thing now has to ask "which knowledge object is
  * this?" — the builder looks up a game form's realization choices by it — and a second spelling rule beside
- * this one is how the two would come to disagree.
+ * this one is how the two would come to disagree. Since 14 October 2026 the rule itself lives in
+ * `knowledge-key.ts`, so selection can apply holds by it too; it is re-exported here unchanged.
  */
-export const knowledgeKey = (id: string) =>
-    String(id)
-        .replace(/^(restated|blind):/, '')
-        .replace(/^tl-v0-constraint-/, '')
-        .toUpperCase()
+export { knowledgeKey }
 const key = knowledgeKey
 
 /**

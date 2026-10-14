@@ -148,6 +148,25 @@ const outcomes = new Map(GOALS.map(id => [id, select(id)] as const))
     assert.notEqual(learningGoalSelectionHolds()[0].ruling, 'edited')
 }
 
+// ── (iv-b) A hold is matched by KNOWLEDGE KEY, the builder's rule — 14 October 2026, from the S-B review ────────
+//
+// Selection matched the hold as text while the builder's guard matched by `knowledgeKey`, so a hold spelled the way
+// a contract spells the object held nothing here. Each spelling below names the same object; each must hold the
+// library's gate, and the account reports it as designated and held.
+{
+    const [hold] = learningGoalSelectionHolds()
+    const hints = { candidateConstraintIds: testLibraryRegistry.selectableConstraints().map(constraint => constraint.id) } as any
+    for (const spelling of [PCG, 'blind:PASS-COMBINATION-GATE', 'PASS-COMBINATION-GATE', 'pass-combination-gate']) {
+        const pool = constraintPoolFor(hints, 'A01', [{ ...hold, knowledgeId: spelling }])
+        assert.ok(!pool.constraints.some(constraint => constraint.id === PCG), `a hold spelled ${spelling} must hold the gate`)
+        assert.deepEqual(pool.heldByRuling.map(held => held.id), [spelling], spelling)
+        assert.ok(pool.candidateIds.includes(PCG), 'the gate stays listed among the candidates: the pool is not edited')
+    }
+    // And a hold on something else holds nothing of the gate.
+    const other = constraintPoolFor(hints, 'A01', [{ ...hold, knowledgeId: 'tl-v0-constraint-no-such-object' }])
+    assert.ok(other.constraints.some(constraint => constraint.id === PCG))
+}
+
 // ── (v) Free text is out of scope and keeps its fallback — pinned as the state awaiting his ruling ──
 //
 // Free text has no Learning Goal, and its candidates come from wording. Whether it too should stop borrowing

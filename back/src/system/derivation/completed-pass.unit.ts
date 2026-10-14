@@ -206,18 +206,27 @@ test('registering the member changed no verdict in any of the thirteen goals', (
      * Every other row is unchanged. The gate's own information rule (the V17 line) is now measured on the
      * gate's demonstration composition, in the next test, because no goal selects the gate.
      */
+    /**
+     * **7 · 14 October — EVERY ROW MOVED BY ONE, and no verdict did.** Register version 7 adds the game-level
+     * row P6c (when a neutral player's change of side takes effect), on his ruling of that day: *"Please add the
+     * explicit property governing when a neutral player changes allegiance."* A game-level row is a line in every
+     * game, and none of these goals selects the neutral condition, so in each the line is `NOT_AUTHORED / no
+     * coverage`: no contract speaks of the timing — the contracts that declare the neutral rows free (P5, P6a,
+     * P6b, P7) were written before the row existed, and a restatement cannot add a declaration. It is an
+     * established absence ("unspoken" in GA-NO-FAILED-LINE), so no Gate A verdict moves.
+     */
     const expected: Record<string, { failed: number; gateA: string; reachable: boolean }> = {
-        A01: { failed: 13, gateA: 'FAIL', reachable: true },
-        D01: { failed: 7, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
-        TA01: { failed: 14, gateA: 'FAIL', reachable: false },
-        TD01: { failed: 13, gateA: 'FAIL', reachable: false },
-        D02: { failed: 13, gateA: 'FAIL', reachable: false },
-        TA02: { failed: 8, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
-        TD02: { failed: 13, gateA: 'FAIL', reachable: false },
-        A03: { failed: 7, gateA: 'FAIL', reachable: true },
-        A04: { failed: 7, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
-        A05: { failed: 8, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
-        A06: { failed: 7, gateA: 'FAIL', reachable: true },
+        A01: { failed: 14, gateA: 'FAIL', reachable: true },
+        D01: { failed: 8, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
+        TA01: { failed: 15, gateA: 'FAIL', reachable: false },
+        TD01: { failed: 14, gateA: 'FAIL', reachable: false },
+        D02: { failed: 14, gateA: 'FAIL', reachable: false },
+        TA02: { failed: 9, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
+        TD02: { failed: 14, gateA: 'FAIL', reachable: false },
+        A03: { failed: 8, gateA: 'FAIL', reachable: true },
+        A04: { failed: 8, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
+        A05: { failed: 9, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
+        A06: { failed: 8, gateA: 'FAIL', reachable: true },
     }
     const gaps: string[] = []
     for (const goal of goals) {
@@ -238,6 +247,7 @@ test('registering the member changed no verdict in any of the thirteen goals', (
 
         // The two halves of the exchange, by name, because the count conceals it.
         assert.ok(!failedLines.includes('game::PS1'), `${goal}: the possession relation is bounded now, so it must not be a failed line`)
+        assert.ok(failedLines.includes('game::P6c'), `${goal}: the neutral timing is spoken of by no contract this goal selects (row added 14 October 2026)`)
         assert.ok(
             failedLines.includes('c:sport-profile:soccer:SPORT-SOCCER-01::O3'),
             `${goal}: the ball's count is deliberately unconstrained, so it stays a declared non-requirement and keeps the total steady`,

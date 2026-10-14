@@ -48,12 +48,36 @@
 import { effectiveValue } from '../derivation/rational'
 import { approvedWording, ApprovedWording, WordingMatch } from './approved-wording'
 
-/** Where a rendered instruction's authority comes from, and what wording that permits. */
+/**
+ * Where a rendered instruction's authority comes from, and what wording that permits.
+ *
+ * **Three statuses replaced one on 14 October 2026** (Step 4, component 2, rendered). Christian that day:
+ * *"Preserve whether each condition is required, preferred, advisory, or left to the coach, all the way through
+ * rendering and validation."* And: *"A default should not automatically become a requirement simply because it
+ * is the only authored value … Once a default is selected for a particular activity, the coach should receive a
+ * clear description of the starting configuration, without implying that it cannot be adjusted."* Until then a
+ * derived value was DERIVED whatever bound it — so the possession game's authored preferred default, that play
+ * continues at a turnover, was stated as a rule of the game — and every realization choice was one status,
+ * `REALIZATION_CHOICE`, said with *"For this activity, …"*, which he asked us to stop repeating. Now the status
+ * is read from what the fixture carries: a derived value's `strength`, a choice's `closure`.
+ */
 export type SourceStatus =
-    /** Derived from selected knowledge — a requirement of the game. Imperative wording. */
+    /** Derived from selected knowledge and REQUIRED by it — a requirement of the game. Imperative wording. */
     | 'DERIVED'
-    /** Chosen by realization inside authored bounds. A fact about THIS activity, not a necessity. */
-    | 'REALIZATION_CHOICE'
+    /**
+     * Where THIS activity starts: a value realization closed inside authored bounds, or a derived value every
+     * supporting item authors as a preferred default. Said plainly, as a fact about the activity; never with a
+     * word of necessity, so it is never presented as something that cannot be adjusted.
+     */
+    | 'STARTING'
+    /**
+     * Supported only by knowledge the rule could stand without (strength `ADVISORY`: strictness SUPPORTING with a
+     * required or N/A value status). A recommendation: hedged, never imperative. **The mapping awaits his ruling
+     * (OD2)**; it is rendered so he can see every sentence it affects.
+     */
+    | 'ADVISORY'
+    /** Left to the coach (`closure: COACH_DECIDES`). Put to the coach as a choice; never as a necessity. */
+    | 'COACH_CHOICE'
     /** Authored as preferred guidance. Hedged wording only; never imperative. */
     | 'PREFERENCE'
     /** A member realization instantiated to satisfy an existential claim. */
@@ -61,15 +85,30 @@ export type SourceStatus =
     /** Session context the coach supplied. */
     | 'SESSION'
 
+/**
+ * **The part of an activity a coach reads after the starting setup** — 14 October 2026, his §7: *"My preference
+ * is that the main activity present a clear starting setup and playing instructions. Alternative ranges,
+ * adjustments, and supporting explanations can be presented separately when useful."* Ranges a coach may move
+ * within, preferences, and the limits of a value the activity only starts at go here. The section name is a
+ * DRAFT for his review.
+ */
+export const ADJUSTING = 'Adjusting the activity'
+
 export interface Instruction {
     /** Which part of the activity this belongs to. Organisation only; carries no authority. */
-    section: 'Set up' | 'Players' | 'How it works' | 'How to score' | 'What to watch'
+    section: 'Set up' | 'Players' | 'How it works' | 'How to score' | 'What to watch' | typeof ADJUSTING
     text: string
     status: SourceStatus
     /** Concrete-game property paths that produced it. Empty is a defect, not a style choice. */
     from: string[]
     /** Any number appearing in `text`, so a checker can verify each one came from the game. */
     quantities: number[]
+    /**
+     * `setup` for the starting setup and playing instructions; `adjust` for what a coach may change from there.
+     * Always the section's own reading (`adjust` exactly where the section is "Adjusting the activity"), set in
+     * one place as the renderer returns, so the two cannot disagree. Optional only for instructions built by hand.
+     */
+    tier?: 'setup' | 'adjust'
 }
 
 export interface RenderedActivity {
@@ -112,23 +151,39 @@ const metres = (n: number): string => `${n} m`
 /**
  * Wording is a function of status, so a status cannot be misrepresented by phrasing.
  *
- * `DERIVED` and `INSTANTIATED` get the imperative, because the game requires them. `REALIZATION_CHOICE`
- * gets "for this activity", which states the fact without claiming the knowledge demanded it.
- * `PREFERENCE` gets "if it suits your group", which cannot be read as a requirement. There is no path
- * by which a preference reaches imperative wording.
+ * `DERIVED` and `INSTANTIATED` get the imperative, because the game requires them. `STARTING` and
+ * `COACH_CHOICE` are said plainly — 14 October 2026, they replace `REALIZATION_CHOICE` and its *"For this
+ * activity, …"*, which he asked us to stop repeating (*"I would also avoid repeatedly beginning sentences with
+ * 'For this activity'"*); what keeps them from reading as requirements is that no word of necessity is
+ * available to them, which the fidelity check enforces (Q4). `ADVISORY` gets "It helps if …", a recommendation
+ * that cannot be read as a rule. `PREFERENCE` gets "if it suits your group", which cannot be read as a
+ * requirement. There is no path by which a preference or a recommendation reaches imperative wording.
  */
 function phrase(status: SourceStatus, core: string): string {
     switch (status) {
         case 'DERIVED':
         case 'INSTANTIATED':
         case 'SESSION':
+        case 'STARTING':
+        case 'COACH_CHOICE':
             return core
-        case 'REALIZATION_CHOICE':
-            return `For this activity, ${core.charAt(0).toLowerCase()}${core.slice(1)}`
+        case 'ADVISORY':
+            return `It helps if ${core.charAt(0).toLowerCase()}${core.slice(1)}`
         case 'PREFERENCE':
             return `${core}, if it suits your group`
     }
 }
+
+/** The status a derived value's carried strength gives its sentence. A value carrying none reads as before: required. */
+const STATUS_OF_STRENGTH: Record<string, SourceStatus> = { REQUIRED: 'DERIVED', DEFAULT: 'STARTING', ADVISORY: 'ADVISORY' }
+
+/**
+ * Of several statuses one sentence rests on, the strongest — the rule the strength itself follows (a stronger
+ * requirement wins). A sentence that cites a required value and a default states a requirement.
+ */
+const STRENGTH_ORDER: SourceStatus[] = ['DERIVED', 'INSTANTIATED', 'SESSION', 'STARTING', 'COACH_CHOICE', 'ADVISORY', 'PREFERENCE']
+const strongest = (statuses: SourceStatus[], fallback: SourceStatus): SourceStatus =>
+    statuses.length ? statuses.reduce((a, b) => (STRENGTH_ORDER.indexOf(a) <= STRENGTH_ORDER.indexOf(b) ? a : b)) : fallback
 
 // ── One way of saying a range ───────────────────────────────────────────────────────────────────
 
@@ -169,8 +224,13 @@ export interface RangeWords {
     required?: (limits: string, range: Limits) => string
     /** The preference, around its range — `Around 6 m to 7.5 m`. The hedge is added by its status, not here. */
     preferred?: (range: string, limits: Limits) => string
-    /** Where this activity starts. "For this activity, …" is added by its status, not here. */
+    /** Where this activity starts, said as a STARTING fact. */
     starting?: (value: string, n: number) => string
+    /**
+     * Where each part is said, where it is not the section the range was asked for: the preference and the
+     * limits of a value the activity only starts at belong with what a coach may adjust (14 October 2026).
+     */
+    sections?: { required?: Instruction['section']; preferred?: Instruction['section'] }
     /** The status of the sentence that carries the requirement, where it is not simply derived. */
     requiredStatus?: SourceStatus
     /** Whatever else the requirement's sentence states, when it is also (say) the marking sentence. */
@@ -236,17 +296,17 @@ export function sayRange(section: Instruction['section'], line: BoundedLine, wor
     const around = line.preferred && words.preferred ? aroundPhrase(line.preferred, words.number) : null
     return {
         required: limits
-            ? instruction(section, words.requiredStatus ?? 'DERIVED', words.required!(limits.text, line.required!), [...(words.requiredAlso?.from ?? []), line.path].filter((p, i, all) => all.indexOf(p) === i), [
+            ? instruction(words.sections?.required ?? section, words.requiredStatus ?? 'DERIVED', words.required!(limits.text, line.required!), [...(words.requiredAlso?.from ?? []), line.path].filter((p, i, all) => all.indexOf(p) === i), [
                   ...(words.requiredAlso?.quantities ?? []),
                   ...limits.quantities,
               ])
             : null,
-        preferred: around ? instruction(section, 'PREFERENCE', words.preferred!(around.text, line.preferred!), [line.path], around.quantities) : null,
+        preferred: around ? instruction(words.sections?.preferred ?? section, 'PREFERENCE', words.preferred!(around.text, line.preferred!), [line.path], around.quantities) : null,
         starting:
             stated(line.starting) && words.starting
                 ? instruction(
                       section,
-                      'REALIZATION_CHOICE',
+                      'STARTING',
                       words.starting(words.number(line.starting), line.starting),
                       [line.path, ...(words.startingAlso?.from ?? [])].filter((p, i, all) => all.indexOf(p) === i),
                       [line.starting, ...(words.startingAlso?.quantities ?? [])],
@@ -422,9 +482,23 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
     const observations: string[] = []
     const withheld: WithheldField[] = []
     const game = fixture.game
+    /**
+     * **Each property's status, read from what crossed the boundary with it** — 14 October 2026. A derived value
+     * carries its `strength` (REQUIRED, DEFAULT or ADVISORY, computed once from its supporting items in
+     * `derivation/strength.ts`); a choice carries its `closure`. Every derived path read DERIVED and every choice
+     * REALIZATION_CHOICE before this, so a preferred default was stated as a rule of the game.
+     *
+     *   - a choice left to the coach (`COACH_DECIDES`) is a COACH_CHOICE;
+     *   - every other choice is where this activity STARTS — a starting value inside a range, an alternative
+     *     realization took (a line rather than a zone), or the only value an authored bound admits;
+     *   - a derived value is DERIVED, STARTING or ADVISORY by its strength. One carrying no strength (a fixture
+     *     frozen before it was carried) reads DERIVED, exactly as it always did: nothing is softened on a guess.
+     */
     const statusOf = new Map<string, SourceStatus>()
-    for (const d of fixture.status.derived) statusOf.set(d.path, 'DERIVED')
-    for (const c of fixture.status.choices) statusOf.set(c.path, 'REALIZATION_CHOICE')
+    for (const d of fixture.status.derived) statusOf.set(d.path, STATUS_OF_STRENGTH[String(d.strength)] ?? 'DERIVED')
+    for (const c of fixture.status.choices) statusOf.set(c.path, c.closure === 'COACH_DECIDES' ? 'COACH_CHOICE' : 'STARTING')
+    /** The status of a sentence resting on these paths: the strongest any of them carries. */
+    const statusAt = (paths: string[], fallback: SourceStatus): SourceStatus => strongest(paths.map(p => statusOf.get(p)).filter((s): s is SourceStatus => !!s), fallback)
 
     const say = (section: Instruction['section'], status: SourceStatus, core: string, from: string[], quantities: number[] = []) =>
         instructions.push({ section, text: phrase(status, core), status, from, quantities })
@@ -546,6 +620,7 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
                       requiredStatus: status,
                       requiredAlso: { from: markingFrom, quantities: [length] },
                       preferred: around => `${around} wide works well`,
+                      sections: { preferred: ADJUSTING },
                   })
                 : null
             if (ranged?.required) instructions.push(ranged.required)
@@ -563,9 +638,11 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
              */
             const functions: string[] = Array.isArray((region as any).functions) ? (region as any).functions : []
             for (const member of functions) {
+                // Its status is its strength: an established function supported only by an item the rule could
+                // stand without is ADVISORY (14 October 2026; the mapping awaits his OD2 ruling).
                 say(
                     'Set up',
-                    'DERIVED',
+                    statusAt([`space.regions[${region.elementId}].functions[${member}]`, `space.regions[${region.elementId}].functions`], 'DERIVED'),
                     `This ${noun} is established as a ${String(member).replace(/-/g, ' ')}`,
                     [`space.regions[${region.elementId}].functions`, `space.regions[${region.elementId}].functions[${member}]`],
                     [],
@@ -609,13 +686,14 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
      *   - **their participation state** — `participation[].state`, which belongs to any performer group and
      *     is worded here for the one group this renderer can name.
      *
-     * **What is NOT said, and why: that the change of sides is immediate.** His ruling says it is. The game
-     * does not hold it: the row that would (`affiliation.on`) holds one trigger and already holds the
-     * authored `STANDING`, so the ruling could not be added without a collision, and the contract's own
-     * ledger records *"whether re-affiliation on a turnover is instantaneous or takes effect at a restart"*
-     * as not authored. Under SD-103 a sentence here is entailed by the game or it is not said, so the
-     * activity says *always* and *when possession changes* — both entailed — and the word *immediately*
-     * waits for the knowledge to hold it. Reported as an observation every time, so it cannot go quiet.
+     * **That the change of sides is immediate — withheld on 13 October, said since 14 October 2026.** His ruling
+     * said it was; the game could not hold it: the row that would (`affiliation.on`) holds one trigger and already
+     * holds the authored `STANDING`, and the contract's own ledger records *"whether re-affiliation on a turnover
+     * is instantaneous or takes effect at a restart"* as not authored. Under SD-103 a sentence here is entailed by
+     * the game or it is not said, so the word waited. On 14 October he asked for *"the explicit property
+     * governing when a neutral player changes allegiance"*: register row P6c (`affiliation.takesEffect`) holds it
+     * and C43 fills it with IMMEDIATE, so the sentence says *"switch immediately"*, cited to that property — and
+     * only where the game holds that value (see the allegiance sentence below).
      *
      * A value with no faithful wording — a designation the possession relation does not decide, a trigger
      * other than a standing one, a state outside the table — is withheld and reported, never paraphrased.
@@ -667,6 +745,10 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
                           preferred: (around, bound) => `${around} ${noun(bound)} works well`,
                           starting: core,
                           startingAlso: also,
+                          // Where the count is only where this activity STARTS, its required limit is what a coach
+                          // may adjust within, so it is said with the preference in the adjusting part; the
+                          // starting count stays in the setup. A count the game fixes keeps its limit beside it.
+                          sections: stated(range.starting) ? { required: ADJUSTING, preferred: ADJUSTING } : { preferred: ADJUSTING },
                       })
                     : null
                 if (ranged?.starting) instructions.push(ranged.starting)
@@ -676,19 +758,25 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
 
                 /**
                  * The preferred range is offered as authored. Which of its members this session can field is
-                 * a separate fact, kept with the choice (`within.rosterAdmits`), and where they differ a coach
-                 * would want to know — so it is reported here and the sentence is left alone.
+                 * a separate fact, kept with the choice (`within.configurations`, 14 October: the roster
+                 * arithmetic, what the knowledge authorizes of it, and what the preferred range offers), and
+                 * where they differ a coach would want to know — so it is reported here and the sentence is left
+                 * alone. Offering only the fieldable part is the consolidated language's change, not this one.
                  */
-                const admits: unknown = (fixture.status.choices ?? []).find((c: any) => c.path === countPath)?.within?.rosterAdmits
-                if (Array.isArray(admits) && range?.preferred && stated(range.preferred.min) && stated(range.preferred.max)) {
-                    const offered: number[] = []
-                    for (let n = range.preferred.min; n <= range.preferred.max; n++) offered.push(n)
-                    const unfielded = offered.filter(n => !admits.includes(n))
+                const configurations: any = (fixture.status.choices ?? []).find((c: any) => c.path === countPath)?.within?.configurations
+                const authorized: unknown = configurations?.authorized
+                if (Array.isArray(authorized) && range?.preferred && stated(range.preferred.min) && stated(range.preferred.max)) {
+                    const preferredCounts: number[] = []
+                    for (let n = range.preferred.min; n <= range.preferred.max; n++) preferredCounts.push(n)
+                    const unfielded = preferredCounts.filter(n => !authorized.includes(n))
                     if (unfielded.length) {
+                        const offered: number[] = Array.isArray(configurations.offered) ? configurations.offered : []
                         observations.push(
                             `The preferred number of neutral players is offered as authored (${range.preferred.min} to ${range.preferred.max}). With ` +
                                 `${players} players, ${unfielded.join(' and ')} ${unfielded.length === 1 ? 'does' : 'do'} not leave whole equal teams; ` +
-                                `this session's roster admits ${admits.join(', ') || 'no count at all'}. A coach who takes another count will have ` +
+                                `of the counts the knowledge authorizes, this session's roster fields ${authorized.join(', ') || 'none at all'}, and ` +
+                                `the preferred range offers ${offered.join(', ') || 'none of them'} as a normal starting configuration (ecological ` +
+                                `appropriateness: ${String(configurations.ecological ?? 'NOT_ASSESSED')}). A coach who takes another count will have ` +
                                 `unequal teams or a player over, and the activity does not say so.`,
                         )
                     }
@@ -704,7 +792,26 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
             }
 
             if (joins !== undefined || on !== undefined) {
-                if (side && relationEstablished && on === 'STANDING') {
+                /**
+                 * **"Switch immediately" — said ONLY where the game holds it.** 14 October 2026: the knowledge now
+                 * has somewhere to hold the timing (register row P6c, `affiliation.takesEffect`), and his ruling of
+                 * that day is in it (C43, IMMEDIATE). So the word the paragraph above withheld is said, cited to the
+                 * property that holds it. The fidelity check cannot see a word, so the guarantee is here: the
+                 * adverb is emitted for the value IMMEDIATE and for nothing else. With no timing in the game the
+                 * old sentence and its observation stand; a timing this renderer has no wording for is said
+                 * without it and withheld, which refuses the activity.
+                 */
+                const takesEffect = neutrals.affiliation?.takesEffect
+                const takesEffectPath = 'performers.neutrals.affiliation.takesEffect'
+                if (side && relationEstablished && on === 'STANDING' && takesEffect === 'IMMEDIATE') {
+                    say(
+                        'Players',
+                        recorded(joinsPath, 'DERIVED'),
+                        `${Who} always play${one ? 's' : ''} with ${side} and switch${one ? 'es' : ''} immediately when possession changes`,
+                        [joinsPath, onPath, takesEffectPath, `objects[${carrier.elementId}].kind`],
+                        [],
+                    )
+                } else if (side && relationEstablished && on === 'STANDING') {
                     say(
                         'Players',
                         recorded(joinsPath, 'DERIVED'),
@@ -712,13 +819,15 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
                         [joinsPath, onPath, `objects[${carrier.elementId}].kind`],
                         [],
                     )
-                    observations.push(
-                        `The neutral players' side is held as a standing rule (\`${onPath}\` = STANDING) that follows the team in possession, so the ` +
-                            `activity says they ALWAYS play with that team and change sides WHEN possession changes. It does not say the change is ` +
-                            `IMMEDIATE, because the game does not hold that: the row holds one trigger, and whether the change takes effect at once ` +
-                            `or at the next restart is recorded by the knowledge itself as not authored. If that is to be explicit, the knowledge ` +
-                            `needs somewhere to hold it; rendering will not add the word on its own authority.`,
-                    )
+                    if (takesEffect !== undefined) withheld.push({ path: takesEffectPath, row: 'P6c', reason: 'AWAITING_APPROVED_WORDING' })
+                    else {
+                        observations.push(
+                            `The neutral players' side is held as a standing rule (\`${onPath}\` = STANDING) that follows the team in possession, so the ` +
+                                `activity says they ALWAYS play with that team and change sides WHEN possession changes. It does not say the change is ` +
+                                `IMMEDIATE, because this game holds no timing for it (\`${takesEffectPath}\` is absent). Rendering will not add the word ` +
+                                `on its own authority.`,
+                        )
+                    }
                 } else {
                     const missing = !carrier
                         ? 'the game establishes no object to name as what is possessed'
@@ -737,7 +846,23 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
             const means = neutrals.distinguishable
             if (typeof means === 'string' && means.trim()) {
                 const apart = teams.length === 2 ? ' from both teams' : teams.length ? ' from the teams' : ''
-                say('Players', recorded(meansPath, 'DERIVED'), `Make ${who} easy to tell apart${apart} — ${means}`, [meansPath, ...(teams.length ? ['performers.teams'] : [])], [])
+                /**
+                 * **The means is a recommendation where the knowledge makes it one — 14 October 2026.** Christian:
+                 * *"Contrasting bibs should be treated as a practical recommendation for distinguishing neutrals, not
+                 * a universal requirement, provided the players can readily identify their roles."* Recorded as C47
+                 * (the authored means SUPPORTING; it was already a preferred default, so its strength is DEFAULT and
+                 * its sentence STARTING). That the neutrals are told apart is required (NEUTRAL-06.a); HOW is where
+                 * the activity starts, so the authored means is offered as an example rather than as the rule. A
+                 * means the knowledge requires keeps the old wording.
+                 */
+                const status = recorded(meansPath, 'DERIVED')
+                say(
+                    'Players',
+                    status,
+                    status === 'DERIVED' ? `Make ${who} easy to tell apart${apart} — ${means}` : `Make ${who} easy to tell apart${apart} — for example, ${means}`,
+                    [meansPath, ...(teams.length ? ['performers.teams'] : [])],
+                    [],
+                )
             } else if (means !== undefined) {
                 observations.push(
                     `How the neutral players are told apart is established as ${JSON.stringify(means)}, which is not wording a coach can be given, ` +
@@ -881,9 +1006,10 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
         if (holder) {
             const held = teams.some((t: any) => String(t.elementId) === String(holder))
             if (held) {
+                // Left to the coach (COACH_DECIDES), so a COACH_CHOICE: the sentence puts the choice to them.
                 say(
                     'Players',
-                    'REALIZATION_CHOICE',
+                    statusAt(['possession.team'], 'COACH_CHOICE'),
                     `One team starts with the ball — the game does not fix which, so pick one and tell both teams before you start`,
                     ['possession.team', 'performers.teams'],
                     [],
@@ -993,9 +1119,11 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
         )
     }
     if (continuingOnPossessionChange.length) {
+        // Its status is the play state's strength. GF2-17 authors CONTINUE once, as a preferred default the rule
+        // could stand without, so this is where the activity STARTS — no longer stated as a rule (14 October 2026).
         say(
             'How it works',
-            'DERIVED',
+            statusAt(continuingOnPossessionChange.map(transition => `transitions[${transition.elementId}].playState`), 'DERIVED'),
             `Play continues when possession changes — there is no stoppage`,
             continuingOnPossessionChange.flatMap(transition => [`transitions[${transition.elementId}].playState`, `transitions[${transition.elementId}].selector`]),
             [],
@@ -1083,14 +1211,14 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
             ])
             say(
                 'How to score',
-                'DERIVED',
+                statusAt(provenance, 'DERIVED'),
                 `Each team attacks one line and defends the other — so decide which team starts at which end, tell them, and keep it that way for the whole game`,
                 provenance,
                 [],
             )
             say(
                 'How to score',
-                'DERIVED',
+                statusAt([`objectives[${objectives[0].elementId}].team`], 'DERIVED'),
                 `When possession changes the teams swap roles, not ends: whoever wins the ball attacks the same line they were already attacking`,
                 [`objectives[${objectives[0].elementId}].team`, 'transitions'],
                 [],
@@ -1098,7 +1226,7 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
         } else if (objective) {
             say(
                 'How to score',
-                'DERIVED',
+                statusAt([`objectives[${objective.elementId}].team`, `objectives[${objective.elementId}].reference`], 'DERIVED'),
                 shared
                     ? `Both teams attack the same line — the one you marked at the end of the area`
                     : `Each team attacks its own line`,
@@ -1164,7 +1292,7 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
         if (noun && effective !== null) {
             say(
                 'How to score',
-                'DERIVED',
+                statusAt([`${base}.operation`, `${base}.magnitude`], 'DERIVED'),
                 `When the ${noun} condition is met, that same score is worth ${effective} instead of ${primary.value}`,
                 [`${base}.operation`, `${base}.magnitude`, 'value.primaryEvent.value'],
                 [effective, primary.value],
@@ -1176,7 +1304,7 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
         if (noun) {
             say(
                 'How to score',
-                'DERIVED',
+                statusAt([`${base}.condition.type`, `${base}.condition.referents`], 'DERIVED'),
                 `The condition is about the ${regionsNamed.length === 2 ? `two ${noun}s` : noun} you marked — it applies to either of them`,
                 [`${base}.condition.type`, `${base}.condition.referents`, ...referents.map(r => `${base}.condition.referents[${r.structuralRef?.contractId}::${r.structuralRef?.itemId}`.concat(']'))],
                 [],
@@ -1205,7 +1333,7 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
         const objectCited = carrier ? [`objects[${carrier.elementId}].kind`] : []
         if (criterion) {
             const worded = carrier && typeof criterion === 'string' ? CRITERION_WORDING[criterion] : undefined
-            if (worded) say('How to score', 'DERIVED', worded(carrier.kind), [`${base}.condition.value`, ...objectCited], [])
+            if (worded) say('How to score', statusAt([`${base}.condition.value`], 'DERIVED'), worded(carrier.kind), [`${base}.condition.value`, ...objectCited], [])
             else withhold('condition.value', 'V8c')
         }
         if (modifier.endsOn) {
@@ -1213,7 +1341,7 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
             // A termination with no wording for its exact value is withheld, never paraphrased. (It was an
             // observation until 14 October, so an activity could be served saying nothing about when its
             // modification ends; a rule of the game left unsaid is a loss, and now it refuses.)
-            if (worded) say('How to score', 'DERIVED', worded(carrier.kind), [`${base}.endsOn`, ...objectCited], [])
+            if (worded) say('How to score', statusAt([`${base}.endsOn`], 'DERIVED'), worded(carrier.kind), [`${base}.endsOn`, ...objectCited], [])
             else withhold('endsOn', 'V8d')
         }
 
@@ -1282,5 +1410,11 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
         }
     }
 
-    return { instructions, coachingObservations: observations, withheld }
+    /**
+     * The tier is the section's own reading, set here and nowhere else; and what a coach may adjust is read after
+     * the starting setup, so it is moved to the end with its order kept. Organisation only — no instruction is
+     * added, dropped or reworded by this.
+     */
+    const tiered = instructions.map(i => ({ ...i, tier: (i.section === ADJUSTING ? 'adjust' : 'setup') as 'setup' | 'adjust' }))
+    return { instructions: [...tiered.filter(i => i.tier === 'setup'), ...tiered.filter(i => i.tier === 'adjust')], coachingObservations: observations, withheld }
 }

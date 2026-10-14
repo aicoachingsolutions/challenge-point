@@ -509,22 +509,31 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
             reviewActivity(stored({ fieldLength: String(length), fieldWidth: String(width) }), { demonstrationId: 'scoring-modifier', durationMin: 20 }),
             `the scoring-modifier demonstration at ${length} x ${width}`,
         )
-    const expected: [number, number, number, string[]][] = [
+    /**
+     * **Moved 14 October 2026, each for a ruling of that day, and measured.** The lines lost "For this activity,"
+     * (his §7) and are STARTING; each channel's established function is ADVISORY — its only support is an item
+     * the rule could stand without (OD2 awaits his ruling; rendered so he can see it); each preference moved to
+     * "Adjusting the activity" (§7, "Alternative ranges, adjustments … can be presented separately"); and the
+     * numbers are established at the practical grain, inward (§7, rounding at establishment; the grain is data
+     * and a proposal awaiting his confirmation): at 30 × 25 the channel is 4 to 6 m, not 3.75 to 6.25 m, and the
+     * 25 cm sliver of preference is offered as the one practical value, *"Around 6 m"*; at 20 × 15 it is 2.5 to
+     * 3.5 m. 40 × 30 is already on the grain and its numbers do not move. Instruction counts do not move.
+     */
+    const expected: [number, number, number, string[], string[]][] = [
         [
             40,
             30,
             22,
             [
                 'Mark out an area 40 m long by 30 m wide',
-                'For this activity, mark a line across one end of the area, 30 m long, on the end line itself',
-                'For this activity, mark a line across the other end of the area, 30 m long, on the end line itself',
+                'Mark a line across one end of the area, 30 m long, on the end line itself',
+                'Mark a line across the other end of the area, 30 m long, on the end line itself',
                 'Mark a channel along one touchline, 40 m long and between 4.5 m and 7.5 m wide',
-                'This channel is established as a perceptual reference',
-                'Around 6 m to 7.5 m wide works well, if it suits your group',
+                'It helps if this channel is established as a perceptual reference',
                 'Mark a channel along the opposite touchline, 40 m long and between 4.5 m and 7.5 m wide',
-                'This channel is established as a perceptual reference',
-                'Around 6 m to 7.5 m wide works well, if it suits your group',
+                'It helps if this channel is established as a perceptual reference',
             ],
+            ['Around 6 m to 7.5 m wide works well, if it suits your group', 'Around 6 m to 7.5 m wide works well, if it suits your group'],
         ],
         [
             30,
@@ -532,15 +541,14 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
             22,
             [
                 'Mark out an area 30 m long by 25 m wide',
-                'For this activity, mark a line across one end of the area, 25 m long, on the end line itself',
-                'For this activity, mark a line across the other end of the area, 25 m long, on the end line itself',
-                'Mark a channel along one touchline, 30 m long and between 3.75 m and 6.25 m wide',
-                'This channel is established as a perceptual reference',
-                'Around 6 m to 6.25 m wide works well, if it suits your group',
-                'Mark a channel along the opposite touchline, 30 m long and between 3.75 m and 6.25 m wide',
-                'This channel is established as a perceptual reference',
-                'Around 6 m to 6.25 m wide works well, if it suits your group',
+                'Mark a line across one end of the area, 25 m long, on the end line itself',
+                'Mark a line across the other end of the area, 25 m long, on the end line itself',
+                'Mark a channel along one touchline, 30 m long and between 4 m and 6 m wide',
+                'It helps if this channel is established as a perceptual reference',
+                'Mark a channel along the opposite touchline, 30 m long and between 4 m and 6 m wide',
+                'It helps if this channel is established as a perceptual reference',
             ],
+            ['Around 6 m wide works well, if it suits your group', 'Around 6 m wide works well, if it suits your group'],
         ],
         [
             20,
@@ -548,22 +556,24 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
             20,
             [
                 'Mark out an area 20 m long by 15 m wide',
-                'For this activity, mark a line across one end of the area, 15 m long, on the end line itself',
-                'For this activity, mark a line across the other end of the area, 15 m long, on the end line itself',
-                'Mark a channel along one touchline, 20 m long and between 2.25 m and 3.75 m wide',
-                'This channel is established as a perceptual reference',
-                'Mark a channel along the opposite touchline, 20 m long and between 2.25 m and 3.75 m wide',
-                'This channel is established as a perceptual reference',
+                'Mark a line across one end of the area, 15 m long, on the end line itself',
+                'Mark a line across the other end of the area, 15 m long, on the end line itself',
+                'Mark a channel along one touchline, 20 m long and between 2.5 m and 3.5 m wide',
+                'It helps if this channel is established as a perceptual reference',
+                'Mark a channel along the opposite touchline, 20 m long and between 2.5 m and 3.5 m wide',
+                'It helps if this channel is established as a perceptual reference',
             ],
+            [],
         ],
     ]
-    for (const [length, width, instructions, setUp] of expected) {
+    for (const [length, width, instructions, setUp, adjusting] of expected) {
         const activity = at(length, width)
         assert.equal(activity.integrity.fidelityViolations, 0, `${length} x ${width}`)
         assert.equal(activity.integrity.postRealizationValidated, true)
         assert.deepEqual(activity.integrity.acceptance, { nothingClosedWithoutAuthority: [], nothingLost: [], nothingInvented: [] })
         assert.equal(activity.rendered.instructions.length, instructions, `${length} x ${width}`)
         assert.deepEqual(text(activity, 'Set up'), setUp, `${length} x ${width}`)
+        assert.deepEqual(text(activity, 'Adjusting the activity'), adjusting, `${length} x ${width}`)
         // Nothing but the area differs between them: the game is the same game on a different pitch.
         for (const section of ['Players', 'How it works', 'How to score']) assert.deepEqual(text(activity, section), text(modifier, section), `${length} x ${width}: ${section}`)
         // Every number said is declared, so every number said was checked — and none is a rounding.
@@ -571,11 +581,12 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
             assert.deepEqual([...said.text.matchAll(/\d+(?:\.\d+)?/g)].map(m => Number(m[0])).filter(n => !said.quantities.includes(n)), [], said.text)
         }
     }
-    // A width whose fraction has no exact binary form is still printed as the decimal it is: 0.15 × 23 is
-    // 3.45, and the float product is 3.4499999999999997.
+    // A width whose fraction has no exact binary form: 0.15 × 23 is exactly 3.45 (the float product is
+    // 3.4499999999999997), and since 14 October 2026 that exact number is what is rounded inward to the
+    // practical grain — 3.5 m, with 5.75 m becoming 5.5 m. The game holds 5.5 and the text says it.
     const awkward = at(35, 23)
     assert.equal(awkward.integrity.fidelityViolations, 0)
-    assert.ok(text(awkward, 'Set up').includes('Mark a channel along one touchline, 35 m long and between 3.45 m and 5.75 m wide'), JSON.stringify(text(awkward, 'Set up')))
+    assert.ok(text(awkward, 'Set up').includes('Mark a channel along one touchline, 35 m long and between 3.5 m and 5.5 m wide'), JSON.stringify(text(awkward, 'Set up')))
 
     /**
      * **More sizes, read sentence by sentence in the review of 13 October 2026 and pinned as read.** Each is
@@ -586,13 +597,20 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
      * coach typed with decimals; and 40 × 24 is the one width where the preference meets the requirement at
      * a single point, so it is offered as one number — a sentence shape no other size produces. Every number
      * is one the game holds, with no digit added or dropped.
+     *
+     * **Re-read 14 October 2026 after rounding at establishment** (his §7; grain as data, a proposal awaiting his
+     * confirmation: 0.5 m below 10 m, 1 m from 10 m, always inward). Every required range moved inward onto the
+     * grain except 40 × 24's maximum (6 m, already on it): 3.6-6 → 4-6, 3.15-5.25 → 3.5-5, 5.25-8.75 → 5.5-8.5,
+     * 9.6-16 → 10-16 (the floor crosses into the 1 m grain), 3.33-5.55 → 3.5-5.5. The preferences follow: 45 × 35
+     * offers 6 to 8.5 m, and 100 × 64's 9.6-10 m sliver becomes the one practical value 10 m — a "single point"
+     * is no longer the shape of one size only. No size offers a preference outside its own requirement.
      */
     const read: [number, number, string, string | null][] = [
-        [40, 24, 'between 3.6 m and 6 m wide', 'Around 6 m wide works well, if it suits your group'],
-        [33, 21, 'between 3.15 m and 5.25 m wide', null],
-        [45, 35, 'between 5.25 m and 8.75 m wide', 'Around 6 m to 8.75 m wide works well, if it suits your group'],
-        [100, 64, 'between 9.6 m and 16 m wide', 'Around 9.6 m to 10 m wide works well, if it suits your group'],
-        [30.5, 22.2, 'between 3.33 m and 5.55 m wide', null],
+        [40, 24, 'between 4 m and 6 m wide', 'Around 6 m wide works well, if it suits your group'],
+        [33, 21, 'between 3.5 m and 5 m wide', null],
+        [45, 35, 'between 5.5 m and 8.5 m wide', 'Around 6 m to 8.5 m wide works well, if it suits your group'],
+        [100, 64, 'between 10 m and 16 m wide', 'Around 10 m wide works well, if it suits your group'],
+        [30.5, 22.2, 'between 3.5 m and 5.5 m wide', null],
     ]
     for (const [length, width, required, preference] of read) {
         const activity = at(length, width)
@@ -633,6 +651,14 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
      * Twelve players and thirteen, because they are the two cases: an even squad starts with two neutrals and
      * an odd one with one. Every sentence is a DRAFT for his wording review.
      */
+    /**
+     * **Moved 14 October 2026, each for a ruling of that day** (every sentence still a DRAFT for his review): no
+     * "For this activity," (§7); the allegiance says "switch immediately", from the timing the game now holds
+     * (register row P6c, C43 — §6); the authored means is offered as an example (C47, his bibs ruling); and the
+     * floor and the preferred range moved to "Adjusting the activity" (§7). Offering only the part of the
+     * preferred range a session can field is the consolidated language's change (S-C2), not this one.
+     */
+    const NEUTRAL_ADJUSTING = ['The game needs at least 1 neutral player', 'Around 1 to 2 neutral players works well, if it suits your group']
     const NEUTRAL_ACTIVITY: [number, string[]][] = [
         [
             12,
@@ -640,13 +666,11 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
                 '12 players in total',
                 '2 teams of 5',
                 `No ${ROLE}s — everyone is an outfield player`,
-                'For this activity, 2 of the 12 players are neutral players, so the team with the ball has 2 more players than the team without it',
-                'The game needs at least 1 neutral player',
-                'Around 1 to 2 neutral players works well, if it suits your group',
-                'The neutral players always play with whichever team has the ball, and change sides when possession changes',
-                'Make the neutral players easy to tell apart from both teams — contrasting bibs',
+                '2 of the 12 players are neutral players, so the team with the ball has 2 more players than the team without it',
+                'The neutral players always play with whichever team has the ball and switch immediately when possession changes',
+                'Make the neutral players easy to tell apart from both teams — for example, contrasting bibs',
                 'The neutral players are active in the game — not waiting, resting or watching',
-                'For this activity, one team starts with the ball — the game does not fix which, so pick one and tell both teams before you start',
+                'One team starts with the ball — the game does not fix which, so pick one and tell both teams before you start',
             ],
         ],
         [
@@ -655,13 +679,11 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
                 '13 players in total',
                 '2 teams of 6',
                 `No ${ROLE}s — everyone is an outfield player`,
-                'For this activity, 1 of the 13 players is a neutral player, so the team with the ball has 1 more player than the team without it',
-                'The game needs at least 1 neutral player',
-                'Around 1 to 2 neutral players works well, if it suits your group',
-                'The neutral player always plays with whichever team has the ball, and changes sides when possession changes',
-                'Make the neutral player easy to tell apart from both teams — contrasting bibs',
+                '1 of the 13 players is a neutral player, so the team with the ball has 1 more player than the team without it',
+                'The neutral player always plays with whichever team has the ball and switches immediately when possession changes',
+                'Make the neutral player easy to tell apart from both teams — for example, contrasting bibs',
                 'The neutral player is active in the game — not waiting, resting or watching',
-                'For this activity, one team starts with the ball — the game does not fix which, so pick one and tell both teams before you start',
+                'One team starts with the ball — the game does not fix which, so pick one and tell both teams before you start',
             ],
         ],
     ]
@@ -685,6 +707,7 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         assert.equal(neutrals.integrity.postRealizationValidated, true)
         assert.deepEqual(neutrals.integrity.acceptance, { nothingClosedWithoutAuthority: [], nothingLost: [], nothingInvented: [] })
         assert.deepEqual(text(neutrals, 'Players'), expectedPlayers, `${players} players`)
+        assert.deepEqual(text(neutrals, 'Adjusting the activity'), NEUTRAL_ADJUSTING, `${players} players`)
         // The neutral condition changes who plays and nothing about the pitch or the scoring: every other
         // section is the bare possession game's, sentence for sentence. And what continues at a change of
         // possession is said ONCE, though two contracts assert that transition here.
@@ -700,7 +723,8 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
     for (const [players, count, size] of [[8, 2, 3], [15, 1, 7], [16, 2, 7], [3, 1, 1]] as const) {
         const activity = served(reviewActivity(stored({ playerCount: players }), { demonstrationId: 'neutral-players', durationMin: 20 }), `${players} players`)
         assert.equal(text(activity, 'Players')[1], `2 teams of ${size}`, `${players} players`)
-        assert.ok(text(activity, 'Players')[3].startsWith(`For this activity, ${count} of the ${players} players ${count === 1 ? 'is a neutral player' : 'are neutral players'}`), text(activity, 'Players')[3])
+        // No "For this activity," since 14 October 2026 (his §7).
+        assert.ok(text(activity, 'Players')[3].startsWith(`${count} of the ${players} players ${count === 1 ? 'is a neutral player' : 'are neutral players'}`), text(activity, 'Players')[3])
         assert.equal(activity.integrity.fidelityViolations, 0)
     }
 

@@ -18,6 +18,8 @@ const FIXTURE = path.resolve(__dirname, '../../../../docs/audits/a04-concrete-ga
 const fixture = JSON.parse(fs.readFileSync(FIXTURE, 'utf8'))
 
 const violations = (r: ReturnType<typeof checkFidelity>, q: number) => r.findings.filter(f => f.question === q && f.severity === 'VIOLATION')
+/** Every question-3 finding, VIOLATION or NOTE — for the losses his §7 made reportable rather than refusing. */
+const report3 = (r: ReturnType<typeof checkFidelity>) => r.findings.filter(f => f.question === 3)
 const wrap = (instructions: Instruction[]): RenderedActivity => ({ instructions, coachingObservations: [], withheld: [] })
 
 // ── The fixture is the one the closure run produced ──────────────────────────────────────────────
@@ -235,8 +237,26 @@ assert.equal(report.provenance.length, rendered.instructions.length)
     const r = checkFidelity(fixture, wrap([hardened]))
     assert.ok(violations(r, 4).some(f => f.what.includes('compulsory')), 'a preference worded as compulsory must be caught')
 
-    const asNecessary: Instruction = { section: 'How to score', text: 'The rules require crossing the line', status: 'REALIZATION_CHOICE', from: ['value.primaryEvent.kind'], quantities: [] }
-    assert.equal(violations(checkFidelity(fixture, wrap([asNecessary])), 4).length, 1, 'a choice presented as a necessity must be caught')
+    // Re-pointed 14 October 2026: where an activity starts is a STARTING sentence now (REALIZATION_CHOICE, with its
+    // "For this activity" prefix, is gone on his §7). The rule it was held to is the same.
+    const asNecessary: Instruction = { section: 'How to score', text: 'The rules require crossing the line', status: 'STARTING', from: ['value.primaryEvent.kind'], quantities: [] }
+    assert.equal(violations(checkFidelity(fixture, wrap([asNecessary])), 4).length, 1, 'a starting value presented as a necessity must be caught')
+
+    /**
+     * **The two other statuses of 14 October 2026, each with teeth.** His §3: *"Preserve whether each condition is
+     * required, preferred, advisory, or left to the coach, all the way through rendering and validation."*
+     */
+    const coachMust: Instruction = { section: 'Players', text: 'One team must start with the ball — pick one', status: 'COACH_CHOICE', from: ['possession.team', 'performers.teams'], quantities: [] }
+    assert.ok(violations(checkFidelity(fixture, wrap([coachMust])), 4).some(f => f.what.includes("coach's choice is worded as though the knowledge demanded it")), 'a choice left to the coach may not be a necessity')
+    const coachTold: Instruction = { section: 'Players', text: 'One team starts with the ball', status: 'COACH_CHOICE', from: ['possession.team', 'performers.teams'], quantities: [] }
+    assert.ok(violations(checkFidelity(fixture, wrap([coachTold])), 4).some(f => f.what.includes('not put to the coach as a choice')), 'a value left to the coach must be put to them as a choice')
+    const advisoryRule: Instruction = { section: 'Set up', text: 'This channel is a perceptual reference', status: 'ADVISORY', from: ['envelope.area.width_m'], quantities: [] }
+    assert.ok(violations(checkFidelity(fixture, wrap([advisoryRule])), 4).some(f => f.what.includes('ADVISORY recommendation carries no hedge')), 'a recommendation must be hedged')
+    const advisoryMust: Instruction = { section: 'Set up', text: 'It helps if this channel must always be marked', status: 'ADVISORY', from: ['envelope.area.width_m'], quantities: [] }
+    assert.ok(violations(checkFidelity(fixture, wrap([advisoryMust])), 4).some(f => f.what.includes('ADVISORY recommendation is worded as compulsory')), 'and never imperative')
+    // "It helps" is a hedge for every firm sentence too: a requirement worded as a recommendation is caught.
+    const requirementAdvised: Instruction = { section: 'Set up', text: 'It helps if the area is 40 m long', status: 'DERIVED', from: ['envelope.area.length_m'], quantities: [40] }
+    assert.equal(violations(checkFidelity(fixture, wrap([requirementAdvised])), 4).length, 1)
 }
 
 /**
@@ -293,7 +313,9 @@ assert.equal(report.provenance.length, rendered.instructions.length)
         const r = checkFidelity(game, reworded(isPreference, i => ({ ...i, text: 'Around 12 m to 20 m wide works well, if it suits your group', quantities: [12, 20] })))
         assert.equal(violations(r, 2).filter(f => /offers (12|20) as a preference/.test(f.what)).length, 4, `each wrong number, in each sentence: ${JSON.stringify(violations(r, 2))}`)
         assert.match(violations(r, 2)[0].what, /the preferred range of what it cites is 6 to 7\.5/, 'and the finding says what the range is')
-        assert.equal(violations(r, 3).filter(f => /authored preferred range .* no instruction offers it/.test(f.what)).length, 2, 'and the real one is now offered by nobody')
+        // Moved 14 October 2026 with case 3 below: that the real one is offered by nobody is now a NOTE; the wrong
+        // one is still refused, twice per sentence, at Q2.
+        assert.equal(report3(r).filter(f => f.severity === 'NOTE' && /authored preferred range .* no instruction offers it/.test(f.what)).length, 2, 'and the real one is now offered by nobody')
     }
 
     // 2 — A WRONG REQUIRED LIMIT: the width of the area, said as the width of the channel.
@@ -303,13 +325,35 @@ assert.equal(report.provenance.length, rendered.instructions.length)
         assert.equal(violations(r, 3).filter(f => /required (minimum of 4\.5|maximum of 7\.5)/.test(f.what)).length, 4, 'and neither real limit is stated, for either channel')
     }
 
-    // 3 — THE PREFERENCE LEFT OUT. Authored guidance dropped is authored knowledge lost.
+    /**
+     * 3 — THE PREFERENCE LEFT OUT. **Two VIOLATIONs became two NOTEs on 14 October 2026, with the same words — his
+     * ruling, not a convenience.** Christian, §7: *"Preferred ranges should be available as guidance, but their
+     * omission shouldn't automatically invalidate an otherwise valid activity unless the information is
+     * essential."* The channel's preference is not essential: the marking sentence states the required width,
+     * so a coach has guidance without it. The omission is still REPORTED, every time; it no longer refuses.
+     */
     {
         const r = checkFidelity(game, wrap(said.instructions.filter(i => !isPreference(i))))
-        const lost = violations(r, 3)
+        assert.deepEqual(violations(r, 3), [], 'not essential, so not a refusal')
+        const lost = report3(r).filter(f => f.severity === 'NOTE' && /preferred range/.test(f.what))
         assert.equal(lost.length, 2, `one for each channel: ${JSON.stringify(lost)}`)
         for (const finding of lost) assert.match(finding.what, /carries an authored preferred range that may be offered here \(6 to 7\.5\), and no instruction offers it/)
         assert.deepEqual(violations(r, 2), [], 'nothing said is wrong; something is missing')
+    }
+
+    /**
+     * 3b — AN ESSENTIAL PREFERENCE LEFT OUT is still refused. Essential (the recommended definition, awaiting his
+     * confirmation): the preference is the only authored guidance for a value the game leaves to the coach — no
+     * required limit, no starting value, no number held at its path. Constructed: the channel's width with its
+     * requirement and its interval taken away, so the preference is all a coach would have.
+     */
+    {
+        const bare = JSON.parse(JSON.stringify(game))
+        for (const entry of bare.status.bounds) if (String(entry.path).endsWith('.position.across')) entry.bounds = entry.bounds.filter((b: any) => b.preferred || b.forbidden)
+        for (const g of bare.status.geometry) if (String(g.path).endsWith('.position.across') && g.geometry?.extentBound) delete g.geometry.interval
+        const r = checkFidelity(bare, wrap(said.instructions.filter(i => !isPreference(i))))
+        const essential = violations(r, 3).filter(f => /only authored guidance for a value the game leaves to the coach, so it is essential/.test(f.what))
+        assert.equal(essential.length, 2, `the sole guidance, omitted, still refuses: ${JSON.stringify(violations(r, 3))}`)
     }
 
     // The requirement stated by half — the sentence exactly as it read until this change — is a loss too.
@@ -334,10 +378,12 @@ assert.equal(report.provenance.length, rendered.instructions.length)
         assert.equal(violations(r, 3).filter(f => /required minimum of 4\.5/.test(f.what)).length, 2)
     }
 
-    // A preference that states only part of its range has not offered the range.
+    // A preference that states only part of its range has not offered the range — reported, and since 14 October
+    // 2026 (his §7, as case 3 above) as a NOTE: the channel's preference is not essential.
     {
         const r = checkFidelity(game, reworded(isPreference, i => ({ ...i, text: 'Around 6 m wide works well, if it suits your group', quantities: [6] })))
-        assert.equal(violations(r, 3).filter(f => /no instruction offers it/.test(f.what)).length, 2)
+        assert.equal(report3(r).filter(f => f.severity === 'NOTE' && /no instruction offers it/.test(f.what)).length, 2)
+        assert.deepEqual(violations(r, 2), [], '6 is its own preferred minimum: nothing said is wrong')
     }
 
     // The range is the LINE's, worked out from what was authored and this session's width — not read back
@@ -522,7 +568,8 @@ assert.equal(report.provenance.length, rendered.instructions.length)
     assert.deepEqual(
         [sentences.starting, sentences.required, sentences.preferred].map(i => [i!.text, i!.status, i!.from, i!.quantities]),
         [
-            ['For this activity, 2 neutral players', 'REALIZATION_CHOICE', [path_], [2]],
+            // STARTING, with no prefix, since 14 October 2026 (his §7: "avoid repeatedly beginning sentences with 'For this activity'").
+            ['2 neutral players', 'STARTING', [path_], [2]],
             ['Use at least 1 neutral player', 'DERIVED', [path_], [1]],
             ['Around 1 to 2 neutral players works well, if it suits your group', 'PREFERENCE', [path_], [1, 2]],
         ],
@@ -537,9 +584,13 @@ assert.equal(report.provenance.length, rendered.instructions.length)
     assert.deepEqual(about(withRange(sentences.starting, sentences.required, sentences.preferred)), [], 'all three said: nothing lost and nothing wrong')
 
     // The starting value alone: where the activity starts is said, and the range it starts inside is not.
+    // Since 14 October 2026 (his §7, "unless the information is essential") the preference left out is REPORTED as a
+    // NOTE: the line has a required floor and a starting value, so it is not a coach's only guidance. The floor left
+    // out is still refused.
     const alone = about(withRange(sentences.starting))
-    assert.deepEqual(alone.map(f => f.question), [3, 3], JSON.stringify(alone))
-    assert.ok(alone.some(f => /required minimum of 1/.test(f.what)) && alone.some(f => /preferred range that may be offered here \(1 to 2\)/.test(f.what)))
+    assert.deepEqual(alone.map(f => f.question), [3], JSON.stringify(alone))
+    assert.ok(alone.some(f => /required minimum of 1/.test(f.what)))
+    assert.ok(withRange(sentences.starting).findings.some(f => f.severity === 'NOTE' && /preferred range that may be offered here \(1 to 2\), and no instruction offers it$/.test(f.what)))
 
     // The range without the value: a coach is told what is allowed and not what this activity uses.
     assert.ok(about(withRange(sentences.required, sentences.preferred)).some(f => /starts at 2 in this activity, inside an authored range, and no instruction that cites it states that value/.test(f.what)))
@@ -583,9 +634,29 @@ for (const instruction of rendered.instructions.filter(i => i.status === 'PREFER
     assert.match(instruction.text, /if it suits your group/, 'every preference carries its hedge')
     assert.doesNotMatch(instruction.text, /\bmust\b|\balways\b|\bexactly\b/i)
 }
-for (const instruction of rendered.instructions.filter(i => i.status === 'REALIZATION_CHOICE')) {
-    assert.match(instruction.text, /^For this activity, /, 'a realization choice states itself as a fact about this activity')
+/**
+ * Re-pointed 14 October 2026. This pinned that every choice began *"For this activity, "*; he asked us to stop:
+ * *"I would also avoid repeatedly beginning sentences with 'For this activity.'"* What keeps a starting value or a
+ * coach's choice from reading as a requirement is now that no word of necessity is available to it (Q4), and a
+ * coach's choice must be put to them as one.
+ */
+for (const instruction of rendered.instructions) assert.doesNotMatch(instruction.text, /^For this activity/, 'no sentence begins "For this activity"')
+for (const instruction of rendered.instructions.filter(i => i.status === 'STARTING' || i.status === 'COACH_CHOICE')) {
+    assert.doesNotMatch(instruction.text, /\bmust\b|\balways\b|\bnecessarily\b|\bthe rules require\b/i, `where the activity starts is not a necessity: "${instruction.text}"`)
 }
+for (const instruction of rendered.instructions.filter(i => i.status === 'COACH_CHOICE')) assert.match(instruction.text, /\b(pick|choose|decide)\b/i)
+assert.deepEqual(
+    rendered.instructions.filter(i => i.status !== 'DERIVED' && i.status !== 'SESSION' && i.status !== 'INSTANTIATED').map(i => [i.status, i.text]),
+    [
+        ['STARTING', 'Mark a line across one end of the area, 30 m long, on the end line itself'],
+        ['STARTING', 'Mark a line across the other end of the area, 30 m long, on the end line itself'],
+        ['COACH_CHOICE', 'One team starts with the ball — the game does not fix which, so pick one and tell both teams before you start'],
+        ['STARTING', 'Play continues when possession changes — there is no stoppage'],
+        ['STARTING', 'A team scores 1 point by getting the ball across the line it is attacking'],
+    ],
+    'the Golden Case: what realization chose, what is left to the coach, and the one preferred default (GF2-17) — each in its own status',
+)
+assert.ok(rendered.instructions.every(i => i.tier === (i.section === 'Adjusting the activity' ? 'adjust' : 'setup')), 'the tier is the section\'s own reading')
 
 // ── Q5 FAILS when a region has no marking instruction ────────────────────────────────────────────
 //
@@ -600,7 +671,8 @@ for (const instruction of rendered.instructions.filter(i => i.status === 'REALIZ
     assert.ok(violations(r, 5).length >= 2, 'each unmarked region must be reported')
 }
 {
-    const withoutTheLine = rendered.instructions.filter(i => !/mark a line across one end/.test(i.text))
+    // Case-insensitive since 14 October 2026: the sentence lost its "For this activity, " prefix and now begins "Mark".
+    const withoutTheLine = rendered.instructions.filter(i => !/mark a line across one end/i.test(i.text))
     assert.equal(withoutTheLine.length, rendered.instructions.length - 1, 'the live game has exactly one region instruction to remove')
     const r = checkFidelity(fixture, wrap(withoutTheLine))
     assert.ok(violations(r, 5).length >= 1, 'a single unmarked region must be reported too')
@@ -851,12 +923,23 @@ for (const observation of rendered.coachingObservations) {
     const JOINS = 'performers.neutrals.affiliation.joins'
     const ON = 'performers.neutrals.affiliation.on'
     const MEANS = 'performers.neutrals.distinguishable'
+    const TAKES = 'performers.neutrals.affiliation.takesEffect'
     const [participation] = game.game.performers.participation
     const STATE = `performers.participation[${participation.elementId}].state`
     const [carrier] = game.game.objects
     const KIND = `objects[${carrier.elementId}].kind`
 
-    // WHAT A COACH READS, with the status of each sentence and the properties behind it.
+    /**
+     * WHAT A COACH READS, with the status of each sentence and the properties behind it. **Moved 14 October
+     * 2026, each for a ruling of that day:**
+     *   - the starting count is STARTING, without "For this activity," (his §7), and the possession sentence a
+     *     COACH_CHOICE — it is left to the coach;
+     *   - the allegiance says "switch immediately", citing the new P6c timing (his §6 and C43);
+     *   - the means of telling the neutrals apart is offered as an example (his bibs ruling, C47), and the sentence
+     *     is STARTING: its value is a preferred default;
+     *   - the floor and the preferred range moved to "Adjusting the activity": the count is only where the activity
+     *     starts (§7, "Alternative ranges, adjustments … can be presented separately").
+     */
     assert.deepEqual(
         inPlayers(said).map(i => [i.text, i.status, i.from, i.quantities]),
         [
@@ -864,26 +947,37 @@ for (const observation of rendered.coachingObservations) {
             ['2 teams of 5', 'INSTANTIATED', ['performers.teams', 'performers.teams[].outfieldCount'], [2, 5]],
             [`No ${Object.keys(roles)[0]}s — everyone is an outfield player`, 'SESSION', ['envelope.roles', `performers.teams[].${Object.keys(roles)[0]}`], []],
             [
-                'For this activity, 2 of the 12 players are neutral players, so the team with the ball has 2 more players than the team without it',
-                'REALIZATION_CHOICE',
+                '2 of the 12 players are neutral players, so the team with the ball has 2 more players than the team without it',
+                'STARTING',
                 // Re-pointed in the B3 review, 13 October: this cited `performers.teams[].outfieldCount` too, which
                 // it does not state, and so carried the team size for "2 teams of 5" — see the block below.
                 [COUNT, 'envelope.players', JOINS, 'performers.teams', KIND],
                 [2, 12],
             ],
-            ['The game needs at least 1 neutral player', 'DERIVED', [COUNT], [1]],
-            ['Around 1 to 2 neutral players works well, if it suits your group', 'PREFERENCE', [COUNT], [1, 2]],
-            ['The neutral players always play with whichever team has the ball, and change sides when possession changes', 'DERIVED', [JOINS, ON, KIND], []],
-            ['Make the neutral players easy to tell apart from both teams — contrasting bibs', 'DERIVED', [MEANS, 'performers.teams'], []],
+            ['The neutral players always play with whichever team has the ball and switch immediately when possession changes', 'DERIVED', [JOINS, ON, TAKES, KIND], []],
+            ['Make the neutral players easy to tell apart from both teams — for example, contrasting bibs', 'STARTING', [MEANS, 'performers.teams'], []],
             ['The neutral players are active in the game — not waiting, resting or watching', 'DERIVED', [STATE, `performers.participation[${participation.elementId}].selector`], []],
-            ['For this activity, one team starts with the ball — the game does not fix which, so pick one and tell both teams before you start', 'REALIZATION_CHOICE', ['possession.team', 'performers.teams'], []],
+            ['One team starts with the ball — the game does not fix which, so pick one and tell both teams before you start', 'COACH_CHOICE', ['possession.team', 'performers.teams'], []],
         ],
         'the Players section, sentence by sentence',
     )
+    assert.deepEqual(
+        said.instructions.filter(i => i.section === 'Adjusting the activity').map(i => [i.text, i.status, i.from, i.quantities, i.tier]),
+        [
+            ['The game needs at least 1 neutral player', 'DERIVED', [COUNT], [1], 'adjust'],
+            ['Around 1 to 2 neutral players works well, if it suits your group', 'PREFERENCE', [COUNT], [1, 2], 'adjust'],
+        ],
+        'what a coach may adjust, after the starting setup',
+    )
     assert.deepEqual(all(checkFidelity(game, said)), [], 'and it is faithful')
-    // The count is where the activity STARTS: the game holds it as a choice closed by rule inside a range.
+    // The count is where the activity STARTS: the game holds it as a choice closed by rule inside a range. Its
+    // configurations (14 October 2026) keep structural, authorized and offered apart; rule 2's count is the one offered.
     const recorded = game.status.choices.find((c: any) => c.path === COUNT)
-    assert.deepEqual([recorded.value, recorded.closure, recorded.defaultedBy, recorded.within.rosterAdmits], [2, 'STARTING_VALUE_IN_RANGE', 'ONLY_PREFERRED_COUNT_THE_ROSTER_ADMITS', [2, 4, 6, 8, 10]])
+    assert.deepEqual(
+        [recorded.value, recorded.closure, recorded.defaultedBy, recorded.within.configurations],
+        [2, 'STARTING_VALUE_IN_RANGE', 'ONLY_PREFERRED_COUNT_THE_ROSTER_ADMITS', { structural: [0, 2, 4, 6, 8, 10], authorized: [2, 4, 6, 8, 10], offered: [2], offeredBasis: 'PREFERRED_RANGE_FOR_NORMAL_STARTING_CONFIGURATIONS', ecological: 'NOT_ASSESSED' }],
+    )
+    assert.deepEqual([recorded.value], recorded.within.configurations.offered, 'justified-default rule 2 closes exactly the one count offered')
     // No member handle reaches a sentence or a citation.
     for (const i of said.instructions) assert.ok(!i.text.includes('#') && !i.from.some(p => p.includes('#')), `${i.text} / ${JSON.stringify(i.from)}`)
 
@@ -891,30 +985,32 @@ for (const observation of rendered.coachingObservations) {
     const thirteen = built(13)
     assert.deepEqual(all(checkFidelity(thirteen.game, thirteen.said)), [])
     assert.deepEqual(inPlayers(thirteen.said).slice(0, 2).map(i => i.text), ['13 players in total', '2 teams of 6'])
-    assert.deepEqual(inPlayers(thirteen.said).slice(3, 9).map(i => i.text), [
-        'For this activity, 1 of the 13 players is a neutral player, so the team with the ball has 1 more player than the team without it',
-        'The game needs at least 1 neutral player',
-        'Around 1 to 2 neutral players works well, if it suits your group',
-        'The neutral player always plays with whichever team has the ball, and changes sides when possession changes',
-        'Make the neutral player easy to tell apart from both teams — contrasting bibs',
+    assert.deepEqual(inPlayers(thirteen.said).slice(3, 7).map(i => i.text), [
+        '1 of the 13 players is a neutral player, so the team with the ball has 1 more player than the team without it',
+        'The neutral player always plays with whichever team has the ball and switches immediately when possession changes',
+        'Make the neutral player easy to tell apart from both teams — for example, contrasting bibs',
         'The neutral player is active in the game — not waiting, resting or watching',
     ])
+    assert.deepEqual(thirteen.said.instructions.filter(i => i.tier === 'adjust').map(i => i.text), ['The game needs at least 1 neutral player', 'Around 1 to 2 neutral players works well, if it suits your group'])
+    assert.equal(thirteen.game.status.choices.find((c: any) => c.path === COUNT).within.configurations.offered.join(), '1')
 
     /**
-     * **WHAT IS REPORTED RATHER THAN SAID.** Three things a coach would ask that the activity cannot answer
-     * from the game, each reported as an observation and none of them worded into an instruction:
+     * **WHAT IS REPORTED RATHER THAN SAID.** Things a coach would ask that the activity cannot answer from the
+     * game, each reported as an observation and none of them worded into an instruction:
      *
-     *   - his ruling says the change of sides is IMMEDIATE; the game holds a standing affiliation and
-     *     nothing about when a change takes effect, so the activity says *always* and *when possession
-     *     changes* and does not say *immediately*. Pinned here so that the day the knowledge can hold it,
-     *     this assertion is the one that has to move;
+     *   - **MOVED 14 October 2026, as this pin said it would**: it read that his ruling says the change of sides
+     *     is IMMEDIATE and the game did not hold it, so the activity did not say it. The knowledge holds it now
+     *     (register row P6c; C43, his words), so the activity says it — once, citing the property — and the
+     *     observation that it could not is gone. Without the item the old sentence and observation come back
+     *     (`affiliation-timing.unit.ts`);
      *   - the preferred range is offered as authored (1 to 2), and with twelve players 1 does not leave
-     *     equal teams;
+     *     equal teams — now read from the configurations, which also say what is offered and that ecological
+     *     appropriateness is not assessed;
      *   - nothing establishes whether the same players stay neutral throughout.
      */
-    assert.ok(!said.instructions.some(i => /immediate|at once|straight away|the moment/i.test(i.text)), 'the activity does not say the change is immediate: the game does not hold it')
-    assert.ok(said.coachingObservations.some(o => o.includes('It does not say the change is') && o.includes('IMMEDIATE') && o.includes(ON)), 'and says so, to whoever reads the observations')
-    assert.ok(said.coachingObservations.some(o => o.includes('offered as authored (1 to 2)') && o.includes('With 12 players, 1 does not leave whole equal teams') && o.includes('admits 2, 4, 6, 8, 10')))
+    assert.deepEqual(said.instructions.filter(i => /immediate/i.test(i.text)).map(i => i.from.includes(TAKES)), [true], 'said once, and cited to the timing the game holds')
+    assert.ok(!said.coachingObservations.some(o => o.includes('It does not say the change is')), 'and nothing reports it as unsaid')
+    assert.ok(said.coachingObservations.some(o => o.includes('offered as authored (1 to 2)') && o.includes('With 12 players, 1 does not leave whole equal teams') && o.includes('roster fields 2, 4, 6, 8, 10') && o.includes('offers 2 as a normal starting configuration') && o.includes('NOT_ASSESSED')))
     assert.ok(said.coachingObservations.some(o => o.includes('.persistence` is not authored')))
     assert.ok(said.coachingObservations.some(o => o.includes('the neutral players take a side by who has possession')), 'who starts with the ball matters to this game, and the reason is read from it')
 
@@ -922,15 +1018,23 @@ for (const observation of rendered.coachingObservations) {
     const lost = (which: (i: Instruction) => boolean) => violations(checkFidelity(game, without(which)), 3).map(f => f.what)
     assert.deepEqual(
         lost(i => i.from.includes(ON)),
-        [`${ON} is established by the game and no instruction carries it`],
-        'the allegiance sentence is the only one that carries the standing rule',
+        // Since 14 October 2026 it also carries the timing (P6c), which nothing else says.
+        [`${ON} is established by the game and no instruction carries it`, `${TAKES} is established by the game and no instruction carries it`],
+        'the allegiance sentence is the only one that carries the standing rule and when it takes effect',
     )
     assert.ok(lost(i => i.from.includes(JOINS)).includes(`${JOINS} is established by the game and no instruction carries it`), 'with every sentence that cites it gone, who they play with is lost')
     assert.deepEqual(lost(i => i.from.includes(MEANS)), [`${MEANS} is established by the game and no instruction carries it`])
     assert.deepEqual(lost(i => i.from.includes(STATE)), [`${STATE} is established by the game and no instruction carries it`])
     assert.ok(lost(i => i.text.startsWith('The game needs')).some(what => what.includes(COUNT) && what.includes('required minimum of 1')), 'the floor of the count is part of what is authored')
-    assert.ok(lost(i => i.status === 'PREFERENCE').some(what => what.includes(COUNT) && what.includes('preferred range that may be offered here (1 to 2)')), 'and so is the preferred range')
-    assert.ok(lost(i => i.status === 'REALIZATION_CHOICE' && i.from.includes(COUNT)).some(what => what.includes('starts at 2 in this activity')), 'and so is where this activity starts')
+    // The preferred range left out is REPORTED, as a NOTE since 14 October 2026 (his §7: "their omission shouldn't
+    // automatically invalidate an otherwise valid activity unless the information is essential") — the count has a
+    // floor and starts at a value, so the preference is not a coach's only guidance.
+    assert.ok(
+        checkFidelity(game, without(i => i.status === 'PREFERENCE')).findings.some(f => f.severity === 'NOTE' && f.what.includes(COUNT) && f.what.includes('preferred range that may be offered here (1 to 2)')),
+        'and so is the preferred range',
+    )
+    assert.ok(!lost(i => i.status === 'PREFERENCE').some(what => what.includes('preferred range')))
+    assert.ok(lost(i => i.status === 'STARTING' && i.from.includes(COUNT)).some(what => what.includes('starts at 2 in this activity')), 'and so is where this activity starts')
     /**
      * **CLOSED in the B3 review, 13 October — it was pinned here as a KNOWN LIMIT.** With ONE neutral the
      * starting value and the required minimum are the same number, and the two sentences carried each other:
@@ -942,7 +1046,7 @@ for (const observation of rendered.coachingObservations) {
      */
     const thirteenLost = (which: (i: Instruction) => boolean) => violations(checkFidelity(thirteen.game, wrap(thirteen.said.instructions.filter(i => !which(i)))), 3).map(f => f.what)
     assert.deepEqual(thirteenLost(i => i.text.startsWith('The game needs')), [`${COUNT} has a required minimum of 1 (required: at least 1), and no instruction that cites it states that minimum`])
-    assert.deepEqual(thirteenLost(i => i.status === 'REALIZATION_CHOICE' && i.from.includes(COUNT)), [
+    assert.deepEqual(thirteenLost(i => i.status === 'STARTING' && i.from.includes(COUNT)), [
         `${COUNT} starts at 1 in this activity, inside an authored range, and no instruction that cites it states that value as the choice it is`,
     ])
 
@@ -961,7 +1065,7 @@ for (const observation of rendered.coachingObservations) {
 
     // ── Each number altered is refused ────────────────────────────────────────────────────────────
     {
-        const starting = (i: Instruction) => i.status === 'REALIZATION_CHOICE' && i.from.includes(COUNT)
+        const starting = (i: Instruction) => i.status === 'STARTING' && i.from.includes(COUNT)
         const three = checkFidelity(game, reworded(starting, i => ({ ...i, text: i.text.replace('2 of the 12', '3 of the 12'), quantities: [3, 12, 2] })))
         assert.ok(violations(three, 2).some(f => /states 3, which is neither a value the game holds at a property it cites nor a required limit of one/.test(f.what)), JSON.stringify(violations(three, 2)))
         const wide = checkFidelity(game, reworded(i => i.status === 'PREFERENCE', i => ({ ...i, text: 'Around 2 to 4 neutral players works well, if it suits your group', quantities: [2, 4] })))
@@ -1022,15 +1126,18 @@ for (const observation of rendered.coachingObservations) {
         const rendered = renderConcreteGame(copy)
         return { rendered, texts: rendered.instructions.map(i => i.text), q3: violations(checkFidelity(copy, rendered), 3).map(f => f.what), every: all(checkFidelity(copy, rendered)) }
     }
-    const ALLEGIANCE = 'The neutral players always play with whichever team has the ball, and change sides when possession changes'
-    const BARE = 'For this activity, 2 of the 12 players are neutral players'
+    // Both re-pointed 14 October 2026: the allegiance says the timing the game now holds (P6c, C43), and the starting
+    // count carries no "For this activity," prefix.
+    const ALLEGIANCE = 'The neutral players always play with whichever team has the ball and switch immediately when possession changes'
+    const BARE = '2 of the 12 players are neutral players'
     {
         // A designation the possession relation does not decide: nothing here knows who "won the ball".
         const won = altered(copy => (copy.game.performers.neutrals.affiliation.joins = 'WON_BALL'))
         assert.ok(!won.texts.some(t => t.includes('play with')), 'no sentence about who they play with')
         assert.ok(won.texts.includes(BARE), 'and the consequence for the numbers on each side is not claimed either')
         assert.ok(won.rendered.coachingObservations.some(o => o.includes('no coach-facing wording for the team designation "WON_BALL"') && o.includes('rather than paraphrase it')))
-        assert.deepEqual([...won.q3].sort(), [`${JOINS} is established by the game and no instruction carries it`, `${ON} is established by the game and no instruction carries it`].sort())
+        // The timing (P6c, since 14 October 2026) is lost with the sentence that would have carried it.
+        assert.deepEqual([...won.q3].sort(), [`${JOINS} is established by the game and no instruction carries it`, `${ON} is established by the game and no instruction carries it`, `${TAKES} is established by the game and no instruction carries it`].sort())
 
         // An affiliation decided on an event rather than standing: no wording, so none is offered.
         const event = altered(copy => (copy.game.performers.neutrals.affiliation.on = 'SCORE'))
@@ -1051,7 +1158,7 @@ for (const observation of rendered.coachingObservations) {
 
         // The other possession-relative side has its wording, and no claim about who outnumbers whom.
         const defending = altered(copy => (copy.game.performers.neutrals.affiliation.joins = 'DEFENDING_TEAM'))
-        assert.ok(defending.texts.includes('The neutral players always play with whichever team does not have the ball, and change sides when possession changes'))
+        assert.ok(defending.texts.includes('The neutral players always play with whichever team does not have the ball and switch immediately when possession changes'))
         assert.ok(defending.texts.includes(BARE))
         assert.deepEqual(defending.every, [])
 
@@ -1068,10 +1175,19 @@ for (const observation of rendered.coachingObservations) {
         assert.ok(!bench.texts.some(t => t.includes('active in the game')))
         assert.ok(bench.rendered.coachingObservations.some(o => o.includes('"bench"') && o.includes('no coach-facing wording for that group')))
 
-        // The authored means is inserted verbatim, whatever it is.
+        // The authored means is inserted verbatim, whatever it is — as an example while its value is a preferred
+        // default (C47, 14 October 2026), and as the rule where the knowledge requires it.
         const means = altered(copy => (copy.game.performers.neutrals.distinguishable = 'a third bib colour'))
-        assert.ok(means.texts.includes('Make the neutral players easy to tell apart from both teams — a third bib colour'))
+        assert.ok(means.texts.includes('Make the neutral players easy to tell apart from both teams — for example, a third bib colour'))
         assert.deepEqual(means.every, [])
+        const requiredMeans = altered(copy => (copy.status.derived.find((d: any) => d.path === MEANS).strength = 'REQUIRED'))
+        assert.ok(requiredMeans.texts.includes('Make the neutral players easy to tell apart from both teams — contrasting bibs'))
+
+        // A timing this renderer has no wording for is said WITHOUT the adverb and withheld, which refuses the
+        // activity; "immediately" is never said for anything but IMMEDIATE (14 October 2026).
+        const held = altered(copy => (copy.game.performers.neutrals.affiliation.takesEffect = 'AT_NEXT_RESTART'))
+        assert.ok(!held.texts.some(t => /immediately/.test(t)) && held.texts.includes('The neutral players always play with whichever team has the ball, and change sides when possession changes'))
+        assert.deepEqual(held.rendered.withheld, [{ path: TAKES, row: 'P6c', reason: 'AWAITING_APPROVED_WORDING' }])
 
         // A count nobody established: how many is not said, and is not guessed.
         const uncounted = altered(copy => delete copy.game.performers.neutrals.count)

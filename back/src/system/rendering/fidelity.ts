@@ -16,6 +16,7 @@
  * every sentence must match the status of what produced it.
  */
 
+import { practical, PracticalKind, practicalRequirement } from '../derivation/practical'
 import { effectiveValue, scaleExactly } from '../derivation/rational'
 import { Instruction, RenderedActivity, SourceStatus } from './render-concrete-game'
 
@@ -32,12 +33,17 @@ export interface FidelityReport {
     passed: boolean
 }
 
-/** Wording that would make a requirement optional. A requirement carrying any of these is downgraded. */
-const HEDGES = [/\bif it suits\b/i, /\bif you (can|like|want|prefer)\b/i, /\btry to\b/i, /\bideally\b/i, /\baround\b/i, /\broughly\b/i, /\bor so\b/i, /\bmay\b/i, /\bcould\b/i, /\boptional\b/i, /\bworks well\b/i]
+/**
+ * Wording that would make a requirement optional. A requirement carrying any of these is downgraded. `it helps`
+ * joined on 14 October 2026 with the ADVISORY status whose hedge it is — a tightening for every firm sentence.
+ */
+const HEDGES = [/\bif it suits\b/i, /\bif you (can|like|want|prefer)\b/i, /\btry to\b/i, /\bideally\b/i, /\baround\b/i, /\broughly\b/i, /\bor so\b/i, /\bmay\b/i, /\bcould\b/i, /\boptional\b/i, /\bworks well\b/i, /\bit helps\b/i]
 /** Wording that would make a preference compulsory. A preference carrying any of these is upgraded. */
 const IMPERATIVES = [/\bmust\b/i, /\balways\b/i, /\bexactly\b/i, /\brequired\b/i, /\bhas to\b/i, /\bneeds to be\b/i]
-/** Wording that would present a realization choice as something the knowledge demanded. */
+/** Wording that would present where an activity starts, or a coach's choice, as something the knowledge demanded. */
 const NECESSITY = [/\bmust\b/i, /\bthe rules require\b/i, /\bby definition\b/i, /\balways\b/i, /\bnecessarily\b/i]
+/** Wording that puts a choice to the coach. A COACH_CHOICE sentence that carries none states a fact it does not hold. */
+const CHOICE_WORDS = [/\bpick\b/i, /\bchoose\b/i, /\bdecide\b/i]
 
 /**
  * Every number anywhere in the concrete game and its realization record, as a set of strings.
@@ -159,8 +165,13 @@ function lineRanges(fixture: any): { ranges: LineRange[]; unreadable: string[] }
         const maxes = limits.map(l => l.max).filter(stated)
         return mins.length || maxes.length ? { min: mins.length ? Math.max(...mins) : null, max: maxes.length ? Math.min(...maxes) : null } : null
     }
-    /** A preference expressed INSIDE the requirement — his rule of 1 October: it "must never override or widen" it. */
-    const inside = (path: string, required: Limits | null, preference: Limits | null): Pick<LineRange, 'preferred' | 'notOffered'> => {
+    /**
+     * A preference expressed INSIDE the requirement — his rule of 1 October: it "must never override or widen" it.
+     * And, since 14 October 2026, as the PRACTICAL values it holds, by the same rule realization establishes the
+     * numbers with (`practical.ts`, applied here to the authored bounds, not read from realization): a preference
+     * that barely fits is offered as its one practical value, and one that holds none is not offered at all.
+     */
+    const inside = (path: string, required: Limits | null, preference: Limits | null, kind: PracticalKind): Pick<LineRange, 'preferred' | 'notOffered'> => {
         if (!preference) return { preferred: null, notOffered: null }
         const offered = tighten(required ? [required, preference] : [preference])
         if (offered && stated(offered.min) && stated(offered.max) && offered.min > offered.max) {
@@ -169,7 +180,14 @@ function lineRanges(fixture: any): { ranges: LineRange[]; unreadable: string[] }
                 notOffered: `${path} carries an authored preferred range (${describe(preference)}) that lies wholly outside what is required here (${describe(required!)}), so it is not offered and the requirement stands`,
             }
         }
-        return { preferred: offered, notOffered: null }
+        const onGrain = offered ? practical(offered, kind) : null
+        if (offered && !onGrain) {
+            return {
+                preferred: null,
+                notOffered: `${path} carries an authored preferred range whose part inside the requirement (${describe(offered)}) holds no practical value, so it is not offered and the requirement stands`,
+            }
+        }
+        return { preferred: onGrain, notOffered: null }
     }
 
     const ranges: LineRange[] = []
@@ -203,7 +221,9 @@ function lineRanges(fixture: any): { ranges: LineRange[]; unreadable: string[] }
         }
         const begun = starting(path)
         if (!required && !preference && begun === null) continue
-        ranges.push({ path, required, ...inside(path, required, preference), starting: begun })
+        // A position line's range is a length; anything else here is a count. Each is held to its practical grain.
+        const kind: PracticalKind = lineAxis ? 'EXTENT_METRES' : 'COUNT'
+        ranges.push({ path, required: required ? practicalRequirement(required, kind) : null, ...inside(path, required, preference, kind), starting: begun })
     }
 
     for (const g of fixture.status.geometry ?? []) {
@@ -546,7 +566,8 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
             continue
         }
         if (!about.length) continue
-        const asChoice = instruction.status === 'REALIZATION_CHOICE'
+        // Where an activity STARTS is a choice's sentence (REALIZATION_CHOICE until 14 October 2026).
+        const asChoice = instruction.status === 'STARTING'
         const allowed = new Set<number>(
             instruction.from.flatMap(path => {
                 const begun = rangeAt.get(path)?.starting
@@ -594,17 +615,27 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
      * differ, each deletion was caught.
      *
      * So each is held to the sentence of its own status. The starting value is a value realization chose, so
-     * it must be said by a REALIZATION_CHOICE sentence citing the line, which is the only wording that
-     * status has. A required limit may be said by any firm sentence citing the line — the channel's limits
-     * sit in its marking sentence — EXCEPT that a choice sentence's number is not taken as the limit it
-     * happens to equal: that number is the starting value, already accounted for.
+     * it must be said by a STARTING sentence citing the line (REALIZATION_CHOICE until 14 October 2026), which
+     * is the only wording that status has. A required limit may be said by any firm sentence citing the line —
+     * the channel's limits sit in its marking sentence — EXCEPT that a choice sentence's number is not taken as
+     * the limit it happens to equal: that number is the starting value, already accounted for.
+     *
+     * **A preference left out is a NOTE, unless it is essential — 14 October 2026, his ruling, not a
+     * convenience.** Christian, §7: *"Preferred ranges should be available as guidance, but their omission
+     * shouldn't automatically invalidate an otherwise valid activity unless the information is essential."*
+     * ESSENTIAL here (the recommended definition, awaiting his confirmation): the preference is the only authored
+     * guidance for a value the game leaves to the coach — the line carries no required limit, the activity
+     * starts it at no value, and the game holds no number at its path. Then a coach would have nothing to go on,
+     * and leaving it out is still a VIOLATION. Every other omission is reported as a NOTE with the same words.
+     * Nothing else moves: a WRONG preference is still refused at Q2, a missing required limit or starting value
+     * here, and an uncarried property below.
      */
     for (const range of ranges) {
         const citing = rendered.instructions.filter(i => i.from.includes(range.path))
         if (!citing.length) continue
         const firm = citing.filter(i => i.status !== 'PREFERENCE')
         const says = (instructions: Instruction[], n: number) => instructions.some(i => numbersIn(i.text).includes(n))
-        const chosen = firm.filter(i => i.status === 'REALIZATION_CHOICE')
+        const chosen = firm.filter(i => i.status === 'STARTING')
         for (const [end, limit] of [['minimum', range.required?.min], ['maximum', range.required?.max]] as const) {
             if (!stated(limit)) continue
             const asLimit = stated(range.starting) && limit === range.starting ? firm.filter(i => !chosen.includes(i)) : firm
@@ -619,10 +650,13 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
             const ends = [range.preferred.min, range.preferred.max].filter(stated)
             const offered = citing.some(i => i.status === 'PREFERENCE' && ends.every(n => numbersIn(i.text).includes(n)))
             if (!offered) {
+                const essential = !range.required && !stated(range.starting) && !heldAt(fixture, range.path).length
                 findings.push({
                     question: 3,
-                    severity: 'VIOLATION',
-                    what: `${range.path} carries an authored preferred range that may be offered here (${describe(range.preferred)}), and no instruction offers it`,
+                    severity: essential ? 'VIOLATION' : 'NOTE',
+                    what:
+                        `${range.path} carries an authored preferred range that may be offered here (${describe(range.preferred)}), and no instruction offers it` +
+                        (essential ? ' — and it is the only authored guidance for a value the game leaves to the coach, so it is essential' : ''),
                 })
             }
         }
@@ -695,12 +729,36 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
                 findings.push({ question: 4, severity: 'VIOLATION', what: `a PREFERENCE carries no hedge, so it reads as a requirement: "${instruction.text}"` })
             }
         }
-        if (instruction.status === 'REALIZATION_CHOICE' && NECESSITY.some(r => r.test(instruction.text))) {
+        /**
+         * **The three statuses of 14 October 2026, each held to its wording.** His §3: a default is a starting
+         * configuration, described *"without implying that it cannot be adjusted"*; and *"Preserve whether each
+         * condition is required, preferred, advisory, or left to the coach, all the way through rendering and
+         * validation."*
+         *
+         *   - STARTING (where this activity starts) and COACH_CHOICE (left to the coach) may carry no word of
+         *     necessity — the rule REALIZATION_CHOICE was held to, now that the "For this activity" prefix that
+         *     also marked it is gone;
+         *   - a COACH_CHOICE must put the choice to the coach (pick, choose, decide), or it states a fact the game
+         *     does not hold;
+         *   - an ADVISORY sentence must carry a hedge and no imperative: a recommendation, never a rule.
+         */
+        if ((instruction.status === 'STARTING' || instruction.status === 'COACH_CHOICE') && NECESSITY.some(r => r.test(instruction.text))) {
             findings.push({
                 question: 4,
                 severity: 'VIOLATION',
-                what: `a realization CHOICE is worded as though the knowledge demanded it: "${instruction.text}"`,
+                what: `a ${instruction.status === 'STARTING' ? 'starting value' : "coach's choice"} is worded as though the knowledge demanded it: "${instruction.text}"`,
             })
+        }
+        if (instruction.status === 'COACH_CHOICE' && !CHOICE_WORDS.some(r => r.test(instruction.text))) {
+            findings.push({ question: 4, severity: 'VIOLATION', what: `a value left to the coach is not put to the coach as a choice: "${instruction.text}"` })
+        }
+        if (instruction.status === 'ADVISORY') {
+            if (IMPERATIVES.some(r => r.test(instruction.text))) {
+                findings.push({ question: 4, severity: 'VIOLATION', what: `an ADVISORY recommendation is worded as compulsory: "${instruction.text}"` })
+            }
+            if (!hedged) {
+                findings.push({ question: 4, severity: 'VIOLATION', what: `an ADVISORY recommendation carries no hedge, so it reads as a rule: "${instruction.text}"` })
+            }
         }
     }
 

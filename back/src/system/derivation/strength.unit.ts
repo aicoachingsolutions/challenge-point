@@ -49,6 +49,14 @@ test('the three readings, from the items\' markings alone', () => {
 test('anything stronger wins, and nothing is softened on a guess', () => {
     assert.equal(strengthOf([ref('PREF'), ref('REQ')], items), 'REQUIRED')
     assert.equal(strengthOf([ref('SUP'), ref('REQ')], items), 'REQUIRED')
+    // The MIXED case, settled 14 October 2026 (stage S-C1, from the S-B review): a required item whose value is a
+    // preferred default, beside an advisory item. It read ADVISORY — the rules were asked in an order, not of each
+    // item. The stronger requirement wins: the value is where the activity starts. Not on today's corpus (measured).
+    assert.equal(strengthOf([ref('REQ-PREF'), ref('SUP')], items), 'DEFAULT')
+    assert.equal(strengthOf([ref('SUP'), ref('REQ-PREF')], items), 'DEFAULT', 'whatever order the support arrives in')
+    assert.equal(strengthOf([ref('PREF'), ref('SUP')], items), 'DEFAULT', 'a default and a recommendation: the default')
+    assert.equal(strengthOf([ref('SUP'), ref('SUP')], items), 'ADVISORY')
+    assert.equal(strengthOf([ref('SUP'), { kind: 'CONTRACT_ITEM', contractId: 'C', itemId: 'ODD', relation: 'ENTAILS' }], new Map([...items, ['C:ODD', { strictness: 'EXCLUSION', valueStatus: 'TYPICAL_EXAMPLE' }]])), 'REQUIRED', 'a marking with no reading is never softened')
     assert.equal(strengthOf([{ kind: 'STANDING_DECISION', id: 'SD-25' }], items), 'REQUIRED')
     assert.equal(strengthOf([{ kind: 'SESSION', row: 'E1' }], items), 'REQUIRED')
     assert.equal(strengthOf([], items), 'REQUIRED', 'no support: rendered exactly as before')

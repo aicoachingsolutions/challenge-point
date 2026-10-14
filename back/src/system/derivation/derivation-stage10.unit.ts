@@ -943,7 +943,12 @@ test('the corpus run reproduces the reported figures exactly', () => {
      * ruling describes -- exactly two objectives and two targets, with the shared arrangement preserved in
      * contracts.json and inert.
      */
-    assert.equal(result.run.counts.lines, 138)
+    /**
+     * **139 since 14 October 2026**: register version 7 adds the game-level row P6c (when a neutral player's
+     * change of side takes effect), on his ruling that day — *"Please add the explicit property governing when a
+     * neutral player changes allegiance"*. One game-level row, one line; C43 (NEUTRAL-14.c = IMMEDIATE) resolves it.
+     */
+    assert.equal(result.run.counts.lines, 139)
     /**
      * **61, up from 59.** The same restatement establishes `perceptual-reference` on BOTH channels rather
      * than on a third region of its own, so two S4 lines now resolve where none did. The functions rows
@@ -965,7 +970,8 @@ test('the corpus run reproduces the reported figures exactly', () => {
     // gate knowledge — *"Record this as removed from the active gate knowledge, retaining the original for
     // provenance"* — so the gate condition's place, which PCG-06 entailed, no longer resolves: the line is now a
     // declared gap (the possession game's general V5 NOT_AUTHORED reaches it), pending his OD1 decision.
-    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 71)
+    // **72 since 14 October 2026.** The new P6c line (above) is entailed by C43, his allegiance ruling of that day.
+    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 72)
     // **NOT_AUTHORED fell 54 → 26 across the 29 September rulings, and only five of those twenty-eight
     // were closed by authoring anything.**
     //   −9  T1a/T1b/T1c demanded of three POSSESSION_CHANGE transitions. A turnover has no last touch
@@ -1144,10 +1150,14 @@ test('FIRST_FORWARD_PASS is registered, and it is the only trigger the 29 Septem
     )
 })
 
-test('the sixteen Gate A checks are all present, and GA-RESIDUAL-SPACE is gone (SD-45)', () => {
+test('the seventeen Gate A checks are all present, and GA-RESIDUAL-SPACE is gone (SD-45)', () => {
     const result: any = runStages0to10(corpusInput())
     const ids = gateA(result).checks.map((c: any) => c.checkId).sort()
-    assert.equal(ids.length, 16)
+    // Seventeen since 14 October 2026: GA-AFFILIATION reads register row P6c, added that day on his ruling
+    // ("Please add the explicit property governing when a neutral player changes allegiance"). A check of its
+    // own so a failure names its subject (SD-53). See affiliation-timing.unit.ts.
+    assert.equal(ids.length, 17)
+    assert.ok(ids.includes('GA-AFFILIATION'))
     assert.ok(!ids.includes('GA-RESIDUAL-SPACE'), 'SD-45 removed it; no machine-testable concept is created')
     assert.ok(ids.includes('GA-MODIFIER-OVERLAP'))
     // Sixteenth, added 5 October on his ruling that SD-44 supersedes RC-19: a transition must be keyed on

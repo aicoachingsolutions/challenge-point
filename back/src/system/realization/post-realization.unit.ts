@@ -817,7 +817,7 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
         const refusal = rosterRefusal(ctx, realized)
         assert.deepEqual(refusal && refusal.cause === 'DOES_NOT_DIVIDE' ? [refusal.players, refusal.teams, refusal.involved, refusal.neutrals] : refusal, [12, 2, 0, 1])
         assert.equal(runPostRealizationGates(ctx, owed, realized).validated, false, 'and the game is not render-eligible')
-        assert.equal(countOf(realized).within.rosterAdmits, undefined, 'a refused roster writes nothing, the alternatives included')
+        assert.equal(countOf(realized).within.configurations, undefined, 'a refused roster writes nothing, the configurations included')
     }
 
     /**
@@ -851,44 +851,65 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
     }
 
     /**
-     * **THE VALID ALTERNATIVES STAY WITH THE CHOICE** — `within.rosterAdmits`.
+     * **THE CONFIGURATIONS STAY WITH THE CHOICE** — `within.configurations`. Re-pointed 14 October 2026 from
+     * `within.rosterAdmits`, whose values are now `configurations.authorized`, unchanged.
      *
      * Christian, 13 October: *"I also want neutral-player numbers and participation conditions to remain
      * adjustable during a session, within valid configurations. The coach may need to add or remove a neutral
      * player to maintain an appropriate challenge."* With equal teams required, the valid counts for a session
-     * are two apart: adding ONE neutral to twelve players leaves eleven for two teams. So the record keeps,
-     * beside the count and its authored range, every count inside the REQUIRED bound this session's roster
-     * admits — the preferred range is where the activity starts, not the limit of what is valid. The top of
-     * each list is the last count that still leaves one outfield player a side.
+     * are two apart: adding ONE neutral to twelve players leaves eleven for two teams.
+     *
+     * And on 14 October he split "valid" in three: *"Structural validity … Knowledge authorization … Ecological
+     * appropriateness … A configuration with ten neutral players and two teams of one may satisfy roster
+     * arithmetic, but that does not make it an appropriate alternative to a 5v5+2 activity."* So the record keeps
+     * the roster arithmetic alone (`structural`, from 0), what the REQUIRED bound authorizes of it (`authorized`),
+     * what his preferred range offers for a normal start (`offered`), and says the ecological question has not
+     * been assessed. The top of each authorized list is the last count that still leaves one outfield player a side.
      */
-    for (const [players, neutrals, admitted] of [
-        [12, 2, [2, 4, 6, 8, 10]],
-        [13, 1, [1, 3, 5, 7, 9, 11]],
-        [15, 3, [1, 3, 5, 7, 9, 11, 13]],
-        [3, 1, [1]],
+    for (const [players, neutrals, structural, authorized, offered] of [
+        [12, 2, [0, 2, 4, 6, 8, 10], [2, 4, 6, 8, 10], [2]],
+        [13, 1, [1, 3, 5, 7, 9, 11], [1, 3, 5, 7, 9, 11], [1]],
+        [15, 3, [1, 3, 5, 7, 9, 11, 13], [1, 3, 5, 7, 9, 11, 13], [1]],
+        [3, 1, [1], [1], [1]],
     ] as const) {
         const { realized, ctx } = realizedWith(players, neutrals)
         completeConcreteGame(ctx, realized)
         const within = countOf(realized).within
-        assert.deepEqual(within.rosterAdmits, admitted, `${players} players`)
-        assert.ok(within.rosterAdmits!.includes(neutrals), 'the count in the game is one of them')
+        const configurations = within.configurations!
+        assert.deepEqual(
+            [configurations.structural, configurations.authorized, configurations.offered, configurations.offeredBasis, configurations.ecological],
+            [structural, authorized, offered, 'PREFERRED_RANGE_FOR_NORMAL_STARTING_CONFIGURATIONS', 'NOT_ASSESSED'],
+            `${players} players`,
+        )
+        assert.ok(configurations.authorized.includes(neutrals), 'the count in the game is one the knowledge authorizes')
+        // Each set lies inside the one before it.
+        assert.ok(configurations.authorized.every(n => configurations.structural.includes(n)) && configurations.offered.every(n => configurations.authorized.includes(n)))
         // The authored range is still beside it, each bound with its status.
         assert.deepEqual(within.bounds.map(b => [b.min, b.max, !!b.preferred]), [[1, null, false], [1, 2, true]])
         // It is the roster rule's own answer for each count, asked again here one at a time.
         for (let n = 1; n <= players; n++) {
             const trial = realizedWith(players, n)
-            assert.equal(rosterRefusal(trial.ctx, trial.realized) === null, within.rosterAdmits!.includes(n), `${players} players, ${n} neutral`)
+            assert.equal(rosterRefusal(trial.ctx, trial.realized) === null, configurations.authorized.includes(n), `${players} players, ${n} neutral`)
         }
-        // And the bound decides where the list starts: nothing below the required minimum is offered as valid,
-        // though without neutrals this roster divides as well.
-        assert.deepEqual(countsTheRosterAdmits(ctx, realized, 'game::P5', 0, players)[0], players % 2 === 0 ? 0 : 1)
+        assert.deepEqual(countsTheRosterAdmits(ctx, realized, 'game::P5', 0, players), configurations.structural, 'structural is the arithmetic, from 0')
     }
 
-    // A game with no neutral count chosen carries no such list: there is no choice to keep it with.
+    // His own example, at twelve players: ten neutrals and two teams of one. The arithmetic admits it and the
+    // knowledge's "one or more" authorizes it; it is NOT offered, because it is outside the preferred range.
+    {
+        const { realized, ctx } = realizedWith(12, 2)
+        completeConcreteGame(ctx, realized)
+        const configurations = countOf(realized).within.configurations!
+        assert.ok(configurations.structural.includes(10) && configurations.authorized.includes(10) && !configurations.offered.includes(10))
+        // Without neutrals the roster divides as well — structurally valid, and not this constraint at all.
+        assert.ok(configurations.structural.includes(0) && !configurations.authorized.includes(0))
+    }
+
+    // A game with no neutral count chosen carries no configurations: there is no choice to keep them with.
     {
         const { realized, ctx } = chain()
         completeConcreteGame(ctx, realized)
-        assert.ok(realized.record.choices.every(choice => choice.within.rosterAdmits === undefined))
+        assert.ok(realized.record.choices.every(choice => choice.within.configurations === undefined))
     }
 }
 

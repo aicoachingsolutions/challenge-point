@@ -554,6 +554,15 @@
         "fitNote": "TYPED 14 October 2026 on the SD-86 precedent, and marked as he directed. Christian that day: \"Four to six passes: You may represent this as a preferred range of 4–6, not a requirement or a predetermined starting count.\" The numbers 4 and 6 are verbatim in the authored value \"minimum connected passes: 4 to 6\" and are MOVED into the typed field, not inferred. valueStatus stays PREFERRED_DEFAULT (a preference), and strictness becomes SUPPORTING (\"not a requirement\"). No count is held or chosen: the gate's V6 line is entailed by PCG-05, so this bound sits beside it as guidance and is never open for a default or a choice to close (\"not ... a predetermined starting count\"). The prose value is unchanged beside its typed form."
       },
       "why": "his answer of 2026-10-14: a preferred range of 4-6, not a requirement and not a starting count. This does not approve the gate for any Learning Goal."
+    },
+    {
+      "item": "restated:NEUTRAL-PLAYER-CONDITION::NEUTRAL-06.b",
+      "ruling": "C47",
+      "set": {
+        "strictness": "SUPPORTING",
+        "fitNote": "MARKED 14 October 2026 as he directed. Christian that day: \"Contrasting bibs should be treated as a practical recommendation for distinguishing neutrals, not a universal requirement, provided the players can readily identify their roles.\" So the authored means is an item the rule could stand without (strictness SUPPORTING), and its value stays a preferred default (valueStatus PREFERRED_DEFAULT). NEUTRAL-06.a, that the neutrals are made visibly distinct from both teams (REQUIRED EXISTS), is untouched: it is his \"provided the players can readily identify their roles\". This resolves the ledger's KNOWLEDGE item \"Status of the bibs is a reading\". The original fitNote read: \"The authored means. Strictness and status kept from the original pair; the text is imperative, so PREFERRED_DEFAULT is a reading (KNOWLEDGE, ledger).\""
+      },
+      "why": "his ruling of 2026-10-14: contrasting bibs are a practical recommendation, not a universal requirement."
     }
   ],
   "added": [
@@ -1035,6 +1044,27 @@
         "fitNote": "The team whose own end is the FAR end attacks the target at the NEAR end."
       },
       "why": "The mirror reference, so the two objectives name different targets."
+    },
+    {
+      "contractId": "restated:NEUTRAL-PLAYER-CONDITION",
+      "after": "NEUTRAL-14.b",
+      "ruling": "C43",
+      "item": {
+        "itemId": "NEUTRAL-14.c",
+        "row": "P6c",
+        "selector": "*",
+        "requirement": "EQUALS",
+        "value": "IMMEDIATE",
+        "valueStatus": "REQUIRED_RANGE",
+        "strictness": "REQUIRED",
+        "scope": "WHOLE_GAME",
+        "basis": "OWNER_RULING",
+        "checkability": "STRUCTURAL",
+        "structuralClause": "whole item",
+        "basisEvidence": "Christian, 2026-10-14: \"Please add the explicit property governing when a neutral player changes allegiance, using immediate switching upon possession change as the approved behavior for the current mechanism.\" Restating his preference of 2026-10-13: \"the neutral supports whichever team currently has possession and changes allegiance immediately when possession changes. That should be explicit in the activity rather than left ambiguous.\" New owner-authored canonical knowledge for the current mechanism, not a reading of the source.",
+        "fitNote": "Held on P6c, not P6a. P6a holds one trigger and stays STANDING (NEUTRAL-03.b, NEUTRAL-14.a), which already makes the neutrals follow the possession relation (NEUTRAL-03.a / 14.b, ATTACKING_TEAM). This item settles only WHEN the change of side takes effect. It answers the P6a NOT_AUTHORED declaration (\"whether re-affiliation on a turnover is instantaneous or takes effect at a restart\"), which stays verbatim for provenance."
+      },
+      "why": "the timing his ruling makes explicit had no row to hold it; P6a could not take a second value without a collision (Gate A FAIL measured 13 October). Register version 7 adds P6c for it."
     }
   ],
   "declarations": [

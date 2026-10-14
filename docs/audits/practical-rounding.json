@@ -1,0 +1,11 @@
+{
+  "status": "PROPOSAL — awaiting Christian's confirmation (OD4). Applied from 14 October 2026 because his section 7 asked for rounding at establishment.",
+  "ruling": "Christian, 2026-10-14: \"Where a preferred range barely fits, provide a practical starting recommendation rather than an awkwardly narrow numerical range.\" and \"Where practical rounding is appropriate, apply it when the configuration is established so the actual game and its instructions remain consistent.\"",
+  "note": "The grain a realized number is set to when the configuration is established, as DATA: the grain and its threshold are practical coaching judgements, his to set, so no code holds them. Read by derivation/practical.ts, which realization, the renderer and the fidelity check share. Rounding is always INWARD — a required minimum rounds up and a required maximum rounds down — so a rounded value can never leave the required range; where a range holds no value on the grain, nothing is rounded and the exact numbers stand. A preferred range is offered only as the practical values inside it: one value where only one fits, nothing (observed, never silently implied) where none does.",
+  "extentMetres": [
+    { "below": 10, "step": 0.5 },
+    { "from": 10, "step": 1 }
+  ],
+  "count": { "step": 1 },
+  "minutes": { "step": 1 }
+}

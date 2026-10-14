@@ -554,26 +554,52 @@ const deriveRoster: EntailmentRule = (ctx, realized, into) => {
     if (isRosterRefusal(roster)) return
 
     /**
-     * **The valid alternatives are kept WITH the choice the roster read** — `within.rosterAdmits`.
+     * **The configurations are kept WITH the choice the roster read** — `within.configurations`, three sets and
+     * a verdict nobody has given. Replaced `within.rosterAdmits` on 14 October 2026.
      *
-     * A count realization closed is where the activity STARTS, and the record already keeps the authored
-     * range beside it. What the range cannot say is which of its members this session can actually field:
-     * with equal teams required, that depends on the players. So the rule that read the count writes, beside
-     * it, every whole number inside the REQUIRED bounds for which it would still have derived a roster —
-     * 2, 4, 6, 8 and 10 for twelve players; 1, 3, 5, 7, 9 and 11 for thirteen. Not the preferred range
-     * only: his example of a coach adding a neutral may leave it, and the requirement is what bounds a valid
-     * configuration. The top of the search is the session's own player count, which no count of people in
-     * it can exceed.
+     * Christian that day: *"Regarding valid configurations, I want us to distinguish three things: Structural
+     * validity: player numbers and team relationships are internally consistent. Knowledge authorization: the
+     * configuration falls within the manipulation's permitted parameters. Ecological appropriateness: the
+     * configuration preserves the intended learning problem, meaningful opposition, and relevant affordances. A
+     * configuration with ten neutral players and two teams of one may satisfy roster arithmetic, but that does
+     * not make it an appropriate alternative to a 5v5+2 activity."*
      *
-     * It is a record of what is valid, written at the boundary where the roster is known. Nothing reads it
-     * to change the game, and no adjustment is built.
+     * `rosterAdmits` was the first two run together: every count inside the REQUIRED bounds the roster came out
+     * whole for. That is what made ten neutrals and two teams of one read as a valid alternative. Now:
+     *
+     *   - `structural` — the roster arithmetic alone, searched from 0 to the session's players: whole equal teams,
+     *     at least one outfield player each. 12 players → 0, 2, 4, 6, 8, 10;
+     *   - `authorized` — the structural counts inside the REQUIRED count bounds, the manipulation's permitted
+     *     parameters. 12 → 2, 4, 6, 8, 10 (the old `rosterAdmits`, same values);
+     *   - `offered` — the authorized counts inside the authored PREFERRED range. 12 → 2; 13 → 1. His words: *"For
+     *     now, please use the authored preferred range of one to two neutrals for the demonstration's normal
+     *     starting configurations. Counts outside that range should not automatically be treated as suitable
+     *     merely because the arithmetic works."* With no preferred range authored nothing is offered, for the
+     *     same reason;
+     *   - `ecological: 'NOT_ASSESSED'` — no learning-design knowledge establishes ecological appropriateness. The
+     *     preferred range stands in for normal starting configurations by his ruling and is NOT an ecological
+     *     verdict, so it is not labelled one.
+     *
+     * Every set is asked of the roster rule itself (`countsTheRosterAdmits`), so it cannot drift from it. It is a
+     * record written at the boundary where the roster is known: nothing reads it to change the game, and no
+     * adjustment mechanism is built. Justified-default rule 2 is unchanged; where `offered` has one member it is
+     * exactly the count that rule closes (asserted in `post-realization.unit.ts`).
      */
     for (const choice of roster.neutralChoices) {
-        const required = choice.within.bounds.filter(bound => bound && bound.kind === 'COUNT' && !bound.preferred && !bound.forbidden && !bound.fractionOfAxis)
-        const stated = (which: 'min' | 'max') => required.map(bound => bound[which]).filter((limit): limit is number => typeof limit === 'number' && Number.isFinite(limit))
-        const from = Math.max(0, ...stated('min'))
-        const to = Math.min(roster.players, ...stated('max'))
-        choice.within.rosterAdmits = countsTheRosterAdmits(ctx, realized, choice.lineId, from, to)
+        const counts = choice.within.bounds.filter(bound => bound && bound.kind === 'COUNT' && !bound.forbidden && !bound.fractionOfAxis)
+        const limits = (bounds: typeof counts, which: 'min' | 'max') => bounds.map(bound => bound[which]).filter((limit): limit is number => typeof limit === 'number' && Number.isFinite(limit))
+        const inside = (bounds: typeof counts) => (n: number) => limits(bounds, 'min').every(min => n >= min) && limits(bounds, 'max').every(max => n <= max)
+        const required = counts.filter(bound => !bound.preferred)
+        const preferred = counts.filter(bound => bound.preferred)
+        const structural = countsTheRosterAdmits(ctx, realized, choice.lineId, 0, roster.players)
+        const authorized = structural.filter(inside(required))
+        choice.within.configurations = {
+            structural,
+            authorized,
+            offered: preferred.length ? authorized.filter(inside(preferred)) : [],
+            offeredBasis: preferred.length ? 'PREFERRED_RANGE_FOR_NORMAL_STARTING_CONFIGURATIONS' : 'NO_PREFERRED_RANGE_AUTHORED',
+            ecological: 'NOT_ASSESSED',
+        }
     }
 
     roster.teams.forEach((instantiation, teamIndex) => {

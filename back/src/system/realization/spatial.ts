@@ -28,6 +28,7 @@
  * preference into a requirement.
  */
 
+import { practicalRequirement } from '../derivation/practical'
 import { scaleExactly } from '../derivation/rational'
 import { RegisterIndex } from '../derivation/register'
 
@@ -209,7 +210,18 @@ export function realizeSpatialRelation(value: unknown, index: RegisterIndex, ctx
         // authoring the relationship rather than a metre value: the same knowledge gives 7.5 m on a 30 m
         // width and 10 m on a 40 m one. Containment is still checked at the widest permitted extent.
         // Multiplied exactly: the float product of 0.15 and 23 is not 3.45, and the interval is what a coach is given.
-        const reach = extentBound.fractionOfAxis ? scaleExactly(extentBound.max as number, extent) : (extentBound.max as number)
+        const metres = (raw: unknown): number | null =>
+            typeof raw === 'number' && Number.isFinite(raw) ? (extentBound.fractionOfAxis ? scaleExactly(raw, extent) : raw) : null
+        const exact = metres(extentBound.max) as number
+        /**
+         * **Composed at the widest PRACTICAL extent — 14 October 2026, his §7:** *"Where practical rounding is
+         * appropriate, apply it when the configuration is established so the actual game and its instructions
+         * remain consistent."* The widest permitted extent is rounded INWARD to the practical grain (data,
+         * `practical-rounding.json`; a proposal awaiting his confirmation), so on a 25 m width a channel is 6 m,
+         * not 6.25 m, and the text states what the game holds. Inward means it can never leave the requirement;
+         * where the required range holds no practical value the exact widest extent stands, as it always did.
+         */
+        const reach = practicalRequirement({ min: metres(extentBound.min), max: exact }, 'EXTENT_METRES').max ?? exact
         const outward = anchor === 0 ? 1 : -1
         const far = anchor + outward * reach
         return {
@@ -218,7 +230,9 @@ export function realizeSpatialRelation(value: unknown, index: RegisterIndex, ctx
             anchor,
             extentBound,
             extentUnresolved: false,
-            why: `${definition.why ?? ''}${lateralWhy} Extent composed from the authored required bound ${JSON.stringify(extentBound)}; containment is checked at the widest permitted extent.`,
+            why:
+                `${definition.why ?? ''}${lateralWhy} Extent composed from the authored required bound ${JSON.stringify(extentBound)}; containment is checked at the widest permitted extent` +
+                (reach !== exact ? `, rounded inward from ${exact} m to the practical ${reach} m.` : '.'),
         }
     }
 

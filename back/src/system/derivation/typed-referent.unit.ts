@@ -343,6 +343,10 @@ test('the corpus-wide Gate A, check by check', () => {
     }
     const verdicts = Object.fromEntries(result.gates.gateA.checks.map((c: any) => [c.checkId, c.verdict]))
     assert.deepEqual(verdicts, {
+        // Added 14 October 2026 with register row P6c (his allegiance ruling). On the corpus-wide run the neutral
+        // timing is IMMEDIATE (C43) and the possession relation is a gap ('no coverage' with the gate's knowledge
+        // around it), so whether an immediate switch has a change of possession to follow is not yet decidable.
+        'GA-AFFILIATION': 'NOT_EVALUABLE',
         'GA-DIRECTION': 'NOT_EVALUABLE',
         'GA-EFFECT-TYPED': 'PASS',
         'GA-ENVELOPE-FIT': 'DEFERRED_TO_REALIZATION',

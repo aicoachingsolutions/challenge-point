@@ -134,17 +134,26 @@ test('a REQUIRED extent composes, at the widest permitted extent', () => {
  * coach is given and what the fidelity check compares, so it has to be the decimal the fraction spells.
  * Nothing is rounded: two exact decimals have an exact decimal product.
  */
-test('a FRACTIONAL extent composes to the exact decimal, not the float product', () => {
+/**
+ * **Re-pointed 14 October 2026: the exact decimal is now what gets ROUNDED, inward, to the practical grain.** His
+ * §7: *"Where practical rounding is appropriate, apply it when the configuration is established so the actual game
+ * and its instructions remain consistent."* (The grain is data and a proposal awaiting his confirmation.) The
+ * widest permitted extent on a 25 m width is still exactly 6.25 m — and the channel is composed 6 m wide, the
+ * practical value inside it. The exact decimal is still what the rounding is applied to (`practical.ts` works
+ * over exact rationals), and still what the record and the remaining assertions below hold.
+ */
+test('a FRACTIONAL extent composes from the exact decimal, rounded inward to the practical grain', () => {
     const bound = { min: 0.15, max: 0.25, fractionOfAxis: true }
-    for (const [width, widest] of [
-        [30, 7.5],
-        [25, 6.25],
-        [15, 3.75],
-        [23, 5.75],
-        [22.5, 5.625],
+    for (const [width, practicalWidest, exactWidest] of [
+        [30, 7.5, 7.5],
+        [25, 6, 6.25],
+        [15, 3.5, 3.75],
+        [23, 5.5, 5.75],
+        [22.5, 5.5, 5.625],
     ]) {
         const channel = realizeSpatialRelation(TOUCHLINE, index, ctx({ envelope: { lengthM: 40, widthM: width }, axis: 'across', extentBound: bound }))!
-        assert.deepEqual(channel.interval, { from: 0, to: widest }, `a quarter of ${width} m`)
+        assert.deepEqual(channel.interval, { from: 0, to: practicalWidest }, `a quarter of ${width} m`)
+        assert.equal(scaleExactly(0.25, width), exactWidest, `the exact widest extent on ${width} m`)
     }
     assert.equal(scaleExactly(0.15, 23), 3.45)
     assert.notEqual(0.15 * 23, 3.45, 'which the float product is not')

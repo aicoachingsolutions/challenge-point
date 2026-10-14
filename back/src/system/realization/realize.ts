@@ -27,6 +27,7 @@
 
 import { canonical, digest } from '../derivation/engine'
 import { ExistentialClaim, OpenChoice, ResolvedGame } from '../derivation/resolved-game'
+import { practical, practicalRequirement } from '../derivation/practical'
 import { scaleExactly } from '../derivation/rational'
 import { RegisterIndex } from '../derivation/register'
 import { Bounds } from '../derivation/types'
@@ -109,6 +110,23 @@ export interface JustifiedDefault extends Choice {
     rule: DefaultRule
 }
 
+/**
+ * **The three things a valid configuration had run together**, kept apart for a count the roster reads —
+ * Christian, 14 October 2026: structural validity, knowledge authorization, ecological appropriateness.
+ * Each set is a subset of the one before it; `ecological` is a verdict nothing gives yet, and says so.
+ */
+export interface CountConfigurations {
+    /** The roster arithmetic alone: the counts for which the teams still come out whole and equal. */
+    structural: number[]
+    /** The structural counts inside the REQUIRED bounds — the manipulation's permitted parameters. */
+    authorized: number[]
+    /** The authorized counts inside the authored PREFERRED range: the normal starting configurations, by his ruling. */
+    offered: number[]
+    offeredBasis: 'PREFERRED_RANGE_FOR_NORMAL_STARTING_CONFIGURATIONS' | 'NO_PREFERRED_RANGE_AUTHORED'
+    /** No learning-design knowledge establishes it. Never filled in by arithmetic. */
+    ecological: 'NOT_ASSESSED'
+}
+
 export interface RecordedChoice extends Choice {
     path: string
     /** What authorized it, carried from the resolved game. */
@@ -130,14 +148,14 @@ export interface RecordedChoice extends Choice {
      * marked as such. `permitted` is the authored alternatives; for a row with a declared domain it is the
      * members of that domain as this game holds them.
      *
-     * `rosterAdmits` is present only for a count the roster rule reads, and is written at the assembly
-     * boundary by that rule (`assemble-concrete-game`), never here: every whole number inside the REQUIRED
-     * bounds for which THIS session's roster still comes out whole. Christian, 13 October: *"I also want
+     * `configurations` is present only for a count the roster rule reads, and is written at the assembly
+     * boundary by that rule (`assemble-concrete-game`), never here. Christian, 13 October: *"I also want
      * neutral-player numbers and participation conditions to remain adjustable during a session, within
-     * valid configurations."* The bounds say what the knowledge allows; this says which of it the session
-     * can field, so a later adjustment has the valid alternatives beside the value it would change.
+     * valid configurations."* And on 14 October, the three things a "valid configuration" had run together:
+     * structural validity, knowledge authorization and ecological appropriateness. So it keeps them apart —
+     * see `CountConfigurations`.
      */
-    within: { permitted: unknown[] | null; bounds: Bounds[]; rosterAdmits?: number[] }
+    within: { permitted: unknown[] | null; bounds: Bounds[]; configurations?: CountConfigurations }
     closure: Closure
     /** Present where nobody chose this value: the rule under which it was closed anyway. */
     defaultedBy?: DefaultRule
@@ -333,6 +351,26 @@ function intersect(required: Bounds, preference: Bounds, envelope: { lengthM?: n
         }
     }
     return { min: lo, max: hi, compatible: true, note: 'the preference, expressed inside the requirement, in metres' }
+}
+
+/**
+ * The preference inside the requirement, as the practical values it holds (14 October 2026). Only the values on
+ * the grain are offered: a range narrower than one step that holds one is that one value; one that holds none is
+ * not offered, and says why rather than implying the preference still applies (his §7: *"Don't silently imply that
+ * the original preference remains applicable"*). The exact overlap is kept beside it for the record.
+ */
+function practicalPreference(within: unknown): unknown {
+    const exact = within as { min?: number | null; max?: number | null; compatible?: boolean }
+    if (!exact || exact.compatible === false || typeof exact.min !== 'number') return within
+    const onGrain = practical({ min: exact.min, max: typeof exact.max === 'number' ? exact.max : null }, 'EXTENT_METRES')
+    // The exact overlap is recorded in WORDS, never as numbers: every number the game holds is a number a sentence
+    // may state (fidelity's quantitiesInGame), and the exact ends are precisely what is not to be stated.
+    const exactly = `${exact.min} to ${exact.max ?? 'no upper limit'} m`
+    if (!onGrain) {
+        return { compatible: false, note: `the preferred extent left inside the requirement (exactly ${exactly}) holds no practical value, so it is not offered and the requirement stands` }
+    }
+    const moved = onGrain.min !== exact.min || onGrain.max !== (exact.max ?? null)
+    return { ...exact, min: onGrain.min, max: onGrain.max, ...(moved ? { note: `${String((exact as any).note ?? 'the preference, expressed inside the requirement, in metres')}; rounded inward to the practical grain from exactly ${exactly}` } : {}) }
 }
 
 /**
@@ -1039,10 +1077,19 @@ export function realize(
             if (!required) return counts[0]
             const preference = counts.find(b => b.preferred)
             const measurable = Number.isFinite(Number(envelope?.lengthM)) && Number.isFinite(Number(envelope?.widthM))
+            /**
+             * **Both written at the practical grain — 14 October 2026** (his §7, rounding at establishment; the
+             * grain is data and a proposal awaiting his confirmation). The requirement is rounded INWARD, or kept
+             * exact where it holds no practical value; the preference is the practical values inside it, so one
+             * that barely fits is one value (*"a practical starting recommendation rather than an awkwardly narrow
+             * numerical range"*) and one that holds none is not offered. The same rule is applied to the authored
+             * bounds by the fidelity check, independently.
+             */
+            const exactRequired = { min: boundInMetres(required, 'min', envelope ?? {}, axis), max: boundInMetres(required, 'max', envelope ?? {}, axis) }
             return {
                 ...required,
-                ...(measurable ? { requiredWithin: { min: boundInMetres(required, 'min', envelope ?? {}, axis), max: boundInMetres(required, 'max', envelope ?? {}, axis) } } : {}),
-                ...(preference ? { preferenceWithin: intersect(required, preference, envelope ?? {}, axis) } : {}),
+                ...(measurable ? { requiredWithin: practicalRequirement(exactRequired, 'EXTENT_METRES') } : {}),
+                ...(preference ? { preferenceWithin: practicalPreference(intersect(required, preference, envelope ?? {}, axis)) } : {}),
             }
         }
         const spatial = [...resolved.derived.map(d => ({ lineId: d.lineId, path: d.path, value: d.value })), ...recorded.map(c => ({ lineId: c.lineId, path: c.path, value: c.value }))]
