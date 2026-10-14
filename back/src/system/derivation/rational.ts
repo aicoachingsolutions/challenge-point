@@ -76,6 +76,38 @@ export function toText(a: Rational): string {
     return a.d === 1n ? String(a.n) : `${a.n}/${a.d}`
 }
 
+/**
+ * **A fraction of a length, multiplied exactly.** Added 13 October.
+ *
+ * A proportional rule is authored as a decimal fraction — a channel is *"a minimum of 0.15 and a maximum of
+ * 0.25 of the available across dimension"* — and becomes metres by multiplying. The float product is not
+ * that number: `0.15 * 23` is `3.4499999999999997`. Printed, it is not something to hand a coach; rounded
+ * for display, it is a number the game does not hold, which is how *"6.3 m"* reached an activity whose
+ * channel was 6.25 m and the fidelity check correctly refused it. So the product is taken over exact
+ * rationals and comes back as the number that exact decimal spells.
+ *
+ * Two exact decimals multiply to an exact decimal, so nothing is rounded. Where either operand has no
+ * exact decimal spelling there is nothing exact to return and the float product is all that can be said.
+ */
+export function scaleExactly(fraction: number, length: number): number {
+    const a = toRational(fraction)
+    const b = toRational(length)
+    if (!a || !b) return fraction * length
+    const product = rational(a.n * b.n, a.d * b.d)
+    // The denominator divides a power of ten; find the smallest and write the digits out.
+    let scale = 1n
+    let places = 0
+    while (scale % product.d !== 0n) {
+        scale *= 10n
+        places++
+        if (places > 30) return fraction * length
+    }
+    const negative = product.n < 0n
+    const digits = String(((negative ? -product.n : product.n) * scale) / product.d).padStart(places + 1, '0')
+    const text = places ? `${digits.slice(0, digits.length - places)}.${digits.slice(digits.length - places)}` : digits
+    return Number(`${negative ? '-' : ''}${text}`)
+}
+
 /** A closed interval on one axis (§1.9). */
 export interface Interval {
     axis: 'along' | 'across'

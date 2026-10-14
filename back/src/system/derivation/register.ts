@@ -30,6 +30,8 @@ export interface RegisterRow {
      */
     selectorAttribute?: string
     fillable?: string
+    /** The collection whose members are this row's choice space, where the row's value is a reference to one. */
+    fillableFrom?: string
     outerBound?: string
     sourceKinds?: string[]
 }
@@ -80,6 +82,16 @@ export interface RegisterIndex {
     ownerRow: Map<string, string>
     /** Row id → its `fillable` text. Exhaustive: a row absent here has no structurally defined choice space. */
     fillable: Map<string, string>
+    /**
+     * Row id → the collection path the row DECLARES its choice space to be the members of.
+     *
+     * `fillable` says in words what may fill a row — *"one of the teams the game establishes"* — and
+     * `fillableFrom` says it as data: `performers.teams[]`. Until 13 October nothing read it, so the one
+     * row that carries it accepted any string at all: measured, an initial holder of `banana` and one that
+     * named a REGION both realized, passed all three acceptance conditions and passed the post-realization
+     * gates. Realization now requires the value to be a member of the collection named here.
+     */
+    fillableFrom: Map<string, string>
     /** Row id -> the authoritative structure that supplies its OUTER bound, where one does. */
     outerBound: Map<string, string>
     /** RC-21 relative spatial terms: prose test, machine-readable form and phrase index, all canonical. */
@@ -142,6 +154,7 @@ export function indexRegister(register: any): RegisterIndex {
     const rowOrdinal = new Map<string, number>()
     const ownerRow = new Map<string, string>()
     const fillable = new Map<string, string>()
+    const fillableFrom = new Map<string, string>()
     const outerBound = new Map<string, string>()
 
     register.rows.forEach((row: RegisterRow, i: number) => {
@@ -154,6 +167,11 @@ export function indexRegister(register: any): RegisterIndex {
             if (row.kind === 'VIEW') throw new HaltError('H1', `fillable entry on VIEW row ${row.id}`)
             fillable.set(row.id, row.fillable)
         }
+        if (row.fillableFrom) {
+            // A declared domain is the domain OF a choice space, so it means nothing on a row without one.
+            if (!row.fillable) throw new HaltError('H1', `fillableFrom on ${row.id}, which has no fillable choice space`)
+            fillableFrom.set(row.id, String(row.fillableFrom))
+        }
         if (row.outerBound) {
             // An outer bound is only meaningful for a row that has a choice space to bound.
             if (!row.fillable) throw new HaltError('H1', `outerBound on ${row.id}, which has no fillable choice space`)
@@ -165,6 +183,14 @@ export function indexRegister(register: any): RegisterIndex {
         const target = rows.get(owner)
         if (!target) throw new HaltError('H1', `ownerRow ${owner} of ${rowId} is not a row`)
         if (target.kind !== 'COLLECTION') throw new HaltError('H1', `ownerRow ${owner} of ${rowId} is not a COLLECTION`)
+    }
+
+    // A declared domain must BE a collection the register knows, or membership of it can never be decided
+    // and the declaration would go on being read by nothing.
+    for (const [rowId, from] of fillableFrom) {
+        if (![...rows.values()].some(row => row.kind === 'COLLECTION' && row.path === from)) {
+            throw new HaltError('H1', `fillableFrom ${from} of ${rowId} is not the path of a COLLECTION row`)
+        }
     }
 
     const applicability = new Map<string, ApplicabilityCondition>()
@@ -220,6 +246,7 @@ export function indexRegister(register: any): RegisterIndex {
         rowOrdinal,
         ownerRow,
         fillable,
+        fillableFrom,
         outerBound,
         relativeTerms: register.relativeTerms || {},
         nounSemantics: (register.vocabularies && register.vocabularies.nounSemantics) || {},

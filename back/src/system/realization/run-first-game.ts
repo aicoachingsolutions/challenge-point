@@ -21,8 +21,9 @@ import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame } from '../derivation/resolved-game'
 import { derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
 import { completeConcreteGame } from './assemble-concrete-game'
+import { realizeWithJustifiedDefaults } from './justified-defaults'
 import { runPostRealizationGates } from './post-realization-gate'
-import { checkRealization, isRefused, realize, Realized } from './realize'
+import { checkRealization, isRefused, Realized } from './realize'
 
 const goalId = process.argv.find(a => /^[A-Z]+[0-9]+$/.test(a)) ?? 'A04'
 const CHOICES = path.resolve(__dirname, '../../../../docs/audits/a04-realization-choices.json')
@@ -84,7 +85,10 @@ for (const condition of resolved.jointConditions) {
 // ---------------------------------------------------------------------------------------------
 rule('4 · REALIZATION DECISIONS')
 const supplied = JSON.parse(fs.readFileSync(CHOICES, 'utf8'))
-const realizationResult = realize(resolved, supplied.choices, supplied.instantiations, indexRegister(input.register), input.envelope)
+// The same call the builder and the freezer make: what somebody chose, plus the justified defaults for
+// any line nobody did. A default is printed as one — it is not a decision anybody made.
+const gateContext = { ...staged.gateContext, contracts: input.contracts }
+const { realization: realizationResult } = realizeWithJustifiedDefaults(resolved, supplied, indexRegister(input.register), input.envelope, gateContext)
 if (isRefused(realizationResult)) {
     console.log(`  REFUSED — ${realizationResult.because.length} reason(s):`)
     for (const because of realizationResult.because) console.log(`      · ${because}`)
@@ -92,9 +96,10 @@ if (isRefused(realizationResult)) {
 }
 const realized = realizationResult as Realized
 for (const choice of realized.record.choices) {
-    console.log(`  ${choice.lineId}`)
+    console.log(`  ${choice.lineId}${choice.defaultedBy ? `   (DEFAULT — ${choice.defaultedBy})` : ''}`)
     console.log(`      -> ${JSON.stringify(choice.value)}`)
     console.log(`      at ${choice.path};  bound ${choice.boundCheck};  authority ${choice.authority ?? 'none carried'}`)
+    console.log(`      closure ${choice.closure};  within ${JSON.stringify(choice.within)}`)
     console.log(`      because ${choice.because}`)
 }
 for (const instantiation of realized.record.instantiations) {
@@ -109,7 +114,6 @@ if (realized.record.unverified.length) console.log(`  unverified against a quali
 // between realization and the acceptance conditions, so the game the conditions read is the finished
 // one and the entailed values are checked like any other.
 rule('4b · ENTAILED OVER THE CONCRETE GAME — derived once its subject existed')
-const gateContext = { ...staged.gateContext, contracts: input.contracts }
 const entailed = completeConcreteGame(gateContext, realized)
 if (!entailed.length) console.log('  nothing — no member property became derivable once the members existed')
 for (const entry of entailed) {

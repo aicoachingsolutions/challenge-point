@@ -454,8 +454,23 @@ export function entails(item: any): boolean {
  * carrying the authored term — not a numeric bound with nothing in it. SD-15 forbids inventing a number
  * here, and a `COUNT` with null endpoints bounds nothing while still looking numeric to a consumer,
  * which is how "beyond the first defenders" came to be silently ignored by a feasibility check.
+ *
+ * **Every shape says how binding it is — completed 13 October.** A bound is only usable downstream if a
+ * reader can tell a requirement from a preference from an exclusion, and three of the five shapes here did
+ * not say. Measured before this: eight bounds from `PREFERRED_DEFAULT` items carried no flag (the target's
+ * across-extent, both channels' along-extent, the pass threshold among them), so a preferred value and a
+ * required one were the same object; and an `EXCLUSION` item came out as `{ kind: 'SET', members }`, which
+ * is the shape of a PERMITTED set — with the one narrowing above it withheld, the scoring kind was refused
+ * for not being among its own forbidden values. His instruction of the same day is that authored ranges,
+ * starting values and alternatives are preserved *"throughout realization and communication"*; that starts
+ * with the bound keeping its status where it is made.
+ *
+ * `preferred` is stated on every shape, true or false. `forbidden` is present only where it is true, so a
+ * bound that is not an exclusion reads exactly as it did.
  */
 function boundsOf(item: any, index?: RegisterIndex): Bounds {
+    const preferred = item.valueStatus === 'PREFERRED_DEFAULT'
+    const status = item.strictness === 'EXCLUSION' ? { preferred, forbidden: true } : { preferred }
     // **A value that IS a canonical relative term carries that term's bound.** The fractions live once,
     // in RC-21, and a contract item names the relation rather than restating a number — which is what
     // keeps a proportional rule from being copied into every object that uses it. The term is resolved
@@ -463,7 +478,7 @@ function boundsOf(item: any, index?: RegisterIndex): Bounds {
     if (index && typeof item.value === 'string') {
         const term = ((index.relativeTerms as any)?.machineReadable?.terms ?? {})[item.value]
         if (term && term.kind === 'interval' && typeof term.from === 'number' && typeof term.to === 'number') {
-            return { kind: 'COUNT', min: term.from, max: term.to, term: item.value, fractionOfAxis: true, preferred: item.valueStatus === 'PREFERRED_DEFAULT' } as Bounds
+            return { kind: 'COUNT', min: term.from, max: term.to, term: item.value, fractionOfAxis: true, ...status } as Bounds
         }
     }
     // **A typed bound moved out of the prose by an authored restatement**, on the SD-86 precedent:
@@ -473,13 +488,14 @@ function boundsOf(item: any, index?: RegisterIndex): Bounds {
     // carried alongside so the source stays visible beside its typed form.
     if (item.typedBound && typeof item.typedBound === 'object') {
         const { min = null, max = null } = item.typedBound
-        return { kind: 'COUNT', min, max, term: String(item.value ?? ''), preferred: item.valueStatus === 'PREFERRED_DEFAULT' }
+        return { kind: 'COUNT', min, max, term: String(item.value ?? ''), ...status }
     }
-    if (item.requirement !== 'RANGE' && item.requirement !== 'COUNT') return { kind: 'SET', members: [item.value] as any }
+    if (item.requirement !== 'RANGE' && item.requirement !== 'COUNT') return { kind: 'SET', members: [item.value] as any, ...status }
 
+    // The authored words travel with a parsed count as they already do with a typed one.
     const count = countBounds(item)
-    if (count) return { kind: 'COUNT', min: count.min, max: count.max }
-    return { kind: 'QUALITATIVE', term: String(item.value ?? '').trim() }
+    if (count) return { kind: 'COUNT', min: count.min, max: count.max, term: String(item.value ?? '').trim(), ...status }
+    return { kind: 'QUALITATIVE', term: String(item.value ?? '').trim(), ...status }
 }
 
 /**

@@ -27,6 +27,7 @@
 
 import { canonical, digest } from '../derivation/engine'
 import { ExistentialClaim, OpenChoice, ResolvedGame } from '../derivation/resolved-game'
+import { scaleExactly } from '../derivation/rational'
 import { RegisterIndex } from '../derivation/register'
 import { Bounds } from '../derivation/types'
 import { realizeSpatialRelation, RealizedGeometry } from './spatial'
@@ -71,12 +72,65 @@ export interface Instantiation {
  */
 export const memberHandle = (classId: string, ordinal: number): string => `${classId}#${ordinal}`
 
+/**
+ * **What KIND of closing a choice was** — read from the open line it closed, never from its `because`.
+ *
+ * Christian, 13 October: *"I agree with preserving authored ranges, selected starting values, alternatives,
+ * and the reasons for those selections throughout realization and communication … The initial activity
+ * should establish a purposeful starting environment, not prescribe an ideal configuration for the entire
+ * session."* Until then the only account of whether a value was the one thing permitted, one of several, a
+ * place to start inside a range, or simply the coach's was a sentence of prose nothing interprets.
+ *
+ *   - `ONLY_VALUE` — the knowledge permits exactly one value, so nothing was chosen;
+ *   - `CHOSEN_AMONG_ALTERNATIVES` — one of several stated alternatives; the others are in `within`;
+ *   - `STARTING_VALUE_IN_RANGE` — a number inside an authored range: where this activity STARTS, with the
+ *     range kept beside it;
+ *   - `COACH_DECIDES` — bounded only by a term in words, which SD-15 makes a coach's judgement; the
+ *     recorded value stands in for a decision that is theirs;
+ *   - `UNBOUNDED` — open, with no permitted set and no bound.
+ *
+ * **This does not change the closure rule.** A concrete game still leaves no freedom unclosed: the roster
+ * has to add up and a region has to be somewhere, so every open line still takes exactly one value. What
+ * changes is that the value no longer arrives alone.
+ */
+export type Closure = 'ONLY_VALUE' | 'CHOSEN_AMONG_ALTERNATIVES' | 'STARTING_VALUE_IN_RANGE' | 'COACH_DECIDES' | 'UNBOUNDED'
+
+/**
+ * The two rules under which an open line nobody chose a value for may still be closed. See
+ * `justified-defaults.ts`, which is the only place a default is produced.
+ */
+export type DefaultRule = 'ONLY_MEMBER_OF_AUTHORED_BOUND' | 'ONLY_PREFERRED_COUNT_THE_ROSTER_ADMITS'
+
+/** A value offered for an open line in case nobody chose one, with the rule that justifies it. */
+export interface JustifiedDefault extends Choice {
+    rule: DefaultRule
+}
+
 export interface RecordedChoice extends Choice {
     path: string
     /** What authorized it, carried from the resolved game. */
     authority: string | null
-    /** How the bound was checked — or that it could not be. */
-    boundCheck: 'WITHIN_PERMITTED_SET' | 'WITHIN_COUNT' | 'UNVERIFIABLE_QUALITATIVE_BOUND' | 'UNBOUNDED'
+    /**
+     * How the bound was checked — or that it could not be. `WITHIN_DECLARED_DOMAIN` is a value checked
+     * against the members of the collection the register declares for its row (`fillableFrom`): the
+     * reference is verified, which is a different claim from an authored set having been satisfied.
+     */
+    boundCheck: 'WITHIN_PERMITTED_SET' | 'WITHIN_COUNT' | 'WITHIN_DECLARED_DOMAIN' | 'UNVERIFIABLE_QUALITATIVE_BOUND' | 'UNBOUNDED'
+    /**
+     * **What the value was chosen WITHIN** — the open line's own permitted set and bounds, copied at the
+     * moment it was closed.
+     *
+     * The record used to keep the value and the name of the check that passed, and drop the thing it was
+     * checked against. So a recorded `2` could not be told from a recorded `2 of 1–2 preferred, at least 1
+     * required`, and neither rendering nor any later adjustment could say what else the knowledge allows.
+     * `bounds` is every bound on the line as derivation carried it — required, preferred and forbidden each
+     * marked as such. `permitted` is the authored alternatives; for a row with a declared domain it is the
+     * members of that domain as this game holds them.
+     */
+    within: { permitted: unknown[] | null; bounds: Bounds[] }
+    closure: Closure
+    /** Present where nobody chose this value: the rule under which it was closed anyway. */
+    defaultedBy?: DefaultRule
 }
 
 export interface RealizationRecord {
@@ -157,6 +211,10 @@ export interface RealizationRecord {
     /**
      * Choices whose bound is a qualitative term. SD-15 forbids inventing a number for one, so the
      * realizer cannot check the value against it and says so rather than implying it verified.
+     *
+     * A choice on a row that declares its domain is NOT listed here, though its authored bound is still a
+     * term in words: its value was compared with the members of that domain, so it is recorded as
+     * `WITHIN_DECLARED_DOMAIN`. What this list names is a value that was compared with nothing.
      */
     unverified: string[]
     /**
@@ -258,16 +316,26 @@ function splitElementPath(path: string): { container: string; elementId: string;
  * follow the guidance. Where they do not overlap at all the preference is reported incompatible and the
  * requirement stands — his words: the preference "must never override or widen the requirement".
  */
-function intersect(required: Bounds, preference: Bounds, envelope: { lengthM?: number; widthM?: number }): unknown {
+/**
+ * One end of a bound, in metres on this envelope. Null where that end is not authored.
+ *
+ * A fraction is of the axis the bound belongs to — its own where it names one, otherwise the axis of the
+ * line it sits on. **The product is taken exactly** (`scaleExactly`): 0.15 of a 23 m width is 3.45 m, and
+ * the float product is 3.4499999999999997, which is not a number any coach should be handed and not one a
+ * check can compare with the fraction it came from.
+ */
+function boundInMetres(bound: Bounds, which: 'min' | 'max', envelope: { lengthM?: number; widthM?: number }, lineAxis: 'along' | 'across'): number | null {
+    const raw = bound[which]
+    if (raw === null || raw === undefined || !Number.isFinite(Number(raw))) return null
+    if (!bound.fractionOfAxis) return Number(raw)
     const across = Math.min(Number(envelope.lengthM), Number(envelope.widthM))
     const along = Math.max(Number(envelope.lengthM), Number(envelope.widthM))
-    const metres = (bound: Bounds, which: 'min' | 'max'): number | null => {
-        const raw = bound[which]
-        if (raw === null || raw === undefined || !Number.isFinite(Number(raw))) return null
-        // A fraction is of the axis the bound belongs to; the across dimension is the one a channel
-        // width is measured on, and `along` is carried so the helper is not silently across-only.
-        return bound.fractionOfAxis ? Number(raw) * (bound.axis === 'along' ? along : across) : Number(raw)
-    }
+    const axis = bound.axis === 'along' || bound.axis === 'across' ? bound.axis : lineAxis
+    return scaleExactly(Number(raw), axis === 'along' ? along : across)
+}
+
+function intersect(required: Bounds, preference: Bounds, envelope: { lengthM?: number; widthM?: number }, lineAxis: 'along' | 'across' = 'across'): unknown {
+    const metres = (bound: Bounds, which: 'min' | 'max'): number | null => boundInMetres(bound, which, envelope, lineAxis)
     const lo = Math.max(metres(required, 'min') ?? 0, metres(preference, 'min') ?? 0)
     const hiCandidates = [metres(required, 'max'), metres(preference, 'max')].filter((n): n is number => n !== null)
     const hi = hiCandidates.length ? Math.min(...hiCandidates) : null
@@ -296,6 +364,39 @@ function checkVocabulary(choice: OpenChoice, value: unknown, index?: RegisterInd
     )
 }
 
+/**
+ * The bounds that say what a line MAY be. An exclusion's bound says what it may not be, in words, and is
+ * never among them — see `Bounds.forbidden`. Every reader below that asks what is permitted starts here.
+ */
+const permitting = (choice: OpenChoice): Bounds[] => (choice.bounds as Bounds[]).filter(b => b && !b.forbidden)
+
+/** The members common to every SET bound on the line — what `checkBound` will actually accept. */
+function setMembers(choice: OpenChoice): unknown[] | null {
+    const sets = permitting(choice).filter(b => b.kind === 'SET' && Array.isArray(b.members))
+    if (!sets.length) return null
+    return sets[0].members!.filter(member => sets.every(set => set.members!.some(m => JSON.stringify(m) === JSON.stringify(member))))
+}
+
+/**
+ * Which kind of closing this line admits, from the line alone. In the order `checkBound` decides: an
+ * authored set of alternatives first, then a set carried as a bound, then a numeric range, then a term in
+ * words.
+ *
+ * A range that is only PREFERRED still makes the value a starting value: the knowledge gave a range to
+ * start inside and the value starts there. And a qualitative term is the coach's whether or not the row
+ * also declares a domain (SD-15: such terms *"are FREE qualitative coach judgements"*); where it does, the
+ * members of the domain are recorded in `within.permitted` so the judgement has its candidates beside it.
+ */
+export function closureOf(choice: OpenChoice): Closure {
+    if (choice.permitted) return choice.permitted.length > 1 ? 'CHOSEN_AMONG_ALTERNATIVES' : 'ONLY_VALUE'
+    const members = setMembers(choice)
+    if (members) return members.length > 1 ? 'CHOSEN_AMONG_ALTERNATIVES' : 'ONLY_VALUE'
+    const bounds = permitting(choice)
+    if (bounds.some(b => b.kind === 'COUNT' && ((b.min !== null && b.min !== undefined) || (b.max !== null && b.max !== undefined)))) return 'STARTING_VALUE_IN_RANGE'
+    if (bounds.some(b => b.kind === 'QUALITATIVE')) return 'COACH_DECIDES'
+    return 'UNBOUNDED'
+}
+
 function checkBound(choice: OpenChoice, value: unknown): { ok: boolean; how: RecordedChoice['boundCheck']; why?: string } {
     if (choice.permitted) {
         const ok = choice.permitted.some(m => JSON.stringify(m) === JSON.stringify(value))
@@ -304,11 +405,19 @@ function checkBound(choice: OpenChoice, value: unknown): { ok: boolean; how: Rec
             : { ok: false, how: 'WITHIN_PERMITTED_SET', why: `${choice.lineId}: ${JSON.stringify(value)} is not one of the permitted alternatives ${JSON.stringify(choice.permitted)}` }
     }
 
+    /**
+     * **A forbidden set is not a permitted one, and is skipped here.** Latent until 13 October because the
+     * one open line carrying an exclusion also carries a permitted set, which is checked first: with that
+     * narrowing withheld, the scoring kind was refused as *"not among the authored members"* of the very
+     * values the item forbids. Whether a value breaches an exclusion is the forward list's question.
+     */
+    const bounds = permitting(choice)
+
     // **A preferred default is not a ceiling.** Enforcing every count bound would silently intersect
     // them, and where one item states a required floor with *no authored maximum* while another
     // states a preferred 1–2, that intersection turns a preference into a hard limit the knowledge
     // never states. SD-90 governs the relationship; here the preferred bounds are simply not enforced.
-    const counts = (choice.bounds as Bounds[]).filter(b => b?.kind === 'COUNT' && !b.preferred)
+    const counts = bounds.filter(b => b?.kind === 'COUNT' && !b.preferred)
     if (counts.length) {
         if (typeof value !== 'number') {
             return { ok: false, how: 'WITHIN_COUNT', why: `${choice.lineId}: the bound is a count and ${JSON.stringify(value)} is not a number` }
@@ -324,7 +433,7 @@ function checkBound(choice: OpenChoice, value: unknown): { ok: boolean; how: Rec
         return { ok: true, how: 'WITHIN_COUNT' }
     }
 
-    const sets = (choice.bounds as Bounds[]).filter(b => b?.kind === 'SET' && Array.isArray(b.members))
+    const sets = bounds.filter(b => b?.kind === 'SET' && Array.isArray(b.members))
     if (sets.length) {
         for (const bound of sets) {
             const ok = bound.members!.some(m => JSON.stringify(m) === JSON.stringify(value))
@@ -335,7 +444,7 @@ function checkBound(choice: OpenChoice, value: unknown): { ok: boolean; how: Rec
         return { ok: true, how: 'WITHIN_PERMITTED_SET' }
     }
 
-    if ((choice.bounds as Bounds[]).some(b => b?.kind === 'QUALITATIVE')) return { ok: true, how: 'UNVERIFIABLE_QUALITATIVE_BOUND' }
+    if (bounds.some(b => b?.kind === 'QUALITATIVE')) return { ok: true, how: 'UNVERIFIABLE_QUALITATIVE_BOUND' }
     return { ok: true, how: 'UNBOUNDED' }
 }
 
@@ -353,6 +462,21 @@ export function realize(
     instantiations: Instantiation[] = [],
     index?: RegisterIndex,
     envelope?: { lengthM?: number; widthM?: number },
+    /**
+     * **Justified defaults — a SEPARATE input, consulted only for a line that is open and was not chosen.**
+     *
+     * They cannot simply be appended to `choices`: a choice for a line this game does not hold open is
+     * refused (*"nobody established this, so it is not a freedom to close"*), which is right for a decision
+     * somebody made about THIS game and wrong for a rule that says what to do wherever a certain kind of
+     * line turns up. So a default for a line that is not open, or that somebody chose a value for, is never
+     * looked at — an explicit choice always wins — and one that is consulted passes every check a choice
+     * passes and is recorded as a choice, with the rule that produced it.
+     *
+     * His condition for them, 13 October: defaults are welcome *"provided they don't silently override
+     * important learning-design choices."* Nothing here decides what is defaultable; `justified-defaults.ts`
+     * does, and it produces a value only where the knowledge and the session admit exactly one.
+     */
+    defaults: JustifiedDefault[] = [],
 ): RealizationResult {
     const because: string[] = []
 
@@ -360,9 +484,10 @@ export function realize(
      * The realization input's own digest, taken from the arguments as given and BEFORE anything is applied,
      * so it describes what was supplied rather than what the realizer made of it. Order is preserved: the
      * instantiation order fixes which handle each member gets, so normalising it away would stamp two
-     * genuinely different realizations alike.
+     * genuinely different realizations alike. Defaults are input too, and are stamped where there are any —
+     * a run given none stamps exactly as it did before they existed.
      */
-    const realizationDigest = digest(canonical({ choices, instantiations }))
+    const realizationDigest = digest(canonical(defaults.length ? { choices, instantiations, defaults } : { choices, instantiations }))
 
     if (!resolved.coherence.mayRealize) {
         because.push(`the resolved game may not be realized: Gate A is ${resolved.coherence.gateA}${resolved.coherence.failingChecks.length ? ` (${resolved.coherence.failingChecks.join(', ')})` : ''}`)
@@ -373,6 +498,34 @@ export function realize(
     const existentialById = new Map(resolved.existential.map(e => [e.classId, e]))
     const seen = new Set<string>()
     const recorded: RecordedChoice[] = []
+
+    /**
+     * One value for one open line, checked and recorded — the same for a choice somebody made and for a
+     * default nobody did. **The bound it was checked against is kept with it** (`within`), and so is what
+     * kind of closing it was (`closure`): see `RecordedChoice`.
+     */
+    const close = (open: OpenChoice, choice: Choice, defaultedBy?: DefaultRule): void => {
+        const bound = checkBound(open, choice.value)
+        if (!bound.ok) {
+            because.push(bound.why!)
+            return
+        }
+        // Both, not either: the authored bound AND the canonical vocabulary.
+        const unregistered = checkVocabulary(open, choice.value, index)
+        if (unregistered) {
+            because.push(unregistered)
+            return
+        }
+        recorded.push({
+            ...choice,
+            path: open.path,
+            authority: open.permittedBy?.authority ?? null,
+            boundCheck: bound.how,
+            within: { permitted: open.permitted ? [...open.permitted] : null, bounds: (open.bounds as Bounds[]).map(b => ({ ...b })) },
+            closure: closureOf(open),
+            ...(defaultedBy ? { defaultedBy } : {}),
+        })
+    }
 
     for (const choice of choices) {
         if (seen.has(choice.lineId)) {
@@ -390,22 +543,20 @@ export function realize(
             because.push(`${choice.lineId}: the resolved game does not list this line as open, so nothing authorizes a value for it`)
             continue
         }
-        const bound = checkBound(open, choice.value)
-        if (!bound.ok) {
-            because.push(bound.why!)
-            continue
-        }
-        // Both, not either: the authored bound AND the canonical vocabulary.
-        const unregistered = checkVocabulary(open, choice.value, index)
-        if (unregistered) {
-            because.push(unregistered)
-            continue
-        }
-        recorded.push({ ...choice, path: open.path, authority: open.permittedBy?.authority ?? null, boundCheck: bound.how })
+        close(open, choice)
     }
 
     for (const open of resolved.open) {
-        if (!seen.has(open.lineId)) because.push(`${open.lineId} is open and was not chosen: a concrete game leaves no freedom unclosed`)
+        if (seen.has(open.lineId)) continue
+        const offered = defaults.filter(candidate => candidate.lineId === open.lineId)
+        if (offered.length === 1) {
+            const [{ rule, ...value }] = offered
+            close(open, value, rule)
+            continue
+        }
+        // Two defaults for one line are two answers to a question that must have exactly one, so neither is taken.
+        if (offered.length > 1) because.push(`${open.lineId}: ${offered.length} defaults were offered for one line, and a line has one value`)
+        else because.push(`${open.lineId} is open and was not chosen: a concrete game leaves no freedom unclosed`)
     }
 
     const recordedInstantiations: (Instantiation & { path: string; handle: string; memberIndex: number })[] = []
@@ -676,6 +827,42 @@ export function realize(
         }
     }
 
+    /**
+     * **A row that DECLARES its domain is held to it — added 13 October.**
+     *
+     * The check above is narrow on purpose and catches one shape: a handle one ordinal out. Everything else
+     * still passed. The register says of the possession row that it is filled by *"one of the teams the game
+     * establishes"* and says where those are — `fillableFrom: performers.teams[]` — and no code read it.
+     * Measured before this: an initial holder of `banana`, and one naming a REGION of the same game, were
+     * each accepted here, passed all three acceptance conditions and passed the post-realization gates. Only
+     * the fidelity check stopped them, and by accident — the renderer withholds a sentence it cannot word.
+     *
+     * So the value must be the handle of a member of the collection the row names, as THIS game holds it —
+     * established elements and instantiated members alike, which is why it is asked here, after the members
+     * are placed. The members are recorded as what the choice was made within: *"left to the coach, among
+     * these"* becomes a checked statement instead of one nothing could verify. It needs the register, so a
+     * caller that passes none is told nothing about domains, exactly as it is told nothing about vocabularies.
+     */
+    if (index) {
+        for (const choice of recorded) {
+            const domain = index.fillableFrom.get(choice.lineId.split('::').pop() ?? '')
+            if (!domain) continue
+            const bucket = readAt(game, collectionPath(domain))
+            const members = (Array.isArray(bucket) ? (bucket as any[]) : []).map(member => member?.elementId).filter((id): id is string => typeof id === 'string')
+            if (!members.some(member => member === choice.value)) {
+                return {
+                    outcome: 'REFUSED',
+                    because: [
+                        `${choice.lineId}: the chosen value ${JSON.stringify(choice.value)} is not a member of ${domain}, which is what the register ` +
+                            `declares this row to be filled from. ${collectionPath(domain)} holds ${members.join(', ') || 'no members'}`,
+                    ],
+                }
+            }
+            choice.within.permitted = members
+            choice.boundCheck = 'WITHIN_DECLARED_DOMAIN'
+        }
+    }
+
     // Instantiate every authored spatial relation the concrete game now holds, derived AND chosen
     // alike, against the envelope. The prose stays as the value; the metres sit beside it as
     // `realizedGeometry`, carrying the phrase as their own authority.
@@ -696,21 +883,36 @@ export function realize(
          * it **intersected into** the requirement, offered and never enforced. Picking whichever bound
          * came first — which is what this did — let a preference decide the geometry.
          */
-        const extentOf = (lineId: string): (Bounds & { preferenceWithin?: unknown }) | undefined => {
-            const bounds = [...(resolved.open.find(o => o.lineId === lineId)?.bounds ?? []), ...(resolved.extentBounds?.[lineId] ?? [])] as Bounds[]
-            const counts = bounds.filter(b => b?.kind === 'COUNT' && (b.min !== null || b.max !== null))
-            const required = counts.find(b => !b.preferred)
-            if (!required) return counts[0]
-            const preference = counts.find(b => b.preferred)
-            return preference ? { ...required, preferenceWithin: intersect(required, preference, envelope ?? {}) } : required
-        }
-        const spatial = [...resolved.derived.map(d => ({ lineId: d.lineId, path: d.path, value: d.value })), ...recorded.map(c => ({ lineId: c.lineId, path: c.path, value: c.value }))]
-
         /** Which axis a row is about, read from the register's own path rather than from a row-id list. */
         const axisOf = (lineId: string): 'along' | 'across' | null => {
             const path = String(index.rows.get(lineId.split('::').pop() ?? '')?.path ?? '')
             return path.endsWith('.along') ? 'along' : path.endsWith('.across') ? 'across' : null
         }
+        /**
+         * **`requiredWithin` — the requirement in metres on this envelope, both ends — added 13 October.**
+         *
+         * The requirement is authored as a fraction of an axis, and only its MAXIMUM ever became metres: the
+         * interval is composed at the widest permitted extent. So the game held 7.5 m and never 4.5 m, and
+         * the activity said *"up to 7.5 m wide"* about a channel his ruling of 1 October gives *"a minimum of
+         * 0.15 and a maximum of 0.25 of the available across dimension"*. A renderer may not work the
+         * minimum out for itself — a number computed into the prose is a number on the renderer's own
+         * authority — so it is established here, where the fraction already meets the envelope, and
+         * carried beside the preference that is expressed inside it.
+         */
+        const extentOf = (lineId: string, axis: 'along' | 'across'): (Bounds & { requiredWithin?: unknown; preferenceWithin?: unknown }) | undefined => {
+            const bounds = ([...(resolved.open.find(o => o.lineId === lineId)?.bounds ?? []), ...(resolved.extentBounds?.[lineId] ?? [])] as Bounds[]).filter(b => b && !b.forbidden)
+            const counts = bounds.filter(b => b?.kind === 'COUNT' && (b.min !== null || b.max !== null))
+            const required = counts.find(b => !b.preferred)
+            if (!required) return counts[0]
+            const preference = counts.find(b => b.preferred)
+            const measurable = Number.isFinite(Number(envelope?.lengthM)) && Number.isFinite(Number(envelope?.widthM))
+            return {
+                ...required,
+                ...(measurable ? { requiredWithin: { min: boundInMetres(required, 'min', envelope ?? {}, axis), max: boundInMetres(required, 'max', envelope ?? {}, axis) } } : {}),
+                ...(preference ? { preferenceWithin: intersect(required, preference, envelope ?? {}, axis) } : {}),
+            }
+        }
+        const spatial = [...resolved.derived.map(d => ({ lineId: d.lineId, path: d.path, value: d.value })), ...recorded.map(c => ({ lineId: c.lineId, path: c.path, value: c.value }))]
         /** The noun realized or derived for this element, if any — the realization choice wins. */
         const nounOf = (elementId: string): string | undefined => {
             const nounRow = (id: string) => String(index.rows.get(id.split('::').pop() ?? '')?.path ?? '').endsWith('.noun')
@@ -753,7 +955,7 @@ export function realize(
             const realizedGeometry = realizeSpatialRelation(entry.value, index, {
                 envelope: envelope ?? {},
                 axis,
-                extentBound: extentOf(entry.lineId) as any,
+                extentBound: extentOf(entry.lineId, axis) as any,
                 nounExtentDimensions: Number.isFinite(dimensions) ? dimensions : undefined,
                 otherAxisHasExtent,
                 lateral: typeof lateral === 'string' ? lateral : undefined,

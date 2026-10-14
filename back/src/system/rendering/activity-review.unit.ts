@@ -396,6 +396,97 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
     assert.ok(text(modifier, 'How to score').some(t => /worth 2 instead of 1/.test(t)), 'and the mechanism it demonstrates is in the activity')
 
     /**
+     * **SERVED AT EVERY SIZE, with the whole authored range said — pinned 13 October 2026.**
+     *
+     * Before this it was served at 40 × 30 and REFUSED at 30 × 25 and at 20 × 15, at the communication
+     * stage, for nothing but its own arithmetic: a channel's width is a fraction of the area's width, and
+     * lengths were printed rounded to one decimal place. A 25 m width gives a maximum of 6.25 m; the
+     * activity said *"6.3 m"*; the fidelity check found 6.3 nowhere in the game and correctly refused it.
+     * Lengths are now printed as the number the game holds.
+     *
+     * The same change made the sentence complete. It said *"up to 7.5 m wide"* and never the minimum beside
+     * it — his ruling of 1 October gives a channel *"a minimum of 0.15 and a maximum of 0.25 of the available
+     * across dimension"* — and the check now refuses a requirement stated by half.
+     *
+     * Three sizes because they are three different cases, not one case three times: at 40 × 30 the preferred
+     * 6 to 10 m overlaps the requirement from 6 m up; at 30 × 25 only a 25 cm sliver of it does; at 20 × 15
+     * none of it does, so nothing is offered and the requirement stands alone. That last one is his rule that
+     * a preference *"must never override or widen the requirement"*, seen from the coach's side.
+     */
+    const at = (length: number, width: number) =>
+        served(
+            reviewActivity(stored({ fieldLength: String(length), fieldWidth: String(width) }), { demonstrationId: 'scoring-modifier', durationMin: 20 }),
+            `the scoring-modifier demonstration at ${length} x ${width}`,
+        )
+    const expected: [number, number, number, string[]][] = [
+        [
+            40,
+            30,
+            22,
+            [
+                'Mark out an area 40 m long by 30 m wide',
+                'For this activity, mark a line across one end of the area, 30 m long, on the end line itself',
+                'For this activity, mark a line across the other end of the area, 30 m long, on the end line itself',
+                'Mark a channel along one touchline, 40 m long and between 4.5 m and 7.5 m wide',
+                'This channel is established as a perceptual reference',
+                'Around 6 m to 7.5 m wide works well, if it suits your group',
+                'Mark a channel along the opposite touchline, 40 m long and between 4.5 m and 7.5 m wide',
+                'This channel is established as a perceptual reference',
+                'Around 6 m to 7.5 m wide works well, if it suits your group',
+            ],
+        ],
+        [
+            30,
+            25,
+            22,
+            [
+                'Mark out an area 30 m long by 25 m wide',
+                'For this activity, mark a line across one end of the area, 25 m long, on the end line itself',
+                'For this activity, mark a line across the other end of the area, 25 m long, on the end line itself',
+                'Mark a channel along one touchline, 30 m long and between 3.75 m and 6.25 m wide',
+                'This channel is established as a perceptual reference',
+                'Around 6 m to 6.25 m wide works well, if it suits your group',
+                'Mark a channel along the opposite touchline, 30 m long and between 3.75 m and 6.25 m wide',
+                'This channel is established as a perceptual reference',
+                'Around 6 m to 6.25 m wide works well, if it suits your group',
+            ],
+        ],
+        [
+            20,
+            15,
+            20,
+            [
+                'Mark out an area 20 m long by 15 m wide',
+                'For this activity, mark a line across one end of the area, 15 m long, on the end line itself',
+                'For this activity, mark a line across the other end of the area, 15 m long, on the end line itself',
+                'Mark a channel along one touchline, 20 m long and between 2.25 m and 3.75 m wide',
+                'This channel is established as a perceptual reference',
+                'Mark a channel along the opposite touchline, 20 m long and between 2.25 m and 3.75 m wide',
+                'This channel is established as a perceptual reference',
+            ],
+        ],
+    ]
+    for (const [length, width, instructions, setUp] of expected) {
+        const activity = at(length, width)
+        assert.equal(activity.integrity.fidelityViolations, 0, `${length} x ${width}`)
+        assert.equal(activity.integrity.postRealizationValidated, true)
+        assert.deepEqual(activity.integrity.acceptance, { nothingClosedWithoutAuthority: [], nothingLost: [], nothingInvented: [] })
+        assert.equal(activity.rendered.instructions.length, instructions, `${length} x ${width}`)
+        assert.deepEqual(text(activity, 'Set up'), setUp, `${length} x ${width}`)
+        // Nothing but the area differs between them: the game is the same game on a different pitch.
+        for (const section of ['Players', 'How it works', 'How to score']) assert.deepEqual(text(activity, section), text(modifier, section), `${length} x ${width}: ${section}`)
+        // Every number said is declared, so every number said was checked — and none is a rounding.
+        for (const said of activity.rendered.instructions) {
+            assert.deepEqual([...said.text.matchAll(/\d+(?:\.\d+)?/g)].map(m => Number(m[0])).filter(n => !said.quantities.includes(n)), [], said.text)
+        }
+    }
+    // A width whose fraction has no exact binary form is still printed as the decimal it is: 0.15 × 23 is
+    // 3.45, and the float product is 3.4499999999999997.
+    const awkward = at(35, 23)
+    assert.equal(awkward.integrity.fidelityViolations, 0)
+    assert.ok(text(awkward, 'Set up').includes('Mark a channel along one touchline, 35 m long and between 3.45 m and 5.75 m wide'), JSON.stringify(text(awkward, 'Set up')))
+
+    /**
      * **The neutral-player demonstration is REFUSED today, and that is the honest state of the mechanism.**
      * Its contract leaves the neutral count open and nothing has chosen one, so there is no single game to
      * show. Completing it is Stage B3; until then this must refuse rather than be made to pass. When B3

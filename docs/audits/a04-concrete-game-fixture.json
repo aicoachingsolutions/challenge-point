@@ -234,8 +234,8 @@
  },
  "record": {
   "fromDigest": "235ee36e",
-  "realizationDigest": "e7ec9233",
-  "auditDigest": "7dc47828",
+  "realizationDigest": "7e4ffdc8",
+  "auditDigest": "5c401f3e",
   "geometry": [
    {
     "lineId": "c:restated:GF2:GF2-03.e::S5",
@@ -307,15 +307,15 @@
     "because": "The near-end target is a line, chosen from the two the knowledge permits (zone or line), for the same reason the single shared target was: a line is the thinner commitment and a coach can mark it with cones in seconds. Both targets take the same noun so the two ends are symmetrical.",
     "path": "space.regions[c:restated:GF2:GF2-03.e].noun",
     "authority": null,
-    "boundCheck": "WITHIN_PERMITTED_SET"
-   },
-   {
-    "lineId": "c:restated:GF2:GF2-03.e::S6",
-    "value": "extends across the axis: the target lies across the direction of progression",
-    "because": "Full width, as authored: the target lies across the direction of progression.",
-    "path": "space.regions[c:restated:GF2:GF2-03.e].position.across",
-    "authority": "SD-39",
-    "boundCheck": "WITHIN_PERMITTED_SET"
+    "boundCheck": "WITHIN_PERMITTED_SET",
+    "within": {
+     "permitted": [
+      "zone",
+      "line"
+     ],
+     "bounds": []
+    },
+    "closure": "CHOSEN_AMONG_ALTERNATIVES"
    },
    {
     "lineId": "c:restated:GF2:GF2-03.f::S3",
@@ -323,15 +323,15 @@
     "because": "The far-end target is a line, matching the near-end one so neither end is easier to score at than the other.",
     "path": "space.regions[c:restated:GF2:GF2-03.f].noun",
     "authority": null,
-    "boundCheck": "WITHIN_PERMITTED_SET"
-   },
-   {
-    "lineId": "c:restated:GF2:GF2-03.f::S6",
-    "value": "extends across the axis: the target lies across the direction of progression",
-    "because": "Full width, as authored, matching the near-end target.",
-    "path": "space.regions[c:restated:GF2:GF2-03.f].position.across",
-    "authority": "SD-39",
-    "boundCheck": "WITHIN_PERMITTED_SET"
+    "boundCheck": "WITHIN_PERMITTED_SET",
+    "within": {
+     "permitted": [
+      "zone",
+      "line"
+     ],
+     "bounds": []
+    },
+    "closure": "CHOSEN_AMONG_ALTERNATIVES"
    },
    {
     "lineId": "game::V1",
@@ -339,15 +339,90 @@
     "because": "one of the two kinds the selection narrowed to. line_crossed is consistent with the target realized as a line; target_zone_entered would contradict the S3 choice.",
     "path": "value.primaryEvent.kind",
     "authority": "SD-39",
-    "boundCheck": "WITHIN_PERMITTED_SET"
+    "boundCheck": "WITHIN_PERMITTED_SET",
+    "within": {
+     "permitted": [
+      "line_crossed",
+      "target_zone_entered"
+     ],
+     "bounds": [
+      {
+       "kind": "SET",
+       "members": [
+        "{consecutive-pass count, keep-away, time-in-possession} (forbidden: retained possession alone as the scoring event)"
+       ],
+       "preferred": false,
+       "forbidden": true
+      }
+     ]
+    },
+    "closure": "CHOSEN_AMONG_ALTERNATIVES"
    },
    {
     "lineId": "game::PS1",
     "value": "c:restated:GF2:GF2-14.a#1",
-    "because": "The initial holder of possession is a governed free choice, not knowledge: the Soccer Sport Profile bounds the relationship over the participating opposing teams and deliberately names no team, and SD-39 carries the choice. Either of the two established teams is a legitimate value, and the choice is arbitrary BY CONSTRUCTION rather than by neglect — the two members are indiscernible, which is precisely why which one starts cannot be derived and has to be chosen. Naming one handle commits to nothing about it: no football meaning is read into the ordinal, nothing downstream recovers instantiation order from it, and swapping the two would leave the game identical. Recorded against a qualitative bound, so it is reported as unverified rather than as checked (SD-15). CORRECTED 6 October: this was recorded as `#0`, and the realizer mints member handles from 1, so it named no team at all. It passed because the bound is qualitative -- boundCheck is UNVERIFIABLE_QUALITATIVE_BOUND, so nothing compared the value to the instantiated members -- and nothing reads `possession.team` yet. `realize()` now refuses a chosen value that has a handle shape and names no member, so this cannot recur silently.",
+    "because": "The initial holder of possession is a governed free choice, not knowledge: the Soccer Sport Profile bounds the relationship over the participating opposing teams and deliberately names no team, and SD-39 carries the choice. Either of the two established teams is a legitimate value, and the choice is arbitrary BY CONSTRUCTION rather than by neglect — the two members are indiscernible, which is precisely why which one starts cannot be derived and has to be chosen. Naming one handle commits to nothing about it: no football meaning is read into the ordinal, nothing downstream recovers instantiation order from it, and swapping the two would leave the game identical. Recorded against a qualitative bound, so it is reported as unverified rather than as checked (SD-15). CORRECTED 6 October: this was recorded as `#0`, and the realizer mints member handles from 1, so it named no team at all. It passed because the bound is qualitative -- boundCheck is UNVERIFIABLE_QUALITATIVE_BOUND, so nothing compared the value to the instantiated members -- and nothing reads `possession.team` yet. `realize()` now refuses a chosen value that has a handle shape and names no member, so this cannot recur silently. SINCE 13 October the register's declared domain for this row (`fillableFrom: performers.teams[]`) is enforced as well: the value must be a member of that collection as the game holds it, so it IS now compared with the game's teams and is recorded as WITHIN_DECLARED_DOMAIN rather than as unverified. The authored term itself is still a term in words. The decision remains the coach's: the activity tells them to pick, and the recorded handle stands in for that.",
     "path": "possession.team",
     "authority": "SD-39",
-    "boundCheck": "UNVERIFIABLE_QUALITATIVE_BOUND"
+    "boundCheck": "WITHIN_DECLARED_DOMAIN",
+    "within": {
+     "permitted": [
+      "c:restated:GF2:GF2-14.a#1",
+      "c:restated:GF2:GF2-14.a#2"
+     ],
+     "bounds": [
+      {
+       "kind": "QUALITATIVE",
+       "term": "one of the participating opposing teams the game establishes; the relationship holds between those teams and the ball of SPORT-SOCCER-01",
+       "preferred": false
+      }
+     ]
+    },
+    "closure": "COACH_DECIDES"
+   },
+   {
+    "lineId": "c:restated:GF2:GF2-03.e::S6",
+    "value": "extends across the axis: the target lies across the direction of progression",
+    "because": "Closed by rule, not chosen: the authored bound on this line has exactly one member, \"extends across the axis: the target lies across the direction of progression\", so it is the only value the knowledge permits here and any other would be refused.",
+    "path": "space.regions[c:restated:GF2:GF2-03.e].position.across",
+    "authority": "SD-39",
+    "boundCheck": "WITHIN_PERMITTED_SET",
+    "within": {
+     "permitted": null,
+     "bounds": [
+      {
+       "kind": "SET",
+       "members": [
+        "extends across the axis: the target lies across the direction of progression"
+       ],
+       "preferred": true
+      }
+     ]
+    },
+    "closure": "ONLY_VALUE",
+    "defaultedBy": "ONLY_MEMBER_OF_AUTHORED_BOUND"
+   },
+   {
+    "lineId": "c:restated:GF2:GF2-03.f::S6",
+    "value": "extends across the axis: the target lies across the direction of progression",
+    "because": "Closed by rule, not chosen: the authored bound on this line has exactly one member, \"extends across the axis: the target lies across the direction of progression\", so it is the only value the knowledge permits here and any other would be refused.",
+    "path": "space.regions[c:restated:GF2:GF2-03.f].position.across",
+    "authority": "SD-39",
+    "boundCheck": "WITHIN_PERMITTED_SET",
+    "within": {
+     "permitted": null,
+     "bounds": [
+      {
+       "kind": "SET",
+       "members": [
+        "extends across the axis: the target lies across the direction of progression"
+       ],
+       "preferred": true
+      }
+     ]
+    },
+    "closure": "ONLY_VALUE",
+    "defaultedBy": "ONLY_MEMBER_OF_AUTHORED_BOUND"
    }
   ],
   "instantiations": [
@@ -406,9 +481,7 @@
     "because": "no selected knowledge establishes goalkeeper in this game (P3 is not constrained); the session has 0 available, which covers it and is not itself instantiated into the game; the register declares P3 a specialized role"
    }
   ],
-  "unverified": [
-   "game::PS1"
-  ],
+  "unverified": [],
   "jointConditionsNotEvaluated": []
  },
  "status": {
@@ -416,22 +489,56 @@
    {
     "path": "space.regions[c:restated:GF2:GF2-03.e].position.along",
     "lineId": "c:restated:GF2:GF2-03.e::S5",
-    "value": "attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior"
+    "value": "attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior",
+    "resolvedBy": "ENTAILMENT",
+    "support": [
+     {
+      "kind": "CONTRACT_ITEM",
+      "contractId": "restated:GF2",
+      "itemId": "GF2-04",
+      "relation": "ENTAILS"
+     }
+    ]
    },
    {
     "path": "space.regions[c:restated:GF2:GF2-03.f].position.along",
     "lineId": "c:restated:GF2:GF2-03.f::S5",
-    "value": "attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior"
+    "value": "attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior",
+    "resolvedBy": "ENTAILMENT",
+    "support": [
+     {
+      "kind": "CONTRACT_ITEM",
+      "contractId": "restated:GF2",
+      "itemId": "GF2-04",
+      "relation": "ENTAILS"
+     }
+    ]
    },
    {
     "path": "transitions[c:restated:GF2:GF2-07.a].playState",
     "lineId": "c:restated:GF2:GF2-07.a::T6",
-    "value": "CONTINUE"
+    "value": "CONTINUE",
+    "resolvedBy": "ENTAILMENT",
+    "support": [
+     {
+      "kind": "CONTRACT_ITEM",
+      "contractId": "restated:GF2",
+      "itemId": "GF2-17",
+      "relation": "ENTAILS"
+     }
+    ]
    },
    {
     "path": "transitions[c:restated:GF2:GF2-07.a].startsEpisode",
     "lineId": "c:restated:GF2:GF2-07.a::T7",
-    "value": true
+    "value": true,
+    "resolvedBy": "STANDING_DECISION",
+    "support": [
+     {
+      "kind": "STANDING_DECISION",
+      "id": "SD-14"
+     }
+    ]
    },
    {
     "path": "objectives[c:restated:GF2:GF2-08.c].reference",
@@ -442,17 +549,44 @@
       "itemId": "GF2-03.f"
      },
      "asAuthored": "the target at the opposite end from this team own end: the objective-area region of GF2-03.f"
-    }
+    },
+    "resolvedBy": "ENTAILMENT",
+    "support": [
+     {
+      "kind": "CONTRACT_ITEM",
+      "contractId": "restated:GF2",
+      "itemId": "GF2-08.d",
+      "relation": "ENTAILS"
+     }
+    ]
    },
    {
     "path": "objectives[c:restated:GF2:GF2-08.c].team",
     "lineId": "c:restated:GF2:GF2-08.c::J3",
-    "value": "TEAM_AT_AXIS_START"
+    "value": "TEAM_AT_AXIS_START",
+    "resolvedBy": "ENTAILMENT",
+    "support": [
+     {
+      "kind": "CONTRACT_ITEM",
+      "contractId": "restated:GF2",
+      "itemId": "GF2-08.c",
+      "relation": "CARRIES"
+     }
+    ]
    },
    {
     "path": "objectives[c:restated:GF2:GF2-08.c].role",
     "lineId": "c:restated:GF2:GF2-08.c::J4",
-    "value": "PRIMARY_SCORING"
+    "value": "PRIMARY_SCORING",
+    "resolvedBy": "ENTAILMENT",
+    "support": [
+     {
+      "kind": "CONTRACT_ITEM",
+      "contractId": "restated:GF2",
+      "itemId": "GF2-08.c",
+      "relation": "CARRIES"
+     }
+    ]
    },
    {
     "path": "objectives[c:restated:GF2:GF2-08.e].reference",
@@ -463,84 +597,255 @@
       "itemId": "GF2-03.e"
      },
      "asAuthored": "the target at the opposite end from this team own end: the objective-area region of GF2-03.e"
-    }
+    },
+    "resolvedBy": "ENTAILMENT",
+    "support": [
+     {
+      "kind": "CONTRACT_ITEM",
+      "contractId": "restated:GF2",
+      "itemId": "GF2-08.f",
+      "relation": "ENTAILS"
+     }
+    ]
    },
    {
     "path": "objectives[c:restated:GF2:GF2-08.e].team",
     "lineId": "c:restated:GF2:GF2-08.e::J3",
-    "value": "TEAM_AT_AXIS_END"
+    "value": "TEAM_AT_AXIS_END",
+    "resolvedBy": "ENTAILMENT",
+    "support": [
+     {
+      "kind": "CONTRACT_ITEM",
+      "contractId": "restated:GF2",
+      "itemId": "GF2-08.e",
+      "relation": "CARRIES"
+     }
+    ]
    },
    {
     "path": "objectives[c:restated:GF2:GF2-08.e].role",
     "lineId": "c:restated:GF2:GF2-08.e::J4",
-    "value": "PRIMARY_SCORING"
+    "value": "PRIMARY_SCORING",
+    "resolvedBy": "ENTAILMENT",
+    "support": [
+     {
+      "kind": "CONTRACT_ITEM",
+      "contractId": "restated:GF2",
+      "itemId": "GF2-08.e",
+      "relation": "CARRIES"
+     }
+    ]
    },
    {
     "path": "objects[c:sport-profile:soccer:SPORT-SOCCER-01].kind",
     "lineId": "c:sport-profile:soccer:SPORT-SOCCER-01::O2",
-    "value": "ball"
+    "value": "ball",
+    "resolvedBy": "ENTAILMENT",
+    "support": [
+     {
+      "kind": "CONTRACT_ITEM",
+      "contractId": "sport-profile:soccer",
+      "itemId": "SPORT-SOCCER-01",
+      "relation": "CARRIES"
+     }
+    ]
    },
    {
     "path": "envelope.players",
     "lineId": "game::E1",
-    "value": 12
+    "value": 12,
+    "resolvedBy": "SESSION",
+    "support": [
+     {
+      "kind": "SESSION",
+      "row": "E1"
+     }
+    ]
    },
    {
     "path": "envelope.area.length_m",
     "lineId": "game::E2",
-    "value": 40
+    "value": 40,
+    "resolvedBy": "SESSION",
+    "support": [
+     {
+      "kind": "SESSION",
+      "row": "E2"
+     }
+    ]
    },
    {
     "path": "envelope.area.width_m",
     "lineId": "game::E3",
-    "value": 30
+    "value": 30,
+    "resolvedBy": "SESSION",
+    "support": [
+     {
+      "kind": "SESSION",
+      "row": "E3"
+     }
+    ]
    },
    {
     "path": "envelope.duration_min",
     "lineId": "game::E4",
-    "value": 20
+    "value": 20,
+    "resolvedBy": "SESSION",
+    "support": [
+     {
+      "kind": "SESSION",
+      "row": "E4"
+     }
+    ]
    },
    {
     "path": "space.axis",
     "lineId": "game::S1",
-    "value": "the longer envelope dimension"
+    "value": "the longer envelope dimension",
+    "resolvedBy": "STANDING_DECISION",
+    "support": [
+     {
+      "kind": "STANDING_DECISION",
+      "id": "SD-11"
+     }
+    ]
    },
    {
     "path": "value.primaryEvent.value",
     "lineId": "game::V2",
-    "value": 1
+    "value": 1,
+    "resolvedBy": "STANDING_DECISION",
+    "support": [
+     {
+      "kind": "STANDING_DECISION",
+      "id": "SD-25"
+     }
+    ]
    }
   ],
   "choices": [
    {
-    "path": "space.regions[c:restated:GF2:GF2-03.e].noun",
     "lineId": "c:restated:GF2:GF2-03.e::S3",
-    "value": "line"
+    "value": "line",
+    "because": "The near-end target is a line, chosen from the two the knowledge permits (zone or line), for the same reason the single shared target was: a line is the thinner commitment and a coach can mark it with cones in seconds. Both targets take the same noun so the two ends are symmetrical.",
+    "path": "space.regions[c:restated:GF2:GF2-03.e].noun",
+    "authority": null,
+    "boundCheck": "WITHIN_PERMITTED_SET",
+    "within": {
+     "permitted": [
+      "zone",
+      "line"
+     ],
+     "bounds": []
+    },
+    "closure": "CHOSEN_AMONG_ALTERNATIVES"
    },
    {
-    "path": "space.regions[c:restated:GF2:GF2-03.e].position.across",
-    "lineId": "c:restated:GF2:GF2-03.e::S6",
-    "value": "extends across the axis: the target lies across the direction of progression"
-   },
-   {
-    "path": "space.regions[c:restated:GF2:GF2-03.f].noun",
     "lineId": "c:restated:GF2:GF2-03.f::S3",
-    "value": "line"
+    "value": "line",
+    "because": "The far-end target is a line, matching the near-end one so neither end is easier to score at than the other.",
+    "path": "space.regions[c:restated:GF2:GF2-03.f].noun",
+    "authority": null,
+    "boundCheck": "WITHIN_PERMITTED_SET",
+    "within": {
+     "permitted": [
+      "zone",
+      "line"
+     ],
+     "bounds": []
+    },
+    "closure": "CHOSEN_AMONG_ALTERNATIVES"
    },
    {
-    "path": "space.regions[c:restated:GF2:GF2-03.f].position.across",
-    "lineId": "c:restated:GF2:GF2-03.f::S6",
-    "value": "extends across the axis: the target lies across the direction of progression"
-   },
-   {
-    "path": "value.primaryEvent.kind",
     "lineId": "game::V1",
-    "value": "line_crossed"
+    "value": "line_crossed",
+    "because": "one of the two kinds the selection narrowed to. line_crossed is consistent with the target realized as a line; target_zone_entered would contradict the S3 choice.",
+    "path": "value.primaryEvent.kind",
+    "authority": "SD-39",
+    "boundCheck": "WITHIN_PERMITTED_SET",
+    "within": {
+     "permitted": [
+      "line_crossed",
+      "target_zone_entered"
+     ],
+     "bounds": [
+      {
+       "kind": "SET",
+       "members": [
+        "{consecutive-pass count, keep-away, time-in-possession} (forbidden: retained possession alone as the scoring event)"
+       ],
+       "preferred": false,
+       "forbidden": true
+      }
+     ]
+    },
+    "closure": "CHOSEN_AMONG_ALTERNATIVES"
    },
    {
-    "path": "possession.team",
     "lineId": "game::PS1",
-    "value": "c:restated:GF2:GF2-14.a#1"
+    "value": "c:restated:GF2:GF2-14.a#1",
+    "because": "The initial holder of possession is a governed free choice, not knowledge: the Soccer Sport Profile bounds the relationship over the participating opposing teams and deliberately names no team, and SD-39 carries the choice. Either of the two established teams is a legitimate value, and the choice is arbitrary BY CONSTRUCTION rather than by neglect — the two members are indiscernible, which is precisely why which one starts cannot be derived and has to be chosen. Naming one handle commits to nothing about it: no football meaning is read into the ordinal, nothing downstream recovers instantiation order from it, and swapping the two would leave the game identical. Recorded against a qualitative bound, so it is reported as unverified rather than as checked (SD-15). CORRECTED 6 October: this was recorded as `#0`, and the realizer mints member handles from 1, so it named no team at all. It passed because the bound is qualitative -- boundCheck is UNVERIFIABLE_QUALITATIVE_BOUND, so nothing compared the value to the instantiated members -- and nothing reads `possession.team` yet. `realize()` now refuses a chosen value that has a handle shape and names no member, so this cannot recur silently. SINCE 13 October the register's declared domain for this row (`fillableFrom: performers.teams[]`) is enforced as well: the value must be a member of that collection as the game holds it, so it IS now compared with the game's teams and is recorded as WITHIN_DECLARED_DOMAIN rather than as unverified. The authored term itself is still a term in words. The decision remains the coach's: the activity tells them to pick, and the recorded handle stands in for that.",
+    "path": "possession.team",
+    "authority": "SD-39",
+    "boundCheck": "WITHIN_DECLARED_DOMAIN",
+    "within": {
+     "permitted": [
+      "c:restated:GF2:GF2-14.a#1",
+      "c:restated:GF2:GF2-14.a#2"
+     ],
+     "bounds": [
+      {
+       "kind": "QUALITATIVE",
+       "term": "one of the participating opposing teams the game establishes; the relationship holds between those teams and the ball of SPORT-SOCCER-01",
+       "preferred": false
+      }
+     ]
+    },
+    "closure": "COACH_DECIDES"
+   },
+   {
+    "lineId": "c:restated:GF2:GF2-03.e::S6",
+    "value": "extends across the axis: the target lies across the direction of progression",
+    "because": "Closed by rule, not chosen: the authored bound on this line has exactly one member, \"extends across the axis: the target lies across the direction of progression\", so it is the only value the knowledge permits here and any other would be refused.",
+    "path": "space.regions[c:restated:GF2:GF2-03.e].position.across",
+    "authority": "SD-39",
+    "boundCheck": "WITHIN_PERMITTED_SET",
+    "within": {
+     "permitted": null,
+     "bounds": [
+      {
+       "kind": "SET",
+       "members": [
+        "extends across the axis: the target lies across the direction of progression"
+       ],
+       "preferred": true
+      }
+     ]
+    },
+    "closure": "ONLY_VALUE",
+    "defaultedBy": "ONLY_MEMBER_OF_AUTHORED_BOUND"
+   },
+   {
+    "lineId": "c:restated:GF2:GF2-03.f::S6",
+    "value": "extends across the axis: the target lies across the direction of progression",
+    "because": "Closed by rule, not chosen: the authored bound on this line has exactly one member, \"extends across the axis: the target lies across the direction of progression\", so it is the only value the knowledge permits here and any other would be refused.",
+    "path": "space.regions[c:restated:GF2:GF2-03.f].position.across",
+    "authority": "SD-39",
+    "boundCheck": "WITHIN_PERMITTED_SET",
+    "within": {
+     "permitted": null,
+     "bounds": [
+      {
+       "kind": "SET",
+       "members": [
+        "extends across the axis: the target lies across the direction of progression"
+       ],
+       "preferred": true
+      }
+     ]
+    },
+    "closure": "ONLY_VALUE",
+    "defaultedBy": "ONLY_MEMBER_OF_AUTHORED_BOUND"
    }
   ],
   "instantiations": [
@@ -659,6 +964,21 @@
      "extentUnresolved": false,
      "why": "An element spanning the whole of an axis, which is what \"end line to end line\" and \"extends across the axis\" both state. Axis-free, so one term serves both. APPROVED by Christian 1 October as a canonical addition to RC-21; no parallel spatial representation is kept beside it."
     }
+   }
+  ],
+  "bounds": [
+   {
+    "lineId": "game::S1",
+    "path": "space.axis",
+    "bounds": [
+     {
+      "kind": "SET",
+      "members": [
+       "the longer envelope dimension"
+      ],
+      "preferred": true
+     }
+    ]
    }
   ],
   "jointConditions": [],

@@ -28,6 +28,7 @@
  * preference into a requirement.
  */
 
+import { scaleExactly } from '../derivation/rational'
 import { RegisterIndex } from '../derivation/register'
 
 export interface RealizedGeometry {
@@ -40,8 +41,19 @@ export interface RealizedGeometry {
     interval?: { from: number; to: number }
     /** One coordinate, in metres, where the predicate entails only that. */
     anchor?: number
-    /** Where an authored extent was available, the bound it came from. */
-    extentBound?: { min?: number | null; max?: number | null; preferred?: boolean; fractionOfAxis?: boolean; term?: string }
+    /**
+     * Where an authored extent was available, the bound it came from. `requiredWithin` is that requirement
+     * in metres on this envelope, both ends; `preferenceWithin` is a preferred extent expressed inside it.
+     */
+    extentBound?: {
+        min?: number | null
+        max?: number | null
+        preferred?: boolean
+        fractionOfAxis?: boolean
+        term?: string
+        requiredWithin?: { min: number | null; max: number | null }
+        preferenceWithin?: unknown
+    }
     /** True where the position is fixed and the extent is not. */
     extentUnresolved: boolean
     why: string
@@ -196,9 +208,10 @@ export function realizeSpatialRelation(value: unknown, index: RegisterIndex, ctx
         // A FRACTIONAL extent is resolved against this axis of the envelope, which is the whole point of
         // authoring the relationship rather than a metre value: the same knowledge gives 7.5 m on a 30 m
         // width and 10 m on a 40 m one. Containment is still checked at the widest permitted extent.
-        const scale = extentBound.fractionOfAxis ? extent : 1
+        // Multiplied exactly: the float product of 0.15 and 23 is not 3.45, and the interval is what a coach is given.
+        const reach = extentBound.fractionOfAxis ? scaleExactly(extentBound.max as number, extent) : (extentBound.max as number)
         const outward = anchor === 0 ? 1 : -1
-        const far = anchor + outward * (extentBound.max as number) * scale
+        const far = anchor + outward * reach
         return {
             ...base,
             interval: { from: Math.min(anchor, far), to: Math.max(anchor, far) },

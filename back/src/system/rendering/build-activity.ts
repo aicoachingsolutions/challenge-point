@@ -42,13 +42,15 @@ import { LoadedContract } from '../derivation/types'
 import { gpLibrary } from '../knowledge-core/gp-library'
 import { completeConcreteGame, rosterRefusal, RosterRefusal } from '../realization/assemble-concrete-game'
 import { runPostRealizationGates } from '../realization/post-realization-gate'
-import { checkRealization, isRefused, realize, Realized } from '../realization/realize'
+import { realizeWithJustifiedDefaults } from '../realization/justified-defaults'
+import { checkRealization, isRefused, Realized } from '../realization/realize'
 import { isNoSuppliedRealization, suppliedRealizationFor } from '../realization/supplied-realization'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { TEST_LIBRARY_V0_AFFORDANCE_LENSES, TEST_LIBRARY_V0_ARCHETYPES, TEST_LIBRARY_V0_CONSTRAINTS, TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS } from '../test-library'
 import { checkFidelity } from './fidelity'
 import { mechanismDemonstration } from './mechanism-demonstrations'
 import { RenderedActivity, renderConcreteGame } from './render-concrete-game'
+import { assembleRenderingFixture } from './rendering-fixture'
 import { ActivitySession, availabilityQuestion } from './session-envelope'
 
 export type { ActivitySession } from './session-envelope'
@@ -252,7 +254,23 @@ export function buildActivity(request: ActivityRequest): ServedActivity | Refuse
 }
 
 export function buildActivityWithSelection(request: ActivityRequest): ActivityBuild {
-    return build(request, null)
+    const { activity, selection } = build(request, null)
+    return { activity, selection }
+}
+
+/**
+ * **For tests, and for nothing that serves a coach.** The activity together with the rendering fixture it
+ * was rendered and checked from — null where the build stopped before there was one.
+ *
+ * The fidelity check is tested by handing it altered renderings of a real game and asserting that it
+ * refuses them, and the game has to be the one a coach would actually be served: the same selection, the
+ * same defaults, the same assembler. The only other way to get that fixture into a test is to copy this
+ * chain there, which is the fork this module exists to prevent. Neither entry point above returns it, so
+ * nothing that serves an activity can come to depend on the fixture's shape.
+ */
+export function buildActivityWithFixture(request: ActivityRequest): { activity: ServedActivity | RefusedActivity; fixture: Record<string, unknown> | null } {
+    const { activity, fixture } = build(request, null)
+    return { activity, fixture }
 }
 
 /**
@@ -276,16 +294,19 @@ export function buildActivityOverAlteredKnowledge(request: ActivityRequest, alte
     return build(request, alter).activity
 }
 
-function build(request: ActivityRequest, alter: ((contracts: LoadedContract[]) => void) | null): ActivityBuild {
+function build(request: ActivityRequest, alter: ((contracts: LoadedContract[]) => void) | null): ActivityBuild & { fixture: Record<string, unknown> | null } {
     const { kind, title, subtitle } = describeRequest(request)
     // "This goal …" for a Learning Goal and "This demonstration …" for a demonstration: a demonstration is
     // never described to a coach as a goal, in a refusal any more than in a title.
     const subject = kind === 'learning-goal' ? 'goal' : 'demonstration'
     let account: Partial<ActivityAccount> = {}
     let goalSelection: BoundedSelection | null = null
-    const refuse = (stage: ActivityStage, summary: string, reasons: string[]): ActivityBuild => ({
+    // Set once the game is closed and assembled; null for every refusal before that.
+    let fixture: any = null
+    const refuse = (stage: ActivityStage, summary: string, reasons: string[]): ActivityBuild & { fixture: Record<string, unknown> | null } => ({
         activity: { outcome: 'refused', kind, title, stage, summary, reasons, account },
         selection: goalSelection,
+        fixture,
     })
 
     /**
@@ -377,12 +398,20 @@ function build(request: ActivityRequest, alter: ((contracts: LoadedContract[]) =
             `no realization choices are recorded for the game form ${supplied.missingFor}`,
         ])
     }
-    const realization = realize(resolved, supplied.choices, supplied.instantiations, index, input.envelope)
+    /**
+     * **What nobody chose is closed by rule where a rule applies, and only there** (`justified-defaults`):
+     * the one member of an authored single-member bound, and the one preferred count this session's roster
+     * admits. Everything else still needs an entry — a design alternative and a coach's decision are not a
+     * rule's to make — so a game with a line of that kind and no entry is refused below, as before.
+     */
+    const ctx = { ...staged.gateContext, contracts: input.contracts }
+    const { realization, defaults } = realizeWithJustifiedDefaults(resolved, supplied, index, input.envelope, ctx)
     if (isRefused(realization)) {
-        // Told apart by the open lines themselves: one with no choice against it is a decision nobody has
-        // made. Anything else is a decision that was made and that this game, in this session, refuses.
-        const chosen = new Set(supplied.choices.map(choice => choice.lineId))
-        const unmade = ((resolved.open ?? []) as { lineId: string }[]).some(open => !chosen.has(open.lineId))
+        // Told apart by the open lines themselves: one with neither a choice nor a default against it is a
+        // decision nobody has made. Anything else is a decision that was made and that this game, in this
+        // session, refuses.
+        const closed = new Set([...supplied.choices, ...defaults].map(choice => choice.lineId))
+        const unmade = ((resolved.open ?? []) as { lineId: string }[]).some(open => !closed.has(open.lineId))
         return refuse(
             'realization',
             unmade ? 'A set-up decision for this game has not been made yet.' : 'This game cannot be set out in this session with the set-up decisions made for it.',
@@ -392,7 +421,6 @@ function build(request: ActivityRequest, alter: ((contracts: LoadedContract[]) =
     const realized = realization as Realized
 
     // Same order as the closure run: entail over the concrete game, THEN check it, THEN gate it.
-    const ctx = { ...staged.gateContext, contracts: input.contracts }
     const entailed = completeConcreteGame(ctx, realized)
     const acceptance = checkRealization(resolved, realized)
     const post = runPostRealizationGates(
@@ -417,28 +445,17 @@ function build(request: ActivityRequest, alter: ((contracts: LoadedContract[]) =
     }
     if (invalid.length) return refuse('validation', 'The game built for this activity did not pass its own checks, so it is not being shown.', invalid)
 
-    const fixture: any = {
-        provenance: resolved.provenance,
-        closure: { renderEligible: true },
+    // The one assembler, shared with the script that freezes the Golden Case, so the frozen fixture cannot
+    // come to differ in shape from what is served. Both verdicts are read, not assumed, though a game that
+    // failed either was refused above.
+    fixture = assembleRenderingFixture({
+        resolved,
+        realized,
+        entailed,
         envelope: { ...session, roles: { ...session.roles } },
-        game: realized.game,
-        record: realized.record,
-        status: {
-            derived: resolved.derived.map((d: any) => ({ path: d.path, lineId: d.lineId, value: d.value })),
-            choices: realized.record.choices.map((c: any) => ({ path: c.path, lineId: c.lineId, value: c.value })),
-            instantiations: realized.record.instantiations.map((i: any) => ({
-                path: i.path,
-                classId: i.classId,
-                handle: i.handle,
-                memberIndex: i.memberIndex,
-                member: i.member,
-            })),
-            entailed,
-            geometry: realized.record.geometry,
-            jointConditions: resolved.jointConditions,
-            notEstablished: resolved.notEstablished.map((n: any) => ({ path: n.path, lineId: n.lineId, reason: n.reason, declared: n.declared })),
-        },
-    }
+        accepted: Object.values(acceptance).every(entries => !(entries as unknown[]).length),
+        postRealizationValidated: Boolean(post.validated),
+    })
 
     const rendered = renderConcreteGame(fixture)
     const report = checkFidelity(fixture, rendered)
@@ -470,5 +487,6 @@ function build(request: ActivityRequest, alter: ((contracts: LoadedContract[]) =
             },
         },
         selection: goalSelection,
+        fixture,
     }
 }

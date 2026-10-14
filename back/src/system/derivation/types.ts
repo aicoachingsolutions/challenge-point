@@ -301,6 +301,17 @@ export interface Bounds {
      * does not state (SD-90 governs the relationship).
      */
     preferred?: boolean
+    /**
+     * The bound comes from an EXCLUSION item: what it carries is what the value may NOT be. Added 13 October.
+     *
+     * An exclusion that does not entail lands in a line's bounds beside the requirements, and it used to
+     * arrive shaped exactly like one — `{ kind: 'SET', members: [...] }`, the shape of a permitted set. A
+     * reader that takes `members` for the values a line may hold therefore took a forbidden value for a
+     * permitted one. So the bound says which it is, and every reader that asks "what may this be?" skips
+     * it. Whether a value BREACHES an exclusion is not decided from here: that is the forward list's job,
+     * over typed `forbiddenValues`, and prose members are not something to compare a value with.
+     */
+    forbidden?: boolean
     /** min/max are FRACTIONS of the named axis, not metres - a proportional rule, resolved at realization. */
     fractionOfAxis?: boolean
     /** Which axis a fractional bound is of, where the bound itself knows. */

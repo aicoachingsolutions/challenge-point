@@ -38,9 +38,11 @@ import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame } from '../derivation/resolved-game'
 import { derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
 import { completeConcreteGame, entailmentsLanded } from './assemble-concrete-game'
+import { realizeWithJustifiedDefaults } from './justified-defaults'
 import { runPostRealizationGates } from './post-realization-gate'
-import { memberHandle, nothingInvented, nothingLost, realize, Realized } from './realize'
+import { memberHandle, nothingInvented, nothingLost, Realized } from './realize'
 import { renderConcreteGame } from '../rendering/render-concrete-game'
+import { assembleRenderingFixture } from '../rendering/rendering-fixture'
 
 const CHOICES = path.resolve(__dirname, '../../../../docs/audits/a04-realization-choices.json')
 
@@ -86,32 +88,34 @@ function chain() {
         )
     }
     const supplied = JSON.parse(fs.readFileSync(CHOICES, 'utf8'))
-    const realized = realize(resolved, supplied.choices, supplied.instantiations, index, input.envelope) as Realized
-    assert.equal((realized as any).outcome, 'REALIZED', JSON.stringify((realized as any).because))
     const ctx: any = { ...staged.gateContext, contracts: input.contracts }
+    // As the pathway realizes it: what the file chooses, plus the justified defaults for what it does not.
+    const realized = realizeWithJustifiedDefaults(resolved, supplied, index, input.envelope, ctx).realization as Realized
+    assert.equal((realized as any).outcome, 'REALIZED', JSON.stringify((realized as any).because))
     const entailed = completeConcreteGame(ctx, realized)
     const owed = resolved.coherence.postRealizationRequired.map((o: any) => ({ checkId: o.checkId, clause: o.clause }))
-    /** The rendering layer reads a fixture, so the swap test must render through the same shape. */
-    const fixture = () => ({
-        envelope: {
-            players: (input.envelope as any).players,
-            lengthM: (input.envelope as any).area?.length_m,
-            widthM: (input.envelope as any).area?.width_m,
-            durationMin: (input.envelope as any).duration_min,
-            roles: (input.envelope as any).roles ?? {},
-        },
-        game: realized.game,
-        record: realized.record,
-        status: {
-            derived: resolved.derived.map((d: any) => ({ path: d.path, lineId: d.lineId, value: d.value })),
-            choices: realized.record.choices.map(c => ({ path: c.path, lineId: c.lineId, value: c.value })),
-            instantiations: realized.record.instantiations.map(i => ({ path: i.path, classId: i.classId, handle: i.handle, member: i.member })),
+    /**
+     * The rendering layer reads a fixture, so the swap test must render through the same shape — and since
+     * 13 October it is the same shape by construction rather than by transcription. This kept a third copy
+     * of the fixture, beside the builder's and the freezer's; it now calls the one assembler they call, so
+     * what carries a handle across the rendering boundary here is exactly what carries one in a served game.
+     * That matters more than it did: a choice now travels with the members it was chosen among, by handle.
+     */
+    const fixture = () =>
+        assembleRenderingFixture({
+            resolved,
+            realized,
             entailed,
-            geometry: realized.record.geometry,
-            jointConditions: resolved.jointConditions,
-            notEstablished: resolved.notEstablished.map((n: any) => ({ path: n.path, lineId: n.lineId, reason: n.reason, declared: n.declared })),
-        },
-    })
+            envelope: {
+                players: (input.envelope as any).players,
+                lengthM: (input.envelope as any).area?.length_m,
+                widthM: (input.envelope as any).area?.width_m,
+                durationMin: (input.envelope as any).duration_min,
+                roles: (input.envelope as any).roles ?? {},
+            },
+            accepted: true,
+            postRealizationValidated: true,
+        })
     return { resolved, realized, ctx, owed, index, input, fixture }
 }
 
@@ -505,13 +509,13 @@ test('two distinct realizations of one resolved game carry different audit stamp
     const staged: any = runStages0to10(input)
     const index = indexRegister(input.register)
     const resolved: any = assembleResolvedGame(result, staged.classes, index, input.contracts)
-    const reordered = realize(
+    const reordered = realizeWithJustifiedDefaults(
         resolved,
-        [...supplied.choices].reverse(),
-        [...supplied.instantiations].reverse(),
+        { choices: [...supplied.choices].reverse(), instantiations: [...supplied.instantiations].reverse() },
         index,
         input.envelope,
-    ) as Realized
+        { ...staged.gateContext, contracts: input.contracts },
+    ).realization as Realized
     assert.equal((reordered as any).outcome, 'REALIZED', JSON.stringify((reordered as any).because))
 
     assert.equal(reordered.record.fromDigest, a.realized.record.fromDigest, 'the same resolved game, so the same knowledge digest')

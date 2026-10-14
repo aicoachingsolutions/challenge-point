@@ -20,6 +20,7 @@ import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame, ResolvedGame } from '../derivation/resolved-game'
 import { derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
+import { justifiedDefaults } from './justified-defaults'
 import { checkRealization, Choice, isRefused, realize, Realized } from './realize'
 
 const DOCS = path.resolve(__dirname, '../../../../docs/audits/conformance')
@@ -87,7 +88,14 @@ test('a resolved game with one open line realizes into one concrete game', () =>
     assert.equal((result.game as any).objectives.scoring_method, 'TARGET_GOAL')
 })
 
-test('the record says what was chosen, where, and on whose authority', () => {
+/**
+ * **Moved 13 October 2026: the record gained `within` and `closure`, and nothing it held before changed.**
+ * Christian that day: *"I agree with preserving authored ranges, selected starting values, alternatives, and
+ * the reasons for those selections throughout realization and communication."* The record kept the value and
+ * the name of the check it passed and dropped what it was checked against, so the unchosen alternative was
+ * nowhere after this point. The six fields asserted until now are asserted still, with the same values.
+ */
+test('the record says what was chosen, where, on whose authority — and what it was chosen within', () => {
     const result = realize(eligible(), chooseScoring) as Realized
     assert.deepEqual(result.record.choices, [
         {
@@ -97,6 +105,8 @@ test('the record says what was chosen, where, and on whose authority', () => {
             path: 'objectives.scoring_method',
             authority: 'GF2-11',
             boundCheck: 'WITHIN_PERMITTED_SET',
+            within: { permitted: ['LINE_DRIBBLE', 'TARGET_GOAL'], bounds: [] },
+            closure: 'CHOSEN_AMONG_ALTERNATIVES',
         },
     ])
     assert.equal(result.record.fromDigest, 'digest-1')
@@ -242,6 +252,87 @@ test('a choice must satisfy the canonical register as well as the authored narro
 
     // A member of BOTH is accepted, and `line` is now in both since the owner-authorized extension.
     assert.equal(realize(resolved, [{ lineId: 'c:X:r1::S3', value: 'zone', because: 'in both' }], [], registerIndex).outcome, 'REALIZED')
+})
+
+// ---------------------------------------------------------------------------------------------
+// The bound stays with the choice (13 October). A value recorded alone cannot say whether it was the
+// only one permitted, one of several, a place to start inside a range, or the coach's.
+// ---------------------------------------------------------------------------------------------
+
+/** One open line with the given freedom, and nothing else to close. */
+const openLine = (line: { permitted?: unknown[] | null; bounds?: unknown[] }, lineId = 'L-x', path = 'space.x') =>
+    eligible({ open: [{ path, lineId, elementId: null, permittedBy: null, permitted: line.permitted ?? null, bounds: line.bounds ?? [], kind: 'FREE(a)' }] })
+
+const closed = (resolved: ResolvedGame, value: unknown, lineId = 'L-x') => {
+    const result = realize(resolved, [{ lineId, value, because: 'a test' }])
+    if (isRefused(result)) return assert.fail(`refused: ${result.because.join('; ')}`)
+    return result.record.choices[0]
+}
+
+test('each kind of freedom is closed as what it is, and the bound is kept beside the value', () => {
+    // The only value an authored bound permits. Nothing was chosen, and the record says so.
+    const only = closed(openLine({ bounds: [{ kind: 'SET', members: ['full width'], preferred: true }] }), 'full width')
+    assert.equal(only.closure, 'ONLY_VALUE')
+    assert.deepEqual(only.within, { permitted: null, bounds: [{ kind: 'SET', members: ['full width'], preferred: true }] })
+
+    // A number inside an authored range: where the activity STARTS. Both ranges travel, each marked.
+    const range = [
+        { kind: 'COUNT', min: 1, max: null, term: '>= 1 (no authored maximum)', preferred: false },
+        { kind: 'COUNT', min: 1, max: 2, term: '1-2 (one or two)', preferred: true },
+    ]
+    const starting = closed(openLine({ bounds: range }), 2)
+    assert.equal(starting.closure, 'STARTING_VALUE_IN_RANGE')
+    assert.equal(starting.boundCheck, 'WITHIN_COUNT')
+    assert.deepEqual(starting.within.bounds, range, 'the required floor AND the preferred range, so neither can be mistaken for the other later')
+
+    // A range that is only preferred is still a range to start inside.
+    assert.equal(closed(openLine({ bounds: [range[1]] }), 2).closure, 'STARTING_VALUE_IN_RANGE')
+
+    // Bounded only by a term in words: SD-15 makes that a coach's judgement.
+    const coach = closed(openLine({ bounds: [{ kind: 'QUALITATIVE', term: 'a long kick', preferred: false }] }), 25)
+    assert.equal(coach.closure, 'COACH_DECIDES')
+    assert.equal(coach.boundCheck, 'UNVERIFIABLE_QUALITATIVE_BOUND')
+
+    // Open, and bounded by nothing at all.
+    const free = closed(openLine({}), 'anything')
+    assert.equal(free.closure, 'UNBOUNDED')
+    assert.deepEqual(free.within, { permitted: null, bounds: [] })
+
+    // A set of alternatives carried as a bound rather than as a permitted set is still a set of alternatives.
+    assert.equal(closed(openLine({ bounds: [{ kind: 'SET', members: ['a', 'b'] }] }), 'b').closure, 'CHOSEN_AMONG_ALTERNATIVES')
+})
+
+test('what is recorded is a COPY of the bound, so the record cannot be altered through the resolved game', () => {
+    const resolved = openLine({ permitted: ['a', 'b'], bounds: [{ kind: 'SET', members: ['x'], forbidden: true }] })
+    const result = realize(resolved, [{ lineId: 'L-x', value: 'a', because: 'a test' }]) as Realized
+    ;(resolved.open[0].permitted as unknown[]).push('c')
+    ;(resolved.open[0].bounds[0] as any).members = ['changed']
+    assert.deepEqual(result.record.choices[0].within, { permitted: ['a', 'b'], bounds: [{ kind: 'SET', members: ['x'], forbidden: true }] })
+})
+
+/**
+ * **A forbidden set is not a permitted one.** An `EXCLUSION` item that does not entail lands in a line's
+ * bounds, and it used to arrive as `{ kind: 'SET', members }` — the shape of the values a line MAY hold.
+ * Measured on the possession game form with its one narrowing of the scoring kind withheld: the line was
+ * left with only the exclusion's bound, and choosing a legitimate kind was refused as *"not among the
+ * authored members"* of the very values the item forbids. Latent in every game that realizes, because
+ * there the permitted set is checked first.
+ */
+test('an exclusion carried in the bounds is skipped, never read as the permitted set', () => {
+    const forbidden = { kind: 'SET', members: ['{keep-away} (forbidden: retained possession alone as the scoring event)'], preferred: false, forbidden: true }
+    const only = closed(openLine({ bounds: [forbidden] }), 'line_crossed')
+    assert.equal(only.boundCheck, 'UNBOUNDED', 'nothing permitting bounds this line, and the record does not claim otherwise')
+    assert.equal(only.closure, 'UNBOUNDED')
+    assert.deepEqual(only.within.bounds, [forbidden], 'the exclusion still travels, marked as what it is')
+
+    // TEETH — the same bound without the mark is a permitted set of one, and refuses everything else.
+    const unmarked = realize(openLine({ bounds: [{ kind: 'SET', members: forbidden.members }] }), [{ lineId: 'L-x', value: 'line_crossed', because: 'a test' }])
+    assert.ok(isRefused(unmarked) && /not among the authored members/.test(unmarked.because[0]), 'which is the refusal the mark removes')
+
+    // Beside a real bound it changes nothing: the requirement still bites and the forbidden set is not consulted.
+    const beside = openLine({ bounds: [{ kind: 'COUNT', min: 1, max: 3 }, forbidden] })
+    assert.equal(closed(beside, 2).closure, 'STARTING_VALUE_IN_RANGE')
+    assert.ok(isRefused(realize(beside, [{ lineId: 'L-x', value: 4, because: 'above the maximum' }])))
 })
 
 // ---------------------------------------------------------------------------------------------
@@ -713,6 +804,45 @@ test('a collection holding more elements than its knowledge authors is refused',
 })
 
 /**
+ * **A required extent is recorded in metres at BOTH ends** — `requiredWithin`, added 13 October.
+ *
+ * The requirement on a channel's width is authored as a fraction of the area's width — his ruling of
+ * 1 October: *"a minimum of 0.15 and a maximum of 0.25 of the available across dimension"* — and only the
+ * maximum ever became metres, because the interval is composed at the widest permitted extent. So the game
+ * held 7.5 m and never 4.5 m, and nothing downstream could state the minimum without working it out for
+ * itself. It is established here, where the fraction meets the envelope, and multiplied exactly: 0.15 of a
+ * 23 m width is 3.45 m, and the float product is 3.4499999999999997.
+ */
+test('a required extent is recorded in metres at both ends, exactly, with the preference expressed inside it', () => {
+    const resolved = multiRegionGame()
+    const supplied = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../../../docs/audits/a04-realization-choices.json'), 'utf8'))
+    const register = indexRegister(loadRegister())
+    const widths = (lengthM: number, widthM: number) => {
+        const realized = realize(resolved, supplied.choices, supplied.instantiations, register, { lengthM, widthM }, justifiedDefaults(resolved, supplied.choices))
+        if (isRefused(realized)) throw new Error(`refused: ${realized.because.join('; ')}`)
+        const bounded = realized.record.geometry.filter(g => g.path.endsWith('.position.across') && g.geometry.extentBound)
+        assert.equal(bounded.length, 2, 'the two channels are the lines that carry an extent bound')
+        for (const g of bounded) {
+            const { requiredWithin } = g.geometry.extentBound!
+            assert.equal(g.geometry.interval!.to - g.geometry.interval!.from, requiredWithin!.max, 'the interval is composed at the required maximum, the same number')
+        }
+        return bounded.map(g => [g.geometry.extentBound!.requiredWithin, g.geometry.extentBound!.preferenceWithin])
+    }
+    const inside = (min: number, max: number) => ({ min, max, compatible: true, note: 'the preference, expressed inside the requirement, in metres' })
+
+    assert.deepEqual(widths(40, 30), Array(2).fill([{ min: 4.5, max: 7.5 }, inside(6, 7.5)]))
+    assert.deepEqual(widths(30, 25), Array(2).fill([{ min: 3.75, max: 6.25 }, inside(6, 6.25)]), 'a quarter of 25 m is 6.25 m, not 6.3')
+    // The decimal the fraction spells, where the float product is not it.
+    assert.notEqual(0.15 * 23, 3.45, 'the artefact this guards against is real')
+    assert.deepEqual(widths(35, 23).map(([required]) => required), Array(2).fill({ min: 3.45, max: 5.75 }))
+    // On a 15 m width the preferred 6 to 10 m lies wholly outside 2.25 to 3.75 m: recorded as incompatible, never widened into.
+    for (const [required, preference] of widths(20, 15)) {
+        assert.deepEqual(required, { min: 2.25, max: 3.75 })
+        assert.equal((preference as any).compatible, false)
+    }
+})
+
+/**
  * **`realize()` enforces Gate A itself, and the subject of that test had to change.**
  *
  * It used to run on A04, which the 5 October reachability ruling had made unauthorized. The Sport Profile of
@@ -843,8 +973,15 @@ test('A04 realizes and all three conditions hold', () => {
     const resolved = a04()
     assert.equal(resolved.coherence.realizationAuthorized, true, 'through the gate, not around it')
 
+    /**
+     * **Run as the pathway runs it, 13 October: with the register, and with the justified defaults.** This
+     * called `realize` with neither. Without the register a row's declared domain is unknown, so the test
+     * was grading a run no caller performs; and two of the six lines this game leaves open are no longer in
+     * the choices file at all, because each has exactly one permitted value and is closed by rule.
+     */
     const supplied = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../../../docs/audits/a04-realization-choices.json'), 'utf8'))
-    const realized = realize(resolved, supplied.choices, supplied.instantiations)
+    const defaults = justifiedDefaults(resolved, supplied.choices)
+    const realized = realize(resolved, supplied.choices, supplied.instantiations, indexRegister(loadRegister()), undefined, defaults)
     if (isRefused(realized)) return assert.fail(`refused: ${realized.because.join('; ')}`)
     const resolvedForChecks = resolved
 
@@ -860,21 +997,58 @@ test('A04 realizes and all three conditions hold', () => {
     assert.ok(teams.every((t: any) => t.satisfies === 'c:restated:GF2:GF2-14.a'), 'each records the claim it satisfies')
 
     // Every choice is recorded with what bounded it, so none can later read as derived knowledge.
-    assert.equal(realized.record.choices.length, supplied.choices.length)
+    assert.equal(realized.record.choices.length, supplied.choices.length + defaults.length)
+    assert.equal(realized.record.choices.length, resolved.open.length, 'one value for every line the game left open, and no other')
     /**
-     * **One choice is reported as unverified, and that is the honest grading rather than a weakening.**
+     * **The initial holder is graded as checked against its DECLARED DOMAIN — moved 13 October 2026.**
      *
-     * PS1's bound is a qualitative term — the Sport Profile says "one of the participating opposing teams", not
-     * an enumerated set — so there is nothing for the realizer to compare a value against and `boundCheck` says
-     * so. Asserting the SET rather than "every choice is WITHIN_PERMITTED_SET" keeps the stronger claim for the
-     * five choices that earn it, and stops a future unverifiable choice from appearing quietly beside them.
+     * This asserted `UNVERIFIABLE_QUALITATIVE_BOUND`, and that was the honest grading while it stood: PS1's
+     * bound is a term in words — the Sport Profile says "one of the participating opposing teams", not an
+     * enumerated set — so the realizer compared the value with nothing and said so. What moved is that the
+     * register's `fillableFrom: performers.teams[]`, which no code read, is now enforced: the value must be a
+     * member of that collection as the game holds it. So the value IS compared with something, and the
+     * grading names what. Nothing was loosened to get here — a value that names no team is now refused where
+     * it used to be recorded as unverified, and the test after this one shows it.
+     *
+     * Asserting each grading rather than "every choice is WITHIN_PERMITTED_SET" still keeps the stronger
+     * claim for the five that earn it, and stops a future unverifiable choice appearing quietly beside them.
      */
     const grading = new Map(realized.record.choices.map(c => [c.lineId, c.boundCheck]))
-    assert.equal(grading.get('game::PS1'), 'UNVERIFIABLE_QUALITATIVE_BOUND', 'the initial holder is bounded qualitatively (SD-15)')
+    assert.equal(grading.get('game::PS1'), 'WITHIN_DECLARED_DOMAIN', 'the initial holder is a member of the collection its row declares')
+    assert.deepEqual(realized.record.unverified, [], 'so no choice in this game is left unverified')
     assert.deepEqual(
         realized.record.choices.filter(c => c.lineId !== 'game::PS1').map(c => c.boundCheck),
-        Array(supplied.choices.length - 1).fill('WITHIN_PERMITTED_SET'),
+        Array(resolved.open.length - 1).fill('WITHIN_PERMITTED_SET'),
         'every other value came from inside an authored set',
+    )
+    /**
+     * **And each says what kind of closing it was, with what it was closed within.** Measured on this game
+     * before the record could say it: three design alternatives, two values that are the only one permitted,
+     * and one that is the coach's. No authored numeric range is collapsed anywhere in it.
+     */
+    const closures = Object.fromEntries(realized.record.choices.map(c => [c.lineId, c.closure]))
+    assert.deepEqual(closures, {
+        'c:restated:GF2:GF2-03.e::S3': 'CHOSEN_AMONG_ALTERNATIVES',
+        'c:restated:GF2:GF2-03.f::S3': 'CHOSEN_AMONG_ALTERNATIVES',
+        'game::V1': 'CHOSEN_AMONG_ALTERNATIVES',
+        'c:restated:GF2:GF2-03.e::S6': 'ONLY_VALUE',
+        'c:restated:GF2:GF2-03.f::S6': 'ONLY_VALUE',
+        'game::PS1': 'COACH_DECIDES',
+    })
+    const within = (lineId: string) => realized.record.choices.find(c => c.lineId === lineId)!.within
+    assert.deepEqual(within('c:restated:GF2:GF2-03.e::S3').permitted, ['zone', 'line'], 'the alternative that was not chosen is still on the record')
+    assert.deepEqual(within('game::PS1').permitted, teams.map((t: any) => t.elementId), "the coach's choice is among the game's own teams, by handle")
+    assert.ok(
+        within('game::V1').bounds.every(b => b.kind !== 'SET' || b.forbidden === true),
+        `the scoring kind's only SET bound is an exclusion, and it is marked as one: ${JSON.stringify(within('game::V1').bounds)}`,
+    )
+    // The two values nobody chose are recorded as defaults, by rule, and are otherwise ordinary choices.
+    assert.deepEqual(
+        realized.record.choices.filter(c => c.defaultedBy).map(c => [c.lineId, c.defaultedBy]),
+        [
+            ['c:restated:GF2:GF2-03.e::S6', 'ONLY_MEMBER_OF_AUTHORED_BOUND'],
+            ['c:restated:GF2:GF2-03.f::S6', 'ONLY_MEMBER_OF_AUTHORED_BOUND'],
+        ],
     )
     /**
      * And the unverifiable one still names something real. `#0` sat here until 6 October: the realizer mints
@@ -946,6 +1120,69 @@ test('an ordinary value containing a hash is not treated as a member handle', ()
     const result = realize(qualitativelyBounded(), [{ lineId: 'game::PS1', value: 'the team starting in zone #2', because: 'prose' }], twoTeams())
     if (isRefused(result)) return assert.fail(`refused: ${result.because.join('; ')}`)
     assert.equal((result.game as any).possession.team, 'the team starting in zone #2')
+})
+
+/**
+ * **A row that declares its domain is held to it** — the register's `fillableFrom`, which had no consumer.
+ *
+ * The handle-shape check above catches one mistake: a handle one ordinal out. Measured on 13 October with
+ * the register in hand, exactly as the pathway runs: an initial holder of `banana`, and one naming a REGION
+ * of the same game, were each accepted, passed all three acceptance conditions and passed the
+ * post-realization gates. The two tests above still hold for a caller with no register, which is told
+ * nothing about domains; these are the same line with one.
+ */
+test('a value for a row with a declared domain must be a member of that collection in this game', () => {
+    const register = indexRegister(loadRegister())
+    assert.equal(register.fillableFrom.get('PS1'), 'performers.teams[]', 'the register declares where the possession row is filled from')
+    const withRegion = () => {
+        const resolved = qualitativelyBounded()
+        ;(resolved.game as any).space = { regions: [{ elementId: 'c:X:region' }] }
+        resolved.derived.push({ path: 'space.regions[c:X:region].noun', lineId: 'c:X:region::S3', value: 'line', resolvedBy: 'ENTAILMENT', support: [] } as any)
+        ;((resolved.game as any).space.regions[0] as any).noun = 'line'
+        return resolved
+    }
+    const holder = (value: unknown) => realize(withRegion(), [{ lineId: 'game::PS1', value, because: 'a test' }], twoTeams(), register)
+
+    for (const [value, what] of [
+        ['banana', 'a word'],
+        ['c:X:region', 'another element of the same game'],
+        ['the team starting in zone #2', 'prose'],
+        [1, 'a position'],
+    ] as const) {
+        const refused = holder(value)
+        assert.ok(isRefused(refused), `${what} must not realize as the initial holder`)
+        assert.ok(
+            refused.because.some(b => b.includes('is not a member of performers.teams[]') && b.includes('K-teams#1, K-teams#2')),
+            `the refusal names the domain and its members: ${JSON.stringify(refused.because)}`,
+        )
+    }
+
+    // Either member is accepted, and the record says what it was chosen among and whose choice it is.
+    for (const handle of ['K-teams#1', 'K-teams#2']) {
+        const ok = holder(handle)
+        if (isRefused(ok)) return assert.fail(`refused: ${ok.because.join('; ')}`)
+        const [choice] = ok.record.choices
+        assert.equal(choice.boundCheck, 'WITHIN_DECLARED_DOMAIN')
+        assert.deepEqual(choice.within.permitted, ['K-teams#1', 'K-teams#2'], 'the members of the declared domain, as this game holds them')
+        assert.deepEqual(choice.within.bounds, [{ kind: 'QUALITATIVE', term: 'one of the participating opposing teams' }], 'beside the authored term, unchanged')
+        assert.equal(choice.closure, 'COACH_DECIDES')
+        assert.deepEqual(ok.record.unverified, [], 'a value checked against its domain is not reported as unverified')
+    }
+
+    // A row with no declared domain is untouched by this, register or not.
+    const elsewhere = realize(eligible(), chooseScoring, [], register)
+    assert.equal((elsewhere as Realized).record.choices[0].boundCheck, 'WITHIN_PERMITTED_SET')
+
+    // And a declaration that could never be decided halts the register rather than being carried unread
+    // again: a domain on a row with no choice space, or one that is not a collection the register knows.
+    const altered = (change: (rows: any[]) => void) => {
+        const copy = JSON.parse(JSON.stringify(loadRegister()))
+        change(copy.rows)
+        return () => indexRegister(copy)
+    }
+    assert.throws(altered(rows => (rows.find(r => r.id === 'PS1').fillableFrom = 'performers.nobody[]')), /fillableFrom performers\.nobody\[\] of PS1 is not the path of a COLLECTION row/)
+    assert.throws(altered(rows => (rows.find(r => r.id === 'PS1').fillableFrom = 'possession.team')), /is not the path of a COLLECTION row/, 'a field is not a collection')
+    assert.throws(altered(rows => (rows.find(r => !r.fillable && r.kind === 'FIELD').fillableFrom = 'performers.teams[]')), /which has no fillable choice space/)
 })
 
 test('the docs directory the corpus reads from is the one under audit', () => {

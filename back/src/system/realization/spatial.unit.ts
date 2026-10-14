@@ -16,6 +16,7 @@
 import assert from 'node:assert/strict'
 
 import { loadRegister } from '../derivation/corpus'
+import { scaleExactly } from '../derivation/rational'
 import { indexRegister } from '../derivation/register'
 import { realizeSpatialRelation, SpatialContext } from './spatial'
 
@@ -123,6 +124,39 @@ test('a REQUIRED extent composes, at the widest permitted extent', () => {
     const required = realizeSpatialRelation(TOUCHLINE, index, ctx({ axis: 'across', extentBound: { min: 6, max: 10 } }))!
     assert.deepEqual(required.interval, { from: 0, to: 10 }, 'containment is checked at the widest permitted extent')
     assert.equal(required.extentUnresolved, false)
+})
+
+/**
+ * **A fraction of an axis is multiplied EXACTLY** — added 13 October.
+ *
+ * A proportional rule is authored as a decimal fraction and becomes metres by multiplying, and the float
+ * product is not that number for most widths: `0.15 * 23` is `3.4499999999999997`. The interval is what a
+ * coach is given and what the fidelity check compares, so it has to be the decimal the fraction spells.
+ * Nothing is rounded: two exact decimals have an exact decimal product.
+ */
+test('a FRACTIONAL extent composes to the exact decimal, not the float product', () => {
+    const bound = { min: 0.15, max: 0.25, fractionOfAxis: true }
+    for (const [width, widest] of [
+        [30, 7.5],
+        [25, 6.25],
+        [15, 3.75],
+        [23, 5.75],
+        [22.5, 5.625],
+    ]) {
+        const channel = realizeSpatialRelation(TOUCHLINE, index, ctx({ envelope: { lengthM: 40, widthM: width }, axis: 'across', extentBound: bound }))!
+        assert.deepEqual(channel.interval, { from: 0, to: widest }, `a quarter of ${width} m`)
+    }
+    assert.equal(scaleExactly(0.15, 23), 3.45)
+    assert.notEqual(0.15 * 23, 3.45, 'which the float product is not')
+    assert.equal(scaleExactly(0.15, 3), 0.45)
+    assert.notEqual(0.15 * 3, 0.45)
+    assert.equal(scaleExactly(0.3, 0.1), 0.03)
+    assert.equal(scaleExactly(1, 40), 40)
+    assert.equal(scaleExactly(0.15, 0), 0)
+    assert.equal(scaleExactly(-0.5, 3), -1.5)
+    // A whole-number result has no decimal point to place, and a long fraction keeps every digit.
+    assert.equal(scaleExactly(0.25, 40), 10)
+    assert.equal(scaleExactly(0.125, 0.5), 0.0625)
 })
 
 // ---------------------------------------------------------------------------------------------

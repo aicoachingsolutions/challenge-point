@@ -45,6 +45,33 @@
  * performs, so the fixture was refreshed rather than acknowledged stale. The rendered text was diffed
  * before and after through `npm run pilot:a04` and is identical.
  *
+ * **Re-frozen again 13 October 2026: `b5f7b816` → `30395c2a`. The GAME did not move; what the fixture KEEPS
+ * about it did.** Christian that day: *"I agree with preserving authored ranges, selected starting values,
+ * alternatives, and the reasons for those selections throughout realization and communication … We don't
+ * need to build that feedback mechanism now, but we should preserve the information it will eventually
+ * need."* Compared field by field before and after: `game`, `envelope`, `closure`, `provenance`, the
+ * realized geometry, the instantiations and the entailed roster are byte-identical, and every choice holds
+ * the value it held. Five things moved, each deliberately:
+ *
+ *   1. **every recorded choice carries what it was chosen `within` and what kind of `closure` it was** — for
+ *      this game three design alternatives, two values that are the only one permitted, and one that is the
+ *      coach's. The record used to keep the value and drop the bound it was checked against;
+ *   2. **two of the six choices are now justified defaults.** The two targets' across-extent were never
+ *      choices — each line's authored bound has one member — so they left `a04-realization-choices.json`
+ *      and are closed by rule, recorded with `defaultedBy` and the rule's own reason. Same values;
+ *   3. **the initial holder is checked against its declared domain.** The register's `fillableFrom` for the
+ *      possession row had no reader; it is enforced now, so that choice is graded `WITHIN_DECLARED_DOMAIN`
+ *      with the game's two teams recorded as what it was chosen among, and `record.unverified` is empty;
+ *   4. **`status.derived` keeps each value's `support`, `status.choices` is the recorded choice whole, and
+ *      `status.bounds` is new** — the bounds that sit beside a derived value. They were cut down to
+ *      `{ path, lineId, value }` at this boundary, which is where ranges were being lost;
+ *   5. the realization and audit digests moved with (2), as they must: defaults are realization input.
+ *
+ * The fixture is also assembled by the builder's own assembler now (`rendering-fixture.ts`) rather than by a
+ * second copy of the shape in the freezer, so it cannot come to differ from what is served. The rendered
+ * text was diffed before and after through `npm run pilot:a04` — against the previous commit run from a
+ * clean export — and is identical: A04 holds no numeric range, so no sentence of it changed.
+ *
  * Run: npm test
  */
 import assert from 'node:assert/strict'

@@ -78,7 +78,17 @@ export interface RenderedActivity {
 
 type Fixture = any
 
-const metres = (n: number): string => `${Number.isInteger(n) ? n : n.toFixed(1)} m`
+/**
+ * **A length is printed as the number the game holds — never rounded for display.** Corrected 13 October.
+ *
+ * This rounded to one decimal place. On a 25 m width a channel's required maximum is 0.25 × 25 = 6.25 m,
+ * the game holds 6.25, and the activity said *"6.3 m"* — a number that is nowhere in the game, which the
+ * fidelity check correctly refused, so the mechanism demonstration was served at 40 × 30 and refused at
+ * 30 × 25 and 20 × 15 for nothing but its own rounding. A rounded number is a number on the renderer's
+ * authority. Realization multiplies fractions exactly (`scaleExactly`), so what it holds is already the
+ * decimal a coach should read.
+ */
+const metres = (n: number): string => `${n} m`
 
 /**
  * Wording is a function of status, so a status cannot be misrepresented by phrasing.
@@ -99,6 +109,139 @@ function phrase(status: SourceStatus, core: string): string {
         case 'PREFERENCE':
             return `${core}, if it suits your group`
     }
+}
+
+// ── One way of saying a range ───────────────────────────────────────────────────────────────────
+
+/** The two ends of a range. A null end is an end nobody authored. */
+export interface Limits {
+    min: number | null
+    max: number | null
+}
+
+/**
+ * A line of the game that carries an authored range, as a coach would be told it.
+ *
+ * Christian, 13 October 2026: *"I agree with preserving authored ranges, selected starting values,
+ * alternatives, and the reasons for those selections throughout realization and communication … The initial
+ * activity should establish a purposeful starting environment, not prescribe an ideal configuration for the
+ * entire session."* And, on what may not be softened: *"If a condition materially affects the activity, it
+ * must be represented and communicated accurately."*
+ *
+ * The three parts are three different things and are never merged: what is REQUIRED, what is PREFERRED
+ * inside it, and where THIS activity starts. All three are in the unit the coach is given — metres for an
+ * extent, a bare number for a count — and each is a number the game holds: nothing here is worked out.
+ */
+export interface BoundedLine {
+    /** The concrete-game path the range is about. Every sentence about it cites this. */
+    path: string
+    required: Limits | null
+    /** The preferred range as it may be OFFERED: already expressed inside the requirement. */
+    preferred: Limits | null
+    /** The value realization closed the line to, where it closed it inside a range. */
+    starting: number | null
+}
+
+/** How a range is put into words for one kind of line. Each template is given the phrase and the numbers behind it. */
+export interface RangeWords {
+    /** One number as it is said: `4.5 m` for a length, `2` for a count. */
+    number: (n: number) => string
+    /** The requirement, around its limits — `between 4.5 m and 7.5 m`, `at least 1`, `up to 6`. */
+    required?: (limits: string, range: Limits) => string
+    /** The preference, around its range — `Around 6 m to 7.5 m`. The hedge is added by its status, not here. */
+    preferred?: (range: string, limits: Limits) => string
+    /** Where this activity starts. "For this activity, …" is added by its status, not here. */
+    starting?: (value: string, n: number) => string
+    /** The status of the sentence that carries the requirement, where it is not simply derived. */
+    requiredStatus?: SourceStatus
+    /** Whatever else the requirement's sentence states, when it is also (say) the marking sentence. */
+    requiredAlso?: { from: string[]; quantities: number[] }
+}
+
+export interface RangeSentences {
+    required: Instruction | null
+    preferred: Instruction | null
+    starting: Instruction | null
+}
+
+const stated = (n: number | null): n is number => typeof n === 'number' && Number.isFinite(n)
+
+/** `between A and B`, `at least A`, `up to B` — or the one value, where the two ends meet. BOTH ends, where both are authored. */
+function limitsPhrase(limits: Limits, number: (n: number) => string): { text: string; quantities: number[] } | null {
+    const { min, max } = limits
+    if (stated(min) && stated(max)) return min === max ? { text: number(min), quantities: [min] } : { text: `between ${number(min)} and ${number(max)}`, quantities: [min, max] }
+    if (stated(min)) return { text: `at least ${number(min)}`, quantities: [min] }
+    if (stated(max)) return { text: `up to ${number(max)}`, quantities: [max] }
+    return null
+}
+
+/** `Around A to B` — the only shape a preferred range is offered in, so it can never borrow a requirement's words. */
+function aroundPhrase(limits: Limits, number: (n: number) => string): { text: string; quantities: number[] } | null {
+    const { min, max } = limits
+    if (stated(min) && stated(max)) return min === max ? { text: `Around ${number(min)}`, quantities: [min] } : { text: `Around ${number(min)} to ${number(max)}`, quantities: [min, max] }
+    if (stated(min)) return { text: `Around ${number(min)} or more`, quantities: [min] }
+    if (stated(max)) return { text: `Up to around ${number(max)}`, quantities: [max] }
+    return null
+}
+
+const instruction = (section: Instruction['section'], status: SourceStatus, core: string, from: string[], quantities: number[]): Instruction => ({
+    section,
+    text: phrase(status, core),
+    status,
+    from,
+    quantities,
+})
+
+/**
+ * **The one way a range reaches a coach** — for a region's width today, and for any count or threshold that
+ * comes to carry one.
+ *
+ * It generalises a block that existed for a single case: a channel's preferred width was offered as
+ * *"Around A to B wide works well"*, and nothing else that carried a range could say so. Three sentences at
+ * most, and the status of each is fixed by which part of the range it states — so the wording cannot blur
+ * them:
+ *
+ *   - the REQUIRED limits, as a requirement, stating BOTH ends where both are authored. The channel sentence
+ *     used to say *"up to 7.5 m wide"* and never the minimum his ruling of 1 October sets beside it;
+ *   - the PREFERRED range, as a preference, hedged by its status;
+ *   - the STARTING value, as a fact about this activity.
+ *
+ * It returns the sentences rather than issuing them, because where they sit among a section's other
+ * sentences is the caller's to decide — the requirement is often the marking sentence itself. A part with
+ * no wording supplied is not said, and a part the line does not carry is not there to say.
+ */
+export function sayRange(section: Instruction['section'], line: BoundedLine, words: RangeWords): RangeSentences {
+    const limits = line.required && words.required ? limitsPhrase(line.required, words.number) : null
+    const around = line.preferred && words.preferred ? aroundPhrase(line.preferred, words.number) : null
+    return {
+        required: limits
+            ? instruction(section, words.requiredStatus ?? 'DERIVED', words.required!(limits.text, line.required!), [...(words.requiredAlso?.from ?? []), line.path].filter((p, i, all) => all.indexOf(p) === i), [
+                  ...(words.requiredAlso?.quantities ?? []),
+                  ...limits.quantities,
+              ])
+            : null,
+        preferred: around ? instruction(section, 'PREFERENCE', words.preferred!(around.text, line.preferred!), [line.path], around.quantities) : null,
+        starting: stated(line.starting) && words.starting ? instruction(section, 'REALIZATION_CHOICE', words.starting(words.number(line.starting), line.starting), [line.path], [line.starting]) : null,
+    }
+}
+
+/**
+ * The range a realized extent carries, read from what realization recorded beside the interval: the
+ * requirement in metres on this envelope (`requiredWithin`) and the preference expressed inside it
+ * (`preferenceWithin`). A preference realization found incompatible with the requirement is not offered —
+ * his rule of 1 October: it *"must never override or widen the requirement"*.
+ *
+ * A fixture frozen before 13 October holds no `requiredWithin`, so it yields no requirement here and its
+ * sentence falls back to the widest permitted extent, as it always read. Nothing is computed to fill it in.
+ */
+function extentRange(entry: any): BoundedLine | null {
+    const bound = entry?.geometry?.extentBound
+    if (!entry?.path || !bound) return null
+    const within = bound.preferred ? null : bound.requiredWithin
+    const required: Limits | null = within && (stated(within.min) || stated(within.max)) ? { min: stated(within.min) ? within.min : null, max: stated(within.max) ? within.max : null } : null
+    const preference = bound.preferenceWithin
+    const preferred: Limits | null = preference && preference.compatible !== false && stated(preference.min) ? { min: preference.min, max: stated(preference.max) ? preference.max : null } : null
+    return required || preferred ? { path: entry.path, required, preferred, starting: null } : null
 }
 
 export function renderConcreteGame(fixture: Fixture): RenderedActivity {
@@ -199,13 +342,33 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
             const paired = sides.length === 2 && new Set(sides).size === 2
             const where = !paired || !lateral ? 'along the touchline' : lateral === sides[0] ? 'along one touchline' : 'along the opposite touchline'
 
-            say(
-                'Set up',
-                status,
-                `Mark a ${noun} ${where}, ${metres((len?.to ?? 0) - (len?.from ?? 0))} long and up to ${metres((width?.to ?? 0) - (width?.from ?? 0))} wide`,
-                [nounPath, along?.path, across?.path, ...(paired && lateral ? [`space.regions[${region.elementId}].selector`] : [])].filter(Boolean) as string[],
-                [(len?.to ?? 0) - (len?.from ?? 0), (width?.to ?? 0) - (width?.from ?? 0)],
-            )
+            /**
+             * **The marking sentence states the width the knowledge REQUIRES — both ends of it.** It said
+             * *"up to 7.5 m wide"*, which is the widest permitted extent and half of what is authored: his
+             * ruling of 1 October gives a channel *"a minimum of 0.15 and a maximum of 0.25 of the available
+             * across dimension"*, so on a 30 m width it is between 4.5 m and 7.5 m, and a coach who marked a
+             * 2 m strip was inside what the activity told them. The range comes through `sayRange`, the one
+             * way a range is said, and the preference is offered after it as before.
+             *
+             * Where the game holds no requirement in metres — a fixture frozen before realization recorded
+             * one — the sentence reads as it did, from the interval, and nothing is computed to fill it in.
+             */
+            const length = (len?.to ?? 0) - (len?.from ?? 0)
+            const widest = (width?.to ?? 0) - (width?.from ?? 0)
+            const marking = (limits: string) => `Mark a ${noun} ${where}, ${metres(length)} long and ${limits} wide`
+            const markingFrom = [nounPath, along?.path, across?.path, ...(paired && lateral ? [`space.regions[${region.elementId}].selector`] : [])].filter(Boolean) as string[]
+            const range = extentRange(across)
+            const ranged = range
+                ? sayRange('Set up', range, {
+                      number: metres,
+                      required: marking,
+                      requiredStatus: status,
+                      requiredAlso: { from: markingFrom, quantities: [length] },
+                      preferred: around => `${around} wide works well`,
+                  })
+                : null
+            if (ranged?.required) instructions.push(ranged.required)
+            else say('Set up', status, marking(`up to ${metres(widest)}`), markingFrom, [length, widest])
 
             /**
              * **An established function is established knowledge, so it is carried.** His ruling is that a
@@ -227,16 +390,7 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
                     [],
                 )
             }
-            const preference = across?.geometry.extentBound?.preferenceWithin
-            if (preference && preference.compatible && typeof preference.min === 'number') {
-                say(
-                    'Set up',
-                    'PREFERENCE',
-                    `Around ${metres(preference.min)} to ${metres(preference.max)} wide works well`,
-                    [across?.path].filter(Boolean) as string[],
-                    [preference.min, preference.max],
-                )
-            }
+            if (ranged?.preferred) instructions.push(ranged.preferred)
         }
     }
 

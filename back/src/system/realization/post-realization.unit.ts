@@ -20,8 +20,9 @@ import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame, splitPath } from '../derivation/resolved-game'
 import { derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
 import { completeConcreteGame, rosterRefusal } from './assemble-concrete-game'
+import { realizeWithJustifiedDefaults } from './justified-defaults'
 import { runPostRealizationGates } from './post-realization-gate'
-import { checkRealization, isRefused, nothingInvented, realize, Realized } from './realize'
+import { checkRealization, isRefused, nothingInvented, Realized } from './realize'
 
 const CHOICES = path.resolve(__dirname, '../../../../docs/audits/a04-realization-choices.json')
 const SUPPLIED = JSON.parse(fs.readFileSync(CHOICES, 'utf8'))
@@ -52,12 +53,14 @@ function chain(override?: (envelope: Record<string, unknown>) => void, knowledge
     const staged: any = runStages0to10(input)
     const index = indexRegister(input.register)
     const resolved = assembleResolvedGame(result, staged.classes, index, input.contracts)
-    const realizationResult = realize(resolved, supplied.choices, supplied.instantiations, index, input.envelope)
+    // As the pathway realizes it: what the file chooses, plus the justified defaults for what it does not.
+    const ctx = { ...staged.gateContext, contracts: input.contracts }
+    const realizationResult = realizeWithJustifiedDefaults(resolved, supplied, index, input.envelope, ctx).realization
     if (isRefused(realizationResult)) throw new Error(`refused: ${realizationResult.because.join('; ')}`)
     return {
         resolved,
         realized: realizationResult as Realized,
-        ctx: { ...staged.gateContext, contracts: input.contracts },
+        ctx,
         owed: resolved.coherence.postRealizationRequired.map((o: any) => ({ checkId: o.checkId, clause: o.clause })),
     }
 }

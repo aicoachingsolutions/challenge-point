@@ -10,8 +10,9 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 
+import { buildActivityWithFixture } from './build-activity'
 import { checkFidelity } from './fidelity'
-import { Instruction, RenderedActivity, renderConcreteGame } from './render-concrete-game'
+import { Instruction, RenderedActivity, renderConcreteGame, sayRange } from './render-concrete-game'
 
 const FIXTURE = path.resolve(__dirname, '../../../../docs/audits/a04-concrete-game-fixture.json')
 const fixture = JSON.parse(fs.readFileSync(FIXTURE, 'utf8'))
@@ -236,6 +237,265 @@ assert.equal(report.provenance.length, rendered.instructions.length)
 
     const asNecessary: Instruction = { section: 'How to score', text: 'The rules require crossing the line', status: 'REALIZATION_CHOICE', from: ['value.primaryEvent.kind'], quantities: [] }
     assert.equal(violations(checkFidelity(fixture, wrap([asNecessary])), 4).length, 1, 'a choice presented as a necessity must be caught')
+}
+
+/**
+ * ── RANGES: a flexible value is still told accurately — added 13 October 2026 ─────────────────────
+ *
+ * Christian: *"I agree with preserving authored ranges, selected starting values, alternatives, and the
+ * reasons for those selections throughout realization and communication"*, and no wholesale relaxation with
+ * it — *"If a condition materially affects the activity, it must be represented and communicated
+ * accurately."*
+ *
+ * This check could not hold a range accurate in either direction, and each of the four cases below was
+ * MEASURED against it before it was changed, on this same game — the possession game with a scoring
+ * modifier, at 40 × 30, whose channels the knowledge holds between 4.5 m and 7.5 m wide and prefers at 6 m
+ * to 7.5 m:
+ *
+ *   1. *"Around 12 m to 20 m wide works well"* — PASSED. 12 is the number of players and 20 the minutes.
+ *   2. *"up to 30 m wide"* — PASSED. 30 is the width of the area.
+ *   3. both preference sentences deleted — PASSED, with nothing reported.
+ *   4. *"between 4.5 m and 7.5 m wide"*, which is exactly what is authored — REFUSED: 4.5 appeared nowhere.
+ *
+ * The first three are violations now and the fourth passes. The game is the one a coach is served, taken
+ * from the builder rather than rebuilt here, with the fixture it was checked from.
+ */
+{
+    const roles = { ...fixture.envelope.roles }
+    const built = (lengthM: number, widthM: number) => {
+        const out = buildActivityWithFixture({ kind: 'mechanism-demonstration', demonstrationId: 'scoring-modifier', session: { players: 12, lengthM, widthM, durationMin: 20, roles } })
+        assert.equal(out.activity.outcome, 'served', `the demonstration must be served at ${lengthM} x ${widthM}: ${JSON.stringify((out.activity as any).reasons)}`)
+        return { game: out.fixture as any, said: (out.activity as any).rendered as RenderedActivity }
+    }
+    const { game, said } = built(40, 30)
+    const all = (r: ReturnType<typeof checkFidelity>) => r.findings.filter(f => f.severity === 'VIOLATION')
+    const isMarking = (i: Instruction) => i.text.startsWith('Mark a channel')
+    const isPreference = (i: Instruction) => i.status === 'PREFERENCE'
+    const reworded = (which: (i: Instruction) => boolean, change: (i: Instruction) => Instruction) => wrap(said.instructions.map(i => (which(i) ? change(i) : i)))
+
+    // 4 — THE ACCURATE STATEMENT PASSES. It is what the renderer now says, and nothing is excepted for it.
+    {
+        const marking = said.instructions.filter(isMarking)
+        assert.deepEqual(
+            marking.map(i => [i.text, i.status, i.quantities]),
+            [
+                ['Mark a channel along one touchline, 40 m long and between 4.5 m and 7.5 m wide', 'DERIVED', [40, 4.5, 7.5]],
+                ['Mark a channel along the opposite touchline, 40 m long and between 4.5 m and 7.5 m wide', 'DERIVED', [40, 4.5, 7.5]],
+            ],
+            'the requirement is stated with BOTH its ends, as a requirement',
+        )
+        assert.deepEqual(said.instructions.filter(isPreference).map(i => i.text), Array(2).fill('Around 6 m to 7.5 m wide works well, if it suits your group'))
+        assert.deepEqual(all(checkFidelity(game, said)), [], 'the accurate range must pass')
+    }
+
+    // 1 — A WRONG PREFERRED RANGE, made of numbers the game really does hold elsewhere.
+    {
+        const r = checkFidelity(game, reworded(isPreference, i => ({ ...i, text: 'Around 12 m to 20 m wide works well, if it suits your group', quantities: [12, 20] })))
+        assert.equal(violations(r, 2).filter(f => /offers (12|20) as a preference/.test(f.what)).length, 4, `each wrong number, in each sentence: ${JSON.stringify(violations(r, 2))}`)
+        assert.match(violations(r, 2)[0].what, /the preferred range of what it cites is 6 to 7\.5/, 'and the finding says what the range is')
+        assert.equal(violations(r, 3).filter(f => /authored preferred range .* no instruction offers it/.test(f.what)).length, 2, 'and the real one is now offered by nobody')
+    }
+
+    // 2 — A WRONG REQUIRED LIMIT: the width of the area, said as the width of the channel.
+    {
+        const r = checkFidelity(game, reworded(isMarking, i => ({ ...i, text: i.text.replace('between 4.5 m and 7.5 m wide', 'up to 30 m wide'), quantities: [40, 30] })))
+        assert.equal(violations(r, 2).filter(f => /states 30, which is neither a value the game holds at a property it cites nor a required limit/.test(f.what)).length, 2, JSON.stringify(violations(r, 2)))
+        assert.equal(violations(r, 3).filter(f => /required (minimum of 4\.5|maximum of 7\.5)/.test(f.what)).length, 4, 'and neither real limit is stated, for either channel')
+    }
+
+    // 3 — THE PREFERENCE LEFT OUT. Authored guidance dropped is authored knowledge lost.
+    {
+        const r = checkFidelity(game, wrap(said.instructions.filter(i => !isPreference(i))))
+        const lost = violations(r, 3)
+        assert.equal(lost.length, 2, `one for each channel: ${JSON.stringify(lost)}`)
+        for (const finding of lost) assert.match(finding.what, /carries an authored preferred range that may be offered here \(6 to 7\.5\), and no instruction offers it/)
+        assert.deepEqual(violations(r, 2), [], 'nothing said is wrong; something is missing')
+    }
+
+    // The requirement stated by half — the sentence exactly as it read until this change — is a loss too.
+    // This is why the wording and the check had to land together.
+    {
+        const r = checkFidelity(game, reworded(isMarking, i => ({ ...i, text: i.text.replace('between 4.5 m and 7.5 m wide', 'up to 7.5 m wide'), quantities: [40, 7.5] })))
+        assert.deepEqual(violations(r, 2), [], '7.5 is the channel\'s own maximum, so nothing said is wrong')
+        assert.equal(violations(r, 3).length, 2)
+        for (const finding of violations(r, 3)) assert.match(finding.what, /has a required minimum of 4\.5 \(required: 4\.5 to 7\.5\), and no instruction that cites it states that minimum/)
+    }
+
+    // The width left out altogether, with the property still cited: a citation is not a statement.
+    {
+        const r = checkFidelity(game, reworded(isMarking, i => ({ ...i, text: i.text.replace(' and between 4.5 m and 7.5 m wide', ''), quantities: [40] })))
+        assert.equal(violations(r, 3).filter(f => /required (minimum|maximum)/.test(f.what)).length, 4, JSON.stringify(violations(r, 3)))
+    }
+
+    // A preference stated as the requirement: the preferred floor in the requirement's sentence.
+    {
+        const r = checkFidelity(game, reworded(isMarking, i => ({ ...i, text: i.text.replace('between 4.5 m', 'between 6 m'), quantities: [40, 6, 7.5] })))
+        assert.equal(violations(r, 2).filter(f => /states 6, which is neither/.test(f.what)).length, 2, 'a preferred limit may not be said as a required one')
+        assert.equal(violations(r, 3).filter(f => /required minimum of 4\.5/.test(f.what)).length, 2)
+    }
+
+    // A preference that states only part of its range has not offered the range.
+    {
+        const r = checkFidelity(game, reworded(isPreference, i => ({ ...i, text: 'Around 6 m wide works well, if it suits your group', quantities: [6] })))
+        assert.equal(violations(r, 3).filter(f => /no instruction offers it/.test(f.what)).length, 2)
+    }
+
+    // The range is the LINE's, worked out from what was authored and this session's width — not read back
+    // from the metres the renderer printed. Change the session under the same rendering and it stops matching.
+    {
+        const narrower = JSON.parse(JSON.stringify(game))
+        narrower.envelope.widthM = 20
+        const r = checkFidelity(narrower, said)
+        assert.ok(violations(r, 3).some(f => /required minimum of 3 \(required: 3 to 5\)/.test(f.what)), `0.15 and 0.25 of a 20 m width: ${JSON.stringify(violations(r, 3))}`)
+    }
+
+    // What crosses the boundary is what lets any of this be checked, and it is carried, not projected.
+    {
+        const across = game.status.bounds.filter((b: any) => String(b.path).endsWith('.position.across'))
+        assert.equal(across.length, 2, 'each channel\'s width carries its bounds beside its derived position')
+        for (const entry of across) {
+            assert.deepEqual(
+                entry.bounds.map((b: any) => [b.kind, b.min, b.max, b.preferred, !!b.fractionOfAxis]),
+                [
+                    ['COUNT', 6, 10, true, false],
+                    ['COUNT', 0.15, 0.25, false, true],
+                ],
+            )
+        }
+        assert.ok(game.status.bounds.some((b: any) => b.bounds.some((bound: any) => bound.forbidden)), 'an exclusion crosses too, marked, and is no part of any range')
+    }
+
+    // WHERE THE PREFERENCE CANNOT BE OFFERED it is not offered, and that is reported rather than silent.
+    // On a 15 m width the requirement is 2.25 m to 3.75 m and the preferred 6 m to 10 m lies wholly outside.
+    {
+        const small = built(20, 15)
+        assert.equal(small.said.instructions.filter(isPreference).length, 0, 'no preference is offered that the requirement excludes')
+        const r = checkFidelity(small.game, small.said)
+        assert.deepEqual(all(r), [])
+        const notes = r.findings.filter(f => f.question === 3 && f.severity === 'NOTE' && /wholly outside what is required here \(2\.25 to 3\.75\)/.test(f.what))
+        assert.equal(notes.length, 2, `one for each channel: ${JSON.stringify(r.findings.filter(f => f.question === 3))}`)
+        // TEETH — offering it anyway is refused: it is not this line's preferred range, because it has none here.
+        const offered: Instruction = { section: 'Set up', text: 'Around 6 m to 10 m wide works well, if it suits your group', status: 'PREFERENCE', from: [small.game.status.bounds.find((b: any) => String(b.path).endsWith('.position.across')).path], quantities: [6, 10] }
+        assert.equal(violations(checkFidelity(small.game, wrap([...small.said.instructions, offered])), 2).filter(f => /nothing it cites carries a preferred range that may be offered/.test(f.what)).length, 2)
+    }
+}
+
+/**
+ * **A fixture frozen before 13 October is still checked for its range, not waved through.**
+ *
+ * The specimen holds the channel's bound as realization recorded it then — the fraction, and the preference
+ * expressed inside it — and no requirement in metres, so the renderer has nothing to state the minimum from
+ * and says what it always said. The check works the minimum out from the fraction and the area and reports
+ * that the sentence does not state it. That is the honest reading of an old game by a stricter check: the
+ * specimen is kept as evidence of the capabilities named above, not as a rendering that passes today.
+ */
+{
+    const marking = specimenRendered.instructions.filter((i: any) => i.text.startsWith('Mark a channel')).map((i: any) => i.text)
+    assert.deepEqual(marking, ['Mark a channel along one touchline, 40 m long and up to 7.5 m wide', 'Mark a channel along the opposite touchline, 40 m long and up to 7.5 m wide'])
+    assert.deepEqual(
+        specimenReport.findings.filter(f => f.severity === 'VIOLATION').map(f => [f.question, /required minimum of 4\.5 \(required: 4\.5 to 7\.5\)/.test(f.what)]),
+        [
+            [3, true],
+            [3, true],
+        ],
+        'the only thing it is refused for is the minimum it cannot state',
+    )
+}
+
+/**
+ * ── ONE WAY OF SAYING A RANGE, on a line that is a COUNT ──────────────────────────────────────────
+ *
+ * The channel's width is the only range a served activity states today. The helper that states it is
+ * general, and so is the check, and a general thing with one instance is not proved general — so both are
+ * exercised here on the other shape there is: a whole-number count that realization closed to a STARTING
+ * value inside an authored range, with a required floor and a preferred range beside it. The line is put
+ * into a copy of the fixture by hand; nothing in the corpus that is served holds one yet.
+ *
+ * The three sentences are the three parts of the range and each has the status of its part. Their wording
+ * here is a pattern for whoever words such a line for a coach, not coach text that anybody is served.
+ */
+{
+    const path_ = 'performers.neutrals.count'
+    const counted = JSON.parse(JSON.stringify(fixture))
+    counted.game.performers.neutrals = { count: 2 }
+    counted.status.choices.push({
+        lineId: 'game::P5',
+        path: path_,
+        value: 2,
+        because: 'a test',
+        authority: 'SD-39',
+        boundCheck: 'WITHIN_COUNT',
+        within: {
+            permitted: null,
+            bounds: [
+                { kind: 'COUNT', min: 1, max: null, term: '>= 1 (no authored maximum)', preferred: false },
+                { kind: 'COUNT', min: 1, max: 2, term: '1-2 (one or two)', preferred: true },
+            ],
+        },
+        closure: 'STARTING_VALUE_IN_RANGE',
+    })
+    const plural = (n: number | null) => (n === 1 ? '' : 's')
+    const sentences = sayRange('Players', { path: path_, required: { min: 1, max: null }, preferred: { min: 1, max: 2 }, starting: 2 }, {
+        number: n => String(n),
+        starting: (value, n) => `${value} neutral player${plural(n)}`,
+        required: (limits, range) => `Use ${limits} neutral player${plural(range.max ?? range.min)}`,
+        preferred: (around, range) => `${around} neutral player${plural(range.max ?? range.min)} works well`,
+    })
+    assert.deepEqual(
+        [sentences.starting, sentences.required, sentences.preferred].map(i => [i!.text, i!.status, i!.from, i!.quantities]),
+        [
+            ['For this activity, 2 neutral players', 'REALIZATION_CHOICE', [path_], [2]],
+            ['Use at least 1 neutral player', 'DERIVED', [path_], [1]],
+            ['Around 1 to 2 neutral players works well, if it suits your group', 'PREFERENCE', [path_], [1, 2]],
+        ],
+        'a starting value, a requirement and a preference — never one sentence doing the work of another',
+    )
+    const base = renderConcreteGame(counted).instructions
+    const withRange = (...extra: (Instruction | null)[]) => checkFidelity(counted, wrap([...base, ...(extra.filter(Boolean) as Instruction[])]))
+    const about = (r: ReturnType<typeof checkFidelity>) => r.findings.filter(f => f.severity === 'VIOLATION' && (f.what.includes(path_) || f.what.includes('neutral')))
+
+    assert.deepEqual(about(withRange(sentences.starting, sentences.required, sentences.preferred)), [], 'all three said: nothing lost and nothing wrong')
+
+    // The starting value alone: where the activity starts is said, and the range it starts inside is not.
+    const alone = about(withRange(sentences.starting))
+    assert.deepEqual(alone.map(f => f.question), [3, 3], JSON.stringify(alone))
+    assert.ok(alone.some(f => /required minimum of 1/.test(f.what)) && alone.some(f => /preferred range that may be offered here \(1 to 2\)/.test(f.what)))
+
+    // The range without the value: a coach is told what is allowed and not what this activity uses.
+    assert.ok(about(withRange(sentences.required, sentences.preferred)).some(f => /starts at 2 in this activity, inside an authored range, and no instruction that cites it states that value/.test(f.what)))
+
+    // A wrong preferred range for a count is caught exactly as a wrong width is.
+    const wrong = about(withRange(sentences.starting, sentences.required, { ...sentences.preferred!, text: 'Around 5 to 12 neutral players works well, if it suits your group', quantities: [5, 12] }))
+    assert.ok(wrong.some(f => f.question === 2 && /offers 5 as a preference/.test(f.what)), JSON.stringify(wrong))
+
+    // And the helper says only what the line carries: no preference, no preference sentence; one end, one end.
+    const floorOnly = sayRange('Players', { path: path_, required: { min: 1, max: null }, preferred: null, starting: null }, { number: String, required: l => `Use ${l}`, preferred: a => `${a} works well`, starting: v => v })
+    assert.deepEqual([floorOnly.required?.text, floorOnly.preferred, floorOnly.starting], ['Use at least 1', null, null])
+    const both = sayRange('Set up', { path: 'x', required: { min: 4, max: 6 }, preferred: { min: 5, max: 5 }, starting: null }, { number: n => `${n} m`, required: l => `Make it ${l} wide`, preferred: a => `${a} wide works well` })
+    assert.deepEqual([both.required?.text, both.preferred?.text], ['Make it between 4 m and 6 m wide', 'Around 5 m wide works well, if it suits your group'])
+    assert.equal(sayRange('Set up', { path: 'x', required: { min: null, max: 6 }, preferred: null, starting: null }, { number: n => `${n} m`, required: l => `Make it ${l} wide` }).required?.text, 'Make it up to 6 m wide')
+}
+
+/**
+ * **What the frozen game carries across the boundary — the half of the range work A04 can show.** A04 holds
+ * no numeric range, so its rendered text does not move; what moved is what the fixture keeps. Each choice
+ * says what kind of closing it was and what it was chosen within, and each derived value says where it
+ * comes from — which is what a later adjustment has to know before it may touch one.
+ */
+{
+    const closures = Object.fromEntries(fixture.status.choices.map((c: any) => [c.lineId.split(':').pop(), c.closure]))
+    assert.deepEqual(new Set(fixture.status.choices.map((c: any) => c.closure)), new Set(['CHOSEN_AMONG_ALTERNATIVES', 'ONLY_VALUE', 'COACH_DECIDES']), JSON.stringify(closures))
+    for (const choice of fixture.status.choices) {
+        assert.ok(choice.within && Array.isArray(choice.within.bounds), `${choice.lineId} must carry what it was chosen within`)
+        assert.ok(typeof choice.because === 'string' && choice.because.length > 0, `${choice.lineId} must keep its reason`)
+    }
+    const noun = fixture.status.choices.find((c: any) => String(c.path).endsWith('.noun'))
+    assert.deepEqual(noun.within.permitted, ['zone', 'line'], 'the alternative not taken is still there to be seen')
+    assert.deepEqual(fixture.status.choices.filter((c: any) => c.defaultedBy).map((c: any) => c.closure), ['ONLY_VALUE', 'ONLY_VALUE'], 'what a rule closed is marked as closed by rule')
+    for (const derived of fixture.status.derived) {
+        assert.ok(Array.isArray(derived.support) && derived.support.length > 0, `${derived.lineId} must say what supports it`)
+    }
+    assert.ok(Array.isArray(fixture.status.bounds), 'and the bounds beside derived values are carried, even where this game has few')
 }
 
 // ── Wording is generated from status, so a preference has no route to the imperative ──────────────
