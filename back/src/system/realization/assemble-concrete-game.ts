@@ -30,10 +30,14 @@
 
 import { ClassifiedLine, reasonFor } from '../derivation/classify'
 import { Comparison, comparisonOf } from '../derivation/comparison'
-import { DerivedLine, resolvedValue } from '../derivation/derive'
+import { DerivedLine, entails, resolvedValue } from '../derivation/derive'
 import { GateContext } from '../derivation/gates'
+import { toRational } from '../derivation/rational'
+import { reaches } from '../derivation/reach'
 import { splitPath } from '../derivation/resolved-game'
 import { resolveScopes } from '../derivation/scope'
+import { parseSelector } from '../derivation/selector'
+import { LoadedContract } from '../derivation/types'
 import { collectionPath, place, readAt, RealizationRecord, Realized } from './realize'
 
 /** Both sides of the comparison name the given row — i.e. it is a statement about that property. */
@@ -262,15 +266,92 @@ function rosterFor(ctx: GateContext, realized: Realized): Roster | RosterRefusal
      *
      * **Where the count is looked for, in order.** (1) On the member itself, where realization supplied it.
      * (2) On the team's own line for the row. (3) Where no such line exists — and for an instantiated team
-     * none does, because SD-97 enumerates no line for a class nothing individuates — the question is put to
-     * the row instead: what do the selected objects DECLARE about it? That is the same reading a line on
-     * the row would have carried (`reasonFor`), so an object that declares it does not constrain the role is
-     * an established absence, and a row nobody looked at is not. One guard is added on top, because that
-     * precedence lets a NON_CLAIMED from one object outrank a CLAIMED from another: if any selected object
-     * carries an ITEM on the row, the knowledge speaks about the count and nothing delivered it to this
-     * team, so this refuses rather than reading the silence as none.
+     * none does, because SD-97 enumerates no line for a class nothing individuates — in what the selected
+     * objects AUTHOR on the row (see `authoredFor`). (4) Where they author nothing on it, the question is
+     * put to the row instead: what do they DECLARE about it? That is the same reading a line on the row
+     * would have carried (`reasonFor`), so an object that declares it does not constrain the role is an
+     * established absence, and a row nobody looked at is not.
+     *
+     * (3) comes before (4) because that precedence lets a NON_CLAIMED from one object outrank a CLAIMED
+     * from another: where any selected object carries an ITEM on the row, the knowledge speaks about the
+     * count, and a declaration elsewhere may not read its silence as none.
      */
-    let declarations: ReturnType<typeof resolveScopes>['declarations'] | null = null
+    let scopes: ReturnType<typeof resolveScopes> | null = null
+    const scoped = () => (scopes = scopes ?? resolveScopes(ctx.contracts, ctx.classes))
+
+    /** A whole, non-negative count, read the way the roster gate reads its terms (§1.9) — so `"1"` is 1. */
+    const wholeCount = (value: unknown): number | null => {
+        const exact = toRational(value)
+        return exact && exact.d === 1n && exact.n >= 0n ? Number(exact.n) : null
+    }
+
+    /**
+     * **What the knowledge AUTHORS about this team's count — added in review, 13 October.**
+     *
+     * The repair first refused whenever any selected object carried an item on the row, reasoning that no
+     * line delivers it to an instantiated team. That kept an authored count from being read as none, and it
+     * also meant NO game could ever involve a specialized role: an authored *"one per team"* refused with
+     * two available exactly as it did with none, so the only involvement this rule could produce was zero.
+     * Measured on a copy of the possession game form given such an item — both sessions refused, for a
+     * reason about a missing line.
+     *
+     * The line is missing for a reason that is not the knowledge's: SD-97 enumerates none for a class
+     * nothing individuates. His ruling of 30 September then gives each instantiated member *"the applicable
+     * property schema"* while supplying no value — *"Creating a property location is not authoring its
+     * value."* So the location exists once the team does, and the value has to come from what is authored.
+     * It is read here exactly as the equality on the outfield count is read a few lines above: from the
+     * item, because no line exists to carry it.
+     *
+     * **Each item is put the engine's own questions and nothing is decided here.** Its application set
+     * (stage 3) must take in the team's class. Its selector must REACH the member (stage 4), where the
+     * member is the class `post-realization-gate` forms for it — one with no attributes fixed, since
+     * nothing tells one instantiated team from another. So a selector that names no particular team
+     * reaches, and one that names a team is UNDETERMINED, which the engine *"records and derives nothing
+     * from"*. And it must ENTAIL (§3), as a requirement: an assumed item bounds and never entails, and
+     * neither an example nor a preferred default may put a performer into every team — the same bar the
+     * equality is held to.
+     *
+     * Anything on the row that does not clear all of that leaves the count unsettled, and so do two items
+     * that fix different counts. Nothing is chosen between them and nothing is read as none.
+     */
+    const authoredFor = (
+        instantiation: Roster['teams'][number],
+        rowId: string,
+        leaf: string,
+        speaking: { contractId: string; item: LoadedContract['items'][number] }[],
+    ): { value: number; basis: string } | { unsettled: string } => {
+        const claim = ctx.classes.find(candidate => candidate.classId === instantiation.classId)
+        if (!claim) return { unsettled: `the class ${instantiation.classId} this team satisfies is not in the run` }
+        const counts = new Set<number>()
+        const from: string[] = []
+        for (const { contractId, item } of speaking) {
+            const name = `${contractId}::${item.itemId}`
+            const application = scoped().applicationSets.find(set => set.item.contractId === contractId && set.item.itemId === item.itemId)
+            if (!application?.classIds.includes(instantiation.classId)) {
+                return { unsettled: `${name} is authored on ${rowId} and its scope does not take in this team's class, so what it says of this team is not established` }
+            }
+            const parsed = parseSelector(item.selector, rowId, ctx.index)
+            if (!parsed.predicate) return { unsettled: `${name} is authored on ${rowId} with a selector that cannot be read (${parsed.defect})` }
+            if (reaches(parsed.predicate, { ...claim, constraints: { any: false, terms: [] } }) !== 'TRUE') {
+                return {
+                    unsettled:
+                        `${name} speaks of particular teams (${JSON.stringify(item.selector)}), and nothing tells one instantiated team from ` +
+                        `another, so whether it reaches this one is undetermined`,
+                }
+            }
+            if (!entails(item) || String((item as { valueStatus?: unknown }).valueStatus) !== 'REQUIRED_RANGE') {
+                return { unsettled: `${name} speaks about ${rowId} without fixing it as a requirement, and a count nobody fixed is not one to choose here` }
+            }
+            const count = wholeCount(item.value)
+            if (count === null) return { unsettled: `${name} holds ${JSON.stringify(item.value)}, which is not a whole, non-negative count` }
+            counts.add(count)
+            from.push(name)
+        }
+        if (counts.size !== 1) return { unsettled: `${from.join(' and ')} fix different counts on ${rowId}, and no single value satisfies both` }
+        const [value] = [...counts]
+        return { value, basis: `${from.join(' and ')} require${from.length === 1 ? 's' : ''} ${leaf} = ${value} of every team` }
+    }
+
     const involvementOf = (instantiation: Roster['teams'][number], rowId: string, leaf: string): { value: number; basis: string } | { unsettled: string } => {
         const inGame = memberInGame(realized, collectionPath(instantiation.path), instantiation.handle)
         const own = readAt(instantiation.member as Record<string, unknown>, leaf) ?? (inGame ? readAt(inGame, leaf) : undefined)
@@ -283,18 +364,25 @@ function rosterFor(ctx: GateContext, realized: Realized): Roster | RosterRefusal
         const line = ctx.lines.find(candidate => candidate.lineId === `${instantiation.classId}::${rowId}`)
         if (line) {
             const value = resolvedValue(ctx.derived.get(line.lineId))?.value
-            if (typeof value === 'number' && Number.isInteger(value) && value >= 0) return { value, basis: `${line.lineId} establishes ${leaf} = ${value}` }
-            if (value !== undefined) return { unsettled: `${line.lineId} holds ${JSON.stringify(value)}, which is not a whole, non-negative count` }
+            if (value !== undefined) {
+                // Read as the roster gate reads it: the corpus authors such a count as `"1"`, and a reader
+                // that wanted a JavaScript number would call an authored one unsettled.
+                const count = wholeCount(value)
+                return count === null
+                    ? { unsettled: `${line.lineId} holds ${JSON.stringify(value)}, which is not a whole, non-negative count` }
+                    : { value: count, basis: `${line.lineId} establishes ${leaf} = ${count}` }
+            }
             return establishedAbsence(line, ctx.classified.get(line.lineId))
                 ? { value: 0, basis: `${line.lineId} is an established absence` }
                 : { unsettled: `${line.lineId} is required and unestablished` }
         }
 
-        const authored = ctx.contracts.filter(contract => (contract.items ?? []).some(item => String(item.row) === rowId)).map(contract => String(contract.contractId))
-        if (authored.length) {
-            return { unsettled: `${authored.join(', ')} author${authored.length === 1 ? 's' : ''} ${rowId} and no line carries it to this team` }
-        }
-        declarations = declarations ?? resolveScopes(ctx.contracts, ctx.classes).declarations
+        const speaking = ctx.contracts.flatMap(contract =>
+            (contract.items ?? []).filter(item => String(item.row) === rowId).map(item => ({ contractId: String(contract.contractId), item })),
+        )
+        if (speaking.length) return authoredFor(instantiation, rowId, leaf, speaking)
+
+        const declarations = scoped().declarations
         const reason = reasonFor(rowId, declarations)
         return reason === 'excluded' || reason === 'not constrained'
             ? { value: 0, basis: `no selected knowledge establishes ${leaf} in this game (${rowId} is ${reason})` }

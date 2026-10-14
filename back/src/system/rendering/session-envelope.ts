@@ -129,21 +129,33 @@ export function sessionEnvelopeFrom(stored: StoredSession, stated: StatedForRevi
      */
     // Laid over one another FIRST and judged afterwards, so a usable statement for this review is not
     // refused on account of a stored one it replaces.
-    const merged: Record<string, unknown> = {}
+    //
+    // **Held in a Map, and every NAME is kept whether or not it came with a count.** Both were found in
+    // review on 13 October. As a plain object this was keyed by text from a request body, so a role named
+    // `__proto__` was assigned to the object's prototype and vanished — served, where every other unknown
+    // name is refused — and `in` answered for inherited keys, so a role the register spelled like one of
+    // them would never have been asked about. And a name with no count beside it was dropped before its
+    // name was looked at, so an unknown kind of player was refused with a number and accepted without one.
+    // A name is validated because it was NAMED; `undefined` here means "named, and no count stated".
+    const merged = new Map<string, unknown>()
     for (const [source, value] of [['stored', stored.specializedRoles], ['stated', stated.roles]] as const) {
         if (absent(value)) continue
         if (!isRecord(value)) {
             missing.push(`The ${source === 'stored' ? "session's" : "review's"} list of specialized players could not be read.`)
             continue
         }
-        for (const [role, count] of Object.entries(value)) if (!absent(count)) merged[role] = count
+        for (const [role, count] of Object.entries(value)) {
+            if (!absent(count)) merged.set(role, count)
+            else if (!merged.has(role)) merged.set(role, undefined)
+        }
     }
     const roles: Record<string, number> = {}
-    for (const [role, count] of Object.entries(merged)) {
+    for (const [role, count] of merged) {
         if (!specializedRoles.includes(role)) {
             missing.push(`This session names a kind of player the activity engine does not know: ${role}.`)
             continue
         }
+        if (count === undefined) continue // named and not counted: asked for below, like one never named
         if (typeof count !== 'number' || !Number.isInteger(count) || count < 0) {
             missing.push(`The number of ${role}s must be a whole number, 0 or more.`)
             continue
@@ -157,7 +169,7 @@ export function sessionEnvelopeFrom(stored: StoredSession, stated: StatedForRevi
         roles[role] = count
     }
     for (const role of specializedRoles) {
-        if (!(role in merged)) missing.push(availabilityQuestion(role))
+        if (merged.get(role) === undefined) missing.push(availabilityQuestion(role))
     }
 
     if (missing.length) return { outcome: 'not-stated', summary: missing[0], reasons: missing }

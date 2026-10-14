@@ -21,8 +21,10 @@
  */
 import assert from 'node:assert/strict'
 
+import { loadCorpusContracts, loadRegister } from '../derivation/corpus'
+import { indexRegister } from '../derivation/register'
 import { ActivityReviewRequestError, activityReviewOptions, reviewActivity } from './activity-review'
-import { buildActivity, RefusedActivity, ServedActivity, UnknownActivityRequest } from './build-activity'
+import { buildActivity, buildActivityOverAlteredKnowledge, RefusedActivity, ServedActivity, UnknownActivityRequest } from './build-activity'
 import { buildPilotActivity, isPilotRefused, PILOT_SESSION } from './build-pilot-activity'
 import { MECHANISM_DEMONSTRATIONS } from './mechanism-demonstrations'
 import { sessionEnvelopeFrom, specializedRoleNames } from './session-envelope'
@@ -175,6 +177,11 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
     assert.equal(nine.summary, '9 players cannot be split into the equal teams this game needs.')
     assert.ok(nine.reasons.some(reason => reason.includes('DOES_NOT_DIVIDE')), 'the cause travels in the reasons')
     assert.ok(nine.reasons.some(reason => reason.includes('GA-ROSTER-SUM')), `and so does what the gate itself reported: ${JSON.stringify(nine.reasons)}`)
+
+    // The count is the coach's own number, so the sentence has to agree with it. Found in review: one
+    // player was told "1 players cannot be split".
+    const one = refused(reviewActivity(stored({ playerCount: 1 }), { learningGoalId: 'A04', durationMin: 20 }), '1 player')
+    assert.equal(one.summary, '1 player cannot be split into the equal teams this game needs.')
 }
 
 /**
@@ -207,6 +214,22 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
     session(at(stored({ specializedRoles: { [ROLE]: null } })), QUESTION)
     session(at(stored({ specializedRoles: { [ROLE]: -1 } })), `The number of ${ROLE}s must be a whole number, 0 or more.`)
     session(at(stored(), { roles: { 'no-such-role': 1 } }), 'This session names a kind of player the activity engine does not know: no-such-role.')
+    /**
+     * **A name is refused because it was NAMED — whatever its count, and whatever it is spelled like.**
+     * Both found in review, 13 October. A name with no count beside it was dropped before the name was
+     * looked at, so the same unknown kind of player was refused with a number and served without one. And
+     * the statements were merged into a plain object keyed by text from the request, so a role called
+     * `__proto__` was assigned to that object's prototype, vanished, and was served.
+     */
+    session(at(stored(), { roles: { 'no-such-role': null } }), 'This session names a kind of player the activity engine does not know: no-such-role.')
+    session(at(stored(), { roles: JSON.parse('{"__proto__": 1}') }), 'This session names a kind of player the activity engine does not know: __proto__.')
+    session(at(stored({ specializedRoles: JSON.parse('{"__proto__": 0}') })), 'This session names a kind of player the activity engine does not know: __proto__.')
+    // ...and a role is asked about even where its name is one every object answers to. The register names
+    // no such role; the boundary must not depend on that.
+    for (const inherited of ['constructor', 'toString', 'hasOwnProperty']) {
+        const asked = sessionEnvelopeFrom(stored({ specializedRoles: undefined }), { durationMin: 20 }, [inherited])
+        assert.deepEqual(asked, { outcome: 'not-stated', summary: `Say whether this session has ${inherited}s before building an activity.`, reasons: [`Say whether this session has ${inherited}s before building an activity.`] })
+    }
     // Availability is people IN the session. A game that involves none never compares the two, so this is
     // the only place an impossible count can be caught.
     session(at(stored(), { roles: { [ROLE]: 13 } }), `This session lists more ${ROLE}s than it has players.`)
@@ -261,6 +284,80 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
     assert.deepEqual(text(activity, 'How to score'), text(zero, 'How to score'))
 }
 
+/**
+ * ── INVOLVEMENT, end to end — on knowledge the corpus does not hold yet ───────────────────────────
+ *
+ * Added in review, 13 October. Everything above shows the half of the rule the corpus can reach: a game
+ * that involves none. No selected game form involves a specialized role today, so the other half — a team
+ * that HOLDS one, a session that cannot staff it, and the sentence a coach gets for each — was pinned only
+ * by writing a count straight onto a realized team. It passed while an AUTHORED count could not reach a
+ * team at all: given a game form requiring one per team, two available was refused exactly as none was.
+ *
+ * So the real pathway is run here over a copy of this goal's game form with one item added — one of the
+ * role per team, required. Nothing about the corpus is changed, and the last assertion proves it.
+ */
+{
+    const [rowId] = [...indexRegister(loadRegister()).specializedRoleRows].find(([, role]) => role === ROLE)!
+    const requiresOne = (over: Record<string, unknown> = {}) => (contracts: any[]) => {
+        const form = contracts.find(c => (c.items ?? []).some((i: any) => String(i.row) === 'P1'))
+        form.items.push({
+            itemId: 'REVIEW-ROLE-ITEM',
+            origId: 'REVIEW-ROLE-ITEM',
+            row: rowId,
+            selector: '*',
+            requirement: 'EQUALS',
+            value: '1',
+            strictness: 'REQUIRED',
+            valueStatus: 'REQUIRED_RANGE',
+            scope: 'PER_TEAM',
+            basis: 'AUTHORED',
+            basisEvidence: 'a test fixture, not authored knowledge',
+            checkability: 'STRUCTURAL',
+            structuralClause: 'whole item',
+            ...over,
+        })
+        form.declarations = (form.declarations ?? []).map((d: any) => (String(d.row) === rowId ? { ...d, declaration: 'CLAIMED', scope: 'PER_TEAM' } : d))
+    }
+    const at = (available: number, knowledge = requiresOne()) =>
+        buildActivityOverAlteredKnowledge({ kind: 'learning-goal', goalId: 'A04', session: { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { [ROLE]: available } } }, knowledge)
+
+    // Two available for a game that involves one per team: derived, RENDERED, and nothing lost or invented.
+    const staffed = served(at(2), 'one per team required, two available')
+    assert.deepEqual(text(staffed, 'Players').slice(0, 3), ['12 players in total', '2 teams of 5', `Each team also has 1 ${ROLE}`])
+    assert.equal(staffed.integrity.fidelityViolations, 0)
+    assert.equal(staffed.integrity.postRealizationValidated, true)
+    assert.deepEqual(staffed.integrity.acceptance, { nothingClosedWithoutAuthority: [], nothingLost: [], nothingInvented: [] })
+    const said = staffed.rendered.instructions.find(i => i.text === `Each team also has 1 ${ROLE}`)!
+    assert.deepEqual([said.status, said.quantities], ['DERIVED', [1]], 'a count the knowledge requires is stated as derived, with its number declared')
+
+    // More available than the game involves changes nothing a coach is told to set up.
+    assert.deepEqual(text(served(at(5), 'five available'), 'Players'), text(staffed, 'Players'))
+
+    // None, or one, for a game that needs two in all: refused in the coach's terms, with the numbers.
+    for (const available of [0, 1]) {
+        const short = refused(at(available), `one per team required, ${available} available`)
+        assert.equal(short.stage, 'session', 'the coach can cure it, so it is the session that is refused')
+        assert.equal(short.summary, `This game needs 1 ${ROLE} per team and the session has ${available}.`)
+        plain(short, `${available} available`)
+        assert.ok(short.reasons.some(reason => reason.includes('AVAILABILITY_SHORT')), JSON.stringify(short.reasons))
+    }
+
+    // Knowledge that speaks about the count without settling it for these teams is NOT the session's to
+    // cure, so the coach is not told to change their numbers: the game is reported as failing its checks.
+    const unsettled = refused(at(4, requiresOne({ selector: 'team=ATTACKING_TEAM' })), 'a count authored for one named team')
+    assert.equal(unsettled.stage, 'validation')
+    assert.equal(unsettled.summary, 'The game built for this activity did not pass its own checks, so it is not being shown.')
+    plain(unsettled, 'unsettled involvement')
+    assert.ok(unsettled.reasons.some(reason => reason.includes('INVOLVEMENT_NOT_SETTLED')), JSON.stringify(unsettled.reasons))
+
+    // The loader's contracts are shared by every caller in the process. None of the above may have reached them.
+    assert.ok(!JSON.stringify(loadCorpusContracts()).includes('REVIEW-ROLE-ITEM'), 'the alteration was made to a copy and to nothing else')
+    assert.deepEqual(text(served(reviewActivity(stored(), { learningGoalId: 'A04', durationMin: 20, roles: { [ROLE]: 2 } }), 'the goal itself, afterwards'), 'Players').slice(1, 3), [
+        '2 teams of 6',
+        `This activity does not use ${ROLE}s — everyone plays as an outfield player`,
+    ])
+}
+
 // ── The coach's own session shapes the activity ───────────────────────────────────────────────────
 {
     const activity = served(reviewActivity(stored({ playerCount: 16, fieldLength: '50', fieldWidth: '35' }), { learningGoalId: 'A04', durationMin: 15 }), '16 players, 50 x 35')
@@ -288,6 +385,14 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
     assert.equal(modifier.rendered.instructions.length, 22)
     assert.equal(modifier.integrity.fidelityViolations, 0)
     assert.deepEqual(modifier.account.constraints.map(c => c.contracted), [true], 'its one constraint is contracted, so it actually shapes the game')
+    // Found in review: the account named it by its library id, because a name was looked up in one of the
+    // library's two lists and this constraint is held in the other — as is at least one constraint of every
+    // one of the thirteen goals. A title is a name, never an id, so every request is checked.
+    assert.deepEqual(modifier.account.constraints.map(c => c.title), ['Wide Zone Advantage'])
+    for (const request of [...activityReviewOptions().goals.map(g => ({ learningGoalId: g.id })), ...MECHANISM_DEMONSTRATIONS.map(d => ({ demonstrationId: d.id }))]) {
+        const account = reviewActivity(stored(), { ...request, durationMin: 20 }).account
+        for (const constraint of account.constraints ?? []) assert.notEqual(constraint.title, constraint.id, `${JSON.stringify(request)}: ${constraint.id} has no name in the account`)
+    }
     assert.ok(text(modifier, 'How to score').some(t => /worth 2 instead of 1/.test(t)), 'and the mechanism it demonstrates is in the activity')
 
     /**

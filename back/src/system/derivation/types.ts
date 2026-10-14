@@ -148,6 +148,10 @@ export interface Envelope {
      * into a particular game only where the selected knowledge establishes it, and only an instantiated
      * group has a participation state at all.
      *
+     * That sentence was the rule and, until 13 October, not the behaviour: the roster rule took every
+     * stated count off every team. It now reads what a team HOLDS from the game and asks of this count
+     * only that it cover it — see `rosterFor` in `realization/assemble-concrete-game.ts`.
+     *
      * The pathway is deliberately shaped so a Team Profile can supply defaults and a session override
      * them — both upstream. The engine reads whatever it is given and infers nothing from silence: an
      * absent entry means *not stated*, never *none available*.

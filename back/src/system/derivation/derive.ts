@@ -434,8 +434,14 @@ function assertsNothing(item: any, index: RegisterIndex): boolean {
     return String(item.requirement) === 'EXISTS' && index.rows.get(String(item.row))?.kind === 'FIELD'
 }
 
-/** An item entails only when it fixes the value: an assumed item bounds but never entails (§3). */
-function entails(item: any): boolean {
+/**
+ * An item entails only when it fixes the value: an assumed item bounds but never entails (§3).
+ *
+ * Exported 13 October for the roster rule, which has to put this same question to an item that reaches a
+ * team realization instantiated — a member with no line for the item to have been asked on (SD-97). A
+ * second copy of the test there would be free to disagree with this one about what an assumed item may do.
+ */
+export function entails(item: any): boolean {
     if (!isSupportCapable(item)) return false
     if (item.basis === 'ASSUMED') return false
     if (item.strictness === 'EXCLUSION') return false

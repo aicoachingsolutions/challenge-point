@@ -36,11 +36,17 @@ const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value))
  * now, and the choices are copied here for the same reason: a test that mutates shared input is testing a
  * different run from the one it describes.
  */
-function chain(override?: (envelope: Record<string, unknown>) => void) {
+function chain(override?: (envelope: Record<string, unknown>) => void, knowledge?: (contracts: any[]) => void) {
     const selection = selectFor('A04', null)
     const input = derivationInputFor(selection)
     const supplied = copy(SUPPLIED)
     if (override) override(input.envelope as Record<string, unknown>)
+    // The loader returns SHARED contract objects, so knowledge a block alters is altered on a copy — and
+    // BEFORE derivation, so the engine sees it exactly as it would see it authored.
+    if (knowledge) {
+        input.contracts = copy(input.contracts)
+        knowledge(input.contracts as any[])
+    }
     const result = runDerivation(input)
     if (isStampedHalt(result)) throw new Error('halted')
     const staged: any = runStages0to10(input)
@@ -487,15 +493,122 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
         assert.equal((refusal as any).role, role)
     }
 
-    // An ITEM on the row that no line delivers to the team is the knowledge speaking, so it refuses too —
-    // even though another object still declares the row unconstrained, which `reasonFor` would let win.
+    /**
+     * **An ITEM on the row is the knowledge speaking, and it wins over a declaration elsewhere** — which
+     * `reasonFor` alone would not let it: another object still declares the row unconstrained.
+     *
+     * **Re-pointed in review, 13 October — the assertion that was here pinned a defect.** It added an
+     * authored *"one per team"* and required `INVOLVEMENT_NOT_SETTLED`, on the reasoning that no line
+     * delivers the item to an instantiated team. That is true of every instantiated team (SD-97), so it
+     * made involvement unreachable: with such an item, two available refused exactly as none did, and the
+     * only count this rule could ever derive from knowledge was zero. The rule now reads the item — by the
+     * engine's own scope, reach and entailment tests — so the same item is a count the session has to
+     * cover. What the old assertion was FOR is kept, and is the first assertion below: an authored count
+     * is never read as none.
+     *
+     * The item was also pushed onto `ctx.contracts` after derivation had run, so the engine never saw it.
+     * These blocks put it in the contracts the run derives from.
+     */
+    const roleRow = roleOf(chain().ctx)
+    const authored = (over: Record<string, unknown> = {}) => (contracts: any[]) => {
+        const form = contracts.find(c => (c.items ?? []).some((i: any) => String(i.row) === 'P1'))
+        form.items.push({
+            itemId: 'TEST-ROLE-ITEM',
+            origId: 'TEST-ROLE-ITEM',
+            row: roleRow.rowId,
+            selector: '*',
+            requirement: 'EQUALS',
+            value: '1',
+            strictness: 'REQUIRED',
+            valueStatus: 'REQUIRED_RANGE',
+            scope: 'PER_TEAM',
+            basis: 'AUTHORED',
+            basisEvidence: 'a test fixture, not authored knowledge',
+            checkability: 'STRUCTURAL',
+            structuralClause: 'whole item',
+            ...over,
+        })
+        form.declarations = (form.declarations ?? []).map((d: any) => (String(d.row) === roleRow.rowId ? { ...d, declaration: 'CLAIMED', scope: 'PER_TEAM' } : d))
+    }
+
+    // The knowledge requires one per team and the session cannot staff it: refused, by name, with the numbers.
+    for (const available of [0, 1]) {
+        const { realized, ctx } = chain(undefined, authored())
+        withRoles(ctx, { [roleRow.role]: available })
+        assert.equal(completeConcreteGame(ctx, realized).length, 0, 'an authored count must not be read as none, and a roster the session cannot staff is not derived')
+        const refusal = rosterRefusal(ctx, realized)
+        assert.deepEqual(
+            refusal && refusal.cause === 'AVAILABILITY_SHORT' ? [refusal.role, refusal.perTeam, refusal.teams, refusal.needed, refusal.available] : refusal,
+            [roleRow.role, 1, 2, 2, available],
+            `one per team authored and ${available} available`,
+        )
+    }
+
+    // ...and with two it DERIVES: one a side taken off the outfield, written as held, and the sum agrees.
     {
-        const { realized, ctx } = chain()
-        const { rowId } = roleOf(ctx)
-        const contracts = copy(ctx.contracts)
-        contracts[0].items.push({ itemId: 'TEST-ROLE-ITEM', row: rowId, requirement: 'EQUALS', value: '1', strictness: 'REQUIRED', valueStatus: 'REQUIRED_RANGE', scope: 'PER_TEAM', basis: 'AUTHORED' })
-        ctx.contracts = contracts
-        assert.equal(rosterRefusal(ctx, realized)?.cause, 'INVOLVEMENT_NOT_SETTLED', 'an authored count that reaches no team must not be read as zero')
+        const { realized, ctx, owed, resolved } = chain(undefined, authored())
+        withRoles(ctx, { [roleRow.role]: 2 })
+        const entailed = completeConcreteGame(ctx, realized)
+        assert.equal(rosterRefusal(ctx, realized), null)
+        for (const team of teamsOf(realized)) assert.deepEqual([team.outfieldCount, team[roleRow.role]], [5, 1], 'one per team authored: 12 players are 2 teams of 5 and 1')
+        const written = entailed.filter(e => e.leaf === roleRow.role)
+        assert.equal(written.length, 2)
+        for (const entry of written) assert.ok(entry.because.includes('TEST-ROLE-ITEM'), `the provenance must name the item that requires it: ${entry.because}`)
+        const post = runPostRealizationGates(ctx, owed, realized)
+        assert.equal(post.validated, true, `the roster gate must validate the game it now holds: ${JSON.stringify(post.outstanding)}`)
+        assert.deepEqual(checkRealization(resolved, realized).nothingInvented, [], 'and the count is accounted for, not invented')
+    }
+
+    // A third available changes nothing: availability covers involvement and is never itself instantiated.
+    {
+        const { realized, ctx } = chain(undefined, authored())
+        withRoles(ctx, { [roleRow.role]: 3 })
+        completeConcreteGame(ctx, realized)
+        for (const team of teamsOf(realized)) assert.deepEqual([team.outfieldCount, team[roleRow.role]], [5, 1])
+    }
+
+    // A count spelled as a number is the same count as one spelled as text, and two a side is two a side.
+    {
+        const { realized, ctx } = chain(undefined, authored({ value: 2 }))
+        withRoles(ctx, { [roleRow.role]: 4 })
+        completeConcreteGame(ctx, realized)
+        for (const team of teamsOf(realized)) assert.deepEqual([team.outfieldCount, team[roleRow.role]], [4, 2])
+    }
+
+    /**
+     * **What an item may NOT do.** Each of these speaks about the count without settling it for THIS team,
+     * and each must refuse rather than be read as a count, or as none:
+     *
+     *   - it names a particular team, and nothing tells one instantiated team from the other;
+     *   - it is assumed — §3, an assumed item bounds and never entails;
+     *   - it is a preferred default or an example — the bar the equality on the outfield count is held to;
+     *   - it is an exclusion, which never supports;
+     *   - its value is not a whole count;
+     *   - two items fix different counts.
+     */
+    const unsettled: [string, (contracts: any[]) => void][] = [
+        ['a selector naming one team', authored({ selector: 'team=ATTACKING_TEAM' })],
+        ['an assumed item', authored({ basis: 'ASSUMED' })],
+        ['a preferred default', authored({ valueStatus: 'PREFERRED_DEFAULT' })],
+        ['an example', authored({ valueStatus: 'TYPICAL_EXAMPLE' })],
+        ['an exclusion', authored({ strictness: 'EXCLUSION' })],
+        ['a value that is not a count', authored({ value: 'one' })],
+        ['a fractional count', authored({ value: '0.5' })],
+        [
+            'two items that disagree',
+            contracts => {
+                authored()(contracts)
+                authored({ itemId: 'TEST-ROLE-ITEM-2', origId: 'TEST-ROLE-ITEM-2', value: '2' })(contracts)
+            },
+        ],
+    ]
+    for (const [what, knowledge] of unsettled) {
+        const { realized, ctx } = chain(undefined, knowledge)
+        withRoles(ctx, { [roleRow.role]: 4 })
+        assert.equal(completeConcreteGame(ctx, realized).length, 0, `${what} must derive no roster`)
+        const refusal = rosterRefusal(ctx, realized)
+        assert.equal(refusal?.cause, 'INVOLVEMENT_NOT_SETTLED', `${what} must leave involvement unsettled; got ${JSON.stringify(refusal)}`)
+        assert.equal((refusal as any).role, roleRow.role)
     }
 
     /**

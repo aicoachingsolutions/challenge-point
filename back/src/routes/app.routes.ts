@@ -1565,8 +1565,10 @@ export default router
  * leave the frozen generation pathway untouched, and remain limited to this pilot activity"*.
  *
  * So: one GET, no body, no parameters that change the game, nothing written. The pipeline is the one
- * `buildPilotActivity` holds, which the pilot script also calls — one implementation, so what is
- * served is what was validated. Generation is not reached from here.
+ * `buildPilotActivity` calls, which the pilot script also calls — one implementation, so what is
+ * served is what was validated. (Since 13 October that implementation is `buildActivity`, shared with the
+ * activity review below; `buildPilotActivity` fixes the goal and the session and adds nothing to it.)
+ * Generation is not reached from here.
  *
  * **It refuses rather than degrades.** `buildPilotActivity` returns a refusal if anything in the chain
  * fails to authorize, fails acceptance, fails a post-realization gate, or renders with a fidelity
@@ -1577,6 +1579,10 @@ export default router
  * The session is fixed rather than taken from the request. The envelope is session input and a coach
  * will want to vary it, but varying it from a query string would mean serving games this route had not
  * validated, so it stays fixed for the pilot and the variation question waits for field evidence.
+ *
+ * **That question was answered on 13 October for the activity review, and not for this route.** The review
+ * below takes a coach's own session because it validates every response when it is asked for. This route
+ * is unchanged: one activity, one session, nothing read from the request.
  */
 router.get(ROUTES.pilotActivity, async (_req: Request, res: Response) => {
     try {

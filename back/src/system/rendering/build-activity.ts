@@ -38,13 +38,14 @@ import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame } from '../derivation/resolved-game'
 import { BoundedSelection, contractCoverage, derivationInputFor, KnowledgeSelection, selectFor } from '../derivation/run-bounded-selection'
+import { LoadedContract } from '../derivation/types'
 import { gpLibrary } from '../knowledge-core/gp-library'
 import { completeConcreteGame, rosterRefusal, RosterRefusal } from '../realization/assemble-concrete-game'
 import { runPostRealizationGates } from '../realization/post-realization-gate'
 import { checkRealization, isRefused, realize, Realized } from '../realization/realize'
 import { isNoSuppliedRealization, suppliedRealizationFor } from '../realization/supplied-realization'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
-import { TEST_LIBRARY_V0_AFFORDANCE_LENSES, TEST_LIBRARY_V0_ARCHETYPES, TEST_LIBRARY_V0_CONSTRAINTS } from '../test-library'
+import { TEST_LIBRARY_V0_AFFORDANCE_LENSES, TEST_LIBRARY_V0_ARCHETYPES, TEST_LIBRARY_V0_CONSTRAINTS, TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS } from '../test-library'
 import { checkFidelity } from './fidelity'
 import { mechanismDemonstration } from './mechanism-demonstrations'
 import { RenderedActivity, renderConcreteGame } from './render-concrete-game'
@@ -161,6 +162,18 @@ function demonstrationSelection(selected: string[]): KnowledgeSelection {
 
 const LENS = 'affordance lens'
 
+/**
+ * A selected constraint's name, from whichever library holds it.
+ *
+ * The library keeps its entries in two lists — constraints, and the environmental manipulations that were
+ * split out of them — under one id scheme, and selection draws from both. This looked in the first only
+ * and fell back to the id, so the account named by a library id every constraint held in the second list.
+ * Measured in review on 13 October: that was at least one constraint of every one of the thirteen goals,
+ * and the only constraint of each mechanism demonstration.
+ */
+const constraintTitle = (id: string): string =>
+    String([...TEST_LIBRARY_V0_CONSTRAINTS, ...TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS].find(entry => entry.id === id)?.title ?? id)
+
 /** The selection account, as far as the selection alone establishes it. */
 function accountOf(selection: KnowledgeSelection, goal: BoundedSelection | null): Partial<ActivityAccount> {
     const contracted = new Set(selection.contracted)
@@ -182,7 +195,7 @@ function accountOf(selection: KnowledgeSelection, goal: BoundedSelection | null)
             .map(entry => String(TEST_LIBRARY_V0_AFFORDANCE_LENSES.find(lens => lens.id === entry.id)?.title ?? entry.id)),
         constraints: constraints.map(entry => ({
             id: entry.id,
-            title: String(TEST_LIBRARY_V0_CONSTRAINTS.find(constraint => constraint.id === entry.id)?.title ?? entry.id),
+            title: constraintTitle(entry.id),
             contracted: contracted.has(entry.id),
         })),
         selectedWithoutContract: [...selection.missing],
@@ -204,7 +217,7 @@ function accountOf(selection: KnowledgeSelection, goal: BoundedSelection | null)
 function rosterSummary(roster: RosterRefusal): { stage: ActivityStage; summary: string } | null {
     switch (roster.cause) {
         case 'DOES_NOT_DIVIDE':
-            return { stage: 'session', summary: `${roster.players} players cannot be split into the equal teams this game needs.` }
+            return { stage: 'session', summary: `${roster.players} player${roster.players === 1 ? '' : 's'} cannot be split into the equal teams this game needs.` }
         case 'AVAILABILITY_SHORT':
             return {
                 stage: 'session',
@@ -239,6 +252,31 @@ export function buildActivity(request: ActivityRequest): ServedActivity | Refuse
 }
 
 export function buildActivityWithSelection(request: ActivityRequest): ActivityBuild {
+    return build(request, null)
+}
+
+/**
+ * **For tests, and for nothing that serves a coach.** The identical pathway, run over a COPY of the selected
+ * contracts that the caller has altered first.
+ *
+ * It exists because some of what this pathway must do cannot be shown on the corpus as it stands. No
+ * selected game form involves a specialized role today, so the roster rule's whole positive half — a team
+ * that HOLDS one, a session that cannot staff it, the sentence a coach is given for each — is unreachable
+ * through any goal or demonstration. The first version of the repair was tested only by writing the count
+ * straight onto a realized team, and it passed while no authored count could reach a team at all. The other
+ * way to test it is a second copy of this chain inside a test, which is the fork this module exists to
+ * prevent. So the chain is lent out instead, whole.
+ *
+ * **It is a separate function so that the two entry points above CANNOT alter knowledge**: neither takes the
+ * argument, and the review and the pilot call only those. His rule of 13 October is that learning-design
+ * knowledge is never bent *"merely to make those demonstrations pass"*; nothing here is a way to serve an
+ * activity, and the copy is discarded with the call — the loader's shared contracts are never touched.
+ */
+export function buildActivityOverAlteredKnowledge(request: ActivityRequest, alter: (contracts: LoadedContract[]) => void): ServedActivity | RefusedActivity {
+    return build(request, alter).activity
+}
+
+function build(request: ActivityRequest, alter: ((contracts: LoadedContract[]) => void) | null): ActivityBuild {
     const { kind, title, subtitle } = describeRequest(request)
     // "This goal …" for a Learning Goal and "This demonstration …" for a demonstration: a demonstration is
     // never described to a coach as a goal, in a refusal any more than in a title.
@@ -293,6 +331,11 @@ export function buildActivityWithSelection(request: ActivityRequest): ActivityBu
     // came to inherit a statement about specialized roles that nobody had made for it.
     const session = request.session
     const input: any = { ...derivationInputFor(selection), envelope: { ...session, roles: { ...session.roles } } }
+    if (alter) {
+        // The loader returns SHARED contract objects, so the alteration is made to a copy and to nothing else.
+        input.contracts = JSON.parse(JSON.stringify(input.contracts))
+        alter(input.contracts)
+    }
 
     const result: any = runDerivation(input)
     if (isStampedHalt(result)) {
