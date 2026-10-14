@@ -18,7 +18,7 @@ const FIXTURE = path.resolve(__dirname, '../../../../docs/audits/a04-concrete-ga
 const fixture = JSON.parse(fs.readFileSync(FIXTURE, 'utf8'))
 
 const violations = (r: ReturnType<typeof checkFidelity>, q: number) => r.findings.filter(f => f.question === q && f.severity === 'VIOLATION')
-const wrap = (instructions: Instruction[]): RenderedActivity => ({ instructions, coachingObservations: [] })
+const wrap = (instructions: Instruction[]): RenderedActivity => ({ instructions, coachingObservations: [], withheld: [] })
 
 // ── The fixture is the one the closure run produced ──────────────────────────────────────────────
 assert.equal(fixture.closure.renderEligible, true, 'the fixture must be the render-eligible closure output')
@@ -1119,6 +1119,93 @@ for (const observation of rendered.coachingObservations) {
         specimenRendered.instructions.some((i: any) => /perceptual reference/.test(i.text)),
         'and the rendering carries it',
     )
+}
+
+/**
+ * ── THE VALUE-MODIFIER BRANCH IS GENERIC — over altered copies of the specimen (14 October 2026) ──
+ *
+ * Step 4, component 3, which he approved that day: *"Enable accurate coach-facing communication of scoring
+ * conditions and information rules, using approved language."* The branch was shaped to the one Wide Zone
+ * modifier: the noun fell back to the word "region", only MULTIPLY was worded, one fixed criterion sentence was
+ * said for ANY criterion, and "the ball" was written in with no object cited. Each case below is a copy of the
+ * specimen with one field changed. What the specimen itself says is unchanged (pinned above and by the
+ * scoring-modifier demonstration in `activity-review.unit.ts`, still 22 instructions and 0 violations).
+ */
+{
+    const altered = (change: (modifier: any, game: any) => void) => {
+        const copy = JSON.parse(JSON.stringify(specimen))
+        change(copy.game.value.valueModifiers[0], copy.game)
+        const out = renderConcreteGame(copy)
+        return { copy, out, report: checkFidelity(copy, out) }
+    }
+    const base = `value.valueModifiers[${specimen.game.value.valueModifiers[0].elementId}]`
+    const worth = (out: RenderedActivity) => out.instructions.filter(i => /that same score is worth/.test(i.text))
+
+    // The specimen: nothing withheld, and the criterion and the termination now cite the object they name.
+    assert.deepEqual(specimenRendered.withheld, [])
+    const carrierPath = `objects[${specimen.game.objects[0].elementId}].kind`
+    for (const suffix of ['.condition.value', '.endsOn']) {
+        const said = specimenRendered.instructions.find(i => i.from.includes(`${base}${suffix}`))!
+        assert.ok(said.from.includes(carrierPath), `${suffix}: the object it names is cited (SD-103) — ${JSON.stringify(said.from)}`)
+    }
+
+    // ADD and REPLACE are worded by SD-30's own arithmetic, and the check admits the number for that reason.
+    for (const [operation, magnitude, expected] of [['ADD', 2, 3], ['REPLACE', 5, 5], ['MULTIPLY', 3, 3]] as const) {
+        const { out, report: checked } = altered(modifier => Object.assign(modifier, { operation, magnitude }))
+        assert.deepEqual(worth(out).map(i => [i.text, i.quantities]), [[`When the channel condition is met, that same score is worth ${expected} instead of 1`, [expected, 1]]], operation)
+        // The retired specimen carries two violations of its own (a channel minimum it predates); the altered
+        // copy has exactly those and nothing more — in particular no Q2, so the effective value is admitted.
+        assert.deepEqual(checked.findings.filter(f => f.severity === 'VIOLATION'), specimenReport.findings.filter(f => f.severity === 'VIOLATION'), `${operation}: nothing invented`)
+        assert.deepEqual(out.withheld, [])
+    }
+    // ...and ONLY where the instruction cites the operation, the magnitude and the base: drop one citation and
+    // the 3 under ADD 2 is a number the game holds nowhere.
+    {
+        const { copy, out } = altered(modifier => Object.assign(modifier, { operation: 'ADD', magnitude: 2 }))
+        const said = worth(out)[0]
+        said.from = said.from.filter(p => !p.endsWith('.operation'))
+        const unjustified = checkFidelity(copy, out).findings.filter(f => f.question === 2 && f.severity === 'VIOLATION')
+        assert.ok(unjustified.some(f => f.what.includes('3')), JSON.stringify(unjustified))
+    }
+
+    // An operation SD-30 does not support is withheld — never worded as a multiplication.
+    {
+        const { out } = altered(modifier => Object.assign(modifier, { operation: 'POWER' }))
+        assert.deepEqual(worth(out), [])
+        assert.deepEqual(out.withheld.map(w => [w.path, w.row]), [[`${base}.operation`, 'V9a'], [`${base}.magnitude`, 'V9']])
+    }
+    // A criterion the code map does not hold EXACTLY is withheld; the fixed sentence is not said for it.
+    {
+        const { out } = altered(modifier => (modifier.condition.value = 'a criterion nobody has worded'))
+        assert.ok(!out.instructions.some(i => /It is met when/.test(i.text)))
+        assert.deepEqual(out.withheld.map(w => [w.path, w.row]), [[`${base}.condition.value`, 'V8c']])
+    }
+    // A termination with no wording is withheld (it was only an observation until 14 October).
+    {
+        const { out } = altered(modifier => (modifier.endsOn = 'OUT_END_LINE'))
+        assert.ok(!out.instructions.some(i => /stays live/.test(i.text)))
+        assert.deepEqual(out.withheld.map(w => [w.path, w.row]), [[`${base}.endsOn`, 'V8d']])
+    }
+    // Without an object, the sentences that name one are withheld rather than naming one the game does not hold.
+    {
+        const { out } = altered((_, game) => (game.objects = []))
+        assert.deepEqual(out.withheld.map(w => w.row), ['V8c', 'V8d'])
+    }
+    // A referent that names no region is withheld — never called a "region".
+    {
+        const { out } = altered(modifier => (modifier.condition.referents = [{ structuralRef: { contractId: 'restated:WIDE-ZONE-ADVANTAGE', itemId: 'NO-SUCH-REGION' } }]))
+        assert.ok(!out.instructions.some(i => /\bregion\b/.test(i.text)), JSON.stringify(out.instructions.map(i => i.text)))
+        assert.deepEqual(out.withheld.map(w => w.row), ['V9a', 'V9', 'V8a', 'V8b'])
+    }
+    // Two referents of different kinds share no noun, so neither is said as the other.
+    {
+        const { out } = altered((modifier, game) => {
+            const line = game.space.regions.find((r: any) => r.noun === 'line')
+            const [contractId, itemId] = [line.elementId.split(':').slice(1, -1).join(':'), line.elementId.split(':').pop()]
+            modifier.condition.referents = [modifier.condition.referents[0], { structuralRef: { contractId, itemId } }]
+        })
+        assert.deepEqual(out.withheld.map(w => w.row), ['V9a', 'V9', 'V8a', 'V8b'])
+    }
 }
 
 console.log('rendering.unit.ts — ok')

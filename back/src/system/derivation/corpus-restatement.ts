@@ -17,6 +17,10 @@
  *   - `items` — per-item restatements, each naming its ruling.
  *   - `added` — items a ruling adds, each carrying its own source and entailment.
  *   - `declarationScope` — the declaration-scope restatement.
+ *   - `declarations` — declarations whose KIND a ruling changes (added 14 October 2026, ruling C45). A
+ *     declaration that CLAIMS a row on the strength of items a ruling removed would go on asserting what nobody
+ *     now authors, so the ruling that removes the items restates the claim beside them. Applied per contract and
+ *     row, only from the kind named, counted on their own, and never silent when the declaration is not found.
  */
 
 import fs from 'node:fs'
@@ -57,11 +61,22 @@ export interface ForbiddenCardinality {
     value: number
 }
 
+/** A declaration whose kind a ruling changes: on one contract and row, from exactly the kind named. */
+export interface DeclarationRestatement {
+    contractId: string
+    row: string
+    from: string
+    to: string
+    ruling: string
+    why: string
+}
+
 interface RestatementData {
     noRow: string[]
     items: ItemRestatement[]
     added: { contractId: string; after: string; ruling: string; item: Record<string, unknown>; why: string }[]
     declarationScope: { contractId: string; ruling: string; onlyDeclaration: string; from: string; to: string; why: string }
+    declarations?: DeclarationRestatement[]
 }
 
 const DATA: RestatementData = JSON.parse(
@@ -72,6 +87,7 @@ export const NO_ROW_RESTATEMENTS: ReadonlySet<string> = new Set(DATA.noRow)
 export const ITEM_RESTATEMENTS: ItemRestatement[] = DATA.items
 export const ADDED_ITEMS = DATA.added
 export const DECLARATION_SCOPE_RESTATEMENT = DATA.declarationScope
+export const DECLARATION_RESTATEMENTS: DeclarationRestatement[] = DATA.declarations ?? []
 
 export interface RestatementTally {
     /** Items rewritten to the NO_ROW sentinel. */
@@ -82,6 +98,8 @@ export interface RestatementTally {
     itemsRemoved: number
     itemsAdded: number
     declarationScopes: number
+    /** Declarations whose kind a ruling changed — tallied apart from scopes, which is a different change. */
+    declarationsRestated: number
     /** Anything named in a ruling that could not be found — never silent. */
     notFound: string[]
 }
@@ -107,6 +125,7 @@ export function applyNoRowRestatement(contracts: LoadedContract[], tally: Restat
     tally.itemsRemoved = 0
     tally.itemsAdded = 0
     tally.declarationScopes = 0
+    tally.declarationsRestated = 0
     tally.notFound = []
 
     // An item can carry more than one ruling — A01-02-05.a carries SD-87's selector and SD-88's
@@ -175,8 +194,23 @@ export function applyNoRowRestatement(contracts: LoadedContract[], tally: Restat
             })
         }
 
+        // Declarations whose kind a ruling changes — after the scope restatement, so neither counts the other.
+        for (const restatement of DECLARATION_RESTATEMENTS) {
+            if (restatement.contractId !== contract.contractId) continue
+            const at = declarations.findIndex((declaration: any) => String(declaration.row) === restatement.row && declaration.declaration === restatement.from)
+            if (at === -1) {
+                tally.notFound.push(`${restatement.contractId} declaration ${restatement.from} on ${restatement.row} (${restatement.ruling})`)
+                continue
+            }
+            declarations = declarations.map((declaration: any, i: number) => (i === at ? { ...declaration, declaration: restatement.to } : declaration))
+            tally.declarationsRestated++
+        }
+
         return { ...contract, items, declarations }
     })
+    for (const restatement of DECLARATION_RESTATEMENTS) {
+        if (!result.some(contract => contract.contractId === restatement.contractId)) tally.notFound.push(`${restatement.contractId} (declaration restatement ${restatement.ruling})`)
+    }
 
     for (const key of [...NO_ROW_RESTATEMENTS, ...byKey.keys()]) if (!seen.has(key)) tally.notFound.push(key)
     return result

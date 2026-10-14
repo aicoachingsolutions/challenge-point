@@ -51,6 +51,8 @@ async function preBuildOperations() {
             `${stageB}/corpus-restatements.json`,
             ...sportProfiles.map((name) => `${stageB}/${name}`),
             choicesIndex,
+            // Step 4 component 3 (14 October 2026): the coach wording he has approved, read at runtime by the renderer.
+            'approved-coach-wording.json',
             ...new Set(['a04-realization-choices.json', ...choicesFiles]),
         ]
         for (const file of knowledgeFiles) {

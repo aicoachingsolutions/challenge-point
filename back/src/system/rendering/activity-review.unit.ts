@@ -30,6 +30,7 @@ import { buildPilotActivity, isPilotRefused, PILOT_SESSION } from './build-pilot
 import { MECHANISM_DEMONSTRATIONS } from './mechanism-demonstrations'
 import { sessionEnvelopeFrom, specializedRoleNames } from './session-envelope'
 import { rpcLibrary } from '../sport-module/rpc-library'
+import { learningGoalSelectionHolds } from '../test-library/learning-design-holds'
 
 const ROLES = specializedRoleNames()
 assert.ok(ROLES.length > 0, 'the register must name a specialized role, or the availability question has no subject')
@@ -462,6 +463,30 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
     assert.ok(text(modifier, 'How to score').some(t => /worth 2 instead of 1/.test(t)), 'and the mechanism it demonstrates is in the activity')
 
     /**
+     * **Nothing is withheld from it, and a criterion with no wording REFUSES it — 14 October 2026** (Step 4,
+     * component 3). The demonstration holds no primary-event condition and no information rule (Wide Zone's
+     * information rule is assumed and never enters the game), so its served text is unchanged. Over a copy whose
+     * criterion is any other value, the fixed criterion sentence is no longer said for it: the field is withheld
+     * and the activity refused in the coach's terms, naming the path in the technical account.
+     */
+    assert.deepEqual(modifier.rendered.withheld, [])
+    {
+        const differentCriterion = (contracts: any[]) => {
+            const item = contracts.flatMap(c => c.items ?? []).find((i: any) => i.itemId === 'WIDEZONE-18.d')
+            assert.ok(item, 'the Wide Zone criterion is in the selected contracts')
+            item.value = 'a criterion nobody has worded (a test device)'
+        }
+        const waiting = refused(
+            buildActivityOverAlteredKnowledge({ kind: 'mechanism-demonstration', demonstrationId: 'scoring-modifier', session: { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: none } }, differentCriterion),
+            'the scoring-modifier demonstration with an unworded criterion',
+        )
+        assert.equal(waiting.stage, 'communication', JSON.stringify(waiting.reasons))
+        assert.equal(waiting.summary, 'Part of this activity is still waiting for approved coach wording, so it is not being shown.')
+        plain(waiting, 'awaiting wording')
+        assert.ok(waiting.reasons.some(reason => reason.startsWith('awaiting approved wording: value.valueModifiers[') && reason.endsWith('.condition.value (V8c)')), JSON.stringify(waiting.reasons))
+    }
+
+    /**
      * **SERVED AT EVERY SIZE, with the whole authored range said — pinned 13 October 2026.**
      *
      * Before this it was served at 40 × 30 and REFUSED at 30 × 25 and at 20 × 15, at the communication
@@ -656,6 +681,7 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         assert.equal(neutrals.rendered.instructions.length, 18, `${players} players`)
         assert.equal(a04.rendered.instructions.length, 12)
         assert.equal(neutrals.integrity.fidelityViolations, 0)
+        assert.deepEqual(neutrals.rendered.withheld, [], 'no condition or information rule in it, so nothing awaits wording (14 October)')
         assert.equal(neutrals.integrity.postRealizationValidated, true)
         assert.deepEqual(neutrals.integrity.acceptance, { nothingClosedWithoutAuthority: [], nothingLost: [], nothingInvented: [] })
         assert.deepEqual(text(neutrals, 'Players'), expectedPlayers, `${players} players`)
@@ -839,6 +865,73 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         assert.deepEqual(onRow.map(item => item.value), ['STANDING', 'STANDING'])
     }
 
+    /**
+     * **THE PASS COMBINATION GATE, as a mechanism demonstration only — added 14 October 2026 (Step 4, S4b).**
+     *
+     * Christian that day: *"Please keep the current Pass Combination Gate as a mechanism demonstration only. I do
+     * not want it reintroduced into learning-design examples until we've reviewed its ecological suitability."*
+     * With his three answers in its knowledge (C44-C46), it is REFUSED at `structure`, and that is the measured,
+     * honest state: removing "in their half" leaves the condition naming no place, and the possession game's
+     * general "the qualifying condition must come from elsewhere" makes that line a declared gap. What moves it
+     * is his precedence decision (OD1) and then approved wording for the condition and the counting rule — not
+     * anything this test or the engine supplies.
+     */
+    {
+        const gate = refused(reviewActivity(stored(), { demonstrationId: 'pass-combination-gate', durationMin: 20 }), 'the pass-combination-gate demonstration')
+        assert.equal(gate.kind, 'mechanism-demonstration')
+        assert.equal(gate.title, 'Pass Combination Gate')
+        assert.equal(gate.stage, 'structure', JSON.stringify(gate.reasons))
+        assert.equal(gate.summary, 'The game this demonstration selects is not yet described completely enough to be set up.')
+        plain(gate, 'the gate demonstration')
+        assert.deepEqual(gate.reasons, [
+            'Gate A is FAIL',
+            'a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE',
+            '1 unresolved property is neither an authorized choice nor an authorized claim: c:blind:PASS-COMBINATION-GATE:PCG-02::V5',
+        ])
+        assert.equal(gate.account.gameProblem, null, 'no Learning Goal, so no Game Problem')
+        assert.deepEqual(gate.account.constraints!.map(c => [c.title, c.contracted]), [['Pass Combination Gate', true]])
+        const offered = activityReviewOptions().demonstrations.find(d => d.id === 'pass-combination-gate')!
+        assert.ok(offered.statement.includes('Not a Learning Goal activity, and not approved for learning-design use'), 'and it says so wherever it is shown')
+
+        // The hold names the demonstration that keeps the gate usable, and that demonstration exists.
+        for (const hold of learningGoalSelectionHolds()) assert.ok(MECHANISM_DEMONSTRATIONS.some(d => d.id === hold.mechanismDemonstration), hold.mechanismDemonstration)
+
+        /**
+         * **Past the place, the chain runs to the end — over a TEST-ONLY copy.** With the possession game's general
+         * V5 NOT_AUTHORED dropped (a simulation of one possible OD1 answer, stated as such; nothing authored
+         * changes), the condition's line is an established absence. Gate A then defers, the game realizes, and
+         * post-realization VALIDATES — which it could not before component 1: an established absence blocked the
+         * position clause. It stops at communication on exactly the nine fields that await approved wording: the
+         * condition's type and value, and the counting rule's subject, trigger and five dimensions.
+         */
+        const pastThePlace = refused(
+            buildActivityOverAlteredKnowledge({ kind: 'mechanism-demonstration', demonstrationId: 'pass-combination-gate', session: { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: none } }, contracts => {
+                const gf2: any = contracts.find(c => c.contractId === 'restated:GF2')
+                gf2.declarations = gf2.declarations.filter((d: any) => !(d.row === 'V5' && d.declaration === 'NOT_AUTHORED'))
+            }),
+            'the gate demonstration with its condition naming no place',
+        )
+        assert.equal(pastThePlace.stage, 'communication', JSON.stringify(pastThePlace.reasons))
+        assert.equal(pastThePlace.summary, 'Part of this activity is still waiting for approved coach wording, so it is not being shown.')
+        const condition = 'value.primaryEvent.conditions[c:blind:PASS-COMBINATION-GATE:PCG-02]'
+        const rule = 'value.informationRules[c:blind:PASS-COMBINATION-GATE:PCG-10]'
+        assert.deepEqual(
+            pastThePlace.reasons.filter(reason => reason.startsWith('awaiting approved wording: ')),
+            [
+                `${condition}.type (V4)`,
+                `${condition}.value (V6)`,
+                `${rule}.subject (V16)`,
+                `${rule}.trigger (V17)`,
+                `${rule}.dimensions.D006_triggerType (V18)`,
+                `${rule}.dimensions.D007_revealTiming (V19)`,
+                `${rule}.dimensions.D008_revealProgression (V20)`,
+                `${rule}.dimensions.D011_stateDependency (V21)`,
+                `${rule}.dimensions.D013_accessHolder (V22)`,
+            ].map(path => `awaiting approved wording: ${path}`),
+        )
+        assert.ok(!pastThePlace.reasons.some(reason => reason.includes('post-realization')), 'post-realization validated')
+    }
+
     // A demonstration is never described to a coach as a goal — in a refusal any more than in a title.
     const none9 = refused(reviewActivity(stored({ playerCount: 9 }), { demonstrationId: 'scoring-modifier', durationMin: 20 }), 'the demonstration with 9 players')
     assert.equal(none9.summary, '9 players cannot be split into the equal teams this game needs.')
@@ -945,6 +1038,33 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
     assert.equal(ta02.account.gameProblem?.status, 'APPROVED')
     assert.equal(ta02.account.provisional, false, 'an approved Game Problem is not provisional')
     assert.equal(ta02.account.provisionalReason, null)
+}
+
+/**
+ * ── A HELD object never reaches a Learning Goal's activity — the guard, over an altered selection ──
+ *
+ * Christian, 14 October 2026: *"Please keep the current Pass Combination Gate as a mechanism demonstration only"*,
+ * and of his answers about its knowledge, *"This does not approve the gate for use with any Learning Goal."*
+ * Selection already holds the gate out of every goal's pool, so no goal reaches the builder's guard today. Here
+ * each of the three goals whose candidates name it has its real selection taken and the gate put back ON A COPY
+ * (the tests-only entry) — the state a later selection change could produce. The builder refuses each at
+ * `knowledge`, before derivation, whether or not the gate's own knowledge would pass its gates: the guard reads
+ * the holds file, not a gate verdict, and lands before his answers change the gate's knowledge (Step 4, S0).
+ */
+{
+    const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: none }
+    const GATE_ID = 'tl-v0-constraint-pass-combination-gate'
+    const withTheGate = (selection: any) => {
+        selection.selected = [...selection.selected, { id: GATE_ID, role: 'constraint' }]
+    }
+    for (const goalId of ['A01', 'A05', 'TA02']) {
+        const held = refused(buildActivityOverAlteredSelection({ kind: 'learning-goal', goalId, session }, withTheGate), `${goalId} with the held gate put back`)
+        assert.equal(held.stage, 'knowledge', `${goalId}: ${JSON.stringify(held.reasons)}`)
+        assert.equal(held.summary, 'This goal selects a rule that has not been approved for learning-design activities yet.')
+        plain(held, `${goalId} held`)
+        assert.deepEqual(held.reasons, [`${GATE_ID} is held out of Learning Goal activities by ruling of 2026-10-14: a mechanism demonstration only (pass-combination-gate)`])
+        assert.equal(held.account.gameForm!.contracted, true, 'a hold refusal is at knowledge with the game form built — not the game-form refusal')
+    }
 }
 
 /**

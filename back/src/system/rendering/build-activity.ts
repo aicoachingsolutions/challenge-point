@@ -49,6 +49,7 @@ import { sessionPlanningModel } from '../session-planning/session-planning-model
 import { rpcLibrary } from '../sport-module/rpc-library'
 import { TEST_LIBRARY_V0_AFFORDANCE_LENSES, TEST_LIBRARY_V0_ARCHETYPES, TEST_LIBRARY_V0_CONSTRAINTS, TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS } from '../test-library'
 import type { SelectionKnowledgeGapReason } from '../test-library/generateSelection'
+import { heldForLearningGoal } from '../test-library/learning-design-holds'
 import type { ConstraintPoolAccount } from '../test-library/types'
 import { contextScoringFindings } from './context-scoring-guard'
 import { checkFidelity } from './fidelity'
@@ -559,6 +560,31 @@ function build(
     }
 
     /**
+     * **A held object never reaches a Learning Goal's activity — made structural, not left to selection.**
+     * Christian, 14 October 2026: *"Please keep the current Pass Combination Gate as a mechanism demonstration
+     * only. I do not want it reintroduced into learning-design examples until we've reviewed its ecological
+     * suitability"* — and of his answers about the gate's knowledge, *"This does not approve the gate for use
+     * with any Learning Goal."*
+     *
+     * Selection already leaves a held object out of every goal's pool (`constraintPoolFor`). This is the belt
+     * beside those braces, read from the SAME holds file, so the two can never disagree about what is held:
+     * his answers change the gate's knowledge, and once that knowledge can pass its gates nothing else would
+     * stop a goal's activity carrying it. Demonstrations are untouched — that is where a held object stays
+     * usable — and so is every candidate pool.
+     */
+    if (kind === 'learning-goal') {
+        const held = selection.selected.filter(entry => heldForLearningGoal(entry.id))
+        if (held.length) {
+            return refuse('knowledge', 'This goal selects a rule that has not been approved for learning-design activities yet.', [
+                ...held.map(entry => {
+                    const hold = heldForLearningGoal(entry.id)!
+                    return `${entry.id} is held out of Learning Goal activities by ruling of ${hold.ruledOn}: a mechanism demonstration only (${hold.mechanismDemonstration})`
+                }),
+            ])
+        }
+    }
+
+    /**
      * **A goal whose context has no contract is refused HERE, before derivation.** Christian, 14 October
      * 2026: *"the Primary Scoring Event and qualifying condition approved for each Representative Performance
      * Context should govern the generated activity … an activity intended to develop defensive organization
@@ -712,6 +738,19 @@ function build(
     const rendered = renderConcreteGame(fixture)
     const report = checkFidelity(fixture, rendered)
     const violations = report.findings.filter((f: any) => f.severity === 'VIOLATION')
+    /**
+     * **Part of the game has no approved wording yet, so the activity is not shown** — chosen from the
+     * renderer's typed `withheld` list, never from the fidelity text (which reports the same fields as
+     * uncarried, and travels in the reasons beside them). Christian, 14 October 2026: *"Enable accurate
+     * coach-facing communication of scoring conditions and information rules, using approved language."* A
+     * rule of the game said in words nobody approved would be a rule on the renderer's authority.
+     */
+    if (rendered.withheld.length) {
+        return refuse('communication', 'Part of this activity is still waiting for approved coach wording, so it is not being shown.', [
+            ...rendered.withheld.map(field => `awaiting approved wording: ${field.path} (${field.row})`),
+            ...violations.map((v: any) => `fidelity Q${v.question}: ${v.what}`),
+        ])
+    }
     if (violations.length) {
         return refuse(
             'communication',

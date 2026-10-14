@@ -15,7 +15,10 @@ import { RegisterIndex } from './register'
 import { reaches, Reach } from './reach'
 import { parseSelector, selectorApplies } from './selector'
 import { ApplicationSet, DeclarationReach } from './scope'
-import { Bounds, ElementClass, ItemRef, LoadedContract, NamedDiagnostic, ResolutionLine, SupportRef } from './types'
+import { Bounds, ElementClass, ItemRef, LoadedContract, NamedDiagnostic, ResolutionLine, structuralRefOf, SupportRef } from './types'
+
+/** How a contribution reads against a class's constitutive selector (SD-101). */
+type Comparison = 'STANDS' | 'CONTRADICTS' | 'NOT_COMPARED'
 
 export interface DerivedLine {
     lineId: string
@@ -251,6 +254,38 @@ function applyConstitutiveSelector(
 ): void {
     const byClass = new Map(classes.map(c => [c.classId, c]))
 
+    /**
+     * **A typed value is compared by class identity — 14 October 2026**, Step 4 component 1, which he approved
+     * that day (*"Correct the two reference/condition faults"*). Before, a typed reference was never a string,
+     * so it could contradict nothing under `=` and `IN` and stood by accident; under `∋` it was compared as
+     * `"[object Object]"`. Now:
+     *
+     *   - against a selector value that IS a held class id, it contradicts exactly when it resolves to a
+     *     different class (the class it names is the one whose establishing item it cites, `fromItem`);
+     *   - against open text it is NOT compared. SD-63: open text establishes no identity, so it can establish
+     *     neither agreement nor contradiction. The contribution stands (SD-92) and a diagnostic says so —
+     *     reported, never silently decided either way. The same holds for a typed reference that resolves to
+     *     no class: nothing establishes what it is to compare.
+     *
+     * A plain string keeps exactly today's reading.
+     */
+    const classOfRef = (value: unknown): ElementClass | undefined => {
+        const ref = structuralRefOf(value)
+        return ref ? classes.find(c => c.fromItem.contractId === ref.contractId && c.fromItem.itemId === ref.itemId) : undefined
+    }
+    const typedAgainst = (value: unknown, allowed: string[]): Comparison => {
+        const cls = classOfRef(value)
+        if (!cls || !allowed.every(id => byClass.has(id))) return 'NOT_COMPARED'
+        return allowed.includes(cls.classId) ? 'STANDS' : 'CONTRADICTS'
+    }
+    const containsReading = (members: unknown[], wanted: string): Comparison => {
+        if (members.some(m => !structuralRefOf(m) && String(m) === wanted)) return 'STANDS'
+        if (byClass.has(wanted) && members.some(m => classOfRef(m)?.classId === wanted)) return 'STANDS'
+        // A typed member that could not be compared leaves the set's agreement undecided.
+        const undecided = members.some(m => structuralRefOf(m) && (!byClass.has(wanted) || !classOfRef(m)))
+        return undecided ? 'NOT_COMPARED' : 'CONTRADICTS'
+    }
+
     for (const line of lines) {
         if (!line.elementId) continue
         const row = index.rows.get(line.row)
@@ -261,13 +296,25 @@ function applyConstitutiveSelector(
         if (!term) continue
 
         const record = derived.get(line.lineId)!
-        const contradicts = (value: unknown): boolean => {
-            if (term.op === '=') return typeof value === 'string' && value !== term.value
-            if (term.op === 'IN') return typeof value === 'string' && !term.values.includes(value)
+        const reading = (value: unknown): Comparison => {
+            if (term.op === '=') return structuralRefOf(value) ? typedAgainst(value, [term.value]) : typeof value === 'string' && value !== term.value ? 'CONTRADICTS' : 'STANDS'
+            if (term.op === 'IN') return structuralRefOf(value) ? typedAgainst(value, term.values) : typeof value === 'string' && !term.values.includes(value) ? 'CONTRADICTS' : 'STANDS'
             // A `∋` term says the set holds this member. Only an explicit set that leaves it out
             // contradicts it; anything else is not something this can decide.
-            if (term.op === 'CONTAINS') return Array.isArray(value) && !value.map(String).includes(term.value)
-            return false
+            if (term.op === 'CONTAINS') return Array.isArray(value) ? containsReading(value, term.value) : 'STANDS'
+            return 'STANDS'
+        }
+        const contradicts = (value: unknown): boolean => reading(value) === 'CONTRADICTS'
+
+        for (const entry of record.entailing.filter(e => reading(e.value) === 'NOT_COMPARED')) {
+            diagnostics.push({
+                code: 'CONSTITUTIVE_SELECTOR_NOT_COMPARED',
+                where: line.lineId,
+                detail:
+                    `${entry.item.contractId}::${entry.item.itemId} entails the typed reference ${JSON.stringify(entry.value)} on a property the class's own selector ` +
+                    `fixes as the open text ${JSON.stringify('value' in term ? term.value : term.values)}. Open text establishes no identity (SD-63), so it can establish ` +
+                    'neither agreement nor contradiction: the two are not compared and the contribution stands (SD-92).',
+            })
         }
 
         const offending = record.entailing.filter(e => contradicts(e.value))
@@ -470,7 +517,12 @@ export function entails(item: any): boolean {
  */
 function boundsOf(item: any, index?: RegisterIndex): Bounds {
     const preferred = item.valueStatus === 'PREFERRED_DEFAULT'
-    const status = item.strictness === 'EXCLUSION' ? { preferred, forbidden: true } : { preferred }
+    // **An assumed bound says so — 14 October 2026** (Step 4 component 2). An `ASSUMED` item is the restater's
+    // reading, not the author's words (§3: it bounds and never entails), so a consumer must be able to tell it
+    // from authored guidance before ever offering it to a coach as such. Present only where true, so every
+    // other bound reads exactly as it did.
+    const assumed = item.basis === 'ASSUMED' ? { assumed: true as const } : {}
+    const status = item.strictness === 'EXCLUSION' ? { preferred, forbidden: true, ...assumed } : { preferred, ...assumed }
     // **A value that IS a canonical relative term carries that term's bound.** The fractions live once,
     // in RC-21, and a contract item names the relation rather than restating a number — which is what
     // keeps a proportional rule from being copied into every object that uses it. The term is resolved

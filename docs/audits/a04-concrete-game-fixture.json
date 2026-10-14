@@ -352,7 +352,8 @@
         "{consecutive-pass count, keep-away, time-in-possession} (forbidden: retained possession alone as the scoring event)"
        ],
        "preferred": false,
-       "forbidden": true
+       "forbidden": true,
+       "assumed": true
       }
      ]
     },
@@ -395,7 +396,8 @@
        "members": [
         "extends across the axis: the target lies across the direction of progression"
        ],
-       "preferred": true
+       "preferred": true,
+       "assumed": true
       }
      ]
     },
@@ -417,7 +419,8 @@
        "members": [
         "extends across the axis: the target lies across the direction of progression"
        ],
-       "preferred": true
+       "preferred": true,
+       "assumed": true
       }
      ]
     },
@@ -498,7 +501,8 @@
       "itemId": "GF2-04",
       "relation": "ENTAILS"
      }
-    ]
+    ],
+    "strength": "REQUIRED"
    },
    {
     "path": "space.regions[c:restated:GF2:GF2-03.f].position.along",
@@ -512,7 +516,8 @@
       "itemId": "GF2-04",
       "relation": "ENTAILS"
      }
-    ]
+    ],
+    "strength": "REQUIRED"
    },
    {
     "path": "transitions[c:restated:GF2:GF2-07.a].playState",
@@ -526,7 +531,8 @@
       "itemId": "GF2-17",
       "relation": "ENTAILS"
      }
-    ]
+    ],
+    "strength": "DEFAULT"
    },
    {
     "path": "transitions[c:restated:GF2:GF2-07.a].startsEpisode",
@@ -538,7 +544,8 @@
       "kind": "STANDING_DECISION",
       "id": "SD-14"
      }
-    ]
+    ],
+    "strength": "REQUIRED"
    },
    {
     "path": "objectives[c:restated:GF2:GF2-08.c].reference",
@@ -558,7 +565,8 @@
       "itemId": "GF2-08.d",
       "relation": "ENTAILS"
      }
-    ]
+    ],
+    "strength": "REQUIRED"
    },
    {
     "path": "objectives[c:restated:GF2:GF2-08.c].team",
@@ -572,7 +580,8 @@
       "itemId": "GF2-08.c",
       "relation": "CARRIES"
      }
-    ]
+    ],
+    "strength": "REQUIRED"
    },
    {
     "path": "objectives[c:restated:GF2:GF2-08.c].role",
@@ -586,7 +595,8 @@
       "itemId": "GF2-08.c",
       "relation": "CARRIES"
      }
-    ]
+    ],
+    "strength": "REQUIRED"
    },
    {
     "path": "objectives[c:restated:GF2:GF2-08.e].reference",
@@ -606,7 +616,8 @@
       "itemId": "GF2-08.f",
       "relation": "ENTAILS"
      }
-    ]
+    ],
+    "strength": "REQUIRED"
    },
    {
     "path": "objectives[c:restated:GF2:GF2-08.e].team",
@@ -620,7 +631,8 @@
       "itemId": "GF2-08.e",
       "relation": "CARRIES"
      }
-    ]
+    ],
+    "strength": "REQUIRED"
    },
    {
     "path": "objectives[c:restated:GF2:GF2-08.e].role",
@@ -634,7 +646,8 @@
       "itemId": "GF2-08.e",
       "relation": "CARRIES"
      }
-    ]
+    ],
+    "strength": "REQUIRED"
    },
    {
     "path": "objects[c:sport-profile:soccer:SPORT-SOCCER-01].kind",
@@ -648,7 +661,8 @@
       "itemId": "SPORT-SOCCER-01",
       "relation": "CARRIES"
      }
-    ]
+    ],
+    "strength": "REQUIRED"
    },
    {
     "path": "envelope.players",
@@ -660,7 +674,8 @@
       "kind": "SESSION",
       "row": "E1"
      }
-    ]
+    ],
+    "strength": "REQUIRED"
    },
    {
     "path": "envelope.area.length_m",
@@ -672,7 +687,8 @@
       "kind": "SESSION",
       "row": "E2"
      }
-    ]
+    ],
+    "strength": "REQUIRED"
    },
    {
     "path": "envelope.area.width_m",
@@ -684,7 +700,8 @@
       "kind": "SESSION",
       "row": "E3"
      }
-    ]
+    ],
+    "strength": "REQUIRED"
    },
    {
     "path": "envelope.duration_min",
@@ -696,7 +713,8 @@
       "kind": "SESSION",
       "row": "E4"
      }
-    ]
+    ],
+    "strength": "REQUIRED"
    },
    {
     "path": "space.axis",
@@ -708,7 +726,8 @@
       "kind": "STANDING_DECISION",
       "id": "SD-11"
      }
-    ]
+    ],
+    "strength": "REQUIRED"
    },
    {
     "path": "value.primaryEvent.value",
@@ -720,7 +739,8 @@
       "kind": "STANDING_DECISION",
       "id": "SD-25"
      }
-    ]
+    ],
+    "strength": "REQUIRED"
    }
   ],
   "choices": [
@@ -775,7 +795,8 @@
         "{consecutive-pass count, keep-away, time-in-possession} (forbidden: retained possession alone as the scoring event)"
        ],
        "preferred": false,
-       "forbidden": true
+       "forbidden": true,
+       "assumed": true
       }
      ]
     },
@@ -818,7 +839,8 @@
        "members": [
         "extends across the axis: the target lies across the direction of progression"
        ],
-       "preferred": true
+       "preferred": true,
+       "assumed": true
       }
      ]
     },
@@ -840,7 +862,8 @@
        "members": [
         "extends across the axis: the target lies across the direction of progression"
        ],
-       "preferred": true
+       "preferred": true,
+       "assumed": true
       }
      ]
     },
@@ -976,7 +999,8 @@
       "members": [
        "the longer envelope dimension"
       ],
-      "preferred": true
+      "preferred": true,
+      "assumed": true
      }
     ]
    }

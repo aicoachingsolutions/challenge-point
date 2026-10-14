@@ -34,7 +34,7 @@ import { DerivedLine, resolvedValue } from './derive'
 import { ItemOutcome } from './forward'
 import { RegisterIndex } from './register'
 import { add, compare, Interval, lt, lte, Rational, toInterval, toRational, ZERO } from './rational'
-import { ElementClass, Envelope, FailureRecord, ItemRef, LoadedContract, RefusalRecord, ResolutionLine, SpecClause } from './types'
+import { ElementClass, Envelope, FailureRecord, ItemRef, LoadedContract, RefusalRecord, ResolutionLine, SpecClause, structuralRefOf } from './types'
 
 /**
  * `DEFERRED_TO_REALIZATION` is the clause verdict added on 30 September, and it is a different
@@ -161,7 +161,14 @@ type Cell =
     | { state: 'OPEN'; bounds: DerivedLine['bounding'] }
     | { state: 'FAILED' }
     | { state: 'CONDITIONAL' }
-    | { state: 'ABSENT' }
+    /**
+     * `established` separates the two absences a check meets, 14 October 2026 (Step 4, component 1, which he
+     * approved that day: *"Correct the two reference/condition faults"*). A line the knowledge EXCLUDED,
+     * declared it does not constrain, or SD-88 withdrew has no value because the question is settled; a line
+     * that does not exist at all is missing, and still blocks. Every reader that only asks for `ABSENT` reads
+     * both exactly as before — the flag is for the clause that has to tell them apart.
+     */
+    | { state: 'ABSENT'; established?: true }
 
 /**
  * One check's working state. Every line a check consults is recorded as a subject, so the report shows
@@ -186,7 +193,7 @@ class Probe {
             this.missing.push(lineId)
             return { state: 'ABSENT' }
         }
-        if (line.lineState === 'WITHDRAWN') return { state: 'ABSENT' }
+        if (line.lineState === 'WITHDRAWN') return { state: 'ABSENT', established: true }
         // **An established absence is an answer, not an obstruction** — his governing distinction of
         // 29 September, applied here as well as in GA-NO-FAILED-LINE. A row the knowledge EXCLUDED is
         // stated not to be part of this structure; a row it declared it does not constrain imposes no
@@ -194,7 +201,7 @@ class Probe {
         // that as "I cannot tell" reports itself unevaluable over a question that is in fact settled.
         // Only a required-but-unestablished line still blocks.
         if (line.verdict === 'NOT_AUTHORED' && (line.reason === 'excluded' || line.reason === 'not constrained')) {
-            return { state: 'ABSENT' }
+            return { state: 'ABSENT', established: true }
         }
         if (line.lineState === 'CONDITIONAL' && !line.verdict) {
             if (!this.blockedBy.includes(lineId)) this.blockedBy.push(lineId)
@@ -323,16 +330,37 @@ export interface StructuralRef {
     asAuthored?: string
 }
 
-function asStructuralRef(value: unknown): StructuralRef['structuralRef'] | null {
-    const ref = value && typeof value === 'object' ? (value as any).structuralRef : null
-    return ref && typeof ref.contractId === 'string' && typeof ref.itemId === 'string' ? ref : null
-}
+const asStructuralRef = (value: unknown): StructuralRef['structuralRef'] | null => structuralRefOf(value)
 
 /** The class a reference names, whether it was written as a typed reference or as a class id. */
 function referentClass(ctx: GateContext, value: unknown): ElementClass | undefined {
     const typed = asStructuralRef(value)
     if (typed) return ctx.classes.find(c => c.fromItem.contractId === typed.contractId && c.fromItem.itemId === typed.itemId)
     return ctx.classes.find(c => c.classId === String(value))
+}
+
+/**
+ * **Are two referents the same element class?** Step 4, component 1, which he approved on 14 October 2026:
+ * *"Correct the two reference/condition faults."* Four sites compared referents as `String(x)`, and a typed
+ * reference stringifies to `"[object Object]"`: two typed references always read as equal, and a typed one
+ * never equalled the class id it resolves to.
+ *
+ * Equal when both resolve to one held class — however each was written. Where either resolves to nothing,
+ * only two untyped strings with the same text are equal, which is exactly what `String()` compared before
+ * for the values that were strings; a typed reference that resolves to nothing is equal to nothing.
+ */
+function sameReferent(ctx: GateContext, a: unknown, b: unknown): boolean {
+    const left = referentClass(ctx, a)
+    const right = referentClass(ctx, b)
+    if (left && right) return left.classId === right.classId
+    if (asStructuralRef(a) || asStructuralRef(b)) return false
+    return String(a) === String(b)
+}
+
+/** A referent as a reason may print it: `contractId::itemId` for a typed reference, never `[object Object]`. */
+function describeReferent(value: unknown): string {
+    const typed = asStructuralRef(value)
+    return typed ? `${typed.contractId}::${typed.itemId}` : String(value)
 }
 
 function identityOf(ctx: GateContext, value: unknown): ReferenceIdentity {
@@ -815,7 +843,7 @@ function gaReferenceIntegrity(ctx: GateContext): CheckOutcome {
             if (typeof name === 'object' && (name as any).dynamic) continue // 'where the ball went out' — a token, not an element
             const identity = identityOf(ctx, name)
             if (identity === 'HELD') resolved++
-            else if (identity === 'DANGLING') dangling.push(`${line.lineId} → ${String(name)}`)
+            else if (identity === 'DANGLING') dangling.push(`${line.lineId} → ${describeReferent(name)}`)
             else {
                 // SD-57/SD-58: open text establishes no identity, so it establishes no violation either.
                 // The relationship is unestablished — a gap, naming the line — not a failed reference.
@@ -1414,7 +1442,9 @@ function gaEffectTyped(ctx: GateContext): CheckOutcome {
             probe.unestablished(lineOf(consequence.classId, referentRow)) // SD-63
         } else if (referent.state === 'DERIVED' && referentRow === 'V14b') {
             uniqueSeen++
-            const target = ctx.classes.find(c => c.classId === String(referent.value))
+            // By the referent's resolved class, typed or not (14 October 2026, component 1): a typed reference
+            // looked up as `String(value)` was "[object Object]" and failed as naming no held element.
+            const target = referentClass(ctx, referent.value)
             if (!target) uniqueProblems.push(`${consequence.classId}: region referent names no held element`)
             // "resolves to exactly one element": under SD-47 a referent names a class, and a class whose
             // cardinality admits more than one element does not resolve uniquely (V14b: "resolving
@@ -1479,35 +1509,57 @@ function gaOnePrimaryEvent(ctx: GateContext): CheckOutcome {
 
     // "every member of its reference has a space position" — each condition's referents must name a
     // held element that carries a derived position. Previously claimed and never examined.
+    //
+    // **Two corrections of 14 October 2026** — Step 4 component 1, which he approved that day (*"Correct the
+    // two reference/condition faults"*):
+    //
+    //   - **An established absence is an answer here too.** A condition whose referent line the knowledge
+    //     excluded or declared it does not constrain names no place: it is counted as such, and it is not a
+    //     block. Before, anything not DERIVED blocked, so a condition that legitimately names no place could
+    //     never be evaluated, before realization or after it. A missing line, or one that is a gap, still
+    //     blocks exactly as before.
+    //   - **Deferral needs a POSITION to be what is pending.** The clause deferred whenever the check had
+    //     anything pending at all, and in every case measured that was the open scoring kind (`game::V1`),
+    //     not a position — so a referent that was open text, which nothing realization does can resolve, read
+    //     as deferred before realization and unevaluable after it. Now it defers only where a referent's own
+    //     position line is open, and anything else that blocks is NOT_EVALUABLE. A tightening, not a relief.
     const positioned: string[] = []
     const unpositioned: string[] = []
-    let positionBlocked = false
+    let namesNoPlace = 0
+    let positionPending = false
+    let otherwiseBlocked = false
     for (const condition of classesOn(ctx, 'V3')) {
         const referents = probe.cell(lineOf(condition.classId, 'V5'))
+        if (referents.state === 'ABSENT' && referents.established) {
+            namesNoPlace++
+            continue
+        }
         if (referents.state !== 'DERIVED') {
-            positionBlocked = true
+            otherwiseBlocked = true
             continue
         }
         for (const name of Array.isArray(referents.value) ? referents.value : [referents.value]) {
             // SD-63 — open text establishes no identity, so it establishes no violation either.
             if (identityOf(ctx, name) === 'OPEN_TEXT') {
                 probe.unestablished(lineOf(condition.classId, 'V5'))
-                positionBlocked = true
+                otherwiseBlocked = true
                 continue
             }
-            const target = ctx.classes.find(c => c.classId === String(name))
+            // By resolved class, so a typed reference is looked up as what it names (component 1).
+            const target = referentClass(ctx, name)
             if (!target) {
-                unpositioned.push(`${String(name)} names no held element`)
+                unpositioned.push(`${describeReferent(name)} names no held element`)
                 continue
             }
             const rows = target.row === 'S2' ? ['S5', 'S6'] : target.row === 'O1' ? ['O4', 'O5'] : null
             if (!rows) {
-                unpositioned.push(`${String(name)} is not an element the space positions`)
+                unpositioned.push(`${describeReferent(name)} is not an element the space positions`)
                 continue
             }
             const cells = rows.map(r => probe.cell(lineOf(target.classId, r)))
-            if (cells.every(c => c.state === 'DERIVED')) positioned.push(String(name))
-            else positionBlocked = true
+            if (cells.every(c => c.state === 'DERIVED')) positioned.push(describeReferent(name))
+            else if (cells.every(c => c.state === 'DERIVED' || c.state === 'OPEN')) positionPending = true
+            else otherwiseBlocked = true
         }
     }
     // Post-realization **where position is the unresolved dependency** — his wording, and the condition
@@ -1516,17 +1568,18 @@ function gaOnePrimaryEvent(ctx: GateContext): CheckOutcome {
     // moves the clause downstream.
     const positionClause = unpositioned.length
         ? fail(POSITION, positioned.length + unpositioned.length)
-        : positionBlocked
-          ? probe.pendingOn.length
-              ? deferred(POSITION, 'the chosen position of every referent of the primary event')
-              : notEvaluable(POSITION)
-          : pass(POSITION, positioned.length)
+        : otherwiseBlocked
+          ? notEvaluable(POSITION)
+          : positionPending
+            ? deferred(POSITION, 'the chosen position of every referent of the primary event')
+            : pass(POSITION, positioned.length)
 
     return result(
         'GA-ONE-PRIMARY-EVENT',
         probe,
         [oneClause, valueClause, positionClause, outside(STATES)],
-        `${events.length || (entailedBySd06 ? 1 : 0)} primary event(s); ${positioned.length} positioned referent(s); ${unpositioned.length} unpositioned`,
+        `${events.length || (entailedBySd06 ? 1 : 0)} primary event(s); ${positioned.length} positioned referent(s); ${unpositioned.length} unpositioned` +
+            (namesNoPlace ? `; ${namesNoPlace} condition(s) name no place` : ''),
     )
 }
 
@@ -1723,7 +1776,7 @@ function gaObjectiveSets(ctx: GateContext): CheckOutcome {
                     continue
                 }
                 membersSeen++
-                if (identity === 'DANGLING') memberProblems.push(`${set.classId}: member ${String(member)} resolves to no held element`)
+                if (identity === 'DANGLING') memberProblems.push(`${set.classId}: member ${describeReferent(member)} resolves to no held element`)
             }
             if (minimum.state === 'DERIVED') {
                 minimumSeen++
@@ -1732,7 +1785,9 @@ function gaObjectiveSets(ctx: GateContext): CheckOutcome {
             }
             if (initial.state === 'DERIVED' && initial.value !== null) {
                 namedSeen++
-                if (!list.map(String).includes(String(initial.value))) namedProblems.push(`${set.classId}: the named initial member is not one of the members`)
+                // By referent identity (14 October 2026, component 1). `list.map(String)` made any two typed
+                // references equal — "[object Object]" both — and a typed member never equal to its class id.
+                if (!list.some(member => sameReferent(ctx, member, initial.value))) namedProblems.push(`${set.classId}: the named initial member is not one of the members`)
             }
         }
 

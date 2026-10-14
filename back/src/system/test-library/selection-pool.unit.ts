@@ -136,11 +136,12 @@ const outcomes = new Map(GOALS.map(id => [id, select(id)] as const))
         assert.equal(hold.by, 'Christian')
         assert.equal(hold.mechanismDemonstration, 'pass-combination-gate')
         /**
-         * **PINNED 14 October 2026 (stage S-A): the demonstration is named and does not exist yet.** It is
-         * added in stage S-B (brief B6, "Pass Combination Gate" as revised on 14 October). When it lands this
-         * assertion flips to `ok(...)`, and the hold then points at something a coach can open.
+         * **Flipped 14 October 2026 (stage S-B), as this pin said it would be.** Stage S-A named the demonstration
+         * before it existed; S-B added it ("Pass Combination Gate" as revised on 14 October), so the hold now
+         * points at something a coach can open — refused at structure, honestly, until his OD1 decision.
          */
-        assert.equal(mechanismDemonstration(hold.mechanismDemonstration), undefined, 'the gate demonstration arrives in stage S-B; flip this when it does')
+        assert.ok(mechanismDemonstration(hold.mechanismDemonstration), 'the hold names a demonstration that exists')
+        assert.deepEqual(mechanismDemonstration(hold.mechanismDemonstration)!.selected, ['GF2', hold.knowledgeId], 'and that demonstration is made of the held object')
     }
     // The hold is a copy: no caller edits the ruling in place.
     learningGoalSelectionHolds()[0].ruling = 'edited'

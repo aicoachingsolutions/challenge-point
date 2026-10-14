@@ -62,11 +62,15 @@ for (const [name, resolved] of [['possession + Wide Zone', wideZone], ['possessi
 // ── A preferred default is marked preferred on EVERY shape, not only the two that used to say ─────
 {
     // A SET: the target's across-extent and each channel's along-extent are assumed preferred defaults.
+    // **Both gained `assumed: true` on 14 October 2026** (Step 4 component 2, his "preserve whether each
+    // condition is required, preferred, advisory, or left to the coach"): each comes from an ASSUMED item
+    // (GF2-05.b, and the Wide Zone along-extent) — the restater's reading — and now says so, so it can never
+    // be offered to a coach as authored guidance.
     for (const lineId of ['c:restated:GF2:GF2-03.e::S6', 'c:restated:GF2:GF2-03.f::S6']) {
-        assert.deepEqual(openBounds(wideZone, lineId), [{ kind: 'SET', members: ['extends across the axis: the target lies across the direction of progression'], preferred: true }])
+        assert.deepEqual(openBounds(wideZone, lineId), [{ kind: 'SET', members: ['extends across the axis: the target lies across the direction of progression'], preferred: true, assumed: true }])
     }
     for (const lineId of ['c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-02.a::S5', 'c:restated:WIDE-ZONE-ADVANTAGE:WIDEZONE-03::S5']) {
-        assert.deepEqual(openBounds(wideZone, lineId), [{ kind: 'SET', members: ['the full axis extent, end line to end line'], preferred: true }])
+        assert.deepEqual(openBounds(wideZone, lineId), [{ kind: 'SET', members: ['the full axis extent, end line to end line'], preferred: true, assumed: true }])
     }
 
     // A typed count and a relative term already said; they still do, and a REQUIREMENT says false.
@@ -109,9 +113,10 @@ for (const [name, resolved] of [['possession + Wide Zone', wideZone], ['possessi
     const forbidden = (bounds: Bounds[]) => bounds.filter(b => b.forbidden)
 
     // Beside the scoring kind's permitted alternatives, on an OPEN line.
+    // `assumed: true` since 14 October 2026: the exclusion is an ASSUMED item, and says so (see above).
     const kind = openBounds(wideZone, 'game::V1')
     assert.deepEqual(kind, [
-        { kind: 'SET', members: ['{consecutive-pass count, keep-away, time-in-possession} (forbidden: retained possession alone as the scoring event)'], preferred: false, forbidden: true },
+        { kind: 'SET', members: ['{consecutive-pass count, keep-away, time-in-possession} (forbidden: retained possession alone as the scoring event)'], preferred: false, forbidden: true, assumed: true },
     ])
 
     // Beside a derived value: a function the channels may not have, and an objective reference they may not be.

@@ -302,7 +302,7 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
     assert.deepEqual(restatementTally.withheld, [], 'none was named but disqualified')
     assert.equal(
         restatementTally.itemsRestated,
-        42,
+        44,
         'six Phase A rulings, six sets (SD-79), two exclusion bounds (SD-86), eight goal-kick selectors (SD-87), one restart ownership (SD-89), ' +
             'one typed reference (SD-98), one Wide Zone gloss (C29a), one DISTINCT_ON mark (C29b/C29e), two typed neutral bounds (C29c), ' +
             'one typed channel width (C30b), one equal-outfield promotion (C31b), three Wide Zone lateral restatements (C33), ' +
@@ -311,12 +311,20 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
             "and ONE TYPED FORBIDDEN VALUE under the same SD-86 treatment (C40) — WIDEZONE-08.c's two wide channels, moved out of a prose value that the new forbidden-value check could not compare, which is what makes that exclusion violable at all — and two typed cardinalities under SD-86 — PCG-08's authored \"at least 2 teams\" (C37) and " +
             "RPC-001-14.a's authored \">=1\" (C38), both moved out of prose where the count reader could not see them, " +
             'and TWO SELECTOR SCOPINGS under ruling C42 of 9 October — GF2-12.a and GF2-08.b narrowed to the shared arrangement they were made ' +
-            'about, so the shared target is preserved and inert while the directional one is active',
+            'about, so the shared target is preserved and inert while the directional one is active — ' +
+            'and, from 44 on 14 October 2026, TWO of his answers about the Pass Combination Gate: PCG-11 typed to the gate’s own condition (C44, ' +
+            '"the counting information refers to that gate’s own condition") and PCG-04 typed a preferred 4-6, SUPPORTING (C46, "a preferred range ' +
+            'of 4–6, not a requirement or a predetermined starting count"). Neither approves the gate for a Learning Goal',
     )
     // **4 since ruling C42.** GF2-08.a and GF2-03.a are retired — the shared objective's existence and the
     // target it referenced — so the game holds exactly two objectives and two targets rather than three of each.
     // Both items stay in contracts.json verbatim, with the 28 September decision beside them.
-    assert.equal(restatementTally.itemsRemoved, 4, 'WIDEZONE-13.a and 13.b, plus GF2-08.a and GF2-03.a (C42)')
+    //
+    // **6 since ruling C45 of 14 October 2026.** PCG-06 (the gate condition's place, "own half of ATTACKING_TEAM")
+    // and PCG-07 (the per-team half it needed) are removed from the active gate knowledge, his words: *"Record this
+    // as removed from the active gate knowledge, retaining the original for provenance."* Both stay verbatim in
+    // contracts.json.
+    assert.equal(restatementTally.itemsRemoved, 6, 'WIDEZONE-13.a and 13.b, GF2-08.a and GF2-03.a (C42), and PCG-06 and PCG-07 (C45)')
     assert.equal(
         restatementTally.itemsAdded,
         22,
@@ -333,6 +341,10 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
             'two typed references pairing each team with the target at the opposite end',
     )
     assert.equal(restatementTally.declarationScopes, 64)
+    // **New on 14 October 2026, counted apart from scopes.** The gate's V5 and SV1 declarations CLAIMED those rows
+    // on the strength of PCG-06 and PCG-07; with the items removed (C45) the claims are restated NON_CLAIMED, or
+    // they would assert a place and a half that nobody now authors.
+    assert.equal(restatementTally.declarationsRestated, 2, 'the gate’s V5 and SV1 claims, restated NON_CLAIMED with the items they cited (C45)')
     assert.deepEqual(restatementTally.notFound, [], 'every item a ruling names was found')
 
     // A01-02-05.a is the first item two rulings touch: SD-87 set its selector, SD-89 its value and

@@ -45,6 +45,8 @@
  * The standing rule that follows from that: **if a sentence here names something in the game, the name
  * comes from the game and the path is cited.** "Obvious in the sport" is not a source.
  */
+import { effectiveValue } from '../derivation/rational'
+import { approvedWording, ApprovedWording, WordingMatch } from './approved-wording'
 
 /** Where a rendered instruction's authority comes from, and what wording that permits. */
 export type SourceStatus =
@@ -74,6 +76,23 @@ export interface RenderedActivity {
     instructions: Instruction[]
     /** Observations about the game a coach would question. Reported, never acted on. */
     coachingObservations: string[]
+    /**
+     * **What the game establishes and this renderer may not yet say** — added 14 October 2026 (Step 4,
+     * component 3). A primary-event condition, an information rule, or a part of a value modifier that no
+     * approved sentence covers is listed here rather than paraphrased, and an activity with anything here is
+     * refused at communication. Christian that day: *"Enable accurate coach-facing communication of scoring
+     * conditions and information rules, using approved language."*
+     */
+    withheld: WithheldField[]
+}
+
+/** One field held back from a coach until there is approved wording for it. */
+export interface WithheldField {
+    /** The concrete-game path of the field. */
+    path: string
+    /** The register row it sits on. */
+    row: string
+    reason: 'AWAITING_APPROVED_WORDING'
 }
 
 type Fixture = any
@@ -306,9 +325,102 @@ function extentRange(entry: any): BoundedLine | null {
     return required || preferred ? { path: entry.path, required, preferred, starting: null } : null
 }
 
-export function renderConcreteGame(fixture: Fixture): RenderedActivity {
+/**
+ * **The fields only approved wording may say**, by register row (V4-V6 for a primary-event condition, V16-V22
+ * for an information rule). Paths and rows are the register's; nothing here names a sport.
+ */
+const WORDED_ONLY: { base: string; elements: (game: any) => unknown; fields: { field: string; row: string }[] }[] = [
+    {
+        base: 'value.primaryEvent.conditions',
+        elements: game => game.value?.primaryEvent?.conditions,
+        fields: [
+            { field: 'type', row: 'V4' },
+            { field: 'referents', row: 'V5' },
+            { field: 'value', row: 'V6' },
+        ],
+    },
+    {
+        base: 'value.informationRules',
+        elements: game => game.value?.informationRules,
+        fields: [
+            { field: 'subject', row: 'V16' },
+            { field: 'trigger', row: 'V17' },
+            { field: 'dimensions.D006_triggerType', row: 'V18' },
+            { field: 'dimensions.D007_revealTiming', row: 'V19' },
+            { field: 'dimensions.D008_revealProgression', row: 'V20' },
+            { field: 'dimensions.D011_stateDependency', row: 'V21' },
+            { field: 'dimensions.D013_accessHolder', row: 'V22' },
+        ],
+    },
+]
+
+/**
+ * **The modifier's criterion and termination, worded for EXACT values only — NOT approved wording.** These are
+ * the two sentences the Wide Zone demonstration has been served with since 7 October, kept keyed to the one
+ * value each translates until Christian approves them (they are submitted with the wording batch, OD5). Once
+ * approved they move to `approved-coach-wording.json` (rows V8c, V8d) and this map is deleted. Any other value
+ * is withheld. The object's noun is passed in from `objects[].kind`, so no noun is written here.
+ */
+const CRITERION_WORDING: Record<string, (object: string) => string> = {
+    'a controlled attacking-team touch within a referent wide channel, where controlled means a touch after which the touching player’s team retains possession': object =>
+        `It is met when the attacking team touches the ${object} inside one of them and still has the ${object} after that touch`,
+}
+const ENDS_ON_WORDING: Record<string, (object: string) => string> = {
+    POSSESSION_CHANGE: object => `Once met it stays live while that team keeps the ${object}, and a change of possession ends it`,
+}
+
+const fieldOf = (element: any, field: string): unknown => field.split('.').reduce<any>((node, key) => (node == null ? undefined : node[key]), element)
+const present = (value: unknown): boolean => value !== undefined && value !== null
+
+/**
+ * Does an approved cover hold on this value? `equals` is the exact value, compared whole. `refersToOwnCondition`
+ * holds where the value is a typed reference to a primary-event condition this same game holds — his answer of
+ * 14 October that counting information *"refers to that gate's own condition"*, made checkable.
+ */
+function coverHolds(game: any, match: WordingMatch, value: unknown): boolean {
+    if ('equals' in match) return JSON.stringify(match.equals) === JSON.stringify(value)
+    const ref = (value as any)?.structuralRef
+    if (!ref || typeof ref.contractId !== 'string' || typeof ref.itemId !== 'string') return false
+    const conditions: any[] = Array.isArray(game.value?.primaryEvent?.conditions) ? game.value.primaryEvent.conditions : []
+    return conditions.some(condition => String(condition?.elementId) === `c:${ref.contractId}:${ref.itemId}`)
+}
+
+/**
+ * Say every condition and information rule the game holds in APPROVED words only; withhold every field no
+ * approved sentence covers. An entry applies to an element when each of its covers names a field the element
+ * holds and holds on that field's value; its slots are filled only from fields of the same element, each cited.
+ * A slot whose value is not a plain number or string cannot be said faithfully, so that entry does not apply.
+ */
+function sayInApprovedWords(game: any, wording: ApprovedWording[], push: (instruction: Instruction) => void, withheld: WithheldField[]): void {
+    for (const { base, elements, fields } of WORDED_ONLY) {
+        for (const element of Array.isArray(elements(game)) ? (elements(game) as any[]) : []) {
+            const pathOf = (field: string) => `${base}[${element?.elementId}].${field}`
+            const held = fields.filter(f => present(fieldOf(element, f.field)))
+            const said = new Set<string>()
+            for (const entry of wording) {
+                const covered = entry.covers.map(cover => ({ cover, field: held.find(f => f.row === cover.row) }))
+                if (covered.some(({ cover, field }) => !field || !coverHolds(game, cover.match, fieldOf(element, field.field)))) continue
+                const slots = Object.entries(entry.slots ?? {}).map(([name, slot]) => ({ name, field: slot.field, value: fieldOf(element, slot.field) }))
+                if (slots.some(slot => typeof slot.value !== 'number' && typeof slot.value !== 'string')) continue
+                const text = slots.reduce((sentence, slot) => sentence.split(`{${slot.name}}`).join(String(slot.value)), entry.sentence)
+                push({
+                    section: entry.section,
+                    text,
+                    status: 'DERIVED',
+                    from: [...new Set([...covered.map(({ field }) => pathOf(field!.field)), ...slots.map(slot => pathOf(slot.field))])],
+                    quantities: slots.filter(slot => typeof slot.value === 'number').map(slot => slot.value as number),
+                })
+                for (const { field } of covered) said.add(field!.field)
+            }
+            for (const field of held) if (!said.has(field.field)) withheld.push({ path: pathOf(field.field), row: field.row, reason: 'AWAITING_APPROVED_WORDING' })
+        }
+    }
+}
+
+export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] = approvedWording()): RenderedActivity {
     const instructions: Instruction[] = []
     const observations: string[] = []
+    const withheld: WithheldField[] = []
     const game = fixture.game
     const statusOf = new Map<string, SourceStatus>()
     for (const d of fixture.status.derived) statusOf.set(d.path, 'DERIVED')
@@ -1004,6 +1116,15 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
     }
 
     /**
+     * **The primary event's conditions, and the information rules, in approved words or not at all** —
+     * 14 October 2026, Step 4 component 3. This renderer had no branch for either, so a game holding them lost
+     * them silently and the fidelity check could only report the loss. Now each field is said in a sentence he
+     * approved (`approved-coach-wording.json`) or listed in `withheld`, which refuses the activity. The table
+     * is empty today, so every such field is withheld.
+     */
+    sayInApprovedWords(game, wording, said => instructions.push(said), withheld)
+
+    /**
      * **The value modifier, carried without inventing what satisfies it.**
      *
      * The game establishes the whole effect — a region condition over two named channels, operation MULTIPLY,
@@ -1013,33 +1134,57 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
      * player, touch)"). That is the owner decision being held, so the rendering states the effect and says
      * plainly that the trigger is not settled, rather than choosing ball, player or touch for him.
      */
+    /**
+     * **Made generic on 14 October 2026** (Step 4, component 3), keeping every sentence the Wide Zone
+     * demonstration was served with. The branch had been shaped to that one modifier: its noun fell back to the
+     * word "region" where the referents named none, only MULTIPLY was worded, ONE fixed criterion sentence was
+     * said for any criterion at all, and "the ball" was written into two sentences with no object cited. Now:
+     *
+     *   - the noun is read from the referent regions, and only where they all resolve and share one; otherwise
+     *     the sentences that need it are withheld, never filled with a generic word;
+     *   - the effective value comes from `effectiveValue` (SD-30: MULTIPLY, ADD, REPLACE); an operation it does
+     *     not support is withheld;
+     *   - the criterion and the termination are worded only for the EXACT values the maps below translate, and
+     *     the object is named from `objects[].kind`, cited (SD-103). Any other value is withheld.
+     *
+     * Withheld fields refuse the activity at communication (`build-activity`). The two map sentences are the
+     * ones the demonstration has always said; they stay here, keyed to their exact values, until he approves
+     * them — and only then move to the approved table. They are NOT approved wording.
+     */
     for (const modifier of game.value?.valueModifiers ?? []) {
         const base = `value.valueModifiers[${modifier.elementId}]`
         const referents = (modifier.condition?.referents ?? []) as { structuralRef?: { contractId: string; itemId: string } }[]
-        const regionsNamed = referents
-            .map(r => (game.space?.regions ?? []).find((s: any) => String(s.elementId).endsWith(`:${r.structuralRef?.itemId}`)))
-            .filter(Boolean)
-        const noun = regionsNamed[0]?.noun ?? 'region'
-        const operation = String(modifier.operation)
-        const magnitude = Number(modifier.magnitude)
+        const regionsNamed = referents.map(r => (game.space?.regions ?? []).find((s: any) => String(s.elementId) === `c:${r.structuralRef?.contractId}:${r.structuralRef?.itemId}`))
+        const nouns = [...new Set(regionsNamed.map(region => region?.noun))]
+        const noun: string | null = referents.length && nouns.length === 1 && typeof nouns[0] === 'string' && nouns[0] ? nouns[0] : null
         const primary = game.value?.primaryEvent
+        const effective = effectiveValue(modifier.operation, primary?.value, modifier.magnitude)
+        const withhold = (field: string, row: string) => withheld.push({ path: `${base}.${field}`, row, reason: 'AWAITING_APPROVED_WORDING' })
 
-        if (operation === 'MULTIPLY' && Number.isFinite(magnitude) && Number.isFinite(primary?.value)) {
+        if (noun && effective !== null) {
             say(
                 'How to score',
                 'DERIVED',
-                `When the ${noun} condition is met, that same score is worth ${primary.value * magnitude} instead of ${primary.value}`,
+                `When the ${noun} condition is met, that same score is worth ${effective} instead of ${primary.value}`,
                 [`${base}.operation`, `${base}.magnitude`, 'value.primaryEvent.value'],
-                [primary.value * magnitude, primary.value],
+                [effective, primary.value],
             )
+        } else {
+            withhold('operation', 'V9a')
+            withhold('magnitude', 'V9')
         }
-        say(
-            'How to score',
-            'DERIVED',
-            `The condition is about the ${regionsNamed.length === 2 ? `two ${noun}s` : noun} you marked — it applies to either of them`,
-            [`${base}.condition.type`, `${base}.condition.referents`, ...referents.map(r => `${base}.condition.referents[${r.structuralRef?.contractId}::${r.structuralRef?.itemId}`.concat(']'))],
-            [],
-        )
+        if (noun) {
+            say(
+                'How to score',
+                'DERIVED',
+                `The condition is about the ${regionsNamed.length === 2 ? `two ${noun}s` : noun} you marked — it applies to either of them`,
+                [`${base}.condition.type`, `${base}.condition.referents`, ...referents.map(r => `${base}.condition.referents[${r.structuralRef?.contractId}::${r.structuralRef?.itemId}`.concat(']'))],
+                [],
+            )
+        } else {
+            withhold('condition.type', 'V8a')
+            withhold('condition.referents', 'V8b')
+        }
 
         /**
          * **WHAT MEETS THE CONDITION, and WHEN IT ENDS — the two halves authored on 7 October.**
@@ -1057,35 +1202,24 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
          * authored before today is still in.
          */
         const criterion = modifier.condition?.value
+        const objectCited = carrier ? [`objects[${carrier.elementId}].kind`] : []
         if (criterion) {
-            say(
-                'How to score',
-                'DERIVED',
-                `It is met when the attacking team touches the ball inside one of them and still has the ball after that touch`,
-                [`${base}.condition.value`],
-                [],
-            )
+            const worded = carrier && typeof criterion === 'string' ? CRITERION_WORDING[criterion] : undefined
+            if (worded) say('How to score', 'DERIVED', worded(carrier.kind), [`${base}.condition.value`, ...objectCited], [])
+            else withhold('condition.value', 'V8c')
         }
-        if (modifier.endsOn === 'POSSESSION_CHANGE') {
-            say(
-                'How to score',
-                'DERIVED',
-                `Once met it stays live while that team keeps the ball, and a change of possession ends it`,
-                [`${base}.endsOn`],
-                [],
-            )
-        } else if (modifier.endsOn) {
-            // A termination this renderer has no coach wording for is reported, never paraphrased.
-            observations.push(
-                `${modifier.elementId} ends on ${String(modifier.endsOn)}, and rendering has no coach-facing wording for that ` +
-                    `occurrence, so the activity says nothing about when the modification ends. The game establishes it; the ` +
-                    `translation is missing, which is a rendering gap rather than a knowledge one.`,
-            )
+        if (modifier.endsOn) {
+            const worded = carrier && typeof modifier.endsOn === 'string' ? ENDS_ON_WORDING[modifier.endsOn] : undefined
+            // A termination with no wording for its exact value is withheld, never paraphrased. (It was an
+            // observation until 14 October, so an activity could be served saying nothing about when its
+            // modification ends; a rule of the game left unsaid is a loss, and now it refuses.)
+            if (worded) say('How to score', 'DERIVED', worded(carrier.kind), [`${base}.endsOn`, ...objectCited], [])
+            else withhold('endsOn', 'V8d')
         }
 
         if (!criterion) {
             observations.push(
-                `The game establishes WHAT the wide channels do — a line crossing is worth ${Number.isFinite(magnitude) && Number.isFinite(primary?.value) ? primary.value * magnitude : 'more'} ` +
+                `The game establishes WHAT the wide channels do — a line crossing is worth ${effective ?? 'more'} ` +
                     `instead of ${primary?.value} when the condition is met — but NOT what counts as meeting it. The authored source is "actions starting in or ` +
                     `moving through the wide channel", \`REGION_ENTRY\` carries no registered semantics, and the authoring note states the gap itself: ` +
                     `"no rule for what counts as 'moving through' (ball, player, touch)". So a coach is told the consequence and cannot be told the ` +
@@ -1148,5 +1282,5 @@ export function renderConcreteGame(fixture: Fixture): RenderedActivity {
         }
     }
 
-    return { instructions, coachingObservations: observations }
+    return { instructions, coachingObservations: observations, withheld }
 }

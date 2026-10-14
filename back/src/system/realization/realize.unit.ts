@@ -709,7 +709,13 @@ test('A04 is authorized again, the reason is stated, and the three states stay d
     // when the context rule put it on a contracted game form; A02 until 14 October, when it became a
     // knowledge gap — selection draws only from a goal's own candidates, his ruling of that day — and so
     // selects nothing to derive. The composition is the object the unevaluability always came from.)
-    const d01Input = gateComposition()
+    //
+    // **On 14 October 2026 his answers moved the composition itself from unevaluable to FAILED** (C44 typed its
+    // counting information, so that is evaluable; C45 removed its place, so the condition's place is a declared
+    // gap). So the unevaluable specimen is the composition with ONE open-text place given back on a copy — the
+    // state its "own half" put it in before C45: open text establishes no identity, so the references cannot be
+    // evaluated and nothing fails. A test device, stated as such; the knowledge is not changed.
+    const d01Input = gateWithOpenTextPlace()
     const d01Result = runDerivation(d01Input)
     if (isStampedHalt(d01Result)) return assert.fail('unexpected halt')
     const d01 = assembleResolvedGame(d01Result, (runStages0to10(d01Input) as any).classes, indexRegister(d01Input.register), d01Input.contracts)
@@ -744,6 +750,30 @@ function gateComposition() {
     return derivationInputFor({ selected: [{ id: 'GF2', role: 'game form' }, { id: 'tl-v0-constraint-pass-combination-gate', role: 'constraint' }] })
 }
 
+/** The composition with an open-text place added to the gate's condition and claimed — on a copy, a test device. */
+function gateWithOpenTextPlace() {
+    const input = JSON.parse(JSON.stringify(gateComposition()))
+    const gate = input.contracts.find((c: any) => String(c.contractId).includes('PASS-COMBINATION'))
+    gate.items.push({
+        itemId: 'T-PLACE',
+        origId: 'T-PLACE',
+        row: 'V5',
+        selector: 'type=connected-pass-combination',
+        requirement: 'EQUALS',
+        value: 'a place named in open text (a test device)',
+        strictness: 'REQUIRED',
+        valueStatus: 'REQUIRED_RANGE',
+        scope: 'WHOLE_GAME',
+        basis: 'AUTHORED',
+        basisEvidence: 'a test fixture, not authored knowledge',
+        checkability: 'STRUCTURAL',
+        structuralClause: 'whole item',
+    })
+    gate.declarations = gate.declarations.filter((d: any) => d.row !== 'V5')
+    gate.declarations.push({ row: 'V5', declaration: 'CLAIMED', selector: 'type=connected-pass-combination', scope: 'WHOLE_GAME', note: 'a test fixture' })
+    return input
+}
+
 test('the gate composition is NOT authorized, and says which pre-realization invariant is unsatisfied', () => {
     // Still refused, and still for a stated reason — but the reason has moved twice. GA-INFORMATION and
     // GA-REFERENCE-INTEGRITY being unevaluable was what stopped A05 originally; on 5 October the reachability
@@ -761,13 +791,28 @@ test('the gate composition is NOT authorized, and says which pre-realization inv
     const resolved = assembleResolvedGame(result, (runStages0to10(input) as any).classes, indexRegister(input.register), input.contracts)
 
     assert.equal(resolved.coherence.realizationAuthorized, false)
-    assert.equal(resolved.coherence.notAuthorizedBecause.length, 1)
-    assert.match(resolved.coherence.notAuthorizedBecause[0], /GA-INFORMATION, GA-REFERENCE-INTEGRITY/, 'it must name the invariants, not merely refuse')
-    assert.match(resolved.coherence.notAuthorizedBecause[0], /cannot be evaluated/, 'an unevaluable, not a failure')
+    // **The reason moved a third time on 14 October 2026, by his answers about the gate.** C44 typed its counting
+    // information to its own condition, so GA-INFORMATION is evaluable and passes; C45 removed "in their half",
+    // so the condition names no place and — with the possession game's general "the qualifying condition must
+    // come from elsewhere" reaching the line — that line is a declared gap, which FAILS. Unevaluable became
+    // failed, named, with the line. What moves it is his precedence decision (OD1).
+    assert.deepEqual(resolved.coherence.notAuthorizedBecause, [
+        'a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE',
+        '1 unresolved property is neither an authorized choice nor an authorized claim: c:blind:PASS-COMBINATION-GATE:PCG-02::V5',
+    ])
     assert.ok(
-        !/GA-TRIGGER-REACHABLE/.test(resolved.coherence.notAuthorizedBecause[0]),
-        'and reachability is no longer among them — the game gets the ball from the Sport Profile like every other',
+        !/GA-TRIGGER-REACHABLE/.test(resolved.coherence.notAuthorizedBecause.join(' ')),
+        'and reachability is not among them — the game gets the ball from the Sport Profile like every other',
     )
+    // The state before his answers, on a copy with an open-text place: unevaluable, and since component 1 the
+    // position clause says so too. Measured 14 October — before component 1 this named GA-INFORMATION and
+    // GA-REFERENCE-INTEGRITY; GA-ONE-PRIMARY-EVENT joined them when the clause stopped deferring on the open
+    // scoring kind (*"Correct the two reference/condition faults"*), and C44 took GA-INFORMATION out.
+    const openInput = gateWithOpenTextPlace()
+    const openResult = runDerivation(openInput)
+    if (isStampedHalt(openResult)) return assert.fail('unexpected halt')
+    const open = assembleResolvedGame(openResult, (runStages0to10(openInput) as any).classes, indexRegister(openInput.register), openInput.contracts)
+    assert.deepEqual(open.coherence.notAuthorizedBecause, ['a pre-realization Gate A invariant cannot be evaluated, so it is not satisfied: GA-ONE-PRIMARY-EVENT, GA-REFERENCE-INTEGRITY'])
     const a05Input = derivationInputFor(selectFor('A05', null))
     const a05Result = runDerivation(a05Input)
     if (isStampedHalt(a05Result)) return assert.fail('unexpected halt')

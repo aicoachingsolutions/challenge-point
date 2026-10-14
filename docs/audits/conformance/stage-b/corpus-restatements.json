@@ -514,6 +514,46 @@
       "ruling": "C42",
       "remove": true,
       "why": "Retired with the shared objective it was the target of, and for the same reason: once the two per-team targets exist, this region is an objective-area no objective references, so a game would hold three targets and a coach would mark three lines. His ruling of 2026-10-09 asks for \"exactly two active objectives and two corresponding target regions, not three\". The item and its evidence remain in contracts.json exactly as authored, together with GF2-08.a, which referenced it, and the 28 September decision that fixed its shared team value, so the whole shared-target arrangement stays readable as one piece. The positional and noun items that selected on objective-area are untouched and now reach the two new targets instead, which is why no position or noun had to be re-authored."
+    },
+    {
+      "item": "blind:PASS-COMBINATION-GATE::PCG-11",
+      "ruling": "C44",
+      "set": {
+        "value": {
+          "structuralRef": {
+            "contractId": "blind:PASS-COMBINATION-GATE",
+            "itemId": "PCG-02"
+          },
+          "asAuthored": "current connected-pass count of ATTACKING_TEAM"
+        },
+        "fitNote": "TYPED 14 October 2026 on the SD-98 precedent (as C35 typed the Wide Zone referents). Christian that day: \"Counting information: Yes, where the Pass Combination Gate is used, the counting information refers to that gate's own condition.\" The information rule's value named the count in open text, which establishes no identity (SD-63), so GA-INFORMATION and GA-REFERENCE-INTEGRITY could not evaluate it. It is restated as a typed reference to the gate's own condition, PCG-02 - the referent he named, and nothing beyond typing it. The authored words are kept beside it in asAuthored."
+      },
+      "why": "his answer of 2026-10-14 names the referent; typing it selects nothing, infers nothing and substitutes nothing (SD-98). This does not approve the gate for any Learning Goal: it stays a mechanism demonstration only (learning-design-holds.json)."
+    },
+    {
+      "item": "blind:PASS-COMBINATION-GATE::PCG-06",
+      "ruling": "C45",
+      "remove": true,
+      "why": "Removed from the ACTIVE gate knowledge on his ruling of 2026-10-14, verbatim - \"In their half\": Record this as removed from the active gate knowledge, retaining the original for provenance. This does not approve the gate for use with any Learning Goal. - This item is the place of the gate's condition, \"own half of ATTACKING_TEAM (per-team half from SV1)\". The original stays exactly as authored in contracts.json, with its evidence, so the provenance he asked for is kept; only its reach into derivation ends. With it gone the condition names no place, and whether that line is then an established absence or a gap is his precedence decision (OD1), not decided here."
+    },
+    {
+      "item": "blind:PASS-COMBINATION-GATE::PCG-07",
+      "ruling": "C45",
+      "remove": true,
+      "why": "Removed with PCG-06 on the same ruling of 2026-10-14 (\"Record this as removed from the active gate knowledge, retaining the original for provenance\"): PCG-07 asserts the per-team half only so that PCG-06 had a referent - its own declaration note says \"each team's own half is needed as the gate's referent\". With the place removed, nothing in the gate needs the half; leaving the existence claim would keep half of what he removed. The original stays in contracts.json."
+    },
+    {
+      "item": "blind:PASS-COMBINATION-GATE::PCG-04",
+      "ruling": "C46",
+      "set": {
+        "typedBound": {
+          "min": 4,
+          "max": 6
+        },
+        "strictness": "SUPPORTING",
+        "fitNote": "TYPED 14 October 2026 on the SD-86 precedent, and marked as he directed. Christian that day: \"Four to six passes: You may represent this as a preferred range of 4–6, not a requirement or a predetermined starting count.\" The numbers 4 and 6 are verbatim in the authored value \"minimum connected passes: 4 to 6\" and are MOVED into the typed field, not inferred. valueStatus stays PREFERRED_DEFAULT (a preference), and strictness becomes SUPPORTING (\"not a requirement\"). No count is held or chosen: the gate's V6 line is entailed by PCG-05, so this bound sits beside it as guidance and is never open for a default or a choice to close (\"not ... a predetermined starting count\"). The prose value is unchanged beside its typed form."
+      },
+      "why": "his answer of 2026-10-14: a preferred range of 4-6, not a requirement and not a starting count. This does not approve the gate for any Learning Goal."
     }
   ],
   "added": [
@@ -995,6 +1035,24 @@
         "fitNote": "The team whose own end is the FAR end attacks the target at the NEAR end."
       },
       "why": "The mirror reference, so the two objectives name different targets."
+    }
+  ],
+  "declarations": [
+    {
+      "contractId": "blind:PASS-COMBINATION-GATE",
+      "row": "V5",
+      "from": "CLAIMED",
+      "to": "NON_CLAIMED",
+      "ruling": "C45",
+      "why": "The gate's V5 declaration CLAIMED the row on the strength of PCG-06 alone (its note: \"PCG-06.\"). His ruling of 2026-10-14 removes PCG-06 from the active gate knowledge (\"Record this as removed from the active gate knowledge, retaining the original for provenance\"), and a claim whose items are removed would assert a place nobody now authors. So the gate no longer claims the row: NON_CLAIMED, scope and selector unchanged. The original declaration stays in contracts.json."
+    },
+    {
+      "contractId": "blind:PASS-COMBINATION-GATE",
+      "row": "SV1",
+      "from": "CLAIMED",
+      "to": "NON_CLAIMED",
+      "ruling": "C45",
+      "why": "The gate's SV1 declaration CLAIMED the per-team halves for PCG-07 (its note: \"PCG-07: each team's own half is needed as the gate's referent.\"). PCG-07 is removed with PCG-06 on the same ruling, so the claim would outlive the item it cited. NON_CLAIMED, scope and selector unchanged; the original stays in contracts.json."
     }
   ],
   "declarationScope": {

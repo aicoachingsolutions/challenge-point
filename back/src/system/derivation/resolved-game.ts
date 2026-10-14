@@ -27,6 +27,7 @@
 import { DerivationResult, ResolutionEntry } from './emit'
 import { RegisterIndex } from './register'
 import { ElementClass, ItemRef, LoadedContract, SupportRef } from './types'
+import { itemsByRef, Strength, strengthOf } from './strength'
 
 /** A line an authority left open, and everything the realization layer needs to close it. */
 export interface OpenChoice {
@@ -207,8 +208,15 @@ export interface ResolvedGame {
      * them was established, which is the one confusion this object exists to prevent.
      */
     game: Record<string, unknown>
-    /** Every derived value again, flat, with its support — so nothing has to be re-derived to trace it. */
-    derived: { path: string; lineId: string; value: unknown; resolvedBy: string; support: SupportRef[] }[]
+    /**
+     * Every derived value again, flat, with its support — so nothing has to be re-derived to trace it — and,
+     * since 14 October 2026, its `strength` (`strength.ts`): whether the knowledge REQUIRES it, prefers it as a
+     * DEFAULT, or only ADVISES it. His words that day: *"Preserve whether each condition is required, preferred,
+     * advisory, or left to the coach, all the way through rendering and validation."* Computed here, where the
+     * contracts are to hand, so no later stage has to look an item up to ask. Always set by the assembler;
+     * optional in the type only so a hand-built game in a test need not invent one.
+     */
+    derived: { path: string; lineId: string; value: unknown; resolvedBy: string; support: SupportRef[]; strength?: Strength }[]
     open: OpenChoice[]
     existential: ExistentialClaim[]
     /**
@@ -393,6 +401,7 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
     const derived: ResolvedGame['derived'] = []
     const open: OpenChoice[] = []
     const notEstablished: NotEstablished[] = []
+    const items = itemsByRef(contracts)
 
     // Elements, in the order the enumeration fixed, so the assembled object is as canonical as the
     // result it comes from (§8).
@@ -462,7 +471,7 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
         if (entry.elementId && row && entry.lineState === 'ENUMERATED') ensureElement(entry.elementId, row)
 
         if (entry.state === 'derived') {
-            derived.push({ path, lineId: entry.lineId, value: entry.value, resolvedBy: String(entry.resolvedBy ?? ''), support: entry.support })
+            derived.push({ path, lineId: entry.lineId, value: entry.value, resolvedBy: String(entry.resolvedBy ?? ''), support: entry.support, strength: strengthOf(entry.support, items) })
             if (!entry.elementId) {
                 if (row) place(game, row.path, entry.value)
             } else if (row) {

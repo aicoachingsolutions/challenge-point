@@ -16,7 +16,7 @@
  * every sentence must match the status of what produced it.
  */
 
-import { scaleExactly } from '../derivation/rational'
+import { effectiveValue, scaleExactly } from '../derivation/rational'
 import { Instruction, RenderedActivity, SourceStatus } from './render-concrete-game'
 
 export interface FidelityFinding {
@@ -390,6 +390,20 @@ function supportedQuantity(fixture: any, instruction: Instruction, quantity: num
     for (const path of instruction.from) {
         const collection = path.split('.').reduce<any>((node, key) => (node == null ? node : node[key]), fixture.game)
         if (Array.isArray(collection) && collection.length === quantity) return true
+    }
+    /**
+     * **The second narrow arithmetic justification: a value modifier's effective value** — added 14 October 2026
+     * (Step 4, component 3). "Worth 3 instead of 1" under ADD 2 states a number the game holds nowhere, and it is
+     * still not an invention: SD-30 fixes what the operation does to the base. So it is admitted, and ONLY where
+     * the instruction cites all three things it is computed from — the operation, the magnitude and the base
+     * value — and only by the same `effectiveValue` the renderer used. Under MULTIPLY 2 on a base of 1 the 2
+     * was admitted before by coincidence (it is the magnitude); now it is admitted for the right reason too.
+     */
+    const base = instruction.from.includes('value.primaryEvent.value') ? fixture.game?.value?.primaryEvent?.value : undefined
+    for (const modifier of fixture.game?.value?.valueModifiers ?? []) {
+        const at = `value.valueModifiers[${modifier.elementId}]`
+        if (!instruction.from.includes(`${at}.operation`) || !instruction.from.includes(`${at}.magnitude`) || base === undefined) continue
+        if (effectiveValue(modifier.operation, base, modifier.magnitude) === quantity) return true
     }
     return false
 }

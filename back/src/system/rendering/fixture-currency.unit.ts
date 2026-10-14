@@ -84,6 +84,21 @@
  * a default's reason is realization input. The game, every value, every bound, every closure and the
  * rendered text are byte-identical; `git diff` of the fixture shows nothing else.
  *
+ * **Re-frozen 14 October 2026: `2eab6bea` → `504a4898`. The SHAPE gained two fields; no value moved.**
+ * Christian that day, approving Step 4's second component: *"Preserve whether each condition is required,
+ * preferred, advisory, or left to the coach, all the way through rendering and validation."* So:
+ *
+ *   1. every entry of `status.derived` carries its `strength` (17 entries: 16 `REQUIRED`, and what continues
+ *      at a change of possession — GF2-17, authored once as a preferred default — `DEFAULT`). The boundary
+ *      copies each entry whole now rather than field by field, which is how a new field was always dropped;
+ *   2. every bound from an `ASSUMED` item carries `assumed: true` — seven places: the axis bound in
+ *      `status.bounds`, and three bounds inside recorded choices' `within` (the scoring kind's forbidden set
+ *      and the two targets' across-position), each recorded twice (`record.choices` and `status.choices`).
+ *
+ * `git diff` of the fixture shows those 17 + 7 additions and the commas beside them, nothing else: the game,
+ * every value, every choice and every digest input other than these fields are byte-identical. The renderer
+ * does not read either field yet, so the rendered text is unchanged (the rendering suite pins it).
+ *
  * Run: npm test
  */
 import assert from 'node:assert/strict'

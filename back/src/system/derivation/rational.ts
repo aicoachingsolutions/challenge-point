@@ -93,19 +93,47 @@ export function scaleExactly(fraction: number, length: number): number {
     const a = toRational(fraction)
     const b = toRational(length)
     if (!a || !b) return fraction * length
-    const product = rational(a.n * b.n, a.d * b.d)
+    return decimalOf(rational(a.n * b.n, a.d * b.d)) ?? fraction * length
+}
+
+/** The number an exact decimal rational spells, or null where its denominator divides no power of ten. */
+function decimalOf(value: Rational): number | null {
     // The denominator divides a power of ten; find the smallest and write the digits out.
     let scale = 1n
     let places = 0
-    while (scale % product.d !== 0n) {
+    while (scale % value.d !== 0n) {
         scale *= 10n
         places++
-        if (places > 30) return fraction * length
+        if (places > 30) return null
     }
-    const negative = product.n < 0n
-    const digits = String(((negative ? -product.n : product.n) * scale) / product.d).padStart(places + 1, '0')
+    const negative = value.n < 0n
+    const digits = String(((negative ? -value.n : value.n) * scale) / value.d).padStart(places + 1, '0')
     const text = places ? `${digits.slice(0, digits.length - places)}.${digits.slice(digits.length - places)}` : digits
     return Number(`${negative ? '-' : ''}${text}`)
+}
+
+/**
+ * **A value modifier's effective value, under SD-30 — one pure function.** Added 14 October 2026 (Step 4,
+ * component 3). The register's V9a: *"A value modifier must explicitly declare its operation. An authored
+ * magnitude with no authored operation is INCOMPLETE and effective value is not computable."* So the effective
+ * value exists only for the three operations SD-30 supports, taken exactly over rationals:
+ *
+ *   - `MULTIPLY` — base × magnitude;
+ *   - `ADD` — base + magnitude;
+ *   - `REPLACE` — the magnitude itself.
+ *
+ * Anything else — an unknown operation, a non-numeric base or magnitude — is null, and a caller says nothing
+ * rather than computing on a guess. The renderer and the fidelity check both call this, so the number a coach
+ * reads and the number the check admits are the same computation.
+ */
+export function effectiveValue(operation: unknown, base: unknown, magnitude: unknown): number | null {
+    const b = toRational(typeof base === 'number' ? base : null)
+    const m = toRational(typeof magnitude === 'number' ? magnitude : null)
+    if (!b || !m) return null
+    if (operation === 'MULTIPLY') return decimalOf(rational(b.n * m.n, b.d * m.d))
+    if (operation === 'ADD') return decimalOf(add(b, m))
+    if (operation === 'REPLACE') return magnitude as number
+    return null
 }
 
 /** A closed interval on one axis (§1.9). */

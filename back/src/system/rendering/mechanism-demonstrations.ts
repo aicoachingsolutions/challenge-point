@@ -41,6 +41,19 @@ export const MECHANISM_DEMONSTRATIONS: MechanismDemonstration[] = [
         statement: 'A mechanism demonstration: the possession game with the Neutral Player Condition. Not a Learning Goal activity.',
         selected: ['GF2', 'tl-v0-constraint-neutral-player-condition'],
     },
+    /**
+     * Christian, 14 October 2026: *"Please keep the current Pass Combination Gate as a mechanism demonstration
+     * only. I do not want it reintroduced into learning-design examples until we've reviewed its ecological
+     * suitability."* This is where it stays usable as engineering (the holds file names it), and it is the only
+     * place: every Learning Goal is refused the gate, at selection and again in the builder.
+     */
+    {
+        id: 'pass-combination-gate',
+        name: 'Pass Combination Gate',
+        statement:
+            'A mechanism demonstration: the possession game with the Pass Combination Gate as revised on 14 October. Not a Learning Goal activity, and not approved for learning-design use.',
+        selected: ['GF2', 'tl-v0-constraint-pass-combination-gate'],
+    },
 ]
 
 export const mechanismDemonstration = (id: string): MechanismDemonstration | undefined => MECHANISM_DEMONSTRATIONS.find(d => d.id === id)

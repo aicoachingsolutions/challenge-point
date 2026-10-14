@@ -22,7 +22,7 @@
  *     a rule closed it rather than a person (`defaultedBy`);
  *   - **a derived entry** keeps its `support` — which contract item, standing decision or session fact each
  *     property comes from. A later adjustment has to know which constraint a property belongs to before it
- *     may propose changing it;
+ *     may propose changing it — and, since 14 October, its `strength` (required, a default, or advisory);
  *   - **`status.bounds`** is new: every bound that sits BESIDE a derived value (`resolved.extentBounds`),
  *     with the path of the line it bounds. Such a bound is never an open line, so it is never closed and was
  *     never in the record; it had one reader, geometry, and reached the coach for a region's width and for
@@ -69,7 +69,10 @@ export function assembleRenderingFixture({ resolved, realized, entailed, envelop
         game: realized.game,
         record: realized.record,
         status: {
-            derived: resolved.derived.map(d => ({ path: d.path, lineId: d.lineId, value: d.value, resolvedBy: d.resolvedBy, support: d.support })),
+            // Whole, not field by field (14 October 2026): the allowlist that stood here would have dropped the
+            // `strength` each entry now carries, the way this boundary once dropped every range. Carried, it
+            // cannot be lost by the next field either; `fixture-currency.unit.ts` asserts the keys survive.
+            derived: resolved.derived.map(d => ({ ...d })),
             choices: realized.record.choices.map(choice => ({ ...choice })),
             instantiations: realized.record.instantiations.map(i => ({ path: i.path, classId: i.classId, handle: i.handle, memberIndex: i.memberIndex, member: i.member })),
             entailed,

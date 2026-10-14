@@ -312,10 +312,27 @@ export interface Bounds {
      * over typed `forbiddenValues`, and prose members are not something to compare a value with.
      */
     forbidden?: boolean
+    /**
+     * The bound comes from an `ASSUMED` item — the restater's reading, not authored guidance. Added 14 October
+     * 2026 so an assumed bound is never offered to a coach as though the knowledge stated it. Present only
+     * where true.
+     */
+    assumed?: true
     /** min/max are FRACTIONS of the named axis, not metres - a proportional rule, resolved at realization. */
     fractionOfAxis?: boolean
     /** Which axis a fractional bound is of, where the bound itself knows. */
     axis?: string
+}
+
+/**
+ * **A typed structural reference (SD-98), recognised in one place.** The gates read one when they resolve a
+ * referent and derivation reads one when SD-101 compares a contribution with a class's own selector, and the
+ * two must agree on what counts as typed. It lives here, beside the shared record types, so derivation does
+ * not import the gates to ask (14 October 2026, Step 4 component 1).
+ */
+export function structuralRefOf(value: unknown): { contractId: string; itemId: string } | null {
+    const ref = value && typeof value === 'object' ? (value as any).structuralRef : null
+    return ref && typeof ref.contractId === 'string' && typeof ref.itemId === 'string' ? ref : null
 }
 
 export interface SelectorPredicate {
