@@ -37,7 +37,7 @@ import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame } from '../derivation/resolved-game'
-import { BoundedSelection, contractCoverage, derivationInputFor, KnowledgeSelection, selectFor } from '../derivation/run-bounded-selection'
+import { BoundedSelection, contractCoverage, derivationInputFor, knowledgeKey, KnowledgeSelection, selectFor } from '../derivation/run-bounded-selection'
 import { LoadedContract } from '../derivation/types'
 import { gpLibrary } from '../knowledge-core/gp-library'
 import { completeConcreteGame, rosterRefusal, RosterRefusal } from '../realization/assemble-concrete-game'
@@ -46,6 +46,7 @@ import { realizeWithJustifiedDefaults, StrandedCount } from '../realization/just
 import { checkRealization, isRefused, Realized } from '../realization/realize'
 import { isNoSuppliedRealization, suppliedRealizationFor } from '../realization/supplied-realization'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
+import { rpcLibrary } from '../sport-module/rpc-library'
 import { TEST_LIBRARY_V0_AFFORDANCE_LENSES, TEST_LIBRARY_V0_ARCHETYPES, TEST_LIBRARY_V0_CONSTRAINTS, TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS } from '../test-library'
 import { checkFidelity } from './fidelity'
 import { mechanismDemonstration } from './mechanism-demonstrations'
@@ -82,10 +83,32 @@ export interface ActivityAccount {
         governed: boolean
     } | null
     contextId: string | null
+    /**
+     * The Representative Performance Context, with the qualifying condition he approved for its Primary
+     * Scoring Event (RC1.1, 13 September) and whether this activity carries it. Null for a demonstration.
+     *
+     * Added 14 October because his context rule has two halves and the checked pathway carries one. The
+     * game-form gate governs both pathways since 13 October; the scoring event does not reach this one,
+     * because selection hands derivation a game form and constraints and never the context. So every
+     * activity served here is scored by a set-up choice, whatever the context's approved event, and the
+     * account says so rather than leaving the context's name to imply otherwise. `inThisActivity` is READ
+     * from the selection - is the context's own contract among what shapes the game - not asserted, so it
+     * turns true by itself on the day a selection carries the context.
+     */
+    context: { id: string; name: string | null; approvedScoringCondition: string | null; inThisActivity: boolean } | null
     gameForm: { id: string; name: string | null; contracted: boolean }
     affordanceLenses: string[]
-    /** `contracted` is whether the constraint actually shapes the game. One without a contract contributes nothing. */
-    constraints: { id: string; title: string; contracted: boolean }[]
+    /**
+     * `contracted` is whether the constraint actually shapes the game. One without a contract contributes
+     * nothing. `fromGoalCandidates` is whether it was among the goal's own candidate constraints; false is a
+     * constraint borrowed from the whole library (see `constraintPoolFor`). Null for a demonstration.
+     */
+    constraints: { id: string; title: string; contracted: boolean; fromGoalCandidates: boolean | null }[]
+    /**
+     * Where selection drew its constraints from. `WHOLE_LIBRARY` with a reason is the fallback awaiting his
+     * ruling: the goal's candidates were set aside because they could not fill the roles named.
+     */
+    constraintSource: { source: 'GOAL_CANDIDATES' | 'WHOLE_LIBRARY'; setAsideBecause: 'FEWER_THAN_TWO' | 'NO_FOUNDATION_AND_SHAPING' | null; missingRoles: string[] } | null
     selectedWithoutContract: string[]
 }
 
@@ -176,6 +199,18 @@ const LENS = 'affordance lens'
 const constraintTitle = (id: string): string =>
     String([...TEST_LIBRARY_V0_CONSTRAINTS, ...TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS].find(entry => entry.id === id)?.title ?? id)
 
+/** A context as the account names it: its name, its approved scoring condition as authored, and whether it is in the game. */
+function contextOf(contextId: string, selection: KnowledgeSelection): ActivityAccount['context'] {
+    const condition = rpcLibrary.primaryScoringCondition(contextId)
+    return {
+        id: contextId,
+        name: rpcLibrary.context(contextId)?.name ?? null,
+        // Narrative, carried and never parsed - the library's own rule for this property.
+        approvedScoringCondition: condition || null,
+        inThisActivity: selection.contracted.some(id => knowledgeKey(id) === knowledgeKey(contextId)),
+    }
+}
+
 /** The selection account, as far as the selection alone establishes it. */
 function accountOf(selection: KnowledgeSelection, goal: BoundedSelection | null): Partial<ActivityAccount> {
     const contracted = new Set(selection.contracted)
@@ -192,6 +227,7 @@ function accountOf(selection: KnowledgeSelection, goal: BoundedSelection | null)
               }
             : null,
         contextId: goal ? goal.contextId : null,
+        context: goal?.contextId ? contextOf(goal.contextId, selection) : null,
         affordanceLenses: selection.selected
             .filter(entry => entry.role.startsWith(LENS))
             .map(entry => String(TEST_LIBRARY_V0_AFFORDANCE_LENSES.find(lens => lens.id === entry.id)?.title ?? entry.id)),
@@ -199,7 +235,11 @@ function accountOf(selection: KnowledgeSelection, goal: BoundedSelection | null)
             id: entry.id,
             title: constraintTitle(entry.id),
             contracted: contracted.has(entry.id),
+            fromGoalCandidates: goal ? goal.constraintPool.candidateIds.includes(entry.id) : null,
         })),
+        constraintSource: goal
+            ? { source: goal.constraintPool.source, setAsideBecause: goal.constraintPool.setAsideBecause, missingRoles: [...goal.constraintPool.missingRoles] }
+            : null,
         selectedWithoutContract: [...selection.missing],
     }
     if (form) {

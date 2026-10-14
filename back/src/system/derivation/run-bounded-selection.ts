@@ -19,6 +19,7 @@
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { GameProblemAuthority, guidedSelectionHints } from '../sport-module/guided-selection'
 import { generateSelection } from '../test-library'
+import { ConstraintPool, constraintPoolFor } from '../test-library/generateSelection'
 import { CORPUS_ENVELOPE, loadCorpusContracts, loadRegister, loadSportProfile } from './corpus'
 import { isStampedHalt } from './emit'
 import { runDerivation, runStages0to10 } from './engine'
@@ -84,6 +85,13 @@ export interface BoundedSelection extends KnowledgeSelection {
     gameProblem: GameProblemAuthority
     /** The Representative Performance Context the goal routes to, which limited the game forms. */
     contextId: string | null
+    /**
+     * Where the constraints were drawn from: the goal's own candidates, or the whole library because the
+     * candidates could not fill the role mix. Read from the rule selection itself applies
+     * (`constraintPoolFor`), so the account cannot disagree with what selection did. Carried since
+     * 14 October so a borrowed constraint is shown as borrowed; see that function for why it matters.
+     */
+    constraintPool: Omit<ConstraintPool, 'constraints'>
 }
 
 /**
@@ -181,6 +189,7 @@ export function selectFor(goalId: string, situationId: string | null = null): Bo
         chosenSituation,
         gameProblem: guided.gameProblem,
         contextId: guided.contextId,
+        constraintPool: (({ constraints: _drawnFrom, ...pool }) => pool)(constraintPoolFor(guided.hints)),
     }
 }
 

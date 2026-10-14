@@ -685,8 +685,23 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                             </AccountField>
                         )}
 
-                        {account.contextId !== undefined && (
-                            <AccountField label='Context'>{account.contextId ?? 'None'}</AccountField>
+                        {account.context ? (
+                            <AccountField label='Context'>
+                                <span className='mr-2'>
+                                    {account.context.name ?? account.context.id}
+                                    {account.context.name && <span className='text-gray-500'> ({account.context.id})</span>}
+                                </span>
+                                {account.context.approvedScoringCondition && (
+                                    <span className='block mt-1 text-xs text-gray-600'>
+                                        Approved scoring condition: {account.context.approvedScoringCondition}{' '}
+                                        <Mark positive={account.context.inThisActivity}>
+                                            {account.context.inThisActivity ? 'Applied in this activity' : 'Not yet applied in this activity'}
+                                        </Mark>
+                                    </span>
+                                )}
+                            </AccountField>
+                        ) : (
+                            account.contextId !== undefined && <AccountField label='Context'>{account.contextId ?? 'None'}</AccountField>
                         )}
 
                         {account.gameForm && (
@@ -709,6 +724,18 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
 
                         {(account.constraints !== undefined || alsoWithoutContract.length > 0) && (
                             <AccountField label='Constraints selected'>
+                                {/*
+                                  * Where selection set the goal's own candidates aside, say so before the list:
+                                  * a constraint that was never a candidate for the goal cannot be read as
+                                  * relevant to it, and the marks below are only meaningful with that said.
+                                  */}
+                                {account.constraintSource?.source === 'WHOLE_LIBRARY' && account.constraintSource.setAsideBecause && (
+                                    <p className='mb-2 text-xs text-amber-700'>
+                                        {account.constraintSource.setAsideBecause === 'FEWER_THAN_TWO'
+                                            ? "This goal has fewer than two candidate constraints, so selection drew from the whole library."
+                                            : `This goal's candidate constraints include no ${account.constraintSource.missingRoles.join(' or ')} constraint, so selection drew from the whole library.`}
+                                    </p>
+                                )}
                                 {constraints.length + alsoWithoutContract.length > 0 ? (
                                     <ul className='space-y-1'>
                                         {constraints.map((constraint) => (
@@ -725,6 +752,11 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                                             : 'Built into the engine'
                                                         : 'Selected, not yet built'}
                                                 </Mark>
+                                                {constraint.fromGoalCandidates === false && (
+                                                    <span className='ml-2'>
+                                                        <Mark positive={false}>Not one of this goal&apos;s candidates</Mark>
+                                                    </span>
+                                                )}
                                             </li>
                                         ))}
                                         {alsoWithoutContract.map((entry) => (

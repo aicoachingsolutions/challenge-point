@@ -780,6 +780,63 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
     }
 }
 
+/**
+ * ── What the account says that selection did not take from the goal ───────────────────────────────
+ *
+ * **Baseline of 14 October 2026, pinning two states put to him for a ruling — not states he chose.**
+ *
+ * 1. **Borrowed constraints.** Where a goal's candidates cannot fill the role mix, selection draws from the
+ *    whole library (`constraintPoolFor`). Seven goals, every one because its candidates hold no shaping
+ *    constraint. The account must say so per constraint, because a constraint never designated for a goal
+ *    cannot be claimed relevant to its affordances. If he rules that selection stops borrowing, this table
+ *    empties and the entries go with the reason.
+ * 2. **The context's approved scoring event is not in the activity.** Every goal names its context and his
+ *    approved qualifying condition, and none carries it: selection hands derivation a game form and
+ *    constraints, never the context. `inThisActivity` is read from the selection, so the first selection that
+ *    carries a context turns its entry true and this assertion moves with it.
+ */
+{
+    const BORROWING: Record<string, string[]> = {
+        A02: ['shaping'],
+        A04: ['shaping'],
+        D01: ['shaping'],
+        D02: ['shaping'],
+        D03: ['shaping'],
+        TD01: ['shaping'],
+        TD02: ['shaping'],
+    }
+    for (const goal of activityReviewOptions().goals) {
+        const activity = reviewActivity(stored(), { learningGoalId: goal.id, durationMin: 20 })
+        const account = activity.account
+        const source = account.constraintSource!
+        assert.ok(source, `${goal.id}: a goal's account says where its constraints came from`)
+        const constraints = account.constraints ?? []
+        assert.ok(constraints.length, `${goal.id}: selection's constraints survive into the account, served or refused`)
+        if (BORROWING[goal.id]) {
+            assert.equal(source.source, 'WHOLE_LIBRARY', goal.id)
+            assert.equal(source.setAsideBecause, 'NO_FOUNDATION_AND_SHAPING', goal.id)
+            assert.deepEqual(source.missingRoles, BORROWING[goal.id], goal.id)
+            assert.ok(constraints.some(c => c.fromGoalCandidates === false), `${goal.id}: at least one constraint is marked as borrowed`)
+        } else {
+            assert.equal(source.source, 'GOAL_CANDIDATES', `${goal.id} draws from its own candidates`)
+            assert.ok(constraints.every(c => c.fromGoalCandidates === true), `${goal.id}: every constraint is one of its candidates`)
+        }
+        const context = account.context!
+        assert.ok(context?.id && context.name, `${goal.id}: the account names its context`)
+        assert.ok(context.approvedScoringCondition, `${goal.id}: and carries the approved scoring condition as authored`)
+        assert.equal(context.inThisActivity, false, `${goal.id}: no selection carries its context today`)
+    }
+    // Beat Defenders 1v1 is the sharpest case: two candidates, four constraints, none of them a candidate.
+    const a04 = served(reviewActivity(stored(), { learningGoalId: 'A04', durationMin: 20 }), 'A04').account
+    assert.equal(a04.constraints.length, 4)
+    assert.ok(a04.constraints.every(c => c.fromGoalCandidates === false), 'none of A04\'s constraints is among its candidates')
+    // A demonstration involves no goal, so it has no candidates to have borrowed from and no context.
+    const demonstration = served(reviewActivity(stored(), { demonstrationId: 'scoring-modifier', durationMin: 20 }), 'scoring-modifier').account
+    assert.equal(demonstration.constraintSource, null)
+    assert.equal(demonstration.context, null)
+    assert.ok(demonstration.constraints.every(c => c.fromGoalCandidates === null))
+}
+
 // ── A request that names nothing is REJECTED, not refused ─────────────────────────────────────────
 //
 // A refusal explains why an activity cannot be given. There is no activity an unknown id could have been,

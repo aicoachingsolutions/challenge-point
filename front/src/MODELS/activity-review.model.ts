@@ -68,9 +68,17 @@ export interface ActivityAccount {
         governed: boolean
     } | null
     contextId: string | null
+    /**
+     * The context, with the scoring condition approved for it and whether this activity carries it. Null for
+     * a demonstration. Optional because an account built before 14 October has no such field.
+     */
+    context?: { id: string; name: string | null; approvedScoringCondition: string | null; inThisActivity: boolean } | null
     gameForm: { id: string; name: string | null; contracted: boolean }
     affordanceLenses: string[]
-    constraints: { id: string; title: string; contracted: boolean }[]
+    /** `fromGoalCandidates`: false is a constraint borrowed from the whole library; null for a demonstration. */
+    constraints: { id: string; title: string; contracted: boolean; fromGoalCandidates?: boolean | null }[]
+    /** Where selection drew its constraints from, and why the goal's own candidates were set aside if they were. */
+    constraintSource?: { source: 'GOAL_CANDIDATES' | 'WHOLE_LIBRARY'; setAsideBecause: 'FEWER_THAN_TWO' | 'NO_FOUNDATION_AND_SHAPING' | null; missingRoles: string[] } | null
     selectedWithoutContract: string[]
 }
 

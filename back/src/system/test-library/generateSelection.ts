@@ -34,21 +34,50 @@ function applyLensPoolFilter(hints?: InputConstraintHints | null): TestLibraryV0
     return filtered.length >= 2 ? filtered : full
 }
 
-function constraintPoolSupportsFoundationAndShaping(rows: TestLibraryV0Constraint[]): boolean {
-    const buckets = new Set(rows.map((c) => constraintBalanceBucket(c)))
-    return buckets.has('foundation') && buckets.has('shaping')
+/**
+ * The constraints selection may draw from, and whether they are the goal's own candidates.
+ *
+ * **What this reports is a behaviour awaiting his ruling, not one he has made.** Where a goal's candidates
+ * cannot satisfy the role mix (fewer than two of them, or no foundation and shaping pair) selection sets them
+ * aside and draws from the WHOLE library. Measured 13 October through `selectFor`: seven of the thirteen
+ * guided goals - A02, A04, D01, D02, D03, TD01, TD02 - every one because its candidates hold no shaping
+ * constraint, so each is given constraints that were never designated for it (A04 is given four, none of
+ * them among its two candidates). That is the substitution his rule of 13 October forbids (*"never change
+ * candidate pools or other learning-design knowledge to make something generate"*), made silently by code
+ * older than the rule so that selection never comes up empty. Changing it changes what the application
+ * generates for those goals, so it is put to him; until he rules, the fallback is REPORTED here so the
+ * review page can say which constraints were borrowed, and this function is the one place the rule lives -
+ * selection and the account both ask it.
+ */
+export type ConstraintPool = {
+    constraints: TestLibraryV0Constraint[]
+    /** `GOAL_CANDIDATES` where the goal's own list is used; `WHOLE_LIBRARY` otherwise. */
+    source: 'GOAL_CANDIDATES' | 'WHOLE_LIBRARY'
+    /** Why the goal's candidates were set aside. Null where they were used or none were stated. */
+    setAsideBecause: 'FEWER_THAN_TWO' | 'NO_FOUNDATION_AND_SHAPING' | null
+    /** The roles the goal's candidates could not fill, where that is why they were set aside. */
+    missingRoles: ConstraintBalanceBucket[]
+    /** The goal's candidate ids as stated, so a borrowed constraint can be told from a designated one. */
+    candidateIds: string[]
+}
+
+export function constraintPoolFor(hints?: InputConstraintHints | null): ConstraintPool {
+    const full = testLibraryRegistry.selectableConstraints()
+    const ids = hints?.candidateConstraintIds ?? []
+    // No candidates stated (free text, not a guided goal): the library is the designed pool, not a fallback.
+    if (!ids.length) return { constraints: full, source: 'WHOLE_LIBRARY', setAsideBecause: null, missingRoles: [], candidateIds: [] }
+    const filtered = full.filter((c) => ids.includes(c.id))
+    if (filtered.length < 2) return { constraints: full, source: 'WHOLE_LIBRARY', setAsideBecause: 'FEWER_THAN_TWO', missingRoles: [], candidateIds: [...ids] }
+    // Role-mix rules require foundation + shaping candidates in the pool; hint-only pools (e.g. regain-only)
+    // may omit shaping — fall back rather than making selection impossible.
+    const buckets = new Set(filtered.map((c) => constraintBalanceBucket(c)))
+    const missingRoles = (['foundation', 'shaping'] as ConstraintBalanceBucket[]).filter((role) => !buckets.has(role))
+    if (missingRoles.length) return { constraints: full, source: 'WHOLE_LIBRARY', setAsideBecause: 'NO_FOUNDATION_AND_SHAPING', missingRoles, candidateIds: [...ids] }
+    return { constraints: filtered, source: 'GOAL_CANDIDATES', setAsideBecause: null, missingRoles: [], candidateIds: [...ids] }
 }
 
 function applyConstraintPoolFilter(hints?: InputConstraintHints | null): TestLibraryV0Constraint[] {
-    const full = testLibraryRegistry.selectableConstraints()
-    const ids = hints?.candidateConstraintIds
-    if (!ids?.length) return full
-    const filtered = full.filter((c) => ids.includes(c.id))
-    if (filtered.length < 2) return full
-    // Role-mix rules require foundation + shaping candidates in the pool; hint-only pools (e.g. regain-only)
-    // may omit shaping — fall back rather than making selection impossible.
-    if (!constraintPoolSupportsFoundationAndShaping(filtered)) return full
-    return filtered
+    return constraintPoolFor(hints).constraints
 }
 
 /** Exact normalized coach phrases that must fail before any scoring (no AI classification). */
