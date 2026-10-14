@@ -221,4 +221,26 @@ const outcomes = new Map(GOALS.map(id => [id, select(id)] as const))
     )
 }
 
+// ── (viii) Free text keeps its selection exactly — the shaping slot is optional for Learning Goals only ──
+//
+// Found in review, 14 October 2026: making the package's shaping slot optional (his ruling, for Learning Goals)
+// also let free-text selection accept combinations it used to reject, and free text moved. "reorganize" (a
+// deriveInputConstraints test input) had selected Counter-Press Window at bb65cbb and selected Small Area
+// Condition instead, its package then holding no shaping constraint. The review compared 80 free-text inputs
+// (the selection, pipeline, diversity, archetype-distribution and input-constraint test inputs, the thirteen
+// goal names and definitions typed as free text) between bb65cbb and the fix: identical, 80 of 80. This pins
+// the one that moved, and the rule that keeps it: free text still requires the shaping member.
+{
+    const goal = 'reorganize'
+    const selection = quietly(() => generateSelection({ learningGoals: [goal], challengeLevel: 'intermediate' } as any, deriveInputConstraints(goal)))
+    assert.deepEqual(
+        [selection.archetype.id, selection.constraints.map(constraint => constraint.id)],
+        ['GF11', [c('central-density-condition'), c('counter-press-window'), c('delay-reward'), c('recovery-window')]],
+        'free text selects what it selected before 14 October',
+    )
+    const input = systemAssemblyInputFromTestLibrarySelection({ selection, session: {} as ISession, previousActivities: [], coachInput: { challengeLevel: 'medium', duration: 20, learningGoals: [goal] } })
+    assert.ok(input.constraintPackage.shaping, 'and a free-text package still holds a shaping constraint')
+    assert.equal(selection.selectionTrace.constraintPool?.source, 'WHOLE_LIBRARY')
+}
+
 console.log('selection-pool.unit.ts — ok')

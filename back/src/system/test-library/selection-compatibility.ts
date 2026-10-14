@@ -10,6 +10,18 @@ export type SelectionPackageCompatibilityInput = {
     archetype: TestLibraryV0Archetype
     affordanceLenses: TestLibraryV0AffordanceLens[]
     constraints: TestLibraryV0Constraint[]
+    /**
+     * FREE TEXT ONLY: the package must hold a shaping constraint, as every package had to before 14 October.
+     *
+     * His ruling of 14 October made the shaping slot optional for a Learning Goal (*"I don't want us to assume
+     * that every activity necessarily requires an additional shaping constraint"*), and `buildConstraintPackage`
+     * no longer throws without one. Free text was to keep its behaviour exactly, his decision on it pending —
+     * but without this the relaxed package admitted combinations free-text selection used to reject, and
+     * free text moved: measured 14 October in review, "reorganize" (a deriveInputConstraints test input)
+     * selected Small Area Condition where it had selected Counter-Press Window, its package now with no
+     * shaping constraint. So free text asks for the shaping member here, with the message the builder threw.
+     */
+    requireShaping?: boolean
 }
 
 function mapConstraintRole(role: string): ConstraintRoles {
@@ -84,6 +96,7 @@ export function isSelectionPackageCompatible(input: SelectionPackageCompatibilit
         const affordanceField = buildAffordanceFieldFromLenses(input.affordanceLenses)
         const iConstraints = input.constraints.map(testLibraryConstraintToIConstraint)
         const pkg = buildConstraintPackage(iConstraints, affordanceField, archetypeDef)
+        if (input.requireShaping && !pkg.shaping) throw new Error(`No compatible shaping constraint was found for archetype "${archetypeDef.name}".`)
         validateConstraintPackage(affordanceField, archetypeDef, pkg)
         return { compatible: true, reasons: [] }
     } catch (err) {

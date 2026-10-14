@@ -978,6 +978,49 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
     assert.equal(contextScoringFindings('RPC-001', undefined, game('line_crossed'), approved).length, 1, 'a contract that did not reach the build is itself a finding')
 }
 
+/**
+ * ── The guard is WIRED: through the real builder, over an altered copy of A01's knowledge ─────────
+ *
+ * Added in review, 14 October 2026. The block above proves the guard's function on constructed games; it did
+ * not prove that `build()` calls it on the realized game, and no goal reaches that point today. So A01 is built
+ * through the one chain with RPC-001's items that stop it at Gate A taken out ON A COPY (the conditions, the
+ * build-out team's objective and team counts — each one of his pending knowledge decisions K1-K4, not a
+ * proposal for them). It then realizes with its context carried, its primary event on a line being crossed, and
+ * no condition constituted: the guard passes it, and it stops later, at communication. With the context's
+ * approved events read WITHOUT that event (the library read is stood in for this one build), the identical
+ * build is refused at validation and the reason names the event. A missing condition cannot be driven through
+ * the builder today — every constituted condition stops Gate A first (the referent faults Step 4 component 1
+ * corrects) — so that half stays proven on constructed games above.
+ */
+{
+    const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: none }
+    const PENDING = ['18.a', '18.b', '18.c', '18.d', '18.e', '18.f', '18.g', '19.a', '19.b', '11.a', '11.b', '08.c', '13', '14.a', '02', '03'].map(id => `RPC-001-${id}`)
+    const trimmed = (contracts: any[]) => {
+        const rpc = contracts.find(contract => contract.objectId === 'RPC-001')
+        assert.ok(rpc, 'A01 carries its context\'s contract into derivation')
+        rpc.items = rpc.items.filter((item: any) => !PENDING.includes(item.itemId))
+    }
+    const a01 = { kind: 'learning-goal' as const, goalId: 'A01', session }
+    const passed = refused(buildActivityOverAlteredKnowledge(a01, trimmed), 'A01 over the trimmed copy')
+    assert.equal(passed.stage, 'communication', `the guard passes a realized game scored on an approved event: ${JSON.stringify(passed.reasons)}`)
+    assert.ok(!passed.reasons.some(reason => reason.includes('Representative Performance Context')), JSON.stringify(passed.reasons))
+
+    const read = rpcLibrary.scoringEventsForContext
+    try {
+        ;(rpcLibrary as any).scoringEventsForContext = (id: string) => read(id).filter(kind => kind !== 'line_crossed')
+        const guarded = refused(buildActivityOverAlteredKnowledge(a01, trimmed), 'A01 over the trimmed copy, its event not approved')
+        assert.equal(guarded.stage, 'validation', JSON.stringify(guarded.reasons))
+        assert.ok(
+            guarded.reasons.some(reason => reason.includes('"line_crossed"') && reason.includes('RPC-001 does not approve')),
+            `the reason names the realized event and the context: ${JSON.stringify(guarded.reasons)}`,
+        )
+        plain(guarded, 'the guard refusal')
+    } finally {
+        ;(rpcLibrary as any).scoringEventsForContext = read
+    }
+    assert.deepEqual(rpcLibrary.scoringEventsForContext('RPC-001'), read('RPC-001'), 'the library read is restored')
+}
+
 // ── A request that names nothing is REJECTED, not refused ─────────────────────────────────────────
 //
 // A refusal explains why an activity cannot be given. There is no activity an unknown id could have been,

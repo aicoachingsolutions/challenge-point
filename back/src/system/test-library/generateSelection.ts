@@ -775,6 +775,8 @@ function enumerateDesignPossibilities(ctx: DesignEnumerationContext): DesignPoss
                         archetype,
                         affordanceLenses: lensCombo,
                         constraints: conCombo,
+                        // Free text keeps the pre-14-October package rule exactly (see `requireShaping`).
+                        requireShaping: !roleNeedsFromPool,
                     })
                     if (!compat.compatible) continue
 
