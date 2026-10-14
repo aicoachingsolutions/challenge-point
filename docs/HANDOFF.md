@@ -8171,3 +8171,162 @@ type 4–6 as a preferred range, default-as-fact or guidance · 4 the re-affilia
 are "valid"; say when a preferred count cannot be fielded; bibs requirement or suggestion · 5 the four goals
 with no approved Game Problem: build or hold · 6 ranges that barely fit / don't fit; must a preference be
 offered; decimals · 7 wording (all new sentences, plus the flagged engine-vocabulary ones).
+
+---
+
+## 14 OCTOBER — HIS RULINGS ON STEPS 1–3, AND THE NEXT PHASE (S-A, S-B, S-C)
+
+**HIS REPLY (14 Oct), verbatim at `scratchpad/christian-2026-10-14.txt`; memory `christian-rulings-2026-10-14.md`.**
+(1) Selection uses only constraints authorized for the Learning Goal; a missing shaping constraint is a reported
+knowledge gap; *"I don't want us to assume that every activity necessarily requires an additional shaping constraint"*.
+(2) The context's approved Primary Scoring Event + qualifying condition GOVERN the generated activity. (3) Step 4
+approved; counting info refers to the gate's own condition; "in their half" removed from active knowledge (kept for
+provenance); 4–6 a preferred range, not a requirement or starting count; a default is not a requirement merely because
+it is the only authored value; **PCG = mechanism demonstration only.** (4) A01 on the Goalkeeper Build-Out scoring
+condition = first complete acceptance test, and it must REPRESENT the problem (goalkeeper or controlled restart,
+relevant pressure, progression opportunities); its Game Problem from the approved library only. (5) Unresolved-GP goals
+visible, PROVISIONAL, never completed examples. (6) Neutral allegiance IMMEDIATE; structural validity vs knowledge
+authorization vs ecological appropriateness; preferred 1–2 for normal starts; bibs a recommendation. (7) Practical
+starting recommendations, rounding at establishment, consolidated natural language, no "For this activity", no engine
+terms, adjustments shown separately. (8) Game forms must contribute functional characteristics. (9) Order: borrowing +
+context authority → Step 4 → A01 GP decision → Goalkeeper Build-Out activity → coach review.
+
+**DESIGN PASS (8 read-only agents, `scratchpad/d-*.txt`).** Borrowing, context scoring, Step 4, language + neutrals,
+A01 activity, and the A01 Game Problem (two independent analyses + verifier: both GP-005 Gain Access primary; GP-001
+Create Space the genuine alternative; no approved relationship ranks them; a Secondary has NO consumer — only
+`primary[0]` is read).
+
+**DECISION EMAIL SENT (14 Oct, `scratchpad/2026-10-14-a01-decisions.txt`)**: the A01 Game Problem (recommend Gain
+Access, no secondary yet) and eight build-out decisions — zone (not a line ON the end line, which leaves only
+dribbling) + its depth; one goalkeeper per team; the goalkeeper starts, goal kick only when chosen (ratify its three
+Laws facts, own END not half); regain → may score straight away (option A) or only from a fresh start (B); after a
+score the conceding team restarts with its goalkeeper; Wide Zone left out (its x2 is still held); RPC-001 clean-up
+as one approval (origin takes no value; control + long-clearance judged at the target; the progression line is the
+scoring reference; retire RPC-001-11.a's third objective; retire ten ENGINE_ONLY items); **OD1 precedence** (the
+object that establishes a condition is the authority on its own details; GF2's "must come from elsewhere" applies only
+where it says nothing). **AWAITING HIS ANSWER — item 4 cannot be completed faithfully without it.**
+
+### S-A — authorized constraints only, the PCG hold, context scoring authority (`dc98ecb`, review `2406881`)
+
+- `generateSelection.ts` `constraintPoolFor(hints, learningGoalId)`: a Learning Goal draws ONLY from its candidates
+  minus holds, no fallback at any size (an empty candidate list → `NO_SELECTABLE_CANDIDATES` gap — lead decision,
+  consistent with §1). Role needs computed over the POOL. Typed `SelectionKnowledgeGap`. Pool account travels in
+  `selectionTrace.constraintPool`. **Free text unchanged** (the review caught a drift through the now-optional
+  package shaping and restored it: outside Learning Goals a shaping member is still required in compatibility).
+- **Holds**: `test-library/library/learning-design-holds.json` (PCG, his words). Applied in BOTH pathways.
+- **Shaping optional** in `SelectedConstraintPackage` / `validateConstraintPackage` (foundation still required) — his
+  §1 ruling, every other check unchanged; live consumers handle absence; the prompt says "no shaping constraint is
+  supplied: do not add one".
+- **Context carried**: `selectFor` adds the context (role `representative performance context`); a Learning Goal
+  whose context has no contract is refused at `knowledge`; `rendering/context-scoring-guard.ts` refuses at
+  `validation` a realized game whose event is not approved by the context or lacks a constituted condition (wired
+  through the builder, proved over an altered RPC-001).
+- `account.provisional` + banner when the Game Problem is UNRESOLVED.
+- **Review page now: 0 of 13 goals served** (A01 structure — RPC-001 knowledge; A02, D03 selection gaps; A03, A06 game
+  form not built; the other eight context not built). **The pilot route refuses A04** (honest; pinned).
+- **Live generation READ for 10 goals**: 0 failures, no invented shaping constraint; A02/D03 get the gap sentence with
+  no model call. Weaknesses read: D02/TD01/TD02 near-identical; the session-emphasis profile invents "central
+  corridor" / "worth most through the middle"; **live A01 still uses COACH_RULES wording he retired on 20 Sept
+  ("beyond the first defenders", "start each attack from your goalkeeper or a restart")**; A01 invents neutrals; A04's
+  channels do not fit the field. The live route's one-constraint-per-role packaging drops selected constraints
+  (A04 loses Zone Structure) — a projection loss + two-pathway divergence, NOT fixed. Free text still serves the PCG
+  in 13/80 sampled inputs (his decision pending).
+
+### S-B — Step 4 components and his PCG answers (`aafef55`, review `e8ed99a`)
+
+- **Component A**: `gates.ts` `sameReferent` / `describeReferent` at the four String() sites; the position clause
+  treats an established absence as "names no place" and defers only when a referent's OWN position is open (tightening:
+  GA-ONE-PRIMARY-EVENT DEFERRED → NOT_EVALUABLE on the corpus-wide run and A01; an OPEN referent line is NOT_EVALUABLE —
+  accepted); SD-101 compares typed values by class, open text → `CONSTITUTIVE_SELECTOR_NOT_COMPARED`. New
+  `typed-referent.unit.ts`.
+- **Component B (data)**: `derivation/strength.ts` REQUIRED / DEFAULT / ADVISORY on `resolved.derived[]`, carried whole
+  across the fixture assembler (key-identity test); bounds carry `assumed`. GF2-17 is DEFAULT. Fixture 2eab6bea →
+  **504a4898**.
+- **Component C**: `docs/audits/approved-coach-wording.json` (EMPTY; unapproved entries ignored and fail a data test;
+  copied by build.js); conditions and information rules said only in approved words, else `rendered.withheld` →
+  refused at `communication`. Value-modifier branch generic (`effectiveValue` MULTIPLY/ADD/REPLACE, admitted only when
+  operation + magnitude + base are cited; criterion and endsOn keyed to exact values in a code map — the Wide Zone
+  sentences are NOT in the approved table; a termination with no wording now refuses).
+- **His PCG answers** (corpus-restatements): **C44** PCG-11 typed to PCG-02; **C45** PCG-06/07 removed + the gate's
+  V5/SV1 claims NON_CLAIMED (new `declarations` restatement list); **C46** PCG-04 typedBound {4,6} SUPPORTING /
+  PREFERRED_DEFAULT. No pass count is ever chosen. Tallies: restated 44, removed 6, declarations 2.
+- **Guard B0**: a held object reaching a Learning Goal build is refused at `knowledge`; matches by KNOWLEDGE KEY (the
+  review found an aliased gate id passed a text match).
+- **Demonstration `pass-combination-gate`**: refused at `structure` — the condition's place is a declared gap because
+  GF2's "V5 NOT_AUTHORED, must come from elsewhere" reaches it. **That is OD1, and it is also what blocks RPC-001's
+  control and exclusion conditions.** Over a copy without that declaration it realizes and stops at communication on 9
+  fields awaiting wording.
+
+### S-C1 — strength in the coach text, rounding at establishment, neutral allegiance (`34da83c`, review `883ee23`)
+
+- Statuses STARTING / ADVISORY / COACH_CHOICE (REALIZATION_CHOICE retired): derived value → its carried strength;
+  a choice → COACH_CHOICE when COACH_DECIDES, else STARTING. **No "For this activity," prefix.** Instruction `tier`
+  and section **"Adjusting the activity"** (preferences; the floor of a count the activity only starts at).
+- Fidelity: an omitted preference is a NOTE unless ESSENTIAL (no required limit, no starting value, no number held —
+  awaiting his confirmation); a wrong preference/limit stays a VIOLATION; Q4 for the new statuses; a hedged STARTING
+  sentence refused (review); a STARTING_VALUE_IN_RANGE line must be cited in Adjusting (review).
+- **Rounding at establishment**: `derivation/practical.ts` shared by realization and fidelity; grain is DATA
+  `docs/audits/practical-rounding.json` (0.5 m < 10 m, 1 m ≥ 10 m, whole counts/minutes), always INWARD. 30×25 →
+  channels 4–6 m, "around 6 m". Proposal awaiting his confirmation.
+- **Neutrals**: register **v7 row P6c** `performers.neutrals.affiliation.takesEffect` [IMMEDIATE, AT_NEXT_RESTART];
+  **C43** NEUTRAL-14.c = IMMEDIATE (his 13 + 14 Oct words); **GA-AFFILIATION** (17th Gate A check; unregistered value
+  FAILs; AT_NEXT_RESTART NOT_EVALUABLE; DEFENDING_TEAM also NOT_EVALUABLE — its register gloss names no relation to
+  PS1, so "neutrals support the defenders" cannot authorize; blocks, never relaxes); `within.configurations
+  {structural, authorized, offered, ecological: NOT_ASSESSED}`; a preferred count is offered only as far as the
+  session can field it; **C47** bibs SUPPORTING ("for example, contrasting bibs").
+- `derivation/knowledge-key.ts` shared by selection holds and the builder guard.
+- Fixture 504a4898 → 1ad24bb8.
+
+### S-C2 — consolidated language, one goal text for both pathways (`a0cd308`, review `7270fbe`)
+
+- Every instruction carries `parts` with ordered `bindings` (each number bound to a path AND whether it states a value
+  or a required limit — the review caught a floor said as the value passing). Retires the 13 Oct "set of numbers"
+  limit. Number words two–twenty checked ("one" not read — known limit). HEDGES `works? well`.
+- `rendering/coach-facing-exclusions.ts` shared by renderer and fidelity: "perceptual reference" excluded on his
+  ruling, discharged ONLY by the marking instruction.
+- Consolidated sentences (his example form): "Divide 12 players into 2 teams of 5, with 2 neutral players and no
+  goalkeepers"; "The neutrals support whichever team has possession and switch immediately when possession changes.
+  They take a full part in play — not waiting, resting or watching". Neutral demo 18 → 12 instructions, scoring
+  modifier 22 → 11, bare GF2 8.
+- Front: "Adjusting the activity" below a divider with lead line (DRAFT) "The setup above is where the activity starts.
+  To adjust it, use these limits and guidance:"; parts in the technical account.
+- **C6**: the live route selects a GUIDED goal from the same canonical text selectFor uses (name + Coach Definition);
+  free text untouched. Before, live A01 with a practice situation hit a KNOWLEDGE GAP; A02 landed on GF2 live vs GF3
+  checked. Unknown guided goal id answers 400 (review).
+- Hard-coded "line" / "touchline" in universal sentences — harmless while targets are lines; would misstate a zone game
+  (SD-103). Fix when A01 introduces zones.
+
+### C48 (`900d6a6`) — P6c gets the same declaration as P6a in the seven contracts that declare P6a NON_CLAIMED
+
+New `declarationsAdded` restatement list. Removes the "no coverage" P6c line from every non-neutral game (now "not
+constrained"). Fixture 1ad24bb8 → **a0d5e683**.
+
+### VERIFIED (lead, final tree `900d6a6`)
+
+Suite **FILES 84 FAILED 0**; tsc back + front clean; front builds; `node build.js` copies **9** knowledge files; the
+review route over HTTP through a bundle built with build.js's options: 13 goals each refused in one sentence (A01
+structure; A02/D03 selection gaps; A03/A06 game form; eight context), the neutral (13 p, 30×25) and scoring-modifier
+demonstrations served with 0 violations in the consolidated text, the gate demonstration refused. Page clicked through
+in a local preview by the S-C2 reviewer.
+
+### OPEN — his (sent 14 Oct)
+
+Decision email: A01 Game Problem (Gain Access recommended) + eight build-out decisions incl. OD1 precedence and zone
+depth. Report email: free-text borrowing; keep every selected constraint in the live package; rounding grain;
+"essential"; advice mapping; two replacement sentences for the RETIRED live COACH_RULES wording ("beyond the first
+defenders", "restart in your own half" — he retired them 20 Sept, the live generator still says them); wording list
+incl. "Keep at least 1 neutral player" and the duplicated neutral count.
+
+### OPEN — ours
+
+Live one-constraint-per-role packaging (drops selected constraints, e.g. A01's Interception Reward; awaiting his
+word because it changes generated activities). Live generator quality seen in real output: session-emphasis profile
+invents "central corridor"/area-weighted scoring; D02/TD01/TD02 near-identical (game-form differentiation); A05
+contradicts itself on stoppages. **Render root directory** still unverified (knowledge files outside back/).
+
+### NEXT
+
+On his answers: restate RPC-001 per his rulings (corpus-restatements only), OD1 precedence (S4c in
+`d-design-step4.txt`), AM-01 designation reach for the goalkeeper per team, zone target + depth, restart rules, the
+approved-wording entries for RPC-001's four conditions, then serve A01 on the review page with rationale and evidence
+(design: `d-design-a01-activity.txt`). Then use game-form differentiation to pick goals 2 and 3.
