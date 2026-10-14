@@ -273,10 +273,16 @@ function applyConstitutiveSelector(
         const ref = structuralRefOf(value)
         return ref ? classes.find(c => c.fromItem.contractId === ref.contractId && c.fromItem.itemId === ref.itemId) : undefined
     }
+    // A reference that resolves to an allowed class AGREES, whatever else the selector lists: identity with one
+    // member is established. Only a selector made wholly of held class ids can establish disagreement; one
+    // that also lists open text cannot (SD-63), so a non-match there is NOT_COMPARED, never CONTRADICTS.
+    // (S-B review, 14 October 2026: an `∈` selector mixing a class id with open text reported an established
+    // agreement as "not compared".)
     const typedAgainst = (value: unknown, allowed: string[]): Comparison => {
         const cls = classOfRef(value)
-        if (!cls || !allowed.every(id => byClass.has(id))) return 'NOT_COMPARED'
-        return allowed.includes(cls.classId) ? 'STANDS' : 'CONTRADICTS'
+        if (!cls) return 'NOT_COMPARED'
+        if (allowed.includes(cls.classId)) return 'STANDS'
+        return allowed.every(id => byClass.has(id)) ? 'CONTRADICTS' : 'NOT_COMPARED'
     }
     const containsReading = (members: unknown[], wanted: string): Comparison => {
         if (members.some(m => !structuralRefOf(m) && String(m) === wanted)) return 'STANDS'
@@ -307,13 +313,21 @@ function applyConstitutiveSelector(
         const contradicts = (value: unknown): boolean => reading(value) === 'CONTRADICTS'
 
         for (const entry of record.entailing.filter(e => reading(e.value) === 'NOT_COMPARED')) {
+            // Two causes, said as what they are (S-B review, 14 October 2026): the detail had called every
+            // case "open text", including a reference that resolves to no class against a class-id selector.
+            const fixedAs = JSON.stringify('value' in term ? term.value : term.values)
+            const members = Array.isArray(entry.value) ? entry.value : [entry.value]
+            const dangling = members.some(m => structuralRefOf(m) && !classOfRef(m))
             diagnostics.push({
                 code: 'CONSTITUTIVE_SELECTOR_NOT_COMPARED',
                 where: line.lineId,
-                detail:
-                    `${entry.item.contractId}::${entry.item.itemId} entails the typed reference ${JSON.stringify(entry.value)} on a property the class's own selector ` +
-                    `fixes as the open text ${JSON.stringify('value' in term ? term.value : term.values)}. Open text establishes no identity (SD-63), so it can establish ` +
-                    'neither agreement nor contradiction: the two are not compared and the contribution stands (SD-92).',
+                detail: dangling
+                    ? `${entry.item.contractId}::${entry.item.itemId} entails ${JSON.stringify(entry.value)}, a typed reference that resolves to no element class, on a property ` +
+                      `the class's own selector fixes as ${fixedAs}. Nothing establishes what the reference names, so it can establish neither agreement nor ` +
+                      'contradiction: the two are not compared and the contribution stands (SD-92).'
+                    : `${entry.item.contractId}::${entry.item.itemId} entails the typed reference ${JSON.stringify(entry.value)} on a property the class's own selector ` +
+                      `fixes as the open text ${fixedAs}. Open text establishes no identity (SD-63), so it can establish ` +
+                      'neither agreement nor contradiction: the two are not compared and the contribution stands (SD-92).',
             })
         }
 

@@ -1065,6 +1065,29 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         assert.deepEqual(held.reasons, [`${GATE_ID} is held out of Learning Goal activities by ruling of 2026-10-14: a mechanism demonstration only (pass-combination-gate)`])
         assert.equal(held.account.gameForm!.contracted, true, 'a hold refusal is at knowledge with the game form built — not the game-form refusal')
     }
+
+    /**
+     * **The guard reads the hold by KNOWLEDGE KEY — the key derivation loads a contract by** (S-B review,
+     * 14 October 2026). `derivationInputFor` loads the gate's contract for any spelling `knowledgeKey` folds to
+     * `PASS-COMBINATION-GATE` — the library id, the contract id, the bare key — and the guard compared the
+     * library id as text, so the same object under another spelling reached derivation unguarded (measured:
+     * A05 then fell through to the context refusal and A01 to structure, neither saying the gate is held). The
+     * design named that exact risk ("an id spelling mismatch silently admits the gate"). Each spelling is now
+     * refused by the hold, and the reason names the id as selected.
+     */
+    for (const alias of ['blind:PASS-COMBINATION-GATE', 'PASS-COMBINATION-GATE', 'pass-combination-gate']) {
+        for (const goalId of ['A01', 'A05']) {
+            const held = refused(
+                buildActivityOverAlteredSelection({ kind: 'learning-goal', goalId, session }, selection => {
+                    selection.selected = [...selection.selected, { id: alias, role: 'constraint' }]
+                }),
+                `${goalId} with the held gate spelled ${alias}`,
+            )
+            assert.equal(held.stage, 'knowledge', `${goalId} ${alias}: ${JSON.stringify(held.reasons)}`)
+            assert.equal(held.summary, 'This goal selects a rule that has not been approved for learning-design activities yet.', `${goalId} ${alias}`)
+            assert.deepEqual(held.reasons, [`${alias} is held out of Learning Goal activities by ruling of 2026-10-14: a mechanism demonstration only (pass-combination-gate)`])
+        }
+    }
 }
 
 /**

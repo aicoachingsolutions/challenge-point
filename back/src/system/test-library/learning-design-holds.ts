@@ -34,8 +34,3 @@ const HOLDS: LearningDesignHold[] = (registry.holds as LearningDesignHold[]).map
 export function learningGoalSelectionHolds(): LearningDesignHold[] {
     return HOLDS.filter((hold) => hold.scope === 'LEARNING_GOAL_SELECTION').map((hold) => ({ ...hold }))
 }
-
-/** The hold on this id for Learning Goal selection, or null where none is ruled. */
-export function heldForLearningGoal(id: string): LearningDesignHold | null {
-    return learningGoalSelectionHolds().find((hold) => hold.knowledgeId === id) ?? null
-}

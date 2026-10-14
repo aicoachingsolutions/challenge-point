@@ -28,6 +28,7 @@ import path from 'node:path'
 import { justifiedDefaults } from '../realization/justified-defaults'
 import { CONFORMANCE_DIR, corpusInput, loadCorpusContracts } from './corpus'
 import { runDerivation, runStages0to10 } from './engine'
+import { runGates } from './gates'
 import { indexRegister } from './register'
 import { assembleResolvedGame } from './resolved-game'
 import { derivationInputFor } from './run-bounded-selection'
@@ -170,6 +171,23 @@ test('a typed V5 referent to a region is looked up as that region, not reported 
         assert.deepEqual([position.verdict, position.instances], ['PASS', 0])
         assert.match(check(result, 'GA-ONE-PRIMARY-EVENT').why, /1 condition\(s\) name no place/)
         assert.deepEqual(check(result, 'GA-ONE-PRIMARY-EVENT').blockedBy, [])
+
+        /**
+         * **A MISSING line still blocks — only an established absence is an answer** (S-B review, 14 October
+         * 2026; the case the component left untested). No derivation input can omit a condition's V5 line, so
+         * the same gate context is re-run with that one line taken out of the classification: the clause is
+         * NOT_EVALUABLE, the check names the line as one that does not exist, and nothing counts it as naming
+         * no place.
+         */
+        const classified = new Map(result.gateContext.classified)
+        classified.delete(v5Line)
+        const missing: any = runGates({ ...result.gateContext, classified })
+        const missingCheck = missing.gateA.checks.find((c: any) => c.checkId === 'GA-ONE-PRIMARY-EVENT')
+        assert.equal(missingCheck.clauses.find((c: any) => c.clause.startsWith('every member of the event reference')).verdict, 'NOT_EVALUABLE')
+        const block = missing.gateA.blocks.find((b: any) => b.checkId === 'GA-ONE-PRIMARY-EVENT' && b.clause.startsWith('every member of the event reference'))
+        assert.deepEqual(block.dependency.rows, [v5Line], 'the block names the line that does not exist (SD-62)')
+        assert.doesNotMatch(missingCheck.why, /name no place/)
+        assert.equal(missing.gateA.verdict, 'NOT_EVALUABLE')
     })
     test('TIGHTENED: an open-text referent with only the scoring kind pending is NOT_EVALUABLE, no longer DEFERRED', () => {
         // The gate's state until C45: its place was open text, which no realization can resolve. The only line
@@ -218,6 +236,33 @@ test('a typed V5 referent to a region is looked up as that region, not reported 
         assert.deepEqual(against('GF2-03.e'), [])
         assert.equal(against('GF2-03.f').length, 1)
         assert.match(against('GF2-03.f')[0], /^CONSTITUTIVE_SELECTOR_CONTRADICTED@/)
+    })
+
+    /**
+     * **S-B review, 14 October 2026.** Two readings the component left wrong, each measured at aafef55 over the
+     * same copies: an `∈` selector listing a held class id beside open text reported a reference to THAT class
+     * as "not compared" — an established agreement reported as undecided — and a reference resolving to no class
+     * was described as being compared with "open text" when the selector held only a class id.
+     */
+    const over = (selector: string, value: unknown) => {
+        const input = gateComposition()
+        const gate = contractOf(input, GATE)
+        for (const i of gate.items) if (String(i.selector).startsWith('subject=')) i.selector = selector
+        for (const d of gate.declarations) if (String(d.selector).startsWith('subject=')) d.selector = selector
+        gate.items.find((i: any) => i.itemId === 'PCG-11').value = value
+        return ((runStages0to10(input) as any).diagnostics ?? []).filter((d: any) => d.where === v16)
+    }
+    test('an `∈` selector mixing a class id with open text: its own class AGREES, another class is NOT_COMPARED, never CONTRADICTED', () => {
+        const mixed = 'subject ∈ {c:restated:GF2:GF2-03.e, a count in open text (a test device)}'
+        assert.deepEqual(over(mixed, typed('restated:GF2', 'GF2-03.e')), [], 'identity with one listed member is established (it read NOT_COMPARED)')
+        assert.deepEqual(over(mixed, typed('restated:GF2', 'GF2-03.f')).map((d: any) => d.code), ['CONSTITUTIVE_SELECTOR_NOT_COMPARED'], 'the open-text member may be it')
+    })
+    test('a typed value that resolves to no class is NOT_COMPARED, and the report says so rather than blaming open text', () => {
+        const [only, ...rest] = over('subject=c:restated:GF2:GF2-03.e', typed('restated:GF2', 'NO-SUCH-ITEM'))
+        assert.deepEqual(rest, [])
+        assert.equal(only.code, 'CONSTITUTIVE_SELECTOR_NOT_COMPARED')
+        assert.match(only.detail, /resolves to no element class/)
+        assert.doesNotMatch(only.detail, /open text/)
     })
 }
 
@@ -273,11 +318,29 @@ test('a typed V5 referent to a region is looked up as that region, not reported 
 test('the corpus-wide Gate A, check by check', () => {
     // Pinned 14 October 2026 after component 1. Every check's verdict is what it was at 2406881 except
     // GA-ONE-PRIMARY-EVENT, which moved DEFERRED_TO_REALIZATION → NOT_EVALUABLE: its position clause had
-    // deferred on the open scoring kind while the referents it was blocked on were open text (the gate's
-    // "own half" and RPC-001's control and exclusion places). The tightening above, and the only check that
-    // moved. His gate answers (C44-C46) moved no check verdict on the corpus-wide run: GA-NO-FAILED-LINE gained
-    // the gate's V5 as a 13th unestablished line, and one diagnostic changed kind (below).
+    // deferred on whatever was pending in the check while none of what it was blocked on was a position.
+    // **Corrected in the S-B review (14 October)**, measured line by line: at 2406881 the blockers were the
+    // gate's open-text "own half"; RPC-001's control and exclusion places (18.f, 19.a), which are DECLARED GAPS,
+    // not open text; RPC-001's progression place (18.c), open text; and its origin place (18.a), a FREE choice
+    // between two open-text placements. After C45 the gate's place is a declared gap too. The tightening above,
+    // and the only check that moved (re-measured in the review against 2406881, corpus-wide and for GF2 with
+    // each contract: no other check moved). His gate answers (C44-C46) moved no check verdict on the corpus-wide
+    // run: GA-NO-FAILED-LINE gained the gate's V5 as a 13th unestablished line, and one diagnostic changed kind.
+    //
+    // Note the FREE origin place: an open REFERENT line counts as blocked, not as a position pending, so it does
+    // not defer either. Here that is right — realization would close it to open text, which no realization can
+    // position — and it is pinned so a change to it is a visible decision (raised with the lead).
     const result: any = runStages0to10(corpusInput())
+    const primaryEvent = check(result, 'GA-ONE-PRIMARY-EVENT')
+    for (const [id, verdict] of [
+        [`c:${GATE}:PCG-02::V5`, 'NOT_AUTHORED'],
+        ['c:restated:RPC-001:RPC-001-18.f::V5', 'NOT_AUTHORED'],
+        ['c:restated:RPC-001:RPC-001-19.a::V5', 'NOT_AUTHORED'],
+        ['c:restated:RPC-001:RPC-001-18.a::V5', 'FREE(choice)'],
+    ]) {
+        assert.ok(primaryEvent.blockedBy.includes(id) || primaryEvent.pendingOn.includes(id), id)
+        assert.equal(result.classified.get(id).verdict, verdict, id)
+    }
     const verdicts = Object.fromEntries(result.gates.gateA.checks.map((c: any) => [c.checkId, c.verdict]))
     assert.deepEqual(verdicts, {
         'GA-DIRECTION': 'NOT_EVALUABLE',

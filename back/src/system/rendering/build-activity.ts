@@ -49,7 +49,7 @@ import { sessionPlanningModel } from '../session-planning/session-planning-model
 import { rpcLibrary } from '../sport-module/rpc-library'
 import { TEST_LIBRARY_V0_AFFORDANCE_LENSES, TEST_LIBRARY_V0_ARCHETYPES, TEST_LIBRARY_V0_CONSTRAINTS, TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS } from '../test-library'
 import type { SelectionKnowledgeGapReason } from '../test-library/generateSelection'
-import { heldForLearningGoal } from '../test-library/learning-design-holds'
+import { learningGoalSelectionHolds } from '../test-library/learning-design-holds'
 import type { ConstraintPoolAccount } from '../test-library/types'
 import { contextScoringFindings } from './context-scoring-guard'
 import { checkFidelity } from './fidelity'
@@ -571,13 +571,19 @@ function build(
      * his answers change the gate's knowledge, and once that knowledge can pass its gates nothing else would
      * stop a goal's activity carrying it. Demonstrations are untouched — that is where a held object stays
      * usable — and so is every candidate pool.
+     *
+     * **Matched by knowledge key, the key derivation loads a contract by** (S-B review, 14 October 2026).
+     * `derivationInputFor` folds every spelling of an object — library id, contract id, bare key, any case — to
+     * one `knowledgeKey` and loads its contract; compared as text, the gate under another spelling reached
+     * derivation past this guard (measured). The guard must hold exactly what derivation would load.
      */
     if (kind === 'learning-goal') {
-        const held = selection.selected.filter(entry => heldForLearningGoal(entry.id))
+        const holdOf = (id: string) => learningGoalSelectionHolds().find(hold => knowledgeKey(hold.knowledgeId) === knowledgeKey(id)) ?? null
+        const held = selection.selected.filter(entry => holdOf(entry.id))
         if (held.length) {
             return refuse('knowledge', 'This goal selects a rule that has not been approved for learning-design activities yet.', [
                 ...held.map(entry => {
-                    const hold = heldForLearningGoal(entry.id)!
+                    const hold = holdOf(entry.id)!
                     return `${entry.id} is held out of Learning Goal activities by ruling of ${hold.ruledOn}: a mechanism demonstration only (${hold.mechanismDemonstration})`
                 }),
             ])
