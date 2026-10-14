@@ -234,8 +234,8 @@
  },
  "record": {
   "fromDigest": "235ee36e",
-  "realizationDigest": "7e4ffdc8",
-  "auditDigest": "5c401f3e",
+  "realizationDigest": "e64500e4",
+  "auditDigest": "0f259bdc",
   "geometry": [
    {
     "lineId": "c:restated:GF2:GF2-03.e::S5",
@@ -383,7 +383,7 @@
    {
     "lineId": "c:restated:GF2:GF2-03.e::S6",
     "value": "extends across the axis: the target lies across the direction of progression",
-    "because": "Closed by rule, not chosen: the authored bound on this line has exactly one member, \"extends across the axis: the target lies across the direction of progression\", so it is the only value the knowledge permits here and any other would be refused.",
+    "because": "Closed by rule, not chosen: exactly one value is authored for this line, \"extends across the axis: the target lies across the direction of progression\", and it is authored as a PREFERRED default — the value the knowledge gives to start from, not a requirement. No other value is authored for the line, and realization holds a value to the authored set, so no other is accepted today.",
     "path": "space.regions[c:restated:GF2:GF2-03.e].position.across",
     "authority": "SD-39",
     "boundCheck": "WITHIN_PERMITTED_SET",
@@ -405,7 +405,7 @@
    {
     "lineId": "c:restated:GF2:GF2-03.f::S6",
     "value": "extends across the axis: the target lies across the direction of progression",
-    "because": "Closed by rule, not chosen: the authored bound on this line has exactly one member, \"extends across the axis: the target lies across the direction of progression\", so it is the only value the knowledge permits here and any other would be refused.",
+    "because": "Closed by rule, not chosen: exactly one value is authored for this line, \"extends across the axis: the target lies across the direction of progression\", and it is authored as a PREFERRED default — the value the knowledge gives to start from, not a requirement. No other value is authored for the line, and realization holds a value to the authored set, so no other is accepted today.",
     "path": "space.regions[c:restated:GF2:GF2-03.f].position.across",
     "authority": "SD-39",
     "boundCheck": "WITHIN_PERMITTED_SET",
@@ -806,7 +806,7 @@
    {
     "lineId": "c:restated:GF2:GF2-03.e::S6",
     "value": "extends across the axis: the target lies across the direction of progression",
-    "because": "Closed by rule, not chosen: the authored bound on this line has exactly one member, \"extends across the axis: the target lies across the direction of progression\", so it is the only value the knowledge permits here and any other would be refused.",
+    "because": "Closed by rule, not chosen: exactly one value is authored for this line, \"extends across the axis: the target lies across the direction of progression\", and it is authored as a PREFERRED default — the value the knowledge gives to start from, not a requirement. No other value is authored for the line, and realization holds a value to the authored set, so no other is accepted today.",
     "path": "space.regions[c:restated:GF2:GF2-03.e].position.across",
     "authority": "SD-39",
     "boundCheck": "WITHIN_PERMITTED_SET",
@@ -828,7 +828,7 @@
    {
     "lineId": "c:restated:GF2:GF2-03.f::S6",
     "value": "extends across the axis: the target lies across the direction of progression",
-    "because": "Closed by rule, not chosen: the authored bound on this line has exactly one member, \"extends across the axis: the target lies across the direction of progression\", so it is the only value the knowledge permits here and any other would be refused.",
+    "because": "Closed by rule, not chosen: exactly one value is authored for this line, \"extends across the axis: the target lies across the direction of progression\", and it is authored as a PREFERRED default — the value the knowledge gives to start from, not a requirement. No other value is authored for the line, and realization holds a value to the authored set, so no other is accepted today.",
     "path": "space.regions[c:restated:GF2:GF2-03.f].position.across",
     "authority": "SD-39",
     "boundCheck": "WITHIN_PERMITTED_SET",

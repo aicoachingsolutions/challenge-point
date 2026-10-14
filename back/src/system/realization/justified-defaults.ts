@@ -16,8 +16,10 @@
  *
  * **The two rules. Each yields a value only where the knowledge and the session admit exactly one.**
  *
- *   1. `ONLY_MEMBER_OF_AUTHORED_BOUND` — the line carries no set of alternatives, and the members common to
- *      every set it is bounded by come to exactly one. That member.
+ *   1. `ONLY_MEMBER_OF_AUTHORED_BOUND` — the line carries no set of alternatives and no required numeric
+ *      range, and the members common to every set it is bounded by come to exactly one. That member. It may
+ *      be the one value the knowledge REQUIRES or the one it authors as a PREFERRED default; both are the
+ *      only value authored for the line, and the reason recorded with the default says which it was.
  *   2. `ONLY_PREFERRED_COUNT_THE_ROSTER_ADMITS` — the line is bounded by whole-number counts and one of them
  *      is an authored PREFERRED range. Of the whole numbers inside that range and inside what is required,
  *      the one for which the roster comes out whole — when exactly one does. It is a STARTING value: the
@@ -34,63 +36,25 @@
  * nobody chose a value for, and it passes every check a choice passes. It is recorded as a choice, marked
  * with the rule (`defaultedBy`), so no default can later read as a decision somebody made.
  *
+ * **And `realize` does not take one on trust.** A default is refused there unless the line is one its rule
+ * closes and the value is the one the rule yields, so nothing handed in under a rule's name — from here or
+ * from anywhere else — can close a set of alternatives or a coach's row.
+ *
  * An exclusion's bound says what a line may NOT be and is never a source for either rule (`Bounds.forbidden`).
  */
 import { GateContext } from '../derivation/gates'
 import { RegisterIndex } from '../derivation/register'
-import { OpenChoice, ResolvedGame } from '../derivation/resolved-game'
-import { Bounds } from '../derivation/types'
+import { ResolvedGame } from '../derivation/resolved-game'
 import { rosterRefusal } from './assemble-concrete-game'
-import { Choice, Instantiation, isRefused, JustifiedDefault, RealizationResult, realize } from './realize'
-
-/** The bounds that say what a line may be. */
-const permitting = (open: OpenChoice): Bounds[] => (open.bounds as Bounds[]).filter(bound => bound && !bound.forbidden)
-
-const same = (a: unknown, b: unknown): boolean => JSON.stringify(a) === JSON.stringify(b)
-
-/** Rule 1's subject: the one value the line's sets permit, or nothing. */
-function onlyMember(open: OpenChoice): { value: unknown } | null {
-    // A set of alternatives is somebody's decision however small. A permitted set of one is not open at all.
-    if (open.permitted) return null
-    const sets = permitting(open).filter(bound => bound.kind === 'SET' && Array.isArray(bound.members))
-    if (!sets.length) return null
-    const common = sets[0].members!.filter(member => sets.every(set => set.members!.some(other => same(other, member))))
-    return common.length === 1 ? { value: common[0] } : null
-}
-
-const whole = (value: unknown): value is number => typeof value === 'number' && Number.isInteger(value)
+import { Choice, Instantiation, isRefused, JustifiedDefault, onlyPermittedMember, preferredCounts, RealizationResult, realize } from './realize'
 
 /**
- * Rule 2's candidates: the whole numbers inside the authored preferred range and inside every requirement,
- * with the two ranges they were read from. Null where the line is not such a count.
- *
- * It is deliberately hard to qualify. Every numeric bound must be a whole-number count in its own units —
- * a fraction of an axis is an extent, not a count; there must be an authored preference, or there is nothing
- * to prefer; and the preference must close the range at both ends, or there is no finite set to look in.
+ * What each rule is ABOUT — which line is its subject and which value it yields — is stated once, in
+ * `realize.ts`, beside the bound check it has to agree with (`onlyPermittedMember`, `preferredCounts`). It
+ * is read from there by this module, which produces a default, and by `realize`, which refuses one that is
+ * not what its rule yields. Two statements of a rule are two rules the first time one is edited.
  */
-export function preferredCounts(open: OpenChoice): { candidates: number[]; preferred: { min: number; max: number }; required: { min: number | null; max: number | null } } | null {
-    if (open.permitted) return null
-    const bounds = permitting(open)
-    if (bounds.some(bound => bound.kind !== 'COUNT')) return null
-    if (bounds.some(bound => bound.fractionOfAxis)) return null
-    const limits = (wanted: Bounds[], which: 'min' | 'max'): number[] | null => {
-        const stated = wanted.map(bound => bound[which]).filter(limit => limit !== null && limit !== undefined)
-        return stated.every(whole) ? (stated as number[]) : null
-    }
-    const preferredBounds = bounds.filter(bound => bound.preferred)
-    const requiredBounds = bounds.filter(bound => !bound.preferred)
-    if (!preferredBounds.length) return null
-    const [preferredMins, preferredMaxes, requiredMins, requiredMaxes] = [limits(preferredBounds, 'min'), limits(preferredBounds, 'max'), limits(requiredBounds, 'min'), limits(requiredBounds, 'max')]
-    if (!preferredMins || !preferredMaxes || !requiredMins || !requiredMaxes) return null
-    if (!preferredMins.length || !preferredMaxes.length) return null
-    const preferred = { min: Math.max(...preferredMins), max: Math.min(...preferredMaxes) }
-    const required = { min: requiredMins.length ? Math.max(...requiredMins) : null, max: requiredMaxes.length ? Math.min(...requiredMaxes) : null }
-    const from = Math.max(preferred.min, required.min ?? preferred.min)
-    const to = Math.min(preferred.max, required.max ?? preferred.max)
-    const candidates: number[] = []
-    for (let n = from; n <= to; n++) candidates.push(n)
-    return { candidates, preferred, required }
-}
+export { preferredCounts } from './realize'
 
 /**
  * Does the roster come out whole with this value in the game? Asked of rule 2's candidates one at a time,
@@ -110,14 +74,26 @@ export function justifiedDefaults(resolved: ResolvedGame, choices: Choice[], ros
 
     const only: JustifiedDefault[] = []
     for (const open of unchosen) {
-        const member = onlyMember(open)
+        const member = onlyPermittedMember(open)
         if (!member) continue
         only.push({
             lineId: open.lineId,
             value: member.value,
-            because:
-                `Closed by rule, not chosen: the authored bound on this line has exactly one member, ${JSON.stringify(member.value)}, ` +
-                `so it is the only value the knowledge permits here and any other would be refused.`,
+            /**
+             * **The reason says which kind of single member it is.** It said of every one that it is *"the
+             * only value the knowledge permits here"*. Measured in the review of 13 October: all four lines
+             * this rule closes in the corpus carry their one member from a PREFERRED default, and what the
+             * knowledge prefers is not all that it permits. Such a default is still justified — it is the
+             * value the knowledge itself gives to start from, and the only one authored — but the record of
+             * it may not turn the preference into a requirement, which is the status change his fidelity
+             * questions exist to catch.
+             */
+            because: member.preferred
+                ? `Closed by rule, not chosen: exactly one value is authored for this line, ${JSON.stringify(member.value)}, and it is authored as a ` +
+                  `PREFERRED default — the value the knowledge gives to start from, not a requirement. No other value is authored for the line, ` +
+                  `and realization holds a value to the authored set, so no other is accepted today.`
+                : `Closed by rule, not chosen: the authored bound on this line has exactly one member, ${JSON.stringify(member.value)}, ` +
+                  `so it is the only value the knowledge permits here and any other would be refused.`,
             rule: 'ONLY_MEMBER_OF_AUTHORED_BOUND',
         })
     }

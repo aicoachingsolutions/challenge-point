@@ -487,6 +487,40 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
     assert.ok(text(awkward, 'Set up').includes('Mark a channel along one touchline, 35 m long and between 3.45 m and 5.75 m wide'), JSON.stringify(text(awkward, 'Set up')))
 
     /**
+     * **More sizes, read sentence by sentence in the review of 13 October 2026 and pinned as read.** Each is
+     * here for a reason of its own: 33 × 21 is a width whose minimum (3.15) the float product misses and
+     * whose preference lies outside the requirement; 45 × 35 is one where the preferred floor sits INSIDE the
+     * requirement (5.25 to 8.75, preferred from 6); 100 × 64 is one where the requirement's floor (9.6) is
+     * ABOVE the preferred floor, so the preference offered is 9.6 to 10 and never 6; 30.5 × 22.2 is an area a
+     * coach typed with decimals; and 40 × 24 is the one width where the preference meets the requirement at
+     * a single point, so it is offered as one number — a sentence shape no other size produces. Every number
+     * is one the game holds, with no digit added or dropped.
+     */
+    const read: [number, number, string, string | null][] = [
+        [40, 24, 'between 3.6 m and 6 m wide', 'Around 6 m wide works well, if it suits your group'],
+        [33, 21, 'between 3.15 m and 5.25 m wide', null],
+        [45, 35, 'between 5.25 m and 8.75 m wide', 'Around 6 m to 8.75 m wide works well, if it suits your group'],
+        [100, 64, 'between 9.6 m and 16 m wide', 'Around 9.6 m to 10 m wide works well, if it suits your group'],
+        [30.5, 22.2, 'between 3.33 m and 5.55 m wide', null],
+    ]
+    for (const [length, width, required, preference] of read) {
+        const activity = at(length, width)
+        assert.equal(activity.integrity.fidelityViolations, 0, `${length} x ${width}`)
+        const setUp = text(activity, 'Set up')
+        assert.deepEqual(
+            setUp.filter(sentence => sentence.startsWith('Mark a channel')),
+            [`Mark a channel along one touchline, ${length} m long and ${required}`, `Mark a channel along the opposite touchline, ${length} m long and ${required}`],
+            `${length} x ${width}`,
+        )
+        const offered = activity.rendered.instructions.filter(i => i.status === 'PREFERENCE').map(i => i.text)
+        assert.deepEqual(offered, preference ? [preference, preference] : [], `${length} x ${width}: the preference is offered only inside the requirement, and as a PREFERENCE`)
+        // No number a coach reads is a float artefact: each prints as the short decimal it is.
+        for (const said of activity.rendered.instructions) {
+            for (const [number] of said.text.matchAll(/\d+(?:\.\d+)?/g)) assert.ok(number.length <= 6, `"${number}" in "${said.text}"`)
+        }
+    }
+
+    /**
      * **The neutral-player demonstration is REFUSED today, and that is the honest state of the mechanism.**
      * Its contract leaves the neutral count open and nothing has chosen one, so there is no single game to
      * show. Completing it is Stage B3; until then this must refuse rather than be made to pass. When B3

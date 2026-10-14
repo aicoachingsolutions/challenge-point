@@ -68,7 +68,25 @@ test('rule 1: a line whose authored bound has exactly one member is closed to th
         defaults.map(d => [d.lineId, d.value, d.rule]),
         [['L-width', 'full width', 'ONLY_MEMBER_OF_AUTHORED_BOUND']],
     )
-    assert.match(defaults[0].because, /exactly one member/, 'the reason states the rule, not a preference for the value')
+    /**
+     * **Re-pinned in the review of 13 October 2026: the reason says WHICH kind of single member it is.**
+     * This asserted `/exactly one member/` of a default whose one member comes from a PREFERRED bound, and
+     * the sentence around those words went on *"so it is the only value the knowledge permits here and any
+     * other would be refused"*. That is false of a preferred default, and it is the case the corpus
+     * actually holds: all four lines this rule closes today (each target's across-extent, each channel's
+     * along-extent) carry their member from a `PREFERRED_DEFAULT`, `SUPPORTING` item. The default is still
+     * justified — it is the only value authored — but a record that calls a preference a requirement has
+     * changed its status. So the two kinds are told apart, and each is asserted.
+     */
+    assert.match(defaults[0].because, /exactly one value is authored for this line/, 'the reason states the rule, not a preference for the value')
+    assert.match(defaults[0].because, /PREFERRED default — the value the knowledge gives to start from, not a requirement/)
+    assert.doesNotMatch(defaults[0].because, /only value the knowledge permits/, 'a preferred default is not said to be all the knowledge permits')
+
+    const required = justifiedDefaults(game(line('L-width', { bounds: [{ kind: 'SET', members: ['full width'], preferred: false }] })), [])
+    assert.match(required[0].because, /exactly one member, "full width", so it is the only value the knowledge permits here/, 'a required one is')
+    // A requirement that itself leaves one value is required, whatever a preference beside it also says.
+    const both = justifiedDefaults(game(line('L-width', { bounds: [{ kind: 'SET', members: ['full width'], preferred: false }, { kind: 'SET', members: ['full width', 'half'], preferred: true }] })), [])
+    assert.match(both[0].because, /only value the knowledge permits here/)
 
     // Two sets that agree on one member leave one value, however many each offers.
     const narrowed = game(line('L-x', { bounds: [{ kind: 'SET', members: ['a', 'b'] }, { kind: 'SET', members: ['b', 'c'] }] }))
@@ -87,6 +105,11 @@ test('rule 1 closes NOTHING else — alternatives, exclusions, words and unbound
         ['a required range is not a value', line('L-count', { bounds: [{ kind: 'COUNT', min: 6, max: 12 }] })],
         ['sets with nothing in common leave nothing', line('L-none', { bounds: [{ kind: 'SET', members: ['a'] }, { kind: 'SET', members: ['b'] }] })],
         ['an unbounded line has no member to be the only one', line('L-free', {})],
+        // Added in the review of 13 October. Required alternatives with a PREFERRED member: the preference
+        // leaves one value, the requirement leaves two — a decision the knowledge has an opinion about.
+        ['required alternatives are not closed by a preference among them', line('L-pref', { bounds: [{ kind: 'SET', members: ['a', 'b'], preferred: false }, { kind: 'SET', members: ['a'], preferred: true }] })],
+        // And a set beside a required range is not what the value is held to: the range is checked first.
+        ['a set beside a required range is not the only member of anything', line('L-mixed', { bounds: [{ kind: 'COUNT', min: 1, max: 3, preferred: false }, { kind: 'SET', members: [2] }] })],
     ]
     for (const [why, open] of untouched) {
         assert.deepEqual(justifiedDefaults(game(open), []), [], why)
@@ -205,6 +228,73 @@ test('a default passes every check a choice passes, and two defaults for one lin
         { lineId: 'L-count', value: 2, because: 'another', rule: 'ONLY_PREFERRED_COUNT_THE_ROSTER_ADMITS' },
     ])
     assert.ok(isRefused(twice) && /2 defaults were offered for one line/.test(twice.because[0]))
+})
+
+/**
+ * **`realize` holds a default to its rule; it does not take one on the producer's word.** Added in the
+ * review of 13 October 2026.
+ *
+ * Measured before this, on the possession game with the scoring modifier: with the target's noun withheld,
+ * a default of `zone` handed to `realize` under `ONLY_MEMBER_OF_AUTHORED_BOUND` REALIZED, and the record
+ * said a rule had closed a line that holds two design alternatives (`closure: CHOSEN_AMONG_ALTERNATIVES`,
+ * `defaultedBy: ONLY_MEMBER_OF_AUTHORED_BOUND`). The same for who starts with the ball, and for the scoring
+ * kind under the count rule. `justifiedDefaults` produces none of those, so nothing served was wrong — but
+ * "a default never closes an alternative set or a coach's row" was true of one caller and not of the
+ * realizer. It is true of the realizer now, and a refused default leaves the line refused.
+ */
+test('realize refuses a default its rule does not earn — an alternative set, a coach row, the wrong rule, the wrong value', () => {
+    const offered = (open: OpenChoice, value: unknown, rule: JustifiedDefault['rule']) =>
+        realize(game(open), [], [], undefined, undefined, [{ lineId: open.lineId, value, because: 'handed in', rule }])
+    const refusedFor = (open: OpenChoice, value: unknown, rule: JustifiedDefault['rule'], why: RegExp, what: string) => {
+        const result = offered(open, value, rule)
+        assert.ok(isRefused(result), `${what}: must not realize`)
+        assert.equal(result.because.length, 1, `${what}: ${JSON.stringify(result.because)}`)
+        assert.match(result.because[0], why, what)
+        assert.match(result.because[0], /anything else is a decision, and needs a choice/, what)
+    }
+    const only = 'ONLY_MEMBER_OF_AUTHORED_BOUND' as const
+    const count = 'ONLY_PREFERRED_COUNT_THE_ROSTER_ADMITS' as const
+
+    refusedFor(line('L-noun', { permitted: ['zone', 'line'] }), 'zone', only, /offered under ONLY_MEMBER_OF_AUTHORED_BOUND.*it holds a set of alternatives/, 'a design alternative')
+    refusedFor(line('L-two', { bounds: [{ kind: 'SET', members: ['a', 'b'] }] }), 'a', only, /do not come to exactly one member/, 'alternatives carried as a bound')
+    refusedFor(line('L-holder', { bounds: [{ kind: 'QUALITATIVE', term: 'one of the participating opposing teams' }] }), 'K-teams#1', only, /do not come to exactly one member/, "the coach's row")
+    refusedFor(line('L-free', {}), 'anything', only, /do not come to exactly one member/, 'an unbounded line')
+    refusedFor(line('L-pref', { bounds: [{ kind: 'SET', members: ['a', 'b'], preferred: false }, { kind: 'SET', members: ['a'], preferred: true }] }), 'a', only, /do not come to exactly one member/, 'a preferred member of required alternatives')
+
+    // The count rule, on a line that is not its subject, and for a value that is not one it yields.
+    refusedFor(line('L-kind', { permitted: ['line_crossed', 'target_zone_entered'] }), 'line_crossed', count, /not a whole-number count with an authored preferred range/, 'alternatives under the count rule')
+    refusedFor(line('L-count', { bounds: [{ kind: 'COUNT', min: 1, max: 3 }] }), 2, count, /not a whole-number count with an authored preferred range/, 'a required range with no preference: inside the bound, and still not defaultable')
+    refusedFor(line('L-neutrals', { bounds: [REQUIRED_FLOOR, PREFERRED_1_TO_2] }), 3, count, /3 is not a whole number inside both the preferred range 1 to 2 and what is required/, 'inside the requirement, outside the preference')
+    // A rule that does not exist closes nothing.
+    refusedFor(line('L-w', { bounds: [{ kind: 'SET', members: ['full width'] }] }), 'full width', 'BECAUSE_IT_IS_CONVENIENT' as any, /it names no rule there is/, 'a made-up rule')
+
+    // What each rule DOES yield is still taken — the check refuses the unearned, not the default.
+    for (const [open, value, rule] of [
+        [line('L-w', { bounds: [{ kind: 'SET', members: ['full width'], preferred: true }] }), 'full width', only],
+        [line('L-neutrals', { bounds: [REQUIRED_FLOOR, PREFERRED_1_TO_2] }), 2, count],
+    ] as const) {
+        const result = offered(open, value, rule)
+        if (isRefused(result)) return assert.fail(`refused: ${result.because.join('; ')}`)
+        assert.deepEqual(result.record.choices.map(c => [c.value, c.defaultedBy]), [[value, rule]])
+    }
+})
+
+test('on the corpus: a default handed in for a design alternative, the scoring kind or who starts is refused, for that line and no other', () => {
+    const { resolved, supplied, index, envelope, ctx } = pathway(['GF2', 'tl-v0-constraint-wide-zone-advantage'])
+    const real = justifiedDefaultsOnPathway(resolved, supplied, index, envelope, ctx)
+    const forged: [string, unknown, JustifiedDefault['rule']][] = [
+        ['c:restated:GF2:GF2-03.e::S3', 'zone', 'ONLY_MEMBER_OF_AUTHORED_BOUND'],
+        ['game::V1', 'line_crossed', 'ONLY_PREFERRED_COUNT_THE_ROSTER_ADMITS'],
+        ['game::PS1', 'c:restated:GF2:GF2-14.a#2', 'ONLY_MEMBER_OF_AUTHORED_BOUND'],
+    ]
+    for (const [lineId, value, rule] of forged) {
+        const withheld = supplied.choices.filter(c => c.lineId !== lineId)
+        assert.equal(withheld.length, supplied.choices.length - 1, `${lineId} is one of the four real decisions`)
+        const result = realize(resolved, withheld, supplied.instantiations, index, envelope, [...real, { lineId, value, because: 'handed in', rule }])
+        assert.ok(isRefused(result), `${lineId} must not be closed by a default`)
+        assert.equal(result.because.length, 1, JSON.stringify(result.because))
+        assert.ok(result.because[0].startsWith(`${lineId}: a default was offered under ${rule}, and that rule does not close this line`), result.because[0])
+    }
 })
 
 // ---------------------------------------------------------------------------------------------

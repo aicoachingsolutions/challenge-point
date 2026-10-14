@@ -365,6 +365,77 @@ assert.equal(report.provenance.length, rendered.instructions.length)
         assert.ok(game.status.bounds.some((b: any) => b.bounds.some((bound: any) => bound.forbidden)), 'an exclusion crosses too, marked, and is no part of any range')
     }
 
+    /**
+     * **A required limit is a number of ITS LINE — supported for a sentence that cites the line, and for no
+     * other.** Added in the review of 13 October 2026.
+     *
+     * The range work first made every limit a number of the whole game: the limits were added to the set
+     * every sentence is tested against, and the metres realization writes beside the interval
+     * (`requiredWithin`) sit in the geometry that set is gathered from. Measured: *"Play for 4.5 minutes"*
+     * — 4.5 m being a channel's minimum width — was REFUSED before the range work and PASSED after it. That
+     * is the old test's weakness, *"any number that appears somewhere in the game"*, given more numbers.
+     */
+    {
+        const isDuration = (i: Instruction) => i.text.startsWith('Play for')
+        const borrowed = checkFidelity(game, reworded(isDuration, i => ({ ...i, text: 'Play for 4.5 minutes', quantities: [4.5] })))
+        assert.deepEqual(
+            violations(borrowed, 2).map(f => f.what),
+            ['"Play for 4.5 minutes" states 4.5, which appears nowhere in the concrete game'],
+            'a channel\'s minimum width is not a number of the duration',
+        )
+        // The marking sentence saying the right limits while no longer citing the line they belong to: the
+        // minimum is unsupported where it is said, and both ends are unsaid where they are owed.
+        const uncited = checkFidelity(game, reworded(isMarking, i => ({ ...i, from: i.from.filter(p => !p.endsWith('.position.across')) })))
+        assert.equal(violations(uncited, 2).filter(f => /states 4\.5, which appears nowhere in the concrete game/.test(f.what)).length, 2, JSON.stringify(violations(uncited, 2)))
+        assert.equal(violations(uncited, 3).filter(f => /required (minimum of 4\.5|maximum of 7\.5)/.test(f.what)).length, 4)
+        // The check does not read the metres back from what realization wrote for the renderer: take them
+        // out of the fixture and the accurate rendering still passes, because the range is worked out here.
+        const without = JSON.parse(JSON.stringify(game))
+        for (const g of without.status.geometry) if (g.geometry?.extentBound) delete g.geometry.extentBound.requiredWithin
+        assert.deepEqual(all(checkFidelity(without, said)), [], 'the authored bound and the session are enough')
+    }
+
+    // Wrong limits that are nobody's numbers at all, and a limit rounded for display: each is refused twice
+    // over — the number is not the line's, and the limit it replaced is now unsaid.
+    {
+        const invented = checkFidelity(game, reworded(isMarking, i => ({ ...i, text: i.text.replace('between 4.5 m and 7.5 m', 'between 5 m and 8 m'), quantities: [40, 5, 8] })))
+        assert.equal(violations(invented, 2).filter(f => /states (5|8), which is neither a value the game holds at a property it cites nor a required limit/.test(f.what)).length, 4)
+        assert.equal(violations(invented, 3).filter(f => /required (minimum of 4\.5|maximum of 7\.5)/.test(f.what)).length, 4)
+        const rounded = checkFidelity(game, reworded(isMarking, i => ({ ...i, text: i.text.replace('4.5 m', '5 m'), quantities: [40, 5, 7.5] })))
+        assert.equal(violations(rounded, 3).filter(f => /required minimum of 4\.5/.test(f.what)).length, 2, '4.5 said as 5 is 4.5 not said')
+        // The requirement said only under a preference's status is not said: a hedge does not carry a limit.
+        const hedged = checkFidelity(game, reworded(isMarking, i => ({ ...i, status: 'PREFERENCE', text: `${i.text}, if it suits your group` })))
+        assert.equal(violations(hedged, 3).filter(f => /required (minimum|maximum)/.test(f.what)).length, 4)
+    }
+
+    /**
+     * **A bound that crosses the boundary with no path is reported, not skipped in silence.** A range the
+     * check cannot attach to a line is a range it cannot hold a sentence to; saying nothing about it is how
+     * an authored range goes missing with the check still green.
+     */
+    {
+        const pathless = JSON.parse(JSON.stringify(game))
+        const entry = pathless.status.bounds.find((b: any) => String(b.path).endsWith('.position.across'))
+        const lineId = entry.lineId
+        entry.path = null
+        const notes = checkFidelity(pathless, said).findings.filter(f => f.severity === 'NOTE' && f.what.includes(`the bounds of ${lineId} crossed the rendering boundary with no path`))
+        assert.equal(notes.length, 1)
+    }
+
+    /**
+     * **KNOWN LIMIT, pinned so the next person is told rather than left to find it — review of 13 October.**
+     * The range check holds a sentence to the SET of numbers its cited lines carry. It does not know which
+     * number plays which part: the same three numbers with the channel's length and width exchanged pass,
+     * because 40, 4.5 and 7.5 each belong to a property the sentence cites. The check reads numbers and
+     * never the words around them (the renderer's noun repair of 7 October records the same limit). What
+     * stops this sentence today is that `sayRange` is the only thing that words a range. If this assertion
+     * ever fails because the check has learned to tell the parts apart, delete it gladly.
+     */
+    {
+        const exchanged = checkFidelity(game, reworded(isMarking, i => ({ ...i, text: i.text.replace('40 m long and between 4.5 m and 7.5 m wide', '7.5 m long and between 4.5 m and 40 m wide') })))
+        assert.deepEqual(all(exchanged), [], 'not caught: the numbers are the cited lines\' own, in the wrong places')
+    }
+
     // WHERE THE PREFERENCE CANNOT BE OFFERED it is not offered, and that is reported rather than silent.
     // On a 15 m width the requirement is 2.25 m to 3.75 m and the preferred 6 m to 10 m lies wholly outside.
     {

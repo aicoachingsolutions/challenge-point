@@ -302,6 +302,24 @@ test('each kind of freedom is closed as what it is, and the bound is kept beside
     assert.equal(closed(openLine({ bounds: [{ kind: 'SET', members: ['a', 'b'] }] }), 'b').closure, 'CHOSEN_AMONG_ALTERNATIVES')
 })
 
+/**
+ * **The kind recorded and the check that passed are about the same bound.** Added in the review of
+ * 13 October 2026. `closureOf` read a line's sets before its required range while `checkBound` reads the
+ * range first, so a line carrying both was checked as a count and recorded as *"the only value"*. No line
+ * in the corpus carries both; this pins the order for the first that does.
+ */
+test('a line with a required range AND a set is recorded as what it was checked as', () => {
+    const mixed = openLine({ bounds: [{ kind: 'COUNT', min: 1, max: 3, preferred: false }, { kind: 'SET', members: [2] }] })
+    const choice = closed(mixed, 3)
+    assert.equal(choice.boundCheck, 'WITHIN_COUNT', 'the required range is what decides')
+    assert.equal(choice.closure, 'STARTING_VALUE_IN_RANGE', 'so that is the kind of closing it was — not ONLY_VALUE, which the set alone would say')
+
+    // A range that is only PREFERRED does not decide: the set does, in the check and in the record alike.
+    const preferredRange = openLine({ bounds: [{ kind: 'COUNT', min: 1, max: 3, preferred: true }, { kind: 'SET', members: [2] }] })
+    const only = closed(preferredRange, 2)
+    assert.deepEqual([only.boundCheck, only.closure], ['WITHIN_PERMITTED_SET', 'ONLY_VALUE'])
+})
+
 test('what is recorded is a COPY of the bound, so the record cannot be altered through the resolved game', () => {
     const resolved = openLine({ permitted: ['a', 'b'], bounds: [{ kind: 'SET', members: ['x'], forbidden: true }] })
     const result = realize(resolved, [{ lineId: 'L-x', value: 'a', because: 'a test' }]) as Realized

@@ -39,7 +39,17 @@ const IMPERATIVES = [/\bmust\b/i, /\balways\b/i, /\bexactly\b/i, /\brequired\b/i
 /** Wording that would present a realization choice as something the knowledge demanded. */
 const NECESSITY = [/\bmust\b/i, /\bthe rules require\b/i, /\bby definition\b/i, /\balways\b/i, /\bnecessarily\b/i]
 
-/** Every number anywhere in the concrete game and its realization record, as a set of strings. */
+/**
+ * Every number anywhere in the concrete game and its realization record, as a set of strings.
+ *
+ * **Except the required limits realization wrote beside an interval (`requiredWithin`) — left out in the
+ * review of 13 October.** Those metres are the renderer's own source for a range sentence, and they sit in
+ * the game and the geometry this function walks, so a required limit became a number of the game for EVERY
+ * sentence: measured against both versions of this check, *"Play for 4.5 minutes"* was refused before the
+ * range work and passed after it, because 4.5 — a channel's minimum width — had arrived here. A required
+ * limit supports the sentence that cites its line, and it does so from the authored bound (`lineRanges`),
+ * never from what was written for the renderer.
+ */
 function quantitiesInGame(fixture: any): Set<string> {
     const found = new Set<string>()
     const walk = (node: unknown) => {
@@ -49,7 +59,9 @@ function quantitiesInGame(fixture: any): Set<string> {
             return
         }
         if (Array.isArray(node)) return node.forEach(walk)
-        if (node && typeof node === 'object') Object.values(node as Record<string, unknown>).forEach(walk)
+        if (node && typeof node === 'object') {
+            for (const [key, value] of Object.entries(node as Record<string, unknown>)) if (key !== 'requiredWithin') walk(value)
+        }
     }
     walk(fixture.game)
     walk(fixture.envelope)
@@ -132,7 +144,14 @@ function lineRanges(fixture: any): { ranges: LineRange[]; unreadable: string[] }
         if (typeof path !== 'string' || !Array.isArray(bounds) || !bounds.length) return
         authored.set(path, [...(authored.get(path) ?? []), ...bounds])
     }
-    for (const entry of fixture.status.bounds ?? []) add(entry.path, entry.bounds)
+    for (const entry of fixture.status.bounds ?? []) {
+        // A bound that crossed with no path names no line a sentence could cite, so it cannot be checked —
+        // and that is said, because a range dropped here in silence is the loss this function exists to stop.
+        if (typeof entry?.path !== 'string' && Array.isArray(entry?.bounds) && entry.bounds.some((b: any) => b && b.kind === 'COUNT' && !b.forbidden)) {
+            unreadable.push(`the bounds of ${String(entry.lineId)} crossed the rendering boundary with no path, so their limits are not checked against the rendering`)
+        }
+        add(entry.path, entry.bounds)
+    }
     for (const choice of fixture.status.choices ?? []) add(choice.path, choice.within?.bounds)
 
     const tighten = (limits: Limits[]): Limits | null => {
@@ -416,14 +435,21 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
     const findings: FidelityFinding[] = []
     const cited = new Set(rendered.instructions.flatMap(i => i.from))
     const inGame = quantitiesInGame(fixture)
-    // An authored limit is a number of the game even where no value equals it — a required minimum scaled
-    // to the axis, the floor of a count. Without this the ACCURATE statement of a range was refused.
     const { ranges, unreadable } = lineRanges(fixture)
-    for (const range of ranges) {
-        for (const limits of [range.required, range.preferred]) {
-            for (const limit of [limits?.min, limits?.max]) if (stated(limit)) inGame.add(String(limit))
-        }
-    }
+    const rangeAt = new Map(ranges.map(range => [range.path, range]))
+    /**
+     * **An authored limit is a number of the game even where no value equals it** — a required minimum
+     * scaled to the axis, the floor of a count — and without that the ACCURATE statement of a range was
+     * refused. **But it is a number of ITS LINE, for a sentence that cites that line.** The limits were
+     * first added to the set every sentence is tested against, which made each of them supported
+     * everywhere: the same *"any number that happens to appear elsewhere in the game"* this change set out
+     * to stop, with more numbers in it. Narrowed in the review of 13 October.
+     */
+    const limitOfCitedLine = (instruction: Instruction, quantity: number): boolean =>
+        instruction.from.some(path => {
+            const range = rangeAt.get(path)
+            return !!range && [range.required?.min, range.required?.max, range.preferred?.min, range.preferred?.max].some(limit => stated(limit) && limit === quantity)
+        })
 
     // ── Q2 — nothing unsupported ────────────────────────────────────────────────────────────────
     for (const instruction of rendered.instructions) {
@@ -431,7 +457,7 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
             findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" cites no concrete-game property` })
         }
         for (const quantity of instruction.quantities) {
-            if (!supportedQuantity(fixture, instruction, quantity, inGame)) {
+            if (!supportedQuantity(fixture, instruction, quantity, inGame) && !limitOfCitedLine(instruction, quantity)) {
                 findings.push({
                     question: 2,
                     severity: 'VIOLATION',
@@ -470,7 +496,6 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
      *
      * A sentence that cites no ranged line is untouched by this and answers to the test above, as before.
      */
-    const rangeAt = new Map(ranges.map(range => [range.path, range]))
     for (const instruction of rendered.instructions) {
         const about = instruction.from.map(path => rangeAt.get(path)).filter((range): range is LineRange => !!range)
         const numbers = [...new Set(numbersIn(instruction.text))]

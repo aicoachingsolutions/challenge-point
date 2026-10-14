@@ -72,6 +72,18 @@
  * text was diffed before and after through `npm run pilot:a04` — against the previous commit run from a
  * clean export — and is identical: A04 holds no numeric range, so no sentence of it changed.
  *
+ * **Re-frozen a third time 13 October 2026, in the review of that work: `30395c2a` → `2eab6bea`. Six
+ * lines of the file moved: one sentence four times, and two digests.** The two justified defaults recorded their
+ * reason as *"the authored bound on this line has exactly one member … so it is the only value the
+ * knowledge permits here and any other would be refused"*. The bound on each target's across-extent comes
+ * from a `PREFERRED_DEFAULT`, `SUPPORTING` item, and what the knowledge prefers is not all that it permits
+ * — so the record was calling a preference a requirement, which is the status change the fidelity
+ * questions exist to catch, made one layer below where they look. The reason now says the value is the
+ * only one AUTHORED and that it is authored as a preferred default. It appears four times (each default,
+ * in `record.choices` and in `status.choices`), and the realization and audit digests moved with it because
+ * a default's reason is realization input. The game, every value, every bound, every closure and the
+ * rendered text are byte-identical; `git diff` of the fixture shows nothing else.
+ *
  * Run: npm test
  */
 import assert from 'node:assert/strict'

@@ -81,7 +81,9 @@ export const memberHandle = (classId: string, ordinal: number): string => `${cla
  * session."* Until then the only account of whether a value was the one thing permitted, one of several, a
  * place to start inside a range, or simply the coach's was a sentence of prose nothing interprets.
  *
- *   - `ONLY_VALUE` — the knowledge permits exactly one value, so nothing was chosen;
+ *   - `ONLY_VALUE` — exactly one value is authored for the line, so nothing was chosen. Whether that value
+ *     is REQUIRED or is an authored preferred default is not said by this word: `within.bounds` carries the
+ *     bound with its `preferred` mark, and a reader that needs the difference reads it there;
  *   - `CHOSEN_AMONG_ALTERNATIVES` — one of several stated alternatives; the others are in `within`;
  *   - `STARTING_VALUE_IN_RANGE` — a number inside an authored range: where this activity STARTS, with the
  *     range kept beside it;
@@ -97,7 +99,8 @@ export type Closure = 'ONLY_VALUE' | 'CHOSEN_AMONG_ALTERNATIVES' | 'STARTING_VAL
 
 /**
  * The two rules under which an open line nobody chose a value for may still be closed. See
- * `justified-defaults.ts`, which is the only place a default is produced.
+ * `justified-defaults.ts`, which is the only place a default is produced; `realize` holds each one it is
+ * handed to the rule it names (`unearnedDefault`).
  */
 export type DefaultRule = 'ONLY_MEMBER_OF_AUTHORED_BOUND' | 'ONLY_PREFERRED_COUNT_THE_ROSTER_ADMITS'
 
@@ -284,39 +287,6 @@ function splitElementPath(path: string): { container: string; elementId: string;
 }
 
 /**
- * Is the chosen value inside what the knowledge permits?
- *
- * A qualitative bound is the honest hard case. SD-15 ruled that terms like *"long kick"* are coach
- * judgements and that no number may be invented for one, so there is nothing here to compare against.
- * The realizer neither rejects the value nor pretends to have checked it: the choice is recorded as
- * unverified, and the record says which ones.
- */
-/**
- * **A choice must satisfy the canonical register as well as the authored narrowing** — his ruling of
- * 1 October, and it is general rather than a fix for the case that exposed it:
- *
- *   > *A permitted set cannot extend a closed canonical vocabulary merely by containing an additional
- *   > member. If those disagree, realization must refuse and expose the inconsistency.*
- *
- * The case: `GF2-03.b` narrowed the target's noun to `[zone, line]`, and `line` was not in `S3.noun`.
- * Realization checked the permitted set, found `line` in it, and wrote an unregistered value into the
- * concrete game while every check reported success. SD-18 is explicit that a draft list is still closed
- * — *"a value outside it is refused, not admitted as an extension"* — and nothing was enforcing it at
- * this boundary.
- *
- * The refusal names both sides, because the useful information is the **disagreement**: an authored set
- * offering a member the register does not have is a knowledge defect, not a bad choice by a realizer.
- */
-/**
- * A preferred extent, expressed inside the required one — never beside it and never over it.
- *
- * Both are brought to metres first, because one may be a fraction of the axis and the other absolute:
- * the channel's requirement is 0.15–0.25 of the width and its preference is 6–10 m, and on a 30 m
- * width those are 4.5–7.5 m and 6–10 m. The overlap, 6–7.5 m, is where a realizer may legitimately
- * follow the guidance. Where they do not overlap at all the preference is reported incompatible and the
- * requirement stands — his words: the preference "must never override or widen the requirement".
- */
-/**
  * One end of a bound, in metres on this envelope. Null where that end is not authored.
  *
  * A fraction is of the axis the bound belongs to — its own where it names one, otherwise the axis of the
@@ -334,6 +304,15 @@ function boundInMetres(bound: Bounds, which: 'min' | 'max', envelope: { lengthM?
     return scaleExactly(Number(raw), axis === 'along' ? along : across)
 }
 
+/**
+ * A preferred extent, expressed inside the required one — never beside it and never over it.
+ *
+ * Both are brought to metres first, because one may be a fraction of the axis and the other absolute:
+ * the channel's requirement is 0.15–0.25 of the width and its preference is 6–10 m, and on a 30 m
+ * width those are 4.5–7.5 m and 6–10 m. The overlap, 6–7.5 m, is where a realizer may legitimately
+ * follow the guidance. Where they do not overlap at all the preference is reported incompatible and the
+ * requirement stands — his words: the preference "must never override or widen the requirement".
+ */
 function intersect(required: Bounds, preference: Bounds, envelope: { lengthM?: number; widthM?: number }, lineAxis: 'along' | 'across' = 'across'): unknown {
     const metres = (bound: Bounds, which: 'min' | 'max'): number | null => boundInMetres(bound, which, envelope, lineAxis)
     const lo = Math.max(metres(required, 'min') ?? 0, metres(preference, 'min') ?? 0)
@@ -349,6 +328,22 @@ function intersect(required: Bounds, preference: Bounds, envelope: { lengthM?: n
     return { min: lo, max: hi, compatible: true, note: 'the preference, expressed inside the requirement, in metres' }
 }
 
+/**
+ * **A choice must satisfy the canonical register as well as the authored narrowing** — his ruling of
+ * 1 October, and it is general rather than a fix for the case that exposed it:
+ *
+ *   > *A permitted set cannot extend a closed canonical vocabulary merely by containing an additional
+ *   > member. If those disagree, realization must refuse and expose the inconsistency.*
+ *
+ * The case: `GF2-03.b` narrowed the target's noun to `[zone, line]`, and `line` was not in `S3.noun`.
+ * Realization checked the permitted set, found `line` in it, and wrote an unregistered value into the
+ * concrete game while every check reported success. SD-18 is explicit that a draft list is still closed
+ * — *"a value outside it is refused, not admitted as an extension"* — and nothing was enforcing it at
+ * this boundary.
+ *
+ * The refusal names both sides, because the useful information is the **disagreement**: an authored set
+ * offering a member the register does not have is a knowledge defect, not a bad choice by a realizer.
+ */
 function checkVocabulary(choice: OpenChoice, value: unknown, index?: RegisterIndex): string | null {
     if (!index) return null
     const row = choice.lineId.split('::').pop() ?? ''
@@ -377,10 +372,19 @@ function setMembers(choice: OpenChoice): unknown[] | null {
     return sets[0].members!.filter(member => sets.every(set => set.members!.some(m => JSON.stringify(m) === JSON.stringify(member))))
 }
 
+/** A numeric bound that states at least one end. */
+const ranged = (b: Bounds): boolean => b.kind === 'COUNT' && ((b.min !== null && b.min !== undefined) || (b.max !== null && b.max !== undefined))
+
 /**
- * Which kind of closing this line admits, from the line alone. In the order `checkBound` decides: an
- * authored set of alternatives first, then a set carried as a bound, then a numeric range, then a term in
- * words.
+ * Which kind of closing this line admits, from the line alone — **decided in the order `checkBound`
+ * decides**, so the kind recorded and the check that passed are always about the same bound: an authored
+ * set of alternatives first; then a REQUIRED numeric range; then a set carried as a bound; then a range that
+ * is only preferred; then a term in words.
+ *
+ * It read the sets before the required range until the review of 13 October, while `checkBound` reads the
+ * range first. A line carrying both was therefore checked as a count and recorded as *"the only value"* — a
+ * record saying one thing was verified when another was. No line in the corpus carries both; the order is
+ * fixed here so the first that does is recorded as what it was checked as.
  *
  * A range that is only PREFERRED still makes the value a starting value: the knowledge gave a range to
  * start inside and the value starts there. And a qualitative term is the coach's whether or not the row
@@ -389,14 +393,128 @@ function setMembers(choice: OpenChoice): unknown[] | null {
  */
 export function closureOf(choice: OpenChoice): Closure {
     if (choice.permitted) return choice.permitted.length > 1 ? 'CHOSEN_AMONG_ALTERNATIVES' : 'ONLY_VALUE'
+    const bounds = permitting(choice)
+    if (bounds.some(b => ranged(b) && !b.preferred)) return 'STARTING_VALUE_IN_RANGE'
     const members = setMembers(choice)
     if (members) return members.length > 1 ? 'CHOSEN_AMONG_ALTERNATIVES' : 'ONLY_VALUE'
-    const bounds = permitting(choice)
-    if (bounds.some(b => b.kind === 'COUNT' && ((b.min !== null && b.min !== undefined) || (b.max !== null && b.max !== undefined)))) return 'STARTING_VALUE_IN_RANGE'
+    if (bounds.some(ranged)) return 'STARTING_VALUE_IN_RANGE'
     if (bounds.some(b => b.kind === 'QUALITATIVE')) return 'COACH_DECIDES'
     return 'UNBOUNDED'
 }
 
+// ── What each default rule is ABOUT ─────────────────────────────────────────────────────────────
+//
+// The two rules' subjects are stated here, beside the check they must agree with, and read from here by
+// both sides: `justified-defaults.ts`, which produces a default, and `realize` below, which will not take
+// one on trust.
+
+/**
+ * Rule 1's subject: the ONE value the line's sets leave, or nothing.
+ *
+ * Nothing where the line carries a set of alternatives — that is somebody's decision however small — and
+ * nothing where it carries a required numeric range, because then `checkBound` decides by the range and
+ * the set is not what the value is held to.
+ *
+ * **`preferred` says which kind of single member it is, and it matters.** Measured on 13 October: all four
+ * lines this rule closes in the corpus — each target's across-extent, each channel's along-extent — carry
+ * their one member from a `PREFERRED_DEFAULT` item. It is still the only value AUTHORED for the line, and
+ * `checkBound` holds a value to a set whether or not the set is preferred, so no other value realizes; but
+ * *"the only value the knowledge permits"* is not what a preferred default is, and the reason recorded for
+ * such a default says which it was.
+ */
+export function onlyPermittedMember(open: OpenChoice): { value: unknown; preferred: boolean } | null {
+    if (open.permitted) return null
+    const bounds = permitting(open)
+    if (bounds.some(b => b.kind === 'COUNT' && !b.preferred)) return null
+    const members = setMembers(open)
+    if (!members || members.length !== 1) return null
+    const sets = bounds.filter(b => b.kind === 'SET' && Array.isArray(b.members))
+    const requiredSets = sets.filter(set => !set.preferred)
+    if (!requiredSets.length) return { value: members[0], preferred: true }
+    // **Where something is REQUIRED, the requirement alone must leave the one value.** A requirement that
+    // leaves several, with a preference picking one of them, is a set of alternatives that has a preferred
+    // member — a decision the knowledge has an opinion about, not a line it has closed — and no rule makes it.
+    const required = requiredSets[0].members!.filter(member => requiredSets.every(set => set.members!.some(m => JSON.stringify(m) === JSON.stringify(member))))
+    return required.length === 1 ? { value: members[0], preferred: false } : null
+}
+
+const whole = (value: unknown): value is number => typeof value === 'number' && Number.isInteger(value)
+
+/**
+ * Rule 2's candidates: the whole numbers inside the authored preferred range and inside every requirement,
+ * with the two ranges they were read from. Null where the line is not such a count.
+ *
+ * It is deliberately hard to qualify. Every numeric bound must be a whole-number count in its own units —
+ * a fraction of an axis is an extent, not a count; there must be an authored preference, or there is nothing
+ * to prefer; and the preference must close the range at both ends, or there is no finite set to look in.
+ */
+export function preferredCounts(open: OpenChoice): { candidates: number[]; preferred: { min: number; max: number }; required: { min: number | null; max: number | null } } | null {
+    if (open.permitted) return null
+    const bounds = permitting(open)
+    if (bounds.some(bound => bound.kind !== 'COUNT')) return null
+    if (bounds.some(bound => bound.fractionOfAxis)) return null
+    const limits = (wanted: Bounds[], which: 'min' | 'max'): number[] | null => {
+        const stated = wanted.map(bound => bound[which]).filter(limit => limit !== null && limit !== undefined)
+        return stated.every(whole) ? (stated as number[]) : null
+    }
+    const preferredBounds = bounds.filter(bound => bound.preferred)
+    const requiredBounds = bounds.filter(bound => !bound.preferred)
+    if (!preferredBounds.length) return null
+    const [preferredMins, preferredMaxes, requiredMins, requiredMaxes] = [limits(preferredBounds, 'min'), limits(preferredBounds, 'max'), limits(requiredBounds, 'min'), limits(requiredBounds, 'max')]
+    if (!preferredMins || !preferredMaxes || !requiredMins || !requiredMaxes) return null
+    if (!preferredMins.length || !preferredMaxes.length) return null
+    const preferred = { min: Math.max(...preferredMins), max: Math.min(...preferredMaxes) }
+    const required = { min: requiredMins.length ? Math.max(...requiredMins) : null, max: requiredMaxes.length ? Math.min(...requiredMaxes) : null }
+    const from = Math.max(preferred.min, required.min ?? preferred.min)
+    const to = Math.min(preferred.max, required.max ?? preferred.max)
+    const candidates: number[] = []
+    for (let n = from; n <= to; n++) candidates.push(n)
+    return { candidates, preferred, required }
+}
+
+/**
+ * **A default is held to its rule HERE, where it is taken — not only where it is made.** Added in the review
+ * of 13 October.
+ *
+ * `realize` consulted whatever it was handed as a default and checked it only as a value. Measured: with the
+ * target's noun withheld, a default of `zone` marked `ONLY_MEMBER_OF_AUTHORED_BOUND` realized, and the
+ * record then said a rule had closed a line that holds two design alternatives; the same for who starts with
+ * the ball, and for a scoring kind offered under the count rule. `justified-defaults.ts` produces none of
+ * those — but the promise is that a default NEVER closes an alternative set or a coach's row, and a promise
+ * kept by one caller's good behaviour is not kept by the realizer. His condition, the same day: defaults are
+ * welcome *"provided they don't silently override important learning-design choices."*
+ *
+ * So the rule a default names must be one this line is the subject of, and the value must be the one that
+ * rule yields. Whether the ROSTER admits a count is the session's question and stays with the pathway, which
+ * can ask it; what is decided here is everything about the line itself. Returns the refusal, or null.
+ */
+function unearnedDefault(open: OpenChoice, value: unknown, rule: DefaultRule): string | null {
+    const refusal = (why: string) =>
+        `${open.lineId}: a default was offered under ${String(rule)}, and that rule does not close this line — ${why}. ` +
+        `A rule closes only a line the knowledge leaves one value for; anything else is a decision, and needs a choice`
+    if (rule === 'ONLY_MEMBER_OF_AUTHORED_BOUND') {
+        const only = onlyPermittedMember(open)
+        if (!only) return refusal(open.permitted ? 'it holds a set of alternatives' : 'its authored bounds do not come to exactly one member')
+        return JSON.stringify(only.value) === JSON.stringify(value) ? null : refusal(`its one member is ${JSON.stringify(only.value)}, not ${JSON.stringify(value)}`)
+    }
+    if (rule === 'ONLY_PREFERRED_COUNT_THE_ROSTER_ADMITS') {
+        const counts = preferredCounts(open)
+        if (!counts) return refusal('it is not a whole-number count with an authored preferred range')
+        return counts.candidates.some(candidate => candidate === value)
+            ? null
+            : refusal(`${JSON.stringify(value)} is not a whole number inside both the preferred range ${counts.preferred.min} to ${counts.preferred.max} and what is required`)
+    }
+    return refusal('it names no rule there is')
+}
+
+/**
+ * Is the chosen value inside what the knowledge permits?
+ *
+ * A qualitative bound is the honest hard case. SD-15 ruled that terms like *"long kick"* are coach
+ * judgements and that no number may be invented for one, so there is nothing here to compare against.
+ * The realizer neither rejects the value nor pretends to have checked it: the choice is recorded as
+ * unverified, and the record says which ones.
+ */
 function checkBound(choice: OpenChoice, value: unknown): { ok: boolean; how: RecordedChoice['boundCheck']; why?: string } {
     if (choice.permitted) {
         const ok = choice.permitted.some(m => JSON.stringify(m) === JSON.stringify(value))
@@ -473,8 +591,10 @@ export function realize(
      * passes and is recorded as a choice, with the rule that produced it.
      *
      * His condition for them, 13 October: defaults are welcome *"provided they don't silently override
-     * important learning-design choices."* Nothing here decides what is defaultable; `justified-defaults.ts`
-     * does, and it produces a value only where the knowledge and the session admit exactly one.
+     * important learning-design choices."* `justified-defaults.ts` produces them, and only where the
+     * knowledge and the session admit exactly one value; and a default is not taken on that module's word —
+     * it is refused here unless the line is one its rule closes (`unearnedDefault`), so a default handed in
+     * for a set of alternatives or for a coach's row closes nothing.
      */
     defaults: JustifiedDefault[] = [],
 ): RealizationResult {
@@ -514,6 +634,12 @@ export function realize(
         const unregistered = checkVocabulary(open, choice.value, index)
         if (unregistered) {
             because.push(unregistered)
+            return
+        }
+        // A default has passed what a choice passes; it must also be what its rule yields for THIS line.
+        const unearned = defaultedBy ? unearnedDefault(open, choice.value, defaultedBy) : null
+        if (unearned) {
+            because.push(unearned)
             return
         }
         recorded.push({

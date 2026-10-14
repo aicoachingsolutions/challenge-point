@@ -11,6 +11,12 @@
  * every open line with its authority and its permitted alternatives — and then attempts the
  * realization with whatever choices were actually given (a JSON file via `--choices`, or none).
  *
+ * **Since 13 October it closes what the pathway closes by rule, and prints each such line as a default.**
+ * The choices files stopped holding a line whose authored bound has one member — that is a justified
+ * default now, not a decision — so a runner calling `realize` bare refused two lines of a game the builder
+ * serves, on the very file the builder reads. A justified default is not a choice the runner invents: it is
+ * the one value the knowledge leaves, produced by the same call the builder and the freezer make.
+ *
  * Run: npm run realize            · the conformance corpus
  *      npm run realize -- A01 A01-02 --choices path/to/choices.json
  */
@@ -23,7 +29,8 @@ import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame, ResolvedGame } from '../derivation/resolved-game'
 import { derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
 import { completeConcreteGame } from './assemble-concrete-game'
-import { Choice, checkRealization, Instantiation, isRefused, realize, Realized } from './realize'
+import { realizeWithJustifiedDefaults } from './justified-defaults'
+import { Choice, checkRealization, Instantiation, isRefused, Realized } from './realize'
 
 function resolvedGameFor(goalId: string | null, situationId: string | null) {
     const input = goalId ? derivationInputFor(selectFor(goalId, situationId)) : corpusInput()
@@ -73,7 +80,7 @@ for (const claim of resolved.existential) {
     console.log(`  INSTANTIATE ${claim.path}  (${card})  claim ${claim.classId} from ${claim.from.contractId}::${claim.from.itemId}`)
 }
 
-const result = realize(resolved, supplied.choices, supplied.instantiations, derivationIndex, derivationEnvelope)
+const { realization: result } = realizeWithJustifiedDefaults(resolved, supplied, derivationIndex, derivationEnvelope, gateContext as any)
 if (!isRefused(result)) completeConcreteGame(gateContext, result as Realized)
 
 console.log(`\nOUTCOME — ${result.outcome}`)
@@ -96,7 +103,7 @@ for (const p of checks.nothingInvented) console.log(`     · ${p}`)
 console.log('\nREALIZATION RECORD')
 console.log('-'.repeat(72))
 for (const choice of realized.record.choices) {
-    console.log(`  ${choice.lineId}  ->  ${JSON.stringify(choice.value)}`)
+    console.log(`  ${choice.lineId}  ->  ${JSON.stringify(choice.value)}${choice.defaultedBy ? `   (DEFAULT — ${choice.defaultedBy})` : ''}`)
     console.log(`     at ${choice.path};  authority ${choice.authority ?? 'none carried'};  bound ${choice.boundCheck};  because ${choice.because}`)
 }
 for (const inst of realized.record.instantiations) console.log(`  ${inst.classId}  ->  ${JSON.stringify(inst.member)} at ${inst.path};  because ${inst.because}`)
