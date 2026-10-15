@@ -8393,3 +8393,53 @@ half" does NOT mean "count anywhere" (our C45 NON_CLAIMED reading must be correc
 defensive starting conditions) BEFORE extending anything, and for a focused RPC-001 document-vs-workbook
 reconciliation. Running: workflow `oct16-a01-capability-check` (seven analysts, each adversarially verified, then a
 synthesis into his four categories).
+
+## 16–17 OCTOBER — H1–H3 BUILT; HIS 17 OCTOBER APPROVALS (D1–D7, M1–M8); THE COMPLETE-ACTIVITY BUILD
+
+His third reply on A01, verbatim: `scratchpad/christian-2026-10-17.txt` (memory `christian-rulings-2026-10-17.md`).
+The emails that led to it: `scratchpad/2026-10-16-a01-capabilities.txt` (capability verdicts, D1–D7, M1–M8) and, after
+it, `scratchpad/2026-10-17-a01-three-decisions.txt` (sent; awaiting his answers on RD-1/RD-2/RD-3 and the C58
+acknowledgement).
+
+### H1–H3 (brief `scratchpad/BRIEF-OCT16.md`; design `scratchpad/f-synthesis.txt`) — pushed `77d1585`, suite 88/0
+
+- **H1** `a2b602a`, `487dc32`, review `a9c42b5`: C49 (C45 amended in place — the PCG's V5 is NOT_AUTHORED, "not yet
+  authored"); C50 (defersTo ESTABLISHING_OBJECT on exactly GF2's four V3–V6 NOT_AUTHORED declarations; 0 moves with C49
+  in place); his item-1 principle recorded ONCE as `libraryConstraintPrinciple` in learning-goal-authorizations.json —
+  `authorizedConstraints: null` = not evaluated (gap), `[]` = zero constraints committed for ANY record-governed goal;
+  the per-goal zeroConstraintRuling is gone and refused; no goal id in selection/validation code (pinned with a
+  13-goal symmetry test). A04 fixture re-frozen **9ce40dc3** (digests only).
+- **H2** `3aa33ac` … `1ece27e`, review `0662149`: C51 (12 ENGINE_ONLY RPC-001 items + 11.a/08.c retired, 11.b kept;
+  "own-half start area" out of 13); condition scope carried onto condition elements, every reader honours it or says
+  it cannot; GA-EPISODE-REACHABLE (only tightens); C52 (18.a–19.b BUILD_OUT_EPISODE); one ball (realization
+  identification, his 9.8); C53 (RPC-001-02/03 no longer require a goalkeeper on every team); C54 (18.d = two distinct
+  references, no "where defenders start" gloss). Reviewer pinned GA-DIRECTION's per-composition moves (only
+  compositions no goal selects; Gate A stays FAIL).
+- **H3** `829bbe8` … `81275d5`, review `77d1585`: the authorization record in his four categories; a GENERIC build stage
+  refuses a goal whose record names a part not in place (A01 refused at knowledge, structural stops pinned behind it
+  on copies); TEST-ONLY proof that the two target regions take separate extents; the reconciliation record
+  `docs/audits/rpc-001-document-workbook-reconciliation-2026-10-16.md`; today's stops pinned with D/M ids; review page
+  technical panel shows three lists (authorized / provisional / gaps). Open notes: A01-02 brings a third ball (needs his
+  word before a second identification); RPC-001 V3/V5/V6 declarations still say WHOLE_GAME while items say
+  BUILD_OUT_EPISODE (inert); 11.b produces no line.
+
+### His 17 October approvals, and what remains
+
+D1(a) build-out success concludes the episode (provisional); D2(a) coach-called blocks, ends fixed; D3 target relative
+to the pressure reference, at/before halfway allowed, separate post-regain area, verify no overlap; D4(b) relationship-
+based defensive start via Performer Configuration (EM-0002), re-established each build-out episode, press immediately;
+D5 episode ends on any score or the coach's judgement, ball out need not end it, the building team restarts, GK from
+the feet / may receive and play; D6 **6 outfield + GK v 5** through an existing knowledge relationship (Participant
+Composition EM-0006), one active GK serving whichever team builds, two coach numerical adjustments; D7 roles by name,
+a regain alone never scores, no extra pass. M1–M8 approved (M2 = implement AM-01 itself; M6 three states must stay
+operationally distinct). Design: `scratchpad/g-synthesis.txt` (six designers + verifiers). **Remaining (asked 17 Oct):**
+RD-1 team membership at the exchange; RD-2 the ordinary out-of-play restart; RD-3 the 40×30 starting values (pressure
+line, target start, post-regain depth, builders start short of the line); C58 (typed build-out origin) held for his
+acknowledgement.
+
+### Running: workflow `oct17-a01-build-k1-k8` (brief `scratchpad/BRIEF-OCT17.md`)
+
+K1 M6 + C55, M8 + C57 · K2 provisional carrier `provisional-realizations.json` (A01-R1, gated by the record) + AM-01
+resolver · K3 role blocks · K4 allocation + C56 · K5 M3/M4 + A01 transitions (C58 as a PROPOSAL only) · K6 M7/M5 spatial
+· K7 communication (admin-only review shows DRAFT text) · K8 reviewEvidence + TEST-ONLY end-to-end proof to
+'communication'. RD values and C58 never enter production data.
