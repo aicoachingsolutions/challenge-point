@@ -44,7 +44,7 @@ import { completeConcreteGame, rosterRefusal, RosterRefusal } from '../realizati
 import { runPostRealizationGates } from '../realization/post-realization-gate'
 import { realizeWithJustifiedDefaults, StrandedCount } from '../realization/justified-defaults'
 import { checkRealization, isRefused, Realized } from '../realization/realize'
-import { isNoSuppliedRealization, suppliedRealizationFor } from '../realization/supplied-realization'
+import { isNoSuppliedRealization, SuppliedRealization, suppliedRealizationFor } from '../realization/supplied-realization'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { rpcLibrary } from '../sport-module/rpc-library'
 import { TEST_LIBRARY_V0_AFFORDANCE_LENSES, TEST_LIBRARY_V0_ARCHETYPES, TEST_LIBRARY_V0_CONSTRAINTS, TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS } from '../test-library'
@@ -489,8 +489,18 @@ export function buildActivityWithFixture(request: ActivityRequest): { activity: 
  * knowledge is never bent *"merely to make those demonstrations pass"*; nothing here is a way to serve an
  * activity, and the copy is discarded with the call — the loader's shared contracts are never touched.
  */
-export function buildActivityOverAlteredKnowledge(request: ActivityRequest, alter: (contracts: LoadedContract[]) => void): ServedActivity | RefusedActivity {
-    return build(request, alter).activity
+export function buildActivityOverAlteredKnowledge(
+    request: ActivityRequest,
+    alter: (contracts: LoadedContract[]) => void,
+    /**
+     * Also tests only, added 15 October 2026 (stage H3): alter a COPY of the realization choices read for the selection.
+     * A mechanism proof that changes what a game form leaves open (a target that may be a zone, say) must also change
+     * the realizer's choice for that line, or the realizer refuses a choice the copy no longer admits. The files are
+     * never written; the copy is discarded with the call.
+     */
+    options: { alterSupplied?: (supplied: SuppliedRealization) => void } = {},
+): ServedActivity | RefusedActivity {
+    return build(request, alter, null, null, learningGoalAuthorizations(), options.alterSupplied ?? null).activity
 }
 
 /**
@@ -504,8 +514,16 @@ export function buildActivityOverAlteredKnowledge(request: ActivityRequest, alte
  * altered and no goal is involved; what comes back is labelled a mechanism demonstration and titled by the
  * ids it was made of, which no page offers.
  */
-export function buildActivityFromKnowledge(selected: string[], session: ActivitySession): { activity: ServedActivity | RefusedActivity; fixture: Record<string, unknown> | null } {
-    const { activity, fixture } = build({ kind: 'mechanism-demonstration', demonstrationId: '', session }, null, selected)
+export function buildActivityFromKnowledge(
+    selected: string[],
+    session: ActivitySession,
+    /**
+     * Also tests only, added 15 October 2026 (stage H3): the same COPIES `buildActivityOverAlteredKnowledge` alters — the
+     * contracts and the realization choices — for a mechanism proof that needs the fixture it was realized into.
+     */
+    options: { alter?: (contracts: LoadedContract[]) => void; alterSupplied?: (supplied: SuppliedRealization) => void } = {},
+): { activity: ServedActivity | RefusedActivity; fixture: Record<string, unknown> | null } {
+    const { activity, fixture } = build({ kind: 'mechanism-demonstration', demonstrationId: '', session }, options.alter ?? null, selected, null, learningGoalAuthorizations(), options.alterSupplied ?? null)
     return { activity, fixture }
 }
 
@@ -558,6 +576,8 @@ function build(
     alterSelection: ((selection: BoundedSelection) => void) | null = null,
     /** Tests only (`buildActivityUnderAuthorizationRecords`): the authorization records selection consults. */
     records: LearningGoalAuthorization[] = learningGoalAuthorizations(),
+    /** Tests only (`buildActivityOverAlteredKnowledge`): alters a copy of the realization choices. */
+    alterSupplied: ((supplied: SuppliedRealization) => void) | null = null,
 ): ActivityBuild & { fixture: Record<string, unknown> | null } {
     const { kind, title, subtitle } = composed ? { kind: 'mechanism-demonstration' as const, title: composed.join(' + '), subtitle: null } : describeRequest(request)
     // "This goal …" for a Learning Goal and "This demonstration …" for a demonstration: a demonstration is
@@ -769,7 +789,11 @@ function build(
      * **Realization input, by the selected game form.** See `supplied-realization`: the choices close what a
      * knowledge object leaves open, so they are found by the object and not by the goal that selected it.
      */
-    const supplied = suppliedRealizationFor(selection)
+    let supplied = suppliedRealizationFor(selection)
+    if (alterSupplied && !isNoSuppliedRealization(supplied)) {
+        supplied = JSON.parse(JSON.stringify(supplied)) as SuppliedRealization
+        alterSupplied(supplied)
+    }
     if (isNoSuppliedRealization(supplied)) {
         return refuse('realization', 'A set-up decision for this game has not been made yet.', [
             `no realization choices are recorded for the game form ${supplied.missingFor}`,
