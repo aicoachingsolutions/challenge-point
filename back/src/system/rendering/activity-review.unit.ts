@@ -23,7 +23,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 
-import { loadCorpusContracts, loadRegister, readJson } from '../derivation/corpus'
+import { loadCorpusContracts, loadRegister, provisionalRealizationNamed, readJson } from '../derivation/corpus'
 import { repairCorpusEncoding } from '../derivation/corpus-repair'
 import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { assembleResolvedGame } from '../derivation/resolved-game'
@@ -338,7 +338,11 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
         assert.deepEqual(authorization.existingKnowledge, record.existingKnowledge)
         assert.deepEqual(authorization.gaps, record.gaps)
         assert.deepEqual(authorization.manipulations.map(m => [m.category, m.gaps]), record.manipulations.map(m => [m.category, m.gaps]))
-        assert.deepEqual(a01.account.authorizationLists, authorizationLists(record), 'the three lists, exactly as the record gives them')
+        // Re-pointed 15 October 2026 (stage K3): the lists read the provisional realization derivation received (stage K2),
+        // and A01-R1 is no longer empty — its three role-block items are listed among his provisional choices. So the
+        // expectation is the record together with that realization, exactly as the builder reads it.
+        assert.deepEqual(a01.account.authorizationLists, authorizationLists(record, provisionalRealizationNamed(record.provisionalRealization)), 'the three lists, exactly as the record and its realization give them')
+        assert.equal(a01.account.authorizationLists!.provisionalChoices.filter(e => e.from === 'provisional realization').length, 3, 'the two roles and the exchange')
         // 15 -> 13 on 15 October 2026 (stage K1): capabilities M6 and M8 built (C55, C57); the record lists them as what
         // existing knowledge authorizes now, not as gaps.
         assert.equal(a01.account.authorizationLists!.gaps.length, 13)
@@ -407,7 +411,14 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
             // objective reference of the scoring team), 18.a::V6 by M6 (C55, needs no further value). What still stops
             // the game is the build-out episode's beginning: capability M3, and the typed begin condition (C58) held for
             // his acknowledgement.
-            assert.deepEqual(reached.reasons, ['Gate A is FAIL', 'a pre-realization Gate A invariant fails: GA-EPISODE-REACHABLE'])
+            // **15 October 2026 (stage K3): the same stop, now in each of two role blocks.** A01-R1 carries his D2(a) roles
+            // and exchange (M1), so the game is built once per block; each block stops exactly where the single game did,
+            // and the reasons are named by block. Measured with two goalkeepers and none.
+            const blocks = ['BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END', 'BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START']
+            assert.deepEqual(
+                reached.reasons,
+                blocks.flatMap(block => [`block ${block}: Gate A is FAIL`, `block ${block}: a pre-realization Gate A invariant fails: GA-EPISODE-REACHABLE`]),
+            )
             assert.deepEqual(reached.account.constraints, [], 'no library constraint was selected')
             assert.equal(reached.account.constraintSource?.constraintPrinciple?.ruledOn, '2026-10-15', 'committed under his general principle')
             assert.equal(reached.account.context?.inThisActivity, true, 'the context is in the game')
@@ -1665,8 +1676,14 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
     for (const keepers of [2, 0]) {
         const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: keepers } }
         const before = refused(overCopy(session, asBeforeC53), `A01 before C53, ${keepers} of ${ROLE}`)
-        assert.ok(before.reasons.some(reason => reason.startsWith('roster (INVOLVEMENT_NOT_SETTLED): restated:RPC-001::RPC-001-02 speaks of particular teams')), JSON.stringify(before.reasons))
+        // Re-pointed 15 October 2026 (stage K3): A01-R1 carries the role blocks, so the game is built once per block and
+        // the same roster stop is reported in each block, named by it. Measured: both blocks, the same cause.
+        for (const block of ['BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END', 'BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START']) {
+            assert.ok(before.reasons.some(reason => reason.startsWith(`block ${block}: roster (INVOLVEMENT_NOT_SETTLED): restated:RPC-001::RPC-001-02 speaks of particular teams`)), JSON.stringify(before.reasons))
+        }
         const now = served(overCopy(session, withoutConditions), `A01 after C53, ${keepers} of ${ROLE}`)
+        // And after C53 the copy is SERVED as two blocks (stage K3): each a complete game, every cross-block check passing.
+        assert.deepEqual(now.roleBlocks?.checks.map(check => check.verdict), Array(8).fill('PASS'))
         const roster = now.rendered.instructions.find(instruction => instruction.text.startsWith('Divide 12 players into 2 teams of 6'))
         assert.ok(roster, JSON.stringify(now.rendered.instructions.map(i => i.text)))
         // 6 + 0 against 6 + 0: with two available the goalkeepers play outfield (unused as goalkeepers) — D6 / M2.

@@ -363,7 +363,7 @@ function rosterFor(ctx: GateContext, realized: Realized, supposing?: Supposing):
     ): { value: number; basis: string } | { unsettled: string } | null => {
         const claim = ctx.classes.find(candidate => candidate.classId === instantiation.classId)
         if (!claim) return { unsettled: `the class ${instantiation.classId} this team satisfies is not in the run` }
-        const designations = ctx.index.designations.teamsRow === claim.row ? memberDesignations(ctx.index, claim.row, instantiation.handle, realized.record.designationBindings ?? []) : undefined
+        const designations = ctx.index.designations.teamsRow === claim.row ? memberDesignations(ctx.index, claim.row, instantiation.handle, realized.record.designationBindings ?? [], realized.record.roleBlock ?? null) : undefined
         const member = { ...claim, constraints: { any: false, terms: [] }, ...(designations ? { designations } : {}) }
         const counts = new Set<number>()
         const from: string[] = []

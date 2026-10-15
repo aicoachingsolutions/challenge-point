@@ -12,8 +12,10 @@
  *      a demonstration never does; any other goal given the same record behaves alike (no goal literal);
  *   3. no canonical leak: neither contracts.json nor the restatements carry it;
  *   4. one consumer chain: an item's category reaches its support entry and the fixture whole, and the review page's
- *      provisional list reads it (TEST-ONLY items on copies — A01-R1 is empty at landing);
- *   5. an empty realization moves nothing (lines, checks, games) — only the provenance stamp names it;
+ *      provisional list reads it (TEST-ONLY items on copies — A01-R1 was empty at landing; since stage K3 it lists its
+ *      three role-block items);
+ *   5. the realization moves exactly what its items establish (since stage K3, the role lines) and no other line or
+ *      check — only the provenance stamp names it besides;
  *   6. its realization choices replace the game form's only by declaration, every replacement recorded, everything else
  *      of the game form's input carried; an undeclared second answer refuses the input;
  *   7. A01 with the From Goal Kicks practice situation is refused with one sentence (a DRAFT), naming the realization.
@@ -78,10 +80,12 @@ const recordsBehindGaps = () =>
         provisionalChoices: (record.provisionalChoices ?? []).map((c: any) => (c.status === 'MISSING_KNOWLEDGE' || c.status === 'MISSING_CAPABILITY' ? { ...c, status: 'AUTHORIZED_BY_RULING', gaps: [], note: 'TEST-ONLY' } : c)),
     }))
 
-test('one home: the file loads, A01-R1 is labelled his provisional choice, empty at landing, and only A01\'s record names it', () => {
+test('one home: the file loads, A01-R1 is labelled his provisional choice, and only A01\'s record names it', () => {
     const [realization, ...others] = loadProvisionalRealizations()
     assert.equal(others.length, 0)
-    assert.deepEqual([realization.provisionalId, realization.contractId, realization.category, realization.realizes, realization.items.length, realization.declarations.length], ['A01-R1', 'provisional:A01-R1', PROVISIONAL_REALIZATION_CHOICE, 'RPC-001', 0, 0])
+    // Empty at landing (stage K2). 0 -> 3 items on 15 October 2026 (stage K3): his D2(a)/M1 role blocks — the two roles and
+    // how they pass between the teams — pinned item by item in role-blocks.unit.ts. Still no declaration.
+    assert.deepEqual([realization.provisionalId, realization.contractId, realization.category, realization.realizes, realization.items.length, realization.declarations.length], ['A01-R1', 'provisional:A01-R1', PROVISIONAL_REALIZATION_CHOICE, 'RPC-001', 3, 0])
     assert.equal(realization.realizationChoices, 'realization-choices-a01-r1.json')
     assert.ok(realization.words.includes('The priority remains producing one complete, representative Play Out from the Back activity through the normal generation pathway, without introducing unnecessary architecture or treating this first realization as the canonical version of the Learning Goal.'))
     const naming = learningGoalAuthorizations().filter(record => record.provisionalRealization).map(record => [record.learningGoalId, record.provisionalRealization])
@@ -151,7 +155,13 @@ test('one route in: derivation receives the realization only where the selected 
     assert.ok(other.contracts.some(c => c.contractId === 'provisional:A01-R1'))
 })
 
-test('an empty realization moves no line, no check and no game: only the provenance stamp names it', () => {
+/**
+ * **Re-pointed 15 October 2026 (stage K3): "an empty realization moves nothing" became "the realization moves exactly what
+ * its items establish".** A01-R1 now carries the role blocks (three items), so naming it adds the two role elements' lines
+ * and nothing else: every other line, every Gate A check and the stamp are as they were. The test was about the carrier
+ * leaking nothing beyond its own items, and that is what it still pins.
+ */
+test('the realization moves exactly what its items establish — the role lines — and no other line, no check; the stamp names it', () => {
     const record = learningGoalAuthorizations().find(r => r.learningGoalId === 'A01')!
     const selected = selectFor('A01', null).selected
     const run = (authorization: any) => runDerivation(derivationInputFor({ selected, authorization })) as any
@@ -159,7 +169,14 @@ test('an empty realization moves no line, no check and no game: only the provena
     const unnamed = run({ ...record, provisionalRealization: undefined })
     assert.ok(!isStampedHalt(named) && !isStampedHalt(unnamed))
     const lines = (result: any) => result.resolution.map((e: any) => `${e.lineId}|${e.state}|${e.verdict ?? ''}|${e.reason ?? ''}|${JSON.stringify(e.value ?? null)}`)
-    assert.deepEqual(lines(named), lines(unnamed))
+    const own = (line: string) => line.startsWith('c:provisional:A01-R1:')
+    assert.deepEqual(lines(named).filter((line: string) => !own(line)), lines(unnamed))
+    assert.deepEqual(lines(named).filter(own), [
+        'c:provisional:A01-R1:A01-R1-B1-1::B2|derived|RESOLVED:ENTAILED||"BUILDING"',
+        'c:provisional:A01-R1:A01-R1-B1-2::B2|derived|RESOLVED:ENTAILED||"PRESSING"',
+        'c:provisional:A01-R1:A01-R1-B1-1::B3|derived|RESOLVED:ENTAILED||"COACH_CALLS"',
+        'c:provisional:A01-R1:A01-R1-B1-2::B3|derived|RESOLVED:ENTAILED||"COACH_CALLS"',
+    ])
     assert.deepEqual(
         named.gates.gateA.checks.map((c: any) => `${c.checkId}|${c.verdict}`),
         unnamed.gates.gateA.checks.map((c: any) => `${c.checkId}|${c.verdict}`),
@@ -171,7 +188,12 @@ test('an empty realization moves no line, no check and no game: only the provena
 })
 
 test('key identity (TEST-ONLY item on a copy): the category reaches the support entry and the fixture whole, through the real chain', () => {
-    const [realization] = loadProvisionalRealizations(withItems(testItem()))
+    // On a copy holding the TEST-ONLY item ALONE since 15 October 2026 (stage K3): A01-R1's own items now establish role
+    // blocks, which would make this a two-block game and give the role lines categorized support of their own — pinned in
+    // role-blocks.unit.ts. This test is about one item's category reaching its entry, so the item stands alone.
+    const alone = file()
+    alone.realizations[0].items = [testItem()]
+    const [realization] = loadProvisionalRealizations(alone)
     const { activity, fixture } = buildActivityFromKnowledge(['GF2', 'tl-v0-constraint-wide-zone-advantage'], session as any, { alter: contracts => contracts.push(realization) })
     assert.equal(activity.outcome, 'served', 'a re-assertion of what the game already holds changes nothing a coach is told')
     const entries = (fixture as any).status.derived.filter((e: any) => (e.support ?? []).some((s: any) => s.itemId === 'A01-R1-TEST-ONLY-1'))
@@ -185,9 +207,13 @@ test('key identity (TEST-ONLY item on a copy): the category reaches the support 
 test('the review page\'s provisional list reads the category from the items derivation received', () => {
     const record = learningGoalAuthorizations().find(r => r.learningGoalId === 'A01')!
     const production = authorizationLists(record, provisionalRealizationNamed('A01-R1'))
-    assert.ok(!production.provisionalChoices.some(e => e.from === 'provisional realization'), 'A01-R1 is empty at landing')
+    // Empty at landing; since 15 October 2026 (stage K3) the list reads A01-R1's three role-block items, each in his words.
+    assert.deepEqual(
+        production.provisionalChoices.filter(e => e.from === 'provisional realization').map(e => [e.sources, e.citedAs, e.words]),
+        provisionalRealizationNamed('A01-R1')!.items.map((item: any) => [[`provisional:A01-R1::${item.itemId}`], item.citedAs, item.words]),
+    )
     const [realization] = loadProvisionalRealizations(withItems(testItem()))
-    const listed = authorizationLists(record, realization).provisionalChoices.filter(e => e.from === 'provisional realization')
+    const listed = authorizationLists(record, realization).provisionalChoices.filter(e => e.from === 'provisional realization' && e.sources[0].endsWith('TEST-ONLY-1'))
     assert.deepEqual(listed, [
         { from: 'provisional realization', label: 'TEST-ONLY: a provisional choice', words: 'TEST-ONLY: words of his would stand here', citedAs: 'TEST-ONLY', sources: ['provisional:A01-R1::A01-R1-TEST-ONLY-1'], status: null, gaps: [], note: null },
     ])
@@ -198,7 +224,8 @@ test('the review page\'s provisional list reads the category from the items deri
     const built = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session } as any, recordsBehindGaps() as any, {
         alter: contracts => {
             const copy: any = contracts.find(c => c.contractId === 'provisional:A01-R1')
-            copy.items.push({ ...realization.items[0] })
+            // By its id since stage K3 (15 October 2026): the copy's first item is now A01-R1's own, not the TEST-ONLY one.
+            copy.items.push({ ...realization.items.find(item => item.itemId === 'A01-R1-TEST-ONLY-1')! })
         },
     })
     assert.ok(((built.activity.account as any).authorizationLists.provisionalChoices as any[]).some(e => e.sources[0] === 'provisional:A01-R1::A01-R1-TEST-ONLY-1'))

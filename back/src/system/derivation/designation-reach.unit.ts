@@ -67,11 +67,20 @@ test('the register types EVERY designation from closed lists, and marks as OUR_I
         const name = designationName(entry)
         const glossed = entry.trim() !== name
         // The verifier's correction (g-part-06): a resolution can be "copied from the gloss" only where there is one.
-        assert.equal(block.resolutions[name].basis, glossed ? 'GLOSS' : 'OUR_INTERPRETATION', `${name}: GLOSS exactly where the entry carries a gloss`)
+        //
+        // **15 October 2026 (stage K3): one glossed entry is OUR_INTERPRETATION, and why.** ROLE_HOLDER_<role> (his M1)
+        // carries a gloss that is OURS — it says so in its own text — so its resolution restates no gloss of his and may
+        // not claim GLOSS. The direction that guards against a false claim of his authority is unchanged for every entry:
+        // GLOSS only where there is a gloss. The other direction now excepts exactly the entries whose gloss names itself
+        // as our extension.
+        const oursByItsOwnWords = glossed && entry.includes('OUR extension of AM-01')
+        if (block.resolutions[name].basis === 'GLOSS') assert.ok(glossed, `${name}: GLOSS only where the entry carries a gloss`)
+        assert.equal(block.resolutions[name].basis, glossed && !oursByItsOwnWords ? 'GLOSS' : 'OUR_INTERPRETATION', `${name}: GLOSS exactly where the entry carries a gloss of his`)
     }
-    // His M1 scope is registered and used by no entry yet: holding a role for a block is our extension of AM-01.
-    assert.ok(!Object.values(block.resolutions).some((r: any) => r.kind === 'BLOCK_ROLE'))
-    assert.match(String(register.version), /^9, adds a typed resolution to every team designation/)
+    // His M1 scope was registered at version 9 and used by no entry. Since version 10 (15 October 2026, stage K3) exactly
+    // one entry uses it — ROLE_HOLDER_<role>, block-scoped, our extension of AM-01 — pinned in role-blocks.unit.ts.
+    assert.deepEqual(Object.entries(block.resolutions).filter(([, r]: [string, any]) => r.kind === 'BLOCK_ROLE').map(([name]) => name), ['ROLE_HOLDER_<role>'])
+    assert.ok(String(register.version).includes('Supersedes version 9, which adds a typed resolution to every team designation'), 'version 9 kept in the history (now version 10)')
     assert.match(String(block.resolutionNote), /OUR extension of AM-01/)
 })
 
@@ -175,6 +184,9 @@ test('every consumer asks the resolver: no designation name, gloss substring or 
         ['../realization/post-realization-gate.ts', 'memberDesignations'],
         ['../realization/assemble-concrete-game.ts', 'memberDesignations'],
         ['../realization/realize.ts', 'resolutionOf'],
+        // Stage K3, 15 October 2026 (his M1): the region attribute targetOf and the role blocks ask it too.
+        ['target-of.ts', 'targetDesignations'],
+        ['role-blocks.ts', 'designationKey'],
     ]) {
         assert.ok(source(file).includes(name), `${file} uses ${name}`)
     }

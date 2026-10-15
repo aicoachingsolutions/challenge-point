@@ -1751,6 +1751,8 @@ router.post(`${ROUTES.checkedActivity}/:id`, async (req: Request, res: Response)
             return res.status(403).json({ error: 'This session belongs to another coach, so it cannot be reviewed from this account.' })
         }
 
+        // Since 15 October 2026 (stage K3, his M1) a game played in role blocks answers with ONE composed activity and its
+        // `roleBlocks` — each block's bindings and integrity and the cross-block checks — sent whole, as everything else here.
         return res.json(reviewActivity(session, req.body ?? {}))
     } catch (error) {
         if (error instanceof ActivityReviewRequestError || error instanceof UnknownActivityRequest) {

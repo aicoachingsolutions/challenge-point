@@ -82,6 +82,14 @@ export function buildPilotActivity(session: PilotSession = PILOT_SESSION): Pilot
     const { activity, selection } = buildActivityWithSelection({ kind: 'learning-goal', goalId: 'A04', situationId: null, session: { ...session, roles } })
 
     if (activity.outcome === 'refused' || !selection) return { refused: true, because: activity.outcome === 'refused' ? activity.reasons : ['selection did not resolve'] }
+    /**
+     * **The pilot serves one game; an activity played in role blocks is never served here** (15 October 2026, stage K3). His
+     * authorization of this route is *"the narrow, read-only route serving the validated A04 activity"*; a composition of two
+     * block games is reviewed through the checked-activity route only, where its blocks and cross-block checks are shown.
+     * A04 establishes no role, so this changes nothing it serves; it keeps the route from ever passing on a shape it was
+     * not authorized for.
+     */
+    if (activity.roleBlocks) return { refused: true, because: ['the activity is played in role blocks; the pilot route serves one validated game and no composition of two'] }
 
     return {
         goalId: 'A04',

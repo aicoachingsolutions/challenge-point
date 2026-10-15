@@ -35,11 +35,12 @@
  */
 import { ProvisionalRealization, provisionalRealizationNamed } from '../derivation/corpus'
 import { isStampedHalt } from '../derivation/emit'
-import { runDerivation, runStages0to10 } from '../derivation/engine'
+import { runDerivation, runStages0to10, runStages0to5 } from '../derivation/engine'
 import { indexRegister } from '../derivation/register'
-import { assembleResolvedGame } from '../derivation/resolved-game'
+import { assembleResolvedGame, splitPath } from '../derivation/resolved-game'
+import { roleBlocksOf } from '../derivation/role-blocks'
 import { BoundedSelection, CONTEXT_ROLE, contractCoverage, derivationInputFor, GoalSelectionGap, knowledgeKey, KnowledgeSelection, selectFor } from '../derivation/run-bounded-selection'
-import { LoadedContract } from '../derivation/types'
+import { LoadedContract, RoleBlock } from '../derivation/types'
 import { gpLibrary } from '../knowledge-core/gp-library'
 import { completeConcreteGame, rosterRefusal, RosterRefusal } from '../realization/assemble-concrete-game'
 import { runPostRealizationGates } from '../realization/post-realization-gate'
@@ -59,6 +60,7 @@ import { checkFidelity } from './fidelity'
 import { mechanismDemonstration } from './mechanism-demonstrations'
 import { RenderedActivity, renderConcreteGame } from './render-concrete-game'
 import { assembleRenderingFixture } from './rendering-fixture'
+import { checkRoleBlockComposition, checkRoleBlocks, composeRoleBlockActivity, RoleBlockCheck, roleBlockFixture } from './role-blocks'
 import { ActivitySession, availabilityQuestion } from './session-envelope'
 
 export type { ActivitySession } from './session-envelope'
@@ -192,6 +194,27 @@ export interface ServedActivity {
         instructions: number
         fidelityViolations: number
     }
+    /**
+     * **Present only for a game played in role blocks** (15 October 2026, stage K3, his M1) — TECHNICAL account: each block's
+     * own bindings and integrity (both blocks were built as complete games and both passed), the cross-block checks, and
+     * the roles with their DRAFT coach nouns. `rendered` above is the ONE activity composed from the two blocks' renders.
+     * Absent for every other activity, so what they serve is unchanged.
+     */
+    roleBlocks?: RoleBlockAccount
+}
+
+/** The role blocks of a served activity, for the technical account (stage K3). */
+export interface RoleBlockAccount {
+    /** How the roles pass between the teams (the exchange vocabulary's member the knowledge established). */
+    exchange: string
+    roles: { role: string; coachNoun: string; nounStatus: 'DRAFT' }[]
+    blocks: { blockId: string; holders: Record<string, string>; integrity: ServedActivity['integrity'] }[]
+    checks: RoleBlockCheck[]
+    /**
+     * Which block is played first is the coach's. INFERRED from his D2 (*"The coach determines when the teams exchange
+     * roles."*) and stated beside the possession game's own governed choice of which team starts; never chosen here.
+     */
+    firstBlock: 'COACH_CHOICE'
 }
 
 export interface RefusedActivity {
@@ -781,6 +804,148 @@ function build(
         account.authorizationLists = authorizationLists(goalSelection.authorization, received ?? null)
     }
 
+    const game: GameContext = { subject, session, selection, context, alterSupplied }
+    /** A game built through to communication becomes the served activity; one refused on the way says where. */
+    const serve = (built: Extract<GameOutcome, { outcome: 'built' }>, extra: Partial<ServedActivity> = {}): ActivityBuild & { fixture: Record<string, unknown> | null } => ({
+        activity: { outcome: 'served', kind, title, subtitle, session, rendered: built.rendered, account: account as ActivityAccount, integrity: built.integrity, ...extra },
+        selection: goalSelection,
+        fixture: built.fixture,
+    })
+
+    /**
+     * **A game played in role blocks is built twice: one complete game per block, then the blocks against each other** —
+     * added 15 October 2026 (stage K3). Christian, reply filed 17 October 2026, M1: *"Keep role assignments separate from
+     * fixed ends. Allow target configurations to reflect each team's role during the block. The coach controls the
+     * exchange. No new block-duration system is needed."*
+     *
+     * Whether a game is one is read from its own base derivation (`roleBlocksOf`): the roles its contributions establish
+     * and how they pass between the teams. Two roles and two end-assigned teams admit exactly two bindings, so the two
+     * blocks are entailed and neither is chosen. Each block is then built by the SAME chain as every other game —
+     * derivation, Gate A, realization, assembly, the acceptance conditions, the post-realization gates, the context's
+     * scoring, rendering and fidelity — so "both blocks valid" holds by construction and nothing downstream has had to
+     * learn an overlay. A block that stops refuses the activity at that stage, its reasons named by block; both blocks are
+     * built first, so a refusal shows every block that stopped. Then the cross-block checks (`checkRoleBlocks`, RB-1 to
+     * RB-8) prove what the two share and that they differ only by the role, and the coach reads ONE activity composed from
+     * the two renders (`composeRoleBlockActivity`), checked to have lost and invented nothing (fidelity Q6).
+     *
+     * A game establishing no role skips this whole branch without a second derivation: only a selection carrying an item
+     * on the register's roles row is even asked. A game establishing part of a role exchange is refused here.
+     */
+    const roleIndex = indexRegister(input.register)
+    const rolesRow = roleIndex.roleBlocks?.rolesRow
+    if (rolesRow && (input.contracts as LoadedContract[]).some(contract => (contract.items ?? []).some(item => String(item.row) === rolesRow))) {
+        const base: any = runStages0to5(input)
+        const found = base.run.halted || !base.derived ? null : roleBlocksOf(base.classes, base.derived.lines, roleIndex)
+        if (found?.kind === 'REFUSED') {
+            return refuse('structure', `The game this ${subject} selects is not yet described completely enough to be set up.`, [
+                'the game establishes part of a role exchange, so it cannot be played in role blocks',
+                ...found.why,
+            ])
+        }
+        if (found?.kind === 'BLOCKS') {
+            const blocks = found.blocks.map(block => ({ block, outcome: buildOneGame({ ...input, roleBlock: block }, game) }))
+            const stopped = blocks.filter((entry): entry is { block: RoleBlock; outcome: Extract<GameOutcome, { outcome: 'refused' }> } => entry.outcome.outcome === 'refused')
+            if (stopped.length) {
+                // The earliest stage any block stopped at, in pathway order; every block that stopped is named.
+                const first = [...stopped].sort((a, b) => STAGE_ORDER.indexOf(a.outcome.stage) - STAGE_ORDER.indexOf(b.outcome.stage))[0]
+                fixture = first.outcome.fixture
+                return refuse(
+                    first.outcome.stage,
+                    first.outcome.summary,
+                    stopped.flatMap(entry => entry.outcome.reasons.map(reason => `block ${entry.block.blockId}: ${reason}`)),
+                )
+            }
+            const built = blocks.map(entry => ({ block: entry.block, built: entry.outcome as Extract<GameOutcome, { outcome: 'built' }> }))
+            const checks = checkRoleBlocks(
+                built.map(entry => ({ block: entry.block, fixture: entry.built.fixture, contracts: entry.built.contracts })),
+                roleIndex,
+                found.roles,
+            )
+            fixture = { ...built[0].built.fixture, roleBlocks: roleBlockFixture(found, built.map(entry => ({ block: entry.block, fixture: entry.built.fixture })), checks, roleIndex) }
+            const failing = checks.filter(check => check.verdict === 'FAIL')
+            if (failing.length) {
+                return refuse('validation', 'The game built for this activity did not pass its own checks, so it is not being shown.', [
+                    'the two role blocks do not agree as the exchange of each other',
+                    ...failing.flatMap(check => check.problems.map(problem => `${check.checkId}: ${problem}`)),
+                ])
+            }
+            const composed = composeRoleBlockActivity(built.map(entry => ({ blockId: entry.block.blockId, rendered: entry.built.rendered, fixture: entry.built.fixture })), roleIndex)
+            const composition = checkRoleBlockComposition(built.map(entry => ({ blockId: entry.block.blockId, rendered: entry.built.rendered, fixture: entry.built.fixture })), composed, roleIndex)
+            const violations = composition.filter(finding => finding.severity === 'VIOLATION')
+            if (violations.length) {
+                return refuse(
+                    'communication',
+                    'Part of this activity cannot be explained to a coach yet, so it is not being shown.',
+                    violations.map(v => `fidelity Q${v.question}: ${v.what}`),
+                )
+            }
+            return serve(
+                {
+                    ...built[0].built,
+                    fixture,
+                    rendered: composed,
+                    integrity: {
+                        gateA: [...new Set(built.map(entry => entry.built.integrity.gateA))].join(' / '),
+                        realizationAuthorized: built.every(entry => entry.built.integrity.realizationAuthorized),
+                        acceptance: {
+                            nothingClosedWithoutAuthority: built.flatMap(entry => entry.built.integrity.acceptance.nothingClosedWithoutAuthority),
+                            nothingLost: built.flatMap(entry => entry.built.integrity.acceptance.nothingLost),
+                            nothingInvented: built.flatMap(entry => entry.built.integrity.acceptance.nothingInvented),
+                        },
+                        postRealizationValidated: built.every(entry => entry.built.integrity.postRealizationValidated),
+                        instructions: composed.instructions.length,
+                        fidelityViolations: built.reduce((n, entry) => n + entry.built.integrity.fidelityViolations, 0) + violations.length,
+                    },
+                },
+                {
+                    roleBlocks: {
+                        exchange: found.exchange,
+                        roles: found.roles.map(role => ({ role, coachNoun: roleIndex.roleBlocks!.coachNouns[role], nounStatus: 'DRAFT' as const })),
+                        blocks: built.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, integrity: entry.built.integrity })),
+                        checks: checks.map(check => ({ ...check, problems: [...check.problems] })),
+                        firstBlock: 'COACH_CHOICE',
+                    },
+                },
+            )
+        }
+    }
+
+    const one = buildOneGame(input, game)
+    if (one.outcome === 'refused') {
+        fixture = one.fixture
+        return refuse(one.stage, one.summary, one.reasons)
+    }
+    return serve(one)
+}
+
+/** What one game's build needs beyond its derivation input. */
+interface GameContext {
+    /** "goal" or "demonstration", for the refusal sentences. */
+    subject: string
+    session: ActivitySession
+    selection: KnowledgeSelection
+    /** The selected context, where there is one. */
+    context: { id: string; role: string } | undefined
+    alterSupplied: ((supplied: SuppliedRealization) => void) | null
+}
+
+/** One game built from its derivation input to communication, or the stage it stopped at. */
+type GameOutcome =
+    | { outcome: 'refused'; stage: ActivityStage; summary: string; reasons: string[]; fixture: Record<string, unknown> | null }
+    | { outcome: 'built'; fixture: Record<string, unknown>; rendered: RenderedActivity; integrity: ServedActivity['integrity']; contracts: LoadedContract[] }
+
+/** The pathway's stages in order, so an earlier stop wins when two blocks stop at different stages. */
+const STAGE_ORDER: ActivityStage[] = ['session', 'selection', 'knowledge', 'structure', 'realization', 'validation', 'communication']
+
+/**
+ * **One game, from derivation to fidelity** — the body `build` always ran, extracted unchanged on 15 October 2026 (stage
+ * K3) so that a game played in role blocks runs it once per block. Every refusal sentence, reason and order is what it
+ * was: measured, every goal and demonstration answers byte-identically through the review route.
+ */
+function buildOneGame(input: any, { subject, session, selection, context, alterSupplied }: GameContext): GameOutcome {
+    let fixture: any = null
+    const refuse = (stage: ActivityStage, summary: string, reasons: string[]): GameOutcome => ({ outcome: 'refused', stage, summary, reasons, fixture })
+
     const result: any = runDerivation(input)
     if (isStampedHalt(result)) {
         return refuse('structure', `The game this ${subject} selects is not yet described completely enough to be set up.`, [
@@ -901,6 +1066,10 @@ function build(
     // The one assembler, shared with the script that freezes the Golden Case, so the frozen fixture cannot
     // come to differ in shape from what is served. Both verdicts are read, not assumed, though a game that
     // failed either was refused above.
+    // The DRAFT role nouns cross with the game only where the game holds roles (stage K3), so the renderer reads them
+    // from the fixture like everything else it says, and every game without roles assembles exactly as before.
+    const rolesAt = index.roleBlocks ? splitPath(String(index.rows.get(index.roleBlocks.rolesRow)?.path ?? '')).container : null
+    const holdsRoles = !!rolesAt && Array.isArray(rolesAt.split('.').reduce<any>((node, key) => (node == null ? node : node[key]), realized.game))
     fixture = assembleRenderingFixture({
         resolved,
         realized,
@@ -908,6 +1077,7 @@ function build(
         envelope: { ...session, roles: { ...session.roles } },
         accepted: Object.values(acceptance).every(entries => !(entries as unknown[]).length),
         postRealizationValidated: Boolean(post.validated),
+        ...(holdsRoles ? { roleNouns: { ...index.roleBlocks!.coachNouns } } : {}),
     })
 
     const rendered = renderConcreteGame(fixture)
@@ -935,24 +1105,17 @@ function build(
     }
 
     return {
-        activity: {
-            outcome: 'served',
-            kind,
-            title,
-            subtitle,
-            session,
-            rendered,
-            account: account as ActivityAccount,
-            integrity: {
-                gateA: String(resolved.coherence.gateA),
-                realizationAuthorized: Boolean(resolved.coherence.realizationAuthorized),
-                acceptance,
-                postRealizationValidated: Boolean(post.validated),
-                instructions: rendered.instructions.length,
-                fidelityViolations: violations.length,
-            },
-        },
-        selection: goalSelection,
+        outcome: 'built',
         fixture,
+        rendered,
+        integrity: {
+            gateA: String(resolved.coherence.gateA),
+            realizationAuthorized: Boolean(resolved.coherence.realizationAuthorized),
+            acceptance,
+            postRealizationValidated: Boolean(post.validated),
+            instructions: rendered.instructions.length,
+            fidelityViolations: violations.length,
+        },
+        contracts: input.contracts,
     }
 }

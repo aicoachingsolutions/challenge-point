@@ -31,7 +31,7 @@ import { practical, practicalRequirement } from '../derivation/practical'
 import { scaleExactly } from '../derivation/rational'
 import { RegisterIndex } from '../derivation/register'
 import { DesignationBinding, designationKey, resolutionOf } from '../derivation/designation'
-import { Bounds } from '../derivation/types'
+import { Bounds, RoleBlock } from '../derivation/types'
 import { realizeSpatialRelation, RealizedGeometry } from './spatial'
 
 /** A value the realizer chooses for one open line. */
@@ -288,6 +288,14 @@ export interface RealizationRecord {
      * selectors against it. Present only where one was supplied, so a realization with none records exactly what it did.
      */
     designationBindings?: DesignationBinding[]
+    /**
+     * **The role block this game was derived for** (15 October 2026, stage K3, his M1: *"Keep role assignments separate
+     * from fixed ends."*): each role bound to the setup assignment holding it. Recorded beside the game, never placed on a
+     * role or a team — which end-assigned team holds a role is the block's, not the game's. `designation.ts` reads it to
+     * reach a role holder's team (the roster); the role-block checks read it to prove the two blocks are the exchange of
+     * each other. Present only for a game derived for a role block, so every other record is exactly what it was.
+     */
+    roleBlock?: RoleBlock
 }
 
 export interface Realized {
@@ -680,6 +688,11 @@ export function realize(
     satisfactions: SatisfiedByEstablished[] = [],
     /** Which instantiated team holds each setup assignment (`DesignationBinding`, his M2). Input, so stamped. */
     bindings: DesignationBinding[] = [],
+    /**
+     * The role block the game was derived for (stage K3, 15 October 2026, his M1), recorded beside the game exactly as it
+     * was given: it is the derivation's input, already in the input digest, and nothing here chooses or checks it.
+     */
+    roleBlock: RoleBlock | null = null,
 ): RealizationResult {
     const because: string[] = []
 
@@ -1304,6 +1317,7 @@ export function realize(
             jointConditionsNotEvaluated: jointNotEvaluable,
             ...(appliedSatisfactions.length ? { satisfiedByEstablished: appliedSatisfactions } : {}),
             ...(appliedBindings.length ? { designationBindings: appliedBindings } : {}),
+            ...(roleBlock ? { roleBlock: { blockId: roleBlock.blockId, holders: { ...roleBlock.holders } } } : {}),
         },
     }
 }

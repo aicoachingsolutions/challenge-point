@@ -35,7 +35,7 @@ import { DerivedLine, resolvedValue } from './derive'
 import { ItemOutcome } from './forward'
 import { RegisterIndex } from './register'
 import { add, compare, Interval, lt, lte, Rational, toInterval, toRational, ZERO } from './rational'
-import { ElementClass, Envelope, FailureRecord, ItemRef, LoadedContract, NO_FURTHER_VALUE, RefusalRecord, ResolutionLine, SpecClause, relationalReferentOf, structuralRefOf } from './types'
+import { ElementClass, Envelope, FailureRecord, ItemRef, LoadedContract, NO_FURTHER_VALUE, RefusalRecord, ResolutionLine, RoleBlock, SpecClause, relationalReferentOf, structuralRefOf } from './types'
 
 /**
  * `DEFERRED_TO_REALIZATION` is the clause verdict added on 30 September, and it is a different
@@ -152,6 +152,11 @@ export interface GateContext {
     failures: FailureRecord[]
     forward: ItemOutcome[]
     contracts: LoadedContract[]
+    /**
+     * The role block the game is derived for (stage K3, 15 October 2026, his M1), so a team fact written for a role holder
+     * reaches the team that holds the role in this block (the roster, `assemble-concrete-game.ts`). Absent without one.
+     */
+    roleBlock?: RoleBlock
 }
 
 const CLAUSE = (section: string): SpecClause => ({ document: 'derivation-engine-design-package', section })

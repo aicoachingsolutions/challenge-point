@@ -197,7 +197,7 @@ function onPathway(
     ctx: GateContext,
 ): { defaults: JustifiedDefault[]; stranded: StrandedCount[] } {
     const trial = (candidate: JustifiedDefault, alongside: JustifiedDefault[]) =>
-        realize(resolved, supplied.choices, supplied.instantiations, index, envelope, [...alongside, candidate], supplied.satisfiedByEstablished ?? [], supplied.designationBindings ?? [])
+        realize(resolved, supplied.choices, supplied.instantiations, index, envelope, [...alongside, candidate], supplied.satisfiedByEstablished ?? [], supplied.designationBindings ?? [], ctx.roleBlock ?? null)
     const { defaults, undefaulted } = decide(resolved, supplied.choices, (candidate, alongside) => {
         const realized = trial(candidate, alongside)
         return !isRefused(realized) && rosterRefusal(ctx, realized) === null
@@ -225,5 +225,5 @@ export function realizeWithJustifiedDefaults(
     ctx: GateContext,
 ): { realization: RealizationResult; defaults: JustifiedDefault[]; stranded: StrandedCount[] } {
     const { defaults, stranded } = onPathway(resolved, supplied, index, envelope, ctx)
-    return { realization: realize(resolved, supplied.choices, supplied.instantiations, index, envelope, defaults, supplied.satisfiedByEstablished ?? [], supplied.designationBindings ?? []), defaults, stranded }
+    return { realization: realize(resolved, supplied.choices, supplied.instantiations, index, envelope, defaults, supplied.satisfiedByEstablished ?? [], supplied.designationBindings ?? [], ctx.roleBlock ?? null), defaults, stranded }
 }

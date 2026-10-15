@@ -62,8 +62,25 @@ import { DURATION_OPTIONS } from './SessionPlanningConversation'
  */
 const ADJUSTING_SECTION = 'Adjusting the activity'
 
+/**
+ * The section saying how the roles pass between the teams (15 October 2026, his M1 and D2: "Please make that distinction
+ * explicit in the coach-facing instructions."). Present only for an activity played in role blocks; the name is the
+ * server's and a DRAFT.
+ */
+const ROLE_EXCHANGE_SECTION = 'Role exchange'
+
 /** The order a coach reads an activity in. Organisation only — the section name comes from the server. */
-const SECTION_ORDER = ['Set up', 'Players', 'How it works', 'How to score', 'What to watch', ADJUSTING_SECTION]
+const SECTION_ORDER = ['Set up', 'Players', 'How it works', 'How to score', ROLE_EXCHANGE_SECTION, 'What to watch', ADJUSTING_SECTION]
+
+/**
+ * "Block 1 only" for a sentence that holds in one role block (15 October 2026): the block's number in the order the
+ * server lists the blocks, never its technical id. A DRAFT label; which block is played first is the coach's.
+ */
+function blockLabel(activity: ServedActivity, instruction: ReviewInstruction): string | null {
+    if (!instruction.block) return null
+    const at = (activity.roleBlocks?.blocks ?? []).findIndex((block) => block.blockId === instruction.block)
+    return `Block ${at >= 0 ? at + 1 : '?'} only: `
+}
 
 /**
  * The one line that introduces the adjusting part. Coach wording, a DRAFT for his approval under the CCS. (The
@@ -545,7 +562,10 @@ function ActivityBlock({ activity }: { activity: ServedActivity }) {
                                         <span aria-hidden className='text-gray-400'>
                                             &bull;
                                         </span>
-                                        <span className='leading-relaxed'>{instruction.text}</span>
+                                        <span className='leading-relaxed'>
+                                            {blockLabel(activity, instruction)}
+                                            {instruction.text}
+                                        </span>
                                     </li>
                                 ))}
                             </ul>
@@ -567,7 +587,10 @@ function ActivityBlock({ activity }: { activity: ServedActivity }) {
                                     <span aria-hidden className='text-gray-300'>
                                         &bull;
                                     </span>
-                                    <span className='leading-relaxed'>{instruction.text}</span>
+                                    <span className='leading-relaxed'>
+                                        {blockLabel(activity, instruction)}
+                                        {instruction.text}
+                                    </span>
                                 </li>
                             ))}
                         </ul>
@@ -1028,6 +1051,39 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                             </AccountField>
                         )}
 
+                        {/*
+                          * Role blocks (15 October 2026, his M1): each block was built as its own complete game, so each has
+                          * its own checks; the cross-block checks prove the two are the exchange of each other. Labels are
+                          * DRAFTS. Shown only for an activity played in role blocks.
+                          */}
+                        {served?.roleBlocks && (
+                            <AccountField label='Role blocks'>
+                                <ul className='space-y-1'>
+                                    <li>
+                                        Roles:{' '}
+                                        {served.roleBlocks.roles.map((role) => `${role.role} ("${role.coachNoun}", ${role.nounStatus})`).join(' · ')}
+                                    </li>
+                                    <li>Exchange: {served.roleBlocks.exchange} — which block is played first: {served.roleBlocks.firstBlock}</li>
+                                    {served.roleBlocks.blocks.map((block, index) => (
+                                        <li key={block.blockId} className='break-words'>
+                                            Block {index + 1}:{' '}
+                                            {Object.entries(block.holders)
+                                                .map(([role, holder]) => `${role} held by ${holder}`)
+                                                .join(', ')}{' '}
+                                            — Gate A {String(block.integrity?.gateA)}, post-realization gates validated{' '}
+                                            {yesNo(block.integrity?.postRealizationValidated)}, fidelity violations {String(block.integrity?.fidelityViolations)}
+                                        </li>
+                                    ))}
+                                    {served.roleBlocks.checks.map((check) => (
+                                        <li key={check.checkId} className='break-words'>
+                                            {check.checkId} {check.verdict}: {check.what}
+                                            {check.problems.length > 0 && <span className='text-amber-700'> — {check.problems.join('; ')}</span>}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </AccountField>
+                        )}
+
                         {served && (
                             <AccountField label='Each instruction, its status and where it came from'>
                                 <ol className='space-y-2'>
@@ -1035,6 +1091,7 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                         <li key={index} className='px-3 py-2 border border-gray-100 rounded-lg bg-gray-50'>
                                             <p className='text-[11px] font-semibold tracking-wide text-gray-500 uppercase'>
                                                 {instruction.section} · {instruction.status}
+                                                {instruction.block && <span className='font-normal normal-case'> · block {instruction.block}</span>}
                                                 {STATUS_MEANING[instruction.status] && (
                                                     <span className='font-normal normal-case'> — {STATUS_MEANING[instruction.status]}</span>
                                                 )}

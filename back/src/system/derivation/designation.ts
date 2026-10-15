@@ -36,24 +36,33 @@
  * Sport-neutral: no designation name is written here. Kinds, scopes and names are register data.
  */
 import { designationName, DesignationResolution, RegisterIndex } from './register'
+import type { RoleBlock } from './types'
 
 /** A designation's resolution with the entry it resolved to. */
 export interface ResolvedDesignation extends DesignationResolution {
     entry: string
 }
 
-/** The entry `TEAM_<id>`'s name, read from the register rather than written here: the one NAMED entry. */
-function namedEntry(index: RegisterIndex): string | null {
-    for (const [name, resolution] of index.designations.resolutions) if (resolution.kind === 'NAMED') return name
-    return null
-}
-
-/** The prefix a named team is spelled with, from the NAMED entry's own spelling (`TEAM_<id>` gives `TEAM_`). */
-function namedPrefix(index: RegisterIndex): string | null {
-    const entry = namedEntry(index)
-    if (!entry) return null
+/** The prefix an entry spelled with a placeholder is written with (`TEAM_<id>` gives `TEAM_`), or null. */
+function templatePrefix(entry: string): string | null {
     const at = entry.indexOf('<')
     return at > 0 ? entry.slice(0, at) : null
+}
+
+/**
+ * **The entry a placeholder spelling stands for** — a named team (`TEAM_A` → `TEAM_<id>`), and since 15 October 2026 (stage
+ * K3, his M1) a role holder (`ROLE_HOLDER_BUILDING` → `ROLE_HOLDER_<role>`), which counts only where what follows the prefix
+ * is a role of the register's role vocabulary: a role holder of a role nobody registered names nothing.
+ */
+function templatedEntry(index: RegisterIndex, text: string): string | null {
+    if (text.includes(' ')) return null
+    for (const [name, resolution] of index.designations.resolutions) {
+        const prefix = templatePrefix(name)
+        if (!prefix || !text.startsWith(prefix) || text.length <= prefix.length) continue
+        if (resolution.kind === 'NAMED') return name
+        if (resolution.kind === 'BLOCK_ROLE' && (index.roleBlocks?.roles ?? []).includes(text.slice(prefix.length))) return name
+    }
+    return null
 }
 
 /**
@@ -74,9 +83,7 @@ export function designationEntry(index: RegisterIndex, value: unknown): string |
         const inner = close > marker ? text.slice(marker + 3, close).trim() : ''
         if (names.has(inner)) return inner
     }
-    const prefix = namedPrefix(index)
-    if (prefix && text.startsWith(prefix) && !text.includes(' ') && text.length > prefix.length) return namedEntry(index)
-    return null
+    return templatedEntry(index, text)
 }
 
 export function resolutionOf(index: RegisterIndex, value: unknown): ResolvedDesignation | null {
@@ -112,7 +119,38 @@ export const isListedDesignation = (index: RegisterIndex, value: unknown): boole
 export function designationKey(index: RegisterIndex, value: unknown): string {
     const resolved = resolutionOf(index, value)
     if (!resolved) return String(value)
-    return resolved.kind === 'NAMED' ? String(value).trim() : resolved.entry
+    // A role holder keeps its own name too (stage K3): the holders of two roles map to one entry and are not equal.
+    return resolved.kind === 'NAMED' || resolved.kind === 'BLOCK_ROLE' ? String(value).trim() : resolved.entry
+}
+
+/**
+ * **The role a role-holder designation names** (`ROLE_HOLDER_BUILDING` → `BUILDING`), or null where the value is none —
+ * 15 October 2026, stage K3, his M1. Read from the register's spelling and role vocabulary, never from a literal.
+ */
+export function roleOfHolder(index: RegisterIndex, value: unknown): string | null {
+    const resolved = resolutionOf(index, value)
+    if (!resolved || resolved.kind !== 'BLOCK_ROLE') return null
+    const prefix = templatePrefix(resolved.entry)
+    return prefix ? String(value).trim().slice(prefix.length) : null
+}
+
+/** Every role holder spelled out, one per role of the register's role vocabulary (`ROLE_HOLDER_BUILDING`, …). */
+export function roleHolderNames(index: RegisterIndex): string[] {
+    const template = index.roleBlocks?.holderDesignation
+    const prefix = template ? templatePrefix(template) : null
+    return prefix ? (index.roleBlocks?.roles ?? []).map(role => `${prefix}${role}`) : []
+}
+
+/**
+ * **The setup assignment a role holder stands for in this block, or null** — his M1, *"Keep role assignments separate from
+ * fixed ends."* A role is held by one end-assigned team for the block; which end is the block's binding, recorded and
+ * never chosen here. Without a block, or for a value that is no role holder, there is no answer (never a guess).
+ */
+export function holderInBlock(index: RegisterIndex, value: unknown, roleBlock: RoleBlock | null | undefined): string | null {
+    const role = roleOfHolder(index, value)
+    if (!role || !roleBlock) return null
+    const holder = roleBlock.holders[role]
+    return holder && resolutionOf(index, holder)?.kind === 'SETUP_ASSIGNMENT' ? designationKey(index, holder) : null
 }
 
 /** Equal as designations (RC-22), or null where either value is no registered designation. */
@@ -167,7 +205,14 @@ export interface MemberDesignations {
     undetermined: { designation: string; why: string }[]
 }
 
-export function memberDesignations(index: RegisterIndex, collectionRow: string, handle: string, bindings: DesignationBinding[] = []): MemberDesignations {
+export function memberDesignations(
+    index: RegisterIndex,
+    collectionRow: string,
+    handle: string,
+    bindings: DesignationBinding[] = [],
+    /** The role block the game is derived for (stage K3, his M1); without one a role holder stays undetermined. */
+    roleBlock: RoleBlock | null = null,
+): MemberDesignations {
     const attributes = index.designations.attributes.filter(entry => entry.row === collectionRow).map(entry => entry.attribute)
     const met: string[] = []
     const notMet: string[] = []
@@ -176,6 +221,23 @@ export function memberDesignations(index: RegisterIndex, collectionRow: string, 
     for (const [name, resolution] of index.designations.resolutions) {
         if (resolution.kind === 'ALL') {
             met.push(name)
+            continue
+        }
+        /**
+         * **A role holder reaches the team holding the role in THIS block** (15 October 2026, stage K3, his M1): through the
+         * block's binding to a setup assignment, then through the setup assignment's recorded binding to a team. Each role
+         * is answered by its own spelled name, because a selector names `ROLE_HOLDER_BUILDING`, never the template. Two
+         * recorded steps, nothing chosen: without a block, or with the setup assignment unbound, it stays undetermined.
+         */
+        if (resolution.kind === 'BLOCK_ROLE' && standing.has(resolution.scope)) {
+            for (const holder of roleHolderNames(index)) {
+                const setup = holderInBlock(index, holder, roleBlock)
+                const bound = setup ? bindings.find(binding => designationKey(index, binding.designation) === setup) : undefined
+                if (!roleBlock) undetermined.push({ designation: holder, why: `${holder} is held for a block, and no block binding is recorded` })
+                else if (!setup) undetermined.push({ designation: holder, why: `the role block ${roleBlock.blockId} binds ${holder} to no setup assignment` })
+                else if (!bound) undetermined.push({ designation: holder, why: `${holder} is ${setup} in the role block ${roleBlock.blockId}, and which team holds ${setup} is a setup choice that realization has not recorded` })
+                else (bound.handle === handle ? met : notMet).push(holder)
+            }
             continue
         }
         if (!standing.has(resolution.scope)) {
@@ -212,4 +274,43 @@ export function whyNotReached(designations: MemberDesignations | undefined, valu
     if (!designations) return null
     const found = designations.undetermined.filter(entry => values.includes(entry.designation)).map(entry => entry.why)
     return found.length ? found.join('; ') : null
+}
+
+/**
+ * **What an objective region is the target of** — the register's derived attribute `targetOf` (version 10), 15 October
+ * 2026, stage K3, his M1: *"Allow target configurations to reflect each team's role during the block."* The structure
+ * (which objectives reference the region, and whether every reference was decided) is found by `target-of.ts`; this
+ * answers it as designations, in the shape `reach.ts` already reads for a team:
+ *
+ *   - a setup assignment is MET where an objective of its team references the region, and NOT MET only where every
+ *     reference was decided and every attacker is a setup assignment — then the other setup assignment's objective
+ *     references another region (C42: "each team attacks the target opposite its own assigned end");
+ *   - a role holder is met or not met exactly as the setup assignment the block binds it to, and is undetermined
+ *     without a block — so a role-keyed target configuration reaches the region of THAT block's holder, and nothing at
+ *     all where no block is in force;
+ *   - every other designation is undetermined: nothing here reads an episode, a trigger or the possession relation.
+ *
+ * `attackers` are the team designations as the objectives' selectors spell them.
+ */
+export function targetDesignations(index: RegisterIndex, regionId: string, attackers: string[], decided: boolean, roleBlock: RoleBlock | null = null): MemberDesignations {
+    const attribute = index.targetOf?.attribute ?? ''
+    const met: string[] = []
+    const notMet: string[] = []
+    const undetermined: { designation: string; why: string }[] = []
+    const attacking = new Set(attackers.map(attacker => designationKey(index, attacker)))
+    const onlySetup = attackers.every(attacker => resolutionOf(index, attacker)?.kind === 'SETUP_ASSIGNMENT')
+    for (const [name, resolution] of index.designations.resolutions) {
+        if (resolution.kind !== 'SETUP_ASSIGNMENT') continue
+        if (attacking.has(name)) met.push(name)
+        else if (decided && onlySetup) notMet.push(name)
+        else undetermined.push({ designation: name, why: `whether an objective of ${name} references ${regionId} is not decided by the reference items` })
+    }
+    for (const holder of roleHolderNames(index)) {
+        const setup = holderInBlock(index, holder, roleBlock)
+        if (!roleBlock) undetermined.push({ designation: holder, why: `${holder} is held for a block, and the game is derived for no role block` })
+        else if (setup && met.includes(setup)) met.push(holder)
+        else if (setup && notMet.includes(setup)) notMet.push(holder)
+        else undetermined.push({ designation: holder, why: `${holder} is ${setup ?? 'no setup assignment'} in the role block ${roleBlock.blockId}, and whether its objective references ${regionId} is not decided` })
+    }
+    return { attributes: attribute ? [attribute] : [], handle: regionId, met, notMet, undetermined }
 }

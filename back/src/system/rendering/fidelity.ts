@@ -23,7 +23,8 @@ import { CoachFacingExclusion, exclusionFor } from './coach-facing-exclusions'
 import { ADJUSTING, Binding, combinedStatus, Instruction, RenderedActivity, SourceStatus } from './render-concrete-game'
 
 export interface FidelityFinding {
-    question: 1 | 2 | 3 | 4 | 5
+    /** 6 since 15 October 2026 (stage K3): an activity composed from role blocks lost or invented nothing (`role-blocks.ts`). */
+    question: 1 | 2 | 3 | 4 | 5 | 6
     severity: 'VIOLATION' | 'NOTE'
     what: string
 }

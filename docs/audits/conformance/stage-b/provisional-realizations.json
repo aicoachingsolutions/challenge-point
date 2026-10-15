@@ -28,8 +28,66 @@
                     "because": "His decisions of 17 October describe a build-out begun by the building team's goalkeeper or a controlled defensive restart, at a location the coach chooses; the From Goal Kicks practice situation brings its own formal restart, which he keeps apart: 'Please preserve the distinction between a controlled defensive restart and a formal goal kick. If the coach selects a formal goal kick, the applicable Laws of the Game should govern it. The three facts you've identified can be recorded, but they should be treated as part of that specific restart type, not imposed on all build-out starts.' (Christian, 15 October 2026, item 4 - his first reply of that day). That this first activity does not cover the situation is our reading, put to him in our email of 17 October: 'This provisional activity does not cover the From Goal Kicks practice situation. That combination is refused for now.'"
                 }
             ],
-            "note": "EMPTY AT LANDING, 15 October 2026 (stage K2): the carrier, its loader, its gate on the record and its replacement realization choices land before the choices themselves. The items his 17 October decisions authorize (the role blocks, the allocation by role, the start and restart transitions, the starting relationship and the targets keyed by role) join in later stages, each when the engine can carry it, so that no item enters a game the engine would misread. Measured at landing: with this realization empty every Learning Goal, every demonstration and the A04 fixture derive byte-identically.",
-            "items": [],
+            "note": "EMPTY AT LANDING, 15 October 2026 (stage K2): the carrier, its loader, its gate on the record and its replacement realization choices land before the choices themselves. The items his 17 October decisions authorize (the role blocks, the allocation by role, the start and restart transitions, the starting relationship and the targets keyed by role) join in later stages, each when the engine can carry it, so that no item enters a game the engine would misread. Measured at landing: with this realization empty every Learning Goal, every demonstration and the A04 fixture derive byte-identically. FIRST ITEMS, 15 October 2026 (stage K3): the role blocks of his D2(a) and M1 - the two roles (A01-R1-B1-1, A01-R1-B1-2) and how they pass between the teams (A01-R1-B3-1, the coach calls the next block, the exchange vocabulary's one member). The engine now derives a game holding them as two complete games, one per role block, and checks the two against each other (RB-1 to RB-8). They change no production outcome: the authorization record's gap entries still refuse A01 at 'knowledge', before derivation; behind those entries (a TEST-ONLY copy) each block stops where the single game stopped, at GA-EPISODE-REACHABLE.",
+            "items": [
+                {
+                    "id": "A01-R1-B1-1",
+                    "row": "B1",
+                    "selector": "activityRole=BUILDING",
+                    "requirement": "EXISTS",
+                    "value": "N/A",
+                    "valueStatus": "N/A",
+                    "strictness": "REQUIRED",
+                    "scope": "WHOLE_GAME",
+                    "basis": "OWNER_RULING",
+                    "checkability": "STRUCTURAL",
+                    "structuralClause": "whole item",
+                    "category": "PROVISIONAL_REALIZATION_CHOICE",
+                    "choice": "The first activity is played in blocks, and in each block one team is the building team.",
+                    "words": "Approve D2(a): Coach-controlled blocks. One team builds out while the other presses. The coach determines when the teams exchange roles.",
+                    "citedAs": "his reply filed 17 October 2026, D2",
+                    "basisEvidence": "Christian, reply filed 17 October 2026, D2: \"Approve D2(a): Coach-controlled blocks. One team builds out while the other presses.\" and \"This is the initial activity configuration, not a universal requirement for Play Out from the Back.\" M1: \"M1 — Role exchange by block: Approved. Keep role assignments separate from fixed ends.\" D7: \"The building team attempts controlled progression into its designated target.\"",
+                    "fitNote": "Establishes the building role as an element of activityRoles[] (register version 10, row B1). Which team holds it in a block is not stated here and cannot be: the two blocks are the two bindings of the two roles to the two end-assigned teams, derived one game each. The token BUILDING is ours, named from his D7 wording."
+                },
+                {
+                    "id": "A01-R1-B1-2",
+                    "row": "B1",
+                    "selector": "activityRole=PRESSING",
+                    "requirement": "EXISTS",
+                    "value": "N/A",
+                    "valueStatus": "N/A",
+                    "strictness": "REQUIRED",
+                    "scope": "WHOLE_GAME",
+                    "basis": "OWNER_RULING",
+                    "checkability": "STRUCTURAL",
+                    "structuralClause": "whole item",
+                    "category": "PROVISIONAL_REALIZATION_CHOICE",
+                    "choice": "In each block the other team is the pressing team.",
+                    "words": "One team builds out while the other presses.",
+                    "citedAs": "his reply filed 17 October 2026, D2",
+                    "basisEvidence": "Christian, reply filed 17 October 2026, D2: \"One team builds out while the other presses.\" D7: \"The pressing team attempts to prevent progression, regain possession, and reach its post-regain target.\" and \"Please use the assigned team roles rather than referring generically to \"the defending team,\" since possession and defensive responsibilities change during play.\"",
+                    "fitNote": "Establishes the pressing role as an element of activityRoles[] (row B1). A role, never a possession-relative designation: the team holding it keeps it for the block whoever has the ball. The token PRESSING is ours, named from his D7 wording."
+                },
+                {
+                    "id": "A01-R1-B3-1",
+                    "row": "B3",
+                    "selector": "*",
+                    "requirement": "EQUALS",
+                    "value": "COACH_CALLS",
+                    "valueStatus": "REQUIRED_RANGE",
+                    "strictness": "REQUIRED",
+                    "scope": "WHOLE_GAME",
+                    "basis": "OWNER_RULING",
+                    "checkability": "STRUCTURAL",
+                    "structuralClause": "whole item",
+                    "category": "PROVISIONAL_REALIZATION_CHOICE",
+                    "choice": "The roles pass between the teams when the coach calls the next block; there is no block duration.",
+                    "words": "Roles exchange when the coach calls for the next block.",
+                    "citedAs": "his reply filed 17 October 2026, D7",
+                    "basisEvidence": "Christian, reply filed 17 October 2026, D7: \"Roles exchange when the coach calls for the next block.\" D2: \"The coach determines when the teams exchange roles. No mandatory block duration is needed.\" M1: \"The coach controls the exchange. No new block-duration system is needed.\"",
+                    "fitNote": "Every role passes by the coach's call (row B3, closed list B3.exchange with one member). No duration, count, timer, trigger or window is stated, and none can be: the list holds nothing else."
+                }
+            ],
             "declarations": [],
             "relationshipRules": []
         }

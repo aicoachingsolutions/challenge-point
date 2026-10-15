@@ -107,6 +107,19 @@ entries, and a game value written "(= entry)" counts as that entry.
 > class-to-class comparison stays the spelled-value comparison it was. The BLOCK scope (a role held for a coach-called
 > block, his M1) is our extension of AM-01, registered and not yet used.
 
+> **Engineering line, 15 October 2026 (stage K3) — ours, outside his adopted text.** Implemented for his M1 of 17 October
+> ("M1 — Role exchange by block: Approved. Keep role assignments separate from fixed ends. Allow target configurations to
+> reflect each team's role during the block. The coach controls the exchange. No new block-duration system is needed.").
+> A block-scoped designation is met by the team the role block the game is derived for binds to it: `ROLE_HOLDER_<role>`
+> (register version 10, kind BLOCK_ROLE, scope BLOCK) resolves to the setup assignment (TEAM_AT_AXIS_*) the block binds the
+> role to, and from there to the team realization recorded for that setup assignment; without a block it is undetermined,
+> never guessed. A game whose contributions establish the register's roles (`roleBlocks`) is derived once per block — the
+> two bijections of two roles onto two ends are entailed, not chosen — with the block as input (in the input digest, the
+> gate context and the realization record, never in the game), and the blocks are then checked against each other
+> (RB-1..RB-8). One exception to "derivation classes fix no designation": an objective region carries the derived
+> attribute `targetOf` (the team whose primary scoring objective references it), set before reach from the objectives'
+> selectors and the reference items that entail them, and only where a selector asks for it.
+
 **Every structural reference normalises, not only selectors (SD-32, ruled).** In his words:
 
 > "Any structural reference participating in derivation must resolve through the registered

@@ -65,7 +65,9 @@ test('the register holds P6c as a closed, versioned vocabulary, and not as a tri
     // referent) supersedes 7, and its sentence still names version 7 as the one that added P6c.
     // Re-pointed again 15 October 2026 (stage K2): version 9 (the typed team designations, his M2) supersedes 8, and the
     // sentence keeps the whole chain, so it still names version 7 as the one that added P6c.
-    assert.match(String(register.version), /^9, adds .*Supersedes version 8, .*Supersedes version 7, which added P6c/)
+    // Re-pointed again 15 October 2026 (stage K3): version 10 (role blocks, his M1) supersedes 9, and the sentence keeps
+    // the whole chain, so it still names version 7 as the one that added P6c.
+    assert.match(String(register.version), /^10, adds .*Supersedes version 9, .*Supersedes version 8, .*Supersedes version 7, which added P6c/)
     // The H2 guard, measured: a vocabulary with no version halts every derivation. Every array carries one.
     const index = indexRegister(register)
     for (const name of index.vocabularies.keys()) assert.ok(index.vocabularyVersions[name], `${name} carries a version`)

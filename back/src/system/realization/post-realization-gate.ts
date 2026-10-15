@@ -148,7 +148,7 @@ function concreteContext(ctx: GateContext, realized: Realized): GateContext {
          * Only a member of the register's teams collection carries it; without a recorded binding a setup designation stays
          * undetermined, which is what every team-naming selector was before.
          */
-        const designations = ctx.index.designations.teamsRow === claim.row ? memberDesignations(ctx.index, claim.row, instantiation.handle, realized.record.designationBindings ?? []) : undefined
+        const designations = ctx.index.designations.teamsRow === claim.row ? memberDesignations(ctx.index, claim.row, instantiation.handle, realized.record.designationBindings ?? [], realized.record.roleBlock ?? null) : undefined
         classes.push({ ...claim, classId, constraints: { any: false, terms: [] }, cardinality: { min: null, max: null }, ...(designations ? { designations } : {}) })
 
         for (const row of ctx.index.rows.values()) {

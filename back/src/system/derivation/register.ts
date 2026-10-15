@@ -106,6 +106,95 @@ export interface DesignationRegister {
 /** A list entry's name: the designation as a selector or a value spells it, without the gloss. */
 export const designationName = (entry: string): string => String(entry).trim().split(/\s/)[0]
 
+/**
+ * **Where the role-block capability finds its rows** — register version 10, 15 October 2026, for his M1 (reply filed 17
+ * October 2026): *"Keep role assignments separate from fixed ends. Allow target configurations to reflect each team's role
+ * during the block. The coach controls the exchange. No new block-duration system is needed."* Read by
+ * `derivation/role-blocks.ts` and `designation.ts`; no row, role or designation name is written in code.
+ */
+export interface RoleBlockRegister {
+    /** The COLLECTION row whose elements are the roles (`activityRoles[]`). */
+    rolesRow: string
+    /** The selector attribute of that row naming the role. */
+    roleAttribute: string
+    /** The roles, in the vocabulary's order. */
+    roles: string[]
+    /** The FIELD row, owned by the roles row, saying how a role passes to the other team. */
+    exchangeRow: string
+    /** The ways a role may pass (one member: the coach calls the next block). */
+    exchanges: string[]
+    /** The BLOCK_ROLE designation, spelled as the list spells it (`ROLE_HOLDER_<role>`). */
+    holderDesignation: string
+    /** DRAFT coach nouns, one per role — not approved wording. */
+    coachNouns: Record<string, string>
+}
+
+/**
+ * **The derived region attribute `targetOf`, as data** — register version 10, 15 October 2026, his M1: *"Allow target
+ * configurations to reflect each team's role during the block."* Which rows say that an objective of a role, attacked by
+ * a team, references a region. Read by `derivation/target-of.ts` (`markTargets`, answered by `designation.ts`
+ * `targetDesignations`); no row id is written there.
+ */
+export interface TargetOfRegister {
+    row: string
+    attribute: string
+    objectivesRow: string
+    referenceRow: string
+    /** The objective's selector attributes for its team and its role (the team and role rows' own `selectorAttribute`). */
+    teamAttribute: string
+    roleAttribute: string
+    role: string
+    /** The leaves an objective holds its reference, team and role at in a game (the rows' own paths). */
+    referenceLeaf: string
+    teamLeaf: string
+    roleLeaf: string
+}
+
+function indexTargetOf(block: any, rows: Map<string, RegisterRow>, vocabularies: Map<string, string[]>, designations: DesignationRegister): TargetOfRegister | null {
+    if (!block || typeof block !== 'object') return null
+    const row = String(block.row ?? '')
+    const attribute = String(block.attribute ?? '')
+    if (rows.get(row)?.kind !== 'COLLECTION' || !(rows.get(row)?.selectorAttributes ?? []).includes(attribute)) throw new HaltError('H1', `targetOf: ${attribute} is not a selector attribute of the COLLECTION row ${row}`)
+    if (!designations.attributes.some(entry => entry.row === row && entry.attribute === attribute)) throw new HaltError('H1', `targetOf: ${row}.${attribute} is not listed among the designation-valued attributes`)
+    const objectivesRow = String(block.objectivesRow ?? '')
+    if (rows.get(objectivesRow)?.kind !== 'COLLECTION') throw new HaltError('H1', `targetOf: ${objectivesRow} is not a COLLECTION row`)
+    const owned = (id: string) => rows.get(id)?.kind === 'FIELD' && rows.get(id)?.ownerRow === objectivesRow
+    const [referenceRow, teamRow, roleRow] = [String(block.referenceRow ?? ''), String(block.teamRow ?? ''), String(block.roleRow ?? '')]
+    for (const id of [referenceRow, teamRow, roleRow]) if (!owned(id)) throw new HaltError('H1', `targetOf: ${id} is not a FIELD row owned by ${objectivesRow}`)
+    const teamAttribute = rows.get(teamRow)?.selectorAttribute
+    const roleAttribute = rows.get(roleRow)?.selectorAttribute
+    if (!teamAttribute || !roleAttribute) throw new HaltError('H1', `targetOf: the team row ${teamRow} and the role row ${roleRow} must each hold a selector attribute`)
+    const role = String(block.role ?? '')
+    if (!(vocabularies.get(`${roleRow}.${roleAttribute}`) ?? []).includes(role)) throw new HaltError('H1', `targetOf: ${role} is not a member of ${roleRow}.${roleAttribute}`)
+    const leaf = (id: string) => String(rows.get(id)?.path ?? '').split('[].').pop() ?? ''
+    return { row, attribute, objectivesRow, referenceRow, teamAttribute, roleAttribute, role, referenceLeaf: leaf(referenceRow), teamLeaf: leaf(teamRow), roleLeaf: leaf(roleRow) }
+}
+
+/**
+ * The role-block block, validated as the rest of the register is (halt H1): every name it gives must be a row, a
+ * vocabulary or a designation the register defines, with the shape the capability needs. A register without the block
+ * (one written before version 10) has no role blocks, and every game derives as before.
+ */
+function indexRoleBlocks(block: any, rows: Map<string, RegisterRow>, vocabularies: Map<string, string[]>, designations: DesignationRegister): RoleBlockRegister | null {
+    if (!block || typeof block !== 'object') return null
+    const rolesRow = String(block.rolesRow ?? '')
+    const roleAttribute = String(block.roleAttribute ?? '')
+    if (rows.get(rolesRow)?.kind !== 'COLLECTION') throw new HaltError('H1', `roleBlocks.rolesRow ${rolesRow} is not a COLLECTION row`)
+    if (!(rows.get(rolesRow)?.selectorAttributes ?? []).includes(roleAttribute)) throw new HaltError('H1', `roleBlocks.roleAttribute ${roleAttribute} is not a selector attribute of ${rolesRow}`)
+    const roles = vocabularies.get(String(block.roleVocabulary ?? ''))
+    if (!roles || roles.length !== 2) throw new HaltError('H1', `roleBlocks.roleVocabulary ${block.roleVocabulary} must be a vocabulary of exactly two roles (one per team)`)
+    const exchangeRow = String(block.exchangeRow ?? '')
+    if (rows.get(exchangeRow)?.kind !== 'FIELD' || rows.get(exchangeRow)?.ownerRow !== rolesRow) throw new HaltError('H1', `roleBlocks.exchangeRow ${exchangeRow} is not a FIELD row owned by ${rolesRow}`)
+    const exchanges = vocabularies.get(String(block.exchangeVocabulary ?? ''))
+    if (!exchanges || !exchanges.length) throw new HaltError('H1', `roleBlocks.exchangeVocabulary ${block.exchangeVocabulary} is not a vocabulary`)
+    const holderDesignation = String(block.holderDesignation ?? '')
+    if (designations.resolutions.get(holderDesignation)?.kind !== 'BLOCK_ROLE') throw new HaltError('H1', `roleBlocks.holderDesignation ${holderDesignation} is not a BLOCK_ROLE designation of the list`)
+    if (!holderDesignation.endsWith('<role>')) throw new HaltError('H1', `roleBlocks.holderDesignation ${holderDesignation} does not end in the <role> placeholder`)
+    const nouns = block.coachNouns?.nouns ?? {}
+    for (const role of roles) if (typeof nouns[role] !== 'string' || !nouns[role].trim()) throw new HaltError('H1', `roleBlocks.coachNouns names no noun for ${role}`)
+    return { rolesRow, roleAttribute, roles: [...roles], exchangeRow, exchanges: [...exchanges], holderDesignation, coachNouns: Object.fromEntries(roles.map(role => [role, String(nouns[role])])) }
+}
+
 export interface RegisterIndex {
     rows: Map<string, RegisterRow>
     /** Position in `register.rows`, the canonical row order (package §8). */
@@ -174,6 +263,10 @@ export interface RegisterIndex {
     teamDesignations: string[]
     /** The same designations typed (register version 9): read by `designation.ts`, the one resolver. */
     designations: DesignationRegister
+    /** The role-block capability's rows and names (register version 10, his M1), or null in a register without it. */
+    roleBlocks: RoleBlockRegister | null
+    /** The derived region attribute naming the team that attacks it (register version 10), or null without it. */
+    targetOf: TargetOfRegister | null
     registerVersion: string
 }
 
@@ -312,6 +405,7 @@ export function indexRegister(register: any): RegisterIndex {
     }
 
     const citable = new Set<string>((register.citableStandingDecisions || []).map((d: any) => d.id).filter(Boolean))
+    const designations = indexDesignations(register.teamDesignations, rows)
 
     return {
         rows,
@@ -337,7 +431,9 @@ export function indexRegister(register: any): RegisterIndex {
         citableStandingDecisions: citable,
         standingDecisions: (register.citableStandingDecisions || []).filter((d: any) => d && d.id),
         teamDesignations: Array.isArray(register.teamDesignations?.list) ? register.teamDesignations.list.map(String) : [],
-        designations: indexDesignations(register.teamDesignations, rows),
+        designations,
+        roleBlocks: indexRoleBlocks(register.roleBlocks, rows, vocabularies, designations),
+        targetOf: indexTargetOf(register.targetOf, rows, vocabularies, designations),
         registerVersion: register.version,
     }
 }

@@ -15,6 +15,7 @@ import { countBounds, deriveLines, DerivedLine, establishesExistence } from './d
 import { classifyLines, ClassifiedLine } from './classify'
 import { forwardResults } from './forward'
 import { runGates } from './gates'
+import { markTargets } from './target-of'
 import { reaches } from './reach'
 import { emit, DerivationResult, StampedHalt } from './emit'
 import { parseSelector, predicateKey, selectorApplies } from './selector'
@@ -73,6 +74,9 @@ function canonicalInput(input: DerivationInput): unknown {
         envelope: input.envelope,
         registerVersion: input.register?.version,
         derivationRules: input.derivationRules,
+        // The role block is input like the envelope (stage K3, 15 October 2026): two blocks are two inputs and must be
+        // told apart by their digest. Present only where there is one, so every other game's digest is what it was.
+        ...(input.roleBlock ? { roleBlock: input.roleBlock } : {}),
     })
 }
 
@@ -441,6 +445,9 @@ export function runStages0to2(input: DerivationInput): PartialResult {
 
     // Stage 2 — classes, triggers, lines.
     const classes = formClasses(loaded.admitted, index, stopped)
+    // Stage K3, 15 October 2026 (his M1): an objective region carries what it is the target of — before reach, so a
+    // selector naming "the target a team attacks" reaches the region its objective references (`target-of.ts`).
+    markTargets(classes, loaded.admitted, index, input.roleBlock ?? null)
     const triggers = constructTriggers(classes, index, input.envelope)
     const lines = enumerateLines(classes, index, stopped)
 
@@ -648,6 +655,7 @@ export function runStages0to10(input: DerivationInput) {
         failures: base.failures,
         forward: base.forward || [],
         contracts: admitted,
+        ...(input.roleBlock ? { roleBlock: input.roleBlock } : {}),
     }
     const gates = runGates(gateContext)
 

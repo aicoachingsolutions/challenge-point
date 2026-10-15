@@ -1,7 +1,7 @@
 {
   "title": "Atomic field-path register — Game Representation Specification revision 4",
   "date": "2026-09-18",
-  "version": "9, adds a typed resolution to every team designation (teamDesignations.resolutions, with closed kinds and scopes, the designation-valued selector attributes and the scopes a standing team property may be reached through) for his M2 in the reply filed 17 October 2026, recorded 2026-10-15; each resolution restates its entry's gloss or is marked OUR_INTERPRETATION. Nothing existing changes: no list entry, gloss or note is altered. Supersedes version 8, which added the declaration qualifier vocabulary (contractEnums.declarationQualifier: NO_FURTHER_VALUE, UNRESTRICTED - his M6 three states) and the relational V5 referent form (the objective reference of a team designation - his M8), both approved in his reply filed 17 October 2026, recorded 2026-10-15. Supersedes version 7, which added P6c (performers.neutrals.affiliation.takesEffect: when a neutral player's change of affiliation takes effect, IMMEDIATE or AT_NEXT_RESTART) on the ruling of 2026-10-14. Nothing existing changes: no declaration is requalified, and every existing V5 value reads as before.",
+  "version": "10, adds role blocks for his M1 in the reply filed 17 October 2026 (\"M1 — Role exchange by block: Approved. Keep role assignments separate from fixed ends. Allow target configurations to reflect each team's role during the block. The coach controls the exchange. No new block-duration system is needed.\"), recorded 2026-10-15: rows B1 (activityRoles[]), B2 (activityRoles[].activityRole) and B3 (activityRoles[].exchange, closed list COACH_CALLS); vocabularies B1.activityRole and B3.exchange; the block-scoped designation ROLE_HOLDER_<role> (BLOCK_ROLE, our extension of AM-01); the derived S2 selector attribute targetOf; and the roleBlocks block naming them. Nothing existing changes: no row, list entry, gloss or note is altered, and a game establishing no role enumerates exactly the lines it did. Supersedes version 9, which adds a typed resolution to every team designation (teamDesignations.resolutions, with closed kinds and scopes, the designation-valued selector attributes and the scopes a standing team property may be reached through) for his M2 in the reply filed 17 October 2026, recorded 2026-10-15; each resolution restates its entry's gloss or is marked OUR_INTERPRETATION. Nothing existing changes: no list entry, gloss or note is altered. Supersedes version 8, which added the declaration qualifier vocabulary (contractEnums.declarationQualifier: NO_FURTHER_VALUE, UNRESTRICTED - his M6 three states) and the relational V5 referent form (the objective reference of a team designation - his M8), both approved in his reply filed 17 October 2026, recorded 2026-10-15. Supersedes version 7, which added P6c (performers.neutrals.affiliation.takesEffect: when a neutral player's change of affiliation takes effect, IMMEDIATE or AT_NEXT_RESTART) on the ruling of 2026-10-14. Nothing existing changes: no declaration is requalified, and every existing V5 value reads as before.",
   "source": "docs/design/game-representation-spec-2026-09-18.md §5 (the eight areas), §3 (statuses), §6 (the contract), §2 (standing decisions)",
   "rowKinds": {
     "COLLECTION": "The existence and count of elements in a collection. Items on a COLLECTION row say that elements matching a selector exist (EXISTS), how many (COUNT/RANGE), or that none may (NOT_EXISTS).",
@@ -78,8 +78,10 @@
         "noun",
         "functions",
         "lateral",
-        "longitudinal"
+        "longitudinal",
+        "targetOf"
       ],
+      "targetOfValues": "ADDED 15 October 2026 (register version 10) for his M1 in the reply filed 17 October 2026: \"Allow target configurations to reflect each team's role during the block.\" A region carries targetOf=T where a PRIMARY_SCORING objective (J4) whose team (J3) is T references it (J2). It is the relation the possession game's own region phrase already uses (\"of the team J3 names for the objective referencing it\"), made selectable, and it is the one term for 'the target a team attacks' (his M8's typed referent reads the same J2/J3 relation). T is a team designation (teamDesignations.designationAttributes): a setup assignment (TEAM_AT_AXIS_*) is met by the region its objective references and not met by the region another setup assignment's objective references; ROLE_HOLDER_<role> is met through the role block the game is derived for, and is undetermined where the game is derived for none. DERIVED, never authored on a region and never written into its selector: the engine computes it before reach from the J1/J2/J3 items (back/src/system/derivation/target-of.ts, answered by designation.ts targetDesignations; the rows are named in the targetOf block below) and nothing else, so a targetOf selector identifies an existing objective region and never creates one (AM-13 preserved; a third region would break ruling C42's 'exactly two active objectives and two corresponding target regions, not three'). Our engineering; his words are the two quoted.",
       "lateralValues": "closed list (draft, AM-17), each with its interval test against the element's position.across, on an envelope of width W with the midline at W/2. wide-left: touches the 0 touchline and does not contain the midline. wide-right: touches the W touchline and does not contain the midline. wide: either of those. central: THE SAME TEST AS relativeTerms.central, which is canonical - contains the axis midline across the width, and touches neither touchline. full-width: touches both touchlines. lateral is SET-VALUED: an element carries every value whose test it satisfies, so a wide-left region also carries wide. Intervals are closed at both ends, and touches means shares an endpoint with the touchline. The list is NOT exhaustive - an element touching one touchline and containing the midline (0-20 on W=30) satisfies none, carries no lateral value, and no lateral selector can reach it. An element matching none carries no lateral value. A lateral selector identifies an existing region; it never creates one (AM-13 preserved). These five values are a capability offered to CONTRACT AUTHORS: derivation never rewrites an authored selector or scope to use them (AM-12), so an existing contract gains nothing from AM-17 until it is restated",
       "fillable": "element count above an authored COUNT/RANGE minimum and inside its maximum",
       "sourceKinds": [
@@ -1045,6 +1047,39 @@
       "sourceKinds": [
         "SELECTION"
       ]
+    },
+    {
+      "id": "B1",
+      "path": "activityRoles[]",
+      "kind": "COLLECTION",
+      "selectorAttributes": [
+        "activityRole"
+      ],
+      "valueType": "the roles an activity played in role blocks assigns to its two teams for a block, one element per role (closed list B1.activityRole, draft). ADDED 15 October 2026 (register version 10) for his M1, reply filed 17 October 2026: \"M1 — Role exchange by block: Approved. Keep role assignments separate from fixed ends. Allow target configurations to reflect each team's role during the block. The coach controls the exchange. No new block-duration system is needed.\" A role is held by one end-assigned team for a block (teamDesignations ROLE_HOLDER_<role>); a role exchange never changes an end assignment (ruling C42), an objective's team (J3) or its reference (J2). Which team holds which role in a block is NOT a property of the game: each block is derived as its own complete game, and the binding is the input that run is derived for, recorded beside the realized game (as the setup-assignment binding is), never written onto a role or a team. The attribute is named activityRole, not role, because objectives already select on role (J4)",
+      "sourceKinds": [
+        "SELECTION"
+      ]
+    },
+    {
+      "id": "B2",
+      "path": "activityRoles[].activityRole",
+      "ownerRow": "B1",
+      "kind": "FIELD",
+      "valueType": "closed list (draft): BUILDING, PRESSING - which role this element is. Carried from the establishing selector (SD-92), so an item that establishes a role also states it. Added 15 October 2026 (register version 10, his M1)",
+      "sourceKinds": [
+        "SELECTION"
+      ],
+      "selectorAttribute": "activityRole"
+    },
+    {
+      "id": "B3",
+      "path": "activityRoles[].exchange",
+      "ownerRow": "B1",
+      "kind": "FIELD",
+      "valueType": "closed list (draft): COACH_CALLS - how the role passes to the other team: the coach calls the next block. His M1: \"The coach controls the exchange. No new block-duration system is needed.\" So the list has one member and no duration, count, timer, trigger, window or change of ends can be stated here. Owned by the role collection, not the game, so a game without role blocks enumerates no line for it. Carries his D2 requirement on the coach text of any activity that uses it: \"Team ends can remain fixed, while role-specific objectives and target configurations change when the teams exchange roles. Please make that distinction explicit in the coach-facing instructions.\" Added 15 October 2026 (register version 10)",
+      "sourceKinds": [
+        "SELECTION"
+      ]
     }
   ],
   "comparison": {
@@ -1100,7 +1135,9 @@
       "R3.effect": "1 (2026-09-24)",
       "P12.state": "1 (2026-09-24) - bound to knowledge core EM-0007 EMD-0014 EMP-0040 \"Active / Inactive / Waiting / Resting / Observing\"; not duplicate vocabulary",
       "P13.persistence": "1 (2026-09-24) - bound to EM-0007 EMP-0042 \"Temporary / Persistent\"",
-      "P6c.takesEffect": "1 (2026-10-14, draft) - when a neutral player's change of affiliation takes effect, on Christian's ruling of that day. AT_NEXT_RESTART is listed because the contract's own P6a NOT_AUTHORED note names it as the alternative; it cannot authorize until the register holds a machine-readable class of restarts (GA-AFFILIATION, NOT_EVALUABLE)"
+      "P6c.takesEffect": "1 (2026-10-14, draft) - when a neutral player's change of affiliation takes effect, on Christian's ruling of that day. AT_NEXT_RESTART is listed because the contract's own P6a NOT_AUTHORED note names it as the alternative; it cannot authorize until the register holds a machine-readable class of restarts (GA-AFFILIATION, NOT_EVALUABLE)",
+      "B1.activityRole": "1 (2026-10-15, register version 10, draft) - the two roles of his M1 role blocks, named from his D7 wording ('The building team attempts controlled progression into its designated target.' / 'The pressing team attempts to prevent progression, regain possession, and reach its post-regain target.'); the tokens are ours",
+      "B3.exchange": "1 (2026-10-15, register version 10, draft) - one member, COACH_CALLS, for his M1 'The coach controls the exchange. No new block-duration system is needed.' and D2 'The coach determines when the teams exchange roles. No mandatory block duration is needed.'"
     },
     "S3.noun": [
       "band",
@@ -1280,6 +1317,13 @@
       "IMMEDIATE",
       "AT_NEXT_RESTART"
     ],
+    "B1.activityRole": [
+      "BUILDING",
+      "PRESSING"
+    ],
+    "B3.exchange": [
+      "COACH_CALLS"
+    ],
     "triggerSemantics": {
       "FIRST_FORWARD_PASS": {
         "note": "An EVENT IN PLAY, like POSSESSION_CHANGE, never a restart like START. Forward is relative to the passing team attacking direction, which the representation establishes (SD-95); where that direction is FREE the trigger is NOT EVALUABLE and its line is CONDITIONAL, never failed. First is per episode, using the episode boundary transitions already carry (startsEpisode). It implies NOTHING about pass success, receiver, distance or intent, and must not be read as doing so. Added 2026-09-29 on Christian ruling; bounded addition only, no qualifier capability is implied.",
@@ -1457,7 +1501,8 @@
       "NOT_LAST_TOUCH",
       "BUILD_OUT_TEAM (team whose build-out episode it is)",
       "TEAM_AT_AXIS_START (the team assigned at setup to the end at the start of the long axis; the assignment is fixed for the activity and names no role. Approved by Christian 9 October 2026 with ruling C42: \"distinct teams assigned to opposite ends at setup, with their assignments remaining fixed throughout the activity\". Recorded here 13 October: the pair had been in use since C42 without being entered in this list)",
-      "TEAM_AT_AXIS_END (the team assigned at setup to the end at the far end of the long axis; the counterpart of TEAM_AT_AXIS_START, approved with it)"
+      "TEAM_AT_AXIS_END (the team assigned at setup to the end at the far end of the long axis; the counterpart of TEAM_AT_AXIS_START, approved with it)",
+      "ROLE_HOLDER_<role> (the end-assigned team that the role block in force binds to <role>, a member of B1.activityRole: held for the block, never resolved against PS1, an episode or a trigger, and UNRESOLVED where the game is derived for no role block. Recorded 15 October 2026 (register version 10) for his M1, reply filed 17 October 2026: \"Keep role assignments separate from fixed ends.\" This gloss and the block scope are OUR extension of AM-01, not his words)"
     ],
     "resolutionNote": "ADDED 15 October 2026 (register version 9), for his M2 in the reply filed 17 October 2026: \"M2 — Team-specific facts: Approved. Please implement the previously adopted September 20 designation rule, rather than introducing a narrower workaround solely for this activity. This is a reusable capability with applications beyond goalkeeper build-out.\" The adopted rule is AM-01 (derivation-spec-2026-09-20.md): \"Use the game's transitions/episode context to resolve contextual team designations. An episode-scoped designation remains episode-scoped.\" Only that quoted sentence is his adopted text; the spec's elaboration beside it (a designation in a selector is met by each team the game's stated transitions make it at some trigger; the build-out team is the team awarded the start placement, KR-03; in a value designations compare as canonical entries) is the spec's. Each entry of the list now carries a TYPED RESOLUTION read by one resolver (back/src/system/derivation/designation.ts) for every consumer: what decides which team the designation picks out (kind) and for how long that answer holds (scope). basis GLOSS means the resolution restates the entry's own gloss above (or the ruling the gloss cites) and adds no meaning; basis OUR_INTERPRETATION means the entry has no gloss and the resolution is OUR reading under this list's note (\"A designation is evaluated at the trigger or episode it is attached to\"), shown to him and never quoted as his. The kinds and scopes are closed lists. A standing property of a team (a performer count, say) is reached only through a designation whose scope is in standingScopes: an EPISODE, DYNAMIC or TRIGGER designation never yields a standing value, because the team it picks out changes while the property does not. BLOCK_ROLE / BLOCK is registered for his M1 (role exchange by block) and no entry uses it yet; holding a role for a block is OUR extension of AM-01's 'episode-scoped remains episode-scoped' to a coach-called block, recorded outside his adopted text. Which instantiated team a SETUP_ASSIGNMENT designation picks out is a governed symmetric choice recorded by realization (SD-39, as the initial possession holder is), never derived from an ordinal.",
     "resolutionKinds": ["SETUP_ASSIGNMENT", "TRANSITION_AWARD", "POSSESSION_RELATION", "OUTCOME_AT_TRIGGER", "ALL", "NAMED", "BLOCK_ROLE"],
@@ -1468,8 +1513,10 @@
       { "row": "P1", "attribute": "team" },
       { "row": "J1", "attribute": "team" },
       { "row": "T1", "attribute": "qualifier.lastTouch" },
-      { "row": "T1", "attribute": "qualifier.endLine" }
+      { "row": "T1", "attribute": "qualifier.endLine" },
+      { "row": "S2", "attribute": "targetOf" }
     ],
+    "blockRoleNote": "ADDED 15 October 2026 (register version 10), for his M1 in the reply filed 17 October 2026: \"M1 — Role exchange by block: Approved. Keep role assignments separate from fixed ends. Allow target configurations to reflect each team's role during the block. The coach controls the exchange. No new block-duration system is needed.\" ROLE_HOLDER_<role> is the first entry of kind BLOCK_ROLE (scope BLOCK). It resolves in two steps, both recorded rather than chosen: the role block the game is derived for binds each role to a setup assignment (TEAM_AT_AXIS_START or TEAM_AT_AXIS_END; the two bijections are entailed by two roles and two ends, and which is played first is the coach's), and the setup assignment reaches the instantiated team realization recorded for it. Without a role block it is undetermined, never guessed. <role> must be a member of the vocabulary roleBlocks.roleVocabulary names. The S2 attribute targetOf joins the designation-valued attributes: its value names the team whose primary scoring objective references the region. Basis OUR_INTERPRETATION: the gloss is ours, written under his M1, and the version 9 resolution note above is unchanged.",
     "resolutions": {
       "TEAM_<id>": { "kind": "NAMED", "scope": "ACTIVITY", "at": null, "basis": "GLOSS", "from": "the entry's gloss: a named team" },
       "EACH_TEAM": { "kind": "ALL", "scope": "ACTIVITY", "at": null, "basis": "OUR_INTERPRETATION", "from": "no gloss; read as every team of the game, under the list note" },
@@ -1484,7 +1531,32 @@
       "NOT_LAST_TOUCH": { "kind": "OUTCOME_AT_TRIGGER", "scope": "TRIGGER", "at": null, "basis": "OUR_INTERPRETATION", "from": "no gloss; read as the team that did not touch the ball last" },
       "BUILD_OUT_TEAM": { "kind": "TRANSITION_AWARD", "scope": "EPISODE", "at": null, "basis": "GLOSS", "from": "the entry's gloss (team whose build-out episode it is) with the spec's elaboration of AM-01: the build-out team is the team awarded the start placement (KR-03); episode-scoped, as AM-01's adopted sentence keeps it" },
       "TEAM_AT_AXIS_START": { "kind": "SETUP_ASSIGNMENT", "scope": "ACTIVITY", "at": null, "basis": "GLOSS", "from": "the entry's gloss and ruling C42: assigned at setup, fixed for the activity, names no role" },
-      "TEAM_AT_AXIS_END": { "kind": "SETUP_ASSIGNMENT", "scope": "ACTIVITY", "at": null, "basis": "GLOSS", "from": "the entry's gloss and ruling C42, the counterpart of TEAM_AT_AXIS_START" }
+      "TEAM_AT_AXIS_END": { "kind": "SETUP_ASSIGNMENT", "scope": "ACTIVITY", "at": null, "basis": "GLOSS", "from": "the entry's gloss and ruling C42, the counterpart of TEAM_AT_AXIS_START" },
+      "ROLE_HOLDER_<role>": { "kind": "BLOCK_ROLE", "scope": "BLOCK", "at": null, "basis": "OUR_INTERPRETATION", "from": "our gloss under his M1 (reply filed 17 October 2026): the setup assignment the role block in force binds to the role, held for the block; the block scope is our extension of AM-01" }
+    }
+  },
+  "targetOf": {
+    "note": "ADDED 15 October 2026 (register version 10): the derived S2 selector attribute targetOf as data (see S2.targetOfValues for what it means and his M1 words). A region carries targetOf=T where an objective of the objectives row whose role row reads role, and whose team row reads T, references the region through the reference row. Read from the objective's own selector (the team and role rows are its selector attributes, SD-92) and from the reference items that ENTAIL it (SD-27: an assumed item bounds and never entails), so nothing is inferred from wording.",
+    "row": "S2",
+    "attribute": "targetOf",
+    "objectivesRow": "J1",
+    "referenceRow": "J2",
+    "teamRow": "J3",
+    "roleRow": "J4",
+    "role": "PRIMARY_SCORING"
+  },
+  "roleBlocks": {
+    "note": "ADDED 15 October 2026 (register version 10): where the role-block capability (his M1, reply filed 17 October 2026: \"Keep role assignments separate from fixed ends. Allow target configurations to reflect each team's role during the block. The coach controls the exchange. No new block-duration system is needed.\") finds its rows, vocabularies and designation, so the engine names none of them (back/src/system/derivation/role-blocks.ts). A game establishes role blocks where its selected contributions establish exactly the roles of the role vocabulary, one element each, every one passing by an exchange in the exchange vocabulary; each block is then derived and realized as its own complete game, and cross-block checks (RB-1 to RB-8) compare the two. A game establishing some of this and not the rest is refused, never completed. coachNouns are DRAFT coach wording for his approval, taken from his D7 sentences ('The building team ...', 'The pressing team ...'); they are not approved coach wording.",
+    "rolesRow": "B1",
+    "roleAttribute": "activityRole",
+    "roleVocabulary": "B1.activityRole",
+    "exchangeRow": "B3",
+    "exchangeVocabulary": "B3.exchange",
+    "holderDesignation": "ROLE_HOLDER_<role>",
+    "coachNouns": {
+      "status": "DRAFT",
+      "from": "his D7, reply filed 17 October 2026: \"The building team attempts controlled progression into its designated target.\" / \"The pressing team attempts to prevent progression, regain possession, and reach its post-regain target.\"",
+      "nouns": { "BUILDING": "building team", "PRESSING": "pressing team" }
     }
   },
   "relativeTerms": {

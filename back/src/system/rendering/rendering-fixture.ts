@@ -53,9 +53,15 @@ export interface RenderingFixtureParts {
     /** The three acceptance conditions all held. */
     accepted: boolean
     postRealizationValidated: boolean
+    /**
+     * The DRAFT coach noun for each role (register `roleBlocks.coachNouns`), given only where the game holds roles — stage
+     * K3, 15 October 2026, his M1. Carried so the renderer says a role in register words without a register of its own,
+     * and so a frozen fixture renders the same words. Absent, the fixture is exactly what it was.
+     */
+    roleNouns?: Record<string, string>
 }
 
-export function assembleRenderingFixture({ resolved, realized, entailed, envelope, accepted, postRealizationValidated }: RenderingFixtureParts): Record<string, unknown> {
+export function assembleRenderingFixture({ resolved, realized, entailed, envelope, accepted, postRealizationValidated, roleNouns }: RenderingFixtureParts): Record<string, unknown> {
     const pathOf = new Map(resolved.derived.map(entry => [entry.lineId, entry.path]))
     return {
         provenance: resolved.provenance,
@@ -91,5 +97,6 @@ export function assembleRenderingFixture({ resolved, realized, entailed, envelop
              */
             notEstablished: resolved.notEstablished.map(n => ({ path: n.path, lineId: n.lineId, reason: n.reason, declared: n.declared, governedBy: n.governedBy.map(g => ({ ...g })) })),
         },
+        ...(roleNouns ? { roleNouns: { status: 'DRAFT', nouns: { ...roleNouns } } } : {}),
     }
 }

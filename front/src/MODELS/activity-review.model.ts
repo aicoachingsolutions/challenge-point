@@ -58,6 +58,11 @@ export interface ReviewInstruction {
     tier?: 'setup' | 'adjust'
     /** The spans the sentence is made of, where the server sent them. */
     parts?: ReviewInstructionPart[]
+    /**
+     * In an activity played in role blocks (15 October 2026), the block a sentence belongs to where the two blocks differ;
+     * absent where it holds in both. A technical id — the page shows the block's number, never the id.
+     */
+    block?: string
 }
 
 export interface RenderedActivity {
@@ -241,6 +246,29 @@ export interface ServedActivity {
     /** How it was arrived at — SECONDARY. */
     account: ActivityAccount
     integrity: ActivityIntegrity
+    /**
+     * Present only for a game played in role blocks (15 October 2026, his M1): each block built as a complete game with
+     * its own integrity, the cross-block checks, and the roles with their DRAFT coach nouns. `rendered` is the ONE
+     * activity composed from both blocks. Technical account only.
+     */
+    roleBlocks?: ReviewRoleBlocks
+}
+
+/** One cross-block check (RB-1 to RB-8). */
+export interface ReviewRoleBlockCheck {
+    checkId: string
+    what: string
+    verdict: string
+    problems: string[]
+}
+
+/** The role blocks of a served activity, as the server sends them. */
+export interface ReviewRoleBlocks {
+    exchange: string
+    roles: { role: string; coachNoun: string; nounStatus: string }[]
+    blocks: { blockId: string; holders: Record<string, string>; integrity: ActivityIntegrity }[]
+    checks: ReviewRoleBlockCheck[]
+    firstBlock: string
 }
 
 export interface RefusedActivity {

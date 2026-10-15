@@ -211,6 +211,8 @@ export interface DerivationInput {
     register: any
     derivationRules: { version: string; adoptedLabels?: string[] }
     candidate?: unknown
+    /** The role block this game is derived for (stage K3, his M1); absent for every game without role blocks. */
+    roleBlock?: RoleBlock
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -268,8 +270,30 @@ export interface ElementClass {
      * **What an instantiated team meets, for a standing property** (15 October 2026, stage K2, his M2) — set only on the
      * member class realization forms for a team (`post-realization-gate.ts`), from `designation.ts`, the one resolver.
      * A derived class never carries it: derivation classes fix no designation (SD-95), so stage 4 is unchanged.
+     *
+     * **One exception since 15 October 2026 (stage K3, his M1): an objective REGION carries what it is the target of.**
+     * *"Allow target configurations to reflect each team's role during the block."* The register's derived attribute
+     * `targetOf` (version 10) is set before reach on the classes the objectives reference — from the objectives' own
+     * selectors and the reference items that entail them (`designation.ts` `targetDesignations`), never from the region's
+     * authored selector, which is unchanged. It is what lets a selector name "the target the building team attacks"
+     * without creating a third region. Every other derived class still carries nothing here.
      */
     designations?: MemberDesignations
+}
+
+/**
+ * **The role block a game is derived for** — 15 October 2026 (stage K3), his M1 (reply filed 17 October 2026): *"Keep role
+ * assignments separate from fixed ends. Allow target configurations to reflect each team's role during the block. The
+ * coach controls the exchange."* Each role of the register's role vocabulary, bound to the setup assignment
+ * (TEAM_AT_AXIS_*) whose team holds it in this block. The two bijections of two roles onto two ends are entailed, never
+ * chosen (`role-blocks.ts`); which is played first is the coach's. It is INPUT, like the envelope: it enters the input
+ * digest and the gate context, and realization records it beside the game — never as a property of the game.
+ */
+export interface RoleBlock {
+    /** The block, named by its own bindings (`BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END`). */
+    blockId: string
+    /** Role -> the setup assignment holding it in this block. */
+    holders: Record<string, string>
 }
 
 export interface ResolutionLine {

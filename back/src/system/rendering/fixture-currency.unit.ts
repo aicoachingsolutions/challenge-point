@@ -170,13 +170,30 @@
  * value, every choice, the geometry and the roster are byte-identical. `npm run render:a04` was diffed before and after:
  * the rendered text is identical, only the two digests it prints moved.
  *
+ * **Re-frozen 15 October 2026 (stage K3): `6ff69f77` → `2f9cce9b`. The GAME did not move; only the register version did.**
+ * Register version 10 adds role blocks for his M1 of 17 October (*"Keep role assignments separate from fixed ends. Allow
+ * target configurations to reflect each team's role during the block. The coach controls the exchange. No new
+ * block-duration system is needed."*): rows B1-B3, two vocabularies, the designation ROLE_HOLDER_<role> and the derived
+ * region attribute targetOf. The register version is hashed into the input, so `inputDigest` / `fromDigest` (fe971f92 →
+ * 197bf9e3), the audit digest (eaa0b3ee → 3b8e5a7b) and the `registerVersion` sentence moved. The Golden Case establishes
+ * no role and asks for no targetOf, so it enumerates exactly its old lines (the role rows are owned by the role
+ * collection), its classes carry nothing new, and `git diff` of the fixture shows those four lines and nothing else.
+ * `npm run render:a04` was diffed before and after: identical apart from the two digests it prints.
+ *
+ * **Since stage K3 a fixture may be COMPOSED from two role blocks** (`build-activity.ts`, `role-blocks.ts`): block one's
+ * fixture with a `roleBlocks` block carrying each block's own fixture whole. The Golden Case is a single game and is
+ * frozen as one; the composed shape is guarded below by key identity, so a future frozen two-block fixture cannot lose a
+ * block's keys at that boundary.
+ *
  * Run: npm test
  */
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 
+import { buildActivityFromKnowledge } from './build-activity'
 import { buildGoldenCase, goldenCaseDigest, GoldenCaseUnavailable, OUT as FIXTURE } from './freeze-a04-fixture'
+import { specializedRoleNames } from './session-envelope'
 
 const MARKER = path.resolve(__dirname, '../../../../docs/audits/a04-fixture-currency.json')
 
@@ -233,4 +250,29 @@ if (liveDigest !== frozenDigest) {
             `to excuse the next drift — which is exactly what it would do, since the next change would find a marker already in place.`,
     )
     console.log(`fixture-currency.unit.ts — CURRENT (${liveDigest})`)
+}
+
+/**
+ * **Key identity of a COMPOSED fixture — stage K3, 15 October 2026 (his M1).** A game played in role blocks is served from
+ * two complete games, and its fixture is block one's with a `roleBlocks` block holding each block's own fixture whole. That
+ * boundary is new, so it is held the way this file holds the single fixture: every key a single game's fixture has reaches
+ * each block, the composed fixture adds only the role nouns and the blocks, and the Golden Case digest — the one this file
+ * compares — moves when anything inside either block moves (a block is part of what is frozen, not an attachment beside it).
+ * TEST-ONLY roles on a copy of the possession game; never production data.
+ */
+{
+    const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: Object.fromEntries(specializedRoleNames().map(name => [name, 0])) }
+    const item = (itemId: string, row: string, selector: string, requirement: string, value: string) => ({ itemId, row, selector, requirement, value, valueStatus: 'N/A', strictness: 'REQUIRED', scope: 'WHOLE_GAME', basis: 'OWNER_RULING', checkability: 'STRUCTURAL', structuralClause: 'whole item', basisEvidence: 'TEST-ONLY' })
+    const roles = { contractId: 'TEST-ONLY:roles', objectId: 'TEST-ONLY:roles', knowledgeVersion: 'stage-b', declarations: [], relationshipRules: [], items: [item('T-1', 'B1', 'activityRole=BUILDING', 'EXISTS', 'N/A'), item('T-2', 'B1', 'activityRole=PRESSING', 'EXISTS', 'N/A'), item('T-3', 'B3', '*', 'EQUALS', 'COACH_CALLS')] }
+    const composed: any = buildActivityFromKnowledge(['GF2'], session, { alter: contracts => void contracts.push(JSON.parse(JSON.stringify(roles))) }).fixture
+    const single: any = buildActivityFromKnowledge(['GF2'], session).fixture
+    assert.deepEqual(Object.keys(composed).sort(), [...Object.keys(single), 'roleBlocks', 'roleNouns'].sort(), 'the composed fixture adds the blocks and the role nouns, and drops nothing')
+    for (const block of composed.roleBlocks.blocks) {
+        assert.deepEqual(Object.keys(block.fixture).sort(), [...Object.keys(single), 'roleNouns'].sort(), `block ${block.blockId}: every key of a single fixture crosses`)
+        assert.deepEqual(Object.keys(block.fixture.record).sort(), [...Object.keys(single.record), 'roleBlock'].sort(), `block ${block.blockId}: its record names the block it was derived for`)
+    }
+    const moved = JSON.parse(JSON.stringify(composed))
+    moved.roleBlocks.blocks[1].fixture.game.envelope.area.length_m += 1
+    assert.notEqual(goldenCaseDigest(moved), goldenCaseDigest(composed), 'a change inside the second block moves the digest')
+    console.log('fixture-currency.unit.ts — composed (role-block) fixture keys carried')
 }
