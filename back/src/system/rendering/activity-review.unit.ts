@@ -25,7 +25,9 @@ import path from 'node:path'
 
 import { loadCorpusContracts, loadRegister, readJson } from '../derivation/corpus'
 import { repairCorpusEncoding } from '../derivation/corpus-repair'
-import { CONTEXT_ROLE } from '../derivation/run-bounded-selection'
+import { runDerivation, runStages0to10 } from '../derivation/engine'
+import { assembleResolvedGame } from '../derivation/resolved-game'
+import { CONTEXT_ROLE, derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
 import { indexRegister } from '../derivation/register'
 import { ActivityReviewRequestError, activityReviewOptions, reviewActivity } from './activity-review'
 import { buildActivity, buildActivityFromKnowledge, buildActivityOverAlteredKnowledge, buildActivityOverAlteredSelection, buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity, UnknownActivityRequest } from './build-activity'
@@ -484,6 +486,66 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
         .map(line => (line.trimStart().startsWith('//') ? '' : line.split(' // ')[0]))
         .join('\n')
     assert.deepEqual((code.match(/[A-Za-z0-9]+/g) ?? []).filter(word => goalIds.has(word)), [], 'build-activity.ts: no Learning Goal id outside comments')
+}
+
+/**
+ * ── TODAY'S STOPS for Play Out from the Back, each pinned with what would move it (stage H3, 15 October 2026) ──────
+ *
+ * His 16 October reply asks the next review to show *"the proposed setup, player allocation, starting conditions,
+ * scoring, restarts, and the provenance of the selected mechanisms"*, and — item 10 — *"a clear refusal and a narrowly
+ * described gap"* where the engine cannot. So every place the activity stops today is listed here once, observed in
+ * the real chain, and named for the decisions (D1-D7) and capabilities (M1-M8) put to him that would move it. Each of
+ * those ids must be defined in A01's authorization record, which is where their descriptions live. A stop that moves
+ * is the work succeeding: re-pin it with the reason. (The roster stop — two goalkeepers available, 6 + 0 against 6 + 0,
+ * moved by D6 and M2 — is pinned in the C53 block below. The live route's refusal of a zero-constraint selection, with
+ * no model call, has no unit test: it is measured on the built bundle at each stage's review.)
+ */
+{
+    const record = learningGoalAuthorization('A01')!
+    const defined = new Set(record.gaps!.map(gap => gap.id))
+    const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: none }
+    // [where it stops, the stop as the chain reports it, what would move it]
+    const STOPS: [string, string, string[]][] = [
+        ['knowledge (record)', 'starting positions — where the team building out starts', ['M3']],
+        ['knowledge (record)', "starting positions — the defending team's starting relationship", ['D4', 'M5']],
+        ['knowledge (record)', 'progression references — where each target sits: the build-out progression target and the post-regain area', ['D3']],
+        ['knowledge (record)', 'defensive numbers', ['D6']],
+        ['knowledge (record)', 'goalkeeper positioning', ['D6', 'M2', 'M3']],
+        ['knowledge (record)', 'overloads', ['D6']],
+        ['knowledge (record)', 'An asymmetrical build-out-versus-press structure', ['D2', 'D7', 'M1', 'M2']],
+        ['knowledge (record)', 'A new build-out episode begins with a goalkeeper or controlled defensive restart', ['D1', 'D5', 'M3', 'M4']],
+        ['structure (behind the record)', 'GA-EPISODE-REACHABLE', ['M3']],
+        ['structure (behind the record)', 'c:restated:RPC-001:RPC-001-18.f::V5', ['D1', 'D3', 'M8']],
+        ['structure (behind the record)', 'c:restated:RPC-001:RPC-001-19.a::V5', ['D1', 'D3', 'M8']],
+        ['structure (behind the record)', 'c:restated:RPC-001:RPC-001-18.a::V6', ['M6']],
+        ['the resolved game', 'its only transition is a possession change (GF2-07.a)', ['M3', 'M4']],
+        ['the resolved game', 'no line on P8-P10: no starting placement for either team', ['D4', 'M5']],
+    ]
+    for (const [where, stop, movedBy] of STOPS) {
+        assert.ok(movedBy.length > 0, `${stop}: a stop is named for what would move it`)
+        for (const id of movedBy) assert.ok(defined.has(id), `${where} / ${stop}: ${id} is defined in the record`)
+    }
+
+    const production = refused(reviewActivity(stored(), { learningGoalId: 'A01', durationMin: 20 }), 'A01')
+    for (const [, stop, movedBy] of STOPS.filter(([where]) => where === 'knowledge (record)')) {
+        const line = production.reasons.find(reason => reason.includes(`"${stop}`))
+        assert.ok(line, `the record stop "${stop}" is reported: ${JSON.stringify(production.reasons)}`)
+        assert.ok(line!.endsWith(`waiting on ${movedBy.join(', ')}`), line)
+    }
+    const behind = refused(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, withoutGapEntries()).activity, 'A01 behind its record')
+    for (const [, stop] of STOPS.filter(([where]) => where === 'structure (behind the record)')) assert.ok(behind.reasons.some(reason => reason.includes(stop)), `${stop}: ${JSON.stringify(behind.reasons)}`)
+
+    // The resolved game A01's real selection makes (GF2, its lenses, RPC-001; no library constraint).
+    const input: any = derivationInputFor(selectFor('A01', null))
+    const staged: any = runStages0to10(input)
+    const derived: any = runDerivation(input)
+    const resolved: any = assembleResolvedGame(derived, staged.classes, indexRegister(input.register), input.contracts)
+    assert.deepEqual(
+        resolved.game.transitions.map((t: any) => [t.elementId, t.selector.find((term: any) => term.attribute === 'trigger')?.value]),
+        [['c:restated:GF2:GF2-07.a', 'POSSESSION_CHANGE']],
+        'no start, score or episode-conclusion element: nothing begins a build-out episode',
+    )
+    assert.deepEqual([...staged.classified.keys()].filter((id: string) => id.endsWith('::P8') || id.endsWith('::P9') || id.endsWith('::P10')), [], 'no starting placement line for either team')
 }
 
 /**
