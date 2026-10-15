@@ -22,7 +22,7 @@ import path from 'node:path'
 import { deriveInputConstraints } from '../input-constraints/deriveInputConstraints'
 import { SIGNAL_GROUP_TO_GAME_PROBLEM } from '../knowledge-core/affordance-target-matrix'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
-import { learningGoalAuthorization, learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
+import { learningGoalAuthorization, learningGoalAuthorizations, libraryConstraintPrinciple } from '../test-library/learning-goal-authorizations'
 import { gameProblemInferredFromWording, governByApprovedGameProblem, guidedGoalText, guidedSelectionHints, hintsUnderAuthorization } from './guided-selection'
 import { rpcLibrary } from './rpc-library'
 import { soccerModule } from './soccer-module'
@@ -237,7 +237,17 @@ function testARecordReplacesBothVocabularySources(): void {
     assert.deepEqual(cv005.map(id => id.replace('tl-v0-constraint-', '')).sort(), ['central-density-condition', 'progression-bonus', 'switch-of-play-bonus', 'wide-zone-advantage'], 'what CV-005 would have handed A01')
     assert.ok(!hints.candidateConstraintIds.some(id => cv005.includes(id)), 'no member of CV-005')
     assert.ok(!hints.candidateConstraintIds.some(id => wording.candidateConstraintIds.includes(id)), 'no member of the wording pool')
-    assert.deepEqual(hints.constraintAuthority, { authority: 'AUTHORIZATION_RECORD', learningGoalId: 'A01', zeroConstraintRuling: null })
+    // `zeroConstraintRuling: null` -> `constraintPrinciple` on 15 October 2026: the record has evaluated its set, so it
+    // is read under his general principle (16 October reply, item 1) — the one recorded principle, read from the file.
+    const principle = libraryConstraintPrinciple()
+    assert.deepEqual(hints.constraintAuthority, {
+        authority: 'AUTHORIZATION_RECORD',
+        learningGoalId: 'A01',
+        constraintPrinciple: { ruledOn: principle.ruledOn, by: principle.by, principle: principle.principle },
+    })
+    // Not yet evaluated (null), or no principle recorded: no principle on the hints, so the empty set stays a gap.
+    assert.equal(hintsUnderAuthorization(governByApprovedGameProblem('A01', wording).hints, { ...record, authorizedConstraints: null }).constraintAuthority!.constraintPrinciple, null)
+    assert.equal(hintsUnderAuthorization(governByApprovedGameProblem('A01', wording).hints, record, null).constraintAuthority!.constraintPrinciple, null)
     assert.deepEqual(authorization, record, 'the record selection used travels with the hints')
     assert.equal(gameProblem.gameProblemId, 'GP-005', 'the Game Problem authority is untouched by the record')
     // Lenses and game forms are what governance and the context gate made them, exactly.

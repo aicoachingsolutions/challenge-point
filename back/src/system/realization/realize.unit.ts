@@ -1025,7 +1025,9 @@ test('four goals are realization-authorized, they are two games, and the other n
         'and they are two games: the bare possession game, and the possession game with Wide Zone Advantage',
     )
     // A01 joins the gaps on 15 October 2026: its authorization record authorizes no constraint (his item 1 of that day).
-    assert.deepEqual(gaps, ['A01', 'A02', 'D03'], 'the knowledge gaps of 14 October, A01 since 15 October, and no others')
+    // And leaves them later the same day: his general principle (16 October reply, item 1) lets its evaluated, empty
+    // record select GF2 and RPC-001 with no library constraint.
+    assert.deepEqual(gaps, ['A02', 'D03'], 'the knowledge gaps of 14 October, and no others')
     /**
      * **FIVE goals now reach a verdict and fail it, up from two on 7 October — and the three new ones are a
      * finding rather than a drift.** D02, A03 and A06 each load only the Wide Zone object plus the Sport
@@ -1046,7 +1048,9 @@ test('four goals are realization-authorized, they are two games, and the other n
     // **Six again since 15 October:** A01 no longer reaches derivation (a knowledge gap, above). The composition it
     // selected until then — named, composition-fixtures.ts — still fails Gate A on its context's lines, checked here
     // so the finding is not lost with the selection.
-    assert.deepEqual(failed.sort(), ['A03', 'A06', 'D02', 'TA01', 'TD01', 'TD02'], 'six goals reach a verdict and fail it')
+    // **Seven again later on 15 October:** under his general principle A01 selects with no library constraint, reaches
+    // derivation, and FAILS Gate A on its context's four unestablished lines (pinned in activity-review.unit.ts).
+    assert.deepEqual(failed.sort(), ['A01', 'A03', 'A06', 'D02', 'TA01', 'TD01', 'TD02'], 'seven goals reach a verdict and fail it')
     {
         const input = derivationInputFor(a01CompositionUntil15October(null))
         const result = runDerivation(input)

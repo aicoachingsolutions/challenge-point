@@ -791,8 +791,21 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                   * compensating through fallback selection." Each role no designated candidate
                                   * fills is said before the list, and so is each candidate his ruling holds.
                                   * Wording is a DRAFT.
+                                  *
+                                  * 15 October 2026, later: where the goal's record evaluated its constraints and found
+                                  * none justified, his general principle governs ("A library constraint is not mandatory
+                                  * unless its inclusion is justified by the approved knowledge and intended learning
+                                  * environment"), so an unfilled role is not a gap and is not shown as one; the
+                                  * principle is said instead, read from the account. Wording is a DRAFT.
                                   */}
-                                {(account.constraintSource?.unfilledRoles ?? []).map((role) => (
+                                {account.constraintSource?.constraintPrinciple && constraints.length === 0 && (
+                                    <p className='mb-1 text-xs text-gray-600'>
+                                        No library constraint: none is justified for this goal by the approved knowledge. General principle, ruled{' '}
+                                        {rulingDate(account.constraintSource.constraintPrinciple.ruledOn)} by {account.constraintSource.constraintPrinciple.by}: "
+                                        {account.constraintSource.constraintPrinciple.principle}"
+                                    </p>
+                                )}
+                                {(account.constraintSource?.constraintPrinciple && constraints.length === 0 ? [] : account.constraintSource?.unfilledRoles ?? []).map((role) => (
                                     <p key={role} className='mb-1 text-xs text-amber-700'>
                                         No designated {role} constraint — a knowledge gap, reported rather than filled
                                     </p>
@@ -864,18 +877,28 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                     {account.authorization.contextId} · {account.authorization.gameProblemId} · ruled {rulingDate(account.authorization.ruledOn)} by{' '}
                                     {account.authorization.by}
                                 </p>
-                                {account.authorization.authorizedConstraints.length === 0 ? (
+                                {account.authorization.authorizedConstraints === null ? (
                                     <p className='mb-1 text-xs text-amber-700'>
-                                        Constraints: none authorized for this goal yet
+                                        Constraints: not yet evaluated for this goal
                                         {account.constraintSource?.gap ? ` (${account.constraintSource.gap})` : ''} —{' '}
                                         {account.authorization.authorizedConstraintsFinding}
+                                    </p>
+                                ) : account.authorization.authorizedConstraints.length === 0 ? (
+                                    <p className='mb-1 text-xs text-gray-600'>
+                                        Constraints: evaluated, none justified for this goal — {account.authorization.authorizedConstraintsFinding}
                                     </p>
                                 ) : (
                                     <p className='mb-1 text-xs'>Constraints authorized: {account.authorization.authorizedConstraints.join(', ')}</p>
                                 )}
-                                {account.authorization.zeroConstraintRuling === null && account.authorization.zeroConstraintRulingPending && (
-                                    <p className='mb-1 text-xs text-gray-600'>{account.authorization.zeroConstraintRulingPending}</p>
-                                )}
+                                {/*
+                                  * His provisional choices for this activity (15 October 2026), each labelled provisional
+                                  * and cited — never presented as a general rule. Wording is a DRAFT.
+                                  */}
+                                {(account.authorization.provisionalChoices ?? []).map((choice, index) => (
+                                    <p key={index} className='mb-1 text-xs text-gray-600'>
+                                        <Mark positive={false}>Provisional choice</Mark> {choice.choice} — "{choice.words}" ({choice.by}, ruled {rulingDate(choice.ruledOn)})
+                                    </p>
+                                ))}
                                 {account.authorization.excluded.map((exclusion) => (
                                     <p key={exclusion.knowledgeId} className='mb-1 text-xs text-amber-700'>
                                         {exclusion.title} <span className='text-gray-500'>({exclusion.knowledgeId})</span>: excluded by ruling of {rulingDate(exclusion.ruledOn)}

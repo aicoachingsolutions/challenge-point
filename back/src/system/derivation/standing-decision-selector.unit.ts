@@ -23,7 +23,7 @@ import { corpusInput } from './corpus'
 import { runDerivation, runStages0to10 } from './engine'
 import { indexRegister } from './register'
 import { a01CompositionUntil15October } from './composition-fixtures'
-import { CONTEXT_ROLE, derivationInputFor, GoalSelectionGap, selectFor } from './run-bounded-selection'
+import { CONTEXT_ROLE, derivationInputFor, selectFor } from './run-bounded-selection'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 
 let passed = 0
@@ -230,18 +230,16 @@ test('the Pass Combination Gate trigger row is now authored and resolves', () =>
     assert.equal(v17.length, 1, 'one information-rule trigger line')
     assert.equal(v17[0].verdict, 'RESOLVED:ENTAILED', 'the line the 29 September ruling left failed is closed')
     assert.equal(v17[0].value, 'COMPLETED_PASS', 'with the token the ruling requires')
-    for (const goal of ['TA02', 'A05']) {
+    // **A01 rejoins the list later on 15 October 2026.** From that morning it carried no line of the gate because it
+    // reached no derivation at all (NO_AUTHORIZED_CONSTRAINTS). His general principle of that day (16 October reply,
+    // item 1) lets its evaluated, empty record select GF2 with no library constraint — and its record excludes the gate
+    // ("The Pass Combination Gate remains excluded under our previous decision", his item 7) — so it derives, without
+    // the gate's line.
+    for (const goal of ['TA02', 'A05', 'A01']) {
         const selected: any = runDerivation(derivationInputFor(selectFor(goal, null)))
         assert.deepEqual((selected.resolution ?? []).filter((e: any) => /::V17$/.test(String(e.lineId))), [], `${goal}: the gate is held, so no goal carries its line`)
     }
-    // **A01 since 15 October 2026** carries no line of the gate because it reaches no derivation at all: its
-    // authorization record authorizes no constraint and excludes the gate ("The Pass Combination Gate remains excluded
-    // under our previous decision", his item 7), so selection stops with NO_AUTHORIZED_CONSTRAINTS.
-    assert.throws(
-        () => selectFor('A01', null),
-        (error: unknown) => error instanceof GoalSelectionGap && error.gap.reason === 'NO_AUTHORIZED_CONSTRAINTS',
-        'A01 selects nothing, so no line of the gate reaches it',
-    )
+    assert.ok(!selectFor('A01', null).selected.some(entry => entry.id === 'tl-v0-constraint-pass-combination-gate'), 'A01 selects no gate')
 })
 
 test('the item carries the authority the ruling specified, and displaces nothing', () => {

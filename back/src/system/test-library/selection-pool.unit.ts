@@ -20,6 +20,8 @@
  * Run: npm test
  */
 import assert from 'node:assert/strict'
+import fs from 'node:fs'
+import path from 'node:path'
 
 import type { ISession } from '../../models/session.model'
 import { deriveInputConstraints } from '../input-constraints/deriveInputConstraints'
@@ -29,7 +31,7 @@ import { guidedSelectionHints, hintsUnderAuthorization } from '../sport-module/g
 import { validateConstraintPackage } from '../validate-constraint-package'
 import { constraintPoolFor, generateSelection, isSelectionKnowledgeGap, SelectionKnowledgeGap } from './generateSelection'
 import { learningGoalSelectionHolds } from './learning-design-holds'
-import { learningGoalAuthorizations } from './learning-goal-authorizations'
+import { LearningGoalAuthorization, learningGoalAuthorizations, libraryConstraintPrinciple } from './learning-goal-authorizations'
 import { testLibraryRegistry } from './library/registry'
 import { systemAssemblyInputFromTestLibrarySelection } from './systemAssemblyInputFromSelection'
 import type { ConstraintPoolAccount, TestLibrarySelectionResult } from './types'
@@ -75,7 +77,9 @@ const outcomes = new Map(GOALS.map(id => [id, select(id)] as const))
         const recorded = id === 'A01'
         assert.equal(outcome.pool.source, recorded ? 'AUTHORIZATION_RECORD' : 'GOAL_CANDIDATES', `${id}: a Learning Goal draws from its own candidates, always`)
         assert.equal(outcome.pool.constraintAuthority, recorded ? 'AUTHORIZATION_RECORD' : 'VOCABULARY_POOL', `${id}: whose authority they carry`)
-        assert.equal(outcome.pool.zeroConstraintRuling, null, `${id}: no zero-constraint ruling exists in production`)
+        // `zeroConstraintRuling: null` for every goal until 15 October 2026; since his general principle of that day
+        // (16 October reply, item 1) a record-governed goal whose set is evaluated carries the principle instead.
+        assert.equal(outcome.pool.constraintPrinciple !== null, recorded, `${id}: read under the general principle exactly where a record evaluated its set`)
         assert.equal(outcome.pool.setAsideBecause, null, `${id}: nothing is set aside for the library`)
         assert.deepEqual(outcome.pool.missingRoles, [], `${id}: missingRoles is a free-text account`)
         if ('selection' in outcome) {
@@ -91,6 +95,9 @@ const outcomes = new Map(GOALS.map(id => [id, select(id)] as const))
 // The five Defending and Transition-to-Defend goals he named, plus Play Through Pressure (A02) and Beat
 // Defenders 1v1 (A04), which has no designated consequence constraint either. Every other goal's candidates
 // fill all three roles. A01 since 15 October 2026: its record authorizes no constraint, so no role is filled.
+// Still reported for A01 after his general principle of the same day (16 October reply, item 1): the account says
+// which roles no candidate fills, as a fact; that a role is unfilled is no longer a gap where no constraint is
+// justified, and A01 now selects (vi).
 {
     const UNFILLED: Record<string, string[]> = {
         A01: ['foundation', 'shaping', 'consequence'],
@@ -207,8 +214,15 @@ const outcomes = new Map(GOALS.map(id => [id, select(id)] as const))
      * Advantage out of this initial Play Out from the Back demonstration." Its record authorizes no constraint and he
      * has not ruled that it may select none (decision D1), so it is a knowledge gap of its own kind,
      * NO_AUTHORIZED_CONSTRAINTS, found on GF2 — asserted in the gap list below.
+     *
+     * **A01 came back the same day, with NO constraint.** His reply received 15 October 2026 (16 October, item 1)
+     * answered D1 with a general principle — "A library constraint is not mandatory unless its inclusion is justified
+     * by the approved knowledge and intended learning environment" — and "Please proceed with Option A for Play Out
+     * from the Back." Its record's evaluated set is empty, so it selects GF2 (the context gate, as before) and nothing
+     * else. Measured on the same text the gap was found with.
      */
     const SELECTS: Record<string, [string, string[]]> = {
+        A01: ['GF2', []],
         A03: ['GF3', [c('central-density-condition'), c('small-area-condition'), c('wide-zone-advantage'), c('progression-bonus')]],
         A04: ['GF2', [c('small-area-condition'), c('zone-structure-condition')]],
         A05: ['GF2', [c('central-density-condition'), c('wide-zone-advantage'), c('progression-bonus'), c('turnover-reward')]],
@@ -220,8 +234,10 @@ const outcomes = new Map(GOALS.map(id => [id, select(id)] as const))
         TD01: ['GF4', [c('transition-trigger'), c('zone-structure-condition'), c('recovery-window')]],
         TD02: ['GF4', [c('zone-structure-condition'), c('central-density-condition'), c('delay-reward'), c('recovery-window')]],
     }
-    const GAPS: Record<string, string> = { A01: 'GF2', A02: 'GF3', D03: 'GF2' }
-    const REASON: Record<string, string> = { A01: 'NO_AUTHORIZED_CONSTRAINTS', A02: 'NO_COMPATIBLE_COMBINATION', D03: 'NO_COMPATIBLE_COMBINATION' }
+    // A02 and D03 stay NO_COMPATIBLE_COMBINATION — never zero: neither has a record, and the principle reaches a goal
+    // only through one (a measured floor of 0 would have turned exactly these two gaps into empty selections).
+    const GAPS: Record<string, string> = { A02: 'GF3', D03: 'GF2' }
+    const REASON: Record<string, string> = { A02: 'NO_COMPATIBLE_COMBINATION', D03: 'NO_COMPATIBLE_COMBINATION' }
     for (const [id, outcome] of outcomes) {
         if (GAPS[id]) {
             assert.ok('gap' in outcome, `${id} must be a knowledge gap`)
@@ -285,71 +301,149 @@ const outcomes = new Map(GOALS.map(id => [id, select(id)] as const))
     assert.equal(selection.selectionTrace.constraintPool?.constraintAuthority, 'VOCABULARY_POOL', 'free text is never presented as authorized')
 }
 
-// ── (ix) The zero-constraint commitment: engineered, and OFF by data until he rules — 15 October 2026 ──
+// ── (ix) His general principle: an EVALUATED, EMPTY authorized set commits no library constraint — for any goal ──
 //
-// His 15 October item 1 leaves Play Out from the Back with no authorized library constraint. Whether a goal may then
-// be built with none is his decision D1; until he answers, the record's zeroConstraintRuling is null and selection
-// refuses (NO_AUTHORIZED_CONSTRAINTS, above). The commitment is proved here on a COPY of the record carrying a
-// TEST-ONLY ruling, through the real hints and the real selector — and pinned as scoped to exactly that case: an
-// accidentally empty pool still gaps, a record without a ruling still gaps, free text is unchanged (viii), and
-// hints carrying one goal's record cannot select another.
+// **Re-pointed 15 October 2026.** Until his reply of that day this section proved a zero-constraint commitment switched
+// on per goal, by a TEST-ONLY `zeroConstraintRuling` on a copy of A01's record, with production A01 refused
+// (NO_AUTHORIZED_CONSTRAINTS, decision D1). He answered D1 with a general principle (his 16 October reply, item 1):
+// *"A library constraint is not mandatory unless its inclusion is justified by the approved knowledge and intended
+// learning environment."* — *"We can implement the correction incrementally, but please don't establish Play Out from
+// the Back as a permanent special-case exception. The engine should continue enforcing structural validity and any
+// genuinely required conditions."* — and *"Please proceed with Option A for Play Out from the Back."* So this section
+// now proves: production A01 commits zero; ANY goal handed an evaluated, empty record behaves exactly as A01 does (all
+// thirteen); no goal id is written in the selection and validation code; a record not yet evaluated, or a missing
+// principle, is still the gap; an accidentally empty pool and a hold-emptied record are not the principle; and a goal
+// without a record keeps its vocabulary pool and the 2–4 rule.
 {
-    const goal: any = sessionPlanningModel.learningGoal('A01')
-    const text = `${goal['Learning Goal']}. ${goal['Coach Definition']}`
-    const copy = learningGoalAuthorizations()
-    copy[0].zeroConstraintRuling = { ruledOn: 'TEST-ONLY', by: 'test', ruling: 'TEST-ONLY: never production data' }
-    const ruled = guidedSelectionHints('A01', text, copy).hints
-    const selection = quietly(() => generateSelection({ learningGoals: [text], learningGoalId: 'A01' }, ruled))
+    const textOf = (id: string) => {
+        const goal: any = sessionPlanningModel.learningGoal(id)
+        return `${goal['Learning Goal']}. ${goal['Coach Definition']}`
+    }
+    const text = textOf('A01')
+    const principle = libraryConstraintPrinciple()
+    const onTrace = { ruledOn: principle.ruledOn, by: principle.by }
+    const attempt = (run: () => TestLibrarySelectionResult): TestLibrarySelectionResult | SelectionKnowledgeGap => {
+        try {
+            return quietly(run)
+        } catch (error) {
+            if (isSelectionKnowledgeGap(error)) return error
+            throw error
+        }
+    }
+
+    // Production A01: GF2 and its lenses, NO library constraint, labelled with the authority it committed under.
+    const a01 = outcomes.get('A01')!
+    assert.ok('selection' in a01, `A01 selects since 15 October 2026: ${'gap' in a01 ? a01.gap.message : ''}`)
+    const { selection } = a01 as { selection: TestLibrarySelectionResult }
     assert.equal(selection.archetype.id, 'GF2', 'the game form is chosen as always (the context gate)')
     assert.deepEqual(selection.constraints, [], 'and NO library constraint is committed')
-    assert.ok(selection.affordanceLenses.length >= 2 && selection.affordanceLenses.length <= 3, 'lenses keep their 2–3 rule')
-    assert.equal(selection.selectionTrace.lensAuthority, 'ENGINE_LENS', 'labelled as the engine\'s lenses, not authorized affordance targets')
-    assert.deepEqual(selection.selectionTrace.constraintPool?.zeroConstraintRuling, { ruledOn: 'TEST-ONLY', by: 'test' }, 'the ruling it committed under is on the trace')
+    assert.ok(selection.affordanceLenses.length >= 2 && selection.affordanceLenses.length <= 3, 'lenses keep their 2–3 rule (his item 1 speaks of library constraints)')
+    assert.equal(selection.selectionTrace.lensAuthority, 'ENGINE_LENS', "labelled as the engine's lenses, not authorized affordance targets")
+    assert.deepEqual(selection.selectionTrace.constraintPool?.constraintPrinciple, onTrace, 'the principle it committed under is on the trace')
     assert.equal(selection.selectionTrace.constraintPool?.source, 'AUTHORIZATION_RECORD')
 
-    // Production: the same goal, the same text, no ruling → the typed gap, distinct from NO_SELECTABLE_CANDIDATES.
-    const production = select('A01')
-    assert.ok('gap' in production && production.gap.reason === 'NO_AUTHORIZED_CONSTRAINTS', 'production data commits nothing')
+    /**
+     * **Symmetry: no goal is special.** For EACH of the thirteen goals, a TEST-ONLY record evaluated as empty (no
+     * ruling, context or Game Problem of his — every such field says TEST-ONLY) is added to a copy of the records, and
+     * the goal is selected through the real hints and the real selector. Each behaves exactly as A01 does: zero
+     * constraints, the record's authority, the principle on the trace, two or three lenses, and the SAME game form the
+     * goal's own selection was made on — a record changes the constraints and nothing else.
+     */
+    const evaluatedEmpty = (id: string): LearningGoalAuthorization => ({
+        learningGoalId: id,
+        contextId: 'TEST-ONLY',
+        gameProblemId: 'TEST-ONLY',
+        ruledOn: 'TEST-ONLY',
+        by: 'test',
+        ruling: ['TEST-ONLY: never production data'],
+        authorizedConstraints: [],
+        authorizedConstraintsFinding: 'TEST-ONLY: evaluated, none justified',
+        excluded: [],
+        manipulations: [],
+    })
+    for (const id of GOALS) {
+        const records = id === 'A01' ? learningGoalAuthorizations() : [...learningGoalAuthorizations(), evaluatedEmpty(id)]
+        const outcome = attempt(() => generateSelection({ learningGoals: [textOf(id)], learningGoalId: id }, guidedSelectionHints(id, textOf(id), records).hints))
+        assert.ok(!isSelectionKnowledgeGap(outcome), `${id}: an evaluated, empty record selects, as A01 does: ${(outcome as Error).message}`)
+        const chosen = outcome as TestLibrarySelectionResult
+        assert.deepEqual(chosen.constraints, [], `${id}: no library constraint`)
+        assert.equal(chosen.selectionTrace.constraintPool?.source, 'AUTHORIZATION_RECORD', id)
+        assert.equal(chosen.selectionTrace.constraintPool?.constraintAuthority, 'AUTHORIZATION_RECORD', id)
+        assert.deepEqual(chosen.selectionTrace.constraintPool?.constraintPrinciple, onTrace, id)
+        assert.ok(chosen.affordanceLenses.length >= 2 && chosen.affordanceLenses.length <= 3, `${id}: lenses keep their rule`)
+        const production = outcomes.get(id)!
+        const form = 'selection' in production ? production.selection.archetype.id : production.gap.archetypeId
+        assert.equal(chosen.archetype.id, form, `${id}: the game form is the one its own selection was made on`)
+    }
+
+    /**
+     * **No Learning Goal id is written in the code that selects or validates** — the "permanent special-case exception"
+     * he refused would have to be one. Comments are stripped (they quote him and name goals by design); every remaining
+     * word is checked against the planning model's thirteen ids.
+     */
+    const goalIds = new Set(GOALS)
+    const goalLiterals = (source: string): string[] => {
+        const code = source
+            .split('/*')
+            .map((part, i) => (i === 0 ? part : part.slice(part.indexOf('*/') + 2)))
+            .join(' ')
+            .split('\n')
+            .map(line => (line.trimStart().startsWith('//') ? '' : line.split(' // ')[0]))
+            .join('\n')
+        return (code.match(/[A-Za-z0-9]+/g) ?? []).filter(word => goalIds.has(word))
+    }
+    assert.deepEqual(goalLiterals("/* A02 */ if (goal === 'A01') pick() // D03\n// TA01\nconst x = 1"), ['A01'], 'the check bites: a literal in code is found, comments are not')
+    for (const file of ['generateSelection.ts', 'selection-compatibility.ts', 'learning-goal-authorizations.ts', '../sport-module/guided-selection.ts', '../validate-constraint-package.ts']) {
+        assert.deepEqual(goalLiterals(fs.readFileSync(path.join(__dirname, file), 'utf8')), [], `${file}: no Learning Goal id outside comments`)
+    }
+
+    // Not yet evaluated: the record's authorized set null — the gap, on the game form it was found on.
+    const unevaluated = learningGoalAuthorizations()
+    unevaluated[0].authorizedConstraints = null
+    const notYet = attempt(() => generateSelection({ learningGoals: [text], learningGoalId: 'A01' }, guidedSelectionHints('A01', text, unevaluated).hints))
+    assert.ok(isSelectionKnowledgeGap(notYet) && notYet.reason === 'NO_AUTHORIZED_CONSTRAINTS', `a record not yet evaluated is the gap: ${String(notYet)}`)
+    assert.equal((notYet as SelectionKnowledgeGap).archetypeId, 'GF2')
+    assert.ok((notYet as SelectionKnowledgeGap).message.includes('has not yet evaluated which library constraints the approved knowledge justifies'))
+    // No principle: the same evaluated, empty set is the gap again, never a licence.
+    const unprincipled = hintsUnderAuthorization(guidedSelectionHints('A01', text).hints, learningGoalAuthorizations()[0], null)
+    const noPrinciple = attempt(() => generateSelection({ learningGoals: [text], learningGoalId: 'A01' }, unprincipled))
+    assert.ok(isSelectionKnowledgeGap(noPrinciple) && noPrinciple.reason === 'NO_AUTHORIZED_CONSTRAINTS', `no principle, no zero commitment: ${String(noPrinciple)}`)
+
+    // Without its record A01 is a vocabulary goal again: the pool, the authority label and the 2–4 rule as before.
+    const vocabulary = attempt(() => generateSelection({ learningGoals: [text], learningGoalId: 'A01' }, guidedSelectionHints('A01', text, []).hints))
+    const vocabularyPool = isSelectionKnowledgeGap(vocabulary) ? vocabulary.pool : vocabulary.selectionTrace.constraintPool!
+    assert.equal(vocabularyPool.constraintAuthority, 'VOCABULARY_POOL')
+    assert.equal(vocabularyPool.constraintPrinciple, null)
+    if (!isSelectionKnowledgeGap(vocabulary)) assert.ok(vocabulary.constraints.length >= 2 && vocabulary.constraints.length <= 4, 'the 2–4 rule')
 
     // An ACCIDENTALLY empty pool — the vocabulary pool emptied, no record — still gaps as before, and does not commit zero.
     const emptied = { ...guidedSelectionHints('A05', text).hints, candidateConstraintIds: [] }
     assert.equal(emptied.constraintAuthority, undefined)
-    let accidental: unknown = null
-    try {
-        quietly(() => generateSelection({ learningGoals: ['Progress the Attack'], learningGoalId: 'A05' }, emptied))
-    } catch (error) {
-        accidental = error
-    }
+    const accidental = attempt(() => generateSelection({ learningGoals: ['Progress the Attack'], learningGoalId: 'A05' }, emptied))
     assert.ok(isSelectionKnowledgeGap(accidental) && accidental.reason === 'NO_SELECTABLE_CANDIDATES', `an empty vocabulary pool is the old gap: ${String(accidental)}`)
 
     // Hints carrying A01's record cannot select another goal.
-    assert.throws(() => constraintPoolFor(ruled, 'A05'), /carry the authorization record of A01 and were used to select A05/)
-    assert.throws(() => constraintPoolFor(ruled, null), /were used to select free text/)
+    const recorded = guidedSelectionHints('A01', text).hints
+    assert.throws(() => constraintPoolFor(recorded, 'A05'), /carry the authorization record of A01 and were used to select A05/)
+    assert.throws(() => constraintPoolFor(recorded, null), /were used to select free text/)
 
     /**
-     * **"No constraint" means the record AUTHORIZES none — not that a hold emptied what it authorized** (G1 review,
-     * 15 October 2026). Measured before the repair: a copy authorizing only the held Pass Combination Gate, with a
-     * ruling, committed ZERO constraints — the ruling answered a question the record never asked. And the copy reached
-     * selection unchecked, because the integrity gate guarded only the file. Now the copy is refused at the hints by
-     * the same gate, and the selector, handed such hints directly, takes the ordinary path and its old gap.
+     * **"No constraint" means the record found none justified — not that a hold emptied what it authorized** (G1
+     * review, 15 October 2026; re-pointed the same day from the retired ruling to the principle). A copy authorizing
+     * only the held Pass Combination Gate is refused at the hints by the integrity gate, and the selector, handed such
+     * hints directly, takes the ordinary path and its old gap. A copy carrying the retired per-goal flag is refused too.
      */
     const heldOnly = learningGoalAuthorizations()
     heldOnly[0].authorizedConstraints = [PCG]
     heldOnly[0].excluded = heldOnly[0].excluded.filter(exclusion => exclusion.knowledgeId !== PCG)
-    heldOnly[0].zeroConstraintRuling = { ruledOn: 'TEST-ONLY', by: 'test', ruling: 'TEST-ONLY: never production data' }
     assert.throws(() => guidedSelectionHints('A01', text, heldOnly), /integrity gate: A01: authorizes tl-v0-constraint-pass-combination-gate, which a ruling holds/)
-    const uncited = learningGoalAuthorizations()
-    uncited[0].zeroConstraintRuling = { ruledOn: 'TEST-ONLY', by: '', ruling: 'no one ruled this' }
-    assert.throws(() => guidedSelectionHints('A01', text, uncited), /a zero-constraint ruling must cite/)
+    const flagged = learningGoalAuthorizations()
+    ;(flagged[0] as any).zeroConstraintRuling = { ruledOn: 'TEST-ONLY', by: 'test', ruling: 'TEST-ONLY: never production data' }
+    assert.throws(() => guidedSelectionHints('A01', text, flagged), /a per-goal zero-constraint ruling is not read/)
     const direct = hintsUnderAuthorization(guidedSelectionHints('A01', text).hints, heldOnly[0])
-    let filtered: unknown = null
-    try {
-        quietly(() => generateSelection({ learningGoals: [text], learningGoalId: 'A01' }, direct))
-    } catch (error) {
-        filtered = error
-    }
+    const filtered = attempt(() => generateSelection({ learningGoals: [text], learningGoalId: 'A01' }, direct))
     assert.ok(isSelectionKnowledgeGap(filtered) && filtered.reason === 'NO_SELECTABLE_CANDIDATES', `an authorized set a hold empties is not a zero-constraint commitment: ${String(filtered)}`)
-    assert.equal(learningGoalAuthorizations()[0].zeroConstraintRuling, null, 'the production record is untouched')
+    assert.deepEqual(learningGoalAuthorizations()[0].authorizedConstraints, [], 'the production record is untouched')
 }
 
 console.log('selection-pool.unit.ts — ok')

@@ -93,10 +93,11 @@ export interface ReviewAuthorization {
     ruledOn: string
     by: string
     ruling: string[]
-    authorizedConstraints: string[]
+    /** Null: the record has not yet evaluated its constraints (a gap). A list, empty included: the evaluation. */
+    authorizedConstraints: string[] | null
     authorizedConstraintsFinding: string
-    zeroConstraintRuling: { ruledOn: string; by: string; ruling: string } | null
-    zeroConstraintRulingPending?: string
+    /** His provisional choices for this goal's activity (15 October 2026), each cited. Optional: older accounts lack it. */
+    provisionalChoices?: { category: 'PROVISIONAL_REALIZATION_CHOICE'; choice: string; ruledOn: string; by: string; citedAs: string; words: string; note: string | null }[]
     excluded: { knowledgeId: string; title: string; ruledOn: string; by: string; ruling: string; heldBy: string | null }[]
     manipulations: ReviewManipulation[]
 }
@@ -139,7 +140,11 @@ export interface ActivityAccount {
          * `VOCABULARY_POOL` where they were derived from wording or a Coverage row. Optional: older accounts lack it.
          */
         constraintAuthority?: 'AUTHORIZATION_RECORD' | 'VOCABULARY_POOL'
-        zeroConstraintRuling?: { ruledOn: string; by: string } | null
+        /**
+         * His general principle (15 October 2026) where the goal's record evaluated its constraints — for an empty
+         * set, why none was selected. Optional: older accounts lack it.
+         */
+        constraintPrinciple?: { ruledOn: string; by: string; principle: string } | null
         lensAuthority?: 'ENGINE_LENS'
         unfilledRoles: string[]
         heldByRuling: { id: string; title: string; ruledOn: string }[]

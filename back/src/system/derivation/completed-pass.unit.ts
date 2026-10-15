@@ -223,8 +223,17 @@ test('registering the member changed no verdict in any of the thirteen goals', (
      * (NO_AUTHORIZED_CONSTRAINTS). Its row — 14 failed lines, Gate A FAIL, reachable — described derivation over the
      * objects it selected, so it is asserted on exactly those, named (composition-fixtures.ts), after the loop.
      */
+    /**
+     * **9 · 15 October, later — A01 RETURNS TO THE TABLE, with no library constraint; measured.** His reply of that
+     * day (16 October, item 1) answered the zero-constraint question with a general principle: *"A library constraint
+     * is not mandatory unless its inclusion is justified by the approved knowledge and intended learning
+     * environment."* A01's record evaluated its set as empty, so it selects GF2, three lenses and RPC-001 and nothing
+     * else: 13 failed lines (one fewer than its vocabulary composition, which carried constraints of its own), Gate A
+     * FAIL, reachable. The composition row above is kept on its named objects.
+     */
     const A01_COMPOSITION = { failed: 14, gateA: 'FAIL', reachable: true }
     const expected: Record<string, { failed: number; gateA: string; reachable: boolean }> = {
+        A01: { failed: 13, gateA: 'FAIL', reachable: true },
         D01: { failed: 8, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
         TA01: { failed: 15, gateA: 'FAIL', reachable: false },
         TD01: { failed: 14, gateA: 'FAIL', reachable: false },
@@ -270,7 +279,8 @@ test('registering the member changed no verdict in any of the thirteen goals', (
         const passes = !reach.clauses.some((l: any) => l.verdict === 'FAIL')
         assert.equal(passes, expected[goal].reachable, `${goal}: reachability verdict must be the one his ruling implies`)
     }
-    assert.deepEqual(gaps, ['A01', 'A02', 'D03'], 'the knowledge gaps of 14 October, A01 since 15 October, and no others')
+    // A01 was a gap from 15 October until his general principle later that day (note 9).
+    assert.deepEqual(gaps, ['A02', 'D03'], 'the knowledge gaps of 14 October, and no others')
 })
 
 /**
@@ -309,9 +319,10 @@ test('the member alone closed nothing — it took a separate authoring act', () 
         assert.equal(v17[0].value, 'COMPLETED_PASS', 'with the token the 29 September ruling requires')
     }
     // And the goals that do NOT select that contract have no such line at all, so nothing was created for them.
-    // A01 by its composition until 15 October (composition-fixtures.ts): its own selection is a knowledge gap since then.
-    for (const goal of ['A04', 'A03', 'A06', 'TA01', 'A01', 'TA02', 'A05']) {
-        const result: any = runDerivation(derivationInputFor(goal === 'A01' ? a01CompositionUntil15October(null) : selectFor(goal, null)))
+    // A01 by its composition until 15 October (composition-fixtures.ts), and since his general principle later that day
+    // by its own selection again (no library constraint): neither carries the gate.
+    for (const goal of ['A04', 'A03', 'A06', 'TA01', 'A01 composition', 'A01', 'TA02', 'A05']) {
+        const result: any = runDerivation(derivationInputFor(goal === 'A01 composition' ? a01CompositionUntil15October(null) : selectFor(goal, null)))
         assert.deepEqual(
             (result.resolution ?? []).filter((e: any) => /::V17$/.test(String(e.lineId))),
             [],

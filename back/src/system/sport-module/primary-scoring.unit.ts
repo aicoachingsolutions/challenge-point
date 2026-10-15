@@ -359,7 +359,10 @@ function testEveryGuidedGoalResolvesThroughContextGatedSelection(): void {
     // A01 joins them on 15 October 2026: its authorization record authorizes no constraint (his item 1 of that day:
     // approving Gain Access "does not automatically authorize the candidate constraints currently derived from
     // vocabulary coverage"), so it is NO_AUTHORIZED_CONSTRAINTS — found on GF2, a form RPC-001 declares (checked above).
-    assert.deepEqual(gaps, ['A01', 'A02', 'D03'], 'the knowledge gaps of 14 October, A01 since 15 October, and no others')
+    // And it leaves again later the same day: his general principle (16 October reply, item 1 — "A library constraint is
+    // not mandatory unless its inclusion is justified by the approved knowledge and intended learning environment")
+    // lets its evaluated, empty record select GF2 with no constraint, and GF2 resolves RPC-001's three events (above).
+    assert.deepEqual(gaps, ['A02', 'D03'], 'the knowledge gaps of 14 October, and no others')
 
     // Parser order survives among declared forms; undeclared parser candidates are dropped.
     const gated = gateCandidateGameFormsToContext(

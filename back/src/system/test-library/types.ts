@@ -139,10 +139,13 @@ export interface ConstraintPoolAccount {
      */
     constraintAuthority: ConstraintAuthority
     /**
-     * The ruling under which a record-backed goal may commit NO library constraint, or null. Only ever non-null
-     * with `AUTHORIZATION_RECORD`; null in production until he answers decision D1.
+     * His general principle (16 October reply, item 1 — *"A library constraint is not mandatory unless its inclusion is
+     * justified by the approved knowledge and intended learning environment"*) where the record has EVALUATED its
+     * authorized set, so the set is read under it: an empty one then commits no library constraint. Null for a
+     * vocabulary pool, free text, and a record not yet evaluated. Replaced the per-record `zeroConstraintRuling` on
+     * 15 October 2026: the principle is recorded once and names no goal.
      */
-    zeroConstraintRuling: { ruledOn: string; by: string } | null
+    constraintPrinciple: { ruledOn: string; by: string } | null
     /** FREE TEXT ONLY: why the wording's candidates were set aside for the whole library. Null otherwise. */
     setAsideBecause: 'FEWER_THAN_TWO' | 'NO_FOUNDATION_AND_SHAPING' | null
     /** FREE TEXT ONLY: the roles the wording's candidates could not fill, where that is why they were set aside. */
@@ -167,8 +170,11 @@ export type ConstraintAuthority = 'AUTHORIZATION_RECORD' | 'VOCABULARY_POOL'
 export interface ConstraintAuthorityHint {
     authority: 'AUTHORIZATION_RECORD'
     learningGoalId: string
-    /** His ruling that this goal may commit no library constraint, or null (the production state until D1). */
-    zeroConstraintRuling: { ruledOn: string; by: string; ruling: string } | null
+    /**
+     * The general principle the record's EVALUATED authorized set is read under, or null where the record has not
+     * evaluated it yet (`authorizedConstraints: null`). Never per goal: it is the one recorded principle.
+     */
+    constraintPrinciple: { ruledOn: string; by: string; principle: string } | null
 }
 
 export interface SelectionReasonEntry {

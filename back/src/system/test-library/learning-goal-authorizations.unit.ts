@@ -18,8 +18,10 @@ import {
     learningGoalAuthorization,
     learningGoalAuthorizations,
     LearningGoalAuthorization,
+    libraryConstraintPrinciple,
     MANIPULATION_STATUSES,
     validateLearningGoalAuthorizations,
+    validateLibraryConstraintPrinciple,
 } from './learning-goal-authorizations'
 import { testLibraryRegistry } from './library/registry'
 
@@ -63,12 +65,45 @@ test('the record carries his item 1 verbatim, the context and the Game Problem h
     assert.equal(record.ruling[6], 'Please identify the smallest set of authorized manipulations needed to create a representative build-out problem, and flag any missing knowledge rather than filling gaps through inference.')
 })
 
-test('it authorizes NO library constraint, says why, and leaves the zero-constraint ruling to him', () => {
+/**
+ * **Re-pointed 15 October 2026.** Until his reply of that day the record left "may this goal carry no library
+ * constraint?" to him as decision D1, in a per-record `zeroConstraintRuling` (null). He answered it with a GENERAL
+ * PRINCIPLE (16 October reply, item 1) and with Option A for this activity, so the record now says what its evaluation
+ * found (none justified) and records Option A as his provisional choice; the per-record flag is gone.
+ */
+test('it EVALUATED its constraints and found none justified, says why, and records Option A as his provisional choice', () => {
     const record = a01()
-    assert.deepEqual(record.authorizedConstraints, [], 'no library constraint has a documented relationship (finding of 15 October)')
+    assert.deepEqual(record.authorizedConstraints, [], 'evaluated: no library constraint has a documented relationship (finding of 15 October)')
     assert.ok(record.authorizedConstraintsFinding.startsWith('No library constraint has a documented relationship'), record.authorizedConstraintsFinding)
-    assert.equal(record.zeroConstraintRuling, null, 'decision D1 is his; production data stays null')
-    assert.ok(String(record.zeroConstraintRulingPending).startsWith('Decision D1'), 'and the pending decision is named')
+    assert.ok(!('zeroConstraintRuling' in record) && !('zeroConstraintRulingPending' in record), 'no per-goal zero-constraint flag')
+    assert.deepEqual(record.provisionalChoices!.map(choice => [choice.category, choice.words, choice.ruledOn, choice.by]), [
+        ['PROVISIONAL_REALIZATION_CHOICE', 'Please proceed with Option A for Play Out from the Back.', '2026-10-15', 'Christian'],
+    ])
+})
+
+/**
+ * **His item 1 of the 16 October reply, recorded ONCE as a general principle** — at the top of the file, not in any
+ * record, and applied by selection without a goal id (selection-pool.unit.ts proves both).
+ */
+test('the general principle is recorded once, in his words, labelled a GENERAL_PRINCIPLE', () => {
+    const principle = libraryConstraintPrinciple()
+    assert.equal(principle.category, 'GENERAL_PRINCIPLE')
+    assert.equal(principle.principle, 'A library constraint is not mandatory unless its inclusion is justified by the approved knowledge and intended learning environment.')
+    assert.deepEqual([principle.ruledOn, principle.by], ['2026-10-15', 'Christian'])
+    assert.ok(principle.words.includes(principle.principle), 'the rule is one of his recorded sentences')
+    assert.ok(principle.words.includes("I understand that applying this immediately to every Learning Goal could interrupt existing functionality. We can implement the correction incrementally, but please don't establish Play Out from the Back as a permanent special-case exception."))
+    assert.ok(principle.words.includes('The engine should continue enforcing structural validity and any genuinely required conditions.'))
+    // Once: no record restates it.
+    for (const record of learningGoalAuthorizations()) assert.ok(!JSON.stringify(record).includes(principle.principle), `${record.learningGoalId}: the principle is not restated per record`)
+    // The gate refuses a principle that drifts from his words, or is missing, or uncited.
+    assert.deepEqual(validateLibraryConstraintPrinciple(principle), [])
+    assert.ok(validateLibraryConstraintPrinciple(null).some(e => e.includes('not recorded')))
+    assert.ok(validateLibraryConstraintPrinciple({ ...principle, principle: 'A library constraint is never mandatory.' }).some(e => e.includes('not one of his recorded sentences')))
+    assert.ok(validateLibraryConstraintPrinciple({ ...principle, by: '' }).some(e => e.includes('cites no ruling')))
+    assert.ok(validateLibraryConstraintPrinciple({ ...principle, category: 'PROVISIONAL_REALIZATION_CHOICE' as any }).some(e => e.includes('not labelled GENERAL_PRINCIPLE')))
+    const copy = libraryConstraintPrinciple()
+    copy.words.push('edited')
+    assert.ok(!libraryConstraintPrinciple().words.includes('edited'), 'handed out as a copy')
 })
 
 test('it excludes Wide Zone Advantage by his item 7, and cross-references the existing hold for the gate', () => {
@@ -126,7 +161,13 @@ test('the gate refuses an entry without a citation', () => {
     assert.ok(damaged(r => (r.manipulations[0].statusBasis = ' ')).some(e => e.includes('gives no basis for its status')))
     assert.ok(damaged(r => ((r.manipulations[0] as any).status = 'AUTHORIZED')).some(e => e.includes('unknown status AUTHORIZED')))
     assert.ok(damaged(r => (r.excluded[0].ruling = '')).some(e => e.includes(`the exclusion of ${WIDE_ZONE} cites no ruling`)))
-    assert.ok(damaged(r => (r.zeroConstraintRuling = { ruledOn: '2026-10-16', by: '', ruling: 'yes' })).some(e => e.includes('zero-constraint ruling must cite')))
+    // Re-pointed 15 October 2026: a per-goal zero-constraint ruling is not merely uncited, it is not read at all now —
+    // the general principle governs every record alike — so a record carrying one is refused.
+    assert.ok(damaged(r => ((r as any).zeroConstraintRuling = { ruledOn: '2026-10-16', by: 'Christian', ruling: 'yes' })).some(e => e.includes('a per-goal zero-constraint ruling is not read')))
+    assert.ok(damaged(r => (r.provisionalChoices![0].words = '')).some(e => e.includes('provisional choice 1 must say what it is and cite')))
+    assert.ok(damaged(r => ((r.provisionalChoices![0] as any).category = 'GENERAL_PRINCIPLE')).some(e => e.includes('not labelled PROVISIONAL_REALIZATION_CHOICE')))
+    assert.ok(damaged(r => delete (r as any).authorizedConstraints).some(e => e.includes('must be a list (the evaluation) or null (not yet evaluated)')))
+    assert.deepEqual(damaged(r => (r.authorizedConstraints = null)), [], 'null is an answer: not yet evaluated')
     assert.ok(damaged(r => (r.authorizedConstraintsFinding = '')).some(e => e.includes('carries no finding')))
 })
 

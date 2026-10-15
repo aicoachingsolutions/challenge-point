@@ -15,10 +15,20 @@
  * statuses and his words, and nothing else: no value, no Environmental Manipulation or Affordance Target id (he
  * deferred that inference on 13 September), no phrase a selector reads.
  *
- * **An empty authorized set is a knowledge gap, not a licence.** `zeroConstraintRuling` stays null until he
- * answers whether a goal may be built with no library constraint (decision D1); until then selection reports
- * `NO_AUTHORIZED_CONSTRAINTS` and builds nothing. The mechanism that commits zero constraints exists and is
- * reachable only through a record whose ruling is non-null and cited (see `generateSelection`).
+ * **Not yet evaluated, evaluated as none, and evaluated as some are three different things** (15 October 2026, his
+ * reply of that day — called his 16 October reply — item 1). He answered the question we had put as decision D1 with
+ * a GENERAL PRINCIPLE: *"A library constraint is not mandatory unless its inclusion is justified by the approved
+ * knowledge and intended learning environment"*, and *"please don't establish Play Out from the Back as a permanent
+ * special-case exception."* So the principle is recorded ONCE, at the top of the file, and read here once; a record
+ * says only what its evaluation found:
+ *   - `authorizedConstraints: null` — not yet evaluated: selection reports `NO_AUTHORIZED_CONSTRAINTS`, builds nothing;
+ *   - `[]` with its finding — evaluated, none justified: under the principle the goal is selected with no library
+ *     constraint (`generateSelection`), and every structural check still runs on it ("The engine should continue
+ *     enforcing structural validity and any genuinely required conditions");
+ *   - a non-empty list — those constraints, and only those, under the ordinary size rule.
+ * The per-record `zeroConstraintRuling` this replaced is gone: a per-goal flag is the special case he refused. Without
+ * the recorded principle an evaluated empty set is a gap again, never a licence — the loader refuses a record file
+ * whose principle is malformed rather than read it.
  *
  * **The gate refuses at load**, because a record that names a constraint the library does not hold, or that both
  * authorizes and excludes one, or that says something without saying who ruled it, would silently decide what a
@@ -61,11 +71,30 @@ export interface AuthorizationExclusion {
     heldBy: 'learning-design-holds.json' | null
 }
 
-export interface ZeroConstraintRuling {
+/**
+ * A GENERAL PRINCIPLE he ruled (his item 10 of 16 October keeps the categories apart): recorded once, applied without
+ * any goal id. `principle` is the one sentence that is the rule; `words` are his surrounding sentences, verbatim.
+ */
+export interface LibraryConstraintPrinciple {
+    category: 'GENERAL_PRINCIPLE'
     ruledOn: string
     by: string
+    citedAs: string
+    principle: string
+    words: string[]
+    appliedAs: string
+}
+
+/** A PROVISIONAL REALIZATION CHOICE of his for one goal's activity: cited, labelled provisional, never a mechanism. */
+export interface ProvisionalChoice {
+    category: 'PROVISIONAL_REALIZATION_CHOICE'
+    choice: string
+    ruledOn: string
+    by: string
+    citedAs: string
     /** His words, verbatim. */
-    ruling: string
+    words: string
+    note: string | null
 }
 
 export interface LearningGoalAuthorization {
@@ -76,11 +105,11 @@ export interface LearningGoalAuthorization {
     by: string
     /** His ruling, verbatim, one paragraph per entry. */
     ruling: string[]
-    authorizedConstraints: string[]
+    /** Null: not yet evaluated (a gap). A list, empty included: the evaluation, whose reasoning is the finding. */
+    authorizedConstraints: string[] | null
     authorizedConstraintsFinding: string
-    /** Null until he rules that this goal may be built with no library constraint (decision D1). */
-    zeroConstraintRuling: ZeroConstraintRuling | null
-    zeroConstraintRulingPending?: string
+    /** His provisional choices for this goal's activity, each cited. Never read by selection. */
+    provisionalChoices?: ProvisionalChoice[]
     excluded: AuthorizationExclusion[]
     manipulations: ManipulationRecord[]
 }
@@ -111,6 +140,17 @@ export function validateLearningGoalAuthorizations(
         }
         if (!filled(entry.contextId) || !filled(entry.gameProblemId)) errors.push(`${goal}: the record names no context or Game Problem`)
         if (!filled(entry.authorizedConstraintsFinding)) errors.push(`${goal}: the authorized set carries no finding`)
+        // `undefined` is neither answer: a record that forgot the field would otherwise read as "not yet evaluated".
+        if (entry.authorizedConstraints !== null && !Array.isArray(entry.authorizedConstraints)) {
+            errors.push(`${goal}: authorizedConstraints must be a list (the evaluation) or null (not yet evaluated)`)
+        }
+        if ('zeroConstraintRuling' in (entry as object)) errors.push(`${goal}: a per-goal zero-constraint ruling is not read; the general principle governs every record alike`)
+        for (const [i, choice] of (entry.provisionalChoices ?? []).entries()) {
+            if (choice.category !== 'PROVISIONAL_REALIZATION_CHOICE') errors.push(`${goal}: provisional choice ${i + 1} is not labelled PROVISIONAL_REALIZATION_CHOICE`)
+            if (!filled(choice.choice) || !filled(choice.ruledOn) || !filled(choice.by) || !filled(choice.citedAs) || !filled(choice.words)) {
+                errors.push(`${goal}: provisional choice ${i + 1} must say what it is and cite who chose it, when, where and in his words`)
+            }
+        }
         const authorized = new Set((entry.authorizedConstraints ?? []).map(knowledgeKey))
         for (const id of entry.authorizedConstraints ?? []) {
             if (!selectable.has(knowledgeKey(id))) errors.push(`${goal}: authorizes ${id}, which the selectable library does not hold`)
@@ -126,10 +166,6 @@ export function validateLearningGoalAuthorizations(
                 errors.push(`${goal}: the exclusion of ${id} cross-references ${exclusion.heldBy}, which does not hold it`)
             }
         }
-        const ruling = entry.zeroConstraintRuling
-        if (ruling !== null && ruling !== undefined && (!filled(ruling.ruledOn) || !filled(ruling.by) || !filled(ruling.ruling))) {
-            errors.push(`${goal}: a zero-constraint ruling must cite who ruled, when, and his words`)
-        }
         for (const [i, manipulation] of (entry.manipulations ?? []).entries()) {
             const which = `${goal}: manipulation ${i + 1} (${manipulation.phrase || 'no phrase'})`
             if (!filled(manipulation.phrase) || !filled(manipulation.phraseFrom)) errors.push(`${which} quotes no phrase or names no source for it`)
@@ -142,10 +178,33 @@ export function validateLearningGoalAuthorizations(
     return errors
 }
 
+/**
+ * Everything wrong with the recorded principle, as sentences. The rule sentence must be one of his own sentences
+ * recorded beside it, so the principle cannot drift from his words without the file failing to load.
+ */
+export function validateLibraryConstraintPrinciple(principle: LibraryConstraintPrinciple | null | undefined): string[] {
+    if (!principle) return ['the library-constraint principle is not recorded']
+    const errors: string[] = []
+    if (principle.category !== 'GENERAL_PRINCIPLE') errors.push('the library-constraint principle is not labelled GENERAL_PRINCIPLE')
+    if (!filled(principle.ruledOn) || !filled(principle.by) || !filled(principle.citedAs)) errors.push('the library-constraint principle cites no ruling (ruledOn, by and citedAs are all required)')
+    if (!filled(principle.principle)) errors.push('the library-constraint principle states no rule')
+    if (!Array.isArray(principle.words) || !principle.words.every(filled) || !principle.words.includes(principle.principle)) {
+        errors.push('the library-constraint principle is not one of his recorded sentences')
+    }
+    if (!filled(principle.appliedAs)) errors.push('the library-constraint principle does not say how it is applied')
+    return errors
+}
+
 const RECORDS = record.authorizations as LearningGoalAuthorization[]
+const PRINCIPLE = (record as { libraryConstraintPrinciple?: LibraryConstraintPrinciple }).libraryConstraintPrinciple ?? null
 {
-    const errors = validateLearningGoalAuthorizations(RECORDS)
+    const errors = [...validateLibraryConstraintPrinciple(PRINCIPLE), ...validateLearningGoalAuthorizations(RECORDS)]
     if (errors.length) throw new Error(`learning-goal-authorizations.json failed its integrity gate: ${errors.join(' | ')}`)
+}
+
+/** His general principle on library constraints, as a copy: what an evaluated, empty authorized set is read under. */
+export function libraryConstraintPrinciple(): LibraryConstraintPrinciple {
+    return JSON.parse(JSON.stringify(PRINCIPLE)) as LibraryConstraintPrinciple
 }
 
 const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T

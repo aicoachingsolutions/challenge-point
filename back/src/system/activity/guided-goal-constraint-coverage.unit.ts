@@ -120,6 +120,7 @@ function testSystemTextAloneMeetsEveryConstraintRequirement(): void {
     const unmet: string[] = []
     let checked = 0
     const gaps: string[] = []
+    const noConstraint: string[] = []
     const originalLog = console.log
     console.log = () => undefined
     try {
@@ -138,6 +139,13 @@ function testSystemTextAloneMeetsEveryConstraintRequirement(): void {
                 // A knowledge gap (14 October) selects nothing, so there is no skeleton to check.
                 if (!isSelectionKnowledgeGap(error)) throw error
                 gaps.push(id)
+                continue
+            }
+            // A selection with NO library constraint (his general principle, 15 October 2026) has no constraint
+            // requirement to check, and the live route refuses it before any package or text exists
+            // (ZERO_CONSTRAINT_SELECTION_NOT_SERVED_LIVE), so nothing here would ever be generated for it.
+            if (!selection.constraints.length) {
+                noConstraint.push(id)
                 continue
             }
             const skeleton = buildActivitySkeleton(assemblyInput(selection, id, name, rpcId))
@@ -166,7 +174,12 @@ function testSystemTextAloneMeetsEveryConstraintRequirement(): void {
      */
     // A01 joins the gaps on 15 October 2026: its authorization record authorizes no constraint (his item 1 of that day),
     // so it builds no skeleton and its slots' requirements are no longer checked — the only reason the floor moves.
-    assert.deepEqual(gaps, ['A01', 'A02', 'D03'], 'the knowledge gaps of 14 October, A01 since 15 October, and no others')
+    // Later the same day A01 leaves the gaps: his general principle (16 October reply, item 1 — "A library constraint is
+    // not mandatory unless its inclusion is justified by the approved knowledge and intended learning environment")
+    // lets its evaluated, empty record select with NO constraint. It still builds no skeleton here, so the floor of
+    // 252 holds; it is listed apart, so a goal arriving at zero constraints is noticed, not silently skipped.
+    assert.deepEqual(gaps, ['A02', 'D03'], 'the knowledge gaps of 14 October, and no others')
+    assert.deepEqual(noConstraint, ['A01'], 'the goals selected with no library constraint under his general principle')
     assert.ok(checked >= CHECKED_FLOOR, `expected every slot's constraint requirements to be checked, got ${checked}`)
     assert.deepEqual(unmet, [], `Constraint requirements that only the model's wording could meet:\n${unmet.join('\n')}`)
 }

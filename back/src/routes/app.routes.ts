@@ -943,9 +943,10 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                         gameForm: selErr.archetypeId,
                         unfilledRoles: selErr.pool.unfilledRoles,
                         heldByRuling: selErr.pool.heldByRuling.map((hold) => hold.id),
-                        // 15 October 2026: whose authority the candidates carried. Play Out from the Back reaches
-                        // this branch as NO_AUTHORIZED_CONSTRAINTS — its record authorizes nothing yet — and no
-                        // model is called, as for every other gap.
+                        // 15 October 2026: whose authority the candidates carried. A goal whose record has not yet
+                        // evaluated its constraints reaches this branch as NO_AUTHORIZED_CONSTRAINTS, and no model is
+                        // called, as for every other gap. (Play Out from the Back did until his general principle of
+                        // that day; its evaluated, empty set now meets the zero-constraint refusal below.)
                         constraintAuthority: selErr.pool.constraintAuthority,
                     },
                 })
@@ -966,8 +967,9 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
 
         /**
          * **A selection with NO library constraint is not served here** (15 October 2026). It exists only for a goal
-         * whose authorization record carries his cited zero-constraint ruling (decision D1 — none in production), and
-         * its environment is the game form and the context's contract. This route consumes no contracts: it would
+         * whose authorization record has evaluated its authorized set as empty, under his general principle of that
+         * day (16 October reply, item 1 — Play Out from the Back since then), and its environment is the game form
+         * and the context's contract. This route consumes no contracts: it would
          * hand the model a constraint-free package and prose, which cannot carry the context's start, target or
          * restart knowledge. So it answers with the same gap sentence and calls no model; the checked pathway is
          * where such an activity is built.

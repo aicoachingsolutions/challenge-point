@@ -51,7 +51,7 @@ import { TEST_LIBRARY_V0_AFFORDANCE_LENSES, TEST_LIBRARY_V0_ARCHETYPES, TEST_LIB
 import type { SelectionKnowledgeGapReason } from '../test-library/generateSelection'
 import { learningGoalSelectionHolds } from '../test-library/learning-design-holds'
 import type { AuthorizationExclusion, LearningGoalAuthorization } from '../test-library/learning-goal-authorizations'
-import { learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
+import { learningGoalAuthorizations, libraryConstraintPrinciple } from '../test-library/learning-goal-authorizations'
 import type { ConstraintAuthority, ConstraintPoolAccount } from '../test-library/types'
 import { contextScoringFindings } from './context-scoring-guard'
 import { checkFidelity } from './fidelity'
@@ -127,8 +127,13 @@ export interface ActivityAccount {
          * his sense of that day's item 1). Read from the pool account selection produced.
          */
         constraintAuthority: ConstraintAuthority
-        /** The ruling under which a record-backed goal committed no library constraint; null in production. */
-        zeroConstraintRuling: { ruledOn: string; by: string } | null
+        /**
+         * His general principle (16 October reply, item 1), where the goal's record has evaluated its authorized set and
+         * the set is read under it — for an empty set, why no library constraint was selected. Null for a vocabulary
+         * pool and for a record not yet evaluated. The sentence is read from the record file, never restated here.
+         * Replaced `zeroConstraintRuling` on 15 October 2026.
+         */
+        constraintPrinciple: { ruledOn: string; by: string; principle: string } | null
         /** The lenses are the engine's reasoning dimension, not authorized affordance targets (13 September deferral). */
         lensAuthority: 'ENGINE_LENS'
         unfilledRoles: string[]
@@ -284,7 +289,7 @@ function constraintSourceOf(pool: ConstraintPoolAccount, gap: SelectionKnowledge
     return {
         source: pool.source,
         constraintAuthority: pool.constraintAuthority,
-        zeroConstraintRuling: pool.zeroConstraintRuling ? { ...pool.zeroConstraintRuling } : null,
+        constraintPrinciple: pool.constraintPrinciple ? { ...pool.constraintPrinciple, principle: libraryConstraintPrinciple().principle } : null,
         lensAuthority: 'ENGINE_LENS',
         unfilledRoles: [...pool.unfilledRoles],
         heldByRuling: pool.heldByRuling.map(hold => ({ id: hold.id, title: constraintTitle(hold.id), ruledOn: hold.ruledOn })),

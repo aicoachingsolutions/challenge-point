@@ -35,9 +35,10 @@ export type SelectionKnowledgeGapReason =
     /** None of the goal's candidate game forms exists. */
     | 'NO_GAME_FORM_CANDIDATES'
     /**
-     * The goal's constraints come from his authorization record and it authorizes none, with no ruling that the
-     * goal may be built without one (15 October 2026). Distinct from `NO_SELECTABLE_CANDIDATES`: nothing was
-     * selectable because nothing is AUTHORIZED, not because candidates were held or missing.
+     * The goal's constraints come from his authorization record and the record has not yet evaluated which library
+     * constraints the knowledge justifies (`authorizedConstraints: null`). Distinct from `NO_SELECTABLE_CANDIDATES`:
+     * nothing was selectable because nothing is EVALUATED, not because candidates were held or missing. Until 15
+     * October 2026 an evaluated empty set landed here too; under his general principle of that day it commits none.
      */
     | 'NO_AUTHORIZED_CONSTRAINTS'
 
@@ -64,7 +65,7 @@ export class SelectionKnowledgeGap extends Error {
         super(
             `${learningGoalId}: a knowledge gap (${reason}) - ` +
                 (reason === 'NO_AUTHORIZED_CONSTRAINTS'
-                    ? "the goal's authorization record authorizes no library constraint, and no ruling permits a selection without one"
+                    ? "the goal's authorization record has not yet evaluated which library constraints the approved knowledge justifies"
                     : "the goal's designated knowledge cannot be combined into a selection") +
                 `${archetypeId ? (reason === 'NO_AUTHORIZED_CONSTRAINTS' ? ` (found on ${archetypeId})` : ` on ${archetypeId}`) : ''}; unfilled roles: ${pool.unfilledRoles.join(', ') || 'none'}; ` +
                 `held by ruling: ${pool.heldByRuling.map((hold) => hold.id).join(', ') || 'none'}. Nothing was drawn from outside the goal's candidates.`
@@ -149,7 +150,7 @@ export function constraintPoolFor(hints?: InputConstraintHints | null, learningG
     }
     const authorityAccount = {
         constraintAuthority: authority ? ('AUTHORIZATION_RECORD' as const) : ('VOCABULARY_POOL' as const),
-        zeroConstraintRuling: authority?.zeroConstraintRuling ? { ruledOn: authority.zeroConstraintRuling.ruledOn, by: authority.zeroConstraintRuling.by } : null,
+        constraintPrinciple: authority?.constraintPrinciple ? { ruledOn: authority.constraintPrinciple.ruledOn, by: authority.constraintPrinciple.by } : null,
     }
     if (learningGoalId) {
         /**
@@ -193,7 +194,7 @@ export const poolAccount = ({ constraints: _drawnFrom, ...account }: ConstraintP
     missingRoles: [...account.missingRoles],
     unfilledRoles: [...account.unfilledRoles],
     heldByRuling: account.heldByRuling.map((hold) => ({ ...hold })),
-    zeroConstraintRuling: account.zeroConstraintRuling ? { ...account.zeroConstraintRuling } : null,
+    constraintPrinciple: account.constraintPrinciple ? { ...account.constraintPrinciple } : null,
 })
 
 /** Exact normalized coach phrases that must fail before any scoring (no AI classification). */
@@ -690,8 +691,8 @@ function boundedConstraintCandidates(
 
 /**
  * The size rule. `zeroConstraintCommitment` admits exactly 0 constraints and nothing else, and only `generateSelection`
- * sets it — for a goal whose authorization record carries a cited zero-constraint ruling (see there). Every other
- * selection keeps 2–4.
+ * sets it — for a goal whose authorization record has evaluated its authorized set as empty, under his general
+ * principle (see there). Every other selection keeps 2–4.
  */
 function assertSelectionContract(
     affordanceLenses: TestLibraryV0AffordanceLens[],
@@ -772,7 +773,7 @@ interface DesignEnumerationContext {
      * role, not whether the library does. See `enumerateDesignPossibilities`.
      */
     roleNeedsFromPool: boolean
-    /** Commit lenses with NO constraint: set only for a record-backed goal with a cited zero-constraint ruling. */
+    /** Commit lenses with NO constraint: set only for a record-backed goal whose evaluated authorized set is empty. */
     zeroConstraintCommitment: boolean
 }
 
@@ -794,7 +795,7 @@ function enumerateDesignPossibilities(ctx: DesignEnumerationContext): DesignPoss
 
         for (const lensCombo of combinations(lensCandidatePool, lensSize)) {
             /**
-             * **No constraint, by his ruling only** (engineered 15 October 2026, data-gated). The game form and the
+             * **No constraint, by his general principle only** (engineered 15 October 2026). The game form and the
              * context are the environment; the lenses are scored as always and nothing else is chosen. There is no
              * constraint package, so the role mix and the package checks (whose foundation clause is unruled) have
              * nothing to examine and are not run — they are not relaxed for any selection that HAS constraints.
@@ -986,24 +987,29 @@ export function generateSelection(
     const allLenses = applyLensPoolFilter(inputConstraints, forGoal ? gapFor(archetype.game_form_id) : null)
 
     /**
-     * **A goal whose authorization record authorizes nothing is a knowledge gap — unless he has ruled otherwise.**
-     * 15 October 2026. His item 1 asks for constraints selected by documented relationship, and for missing
-     * knowledge to be flagged *"rather than filling gaps through inference"*; no library constraint has such a
-     * relationship to Play Out from the Back, so its record authorizes none. Whether a goal may then be built with
-     * NO library constraint is his decision D1 (his 14 October item 1 — *"I don't want us to assume that every
-     * activity necessarily requires an additional shaping constraint"* — speaks of shaping only). So:
-     *   - record-backed, empty, no ruling → `NO_AUTHORIZED_CONSTRAINTS`, after the game form is chosen so the
-     *     account can name it (the production state);
-     *   - record-backed, empty, a cited ruling → commit the game form and lenses with zero constraints;
-     *   - anything else, including a vocabulary pool that happens to be empty → the 2–4 rule and its gaps as before.
+     * **A library constraint is not mandatory unless its inclusion is justified** — his general principle, reply
+     * received 15 October 2026 (his 16 October reply, item 1), recorded once in `learning-goal-authorizations.json`:
+     * *"A library constraint is not mandatory unless its inclusion is justified by the approved knowledge and intended
+     * learning environment."* With: *"We can implement the correction incrementally, but please don't establish Play
+     * Out from the Back as a permanent special-case exception. The engine should continue enforcing structural
+     * validity and any genuinely required conditions."* So, for ANY goal, read from the pool account and never a goal id:
+     *   - record-backed, evaluated, empty → commit the game form and lenses with zero constraints; derivation and every
+     *     gate still run on the result;
+     *   - record-backed, not yet evaluated (`authorizedConstraints: null`, so no principle on the account) →
+     *     `NO_AUTHORIZED_CONSTRAINTS`, after the game form is chosen so the account can name it;
+     *   - anything else, including a vocabulary pool that happens to be empty → the 2–4 rule and its gaps as before
+     *     (incrementally: a goal reaches the principle only through a record — the live route serves the vocabulary
+     *     goals, and a measured floor of 0 would turn two knowledge gaps, Play Through Pressure and Defend 1v1, into
+     *     empty, unauthorized selections).
+     * This replaced, on 15 October 2026, a per-record `zeroConstraintRuling`: the same branch, but switched per goal.
      *
      * "Empty" is the AUTHORIZED SET, never the pool left after holds (G1 review, 15 October 2026). A record that
-     * authorizes a constraint which a hold then removes did not rule that the goal may carry none; measured, it
-     * committed zero constraints under the ruling. It now meets the ordinary path and its NO_SELECTABLE_CANDIDATES gap.
+     * authorizes a constraint which a hold then removes did not find that the goal needs none; measured, it committed
+     * zero constraints under the old ruling. It meets the ordinary path and its NO_SELECTABLE_CANDIDATES gap.
      */
     const recordBacked = constraintPool.source === 'AUTHORIZATION_RECORD'
     const authorizesNone = recordBacked && constraintPool.candidateIds.length === 0
-    const zeroConstraintCommitment = authorizesNone && constraintPool.zeroConstraintRuling !== null
+    const zeroConstraintCommitment = authorizesNone && constraintPool.constraintPrinciple !== null
     if (authorizesNone && !zeroConstraintCommitment) gapFor(archetype.game_form_id)('NO_AUTHORIZED_CONSTRAINTS')
 
     const lensScored = scoreAllLenses(tokens, archetype, archeAffordances)

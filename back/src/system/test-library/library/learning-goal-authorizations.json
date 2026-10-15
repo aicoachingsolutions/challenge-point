@@ -1,5 +1,21 @@
 {
-    "about": "Which library constraints a Learning Goal may select, by owner ruling, with the manipulations its context names evaluated against the knowledge that exists. Ids, citations, statuses and his words only: nothing here is a value, a mapping to an Environmental Manipulation or Affordance Target id, or a candidate pool. Where a goal has an entry, selection draws its constraints from authorizedConstraints and from nothing else (not the wording pool, not the Game Problem's Coverage row), in both pathways. An empty authorizedConstraints with zeroConstraintRuling null is a knowledge gap (NO_AUTHORIZED_CONSTRAINTS), never a fallback.",
+    "about": "Which library constraints a Learning Goal may select, by owner ruling, with the manipulations its context names evaluated against the knowledge that exists. Ids, citations, statuses and his words only: nothing here is a value, a mapping to an Environmental Manipulation or Affordance Target id, or a candidate pool. Where a goal has an entry, selection draws its constraints from authorizedConstraints and from nothing else (not the wording pool, not the Game Problem's Coverage row), in both pathways. authorizedConstraints null means the record has not yet evaluated which constraints the knowledge justifies: a knowledge gap (NO_AUTHORIZED_CONSTRAINTS), never a fallback. A list (with its finding) is the evaluation; an EMPTY list means none is justified, and under the general principle below the goal is selected with no library constraint. The principle is recorded once, here, and applies to every record alike: no goal is special-cased.",
+    "libraryConstraintPrinciple": {
+        "category": "GENERAL_PRINCIPLE",
+        "ruledOn": "2026-10-15",
+        "by": "Christian",
+        "citedAs": "his reply received 15 October 2026 (called his 16 October reply, to keep it apart from his first 15 October reply), item 1",
+        "principle": "A library constraint is not mandatory unless its inclusion is justified by the approved knowledge and intended learning environment.",
+        "words": [
+            "I agree that an activity should not require two to four library constraints simply to satisfy an engine quota.",
+            "The game form and its inherent conditions may already create the affordances needed for the Learning Goal. Additional constraints should be selected because they serve a documented learning-design purpose, not because the engine requires a particular number.",
+            "However, I want the underlying principle to apply generally:",
+            "A library constraint is not mandatory unless its inclusion is justified by the approved knowledge and intended learning environment.",
+            "I understand that applying this immediately to every Learning Goal could interrupt existing functionality. We can implement the correction incrementally, but please don't establish Play Out from the Back as a permanent special-case exception.",
+            "The engine should continue enforcing structural validity and any genuinely required conditions."
+        ],
+        "appliedAs": "Every Learning Goal whose authorization record has evaluated its authorized constraints and found none justified (an empty list) is selected with its game form and lenses and no library constraint; derivation, realization and every gate still run on it. Applied incrementally, as his words allow: a goal reaches it only once it has a record, and goals without one keep the vocabulary pool and the two-to-four rule. The lens rule (two or three) is unchanged: his item 1 speaks of library constraints, not lenses."
+    },
     "authorizations": [
         {
             "learningGoalId": "A01",
@@ -18,8 +34,17 @@
             ],
             "authorizedConstraints": [],
             "authorizedConstraintsFinding": "No library constraint has a documented relationship to Goalkeeper Build-Out (RPC-001), Gain Access (GP-005) or this goal's affordances. RPC-001's relationships in rpc-library.rc1.json reach only the game archetype, Game Problem, game form, Learning Goal and scoring event libraries, and it has no manipulation property; its affordance targets RPC-MAP-091..096 are DEFERRED by Christian on 13 September 2026 ('canonical Affordance Target ids are not to be inferred to reach runtime'); every Soccer Module realization row has universal_concept_id and primary_game_problem_ids null; the Coverage rows and the wording pools were both derived by the parser. Finding of 15 October 2026 (stage G1), for his review: it names no constraint as authorized.",
-            "zeroConstraintRuling": null,
-            "zeroConstraintRulingPending": "Decision D1, put to him: may the first Play Out from the Back activity carry no selected library constraint, its environment shaped by the game form, the approved context and the manipulations he authorizes? Until he rules, an empty authorized set is a knowledge gap and nothing is selected.",
+            "provisionalChoices": [
+                {
+                    "category": "PROVISIONAL_REALIZATION_CHOICE",
+                    "choice": "The first Play Out from the Back activity carries no selected library constraint (Option A): its environment is the game form, the approved context and what he authorizes.",
+                    "ruledOn": "2026-10-15",
+                    "by": "Christian",
+                    "citedAs": "his reply received 15 October 2026 (16 October reply), item 1",
+                    "words": "Please proceed with Option A for Play Out from the Back.",
+                    "note": "Not the mechanism: selection commits no constraint here because the authorized set is evaluated and empty, under the general principle recorded once at the top of this file. This entry records that he chose it for this activity, and that it is provisional."
+                }
+            ],
             "excluded": [
                 {
                     "knowledgeId": "tl-v0-constraint-wide-zone-advantage",

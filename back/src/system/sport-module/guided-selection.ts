@@ -37,6 +37,8 @@ import {
     learningGoalAuthorization,
     learningGoalAuthorizations,
     LearningGoalAuthorization,
+    LibraryConstraintPrinciple,
+    libraryConstraintPrinciple,
     validateLearningGoalAuthorizations,
 } from '../test-library/learning-goal-authorizations'
 import { gateCandidateGameFormsToContext } from './context-selection'
@@ -172,15 +174,28 @@ export function guidedGoalText(learningGoalId: string): string {
  * goal's constraints — measured before this landed, recording Gain Access alone would have handed Play Out from
  * the Back the Coverage row's four constraints, Wide Zone Advantage among them, which his item 7 excludes.
  */
-export function hintsUnderAuthorization(hints: InputConstraintHints, record: LearningGoalAuthorization): InputConstraintHints {
-    const ruling = record.zeroConstraintRuling
+/*
+ * **The record's evaluation is read under his general principle, the same for every record** (15 October 2026, his
+ * 16 October reply, item 1: *"A library constraint is not mandatory unless its inclusion is justified by the approved
+ * knowledge and intended learning environment"* — *"please don't establish Play Out from the Back as a permanent
+ * special-case exception"*). A record that has evaluated its set (a list) carries the principle on the hints, and an
+ * empty evaluated set then commits no library constraint in `generateSelection`; a record not yet evaluated (null)
+ * carries none, and stays the NO_AUTHORIZED_CONSTRAINTS gap. `principle` is a parameter only so a test can show the
+ * evaluated empty set falling back to the gap without it.
+ */
+export function hintsUnderAuthorization(
+    hints: InputConstraintHints,
+    record: LearningGoalAuthorization,
+    principle: LibraryConstraintPrinciple | null = libraryConstraintPrinciple()
+): InputConstraintHints {
+    const evaluated = Array.isArray(record.authorizedConstraints)
     return {
         ...hints,
-        candidateConstraintIds: [...record.authorizedConstraints],
+        candidateConstraintIds: [...(record.authorizedConstraints ?? [])],
         constraintAuthority: {
             authority: 'AUTHORIZATION_RECORD',
             learningGoalId: record.learningGoalId,
-            zeroConstraintRuling: ruling ? { ruledOn: ruling.ruledOn, by: ruling.by, ruling: ruling.ruling } : null,
+            constraintPrinciple: evaluated && principle ? { ruledOn: principle.ruledOn, by: principle.by, principle: principle.principle } : null,
         },
     }
 }
@@ -191,7 +206,8 @@ export function hintsUnderAuthorization(hints: InputConstraintHints, record: Lea
  * context limiting the game forms.
  *
  * `records` is the authorization records in force; a parameter ONLY so a test can run the identical function
- * over a copy carrying a test-only ruling. Every pathway that serves anything calls it with the default.
+ * over a copy carrying a test-only record. Every pathway that serves anything calls it with the default. The general
+ * principle an evaluated record is read under is the file's one recorded principle, for every record alike.
  */
 export function guidedSelectionHints(
     learningGoalId: string,

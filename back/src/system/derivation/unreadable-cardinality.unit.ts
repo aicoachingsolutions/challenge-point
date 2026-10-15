@@ -180,7 +180,9 @@ test('no learning goal carries an unreadable claim, so no goal outcome changes',
     }
     // A01 joins the gaps on 15 October 2026 (its authorization record authorizes nothing yet, his item 1 of that day).
     // What it composed until then is checked by name, so the claim about it is not lost with its selection.
-    assert.deepEqual(gaps, ['A01', 'A02', 'D03'], 'the knowledge gaps of 14 October, A01 since 15 October, and no others')
+    // And leaves them later the same day: his general principle (16 October reply, item 1) lets its evaluated, empty
+    // record select GF2 and RPC-001 with no library constraint, so it is derived again above and carries no unreadable claim.
+    assert.deepEqual(gaps, ['A02', 'D03'], 'the knowledge gaps of 14 October, and no others')
     assert.deepEqual(affected, [], `the correction must touch no goal, and touches ${affected.join(', ') || 'none'}`)
     const { resolved: a01 } = resolvedFor(derivationInputFor(a01CompositionUntil15October(null)))
     assert.ok(!(a01.existential as any[]).some(c => c.cardinalityUnreadable), 'the composition A01 selected until 15 October carries no unreadable claim')
