@@ -195,7 +195,8 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
  * moves with his 9.5 cleanup, C51), 18.f::V5 and 19.a::V5 (the control and long-clearance referents — capability M8,
  * after the capability synthesis's decisions D1, whether play stops at the progression target, and D3, where the two
  * targets sit), and 18.a::V6 (the origin's "no further value", his 9.9 — capability M6, ruling C55). Selection
- * is no longer where this goal stops; its context's knowledge is.
+ * is no longer where this goal stops; its context's knowledge is. (Three lines since C51 the same day: 11.a::J2
+ * cleared with the retired objective.)
  */
 {
     const GAP = "This goal's designated constraints cannot yet be combined into a game, so no activity can be built for it."
@@ -308,6 +309,10 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
      * whose D/M ids these are — its D1 is not the 15 October email's D1): 11.a::J2 — his 9.5 cleanup (C51); 18.f::V5 and
      * 19.a::V5 — capability M8 after decisions D1/D3; 18.a::V6 — capability M6 and
      * ruling C55 (his 9.9). The remaining work for this goal is its context's knowledge, not a constraint.
+     *
+     * **4 -> 3 lines on 15 October 2026 (C51), measured.** 11.a::J2 cleared as predicted: his 9.5 retired the
+     * context's separate scoring objective — *"Approved, provided the live attacking objective remains represented"* —
+     * and each team keeps its own live objective (the proviso is pinned in derivation-stage11.unit.ts).
      */
     {
         for (const keepers of [2, 0]) {
@@ -316,7 +321,7 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
             assert.deepEqual(reached.reasons, [
                 'Gate A is FAIL',
                 'a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE',
-                '4 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-001:RPC-001-11.a::J2, c:restated:RPC-001:RPC-001-18.f::V5, c:restated:RPC-001:RPC-001-19.a::V5, c:restated:RPC-001:RPC-001-18.a::V6',
+                '3 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-001:RPC-001-18.f::V5, c:restated:RPC-001:RPC-001-19.a::V5, c:restated:RPC-001:RPC-001-18.a::V6',
             ])
             assert.deepEqual(reached.account.constraints, [], 'no library constraint was selected')
             assert.equal(reached.account.constraintSource?.constraintPrinciple?.ruledOn, '2026-10-15', 'committed under his general principle')

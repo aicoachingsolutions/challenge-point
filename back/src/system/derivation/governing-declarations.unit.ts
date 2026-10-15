@@ -117,8 +117,11 @@ const moves = (r: Run) =>
 
 test('corpus-wide, exactly five lines move, each as the design analysis predicted', () => {
     // 30 lines are decided from declarations (derivation-stage10 pins the count, unchanged by this rule).
+    // 30 -> 29 on 15 October 2026 (C51): RPC-001-11.a::J2 was one of them ('excluded' corpus-wide). His reply of that
+    // day (9.5, "Retire the redundant separate scoring objective: Approved, provided the live attacking objective
+    // remains represented") retired the objective it belonged to, so the line no longer exists. It never moved here.
     const corpus = run('corpus')
-    assert.equal(corpus.reasons.size, 30)
+    assert.equal(corpus.reasons.size, 29)
     assert.deepEqual(moves(corpus), [
         // An exclusion scoped to Wide Zone's OWN involvement had been relabelling regions it never addressed.
         'c:blind:GF4:I03::S4: excluded -> not constrained',
@@ -138,7 +141,7 @@ test('no blocking line becomes non-blocking, in the corpus or in any composition
     }
 })
 
-test('Gate A check verdicts are unchanged everywhere; RPC-001-11.a::J2 joins the GF2 + RPC-001 blockers', () => {
+test('Gate A check verdicts are unchanged everywhere; the blockers the rule exposed are pinned (RPC-001-11.a::J2 was one, until C51 retired it)', () => {
     const expected: Record<string, string> = {
         corpus: 'FAIL',
         GF2: 'DEFERRED_TO_REALIZATION',
@@ -162,12 +165,13 @@ test('Gate A check verdicts are unchanged everywhere; RPC-001-11.a::J2 joins the
         const added = blockers(now).filter(id => !blockers(before).includes(id))
         const removed = blockers(before).filter(id => !blockers(now).includes(id))
         assert.deepEqual(removed, [], `${name}: no blocker is lost`)
-        // The context's objective claims its own target and nothing resolves it. GF2's non-claim on REPRESENTATIVE
+        // The context's objective claimed its own target and nothing resolved it. GF2's non-claim on REPRESENTATIVE
         // objectives — whose selector is FALSE for a PRIMARY_SCORING one — had been hiding that claim.
-        const gains =
-            name.startsWith('GF2 + RPC-001') ? ['c:restated:RPC-001:RPC-001-11.a::J2']
-            : name === 'GF2 + Variable Target' ? ['c:restated:VARIABLE-TARGET-CONDITION:VARTARGET-13.a::V20']
-            : []
+        // **Re-pointed 15 October 2026 (C51).** That gain, RPC-001-11.a::J2 in both GF2 + RPC-001 compositions, is
+        // gone with the line: his 9.5 retired the context's separate objective ("Approved, provided the live attacking
+        // objective remains represented"; the proviso is measured in derivation-stage11.unit.ts). The rule exposed a
+        // real blocker; the knowledge then removed the redundant objective that carried it.
+        const gains = name === 'GF2 + Variable Target' ? ['c:restated:VARIABLE-TARGET-CONDITION:VARTARGET-13.a::V20'] : []
         assert.deepEqual(added, gains, `${name}: blockers gained`)
     }
 })

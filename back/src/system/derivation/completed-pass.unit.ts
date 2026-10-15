@@ -231,9 +231,17 @@ test('registering the member changed no verdict in any of the thirteen goals', (
      * else: 13 failed lines (one fewer than its vocabulary composition, which carried constraints of its own), Gate A
      * FAIL, reachable. The composition row above is kept on its named objects.
      */
-    const A01_COMPOSITION = { failed: 14, gateA: 'FAIL', reachable: true }
+    /**
+     * **10 · 15 October, later still — A01 13 → 12 and its old composition 14 → 13, measured; no verdict moves.** His
+     * reply of that day (16 October, item 9 point 5) retired the context's separate scoring objective: *"Retire the
+     * redundant separate scoring objective: Approved, provided the live attacking objective remains represented"*
+     * (ruling C51). That objective's target reference, RPC-001-11.a::J2, was a failed line nothing resolved; with the
+     * objective gone so is the line. Each team keeps its own live objective (GF2-08.c, GF2-08.e), pinned in
+     * derivation-stage11.unit.ts.
+     */
+    const A01_COMPOSITION = { failed: 13, gateA: 'FAIL', reachable: true }
     const expected: Record<string, { failed: number; gateA: string; reachable: boolean }> = {
-        A01: { failed: 13, gateA: 'FAIL', reachable: true },
+        A01: { failed: 12, gateA: 'FAIL', reachable: true },
         D01: { failed: 8, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
         TA01: { failed: 15, gateA: 'FAIL', reachable: false },
         TD01: { failed: 14, gateA: 'FAIL', reachable: false },

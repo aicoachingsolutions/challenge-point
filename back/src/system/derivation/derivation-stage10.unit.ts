@@ -844,8 +844,17 @@ test('SD-102: direction is established per team, and the source ambiguity is pre
      * A04's own selection is where the verdict means something, and there it DEFERS and is then
      * validated by the post-realization gates against the realized geometry — which the pilot run
      * exercises end to end.
+     *
+     * **NOT_EVALUABLE -> DEFERRED_TO_REALIZATION on 15 October 2026 (ruling C51), measured.** The objective "with
+     * no position here at all" was the build-out context's own (RPC-001), RPC-001-11.a (BUILD_OUT_TEAM), whose
+     * target reference nothing resolved. His reply received that day retired it (16 October, item 9 point 5:
+     * "Retire the redundant separate scoring objective: Approved, provided the live attacking objective remains
+     * represented"). What is left in the corpus-wide load is the two per-team objectives of the directional
+     * arrangement, each referencing a target that only realization positions — so the ends clause defers, as it
+     * does in a single game. No objective was added and no clause was loosened: the one that could not be
+     * evaluated is gone.
      */
-    assert.equal(direction.verdict, 'NOT_EVALUABLE', 'the corpus-wide load is not one arrangement, so the ends clause has none to compare')
+    assert.equal(direction.verdict, 'DEFERRED_TO_REALIZATION', 'the only objective whose target nothing positioned (RPC-001-11.a) is retired (C51); the two per-team targets are positioned by realization')
 
     // The two per-team objectives carry their teams from their own selectors — no J3 item authors them.
     for (const [line, team] of [
@@ -952,7 +961,13 @@ test('the corpus run reproduces the reported figures exactly', () => {
      * change of side takes effect), on his ruling that day — *"Please add the explicit property governing when a
      * neutral player changes allegiance"*. One game-level row, one line; C43 (NEUTRAL-14.c = IMMEDIATE) resolves it.
      */
-    assert.equal(result.run.counts.lines, 139)
+    /**
+     * **136 since ruling C51 of 15 October 2026**: his 9.5 retired the build-out context's (RPC-001) separate scoring
+     * objective — *"Retire the redundant separate scoring objective: Approved, provided the live attacking objective
+     * remains represented"* — and it takes its three J-family lines with it (J2, its unresolved target reference; J3
+     * and J4, entailed). The twelve engine-only items retired with it reached no line (SD-21), so nothing else moves.
+     */
+    assert.equal(result.run.counts.lines, 136)
     /**
      * **61, up from 59.** The same restatement establishes `perceptual-reference` on BOTH channels rather
      * than on a third region of its own, so two S4 lines now resolve where none did. The functions rows
@@ -975,7 +990,8 @@ test('the corpus run reproduces the reported figures exactly', () => {
     // provenance"* — so the gate condition's place, which PCG-06 entailed, no longer resolves: the line is now a
     // declared gap (the possession game's general V5 NOT_AUTHORED reaches it), pending his OD1 decision.
     // **72 since 14 October 2026.** The new P6c line (above) is entailed by C43, his allegiance ruling of that day.
-    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 72)
+    // **70 since ruling C51 of 15 October 2026.** The retired separate objective's J3 and J4 lines were entailed.
+    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 70)
     // **NOT_AUTHORED fell 54 → 26 across the 29 September rulings, and only five of those twenty-eight
     // were closed by authoring anything.**
     //   −9  T1a/T1b/T1c demanded of three POSSESSION_CHANGE transitions. A turnover has no last touch
@@ -1005,9 +1021,11 @@ test('the corpus run reproduces the reported figures exactly', () => {
     // which is an absence of knowledge rather than an authored exclusion and is reported as such.
     // **30 since ruling C45 of 14 October 2026.** The gate condition's place lost its only entailing item
     // (PCG-06, removed by his answer) and is now a declared gap — the one line that moved out of the count above.
-    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 30)
+    // **29 since ruling C51 of 15 October 2026.** The retired separate objective's target reference
+    // (RPC-001-11.a::J2, 'excluded' on this mixed load) goes with it.
+    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 29)
     assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 0, 'cluster 3 cleared the whole population')
-    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 30, 'one GAP per unauthored line, and none for a withdrawn one -- 30 since ruling C45, tracking the NOT_AUTHORED count above')
+    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 29, 'one GAP per unauthored line, and none for a withdrawn one -- 29 since ruling C51, tracking the NOT_AUTHORED count above')
     // 17 since C33: the removed third region took its one open S5 line (a channel along-extent) with it.
     // **18 since ruling C42.** The two new target regions each bring an open across-extent and an open noun,
     // and the retired shared target took its two with it, so the balance is one more than before.

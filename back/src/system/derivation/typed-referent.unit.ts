@@ -363,7 +363,11 @@ test('the corpus-wide Gate A, check by check', () => {
         // timing is IMMEDIATE (C43) and the possession relation is a gap ('no coverage' with the gate's knowledge
         // around it), so whether an immediate switch has a change of possession to follow is not yet decidable.
         'GA-AFFILIATION': 'NOT_EVALUABLE',
-        'GA-DIRECTION': 'NOT_EVALUABLE',
+        // NOT_EVALUABLE -> DEFERRED_TO_REALIZATION on 15 October 2026 (C51, his 9.5: "Retire the redundant separate
+        // scoring objective: Approved, provided the live attacking objective remains represented"). The context's
+        // separate objective, whose target nothing resolved (RPC-001-11.a::J2), was what made the ends clause
+        // unevaluable; the two per-team targets left are positioned only by realization. derivation-stage10 pins why.
+        'GA-DIRECTION': 'DEFERRED_TO_REALIZATION',
         'GA-EFFECT-TYPED': 'PASS',
         'GA-ENVELOPE-FIT': 'DEFERRED_TO_REALIZATION',
         'GA-INFORMATION': 'FAIL',

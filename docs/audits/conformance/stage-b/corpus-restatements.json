@@ -563,6 +563,99 @@
         "fitNote": "MARKED 14 October 2026 as he directed. Christian that day: \"Contrasting bibs should be treated as a practical recommendation for distinguishing neutrals, not a universal requirement, provided the players can readily identify their roles.\" So the authored means is an item the rule could stand without (strictness SUPPORTING), and its value stays a preferred default (valueStatus PREFERRED_DEFAULT). NEUTRAL-06.a, that the neutrals are made visibly distinct from both teams (REQUIRED EXISTS), is untouched: it is his \"provided the players can readily identify their roles\". This resolves the ledger's KNOWLEDGE item \"Status of the bibs is a reading\". The original fitNote read: \"The authored means. Strictness and status kept from the original pair; the text is imperative, so PREFERRED_DEFAULT is a reading (KNOWLEDGE, ledger).\""
       },
       "why": "his ruling of 2026-10-14: contrasting bibs are a practical recommendation, not a universal requirement."
+    },
+    {
+      "item": "restated:RPC-001::RPC-001-04.a",
+      "ruling": "C51",
+      "remove": true,
+      "why": "Retired from the ACTIVE context knowledge (C51, cleanup), the original kept verbatim in contracts.json with its evidence. Basis checked 15 October 2026: ENGINE_ONLY - the defending team placed at a start (P8 EXISTS), resting only on the COACH_RULES setup sentences \"... beyond the first defenders.\" (sport-module/primary-scoring.ts:170-185), which appears in no RPC-001 workbook text (the restatement's own ledger L-08). His words, reply of 15 October 2026, item 8: \"I support retiring obsolete engine-authored wording while preserving its provenance.\" - \"Cleanup that removes redundant or superseded implementation language.\" - \"The first can proceed as proposed.\" And his reply received 15 October 2026 (his 16 October reply): \"Please preserve provenance for the retired engine-authored wording and identify any additional semantic changes before making them authoritative.\" It is implementation language, not his knowledge: under SD-21 an ENGINE_ONLY item supports nothing, so retiring it moved no line, no gate check and no resolved game in the corpus or in any measured composition (measured that day, before this entry landed). A declaration that claimed a row on the strength of this item alone is restated beside it under the same ruling."
+    },
+    {
+      "item": "restated:RPC-001::RPC-001-04.b",
+      "ruling": "C51",
+      "remove": true,
+      "why": "Retired from the ACTIVE context knowledge (C51, cleanup), the original kept verbatim in contracts.json with its evidence. Basis checked 15 October 2026: ENGINE_ONLY - the defending team positioned \"beyond BUILD_OUT_TEAM's build-out start area\" (P10), resting only on the COACH_RULES setups \"beyond the first defenders\" (sport-module/primary-scoring.ts:170-185), which appears in no RPC-001 workbook text (the restatement's own ledger L-08). His words, reply of 15 October 2026, item 8: \"I support retiring obsolete engine-authored wording while preserving its provenance.\" - \"Cleanup that removes redundant or superseded implementation language.\" - \"The first can proceed as proposed.\" And his reply received 15 October 2026 (his 16 October reply): \"Please preserve provenance for the retired engine-authored wording and identify any additional semantic changes before making them authoritative.\" It is implementation language, not his knowledge: under SD-21 an ENGINE_ONLY item supports nothing, so retiring it moved no line, no gate check and no resolved game in the corpus or in any measured composition (measured that day, before this entry landed). A declaration that claimed a row on the strength of this item alone is restated beside it under the same ruling."
+    },
+    {
+      "item": "restated:RPC-001::RPC-001-04.c",
+      "ruling": "C51",
+      "remove": true,
+      "why": "Retired from the ACTIVE context knowledge (C51, cleanup), the original kept verbatim in contracts.json with its evidence. Basis checked 15 October 2026: ENGINE_ONLY - an identifiable forward-most defensive line, \"the first defenders\" (P8, outside the boundary), resting only on the COACH_RULES setups (sport-module/primary-scoring.ts:170-185), which appears in no RPC-001 workbook text (the restatement's own ledger L-08). His words, reply of 15 October 2026, item 8: \"I support retiring obsolete engine-authored wording while preserving its provenance.\" - \"Cleanup that removes redundant or superseded implementation language.\" - \"The first can proceed as proposed.\" And his reply received 15 October 2026 (his 16 October reply): \"Please preserve provenance for the retired engine-authored wording and identify any additional semantic changes before making them authoritative.\" It is implementation language, not his knowledge: under SD-21 an ENGINE_ONLY item supports nothing, so retiring it moved no line, no gate check and no resolved game in the corpus or in any measured composition (measured that day, before this entry landed). A declaration that claimed a row on the strength of this item alone is restated beside it under the same ruling."
+    },
+    {
+      "item": "restated:RPC-001::RPC-001-05.a",
+      "ruling": "C51",
+      "remove": true,
+      "why": "Retired from the ACTIVE context knowledge (C51, cleanup), the original kept verbatim in contracts.json with its evidence. Basis checked 15 October 2026: ENGINE_ONLY - a target player positioned \"beyond the first defenders\" (P10), resting only on the COACH_RULES sentence \"Place a target player beyond the first defenders.\" (sport-module/primary-scoring.ts:185), which appears in no RPC-001 workbook text (the restatement's own ledger L-08). His words, reply of 15 October 2026, item 8: \"I support retiring obsolete engine-authored wording while preserving its provenance.\" - \"Cleanup that removes redundant or superseded implementation language.\" - \"The first can proceed as proposed.\" And his reply received 15 October 2026 (his 16 October reply): \"Please preserve provenance for the retired engine-authored wording and identify any additional semantic changes before making them authoritative.\" It is implementation language, not his knowledge: under SD-21 an ENGINE_ONLY item supports nothing, so retiring it moved no line, no gate check and no resolved game in the corpus or in any measured composition (measured that day, before this entry landed). A declaration that claimed a row on the strength of this item alone is restated beside it under the same ruling."
+    },
+    {
+      "item": "restated:RPC-001::RPC-001-05.b",
+      "ruling": "C51",
+      "remove": true,
+      "why": "Retired from the ACTIVE context knowledge (C51, cleanup), the original kept verbatim in contracts.json with its evidence. Basis checked 15 October 2026: ENGINE_ONLY - one target player as a role (P4), resting only on the COACH_RULES sentence \"Place a target player beyond the first defenders.\" (sport-module/primary-scoring.ts:185), which appears in no RPC-001 workbook text (the restatement's own ledger L-08). His words, reply of 15 October 2026, item 8: \"I support retiring obsolete engine-authored wording while preserving its provenance.\" - \"Cleanup that removes redundant or superseded implementation language.\" - \"The first can proceed as proposed.\" And his reply received 15 October 2026 (his 16 October reply): \"Please preserve provenance for the retired engine-authored wording and identify any additional semantic changes before making them authoritative.\" It is implementation language, not his knowledge: under SD-21 an ENGINE_ONLY item supports nothing, so retiring it moved no line, no gate check and no resolved game in the corpus or in any measured composition (measured that day, before this entry landed). A declaration that claimed a row on the strength of this item alone is restated beside it under the same ruling."
+    },
+    {
+      "item": "restated:RPC-001::RPC-001-06",
+      "ruling": "C51",
+      "remove": true,
+      "why": "Retired from the ACTIVE context knowledge (C51, cleanup), the original kept verbatim in contracts.json with its evidence. Basis checked 15 October 2026: ENGINE_ONLY - the build-out team's own half as a view (SV1), resting only on the BUILD_OUT_START sentence \"Start each attack from your goalkeeper or a restart in your own half.\" (sport-module/primary-scoring.ts:145), which appears in no RPC-001 workbook text (the restatement's own ledger L-08). His words, reply of 15 October 2026, item 8: \"I support retiring obsolete engine-authored wording while preserving its provenance.\" - \"Cleanup that removes redundant or superseded implementation language.\" - \"The first can proceed as proposed.\" And his reply received 15 October 2026 (his 16 October reply): \"Please preserve provenance for the retired engine-authored wording and identify any additional semantic changes before making them authoritative.\" It is implementation language, not his knowledge: under SD-21 an ENGINE_ONLY item supports nothing, so retiring it moved no line, no gate check and no resolved game in the corpus or in any measured composition (measured that day, before this entry landed). A declaration that claimed a row on the strength of this item alone is restated beside it under the same ruling."
+    },
+    {
+      "item": "restated:RPC-001::RPC-001-09.a",
+      "ruling": "C51",
+      "remove": true,
+      "why": "Retired from the ACTIVE context knowledge (C51, cleanup), the original kept verbatim in contracts.json with its evidence. Basis checked 15 October 2026: ENGINE_ONLY - a line or gate positioned \"beyond BUILD_OUT_TEAM's own-half start area and beyond the first defenders\" (O4), resting only on the COACH_RULES setups \"Mark a line across the pitch beyond the first defenders.\" / \"Set out gates of two cones beyond the first defenders.\" (sport-module/primary-scoring.ts:170,180), which appears in no RPC-001 workbook text (the restatement's own ledger L-08). His words, reply of 15 October 2026, item 8: \"I support retiring obsolete engine-authored wording while preserving its provenance.\" - \"Cleanup that removes redundant or superseded implementation language.\" - \"The first can proceed as proposed.\" And his reply received 15 October 2026 (his 16 October reply): \"Please preserve provenance for the retired engine-authored wording and identify any additional semantic changes before making them authoritative.\" It is implementation language, not his knowledge: under SD-21 an ENGINE_ONLY item supports nothing, so retiring it moved no line, no gate check and no resolved game in the corpus or in any measured composition (measured that day, before this entry landed). A declaration that claimed a row on the strength of this item alone is restated beside it under the same ruling."
+    },
+    {
+      "item": "restated:RPC-001::RPC-001-09.b",
+      "ruling": "C51",
+      "remove": true,
+      "why": "Retired from the ACTIVE context knowledge (C51, cleanup), the original kept verbatim in contracts.json with its evidence. Basis checked 15 October 2026: ENGINE_ONLY - a zone positioned \"beyond BUILD_OUT_TEAM's own-half start area and beyond the first defenders\" (S5), resting only on the COACH_RULES setup \"Mark a target zone beyond the first defenders.\" (sport-module/primary-scoring.ts:175), which appears in no RPC-001 workbook text (the restatement's own ledger L-08). His words, reply of 15 October 2026, item 8: \"I support retiring obsolete engine-authored wording while preserving its provenance.\" - \"Cleanup that removes redundant or superseded implementation language.\" - \"The first can proceed as proposed.\" And his reply received 15 October 2026 (his 16 October reply): \"Please preserve provenance for the retired engine-authored wording and identify any additional semantic changes before making them authoritative.\" It is implementation language, not his knowledge: under SD-21 an ENGINE_ONLY item supports nothing, so retiring it moved no line, no gate check and no resolved game in the corpus or in any measured composition (measured that day, before this entry landed). A declaration that claimed a row on the strength of this item alone is restated beside it under the same ruling."
+    },
+    {
+      "item": "restated:RPC-001::RPC-001-16.a",
+      "ruling": "C51",
+      "remove": true,
+      "why": "Retired from the ACTIVE context knowledge (C51, cleanup), the original kept verbatim in contracts.json with its evidence. Basis checked 15 October 2026: ENGINE_ONLY - the restart placed \"inside the own half of the team T2 names\" after a score, a ball out or a turnover (T4), resting only on BUILD_OUT_START (sport-module/primary-scoring.ts:145), which appears in no RPC-001 workbook text (the restatement's own ledger L-08). His words, reply of 15 October 2026, item 8: \"I support retiring obsolete engine-authored wording while preserving its provenance.\" - \"Cleanup that removes redundant or superseded implementation language.\" - \"The first can proceed as proposed.\" And his reply received 15 October 2026 (his 16 October reply): \"Please preserve provenance for the retired engine-authored wording and identify any additional semantic changes before making them authoritative.\" It is implementation language, not his knowledge: under SD-21 an ENGINE_ONLY item supports nothing, so retiring it moved no line, no gate check and no resolved game in the corpus or in any measured composition (measured that day, before this entry landed). A declaration that claimed a row on the strength of this item alone is restated beside it under the same ruling."
+    },
+    {
+      "item": "restated:RPC-001::RPC-001-16.b",
+      "ruling": "C51",
+      "remove": true,
+      "why": "Retired from the ACTIVE context knowledge (C51, cleanup), the original kept verbatim in contracts.json with its evidence. Basis checked 15 October 2026: ENGINE_ONLY - the restart taken by the goalkeeper or a player of the team T2 names after a score, a ball out or a turnover (T3), resting only on BUILD_OUT_START (sport-module/primary-scoring.ts:145), which appears in no RPC-001 workbook text (the restatement's own ledger L-08). His words, reply of 15 October 2026, item 8: \"I support retiring obsolete engine-authored wording while preserving its provenance.\" - \"Cleanup that removes redundant or superseded implementation language.\" - \"The first can proceed as proposed.\" And his reply received 15 October 2026 (his 16 October reply): \"Please preserve provenance for the retired engine-authored wording and identify any additional semantic changes before making them authoritative.\" It is implementation language, not his knowledge: under SD-21 an ENGINE_ONLY item supports nothing, so retiring it moved no line, no gate check and no resolved game in the corpus or in any measured composition (measured that day, before this entry landed). A declaration that claimed a row on the strength of this item alone is restated beside it under the same ruling."
+    },
+    {
+      "item": "restated:RPC-001::RPC-001-16.c",
+      "ruling": "C51",
+      "remove": true,
+      "why": "Retired from the ACTIVE context knowledge (C51, cleanup), the original kept verbatim in contracts.json with its evidence. Basis checked 15 October 2026: ENGINE_ONLY - play STOPPING (T6 STOP_RESUME) after a score, a ball out or a TURNOVER in a build-out episode - the rule his 16 October item 2 refuses (\"I don't want the activity to become ... a sequence that stops automatically whenever possession changes\"); GF2-17 entails CONTINUE on the turnover, which this item never outranked, resting only on BUILD_OUT_START (sport-module/primary-scoring.ts:145), which appears in no RPC-001 workbook text (the restatement's own ledger L-08). His words, reply of 15 October 2026, item 8: \"I support retiring obsolete engine-authored wording while preserving its provenance.\" - \"Cleanup that removes redundant or superseded implementation language.\" - \"The first can proceed as proposed.\" And his reply received 15 October 2026 (his 16 October reply): \"Please preserve provenance for the retired engine-authored wording and identify any additional semantic changes before making them authoritative.\" It is implementation language, not his knowledge: under SD-21 an ENGINE_ONLY item supports nothing, so retiring it moved no line, no gate check and no resolved game in the corpus or in any measured composition (measured that day, before this entry landed). A declaration that claimed a row on the strength of this item alone is restated beside it under the same ruling."
+    },
+    {
+      "item": "restated:RPC-001::RPC-001-20",
+      "ruling": "C51",
+      "remove": true,
+      "why": "Retired from the ACTIVE context knowledge (C51, cleanup), the original kept verbatim in contracts.json with its evidence. Basis checked 15 October 2026: ENGINE_ONLY - a point value of 1 (V2), resting only on the COACH_RULES sentence \"Earn a point when a player dribbles over the line, or receives the ball past it and controls it.\" (sport-module/primary-scoring.ts:169), which appears in no RPC-001 workbook text (the restatement's own ledger L-08). His words, reply of 15 October 2026, item 8: \"I support retiring obsolete engine-authored wording while preserving its provenance.\" - \"Cleanup that removes redundant or superseded implementation language.\" - \"The first can proceed as proposed.\" And his reply received 15 October 2026 (his 16 October reply): \"Please preserve provenance for the retired engine-authored wording and identify any additional semantic changes before making them authoritative.\" It is implementation language, not his knowledge: under SD-21 an ENGINE_ONLY item supports nothing, so retiring it moved no line, no gate check and no resolved game in the corpus or in any measured composition (measured that day, before this entry landed). A declaration that claimed a row on the strength of this item alone is restated beside it under the same ruling."
+    },
+    {
+      "item": "restated:RPC-001::RPC-001-11.a",
+      "ruling": "C51",
+      "remove": true,
+      "why": "Retired from the ACTIVE context knowledge (C51), the original kept verbatim in contracts.json with its OWNER_RULING basis (KR-02, KR-03). Not engine wording: this is a change to the context's functional meaning, identified to him as change 5 and approved. His words, reply received 15 October 2026 (his 16 October reply, item 9 point 5): \"Retire the redundant separate scoring objective: Approved, provided the live attacking objective remains represented.\" - our 15 October email, change 5, as he approved it: \"The context's separate scoring objective is retired. It required the team building out to have a scoring objective; the game already gives each team one, so nothing is lost. The part that says this objective is live during the build-out is kept.\" MEANING PRESERVED, measured 15 October 2026 in GF2 + RPC-001 (and with A01-02) before and after: the resolved game held THREE primary-scoring objectives - GF2-08.c (TEAM_AT_AXIS_START, referencing its target GF2-03.f), GF2-08.e (TEAM_AT_AXIS_END, referencing GF2-03.e) and this one (BUILD_OUT_TEAM, whose target reference nothing resolved: the blocking line RPC-001-11.a::J2). After: exactly the two of the directional arrangement (C42), each team attacking its own target, so whichever team builds out has its live attacking objective, GF2-08.c for the team at the axis start; and RPC-001-11.b - \"can yield a live PRIMARY_SCORING member for BUILD_OUT_TEAM within the build-out episode\" - is KEPT, as change 5 said. The 11.a::J2 blocker clears; nothing else moves."
+    },
+    {
+      "item": "restated:RPC-001::RPC-001-08.c",
+      "ruling": "C51",
+      "remove": true,
+      "why": "Retired WITH RPC-001-11.a (C51), the original kept verbatim in contracts.json. Its basis is AUTHORED (the controlled vocabulary's scoring-event definitions), so retiring it is FUNCTIONAL, not cleanup: it is the separate objective's target reference (J2, selector role=PRIMARY_SCORING & team=BUILD_OUT_TEAM), and with that objective gone it would address no element. The authored meaning it carried - the build-out team's objective references a scoring reference - is held by GF2-08.c and GF2-08.e, which reference each team's target. His words, reply received 15 October 2026 (his 16 October reply, item 9 point 5): \"Retire the redundant separate scoring objective: Approved, provided the live attacking objective remains represented.\" - our 15 October email, change 5, as he approved it: \"The context's separate scoring objective is retired. It required the team building out to have a scoring objective; the game already gives each team one, so nothing is lost. The part that says this objective is live during the build-out is kept.\" MEANING PRESERVED, measured 15 October 2026 in GF2 + RPC-001 (and with A01-02) before and after: the resolved game held THREE primary-scoring objectives - GF2-08.c (TEAM_AT_AXIS_START, referencing its target GF2-03.f), GF2-08.e (TEAM_AT_AXIS_END, referencing GF2-03.e) and this one (BUILD_OUT_TEAM, whose target reference nothing resolved: the blocking line RPC-001-11.a::J2). After: exactly the two of the directional arrangement (C42), each team attacking its own target, so whichever team builds out has its live attacking objective, GF2-08.c for the team at the axis start; and RPC-001-11.b - \"can yield a live PRIMARY_SCORING member for BUILD_OUT_TEAM within the build-out episode\" - is KEPT, as change 5 said. The 11.a::J2 blocker clears; nothing else moves."
+    },
+    {
+      "item": "restated:RPC-001::RPC-001-13",
+      "ruling": "C51",
+      "set": {
+        "value": "BUILD_OUT_TEAM attacks toward its PRIMARY_SCORING reference and defends the opposite",
+        "fitNote": "RESTATED 15 October 2026 (C51): the engine wording \"away from its own-half start area\" is removed from the statement of direction; nothing replaces it. The original value read \"BUILD_OUT_TEAM attacks away from its own-half start area toward its PRIMARY_SCORING reference and defends the opposite\", and stays verbatim in contracts.json. The original fitNote, kept: \"The original says 'each team', but RPC-001 authors only the building team's side (its notAuthored 6); the other side is SD-07's. The orientation is a reading of 'direction intact'.\""
+      },
+      "why": "His words, reply received 15 October 2026 (his 16 October reply, item 9 point 10): \"Remove unsupported \"own-half start area\" wording: Approved.\" - our 15 October email, change 10: \"The engine wording \"own-half start area\" is removed from the context's statement of direction.\" \"Own half\" appears in no RPC-001 workbook text (ledger L-06, L-08); the direction is still fixed by the team's own scoring reference, which is what RPC-VAL-004 (\"direction ... must remain intact\") asks. Value and fitNote only; requirement, strictness, scope, basis and its evidence are unchanged. The structural clause still names \"the opposing first defenders\" as an outside-the-boundary reading: that is not the wording he approved removing, so it is left as authored and reported rather than changed here."
     }
   ],
   "added": [
@@ -1119,6 +1212,78 @@
       "defersTo": "ESTABLISHING_OBJECT",
       "ruling": "C50",
       "why": "OPTION A, the fourth of the four statements his reply received 15 October 2026 (his 16 October reply, item 8) approves: \"I approve your recommended Option A for the four identified statements.\" GF2's NOT_AUTHORED on V6 (our 17 September wording, \"any control requirement must come from elsewhere\") defers to the object establishing a condition where that object speaks explicitly about this row; where it is silent the gap governs and blocks as before - RPC-001-18.a::V6 stays a declared gap, because nothing RPC-001 declares reaches its origin condition (his 9.9 'origin needs no further value' needs its own declaration, C55, not part of this ruling). \"This is not permission for the engine to fill missing values through inference.\" Full reasoning on the V3 entry (C50)."
+    },
+    {
+      "contractId": "restated:RPC-001",
+      "row": "SV1",
+      "from": "CLAIMED",
+      "to": "NON_CLAIMED",
+      "ruling": "C51",
+      "why": "RPC-001's SV1 (\"RPC-001-06 (engine-only).\") claim rested only on items C51 retires; a claim whose items are retired would assert what nobody now authors (the C45 precedent). The original declaration stays in contracts.json; selector, scope and note are unchanged. NON_CLAIMED, as C45 restated the gate's SV1: with \"own half\" retired (his 9.10, \"Approved\") nothing in the context needs the half."
+    },
+    {
+      "contractId": "restated:RPC-001",
+      "row": "P4",
+      "from": "CLAIMED",
+      "to": "NON_CLAIMED",
+      "ruling": "C51",
+      "why": "RPC-001's P4 (\"05.b (engine-only). DNC: target players are 'permitted..., never required' as a standing requirement.\") claim rested only on items C51 retires; a claim whose items are retired would assert what nobody now authors (the C45 precedent). The original declaration stays in contracts.json; selector, scope and note are unchanged. NON_CLAIMED: the declaration's own note already says a target player is \"permitted ..., never required\"."
+    },
+    {
+      "contractId": "restated:RPC-001",
+      "row": "P8",
+      "from": "CLAIMED",
+      "to": "NOT_AUTHORED",
+      "ruling": "C51",
+      "why": "RPC-001's P8 (\"04.a, 04.c (engine-only).\") claim rested only on items C51 retires; a claim whose items are retired would assert what nobody now authors (the C45 precedent). The original declaration stays in contracts.json; selector, scope and note are unchanged. NOT_AUTHORED - NOT YET AUTHORED, not explicitly unrestricted (his 16 October item 8: \"Please distinguish whether location is explicitly unrestricted or simply not yet authored\"): the defenders' starting arrangement is a genuine gap - his item 3, \"I agree that we need an explicit, valid starting arrangement\" and \"If the existing knowledge cannot authorize a particular starting arrangement or incentive, please identify the missing relationship rather than infer it.\" MEASURED 15 October 2026: no line exists on P8, P9 or P10 in any composition, before or after, under any declaration kind (a declaration governs only a line something creates), so this declaration does NOT make the gap visible; the authorization record and its refusal stage carry it."
+    },
+    {
+      "contractId": "restated:RPC-001",
+      "row": "P10",
+      "from": "CLAIMED",
+      "to": "NOT_AUTHORED",
+      "ruling": "C51",
+      "why": "RPC-001's P10 (\"04.b, 05.a (engine-only).\") claim rested only on items C51 retires; a claim whose items are retired would assert what nobody now authors (the C45 precedent). The original declaration stays in contracts.json; selector, scope and note are unchanged. NOT_AUTHORED for the same reason as P8 (C51): the starting arrangement is not yet authored, and \"beyond the first defenders\" may not be revived. MEASURED: it creates no line and makes no gap visible."
+    },
+    {
+      "contractId": "restated:RPC-001",
+      "row": "S5",
+      "from": "CLAIMED",
+      "to": "NOT_AUTHORED",
+      "ruling": "C51",
+      "why": "RPC-001's S5 (\"RPC-001-09.b (engine-only).\") claim rested only on items C51 retires; a claim whose items are retired would assert what nobody now authors (the C45 precedent). The original declaration stays in contracts.json; selector, scope and note are unchanged. NOT_AUTHORED: where the target zone sits is not yet authored (his 16 October items 4 and 5 leave its placement open: \"I do not want to mandate midfield or prescribe a universal depth\"). The context's NON_CLAIMED and NOT_AUTHORED statements on the same selector are unchanged."
+    },
+    {
+      "contractId": "restated:RPC-001",
+      "row": "O4",
+      "from": "CLAIMED",
+      "to": "NOT_AUTHORED",
+      "ruling": "C51",
+      "why": "RPC-001's O4 (\"RPC-001-09.a (engine-only).\") claim rested only on items C51 retires; a claim whose items are retired would assert what nobody now authors (the C45 precedent). The original declaration stays in contracts.json; selector, scope and note are unchanged. NOT_AUTHORED: where a line or gate target sits is not yet authored, as on S5. The context's NON_CLAIMED and NOT_AUTHORED statements on the same selector are unchanged."
+    },
+    {
+      "contractId": "restated:RPC-001",
+      "row": "J2",
+      "from": "CLAIMED",
+      "to": "UNDECLARED",
+      "ruling": "C51",
+      "why": "RPC-001's J2 (\"RPC-001-08.c.\") claim rested only on items C51 retires; a claim whose items are retired would assert what nobody now authors (the C45 precedent). The original declaration stays in contracts.json; selector, scope and note are unchanged. UNDECLARED: with the separate objective retired (his 9.5) the context has no item on this row, and says nothing either way - the target references are GF2's (GF2-08.c, GF2-08.e). Neither \"explicitly unrestricted\" nor a gap."
+    },
+    {
+      "contractId": "restated:RPC-001",
+      "row": "V2",
+      "from": "CLAIMED",
+      "to": "NON_CLAIMED",
+      "ruling": "C51",
+      "why": "RPC-001's V2 (\"RPC-001-20 (engine-only).\") claim rested only on items C51 retires; a claim whose items are retired would assert what nobody now authors (the C45 precedent). The original declaration stays in contracts.json; selector, scope and note are unchanged. NON_CLAIMED: RPC-001 authors no point value (only the COACH_RULES sentence gave one), and the value line still resolves by SD-25 (measured)."
+    },
+    {
+      "contractId": "restated:RPC-001",
+      "row": "T4",
+      "from": "CLAIMED",
+      "to": "NOT_AUTHORED",
+      "ruling": "C51",
+      "why": "RPC-001's T4 (\"16.a (engine-only).\") claim rested only on items C51 retires; a claim whose items are retired would assert what nobody now authors (the C45 precedent). The original declaration stays in contracts.json; selector, scope and note are unchanged. NOT_AUTHORED: where a restart is placed is not yet authored - \"own half\" is retired, and his 16 October item 6.ii leaves the location to \"an appropriate authorized restart location\" that no knowledge yet names. The context's NOT_AUTHORED on the same triggers is unchanged."
     }
   ],
   "declarationsAdded": [
