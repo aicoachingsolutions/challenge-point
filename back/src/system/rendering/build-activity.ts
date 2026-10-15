@@ -728,8 +728,8 @@ function build(
      * status is MISSING_KNOWLEDGE or MISSING_CAPABILITY is exactly such a gap, with the decisions and capabilities that
      * would close it; `neededRecordGaps` reads them, for whichever goal the record belongs to (no goal is named here).
      *
-     * **Why before derivation, not after `structure`.** The record speaks about the activity his rulings ask for (an
-     * asymmetric build-out against a press, with its targets, starts and restarts). Derivation can only check the game
+     * **Why before derivation, not after `structure`.** The record speaks about the activity his rulings ask for (for
+     * the first such goal, an asymmetric game with its roles, targets, starts and restarts). Derivation can only check the game
      * the knowledge holds today, and a game that passed every structural check would still be the "technically valid"
      * game that "solves a different problem". So the record's gaps come first, at `knowledge` beside the other
      * knowledge refusals (which they follow, so a game form or context that is not built at all still says that first).
