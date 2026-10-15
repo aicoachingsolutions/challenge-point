@@ -12,8 +12,11 @@
  * Run: part of `npm test`.
  */
 import assert from 'node:assert/strict'
+import fs from 'node:fs'
+import path from 'node:path'
 
 import { loadCorpusContracts } from '../derivation/corpus'
+import { AUDITS_DIR } from '../derivation/knowledge-root'
 import rpcLibraryJson from '../sport-module/rpc-library.rc1.json'
 import { learningGoalSelectionHolds } from './learning-design-holds'
 import {
@@ -295,6 +298,23 @@ test('what existing knowledge already authorizes, every source resolving to the 
         }
     }
     assert.equal(checked, 19, 'every library id and contract item cited is checked')
+    /**
+     * **Added at the stage H3 review, 15 October 2026: the specification decisions too, and what the one about the
+     * session says.** The session entry cited SD-33, which exists — it is the engine's report-only rule — but says
+     * nothing about the coach's inputs reaching the game; an existence check alone would not have caught it. So every
+     * SD and KR id cited must be a decision the specification or the derivation rules define, and the session entry's
+     * decision must be the one about session-supplied values (SD-55: "Supplied values must survive").
+     */
+    const spec = fs.readFileSync(path.join(AUDITS_DIR, '..', 'design', 'game-representation-spec-2026-09-18.md'), 'utf8')
+    const rules = fs.readFileSync(path.join(AUDITS_DIR, 'conformance', 'derivation-rules-2026-09-18.md'), 'utf8')
+    const decisionRow = (id: string): string => spec.split('\n').find(line => line.startsWith(`| ${id} |`)) ?? ''
+    const decisions = known.flatMap(entry => entry.sources).flatMap(source => source.match(/\b(SD|KR)-\d+\b/g) ?? [])
+    assert.deepEqual(decisions, ['SD-06', 'SD-36', 'KR-03', 'SD-20', 'SD-55'])
+    for (const id of decisions) assert.ok(id.startsWith('SD') ? decisionRow(id) : rules.includes(`- **${id}.**`), `${id} is a decision the specification or the rules define`)
+    const session = known.find(entry => entry.what.startsWith("The coach's player count and playing area"))!
+    assert.ok(session.sources.includes('SD-55') && !session.sources.includes('SD-33'), JSON.stringify(session.sources))
+    assert.ok(decisionRow('SD-55').includes('Supplied values must survive') && decisionRow('SD-55').includes('session-supplied'))
+    assert.ok(decisionRow('SD-33').includes('The engine is report-only') && !decisionRow('SD-33').includes('session-supplied'), 'why SD-33 was the wrong source')
     // Equal numbers are named as what knowledge authorizes, and NOT as the allocation: that is D6.
     const equal = known.find(entry => entry.what.startsWith('Equal outfield numbers'))!
     assert.ok(equal.note!.includes('decision D6') && equal.note!.includes('not applied as a default'))

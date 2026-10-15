@@ -135,7 +135,7 @@
                 },
                 {
                     "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
-                    "what": "Pressure is bounded on both sides: the building team has stability enough to organize, and established coordinated high pressure never becomes the dominant identity.",
+                    "what": "Pressure is bounded on both sides: the building team has stability enough to organize, and established coordinated high pressure does not become the dominant identity without the context passing to RPC-002.",
                     "sources": ["RPC-PROP-002", "RPC-ID-001", "RPC-ID-005", "contract item RPC-001-21.b"],
                     "note": null
                 },
@@ -154,8 +154,8 @@
                 {
                     "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
                     "what": "The coach's player count and playing area reach the game unchanged, and a count that cannot be split is refused with a sentence.",
-                    "sources": ["SD-33", "his 16 October reply, item 7"],
-                    "note": null
+                    "sources": ["SD-55", "his 16 October reply, item 7"],
+                    "note": "SD-55: session-supplied values must survive into the resolved record. The refusal of a count that cannot be split is the engine's own roster check, measured. Until the stage H3 review (15 October 2026) this entry cited SD-33, the engine's report-only rule, which does not say either."
                 },
                 {
                     "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
