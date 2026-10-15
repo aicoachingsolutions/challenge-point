@@ -214,13 +214,40 @@ test('the declarations reaching a row travel with the line, because a reason cod
     const misreported = unestablished.filter(e => e.reason === 'coverage' && (e.declared.includes('NON_CLAIMED') || e.declared.includes('EXCLUDED')))
     assert.deepEqual(misreported, [], 'a statement outranks a silence, so no stronger declaration hides behind `coverage`')
 
-    // And each code still means exactly what the declarations say.
+    // And each code still means exactly what the declarations that DECIDED it say.
+    //
+    // **Re-pointed 15 October 2026 from `declared` to `governedBy`.** This asserted AM-23 over every declaration on
+    // the row, which was the precedence itself rather than a property of it: his answer 9 of 15 October (*"Specific
+    // knowledge governs where it explicitly defines or specializes a condition. General requirements remain
+    // applicable unless the specific knowledge explicitly supersedes them"*) decides a line over the establishing
+    // object's explicit statement plus the general requirements still in force, so five corpus lines are now
+    // decided over fewer declarations than reach their row. The invariant is unchanged in kind — each code means
+    // exactly what its deciding declarations say, in AM-23's order — and it is now asserted over the set that
+    // decided; `declared` stays the whole row, and every deciding kind must be one of them.
+    const am23 = (kinds: string[]) =>
+        kinds.includes('NOT_AUTHORED') ? 'declared gap'
+        : kinds.includes('EXCLUDED') ? 'excluded'
+        : kinds.includes('NON_CLAIMED') ? 'not constrained'
+        : kinds.includes('CLAIMED') ? 'claimed but unresolved'
+        : kinds.length ? 'coverage'
+        : 'no coverage'
     for (const entry of unestablished) {
-        if (entry.declared.includes('NOT_AUTHORED')) assert.equal(entry.reason, 'declared gap', entry.lineId)
-        else if (entry.declared.includes('EXCLUDED')) assert.equal(entry.reason, 'excluded', entry.lineId)
-        else if (entry.declared.includes('NON_CLAIMED')) assert.equal(entry.reason, 'not constrained', entry.lineId)
-        else if (!entry.declared.length) assert.equal(entry.reason, 'no coverage', entry.lineId)
+        const kinds = entry.governedBy.map(g => g.declaration)
+        assert.ok(kinds.every(k => entry.declared.includes(k)), `${entry.lineId}: what decided is part of what the row declared`)
+        assert.equal(entry.reason, am23(kinds), entry.lineId)
     }
+
+    // Read over the whole row instead, exactly five lines would carry another code — the five his rule moved
+    // (measured 15 October 2026; governing-declarations.unit.ts pins each move). More lines than these decide over
+    // a narrower set, but for the rest the narrowing drops only declarations that would not have changed the code.
+    const moved = unestablished.filter(e => am23(e.declared) !== e.reason).map(e => e.lineId).sort()
+    assert.deepEqual(moved, [
+        'c:blind:GF4:I03::S4',
+        'c:blind:GF4:I17::V9',
+        'c:restated:GF2:GF2-03.e::S4',
+        'c:restated:GF2:GF2-03.f::S4',
+        'c:restated:VARIABLE-TARGET-CONDITION:VARTARGET-13.a::V20',
+    ])
 })
 
 test('provenance names the run it came from', () => {

@@ -113,7 +113,19 @@ export interface Declaration {
     scope?: unknown
     declaration: unknown
     note?: unknown
+    /** A ruled supersession, written only by a restatement (corpus-restatement.ts); see `DeclarationReach.defersTo`. */
+    defersTo?: unknown
 }
+
+/**
+ * The one supersession the data may name (15 October 2026, his answer 9): a general declaration that DEFERS to the
+ * object establishing an element, wherever that object speaks explicitly. Read from the declaration's `defersTo`,
+ * which only a ruled restatement writes (corpus-restatement.ts), and honoured in one place (classify.ts
+ * `governingDeclarations`) — never from a row or contract named in code. No declaration carries it on 15 October
+ * 2026: whether any statement in the knowledge is such a relationship is his decision. Here, beside the record
+ * it marks, so the restatement loader can name it without importing the classifier.
+ */
+export const DEFERS_TO_ESTABLISHING_OBJECT = 'ESTABLISHING_OBJECT'
 
 export interface LoadedContract {
     contractId: string

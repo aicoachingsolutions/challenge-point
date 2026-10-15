@@ -129,7 +129,7 @@ test('all three acceptance conditions hold on the realized game', () => {
 
 test('a line nobody established is not a freedom, and filling it is refused', () => {
     const resolved = eligible({
-        notEstablished: [{ path: 'space.regions', lineId: 'L-regions', elementId: null, verdict: 'NOT_AUTHORED', reason: 'NO_ITEM_ON_ROW', declared: ['UNDECLARED'] }],
+        notEstablished: [{ path: 'space.regions', lineId: 'L-regions', elementId: null, verdict: 'NOT_AUTHORED', reason: 'NO_ITEM_ON_ROW', declared: ['UNDECLARED'], governedBy: [] }],
         open: [],
     })
     const result = realize(resolved, [{ lineId: 'L-regions', value: 3, because: 'a game needs regions' }])
@@ -142,7 +142,7 @@ test('the check catches a value on an unestablished path even when no choice cla
     // The realizer's own guards can be bypassed; the acceptance check reads the finished game, so it
     // catches a gap filled by any route — including a future bug in the writer above it.
     const resolved = eligible({
-        notEstablished: [{ path: 'envelope.players', lineId: 'L-players2', elementId: null, verdict: 'NOT_AUTHORED', reason: null, declared: [] }],
+        notEstablished: [{ path: 'envelope.players', lineId: 'L-players2', elementId: null, verdict: 'NOT_AUTHORED', reason: null, declared: [], governedBy: [] }],
     })
     const realized = realize(eligible(), chooseScoring) as Realized
     const problems = checkRealization(resolved, realized).nothingClosedWithoutAuthority

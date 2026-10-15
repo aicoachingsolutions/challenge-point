@@ -414,8 +414,10 @@ function rosterFor(ctx: GateContext, realized: Realized, supposing?: Supposing):
         )
         if (speaking.length) return authoredFor(instantiation, rowId, leaf, speaking)
 
+        // The team's own class goes with the question since 15 October 2026, so this read and a line's reason are
+        // decided by the same `governingDeclarations` (his answer 9) — one precedence, not two copies of it.
         const declarations = scoped().declarations
-        const reason = reasonFor(rowId, declarations)
+        const reason = reasonFor(rowId, declarations, ctx.classes.find(candidate => candidate.classId === instantiation.classId))
         return reason === 'excluded' || reason === 'not constrained'
             ? { value: 0, basis: `no selected knowledge establishes ${leaf} in this game (${rowId} is ${reason})` }
             : { unsettled: `nothing selected settles ${rowId} for this team (${reason})` }

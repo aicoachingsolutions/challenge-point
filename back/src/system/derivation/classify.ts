@@ -10,9 +10,17 @@
  */
 
 import { DerivedLine, resolvedValue } from './derive'
+import { reaches } from './reach'
 import { DeclarationReach } from './scope'
 import { ApplicabilityCondition, RegisterIndex } from './register'
-import { ItemRef, ResolutionLine, Verdict, ReasonCode } from './types'
+import { DEFERS_TO_ESTABLISHING_OBJECT, ElementClass, ItemRef, ResolutionLine, Verdict, ReasonCode } from './types'
+
+/** One declaration that took part in deciding a line's reason: who said it, what kind, about what. */
+export interface GoverningDeclaration {
+    contractId: string
+    declaration: string
+    selector: string | null
+}
 
 export interface ClassifiedLine {
     lineId: string
@@ -28,8 +36,18 @@ export interface ClassifiedLine {
     /**
      * Every declaration reaching the row, iff NOT_AUTHORED. AM-23's three reason codes cannot
      * express the five-declaration vocabulary, so this is what the knowledge actually said.
+     *
+     * It stays ROW-WIDE after 15 October 2026: what governs a line is now a subset of it (`governedBy`), and
+     * keeping the whole is what keeps the narrowing from being a loss.
      */
     declared?: string[]
+    /**
+     * **The declarations the reason was decided over** (15 October 2026, his answer 9), iff NOT_AUTHORED. Equal
+     * to every declaration on the row wherever the establishing object said nothing explicit about this
+     * element; otherwise its explicit statement plus the general requirements still in force — see
+     * `governingDeclarations`.
+     */
+    governedBy?: GoverningDeclaration[]
 }
 
 /** Two entailing items collide when no single value satisfies both (§6). */
@@ -50,15 +68,84 @@ function collides(line: DerivedLine): ItemRef[] {
  * Exported 13 October so the roster rule can ask the same question of a row that has NO line — a
  * per-member property of a class nothing individuates (SD-97) — and get the same answer a line on that
  * row would have carried, rather than keeping a second copy of this precedence.
+ *
+ * **Since 15 October 2026 the order is applied over `governingDeclarations`**, not over every declaration on the
+ * row; the order itself is unchanged. Called without a class it is exactly what it was.
  */
-export function reasonFor(row: string, declarations: DeclarationReach[]): ReasonCode {
-    const reaching = declarations.filter(d => d.row === row)
+export function reasonFor(row: string, declarations: DeclarationReach[], cls?: ElementClass): ReasonCode {
+    const reaching = governingDeclarations(row, declarations, cls)
     if (!reaching.length) return 'no coverage'
     if (reaching.some(d => d.declaration === 'NOT_AUTHORED')) return 'declared gap'
     if (reaching.some(d => d.declaration === 'EXCLUDED')) return 'excluded'
     if (reaching.some(d => d.declaration === 'NON_CLAIMED')) return 'not constrained'
     if (reaching.some(d => d.declaration === 'CLAIMED')) return 'claimed but unresolved'
     return 'coverage'
+}
+
+/** The kinds that state a requirement, and so stay in force against a more specific statement. */
+const GENERAL_REQUIREMENTS = ['NOT_AUTHORED', 'EXCLUDED', 'CLAIMED']
+
+/**
+ * **Which declarations decide a line's reason — his answer 9 of 15 October 2026, in its strict form.**
+ *
+ * *"Specific knowledge governs where it explicitly defines or specializes a condition. General requirements
+ * remain applicable unless the specific knowledge explicitly supersedes them through an authorized
+ * relationship."* And the safeguard he put first: *"specificity should not mean that silence automatically
+ * overrides requirements established elsewhere."*
+ *
+ * Until now every declaration on a row reached every line on it, from every object, whatever its selector or
+ * scope said it was about. So an object's statement about its OWN element could be outranked by another
+ * object's statement about something else entirely: a non-claim whose selector excludes the element hid the
+ * establishing object's own claim, and an exclusion scoped to another object's own involvement relabelled
+ * regions it never addressed.
+ *
+ * The rule, for a line on element class `cls`:
+ *
+ *   1. The ESTABLISHING objects are those whose contributions form the class (`fromItem` and `supportedBy`).
+ *   2. Their EXPLICIT statement is every declaration of theirs on the row whose kind is not UNDECLARED and whose
+ *      selector positively reaches the class (`reaches` = TRUE). UNDECLARED is recorded silence and an
+ *      undetermined reach is not explicit, so neither counts — silence never overrides.
+ *   3. If there is no explicit statement — or no class, as for a game-level line — the answer is every
+ *      declaration on the row, exactly as before: behaviour is unchanged wherever the specific knowledge is silent.
+ *   4. Otherwise it is the explicit statement PLUS every general requirement (NOT_AUTHORED, EXCLUDED, CLAIMED)
+ *      from another object that still reaches the class: its selector is not FALSE for it (an unreadable selector
+ *      keeps reaching, so a requirement is dropped only where it positively does not address the class), and an
+ *      OWN_INVOLVEMENT scope reaches only the declaring object's own classes. A non-claim from elsewhere is not a
+ *      requirement and drops out; so does a requirement the data marks as deferring to the establishing object —
+ *      and the data marks none.
+ *
+ * AM-23's order is then applied to this set unchanged. Only the membership moves, and by construction it can
+ * only lose a declaration that never addressed the class or that requires nothing — never a requirement that does.
+ * Selector-honouring alone, without step 3's precedence, would RELAX blocking lines (measured 15 October 2026);
+ * it is not available separately.
+ */
+export function governingDeclarations(row: string, declarations: DeclarationReach[], cls?: ElementClass): DeclarationReach[] {
+    const onRow = declarations.filter(d => d.row === row)
+    if (!cls) return onRow
+
+    const establishing = new Set([cls.fromItem.contractId, ...cls.supportedBy.map(s => s.contractId)])
+    const explicit = onRow.filter(
+        d => establishing.has(d.contractId) && d.declaration !== 'UNDECLARED' && !!d.parsed.predicate && reaches(d.parsed.predicate, cls) === 'TRUE',
+    )
+    if (!explicit.length) return onRow
+
+    const ownClass = (d: DeclarationReach) => cls.fromItem.contractId === d.contractId // scope.ts's own-involvement rule
+    const general = onRow.filter(
+        d =>
+            !establishing.has(d.contractId) &&
+            GENERAL_REQUIREMENTS.includes(d.declaration) &&
+            (d.scope !== 'OWN_INVOLVEMENT' || ownClass(d)) &&
+            (!d.parsed.predicate || reaches(d.parsed.predicate, cls) !== 'FALSE') &&
+            d.defersTo !== DEFERS_TO_ESTABLISHING_OBJECT,
+    )
+    return [...explicit, ...general]
+}
+
+/** The governing set as the line carries it, in a stable order. */
+function governedByOn(row: string, declarations: DeclarationReach[], cls?: ElementClass): GoverningDeclaration[] {
+    return governingDeclarations(row, declarations, cls)
+        .map(d => ({ contractId: d.contractId, declaration: d.declaration, selector: d.selector === undefined || d.selector === null ? null : String(d.selector) }))
+        .sort((a, b) => `${a.contractId}|${a.declaration}|${a.selector}`.localeCompare(`${b.contractId}|${b.declaration}|${b.selector}`))
 }
 
 /**
@@ -152,8 +239,13 @@ export function classifyLines(
     declarations: DeclarationReach[],
     index: RegisterIndex,
     stopped: { where: string; why: string }[] = [],
+    classes: ElementClass[] = [],
 ): Map<string, ClassifiedLine> {
     const classified = new Map<string, ClassifiedLine>()
+    // The element each line is about, so its reason can be decided by what governs THAT element (answer 9).
+    // A line whose element is not given here is read row-wide, exactly as before 15 October 2026.
+    const byClass = new Map(classes.map(c => [c.classId, c]))
+    const classOf = (line: ResolutionLine) => (line.elementId ? byClass.get(line.elementId) : undefined)
 
     for (const line of lines) {
         const record = derived.get(line.lineId)
@@ -188,8 +280,9 @@ export function classifyLines(
 
         if (noDependency) {
             result.verdict = 'NOT_AUTHORED'
-            result.reason = reasonFor(line.row, declarations)
+            result.reason = reasonFor(line.row, declarations, classOf(line))
             result.declared = declaredOn(line.row, declarations)
+            result.governedBy = governedByOn(line.row, declarations, classOf(line))
             classified.set(line.lineId, result)
             continue
         }
@@ -244,7 +337,8 @@ export function classifyLines(
         }
 
         result.verdict = 'NOT_AUTHORED'
-        result.reason = reasonFor(line.row, declarations)
+        result.reason = reasonFor(line.row, declarations, classOf(line))
+        result.governedBy = governedByOn(line.row, declarations, classOf(line))
         classified.set(line.lineId, result)
     }
 

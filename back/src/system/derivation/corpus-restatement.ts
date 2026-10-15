@@ -34,7 +34,7 @@ import path from 'node:path'
 
 import { AUDITS_DIR } from './knowledge-root'
 
-import { ContractItem, LoadedContract } from './types'
+import { ContractItem, DEFERS_TO_ESTABLISHING_OBJECT, LoadedContract } from './types'
 
 /** The spellings the corpus used for "no row holds this", neither of them registered. */
 const UNREGISTERED_SPELLINGS = ['NONE', '—']
@@ -73,8 +73,31 @@ export interface DeclarationRestatement {
     row: string
     from: string
     to: string
+    /**
+     * **A ruled supersession** (15 October 2026, his answer 9): the declaration DEFERS to the object establishing
+     * an element wherever that object speaks explicitly — *"General requirements remain applicable unless the
+     * specific knowledge explicitly supersedes them through an authorized relationship."* The only value is
+     * `DEFERS_TO_ESTABLISHING_OBJECT` (types.ts, honoured in classify.ts); a deferral that keeps its kind names the same kind in `from`
+     * and `to`. No entry in the data carries one: whether any statement is such a relationship is his decision.
+     */
+    defersTo?: string
     ruling: string
     why: string
+}
+
+/**
+ * One declaration restatement applied to one declaration — the kind, and the supersession where a ruling names
+ * one. Returns the reason it cannot be applied instead, so the caller reports it rather than guessing.
+ */
+export function restateDeclaration(declaration: Record<string, unknown>, restatement: DeclarationRestatement): Record<string, unknown> | { refused: string } {
+    if (restatement.defersTo !== undefined && restatement.defersTo !== DEFERS_TO_ESTABLISHING_OBJECT) {
+        return { refused: `${restatement.contractId} declaration on ${restatement.row} (${restatement.ruling}): ${JSON.stringify(restatement.defersTo)} is not a supersession the engine knows` }
+    }
+    return {
+        ...declaration,
+        declaration: restatement.to,
+        ...(restatement.defersTo === undefined ? {} : { defersTo: restatement.defersTo }),
+    }
 }
 
 /**
@@ -229,7 +252,12 @@ export function applyNoRowRestatement(contracts: LoadedContract[], tally: Restat
                 tally.notFound.push(`${restatement.contractId} declaration ${restatement.from} on ${restatement.row} (${restatement.ruling})`)
                 continue
             }
-            declarations = declarations.map((declaration: any, i: number) => (i === at ? { ...declaration, declaration: restatement.to } : declaration))
+            const restated = restateDeclaration(declarations[at] as any, restatement)
+            if ('refused' in restated) {
+                tally.notFound.push(String(restated.refused))
+                continue
+            }
+            declarations = declarations.map((declaration: any, i: number) => (i === at ? restated : declaration)) as typeof declarations
             tally.declarationsRestated++
         }
 

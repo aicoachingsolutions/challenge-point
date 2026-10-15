@@ -24,6 +24,7 @@
  *     layer still has to satisfy them.
  */
 
+import { GoverningDeclaration } from './classify'
 import { DerivationResult, ResolutionEntry } from './emit'
 import { RegisterIndex } from './register'
 import { ElementClass, ItemRef, LoadedContract, SupportRef } from './types'
@@ -62,6 +63,13 @@ export interface NotEstablished {
      * second is nobody having looked. Carried so the difference survives to whoever rules on it.
      */
     declared: string[]
+    /**
+     * The declarations `reason` was decided over — who said what, about which elements (his answer 9 of
+     * 15 October 2026; classify.ts `governingDeclarations`). Row-wide where the establishing object is silent,
+     * so it equals `declared` there; narrower only where that object spoke explicitly. Empty where no reason was
+     * decided from declarations.
+     */
+    governedBy: GoverningDeclaration[]
 }
 
 /**
@@ -541,6 +549,7 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
                     ? `applicability unresolved: it depends on ${entry.conditionalOn}, which settled nothing`
                     : "applicability unresolved: the element's own selector does not decide whether this row applies to it",
                 declared: entry.declared ? [...entry.declared] : [],
+                governedBy: entry.governedBy ? entry.governedBy.map(g => ({ ...g })) : [],
             })
             continue
         }
@@ -555,6 +564,7 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
                 verdict: String(entry.verdict ?? ''),
                 reason: entry.reason ?? null,
                 declared: entry.declared ? [...entry.declared] : [],
+                governedBy: entry.governedBy ? entry.governedBy.map(g => ({ ...g })) : [],
             })
         }
     }

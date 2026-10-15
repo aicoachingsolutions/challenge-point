@@ -15,7 +15,7 @@
  *     not establish, so the assembly asserts the shape it produced.
  */
 
-import { ClassifiedLine } from './classify'
+import { ClassifiedLine, GoverningDeclaration } from './classify'
 import { DerivedLine, resolvedValue } from './derive'
 import { ItemOutcome } from './forward'
 import { GateReport } from './gates'
@@ -49,6 +49,8 @@ export interface ResolutionEntry {
      * what the knowledge said about this row.
      */
     declared?: string[]
+    /** The declarations the reason was decided over (classify.ts `governingDeclarations`, 15 October 2026). */
+    governedBy?: GoverningDeclaration[]
     value?: unknown
     bounds?: Bounds[]
     /** An authored EXTENT on a line whose POSITION is derived. Not `bounds`: that is a choice space. */
@@ -224,6 +226,7 @@ export function emit(input: EmitInput): DerivationResult | StampedHalt {
         if (entry.state === 'derived' && record?.bounding?.length) entry.extentBounds = record.bounding.map(b => b.bound)
         if (classified?.verdict === 'NOT_AUTHORED' && classified.reason) entry.reason = classified.reason
         if (classified?.verdict === 'NOT_AUTHORED' && classified.declared?.length) entry.declared = [...classified.declared]
+        if (classified?.verdict === 'NOT_AUTHORED' && classified.governedBy) entry.governedBy = classified.governedBy.map(g => ({ ...g }))
 
         if (entry.state === 'derived') {
             entry.value = valueOf(record)

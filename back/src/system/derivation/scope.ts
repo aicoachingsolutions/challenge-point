@@ -45,6 +45,12 @@ export interface DeclarationReach {
     parsed: ParseResult
     /** The authored note, carried whole: the reason a declaration was written travels with it. */
     note: unknown
+    /**
+     * A ruled supersession: this general declaration defers to the object establishing an element wherever that
+     * object speaks explicitly (`DEFERS_TO_ESTABLISHING_OBJECT`, types.ts; honoured in classify.ts). Set only by a restatement ruling
+     * and set by none on 15 October 2026; absent means no such relationship.
+     */
+    defersTo?: unknown
 }
 
 /**
@@ -149,6 +155,7 @@ export function resolveScopes(contracts: LoadedContract[], classes: ElementClass
                 selector: declaration.selector,
                 parsed: parseSelector(declaration.selector, row, index),
                 note: declaration.note,
+                ...(declaration.defersTo === undefined ? {} : { defersTo: declaration.defersTo }),
             })
         }
     }
