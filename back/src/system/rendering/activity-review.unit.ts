@@ -944,10 +944,13 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
      * Christian that day: *"Please keep the current Pass Combination Gate as a mechanism demonstration only. I do
      * not want it reintroduced into learning-design examples until we've reviewed its ecological suitability."*
      * With his three answers in its knowledge (C44-C46), it is REFUSED at `structure`, and that is the measured,
-     * honest state: removing "in their half" leaves the condition naming no place, and the possession game's
-     * general "the qualifying condition must come from elsewhere" makes that line a declared gap. What moves it
-     * is his precedence decision (OD1) and then approved wording for the condition and the counting rule — not
-     * anything this test or the engine supplies.
+     * honest state: removing "in their half" leaves the condition naming no place, and that line is a declared gap.
+     * Until 15 October 2026 the gap came from the possession game's general "the qualifying condition must come from
+     * elsewhere"; since his reply of that day it comes from the gate itself — its place is "not yet authored" (C49;
+     * 16 October, item 8: "The gate remains excluded from this activity and should continue to be treated only as a
+     * mechanism demonstration until its knowledge is resolved") — and the possession game's gap defers to it (C50).
+     * What moves it is his authoring the gate's place, and then approved wording for the condition and the counting
+     * rule — not anything this test or the engine supplies.
      */
     {
         const gate = refused(reviewActivity(stored(), { demonstrationId: 'pass-combination-gate', durationMin: 20 }), 'the pass-combination-gate demonstration')
@@ -970,20 +973,40 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         for (const hold of learningGoalSelectionHolds()) assert.ok(MECHANISM_DEMONSTRATIONS.some(d => d.id === hold.mechanismDemonstration), hold.mechanismDemonstration)
 
         /**
-         * **Past the place, the chain runs to the end — over a TEST-ONLY copy.** With the possession game's general
-         * V5 NOT_AUTHORED dropped (a simulation of one possible OD1 answer, stated as such; nothing authored
-         * changes), the condition's line is an established absence. Gate A then defers, the game realizes, and
-         * post-realization VALIDATES — which it could not before component 1: an established absence blocked the
-         * position clause. It stops at communication on exactly the nine fields that await approved wording: the
-         * condition's type and value, and the counting rule's subject, trigger and five dimensions.
+         * **Past the place, the chain runs to the end — over a TEST-ONLY copy.** With the condition's line an
+         * established absence (nothing authored changes), Gate A defers, the game realizes, and post-realization
+         * VALIDATES — which it could not before component 1: an established absence blocked the position clause. It
+         * stops at communication on exactly the nine fields that await approved wording: the condition's type and
+         * value, and the counting rule's subject, trigger and five dimensions.
+         *
+         * **Re-pointed 15 October 2026 (C49, C50), and now also the reason the two rulings landed together.** Until
+         * then the copy dropped the possession game's general V5 gap. Since his reply of that day the gate's own
+         * place is NOT_AUTHORED (16 October, item 8: "removing 'in their half' should not automatically be
+         * interpreted as authorizing pass counting anywhere"), and the possession game's gap defers to the gate
+         * (Option A, same item). So the copy puts the gate's statement back to the NON_CLAIMED C45 wrote — the
+         * "explicitly unrestricted" reading he rejected — and that alone carries the demonstration from structure to
+         * communication: Option A without C49 would have done exactly this to the real knowledge. With the deferral
+         * stripped as well, it stays at structure.
          */
+        const gateV5AsBeforeC49 = (contracts: any[]) => {
+            const v5 = contracts.find(c => c.contractId === 'blind:PASS-COMBINATION-GATE').declarations.find((d: any) => d.row === 'V5')
+            assert.equal(v5.declaration, 'NOT_AUTHORED', 'the copy starts from C49')
+            v5.declaration = 'NON_CLAIMED'
+        }
+        const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: none }
         const pastThePlace = refused(
-            buildActivityOverAlteredKnowledge({ kind: 'mechanism-demonstration', demonstrationId: 'pass-combination-gate', session: { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: none } }, contracts => {
-                const gf2: any = contracts.find(c => c.contractId === 'restated:GF2')
-                gf2.declarations = gf2.declarations.filter((d: any) => !(d.row === 'V5' && d.declaration === 'NOT_AUTHORED'))
-            }),
+            buildActivityOverAlteredKnowledge({ kind: 'mechanism-demonstration', demonstrationId: 'pass-combination-gate', session }, gateV5AsBeforeC49),
             'the gate demonstration with its condition naming no place',
         )
+        const withoutOptionA = refused(
+            buildActivityOverAlteredKnowledge({ kind: 'mechanism-demonstration', demonstrationId: 'pass-combination-gate', session }, contracts => {
+                gateV5AsBeforeC49(contracts)
+                for (const contract of contracts) for (const d of (contract.declarations ?? []) as any[]) delete d.defersTo
+            }),
+            'the gate demonstration without C49 and without Option A',
+        )
+        assert.equal(withoutOptionA.stage, 'structure', 'without the deferral the possession game\'s gap still governs')
+        assert.ok(withoutOptionA.reasons.some(reason => reason.endsWith('c:blind:PASS-COMBINATION-GATE:PCG-02::V5')))
         assert.equal(pastThePlace.stage, 'communication', JSON.stringify(pastThePlace.reasons))
         assert.equal(pastThePlace.summary, 'Part of this activity is still waiting for approved coach wording, so it is not being shown.')
         const condition = 'value.primaryEvent.conditions[c:blind:PASS-COMBINATION-GATE:PCG-02]'

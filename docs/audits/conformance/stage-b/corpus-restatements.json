@@ -1072,9 +1072,9 @@
       "contractId": "blind:PASS-COMBINATION-GATE",
       "row": "V5",
       "from": "CLAIMED",
-      "to": "NON_CLAIMED",
-      "ruling": "C45",
-      "why": "The gate's V5 declaration CLAIMED the row on the strength of PCG-06 alone (its note: \"PCG-06.\"). His ruling of 2026-10-14 removes PCG-06 from the active gate knowledge (\"Record this as removed from the active gate knowledge, retaining the original for provenance\"), and a claim whose items are removed would assert a place nobody now authors. So the gate no longer claims the row: NON_CLAIMED, scope and selector unchanged. The original declaration stays in contracts.json."
+      "to": "NOT_AUTHORED",
+      "ruling": "C45/C49",
+      "why": "RESTATED 14 October 2026 (C45), then CORRECTED on his reply received 15 October 2026 (C49, his 16 October reply, item 8). C45: the gate's V5 declaration CLAIMED the row on the strength of PCG-06 alone (its note: \"PCG-06.\"). His ruling of 2026-10-14 removes PCG-06 from the active gate knowledge (\"Record this as removed from the active gate knowledge, retaining the original for provenance\"), and a claim whose items are removed would assert a place nobody now authors, so the gate stopped claiming the row. We restated it NON_CLAIMED - our reading, not his words - and under establishing-object precedence (his answer 9 of 15 October) a NON_CLAIMED from the object that establishes the condition is exactly 'explicitly unrestricted': measured, the gate's condition then read 'not constrained' in a GF4 composition, pass counting anywhere. C49, his words: \"Regarding the Pass Combination Gate, removing 'in their half' should not automatically be interpreted as authorizing pass counting anywhere. Please distinguish whether location is explicitly unrestricted or simply not yet authored. The gate remains excluded from this activity and should continue to be treated only as a mechanism demonstration until its knowledge is resolved.\" Nothing he has authored says the place is unrestricted, so the gate's place is NOT YET AUTHORED: NOT_AUTHORED, a declared gap that blocks, scope and selector unchanged. The declaration keeps its authored note (\"PCG-06.\"), which cites the removed item; this why is its provenance. SV1 stays NON_CLAIMED (C45): with the place removed nothing in the gate needs the half. The original declaration stays in contracts.json. This does not approve the gate for any Learning Goal."
     },
     {
       "contractId": "blind:PASS-COMBINATION-GATE",
@@ -1083,6 +1083,42 @@
       "to": "NON_CLAIMED",
       "ruling": "C45",
       "why": "The gate's SV1 declaration CLAIMED the per-team halves for PCG-07 (its note: \"PCG-07: each team's own half is needed as the gate's referent.\"). PCG-07 is removed with PCG-06 on the same ruling, so the claim would outlive the item it cited. NON_CLAIMED, scope and selector unchanged; the original stays in contracts.json."
+    },
+    {
+      "contractId": "restated:GF2",
+      "row": "V3",
+      "from": "NOT_AUTHORED",
+      "to": "NOT_AUTHORED",
+      "defersTo": "ESTABLISHING_OBJECT",
+      "ruling": "C50",
+      "why": "OPTION A, approved on his reply received 15 October 2026 (his 16 October reply, item 8), for exactly four statements: GF2's NOT_AUTHORED declarations on V3, V4, V5 and V6 (\"notAuthored: the qualifying condition of the primary scoring event; any control requirement must come from elsewhere.\" - that wording is our 17 September restatement of GF2, shown to him as ours in the 15 October email, not his words). His words: \"I approve your recommended Option A for the four identified statements. A context may explicitly establish that a particular scoring-condition detail requires no additional value. However, the engine must distinguish between: A field explicitly defined as not applicable or requiring no further value. A field whose value remains missing or unresolved. The former should be valid. The latter should remain a knowledge gap when that information is necessary. This is not permission for the engine to fill missing values through inference.\" So this declaration DEFERS to the object establishing a condition wherever that object speaks explicitly about this row (his answer 9 of 15 October: general requirements stay applicable \"unless the specific knowledge explicitly supersedes them through an authorized relationship\" - this ruling is that relationship, for these four statements and no other). The kind stays NOT_AUTHORED: where the establishing object is silent or UNDECLARED, or says nothing explicit, the gap still governs and still blocks. Nothing is filled. GF2's NON_CLAIMED declarations on the same rows are not marked. Lands with C49, never before it: measured, without C49 this deferral would read the Pass Combination Gate's NON_CLAIMED place as 'count anywhere'."
+    },
+    {
+      "contractId": "restated:GF2",
+      "row": "V4",
+      "from": "NOT_AUTHORED",
+      "to": "NOT_AUTHORED",
+      "defersTo": "ESTABLISHING_OBJECT",
+      "ruling": "C50",
+      "why": "OPTION A, the second of the four statements his reply received 15 October 2026 (his 16 October reply, item 8) approves: \"I approve your recommended Option A for the four identified statements.\" GF2's NOT_AUTHORED on V4 (our 17 September wording, \"any control requirement must come from elsewhere\") defers to the object establishing a condition where that object speaks explicitly about this row; where it is silent the gap governs and blocks as before. \"This is not permission for the engine to fill missing values through inference.\" Full reasoning on the V3 entry (C50)."
+    },
+    {
+      "contractId": "restated:GF2",
+      "row": "V5",
+      "from": "NOT_AUTHORED",
+      "to": "NOT_AUTHORED",
+      "defersTo": "ESTABLISHING_OBJECT",
+      "ruling": "C50",
+      "why": "OPTION A, the third of the four statements his reply received 15 October 2026 (his 16 October reply, item 8) approves: \"I approve your recommended Option A for the four identified statements.\" GF2's NOT_AUTHORED on V5 (our 17 September wording, \"any control requirement must come from elsewhere\") defers to the object establishing a condition where that object speaks explicitly about this row; where it is silent the gap governs and blocks as before - RPC-001's control and exclusion referents (18.f, 19.a), on which it is UNDECLARED, stay declared gaps. The Pass Combination Gate's own V5 is NOT_AUTHORED since C49, so its place stays a declared gap from the gate itself. \"This is not permission for the engine to fill missing values through inference.\" Full reasoning on the V3 entry (C50)."
+    },
+    {
+      "contractId": "restated:GF2",
+      "row": "V6",
+      "from": "NOT_AUTHORED",
+      "to": "NOT_AUTHORED",
+      "defersTo": "ESTABLISHING_OBJECT",
+      "ruling": "C50",
+      "why": "OPTION A, the fourth of the four statements his reply received 15 October 2026 (his 16 October reply, item 8) approves: \"I approve your recommended Option A for the four identified statements.\" GF2's NOT_AUTHORED on V6 (our 17 September wording, \"any control requirement must come from elsewhere\") defers to the object establishing a condition where that object speaks explicitly about this row; where it is silent the gap governs and blocks as before - RPC-001-18.a::V6 stays a declared gap, because nothing RPC-001 declares reaches its origin condition (his 9.9 'origin needs no further value' needs its own declaration, C55, not part of this ruling). \"This is not permission for the engine to fill missing values through inference.\" Full reasoning on the V3 entry (C50)."
     }
   ],
   "declarationsAdded": [

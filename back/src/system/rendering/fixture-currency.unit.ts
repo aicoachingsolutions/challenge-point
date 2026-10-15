@@ -123,6 +123,17 @@
  * value, every choice, the geometry, the roster and the realization digest are byte-identical. `npm run render:a04`
  * was diffed before and after: the rendered text is identical, only the two digests it prints moved.
  *
+ * **Re-frozen 15 October 2026 (C49, C50): `a0d5e683` → `9ce40dc3`. The GAME did not move; four declarations the
+ * Golden Case selects now carry a deferral.** His reply of that day (16 October, item 8): *"I approve your recommended
+ * Option A for the four identified statements."* GF2's NOT_AUTHORED declarations on V3-V6 are restated with
+ * `defersTo: ESTABLISHING_OBJECT` (C50, `corpus-restatements.json`; contracts.json untouched), and a declaration is
+ * derivation input, so `inputDigest` / `fromDigest` (ea6e8ee2 → d2fbd15e) and the audit digest (1d8df435 → cbf5c31d)
+ * moved with it. No line of the Golden Case changes reason — nothing it selects speaks explicitly about V3-V6 where
+ * GF2's gap reaches (measured, and pinned corpus-wide in governing-declarations.unit.ts). `git diff` of the fixture
+ * shows those three digests and nothing else: `game`, every value, every choice, the geometry, the roster and the
+ * realization digest are byte-identical. `npm run render:a04` was diffed before and after: the rendered text is
+ * identical, only the two digests it prints moved. C49 (the gate's place) does not reach A04, which has no gate.
+ *
  * Run: npm test
  */
 import assert from 'node:assert/strict'

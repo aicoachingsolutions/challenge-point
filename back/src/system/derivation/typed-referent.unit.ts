@@ -150,21 +150,34 @@ test('a typed V5 referent to a region is looked up as that region, not reported 
 {
     const v5Line = `c:${GATE}:PCG-02::V5`
     test('the gate as his answers leave it: its condition names no place, and the line is a DECLARED GAP that still blocks', () => {
-        // C45 removed the place and restated the gate's V5 claim NON_CLAIMED; the possession game's general
-        // "the qualifying condition must come from elsewhere" (V5 NOT_AUTHORED) still reaches the line, so it is
-        // a declared gap. Whether it should be is his precedence decision (OD1); this pins the state, not a ruling.
+        // C45 removed the place. Until 15 October 2026 the gate's V5 claim was restated NON_CLAIMED and the line was
+        // a declared gap only because the possession game's general "the qualifying condition must come from
+        // elsewhere" (V5 NOT_AUTHORED) still reached it. **Re-pointed 15 October 2026 (C49, C50).** His reply of that
+        // day (16 October, item 8): "removing 'in their half' should not automatically be interpreted as authorizing
+        // pass counting anywhere. Please distinguish whether location is explicitly unrestricted or simply not yet
+        // authored." The gate's own statement is now NOT_AUTHORED — the place is not yet authored — and the possession
+        // game's gap DEFERS to it (Option A, same item). The line is the same declared gap, decided by the gate.
         const result: any = runStages0to10(gateComposition())
         assert.deepEqual([result.classified.get(v5Line).verdict, result.classified.get(v5Line).reason], ['NOT_AUTHORED', 'declared gap'])
+        assert.deepEqual(
+            result.classified.get(v5Line).governedBy.map((d: any) => `${d.contractId} ${d.declaration}`),
+            [`${GATE} NOT_AUTHORED`],
+            'the gate says its own place is not yet authored, and that is what governs',
+        )
         assert.equal(clause(result, 'GA-ONE-PRIMARY-EVENT', 'every member of the event reference').verdict, 'NOT_EVALUABLE')
         assert.ok(check(result, 'GA-ONE-PRIMARY-EVENT').blockedBy.includes(v5Line))
     })
     test('a condition whose referent line is an established absence names no place: the position clause PASSES (it blocked)', () => {
-        // One alteration on top of his answers, **TEST-ONLY and stated as such**: the possession game's general
-        // V5 NOT_AUTHORED dropped, which is what makes the line 'not constrained' rather than a declared gap.
-        // Nothing here decides OD1; it shows what the clause does once a line IS an established absence.
+        // One alteration on top of his answers, **TEST-ONLY and stated as such**: the gate's own V5 statement put
+        // back to the NON_CLAIMED C45 wrote before C49 — the "explicitly unrestricted" reading his 16 October item 8
+        // rejected — so that, with the possession game's gap deferring (C50), the line is 'not constrained' rather
+        // than a declared gap. Re-pointed 15 October 2026: until C49 the same state was reached by dropping the
+        // possession game's gap, which no longer suffices once the gate's own statement is a gap. Nothing here
+        // authors the place; it shows what the clause does once a line IS an established absence.
         const input = gateComposition()
-        const gf2 = contractOf(input, 'restated:GF2')
-        gf2.declarations = gf2.declarations.filter((d: any) => !(d.row === 'V5' && d.declaration === 'NOT_AUTHORED'))
+        const gateV5 = contractOf(input, GATE).declarations.find((d: any) => d.row === 'V5')
+        assert.equal(gateV5.declaration, 'NOT_AUTHORED', 'the copy starts from his answers')
+        gateV5.declaration = 'NON_CLAIMED'
         const result: any = runStages0to10(input)
         assert.deepEqual([result.classified.get(v5Line).verdict, result.classified.get(v5Line).reason], ['NOT_AUTHORED', 'not constrained'])
         const position = clause(result, 'GA-ONE-PRIMARY-EVENT', 'every member of the event reference')
@@ -279,10 +292,13 @@ test('a typed V5 referent to a region is looked up as that region, not reported 
         assert.ok(!gate.items.some((i: any) => ['PCG-06', 'PCG-07'].includes(i.itemId)), 'neither reaches derivation')
         const original = fs.readFileSync(path.join(CONFORMANCE_DIR, 'stage-b/contracts.json'), 'utf8')
         assert.ok(original.includes('"PCG-06"') && original.includes('own half of ATTACKING_TEAM') && original.includes('"PCG-07"'), 'and both stay verbatim in contracts.json')
-        // The claims that cited them are restated with them.
+        // The claims that cited them are restated with them. The place, V5, was NON_CLAIMED until 15 October 2026 and
+        // is NOT_AUTHORED since (C45/C49): his reply of that day (16 October, item 8) — "Please distinguish whether
+        // location is explicitly unrestricted or simply not yet authored" — and it is not yet authored. The half,
+        // SV1, is unchanged: with the place gone nothing in the gate needs it.
         assert.deepEqual(
             gate.declarations.filter((d: any) => ['V5', 'SV1'].includes(d.row)).map((d: any) => [d.row, d.declaration]).sort(),
-            [['SV1', 'NON_CLAIMED'], ['V5', 'NON_CLAIMED']],
+            [['SV1', 'NON_CLAIMED'], ['V5', 'NOT_AUTHORED']],
         )
     })
 

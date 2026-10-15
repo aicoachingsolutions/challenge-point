@@ -347,9 +347,17 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
     )
     assert.equal(restatementTally.declarationScopes, 64)
     // **New on 14 October 2026, counted apart from scopes.** The gate's V5 and SV1 declarations CLAIMED those rows
-    // on the strength of PCG-06 and PCG-07; with the items removed (C45) the claims are restated NON_CLAIMED, or
-    // they would assert a place and a half that nobody now authors.
-    assert.equal(restatementTally.declarationsRestated, 2, 'the gate’s V5 and SV1 claims, restated NON_CLAIMED with the items they cited (C45)')
+    // on the strength of PCG-06 and PCG-07; with the items removed (C45) the claims are restated, or they would
+    // assert a place and a half that nobody now authors. SV1 is NON_CLAIMED. V5 was NON_CLAIMED until his reply
+    // received 15 October 2026 (16 October, item 8: "removing 'in their half' should not automatically be
+    // interpreted as authorizing pass counting anywhere"), and is NOT_AUTHORED since (C45/C49, amended in place, so
+    // it still counts once).
+    //
+    // **2 -> 6 on 15 October 2026 (C50).** His Option A, item 8 of the same reply — "I approve your recommended
+    // Option A for the four identified statements" — marks GF2's four NOT_AUTHORED declarations on V3, V4, V5 and V6
+    // as deferring to the establishing object. A deferral is a declaration restatement that keeps its kind, so each
+    // counts here; which four, and that no other declaration defers, is pinned in governing-declarations.unit.ts.
+    assert.equal(restatementTally.declarationsRestated, 6, 'the gate’s V5 and SV1 claims (C45, V5 corrected by C49), and GF2’s four deferring V3-V6 gaps (C50)')
     // **New on 14 October 2026 (C48), counted apart from both.** Register row P6c was added that day (C43) after
     // every contract was written, so none declared it and every game without neutrals read it as "no coverage" —
     // nobody looked. The seven contracts that declare P6a NON_CLAIMED get the same declaration on P6c; the Neutral

@@ -9,8 +9,10 @@
  *
  * `governingDeclarations` (classify.ts) is that rule in its strict form: the object establishing an element
  * governs where it speaks explicitly about it, every general requirement that still addresses the element stays
- * in force, silence changes nothing, and the set of authorized supersessions is data and EMPTY — whether any
- * statement in the knowledge is such a relationship is his decision, not ours.
+ * in force, silence changes nothing, and the set of authorized supersessions is data — whether any statement in
+ * the knowledge is such a relationship is his decision, not ours. It was EMPTY until his reply received 15 October
+ * 2026 approved Option A (16 October, item 8) for exactly four statements, GF2's gaps on V3-V6 (C50), together with
+ * the correction of the Pass Combination Gate's place to "not yet authored" (C49) that has to land with it.
  *
  * Every "before" below is computed IN the test, by the same AM-23 order over the row-wide set the engine used
  * until today (`reasonFor` with no element), so the pins compare the rule against its own predecessor rather
@@ -222,14 +224,154 @@ test('the roster asks the same question: a specialized role read through the tea
     }
 })
 
-test('the supersession set is data, and it is empty', () => {
-    // His decision, not ours (the design's decision 1): nothing in the ruled restatements defers, and no loaded
-    // declaration carries a deferral.
+/**
+ * **The supersession set is data, and since 15 October 2026 it holds exactly four statements (C50).**
+ *
+ * Re-pointed from "…and it is empty". His reply of that day (16 October, item 8): *"I approve your recommended
+ * Option A for the four identified statements. A context may explicitly establish that a particular scoring-condition
+ * detail requires no additional value. However, the engine must distinguish between: A field explicitly defined as
+ * not applicable or requiring no further value. A field whose value remains missing or unresolved. The former should
+ * be valid. The latter should remain a knowledge gap when that information is necessary. This is not permission for
+ * the engine to fill missing values through inference."* The four are GF2's NOT_AUTHORED declarations on V3-V6 —
+ * "any control requirement must come from elsewhere", OUR 17 September wording, shown to him as ours. Nothing else
+ * defers: not GF2's NON_CLAIMED statements on the same rows, nor any other object's.
+ */
+const OPTION_A = ['restated:GF2 V3 NOT_AUTHORED', 'restated:GF2 V4 NOT_AUTHORED', 'restated:GF2 V5 NOT_AUTHORED', 'restated:GF2 V6 NOT_AUTHORED']
+
+test('the supersession set is data, and it is exactly these four GF2 statements, each tracing to his Option A (C50)', () => {
     const restatements = JSON.parse(fs.readFileSync(path.join(CONFORMANCE_DIR, 'stage-b/corpus-restatements.json'), 'utf8').replace(/^﻿/, ''))
-    assert.deepEqual((restatements.declarations ?? []).filter((d: any) => 'defersTo' in d), [])
-    for (const [name] of COMPOSITIONS) {
-        assert.deepEqual((run(name).staged.scope.declarations as DeclarationReach[]).filter(d => d.defersTo !== undefined), [], name)
+    const deferrals = (restatements.declarations ?? []).filter((d: any) => 'defersTo' in d)
+    assert.deepEqual(deferrals.map((d: any) => `${d.contractId} ${d.row} ${d.to}`), OPTION_A)
+    for (const d of deferrals) {
+        assert.equal(d.ruling, 'C50', `${d.contractId} ${d.row}: the ruling that wrote it`)
+        assert.equal(d.from, d.to, `${d.contractId} ${d.row}: a deferral keeps its kind, so a missing value still blocks`)
+        assert.equal(d.defersTo, DEFERS_TO_ESTABLISHING_OBJECT)
+        assert.ok(d.why.includes('I approve your recommended Option A for the four identified statements.'), `${d.contractId} ${d.row}: his words travel with it`)
     }
+    for (const [name] of [...COMPOSITIONS, ...GF4_COMPOSITIONS]) {
+        const loaded = (run(name).staged.scope.declarations as DeclarationReach[]).filter(d => d.defersTo !== undefined)
+        const expected = name === 'corpus' || name.includes('GF2') ? OPTION_A : []
+        assert.deepEqual(loaded.map(d => `${d.contractId} ${d.row} ${d.declaration}`).sort(), expected, `${name}: the loaded deferrals`)
+    }
+})
+
+/** A composition over a DEEP COPY of its knowledge, altered (the loader's objects are shared, brief rule 0.7). */
+function stagedOver(make: () => DerivationInput, alter: (contracts: any[]) => void): any {
+    const input = make()
+    input.contracts = JSON.parse(JSON.stringify(input.contracts))
+    alter(input.contracts as any[])
+    return runStages0to10(input)
+}
+const stripDeferrals = (contracts: any[]) => {
+    for (const contract of contracts) for (const d of contract.declarations ?? []) delete d.defersTo
+}
+const GATE = 'blind:PASS-COMBINATION-GATE'
+/** The gate's V5 statement as C45 wrote it before C49 corrected it: NON_CLAIMED, "explicitly unrestricted". */
+const gateV5AsBeforeC49 = (contracts: any[]) => {
+    const v5 = contracts.find(c => c.contractId === GATE)?.declarations.find((d: any) => d.row === 'V5')
+    if (!v5) return
+    assert.equal(v5.declaration, 'NOT_AUTHORED', 'the copy starts from C49')
+    v5.declaration = 'NON_CLAIMED'
+}
+/** Every line whose verdict or reason differs between two runs, and every Gate A check that moves. */
+function differences(a: any, b: any): string[] {
+    const out: string[] = []
+    for (const [lineId, line] of a.classified as Map<string, ClassifiedLine>) {
+        const other = b.classified.get(lineId) as ClassifiedLine | undefined
+        if (!other || other.verdict !== line.verdict || other.reason !== line.reason) out.push(`${lineId}: ${line.verdict}/${line.reason} -> ${other ? `${other.verdict}/${other.reason}` : 'absent'}`)
+    }
+    for (const lineId of b.classified.keys()) if (!a.classified.has(lineId)) out.push(`${lineId}: absent -> present`)
+    const verdicts = (g: any) => Object.fromEntries([['verdict', g.verdict], ...g.checks.map((c: any) => [c.checkId, c.verdict])])
+    const va = verdicts(a.gates.gateA)
+    const vb = verdicts(b.gates.gateA)
+    for (const key of new Set([...Object.keys(va), ...Object.keys(vb)])) if (va[key] !== vb[key]) out.push(`Gate A ${key}: ${va[key]} -> ${vb[key]}`)
+    return out.sort()
+}
+
+const PCG_COMPOSITIONS: [string, () => DerivationInput][] = [
+    ['GF2 + Neutral + Pass Combination Gate', () => compose(['restated:GF2', 'restated:NEUTRAL-PLAYER-CONDITION', GATE])],
+]
+
+test('Option A moves nothing, in the corpus or any composition: every reason and every Gate A check is what it is with the four deferrals stripped', () => {
+    // Measured by probe on 15 October 2026 before this test was written (the design analysis predicted it): with C49
+    // in place, Option A's four deferrals change no line anywhere. They are not idle — the constructed cases below
+    // show each one bite — but no object in the corpus speaks explicitly about V3-V6 where GF2's gap reaches today
+    // except the gate, whose own statement is now a gap too.
+    for (const [name, make] of [...COMPOSITIONS, ...GF4_COMPOSITIONS, ...PCG_COMPOSITIONS]) {
+        assert.deepEqual(differences(stagedOver(make, stripDeferrals), stagedOver(make, () => undefined)), [], `${name}: Option A moves nothing`)
+    }
+})
+
+test('WHY C49 had to land with Option A, on a TEST-ONLY copy without it: the deferral would read the gate\'s non-claim as "count anywhere"', () => {
+    // The gate's V5 put back to C45's NON_CLAIMED on a copy. With the four deferrals, the possession game's gap
+    // steps aside for the gate's explicit statement, and that statement is a non-claim: the gate's condition would
+    // count passes anywhere — exactly the reading his 16 October item 8 rejected ("removing 'in their half' should not
+    // automatically be interpreted as authorizing pass counting anywhere"). Without the deferrals, or with C49, it
+    // stays a declared gap. The demonstration-level consequence (structure -> communication) is pinned in
+    // activity-review.unit.ts.
+    const line = `c:${GATE}:PCG-02::V5`
+    const expected: Record<string, [string, string, string]> = {
+        // [with C49 and Option A, without C49 but with Option A, without C49 and without Option A]
+        corpus: ['declared gap', 'excluded', 'declared gap'],
+        'GF2 + Pass Combination Gate': ['declared gap', 'not constrained', 'declared gap'],
+        'GF2 + Neutral + Pass Combination Gate': ['declared gap', 'not constrained', 'declared gap'],
+    }
+    for (const [name, make] of [...COMPOSITIONS, ...PCG_COMPOSITIONS].filter(([n]) => n in expected)) {
+        const now = stagedOver(make, () => undefined)
+        const withoutC49 = stagedOver(make, gateV5AsBeforeC49)
+        const neither = stagedOver(make, contracts => (gateV5AsBeforeC49(contracts), stripDeferrals(contracts)))
+        assert.deepEqual([now, withoutC49, neither].map(s => s.classified.get(line).reason), expected[name], name)
+        // Nothing but that line (and the checks it feeds) moves.
+        assert.deepEqual(differences(now, withoutC49).filter(d => !d.startsWith('Gate A')), [`${line}: NOT_AUTHORED/declared gap -> NOT_AUTHORED/${expected[name][1]}`], name)
+    }
+    const gf2Gate = stagedOver(() => compose(['restated:GF2', GATE]), gateV5AsBeforeC49)
+    assert.equal(gf2Gate.gates.gateA.verdict, 'DEFERRED_TO_REALIZATION', 'without C49 the gate composition would pass Gate A')
+    assert.equal(stagedOver(() => compose(['restated:GF2', GATE]), () => undefined).gates.gateA.verdict, 'FAIL', 'with it, it does not')
+})
+
+test('TIGHTENED by C49 (15 October 2026): the gate composed with the second game form no longer counts passes anywhere', () => {
+    // Measured by probe that day. GF4 says nothing that is a requirement on V5, so under establishing-object
+    // precedence the gate's C45 non-claim governed its own condition alone: 'not constrained', the position clause
+    // deferred and the reference check passed — "explicitly unrestricted", in a composition no pathway reaches (the
+    // gate is held from every Learning Goal). With the gate's place not yet authored it is a declared gap that
+    // blocks, and the two checks cannot be evaluated. A tightening; nothing relaxes.
+    const make = () => compose(['blind:GF4', GATE])
+    assert.deepEqual(differences(stagedOver(make, gateV5AsBeforeC49), stagedOver(make, () => undefined)), [
+        'Gate A GA-ONE-PRIMARY-EVENT: DEFERRED_TO_REALIZATION -> NOT_EVALUABLE',
+        'Gate A GA-REFERENCE-INTEGRITY: PASS -> NOT_EVALUABLE',
+        `c:${GATE}:PCG-02::V5: NOT_AUTHORED/not constrained -> NOT_AUTHORED/declared gap`,
+    ])
+})
+
+/** RPC-001-18.f's control line in GF2 + RPC-001 over a copy, with RPC-001's V5 statements replaced; GF2's loaded statements kept. */
+function controlLineWithRpc001(rpc001V5: Record<string, unknown>[], strip = false): ClassifiedLine {
+    const staged = stagedOver(
+        () => compose(['restated:GF2', 'restated:RPC-001']),
+        contracts => {
+            const rpc: any = contracts.find(c => c.contractId === 'restated:RPC-001')
+            rpc.declarations = [
+                ...rpc.declarations.filter((d: any) => String(d.row) !== 'V5'),
+                ...rpc001V5.map(d => ({ row: 'V5', scope: 'WHOLE_GAME', note: 'TEST-ONLY construction', ...d })),
+            ]
+            if (strip) stripDeferrals(contracts)
+        },
+    )
+    return staged.classified.get('c:restated:RPC-001:RPC-001-18.f::V5') as ClassifiedLine
+}
+
+test('his item 8 distinction, constructed on copies: an explicit "no further value" is valid, a missing value still blocks', () => {
+    // RPC-001-18.f establishes a control condition (type=control). TEST-ONLY: RPC-001 is made to say, explicitly, that
+    // its control condition's place needs no further value — NON_CLAIMED for type=control. Nothing authored says so.
+    const explicit = controlLineWithRpc001([{ declaration: 'NON_CLAIMED', selector: 'type=control' }])
+    assert.equal(explicit.reason, 'not constrained', '"A field explicitly defined as not applicable or requiring no further value ... should be valid"')
+    assert.deepEqual(explicit.governedBy!.map(d => `${d.contractId} ${d.declaration}`), ['restated:RPC-001 NON_CLAIMED'], 'decided by the establishing object; GF2\'s gap deferred')
+    // Missing: RPC-001 silent, or UNDECLARED (recorded silence) — the gap governs.
+    assert.equal(controlLineWithRpc001([]).reason, 'declared gap', '"A field whose value remains missing or unresolved" stays a gap')
+    assert.equal(controlLineWithRpc001([{ declaration: 'UNDECLARED', selector: 'type=control' }]).reason, 'declared gap', 'UNDECLARED is not an explicit statement')
+    // The production state: RPC-001's own V5 for control is UNDECLARED, so the line is still a declared gap.
+    assert.equal(run('GF2 + RPC-001').staged.classified.get('c:restated:RPC-001:RPC-001-18.f::V5').reason, 'declared gap')
+    // Only the ruled relationship lets it through: without the deferral, the explicit statement is not enough.
+    assert.equal(controlLineWithRpc001([{ declaration: 'NON_CLAIMED', selector: 'type=control' }], true).reason, 'declared gap', 'strict without the ruling')
 })
 
 test('the supersession mechanism: written only by a restatement, honoured only where the establishing object is explicit', () => {
@@ -280,7 +422,10 @@ test('GF4 composed with anything: only tightenings, two Gate A verdicts move NOT
     const expected: Record<string, { before: string; now: string; gains: string[] }> = {
         GF4: { before: 'FAIL', now: 'FAIL', gains: [] },
         'GF4 + GF2': { before: 'NOT_EVALUABLE', now: 'FAIL', gains: ['c:blind:GF4:I17::V8b', 'c:blind:GF4:I17::V9'] },
-        'GF4 + Pass Combination Gate': { before: 'NOT_EVALUABLE', now: 'FAIL', gains: ['c:blind:GF4:I17::V8b', 'c:blind:GF4:I17::V9'] },
+        // `before` NOT_EVALUABLE -> FAIL on 15 October 2026 (C49): the gate's own place is a declared gap row-wide too
+        // now ("not yet authored", his 16 October item 8), so the row-wide reading fails on it as well. The gains are
+        // unchanged; the C49 tightening itself is pinned in its own test above.
+        'GF4 + Pass Combination Gate': { before: 'FAIL', now: 'FAIL', gains: ['c:blind:GF4:I17::V8b', 'c:blind:GF4:I17::V9'] },
         'GF4 + RPC-001': { before: 'FAIL', now: 'FAIL', gains: ['c:blind:GF4:I17::V8b', 'c:blind:GF4:I17::V9'] },
         'GF4 + Wide Zone': { before: 'FAIL', now: 'FAIL', gains: ['c:blind:GF4:I17::V8b'] },
         'GF4 + A01-02': { before: 'FAIL', now: 'FAIL', gains: ['c:blind:GF4:I17::V9'] },

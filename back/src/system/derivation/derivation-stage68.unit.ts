@@ -589,13 +589,19 @@ function testEveryAuthoredDeclarationFieldArrives(): void {
 }
 
 function testTheGateConditionSelectorReachesItsOwnClass(): void {
-    // The case his answer 9 was asked about: the Pass Combination Gate declares its condition's place
-    // NON_CLAIMED for `type=connected-pass-combination` (ruling C45). Carried, that selector positively
-    // reaches the condition class the gate itself establishes.
+    // The case his answer 9 was asked about: the Pass Combination Gate declares its condition's place for
+    // `type=connected-pass-combination`. Carried, that selector positively reaches the condition class the gate
+    // itself establishes — so the gate's own statement is what governs the line.
+    //
+    // **NON_CLAIMED -> NOT_AUTHORED on 15 October 2026 (C45/C49).** His reply of that day (16 October, item 8):
+    // "removing 'in their half' should not automatically be interpreted as authorizing pass counting anywhere.
+    // Please distinguish whether location is explicitly unrestricted or simply not yet authored." C45 had restated
+    // the claim NON_CLAIMED — read through this very selector, 'explicitly unrestricted'. The place is not yet
+    // authored, so the gate's own statement is now a gap. The selector is unchanged, and still reaches.
     const staged: any = runStages0to5(input(loadCorpusContracts().filter(c => ['restated:GF2', 'blind:PASS-COMBINATION-GATE'].includes(c.contractId))))
     const declaration = staged.scope.declarations.find((d: DeclarationReach) => d.contractId === 'blind:PASS-COMBINATION-GATE' && d.row === 'V5') as DeclarationReach
     assert.equal(declaration.selector, 'type=connected-pass-combination')
-    assert.equal(declaration.declaration, 'NON_CLAIMED')
+    assert.equal(declaration.declaration, 'NOT_AUTHORED')
     const condition = staged.classes.find((c: any) => c.fromItem.contractId === 'blind:PASS-COMBINATION-GATE' && c.fromItem.itemId === 'PCG-02')
     assert.ok(condition, 'the gate establishes its condition class')
     assert.equal(reaches(declaration.parsed.predicate!, condition), 'TRUE')
