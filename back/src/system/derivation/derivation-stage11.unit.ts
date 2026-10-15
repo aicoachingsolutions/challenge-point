@@ -305,12 +305,15 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
     // 45 -> 46 on 15 October 2026 (C51): RPC-001-13's statement of direction loses the engine wording "own-half start
     // area" (his reply received that day, item 9 point 10: "Remove unsupported "own-half start area" wording:
     // Approved."). Pinned in the C51 test below.
+    // 55 -> 56 the same day (C54): RPC-001-18.d's referent recorded as the progression reference, distinct from the
+    // initial pressure reference (his 9.1, "They are distinct relationships, even when they coincide spatially.").
+    // 18.d also carries C52's scope, so it is one item with two rulings and counts once per ruling.
     // 46 -> 55 the same day (C52): the nine items of RPC-001's build-out condition (18.a-18.g, 19.a, 19.b) scoped
     // WHOLE_GAME -> BUILD_OUT_EPISODE, his 16 October 9.3: "Build-out condition applies only to build-out episodes:
     // Approved." Pinned in condition-scope.unit.ts.
     assert.equal(
         restatementTally.itemsRestated,
-        55,
+        56,
         'six Phase A rulings, six sets (SD-79), two exclusion bounds (SD-86), eight goal-kick selectors (SD-87), one restart ownership (SD-89), ' +
             'one typed reference (SD-98), one Wide Zone gloss (C29a), one DISTINCT_ON mark (C29b/C29e), two typed neutral bounds (C29c), ' +
             'one typed channel width (C30b), one equal-outfield promotion (C31b), three Wide Zone lateral restatements (C33), ' +
@@ -326,7 +329,8 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
             'and, from 45 the same day, his bibs ruling (C47): NEUTRAL-06.b, the authored means, marked SUPPORTING ("Contrasting bibs should be ' +
             'treated as a practical recommendation for distinguishing neutrals, not a universal requirement"); its value stays a preferred default — ' +
             'and, from 46 on 15 October 2026, RPC-001-13 without "own-half start area" (C51, his 9.10) — ' +
-            'and, from 55 the same day, the nine build-out condition items scoped to the build-out episode (C52, his 9.3)',
+            'and, from 55 the same day, the nine build-out condition items scoped to the build-out episode (C52, his 9.3) — ' +
+            'and, from 56, RPC-001-18.d recorded as the progression reference, distinct from the pressure reference (C54, his 9.1)',
     )
     // **4 since ruling C42.** GF2-08.a and GF2-03.a are retired — the shared objective's existence and the
     // target it referenced — so the game holds exactly two objectives and two targets rather than three of each.
@@ -1231,6 +1235,43 @@ test('C51: the nine declarations that claimed a row on retired items alone are r
         assert.deepEqual(movesBetween(runStages0to10(claimsBack(composeFor(ids))), now), [], ids.join(' + '))
         assert.ok(![...now.classified.keys()].some((id: string) => /::P(8|9|10)$/.test(id)), `${ids.join(' + ')}: still no line on P8-P10`)
         assert.equal(now.classified.get('game::V2').verdict, 'RESOLVED:ENTAILED', 'the value line still resolves (SD-25) without RPC-001-20')
+    }
+})
+
+/**
+ * ── Ruling C54, 15 October 2026: two distinct references, recorded apart ───────────────────────────────────────
+ *
+ * His reply received that day (16 October, item 9 point 1): *"Separate pressure and progression references:
+ * Approved. They are distinct relationships, even when they coincide spatially."* RPC-001-18.d's referent named both
+ * with one "or" ("the initial pressure or progression line"). It now names the progression reference — where
+ * build-out success is measured — and its fitNote records the pressure reference as distinct and unplaced. Our gloss
+ * "the pressure line, where defenders start" is NOT carried (his item 3 keeps a designated pressure line as one
+ * potential realization only). No engine effect until a typed referent exists (capability M8).
+ */
+test('C54: RPC-001-18.d names the progression reference; the pressure reference is recorded as distinct and unplaced; no gloss carried', () => {
+    const authored = rpc001AsAuthored().items.find((i: any) => i.id === 'RPC-001-18.d')
+    const loaded: any = loadCorpusContracts().find(c => c.contractId === RPC)!.items.find(i => i.itemId === 'RPC-001-18.d')
+    assert.equal(authored.value, 'the initial pressure or progression line', 'the provenance keeps the authored phrase')
+    assert.equal(loaded.value, 'the progression reference: where build-out success is measured')
+    assert.ok(loaded.fitNote.includes('THE INITIAL PRESSURE REFERENCE') && loaded.fitNote.includes('is a DISTINCT relationship and is NOT this condition\'s referent'), loaded.fitNote)
+    assert.ok(loaded.fitNote.includes('placed nowhere'), 'unplaced: no location is written')
+    assert.ok(!String(loaded.value).includes('defenders'), 'the referent says nothing of where defenders start')
+    // The gloss appears once, and only as what is NOT carried.
+    assert.equal(loaded.fitNote.split('where defenders start').length - 1, 1)
+    assert.ok(loaded.fitNote.includes('Not carried: the email\'s gloss of the pressure reference as "the pressure line, where defenders start"'), loaded.fitNote)
+    for (const field of ['row', 'selector', 'requirement', 'strictness', 'valueStatus', 'basis', 'basisEvidence', 'checkability', 'structuralClause']) {
+        assert.deepEqual(loaded[field], authored[field], `RPC-001-18.d ${field} unchanged`)
+    }
+    assert.equal(loaded.scope, 'BUILD_OUT_EPISODE', 'and C52 still applies to it — both rulings land on the one item')
+    // Open text before, open text after: putting the authored phrase back on a copy moves no line and no gate verdict.
+    const putBack = (input: DerivationInput) => {
+        input.contracts = JSON.parse(JSON.stringify(input.contracts))
+        const item: any = input.contracts.find(c => c.contractId === RPC)!.items.find(i => i.itemId === 'RPC-001-18.d')
+        item.value = authored.value
+        return input
+    }
+    for (const ids of [['restated:GF2', RPC], ['restated:GF2', RPC, 'restated:A01-02']]) {
+        assert.deepEqual(movesBetween(runStages0to10(putBack(composeFor(ids))), runStages0to10(composeFor(ids))), [], ids.join(' + '))
     }
 })
 
