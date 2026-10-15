@@ -18,6 +18,7 @@
 
 import { practical, PracticalKind, practicalRequirement } from '../derivation/practical'
 import { effectiveValue, scaleExactly } from '../derivation/rational'
+import { conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { CoachFacingExclusion, exclusionFor } from './coach-facing-exclusions'
 import { ADJUSTING, Binding, combinedStatus, Instruction, RenderedActivity, SourceStatus } from './render-concrete-game'
 
@@ -1013,6 +1014,23 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
      * an owner value, deliberately held, and rendering must not choose ball, player or touch to make the
      * output look runnable.
      */
+    /**
+     * **A condition authored for less than every score, said in a sentence that does not say so, is a contradiction**
+     * — 15 October 2026 (SD-36; his 16 October 9.3, "Build-out condition applies only to build-out episodes:
+     * Approved."). The renderer withholds such a condition rather than say it (no approved sentence carries a scope);
+     * this is the independent check that it did, so a later change to the renderer cannot state the condition as a
+     * rule of every score without being caught.
+     */
+    for (const condition of fixture.game.value?.primaryEvent?.conditions ?? []) {
+        const notEvaluable = conditionScopeNotEvaluable(condition)
+        if (!notEvaluable) continue
+        const at = `value.primaryEvent.conditions[${condition.elementId}]`
+        const saying = rendered.instructions.filter(i => i.from.some(f => f === at || f.startsWith(`${at}.`)))
+        for (const instruction of saying) {
+            findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" states a condition as a rule of the game when ${notEvaluable}` })
+        }
+    }
+
     for (const modifier of fixture.game.value?.valueModifiers ?? []) {
         const carried = rendered.instructions.some(i => i.from.some(f => f.includes(String(modifier.elementId))))
         if (!carried) continue

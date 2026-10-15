@@ -23,6 +23,7 @@
  * It names what is missing and fills nothing in. It never scores or ranks anything: it is not a selection
  * input. The event kinds and condition types are data; this file names none of them.
  */
+import { conditionScopeNotEvaluable, EVALUABLE_CONDITION_SCOPE } from '../derivation/resolved-game'
 import { LoadedContract } from '../derivation/types'
 
 /** The condition types the context's contract constitutes, each with the item that constitutes it. */
@@ -48,9 +49,29 @@ export function contextScoringFindings(contextId: string, contract: LoadedContra
             `the realized primary event is ${kind === undefined ? 'absent' : `"${kind}"`}, which the Representative Performance Context ${contextId} does not approve (it approves: ${approvedEvents.join(', ') || 'nothing'})`,
         )
     }
-    const present = new Set((Array.isArray(event?.conditions) ? event.conditions : []).map((condition: any) => String(condition?.type)))
+    const conditions: any[] = Array.isArray(event?.conditions) ? event.conditions : []
+    const present = new Set(conditions.map((condition: any) => String(condition?.type)))
     for (const { type, itemId } of constitutedConditionTypes(contract)) {
-        if (!present.has(type)) findings.push(`the ${type} condition ${contextId} constitutes (${itemId}) is not in the realized game's primary event`)
+        if (!present.has(type)) {
+            findings.push(`the ${type} condition ${contextId} constitutes (${itemId}) is not in the realized game's primary event`)
+            continue
+        }
+        /**
+         * **Present is not yet governing, where the condition was authored for less than every score** — 15 October
+         * 2026. The constituting item's own scope must have arrived on the condition (a projection is proved by its
+         * consumer), and a scope narrower than the whole game cannot be confirmed by a check that reads only whether
+         * the condition is there: it would be passing a condition on every score that was authored for some. His
+         * SD-36 and 16 October 9.3 ("Build-out condition applies only to build-out episodes: Approved.").
+         */
+        const authored = (contract.items ?? []).find(item => item.itemId === itemId)?.scope
+        const element = conditions.find((condition: any) => String(condition?.elementId) === `c:${contract.contractId}:${itemId}`)
+        const carried = element && Object.prototype.hasOwnProperty.call(element, 'scope') ? element.scope : EVALUABLE_CONDITION_SCOPE
+        if (element && authored !== undefined && String(carried) !== String(authored)) {
+            findings.push(`the ${type} condition ${contextId} constitutes (${itemId}) is authored for the ${String(authored)} scope and reached the realized game as ${JSON.stringify(carried)}`)
+            continue
+        }
+        const notEvaluable = conditionScopeNotEvaluable(element)
+        if (notEvaluable) findings.push(`the ${type} condition ${contextId} constitutes (${itemId}) cannot be confirmed to govern this game: ${notEvaluable}`)
     }
     return findings
 }

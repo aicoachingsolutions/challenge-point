@@ -46,6 +46,7 @@
  * comes from the game and the path is cited.** "Obvious in the sport" is not a source.
  */
 import { effectiveValue } from '../derivation/rational'
+import { CONDITION_ROW, conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { approvedWording, ApprovedWording, WordingMatch } from './approved-wording'
 import { exclusionFor } from './coach-facing-exclusions'
 
@@ -549,6 +550,18 @@ function sayInApprovedWords(game: any, wording: ApprovedWording[], push: (instru
         for (const element of Array.isArray(elements(game)) ? (elements(game) as any[]) : []) {
             const pathOf = (field: string) => `${base}[${element?.elementId}].${field}`
             const held = fields.filter(f => present(fieldOf(element, f.field)))
+            /**
+             * **A condition authored for less than every score is not said as if it governed every score** — 15
+             * October 2026. No approved sentence carries a scope, so saying any of them for such a condition would
+             * state a wider rule than the one authored (SD-36; his 16 October 9.3, "Build-out condition applies only
+             * to build-out episodes: Approved."). Every field it holds, and the scope itself, is withheld instead,
+             * which refuses the activity at communication. No sentence is written for it here.
+             */
+            if (conditionScopeNotEvaluable(element)) {
+                for (const field of held) withheld.push({ path: pathOf(field.field), row: field.row, reason: 'AWAITING_APPROVED_WORDING' })
+                withheld.push({ path: pathOf('scope'), row: CONDITION_ROW, reason: 'AWAITING_APPROVED_WORDING' })
+                continue
+            }
             const said = new Set<string>()
             for (const entry of wording) {
                 const covered = entry.covers.map(cover => ({ cover, field: held.find(f => f.row === cover.row) }))

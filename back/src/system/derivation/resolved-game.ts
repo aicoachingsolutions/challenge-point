@@ -281,6 +281,32 @@ export function splitPath(path: string): { container: string | null; leaf: strin
     return { container: path.slice(0, at), leaf: path.slice(at + 2).replace(/^\./, '') }
 }
 
+/** The register row whose collection holds the primary event's conditions (`value.primaryEvent.conditions[]`). */
+export const CONDITION_ROW = 'V3'
+/** The one condition scope every downstream reader can evaluate: the condition governs every score. */
+export const EVALUABLE_CONDITION_SCOPE = 'WHOLE_GAME'
+
+/**
+ * **Why a condition element cannot be evaluated by a reader that applies conditions to every score — or null.**
+ *
+ * The one reading of the carried `scope` (see `assembleResolvedGame`), shared by realization, the context-scoring
+ * guard, rendering and fidelity so they cannot come to read it differently. The brief's rule, from his SD-36 and
+ * his 16 October 9.3: a reader that cannot evaluate a scope narrower than the whole game refuses or reports it as
+ * not evaluable — it never passes the condition and never applies it to every score. The precedent is the
+ * joint-condition reading in realize.ts (*"A scope this layer cannot evaluate makes the condition NOT EVALUABLE,
+ * never satisfied"*), which likewise evaluates WHOLE_GAME alone: PER_TEAM is not read as "every score" here either,
+ * because that reading would be ours.
+ */
+export function conditionScopeNotEvaluable(element: unknown): string | null {
+    if (!element || typeof element !== 'object' || !Object.prototype.hasOwnProperty.call(element, 'scope')) return null
+    const scope = (element as { scope?: unknown }).scope
+    if (scope === EVALUABLE_CONDITION_SCOPE) return null
+    const id = String((element as { elementId?: unknown }).elementId ?? 'a condition')
+    return scope === null || scope === undefined
+        ? `${id} states no scope, so whether it governs every score is not established`
+        : `${id} is authored for the ${String(scope)} scope, and applying it to every score would be a different and wider rule than the one authored`
+}
+
 /** Read whatever sits at a dotted path, or undefined. */
 function readAt(root: Record<string, unknown>, path: string): unknown {
     let node: any = root
@@ -459,6 +485,34 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
         return terms.length ? terms.map(t => ({ ...t })) : undefined
     }
 
+    /**
+     * **A primary-event condition carries its authored scope** — 15 October 2026, the loss SD-36 was waiting on.
+     *
+     * Christian, 20 September (SD-36), the BUILD_OUT_EPISODE scope *"applies to the attacking episode whose
+     * beginning satisfies the resolved RPC-001 build-out begin condition. It does NOT automatically extend to
+     * subsequent attacking episodes"*; and in his reply received 15 October 2026 (16 October, item 9 point 3):
+     * *"Build-out condition applies only to build-out episodes: Approved."* Until now a condition element was
+     * built from its id and selector alone, so the scope its item authored was dropped here, and every downstream
+     * reader treated the condition as governing every score. Measured that day on a deep copy of the possession
+     * game with the build-out context, its four conditions re-scoped to the episode: the resolved game was
+     * byte-identical to the unscoped one apart from the input digest — the restatement would have been inert.
+     *
+     * **Carried only where it is not WHOLE_GAME** (decided and pinned in resolved-game.unit.ts). Whole-game is
+     * what every reader already did with a condition, so a game whose conditions are all whole-game assembles
+     * exactly as before — same object, same fixture, same digest downstream — and the key's PRESENCE is what tells
+     * a reader that this condition is narrower than every score. A condition whose item states no scope carries
+     * `scope: null`: absent would read as whole-game, and that is not what was authored. `conditionScopeNotEvaluable`
+     * is the one reading of it, for every consumer.
+     */
+    const conditionsAt = splitPath(String(rows.get(CONDITION_ROW)?.path ?? '')).container
+    const conditionScopeOf = (elementId: string): { scope: string | null } | undefined => {
+        const cls = classes.find(c => c.classId === elementId)
+        if (!cls) return undefined
+        const authored = items.get(`${cls.fromItem.contractId}:${cls.fromItem.itemId}`)?.scope
+        if (authored === EVALUABLE_CONDITION_SCOPE) return undefined
+        return { scope: authored === undefined || authored === null ? null : String(authored) }
+    }
+
     const ensureElement = (elementId: string, row: { path: string }): Record<string, unknown> => {
         const { container } = splitPath(row.path)
         const key = container ?? row.path
@@ -466,7 +520,8 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
         const bucket = elements.get(key)!
         if (!bucket.entries.has(elementId)) {
             const selector = selectorOf(elementId)
-            bucket.entries.set(elementId, selector ? { elementId, selector } : { elementId })
+            const scoped = conditionsAt && key === conditionsAt ? conditionScopeOf(elementId) : undefined
+            bucket.entries.set(elementId, { elementId, ...(selector ? { selector } : {}), ...(scoped ?? {}) })
         }
         return bucket.entries.get(elementId)!
     }

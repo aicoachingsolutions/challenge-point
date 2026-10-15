@@ -1172,13 +1172,18 @@ test('FIRST_FORWARD_PASS is registered, and it is the only trigger the 29 Septem
     )
 })
 
-test('the seventeen Gate A checks are all present, and GA-RESIDUAL-SPACE is gone (SD-45)', () => {
+test('the eighteen Gate A checks are all present, and GA-RESIDUAL-SPACE is gone (SD-45)', () => {
     const result: any = runStages0to10(corpusInput())
     const ids = gateA(result).checks.map((c: any) => c.checkId).sort()
     // Seventeen since 14 October 2026: GA-AFFILIATION reads register row P6c, added that day on his ruling
     // ("Please add the explicit property governing when a neutral player changes allegiance"). A check of its
     // own so a failure names its subject (SD-53). See affiliation-timing.unit.ts.
-    assert.equal(ids.length, 17)
+    // Eighteen since 15 October 2026: GA-EPISODE-REACHABLE asks whether a condition authored for an episode has a
+    // transition that can begin that episode — possible to ask only once conditions carried their authored scope
+    // (SD-36; his 16 October 9.3, "Build-out condition applies only to build-out episodes: Approved."). See
+    // condition-scope.unit.ts.
+    assert.equal(ids.length, 18)
+    assert.ok(ids.includes('GA-EPISODE-REACHABLE'))
     assert.ok(ids.includes('GA-AFFILIATION'))
     assert.ok(!ids.includes('GA-RESIDUAL-SPACE'), 'SD-45 removed it; no machine-testable concept is created')
     assert.ok(ids.includes('GA-MODIFIER-OVERLAP'))

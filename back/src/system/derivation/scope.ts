@@ -135,6 +135,16 @@ export function resolveScopes(contracts: LoadedContract[], classes: ElementClass
             divergence.push({ contractId: contract.contractId, why: 'the restricted computation did not agree with itself' })
         }
 
+        /**
+         * Only OWN_INVOLVEMENT narrows which CLASSES an item may reach; every other scope reaches every class and
+         * stage 4 decides which it actually reaches. **That is not the whole of what a scope says** — recorded 15
+         * October 2026, because this line was the silent half of a loss. BUILD_OUT_EPISODE (SD-36) narrows WHEN a
+         * condition governs, not which element it is: it is not a class restriction, and treating it as one here
+         * would drop the condition's element altogether. It is carried instead onto the condition element itself
+         * (`assembleResolvedGame`), where every downstream reader must honour it or report that it cannot
+         * (`conditionScopeNotEvaluable`), and Gate A asks whether the episode can begin (`GA-EPISODE-REACHABLE`).
+         * Before that, nothing past this line ever read it, so the scope was in force nowhere.
+         */
         for (const item of contract.items || []) {
             const scope = String(item.scope)
             const classIds =

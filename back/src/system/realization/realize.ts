@@ -1194,9 +1194,43 @@ export function nothingClosedWithoutAuthority(resolved: ResolvedGame, realized: 
     return problems
 }
 
+/**
+ * Every element in a game that carries an authored `scope`, by the path the invention walk names it with
+ * (`container[elementId]`). Only primary-event conditions carry one, and only where it is not whole-game
+ * (`assembleResolvedGame`, 15 October 2026); read generically so no collection is named here.
+ */
+function carriedScopes(game: unknown): Map<string, unknown> {
+    const found = new Map<string, unknown>()
+    const walk = (node: unknown, path: string) => {
+        if (Array.isArray(node)) {
+            for (const entry of node) {
+                const id = entry && typeof entry === 'object' ? (entry as any).elementId : null
+                if (id && Object.prototype.hasOwnProperty.call(entry, 'scope')) found.set(`${path}[${id}]`, (entry as any).scope)
+                walk(entry, id ? `${path}[${id}]` : path)
+            }
+            return
+        }
+        if (node && typeof node === 'object') for (const [k, v] of Object.entries(node)) walk(v, path ? `${path}.${k}` : k)
+    }
+    walk(game, '')
+    return found
+}
+
 /** **Nothing lost** — every derived value survives into the concrete game unchanged. */
 export function nothingLost(resolved: ResolvedGame, realized: Realized): string[] {
     const problems: string[] = []
+    /**
+     * **And every condition's authored scope survives with it** — 15 October 2026. A condition that arrives without
+     * the scope it was authored for reads as governing every score, which is the loss the scope was carried to end
+     * (SD-36; his 16 October 9.3, "Build-out condition applies only to build-out episodes: Approved."). A projection
+     * is only proved by a consumer, so the concrete game is held to the resolved one here.
+     */
+    const realizedScopes = carriedScopes(realized.game)
+    for (const [path, scope] of carriedScopes(resolved.game)) {
+        if (!realizedScopes.has(path) || JSON.stringify(realizedScopes.get(path)) !== JSON.stringify(scope)) {
+            problems.push(`${path}.scope: authored ${JSON.stringify(scope)}, concrete ${realizedScopes.has(path) ? JSON.stringify(realizedScopes.get(path)) : 'absent'}`)
+        }
+    }
     for (const entry of resolved.derived) {
         const parts = splitElementPath(entry.path)
         const value = parts
@@ -1321,6 +1355,10 @@ export function nothingInvented(resolved: ResolvedGame, realized: Realized): str
     }
 
     const problems: string[] = []
+    // An authored condition scope is accounted where — and only where — the resolved game carries the same one on
+    // the same element (15 October 2026). It is what the knowledge says the condition is FOR, not a value realization
+    // chose; one the resolved game does not carry is an invention like any other.
+    const authoredScopes = carriedScopes(resolved.game)
     /** The member a value sits inside, and the leaf path it has reached within that member. */
     type Within = { member: Record<string, unknown>; memberKey: string; leaf: string; label: string } | null
     const walk = (node: unknown, path: string, within: Within) => {
@@ -1382,6 +1420,7 @@ export function nothingInvented(resolved: ResolvedGame, realized: Realized): str
                 // is, and which claim or authored selector picks it out. They are not values established
                 // about it, so they are not candidates for invention.
                 if (k === 'elementId' || k === 'satisfies' || k === 'selector') continue
+                if (k === 'scope' && !within && authoredScopes.has(path) && JSON.stringify(authoredScopes.get(path)) === JSON.stringify(v)) continue
                 walk(v, path ? `${path}.${k}` : k, within ? { ...within, leaf: within.leaf ? `${within.leaf}.${k}` : k } : null)
             }
             return

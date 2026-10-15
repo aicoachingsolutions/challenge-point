@@ -1048,6 +1048,10 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
             [
                 `${condition}.type (V4)`,
                 `${condition}.value (V6)`,
+                // Added 15 October 2026: the gate's condition is authored PER_TEAM, which it now carries (only a whole-game
+                // condition carries no scope), and no approved sentence can say a scope, so the scope is withheld beside
+                // its fields. Nothing else moves: the demonstration still stops here, at communication.
+                `${condition}.scope (V3)`,
                 `${rule}.subject (V16)`,
                 `${rule}.trigger (V17)`,
                 `${rule}.dimensions.D006_triggerType (V18)`,

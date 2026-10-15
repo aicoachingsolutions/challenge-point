@@ -1127,6 +1127,79 @@ function gaTriggerReachable(ctx: GateContext): CheckOutcome {
     )
 }
 
+/**
+ * `GA-EPISODE-REACHABLE` — a condition authored for an episode needs a transition that can begin one. Added 15
+ * October 2026, beside `GA-TRIGGER-REACHABLE` and for the same reason SD-44 gives there: something the game says
+ * must happen has to be able to happen in it.
+ *
+ * **The scope it reads.** Christian, 20 September (SD-36): the BUILD_OUT_EPISODE scope *"applies to the attacking
+ * episode whose beginning satisfies the resolved RPC-001 build-out begin condition. It does NOT automatically extend
+ * to subsequent attacking episodes."* KR-03, his words: *"a turnover may begin a new attacking episode while play
+ * continues"*, and a return to a build-out *"requires an authored transition/reset rule"* — and his reply
+ * received 15 October 2026 (16 October, 9.3): *"Build-out condition applies only to build-out episodes: Approved."*
+ * Before the condition element carried its scope (resolved-game.ts, the same day) nothing could ask this.
+ *
+ * **Strict, so a tightening.** A condition carrying an episode scope:
+ *   - FAILS where no transition element can begin such an episode — none keyed on a trigger other than a possession
+ *     change whose episode-start is not established false. A possession change never begins one (KR-03: that
+ *     episode is a new attacking episode, not a build-out, unless an authored reset says otherwise);
+ *   - DEFERS while a candidate's taker is still open — realization chooses it, and only then can the episode's
+ *     beginning be compared with the begin condition;
+ *   - is NOT_EVALUABLE where a candidate's taker is settled: the begin condition's origin is authored as placement
+ *     text (RPC-001-18.b), which establishes no structural identity to compare a taker with (SD-63), so this check
+ *     withholds rather than infers that it matches.
+ * It never passes a condition whose episode it cannot find. Every condition whose scope is not an episode is outside
+ * it (a vacuous pass, SD-54).
+ */
+const EPISODE_SCOPES = ['BUILD_OUT_EPISODE']
+function gaEpisodeReachable(ctx: GateContext): CheckOutcome {
+    const CLAUSE = 'every condition authored for an episode has a transition that can begin that episode'
+    const probe = new Probe(ctx, 'GA-EPISODE-REACHABLE')
+    const scopeOf = (cls: ElementClass) =>
+        String((ctx.contracts.find(c => c.contractId === cls.fromItem.contractId)?.items ?? []).find(i => i.itemId === cls.fromItem.itemId)?.scope ?? '')
+    const scoped = ctx.classes.filter(c => c.row === 'V3' && EPISODE_SCOPES.includes(scopeOf(c)))
+    if (!scoped.length) return result('GA-EPISODE-REACHABLE', probe, [pass(CLAUSE, 0)], 'no condition is authored for an episode')
+
+    const candidates: { classId: string; trigger: string }[] = []
+    const ruledOut: string[] = []
+    for (const transition of classesOn(ctx, 'T1')) {
+        const term = (transition.constraints?.terms || []).find(t => t.attribute === 'trigger' && t.op === '=')
+        const trigger = term && term.op === '=' ? String(term.value) : null
+        if (trigger === 'POSSESSION_CHANGE') {
+            ruledOut.push(`${transition.classId} (a possession change begins an attacking episode, never a build-out one)`)
+            continue
+        }
+        const starts = probe.cell(lineOf(transition.classId, 'T7'))
+        if (starts.state === 'DERIVED' && String(starts.value) !== 'true') {
+            ruledOut.push(`${transition.classId} (begins no episode)`)
+            continue
+        }
+        candidates.push({ classId: transition.classId, trigger: trigger ?? 'not fixed' })
+    }
+
+    const named = scoped.map(c => `${c.classId} (${scopeOf(c)})`).join(', ')
+    if (!candidates.length) {
+        return result(
+            'GA-EPISODE-REACHABLE',
+            probe,
+            [fail(CLAUSE, scoped.length)],
+            `${scoped.length} condition(s) are authored for an episode — ${named} — and no transition can begin one` +
+                (ruledOut.length ? `: ${ruledOut.join('; ')}` : ': the game holds no transition element'),
+        )
+    }
+    const takers = candidates.map(c => probe.cell(lineOf(c.classId, 'T3')))
+    const verdict = takers.some(t => t.state === 'OPEN')
+        ? deferred(CLAUSE, 'the realized taker of the episode-starting transition, which fixes whether the episode begins as the begin condition requires')
+        : notEvaluable(CLAUSE)
+    return result(
+        'GA-EPISODE-REACHABLE',
+        probe,
+        [verdict],
+        `${scoped.length} condition(s) are authored for an episode — ${named}; ${candidates.length} transition(s) may begin one ` +
+            `(${candidates.map(c => `${c.classId}: ${c.trigger}`).join('; ')}), and whether one begins as the begin condition requires is not established`,
+    )
+}
+
 /** `GA-TRANSITION-COHERENCE` — `CONTINUE` ⇒ no placement; `STOP_RESUME` ⇒ taker and region. */
 function gaTransitionCoherence(ctx: GateContext): CheckOutcome {
     const CONTINUE_CLAUSE = 'a CONTINUE transition carries no placement'
@@ -2152,6 +2225,8 @@ const GATE_A_CHECKS: ((ctx: GateContext) => CheckOutcome)[] = [
     gaModifierOverlap,
     // Seventeenth, added 14 October 2026 with register row P6c, on his ruling of that day.
     gaAffiliation,
+    // Eighteenth, added 15 October 2026 when conditions began carrying their authored scope (SD-36; his 16 October 9.3).
+    gaEpisodeReachable,
 ]
 
 export interface GateOutcome {
