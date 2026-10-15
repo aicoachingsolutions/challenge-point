@@ -143,7 +143,7 @@ export interface DeclarationAddition {
  *        - every item on the row, in any contract, that authors a value the field must take: an authored value is
  *          exactly what "needs no further value" would contradict.
  *      An item of EXCLUSION strictness is not in that last list, and that is a reading recorded here rather than a
- *      relaxation: it authors a value the field must NOT take, which "no further value is required" does not
+ *      relaxation: it authors a value the field must NOT take, which "No further value is required" does not
  *      contradict, and it keeps governing the line on its own (its contract's EXCLUDED outranks 'not constrained'
  *      under AM-23 — measured: in the full corpus the origin line reads 'excluded' through the Neutral Player
  *      Condition's own exclusion). Other contracts' EXCLUDED and NOT_AUTHORED declarations need no proof for the
@@ -153,12 +153,21 @@ export interface DeclarationAddition {
  * The selectors are compared by their syntax (selector.ts `parsePredicate`); an unparseable one is refused, never
  * passed. The proof runs over every contract the corpus file holds, which is wider than any one composition and so
  * can only refuse more. The Sport Profile is not in that file: it declares no condition row (O1, O3-O5, PS1).
+ *
+ * **The same proof for a QUALIFIED addition on a row its contract has not declared** (K1 review, 15 October 2026).
+ * C48's path admits an addition to an undeclared row unproved, on the ground that it cannot contradict what its own
+ * contract says — true, but it can still sit above another contract's claim (AM-23) and, qualified, set a ruled
+ * deferral aside: exactly what his M6 safeguard is about. So a qualified addition is admitted on either path only
+ * when this proof holds (`onDeclaredRow` false: its own contract has nothing on the row, so the other two lists
+ * decide). An unqualified C48 addition is unchanged. No addition in the knowledge takes this path today.
  */
-export function provenDisjointRefusal(addition: DeclarationAddition, contracts: LoadedContract[]): string | null {
-    const label = `${addition.contractId} declared row ${addition.declaration.row} (${addition.ruling})`
+export function provenDisjointRefusal(addition: DeclarationAddition, contracts: LoadedContract[], onDeclaredRow = true): string | null {
+    const label = `${addition.contractId} ${onDeclaredRow ? 'declared' : 'undeclared'} row ${addition.declaration.row} (${addition.ruling})`
     const row = String(addition.declaration.row)
     if (addition.declaration.declaration !== 'NON_CLAIMED' || addition.declaration.qualifier === undefined) {
-        return `${label}: only a non-claim qualified with a registered state may join a row the contract already declares, so nothing is added`
+        return onDeclaredRow
+            ? `${label}: only a non-claim qualified with a registered state may join a row the contract already declares, so nothing is added`
+            : `${label}: a declaration qualifier says which state a non-claim is, so a qualified ${addition.declaration.declaration} is not added`
     }
     if (addition.declaration.defersTo !== undefined) return `${label}: an added declaration may not carry a deferral, so nothing is added`
     const added = parsePredicate(addition.declaration.selector)
@@ -258,9 +267,9 @@ export function applyNoRowRestatement(contracts: LoadedContract[], tally: Restat
     tally.declarationsAdded = 0
     tally.declarationsAddedOnDeclaredRows = 0
     tally.notFound = []
-    // M6 additions wait until every contract is restated, because their proof reads OTHER contracts' declarations and
-    // items as the rulings leave them (`provenDisjointRefusal`).
-    const onDeclaredRows: DeclarationAddition[] = []
+    // M6 additions — and any qualified addition (K1 review) — wait until every contract is restated, because their proof
+    // reads OTHER contracts' declarations and items as the rulings leave them (`provenDisjointRefusal`).
+    const proved: { addition: DeclarationAddition; onDeclaredRow: boolean }[] = []
 
     // An item can carry more than one ruling — A01-02-05.a carries SD-87's selector and SD-88's
     // authored ownership — so they are collected per item and applied in the order listed. Keying one
@@ -352,7 +361,12 @@ export function applyNoRowRestatement(contracts: LoadedContract[], tally: Restat
             const row = String(addition.declaration.row)
             const existing = declarations.filter((declaration: any) => String(declaration.row) === row)
             if (existing.length && addition.onDeclaredRow === 'PROVEN_DISJOINT') {
-                onDeclaredRows.push(addition)
+                proved.push({ addition, onDeclaredRow: true })
+                continue
+            }
+            // A qualified statement on an undeclared row waits for the same proof (K1 review; `provenDisjointRefusal`).
+            if (!existing.length && addition.declaration.qualifier !== undefined) {
+                proved.push({ addition, onDeclaredRow: false })
                 continue
             }
             if (existing.length) {
@@ -366,16 +380,18 @@ export function applyNoRowRestatement(contracts: LoadedContract[], tally: Restat
 
         return { ...contract, items, declarations }
     })
-    // His M6 exception, applied last and one addition at a time, so each proof reads every earlier one as admitted.
-    for (const addition of onDeclaredRows) {
-        const refusal = provenDisjointRefusal(addition, result)
+    // His M6 exception, applied last and one addition at a time, so each proof reads every earlier one as admitted. A
+    // qualified addition on an undeclared row is proved the same way and still counted with C48's additions.
+    for (const { addition, onDeclaredRow } of proved) {
+        const refusal = provenDisjointRefusal(addition, result, onDeclaredRow)
         if (refusal) {
             tally.notFound.push(refusal)
             continue
         }
         const at = result.findIndex(contract => contract.contractId === addition.contractId)
         result[at] = { ...result[at], declarations: [...(result[at].declarations || []), { ...addition.declaration }] }
-        tally.declarationsAddedOnDeclaredRows++
+        if (onDeclaredRow) tally.declarationsAddedOnDeclaredRows++
+        else tally.declarationsAdded++
     }
     for (const restatement of DECLARATION_RESTATEMENTS) {
         if (!result.some(contract => contract.contractId === restatement.contractId)) tally.notFound.push(`${restatement.contractId} (declaration restatement ${restatement.ruling})`)

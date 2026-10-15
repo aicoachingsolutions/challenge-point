@@ -181,7 +181,8 @@ function checkModifierOperations(contract: LoadedContract): LoadRefusal | null {
 /**
  * **His three states, validated where the knowledge enters** (15 October 2026, stage K1). His 17 October M6: *"the
  * machine-readable representation must preserve the distinction between: No further value is required. The value is
- * explicitly unrestricted. A necessary value is missing. These must not collapse into the same operational meaning."*
+ * explicitly unrestricted. A necessary value is missing. These must not collapse into the same operational meaning,
+ * even if their current surface representation is similar."*
  *
  * A qualifier is registered data (`contractEnums.declarationQualifier`) and says which state a NON-CLAIM is, so it is
  * refused on any other kind — a qualified claim or gap would be a fourth state nobody defined. UNRESTRICTED is

@@ -776,6 +776,13 @@ test('C55 moves exactly the origin line, wherever RPC-001 is composed — and on
     for (const [name, make] of [...COMPOSITIONS, ...GF4_COMPOSITIONS, ...PCG_COMPOSITIONS]) {
         assert.deepEqual(differences(stagedOver(make, strip), stagedOver(make, () => undefined)), expected[name] ?? [], `${name}: what C55 moves`)
     }
+    // **Added at the K1 review, 15 October 2026: the context alone, which none of the lists above holds.** Measured by
+    // probe: there too the origin's line was the last one GA-NO-FAILED-LINE failed on once C57 typed the two referents,
+    // so the check moves with it. C55's own record said "no Gate A check verdict moves", which held only without C57;
+    // it now names both compositions.
+    const alone = () => compose(['restated:RPC-001'])
+    assert.deepEqual(differences(stagedOver(alone, strip), stagedOver(alone, () => undefined)), ['Gate A GA-NO-FAILED-LINE: FAIL -> PASS', ORIGIN_MOVE('not constrained')], 'RPC-001 alone: what C55 moves')
+    assert.equal(stagedOver(alone, () => undefined).gates.gateA.verdict, 'FAIL', 'RPC-001 alone: Gate A stays FAIL')
     // Gate A stays FAIL where the context is composed with the possession game: the build-out episode cannot begin yet.
     assert.equal(run('GF2 + RPC-001').staged.gates.gateA.verdict, 'FAIL')
     assert.equal(run('GF2 + RPC-001').staged.gates.gateA.checks.find((c: any) => c.checkId === 'GA-EPISODE-REACHABLE').verdict, 'FAIL')

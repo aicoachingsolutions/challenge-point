@@ -1516,7 +1516,7 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
 
     /**
      * **Fields the knowledge says need nothing more — a technical observation, never coach text** (15 October 2026,
-     * stage K1). His 17 October M6 keeps "no further value is required" apart from "explicitly unrestricted" and from
+     * stage K1). His 17 October M6 keeps "No further value is required" apart from "explicitly unrestricted" and from
      * "missing"; the fixture now carries which one each unestablished entry is, and this is the account that reads it,
      * so the state is shown to whoever reviews the game rather than only carried. A coach is told nothing: a field
      * that needs no further value is not something a coach would say before starting. DRAFT wording.

@@ -32,6 +32,7 @@ import { runGates } from './gates'
 import { indexRegister } from './register'
 import { assembleResolvedGame } from './resolved-game'
 import { derivationInputFor } from './run-bounded-selection'
+import { relationalReferentOf } from './types'
 
 let passed = 0
 function test(name: string, body: () => void): void {
@@ -532,6 +533,23 @@ test('the corpus-wide Gate A, check by check', () => {
         // came from: its value is the authored "controlled on arrival", typed to no pass length or origin of the ball.
         assert.equal(item('RPC-001-18.g').value, 'controlled on arrival')
         assert.deepEqual({ objectiveReferenceOf: item('RPC-001-18.h').value.objectiveReferenceOf, role: item('RPC-001-18.h').value.role }, relational)
+    })
+
+    test('C57: a relational referent enters the knowledge only through a ruling — the two loaded are C57\'s, and no authored file carries one', () => {
+        // Added at the K1 review, 15 October 2026. The register's V5 text says the relational form is "Written only by a
+        // ruled restatement (C57), never inferred from prose"; until now nothing held the knowledge to that sentence.
+        // Every value the engine loads, a set's members included, is read by the one recogniser the gates use.
+        const relationalIn = (value: unknown) => (Array.isArray(value) ? value : [value]).some(member => relationalReferentOf(member) !== null)
+        const loaded = loadCorpusContracts().flatMap(contract => contract.items.filter(item => relationalIn(item.value)).map(item => `${contract.contractId}::${item.itemId}`))
+        assert.deepEqual(loaded, [`${RPC}::RPC-001-18.h`, `${RPC}::RPC-001-19.c`])
+        const restatements = JSON.parse(fs.readFileSync(path.join(CONFORMANCE_DIR, 'stage-b/corpus-restatements.json'), 'utf8').replace(/^﻿/, ''))
+        const ruled = (restatements.added ?? []).filter((entry: any) => relationalIn(entry.item?.value)).map((entry: any) => `${entry.item.itemId} ${entry.ruling}`)
+        assert.deepEqual(ruled, ['RPC-001-18.h C57', 'RPC-001-19.c C57'], 'each added by the ruling that records his M8')
+        // Nor does a value restatement or an authored file carry one: only C57's two additions do.
+        assert.ok(!(restatements.items ?? []).some((entry: any) => relationalIn(entry.set?.value)), 'no item restatement writes one')
+        for (const file of ['stage-b/contracts.json', 'stage-b/sport-profile-soccer.json']) {
+            assert.ok(!fs.readFileSync(path.join(CONFORMANCE_DIR, file), 'utf8').includes('objectiveReferenceOf'), `${file} carries none`)
+        }
     })
 }
 

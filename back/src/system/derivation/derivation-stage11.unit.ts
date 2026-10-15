@@ -571,6 +571,37 @@ test("M6: the proof reads OTHER contracts — another contract's claim, or an it
     assert.ok(neutral.items.some((i: any) => i.itemId === 'NEUTRAL-16.a' && i.row === 'V6' && i.selector === '*' && i.strictness === 'EXCLUSION'), 'the exclusion item the proof passes over is real')
 })
 
+test('M6, K1 review: a QUALIFIED addition on a row its contract has not declared is proved too — C48\'s path admits only unqualified ones unproved', () => {
+    // Added at the K1 review, 15 October 2026. C48's path never looked at other contracts, which was sound for what it
+    // was built for (a legacy non-claim copied beside its sibling); a qualified statement there could sit above another
+    // contract's claim or item and set a ruled deferral aside, unproved. Constructed, TEST-ONLY: GF2 declares nothing
+    // on V8c, and the Wide Zone item WIDEZONE-18.d authors a value there for condition.type=region.
+    const before = DECLARATION_ADDITIONS.length
+    loadCorpusContracts()
+    const counted = restatementTally.declarationsAdded
+    const statement = { row: 'V8c', declaration: 'NON_CLAIMED', qualifier: 'NO_FURTHER_VALUE', scope: 'WHOLE_GAME', note: 'TEST-ONLY' }
+    try {
+        DECLARATION_ADDITIONS.push({ contractId: 'restated:GF2', declaration: { ...statement, selector: 'condition.type=region' } as any, ruling: 'TEST', why: 'TEST-ONLY' })
+        let gf2 = loadCorpusContracts().find(c => c.contractId === 'restated:GF2')!
+        assert.deepEqual(restatementTally.notFound, ['restated:GF2 undeclared row V8c (TEST): the added declaration is not proven disjoint from item restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-18.d condition.type=region, so nothing is added'])
+        assert.ok(!(gf2.declarations || []).some((d: any) => d.row === 'V8c'), 'nothing is added')
+        assert.equal(restatementTally.declarationsAdded, counted, 'and nothing is counted')
+        DECLARATION_ADDITIONS.splice(before)
+        // Proved disjoint, it is admitted, and counted with C48's additions (its row was undeclared), not as an M6 one.
+        DECLARATION_ADDITIONS.push({ contractId: 'restated:GF2', declaration: { ...statement, selector: 'condition.type=event' } as any, ruling: 'TEST', why: 'TEST-ONLY' })
+        gf2 = loadCorpusContracts().find(c => c.contractId === 'restated:GF2')!
+        assert.deepEqual(restatementTally.notFound, [])
+        assert.deepEqual((gf2.declarations || []).filter((d: any) => d.row === 'V8c').map((d: any) => `${d.declaration} ${d.selector} ${d.qualifier}`), ['NON_CLAIMED condition.type=event NO_FURTHER_VALUE'])
+        assert.equal(restatementTally.declarationsAdded, counted + 1)
+        assert.equal(restatementTally.declarationsAddedOnDeclaredRows, 1, 'only C55 is an M6 addition')
+    } finally {
+        DECLARATION_ADDITIONS.splice(before)
+        loadCorpusContracts()
+    }
+    assert.deepEqual(restatementTally.notFound, [], 'restored')
+    assert.equal(restatementTally.declarationsAdded, counted, 'restored')
+})
+
 /**
  * SD-75 — negative existence. The risk he named: the treatment must not pull inside the structural
  * boundary anything his ruling placed outside it.
