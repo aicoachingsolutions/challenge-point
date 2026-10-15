@@ -102,17 +102,24 @@ const GENERAL_REQUIREMENTS = ['NOT_AUTHORED', 'EXCLUDED', 'CLAIMED']
  * The rule, for a line on element class `cls`:
  *
  *   1. The ESTABLISHING objects are those whose contributions form the class (`fromItem` and `supportedBy`).
- *   2. Their EXPLICIT statement is every declaration of theirs on the row whose kind is not UNDECLARED and whose
- *      selector positively reaches the class (`reaches` = TRUE). UNDECLARED is recorded silence and an
- *      undetermined reach is not explicit, so neither counts — silence never overrides.
+ *   2. Their EXPLICIT statement is every declaration of theirs on the row whose kind is not UNDECLARED, whose
+ *      scope reaches the class, and whose selector positively reaches it (`reaches` = TRUE). UNDECLARED is
+ *      recorded silence and an undetermined reach is not explicit, so neither counts — silence never overrides.
+ *      An OWN_INVOLVEMENT scope reaches only the classes its object FORMS (scope.ts `fixOwnInvolvement`), so a
+ *      supporting object's own-involvement declaration says nothing about a class it only supports, and does not
+ *      count as speaking about it (review, 15 October 2026: counted, it would have let a statement that never
+ *      reached the class switch the precedence on and drop another object's requirement — the relaxing path).
  *   3. If there is no explicit statement — or no class, as for a game-level line — the answer is every
  *      declaration on the row, exactly as before: behaviour is unchanged wherever the specific knowledge is silent.
  *   4. Otherwise it is the explicit statement PLUS every general requirement (NOT_AUTHORED, EXCLUDED, CLAIMED)
- *      from another object that still reaches the class: its selector is not FALSE for it (an unreadable selector
- *      keeps reaching, so a requirement is dropped only where it positively does not address the class), and an
- *      OWN_INVOLVEMENT scope reaches only the declaring object's own classes. A non-claim from elsewhere is not a
- *      requirement and drops out; so does a requirement the data marks as deferring to the establishing object —
- *      and the data marks none.
+ *      that still reaches the class: its selector is not FALSE for it (an unreadable selector keeps reaching, so
+ *      a requirement is dropped only where it positively does not address the class), and its scope reaches it.
+ *      That holds for the establishing object's OWN requirements too: one whose reach is undetermined is not
+ *      explicit, but nothing explicit superseded it either, and *"General requirements remain applicable unless
+ *      the specific knowledge explicitly supersedes them"* (review, 15 October 2026; dropped 0 times on that
+ *      day's knowledge, kept so the property below holds by construction rather than by luck). A non-claim from
+ *      elsewhere is not a requirement and drops out; so does another object's requirement the data marks as
+ *      deferring to the establishing object — and the data marks none.
  *
  * AM-23's order is then applied to this set unchanged. Only the membership moves, and by construction it can
  * only lose a declaration that never addressed the class or that requires nothing — never a requirement that does.
@@ -124,19 +131,24 @@ export function governingDeclarations(row: string, declarations: DeclarationReac
     if (!cls) return onRow
 
     const establishing = new Set([cls.fromItem.contractId, ...cls.supportedBy.map(s => s.contractId)])
+    const scopeReaches = (d: DeclarationReach) => d.scope !== 'OWN_INVOLVEMENT' || cls.fromItem.contractId === d.contractId // scope.ts's own-involvement rule
     const explicit = onRow.filter(
-        d => establishing.has(d.contractId) && d.declaration !== 'UNDECLARED' && !!d.parsed.predicate && reaches(d.parsed.predicate, cls) === 'TRUE',
+        d =>
+            establishing.has(d.contractId) &&
+            d.declaration !== 'UNDECLARED' &&
+            scopeReaches(d) &&
+            !!d.parsed.predicate &&
+            reaches(d.parsed.predicate, cls) === 'TRUE',
     )
     if (!explicit.length) return onRow
 
-    const ownClass = (d: DeclarationReach) => cls.fromItem.contractId === d.contractId // scope.ts's own-involvement rule
     const general = onRow.filter(
         d =>
-            !establishing.has(d.contractId) &&
+            !explicit.includes(d) &&
             GENERAL_REQUIREMENTS.includes(d.declaration) &&
-            (d.scope !== 'OWN_INVOLVEMENT' || ownClass(d)) &&
+            scopeReaches(d) &&
             (!d.parsed.predicate || reaches(d.parsed.predicate, cls) !== 'FALSE') &&
-            d.defersTo !== DEFERS_TO_ESTABLISHING_OBJECT,
+            !(d.defersTo === DEFERS_TO_ESTABLISHING_OBJECT && !establishing.has(d.contractId)),
     )
     return [...explicit, ...general]
 }

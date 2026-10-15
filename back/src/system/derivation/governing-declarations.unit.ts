@@ -56,6 +56,24 @@ const COMPOSITIONS: [string, () => DerivationInput][] = [
     ['GF2 + Variable Target', () => compose(['restated:GF2', 'restated:VARIABLE-TARGET-CONDITION'])],
 ]
 
+/**
+ * **The second game form's compositions — added in review, 15 October 2026.** The implementing stage measured GF4
+ * alone; composed with anything else it moves, and two Gate A verdicts move with it (pinned below). Every move is
+ * a TIGHTENING: GF4 explicitly claims its modifier's V8b and V9, which it leaves unresolved (GF4 alone already
+ * blocks on both), and another object's "not mine to say" — a non-claim, not a requirement — had been outranking
+ * that claim under AM-23 and reading the lines "not constrained" the moment anything was composed beside it.
+ */
+const GF4_COMPOSITIONS: [string, () => DerivationInput][] = [
+    ['GF4', () => compose(['blind:GF4'])],
+    ['GF4 + GF2', () => compose(['blind:GF4', 'restated:GF2'])],
+    ['GF4 + Pass Combination Gate', () => compose(['blind:GF4', 'blind:PASS-COMBINATION-GATE'])],
+    ['GF4 + RPC-001', () => compose(['blind:GF4', 'restated:RPC-001'])],
+    ['GF4 + Wide Zone', () => compose(['blind:GF4', 'restated:WIDE-ZONE-ADVANTAGE'])],
+    ['GF4 + A01-02', () => compose(['blind:GF4', 'restated:A01-02'])],
+    ['GF4 + Neutral', () => compose(['blind:GF4', 'restated:NEUTRAL-PLAYER-CONDITION'])],
+    ['GF4 + Variable Target', () => compose(['blind:GF4', 'restated:VARIABLE-TARGET-CONDITION'])],
+]
+
 interface Run {
     staged: any
     rowOf: Map<string, string>
@@ -67,7 +85,7 @@ const runs = new Map<string, Run>()
 function run(name: string): Run {
     const cached = runs.get(name)
     if (cached) return cached
-    const staged: any = runStages0to10(COMPOSITIONS.find(([n]) => n === name)![1]())
+    const staged: any = runStages0to10([...COMPOSITIONS, ...GF4_COMPOSITIONS].find(([n]) => n === name)![1]())
     const rowOf = new Map<string, string>(staged.lines.map((l: any) => [l.lineId, l.row]))
     const reasons = new Map<string, [ReasonCode, ReasonCode]>()
     for (const line of staged.classified.values() as Iterable<ClassifiedLine>) {
@@ -112,7 +130,7 @@ test('corpus-wide, exactly five lines move, each as the design analysis predicte
 })
 
 test('no blocking line becomes non-blocking, in the corpus or in any composition', () => {
-    for (const [name] of COMPOSITIONS) {
+    for (const [name] of [...COMPOSITIONS, ...GF4_COMPOSITIONS]) {
         const relaxed = [...run(name).reasons.entries()].filter(([, [now, before]]) => BLOCKING.includes(before) && !BLOCKING.includes(now))
         assert.deepEqual(relaxed, [], `${name}: a requirement that blocked still blocks`)
     }
@@ -250,6 +268,150 @@ test('the supersession mechanism: written only by a restatement, honoured only w
     const undetermined = reach('E', 'NON_CLAIMED', { selector: 'k=v', parsed: { predicate: { any: false, terms: [{ attribute: 'k', op: '=', value: 'v' }] } } })
     assert.equal(reasonFor('X', [undetermined, reach('G', 'NON_CLAIMED'), general], narrow), 'declared gap')
     assert.equal(governingDeclarations('X', [undetermined, general], narrow).length, 2, 'row-wide: the establishing object did not speak explicitly')
+})
+
+// ---------------------------------------------------------------------------------------------
+// Added in review, 15 October 2026.
+// ---------------------------------------------------------------------------------------------
+
+test('GF4 composed with anything: only tightenings, two Gate A verdicts move NOT_EVALUABLE -> FAIL, each pinned', () => {
+    // Measured in review over GF4 with every other corpus object. GF4 alone does not move: its own claims on
+    // V8b and V9 already block there. Composed, another object's non-claim had been hiding them.
+    const expected: Record<string, { before: string; now: string; gains: string[] }> = {
+        GF4: { before: 'FAIL', now: 'FAIL', gains: [] },
+        'GF4 + GF2': { before: 'NOT_EVALUABLE', now: 'FAIL', gains: ['c:blind:GF4:I17::V8b', 'c:blind:GF4:I17::V9'] },
+        'GF4 + Pass Combination Gate': { before: 'NOT_EVALUABLE', now: 'FAIL', gains: ['c:blind:GF4:I17::V8b', 'c:blind:GF4:I17::V9'] },
+        'GF4 + RPC-001': { before: 'FAIL', now: 'FAIL', gains: ['c:blind:GF4:I17::V8b', 'c:blind:GF4:I17::V9'] },
+        'GF4 + Wide Zone': { before: 'FAIL', now: 'FAIL', gains: ['c:blind:GF4:I17::V8b'] },
+        'GF4 + A01-02': { before: 'FAIL', now: 'FAIL', gains: ['c:blind:GF4:I17::V9'] },
+        'GF4 + Neutral': { before: 'FAIL', now: 'FAIL', gains: [] },
+        'GF4 + Variable Target': { before: 'FAIL', now: 'FAIL', gains: ['c:restated:VARIABLE-TARGET-CONDITION:VARTARGET-13.a::V20'] },
+    }
+    for (const [name] of GF4_COMPOSITIONS) {
+        const r = run(name)
+        const now = r.staged.gates.gateA
+        const before = gateAsBefore(r)
+        assert.equal(before.verdict, expected[name].before, `${name}: Gate A row-wide`)
+        assert.equal(now.verdict, expected[name].now, `${name}: Gate A under the rule`)
+        const blockers = (g: any) => (g.checks.find((c: any) => c.checkId === 'GA-NO-FAILED-LINE')?.subjects ?? []) as string[]
+        assert.deepEqual(blockers(before).filter(id => !blockers(now).includes(id)), [], `${name}: no blocker is lost`)
+        assert.deepEqual(blockers(now).filter(id => !blockers(before).includes(id)).sort(), expected[name].gains, `${name}: blockers gained`)
+        // The only other check that may move is GA-NO-FAILED-LINE itself, from PASS to FAIL.
+        const verdicts = (g: any) => Object.fromEntries(g.checks.filter((c: any) => c.checkId !== 'GA-NO-FAILED-LINE').map((c: any) => [c.checkId, c.verdict]))
+        assert.deepEqual(verdicts(now), verdicts(before), `${name}: no other check moves`)
+    }
+})
+
+/** One line of GF2 + RPC-001 over a DEEP COPY of the knowledge with RPC-001's and GF2's V5 statements replaced. */
+function v5Under(gf2: Record<string, unknown>[], rpc001: Record<string, unknown>[]): ClassifiedLine {
+    const input = compose(['restated:GF2', 'restated:RPC-001'])
+    input.contracts = JSON.parse(JSON.stringify(input.contracts)) // the loader's objects are shared (brief rule 0.7)
+    const setV5 = (contractId: string, declarations: Record<string, unknown>[]) => {
+        const contract: any = input.contracts.find(c => c.contractId === contractId)
+        contract.declarations = [
+            ...contract.declarations.filter((d: any) => String(d.row) !== 'V5'),
+            ...declarations.map(d => ({ row: 'V5', scope: 'WHOLE_GAME', note: 'TEST-ONLY construction', ...d })),
+        ]
+    }
+    setV5('restated:GF2', gf2)
+    setV5('restated:RPC-001', rpc001)
+    const staged: any = runStages0to10(input)
+    return staged.classified.get('c:restated:RPC-001:RPC-001-18.f::V5') as ClassifiedLine
+}
+
+test('silence never overrides, constructed: a general NOT_AUTHORED, EXCLUDED or CLAIMED governs wherever the establishing object is silent or UNDECLARED', () => {
+    // RPC-001-18.f establishes a control condition (type=control). On deep copies its V5 statement is removed
+    // entirely, or left as UNDECLARED, and GF2's general statement on V5 is each requirement kind in turn.
+    const kinds: [string, ReasonCode][] = [['NOT_AUTHORED', 'declared gap'], ['EXCLUDED', 'excluded'], ['CLAIMED', 'claimed but unresolved']]
+    for (const [kind, code] of kinds) {
+        const general = { declaration: kind, selector: '*' }
+        const silent = v5Under([general], [])
+        assert.equal(silent.verdict, 'NOT_AUTHORED', `${kind}: the line is still unauthored`)
+        assert.equal(silent.reason, code, `${kind}: RPC-001 says nothing, so GF2's ${kind} governs`)
+        assert.ok(silent.governedBy!.some(g => g.contractId === 'restated:GF2' && g.declaration === kind), `${kind}: and decided it`)
+
+        const undeclared = v5Under([general], [{ declaration: 'UNDECLARED', selector: 'type=control' }])
+        assert.equal(undeclared.reason, code, `${kind}: RPC-001's UNDECLARED is recorded silence, not a statement`)
+        assert.ok(undeclared.governedBy!.some(g => g.contractId === 'restated:GF2' && g.declaration === kind), `${kind}: GF2 still decides`)
+
+        // Explicit establishing statement: the general requirement STAYS in force (it reaches the class).
+        const explicit = v5Under([general], [{ declaration: 'NON_CLAIMED', selector: 'type=control' }])
+        assert.ok(explicit.governedBy!.some(g => g.contractId === 'restated:GF2' && g.declaration === kind), `${kind}: a general requirement remains applicable`)
+        assert.equal(explicit.reason, reasonFor('V5', [
+            { contractId: 'E', row: 'V5', declaration: 'NON_CLAIMED', scope: null, preserved: true, selector: '*', parsed: { predicate: { any: true, terms: [] } }, note: '' },
+            { contractId: 'G', row: 'V5', declaration: kind, scope: null, preserved: true, selector: '*', parsed: { predicate: { any: true, terms: [] } }, note: '' },
+        ]), `${kind}: decided by AM-23 over both, unchanged`)
+    }
+})
+
+test('an unparseable general selector keeps reaching; a FALSE one is the only kind the explicit statement sets aside', () => {
+    const explicitNonClaim = [{ declaration: 'NON_CLAIMED', selector: 'type=control' }]
+    for (const [kind, code] of [['NOT_AUTHORED', 'declared gap'], ['EXCLUDED', 'excluded']] as [string, ReasonCode][]) {
+        const unreadable = v5Under([{ declaration: kind, selector: 'nonsense=1' }], explicitNonClaim)
+        assert.equal(unreadable.reason, code, `${kind} with an unreadable selector: still in force`)
+    }
+    // The rule does bite, and only where the general statement positively addresses another element...
+    assert.equal(v5Under([{ declaration: 'NOT_AUTHORED', selector: 'type=origin' }], explicitNonClaim).reason, 'not constrained')
+    // ...and only where the establishing object speaks: silent, the whole row decides, selectors unread.
+    assert.equal(v5Under([{ declaration: 'NOT_AUTHORED', selector: 'type=origin' }], []).reason, 'declared gap')
+    assert.equal(v5Under([{ declaration: 'NOT_AUTHORED', selector: 'type=origin' }], [{ declaration: 'UNDECLARED', selector: 'type=control' }]).reason, 'declared gap')
+})
+
+test("the establishing object's own requirement with an undetermined reach is not dropped by its explicit statement elsewhere", () => {
+    // Review fix, 15 October 2026. The implementation took general requirements only from OTHER objects, so the
+    // establishing object's own NOT_AUTHORED whose selector cannot be decided against the element vanished the
+    // moment that object said something explicit — a requirement dropped with nothing superseding it.
+    const narrow: ElementClass = {
+        classId: 'c:E:1', row: 'X', fromItem: { contractId: 'E', itemId: '1' }, supportedBy: [{ contractId: 'E', itemId: '1' }],
+        constraints: { any: false, terms: [] }, cardinality: { min: null, max: null },
+    }
+    const d = (declaration: string, parsed: DeclarationReach['parsed'], selector = '*'): DeclarationReach => ({
+        contractId: 'E', row: 'X', declaration, scope: 'WHOLE_GAME', preserved: true, selector, parsed, note: '',
+    })
+    const any = { predicate: { any: true, terms: [] } }
+    const undetermined = { predicate: { any: false, terms: [{ attribute: 'k', op: '=', value: 'v' }] } } as DeclarationReach['parsed']
+    assert.equal(reaches(undetermined.predicate!, narrow), 'UNDETERMINED', 'the construction is what it says')
+    assert.equal(reasonFor('X', [d('NON_CLAIMED', any), d('NOT_AUTHORED', undetermined, 'k=v')], narrow), 'declared gap')
+    assert.equal(reasonFor('X', [d('NON_CLAIMED', any), d('EXCLUDED', { defect: 'unreadable' }, 'nonsense')], narrow), 'excluded')
+    // Its own requirement about ANOTHER element is still set aside.
+    const elsewhere = { predicate: { any: false, terms: [{ attribute: 'k', op: '=', value: 'v' }] } } as DeclarationReach['parsed']
+    const fixed: ElementClass = { ...narrow, constraints: { any: false, terms: [{ attribute: 'k', op: '=', value: 'w' }] } as any }
+    assert.equal(reaches(elsewhere.predicate!, fixed), 'FALSE', 'the construction is what it says')
+    assert.equal(reasonFor('X', [d('NON_CLAIMED', any), d('NOT_AUTHORED', elsewhere, 'k=v')], fixed), 'not constrained')
+})
+
+test("a supporting object's own-involvement declaration does not reach a class it only supports, so it cannot switch the precedence on", () => {
+    // Review fix, 15 October 2026. Class formed by F and supported by S. S's OWN_INVOLVEMENT non-claim does not reach
+    // it (own involvement is the classes an object FORMS, scope.ts), yet it counted as S speaking explicitly, which
+    // dropped G's gap whose selector is FALSE for the class: "declared gap" relaxed to "not constrained" through a
+    // statement that never addressed the element. With no explicit statement the whole row decides.
+    const cls: ElementClass = {
+        classId: 'c:F:1', row: 'X', fromItem: { contractId: 'F', itemId: '1' }, supportedBy: [{ contractId: 'F', itemId: '1' }, { contractId: 'S', itemId: '9' }],
+        constraints: { any: false, terms: [{ attribute: 'k', op: '=', value: 'w' }] } as any, cardinality: { min: null, max: null },
+    }
+    const any = { predicate: { any: true, terms: [] } }
+    const notThisOne = { predicate: { any: false, terms: [{ attribute: 'k', op: '=', value: 'v' }] } } as DeclarationReach['parsed']
+    const supporter: DeclarationReach = { contractId: 'S', row: 'X', declaration: 'NON_CLAIMED', scope: 'OWN_INVOLVEMENT', preserved: true, selector: '*', parsed: any, note: '' }
+    const gap: DeclarationReach = { contractId: 'G', row: 'X', declaration: 'NOT_AUTHORED', scope: 'WHOLE_GAME', preserved: true, selector: 'k=v', parsed: notThisOne, note: '' }
+    assert.equal(reaches(notThisOne.predicate!, cls), 'FALSE')
+    assert.equal(governingDeclarations('X', [supporter, gap], cls).length, 2, 'not explicit: the whole row decides')
+    assert.equal(reasonFor('X', [supporter, gap], cls), 'declared gap', 'and nothing relaxes')
+    // The same statement scoped to the whole game DOES reach, and then the precedence applies as designed.
+    assert.equal(reasonFor('X', [{ ...supporter, scope: 'WHOLE_GAME' }, gap], cls), 'not constrained')
+})
+
+test('every deferral the engine loads traces to a ruled declaration restatement', () => {
+    // Durable form of "the supersession set is data and only a ruling writes it": it still holds once he rules and
+    // the set is no longer empty. A deferral written straight into the contracts, or into a declaration a ruling
+    // ADDS (which bypasses restateDeclaration's check), would be honoured without a restatement naming it.
+    const restatements = JSON.parse(fs.readFileSync(path.join(CONFORMANCE_DIR, 'stage-b/corpus-restatements.json'), 'utf8').replace(/^﻿/, ''))
+    const ruled = new Set((restatements.declarations ?? []).filter((d: any) => 'defersTo' in d).map((d: any) => `${d.contractId}|${d.row}|${d.to}|${d.defersTo}`))
+    for (const added of restatements.declarationsAdded ?? []) assert.ok(!('defersTo' in added.declaration), `${added.contractId} ${added.ruling}: an added declaration may not carry a deferral`)
+    const corpus = run('corpus')
+    for (const d of corpus.staged.scope.declarations as DeclarationReach[]) {
+        if (d.defersTo === undefined) continue
+        assert.ok(ruled.has(`${d.contractId}|${d.row}|${d.declaration}|${d.defersTo}`), `${d.contractId} ${d.row}: a deferral no ruling wrote`)
+    }
 })
 
 console.log(`governing declarations: ${passed} passed`)
