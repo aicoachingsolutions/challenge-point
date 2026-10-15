@@ -22,13 +22,19 @@ import path from 'node:path'
 
 import { AUDITS_DIR } from '../derivation/knowledge-root'
 import { KnowledgeSelection, knowledgeKey } from '../derivation/run-bounded-selection'
-import { Choice, Instantiation } from './realize'
+import { Choice, Instantiation, SatisfiedByEstablished } from './realize'
 
 const INDEX = 'realization-choices-index.json'
 
 export interface SuppliedRealization {
     choices: Choice[]
     instantiations: Instantiation[]
+    /**
+     * Recorded identifications of one established element with another (`SatisfiedByEstablished`) — added 15
+     * October 2026 for the one his reply of that day approved (9.8, "One ball shared between context and game:
+     * Approved."). Read from the object's file like its choices, so the object, not the goal, owns it.
+     */
+    satisfiedByEstablished: SatisfiedByEstablished[]
     /** The files the input was read from, in the order read. For the account, never for a coach. */
     from: string[]
 }
@@ -43,7 +49,7 @@ export const isNoSuppliedRealization = (supplied: SuppliedRealization | NoSuppli
 
 export function suppliedRealizationFor(selection: KnowledgeSelection): SuppliedRealization | NoSuppliedRealization {
     const index = JSON.parse(fs.readFileSync(path.join(AUDITS_DIR, INDEX), 'utf8')).byKnowledgeObject as Record<string, string>
-    const supplied: SuppliedRealization = { choices: [], instantiations: [], from: [] }
+    const supplied: SuppliedRealization = { choices: [], instantiations: [], satisfiedByEstablished: [], from: [] }
 
     // Contracted objects only, in the order selection committed to them: an object with no contract
     // contributes nothing to the game, so it has left nothing open to close.
@@ -56,6 +62,7 @@ export function suppliedRealizationFor(selection: KnowledgeSelection): SuppliedR
         const read = JSON.parse(fs.readFileSync(path.join(AUDITS_DIR, file), 'utf8'))
         supplied.choices.push(...(read.choices ?? []))
         supplied.instantiations.push(...(read.instantiations ?? []))
+        supplied.satisfiedByEstablished.push(...(read.satisfiedByEstablished ?? []))
         supplied.from.push(file)
     }
     return supplied

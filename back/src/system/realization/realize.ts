@@ -50,6 +50,27 @@ export interface Instantiation {
 }
 
 /**
+ * **An established element whose claim is met by another established element — recorded, never inferred.**
+ *
+ * The precedent is 30 September (`a04-realization-choices.json`): a claim already met by an established member is
+ * recorded as satisfied by it, *"instead"* of putting a second member in the game *"carrying nothing the first did
+ * not"*. Here the claim is an individuated element, not an existential one, so derivation keeps it apart (SD-47) —
+ * and the concrete game held two of the same thing. Each entry names the element, the one that satisfies it, and the
+ * ruling that says they are one; realization checks that they are in the same collection with the same authored
+ * selector and that nothing derived about the first differs from the second, and only then lets the second stand
+ * for both. **Not a general merge rule**: an element no entry names is never merged, however alike.
+ */
+export interface SatisfiedByEstablished {
+    /** The element whose claim is met, by its class id. */
+    classId: string
+    /** The established element that meets it. */
+    satisfiedBy: string
+    /** Who ruled the two are one, verbatim. */
+    ruling: string
+    because: string
+}
+
+/**
  * **The opaque referential handle for an instantiated member** — his ruling of 3 October:
  *
  *   > *Every instantiated member may receive a unique, stable, opaque referential handle. The handle
@@ -254,6 +275,11 @@ export interface RealizationRecord {
      * passed, which is exactly how the corpus's only joint condition went unnoticed.
      */
     jointConditionsNotEvaluated: string[]
+    /**
+     * Established elements whose claim another established element met, each with its ruling (`SatisfiedByEstablished`).
+     * Present only where there is one, so a realization with none records exactly what it always did.
+     */
+    satisfiedByEstablished?: SatisfiedByEstablished[]
 }
 
 export interface Realized {
@@ -642,6 +668,8 @@ export function realize(
      * for a set of alternatives or for a coach's row closes nothing.
      */
     defaults: JustifiedDefault[] = [],
+    /** Recorded identifications of one established element with another (`SatisfiedByEstablished`). Input, so stamped. */
+    satisfactions: SatisfiedByEstablished[] = [],
 ): RealizationResult {
     const because: string[] = []
 
@@ -652,7 +680,9 @@ export function realize(
      * genuinely different realizations alike. Defaults are input too, and are stamped where there are any —
      * a run given none stamps exactly as it did before they existed.
      */
-    const realizationDigest = digest(canonical(defaults.length ? { choices, instantiations, defaults } : { choices, instantiations }))
+    const realizationDigest = digest(
+        canonical({ choices, instantiations, ...(defaults.length ? { defaults } : {}), ...(satisfactions.length ? { satisfactions } : {}) }),
+    )
 
     if (!resolved.coherence.mayRealize) {
         because.push(`the resolved game may not be realized: Gate A is ${resolved.coherence.gateA}${resolved.coherence.failingChecks.length ? ` (${resolved.coherence.failingChecks.join(', ')})` : ''}`)
@@ -923,6 +953,50 @@ export function realize(
     const game: Record<string, unknown> = JSON.parse(JSON.stringify(resolved.game))
 
     /**
+     * **A recorded identification lets one established element stand for another — checked, then applied.** Before
+     * anything is placed, so a choice about the element that is no longer separate is refused like any choice about
+     * an element the game does not hold. Each is refused, with every reason, unless both elements are in the game in
+     * one collection, carry the same authored selector, and nothing derived about the first differs from what is
+     * derived about the second at the same property: the identification may remove a duplicate, never a value.
+     */
+    const appliedSatisfactions: SatisfiedByEstablished[] = []
+    for (const satisfaction of satisfactions) {
+        const where = (elementId: string) => {
+            for (const entry of resolved.derived) {
+                const parts = splitElementPath(entry.path)
+                if (parts?.elementId === elementId) return parts.container
+            }
+            return null
+        }
+        const container = where(satisfaction.classId)
+        const bucket = container ? readAt(game, container) : undefined
+        const list = Array.isArray(bucket) ? (bucket as any[]) : []
+        const satisfied = list.find(e => e?.elementId === satisfaction.classId)
+        const satisfier = list.find(e => e?.elementId === satisfaction.satisfiedBy)
+        const reasons: string[] = []
+        if (!satisfied) reasons.push(`${satisfaction.classId} is not an established element of this game`)
+        if (!satisfier) reasons.push(`${satisfaction.satisfiedBy} is not an established element of ${container ?? 'the same collection'} in this game`)
+        if (satisfied && satisfier && JSON.stringify(satisfied.selector ?? null) !== JSON.stringify(satisfier.selector ?? null)) {
+            reasons.push(`${satisfaction.classId} and ${satisfaction.satisfiedBy} carry different authored selectors, so nothing shows they are the same element`)
+        }
+        for (const entry of resolved.derived) {
+            const parts = splitElementPath(entry.path)
+            if (!parts || parts.elementId !== satisfaction.classId || !parts.leaf) continue
+            const there = satisfier ? readAt(satisfier, parts.leaf) : undefined
+            if (there !== undefined && JSON.stringify(there) !== JSON.stringify(entry.value)) {
+                reasons.push(`${entry.lineId}: ${JSON.stringify(entry.value)} is derived, and ${satisfaction.satisfiedBy} holds ${JSON.stringify(there)} there`)
+            }
+        }
+        if (reasons.length) {
+            because.push(...reasons.map(reason => `the recorded identification of ${satisfaction.classId} with ${satisfaction.satisfiedBy} cannot stand: ${reason}`))
+            continue
+        }
+        place(game, container!, list.filter(e => e?.elementId !== satisfaction.classId))
+        appliedSatisfactions.push({ ...satisfaction })
+    }
+    if (because.length) return { outcome: 'REFUSED', because }
+
+    /**
      * **Mint each instantiated member its opaque handle, and place it under that identity.**
      *
      * The ordinal counts within the claim, so sibling members of one claim differ and members of different
@@ -1166,6 +1240,7 @@ export function realize(
             entailed: [],
             unverified: recorded.filter(c => c.boundCheck === 'UNVERIFIABLE_QUALITATIVE_BOUND').map(c => c.lineId),
             jointConditionsNotEvaluated: jointNotEvaluable,
+            ...(appliedSatisfactions.length ? { satisfiedByEstablished: appliedSatisfactions } : {}),
         },
     }
 }
@@ -1231,12 +1306,16 @@ export function nothingLost(resolved: ResolvedGame, realized: Realized): string[
             problems.push(`${path}.scope: authored ${JSON.stringify(scope)}, concrete ${realizedScopes.has(path) ? JSON.stringify(realizedScopes.get(path)) : 'absent'}`)
         }
     }
+    // An element a recorded identification lets another stand for: its derived values survive on that other element
+    // (realize checked they agree before applying it), and nowhere else.
+    const standsFor = new Map((realized.record.satisfiedByEstablished ?? []).map(s => [s.classId, s.satisfiedBy]))
     for (const entry of resolved.derived) {
         const parts = splitElementPath(entry.path)
         const value = parts
             ? (() => {
                   const bucket = readAt(realized.game, parts.container)
-                  const element = Array.isArray(bucket) ? (bucket as any[]).find(e => e?.elementId === parts.elementId) : null
+                  const elementId = standsFor.get(parts.elementId) ?? parts.elementId
+                  const element = Array.isArray(bucket) ? (bucket as any[]).find(e => e?.elementId === elementId) : null
                   return element && parts.leaf ? readAt(element, parts.leaf) : undefined
               })()
             : readAt(realized.game, entry.path)
@@ -1266,7 +1345,8 @@ export function nothingLost(resolved: ResolvedGame, realized: Realized): string[
         const resolvedValue = (() => {
             if (!subscript || !parts) return value
             const bucket = readAt(realized.game, parts.container)
-            const element = Array.isArray(bucket) ? (bucket as any[]).find(e => e?.elementId === parts.elementId) : null
+            const elementId = standsFor.get(parts.elementId) ?? parts.elementId
+            const element = Array.isArray(bucket) ? (bucket as any[]).find(e => e?.elementId === elementId) : null
             return element ? readAt(element, subscript[1]) : undefined
         })()
 

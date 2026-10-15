@@ -1323,6 +1323,87 @@ test('a value for a row with a declared domain must be a member of that collecti
     assert.throws(altered(rows => (rows.find(r => !r.fillable && r.kind === 'FIELD').fillableFrom = 'performers.teams[]')), /which has no fillable choice space/)
 })
 
+/**
+ * ── One ball: a recorded identification of one established element with another — 15 October 2026 ───────────────
+ *
+ * His reply received that day (16 October, item 9 point 8): *"One ball shared between context and game: Approved."*
+ * — our 15 October email, change 8: *"The context's own ball is the same ball as the game's."* Measured before this
+ * through the real chain over a test-only copy of Play Out from the Back's knowledge: the concrete game held TWO
+ * balls (RPC-001-10.a and the Sport Profile's), and the build was refused at communication because one of them was
+ * said by no instruction. Recorded on the 30 September precedent (`a04-realization-choices.json`): a claim met by an
+ * established member is recorded as satisfied by it instead of standing beside it.
+ */
+const BALL = 'c:restated:RPC-001:RPC-001-10.a'
+const PROFILE_BALL = 'c:sport-profile:soccer:SPORT-SOCCER-01'
+const twoBalls = (overrides: { selector?: unknown; kind?: string } = {}): ResolvedGame =>
+    eligible({
+        open: [],
+        game: {
+            objects: [
+                { elementId: BALL, selector: overrides.selector ?? [{ attribute: 'kind', op: '=', value: 'ball' }], kind: overrides.kind ?? 'ball' },
+                { elementId: PROFILE_BALL, selector: [{ attribute: 'kind', op: '=', value: 'ball' }], kind: 'ball' },
+            ],
+        },
+        derived: [
+            { path: `objects[${BALL}].kind`, lineId: `${BALL}::O2`, value: overrides.kind ?? 'ball', resolvedBy: 'ENTAILMENT', support: [] },
+            { path: `objects[${PROFILE_BALL}].kind`, lineId: `${PROFILE_BALL}::O2`, value: 'ball', resolvedBy: 'ENTAILMENT', support: [] },
+        ],
+    })
+const ONE_BALL = { classId: BALL, satisfiedBy: PROFILE_BALL, ruling: 'TEST-ONLY', because: 'TEST-ONLY' }
+
+test('one ball: the recorded identification lets the profile\'s ball stand for the context\'s, and nothing is lost or invented', () => {
+    const without = realize(twoBalls(), [])
+    assert.equal(((without as Realized).game as any).objects.length, 2, 'without the record the game holds two balls, as derivation individuates them')
+    const realized = realize(twoBalls(), [], [], undefined, undefined, [], [ONE_BALL]) as Realized
+    assert.ok(!isRefused(realized), JSON.stringify(realized))
+    assert.deepEqual((realized.game as any).objects.map((o: any) => o.elementId), [PROFILE_BALL], 'one ball, the one the game\'s sport supplies')
+    assert.deepEqual(realized.record.satisfiedByEstablished, [ONE_BALL], 'recorded, with its ruling')
+    assert.deepEqual(checkRealization(twoBalls(), realized), { nothingClosedWithoutAuthority: [], nothingLost: [], nothingInvented: [] }, 'the context\'s derived kind survives on the ball that stands for it')
+    // The record is input, so it is stamped; a realization with none stamps exactly as before.
+    assert.notEqual(realized.record.realizationDigest, (without as Realized).record.realizationDigest)
+    assert.equal((without as Realized).record.satisfiedByEstablished, undefined, 'and carries no such key')
+})
+
+test('one ball: the identification is refused, with its reason, where the two are not shown to be one element', () => {
+    const differentSelector = realize(twoBalls({ selector: [{ attribute: 'kind', op: '=', value: 'cone' }] }), [], [], undefined, undefined, [], [ONE_BALL])
+    assert.ok(isRefused(differentSelector) && differentSelector.because.some(b => b.includes('different authored selectors')), JSON.stringify(differentSelector))
+    const differentValue = realize(twoBalls({ kind: 'cone' }), [], [], undefined, undefined, [], [ONE_BALL])
+    assert.ok(isRefused(differentValue) && differentValue.because.some(b => b.includes(`${BALL}::O2`)), 'a value derived about the one that the other does not hold is never dropped')
+    const absent = realize(twoBalls(), [], [], undefined, undefined, [], [{ ...ONE_BALL, satisfiedBy: 'c:NOT-IN:THIS-GAME' }])
+    assert.ok(isRefused(absent) && absent.because.some(b => b.includes('c:NOT-IN:THIS-GAME is not an established element')))
+    // And a choice about the element that no longer stands alone is refused like any choice about a missing element.
+    const chosen = realize(
+        { ...twoBalls(), open: [{ path: `objects[${BALL}].count`, lineId: `${BALL}::O3`, elementId: BALL, permittedBy: { authority: 'T', choiceSpace: 'T' }, permitted: [1], bounds: [], kind: 'FREE(choice)' }] },
+        [{ lineId: `${BALL}::O3`, value: 1, because: 'TEST-ONLY' }],
+        [],
+        undefined,
+        undefined,
+        [],
+        [ONE_BALL],
+    )
+    assert.ok(isRefused(chosen) && chosen.because.some(b => b.includes(`the element ${BALL} is not in the resolved game`)), JSON.stringify(chosen))
+})
+
+test('one ball: the record is data — exactly his approved identification, naming two kind=ball elements the build-out composition really holds', () => {
+    const file = JSON.parse(fs.readFileSync(path.resolve(DOCS, '../realization-choices-rpc-001.json'), 'utf8'))
+    const index = JSON.parse(fs.readFileSync(path.resolve(DOCS, '../realization-choices-index.json'), 'utf8')).byKnowledgeObject
+    assert.equal(index['RPC-001'], 'realization-choices-rpc-001.json', 'found through the index, by the knowledge object')
+    assert.deepEqual([file.choices, file.instantiations], [[], []], 'it decides nothing else')
+    assert.deepEqual(file.satisfiedByEstablished.map((s: any) => [s.classId, s.satisfiedBy]), [[BALL, PROFILE_BALL]])
+    assert.ok(file.satisfiedByEstablished[0].ruling.includes('"One ball shared between context and game: Approved."'), 'his words travel with it')
+    const input = derivationInputFor({ selected: [{ id: 'restated:GF2', role: 'test' }, { id: 'restated:RPC-001', role: 'test' }] })
+    const result = runDerivation(input)
+    assert.ok(!isStampedHalt(result))
+    const staged: any = runStages0to10(input)
+    const resolved = assembleResolvedGame(result as any, staged.classes, indexRegister(input.register), input.contracts)
+    const objects = (resolved.game as any).objects as any[]
+    for (const id of [BALL, PROFILE_BALL]) {
+        const element = objects.find(o => o.elementId === id)
+        assert.ok(element, `${id} is an established element of GF2 + RPC-001`)
+        assert.deepEqual(element.selector, [{ attribute: 'kind', op: '=', value: 'ball' }])
+    }
+})
+
 test('the docs directory the corpus reads from is the one under audit', () => {
     assert.ok(fs.existsSync(path.join(DOCS, 'register-2026-09-18.json')))
 })

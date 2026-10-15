@@ -46,7 +46,7 @@ import { GateContext } from '../derivation/gates'
 import { RegisterIndex } from '../derivation/register'
 import { ResolvedGame } from '../derivation/resolved-game'
 import { rosterRefusal, RosterRefusal } from './assemble-concrete-game'
-import { Choice, Instantiation, isRefused, JustifiedDefault, onlyPermittedMember, preferredCounts, RealizationResult, realize } from './realize'
+import { Choice, Instantiation, isRefused, JustifiedDefault, onlyPermittedMember, preferredCounts, RealizationResult, realize, SatisfiedByEstablished } from './realize'
 
 /**
  * What each rule is ABOUT — which line is its subject and which value it yields — is stated once, in
@@ -149,6 +149,8 @@ function decide(resolved: ResolvedGame, choices: Choice[], rosterAdmits?: Roster
 export interface Supplied {
     choices: Choice[]
     instantiations: Instantiation[]
+    /** Recorded identifications of one established element with another (realize.ts, `SatisfiedByEstablished`). */
+    satisfiedByEstablished?: SatisfiedByEstablished[]
 }
 
 /**
@@ -192,7 +194,7 @@ function onPathway(
     ctx: GateContext,
 ): { defaults: JustifiedDefault[]; stranded: StrandedCount[] } {
     const trial = (candidate: JustifiedDefault, alongside: JustifiedDefault[]) =>
-        realize(resolved, supplied.choices, supplied.instantiations, index, envelope, [...alongside, candidate])
+        realize(resolved, supplied.choices, supplied.instantiations, index, envelope, [...alongside, candidate], supplied.satisfiedByEstablished ?? [])
     const { defaults, undefaulted } = decide(resolved, supplied.choices, (candidate, alongside) => {
         const realized = trial(candidate, alongside)
         return !isRefused(realized) && rosterRefusal(ctx, realized) === null
@@ -220,5 +222,5 @@ export function realizeWithJustifiedDefaults(
     ctx: GateContext,
 ): { realization: RealizationResult; defaults: JustifiedDefault[]; stranded: StrandedCount[] } {
     const { defaults, stranded } = onPathway(resolved, supplied, index, envelope, ctx)
-    return { realization: realize(resolved, supplied.choices, supplied.instantiations, index, envelope, defaults), defaults, stranded }
+    return { realization: realize(resolved, supplied.choices, supplied.instantiations, index, envelope, defaults, supplied.satisfiedByEstablished ?? []), defaults, stranded }
 }

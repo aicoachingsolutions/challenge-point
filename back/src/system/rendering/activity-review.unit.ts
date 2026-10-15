@@ -1352,9 +1352,19 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
      */
     const a01 = { kind: 'learning-goal' as const, goalId: 'A01', session }
     const underTestRuling = (alter: (contracts: any[]) => void) => buildActivityOverAlteredKnowledge(a01, alter)
-    const passed = refused(underTestRuling(trimmed), 'A01 over the trimmed copy')
-    assert.equal(passed.stage, 'communication', `the guard passes a realized game scored on an approved event: ${JSON.stringify(passed.reasons)}`)
-    assert.ok(!passed.reasons.some(reason => reason.includes('Representative Performance Context')), JSON.stringify(passed.reasons))
+    /**
+     * **Re-pointed 15 October 2026 (his 9.8): refused at `communication` -> SERVED, over this TEST-ONLY copy, measured.**
+     * What stopped it at communication was TWO balls — the context's own (RPC-001-10.a) beside the Sport Profile's —
+     * one of which no instruction said (fidelity Q3). His reply of that day, *"One ball shared between context and game:
+     * Approved."*, is recorded as a realization identification (`realization-choices-rpc-001.json`) and the game now
+     * holds one. So the guard passes and nothing later stops it: on a copy whose build-out condition, goalkeeper and
+     * direction items are taken out, the game served is the bare symmetric possession game with the context's scoring
+     * event — exactly the "technically valid but solves a different problem" activity his 16 October item 10 asks the
+     * engine to refuse. Production knowledge refuses it, at Gate A; the copy is for the guard only.
+     */
+    const passed = underTestRuling(trimmed)
+    assert.equal(passed.outcome, 'served', `the guard passes a realized game scored on an approved event: ${JSON.stringify((passed as RefusedActivity).reasons)}`)
+    assert.equal(((passed as ServedActivity).rendered.instructions.filter(i => /\bball\b/.test(i.text)).length > 0), true, 'the ball is still said')
 
     const read = rpcLibrary.scoringEventsForContext
     try {

@@ -398,7 +398,22 @@ function loadBearingPaths(fixture: any): {
 } {
     const coachFacing: string[] = []
     const excluded: { path: string; because: string; ground: string; ruling: string; consequences: string[]; dischargedBy?: CoachFacingExclusion['dischargedBy'] }[] = []
-    for (const entry of [...fixture.status.derived, ...fixture.status.choices]) {
+    /**
+     * **An element a recorded identification lets another stand for is said through that other** — 15 October 2026.
+     * Realization recorded it (`record.satisfiedByEstablished`, his 9.8, "One ball shared between context and game:
+     * Approved.") only after checking that nothing derived about the one differs from the other, and the game holds
+     * only the other. So the property is owed once, at the element the game holds: asking for it at the element that
+     * is no longer there would demand a sentence about a second ball the game does not have.
+     */
+    const standsFor = new Map<string, string>(((fixture.record?.satisfiedByEstablished ?? []) as { classId: string; satisfiedBy: string }[]).map(s => [s.classId, s.satisfiedBy]))
+    const heldAt = (path: string): string => {
+        for (const [gone, kept] of standsFor) if (path.includes(`[${gone}]`)) return path.split(`[${gone}]`).join(`[${kept}]`)
+        return path
+    }
+    for (const original of [...fixture.status.derived, ...fixture.status.choices]) {
+        const entry = { ...original, path: heldAt(original.path) }
+        // Only a property re-addressed to the element standing for it is folded into one already owed there.
+        if (entry.path !== original.path && (coachFacing.includes(entry.path) || excluded.some(x => x.path === entry.path))) continue
         const rule = exclusionFor(entry.path, fixture)
         if (rule) excluded.push({ path: entry.path, because: rule.because, ground: rule.ground, ruling: rule.ruling, consequences: rule.consequences(entry.path), dischargedBy: rule.dischargedBy })
         else coachFacing.push(entry.path)
