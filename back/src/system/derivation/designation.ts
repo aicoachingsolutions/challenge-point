@@ -88,6 +88,23 @@ export function resolutionOf(index: RegisterIndex, value: unknown): ResolvedDesi
 export const isRegisteredDesignation = (index: RegisterIndex, value: unknown): boolean => designationEntry(index, value) !== null
 
 /**
+ * **The list entry a value IS, by its name or its whole text — or null** (K2 review, 15 October 2026). `designationEntry`
+ * answers RC-22's comparison question, where a value MAPS to an entry (a named team to `TEAM_<id>`, prose ending
+ * "(= ENTRY)" to that entry). Whether a value names a registered designation at all is a different question, and before
+ * this resolver the gates answered it by the list's own spelling only. Answering it by mapping turned two established
+ * failures into something weaker with no ruling for it: a relational referent designating `TEAM_RED` resolved to every
+ * objective of its role (GA-REFERENCE-INTEGRITY FAIL → PASS), and a neutral side `TEAM_RED` became undecided
+ * (GA-AFFILIATION FAIL → NOT_EVALUABLE). So registration keeps the list's spelling; mapping stays for comparison.
+ */
+export function listedEntry(index: RegisterIndex, value: unknown): string | null {
+    if (typeof value !== 'string') return null
+    const listed = index.teamDesignations.find(entry => entry === value || designationName(entry) === value)
+    return listed === undefined ? null : designationName(listed)
+}
+
+export const isListedDesignation = (index: RegisterIndex, value: unknown): boolean => listedEntry(index, value) !== null
+
+/**
  * **The key two values compare by (RC-22: "Two designations are equal only if they map to one entry").** A named team
  * keeps its own name, because two different named teams map to the one NAMED entry and are not equal. A value that is
  * no registered designation keys as itself, so a reader that groups by this key groups exactly as it did by the text.
@@ -113,7 +130,9 @@ export const isAllTeams = (index: RegisterIndex, value: unknown): boolean => res
  * as possession-relative without a gloss is our interpretation, which decides nothing in a gate.
  */
 export function followsPossessionRelation(index: RegisterIndex, value: unknown): boolean {
-    const resolved = resolutionOf(index, value)
+    // A list entry, by its spelling (K2 review): prose ending "(= ENTRY)" is not the entry, so it follows nothing.
+    const entry = listedEntry(index, value)
+    const resolved = entry ? resolutionOf(index, entry) : null
     return !!resolved && resolved.kind === 'POSSESSION_RELATION' && resolved.basis === 'GLOSS'
 }
 

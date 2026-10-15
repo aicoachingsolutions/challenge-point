@@ -23,7 +23,7 @@ import { buildActivityFromKnowledge, buildActivityWithFixture } from '../renderi
 import { specializedRoleNames } from '../rendering/session-envelope'
 import { AUDITS_DIR } from './knowledge-root'
 import { loadRegister } from './corpus'
-import { designationEntry, designationKey, followsPossessionRelation, isAllTeams, isRegisteredDesignation, memberDesignations, sameDesignation, whyNotReached } from './designation'
+import { designationEntry, designationKey, followsPossessionRelation, isAllTeams, isRegisteredDesignation, listedEntry, memberDesignations, sameDesignation, whyNotReached } from './designation'
 import { reaches } from './reach'
 import { designationName, HaltError, indexRegister } from './register'
 import { ElementClass } from './types'
@@ -108,6 +108,12 @@ test('in a value, designations compare as canonical entries (RC-22): a glossed s
     assert.equal(sameDesignation(index, START, 'NEUTRALS'), null, 'no answer where one value is no designation')
     assert.ok(isAllTeams(index, 'EACH_TEAM') && !isAllTeams(index, START))
     assert.ok(isRegisteredDesignation(index, 'SCORING_TEAM') && !isRegisteredDesignation(index, 'NEUTRALS'))
+    // K2 review, 15 October 2026: MAPPING to an entry (comparison) is not BEING one (registration). The list entry a value
+    // is, by its name or its whole text; a named team, another gloss and "(= ENTRY)" prose are not entries.
+    const whole = (register.teamDesignations.list as string[]).find(entry => designationName(entry) === 'ATTACKING_TEAM')!
+    assert.deepEqual([listedEntry(index, 'ATTACKING_TEAM'), listedEntry(index, whole)], ['ATTACKING_TEAM', 'ATTACKING_TEAM'])
+    for (const value of ['TEAM_RED', `${START} (another gloss)`, 'the holders (= ATTACKING_TEAM)', 'NEUTRALS', 3]) assert.equal(listedEntry(index, value), null, String(value))
+    assert.equal(followsPossessionRelation(index, 'the holders (= ATTACKING_TEAM)'), false, 'prose pointing at the entry follows nothing')
 })
 
 test('the possession relation is read from the gloss alone: our interpretation of an unglossed entry decides nothing in a gate', () => {
@@ -163,7 +169,9 @@ test('every consumer asks the resolver: no designation name, gloss substring or 
     for (const [file, name] of [
         ['gates.ts', 'designationKey'],
         ['gates.ts', 'followsPossessionRelation'],
-        ['gates.ts', 'isRegisteredDesignation'],
+        // Re-pointed 15 October 2026 (K2 review): registration in the gates is asked by the list's own spelling, so a value
+        // that only maps to an entry (a named team, "(= ENTRY)" prose) is not read as registered there.
+        ['gates.ts', 'isListedDesignation'],
         ['../realization/post-realization-gate.ts', 'memberDesignations'],
         ['../realization/assemble-concrete-game.ts', 'memberDesignations'],
         ['../realization/realize.ts', 'resolutionOf'],

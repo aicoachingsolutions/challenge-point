@@ -117,6 +117,12 @@ export function suppliedRealizationFor(selection: KnowledgeSelection, read: (nam
         for (const choice of (contents.choices ?? []) as (Choice & { replaces?: unknown })[]) {
             const earlier = closedBy.get(choice.lineId)
             const declared = choice.replaces === undefined ? null : String(choice.replaces)
+            // K2 review, 15 October 2026: a replacement is of ANOTHER file's entry. Two entries of this file for one line,
+            // the later declaring `replaces` with this file's own name, were otherwise settled by order.
+            if (declared === file) {
+                conflicts.push(`${file} declares that its entry for ${choice.lineId} replaces its own entry; a file gives one answer to a line, and replaces only another file's`)
+                continue
+            }
             if (earlier && declared !== earlier) {
                 conflicts.push(
                     declared

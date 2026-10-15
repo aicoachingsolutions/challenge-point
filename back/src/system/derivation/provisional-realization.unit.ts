@@ -102,6 +102,8 @@ test('the loader refuses the WHOLE file on an item that is not his, a collision,
         ['a refused designation', withItems(testItem({ selector: 'role=PRIMARY_SCORING & team=DEFENDING_TEAM' })), /names DEFENDING_TEAM, which a provisional realization may not use/],
         ['a refused designation in a value', withItems(testItem({ row: 'T2', selector: 'trigger=START', value: 'CONCEDING_TEAM' })), /names CONCEDING_TEAM/],
         ['no basis evidence', withItems(testItem({ basisEvidence: undefined })), /carries no basis evidence/],
+        // K2 review, 15 October 2026: two items under one id were admitted.
+        ['one id twice', withItems(testItem(), testItem({ value: 'REPRESENTATIVE' })), /A01-R1-TEST-ONLY-1 is defined twice/],
     ]
     for (const [what, copy, expected] of cases) {
         assert.ok(refusals(copy).some(e => expected.test(e)), `${what}: ${JSON.stringify(refusals(copy))}`)
@@ -272,6 +274,10 @@ test('a second answer to one line, or a replacement nobody can trace, refuses th
     assert.ok(conflicts((name, contents) => name === OURS && (contents.choices[0].replaces = 'realization-choices-rpc-001.json')).some(c => c.includes('and the line is closed by a04-realization-choices.json')))
     assert.ok(conflicts((name, contents) => name === 'a04-realization-choices.json' && (contents.choices[0].replaces = 'x')).some(c => c.includes('only a provisional realization')))
     assert.ok(conflicts((name, contents) => name === OURS && contents.instantiations.push({ classId: 'c:restated:GF2:GF2-14.a', member: {}, because: 'TEST-ONLY' })).some(c => c.includes('members are never doubled')))
+    // K2 review, 15 October 2026: the realization's file may not replace ITS OWN entry. Two entries of one file for one
+    // line, the second declaring `replaces` with that file's own name, were resolved by order (the later one stood) with
+    // no conflict recorded — exactly what the declaration rule exists to refuse.
+    assert.ok(conflicts((name, contents) => name === OURS && contents.choices.push({ lineId: 'game::V1', value: 'line_crossed', replaces: OURS, because: 'TEST-ONLY' })).some(c => c.includes('replaces its own entry')))
 })
 
 test('A01 with the From Goal Kicks practice situation is refused at knowledge with one sentence, naming the realization', () => {

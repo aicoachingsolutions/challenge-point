@@ -130,6 +130,22 @@ test('an immediate switch needs a side the register defines by the possession re
         }),
     )
     assert.equal(clauses(unlisted)[IMMEDIATE], 'FAIL')
+    // K2 review, 15 October 2026: a value the designation resolver can MAP to an entry is not thereby a list entry. Before
+    // stage K2 a team named by its own id, a glossed spelling the list does not hold and prose ending "(= ENTRY)" all
+    // FAILED here as unlisted; at K2 the first two became NOT_EVALUABLE and the third (pointing at the possession entry)
+    // could PASS, with no ruling for either. The side is a list entry, by its name or its whole text, or it is unlisted.
+    for (const side of ['TEAM_RED', 'TEAM_AT_AXIS_START (a gloss the list does not hold)', 'the holders (= ATTACKING_TEAM)']) {
+        const mapped: any = runStages0to10(
+            neutralInput(contracts => {
+                for (const id of ['NEUTRAL-03.a', 'NEUTRAL-14.b']) {
+                    const i = item(contracts, id)
+                    if (i && i.row === 'P6b') i.value = side
+                }
+                contracts.find(c => c.contractId === NEUTRAL)!.items = contracts.find(c => c.contractId === NEUTRAL)!.items.filter((i: any) => !(i.row === 'P6b' && i.strictness === 'EXCLUSION'))
+            }),
+        )
+        assert.equal(clauses(mapped)[IMMEDIATE], 'FAIL', `${side}: TEST-ONLY`)
+    }
 })
 
 test('a game with no neutrals records no blocker and no subject', () => {

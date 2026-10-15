@@ -20,6 +20,7 @@ import { ContractItem, DerivationInput, LoadedContract } from './types'
 import { repairCorpusEncoding, RepairTally } from './corpus-repair'
 import { applyNoRowRestatement, RestatementTally } from './corpus-restatement'
 import { AUDITS_DIR } from './knowledge-root'
+import { designationName } from './register'
 
 export const CONFORMANCE_DIR = path.join(AUDITS_DIR, 'conformance')
 
@@ -230,7 +231,8 @@ const tokensOf = (value: unknown): string[] => (JSON.stringify(value ?? null).ma
 export function validateProvisionalRealizations(
     file: any,
     canonicalItemIds: Set<string> = new Set([...loadCorpusContracts(), ...loadSportProfile()].flatMap(c => c.items.map(item => item.itemId))),
-    designationNames: Set<string> = new Set(((loadRegister().teamDesignations?.list ?? []) as string[]).map(entry => String(entry).trim().split(/\s/)[0])),
+    // The list's entry names as the register module spells them (K2 review: one reading of the list, not a second copy).
+    designationNames: Set<string> = new Set(((loadRegister().teamDesignations?.list ?? []) as string[]).map(designationName)),
     choicesFileExists: (name: string) => boolean = name => fs.existsSync(path.join(AUDITS_DIR, name)),
 ): string[] {
     const errors: string[] = []
@@ -267,9 +269,14 @@ export function validateProvisionalRealizations(
         if (!Array.isArray(realization?.relationshipRules) || realization.relationshipRules.length) errors.push(`${which} holds a relationship rule, which no provisional realization has a reading for`)
         const items: any[] = Array.isArray(realization?.items) ? realization.items : []
         if (!Array.isArray(realization?.items)) errors.push(`${which} lists no items (an empty list says it holds none)`)
+        // K2 review, 15 October 2026: one id, one item. A support entry and the review page's list cite an item by its
+        // contract and id, so two items under one id would leave a provisional choice citing either of two statements.
+        const itemIds = new Set<string>()
         for (const item of items) {
             const itemId = String(item?.id ?? '')
             const at = `${which} item ${itemId || '(no id)'}`
+            if (itemId && itemIds.has(itemId)) errors.push(`${at} is defined twice`)
+            itemIds.add(itemId)
             if (!filledText(item?.id) || !itemId.startsWith(`${id}-`)) errors.push(`${at}: an item's id must begin ${id}-`)
             if (canonicalItemIds.has(itemId)) errors.push(`${at} collides with a canonical item id`)
             if (item?.basis !== 'OWNER_RULING') errors.push(`${at} is not OWNER_RULING: a provisional realization holds only his choices`)

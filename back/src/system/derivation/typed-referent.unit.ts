@@ -492,6 +492,14 @@ test('the corpus-wide Gate A, check by check', () => {
         assert.equal(check(unregistered, 'GA-REFERENCE-INTEGRITY').verdict, 'FAIL')
         assert.match(check(unregistered, 'GA-REFERENCE-INTEGRITY').why, /1 named no held element/)
         assert.equal(clause(unregistered, 'GA-ONE-PRIMARY-EVENT', 'every member of the event reference').verdict, 'FAIL')
+        // K2 review, 15 October 2026: since the designation resolver landed (stage K2) a value it can MAP to an entry -- a
+        // team named by its own id, prose ending "(= ENTRY)" -- is not thereby an entry the referent may designate. Before K2
+        // both FAILED here as unregistered; at K2 they were read as registered and resolved to every objective of the role
+        // (a FAIL that became a resolution, with no ruling for it). The referent names a register entry or nothing.
+        for (const designated of ['TEAM_RED', 'the scorers (= SCORING_TEAM)']) {
+            const mapped = withControl({ objectiveReferenceOf: designated, role: 'PRIMARY_SCORING' })
+            assert.equal(check(mapped, 'GA-REFERENCE-INTEGRITY').verdict, 'FAIL', `${designated}: TEST-ONLY`)
+        }
         // A role no individuated objective of this game has. The possession game also asserts, without individuating
         // them, that each side has at least one objective (GF2-09.a, existential coverage under SD-97), so one of that
         // role might exist: what the referent designates is unknown — a gap naming the line, never a pass and never a

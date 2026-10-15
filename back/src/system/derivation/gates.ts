@@ -29,7 +29,7 @@
  * instances or found none, and the report carries that split so a summary cannot flatten it.
  */
 
-import { designationKey, followsPossessionRelation, isAllTeams, isRegisteredDesignation } from './designation'
+import { designationKey, followsPossessionRelation, isAllTeams, isListedDesignation } from './designation'
 import { ClassifiedLine, nonClaimState } from './classify'
 import { DerivedLine, resolvedValue } from './derive'
 import { ItemOutcome } from './forward'
@@ -386,8 +386,10 @@ function describeReferent(value: unknown): string {
  */
 function resolveRelational(ctx: GateContext, probe: Probe, referent: { objectiveReferenceOf: string; role: string }, lineId: string): { references: unknown[]; pending: boolean; dangling: string | null } {
     const designated = referent.objectiveReferenceOf
-    // Asked of the one resolver since 15 October 2026 (stage K2, his M2), which reads the register's typed entries.
-    if (!isRegisteredDesignation(ctx.index, designated)) {
+    // Asked of the one resolver since 15 October 2026 (stage K2, his M2). By the list's own spelling (K2 review): a named
+    // team or "(= ENTRY)" prose MAPS to an entry for comparison, but is no entry a referent may designate — read as one,
+    // it resolved to every objective of the role and a FAIL became a PASS.
+    if (!isListedDesignation(ctx.index, designated)) {
         return { references: [], pending: false, dangling: `${designated} is not a team designation the register defines` }
     }
     const references: unknown[] = []
@@ -2260,8 +2262,10 @@ function gaAffiliation(ctx: GateContext): CheckOutcome {
             const side = String(joins.value)
             // Asked of the one resolver since 15 October 2026 (stage K2, his M2): registered, and defined by the possession
             // relation on the register's own gloss (a POSSESSION_RELATION resolution whose basis is GLOSS). The answers are
-            // the ones the gloss substring gave: our reading of an entry with no gloss decides nothing here.
-            const entry = isRegisteredDesignation(ctx.index, side)
+            // the ones the gloss substring gave: our reading of an entry with no gloss decides nothing here. Registered means a
+            // list entry by its name or whole text (K2 review): a value that only MAPS to one (a named team, another gloss,
+            // "(= ENTRY)" prose) is unlisted and FAILS, as it did before the resolver, never undecided.
+            const entry = isListedDesignation(ctx.index, side)
             const followsRelation = followsPossessionRelation(ctx.index, side)
             const standing = String(on.value) === 'STANDING' || String(on.value) === 'POSSESSION_CHANGE'
             const relationHeld = relation.state === 'DERIVED' || relation.state === 'OPEN'
