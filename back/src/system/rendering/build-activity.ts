@@ -50,8 +50,8 @@ import { rpcLibrary } from '../sport-module/rpc-library'
 import { TEST_LIBRARY_V0_AFFORDANCE_LENSES, TEST_LIBRARY_V0_ARCHETYPES, TEST_LIBRARY_V0_CONSTRAINTS, TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS } from '../test-library'
 import type { SelectionKnowledgeGapReason } from '../test-library/generateSelection'
 import { learningGoalSelectionHolds } from '../test-library/learning-design-holds'
-import type { AuthorizationExclusion, LearningGoalAuthorization } from '../test-library/learning-goal-authorizations'
-import { learningGoalAuthorizations, libraryConstraintPrinciple } from '../test-library/learning-goal-authorizations'
+import type { AuthorizationExclusion, AuthorizationLists, LearningGoalAuthorization } from '../test-library/learning-goal-authorizations'
+import { authorizationLists, learningGoalAuthorizations, libraryConstraintPrinciple, neededRecordGaps } from '../test-library/learning-goal-authorizations'
 import type { ConstraintAuthority, ConstraintPoolAccount } from '../test-library/types'
 import { contextScoringFindings } from './context-scoring-guard'
 import { checkFidelity } from './fidelity'
@@ -151,6 +151,13 @@ export interface ActivityAccount {
      * None of it is coach-facing.
      */
     authorization: (Omit<LearningGoalAuthorization, 'excluded'> & { excluded: (AuthorizationExclusion & { title: string })[] }) | null
+    /**
+     * **The same record as three lists — added 15 October 2026 (stage H3), TECHNICAL account only.** His 16 October
+     * reply asks the next review to *"distinguish what was authorized by existing knowledge from what remains a
+     * provisional design choice"*, with the gaps kept visible (item 10). `authorizationLists` sorts the record's own
+     * entries by the category the record gives them; every string is the record's. Null wherever `authorization` is.
+     */
+    authorizationLists: AuthorizationLists | null
     selectedWithoutContract: string[]
     /**
      * **Provisional: the goal's Game Problem is UNRESOLVED.** Christian, 14 October 2026: *"they should not be
@@ -332,6 +339,7 @@ function accountOf(selection: KnowledgeSelection, goal: BoundedSelection | null)
         })),
         constraintSource: goal ? constraintSourceOf(goal.constraintPool, null) : null,
         authorization: goal ? authorizationOf(goal.authorization) : null,
+        authorizationLists: goal?.authorization ? authorizationLists(goal.authorization) : null,
         selectedWithoutContract: selection.missing.filter(id => !contexts.has(id)),
         ...provisionalOf(goal ? goal.gameProblem : null),
     }
@@ -355,6 +363,7 @@ function gapAccountOf(gap: GoalSelectionGap): Partial<ActivityAccount> {
         constraints: [],
         constraintSource: constraintSourceOf(gap.gap.pool, gap.gap.reason),
         authorization: authorizationOf(gap.authorization),
+        authorizationLists: gap.authorization ? authorizationLists(gap.authorization) : null,
         selectedWithoutContract: [],
         ...provisionalOf(gap.gameProblem),
         ...(gap.gap.archetypeId ? { gameForm: gameFormOf(gap.gap.archetypeId, contracted.has(gap.gap.archetypeId)) } : {}),
@@ -691,6 +700,31 @@ function build(
         ])
     }
 
+    /**
+     * **A goal whose authorization record names something the activity needs and does not have is refused HERE,
+     * naming each one** — added 15 October 2026 (stage H3). Christian, 16 October reply, item 10: *"if the existing
+     * game form cannot represent the intended learning environment, I would rather see a clear refusal and a narrowly
+     * described gap than an activity that is technically valid but solves a different problem."* A record entry whose
+     * status is MISSING_KNOWLEDGE or MISSING_CAPABILITY is exactly such a gap, with the decisions and capabilities that
+     * would close it; `neededRecordGaps` reads them, for whichever goal the record belongs to (no goal is named here).
+     *
+     * **Why before derivation, not after `structure`.** The record speaks about the activity his rulings ask for (an
+     * asymmetric build-out against a press, with its targets, starts and restarts). Derivation can only check the game
+     * the knowledge holds today, and a game that passed every structural check would still be the "technically valid"
+     * game that "solves a different problem". So the record's gaps come first, at `knowledge` beside the other
+     * knowledge refusals (which they follow, so a game form or context that is not built at all still says that first).
+     * Nothing is hidden: the structural stops behind them are measured and pinned on copies whose record has no gap
+     * entry (activity-review.unit.ts). A tightening: a record with no such entry, and every goal without a record,
+     * goes on exactly as before.
+     */
+    const recordGaps = goalSelection?.authorization ? neededRecordGaps(goalSelection.authorization) : []
+    if (recordGaps.length) {
+        return refuse('knowledge', "This goal's activity depends on set-up decisions and engine capabilities that are not in place yet, so no activity can be built for it.", [
+            `${recordGaps.length} part${recordGaps.length === 1 ? '' : 's'} of the activity the authorization record of ${goalSelection!.goalId} asks for ${recordGaps.length === 1 ? 'is' : 'are'} not in place yet`,
+            ...recordGaps.map(gap => `${gap.from} "${gap.label}" is ${gap.status} (${gap.category}), waiting on ${gap.gaps.map(named => named.id).join(', ')}`),
+        ])
+    }
+
     // The coach's envelope, whole. It used to be spread over the corpus envelope, which is how the pilot
     // came to inherit a statement about specialized roles that nobody had made for it.
     const session = request.session
@@ -803,7 +837,7 @@ function build(
      * consumer. So where the context is contracted, the concrete game's primary event must be one the context
      * approves (`rpcLibrary.scoringEventsForContext`), and every condition the context's contract constitutes
      * must be present in it. What is missing is named; nothing is filled in. Reached by no goal today (A01, the
-     * one goal with a contracted context, stops at Gate A), so it is tested on constructed games.
+     * one goal with a contracted context, stops earlier: on its record's gaps, and at Gate A behind them), so it is tested on constructed games.
      */
     if (context && selection.contracted.includes(context.id)) {
         const contract = (input.contracts as LoadedContract[]).find(c => knowledgeKey(c.contractId) === knowledgeKey(context.id))

@@ -20,9 +20,12 @@
  * Run: npm test
  */
 import assert from 'node:assert/strict'
+import fs from 'node:fs'
+import path from 'node:path'
 
 import { loadCorpusContracts, loadRegister, readJson } from '../derivation/corpus'
 import { repairCorpusEncoding } from '../derivation/corpus-repair'
+import { CONTEXT_ROLE } from '../derivation/run-bounded-selection'
 import { indexRegister } from '../derivation/register'
 import { ActivityReviewRequestError, activityReviewOptions, reviewActivity } from './activity-review'
 import { buildActivity, buildActivityFromKnowledge, buildActivityOverAlteredKnowledge, buildActivityOverAlteredSelection, buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity, UnknownActivityRequest } from './build-activity'
@@ -32,7 +35,7 @@ import { MECHANISM_DEMONSTRATIONS } from './mechanism-demonstrations'
 import { sessionEnvelopeFrom, specializedRoleNames } from './session-envelope'
 import { rpcLibrary } from '../sport-module/rpc-library'
 import { learningGoalSelectionHolds } from '../test-library/learning-design-holds'
-import { learningGoalAuthorization, learningGoalAuthorizations, libraryConstraintPrinciple } from '../test-library/learning-goal-authorizations'
+import { authorizationLists, learningGoalAuthorization, learningGoalAuthorizations, LearningGoalAuthorization, libraryConstraintPrinciple } from '../test-library/learning-goal-authorizations'
 
 const ROLES = specializedRoleNames()
 assert.ok(ROLES.length > 0, 'the register must name a specialized role, or the availability question has no subject')
@@ -64,6 +67,20 @@ const plain = (activity: RefusedActivity, what: string) => {
     assert.ok(activity.reasons.length > 0, `${what}: the engine's own reasons must travel for the technical account`)
 }
 const text = (activity: ServedActivity, section: string) => activity.rendered.instructions.filter(i => i.section === section).map(i => i.text)
+
+/**
+ * **TEST-ONLY: the real authorization records with every entry that is not in place set aside** (stage H3, 15 October
+ * 2026). Since that stage the production build of A01 stops before derivation on its record's gaps, so the tests below
+ * that were about what lies BEHIND that — the structural stops, the context-scoring guard, the roster — build over this
+ * copy, which changes nothing but those entries' status (and is never production data), so derivation runs on exactly
+ * the selection the real build makes.
+ */
+const withoutGapEntries = (): LearningGoalAuthorization[] =>
+    learningGoalAuthorizations().map(record => ({
+        ...record,
+        manipulations: record.manipulations.map(m => (m.status === 'MISSING_KNOWLEDGE' || m.status === 'MISSING_CAPABILITY' ? { ...m, category: 'EXISTING_KNOWLEDGE_TO_VERIFY' as const, status: 'NOT_SELECTED_FOR_FIRST_DEMO' as const, gaps: [], note: 'TEST-ONLY' } : m)),
+        provisionalChoices: (record.provisionalChoices ?? []).map(c => (c.status === 'MISSING_KNOWLEDGE' || c.status === 'MISSING_CAPABILITY' ? { ...c, status: 'AUTHORIZED_BY_RULING' as const, gaps: [], note: 'TEST-ONLY' } : c)),
+    }))
 
 // ── The pilot is REFUSED now, and the review refuses it identically ───────────────────────────────
 //
@@ -198,15 +215,27 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
  * targets sit), and 18.a::V6 (the origin's "no further value", his 9.9 — capability M6, ruling C55). Selection
  * is no longer where this goal stops; its context's knowledge is. (Three lines since C51 the same day: 11.a::J2
  * cleared with the retired objective.)
+ *
+ * **15 October 2026, stage H3 — A01 moves from `structure` to `knowledge`: its authorization record names what the
+ * activity still lacks.** His 16 October reply, item 10: *"if the existing game form cannot represent the intended
+ * learning environment, I would rather see a clear refusal and a narrowly described gap than an activity that is
+ * technically valid but solves a different problem."* The record now carries his 16 October choices and the
+ * statuses they leave (the asymmetric structure, the defenders' starting arrangement, where the targets sit, the
+ * allocation, the goalkeepers, the start and the restarts), and the build refuses on every entry that is not in place,
+ * before derivation, naming each with the decisions (D1-D7) and capabilities (M1-M5) that would supply it. Nothing
+ * is hidden: the structural stops (GA-EPISODE-REACHABLE and the three context lines) are pinned below on a COPY of
+ * the record whose gap entries are set aside, and they are exactly what they were. No other goal moves: none other
+ * has a record.
  */
 {
+    const RECORD = "This goal's activity depends on set-up decisions and engine capabilities that are not in place yet, so no activity can be built for it."
     const GAP = "This goal's designated constraints cannot yet be combined into a game, so no activity can be built for it."
     const NOT_DESCRIBED = 'The game this goal selects is not yet described completely enough to be set up.'
     const NOT_BUILT = 'This goal uses a game form that has not been built into the activity engine yet.'
     const CONTEXT = "The scoring this goal's context calls for has not been built into the activity engine yet, so no activity can be built for it."
     // [stage, summary, the game form is contracted, the reason names]
     const expected: Record<string, [RefusedActivity['stage'], string, boolean, string]> = {
-        A01: ['structure', NOT_DESCRIBED, true, 'c:restated:RPC-001:RPC-001-18.a::V6'],
+        A01: ['knowledge', RECORD, true, 'parts of the activity the authorization record of A01 asks for are not in place yet'],
         A02: ['selection', GAP, false, 'NO_COMPATIBLE_COMBINATION'],
         A03: ['knowledge', NOT_BUILT, false, 'the game form GF3 has no contribution contract'],
         A04: ['knowledge', CONTEXT, true, 'the Representative Performance Context RPC-004 has no contribution contract'],
@@ -294,7 +323,14 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
         assert.deepEqual(excluded.map(e => e.title), ['Wide Zone Advantage', 'Pass Combination Gate'], 'each named by its library title')
         assert.deepEqual(authorization.manipulations.map(m => [m.phrase, m.tier, m.status]), record.manipulations.map(m => [m.phrase, m.tier, m.status]))
         assert.deepEqual(authorization.authorizedConstraints, [], 'evaluated: none justified for this goal')
-        assert.deepEqual(authorization.provisionalChoices, record.provisionalChoices, 'his provisional choice (Option A) reaches the technical account')
+        assert.deepEqual(authorization.provisionalChoices, record.provisionalChoices, 'his provisional choices reach the technical account')
+        // Stage H3, 15 October 2026: the new record fields reach the account whole (key identity above covers the
+        // keys; these are the values), and the three lists are the record's own projection, read by the page.
+        assert.deepEqual(authorization.existingKnowledge, record.existingKnowledge)
+        assert.deepEqual(authorization.gaps, record.gaps)
+        assert.deepEqual(authorization.manipulations.map(m => [m.category, m.gaps]), record.manipulations.map(m => [m.category, m.gaps]))
+        assert.deepEqual(a01.account.authorizationLists, authorizationLists(record), 'the three lists, exactly as the record gives them')
+        assert.equal(a01.account.authorizationLists!.gaps.length, 15)
         assert.equal(a01.account.gameProblem?.gameProblemId, 'GP-005')
         assert.equal(a01.account.gameProblem?.status, 'APPROVED')
         assert.equal(a01.account.provisional, false)
@@ -321,9 +357,37 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
      * transition is a possession change), so GA-EPISODE-REACHABLE fails, naming the scope. What would move it is
      * capability M3 — START and SCORE transition elements from knowledge — which goes to him first.
      */
+    /**
+     * **Re-pointed 15 October 2026 (stage H3) onto a COPY of the record with its gap entries set aside**, because the
+     * production build now stops earlier, on the record's own gaps (pinned first, below). The copy changes nothing but
+     * those entries' status (TEST-ONLY, never production data), so derivation runs on exactly the selection the real
+     * build makes, and the structural stops are measured to be exactly what they were: nothing behind the record's
+     * refusal is hidden. What moves each stop: GA-EPISODE-REACHABLE, capability M3; 18.f::V5 and 19.a::V5, capability
+     * M8 after decisions D1 and D3; 18.a::V6, capability M6 (ruling C55, his 9.9).
+     */
     {
+        const RECORD_REASONS = [
+            '8 parts of the activity the authorization record of A01 asks for are not in place yet',
+            'manipulation "starting positions — where the team building out starts" is MISSING_CAPABILITY (PROVISIONAL_REALIZATION_CHOICE), waiting on M3',
+            'manipulation "starting positions — the defending team\'s starting relationship" is MISSING_KNOWLEDGE (GENUINE_GAP), waiting on D4, M5',
+            'manipulation "progression references — where each target sits: the build-out progression target and the post-regain area" is MISSING_KNOWLEDGE (GENUINE_GAP), waiting on D3',
+            'manipulation "defensive numbers" is MISSING_KNOWLEDGE (GENUINE_GAP), waiting on D6',
+            'manipulation "goalkeeper positioning" is MISSING_CAPABILITY (PROVISIONAL_REALIZATION_CHOICE), waiting on D6, M2, M3',
+            'manipulation "overloads" is MISSING_KNOWLEDGE (GENUINE_GAP), waiting on D6',
+            'provisional choice "An asymmetrical build-out-versus-press structure: one team builds out, the other presses to prevent progression, regain possession and exploit the regain, and the teams exchange roles over successive episodes or blocks." is MISSING_CAPABILITY (PROVISIONAL_REALIZATION_CHOICE), waiting on D2, D7, M1, M2',
+            'provisional choice "A new build-out episode begins with a goalkeeper or controlled defensive restart once the previous episode has meaningfully concluded, without interrupting a promising attack; after a score play stops and restarts, at a location the coach selects." is MISSING_CAPABILITY (PROVISIONAL_REALIZATION_CHOICE), waiting on D1, D5, M3, M4',
+        ]
         for (const keepers of [2, 0]) {
-            const reached = refused(reviewActivity(stored({ specializedRoles: { ...none, [ROLE]: keepers } }), { learningGoalId: 'A01', durationMin: 20 }), `A01, ${keepers} of ${ROLE}`)
+            // Production: refused on the record's gaps, before derivation — the same with two goalkeepers or none.
+            const production = refused(reviewActivity(stored({ specializedRoles: { ...none, [ROLE]: keepers } }), { learningGoalId: 'A01', durationMin: 20 }), `A01, ${keepers} of ${ROLE}`)
+            assert.equal(production.stage, 'knowledge', JSON.stringify(production.reasons))
+            assert.deepEqual(production.reasons, RECORD_REASONS)
+            assert.deepEqual(production.account.constraints, [], 'no library constraint was selected')
+            assert.equal(production.account.context?.inThisActivity, true, 'the context is in the game')
+
+            // Behind it, on the copy: the structural stops, exactly as before stage H3.
+            const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: keepers } }
+            const reached = refused(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, withoutGapEntries()).activity, `A01 (record gaps set aside), ${keepers} of ${ROLE}`)
             assert.equal(reached.stage, 'structure', JSON.stringify(reached.reasons))
             assert.deepEqual(reached.reasons, [
                 'Gate A is FAIL',
@@ -343,6 +407,83 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
         assert.equal(notYet.account.constraintSource?.gap, 'NO_AUTHORIZED_CONSTRAINTS')
         assert.equal(notYet.account.constraintSource?.constraintPrinciple, null)
     }
+}
+
+/**
+ * ── The record-gap refusal is GENERIC: no goal is special (stage H3, 15 October 2026) ─────────────────
+ *
+ * His 16 October reply, item 1: *"please don't establish Play Out from the Back as a permanent special-case
+ * exception"*; item 10: *"I want to avoid turning this first activity into a special-case collection of hardcoded
+ * rules."* So the refusal is proved for every goal, not for A01. Each of the thirteen is built under a COPY of the
+ * records holding a TEST-ONLY record for it (nothing of his in it: every field says TEST-ONLY) with one entry not in
+ * place, and with its context left out of a copy of its selection so that the uncontracted contexts of twelve goals do
+ * not stop it first. Every goal whose game form is built is then refused at `knowledge` naming that entry and its
+ * test gap; the same record with the entry in place is NOT refused there; and a goal whose game form is not built
+ * still says that first (an earlier refusal wins). The builder names no goal in its code (checked below).
+ */
+{
+    const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: none }
+    const testRecord = (goalId: string, status: 'MISSING_KNOWLEDGE' | 'AUTHORIZED_VIA_GAME_FORM_OR_SESSION'): LearningGoalAuthorization => ({
+        learningGoalId: goalId,
+        contextId: 'TEST-ONLY',
+        gameProblemId: 'TEST-ONLY',
+        ruledOn: 'TEST-ONLY',
+        by: 'test',
+        ruling: ['TEST-ONLY: never production data'],
+        authorizedConstraints: [],
+        authorizedConstraintsFinding: 'TEST-ONLY: evaluated, none justified',
+        gaps: [{ id: 'T1', kind: 'DECISION', description: 'TEST-ONLY decision', note: null }],
+        excluded: [],
+        manipulations: [
+            {
+                phrase: 'TEST-ONLY phrase',
+                phraseFrom: 'TEST-ONLY',
+                aspect: null,
+                tier: null,
+                source: 'TEST-ONLY',
+                registerRows: [],
+                category: status === 'MISSING_KNOWLEDGE' ? 'GENUINE_GAP' : 'EXISTING_KNOWLEDGE_TO_VERIFY',
+                status,
+                gaps: status === 'MISSING_KNOWLEDGE' ? ['T1'] : [],
+                statusBasis: 'TEST-ONLY',
+                note: null,
+            },
+        ],
+    })
+    const recordsWith = (goalId: string, status: Parameters<typeof testRecord>[1]) => [...learningGoalAuthorizations().filter(r => r.learningGoalId !== goalId), testRecord(goalId, status)]
+    const withoutContext = { alterSelection: (selection: { selected: { role: string }[] }) => void (selection.selected = selection.selected.filter(entry => entry.role !== CONTEXT_ROLE)) }
+    const FORM_NOT_BUILT = ['A02', 'A03', 'A06']
+    for (const goalId of activityReviewOptions().goals.map(goal => goal.id)) {
+        const gapped = refused(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId, session }, recordsWith(goalId, 'MISSING_KNOWLEDGE'), withoutContext).activity, `${goalId} with a test record gap`)
+        if (FORM_NOT_BUILT.includes(goalId)) {
+            assert.equal(gapped.stage, 'knowledge', goalId)
+            assert.ok(gapped.reasons.some(reason => reason.includes('has no contribution contract')), `${goalId}: the unbuilt game form still says so first: ${JSON.stringify(gapped.reasons)}`)
+            continue
+        }
+        assert.equal(gapped.stage, 'knowledge', `${goalId}: ${JSON.stringify(gapped.reasons)}`)
+        assert.equal(gapped.summary, "This goal's activity depends on set-up decisions and engine capabilities that are not in place yet, so no activity can be built for it.")
+        plain(gapped, `${goalId} record gap`)
+        assert.deepEqual(gapped.reasons, [
+            `1 part of the activity the authorization record of ${goalId} asks for is not in place yet`,
+            'manipulation "TEST-ONLY phrase" is MISSING_KNOWLEDGE (GENUINE_GAP), waiting on T1',
+        ])
+        assert.deepEqual(gapped.account.authorizationLists?.gaps, [{ id: 'T1', kind: 'DECISION', description: 'TEST-ONLY decision', note: null, neededBy: ['TEST-ONLY phrase'] }])
+        // The same record with the entry in place: the record gate lets it through to whatever the knowledge says next.
+        const inPlace = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId, session }, recordsWith(goalId, 'AUTHORIZED_VIA_GAME_FORM_OR_SESSION'), withoutContext).activity
+        assert.ok(inPlace.outcome === 'served' || !(inPlace as RefusedActivity).reasons.some(reason => reason.includes('authorization record')), `${goalId}: no record gap, no record refusal`)
+    }
+
+    // No Learning Goal id in the builder's code (comments quote him and name goals by design, so they are stripped).
+    const goalIds = new Set(activityReviewOptions().goals.map(goal => goal.id))
+    const code = fs
+        .readFileSync(path.join(__dirname, 'build-activity.ts'), 'utf8')
+        .split('/*')
+        .map((part, i) => (i === 0 ? part : part.slice(part.indexOf('*/') + 2)))
+        .join(' ')
+        .split('\n')
+        .map(line => (line.trimStart().startsWith('//') ? '' : line.split(' // ')[0]))
+        .join('\n')
+    assert.deepEqual((code.match(/[A-Za-z0-9]+/g) ?? []).filter(word => goalIds.has(word)), [], 'build-activity.ts: no Learning Goal id outside comments')
 }
 
 /**
@@ -1293,7 +1434,7 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
  * Christian, 14 October 2026: the approved scoring *"should govern the generated activity."* The builder reads
  * the concrete game after realization and refuses where its primary event is not one the context approves, or
  * a condition the context's contract constitutes is missing. No goal reaches it today — A01, the one goal whose
- * context has a contract, stops at Gate A — so it is exercised on constructed games against RPC-001's real
+ * context has a contract, stops before it (on its record's gaps since 15 October 2026, and at Gate A behind them) — so it is exercised on constructed games against RPC-001's real
  * contract (a copy), at the paths the register gives and the served fixture shows (`value.primaryEvent`).
  */
 {
@@ -1350,9 +1491,13 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
      * **Re-pointed back later the same day:** under his general principle (16 October reply, item 1) A01's real
      * selection is that selection — GF2 and RPC-001, no library constraint — so the alteration runs over the
      * production records again, through `buildActivityOverAlteredKnowledge`, with no test-only copy of the record.
+     *
+     * **Re-pointed 15 October 2026 (stage H3)** to the same alteration over the records with their gap entries set
+     * aside (`withoutGapEntries`, TEST-ONLY): the production record now refuses A01 before derivation on its gaps, and
+     * this block is about the guard behind it. Measured: the outcomes below are unchanged.
      */
     const a01 = { kind: 'learning-goal' as const, goalId: 'A01', session }
-    const underTestRuling = (alter: (contracts: any[]) => void) => buildActivityOverAlteredKnowledge(a01, alter)
+    const underTestRuling = (alter: (contracts: any[]) => void) => buildActivityUnderAuthorizationRecords(a01, withoutGapEntries(), { alter }).activity
     /**
      * **Re-pointed 15 October 2026 (his 9.8): refused at `communication` -> SERVED, over this TEST-ONLY copy, measured.**
      * What stopped it at communication was TWO balls — the context's own (RPC-001-10.a) beside the Sport Profile's —
@@ -1421,11 +1566,14 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
     assert.ok(authoredRpc.items.some((item: any) => item.id === 'RPC-001-02') && authoredRpc.items.some((item: any) => item.id === 'RPC-001-03'), 'and kept in contracts.json')
     assert.deepEqual(loaded.declarations.filter((d: any) => d.row === 'P3').map((d: any) => d.declaration), ['NON_CLAIMED'], 'its P3 claim restated beside them')
 
+    // Re-pointed 15 October 2026 (stage H3) over the records with their gap entries set aside (TEST-ONLY): production A01
+    // now stops before derivation on its record's gaps, goalkeeper positioning among them (D6, M2, M3). Measured unchanged.
+    const overCopy = (session: any, alter: (contracts: any[]) => void) => buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, withoutGapEntries(), { alter }).activity
     for (const keepers of [2, 0]) {
         const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: keepers } }
-        const before = refused(buildActivityOverAlteredKnowledge({ kind: 'learning-goal', goalId: 'A01', session }, asBeforeC53), `A01 before C53, ${keepers} of ${ROLE}`)
+        const before = refused(overCopy(session, asBeforeC53), `A01 before C53, ${keepers} of ${ROLE}`)
         assert.ok(before.reasons.some(reason => reason.startsWith('roster (INVOLVEMENT_NOT_SETTLED): restated:RPC-001::RPC-001-02 speaks of particular teams')), JSON.stringify(before.reasons))
-        const now = served(buildActivityOverAlteredKnowledge({ kind: 'learning-goal', goalId: 'A01', session }, withoutConditions), `A01 after C53, ${keepers} of ${ROLE}`)
+        const now = served(overCopy(session, withoutConditions), `A01 after C53, ${keepers} of ${ROLE}`)
         const roster = now.rendered.instructions.find(instruction => instruction.text.startsWith('Divide 12 players into 2 teams of 6'))
         assert.ok(roster, JSON.stringify(now.rendered.instructions.map(i => i.text)))
         // 6 + 0 against 6 + 0: with two available the goalkeepers play outfield (unused as goalkeepers) — D6 / M2.

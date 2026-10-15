@@ -33,6 +33,13 @@
  * **The gate refuses at load**, because a record that names a constraint the library does not hold, or that both
  * authorizes and excludes one, or that says something without saying who ruled it, would silently decide what a
  * coach is served. Sport-neutral: every name in it is data.
+ *
+ * **Since 15 October 2026 (stage H3) the record also says what the activity still lacks.** His 16 October reply, item
+ * 10, asks for four categories kept apart, and for *"a clear refusal and a narrowly described gap"* rather than an
+ * activity that solves a different problem. So each entry names its category beside its status, a status that is a gap
+ * names the decisions and capabilities that would supply it (defined once in the record), and `neededRecordGaps` hands
+ * the builder every such entry to refuse on. `authorizationLists` is the review page's view of the same entries, sorted
+ * by category: what existing knowledge authorizes, his provisional choices, and the gaps.
  */
 import { knowledgeKey } from '../derivation/knowledge-key'
 import type { LearningDesignHold } from './learning-design-holds'
@@ -40,8 +47,32 @@ import { learningGoalSelectionHolds } from './learning-design-holds'
 import record from './library/learning-goal-authorizations.json'
 import { testLibraryRegistry } from './library/registry'
 
-export const MANIPULATION_STATUSES = ['AUTHORIZED_VIA_GAME_FORM_OR_SESSION', 'AUTHORIZED_BY_RULING', 'MISSING_KNOWLEDGE', 'NOT_SELECTED_FOR_FIRST_DEMO'] as const
+/**
+ * **Whether the activity can carry an entry now.** `MISSING_CAPABILITY` added 15 October 2026 (stage H3): his 16
+ * October reply asks for things the knowledge authorizes or he chose that the engine cannot yet build — the
+ * asymmetric structure first among them — and those are not knowledge gaps.
+ */
+export const MANIPULATION_STATUSES = ['AUTHORIZED_VIA_GAME_FORM_OR_SESSION', 'AUTHORIZED_BY_RULING', 'MISSING_KNOWLEDGE', 'MISSING_CAPABILITY', 'NOT_SELECTED_FOR_FIRST_DEMO'] as const
 export type ManipulationStatus = (typeof MANIPULATION_STATUSES)[number]
+
+/**
+ * The two statuses that mean *the activity his rulings ask for needs this, and it is not in place*. A record entry
+ * carrying one refuses the build (`neededRecordGaps`), naming the decisions and capabilities that would supply it.
+ */
+export const GAP_STATUSES = ['MISSING_KNOWLEDGE', 'MISSING_CAPABILITY'] as const
+export const isGapStatus = (status: string): boolean => (GAP_STATUSES as readonly string[]).includes(status)
+
+/**
+ * **His four categories, kept apart** — 16 October reply, item 10: *"The decisions above should be interpreted as
+ * either: General learning-design principles. Provisional realization choices for the first activity. Existing
+ * knowledge relationships that require verification. Genuine implementation or knowledge gaps. Please keep those
+ * categories distinct."* A category says what an entry's AUTHORITY is; its status says whether the activity can
+ * carry it now. They are different questions: his choice of an asymmetric game is a provisional realization choice
+ * (category) that the engine cannot build (status). A general principle is recorded once, at the top of the file,
+ * never as an entry.
+ */
+export const ENTRY_CATEGORIES = ['PROVISIONAL_REALIZATION_CHOICE', 'EXISTING_KNOWLEDGE_TO_VERIFY', 'GENUINE_GAP'] as const
+export type EntryCategory = (typeof ENTRY_CATEGORIES)[number]
 
 /** One manipulation his context names, evaluated: his phrase, where it is written, what carries it, and its status. */
 export interface ManipulationRecord {
@@ -54,9 +85,32 @@ export interface ManipulationRecord {
     /** Where the manipulation is written: a library section and tier, a contract item, or his ruling. */
     source: string
     registerRows: string[]
+    /** What the entry's authority is (his item 10). Added 15 October 2026. */
+    category: EntryCategory
     status: ManipulationStatus
+    /** The decisions and capabilities (ids in the record's `gaps`) that would supply it. Empty unless the status is a gap. */
+    gaps: string[]
     /** Why the status is what it is — his ruling quoted, or the contract items that carry it. */
     statusBasis: string
+    note: string | null
+}
+
+/**
+ * A decision or capability the activity waits on, with a one-line description. OUR wording, as put to him — never
+ * quoted as his. Read by the refusal and the review page; nothing here is restated in code.
+ */
+export interface RecordGapDefinition {
+    id: string
+    kind: 'DECISION' | 'CAPABILITY'
+    description: string
+    note: string | null
+}
+
+/** Something existing knowledge already authorizes for the activity, with the sources that carry it. */
+export interface ExistingKnowledgeRecord {
+    category: 'EXISTING_KNOWLEDGE_TO_VERIFY'
+    what: string
+    sources: string[]
     note: string | null
 }
 
@@ -92,8 +146,11 @@ export interface ProvisionalChoice {
     ruledOn: string
     by: string
     citedAs: string
-    /** His words, verbatim. */
+    /** His words, verbatim (non-adjacent passages joined by an ellipsis). */
     words: string
+    /** Whether the activity can carry the choice now, and what it waits on — as for a manipulation. Added 15 October 2026. */
+    status: ManipulationStatus
+    gaps: string[]
     note: string | null
 }
 
@@ -110,6 +167,10 @@ export interface LearningGoalAuthorization {
     authorizedConstraintsFinding: string
     /** His provisional choices for this goal's activity, each cited. Never read by selection. */
     provisionalChoices?: ProvisionalChoice[]
+    /** What existing knowledge already authorizes for the activity (15 October 2026). Optional: a record may list none. */
+    existingKnowledge?: ExistingKnowledgeRecord[]
+    /** The decisions and capabilities its entries wait on, defined once (15 October 2026). Optional where none is named. */
+    gaps?: RecordGapDefinition[]
     excluded: AuthorizationExclusion[]
     manipulations: ManipulationRecord[]
 }
@@ -145,11 +206,50 @@ export function validateLearningGoalAuthorizations(
             errors.push(`${goal}: authorizedConstraints must be a list (the evaluation) or null (not yet evaluated)`)
         }
         if ('zeroConstraintRuling' in (entry as object)) errors.push(`${goal}: a per-goal zero-constraint ruling is not read; the general principle governs every record alike`)
+
+        /**
+         * **The gaps an entry waits on are defined once, in the record, and every name resolves** (15 October 2026).
+         * A refusal names them, and the review page lists them with their descriptions; a name that resolves to
+         * nothing would be a refusal citing a decision nobody can find.
+         */
+        const defined = new Set<string>()
+        for (const [i, gap] of (entry.gaps ?? []).entries()) {
+            if (!filled(gap.id) || !filled(gap.description) || !['DECISION', 'CAPABILITY'].includes(gap.kind)) {
+                errors.push(`${goal}: gap ${i + 1} must have an id, a kind (DECISION or CAPABILITY) and a one-line description`)
+            }
+            if (defined.has(gap.id)) errors.push(`${goal}: the gap ${gap.id} is defined twice`)
+            defined.add(gap.id)
+        }
+        for (const [i, known] of (entry.existingKnowledge ?? []).entries()) {
+            if (known.category !== 'EXISTING_KNOWLEDGE_TO_VERIFY') errors.push(`${goal}: existing knowledge ${i + 1} is not labelled EXISTING_KNOWLEDGE_TO_VERIFY`)
+            if (!filled(known.what) || !Array.isArray(known.sources) || !known.sources.length || !known.sources.every(filled)) {
+                errors.push(`${goal}: existing knowledge ${i + 1} must say what is authorized and cite at least one source`)
+            }
+        }
+        /**
+         * **A status and its category must agree with each other and with what the entry names** (his item 10: keep
+         * the categories distinct). A genuine gap is by definition not in place; a status that is a gap must name what
+         * would supply it, and one that is not must name nothing; an authorization by his ruling is his choice, and an
+         * authorization via the game form or the session is existing knowledge.
+         */
+        const statusErrors = (which: string, category: string, status: string, gaps: unknown): string[] => {
+            const found: string[] = []
+            if (!(MANIPULATION_STATUSES as readonly string[]).includes(status)) found.push(`${which} has the unknown status ${status}`)
+            if (!Array.isArray(gaps)) return [...found, `${which} lists no gaps (an empty list says it waits on none)`]
+            if (isGapStatus(status) && !gaps.length) found.push(`${which} is ${status} and names no decision or capability that would supply it`)
+            if (!isGapStatus(status) && gaps.length) found.push(`${which} is ${status} and names gaps; only a missing entry waits on one`)
+            for (const id of gaps) if (!defined.has(String(id))) found.push(`${which} names the gap ${id}, which the record does not define`)
+            if (category === 'GENUINE_GAP' && !isGapStatus(status)) found.push(`${which} is a GENUINE_GAP with the status ${status}`)
+            if (status === 'AUTHORIZED_BY_RULING' && category !== 'PROVISIONAL_REALIZATION_CHOICE') found.push(`${which} is AUTHORIZED_BY_RULING but not his PROVISIONAL_REALIZATION_CHOICE`)
+            if (status === 'AUTHORIZED_VIA_GAME_FORM_OR_SESSION' && category !== 'EXISTING_KNOWLEDGE_TO_VERIFY') found.push(`${which} is AUTHORIZED_VIA_GAME_FORM_OR_SESSION but not EXISTING_KNOWLEDGE_TO_VERIFY`)
+            return found
+        }
         for (const [i, choice] of (entry.provisionalChoices ?? []).entries()) {
             if (choice.category !== 'PROVISIONAL_REALIZATION_CHOICE') errors.push(`${goal}: provisional choice ${i + 1} is not labelled PROVISIONAL_REALIZATION_CHOICE`)
             if (!filled(choice.choice) || !filled(choice.ruledOn) || !filled(choice.by) || !filled(choice.citedAs) || !filled(choice.words)) {
                 errors.push(`${goal}: provisional choice ${i + 1} must say what it is and cite who chose it, when, where and in his words`)
             }
+            errors.push(...statusErrors(`${goal}: provisional choice ${i + 1}`, choice.category, choice.status, choice.gaps))
         }
         const authorized = new Set((entry.authorizedConstraints ?? []).map(knowledgeKey))
         for (const id of entry.authorizedConstraints ?? []) {
@@ -171,7 +271,8 @@ export function validateLearningGoalAuthorizations(
             if (!filled(manipulation.phrase) || !filled(manipulation.phraseFrom)) errors.push(`${which} quotes no phrase or names no source for it`)
             if (!filled(manipulation.source)) errors.push(`${which} cites no source`)
             if (!filled(manipulation.statusBasis)) errors.push(`${which} gives no basis for its status`)
-            if (!(MANIPULATION_STATUSES as readonly string[]).includes(manipulation.status)) errors.push(`${which} has the unknown status ${manipulation.status}`)
+            if (!(ENTRY_CATEGORIES as readonly string[]).includes(manipulation.category)) errors.push(`${which} names no category of his (${manipulation.category})`)
+            errors.push(...statusErrors(which, manipulation.category, manipulation.status, manipulation.gaps))
             if (!Array.isArray(manipulation.registerRows)) errors.push(`${which} lists no register rows (an empty list says it touches none)`)
         }
     }
@@ -218,4 +319,104 @@ export function learningGoalAuthorizations(): LearningGoalAuthorization[] {
 export function learningGoalAuthorization(learningGoalId: string, records: LearningGoalAuthorization[] = RECORDS): LearningGoalAuthorization | null {
     const found = records.find((entry) => entry.learningGoalId === learningGoalId)
     return found ? copy(found) : null
+}
+
+/** How an entry is named in a refusal and on the review page: his phrase and its aspect, or the choice as recorded. */
+const manipulationLabel = (manipulation: ManipulationRecord): string => (manipulation.aspect ? `${manipulation.phrase} — ${manipulation.aspect}` : manipulation.phrase)
+
+/** One record entry the activity needs that is not in place, with the decisions and capabilities that would supply it. */
+export interface NeededRecordGap {
+    from: 'manipulation' | 'provisional choice'
+    label: string
+    category: string
+    status: (typeof GAP_STATUSES)[number]
+    gaps: RecordGapDefinition[]
+}
+
+/**
+ * **Every entry of a record that the activity needs and does not have** — added 15 October 2026 (stage H3).
+ *
+ * Christian, 16 October reply, item 10: *"if the existing game form cannot represent the intended learning
+ * environment, I would rather see a clear refusal and a narrowly described gap than an activity that is technically
+ * valid but solves a different problem."* A record entry whose status is `MISSING_KNOWLEDGE` or `MISSING_CAPABILITY`
+ * says exactly that about one part of the activity his rulings ask for, so the build refuses on it, naming each one.
+ * Read from the record and nothing else: no goal is named here, and a record with no such entry yields nothing.
+ */
+export function neededRecordGaps(record: LearningGoalAuthorization): NeededRecordGap[] {
+    const defined = new Map((record.gaps ?? []).map(gap => [gap.id, gap]))
+    const resolve = (ids: string[]): RecordGapDefinition[] => ids.map(id => copy(defined.get(id) ?? { id, kind: 'DECISION' as const, description: '(not defined in the record)', note: null }))
+    return [
+        ...record.manipulations
+            .filter(manipulation => isGapStatus(manipulation.status))
+            .map(manipulation => ({ from: 'manipulation' as const, label: manipulationLabel(manipulation), category: manipulation.category, status: manipulation.status as NeededRecordGap['status'], gaps: resolve(manipulation.gaps) })),
+        ...(record.provisionalChoices ?? [])
+            .filter(choice => isGapStatus(choice.status))
+            .map(choice => ({ from: 'provisional choice' as const, label: choice.choice, category: choice.category, status: choice.status as NeededRecordGap['status'], gaps: resolve(choice.gaps) })),
+    ]
+}
+
+/** One line of the review page's three lists, each field copied from the record. */
+export interface AuthorizationListEntry {
+    from: 'existing knowledge' | 'manipulation' | 'provisional choice'
+    label: string
+    /** His words and where he said them, for a provisional choice; null otherwise. */
+    words: string | null
+    citedAs: string | null
+    /** The sources that carry it (existing knowledge), or the basis the record gives for its status. */
+    sources: string[]
+    status: string | null
+    gaps: string[]
+    note: string | null
+}
+
+/**
+ * **The three lists his 16 October reply asks the next review to keep apart** (stage H3): *"It should also distinguish
+ * what was authorized by existing knowledge from what remains a provisional design choice."* — and, from item 10, the
+ * gaps. Each list is the record's own entries, sorted by the category the record gives them; no sentence is written
+ * here.
+ *
+ *   - AUTHORIZED BY EXISTING KNOWLEDGE: `existingKnowledge`, then the manipulations authorized via the game form or
+ *     the session, each with its sources.
+ *   - PROVISIONAL CHOICES (his, cited): `provisionalChoices`, then the manipulations whose category is his choice.
+ *   - GAPS: each decision and capability the record defines, with its one-line description and the entries that
+ *     wait on it (none, where it waits on the context's own lines rather than on an entry here).
+ */
+export interface AuthorizationLists {
+    authorizedByExistingKnowledge: AuthorizationListEntry[]
+    provisionalChoices: AuthorizationListEntry[]
+    gaps: (RecordGapDefinition & { neededBy: string[] })[]
+}
+
+export function authorizationLists(record: LearningGoalAuthorization): AuthorizationLists {
+    const fromManipulation = (manipulation: ManipulationRecord): AuthorizationListEntry => ({
+        from: 'manipulation',
+        label: manipulationLabel(manipulation),
+        words: null,
+        citedAs: null,
+        sources: [manipulation.statusBasis],
+        status: manipulation.status,
+        gaps: [...manipulation.gaps],
+        note: manipulation.note,
+    })
+    const needing = neededRecordGaps(record)
+    return {
+        authorizedByExistingKnowledge: [
+            ...(record.existingKnowledge ?? []).map(known => ({ from: 'existing knowledge' as const, label: known.what, words: null, citedAs: null, sources: [...known.sources], status: null, gaps: [], note: known.note })),
+            ...record.manipulations.filter(manipulation => manipulation.category === 'EXISTING_KNOWLEDGE_TO_VERIFY' && manipulation.status === 'AUTHORIZED_VIA_GAME_FORM_OR_SESSION').map(fromManipulation),
+        ],
+        provisionalChoices: [
+            ...(record.provisionalChoices ?? []).map(choice => ({
+                from: 'provisional choice' as const,
+                label: choice.choice,
+                words: choice.words,
+                citedAs: choice.citedAs,
+                sources: [],
+                status: choice.status,
+                gaps: [...choice.gaps],
+                note: choice.note,
+            })),
+            ...record.manipulations.filter(manipulation => manipulation.category === 'PROVISIONAL_REALIZATION_CHOICE').map(fromManipulation),
+        ],
+        gaps: (record.gaps ?? []).map(gap => ({ ...copy(gap), neededBy: needing.filter(entry => entry.gaps.some(named => named.id === gap.id)).map(entry => entry.label) })),
+    }
 }
