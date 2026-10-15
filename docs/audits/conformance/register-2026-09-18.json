@@ -1,7 +1,7 @@
 {
   "title": "Atomic field-path register — Game Representation Specification revision 4",
   "date": "2026-09-18",
-  "version": "8, adds the declaration qualifier vocabulary (contractEnums.declarationQualifier: NO_FURTHER_VALUE, UNRESTRICTED - his M6 three states) and the relational V5 referent form (the objective reference of a team designation - his M8), both approved in his reply filed 17 October 2026, recorded 2026-10-15. Supersedes version 7, which added P6c (performers.neutrals.affiliation.takesEffect: when a neutral player's change of affiliation takes effect, IMMEDIATE or AT_NEXT_RESTART) on the ruling of 2026-10-14. Nothing existing changes: no declaration is requalified, and every existing V5 value reads as before.",
+  "version": "9, adds a typed resolution to every team designation (teamDesignations.resolutions, with closed kinds and scopes, the designation-valued selector attributes and the scopes a standing team property may be reached through) for his M2 in the reply filed 17 October 2026, recorded 2026-10-15; each resolution restates its entry's gloss or is marked OUR_INTERPRETATION. Nothing existing changes: no list entry, gloss or note is altered. Supersedes version 8, which added the declaration qualifier vocabulary (contractEnums.declarationQualifier: NO_FURTHER_VALUE, UNRESTRICTED - his M6 three states) and the relational V5 referent form (the objective reference of a team designation - his M8), both approved in his reply filed 17 October 2026, recorded 2026-10-15. Supersedes version 7, which added P6c (performers.neutrals.affiliation.takesEffect: when a neutral player's change of affiliation takes effect, IMMEDIATE or AT_NEXT_RESTART) on the ruling of 2026-10-14. Nothing existing changes: no declaration is requalified, and every existing V5 value reads as before.",
   "source": "docs/design/game-representation-spec-2026-09-18.md §5 (the eight areas), §3 (statuses), §6 (the contract), §2 (standing decisions)",
   "rowKinds": {
     "COLLECTION": "The existence and count of elements in a collection. Items on a COLLECTION row say that elements matching a selector exist (EXISTS), how many (COUNT/RANGE), or that none may (NOT_EXISTS).",
@@ -1458,7 +1458,34 @@
       "BUILD_OUT_TEAM (team whose build-out episode it is)",
       "TEAM_AT_AXIS_START (the team assigned at setup to the end at the start of the long axis; the assignment is fixed for the activity and names no role. Approved by Christian 9 October 2026 with ruling C42: \"distinct teams assigned to opposite ends at setup, with their assignments remaining fixed throughout the activity\". Recorded here 13 October: the pair had been in use since C42 without being entered in this list)",
       "TEAM_AT_AXIS_END (the team assigned at setup to the end at the far end of the long axis; the counterpart of TEAM_AT_AXIS_START, approved with it)"
-    ]
+    ],
+    "resolutionNote": "ADDED 15 October 2026 (register version 9), for his M2 in the reply filed 17 October 2026: \"M2 - Team-specific facts: Approved. Please implement the previously adopted September 20 designation rule, rather than introducing a narrower workaround solely for this activity. This is a reusable capability with applications beyond goalkeeper build-out.\" The adopted rule is AM-01 (derivation-spec-2026-09-20.md): \"Use the game's transitions/episode context to resolve contextual team designations. An episode-scoped designation remains episode-scoped.\" Only that quoted sentence is his adopted text; the spec's elaboration beside it (a designation in a selector is met by each team the game's stated transitions make it at some trigger; the build-out team is the team awarded the start placement, KR-03; in a value designations compare as canonical entries) is the spec's. Each entry of the list now carries a TYPED RESOLUTION read by one resolver (back/src/system/derivation/designation.ts) for every consumer: what decides which team the designation picks out (kind) and for how long that answer holds (scope). basis GLOSS means the resolution restates the entry's own gloss above (or the ruling the gloss cites) and adds no meaning; basis OUR_INTERPRETATION means the entry has no gloss and the resolution is OUR reading under this list's note (\"A designation is evaluated at the trigger or episode it is attached to\"), shown to him and never quoted as his. The kinds and scopes are closed lists. A standing property of a team (a performer count, say) is reached only through a designation whose scope is in standingScopes: an EPISODE, DYNAMIC or TRIGGER designation never yields a standing value, because the team it picks out changes while the property does not. BLOCK_ROLE / BLOCK is registered for his M1 (role exchange by block) and no entry uses it yet; holding a role for a block is OUR extension of AM-01's 'episode-scoped remains episode-scoped' to a coach-called block, recorded outside his adopted text. Which instantiated team a SETUP_ASSIGNMENT designation picks out is a governed symmetric choice recorded by realization (SD-39, as the initial possession holder is), never derived from an ordinal.",
+    "resolutionKinds": ["SETUP_ASSIGNMENT", "TRANSITION_AWARD", "POSSESSION_RELATION", "OUTCOME_AT_TRIGGER", "ALL", "NAMED", "BLOCK_ROLE"],
+    "resolutionScopes": ["ACTIVITY", "EPISODE", "DYNAMIC", "TRIGGER", "BLOCK"],
+    "standingScopes": ["ACTIVITY", "BLOCK"],
+    "teamsRow": "P1",
+    "designationAttributes": [
+      { "row": "P1", "attribute": "team" },
+      { "row": "J1", "attribute": "team" },
+      { "row": "T1", "attribute": "qualifier.lastTouch" },
+      { "row": "T1", "attribute": "qualifier.endLine" }
+    ],
+    "resolutions": {
+      "TEAM_<id>": { "kind": "NAMED", "scope": "ACTIVITY", "at": null, "basis": "GLOSS", "from": "the entry's gloss: a named team" },
+      "EACH_TEAM": { "kind": "ALL", "scope": "ACTIVITY", "at": null, "basis": "OUR_INTERPRETATION", "from": "no gloss; read as every team of the game, under the list note" },
+      "STARTING_TEAM": { "kind": "TRANSITION_AWARD", "scope": "ACTIVITY", "at": "START", "basis": "OUR_INTERPRETATION", "from": "no gloss; read as the team awarded the START transition, under the list note" },
+      "ATTACKING_TEAM": { "kind": "POSSESSION_RELATION", "scope": "DYNAMIC", "at": null, "basis": "GLOSS", "from": "the entry's gloss and his ruling of 2 October (this list's note): the team the possession relation PS1 currently holds" },
+      "DEFENDING_TEAM": { "kind": "POSSESSION_RELATION", "scope": "DYNAMIC", "at": null, "basis": "OUR_INTERPRETATION", "from": "no gloss; read as the team the possession relation does not hold, under the list note" },
+      "SCORING_TEAM": { "kind": "OUTCOME_AT_TRIGGER", "scope": "TRIGGER", "at": "SCORE", "basis": "OUR_INTERPRETATION", "from": "no gloss; read as the team that scored, decided at the SCORE trigger" },
+      "CONCEDING_TEAM": { "kind": "OUTCOME_AT_TRIGGER", "scope": "TRIGGER", "at": "SCORE", "basis": "OUR_INTERPRETATION", "from": "no gloss; read as the team scored against, decided at the SCORE trigger" },
+      "WON_BALL": { "kind": "OUTCOME_AT_TRIGGER", "scope": "TRIGGER", "at": null, "basis": "GLOSS", "from": "the entry's gloss: team that won possession at the trigger" },
+      "LOST_BALL": { "kind": "OUTCOME_AT_TRIGGER", "scope": "TRIGGER", "at": null, "basis": "OUR_INTERPRETATION", "from": "no gloss; read as the team that lost possession at the trigger" },
+      "LAST_TOUCH": { "kind": "OUTCOME_AT_TRIGGER", "scope": "TRIGGER", "at": null, "basis": "GLOSS", "from": "the entry's gloss: team that touched the ball last" },
+      "NOT_LAST_TOUCH": { "kind": "OUTCOME_AT_TRIGGER", "scope": "TRIGGER", "at": null, "basis": "OUR_INTERPRETATION", "from": "no gloss; read as the team that did not touch the ball last" },
+      "BUILD_OUT_TEAM": { "kind": "TRANSITION_AWARD", "scope": "EPISODE", "at": null, "basis": "GLOSS", "from": "the entry's gloss (team whose build-out episode it is) with the spec's elaboration of AM-01: the build-out team is the team awarded the start placement (KR-03); episode-scoped, as AM-01's adopted sentence keeps it" },
+      "TEAM_AT_AXIS_START": { "kind": "SETUP_ASSIGNMENT", "scope": "ACTIVITY", "at": null, "basis": "GLOSS", "from": "the entry's gloss and ruling C42: assigned at setup, fixed for the activity, names no role" },
+      "TEAM_AT_AXIS_END": { "kind": "SETUP_ASSIGNMENT", "scope": "ACTIVITY", "at": null, "basis": "GLOSS", "from": "the entry's gloss and ruling C42, the counterpart of TEAM_AT_AXIS_START" }
+    }
   },
   "relativeTerms": {
     "note": "Interval tests for relative positions (RC-21). The referent must be a game element; if it is players or play, the item is OUTSIDE_BOUNDARY.",

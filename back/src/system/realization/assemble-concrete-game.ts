@@ -33,6 +33,7 @@ import { Comparison, comparisonOf } from '../derivation/comparison'
 import { DerivedLine, entails, resolvedValue } from '../derivation/derive'
 import { GateContext } from '../derivation/gates'
 import { toRational } from '../derivation/rational'
+import { memberDesignations, whyNotReached } from '../derivation/designation'
 import { reaches } from '../derivation/reach'
 import { splitPath } from '../derivation/resolved-game'
 import { resolveScopes } from '../derivation/scope'
@@ -345,30 +346,44 @@ function rosterFor(ctx: GateContext, realized: Realized, supposing?: Supposing):
      *
      * Anything on the row that does not clear all of that leaves the count unsettled, and so do two items
      * that fix different counts. Nothing is chosen between them and nothing is read as none.
+     *
+     * **Which team a team-naming selector reaches is the designation resolver's answer** — 15 October 2026 (stage K2), his
+     * M2: *"Please implement the previously adopted September 20 designation rule"*. The member is asked as a class carrying
+     * what `designation.ts` resolved for its handle from the bindings realization recorded: a setup assignment
+     * (TEAM_AT_AXIS_*) reaches exactly the team bound to it and is FALSE for the other — an item that speaks of another team
+     * says nothing about this one, so it is passed over rather than read as unsettled; a possession-relative, episode or
+     * trigger designation still never reaches a standing count, and the refusal now says why. No item on today's corpus
+     * names a team on a performer row, so no roster moves. Returns null where no item speaks about this team at all.
      */
     const authoredFor = (
         instantiation: Roster['teams'][number],
         rowId: string,
         leaf: string,
         speaking: { contractId: string; item: LoadedContract['items'][number] }[],
-    ): { value: number; basis: string } | { unsettled: string } => {
+    ): { value: number; basis: string } | { unsettled: string } | null => {
         const claim = ctx.classes.find(candidate => candidate.classId === instantiation.classId)
         if (!claim) return { unsettled: `the class ${instantiation.classId} this team satisfies is not in the run` }
+        const designations = ctx.index.designations.teamsRow === claim.row ? memberDesignations(ctx.index, claim.row, instantiation.handle, realized.record.designationBindings ?? []) : undefined
+        const member = { ...claim, constraints: { any: false, terms: [] }, ...(designations ? { designations } : {}) }
         const counts = new Set<number>()
         const from: string[] = []
         for (const { contractId, item } of speaking) {
             const name = `${contractId}::${item.itemId}`
+            const parsed = parseSelector(item.selector, rowId, ctx.index)
+            if (!parsed.predicate) return { unsettled: `${name} is authored on ${rowId} with a selector that cannot be read (${parsed.defect})` }
+            const reach = reaches(parsed.predicate, member)
+            if (reach === 'FALSE') continue
             const application = scoped().applicationSets.find(set => set.item.contractId === contractId && set.item.itemId === item.itemId)
             if (!application?.classIds.includes(instantiation.classId)) {
                 return { unsettled: `${name} is authored on ${rowId} and its scope does not take in this team's class, so what it says of this team is not established` }
             }
-            const parsed = parseSelector(item.selector, rowId, ctx.index)
-            if (!parsed.predicate) return { unsettled: `${name} is authored on ${rowId} with a selector that cannot be read (${parsed.defect})` }
-            if (reaches(parsed.predicate, { ...claim, constraints: { any: false, terms: [] } }) !== 'TRUE') {
+            if (reach !== 'TRUE') {
+                const named = parsed.predicate.terms.flatMap(term => (term.op === 'IN' ? term.values : term.op === '=' ? [term.value] : []))
+                const why = whyNotReached(designations, named)
                 return {
                     unsettled:
                         `${name} speaks of particular teams (${JSON.stringify(item.selector)}), and nothing tells one instantiated team from ` +
-                        `another, so whether it reaches this one is undetermined`,
+                        `another, so whether it reaches this one is undetermined${why ? ` (${why})` : ''}`,
                 }
             }
             if (!entails(item) || String((item as { valueStatus?: unknown }).valueStatus) !== 'REQUIRED_RANGE') {
@@ -379,6 +394,7 @@ function rosterFor(ctx: GateContext, realized: Realized, supposing?: Supposing):
             counts.add(count)
             from.push(name)
         }
+        if (!from.length) return null
         if (counts.size !== 1) return { unsettled: `${from.join(' and ')} fix different counts on ${rowId}, and no single value satisfies both` }
         const [value] = [...counts]
         return { value, basis: `${from.join(' and ')} require${from.length === 1 ? 's' : ''} ${leaf} = ${value} of every team` }
@@ -412,7 +428,12 @@ function rosterFor(ctx: GateContext, realized: Realized, supposing?: Supposing):
         const speaking = ctx.contracts.flatMap(contract =>
             (contract.items ?? []).filter(item => String(item.row) === rowId).map(item => ({ contractId: String(contract.contractId), item })),
         )
-        if (speaking.length) return authoredFor(instantiation, rowId, leaf, speaking)
+        if (speaking.length) {
+            const read = authoredFor(instantiation, rowId, leaf, speaking)
+            // Null: every item on the row speaks of another team (a setup assignment bound elsewhere), so this team's
+            // count is read exactly as it is where nothing is authored at all — from the declarations, below.
+            if (read) return read
+        }
 
         // The team's own class goes with the question since 15 October 2026, so this read and a line's reason are
         // decided by the same `governingDeclarations` (his answer 9) — one precedence, not two copies of it.

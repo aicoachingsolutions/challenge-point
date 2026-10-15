@@ -42,6 +42,7 @@
  *
  * An exclusion's bound says what a line may NOT be and is never a source for either rule (`Bounds.forbidden`).
  */
+import { DesignationBinding } from '../derivation/designation'
 import { GateContext } from '../derivation/gates'
 import { RegisterIndex } from '../derivation/register'
 import { ResolvedGame } from '../derivation/resolved-game'
@@ -151,6 +152,8 @@ export interface Supplied {
     instantiations: Instantiation[]
     /** Recorded identifications of one established element with another (realize.ts, `SatisfiedByEstablished`). */
     satisfiedByEstablished?: SatisfiedByEstablished[]
+    /** Which instantiated team holds each setup assignment (realize.ts, `DesignationBinding`; his M2, 15 October 2026). */
+    designationBindings?: DesignationBinding[]
 }
 
 /**
@@ -194,7 +197,7 @@ function onPathway(
     ctx: GateContext,
 ): { defaults: JustifiedDefault[]; stranded: StrandedCount[] } {
     const trial = (candidate: JustifiedDefault, alongside: JustifiedDefault[]) =>
-        realize(resolved, supplied.choices, supplied.instantiations, index, envelope, [...alongside, candidate], supplied.satisfiedByEstablished ?? [])
+        realize(resolved, supplied.choices, supplied.instantiations, index, envelope, [...alongside, candidate], supplied.satisfiedByEstablished ?? [], supplied.designationBindings ?? [])
     const { defaults, undefaulted } = decide(resolved, supplied.choices, (candidate, alongside) => {
         const realized = trial(candidate, alongside)
         return !isRefused(realized) && rosterRefusal(ctx, realized) === null
@@ -222,5 +225,5 @@ export function realizeWithJustifiedDefaults(
     ctx: GateContext,
 ): { realization: RealizationResult; defaults: JustifiedDefault[]; stranded: StrandedCount[] } {
     const { defaults, stranded } = onPathway(resolved, supplied, index, envelope, ctx)
-    return { realization: realize(resolved, supplied.choices, supplied.instantiations, index, envelope, defaults, supplied.satisfiedByEstablished ?? []), defaults, stranded }
+    return { realization: realize(resolved, supplied.choices, supplied.instantiations, index, envelope, defaults, supplied.satisfiedByEstablished ?? [], supplied.designationBindings ?? []), defaults, stranded }
 }

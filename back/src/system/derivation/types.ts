@@ -9,6 +9,8 @@
  * are declared where increment 1 populates them, and omitted where it does not.
  */
 
+import type { MemberDesignations } from './designation'
+
 // ---------------------------------------------------------------------------------------------
 // Closed lists — the register's `vocabularies.contractEnums`, and the package's own closed lists.
 // ---------------------------------------------------------------------------------------------
@@ -105,6 +107,12 @@ export interface ContractItem {
     checkability?: unknown
     structuralClause?: unknown
     comparison?: unknown
+    /**
+     * What the item's authority is, where the item states it (15 October 2026, stage K2): PROVISIONAL_REALIZATION_CHOICE
+     * on every item of a record-named provisional realization (`corpus.ts` `loadProvisionalRealizations`), absent on
+     * canonical knowledge. Carried onto every support entry the item gives a derived value.
+     */
+    category?: unknown
 }
 
 export interface Declaration {
@@ -256,6 +264,12 @@ export interface ElementClass {
     /** Attribute constraints from the selector: `=` fixes one value, `IN` a set, `CONTAINS` a member. */
     constraints: SelectorPredicate
     cardinality: { min: number | null; max: number | null }
+    /**
+     * **What an instantiated team meets, for a standing property** (15 October 2026, stage K2, his M2) — set only on the
+     * member class realization forms for a team (`post-realization-gate.ts`), from `designation.ts`, the one resolver.
+     * A derived class never carries it: derivation classes fix no designation (SD-95), so stage 4 is unchanged.
+     */
+    designations?: MemberDesignations
 }
 
 export interface ResolutionLine {
@@ -320,7 +334,10 @@ export type SupportRef =
     // `CARRIES` is SD-92's relation: the value came from the selector of the existence item that
     // established the element, not from an item written on the row. It is still that item's support,
     // so it is a CONTRACT_ITEM; naming the relation keeps the two visibly different in provenance.
-    | { kind: 'CONTRACT_ITEM'; contractId: string; itemId: string; relation: 'ENTAILS' | 'NARROWS' | 'CARRIES' }
+    // `category` (15 October 2026, stage K2): the item's own category where it carries one — today only an item of a
+    // record-named provisional realization, PROVISIONAL_REALIZATION_CHOICE. Added at assembly (resolved-game.ts), so a
+    // reader of the game can tell his choice for one activity from canonical knowledge (his 16 October item 10).
+    | { kind: 'CONTRACT_ITEM'; contractId: string; itemId: string; relation: 'ENTAILS' | 'NARROWS' | 'CARRIES'; category?: string }
     | { kind: 'STANDING_DECISION'; id: string }
     | { kind: 'SESSION'; row: string }
 

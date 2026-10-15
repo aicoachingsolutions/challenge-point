@@ -513,6 +513,21 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
         return { scope: authored === undefined || authored === null ? null : String(authored) }
     }
 
+    /**
+     * **A support entry says when its item is his provisional choice** — 15 October 2026 (stage K2). His 16 October item
+     * 10: *"Please keep those categories distinct."* An item of a record-named provisional realization is graded exactly as
+     * any OWNER_RULING item (it establishes, entails, bounds by the same rules), so the grading cannot tell it from
+     * canonical knowledge; only its `category` can. It is copied onto the item's support entry here, where the items are
+     * to hand, and from there crosses into the fixture whole (`rendering-fixture.ts`). An item with no category — every
+     * canonical item — leaves its entry exactly as it was, so a game with no provisional realization assembles unchanged.
+     */
+    const categorized = (support: SupportRef[] | undefined): SupportRef[] | undefined =>
+        support?.map(ref => {
+            if (ref.kind !== 'CONTRACT_ITEM') return ref
+            const category = items.get(`${ref.contractId}:${ref.itemId}`)?.category
+            return category === undefined || category === null ? ref : { ...ref, category: String(category) }
+        })
+
     const ensureElement = (elementId: string, row: { path: string }): Record<string, unknown> => {
         const { container } = splitPath(row.path)
         const key = container ?? row.path
@@ -534,7 +549,7 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
         if (entry.elementId && row && entry.lineState === 'ENUMERATED') ensureElement(entry.elementId, row)
 
         if (entry.state === 'derived') {
-            derived.push({ path, lineId: entry.lineId, value: entry.value, resolvedBy: String(entry.resolvedBy ?? ''), support: entry.support, strength: strengthOf(entry.support, items) })
+            derived.push({ path, lineId: entry.lineId, value: entry.value, resolvedBy: String(entry.resolvedBy ?? ''), support: categorized(entry.support), strength: strengthOf(entry.support, items) })
             if (!entry.elementId) {
                 if (row) place(game, row.path, entry.value)
             } else if (row) {

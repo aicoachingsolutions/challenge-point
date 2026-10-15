@@ -41,6 +41,8 @@
  * the builder every such entry to refuse on. `authorizationLists` is the review page's view of the same entries, sorted
  * by category: what existing knowledge authorizes, his provisional choices, and the gaps.
  */
+import type { ProvisionalRealization } from '../derivation/corpus'
+import { loadProvisionalRealizations, PROVISIONAL_REALIZATION_CHOICE } from '../derivation/corpus'
 import { knowledgeKey } from '../derivation/knowledge-key'
 import type { LearningDesignHold } from './learning-design-holds'
 import { learningGoalSelectionHolds } from './learning-design-holds'
@@ -173,6 +175,14 @@ export interface LearningGoalAuthorization {
     gaps?: RecordGapDefinition[]
     excluded: AuthorizationExclusion[]
     manipulations: ManipulationRecord[]
+    /**
+     * **The provisional realization this goal's activity is built with, by id** (15 October 2026, stage K2), or absent.
+     * Christian, reply filed 17 October 2026: *"without introducing unnecessary architecture or treating this first
+     * realization as the canonical version of the Learning Goal."* The id names an entry of
+     * `docs/audits/conformance/stage-b/provisional-realizations.json`; derivation adds that realization's items only for
+     * a goal whose record names it (`derivationInputFor`), and the record itself still holds no value.
+     */
+    provisionalRealization?: string
 }
 
 const filled = (value: unknown): boolean => typeof value === 'string' && value.trim().length > 0
@@ -185,7 +195,8 @@ const filled = (value: unknown): boolean => typeof value === 'string' && value.t
 export function validateLearningGoalAuthorizations(
     entries: LearningGoalAuthorization[],
     selectableIds: string[] = testLibraryRegistry.selectableConstraints().map((c) => c.id),
-    holds: LearningDesignHold[] = learningGoalSelectionHolds()
+    holds: LearningDesignHold[] = learningGoalSelectionHolds(),
+    provisionalIds: string[] = loadProvisionalRealizations().map((realization) => realization.provisionalId)
 ): string[] {
     const errors: string[] = []
     const selectable = new Set(selectableIds.map(knowledgeKey))
@@ -206,6 +217,10 @@ export function validateLearningGoalAuthorizations(
             errors.push(`${goal}: authorizedConstraints must be a list (the evaluation) or null (not yet evaluated)`)
         }
         if ('zeroConstraintRuling' in (entry as object)) errors.push(`${goal}: a per-goal zero-constraint ruling is not read; the general principle governs every record alike`)
+        // A record that names a provisional realization nobody can find would build the goal without the choices it asks for.
+        if (entry.provisionalRealization !== undefined && (!filled(entry.provisionalRealization) || !provisionalIds.includes(String(entry.provisionalRealization)))) {
+            errors.push(`${goal}: names the provisional realization ${entry.provisionalRealization}, which provisional-realizations.json does not hold`)
+        }
 
         /**
          * **The gaps an entry waits on are defined once, in the record, and every name resolves** (15 October 2026).
@@ -357,7 +372,7 @@ export function neededRecordGaps(record: LearningGoalAuthorization): NeededRecor
 
 /** One line of the review page's three lists, each field copied from the record. */
 export interface AuthorizationListEntry {
-    from: 'existing knowledge' | 'manipulation' | 'provisional choice'
+    from: 'existing knowledge' | 'manipulation' | 'provisional choice' | 'provisional realization'
     label: string
     /** His words and where he said them, for a provisional choice; null otherwise. */
     words: string | null
@@ -387,7 +402,13 @@ export interface AuthorizationLists {
     gaps: (RecordGapDefinition & { neededBy: string[] })[]
 }
 
-export function authorizationLists(record: LearningGoalAuthorization): AuthorizationLists {
+/**
+ * `provisional` (15 October 2026, stage K2) is the provisional realization the record names, as derivation received it:
+ * each of its items whose category is his provisional choice joins the PROVISIONAL CHOICES list, cited by its contract
+ * item, so the review page reads the category from the items that shape the game rather than from a second copy. Null
+ * where the record names none, and then the lists are exactly what they were.
+ */
+export function authorizationLists(record: LearningGoalAuthorization, provisional: ProvisionalRealization | null = null): AuthorizationLists {
     const fromManipulation = (manipulation: ManipulationRecord): AuthorizationListEntry => ({
         from: 'manipulation',
         label: manipulationLabel(manipulation),
@@ -416,6 +437,21 @@ export function authorizationLists(record: LearningGoalAuthorization): Authoriza
                 note: choice.note,
             })),
             ...record.manipulations.filter(manipulation => manipulation.category === 'PROVISIONAL_REALIZATION_CHOICE').map(fromManipulation),
+            ...(provisional?.items ?? [])
+                .filter(item => item.category === PROVISIONAL_REALIZATION_CHOICE)
+                .map(item => {
+                    const authored = item as unknown as { choice?: unknown; words?: unknown; citedAs?: unknown; note?: unknown }
+                    return {
+                        from: 'provisional realization' as const,
+                        label: String(authored.choice ?? item.itemId),
+                        words: typeof authored.words === 'string' ? authored.words : null,
+                        citedAs: typeof authored.citedAs === 'string' ? authored.citedAs : null,
+                        sources: [`${provisional!.contractId}::${item.itemId}`],
+                        status: null,
+                        gaps: [],
+                        note: typeof authored.note === 'string' ? authored.note : null,
+                    }
+                }),
         ],
         gaps: (record.gaps ?? []).map(gap => ({ ...copy(gap), neededBy: needing.filter(entry => entry.gaps.some(named => named.id === gap.id)).map(entry => entry.label) })),
     }

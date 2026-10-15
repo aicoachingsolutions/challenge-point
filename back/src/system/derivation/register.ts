@@ -74,6 +74,38 @@ export interface ApplicabilityCondition {
     notIn?: string[]
 }
 
+/**
+ * **A team designation's typed resolution** — register version 9, 15 October 2026, for his M2 (reply filed 17 October):
+ * *"Please implement the previously adopted September 20 designation rule, rather than introducing a narrower workaround
+ * solely for this activity."* What decides which team the designation picks out (`kind`) and how long that answer holds
+ * (`scope`). `basis` says whether it restates the entry's own gloss (`GLOSS`) or is our reading of an entry that has none
+ * (`OUR_INTERPRETATION`, never quoted as his). Read by `designation.ts` alone; every consumer asks it.
+ */
+export interface DesignationResolution {
+    kind: string
+    scope: string
+    /** The trigger the answer is decided at, where the resolution names one. */
+    at: string | null
+    basis: 'GLOSS' | 'OUR_INTERPRETATION'
+    from: string
+}
+
+/** The register's team designations as data: each entry's resolution, keyed by the entry's NAME (its gloss stripped). */
+export interface DesignationRegister {
+    resolutions: Map<string, DesignationResolution>
+    kinds: string[]
+    scopes: string[]
+    /** The scopes a STANDING property of a team (a performer count) may be reached through. */
+    standingScopes: string[]
+    /** The collection row whose members the designations pick out. */
+    teamsRow: string | null
+    /** The selector attributes whose values are team designations, by row. */
+    attributes: { row: string; attribute: string }[]
+}
+
+/** A list entry's name: the designation as a selector or a value spells it, without the gloss. */
+export const designationName = (entry: string): string => String(entry).trim().split(/\s/)[0]
+
 export interface RegisterIndex {
     rows: Map<string, RegisterRow>
     /** Position in `register.rows`, the canonical row order (package §8). */
@@ -140,7 +172,41 @@ export interface RegisterIndex {
      * possession relation; the gloss is the only place that is said.
      */
     teamDesignations: string[]
+    /** The same designations typed (register version 9): read by `designation.ts`, the one resolver. */
+    designations: DesignationRegister
     registerVersion: string
+}
+
+/**
+ * **The typed designations, validated as the rest of the register is (halt H1).** A list entry with no resolution, two
+ * resolutions for one entry, a resolution for an entry the list does not hold, or a kind, scope or basis outside the
+ * closed lists would each let a consumer decide a team on something the register does not say. A register with no
+ * `resolutions` block (one written before version 9) indexes an empty map and resolves nothing.
+ */
+function indexDesignations(block: any, rows: Map<string, RegisterRow>): DesignationRegister {
+    const empty: DesignationRegister = { resolutions: new Map(), kinds: [], scopes: [], standingScopes: [], teamsRow: null, attributes: [] }
+    if (!block || typeof block !== 'object' || !block.resolutions) return empty
+    const kinds: string[] = Array.isArray(block.resolutionKinds) ? block.resolutionKinds.map(String) : []
+    const scopes: string[] = Array.isArray(block.resolutionScopes) ? block.resolutionScopes.map(String) : []
+    const standingScopes: string[] = Array.isArray(block.standingScopes) ? block.standingScopes.map(String) : []
+    for (const scope of standingScopes) if (!scopes.includes(scope)) throw new HaltError('H1', `standing scope ${scope} is not a registered designation scope`)
+    const names = (Array.isArray(block.list) ? block.list : []).map((entry: unknown) => designationName(String(entry)))
+    const resolutions = new Map<string, DesignationResolution>()
+    for (const [name, raw] of Object.entries(block.resolutions as Record<string, any>)) {
+        if (!names.includes(name)) throw new HaltError('H1', `designation resolution for ${name}, which the designation list does not hold`)
+        if (!raw || !kinds.includes(String(raw.kind)) || !scopes.includes(String(raw.scope))) throw new HaltError('H1', `designation ${name} has a kind or scope outside the closed lists`)
+        if (raw.basis !== 'GLOSS' && raw.basis !== 'OUR_INTERPRETATION') throw new HaltError('H1', `designation ${name} names no basis (GLOSS or OUR_INTERPRETATION)`)
+        if (typeof raw.from !== 'string' || !raw.from.trim()) throw new HaltError('H1', `designation ${name} does not say where its resolution comes from`)
+        resolutions.set(name, { kind: String(raw.kind), scope: String(raw.scope), at: raw.at === null || raw.at === undefined ? null : String(raw.at), basis: raw.basis, from: raw.from })
+    }
+    for (const name of names) if (!resolutions.has(name)) throw new HaltError('H1', `designation ${name} has no typed resolution`)
+    const teamsRow = block.teamsRow ? String(block.teamsRow) : null
+    if (teamsRow && rows.get(teamsRow)?.kind !== 'COLLECTION') throw new HaltError('H1', `the designations' teams row ${teamsRow} is not a COLLECTION row`)
+    const attributes = (Array.isArray(block.designationAttributes) ? block.designationAttributes : []).map((entry: any) => ({ row: String(entry?.row), attribute: String(entry?.attribute) }))
+    for (const { row, attribute } of attributes) {
+        if (!(rows.get(row)?.selectorAttributes ?? []).includes(attribute)) throw new HaltError('H1', `designation attribute ${attribute} is not a selector attribute of ${row}`)
+    }
+    return { resolutions, kinds, scopes, standingScopes, teamsRow, attributes }
 }
 
 export class HaltError extends Error {
@@ -271,6 +337,7 @@ export function indexRegister(register: any): RegisterIndex {
         citableStandingDecisions: citable,
         standingDecisions: (register.citableStandingDecisions || []).filter((d: any) => d && d.id),
         teamDesignations: Array.isArray(register.teamDesignations?.list) ? register.teamDesignations.list.map(String) : [],
+        designations: indexDesignations(register.teamDesignations, rows),
         registerVersion: register.version,
     }
 }

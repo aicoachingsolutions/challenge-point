@@ -33,6 +33,7 @@
  *
  * It does not touch generation. Nothing here calls the frozen activity-generation path.
  */
+import { ProvisionalRealization, provisionalRealizationNamed } from '../derivation/corpus'
 import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { indexRegister } from '../derivation/register'
@@ -339,7 +340,7 @@ function accountOf(selection: KnowledgeSelection, goal: BoundedSelection | null)
         })),
         constraintSource: goal ? constraintSourceOf(goal.constraintPool, null) : null,
         authorization: goal ? authorizationOf(goal.authorization) : null,
-        authorizationLists: goal?.authorization ? authorizationLists(goal.authorization) : null,
+        authorizationLists: goal?.authorization ? authorizationLists(goal.authorization, provisionalRealizationNamed(goal.authorization.provisionalRealization)) : null,
         selectedWithoutContract: selection.missing.filter(id => !contexts.has(id)),
         ...provisionalOf(goal ? goal.gameProblem : null),
     }
@@ -363,7 +364,7 @@ function gapAccountOf(gap: GoalSelectionGap): Partial<ActivityAccount> {
         constraints: [],
         constraintSource: constraintSourceOf(gap.gap.pool, gap.gap.reason),
         authorization: authorizationOf(gap.authorization),
-        authorizationLists: gap.authorization ? authorizationLists(gap.authorization) : null,
+        authorizationLists: gap.authorization ? authorizationLists(gap.authorization, provisionalRealizationNamed(gap.authorization.provisionalRealization)) : null,
         selectedWithoutContract: [],
         ...provisionalOf(gap.gameProblem),
         ...(gap.gap.archetypeId ? { gameForm: gameFormOf(gap.gap.archetypeId, contracted.has(gap.gap.archetypeId)) } : {}),
@@ -737,6 +738,22 @@ function build(
      * entry (activity-review.unit.ts). A tightening: a record with no such entry, and every goal without a record,
      * goes on exactly as before.
      */
+    /**
+     * **A provisional realization is built only for the practice situations it was designed for** — 15 October 2026 (stage
+     * K2). His decisions of 17 October describe one activity; where the coach chooses a practice situation the realization
+     * his record names lists as not designed for, the combination is refused, naming it, rather than built from choices made
+     * for another situation. Read from the realization's own data (`notWithPracticeSituations`), so no goal and no
+     * situation is named here. Before the record's gaps: it says what this request asks for that the activity does not
+     * cover, which no answer to those gaps would change.
+     */
+    const provisionalRealization = provisionalRealizationNamed(goalSelection?.authorization?.provisionalRealization)
+    const notFor = provisionalRealization && goalSelection?.chosenSituation ? provisionalRealization.notWithPracticeSituations.find(situation => situation.id === goalSelection!.chosenSituation!.id) : null
+    if (provisionalRealization && notFor) {
+        return refuse('knowledge', "This goal's first activity was not designed for the chosen practice situation, so no activity can be built for it.", [
+            `the provisional realization ${provisionalRealization.provisionalId} named by the authorization record of ${goalSelection!.goalId} was not designed for the practice situation ${notFor.id} (${notFor.basis}): ${notFor.because}`,
+        ])
+    }
+
     const recordGaps = goalSelection?.authorization ? neededRecordGaps(goalSelection.authorization) : []
     if (recordGaps.length) {
         return refuse('knowledge', "This goal's activity depends on set-up decisions and engine capabilities that are not in place yet, so no activity can be built for it.", [
@@ -753,6 +770,15 @@ function build(
         // The loader returns SHARED contract objects, so the alteration is made to a copy and to nothing else.
         input.contracts = JSON.parse(JSON.stringify(input.contracts))
         alter(input.contracts)
+    }
+    /**
+     * **The record's lists read the provisional realization derivation actually received** (15 October 2026, stage K2), so
+     * the review page and the game can never disagree about which provisional choices shaped it. Production passes the
+     * file's own copy; a test that altered a copy of the contracts sees its copy listed.
+     */
+    if (goalSelection?.authorization?.provisionalRealization) {
+        const received = (input.contracts as LoadedContract[]).find(contract => contract.contractId === `provisional:${goalSelection!.authorization!.provisionalRealization}`) as ProvisionalRealization | undefined
+        account.authorizationLists = authorizationLists(goalSelection.authorization, received ?? null)
     }
 
     const result: any = runDerivation(input)
@@ -795,6 +821,9 @@ function build(
         alterSupplied(supplied)
     }
     if (isNoSuppliedRealization(supplied)) {
+        // Two answers to one line, or a replacement nobody can trace (15 October 2026): set-up decisions that were made
+        // and contradict each other, so the game cannot be set out with them — never resolved by which file came first.
+        if (supplied.conflicts?.length) return refuse('realization', 'This game cannot be set out in this session with the set-up decisions made for it.', ['the realization input contradicts itself', ...supplied.conflicts])
         return refuse('realization', 'A set-up decision for this game has not been made yet.', [
             `no realization choices are recorded for the game form ${supplied.missingFor}`,
         ])

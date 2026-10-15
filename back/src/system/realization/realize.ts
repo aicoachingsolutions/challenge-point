@@ -30,6 +30,7 @@ import { ExistentialClaim, OpenChoice, ResolvedGame } from '../derivation/resolv
 import { practical, practicalRequirement } from '../derivation/practical'
 import { scaleExactly } from '../derivation/rational'
 import { RegisterIndex } from '../derivation/register'
+import { DesignationBinding, designationKey, resolutionOf } from '../derivation/designation'
 import { Bounds } from '../derivation/types'
 import { realizeSpatialRelation, RealizedGeometry } from './spatial'
 
@@ -280,6 +281,13 @@ export interface RealizationRecord {
      * Present only where there is one, so a realization with none records exactly what it always did.
      */
     satisfiedByEstablished?: SatisfiedByEstablished[]
+    /**
+     * **Which instantiated team holds each setup assignment** (15 October 2026, stage K2, his M2: *"Please implement the
+     * previously adopted September 20 designation rule"*). A governed symmetric choice (SD-39, as the initial possession
+     * holder is): the realization input names it, realization checks it, and `designation.ts` resolves team-naming
+     * selectors against it. Present only where one was supplied, so a realization with none records exactly what it did.
+     */
+    designationBindings?: DesignationBinding[]
 }
 
 export interface Realized {
@@ -670,6 +678,8 @@ export function realize(
     defaults: JustifiedDefault[] = [],
     /** Recorded identifications of one established element with another (`SatisfiedByEstablished`). Input, so stamped. */
     satisfactions: SatisfiedByEstablished[] = [],
+    /** Which instantiated team holds each setup assignment (`DesignationBinding`, his M2). Input, so stamped. */
+    bindings: DesignationBinding[] = [],
 ): RealizationResult {
     const because: string[] = []
 
@@ -681,7 +691,7 @@ export function realize(
      * a run given none stamps exactly as it did before they existed.
      */
     const realizationDigest = digest(
-        canonical({ choices, instantiations, ...(defaults.length ? { defaults } : {}), ...(satisfactions.length ? { satisfactions } : {}) }),
+        canonical({ choices, instantiations, ...(defaults.length ? { defaults } : {}), ...(satisfactions.length ? { satisfactions } : {}), ...(bindings.length ? { bindings } : {}) }),
     )
 
     if (!resolved.coherence.mayRealize) {
@@ -1108,6 +1118,58 @@ export function realize(
         }
     }
 
+    /**
+     * **A setup assignment is bound to a member of THIS game, one team each, or not at all** (15 October 2026, stage K2).
+     *
+     * His M2 asks for the 20 September designation rule, AM-01: *"Use the game's transitions/episode context to resolve
+     * contextual team designations."* A designation fixed at setup (TEAM_AT_AXIS_*, ruling C42) picks out one of the
+     * instantiated teams, and which one is a governed symmetric choice (SD-39) that the realization input names, the way
+     * it names the initial possession holder. Nothing here chooses it; everything here checks it, after the members are
+     * placed, because a binding names a member:
+     *
+     *   - the designation is a registered SETUP_ASSIGNMENT, and the game uses it (an element's selector or a derived value
+     *     names it) — a binding for a designation the game never mentions binds nothing;
+     *   - the handle is a member of the register's teams collection as this game holds it;
+     *   - no designation is bound twice and no team holds two of them;
+     *   - every setup designation the game uses is bound once any is: half a symmetric choice is not a choice.
+     *
+     * It needs the register, so a caller that passes none and supplies a binding is refused rather than trusted.
+     */
+    const appliedBindings: DesignationBinding[] = []
+    if (bindings.length) {
+        const refusals: string[] = []
+        if (!index) refusals.push('a setup designation binding was supplied without the register, so it cannot be checked')
+        else {
+            const teamsPath = index.designations.teamsRow ? String(index.rows.get(index.designations.teamsRow)?.path ?? '') : ''
+            const teamsBucket = teamsPath ? readAt(game, collectionPath(teamsPath)) : undefined
+            const teams = (Array.isArray(teamsBucket) ? (teamsBucket as any[]) : []).map(member => member?.elementId).filter((id): id is string => typeof id === 'string')
+            const mentioned = new Set<string>()
+            const visit = (value: unknown): void => {
+                if (typeof value === 'string') {
+                    const resolved = resolutionOf(index, value)
+                    if (resolved?.kind === 'SETUP_ASSIGNMENT') mentioned.add(resolved.entry)
+                } else if (Array.isArray(value)) value.forEach(visit)
+                else if (value && typeof value === 'object') Object.values(value as Record<string, unknown>).forEach(visit)
+            }
+            visit(resolved.game)
+            const bound = new Map<string, string>()
+            for (const binding of bindings) {
+                const resolution = resolutionOf(index, binding.designation)
+                const name = resolution ? designationKey(index, binding.designation) : String(binding.designation)
+                if (resolution?.kind !== 'SETUP_ASSIGNMENT') refusals.push(`the binding of ${name} names no registered setup assignment`)
+                else if (!mentioned.has(name)) refusals.push(`the binding of ${name} binds a designation nothing in this game uses`)
+                if (!teams.includes(binding.handle)) refusals.push(`the binding of ${name} names ${binding.handle}, which is not a member of ${teamsPath || 'the teams collection'} in this game (${teams.join(', ') || 'no members'})`)
+                if (bound.has(name)) refusals.push(`${name} is bound twice; a setup assignment is held by one team`)
+                if ([...bound.values()].includes(binding.handle)) refusals.push(`${binding.handle} is bound to two setup assignments`)
+                bound.set(name, binding.handle)
+                if (typeof binding.because !== 'string' || !binding.because.trim()) refusals.push(`the binding of ${name} gives no reason`)
+            }
+            for (const name of mentioned) if (!bound.has(name)) refusals.push(`${name} is used by this game and not bound, while another setup assignment is: half a symmetric choice is not a choice`)
+        }
+        if (refusals.length) return { outcome: 'REFUSED', because: refusals }
+        appliedBindings.push(...bindings.map(binding => ({ ...binding })))
+    }
+
     // Instantiate every authored spatial relation the concrete game now holds, derived AND chosen
     // alike, against the envelope. The prose stays as the value; the metres sit beside it as
     // `realizedGeometry`, carrying the phrase as their own authority.
@@ -1241,6 +1303,7 @@ export function realize(
             unverified: recorded.filter(c => c.boundCheck === 'UNVERIFIABLE_QUALITATIVE_BOUND').map(c => c.lineId),
             jointConditionsNotEvaluated: jointNotEvaluable,
             ...(appliedSatisfactions.length ? { satisfiedByEstablished: appliedSatisfactions } : {}),
+            ...(appliedBindings.length ? { designationBindings: appliedBindings } : {}),
         },
     }
 }

@@ -29,6 +29,7 @@
  * instances or found none, and the report carries that split so a summary cannot flatten it.
  */
 
+import { designationKey, followsPossessionRelation, isAllTeams, isRegisteredDesignation } from './designation'
 import { ClassifiedLine, nonClaimState } from './classify'
 import { DerivedLine, resolvedValue } from './derive'
 import { ItemOutcome } from './forward'
@@ -385,7 +386,8 @@ function describeReferent(value: unknown): string {
  */
 function resolveRelational(ctx: GateContext, probe: Probe, referent: { objectiveReferenceOf: string; role: string }, lineId: string): { references: unknown[]; pending: boolean; dangling: string | null } {
     const designated = referent.objectiveReferenceOf
-    if (!(ctx.index.teamDesignations ?? []).some(d => d === designated || d.startsWith(`${designated} `))) {
+    // Asked of the one resolver since 15 October 2026 (stage K2, his M2), which reads the register's typed entries.
+    if (!isRegisteredDesignation(ctx.index, designated)) {
         return { references: [], pending: false, dangling: `${designated} is not a team designation the register defines` }
     }
     const references: unknown[] = []
@@ -1802,11 +1804,16 @@ function gaDirection(ctx: GateContext): CheckOutcome {
             continue
         }
         if (team.state !== 'DERIVED') continue
-        attacked.set(String(team.value), [...(attacked.get(String(team.value)) || []), objective.classId])
+        // RC-22, "Two designations are equal only if they map to one entry" — asked of the one resolver since 15 October
+        // 2026 (stage K2, his M2), so a glossed spelling or a value written "(= ENTRY)" groups with its entry and two named
+        // teams stay apart. A value that is no registered designation keys as itself, exactly as the text did.
+        const key = designationKey(ctx.index, team.value)
+        attacked.set(key, [...(attacked.get(key) || []), objective.classId])
     }
 
-    const shared = attacked.has('EACH_TEAM')
-    const opposed = [...attacked.keys()].filter(d => d !== 'EACH_TEAM')
+    // A shared target is one every team attacks: the resolution kind ALL, read from the register, not a name written here.
+    const shared = [...attacked.keys()].some(d => isAllTeams(ctx.index, d))
+    const opposed = [...attacked.keys()].filter(d => !isAllTeams(ctx.index, d))
     const established = shared || opposed.length >= 2
     if (!attacked.size && !pendingTeams.length) probe.missing.push('J3 (no objective names the team that attacks it)')
 
@@ -2251,8 +2258,11 @@ function gaAffiliation(ctx: GateContext): CheckOutcome {
             notes.push('the side neutrals take, when it is decided, or the possession relation it follows is not yet established')
         } else {
             const side = String(joins.value)
-            const entry = designations.find(d => d === side || d.startsWith(`${side} `))
-            const followsRelation = !!entry && entry.includes('PS1')
+            // Asked of the one resolver since 15 October 2026 (stage K2, his M2): registered, and defined by the possession
+            // relation on the register's own gloss (a POSSESSION_RELATION resolution whose basis is GLOSS). The answers are
+            // the ones the gloss substring gave: our reading of an entry with no gloss decides nothing here.
+            const entry = isRegisteredDesignation(ctx.index, side)
+            const followsRelation = followsPossessionRelation(ctx.index, side)
             const standing = String(on.value) === 'STANDING' || String(on.value) === 'POSSESSION_CHANGE'
             const relationHeld = relation.state === 'DERIVED' || relation.state === 'OPEN'
             const reachable = ctx.triggers.some(t => t === 'POSSESSION_CHANGE' || t.startsWith('POSSESSION_CHANGE{'))

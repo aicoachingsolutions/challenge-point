@@ -1,0 +1,37 @@
+{
+    "about": "PROVISIONAL REALIZATIONS: his provisional realization choices for one Learning Goal's activity, held as contract-shaped contributions so the engine builds them exactly as it builds any other knowledge, while every item stays marked as his choice for that activity and never as canonical knowledge. Added 15 October 2026 (stage K2) for his reply filed 17 October 2026: 'The priority remains producing one complete, representative Play Out from the Back activity through the normal generation pathway, without introducing unnecessary architecture or treating this first realization as the canonical version of the Learning Goal.' and, of the post-regain area, 'I also agree that the post-regain area is a provisional realization choice, not canonical Goalkeeper Build-Out knowledge.' HOW IT IS READ (back/src/system/derivation/corpus.ts, loadProvisionalRealizations): a realization joins a derivation ONLY where the selected goal's authorization record names it (learning-goal-authorizations.json, provisionalRealization); nothing selects it otherwise, and no goal is named in code. It is never written into contracts.json, never keyed to the context it realizes, and never applied as a restatement. Its shape is the Sport Profile's precedent (SD-17: a source outside the representation enters as items under its own contract), with three differences the loader enforces and refuses the whole file on: every item has basis OWNER_RULING, quotes him (words, citedAs) and carries category PROVISIONAL_REALIZATION_CHOICE, which reaches every support entry and the rendering fixture; a realization holds NO declaration (a provisional choice says what this activity does, never what knowledge does not constrain, so no qualified or unqualified non-claim can enter through this file, and his M6 disjointness proof is never needed here); and an item may not name a designation refused below. realizationChoices names the realization-choices file whose entries REPLACE the game form's for the lines they list, each replacement declared (supplied-realization.ts). notWithPracticeSituations lists the practice situations the realization was not designed for: that combination is refused, not built.",
+    "refusedDesignations": {
+        "designations": ["ATTACKING_TEAM", "DEFENDING_TEAM", "BUILD_OUT_TEAM", "CONCEDING_TEAM"],
+        "words": "Please use the assigned team roles rather than referring generically to \"the defending team,\" since possession and defensive responsibilities change during play.",
+        "citedAs": "his reply filed 17 October 2026, D7",
+        "note": "Our application of his D7 sentence to the realization's own facts: a fact about the building or pressing team is written by the role the team holds, never by a possession-relative or episode designation (ATTACKING_TEAM, DEFENDING_TEAM), by the team whose build-out episode it is (BUILD_OUT_TEAM, which a regain episode never is), or by the team scored against (CONCEDING_TEAM: when a new build-out episode begins, 'The designated building team restarts', his D5). The list is ours, put to him in our email of 17 October; it narrows what this file may say and widens nothing."
+    },
+    "realizations": [
+        {
+            "id": "A01-R1",
+            "contractId": "provisional:A01-R1",
+            "category": "PROVISIONAL_REALIZATION_CHOICE",
+            "realizes": "RPC-001",
+            "ruledOn": "2026-10-17",
+            "by": "Christian",
+            "citedAs": "his reply filed 17 October 2026",
+            "words": [
+                "The priority remains producing one complete, representative Play Out from the Back activity through the normal generation pathway, without introducing unnecessary architecture or treating this first realization as the canonical version of the Learning Goal.",
+                "This is a provisional realization choice, not a general rule that all build-out activities must stop when progression is achieved.",
+                "This is the initial activity configuration, not a universal requirement for Play Out from the Back."
+            ],
+            "realizationChoices": "realization-choices-a01-r1.json",
+            "notWithPracticeSituations": [
+                {
+                    "id": "A01-02",
+                    "basis": "OUR_READING",
+                    "because": "His decisions of 17 October describe a build-out begun by the building team's goalkeeper or a controlled defensive restart, at a location the coach chooses; the From Goal Kicks practice situation brings its own formal restart, which he keeps apart: 'Please preserve the distinction between a controlled defensive restart and a formal goal kick. If the coach selects a formal goal kick, the applicable Laws of the Game should govern it. The three facts you've identified can be recorded, but they should be treated as part of that specific restart type, not imposed on all build-out starts.' (Christian, 15 October 2026, item 4 - his first reply of that day). That this first activity does not cover the situation is our reading, put to him in our email of 17 October: 'This provisional activity does not cover the From Goal Kicks practice situation. That combination is refused for now.'"
+                }
+            ],
+            "note": "EMPTY AT LANDING, 15 October 2026 (stage K2): the carrier, its loader, its gate on the record and its replacement realization choices land before the choices themselves. The items his 17 October decisions authorize (the role blocks, the allocation by role, the start and restart transitions, the starting relationship and the targets keyed by role) join in later stages, each when the engine can carry it, so that no item enters a game the engine would misread. Measured at landing: with this realization empty every Learning Goal, every demonstration and the A04 fixture derive byte-identically.",
+            "items": [],
+            "declarations": [],
+            "relationshipRules": []
+        }
+    ]
+}

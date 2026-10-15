@@ -92,6 +92,21 @@ designation is met by each team the game's stated transitions make it at some tr
 team is the team awarded the start placement (KR-03). In a value, designations compare as canonical
 entries, and a game value written "(= entry)" counts as that entry.
 
+> **Engineering line, 15 October 2026 (stage K2) — ours, outside his adopted text.** Implemented for his M2 of
+> 17 October ("Please implement the previously adopted September 20 designation rule, rather than introducing a
+> narrower workaround solely for this activity."). Each register designation now carries a typed resolution
+> (register version 9, `teamDesignations.resolutions`: a kind and a scope; `GLOSS` where it restates the entry's gloss,
+> `OUR_INTERPRETATION` where the entry has none) and one resolver, `back/src/system/derivation/designation.ts`, answers
+> for every consumer: value comparison (GA-DIRECTION's RC-22 equality), the possession-relation test (GA-AFFILIATION),
+> registration (GA-REFERENCE-INTEGRITY's relational referent), and which instantiated team a team-naming selector
+> reaches (the member classes of `post-realization-gate.ts`, read by `reach.ts`, and the roster). A standing team
+> property is reached only through an ACTIVITY- or BLOCK-scoped designation; an EPISODE, DYNAMIC or TRIGGER designation
+> never yields one, which keeps "an episode-scoped designation remains episode-scoped" for performer counts. Which
+> instantiated team holds a setup assignment (TEAM_AT_AXIS_*) is a governed symmetric choice recorded by realization
+> (SD-39), never read from an ordinal. Derivation classes fix no designation (SD-95), so stage 4 is unchanged and
+> class-to-class comparison stays the spelled-value comparison it was. The BLOCK scope (a role held for a coach-called
+> block, his M1) is our extension of AM-01, registered and not yet used.
+
 **Every structural reference normalises, not only selectors (SD-32, ruled).** In his words:
 
 > "Any structural reference participating in derivation must resolve through the registered

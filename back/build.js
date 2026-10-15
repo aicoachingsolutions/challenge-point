@@ -45,6 +45,12 @@ async function preBuildOperations() {
         // bundle without this list having to be remembered as well.
         const choicesIndex = 'realization-choices-index.json'
         const choicesFiles = Object.values((await fs.readJson(path.join(auditsPath, choicesIndex))).byKnowledgeObject)
+        // His provisional realizations (15 October 2026, stage K2) are read at module load by the authorization records'
+        // gate and by derivation, and each names its own realization-choices file, so those files are read FROM it too.
+        const provisionalFile = `${stageB}/provisional-realizations.json`
+        const provisionalChoices = ((await fs.readJson(path.join(auditsPath, provisionalFile))).realizations || [])
+            .map((realization) => realization.realizationChoices)
+            .filter(Boolean)
         const knowledgeFiles = [
             'conformance/register-2026-09-18.json',
             `${stageB}/contracts.json`,
@@ -55,7 +61,8 @@ async function preBuildOperations() {
             'approved-coach-wording.json',
             // Rounding at establishment (14 October 2026): the practical grain, read at module load by derivation/practical.ts.
             'practical-rounding.json',
-            ...new Set(['a04-realization-choices.json', ...choicesFiles]),
+            ...new Set(['a04-realization-choices.json', ...choicesFiles, ...provisionalChoices]),
+            provisionalFile,
         ]
         for (const file of knowledgeFiles) {
             await fs.copy(path.join(auditsPath, file), path.join(distPath, 'knowledge', file))

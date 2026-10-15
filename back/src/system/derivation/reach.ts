@@ -15,13 +15,30 @@
  *                 from it (see `engine.ts`, which reports it under SD-48).
  */
 
+import type { MemberDesignations } from './designation'
 import { ElementClass, SelectorPredicate, SelectorTerm } from './types'
 
 export type Reach = 'TRUE' | 'FALSE' | 'UNDETERMINED'
 
-function termAgainstClass(term: SelectorTerm, constraints: SelectorPredicate): Reach {
+/**
+ * **A team designation against an instantiated team** (15 October 2026, stage K2, his M2: *"Please implement the
+ * previously adopted September 20 designation rule"*). The member class carries what the one resolver (`designation.ts`)
+ * found it meets, does not meet, and cannot be decided for; this reads that answer and decides nothing itself. A value
+ * the resolver did not list — an unregistered spelling, a possession-relative or episode designation for a standing
+ * property — stays UNDETERMINED, which is what every team-naming selector was before (invariant 3: never rounded).
+ */
+function termAgainstDesignations(term: SelectorTerm, designations: MemberDesignations): Reach {
+    const values = term.op === 'IN' ? term.values : term.op === '=' ? [term.value] : null
+    if (!values) return 'UNDETERMINED'
+    if (values.some(value => designations.met.includes(value))) return 'TRUE'
+    if (values.every(value => designations.notMet.includes(value))) return 'FALSE'
+    return 'UNDETERMINED'
+}
+
+function termAgainstClass(term: SelectorTerm, constraints: SelectorPredicate, designations?: MemberDesignations): Reach {
     const fixed = constraints.terms.filter(t => t.attribute === term.attribute)
     if (!fixed.length) {
+        if (designations && designations.attributes.includes(term.attribute)) return termAgainstDesignations(term, designations)
         // The class says nothing about this attribute. The grammar sheet's rule — "an element that
         // lacks an attribute does not satisfy a selector on it" — is about an element's stated
         // attributes, not about what a class leaves open, so this is undetermined rather than false.
@@ -56,18 +73,18 @@ function termAgainstClass(term: SelectorTerm, constraints: SelectorPredicate): R
 
 /** Does an item with this selector reach the given class? */
 export function reaches(selector: SelectorPredicate, cls: ElementClass): Reach {
-    return reachesConstraints(selector, cls.constraints)
+    return reachesConstraints(selector, cls.constraints, cls.designations)
 }
 
 /**
  * The same question asked of bare constraints rather than a class — exported 15 October 2026 (stage K1) so two
  * SELECTORS can be compared with each other by exactly the semantics every line is reached by, not by a second copy.
  */
-export function reachesConstraints(selector: SelectorPredicate, constraints: SelectorPredicate): Reach {
+export function reachesConstraints(selector: SelectorPredicate, constraints: SelectorPredicate, designations?: MemberDesignations): Reach {
     if (selector.any) return 'TRUE'
     let result: Reach = 'TRUE'
     for (const term of selector.terms) {
-        const one = termAgainstClass(term, constraints)
+        const one = termAgainstClass(term, constraints, designations)
         if (one === 'FALSE') return 'FALSE'
         if (one === 'UNDETERMINED') result = 'UNDETERMINED'
     }

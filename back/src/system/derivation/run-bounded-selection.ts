@@ -22,7 +22,7 @@ import { constraintBalanceBucket, generateSelection, isSelectionKnowledgeGap, Se
 import type { LearningGoalAuthorization } from '../test-library/learning-goal-authorizations'
 import { learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
 import type { ConstraintAuthority, ConstraintPoolAccount } from '../test-library/types'
-import { CORPUS_ENVELOPE, loadCorpusContracts, loadRegister, loadSportProfile } from './corpus'
+import { CORPUS_ENVELOPE, loadCorpusContracts, loadRegister, loadSportProfile, provisionalRealizationNamed } from './corpus'
 import { isStampedHalt } from './emit'
 import { runDerivation, runStages0to10 } from './engine'
 import { knowledgeKey } from './knowledge-key'
@@ -54,6 +54,12 @@ export interface KnowledgeSelection {
     selected: { id: string; role: string }[]
     contracted: string[]
     missing: string[]
+    /**
+     * The authorization record of the goal the selection was made for, where there is one (a demonstration has none).
+     * Read here for one thing since 15 October 2026 (stage K2): the provisional realization the record names, which
+     * `derivationInputFor` adds and `suppliedRealizationFor` reads the realization choices of.
+     */
+    authorization?: LearningGoalAuthorization | null
 }
 
 /** Split selected knowledge into what is contracted and what is not. One rule, for a goal and for a demonstration. */
@@ -261,9 +267,18 @@ export function selectFor(goalId: string, situationId: string | null = null, rec
  * It reads only WHICH objects were selected, so it takes exactly that — a goal's selection and a mechanism
  * demonstration's are the same thing to derivation, which has never known what a goal is.
  */
-export function derivationInputFor(selection: Pick<KnowledgeSelection, 'selected'>): DerivationInput {
+export function derivationInputFor(selection: Pick<KnowledgeSelection, 'selected' | 'authorization'>): DerivationInput {
     const wanted = new Set(selection.selected.map(s => key(s.id)))
-    const selected: LoadedContract[] = loadCorpusContracts().filter(c => wanted.has(key(c.contractId)))
+    /**
+     * **His provisional realization joins only where the goal's record names it** — 15 October 2026 (stage K2). Christian,
+     * reply filed 17 October 2026: *"without introducing unnecessary architecture or treating this first realization as the
+     * canonical version of the Learning Goal."* The record is the only route in: no goal is named here, a demonstration
+     * (which has no record) never receives one, and a record that names none derives exactly as before. The realization is
+     * a contract like the others, so it also enters the provenance stamp (`versions.objects`) — a stored game knows it was
+     * built with his provisional choices.
+     */
+    const provisional = provisionalRealizationNamed(selection.authorization?.provisionalRealization)
+    const selected: LoadedContract[] = [...loadCorpusContracts().filter(c => wanted.has(key(c.contractId))), ...(provisional ? [provisional] : [])]
 
     /**
      * **The Sport Profile is added unconditionally, because it is constitutive rather than selected.**

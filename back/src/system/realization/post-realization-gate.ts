@@ -22,6 +22,7 @@ import { DerivedLine, resolvedValue } from '../derivation/derive'
 import { authoritativeViolations, ComparisonResult, evaluateComparisons } from '../derivation/comparison'
 import { GateContext, GateReport, runGates } from '../derivation/gates'
 import { splitPath } from '../derivation/resolved-game'
+import { memberDesignations } from '../derivation/designation'
 import { ElementClass, ResolutionLine } from '../derivation/types'
 import { entailmentsLanded, memberInGame } from './assemble-concrete-game'
 import { collectionPath, readAt, Realized } from './realize'
@@ -140,7 +141,15 @@ function concreteContext(ctx: GateContext, realized: Realized): GateContext {
         // member. It was `realized:<claimId>:<i>` — an index, which named nothing the game holds, so the only
         // way to map a verdict to a member was to re-derive the same instantiation order.
         const classId = `realized:${instantiation.handle}`
-        classes.push({ ...claim, classId, constraints: { any: false, terms: [] }, cardinality: { min: null, max: null } })
+        /**
+         * **A team carries what it meets as a team** (15 October 2026, stage K2, his M2: *"Please implement the previously
+         * adopted September 20 designation rule"*). Nothing here decides which: `memberDesignations` resolves every
+         * registered designation for this member from the bindings realization recorded, and `reach.ts` reads the answer.
+         * Only a member of the register's teams collection carries it; without a recorded binding a setup designation stays
+         * undetermined, which is what every team-naming selector was before.
+         */
+        const designations = ctx.index.designations.teamsRow === claim.row ? memberDesignations(ctx.index, claim.row, instantiation.handle, realized.record.designationBindings ?? []) : undefined
+        classes.push({ ...claim, classId, constraints: { any: false, terms: [] }, cardinality: { min: null, max: null }, ...(designations ? { designations } : {}) })
 
         for (const row of ctx.index.rows.values()) {
             if (row.kind !== 'FIELD' || ctx.index.ownerRow.get(row.id) !== claim.row) continue

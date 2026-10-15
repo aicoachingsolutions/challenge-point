@@ -153,6 +153,23 @@
  * else: `game`, every value, every choice, the geometry, the roster and the realization digest are byte-identical.
  * `npm run render:a04` was diffed before and after: the rendered text is identical, only the two digests it prints moved.
  *
+ * **Re-frozen 15 October 2026 (stage K2): `f3db590b` → `6ff69f77`. The GAME did not move; the register did, and the
+ * realization record now says which team holds which end.** Two causes, each deliberate:
+ *
+ *   1. **Register version 9** — the typed team designations for his M2 of 17 October (*"Please implement the previously
+ *      adopted September 20 designation rule, rather than introducing a narrower workaround solely for this activity."*).
+ *      The register version is hashed into the input, so `inputDigest` / `fromDigest` (f77ec627 → fe971f92) and the
+ *      `registerVersion` sentence moved.
+ *   2. **`record.designationBindings`** — the possession game form's realization input now names which instantiated team
+ *      holds each end of ruling C42 (TEAM_AT_AXIS_START → #1, TEAM_AT_AXIS_END → #2), a governed symmetric choice (SD-39,
+ *      as the initial possession holder is) recorded beside the game, never on a team. It is realization input, so the
+ *      realization digest (e64500e4 → 269c9dad) and the audit digest (831ab337 → eaa0b3ee) moved with it. Nothing in the
+ *      Golden Case reads it: no item it selects names a team on a performer row.
+ *
+ * `git diff` of the fixture shows those digests, the version sentence and the two bindings, nothing else: `game`, every
+ * value, every choice, the geometry and the roster are byte-identical. `npm run render:a04` was diffed before and after:
+ * the rendered text is identical, only the two digests it prints moved.
+ *
  * Run: npm test
  */
 import assert from 'node:assert/strict'
