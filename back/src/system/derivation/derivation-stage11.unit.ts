@@ -344,7 +344,13 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
     // objective with its target reference (11.a, 08.c), his 9.5: *"Retire the redundant separate scoring objective:
     // Approved, provided the live attacking objective remains represented."* All fourteen stay verbatim in
     // contracts.json ("Please preserve provenance for the retired engine-authored wording").
-    assert.equal(restatementTally.itemsRemoved, 20, 'WIDEZONE-13.a and 13.b, GF2-08.a and GF2-03.a (C42), PCG-06 and PCG-07 (C45), and fourteen RPC-001 items (C51)')
+    //
+    // **22 since ruling C53, the same day.** RPC-001-02 and RPC-001-03 — exactly one goalkeeper on every build-out
+    // team and on every attacking team — stop being universal, his 9.4: *"Goalkeeper-or-controlled-restart
+    // alternative: Approved."* (our change 4, "applying where the activity includes a goalkeeper, not as a
+    // requirement on every team"). Both stay verbatim in contracts.json; the roster consequence is pinned in
+    // activity-review.unit.ts.
+    assert.equal(restatementTally.itemsRemoved, 22, 'WIDEZONE-13.a and 13.b, GF2-08.a and GF2-03.a (C42), PCG-06 and PCG-07 (C45), fourteen RPC-001 items (C51), and RPC-001-02 and -03 (C53)')
     assert.equal(
         restatementTally.itemsAdded,
         23,
@@ -379,7 +385,8 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
     // **6 -> 15 on 15 October 2026 (C51).** Nine RPC-001 declarations CLAIMED a row on the strength of items C51
     // retires and nothing else (SV1, P4, P8, P10, S5, O4, J2, V2, T4); each is restated beside the retirement, as C45
     // did for the gate. Which kind each became, and that no line or gate verdict moved, is pinned in the C51 test below.
-    assert.equal(restatementTally.declarationsRestated, 15, 'the gate’s V5 and SV1 claims (C45, V5 corrected by C49), GF2’s four deferring V3-V6 gaps (C50), and nine RPC-001 claims on retired items (C51)')
+    // **16 since C53, the same day**: RPC-001's P3 claim cited only 02 and 03, so it is restated NON_CLAIMED beside them.
+    assert.equal(restatementTally.declarationsRestated, 16, 'the gate’s V5 and SV1 claims (C45, V5 corrected by C49), GF2’s four deferring V3-V6 gaps (C50), nine RPC-001 claims on retired items (C51), and its P3 claim (C53)')
     // **New on 14 October 2026 (C48), counted apart from both.** Register row P6c was added that day (C43) after
     // every contract was written, so none declared it and every game without neutrals read it as "no coverage" —
     // nobody looked. The seven contracts that declare P6a NON_CLAIMED get the same declaration on P6c; the Neutral
@@ -1138,7 +1145,8 @@ test('C51: fourteen RPC-001 items leave the active knowledge, each kept verbatim
     const loaded = loadCorpusContracts().find(c => c.contractId === RPC)!
     const retired = [...ENGINE_ONLY_RETIRED, 'RPC-001-11.a', 'RPC-001-08.c']
     assert.deepEqual(loaded.items.filter(i => retired.includes(i.itemId)), [], 'none reaches derivation')
-    assert.equal(loaded.items.length, authored.items.length - retired.length)
+    // Less the two goalkeeper items C53 retired later the same day (RPC-001-02, -03; their own test is in activity-review).
+    assert.equal(loaded.items.length, authored.items.length - retired.length - 2)
     // "The part that says this objective is live during the build-out is kept" (our change 5, as approved).
     assert.ok(loaded.items.some(i => i.itemId === 'RPC-001-11.b'), 'RPC-001-11.b, the live-in-the-episode clause, is kept')
 })

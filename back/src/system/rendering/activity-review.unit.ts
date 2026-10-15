@@ -21,7 +21,8 @@
  */
 import assert from 'node:assert/strict'
 
-import { loadCorpusContracts, loadRegister } from '../derivation/corpus'
+import { loadCorpusContracts, loadRegister, readJson } from '../derivation/corpus'
+import { repairCorpusEncoding } from '../derivation/corpus-repair'
 import { indexRegister } from '../derivation/register'
 import { ActivityReviewRequestError, activityReviewOptions, reviewActivity } from './activity-review'
 import { buildActivity, buildActivityFromKnowledge, buildActivityOverAlteredKnowledge, buildActivityOverAlteredSelection, buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity, UnknownActivityRequest } from './build-activity'
@@ -1380,6 +1381,56 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         ;(rpcLibrary as any).scoringEventsForContext = read
     }
     assert.deepEqual(rpcLibrary.scoringEventsForContext('RPC-001'), read('RPC-001'), 'the library read is restored')
+}
+
+/**
+ * ── C53, 15 October 2026: the goalkeeper requirement is no longer universal — and the roster today, pinned ─────
+ *
+ * His 9.4: *"Goalkeeper-or-controlled-restart alternative: Approved."* — our change 4, *"Your 'Goalkeeper
+ * availability' is read as applying where the activity includes a goalkeeper, not as a requirement on every team."*
+ * RPC-001-02 and RPC-001-03 (one goalkeeper on every build-out team, on every attacking team) are retired, originals
+ * kept. Measured through the real chain over a TEST-ONLY copy with only the build-out condition items taken out (so
+ * the build passes Gate A and reaches the roster): before C53 the roster could not be settled — the two items speak
+ * of particular teams and nothing tells one instantiated team from another — with two goalkeepers available or
+ * none; after it, two goalkeepers available give 6 + 0 against 6 + 0 and the goalkeepers go unused.
+ *
+ * **A KNOWN STOP, named for what would move it:** his decision D6 (allocation and goalkeepers — equal numbers with
+ * the asymmetry carried by roles, or not; and what a team's goalkeeper does while it presses) and capability M2 (each
+ * team's goalkeeper supplied from the chosen restart arm, or AM-01 designation reach). The goalkeeper-or-controlled-
+ * restart alternative itself (RPC-001-15.b, T3 at START) waits on capability M3. Nothing here calls two goalkeepers
+ * "supported".
+ */
+{
+    const CONDITIONS = ['18.a', '18.b', '18.c', '18.d', '18.e', '18.f', '18.g', '19.a', '19.b'].map(id => `RPC-001-${id}`)
+    const withoutConditions = (contracts: any[]) => {
+        const rpc = contracts.find(contract => contract.contractId === 'restated:RPC-001')
+        rpc.items = rpc.items.filter((item: any) => !CONDITIONS.includes(item.itemId))
+    }
+    const raw: any[] = repairCorpusEncoding(readJson('stage-b/contracts.json'), { strings: 0, charactersRecovered: 0 })
+    const authoredRpc = raw.find(entry => String(entry.name).startsWith('RPC-001')).result
+    const asBeforeC53 = (contracts: any[]) => {
+        withoutConditions(contracts)
+        const rpc = contracts.find(contract => contract.contractId === 'restated:RPC-001')
+        for (const id of ['RPC-001-02', 'RPC-001-03']) {
+            const { id: itemId, ...rest } = authoredRpc.items.find((item: any) => item.id === id)
+            rpc.items.push({ itemId, ...rest })
+        }
+    }
+    const loaded = loadCorpusContracts().find(contract => contract.contractId === 'restated:RPC-001')!
+    assert.ok(!loaded.items.some(item => ['RPC-001-02', 'RPC-001-03'].includes(item.itemId)), 'retired from the active knowledge')
+    assert.ok(authoredRpc.items.some((item: any) => item.id === 'RPC-001-02') && authoredRpc.items.some((item: any) => item.id === 'RPC-001-03'), 'and kept in contracts.json')
+    assert.deepEqual(loaded.declarations.filter((d: any) => d.row === 'P3').map((d: any) => d.declaration), ['NON_CLAIMED'], 'its P3 claim restated beside them')
+
+    for (const keepers of [2, 0]) {
+        const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: keepers } }
+        const before = refused(buildActivityOverAlteredKnowledge({ kind: 'learning-goal', goalId: 'A01', session }, asBeforeC53), `A01 before C53, ${keepers} of ${ROLE}`)
+        assert.ok(before.reasons.some(reason => reason.startsWith('roster (INVOLVEMENT_NOT_SETTLED): restated:RPC-001::RPC-001-02 speaks of particular teams')), JSON.stringify(before.reasons))
+        const now = served(buildActivityOverAlteredKnowledge({ kind: 'learning-goal', goalId: 'A01', session }, withoutConditions), `A01 after C53, ${keepers} of ${ROLE}`)
+        const roster = now.rendered.instructions.find(instruction => instruction.text.startsWith('Divide 12 players into 2 teams of 6'))
+        assert.ok(roster, JSON.stringify(now.rendered.instructions.map(i => i.text)))
+        // 6 + 0 against 6 + 0: with two available the goalkeepers play outfield (unused as goalkeepers) — D6 / M2.
+        assert.equal(roster!.text, keepers ? `Divide 12 players into 2 teams of 6; ${ROLE}s play as outfield players in this activity` : `Divide 12 players into 2 teams of 6, with no ${ROLE}s`)
+    }
 }
 
 // ── A request that names nothing is REJECTED, not refused ─────────────────────────────────────────
