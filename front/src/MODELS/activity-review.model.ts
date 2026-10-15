@@ -79,10 +79,44 @@ export interface ReviewManipulation {
     tier: 'CORE' | 'COMMON' | null
     source: string
     registerRows: string[]
+    /**
+     * His category for the entry (15 October 2026, his 16 October item 10): PROVISIONAL_REALIZATION_CHOICE,
+     * EXISTING_KNOWLEDGE_TO_VERIFY or GENUINE_GAP. Optional: older accounts lack it.
+     */
+    category?: string
     /** A string, not the closed union, so a status the back end adds is shown rather than dropped. */
     status: string
+    /** The decision and capability ids it waits on (defined in the record's `gaps`). Optional: older accounts lack it. */
+    gaps?: string[]
     statusBasis: string
     note: string | null
+}
+
+/** One decision or capability a record's entries wait on: OUR wording, as put to him (15 October 2026). */
+export interface ReviewRecordGap {
+    id: string
+    kind: string
+    description: string
+    note: string | null
+}
+
+/** One line of the three lists, each field copied from the record by the server (15 October 2026). */
+export interface ReviewAuthorizationListEntry {
+    from: string
+    label: string
+    words: string | null
+    citedAs: string | null
+    sources: string[]
+    status: string | null
+    gaps: string[]
+    note: string | null
+}
+
+/** The record as three lists: what existing knowledge authorizes, his provisional choices, the gaps (15 October 2026). */
+export interface ReviewAuthorizationLists {
+    authorizedByExistingKnowledge: ReviewAuthorizationListEntry[]
+    provisionalChoices: ReviewAuthorizationListEntry[]
+    gaps: (ReviewRecordGap & { neededBy: string[] })[]
 }
 
 /** A Learning Goal's authorization record (back end: `test-library/learning-goal-authorizations.ts`). */
@@ -97,7 +131,22 @@ export interface ReviewAuthorization {
     authorizedConstraints: string[] | null
     authorizedConstraintsFinding: string
     /** His provisional choices for this goal's activity (15 October 2026), each cited. Optional: older accounts lack it. */
-    provisionalChoices?: { category: 'PROVISIONAL_REALIZATION_CHOICE'; choice: string; ruledOn: string; by: string; citedAs: string; words: string; note: string | null }[]
+    provisionalChoices?: {
+        category: 'PROVISIONAL_REALIZATION_CHOICE'
+        choice: string
+        ruledOn: string
+        by: string
+        citedAs: string
+        words: string
+        /** Whether the activity can carry it now, and what it waits on (15 October 2026). Optional: older accounts lack them. */
+        status?: string
+        gaps?: string[]
+        note: string | null
+    }[]
+    /** What existing knowledge authorizes, with sources (15 October 2026). Optional: older accounts lack it. */
+    existingKnowledge?: { category: string; what: string; sources: string[]; note: string | null }[]
+    /** The decisions and capabilities its entries wait on (15 October 2026). Optional: older accounts lack it. */
+    gaps?: ReviewRecordGap[]
     excluded: { knowledgeId: string; title: string; ruledOn: string; by: string; ruling: string; heldBy: string | null }[]
     manipulations: ReviewManipulation[]
 }
@@ -155,6 +204,11 @@ export interface ActivityAccount {
      * demonstration and a goal with no record. Optional: older accounts lack it.
      */
     authorization?: ReviewAuthorization | null
+    /**
+     * The same record as three lists, sorted by the server by the category the record gives each entry (15 October
+     * 2026) — technical account only. Optional: older accounts lack it.
+     */
+    authorizationLists?: ReviewAuthorizationLists | null
     selectedWithoutContract: string[]
     /**
      * True where the goal's Game Problem is unresolved: the activity is provisional and not a completed

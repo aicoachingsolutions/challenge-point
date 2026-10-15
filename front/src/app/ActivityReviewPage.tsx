@@ -871,6 +871,59 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                             </AccountField>
                         )}
 
+                        {/*
+                          * 15 October 2026 (stage H3). Christian, 16 October reply: "It should also distinguish what was
+                          * authorized by existing knowledge from what remains a provisional design choice" — and, item
+                          * 10, "a clear refusal and a narrowly described gap". Three lists, each read from the record
+                          * as the server sorted it by category; nothing is restated here. The decision and capability
+                          * descriptions are our wording, as put to him. Technical account only. Labels are DRAFTS.
+                          */}
+                        {account.authorizationLists && (
+                            <AccountField label='What the record says'>
+                                <p className='mb-1 text-xs font-semibold text-gray-700'>Authorized by existing knowledge</p>
+                                <ul className='mb-3 space-y-1'>
+                                    {account.authorizationLists.authorizedByExistingKnowledge.map((entry, index) => (
+                                        <li key={index} className='text-xs'>
+                                            {entry.label}
+                                            <span className='block text-gray-500'>Sources: {entry.sources.join(' · ')}</span>
+                                            {entry.note && <span className='block text-gray-500'>{entry.note}</span>}
+                                        </li>
+                                    ))}
+                                </ul>
+                                <p className='mb-1 text-xs font-semibold text-gray-700'>Provisional choices (his, for this activity)</p>
+                                <ul className='mb-3 space-y-1'>
+                                    {account.authorizationLists.provisionalChoices.map((entry, index) => (
+                                        <li key={index} className='text-xs'>
+                                            <span className='mr-2'>{entry.label}</span>
+                                            {entry.status && (
+                                                <Mark positive={entry.status.startsWith('AUTHORIZED')}>
+                                                    {entry.gaps.length ? `${entry.status} — waiting on ${entry.gaps.join(', ')}` : entry.status}
+                                                </Mark>
+                                            )}
+                                            {entry.words && (
+                                                <span className='block text-gray-600'>
+                                                    "{entry.words}"{entry.citedAs ? ` (${entry.citedAs})` : ''}
+                                                </span>
+                                            )}
+                                            {entry.sources.length > 0 && <span className='block text-gray-600'>Basis: {entry.sources.join(' · ')}</span>}
+                                        </li>
+                                    ))}
+                                </ul>
+                                <p className='mb-1 text-xs font-semibold text-gray-700'>Gaps: decisions and capabilities still needed</p>
+                                <ul className='space-y-1'>
+                                    {account.authorizationLists.gaps.map((gap) => (
+                                        <li key={gap.id} className='text-xs'>
+                                            <span className='mr-2 font-mono'>{gap.id}</span>
+                                            <span className='mr-2 text-gray-500'>({gap.kind.toLowerCase()})</span>
+                                            {gap.description}
+                                            {gap.neededBy.length > 0 && <span className='block text-amber-700'>Needed by: {gap.neededBy.join(' · ')}</span>}
+                                            {gap.note && <span className='block text-gray-500'>{gap.note}</span>}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </AccountField>
+                        )}
+
                         {account.authorization && (
                             <AccountField label='Authorization record'>
                                 <p className='mb-1 text-xs text-gray-600'>
@@ -914,6 +967,10 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                                 {manipulation.tier && <span className='text-gray-500'> ({manipulation.tier.toLowerCase()})</span>}
                                             </span>
                                             <Mark positive={manipulation.status.startsWith('AUTHORIZED')}>{manipulation.status}</Mark>
+                                            {manipulation.category && <span className='ml-2 text-gray-500'>{manipulation.category}</span>}
+                                            {manipulation.gaps && manipulation.gaps.length > 0 && (
+                                                <span className='ml-2 text-amber-700'>waiting on {manipulation.gaps.join(', ')}</span>
+                                            )}
                                             <span className='block text-gray-600'>Source: {manipulation.source}</span>
                                             <span className='block text-gray-600'>Basis: {manipulation.statusBasis}</span>
                                             {manipulation.registerRows.length > 0 && (
