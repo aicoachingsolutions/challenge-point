@@ -25,6 +25,7 @@ import assert from 'node:assert/strict'
 
 import { corpusInput, loadRegister } from './corpus'
 import { runDerivation, runStages0to10 } from './engine'
+import { a01CompositionUntil15October } from './composition-fixtures'
 import { derivationInputFor, selectFor } from './run-bounded-selection'
 import { ContractItem, DerivationInput, LoadedContract } from './types'
 
@@ -162,9 +163,13 @@ test('a game with no transition passes vacuously, and says so', () => {
 // authors "none (at least one ball)" as AUTHORED/REQUIRED, a ball class forms, and POSSESSION_CHANGE
 // becomes reachable. It is what makes the new check falsifiable against authored knowledge rather than
 // only against a synthetic fixture.
+//
+// Re-pointed 15 October 2026 from selectFor('A01', 'A01-02') to the same objects named (composition-fixtures.ts).
+// The control is about the authored ball and reachability under derivation; A01 itself now selects from its
+// authorization record, which authorizes nothing yet (his 15 October item 1), and stops at selection.
 test('POSITIVE CONTROL: A01 + From Goal Kicks establishes a ball, and every transition is reachable', () => {
-    const result: any = runDerivation(derivationInputFor(selectFor('A01', 'A01-02')))
-    const staged: any = runStages0to10(derivationInputFor(selectFor('A01', 'A01-02')))
+    const result: any = runDerivation(derivationInputFor(a01CompositionUntil15October('A01-02')))
+    const staged: any = runStages0to10(derivationInputFor(a01CompositionUntil15October('A01-02')))
     assert.ok(staged.triggers.includes('POSSESSION_CHANGE'), 'the authored ball makes the trigger reachable')
     const clause = clauseOf(result, 'GA-TRIGGER-REACHABLE')
     assert.equal(clause.verdict, 'PASS')
@@ -185,10 +190,13 @@ test('POSITIVE CONTROL: A01 + From Goal Kicks establishes a ball, and every tran
  * The situation's own authored ball is no longer load-bearing for reachability — it is still authored, still
  * admitted, and now redundant for this purpose, which is the right relationship between a sport fact and a
  * practice situation.
+ *
+ * Re-pointed 15 October 2026 to the composition A01 selected until that day, named (composition-fixtures.ts), with
+ * and without the situation: A01's own selection now stops at selection (his 15 October item 1).
  */
 test('A01 reaches the trigger WITH or WITHOUT the practice situation, now that the carrier is sport-level', () => {
-    const withSituation = clauseOf(runDerivation(derivationInputFor(selectFor('A01', 'A01-02'))) as any, 'GA-TRIGGER-REACHABLE')
-    const without = clauseOf(runDerivation(derivationInputFor(selectFor('A01', null))) as any, 'GA-TRIGGER-REACHABLE')
+    const withSituation = clauseOf(runDerivation(derivationInputFor(a01CompositionUntil15October('A01-02'))) as any, 'GA-TRIGGER-REACHABLE')
+    const without = clauseOf(runDerivation(derivationInputFor(a01CompositionUntil15October(null))) as any, 'GA-TRIGGER-REACHABLE')
     assert.equal(withSituation.verdict, 'PASS')
     assert.equal(without.verdict, 'PASS', 'the carrier must not depend on which situation a coach picked')
     assert.equal(without.basis, 'EVALUATED', 'and it is evaluated, not vacuous — there is a transition to check')

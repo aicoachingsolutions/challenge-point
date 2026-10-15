@@ -18,6 +18,7 @@ import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame, ResolvedGame } from '../derivation/resolved-game'
+import { a01CompositionUntil15October } from '../derivation/composition-fixtures'
 import { derivationInputFor, GoalSelectionGap, selectFor } from '../derivation/run-bounded-selection'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { justifiedDefaults } from './justified-defaults'
@@ -1023,7 +1024,8 @@ test('four goals are realization-authorized, they are two games, and the other n
         ['A04,D01', 'A05,TA02'],
         'and they are two games: the bare possession game, and the possession game with Wide Zone Advantage',
     )
-    assert.deepEqual(gaps, ['A02', 'D03'], 'the two knowledge gaps of 14 October, and no others')
+    // A01 joins the gaps on 15 October 2026: its authorization record authorizes no constraint (his item 1 of that day).
+    assert.deepEqual(gaps, ['A01', 'A02', 'D03'], 'the knowledge gaps of 14 October, A01 since 15 October, and no others')
     /**
      * **FIVE goals now reach a verdict and fail it, up from two on 7 October — and the three new ones are a
      * finding rather than a drift.** D02, A03 and A06 each load only the Wide Zone object plus the Sport
@@ -1041,7 +1043,17 @@ test('four goals are realization-authorized, they are two games, and the other n
      */
     //
     // **Seven since 14 October:** A01 joins them, failing on its context's unestablished lines.
-    assert.deepEqual(failed.sort(), ['A01', 'A03', 'A06', 'D02', 'TA01', 'TD01', 'TD02'], 'seven goals reach a verdict and fail it')
+    // **Six again since 15 October:** A01 no longer reaches derivation (a knowledge gap, above). The composition it
+    // selected until then — named, composition-fixtures.ts — still fails Gate A on its context's lines, checked here
+    // so the finding is not lost with the selection.
+    assert.deepEqual(failed.sort(), ['A03', 'A06', 'D02', 'TA01', 'TD01', 'TD02'], 'six goals reach a verdict and fail it')
+    {
+        const input = derivationInputFor(a01CompositionUntil15October(null))
+        const result = runDerivation(input)
+        if (isStampedHalt(result)) return assert.fail('unexpected halt on the A01 composition')
+        const r = assembleResolvedGame(result, (runStages0to10(input) as any).classes, indexRegister(input.register), input.contracts)
+        assert.equal(r.coherence.gateA, 'FAIL', 'the composition A01 selected until 15 October fails Gate A')
+    }
     // The four that selected the Pass Combination Gate were the unevaluable ones. No goal selects it now.
     assert.deepEqual(notEvaluable.sort(), [], 'no goal is left that cannot be evaluated')
 })

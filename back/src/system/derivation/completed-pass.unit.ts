@@ -25,6 +25,7 @@ import { corpusInput } from './corpus'
 import { runDerivation, runStages0to10 } from './engine'
 import { runGates } from './gates'
 import { indexRegister } from './register'
+import { a01CompositionUntil15October } from './composition-fixtures'
 import { derivationInputFor, GoalSelectionGap, selectFor } from './run-bounded-selection'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 
@@ -215,8 +216,15 @@ test('registering the member changed no verdict in any of the thirteen goals', (
      * P6b, P7) were written before the row existed, and a restatement cannot add a declaration. It is an
      * established absence ("unspoken" in GA-NO-FAILED-LINE), so no Gate A verdict moves.
      */
+    /**
+     * **8 · 15 October — A01 LEAVES THE TABLE FOR THE GAP LIST, and its row is kept on its composition.** His item 1
+     * of that day: approving Gain Access *"does not automatically authorize the candidate constraints currently
+     * derived from vocabulary coverage."* A01's authorization record authorizes no constraint, so it selects nothing
+     * (NO_AUTHORIZED_CONSTRAINTS). Its row — 14 failed lines, Gate A FAIL, reachable — described derivation over the
+     * objects it selected, so it is asserted on exactly those, named (composition-fixtures.ts), after the loop.
+     */
+    const A01_COMPOSITION = { failed: 14, gateA: 'FAIL', reachable: true }
     const expected: Record<string, { failed: number; gateA: string; reachable: boolean }> = {
-        A01: { failed: 14, gateA: 'FAIL', reachable: true },
         D01: { failed: 8, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
         TA01: { failed: 15, gateA: 'FAIL', reachable: false },
         TD01: { failed: 14, gateA: 'FAIL', reachable: false },
@@ -229,14 +237,19 @@ test('registering the member changed no verdict in any of the thirteen goals', (
         A06: { failed: 8, gateA: 'FAIL', reachable: true },
     }
     const gaps: string[] = []
-    for (const goal of goals) {
+    for (const goal of [...goals, 'A01 composition until 15 October']) {
         let selection
-        try {
-            selection = selectFor(goal, null)
-        } catch (error) {
-            if (!(error instanceof GoalSelectionGap)) throw error
-            gaps.push(goal)
-            continue
+        if (goal === 'A01 composition until 15 October') {
+            selection = a01CompositionUntil15October(null)
+            expected[goal] = A01_COMPOSITION
+        } else {
+            try {
+                selection = selectFor(goal, null)
+            } catch (error) {
+                if (!(error instanceof GoalSelectionGap)) throw error
+                gaps.push(goal)
+                continue
+            }
         }
         const input = derivationInputFor(selection)
         const result: any = runDerivation(input)
@@ -257,7 +270,7 @@ test('registering the member changed no verdict in any of the thirteen goals', (
         const passes = !reach.clauses.some((l: any) => l.verdict === 'FAIL')
         assert.equal(passes, expected[goal].reachable, `${goal}: reachability verdict must be the one his ruling implies`)
     }
-    assert.deepEqual(gaps, ['A02', 'D03'], 'the two knowledge gaps of 14 October, and no others')
+    assert.deepEqual(gaps, ['A01', 'A02', 'D03'], 'the knowledge gaps of 14 October, A01 since 15 October, and no others')
 })
 
 /**
@@ -296,8 +309,9 @@ test('the member alone closed nothing — it took a separate authoring act', () 
         assert.equal(v17[0].value, 'COMPLETED_PASS', 'with the token the 29 September ruling requires')
     }
     // And the goals that do NOT select that contract have no such line at all, so nothing was created for them.
+    // A01 by its composition until 15 October (composition-fixtures.ts): its own selection is a knowledge gap since then.
     for (const goal of ['A04', 'A03', 'A06', 'TA01', 'A01', 'TA02', 'A05']) {
-        const result: any = runDerivation(derivationInputFor(selectFor(goal, null)))
+        const result: any = runDerivation(derivationInputFor(goal === 'A01' ? a01CompositionUntil15October(null) : selectFor(goal, null)))
         assert.deepEqual(
             (result.resolution ?? []).filter((e: any) => /::V17$/.test(String(e.lineId))),
             [],

@@ -24,13 +24,14 @@ import assert from 'node:assert/strict'
 import { loadCorpusContracts, loadRegister } from '../derivation/corpus'
 import { indexRegister } from '../derivation/register'
 import { ActivityReviewRequestError, activityReviewOptions, reviewActivity } from './activity-review'
-import { buildActivity, buildActivityFromKnowledge, buildActivityOverAlteredKnowledge, buildActivityOverAlteredSelection, RefusedActivity, ServedActivity, UnknownActivityRequest } from './build-activity'
+import { buildActivity, buildActivityFromKnowledge, buildActivityOverAlteredKnowledge, buildActivityOverAlteredSelection, buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity, UnknownActivityRequest } from './build-activity'
 import { constitutedConditionTypes, contextScoringFindings } from './context-scoring-guard'
 import { buildPilotActivity, isPilotRefused, PILOT_SESSION } from './build-pilot-activity'
 import { MECHANISM_DEMONSTRATIONS } from './mechanism-demonstrations'
 import { sessionEnvelopeFrom, specializedRoleNames } from './session-envelope'
 import { rpcLibrary } from '../sport-module/rpc-library'
 import { learningGoalSelectionHolds } from '../test-library/learning-design-holds'
+import { learningGoalAuthorization, learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
 
 const ROLES = specializedRoleNames()
 assert.ok(ROLES.length > 0, 'the register must name a specialized role, or the availability question has no subject')
@@ -173,6 +174,16 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
  *
  * A goal moving OUT of this table is the work succeeding, and the entry should then be removed with the
  * reason. A goal moving between rows, or a new one arriving, is a change in the knowledge to be explained.
+ *
+ * **15 October 2026 — A01 moves from `structure` to `selection`, and that is the honest state.** Christian that day
+ * (item 1): *"approving Gain Access does not automatically authorize the candidate constraints currently derived from
+ * vocabulary coverage. I would prefer that the activity's constraints be selected based on their documented
+ * relationship to the approved context, Game Problem, and target affordances."* A01's authorization record
+ * authorizes no library constraint (none has such a relationship), and whether it may be built with none is his
+ * decision D1, so it is refused at selection as NO_AUTHORIZED_CONSTRAINTS, its game form (GF2) named. It used to
+ * reach `structure` only by selecting vocabulary-derived constraints — Wide Zone Advantage among them, which his
+ * item 7 excludes. Under a test-only zero-constraint ruling it reaches `structure` again, on the same three
+ * context lines (pinned below). It is no longer provisional: Gain Access is recorded.
  */
 {
     const GAP = "This goal's designated constraints cannot yet be combined into a game, so no activity can be built for it."
@@ -181,7 +192,7 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
     const CONTEXT = "The scoring this goal's context calls for has not been built into the activity engine yet, so no activity can be built for it."
     // [stage, summary, the game form is contracted, the reason names]
     const expected: Record<string, [RefusedActivity['stage'], string, boolean, string]> = {
-        A01: ['structure', NOT_DESCRIBED, true, 'Gate A is FAIL'],
+        A01: ['selection', GAP, true, 'NO_AUTHORIZED_CONSTRAINTS'],
         A02: ['selection', GAP, false, 'NO_COMPATIBLE_COMBINATION'],
         A03: ['knowledge', NOT_BUILT, false, 'the game form GF3 has no contribution contract'],
         A04: ['knowledge', CONTEXT, true, 'the Representative Performance Context RPC-004 has no contribution contract'],
@@ -209,8 +220,9 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
         // a knowledge gap included: the game form it was found on is named.
         assert.ok(activity.account.gameForm?.id, `${goalId}: the selected game form survives into the refusal's account`)
         assert.equal(activity.account.gameForm!.contracted, formBuilt, `${goalId}: and says whether it is built`)
-        // The four goals with an unresolved Game Problem are provisional, in every outcome (his ruling, section 5).
-        assert.equal(activity.account.provisional, ['A01', 'A04', 'A05', 'A06'].includes(goalId), `${goalId}: provisional`)
+        // The goals with an unresolved Game Problem are provisional, in every outcome (his ruling, section 5). Three
+        // since 15 October 2026: A01's Game Problem is recorded (Gain Access).
+        assert.equal(activity.account.provisional, ['A04', 'A05', 'A06'].includes(goalId), `${goalId}: provisional`)
     }
 
     // A knowledge gap's account is filled from the gap itself: the game form, the Game Problem, the context,
@@ -218,10 +230,79 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
     for (const [goalId, form] of [['A02', 'GF3'], ['D03', 'GF2']] as const) {
         const gap = refused(reviewActivity(stored(), { learningGoalId: goalId, durationMin: 20 }), goalId)
         assert.equal(gap.account.gameForm!.id, form)
-        assert.deepEqual(gap.account.constraintSource, { source: 'GOAL_CANDIDATES', unfilledRoles: ['shaping'], heldByRuling: [], gap: 'NO_COMPATIBLE_COMBINATION' })
+        // `constraintAuthority`, `zeroConstraintRuling` and `lensAuthority` since 15 October 2026: vocabulary-derived
+        // candidates are labelled as such, never as authorized.
+        assert.deepEqual(gap.account.constraintSource, {
+            source: 'GOAL_CANDIDATES',
+            constraintAuthority: 'VOCABULARY_POOL',
+            zeroConstraintRuling: null,
+            lensAuthority: 'ENGINE_LENS',
+            unfilledRoles: ['shaping'],
+            heldByRuling: [],
+            gap: 'NO_COMPATIBLE_COMBINATION',
+        })
+        assert.equal(gap.account.authorization, null, `${goalId}: no authorization record`)
         assert.deepEqual(gap.account.constraints, [])
         assert.ok(gap.account.gameProblem, `${goalId}: the Game Problem authority is in the account`)
         assert.ok(gap.account.context?.id, `${goalId}: and so is the context`)
+    }
+
+    /**
+     * **A01's account carries its authorization record — whole, as selection used it** (15 October 2026, the TECHNICAL
+     * account only). Key identity: every field of the record is on the account, and nothing is restated in code; the
+     * exclusions gain only their library titles. A projection is proved by a consumer — the review page's technical
+     * panel reads exactly these fields.
+     */
+    {
+        const a01 = refused(reviewActivity(stored(), { learningGoalId: 'A01', durationMin: 20 }), 'A01')
+        const record = learningGoalAuthorization('A01')!
+        assert.deepEqual(a01.account.constraintSource, {
+            source: 'AUTHORIZATION_RECORD',
+            constraintAuthority: 'AUTHORIZATION_RECORD',
+            zeroConstraintRuling: null,
+            lensAuthority: 'ENGINE_LENS',
+            unfilledRoles: ['foundation', 'shaping', 'consequence'],
+            heldByRuling: [],
+            gap: 'NO_AUTHORIZED_CONSTRAINTS',
+        })
+        const authorization = a01.account.authorization!
+        assert.deepEqual(Object.keys(authorization).sort(), Object.keys(record).sort(), 'every field of the record reaches the account')
+        const { excluded, ...rest } = authorization
+        const { excluded: recordExcluded, ...recordRest } = record
+        assert.deepEqual(rest, recordRest, 'carried verbatim')
+        assert.deepEqual(excluded.map(({ title, ...exclusion }) => exclusion), recordExcluded, 'exclusions carried verbatim')
+        assert.deepEqual(excluded.map(e => e.title), ['Wide Zone Advantage', 'Pass Combination Gate'], 'each named by its library title')
+        assert.deepEqual(authorization.manipulations.map(m => [m.phrase, m.tier, m.status]), record.manipulations.map(m => [m.phrase, m.tier, m.status]))
+        assert.deepEqual(authorization.authorizedConstraints, [], 'none authorized for this goal yet')
+        assert.equal(a01.account.gameProblem?.gameProblemId, 'GP-005')
+        assert.equal(a01.account.gameProblem?.status, 'APPROVED')
+        assert.equal(a01.account.provisional, false)
+        assert.deepEqual(a01.account.constraints, [], 'no constraint is listed as selected')
+    }
+
+    /**
+     * **G1.3 — what the zero-constraint commitment reaches, on a COPY of the record with a TEST-ONLY ruling**
+     * (15 October 2026, measured). Selection commits GF2, its lenses and NO library constraint; the context is carried;
+     * derivation then stops at `structure` on the same three RPC-001 lines it stopped on before, with two goalkeepers
+     * or none. So the remaining work for this goal is the context's knowledge (stages G2–G4 and his decisions), not a
+     * constraint. Production data stays null; this ruling exists only in the copy.
+     */
+    {
+        const records = learningGoalAuthorizations()
+        records[0].zeroConstraintRuling = { ruledOn: 'TEST-ONLY', by: 'test', ruling: 'TEST-ONLY: never production data' }
+        for (const keepers of [2, 0]) {
+            const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: keepers } }
+            const reached = refused(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, records).activity, `A01 under a test-only ruling, ${keepers} of ${ROLE}`)
+            assert.equal(reached.stage, 'structure', JSON.stringify(reached.reasons))
+            assert.ok(
+                ['RPC-001-18.f::V5', 'RPC-001-19.a::V5', 'RPC-001-18.a::V6'].every(line => reached.reasons.some(reason => reason.includes(line))),
+                `the three context lines: ${JSON.stringify(reached.reasons)}`,
+            )
+            assert.deepEqual(reached.account.constraints, [], 'no library constraint was selected')
+            assert.deepEqual(reached.account.constraintSource?.zeroConstraintRuling, { ruledOn: 'TEST-ONLY', by: 'test' })
+            assert.equal(reached.account.context?.inThisActivity, true, 'the context is in the game')
+        }
+        assert.equal(learningGoalAuthorization('A01')!.zeroConstraintRuling, null, 'the production record is untouched')
     }
 }
 
@@ -950,7 +1031,13 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
  *    contract (A01). The other twelve stay false because their contexts have none, and they are refused.
  */
 {
+    /**
+     * **15 October 2026: A01 draws from its authorization record**, which authorizes nothing (his item 1 of that day),
+     * so every role is unfilled, nothing is held (the gate is not among its candidates — the record excludes it), and
+     * it is a gap of its own kind. Every other goal's candidates are labelled VOCABULARY_POOL.
+     */
     const UNFILLED: Record<string, string[]> = {
+        A01: ['foundation', 'shaping', 'consequence'],
         A02: ['shaping'],
         A04: ['shaping', 'consequence'],
         D01: ['shaping'],
@@ -959,14 +1046,16 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         TD01: ['shaping'],
         TD02: ['shaping'],
     }
-    const HELD = ['A01', 'A05', 'TA02']
-    const GAPS = ['A02', 'D03']
+    const HELD = ['A05', 'TA02']
+    const GAPS: Record<string, string> = { A01: 'NO_AUTHORIZED_CONSTRAINTS', A02: 'NO_COMPATIBLE_COMBINATION', D03: 'NO_COMPATIBLE_COMBINATION' }
     for (const goal of activityReviewOptions().goals) {
         const activity = reviewActivity(stored(), { learningGoalId: goal.id, durationMin: 20 })
         const account = activity.account
         const source = account.constraintSource!
         assert.ok(source, `${goal.id}: a goal's account says where its constraints came from`)
-        assert.equal(source.source, 'GOAL_CANDIDATES', `${goal.id} draws from its own candidates, always`)
+        assert.equal(source.source, goal.id === 'A01' ? 'AUTHORIZATION_RECORD' : 'GOAL_CANDIDATES', `${goal.id} draws from its own candidates, always`)
+        assert.equal(source.constraintAuthority, goal.id === 'A01' ? 'AUTHORIZATION_RECORD' : 'VOCABULARY_POOL', `${goal.id}: whose authority its candidates carry`)
+        assert.equal(account.authorization === null, goal.id !== 'A01', `${goal.id}: only A01 has an authorization record`)
         assert.deepEqual(source.unfilledRoles, UNFILLED[goal.id] ?? [], `${goal.id}: the roles no designated candidate fills`)
         assert.deepEqual(
             source.heldByRuling.map(hold => [hold.title, hold.ruledOn]),
@@ -974,8 +1063,8 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
             `${goal.id}: held by ruling`,
         )
         const constraints = account.constraints ?? []
-        if (GAPS.includes(goal.id)) {
-            assert.equal(source.gap, 'NO_COMPATIBLE_COMBINATION', goal.id)
+        if (GAPS[goal.id]) {
+            assert.equal(source.gap, GAPS[goal.id], goal.id)
             assert.deepEqual(constraints, [], `${goal.id}: a knowledge gap selects no constraint`)
         } else {
             assert.equal(source.gap, null, goal.id)
@@ -987,7 +1076,9 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         const context = account.context!
         assert.ok(context?.id && context.name, `${goal.id}: the account names its context`)
         assert.ok(context.approvedScoringCondition, `${goal.id}: and carries the approved scoring condition as authored`)
-        assert.equal(context.inThisActivity, goal.id === 'A01', `${goal.id}: only the context with a contract is in the activity`)
+        // No goal's context is in an activity since 15 October 2026: A01, the one whose context has a contract, now
+        // stops at selection, before the context is carried (the test-only ruling above shows it carried again).
+        assert.equal(context.inThisActivity, false, `${goal.id}: no context is in an activity`)
         // The context is never listed again as a raw id among what has no contract.
         assert.ok(!(account.selectedWithoutContract ?? []).includes(context.id), `${goal.id}: the context has its own entry`)
     }
@@ -1008,23 +1099,28 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
  *
  * Christian, 14 October 2026, of the goals with unresolved Game Problems: *"they should not be presented as
  * completed learning-design examples … If a provisional output is useful for internal review, please label it
- * explicitly as provisional."* No goal is served today, so the label could be seen only on a refusal. Here A01's
- * real selection is taken and its context left out ON A COPY — the tests-only entry, which nothing a coach is
+ * explicitly as provisional."* No goal is served today, so the label could be seen only on a refusal. Here a
+ * goal's real selection is taken and its context left out ON A COPY — the tests-only entry, which nothing a coach is
  * served passes through — so the rest of it builds: the possession game with Wide Zone Advantage, the only one
  * of its constraints with a contract. That activity is served, and it says it is provisional; an approved goal
  * altered the same way (TA02) is served and does not.
+ *
+ * **Re-pointed 15 October 2026 from A01 to A05 (Progress the Attack).** A01 is no longer provisional (Gain Access is
+ * recorded) and no longer selects at all (its authorization record authorizes no constraint), so it cannot carry the
+ * label. A05 is still UNRESOLVED and selects the same contracted objects (GF2 and Wide Zone Advantage), measured
+ * served and provisional with its context left out — the same game, so the comparison below is unchanged.
  */
 {
     const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: none }
     const withoutContext = (selection: any) => {
         selection.selected = selection.selected.filter((entry: { role: string }) => entry.role !== 'representative performance context')
     }
-    const a01 = served(buildActivityOverAlteredSelection({ kind: 'learning-goal', goalId: 'A01', session }, withoutContext), 'A01 with its context left out')
-    assert.equal(a01.account.provisional, true, 'an UNRESOLVED Game Problem is provisional, served or not')
-    assert.equal(a01.account.gameProblem?.status, 'UNRESOLVED')
-    assert.equal(a01.account.context!.inThisActivity, false, 'and the account says the context is not in it')
+    const a05 = served(buildActivityOverAlteredSelection({ kind: 'learning-goal', goalId: 'A05', session }, withoutContext), 'A05 with its context left out')
+    assert.equal(a05.account.provisional, true, 'an UNRESOLVED Game Problem is provisional, served or not')
+    assert.equal(a05.account.gameProblem?.status, 'UNRESOLVED')
+    assert.equal(a05.account.context!.inThisActivity, false, 'and the account says the context is not in it')
     const modifier = served(reviewActivity(stored(), { demonstrationId: 'scoring-modifier', durationMin: 20 }), 'scoring-modifier')
-    assert.deepEqual(a01.rendered.instructions.map(i => i.text), modifier.rendered.instructions.map(i => i.text), 'it is the Wide Zone demonstration\'s game: nothing else it selects has a contract')
+    assert.deepEqual(a05.rendered.instructions.map(i => i.text), modifier.rendered.instructions.map(i => i.text), 'it is the Wide Zone demonstration\'s game: nothing else it selects has a contract')
 
     const ta02 = served(buildActivityOverAlteredSelection({ kind: 'learning-goal', goalId: 'TA02', session }, withoutContext), 'TA02 with its context left out')
     assert.equal(ta02.account.gameProblem?.status, 'APPROVED')
@@ -1049,8 +1145,19 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
     const withTheGate = (selection: any) => {
         selection.selected = [...selection.selected, { id: GATE_ID, role: 'constraint' }]
     }
+    /**
+     * **A01 re-pointed 15 October 2026** to the same alteration made under a COPY of its authorization record with a
+     * test-only zero-constraint ruling (`buildActivityUnderAuthorizationRecords`): A01's real selection now stops at
+     * selection, before the guard, so the guard is exercised on the selection it would make if he answered D1 yes.
+     */
+    const testRuling = learningGoalAuthorizations()
+    testRuling[0].zeroConstraintRuling = { ruledOn: 'TEST-ONLY', by: 'test', ruling: 'TEST-ONLY: never production data' }
+    const altered = (goalId: string, alterSelection: (selection: any) => void) =>
+        goalId === 'A01'
+            ? buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId, session }, testRuling, { alterSelection }).activity
+            : buildActivityOverAlteredSelection({ kind: 'learning-goal', goalId, session }, alterSelection)
     for (const goalId of ['A01', 'A05', 'TA02']) {
-        const held = refused(buildActivityOverAlteredSelection({ kind: 'learning-goal', goalId, session }, withTheGate), `${goalId} with the held gate put back`)
+        const held = refused(altered(goalId, withTheGate), `${goalId} with the held gate put back`)
         assert.equal(held.stage, 'knowledge', `${goalId}: ${JSON.stringify(held.reasons)}`)
         assert.equal(held.summary, 'This goal selects a rule that has not been approved for learning-design activities yet.')
         plain(held, `${goalId} held`)
@@ -1070,7 +1177,7 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
     for (const alias of ['blind:PASS-COMBINATION-GATE', 'PASS-COMBINATION-GATE', 'pass-combination-gate']) {
         for (const goalId of ['A01', 'A05']) {
             const held = refused(
-                buildActivityOverAlteredSelection({ kind: 'learning-goal', goalId, session }, selection => {
+                altered(goalId, selection => {
                     selection.selected = [...selection.selected, { id: alias, role: 'constraint' }]
                 }),
                 `${goalId} with the held gate spelled ${alias}`,
@@ -1080,6 +1187,30 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
             assert.deepEqual(held.reasons, [`${alias} is held out of Learning Goal activities by ruling of 2026-10-14: a mechanism demonstration only (pass-combination-gate)`])
         }
     }
+
+    /**
+     * **What A01's record excludes never reaches A01's activity — 15 October 2026.** Christian, item 7: *"Please leave
+     * Wide Zone Advantage out of this initial Play Out from the Back demonstration."* Selection cannot pick it (the
+     * record authorizes nothing it excludes), so the guard is exercised by putting it back on a copy of the
+     * selection, under the test-only ruling, in each spelling derivation would load: refused at `knowledge`, before
+     * derivation, naming the record. The same object in another goal's selection is untouched (TA02 selects Wide Zone
+     * from its own candidates and is refused later, at its context — the exclusion is A01's alone).
+     */
+    for (const spelling of ['tl-v0-constraint-wide-zone-advantage', 'WIDE-ZONE-ADVANTAGE', 'blind:WIDE-ZONE-ADVANTAGE']) {
+        const excluded = refused(
+            altered('A01', selection => {
+                selection.selected = [...selection.selected, { id: spelling, role: 'constraint' }]
+            }),
+            `A01 with Wide Zone Advantage spelled ${spelling}`,
+        )
+        assert.equal(excluded.stage, 'knowledge', `${spelling}: ${JSON.stringify(excluded.reasons)}`)
+        assert.equal(excluded.summary, "This goal selects a rule that has been excluded from this goal's activities.")
+        plain(excluded, `A01 excluded ${spelling}`)
+        assert.deepEqual(excluded.reasons, [`${spelling} is excluded from A01's activities by ruling of 2026-10-15 (its authorization record)`])
+    }
+    const ta02 = refused(reviewActivity(stored(), { learningGoalId: 'TA02', durationMin: 20 }), 'TA02')
+    assert.ok(ta02.account.constraints!.some(c => c.title === 'Wide Zone Advantage'), 'TA02 still selects Wide Zone from its own candidates')
+    assert.notEqual(ta02.summary, "This goal selects a rule that has been excluded from this goal's activities.")
 }
 
 /**
@@ -1135,15 +1266,25 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         assert.ok(rpc, 'A01 carries its context\'s contract into derivation')
         rpc.items = rpc.items.filter((item: any) => !PENDING.includes(item.itemId))
     }
+    /**
+     * **Re-pointed 15 October 2026** from `buildActivityOverAlteredKnowledge` to the same alteration under a COPY of
+     * A01's authorization record with a test-only zero-constraint ruling: A01's real selection now stops at selection
+     * (its record authorizes nothing yet, his item 1 of that day), so the guard is reached through the selection he
+     * would get if he answered D1 yes — GF2 and RPC-001, no library constraint. Measured: it still reaches
+     * `communication` with the guard passed, and `validation` with the event withheld.
+     */
+    const testRuling = learningGoalAuthorizations()
+    testRuling[0].zeroConstraintRuling = { ruledOn: 'TEST-ONLY', by: 'test', ruling: 'TEST-ONLY: never production data' }
     const a01 = { kind: 'learning-goal' as const, goalId: 'A01', session }
-    const passed = refused(buildActivityOverAlteredKnowledge(a01, trimmed), 'A01 over the trimmed copy')
+    const underTestRuling = (alter: (contracts: any[]) => void) => buildActivityUnderAuthorizationRecords(a01, testRuling, { alter }).activity
+    const passed = refused(underTestRuling(trimmed), 'A01 over the trimmed copy')
     assert.equal(passed.stage, 'communication', `the guard passes a realized game scored on an approved event: ${JSON.stringify(passed.reasons)}`)
     assert.ok(!passed.reasons.some(reason => reason.includes('Representative Performance Context')), JSON.stringify(passed.reasons))
 
     const read = rpcLibrary.scoringEventsForContext
     try {
         ;(rpcLibrary as any).scoringEventsForContext = (id: string) => read(id).filter(kind => kind !== 'line_crossed')
-        const guarded = refused(buildActivityOverAlteredKnowledge(a01, trimmed), 'A01 over the trimmed copy, its event not approved')
+        const guarded = refused(underTestRuling(trimmed), 'A01 over the trimmed copy, its event not approved')
         assert.equal(guarded.stage, 'validation', JSON.stringify(guarded.reasons))
         assert.ok(
             guarded.reasons.some(reason => reason.includes('"line_crossed"') && reason.includes('RPC-001 does not approve')),

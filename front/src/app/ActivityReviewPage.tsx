@@ -838,6 +838,71 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                             </AccountField>
                         )}
 
+                        {/*
+                          * 15 October 2026. Christian, item 1: "I would prefer that the activity's constraints be
+                          * selected based on their documented relationship to the approved context, Game Problem, and
+                          * target affordances … flag any missing knowledge rather than filling gaps through
+                          * inference." Whose authority the constraints carry, and — for a goal with an authorization
+                          * record — the record as selection used it: what it authorizes, what it excludes, and each
+                          * manipulation the context names with its source and status. Technical account only;
+                          * nothing here is coach-facing. Wording is a DRAFT.
+                          */}
+                        {account.constraintSource?.constraintAuthority && (
+                            <AccountField label='Constraint authority'>
+                                {account.constraintSource.constraintAuthority === 'AUTHORIZATION_RECORD'
+                                    ? 'Authorization record'
+                                    : 'Vocabulary-derived candidates (not authorized for this goal)'}
+                                {account.constraintSource.lensAuthority === 'ENGINE_LENS' && (
+                                    <span className='block mt-1 text-xs text-gray-600'>Affordance lenses: engine lenses, not authorized affordance targets</span>
+                                )}
+                            </AccountField>
+                        )}
+
+                        {account.authorization && (
+                            <AccountField label='Authorization record'>
+                                <p className='mb-1 text-xs text-gray-600'>
+                                    {account.authorization.contextId} · {account.authorization.gameProblemId} · ruled {rulingDate(account.authorization.ruledOn)} by{' '}
+                                    {account.authorization.by}
+                                </p>
+                                {account.authorization.authorizedConstraints.length === 0 ? (
+                                    <p className='mb-1 text-xs text-amber-700'>
+                                        Constraints: none authorized for this goal yet
+                                        {account.constraintSource?.gap ? ` (${account.constraintSource.gap})` : ''} —{' '}
+                                        {account.authorization.authorizedConstraintsFinding}
+                                    </p>
+                                ) : (
+                                    <p className='mb-1 text-xs'>Constraints authorized: {account.authorization.authorizedConstraints.join(', ')}</p>
+                                )}
+                                {account.authorization.zeroConstraintRuling === null && account.authorization.zeroConstraintRulingPending && (
+                                    <p className='mb-1 text-xs text-gray-600'>{account.authorization.zeroConstraintRulingPending}</p>
+                                )}
+                                {account.authorization.excluded.map((exclusion) => (
+                                    <p key={exclusion.knowledgeId} className='mb-1 text-xs text-amber-700'>
+                                        {exclusion.title} <span className='text-gray-500'>({exclusion.knowledgeId})</span>: excluded by ruling of {rulingDate(exclusion.ruledOn)}
+                                        {exclusion.heldBy ? ` (also held: ${exclusion.heldBy})` : ''}
+                                    </p>
+                                ))}
+                                <ul className='mt-2 space-y-1'>
+                                    {account.authorization.manipulations.map((manipulation, index) => (
+                                        <li key={index} className='text-xs'>
+                                            <span className='mr-2'>
+                                                {manipulation.phrase}
+                                                {manipulation.aspect && <span className='text-gray-500'> — {manipulation.aspect}</span>}
+                                                {manipulation.tier && <span className='text-gray-500'> ({manipulation.tier.toLowerCase()})</span>}
+                                            </span>
+                                            <Mark positive={manipulation.status.startsWith('AUTHORIZED')}>{manipulation.status}</Mark>
+                                            <span className='block text-gray-600'>Source: {manipulation.source}</span>
+                                            <span className='block text-gray-600'>Basis: {manipulation.statusBasis}</span>
+                                            {manipulation.registerRows.length > 0 && (
+                                                <span className='block text-gray-500'>Register rows: {manipulation.registerRows.join(', ')}</span>
+                                            )}
+                                            {manipulation.note && <span className='block text-gray-500'>{manipulation.note}</span>}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </AccountField>
+                        )}
+
                         {served?.session && (
                             <AccountField label='Session it was built for'>
                                 {served.session.players} players · {served.session.lengthM} m long by {served.session.widthM} m wide ·{' '}

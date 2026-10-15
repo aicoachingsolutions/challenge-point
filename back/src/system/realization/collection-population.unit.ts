@@ -28,6 +28,7 @@ import assert from 'node:assert/strict'
 import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame } from '../derivation/resolved-game'
+import { a01CompositionUntil15October } from '../derivation/composition-fixtures'
 import { derivationInputFor, GoalSelectionGap, selectFor } from '../derivation/run-bounded-selection'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { realize } from './realize'
@@ -69,7 +70,7 @@ function resolvedFor(goalOrComposition: string | string[]) {
 // Pass Combination Gate, each claiming teams. Play Through Pressure now lands on a game form with no
 // contract (the context rule) and Attack Quickly no longer selects the gate (its approved Game Problem),
 // so each carries one claim. The repair is asserted on every goal that still has the shape.
-test('one of the thirteen goals carries two claims on one collection, and the gate compositions carry the teams shape', () => {
+test('no goal carries two claims on one collection since 15 October; the A01 composition and the gate compositions carry the shapes', () => {
     const goals: string[] = ((sessionPlanningModel as any).learningGoals?.() ?? []).map((g: any) => g.ID ?? g.id).filter(Boolean)
     assert.equal(goals.length, 13, `the corpus has 13 learning goals, got ${goals.length}: ${goals.join(' ')}`)
 
@@ -97,12 +98,22 @@ test('one of the thirteen goals carries two claims on one collection, and the ga
      * selection now carries its context, and RPC-001 claims an objective (RPC-001-14.a) beside the game
      * form's (GF2-09.a) — two claims on `objectives[]`, which the same one-population rule governs.
      */
-    assert.deepEqual(affected, ['A01'], `the multi-claim goals, got ${affected.join(', ')}`)
+    /**
+     * **None since 15 October 2026.** A01 is a knowledge gap that day (its authorization record authorizes no
+     * constraint — his item 1), so it reaches no collection. The shape it carried — RPC-001's objective claim beside
+     * the game form's — is a property of the context composed with GF2, not of the goal, so it is asserted on the
+     * composition A01 selected until then, named (composition-fixtures.ts): the same two claims.
+     */
+    assert.deepEqual(affected, [], `the multi-claim goals, got ${affected.join(', ')}`)
     {
-        const objectives = (resolvedFor('A01').resolved.existential as any[]).filter(claim => claim.path === 'objectives[]').map(claim => claim.classId)
-        assert.deepEqual(objectives, ['c:restated:GF2:GF2-09.a', 'c:restated:RPC-001:RPC-001-14.a'], 'A01: the game form\'s objective claim and its context\'s')
+        const input = derivationInputFor(a01CompositionUntil15October(null))
+        const result: any = runDerivation(input)
+        const staged: any = runStages0to10(input)
+        const resolved: any = assembleResolvedGame(result, staged.classes, indexRegister(input.register), input.contracts)
+        const objectives = (resolved.existential as any[]).filter(claim => claim.path === 'objectives[]').map(claim => claim.classId)
+        assert.deepEqual(objectives, ['c:restated:GF2:GF2-09.a', 'c:restated:RPC-001:RPC-001-14.a'], 'the game form\'s objective claim and its context\'s')
     }
-    assert.deepEqual(gaps, ['A02', 'D03'], 'the two knowledge gaps of 14 October, and no others')
+    assert.deepEqual(gaps, ['A01', 'A02', 'D03'], 'the knowledge gaps of 14 October, A01 since 15 October, and no others')
     for (const composition of [GATE, GATE_WITH_WIDE_ZONE]) {
         const teams = (resolvedFor(composition).resolved.existential as any[]).filter(claim => /teams/.test(claim.path))
         assert.equal(teams.length, 2, `${composition.join(' + ')}: two claims on the teams collection`)

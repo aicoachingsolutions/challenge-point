@@ -71,6 +71,36 @@ export interface RenderedActivity {
     observations?: (string | { text: string })[]
 }
 
+/** One manipulation the goal's context names, evaluated against the knowledge — as the record holds it. */
+export interface ReviewManipulation {
+    phrase: string
+    phraseFrom: string
+    aspect: string | null
+    tier: 'CORE' | 'COMMON' | null
+    source: string
+    registerRows: string[]
+    /** A string, not the closed union, so a status the back end adds is shown rather than dropped. */
+    status: string
+    statusBasis: string
+    note: string | null
+}
+
+/** A Learning Goal's authorization record (back end: `test-library/learning-goal-authorizations.ts`). */
+export interface ReviewAuthorization {
+    learningGoalId: string
+    contextId: string
+    gameProblemId: string
+    ruledOn: string
+    by: string
+    ruling: string[]
+    authorizedConstraints: string[]
+    authorizedConstraintsFinding: string
+    zeroConstraintRuling: { ruledOn: string; by: string; ruling: string } | null
+    zeroConstraintRulingPending?: string
+    excluded: { knowledgeId: string; title: string; ruledOn: string; by: string; ruling: string; heldBy: string | null }[]
+    manipulations: ReviewManipulation[]
+}
+
 export interface ActivityAccount {
     /** Null for a mechanism demonstration, which is built from no Learning Goal. */
     gameProblem: {
@@ -103,11 +133,23 @@ export interface ActivityAccount {
      * candidates could not be combined at all. Null for a demonstration.
      */
     constraintSource?: {
-        source: 'GOAL_CANDIDATES' | 'WHOLE_LIBRARY'
+        source: 'GOAL_CANDIDATES' | 'WHOLE_LIBRARY' | 'AUTHORIZATION_RECORD'
+        /**
+         * 15 October 2026: `AUTHORIZATION_RECORD` where an owner-ruled record names the goal's constraints;
+         * `VOCABULARY_POOL` where they were derived from wording or a Coverage row. Optional: older accounts lack it.
+         */
+        constraintAuthority?: 'AUTHORIZATION_RECORD' | 'VOCABULARY_POOL'
+        zeroConstraintRuling?: { ruledOn: string; by: string } | null
+        lensAuthority?: 'ENGINE_LENS'
         unfilledRoles: string[]
         heldByRuling: { id: string; title: string; ruledOn: string }[]
-        gap: 'NO_COMPATIBLE_COMBINATION' | 'NO_SELECTABLE_CANDIDATES' | 'NO_LENS_CANDIDATES' | 'NO_GAME_FORM_CANDIDATES' | null
+        gap: 'NO_COMPATIBLE_COMBINATION' | 'NO_SELECTABLE_CANDIDATES' | 'NO_LENS_CANDIDATES' | 'NO_GAME_FORM_CANDIDATES' | 'NO_AUTHORIZED_CONSTRAINTS' | null
     } | null
+    /**
+     * The goal's authorization record as selection used it (15 October 2026) — technical account only. Null for a
+     * demonstration and a goal with no record. Optional: older accounts lack it.
+     */
+    authorization?: ReviewAuthorization | null
     selectedWithoutContract: string[]
     /**
      * True where the goal's Game Problem is unresolved: the activity is provisional and not a completed

@@ -1,0 +1,153 @@
+{
+    "about": "Which library constraints a Learning Goal may select, by owner ruling, with the manipulations its context names evaluated against the knowledge that exists. Ids, citations, statuses and his words only: nothing here is a value, a mapping to an Environmental Manipulation or Affordance Target id, or a candidate pool. Where a goal has an entry, selection draws its constraints from authorizedConstraints and from nothing else (not the wording pool, not the Game Problem's Coverage row), in both pathways. An empty authorizedConstraints with zeroConstraintRuling null is a knowledge gap (NO_AUTHORIZED_CONSTRAINTS), never a fallback.",
+    "authorizations": [
+        {
+            "learningGoalId": "A01",
+            "contextId": "RPC-001",
+            "gameProblemId": "GP-005",
+            "ruledOn": "2026-10-15",
+            "by": "Christian",
+            "ruling": [
+                "I approve Gain Access as the primary Game Problem for Play Out from the Back, based on the approved Goalkeeper Build-Out context and its scoring condition.",
+                "Create Space remains relevant as a potential means of solving the problem, but I agree that we should not assign it as a secondary Game Problem at this stage. Let's retain our existing decision to defer secondary Game Problems.",
+                "This resolves the Cycle 8 translation gap for this Learning Goal through the approved context rather than inference from the goal's wording.",
+                "One important distinction: approving Gain Access does not automatically authorize the candidate constraints currently derived from vocabulary coverage.",
+                "I would prefer that the activity's constraints be selected based on their documented relationship to the approved context, Game Problem, and target affordances.",
+                "The context's existing manipulations—starting positions, field dimensions, progression references, defensive numbers, goalkeeper positioning, overloads, and support spacing—are appropriate candidates for evaluation. However, they should not automatically become selected constraints simply because they appear in that list.",
+                "Please identify the smallest set of authorized manipulations needed to create a representative build-out problem, and flag any missing knowledge rather than filling gaps through inference."
+            ],
+            "authorizedConstraints": [],
+            "authorizedConstraintsFinding": "No library constraint has a documented relationship to Goalkeeper Build-Out (RPC-001), Gain Access (GP-005) or this goal's affordances. RPC-001's relationships in rpc-library.rc1.json reach only the game archetype, Game Problem, game form, Learning Goal and scoring event libraries, and it has no manipulation property; its affordance targets RPC-MAP-091..096 are DEFERRED by Christian on 13 September 2026 ('canonical Affordance Target ids are not to be inferred to reach runtime'); every Soccer Module realization row has universal_concept_id and primary_game_problem_ids null; the Coverage rows and the wording pools were both derived by the parser. Finding of 15 October 2026 (stage G1), for his review: it names no constraint as authorized.",
+            "zeroConstraintRuling": null,
+            "zeroConstraintRulingPending": "Decision D1, put to him: may the first Play Out from the Back activity carry no selected library constraint, its environment shaped by the game form, the approved context and the manipulations he authorizes? Until he rules, an empty authorized set is a knowledge gap and nothing is selected.",
+            "excluded": [
+                {
+                    "knowledgeId": "tl-v0-constraint-wide-zone-advantage",
+                    "ruledOn": "2026-10-15",
+                    "by": "Christian",
+                    "ruling": "Approved. Please leave Wide Zone Advantage out of this initial Play Out from the Back demonstration. Width may be a useful environmental manipulation, but its inclusion should be justified by the intended affordances and the activity's actual conditions, not merely by its presence in a candidate list.",
+                    "heldBy": null
+                },
+                {
+                    "knowledgeId": "tl-v0-constraint-pass-combination-gate",
+                    "ruledOn": "2026-10-15",
+                    "by": "Christian",
+                    "ruling": "The Pass Combination Gate remains excluded under our previous decision.",
+                    "heldBy": "learning-design-holds.json"
+                }
+            ],
+            "manipulations": [
+                {
+                    "phrase": "starting positions",
+                    "phraseFrom": "Christian, 15 October 2026, item 1",
+                    "aspect": "where the team building out starts",
+                    "tier": "CORE",
+                    "source": "RC1.1 Representative Performance Context Library (docx), RPC-001 Goalkeeper Build-Out, Typical Environmental Manipulations, Core: 'build-out starting positions'",
+                    "registerRows": ["T3", "T4"],
+                    "status": "AUTHORIZED_BY_RULING",
+                    "statusBasis": "Christian, 15 October 2026, item 4: 'I agree with starting possession from the goalkeeper for the two-goalkeeper realization. The coach may choose an appropriate starting location, provided it remains consistent with the intended restart.'",
+                    "note": "Authorized for the two-goalkeeper realization. The knowledge items that would carry it are not written yet, and no game holds a start transition element today."
+                },
+                {
+                    "phrase": "starting positions",
+                    "phraseFrom": "Christian, 15 October 2026, item 1",
+                    "aspect": "the defending team's starting relationship",
+                    "tier": "CORE",
+                    "source": "RC1.1 Representative Performance Context Library (docx), RPC-001 Goalkeeper Build-Out, Typical Environmental Manipulations, Core: 'build-out starting positions'",
+                    "registerRows": ["P8", "P9", "P10"],
+                    "status": "MISSING_KNOWLEDGE",
+                    "statusBasis": "Christian, 15 October 2026, item 10: 'Defenders in starting relationships that make pressing and denying progression relevant.' and 'If the current libraries cannot fully specify these relationships, please identify the smallest missing knowledge decision rather than introducing an arbitrary arrangement.'",
+                    "note": "GF2 declares P8-P10 NON_CLAIMED (positions free); the only RPC-001 items on these rows (RPC-001-04.a-c) are ENGINE_ONLY retired wording and are not a source. Decision D2."
+                },
+                {
+                    "phrase": "field dimensions",
+                    "phraseFrom": "Christian, 15 October 2026, item 1",
+                    "aspect": null,
+                    "tier": "CORE",
+                    "source": "RC1.1 Representative Performance Context Library (docx), RPC-001 Goalkeeper Build-Out, Typical Environmental Manipulations, Core: 'field dimensions'",
+                    "registerRows": ["E2", "E3"],
+                    "status": "AUTHORIZED_VIA_GAME_FORM_OR_SESSION",
+                    "statusBasis": "The session states the area; GF2-24.a and GF2-24.b give a typical 40-60 m by 25-40 m (SUPPORTING, contracts.json); RPC-001 declares E2 and E3 NON_CLAIMED.",
+                    "note": null
+                },
+                {
+                    "phrase": "progression references",
+                    "phraseFrom": "Christian, 15 October 2026, item 1",
+                    "aspect": "the target's placement at one end, inside the area",
+                    "tier": "CORE",
+                    "source": "RC1.1 Representative Performance Context Library (docx), RPC-001 Goalkeeper Build-Out, Typical Environmental Manipulations, Core: 'progression zones'",
+                    "registerRows": ["S2", "S3", "S5", "V1"],
+                    "status": "AUTHORIZED_VIA_GAME_FORM_OR_SESSION",
+                    "statusBasis": "GF2-03.b and GF2-04 (AUTHORED, contracts.json), from GF2's setup guidance: 'a directional target line or zone at one end'; Christian, 15 October 2026, item 2: 'The progression target is inside the playable area or otherwise permits a valid controlled reception.'",
+                    "note": "Which of line or zone, and the zone's relation to the pressure, are not decided here."
+                },
+                {
+                    "phrase": "progression references",
+                    "phraseFrom": "Christian, 15 October 2026, item 1",
+                    "aspect": "the zone's depth",
+                    "tier": "CORE",
+                    "source": "RC1.1 Representative Performance Context Library (docx), RPC-001 Goalkeeper Build-Out, Typical Environmental Manipulations, Core: 'progression zones'",
+                    "registerRows": ["S5"],
+                    "status": "MISSING_KNOWLEDGE",
+                    "statusBasis": "Christian, 15 October 2026, item 2: 'A 5 m end-zone depth could be considered as an initial prototype for a 40 × 30 m area, but I am not approving it as a canonical value. If the knowledge doesn't establish an appropriate depth or progression reference, please identify the decision needed rather than hardcoding one.'",
+                    "note": "GF2 declares the depth of a zone NOT_AUTHORED. The 5 m depth is a prototype for a 40 x 30 m area only, not canonical, and is not recorded here as a value. Decision D4."
+                },
+                {
+                    "phrase": "defensive numbers",
+                    "phraseFrom": "Christian, 15 October 2026, item 1",
+                    "aspect": null,
+                    "tier": "COMMON",
+                    "source": "RC1.1 Representative Performance Context Library (docx), RPC-001 Goalkeeper Build-Out, Typical Environmental Manipulations, Common: 'defensive numbers'",
+                    "registerRows": ["P2"],
+                    "status": "NOT_SELECTED_FOR_FIRST_DEMO",
+                    "statusBasis": "GF2-14.b equal outfield counts is OWNER_RULING since ruling C31b (1 October 2026), with his caution that other authoritative knowledge may establish asymmetry where the learning problem requires it; RPC-001 declares P2 NON_CLAIMED. Our identification of the smallest set under his item 1, for him to confirm.",
+                    "note": null
+                },
+                {
+                    "phrase": "goalkeeper positioning",
+                    "phraseFrom": "Christian, 15 October 2026, item 1",
+                    "aspect": null,
+                    "tier": "COMMON",
+                    "source": "RC1.1 Representative Performance Context Library (docx), RPC-001 Goalkeeper Build-Out, Typical Environmental Manipulations, Common: 'goalkeeper positioning'",
+                    "registerRows": ["P3", "T3"],
+                    "status": "AUTHORIZED_BY_RULING",
+                    "statusBasis": "Christian, 15 October 2026, item 3: 'I support using one goalkeeper per team for the initial symmetrical build-out demonstration.' and item 6: 'I agree that the team conceding should restart its build-out from its goalkeeper in the two-goalkeeper realization.'",
+                    "note": "Item 3 also: 'I don't want two goalkeepers to become a universal requirement for this Learning Goal.' The controlled-restart alternative is retained in knowledge and not built yet."
+                },
+                {
+                    "phrase": "overloads",
+                    "phraseFrom": "Christian, 15 October 2026, item 1",
+                    "aspect": null,
+                    "tier": "COMMON",
+                    "source": "RC1.1 Representative Performance Context Library (docx), RPC-001 Goalkeeper Build-Out, Typical Environmental Manipulations, Common: 'numerical overloads'",
+                    "registerRows": ["P5"],
+                    "status": "NOT_SELECTED_FOR_FIRST_DEMO",
+                    "statusBasis": "RPC-001 and GF2 both declare P5 NON_CLAIMED, and GF2-14.b requires equal outfield counts (OWNER_RULING, C31b). Our identification of the smallest set under his item 1, for him to confirm.",
+                    "note": null
+                },
+                {
+                    "phrase": "support spacing",
+                    "phraseFrom": "Christian, 15 October 2026, item 1",
+                    "aspect": null,
+                    "tier": "COMMON",
+                    "source": "RC1.1 Representative Performance Context Library (docx), RPC-001 Goalkeeper Build-Out, Typical Environmental Manipulations, Common: 'support spacing'",
+                    "registerRows": [],
+                    "status": "NOT_SELECTED_FOR_FIRST_DEMO",
+                    "statusBasis": "No register row expresses spacing during play without fixing positions. Our identification of the smallest set under his item 1, for him to confirm.",
+                    "note": null
+                },
+                {
+                    "phrase": "when and how defenders can press",
+                    "phraseFrom": "Christian, 15 October 2026, item 10: 'Clear conditions governing when and how defenders can press.'",
+                    "aspect": null,
+                    "tier": "COMMON",
+                    "source": "RC1.1 Representative Performance Context Library (docx), RPC-001 Goalkeeper Build-Out, Typical Interaction Regulations, Common: 'defensive release timing' (no rule given)",
+                    "registerRows": ["S4", "V11", "V12", "V13", "V23", "V24", "V25", "V26"],
+                    "status": "MISSING_KNOWLEDGE",
+                    "statusBasis": "Christian, 15 October 2026, item 10: 'If the current libraries cannot fully specify these relationships, please identify the smallest missing knowledge decision rather than introducing an arbitrary arrangement.' RPC-001 declares S4 access, V11 and V23-V26 NON_CLAIMED and V25 NOT_AUTHORED.",
+                    "note": "The rows listed are where such a release could be held; whether derivation, realization and rendering carry one end to end is not verified. Decision D3."
+                }
+            ]
+        }
+    ]
+}

@@ -22,7 +22,8 @@ import path from 'node:path'
 import { deriveInputConstraints } from '../input-constraints/deriveInputConstraints'
 import { SIGNAL_GROUP_TO_GAME_PROBLEM } from '../knowledge-core/affordance-target-matrix'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
-import { gameProblemInferredFromWording, governByApprovedGameProblem, guidedGoalText, guidedSelectionHints } from './guided-selection'
+import { learningGoalAuthorization, learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
+import { gameProblemInferredFromWording, governByApprovedGameProblem, guidedGoalText, guidedSelectionHints, hintsUnderAuthorization } from './guided-selection'
 import { rpcLibrary } from './rpc-library'
 import { soccerModule } from './soccer-module'
 
@@ -39,10 +40,16 @@ const list = (value: unknown): string[] =>
 /**
  * His translation, goal by goal. `null` is not a placeholder for a value to be filled in by inference: it is
  * the state "no Game Problem is approved for this goal", which the Session Planning Model records as an
- * intentional gap (A01, A04) or as still to be decided (A05, A06).
+ * intentional gap (A04) or as still to be decided (A05, A06).
+ *
+ * **A01 is GP-005 since 15 October 2026** — Christian: "I approve Gain Access as the primary Game Problem for Play
+ * Out from the Back". Its wording implies GP-015, so it joins the governed goals for its Game Problem, lenses and
+ * game forms; its CONSTRAINTS come from its authorization record instead (tested below), because the same item says
+ * approving Gain Access "does not automatically authorize the candidate constraints currently derived from
+ * vocabulary coverage".
  */
 const APPROVED: Record<string, string | null> = {
-    A01: null,
+    A01: 'GP-005',
     A02: 'GP-015',
     A03: 'GP-006',
     A04: null,
@@ -57,8 +64,8 @@ const APPROVED: Record<string, string | null> = {
     TD02: 'GP-013',
 }
 
-/** The three goals whose wording implies a different Game Problem from the one he approved. */
-const GOVERNED = ['D02', 'D03', 'TA01']
+/** The goals whose wording implies a different Game Problem from the one he approved. Four since 15 October (A01). */
+const GOVERNED = ['A01', 'D02', 'D03', 'TA01']
 
 function testEveryGoalReportsTheApprovedGameProblemOrNone(): void {
     const ids = sessionPlanningModel.learningGoals().map((goal) => String(goal['ID']))
@@ -94,7 +101,9 @@ function testAgreementAndAbsenceChangeNothing(): void {
  * knowledge the sport module records for the Game Problem he approved.
  */
 function testADisagreementIsGovernedByTheApprovedGameProblem(): void {
-    const inferredBefore: Record<string, string> = { D02: 'GP-015', D03: 'GP-012', TA01: 'GP-015' }
+    // A01 since 15 October 2026. This is the Game Problem governance alone; `guidedSelectionHints` then replaces A01's
+    // constraints with its authorization record's (see testARecordReplacesBothVocabularySources).
+    const inferredBefore: Record<string, string> = { A01: 'GP-015', D02: 'GP-015', D03: 'GP-012', TA01: 'GP-015' }
     for (const id of GOVERNED) {
         const wording = deriveInputConstraints(goalText(id))
         assert.equal(gameProblemInferredFromWording(wording), inferredBefore[id], `${id}: what the wording alone implies`)
@@ -200,7 +209,59 @@ function testOneGoalTextForBothPathways(): void {
     }
 }
 
+/**
+ * **A goal with an authorization record takes its constraints from the record, and from nothing else** — 15 October
+ * 2026. Christian, item 1: *"approving Gain Access does not automatically authorize the candidate constraints
+ * currently derived from vocabulary coverage."* Measured before the record existed: recording GP-005 alone moved A01
+ * from the wording pool onto the Coverage row CV-005 — Central Density, Wide Zone Advantage, Progression Bonus,
+ * Switch of Play Bonus — Wide Zone being what his item 7 excludes. So:
+ *   - (G1.5) A01's candidate constraints are IDENTICAL with no approved Game Problem and with GP-005: the Game
+ *     Problem row alone cannot move a recorded goal's selection;
+ *   - they are the record's (none), never CV-005's members, never the wording pool's;
+ *   - the hints say whose authority they carry; the lenses and game forms are left as governance and the context
+ *     gate made them;
+ *   - D02, D03 and TA01 are untouched: no record, so still the vocabulary pool (his principle may reach them — that
+ *     is put to him as decision D6, not applied here).
+ */
+function testARecordReplacesBothVocabularySources(): void {
+    const wording = deriveInputConstraints(goalText('A01'))
+    const record = learningGoalAuthorization('A01')!
+    const unapproved = hintsUnderAuthorization(governByApprovedGameProblem('A01', wording, null).hints, record)
+    const approved = hintsUnderAuthorization(governByApprovedGameProblem('A01', wording, 'GP-005').hints, record)
+    assert.deepEqual(unapproved.candidateConstraintIds, approved.candidateConstraintIds, 'the Game Problem row alone cannot move A01\'s constraints')
+
+    const { hints, gameProblem, authorization } = guidedSelectionHints('A01', goalText('A01'))
+    assert.deepEqual(hints.candidateConstraintIds, record.authorizedConstraints, 'the record\'s constraints, and only those')
+    assert.deepEqual(hints.candidateConstraintIds, [], 'none is authorized yet')
+    const cv005 = list(soccerModule.coverageForGameProblem('GP-005')!['supported_realization_group_ids'])
+    assert.deepEqual(cv005.map(id => id.replace('tl-v0-constraint-', '')).sort(), ['central-density-condition', 'progression-bonus', 'switch-of-play-bonus', 'wide-zone-advantage'], 'what CV-005 would have handed A01')
+    assert.ok(!hints.candidateConstraintIds.some(id => cv005.includes(id)), 'no member of CV-005')
+    assert.ok(!hints.candidateConstraintIds.some(id => wording.candidateConstraintIds.includes(id)), 'no member of the wording pool')
+    assert.deepEqual(hints.constraintAuthority, { authority: 'AUTHORIZATION_RECORD', learningGoalId: 'A01', zeroConstraintRuling: null })
+    assert.deepEqual(authorization, record, 'the record selection used travels with the hints')
+    assert.equal(gameProblem.gameProblemId, 'GP-005', 'the Game Problem authority is untouched by the record')
+    // Lenses and game forms are what governance and the context gate made them, exactly.
+    const governed = governByApprovedGameProblem('A01', wording).hints
+    assert.deepEqual(hints.candidateAffordanceLensIds, governed.candidateAffordanceLensIds, 'lenses unchanged')
+    assert.deepEqual(hints.matchedSignals, governed.matchedSignals, 'signals unchanged')
+
+    for (const id of ['D02', 'D03', 'TA01']) {
+        const other = guidedSelectionHints(id, goalText(id))
+        assert.equal(other.hints.constraintAuthority, undefined, `${id}: no record, so the vocabulary pool`)
+        assert.equal(other.authorization, null, id)
+        assert.deepEqual(other.hints.candidateConstraintIds, list(soccerModule.coverageForGameProblem(APPROVED[id]!)!['supported_realization_group_ids']), `${id}: its Coverage row, unchanged`)
+    }
+
+    // The record is the parameter's: a test copy that authorizes a library constraint is read the same way, and the
+    // shared record is not touched.
+    const copy = learningGoalAuthorizations()
+    copy[0].authorizedConstraints = ['tl-v0-constraint-small-area-condition']
+    assert.deepEqual(guidedSelectionHints('A01', goalText('A01'), copy).hints.candidateConstraintIds, ['tl-v0-constraint-small-area-condition'])
+    assert.deepEqual(learningGoalAuthorization('A01')!.authorizedConstraints, [], 'the production record is unchanged')
+}
+
 function runAll(): void {
+    testARecordReplacesBothVocabularySources()
     testEveryGoalReportsTheApprovedGameProblemOrNone()
     testAgreementAndAbsenceChangeNothing()
     testADisagreementIsGovernedByTheApprovedGameProblem()

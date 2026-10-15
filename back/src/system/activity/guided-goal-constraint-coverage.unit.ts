@@ -111,6 +111,11 @@ function assemblyInput(selection: Selection, learningGoalId: string, learningGoa
     } as SystemAssemblyInput
 }
 
+/**
+ * **252 since 15 October 2026, measured (279 before).** A01's authorization record authorizes no constraint (his
+ * item 1 of that day), so A01 is a knowledge gap and its 27 slot requirements are not built; nothing else moved.
+ */
+const CHECKED_FLOOR = 252
 function testSystemTextAloneMeetsEveryConstraintRequirement(): void {
     const unmet: string[] = []
     let checked = 0
@@ -159,8 +164,10 @@ function testSystemTextAloneMeetsEveryConstraintRequirement(): void {
      * shaping requirement per slot is gone. The gaps are asserted so the floor cannot drop silently for a
      * third reason.
      */
-    assert.deepEqual(gaps, ['A02', 'D03'], 'the two knowledge gaps of 14 October, and no others')
-    assert.ok(checked >= 279, `expected every slot's constraint requirements to be checked, got ${checked}`)
+    // A01 joins the gaps on 15 October 2026: its authorization record authorizes no constraint (his item 1 of that day),
+    // so it builds no skeleton and its slots' requirements are no longer checked — the only reason the floor moves.
+    assert.deepEqual(gaps, ['A01', 'A02', 'D03'], 'the knowledge gaps of 14 October, A01 since 15 October, and no others')
+    assert.ok(checked >= CHECKED_FLOOR, `expected every slot's constraint requirements to be checked, got ${checked}`)
     assert.deepEqual(unmet, [], `Constraint requirements that only the model's wording could meet:\n${unmet.join('\n')}`)
 }
 

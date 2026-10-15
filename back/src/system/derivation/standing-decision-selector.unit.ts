@@ -22,7 +22,8 @@ import assert from 'node:assert/strict'
 import { corpusInput } from './corpus'
 import { runDerivation, runStages0to10 } from './engine'
 import { indexRegister } from './register'
-import { CONTEXT_ROLE, derivationInputFor, selectFor } from './run-bounded-selection'
+import { a01CompositionUntil15October } from './composition-fixtures'
+import { CONTEXT_ROLE, derivationInputFor, GoalSelectionGap, selectFor } from './run-bounded-selection'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 
 let passed = 0
@@ -56,9 +57,13 @@ test('three citable standing decisions register a selector, and it is now read',
 // The real corpus case. A01-02's goal kick is a transition whose trigger is OUT_END_LINE — present, carried by a
 // transition, and named by neither SD-14's selector nor SD-20's. Nothing authors its episode boundary. Before the
 // repair it carried `startsEpisode = true` sourced from SD-14, which names three triggers and not that one.
+//
+// Re-pointed 15 October 2026 from selectFor('A01', 'A01-02') to the same objects named (composition-fixtures.ts):
+// the case is A01-02's goal-kick transition under derivation, and A01 now selects from its authorization record,
+// which authorizes nothing yet (his 15 October item 1), so its own selection stops before derivation.
 test('a transition whose trigger is outside the selector does NOT acquire the episode boundary', () => {
-    const result: any = runDerivation(derivationInputFor(selectFor('A01', 'A01-02')))
-    const staged: any = runStages0to10(derivationInputFor(selectFor('A01', 'A01-02')))
+    const result: any = runDerivation(derivationInputFor(a01CompositionUntil15October('A01-02')))
+    const staged: any = runStages0to10(derivationInputFor(a01CompositionUntil15October('A01-02')))
 
     const line = result.resolution.find((e: any) => String(e.lineId) === 'c:restated:A01-02:A01-02-01.a::T7')
     assert.ok(line, 'the goal-kick transition has an episode-boundary line')
@@ -84,9 +89,12 @@ test('a transition whose trigger is outside the selector does NOT acquire the ep
  * made where nothing else authors the line: the same selection with the context left out. (Measured: with the
  * context the value is RPC-001-17.a's, authored as the STRING "true", not the boolean — recorded for the lead,
  * not changed here, since the corpus is his.)
+ *
+ * **Re-pointed again 15 October 2026** to the same composition named (composition-fixtures.ts), for the reason
+ * above it: A01's own selection stops at selection since his 15 October item 1.
  */
 test('a transition whose trigger IS named still receives it, from the same decision', () => {
-    const selection = selectFor('A01', 'A01-02')
+    const selection = a01CompositionUntil15October('A01-02')
     const withoutContext = { selected: selection.selected.filter(entry => entry.role !== CONTEXT_ROLE) }
     const result: any = runDerivation(derivationInputFor(withoutContext))
     const staged: any = runStages0to10(derivationInputFor(withoutContext))
@@ -222,10 +230,18 @@ test('the Pass Combination Gate trigger row is now authored and resolves', () =>
     assert.equal(v17.length, 1, 'one information-rule trigger line')
     assert.equal(v17[0].verdict, 'RESOLVED:ENTAILED', 'the line the 29 September ruling left failed is closed')
     assert.equal(v17[0].value, 'COMPLETED_PASS', 'with the token the ruling requires')
-    for (const goal of ['A01', 'TA02', 'A05']) {
+    for (const goal of ['TA02', 'A05']) {
         const selected: any = runDerivation(derivationInputFor(selectFor(goal, null)))
         assert.deepEqual((selected.resolution ?? []).filter((e: any) => /::V17$/.test(String(e.lineId))), [], `${goal}: the gate is held, so no goal carries its line`)
     }
+    // **A01 since 15 October 2026** carries no line of the gate because it reaches no derivation at all: its
+    // authorization record authorizes no constraint and excludes the gate ("The Pass Combination Gate remains excluded
+    // under our previous decision", his item 7), so selection stops with NO_AUTHORIZED_CONSTRAINTS.
+    assert.throws(
+        () => selectFor('A01', null),
+        (error: unknown) => error instanceof GoalSelectionGap && error.gap.reason === 'NO_AUTHORIZED_CONSTRAINTS',
+        'A01 selects nothing, so no line of the gate reaches it',
+    )
 })
 
 test('the item carries the authority the ruling specified, and displaces nothing', () => {

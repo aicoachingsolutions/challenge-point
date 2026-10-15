@@ -50,7 +50,9 @@ import { rpcLibrary } from '../sport-module/rpc-library'
 import { TEST_LIBRARY_V0_AFFORDANCE_LENSES, TEST_LIBRARY_V0_ARCHETYPES, TEST_LIBRARY_V0_CONSTRAINTS, TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS } from '../test-library'
 import type { SelectionKnowledgeGapReason } from '../test-library/generateSelection'
 import { learningGoalSelectionHolds } from '../test-library/learning-design-holds'
-import type { ConstraintPoolAccount } from '../test-library/types'
+import type { AuthorizationExclusion, LearningGoalAuthorization } from '../test-library/learning-goal-authorizations'
+import { learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
+import type { ConstraintAuthority, ConstraintPoolAccount } from '../test-library/types'
 import { contextScoringFindings } from './context-scoring-guard'
 import { checkFidelity } from './fidelity'
 import { mechanismDemonstration } from './mechanism-demonstrations'
@@ -118,11 +120,32 @@ export interface ActivityAccount {
      *   - `gap`: set where the candidates cannot be combined at all and the goal was refused at `selection`.
      */
     constraintSource: {
-        source: 'GOAL_CANDIDATES' | 'WHOLE_LIBRARY'
+        source: 'GOAL_CANDIDATES' | 'WHOLE_LIBRARY' | 'AUTHORIZATION_RECORD'
+        /**
+         * 15 October 2026: whether the candidates carry an owner-ruled authorization (`AUTHORIZATION_RECORD`) or
+         * were derived from vocabulary (`VOCABULARY_POOL` — the wording pool or a Coverage row, never authorized in
+         * his sense of that day's item 1). Read from the pool account selection produced.
+         */
+        constraintAuthority: ConstraintAuthority
+        /** The ruling under which a record-backed goal committed no library constraint; null in production. */
+        zeroConstraintRuling: { ruledOn: string; by: string } | null
+        /** The lenses are the engine's reasoning dimension, not authorized affordance targets (13 September deferral). */
+        lensAuthority: 'ENGINE_LENS'
         unfilledRoles: string[]
         heldByRuling: { id: string; title: string; ruledOn: string }[]
         gap: SelectionKnowledgeGapReason | null
     } | null
+    /**
+     * **The goal's authorization record, as selection used it — for the TECHNICAL account only** (15 October 2026).
+     * Christian, item 1: *"Please identify the smallest set of authorized manipulations needed to create a
+     * representative build-out problem, and flag any missing knowledge rather than filling gaps through
+     * inference."* So the account carries the record whole — his ruling, the constraints it authorizes (none, for
+     * Play Out from the Back, with the finding why), what it excludes, and each manipulation his context names with
+     * its source, register rows and status — copied from the record and never restated in code. Exclusions gain the
+     * library title. Null for a demonstration and for a goal with no record (its constraints are vocabulary-derived).
+     * None of it is coach-facing.
+     */
+    authorization: (Omit<LearningGoalAuthorization, 'excluded'> & { excluded: (AuthorizationExclusion & { title: string })[] }) | null
     selectedWithoutContract: string[]
     /**
      * **Provisional: the goal's Game Problem is UNRESOLVED.** Christian, 14 October 2026: *"they should not be
@@ -260,10 +283,20 @@ function provisionalOf(authority: BoundedSelection['gameProblem'] | null): Pick<
 function constraintSourceOf(pool: ConstraintPoolAccount, gap: SelectionKnowledgeGapReason | null): ActivityAccount['constraintSource'] {
     return {
         source: pool.source,
+        constraintAuthority: pool.constraintAuthority,
+        zeroConstraintRuling: pool.zeroConstraintRuling ? { ...pool.zeroConstraintRuling } : null,
+        lensAuthority: 'ENGINE_LENS',
         unfilledRoles: [...pool.unfilledRoles],
         heldByRuling: pool.heldByRuling.map(hold => ({ id: hold.id, title: constraintTitle(hold.id), ruledOn: hold.ruledOn })),
         gap,
     }
+}
+
+/** The authorization record as the account carries it: whole, a copy, each exclusion with its library title. */
+function authorizationOf(record: LearningGoalAuthorization | null): ActivityAccount['authorization'] {
+    if (!record) return null
+    const copy: LearningGoalAuthorization = JSON.parse(JSON.stringify(record))
+    return { ...copy, excluded: copy.excluded.map(exclusion => ({ ...exclusion, title: constraintTitle(exclusion.knowledgeId) })) }
 }
 
 /** A game form as the account names it. */
@@ -293,6 +326,7 @@ function accountOf(selection: KnowledgeSelection, goal: BoundedSelection | null)
             fromGoalCandidates: goal ? goal.constraintPool.candidateIds.includes(entry.id) : null,
         })),
         constraintSource: goal ? constraintSourceOf(goal.constraintPool, null) : null,
+        authorization: goal ? authorizationOf(goal.authorization) : null,
         selectedWithoutContract: selection.missing.filter(id => !contexts.has(id)),
         ...provisionalOf(goal ? goal.gameProblem : null),
     }
@@ -315,6 +349,7 @@ function gapAccountOf(gap: GoalSelectionGap): Partial<ActivityAccount> {
         affordanceLenses: [],
         constraints: [],
         constraintSource: constraintSourceOf(gap.gap.pool, gap.gap.reason),
+        authorization: authorizationOf(gap.authorization),
         selectedWithoutContract: [],
         ...provisionalOf(gap.gameProblem),
         ...(gap.gap.archetypeId ? { gameForm: gameFormOf(gap.gap.archetypeId, contracted.has(gap.gap.archetypeId)) } : {}),
@@ -477,6 +512,26 @@ export function buildActivityOverAlteredSelection(
     return build(request, null, null, alterSelection).activity
 }
 
+/**
+ * **For tests, and for nothing that serves a coach.** The identical pathway for a Learning Goal, selected under a
+ * COPY of the authorization records — added 15 October 2026.
+ *
+ * His item 1 of that day leaves Play Out from the Back with no authorized library constraint, and whether it may
+ * then be built with none is his decision D1, so production data says nothing may be committed. The mechanism that
+ * would commit zero constraints under such a ruling has to be proved before he answers, on the real chain and not a
+ * copy of it. A test hands this a deep copy of the records with a test-only ruling; the shared records are never
+ * touched, and neither entry point above accepts the argument.
+ */
+export function buildActivityUnderAuthorizationRecords(
+    request: Extract<ActivityRequest, { kind: 'learning-goal' }>,
+    records: LearningGoalAuthorization[],
+    /** Also tests only: alter a copy of the contracts, or of the selection, exactly as the two entries above do. */
+    options: { alter?: (contracts: LoadedContract[]) => void; alterSelection?: (selection: BoundedSelection) => void } = {},
+): { activity: ServedActivity | RefusedActivity; fixture: Record<string, unknown> | null } {
+    const { activity, fixture } = build(request, options.alter ?? null, null, options.alterSelection ?? null, JSON.parse(JSON.stringify(records)))
+    return { activity, fixture }
+}
+
 function build(
     request: ActivityRequest,
     alter: ((contracts: LoadedContract[]) => void) | null,
@@ -484,6 +539,8 @@ function build(
     composed: string[] | null = null,
     /** Tests only (`buildActivityOverAlteredSelection`): alters a copy of a goal's selection. */
     alterSelection: ((selection: BoundedSelection) => void) | null = null,
+    /** Tests only (`buildActivityUnderAuthorizationRecords`): the authorization records selection consults. */
+    records: LearningGoalAuthorization[] = learningGoalAuthorizations(),
 ): ActivityBuild & { fixture: Record<string, unknown> | null } {
     const { kind, title, subtitle } = composed ? { kind: 'mechanism-demonstration' as const, title: composed.join(' + '), subtitle: null } : describeRequest(request)
     // "This goal …" for a Learning Goal and "This demonstration …" for a demonstration: a demonstration is
@@ -510,7 +567,7 @@ function build(
         selection = demonstrationSelection(composed)
     } else if (request.kind === 'learning-goal') {
         try {
-            goalSelection = selectFor(request.goalId, request.situationId ?? null)
+            goalSelection = selectFor(request.goalId, request.situationId ?? null, records)
         } catch (error) {
             /**
              * **A knowledge gap is told apart from a selection that did not resolve.** Christian, 14 October
@@ -586,6 +643,23 @@ function build(
                     const hold = holdOf(entry.id)!
                     return `${entry.id} is held out of Learning Goal activities by ruling of ${hold.ruledOn}: a mechanism demonstration only (${hold.mechanismDemonstration})`
                 }),
+            ])
+        }
+
+        /**
+         * **What a goal's authorization record excludes never reaches THAT goal's activity** — 15 October 2026, the
+         * same belt-and-braces as the hold above, for one goal rather than all. Christian, item 7: *"Please leave
+         * Wide Zone Advantage out of this initial Play Out from the Back demonstration."* The record authorizes
+         * nothing it excludes (its loader refuses that), so selection cannot pick it; this guard is what stops a later
+         * selection change, or an altered selection, carrying it in anyway. Matched by knowledge key, as the hold is,
+         * and read from the record selection used. An exclusion that cross-references the holds file is refused above.
+         */
+        const exclusions = goalSelection?.authorization?.excluded ?? []
+        const excludedOf = (id: string) => exclusions.find(exclusion => knowledgeKey(exclusion.knowledgeId) === knowledgeKey(id)) ?? null
+        const excluded = selection.selected.filter(entry => excludedOf(entry.id))
+        if (excluded.length) {
+            return refuse('knowledge', "This goal selects a rule that has been excluded from this goal's activities.", [
+                ...excluded.map(entry => `${entry.id} is excluded from ${goalSelection!.goalId}'s activities by ruling of ${excludedOf(entry.id)!.ruledOn} (its authorization record)`),
             ])
         }
     }

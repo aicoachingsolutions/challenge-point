@@ -356,7 +356,10 @@ function testEveryGuidedGoalResolvesThroughContextGatedSelection(): void {
     } finally {
         console.log = originalLog
     }
-    assert.deepEqual(gaps, ['A02', 'D03'], 'the two knowledge gaps of 14 October, and no others')
+    // A01 joins them on 15 October 2026: its authorization record authorizes no constraint (his item 1 of that day:
+    // approving Gain Access "does not automatically authorize the candidate constraints currently derived from
+    // vocabulary coverage"), so it is NO_AUTHORIZED_CONSTRAINTS — found on GF2, a form RPC-001 declares (checked above).
+    assert.deepEqual(gaps, ['A01', 'A02', 'D03'], 'the knowledge gaps of 14 October, A01 since 15 October, and no others')
 
     // Parser order survives among declared forms; undeclared parser candidates are dropped.
     const gated = gateCandidateGameFormsToContext(

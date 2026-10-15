@@ -126,8 +126,23 @@ export type ConstraintBalanceBucket = 'foundation' | 'shaping' | 'consequence'
  * Computed in one place, `constraintPoolFor`; see it for the rule.
  */
 export interface ConstraintPoolAccount {
-    /** `GOAL_CANDIDATES` for a Learning Goal, always since 14 October; `WHOLE_LIBRARY` only for free text. */
-    source: 'GOAL_CANDIDATES' | 'WHOLE_LIBRARY'
+    /**
+     * `GOAL_CANDIDATES` for a Learning Goal, always since 14 October; `WHOLE_LIBRARY` only for free text.
+     * `AUTHORIZATION_RECORD` since 15 October 2026 for a goal whose constraints come from his authorization record
+     * (`learning-goal-authorizations.json`) instead of a vocabulary-derived pool.
+     */
+    source: 'GOAL_CANDIDATES' | 'WHOLE_LIBRARY' | 'AUTHORIZATION_RECORD'
+    /**
+     * Whose authority the candidate constraints carry (15 October 2026). `AUTHORIZATION_RECORD`: an owner-ruled
+     * record names them. `VOCABULARY_POOL`: they were derived from wording or from a Game Problem's Coverage row —
+     * both parser-derived, and not authorized in his sense of 15 October item 1.
+     */
+    constraintAuthority: ConstraintAuthority
+    /**
+     * The ruling under which a record-backed goal may commit NO library constraint, or null. Only ever non-null
+     * with `AUTHORIZATION_RECORD`; null in production until he answers decision D1.
+     */
+    zeroConstraintRuling: { ruledOn: string; by: string } | null
     /** FREE TEXT ONLY: why the wording's candidates were set aside for the whole library. Null otherwise. */
     setAsideBecause: 'FEWER_THAN_TWO' | 'NO_FOUNDATION_AND_SHAPING' | null
     /** FREE TEXT ONLY: the roles the wording's candidates could not fill, where that is why they were set aside. */
@@ -141,6 +156,19 @@ export interface ConstraintPoolAccount {
      * never filled from elsewhere (his ruling of 14 October). Empty for free text.
      */
     unfilledRoles: ConstraintBalanceBucket[]
+}
+
+export type ConstraintAuthority = 'AUTHORIZATION_RECORD' | 'VOCABULARY_POOL'
+
+/**
+ * What the hints say about where a guided goal's candidate constraints came from (15 October 2026). Set only by
+ * `guidedSelectionHints`, and only for a goal with an authorization record; absent means the vocabulary pool.
+ */
+export interface ConstraintAuthorityHint {
+    authority: 'AUTHORIZATION_RECORD'
+    learningGoalId: string
+    /** His ruling that this goal may commit no library constraint, or null (the production state until D1). */
+    zeroConstraintRuling: { ruledOn: string; by: string; ruling: string } | null
 }
 
 export interface SelectionReasonEntry {
@@ -204,6 +232,12 @@ export interface TestLibrarySelectionResult {
         }
         /** The pool selection drew its constraints from (`constraintPoolFor`), ids only. */
         constraintPool?: ConstraintPoolAccount
+        /**
+         * What the selected lenses are (15 October 2026): the engine's own reasoning dimension, never an
+         * authorized affordance target — he deferred mapping affordance targets to runtime ids on 13 September,
+         * and an authorization record names constraints only.
+         */
+        lensAuthority?: 'ENGINE_LENS'
         /**
          * RAS RC1 Stage-3 SHADOW artifact: the Resolved Affordance Target Profile for this decision
          * (canonical Game Problems + merged affordance-target ratings from the versioned Affordance

@@ -943,6 +943,10 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                         gameForm: selErr.archetypeId,
                         unfilledRoles: selErr.pool.unfilledRoles,
                         heldByRuling: selErr.pool.heldByRuling.map((hold) => hold.id),
+                        // 15 October 2026: whose authority the candidates carried. Play Out from the Back reaches
+                        // this branch as NO_AUTHORIZED_CONSTRAINTS — its record authorizes nothing yet — and no
+                        // model is called, as for every other gap.
+                        constraintAuthority: selErr.pool.constraintAuthority,
                     },
                 })
                 return res.status(400).json({
@@ -958,6 +962,33 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                 payload: { stage: 'selection', reason: message.slice(0, 300) },
             })
             return res.status(400).json({ error: message })
+        }
+
+        /**
+         * **A selection with NO library constraint is not served here** (15 October 2026). It exists only for a goal
+         * whose authorization record carries his cited zero-constraint ruling (decision D1 — none in production), and
+         * its environment is the game form and the context's contract. This route consumes no contracts: it would
+         * hand the model a constraint-free package and prose, which cannot carry the context's start, target or
+         * restart knowledge. So it answers with the same gap sentence and calls no model; the checked pathway is
+         * where such an activity is built.
+         */
+        if (!selection.constraints.length) {
+            recordUsageEvent({
+                eventType: 'generation_failed',
+                sessionId: req.params.id,
+                payload: {
+                    stage: 'knowledge-gap',
+                    reason: 'ZERO_CONSTRAINT_SELECTION_NOT_SERVED_LIVE',
+                    learningGoalId: selection.selectionTrace.planning?.learningGoalId ?? null,
+                    gameForm: selection.archetype.game_form_id,
+                    constraintAuthority: selection.selectionTrace.constraintPool?.constraintAuthority ?? null,
+                },
+            })
+            return res.status(400).json({
+                error: "This goal's designated constraints cannot yet be combined into a game, so no activity can be built for it.",
+                resolutionStatus: 'knowledge-gap',
+                ...(debug ? { stage: 'knowledge-gap', details: ['a zero-constraint selection is built only by the checked pathway'] } : {}),
+            })
         }
 
         // The primary scoring event is resolved BEFORE any activity text exists. An empty intersection
@@ -1003,6 +1034,8 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                     // and the candidates his rulings hold. Read from the trace, not recomputed.
                     constraintGaps: selection.selectionTrace.constraintPool?.unfilledRoles ?? [],
                     heldByRuling: (selection.selectionTrace.constraintPool?.heldByRuling ?? []).map((hold) => hold.id),
+                    // 15 October 2026: AUTHORIZATION_RECORD or VOCABULARY_POOL, read from the trace.
+                    constraintAuthority: selection.selectionTrace.constraintPool?.constraintAuthority ?? null,
                     versions: selection.selectionTrace.versions ?? null,
                 },
             })

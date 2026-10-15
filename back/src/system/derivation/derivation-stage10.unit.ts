@@ -17,7 +17,8 @@ import { runStages0to10 } from './engine'
 import { compare, toRational } from './rational'
 import { ContractItem, DerivationInput, LoadedContract } from './types'
 import { loadCorpusContracts, loadRegister } from './corpus'
-import { derivationInputFor, selectFor } from './run-bounded-selection'
+import { a01CompositionUntil15October } from './composition-fixtures'
+import { derivationInputFor } from './run-bounded-selection'
 
 const REGISTER = loadRegister()
 
@@ -225,7 +226,10 @@ test('a game selecting no neutral-player knowledge is not incomplete for lacking
     // His explicit test. GF2 declares "performers outside the two teams are neither authored nor
     // forbidden", so P5/P6a/P6b/P7 have no values — and that is a game with no neutrals, not an
     // unfinished one. The second half matters as much: realization gets no authority from this.
-    const result: any = runStages0to10(derivationInputFor(selectFor('A01', 'A01-02')))
+    // Re-pointed 15 October 2026 from selectFor('A01', 'A01-02') to the same objects named (composition-fixtures.ts):
+    // the test is about GF2's neutral declarations under derivation, and A01 now selects from its authorization
+    // record, which authorizes nothing yet (his 15 October item 1), so it stops at selection.
+    const result: any = runStages0to10(derivationInputFor(a01CompositionUntil15October('A01-02')))
     const neutralRows = ['P5', 'P6a', 'P6b', 'P7']
     const neutralLines = [...result.classified.values()].filter((l: any) => neutralRows.includes(String(l.lineId).split('::').pop()))
     assert.ok(neutralLines.length > 0, 'the rows are enumerated')

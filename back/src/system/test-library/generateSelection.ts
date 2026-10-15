@@ -34,6 +34,12 @@ export type SelectionKnowledgeGapReason =
     | 'NO_LENS_CANDIDATES'
     /** None of the goal's candidate game forms exists. */
     | 'NO_GAME_FORM_CANDIDATES'
+    /**
+     * The goal's constraints come from his authorization record and it authorizes none, with no ruling that the
+     * goal may be built without one (15 October 2026). Distinct from `NO_SELECTABLE_CANDIDATES`: nothing was
+     * selectable because nothing is AUTHORIZED, not because candidates were held or missing.
+     */
+    | 'NO_AUTHORIZED_CONSTRAINTS'
 
 /**
  * **A Learning Goal whose designated knowledge cannot be combined into a selection — a knowledge gap.**
@@ -56,8 +62,11 @@ export class SelectionKnowledgeGap extends Error {
 
     constructor(learningGoalId: string, archetypeId: string | null, reason: SelectionKnowledgeGapReason, pool: ConstraintPoolAccount) {
         super(
-            `${learningGoalId}: a knowledge gap (${reason}) - the goal's designated knowledge cannot be combined into a selection` +
-                `${archetypeId ? ` on ${archetypeId}` : ''}; unfilled roles: ${pool.unfilledRoles.join(', ') || 'none'}; ` +
+            `${learningGoalId}: a knowledge gap (${reason}) - ` +
+                (reason === 'NO_AUTHORIZED_CONSTRAINTS'
+                    ? "the goal's authorization record authorizes no library constraint, and no ruling permits a selection without one"
+                    : "the goal's designated knowledge cannot be combined into a selection") +
+                `${archetypeId ? (reason === 'NO_AUTHORIZED_CONSTRAINTS' ? ` (found on ${archetypeId})` : ` on ${archetypeId}`) : ''}; unfilled roles: ${pool.unfilledRoles.join(', ') || 'none'}; ` +
                 `held by ruling: ${pool.heldByRuling.map((hold) => hold.id).join(', ') || 'none'}. Nothing was drawn from outside the goal's candidates.`
         )
         this.name = 'SelectionKnowledgeGap'
@@ -125,6 +134,23 @@ const BALANCE_ROLES: ConstraintBalanceBucket[] = ['foundation', 'shaping', 'cons
 export function constraintPoolFor(hints?: InputConstraintHints | null, learningGoalId?: string | null, holds: LearningDesignHold[] = learningGoalSelectionHolds()): ConstraintPool {
     const full = testLibraryRegistry.selectableConstraints()
     const ids = hints?.candidateConstraintIds ?? []
+    /**
+     * **Whose authority the candidates carry — 15 October 2026.** Christian (item 1): *"approving Gain Access does
+     * not automatically authorize the candidate constraints currently derived from vocabulary coverage. I would
+     * prefer that the activity's constraints be selected based on their documented relationship to the approved
+     * context, Game Problem, and target affordances."* For a goal with an authorization record the hints carry
+     * the record's own constraints and say so (`guidedSelectionHints`); every other pool is vocabulary-derived and
+     * is labelled as such, never presented as authorized. Hints marked for one goal and used for another are a
+     * defect, refused rather than read.
+     */
+    const authority = hints?.constraintAuthority ?? null
+    if (authority && authority.learningGoalId !== learningGoalId) {
+        throw new Error(`hints carry the authorization record of ${authority.learningGoalId} and were used to select ${learningGoalId ?? 'free text'}`)
+    }
+    const authorityAccount = {
+        constraintAuthority: authority ? ('AUTHORIZATION_RECORD' as const) : ('VOCABULARY_POOL' as const),
+        zeroConstraintRuling: authority?.zeroConstraintRuling ? { ruledOn: authority.zeroConstraintRuling.ruledOn, by: authority.zeroConstraintRuling.by } : null,
+    }
     if (learningGoalId) {
         /**
          * **A hold is matched by KNOWLEDGE KEY, as the builder's guard matches it** — 14 October 2026, from the
@@ -138,7 +164,8 @@ export function constraintPoolFor(hints?: InputConstraintHints | null, learningG
         const filled = new Set(constraints.map((c) => constraintBalanceBucket(c)))
         return {
             constraints,
-            source: 'GOAL_CANDIDATES',
+            source: authority ? 'AUTHORIZATION_RECORD' : 'GOAL_CANDIDATES',
+            ...authorityAccount,
             setAsideBecause: null,
             missingRoles: [],
             candidateIds: [...ids],
@@ -146,7 +173,7 @@ export function constraintPoolFor(hints?: InputConstraintHints | null, learningG
             unfilledRoles: BALANCE_ROLES.filter((role) => !filled.has(role)),
         }
     }
-    const freeText = { candidateIds: [...ids], heldByRuling: [], unfilledRoles: [] }
+    const freeText = { candidateIds: [...ids], heldByRuling: [], unfilledRoles: [], ...authorityAccount }
     // No candidates stated (free text, not a guided goal): the library is the designed pool, not a fallback.
     if (!ids.length) return { constraints: full, source: 'WHOLE_LIBRARY', setAsideBecause: null, missingRoles: [], ...freeText }
     const filtered = full.filter((c) => ids.includes(c.id))
@@ -166,6 +193,7 @@ export const poolAccount = ({ constraints: _drawnFrom, ...account }: ConstraintP
     missingRoles: [...account.missingRoles],
     unfilledRoles: [...account.unfilledRoles],
     heldByRuling: account.heldByRuling.map((hold) => ({ ...hold })),
+    zeroConstraintRuling: account.zeroConstraintRuling ? { ...account.zeroConstraintRuling } : null,
 })
 
 /** Exact normalized coach phrases that must fail before any scoring (no AI classification). */
@@ -660,9 +688,15 @@ function boundedConstraintCandidates(
     return out
 }
 
+/**
+ * The size rule. `zeroConstraintCommitment` admits exactly 0 constraints and nothing else, and only `generateSelection`
+ * sets it — for a goal whose authorization record carries a cited zero-constraint ruling (see there). Every other
+ * selection keeps 2–4.
+ */
 function assertSelectionContract(
     affordanceLenses: TestLibraryV0AffordanceLens[],
-    constraints: TestLibraryV0Constraint[]
+    constraints: TestLibraryV0Constraint[],
+    zeroConstraintCommitment = false
 ): void {
     const nl = affordanceLenses.length
     if (nl < 2 || nl > 3) {
@@ -671,6 +705,10 @@ function assertSelectionContract(
         )
     }
     const nc = constraints.length
+    if (zeroConstraintCommitment) {
+        if (nc !== 0) throw new Error(`Test Library selection contract violated: a zero-constraint commitment carries ${nc} constraints.`)
+        return
+    }
     if (nc < 2 || nc > 4) {
         throw new Error(`Test Library selection contract violated: expected 2–4 constraints, got ${nc}.`)
     }
@@ -734,6 +772,8 @@ interface DesignEnumerationContext {
      * role, not whether the library does. See `enumerateDesignPossibilities`.
      */
     roleNeedsFromPool: boolean
+    /** Commit lenses with NO constraint: set only for a record-backed goal with a cited zero-constraint ruling. */
+    zeroConstraintCommitment: boolean
 }
 
 function comboKey(lenses: TestLibraryV0AffordanceLens[], cons: TestLibraryV0Constraint[]): string {
@@ -746,13 +786,24 @@ function comboKey(lenses: TestLibraryV0AffordanceLens[], cons: TestLibraryV0Cons
  * pre-assembly compatibility, scoring each. It does NOT choose; that is commitDesignChoice's job.
  */
 function enumerateDesignPossibilities(ctx: DesignEnumerationContext): DesignPossibility[] {
-    const { tokens, archetype, archeAffordances, informationIntent, lensCandidatePool, lensScoreById, allConstraints, roleNeedsFromPool } = ctx
+    const { tokens, archetype, archeAffordances, informationIntent, lensCandidatePool, lensScoreById, allConstraints, roleNeedsFromPool, zeroConstraintCommitment } = ctx
     const poolIds = new Set(allConstraints.map((c) => c.id))
     const possibilities: DesignPossibility[] = []
     for (const lensSize of [2, 3]) {
         if (lensCandidatePool.length < lensSize) continue
 
         for (const lensCombo of combinations(lensCandidatePool, lensSize)) {
+            /**
+             * **No constraint, by his ruling only** (engineered 15 October 2026, data-gated). The game form and the
+             * context are the environment; the lenses are scored as always and nothing else is chosen. There is no
+             * constraint package, so the role mix and the package checks (whose foundation clause is unruled) have
+             * nothing to examine and are not run — they are not relaxed for any selection that HAS constraints.
+             */
+            if (zeroConstraintCommitment) {
+                const lensSum = lensCombo.reduce((s, l) => s + (lensScoreById.get(l.id)?.score ?? 0), 0)
+                possibilities.push({ lenses: [...lensCombo], constraints: [], total: lensSum, key: comboKey(lensCombo, []) })
+                continue
+            }
             const selectedLensSlugs = new Set(lensCombo.map(lensSlug))
             const conScored = scoreConstraintsForLensSlugs(tokens, archetype, archeAffordances, selectedLensSlugs, informationIntent)
             const conMap = conScoredMap(conScored)
@@ -934,6 +985,22 @@ export function generateSelection(
     const archeAffordances = archetypeAffordanceSlugs(archetype)
     const allLenses = applyLensPoolFilter(inputConstraints, forGoal ? gapFor(archetype.game_form_id) : null)
 
+    /**
+     * **A goal whose authorization record authorizes nothing is a knowledge gap — unless he has ruled otherwise.**
+     * 15 October 2026. His item 1 asks for constraints selected by documented relationship, and for missing
+     * knowledge to be flagged *"rather than filling gaps through inference"*; no library constraint has such a
+     * relationship to Play Out from the Back, so its record authorizes none. Whether a goal may then be built with
+     * NO library constraint is his decision D1 (his 14 October item 1 — *"I don't want us to assume that every
+     * activity necessarily requires an additional shaping constraint"* — speaks of shaping only). So:
+     *   - record-backed, empty, no ruling → `NO_AUTHORIZED_CONSTRAINTS`, after the game form is chosen so the
+     *     account can name it (the production state);
+     *   - record-backed, empty, a cited ruling → commit the game form and lenses with zero constraints;
+     *   - anything else, including a vocabulary pool that happens to be empty → the 2–4 rule and its gaps as before.
+     */
+    const recordBacked = constraintPool.source === 'AUTHORIZATION_RECORD'
+    const zeroConstraintCommitment = recordBacked && !allConstraints.length && constraintPool.zeroConstraintRuling !== null
+    if (recordBacked && !allConstraints.length && !zeroConstraintCommitment) gapFor(archetype.game_form_id)('NO_AUTHORIZED_CONSTRAINTS')
+
     const lensScored = scoreAllLenses(tokens, archetype, archeAffordances)
     const lensScoreById = new Map(lensScored.map((r) => [r.lens.id, r] as const))
 
@@ -954,6 +1021,7 @@ export function generateSelection(
         lensScoreById,
         allConstraints,
         roleNeedsFromPool: forGoal,
+        zeroConstraintCommitment,
     })
     const committed = commitDesignChoice(designPossibilities)
     const bestLensCombo = committed?.lenses ?? null
@@ -975,7 +1043,7 @@ export function generateSelection(
         )
     }
 
-    assertSelectionContract(bestLensCombo, bestConCombo)
+    assertSelectionContract(bestLensCombo, bestConCombo, zeroConstraintCommitment)
 
     const selectedLenses = bestLensCombo
     const picked = bestConCombo
@@ -1060,6 +1128,7 @@ export function generateSelection(
             queryCorpus,
             ...(planning ? { planning } : {}),
             constraintPool: pool,
+            lensAuthority: 'ENGINE_LENS',
             // RAS RC1 Stage 3, SHADOW MODE: resolved for inspection only — no selection influence.
             affordanceTargetProfile: resolveAffordanceTargetProfile(inputConstraints?.matchedSignals ?? []),
             versions: { knowledgeCore: emCanonical.version, reasoningEngine: 'test-library-v0+ras-rc1-shadow' },

@@ -29,6 +29,7 @@ import { countBounds } from './derive'
 import { runDerivation, runStages0to10 } from './engine'
 import { indexRegister } from './register'
 import { assembleResolvedGame } from './resolved-game'
+import { a01CompositionUntil15October } from './composition-fixtures'
 import { derivationInputFor, GoalSelectionGap, selectFor } from './run-bounded-selection'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { realize } from '../realization/realize'
@@ -177,8 +178,12 @@ test('no learning goal carries an unreadable claim, so no goal outcome changes',
         const { resolved } = resolvedFor(derivationInputFor(selection))
         if ((resolved.existential as any[]).some(c => c.cardinalityUnreadable)) affected.push(goal)
     }
-    assert.deepEqual(gaps, ['A02', 'D03'], 'the two knowledge gaps of 14 October, and no others')
+    // A01 joins the gaps on 15 October 2026 (its authorization record authorizes nothing yet, his item 1 of that day).
+    // What it composed until then is checked by name, so the claim about it is not lost with its selection.
+    assert.deepEqual(gaps, ['A01', 'A02', 'D03'], 'the knowledge gaps of 14 October, A01 since 15 October, and no others')
     assert.deepEqual(affected, [], `the correction must touch no goal, and touches ${affected.join(', ') || 'none'}`)
+    const { resolved: a01 } = resolvedFor(derivationInputFor(a01CompositionUntil15October(null)))
+    assert.ok(!(a01.existential as any[]).some(c => c.cardinalityUnreadable), 'the composition A01 selected until 15 October carries no unreadable claim')
 })
 
 /**

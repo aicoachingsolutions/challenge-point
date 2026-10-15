@@ -19,7 +19,9 @@
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { GameProblemAuthority, guidedGoalText, guidedSelectionHints } from '../sport-module/guided-selection'
 import { constraintBalanceBucket, generateSelection, isSelectionKnowledgeGap, SelectionKnowledgeGap } from '../test-library'
-import type { ConstraintPoolAccount } from '../test-library/types'
+import type { LearningGoalAuthorization } from '../test-library/learning-goal-authorizations'
+import { learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
+import type { ConstraintAuthority, ConstraintPoolAccount } from '../test-library/types'
 import { CORPUS_ENVELOPE, loadCorpusContracts, loadRegister, loadSportProfile } from './corpus'
 import { isStampedHalt } from './emit'
 import { runDerivation, runStages0to10 } from './engine'
@@ -90,6 +92,13 @@ export interface BoundedSelection extends KnowledgeSelection {
      * account cannot disagree with what selection did: there is no second computation to drift.
      */
     constraintPool: ConstraintPoolAccount
+    /**
+     * Whose authority the candidate constraints carried (15 October 2026), read from the pool account selection
+     * produced: `AUTHORIZATION_RECORD` for a goal his record governs, `VOCABULARY_POOL` otherwise.
+     */
+    constraintAuthority: ConstraintAuthority
+    /** The authorization record selection used, as a copy, or null where the goal has none. */
+    authorization: LearningGoalAuthorization | null
 }
 
 /**
@@ -133,13 +142,19 @@ export class GoalSelectionGap extends Error {
         readonly goalName: string,
         readonly gameProblem: GameProblemAuthority,
         readonly contextId: string | null,
+        /** The authorization record selection consulted (15 October 2026), or null where the goal has none. */
+        readonly authorization: LearningGoalAuthorization | null = null,
     ) {
         super(gap.message)
         this.name = 'GoalSelectionGap'
     }
 }
 
-export function selectFor(goalId: string, situationId: string | null = null): BoundedSelection {
+/**
+ * `records` — the authorization records in force — is a parameter ONLY so a test can run this identical selection
+ * over a copy carrying a test-only ruling (15 October 2026). Nothing that serves a coach passes it.
+ */
+export function selectFor(goalId: string, situationId: string | null = null, records: LearningGoalAuthorization[] = learningGoalAuthorizations()): BoundedSelection {
     const goal: any = sessionPlanningModel.learningGoal(goalId)
     if (!goal) throw new Error(`no such learning goal: ${goalId}`)
     // The one canonical text, from the same function the application route uses (stage S-C2, 14 October 2026).
@@ -152,14 +167,14 @@ export function selectFor(goalId: string, situationId: string | null = null): Bo
      * coach could reach. An approved rule carried by one caller and not the other is the same loss as
      * an authored field dropped by a projection; it is closed the same way, by having one source.
      */
-    const guided = guidedSelectionHints(goalId, text)
+    const guided = guidedSelectionHints(goalId, text, records)
     let result: any
     try {
         result = generateSelection({ learningGoals: [text], learningGoalId: goalId } as any, guided.hints)
     } catch (error) {
         // A knowledge gap is reported WITH what this boundary alone knows — the goal's Game Problem authority
         // and its context — so the account of the refusal is filled from the same computation, not a second one.
-        if (isSelectionKnowledgeGap(error)) throw new GoalSelectionGap(error, String(goal['Learning Goal']), guided.gameProblem, guided.contextId)
+        if (isSelectionKnowledgeGap(error)) throw new GoalSelectionGap(error, String(goal['Learning Goal']), guided.gameProblem, guided.contextId, guided.authorization)
         throw error
     }
 
@@ -235,6 +250,8 @@ export function selectFor(goalId: string, situationId: string | null = null): Bo
         gameProblem: guided.gameProblem,
         contextId: guided.contextId,
         constraintPool: result.selectionTrace.constraintPool as ConstraintPoolAccount,
+        constraintAuthority: (result.selectionTrace.constraintPool as ConstraintPoolAccount).constraintAuthority,
+        authorization: guided.authorization,
     }
 }
 
