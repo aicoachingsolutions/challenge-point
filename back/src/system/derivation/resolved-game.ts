@@ -497,7 +497,7 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
      * game with the build-out context, its four conditions re-scoped to the episode: the resolved game was
      * byte-identical to the unscoped one apart from the input digest — the restatement would have been inert.
      *
-     * **Carried only where it is not WHOLE_GAME** (decided and pinned in resolved-game.unit.ts). Whole-game is
+     * **Carried only where it is not WHOLE_GAME** (decided and pinned in condition-scope.unit.ts). Whole-game is
      * what every reader already did with a condition, so a game whose conditions are all whole-game assembles
      * exactly as before — same object, same fixture, same digest downstream — and the key's PRESENCE is what tells
      * a reader that this condition is narrower than every score. A condition whose item states no scope carries

@@ -347,7 +347,7 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
     // superseded implementation language ... can proceed as proposed."* — and the context's separate scoring
     // objective with its target reference (11.a, 08.c), his 9.5: *"Retire the redundant separate scoring objective:
     // Approved, provided the live attacking objective remains represented."* All fourteen stay verbatim in
-    // contracts.json ("Please preserve provenance for the retired engine-authored wording").
+    // contracts.json ("Please preserve provenance for the retired engine-authored wording ...").
     //
     // **22 since ruling C53, the same day.** RPC-001-02 and RPC-001-03 — exactly one goalkeeper on every build-out
     // team and on every attacking team — stop being universal, his 9.4: *"Goalkeeper-or-controlled-restart
@@ -1114,7 +1114,7 @@ test('each of the five structural items got its own ruled treatment, not the bla
  *     his 9.5 — *"Approved, provided the live attacking objective remains represented"* — so the proviso is measured.
  *   - FUNCTIONAL, identified and approved: "own-half start area" out of RPC-001-13, his 9.10.
  * Every retired item stays verbatim in contracts.json: *"Please preserve provenance for the retired engine-authored
- * wording."*
+ * wording and identify any additional semantic changes before making them authoritative."*
  */
 const ENGINE_ONLY_RETIRED = ['RPC-001-04.a', 'RPC-001-04.b', 'RPC-001-04.c', 'RPC-001-05.a', 'RPC-001-05.b', 'RPC-001-06', 'RPC-001-09.a', 'RPC-001-09.b', 'RPC-001-16.a', 'RPC-001-16.b', 'RPC-001-16.c', 'RPC-001-20']
 const RPC = 'restated:RPC-001'
@@ -1190,6 +1190,50 @@ test('C51: the proviso — the live attacking objective remains represented, and
         assert.ok(![...staged.classified.keys()].some((id: string) => id.includes('RPC-001-11.a')), 'the separate objective and its unresolved reference are gone')
         const blockers = staged.gates.gateA.checks.find((c: any) => c.checkId === 'GA-NO-FAILED-LINE').subjects.filter((id: string) => id.includes('RPC-001'))
         assert.deepEqual(blockers.sort(), ['c:restated:RPC-001:RPC-001-18.a::V6', 'c:restated:RPC-001:RPC-001-18.f::V5', 'c:restated:RPC-001:RPC-001-19.a::V5'], 'RPC-001-11.a::J2 cleared; the other three context lines stay')
+    }
+})
+
+/**
+ * **Added in review, 15 October 2026: the one CHECK verdict C51 softens, pinned so it cannot pass unnoticed.**
+ * Retiring 11.a and 08.c (his 9.5, *"Retire the redundant separate scoring objective: Approved, provided the live
+ * attacking objective remains represented"*) moves GA-DIRECTION and nothing else at check level. Where the
+ * possession game is composed — A01's own compositions — it moves NOT_EVALUABLE -> DEFERRED_TO_REALIZATION: the
+ * objective whose target nothing positioned is gone, and the post-realization gate still judges the ends clause.
+ * Where RPC-001 is composed WITHOUT the possession game (alone, with the goal-kick situation, or with GF4 — no goal
+ * selects any of these) it moves FAIL -> NOT_EVALUABLE, because the context's own objective was the only one there:
+ * the context no longer gives any team an objective, so the proviso is met only through the game form's objectives.
+ * NOT_EVALUABLE still blocks realization, and Gate A stays FAIL in every one of them. Measured by putting the two
+ * items and their J2 claim back on a copy.
+ */
+test('C51: GA-DIRECTION is the only check that moves, and only as pinned here; Gate A stays as it was', () => {
+    const authored = rpc001AsAuthored()
+    const putBack = (input: DerivationInput) => {
+        input.contracts = JSON.parse(JSON.stringify(input.contracts))
+        const rpc: any = input.contracts.find(c => c.contractId === RPC)
+        for (const id of ['RPC-001-11.a', 'RPC-001-08.c']) {
+            const { id: itemId, ...rest } = authored.items.find((i: any) => i.id === id)
+            rpc.items.push({ itemId, ...rest })
+        }
+        const j2 = rpc.declarations.findIndex((d: any) => d.row === 'J2' && d.declaration === 'UNDECLARED' && d.note === 'RPC-001-08.c.')
+        assert.ok(j2 >= 0, 'the restated J2 declaration is found')
+        rpc.declarations[j2] = { ...rpc.declarations[j2], declaration: 'CLAIMED' }
+        return input
+    }
+    const checks = (staged: any) => Object.fromEntries([['Gate A', staged.gates.gateA.verdict], ...staged.gates.gateA.checks.map((c: any) => [c.checkId, c.verdict])])
+    const expected: [string, string[], string, string][] = [
+        ['GF2 + RPC-001', ['restated:GF2', RPC], 'NOT_EVALUABLE', 'DEFERRED_TO_REALIZATION'],
+        ['GF2 + RPC-001 + A01-02', ['restated:GF2', RPC, 'restated:A01-02'], 'NOT_EVALUABLE', 'DEFERRED_TO_REALIZATION'],
+        ['RPC-001', [RPC], 'FAIL', 'NOT_EVALUABLE'],
+        ['RPC-001 + A01-02', [RPC, 'restated:A01-02'], 'FAIL', 'NOT_EVALUABLE'],
+        ['GF4 + RPC-001', ['blind:GF4', RPC], 'FAIL', 'NOT_EVALUABLE'],
+    ]
+    for (const [name, ids, before, now] of expected) {
+        const was = checks(runStages0to10(putBack(composeFor(ids))))
+        const is = checks(runStages0to10(composeFor(ids)))
+        const moved = Object.keys({ ...was, ...is }).filter(k => was[k] !== is[k])
+        assert.deepEqual(moved, ['GA-DIRECTION'], `${name}: only the ends clause moves`)
+        assert.deepEqual([was['GA-DIRECTION'], is['GA-DIRECTION']], [before, now], name)
+        assert.equal(is['Gate A'], 'FAIL', `${name}: still refused`)
     }
 })
 
