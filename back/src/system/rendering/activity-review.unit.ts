@@ -186,13 +186,15 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
  * context lines (pinned below). It is no longer provisional: Gain Access is recorded.
  *
  * **15 October 2026, later — A01 moves back from `selection` to `structure`, with NO library constraint.** His reply
- * of that day (16 October, item 1) answered D1 with a general principle — *"A library constraint is not mandatory
+ * of that day (16 October, item 1) answered the 15 October email's zero-constraint question (that email's D1 — not
+ * the capability synthesis's D1 named below) with a general principle — *"A library constraint is not mandatory
  * unless its inclusion is justified by the approved knowledge and intended learning environment"* — and *"Please
  * proceed with Option A for Play Out from the Back."* Its record's evaluated set is empty, so it selects GF2, its
  * lenses and the context, and derivation refuses it at Gate A on FOUR context lines (measured, both with two
  * goalkeepers available and none): RPC-001-11.a::J2 (the build-out team's objective claims a target nothing resolves —
  * moves with his 9.5 cleanup, C51), 18.f::V5 and 19.a::V5 (the control and long-clearance referents — capability M8,
- * decisions D1/D3), and 18.a::V6 (the origin's "no further value", his 9.9 — capability M6, ruling C55). Selection
+ * after the capability synthesis's decisions D1, whether play stops at the progression target, and D3, where the two
+ * targets sit), and 18.a::V6 (the origin's "no further value", his 9.9 — capability M6, ruling C55). Selection
  * is no longer where this goal stops; its context's knowledge is.
  */
 {
@@ -302,8 +304,9 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
      * (16 October, item 1) this was measured on a COPY of the record with a TEST-ONLY ruling (G1.3, three lines pinned
      * by inclusion). Under his general principle it is the real build: selection commits GF2, its lenses and NO library
      * constraint; the context is carried; derivation stops at `structure` on exactly FOUR RPC-001 lines, with two
-     * goalkeepers available or none (measured). Each names what would move it (the synthesis of 15 October): 11.a::J2 —
-     * his 9.5 cleanup (C51); 18.f::V5 and 19.a::V5 — capability M8 after decisions D1/D3; 18.a::V6 — capability M6 and
+     * goalkeepers available or none (measured). Each names what would move it (the capability synthesis of 15 October,
+     * whose D/M ids these are — its D1 is not the 15 October email's D1): 11.a::J2 — his 9.5 cleanup (C51); 18.f::V5 and
+     * 19.a::V5 — capability M8 after decisions D1/D3; 18.a::V6 — capability M6 and
      * ruling C55 (his 9.9). The remaining work for this goal is its context's knowledge, not a constraint.
      */
     {

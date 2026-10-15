@@ -329,7 +329,7 @@ test('WHY C49 had to land with Option A, on a TEST-ONLY copy without it: the def
     assert.equal(stagedOver(() => compose(['restated:GF2', GATE]), () => undefined).gates.gateA.verdict, 'FAIL', 'with it, it does not')
 })
 
-test('TIGHTENED by C49 (15 October 2026): the gate composed with the second game form no longer counts passes anywhere', () => {
+test('TIGHTENED by C49 (15 October 2026): the gate composed with the second game form, or alone, no longer counts passes anywhere', () => {
     // Measured by probe that day. GF4 says nothing that is a requirement on V5, so under establishing-object
     // precedence the gate's C45 non-claim governed its own condition alone: 'not constrained', the position clause
     // deferred and the reference check passed — "explicitly unrestricted", in a composition no pathway reaches (the
@@ -339,6 +339,21 @@ test('TIGHTENED by C49 (15 October 2026): the gate composed with the second game
     assert.deepEqual(differences(stagedOver(make, gateV5AsBeforeC49), stagedOver(make, () => undefined)), [
         'Gate A GA-ONE-PRIMARY-EVENT: DEFERRED_TO_REALIZATION -> NOT_EVALUABLE',
         'Gate A GA-REFERENCE-INTEGRITY: PASS -> NOT_EVALUABLE',
+        `c:${GATE}:PCG-02::V5: NOT_AUTHORED/not constrained -> NOT_AUTHORED/declared gap`,
+    ])
+    // **H1 review, 15 October 2026 — the gate ALONE moves too, and was in no composition list.** Measured by diffing
+    // every line and every Gate A check over twenty compositions with the restatements before and after C49: besides
+    // GF4 + gate, the gate composed with nothing tightens the same way (its place was 'not constrained' with no other
+    // object to speak), and here the failed line also fails GA-NO-FAILED-LINE, so Gate A goes NOT_EVALUABLE -> FAIL.
+    // Reachable by no pathway (the gate is held from every Learning Goal and its demonstration composes GF2). A
+    // tightening; nothing relaxes. With C49 and C50 together no other composition moves (the test above).
+    const alone = () => compose([GATE])
+    const before = stagedOver(alone, gateV5AsBeforeC49)
+    const now = stagedOver(alone, () => undefined)
+    assert.deepEqual(differences(before, now), [
+        'Gate A GA-NO-FAILED-LINE: PASS -> FAIL',
+        'Gate A GA-REFERENCE-INTEGRITY: PASS -> NOT_EVALUABLE',
+        'Gate A verdict: NOT_EVALUABLE -> FAIL',
         `c:${GATE}:PCG-02::V5: NOT_AUTHORED/not constrained -> NOT_AUTHORED/declared gap`,
     ])
 })

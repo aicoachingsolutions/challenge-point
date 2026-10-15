@@ -521,11 +521,14 @@ export function buildActivityOverAlteredSelection(
  * **For tests, and for nothing that serves a coach.** The identical pathway for a Learning Goal, selected under a
  * COPY of the authorization records — added 15 October 2026.
  *
- * His item 1 of that day leaves Play Out from the Back with no authorized library constraint, and whether it may
- * then be built with none is his decision D1, so production data says nothing may be committed. The mechanism that
- * would commit zero constraints under such a ruling has to be proved before he answers, on the real chain and not a
- * copy of it. A test hands this a deep copy of the records with a test-only ruling; the shared records are never
- * touched, and neither entry point above accepts the argument.
+ * Added to prove, on the real chain, a zero-constraint commitment that production data did not yet allow (his 15
+ * October item 1 left Play Out from the Back with no authorized library constraint, and whether it could be built
+ * with none was put to him). Since his general principle later that day (16 October reply, item 1) production
+ * commits it for any record whose evaluated set is empty, so tests now hand this a deep copy of the records to show
+ * the OTHER states — a record not yet evaluated (`authorizedConstraints: null`) staying the gap, or any goal given an
+ * evaluated, empty record behaving as Play Out from the Back does. The shared records are never touched, and neither
+ * entry point above accepts the argument. (H1 review, 15 October 2026: this note still described the retired
+ * per-goal ruling.)
  */
 export function buildActivityUnderAuthorizationRecords(
     request: Extract<ActivityRequest, { kind: 'learning-goal' }>,
