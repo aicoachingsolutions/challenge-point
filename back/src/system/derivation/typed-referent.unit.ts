@@ -370,9 +370,12 @@ test('the corpus-wide Gate A, check by check', () => {
         'GA-DIRECTION': 'DEFERRED_TO_REALIZATION',
         'GA-EFFECT-TYPED': 'PASS',
         'GA-ENVELOPE-FIT': 'DEFERRED_TO_REALIZATION',
-        // Added 15 October 2026 (the eighteenth check): no condition in the corpus is authored for an episode yet, so
-        // it passes with no applicable instance. It FAILS once C52 restates the build-out conditions (pinned there).
-        'GA-EPISODE-REACHABLE': 'PASS',
+        // Added 15 October 2026 (the eighteenth check), passing with no applicable instance until C52 the same day
+        // scoped RPC-001's four build-out conditions to the build-out episode (his 9.3). Corpus-wide the goal-kick
+        // situation (A01-02) holds a restart transition that might begin one, and its taker is unauthored, so the
+        // check cannot tell and withholds: NOT_EVALUABLE, never a pass. Composed without A01-02 it FAILS
+        // (condition-scope.unit.ts).
+        'GA-EPISODE-REACHABLE': 'NOT_EVALUABLE',
         'GA-INFORMATION': 'FAIL',
         'GA-LAYOUT-FEASIBLE': 'DEFERRED_TO_REALIZATION',
         'GA-MODIFIER-OVERLAP': 'NOT_EVALUABLE',

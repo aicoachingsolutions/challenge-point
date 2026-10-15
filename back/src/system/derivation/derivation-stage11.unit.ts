@@ -305,9 +305,12 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
     // 45 -> 46 on 15 October 2026 (C51): RPC-001-13's statement of direction loses the engine wording "own-half start
     // area" (his reply received that day, item 9 point 10: "Remove unsupported "own-half start area" wording:
     // Approved."). Pinned in the C51 test below.
+    // 46 -> 55 the same day (C52): the nine items of RPC-001's build-out condition (18.a-18.g, 19.a, 19.b) scoped
+    // WHOLE_GAME -> BUILD_OUT_EPISODE, his 16 October 9.3: "Build-out condition applies only to build-out episodes:
+    // Approved." Pinned in condition-scope.unit.ts.
     assert.equal(
         restatementTally.itemsRestated,
-        46,
+        55,
         'six Phase A rulings, six sets (SD-79), two exclusion bounds (SD-86), eight goal-kick selectors (SD-87), one restart ownership (SD-89), ' +
             'one typed reference (SD-98), one Wide Zone gloss (C29a), one DISTINCT_ON mark (C29b/C29e), two typed neutral bounds (C29c), ' +
             'one typed channel width (C30b), one equal-outfield promotion (C31b), three Wide Zone lateral restatements (C33), ' +
@@ -322,7 +325,8 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
             'of 4–6, not a requirement or a predetermined starting count"). Neither approves the gate for a Learning Goal — ' +
             'and, from 45 the same day, his bibs ruling (C47): NEUTRAL-06.b, the authored means, marked SUPPORTING ("Contrasting bibs should be ' +
             'treated as a practical recommendation for distinguishing neutrals, not a universal requirement"); its value stays a preferred default — ' +
-            'and, from 46 on 15 October 2026, RPC-001-13 without "own-half start area" (C51, his 9.10)',
+            'and, from 46 on 15 October 2026, RPC-001-13 without "own-half start area" (C51, his 9.10) — ' +
+            'and, from 55 the same day, the nine build-out condition items scoped to the build-out episode (C52, his 9.3)',
     )
     // **4 since ruling C42.** GF2-08.a and GF2-03.a are retired — the shared objective's existence and the
     // target it referenced — so the game holds exactly two objectives and two targets rather than three of each.

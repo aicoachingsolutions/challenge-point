@@ -23,7 +23,7 @@ import { isStampedHalt } from './emit'
 import { runDerivation, runStages0to10 } from './engine'
 import { runGates } from './gates'
 import { indexRegister } from './register'
-import { derivationInputFor } from './run-bounded-selection'
+import { derivationInputFor, selectFor } from './run-bounded-selection'
 import { DerivationInput, ElementClass } from './types'
 import { nothingInvented, nothingLost } from '../realization/realize'
 import { contextScoringFindings } from '../rendering/context-scoring-guard'
@@ -156,6 +156,34 @@ test('GA-EPISODE-REACHABLE never passes a candidate it cannot judge: it defers o
     classified.set('c:TEST-ONLY:START::T3', { lineId: 'c:TEST-ONLY:START::T3', verdict: 'FREE(choice)', lineState: 'ENUMERATED' } as any)
     const open = runGates({ ...ctx, classes: [...ctx.classes, start], classified })
     assert.equal(episodeCheck(open.gateA).verdict, 'DEFERRED_TO_REALIZATION', 'the taker is a choice realization still owes')
+})
+
+// ── C52, the same day: the build-out condition restated to the build-out episode, in production ──────────────
+
+test('C52: the nine items of the build-out condition carry BUILD_OUT_EPISODE, and nothing else about them moved', () => {
+    const rpc = loadCorpusContracts().find(c => c.contractId === RPC)!
+    for (const id of CONDITION_ITEMS) assert.equal(rpc.items.find(i => i.itemId === id)?.scope, 'BUILD_OUT_EPISODE', id)
+    // No other RPC-001 item is episode-scoped by this ruling (11.b was authored so; nothing else is).
+    assert.deepEqual(rpc.items.filter(i => i.scope === 'BUILD_OUT_EPISODE').map(i => i.itemId).sort(), [...CONDITION_ITEMS, 'RPC-001-11.b'].sort())
+})
+
+test('C52, EXPECTED AND PINNED: Play Out from the Back is refused at Gate A naming the scope — no transition can begin a build-out episode', () => {
+    // A01's real selection (GF2, its lenses, RPC-001; no library constraint under his general principle).
+    const input = derivationInputFor(selectFor('A01', null))
+    const staged: any = runStages0to10(input)
+    const check = episodeCheck(staged.gates.gateA)
+    assert.equal(check.verdict, 'FAIL')
+    assert.ok(check.why.includes('BUILD_OUT_EPISODE') && check.why.includes('possession change begins an attacking episode, never a build-out one'), check.why)
+    const result = runDerivation(input)
+    assert.ok(!isStampedHalt(result))
+    const game: any = assembleResolvedGame(result as any, staged.classes, indexRegister(input.register), input.contracts)
+    assert.deepEqual(conditionsOf(game).map(c => c.scope), ['BUILD_OUT_EPISODE', 'BUILD_OUT_EPISODE', 'BUILD_OUT_EPISODE', 'BUILD_OUT_EPISODE'], 'the four conditions carry it into the resolved game')
+    // What would move it: capability M3 (START and SCORE transition elements asserted from knowledge), which goes to
+    // him first. The same composition with the goal-kick situation holds a restart transition whose taker is
+    // unauthored, so there the check withholds (NOT_EVALUABLE) rather than fails — still never a pass.
+    const withGoalKick: any = runStages0to10(compose(['restated:GF2', RPC, 'restated:A01-02']))
+    assert.equal(episodeCheck(withGoalKick.gates.gateA).verdict, 'NOT_EVALUABLE')
+    assert.deepEqual(episodeCheck(withGoalKick.gates.gateA).blockedBy, ['c:restated:A01-02:A01-02-01.a::T3'])
 })
 
 // ── Every downstream reader honours the scope or reports that it cannot ──────────────────────────────────────

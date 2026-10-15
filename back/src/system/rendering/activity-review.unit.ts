@@ -313,6 +313,12 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
      * **4 -> 3 lines on 15 October 2026 (C51), measured.** 11.a::J2 cleared as predicted: his 9.5 retired the
      * context's separate scoring objective — *"Approved, provided the live attacking objective remains represented"* —
      * and each team keeps its own live objective (the proviso is pinned in derivation-stage11.unit.ts).
+     *
+     * **And a second failing check the same day, as expected (C52), measured.** His 9.3 — *"Build-out condition applies
+     * only to build-out episodes: Approved."* — scopes the four build-out conditions to the build-out episode, and the
+     * engine now carries that scope. The game holds no transition that can begin a build-out episode (its only
+     * transition is a possession change), so GA-EPISODE-REACHABLE fails, naming the scope. What would move it is
+     * capability M3 — START and SCORE transition elements from knowledge — which goes to him first.
      */
     {
         for (const keepers of [2, 0]) {
@@ -320,7 +326,7 @@ const text = (activity: ServedActivity, section: string) => activity.rendered.in
             assert.equal(reached.stage, 'structure', JSON.stringify(reached.reasons))
             assert.deepEqual(reached.reasons, [
                 'Gate A is FAIL',
-                'a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE',
+                'a pre-realization Gate A invariant fails: GA-EPISODE-REACHABLE, GA-NO-FAILED-LINE',
                 '3 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-001:RPC-001-18.f::V5, c:restated:RPC-001:RPC-001-19.a::V5, c:restated:RPC-001:RPC-001-18.a::V6',
             ])
             assert.deepEqual(reached.account.constraints, [], 'no library constraint was selected')
