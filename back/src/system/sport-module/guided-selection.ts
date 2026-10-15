@@ -33,7 +33,12 @@ import type { InputConstraintHints } from '../input-constraints/deriveInputConst
 import { deriveInputConstraints } from '../input-constraints/deriveInputConstraints'
 import { SIGNAL_GROUP_TO_GAME_PROBLEM } from '../knowledge-core/affordance-target-matrix'
 import { gameProblemsForLearningGoal, sessionPlanningModel } from '../session-planning/session-planning-model'
-import { learningGoalAuthorization, learningGoalAuthorizations, LearningGoalAuthorization } from '../test-library/learning-goal-authorizations'
+import {
+    learningGoalAuthorization,
+    learningGoalAuthorizations,
+    LearningGoalAuthorization,
+    validateLearningGoalAuthorizations,
+} from '../test-library/learning-goal-authorizations'
 import { gateCandidateGameFormsToContext } from './context-selection'
 import { soccerModule } from './soccer-module'
 
@@ -193,6 +198,10 @@ export function guidedSelectionHints(
     goalText: string,
     records: LearningGoalAuthorization[] = learningGoalAuthorizations()
 ): GuidedSelectionHints {
+    // Records handed in are held to the loader's own gate (G1 review, 15 October 2026): a test copy that authorized
+    // a held or excluded constraint, or cited no ruling, used to be read unchecked — the gate guarded only the file.
+    const damaged = validateLearningGoalAuthorizations(records)
+    if (damaged.length) throw new Error(`the authorization records failed their integrity gate: ${damaged.join(' | ')}`)
     const governed = governByApprovedGameProblem(learningGoalId, deriveInputConstraints(goalText))
     const authorization = learningGoalAuthorization(learningGoalId, records)
     const authorized = authorization ? hintsUnderAuthorization(governed.hints, authorization) : governed.hints

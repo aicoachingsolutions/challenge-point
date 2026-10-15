@@ -22,7 +22,7 @@ import {
     translationStatus,
     validateSessionPlanningModel,
 } from './session-planning-model'
-import { projectSessionPlanningWorkbook, projectSessionPlanningWorkbookObject, readSheetCells } from './workbook-projection'
+import { crc32, projectSessionPlanningWorkbook, projectSessionPlanningWorkbookObject, readSheetCells, readZipEntries, zipEntryData } from './workbook-projection'
 
 const XLSX = path.resolve(__dirname, '../../../data/session-planning/session-planning-model.rc1.xlsx')
 const JSON_PATH = path.resolve(__dirname, 'session-planning-model.rc1.json')
@@ -71,6 +71,65 @@ function testCommittedJsonIsTheWorkbookProjection(): void {
     const found = engineTranslationDisagreements(altered, imported)
     assert.equal(found.length, 1, `exactly one disagreement, got ${found.join(' | ')}`)
     assert.ok(found[0].startsWith('A01 Primary GP IDs:'), found[0])
+
+    /**
+     * **And it bites on the WORKBOOK, not only on a copy of the projection** (G1 review, 15 October 2026). The case
+     * above alters the projected object, which proves the comparer; it never handed the projector a changed
+     * workbook. Here the committed archive is rebuilt (every entry stored, so no deflate is involved): untouched it
+     * still projects to the committed JSON, and with A01's Primary changed, or a Secondary written into C2 (his
+     * Cycle 8 §4 deferral, retained on 15 October), it does not — so an approval written into one file and not the
+     * other cannot load quietly.
+     */
+    const entries = readZipEntries(zip).map(entry => ({ name: entry.name, data: zipEntryData(zip, entry) }))
+    const sheet = 'xl/worksheets/sheet5.xml'
+    const rebuilt = (from: string, to: string) =>
+        storedZip(entries.map(entry => (entry.name === sheet ? { name: entry.name, data: Buffer.from(entry.data.toString('utf8').replace(from, to), 'utf8') } : entry)))
+    assert.equal(projectSessionPlanningWorkbook(storedZip(entries)), committed, 'the rebuilt archive, untouched, is still the committed projection')
+    for (const [from, to, what] of [
+        ['<t>GP-005</t>', '<t>GP-006</t>', "A01's Primary changed"],
+        ['<c r="C2" s="4" t="n" />', '<c r="C2" s="4" t="inlineStr"><is><t>GP-010</t></is></c>', 'a Secondary written for A01'],
+    ]) {
+        assert.ok(entries.find(entry => entry.name === sheet)!.data.toString('utf8').includes(from), `${what}: the anchor exists`)
+        assert.notEqual(projectSessionPlanningWorkbook(rebuilt(from, to)), committed, `${what}: the workbook no longer projects to the committed JSON`)
+    }
+}
+
+/** For the test above only: a ZIP archive with every entry STORED (method 0), written from scratch. */
+function storedZip(files: { name: string; data: Buffer }[]): Buffer {
+    const locals: Buffer[] = []
+    const centrals: Buffer[] = []
+    let offset = 0
+    for (const file of files) {
+        const name = Buffer.from(file.name, 'utf8')
+        const crc = crc32(file.data)
+        const local = Buffer.alloc(30)
+        local.writeUInt32LE(0x04034b50, 0)
+        local.writeUInt16LE(20, 4)
+        local.writeUInt32LE(crc, 14)
+        local.writeUInt32LE(file.data.length, 18)
+        local.writeUInt32LE(file.data.length, 22)
+        local.writeUInt16LE(name.length, 26)
+        const central = Buffer.alloc(46)
+        central.writeUInt32LE(0x02014b50, 0)
+        central.writeUInt16LE(20, 4)
+        central.writeUInt16LE(20, 6)
+        central.writeUInt32LE(crc, 16)
+        central.writeUInt32LE(file.data.length, 20)
+        central.writeUInt32LE(file.data.length, 24)
+        central.writeUInt16LE(name.length, 28)
+        central.writeUInt32LE(offset, 42)
+        locals.push(local, name, file.data)
+        centrals.push(central, name)
+        offset += local.length + name.length + file.data.length
+    }
+    const directory = Buffer.concat(centrals)
+    const end = Buffer.alloc(22)
+    end.writeUInt32LE(0x06054b50, 0)
+    end.writeUInt16LE(files.length, 8)
+    end.writeUInt16LE(files.length, 10)
+    end.writeUInt32LE(directory.length, 12)
+    end.writeUInt32LE(offset, 16)
+    return Buffer.concat([...locals, directory, end])
 }
 
 /**

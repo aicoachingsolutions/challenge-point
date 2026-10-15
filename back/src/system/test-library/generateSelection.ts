@@ -996,10 +996,15 @@ export function generateSelection(
      *     account can name it (the production state);
      *   - record-backed, empty, a cited ruling → commit the game form and lenses with zero constraints;
      *   - anything else, including a vocabulary pool that happens to be empty → the 2–4 rule and its gaps as before.
+     *
+     * "Empty" is the AUTHORIZED SET, never the pool left after holds (G1 review, 15 October 2026). A record that
+     * authorizes a constraint which a hold then removes did not rule that the goal may carry none; measured, it
+     * committed zero constraints under the ruling. It now meets the ordinary path and its NO_SELECTABLE_CANDIDATES gap.
      */
     const recordBacked = constraintPool.source === 'AUTHORIZATION_RECORD'
-    const zeroConstraintCommitment = recordBacked && !allConstraints.length && constraintPool.zeroConstraintRuling !== null
-    if (recordBacked && !allConstraints.length && !zeroConstraintCommitment) gapFor(archetype.game_form_id)('NO_AUTHORIZED_CONSTRAINTS')
+    const authorizesNone = recordBacked && constraintPool.candidateIds.length === 0
+    const zeroConstraintCommitment = authorizesNone && constraintPool.zeroConstraintRuling !== null
+    if (authorizesNone && !zeroConstraintCommitment) gapFor(archetype.game_form_id)('NO_AUTHORIZED_CONSTRAINTS')
 
     const lensScored = scoreAllLenses(tokens, archetype, archeAffordances)
     const lensScoreById = new Map(lensScored.map((r) => [r.lens.id, r] as const))

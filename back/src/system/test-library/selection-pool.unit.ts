@@ -25,7 +25,7 @@ import type { ISession } from '../../models/session.model'
 import { deriveInputConstraints } from '../input-constraints/deriveInputConstraints'
 import { mechanismDemonstration } from '../rendering/mechanism-demonstrations'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
-import { guidedSelectionHints } from '../sport-module/guided-selection'
+import { guidedSelectionHints, hintsUnderAuthorization } from '../sport-module/guided-selection'
 import { validateConstraintPackage } from '../validate-constraint-package'
 import { constraintPoolFor, generateSelection, isSelectionKnowledgeGap, SelectionKnowledgeGap } from './generateSelection'
 import { learningGoalSelectionHolds } from './learning-design-holds'
@@ -325,6 +325,30 @@ const outcomes = new Map(GOALS.map(id => [id, select(id)] as const))
     // Hints carrying A01's record cannot select another goal.
     assert.throws(() => constraintPoolFor(ruled, 'A05'), /carry the authorization record of A01 and were used to select A05/)
     assert.throws(() => constraintPoolFor(ruled, null), /were used to select free text/)
+
+    /**
+     * **"No constraint" means the record AUTHORIZES none — not that a hold emptied what it authorized** (G1 review,
+     * 15 October 2026). Measured before the repair: a copy authorizing only the held Pass Combination Gate, with a
+     * ruling, committed ZERO constraints — the ruling answered a question the record never asked. And the copy reached
+     * selection unchecked, because the integrity gate guarded only the file. Now the copy is refused at the hints by
+     * the same gate, and the selector, handed such hints directly, takes the ordinary path and its old gap.
+     */
+    const heldOnly = learningGoalAuthorizations()
+    heldOnly[0].authorizedConstraints = [PCG]
+    heldOnly[0].excluded = heldOnly[0].excluded.filter(exclusion => exclusion.knowledgeId !== PCG)
+    heldOnly[0].zeroConstraintRuling = { ruledOn: 'TEST-ONLY', by: 'test', ruling: 'TEST-ONLY: never production data' }
+    assert.throws(() => guidedSelectionHints('A01', text, heldOnly), /integrity gate: A01: authorizes tl-v0-constraint-pass-combination-gate, which a ruling holds/)
+    const uncited = learningGoalAuthorizations()
+    uncited[0].zeroConstraintRuling = { ruledOn: 'TEST-ONLY', by: '', ruling: 'no one ruled this' }
+    assert.throws(() => guidedSelectionHints('A01', text, uncited), /a zero-constraint ruling must cite/)
+    const direct = hintsUnderAuthorization(guidedSelectionHints('A01', text).hints, heldOnly[0])
+    let filtered: unknown = null
+    try {
+        quietly(() => generateSelection({ learningGoals: [text], learningGoalId: 'A01' }, direct))
+    } catch (error) {
+        filtered = error
+    }
+    assert.ok(isSelectionKnowledgeGap(filtered) && filtered.reason === 'NO_SELECTABLE_CANDIDATES', `an authorized set a hold empties is not a zero-constraint commitment: ${String(filtered)}`)
     assert.equal(learningGoalAuthorizations()[0].zeroConstraintRuling, null, 'the production record is untouched')
 }
 
