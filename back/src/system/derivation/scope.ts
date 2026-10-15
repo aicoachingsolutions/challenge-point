@@ -10,6 +10,8 @@
  * invented." A declaration is therefore never stored inside its items' resolution.
  */
 
+import { RegisterIndex } from './register'
+import { ParseResult, parseSelector } from './selector'
 import { ElementClass, ItemRef, LoadedContract, NamedDiagnostic } from './types'
 
 export interface ApplicationSet {
@@ -26,7 +28,32 @@ export interface DeclarationReach {
     scope: string | null
     /** Kept whether or not the scope resolved empty (SD-31). */
     preserved: true
+    /**
+     * **The selector, as authored, and what it parses to — carried since 15 October 2026 (stage G2).**
+     *
+     * Until then this record was built field by field and the selector was not one of the fields, so every
+     * declaration on a row reached every line on that row, from every contract, whatever it said it was about.
+     * (Measured: a declaration selected on one condition type reached a condition of another type.)
+     * That is the allowlist pattern behind this project's costliest losses, and his 15 October answer
+     * 9 makes the selector load-bearing — *"Specific knowledge governs where it explicitly defines or specializes
+     * a condition"* is a question about WHICH condition a declaration addresses.
+     *
+     * `parsed` is the selector read against the declaration's own row by the one parser, or the defect it
+     * found. Reading it is `governingDeclarations`'s business (classify.ts); this stage only carries it.
+     */
+    selector: unknown
+    parsed: ParseResult
+    /** The authored note, carried whole: the reason a declaration was written travels with it. */
+    note: unknown
 }
+
+/**
+ * **Fields of an authored declaration that `DeclarationReach` deliberately does not carry, each with its
+ * reason.** Empty, and meant to stay short: the key-identity test in derivation-stage68.unit.ts fails for any
+ * authored field that is neither carried nor named here, so a field added to the knowledge later cannot be
+ * dropped at this boundary without someone writing down why (15 October 2026).
+ */
+export const DECLARATION_FIELDS_NOT_CARRIED: Readonly<Record<string, string>> = {}
 
 export interface ScopeOutcome {
     applicationSets: ApplicationSet[]
@@ -67,7 +94,7 @@ function fixOwnInvolvement(contract: LoadedContract, classes: ElementClass[]): s
         .sort()
 }
 
-export function resolveScopes(contracts: LoadedContract[], classes: ElementClass[]): ScopeOutcome {
+export function resolveScopes(contracts: LoadedContract[], classes: ElementClass[], index: RegisterIndex): ScopeOutcome {
     const applicationSets: ApplicationSet[] = []
     const declarations: DeclarationReach[] = []
     const ownInvolvement = new Map<string, string[]>()
@@ -112,12 +139,16 @@ export function resolveScopes(contracts: LoadedContract[], classes: ElementClass
         }
 
         for (const declaration of contract.declarations || []) {
+            const row = String(declaration.row)
             declarations.push({
                 contractId: contract.contractId,
-                row: String(declaration.row),
+                row,
                 declaration: String(declaration.declaration),
                 scope: declaration.scope === undefined || declaration.scope === null ? null : String(declaration.scope),
                 preserved: true,
+                selector: declaration.selector,
+                parsed: parseSelector(declaration.selector, row, index),
+                note: declaration.note,
             })
         }
     }

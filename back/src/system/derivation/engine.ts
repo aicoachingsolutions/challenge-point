@@ -762,7 +762,7 @@ export function runStages0to5(input: DerivationInput): PartialResult & {
     const index = indexRegister(input.register)
     const admitted = (input.contracts || []).filter(c => !base.failures.some(f => f.kind === 'LOAD_REFUSAL' && f.locus.contractId === c.contractId))
 
-    const scope = resolveScopes(admitted, base.classes)
+    const scope = resolveScopes(admitted, base.classes, index)
     base.diagnostics.push(...scope.diagnostics) // SD-93 — carried to the emitted result, never dropped
     for (const divergence of scope.divergence) {
         base.refusals.push({

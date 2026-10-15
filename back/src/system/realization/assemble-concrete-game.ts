@@ -315,7 +315,7 @@ function rosterFor(ctx: GateContext, realized: Realized, supposing?: Supposing):
      * count, and a declaration elsewhere may not read its silence as none.
      */
     let scopes: ReturnType<typeof resolveScopes> | null = null
-    const scoped = () => (scopes = scopes ?? resolveScopes(ctx.contracts, ctx.classes))
+    const scoped = () => (scopes = scopes ?? resolveScopes(ctx.contracts, ctx.classes, ctx.index))
 
     /**
      * **What the knowledge AUTHORS about this team's count — added in review, 13 October.**
